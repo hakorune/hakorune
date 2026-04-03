@@ -87,7 +87,7 @@ Scope: stage0/bootstrap lane の remaining direct/core route ownership を harde
 | --- | --- |
 | Now | `phase-41x stage0 direct/core route hardening` |
 | Blocker | `none` |
-| Next | `next source lane selection` |
+| Next | `phase-42x vm caller starvation / direct-core owner migration` |
 
 - `41xA2` landed: proof-only VM gate set is frozen and non-growing
 - `41xB1` landed: selfhost_build.sh direct/core route hardening is fixed as a route facade

@@ -37,18 +37,20 @@ Scope: repo root から current order / current blocker / next exact read に最
 15. `phase-37x bootstrap owner split` (landed)
 16. `phase-38x cleanup/archive sweep` (landed)
 17. `phase-39x stage0 vm gate thinning` (landed)
-18. `phase-41x stage0 direct/core route hardening` (landed)
+18. `phase-40x stage0 vm archive candidate selection` (landed)
+19. `phase-41x stage0 direct/core route hardening` (landed)
+20. `phase-42x vm caller starvation / direct-core owner migration` (active)
 
 - `K-axis` stays `K0 / K1 / K2` and is read as a build/runtime stage axis, not a task axis.
 - current stage progression reads as `K0 -> K1 -> K2`.
 - `K2-core` / `K2-wide` are task packs inside `K2`.
 - `K2-core` is closed.
-- `K2-wide` boundary-shrink lock-down is landed enough to hand off; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, `phase-29x backend owner cutover prep` is landed, `phase-30x backend surface simplification` is landed, `phase-31x engineering lane isolation` is landed, `phase-32x product / engineering split` is landed, `phase-33x shared helper family recut` is landed, `phase-34x stage0 shell residue split` is landed, `phase-35x stage-a compat route thinning` is landed, `phase-36x selfhost source / stage1 bridge split` is landed, `phase-37x bootstrap owner split` is landed, `phase-38x cleanup/archive sweep` is landed, `phase-39x stage0 vm gate thinning` is landed, `phase-40x stage0 vm archive candidate selection` is landed, and current active lane is `next source lane selection`.
+- `K2-wide` boundary-shrink lock-down is landed enough to hand off; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, `phase-29x backend owner cutover prep` is landed, `phase-30x backend surface simplification` is landed, `phase-31x engineering lane isolation` is landed, `phase-32x product / engineering split` is landed, `phase-33x shared helper family recut` is landed, `phase-34x stage0 shell residue split` is landed, `phase-35x stage-a compat route thinning` is landed, `phase-36x selfhost source / stage1 bridge split` is landed, `phase-37x bootstrap owner split` is landed, `phase-38x cleanup/archive sweep` is landed, `phase-39x stage0 vm gate thinning` is landed, `phase-40x stage0 vm archive candidate selection` is landed, `phase-41x stage0 direct/core route hardening` is landed, and current active lane is `phase-42x vm caller starvation / direct-core owner migration`.
 
 ## Immediate Handoff
 
-- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, `phase-29x` cleanup is closed, `phase-30x` ownership flip is landed, `phase-31x` engineering rehome sweep is landed, `phase-32x` mixed-owner split is landed, `phase-33x` helper-family recut is landed, `phase-34x` shell-residue split is landed, `phase-35x` stage-a compat route thinning is landed, `phase-36x` selfhost source / stage1 bridge split is landed, `phase-37x` bootstrap owner split is landed, `phase-38x` cleanup/archive sweep is landed, `phase-39x` stage0 vm gate thinning is landed, `phase-40x` stage0 vm archive candidate selection is landed, and the current active front is `next source lane selection`.
-- Active lane: `next-source-lane-selection`
+- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, `phase-29x` cleanup is closed, `phase-30x` ownership flip is landed, `phase-31x` engineering rehome sweep is landed, `phase-32x` mixed-owner split is landed, `phase-33x` helper-family recut is landed, `phase-34x` shell-residue split is landed, `phase-35x` stage-a compat route thinning is landed, `phase-36x` selfhost source / stage1 bridge split is landed, `phase-37x` bootstrap owner split is landed, `phase-38x` cleanup/archive sweep is landed, `phase-39x` stage0 vm gate thinning is landed, `phase-40x` stage0 vm archive candidate selection is landed, `phase-41x` stage0 direct/core route hardening is landed, and the current active front is `phase-42x vm caller starvation / direct-core owner migration`.
+- Active lane: `phase-42x-vm-caller-starvation-direct-core-owner-migration`
 - Axis and lane detail is canonical in:
   - `docs/development/current/main/phases/phase-29x/README.md`
   - `docs/development/current/main/phases/phase-29x/29x-90-integration-checklist.md`
@@ -78,6 +80,15 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `docs/development/current/main/phases/phase-39x/README.md`
   - `docs/development/current/main/phases/phase-39x/39x-90-stage0-vm-gate-thinning-ssot.md`
   - `docs/development/current/main/phases/phase-39x/39x-91-task-board.md`
+  - `docs/development/current/main/phases/phase-40x/README.md`
+  - `docs/development/current/main/phases/phase-40x/40x-90-stage0-vm-archive-candidate-selection-ssot.md`
+  - `docs/development/current/main/phases/phase-40x/40x-91-task-board.md`
+  - `docs/development/current/main/phases/phase-41x/README.md`
+  - `docs/development/current/main/phases/phase-41x/41x-90-stage0-direct-core-route-hardening-ssot.md`
+  - `docs/development/current/main/phases/phase-41x/41x-91-task-board.md`
+  - `docs/development/current/main/phases/phase-42x/README.md`
+  - `docs/development/current/main/phases/phase-42x/42x-90-vm-caller-starvation-direct-core-migration-ssot.md`
+  - `docs/development/current/main/phases/phase-42x/42x-91-task-board.md`
   - `docs/development/current/main/phases/phase-33x/README.md`
   - `docs/development/current/main/phases/phase-33x/33x-90-shared-helper-family-recut-ssot.md`
   - `docs/development/current/main/phases/phase-33x/33x-91-task-board.md`
@@ -92,7 +103,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `stage2plus entry / first optimization wave` is accepted
   - `phase-30x backend surface simplification` is landed
   - `phase-32x product / engineering split` is landed
-  - current active lane is `next source lane selection`
+  - current active lane is `phase-42x vm caller starvation / direct-core owner migration`
 - landed rows already accepted:
   - `RawMap` first slice
   - `RawMap.clear`
@@ -109,16 +120,19 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `next source lane selection`
+- Active next: `phase-42x vm caller starvation / direct-core owner migration`
 - Current blocker: `none`
-- Exact focus: `next source lane selection`
+- Exact focus: `phase-42x vm caller starvation / direct-core owner migration`
   - `phase-32x` is landed; mixed-owner source/smoke split and raw default/token defer are fixed
   - `phase-33x` is landed; helper-family path truth and keep gates are fixed
   - `41xA1` landed: remaining direct/core route facades and caller families are inventoried
   - `41xA2` landed: proof-only VM gate set is frozen and non-growing
   - `41xB1` landed: selfhost_build.sh direct/core route hardening is fixed as a route facade
   - `41xB2` landed: run.sh facade trim is fixed as a route facade
-  - vm.rs proof/oracle shrink is landed; current next cleanup is next source lane selection, not new vm gate growth
+  - `phase-41x` is landed; direct/core mainline hardening and vm proof/oracle shrink are closed
+  - `phase-42x` starts vm caller starvation and direct/core owner migration
+  - `42xA1` current: caller-starvation targets are locked for `selfhost_build.sh` / `run.sh` / `child.rs` / `vm.rs`
+  - `42xA2` next: proof-only VM keep set is frozen as explicit `do-not-grow`
   - current backend reading stays role-first:
     - `llvm/exe` = `product`
     - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
@@ -161,9 +175,9 @@ Scope: repo root から current order / current blocker / next exact read に最
   - raw backend default still stays deferred; no-touch-first remains on `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, and `tools/selfhost/selfhost_build.sh`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
-  2. `docs/development/current/main/phases/phase-41x/README.md`
-  3. `docs/development/current/main/phases/phase-41x/41x-90-stage0-direct-core-route-hardening-ssot.md`
-  4. `docs/development/current/main/phases/phase-41x/41x-91-task-board.md`
+  2. `docs/development/current/main/phases/phase-42x/README.md`
+  3. `docs/development/current/main/phases/phase-42x/42x-90-vm-caller-starvation-direct-core-migration-ssot.md`
+  4. `docs/development/current/main/phases/phase-42x/42x-91-task-board.md`
   5. `cargo check --manifest-path Cargo.toml --bin hakorune`
 - Plain reading:
   - every live `--backend vm` bootstrap route is still a future feature tax on `rust-vm`
@@ -176,9 +190,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Item | State |
 | --- | --- |
-| Now | `next source lane selection` |
+| Now | `phase-42x vm caller starvation / direct-core owner migration` |
 | Blocker | `none` |
-| Next | `phase-42x selection` |
+| Next | `42xA1 caller starvation target lock` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -192,8 +206,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `next source lane selection` | keep direct/core mainline ownership hard while proof-only VM keeps stay frozen |
-| Next | `phase-42x selection` | pick the successor phase after lane selection |
+| Now | `phase-42x vm caller starvation / direct-core owner migration` | starve live vm-gated callers and move day-to-day owner flow to direct/core routes |
+| Next | `phase-43x selection` | pick the successor phase after proof/closeout handoff |
 | Later | `kilo` optimization wave | far-future optimization lane |
 | After `37xD1` | `cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
 
@@ -245,6 +259,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 - optimization history hub:
   - `docs/development/current/main/design/optimization/README.md`
 - current phase-order context:
+  - `docs/development/current/main/phases/phase-42x/README.md`
+  - `docs/development/current/main/phases/phase-42x/42x-90-vm-caller-starvation-direct-core-migration-ssot.md`
+  - `docs/development/current/main/phases/phase-42x/42x-91-task-board.md`
   - `docs/development/current/main/phases/phase-41x/README.md`
   - `docs/development/current/main/phases/phase-41x/41x-90-stage0-direct-core-route-hardening-ssot.md`
   - `docs/development/current/main/phases/phase-41x/41x-91-task-board.md`

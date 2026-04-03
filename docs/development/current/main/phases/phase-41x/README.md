@@ -72,7 +72,6 @@ Related:
 1. `docs/development/current/main/15-Workstream-Map.md`
 2. `CURRENT_TASK.md`
 3. `docs/development/current/main/phases/README.md`
-4. `phase-42x` selection docs
-
-- current active micro task: `next source lane selection`
-- next micro task: `phase-42x selection`
+4. `phase-42x` docs
+- successor lane: `phase-42x vm caller starvation / direct-core owner migration`
+- next micro task: `42xA1 caller starvation target lock`
