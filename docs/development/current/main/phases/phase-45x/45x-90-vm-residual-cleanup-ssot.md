@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-03
 Owner: Codex
 Scope: residual rust-vm owner cleanup after direct/core follow-up; keep VM live only as proof/oracle/compat, not day-to-day mainline.

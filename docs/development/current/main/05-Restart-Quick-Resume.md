@@ -22,9 +22,9 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-45x vm residual cleanup`
-- active micro task: `45xD1 proof / closeout`
-- next micro task: `next source lane selection`
+- lane: `next source lane selection`
+- active micro task: `next source lane selection`
+- next micro task: `phase-46x candidate lane shortlist`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 

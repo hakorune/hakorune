@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-03
 Scope: keep `rust-vm` as proof/oracle/compat keep and shrink the remaining vm-facing owner surfaces without reopening direct/core mainline.
 Related:
