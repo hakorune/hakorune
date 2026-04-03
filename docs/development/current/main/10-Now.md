@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `next source lane selection`
+- lane: `phase-46x next source lane selection`
 - `45xA1` landed: residual vm owner inventory lock
 - `45xA2` landed: proof-only keep boundary freeze
 - `45xB1` landed: vm.rs broad owner shrink
@@ -65,7 +65,7 @@ Related:
 - `phase-42x` is landed; it starved day-to-day callers away from vm-gated routes and moved owner pressure toward direct/core seams
 - `phase-43x` is landed; it selected `phase-44x stage0 direct/core follow-up` as the highest-leverage successor lane
 - `phase-44x` is landed; it keeps proof-only VM gates explicit and closes the lane
-- `phase-45x` is active; it shrinks residual vm owner surfaces while keeping direct/core mainline canonical
+- `phase-46x` is active; it inventories remaining live VM pressure and ranks the next source lane while keeping direct/core mainline canonical
   - `tools/selfhost/lib/selfhost_build_stageb.sh`
   - `tools/selfhost/lib/selfhost_run_routes.sh`
   - `tools/selfhost/run_stageb_compiler_vm.sh`
@@ -100,6 +100,6 @@ Related:
 
 1. read `CURRENT_TASK.md`
 2. read `15-Workstream-Map.md`
-3. read `docs/development/current/main/phases/phase-45x/README.md`
-4. read `docs/development/current/main/phases/phase-45x/45x-90-vm-residual-cleanup-ssot.md`
-5. read `docs/development/current/main/phases/phase-45x/45x-91-task-board.md`
+3. read `docs/development/current/main/phases/phase-46x/README.md`
+4. read `docs/development/current/main/phases/phase-46x/46x-90-next-source-lane-selection-ssot.md`
+5. read `docs/development/current/main/phases/phase-46x/46x-91-task-board.md`

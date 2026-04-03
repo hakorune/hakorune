@@ -4,8 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 45x vm residual cleanup
-- **Phase 45x（ACTIVE）**: vm residual cleanup（`rust-vm` の残り owner surfaces を proof/oracle/compat keep に縮める）
+- **Current (ACTIVE)**: Phase 46x next source lane selection
+- **Phase 46x（ACTIVE）**: next source lane selection（残っている live VM pressure を棚卸しして、次の source lane を選ぶ）
+- **Phase 45x（LANDED）**: vm residual cleanup（`rust-vm` の残り owner surfaces を proof/oracle/compat keep に縮める）
 - **Phase 44x（LANDED）**: stage0 direct/core follow-up（live stage0/selfhost owners を direct/core route 側へ寄せた）
 - **Phase 43x（LANDED）**: next source lane selection（phase-42x closeout 後の successor lane として `direct/core follow-up` を選んだ）
 - **Phase 42x（LANDED）**: vm caller starvation / direct-core owner migration（day-to-day caller を vm-gated routes から外し、direct/core owner へ寄せる）

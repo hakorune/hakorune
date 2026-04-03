@@ -22,9 +22,9 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `next source lane selection`
-- active micro task: `next source lane selection`
-- next micro task: `phase-46x candidate lane shortlist`
+- lane: `phase-46x next source lane selection`
+- active micro task: `46xA1 residual vm surface inventory lock`
+- next micro task: `46xA2 candidate lane ranking`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 
@@ -32,9 +32,9 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-45x/README.md`
-4. `docs/development/current/main/phases/phase-45x/45x-90-vm-residual-cleanup-ssot.md`
-5. `docs/development/current/main/phases/phase-45x/45x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-46x/README.md`
+4. `docs/development/current/main/phases/phase-46x/46x-90-next-source-lane-selection-ssot.md`
+5. `docs/development/current/main/phases/phase-46x/46x-91-task-board.md`
 6. `cargo check --manifest-path Cargo.toml --bin hakorune`
 
 ## Optional Checks
