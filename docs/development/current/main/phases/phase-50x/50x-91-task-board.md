@@ -20,15 +20,15 @@ Date: 2026-04-04
 | `50xA2` | landed | proof-only / compat keep classification |
 | `50xB1` | landed | smoke/helper stale-route cleanup |
 | `50xB2` | landed | route-comment stale wording cleanup |
-| `50xC1` | active | archive-ready docs/examples move |
-| `50xC2` | queued | historical PyVM / legacy wrapper archival sweep |
+| `50xC1` | landed | archive-ready docs/examples move |
+| `50xC2` | active | historical PyVM / legacy wrapper archival sweep |
 | `50xD1` | queued | proof / closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `50xC1 archive-ready docs/examples move` |
+| Now | `50xC2 historical PyVM / legacy wrapper archival sweep` |
 | Blocker | `none` |
-| Next | `50xC2 historical PyVM / legacy wrapper archival sweep` |
-| After Next | `50xD1 proof / closeout` |
+| Next | `50xD1 proof / closeout` |
+| After Next | `next source lane selection` |
