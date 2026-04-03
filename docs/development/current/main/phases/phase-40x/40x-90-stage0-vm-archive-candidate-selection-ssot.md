@@ -100,6 +100,16 @@ Scope: stage0/bootstrap lane の remaining vm-rust / vm-gated surface を archiv
 | `src/runner/core_executor.rs` | `src/runner/mod.rs` direct handoff | direct owner |
 | `src/runner/build.rs` | `src/runner/mod.rs`, `build_product.rs`, `build_engineering.rs` | mixed build owner; decisive split input |
 
+## Drain Map (40xB2)
+
+| Caller family | Drain target | Read as |
+| --- | --- | --- |
+| `tools/bootstrap_selfhost_smoke.sh` callers | `tools/selfhost/stage1_mainline_smoke.sh` / `tools/selfhost/run_stage1_cli.sh` | mainline proof should point at the direct/core route; the top-level shim becomes archive-later |
+| `tools/plugin_v2_smoke.sh` callers | `tools/plugins/plugin_v2_smoke.sh` | plugin proof should point at the canonical plugin home, not the top-level shim |
+| `tools/selfhost/run.sh` callers | `tools/selfhost/run_stage1_cli.sh` / `tools/selfhost/stage1_mainline_smoke.sh` | outer facade can stay, but direct mainline should land inward |
+| `tools/selfhost/selfhost_build.sh` callers | `tools/selfhost/selfhost_build.sh` split outputs (`build_product.rs` / `build_engineering.rs`) | mixed owner is not a shim, but callers should stop assuming one vm-shaped route |
+| `src/runner/modes/common_util/selfhost/child.rs` callers | `src/runner/core_executor.rs` / `stage_a_route.rs` / `stage_a_compat_bridge.rs` | caller-sensitive helper should drain toward direct/core owners, not gain new vm growth |
+
 ## Classification Snapshot (40xA2 landed)
 
 | Surface | Bucket | Rule |
