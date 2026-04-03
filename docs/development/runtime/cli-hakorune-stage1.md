@@ -10,6 +10,7 @@ current launcher implementation keeps top-level command selection and bootstrap 
 - `llvm/exe` は product main の native object / EXE lane。
 - Stage1 CLI / `rust-vm` は compat/proof lane のオーケストレーション面。
 - `vm-hako` は reference/conformance lane。
+- `stage-a` は explicit compat-only で、day-to-day mainline route ではない。
 - したがって、この文書は product front door の説明ではなく、stage1/bootstrap surface の設計メモとして読む。
 
 ## ゴール
