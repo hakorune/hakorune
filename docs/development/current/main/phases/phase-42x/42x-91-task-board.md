@@ -18,8 +18,8 @@ Date: 2026-04-03
 | --- | --- | --- |
 | `42xA1` | landed | caller starvation target lock |
 | `42xA2` | landed | proof-only VM keep freeze |
-| `42xB1` | active | `selfhost_build.sh` downstream caller starvation |
-| `42xB2` | queued | `run.sh` route-only facade migration |
+| `42xB1` | landed | `selfhost_build.sh` downstream caller starvation |
+| `42xB2` | active | `run.sh` route-only facade migration |
 | `42xC1` | queued | `child.rs` shell-only drain |
 | `42xC2` | queued | `vm.rs` preflight/source-prepare split |
 | `42xC3` | queued | `vm_user_factory` / `vm_fallback` drain |

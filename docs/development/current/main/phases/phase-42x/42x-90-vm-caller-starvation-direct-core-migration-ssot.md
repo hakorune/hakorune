@@ -17,7 +17,7 @@ Scope: `rust-vm` を即削除せず、live caller を starvation して direct/c
 
 | Surface | Read as | Phase-42x action |
 | --- | --- | --- |
-| `tools/selfhost/selfhost_build.sh` | route facade with downstream mixed pressure | active migration target |
+| `tools/selfhost/selfhost_build.sh` | route facade with downstream mixed pressure | landed route-main split input |
 | `tools/selfhost/lib/selfhost_build_direct.sh` | direct/core helper owner | active migration target |
 | `tools/selfhost/lib/selfhost_build_dispatch.sh` | route dispatcher | active migration target |
 | `tools/selfhost/run.sh` | outer facade | active migration target |
@@ -37,7 +37,7 @@ Scope: `rust-vm` を即削除せず、live caller を starvation して direct/c
 
 | Surface | Why it stays in the active migration set |
 | --- | --- |
-| `tools/selfhost/selfhost_build.sh` | it still fans out into route helpers that can pull new work back toward vm-gated routes |
+| `tools/selfhost/selfhost_build.sh` | it still fans out into route helpers that can pull new work back toward vm-gated routes, even though the route-main glue is now helper-owned |
 | `tools/selfhost/run.sh` | it still fronts direct/runtime/direct-call paths that should stay route-only |
 | `src/runner/modes/common_util/selfhost/child.rs` | it still owns vm child capture and must be reduced to spawn/capture/timeout/JSON selection only |
 | `src/runner/modes/vm.rs` | it still owns proof/oracle execution pressure and can widen again if callers are not starved |
@@ -68,12 +68,12 @@ Scope: `rust-vm` を即削除せず、live caller を starvation して direct/c
 | --- | --- |
 | Now | `phase-42x vm caller starvation / direct-core owner migration` |
 | Blocker | `none` |
-| Next | `42xB1 selfhost_build.sh downstream caller starvation` |
+| Next | `42xB2 run.sh route-only facade migration` |
 
 - `phase-41x` landed: direct/core route hardening and `vm.rs` proof/oracle shrink are complete enough for handoff
 - `42xA1` locked the active migration surfaces and the exact proof-only keep set
 - `42xA2` froze the proof-only VM keeps as explicit `do-not-grow`
-- `42xB1` will starve downstream `selfhost_build.sh` callers toward direct/core helper owners
+- `42xB1` landed: `selfhost_build.sh` route-main orchestration is helper-owned now; downstream caller starvation continues from the new facade split
 
 ## Big Tasks
 
@@ -88,8 +88,8 @@ Scope: `rust-vm` を即削除せず、live caller を starvation して direct/c
 | --- | --- | --- |
 | `42xA1` | landed | lock caller starvation targets and active migration surfaces |
 | `42xA2` | landed | freeze proof-only VM keep set as explicit `do-not-grow` |
-| `42xB1` | active | starve `selfhost_build.sh` downstream callers toward direct/core helper owners |
-| `42xB2` | queued | trim `run.sh` day-to-day route pressure so it stays route-only facade |
+| `42xB1` | landed | starve `selfhost_build.sh` downstream callers toward direct/core helper owners |
+| `42xB2` | active | trim `run.sh` day-to-day route pressure so it stays route-only facade |
 | `42xC1` | queued | drain `child.rs` until it owns spawn/capture/timeout/JSON selection only |
 | `42xC2` | queued | split `vm.rs` preflight/source-prepare ownership out of the broad execution path |
 | `42xC3` | queued | move shared vm user-factory ownership out of `vm.rs` / `vm_fallback.rs` and drain fallback callers |

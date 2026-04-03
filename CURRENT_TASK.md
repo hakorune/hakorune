@@ -133,7 +133,8 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `phase-42x` starts vm caller starvation and direct/core owner migration
   - `42xA1` landed: caller-starvation targets are locked for `selfhost_build.sh` / `run.sh` / `child.rs` / `vm.rs`
   - `42xA2` landed: proof-only VM keep set is frozen as explicit `do-not-grow`
-  - `42xB1` current: `selfhost_build.sh` downstream caller starvation
+  - `42xB1` landed: `selfhost_build.sh` downstream caller starvation
+  - `42xB2` current: `run.sh` route-only facade migration
   - current backend reading stays role-first:
     - `llvm/exe` = `product`
     - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
@@ -193,7 +194,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | --- | --- |
 | Now | `phase-42x vm caller starvation / direct-core owner migration` |
 | Blocker | `none` |
-| Next | `42xB1 selfhost_build.sh downstream caller starvation` |
+| Next | `42xB2 run.sh route-only facade migration` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
