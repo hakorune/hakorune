@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # gen_v1_min.sh — 最小の v1 JSON 生成（MinMirEmitter を Hako で呼ぶ）
-# Compatibility / debug helper; not a day-to-day route.
+# Compatibility / debug helper; explicit compat route, not a day-to-day route.
 # 標準出力に v1 JSON を出す。
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -34,10 +34,10 @@ if [ -x "$ROOT/tools/dev/hako_preinclude.sh" ]; then
 else
   cp "$tmp" "$pref"
 fi
-# Remove optional helper using that is not needed for inline run and may not resolve in VM path
+# Remove optional helper using that is not needed for inline run and may not resolve in compat path
 sed -i '/using selfhost\.shared\.common\.entry_point_base/d' "$pref" 2>/dev/null || true
 
-# できるだけ静かに実行して JSON のみを出力
+# できるだけ静かに実行して JSON のみを出力（explicit compat bridge）
 NYASH_ROOT="$ROOT" NYASH_ENTRY_ALLOW_TOPLEVEL_MAIN=1 \
 NYASH_FEATURES=stage3 NYASH_FEATURES=stage3 NYASH_PARSER_ALLOW_SEMICOLON=1 \
 NYASH_DISABLE_NY_COMPILER=1 HAKO_DISABLE_NY_COMPILER=1 NYASH_USING_AST=0 \

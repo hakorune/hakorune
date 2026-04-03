@@ -5,7 +5,7 @@
 #   - Minimal, shell-based equivalent of the inline Ny selfhost pipeline used in src/runner/selfhost.rs.
 #   - Reads a Nyash/Ny source file, runs ParserBox.parse_program2 + EmitterBox.emit_program
 #     via a tiny Hako harness, and prints Program(JSON v0) to stdout.
-#   - Intended for debugging / compat only; not wired into the main CLI or build scripts.
+#   - Intended for debugging / compat only; explicit compat route, not wired into the main CLI or build scripts.
 #
 # Usage:
 #   tools/ny_selfhost_inline.sh <source.ny> [nyash_binary]
@@ -82,4 +82,5 @@ NYASH_JSON_ONLY=1 \
 NYASH_FEATURES=stage3 NYASH_FEATURES=stage3 NYASH_PARSER_ALLOW_SEMICOLON=1 \
 NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
 NYASH_ALLOW_USING_FILE=1 HAKO_ALLOW_USING_FILE=1 \
+# Explicit compat route through the bridge.
 "$BIN" --backend vm "$HARNESS"

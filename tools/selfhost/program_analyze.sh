@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # tools/selfhost/program_analyze.sh - Phase 160-impl-1 Program JSON Analyzer wrapper
-# Compatibility / debug helper; not a day-to-day route.
+# Compatibility / debug helper; explicit compat route, not a day-to-day route.
 #
 # Usage:
 #   ./tools/selfhost/program_analyze.sh /path/to/program.json
@@ -38,7 +38,7 @@ else
   exit 2
 fi
 
-# Run the .hako analyzer with Program JSON in environment
+# Run the .hako analyzer with Program JSON in environment via the explicit compat route.
 export HAKO_PROGRAM_JSON="$JSON_CONTENT"
 export NYASH_FEATURES="${NYASH_FEATURES:-stage3}"
 export NYASH_PARSER_ALLOW_SEMICOLON=1

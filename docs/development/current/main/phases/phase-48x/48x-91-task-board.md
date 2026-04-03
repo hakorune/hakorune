@@ -20,8 +20,8 @@ Date: 2026-04-04
 | `48xA1` | landed | residual vm surface inventory lock |
 | `48xA2` | landed | proof-only / compat keep classification |
 | `48xB1` | landed | smoke script stale-route cleanup |
-| `48xB2` | active | proof-only smoke gate lock |
-| `48xC1` | queued | source helper stale-route cleanup |
+| `48xB2` | landed | proof-only smoke gate lock |
+| `48xC1` | active | source helper stale-route cleanup |
 | `48xC2` | queued | vm.rs / vm_fallback thin keep trim |
 | `48xD1` | queued | README/example command cleanup |
 | `48xD2` | queued | stale `--backend vm` commentary cleanup |
@@ -31,7 +31,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `48xB2 proof-only smoke gate lock` |
+| Now | `48xC1 source helper stale-route cleanup` |
 | Blocker | `none` |
-| Next | `48xC1 source helper stale-route cleanup` |
-| After Next | `48xC2 vm.rs / vm_fallback thin keep trim` |
+| Next | `48xC2 vm.rs / vm_fallback thin keep trim` |
+| After Next | `48xD1 README/example command cleanup` |
