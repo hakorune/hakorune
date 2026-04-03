@@ -73,5 +73,5 @@ Related:
 5. `src/runner/modes/vm.rs`
 6. `src/runner/core_executor.rs`
 
-- current active micro task: `41xB2 run.sh facade trim`
-- next queued micro task: `41xC1 vm.rs proof/oracle shrink`
+- current active micro task: `41xC1 vm.rs proof/oracle shrink`
+- next queued micro task: `41xD1 proof / closeout`

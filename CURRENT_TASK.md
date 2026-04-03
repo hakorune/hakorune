@@ -117,7 +117,8 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `41xA1` landed: remaining direct/core route facades and caller families are inventoried
   - `41xA2` landed: proof-only VM gate set is frozen and non-growing
   - `41xB1` landed: selfhost_build.sh direct/core route hardening is fixed as a route facade
-  - current next cleanup is run.sh facade trim, not new vm gate growth
+  - `41xB2` landed: run.sh facade trim is fixed as a route facade
+  - current next cleanup is vm.rs proof/oracle shrink, not new vm gate growth
   - current backend reading stays role-first:
     - `llvm/exe` = `product`
     - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
@@ -176,7 +177,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-41x stage0 direct/core route hardening` |
   | Blocker | `none` |
-  | Next | `41xB2 run.sh facade trim` |
+  | Next | `41xC1 vm.rs proof/oracle shrink` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -191,7 +192,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `phase-41x stage0 direct/core route hardening` | keep direct/core mainline ownership hard while proof-only VM keeps stay frozen |
-| Next | `41xB2 run.sh facade trim` | trim the unified selfhost entry into a thinner direct/core-first facade |
+| Next | `41xC1 vm.rs proof/oracle shrink` | shrink the VM owner toward proof/oracle keep after route hardening |
 | Later | `41xD1 proof / closeout` | hand off with `rust-vm` reduced to proof/compat keep rather than mainline ownership |
 | After `37xD1` | `cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
 

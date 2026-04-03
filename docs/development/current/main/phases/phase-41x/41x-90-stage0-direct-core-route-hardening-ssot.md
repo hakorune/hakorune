@@ -33,8 +33,8 @@ Scope: stage0/bootstrap lane の remaining direct/core route ownership を harde
 | Wave | Status | Read as |
 | --- | --- | --- |
 | `41xA direct/core route inventory` | landed | remaining direct/core route facades and caller families are inventoried |
-| `41xB route hardening` | active | `selfhost_build.sh` / `run.sh` are hardened into direct/core-first facades |
-| `41xC vm keep shrink` | queued | `vm.rs` is shrunk toward proof/oracle keep after caller drain |
+| `41xB route hardening` | landed | `selfhost_build.sh` / `run.sh` are hardened into direct/core-first facades |
+| `41xC vm keep shrink` | active | `vm.rs` is shrunk toward proof/oracle keep after caller drain |
 | `41xD closeout` | queued | `rust-vm` is handed off as proof/compat keep rather than mainline ownership |
 
 ## Candidate Reading
@@ -87,10 +87,11 @@ Scope: stage0/bootstrap lane の remaining direct/core route ownership を harde
 | --- | --- |
 | Now | `phase-41x stage0 direct/core route hardening` |
 | Blocker | `none` |
-| Next | `41xB2 run.sh facade trim` |
+| Next | `41xC1 vm.rs proof/oracle shrink` |
 
 - `41xA2` landed: proof-only VM gate set is frozen and non-growing
 - `41xB1` landed: selfhost_build.sh direct/core route hardening is fixed as a route facade
+- `41xB2` landed: run.sh facade trim is fixed as a route facade
 
 ## Direct/Core Hardening Rules
 

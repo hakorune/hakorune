@@ -31,6 +31,8 @@ Related:
 - `41xA1` landed: remaining direct/core route facades and caller families are inventoried
 - `41xA2` landed: proof-only VM gate set is frozen and non-growing
 - `41xB1` landed: selfhost_build.sh direct/core route hardening is fixed as a route facade
+- `41xB2` landed: run.sh facade trim is fixed as a route facade
+- `41xC1` active: vm.rs proof/oracle shrink is the next route-hardening move
 - `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete
 - `phase-32x` landed: mixed-owner source/smoke split and raw default/token defer are fixed
@@ -52,13 +54,14 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `41xB2 run.sh facade trim`
-- next micro task: `41xC1 vm.rs proof/oracle shrink`
+- active micro task: `41xC1 vm.rs proof/oracle shrink`
+- next micro task: `41xD1 proof / closeout`
 - plain reading:
   - if a bootstrap route stays on `--backend vm`, new capability work still tends to imply `rust-vm` support
   - `phase-41x` exists to harden the remaining direct/core mainline and keep vm as proof/compat keep
   - success means keeping only a small proof-only VM gate set and starving `selfhost_build.sh` / `build.rs` as mixed owners
   - `40xB1` is landed; the proof-only VM gate set is frozen and must not grow
+  - `41xB2` is landed; `run.sh` stays a facade and must not absorb new feature work
   - failure means new features drifting back into `--backend vm`, stage1 compat, or raw routes
 - post-`39xD1`: stage0 vm archive candidate selection for remaining bootstrap surfaces
 - landed first cleanup move: `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`

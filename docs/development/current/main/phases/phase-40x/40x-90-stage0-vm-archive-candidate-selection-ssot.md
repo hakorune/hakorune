@@ -131,5 +131,5 @@ Scope: stage0/bootstrap lane の remaining vm-rust / vm-gated surface を archiv
 ## Current Front
 
 - active macro wave: `41xB route hardening`
-- active micro task: `41xB2 run.sh facade trim`
-- next queued micro task: `41xC1 vm.rs proof/oracle shrink`
+- active micro task: `41xC1 vm.rs proof/oracle shrink`
+- next queued micro task: `41xD1 proof / closeout`
