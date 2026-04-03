@@ -8,6 +8,7 @@ use std::process;
 
 /// Execute a compiled VM module with the shared post-compile gates and exit handling.
 pub(crate) fn run_vm_compiled_module(
+    route: &str,
     quiet_pipe: bool,
     emit_trace: bool,
     emit_mir_json: Option<&str>,
@@ -17,12 +18,13 @@ pub(crate) fn run_vm_compiled_module(
     verification_result: &Result<(), Vec<VerificationError>>,
     mut module_vm: MirModule,
     vm_user_factory: &VmUserFactoryState,
+    run_joinir_bridge: bool,
 ) -> ! {
     // Optional barrier-elision for parity with fallback path
     if crate::config::env::env_bool("NYASH_VM_ESCAPE_ANALYSIS") {
         let removed = crate::mir::passes::escape::escape_elide_barriers_vm(&mut module_vm);
         if removed > 0 {
-            crate::cli_v!("[VM] escape_elide_barriers: removed {} barriers", removed);
+            crate::cli_v!("[{}] escape_elide_barriers: removed {} barriers", route, removed);
         }
     }
 
@@ -32,14 +34,14 @@ pub(crate) fn run_vm_compiled_module(
     emit_direct::maybe_emit_mir_json_and_exit(
         emit_mir_json,
         verification_result,
-        "vm",
+        route,
         quiet_pipe,
         |out_path| crate::runner::mir_json_emit::emit_mir_json_for_harness_bin(&module_vm, out_path),
     );
     emit_direct::maybe_emit_exe_and_exit(
         emit_exe,
         verification_result,
-        "vm",
+        route,
         quiet_pipe,
         |exe_out| {
             crate::runner::modes::common_util::exec::ny_llvmc_emit_exe_bin(
@@ -59,7 +61,7 @@ pub(crate) fn run_vm_compiled_module(
             let _ = std::io::Write::write_all(&mut f, p.print_module(&module_vm).as_bytes());
             crate::runtime::ring0::get_global_ring0()
                 .log
-                .info(&format!("[vm] MIR dumped to: {}", path));
+                .info(&format!("[{}] MIR dumped to: {}", route, path));
         }
     }
     // Existing: NYASH_VM_DUMP_MIR dumps to stderr
@@ -75,12 +77,12 @@ pub(crate) fn run_vm_compiled_module(
     vm_user_factory.register_static_box_decls(&mut vm);
 
     // Optional verifier gate (single-entry SSOT across VM lanes)
-    verifier_gate::enforce_vm_verify_gate_or_exit(&module_vm, "vm");
-    safety_gate::enforce_vm_lifecycle_safety_or_exit(&module_vm, "vm");
+    verifier_gate::enforce_vm_verify_gate_or_exit(&module_vm, route);
+    safety_gate::enforce_vm_lifecycle_safety_or_exit(&module_vm, route);
 
     if std::env::var("NYASH_DUMP_FUNCS").ok().as_deref() == Some("1") {
         let ring0 = crate::runtime::ring0::get_global_ring0();
-        ring0.log.debug("[vm] functions available:");
+        ring0.log.debug(&format!("[{}] functions available:", route));
         for k in module_vm.functions.keys() {
             ring0.log.debug(&format!("  - {}", k));
         }
@@ -97,21 +99,26 @@ pub(crate) fn run_vm_compiled_module(
         runner.print_stats(&stats);
     }
 
-    // Phase 30 F-4.4: JoinIR VM Bridge experimental path (consolidated dispatch)
-    // Activated when NYASH_JOINIR_EXPERIMENT=1 AND NYASH_JOINIR_VM_BRIDGE=1
-    // Routing logic is centralized in join_ir_vm_bridge_dispatch module
-    crate::mir::join_ir_vm_bridge_dispatch::try_run_joinir_vm_bridge(&module_vm, quiet_pipe);
+    if run_joinir_bridge {
+        // Phase 30 F-4.4: JoinIR VM Bridge experimental path (consolidated dispatch)
+        // Activated when NYASH_JOINIR_EXPERIMENT=1 AND NYASH_JOINIR_VM_BRIDGE=1
+        // Routing logic is centralized in join_ir_vm_bridge_dispatch module
+        crate::mir::join_ir_vm_bridge_dispatch::try_run_joinir_vm_bridge(&module_vm, quiet_pipe);
+    }
 
     if emit_trace {
         let ring0 = crate::runtime::ring0::get_global_ring0();
-        ring0.log.info("[runner/vm:emit-trace] phase=execute.begin");
+        ring0
+            .log
+            .info(&format!("[runner/{}:emit-trace] phase=execute.begin", route));
     }
     match vm.execute_module(&module_vm) {
         Ok(ret) => {
             if emit_trace {
                 let ring0 = crate::runtime::ring0::get_global_ring0();
                 ring0.log.info(&format!(
-                    "[runner/vm:emit-trace] phase=execute.done result={}",
+                    "[runner/{}:emit-trace] phase=execute.done result={}",
+                    route,
                     ret.to_string_box().value
                 ));
             }
@@ -135,8 +142,8 @@ pub(crate) fn run_vm_compiled_module(
                 let ring0 = crate::runtime::ring0::get_global_ring0();
                 let (inst, br, cmp) = vm.stats_counters();
                 ring0.log.debug(&format!(
-                    "[vm/stats] inst={} compare={} branch={}",
-                    inst, cmp, br
+                    "[{}/stats] inst={} compare={} branch={}",
+                    route, inst, cmp, br
                 ));
             }
 
@@ -147,7 +154,7 @@ pub(crate) fn run_vm_compiled_module(
             }
             if std::env::var("NYASH_EMIT_MIR_TRACE").ok().as_deref() == Some("1") {
                 let ring0 = crate::runtime::ring0::get_global_ring0();
-                ring0.log.debug(&format!("[runner/vm] exit_code={}", exit_code));
+                ring0.log.debug(&format!("[runner/{}] exit_code={}", route, exit_code));
             }
 
             // Phase 285: Emit leak report before exit (if enabled)
@@ -159,9 +166,9 @@ pub(crate) fn run_vm_compiled_module(
         Err(e) => {
             let ring0 = crate::runtime::ring0::get_global_ring0();
             if std::env::var("NYASH_EMIT_MIR_TRACE").ok().as_deref() == Some("1") {
-                ring0.log.debug(&format!("[runner/vm] vm_error={}", e));
+                ring0.log.debug(&format!("[runner/{}] vm_error={}", route, e));
             }
-            ring0.log.error(&format!("❌ [rust-vm] VM error: {}", e));
+            ring0.log.error(&format!("❌ [{}] VM error: {}", route, e));
             process::exit(1);
         }
     }

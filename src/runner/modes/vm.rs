@@ -285,6 +285,7 @@ impl NyashRunner {
         let module_vm = compile.module.clone();
         let groups = self.config.as_groups();
         crate::runner::modes::common_util::vm_execution::run_vm_compiled_module(
+            "vm",
             quiet_pipe,
             emit_trace,
             groups.emit.emit_mir_json.as_deref(),
@@ -294,6 +295,7 @@ impl NyashRunner {
             &compile.verification_result,
             module_vm,
             &vm_user_factory,
+            true,
         );
 
     }

@@ -31,7 +31,8 @@ Related:
 - `45xA1` landed: residual vm owner inventory lock
 - `45xA2` landed: proof-only keep boundary freeze
 - `45xB1` landed: vm.rs broad owner shrink
-- `45xB2` active: vm_fallback.rs / shared vm helper drain
+- `45xB2` landed: vm_fallback.rs / shared vm helper drain
+- `45xC1` active: core.hako compat hold line refresh
 - `44xE1` landed: proof / closeout
 - `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete

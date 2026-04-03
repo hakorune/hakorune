@@ -1,6 +1,6 @@
 use super::super::NyashRunner;
 use crate::runtime::get_global_ring0;
-use crate::{backend::MirInterpreter, mir::MirCompiler, parser::NyashParser};
+use crate::{mir::MirCompiler, parser::NyashParser};
 use std::{fs, process};
 
 impl NyashRunner {
@@ -166,84 +166,26 @@ impl NyashRunner {
             }
         };
 
-        // Optional barrier-elision for parity with VM path
-        let mut module_vm = compile.module.clone();
-        if crate::config::env::env_bool("NYASH_VM_ESCAPE_ANALYSIS") {
-            let removed = crate::mir::passes::escape::escape_elide_barriers_vm(&mut module_vm);
-            if removed > 0 {
-                crate::cli_v!(
-                    "[VM-fallback] escape_elide_barriers: removed {} barriers",
-                    removed
-                );
-            }
-        }
-
-        // Optional: dump MIR for diagnostics (parity with vm path)
-        // Phase 25.1: File dump for offline analysis (ParserBox等)
-        if let Ok(path) = std::env::var("RUST_MIR_DUMP_PATH") {
-            if let Ok(mut f) = std::fs::File::create(&path) {
-                let p = crate::mir::MirPrinter::new();
-                let _ = std::io::Write::write_all(&mut f, p.print_module(&module_vm).as_bytes());
-                get_global_ring0()
-                    .log
-                    .debug(&format!("[vm-fallback] MIR dumped to: {}", path));
-            }
-        }
-        // Existing: NYASH_VM_DUMP_MIR dumps to stderr
-        if crate::config::env::env_bool("NYASH_VM_DUMP_MIR") {
-            let p = crate::mir::MirPrinter::new();
-            get_global_ring0().log.debug(&p.print_module(&module_vm));
-        }
-
-        // Execute via MIR interpreter
-        let mut vm = MirInterpreter::new();
         // Centralized plugin guard (non-strict by default on fallback route)
         crate::runner::modes::common_util::plugin_guard::check_and_report(
             false,
             crate::config::env::env_bool("NYASH_JSON_ONLY"),
             "vm-fallback",
         );
-        // Optional verifier gate (single-entry SSOT across VM lanes)
-        crate::runner::modes::common_util::verifier_gate::enforce_vm_verify_gate_or_exit(
-            &module_vm,
+        let module_vm = compile.module.clone();
+        crate::runner::modes::common_util::vm_execution::run_vm_compiled_module(
             "vm-fallback",
+            true,
+            false,
+            None,
+            None,
+            None,
+            None,
+            &compile.verification_result,
+            module_vm,
+            &_vm_user_factory,
+            false,
         );
-        crate::runner::modes::common_util::safety_gate::enforce_vm_lifecycle_safety_or_exit(
-            &module_vm,
-            "vm-fallback",
-        );
-        if std::env::var("NYASH_DUMP_FUNCS").ok().as_deref() == Some("1") {
-            get_global_ring0().log.debug("[vm] functions available:");
-            for k in module_vm.functions.keys() {
-                get_global_ring0().log.debug(&format!("  - {}", k));
-            }
-        }
-        match vm.execute_module(&module_vm) {
-            Ok(ret) => {
-                use crate::box_trait::{BoolBox, IntegerBox};
-
-                // Extract exit code from return value
-                let exit_code = if let Some(ib) = ret.as_any().downcast_ref::<IntegerBox>() {
-                    ib.value as i32
-                } else if let Some(bb) = ret.as_any().downcast_ref::<BoolBox>() {
-                    if bb.value {
-                        1
-                    } else {
-                        0
-                    }
-                } else {
-                    // For non-integer/bool returns, default to 0 (success)
-                    0
-                };
-
-                // Exit with the return value as exit code
-                process::exit(exit_code);
-            }
-            Err(e) => {
-                eprintln!("❌ VM fallback error: {}", e);
-                process::exit(1);
-            }
-        }
     }
 }
 
