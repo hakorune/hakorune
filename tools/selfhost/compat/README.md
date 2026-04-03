@@ -24,6 +24,6 @@ payload bucket lives under `tools/compat/legacy-codegen/`.
 - pack orchestrator:
   - `tools/compat/legacy-codegen/run_compat_pure_pack.sh`
 
-Read this directory as payload-only. The shell scripts above are the transport
-and orchestration layers that still sit on top of it, but the canonical home is
-now `tools/compat/legacy-codegen/`.
+Read this directory as payload-only. The live selfhost shim paths were archived
+to `tools/archive/legacy-selfhost/`; the canonical home for the transport and
+orchestration layers is now `tools/compat/legacy-codegen/`.

@@ -129,14 +129,14 @@ bash tools/compat/legacy-codegen/run_compat_pure_pack.sh
 ```
 
 - `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` is the canonical archive-later compat wrapper and now materializes the payload onto `vm-hako` while preserving the historical shell contract.
-- the old `tools/selfhost/run_compat_pure_selfhost.sh` path is a thin backward-compat shim.
+- the old `tools/selfhost/run_compat_pure_selfhost.sh` path is archived under `tools/archive/legacy-selfhost/`.
 - treat `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` as the archive-later payload and the wrapper as transport only.
 - `tools/compat/legacy-codegen/run_compat_pure_pack.sh` is the historical compat pure-pack entry that shells into `phase2120/run_pure_capi_canaries.sh` and then the transport wrapper above.
 - read the stack in this order:
   - payload: `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako`
   - transport wrapper: `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh`
   - pack orchestrator: `tools/compat/legacy-codegen/run_compat_pure_pack.sh`
-- the old `tools/selfhost/run_compat_pure_*` paths are wrapper shims only.
+- the old `tools/selfhost/run_compat_pure_*` paths are archived shim copies under `tools/archive/legacy-selfhost/`.
 - `run_compat_pure_pack.sh` is pack orchestration only, not a separate proof surface.
 - old alias `run_all.sh` is retired; keep the compat pack entry singular.
 - The owner-lane replacement proof is `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`.
