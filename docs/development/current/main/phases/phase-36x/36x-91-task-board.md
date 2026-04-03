@@ -58,3 +58,4 @@ cargo check --bin hakorune
   - `stage1_cli/core.hako` now keeps thin handoff only for raw `run`
   - `cargo check --bin hakorune` and `git diff --check` are green
   - `tools/stage1_smoke.sh mir-json` still fails with the inherited embedded `BuildBox` parse error, so this phase closes with that red unchanged rather than attributing it to the split
+  - `tools/stage1_smoke.sh` now reads as a legacy embedded bridge smoke; current mainline smoke is `tools/selfhost/stage1_mainline_smoke.sh`

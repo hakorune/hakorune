@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# stage1_smoke.sh — Stage‑1 CLI quick smoke
+# stage1_smoke.sh — legacy embedded Stage‑1 bridge smoke
 #
 # 役割:
-#   - rust Stage0 ブリッジ経由で Stage1Cli.stub を叩き、
+#   - rust Stage0 bridge の embedded Stage1 child route を軽く監視する。
+#   - current mainline Stage1 proof ではない。
+#   - current mainline smoke は `tools/selfhost/stage1_mainline_smoke.sh` を使う。
+#   - ここでは embedded temp entry 経由で Stage1Cli.stub を叩き、
 #     - emit program-json
 #     - emit mir-json
 #   の 2 経路が正常に JSON を出力することを確認する軽量スモーク。
@@ -24,10 +27,14 @@ case "${1:-}" in
     cat <<EOF
 Usage: tools/stage1_smoke.sh [program-json|mir-json|all]
 
+  note         : legacy embedded bridge smoke (not the daily mainline route)
   program-json : apps/tests/stage1_using_minimal.hako で Program(JSON v0) を確認
   mir-json     : apps/tests/stage1_using_minimal.hako で MIR(JSON) を確認
   run          : apps/tests/stage1_run_min.hako で run(vm) 経路（現状は MIR 出力のみ）を確認
   all          : 3 経路すべて実行（既定）
+
+Current mainline:
+  tools/selfhost/stage1_mainline_smoke.sh [--bin <stage1-cli-artifact>] [<source.hako>]
 EOF
     exit 0
     ;;
