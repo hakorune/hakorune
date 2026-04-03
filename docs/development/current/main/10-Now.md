@@ -37,8 +37,9 @@ Related:
 - `42xA2` landed: proof-only VM keeps are frozen as explicit do-not-grow surfaces
 - `42xB1` landed: `selfhost_build.sh` downstream caller starvation
 - `42xB2` landed: `run.sh` route-only facade migration and route script paths moved helper-owned
-- `42xC1` current: `child.rs` shell-only drain
-- `42xC2` next: `vm.rs` preflight/source-prepare split
+- `42xC1` landed: `child.rs` shell-only drain
+- `42xC2` current: `vm.rs` preflight/source-prepare split
+- `42xC3` next: `vm_user_factory` / `vm_fallback` drain
 - `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete
 - `phase-32x` landed: mixed-owner source/smoke split and raw default/token defer are fixed

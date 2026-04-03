@@ -135,7 +135,8 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `42xA2` landed: proof-only VM keep set is frozen as explicit `do-not-grow`
   - `42xB1` landed: `selfhost_build.sh` downstream caller starvation
   - `42xB2` landed: `run.sh` route-only facade migration and route script paths live in helper-owned route code
-  - `42xC1` current: `child.rs` shell-only drain
+  - `42xC1` landed: `child.rs` shell-only drain
+  - `42xC2` current: `vm.rs` preflight/source-prepare split
   - current backend reading stays role-first:
     - `llvm/exe` = `product`
     - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
@@ -195,7 +196,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | --- | --- |
 | Now | `phase-42x vm caller starvation / direct-core owner migration` |
 | Blocker | `none` |
-| Next | `42xC1 child.rs shell-only drain` |
+| Next | `42xC2 vm.rs preflight/source-prepare split` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
