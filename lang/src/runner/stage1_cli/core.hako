@@ -25,6 +25,11 @@ static box Stage1Cli {
     return me._emit_mir_json_from_program_json_checked(tag, program_json)
   }
 
+  // Raw compat owner for Program(JSON v0) run requests.
+  // Keep this lane narrow:
+  // - accept only vm|pyvm
+  // - reject llvm from this legacy raw route
+  // - do not add new runtime capability/policy here; direct MIR ownership belongs below stage0
   // Run Program(JSON v0) on selected backend (vm|pyvm)
   // - vm/pyvm: convert to MIR(JSON) and print to stdout（実行 path は未配線）
   // - llvm   : retired from this raw compat lane; daily/backend-zero callers stop at LlvmBackendBox
@@ -55,7 +60,8 @@ static box Stage1Cli {
     return 0
   }
 
-  // CLI dispatcher (Config box refactored)
+  // Dispatcher only.
+  // Keep route/default/help policy in dispatch/config boxes; do not widen raw compat ownership here.
   method stage1_main(cli_args_raw) {
     local cfg = Stage1CliConfigBox.from_env()
     return Stage1CliDispatchBox.dispatch_env_mode(cfg)
@@ -216,6 +222,8 @@ static box Stage1Cli {
     return Stage1CliProgramJsonMirBox._mir_output_has_functions(mir_text)
   }
 
+  // Raw subcommand residue for `emit mir-json`.
+  // Keep ownership here limited to request parse -> path/source load -> emit -> stdout.
   method _cmd_emit_mir_json(args){
     if env.get("STAGE1_CLI_DEBUG") == "1" {
     }
@@ -247,6 +255,9 @@ static box Stage1Cli {
     return Stage1CliDispatchBox.dispatch_run(args)
   }
 
+  // Raw subcommand residue for `run`.
+  // Keep ownership here limited to request parse -> Program(JSON) materialize -> run_program_json handoff.
+  // Do not widen this branch with backend policy beyond the legacy vm|pyvm compat contract.
   method _run_raw_request(args) {
     if env.get("STAGE1_CLI_DEBUG") == "1" {
     }

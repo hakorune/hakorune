@@ -41,8 +41,8 @@ Related:
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
 | `34xA1` | landed | `child.rs` exact residue lock | `run_ny_program_capture_json_v0` の責務と caller split が exact に読める |
-| `34xA2` | active | `stage1_cli/core.hako` exact residue lock | `run_program_json` / `_run_raw_request` の compat residue が exact に読める |
-| `34xA3` | queued | `core_executor` takeover seam lock | direct `MIR(JSON)` owner が shell route と分離して読める |
+| `34xA2` | landed | `stage1_cli/core.hako` exact residue lock | `run_program_json` / `_run_raw_request` の compat residue と dispatch split が exact に読める |
+| `34xA3` | active | `core_executor` takeover seam lock | direct `MIR(JSON)` owner が shell route と分離して読める |
 | `34xB1` | queued | split spawn/timeout/capture from `child.rs` | shell helper が route-neutral helper へ縮む |
 | `34xC1` | queued | `run_program_json` no-widen lock | raw compat lane が execution-capability widening を受けない |
 | `34xD1` | queued | direct `MIR(JSON)` proof path | already-materialized `MIR(JSON)` run path が `core_executor` 側に pin される |
@@ -50,8 +50,8 @@ Related:
 ## Current Focus
 
 - active macro wave: `34xA residue owner lock`
-- active micro task: `34xA2 stage1_cli/core.hako exact residue lock`
-- next queued micro task: `34xA3 core_executor takeover seam lock`
+- active micro task: `34xA3 core_executor takeover seam lock`
+- next queued micro task: `34xB1 split spawn/timeout/capture from child.rs`
 - current blocker: `none`
 - exact residue reading:
   - `child.rs` shell/process residue is concentrated in `run_ny_program_capture_json_v0`
@@ -60,6 +60,12 @@ Related:
     - `stage_a_compat_bridge.rs` consumes the MIR-only selector wrapper
     - `run_ny_program_capture_json` stays route-neutral and owns no extra policy
   - `stage1_cli/core.hako` raw compat residue is concentrated in `run_program_json` and `_run_raw_request`
+  - caller split around `stage1_cli/core.hako` is fixed:
+    - `stage1_main` stays dispatcher-only
+    - `dispatch_env_mode` drives `_mode_emit_program`, `_mode_emit_mir_from_env_min`, and `_mode_run`
+    - `dispatch_emit` drives `_cmd_emit_mir_json`
+    - `dispatch_run` drives `_run_raw_request`
+    - `run_program_json` keeps default `vm`, accepts only `vm|pyvm`, and rejects `llvm`
   - `core_executor` already owns the direct in-proc `MIR(JSON)` seam; this phase narrows the handoff around it
 
 ## Accepted Prior Reading

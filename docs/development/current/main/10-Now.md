@@ -33,8 +33,9 @@ Related:
 - `phase-32x` landed: mixed-owner source/smoke split and raw default/token defer are fixed
 - `phase-33x` landed: helper-family path truth and broad keep gates are fixed
 - `34xA1` landed: `child.rs` shell/process/capture ownership is fixed around `run_ny_program_capture_json_v0`
-- active micro task: `34xA2 stage1_cli/core.hako exact residue lock`
-- next micro task: `34xA3 core_executor takeover seam lock`
+- `34xA2` landed: `stage1_cli/core.hako` raw compat residue is fixed around `run_program_json` / `_run_raw_request`
+- active micro task: `34xA3 core_executor takeover seam lock`
+- next micro task: `34xB1 split spawn/timeout/capture from child.rs`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
