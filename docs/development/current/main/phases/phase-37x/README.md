@@ -55,8 +55,8 @@ Related:
 3. `tools/selfhost/selfhost_build.sh`
 4. `src/runner/build.rs`
 
-- current active micro task: `37xA4 dispatcher slimming`
-- next queued micro task: `37xB1 build.rs shared prelude freeze`
+- current active micro task: `37xB1 build.rs shared prelude freeze`
+- next queued micro task: `37xB2 product build wrapper split`
 
 ## Acceptance Summary
 

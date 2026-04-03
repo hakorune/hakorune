@@ -71,7 +71,7 @@ Related:
         - `36xB1` landed and moves raw `emit mir-json` glue into `raw_subcommand_emit_mir.hako`
         - `36xB2` landed and moves raw `run` glue into `raw_subcommand_run.hako`
         - `36xC1` landed and fixes the split as evidence instead of reopening compat ownership
-        - current active micro task is `37xA4 dispatcher slimming`
+        - current active micro task is `37xB1 build.rs shared prelude freeze`
         - `37xA` prioritizes `selfhost_build.sh` owner split over broader cleanup
         - `37xB` follows with `build.rs` product/engineering split
         - `37xC` freezes explicit engineering keep before caller-drain work
@@ -91,9 +91,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `37xA4 dispatcher slimming` |
-     | Next | `37xB1 build.rs shared prelude freeze` |
-     | Later | `37xB2 product build wrapper split` |
+     | Now | `37xB1 build.rs shared prelude freeze` |
+     | Next | `37xB2 product build wrapper split` |
+     | Later | `37xB3 engineering build wrapper split` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
@@ -135,9 +135,9 @@ Related:
   - `phase-36x` selfhost source / stage1 bridge split (landed precursor)
   - `phase-37x` bootstrap owner split (active)
 - Active backend surface tasks:
-  - `37xA4 dispatcher slimming`
-- Queued backend surface tasks:
   - `37xB1 build.rs shared prelude freeze`
+- Queued backend surface tasks:
+  - `37xB2 product build wrapper split`
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion

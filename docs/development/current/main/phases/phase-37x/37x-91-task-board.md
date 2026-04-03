@@ -27,8 +27,8 @@ Related:
 | 1 | `37xA1` | landed | Stage-B producer isolation |
 | 2 | `37xA2` | landed | direct MIR / core-direct split |
 | 3 | `37xA3` | landed | `ny-llvmc` / exe artifact split |
-| 4 | `37xA4` | active | dispatcher slimming |
-| 5 | `37xB1` | queued | `build.rs` shared prelude freeze |
+| 4 | `37xA4` | landed | dispatcher slimming |
+| 5 | `37xB1` | active | `build.rs` shared prelude freeze |
 | 6 | `37xB2` | queued | product build wrapper split |
 | 7 | `37xB3` | queued | engineering build wrapper split |
 | 8 | `37xC1` | queued | explicit keep freeze |
@@ -62,9 +62,9 @@ git diff --check
 ## Current Result
 
 - current front:
-  - `37xA4 dispatcher slimming`
+  - `37xB1 build.rs shared prelude freeze`
 - exact next:
-  - split `selfhost_build.sh` around dispatcher routing before source split
+  - split `build.rs` shared prelude before product/engineering wrapper split
 - explicit reading:
   - first speed gain comes from making mixed owner surfaces readable
   - not from deleting `vm.rs`

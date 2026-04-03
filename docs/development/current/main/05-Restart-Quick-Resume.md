@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-37x bootstrap owner split`
-- active micro task: `37xA4 dispatcher slimming`
-- next micro task: `37xB1 build.rs shared prelude freeze`
+- active micro task: `37xB1 build.rs shared prelude freeze`
+- next micro task: `37xB2 product build wrapper split`
 - raw backend default flip stays deferred beyond `phase-37x`
 
 ## Read Next
