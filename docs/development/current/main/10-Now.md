@@ -33,7 +33,8 @@ Related:
 - `45xB1` landed: vm.rs broad owner shrink
 - `45xB2` landed: vm_fallback.rs / shared vm helper drain
 - `45xC1` landed: core.hako compat hold line refresh
-- `45xC2` active: run_stageb_compiler_vm.sh proof-only gate reinforcement
+- `45xC2` landed: run_stageb_compiler_vm.sh proof-only gate reinforcement
+- `45xD1` active: proof / closeout
 - `44xE1` landed: proof / closeout
 - `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete
@@ -56,8 +57,8 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `45xC2 run_stageb_compiler_vm.sh proof-only gate reinforcement`
-- next micro task: `45xD1 proof / closeout`
+- active micro task: `45xD1 proof / closeout`
+- next micro task: `next source lane selection`
 - plain reading:
   - if a bootstrap route stays on `--backend vm`, new capability work still tends to imply `rust-vm` support
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep

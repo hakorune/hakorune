@@ -1,9 +1,10 @@
 #!/bin/bash
-# run_stageb_compiler_vm.sh - shared Stage-B compiler route (VM)
+# run_stageb_compiler_vm.sh - proof-only Stage-B compiler gate (VM)
 #
 # Contract:
 # - Input: --source-file <path> (fixture/source file)
 # - Output: Program(JSON v0) + diagnostics (stdout/stderr passthrough)
+# - Proof-only gate: do not route day-to-day callers here.
 # - Route tag: stderr "[selfhost/route] id=..."
 set -euo pipefail
 
@@ -100,7 +101,7 @@ fi
 
 echo "[selfhost/route] id=${ROUTE_ID} mode=stageb source=$(basename "$SOURCE_FILE") timeout_secs=${TIMEOUT_SECS}" >&2
 
-# Phase 29x X22: Stage-B gate must stay on Rust VM core lane under strict/dev.
+# Phase 29x X22 / 45xC2: Stage-B gate stays on Rust VM core lane and remains proof-only.
 # vm-hako priority is disabled explicitly for this gate route.
 HAKO_SRC="$(cat "$SOURCE_FILE")" \
   NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
