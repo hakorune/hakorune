@@ -3,6 +3,8 @@ use std::path::{Path, PathBuf};
 
 #[path = "build_shared.rs"]
 mod build_shared;
+#[path = "build_product.rs"]
+mod build_product;
 use build_shared::{
     apply_env_overrides, build_core, build_plugins, load_build_doc, resolve_app_entry,
 };
@@ -32,7 +34,11 @@ pub(super) fn run_build_mvp_impl(runner: &NyashRunner, cfg_path: &str) -> Result
     let obj_dir = cwd.join("target").join("aot_objects");
     let _ = std::fs::create_dir_all(&obj_dir);
     let obj_path = obj_dir.join("main.o");
-    emit_object(&cwd, &profile, &aot, &app, &obj_dir, &obj_path)?;
+    if aot == "llvm" {
+        build_product::build_product_artifact(&cwd, &profile, &app, &obj_path)?;
+    } else {
+        emit_engineering_object(&cwd, &profile, &app, &obj_dir)?;
+    }
     ensure_object_exists(&obj_dir, &obj_path)?;
 
     let out_path = if let Some(o) = out {
@@ -113,34 +119,6 @@ pub(super) fn run_build_mvp_impl(runner: &NyashRunner, cfg_path: &str) -> Result
         }
     }
     println!("✅ Success: {}", out_path.display());
-    Ok(())
-}
-
-fn emit_object(
-    cwd: &Path,
-    profile: &str,
-    aot: &str,
-    app: &str,
-    obj_dir: &Path,
-    obj_path: &Path,
-) -> Result<(), String> {
-    if aot == "llvm" {
-        emit_llvm_object(cwd, profile, app, obj_path)
-    } else {
-        emit_engineering_object(cwd, profile, app, obj_dir)
-    }
-}
-
-fn emit_llvm_object(cwd: &Path, profile: &str, app: &str, obj_path: &Path) -> Result<(), String> {
-    std::env::set_var("NYASH_LLVM_OBJ_OUT", obj_path);
-    println!("[emit] LLVM object → {}", obj_path.display());
-    let status = std::process::Command::new(nyash_bin_path(cwd, profile))
-        .args(["--backend", "llvm", app])
-        .status()
-        .map_err(|e| format!("spawn nyash llvm: {}", e))?;
-    if !status.success() {
-        return Err("LLVM emit failed".into());
-    }
     Ok(())
 }
 
