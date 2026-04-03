@@ -4,8 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 43x next source lane selection
-- **Phase 43x（ACTIVE）**: next source lane selection（phase-42x closeout 後の successor lane を決める）
+- **Current (ACTIVE)**: Phase 44x stage0 direct/core follow-up
+- **Phase 44x（ACTIVE）**: stage0 direct/core follow-up（live stage0/selfhost owners を direct/core route 側へ寄せる）
+- **Phase 43x（LANDED）**: next source lane selection（phase-42x closeout 後の successor lane として `direct/core follow-up` を選んだ）
 - **Phase 42x（LANDED）**: vm caller starvation / direct-core owner migration（day-to-day caller を vm-gated routes から外し、direct/core owner へ寄せる）
 - **Phase 41x（LANDED）**: stage0 direct/core route hardening（remaining direct/core route ownership を harden し、proof-only VM gates と compat keep を固定する）
 - **Phase 40x（LANDED）**: stage0 vm archive candidate selection（drained vm-facing shims と stale compat wrappers を archive/delete した）

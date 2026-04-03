@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `phase-43x next source lane selection`
+- lane: `phase-44x stage0 direct/core follow-up`
 - `41xA1` landed: remaining direct/core route facades and caller families are inventoried
 - `41xA2` landed: proof-only VM gate set is frozen and non-growing
 - `41xB1` landed: selfhost_build.sh direct/core route hardening is fixed as a route facade
@@ -41,7 +41,12 @@ Related:
 - `42xC2` landed: `vm.rs` preflight/source-prepare split
 - `42xC3` landed: `vm_user_factory` / `vm_fallback` drain
 - `42xC4` landed: `core.hako` compat hold line
-- `42xD1` current: `proof / closeout`
+- `42xD1` landed: `proof / closeout`
+- `43xA1` landed: candidate lane shortlist
+- `43xA2` landed: successor lane decision
+- `43xD1` landed: proof / closeout
+- `44xA1` current: `stage-b direct/core target lock`
+- `44xA2` next: `selfhost_build_stageb.sh direct/core-first cutover`
 - `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete
 - `phase-32x` landed: mixed-owner source/smoke split and raw default/token defer are fixed
@@ -63,16 +68,19 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `42xA2 proof-only VM keep freeze`
-- next micro task: `42xB1 selfhost_build.sh downstream caller starvation`
+- active micro task: `44xA1 stage-b direct/core target lock`
+- next micro task: `44xA2 selfhost_build_stageb.sh direct/core-first cutover`
 - plain reading:
   - if a bootstrap route stays on `--backend vm`, new capability work still tends to imply `rust-vm` support
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep
 - `phase-42x` is landed; it starved day-to-day callers away from vm-gated routes and moved owner pressure toward direct/core seams
-- `phase-43x` now selects the next source lane
-  - success means keeping only a small proof-only VM gate set while `selfhost_build.sh`, `run.sh`, and `child.rs` stop acting as live feature entry points
-  - `40xB1` is landed; the proof-only VM gate set is frozen and must not grow
-  - `41xB2` is landed; `run.sh` stays a facade and must not absorb new feature work
+- `phase-43x` is landed; it selected `phase-44x stage0 direct/core follow-up` as the highest-leverage successor lane
+- `phase-44x` now attacks the remaining live VM-backed helper owners
+  - `tools/selfhost/lib/selfhost_build_stageb.sh`
+  - `tools/selfhost/lib/selfhost_run_routes.sh`
+  - `src/runner/modes/common_util/selfhost/stage0_capture.rs`
+  - `tools/selfhost/run_stageb_compiler_vm.sh`
+  - success means day-to-day stage0/selfhost defaults move toward direct/core and VM gates become explicit proof/fallback only
   - failure means new features drifting back into `--backend vm`, stage1 compat, or raw routes
 - post-`39xD1`: stage0 vm archive candidate selection for remaining bootstrap surfaces
 - landed first cleanup move: `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`
@@ -102,6 +110,6 @@ Related:
 
 1. read `CURRENT_TASK.md`
 2. read `15-Workstream-Map.md`
-3. read `docs/development/current/main/phases/phase-42x/README.md`
-4. read `docs/development/current/main/phases/phase-42x/42x-90-vm-caller-starvation-direct-core-migration-ssot.md`
-5. read `docs/development/current/main/phases/phase-42x/42x-91-task-board.md`
+3. read `docs/development/current/main/phases/phase-44x/README.md`
+4. read `docs/development/current/main/phases/phase-44x/44x-90-stage0-direct-core-follow-up-ssot.md`
+5. read `docs/development/current/main/phases/phase-44x/44x-91-task-board.md`

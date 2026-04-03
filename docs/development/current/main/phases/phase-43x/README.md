@@ -1,6 +1,6 @@
 ---
-Status: Active
-Decision: provisional
+Status: Landed
+Decision: `direct/core follow-up` selected
 Date: 2026-04-03
 Scope: phase-42x closeout 後の successor source lane を選び、rust-vm を proof/compat keep のまま次の主線へ handoff する。
 Related:
@@ -48,12 +48,12 @@ Related:
 - phase-42x is landed and handed off
 - rust-vm remains proof/compat keep, not a mainline owner
 - kilo optimization is far-future
-- current documentation should refer to `phase-43x next source lane selection` until the next lane is chosen
+- the selected successor lane is `phase-44x stage0 direct/core follow-up`
+- current documentation now points at `phase-44x` rather than leaving selection provisional
 
 ## Big Tasks
 
-1. inventory candidate successor lanes
-2. choose the successor lane and write the handoff
-3. open the next phase once the choice is fixed
-4. close the selection phase
-
+1. shortlist candidate successor lanes
+2. compare leverage against rust-vm feature tax
+3. select `direct/core follow-up` as the next lane
+4. hand off to `phase-44x`
