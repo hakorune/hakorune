@@ -46,8 +46,8 @@ Related:
    - `49xA1` current-doc stale wording inventory lock (landed)
    - `49xA2` top-level docs compat wording rewrite (landed)
 2. `49xB` guide cleanup
-   - `49xB1` current guides compat wording rewrite (active)
-   - `49xB2` example-command stale-route sweep
+   - `49xB1` current guides compat wording rewrite (landed)
+   - `49xB2` example-command stale-route sweep (active)
 3. `49xC` runtime / helper clarity
    - `49xC1` runtime `stage-a` compat label lock
    - `49xC2` helper comment stale-route cleanup

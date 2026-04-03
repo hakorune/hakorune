@@ -18,8 +18,8 @@ Date: 2026-04-04
 | --- | --- | --- |
 | `49xA1` | landed | current-doc stale wording inventory lock |
 | `49xA2` | landed | top-level docs compat wording rewrite |
-| `49xB1` | active | current guides compat wording rewrite |
-| `49xB2` | queued | example-command stale-route sweep |
+| `49xB1` | landed | current guides compat wording rewrite |
+| `49xB2` | active | example-command stale-route sweep |
 | `49xC1` | queued | runtime `stage-a` compat label lock |
 | `49xC2` | queued | helper comment stale-route cleanup |
 | `49xD1` | queued | proof / closeout |
@@ -28,7 +28,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `49xB1 current guides compat wording rewrite` |
+| Now | `49xB2 example-command stale-route sweep` |
 | Blocker | `none` |
-| Next | `49xB2 example-command stale-route sweep` |
-| After Next | `49xC1 runtime stage-a compat label lock` |
+| Next | `49xC1 runtime stage-a compat label lock` |
+| After Next | `49xC2 helper comment stale-route cleanup` |
