@@ -163,6 +163,7 @@ Related:
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion
+  - `kilo` optimization wave (far future; not the next lane)
 - Active small tasks:
   - Map evidence bundle maintenance
   - current `zero-rust` entrypoint sync
