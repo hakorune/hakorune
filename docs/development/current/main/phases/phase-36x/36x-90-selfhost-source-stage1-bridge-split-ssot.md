@@ -48,7 +48,7 @@ Related:
 ## Current Focus
 
 - active macro wave: `landed precursor`
-- active micro task: `phase-37x bootstrap owner split`
+- active micro task: `phase-38x cleanup/archive sweep`
 - next queued micro task: `37xA1 Stage-B producer isolation`
 - current blocker: `none`
 - exact reading:
@@ -60,5 +60,5 @@ Related:
   - `stage1_cli/raw_subcommand_run.hako` now owns raw `run` request parse / script-args env / Program(JSON) materialization
   - `stage1_cli/core.hako` keeps only thin adapter handoff into `run_program_json`
   - `cargo check --bin hakorune` and `git diff --check` are green after the split
-  - `tools/stage1_smoke.sh mir-json` is still red with the pre-existing embedded `BuildBox` parse failure; current evidence does not localize that failure to `raw_subcommand_*`
-  - `tools/stage1_smoke.sh` now reads as a legacy embedded bridge smoke; current mainline smoke is `tools/selfhost/stage1_mainline_smoke.sh`
+  - `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh mir-json` is still red with the pre-existing embedded `BuildBox` parse failure; current evidence does not localize that failure to `raw_subcommand_*`
+  - `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh` now reads as an archived legacy embedded bridge smoke; current mainline smoke is `tools/selfhost/stage1_mainline_smoke.sh`

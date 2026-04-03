@@ -229,7 +229,7 @@ hakorune emit mir-json [-o <out>] [--quiet] <source.hako>
   - `tools/selfhost/build_stage1.sh` の Stage1 artifact kinds は `launcher_native_entry.hako` / `stage1_cli_env_entry.hako` の薄い entry stub を使う。実際の CLI ロジックは `launcher.hako` / `stage1_cli_env.hako` 側に残す。
  - current mainline smoke: `tools/selfhost/stage1_mainline_smoke.sh`
    - `run_stage1_cli.sh emit mir-json` を daily/mainline lane として確認する薄い smoke。
- - legacy embedded bridge smoke: `tools/stage1_smoke.sh`
+ - archived legacy embedded bridge smoke: `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`
    - `stage1_stub_test` + embedded temp entry を使う旧 bridge smoke。
    - mainline proof ではなく、embedded route の historical health check として読む。
 - 現状の制約（2025-11-15 時点）:

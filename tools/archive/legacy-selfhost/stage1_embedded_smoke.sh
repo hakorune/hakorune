@@ -12,7 +12,7 @@ set -euo pipefail
 #     - emit mir-json
 #   の 2 経路が正常に JSON を出力することを確認する軽量スモーク。
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 BIN="${ROOT_DIR}/target/release/hakorune"
 
 set +e
@@ -25,7 +25,7 @@ set -e
 case "${1:-}" in
   ""|"help"|-h|--help)
     cat <<EOF
-Usage: tools/stage1_smoke.sh [program-json|mir-json|all]
+Usage: tools/archive/legacy-selfhost/stage1_embedded_smoke.sh [program-json|mir-json|all]
 
   note         : legacy embedded bridge smoke (not the daily mainline route)
   program-json : apps/tests/stage1_using_minimal.hako で Program(JSON v0) を確認

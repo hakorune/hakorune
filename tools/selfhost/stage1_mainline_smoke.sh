@@ -24,7 +24,7 @@ Behavior:
   - requires MIR(JSON) output to contain `"functions"`
 
 This is the current mainline Stage1 smoke.
-For the legacy embedded bridge smoke, use `tools/stage1_smoke.sh`.
+For the archived legacy embedded bridge smoke, use `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`.
 USAGE
 }
 

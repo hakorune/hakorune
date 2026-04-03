@@ -37,7 +37,7 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-37x bootstrap owner split`
+     - current active lane is `phase-38x cleanup/archive sweep`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
@@ -55,7 +55,8 @@ Related:
         - `phase-34x` landed and fixed stage0 shell residue split
         - `phase-35x` landed and fixed Stage-A compat route thinning
         - `phase-36x` landed and handled selfhost source / stage1 bridge split
-        - `phase-37x` now handles bootstrap owner split
+        - `phase-37x` landed bootstrap owner split
+        - `phase-38x` now handles cleanup/archive sweep
         - `34xA1` landed and fixed exact `child.rs` shell/process/capture residue
         - `34xA2` landed and fixed `stage1_cli/core.hako` raw compat residue and dispatch split
         - `34xA3` landed and pinned `core_executor` as the direct `MIR(JSON)` owner
@@ -76,7 +77,9 @@ Related:
         - `37xB` follows with `build.rs` product/engineering split
         - `37xC` freezes explicit engineering keep before caller-drain work
         - `37xD` restores canonical proof after the speed-first split
-        - post-`37xD1` cleanup/archive sweep moves drained shims and legacy embedded smoke out of the live surface
+        - `38xA` archives legacy embedded smoke out of the live surface
+        - `38xB` sweeps delete-ready drained shims
+        - `38xC` freezes archive-later shims until doc drain lands
         - cleanup rule is `split/rehome/drain -> delete`
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
@@ -85,16 +88,16 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `phase-37x bootstrap owner split` |
+     | Now | `phase-38x cleanup/archive sweep` |
      | Blocker | `none` |
-     | Next | `37xC explicit keep freeze + drain map` |
+     | Next | `38xB delete-ready shim sweep` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `post-37x cleanup/archive sweep` |
-     | Next | `archive/delete of drained shims` |
-     | Later | `next cleanup phase definition` |
+     | Now | `phase-38x cleanup/archive sweep` |
+     | Next | `delete-ready shim sweep` |
+     | Later | `archive-later queue freeze` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
@@ -135,12 +138,14 @@ Related:
   - `phase-32x` product / engineering split (landed precursor)
   - `phase-36x` selfhost source / stage1 bridge split (landed precursor)
   - `phase-37x` bootstrap owner split (landed precursor)
+  - `phase-38x` cleanup/archive sweep (active)
 - Active backend surface tasks:
-  - `post-37x cleanup/archive sweep`
+  - `phase-38x cleanup/archive sweep`
 - Queued backend surface tasks:
-  - `archive/delete of drained shims`
+  - `delete-ready shim sweep`
 - Post-`37xD1` cleanup:
   - drained shim / legacy embedded smoke archive sweep
+  - first landed move: `tools/stage1_smoke.sh` -> `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion
@@ -154,11 +159,11 @@ Related:
 
 ## Exact Next
 
-1. keep `phase-37x` exact through the bootstrap owner split
-2. keep `phase-36x` landed as the selfhost/stage1 owner split precursor
-3. keep `phase-35x` landed as the Stage-A compat precursor
-4. keep `phase-34x` landed as the stage0 shell-residue precursor
-5. keep `phase-32x` landed as the mixed-owner split precursor
+1. keep `phase-38x` exact through the cleanup/archive sweep
+2. keep `phase-37x` landed as the bootstrap-owner precursor
+3. keep `phase-36x` landed as the selfhost/stage1 owner split precursor
+4. keep `phase-35x` landed as the Stage-A compat precursor
+5. keep `phase-34x` landed as the stage0 shell-residue precursor
 
 ## Active Lane
 

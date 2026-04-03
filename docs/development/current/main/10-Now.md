@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `phase-37x bootstrap owner split`
+- lane: `phase-38x cleanup/archive sweep`
 - `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete
 - `phase-32x` landed: mixed-owner source/smoke split and raw default/token defer are fixed
@@ -47,9 +47,10 @@ Related:
 - `36xB1` landed: `raw_subcommand_emit_mir.hako` now owns raw `emit mir-json` request/materialize/emit glue
 - `36xB2` landed: `raw_subcommand_run.hako` now owns raw `run` request/script-args env/Program(JSON) materialization glue
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
-- active micro task: `post-37x cleanup/archive sweep`
-- next micro task: `next cleanup phase definition`
+- active micro task: `38xA1 archive legacy embedded stage1 smoke`
+- next micro task: `38xB1 delete-ready shim sweep`
 - post-`37xD1`: cleanup/archive sweep for drained shims and legacy embedded smoke
+- landed first cleanup move: `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`
 - `37xD1` evidence:
   - `cargo check --bin hakorune` PASS
   - `git diff --check` PASS
@@ -63,7 +64,7 @@ Related:
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
   - `vm-hako` = `reference/conformance`
   - `wasm` = `experimental`
-- raw backend default/token rewrite stays deferred beyond `phase-37x`
+- raw backend default/token rewrite stays deferred beyond `phase-38x`
 - source/smoke cleanup rule:
   - `split/rehome/drain -> delete`
 - speed rule:
@@ -74,6 +75,6 @@ Related:
 
 1. read `CURRENT_TASK.md`
 2. read `15-Workstream-Map.md`
-3. read `docs/development/current/main/phases/phase-37x/README.md`
-4. read `docs/development/current/main/phases/phase-37x/37x-90-bootstrap-owner-split-ssot.md`
-5. read `docs/development/current/main/phases/phase-37x/37x-91-task-board.md`
+3. read `docs/development/current/main/phases/phase-38x/README.md`
+4. read `docs/development/current/main/phases/phase-38x/38x-90-cleanup-archive-sweep-ssot.md`
+5. read `docs/development/current/main/phases/phase-38x/38x-91-task-board.md`

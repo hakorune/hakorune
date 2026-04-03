@@ -56,5 +56,5 @@ Related:
 - `36xB1` is landed: `raw_subcommand_emit_mir.hako` now owns raw `emit mir-json` request parse / materialize / emit / stdout
 - `36xB2` is landed: `raw_subcommand_run.hako` now owns raw `run` request parse / script-args env / Program(JSON) materialization
 - `36xC1` is landed: proof/closeout fixes the split as evidence instead of reopening compat ownership
-- current front is `phase-37x bootstrap owner split`
+- current front is `phase-38x cleanup/archive sweep`
 - predecessor lane is `phase-35x stage-a compat route thinning`

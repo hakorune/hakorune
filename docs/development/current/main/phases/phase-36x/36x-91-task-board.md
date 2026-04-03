@@ -47,7 +47,7 @@ cargo check --bin hakorune
 ## Current Result
 
 - current front:
-  - `phase-37x bootstrap owner split`
+  - `phase-38x cleanup/archive sweep`
 - current residue reading:
   - `source_prepare.rs` now owns source extension gate / source read / using merge / preexpand / tmp staging
   - `selfhost.rs` keeps macro pre-expand gate, fallback ordering, and terminal accept
@@ -57,5 +57,5 @@ cargo check --bin hakorune
   - `stage1_cli/raw_subcommand_run.hako` now owns raw `run` request parse / script-args env / Program(JSON) materialization
   - `stage1_cli/core.hako` now keeps thin handoff only for raw `run`
   - `cargo check --bin hakorune` and `git diff --check` are green
-  - `tools/stage1_smoke.sh mir-json` still fails with the inherited embedded `BuildBox` parse error, so this phase closes with that red unchanged rather than attributing it to the split
-  - `tools/stage1_smoke.sh` now reads as a legacy embedded bridge smoke; current mainline smoke is `tools/selfhost/stage1_mainline_smoke.sh`
+  - `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh mir-json` still fails with the inherited embedded `BuildBox` parse error, so this phase closes with that red unchanged rather than attributing it to the split
+  - `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh` now reads as an archived legacy embedded bridge smoke; current mainline smoke is `tools/selfhost/stage1_mainline_smoke.sh`

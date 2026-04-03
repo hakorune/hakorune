@@ -22,19 +22,19 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-37x bootstrap owner split`
-- active micro task: `post-37x cleanup/archive sweep`
-- next micro task: `next cleanup phase definition`
-- post-`37xD1`: `cleanup/archive sweep`
-- raw backend default flip stays deferred beyond `phase-37x`
+- lane: `phase-38x cleanup/archive sweep`
+- active micro task: `38xA1 archive legacy embedded stage1 smoke`
+- next micro task: `38xB1 delete-ready shim sweep`
+- post-`37xD1`: `phase-38x cleanup/archive sweep`
+- raw backend default flip stays deferred beyond `phase-38x`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-37x/README.md`
-4. `docs/development/current/main/phases/phase-37x/37x-90-bootstrap-owner-split-ssot.md`
-5. `docs/development/current/main/phases/phase-37x/37x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-38x/README.md`
+4. `docs/development/current/main/phases/phase-38x/38x-90-cleanup-archive-sweep-ssot.md`
+5. `docs/development/current/main/phases/phase-38x/38x-91-task-board.md`
 6. `cargo check --manifest-path Cargo.toml --bin hakorune`
 
 ## Optional Checks

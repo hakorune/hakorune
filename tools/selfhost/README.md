@@ -281,4 +281,4 @@ Helper — Stage1 CLI Runner
     tools/selfhost/stage1_mainline_smoke.sh
     tools/selfhost/stage1_mainline_smoke.sh --bin target/selfhost/hakorune.stage1_cli.stage2 apps/tests/hello_simple_llvm.hako
     ```
-  - legacy embedded bridge smoke remains `tools/stage1_smoke.sh` and is not the daily/mainline proof route.
+  - legacy embedded bridge smoke moved to `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh` and is not the daily/mainline proof route.

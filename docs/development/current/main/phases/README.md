@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: post-37x cleanup/archive sweep
+- **Current (ACTIVE)**: Phase 38x cleanup/archive sweep
+- **Phase 38x（ACTIVE）**: cleanup/archive sweep（legacy embedded smoke archive first, then delete-ready shim sweep）
 - **Phase 37x（LANDED）**: bootstrap owner split（`selfhost_build.sh` / `build.rs` first, speed-first）
 - **Phase 36x（LANDED）**: selfhost source / stage1 bridge split（`selfhost.rs` source prepare / `stage1_cli` raw bridge first）
 - **Phase 35x（LANDED）**: stage-a compat route thinning（`selfhost.rs` / `stage_a_compat_bridge.rs` first）
