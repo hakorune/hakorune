@@ -51,9 +51,9 @@ Related:
    - `50xB2` route-comment stale wording cleanup (landed)
 3. `50xC` archive-ready source/docs move
    - `50xC1` archive-ready docs/examples move (landed)
-   - `50xC2` historical PyVM / legacy wrapper archival sweep (active)
+   - `50xC2` historical PyVM / legacy wrapper archival sweep (landed)
 4. `50xD` proof / closeout
-   - `50xD1` proof / closeout
+   - `50xD1` proof / closeout (active)
 
 ## Boundaries
 

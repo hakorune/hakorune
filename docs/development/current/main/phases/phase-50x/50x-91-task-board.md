@@ -21,14 +21,14 @@ Date: 2026-04-04
 | `50xB1` | landed | smoke/helper stale-route cleanup |
 | `50xB2` | landed | route-comment stale wording cleanup |
 | `50xC1` | landed | archive-ready docs/examples move |
-| `50xC2` | active | historical PyVM / legacy wrapper archival sweep |
-| `50xD1` | queued | proof / closeout |
+| `50xC2` | landed | historical PyVM / legacy wrapper archival sweep |
+| `50xD1` | active | proof / closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `50xC2 historical PyVM / legacy wrapper archival sweep` |
+| Now | `50xD1 proof / closeout` |
 | Blocker | `none` |
-| Next | `50xD1 proof / closeout` |
-| After Next | `next source lane selection` |
+| Next | `next source lane selection` |
+| After Next | `phase-51x selection` |
