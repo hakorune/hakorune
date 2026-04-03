@@ -11,12 +11,12 @@
 - `--backend interpreter` / `--compile-native` / `--aot`: historical / non-primary route
 
 注意:
-- raw CLI default はまだ `vm` ですが、これは legacy ingress の都合であり product ownership を意味しません。
+- raw CLI の歴史的 ingress token はまだ `vm` ですが、これは legacy ingress の都合であり product ownership を意味しません。
 - user-facing main narrative は `llvm/exe` first です。default flip は別 gate (`phase-30x / 30xF`) で最後に判断します。
 
 ## 基本
 - `file`: 実行するNyashファイル（位置引数）
-- `--backend {vm|vm-hako|llvm|interpreter}`: 実行バックエンド選択（current raw default: `vm`, legacy ingress only）
+- `--backend {vm|vm-hako|llvm|interpreter}`: 実行バックエンド選択（historical raw ingress token: `vm`, legacy ingress only）
 - `--debug-fuel {N|unlimited}`: パーサーのデバッグ燃料（無限ループ対策）
 - `--parser`: removed（M4 tail cleanup で削除済み）。指定時は CLI で reject される。
 

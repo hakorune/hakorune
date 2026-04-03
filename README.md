@@ -85,7 +85,7 @@ Quick pointers
   - `tools/ny_mir_builder.sh --in /path/mir.json --emit obj -o a.o`
   - `tools/ny_mir_builder.sh --in /path/mir.json --emit exe -o a.out`
   - auto-selects `ny-llvmc` when present（`NYASH_LLVM_BACKEND=crate` 明示でも可）
-- Historical / engineering PyVM parity check: `bash tools/historical/pyvm/pyvm_stage2_smoke.sh`.
+- Historical / direct-only PyVM parity check: `bash tools/historical/pyvm/pyvm_stage2_smoke.sh`.
 
 Program(JSON v0) → MIR(JSON)
 - Compat-only bridge route: convert a Stage‑B Program(JSON v0) file to MIR(JSON):
@@ -175,14 +175,14 @@ Specs & Constraints
 - Comparison with other languages: `docs/guides/comparison/nyash-vs-others.md`
 
 ## Table of Contents
-- [Self-Hosting (Engineering Bootstrap)](#self-hosting)
+- [Self-Hosting (Compat / Proof)](#self-hosting)
 - [Historical Milestones (Nyash Era)](#-historical-milestones-nyash-era)
 - [🌟 Property System Revolution](#-property-system-revolution-september-18-2025)
 - [Language Features](#-language-features)
 - [Plugin System](#-revolutionary-plugin-system-typebox-architecture)
 
 <a id="self-hosting"></a>
-## 🧪 Self‑Hosting (Engineering Bootstrap)
+## 🧪 Self‑Hosting (Compat / Proof)
 - Guide: `docs/how-to/self-hosting.md`
 - Compat/proof bootstrap E2E: `$NYASH_BIN --backend vm apps/selfhost-minimal/main.hako`
 - Compat/proof smokes: `bash tools/jit_smoke.sh` / `bash tools/selfhost/selfhost_vm_smoke.sh`
@@ -358,7 +358,7 @@ $NYASH_BIN --backend interpreter program.hako
 The WASM/browser path is experimental and not part of the product mainline or default CI. It remains a separate local/demo lane with its own smoke and promotion gates.
 
 - Source: `projects/nyash-wasm/` (experimental / local-only)
-- Current role: experimental / monitor-only, separate from the product main and engineering bootstrap lanes
+- Current role: experimental / monitor-only, separate from the product main and compat/proof keep lanes
 - If you experiment locally, see the project README and `projects/nyash-wasm/build.sh` (wasm-pack required). No support guarantees.
 
 ---
