@@ -163,7 +163,7 @@ Layer guard (one-way deps: origin→observe→rewrite)
 - VoidBox common methods (length/size/get/push) are neutral no-ops in guarded paths to avoid dev-time hard stops.
 
 Profiles (quick)
-- `--profile dev` → Macros ON (strict), PyVM dev向け設定を適用（必要に応じて環境で上書き可）
+- `--profile dev` → Macros ON (strict), legacy compat settings only（必要に応じて環境で上書き可）
 - `--profile lite` → Macros OFF の軽量実行
   - 例 (compat/proof keep): `$NYASH_BIN --profile dev --backend vm apps/tests/ternary_basic.hako`
 
