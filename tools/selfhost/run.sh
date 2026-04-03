@@ -6,10 +6,6 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 NYASH_ROOT="${NYASH_ROOT:-$ROOT_DIR}"
 NYASH_BIN="${NYASH_BIN:-$NYASH_ROOT/target/release/hakorune}"
 
-GATE_SCRIPT="$NYASH_ROOT/tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh"
-DIRECT_STAGEB_SCRIPT="$NYASH_ROOT/tools/selfhost/run_stageb_compiler_vm.sh"
-STEADY_STATE_SCRIPT="$NYASH_ROOT/tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_steady_state_vm.sh"
-
 mode=""
 source_file=""
 runtime_input="apps/examples/string_p0.hako"

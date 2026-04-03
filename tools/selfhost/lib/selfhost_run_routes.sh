@@ -5,6 +5,10 @@
 # - Own the gate/runtime/direct/steady-state route bodies.
 # - Keep selfhost/run.sh focused on parsing and thin dispatch only.
 
+GATE_SCRIPT="${GATE_SCRIPT:-$NYASH_ROOT/tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh}"
+DIRECT_STAGEB_SCRIPT="${DIRECT_STAGEB_SCRIPT:-$NYASH_ROOT/tools/selfhost/run_stageb_compiler_vm.sh}"
+STEADY_STATE_SCRIPT="${STEADY_STATE_SCRIPT:-$NYASH_ROOT/tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_steady_state_vm.sh}"
+
 resolve_path() {
   local candidate="$1"
   if [[ "$candidate" == /* ]]; then

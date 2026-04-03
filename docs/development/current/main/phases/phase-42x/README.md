@@ -51,17 +51,18 @@ Related:
 - `42xA1` landed: caller-starvation targets are locked to `selfhost_build.sh` / `run.sh` / `child.rs` / `vm.rs` / `vm_fallback.rs`
 - `42xA2` landed: proof-only VM keeps are frozen as explicit do-not-grow surfaces
 - `42xB1` landed: `selfhost_build.sh` downstream caller pressure is moved into helper-owned route-main code
+- `42xB2` landed: `run.sh` route-only facade migration keeps route path constants helper-owned and the top level parser/dispatch-only
 - `run_stageb_compiler_vm.sh`, `selfhost_vm_smoke.sh`, and `selfhost_stage3_accept_smoke.sh` remain proof-only keeps
 - `lang/src/runner/stage1_cli/core.hako` remains compat keep and must stay no-widen
 - `src/runner/core_executor.rs` remains the direct owner for in-proc/direct MIR execution
 - `tools/selfhost/run_stage1_cli.sh` and `tools/selfhost/stage1_mainline_smoke.sh` remain the direct proof home
-- `tools/selfhost/selfhost_build.sh`, `tools/selfhost/run.sh`, and `src/runner/modes/common_util/selfhost/child.rs` are the active starvation/migration surfaces
+- `tools/selfhost/selfhost_build.sh` and `src/runner/modes/common_util/selfhost/child.rs` are the active starvation/migration surfaces
 - `src/runner/modes/vm.rs` and `src/runner/modes/vm_fallback.rs` remain engineering keep until caller drain proves they can shrink again
 
 ## Big Tasks
 
 1. lock caller-starvation targets and do-not-grow keeps exactly
-2. move `selfhost_build.sh` / `run.sh` caller pressure toward direct/core routes
+2. move `selfhost_build.sh` caller pressure toward direct/core routes
 3. drain `child.rs` / `vm.rs` / compat keep from day-to-day route ownership
 4. close out with focused proof and handoff
 
@@ -75,5 +76,5 @@ Related:
 6. `tools/selfhost/run.sh`
 7. `src/runner/modes/common_util/selfhost/child.rs`
 
-- current active micro task: `42xB2 run.sh route-only facade migration`
-- next micro task: `42xC1 child.rs shell-only drain`
+- current active micro task: `42xC1 child.rs shell-only drain`
+- next micro task: `42xC2 vm.rs preflight/source-prepare split`

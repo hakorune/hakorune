@@ -20,8 +20,8 @@ Scope: `rust-vm` を即削除せず、live caller を starvation して direct/c
 | `tools/selfhost/selfhost_build.sh` | route facade with downstream mixed pressure | landed route-main split input |
 | `tools/selfhost/lib/selfhost_build_direct.sh` | direct/core helper owner | active migration target |
 | `tools/selfhost/lib/selfhost_build_dispatch.sh` | route dispatcher | active migration target |
-| `tools/selfhost/run.sh` | outer facade | active migration target |
-| `tools/selfhost/lib/selfhost_run_routes.sh` | route bodies | active migration target |
+| `tools/selfhost/run.sh` | route-only facade | landed route-only facade split input |
+| `tools/selfhost/lib/selfhost_run_routes.sh` | route bodies | landed helper-owned route bodies |
 | `src/runner/modes/common_util/selfhost/child.rs` | thin helper boundary under vm child capture | caller-drain target |
 | `src/runner/modes/vm.rs` | engineering keep / proof-oracle owner | drain then shrink |
 | `src/runner/modes/vm_fallback.rs` | engineering fallback keep | drain then shrink |
@@ -38,7 +38,6 @@ Scope: `rust-vm` を即削除せず、live caller を starvation して direct/c
 | Surface | Why it stays in the active migration set |
 | --- | --- |
 | `tools/selfhost/selfhost_build.sh` | it still fans out into route helpers that can pull new work back toward vm-gated routes, even though the route-main glue is now helper-owned |
-| `tools/selfhost/run.sh` | it still fronts direct/runtime/direct-call paths that should stay route-only |
 | `src/runner/modes/common_util/selfhost/child.rs` | it still owns vm child capture and must be reduced to spawn/capture/timeout/JSON selection only |
 | `src/runner/modes/vm.rs` | it still owns proof/oracle execution pressure and can widen again if callers are not starved |
 | `src/runner/modes/vm_fallback.rs` | it still mirrors the vm owner pressure and needs the same drain discipline |
@@ -68,7 +67,7 @@ Scope: `rust-vm` を即削除せず、live caller を starvation して direct/c
 | --- | --- |
 | Now | `phase-42x vm caller starvation / direct-core owner migration` |
 | Blocker | `none` |
-| Next | `42xB2 run.sh route-only facade migration` |
+| Next | `42xC1 child.rs shell-only drain` |
 
 - `phase-41x` landed: direct/core route hardening and `vm.rs` proof/oracle shrink are complete enough for handoff
 - `42xA1` locked the active migration surfaces and the exact proof-only keep set
@@ -89,8 +88,8 @@ Scope: `rust-vm` を即削除せず、live caller を starvation して direct/c
 | `42xA1` | landed | lock caller starvation targets and active migration surfaces |
 | `42xA2` | landed | freeze proof-only VM keep set as explicit `do-not-grow` |
 | `42xB1` | landed | starve `selfhost_build.sh` downstream callers toward direct/core helper owners |
-| `42xB2` | active | trim `run.sh` day-to-day route pressure so it stays route-only facade |
-| `42xC1` | queued | drain `child.rs` until it owns spawn/capture/timeout/JSON selection only |
+| `42xB2` | landed | trim `run.sh` day-to-day route pressure so it stays route-only facade |
+| `42xC1` | active | drain `child.rs` until it owns spawn/capture/timeout/JSON selection only |
 | `42xC2` | queued | split `vm.rs` preflight/source-prepare ownership out of the broad execution path |
 | `42xC3` | queued | move shared vm user-factory ownership out of `vm.rs` / `vm_fallback.rs` and drain fallback callers |
 | `42xC4` | queued | hold `core.hako` compat lane as explicit no-widen while direct/core routes take new work |
