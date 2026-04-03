@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-03
 Scope: stage0/bootstrap lane の remaining vm-rust / vm-gated surface を archive candidate / keep / rehome / delete-ready に分類する。
 ---
@@ -35,7 +35,7 @@ Scope: stage0/bootstrap lane の remaining vm-rust / vm-gated surface を archiv
 | `40xA archive candidate inventory` | landed | new feature work がまだ `rust-vm` を引きずる route を exact に inventory する |
 | `40xB keep/archive classification` | landed | route を `proof-only keep` / `compat keep` / `archive-later` / `direct-owner target` / `must-split-first` に分ける |
 | `40xC archive/delete sweep` | landed | drained vm-facing shims と stale compat wrappers を live surface から外した |
-| `40xD closeout` | active | `rust-vm` を mainline owner ではなく proof/compat keep として handoff する |
+| `40xD closeout` | landed | `rust-vm` を mainline owner ではなく proof/compat keep として handoff した |
 
 ## Candidate Reading
 
@@ -130,6 +130,6 @@ Scope: stage0/bootstrap lane の remaining vm-rust / vm-gated surface を archiv
 
 ## Current Front
 
-- active macro wave: `40xB keep/archive classification`
-- active micro task: `40xD1 proof / closeout`
-- next queued micro task: `next source lane selection`
+- active macro wave: `41xA direct/core route inventory`
+- active micro task: `41xA1 direct/core route inventory`
+- next queued micro task: `41xA2 proof-only VM gate freeze`

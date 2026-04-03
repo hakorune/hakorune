@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Decision: provisional
 Date: 2026-04-03
 Scope: stage0/bootstrap lane の remaining vm-rust / vm-gated surfaces を archive candidate / keep / rehome / delete-ready に分類し、vm-rust archive への移行条件を固定する。
@@ -66,13 +66,12 @@ Related:
 
 ## Exact Next
 
-1. `40x-90-stage0-vm-archive-candidate-selection-ssot.md`
-2. `40x-91-task-board.md`
+1. `41x-90-stage0-direct-core-route-hardening-ssot.md`
+2. `41x-91-task-board.md`
 3. `tools/selfhost/selfhost_build.sh`
-4. `src/runner/build.rs`
-5. `tools/selfhost/run_stageb_compiler_vm.sh`
-6. `tools/selfhost/bootstrap_selfhost_smoke.sh`
-7. `tools/plugins/plugin_v2_smoke.sh`
+4. `tools/selfhost/run.sh`
+5. `src/runner/modes/vm.rs`
+6. `src/runner/core_executor.rs`
 
-- current active micro task: `40xD1 proof / closeout`
-- next queued micro task: `next source lane selection`
+- current active micro task: `41xA1 direct/core route inventory`
+- next queued micro task: `41xA2 proof-only VM gate freeze`

@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `phase-40x stage0 vm archive candidate selection`
+- lane: `phase-41x stage0 direct/core route hardening`
 - `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete
 - `phase-32x` landed: mixed-owner source/smoke split and raw default/token defer are fixed
@@ -49,11 +49,11 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `40xD1 proof / closeout`
-- next micro task: `next source lane selection`
+- active micro task: `41xA1 direct/core route inventory`
+- next micro task: `41xA2 proof-only VM gate freeze`
 - plain reading:
   - if a bootstrap route stays on `--backend vm`, new capability work still tends to imply `rust-vm` support
-  - `phase-40x` exists to move stage0/bootstrap mainline toward `hakorune` binary direct/core routes and leave vm as proof/compat keep
+  - `phase-41x` exists to harden the remaining direct/core mainline and keep vm as proof/compat keep
   - success means keeping only a small proof-only VM gate set and starving `selfhost_build.sh` / `build.rs` as mixed owners
   - `40xB1` is landed; the proof-only VM gate set is frozen and must not grow
   - failure means new features drifting back into `--backend vm`, stage1 compat, or raw routes
@@ -72,7 +72,7 @@ Related:
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
   - `vm-hako` = `reference/conformance`
   - `wasm` = `experimental`
-- raw backend default/token rewrite stays deferred beyond `phase-40x`
+- raw backend default/token rewrite stays deferred beyond `phase-41x`
 - source/smoke cleanup rule:
   - `split/rehome/drain -> delete`
 - vm thinning rule:
@@ -85,6 +85,6 @@ Related:
 
 1. read `CURRENT_TASK.md`
 2. read `15-Workstream-Map.md`
-3. read `docs/development/current/main/phases/phase-40x/README.md`
-4. read `docs/development/current/main/phases/phase-40x/40x-90-stage0-vm-archive-candidate-selection-ssot.md`
-5. read `docs/development/current/main/phases/phase-40x/40x-91-task-board.md`
+3. read `docs/development/current/main/phases/phase-41x/README.md`
+4. read `docs/development/current/main/phases/phase-41x/41x-90-stage0-direct-core-route-hardening-ssot.md`
+5. read `docs/development/current/main/phases/phase-41x/41x-91-task-board.md`

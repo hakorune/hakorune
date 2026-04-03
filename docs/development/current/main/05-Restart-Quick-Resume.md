@@ -22,19 +22,19 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-40x stage0 vm archive candidate selection`
-- active micro task: `40xD1 proof / closeout`
-- next micro task: `next source lane selection`
-- post-`39xD1`: `phase-40x stage0 vm archive candidate selection`
-- raw backend default flip stays deferred beyond `phase-40x`
+- lane: `phase-41x stage0 direct/core route hardening`
+- active micro task: `41xA1 direct/core route inventory`
+- next micro task: `41xA2 proof-only VM gate freeze`
+- post-`40xD1`: `phase-41x stage0 direct/core route hardening`
+- raw backend default flip stays deferred beyond `phase-41x`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-40x/README.md`
-4. `docs/development/current/main/phases/phase-40x/40x-90-stage0-vm-archive-candidate-selection-ssot.md`
-5. `docs/development/current/main/phases/phase-40x/40x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-41x/README.md`
+4. `docs/development/current/main/phases/phase-41x/41x-90-stage0-direct-core-route-hardening-ssot.md`
+5. `docs/development/current/main/phases/phase-41x/41x-91-task-board.md`
 6. `cargo check --manifest-path Cargo.toml --bin hakorune`
 
 ## Optional Checks

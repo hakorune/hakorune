@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-03
 ---
 
@@ -10,7 +10,7 @@ Date: 2026-04-03
 | 1 | `40xA archive candidate inventory` | landed | new feature work がまだ `rust-vm` を引きずる route を exact に inventory する |
 | 2 | `40xB keep/archive classification` | landed | route を `proof-only keep` / `compat keep` / `archive-later` / `direct-owner target` / `must-split-first` に分けた |
 | 3 | `40xC archive/delete sweep` | landed | drained vm-facing shims と stale compat wrappers を live surface から外した |
-| 4 | `40xD closeout` | active | `rust-vm` を proof/compat keep に縮めた reading で次 lane に handoff する |
+| 4 | `40xD closeout` | landed | `rust-vm` を proof/compat keep に縮めた reading で次 lane に handoff した |
 
 ## Exact Micro Tasks
 
@@ -21,4 +21,4 @@ Date: 2026-04-03
 | `40xB1` | landed | small proof-only VM gate set を `do-not-grow` として固定した状態を freeze する |
 | `40xB2` | landed | top-level shim callers を direct/core route 側へ drain する map を作る |
 | `40xC1` | landed | drained vm-facing shim / wrapper を archive/delete へ送った |
-| `40xD1` | active | proof を戻して next source lane に handoff する |
+| `40xD1` | landed | proof を戻して next source lane に handoff した |

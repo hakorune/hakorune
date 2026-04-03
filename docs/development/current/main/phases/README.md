@@ -4,8 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 40x stage0 vm archive candidate selection
-- **Phase 40x（ACTIVE）**: stage0 vm archive candidate selection（remaining vm-rust / vm-gated surface を archive candidate / keep / rehome / delete-ready に分類する）
+- **Current (ACTIVE)**: Phase 41x stage0 direct/core route hardening
+- **Phase 41x（ACTIVE）**: stage0 direct/core route hardening（remaining direct/core route ownership を harden し、proof-only VM gates と compat keep を固定する）
+- **Phase 40x（LANDED）**: stage0 vm archive candidate selection（drained vm-facing shims と stale compat wrappers を archive/delete した）
 - **Phase 39x（LANDED）**: stage0 vm gate thinning（bootstrap/source route で `--backend vm` 残面を inventory して direct route と keep gate を分ける）
 - **Phase 38x（LANDED）**: cleanup/archive sweep（legacy embedded smoke archive first, then delete-ready shim sweep）
 - **Phase 37x（LANDED）**: bootstrap owner split（`selfhost_build.sh` / `build.rs` first, speed-first）
