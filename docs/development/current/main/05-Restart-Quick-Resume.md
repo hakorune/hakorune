@@ -22,19 +22,19 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-39x stage0 vm gate thinning`
-- active micro task: `39xC1 caller drain map`
-- next micro task: `39xD1 proof / closeout`
-- post-`38xD1`: `phase-39x stage0 vm gate thinning`
-- raw backend default flip stays deferred beyond `phase-39x`
+- lane: `phase-40x stage0 vm archive candidate selection`
+- active micro task: `40xA1 archive candidate inventory`
+- next micro task: `40xA2 keep/archive classification`
+- post-`39xD1`: `phase-40x stage0 vm archive candidate selection`
+- raw backend default flip stays deferred beyond `phase-40x`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-39x/README.md`
-4. `docs/development/current/main/phases/phase-39x/39x-90-stage0-vm-gate-thinning-ssot.md`
-5. `docs/development/current/main/phases/phase-39x/39x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-40x/README.md`
+4. `docs/development/current/main/phases/phase-40x/40x-90-stage0-vm-archive-candidate-selection-ssot.md`
+5. `docs/development/current/main/phases/phase-40x/40x-91-task-board.md`
 6. `cargo check --manifest-path Cargo.toml --bin hakorune`
 
 ## Optional Checks

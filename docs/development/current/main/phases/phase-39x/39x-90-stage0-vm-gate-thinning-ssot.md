@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-03
 Scope: stage0/bootstrap lane の `--backend vm` 残面 inventory
 ---
@@ -10,10 +10,10 @@ Scope: stage0/bootstrap lane の `--backend vm` 残面 inventory
 
 | Wave | Status | Read as |
 | --- | --- | --- |
-| `39xA stage0 gate route inventory` | active | remaining vm-gated bootstrap surfaces を exact に inventory する |
-| `39xB direct route selection` | queued | direct bootstrap mainline と explicit vm keep を分ける |
-| `39xC caller drain / keep freeze` | queued | mixed routes から callers を drain し、keep set を freeze する |
-| `39xD closeout` | queued | next source lane に handoff する |
+| `39xA stage0 gate route inventory` | landed | remaining vm-gated bootstrap surfaces を exact に inventory する |
+| `39xB direct route selection` | landed | direct bootstrap mainline と explicit vm keep を分ける |
+| `39xC caller drain / keep freeze` | landed | mixed routes から callers を drain し、keep set を freeze する |
+| `39xD closeout` | landed | focused proof を戻して successor lane に handoff する |
 
 ## Candidate Reading
 
@@ -65,7 +65,7 @@ Scope: stage0/bootstrap lane の `--backend vm` 残面 inventory
 | `tools/selfhost/selfhost_vm_smoke.sh` | explicit VM smoke gate stays frozen until direct bootstrap coverage replaces it |
 | `tools/selfhost/selfhost_stage3_accept_smoke.sh` | stage3 accept keeps the vm route visible for current bootstrap proof |
 
-## Caller Drain Map (39xC1 active)
+## Caller Drain Map (39xC1 landed)
 
 | Frozen gate | Current live callers | Drain target |
 | --- | --- | --- |
@@ -75,6 +75,15 @@ Scope: stage0/bootstrap lane の `--backend vm` 残面 inventory
 
 ## Active Front
 
-- active macro wave: `39xA stage0 gate route inventory`
-- active micro task: `39xC1 caller drain map`
-- next queued micro task: `39xD1 proof / closeout`
+- active macro wave: `39xD closeout`
+- active micro task: `none`
+- next queued micro task: `40xA1 archive candidate inventory`
+
+## Closeout Summary (39xD1 landed)
+
+- focused proof commands passed:
+  - `cargo check --bin hakorune`
+  - `git diff --check`
+  - `bash tools/selfhost/stage1_mainline_smoke.sh`
+  - `bash tools/selfhost/stage1_mainline_smoke.sh --bin target/selfhost/hakorune.stage1_cli.stage2 apps/tests/hello_simple_llvm.hako`
+- `phase-39x` is landed; successor lane is `phase-40x stage0 vm archive candidate selection`.

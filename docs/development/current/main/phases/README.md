@@ -4,8 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 39x stage0 vm gate thinning
-- **Phase 39x（ACTIVE）**: stage0 vm gate thinning（bootstrap/source route で `--backend vm` 残面を inventory して direct route と keep gate を分ける）
+- **Current (ACTIVE)**: Phase 40x stage0 vm archive candidate selection
+- **Phase 40x（ACTIVE）**: stage0 vm archive candidate selection（remaining vm-rust / vm-gated surface を archive candidate / keep / rehome / delete-ready に分類する）
+- **Phase 39x（LANDED）**: stage0 vm gate thinning（bootstrap/source route で `--backend vm` 残面を inventory して direct route と keep gate を分ける）
 - **Phase 38x（LANDED）**: cleanup/archive sweep（legacy embedded smoke archive first, then delete-ready shim sweep）
 - **Phase 37x（LANDED）**: bootstrap owner split（`selfhost_build.sh` / `build.rs` first, speed-first）
 - **Phase 36x（LANDED）**: selfhost source / stage1 bridge split（`selfhost.rs` source prepare / `stage1_cli` raw bridge first）

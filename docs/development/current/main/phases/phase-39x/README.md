@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Decision: provisional
 Date: 2026-04-03
 Scope: stage0/bootstrap lane の `--backend vm` 残面を inventory し、direct route と explicit vm gate を分ける。
@@ -11,6 +11,9 @@ Related:
   - docs/development/current/main/phases/README.md
   - docs/development/current/main/phases/phase-39x/39x-90-stage0-vm-gate-thinning-ssot.md
   - docs/development/current/main/phases/phase-39x/39x-91-task-board.md
+  - docs/development/current/main/phases/phase-40x/README.md
+  - docs/development/current/main/phases/phase-40x/40x-90-stage0-vm-archive-candidate-selection-ssot.md
+  - docs/development/current/main/phases/phase-40x/40x-91-task-board.md
 ---
 
 # Phase 39x: Stage0 VM Gate Thinning
@@ -23,27 +26,30 @@ Related:
 
 ## Fixed Reading
 
-- main work is source-route thinning, not default/token rewrite.
-- `tools/selfhost/selfhost_build.sh` is the biggest mixed owner remaining in the bootstrap lane.
-- `tools/selfhost/run_stageb_compiler_vm.sh` is the explicit VM gate and must be treated separately from direct-route candidates.
-- `tools/selfhost/run.sh` / `tools/selfhost/bootstrap_selfhost_smoke.sh` are outer facades or explicit engineering gates.
-- `tools/selfhost/run_stage1_cli.sh` / `tools/selfhost/stage1_mainline_smoke.sh` are the direct Stage1 mainline route candidates.
-- `src/runner/modes/common_util/selfhost/child.rs` / `src/runner/core_executor.rs` are direct-route or thin-owner candidates.
-- `phase-38x` cleanup/archive sweep is landed and the archive-later queue is frozen.
+- `phase-39x` is landed; stage0 vm gate thinning is no longer the active lane.
+- main work now is archive candidate selection, not default/token rewrite.
+- `phase-38x` cleanup/archive sweep landed the archive-later queue and the top-level legacy embedded smoke archive.
+- `tools/selfhost/selfhost_build.sh` is still the biggest mixed owner remaining in the bootstrap lane.
+- `tools/selfhost/run_stageb_compiler_vm.sh` remains the explicit VM gate and must be treated separately from archive candidates.
+- `tools/selfhost/run.sh` / `tools/bootstrap_selfhost_smoke.sh` / `tools/plugin_v2_smoke.sh` are outer facades or archive-later shims.
+- `tools/selfhost/run_stage1_cli.sh` / `tools/selfhost/stage1_mainline_smoke.sh` are the direct Stage1 mainline proof homes.
+- `src/runner/modes/common_util/selfhost/child.rs` / `src/runner/core_executor.rs` are thin-owner or direct-route candidates.
+- `src/runner/modes/vm.rs` remains engineering keep until archive selection proves otherwise.
 - `39xA1` landed: caller inventory is fixed for `selfhost_build.sh` / `run_stageb_compiler_vm.sh` / `run.sh`.
 - `39xA2` landed: route ownership is classified as `vm 必須` / `direct` / `core_executor`.
 - `39xB1` landed: direct bootstrap mainline is `run_stage1_cli.sh` / `stage1_mainline_smoke.sh`.
 - `39xB2` landed: explicit vm gate keep set is frozen.
-- `39xC1` active: caller drain map focuses on bootstrap/selfhost/stage3 smoke gates.
+- `39xC1` landed: caller drain map focused on bootstrap/selfhost/stage3 smoke gates.
+- `39xD1` landed: proof/closeout returned the focused probes green.
 
 ## Exact Next
 
-1. `39x-90-stage0-vm-gate-thinning-ssot.md`
-2. `39x-91-task-board.md`
-3. `tools/selfhost/run_stage1_cli.sh`
-4. `tools/selfhost/stage1_mainline_smoke.sh`
-5. `tools/selfhost/run_stageb_compiler_vm.sh`
-6. `tools/selfhost/bootstrap_selfhost_smoke.sh`
+1. `40x-90-stage0-vm-archive-candidate-selection-ssot.md`
+2. `40x-91-task-board.md`
+3. `tools/selfhost/selfhost_build.sh`
+4. `tools/selfhost/run_stageb_compiler_vm.sh`
+5. `tools/bootstrap_selfhost_smoke.sh`
+6. `tools/plugin_v2_smoke.sh`
 
-- current active micro task: `39xC1 caller drain map`
-- next queued micro task: `39xD1 proof / closeout`
+- successor lane: `phase-40x stage0 vm archive candidate selection`
+- next micro task: `40xA1 archive candidate inventory`

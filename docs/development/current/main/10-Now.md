@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `phase-39x stage0 vm gate thinning`
+- lane: `phase-40x stage0 vm archive candidate selection`
 - `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete
 - `phase-32x` landed: mixed-owner source/smoke split and raw default/token defer are fixed
@@ -47,9 +47,9 @@ Related:
 - `36xB1` landed: `raw_subcommand_emit_mir.hako` now owns raw `emit mir-json` request/materialize/emit glue
 - `36xB2` landed: `raw_subcommand_run.hako` now owns raw `run` request/script-args env/Program(JSON) materialization glue
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
-- active micro task: `39xC1 caller drain map`
-- next micro task: `39xD1 proof / closeout`
-- post-`38xD1`: stage0 vm gate thinning for remaining bootstrap surfaces
+- active micro task: `40xA1 archive candidate inventory`
+- next micro task: `40xA2 keep/archive classification`
+- post-`39xD1`: stage0 vm archive candidate selection for remaining bootstrap surfaces
 - landed first cleanup move: `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`
 - `37xD1` evidence:
   - `cargo check --bin hakorune` PASS
@@ -64,7 +64,7 @@ Related:
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
   - `vm-hako` = `reference/conformance`
   - `wasm` = `experimental`
-- raw backend default/token rewrite stays deferred beyond `phase-39x`
+- raw backend default/token rewrite stays deferred beyond `phase-40x`
 - source/smoke cleanup rule:
   - `split/rehome/drain -> delete`
 - speed rule:
@@ -75,6 +75,6 @@ Related:
 
 1. read `CURRENT_TASK.md`
 2. read `15-Workstream-Map.md`
-3. read `docs/development/current/main/phases/phase-39x/README.md`
-4. read `docs/development/current/main/phases/phase-39x/39x-90-stage0-vm-gate-thinning-ssot.md`
-5. read `docs/development/current/main/phases/phase-39x/39x-91-task-board.md`
+3. read `docs/development/current/main/phases/phase-40x/README.md`
+4. read `docs/development/current/main/phases/phase-40x/40x-90-stage0-vm-archive-candidate-selection-ssot.md`
+5. read `docs/development/current/main/phases/phase-40x/40x-91-task-board.md`

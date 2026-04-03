@@ -37,7 +37,7 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-39x stage0 vm gate thinning`
+     - current active lane is `phase-40x stage0 vm archive candidate selection`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
@@ -57,7 +57,9 @@ Related:
         - `phase-36x` landed and handled selfhost source / stage1 bridge split
         - `phase-37x` landed bootstrap owner split
         - `phase-38x` landed cleanup/archive sweep
-     - `phase-39x` now handles stage0 vm gate thinning
+     - `phase-39x` landed stage0 vm gate thinning
+     - `phase-40x` now handles stage0 vm archive candidate selection
+     - `40xA1` inventories remaining vm-rust archive candidates
         - `39xA1` landed and fixed caller inventory for `selfhost_build.sh` / `run_stageb_compiler_vm.sh` / `run.sh`
         - `39xA2` landed and classifies route ownership
         - `39xB1` landed and selected the direct bootstrap mainline
@@ -89,20 +91,20 @@ Related:
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-39x stage0 vm gate thinning table:
+   - phase-40x stage0 vm archive candidate selection table:
 
      | Item | State |
      | --- | --- |
-     | Now | `phase-39x stage0 vm gate thinning` |
+     | Now | `phase-40x stage0 vm archive candidate selection` |
      | Blocker | `none` |
-     | Next | `39xC1 caller drain map` |
+     | Next | `40xA1 archive candidate inventory` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `phase-39x stage0 vm gate thinning` |
-     | Next | `39xC1 caller drain map` |
-     | Later | `39xD1 proof / closeout` |
+     | Now | `phase-40x stage0 vm archive candidate selection` |
+     | Next | `40xA1 archive candidate inventory` |
+     | Later | `40xD1 proof / closeout` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
@@ -143,11 +145,12 @@ Related:
   - `phase-32x` product / engineering split (landed precursor)
   - `phase-36x` selfhost source / stage1 bridge split (landed precursor)
   - `phase-37x` bootstrap owner split (landed precursor)
-  - `phase-39x` stage0 vm gate thinning (active)
+- `phase-39x` stage0 vm gate thinning (landed precursor)
+- `phase-40x` stage0 vm archive candidate selection (active)
 - Active backend surface tasks:
-  - `phase-39x stage0 vm gate thinning`
+  - `phase-40x stage0 vm archive candidate selection`
 - Queued backend surface tasks:
-  - `39xC1 caller drain map`
+  - `40xA1 archive candidate inventory`
 - Post-`37xD1` cleanup:
   - drained shim / legacy embedded smoke archive sweep
   - first landed move: `tools/stage1_smoke.sh` -> `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`
@@ -164,11 +167,11 @@ Related:
 
 ## Exact Next
 
-1. keep `phase-39x` exact through the stage0 vm gate thinning
-2. keep `phase-37x` landed as the bootstrap-owner precursor
-3. keep `phase-36x` landed as the selfhost/stage1 owner split precursor
-4. keep `phase-35x` landed as the Stage-A compat precursor
-5. keep `phase-34x` landed as the stage0 shell-residue precursor
+1. keep `phase-40x` exact through the stage0 vm archive candidate selection
+2. keep `phase-39x` landed as the stage0 vm gate thinning precursor
+3. keep `phase-37x` landed as the bootstrap-owner precursor
+4. keep `phase-36x` landed as the selfhost/stage1 owner split precursor
+5. keep `phase-35x` landed as the Stage-A compat precursor
 
 ## Active Lane
 

@@ -36,18 +36,19 @@ Scope: repo root から current order / current blocker / next exact read に最
 14. `phase-36x selfhost source / stage1 bridge split` (landed)
 15. `phase-37x bootstrap owner split` (landed)
 16. `phase-38x cleanup/archive sweep` (landed)
-17. `phase-39x stage0 vm gate thinning`
+17. `phase-39x stage0 vm gate thinning` (landed)
+18. `phase-40x stage0 vm archive candidate selection`
 
 - `K-axis` stays `K0 / K1 / K2` and is read as a build/runtime stage axis, not a task axis.
 - current stage progression reads as `K0 -> K1 -> K2`.
 - `K2-core` / `K2-wide` are task packs inside `K2`.
 - `K2-core` is closed.
-- `K2-wide` boundary-shrink lock-down is landed enough to hand off; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, `phase-29x backend owner cutover prep` is landed, `phase-30x backend surface simplification` is landed, `phase-31x engineering lane isolation` is landed, `phase-32x product / engineering split` is landed, `phase-33x shared helper family recut` is landed, `phase-34x stage0 shell residue split` is landed, `phase-35x stage-a compat route thinning` is landed, `phase-36x selfhost source / stage1 bridge split` is landed, `phase-37x bootstrap owner split` is landed, `phase-38x cleanup/archive sweep` is landed, and current active lane is `phase-39x stage0 vm gate thinning`.
+- `K2-wide` boundary-shrink lock-down is landed enough to hand off; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, `phase-29x backend owner cutover prep` is landed, `phase-30x backend surface simplification` is landed, `phase-31x engineering lane isolation` is landed, `phase-32x product / engineering split` is landed, `phase-33x shared helper family recut` is landed, `phase-34x stage0 shell residue split` is landed, `phase-35x stage-a compat route thinning` is landed, `phase-36x selfhost source / stage1 bridge split` is landed, `phase-37x bootstrap owner split` is landed, `phase-38x cleanup/archive sweep` is landed, `phase-39x stage0 vm gate thinning` is landed, and current active lane is `phase-40x stage0 vm archive candidate selection`.
 
 ## Immediate Handoff
 
-- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, `phase-29x` cleanup is closed, `phase-30x` ownership flip is landed, `phase-31x` engineering rehome sweep is landed, `phase-32x` mixed-owner split is landed, `phase-33x` helper-family recut is landed, `phase-34x` shell-residue split is landed, `phase-35x` stage-a compat route thinning is landed, `phase-36x` selfhost source / stage1 bridge split is landed, `phase-37x` bootstrap owner split is landed, `phase-38x` cleanup/archive sweep is landed, and the current active front is `phase-39x stage0 vm gate thinning`.
-- Active lane: `phase-38x-cleanup-archive-sweep`
+- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, `phase-29x` cleanup is closed, `phase-30x` ownership flip is landed, `phase-31x` engineering rehome sweep is landed, `phase-32x` mixed-owner split is landed, `phase-33x` helper-family recut is landed, `phase-34x` shell-residue split is landed, `phase-35x` stage-a compat route thinning is landed, `phase-36x` selfhost source / stage1 bridge split is landed, `phase-37x` bootstrap owner split is landed, `phase-38x` cleanup/archive sweep is landed, `phase-39x` stage0 vm gate thinning is landed, and the current active front is `phase-40x stage0 vm archive candidate selection`.
+- Active lane: `phase-40x-stage0-vm-archive-candidate-selection`
 - Axis and lane detail is canonical in:
   - `docs/development/current/main/phases/phase-29x/README.md`
   - `docs/development/current/main/phases/phase-29x/29x-90-integration-checklist.md`
@@ -91,7 +92,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `stage2plus entry / first optimization wave` is accepted
   - `phase-30x backend surface simplification` is landed
   - `phase-32x product / engineering split` is landed
-  - current active lane is `phase-39x stage0 vm gate thinning`
+  - current active lane is `phase-40x stage0 vm archive candidate selection`
 - landed rows already accepted:
   - `RawMap` first slice
   - `RawMap.clear`
@@ -108,18 +109,18 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `phase-39x stage0 vm gate thinning`
+- Active next: `phase-40x stage0 vm archive candidate selection`
 - Current blocker: `none`
-- Exact focus: `phase-39x stage0 vm gate thinning`
+- Exact focus: `phase-40x stage0 vm archive candidate selection`
   - `phase-32x` is landed; mixed-owner source/smoke split and raw default/token defer are fixed
   - `phase-33x` is landed; helper-family path truth and keep gates are fixed
-  - current next cleanup is archive/delete sweep, not `vm.rs` deletion
+  - current next cleanup is archive candidate selection, not `vm.rs` deletion
   - current backend reading stays role-first:
     - `llvm/exe` = `product`
     - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
     - `vm-hako` = `reference/conformance`
     - `wasm` = `experimental`
-  - current cleanup rule is `split/rehome/drain -> delete`
+  - current cleanup rule is `inventory -> classify -> archive/delete`
   - landed in `32xA-G`: `build.rs` / `phase2100` split, top-level orchestrator rehome, `core_executor` direct-MIR seam, shared helper gate, and raw default/token defer
   - landed in `33xA-D`: helper-family path truth is fixed; `hako_check` and `emit_mir` keep gates are explicit
   - `34xA` turns accepted residue inventory into exact owner split for `child.rs` / `stage1_cli/core.hako` / `core_executor`
@@ -156,17 +157,17 @@ Scope: repo root から current order / current blocker / next exact read に最
   - raw backend default still stays deferred; no-touch-first remains on `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, and `tools/selfhost/selfhost_build.sh`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
-  2. `docs/development/current/main/phases/phase-39x/README.md`
-  3. `docs/development/current/main/phases/phase-39x/39x-90-stage0-vm-gate-thinning-ssot.md`
-  4. `docs/development/current/main/phases/phase-39x/39x-91-task-board.md`
+  2. `docs/development/current/main/phases/phase-40x/README.md`
+  3. `docs/development/current/main/phases/phase-40x/40x-90-stage0-vm-archive-candidate-selection-ssot.md`
+  4. `docs/development/current/main/phases/phase-40x/40x-91-task-board.md`
   5. `cargo check --manifest-path Cargo.toml --bin hakorune`
 - stage0 shell residue table:
 
   | Item | State |
   | --- | --- |
-  | Now | `phase-39x stage0 vm gate thinning` |
+  | Now | `phase-40x stage0 vm archive candidate selection` |
   | Blocker | `none` |
-  | Next | `39xC1 caller drain map` |
+  | Next | `40xA1 archive candidate inventory` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -180,9 +181,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `phase-39x stage0 vm gate thinning` | inventory and thin remaining stage0 vm-gated bootstrap routes |
-| Next | `39xC1 caller drain map` | drain callers from the mixed routes and keep only the frozen gates |
-| Later | `39xD1 proof / closeout` | return proof and hand off to the next source lane |
+| Now | `phase-40x stage0 vm archive candidate selection` | inventory remaining vm-rust/bootstrap surfaces and classify archive readiness |
+| Next | `40xA1 archive candidate inventory` | inventory the current vm-rust/bootstrap surfaces exactly once |
+| Later | `40xD1 proof / closeout` | return proof and hand off to the next source lane |
 | After `37xD1` | `cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
 
 ## Phase-34x Waves
@@ -231,6 +232,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 - `hako_alloc` rows:
   - `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
 - current phase-order context:
+  - `docs/development/current/main/phases/phase-40x/README.md`
+  - `docs/development/current/main/phases/phase-40x/40x-90-stage0-vm-archive-candidate-selection-ssot.md`
+  - `docs/development/current/main/phases/phase-40x/40x-91-task-board.md`
   - `docs/development/current/main/phases/phase-39x/README.md`
   - `docs/development/current/main/phases/phase-39x/39x-90-stage0-vm-gate-thinning-ssot.md`
   - `docs/development/current/main/phases/phase-39x/39x-91-task-board.md`
