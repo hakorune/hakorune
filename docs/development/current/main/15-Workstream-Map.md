@@ -37,7 +37,7 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-38x cleanup/archive sweep`
+     - current active lane is `phase-39x stage0 vm gate thinning`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
@@ -56,7 +56,8 @@ Related:
         - `phase-35x` landed and fixed Stage-A compat route thinning
         - `phase-36x` landed and handled selfhost source / stage1 bridge split
         - `phase-37x` landed bootstrap owner split
-        - `phase-38x` now handles cleanup/archive sweep
+        - `phase-38x` landed cleanup/archive sweep
+        - `phase-39x` now handles stage0 vm gate thinning
         - `34xA1` landed and fixed exact `child.rs` shell/process/capture residue
         - `34xA2` landed and fixed `stage1_cli/core.hako` raw compat residue and dispatch split
         - `34xA3` landed and pinned `core_executor` as the direct `MIR(JSON)` owner
@@ -84,20 +85,20 @@ Related:
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-34x stage0 shell residue split table:
+   - phase-39x stage0 vm gate thinning table:
 
      | Item | State |
      | --- | --- |
-     | Now | `phase-38x cleanup/archive sweep` |
+     | Now | `phase-39x stage0 vm gate thinning` |
      | Blocker | `none` |
-     | Next | `38xD1 closeout` |
+     | Next | `39xA1 stage0 gate route inventory` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `phase-38x cleanup/archive sweep` |
-     | Next | `38xD1 closeout` |
-     | Later | `next source lane selection` |
+     | Now | `phase-39x stage0 vm gate thinning` |
+     | Next | `39xA1 stage0 gate route inventory` |
+     | Later | `39xA2 route classification` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
@@ -138,11 +139,11 @@ Related:
   - `phase-32x` product / engineering split (landed precursor)
   - `phase-36x` selfhost source / stage1 bridge split (landed precursor)
   - `phase-37x` bootstrap owner split (landed precursor)
-  - `phase-38x` cleanup/archive sweep (active)
+  - `phase-39x` stage0 vm gate thinning (active)
 - Active backend surface tasks:
-  - `phase-38x cleanup/archive sweep`
+  - `phase-39x stage0 vm gate thinning`
 - Queued backend surface tasks:
-  - `next source lane selection`
+  - `39xA1 stage0 gate route inventory`
 - Post-`37xD1` cleanup:
   - drained shim / legacy embedded smoke archive sweep
   - first landed move: `tools/stage1_smoke.sh` -> `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`
@@ -159,7 +160,7 @@ Related:
 
 ## Exact Next
 
-1. keep `phase-38x` exact through the cleanup/archive sweep
+1. keep `phase-39x` exact through the stage0 vm gate thinning
 2. keep `phase-37x` landed as the bootstrap-owner precursor
 3. keep `phase-36x` landed as the selfhost/stage1 owner split precursor
 4. keep `phase-35x` landed as the Stage-A compat precursor

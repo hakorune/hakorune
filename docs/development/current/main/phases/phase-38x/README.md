@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Decision: provisional
 Date: 2026-04-03
 Scope: drained shim / legacy embedded smoke / stale compat wrapper を live surface から外し、archive-later と delete-ready を分離する。
@@ -37,5 +37,5 @@ Related:
 5. `tools/plugin_v2_smoke.sh`
 6. `tools/hako_check_deadcode_smoke.sh`
 
-- current active micro task: `38xD1 closeout`
-- next queued micro task: `next source lane selection`
+- successor lane: `phase-39x stage0 vm gate thinning`
+- next micro task: `39xA1 stage0 gate route inventory`

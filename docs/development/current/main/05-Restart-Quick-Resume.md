@@ -22,19 +22,19 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-38x cleanup/archive sweep`
-- active micro task: `38xD1 closeout`
-- next micro task: `next source lane selection`
-- post-`37xD1`: `phase-38x cleanup/archive sweep`
-- raw backend default flip stays deferred beyond `phase-38x`
+- lane: `phase-39x stage0 vm gate thinning`
+- active micro task: `39xA1 stage0 gate route inventory`
+- next micro task: `39xA2 route classification`
+- post-`38xD1`: `phase-39x stage0 vm gate thinning`
+- raw backend default flip stays deferred beyond `phase-39x`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-38x/README.md`
-4. `docs/development/current/main/phases/phase-38x/38x-90-cleanup-archive-sweep-ssot.md`
-5. `docs/development/current/main/phases/phase-38x/38x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-39x/README.md`
+4. `docs/development/current/main/phases/phase-39x/39x-90-stage0-vm-gate-thinning-ssot.md`
+5. `docs/development/current/main/phases/phase-39x/39x-91-task-board.md`
 6. `cargo check --manifest-path Cargo.toml --bin hakorune`
 
 ## Optional Checks

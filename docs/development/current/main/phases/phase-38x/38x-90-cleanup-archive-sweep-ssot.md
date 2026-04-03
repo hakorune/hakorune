@@ -1,4 +1,4 @@
-Status: Active
+Status: Landed
 Date: 2026-04-03
 Scope: post-37x cleanup/archive sweep
 
@@ -8,10 +8,10 @@ Scope: post-37x cleanup/archive sweep
 
 | Wave | Status | Read as |
 | --- | --- | --- |
-| `38xA legacy smoke archive` | active | legacy embedded smoke を top-level `tools/` から外す |
+| `38xA legacy smoke archive` | landed | legacy embedded smoke を top-level `tools/` から外す |
 | `38xB delete-ready shim sweep` | landed | drained shim のうち current pointer drain 済みのものを delete する |
 | `38xC archive-later queue freeze` | landed | current/historical docs drain が残る shim を archive-later に固定する |
-| `38xD closeout` | active | cleanup queue と next source lane を current docs に戻す |
+| `38xD closeout` | landed | cleanup queue と next source lane を current docs に戻す |
 
 ## Candidate Reading
 
@@ -25,6 +25,5 @@ Scope: post-37x cleanup/archive sweep
 
 ## Active Front
 
-- active macro wave: `38xD closeout`
-- active micro task: `38xD1 closeout and handoff`
-- next queued micro task: `next source lane selection`
+- successor lane: `phase-39x stage0 vm gate thinning`
+- cleanup queue status: landed

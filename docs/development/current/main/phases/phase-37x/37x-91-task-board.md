@@ -19,7 +19,7 @@ Related:
 | 2 | `37xB build.rs owner split` | landed | source owner split を product/engineering に切る |
 | 3 | `37xC explicit keep freeze + drain map` | landed | cleanup しない keep 面と次 drain を分ける |
 | 4 | `37xD proof/closeout` | landed | canonical evidence を戻して handoff する |
-| 5 | `phase-38x cleanup/archive sweep` | current | drained shim / legacy embedded smoke / stale compat wrapper を live surface から外す |
+| 5 | `phase-39x stage0 vm gate thinning` | current | stage0/bootstrap lane の `--backend vm` 残面を inventory して direct route と keep gate を分ける |
 
 ## Ordered Slice Detail
 
@@ -64,7 +64,7 @@ git diff --check
 ## Current Result
 
 - current front:
-  - `phase-38x cleanup/archive sweep`
+  - `phase-39x stage0 vm gate thinning`
 - exact next:
   - move drained shims, legacy embedded smoke, and stale compat wrappers out of the live surface
 - explicit reading:

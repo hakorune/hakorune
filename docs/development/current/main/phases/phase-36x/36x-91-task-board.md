@@ -47,7 +47,7 @@ cargo check --bin hakorune
 ## Current Result
 
 - current front:
-  - `phase-38x cleanup/archive sweep`
+  - `phase-39x stage0 vm gate thinning`
 - current residue reading:
   - `source_prepare.rs` now owns source extension gate / source read / using merge / preexpand / tmp staging
   - `selfhost.rs` keeps macro pre-expand gate, fallback ordering, and terminal accept

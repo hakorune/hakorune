@@ -35,17 +35,18 @@ Scope: repo root から current order / current blocker / next exact read に最
 13. `phase-35x stage-a compat route thinning` (landed)
 14. `phase-36x selfhost source / stage1 bridge split` (landed)
 15. `phase-37x bootstrap owner split` (landed)
-16. `phase-38x cleanup/archive sweep`
+16. `phase-38x cleanup/archive sweep` (landed)
+17. `phase-39x stage0 vm gate thinning`
 
 - `K-axis` stays `K0 / K1 / K2` and is read as a build/runtime stage axis, not a task axis.
 - current stage progression reads as `K0 -> K1 -> K2`.
 - `K2-core` / `K2-wide` are task packs inside `K2`.
 - `K2-core` is closed.
-- `K2-wide` boundary-shrink lock-down is landed enough to hand off; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, `phase-29x backend owner cutover prep` is landed, `phase-30x backend surface simplification` is landed, `phase-31x engineering lane isolation` is landed, `phase-32x product / engineering split` is landed, `phase-33x shared helper family recut` is landed, `phase-34x stage0 shell residue split` is landed, `phase-35x stage-a compat route thinning` is landed, `phase-36x selfhost source / stage1 bridge split` is landed, `phase-37x bootstrap owner split` is landed, and current active lane is `phase-38x cleanup/archive sweep`.
+- `K2-wide` boundary-shrink lock-down is landed enough to hand off; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, `phase-29x backend owner cutover prep` is landed, `phase-30x backend surface simplification` is landed, `phase-31x engineering lane isolation` is landed, `phase-32x product / engineering split` is landed, `phase-33x shared helper family recut` is landed, `phase-34x stage0 shell residue split` is landed, `phase-35x stage-a compat route thinning` is landed, `phase-36x selfhost source / stage1 bridge split` is landed, `phase-37x bootstrap owner split` is landed, `phase-38x cleanup/archive sweep` is landed, and current active lane is `phase-39x stage0 vm gate thinning`.
 
 ## Immediate Handoff
 
-- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, `phase-29x` cleanup is closed, `phase-30x` ownership flip is landed, `phase-31x` engineering rehome sweep is landed, `phase-32x` mixed-owner split is landed, `phase-33x` helper-family recut is landed, `phase-34x` shell-residue split is landed, `phase-35x` stage-a compat route thinning is landed, `phase-36x` selfhost source / stage1 bridge split is landed, `phase-37x` bootstrap owner split is landed, and the current active front is `phase-38x cleanup/archive sweep`.
+- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, `phase-29x` cleanup is closed, `phase-30x` ownership flip is landed, `phase-31x` engineering rehome sweep is landed, `phase-32x` mixed-owner split is landed, `phase-33x` helper-family recut is landed, `phase-34x` shell-residue split is landed, `phase-35x` stage-a compat route thinning is landed, `phase-36x` selfhost source / stage1 bridge split is landed, `phase-37x` bootstrap owner split is landed, `phase-38x` cleanup/archive sweep is landed, and the current active front is `phase-39x stage0 vm gate thinning`.
 - Active lane: `phase-38x-cleanup-archive-sweep`
 - Axis and lane detail is canonical in:
   - `docs/development/current/main/phases/phase-29x/README.md`
@@ -73,9 +74,9 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `docs/development/current/main/phases/phase-37x/README.md`
   - `docs/development/current/main/phases/phase-37x/37x-90-bootstrap-owner-split-ssot.md`
   - `docs/development/current/main/phases/phase-37x/37x-91-task-board.md`
-  - `docs/development/current/main/phases/phase-38x/README.md`
-  - `docs/development/current/main/phases/phase-38x/38x-90-cleanup-archive-sweep-ssot.md`
-  - `docs/development/current/main/phases/phase-38x/38x-91-task-board.md`
+  - `docs/development/current/main/phases/phase-39x/README.md`
+  - `docs/development/current/main/phases/phase-39x/39x-90-stage0-vm-gate-thinning-ssot.md`
+  - `docs/development/current/main/phases/phase-39x/39x-91-task-board.md`
   - `docs/development/current/main/phases/phase-33x/README.md`
   - `docs/development/current/main/phases/phase-33x/33x-90-shared-helper-family-recut-ssot.md`
   - `docs/development/current/main/phases/phase-33x/33x-91-task-board.md`
@@ -90,7 +91,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `stage2plus entry / first optimization wave` is accepted
   - `phase-30x backend surface simplification` is landed
   - `phase-32x product / engineering split` is landed
-  - current active lane is `phase-38x cleanup/archive sweep`
+  - current active lane is `phase-39x stage0 vm gate thinning`
 - landed rows already accepted:
   - `RawMap` first slice
   - `RawMap.clear`
@@ -107,9 +108,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `phase-38x cleanup/archive sweep`
+- Active next: `phase-39x stage0 vm gate thinning`
 - Current blocker: `none`
-- Exact focus: `phase-38x cleanup/archive sweep`
+- Exact focus: `phase-39x stage0 vm gate thinning`
   - `phase-32x` is landed; mixed-owner source/smoke split and raw default/token defer are fixed
   - `phase-33x` is landed; helper-family path truth and keep gates are fixed
   - current next cleanup is archive/delete sweep, not `vm.rs` deletion
@@ -146,21 +147,22 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `38xB` sweeps delete-ready drained shims
   - `38xC` freezes archive-later shims that still have current/historical doc pressure
   - `38xD` closes out the cleanup/archive sweep and returns the front to the next source lane
+  - `39xA` inventories remaining stage0 vm-gated bootstrap routes
   - landed first cleanup move: `tools/stage1_smoke.sh` is archived as `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`
   - raw backend default still stays deferred; no-touch-first remains on `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, and `tools/selfhost/selfhost_build.sh`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
-  2. `docs/development/current/main/phases/phase-38x/README.md`
-  3. `docs/development/current/main/phases/phase-38x/38x-90-cleanup-archive-sweep-ssot.md`
-  4. `docs/development/current/main/phases/phase-38x/38x-91-task-board.md`
+  2. `docs/development/current/main/phases/phase-39x/README.md`
+  3. `docs/development/current/main/phases/phase-39x/39x-90-stage0-vm-gate-thinning-ssot.md`
+  4. `docs/development/current/main/phases/phase-39x/39x-91-task-board.md`
   5. `cargo check --manifest-path Cargo.toml --bin hakorune`
 - stage0 shell residue table:
 
   | Item | State |
   | --- | --- |
-  | Now | `phase-38x cleanup/archive sweep` |
+  | Now | `phase-39x stage0 vm gate thinning` |
   | Blocker | `none` |
-  | Next | `38xD1 closeout` |
+  | Next | `39xA1 stage0 gate route inventory` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -174,9 +176,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `phase-38x cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
-| Next | `38xD1 closeout` | return current front to next source lane |
-| Later | `next source lane selection` | choose the next cleanup/source focus after closeout |
+| Now | `phase-39x stage0 vm gate thinning` | inventory and thin remaining stage0 vm-gated bootstrap routes |
+| Next | `39xA1 stage0 gate route inventory` | inventory `selfhost_build.sh` / `run_stageb_compiler_vm.sh` / `run.sh` callers |
+| Later | `39xA2 route classification` | split `vm 必須` / `direct` / `core_executor` lanes |
 | After `37xD1` | `cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
 
 ## Phase-34x Waves
@@ -225,9 +227,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 - `hako_alloc` rows:
   - `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
 - current phase-order context:
-  - `docs/development/current/main/phases/phase-38x/README.md`
-  - `docs/development/current/main/phases/phase-38x/38x-90-cleanup-archive-sweep-ssot.md`
-  - `docs/development/current/main/phases/phase-38x/38x-91-task-board.md`
+  - `docs/development/current/main/phases/phase-39x/README.md`
+  - `docs/development/current/main/phases/phase-39x/39x-90-stage0-vm-gate-thinning-ssot.md`
+  - `docs/development/current/main/phases/phase-39x/39x-91-task-board.md`
   - `docs/development/current/main/phases/phase-34x/README.md`
   - `docs/development/current/main/phases/phase-34x/34x-90-stage0-shell-residue-split-ssot.md`
   - `docs/development/current/main/phases/phase-34x/34x-91-task-board.md`

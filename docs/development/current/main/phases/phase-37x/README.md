@@ -56,7 +56,7 @@ Related:
 3. `tools/selfhost/selfhost_build.sh`
 4. `src/runner/build.rs`
 
-- current active micro task: `phase-38x cleanup/archive sweep`
+- current active micro task: `phase-39x stage0 vm gate thinning`
 - next queued micro task: `archive/delete of drained shims`
 
 ## Acceptance Summary
