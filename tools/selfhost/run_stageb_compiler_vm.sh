@@ -82,6 +82,11 @@ if [ ! -f "$COMPILER" ]; then
   exit 2
 fi
 
+if [ "${NYASH_SELFHOST_STAGEB_PROOF_ONLY:-0}" != "1" ]; then
+  echo "[selfhost/route] stage-b VM route is proof-only; set NYASH_SELFHOST_STAGEB_PROOF_ONLY=1 to run" >&2
+  exit 2
+fi
+
 SMOKE_ENV_SKIP_EXPORTS=1
 source "$NYASH_ROOT/tools/smokes/v2/lib/env.sh"
 

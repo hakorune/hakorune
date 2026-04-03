@@ -50,8 +50,9 @@ Related:
 - `44xB1` landed: `selfhost_run_routes.sh runtime default cutover`
 - `44xB2` landed: `run.sh` direct route fallback explicitization
 - `44xC1` landed: `stage0_capture.rs` route-neutral builder split
-- `44xC2` current: `stage_a_route.rs` / compat caller switch
-- `44xD1` next: `run_stageb_compiler_vm.sh` proof-only demotion
+- `44xC2` landed: `stage_a_route.rs` / compat caller switch
+- `44xD1` landed: `run_stageb_compiler_vm.sh` proof-only demotion
+- `44xE1` current: proof / closeout
 - `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete
 - `phase-32x` landed: mixed-owner source/smoke split and raw default/token defer are fixed
@@ -80,12 +81,12 @@ Related:
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep
 - `phase-42x` is landed; it starved day-to-day callers away from vm-gated routes and moved owner pressure toward direct/core seams
 - `phase-43x` is landed; it selected `phase-44x stage0 direct/core follow-up` as the highest-leverage successor lane
-- `phase-44x` now attacks the remaining live VM-backed helper owners
+- `phase-44x` now keeps proof-only VM gates explicit and closes the lane
   - `tools/selfhost/lib/selfhost_build_stageb.sh`
   - `tools/selfhost/lib/selfhost_run_routes.sh`
-  - `src/runner/modes/common_util/selfhost/stage0_capture.rs`
   - `tools/selfhost/run_stageb_compiler_vm.sh`
-  - success means day-to-day stage0/selfhost defaults move toward direct/core and VM gates become explicit proof/fallback only
+  - `stage0_capture.rs` is already route-neutral
+  - success means day-to-day stage0/selfhost defaults stay direct/core-first and VM gates stay explicit proof/fallback only
   - failure means new features drifting back into `--backend vm`, stage1 compat, or raw routes
 - post-`39xD1`: stage0 vm archive candidate selection for remaining bootstrap surfaces
 - landed first cleanup move: `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`

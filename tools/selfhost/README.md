@@ -25,7 +25,7 @@ Script
     - `--gate`: run selfhost gate (`phase29bq_selfhost_planner_required_dev_gate_vm.sh`)
     - `--runtime`: run runtime selfhost route (`NYASH_USE_NY_COMPILER=1`)
       - `--runtime-mode stage-a|exe` (default `exe`)
-    - `--direct`: run Stage-B wrapper route (`run_stageb_compiler_vm.sh`)
+    - `--direct`: run Stage-B direct/source route (proof-oriented; VM wrapper is kept explicit-only)
   - Examples:
     ```bash
     tools/selfhost/run.sh --gate --max-cases 5

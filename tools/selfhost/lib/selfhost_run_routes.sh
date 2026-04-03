@@ -131,7 +131,7 @@ run_direct() {
   fi
 
   echo "[selfhost/run] mode=direct source=$(basename "$source_path")" >&2
-  bash "$DIRECT_STAGEB_SCRIPT" "${args[@]}"
+  env NYASH_SELFHOST_STAGEB_PROOF_ONLY=1 bash "$DIRECT_STAGEB_SCRIPT" "${args[@]}"
 }
 
 run_steady_state() {

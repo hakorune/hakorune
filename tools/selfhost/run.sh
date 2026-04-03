@@ -162,8 +162,8 @@ if [ -z "$mode" ]; then
   exit 2
 fi
 
-if [ "$mode" != "runtime" ] && [ "$runtime_mode" != "stage-a" ]; then
-  echo "[selfhost/run] --runtime-mode is only valid with --runtime" >&2
+if [ "$mode" = "runtime" ] && [ "$runtime_mode" != "stage-a" ] && [ "$runtime_mode" != "exe" ]; then
+  echo "[selfhost/run] --runtime-mode must be stage-a|exe when --runtime is selected (got: $runtime_mode)" >&2
   exit 2
 fi
 

@@ -49,9 +49,25 @@ direct_log="$(mktemp /tmp/phase29bq_stageb_direct.XXXXXX.log)"
 wrapper_json="$(mktemp /tmp/phase29bq_stageb_wrapper.XXXXXX.json)"
 direct_json="$(mktemp /tmp/phase29bq_stageb_direct.XXXXXX.json)"
 cleanup() {
-  rm -f "$wrapper_log" "$direct_log" "$wrapper_json" "$direct_json"
+  rm -f "$wrapper_log" "$direct_log" "$wrapper_json" "$direct_json" \
+    "$wrapper_json.norm" "$direct_json.norm"
 }
 trap cleanup EXIT
+
+normalize_json_file() {
+  local input="$1"
+  local output="$2"
+  python3 - "$input" "$output" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+inp = Path(sys.argv[1])
+out = Path(sys.argv[2])
+data = json.loads(inp.read_text())
+out.write_text(json.dumps(data, separators=(",", ":"), sort_keys=True))
+PY
+}
 
 set +e
 SELFHOST_ROUTE_ID="SH-PARITY-WRAPPER" \
@@ -140,9 +156,12 @@ if ! awk '(/"version":0/ && /"kind":"Program"/){print;found=1;exit} END{exit(fou
   exit 1
 fi
 
-if ! cmp -s "$wrapper_json" "$direct_json"; then
+normalize_json_file "$wrapper_json" "$wrapper_json.norm"
+normalize_json_file "$direct_json" "$direct_json.norm"
+
+if ! cmp -s "$wrapper_json.norm" "$direct_json.norm"; then
   log_error "route parity mismatch: Program(JSON v0) differs"
-  diff -u "$direct_json" "$wrapper_json" || true
+  diff -u "$direct_json.norm" "$wrapper_json.norm" || true
   echo "WRAPPER_LOG: $wrapper_log"
   echo "DIRECT_LOG:  $direct_log"
   exit 1

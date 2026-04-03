@@ -266,6 +266,7 @@ run_selfhost_case() {
   local stageb_start=$SECONDS
   # Phase 29x X22: keep Stage-B compiler route on Rust VM core lane even under strict/dev.
   run_with_vm_route_pin env \
+    NYASH_SELFHOST_STAGEB_PROOF_ONLY=1 \
     SELFHOST_ROUTE_ID="SH-GATE-STAGEB" \
     SMOKES_SELFHOST_STAGEB_TIMEOUT_SECS="$STAGEB_TIMEOUT_SECS" \
     HAKO_STAGEB_MODULES_LIST="$HAKO_STAGEB_MODULES_LIST" \

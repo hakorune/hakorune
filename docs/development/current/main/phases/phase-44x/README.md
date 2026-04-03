@@ -27,6 +27,7 @@ Related:
 - the remaining leverage is not in broad vm cleanup first; it is in helper-layer route defaults.
 - `direct/core` already has usable ingress through `--mir-json-file`, `core_executor`, and Stage1 mainline emit.
 - this phase exists to move default ownership, not to rewrite every compat/proof surface.
+- `stage0_capture.rs` is already route-neutral; the remaining work is proof-only VM demotion and closeout.
 
 ## Success Conditions
 

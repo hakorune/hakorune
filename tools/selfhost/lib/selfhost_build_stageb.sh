@@ -73,14 +73,6 @@ emit_program_json_v0_via_direct_source() {
   return $rc
 }
 
-emit_program_json_v0_via_stageb_compiler() {
-  local raw_path="$1"
-  (
-    export HAKO_SRC="$SRC_CONTENT"
-    bash "$ROOT/tools/selfhost/run_stageb_compiler_vm.sh" --source-file "$IN"
-  ) > "$raw_path" 2>&1
-}
-
 emit_stageb_program_json_raw() {
   local raw_path="$1" json_path="$2"
   stageb_cmd_desc=""

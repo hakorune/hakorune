@@ -125,9 +125,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `phase-44x stage0 direct/core follow-up`
+- Active next: `phase-44x proof / closeout`
 - Current blocker: `none`
-- Exact focus: `phase-44x stage0 direct/core follow-up`
+- Exact focus: `phase-44x proof / closeout`
   - `phase-32x` is landed; mixed-owner source/smoke split and raw default/token defer are fixed
   - `phase-33x` is landed; helper-family path truth and keep gates are fixed
   - `41xA1` landed: remaining direct/core route facades and caller families are inventoried
@@ -146,11 +146,11 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `42xC4` landed: `core.hako` compat hold line
   - `42xD1` landed: `proof / closeout`
   - `phase-43x` is landed and selected `direct/core follow-up` as the successor lane
-  - `phase-44x` targets the remaining live VM-backed helper owners:
+  - `phase-44x` is now in proof/closeout after the proof-only VM gate demotion:
     - `tools/selfhost/lib/selfhost_build_stageb.sh`
     - `tools/selfhost/lib/selfhost_run_routes.sh`
-    - `src/runner/modes/common_util/selfhost/stage0_capture.rs`
     - `tools/selfhost/run_stageb_compiler_vm.sh`
+    - `stage0_capture.rs` is already route-neutral
   - current backend reading stays role-first:
     - `llvm/exe` = `product`
     - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
@@ -208,9 +208,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Item | State |
 | --- | --- |
-| Now | `phase-44x stage0 direct/core follow-up` |
+| Now | `phase-44x proof / closeout` |
 | Blocker | `none` |
-| Next | `44xC2 stage_a_route.rs / compat caller switch` |
+| Next | `next source lane selection` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -224,8 +224,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `phase-44x stage0 direct/core follow-up` | move remaining live stage0/selfhost owners off default VM routes |
-| Next | `44xC2 stage_a_route.rs / compat caller switch` | switch Stage-A caller handoff to the route-neutral capture boundary |
+| Now | `phase-44x proof / closeout` | keep proof-only VM gates explicit and finish the lane |
+| Next | `next source lane selection` | choose the next structural lane after direct/core follow-up is fully proved |
 | Later | `kilo` optimization wave | far-future optimization lane |
 | After `37xD1` | `cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
 

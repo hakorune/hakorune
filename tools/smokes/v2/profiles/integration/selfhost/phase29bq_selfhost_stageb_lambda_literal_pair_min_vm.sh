@@ -40,6 +40,7 @@ cleanup() {
 trap cleanup EXIT
 
 set +e
+NYASH_SELFHOST_STAGEB_PROOF_ONLY=1 \
 SELFHOST_ROUTE_ID="SH-GATE-STAGEB-LAMBDA-PAIR" \
   "$ROUTE_SCRIPT" --source-file "$FIXTURE" --timeout-secs "$TIMEOUT_SECS" >"$log_file" 2>&1
 rc=$?

@@ -22,6 +22,6 @@ Date: 2026-04-03
 | `44xB1` | landed | `selfhost_run_routes.sh` runtime default cutover |
 | `44xB2` | landed | `run.sh` direct route fallback explicitization |
 | `44xC1` | landed | `stage0_capture.rs` route-neutral builder split |
-| `44xC2` | active | `stage_a_route.rs` / compat caller switch |
-| `44xD1` | queued | `run_stageb_compiler_vm.sh` proof-only demotion |
-| `44xE1` | queued | proof / closeout |
+| `44xC2` | landed | `stage_a_route.rs` / compat caller switch |
+| `44xD1` | landed | `run_stageb_compiler_vm.sh` proof-only demotion |
+| `44xE1` | active | proof / closeout |
