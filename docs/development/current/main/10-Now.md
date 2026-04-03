@@ -39,8 +39,11 @@ Related:
 - `34xC1` landed: raw compat lane is explicitly no-widen; thread/runtime capability work is barred from `run_program_json`
 - `34xD1` landed: direct MIR(JSON) handoff is proof-pinned by `execute_mir_json_text_*` tests
 - `35xA1` landed: captured Stage-A payload resolution moved into `stage_a_compat_bridge::resolve_captured_payload_to_mir(...)`
-- active micro task: `35xA2 selfhost orchestration-only lock`
-- next micro task: `35xB1 Stage-A compat keep/no-widen lock`
+- `35xA2` landed: `selfhost.rs` delegates Stage-A child spawn/setup to `stage_a_route.rs` and stays orchestration/terminal-accept only
+- `35xB1` landed: Program(JSON v0) compat lane is fixed as explicit/no-widen in `stage_a_policy.rs` and `stage_a_compat_bridge.rs`
+- `35xC1` landed: direct-vs-compat Stage-A route is proof-pinned by evidence commands and focused tests
+- active micro task: `phase-35x closeout review`
+- next micro task: `design consult for post-35x thinning lane`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`

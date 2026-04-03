@@ -97,7 +97,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-35x stage-a compat route thinning`
 - Current blocker: `none`
-- Exact focus: `35xA2 selfhost orchestration-only lock`
+- Exact focus: `phase-35x closeout review`
   - `phase-32x` is landed; mixed-owner source/smoke split and raw default/token defer are fixed
   - `phase-33x` is landed; helper-family path truth and keep gates are fixed
   - current next cleanup is stage0 shell residue thinning, not `vm.rs` deletion
@@ -116,8 +116,11 @@ Scope: repo root から current order / current blocker / next exact read に最
   - landed in `34xB1`: `child.rs` shell residue is mechanically split into private helpers for command setup, capture wiring, timeout/wait, output readback, and JSON-line selection while public selectors stay unchanged
   - landed in `34xC1`: `run_program_json` / `_mode_run` / `_run_raw_request` are explicitly no-widen; thread/runtime capability work must not land in the raw compat lane
   - landed in `34xD1`: direct `MIR(JSON)` handoff is proof-pinned by `execute_mir_json_text_accepts_direct_mir_fixture` and `execute_mir_json_text_rejects_program_json_direct_input`
-  - active in `35xA1`: captured Stage-A payload resolution is rehomed into `stage_a_compat_bridge::resolve_captured_payload_to_mir(...)`
-  - next in `35xA2`: `selfhost.rs` must stay Stage-A orchestration/spawn/terminal-accept only
+  - landed in `35xA1`: captured Stage-A payload resolution is rehomed into `stage_a_compat_bridge::resolve_captured_payload_to_mir(...)`
+  - landed in `35xA2`: `selfhost.rs` delegates Stage-A child spawn/setup to `stage_a_route.rs` and stays Stage-A route sequencing / terminal-accept only
+  - landed in `35xB1`: Program(JSON v0) compat remains explicit/no-widen in `stage_a_policy.rs` and `stage_a_compat_bridge.rs`
+  - landed in `35xC1`: direct-vs-compat Stage-A route is evidence-pinned by focused tests and proof commands
+  - current next step is design consult for the post-35x thinning lane
   - raw backend default still stays deferred; no-touch-first remains on `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, and `tools/selfhost/selfhost_build.sh`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
@@ -131,7 +134,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-35x stage-a compat route thinning` |
   | Blocker | `none` |
-  | Next | `35xA2 selfhost orchestration-only lock` |
+  | Next | `phase-35x closeout review` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -145,8 +148,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `35xA2 selfhost orchestration-only lock` | keep selfhost on spawn/route sequencing while compat payload logic moves out |
-| Next | `35xB1 Stage-A compat keep/no-widen lock` | freeze the compat lane before any new runtime design lands |
+| Now | `phase-35x closeout review` | confirm Stage-A direct/compat split is pinned before the next design cut |
+| Next | `design consult for post-35x thinning lane` | choose the next owner split before adding new runtime capability |
 | Later | `raw backend default/token follow-up lane` | keep token/default truthification deferred beyond the shell-residue split |
 
 ## Phase-34x Waves

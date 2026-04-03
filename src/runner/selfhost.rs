@@ -290,71 +290,26 @@ impl NyashRunner {
         // Preferred default: run Ny selfhost compiler program (lang/src/compiler/entry/compiler.hako).
         // This avoids inline embedding pitfalls and supports Stage-3 gating via args.
         {
-            use crate::runner::modes::common_util::selfhost::{
-                child, stage_a_compat_bridge, stage_a_policy, stage_a_spawn,
-            };
+            use crate::runner::modes::common_util::selfhost::stage_a_route;
             let verbose_level = crate::config::env::dump::cli_verbose_level();
             let exe = std::env::current_exe()
                 .unwrap_or_else(|_| std::path::PathBuf::from("target/release/nyash"));
-            // Phase 28.2: selfhost compiler entry moved under lang/src/compiler/entry
-            let parser_prog = std::path::Path::new("lang/src/compiler/entry/compiler.hako");
-            if parser_prog.exists() {
-                crate::runner::modes::common_util::selfhost::child::emit_runtime_route_mode(
-                    crate::runner::modes::common_util::selfhost::child::ROUTE_MODE_STAGE_A,
+            let timeout_ms: u64 = crate::config::env::ny_compiler_timeout_ms();
+            // Keep `selfhost.rs` on high-level route sequencing only.
+            // Stage-A child spawn/setup and captured payload-family resolution live below.
+            if let Some(resolved) = stage_a_route::try_capture_stage_a_module(
+                &exe,
+                source_name,
+                &code,
+                timeout_ms,
+                verbose_level,
+            ) {
+                return accept_stage_a_mir_module(
+                    self,
                     source_name,
+                    resolved.lane,
+                    resolved.module,
                 );
-                // Phase 29x X21 contract:
-                // non-strict stage-a compat lanes are explicit-only.
-                stage_a_policy::enforce_stage_a_compat_policy_or_exit(source_name);
-                // Phase 28.2: observation log (NYASH_CLI_VERBOSE>=2)
-                if verbose_level >= 2 {
-                    let ring0 = crate::runtime::ring0::get_global_ring0();
-                    ring0.log.info(&format!(
-                        "[selfhost/ny] spawning Ny compiler child process: {}",
-                        parser_prog.display()
-                    ));
-                }
-                // Build args/env through the Stage-A spawn contract box.
-                // D5-min1: runtime route compiles through Stage-B surface (`--stage-b --stage3`)
-                // so that Program(JSON v0) emission is stable under the same contracts as selfhost gates.
-                let extra_owned = stage_a_spawn::build_stage_a_child_extra_args();
-                let extra: Vec<&str> = extra_owned.iter().map(|s| s.as_str()).collect();
-                let child_env_owned = stage_a_spawn::build_stage_a_child_env(&code);
-                let child_env: Vec<(&str, &str)> = child_env_owned
-                    .iter()
-                    .map(|(k, v)| (k.as_str(), v.as_str()))
-                    .collect();
-                let timeout_ms: u64 = crate::config::env::ny_compiler_timeout_ms();
-                // Phase 28.2 fix: Don't override HAKO_ALLOW_USING_FILE here.
-                // apply_selfhost_compiler_env() already sets HAKO_ALLOW_USING_FILE=1 to enable
-                // module resolution for `using lang.compiler.parser.box`, etc.
-                // The extra envs here previously overrode it back to "0", breaking module loading.
-                if let Some(captured) = child::run_ny_program_capture_json_v0(
-                    &exe,
-                    parser_prog,
-                    timeout_ms,
-                    &extra,
-                    &["NYASH_USE_NY_COMPILER", "NYASH_CLI_VERBOSE"],
-                    &child_env,
-                ) {
-                    // Keep `selfhost.rs` on Stage-A spawn/route sequencing only.
-                    // Captured payload-family resolution now lives in `stage_a_compat_bridge.rs`.
-                    if let Some(resolved) = stage_a_compat_bridge::resolve_captured_payload_to_mir(
-                        &exe,
-                        source_name,
-                        timeout_ms,
-                        verbose_level,
-                        captured.mir_line.as_deref(),
-                        captured.program_line.as_deref(),
-                    ) {
-                        return accept_stage_a_mir_module(
-                            self,
-                            source_name,
-                            resolved.lane,
-                            resolved.module,
-                        );
-                    }
-                }
             }
         }
 

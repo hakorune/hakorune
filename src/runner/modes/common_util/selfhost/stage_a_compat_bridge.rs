@@ -61,6 +61,8 @@ pub(crate) fn resolve_program_payload_to_mir(
     verbose_level: u8,
     program_line: &str,
 ) -> Option<ProgramCompatMir> {
+    // Program(JSON v0) remains an explicit compat lane.
+    // Do not widen this bridge with unrelated runtime capabilities.
     // Phase D5-min1 contract:
     // strict/dev(+planner_required) must reject Program(JSON v0) at runtime route boundary.
     stage_a_policy::enforce_stage_a_program_payload_policy_or_exit(source_name);

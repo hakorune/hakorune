@@ -61,7 +61,10 @@ Related:
         - `34xC1` landed and fixed raw compat no-widen on `run_program_json`
         - `34xD1` landed and proof-pins the direct `MIR(JSON)` handoff with focused unit tests
         - `35xA1` landed and rehomes captured Stage-A payload resolution into `stage_a_compat_bridge.rs`
-        - current active micro task is `35xA2 selfhost orchestration-only lock`
+        - `35xA2` landed and moves Stage-A child spawn/setup into `stage_a_route.rs`
+        - `35xB1` landed and fixes Program(JSON v0) as explicit/no-widen compat only
+        - `35xC1` landed and proof-pins the direct-vs-compat Stage-A route
+        - current active micro task is `phase-35x closeout review`
         - cleanup rule is `split/rehome/drain -> delete`
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
@@ -71,13 +74,13 @@ Related:
      | --- | --- |
      | Now | `phase-35x stage-a compat route thinning` |
      | Blocker | `none` |
-     | Next | `35xA2 selfhost orchestration-only lock` |
+     | Next | `phase-35x closeout review` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `35xA2 selfhost orchestration-only lock` |
-     | Next | `35xB1 Stage-A compat keep/no-widen lock` |
+     | Now | `phase-35x closeout review` |
+     | Next | `design consult for post-35x thinning lane` |
      | Later | `raw backend default/token follow-up lane` |
    - stage0 shell residue waves:
 
@@ -119,9 +122,9 @@ Related:
   - `phase-32x` product / engineering split (landed precursor)
   - `phase-35x` stage-a compat route thinning
 - Active backend surface tasks:
-  - `35xA2 selfhost orchestration-only lock`
+  - `phase-35x closeout review`
 - Queued backend surface tasks:
-  - `35xB1 Stage-A compat keep/no-widen lock`
+  - `design consult for post-35x thinning lane`
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion

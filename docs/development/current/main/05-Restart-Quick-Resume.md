@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-35x stage-a compat route thinning`
-- active micro task: `35xA2 selfhost orchestration-only lock`
-- next micro task: `35xB1 Stage-A compat keep/no-widen lock`
+- active micro task: `phase-35x closeout review`
+- next micro task: `design consult for post-35x thinning lane`
 - raw backend default flip stays deferred beyond `phase-35x`
 
 ## Read Next
@@ -35,6 +35,7 @@ tools/checks/dev_gate.sh quick
 4. `docs/development/current/main/phases/phase-35x/35x-90-stage-a-compat-route-thinning-ssot.md`
 5. `docs/development/current/main/phases/phase-35x/35x-91-task-board.md`
 6. `cargo test --manifest-path Cargo.toml resolve_captured_payload_to_mir_ -- --nocapture`
+7. `cargo test --manifest-path Cargo.toml execute_mir_json_text_ -- --nocapture`
 
 ## Optional Checks
 

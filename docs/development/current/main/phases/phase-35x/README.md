@@ -18,10 +18,12 @@ Related:
 ## Goal
 
 - `selfhost.rs` を route sequencing / orchestration 寄りにし、captured payload resolution と Program(JSON v0) compat fallback ownership を `stage_a_compat_bridge.rs` 側へ寄せる。
+- Stage-A child spawn/setup と captured payload handoff は `stage_a_route.rs` の thin owner に閉じる。
 - first target は:
   - `src/runner/selfhost.rs`
   - `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
   - `src/runner/modes/common_util/selfhost/stage_a_policy.rs`
+  - `src/runner/modes/common_util/selfhost/stage_a_route.rs`
 
 ## Fixed Reading
 
@@ -48,12 +50,16 @@ Related:
 ## Acceptance Summary
 
 - captured Stage-A payload resolution is owned by `stage_a_compat_bridge.rs`
-- `selfhost.rs` keeps Stage-A spawn/orchestration and stops owning payload-family branching
+- Stage-A child spawn/setup and captured payload handoff are owned by `stage_a_route.rs`
+- `selfhost.rs` keeps Stage-A route sequencing / terminal accept and stops owning payload-family branching
 - direct MIR lane stays `LANE_DIRECT`; Program(JSON v0) fallback remains explicit compat only
 - next thread/runtime work does not have to widen Stage-A compat routing
 
 ## Current State
 
 - `35xA1` is landed: captured payload resolution moved under `stage_a_compat_bridge.rs`
-- current front is `35xA2 selfhost orchestration-only lock`
+- `35xA2` is landed: `selfhost.rs` delegates Stage-A child spawn/setup and payload-family handoff
+- `35xB1` is landed: Program(JSON v0) compat lane is comment-pinned as explicit/no-widen
+- `35xC1` is landed: direct-vs-compat Stage-A route is fixed through evidence commands and focused tests
+- current front is `phase-35x closeout review`
 - predecessor lane is `phase-34x stage0 shell residue split`

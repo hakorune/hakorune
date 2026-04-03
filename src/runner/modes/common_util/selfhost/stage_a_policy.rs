@@ -61,6 +61,8 @@ pub(crate) fn decide_stage_a_compat_guard(
 }
 
 pub(crate) fn enforce_stage_a_compat_policy_or_exit(source: &str) {
+    // Stage-A compat is explicit-only in non-strict mode.
+    // Keep this as a narrow gate; new runtime features must not widen it implicitly.
     let strict_enabled = crate::config::env::joinir_dev::strict_enabled();
     let fallback_enabled = crate::config::env::vm_use_fallback();
     let plan = decide_stage_a_compat_guard(strict_enabled, fallback_enabled);
@@ -96,6 +98,8 @@ pub(crate) fn decide_stage_a_rust_json_bridge_guard(force_fallback: bool) -> Sta
 }
 
 pub(crate) fn enforce_stage_a_rust_json_bridge_guard_or_exit(source: &str) {
+    // The Rust Program(JSON v0) bridge is compat fallback only.
+    // Mainline route additions must not silently make this default.
     let fallback_enabled = crate::config::env::vm_use_fallback();
     let plan = decide_stage_a_rust_json_bridge_guard(fallback_enabled);
     if plan.action == StageACompatGuardAction::Reject {
