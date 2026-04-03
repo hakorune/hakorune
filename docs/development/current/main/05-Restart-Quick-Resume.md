@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-38x cleanup/archive sweep`
-- active micro task: `38xC1 archive-later queue freeze`
-- next micro task: `38xD1 closeout`
+- active micro task: `38xD1 closeout`
+- next micro task: `next source lane selection`
 - post-`37xD1`: `phase-38x cleanup/archive sweep`
 - raw backend default flip stays deferred beyond `phase-38x`
 

@@ -34,6 +34,8 @@ Related:
 2. `38x-91-task-board.md`
 3. `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`
 4. `tools/bootstrap_selfhost_smoke.sh`
+5. `tools/plugin_v2_smoke.sh`
+6. `tools/hako_check_deadcode_smoke.sh`
 
-- current active micro task: `38xC1 archive-later queue freeze`
-- next queued micro task: `38xD1 closeout`
+- current active micro task: `38xD1 closeout`
+- next queued micro task: `next source lane selection`

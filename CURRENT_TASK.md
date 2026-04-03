@@ -145,6 +145,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `38xA` archives legacy embedded smoke out of top-level `tools/`
   - `38xB` sweeps delete-ready drained shims
   - `38xC` freezes archive-later shims that still have current/historical doc pressure
+  - `38xD` closes out the cleanup/archive sweep and returns the front to the next source lane
   - landed first cleanup move: `tools/stage1_smoke.sh` is archived as `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`
   - raw backend default still stays deferred; no-touch-first remains on `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, and `tools/selfhost/selfhost_build.sh`
 - Exact read order:
@@ -159,7 +160,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-38x cleanup/archive sweep` |
   | Blocker | `none` |
-     | Next | `38xC1 archive-later queue freeze` |
+  | Next | `38xD1 closeout` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -174,8 +175,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `phase-38x cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
-| Next | `38xC1 archive-later queue freeze` | keep bootstrap/plugin/deadcode shims until doc drain lands |
-| Later | `38xD1 closeout` | return current front to next source lane |
+| Next | `38xD1 closeout` | return current front to next source lane |
+| Later | `next source lane selection` | choose the next cleanup/source focus after closeout |
 | After `37xD1` | `cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
 
 ## Phase-34x Waves

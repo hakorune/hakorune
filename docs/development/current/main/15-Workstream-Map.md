@@ -90,14 +90,14 @@ Related:
      | --- | --- |
      | Now | `phase-38x cleanup/archive sweep` |
      | Blocker | `none` |
-     | Next | `38xC1 archive-later queue freeze` |
+     | Next | `38xD1 closeout` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
      | Now | `phase-38x cleanup/archive sweep` |
-     | Next | `38xC1 archive-later queue freeze` |
-     | Later | `38xD1 closeout` |
+     | Next | `38xD1 closeout` |
+     | Later | `next source lane selection` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
@@ -142,7 +142,7 @@ Related:
 - Active backend surface tasks:
   - `phase-38x cleanup/archive sweep`
 - Queued backend surface tasks:
-  - `38xC1 archive-later queue freeze`
+  - `next source lane selection`
 - Post-`37xD1` cleanup:
   - drained shim / legacy embedded smoke archive sweep
   - first landed move: `tools/stage1_smoke.sh` -> `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`
