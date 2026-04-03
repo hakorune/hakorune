@@ -33,6 +33,28 @@ Scope: `rust-vm` を即削除せず、live caller を starvation して direct/c
 | `tools/selfhost/run_stage1_cli.sh` | direct Stage1 route | canonical migration target |
 | `tools/selfhost/stage1_mainline_smoke.sh` | direct proof home | canonical migration target |
 
+## Caller-Starvation Targets
+
+| Surface | Why it stays in the active migration set |
+| --- | --- |
+| `tools/selfhost/selfhost_build.sh` | it still fans out into route helpers that can pull new work back toward vm-gated routes |
+| `tools/selfhost/run.sh` | it still fronts direct/runtime/direct-call paths that should stay route-only |
+| `src/runner/modes/common_util/selfhost/child.rs` | it still owns vm child capture and must be reduced to spawn/capture/timeout/JSON selection only |
+| `src/runner/modes/vm.rs` | it still owns proof/oracle execution pressure and can widen again if callers are not starved |
+| `src/runner/modes/vm_fallback.rs` | it still mirrors the vm owner pressure and needs the same drain discipline |
+
+## Do-Not-Grow Keeps
+
+| Surface | Why it stays frozen |
+| --- | --- |
+| `tools/selfhost/run_stageb_compiler_vm.sh` | explicit VM proof gate only; no new feature work |
+| `tools/selfhost/selfhost_vm_smoke.sh` | proof gate only; keep tiny and stable |
+| `tools/selfhost/selfhost_stage3_accept_smoke.sh` | acceptance proof gate only; no widening |
+| `lang/src/runner/stage1_cli/core.hako` | raw compat keep only; no-widen |
+| `src/runner/core_executor.rs` | direct owner only; no fallback growth |
+| `tools/selfhost/run_stage1_cli.sh` | direct Stage1 proof home only |
+| `tools/selfhost/stage1_mainline_smoke.sh` | direct proof smoke only |
+
 ## Migration Rule
 
 - new capability work goes to direct/core owners only
@@ -46,11 +68,11 @@ Scope: `rust-vm` を即削除せず、live caller を starvation して direct/c
 | --- | --- |
 | Now | `phase-42x vm caller starvation / direct-core owner migration` |
 | Blocker | `none` |
-| Next | `42xA1 caller starvation target lock` |
+| Next | `42xA2 proof-only VM keep freeze` |
 
 - `phase-41x` landed: direct/core route hardening and `vm.rs` proof/oracle shrink are complete enough for handoff
-- `42xA1` will lock the exact active migration surfaces and the exact proof-only keep set
-- `42xA2` will freeze `run_stageb_compiler_vm.sh` / `selfhost_vm_smoke.sh` / `selfhost_stage3_accept_smoke.sh` / `core.hako` as explicit `do-not-grow`
+- `42xA1` locked the active migration surfaces and the exact proof-only keep set
+- `42xA2` will freeze the proof-only VM keeps as explicit `do-not-grow`
 
 ## Big Tasks
 
@@ -63,8 +85,8 @@ Scope: `rust-vm` を即削除せず、live caller を starvation して direct/c
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `42xA1` | active | lock caller starvation targets and active migration surfaces |
-| `42xA2` | queued | freeze proof-only VM keep set as explicit `do-not-grow` |
+| `42xA1` | landed | lock caller starvation targets and active migration surfaces |
+| `42xA2` | active | freeze proof-only VM keep set as explicit `do-not-grow` |
 | `42xB1` | queued | starve `selfhost_build.sh` downstream callers toward direct/core helper owners |
 | `42xB2` | queued | trim `run.sh` day-to-day route pressure so it stays route-only facade |
 | `42xC1` | queued | drain `child.rs` until it owns spawn/capture/timeout/JSON selection only |

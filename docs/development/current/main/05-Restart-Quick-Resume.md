@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-42x vm caller starvation / direct-core owner migration`
-- active micro task: `42xA1 caller starvation target lock`
-- next micro task: `42xA2 proof-only VM keep freeze`
+- active micro task: `42xA2 proof-only VM keep freeze`
+- next micro task: `42xB1 selfhost_build.sh downstream caller starvation`
 - post-`41xD1`: `phase-42x vm caller starvation / direct-core owner migration`
 - raw backend default flip stays deferred beyond `phase-42x`
 
