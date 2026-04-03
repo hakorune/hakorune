@@ -29,6 +29,7 @@ Related:
 - `tools/selfhost/run.sh` / `tools/selfhost/bootstrap_selfhost_smoke.sh` are outer facades or explicit engineering gates.
 - `src/runner/modes/common_util/selfhost/child.rs` / `src/runner/core_executor.rs` / `tools/selfhost/stage1_mainline_smoke.sh` are direct-route or thin-owner candidates.
 - `phase-38x` cleanup/archive sweep is landed and the archive-later queue is frozen.
+- `39xA1` landed: caller inventory is fixed for `selfhost_build.sh` / `run_stageb_compiler_vm.sh` / `run.sh`.
 
 ## Exact Next
 
@@ -37,5 +38,5 @@ Related:
 3. `tools/selfhost/selfhost_build.sh`
 4. `tools/selfhost/run_stageb_compiler_vm.sh`
 
-- current active micro task: `39xA1 stage0 gate route inventory`
-- next queued micro task: `39xA2 route classification`
+- current active micro task: `39xA2 route classification`
+- next queued micro task: `39xB1 bootstrap mainline direct route`

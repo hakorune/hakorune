@@ -16,8 +16,8 @@ Date: 2026-04-03
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `39xA1` | active | `selfhost_build.sh` / `run_stageb_compiler_vm.sh` / `run.sh` callers を inventory する |
-| `39xA2` | queued | `vm 必須` / `direct` / `core_executor` を classify する |
+| `39xA1` | landed | `selfhost_build.sh` / `run_stageb_compiler_vm.sh` / `run.sh` callers の inventory を固定する |
+| `39xA2` | active | `vm 必須` / `direct` / `core_executor` を classify する |
 | `39xB1` | queued | bootstrap mainline direct route を選ぶ |
 | `39xB2` | queued | explicit vm gate keep set を freeze する |
 | `39xC1` | queued | caller drain map を作る |

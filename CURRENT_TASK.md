@@ -148,6 +148,8 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `38xC` freezes archive-later shims that still have current/historical doc pressure
   - `38xD` closes out the cleanup/archive sweep and returns the front to the next source lane
   - `39xA` inventories remaining stage0 vm-gated bootstrap routes
+  - `39xA1` landed and fixed caller inventory for `selfhost_build.sh` / `run_stageb_compiler_vm.sh` / `run.sh`
+  - `39xA2` active and classifies route ownership
   - landed first cleanup move: `tools/stage1_smoke.sh` is archived as `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`
   - raw backend default still stays deferred; no-touch-first remains on `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, and `tools/selfhost/selfhost_build.sh`
 - Exact read order:
@@ -162,7 +164,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-39x stage0 vm gate thinning` |
   | Blocker | `none` |
-  | Next | `39xA1 stage0 gate route inventory` |
+  | Next | `39xA2 route classification` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -177,8 +179,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `phase-39x stage0 vm gate thinning` | inventory and thin remaining stage0 vm-gated bootstrap routes |
-| Next | `39xA1 stage0 gate route inventory` | inventory `selfhost_build.sh` / `run_stageb_compiler_vm.sh` / `run.sh` callers |
-| Later | `39xA2 route classification` | split `vm 必須` / `direct` / `core_executor` lanes |
+| Next | `39xA2 route classification` | split `vm 必須` / `direct` / `core_executor` lanes |
+| Later | `39xB1 bootstrap mainline direct route` | choose the direct bootstrap mainline and freeze explicit vm keep |
 | After `37xD1` | `cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
 
 ## Phase-34x Waves
