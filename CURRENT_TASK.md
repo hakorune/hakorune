@@ -115,7 +115,8 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `phase-32x` is landed; mixed-owner source/smoke split and raw default/token defer are fixed
   - `phase-33x` is landed; helper-family path truth and keep gates are fixed
   - `41xA1` landed: remaining direct/core route facades and caller families are inventoried
-  - current next cleanup is proof-only VM gate freeze, not new vm gate growth
+  - `41xA2` landed: proof-only VM gate set is frozen and non-growing
+  - current next cleanup is selfhost_build.sh direct/core route hardening, not new vm gate growth
   - current backend reading stays role-first:
     - `llvm/exe` = `product`
     - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
@@ -174,7 +175,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-41x stage0 direct/core route hardening` |
   | Blocker | `none` |
-  | Next | `41xA2 proof-only VM gate freeze` |
+  | Next | `41xB1 selfhost_build.sh direct/core route hardening` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -189,7 +190,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `phase-41x stage0 direct/core route hardening` | keep direct/core mainline ownership hard while proof-only VM keeps stay frozen |
-| Next | `41xA2 proof-only VM gate freeze` | freeze the proof-only VM gates again before route hardening work |
+| Next | `41xB1 selfhost_build.sh direct/core route hardening` | harden the selfhost build facade into the direct/core first route |
 | Later | `41xD1 proof / closeout` | hand off with `rust-vm` reduced to proof/compat keep rather than mainline ownership |
 | After `37xD1` | `cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
 

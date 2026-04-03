@@ -73,5 +73,5 @@ Related:
 5. `src/runner/modes/vm.rs`
 6. `src/runner/core_executor.rs`
 
-- current active micro task: `41xA2 proof-only VM gate freeze`
-- next queued micro task: `41xB1 selfhost_build.sh direct/core route hardening`
+- current active micro task: `41xB1 selfhost_build.sh direct/core route hardening`
+- next queued micro task: `41xB2 run.sh facade trim`

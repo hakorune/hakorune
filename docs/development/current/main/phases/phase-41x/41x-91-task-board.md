@@ -17,8 +17,8 @@ Date: 2026-04-03
 | Task | Status | Read as |
 | --- | --- | --- |
 | `41xA1` | landed | direct/core route inventory |
-| `41xA2` | active | proof-only VM gate freeze |
-| `41xB1` | queued | `selfhost_build.sh` direct/core route hardening |
+| `41xA2` | landed | proof-only VM gate freeze |
+| `41xB1` | active | `selfhost_build.sh` direct/core route hardening |
 | `41xB2` | queued | `run.sh` facade trim |
 | `41xC1` | queued | `vm.rs` proof/oracle shrink |
 | `41xD1` | queued | proof / closeout |

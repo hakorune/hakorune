@@ -29,6 +29,7 @@ Related:
 
 - lane: `phase-41x stage0 direct/core route hardening`
 - `41xA1` landed: remaining direct/core route facades and caller families are inventoried
+- `41xA2` landed: proof-only VM gate set is frozen and non-growing
 - `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete
 - `phase-32x` landed: mixed-owner source/smoke split and raw default/token defer are fixed
@@ -50,8 +51,8 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `41xA2 proof-only VM gate freeze`
-- next micro task: `41xB1 selfhost_build.sh direct/core route hardening`
+- active micro task: `41xB1 selfhost_build.sh direct/core route hardening`
+- next micro task: `41xB2 run.sh facade trim`
 - plain reading:
   - if a bootstrap route stays on `--backend vm`, new capability work still tends to imply `rust-vm` support
   - `phase-41x` exists to harden the remaining direct/core mainline and keep vm as proof/compat keep
