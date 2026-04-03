@@ -36,6 +36,27 @@ Related:
 - `--backend vm` is not a day-to-day caller contract for this lane; if it still appears in implementation, it is an intermediate/helper detail to be drained later.
 - `run.sh --direct` remains a proof-oriented Stage-B route and is not the default runtime boundary.
 
+## A2 Stage1 Source->MIR Contract
+
+- producer entry is `lang/src/runner/stage1_cli_env.hako` `emit-mir`.
+- source text comes from `STAGE1_SOURCE_TEXT`.
+- the mainline emit path calls `MirBuilderBox.emit_from_source_v0(...)`.
+- `STAGE1_EMIT_MIR_JSON=1` is the stage1 env contract for this route.
+- `emit-mir-program` and raw Program(JSON) wrappers remain compat-only keeps.
+- legacy routes discovered while locking this lane:
+  - `emit program-json` is diagnostics/compat only
+  - Program(JSON)->MIR fallback stays explicit-only and non-growing
+
+## A3 Stage-A Direct/Core Contract
+
+- Stage-A first path is direct MIR acceptance when MIR payload already exists.
+- `Program(JSON v0)` remains explicit compat fallback and is not the day-to-day owner boundary.
+- legacy route discovered while locking this lane:
+  - `src/runner/modes/common_util/selfhost/stage_a_route.rs`
+  - `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
+  - both still route through `stage0_capture_route.rs` while helper defaults are being drained
+- this lane is a contract lock, not the helper-default cutover itself
+
 ## Success Conditions
 
 - runtime contract is explicit and stable before helper-default cutover begins

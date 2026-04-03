@@ -66,7 +66,7 @@ Related:
      - `phase-45x` is landed and trimmed the residual vm owner surfaces
      - `phase-46x` is landed and selected `stage0/runtime direct-core finalization`
      - `phase-47x` is active and drains the remaining live helper-route defaults
-     - `47xA1` landed and `47xA2` is active
+     - `47xA1` landed, `47xA2` landed, and `47xA3` is active
      - exact order is `A1/A2/A3 -> B1/B2/B3 -> C1/C2/C3 -> D1/D2/D3 -> E1`
      - `42xA1` landed: lock starvation targets and active migration surfaces
      - `42xA2` landed: freeze proof-only VM gates as explicit do-not-grow keeps
