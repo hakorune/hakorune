@@ -133,7 +133,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-47x stage0/runtime direct-core finalization`
 - Current blocker: `none`
-- Exact focus: `47xA3 Stage-A direct/core contract lock`
+- Exact focus: `47xB1 selfhost_run_routes.sh runtime temp-MIR handoff helper`
 - exact phase-47x order:
   1. `47xA1` runtime/default contract lock
   2. `47xA2` stage1 source->MIR contract lock

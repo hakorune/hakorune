@@ -18,6 +18,89 @@ resolve_path() {
   fi
 }
 
+emit_runtime_route_tag() {
+  local mode="$1"
+  local source="$2"
+  echo "[selfhost/route] id=SH-RUNTIME-SELFHOST mode=$mode source=$source" >&2
+}
+
+run_runtime_temp_mir_handoff() {
+  # Opt-in helper body for the future runtime default cutover.
+  # B1 introduces the temp-MIR handoff route; B2 will move the day-to-day
+  # default caller onto it.
+  if [ ! -x "$NYASH_BIN" ]; then
+    echo "[selfhost/run] nyash binary not found/executable: $NYASH_BIN" >&2
+    exit 2
+  fi
+
+  local input_file
+  input_file="$(resolve_path "$runtime_input")"
+  if [ ! -f "$input_file" ]; then
+    echo "[selfhost/run] runtime input not found: $input_file" >&2
+    exit 2
+  fi
+
+  local source_name
+  source_name="$(basename "$input_file")"
+
+  local tmp_mir tmp_emit_err
+  tmp_mir="$(mktemp --suffix .runtime_temp_mir.json)"
+  tmp_emit_err="$(mktemp --suffix .runtime_temp_mir.err)"
+
+  echo "[selfhost/run] mode=runtime runtime_mode=$runtime_mode input=$(basename "$input_file") handoff=temp-mir" >&2
+  emit_runtime_route_tag "pipeline-entry" "$source_name"
+  emit_runtime_route_tag "$runtime_mode" "$source_name"
+
+  local emit_rc=0
+  set +e
+  if [ -n "$timeout_secs" ]; then
+    timeout "$timeout_secs" \
+      bash "$NYASH_ROOT/tools/selfhost/run_stage1_cli.sh" --bin "$NYASH_BIN" emit mir-json "$input_file" \
+      >"$tmp_mir" 2>"$tmp_emit_err"
+  else
+    bash "$NYASH_ROOT/tools/selfhost/run_stage1_cli.sh" --bin "$NYASH_BIN" emit mir-json "$input_file" \
+      >"$tmp_mir" 2>"$tmp_emit_err"
+  fi
+  emit_rc=$?
+  set -e
+  if [ "$emit_rc" -ne 0 ]; then
+    echo "[selfhost/run] runtime temp-MIR emit failed (rc=$emit_rc)" >&2
+    if [ -s "$tmp_emit_err" ]; then
+      cat "$tmp_emit_err" >&2
+    fi
+    rm -f "$tmp_mir" "$tmp_emit_err" 2>/dev/null || true
+    exit "$emit_rc"
+  fi
+
+  if [ ! -s "$tmp_mir" ]; then
+    echo "[selfhost/run] runtime temp-MIR emit produced empty payload" >&2
+    rm -f "$tmp_mir" "$tmp_emit_err" 2>/dev/null || true
+    exit 1
+  fi
+  if ! grep -q '"functions"' "$tmp_mir"; then
+    echo "[selfhost/run] runtime temp-MIR payload missing functions marker" >&2
+    cat "$tmp_mir" >&2
+    rm -f "$tmp_mir" "$tmp_emit_err" 2>/dev/null || true
+    exit 1
+  fi
+
+  echo "[selfhost/run] mode=runtime runtime_mode=$runtime_mode handoff=mir-json-file" >&2
+
+  local run_rc=0
+  set +e
+  if [ -n "$timeout_secs" ]; then
+    timeout "$timeout_secs" \
+      "$NYASH_BIN" --mir-json-file "$tmp_mir"
+  else
+    "$NYASH_BIN" --mir-json-file "$tmp_mir"
+  fi
+  run_rc=$?
+  set -e
+
+  rm -f "$tmp_mir" "$tmp_emit_err" 2>/dev/null || true
+  return "$run_rc"
+}
+
 run_gate() {
   if [ ! -f "$GATE_SCRIPT" ]; then
     echo "[selfhost/run] gate script not found: $GATE_SCRIPT" >&2
@@ -96,6 +179,10 @@ run_runtime() {
   fi
 
   echo "[selfhost/run] mode=runtime runtime_mode=$runtime_mode input=$(basename "$input_file")" >&2
+  if [ "${NYASH_SELFHOST_RUNTIME_TEMP_MIR:-0}" = "1" ] && [ "$runtime_mode" = "exe" ]; then
+    run_runtime_temp_mir_handoff
+    return
+  fi
   if [ -n "$timeout_secs" ]; then
     env "${env_prefix[@]}" timeout "$timeout_secs" "$NYASH_BIN" --backend vm "$input_file"
   else

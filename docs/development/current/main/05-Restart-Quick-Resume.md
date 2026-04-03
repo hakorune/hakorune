@@ -24,9 +24,11 @@ tools/checks/dev_gate.sh quick
 
 - lane: `phase-47x stage0/runtime direct-core finalization`
 - landed micro task: `47xA1 runtime/default contract lock`
-- active micro task: `47xA3 Stage-A direct/core contract lock`
-- next micro task: `47xB1 selfhost_run_routes.sh runtime temp-MIR handoff helper`
-- after next: `47xB2 selfhost_run_routes.sh runtime default cutover`
+- landed micro task: `47xA2 stage1 source->MIR contract lock`
+- landed micro task: `47xA3 Stage-A direct/core contract lock`
+- active micro task: `47xB1 selfhost_run_routes.sh runtime temp-MIR handoff helper`
+- next micro task: `47xB2 selfhost_run_routes.sh runtime default cutover`
+- after next: `47xB3 run.sh explicit vm compat mode lock`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 

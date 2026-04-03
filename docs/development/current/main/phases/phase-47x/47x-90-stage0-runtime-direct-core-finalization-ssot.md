@@ -27,6 +27,9 @@ Scope: finalize the migration from live VM-backed helper defaults to stage0/runt
 - direct/core receiver already exists:
   - `src/runner/mod.rs --mir-json-file`
   - `src/runner/core_executor.rs`
+- opt-in runtime temp-MIR helper now exists:
+  - `tools/selfhost/lib/selfhost_run_routes.sh` has `NYASH_SELFHOST_RUNTIME_TEMP_MIR=1` handoff body
+  - day-to-day default cutover still waits for `47xB2`
 - helper-route live defaults still leak VM ownership:
   - `tools/selfhost/lib/selfhost_run_routes.sh`
   - `src/runner/modes/common_util/selfhost/stage0_capture_route.rs`
