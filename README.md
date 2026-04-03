@@ -72,7 +72,7 @@ Current Backend Roles
 - Product
   - `--backend llvm` (ny-llvmc crate backend; native object/EXE ownership)
 - Engineering / bootstrap
-  - `--backend vm` (selfhost, recovery, plugin, macro, and tooling keep)
+  - `--backend vm` (selfhost, recovery, plugin, macro, and tooling keep; explicit compat/proof only)
 - Reference / conformance
   - `--backend vm-hako`
 - Experimental / monitor-only
@@ -122,9 +122,9 @@ MIR mode note: Default PHI behavior
 Self‑hosting one‑pager: `docs/how-to/self-hosting.md`.
 ExternCall (env.*) and println normalization: `docs/reference/runtime/externcall.md`.
 
-### Minimal ENV (VM vs LLVM harness)
-- VM: no extra environment needed for typical runs.
-  - Example: `$NYASH_BIN --backend vm apps/tests/ternary_basic.hako`
+### Minimal ENV (compat/proof vs LLVM harness)
+- Explicit compat/proof lane: no extra environment needed when you need the Rust VM keep.
+  - Example (compat/proof keep): `$NYASH_BIN --backend vm apps/tests/ternary_basic.hako`
 - LLVM harness: set three variables so the runner finds the harness and runtime.
   - `NYASH_LLVM_USE_HARNESS=1`
   - `NYASH_NY_LLVM_COMPILER=$NYASH_ROOT/target/release/ny-llvmc`
@@ -165,7 +165,7 @@ Layer guard (one-way deps: origin→observe→rewrite)
 Profiles (quick)
 - `--profile dev` → Macros ON (strict), PyVM dev向け設定を適用（必要に応じて環境で上書き可）
 - `--profile lite` → Macros OFF の軽量実行
-  - 例: `$NYASH_BIN --profile dev --backend vm apps/tests/ternary_basic.hako`
+  - 例 (compat/proof keep): `$NYASH_BIN --profile dev --backend vm apps/tests/ternary_basic.hako`
 
 Specs & Constraints
 - Invariants (must-hold): `docs/reference/invariants.md`
@@ -184,8 +184,8 @@ Specs & Constraints
 <a id="self-hosting"></a>
 ## 🧪 Self‑Hosting (Engineering Bootstrap)
 - Guide: `docs/how-to/self-hosting.md`
-- Engineering bootstrap E2E: `$NYASH_BIN --backend vm apps/selfhost-minimal/main.hako`
-- Engineering smokes: `bash tools/jit_smoke.sh` / `bash tools/selfhost/selfhost_vm_smoke.sh`
+- Compat/proof bootstrap E2E: `$NYASH_BIN --backend vm apps/selfhost-minimal/main.hako`
+- Compat/proof smokes: `bash tools/jit_smoke.sh` / `bash tools/selfhost/selfhost_vm_smoke.sh`
 - JSON (Operator Boxes, dev): `./tools/opbox-json.sh` / `./tools/opbox-quick.sh`
 - Makefile: `make run-minimal`, `make smoke-selfhost`
 
@@ -269,13 +269,13 @@ local py = new PyRuntimeBox()       // Python plugin
 
 Important current reading:
 - Product main: LLVM AOT (`--backend llvm`, `ny-llvmc`)
-- Engineering/bootstrap keep: Rust VM (`--backend vm`)
+- Compatibility/proof keep: Rust VM (`--backend vm`)
 - Reference/conformance: `vm-hako`
 - Experimental / monitor-only: WASM
 
 Phase‑15 (Self‑Hosting): legacy routes are feature-gated or historical
-- Raw CLI default is still `--backend vm`; do not read that as product ownership.
-- `--backend vm` is the Rust VM engineering/bootstrap lane.
+- Raw CLI default is still `--backend vm` for legacy ingress; do not read that as product ownership.
+- `--backend vm` is the Rust VM compatibility/proof lane.
 - `--backend llvm` is the product native object/EXE lane.
 - `--backend vm-hako` is the reference/conformance lane.
 - PyVM route is historical/direct-only and delegates to `tools/historical/pyvm/pyvm_runner.py`.
@@ -313,17 +313,17 @@ cc nyash_llvm_temp.o -L crates/nyrt/target/release -Wl,--whole-archive -lnyrt -W
 - Previously available `NYASH_LLVM_ALLOW_BY_NAME=1`: Removed - all plugin calls now use method_id by default.
   - The LLVM backend only supports method_id-based plugin calls for better performance and type safety.
 
-### 2. **VM Mode (engineering/bootstrap lane)**
+### 2. **VM Mode (compatibility/proof lane)**
 ```bash
-# Engineering/bootstrap default: Rust VM
+# Compat/proof keep: Rust VM
 $NYASH_BIN --backend vm program.hako
 
 # Historical PyVM parity route
 bash tools/historical/pyvm/pyvm_vs_llvmlite.sh program.hako
 ```
-- Default: Rust VM executes MIR directly for engineering/bootstrap
+- Compat/proof: Rust VM executes MIR directly for keep/regression
 - Legacy PyVM: executes MIR(JSON) via `tools/historical/pyvm/pyvm_runner.py`
-- Legacy VM: 13.5x over interpreter (historical); kept for comparison and plugin tests
+- Legacy VM: 13.5x over interpreter (historical); kept for comparison, plugin tests, and proof gates
 
 ### 3. **vm-hako (reference / conformance lane)**
 ```bash
