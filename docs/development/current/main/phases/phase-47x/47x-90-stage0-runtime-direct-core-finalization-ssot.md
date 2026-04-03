@@ -27,11 +27,10 @@ Scope: finalize the migration from live VM-backed helper defaults to stage0/runt
 - direct/core receiver already exists:
   - `src/runner/mod.rs --mir-json-file`
   - `src/runner/core_executor.rs`
-- opt-in runtime temp-MIR helper now exists:
-  - `tools/selfhost/lib/selfhost_run_routes.sh` has `NYASH_SELFHOST_RUNTIME_TEMP_MIR=1` handoff body
-  - day-to-day default cutover still waits for `47xB2`
+- runtime temp-MIR default is now cut over:
+  - `tools/selfhost/lib/selfhost_run_routes.sh` uses the temp-MIR handoff body for runtime `exe` by default
+  - `stage-a` stays explicit compat-only and still uses the legacy VM path until `47xB3`
 - helper-route live defaults still leak VM ownership:
-  - `tools/selfhost/lib/selfhost_run_routes.sh`
   - `src/runner/modes/common_util/selfhost/stage0_capture_route.rs`
   - `src/runner/modes/common_util/selfhost/stage_a_route.rs`
   - `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
@@ -56,11 +55,11 @@ Scope: finalize the migration from live VM-backed helper defaults to stage0/runt
    - lock exact producer-side contract for source text -> validated MIR(JSON v0)
 3. `47xA3 Stage-A direct/core contract lock`
    - lock Stage-A as source->MIR first and Program(JSON v0) explicit compat fallback
-4. `47xB1 selfhost_run_routes.sh runtime temp-MIR handoff helper`
+4. `47xB1 selfhost_run_routes.sh runtime temp-MIR handoff helper` (landed)
    - add route body that materializes MIR temp state and hands off through `--mir-json-file`
-5. `47xB2 selfhost_run_routes.sh runtime default cutover`
+5. `47xB2 selfhost_run_routes.sh runtime default cutover` (landed)
    - remove day-to-day runtime default dependence on `--backend vm`
-6. `47xB3 run.sh explicit vm compat mode lock`
+6. `47xB3 run.sh explicit vm compat mode lock` (active)
    - keep VM route explicit-only on the facade and stop silent rediscovery
 7. `47xC1 stage0_capture_route.rs non-VM builder add`
    - keep capture plumbing neutral and move route policy into selectable builders

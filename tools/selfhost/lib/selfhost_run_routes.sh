@@ -25,9 +25,8 @@ emit_runtime_route_tag() {
 }
 
 run_runtime_temp_mir_handoff() {
-  # Opt-in helper body for the future runtime default cutover.
-  # B1 introduces the temp-MIR handoff route; B2 will move the day-to-day
-  # default caller onto it.
+  # Shared helper body for the runtime temp-MIR handoff.
+  # B1 introduced the body; B2 makes the exe route call it by default.
   if [ ! -x "$NYASH_BIN" ]; then
     echo "[selfhost/run] nyash binary not found/executable: $NYASH_BIN" >&2
     exit 2
@@ -179,7 +178,7 @@ run_runtime() {
   fi
 
   echo "[selfhost/run] mode=runtime runtime_mode=$runtime_mode input=$(basename "$input_file")" >&2
-  if [ "${NYASH_SELFHOST_RUNTIME_TEMP_MIR:-0}" = "1" ] && [ "$runtime_mode" = "exe" ]; then
+  if [ "$runtime_mode" = "exe" ]; then
     run_runtime_temp_mir_handoff
     return
   fi

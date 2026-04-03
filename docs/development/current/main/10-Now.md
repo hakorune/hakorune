@@ -31,8 +31,9 @@ Related:
 - `47xA1` landed: runtime/default contract lock
 - `47xA2` landed: stage1 source->MIR contract lock
 - `47xA3` landed: Stage-A direct/core contract lock
-- `47xB1` active: selfhost_run_routes.sh runtime temp-MIR handoff helper
-- `47xB2` next: selfhost_run_routes.sh runtime default cutover
+- `47xB1` landed: selfhost_run_routes.sh runtime temp-MIR handoff helper
+- `47xB2` landed: selfhost_run_routes.sh runtime default cutover
+- `47xB3` active: run.sh explicit vm compat mode lock
 - `45xA1` landed: residual vm owner inventory lock
 - `45xA2` landed: proof-only keep boundary freeze
 - `45xB1` landed: vm.rs broad owner shrink
@@ -62,9 +63,9 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `47xB1 selfhost_run_routes.sh runtime temp-MIR handoff helper`
-- next micro task: `47xB2 selfhost_run_routes.sh runtime default cutover`
-- after next: `47xB3 run.sh explicit vm compat mode lock`
+- active micro task: `47xB3 run.sh explicit vm compat mode lock`
+- next micro task: `47xC1 stage0_capture_route.rs non-VM builder add`
+- after next: `47xC2 stage_a_route.rs source->MIR first switch`
 - plain reading:
   - if a bootstrap route stays on `--backend vm`, new capability work still tends to imply `rust-vm` support
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep
@@ -72,7 +73,7 @@ Related:
 - `phase-43x` is landed; it selected `phase-44x stage0 direct/core follow-up` as the highest-leverage successor lane
 - `phase-44x` is landed; it keeps proof-only VM gates explicit and closes the lane
 - `phase-46x` is landed; it selected `stage0/runtime direct-core finalization` as the next source lane
-- `phase-47x` is active; it removes the last live helper-route defaults from `--backend vm`
+- `phase-47x` is active; it removes the last live helper-route defaults from `--backend vm` and keeps explicit vm compat mode locked
   - `tools/selfhost/lib/selfhost_run_routes.sh`
   - `src/runner/modes/common_util/selfhost/stage0_capture_route.rs`
   - `src/runner/modes/common_util/selfhost/stage_a_route.rs`

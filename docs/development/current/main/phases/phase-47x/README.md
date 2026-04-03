@@ -55,8 +55,8 @@ Related:
   - `src/runner/modes/common_util/selfhost/stage_a_route.rs`
   - `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
   - both still route through `stage0_capture_route.rs` while helper defaults are being drained
-- this lane is a contract lock, not the helper-default cutover itself
-- `47xB1` now adds the opt-in temp-MIR handoff helper under `NYASH_SELFHOST_RUNTIME_TEMP_MIR=1`; `47xB2` will make that body the day-to-day default caller.
+- this lane is a contract lock plus helper-default cutover; explicit vm compat lock follows it
+- `47xB1` adds the temp-MIR handoff helper; `47xB2` makes that body the day-to-day default caller; `47xB3` keeps explicit vm compat locked.
 
 ## Success Conditions
 
