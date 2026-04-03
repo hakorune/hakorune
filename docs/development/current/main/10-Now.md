@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `phase-46x next source lane selection`
+- lane: `phase-47x stage0/runtime direct-core finalization`
 - `45xA1` landed: residual vm owner inventory lock
 - `45xA2` landed: proof-only keep boundary freeze
 - `45xB1` landed: vm.rs broad owner shrink
@@ -57,19 +57,21 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `next source lane selection`
-- next micro task: `phase-46x candidate lane shortlist`
+- active micro task: `47xA1 runtime/default contract lock`
+- next micro task: `47xA2 stage1 source->MIR contract lock`
 - plain reading:
   - if a bootstrap route stays on `--backend vm`, new capability work still tends to imply `rust-vm` support
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep
 - `phase-42x` is landed; it starved day-to-day callers away from vm-gated routes and moved owner pressure toward direct/core seams
 - `phase-43x` is landed; it selected `phase-44x stage0 direct/core follow-up` as the highest-leverage successor lane
 - `phase-44x` is landed; it keeps proof-only VM gates explicit and closes the lane
-- `phase-46x` is active; it inventories remaining live VM pressure and ranks the next source lane while keeping direct/core mainline canonical
-  - `tools/selfhost/lib/selfhost_build_stageb.sh`
+- `phase-46x` is landed; it selected `stage0/runtime direct-core finalization` as the next source lane
+- `phase-47x` is active; it removes the last live helper-route defaults from `--backend vm`
   - `tools/selfhost/lib/selfhost_run_routes.sh`
-  - `tools/selfhost/run_stageb_compiler_vm.sh`
-  - `stage0_capture.rs` is already route-neutral
+  - `src/runner/modes/common_util/selfhost/stage0_capture_route.rs`
+  - `src/runner/modes/common_util/selfhost/stage_a_route.rs`
+  - `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
+  - `tools/selfhost/lib/selfhost_build_stageb.sh`
   - success means day-to-day stage0/selfhost defaults stay direct/core-first and VM gates stay explicit proof/fallback only
   - failure means new features drifting back into `--backend vm`, stage1 compat, or raw routes
 - post-`39xD1`: stage0 vm archive candidate selection for remaining bootstrap surfaces
@@ -100,6 +102,6 @@ Related:
 
 1. read `CURRENT_TASK.md`
 2. read `15-Workstream-Map.md`
-3. read `docs/development/current/main/phases/phase-46x/README.md`
-4. read `docs/development/current/main/phases/phase-46x/46x-90-next-source-lane-selection-ssot.md`
-5. read `docs/development/current/main/phases/phase-46x/46x-91-task-board.md`
+3. read `docs/development/current/main/phases/phase-47x/README.md`
+4. read `docs/development/current/main/phases/phase-47x/47x-90-stage0-runtime-direct-core-finalization-ssot.md`
+5. read `docs/development/current/main/phases/phase-47x/47x-91-task-board.md`

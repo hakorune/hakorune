@@ -4,8 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 46x next source lane selection
-- **Phase 46x（ACTIVE）**: next source lane selection（残っている live VM pressure を棚卸しして、次の source lane を選ぶ）
+- **Current (ACTIVE)**: Phase 47x stage0/runtime direct-core finalization
+- **Phase 47x（ACTIVE）**: stage0/runtime direct-core finalization（残っている live helper-route defaults を `--backend vm` から外す）
+- **Phase 46x（LANDED）**: next source lane selection（残っている live VM pressure を棚卸しして、後継 lane に `stage0/runtime direct-core finalization` を選んだ）
 - **Phase 45x（LANDED）**: vm residual cleanup（`rust-vm` の残り owner surfaces を proof/oracle/compat keep に縮める）
 - **Phase 44x（LANDED）**: stage0 direct/core follow-up（live stage0/selfhost owners を direct/core route 側へ寄せた）
 - **Phase 43x（LANDED）**: next source lane selection（phase-42x closeout 後の successor lane として `direct/core follow-up` を選んだ）

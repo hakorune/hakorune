@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-03
 Owner: Codex
 Scope: shortlist and select the next source lane after `phase-45x` landed.
@@ -38,7 +38,7 @@ Scope: shortlist and select the next source lane after `phase-45x` landed.
 
 ## Recommendation
 
-- working recommendation: `stage0/runtime direct-core finalization`
+- selected successor lane: `phase-47x stage0/runtime direct-core finalization`
 - reason:
   - the remaining live default pressure still sits in `selfhost_run_routes.sh`
   - route defaults create feature tax faster than the already-shrunk VM core tail
@@ -49,3 +49,13 @@ Scope: shortlist and select the next source lane after `phase-45x` landed.
 - choose the lane that removes live VM defaults from route helpers first
 - keep `run_stageb_compiler_vm.sh` as an explicit proof/fallback keep
 - do not widen `core.hako` or the raw compat lane while selecting the next phase
+
+## Decision
+
+- `phase-46x` is closed as a selection lane
+- next implementation lane is `phase-47x stage0/runtime direct-core finalization`
+- implementation order is:
+  - runtime default cutover first
+  - Stage-A source->MIR first migration second
+  - Stage-B default-caller drain third
+  - VM core tail shrink stays after helper-route defaults are drained

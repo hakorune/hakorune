@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-03
 Scope: choose the next source lane after `phase-45x` so VM residual cleanup does not become the de facto live default again.
 Related:
@@ -25,14 +25,14 @@ Related:
 
 - `phase-45x` is landed; the residual rust-vm cleanup lane has been handed off.
 - the current repo still has a few live VM defaults in helper routes, but most broad cleanup is already done.
-- this phase exists to pick the next highest-leverage lane, not to start a new optimization program.
-- the main candidate on the table is `stage0/runtime direct-core finalization`.
+- this phase selected `phase-47x stage0/runtime direct-core finalization` as the next highest-leverage lane.
+- `vm core tail shrink` stays later, after the last helper-route defaults are drained.
 
 ## Success Conditions
 
 - remaining VM surfaces are inventoried and compared against each other
 - candidate lanes are ranked with a concrete recommendation
-- a successor lane is selected cleanly
+- `phase-47x stage0/runtime direct-core finalization` is selected cleanly
 - current docs stay honest about what is active now versus what is far-future
 
 ## Failure Patterns

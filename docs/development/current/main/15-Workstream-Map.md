@@ -37,7 +37,7 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-46x next source lane selection`
+     - current active lane is `phase-47x stage0/runtime direct-core finalization`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
@@ -63,7 +63,9 @@ Related:
      - `phase-42x` started vm caller starvation and direct/core owner migration and is now landed
      - `phase-43x` is landed and selected the next source lane after handoff
      - `phase-44x` is landed and followed the direct/core owner route
-     - `phase-45x` is landed and trimmed the residual vm owner surfaces; `phase-46x` is active and selects the next source lane
+     - `phase-45x` is landed and trimmed the residual vm owner surfaces
+     - `phase-46x` is landed and selected `stage0/runtime direct-core finalization`
+     - `phase-47x` is active and drains the remaining live helper-route defaults
      - `42xA1` landed: lock starvation targets and active migration surfaces
      - `42xA2` landed: freeze proof-only VM gates as explicit do-not-grow keeps
      - `42xB1` landed: starve `selfhost_build.sh` downstream callers toward direct/core helper owners
@@ -117,20 +119,20 @@ Related:
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-46x next source lane selection table:
+   - phase-47x stage0/runtime direct-core finalization table:
 
      | Item | State |
      | --- | --- |
-     | Now | `phase-46x next source lane selection` |
+     | Now | `phase-47x stage0/runtime direct-core finalization` |
       | Blocker | `none` |
-     | Next | `stage0/runtime direct-core finalization` |
+     | Next | `vm core tail shrink` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `phase-46x next source lane selection` |
-     | Next | `stage0/runtime direct-core finalization` |
-     | Later | `vm core tail shrink` |
+     | Now | `phase-47x stage0/runtime direct-core finalization` |
+     | Next | `vm core tail shrink` |
+     | Later | `cleanup/archive sweep` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
@@ -174,7 +176,7 @@ Related:
 - `phase-39x` stage0 vm gate thinning (landed precursor)
   - `phase-41x` stage0 direct/core route hardening (landed)
      - Active backend surface tasks:
-     - `phase-46x next source lane selection`
+     - `phase-47x stage0/runtime direct-core finalization`
      - Queued backend surface tasks:
     - `kilo` optimization wave (far future; not the next lane)
 - Post-`37xD1` cleanup:
@@ -194,7 +196,7 @@ Related:
 
 ## Exact Next
 
-1. keep `phase-46x` exact through next source lane selection
+1. keep `phase-47x` exact through stage0/runtime direct-core finalization
 2. keep `phase-43x` landed as the successor-lane selection precursor
 3. keep `phase-42x` landed as the vm caller starvation / direct-core owner migration precursor
 4. keep `phase-41x` landed as the route-hardening precursor
