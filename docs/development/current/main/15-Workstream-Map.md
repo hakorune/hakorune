@@ -60,8 +60,9 @@ Related:
      - `phase-39x` landed stage0 vm gate thinning
      - `phase-40x` now handles stage0 vm archive candidate selection
      - `40xA1` landed and fixed archive candidate caller inventory
+     - `40xA2` lands route classes as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
      - plain reading: every live vm-gated bootstrap route is still a future feature tax on `rust-vm`
-     - current target: move stage0/bootstrap mainline ownership toward `hakorune` binary direct/core routes and leave vm routes as proof-only keep
+     - success condition: keep only a small proof-only VM gate set, split/strain mixed owners, and stop new features from flowing back into vm routes
         - `39xA1` landed and fixed caller inventory for `selfhost_build.sh` / `run_stageb_compiler_vm.sh` / `run.sh`
         - `39xA2` landed and classifies route ownership
         - `39xB1` landed and selected the direct bootstrap mainline
@@ -99,13 +100,13 @@ Related:
      | --- | --- |
      | Now | `phase-40x stage0 vm archive candidate selection` |
      | Blocker | `none` |
-     | Next | `40xA2 keep/archive classification` |
+     | Next | `40xB1 proof-only VM gate freeze` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
      | Now | `phase-40x stage0 vm archive candidate selection` |
-     | Next | `40xA2 keep/archive classification` |
+     | Next | `40xB1 proof-only VM gate freeze` |
      | Later | `40xD1 proof / closeout` |
    - stage0 shell residue waves:
 
@@ -150,9 +151,9 @@ Related:
 - `phase-39x` stage0 vm gate thinning (landed precursor)
 - `phase-40x` stage0 vm archive candidate selection (active)
 - Active backend surface tasks:
-  - `40xA2 keep/archive classification`
+  - `40xB1 proof-only VM gate freeze`
 - Queued backend surface tasks:
-  - `40xB1 top-level shim caller drain map`
+  - `40xB2 top-level shim caller drain map`
 - Post-`37xD1` cleanup:
   - drained shim / legacy embedded smoke archive sweep
   - first landed move: `tools/stage1_smoke.sh` -> `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`

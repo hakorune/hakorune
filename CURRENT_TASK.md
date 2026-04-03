@@ -164,13 +164,15 @@ Scope: repo root から current order / current blocker / next exact read に最
 - Plain reading:
   - every live `--backend vm` bootstrap route is still a future feature tax on `rust-vm`
   - `phase-40x` is not a `vm.rs` delete wave; it is a route-ownership wave that moves stage0/bootstrap mainline toward `hakorune` binary direct/core routes first
+  - success means fixing a small proof-only VM gate set, starving mixed owners like `selfhost_build.sh`, and shrinking `vm.rs` only after caller drain
+  - failure means letting selfhost/bootstrap mainline or stage1 compat/raw routes absorb new feature work again
 - stage0 shell residue table:
 
   | Item | State |
   | --- | --- |
   | Now | `phase-40x stage0 vm archive candidate selection` |
   | Blocker | `none` |
-  | Next | `40xA2 keep/archive classification` |
+  | Next | `40xB1 proof-only VM gate freeze` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -185,7 +187,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `phase-40x stage0 vm archive candidate selection` | stop new features from inheriting more `rust-vm` support obligations |
-| Next | `40xA2 keep/archive classification` | split routes into `proof-only keep` vs `move toward hakorune binary direct/core` |
+| Next | `40xB1 proof-only VM gate freeze` | lock the small VM gate set as `do-not-grow` and keep mainline work out of it |
 | Later | `40xD1 proof / closeout` | hand off with `rust-vm` reduced to proof/compat keep rather than mainline ownership |
 | After `37xD1` | `cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
 

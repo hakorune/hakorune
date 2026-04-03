@@ -12,12 +12,27 @@ Scope: stage0/bootstrap lane の remaining vm-rust / vm-gated surface を archiv
 - target: move stage0/bootstrap mainline ownership toward `hakorune` binary direct/core routes
 - result: vm routes become `proof-only keep`, `compat keep`, or `archive-later`, instead of staying broad execution owners
 
+## Success / Failure Rails
+
+### Success
+
+- keep only a small proof-only VM gate set
+- split or starve `selfhost_build.sh` / `build.rs` as the decisive mixed owners
+- stop new features from landing on `--backend vm`, stage1 compat, or raw routes
+- shrink `vm.rs` only after caller drain proves it is no longer a broad owner
+
+### Failure
+
+- selfhost/bootstrap mainline still runs through `--backend vm`
+- stage1 compat or raw routes absorb new capability work
+- proof-only VM gates drift back into day-to-day mainline
+
 ## Macro Reading
 
 | Wave | Status | Read as |
 | --- | --- | --- |
-| `40xA archive candidate inventory` | active | new feature work がまだ `rust-vm` を引きずる route を exact に inventory する |
-| `40xB keep/archive classification` | queued | route を `proof-only keep` / `archive-later` / `direct-owner target` に分ける |
+| `40xA archive candidate inventory` | landed | new feature work がまだ `rust-vm` を引きずる route を exact に inventory する |
+| `40xB keep/archive classification` | active | route を `proof-only keep` / `compat keep` / `archive-later` / `direct-owner target` / `must-split-first` に分ける |
 | `40xC archive/delete sweep` | queued | drained vm-facing shims と stale compat wrappers を live surface から外す |
 | `40xD closeout` | queued | `rust-vm` を mainline owner ではなく proof/compat keep として handoff する |
 
@@ -38,6 +53,7 @@ Scope: stage0/bootstrap lane の remaining vm-rust / vm-gated surface を archiv
 | `src/runner/core_executor.rs` | direct owner | already-materialized MIR(JSON) execution owner |
 | `tools/selfhost/stage1_mainline_smoke.sh` | direct proof | current mainline proof smoke |
 | `tools/stage1_smoke.sh` | archived | legacy embedded bridge smoke archived in phase-38x |
+| `src/runner/build.rs` | mixed | source-side build owner; product/engineering split remains decisive for vm thinning |
 
 ## State Reading
 
@@ -45,6 +61,7 @@ Scope: stage0/bootstrap lane の remaining vm-rust / vm-gated surface を archiv
 | --- | --- |
 | `mixed` | first migration target; still too many owners in one surface |
 | `vm gate` | explicit keep candidate; do not grow it |
+| `compat keep` | legacy/raw contract keep; do not attach new capabilities |
 | `archive-later shim` | not a real owner; drain callers first and then archive |
 | `explicit keep` | proof/acceptance route that stays live for now |
 | `thin helper` | low-level helper; caller drain matters more than direct deletion |
@@ -80,9 +97,28 @@ Scope: stage0/bootstrap lane の remaining vm-rust / vm-gated surface を archiv
 | `src/runner/modes/vm.rs` | current backend docs / vm-lane docs | engineering keep |
 | `lang/src/runner/stage1_cli/core.hako` | stage1 compat docs / raw compat callers | compat keep |
 | `src/runner/core_executor.rs` | `src/runner/mod.rs` direct handoff | direct owner |
+| `src/runner/build.rs` | `src/runner/mod.rs`, `build_product.rs`, `build_engineering.rs` | mixed build owner; decisive split input |
+
+## Classification Snapshot (40xA2 landed)
+
+| Surface | Bucket | Rule |
+| --- | --- | --- |
+| `tools/selfhost/selfhost_build.sh` | `must-split-first` | biggest mixed owner in the bootstrap lane; do not add more vm-only branches here |
+| `src/runner/build.rs` | `must-split-first` | source-side product/engineering build owner still decides whether feature work leaks back into vm |
+| `tools/selfhost/run_stageb_compiler_vm.sh` | `proof-only keep` | explicit Stage-B VM gate; freeze and do not grow |
+| `tools/selfhost/selfhost_vm_smoke.sh` | `proof-only keep` | VM parity proof only |
+| `tools/selfhost/selfhost_stage3_accept_smoke.sh` | `proof-only keep` | stage3 acceptance proof only until direct coverage replaces it |
+| `lang/src/runner/stage1_cli/core.hako` | `compat keep` | raw compat lane; no new capability work |
+| `tools/bootstrap_selfhost_smoke.sh` | `archive-later` | drain top-level callers and archive |
+| `tools/plugin_v2_smoke.sh` | `archive-later` | drain top-level callers and archive |
+| `tools/selfhost/run.sh` | `direct-owner target behind facade` | facade may stay, but live owner must move inward to direct/core routes |
+| `src/runner/modes/common_util/selfhost/child.rs` | `direct-owner target behind caller drain` | thin helper; caller drain comes before shrink |
+| `src/runner/core_executor.rs` | `direct owner` | converge new capability work here |
+| `tools/selfhost/run_stage1_cli.sh` / `tools/selfhost/stage1_mainline_smoke.sh` | `direct owner/proof` | current mainline direct route |
+| `src/runner/modes/vm.rs` | `engineering keep; shrink later` | broad owner today, but no longer a place for new features |
 
 ## Current Front
 
-- active macro wave: `40xA archive candidate inventory`
-- active micro task: `40xA2 keep/archive classification`
-- next queued micro task: `40xB1 top-level shim caller drain map`
+- active macro wave: `40xB keep/archive classification`
+- active micro task: `40xB1 proof-only VM gate freeze`
+- next queued micro task: `40xB2 top-level shim caller drain map`

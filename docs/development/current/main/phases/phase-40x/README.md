@@ -28,6 +28,19 @@ Related:
 - 先にやるのは、stage0/bootstrap の mainline owner を `hakorune` binary の direct/core route 側へ寄せること。
 - その後で、残った vm route を `proof-only keep` / `compat keep` / `archive-later` に縮める。
 
+## Success Conditions
+
+- `run_stageb_compiler_vm.sh` みたいな explicit VM gate を少数の proof 用に固定する。
+- `selfhost_build.sh` と `build.rs` の mixed owner を decisive split input として扱う。
+- 新機能が `--backend vm`、stage1 compat、raw route に流れ込まないようにする。
+- 最後に `vm.rs` を broad owner から oracle/proof keep に縮める。
+
+## Failure Patterns
+
+- selfhost/bootstrap の mainline が引き続き `--backend vm` を通る。
+- stage1 compat や raw route に新機能を足す。
+- proof 用 VM gate を日常路に戻す。
+
 ## Fixed Reading
 
 - `phase-39x` は landed で、stage0 vm gate thinning は完了している。
@@ -45,19 +58,21 @@ Related:
 
 ## Big Tasks
 
-1. find every route where a new feature still implies `rust-vm` work
-2. split those routes into `proof-only keep` vs `move toward hakorune binary direct/core`
-3. drain top-level shim callers
-4. archive drained vm-facing shims
+1. fix a small proof-only VM gate set and mark it `do-not-grow`
+2. treat `selfhost_build.sh` and `build.rs` as the decisive mixed-owner split inputs
+3. stop new capability work from landing on `--backend vm`, stage1 compat, or raw routes
+4. drain top-level vm-facing shims
+5. archive drained shims and only then shrink `vm.rs`
 
 ## Exact Next
 
 1. `40x-90-stage0-vm-archive-candidate-selection-ssot.md`
 2. `40x-91-task-board.md`
 3. `tools/selfhost/selfhost_build.sh`
-4. `tools/selfhost/run_stageb_compiler_vm.sh`
-5. `tools/bootstrap_selfhost_smoke.sh`
-6. `tools/plugin_v2_smoke.sh`
+4. `src/runner/build.rs`
+5. `tools/selfhost/run_stageb_compiler_vm.sh`
+6. `tools/bootstrap_selfhost_smoke.sh`
+7. `tools/plugin_v2_smoke.sh`
 
-- current active micro task: `40xA2 keep/archive classification`
-- next queued micro task: `40xB1 top-level shim caller drain map`
+- current active micro task: `40xB1 proof-only VM gate freeze`
+- next queued micro task: `40xB2 top-level shim caller drain map`
