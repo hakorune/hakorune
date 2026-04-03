@@ -163,10 +163,11 @@ run_runtime() {
   env_prefix=("NYASH_USE_NY_COMPILER=1" "NYASH_NY_COMPILER_USE_PY=0")
   case "$runtime_mode" in
     stage-a)
-      # explicit compat-only lane: keep the legacy VM route narrow and non-growing
+      # explicit compat-only keep: keep the legacy VM route narrow and non-growing
       env_prefix+=("NYASH_USE_NY_COMPILER_EXE=0")
       ;;
     exe)
+      # mainline route: temp MIR handoff stays on the direct/core path
       env_prefix+=("NYASH_USE_NY_COMPILER_EXE=1")
       ;;
     *)
