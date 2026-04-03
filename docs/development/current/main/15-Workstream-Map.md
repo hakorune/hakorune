@@ -100,13 +100,13 @@ Related:
      | --- | --- |
      | Now | `phase-40x stage0 vm archive candidate selection` |
      | Blocker | `none` |
-     | Next | `40xB1 proof-only VM gate freeze` |
+     | Next | `40xB2 top-level shim caller drain map` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
      | Now | `phase-40x stage0 vm archive candidate selection` |
-     | Next | `40xB1 proof-only VM gate freeze` |
+     | Next | `40xB2 top-level shim caller drain map` |
      | Later | `40xD1 proof / closeout` |
    - stage0 shell residue waves:
 
@@ -150,10 +150,10 @@ Related:
   - `phase-37x` bootstrap owner split (landed precursor)
 - `phase-39x` stage0 vm gate thinning (landed precursor)
 - `phase-40x` stage0 vm archive candidate selection (active)
-- Active backend surface tasks:
-  - `40xB1 proof-only VM gate freeze`
-- Queued backend surface tasks:
-  - `40xB2 top-level shim caller drain map`
+  - Active backend surface tasks:
+    - `40xB2 top-level shim caller drain map`
+  - Queued backend surface tasks:
+    - `40xC1 drained vm-facing shim / wrapper archive/delete sweep`
 - Post-`37xD1` cleanup:
   - drained shim / legacy embedded smoke archive sweep
   - first landed move: `tools/stage1_smoke.sh` -> `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`

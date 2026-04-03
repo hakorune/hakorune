@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-40x stage0 vm archive candidate selection`
-- active micro task: `40xB1 proof-only VM gate freeze`
-- next micro task: `40xB2 top-level shim caller drain map`
+- active micro task: `40xB2 top-level shim caller drain map`
+- next micro task: `40xC1 drained vm-facing shim / wrapper archive/delete sweep`
 - post-`39xD1`: `phase-40x stage0 vm archive candidate selection`
 - raw backend default flip stays deferred beyond `phase-40x`
 

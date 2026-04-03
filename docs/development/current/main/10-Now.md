@@ -49,12 +49,13 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `40xB1 proof-only VM gate freeze`
-- next micro task: `40xB2 top-level shim caller drain map`
+- active micro task: `40xB2 top-level shim caller drain map`
+- next micro task: `40xC1 drained vm-facing shim / wrapper archive/delete sweep`
 - plain reading:
   - if a bootstrap route stays on `--backend vm`, new capability work still tends to imply `rust-vm` support
   - `phase-40x` exists to move stage0/bootstrap mainline toward `hakorune` binary direct/core routes and leave vm as proof/compat keep
   - success means keeping only a small proof-only VM gate set and starving `selfhost_build.sh` / `build.rs` as mixed owners
+  - `40xB1` is landed; the proof-only VM gate set is frozen and must not grow
   - failure means new features drifting back into `--backend vm`, stage1 compat, or raw routes
 - post-`39xD1`: stage0 vm archive candidate selection for remaining bootstrap surfaces
 - landed first cleanup move: `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`

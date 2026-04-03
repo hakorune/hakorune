@@ -11,6 +11,7 @@ Scope: stage0/bootstrap lane の remaining vm-rust / vm-gated surface を archiv
 - problem: every live vm-gated bootstrap route is still a feature obligation on `rust-vm`
 - target: move stage0/bootstrap mainline ownership toward `hakorune` binary direct/core routes
 - result: vm routes become `proof-only keep`, `compat keep`, or `archive-later`, instead of staying broad execution owners
+- `40xB1` landed: the small proof-only VM gate set is frozen as `do-not-grow`.
 
 ## Success / Failure Rails
 
@@ -120,5 +121,5 @@ Scope: stage0/bootstrap lane の remaining vm-rust / vm-gated surface を archiv
 ## Current Front
 
 - active macro wave: `40xB keep/archive classification`
-- active micro task: `40xB1 proof-only VM gate freeze`
-- next queued micro task: `40xB2 top-level shim caller drain map`
+- active micro task: `40xB2 top-level shim caller drain map`
+- next queued micro task: `40xC1 drained vm-facing shim / wrapper archive/delete sweep`
