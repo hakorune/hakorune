@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-41x stage0 direct/core route hardening`
-- active micro task: `41xB1 selfhost_build.sh direct/core route hardening`
-- next micro task: `41xB2 run.sh facade trim`
+- active micro task: `41xB2 run.sh facade trim`
+- next micro task: `41xC1 vm.rs proof/oracle shrink`
 - post-`40xD1`: `phase-41x stage0 direct/core route hardening`
 - raw backend default flip stays deferred beyond `phase-41x`
 

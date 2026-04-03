@@ -62,6 +62,7 @@ Related:
      - `phase-41x` now hardens the remaining direct/core route
      - `41xA1` landed and inventories the remaining direct/core route facades and caller families
      - `41xA2` landed and freezes proof-only VM gates again before route hardening work
+     - `41xB1` landed and hardens `selfhost_build.sh` as the direct/core-first facade
      - plain reading: keep `rust-vm` as proof/compat keep, not mainline ownership
      - success condition: keep direct/core routes canonical, keep proof-only VM gates frozen, and stop new features from flowing back into vm routes
         - `39xA1` landed and fixed caller inventory for `selfhost_build.sh` / `run_stageb_compiler_vm.sh` / `run.sh`
@@ -101,13 +102,13 @@ Related:
      | --- | --- |
      | Now | `phase-41x stage0 direct/core route hardening` |
      | Blocker | `none` |
-     | Next | `41xB1 selfhost_build.sh direct/core route hardening` |
+     | Next | `41xB2 run.sh facade trim` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
      | Now | `phase-41x stage0 direct/core route hardening` |
-     | Next | `41xB1 selfhost_build.sh direct/core route hardening` |
+     | Next | `41xB2 run.sh facade trim` |
      | Later | `41xD1 proof / closeout` |
    - stage0 shell residue waves:
 
@@ -152,9 +153,9 @@ Related:
 - `phase-39x` stage0 vm gate thinning (landed precursor)
   - `phase-41x` stage0 direct/core route hardening (active)
      - Active backend surface tasks:
-    - `41xB1 selfhost_build.sh direct/core route hardening`
-     - Queued backend surface tasks:
     - `41xB2 run.sh facade trim`
+     - Queued backend surface tasks:
+    - `41xC1 vm.rs proof/oracle shrink`
 - Post-`37xD1` cleanup:
   - drained shim / legacy embedded smoke archive sweep
   - first landed move: `tools/stage1_smoke.sh` -> `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`

@@ -52,6 +52,7 @@ Related:
 - `src/runner/build.rs` is already split into product/engineering helpers; do not reopen it unless a new caller demands it
 - `tools/selfhost/run_stageb_compiler_vm.sh`, `tools/selfhost/selfhost_vm_smoke.sh`, and `tools/selfhost/selfhost_stage3_accept_smoke.sh` remain proof-only keeps
 - `41xA2` landed: proof-only VM gate set is frozen and non-growing
+- `41xB1` landed: `selfhost_build.sh` direct/core route hardening is fixed as a route facade
 - `src/runner/modes/vm.rs` remains engineering keep until route hardening proves it can shrink
 - `lang/src/runner/stage1_cli/core.hako` remains compat keep
 - `src/runner/core_executor.rs` remains the direct owner
@@ -74,5 +75,5 @@ Related:
 5. `src/runner/modes/vm.rs`
 6. `src/runner/core_executor.rs`
 
-- current active micro task: `41xB1 selfhost_build.sh direct/core route hardening`
-- next micro task: `41xB2 run.sh facade trim`
+- current active micro task: `41xB2 run.sh facade trim`
+- next micro task: `41xC1 vm.rs proof/oracle shrink`

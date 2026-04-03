@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# selfhost_build.sh — Hybrid selfhost build (Stage‑B → Program(JSON v0) → optional MIR/run/exe)
+# selfhost_build.sh — Direct/core-first selfhost facade (Stage‑B → Program(JSON v0) → optional MIR/run/exe)
 #
-# Goals (80/20):
+# Goals:
 # - Take a Hako source (.hako), compile with Hakorune Stage‑B to Program(JSON v0).
+# - Keep Stage‑B producer, direct MIR, EXE artifact, and final dispatcher logic in helper files.
 # - Optionally run via Gate‑C/Core Direct (in‑proc) to verify exit code.
 # - (Future) Optionally convert to MIR and build an executable via ny-llvmc.
 #
