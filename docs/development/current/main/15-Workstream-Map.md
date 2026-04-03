@@ -59,7 +59,7 @@ Related:
         - `phase-38x` landed cleanup/archive sweep
      - `phase-39x` landed stage0 vm gate thinning
      - `phase-40x` now handles stage0 vm archive candidate selection
-     - `40xA1` inventories remaining vm-rust archive candidates
+     - `40xA1` landed and fixed archive candidate caller inventory
         - `39xA1` landed and fixed caller inventory for `selfhost_build.sh` / `run_stageb_compiler_vm.sh` / `run.sh`
         - `39xA2` landed and classifies route ownership
         - `39xB1` landed and selected the direct bootstrap mainline
@@ -97,13 +97,13 @@ Related:
      | --- | --- |
      | Now | `phase-40x stage0 vm archive candidate selection` |
      | Blocker | `none` |
-     | Next | `40xA1 archive candidate inventory` |
+     | Next | `40xA2 keep/archive classification` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
      | Now | `phase-40x stage0 vm archive candidate selection` |
-     | Next | `40xA1 archive candidate inventory` |
+     | Next | `40xA2 keep/archive classification` |
      | Later | `40xD1 proof / closeout` |
    - stage0 shell residue waves:
 
@@ -148,9 +148,9 @@ Related:
 - `phase-39x` stage0 vm gate thinning (landed precursor)
 - `phase-40x` stage0 vm archive candidate selection (active)
 - Active backend surface tasks:
-  - `phase-40x stage0 vm archive candidate selection`
+  - `40xA2 keep/archive classification`
 - Queued backend surface tasks:
-  - `40xA1 archive candidate inventory`
+  - `40xB1 top-level shim caller drain map`
 - Post-`37xD1` cleanup:
   - drained shim / legacy embedded smoke archive sweep
   - first landed move: `tools/stage1_smoke.sh` -> `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`

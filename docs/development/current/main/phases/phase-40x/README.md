@@ -24,6 +24,7 @@ Related:
 ## Fixed Reading
 
 - `phase-39x` は landed で、stage0 vm gate thinning は完了している。
+- `40xA1` landed: caller inventory is fixed for the residual archive candidates.
 - archive candidate selection が主 work で、default/token rewrite はまだ対象外。
 - `phase-38x` の archive-later queue は frozen。
 - `tools/selfhost/selfhost_build.sh` は still mixed owner で、これが最大の archive candidate input になっている。
@@ -44,5 +45,5 @@ Related:
 5. `tools/bootstrap_selfhost_smoke.sh`
 6. `tools/plugin_v2_smoke.sh`
 
-- current active micro task: `40xA1 archive candidate inventory`
-- next queued micro task: `40xA2 keep/archive classification`
+- current active micro task: `40xA2 keep/archive classification`
+- next queued micro task: `40xB1 top-level shim caller drain map`

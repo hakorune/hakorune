@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-40x stage0 vm archive candidate selection`
-- active micro task: `40xA1 archive candidate inventory`
-- next micro task: `40xA2 keep/archive classification`
+- active micro task: `40xA2 keep/archive classification`
+- next micro task: `40xB1 top-level shim caller drain map`
 - post-`39xD1`: `phase-40x stage0 vm archive candidate selection`
 - raw backend default flip stays deferred beyond `phase-40x`
 

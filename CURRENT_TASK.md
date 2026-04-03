@@ -167,7 +167,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-40x stage0 vm archive candidate selection` |
   | Blocker | `none` |
-  | Next | `40xA1 archive candidate inventory` |
+     | Next | `40xA2 keep/archive classification` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -182,7 +182,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `phase-40x stage0 vm archive candidate selection` | inventory remaining vm-rust/bootstrap surfaces and classify archive readiness |
-| Next | `40xA1 archive candidate inventory` | inventory the current vm-rust/bootstrap surfaces exactly once |
+| Next | `40xA2 keep/archive classification` | classify the inventoried vm-rust/bootstrap surfaces exactly once |
 | Later | `40xD1 proof / closeout` | return proof and hand off to the next source lane |
 | After `37xD1` | `cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
 

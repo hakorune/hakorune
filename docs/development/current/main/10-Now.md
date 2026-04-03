@@ -47,8 +47,9 @@ Related:
 - `36xB1` landed: `raw_subcommand_emit_mir.hako` now owns raw `emit mir-json` request/materialize/emit glue
 - `36xB2` landed: `raw_subcommand_run.hako` now owns raw `run` request/script-args env/Program(JSON) materialization glue
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
-- active micro task: `40xA1 archive candidate inventory`
-- next micro task: `40xA2 keep/archive classification`
+- `40xA1` landed: archive candidate caller inventory is fixed
+- active micro task: `40xA2 keep/archive classification`
+- next micro task: `40xB1 top-level shim caller drain map`
 - post-`39xD1`: stage0 vm archive candidate selection for remaining bootstrap surfaces
 - landed first cleanup move: `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`
 - `37xD1` evidence:

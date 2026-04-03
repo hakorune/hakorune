@@ -16,8 +16,8 @@ Date: 2026-04-03
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `40xA1` | active | archive candidate inventory を fixed surfaces に落とす |
-| `40xA2` | queued | keep/archive classification を固定する |
+| `40xA1` | landed | archive candidate inventory を fixed surfaces に落とす |
+| `40xA2` | active | keep/archive classification を固定する |
 | `40xB1` | queued | top-level shim caller drain map を作る |
 | `40xB2` | queued | vm-rust explicit keep freeze を固定する |
 | `40xC1` | queued | archive/delete sweep を実行する |
