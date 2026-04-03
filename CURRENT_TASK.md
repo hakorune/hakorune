@@ -210,7 +210,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | --- | --- |
 | Now | `phase-44x stage0 direct/core follow-up` |
 | Blocker | `none` |
-| Next | `44xA1 stage-b direct/core target lock` |
+| Next | `44xB1 selfhost_run_routes.sh runtime default cutover` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -225,7 +225,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `phase-44x stage0 direct/core follow-up` | move remaining live stage0/selfhost owners off default VM routes |
-| Next | `44xA1 stage-b direct/core target lock` | lock the exact Stage-B default-owner cutover target |
+| Next | `44xB1 selfhost_run_routes.sh runtime default cutover` | start cutting runtime/direct defaults over to direct/core helper owners |
 | Later | `kilo` optimization wave | far-future optimization lane |
 | After `37xD1` | `cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
 

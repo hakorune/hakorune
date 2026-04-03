@@ -80,7 +80,7 @@ selfhost_build_main() {
   if [ -z "${HAKO_STAGEB_MODULE_ROOTS_LIST:-}" ]; then
     HAKO_STAGEB_MODULE_ROOTS_LIST="$(collect_stageb_module_roots_list "$ROOT")"
   fi
-  emit_stageb_program_json_raw "$RAW" || stageb_rc=$?
+  emit_stageb_program_json_raw "$RAW" "$tmp_json" || stageb_rc=$?
 
   extract_ok=0
   if extract_program_json_v0_from_raw "$RAW" "$tmp_json"; then

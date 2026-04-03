@@ -17,9 +17,9 @@ Date: 2026-04-03
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `44xA1` | active | stage-b direct/core target lock |
-| `44xA2` | queued | `selfhost_build_stageb.sh` direct/core-first cutover |
-| `44xB1` | queued | `selfhost_run_routes.sh` runtime default cutover |
+| `44xA1` | landed | stage-b direct/core target lock |
+| `44xA2` | landed | `selfhost_build_stageb.sh` direct/core-first cutover |
+| `44xB1` | active | `selfhost_run_routes.sh` runtime default cutover |
 | `44xB2` | queued | `run.sh` direct route fallback explicitization |
 | `44xC1` | queued | `stage0_capture.rs` route-neutral builder split |
 | `44xC2` | queued | `stage_a_route.rs` / compat caller switch |

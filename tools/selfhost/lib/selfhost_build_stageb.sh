@@ -4,6 +4,7 @@
 # Purpose:
 # - Own Stage-B Program(JSON v0) production and raw snapshot handling.
 # - Keep the shell producer path separate from direct-run / exe artifact / final dispatcher logic.
+# - Prefer direct/source route defaults; keep VM compiler route explicit-only.
 
 timestamp_now() { date +%Y%m%d_%H%M%S; }
 
@@ -56,6 +57,22 @@ emit_program_json_v0_via_buildbox() {
   return $rc
 }
 
+emit_program_json_v0_via_direct_source() {
+  local raw_path="$1" json_path="$2"
+  (
+    "$BIN" --emit-program-json-v0 "$json_path" "$IN"
+  ) > "$raw_path" 2>&1
+  local rc=$?
+  if [ "$rc" -eq 0 ] && [ -s "$json_path" ]; then
+    {
+      printf '\n[selfhost/raw] --- emitted-json ---\n'
+      cat "$json_path"
+      printf '\n'
+    } >> "$raw_path" 2>/dev/null || true
+  fi
+  return $rc
+}
+
 emit_program_json_v0_via_stageb_compiler() {
   local raw_path="$1"
   (
@@ -65,7 +82,7 @@ emit_program_json_v0_via_stageb_compiler() {
 }
 
 emit_stageb_program_json_raw() {
-  local raw_path="$1"
+  local raw_path="$1" json_path="$2"
   stageb_cmd_desc=""
   if buildbox_emit_only_keep_requested; then
     stageb_cmd_desc="BuildBox.emit_program_json_v0 via compiler build_box"
@@ -74,8 +91,8 @@ emit_stageb_program_json_raw() {
     return $?
   fi
 
-  stageb_cmd_desc="compiler.hako --stage-b --stage3"
-  emit_program_json_v0_via_stageb_compiler "$raw_path"
+  stageb_cmd_desc="stage1 bridge emit-program-json-v0 (direct/core-first)"
+  emit_program_json_v0_via_direct_source "$raw_path" "$json_path"
 }
 
 extract_program_json_v0_from_raw() {

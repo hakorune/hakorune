@@ -45,8 +45,10 @@ Related:
 - `43xA1` landed: candidate lane shortlist
 - `43xA2` landed: successor lane decision
 - `43xD1` landed: proof / closeout
-- `44xA1` current: `stage-b direct/core target lock`
-- `44xA2` next: `selfhost_build_stageb.sh direct/core-first cutover`
+- `44xA1` landed: stage-b direct/core target lock
+- `44xA2` landed: `selfhost_build_stageb.sh direct/core-first cutover`
+- `44xB1` current: `selfhost_run_routes.sh runtime default cutover`
+- `44xB2` next: `run.sh` direct route fallback explicitization
 - `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete
 - `phase-32x` landed: mixed-owner source/smoke split and raw default/token defer are fixed
@@ -68,8 +70,8 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `44xA1 stage-b direct/core target lock`
-- next micro task: `44xA2 selfhost_build_stageb.sh direct/core-first cutover`
+- active micro task: `44xA2 selfhost_build_stageb.sh direct/core-first cutover`
+- next micro task: `44xB1 selfhost_run_routes.sh runtime default cutover`
 - plain reading:
   - if a bootstrap route stays on `--backend vm`, new capability work still tends to imply `rust-vm` support
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep

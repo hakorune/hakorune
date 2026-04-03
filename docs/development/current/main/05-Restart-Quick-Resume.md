@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-44x stage0 direct/core follow-up`
-- active micro task: `44xA1 stage-b direct/core target lock`
-- next micro task: `44xA2 selfhost_build_stageb.sh direct/core-first cutover`
+- active micro task: `44xB1 selfhost_run_routes.sh runtime default cutover`
+- next micro task: `44xB2 run.sh direct route fallback explicitization`
 - post-`41xD1`: `phase-42x vm caller starvation / direct-core owner migration` (landed)
 - raw backend default flip stays deferred beyond `phase-42x`
 
