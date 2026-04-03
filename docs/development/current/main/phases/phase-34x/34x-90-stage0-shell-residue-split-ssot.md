@@ -40,8 +40,8 @@ Related:
 
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
-| `34xA1` | active | `child.rs` exact residue lock | `run_ny_program_capture_json_v0` の責務が exact に読める |
-| `34xA2` | queued | `stage1_cli/core.hako` exact residue lock | `run_program_json` / `_run_raw_request` の compat residue が exact に読める |
+| `34xA1` | landed | `child.rs` exact residue lock | `run_ny_program_capture_json_v0` の責務と caller split が exact に読める |
+| `34xA2` | active | `stage1_cli/core.hako` exact residue lock | `run_program_json` / `_run_raw_request` の compat residue が exact に読める |
 | `34xA3` | queued | `core_executor` takeover seam lock | direct `MIR(JSON)` owner が shell route と分離して読める |
 | `34xB1` | queued | split spawn/timeout/capture from `child.rs` | shell helper が route-neutral helper へ縮む |
 | `34xC1` | queued | `run_program_json` no-widen lock | raw compat lane が execution-capability widening を受けない |
@@ -50,11 +50,15 @@ Related:
 ## Current Focus
 
 - active macro wave: `34xA residue owner lock`
-- active micro task: `34xA1 child.rs exact residue lock`
-- next queued micro task: `34xA2 stage1_cli/core.hako exact residue lock`
+- active micro task: `34xA2 stage1_cli/core.hako exact residue lock`
+- next queued micro task: `34xA3 core_executor takeover seam lock`
 - current blocker: `none`
 - exact residue reading:
   - `child.rs` shell/process residue is concentrated in `run_ny_program_capture_json_v0`
+  - caller split around `child.rs` is fixed:
+    - `selfhost.rs` consumes the shared v0 capture and resolves stage-a payload from `program_line` / `mir_line`
+    - `stage_a_compat_bridge.rs` consumes the MIR-only selector wrapper
+    - `run_ny_program_capture_json` stays route-neutral and owns no extra policy
   - `stage1_cli/core.hako` raw compat residue is concentrated in `run_program_json` and `_run_raw_request`
   - `core_executor` already owns the direct in-proc `MIR(JSON)` seam; this phase narrows the handoff around it
 

@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-34x stage0 shell residue split`
-- active micro task: `34xA1 child.rs exact residue lock`
-- next micro task: `34xA2 stage1_cli/core.hako exact residue lock`
+- active micro task: `34xA2 stage1_cli/core.hako exact residue lock`
+- next micro task: `34xA3 core_executor takeover seam lock`
 - raw backend default flip stays deferred beyond `phase-34x`
 
 ## Read Next

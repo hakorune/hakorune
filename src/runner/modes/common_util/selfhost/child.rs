@@ -5,6 +5,8 @@ pub const ROUTE_MODE_PIPELINE_ENTRY: &str = "pipeline-entry";
 pub const ROUTE_MODE_STAGE_A: &str = "stage-a";
 pub const ROUTE_MODE_EXE: &str = "exe";
 
+// Shared result for the stage0 child route.
+// Shell/process ownership stays here; callers only select program vs MIR payload.
 pub struct CapturedJsonV0Lines {
     pub program_line: Option<String>,
     pub mir_line: Option<String>,
@@ -25,7 +27,15 @@ pub fn emit_runtime_route_mode(mode: &str, source: &str) {
     emit_route_tag(ROUTE_RUNTIME_SELFHOST, mode, source);
 }
 
-/// Run a Nyash program as a child (`nyash --backend vm <program>`) and capture the first JSON v0 line.
+/// Stage0 shell residue owner.
+///
+/// This function owns:
+/// - child spawn under `--backend vm`
+/// - timeout / kill / wait handling
+/// - stdout/stderr temp-file capture
+/// - first-line Program(JSON v0) / MIR(JSON v0) extraction
+///
+/// Callers must keep route policy out of this helper and only select which captured line they need.
 /// - `exe`: path to nyash executable
 /// - `program`: path to the Nyash script to run (e.g., lang/src/compiler/entry/compiler.hako)
 /// - `timeout_ms`: kill child after this duration
@@ -175,7 +185,7 @@ pub fn run_ny_program_capture_json(
         .and_then(|captured| captured.program_line)
 }
 
-/// Run a Nyash program as a child (`nyash --backend vm <program>`) and capture the first MIR JSON v0 line.
+/// Thin MIR-line selector over the shared stage0 child capture owner.
 pub fn run_ny_program_capture_mir_json(
     exe: &Path,
     program: &Path,

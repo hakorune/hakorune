@@ -53,10 +53,10 @@ Related:
         - `phase-32x` landed mixed-owner source/smoke split and raw default/token defer
         - `phase-33x` landed and fixed helper-family path truth
         - `phase-34x` now handles stage0 shell residue split
-        - `34xA1` is active and locks exact `child.rs` shell/process/capture residue
-        - `34xA2` is queued and locks `stage1_cli/core.hako` raw compat residue
+        - `34xA1` landed and fixed exact `child.rs` shell/process/capture residue
+        - `34xA2` is active and locks `stage1_cli/core.hako` raw compat residue
         - `34xA3` is queued and pins `core_executor` as the direct `MIR(JSON)` owner
-        - current active micro task is `34xA1 child.rs exact residue lock`
+        - current active micro task is `34xA2 stage1_cli/core.hako exact residue lock`
         - cleanup rule is `split/rehome/drain -> delete`
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
@@ -66,13 +66,13 @@ Related:
      | --- | --- |
      | Now | `phase-34x stage0 shell residue split` |
      | Blocker | `none` |
-     | Next | `34xA2 stage1_cli/core.hako exact residue lock` |
+     | Next | `34xA3 core_executor takeover seam lock` |
    - shared helper family bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `34xA1 child.rs exact residue lock` |
-     | Next | `34xA2 stage1_cli/core.hako exact residue lock` |
+     | Now | `34xA2 stage1_cli/core.hako exact residue lock` |
+     | Next | `34xA3 core_executor takeover seam lock` |
      | Later | `raw backend default/token follow-up lane` |
    - shared helper family waves:
 
@@ -114,7 +114,6 @@ Related:
   - `phase-32x` product / engineering split (landed precursor)
   - `phase-34x` stage0 shell residue split
 - Active backend surface tasks:
-  - `34xA1 child.rs exact residue lock`
   - `34xA2 stage1_cli/core.hako exact residue lock`
 - Queued backend surface tasks:
   - `34xA3 core_executor takeover seam lock`

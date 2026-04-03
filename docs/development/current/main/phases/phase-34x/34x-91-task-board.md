@@ -24,8 +24,8 @@ Related:
 
 | Order | Slice | Status | Read as |
 | --- | --- | --- | --- |
-| 1 | `34xA1` | active | `child.rs` exact residue lock |
-| 2 | `34xA2` | queued | `stage1_cli/core.hako` exact residue lock |
+| 1 | `34xA1` | landed | `child.rs` exact residue lock |
+| 2 | `34xA2` | active | `stage1_cli/core.hako` exact residue lock |
 | 3 | `34xA3` | queued | `core_executor` takeover seam lock |
 | 4 | `34xB1` | queued | split spawn/timeout/capture from `child.rs` |
 | 5 | `34xC1` | queued | `run_program_json` no-widen lock |
@@ -49,7 +49,8 @@ cargo check --bin hakorune
 ## Current Result
 
 - current front:
-  - `34xA1 child.rs exact residue lock`
+  - `34xA2 stage1_cli/core.hako exact residue lock`
 - worker-confirmed residue concentration:
   - `child.rs::run_ny_program_capture_json_v0` owns spawn / timeout / stdout-stderr capture / first-line JSON extraction
+  - `selfhost.rs` is the shared v0 caller; `stage_a_compat_bridge.rs` is the MIR-only selector caller
   - `stage1_cli/core.hako::run_program_json` and `_run_raw_request` own the raw compat residue and must stay narrow

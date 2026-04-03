@@ -93,7 +93,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-34x stage0 shell residue split`
 - Current blocker: `none`
-- Exact focus: `34xA1 child.rs exact residue lock`
+- Exact focus: `34xA2 stage1_cli/core.hako exact residue lock`
   - `phase-32x` is landed; mixed-owner source/smoke split and raw default/token defer are fixed
   - `phase-33x` is landed; helper-family path truth and keep gates are fixed
   - current next cleanup is stage0 shell residue thinning, not `vm.rs` deletion
@@ -106,6 +106,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   - landed in `32xA-G`: `build.rs` / `phase2100` split, top-level orchestrator rehome, `core_executor` direct-MIR seam, shared helper gate, and raw default/token defer
   - landed in `33xA-D`: helper-family path truth is fixed; `hako_check` and `emit_mir` keep gates are explicit
   - `34xA` turns accepted residue inventory into exact owner split for `child.rs` / `stage1_cli/core.hako` / `core_executor`
+  - landed in `34xA1`: `child.rs` shell residue is fixed around `run_ny_program_capture_json_v0`; `selfhost.rs` consumes shared v0 capture and `stage_a_compat_bridge.rs` consumes the MIR selector only
   - raw backend default still stays deferred; no-touch-first remains on `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, and `tools/selfhost/selfhost_build.sh`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
@@ -119,7 +120,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-34x stage0 shell residue split` |
   | Blocker | `none` |
-  | Next | `34xA2 stage1_cli/core.hako exact residue lock` |
+  | Next | `34xA3 core_executor takeover seam lock` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -133,8 +134,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `34xA1 child.rs exact residue lock` | fix exact shell/process/capture ownership before any new runtime work |
-| Next | `34xA2 stage1_cli/core.hako exact residue lock` | keep raw compat branch narrow and explicit |
+| Now | `34xA2 stage1_cli/core.hako exact residue lock` | keep raw compat branch narrow and explicit |
+| Next | `34xA3 core_executor takeover seam lock` | pin direct in-proc `MIR(JSON)` ownership before thinning shell helpers |
 | Later | `34xB child runner thinning` | split spawn/timeout/capture only after owner reading is exact |
 
 ## Phase-34x Waves
@@ -150,8 +151,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `34xA1` | active | `child.rs` exact residue lock |
-| `34xA2` | queued | `stage1_cli/core.hako` exact residue lock |
+| `34xA1` | landed | `child.rs` exact residue lock |
+| `34xA2` | active | `stage1_cli/core.hako` exact residue lock |
 | `34xA3` | queued | `core_executor` takeover seam lock |
 | `34xB1` | queued | split spawn/timeout/capture from `child.rs` |
 | `34xC1` | queued | `run_program_json` no-widen lock |
