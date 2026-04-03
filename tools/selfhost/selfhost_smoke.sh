@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Self-host minimal smoke (dev-only / proof-oriented)
 # - Emits MIR(JSON v0) via selfhost compiler MVP
-# - Runs a representative VM example as a proof/compat bridge and compares outputs
+# - Runs a representative compat bridge example and compares outputs
 
 ROOT_DIR=$(cd "$(dirname "$0")/../.." && pwd)
 NY_BIN="${ROOT_DIR}/target/release/hakorune"
@@ -31,7 +31,7 @@ else
   echo "[selfhost-smoke] NOTE: no JSON emitted (skipped). This is optional for the minimal smoke." >&2
 fi
 
-echo "[selfhost-smoke] Step 2: Run representative VM example (proof/compat bridge, rewrite=ON/OFF)"
+echo "[selfhost-smoke] Step 2: Run representative compat bridge example (rewrite=ON/OFF)"
 EXAMPLE="apps/examples/json_query/main.hako"
 OUT_ON="/tmp/nyash_selfhost_vm_on.txt"
 OUT_OFF="/tmp/nyash_selfhost_vm_off.txt"
