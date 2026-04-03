@@ -60,10 +60,7 @@ emit_program_json_v0_via_stageb_compiler() {
   local raw_path="$1"
   (
     export HAKO_SRC="$SRC_CONTENT"
-    cd "$ROOT" && \
-      "$BIN" --backend vm \
-        "$ROOT/lang/src/compiler/entry/compiler.hako" -- \
-        --stage-b --stage3
+    bash "$ROOT/tools/selfhost/run_stageb_compiler_vm.sh" --source-file "$IN"
   ) > "$raw_path" 2>&1
 }
 

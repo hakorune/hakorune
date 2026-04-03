@@ -74,6 +74,12 @@ selfhost_build_main() {
   SRC_CONTENT="$(cat "$IN")"
   stageb_cmd_desc=""
   apply_selfhost_env
+  if [ -z "${HAKO_STAGEB_MODULES_LIST:-}" ]; then
+    HAKO_STAGEB_MODULES_LIST="$(collect_stageb_modules_list "$ROOT")"
+  fi
+  if [ -z "${HAKO_STAGEB_MODULE_ROOTS_LIST:-}" ]; then
+    HAKO_STAGEB_MODULE_ROOTS_LIST="$(collect_stageb_module_roots_list "$ROOT")"
+  fi
   emit_stageb_program_json_raw "$RAW" || stageb_rc=$?
 
   extract_ok=0
