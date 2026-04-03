@@ -159,7 +159,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-38x cleanup/archive sweep` |
   | Blocker | `none` |
-     | Next | `38xC archive-later queue freeze` |
+     | Next | `38xC1 archive-later queue freeze` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -174,8 +174,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `phase-38x cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
-| Next | `archive-later queue freeze` | keep bootstrap/plugin/deadcode shims until doc drain lands |
-| Later | `closeout` | return current front to next source lane |
+| Next | `38xC1 archive-later queue freeze` | keep bootstrap/plugin/deadcode shims until doc drain lands |
+| Later | `38xD1 closeout` | return current front to next source lane |
 | After `37xD1` | `cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
 
 ## Phase-34x Waves
