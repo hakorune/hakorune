@@ -77,8 +77,10 @@ Related:
      - `43xD1` landed: proof / closeout
      - `44xA1` landed: stage-b direct/core target lock
      - `44xA2` landed: `selfhost_build_stageb.sh` direct/core-first cutover
-     - `44xB1` current: `selfhost_run_routes.sh` runtime default cutover
-     - `44xB2` next: `run.sh` direct route fallback explicitization
+     - `44xB1` landed: `selfhost_run_routes.sh` runtime default cutover
+     - `44xB2` landed: `run.sh` direct route fallback explicitization
+     - `44xC1` current: `stage0_capture.rs` route-neutral builder split
+     - `44xC2` next: `stage_a_route.rs` / compat caller switch
      - plain reading: keep `rust-vm` as proof/compat keep, not mainline ownership
      - success condition: keep direct/core routes canonical, keep proof-only VM gates frozen, and stop day-to-day callers from feeding vm routes
         - `39xA1` landed and fixed caller inventory for `selfhost_build.sh` / `run_stageb_compiler_vm.sh` / `run.sh`
@@ -118,13 +120,13 @@ Related:
      | --- | --- |
      | Now | `phase-44x stage0 direct/core follow-up` |
       | Blocker | `none` |
-     | Next | `44xB1 selfhost_run_routes.sh runtime default cutover` |
+     | Next | `44xC1 stage0_capture.rs route-neutral builder split` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
      | Now | `phase-44x stage0 direct/core follow-up` |
-     | Next | `44xB1 selfhost_run_routes.sh runtime default cutover` |
+     | Next | `44xC1 stage0_capture.rs route-neutral builder split` |
      | Later | `kilo` optimization wave |
    - stage0 shell residue waves:
 

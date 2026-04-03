@@ -47,8 +47,10 @@ Related:
 - `43xD1` landed: proof / closeout
 - `44xA1` landed: stage-b direct/core target lock
 - `44xA2` landed: `selfhost_build_stageb.sh direct/core-first cutover`
-- `44xB1` current: `selfhost_run_routes.sh runtime default cutover`
-- `44xB2` next: `run.sh` direct route fallback explicitization
+- `44xB1` landed: `selfhost_run_routes.sh runtime default cutover`
+- `44xB2` landed: `run.sh` direct route fallback explicitization
+- `44xC1` current: `stage0_capture.rs` route-neutral builder split
+- `44xC2` next: `stage_a_route.rs` / compat caller switch
 - `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete
 - `phase-32x` landed: mixed-owner source/smoke split and raw default/token defer are fixed
