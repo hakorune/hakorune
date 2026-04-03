@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-45x vm residual cleanup`
-- active micro task: `45xA1 residual vm owner inventory lock`
-- next micro task: `45xA2 proof-only keep boundary freeze`
+- active micro task: `45xA2 proof-only keep boundary freeze`
+- next micro task: `45xB1 vm.rs broad owner shrink`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 
