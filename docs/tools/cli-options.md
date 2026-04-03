@@ -16,7 +16,7 @@
 
 ## 基本
 - `file`: 実行するNyashファイル（位置引数）
-- `--backend {vm|vm-hako|llvm|interpreter}`: 実行バックエンド選択（current raw default: `vm`, legacy ingress）
+- `--backend {vm|vm-hako|llvm|interpreter}`: 実行バックエンド選択（current raw default: `vm`, legacy ingress only）
 - `--debug-fuel {N|unlimited}`: パーサーのデバッグ燃料（無限ループ対策）
 - `--parser`: removed（M4 tail cleanup で削除済み）。指定時は CLI で reject される。
 

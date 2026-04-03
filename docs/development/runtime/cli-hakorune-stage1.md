@@ -8,7 +8,7 @@ current launcher implementation keeps top-level command selection and bootstrap 
 ## 現在の読み
 
 - `llvm/exe` は product main の native object / EXE lane。
-- Stage1 CLI / `rust-vm` は engineering/bootstrap lane のオーケストレーション面。
+- Stage1 CLI / `rust-vm` は compat/proof lane のオーケストレーション面。
 - `vm-hako` は reference/conformance lane。
 - したがって、この文書は product front door の説明ではなく、stage1/bootstrap surface の設計メモとして読む。
 
@@ -33,7 +33,7 @@ current launcher implementation keeps top-level command selection and bootstrap 
       専用テストで行い、CLI 本線は Program(JSON) 生成に集中させる）。
 - Stage1（Hakorune selfhost CLI）
   - 実体: `target/selfhost/hakorune`（Phase 25.1 では Ny Executor プロトタイプ）。
-  - 役割: `.hako → MIR(JSON) → 実行/EXE` の engineering/bootstrap パイプライン制御。
+  - 役割: `.hako → MIR(JSON) → 実行/EXE` の compat/proof パイプライン制御。
   - `Program(JSON v0)` は compat/internal route としてのみ残る。
   - 将来的に surface を整理しても、product main の native ownership は `llvm/exe` 側に残す。
 
@@ -100,7 +100,7 @@ hakorune run [options] <entry.hako> [-- script_args...]
 ### 意味論
 
 - `.hako` ソースを Stage‑B → MirBuilder → AotPrep まで通し、選択された backend で実行する。
-- current reading では `run` は engineering/bootstrap 検証面であり、product main runtime の説明ではない。
+- current reading では `run` は compat/proof 検証面であり、product main runtime の説明ではない。
 - 実行経路:
   - backend=`vm`   : Stage0 Rust VM（現行 `--backend vm` 相当）
   - backend=`llvm` : ny-llvmc＋NyRT を通した EXE 実行（実装は後続フェーズ）

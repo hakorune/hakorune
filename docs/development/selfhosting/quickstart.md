@@ -4,7 +4,7 @@ Status: SSOT, Active
 
 This note shows how to run the Hakorune self‑host compiler MVP. Read the current lanes as:
 - product main: `llvm/exe`
-- engineering/bootstrap keep: `rust-vm`
+- compat/proof keep: `rust-vm`
 - reference/conformance: `vm-hako`
 
 The flow below keeps raw defaults unchanged and uses small, opt‑in flags for development.
@@ -35,9 +35,9 @@ NYASH_SELFHOST_READ_TMP=1 ./target/release/nyash lang/src/compiler/entry/compile
 ```
 
 ## Execute MIR(JSON v0)
-Use Rust VM as the engineering/bootstrap lane. Product native output lives on the LLVM/EXE line. Historical PyVM checks are direct-only scripts.
+Use Rust VM only as the compat/proof keep lane. Product native output lives on the LLVM/EXE line. Historical PyVM checks are direct-only scripts.
 
-Rust VM (engineering/bootstrap keep):
+Rust VM (compat/proof keep):
 ```
 ./target/release/nyash --backend vm apps/examples/json_query/main.hako
 ```
@@ -60,7 +60,7 @@ Product EXE line:
 
 Notes:
 - For self‑host emitted JSON, route the file to your runner pipeline or a small loader script (dev only). Keep defaults unchanged in CI (no new jobs required).
-- `--backend vm` remains the raw engineering/bootstrap default for now; do not read it as product ownership.
+- `--backend vm` remains the raw legacy compat/proof ingress for now; do not read it as product ownership.
 
 ## One‑shot dev smoke
 Run a minimal engineering smoke that tries to emit JSON (best‑effort) and verifies VM outputs match with Known rewrite ON/OFF:

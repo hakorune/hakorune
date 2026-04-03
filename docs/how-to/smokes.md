@@ -23,7 +23,7 @@
 
 role-first の読み:
 - `llvm/exe` 系 = product
-- `rust-vm` 系 = engineering/bootstrap
+- `rust-vm` 系 = compat/proof keep
 - `vm-hako` 系 = reference/conformance
 - `wasm` 系 = experimental
 

@@ -71,7 +71,7 @@ Call system (unified by default)
 Current Backend Roles
 - Product
   - `--backend llvm` (ny-llvmc crate backend; native object/EXE ownership)
-- Engineering / bootstrap
+- Compat / proof keep
   - `--backend vm` (selfhost, recovery, plugin, macro, and tooling keep; explicit compat/proof only)
 - Reference / conformance
   - `--backend vm-hako`
@@ -123,7 +123,7 @@ Self‑hosting one‑pager: `docs/how-to/self-hosting.md`.
 ExternCall (env.*) and println normalization: `docs/reference/runtime/externcall.md`.
 
 ### Minimal ENV (compat/proof vs LLVM harness)
-- Explicit compat/proof lane: no extra environment needed when you need the Rust VM keep.
+- Explicit compat/proof lane: no extra environment needed when you need the Rust VM compat/proof keep.
   - Example (compat/proof keep): `$NYASH_BIN --backend vm apps/tests/ternary_basic.hako`
 - LLVM harness: set three variables so the runner finds the harness and runtime.
   - `NYASH_LLVM_USE_HARNESS=1`
@@ -193,7 +193,7 @@ MIR note: Core‑13 minimal kernel is enforced by default (NYASH_MIR_CORE13=1). 
 
 Pure mode: set `NYASH_MIR_CORE13_PURE=1` to enable strict Core‑13. The optimizer rewrites a few ops (Load/Store/NewBox/Unary) to Core‑13 forms, and the compiler rejects any remaining non‑Core‑13 ops. This may break execution temporarily by design to surface MIR violations early.
 
-Note: JIT runtime execution is currently disabled. Treat this section as engineering/bootstrap guidance; product-facing native output lives on the LLVM AOT line below.
+Note: JIT runtime execution is currently disabled. Treat this section as compat/proof guidance; product-facing native output lives on the LLVM AOT line below.
 
 ## 🚀 **Historical Milestones (Nyash Era)**
 
@@ -274,8 +274,8 @@ Important current reading:
 - Experimental / monitor-only: WASM
 
 Phase‑15 (Self‑Hosting): legacy routes are feature-gated or historical
-- Raw CLI default is still `--backend vm` for legacy ingress; do not read that as product ownership.
-- `--backend vm` is the Rust VM compatibility/proof lane.
+- Raw CLI default is still `--backend vm` for legacy ingress only; do not read that as product ownership.
+- `--backend vm` is the Rust VM compatibility/proof lane, not a mainline ownership claim.
 - `--backend llvm` is the product native object/EXE lane.
 - `--backend vm-hako` is the reference/conformance lane.
 - PyVM route is historical/direct-only and delegates to `tools/historical/pyvm/pyvm_runner.py`.
