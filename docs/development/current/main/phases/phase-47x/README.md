@@ -56,7 +56,7 @@ Related:
   - `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
   - both still route through `stage0_capture_route.rs` while helper defaults are being drained
 - this lane is a contract lock plus helper-default cutover; explicit vm compat lock follows it
-- `47xB1` adds the temp-MIR handoff helper; `47xB2` makes that body the day-to-day default caller; `47xB3` keeps explicit vm compat locked.
+- `47xB1` adds the temp-MIR handoff helper; `47xB2` makes that body the day-to-day default caller; `47xB3` keeps explicit vm compat locked; `47xC1` adds the non-VM builder; `47xC2` will switch Stage-A to source->MIR first.
 
 ## Success Conditions
 
@@ -84,7 +84,7 @@ Related:
    - `47xB1` `selfhost_run_routes.sh` runtime temp-MIR handoff helper
    - `47xB2` `selfhost_run_routes.sh` runtime default cutover
    - `47xB3` `run.sh` explicit vm compat mode lock
-3. `47xC` Stage-A source->MIR first
+  3. `47xC` Stage-A source->MIR first
    - `47xC1` `stage0_capture_route.rs` non-VM builder add
    - `47xC2` `stage_a_route.rs` source->MIR first switch
    - `47xC3` `stage_a_compat_bridge.rs` explicit Program(JSON) fallback shrink

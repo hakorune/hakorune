@@ -30,6 +30,8 @@ Scope: finalize the migration from live VM-backed helper defaults to stage0/runt
 - runtime temp-MIR default is now cut over:
   - `tools/selfhost/lib/selfhost_run_routes.sh` uses the temp-MIR handoff body for runtime `exe` by default
   - `stage-a` stays explicit compat-only and still uses the legacy VM path until `47xB3`
+- non-VM builder now exists:
+  - `src/runner/modes/common_util/selfhost/stage0_capture_route.rs` has the staged non-VM builder body for the upcoming Stage-A source->MIR cutover
 - helper-route live defaults still leak VM ownership:
   - `src/runner/modes/common_util/selfhost/stage0_capture_route.rs`
   - `src/runner/modes/common_util/selfhost/stage_a_route.rs`
@@ -59,11 +61,11 @@ Scope: finalize the migration from live VM-backed helper defaults to stage0/runt
    - add route body that materializes MIR temp state and hands off through `--mir-json-file`
 5. `47xB2 selfhost_run_routes.sh runtime default cutover` (landed)
    - remove day-to-day runtime default dependence on `--backend vm`
-6. `47xB3 run.sh explicit vm compat mode lock` (active)
+6. `47xB3 run.sh explicit vm compat mode lock` (landed)
    - keep VM route explicit-only on the facade and stop silent rediscovery
-7. `47xC1 stage0_capture_route.rs non-VM builder add`
+7. `47xC1 stage0_capture_route.rs non-VM builder add` (landed)
    - keep capture plumbing neutral and move route policy into selectable builders
-8. `47xC2 stage_a_route.rs source->MIR first switch`
+8. `47xC2 stage_a_route.rs source->MIR first switch` (active)
    - move Stage-A first path to direct MIR capture/build
 9. `47xC3 stage_a_compat_bridge.rs explicit Program(JSON) fallback shrink`
    - keep Program(JSON v0) bridge explicit compat only
