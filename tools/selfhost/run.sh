@@ -34,7 +34,7 @@ usage() {
 Usage:
   run.sh --gate [--max-cases <n>] [--filter <substring>] [--jobs <n>] [--timeout-secs <n>] [--planner-required 0|1]
   run.sh --steady-state [--with-runtime-parity] [--no-collect-blocker] [--quiet] [--cleanup-old-logs]
-  run.sh --runtime [--runtime-mode <stage-a|exe>] [--input <file>] [--timeout-ms <n>] [--timeout-secs <n>]  # stage-a is explicit compat-only; exe is day-to-day default
+  run.sh --runtime [--runtime-mode <stage-a|exe>] [--input <file>] [--timeout-ms <n>] [--timeout-secs <n>]  # stage-a is explicit compat-only; exe is the mainline default
   run.sh --direct --source-file <file> [--timeout-secs <n>] [--route-id <id>]
 
 Examples:
@@ -162,7 +162,7 @@ if [ -z "$mode" ]; then
   exit 2
 fi
 
-# stage-a remains explicit compat-only; exe is the day-to-day default route.
+# stage-a remains explicit compat-only; exe is the mainline default route.
 if [ "$mode" = "runtime" ] && [ "$runtime_mode" != "stage-a" ] && [ "$runtime_mode" != "exe" ]; then
   echo "[selfhost/run] --runtime-mode must be stage-a|exe when --runtime is selected (got: $runtime_mode)" >&2
   exit 2

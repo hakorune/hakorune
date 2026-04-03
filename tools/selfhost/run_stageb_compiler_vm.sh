@@ -4,7 +4,7 @@
 # Contract:
 # - Input: --source-file <path> (fixture/source file)
 # - Output: Program(JSON v0) + diagnostics (stdout/stderr passthrough)
-# - Proof-only gate: do not route day-to-day callers here.
+# - Proof-only gate: do not route ordinary callers here.
 # - Route tag: stderr "[selfhost/route] id=..."
 set -euo pipefail
 
