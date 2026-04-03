@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-04-03
+Date: 2026-04-04
 Scope: main ラインの current summary と正本リンクだけを置く薄い mirror/dashboard。
 Related:
   - CURRENT_TASK.md
@@ -59,6 +59,7 @@ Related:
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
 - active micro task: `47xA1 runtime/default contract lock`
 - next micro task: `47xA2 stage1 source->MIR contract lock`
+- after next: `47xA3 Stage-A direct/core contract lock`
 - plain reading:
   - if a bootstrap route stays on `--backend vm`, new capability work still tends to imply `rust-vm` support
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep
@@ -72,6 +73,7 @@ Related:
   - `src/runner/modes/common_util/selfhost/stage_a_route.rs`
   - `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
   - `tools/selfhost/lib/selfhost_build_stageb.sh`
+  - exact order is `A1/A2/A3 -> B1/B2/B3 -> C1/C2/C3 -> D1/D2/D3 -> E1`
   - success means day-to-day stage0/selfhost defaults stay direct/core-first and VM gates stay explicit proof/fallback only
   - failure means new features drifting back into `--backend vm`, stage1 compat, or raw routes
 - post-`39xD1`: stage0 vm archive candidate selection for remaining bootstrap surfaces

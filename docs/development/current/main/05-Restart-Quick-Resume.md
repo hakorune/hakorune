@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-03
+Date: 2026-04-04
 Scope: 再起動直後に 2〜5 分で開発再開するための最短手順。
 Related:
   - CURRENT_TASK.md
@@ -25,6 +25,7 @@ tools/checks/dev_gate.sh quick
 - lane: `phase-47x stage0/runtime direct-core finalization`
 - active micro task: `47xA1 runtime/default contract lock`
 - next micro task: `47xA2 stage1 source->MIR contract lock`
+- after next: `47xA3 Stage-A direct/core contract lock`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 

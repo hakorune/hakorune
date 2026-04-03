@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-03
+Date: 2026-04-04
 Scope: remove the remaining live `--backend vm` helper-route defaults from stage0/runtime and keep `rust-vm` on explicit proof/oracle/compat rails.
 Related:
   - CURRENT_TASK.md
@@ -45,8 +45,21 @@ Related:
 
 ## Big Tasks
 
-1. lock direct/core-first contracts for runtime and Stage-A routes
-2. cut runtime default over from `--backend vm` to source->MIR->direct/core
-3. make Stage-A source->MIR first and keep `Program(JSON v0)` explicit compat fallback
-4. drain default Stage-B callers away from the VM proof gate
-5. prove and close the lane cleanly
+1. `47xA` contract lock
+   - `47xA1` runtime/default contract lock
+   - `47xA2` stage1 source->MIR contract lock
+   - `47xA3` Stage-A direct/core contract lock
+2. `47xB` runtime default cutover
+   - `47xB1` `selfhost_run_routes.sh` runtime temp-MIR handoff helper
+   - `47xB2` `selfhost_run_routes.sh` runtime default cutover
+   - `47xB3` `run.sh` explicit vm compat mode lock
+3. `47xC` Stage-A source->MIR first
+   - `47xC1` `stage0_capture_route.rs` non-VM builder add
+   - `47xC2` `stage_a_route.rs` source->MIR first switch
+   - `47xC3` `stage_a_compat_bridge.rs` explicit Program(JSON) fallback shrink
+4. `47xD` Stage-B caller drain
+   - `47xD1` `selfhost_build_stageb.sh` MIR mainline artifact contract lock
+   - `47xD2` `selfhost_build_stageb.sh` default-caller drain
+   - `47xD3` `run_stageb_compiler_vm.sh` proof-only local keep
+5. `47xE` closeout
+   - `47xE1` proof / closeout

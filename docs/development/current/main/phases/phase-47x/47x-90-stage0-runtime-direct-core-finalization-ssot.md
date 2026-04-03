@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-03
+Date: 2026-04-04
 Owner: Codex
 Scope: finalize the migration from live VM-backed helper defaults to stage0/runtime direct-core routes.
 ---
@@ -38,24 +38,30 @@ Scope: finalize the migration from live VM-backed helper defaults to stage0/runt
 ## Ordered Tasks
 
 1. `47xA1 runtime/default contract lock`
-   - lock exact day-to-day runtime contract and success criteria
+   - lock exact day-to-day runtime contract, route tags, and success criteria
 2. `47xA2 stage1 source->MIR contract lock`
-   - lock exact producer-side contract for source->MIR handoff
-3. `47xB1 selfhost_run_routes.sh runtime direct-core cutover`
+   - lock exact producer-side contract for source text -> validated MIR(JSON v0)
+3. `47xA3 Stage-A direct/core contract lock`
+   - lock Stage-A as source->MIR first and Program(JSON v0) explicit compat fallback
+4. `47xB1 selfhost_run_routes.sh runtime temp-MIR handoff helper`
+   - add route body that materializes MIR temp state and hands off through `--mir-json-file`
+5. `47xB2 selfhost_run_routes.sh runtime default cutover`
    - remove day-to-day runtime default dependence on `--backend vm`
-4. `47xB2 run.sh explicit vm compat mode lock`
-   - keep VM route explicit-only on the facade
-5. `47xC1 stage0_capture_route.rs non-VM builder add`
+6. `47xB3 run.sh explicit vm compat mode lock`
+   - keep VM route explicit-only on the facade and stop silent rediscovery
+7. `47xC1 stage0_capture_route.rs non-VM builder add`
    - keep capture plumbing neutral and move route policy into selectable builders
-6. `47xC2 stage_a_route.rs source->MIR first switch`
-   - move Stage-A first path to direct MIR capture
-7. `47xC3 stage_a_compat_bridge.rs explicit Program(JSON) fallback shrink`
+8. `47xC2 stage_a_route.rs source->MIR first switch`
+   - move Stage-A first path to direct MIR capture/build
+9. `47xC3 stage_a_compat_bridge.rs explicit Program(JSON) fallback shrink`
    - keep Program(JSON v0) bridge explicit compat only
-8. `47xD1 selfhost_build_stageb.sh default-caller drain`
+10. `47xD1 selfhost_build_stageb.sh MIR mainline artifact contract lock`
+   - define exact Stage-B mainline artifact contract before draining old callers
+11. `47xD2 selfhost_build_stageb.sh default-caller drain`
    - stop default Stage-B paths from rediscovering `run_stageb_compiler_vm.sh`
-9. `47xD2 run_stageb_compiler_vm.sh proof-only local keep`
+12. `47xD3 run_stageb_compiler_vm.sh proof-only local keep`
    - keep the script but localize it to proof-only callers
-10. `47xE1 proof / closeout`
+13. `47xE1 proof / closeout`
    - prove direct/core defaults and hand off cleanly
 
 ## Acceptance
