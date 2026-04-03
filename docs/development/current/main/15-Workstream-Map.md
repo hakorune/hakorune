@@ -55,8 +55,8 @@ Related:
         - `phase-34x` now handles stage0 shell residue split
         - `34xA1` landed and fixed exact `child.rs` shell/process/capture residue
         - `34xA2` landed and fixed `stage1_cli/core.hako` raw compat residue and dispatch split
-        - `34xA3` is active and pins `core_executor` as the direct `MIR(JSON)` owner
-        - current active micro task is `34xA3 core_executor takeover seam lock`
+        - `34xA3` landed and pinned `core_executor` as the direct `MIR(JSON)` owner
+        - current active micro task is `34xB1 split spawn/timeout/capture from child.rs`
         - cleanup rule is `split/rehome/drain -> delete`
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
@@ -66,15 +66,15 @@ Related:
      | --- | --- |
      | Now | `phase-34x stage0 shell residue split` |
      | Blocker | `none` |
-     | Next | `34xB1 child runner thinning` |
-   - shared helper family bands:
+     | Next | `34xC1 run_program_json no-widen lock` |
+   - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `34xA3 core_executor takeover seam lock` |
-     | Next | `34xB1 child runner thinning` |
-     | Later | `raw backend default/token follow-up lane` |
-   - shared helper family waves:
+     | Now | `34xB1 child runner thinning` |
+     | Next | `34xC1 run_program_json no-widen lock` |
+     | Later | `34xD1 direct MIR(JSON) proof path` |
+   - stage0 shell residue waves:
 
      | Wave | Status | Read as |
      | --- | --- | --- |
@@ -114,9 +114,9 @@ Related:
   - `phase-32x` product / engineering split (landed precursor)
   - `phase-34x` stage0 shell residue split
 - Active backend surface tasks:
-  - `34xA3 core_executor takeover seam lock`
-- Queued backend surface tasks:
   - `34xB1 child runner thinning`
+- Queued backend surface tasks:
+  - `34xC1 run_program_json no-widen lock`
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion

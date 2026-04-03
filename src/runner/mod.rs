@@ -134,7 +134,8 @@ impl NyashRunner {
                 std::process::exit(1);
             }
         }
-        // Early: direct MIR JSON execution (no source file). Experimental diagnostics/exec.
+        // Early direct MIR(JSON) handoff.
+        // This path bypasses artifact-family classification and goes straight to the core owner.
         if let Some(path) = groups.parser.mir_json_file.as_ref() {
             // Phase 90-A: fs 系移行
             let ring0 = crate::runtime::ring0::get_global_ring0();

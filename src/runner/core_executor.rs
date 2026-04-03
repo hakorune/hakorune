@@ -11,6 +11,9 @@
 use super::NyashRunner;
 use std::io::Write;
 
+// Artifact-family convergence entry.
+// Classification stays here; callers that already know they hold MIR(JSON) should use
+// `execute_mir_json_text(...)` or `execute_loaded_mir_module(...)`.
 pub fn execute_json_artifact(runner: &NyashRunner, json: &str) -> i32 {
     if let Some(rc) = maybe_try_core_direct_for_mir_json(runner, json) {
         return rc;
@@ -24,6 +27,8 @@ pub fn execute_json_artifact(runner: &NyashRunner, json: &str) -> i32 {
     }
 }
 
+// Direct MIR(JSON) handoff for already-materialized MIR text.
+// Keep this free from Program(JSON) fallback ownership and artifact-family classification.
 pub(crate) fn execute_mir_json_text(
     runner: &NyashRunner,
     json: &str,
@@ -39,6 +44,7 @@ pub(crate) fn execute_mir_json_text(
     Ok(execute_loaded_mir_module(runner, &module))
 }
 
+// Terminal in-proc execution owner after JSON/compat lowering is already done.
 pub(crate) fn execute_loaded_mir_module(
     runner: &NyashRunner,
     module: &crate::mir::MirModule,
@@ -56,7 +62,9 @@ pub(crate) fn execute_loaded_mir_module(
 }
 
 fn maybe_try_core_direct_for_mir_json(runner: &NyashRunner, json: &str) -> Option<i32> {
-    // Optional: direct Core Dispatcher via child nyash (boxed)
+    // Optional direct-core execution probe.
+    // This remains an internal opt-in under the direct MIR owner; it does not create a new
+    // external route owner for Program(JSON) or shell compat lanes.
     // Toggle: HAKO_CORE_DIRECT=1 (alias: NYASH_CORE_DIRECT)
     let core_direct = std::env::var("HAKO_CORE_DIRECT").ok().as_deref() == Some("1")
         || std::env::var("NYASH_CORE_DIRECT").ok().as_deref() == Some("1");

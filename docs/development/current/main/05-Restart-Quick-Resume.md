@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-34x stage0 shell residue split`
-- active micro task: `34xA3 core_executor takeover seam lock`
-- next micro task: `34xB1 split spawn/timeout/capture from child.rs`
+- active micro task: `34xB1 split spawn/timeout/capture from child.rs`
+- next micro task: `34xC1 run_program_json no-widen lock`
 - raw backend default flip stays deferred beyond `phase-34x`
 
 ## Read Next

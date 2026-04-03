@@ -31,8 +31,8 @@ Related:
 
 | Wave | Status | Goal | Acceptance |
 | --- | --- | --- | --- |
-| `34xA residue owner lock` | active | exact shell residue / owner split を固定する | `child.rs` / `stage1_cli` / `core_executor` の owner reading が揃う |
-| `34xB child runner thinning` | queued | `child.rs` の spawn/capture/process ownership を薄くする | JSON capture route が narrower helper に寄る |
+| `34xA residue owner lock` | landed | exact shell residue / owner split を固定する | `child.rs` / `stage1_cli` / `core_executor` の owner reading が揃う |
+| `34xB child runner thinning` | active | `child.rs` の spawn/capture/process ownership を薄くする | JSON capture route が narrower helper に寄る |
 | `34xC stage1 raw compat narrowing` | queued | `stage1_cli/core.hako` raw compat branch を narrow keep に固定する | raw compat branch が新機能で widen しない |
 | `34xD direct core handoff` | queued | in-proc `MIR(JSON)` owner を `core_executor` に寄せる | shell residue を経由しない direct seam が増える |
 
@@ -42,16 +42,16 @@ Related:
 | --- | --- | --- | --- |
 | `34xA1` | landed | `child.rs` exact residue lock | `run_ny_program_capture_json_v0` の責務と caller split が exact に読める |
 | `34xA2` | landed | `stage1_cli/core.hako` exact residue lock | `run_program_json` / `_run_raw_request` の compat residue と dispatch split が exact に読める |
-| `34xA3` | active | `core_executor` takeover seam lock | direct `MIR(JSON)` owner が shell route と分離して読める |
-| `34xB1` | queued | split spawn/timeout/capture from `child.rs` | shell helper が route-neutral helper へ縮む |
+| `34xA3` | landed | `core_executor` takeover seam lock | direct `MIR(JSON)` owner が shell route と分離して読める |
+| `34xB1` | active | split spawn/timeout/capture from `child.rs` | shell helper が route-neutral helper へ縮む |
 | `34xC1` | queued | `run_program_json` no-widen lock | raw compat lane が execution-capability widening を受けない |
 | `34xD1` | queued | direct `MIR(JSON)` proof path | already-materialized `MIR(JSON)` run path が `core_executor` 側に pin される |
 
 ## Current Focus
 
-- active macro wave: `34xA residue owner lock`
-- active micro task: `34xA3 core_executor takeover seam lock`
-- next queued micro task: `34xB1 split spawn/timeout/capture from child.rs`
+- active macro wave: `34xB child runner thinning`
+- active micro task: `34xB1 split spawn/timeout/capture from child.rs`
+- next queued micro task: `34xC1 run_program_json no-widen lock`
 - current blocker: `none`
 - exact residue reading:
   - `child.rs` shell/process residue is concentrated in `run_ny_program_capture_json_v0`
@@ -66,7 +66,11 @@ Related:
     - `dispatch_emit` drives `_cmd_emit_mir_json`
     - `dispatch_run` drives `_run_raw_request`
     - `run_program_json` keeps default `vm`, accepts only `vm|pyvm`, and rejects `llvm`
-  - `core_executor` already owns the direct in-proc `MIR(JSON)` seam; this phase narrows the handoff around it
+  - `core_executor` direct seam is fixed:
+    - `execute_json_artifact(...)` stays artifact-family convergence entry
+    - `execute_mir_json_text(...)` is the direct MIR(JSON) handoff
+    - `execute_loaded_mir_module(...)` is the terminal in-proc execution owner
+    - `runner/mod.rs --mir-json-file` bypasses artifact-family classification and hands off directly to `core_executor`
 
 ## Accepted Prior Reading
 
