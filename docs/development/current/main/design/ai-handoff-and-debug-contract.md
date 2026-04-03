@@ -215,7 +215,7 @@ Prefer stable, structured tags over ad-hoc `eprintln!`:
 - VM runtime error (stderr, single-line; quiet-exit path): `[vm/error] <message>` (newlines are escaped as `\\n`)
 - Optional GC mode diagnostics (dev/diagnostic only; metrics ON): `[gc/optional:mode] mode=<...> collect_sp=<...> collect_alloc=<...>`
 - Runtime route contract fail-fast (strict/dev+planner_required): `[contract][runtime-route][expected=mir-json] route=stage-a source=<...> got=program-json strict_planner_required=1`
-- Runtime route acceptance sentinel: `[contract][runtime-route][accepted=mir-json] route=stage-a source=<...> lane=<direct|compat-program-to-mir|compat-rust-json-v0-bridge>`
+- Runtime route acceptance sentinel (selfhost pipeline acceptance log, not a positive smoke assertion): `[contract][runtime-route][accepted=mir-json] route=stage-a source=<...> lane=<direct|compat-program-to-mir|compat-rust-json-v0-bridge>`
 - Runtime execution-path observability (dev/verbose plugin init): `[runtime/exec-path] plugin_loader_backend=<enabled|stub> plugin_exec_mode=<...> box_factory_policy=<...>`
 - Runtime route direct-v0 guard fail-fast: `[freeze:contract][runtime-route/direct-v0-bridge-disabled] route=stage-a source=<...> lane=direct-v0-bridge status=retired`
 - Runtime route parser-flag removal contract: `--parser ny` is removed at CLI boundary (clap reject), and `NYASH_USE_NY_PARSER=1` is legacy no-op.
