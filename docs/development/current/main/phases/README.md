@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Phase 36x（ACTIVE）**: selfhost source / stage1 bridge split（`selfhost.rs` source prepare / `stage1_cli` raw bridge first）
+- **Current (pre-phase)**: successor lane selection / design consultation
+- **Phase 36x（LANDED）**: selfhost source / stage1 bridge split（`selfhost.rs` source prepare / `stage1_cli` raw bridge first）
 - **Phase 35x（LANDED）**: stage-a compat route thinning（`selfhost.rs` / `stage_a_compat_bridge.rs` first）
 - **Phase 34x（LANDED）**: stage0 shell residue split（`child.rs` / `stage1_cli` / `core_executor` first）
 - **Phase 33x（LANDED）**: shared helper family recut（`hako_check` / `emit_mir` helper-family truth fixed）

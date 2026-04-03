@@ -47,9 +47,9 @@ Related:
 
 ## Current Focus
 
-- active macro wave: `phase-36x closeout review`
-- active micro task: `phase-36x closeout review`
-- next queued micro task: `successor lane selection`
+- active macro wave: `successor lane selection / design consultation`
+- active micro task: `successor lane selection`
+- next queued micro task: `next phase definition`
 - current blocker: `none`
 - exact reading:
   - `source_prepare.rs` now owns source extension gate / source read / using merge / preexpand / tmp staging

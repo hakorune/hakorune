@@ -99,9 +99,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `phase-36x selfhost source / stage1 bridge split`
+- Active next: `successor lane selection / design consultation`
 - Current blocker: `none`
-- Exact focus: `phase-36x closeout review`
+- Exact focus: `successor lane selection / design consultation`
   - `phase-32x` is landed; mixed-owner source/smoke split and raw default/token defer are fixed
   - `phase-33x` is landed; helper-family path truth and keep gates are fixed
   - current next cleanup is stage0 shell residue thinning, not `vm.rs` deletion
@@ -140,9 +140,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
   | Item | State |
   | --- | --- |
-  | Now | `phase-36x selfhost source / stage1 bridge split` |
+  | Now | `successor lane selection / design consultation` |
   | Blocker | `none` |
-  | Next | `phase-36x closeout review` |
+  | Next | `next phase definition` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -156,8 +156,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `phase-36x closeout review` | verify the split is fixed enough to hand off without reopening stage0/stage1 residue |
-| Next | `successor lane selection` | choose the next thinning/design lane after phase-36x handoff |
+| Now | `successor lane selection / design consultation` | choose the next thinning/design lane after phase-36x handoff |
+| Next | `next phase definition` | cut the next phase only after the design target is fixed |
 | Later | `raw backend default/token follow-up lane` | keep token/default truthification deferred beyond the shell-residue split |
 
 ## Phase-34x Waves

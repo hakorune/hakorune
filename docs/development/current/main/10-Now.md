@@ -47,14 +47,14 @@ Related:
 - `36xB1` landed: `raw_subcommand_emit_mir.hako` now owns raw `emit mir-json` request/materialize/emit glue
 - `36xB2` landed: `raw_subcommand_run.hako` now owns raw `run` request/script-args env/Program(JSON) materialization glue
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
-- active micro task: `phase-36x closeout review`
-- next micro task: `successor lane selection`
+- active micro task: `successor lane selection`
+- next micro task: `next phase definition`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
   - `vm-hako` = `reference/conformance`
   - `wasm` = `experimental`
-- raw backend default/token rewrite stays deferred beyond `phase-36x`
+- raw backend default/token rewrite stays deferred beyond the phase-36x successor lane
 - source/smoke cleanup rule:
   - `split/rehome/drain -> delete`
 

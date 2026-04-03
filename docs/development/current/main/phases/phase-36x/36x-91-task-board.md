@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Decision: provisional
 Date: 2026-04-03
 Scope: `phase-36x selfhost source / stage1 bridge split` の concrete queue と evidence command をまとめる。
@@ -47,7 +47,7 @@ cargo check --bin hakorune
 ## Current Result
 
 - current front:
-  - `phase-36x closeout review`
+  - `successor lane selection / design consultation`
 - current residue reading:
   - `source_prepare.rs` now owns source extension gate / source read / using merge / preexpand / tmp staging
   - `selfhost.rs` keeps macro pre-expand gate, fallback ordering, and terminal accept

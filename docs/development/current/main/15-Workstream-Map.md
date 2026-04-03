@@ -70,7 +70,7 @@ Related:
         - `36xB1` landed and moves raw `emit mir-json` glue into `raw_subcommand_emit_mir.hako`
         - `36xB2` landed and moves raw `run` glue into `raw_subcommand_run.hako`
         - `36xC1` landed and fixes the split as evidence instead of reopening compat ownership
-        - current active micro task is `phase-36x closeout review`
+        - current active micro task is `successor lane selection`
         - cleanup rule is `split/rehome/drain -> delete`
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
@@ -78,15 +78,15 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `phase-36x selfhost source / stage1 bridge split` |
+     | Now | `successor lane selection / design consultation` |
      | Blocker | `none` |
-     | Next | `phase-36x closeout review` |
+     | Next | `next phase definition` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `phase-36x closeout review` |
-     | Next | `successor lane selection` |
+     | Now | `successor lane selection` |
+     | Next | `next phase definition` |
      | Later | `raw backend default/token follow-up lane` |
    - stage0 shell residue waves:
 
@@ -126,11 +126,11 @@ Related:
   - `phase-30x` backend surface simplification (landed precursor)
   - `phase-31x` engineering lane isolation (landed precursor)
   - `phase-32x` product / engineering split (landed precursor)
-  - `phase-36x` selfhost source / stage1 bridge split
+  - `phase-36x` selfhost source / stage1 bridge split (landed precursor)
 - Active backend surface tasks:
-  - `phase-36x closeout review`
-- Queued backend surface tasks:
   - `successor lane selection`
+- Queued backend surface tasks:
+  - `next phase definition`
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion
