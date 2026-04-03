@@ -4,8 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 37x bootstrap owner split
-- **Phase 37x（ACTIVE）**: bootstrap owner split（`selfhost_build.sh` / `build.rs` first, speed-first）
+- **Current (ACTIVE)**: post-37x cleanup/archive sweep
+- **Phase 37x（LANDED）**: bootstrap owner split（`selfhost_build.sh` / `build.rs` first, speed-first）
 - **Phase 36x（LANDED）**: selfhost source / stage1 bridge split（`selfhost.rs` source prepare / `stage1_cli` raw bridge first）
 - **Phase 35x（LANDED）**: stage-a compat route thinning（`selfhost.rs` / `stage_a_compat_bridge.rs` first）
 - **Phase 34x（LANDED）**: stage0 shell residue split（`child.rs` / `stage1_cli` / `core_executor` first）

@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Decision: provisional
 Date: 2026-04-03
 Scope: `selfhost_build.sh` と `build.rs` の mixed ownership を speed-first で切り分け、bootstrap/product owner を明示する。
@@ -56,13 +56,15 @@ Related:
 3. `tools/selfhost/selfhost_build.sh`
 4. `src/runner/build.rs`
 
-- current active micro task: `37xD1 proof/closeout`
-- next queued micro task: `post-37x cleanup/archive sweep`
+- current active micro task: `post-37x cleanup/archive sweep`
+- next queued micro task: `next cleanup phase definition`
 
 ## Acceptance Summary
 
 - `selfhost_build.sh` が `producer / direct-run / exe-artifact / dispatcher` で読める
 - `build.rs` が `product build / engineering build` で読める
 - explicit engineering keep が docs と path で固定される
-- 次 phase は `proof/closeout` を戻し、その後の cleanup/archive sweep に集中できる
+- `37xD1` proof is restored on focused probes instead of reopening the whole-script Stage-B source route
+- `selfhost_minimal.sh` red stays inherited from the upstream Stage-B source route and does not block cleanup/archive
+- 次 phase は cleanup/archive sweep に集中できる
 - `37xD1` の次は cleanup/archive sweep に入り、drained shim / stale compat wrapper / legacy embedded smoke を候補別に整理する

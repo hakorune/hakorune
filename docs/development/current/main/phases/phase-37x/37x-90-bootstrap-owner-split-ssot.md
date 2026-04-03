@@ -48,7 +48,7 @@ Related:
 | `37xA selfhost_build owner split` | landed | `selfhost_build.sh` を producer / direct-run / exe-artifact / dispatcher に切る | shell script が lane owner ごとに読める |
 | `37xB build.rs owner split` | landed | `build.rs` を product build / engineering build に切る | source owner が path/function で読める |
 | `37xC explicit keep freeze + drain map` | landed | explicit engineering keep と next drain を固定 | `vm必須 keep` と `next caller drain` が混ざらない |
-| `37xD proof/closeout` | active | speed-first split を canonical proof に戻す | next phase が cleanup/archive sweep に集中できる |
+| `37xD proof/closeout` | landed | speed-first split を canonical proof に戻す | next phase が cleanup/archive sweep に集中できる |
 | `post-37x cleanup/archive sweep` | queued-next | drained shim / legacy embedded smoke / stale compat wrapper を live surface から外す | archive/delete 対象が proof 後の state で読める |
 
 ## Micro Tasks
@@ -64,13 +64,13 @@ Related:
 | `37xB3` | landed | engineering build wrapper split | `build_core(..., cranelift)` + `emit_engineering_object(...)` が engineering owner に寄る |
 | `37xC1` | landed | explicit keep freeze | bootstrap vm keep scripts を “残すもの” として先に固定する |
 | `37xC2` | landed | child.rs caller drain map | owner split 後に減らす caller を exact にする |
-| `37xD1` | active | proof/closeout | canonical smoke / evidence command を戻して handoff |
+| `37xD1` | landed | proof/closeout | focused proof/evidence command を戻して cleanup/archive へ handoff |
 
 ## Current Focus
 
-- active macro wave: `37xD proof/closeout`
-- active micro task: `37xD1 proof/closeout`
-- next queued micro task: `post-37x cleanup/archive sweep`
+- active macro wave: `post-37x cleanup/archive sweep`
+- active micro task: `post-37x cleanup/archive sweep`
+- next queued micro task: `next cleanup phase definition`
 - current blocker: `none`
 - exact reading:
   - `selfhost_build.sh` is the biggest mixed-owner shell surface
@@ -81,4 +81,11 @@ Related:
     - `selfhost_vm_smoke.sh`
   - these keeps are not first-cut cleanup targets
   - temporary smoke red is acceptable during `37xA` / `37xB` / `37xC` if owner split moves forward and compile/diff checks stay green
+  - `37xD1` proof is satisfied by:
+    - `cargo check --bin hakorune`
+    - `git diff --check`
+    - `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`
+    - `tools/selfhost/stage1_mainline_smoke.sh --bin target/selfhost/hakorune.stage1_cli.stage2 apps/tests/hello_simple_llvm.hako`
+  - inherited red:
+    - `tools/smokes/v2/profiles/integration/selfhost/selfhost_minimal.sh` remains upstream Stage-B source-route red (`Undefined variable: StageBMod`) and is not the exact helper-local acceptance line for this phase
   - after `37xD1`, cleanup/archive sweep targets drained shims, legacy embedded Stage1 smoke, and stale compat wrappers first

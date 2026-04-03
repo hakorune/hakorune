@@ -71,7 +71,7 @@ Related:
         - `36xB1` landed and moves raw `emit mir-json` glue into `raw_subcommand_emit_mir.hako`
         - `36xB2` landed and moves raw `run` glue into `raw_subcommand_run.hako`
         - `36xC1` landed and fixes the split as evidence instead of reopening compat ownership
-        - current active micro task is `37xD1 proof/closeout`
+        - `37xD1` landed on focused proof: `cargo check`, `git diff --check`, `phase29ci_selfhost_build_exe_consumer_probe.sh`, and `stage1_mainline_smoke.sh`
         - `37xA` prioritizes `selfhost_build.sh` owner split over broader cleanup
         - `37xB` follows with `build.rs` product/engineering split
         - `37xC` freezes explicit engineering keep before caller-drain work
@@ -92,9 +92,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `37xD1 proof/closeout` |
-     | Next | `post-37x cleanup/archive sweep` |
-     | Later | `archive/delete of drained shims` |
+     | Now | `post-37x cleanup/archive sweep` |
+     | Next | `archive/delete of drained shims` |
+     | Later | `next cleanup phase definition` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
@@ -134,11 +134,11 @@ Related:
   - `phase-31x` engineering lane isolation (landed precursor)
   - `phase-32x` product / engineering split (landed precursor)
   - `phase-36x` selfhost source / stage1 bridge split (landed precursor)
-  - `phase-37x` bootstrap owner split (active)
+  - `phase-37x` bootstrap owner split (landed precursor)
 - Active backend surface tasks:
-  - `37xD1 proof/closeout`
-- Queued backend surface tasks:
   - `post-37x cleanup/archive sweep`
+- Queued backend surface tasks:
+  - `archive/delete of drained shims`
 - Post-`37xD1` cleanup:
   - drained shim / legacy embedded smoke archive sweep
 - Parked big tasks:

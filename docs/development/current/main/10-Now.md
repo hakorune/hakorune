@@ -47,9 +47,17 @@ Related:
 - `36xB1` landed: `raw_subcommand_emit_mir.hako` now owns raw `emit mir-json` request/materialize/emit glue
 - `36xB2` landed: `raw_subcommand_run.hako` now owns raw `run` request/script-args env/Program(JSON) materialization glue
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
-- active micro task: `37xD1 proof/closeout`
-- next micro task: `post-37x cleanup/archive sweep`
+- active micro task: `post-37x cleanup/archive sweep`
+- next micro task: `next cleanup phase definition`
 - post-`37xD1`: cleanup/archive sweep for drained shims and legacy embedded smoke
+- `37xD1` evidence:
+  - `cargo check --bin hakorune` PASS
+  - `git diff --check` PASS
+  - `bash tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh` PASS
+  - `bash tools/selfhost/stage1_mainline_smoke.sh --bin target/selfhost/hakorune.stage1_cli.stage2 apps/tests/hello_simple_llvm.hako` PASS
+- inherited red outside D1 acceptance:
+  - `bash tools/smokes/v2/profiles/integration/selfhost/selfhost_minimal.sh`
+  - upstream Stage-B source-route red: `Undefined variable: StageBMod`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`

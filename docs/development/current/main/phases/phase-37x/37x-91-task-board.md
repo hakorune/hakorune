@@ -18,7 +18,7 @@ Related:
 | 1 | `37xA selfhost_build owner split` | landed | shell owner split を最優先で取る |
 | 2 | `37xB build.rs owner split` | landed | source owner split を product/engineering に切る |
 | 3 | `37xC explicit keep freeze + drain map` | landed | cleanup しない keep 面と次 drain を分ける |
-| 4 | `37xD proof/closeout` | active | canonical evidence を戻して handoff する |
+| 4 | `37xD proof/closeout` | landed | canonical evidence を戻して handoff する |
 | 5 | `post-37x cleanup/archive sweep` | queued-next | drained shim / legacy embedded smoke / stale compat wrapper を live surface から外す |
 
 ## Ordered Slice Detail
@@ -34,7 +34,7 @@ Related:
 | 7 | `37xB3` | landed | engineering build wrapper split |
 | 8 | `37xC1` | landed | explicit keep freeze |
 | 9 | `37xC2` | landed | child.rs caller drain map |
-| 10 | `37xD1` | active | proof/closeout |
+| 10 | `37xD1` | landed | proof/closeout |
 
 ## Speed-First Acceptance
 
@@ -47,7 +47,7 @@ cargo check --bin hakorune
 git diff --check
 ```
 
-- canonical smoke / proof restoration is owned by `37xD1`
+- focused smoke / proof restoration is owned by `37xD1`
 - cleanup/archive sweep starts only after `37xD1` evidence is back in place
 
 ## Exact Keeps
@@ -64,11 +64,17 @@ git diff --check
 ## Current Result
 
 - current front:
-  - `37xD1 proof/closeout`
+  - `post-37x cleanup/archive sweep`
 - exact next:
-  - restore canonical proof/smoke after the caller drain
+  - move drained shims, legacy embedded smoke, and stale compat wrappers out of the live surface
 - explicit reading:
   - first speed gain comes from making mixed owner surfaces readable
   - not from deleting `vm.rs`
   - not from flipping raw backend defaults
+  - `37xD1` proof is the focused set:
+    - `cargo check --bin hakorune`
+    - `git diff --check`
+    - `bash tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`
+    - `bash tools/selfhost/stage1_mainline_smoke.sh --bin target/selfhost/hakorune.stage1_cli.stage2 apps/tests/hello_simple_llvm.hako`
+  - `bash tools/smokes/v2/profiles/integration/selfhost/selfhost_minimal.sh` is inherited Stage-B source-route red (`Undefined variable: StageBMod`) and is not the helper-local acceptance line for this phase
   - after `37xD1`, the next cleanup lane is archive/delete of drained shims, legacy embedded smoke, and stale compat wrappers

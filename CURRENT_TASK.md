@@ -103,7 +103,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `37xD1 proof/closeout`
+- Active next: `post-37x cleanup/archive sweep`
 - Current blocker: `none`
 - Exact focus: `phase-37x bootstrap owner split`
   - `phase-32x` is landed; mixed-owner source/smoke split and raw default/token defer are fixed
@@ -136,7 +136,8 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `37xA` takes the fastest structural win first: `tools/selfhost/selfhost_build.sh` owner split
   - `37xB` follows with `src/runner/build.rs` product/engineering split
   - `37xC` freezes explicit engineering keep before caller-drain work
-  - `37xD` restores canonical proof/smoke after the speed-first split
+  - `37xD` landed: focused proof is back on `cargo check`, `git diff --check`, `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`, and `tools/selfhost/stage1_mainline_smoke.sh`
+  - `selfhost_minimal.sh` remains upstream Stage-B source-route red (`Undefined variable: StageBMod`) and is not the helper-local acceptance line for this phase
   - post-`37xD1` cleanup/archive sweep handles drained shims, legacy embedded smoke, and stale compat wrappers
   - raw backend default still stays deferred; no-touch-first remains on `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, and `tools/selfhost/selfhost_build.sh`
 - Exact read order:
@@ -165,9 +166,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `37xD1 proof/closeout` | restore canonical proof/smoke after the caller drain |
-| Next | `post-37x cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
-| Later | `archive/delete of drained shims` | move drained shims and legacy embedded smoke out of the live surface |
+| Now | `post-37x cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
+| Next | `archive/delete of drained shims` | move drained shims and legacy embedded smoke out of the live surface |
+| Later | `next cleanup phase definition` | decide which cleanup bucket lands first |
 | After `37xD1` | `cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
 
 ## Phase-34x Waves
