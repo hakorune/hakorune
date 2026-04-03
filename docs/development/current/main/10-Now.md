@@ -34,8 +34,9 @@ Related:
 - `41xB2` landed: run.sh facade trim is fixed as a route facade
 - `41xC1` landed: vm.rs proof/oracle shrink is reduced to proof/oracle keep
 - `42xA1` landed: starvation targets and proof-only keeps are fixed
-- `42xA2` current: proof-only VM keeps are frozen as explicit do-not-grow surfaces
-- `42xB1` next: `selfhost_build.sh` downstream caller starvation
+- `42xA2` landed: proof-only VM keeps are frozen as explicit do-not-grow surfaces
+- `42xB1` current: `selfhost_build.sh` downstream caller starvation
+- `42xB2` next: `run.sh` route-only facade migration
 - `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete
 - `phase-32x` landed: mixed-owner source/smoke split and raw default/token defer are fixed

@@ -49,6 +49,7 @@ Related:
 
 - `phase-41x` is landed; route hardening and `vm.rs` proof/oracle shrink are complete enough for handoff
 - `42xA1` landed: caller-starvation targets are locked to `selfhost_build.sh` / `run.sh` / `child.rs` / `vm.rs` / `vm_fallback.rs`
+- `42xA2` landed: proof-only VM keeps are frozen as explicit do-not-grow surfaces
 - `run_stageb_compiler_vm.sh`, `selfhost_vm_smoke.sh`, and `selfhost_stage3_accept_smoke.sh` remain proof-only keeps
 - `lang/src/runner/stage1_cli/core.hako` remains compat keep and must stay no-widen
 - `src/runner/core_executor.rs` remains the direct owner for in-proc/direct MIR execution
@@ -73,6 +74,5 @@ Related:
 6. `tools/selfhost/run.sh`
 7. `src/runner/modes/common_util/selfhost/child.rs`
 
-- current active micro task: `42xA1 caller starvation target lock`
-- current active micro task: `42xA2 proof-only VM keep freeze`
-- next micro task: `42xB1 selfhost_build.sh downstream caller starvation`
+- current active micro task: `42xB1 selfhost_build.sh downstream caller starvation`
+- next micro task: `42xB2 run.sh route-only facade migration`

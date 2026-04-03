@@ -131,8 +131,9 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `41xB2` landed: run.sh facade trim is fixed as a route facade
   - `phase-41x` is landed; direct/core mainline hardening and vm proof/oracle shrink are closed
   - `phase-42x` starts vm caller starvation and direct/core owner migration
-  - `42xA1` current: caller-starvation targets are locked for `selfhost_build.sh` / `run.sh` / `child.rs` / `vm.rs`
-  - `42xA2` next: proof-only VM keep set is frozen as explicit `do-not-grow`
+  - `42xA1` landed: caller-starvation targets are locked for `selfhost_build.sh` / `run.sh` / `child.rs` / `vm.rs`
+  - `42xA2` landed: proof-only VM keep set is frozen as explicit `do-not-grow`
+  - `42xB1` current: `selfhost_build.sh` downstream caller starvation
   - current backend reading stays role-first:
     - `llvm/exe` = `product`
     - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
@@ -192,7 +193,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | --- | --- |
 | Now | `phase-42x vm caller starvation / direct-core owner migration` |
 | Blocker | `none` |
-| Next | `42xA1 caller starvation target lock` |
+| Next | `42xB1 selfhost_build.sh downstream caller starvation` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
