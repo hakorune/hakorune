@@ -24,6 +24,7 @@ Scope: `rust-vm` を即削除せず、live caller を starvation して direct/c
 | `tools/selfhost/lib/selfhost_run_routes.sh` | route bodies | landed helper-owned route bodies |
 | `src/runner/modes/common_util/selfhost/child.rs` | thin route-tag helper; stage0 child capture moved out | landed shell-only drain |
 | `src/runner/modes/common_util/selfhost/stage0_capture.rs` | stage0 child capture helper | active migration target |
+| `src/runner/modes/common_util/vm_source_prepare.rs` | vm source preflight helper | landed preflight/source-prepare split |
 | `src/runner/modes/vm.rs` | engineering keep / proof-oracle owner | drain then shrink |
 | `src/runner/modes/vm_fallback.rs` | engineering fallback keep | drain then shrink |
 | `lang/src/runner/stage1_cli/core.hako` | compat keep | do-not-grow keep |
@@ -68,7 +69,7 @@ Scope: `rust-vm` を即削除せず、live caller を starvation して direct/c
 | --- | --- |
 | Now | `phase-42x vm caller starvation / direct-core owner migration` |
 | Blocker | `none` |
-| Next | `42xC2 vm.rs preflight/source-prepare split` |
+| Next | `42xC3 vm_user_factory / vm_fallback drain` |
 
 - `phase-41x` landed: direct/core route hardening and `vm.rs` proof/oracle shrink are complete enough for handoff
 - `42xA1` locked the active migration surfaces and the exact proof-only keep set
@@ -91,7 +92,7 @@ Scope: `rust-vm` を即削除せず、live caller を starvation して direct/c
 | `42xB1` | landed | starve `selfhost_build.sh` downstream callers toward direct/core helper owners |
 | `42xB2` | landed | trim `run.sh` day-to-day route pressure so it stays route-only facade |
 | `42xC1` | landed | drain `child.rs` until it owns spawn/capture/timeout/JSON selection only |
-| `42xC2` | active | split `vm.rs` preflight/source-prepare ownership out of the broad execution path |
-| `42xC3` | queued | move shared vm user-factory ownership out of `vm.rs` / `vm_fallback.rs` and drain fallback callers |
+| `42xC2` | landed | split `vm.rs` preflight/source-prepare ownership out of the broad execution path |
+| `42xC3` | active | move shared vm user-factory ownership out of `vm.rs` / `vm_fallback.rs` and drain fallback callers |
 | `42xC4` | queued | hold `core.hako` compat lane as explicit no-widen while direct/core routes take new work |
 | `42xD1` | queued | proof / closeout |

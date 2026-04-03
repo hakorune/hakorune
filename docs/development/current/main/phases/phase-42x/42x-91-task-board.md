@@ -21,7 +21,7 @@ Date: 2026-04-03
 | `42xB1` | landed | `selfhost_build.sh` downstream caller starvation |
 | `42xB2` | landed | `run.sh` route-only facade migration |
 | `42xC1` | landed | `child.rs` shell-only drain |
-| `42xC2` | active | `vm.rs` preflight/source-prepare split |
-| `42xC3` | queued | `vm_user_factory` / `vm_fallback` drain |
+| `42xC2` | landed | `vm.rs` preflight/source-prepare split |
+| `42xC3` | active | `vm_user_factory` / `vm_fallback` drain |
 | `42xC4` | queued | `core.hako` compat hold line |
 | `42xD1` | queued | proof / closeout |

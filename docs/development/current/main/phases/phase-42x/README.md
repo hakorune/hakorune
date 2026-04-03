@@ -53,6 +53,7 @@ Related:
 - `42xB1` landed: `selfhost_build.sh` downstream caller pressure is moved into helper-owned route-main code
 - `42xB2` landed: `run.sh` route-only facade migration keeps route path constants helper-owned and the top level parser/dispatch-only
 - `42xC1` landed: `child.rs` shell-only drain moved the stage0 child capture implementation into `stage0_capture.rs`
+- `42xC2` landed: `vm.rs` preflight/source-prepare split moved source read / source_hint / safety gate into `vm_source_prepare.rs`
 - `run_stageb_compiler_vm.sh`, `selfhost_vm_smoke.sh`, and `selfhost_stage3_accept_smoke.sh` remain proof-only keeps
 - `lang/src/runner/stage1_cli/core.hako` remains compat keep and must stay no-widen
 - `src/runner/core_executor.rs` remains the direct owner for in-proc/direct MIR execution
@@ -75,7 +76,7 @@ Related:
 4. `docs/development/current/main/phases/phase-42x/42x-91-task-board.md`
 5. `tools/selfhost/selfhost_build.sh`
 6. `src/runner/modes/vm.rs`
-7. `src/runner/modes/common_util/selfhost/source_prepare.rs`
+7. `src/runner/modes/common_util/vm_source_prepare.rs`
 
-- current active micro task: `42xC2 vm.rs preflight/source-prepare split`
-- next micro task: `42xC3 vm_user_factory / vm_fallback drain`
+- current active micro task: `42xC3 vm_user_factory / vm_fallback drain`
+- next micro task: `42xC4 core.hako compat hold line`

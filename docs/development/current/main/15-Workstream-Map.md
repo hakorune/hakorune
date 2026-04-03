@@ -66,7 +66,8 @@ Related:
      - `42xB1` landed: starve `selfhost_build.sh` downstream callers toward direct/core helper owners
      - `42xB2` landed: trim `run.sh` day-to-day route pressure so it stays route-only facade
      - `42xC1` landed: drain `child.rs` until it owns spawn/capture/timeout/JSON selection only
-     - `42xC2` current: split `vm.rs` preflight/source-prepare ownership out of the broad execution path
+     - `42xC2` landed: split `vm.rs` preflight/source-prepare ownership out of the broad execution path
+     - `42xC3` current: move shared vm user-factory ownership out of `vm.rs` / `vm_fallback.rs` and drain fallback callers
      - plain reading: keep `rust-vm` as proof/compat keep, not mainline ownership
      - success condition: keep direct/core routes canonical, keep proof-only VM gates frozen, and stop day-to-day callers from feeding vm routes
         - `39xA1` landed and fixed caller inventory for `selfhost_build.sh` / `run_stageb_compiler_vm.sh` / `run.sh`
@@ -106,7 +107,7 @@ Related:
      | --- | --- |
      | Now | `phase-42x vm caller starvation / direct-core owner migration` |
      | Blocker | `none` |
-     | Next | `42xC2 vm.rs preflight/source-prepare split` |
+     | Next | `42xC3 vm_user_factory / vm_fallback drain` |
    - stage0 shell residue bands:
 
      | Band | State |

@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-42x vm caller starvation / direct-core owner migration`
-- active micro task: `42xC2 vm.rs preflight/source-prepare split`
-- next micro task: `42xC3 vm_user_factory / vm_fallback drain`
+- active micro task: `42xC3 vm_user_factory / vm_fallback drain`
+- next micro task: `42xC4 core.hako compat hold line`
 - post-`41xD1`: `phase-42x vm caller starvation / direct-core owner migration`
 - raw backend default flip stays deferred beyond `phase-42x`
 

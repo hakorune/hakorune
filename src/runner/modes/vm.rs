@@ -92,39 +92,15 @@ impl NyashRunner {
             );
         }
 
-        // Read the file
-        let code = match fs::read_to_string(filename) {
-            Ok(content) => content,
-            Err(e) => {
-                let ring0 = crate::runtime::ring0::get_global_ring0();
-                ring0
-                    .log
-                    .error(&format!("❌ Error reading file {}: {}", filename, e));
-                process::exit(1);
-            }
-        };
-
         let trace = crate::config::env::cli_verbose()
             || crate::config::env::env_bool("NYASH_RESOLVE_TRACE");
 
-        let prepared =
-            match crate::runner::modes::common_util::source_hint::prepare_source_with_imports(
-                self, filename, &code,
-            ) {
-                Ok(prepared) => prepared,
-                Err(e) => {
-                    let ring0 = crate::runtime::ring0::get_global_ring0();
-                    let msg = if e.starts_with("[freeze:contract][module_registry]") {
-                        e
-                    } else {
-                        format!("❌ {}", e)
-                    };
-                    ring0.log.error(&msg);
-                    process::exit(1);
-                }
-            };
-        let code_final = prepared.code;
-        let using_imports = prepared.imports;
+        let prepared = match crate::runner::modes::common_util::vm_source_prepare::prepare_vm_source(self, filename) {
+            Some(prepared) => prepared,
+            None => process::exit(1),
+        };
+        let code_final = prepared.code_final;
+        let using_imports = prepared.using_imports;
 
         // Optional: dump merged Hako source after using/prelude merge and Hako normalization.
         // Guarded by env; defaultはOFF（Phase 25.1a selfhost builder デバッグ用）。
