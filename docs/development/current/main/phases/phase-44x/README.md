@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-03
 Scope: live stage0/selfhost owners を `--backend vm` default routes から外し、direct/core route を day-to-day mainline owner に寄せる。
 Related:
@@ -27,7 +27,7 @@ Related:
 - the remaining leverage is not in broad vm cleanup first; it is in helper-layer route defaults.
 - `direct/core` already has usable ingress through `--mir-json-file`, `core_executor`, and Stage1 mainline emit.
 - this phase exists to move default ownership, not to rewrite every compat/proof surface.
-- `stage0_capture.rs` is already route-neutral; the remaining work is proof-only VM demotion and closeout.
+- `stage0_capture.rs` is already route-neutral; the remaining work was proof-only VM demotion and closeout.
 
 ## Success Conditions
 

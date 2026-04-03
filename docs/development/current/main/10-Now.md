@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `phase-44x stage0 direct/core follow-up`
+- lane: `next source lane selection`
 - `41xA1` landed: remaining direct/core route facades and caller families are inventoried
 - `41xA2` landed: proof-only VM gate set is frozen and non-growing
 - `41xB1` landed: selfhost_build.sh direct/core route hardening is fixed as a route facade
@@ -52,7 +52,7 @@ Related:
 - `44xC1` landed: `stage0_capture.rs` route-neutral builder split
 - `44xC2` landed: `stage_a_route.rs` / compat caller switch
 - `44xD1` landed: `run_stageb_compiler_vm.sh` proof-only demotion
-- `44xE1` current: proof / closeout
+- `44xE1` landed: proof / closeout
 - `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete
 - `phase-32x` landed: mixed-owner source/smoke split and raw default/token defer are fixed
@@ -81,7 +81,7 @@ Related:
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep
 - `phase-42x` is landed; it starved day-to-day callers away from vm-gated routes and moved owner pressure toward direct/core seams
 - `phase-43x` is landed; it selected `phase-44x stage0 direct/core follow-up` as the highest-leverage successor lane
-- `phase-44x` now keeps proof-only VM gates explicit and closes the lane
+- `phase-44x` is landed; it keeps proof-only VM gates explicit and closes the lane
   - `tools/selfhost/lib/selfhost_build_stageb.sh`
   - `tools/selfhost/lib/selfhost_run_routes.sh`
   - `tools/selfhost/run_stageb_compiler_vm.sh`

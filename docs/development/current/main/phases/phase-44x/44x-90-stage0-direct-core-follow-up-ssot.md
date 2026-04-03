@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-03
 Owner: Codex
 Scope: `phase-43x` で選ばれた direct/core follow-up を source/shell route の owner migration として進める。
@@ -64,12 +64,12 @@ Scope: `phase-43x` で選ばれた direct/core follow-up を source/shell route 
 | `44xC1` | landed | `stage0_capture.rs` route-neutral builder split |
 | `44xC2` | landed | `stage_a_route.rs` / compat caller switch |
 | `44xD1` | landed | `run_stageb_compiler_vm.sh` proof-only demotion |
-| `44xE1` | active | proof / closeout |
+| `44xE1` | landed | proof / closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `phase-44x proof / closeout` |
-| Blocker | `none` |
-| Next | `next source lane selection` |
+| Now | `next source lane selection` |
+ | Blocker | `none` |
+| Next | `kilo` optimization wave |

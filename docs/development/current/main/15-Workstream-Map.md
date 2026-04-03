@@ -37,7 +37,7 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-44x stage0 direct/core follow-up`
+     - current active lane is `next source lane selection`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
@@ -62,7 +62,7 @@ Related:
      - `phase-41x` landed and hardened the remaining direct/core route
      - `phase-42x` started vm caller starvation and direct/core owner migration and is now landed
      - `phase-43x` is landed and selected the next source lane after handoff
-     - `phase-44x` is active and follows the direct/core owner route
+     - `phase-44x` is landed and followed the direct/core owner route
      - `42xA1` landed: lock starvation targets and active migration surfaces
      - `42xA2` landed: freeze proof-only VM gates as explicit do-not-grow keeps
      - `42xB1` landed: starve `selfhost_build.sh` downstream callers toward direct/core helper owners
@@ -82,7 +82,7 @@ Related:
      - `44xC1` landed: `stage0_capture.rs` route-neutral builder split
      - `44xC2` landed: `stage_a_route.rs` / compat caller switch
      - `44xD1` landed: `run_stageb_compiler_vm.sh` proof-only demotion
-     - `44xE1` current: proof / closeout
+     - `44xE1` landed: proof / closeout
       - plain reading: keep `rust-vm` as proof/compat keep, not mainline ownership
       - success condition: keep direct/core routes canonical, keep proof-only VM gates frozen, and stop day-to-day callers from feeding vm routes
         - `39xA1` landed and fixed caller inventory for `selfhost_build.sh` / `run_stageb_compiler_vm.sh` / `run.sh`
@@ -120,16 +120,16 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `phase-44x proof / closeout` |
+     | Now | `next source lane selection` |
       | Blocker | `none` |
-     | Next | `next source lane selection` |
+     | Next | `kilo` optimization wave |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `phase-44x proof / closeout` |
-     | Next | `next source lane selection` |
-     | Later | `kilo` optimization wave |
+     | Now | `next source lane selection` |
+     | Next | `kilo` optimization wave |
+     | Later | `cleanup/archive sweep` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
@@ -173,7 +173,7 @@ Related:
 - `phase-39x` stage0 vm gate thinning (landed precursor)
   - `phase-41x` stage0 direct/core route hardening (landed)
      - Active backend surface tasks:
-    - `phase-44x stage0 direct/core follow-up`
+    - `next source lane selection`
      - Queued backend surface tasks:
     - `kilo` optimization wave (far future; not the next lane)
 - Post-`37xD1` cleanup:

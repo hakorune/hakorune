@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-03
 ---
 
@@ -24,4 +24,4 @@ Date: 2026-04-03
 | `44xC1` | landed | `stage0_capture.rs` route-neutral builder split |
 | `44xC2` | landed | `stage_a_route.rs` / compat caller switch |
 | `44xD1` | landed | `run_stageb_compiler_vm.sh` proof-only demotion |
-| `44xE1` | active | proof / closeout |
+| `44xE1` | landed | proof / closeout |
