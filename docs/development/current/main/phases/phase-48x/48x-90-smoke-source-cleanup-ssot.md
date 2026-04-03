@@ -25,7 +25,7 @@ The inventory/classification cut is now locked:
 
 - `48xA1` inventory lock is landed.
 - `48xA2` proof-only / compat keep classification is landed.
-- `48xB1` smoke script stale-route cleanup is the active cleanup move, with the current proof/compat scripts and helpers tagged accordingly.
+- `48xB1` smoke script stale-route cleanup is landed; `48xB2` proof-only smoke gate lock is the active cleanup move, with the current proof/compat scripts and helpers tagged accordingly.
 
 ## Task Order
 

@@ -68,9 +68,9 @@ Related:
      - `phase-47x` is landed and its helper-route finalization has been handed off
      - `phase-48x` is active and inventories / cleans the remaining smoke/source VM surface
      - `48xA1` inventory lock is landed; `48xA2` proof-only / compat keep classification is landed
-     - `48xB1` smoke script stale-route cleanup is active
+     - `48xB1` smoke script stale-route cleanup is landed; `48xB2` proof-only smoke gate lock is active
      - `47xA1` landed, `47xA2` landed, `47xA3` landed, `47xB1` landed, `47xB2` landed, `47xB3` landed, `47xC1` landed, `47xC2` landed, `47xC3` landed, `47xD1` landed, `47xD2` landed, and `47xD3` landed
-     - exact order is `48xA1/A2 -> 48xB1/B2/B3 -> 48xC1`
+     - exact order is `48xA1/A2 -> 48xB1/B2 -> 48xC1`
      - `42xA1` landed: lock starvation targets and active migration surfaces
      - `42xA2` landed: freeze proof-only VM gates as explicit do-not-grow keeps
      - `42xB1` landed: starve `selfhost_build.sh` downstream callers toward direct/core helper owners

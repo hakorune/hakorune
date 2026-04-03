@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# EXE-first smoke: build the selfhost parser EXE and run a tiny program end-to-end.
+# EXE-first smoke: proof-only / compat gate that builds the selfhost parser EXE and runs a tiny program end-to-end.
 set -euo pipefail
 
 if [[ "${NYASH_CLI_VERBOSE:-0}" == "1" ]]; then set -x; fi

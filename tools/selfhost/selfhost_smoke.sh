@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Self-host minimal smoke (dev-only / proof-oriented)
+# Self-host minimal smoke (dev-only / proof-only / compat bridge)
 # - Emits MIR(JSON v0) via selfhost compiler MVP
-# - Runs a representative compat bridge example and compares outputs
+# - Runs a representative compat bridge example and compares compat outputs
 
 ROOT_DIR=$(cd "$(dirname "$0")/../.." && pwd)
 NY_BIN="${ROOT_DIR}/target/release/hakorune"
@@ -13,7 +13,7 @@ if [[ ! -x "${NY_BIN}" ]]; then
   exit 1
 fi
 
-echo "[selfhost-smoke] Step 1: Emit JSON via selfhost compiler (lang/, proof-only optional)"
+echo "[selfhost-smoke] Step 1: Emit JSON via selfhost compiler (lang/, proof/compat optional)"
 OUT_JSON="/tmp/nyash_selfhost_out.json"
 set -x
 # Use lang side entry (Stage‑B). Emission is optional; failure does not fail the smoke.
@@ -33,8 +33,8 @@ fi
 
 echo "[selfhost-smoke] Step 2: Run representative compat bridge example (rewrite=ON/OFF)"
 EXAMPLE="apps/examples/json_query/main.hako"
-OUT_ON="/tmp/nyash_selfhost_vm_on.txt"
-OUT_OFF="/tmp/nyash_selfhost_vm_off.txt"
+OUT_ON="/tmp/nyash_selfhost_compat_on.txt"
+OUT_OFF="/tmp/nyash_selfhost_compat_off.txt"
 
 set -x
 "${NY_BIN}" --backend vm "${EXAMPLE}" > "${OUT_ON}"
@@ -49,7 +49,7 @@ if ! diff -u "${OUT_ON}" "${OUT_OFF}" >/dev/null 2>&1; then
   head -n 20 "${OUT_OFF}" >&2 || true
   # Non-fatal: keep smoke informative; do not fail hard unless required.
 else
-  echo "[selfhost-smoke] VM outputs match for rewrite ON/OFF (good)."
+  echo "[selfhost-smoke] compat bridge outputs match for rewrite ON/OFF (good)."
 fi
 
 echo "[selfhost-smoke] PASS"

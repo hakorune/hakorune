@@ -24,9 +24,9 @@ tools/checks/dev_gate.sh quick
 
 - lane: `phase-48x smoke/source cleanup`
 - landed micro task: `47xD3 run_stageb_compiler_vm.sh proof-only local keep`
-- active micro task: `48xB1 smoke script stale-route cleanup`
-- next micro task: `48xB2 proof-only smoke gate lock`
-- after next: `48xC1 source helper stale-route cleanup`
+- active micro task: `48xB2 proof-only smoke gate lock`
+- next micro task: `48xC1 source helper stale-route cleanup`
+- after next: `48xC2 vm.rs / vm_fallback thin keep trim`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 

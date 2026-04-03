@@ -16,7 +16,7 @@ NYASH_BIN="$ROOT/target/release/nyash"
 EMIT_ROUTE="$ROOT/tools/smokes/v2/lib/emit_mir_route.sh"
 
 # Test 1: Basic using resolution (currently should work without HAKO_STAGEB_USING_RESOLVE)
-echo "=== Test 1: Basic Stage-B compilation (existing path) ==="
+echo "=== Test 1: Basic Stage-B compilation (compat path) ==="
 cat > /tmp/test_stageb_basic.hako <<'EOF'
 local x = 42
 return x

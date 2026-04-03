@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Compatibility smoke:
-# - validates legacy selfhost using resolution paths
+# - validates compat selfhost using resolution paths
 # - not a day-to-day execution route
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
