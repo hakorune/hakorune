@@ -20,5 +20,5 @@ Date: 2026-04-03
 | `41xA2` | landed | proof-only VM gate freeze |
 | `41xB1` | landed | `selfhost_build.sh` direct/core route hardening |
 | `41xB2` | landed | `run.sh` facade trim |
-| `41xC1` | active | `vm.rs` proof/oracle shrink |
-| `41xD1` | queued | proof / closeout |
+| `41xC1` | landed | `vm.rs` proof/oracle shrink |
+| `41xD1` | active | proof / closeout |

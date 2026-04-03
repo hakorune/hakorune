@@ -103,14 +103,14 @@ Related:
      | --- | --- |
      | Now | `phase-41x stage0 direct/core route hardening` |
      | Blocker | `none` |
-     | Next | `41xC1 vm.rs proof/oracle shrink` |
+     | Next | `41xD1 proof / closeout` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
      | Now | `phase-41x stage0 direct/core route hardening` |
-     | Next | `41xC1 vm.rs proof/oracle shrink` |
-     | Later | `41xD1 proof / closeout` |
+     | Next | `41xD1 proof / closeout` |
+     | Later | `next source lane selection` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
@@ -154,9 +154,9 @@ Related:
 - `phase-39x` stage0 vm gate thinning (landed precursor)
   - `phase-41x` stage0 direct/core route hardening (active)
      - Active backend surface tasks:
-    - `41xC1 vm.rs proof/oracle shrink`
-     - Queued backend surface tasks:
     - `41xD1 proof / closeout`
+     - Queued backend surface tasks:
+    - `next source lane selection`
 - Post-`37xD1` cleanup:
   - drained shim / legacy embedded smoke archive sweep
   - first landed move: `tools/stage1_smoke.sh` -> `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`

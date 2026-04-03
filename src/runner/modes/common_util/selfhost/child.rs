@@ -163,12 +163,8 @@ fn log_timed_out_capture(timeout_ms: u64, output: &ChildCapturedOutput) {
 
 fn extract_captured_json_lines(stdout: &str) -> CapturedJsonV0Lines {
     CapturedJsonV0Lines {
-        program_line: crate::runner::modes::common_util::selfhost::json::first_json_v0_line(
-            stdout,
-        ),
-        mir_line: crate::runner::modes::common_util::selfhost::json::first_mir_json_v0_line(
-            stdout,
-        ),
+        program_line: crate::runner::modes::common_util::selfhost::json::first_json_v0_line(stdout),
+        mir_line: crate::runner::modes::common_util::selfhost::json::first_mir_json_v0_line(stdout),
     }
 }
 

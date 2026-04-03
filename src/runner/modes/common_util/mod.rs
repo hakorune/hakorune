@@ -19,4 +19,5 @@ pub mod safety_gate;
 pub mod selfhost;
 pub mod selfhost_exe;
 pub mod source_hint;
+pub mod user_box_factory;
 pub mod verifier_gate;

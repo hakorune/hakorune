@@ -76,5 +76,5 @@ Related:
 5. `src/runner/modes/vm.rs`
 6. `src/runner/core_executor.rs`
 
-- current active micro task: `41xC1 vm.rs proof/oracle shrink`
-- next micro task: `41xD1 proof / closeout`
+- current active micro task: `41xD1 proof / closeout`
+- next micro task: `next source lane selection`

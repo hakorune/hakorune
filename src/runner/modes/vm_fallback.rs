@@ -1,14 +1,6 @@
 use super::super::NyashRunner;
 use crate::runtime::get_global_ring0;
-use crate::{
-    backend::MirInterpreter,
-    box_factory::{BoxFactory, RuntimeError},
-    core::model::BoxDeclaration as CoreBoxDecl,
-    instance_v2::InstanceBox,
-    mir::MirCompiler,
-    parser::NyashParser,
-};
-use std::sync::{Arc, RwLock};
+use crate::{backend::MirInterpreter, mir::MirCompiler, parser::NyashParser};
 use std::{fs, process};
 
 impl NyashRunner {
@@ -157,137 +149,10 @@ impl NyashRunner {
         }
         let ast = crate::r#macro::maybe_expand_and_dump(&ast_combined, false);
 
-        // Minimal user-defined Box support (Option A):
-        // Collect BoxDeclaration entries from AST and register a lightweight
-        // factory into the unified registry so `new UserBox()` works on the
-        // VM fallback path as well.
-        {
-            use nyash_rust::ast::ASTNode;
-
-            // Collect user-defined (non-static) box declarations at program level.
-            // Additionally, record static box names so we can alias
-            // `StaticBoxName` -> `StaticBoxNameInstance` when such a
-            // concrete instance box exists (common pattern in libs).
-            let mut nonstatic_decls: std::collections::HashMap<String, CoreBoxDecl> =
-                std::collections::HashMap::new();
-            let mut static_names: Vec<String> = Vec::new();
-            if let ASTNode::Program { statements, .. } = &ast {
-                for st in statements {
-                    if let ASTNode::BoxDeclaration {
-                        name,
-                        fields,
-                        public_fields,
-                        private_fields,
-                        methods,
-                        constructors,
-                        init_fields,
-                        weak_fields,
-                        is_interface,
-                        extends,
-                        implements,
-                        type_parameters,
-                        is_static,
-                        ..
-                    } = st
-                    {
-                        if *is_static {
-                            static_names.push(name.clone());
-                            continue; // modules/static boxes are not user-instantiable directly
-                        }
-                        let decl = CoreBoxDecl {
-                            name: name.clone(),
-                            fields: fields.clone(),
-                            public_fields: public_fields.clone(),
-                            private_fields: private_fields.clone(),
-                            methods: methods.clone(),
-                            constructors: constructors.clone(),
-                            init_fields: init_fields.clone(),
-                            weak_fields: weak_fields.clone(),
-                            is_interface: *is_interface,
-                            extends: extends.clone(),
-                            implements: implements.clone(),
-                            type_parameters: type_parameters.clone(),
-                        };
-                        nonstatic_decls.insert(name.clone(), decl);
-                    }
-                }
-            }
-            // Build final map with optional aliases for StaticName -> StaticNameInstance
-            let mut decls = nonstatic_decls.clone();
-            for s in static_names.into_iter() {
-                let inst = format!("{}Instance", s);
-                if let Some(d) = nonstatic_decls.get(&inst) {
-                    decls.insert(s, d.clone());
-                }
-            }
-
-            if !decls.is_empty() {
-                // Inline factory: minimal User factory backed by collected declarations
-                struct InlineUserBoxFactory {
-                    decls: Arc<RwLock<std::collections::HashMap<String, CoreBoxDecl>>>,
-                }
-                impl BoxFactory for InlineUserBoxFactory {
-                    fn create_box(
-                        &self,
-                        name: &str,
-                        args: &[Box<dyn crate::box_trait::NyashBox>],
-                    ) -> Result<Box<dyn crate::box_trait::NyashBox>, RuntimeError>
-                    {
-                        let guard = self.decls.read().unwrap();
-                        let opt = guard.get(name).cloned();
-                        let decl = match opt {
-                            Some(d) => {
-                                drop(guard);
-                                d
-                            }
-                            None => {
-                                // Quick Win 1: Show available boxes for easier debugging
-                                let mut available: Vec<_> = guard.keys().cloned().collect();
-                                available.sort();
-                                drop(guard);
-                                let hint = if available.is_empty() {
-                                    "No user-defined boxes available".to_string()
-                                } else if available.len() <= 10 {
-                                    format!("Available: {}", available.join(", "))
-                                } else {
-                                    format!(
-                                        "Available ({} boxes): {}, ...",
-                                        available.len(),
-                                        available[..10].join(", ")
-                                    )
-                                };
-                                return Err(RuntimeError::InvalidOperation {
-                                    message: format!("Unknown Box type: {}. {}", name, hint),
-                                });
-                            }
-                        };
-                        let mut inst = InstanceBox::from_declaration(
-                            decl.name.clone(),
-                            decl.fields.clone(),
-                            decl.methods.clone(),
-                        );
-                        let _ = inst.init(args);
-                        Ok(Box::new(inst))
-                    }
-
-                    fn box_types(&self) -> Vec<&str> {
-                        vec![]
-                    }
-
-                    fn is_available(&self) -> bool {
-                        true
-                    }
-
-                    fn factory_type(&self) -> crate::box_factory::FactoryType {
-                        crate::box_factory::FactoryType::User
-                    }
-                }
-                let factory = InlineUserBoxFactory {
-                    decls: Arc::new(RwLock::new(decls)),
-                };
-                crate::runtime::unified_registry::register_user_defined_factory(Arc::new(factory));
-            }
-        }
+        let _ =
+            crate::runner::modes::common_util::user_box_factory::install_inline_user_box_factory(
+                &ast, false, true,
+            );
         let mut compiler = MirCompiler::with_options(!self.config.no_optimize);
         let compile = match crate::runner::modes::common_util::source_hint::compile_with_source_hint(
             &mut compiler,
@@ -386,136 +251,15 @@ impl NyashRunner {
     /// Small helper to continue fallback execution once AST is prepared
     #[allow(dead_code)]
     fn execute_vm_fallback_from_ast(&self, filename: &str, ast: nyash_rust::ast::ASTNode) {
-        use crate::{
-            backend::MirInterpreter,
-            box_factory::{BoxFactory, RuntimeError},
-            core::model::BoxDeclaration as CoreBoxDecl,
-            instance_v2::InstanceBox,
-            mir::MirCompiler,
-        };
+        use crate::{backend::MirInterpreter, mir::MirCompiler};
         use std::process;
-        use std::sync::{Arc, RwLock};
 
         // Macro expand (if enabled)
         let ast = crate::r#macro::maybe_expand_and_dump(&ast, false);
-        // Minimal user-defined Box support (inline factory)
-        {
-            use nyash_rust::ast::ASTNode;
-            let mut nonstatic_decls: std::collections::HashMap<String, CoreBoxDecl> =
-                std::collections::HashMap::new();
-            let mut static_names: Vec<String> = Vec::new();
-            if let ASTNode::Program { statements, .. } = &ast {
-                for st in statements {
-                    if let ASTNode::BoxDeclaration {
-                        name,
-                        fields,
-                        public_fields,
-                        private_fields,
-                        methods,
-                        constructors,
-                        init_fields,
-                        weak_fields,
-                        is_interface,
-                        extends,
-                        implements,
-                        type_parameters,
-                        is_static,
-                        ..
-                    } = st
-                    {
-                        if *is_static {
-                            static_names.push(name.clone());
-                            continue;
-                        }
-                        let decl = CoreBoxDecl {
-                            name: name.clone(),
-                            fields: fields.clone(),
-                            public_fields: public_fields.clone(),
-                            private_fields: private_fields.clone(),
-                            methods: methods.clone(),
-                            constructors: constructors.clone(),
-                            init_fields: init_fields.clone(),
-                            weak_fields: weak_fields.clone(),
-                            is_interface: *is_interface,
-                            extends: extends.clone(),
-                            implements: implements.clone(),
-                            type_parameters: type_parameters.clone(),
-                        };
-                        nonstatic_decls.insert(name.clone(), decl);
-                    }
-                }
-            }
-            let mut decls = nonstatic_decls.clone();
-            for s in static_names.into_iter() {
-                let inst = format!("{}Instance", s);
-                if let Some(d) = nonstatic_decls.get(&inst) {
-                    decls.insert(s, d.clone());
-                }
-            }
-            if !decls.is_empty() {
-                struct InlineUserBoxFactory {
-                    decls: Arc<RwLock<std::collections::HashMap<String, CoreBoxDecl>>>,
-                }
-                impl BoxFactory for InlineUserBoxFactory {
-                    fn create_box(
-                        &self,
-                        name: &str,
-                        args: &[Box<dyn crate::box_trait::NyashBox>],
-                    ) -> Result<Box<dyn crate::box_trait::NyashBox>, RuntimeError>
-                    {
-                        let guard = self.decls.read().unwrap();
-                        let opt = guard.get(name).cloned();
-                        let decl = match opt {
-                            Some(d) => {
-                                drop(guard);
-                                d
-                            }
-                            None => {
-                                // Quick Win 1: Show available boxes for easier debugging
-                                let mut available: Vec<_> = guard.keys().cloned().collect();
-                                available.sort();
-                                drop(guard);
-                                let hint = if available.is_empty() {
-                                    "No user-defined boxes available".to_string()
-                                } else if available.len() <= 10 {
-                                    format!("Available: {}", available.join(", "))
-                                } else {
-                                    format!(
-                                        "Available ({} boxes): {}, ...",
-                                        available.len(),
-                                        available[..10].join(", ")
-                                    )
-                                };
-                                return Err(RuntimeError::InvalidOperation {
-                                    message: format!("Unknown Box type: {}. {}", name, hint),
-                                });
-                            }
-                        };
-                        let mut inst = InstanceBox::from_declaration(
-                            decl.name.clone(),
-                            decl.fields.clone(),
-                            decl.methods.clone(),
-                        );
-                        let _ = inst.init(args);
-                        Ok(Box::new(inst))
-                    }
-
-                    fn box_types(&self) -> Vec<&str> {
-                        vec![]
-                    }
-                    fn is_available(&self) -> bool {
-                        true
-                    }
-                    fn factory_type(&self) -> crate::box_factory::FactoryType {
-                        crate::box_factory::FactoryType::User
-                    }
-                }
-                let factory = InlineUserBoxFactory {
-                    decls: Arc::new(RwLock::new(decls)),
-                };
-                crate::runtime::unified_registry::register_user_defined_factory(Arc::new(factory));
-            }
-        }
+        let _ =
+            crate::runner::modes::common_util::user_box_factory::install_inline_user_box_factory(
+                &ast, false, true,
+            );
         // Compile to MIR and execute via interpreter
         let mut compiler = MirCompiler::with_options(!self.config.no_optimize);
         let module = match crate::runner::modes::common_util::source_hint::compile_with_source_hint(

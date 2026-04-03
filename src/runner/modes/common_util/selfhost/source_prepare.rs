@@ -127,9 +127,7 @@ fn merge_and_preexpand_source(
         }
     }
 
-    Some(crate::runner::modes::common_util::resolve::preexpand_at_local(
-        code_ref.as_ref(),
-    ))
+    Some(crate::runner::modes::common_util::resolve::preexpand_at_local(code_ref.as_ref()))
 }
 
 fn materialize_tmp_source(prepared_code: &str) -> Option<PathBuf> {
