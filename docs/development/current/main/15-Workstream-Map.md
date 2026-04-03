@@ -131,14 +131,14 @@ Related:
      | --- | --- |
      | Now | `phase-50x rust-vm source/archive cleanup` |
       | Blocker | `none` |
-     | Next | `50xA1 residual rust-vm surface inventory lock` |
+     | Next | `50xA2 proof-only / compat keep classification` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
      | Now | `phase-50x rust-vm source/archive cleanup` |
-     | Next | `50xA1 residual rust-vm surface inventory lock` |
-     | Later | `50xA2 proof-only / compat keep classification` |
+     | Next | `50xA2 proof-only / compat keep classification` |
+     | Later | `50xB1 smoke/helper stale-route cleanup` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |

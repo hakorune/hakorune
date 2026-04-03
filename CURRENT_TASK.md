@@ -135,10 +135,10 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-50x rust-vm source/archive cleanup`
 - Current blocker: `none`
-- Exact focus: `50xA1 residual rust-vm surface inventory lock`
+- Exact focus: `50xA2 proof-only / compat keep classification`
 - exact phase-50x order:
-  1. `50xA1` residual rust-vm surface inventory lock
-  2. `50xA2` proof-only / compat keep classification
+  1. `50xA1` residual rust-vm surface inventory lock (landed)
+  2. `50xA2` proof-only / compat keep classification (active)
   3. `50xB1` smoke/helper stale-route cleanup
   4. `50xB2` route-comment stale wording cleanup
   5. `50xC1` archive-ready docs/examples move
@@ -237,7 +237,7 @@ Carry-over context:
 | --- | --- |
 | Now | `phase-50x rust-vm source/archive cleanup` |
 | Blocker | `none` |
-| Next | `50xA1 residual rust-vm surface inventory lock` |
+| Next | `50xA2 proof-only / compat keep classification` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -252,8 +252,8 @@ Carry-over context:
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `phase-50x rust-vm source/archive cleanup` | inventory the remaining rust-vm / vm-gated source surfaces and split keep vs archive candidates |
-| Next | `50xA1 residual rust-vm surface inventory lock` | inventory the remaining source/helper surfaces that still carry rust-vm pressure |
-| Later | `50xA2 proof-only / compat keep classification` | freeze proof-only gates and compat keeps before source/archive moves |
+| Next | `50xA2 proof-only / compat keep classification` | freeze proof-only gates and compat keeps before source/archive moves |
+| Later | `50xB1 smoke/helper stale-route cleanup` | clean stale helper wording and routes before archive moves |
 
 ## Phase-34x Waves
 

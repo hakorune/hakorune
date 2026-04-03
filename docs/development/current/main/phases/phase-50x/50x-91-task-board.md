@@ -16,8 +16,8 @@ Date: 2026-04-04
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `50xA1` | active | residual rust-vm surface inventory lock |
-| `50xA2` | queued | proof-only / compat keep classification |
+| `50xA1` | landed | residual rust-vm surface inventory lock |
+| `50xA2` | active | proof-only / compat keep classification |
 | `50xB1` | queued | smoke/helper stale-route cleanup |
 | `50xB2` | queued | route-comment stale wording cleanup |
 | `50xC1` | queued | archive-ready docs/examples move |
@@ -28,7 +28,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `50xA1 residual rust-vm surface inventory lock` |
+| Now | `50xA2 proof-only / compat keep classification` |
 | Blocker | `none` |
-| Next | `50xA2 proof-only / compat keep classification` |
-| After Next | `50xB1 smoke/helper stale-route cleanup` |
+| Next | `50xB1 smoke/helper stale-route cleanup` |
+| After Next | `50xB2 route-comment stale wording cleanup` |

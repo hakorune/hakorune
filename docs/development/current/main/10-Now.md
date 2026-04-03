@@ -29,9 +29,9 @@ Related:
 
 - lane: `phase-50x rust-vm source/archive cleanup`
 - `49xD1` landed: proof / closeout
-- `50xA1` active: residual rust-vm surface inventory lock
-- `50xA2` next: proof-only / compat keep classification
-- `50xB1` after-next: smoke/helper stale-route cleanup
+- `50xA1` landed: residual rust-vm surface inventory lock
+- `50xA2` active: proof-only / compat keep classification
+- `50xB1` next: smoke/helper stale-route cleanup
 - `47xA1` landed: runtime/default contract lock
 - `47xA2` landed: stage1 source->MIR contract lock
 - `47xA3` landed: Stage-A direct/core contract lock
