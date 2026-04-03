@@ -265,7 +265,7 @@ local py = new PyRuntimeBox()       // Python plugin
 
 ---
 
-## 🏗️ **Multiple Execution Modes**
+## 🏗️ **Execution Modes**
 
 Important current reading:
 - Product main: LLVM AOT (`--backend llvm`, `ny-llvmc`)
@@ -273,7 +273,7 @@ Important current reading:
 - Reference/conformance: `vm-hako`
 - Experimental / monitor-only: WASM
 
-Phase‑15 (Self‑Hosting): legacy routes are feature-gated or historical
+Phase‑15 (Self‑Hosting): legacy routes are feature-gated or historical notes only
 - Raw CLI default is still `--backend vm` for legacy ingress only; do not read that as product ownership.
 - `--backend vm` is the Rust VM compatibility/proof lane, not a mainline ownership claim.
 - `--backend llvm` is the product native object/EXE lane.

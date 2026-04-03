@@ -24,9 +24,9 @@ tools/checks/dev_gate.sh quick
 
 - lane: `phase-49x legacy wording / compat route cleanup`
 - landed micro task: `48xE1 proof / closeout`
-- active micro task: `49xA1 current-doc stale wording inventory lock`
-- next micro task: `49xA2 top-level docs compat wording rewrite`
-- after next: `49xB1 current guides compat wording rewrite`
+- active micro task: `49xA2 top-level docs compat wording rewrite`
+- next micro task: `49xB1 current guides compat wording rewrite`
+- after next: `49xB2 example-command stale-route sweep`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 
