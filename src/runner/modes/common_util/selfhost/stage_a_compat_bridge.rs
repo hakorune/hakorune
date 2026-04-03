@@ -86,14 +86,16 @@ pub(crate) fn resolve_program_payload_to_mir(
     }
 
     let envs = [("HAKO_PROGRAM_JSON", program_line)];
-    if let Some(mir_line) = child::run_ny_program_capture_mir_json(
+    if let Some(mir_line) = child::run_ny_program_capture_json_v0(
         exe,
         mir_builder_prog,
         timeout_ms,
         &[],
         CHILD_ENV_REMOVE,
         &envs,
-    ) {
+    )
+    .and_then(|captured| captured.mir_line)
+    {
         match json::parse_mir_json_v0_line(&mir_line) {
             Ok(module) => {
                 return Some(ProgramCompatMir {

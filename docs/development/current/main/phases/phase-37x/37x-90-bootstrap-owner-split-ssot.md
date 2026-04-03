@@ -63,14 +63,14 @@ Related:
 | `37xB2` | landed | product build wrapper split | `build_core(..., llvm)` + `emit_llvm_object(...)` が product owner に寄る |
 | `37xB3` | landed | engineering build wrapper split | `build_core(..., cranelift)` + `emit_engineering_object(...)` が engineering owner に寄る |
 | `37xC1` | landed | explicit keep freeze | bootstrap vm keep scripts を “残すもの” として先に固定する |
-| `37xC2` | active | child.rs caller drain map | owner split 後に減らす caller を exact にする |
-| `37xD1` | queued | proof/closeout | canonical smoke / evidence command を戻して handoff |
+| `37xC2` | landed | child.rs caller drain map | owner split 後に減らす caller を exact にする |
+| `37xD1` | active | proof/closeout | canonical smoke / evidence command を戻して handoff |
 
 ## Current Focus
 
 - active macro wave: `37xA selfhost_build owner split`
-- active micro task: `37xC2 child.rs caller drain map`
-- next queued micro task: `37xD1 proof/closeout`
+- active micro task: `37xD1 proof/closeout`
+- next queued micro task: `post-37x cleanup/archive sweep`
 - current blocker: `none`
 - exact reading:
   - `selfhost_build.sh` is the biggest mixed-owner shell surface

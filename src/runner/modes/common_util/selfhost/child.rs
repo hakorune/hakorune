@@ -12,7 +12,7 @@ pub const ROUTE_MODE_STAGE_A: &str = "stage-a";
 pub const ROUTE_MODE_EXE: &str = "exe";
 
 // Shared result for the stage0 child route.
-// Shell/process ownership stays here; callers only select program vs MIR payload.
+// Shell/process ownership stays here; callers select the payload family they need.
 pub struct CapturedJsonV0Lines {
     pub program_line: Option<String>,
     pub mir_line: Option<String>,
@@ -215,31 +215,6 @@ pub fn run_ny_program_capture_json_v0(
     }
 
     Some(extract_captured_json_lines(&output.stdout))
-}
-
-pub fn run_ny_program_capture_json(
-    exe: &Path,
-    program: &Path,
-    timeout_ms: u64,
-    extra_args: &[&str],
-    env_remove: &[&str],
-    envs: &[(&str, &str)],
-) -> Option<String> {
-    run_ny_program_capture_json_v0(exe, program, timeout_ms, extra_args, env_remove, envs)
-        .and_then(|captured| captured.program_line)
-}
-
-/// Thin MIR-line selector over the shared stage0 child capture owner.
-pub fn run_ny_program_capture_mir_json(
-    exe: &Path,
-    program: &Path,
-    timeout_ms: u64,
-    extra_args: &[&str],
-    env_remove: &[&str],
-    envs: &[(&str, &str)],
-) -> Option<String> {
-    run_ny_program_capture_json_v0(exe, program, timeout_ms, extra_args, env_remove, envs)
-        .and_then(|captured| captured.mir_line)
 }
 
 #[cfg(test)]

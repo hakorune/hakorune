@@ -103,7 +103,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `37xC2 child.rs caller drain map`
+- Active next: `37xD1 proof/closeout`
 - Current blocker: `none`
 - Exact focus: `phase-37x bootstrap owner split`
   - `phase-32x` is landed; mixed-owner source/smoke split and raw default/token defer are fixed
@@ -151,7 +151,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-37x bootstrap owner split` |
   | Blocker | `none` |
-  | Next | `37xC2 child.rs caller drain map` |
+  | Next | `post-37x cleanup/archive sweep` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -165,9 +165,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `37xC2 child.rs caller drain map` | drain callers only after keep freeze |
-| Next | `37xD1 proof/closeout` | restore canonical proof/smoke after the speed-first split |
-| Later | `post-37x cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
+| Now | `37xD1 proof/closeout` | restore canonical proof/smoke after the caller drain |
+| Next | `post-37x cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
+| Later | `archive/delete of drained shims` | move drained shims and legacy embedded smoke out of the live surface |
 | After `37xD1` | `cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
 
 ## Phase-34x Waves

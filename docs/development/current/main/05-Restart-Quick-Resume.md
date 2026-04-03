@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-37x bootstrap owner split`
-- active micro task: `37xC2 child.rs caller drain map`
-- next micro task: `37xD1 proof/closeout`
+- active micro task: `37xD1 proof/closeout`
+- next micro task: `post-37x cleanup/archive sweep`
 - post-`37xD1`: `cleanup/archive sweep`
 - raw backend default flip stays deferred beyond `phase-37x`
 

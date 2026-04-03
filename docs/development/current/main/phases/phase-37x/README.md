@@ -56,13 +56,13 @@ Related:
 3. `tools/selfhost/selfhost_build.sh`
 4. `src/runner/build.rs`
 
-- current active micro task: `37xC2 child.rs caller drain map`
-- next queued micro task: `37xD1 proof/closeout`
+- current active micro task: `37xD1 proof/closeout`
+- next queued micro task: `post-37x cleanup/archive sweep`
 
 ## Acceptance Summary
 
 - `selfhost_build.sh` が `producer / direct-run / exe-artifact / dispatcher` で読める
 - `build.rs` が `product build / engineering build` で読める
 - explicit engineering keep が docs と path で固定される
-- 次 phase は `child.rs` caller drain だけに集中できる
+- 次 phase は `proof/closeout` を戻し、その後の cleanup/archive sweep に集中できる
 - `37xD1` の次は cleanup/archive sweep に入り、drained shim / stale compat wrapper / legacy embedded smoke を候補別に整理する

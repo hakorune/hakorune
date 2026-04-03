@@ -47,8 +47,8 @@ Related:
 - `36xB1` landed: `raw_subcommand_emit_mir.hako` now owns raw `emit mir-json` request/materialize/emit glue
 - `36xB2` landed: `raw_subcommand_run.hako` now owns raw `run` request/script-args env/Program(JSON) materialization glue
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
-- active micro task: `37xC2 child.rs caller drain map`
-- next micro task: `37xD1 proof/closeout`
+- active micro task: `37xD1 proof/closeout`
+- next micro task: `post-37x cleanup/archive sweep`
 - post-`37xD1`: cleanup/archive sweep for drained shims and legacy embedded smoke
 - backend reading:
   - `llvm/exe` = `product`

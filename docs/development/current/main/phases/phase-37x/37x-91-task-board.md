@@ -33,8 +33,8 @@ Related:
 | 6 | `37xB2` | landed | product build wrapper split |
 | 7 | `37xB3` | landed | engineering build wrapper split |
 | 8 | `37xC1` | landed | explicit keep freeze |
-| 9 | `37xC2` | active | child.rs caller drain map |
-| 10 | `37xD1` | queued | proof/closeout |
+| 9 | `37xC2` | landed | child.rs caller drain map |
+| 10 | `37xD1` | active | proof/closeout |
 
 ## Speed-First Acceptance
 
@@ -64,9 +64,9 @@ git diff --check
 ## Current Result
 
 - current front:
-  - `37xC2 child.rs caller drain map`
+  - `37xD1 proof/closeout`
 - exact next:
-  - drain callers after the keep freeze
+  - restore canonical proof/smoke after the caller drain
 - explicit reading:
   - first speed gain comes from making mixed owner surfaces readable
   - not from deleting `vm.rs`
