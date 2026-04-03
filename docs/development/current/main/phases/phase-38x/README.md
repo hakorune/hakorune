@@ -25,7 +25,7 @@ Related:
 
 - main work は source rewrite ではなく surface cleanup。
 - `bootstrap_selfhost_smoke.sh` / `plugin_v2_smoke.sh` / `hako_check_deadcode_smoke.sh` は current/historical docs drain が残るので archive-later。
-- `hako_check_deadblocks_smoke.sh` は delete-ready 候補。
+- `hako_check_deadblocks_smoke.sh` は delete-ready から削除済み。
 - `stage1_smoke.sh` は legacy embedded bridge smoke として archive 済み。
 
 ## Exact Next
@@ -33,7 +33,7 @@ Related:
 1. `38x-90-cleanup-archive-sweep-ssot.md`
 2. `38x-91-task-board.md`
 3. `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`
-4. `tools/hako_check_deadblocks_smoke.sh`
+4. `tools/bootstrap_selfhost_smoke.sh`
 
-- current active micro task: `38xA1 archive legacy embedded stage1 smoke`
-- next queued micro task: `38xB1 delete-ready shim sweep`
+- current active micro task: `38xC1 archive-later queue freeze`
+- next queued micro task: `38xD1 closeout`
