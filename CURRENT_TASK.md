@@ -33,18 +33,19 @@ Scope: repo root から current order / current blocker / next exact read に最
 11. `phase-33x shared helper family recut` (landed)
 12. `phase-34x stage0 shell residue split` (landed)
 13. `phase-35x stage-a compat route thinning` (landed)
-14. `phase-36x selfhost source / stage1 bridge split`
+14. `phase-36x selfhost source / stage1 bridge split` (landed)
+15. `phase-37x bootstrap owner split`
 
 - `K-axis` stays `K0 / K1 / K2` and is read as a build/runtime stage axis, not a task axis.
 - current stage progression reads as `K0 -> K1 -> K2`.
 - `K2-core` / `K2-wide` are task packs inside `K2`.
 - `K2-core` is closed.
-- `K2-wide` boundary-shrink lock-down is landed enough to hand off; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, `phase-29x backend owner cutover prep` is landed, `phase-30x backend surface simplification` is landed, `phase-31x engineering lane isolation` is landed, `phase-32x product / engineering split` is landed, `phase-33x shared helper family recut` is landed, `phase-34x stage0 shell residue split` is landed, `phase-35x stage-a compat route thinning` is landed, and current active lane is `phase-36x selfhost source / stage1 bridge split`.
+- `K2-wide` boundary-shrink lock-down is landed enough to hand off; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, `phase-29x backend owner cutover prep` is landed, `phase-30x backend surface simplification` is landed, `phase-31x engineering lane isolation` is landed, `phase-32x product / engineering split` is landed, `phase-33x shared helper family recut` is landed, `phase-34x stage0 shell residue split` is landed, `phase-35x stage-a compat route thinning` is landed, `phase-36x selfhost source / stage1 bridge split` is landed, and current active lane is `phase-37x bootstrap owner split`.
 
 ## Immediate Handoff
 
-- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, `phase-29x` cleanup is closed, `phase-30x` ownership flip is landed, `phase-31x` engineering rehome sweep is landed, `phase-32x` mixed-owner split is landed, `phase-33x` helper-family recut is landed, `phase-34x` shell-residue split is landed, `phase-35x` stage-a compat route thinning is landed, and the current active front is `phase-36x selfhost source / stage1 bridge split`.
-- Active lane: `phase-36x-selfhost-source-stage1-bridge-split`
+- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, `phase-29x` cleanup is closed, `phase-30x` ownership flip is landed, `phase-31x` engineering rehome sweep is landed, `phase-32x` mixed-owner split is landed, `phase-33x` helper-family recut is landed, `phase-34x` shell-residue split is landed, `phase-35x` stage-a compat route thinning is landed, `phase-36x` selfhost source / stage1 bridge split is landed, and the current active front is `phase-37x bootstrap owner split`.
+- Active lane: `phase-37x-bootstrap-owner-split`
 - Axis and lane detail is canonical in:
   - `docs/development/current/main/phases/phase-29x/README.md`
   - `docs/development/current/main/phases/phase-29x/29x-90-integration-checklist.md`
@@ -68,6 +69,9 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `docs/development/current/main/phases/phase-36x/README.md`
   - `docs/development/current/main/phases/phase-36x/36x-90-selfhost-source-stage1-bridge-split-ssot.md`
   - `docs/development/current/main/phases/phase-36x/36x-91-task-board.md`
+  - `docs/development/current/main/phases/phase-37x/README.md`
+  - `docs/development/current/main/phases/phase-37x/37x-90-bootstrap-owner-split-ssot.md`
+  - `docs/development/current/main/phases/phase-37x/37x-91-task-board.md`
   - `docs/development/current/main/phases/phase-33x/README.md`
   - `docs/development/current/main/phases/phase-33x/33x-90-shared-helper-family-recut-ssot.md`
   - `docs/development/current/main/phases/phase-33x/33x-91-task-board.md`
@@ -82,7 +86,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `stage2plus entry / first optimization wave` is accepted
   - `phase-30x backend surface simplification` is landed
   - `phase-32x product / engineering split` is landed
-  - current active lane is `phase-36x selfhost source / stage1 bridge split`
+  - current active lane is `phase-37x bootstrap owner split`
 - landed rows already accepted:
   - `RawMap` first slice
   - `RawMap.clear`
@@ -99,12 +103,12 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `successor lane selection / design consultation`
+- Active next: `37xA1 Stage-B producer isolation`
 - Current blocker: `none`
-- Exact focus: `successor lane selection / design consultation`
+- Exact focus: `phase-37x bootstrap owner split`
   - `phase-32x` is landed; mixed-owner source/smoke split and raw default/token defer are fixed
   - `phase-33x` is landed; helper-family path truth and keep gates are fixed
-  - current next cleanup is stage0 shell residue thinning, not `vm.rs` deletion
+  - current next cleanup is bootstrap owner split, not `vm.rs` deletion
   - current backend reading stays role-first:
     - `llvm/exe` = `product`
     - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
@@ -129,20 +133,24 @@ Scope: repo root から current order / current blocker / next exact read に最
   - landed in `36xB1`: `raw_subcommand_emit_mir.hako` now owns raw `emit mir-json` request/materialize/emit glue
   - landed in `36xB2`: `raw_subcommand_run.hako` now owns raw `run` request/script-args env/Program(JSON) materialization glue
   - landed in `36xC1`: proof/closeout fixes the split as evidence instead of reopening raw compat ownership
+  - `37xA` takes the fastest structural win first: `tools/selfhost/selfhost_build.sh` owner split
+  - `37xB` follows with `src/runner/build.rs` product/engineering split
+  - `37xC` freezes explicit engineering keep before caller-drain work
+  - `37xD` restores canonical proof/smoke after the speed-first split
   - raw backend default still stays deferred; no-touch-first remains on `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, and `tools/selfhost/selfhost_build.sh`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
-  2. `docs/development/current/main/phases/phase-36x/README.md`
-  3. `docs/development/current/main/phases/phase-36x/36x-90-selfhost-source-stage1-bridge-split-ssot.md`
-  4. `docs/development/current/main/phases/phase-36x/36x-91-task-board.md`
+  2. `docs/development/current/main/phases/phase-37x/README.md`
+  3. `docs/development/current/main/phases/phase-37x/37x-90-bootstrap-owner-split-ssot.md`
+  4. `docs/development/current/main/phases/phase-37x/37x-91-task-board.md`
   5. `cargo check --manifest-path Cargo.toml --bin hakorune`
 - stage0 shell residue table:
 
   | Item | State |
   | --- | --- |
-  | Now | `successor lane selection / design consultation` |
+  | Now | `phase-37x bootstrap owner split` |
   | Blocker | `none` |
-  | Next | `next phase definition` |
+  | Next | `37xC explicit keep freeze + drain map` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -156,8 +164,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `successor lane selection / design consultation` | choose the next thinning/design lane after phase-36x handoff |
-| Next | `next phase definition` | cut the next phase only after the design target is fixed |
+| Now | `phase-37x bootstrap owner split` | take the fastest structural split on `selfhost_build.sh` and `build.rs` |
+| Next | `37xC explicit keep freeze + drain map` | freeze what stays before draining callers |
 | Later | `raw backend default/token follow-up lane` | keep token/default truthification deferred beyond the shell-residue split |
 
 ## Phase-34x Waves
@@ -206,6 +214,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 - `hako_alloc` rows:
   - `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
 - current phase-order context:
+  - `docs/development/current/main/phases/phase-37x/README.md`
+  - `docs/development/current/main/phases/phase-37x/37x-90-bootstrap-owner-split-ssot.md`
+  - `docs/development/current/main/phases/phase-37x/37x-91-task-board.md`
   - `docs/development/current/main/phases/phase-34x/README.md`
   - `docs/development/current/main/phases/phase-34x/34x-90-stage0-shell-residue-split-ssot.md`
   - `docs/development/current/main/phases/phase-34x/34x-91-task-board.md`

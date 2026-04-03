@@ -47,7 +47,7 @@ cargo check --bin hakorune
 ## Current Result
 
 - current front:
-  - `successor lane selection / design consultation`
+  - `phase-37x bootstrap owner split`
 - current residue reading:
   - `source_prepare.rs` now owns source extension gate / source read / using merge / preexpand / tmp staging
   - `selfhost.rs` keeps macro pre-expand gate, fallback ordering, and terminal accept

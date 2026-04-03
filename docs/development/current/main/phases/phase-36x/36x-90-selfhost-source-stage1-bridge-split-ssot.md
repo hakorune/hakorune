@@ -47,9 +47,9 @@ Related:
 
 ## Current Focus
 
-- active macro wave: `successor lane selection / design consultation`
-- active micro task: `successor lane selection`
-- next queued micro task: `next phase definition`
+- active macro wave: `landed precursor`
+- active micro task: `phase-37x bootstrap owner split`
+- next queued micro task: `37xA1 Stage-B producer isolation`
 - current blocker: `none`
 - exact reading:
   - `source_prepare.rs` now owns source extension gate / source read / using merge / preexpand / tmp staging

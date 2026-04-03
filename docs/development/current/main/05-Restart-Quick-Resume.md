@@ -22,18 +22,18 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `successor lane selection / design consultation`
-- active micro task: `successor lane selection`
-- next micro task: `next phase definition`
-- raw backend default flip stays deferred beyond `phase-36x successor`
+- lane: `phase-37x bootstrap owner split`
+- active micro task: `37xA1 Stage-B producer isolation`
+- next micro task: `37xA2 direct MIR / core-direct split`
+- raw backend default flip stays deferred beyond `phase-37x`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-36x/README.md`
-4. `docs/development/current/main/phases/phase-36x/36x-90-selfhost-source-stage1-bridge-split-ssot.md`
-5. `docs/development/current/main/phases/phase-36x/36x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-37x/README.md`
+4. `docs/development/current/main/phases/phase-37x/37x-90-bootstrap-owner-split-ssot.md`
+5. `docs/development/current/main/phases/phase-37x/37x-91-task-board.md`
 6. `cargo check --manifest-path Cargo.toml --bin hakorune`
 
 ## Optional Checks

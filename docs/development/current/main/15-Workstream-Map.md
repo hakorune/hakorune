@@ -37,7 +37,7 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-36x selfhost source / stage1 bridge split`
+     - current active lane is `phase-37x bootstrap owner split`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
@@ -54,7 +54,8 @@ Related:
         - `phase-33x` landed and fixed helper-family path truth
         - `phase-34x` landed and fixed stage0 shell residue split
         - `phase-35x` landed and fixed Stage-A compat route thinning
-        - `phase-36x` now handles selfhost source / stage1 bridge split
+        - `phase-36x` landed and handled selfhost source / stage1 bridge split
+        - `phase-37x` now handles bootstrap owner split
         - `34xA1` landed and fixed exact `child.rs` shell/process/capture residue
         - `34xA2` landed and fixed `stage1_cli/core.hako` raw compat residue and dispatch split
         - `34xA3` landed and pinned `core_executor` as the direct `MIR(JSON)` owner
@@ -70,23 +71,28 @@ Related:
         - `36xB1` landed and moves raw `emit mir-json` glue into `raw_subcommand_emit_mir.hako`
         - `36xB2` landed and moves raw `run` glue into `raw_subcommand_run.hako`
         - `36xC1` landed and fixes the split as evidence instead of reopening compat ownership
-        - current active micro task is `successor lane selection`
+        - current active micro task is `37xA1 Stage-B producer isolation`
+        - `37xA` prioritizes `selfhost_build.sh` owner split over broader cleanup
+        - `37xB` follows with `build.rs` product/engineering split
+        - `37xC` freezes explicit engineering keep before caller-drain work
+        - `37xD` restores canonical proof after the speed-first split
         - cleanup rule is `split/rehome/drain -> delete`
+        - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
    - phase-34x stage0 shell residue split table:
 
      | Item | State |
      | --- | --- |
-     | Now | `successor lane selection / design consultation` |
+     | Now | `phase-37x bootstrap owner split` |
      | Blocker | `none` |
-     | Next | `next phase definition` |
+     | Next | `37xC explicit keep freeze + drain map` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `successor lane selection` |
-     | Next | `next phase definition` |
+     | Now | `37xA1 Stage-B producer isolation` |
+     | Next | `37xA2 direct MIR / core-direct split` |
      | Later | `raw backend default/token follow-up lane` |
    - stage0 shell residue waves:
 
@@ -127,10 +133,11 @@ Related:
   - `phase-31x` engineering lane isolation (landed precursor)
   - `phase-32x` product / engineering split (landed precursor)
   - `phase-36x` selfhost source / stage1 bridge split (landed precursor)
+  - `phase-37x` bootstrap owner split (active)
 - Active backend surface tasks:
-  - `successor lane selection`
+  - `37xA1 Stage-B producer isolation`
 - Queued backend surface tasks:
-  - `next phase definition`
+  - `37xA2 direct MIR / core-direct split`
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion
@@ -144,10 +151,10 @@ Related:
 
 ## Exact Next
 
-1. keep `phase-36x` exact through the selfhost/stage1 owner split
-2. keep `phase-35x` landed as the Stage-A compat precursor
-3. keep `phase-34x` landed as the stage0 shell-residue precursor
-4. keep `phase-33x` landed as the helper-family precursor
+1. keep `phase-37x` exact through the bootstrap owner split
+2. keep `phase-36x` landed as the selfhost/stage1 owner split precursor
+3. keep `phase-35x` landed as the Stage-A compat precursor
+4. keep `phase-34x` landed as the stage0 shell-residue precursor
 5. keep `phase-32x` landed as the mixed-owner split precursor
 
 ## Active Lane
