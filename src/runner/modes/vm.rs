@@ -252,15 +252,15 @@ impl NyashRunner {
                 .log
                 .info("[runner/vm:emit-trace] phase=user-factory.begin");
         }
-        let static_box_decls =
-            crate::runner::modes::common_util::user_box_factory::install_inline_user_box_factory(
+        let vm_user_factory =
+            crate::runner::modes::common_util::vm_user_factory::prepare_vm_user_factory(
                 &ast, true, true,
             );
         if emit_trace {
             let ring0 = crate::runtime::ring0::get_global_ring0();
             ring0.log.info(&format!(
                 "[runner/vm:emit-trace] phase=user-factory.done static_boxes={}",
-                static_box_decls.len()
+                vm_user_factory.static_box_count()
             ));
         }
 
@@ -349,9 +349,7 @@ impl NyashRunner {
         let mut vm = MirInterpreter::new();
 
         // Register static box declarations for singleton persistence (AST-based)
-        for (name, decl) in static_box_decls {
-            vm.register_static_box_decl(name, decl);
-        }
+        vm_user_factory.register_static_box_decls(&mut vm);
 
         // Optional verifier gate (single-entry SSOT across VM lanes)
         crate::runner::modes::common_util::verifier_gate::enforce_vm_verify_gate_or_exit(

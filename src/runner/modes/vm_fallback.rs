@@ -149,8 +149,8 @@ impl NyashRunner {
         }
         let ast = crate::r#macro::maybe_expand_and_dump(&ast_combined, false);
 
-        let _ =
-            crate::runner::modes::common_util::user_box_factory::install_inline_user_box_factory(
+        let _vm_user_factory =
+            crate::runner::modes::common_util::vm_user_factory::prepare_vm_user_factory(
                 &ast, false, true,
             );
         let mut compiler = MirCompiler::with_options(!self.config.no_optimize);
@@ -256,8 +256,8 @@ impl NyashRunner {
 
         // Macro expand (if enabled)
         let ast = crate::r#macro::maybe_expand_and_dump(&ast, false);
-        let _ =
-            crate::runner::modes::common_util::user_box_factory::install_inline_user_box_factory(
+        let _vm_user_factory =
+            crate::runner::modes::common_util::vm_user_factory::prepare_vm_user_factory(
                 &ast, false, true,
             );
         // Compile to MIR and execute via interpreter

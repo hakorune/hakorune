@@ -20,5 +20,6 @@ pub mod selfhost;
 pub mod selfhost_exe;
 pub mod source_hint;
 pub mod vm_source_prepare;
+pub mod vm_user_factory;
 pub mod user_box_factory;
 pub mod verifier_gate;
