@@ -18,7 +18,7 @@ Related:
 | 1 | `34xA residue owner lock` | landed | exact shell residue/owner split first |
 | 2 | `34xB child runner thinning` | landed | process/shell helper gets thinner before new runtime work |
 | 3 | `34xC stage1 raw compat narrowing` | landed | raw compat branch stays narrow |
-| 4 | `34xD direct core handoff` | active | direct `MIR(JSON)` owner is `core_executor` |
+| 4 | `34xD direct core handoff` | landed | direct `MIR(JSON)` owner is `core_executor` |
 
 ## Ordered Slice Detail
 
@@ -29,7 +29,7 @@ Related:
 | 3 | `34xA3` | landed | `core_executor` takeover seam lock |
 | 4 | `34xB1` | landed | split spawn/timeout/capture from `child.rs` |
 | 5 | `34xC1` | landed | `run_program_json` no-widen lock |
-| 6 | `34xD1` | active | direct `MIR(JSON)` proof path |
+| 6 | `34xD1` | landed | direct `MIR(JSON)` proof path |
 
 ## Evidence Commands
 
@@ -44,12 +44,13 @@ rg -n 'run_ny_program_capture_json_v0|run_program_json|_run_raw_request|execute_
   docs/development/current/main/phases/phase-32x \
   docs/development/current/main/phases/phase-34x
 cargo check --bin hakorune
+cargo test --manifest-path Cargo.toml execute_mir_json_text_ -- --nocapture
 ```
 
 ## Current Result
 
 - current front:
-  - `34xD1 direct MIR(JSON) proof path`
+  - `phase-34x closeout review`
 - worker-confirmed residue concentration:
   - `child.rs::run_ny_program_capture_json_v0` owns spawn / timeout / stdout-stderr capture / first-line JSON extraction
   - `selfhost.rs` is the shared v0 caller; `stage_a_compat_bridge.rs` is the MIR-only selector caller
@@ -58,3 +59,4 @@ cargo check --bin hakorune
   - `dispatch_env_mode` / `dispatch_emit` / `dispatch_run` are the thin dispatch-side callers; `stage1_main` stays dispatcher-only
   - `core_executor::execute_mir_json_text` and `execute_loaded_mir_module` are the direct MIR(JSON) owner seam; `execute_json_artifact` remains the family classifier
   - `child.rs` now splits private helper ownership into command setup, capture wiring, timeout/wait, output readback, and JSON-line selection while public selectors stay unchanged
+  - proof is pinned by `execute_mir_json_text_accepts_direct_mir_fixture` and `execute_mir_json_text_rejects_program_json_direct_input`

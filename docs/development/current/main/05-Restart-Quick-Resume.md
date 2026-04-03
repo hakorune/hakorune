@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-34x stage0 shell residue split`
-- active micro task: `34xD1 direct MIR(JSON) proof path`
-- next micro task: `34xD closeout/docs cleanup`
+- active micro task: `phase-34x closeout review`
+- next micro task: `next phase selection`
 - raw backend default flip stays deferred beyond `phase-34x`
 
 ## Read Next
@@ -34,6 +34,7 @@ tools/checks/dev_gate.sh quick
 3. `docs/development/current/main/phases/phase-34x/README.md`
 4. `docs/development/current/main/phases/phase-34x/34x-90-stage0-shell-residue-split-ssot.md`
 5. `docs/development/current/main/phases/phase-34x/34x-91-task-board.md`
+6. `cargo test --manifest-path Cargo.toml execute_mir_json_text_ -- --nocapture`
 
 ## Optional Checks
 

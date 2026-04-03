@@ -52,5 +52,5 @@ Related:
 - `child.rs` shell residue is split into thinner spawn/capture ownership
 - `stage1_cli/core.hako` raw compat branch stays narrow and does not widen for new runtime work
 - `core_executor` becomes the explicit in-proc owner for already-materialized `MIR(JSON)` execution
+- direct `MIR(JSON)` proof is pinned by unit tests on `execute_mir_json_text(...)`
 - thread design can be added later without re-expanding `vm`/selfhost/raw compat surfaces
-

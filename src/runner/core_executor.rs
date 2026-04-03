@@ -142,3 +142,110 @@ fn try_run_core_direct_inproc(runner: &NyashRunner, json: &str) -> Option<i32> {
         Ok(None) | Err(_) => None,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::execute_mir_json_text;
+    use super::NyashRunner;
+    use std::sync::{Mutex, OnceLock};
+
+    struct EnvGuard {
+        saved: Vec<(&'static str, Option<String>)>,
+    }
+
+    impl EnvGuard {
+        fn set(vars: &[(&'static str, &'static str)]) -> Self {
+            let mut saved = Vec::with_capacity(vars.len());
+            for (k, v) in vars {
+                saved.push((*k, std::env::var(k).ok()));
+                std::env::set_var(k, v);
+            }
+            Self { saved }
+        }
+    }
+
+    impl Drop for EnvGuard {
+        fn drop(&mut self) {
+            for (k, old) in self.saved.drain(..) {
+                if let Some(v) = old {
+                    std::env::set_var(k, v);
+                } else {
+                    std::env::remove_var(k);
+                }
+            }
+        }
+    }
+
+    fn env_lock() -> &'static Mutex<()> {
+        static LOCK: OnceLock<Mutex<()>> = OnceLock::new();
+        LOCK.get_or_init(|| Mutex::new(()))
+    }
+
+    fn core_direct_env_off() -> EnvGuard {
+        EnvGuard::set(&[
+            ("HAKO_CORE_DIRECT", "0"),
+            ("NYASH_CORE_DIRECT", "0"),
+            ("HAKO_CORE_DIRECT_INPROC", "0"),
+            ("NYASH_CORE_DIRECT_INPROC", "0"),
+        ])
+    }
+
+    fn direct_mir_fixture() -> &'static str {
+        r#"{
+            "kind":"MIR",
+            "schema_version":"1.0",
+            "functions":[
+                {
+                    "name":"main",
+                    "blocks":[
+                        {
+                            "id":0,
+                            "instructions":[
+                                {"op":"const","dst":1,"value":{"type":"i64","value":42}},
+                                {"op":"ret","value":1}
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }"#
+    }
+
+    fn program_json_fixture() -> &'static str {
+        r#"{
+            "version":0,
+            "kind":"Program",
+            "body":[
+                {"type":"Return","expr":{"type":"Int","value":42}}
+            ]
+        }"#
+    }
+
+    #[test]
+    fn execute_mir_json_text_accepts_direct_mir_fixture() {
+        let _lock = env_lock().lock().expect("env lock poisoned");
+        let _env = core_direct_env_off();
+        let runner = NyashRunner::new(crate::cli::CliConfig::default());
+
+        let rc = execute_mir_json_text(&runner, direct_mir_fixture(), "<inline-mir>")
+            .expect("direct MIR(JSON) should execute");
+
+        assert_eq!(rc, 42, "direct MIR handoff must preserve terminal rc");
+    }
+
+    #[test]
+    fn execute_mir_json_text_rejects_program_json_direct_input() {
+        let _lock = env_lock().lock().expect("env lock poisoned");
+        let _env = core_direct_env_off();
+        let runner = NyashRunner::new(crate::cli::CliConfig::default());
+
+        let err = execute_mir_json_text(&runner, program_json_fixture(), "<inline-program>")
+            .expect_err("Program(JSON) must not be accepted on direct MIR handoff");
+
+        assert!(
+            err.contains("unsupported shape (<inline-program>)"),
+            "unexpected direct handoff error: {}",
+            err
+        );
+    }
+}

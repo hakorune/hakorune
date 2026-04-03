@@ -93,7 +93,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-34x stage0 shell residue split`
 - Current blocker: `none`
-- Exact focus: `34xD1 direct MIR(JSON) proof path`
+- Exact focus: `phase-34x closeout review`
   - `phase-32x` is landed; mixed-owner source/smoke split and raw default/token defer are fixed
   - `phase-33x` is landed; helper-family path truth and keep gates are fixed
   - current next cleanup is stage0 shell residue thinning, not `vm.rs` deletion
@@ -111,20 +111,21 @@ Scope: repo root から current order / current blocker / next exact read に最
   - landed in `34xA3`: `core_executor` is fixed as the direct MIR(JSON) owner; `execute_json_artifact` stays family classification while `execute_mir_json_text` / `execute_loaded_mir_module` own direct handoff and terminal execution
   - landed in `34xB1`: `child.rs` shell residue is mechanically split into private helpers for command setup, capture wiring, timeout/wait, output readback, and JSON-line selection while public selectors stay unchanged
   - landed in `34xC1`: `run_program_json` / `_mode_run` / `_run_raw_request` are explicitly no-widen; thread/runtime capability work must not land in the raw compat lane
+  - landed in `34xD1`: direct `MIR(JSON)` handoff is proof-pinned by `execute_mir_json_text_accepts_direct_mir_fixture` and `execute_mir_json_text_rejects_program_json_direct_input`
   - raw backend default still stays deferred; no-touch-first remains on `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, and `tools/selfhost/selfhost_build.sh`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/phases/phase-34x/README.md`
   3. `docs/development/current/main/phases/phase-34x/34x-90-stage0-shell-residue-split-ssot.md`
   4. `docs/development/current/main/phases/phase-34x/34x-91-task-board.md`
-  5. `docs/development/current/main/phases/phase-33x/README.md`
+  5. `cargo test --manifest-path Cargo.toml execute_mir_json_text_ -- --nocapture`
 - stage0 shell residue table:
 
   | Item | State |
   | --- | --- |
   | Now | `phase-34x stage0 shell residue split` |
   | Blocker | `none` |
-  | Next | `34xD closeout/docs cleanup` |
+  | Next | `phase-34x closeout review` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -138,8 +139,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `34xD1 direct MIR(JSON) proof path` | keep proof of the direct core handoff separate from shell thinning |
-| Next | `34xD closeout/docs cleanup` | close the shell-residue split after no-widen and proof rows are fixed |
+| Now | `phase-34x closeout review` | verify direct-core handoff proof and freeze the phase reading |
+| Next | `next phase selection` | choose the next residue split after direct MIR proof is pinned |
 | Later | `raw backend default/token follow-up lane` | keep token/default truthification deferred beyond the shell-residue split |
 
 ## Phase-34x Waves
@@ -149,7 +150,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `34xA residue owner lock` | landed | fix exact shell residue / owner split first |
 | `34xB child runner thinning` | landed | make `child.rs` process helper thinner without widening routes |
 | `34xC stage1 raw compat narrowing` | landed | keep raw compat branch narrow and non-growing |
-| `34xD direct core handoff` | active | pin already-materialized `MIR(JSON)` execution to `core_executor` |
+| `34xD direct core handoff` | landed | pin already-materialized `MIR(JSON)` execution to `core_executor` |
 
 ## Phase-34x Micro Tasks
 
@@ -160,7 +161,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `34xA3` | landed | `core_executor` takeover seam lock |
 | `34xB1` | landed | split spawn/timeout/capture from `child.rs` |
 | `34xC1` | landed | `run_program_json` no-widen lock |
-| `34xD1` | active | direct `MIR(JSON)` proof path |
+| `34xD1` | landed | direct `MIR(JSON)` proof path |
 
 ## Canonical Owners
 

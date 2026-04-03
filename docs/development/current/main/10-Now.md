@@ -37,8 +37,9 @@ Related:
 - `34xA3` landed: `core_executor` is fixed as the direct MIR(JSON) owner seam
 - `34xB1` landed: `child.rs` shell residue is mechanically split into private route-neutral helpers
 - `34xC1` landed: raw compat lane is explicitly no-widen; thread/runtime capability work is barred from `run_program_json`
-- active micro task: `34xD1 direct MIR(JSON) proof path`
-- next micro task: `34xD closeout/docs cleanup`
+- `34xD1` landed: direct MIR(JSON) handoff is proof-pinned by `execute_mir_json_text_*` tests
+- active micro task: `phase-34x closeout review`
+- next micro task: `next phase selection`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
