@@ -22,11 +22,11 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-48x smoke/source cleanup`
-- landed micro task: `47xD3 run_stageb_compiler_vm.sh proof-only local keep`
-- active micro task: `48xC2 vm.rs / vm_fallback thin keep trim`
-- next micro task: `48xD1 README/example command cleanup`
-- after next: `48xD2 stale \`--backend vm\` commentary cleanup`
+- lane: `phase-49x legacy wording / compat route cleanup`
+- landed micro task: `48xE1 proof / closeout`
+- active micro task: `49xA1 current-doc stale wording inventory lock`
+- next micro task: `49xA2 top-level docs compat wording rewrite`
+- after next: `49xB1 current guides compat wording rewrite`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 

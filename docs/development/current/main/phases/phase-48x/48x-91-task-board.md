@@ -11,7 +11,7 @@ Date: 2026-04-04
 | 2 | `48xB smoke cleanup` | active | clean smoke scripts that still make vm look like a day-to-day route |
 | 3 | `48xC source cleanup` | landed | trim source helpers and fallback rails so vm stays thin |
 | 4 | `48xD docs/examples cleanup` | landed | remove stale `--backend vm` examples and commentary |
-| 5 | `48xE proof / closeout` | active | prove the cleanup and hand off cleanly |
+| 5 | `48xE proof / closeout` | landed | prove the cleanup and hand off cleanly |
 
 ## Exact Micro Tasks
 
@@ -25,13 +25,13 @@ Date: 2026-04-04
 | `48xC2` | landed | vm.rs / vm_fallback thin keep trim |
 | `48xD1` | landed | README/example command cleanup |
 | `48xD2` | landed | stale `--backend vm` commentary cleanup |
-| `48xE1` | active | proof / closeout |
+| `48xE1` | landed | proof / closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `48xE1 proof / closeout` |
+| Now | `none` |
 | Blocker | `none` |
-| Next | `none` |
+| Next | `phase-49x legacy wording / compat route cleanup` |
 | After Next | `none` |

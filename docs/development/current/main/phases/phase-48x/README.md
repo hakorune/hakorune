@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: clean up the remaining rust-vm-facing smoke/source surfaces, classify proof-only keeps and compat keeps, and remove stale day-to-day `--backend vm` references from docs and scripts.
 Related:
@@ -56,4 +56,9 @@ Related:
    - `48xD1` README/example command cleanup (landed)
    - `48xD2` stale `--backend vm` commentary cleanup (landed)
 5. `48xE` proof / closeout
-   - `48xE1` proof / closeout (active)
+   - `48xE1` proof / closeout (landed)
+
+## Handoff
+
+- `phase-48x` is landed.
+- successor lane: `phase-49x legacy wording / compat route cleanup`

@@ -4,8 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 48x smoke/source cleanup
-- **Phase 48x（ACTIVE）**: smoke/source cleanup（残っている `--backend vm` smoke / helper / docs examples を inventory して clean up する）
+- **Current (ACTIVE)**: Phase 49x legacy wording / compat route cleanup
+- **Phase 49x（ACTIVE）**: legacy wording / compat route cleanup（current docs / guides / helper comments that still read like `rust-vm` is a day-to-day owner を rewrite する）
+- **Phase 48x（LANDED）**: smoke/source cleanup（残っている `--backend vm` smoke / helper / docs examples を inventory して clean up した）
 - **Phase 47x（LANDED）**: stage0/runtime direct-core finalization（day-to-day helper-route defaults are now off `--backend vm`）
 - **Phase 46x（LANDED）**: next source lane selection（残っている live VM pressure を棚卸しして、後継 lane に `stage0/runtime direct-core finalization` を選んだ）
 - **Phase 45x（LANDED）**: vm residual cleanup（`rust-vm` の残り owner surfaces を proof/oracle/compat keep に縮める）
