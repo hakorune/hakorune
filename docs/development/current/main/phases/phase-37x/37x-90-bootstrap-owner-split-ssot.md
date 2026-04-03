@@ -55,8 +55,8 @@ Related:
 | --- | --- | --- | --- |
 | `37xA1` | landed | Stage-B producer isolation | `emit_stageb_program_json_raw` family が一つの owner に見える |
 | `37xA2` | landed | direct MIR / core-direct split | `emit_mir_json_from_source` と `run_program_json_v0_via_core_direct` が thin selector の下に分かれる |
-| `37xA3` | active | `ny-llvmc` / exe artifact split | EXE path が MIR->EXE artifact owner として読める |
-| `37xA4` | queued | dispatcher slimming | primary/downstream dispatcher が lane router に縮む |
+| `37xA3` | landed | `ny-llvmc` / exe artifact split | EXE path が MIR->EXE artifact owner として読める |
+| `37xA4` | active | dispatcher slimming | primary/downstream dispatcher が lane router に縮む |
 | `37xB1` | queued | `build.rs` shared prelude freeze | shared config/env/app/link prelude を no-touch-first で固定 |
 | `37xB2` | queued | product build wrapper split | `build_core(..., llvm)` + `emit_llvm_object(...)` が product owner に寄る |
 | `37xB3` | queued | engineering build wrapper split | `build_core(..., cranelift)` + `emit_engineering_object(...)` が engineering owner に寄る |
@@ -67,8 +67,8 @@ Related:
 ## Current Focus
 
 - active macro wave: `37xA selfhost_build owner split`
-- active micro task: `37xA3 ny-llvmc / exe artifact split`
-- next queued micro task: `37xA4 dispatcher slimming`
+- active micro task: `37xA4 dispatcher slimming`
+- next queued micro task: `37xB1 build.rs shared prelude freeze`
 - current blocker: `none`
 - exact reading:
   - `selfhost_build.sh` is the biggest mixed-owner shell surface
