@@ -68,8 +68,8 @@ selfhost_build_main() {
 
   tmp_json="${JSON_OUT:-/tmp/hako_stageb_$$.json}"
 
-  # Emit Program(JSON v0; direct/source default. BuildBox emit-only is retired
-  # from the default caller path and is no longer a day-to-day branch here.
+  # Emit Program(JSON v0; direct/source default. BuildBox emit-only stays
+  # explicit compat-only and is off the default caller path here.
   RAW="/tmp/hako_stageb_raw_$$.txt"
   stageb_rc=0
   SRC_CONTENT="$(cat "$IN")"

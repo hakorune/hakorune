@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Self-host minimal smoke (dev-only / proof-only / compat bridge)
+# Self-host minimal smoke (proof-only / compat keep)
 # - Emits MIR(JSON v0) via selfhost compiler MVP
 # - Runs a representative compat bridge example and compares compat outputs
 
@@ -13,7 +13,7 @@ if [[ ! -x "${NY_BIN}" ]]; then
   exit 1
 fi
 
-echo "[selfhost-smoke] Step 1: Emit JSON via selfhost compiler (lang/, proof/compat optional)"
+echo "[selfhost-smoke] Step 1: Emit JSON via selfhost compiler (proof/compat optional)"
 OUT_JSON="/tmp/nyash_selfhost_out.json"
 set -x
 # Use lang side entry (Stage‑B). Emission is optional; failure does not fail the smoke.

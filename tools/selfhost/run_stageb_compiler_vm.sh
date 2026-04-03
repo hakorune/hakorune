@@ -101,8 +101,7 @@ fi
 
 echo "[selfhost/route] id=${ROUTE_ID} mode=stageb source=$(basename "$SOURCE_FILE") timeout_secs=${TIMEOUT_SECS}" >&2
 
-# Phase 29x X22 / 45xC2: Stage-B gate stays on Rust VM core lane and remains proof-only.
-# vm-hako priority is disabled explicitly for this gate route.
+# Stage-B gate stays explicit proof-only and keeps vm-hako priority disabled.
 HAKO_SRC="$(cat "$SOURCE_FILE")" \
   NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
   NYASH_VM_HAKO_PREFER_STRICT_DEV="${NYASH_VM_HAKO_PREFER_STRICT_DEV:-0}" \
