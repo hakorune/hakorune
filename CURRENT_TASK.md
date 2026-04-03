@@ -135,11 +135,11 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-50x rust-vm source/archive cleanup`
 - Current blocker: `none`
-- Exact focus: `50xA2 proof-only / compat keep classification`
+- Exact focus: `50xB1 smoke/helper stale-route cleanup`
 - exact phase-50x order:
   1. `50xA1` residual rust-vm surface inventory lock (landed)
-  2. `50xA2` proof-only / compat keep classification (active)
-  3. `50xB1` smoke/helper stale-route cleanup
+  2. `50xA2` proof-only / compat keep classification (landed)
+  3. `50xB1` smoke/helper stale-route cleanup (active)
   4. `50xB2` route-comment stale wording cleanup
   5. `50xC1` archive-ready docs/examples move
   6. `50xC2` historical PyVM / legacy wrapper archival sweep
@@ -237,7 +237,7 @@ Carry-over context:
 | --- | --- |
 | Now | `phase-50x rust-vm source/archive cleanup` |
 | Blocker | `none` |
-| Next | `50xA2 proof-only / compat keep classification` |
+| Next | `50xB1 smoke/helper stale-route cleanup` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -252,8 +252,8 @@ Carry-over context:
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `phase-50x rust-vm source/archive cleanup` | inventory the remaining rust-vm / vm-gated source surfaces and split keep vs archive candidates |
-| Next | `50xA2 proof-only / compat keep classification` | freeze proof-only gates and compat keeps before source/archive moves |
-| Later | `50xB1 smoke/helper stale-route cleanup` | clean stale helper wording and routes before archive moves |
+| Next | `50xB1 smoke/helper stale-route cleanup` | clean stale helper wording and routes before archive moves |
+| Later | `50xB2 route-comment stale wording cleanup` | clean stale route wording before archive moves |
 
 ## Phase-34x Waves
 

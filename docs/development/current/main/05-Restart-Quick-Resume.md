@@ -24,9 +24,9 @@ tools/checks/dev_gate.sh quick
 
 - lane: `phase-50x rust-vm source/archive cleanup`
 - landed micro task: `49xD1 proof / closeout`
-- active micro task: `50xA2 proof-only / compat keep classification`
-- next micro task: `50xB1 smoke/helper stale-route cleanup`
-- after next: `50xB2 route-comment stale wording cleanup`
+- active micro task: `50xB1 smoke/helper stale-route cleanup`
+- next micro task: `50xB2 route-comment stale wording cleanup`
+- after next: `50xC1 archive-ready docs/examples move`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 
