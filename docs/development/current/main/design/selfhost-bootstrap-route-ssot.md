@@ -346,8 +346,8 @@ fixture の拡張は “境界条件を1つだけ” で増やす（混ぜない
   - `SH-GATE-STAGEB`（wrapper）と direct route の Program(JSON v0) が一致することを確認する
 - Runtime route smoke (route-tag contract check):
   `bash ./tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_runtime_route_smoke_vm.sh`
-  - `SH-RUNTIME-SELFHOST` の route tag（`pipeline-entry` + `stage-a`）が stderr に出ることを固定する
-  - stage-a は `[contract][runtime-route][accepted=mir-json]` を 1 行出力することを固定する
+  - `SH-RUNTIME-SELFHOST` の route tag（`pipeline-entry` + `stage-a` / `exe`）が stderr に出ることを固定する
+  - stage-a は explicit compat fallback の成功路として扱い、route tags と rc=0 を固定する
   - EXE route 確認時は `bash ./tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_runtime_route_smoke_vm.sh <fixture> exe`
 - Runtime route reject smoke (strict+planner_required contract check):
   `bash ./tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_runtime_route_program_reject_smoke_vm.sh`
