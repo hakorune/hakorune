@@ -5,57 +5,9 @@
 # - Own Stage-B Program(JSON v0) production and raw snapshot handling.
 # - Keep the shell producer path separate from direct-run / exe artifact / final dispatcher logic.
 # - Prefer direct/source route defaults; keep VM compiler route explicit-only.
+# - BuildBox emit-only is retired from the default caller path.
 
 timestamp_now() { date +%Y%m%d_%H%M%S; }
-
-write_buildbox_emit_program_runner_hako() {
-  local wrap_path="$1"
-  cat > "$wrap_path" <<'HAKO'
-using lang.compiler.build.build_box as BuildBox
-static box Main {
-  method _emit_program_json_checked(src) {
-    if src == null { print("[selfhost/buildbox:no-src]"); return null; }
-    local j = BuildBox.emit_program_json_v0(src, null);
-    if j == null { print("[selfhost/buildbox:builder-null]"); return null; }
-    return j;
-  }
-
-  method main(args) {
-    local j = me._emit_program_json_checked(env.get("HAKO_SRC"));
-    if j == null { return 1; }
-    print(j);
-    return 0;
-  }
-}
-HAKO
-}
-
-buildbox_emit_only_keep_requested() {
-  [ "${HAKO_USE_BUILDBOX:-0}" = "1" ] && [ "$DO_RUN" = "0" ] && [ -z "$EXE_OUT" ]
-}
-
-ensure_stageb_module_roots_list() {
-  if [ -n "${HAKO_STAGEB_MODULE_ROOTS_LIST:-}" ]; then
-    return 0
-  fi
-  roots_list="$(collect_stageb_module_roots_list "$ROOT" || true)"
-  if [ -n "${roots_list:-}" ]; then
-    export HAKO_STAGEB_MODULE_ROOTS_LIST="$roots_list"
-  fi
-}
-
-emit_program_json_v0_via_buildbox() {
-  local raw_path="$1"
-  local wrap_path="/tmp/hako_buildbox_wrap_$$.hako"
-  write_buildbox_emit_program_runner_hako "$wrap_path"
-  (
-    export HAKO_SRC="$SRC_CONTENT"
-    cd "$ROOT" && "$BIN" --backend vm "$wrap_path"
-  ) > "$raw_path" 2>&1
-  local rc=$?
-  rm -f "$wrap_path" 2>/dev/null || true
-  return $rc
-}
 
 emit_program_json_v0_via_direct_source() {
   local raw_path="$1" json_path="$2"
@@ -75,14 +27,6 @@ emit_program_json_v0_via_direct_source() {
 
 emit_stageb_program_json_raw() {
   local raw_path="$1" json_path="$2"
-  stageb_cmd_desc=""
-  if buildbox_emit_only_keep_requested; then
-    stageb_cmd_desc="BuildBox.emit_program_json_v0 via compiler build_box"
-    ensure_stageb_module_roots_list
-    emit_program_json_v0_via_buildbox "$raw_path"
-    return $?
-  fi
-
   stageb_cmd_desc="stage1 bridge emit-program-json-v0 (direct/core-first)"
   emit_program_json_v0_via_direct_source "$raw_path" "$json_path"
 }

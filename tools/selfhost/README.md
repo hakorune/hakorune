@@ -52,7 +52,7 @@ Script
   - Env:
     - NYASH_BIN: path to hakorune/nyash binary (auto-detected)
     - NYASH_ROOT: repo root (auto-detected)
-    - HAKO_USE_BUILDBOX=1: use BuildBox for emit-only (no run/exe)
+    - BuildBox emit-only is retired from the default caller path; use the direct/source route instead
 - tools/selfhost/promote_tier2_case.sh
   - Parser handoff Tier-2 の 1件PROMOTEを 1コマンドで同期するヘルパー。
   - 同期対象:
@@ -144,7 +144,7 @@ bash tools/compat/legacy-codegen/run_compat_pure_pack.sh
 - `phase-29x` cleanup bands are mirrored in `docs/development/current/main/phases/phase-29x/29x-98-legacy-route-retirement-investigation-ssot.md`; the proof/example driver stays archive-later until the compat wrapper gains a root-first equivalent or is retired as a whole.
 
 Notes
-- Stage‑B emit uses either the Stage‑B entry or BuildBox（HAKO_USE_BUILDBOX=1 for emit-only）
+- Stage‑B emit uses the Stage‑B entry by default; BuildBox emit-only is retired from the day-to-day caller path
 - raw `selfhost_build.sh --in ...` whole-script routes are not the current helper-local acceptance line; use the focused probe above for the EXE consumer seam while upstream Stage-B source-route freezes remain
 - Runner executes Core‑Direct in-proc under HAKO_CORE_DIRECT_INPROC=1.
 - PyVM は historical / direct-only 扱い（既定導線は Rust VM）。legacy parity が必要な場合は `tools/historical/pyvm/*.sh` を使う。

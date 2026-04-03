@@ -37,6 +37,8 @@ Related:
 - `47xC1` landed: stage0_capture_route.rs non-VM builder add
 - `47xC2` landed: stage_a_route.rs source->MIR first switch
 - `47xC3` landed: stage_a_compat_bridge.rs explicit Program(JSON) fallback shrink
+- `47xD1` landed: selfhost_build_stageb.sh MIR mainline artifact contract lock
+- `47xD2` active: selfhost_build_stageb.sh default-caller drain
 - `45xA1` landed: residual vm owner inventory lock
 - `45xA2` landed: proof-only keep boundary freeze
 - `45xB1` landed: vm.rs broad owner shrink
@@ -66,9 +68,9 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `47xD1 selfhost_build_stageb.sh MIR mainline artifact contract lock`
-- next micro task: `47xD2 selfhost_build_stageb.sh default-caller drain`
-- after next: `47xD3 run_stageb_compiler_vm.sh proof-only local keep`
+- active micro task: `47xD2 selfhost_build_stageb.sh default-caller drain`
+- next micro task: `47xD3 run_stageb_compiler_vm.sh proof-only local keep`
+- after next: `47xE1 proof / closeout`
 - plain reading:
   - if a bootstrap route stays on `--backend vm`, new capability work still tends to imply `rust-vm` support
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep
@@ -76,7 +78,7 @@ Related:
 - `phase-43x` is landed; it selected `phase-44x stage0 direct/core follow-up` as the highest-leverage successor lane
 - `phase-44x` is landed; it keeps proof-only VM gates explicit and closes the lane
 - `phase-46x` is landed; it selected `stage0/runtime direct-core finalization` as the next source lane
-- `phase-47x` is active; it removes the last live helper-route defaults from `--backend vm`, keeps explicit vm compat mode locked, and has now switched Stage-A to source->MIR first while shrinking the compat fallback and moving into Stage-B caller drain
+- `phase-47x` is active; it removes the last live helper-route defaults from `--backend vm`, keeps explicit vm compat mode locked, has switched Stage-A to source->MIR first, and is now draining Stage-B callers while retiring BuildBox from the default caller path
   - `tools/selfhost/lib/selfhost_run_routes.sh`
   - `src/runner/modes/common_util/selfhost/stage0_capture_route.rs`
   - `src/runner/modes/common_util/selfhost/stage_a_route.rs`
