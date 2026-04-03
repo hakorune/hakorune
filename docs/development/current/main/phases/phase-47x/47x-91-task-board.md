@@ -27,15 +27,15 @@ Date: 2026-04-04
 | `47xC2` | landed | `stage_a_route.rs` source->MIR first switch |
 | `47xC3` | landed | `stage_a_compat_bridge.rs` explicit Program(JSON) fallback shrink |
 | `47xD1` | landed | `selfhost_build_stageb.sh` MIR mainline artifact contract lock |
-| `47xD2` | active | `selfhost_build_stageb.sh` default-caller drain |
-| `47xD3` | queued | `run_stageb_compiler_vm.sh` proof-only local keep |
+| `47xD2` | landed | `selfhost_build_stageb.sh` default-caller drain |
+| `47xD3` | active | `run_stageb_compiler_vm.sh` proof-only local keep |
 | `47xE1` | queued | proof / closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `47xD2 selfhost_build_stageb.sh default-caller drain` |
+| Now | `47xD3 run_stageb_compiler_vm.sh proof-only local keep` |
 | Blocker | `none` |
-| Next | `47xD3 run_stageb_compiler_vm.sh proof-only local keep` |
-| After Next | `47xE1 proof / closeout` |
+| Next | `47xE1 proof / closeout` |
+| After Next | `next source lane selection` |

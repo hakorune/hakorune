@@ -6,7 +6,7 @@
 # - Keep selfhost/run.sh focused on parsing and thin dispatch only.
 
 GATE_SCRIPT="${GATE_SCRIPT:-$NYASH_ROOT/tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh}"
-DIRECT_STAGEB_SCRIPT="${DIRECT_STAGEB_SCRIPT:-$NYASH_ROOT/tools/selfhost/run_stageb_compiler_vm.sh}"
+PROOF_STAGEB_SCRIPT="$NYASH_ROOT/tools/selfhost/run_stageb_compiler_vm.sh"
 STEADY_STATE_SCRIPT="${STEADY_STATE_SCRIPT:-$NYASH_ROOT/tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_steady_state_vm.sh}"
 
 resolve_path() {
@@ -190,8 +190,8 @@ run_runtime() {
 }
 
 run_direct() {
-  if [ ! -f "$DIRECT_STAGEB_SCRIPT" ]; then
-    echo "[selfhost/run] direct script not found: $DIRECT_STAGEB_SCRIPT" >&2
+  if [ ! -f "$PROOF_STAGEB_SCRIPT" ]; then
+    echo "[selfhost/run] direct proof script not found: $PROOF_STAGEB_SCRIPT" >&2
     exit 2
   fi
 
@@ -216,8 +216,8 @@ run_direct() {
     args+=(--route-id "$route_id")
   fi
 
-  echo "[selfhost/run] mode=direct source=$(basename "$source_path")" >&2
-  env NYASH_SELFHOST_STAGEB_PROOF_ONLY=1 bash "$DIRECT_STAGEB_SCRIPT" "${args[@]}"
+  echo "[selfhost/run] mode=direct source=$(basename "$source_path") proof_only=1" >&2
+  env NYASH_SELFHOST_STAGEB_PROOF_ONLY=1 bash "$PROOF_STAGEB_SCRIPT" "${args[@]}"
 }
 
 run_steady_state() {

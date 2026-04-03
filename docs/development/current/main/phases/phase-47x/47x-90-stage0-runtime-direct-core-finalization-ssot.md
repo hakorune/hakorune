@@ -71,9 +71,9 @@ Scope: finalize the migration from live VM-backed helper defaults to stage0/runt
    - keep Program(JSON v0) bridge explicit compat only
 10. `47xD1 selfhost_build_stageb.sh MIR mainline artifact contract lock` (landed)
    - define exact Stage-B mainline artifact contract before draining old callers
-11. `47xD2 selfhost_build_stageb.sh default-caller drain` (active)
+11. `47xD2 selfhost_build_stageb.sh default-caller drain` (landed)
    - stop default Stage-B paths from rediscovering `run_stageb_compiler_vm.sh`
-12. `47xD3 run_stageb_compiler_vm.sh proof-only local keep`
+12. `47xD3 run_stageb_compiler_vm.sh proof-only local keep` (active)
    - keep the script but localize it to proof-only callers
 13. `47xE1 proof / closeout`
    - prove direct/core defaults and hand off cleanly

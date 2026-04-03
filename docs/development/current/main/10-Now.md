@@ -38,7 +38,8 @@ Related:
 - `47xC2` landed: stage_a_route.rs source->MIR first switch
 - `47xC3` landed: stage_a_compat_bridge.rs explicit Program(JSON) fallback shrink
 - `47xD1` landed: selfhost_build_stageb.sh MIR mainline artifact contract lock
-- `47xD2` active: selfhost_build_stageb.sh default-caller drain
+- `47xD2` landed: selfhost_build_stageb.sh default-caller drain
+- `47xD3` active: run_stageb_compiler_vm.sh proof-only local keep
 - `45xA1` landed: residual vm owner inventory lock
 - `45xA2` landed: proof-only keep boundary freeze
 - `45xB1` landed: vm.rs broad owner shrink
@@ -68,9 +69,9 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `47xD2 selfhost_build_stageb.sh default-caller drain`
-- next micro task: `47xD3 run_stageb_compiler_vm.sh proof-only local keep`
-- after next: `47xE1 proof / closeout`
+- active micro task: `47xD3 run_stageb_compiler_vm.sh proof-only local keep`
+- next micro task: `47xE1 proof / closeout`
+- after next: `next source lane selection`
 - plain reading:
   - if a bootstrap route stays on `--backend vm`, new capability work still tends to imply `rust-vm` support
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep
