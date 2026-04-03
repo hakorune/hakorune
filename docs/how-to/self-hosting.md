@@ -1,7 +1,7 @@
 # Self‑Hosting — How‑To（前提→手順→検証）
 
 目的
-- Ny → MIR → VM/JIT の自己ホスト経路を最短手順で動かす。
+- Ny → MIR → compat/proof route の自己ホスト経路を最短手順で動かす。
 
 前提
 - Rust（stable）: `cargo --version`
@@ -10,18 +10,18 @@
 手順（v2 推奨）
 1) ビルド
    - 実行: `cargo build --release`
-2) 最小 E2E（VM、plugins 無効）
+2) 最小 E2E（compat/proof keep、plugins 無効）
    - 実行: `NYASH_DISABLE_PLUGINS=1 ./target/release/hakorune --backend vm apps/selfhost-minimal/main.hako`
-3) クイックスモーク（VM軸）
+3) クイックスモーク（compat/proof軸）
    - 実行: `tools/smokes/v2/run.sh --profile quick`
 4) プラグイン（任意・動的）
    - 実行: `tools/smokes/v2/run.sh --profile plugins`
 5) LLVM 統合（任意・AOT/ハーネス）
    - 実行: `tools/smokes/v2/run.sh --profile integration`
 
-最小 Ny 実行器（MirVmMin）
+最小 Ny 実行器（MirVmMin, compat/proof keep）
 - 目的: Ny だけで MIR(JSON v0) のごく最小セット（const/binop/compare/ret）を実行できることを確認。
-- 実行例（VM）:
+- 実行例（compat/proof keep）:
   - `./target/release/hakorune --backend vm apps/selfhost/vm/mir_min_entry.hako`
   - 引数で MIR(JSON) を渡すことも可能（単一文字列）。簡単な例は `apps/selfhost/vm/mir_min_entry.hako` のコメントを参照。
 

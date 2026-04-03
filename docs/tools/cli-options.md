@@ -5,23 +5,23 @@
 ## 現在のバックエンド読み
 
 - `--backend llvm`: product main。`ny-llvmc` 経由の object / EXE 出力ライン
-- `--backend vm`: engineering/bootstrap keep。selfhost、recovery、tooling のために残す current raw default
+- `--backend vm`: compat/proof keep。selfhost、recovery、tooling の explicit keep
 - `--backend vm-hako`: reference / conformance
 - `--compile-wasm`: experimental / monitor-only
 - `--backend interpreter` / `--compile-native` / `--aot`: historical / non-primary route
 
 注意:
-- raw CLI default はまだ `vm` ですが、これは product ownership を意味しません。
+- raw CLI default はまだ `vm` ですが、これは legacy ingress の都合であり product ownership を意味しません。
 - user-facing main narrative は `llvm/exe` first です。default flip は別 gate (`phase-30x / 30xF`) で最後に判断します。
 
 ## 基本
 - `file`: 実行するNyashファイル（位置引数）
-- `--backend {vm|vm-hako|llvm|interpreter}`: 実行バックエンド選択（current raw default: `vm`）
+- `--backend {vm|vm-hako|llvm|interpreter}`: 実行バックエンド選択（current raw default: `vm`, legacy ingress）
 - `--debug-fuel {N|unlimited}`: パーサーのデバッグ燃料（無限ループ対策）
 - `--parser`: removed（M4 tail cleanup で削除済み）。指定時は CLI で reject される。
 
 ## MIR関連
-- `--dump-mir`: MIRを出力（実行はしない / compile-only。実行経路SSOTの確認は `NYASH_VM_DUMP_MIR=1 --backend vm` を優先）
+- `--dump-mir`: MIRを出力（実行はしない / compile-only。実行経路SSOTの確認は `NYASH_VM_DUMP_MIR=1 --backend vm` の compat/proof route を優先）
 - `--verify`: MIR検証を実施
 - `--mir-verbose`: 詳細MIR出力（統計など）
 
@@ -57,7 +57,7 @@
 # Product main: LLVM EXE を生成
 nyash --backend llvm --emit-exe myapp program.hako
 
-# Engineering/bootstrap: Rust VM で実行 + 統計をJSON出力
+# Compat/proof: Rust VM で実行 + 統計をJSON出力
 nyash --backend vm --vm-stats --vm-stats-json program.hako
 
 # Reference/conformance: vm-hako

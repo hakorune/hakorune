@@ -131,9 +131,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `phase-48x smoke/source cleanup`
+- Active next: `phase-48x proof / closeout`
 - Current blocker: `none`
-- Exact focus: `48xC2 vm.rs / vm_fallback thin keep trim`
+- Exact focus: `48xE1 proof / closeout`
 - exact phase-48x order:
   1. `48xA1` residual vm surface inventory lock
   2. `48xA2` proof-only / compat keep classification
@@ -141,6 +141,9 @@ Scope: repo root から current order / current blocker / next exact read に最
   4. `48xB2` proof-only smoke gate lock
   5. `48xC1` source helper stale-route cleanup
   6. `48xC2` vm.rs / vm_fallback thin keep trim
+  7. `48xD1` README/example command cleanup
+  8. `48xD2` stale \`--backend vm\` commentary cleanup
+  9. `48xE1` proof / closeout
 
 Carry-over context:
 
@@ -226,15 +229,15 @@ Carry-over context:
 - `phase-41x` is a route-hardening wave that keeps stage0/bootstrap mainline on `hakorune` binary direct/core routes
   - success means keeping the proof-only VM gate set frozen, hardening `selfhost_build.sh` / `run.sh` as facades, and shrinking `vm.rs` only after caller drain
   - failure means letting selfhost/bootstrap mainline or stage1 compat/raw routes absorb new feature work again
-  - `kilo` optimization is still a far-future lane; it is not the current `phase-48x smoke/source cleanup` order and does not change the rust-vm cleanup order
+- `kilo` optimization is still a far-future lane; it is not the current `phase-48x proof / closeout` order and does not change the rust-vm cleanup order
 - `40xB1` is landed; the small proof-only VM gate set remains frozen as `do-not-grow`
 - stage0 shell residue table:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-48x smoke/source cleanup` |
+| Now | `phase-48x proof / closeout` |
 | Blocker | `none` |
-| Next | `residual vm surface inventory` |
+| Next | `none` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -248,9 +251,9 @@ Carry-over context:
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `phase-48x smoke/source cleanup` | inventory and clean the remaining smoke/source VM surface |
-| Next | `residual vm surface inventory` | classify proof-only / compat keeps before cleanup |
-| Later | `cleanup/archive sweep` | move drained proof-only wrappers and legacy keeps out of the live surface |
+| Now | `phase-48x proof / closeout` | inventory and clean the remaining smoke/source VM surface |
+| Next | `none` | close the cleanup and hand off cleanly |
+| Later | `none` | no additional phase-48x cleanup band after closeout |
 
 ## Phase-34x Waves
 

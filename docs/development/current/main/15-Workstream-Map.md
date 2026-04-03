@@ -128,16 +128,16 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `phase-48x smoke/source cleanup` |
+     | Now | `phase-48x proof / closeout` |
       | Blocker | `none` |
-     | Next | `residual vm surface inventory` |
+     | Next | `none` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `phase-48x smoke/source cleanup` |
-     | Next | `residual vm surface inventory` |
-     | Later | `cleanup/archive sweep` |
+     | Now | `phase-48x proof / closeout` |
+     | Next | `none` |
+     | Later | `none` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |

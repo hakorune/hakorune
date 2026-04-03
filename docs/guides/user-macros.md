@@ -1,6 +1,6 @@
 # User Macros (MacroBoxSpec) — Phase 2
 
-Status: PoC complete; legacy PyVM sandbox route available as opt-in. This guide explains how to author and run user macros in Nyash.
+Status: PoC complete; legacy PyVM sandbox route available as opt-in. This guide explains how to author and run user macros in Nyash, with Rust VM kept only as a compat/proof route.
 
 ## Quickstart
 
@@ -8,7 +8,7 @@ Status: PoC complete; legacy PyVM sandbox route available as opt-in. This guide 
   - `NYASH_MACRO_ENABLE=1`
   - `NYASH_MACRO_PATHS=apps/macros/examples/echo_macro.hako`
 - Run your program as usual (macro expansion happens once before MIR):
-  - `./target/release/hakorune --backend vm apps/tests/ternary_basic.hako`
+  - `./target/release/hakorune --backend vm apps/tests/ternary_basic.hako`（compat/proof keep）
 
 Environment overview (recommended minimal set)
 - `NYASH_MACRO_ENABLE=1`（既定ON）
@@ -66,7 +66,7 @@ export NYASH_MACRO_ENABLE=1
 export NYASH_MACRO_PATHS=apps/macros/examples/echo_macro.hako
 
 # Run your program (macro expansion happens before MIR)
-./target/release/hakorune --backend vm apps/tests/ternary_basic.hako
+./target/release/hakorune --backend vm apps/tests/ternary_basic.hako  # compat/proof keep
 ```
 
 Self‑host path（NYASH_USE_NY_COMPILER=1）での前展開（開発用）
@@ -74,16 +74,16 @@ Self‑host path（NYASH_USE_NY_COMPILER=1）での前展開（開発用）
 ```bash
 NYASH_USE_NY_COMPILER=1 \
 NYASH_MACRO_SELFHOST_PRE_EXPAND=1 \
-./target/release/hakorune --backend vm apps/tests/ternary_basic.hako
+./target/release/hakorune --backend vm apps/tests/ternary_basic.hako  # compat/proof keep
 ```
 
-Notes: selfhost pre-expand は Rust VM route が既定。historical PyVM 比較は `tools/historical/pyvm/*.sh` を使う。
+Notes: selfhost pre-expand は Rust VM compat/proof keep。historical PyVM 比較は `tools/historical/pyvm/*.sh` を使う。
 
 CLI プロファイル（推奨）
 - `--profile dev`（既定相当: マクロON/厳格ON）
 - `--profile lite`（マクロOFFの軽量モード）
 - `--profile ci|strict`（マクロON/厳格ON）
-  - 例: `./target/release/hakorune --profile dev --backend vm apps/tests/ternary_basic.hako`
+  - 例: `./target/release/hakorune --profile dev --backend vm apps/tests/ternary_basic.hako`（compat/proof keep）
 
 Notes
 - Built-in child route (stdin JSON -> stdout JSON) remains available when `NYASH_MACRO_BOX_CHILD_RUNNER=0`.

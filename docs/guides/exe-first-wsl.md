@@ -36,7 +36,7 @@ MIR Builder (optional, EXE)
 - Run: `./app_out` (exit `7` expected for `return 1+2*3`).
 
 Runner with EXE‑First Parser
-- `NYASH_USE_NY_COMPILER=1 NYASH_USE_NY_COMPILER_EXE=1 ./target/release/hakorune --backend vm tmp/sample.hako`
+- `NYASH_USE_NY_COMPILER=1 NYASH_USE_NY_COMPILER_EXE=1 ./target/release/hakorune --backend vm tmp/sample.hako`（compat/proof keep）
 - Smoke: `./tools/exe_first_runner_smoke.sh`
 
 Troubleshooting

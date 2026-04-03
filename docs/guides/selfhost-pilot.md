@@ -3,7 +3,7 @@ Self‑Hosting Pilot — Quick Guide (Phase‑15)
 Overview
 - Goal: run Ny→JSON v0 via the selfhost compiler path while keeping backend roles explicit:
   - `llvm/exe` = product main
-  - `rust-vm` = engineering/bootstrap keep
+  - `rust-vm` = compat/proof keep
   - `vm-hako` = reference/conformance
   - `PyVM` = historical opt-in
 - Default remains env‑gated for safety; CI runs smokes to build confidence.
@@ -11,9 +11,9 @@ Overview
 Recommended Flows
 - Product native path: `NYASH_LLVM_USE_HARNESS=1 tools/build_llvm.sh apps/... -o app && ./app`
 - Product EXE-first (crate path): `bash tools/crate_exe_smoke.sh apps/tests/ternary_basic.hako`
-- Engineering bootstrap E2E: `NYASH_USE_NY_COMPILER=1 ./target/release/hakorune --backend vm apps/examples/string_p0.hako`
+- Compat/proof bootstrap E2E: `NYASH_USE_NY_COMPILER=1 ./target/release/hakorune --backend vm apps/examples/string_p0.hako`
 - Emit‑only: `NYASH_USE_NY_COMPILER=1 NYASH_NY_COMPILER_EMIT_ONLY=1 ...`
-- Engineering bootstrap with parser EXE: `tools/build_compiler_exe.sh && NYASH_USE_NY_COMPILER=1 NYASH_USE_NY_COMPILER_EXE=1 ./target/release/hakorune --backend vm apps/examples/string_p0.hako`
+- Compat/proof bootstrap with parser EXE: `tools/build_compiler_exe.sh && NYASH_USE_NY_COMPILER=1 NYASH_USE_NY_COMPILER_EXE=1 ./target/release/hakorune --backend vm apps/examples/string_p0.hako`
 
 CI Workflows
 - Selfhost Bootstrap (always): `.github/workflows/selfhost-bootstrap.yml`
@@ -45,5 +45,5 @@ Troubleshooting (short)
 
 Notes
 - JSON v0 schema is stable but not yet versioned; validation is planned.
-- Raw CLI default `vm` maps to Rust VM, but this is an engineering/bootstrap default rather than product ownership.
+- Raw CLI default `vm` maps to Rust VM, but this is a compat/proof keep rather than product ownership.
 - Historical PyVM checks are direct-only (`tools/historical/pyvm/*.sh`).

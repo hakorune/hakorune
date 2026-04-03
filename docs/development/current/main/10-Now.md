@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `phase-48x smoke/source cleanup`
+- lane: `phase-48x proof / closeout`
 - `47xA1` landed: runtime/default contract lock
 - `47xA2` landed: stage1 source->MIR contract lock
 - `47xA3` landed: Stage-A direct/core contract lock
@@ -72,8 +72,8 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `48xD2 stale \`--backend vm\` commentary cleanup`
-- next micro task: `48xE1 proof / closeout`
+- active micro task: `48xE1 proof / closeout`
+- next micro task: `none`
 - after next: `none`
 - plain reading:
   - if a bootstrap route stays on `--backend vm`, new capability work still tends to imply `rust-vm` support

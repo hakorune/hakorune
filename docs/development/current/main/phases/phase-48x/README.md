@@ -54,6 +54,6 @@ Related:
    - `48xC2` vm.rs / vm_fallback thin keep trim (landed)
 4. `48xD` docs/examples cleanup
    - `48xD1` README/example command cleanup (landed)
-   - `48xD2` stale `--backend vm` commentary cleanup (active)
+   - `48xD2` stale `--backend vm` commentary cleanup (landed)
 5. `48xE` proof / closeout
-   - `48xE1` proof / closeout
+   - `48xE1` proof / closeout (active)
