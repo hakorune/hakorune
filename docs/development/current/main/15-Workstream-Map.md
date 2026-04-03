@@ -131,14 +131,14 @@ Related:
      | --- | --- |
      | Now | `phase-50x rust-vm source/archive cleanup` |
       | Blocker | `none` |
-     | Next | `50xB2 route-comment stale wording cleanup` |
+     | Next | `50xC1 archive-ready docs/examples move` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
      | Now | `phase-50x rust-vm source/archive cleanup` |
-     | Next | `50xB2 route-comment stale wording cleanup` |
-     | Later | `50xC1 archive-ready docs/examples move` |
+     | Next | `50xC1 archive-ready docs/examples move` |
+     | Later | `50xC2 historical PyVM / legacy wrapper archival sweep` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
@@ -184,8 +184,8 @@ Related:
      - Active backend surface tasks:
      - `phase-50x rust-vm source/archive cleanup`
      - Queued backend surface tasks:
-     - `50xB2 route-comment stale wording cleanup`
      - `50xC1 archive-ready docs/examples move`
+     - `50xC2 historical PyVM / legacy wrapper archival sweep`
     - `kilo` optimization wave (far future; not the next lane)
 - Post-`37xD1` cleanup:
   - drained shim / legacy embedded smoke archive sweep

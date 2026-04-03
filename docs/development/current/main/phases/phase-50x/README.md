@@ -48,9 +48,9 @@ Related:
    - `50xA2` proof-only / compat keep classification (landed)
 2. `50xB` stale helper cleanup
    - `50xB1` smoke/helper stale-route cleanup (landed)
-   - `50xB2` route-comment stale wording cleanup (active)
+   - `50xB2` route-comment stale wording cleanup (landed)
 3. `50xC` archive-ready source/docs move
-   - `50xC1` archive-ready docs/examples move
+   - `50xC1` archive-ready docs/examples move (active)
    - `50xC2` historical PyVM / legacy wrapper archival sweep
 4. `50xD` proof / closeout
    - `50xD1` proof / closeout
