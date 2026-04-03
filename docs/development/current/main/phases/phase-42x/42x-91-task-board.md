@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-03
 ---
 
@@ -10,7 +10,7 @@ Date: 2026-04-03
 | 1 | `42xA target lock` | landed | starvation targets and proof-only keeps are fixed before more migration work |
 | 2 | `42xB facade migration` | landed | `selfhost_build.sh` / `run.sh` stop feeding day-to-day work into vm-gated routes |
 | 3 | `42xC vm owner drain` | active | `vm.rs` / compat keep lose live caller pressure and shrink |
-| 4 | `42xD closeout` | queued | direct/core route is the mainline owner and vm stays proof/compat keep |
+| 4 | `42xD closeout` | landed | direct/core route is the mainline owner and vm stays proof/compat keep |
 
 ## Exact Micro Tasks
 
@@ -24,4 +24,4 @@ Date: 2026-04-03
 | `42xC2` | landed | `vm.rs` preflight/source-prepare split |
 | `42xC3` | landed | `vm_user_factory` / `vm_fallback` drain |
 | `42xC4` | landed | `core.hako` compat hold line |
-| `42xD1` | active | proof / closeout |
+| `42xD1` | landed | proof / closeout |

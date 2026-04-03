@@ -22,19 +22,19 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-42x vm caller starvation / direct-core owner migration`
-- active micro task: `42xD1 proof / closeout`
-- next micro task: `next source lane selection`
-- post-`41xD1`: `phase-42x vm caller starvation / direct-core owner migration`
+- lane: `phase-43x next source lane selection`
+- active micro task: `43xA1 candidate lane shortlist`
+- next micro task: `43xA2 successor lane decision`
+- post-`41xD1`: `phase-42x vm caller starvation / direct-core owner migration` (landed)
 - raw backend default flip stays deferred beyond `phase-42x`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-42x/README.md`
-4. `docs/development/current/main/phases/phase-42x/42x-90-vm-caller-starvation-direct-core-migration-ssot.md`
-5. `docs/development/current/main/phases/phase-42x/42x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-43x/README.md`
+4. `docs/development/current/main/phases/phase-43x/43x-90-next-source-lane-selection-ssot.md`
+5. `docs/development/current/main/phases/phase-43x/43x-91-task-board.md`
 6. `cargo check --manifest-path Cargo.toml --bin hakorune`
 
 ## Optional Checks

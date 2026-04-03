@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `phase-42x vm caller starvation / direct-core owner migration`
+- lane: `phase-43x next source lane selection`
 - `41xA1` landed: remaining direct/core route facades and caller families are inventoried
 - `41xA2` landed: proof-only VM gate set is frozen and non-growing
 - `41xB1` landed: selfhost_build.sh direct/core route hardening is fixed as a route facade
@@ -68,7 +68,8 @@ Related:
 - plain reading:
   - if a bootstrap route stays on `--backend vm`, new capability work still tends to imply `rust-vm` support
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep
-  - `phase-42x` now starves day-to-day callers away from vm-gated routes and moves owner pressure toward direct/core seams
+- `phase-42x` is landed; it starved day-to-day callers away from vm-gated routes and moved owner pressure toward direct/core seams
+- `phase-43x` now selects the next source lane
   - success means keeping only a small proof-only VM gate set while `selfhost_build.sh`, `run.sh`, and `child.rs` stop acting as live feature entry points
   - `40xB1` is landed; the proof-only VM gate set is frozen and must not grow
   - `41xB2` is landed; `run.sh` stays a facade and must not absorb new feature work

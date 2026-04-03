@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Decision: provisional
 Date: 2026-04-03
 Scope: day-to-day caller を vm-gated route から外し、stage0/bootstrap mainline owner を `hakorune` binary の direct/core route 側へ寄せる。
@@ -72,12 +72,9 @@ Related:
 
 1. `docs/development/current/main/15-Workstream-Map.md`
 2. `CURRENT_TASK.md`
-3. `docs/development/current/main/phases/phase-42x/42x-90-vm-caller-starvation-direct-core-migration-ssot.md`
-4. `docs/development/current/main/phases/phase-42x/42x-91-task-board.md`
-5. `tools/selfhost/selfhost_build.sh`
-6. `src/runner/modes/vm.rs`
-7. `src/runner/modes/common_util/vm_source_prepare.rs`
-8. `lang/src/runner/stage1_cli/core.hako`
+3. `docs/development/current/main/phases/phase-43x/README.md`
+4. `docs/development/current/main/phases/phase-43x/43x-90-next-source-lane-selection-ssot.md`
+5. `docs/development/current/main/phases/phase-43x/43x-91-task-board.md`
 
-- current active micro task: `42xD1 proof / closeout`
-- next micro task: `next source lane selection`
+- successor lane: `phase-43x next source lane selection`
+- next micro task: `43xA1 candidate lane shortlist`

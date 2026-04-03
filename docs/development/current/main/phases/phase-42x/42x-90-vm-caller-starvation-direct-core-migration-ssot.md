@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-03
 Owner: Codex
 Scope: `rust-vm` を即削除せず、live caller を starvation して direct/core owner へ寄せるための route contract を固定する。
@@ -67,9 +67,9 @@ Scope: `rust-vm` を即削除せず、live caller を starvation して direct/c
 
 | Item | State |
 | --- | --- |
-| Now | `phase-42x vm caller starvation / direct-core owner migration` |
+| Now | `phase-43x next source lane selection` |
 | Blocker | `none` |
-| Next | `42xD1 proof / closeout` |
+| Next | `43xA1 candidate lane shortlist` |
 
 - `phase-41x` landed: direct/core route hardening and `vm.rs` proof/oracle shrink are complete enough for handoff
 - `42xA1` locked the active migration surfaces and the exact proof-only keep set
@@ -95,4 +95,4 @@ Scope: `rust-vm` を即削除せず、live caller を starvation して direct/c
 | `42xC2` | landed | split `vm.rs` preflight/source-prepare ownership out of the broad execution path |
 | `42xC3` | landed | move shared vm user-factory ownership out of `vm.rs` / `vm_fallback.rs` and drain fallback callers |
 | `42xC4` | landed | hold `core.hako` compat lane as explicit no-widen while direct/core routes take new work |
-| `42xD1` | active | proof / closeout |
+| `42xD1` | landed | proof / closeout |
