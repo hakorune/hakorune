@@ -290,9 +290,8 @@ impl NyashRunner {
         // Preferred default: run Ny selfhost compiler program (lang/src/compiler/entry/compiler.hako).
         // This avoids inline embedding pitfalls and supports Stage-3 gating via args.
         {
-            use crate::runner::modes::common_util::selfhost::runtime_route_contract as route_contract;
             use crate::runner::modes::common_util::selfhost::{
-                child, json, stage_a_compat_bridge, stage_a_policy, stage_a_spawn,
+                child, stage_a_compat_bridge, stage_a_policy, stage_a_spawn,
             };
             let verbose_level = crate::config::env::dump::cli_verbose_level();
             let exe = std::env::current_exe()
@@ -338,47 +337,22 @@ impl NyashRunner {
                     &["NYASH_USE_NY_COMPILER", "NYASH_CLI_VERBOSE"],
                     &child_env,
                 ) {
-                    // RNR-03: Stage-A payload ownership boundary is resolved in json.rs.
-                    let resolved = json::resolve_stage_a_payload(
+                    // Keep `selfhost.rs` on Stage-A spawn/route sequencing only.
+                    // Captured payload-family resolution now lives in `stage_a_compat_bridge.rs`.
+                    if let Some(resolved) = stage_a_compat_bridge::resolve_captured_payload_to_mir(
+                        &exe,
+                        source_name,
+                        timeout_ms,
+                        verbose_level,
                         captured.mir_line.as_deref(),
                         captured.program_line.as_deref(),
-                    );
-                    if let Some(e) = resolved.mir_parse_error.as_deref() {
-                        let ring0 = crate::runtime::ring0::get_global_ring0();
-                        ring0.log.error(&format!(
-                            "[ny-compiler] mir json parse error (child): {}",
-                            e
-                        ));
-                    }
-
-                    match resolved.payload {
-                        json::StageAPayload::MirModule(module) => {
-                            return accept_stage_a_mir_module(
-                                self,
-                                source_name,
-                                route_contract::LANE_DIRECT,
-                                module,
-                            );
-                        }
-                        json::StageAPayload::ProgramJson(program_line) => {
-                            if let Some(compat) =
-                                stage_a_compat_bridge::resolve_program_payload_to_mir(
-                                    &exe,
-                                    source_name,
-                                    timeout_ms,
-                                    verbose_level,
-                                    program_line.as_str(),
-                                )
-                            {
-                                return accept_stage_a_mir_module(
-                                    self,
-                                    source_name,
-                                    compat.lane,
-                                    compat.module,
-                                );
-                            }
-                        }
-                        json::StageAPayload::Empty => {}
+                    ) {
+                        return accept_stage_a_mir_module(
+                            self,
+                            source_name,
+                            resolved.lane,
+                            resolved.module,
+                        );
                     }
                 }
             }

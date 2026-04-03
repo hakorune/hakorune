@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Decision: provisional
 Date: 2026-04-03
 Scope: `phase-34x stage0 shell residue split` の concrete queue と evidence command をまとめる。
@@ -50,7 +50,7 @@ cargo test --manifest-path Cargo.toml execute_mir_json_text_ -- --nocapture
 ## Current Result
 
 - current front:
-  - `phase-34x closeout review`
+  - `landed precursor`
 - worker-confirmed residue concentration:
   - `child.rs::run_ny_program_capture_json_v0` owns spawn / timeout / stdout-stderr capture / first-line JSON extraction
   - `selfhost.rs` is the shared v0 caller; `stage_a_compat_bridge.rs` is the MIR-only selector caller
@@ -60,3 +60,4 @@ cargo test --manifest-path Cargo.toml execute_mir_json_text_ -- --nocapture
   - `core_executor::execute_mir_json_text` and `execute_loaded_mir_module` are the direct MIR(JSON) owner seam; `execute_json_artifact` remains the family classifier
   - `child.rs` now splits private helper ownership into command setup, capture wiring, timeout/wait, output readback, and JSON-line selection while public selectors stay unchanged
   - proof is pinned by `execute_mir_json_text_accepts_direct_mir_fixture` and `execute_mir_json_text_rejects_program_json_direct_input`
+  - successor lane is `phase-35x stage-a compat route thinning`

@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Decision: provisional
 Date: 2026-04-03
 Scope: `stage0` engineering lane に残る shell residue を thin にし、thread 設計が `vm`/selfhost/raw compat branch を再肥大化させない owner boundary を固定する。
@@ -54,3 +54,8 @@ Related:
 - `core_executor` becomes the explicit in-proc owner for already-materialized `MIR(JSON)` execution
 - direct `MIR(JSON)` proof is pinned by unit tests on `execute_mir_json_text(...)`
 - thread design can be added later without re-expanding `vm`/selfhost/raw compat surfaces
+
+## Current State
+
+- phase-34x tasks are landed through `34xD1`
+- successor lane is `phase-35x stage-a compat route thinning`

@@ -22,19 +22,19 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-34x stage0 shell residue split`
-- active micro task: `phase-34x closeout review`
-- next micro task: `next phase selection`
-- raw backend default flip stays deferred beyond `phase-34x`
+- lane: `phase-35x stage-a compat route thinning`
+- active micro task: `35xA2 selfhost orchestration-only lock`
+- next micro task: `35xB1 Stage-A compat keep/no-widen lock`
+- raw backend default flip stays deferred beyond `phase-35x`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-34x/README.md`
-4. `docs/development/current/main/phases/phase-34x/34x-90-stage0-shell-residue-split-ssot.md`
-5. `docs/development/current/main/phases/phase-34x/34x-91-task-board.md`
-6. `cargo test --manifest-path Cargo.toml execute_mir_json_text_ -- --nocapture`
+3. `docs/development/current/main/phases/phase-35x/README.md`
+4. `docs/development/current/main/phases/phase-35x/35x-90-stage-a-compat-route-thinning-ssot.md`
+5. `docs/development/current/main/phases/phase-35x/35x-91-task-board.md`
+6. `cargo test --manifest-path Cargo.toml resolve_captured_payload_to_mir_ -- --nocapture`
 
 ## Optional Checks
 

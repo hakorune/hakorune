@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `phase-34x stage0 shell residue split`
+- lane: `phase-35x stage-a compat route thinning`
 - `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete
 - `phase-32x` landed: mixed-owner source/smoke split and raw default/token defer are fixed
@@ -38,14 +38,15 @@ Related:
 - `34xB1` landed: `child.rs` shell residue is mechanically split into private route-neutral helpers
 - `34xC1` landed: raw compat lane is explicitly no-widen; thread/runtime capability work is barred from `run_program_json`
 - `34xD1` landed: direct MIR(JSON) handoff is proof-pinned by `execute_mir_json_text_*` tests
-- active micro task: `phase-34x closeout review`
-- next micro task: `next phase selection`
+- `35xA1` landed: captured Stage-A payload resolution moved into `stage_a_compat_bridge::resolve_captured_payload_to_mir(...)`
+- active micro task: `35xA2 selfhost orchestration-only lock`
+- next micro task: `35xB1 Stage-A compat keep/no-widen lock`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
   - `vm-hako` = `reference/conformance`
   - `wasm` = `experimental`
-- raw backend default/token rewrite stays deferred beyond `phase-34x`
+- raw backend default/token rewrite stays deferred beyond `phase-35x`
 - source/smoke cleanup rule:
   - `split/rehome/drain -> delete`
 
@@ -53,6 +54,6 @@ Related:
 
 1. read `CURRENT_TASK.md`
 2. read `15-Workstream-Map.md`
-3. read `docs/development/current/main/phases/phase-34x/README.md`
-4. read `docs/development/current/main/phases/phase-34x/34x-90-stage0-shell-residue-split-ssot.md`
-5. read `docs/development/current/main/phases/phase-34x/34x-91-task-board.md`
+3. read `docs/development/current/main/phases/phase-35x/README.md`
+4. read `docs/development/current/main/phases/phase-35x/35x-90-stage-a-compat-route-thinning-ssot.md`
+5. read `docs/development/current/main/phases/phase-35x/35x-91-task-board.md`

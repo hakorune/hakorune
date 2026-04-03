@@ -37,7 +37,7 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-34x stage0 shell residue split`
+     - current active lane is `phase-35x stage-a compat route thinning`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
@@ -52,14 +52,16 @@ Related:
         - `phase-31x` landed low-blast engineering rehome and shim drain
         - `phase-32x` landed mixed-owner source/smoke split and raw default/token defer
         - `phase-33x` landed and fixed helper-family path truth
-        - `phase-34x` now handles stage0 shell residue split
+        - `phase-34x` landed and fixed stage0 shell residue split
+        - `phase-35x` now handles Stage-A compat route thinning
         - `34xA1` landed and fixed exact `child.rs` shell/process/capture residue
         - `34xA2` landed and fixed `stage1_cli/core.hako` raw compat residue and dispatch split
         - `34xA3` landed and pinned `core_executor` as the direct `MIR(JSON)` owner
         - `34xB1` landed and split `child.rs` shell residue into route-neutral private helpers
         - `34xC1` landed and fixed raw compat no-widen on `run_program_json`
         - `34xD1` landed and proof-pins the direct `MIR(JSON)` handoff with focused unit tests
-        - current active micro task is `phase-34x closeout review`
+        - `35xA1` landed and rehomes captured Stage-A payload resolution into `stage_a_compat_bridge.rs`
+        - current active micro task is `35xA2 selfhost orchestration-only lock`
         - cleanup rule is `split/rehome/drain -> delete`
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
@@ -67,15 +69,15 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `phase-34x stage0 shell residue split` |
+     | Now | `phase-35x stage-a compat route thinning` |
      | Blocker | `none` |
-     | Next | `phase-34x closeout review` |
+     | Next | `35xA2 selfhost orchestration-only lock` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `phase-34x closeout review` |
-     | Next | `next phase selection` |
+     | Now | `35xA2 selfhost orchestration-only lock` |
+     | Next | `35xB1 Stage-A compat keep/no-widen lock` |
      | Later | `raw backend default/token follow-up lane` |
    - stage0 shell residue waves:
 
@@ -115,11 +117,11 @@ Related:
   - `phase-30x` backend surface simplification (landed precursor)
   - `phase-31x` engineering lane isolation (landed precursor)
   - `phase-32x` product / engineering split (landed precursor)
-  - `phase-34x` stage0 shell residue split
+  - `phase-35x` stage-a compat route thinning
 - Active backend surface tasks:
-  - `phase-34x closeout review`
+  - `35xA2 selfhost orchestration-only lock`
 - Queued backend surface tasks:
-  - `next phase selection`
+  - `35xB1 Stage-A compat keep/no-widen lock`
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion
@@ -133,11 +135,11 @@ Related:
 
 ## Exact Next
 
-1. keep `phase-34x` exact through the stage0 shell residue split
-2. keep `phase-33x` landed as the helper-family precursor
-3. keep `phase-32x` landed as the mixed-owner split precursor
-4. keep `phase-31x` landed as the engineering rehome precursor
-5. keep `phase-30x` landed as the ownership-flip precursor
+1. keep `phase-35x` exact through the Stage-A compat route thinning
+2. keep `phase-34x` landed as the stage0 shell-residue precursor
+3. keep `phase-33x` landed as the helper-family precursor
+4. keep `phase-32x` landed as the mixed-owner split precursor
+5. keep `phase-31x` landed as the engineering rehome precursor
 
 ## Active Lane
 

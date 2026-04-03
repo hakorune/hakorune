@@ -49,9 +49,9 @@ Related:
 
 ## Current Focus
 
-- active macro wave: `phase-34x closeout review`
-- active micro task: `34xD closeout/docs cleanup`
-- next queued micro task: `next phase selection`
+- active macro wave: `landed precursor`
+- active micro task: `none`
+- next queued micro task: `phase-35x stage-a compat route thinning`
 - current blocker: `none`
 - exact residue reading:
   - `child.rs` shell/process residue is concentrated in `run_ny_program_capture_json_v0`

@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Phase 34x（ACTIVE）**: stage0 shell residue split（`child.rs` / `stage1_cli` / `core_executor` first）
+- **Phase 35x（ACTIVE）**: stage-a compat route thinning（`selfhost.rs` / `stage_a_compat_bridge.rs` first）
+- **Phase 34x（LANDED）**: stage0 shell residue split（`child.rs` / `stage1_cli` / `core_executor` first）
 - **Phase 33x（LANDED）**: shared helper family recut（`hako_check` / `emit_mir` helper-family truth fixed）
 - **Phase 32x（LANDED）**: product / engineering split（mixed-owner source/smoke split, `build.rs` / `phase2100` first）
 - **Phase 31x（LANDED）**: engineering lane isolation（`tools/engineering/**` への rehome / shim drain / source-smoke sweep）
