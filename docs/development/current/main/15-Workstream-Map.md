@@ -59,7 +59,9 @@ Related:
         - `phase-38x` landed cleanup/archive sweep
      - `phase-39x` now handles stage0 vm gate thinning
         - `39xA1` landed and fixed caller inventory for `selfhost_build.sh` / `run_stageb_compiler_vm.sh` / `run.sh`
-        - `39xA2` active and classifies route ownership
+        - `39xA2` landed and classifies route ownership
+        - `39xB1` landed and selected the direct bootstrap mainline
+        - `39xB2` landed and froze the explicit vm keep set
         - `34xA1` landed and fixed exact `child.rs` shell/process/capture residue
         - `34xA2` landed and fixed `stage1_cli/core.hako` raw compat residue and dispatch split
         - `34xA3` landed and pinned `core_executor` as the direct `MIR(JSON)` owner
@@ -93,14 +95,14 @@ Related:
      | --- | --- |
      | Now | `phase-39x stage0 vm gate thinning` |
      | Blocker | `none` |
-     | Next | `39xA2 route classification` |
+     | Next | `39xC1 caller drain map` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
      | Now | `phase-39x stage0 vm gate thinning` |
-     | Next | `39xA2 route classification` |
-     | Later | `39xB1 bootstrap mainline direct route` |
+     | Next | `39xC1 caller drain map` |
+     | Later | `39xD1 proof / closeout` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
@@ -145,7 +147,7 @@ Related:
 - Active backend surface tasks:
   - `phase-39x stage0 vm gate thinning`
 - Queued backend surface tasks:
-  - `39xA2 route classification`
+  - `39xC1 caller drain map`
 - Post-`37xD1` cleanup:
   - drained shim / legacy embedded smoke archive sweep
   - first landed move: `tools/stage1_smoke.sh` -> `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`

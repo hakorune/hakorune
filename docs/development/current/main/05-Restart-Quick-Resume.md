@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-39x stage0 vm gate thinning`
-- active micro task: `39xA2 route classification`
-- next micro task: `39xB1 bootstrap mainline direct route`
+- active micro task: `39xC1 caller drain map`
+- next micro task: `39xD1 proof / closeout`
 - post-`38xD1`: `phase-39x stage0 vm gate thinning`
 - raw backend default flip stays deferred beyond `phase-39x`
 

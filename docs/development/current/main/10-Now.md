@@ -47,8 +47,8 @@ Related:
 - `36xB1` landed: `raw_subcommand_emit_mir.hako` now owns raw `emit mir-json` request/materialize/emit glue
 - `36xB2` landed: `raw_subcommand_run.hako` now owns raw `run` request/script-args env/Program(JSON) materialization glue
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
-- active micro task: `39xA2 route classification`
-- next micro task: `39xB1 bootstrap mainline direct route`
+- active micro task: `39xC1 caller drain map`
+- next micro task: `39xD1 proof / closeout`
 - post-`38xD1`: stage0 vm gate thinning for remaining bootstrap surfaces
 - landed first cleanup move: `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`
 - `37xD1` evidence:
