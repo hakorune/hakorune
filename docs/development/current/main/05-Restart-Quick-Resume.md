@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-37x bootstrap owner split`
-- active micro task: `37xA2 direct MIR / core-direct split`
-- next micro task: `37xA3 ny-llvmc / exe artifact split`
+- active micro task: `37xA3 ny-llvmc / exe artifact split`
+- next micro task: `37xA4 dispatcher slimming`
 - raw backend default flip stays deferred beyond `phase-37x`
 
 ## Read Next

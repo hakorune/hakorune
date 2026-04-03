@@ -47,8 +47,8 @@ Related:
 - `36xB1` landed: `raw_subcommand_emit_mir.hako` now owns raw `emit mir-json` request/materialize/emit glue
 - `36xB2` landed: `raw_subcommand_run.hako` now owns raw `run` request/script-args env/Program(JSON) materialization glue
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
-- active micro task: `37xA2 direct MIR / core-direct split`
-- next micro task: `37xA3 ny-llvmc / exe artifact split`
+- active micro task: `37xA3 ny-llvmc / exe artifact split`
+- next micro task: `37xA4 dispatcher slimming`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`

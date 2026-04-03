@@ -103,7 +103,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `37xA2 direct MIR / core-direct split`
+- Active next: `37xA3 ny-llvmc / exe artifact split`
 - Current blocker: `none`
 - Exact focus: `phase-37x bootstrap owner split`
   - `phase-32x` is landed; mixed-owner source/smoke split and raw default/token defer are fixed
@@ -150,7 +150,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-37x bootstrap owner split` |
   | Blocker | `none` |
-  | Next | `37xA2 direct MIR / core-direct split` |
+  | Next | `37xA3 ny-llvmc / exe artifact split` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -164,9 +164,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `37xA2 direct MIR / core-direct split` | keep `selfhost_build.sh` thin while splitting direct MIR / core-direct routing |
-| Next | `37xA3 ny-llvmc / exe artifact split` | isolate EXE artifact ownership after the direct MIR seam |
-| Later | `37xA4 dispatcher slimming` | trim the final router surface after the artifact split |
+| Now | `37xA3 ny-llvmc / exe artifact split` | keep `selfhost_build.sh` thin while isolating EXE artifact ownership |
+| Next | `37xA4 dispatcher slimming` | trim the final router surface after the artifact split |
+| Later | `37xB1 build.rs shared prelude freeze` | move to the source split once the shell artifact lane is isolated |
 
 ## Phase-34x Waves
 
