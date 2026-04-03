@@ -33,9 +33,9 @@ Scope: stage0/bootstrap lane の remaining vm-rust / vm-gated surface を archiv
 | Wave | Status | Read as |
 | --- | --- | --- |
 | `40xA archive candidate inventory` | landed | new feature work がまだ `rust-vm` を引きずる route を exact に inventory する |
-| `40xB keep/archive classification` | active | route を `proof-only keep` / `compat keep` / `archive-later` / `direct-owner target` / `must-split-first` に分ける |
-| `40xC archive/delete sweep` | queued | drained vm-facing shims と stale compat wrappers を live surface から外す |
-| `40xD closeout` | queued | `rust-vm` を mainline owner ではなく proof/compat keep として handoff する |
+| `40xB keep/archive classification` | landed | route を `proof-only keep` / `compat keep` / `archive-later` / `direct-owner target` / `must-split-first` に分ける |
+| `40xC archive/delete sweep` | landed | drained vm-facing shims と stale compat wrappers を live surface から外した |
+| `40xD closeout` | active | `rust-vm` を mainline owner ではなく proof/compat keep として handoff する |
 
 ## Candidate Reading
 
@@ -44,8 +44,8 @@ Scope: stage0/bootstrap lane の remaining vm-rust / vm-gated surface を archiv
 | `tools/selfhost/selfhost_build.sh` | mixed | Stage-B producer / direct MIR / EXE artifact / dispatcher が同居する bootstrap owner surface |
 | `tools/selfhost/run_stageb_compiler_vm.sh` | vm gate | explicit Stage-B VM gate; archive candidate selection では keep boundary の確認対象 |
 | `tools/selfhost/run.sh` | outer facade | `stage-a|exe` facade だが runtime route はまだ vm-dependent |
-| `tools/bootstrap_selfhost_smoke.sh` | archive-later shim | top-level caller drain がまだ残る |
-| `tools/plugin_v2_smoke.sh` | archive-later shim | top-level caller drain がまだ残る |
+| `tools/bootstrap_selfhost_smoke.sh` | deleted | top-level shim was drained and removed; callers now land on `tools/selfhost/bootstrap_selfhost_smoke.sh` |
+| `tools/plugin_v2_smoke.sh` | deleted | top-level shim was drained and removed; callers now land on `tools/plugins/plugin_v2_smoke.sh` |
 | `tools/selfhost/selfhost_vm_smoke.sh` | explicit keep | VM path parity proof gate |
 | `tools/selfhost/selfhost_stage3_accept_smoke.sh` | explicit keep | stage3 acceptance proof gate |
 | `src/runner/modes/common_util/selfhost/child.rs` | thin helper | shell capture helper; caller-sensitive |
@@ -75,8 +75,8 @@ Scope: stage0/bootstrap lane の remaining vm-rust / vm-gated surface を archiv
 | `tools/selfhost/selfhost_build.sh` | mixed owner seams: Stage-B producer / direct MIR / EXE artifact / dispatcher |
 | `tools/selfhost/run_stageb_compiler_vm.sh` | explicit VM gate lines and current caller families |
 | `tools/selfhost/run.sh` | outer facade modes and remaining vm-dependent edges |
-| `tools/bootstrap_selfhost_smoke.sh` | top-level shim callers and archive-later readiness |
-| `tools/plugin_v2_smoke.sh` | top-level shim callers and archive-later readiness |
+| `tools/selfhost/bootstrap_selfhost_smoke.sh` | canonical bootstrap proof home and caller drain target |
+| `tools/plugins/plugin_v2_smoke.sh` | canonical plugin proof home and caller drain target |
 | `tools/selfhost/selfhost_vm_smoke.sh` | explicit VM proof boundary |
 | `tools/selfhost/selfhost_stage3_accept_smoke.sh` | stage3 acceptance boundary |
 | `src/runner/modes/common_util/selfhost/child.rs` | thin helper boundary vs caller drain |
@@ -87,8 +87,8 @@ Scope: stage0/bootstrap lane の remaining vm-rust / vm-gated surface を archiv
 
 | Surface | Caller inventory | Reading |
 | --- | --- | --- |
-| `tools/bootstrap_selfhost_smoke.sh` | `Makefile`, `docs/guides/selfhost-pilot.md`, `dev/selfhosting/README.md`, phase-30x/31x/38x/40x docs | archive-later shim; top-level drain remains |
-| `tools/plugin_v2_smoke.sh` | `src/runner/modes/common_util/plugin_guard.rs`, `tools/selfhost/README.md`, phase-29cc/30x/31x/38x/40x docs | archive-later shim; top-level drain remains |
+| `tools/bootstrap_selfhost_smoke.sh` | `Makefile`, `docs/guides/selfhost-pilot.md`, `dev/selfhosting/README.md`, phase-30x/31x/38x/40x docs | deleted top-level shim; callers now point at `tools/selfhost/bootstrap_selfhost_smoke.sh` |
+| `tools/plugin_v2_smoke.sh` | `src/runner/modes/common_util/plugin_guard.rs`, `tools/selfhost/README.md`, phase-29cc/30x/31x/38x/40x docs | deleted top-level shim; callers now point at `tools/plugins/plugin_v2_smoke.sh` |
 | `tools/selfhost/selfhost_build.sh` | `tools/smokes/v2/profiles/integration/selfhost/selfhost_minimal.sh`, `selfhost_build_{binop,return}_vm.sh`, `selfhost_build_exe_return.sh`, `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`, `tools/selfhost/README.md`, `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md` | mixed owner; producer/direct-run/exe-artifact/dispatcher all live |
 | `tools/selfhost/run_stageb_compiler_vm.sh` | `tools/selfhost/run.sh`, phase29bq / 29cc stageb smokes, parser trace, `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md` | explicit VM gate; keep frozen |
 | `tools/selfhost/run.sh` | selfhost README, script index, README, README.ja, quickstart, stage2 bridge smoke, stage3 accept smoke, phase29bq/29y/parser smokes | outer facade; vm-dependent edges remain |
@@ -104,8 +104,8 @@ Scope: stage0/bootstrap lane の remaining vm-rust / vm-gated surface を archiv
 
 | Caller family | Drain target | Read as |
 | --- | --- | --- |
-| `tools/bootstrap_selfhost_smoke.sh` callers | `tools/selfhost/stage1_mainline_smoke.sh` / `tools/selfhost/run_stage1_cli.sh` | mainline proof should point at the direct/core route; the top-level shim becomes archive-later |
-| `tools/plugin_v2_smoke.sh` callers | `tools/plugins/plugin_v2_smoke.sh` | plugin proof should point at the canonical plugin home, not the top-level shim |
+| `tools/selfhost/bootstrap_selfhost_smoke.sh` callers | `tools/selfhost/stage1_mainline_smoke.sh` / `tools/selfhost/run_stage1_cli.sh` | mainline proof points at the direct/core route; the top-level shim is deleted |
+| `tools/plugins/plugin_v2_smoke.sh` callers | `tools/plugins/plugin_v2_smoke.sh` | plugin proof points at the canonical plugin home |
 | `tools/selfhost/run.sh` callers | `tools/selfhost/run_stage1_cli.sh` / `tools/selfhost/stage1_mainline_smoke.sh` | outer facade can stay, but direct mainline should land inward |
 | `tools/selfhost/selfhost_build.sh` callers | `tools/selfhost/selfhost_build.sh` split outputs (`build_product.rs` / `build_engineering.rs`) | mixed owner is not a shim, but callers should stop assuming one vm-shaped route |
 | `src/runner/modes/common_util/selfhost/child.rs` callers | `src/runner/core_executor.rs` / `stage_a_route.rs` / `stage_a_compat_bridge.rs` | caller-sensitive helper should drain toward direct/core owners, not gain new vm growth |
@@ -120,8 +120,8 @@ Scope: stage0/bootstrap lane の remaining vm-rust / vm-gated surface を archiv
 | `tools/selfhost/selfhost_vm_smoke.sh` | `proof-only keep` | VM parity proof only |
 | `tools/selfhost/selfhost_stage3_accept_smoke.sh` | `proof-only keep` | stage3 acceptance proof only until direct coverage replaces it |
 | `lang/src/runner/stage1_cli/core.hako` | `compat keep` | raw compat lane; no new capability work |
-| `tools/bootstrap_selfhost_smoke.sh` | `archive-later` | drain top-level callers and archive |
-| `tools/plugin_v2_smoke.sh` | `archive-later` | drain top-level callers and archive |
+| `tools/bootstrap_selfhost_smoke.sh` | `deleted` | top-level shim drained and removed |
+| `tools/plugin_v2_smoke.sh` | `deleted` | top-level shim drained and removed |
 | `tools/selfhost/run.sh` | `direct-owner target behind facade` | facade may stay, but live owner must move inward to direct/core routes |
 | `src/runner/modes/common_util/selfhost/child.rs` | `direct-owner target behind caller drain` | thin helper; caller drain comes before shrink |
 | `src/runner/core_executor.rs` | `direct owner` | converge new capability work here |
@@ -131,5 +131,5 @@ Scope: stage0/bootstrap lane の remaining vm-rust / vm-gated surface を archiv
 ## Current Front
 
 - active macro wave: `40xB keep/archive classification`
-- active micro task: `40xC1 drained vm-facing shim / wrapper archive/delete sweep`
-- next queued micro task: `40xD1 proof / closeout`
+- active micro task: `40xD1 proof / closeout`
+- next queued micro task: `next source lane selection`

@@ -49,7 +49,7 @@ Related:
 - `phase-38x` の archive-later queue は frozen。
 - `tools/selfhost/selfhost_build.sh` は still mixed owner で、これが最大の archive candidate input になっている。
 - `tools/selfhost/run_stageb_compiler_vm.sh` は explicit VM gate であり、archive candidate selection では keep/archival boundary を明確にする対象。
-- `tools/selfhost/run.sh` / `tools/bootstrap_selfhost_smoke.sh` / `tools/plugin_v2_smoke.sh` は outer facades or archive-later shims。
+- `tools/selfhost/run.sh` is the outer facade; `tools/bootstrap_selfhost_smoke.sh` / `tools/plugin_v2_smoke.sh` top-level shims are deleted and their canonical homes are `tools/selfhost/bootstrap_selfhost_smoke.sh` / `tools/plugins/plugin_v2_smoke.sh`.
 - `tools/selfhost/selfhost_vm_smoke.sh` / `tools/selfhost/selfhost_stage3_accept_smoke.sh` are explicit VM proof gates and must be classified separately.
 - `src/runner/modes/common_util/selfhost/child.rs` / `src/runner/core_executor.rs` are thin-owner or direct-route candidates.
 - `src/runner/modes/vm.rs` remains engineering keep until archive classification proves otherwise.
@@ -71,8 +71,8 @@ Related:
 3. `tools/selfhost/selfhost_build.sh`
 4. `src/runner/build.rs`
 5. `tools/selfhost/run_stageb_compiler_vm.sh`
-6. `tools/bootstrap_selfhost_smoke.sh`
-7. `tools/plugin_v2_smoke.sh`
+6. `tools/selfhost/bootstrap_selfhost_smoke.sh`
+7. `tools/plugins/plugin_v2_smoke.sh`
 
-- current active micro task: `40xC1 drained vm-facing shim / wrapper archive/delete sweep`
-- next queued micro task: `40xD1 proof / closeout`
+- current active micro task: `40xD1 proof / closeout`
+- next queued micro task: `next source lane selection`

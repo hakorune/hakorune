@@ -173,7 +173,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-40x stage0 vm archive candidate selection` |
   | Blocker | `none` |
-  | Next | `40xC1 drained vm-facing shim / wrapper archive/delete sweep` |
+  | Next | `40xD1 proof / closeout` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -188,8 +188,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `phase-40x stage0 vm archive candidate selection` | stop new features from inheriting more `rust-vm` support obligations |
-| Next | `40xC1 drained vm-facing shim / wrapper archive/delete sweep` | archive or delete the drained vm-facing shims now that the caller drain map is fixed |
-| Later | `40xD1 proof / closeout` | hand off with `rust-vm` reduced to proof/compat keep rather than mainline ownership |
+| Next | `40xD1 proof / closeout` | hand off with `rust-vm` reduced to proof/compat keep rather than mainline ownership |
+| Later | `next source lane selection` | pick the next source / runtime ownership lane after the vm archive sweep is closed |
 | After `37xD1` | `cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
 
 ## Phase-34x Waves
