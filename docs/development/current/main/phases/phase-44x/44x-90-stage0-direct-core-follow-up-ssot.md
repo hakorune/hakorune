@@ -62,8 +62,8 @@ Scope: `phase-43x` で選ばれた direct/core follow-up を source/shell route 
 | `44xA2` | landed | `selfhost_build_stageb.sh` direct/core-first cutover |
 | `44xB1` | landed | `selfhost_run_routes.sh` runtime default cutover |
 | `44xB2` | landed | `run.sh` direct route fallback explicitization |
-| `44xC1` | active | `stage0_capture.rs` route-neutral builder split |
-| `44xC2` | queued | `stage_a_route.rs` / compat caller switch |
+| `44xC1` | landed | `stage0_capture.rs` route-neutral builder split |
+| `44xC2` | active | `stage_a_route.rs` / compat caller switch |
 | `44xD1` | queued | `run_stageb_compiler_vm.sh` proof-only demotion |
 | `44xE1` | queued | proof / closeout |
 
@@ -73,4 +73,4 @@ Scope: `phase-43x` で選ばれた direct/core follow-up を source/shell route 
 | --- | --- |
 | Now | `phase-44x stage0 direct/core follow-up` |
 | Blocker | `none` |
-| Next | `44xC1 stage0_capture.rs route-neutral builder split` |
+| Next | `44xC2 stage_a_route.rs / compat caller switch` |

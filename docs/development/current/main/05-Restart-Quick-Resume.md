@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-44x stage0 direct/core follow-up`
-- active micro task: `44xC1 stage0_capture.rs route-neutral builder split`
-- next micro task: `44xC2 stage_a_route.rs / compat caller switch`
+- active micro task: `44xC2 stage_a_route.rs / compat caller switch`
+- next micro task: `44xD1 run_stageb_compiler_vm.sh proof-only demotion`
 - post-`41xD1`: `phase-42x vm caller starvation / direct-core owner migration` (landed)
 - raw backend default flip stays deferred beyond `phase-42x`
 

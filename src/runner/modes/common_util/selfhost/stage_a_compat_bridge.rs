@@ -8,7 +8,9 @@
 
 use crate::mir::MirModule;
 
-use super::{json, runtime_route_contract, stage0_capture, stage_a_policy};
+use super::{
+    json, runtime_route_contract, stage0_capture, stage0_capture_route, stage_a_policy,
+};
 
 const MIR_BUILDER_PROGRAM_PATH: &str =
     "lang/src/compiler/mirbuilder/emit_mir_json_v0_from_program_json_v0.hako";
@@ -86,15 +88,16 @@ pub(crate) fn resolve_program_payload_to_mir(
     }
 
     let envs = [("HAKO_PROGRAM_JSON", program_line)];
-    if let Some(mir_line) = stage0_capture::run_ny_program_capture_json_v0(
+    let cmd = stage0_capture_route::build_stage0_vm_capture_command(
         exe,
         mir_builder_prog,
-        timeout_ms,
         &[],
         CHILD_ENV_REMOVE,
         &envs,
-    )
-    .and_then(|captured| captured.mir_line)
+    );
+
+    if let Some(mir_line) = stage0_capture::run_captured_json_v0_command(cmd, timeout_ms)
+        .and_then(|captured| captured.mir_line)
     {
         match json::parse_mir_json_v0_line(&mir_line) {
             Ok(module) => {

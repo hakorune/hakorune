@@ -1,5 +1,4 @@
 use std::io::Read;
-use std::path::Path;
 use std::process::{Child, Command, Stdio};
 use std::thread::sleep;
 use std::time::Duration;
@@ -19,28 +18,6 @@ struct ChildCaptureFiles {
 struct ChildCapturedOutput {
     stdout: String,
     stderr: String,
-}
-
-fn build_stage0_child_command(
-    exe: &Path,
-    program: &Path,
-    extra_args: &[&str],
-    env_remove: &[&str],
-    envs: &[(&str, &str)],
-) -> Command {
-    let mut cmd = Command::new(exe);
-    crate::runner::child_env::apply_selfhost_compiler_env(&mut cmd);
-    cmd.arg("--backend").arg("vm").arg(program);
-    for a in extra_args {
-        cmd.arg(a);
-    }
-    for k in env_remove {
-        cmd.env_remove(k);
-    }
-    for (k, v) in envs {
-        cmd.env(k, v);
-    }
-    cmd
 }
 
 fn create_capture_tempfile(label: &str) -> Option<NamedTempFile> {
@@ -146,30 +123,20 @@ fn extract_captured_json_lines(stdout: &str) -> CapturedJsonV0Lines {
     }
 }
 
-/// Stage0 shell residue owner.
+/// Route-neutral Stage0 capture plumbing.
 ///
 /// This function owns:
-/// - child spawn under `--backend vm`
 /// - timeout / kill / wait handling
 /// - stdout/stderr temp-file capture
 /// - first-line Program(JSON v0) / MIR(JSON v0) extraction
 ///
-/// Callers must keep route policy out of this helper and only select which captured line they need.
-/// - `exe`: path to nyash executable
-/// - `program`: path to the Nyash script to run (e.g., lang/src/compiler/entry/compiler.hako)
+/// Callers must build the route-specific child command elsewhere and keep route policy out of this helper.
+/// - `cmd`: prebuilt child command, including the backend/route selection
 /// - `timeout_ms`: kill child after this duration
-/// - `extra_args`: additional args to pass after program (e.g., "--", "--read-tmp")
-/// - `env_remove`: environment variable names to remove for the child
-/// - `envs`: key/value pairs to set for the child
-pub fn run_ny_program_capture_json_v0(
-    exe: &Path,
-    program: &Path,
+pub fn run_captured_json_v0_command(
+    mut cmd: Command,
     timeout_ms: u64,
-    extra_args: &[&str],
-    env_remove: &[&str],
-    envs: &[(&str, &str)],
 ) -> Option<CapturedJsonV0Lines> {
-    let mut cmd = build_stage0_child_command(exe, program, extra_args, env_remove, envs);
     let capture = create_capture_files()?;
     attach_capture_stdio(&mut cmd, &capture)?;
     let mut child = match cmd.spawn() {

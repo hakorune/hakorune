@@ -210,7 +210,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | --- | --- |
 | Now | `phase-44x stage0 direct/core follow-up` |
 | Blocker | `none` |
-| Next | `44xC1 stage0_capture.rs route-neutral builder split` |
+| Next | `44xC2 stage_a_route.rs / compat caller switch` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -225,7 +225,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `phase-44x stage0 direct/core follow-up` | move remaining live stage0/selfhost owners off default VM routes |
-| Next | `44xC1 stage0_capture.rs route-neutral builder split` | split backend-agnostic capture plumbing from backend-specific route builders |
+| Next | `44xC2 stage_a_route.rs / compat caller switch` | switch Stage-A caller handoff to the route-neutral capture boundary |
 | Later | `kilo` optimization wave | far-future optimization lane |
 | After `37xD1` | `cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
 

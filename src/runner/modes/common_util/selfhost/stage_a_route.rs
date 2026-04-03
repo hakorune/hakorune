@@ -6,7 +6,10 @@
  * - Keep Stage-A child spawn/setup and captured payload handoff under one thin owner.
  */
 
-use super::{child, stage0_capture, stage_a_compat_bridge, stage_a_policy, stage_a_spawn};
+use super::{
+    child, stage0_capture, stage0_capture_route, stage_a_compat_bridge, stage_a_policy,
+    stage_a_spawn,
+};
 
 const STAGE_A_COMPILER_ENTRY: &str = "lang/src/compiler/entry/compiler.hako";
 
@@ -43,14 +46,15 @@ pub(crate) fn try_capture_stage_a_module(
         .map(|(k, v)| (k.as_str(), v.as_str()))
         .collect();
 
-    let captured = stage0_capture::run_ny_program_capture_json_v0(
+    let cmd = stage0_capture_route::build_stage0_vm_capture_command(
         exe,
         parser_prog,
-        timeout_ms,
         &extra,
         &["NYASH_USE_NY_COMPILER", "NYASH_CLI_VERBOSE"],
         &child_env,
-    )?;
+    );
+
+    let captured = stage0_capture::run_captured_json_v0_command(cmd, timeout_ms)?;
 
     stage_a_compat_bridge::resolve_captured_payload_to_mir(
         exe,
