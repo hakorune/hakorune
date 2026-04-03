@@ -35,8 +35,9 @@ Related:
 - `34xA1` landed: `child.rs` shell/process/capture ownership is fixed around `run_ny_program_capture_json_v0`
 - `34xA2` landed: `stage1_cli/core.hako` raw compat residue is fixed around `run_program_json` / `_run_raw_request`
 - `34xA3` landed: `core_executor` is fixed as the direct MIR(JSON) owner seam
-- active micro task: `34xB1 split spawn/timeout/capture from child.rs`
-- next micro task: `34xC1 run_program_json no-widen lock`
+- `34xB1` landed: `child.rs` shell residue is mechanically split into private route-neutral helpers
+- active micro task: `34xC1 run_program_json no-widen lock`
+- next micro task: `34xD1 direct MIR(JSON) proof path`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`

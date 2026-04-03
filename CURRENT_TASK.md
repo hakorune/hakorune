@@ -93,7 +93,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-34x stage0 shell residue split`
 - Current blocker: `none`
-- Exact focus: `34xB1 split spawn/timeout/capture from child.rs`
+- Exact focus: `34xC1 run_program_json no-widen lock`
   - `phase-32x` is landed; mixed-owner source/smoke split and raw default/token defer are fixed
   - `phase-33x` is landed; helper-family path truth and keep gates are fixed
   - current next cleanup is stage0 shell residue thinning, not `vm.rs` deletion
@@ -109,6 +109,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   - landed in `34xA1`: `child.rs` shell residue is fixed around `run_ny_program_capture_json_v0`; `selfhost.rs` consumes shared v0 capture and `stage_a_compat_bridge.rs` consumes the MIR selector only
   - landed in `34xA2`: `stage1_cli/core.hako` raw compat residue is fixed around `run_program_json` / `_run_raw_request`; `stage1_main` stays dispatcher-only and dispatch boxes own route entry
   - landed in `34xA3`: `core_executor` is fixed as the direct MIR(JSON) owner; `execute_json_artifact` stays family classification while `execute_mir_json_text` / `execute_loaded_mir_module` own direct handoff and terminal execution
+  - landed in `34xB1`: `child.rs` shell residue is mechanically split into private helpers for command setup, capture wiring, timeout/wait, output readback, and JSON-line selection while public selectors stay unchanged
   - raw backend default still stays deferred; no-touch-first remains on `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, and `tools/selfhost/selfhost_build.sh`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
@@ -122,7 +123,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-34x stage0 shell residue split` |
   | Blocker | `none` |
-  | Next | `34xC1 run_program_json no-widen lock` |
+  | Next | `34xD1 direct MIR(JSON) proof path` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -136,17 +137,17 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `34xB1 split spawn/timeout/capture from child.rs` | thin the shell helper now that owner boundaries are fixed |
-| Next | `34xC1 run_program_json no-widen lock` | keep raw compat narrow while child helper gets thinner |
-| Later | `34xD1 direct MIR(JSON) proof path` | keep proof of the direct core handoff separate from shell thinning |
+| Now | `34xC1 run_program_json no-widen lock` | keep raw compat narrow after child helper thinning landed |
+| Next | `34xD1 direct MIR(JSON) proof path` | keep proof of the direct core handoff separate from shell thinning |
+| Later | `34xD closeout/docs cleanup` | close the shell-residue split after no-widen and proof rows are fixed |
 
 ## Phase-34x Waves
 
 | Wave | Status | Read as |
 | --- | --- | --- |
 | `34xA residue owner lock` | landed | fix exact shell residue / owner split first |
-| `34xB child runner thinning` | active | make `child.rs` process helper thinner without widening routes |
-| `34xC stage1 raw compat narrowing` | queued | keep raw compat branch narrow and non-growing |
+| `34xB child runner thinning` | landed | make `child.rs` process helper thinner without widening routes |
+| `34xC stage1 raw compat narrowing` | active | keep raw compat branch narrow and non-growing |
 | `34xD direct core handoff` | queued | pin already-materialized `MIR(JSON)` execution to `core_executor` |
 
 ## Phase-34x Micro Tasks
@@ -156,8 +157,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `34xA1` | landed | `child.rs` exact residue lock |
 | `34xA2` | landed | `stage1_cli/core.hako` exact residue lock |
 | `34xA3` | landed | `core_executor` takeover seam lock |
-| `34xB1` | active | split spawn/timeout/capture from `child.rs` |
-| `34xC1` | queued | `run_program_json` no-widen lock |
+| `34xB1` | landed | split spawn/timeout/capture from `child.rs` |
+| `34xC1` | active | `run_program_json` no-widen lock |
 | `34xD1` | queued | direct `MIR(JSON)` proof path |
 
 ## Canonical Owners
