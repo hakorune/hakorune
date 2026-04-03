@@ -1,14 +1,14 @@
 # User Macros (MacroBoxSpec) — Phase 2
 
-Status: PoC complete; legacy PyVM sandbox route available as opt-in. This guide explains how to author and run user macros in Nyash, with Rust VM kept only as a compat/proof route.
+Status: PoC complete; legacy PyVM sandbox route available as opt-in. This guide explains how to author and run user macros in Nyash, with Rust VM kept only as an explicit compat/proof route.
 
 ## Quickstart
 
 - Register user macros (recommended minimal env):
   - `NYASH_MACRO_ENABLE=1`
   - `NYASH_MACRO_PATHS=apps/macros/examples/echo_macro.hako`
-- Run your program as usual (macro expansion happens once before MIR):
-  - `./target/release/hakorune --backend vm apps/tests/ternary_basic.hako`（compat/proof keep）
+- Run your program through the explicit compat/proof lane (macro expansion happens once before MIR):
+  - `./target/release/hakorune --backend vm apps/tests/ternary_basic.hako`（explicit compat/proof keep）
 
 Environment overview (recommended minimal set)
 - `NYASH_MACRO_ENABLE=1`（既定ON）
@@ -16,7 +16,7 @@ Environment overview (recommended minimal set)
 - `NYASH_MACRO_STRICT=1`（既定: 厳格）
 - `NYASH_MACRO_TRACE=0|1`（開発用トレース）
 
-- Runner route is default（self‑hosting優先）。内部子ルートは非推奨（`NYASH_MACRO_BOX_CHILD_RUNNER=0` でのみ有効）。
+- Runner route follows the current mainline selfhost path. Internal child route is preserved only for compat/proof keep (`NYASH_MACRO_BOX_CHILD_RUNNER=0` でのみ有効）。
 
 Backward compat (deprecated)
 - `NYASH_MACRO_BOX_NY=1` + `NYASH_MACRO_BOX_NY_PATHS=...` → 今後は `NYASH_MACRO_PATHS` を使ってね
@@ -66,7 +66,7 @@ export NYASH_MACRO_ENABLE=1
 export NYASH_MACRO_PATHS=apps/macros/examples/echo_macro.hako
 
 # Run your program (macro expansion happens before MIR)
-./target/release/hakorune --backend vm apps/tests/ternary_basic.hako  # compat/proof keep
+./target/release/hakorune --backend vm apps/tests/ternary_basic.hako  # explicit compat/proof keep
 ```
 
 Self‑host path（NYASH_USE_NY_COMPILER=1）での前展開（開発用）
@@ -74,7 +74,7 @@ Self‑host path（NYASH_USE_NY_COMPILER=1）での前展開（開発用）
 ```bash
 NYASH_USE_NY_COMPILER=1 \
 NYASH_MACRO_SELFHOST_PRE_EXPAND=1 \
-./target/release/hakorune --backend vm apps/tests/ternary_basic.hako  # compat/proof keep
+./target/release/hakorune --backend vm apps/tests/ternary_basic.hako  # explicit compat/proof keep
 ```
 
 Notes: selfhost pre-expand は Rust VM compat/proof keep。historical PyVM 比較は `tools/historical/pyvm/*.sh` を使う。
@@ -83,7 +83,7 @@ CLI プロファイル（推奨）
 - `--profile dev`（既定相当: マクロON/厳格ON）
 - `--profile lite`（マクロOFFの軽量モード）
 - `--profile ci|strict`（マクロON/厳格ON）
-  - 例: `./target/release/hakorune --profile dev --backend vm apps/tests/ternary_basic.hako`（compat/proof keep）
+  - 例: `./target/release/hakorune --profile dev --backend vm apps/tests/ternary_basic.hako`（explicit compat/proof keep）
 
 Notes
 - Built-in child route (stdin JSON -> stdout JSON) remains available when `NYASH_MACRO_BOX_CHILD_RUNNER=0`.

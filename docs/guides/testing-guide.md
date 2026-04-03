@@ -41,7 +41,8 @@ echo 'print("Hello Nyash!")' > local_tests/test_hello.hako
 # 実用アプリテスト
 ./target/debug/nyash app_dice_rpg.hako
 
-# JIT 実行フラグ（CLI, compat/proof keep）
+# JIT 実行フラグ（CLI, explicit compat/proof keep）
+# Note: the `--backend vm` examples below are explicit compat/proof keep only; they are not day-to-day routes.
 ./target/release/hakorune --backend vm \
   --jit-exec --jit-stats --jit-dump --jit-threshold 1 \
   --jit-phi-min --jit-hostcall --jit-handle-debug \
@@ -50,7 +51,7 @@ echo 'print("Hello Nyash!")' > local_tests/test_hello.hako
 #   NYASH_JIT_EXEC/NYASH_JIT_STATS(/_JSON)/NYASH_JIT_DUMP/NYASH_JIT_THRESHOLD
 #   NYASH_JIT_PHI_MIN/NYASH_JIT_HOSTCALL/NYASH_JIT_HANDLE_DEBUG
 
-# HostCallハンドルPoCの例（compat/proof keep）
+# HostCallハンドルPoCの例（explicit compat/proof keep）
 ./target/release/hakorune --backend vm --jit-exec --jit-hostcall examples/jit_array_param_call.hako
 ./target/release/hakorune --backend vm --jit-exec --jit-hostcall examples/jit_map_param_call.hako
 ./target/release/hakorune --backend vm --jit-exec --jit-hostcall examples/jit_map_int_keys_param_call.hako

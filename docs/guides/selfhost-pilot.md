@@ -1,19 +1,22 @@
 Self‑Hosting Pilot — Quick Guide (Phase‑15)
 
 Overview
-- Goal: run Ny→JSON v0 via the selfhost compiler path while keeping backend roles explicit:
+- Goal: keep backend roles explicit while the selfhost mainline uses direct/core routes:
   - `llvm/exe` = product main
   - `rust-vm` = compat/proof keep
   - `vm-hako` = reference/conformance
   - `PyVM` = historical opt-in
-- Default remains env‑gated for safety; CI runs smokes to build confidence.
+- Mainline stays on direct/core routes; explicit `--backend vm` examples below are compat/proof keep and CI still runs smokes to build confidence.
+
+Recommended daily route
+- Day-to-day selfhost runtime: `tools/selfhost/run.sh --runtime --input apps/examples/string_p0.hako`
 
 Recommended Flows
 - Product native path: `NYASH_LLVM_USE_HARNESS=1 tools/build_llvm.sh apps/... -o app && ./app`
 - Product EXE-first (crate path): `bash tools/crate_exe_smoke.sh apps/tests/ternary_basic.hako`
-- Compat/proof bootstrap E2E: `NYASH_USE_NY_COMPILER=1 ./target/release/hakorune --backend vm apps/examples/string_p0.hako`
+- Compat/proof bootstrap E2E (legacy VM keep): `NYASH_USE_NY_COMPILER=1 ./target/release/hakorune --backend vm apps/examples/string_p0.hako`
 - Emit‑only: `NYASH_USE_NY_COMPILER=1 NYASH_NY_COMPILER_EMIT_ONLY=1 ...`
-- Compat/proof bootstrap with parser EXE: `tools/build_compiler_exe.sh && NYASH_USE_NY_COMPILER=1 NYASH_USE_NY_COMPILER_EXE=1 ./target/release/hakorune --backend vm apps/examples/string_p0.hako`
+- Compat/proof bootstrap with parser EXE (legacy VM keep): `tools/build_compiler_exe.sh && NYASH_USE_NY_COMPILER=1 NYASH_USE_NY_COMPILER_EXE=1 ./target/release/hakorune --backend vm apps/examples/string_p0.hako`
 
 CI Workflows
 - Selfhost Bootstrap (always): `.github/workflows/selfhost-bootstrap.yml`
