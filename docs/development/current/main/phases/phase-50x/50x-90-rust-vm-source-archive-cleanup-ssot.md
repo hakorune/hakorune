@@ -21,6 +21,42 @@ Important context:
 - `PyVM` is historical/direct-only and is not part of the day-to-day blocker set.
 - `phase-49x` finished wording cleanup and handed off to this lane.
 
+## Observed Surface Snapshot
+
+The following live surfaces were observed in the current tree and are the ones this lane is expected to keep classifying:
+
+- proof-only keep candidates:
+  - `tools/selfhost/run_stageb_compiler_vm.sh`
+  - `tools/selfhost/bootstrap_selfhost_smoke.sh`
+  - `tools/selfhost/selfhost_smoke.sh`
+  - `tools/selfhost/selfhost_stage3_accept_smoke.sh`
+  - `tools/plugins/plugin_v2_smoke.sh`
+  - `tools/exe_first_smoke.sh`
+- compat keep candidates:
+  - `tools/selfhost/lib/selfhost_run_routes.sh` stage-a branch
+  - `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
+  - `src/runner/modes/vm_fallback.rs`
+  - `lang/src/runner/stage1_cli/core.hako`
+- archive-later docs/examples:
+  - `docs/how-to/self-hosting.md`
+  - `docs/tools/cli-options.md`
+  - `docs/guides/testing-guide.md`
+  - `docs/guides/selfhost-pilot.md`
+  - `docs/guides/user-macros.md`
+  - `docs/guides/exe-first-wsl.md`
+  - `docs/development/current/selfhost/dep_tree_min_string.md`
+  - `docs/development/runtime/cli-hakorune-stage1.md`
+  - top-level `README.md`
+  - `tools/selfhost/README.md`
+- historical/direct-only PyVM tooling:
+  - `tools/historical/pyvm/*.sh`
+  - `tools/historical/pyvm/pyvm_runner.py`
+
+Current residual note:
+
+- `stage_a_compat_bridge.rs` still has a legacy wording comment that mentions `--backend vm`; that is a cleanup candidate, not a default caller.
+- the current top-level `README.md` and helper READMEs already mark PyVM as historical/direct-only and `--backend vm` as compat/proof only.
+
 ## Task Order
 
 1. `50xA1 residual rust-vm surface inventory lock`
