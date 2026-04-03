@@ -74,5 +74,5 @@ Related:
 6. `tools/bootstrap_selfhost_smoke.sh`
 7. `tools/plugin_v2_smoke.sh`
 
-- current active micro task: `40xB2 top-level shim caller drain map`
-- next queued micro task: `40xC1 drained vm-facing shim / wrapper archive/delete sweep`
+- current active micro task: `40xC1 drained vm-facing shim / wrapper archive/delete sweep`
+- next queued micro task: `40xD1 proof / closeout`

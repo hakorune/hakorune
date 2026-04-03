@@ -131,5 +131,5 @@ Scope: stage0/bootstrap lane の remaining vm-rust / vm-gated surface を archiv
 ## Current Front
 
 - active macro wave: `40xB keep/archive classification`
-- active micro task: `40xB2 top-level shim caller drain map`
-- next queued micro task: `40xC1 drained vm-facing shim / wrapper archive/delete sweep`
+- active micro task: `40xC1 drained vm-facing shim / wrapper archive/delete sweep`
+- next queued micro task: `40xD1 proof / closeout`
