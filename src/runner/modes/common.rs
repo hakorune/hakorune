@@ -257,9 +257,10 @@ impl NyashRunner {
 
 #[cfg(not(feature = "interpreter-legacy"))]
 impl NyashRunner {
-    /// Interpreter backend is disabled in default builds. Use `--backend vm` or `--backend llvm`.
+    /// Interpreter backend is disabled in default builds.
+    /// Use `--backend vm` only for explicit proof/compat lanes, or `--backend llvm`.
     pub(crate) fn execute_nyash_file(&self, _filename: &str) {
-        eprintln!("❌ Interpreter backend (AST) is disabled. Build with --features interpreter-legacy to enable, or use --backend vm/llvm.");
+        eprintln!("❌ Interpreter backend (AST) is disabled. Build with --features interpreter-legacy to enable, or use --backend vm only for explicit proof/compat lanes, or --backend llvm.");
         std::process::exit(1);
     }
 }

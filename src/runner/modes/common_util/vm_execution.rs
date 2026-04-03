@@ -30,7 +30,7 @@ pub(crate) fn run_vm_compiled_module(
 
     // CLI emit: MIR JSON / EXE
     // NOTE: These flags are CLI-level and should work regardless of selected backend.
-    // The VM runner is a common default backend, so we honor them here and exit early.
+    // Treat them as explicit proof/compat lanes and exit early.
     emit_direct::maybe_emit_mir_json_and_exit(
         emit_mir_json,
         verification_result,

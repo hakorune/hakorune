@@ -133,7 +133,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-48x smoke/source cleanup`
 - Current blocker: `none`
-- Exact focus: `48xC1 source helper stale-route cleanup`
+- Exact focus: `48xC2 vm.rs / vm_fallback thin keep trim`
 - exact phase-48x order:
   1. `48xA1` residual vm surface inventory lock
   2. `48xA2` proof-only / compat keep classification

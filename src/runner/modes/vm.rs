@@ -3,7 +3,7 @@ use nyash_rust::{ast::ASTNode, mir::MirCompiler, parser::NyashParser};
 use std::{fs, process};
 
 impl NyashRunner {
-    /// Execute VM mode with full plugin initialization and AST prelude merge
+    /// Execute VM proof/oracle keep with plugin initialization and AST prelude merge.
     pub(crate) fn execute_vm_mode(&self, filename: &str) {
         // Note: hv1 direct route is now handled at main.rs entry point (before plugin initialization).
         // This function is only called after plugin initialization has already occurred.
@@ -23,7 +23,7 @@ impl NyashRunner {
             ));
         }
 
-        // Enforce plugin-first policy for VM on this branch (deterministic):
+        // Enforce plugin-first policy for the VM proof/oracle keep (deterministic):
         // - Initialize plugin host if not yet loaded
         // - Prefer plugin implementations for core boxes
         // - Optionally fail fast when plugins are missing (NYASH_VM_PLUGIN_STRICT=1)

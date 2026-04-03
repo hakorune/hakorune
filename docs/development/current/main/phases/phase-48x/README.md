@@ -50,8 +50,8 @@ Related:
    - `48xB1` smoke script stale-route cleanup (landed)
    - `48xB2` proof-only smoke gate lock (landed)
 3. `48xC` source cleanup
-   - `48xC1` source helper stale-route cleanup (active)
-   - `48xC2` vm.rs / vm_fallback thin keep trim
+   - `48xC1` source helper stale-route cleanup (landed)
+   - `48xC2` vm.rs / vm_fallback thin keep trim (active)
 4. `48xD` docs/examples cleanup
    - `48xD1` README/example command cleanup
    - `48xD2` stale `--backend vm` commentary cleanup

@@ -606,7 +606,7 @@ impl super::macro_box::MacroBox for NyChildMacroBox {
                 crate::macro_log!("[macro-proxy] write tmp runner failed: {}", e);
                 return ast.clone();
             }
-            // Run Nyash runner script under PyVM: nyash --backend vm <tmp_runner> -- <json>
+            // Run Nyash runner script through the explicit compat VM bridge: nyash --backend vm <tmp_runner> -- <json>
             cmd.arg("--backend").arg("vm").arg(tmp_path);
             // Append script args after '--'
             let j = crate::r#macro::ast_json::ast_to_json(ast).to_string();
