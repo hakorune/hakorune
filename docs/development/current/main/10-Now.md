@@ -27,7 +27,11 @@ Related:
 
 ## Current
 
-- lane: `phase-49x legacy wording / compat route cleanup`
+- lane: `phase-50x rust-vm source/archive cleanup`
+- `49xD1` landed: proof / closeout
+- `50xA1` active: residual rust-vm surface inventory lock
+- `50xA2` next: proof-only / compat keep classification
+- `50xB1` after-next: smoke/helper stale-route cleanup
 - `47xA1` landed: runtime/default contract lock
 - `47xA2` landed: stage1 source->MIR contract lock
 - `47xA3` landed: Stage-A direct/core contract lock
@@ -36,7 +40,7 @@ Related:
 - `47xB3` landed: run.sh explicit vm compat mode lock
 - `47xD3` landed: run_stageb_compiler_vm.sh proof-only local keep
 - `48xA1` landed: residual vm surface inventory lock
-- `48xA2` active: proof-only / compat keep classification
+- `48xA2` landed: proof-only / compat keep classification
 - `47xC1` landed: stage0_capture_route.rs non-VM builder add
 - `47xC2` landed: stage_a_route.rs source->MIR first switch
 - `47xC3` landed: stage_a_compat_bridge.rs explicit Program(JSON) fallback shrink
@@ -72,7 +76,7 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `49xD1 proof / closeout`
+- active micro task: `50xA1 residual rust-vm surface inventory lock`
 - next micro task: `none`
 - after next: `none`
 - plain reading:

@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: rewrite the remaining current docs and helper comments that still read like `rust-vm` is a day-to-day owner, keep compat/proof routes explicit, and preserve the direct/core mainline narrative.
 Related:
@@ -10,6 +10,9 @@ Related:
   - docs/development/current/main/phases/README.md
   - docs/development/current/main/phases/phase-49x/49x-90-legacy-wording-compat-route-cleanup-ssot.md
   - docs/development/current/main/phases/phase-49x/49x-91-task-board.md
+  - docs/development/current/main/phases/phase-50x/README.md
+  - docs/development/current/main/phases/phase-50x/50x-90-rust-vm-source-archive-cleanup-ssot.md
+  - docs/development/current/main/phases/phase-50x/50x-91-task-board.md
 ---
 
 # Phase 49x: Legacy Wording / Compat Route Cleanup
@@ -52,7 +55,13 @@ Related:
    - `49xC1` runtime `stage-a` compat label lock (landed)
    - `49xC2` helper comment stale-route cleanup (landed)
 4. `49xD` proof / closeout
-   - `49xD1` proof / closeout (active)
+   - `49xD1` proof / closeout (landed)
+
+## Handoff
+
+- `phase-49x` is landed.
+- successor lane is `phase-50x rust-vm source/archive cleanup`.
+- current docs now treat rust-vm wording cleanup as complete and move residual source/archive inventory into the next lane.
 
 ## Boundaries
 

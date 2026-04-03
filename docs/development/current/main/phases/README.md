@@ -4,8 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 49x legacy wording / compat route cleanup
-- **Phase 49x（ACTIVE）**: legacy wording / compat route cleanup（current docs / guides / helper comments that still read like `rust-vm` is a day-to-day owner を rewrite する）
+- **Current (ACTIVE)**: Phase 50x rust-vm source/archive cleanup
+- **Phase 50x（ACTIVE）**: rust-vm source/archive cleanup（残っている rust-vm / vm-gated source と helper surface を inventory して keep / archive / delete-ready に分ける）
+- **Phase 49x（LANDED）**: legacy wording / compat route cleanup（current docs / guides / helper comments that still read like `rust-vm` is a day-to-day owner を rewrite した）
 - **Phase 48x（LANDED）**: smoke/source cleanup（残っている `--backend vm` smoke / helper / docs examples を inventory して clean up した）
 - **Phase 47x（LANDED）**: stage0/runtime direct-core finalization（day-to-day helper-route defaults are now off `--backend vm`）
 - **Phase 46x（LANDED）**: next source lane selection（残っている live VM pressure を棚卸しして、後継 lane に `stage0/runtime direct-core finalization` を選んだ）

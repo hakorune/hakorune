@@ -22,11 +22,11 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-49x legacy wording / compat route cleanup`
-- landed micro task: `48xE1 proof / closeout`
-- active micro task: `49xA2 top-level docs compat wording rewrite`
-- next micro task: `49xB1 current guides compat wording rewrite`
-- after next: `49xB2 example-command stale-route sweep`
+- lane: `phase-50x rust-vm source/archive cleanup`
+- landed micro task: `49xD1 proof / closeout`
+- active micro task: `50xA1 residual rust-vm surface inventory lock`
+- next micro task: `50xA2 proof-only / compat keep classification`
+- after next: `50xB1 smoke/helper stale-route cleanup`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 
@@ -34,9 +34,9 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-48x/README.md`
-4. `docs/development/current/main/phases/phase-48x/48x-90-smoke-source-cleanup-ssot.md`
-5. `docs/development/current/main/phases/phase-48x/48x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-50x/README.md`
+4. `docs/development/current/main/phases/phase-50x/50x-90-rust-vm-source-archive-cleanup-ssot.md`
+5. `docs/development/current/main/phases/phase-50x/50x-91-task-board.md`
 6. `cargo check --manifest-path Cargo.toml --bin hakorune`
 
 ## Optional Checks

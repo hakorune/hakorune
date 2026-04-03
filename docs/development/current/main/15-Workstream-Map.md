@@ -37,7 +37,7 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-49x legacy wording / compat route cleanup`
+     - current active lane is `phase-50x rust-vm source/archive cleanup`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
@@ -71,7 +71,7 @@ Related:
      - `48xA1` inventory lock is landed; `48xA2` proof-only / compat keep classification is landed
      - `48xB1` smoke script stale-route cleanup is landed; `48xB2` proof-only smoke gate lock is landed; `48xC1` source helper stale-route cleanup is landed; `48xC2` vm.rs / vm_fallback thin keep trim is landed
      - `47xA1` landed, `47xA2` landed, `47xA3` landed, `47xB1` landed, `47xB2` landed, `47xB3` landed, `47xC1` landed, `47xC2` landed, `47xC3` landed, `47xD1` landed, `47xD2` landed, and `47xD3` landed
-     - exact order is `49xA1/A2 -> 49xB1/B2 -> 49xC1/C2 -> 49xD1`
+     - exact order is `50xA1/A2 -> 50xB1/B2 -> 50xC1/C2 -> 50xD1`
      - `42xA1` landed: lock starvation targets and active migration surfaces
      - `42xA2` landed: freeze proof-only VM gates as explicit do-not-grow keeps
      - `42xB1` landed: starve `selfhost_build.sh` downstream callers toward direct/core helper owners
@@ -125,20 +125,20 @@ Related:
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-49x legacy wording / compat route cleanup table:
+   - phase-50x rust-vm source/archive cleanup table:
 
      | Item | State |
      | --- | --- |
-     | Now | `phase-49x legacy wording / compat route cleanup` |
+     | Now | `phase-50x rust-vm source/archive cleanup` |
       | Blocker | `none` |
-     | Next | `49xA2 top-level docs compat wording rewrite` |
+     | Next | `50xA1 residual rust-vm surface inventory lock` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `phase-49x legacy wording / compat route cleanup` |
-     | Next | `49xA2 top-level docs compat wording rewrite` |
-     | Later | `49xB1 current guides compat wording rewrite` |
+     | Now | `phase-50x rust-vm source/archive cleanup` |
+     | Next | `50xA1 residual rust-vm surface inventory lock` |
+     | Later | `50xA2 proof-only / compat keep classification` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
@@ -182,7 +182,7 @@ Related:
 - `phase-39x` stage0 vm gate thinning (landed precursor)
   - `phase-41x` stage0 direct/core route hardening (landed)
      - Active backend surface tasks:
-     - `phase-49x legacy wording / compat route cleanup`
+     - `phase-50x rust-vm source/archive cleanup`
      - Queued backend surface tasks:
     - `kilo` optimization wave (far future; not the next lane)
 - Post-`37xD1` cleanup:
