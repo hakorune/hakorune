@@ -31,8 +31,9 @@ Related:
 - `49xD1` landed: proof / closeout
 - `50xA1` landed: residual rust-vm surface inventory lock
 - `50xA2` landed: proof-only / compat keep classification
-- `50xB1` active: smoke/helper stale-route cleanup
-- `50xB2` next: route-comment stale wording cleanup
+- `50xB1` landed: smoke/helper stale-route cleanup
+- `50xB2` active: route-comment stale wording cleanup
+- `50xC1` next: archive-ready docs/examples move
 - `47xA1` landed: runtime/default contract lock
 - `47xA2` landed: stage1 source->MIR contract lock
 - `47xA3` landed: Stage-A direct/core contract lock

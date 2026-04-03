@@ -18,8 +18,8 @@ Date: 2026-04-04
 | --- | --- | --- |
 | `50xA1` | landed | residual rust-vm surface inventory lock |
 | `50xA2` | landed | proof-only / compat keep classification |
-| `50xB1` | active | smoke/helper stale-route cleanup |
-| `50xB2` | queued | route-comment stale wording cleanup |
+| `50xB1` | landed | smoke/helper stale-route cleanup |
+| `50xB2` | active | route-comment stale wording cleanup |
 | `50xC1` | queued | archive-ready docs/examples move |
 | `50xC2` | queued | historical PyVM / legacy wrapper archival sweep |
 | `50xD1` | queued | proof / closeout |
@@ -28,7 +28,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `50xB1 smoke/helper stale-route cleanup` |
+| Now | `50xB2 route-comment stale wording cleanup` |
 | Blocker | `none` |
-| Next | `50xB2 route-comment stale wording cleanup` |
-| After Next | `50xC1 archive-ready docs/examples move` |
+| Next | `50xC1 archive-ready docs/examples move` |
+| After Next | `50xC2 historical PyVM / legacy wrapper archival sweep` |

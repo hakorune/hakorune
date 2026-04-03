@@ -47,8 +47,8 @@ Related:
    - `50xA1` residual rust-vm surface inventory lock (landed)
    - `50xA2` proof-only / compat keep classification (landed)
 2. `50xB` stale helper cleanup
-   - `50xB1` smoke/helper stale-route cleanup (active)
-   - `50xB2` route-comment stale wording cleanup
+   - `50xB1` smoke/helper stale-route cleanup (landed)
+   - `50xB2` route-comment stale wording cleanup (active)
 3. `50xC` archive-ready source/docs move
    - `50xC1` archive-ready docs/examples move
    - `50xC2` historical PyVM / legacy wrapper archival sweep
