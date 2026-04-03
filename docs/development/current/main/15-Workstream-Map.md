@@ -76,6 +76,7 @@ Related:
         - `37xB` follows with `build.rs` product/engineering split
         - `37xC` freezes explicit engineering keep before caller-drain work
         - `37xD` restores canonical proof after the speed-first split
+        - post-`37xD1` cleanup/archive sweep moves drained shims and legacy embedded smoke out of the live surface
         - cleanup rule is `split/rehome/drain -> delete`
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
@@ -138,6 +139,8 @@ Related:
   - `37xB3 engineering build wrapper split`
 - Queued backend surface tasks:
   - `37xC1 explicit keep freeze`
+- Post-`37xD1` cleanup:
+  - drained shim / legacy embedded smoke archive sweep
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion

@@ -49,6 +49,7 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - active micro task: `37xB3 engineering build wrapper split`
 - next micro task: `37xC1 explicit keep freeze`
+- post-`37xD1`: cleanup/archive sweep for drained shims and legacy embedded smoke
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`

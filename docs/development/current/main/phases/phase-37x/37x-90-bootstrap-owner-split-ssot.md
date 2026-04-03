@@ -39,6 +39,7 @@ Related:
 - direct MIR / core-direct / `ny-llvmc` artifact lanes are the preferred successor lanes
 - stage1 direct is a successor lane
 - Stage-A / raw compat / shell residue must not gain new runtime capability
+- post-`37xD1`, cleanup/archive sweep comes before any raw default/token rewrite
 
 ## Macro Tasks
 
@@ -48,6 +49,7 @@ Related:
 | `37xB build.rs owner split` | queued | `build.rs` を product build / engineering build に切る | source owner が path/function で読める |
 | `37xC explicit keep freeze + drain map` | queued | explicit engineering keep と next drain を固定 | `vm必須 keep` と `next caller drain` が混ざらない |
 | `37xD proof/closeout` | queued | speed-first split を canonical proof に戻す | next phase が `child.rs` drain に集中できる |
+| `post-37x cleanup/archive sweep` | queued-next | drained shim / legacy embedded smoke / stale compat wrapper を live surface から外す | archive/delete 対象が proof 後の state で読める |
 
 ## Micro Tasks
 
@@ -75,3 +77,4 @@ Related:
   - `build.rs` is the biggest mixed-owner source surface
   - `bootstrap_selfhost_smoke.sh` and `run_stageb_compiler_vm.sh` are explicit engineering keep, not first-cut cleanup targets
   - temporary smoke red is acceptable during `37xA` / `37xB` if owner split moves forward and compile/diff checks stay green
+  - after `37xD1`, cleanup/archive sweep targets drained shims, legacy embedded Stage1 smoke, and stale compat wrappers first

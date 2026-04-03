@@ -19,6 +19,7 @@ Related:
 | 2 | `37xB build.rs owner split` | queued | source owner split を product/engineering に切る |
 | 3 | `37xC explicit keep freeze + drain map` | queued | cleanup しない keep 面と次 drain を分ける |
 | 4 | `37xD proof/closeout` | queued | canonical evidence を戻して handoff する |
+| 5 | `post-37x cleanup/archive sweep` | queued-next | drained shim / legacy embedded smoke / stale compat wrapper を live surface から外す |
 
 ## Ordered Slice Detail
 
@@ -47,6 +48,7 @@ git diff --check
 ```
 
 - canonical smoke / proof restoration is owned by `37xD1`
+- cleanup/archive sweep starts only after `37xD1` evidence is back in place
 
 ## Exact Keeps
 
@@ -69,3 +71,4 @@ git diff --check
   - first speed gain comes from making mixed owner surfaces readable
   - not from deleting `vm.rs`
   - not from flipping raw backend defaults
+  - after `37xD1`, the next cleanup lane is archive/delete of drained shims, legacy embedded smoke, and stale compat wrappers

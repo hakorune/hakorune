@@ -39,6 +39,7 @@ Related:
 - speed-first で進める。
 - 途中の smoke が一時的に red でも、owner split が前進し `cargo check --bin hakorune` と `git diff --check` が通るなら進める。
 - canonical proof / closeout smoke は `37xD` でまとめて戻す。
+- `37xD1` の後ろには cleanup/archive sweep を置き、drained shim と legacy embedded smoke を live surface から外す。
 
 ## Non-Goals
 
@@ -64,3 +65,4 @@ Related:
 - `build.rs` が `product build / engineering build` で読める
 - explicit engineering keep が docs と path で固定される
 - 次 phase は `child.rs` caller drain だけに集中できる
+- `37xD1` の次は cleanup/archive sweep に入り、drained shim / stale compat wrapper / legacy embedded smoke を候補別に整理する

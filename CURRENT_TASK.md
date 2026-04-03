@@ -137,6 +137,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `37xB` follows with `src/runner/build.rs` product/engineering split
   - `37xC` freezes explicit engineering keep before caller-drain work
   - `37xD` restores canonical proof/smoke after the speed-first split
+  - post-`37xD1` cleanup/archive sweep handles drained shims, legacy embedded smoke, and stale compat wrappers
   - raw backend default still stays deferred; no-touch-first remains on `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, and `tools/selfhost/selfhost_build.sh`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
@@ -167,6 +168,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | Now | `37xB3 engineering build wrapper split` | isolate engineering build ownership from the shared prelude |
 | Next | `37xC1 explicit keep freeze` | freeze explicit engineering keep before caller drain |
 | Later | `37xC2 child.rs caller drain map` | drain callers only after keep freeze |
+| After `37xD1` | `cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
 
 ## Phase-34x Waves
 
