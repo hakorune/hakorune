@@ -28,6 +28,9 @@ Related:
 ## Current
 
 - lane: `phase-47x stage0/runtime direct-core finalization`
+- `47xA1` landed: runtime/default contract lock
+- `47xA2` active: stage1 source->MIR contract lock
+- `47xA3` next: Stage-A direct/core contract lock
 - `45xA1` landed: residual vm owner inventory lock
 - `45xA2` landed: proof-only keep boundary freeze
 - `45xB1` landed: vm.rs broad owner shrink
@@ -57,9 +60,9 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `47xA1 runtime/default contract lock`
-- next micro task: `47xA2 stage1 source->MIR contract lock`
-- after next: `47xA3 Stage-A direct/core contract lock`
+- active micro task: `47xA2 stage1 source->MIR contract lock`
+- next micro task: `47xA3 Stage-A direct/core contract lock`
+- after next: `47xB1 selfhost_run_routes.sh runtime temp-MIR handoff helper`
 - plain reading:
   - if a bootstrap route stays on `--backend vm`, new capability work still tends to imply `rust-vm` support
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep

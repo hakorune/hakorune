@@ -133,7 +133,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-47x stage0/runtime direct-core finalization`
 - Current blocker: `none`
-- Exact focus: `47xA1 runtime/default contract lock`
+- Exact focus: `47xA2 stage1 source->MIR contract lock`
 - exact phase-47x order:
   1. `47xA1` runtime/default contract lock
   2. `47xA2` stage1 source->MIR contract lock

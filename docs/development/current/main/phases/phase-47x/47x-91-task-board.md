@@ -17,8 +17,8 @@ Date: 2026-04-04
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `47xA1` | active | runtime/default contract lock |
-| `47xA2` | queued | stage1 source->MIR contract lock |
+| `47xA1` | landed | runtime/default contract lock |
+| `47xA2` | active | stage1 source->MIR contract lock |
 | `47xA3` | queued | Stage-A direct/core contract lock |
 | `47xB1` | queued | `selfhost_run_routes.sh` runtime temp-MIR handoff helper |
 | `47xB2` | queued | `selfhost_run_routes.sh` runtime default cutover |
@@ -35,7 +35,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `47xA1 runtime/default contract lock` |
+| Now | `47xA2 stage1 source->MIR contract lock` |
 | Blocker | `none` |
-| Next | `47xA2 stage1 source->MIR contract lock` |
-| After Next | `47xA3 Stage-A direct/core contract lock` |
+| Next | `47xA3 Stage-A direct/core contract lock` |
+| After Next | `47xB1 selfhost_run_routes.sh runtime temp-MIR handoff helper` |
