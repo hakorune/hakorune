@@ -29,8 +29,8 @@ Related:
 | 3 | `37xA3` | landed | `ny-llvmc` / exe artifact split |
 | 4 | `37xA4` | landed | dispatcher slimming |
 | 5 | `37xB1` | landed | `build.rs` shared prelude freeze |
-| 6 | `37xB2` | active | product build wrapper split |
-| 7 | `37xB3` | queued | engineering build wrapper split |
+| 6 | `37xB2` | landed | product build wrapper split |
+| 7 | `37xB3` | active | engineering build wrapper split |
 | 8 | `37xC1` | queued | explicit keep freeze |
 | 9 | `37xC2` | queued | child.rs caller drain map |
 | 10 | `37xD1` | queued | proof/closeout |
@@ -62,9 +62,9 @@ git diff --check
 ## Current Result
 
 - current front:
-  - `37xB2 product build wrapper split`
+  - `37xB3 engineering build wrapper split`
 - exact next:
-  - split product wrapper before engineering wrapper split
+  - split engineering wrapper before explicit keep freeze
 - explicit reading:
   - first speed gain comes from making mixed owner surfaces readable
   - not from deleting `vm.rs`

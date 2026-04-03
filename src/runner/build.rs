@@ -5,6 +5,8 @@ use std::path::{Path, PathBuf};
 mod build_shared;
 #[path = "build_product.rs"]
 mod build_product;
+#[path = "build_engineering.rs"]
+mod build_engineering;
 use build_shared::{
     apply_env_overrides, build_core, build_plugins, load_build_doc, resolve_app_entry,
 };
@@ -37,7 +39,7 @@ pub(super) fn run_build_mvp_impl(runner: &NyashRunner, cfg_path: &str) -> Result
     if aot == "llvm" {
         build_product::build_product_artifact(&cwd, &profile, &app, &obj_path)?;
     } else {
-        emit_engineering_object(&cwd, &profile, &app, &obj_dir)?;
+        build_engineering::build_engineering_artifact(&cwd, &profile, &app, &obj_dir)?;
     }
     ensure_object_exists(&obj_dir, &obj_path)?;
 
@@ -120,30 +122,6 @@ pub(super) fn run_build_mvp_impl(runner: &NyashRunner, cfg_path: &str) -> Result
     }
     println!("✅ Success: {}", out_path.display());
     Ok(())
-}
-
-fn emit_engineering_object(
-    cwd: &Path,
-    profile: &str,
-    app: &str,
-    obj_dir: &Path,
-) -> Result<(), String> {
-    std::env::set_var("NYASH_AOT_OBJECT_OUT", obj_dir);
-    println!("[emit] Cranelift object → {} (directory)", obj_dir.display());
-    let status = std::process::Command::new(nyash_bin_path(cwd, profile))
-        .args(["--backend", "vm", app])
-        .status()
-        .map_err(|e| format!("spawn nyash jit-aot: {}", e))?;
-    if !status.success() {
-        return Err("Cranelift emit failed".into());
-    }
-    Ok(())
-}
-
-fn nyash_bin_path(cwd: &Path, profile: &str) -> PathBuf {
-    cwd.join("target")
-        .join(profile)
-        .join(if cfg!(windows) { "nyash.exe" } else { "nyash" })
 }
 
 fn ensure_object_exists(obj_dir: &Path, obj_path: &Path) -> Result<(), String> {
