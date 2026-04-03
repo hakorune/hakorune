@@ -22,19 +22,19 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-44x stage0 direct/core follow-up`
-- active micro task: `44xC2 stage_a_route.rs / compat caller switch`
-- next micro task: `44xD1 run_stageb_compiler_vm.sh proof-only demotion`
-- post-`41xD1`: `phase-42x vm caller starvation / direct-core owner migration` (landed)
-- raw backend default flip stays deferred beyond `phase-42x`
+- lane: `phase-45x vm residual cleanup`
+- active micro task: `45xA1 residual vm owner inventory lock`
+- next micro task: `45xA2 proof-only keep boundary freeze`
+- post-`44xE1`: `phase-44x proof / closeout` (landed)
+- raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-44x/README.md`
-4. `docs/development/current/main/phases/phase-44x/44x-90-stage0-direct-core-follow-up-ssot.md`
-5. `docs/development/current/main/phases/phase-44x/44x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-45x/README.md`
+4. `docs/development/current/main/phases/phase-45x/45x-90-vm-residual-cleanup-ssot.md`
+5. `docs/development/current/main/phases/phase-45x/45x-91-task-board.md`
 6. `cargo check --manifest-path Cargo.toml --bin hakorune`
 
 ## Optional Checks

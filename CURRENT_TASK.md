@@ -42,18 +42,18 @@ Scope: repo root から current order / current blocker / next exact read に最
 20. `phase-42x vm caller starvation / direct-core owner migration` (landed)
 21. `phase-43x next source lane selection` (landed)
 22. `phase-44x proof / closeout` (landed)
-23. `next source lane selection` (active)
+23. `phase-45x vm residual cleanup` (active)
 
 - `K-axis` stays `K0 / K1 / K2` and is read as a build/runtime stage axis, not a task axis.
 - current stage progression reads as `K0 -> K1 -> K2`.
 - `K2-core` / `K2-wide` are task packs inside `K2`.
 - `K2-core` is closed.
-- `K2-wide` boundary-shrink lock-down is landed enough to hand off; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, `phase-29x backend owner cutover prep` is landed, `phase-30x backend surface simplification` is landed, `phase-31x engineering lane isolation` is landed, `phase-32x product / engineering split` is landed, `phase-33x shared helper family recut` is landed, `phase-34x stage0 shell residue split` is landed, `phase-35x stage-a compat route thinning` is landed, `phase-36x selfhost source / stage1 bridge split` is landed, `phase-37x bootstrap owner split` is landed, `phase-38x cleanup/archive sweep` is landed, `phase-39x stage0 vm gate thinning` is landed, `phase-40x stage0 vm archive candidate selection` is landed, `phase-41x stage0 direct/core route hardening` is landed, `phase-42x vm caller starvation / direct-core owner migration` is landed, `phase-43x next source lane selection` is landed, and current active lane is `next source lane selection`.
+- `K2-wide` boundary-shrink lock-down is landed enough to hand off; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, `phase-29x backend owner cutover prep` is landed, `phase-30x backend surface simplification` is landed, `phase-31x engineering lane isolation` is landed, `phase-32x product / engineering split` is landed, `phase-33x shared helper family recut` is landed, `phase-34x stage0 shell residue split` is landed, `phase-35x stage-a compat route thinning` is landed, `phase-36x selfhost source / stage1 bridge split` is landed, `phase-37x bootstrap owner split` is landed, `phase-38x cleanup/archive sweep` is landed, `phase-39x stage0 vm gate thinning` is landed, `phase-40x stage0 vm archive candidate selection` is landed, `phase-41x stage0 direct/core route hardening` is landed, `phase-42x vm caller starvation / direct-core owner migration` is landed, `phase-43x next source lane selection` is landed, `phase-44x proof / closeout` is landed, and current active lane is `phase-45x vm residual cleanup`.
 
 ## Immediate Handoff
 
-- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, `phase-29x` cleanup is closed, `phase-30x` ownership flip is landed, `phase-31x` engineering rehome sweep is landed, `phase-32x` mixed-owner split is landed, `phase-33x` helper-family recut is landed, `phase-34x` shell-residue split is landed, `phase-35x` stage-a compat route thinning is landed, `phase-36x` selfhost source / stage1 bridge split is landed, `phase-37x` bootstrap owner split is landed, `phase-38x` cleanup/archive sweep is landed, `phase-39x` stage0 vm gate thinning is landed, `phase-40x` stage0 vm archive candidate selection is landed, `phase-41x` stage0 direct/core route hardening is landed, `phase-42x` vm caller starvation / direct-core owner migration is landed, `phase-43x` next source lane selection is landed, and the current active front is `next source lane selection`.
-- Active lane: `phase-44x-stage0-direct-core-follow-up`
+- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, `phase-29x` cleanup is closed, `phase-30x` ownership flip is landed, `phase-31x` engineering rehome sweep is landed, `phase-32x` mixed-owner split is landed, `phase-33x` helper-family recut is landed, `phase-34x` shell-residue split is landed, `phase-35x` stage-a compat route thinning is landed, `phase-36x` selfhost source / stage1 bridge split is landed, `phase-37x` bootstrap owner split is landed, `phase-38x` cleanup/archive sweep is landed, `phase-39x` stage0 vm gate thinning is landed, `phase-40x` stage0 vm archive candidate selection is landed, `phase-41x` stage0 direct/core route hardening is landed, `phase-42x` vm caller starvation / direct-core owner migration is landed, `phase-43x` next source lane selection is landed, `phase-44x` proof / closeout is landed, and the current active front is `phase-45x vm residual cleanup`.
+- Active lane: `phase-45x-vm-residual-cleanup`
 - Axis and lane detail is canonical in:
   - `docs/development/current/main/phases/phase-29x/README.md`
   - `docs/development/current/main/phases/phase-29x/29x-90-integration-checklist.md`
@@ -92,6 +92,9 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `docs/development/current/main/phases/phase-43x/README.md`
   - `docs/development/current/main/phases/phase-43x/43x-90-next-source-lane-selection-ssot.md`
   - `docs/development/current/main/phases/phase-43x/43x-91-task-board.md`
+  - `docs/development/current/main/phases/phase-45x/README.md`
+  - `docs/development/current/main/phases/phase-45x/45x-90-vm-residual-cleanup-ssot.md`
+  - `docs/development/current/main/phases/phase-45x/45x-91-task-board.md`
   - `docs/development/current/main/phases/phase-44x/README.md`
   - `docs/development/current/main/phases/phase-44x/44x-90-stage0-direct-core-follow-up-ssot.md`
   - `docs/development/current/main/phases/phase-44x/44x-91-task-board.md`
@@ -109,7 +112,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `stage2plus entry / first optimization wave` is accepted
   - `phase-30x backend surface simplification` is landed
   - `phase-32x product / engineering split` is landed
-  - current active lane is `next source lane selection`
+  - current active lane is `phase-45x vm residual cleanup`
 - landed rows already accepted:
   - `RawMap` first slice
   - `RawMap.clear`
@@ -126,9 +129,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `next source lane selection`
+- Active next: `phase-45x vm residual cleanup`
 - Current blocker: `none`
-- Exact focus: `next source lane selection`
+- Exact focus: `phase-45x vm residual cleanup`
   - `phase-32x` is landed; mixed-owner source/smoke split and raw default/token defer are fixed
   - `phase-33x` is landed; helper-family path truth and keep gates are fixed
   - `41xA1` landed: remaining direct/core route facades and caller families are inventoried
@@ -194,22 +197,22 @@ Scope: repo root から current order / current blocker / next exact read に最
   - raw backend default still stays deferred; no-touch-first remains on `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, and `tools/selfhost/selfhost_build.sh`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
-  2. `docs/development/current/main/phases/phase-44x/README.md`
-  3. `docs/development/current/main/phases/phase-44x/44x-90-stage0-direct-core-follow-up-ssot.md`
-  4. `docs/development/current/main/phases/phase-44x/44x-91-task-board.md`
+  2. `docs/development/current/main/phases/phase-45x/README.md`
+  3. `docs/development/current/main/phases/phase-45x/45x-90-vm-residual-cleanup-ssot.md`
+  4. `docs/development/current/main/phases/phase-45x/45x-91-task-board.md`
   5. `cargo check --manifest-path Cargo.toml --bin hakorune`
 - Plain reading:
   - every live `--backend vm` bootstrap route is still a future feature tax on `rust-vm`
 - `phase-41x` is a route-hardening wave that keeps stage0/bootstrap mainline on `hakorune` binary direct/core routes
   - success means keeping the proof-only VM gate set frozen, hardening `selfhost_build.sh` / `run.sh` as facades, and shrinking `vm.rs` only after caller drain
   - failure means letting selfhost/bootstrap mainline or stage1 compat/raw routes absorb new feature work again
-  - `kilo` optimization is still a far-future lane; it is not the next source lane and does not change the current rust-vm shrink order
+  - `kilo` optimization is still a far-future lane; it is not the current phase-45x vm residual cleanup order and does not change the rust-vm shrink order
 - `40xB1` is landed; the small proof-only VM gate set remains frozen as `do-not-grow`
 - stage0 shell residue table:
 
 | Item | State |
 | --- | --- |
-| Now | `next source lane selection` |
+| Now | `phase-45x vm residual cleanup` |
 | Blocker | `none` |
 | Next | `kilo` optimization wave |
 - Exact implementation rule:
@@ -225,7 +228,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `next source lane selection` | choose the next structural lane after direct/core follow-up is fully proved |
+| Now | `phase-45x vm residual cleanup` | shrink residual rust-vm owner surfaces without reopening direct/core mainline |
 | Next | `kilo` optimization wave | far-future optimization lane |
 | Later | `cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
 

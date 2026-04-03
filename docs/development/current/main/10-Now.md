@@ -27,31 +27,9 @@ Related:
 
 ## Current
 
-- lane: `next source lane selection`
-- `41xA1` landed: remaining direct/core route facades and caller families are inventoried
-- `41xA2` landed: proof-only VM gate set is frozen and non-growing
-- `41xB1` landed: selfhost_build.sh direct/core route hardening is fixed as a route facade
-- `41xB2` landed: run.sh facade trim is fixed as a route facade
-- `41xC1` landed: vm.rs proof/oracle shrink is reduced to proof/oracle keep
-- `42xA1` landed: starvation targets and proof-only keeps are fixed
-- `42xA2` landed: proof-only VM keeps are frozen as explicit do-not-grow surfaces
-- `42xB1` landed: `selfhost_build.sh` downstream caller starvation
-- `42xB2` landed: `run.sh` route-only facade migration and route script paths moved helper-owned
-- `42xC1` landed: `child.rs` shell-only drain
-- `42xC2` landed: `vm.rs` preflight/source-prepare split
-- `42xC3` landed: `vm_user_factory` / `vm_fallback` drain
-- `42xC4` landed: `core.hako` compat hold line
-- `42xD1` landed: `proof / closeout`
-- `43xA1` landed: candidate lane shortlist
-- `43xA2` landed: successor lane decision
-- `43xD1` landed: proof / closeout
-- `44xA1` landed: stage-b direct/core target lock
-- `44xA2` landed: `selfhost_build_stageb.sh direct/core-first cutover`
-- `44xB1` landed: `selfhost_run_routes.sh runtime default cutover`
-- `44xB2` landed: `run.sh` direct route fallback explicitization
-- `44xC1` landed: `stage0_capture.rs` route-neutral builder split
-- `44xC2` landed: `stage_a_route.rs` / compat caller switch
-- `44xD1` landed: `run_stageb_compiler_vm.sh` proof-only demotion
+- lane: `phase-45x vm residual cleanup`
+- `45xA1` active: residual vm owner inventory lock
+- `45xA2` next: proof-only keep boundary freeze
 - `44xE1` landed: proof / closeout
 - `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete
@@ -82,6 +60,7 @@ Related:
 - `phase-42x` is landed; it starved day-to-day callers away from vm-gated routes and moved owner pressure toward direct/core seams
 - `phase-43x` is landed; it selected `phase-44x stage0 direct/core follow-up` as the highest-leverage successor lane
 - `phase-44x` is landed; it keeps proof-only VM gates explicit and closes the lane
+- `phase-45x` is active; it shrinks residual vm owner surfaces while keeping direct/core mainline canonical
   - `tools/selfhost/lib/selfhost_build_stageb.sh`
   - `tools/selfhost/lib/selfhost_run_routes.sh`
   - `tools/selfhost/run_stageb_compiler_vm.sh`
@@ -116,6 +95,6 @@ Related:
 
 1. read `CURRENT_TASK.md`
 2. read `15-Workstream-Map.md`
-3. read `docs/development/current/main/phases/phase-44x/README.md`
-4. read `docs/development/current/main/phases/phase-44x/44x-90-stage0-direct-core-follow-up-ssot.md`
-5. read `docs/development/current/main/phases/phase-44x/44x-91-task-board.md`
+3. read `docs/development/current/main/phases/phase-45x/README.md`
+4. read `docs/development/current/main/phases/phase-45x/45x-90-vm-residual-cleanup-ssot.md`
+5. read `docs/development/current/main/phases/phase-45x/45x-91-task-board.md`
