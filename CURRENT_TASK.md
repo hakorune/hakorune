@@ -134,8 +134,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 - Exact focus: `phase-45x vm residual cleanup`
   - `45xA1` landed: residual vm owner inventory lock
   - `45xA2` landed: proof-only keep boundary freeze
-  - `45xB1` active: vm.rs broad owner shrink
-  - `45xB2` next: vm_fallback.rs / shared vm helper drain
+  - `45xB1` landed: vm.rs broad owner shrink
+  - `45xB2` active: vm_fallback.rs / shared vm helper drain
   - `phase-32x` is landed; mixed-owner source/smoke split and raw default/token defer are fixed
   - `phase-33x` is landed; helper-family path truth and keep gates are fixed
   - `41xA1` landed: remaining direct/core route facades and caller families are inventoried

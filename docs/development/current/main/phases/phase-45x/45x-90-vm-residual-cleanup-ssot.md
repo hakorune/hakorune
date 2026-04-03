@@ -38,7 +38,6 @@ Scope: residual rust-vm owner cleanup after direct/core follow-up; keep VM live 
 - proof-only VM gates:
   - `tools/selfhost/run_stageb_compiler_vm.sh`
   - `tools/selfhost/selfhost_smoke.sh`
-  - `tools/selfhost/bootstrap_selfhost_smoke.sh`
   - `tools/selfhost/selfhost_stage3_accept_smoke.sh`
 - proof-adjacent direct VM utilities that still stay outside the mainline route:
   - `tools/selfhost/program_analyze.sh`
@@ -70,7 +69,7 @@ Scope: residual rust-vm owner cleanup after direct/core follow-up; keep VM live 
 - `src/runner/selfhost.rs` -> `src/runner/modes/common_util/selfhost/stage_a_route.rs`
 - `src/runner/modes/common_util/selfhost/stage_a_route.rs` -> `stage0_capture_route::build_stage0_vm_capture_command(...)`
 - `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs` -> `stage0_capture_route::build_stage0_vm_capture_command(...)`
-- `tools/selfhost/selfhost_smoke.sh`, `tools/selfhost/bootstrap_selfhost_smoke.sh`, `tools/selfhost/selfhost_stage3_accept_smoke.sh`, `tools/selfhost/program_analyze.sh`, `tools/selfhost/gen_v1_min.sh` still call `--backend vm` directly
+- `tools/selfhost/selfhost_smoke.sh`, `tools/selfhost/selfhost_stage3_accept_smoke.sh`, `tools/selfhost/program_analyze.sh`, `tools/selfhost/gen_v1_min.sh` still call `--backend vm` directly
 
 ## Hotspots
 

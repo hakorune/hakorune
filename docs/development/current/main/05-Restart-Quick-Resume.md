@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-45x vm residual cleanup`
-- active micro task: `45xB1 vm.rs broad owner shrink`
-- next micro task: `45xB2 vm_fallback.rs / shared vm helper drain`
+- active micro task: `45xB2 vm_fallback.rs / shared vm helper drain`
+- next micro task: `45xC1 core.hako compat hold line refresh`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 

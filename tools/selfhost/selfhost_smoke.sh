@@ -6,10 +6,10 @@ set -euo pipefail
 # - Runs a representative VM example with Known rewrite ON/OFF and compares outputs
 
 ROOT_DIR=$(cd "$(dirname "$0")/../.." && pwd)
-NY_BIN="${ROOT_DIR}/target/release/nyash"
+NY_BIN="${ROOT_DIR}/target/release/hakorune"
 
 if [[ ! -x "${NY_BIN}" ]]; then
-  echo "[selfhost-smoke] nyash binary not found at ${NY_BIN}. Please build first: cargo build --release" >&2
+  echo "[selfhost-smoke] hakorune binary not found at ${NY_BIN}. Please build first: cargo build --release" >&2
   exit 1
 fi
 
