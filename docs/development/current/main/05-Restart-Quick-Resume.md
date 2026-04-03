@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-41x stage0 direct/core route hardening`
-- active micro task: `41xD1 proof / closeout`
-- next micro task: `next source lane selection`
+- active micro task: `next source lane selection`
+- next micro task: `phase-42x selection`
 - post-`40xD1`: `phase-41x stage0 direct/core route hardening`
 - raw backend default flip stays deferred beyond `phase-41x`
 

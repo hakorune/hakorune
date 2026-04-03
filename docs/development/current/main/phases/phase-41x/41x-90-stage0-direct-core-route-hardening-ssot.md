@@ -87,11 +87,12 @@ Scope: stage0/bootstrap lane の remaining direct/core route ownership を harde
 | --- | --- |
 | Now | `phase-41x stage0 direct/core route hardening` |
 | Blocker | `none` |
-| Next | `41xD1 proof / closeout` |
+| Next | `next source lane selection` |
 
 - `41xA2` landed: proof-only VM gate set is frozen and non-growing
 - `41xB1` landed: selfhost_build.sh direct/core route hardening is fixed as a route facade
 - `41xB2` landed: run.sh facade trim is fixed as a route facade
+- `41xC1` landed: vm.rs proof/oracle shrink is reduced to proof/oracle keep
 
 ## Direct/Core Hardening Rules
 

@@ -37,7 +37,7 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-41x stage0 direct/core route hardening`
+     - current active lane is `next source lane selection`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
@@ -101,16 +101,16 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `phase-41x stage0 direct/core route hardening` |
+     | Now | `next source lane selection` |
      | Blocker | `none` |
-     | Next | `41xD1 proof / closeout` |
+     | Next | `phase-42x selection` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `phase-41x stage0 direct/core route hardening` |
-     | Next | `41xD1 proof / closeout` |
-     | Later | `next source lane selection` |
+     | Now | `next source lane selection` |
+     | Next | `phase-42x selection` |
+     | Later | `kilo` optimization wave |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
@@ -152,11 +152,11 @@ Related:
   - `phase-36x` selfhost source / stage1 bridge split (landed precursor)
   - `phase-37x` bootstrap owner split (landed precursor)
 - `phase-39x` stage0 vm gate thinning (landed precursor)
-  - `phase-41x` stage0 direct/core route hardening (active)
+  - `phase-41x` stage0 direct/core route hardening (landed)
      - Active backend surface tasks:
-    - `41xD1 proof / closeout`
-     - Queued backend surface tasks:
     - `next source lane selection`
+     - Queued backend surface tasks:
+    - `phase-42x selection`
 - Post-`37xD1` cleanup:
   - drained shim / legacy embedded smoke archive sweep
   - first landed move: `tools/stage1_smoke.sh` -> `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`

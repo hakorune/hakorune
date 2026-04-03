@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Decision: provisional
 Date: 2026-04-03
 Scope: stage0/bootstrap lane の remaining direct/core route ownership を harden し、proof-only VM gates と compat keep を固定する。
@@ -69,12 +69,10 @@ Related:
 
 ## Exact Next
 
-1. `41x-90-stage0-direct-core-route-hardening-ssot.md`
-2. `41x-91-task-board.md`
-3. `tools/selfhost/selfhost_build.sh`
-4. `tools/selfhost/run.sh`
-5. `src/runner/modes/vm.rs`
-6. `src/runner/core_executor.rs`
+1. `docs/development/current/main/15-Workstream-Map.md`
+2. `CURRENT_TASK.md`
+3. `docs/development/current/main/phases/README.md`
+4. `phase-42x` selection docs
 
-- current active micro task: `41xD1 proof / closeout`
-- next micro task: `next source lane selection`
+- current active micro task: `next source lane selection`
+- next micro task: `phase-42x selection`
