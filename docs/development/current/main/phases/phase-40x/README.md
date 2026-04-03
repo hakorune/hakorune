@@ -21,6 +21,13 @@ Related:
 - `hakorune` binary は outer facade のまま使い続けつつ、archive へ寄せられる surface を先に切り分ける。
 - raw backend default/token はまだ触らない。
 
+## Plain Reading
+
+- live な `--backend vm` route を残すと、新機能のたびに `rust-vm` 対応が増えやすい。
+- この phase は `vm.rs` を今すぐ消す wave ではない。
+- 先にやるのは、stage0/bootstrap の mainline owner を `hakorune` binary の direct/core route 側へ寄せること。
+- その後で、残った vm route を `proof-only keep` / `compat keep` / `archive-later` に縮める。
+
 ## Fixed Reading
 
 - `phase-39x` は landed で、stage0 vm gate thinning は完了している。
@@ -35,6 +42,13 @@ Related:
 - `src/runner/modes/vm.rs` remains engineering keep until archive classification proves otherwise.
 - `tools/selfhost/stage1_mainline_smoke.sh` remains the direct proof home.
 - `tools/stage1_smoke.sh` is already archived in `phase-38x`.
+
+## Big Tasks
+
+1. find every route where a new feature still implies `rust-vm` work
+2. split those routes into `proof-only keep` vs `move toward hakorune binary direct/core`
+3. drain top-level shim callers
+4. archive drained vm-facing shims
 
 ## Exact Next
 

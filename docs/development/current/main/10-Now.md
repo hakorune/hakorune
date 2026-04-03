@@ -50,6 +50,9 @@ Related:
 - `40xA1` landed: archive candidate caller inventory is fixed
 - active micro task: `40xA2 keep/archive classification`
 - next micro task: `40xB1 top-level shim caller drain map`
+- plain reading:
+  - if a bootstrap route stays on `--backend vm`, new capability work still tends to imply `rust-vm` support
+  - `phase-40x` exists to move stage0/bootstrap mainline toward `hakorune` binary direct/core routes and leave vm as proof/compat keep
 - post-`39xD1`: stage0 vm archive candidate selection for remaining bootstrap surfaces
 - landed first cleanup move: `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`
 - `37xD1` evidence:
@@ -68,6 +71,8 @@ Related:
 - raw backend default/token rewrite stays deferred beyond `phase-40x`
 - source/smoke cleanup rule:
   - `split/rehome/drain -> delete`
+- vm thinning rule:
+  - `move owner to hakorune binary direct/core routes -> freeze proof-only vm gates -> archive drained vm-facing shims`
 - speed rule:
   - temporary smoke red is acceptable inside `37xA` / `37xB`
   - keep `cargo check --bin hakorune` and `git diff --check` green

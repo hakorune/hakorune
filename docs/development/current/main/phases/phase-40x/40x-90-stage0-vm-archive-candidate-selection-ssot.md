@@ -6,14 +6,20 @@ Scope: stage0/bootstrap lane の remaining vm-rust / vm-gated surface を archiv
 
 # 40x-90 Stage0 VM Archive Candidate Selection SSOT
 
+## Plain Reading
+
+- problem: every live vm-gated bootstrap route is still a feature obligation on `rust-vm`
+- target: move stage0/bootstrap mainline ownership toward `hakorune` binary direct/core routes
+- result: vm routes become `proof-only keep`, `compat keep`, or `archive-later`, instead of staying broad execution owners
+
 ## Macro Reading
 
 | Wave | Status | Read as |
 | --- | --- | --- |
-| `40xA archive candidate inventory` | active | remaining vm-rust/bootstrap surfaces を exact に inventory する |
-| `40xB keep/archive classification` | queued | live surface を explicit keep / archive-later / delete-ready に分ける |
-| `40xC archive/delete sweep` | queued | drained shims と stale compat wrappers を live surface から外す |
-| `40xD closeout` | queued | next source lane に handoff する |
+| `40xA archive candidate inventory` | active | new feature work がまだ `rust-vm` を引きずる route を exact に inventory する |
+| `40xB keep/archive classification` | queued | route を `proof-only keep` / `archive-later` / `direct-owner target` に分ける |
+| `40xC archive/delete sweep` | queued | drained vm-facing shims と stale compat wrappers を live surface から外す |
+| `40xD closeout` | queued | `rust-vm` を mainline owner ではなく proof/compat keep として handoff する |
 
 ## Candidate Reading
 
@@ -32,6 +38,17 @@ Scope: stage0/bootstrap lane の remaining vm-rust / vm-gated surface を archiv
 | `src/runner/core_executor.rs` | direct owner | already-materialized MIR(JSON) execution owner |
 | `tools/selfhost/stage1_mainline_smoke.sh` | direct proof | current mainline proof smoke |
 | `tools/stage1_smoke.sh` | archived | legacy embedded bridge smoke archived in phase-38x |
+
+## State Reading
+
+| State | Read as |
+| --- | --- |
+| `mixed` | first migration target; still too many owners in one surface |
+| `vm gate` | explicit keep candidate; do not grow it |
+| `archive-later shim` | not a real owner; drain callers first and then archive |
+| `explicit keep` | proof/acceptance route that stays live for now |
+| `thin helper` | low-level helper; caller drain matters more than direct deletion |
+| `direct owner` | where new capability work should converge |
 
 ## Inventory Targets (40xA1)
 

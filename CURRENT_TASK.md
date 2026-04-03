@@ -161,13 +161,16 @@ Scope: repo root から current order / current blocker / next exact read に最
   3. `docs/development/current/main/phases/phase-40x/40x-90-stage0-vm-archive-candidate-selection-ssot.md`
   4. `docs/development/current/main/phases/phase-40x/40x-91-task-board.md`
   5. `cargo check --manifest-path Cargo.toml --bin hakorune`
+- Plain reading:
+  - every live `--backend vm` bootstrap route is still a future feature tax on `rust-vm`
+  - `phase-40x` is not a `vm.rs` delete wave; it is a route-ownership wave that moves stage0/bootstrap mainline toward `hakorune` binary direct/core routes first
 - stage0 shell residue table:
 
   | Item | State |
   | --- | --- |
   | Now | `phase-40x stage0 vm archive candidate selection` |
   | Blocker | `none` |
-     | Next | `40xA2 keep/archive classification` |
+  | Next | `40xA2 keep/archive classification` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -181,9 +184,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `phase-40x stage0 vm archive candidate selection` | inventory remaining vm-rust/bootstrap surfaces and classify archive readiness |
-| Next | `40xA2 keep/archive classification` | classify the inventoried vm-rust/bootstrap surfaces exactly once |
-| Later | `40xD1 proof / closeout` | return proof and hand off to the next source lane |
+| Now | `phase-40x stage0 vm archive candidate selection` | stop new features from inheriting more `rust-vm` support obligations |
+| Next | `40xA2 keep/archive classification` | split routes into `proof-only keep` vs `move toward hakorune binary direct/core` |
+| Later | `40xD1 proof / closeout` | hand off with `rust-vm` reduced to proof/compat keep rather than mainline ownership |
 | After `37xD1` | `cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
 
 ## Phase-34x Waves

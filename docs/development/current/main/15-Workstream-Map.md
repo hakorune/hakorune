@@ -60,6 +60,8 @@ Related:
      - `phase-39x` landed stage0 vm gate thinning
      - `phase-40x` now handles stage0 vm archive candidate selection
      - `40xA1` landed and fixed archive candidate caller inventory
+     - plain reading: every live vm-gated bootstrap route is still a future feature tax on `rust-vm`
+     - current target: move stage0/bootstrap mainline ownership toward `hakorune` binary direct/core routes and leave vm routes as proof-only keep
         - `39xA1` landed and fixed caller inventory for `selfhost_build.sh` / `run_stageb_compiler_vm.sh` / `run.sh`
         - `39xA2` landed and classifies route ownership
         - `39xB1` landed and selected the direct bootstrap mainline
