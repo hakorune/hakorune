@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Compatibility / regression smoke:
+# - exercises the legacy compiler path
+# - should not be read as a default route or current mainline owner
+
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 ROOT_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
 BIN="$ROOT_DIR/target/release/nyash"
@@ -17,9 +21,9 @@ printf 'return 1+2*3\n' > "$TMP_DIR/ny_parser_input.ny"
 
 OUT=$(NYASH_USE_NY_COMPILER=1 NYASH_CLI_VERBOSE=1 "$BIN" --backend vm "$ROOT_DIR/apps/examples/string_p0.hako" || true)
 if echo "$OUT" | rg -q 'ny compiler MVP \(ny→json_v0\) path ON' && echo "$OUT" | rg -q '^Result:\s*0\b'; then
-  echo "✅ ny compiler MVP path OK (json_v0 emit + result 0)"
+  echo "✅ ny compiler compat smoke OK (json_v0 emit + result 0)"
 else
-  echo "WARN: ny compiler path not used; fallback executed (acceptable during MVP)"
+  echo "WARN: ny compiler compat path not used; fallback executed (acceptable during MVP)"
   echo "$OUT" | sed -n '1,120p'
 fi
 

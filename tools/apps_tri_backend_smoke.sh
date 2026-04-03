@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Diagnostic / compat smoke:
+# - compares interpreter / VM / JIT routes
+# - not a mainline owner route
+
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 BIN="$ROOT_DIR/target/release/nyash"
 
@@ -25,9 +29,9 @@ run_case() {
   echo "\n=== $app ==="
   echo "[script] interpreter"
   timeout 15s "$BIN" "$app" >/tmp/ny_script.out || true
-  echo "[vm]"
+  echo "[vm compat]"
   timeout 15s "$BIN" --backend vm "$app" >/tmp/ny_vm.out || true
-  echo "[jit] vm+jit-exec"
+  echo "[jit compat] vm+jit-exec"
   timeout 15s "$BIN" --backend vm --jit-exec --jit-hostcall "$app" >/tmp/ny_jit.out || true
   # Summarize
   for mode in script vm jit; do

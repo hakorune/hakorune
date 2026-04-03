@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Compatibility smoke:
+# - validates legacy selfhost using resolution paths
+# - not a day-to-day execution route
+
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 ROOT_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
 BIN="$ROOT_DIR/target/release/nyash"

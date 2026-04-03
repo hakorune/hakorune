@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Test Stage-B using resolution functionality
+# Compatibility / regression test for Stage-B using resolution
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # tools/selfhost/program_analyze.sh - Phase 160-impl-1 Program JSON Analyzer wrapper
+# Compatibility / debug helper; not a day-to-day route.
 #
 # Usage:
 #   ./tools/selfhost/program_analyze.sh /path/to/program.json

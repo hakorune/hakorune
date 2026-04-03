@@ -2,6 +2,7 @@
 set -euo pipefail
 
 # gen_v1_min.sh — 最小の v1 JSON 生成（MinMirEmitter を Hako で呼ぶ）
+# Compatibility / debug helper; not a day-to-day route.
 # 標準出力に v1 JSON を出す。
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"

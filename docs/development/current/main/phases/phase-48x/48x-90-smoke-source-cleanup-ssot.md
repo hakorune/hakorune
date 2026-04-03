@@ -21,6 +21,12 @@ The important non-targets for this lane are already drained away from the day-to
 - `src/runner/modes/common_util/selfhost/stage0_capture.rs` is route-neutral.
 - `src/runner/modes/common_util/selfhost/stage_a_route.rs` and `stage_a_compat_bridge.rs` are already split away from the old VM-fixed builder ownership.
 
+The inventory/classification cut is now locked:
+
+- `48xA1` inventory lock is landed.
+- `48xA2` proof-only / compat keep classification is landed.
+- `48xB1` smoke script stale-route cleanup is the active cleanup move, with the current proof/compat scripts and helpers tagged accordingly.
+
 ## Task Order
 
 1. `48xA1 residual vm surface inventory lock`

@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Proof-only / compat guard:
+# - keeps the legacy JSON guard path observable
+# - does not define a day-to-day route
+
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 ROOT_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
 BIN="$ROOT_DIR/target/release/hakorune"
@@ -18,11 +22,10 @@ OUT=$(NYASH_USE_NY_COMPILER=1 NYASH_NY_COMPILER_USE_TMP_ONLY=1 NYASH_NY_COMPILER
       "$BIN" --backend vm "$ROOT_DIR/apps/examples/string_p0.hako" || true)
 
 if echo "$OUT" | rg -q 'Ny compiler MVP \(ny→json_v0\) path ON'; then
-  echo "✅ selfhost JSON guard OK (path ON)" >&2
+  echo "✅ selfhost JSON guard OK (compat/proof path ON)" >&2
   exit 0
 else
-  echo "❌ selfhost JSON guard FAILED" >&2
+  echo "❌ selfhost JSON guard FAILED (compat/proof path)" >&2
   echo "$OUT" | sed -n '1,120p' >&2
   exit 1
 fi
-
