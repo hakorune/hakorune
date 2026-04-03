@@ -10,7 +10,7 @@ Date: 2026-04-04
 | 1 | `49xA current-doc inventory` | landed | inventory the remaining current docs that still read like vm is a day-to-day owner |
 | 2 | `49xB guide cleanup` | active | rewrite guide examples so vm is compat/proof only |
 | 3 | `49xC runtime/helper clarity` | queued | keep stage-a compat explicit and label helper commentary as legacy |
-| 4 | `49xD proof / closeout` | queued | prove the wording cleanup and hand off cleanly |
+| 4 | `49xD proof / closeout` | active | prove the wording cleanup and hand off cleanly |
 
 ## Exact Micro Tasks
 
