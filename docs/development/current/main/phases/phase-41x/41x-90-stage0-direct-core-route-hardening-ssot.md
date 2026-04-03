@@ -66,18 +66,20 @@ Scope: stage0/bootstrap lane の remaining direct/core route ownership を harde
 | `direct owner` | where new capability work should converge |
 | `settled split` | already separated in helper files; do not reopen without a new caller |
 
-## Inventory Targets (41xA1)
+## Inventory Results (41xA1 landed)
 
-| Surface | Inventory focus |
+| Surface | Read as |
 | --- | --- |
-| `tools/selfhost/selfhost_build.sh` | remaining direct/core route seams and any vm-shaped fallback edges |
-| `tools/selfhost/run.sh` | outer facade modes and any remaining vm-dependent edges |
-| `tools/selfhost/run_stageb_compiler_vm.sh` | explicit VM gate lines and current caller families |
-| `tools/selfhost/selfhost_vm_smoke.sh` | explicit VM proof boundary |
-| `tools/selfhost/selfhost_stage3_accept_smoke.sh` | stage3 acceptance boundary |
-| `src/runner/modes/common_util/selfhost/child.rs` | thin helper boundary vs caller drain |
-| `src/runner/modes/vm.rs` | engineering keep justification |
-| `lang/src/runner/stage1_cli/core.hako` | compat keep boundary |
+| `tools/selfhost/selfhost_build.sh` | route facade; direct/core-first helpers keep vm-shaped fallback edges out of the top level |
+| `tools/selfhost/run.sh` | outer facade; runtime mode still touches `--backend vm`, direct mode stays on `run_stageb_compiler_vm.sh` |
+| `tools/selfhost/run_stageb_compiler_vm.sh` | proof-only keep; explicit Stage-B VM gate |
+| `tools/selfhost/selfhost_vm_smoke.sh` | proof-only keep; VM parity proof only |
+| `tools/selfhost/selfhost_stage3_accept_smoke.sh` | proof-only keep; stage3 acceptance proof only |
+| `src/runner/modes/common_util/selfhost/child.rs` | thin helper boundary; caller drain comes before shrink |
+| `src/runner/modes/vm.rs` | engineering keep |
+| `lang/src/runner/stage1_cli/core.hako` | compat keep |
+| `src/runner/core_executor.rs` | direct owner |
+| `src/runner/build.rs` | settled split |
 
 ## Current Front
 
@@ -85,7 +87,7 @@ Scope: stage0/bootstrap lane の remaining direct/core route ownership を harde
 | --- | --- |
 | Now | `phase-41x stage0 direct/core route hardening` |
 | Blocker | `none` |
-| Next | `41xA1 direct/core route inventory` |
+| Next | `41xA2 proof-only VM gate freeze` |
 
 ## Direct/Core Hardening Rules
 

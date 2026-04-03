@@ -131,5 +131,5 @@ Scope: stage0/bootstrap lane の remaining vm-rust / vm-gated surface を archiv
 ## Current Front
 
 - active macro wave: `41xA direct/core route inventory`
-- active micro task: `41xA1 direct/core route inventory`
-- next queued micro task: `41xA2 proof-only VM gate freeze`
+- active micro task: `41xA2 proof-only VM gate freeze`
+- next queued micro task: `41xB1 selfhost_build.sh direct/core route hardening`

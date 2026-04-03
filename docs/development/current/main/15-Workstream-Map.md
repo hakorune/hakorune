@@ -60,7 +60,7 @@ Related:
      - `phase-39x` landed stage0 vm gate thinning
      - `phase-40x` landed the archive candidate sweep and drained top-level vm-facing shims
      - `phase-41x` now hardens the remaining direct/core route
-     - `41xA1` inventories the remaining direct/core route facades and caller families
+     - `41xA1` landed and inventories the remaining direct/core route facades and caller families
      - `41xA2` freezes proof-only VM gates again before route hardening work
      - plain reading: keep `rust-vm` as proof/compat keep, not mainline ownership
      - success condition: keep direct/core routes canonical, keep proof-only VM gates frozen, and stop new features from flowing back into vm routes
@@ -101,13 +101,13 @@ Related:
      | --- | --- |
      | Now | `phase-41x stage0 direct/core route hardening` |
      | Blocker | `none` |
-     | Next | `41xA1 direct/core route inventory` |
+     | Next | `41xA2 proof-only VM gate freeze` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
      | Now | `phase-41x stage0 direct/core route hardening` |
-     | Next | `41xA1 direct/core route inventory` |
+     | Next | `41xA2 proof-only VM gate freeze` |
      | Later | `41xD1 proof / closeout` |
    - stage0 shell residue waves:
 
@@ -150,11 +150,11 @@ Related:
   - `phase-36x` selfhost source / stage1 bridge split (landed precursor)
   - `phase-37x` bootstrap owner split (landed precursor)
 - `phase-39x` stage0 vm gate thinning (landed precursor)
-   - `phase-41x` stage0 direct/core route hardening (active)
+  - `phase-41x` stage0 direct/core route hardening (active)
      - Active backend surface tasks:
-    - `41xA1 direct/core route inventory`
-     - Queued backend surface tasks:
     - `41xA2 proof-only VM gate freeze`
+     - Queued backend surface tasks:
+    - `41xB1 selfhost_build.sh direct/core route hardening`
 - Post-`37xD1` cleanup:
   - drained shim / legacy embedded smoke archive sweep
   - first landed move: `tools/stage1_smoke.sh` -> `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh`
