@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Decision: provisional
 Date: 2026-04-03
 Scope: `selfhost.rs` と `stage_a_compat_bridge.rs` の Stage-A payload/compat fallback ownership を thin にし、stage0 engineering lane の route sequencing を slimmer にする。
@@ -61,5 +61,5 @@ Related:
 - `35xA2` is landed: `selfhost.rs` delegates Stage-A child spawn/setup and payload-family handoff
 - `35xB1` is landed: Program(JSON v0) compat lane is comment-pinned as explicit/no-widen
 - `35xC1` is landed: direct-vs-compat Stage-A route is fixed through evidence commands and focused tests
-- current front is `phase-35x closeout review`
+- successor lane is `phase-36x selfhost source / stage1 bridge split`
 - predecessor lane is `phase-34x stage0 shell residue split`

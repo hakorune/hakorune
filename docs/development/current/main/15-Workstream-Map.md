@@ -37,7 +37,7 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-35x stage-a compat route thinning`
+     - current active lane is `phase-36x selfhost source / stage1 bridge split`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
@@ -53,7 +53,8 @@ Related:
         - `phase-32x` landed mixed-owner source/smoke split and raw default/token defer
         - `phase-33x` landed and fixed helper-family path truth
         - `phase-34x` landed and fixed stage0 shell residue split
-        - `phase-35x` now handles Stage-A compat route thinning
+        - `phase-35x` landed and fixed Stage-A compat route thinning
+        - `phase-36x` now handles selfhost source / stage1 bridge split
         - `34xA1` landed and fixed exact `child.rs` shell/process/capture residue
         - `34xA2` landed and fixed `stage1_cli/core.hako` raw compat residue and dispatch split
         - `34xA3` landed and pinned `core_executor` as the direct `MIR(JSON)` owner
@@ -64,7 +65,9 @@ Related:
         - `35xA2` landed and moves Stage-A child spawn/setup into `stage_a_route.rs`
         - `35xB1` landed and fixes Program(JSON v0) as explicit/no-widen compat only
         - `35xC1` landed and proof-pins the direct-vs-compat Stage-A route
-        - current active micro task is `phase-35x closeout review`
+        - `36xA1` landed and moves source extension/read/merge/tmp staging into `source_prepare.rs`
+        - `36xA2` landed and fixes `selfhost.rs` as route ordering / macro gate / terminal accept owner
+        - current active micro task is `36xB1 stage1 emit-mir raw adapter split`
         - cleanup rule is `split/rehome/drain -> delete`
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
@@ -72,15 +75,15 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `phase-35x stage-a compat route thinning` |
+     | Now | `phase-36x selfhost source / stage1 bridge split` |
      | Blocker | `none` |
-     | Next | `phase-35x closeout review` |
+     | Next | `36xB1 stage1 emit-mir raw adapter split` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `phase-35x closeout review` |
-     | Next | `design consult for post-35x thinning lane` |
+     | Now | `36xB1 stage1 emit-mir raw adapter split` |
+     | Next | `36xB2 stage1 run raw adapter split` |
      | Later | `raw backend default/token follow-up lane` |
    - stage0 shell residue waves:
 
@@ -120,11 +123,11 @@ Related:
   - `phase-30x` backend surface simplification (landed precursor)
   - `phase-31x` engineering lane isolation (landed precursor)
   - `phase-32x` product / engineering split (landed precursor)
-  - `phase-35x` stage-a compat route thinning
+  - `phase-36x` selfhost source / stage1 bridge split
 - Active backend surface tasks:
-  - `phase-35x closeout review`
+  - `36xB1 stage1 emit-mir raw adapter split`
 - Queued backend surface tasks:
-  - `design consult for post-35x thinning lane`
+  - `36xB2 stage1 run raw adapter split`
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion
@@ -138,11 +141,11 @@ Related:
 
 ## Exact Next
 
-1. keep `phase-35x` exact through the Stage-A compat route thinning
-2. keep `phase-34x` landed as the stage0 shell-residue precursor
-3. keep `phase-33x` landed as the helper-family precursor
-4. keep `phase-32x` landed as the mixed-owner split precursor
-5. keep `phase-31x` landed as the engineering rehome precursor
+1. keep `phase-36x` exact through the selfhost/stage1 owner split
+2. keep `phase-35x` landed as the Stage-A compat precursor
+3. keep `phase-34x` landed as the stage0 shell-residue precursor
+4. keep `phase-33x` landed as the helper-family precursor
+5. keep `phase-32x` landed as the mixed-owner split precursor
 
 ## Active Lane
 

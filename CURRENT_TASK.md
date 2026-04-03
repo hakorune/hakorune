@@ -32,18 +32,19 @@ Scope: repo root から current order / current blocker / next exact read に最
 10. `phase-32x product / engineering split` (landed)
 11. `phase-33x shared helper family recut` (landed)
 12. `phase-34x stage0 shell residue split` (landed)
-13. `phase-35x stage-a compat route thinning`
+13. `phase-35x stage-a compat route thinning` (landed)
+14. `phase-36x selfhost source / stage1 bridge split`
 
 - `K-axis` stays `K0 / K1 / K2` and is read as a build/runtime stage axis, not a task axis.
 - current stage progression reads as `K0 -> K1 -> K2`.
 - `K2-core` / `K2-wide` are task packs inside `K2`.
 - `K2-core` is closed.
-- `K2-wide` boundary-shrink lock-down is landed enough to hand off; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, `phase-29x backend owner cutover prep` is landed, `phase-30x backend surface simplification` is landed, `phase-31x engineering lane isolation` is landed, `phase-32x product / engineering split` is landed, `phase-33x shared helper family recut` is landed, `phase-34x stage0 shell residue split` is landed, and current active lane is `phase-35x stage-a compat route thinning`.
+- `K2-wide` boundary-shrink lock-down is landed enough to hand off; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, `phase-29x backend owner cutover prep` is landed, `phase-30x backend surface simplification` is landed, `phase-31x engineering lane isolation` is landed, `phase-32x product / engineering split` is landed, `phase-33x shared helper family recut` is landed, `phase-34x stage0 shell residue split` is landed, `phase-35x stage-a compat route thinning` is landed, and current active lane is `phase-36x selfhost source / stage1 bridge split`.
 
 ## Immediate Handoff
 
-- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, `phase-29x` cleanup is closed, `phase-30x` ownership flip is landed, `phase-31x` engineering rehome sweep is landed, `phase-32x` mixed-owner split is landed, `phase-33x` helper-family recut is landed, `phase-34x` shell-residue split is landed, and the current active front is `phase-35x stage-a compat route thinning`.
-- Active lane: `phase-35x-stage-a-compat-route-thinning`
+- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, `phase-29x` cleanup is closed, `phase-30x` ownership flip is landed, `phase-31x` engineering rehome sweep is landed, `phase-32x` mixed-owner split is landed, `phase-33x` helper-family recut is landed, `phase-34x` shell-residue split is landed, `phase-35x` stage-a compat route thinning is landed, and the current active front is `phase-36x selfhost source / stage1 bridge split`.
+- Active lane: `phase-36x-selfhost-source-stage1-bridge-split`
 - Axis and lane detail is canonical in:
   - `docs/development/current/main/phases/phase-29x/README.md`
   - `docs/development/current/main/phases/phase-29x/29x-90-integration-checklist.md`
@@ -64,6 +65,9 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `docs/development/current/main/phases/phase-35x/README.md`
   - `docs/development/current/main/phases/phase-35x/35x-90-stage-a-compat-route-thinning-ssot.md`
   - `docs/development/current/main/phases/phase-35x/35x-91-task-board.md`
+  - `docs/development/current/main/phases/phase-36x/README.md`
+  - `docs/development/current/main/phases/phase-36x/36x-90-selfhost-source-stage1-bridge-split-ssot.md`
+  - `docs/development/current/main/phases/phase-36x/36x-91-task-board.md`
   - `docs/development/current/main/phases/phase-33x/README.md`
   - `docs/development/current/main/phases/phase-33x/33x-90-shared-helper-family-recut-ssot.md`
   - `docs/development/current/main/phases/phase-33x/33x-91-task-board.md`
@@ -78,7 +82,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `stage2plus entry / first optimization wave` is accepted
   - `phase-30x backend surface simplification` is landed
   - `phase-32x product / engineering split` is landed
-  - current active lane is `phase-35x stage-a compat route thinning`
+  - current active lane is `phase-36x selfhost source / stage1 bridge split`
 - landed rows already accepted:
   - `RawMap` first slice
   - `RawMap.clear`
@@ -95,9 +99,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `phase-35x stage-a compat route thinning`
+- Active next: `phase-36x selfhost source / stage1 bridge split`
 - Current blocker: `none`
-- Exact focus: `phase-35x closeout review`
+- Exact focus: `36xB1 stage1 emit-mir raw adapter split`
   - `phase-32x` is landed; mixed-owner source/smoke split and raw default/token defer are fixed
   - `phase-33x` is landed; helper-family path truth and keep gates are fixed
   - current next cleanup is stage0 shell residue thinning, not `vm.rs` deletion
@@ -120,21 +124,23 @@ Scope: repo root から current order / current blocker / next exact read に最
   - landed in `35xA2`: `selfhost.rs` delegates Stage-A child spawn/setup to `stage_a_route.rs` and stays Stage-A route sequencing / terminal-accept only
   - landed in `35xB1`: Program(JSON v0) compat remains explicit/no-widen in `stage_a_policy.rs` and `stage_a_compat_bridge.rs`
   - landed in `35xC1`: direct-vs-compat Stage-A route is evidence-pinned by focused tests and proof commands
-  - current next step is design consult for the post-35x thinning lane
+  - landed in `36xA1`: `source_prepare.rs` now owns source extension gate / source read / using merge / preexpand / tmp staging
+  - landed in `36xA2`: `selfhost.rs` is fixed as route ordering / macro pre-expand gate / terminal accept owner
+  - active in `36xB1`: `stage1_cli` still owns raw `emit mir-json` adapter glue and this thins next
   - raw backend default still stays deferred; no-touch-first remains on `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, and `tools/selfhost/selfhost_build.sh`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
-  2. `docs/development/current/main/phases/phase-35x/README.md`
-  3. `docs/development/current/main/phases/phase-35x/35x-90-stage-a-compat-route-thinning-ssot.md`
-  4. `docs/development/current/main/phases/phase-35x/35x-91-task-board.md`
-  5. `cargo test --manifest-path Cargo.toml resolve_captured_payload_to_mir_ -- --nocapture`
+  2. `docs/development/current/main/phases/phase-36x/README.md`
+  3. `docs/development/current/main/phases/phase-36x/36x-90-selfhost-source-stage1-bridge-split-ssot.md`
+  4. `docs/development/current/main/phases/phase-36x/36x-91-task-board.md`
+  5. `cargo check --manifest-path Cargo.toml --bin hakorune`
 - stage0 shell residue table:
 
   | Item | State |
   | --- | --- |
-  | Now | `phase-35x stage-a compat route thinning` |
+  | Now | `phase-36x selfhost source / stage1 bridge split` |
   | Blocker | `none` |
-  | Next | `phase-35x closeout review` |
+  | Next | `36xB1 stage1 emit-mir raw adapter split` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -148,8 +154,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `phase-35x closeout review` | confirm Stage-A direct/compat split is pinned before the next design cut |
-| Next | `design consult for post-35x thinning lane` | choose the next owner split before adding new runtime capability |
+| Now | `36xB1 stage1 emit-mir raw adapter split` | thin `_cmd_emit_mir_json` so stage1 raw adapter stays narrow |
+| Next | `36xB2 stage1 run raw adapter split` | thin `_run_raw_request` without widening runtime policy |
 | Later | `raw backend default/token follow-up lane` | keep token/default truthification deferred beyond the shell-residue split |
 
 ## Phase-34x Waves

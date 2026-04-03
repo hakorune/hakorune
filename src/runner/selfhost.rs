@@ -8,7 +8,6 @@
 
 use super::*;
 use nyash_rust::{mir::MirCompiler, parser::NyashParser};
-use std::fs;
 
 // ============================================================================
 // Selfhost pipeline helpers
@@ -60,8 +59,6 @@ fn accept_stage_a_mir_module(
 impl NyashRunner {
     /// Selfhost (Ny -> JSON v0) pipeline: EXE/VM/Python フォールバック含む
     pub(crate) fn try_run_selfhost_pipeline(&self, filename: &str) -> bool {
-        use std::io::Write;
-
         // Phase 95: PluginHost 初期化（環境変数で制御）+ ConsoleService 使用デモ
         if std::env::var("NYASH_USE_PLUGIN_HOST").ok().as_deref() == Some("1") {
             let ring0 = crate::runtime::ring0::get_global_ring0();
@@ -78,120 +75,20 @@ impl NyashRunner {
             }
         }
 
-        // Phase 25.1b: guard selfhost pipeline to Ny-only sources.
-        // `.hako` / other extensionsは Stage‑B / JSON v0 bridge 側の責務なので、
-        // ここでは Ny/Nyash 拡張子以外は即座にスキップする。
-        let path = std::path::Path::new(filename);
-        if let Some(ext) = path.extension().and_then(|s| s.to_str()) {
-            match ext {
-                "ny" | "nyash" => { /* continue */ }
-                "hako" => {
-                    // Opt-in: allow .hako to flow through Ny compiler when explicitly requested.
-                    if !crate::config::env::use_ny_compiler() {
-                        crate::cli_v!(
-                            "[ny-compiler] skip selfhost pipeline for .hako (ext={}); enable NYASH_USE_NY_COMPILER=1 to force",
-                            ext
-                        );
-                        return false;
-                    }
-                }
-                _ => {
-                    crate::cli_v!(
-                        "[ny-compiler] skip selfhost pipeline for non-Ny source: {} (ext={})",
-                        filename,
-                        ext
-                    );
-                    return false;
-                }
-            }
-        } else {
-            // No extension: treat as non-Ny for safety
-            crate::cli_v!(
-                "[ny-compiler] skip selfhost pipeline for source without extension: {}",
-                filename
-            );
-            return false;
-        }
-
-        let source_name = path
-            .file_name()
-            .and_then(|s| s.to_str())
-            .unwrap_or(filename);
+        // Keep `selfhost.rs` on route ordering and terminal accept.
+        // Source extension/read/merge/preexpand/tmp staging lives in `source_prepare.rs`.
+        let prepared = match crate::runner::modes::common_util::selfhost::source_prepare::prepare_selfhost_source(self, filename) {
+            Some(prepared) => prepared,
+            None => return false,
+        };
+        let source_name = prepared.source_name.as_str();
         crate::runner::modes::common_util::selfhost::child::emit_runtime_route_mode(
             crate::runner::modes::common_util::selfhost::child::ROUTE_MODE_PIPELINE_ENTRY,
             source_name,
         );
 
-        // Read input source
-        let code = match fs::read_to_string(filename) {
-            Ok(c) => c,
-            Err(e) => {
-                let ring0 = crate::runtime::ring0::get_global_ring0();
-                ring0.log.error(&format!("[ny-compiler] read error: {}", e));
-                return false;
-            }
-        };
-        // Optional Phase-15: using prelude merge (text-based for speed)
-        let mut code_ref: std::borrow::Cow<'_, str> = std::borrow::Cow::Borrowed(&code);
-        if crate::config::env::enable_using() {
-            let using_ast = crate::config::env::using_ast_enabled();
-            if using_ast {
-                // Text-based merge: faster for inline/selfhost execution
-                match crate::runner::modes::common_util::resolve::merge_prelude_text(
-                    self, &code, filename,
-                ) {
-                    Ok(merged) => {
-                        code_ref = std::borrow::Cow::Owned(merged);
-                    }
-                    Err(e) => {
-                        let ring0 = crate::runtime::ring0::get_global_ring0();
-                        ring0
-                            .log
-                            .error(&format!("[ny-compiler] using text merge error: {}", e));
-                        return false;
-                    }
-                }
-            } else {
-                // Legacy: strip only (no prelude merge)
-                match crate::runner::modes::common_util::resolve::resolve_prelude_paths_profiled(
-                    self, &code, filename,
-                ) {
-                    Ok((clean, paths)) => {
-                        if !paths.is_empty() {
-                            let ring0 = crate::runtime::ring0::get_global_ring0();
-                            ring0.log.error("[ny-compiler] using: AST prelude merge is disabled in this profile. Enable NYASH_USING_AST=1 or remove 'using' lines.");
-                            return false;
-                        }
-                        code_ref = std::borrow::Cow::Owned(clean);
-                    }
-                    Err(e) => {
-                        let ring0 = crate::runtime::ring0::get_global_ring0();
-                        ring0.log.error(&format!("[ny-compiler] {}", e));
-                        return false;
-                    }
-                }
-            }
-        }
-
-        // Promote dev sugar to standard: pre-expand line-head '@name[:T] = expr' to 'local name[:T] = expr'
-        {
-            let expanded =
-                crate::runner::modes::common_util::resolve::preexpand_at_local(code_ref.as_ref());
-            code_ref = std::borrow::Cow::Owned(expanded);
-        }
-
-        // Write to tmp/ny_parser_input.ny (as expected by Ny parser v0), unless forced to reuse existing tmp
-        let use_tmp_only = crate::config::env::ny_compiler_use_tmp_only();
-        let tmp_dir = std::path::Path::new("tmp");
-        if let Err(e) = std::fs::create_dir_all(tmp_dir) {
-            let ring0 = crate::runtime::ring0::get_global_ring0();
-            ring0
-                .log
-                .error(&format!("[ny-compiler] mkdir tmp failed: {}", e));
-            return false;
-        }
-
-        // Optional macro pre-expand path for selfhost
+        // Optional macro pre-expand path for selfhost.
+        // Keep this gate local: it is route ordering policy, not source materialization ownership.
         // Gate: NYASH_MACRO_SELFHOST_PRE_EXPAND={1|auto|0}
         // `auto` is currently disabled for stability; use explicit `1` to opt in.
         {
@@ -212,7 +109,7 @@ impl NyashRunner {
                     "[ny-compiler] selfhost macro pre-expand: engaging (mode={:?})",
                     preenv
                 );
-                match NyashParser::parse_from_string(code_ref.as_ref()) {
+                match NyashParser::parse_from_string(prepared.prepared_code.as_str()) {
                     Ok(ast0) => {
                         let ast = crate::r#macro::maybe_expand_and_dump(&ast0, false);
                         // Compile to MIR and execute on the unified runtime path.
@@ -239,27 +136,6 @@ impl NyashRunner {
                             .error(&format!("[ny-compiler] pre-expand parse error: {}", e));
                         return false;
                     }
-                }
-            }
-        }
-        let tmp_path = tmp_dir.join("ny_parser_input.ny");
-        if !use_tmp_only {
-            match std::fs::File::create(&tmp_path) {
-                Ok(mut f) => {
-                    if let Err(e) = f.write_all(code_ref.as_bytes()) {
-                        let ring0 = crate::runtime::ring0::get_global_ring0();
-                        ring0
-                            .log
-                            .error(&format!("[ny-compiler] write tmp failed: {}", e));
-                        return false;
-                    }
-                }
-                Err(e) => {
-                    let ring0 = crate::runtime::ring0::get_global_ring0();
-                    ring0
-                        .log
-                        .error(&format!("[ny-compiler] open tmp failed: {}", e));
-                    return false;
                 }
             }
         }
@@ -300,7 +176,7 @@ impl NyashRunner {
             if let Some(resolved) = stage_a_route::try_capture_stage_a_module(
                 &exe,
                 source_name,
-                &code,
+                &prepared.raw_code,
                 timeout_ms,
                 verbose_level,
             ) {
@@ -322,7 +198,7 @@ impl NyashRunner {
                     let mut cmd = std::process::Command::new(&py3);
                     // Phase 25.1b: Use selfhost compiler env for consistency
                     crate::runner::child_env::apply_selfhost_compiler_env(&mut cmd);
-                    cmd.arg(py).arg(&tmp_path);
+                    cmd.arg(py).arg(&prepared.tmp_path);
                     let timeout_ms = crate::config::env::ny_compiler_timeout_ms();
                     let out =
                         match super::modes::common_util::io::spawn_with_timeout(cmd, timeout_ms) {

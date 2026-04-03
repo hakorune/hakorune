@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `phase-35x stage-a compat route thinning`
+- lane: `phase-36x selfhost source / stage1 bridge split`
 - `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete
 - `phase-32x` landed: mixed-owner source/smoke split and raw default/token defer are fixed
@@ -42,14 +42,16 @@ Related:
 - `35xA2` landed: `selfhost.rs` delegates Stage-A child spawn/setup to `stage_a_route.rs` and stays orchestration/terminal-accept only
 - `35xB1` landed: Program(JSON v0) compat lane is fixed as explicit/no-widen in `stage_a_policy.rs` and `stage_a_compat_bridge.rs`
 - `35xC1` landed: direct-vs-compat Stage-A route is proof-pinned by evidence commands and focused tests
-- active micro task: `phase-35x closeout review`
-- next micro task: `design consult for post-35x thinning lane`
+- `36xA1` landed: `source_prepare.rs` now owns source extension gate / source read / using merge / preexpand / tmp staging
+- `36xA2` landed: `selfhost.rs` is explicitly route ordering / macro gate / terminal accept owner
+- active micro task: `36xB1 stage1 emit-mir raw adapter split`
+- next micro task: `36xB2 stage1 run raw adapter split`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
   - `vm-hako` = `reference/conformance`
   - `wasm` = `experimental`
-- raw backend default/token rewrite stays deferred beyond `phase-35x`
+- raw backend default/token rewrite stays deferred beyond `phase-36x`
 - source/smoke cleanup rule:
   - `split/rehome/drain -> delete`
 
@@ -57,6 +59,6 @@ Related:
 
 1. read `CURRENT_TASK.md`
 2. read `15-Workstream-Map.md`
-3. read `docs/development/current/main/phases/phase-35x/README.md`
-4. read `docs/development/current/main/phases/phase-35x/35x-90-stage-a-compat-route-thinning-ssot.md`
-5. read `docs/development/current/main/phases/phase-35x/35x-91-task-board.md`
+3. read `docs/development/current/main/phases/phase-36x/README.md`
+4. read `docs/development/current/main/phases/phase-36x/36x-90-selfhost-source-stage1-bridge-split-ssot.md`
+5. read `docs/development/current/main/phases/phase-36x/36x-91-task-board.md`
