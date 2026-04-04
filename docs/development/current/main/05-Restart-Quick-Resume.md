@@ -28,8 +28,9 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `52xB1 archive pack orchestrator wording cleanup`
 - landed micro task: `52xC1 proof / closeout`
 - landed micro task: `53xA1 residual VM caller inventory lock`
-- active micro task: `53xA2 proof-only / compat keep classification`
-- after next: `53xB1 rust-vm delete-ready source peel`
+- landed micro task: `53xA2 proof-only / compat keep classification`
+- active micro task: `53xB1 rust-vm delete-ready source peel`
+- after next: `53xB2 vm-hako reference keep freeze`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 

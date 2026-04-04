@@ -45,9 +45,11 @@ Related:
 - `src/runner/modes/vm.rs`
 - `src/runner/modes/vm_fallback.rs`
 - `src/runner/modes/vm_hako.rs`
+- `src/macro/macro_box_ny.rs` deprecated compat runner branch
 - `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
 - `lang/src/runner/stage1_cli/core.hako`
 - `tools/selfhost/run_stageb_compiler_vm.sh`
+- `tools/selfhost/emit_vm_hako_checkpoint_snippet.sh`
 - `tools/selfhost/bootstrap_selfhost_smoke.sh`
 - `tools/selfhost/selfhost_smoke.sh`
 - `tools/selfhost/selfhost_stage3_accept_smoke.sh`
@@ -64,9 +66,7 @@ Related:
 
 ### archive-later
 
-- `tools/selfhost/emit_vm_hako_checkpoint_snippet.sh`
-- `tools/selfhost/README.md` lines that describe archived vm-hako / compat evidence
-- `src/macro/macro_box_ny.rs` comments that describe the explicit compat VM bridge as historical compatibility wiring
+- none in the second pass; residual candidates stayed explicit keep once manual/helper use was confirmed
 
 ### delete-ready
 
@@ -107,3 +107,5 @@ Related:
 - compat keeps remain explicit and non-growing
 - delete only after caller drain
 - inventory first pass did not produce delete-ready source candidates yet
+- second-pass worker audit confirmed `emit_vm_hako_checkpoint_snippet.sh` is still a live manual helper, so it stays keep-now
+- `macro_box_ny.rs` stays compat keep because deprecated env wiring can still force the VM-backed runner branch

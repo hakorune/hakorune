@@ -132,15 +132,15 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `53xA2 proof-only / compat keep classification` |
+     | Now | `53xB1 rust-vm delete-ready source peel` |
      | Blocker | `none` |
-     | Next | `53xB1 rust-vm delete-ready source peel` |
+     | Next | `53xB2 vm-hako reference keep freeze` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `53xA2 proof-only / compat keep classification` |
-     | Next | `53xB1 rust-vm delete-ready source peel` |
+     | Now | `53xB1 rust-vm delete-ready source peel` |
+     | Next | `53xB2 vm-hako reference keep freeze` |
      | Later | `53xD1 proof / closeout` |
    - stage0 shell residue waves:
 
