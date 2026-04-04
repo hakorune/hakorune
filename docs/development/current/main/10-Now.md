@@ -12,15 +12,15 @@ Related:
 
 ## Current
 
-- lane: `phase-97 LLVM EXE parity for MiniJsonLoader fixtures`
-- current front: `escape / next_non_ws fixture parity under LLVM EXE`
-- blocker: `compile pin is in place; LLVM EXE runtime still returns wrong output for phase95/96 fixtures`
+- lane: `phase-98 Plugin loader fail-fast + LLVM parityの持続化`
+- current front: `plugin loader strict fail-fast / best-effort boundary lock`
+- blocker: `none`
 - recent landed:
+  - `phase-97 LLVM EXE parity for MiniJsonLoader fixtures`
   - `phase-96 MiniJsonLoader next_non_ws loop E2E lock`
   - `phase-95 json_loader escape loop E2E lock`
   - `phase-94 escape route P5b ch reassignment E2E`
   - `phase-93x archive-later engineering helper sweep`
-  - `phase-92x selfhost proof/compat caller rerun`
 
 ## Current Read
 
@@ -29,7 +29,8 @@ Related:
 - `stage1_mainline_smoke.sh` is green
 - `93x` finished moving archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
 - top-level wrappers remain public/front-door keep unless caller audit proves otherwise
-- `phase-97` compile blocker is narrowed to `compat replay=harness`; remaining blocker is LLVM EXE runtime parity
+- `phase-97` fixed LLVM EXE parity for `phase95/96` fixtures under `compat replay=harness`
+- `phase-98` is the next sustain lane: plugin loader fail-fast/best-effort boundary + parity persistence
 
 ## Root Anchors
 
@@ -40,4 +41,4 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-97/README.md`
+2. `docs/development/current/main/phases/phase-98/README.md`

@@ -327,6 +327,30 @@ class Resolver:
 
         # Do not trust global vmap across blocks unless we know it's defined in this block.
 
+        # Trivial PHI alias path:
+        # A block-local PHI with identical incoming source vids is stored as an
+        # alias instead of a real placeholder. Resolve that alias before any
+        # multi-predecessor fallback so uses inside the block still see the
+        # carried SSA value.
+        try:
+            alias_src = None
+            if isinstance(self.phi_trivial_aliases, dict):
+                alias_src = self.phi_trivial_aliases.get((int(bid), int(value_id)))
+            if isinstance(alias_src, int) and alias_src != int(value_id):
+                alias_val = self.resolve_i64(
+                    int(alias_src),
+                    current_block,
+                    preds,
+                    block_end_values,
+                    vmap,
+                    bb_map,
+                )
+                if alias_val is not None:
+                    self.i64_cache[cache_key] = alias_val
+                    return alias_val
+        except Exception:
+            pass
+
         # If this block has a declared MIR PHI for the value, prefer that placeholder
         # and avoid creating any PHI here. Incoming is wired by finalize_phis().
         try:
@@ -382,7 +406,7 @@ class Resolver:
                                     cbn = cbn.decode()
                             except Exception:
                                 pass
-                            if cur_bb_name == cbn:
+                            if cur_bb_name == cbn or cur_bb_name is None:
                                 self.i64_cache[cache_key] = existing_cur
                                 return existing_cur
                     except Exception:
@@ -427,7 +451,41 @@ class Resolver:
             # in non-dominating predecessors (e.g., other branches). Only reuse when
             # defined_here (handled above) or at entry/no-preds (handled below).
             pass
-        
+
+        # Reuse dominating global SSA/PHI values before falling back to predecessor
+        # localization. Trivial PHI aliases such as {dst <- phi(src, src)} rely on this
+        # to see the carried PHI from an earlier loop/header block.
+        try:
+            global_vmap = getattr(self, "global_vmap", None)
+            gval = global_vmap.get(value_id) if isinstance(global_vmap, dict) else None
+            if gval is not None:
+                allow_global = False
+                if isinstance(gval, (ir.Argument, ir.Constant)):
+                    allow_global = True
+                elif hasattr(gval, "add_incoming"):
+                    owner_bid = None
+                    try:
+                        owner = getattr(getattr(gval, "basic_block", None), "name", None)
+                        if isinstance(owner, bytes):
+                            owner = owner.decode()
+                        if isinstance(owner, str) and owner.startswith("bb"):
+                            owner_bid = int(owner[2:])
+                    except Exception:
+                        owner_bid = None
+                    if owner_bid is not None and self.context is not None:
+                        allow_global = bool(self.context.dominates(int(owner_bid), int(bid)))
+                    elif value_id in self.def_blocks and len(self.def_blocks.get(value_id, set())) == 1 and self.context is not None:
+                        def_bid = next(iter(self.def_blocks.get(value_id, set())))
+                        allow_global = bool(self.context.dominates(int(def_bid), int(bid)))
+                elif value_id in self.def_blocks and len(self.def_blocks.get(value_id, set())) == 1 and self.context is not None:
+                    def_bid = next(iter(self.def_blocks.get(value_id, set())))
+                    allow_global = bool(self.context.dominates(int(def_bid), int(bid)))
+                if allow_global:
+                    self.i64_cache[cache_key] = gval
+                    return gval
+        except Exception:
+            pass
+
         if not pred_ids:
             # Entry block or no predecessors: prefer local vmap value (already dominating)
             base_val = vmap.get(value_id)

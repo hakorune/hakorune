@@ -91,6 +91,61 @@ class TestResolveI64StrictScope(unittest.TestCase):
         self.assertIs(got, phi)
         self.assertEqual(resolver.resolve_calls, 0)
 
+    def test_declared_local_phi_placeholder_without_owner_is_reused(self):
+        i64 = ir.IntType(64)
+        mod = ir.Module(name="resolve_i64_declared_phi_mod")
+        fn = ir.Function(mod, ir.FunctionType(i64, []), name="main")
+        bb = fn.append_basic_block("bb2")
+        builder = ir.IRBuilder(bb)
+        phi = builder.phi(i64, name="phi_v11")
+
+        resolver = _ResolverStub(i64)
+        resolver.block_phi_incomings = {2: {11: [(0, 11), (1, 11)]}}
+
+        got = resolve_i64_strict(
+            resolver,
+            11,
+            bb,
+            preds={2: [0, 1]},
+            block_end_values={},
+            vmap={11: phi},
+            bb_map={2: bb},
+            prefer_local=True,
+            hot_scope="unit",
+        )
+
+        self.assertIs(got, phi)
+        self.assertEqual(resolver.resolve_calls, 0)
+
+    def test_dominating_global_phi_placeholder_without_owner_is_reused(self):
+        i64 = ir.IntType(64)
+        mod = ir.Module(name="resolve_i64_dom_phi_no_owner_mod")
+        fn = ir.Function(mod, ir.FunctionType(i64, []), name="main")
+        bb1 = fn.append_basic_block("bb1")
+        bb2 = fn.append_basic_block("bb2")
+        builder = ir.IRBuilder(bb1)
+        phi = builder.phi(i64, name="phi_v11")
+
+        resolver = _ResolverStub(i64)
+        resolver.global_vmap[11] = phi
+        resolver.def_blocks[11] = {1}
+        resolver.context = _ContextStub({2: {1}})
+
+        got = resolve_i64_strict(
+            resolver,
+            11,
+            bb2,
+            preds={2: [1]},
+            block_end_values={},
+            vmap={},
+            bb_map={1: bb1, 2: bb2},
+            prefer_local=False,
+            hot_scope="unit",
+        )
+
+        self.assertIs(got, phi)
+        self.assertEqual(resolver.resolve_calls, 0)
+
     def test_non_dominating_global_phi_placeholder_uses_resolver(self):
         i64 = ir.IntType(64)
         mod = ir.Module(name="resolve_i64_phi_non_dom_mod")

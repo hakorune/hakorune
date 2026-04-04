@@ -111,15 +111,33 @@ def _global_reuse_allowed(resolver: Any, value_id: int, candidate: Any, current_
 
     current_bid = _block_id_from_block_name(current_block)
     if hasattr(candidate, "add_incoming"):
-        return _same_block_phi(candidate, current_block) or _phi_owner_dominates_block(
-            resolver,
-            candidate,
-            current_bid,
+        return (
+            _same_block_phi(candidate, current_block)
+            or _phi_owner_dominates_block(
+                resolver,
+                candidate,
+                current_bid,
+            )
+            or _single_def_dominates_block(resolver, value_id, current_bid)
         )
 
     if _defined_in_block(resolver, value_id, current_bid):
         return True
     return _single_def_dominates_block(resolver, value_id, current_bid)
+
+
+def _declared_phi_in_current_block(resolver: Any, value_id: int, current_block: ir.Block) -> bool:
+    try:
+        block_phi_incomings = getattr(resolver, "block_phi_incomings", None)
+        if not isinstance(block_phi_incomings, dict):
+            return False
+        current_bid = _block_id_from_block_name(current_block)
+        if current_bid is None:
+            return False
+        dst_map = block_phi_incomings.get(int(current_bid))
+        return isinstance(dst_map, dict) and int(value_id) in dst_map
+    except Exception:
+        return False
 
 
 def resolve_i64_strict(
@@ -152,6 +170,9 @@ def resolve_i64_strict(
             resolver,
             value_id,
             _block_id_from_block_name(current_block),
+        ) or (
+            hasattr(val, "add_incoming")
+            and _declared_phi_in_current_block(resolver, value_id, current_block)
         ):
             trace_hot_count(resolver, f"resolve_local_hit_{scope}")
             if debug:
