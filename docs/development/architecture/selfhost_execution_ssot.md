@@ -19,16 +19,16 @@ Date: 2026-04-05
 
 ### Selfhost facade route
 
-- `tools/selfhost/run.sh --runtime --runtime-mode exe`
-- `tools/selfhost/run.sh --runtime --runtime-mode stage-a-compat`
+- `tools/selfhost/run.sh --runtime --runtime-route mainline`
+- `tools/selfhost/run.sh --runtime --runtime-route compat`
 - `tools/selfhost/run.sh --direct --source-file ...`
 
 `run.sh` は shell facade。実 route body は
 [tools/selfhost/lib/selfhost_run_routes.sh](/home/tomoaki/git/hakorune-selfhost/tools/selfhost/lib/selfhost_run_routes.sh)
 が持つ。
 
-外向き surface では当面 `--runtime-mode exe` / `stage-a-compat` を受けるが、
-SSOT の canonical route 名は `runtime/mainline` / `runtime/compat` として読む。
+外向き surface の canonical 名は `--runtime-route mainline|compat`。
+`--runtime-mode exe|stage-a-compat` と `stage-a` は compatibility alias として残す。
 
 ### CLI backend override
 
@@ -105,7 +105,7 @@ runtime core / link-time core に限定して使う。
 ### `runtime/mainline`
 
 Public surface:
-- `tools/selfhost/run.sh --runtime --runtime-mode exe`
+- `tools/selfhost/run.sh --runtime --runtime-route mainline`
 
 Body:
 1. `compat/run_stage1_cli.sh emit mir-json`
@@ -115,13 +115,13 @@ Body:
    が terminal owner
 
 注意:
-- `runtime-mode exe` という名前だが、実体は native executable route ではない
+- historical alias `runtime-mode exe` は native executable route を意味しない
 - 実体は `temp MIR handoff -> core executor`
 
 ### `runtime/compat`
 
 Public surface:
-- `tools/selfhost/run.sh --runtime --runtime-mode stage-a-compat`
+- `tools/selfhost/run.sh --runtime --runtime-route compat`
 
 Body:
 - explicit compat keep

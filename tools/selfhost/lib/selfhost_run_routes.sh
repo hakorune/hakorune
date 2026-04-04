@@ -27,6 +27,20 @@ emit_runtime_route_tag() {
   echo "[selfhost/route] id=SH-RUNTIME-SELFHOST mode=$mode source=$source" >&2
 }
 
+canonical_runtime_route_name() {
+  case "$1" in
+    stage-a|stage-a-compat|compat)
+      echo "compat"
+      ;;
+    exe|mainline|"")
+      echo "mainline"
+      ;;
+    *)
+      echo "$1"
+      ;;
+  esac
+}
+
 run_runtime_temp_mir_handoff() {
   # Shared helper body for the runtime temp-MIR handoff.
   # B1 introduced the body; B2 makes the exe route call it by default.
@@ -49,7 +63,10 @@ run_runtime_temp_mir_handoff() {
   tmp_mir="$(mktemp --suffix .runtime_temp_mir.json)"
   tmp_emit_err="$(mktemp --suffix .runtime_temp_mir.err)"
 
-  echo "[selfhost/run] mode=runtime runtime_mode=$runtime_mode input=$(basename "$input_file") handoff=temp-mir" >&2
+  local route_name
+  route_name="$(canonical_runtime_route_name "$runtime_mode")"
+
+  echo "[selfhost/run] mode=runtime runtime_route=$route_name runtime_mode=$runtime_mode input=$(basename "$input_file") handoff=temp-mir" >&2
   emit_runtime_route_tag "pipeline-entry" "$source_name"
   emit_runtime_route_tag "$runtime_mode" "$source_name"
 
@@ -86,7 +103,7 @@ run_runtime_temp_mir_handoff() {
     exit 1
   fi
 
-  echo "[selfhost/run] mode=runtime runtime_mode=$runtime_mode handoff=mir-json-file" >&2
+  echo "[selfhost/run] mode=runtime runtime_route=$route_name runtime_mode=$runtime_mode handoff=mir-json-file" >&2
 
   local run_rc=0
   set +e
@@ -164,6 +181,8 @@ run_runtime() {
 
   local -a env_prefix
   env_prefix=("NYASH_USE_NY_COMPILER=1" "NYASH_NY_COMPILER_USE_PY=0")
+  local route_name
+  route_name="$(canonical_runtime_route_name "$runtime_mode")"
   case "$runtime_mode" in
     stage-a-compat)
       # explicit compat-only keep: keep the fallback route narrow and non-growing
@@ -174,7 +193,7 @@ run_runtime() {
       env_prefix+=("NYASH_USE_NY_COMPILER_EXE=1")
       ;;
     *)
-      echo "[selfhost/run] --runtime-mode must be exe|stage-a-compat (alias: stage-a; got: $runtime_mode)" >&2
+      echo "[selfhost/run] --runtime-route must resolve to mainline|compat (legacy mode alias: exe|stage-a-compat; got: $runtime_mode)" >&2
       exit 2
       ;;
   esac
@@ -183,10 +202,10 @@ run_runtime() {
   fi
 
   if [ "$runtime_mode" = "stage-a-compat" ]; then
-    echo "[selfhost/run] mode=runtime runtime_mode=$runtime_mode lane=compat-only input=$(basename "$input_file")" >&2
+    echo "[selfhost/run] mode=runtime runtime_route=$route_name runtime_mode=$runtime_mode lane=compat-only input=$(basename "$input_file")" >&2
     emit_runtime_route_tag "stage-a-compat" "$(basename "$input_file")"
   else
-    echo "[selfhost/run] mode=runtime runtime_mode=$runtime_mode lane=mainline input=$(basename "$input_file")" >&2
+    echo "[selfhost/run] mode=runtime runtime_route=$route_name runtime_mode=$runtime_mode lane=mainline input=$(basename "$input_file")" >&2
   fi
   if [ "$runtime_mode" = "exe" ]; then
     run_runtime_temp_mir_handoff

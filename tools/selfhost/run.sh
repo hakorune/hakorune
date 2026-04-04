@@ -10,6 +10,8 @@ mode=""
 source_file=""
 runtime_input="apps/examples/string_p0.hako"
 runtime_mode="exe"
+runtime_route=""
+runtime_mode_explicit="0"
 timeout_secs=""
 timeout_ms=""
 max_cases=""
@@ -34,7 +36,7 @@ usage() {
 Usage:
   run.sh --gate [--max-cases <n>] [--filter <substring>] [--jobs <n>] [--timeout-secs <n>] [--planner-required 0|1]
   run.sh --steady-state [--with-runtime-parity] [--no-collect-blocker] [--quiet] [--cleanup-old-logs]
-  run.sh --runtime [--runtime-mode <exe|stage-a-compat>] [--input <file>] [--timeout-ms <n>] [--timeout-secs <n>]  # stage-a-compat is explicit compat-only keep; stage-a remains an alias; exe is the mainline default
+  run.sh --runtime [--runtime-route <mainline|compat>] [--runtime-mode <exe|stage-a-compat>] [--input <file>] [--timeout-ms <n>] [--timeout-secs <n>]  # runtime-mode remains a compatibility alias; canonical route names are mainline|compat
   run.sh --direct --source-file <file> [--timeout-secs <n>] [--route-id <id>]
 
 Examples:
@@ -46,6 +48,7 @@ Examples:
   tools/selfhost/run.sh --steady-state --quiet
   tools/selfhost/run.sh --steady-state --cleanup-old-logs
   tools/selfhost/run.sh --runtime --input apps/examples/string_p0.hako
+  tools/selfhost/run.sh --runtime --runtime-route mainline --input apps/examples/string_p0.hako
   tools/selfhost/run.sh --runtime --runtime-mode exe --input apps/examples/string_p0.hako
   tools/selfhost/run.sh --runtime --runtime-mode stage-a-compat --input apps/examples/string_p0.hako
   tools/selfhost/run.sh --direct --source-file apps/tests/phase29bq_selfhost_cleanup_only_min.hako
@@ -108,6 +111,12 @@ while [ $# -gt 0 ]; do
     --runtime-mode)
       [ $# -ge 2 ] || { usage; exit 2; }
       runtime_mode="$2"
+      runtime_mode_explicit="1"
+      shift 2
+      ;;
+    --runtime-route)
+      [ $# -ge 2 ] || { usage; exit 2; }
+      runtime_route="$2"
       shift 2
       ;;
     --timeout-secs)
@@ -163,14 +172,59 @@ if [ -z "$mode" ]; then
   exit 2
 fi
 
-# Canonical runtime surface is exe or stage-a-compat. Keep stage-a as a thin alias only.
-if [ "$mode" = "runtime" ] && [ "$runtime_mode" = "stage-a" ]; then
-  runtime_mode="stage-a-compat"
-fi
+canonical_runtime_route() {
+  case "$1" in
+    mainline|exe)
+      echo "mainline"
+      ;;
+    compat|stage-a|stage-a-compat)
+      echo "compat"
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
 
-if [ "$mode" = "runtime" ] && [ "$runtime_mode" != "stage-a-compat" ] && [ "$runtime_mode" != "exe" ]; then
-  echo "[selfhost/run] --runtime-mode must be exe|stage-a-compat when --runtime is selected (alias: stage-a; got: $runtime_mode)" >&2
-  exit 2
+# Canonical runtime surface is route-first (`mainline|compat`).
+# Keep `--runtime-mode exe|stage-a-compat` and `stage-a` as compatibility aliases only.
+if [ "$mode" = "runtime" ]; then
+  runtime_route_from_mode=""
+  runtime_route_from_arg=""
+
+  if [ "$runtime_mode_explicit" = "1" ] && [ -n "$runtime_mode" ]; then
+    runtime_route_from_mode="$(canonical_runtime_route "$runtime_mode" 2>/dev/null || true)"
+  fi
+  if [ -n "$runtime_route" ]; then
+    runtime_route_from_arg="$(canonical_runtime_route "$runtime_route" 2>/dev/null || true)"
+  fi
+
+  if [ -n "$runtime_route" ] && [ -z "$runtime_route_from_arg" ]; then
+    echo "[selfhost/run] --runtime-route must be mainline|compat (compat aliases: stage-a|stage-a-compat; got: $runtime_route)" >&2
+    exit 2
+  fi
+  if [ "$runtime_mode_explicit" = "1" ] && [ -z "$runtime_route_from_mode" ]; then
+    echo "[selfhost/run] --runtime-mode must be exe|stage-a-compat (alias: stage-a; got: $runtime_mode)" >&2
+    exit 2
+  fi
+  if [ -n "$runtime_route_from_arg" ] && [ -n "$runtime_route_from_mode" ] && [ "$runtime_route_from_arg" != "$runtime_route_from_mode" ]; then
+    echo "[selfhost/run] --runtime-route and --runtime-mode disagree: route=$runtime_route mode=$runtime_mode" >&2
+    exit 2
+  fi
+
+  runtime_route="${runtime_route_from_arg:-$runtime_route_from_mode}"
+  if [ -z "$runtime_route" ]; then
+    runtime_route="mainline"
+  fi
+
+  case "$runtime_route" in
+    mainline)
+      runtime_mode="exe"
+      ;;
+    compat)
+      runtime_mode="stage-a-compat"
+      ;;
+  esac
 fi
 
 if [ "$mode" != "gate" ] && [ -n "$jobs" ]; then

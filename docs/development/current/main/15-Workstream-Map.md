@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-110x selfhost execution vocabulary SSOT` |
-| Front | `stage / route / backend override / lane / kernel の vocabulary 固定` |
+| Now | `phase-111x selfhost runtime route naming cleanup` |
+| Front | `--runtime-route mainline|compat` を public surface に追加` |
 | Blocker | `none` |
-| Next | `runtime route map + public surface wording lock` |
-| After Next | `phase-111x runtime route naming cleanup` |
+| Next | `run.sh` / `selfhost_run_routes.sh` / docs の route alias整備 |
+| After Next | `phase-112x vm-family lane naming hardening` |
 
 ## Current Read
 
@@ -34,6 +34,7 @@ Related:
 - `103` landed with if-only merge / early return parity
 - `104` landed with loop(true)+break-only digits parity on VM and LLVM EXE
 - `105` restored the original long digit OR-chain parity on VM and LLVM EXE
+- `110x` fixed long-lived execution vocabulary SSOT and corrected stale wording in `lang/src/vm` / `tools/selfhost`
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers
@@ -51,10 +52,9 @@ Related:
 
 ## Successor Corridor
 
-1. `phase-110x selfhost execution vocabulary SSOT`
-2. `phase-111x selfhost runtime route naming cleanup`
-3. `phase-112x vm-family lane naming hardening`
-4. `phase-113x kernel vs vm-reference cluster wording correction`
+1. `phase-111x selfhost runtime route naming cleanup`
+2. `phase-112x vm-family lane naming hardening`
+3. `phase-113x kernel vs vm-reference cluster wording correction`
 
 ## Parked After Optimization
 
@@ -84,8 +84,8 @@ Related:
 ## Reference
 
 - current lane docs:
+  - `docs/development/current/main/phases/phase-111x/README.md`
   - `docs/development/current/main/phases/phase-110x/README.md`
-  - `docs/development/current/main/phases/phase-105/README.md`
 - recent landed:
   - `docs/development/current/main/phases/phase-103/README.md`
   - `docs/development/current/main/phases/phase-102/README.md`

@@ -24,13 +24,15 @@ Script
   - Modes:
     - `--gate`: run selfhost gate (`phase29bq_selfhost_planner_required_dev_gate_vm.sh`)
     - `--runtime`: run runtime selfhost route (`NYASH_USE_NY_COMPILER=1`)
-      - `--runtime-mode exe|stage-a-compat` (default `exe`; canonical route reading is `runtime/mainline|runtime/compat`; `stage-a` remains a thin alias; `stage-a-compat` is explicit compat-only)
+      - `--runtime-route mainline|compat` is canonical
+      - `--runtime-mode exe|stage-a-compat` remains a compatibility alias (`stage-a` is also a thin alias)
     - `--direct`: run Stage-B direct/source route (proof-oriented; VM wrapper is kept explicit-only)
   - Examples:
     ```bash
     tools/selfhost/run.sh --gate --max-cases 5
     tools/selfhost/run.sh --runtime --input apps/examples/string_p0.hako
-    tools/selfhost/run.sh --runtime --runtime-mode exe --input apps/examples/string_p0.hako
+    tools/selfhost/run.sh --runtime --runtime-route mainline --input apps/examples/string_p0.hako
+    tools/selfhost/run.sh --runtime --runtime-route compat --input apps/examples/string_p0.hako
     tools/selfhost/run.sh --direct --source-file apps/tests/phase29bq_selfhost_cleanup_only_min.hako
     ```
 - tools/selfhost/proof/selfhost_smoke.sh
