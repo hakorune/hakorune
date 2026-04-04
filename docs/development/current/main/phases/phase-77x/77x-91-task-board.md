@@ -15,8 +15,8 @@ Date: 2026-04-04
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `77xA1` | active | runner top-level owner inventory lock |
-| `77xA2` | queued | target split / stop-line freeze |
+| `77xA1` | landed | runner top-level owner inventory lock |
+| `77xA2` | active | target split / stop-line freeze |
 | `77xB1` | queued | `launcher.hako` body thinning |
 | `77xB2` | queued | `stage1_cli_env.hako` authority thinning |
 | `77xD1` | queued | proof / closeout |
@@ -25,7 +25,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `77xA1 runner top-level owner inventory lock` |
+| Now | `77xA2 target split / stop-line freeze` |
 | Blocker | `none` |
-| Next | `77xA2 target split / stop-line freeze` |
-| After Next | `77xB1 launcher.hako body thinning` |
+| Next | `77xB1 launcher.hako body thinning` |
+| After Next | `77xB2 stage1_cli_env.hako authority thinning` |

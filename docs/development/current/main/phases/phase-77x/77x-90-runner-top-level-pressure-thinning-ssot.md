@@ -32,3 +32,16 @@ Related:
 - keep `launcher.hako` as the top-level CLI facade, but thin the body further
 - keep `stage1_cli_env.hako` as current authority entry, but reduce inline authority bulk where possible
 - do not reopen wrapper path churn that phase-68x and phase-75x already settled
+
+## Current Read
+
+- `77xA1` landed:
+  - thin wrapper keep:
+    - `lang/src/runner/runner_facade.hako`
+    - `lang/src/runner/stage1_cli.hako`
+    - `lang/src/runner/launcher_native_entry.hako`
+    - `lang/src/runner/stage1_cli_env_entry.hako`
+  - remaining top-level pressure:
+    - `lang/src/runner/launcher.hako`
+    - `lang/src/runner/stage1_cli_env.hako`
+  - worker rerun agrees that wrapper canonicalization is largely done and the next leverage is body thinning in those two files

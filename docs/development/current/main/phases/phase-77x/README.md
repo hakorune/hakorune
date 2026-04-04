@@ -29,4 +29,4 @@ Related:
 ## Current Read
 
 - current front:
-  - `77xA1 runner top-level owner inventory lock`
+  - `77xA2 target split / stop-line freeze`

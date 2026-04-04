@@ -171,7 +171,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-77x runner top-level pressure thinning`
 - Current blocker: `none`
-- Exact focus: `77xA1 runner top-level owner inventory lock`
+- Exact focus: `77xA2 target split / stop-line freeze`
 - successor lane ranking is fixed as:
   1. `phase-77x runner top-level pressure thinning`
   2. `root/current pointer thinning`
