@@ -37,7 +37,7 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-63x rust-vm final retirement decision`
+     - current active lane is `phase-64x next source lane selection`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
@@ -70,7 +70,7 @@ Related:
      - `phase-49x` is landed and the remaining current-doc wording / compat-route narration is closed
      - `phase-51x` is landed and the canonical compat-codegen bucket now lives under the archive path
      - `phase-52x` is landed and polishes archive/historical labeling after source cleanup
-     - `phase-53x` is landed, `phase-54x` is landed, `phase-55x` is landed, `phase-56x` is landed, `phase-57x` is landed, `phase-58x` is landed, `phase-59x` is landed, and `phase-60x` is active; route-surface retirement has handed off to keep pruning continuation
+     - `phase-53x` is landed, `phase-54x` is landed, `phase-55x` is landed, `phase-56x` is landed, `phase-57x` is landed, `phase-58x` is landed, `phase-59x` is landed, `phase-60x` is landed, `phase-61x` is landed, `phase-62x` is landed, `phase-63x` is landed, and `phase-64x` is active
      - `48xA1` inventory lock is landed; `48xA2` proof-only / compat keep classification is landed
      - `48xB1` smoke script stale-route cleanup is landed; `48xB2` proof-only smoke gate lock is landed; `48xC1` source helper stale-route cleanup is landed; `48xC2` vm.rs / vm_fallback thin keep trim is landed
      - `47xA1` landed, `47xA2` landed, `47xA3` landed, `47xB1` landed, `47xB2` landed, `47xB3` landed, `47xC1` landed, `47xC2` landed, `47xC3` landed, `47xD1` landed, `47xD2` landed, and `47xD3` landed
@@ -128,28 +128,28 @@ Related:
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-63x rust-vm final retirement decision table:
+   - phase-64x next source lane selection table:
 
      | Item | State |
      | --- | --- |
-     | Now | `63xA1 retirement-decision evidence lock` |
+     | Now | `64xA1 successor lane inventory lock` |
      | Blocker | `none` |
-     | Next | `63xA2 retire-vs-residual decision` |
-     | After Next | `63xB1 residual keep stop-line or retirement plan freeze` |
-   - retirement corridor after `60x`:
+     | Next | `64xA2 candidate lane ranking` |
+     | After Next | `64xB1 successor lane decision` |
+   - rust-vm corridor outcome:
 
-     | Lane | Read as |
+     | Item | State |
      | --- | --- |
-     | `61x residual rust-vm caller-zero audit rerun` | rerun caller-zero facts after keep pruning settles |
-     | `62x rust-vm delete-ready removal wave` | remove only surfaces proven delete-ready |
-     | `63x rust-vm final retirement decision` | decide full retirement vs residual keep |
+     | `mainline retirement` | achieved |
+     | `full source retirement` | deferred |
+     | `residual explicit keep` | frozen |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `63xA1 retirement-decision evidence lock` |
-     | Next | `63xA2 retire-vs-residual decision` |
-     | Later | `63xB1 residual keep stop-line or retirement plan freeze` |
+     | Now | `64xA1 successor lane inventory lock` |
+     | Next | `64xA2 candidate lane ranking` |
+     | Later | `64xB1 successor lane decision` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
