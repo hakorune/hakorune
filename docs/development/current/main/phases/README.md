@@ -4,8 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 54x next source lane selection
-- **Phase 54x（ACTIVE）**: next source lane selection（phase-53x handoff を受けて、次の source lane を leverage で選ぶ）
+- **Current (ACTIVE)**: Phase 55x rust-vm route-surface retirement prep
+- **Phase 55x（ACTIVE）**: rust-vm route-surface retirement prep（route/default/help surfaces から rust-vm selectable feeling を外す）
+- **Phase 54x（LANDED）**: next source lane selection（phase-53x handoff を受けて successor lane と retirement corridor を確定した）
 - **Phase 53x（LANDED）**: residual VM source audit（残っている rust-vm / vm-hako source surfaces を inventory して keep-now / archive-later / delete-ready に分け、phase-54x に handoff した）
 - **Phase 52x（LANDED）**: archive historical labeling polish（archive / historical wording を最小化し、legacy traces を historical-only に保ち、phase-53x に residual source audit を handoff した）
 - **Phase 51x（LANDED）**: compat-codegen archival sweep（canonical compat-codegen payload / wrapper bucket を archive 側へ退避し、live docs / aliases を整理した）

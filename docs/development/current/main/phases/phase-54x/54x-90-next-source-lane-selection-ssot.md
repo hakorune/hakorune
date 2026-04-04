@@ -68,6 +68,17 @@ Related:
   - proof/compat keeps should be minimized before any delete-ready removal wave starts
   - delete-ready audit should happen only after callers and explicit keeps are stable
 
+## Decision
+
+- selected successor lane: `phase-55x rust-vm route-surface retirement prep`
+- selected because:
+  - `src/cli/args.rs` still presents `vm` / `vm-hako` as backend help/default affordances
+  - `tools/selfhost/lib/selfhost_run_routes.sh` still owns a `stage-a -> --backend vm` route surface
+  - `dispatch.rs` / `route_orchestrator.rs` are still the central explicit route seams that shape live backend reading
+- not selected yet:
+  - `phase-56x proof/compat keep pruning`, because proof/compat keeps should not be pruned before route/default/help exposure is frozen
+  - `phase-57x rust-vm delete-ready audit / removal wave`, because the inventory still has no delete-ready payload
+
 ## Boundaries
 
 - do not reopen `--backend vm` as a daily default

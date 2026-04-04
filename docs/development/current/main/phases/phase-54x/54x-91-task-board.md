@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 ---
 
@@ -7,19 +7,19 @@ Date: 2026-04-04
 
 | Order | Task | Status | Read as |
 | --- | --- | --- | --- |
-| 1 | `54xA source lane shortlist` | active | inventory the next candidate lanes after the residual VM audit lands |
-| 2 | `54xB lane decision` | queued | pick the next source lane and lock the retirement corridor |
-| 3 | `54xD closeout` | queued | publish the decision and hand off cleanly |
+| 1 | `54xA source lane shortlist` | landed | inventory the next candidate lanes after the residual VM audit lands |
+| 2 | `54xB lane decision` | landed | pick the next source lane and lock the retirement corridor |
+| 3 | `54xD closeout` | landed | publish the decision and hand off cleanly |
 
 ## Exact Micro Tasks
 
 | Task | Status | Read as |
 | --- | --- | --- |
 | `54xA1` | landed | successor lane inventory lock |
-| `54xA2` | active | candidate lane ranking |
-| `54xB1` | queued | successor lane decision |
-| `54xB2` | queued | retirement corridor lock |
-| `54xD1` | queued | proof / closeout |
+| `54xA2` | landed | candidate lane ranking |
+| `54xB1` | landed | successor lane decision |
+| `54xB2` | landed | retirement corridor lock |
+| `54xD1` | landed | proof / closeout |
 
 ## Inventory Snapshot
 
@@ -41,11 +41,20 @@ Date: 2026-04-04
 | 2 | `56x proof/compat keep pruning` | prune the explicit keeps only after the route surfaces stop widening the default set |
 | 3 | `57x rust-vm delete-ready audit / removal wave` | final delete/remove wave only after explicit keeps are stable |
 
+## Decision
+
+| Item | State |
+| --- | --- |
+| Successor | `phase-55x rust-vm route-surface retirement prep` |
+| Reason | route/default/help surfaces are the last remaining live rust-vm exposure |
+| After Successor | `phase-56x proof/compat keep pruning` |
+| Later | `phase-57x rust-vm delete-ready audit / removal wave` |
+
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `54xA2 candidate lane ranking` |
+| Now | `landed / handoff complete` |
 | Blocker | `none` |
-| Next | `54xB1 successor lane decision` |
-| After Next | `54xB2 retirement corridor lock` |
+| Next | `phase-55x rust-vm route-surface retirement prep` |
+| After Next | `phase-56x proof/compat keep pruning` |

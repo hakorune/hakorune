@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: choose the next source lane after `phase-53x` landed so archive/historical cleanup does not become the de facto live default again.
 Related:
@@ -25,7 +25,7 @@ Related:
 
 - `phase-53x` is landed and handed off.
 - `rust-vm` is no longer the day-to-day owner, and `vm-hako` stays reference/conformance only.
-- the current job is to decide the next source lane cleanly before any new work starts.
+- the lane decided the next source lane cleanly before any new work restarted.
 - `kilo` remains far-future; this phase is about the nearer next source focus, not a delayed optimization wave.
 
 ## Inventory Findings
@@ -57,6 +57,22 @@ Related:
   - `phase-57x rust-vm delete-ready audit / removal wave`
 - `vm-hako` is outside this corridor because it remains a live reference/conformance lane.
 - `kilo` optimization also stays outside this corridor.
+
+## Decision
+
+- selected successor lane: `phase-55x rust-vm route-surface retirement prep`
+- selected because route/default/help surfaces still expose rust-vm as a selectable live path
+- `phase-56x proof/compat keep pruning` stays next after route-surface retirement prep
+- `phase-57x rust-vm delete-ready audit / removal wave` stays after explicit keep pruning
+
+## Handoff
+
+- `phase-54x` is landed and handed off.
+- current active lane moved to `phase-55x rust-vm route-surface retirement prep`.
+- this lane leaves behind the explicit retirement corridor:
+  - `55x rust-vm route-surface retirement prep`
+  - `56x proof/compat keep pruning`
+  - `57x rust-vm delete-ready audit / removal wave`
 
 ## Candidate Lanes
 

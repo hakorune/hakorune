@@ -37,7 +37,7 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-54x next source lane selection`
+     - current active lane is `phase-55x rust-vm route-surface retirement prep`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
@@ -70,7 +70,7 @@ Related:
      - `phase-49x` is landed and the remaining current-doc wording / compat-route narration is closed
      - `phase-51x` is landed and the canonical compat-codegen bucket now lives under the archive path
      - `phase-52x` is landed and polishes archive/historical labeling after source cleanup
-     - `phase-53x` is landed and `phase-54x` is active; the residual rust-vm / vm-hako audit has handed off to successor-lane selection
+     - `phase-53x` is landed, `phase-54x` is landed, and `phase-55x` is active; the residual rust-vm / vm-hako audit has handed off to route-surface retirement prep
      - `48xA1` inventory lock is landed; `48xA2` proof-only / compat keep classification is landed
      - `48xB1` smoke script stale-route cleanup is landed; `48xB2` proof-only smoke gate lock is landed; `48xC1` source helper stale-route cleanup is landed; `48xC2` vm.rs / vm_fallback thin keep trim is landed
      - `47xA1` landed, `47xA2` landed, `47xA3` landed, `47xB1` landed, `47xB2` landed, `47xB3` landed, `47xC1` landed, `47xC2` landed, `47xC3` landed, `47xD1` landed, `47xD2` landed, and `47xD3` landed
@@ -128,21 +128,21 @@ Related:
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-54x next source lane selection table:
+   - phase-55x rust-vm route-surface retirement prep table:
 
      | Item | State |
      | --- | --- |
-     | Now | `54xA2 candidate lane ranking` |
+     | Now | `55xA1 route-surface inventory lock` |
      | Blocker | `none` |
-     | Next | `54xB1 successor lane decision` |
-     | After Next | `54xB2 retirement corridor lock` |
+     | Next | `55xA2 backend/default/help exposure freeze` |
+     | After Next | `55xB1 cli/backend affordance cleanup` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `54xA2 candidate lane ranking` |
-     | Next | `54xB1 successor lane decision` |
-     | Later | `55x rust-vm route-surface retirement prep` |
+     | Now | `55xA1 route-surface inventory lock` |
+     | Next | `55xA2 backend/default/help exposure freeze` |
+     | Later | `56x proof/compat keep pruning` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
@@ -188,9 +188,9 @@ Related:
      - Active backend surface tasks:
      - `51xA2 proof-only / archive-later classification`
      - Queued backend surface tasks:
-     - `54xA2 candidate lane ranking`
-     - `54xB1 successor lane decision`
-     - `55x rust-vm route-surface retirement prep`
+     - `55xA2 backend/default/help exposure freeze`
+     - `55xB1 cli/backend affordance cleanup`
+     - `56x proof/compat keep pruning`
      - `56x proof/compat keep pruning`
      - `57x rust-vm delete-ready audit / removal wave`
     - `kilo` optimization wave (far future; not the next lane)

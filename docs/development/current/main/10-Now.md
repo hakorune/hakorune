@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `phase-54x next source lane selection`
+- lane: `phase-55x rust-vm route-surface retirement prep`
 - `49xD1` landed: proof / closeout
 - `50xA1` landed: residual rust-vm surface inventory lock
 - `50xA2` landed: proof-only / compat keep classification
@@ -46,9 +46,15 @@ Related:
 - `53xC1 archive-ready docs/examples / wrapper cleanup` landed
 - `53xD1 proof / closeout` landed
 - `54xA1 successor lane inventory lock` landed
-- `54xA2 candidate lane ranking` active
-- `54xB1 successor lane decision` queued
-- `55x rust-vm route-surface retirement prep` planned
+- `54xA2 candidate lane ranking` landed
+- `54xB1 successor lane decision` landed
+- `54xB2 retirement corridor lock` landed
+- `54xD1 proof / closeout` landed
+- `55xA1 route-surface inventory lock` active
+- `55xA2 backend/default/help exposure freeze` queued
+- `55xB1 cli/backend affordance cleanup` queued
+- `55xB2 selfhost route-surface cleanup` queued
+- `55xC1 dispatch/orchestrator explicit keep narrowing` queued
 - `56x proof/compat keep pruning` planned
 - `57x rust-vm delete-ready audit / removal wave` planned
 - `47xA1` landed: runtime/default contract lock
@@ -95,11 +101,11 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `54xA2 candidate lane ranking`
+- active micro task: `55xA1 route-surface inventory lock`
 - plain reading:
   - current source no longer treats `--backend vm` as a live owner lane; remaining references are archive-only evidence
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep
-  - the current lane now owns the retirement corridor up to rust-vm exit from live source surfaces
+  - the current lane starts the concrete route/default/help retirement prep before proof/compat pruning
 - `phase-42x` is landed; it starved day-to-day callers away from vm-gated routes and moved owner pressure toward direct/core seams
 - `phase-43x` is landed; it selected `phase-44x stage0 direct/core follow-up` as the highest-leverage successor lane
 - `phase-44x` is landed; it keeps proof-only VM gates explicit and closes the lane
@@ -141,6 +147,6 @@ Related:
 
 1. read `CURRENT_TASK.md`
 2. read `15-Workstream-Map.md`
-3. read `docs/development/current/main/phases/phase-54x/README.md`
-4. read `docs/development/current/main/phases/phase-54x/54x-90-next-source-lane-selection-ssot.md`
-5. read `docs/development/current/main/phases/phase-54x/54x-91-task-board.md`
+3. read `docs/development/current/main/phases/phase-55x/README.md`
+4. read `docs/development/current/main/phases/phase-55x/55x-90-rust-vm-route-surface-retirement-prep-ssot.md`
+5. read `docs/development/current/main/phases/phase-55x/55x-91-task-board.md`
