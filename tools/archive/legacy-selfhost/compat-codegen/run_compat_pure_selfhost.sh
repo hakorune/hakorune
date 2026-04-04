@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Archived compat wrapper for the example/proof selfhost driver.
-# This is compat-only. It preserves the historical shell contract while
-# materializing the payload template onto the archived `vm-hako` lane.
+# Archived compat wrapper for the historical selfhost driver.
+# This preserves the historical shell contract while materializing the
+# archived payload template onto the archived `vm-hako` lane.
 # Usage:
 #   tools/archive/legacy-selfhost/compat-codegen/run_compat_pure_selfhost.sh <json_file_or_-'stdin'> [exe_out]
 # Env toggles:

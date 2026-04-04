@@ -27,13 +27,13 @@ case "${1:-}" in
     cat <<EOF
 Usage: tools/archive/legacy-selfhost/stage1_embedded_smoke.sh [program-json|mir-json|all]
 
-  note         : legacy embedded bridge smoke (not the daily mainline route)
+  note         : legacy embedded bridge smoke (historical archive replay)
   program-json : apps/tests/stage1_using_minimal.hako で Program(JSON v0) を確認
   mir-json     : apps/tests/stage1_using_minimal.hako で MIR(JSON) を確認
   run          : apps/tests/stage1_run_min.hako で run(vm) 経路（現状は MIR 出力のみ）を確認
   all          : 3 経路すべて実行（既定）
 
-Current mainline:
+Current mainline reference:
   tools/selfhost/stage1_mainline_smoke.sh [--bin <stage1-cli-artifact>] [<source.hako>]
 EOF
     exit 0

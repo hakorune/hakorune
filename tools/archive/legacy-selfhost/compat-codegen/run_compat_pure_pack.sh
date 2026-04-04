@@ -1,17 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Historical compat pack orchestrator.
-# This shells into the compat/pure-keep suite, the archive/pure-historical
-# replay bucket, and then the canonical archived compat selfhost transport
-# wrapper. It is not a separate proof owner.
+# Historical compat pack replay.
+# This replays the archived compat-codegen evidence bucket for reference only.
 
 ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 PURE_KEEP_RUNNER="$ROOT/tools/smokes/v2/profiles/integration/compat/pure-keep/run_pure_keep.sh"
 PURE_HISTORICAL_RUNNER="$ROOT/tools/smokes/v2/profiles/archive/pure-historical/run_pure_historical.sh"
 SELFHOST_COMPAT_WRAPPER="$ROOT/tools/archive/legacy-selfhost/compat-codegen/run_compat_pure_selfhost.sh"
 
-echo "[archive/compat] Running historical compat pack"
+echo "[archive/compat] Replaying historical compat pack"
 export NYASH_LLVM_USE_CAPI=${NYASH_LLVM_USE_CAPI:-1}
 export HAKO_V1_EXTERN_PROVIDER_C_ABI=${HAKO_V1_EXTERN_PROVIDER_C_ABI:-1}
 export HAKO_CAPI_PURE=${HAKO_CAPI_PURE:-1}
@@ -34,7 +32,7 @@ bash "$PURE_KEEP_RUNNER"
 
 bash "$PURE_HISTORICAL_RUNNER"
 
-echo "[archive/compat] Running historical .hako -> LLVM selfhost helper"
+echo "[archive/compat] Replaying archived .hako -> LLVM selfhost helper"
 TMP_JSON="/tmp/hako_min44_$$.json"
 cat > "$TMP_JSON" <<'JSON'
 {"schema_version":"1.0","functions":[{"name":"main","blocks":[{"id":0,"instructions":[

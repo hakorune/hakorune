@@ -1,8 +1,8 @@
-// hako_llvm_selfhost_driver.hako — archive-later proof/example payload template
-// This is a thin compat route payload, not a daily backend owner.
+// hako_llvm_selfhost_driver.hako — archived historical payload template
+// This is archived compat evidence, not a daily backend owner.
 // `run_compat_pure_selfhost.sh` materializes this template with MIR JSON and exe
-// path literals before running it on `vm-hako`.
-// The payload now proves the provider stop-line via the evidence adapter, not the
+// path literals before replaying it on `vm-hako`.
+// The payload documents the provider stop-line via the evidence adapter; the
 // legacy `CodegenBridgeBox.emit_object_args(...)` bridge is retired.
 
 using selfhost.shared.backend.llvm_backend as LlvmBackendBox

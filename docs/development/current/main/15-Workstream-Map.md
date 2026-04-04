@@ -131,16 +131,16 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `52xA1 archive historical evidence inventory lock` |
+     | Now | `52xB1 archive pack orchestrator wording cleanup` |
      | Blocker | `none` |
-     | Next | `52xA2 archive README / wrapper wording rewrite` |
+     | Next | `52xC1 proof / closeout` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `52xA1 archive historical evidence inventory lock` |
-     | Next | `52xA2 archive README / wrapper wording rewrite` |
-     | Later | `52xB1 archive pack orchestrator wording cleanup` |
+     | Now | `52xB1 archive pack orchestrator wording cleanup` |
+     | Next | `52xC1 proof / closeout` |
+     | Later | `done` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |

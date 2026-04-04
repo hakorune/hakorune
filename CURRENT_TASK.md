@@ -139,10 +139,10 @@ Scope: repo root から current order / current blocker / next exact read に最
 - Current blocker: `none`
 - Exact focus: `phase-52x archive historical labeling polish`
 - exact phase-52x order:
-  1. `52xA1` archive historical evidence inventory lock
-  2. `52xA2` archive README / wrapper wording rewrite
-  3. `52xB1` archive pack orchestrator wording cleanup
-  4. `52xC1` proof / closeout
+  1. `52xA1` archive historical evidence inventory lock (landed)
+  2. `52xA2` archive README / wrapper wording rewrite (landed)
+  3. `52xB1` archive pack orchestrator wording cleanup (active)
+  4. `52xC1` proof / closeout (queued)
 
 Carry-over context:
 
@@ -235,8 +235,8 @@ Carry-over context:
 | Item | State |
 | --- | --- |
 | Now | `phase-52x archive historical labeling polish` |
- | Blocker | `none` |
-| Next | `52xA1 archive historical evidence inventory lock` |
+| Blocker | `none` |
+| Next | `52xB1 archive pack orchestrator wording cleanup` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -251,8 +251,8 @@ Carry-over context:
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `phase-52x archive historical labeling polish` | keep archive/historical labels minimal and explicit after source cleanup |
-| Next | `52xA1 archive historical evidence inventory lock` | inventory the archive-only historical surfaces before rewriting wording |
-| Later | `next source lane selection` | choose the next source lane after compat-codegen cleanup is complete |
+| Next | `52xB1 archive pack orchestrator wording cleanup` | keep archive pack wording historical-only before closeout |
+| Later | `52xC1 proof / closeout` | prove the archive wording stays historical-only and hand off cleanly |
 
 ## Phase-34x Waves
 

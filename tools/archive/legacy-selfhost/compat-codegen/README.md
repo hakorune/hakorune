@@ -1,6 +1,6 @@
 # tools/archive/legacy-selfhost/compat-codegen
 
-Archived home for historical compat-codegen evidence and wrappers.
+Archived home for historical compat-codegen evidence and wrappers only.
 
 ## Archived Surface
 
@@ -9,7 +9,8 @@ Archived home for historical compat-codegen evidence and wrappers.
 - `run_compat_pure_pack.sh`
 
 This archive keeps one canonical payload, one transport wrapper, and one pack
-orchestrator as historical evidence. It is not a daily owner lane.
+orchestrator as historical evidence. It is historical evidence only, not a
+live route.
 
 ## Layering
 
