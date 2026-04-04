@@ -17,15 +17,15 @@ Date: 2026-04-04
 | --- | --- | --- |
 | `77xA1` | landed | runner top-level owner inventory lock |
 | `77xA2` | landed | target split / stop-line freeze |
-| `77xB1` | active | `launcher.hako` body thinning |
-| `77xB2` | queued | `stage1_cli_env.hako` authority thinning |
+| `77xB1` | landed | `launcher.hako` body thinning |
+| `77xB2` | active | `stage1_cli_env.hako` authority thinning |
 | `77xD1` | queued | proof / closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `77xB1 launcher.hako body thinning` |
+| Now | `77xB2 stage1_cli_env.hako authority thinning` |
 | Blocker | `launcher.hako emit_mir_mainline probe still red; tracked as known residual` |
-| Next | `77xB2 stage1_cli_env.hako authority thinning` |
+| Next | `77xD1 proof / closeout` |
 | After Next | `77xD1 proof / closeout` |

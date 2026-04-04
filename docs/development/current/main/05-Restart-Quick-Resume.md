@@ -23,7 +23,7 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-77x runner top-level pressure thinning`
-- current front: `77xB1 launcher.hako body thinning`
+- current front: `77xB2 stage1_cli_env.hako authority thinning`
 - landed micro task: `49xD1 proof / closeout`
 - landed micro task: `52xA2 archive README / wrapper wording rewrite`
 - landed micro task: `52xB1 archive pack orchestrator wording cleanup`

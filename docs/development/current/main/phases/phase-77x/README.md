@@ -29,4 +29,4 @@ Related:
 ## Current Read
 
 - current front:
-  - `77xB1 launcher.hako body thinning`
+  - `77xB2 stage1_cli_env.hako authority thinning`

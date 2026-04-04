@@ -1,0 +1,405 @@
+// stage1_cli_env/emit_pipeline.hako
+//
+// Thin emit pipeline helper for the stage1 env authority cluster.
+
+using lang.compiler.entry.using_resolver_box as Stage1UsingResolverBox
+using lang.compiler.build.build_box as BuildBox
+using lang.mir.builder.MirBuilderBox as MirBuilderBox
+using lang.runner.stage1_cli_env.input_contract as Stage1InputContractBox
+
+static box Stage1EmitPipelineBox {
+  method run_mode(mode) {
+    if mode == "emit-program" {
+      return me._run_emit_program_mode()
+    }
+    if mode == "emit-mir" || mode == "run" {
+      local tag = "[freeze:contract][stage1-cli/emit-mir]"
+      if mode == "run" {
+        tag = "[freeze:contract][stage1-cli/run]"
+      }
+      return me._run_emit_mir_mode(tag)
+    }
+    if mode == "emit-mir-program" {
+      return me._run_emit_mir_program_json_compat_mode("[freeze:contract][stage1-cli/emit-mir-program]")
+    }
+    return 97
+  }
+
+  method _run_emit_program_mode() {
+    local tag = "[freeze:contract][stage1-cli/emit-program]"
+    local source_text = Stage1InputContractBox.resolve_emit_program_source_text()
+    if source_text == null {
+      return 96
+    }
+    local program_json = Stage1SourceProgramAuthorityBox.emit_program_from_source(tag, source_text)
+    if program_json == null {
+      return 96
+    }
+    return Stage1ProgramResultValidationBox.finalize_emit_result(program_json)
+  }
+
+  method _run_emit_mir_mode(tag) {
+    return Stage1EmitMirDispatchBox.run_emit_mir_mode(tag)
+  }
+
+  method _run_emit_mir_program_json_compat_mode(tag) {
+    return Stage1EmitMirDispatchBox.run_emit_mir_program_json_compat_mode(tag)
+  }
+}
+
+// Emit-mir route dispatch stays same-file so emit pipeline can delegate
+// source-vs-compat choreography without widening the current authority boundary
+// again.
+static box Stage1EmitMirDispatchBox {
+  method run_emit_mir_mode(tag) {
+    local supplied_program_json_text = Stage1InputContractBox.resolve_supplied_program_json_text()
+    if Stage1ProgramJsonCompatBox.fail_fast_mixed_source_mode(tag, supplied_program_json_text) != 0 {
+      return 96
+    }
+    local source_text = Stage1InputContractBox.resolve_emit_program_source_text()
+    local mir = Stage1SourceMirAuthorityBox.emit_mir_from_source(tag, source_text)
+    if mir == null {
+      return 96
+    }
+    return Stage1MirResultValidationBox.finalize_emit_result(tag, source_text, mir)
+  }
+
+  method run_emit_mir_program_json_compat_mode(tag) {
+    local program_json_text = Stage1InputContractBox.resolve_source_text()
+    local mir = Stage1ProgramJsonCompatBox.emit_mir_from_text(tag, program_json_text)
+    if mir == null {
+      return 96
+    }
+    return Stage1MirResultValidationBox.finalize_emit_result(tag, program_json_text, mir)
+  }
+}
+
+// Source-only Program(JSON) authority stays same-file so emit pipeline can keep
+// the exact emit-program contract thin without widening the current artifact
+// boundary.
+static box Stage1SourceProgramAuthorityBox {
+  method emit_program_from_source(tag, source_text) {
+    if source_text == null || source_text == "" {
+      print(tag + " input missing source/program-json contract")
+      return null
+    }
+    local source = me._coerce_text_compat(source_text)
+    local merged = me._merge_using_prefix(source)
+    return me._emit_program_json_from_source_checked(tag, merged)
+  }
+
+  method _merge_using_prefix(source_text) {
+    local prefix = Stage1UsingResolverBox.resolve_for_source(source_text)
+    if prefix == null { prefix = "" }
+    return prefix + source_text
+  }
+
+  method _emit_program_json_from_source_checked(tag, merged_source_text) {
+    local program_json = me._emit_program_json_from_source_raw(merged_source_text)
+    if program_json == null {
+      print(tag + " BuildBox.emit_program_json_v0 returned null")
+      return null
+    }
+    return program_json
+  }
+
+  method _emit_program_json_from_source_raw(source_text) {
+    return BuildBox.emit_program_json_v0(source_text, null)
+  }
+
+  method _coerce_text_compat(value) {
+    return "" + value
+  }
+}
+
+// Program(JSON) validation stays same-file so compat/probe routes can reuse the
+// same thin-dispatch pattern without widening the boundary.
+static box Stage1ProgramResultValidationBox {
+  method finalize_emit_result(program_json) {
+    local prog_text = me._coerce_text_compat(program_json)
+    local prog_head = prog_text.substring(0, 1)
+    if prog_head != "{" {
+      print("[freeze:contract][stage1-cli/emit-program] output is not Program JSON")
+      print(prog_text)
+      return 96
+    }
+    if prog_text.indexOf("\"version\":0") < 0 || prog_text.indexOf("\"kind\":\"Program\"") < 0 {
+      print("[freeze:contract][stage1-cli/emit-program] output missing Program(JSON v0) markers")
+      print(prog_text)
+      return 96
+    }
+    print(prog_text)
+    return 0
+  }
+
+  method _coerce_text_compat(value) {
+    return "" + value
+  }
+}
+
+// Shared Program(JSON) text guard stays same-file so source authority and
+// explicit compat keep can reuse the same fail-fast contract without widening
+// the current stage1 artifact boundary.
+static box Stage1ProgramJsonTextGuardBox {
+  method coerce_text_checked(tag, missing_contract, program_json_text) {
+    if me.input_present(program_json_text) != 1 {
+      print(tag + " " + missing_contract)
+      return null
+    }
+    return me._coerce_text_compat(program_json_text)
+  }
+
+  method input_present(program_json_text) {
+    if program_json_text != null && program_json_text != "" { return 1 }
+    return 0
+  }
+
+  method _coerce_text_compat(value) {
+    return "" + value
+  }
+}
+
+// Shared Program(JSON)->MIR checked path stays same-file so source authority and
+// explicit compat keep can reuse the same fail-fast contract without widening
+// the current stage1 artifact boundary.
+static box Stage1ProgramJsonMirCallerBox {
+  method emit_mir_from_program_json_checked(tag, program_json_text) {
+    local prog = me._coerce_program_json_text_checked(tag, program_json_text)
+    if prog == null { return null }
+    return me._emit_mir_from_program_json_text_checked(tag, prog)
+  }
+
+  method _coerce_program_json_text_checked(tag, program_json_text) {
+    return Stage1ProgramJsonTextGuardBox.coerce_text_checked(
+      tag,
+      "input missing program-json contract",
+      program_json_text
+    )
+  }
+
+  method _emit_mir_from_program_json_text_checked(tag, program_json_text) {
+    local mir = MirBuilderBox.emit_from_program_json_v0(program_json_text, null)
+    if mir == null {
+      print(tag + " MirBuilderBox.emit_from_program_json_v0 returned null")
+      return null
+    }
+    return mir
+  }
+}
+
+// Source-only authority keep stays in the same file so emit pipeline can remain
+// a thin dispatcher without widening the current stage1 artifact boundary.
+static box Stage1SourceMirAuthorityBox {
+  method emit_mir_from_source(tag, source_text) {
+    if source_text == null || source_text == "" {
+      print(tag + " input missing source/program-json contract")
+      return null
+    }
+    return me._emit_mir_from_source_checked(tag, source_text)
+  }
+
+  method _emit_mir_from_source_checked(tag, source_text) {
+    local mir = MirBuilderBox.emit_from_source_v0(me._coerce_text_compat(source_text), null)
+    if mir == null {
+      print(tag + " MirBuilderBox.emit_from_source_v0 returned null")
+      return null
+    }
+    return mir
+  }
+
+  method _coerce_text_compat(value) {
+    return "" + value
+  }
+}
+
+static box Stage1MirPayloadContractBox {
+  method materialize_mir_text(mir) {
+    return me._coerce_text_compat(mir)
+  }
+
+  method emit_validated_mir_text_checked(mir_text) {
+    if me._validate_mir_text_checked(mir_text) != 1 {
+      return me._fail_invalid_mir_text(mir_text)
+    }
+    print(mir_text)
+    return 0
+  }
+
+  method _validate_mir_text_checked(mir_text) {
+    if me._mir_text_head_is_lbrace(mir_text) != 1 { return 0 }
+    if me._mir_text_has_functions(mir_text) != 1 { return 0 }
+    return 1
+  }
+
+  method _mir_text_head_is_lbrace(mir_text) {
+    local mir_head = mir_text.substring(0, 1)
+    if mir_head == "{" { return 1 }
+    return 0
+  }
+
+  method _mir_text_has_functions(mir_text) {
+    local has_functions = mir_text.indexOf("functions")
+    if has_functions >= 0 { return 1 }
+    return 0
+  }
+
+  method _fail_invalid_mir_text(mir_text) {
+    print("[freeze:contract][stage1-cli/emit-mir] output is not MIR JSON")
+    print(mir_text)
+    return 96
+  }
+
+  method _coerce_text_compat(value) {
+    return "" + value
+  }
+}
+
+static box Stage1MirResultValidationBox {
+  method finalize_emit_result(tag, selected_input, mir) {
+    me._debug_print_selected_input(tag, selected_input)
+    local mir_text = Stage1MirPayloadContractBox.materialize_mir_text(mir)
+    me._debug_print_materialized_mir(mir, mir_text)
+    return Stage1MirPayloadContractBox.emit_validated_mir_text_checked(mir_text)
+  }
+
+  method _debug_print_selected_input(tag, selected_input) {
+    if me._stage1_debug_on() != 1 { return 0 }
+    print("[stage1-cli/debug] emit-mir selected_input.len=" + me._debug_len_inline(selected_input) + " preview=" + me._debug_preview_inline(selected_input))
+    return 1
+  }
+
+  method _debug_print_materialized_mir(mir, mir_text) {
+    if me._stage1_debug_on() != 1 { return 0 }
+    me._debug_print_mir_state(mir, mir_text)
+    return 1
+  }
+
+  method _debug_print_mir_state(mir, mir_text) {
+    local mir_text_len = mir_text.length()
+    local mir_text_len_sign = "zero"
+    if mir_text_len < 0 {
+      mir_text_len_sign = "neg"
+    } else if mir_text_len > 0 {
+      mir_text_len_sign = "pos"
+    }
+    local mir_is_null = 0
+    if mir == null { mir_is_null = 1 }
+    local mir_is_empty = 0
+    if mir == "" { mir_is_empty = 1 }
+    local mir_text_is_empty = 0
+    if mir_text_len <= 0 { mir_text_is_empty = 1 }
+    local mir_text_head = mir_text.substring(0, 1)
+    local mir_text_head_is_lbrace = 0
+    if mir_text_head == "{" { mir_text_head_is_lbrace = 1 }
+    local mir_text_has_functions = mir_text.indexOf("functions")
+    local mir_text_has_functions_flag = 0
+    if mir_text_has_functions >= 0 { mir_text_has_functions_flag = 1 }
+    print("[stage1-cli/debug] emit-mir result.is_null=" + me._coerce_text_compat(mir_is_null) +
+          " result.is_empty=" + me._coerce_text_compat(mir_is_empty) +
+          " text_is_empty=" + me._coerce_text_compat(mir_text_is_empty) +
+          " text_len_sign=" + mir_text_len_sign +
+          " text_len=" + me._debug_len_inline(mir_text) +
+          " text_head_preview=" + me._debug_preview_inline(mir_text_head) +
+          " text_head_is_lbrace=" + me._coerce_text_compat(mir_text_head_is_lbrace) +
+          " text_has_functions=" + me._coerce_text_compat(mir_text_has_functions_flag) +
+          " preview=" + me._debug_preview_inline(mir) +
+          " text_preview=" + me._debug_preview_inline(mir_text))
+    if mir_text_len < 0 {
+      print("[stage1-cli/debug] emit-mir text-len-sign=neg")
+    } else if mir_text_len == 0 {
+      print("[stage1-cli/debug] emit-mir text-len-sign=zero")
+    } else {
+      print("[stage1-cli/debug] emit-mir text-len-sign=pos")
+    }
+    if mir == "" {
+      print("[stage1-cli/debug] emit-mir direct-empty-compare=true")
+    } else {
+      print("[stage1-cli/debug] emit-mir direct-empty-compare=false")
+    }
+    if mir_text == "" {
+      print("[stage1-cli/debug] emit-mir text-empty-compare=true")
+    } else {
+      print("[stage1-cli/debug] emit-mir text-empty-compare=false")
+    }
+    if mir_text_head == "{" {
+      print("[stage1-cli/debug] emit-mir text-head-is-lbrace=true")
+    } else {
+      print("[stage1-cli/debug] emit-mir text-head-is-lbrace=false")
+      print("[stage1-cli/debug] emit-mir text-head-preview=" + me._debug_preview_inline(mir_text_head))
+    }
+    if mir_text_has_functions >= 0 {
+      print("[stage1-cli/debug] emit-mir text-has-functions=true")
+    } else {
+      print("[stage1-cli/debug] emit-mir text-has-functions=false")
+    }
+    if mir_is_null == 1 {
+      print("[stage1-cli/debug] emit-mir current-route null compare matched; ignoring and using structural JSON validation")
+    }
+    if mir_is_empty == 1 {
+      print("[stage1-cli/debug] emit-mir current-route direct compare matched empty string; ignoring and using structural JSON validation")
+    }
+    if mir_text_is_empty == 1 {
+      print("[stage1-cli/debug] emit-mir current-route materialized empty string; ignoring and using structural JSON validation")
+    }
+    print("[stage1-cli/debug] emit-mir current-route validating materialized payload")
+  }
+
+  method _stage1_debug_on() {
+    local stage1_debug = env.get("STAGE1_CLI_DEBUG")
+    if stage1_debug != null && me._coerce_text_compat(stage1_debug) == "1" { return 1 }
+    return 0
+  }
+
+  method _debug_len_inline(value) {
+    if value == null { return "null" }
+    local s = me._coerce_text_compat(value)
+    return me._coerce_text_compat(s.length())
+  }
+
+  method _debug_preview_inline(value) {
+    if value == null { return "<null>" }
+    local s = me._coerce_text_compat(value)
+    if s.length() <= 64 { return s }
+    return s.substring(0, 64)
+  }
+
+  method _coerce_text_compat(value) {
+    return "" + value
+  }
+}
+
+// Explicit Program(JSON) compat keep stays in the same file so current stage1
+// artifacts can materialize the helper closure without widening authority.
+static box Stage1ProgramJsonCompatBox {
+  method fail_fast_mixed_source_mode(tag, supplied_program_json_text) {
+    if me._has_explicit_program_json_text(supplied_program_json_text) != 1 { return 0 }
+    return me._fail_mixed_source_mode(tag)
+  }
+
+  method emit_mir_from_text(tag, program_json_text) {
+    local prog = me._coerce_program_json_text_checked(tag, program_json_text)
+    if prog == null { return null }
+    return me._emit_mir_from_text_checked(tag, prog)
+  }
+
+  method _coerce_program_json_text_checked(tag, program_json_text) {
+    return Stage1ProgramJsonTextGuardBox.coerce_text_checked(
+      tag,
+      "missing explicit source-text program-json contract",
+      program_json_text
+    )
+  }
+
+  method _emit_mir_from_text_checked(tag, program_json_text) {
+    return Stage1ProgramJsonMirCallerBox.emit_mir_from_program_json_checked(tag, program_json_text)
+  }
+
+  method _has_explicit_program_json_text(program_json_text) {
+    return Stage1ProgramJsonTextGuardBox.input_present(program_json_text)
+  }
+
+  method _fail_mixed_source_mode(tag) {
+    print(tag + " explicit program-json text requires emit-mir-program mode")
+    return 96
+  }
+}
