@@ -27,7 +27,7 @@ impl PyVmExecutorBox {
             return Err(LlvmRunError::new(0, "PyVM not requested"));
         }
 
-        super::super::common_util::legacy::pyvm::run_pyvm_harness_lib(module, "llvm-ast")
+        crate::runner::modes::common_util::legacy::pyvm::run_pyvm_harness_lib(module, "llvm-ast")
             .map_err(|e| LlvmRunError::fatal(format!("PyVM harness error: {}", e)))
     }
 }

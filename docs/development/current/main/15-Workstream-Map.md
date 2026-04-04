@@ -38,7 +38,7 @@ Related:
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
      - current active lane is `phase-69x rust runner product/keep/reference recut`
-     - current active micro task is `69xA2 target layout ranking`
+     - current active micro task is `69xB1 product/reference split`
      - ranked successor corridor after `68x` is:
        - `69x rust runner product/keep/reference recut`
        - `70x caller-zero archive sweep`
@@ -136,10 +136,10 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `69xA2 target layout ranking` |
+     | Now | `69xB1 product/reference split` |
      | Blocker | `none` |
-     | Next | `69xB1 product/reference split` |
-     | After Next | `69xB2 keep split` |
+     | Next | `69xB2 keep split` |
+     | After Next | `69xC1 alias/module cleanup` |
    - rust-vm corridor outcome:
 
      | Item | State |
@@ -151,9 +151,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `69xA2 target layout ranking` |
-     | Next | `69xB1 product/reference split` |
-     | Later | `69xB2 keep split` |
+     | Now | `69xB1 product/reference split` |
+     | Next | `69xB2 keep split` |
+     | Later | `69xC1 alias/module cleanup` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |

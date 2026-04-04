@@ -163,7 +163,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-69x rust runner product/keep/reference recut`
 - Current blocker: `none`
-- Exact focus: `69xA2 target layout ranking`
+- Exact focus: `69xB1 product/reference split`
 - successor lane ranking is fixed as:
   1. `phase-69x rust runner product/keep/reference recut`
   2. `phase-70x caller-zero archive sweep`
