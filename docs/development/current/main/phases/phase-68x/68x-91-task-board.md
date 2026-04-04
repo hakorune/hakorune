@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 ---
 
@@ -8,9 +8,9 @@ Date: 2026-04-04
 | Order | Task | Status | Read as |
 | --- | --- | --- | --- |
 | 1 | `68xA inventory` | landed | lock the `.hako` runner folder recut inventory and ranking |
-| 2 | `68xB split` | active | separate facade / entry first, then authority / compat |
-| 3 | `68xC cleanup` | queued | remove alias overlap and tighten readmes |
-| 4 | `68xD closeout` | queued | prove and hand off cleanly |
+| 2 | `68xB split` | landed | separate facade / entry first, then authority / compat |
+| 3 | `68xC cleanup` | landed | remove alias overlap and tighten readmes |
+| 4 | `68xD closeout` | landed | prove and hand off cleanly |
 
 ## Exact Micro Tasks
 
@@ -19,15 +19,15 @@ Date: 2026-04-04
 | `68xA1` | landed | runner folder inventory lock |
 | `68xA2` | landed | target layout ranking |
 | `68xB1` | landed | facade/entry split |
-| `68xB2` | active | authority/compat split |
-| `68xC1` | queued | alias/readme cleanup |
-| `68xD1` | queued | proof / closeout |
+| `68xB2` | landed | authority/compat split |
+| `68xC1` | landed | alias/readme cleanup |
+| `68xD1` | landed | proof / closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `68xB2 authority/compat split` |
+| Now | `phase-68x landed` |
 | Blocker | `none` |
-| Next | `68xC1 alias/readme cleanup` |
-| After Next | `68xD1 proof / closeout` |
+| Next | `phase-69x rust runner product/keep/reference recut` |
+| After Next | `phase-70x caller-zero archive sweep` |

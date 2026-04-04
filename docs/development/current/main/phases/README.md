@@ -4,8 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 68x .hako runner authority/compat/facade recut
-- **Phase 68x（ACTIVE）**: .hako runner authority/compat/facade recut（lang/src/runner の authority / compat / facade / entry 読みを tree で揃える）
+- **Current (ACTIVE)**: Phase 69x rust runner product/keep/reference recut
+- **Phase 69x（ACTIVE）**: rust runner product/keep/reference recut（src/runner の product / keep / reference 読みを tree で揃える）
+- **Phase 68x（LANDED）**: .hako runner authority/compat/facade recut（lang/src/runner の authority / compat / facade / entry 読みを tree で揃える）
 - **Phase 67x（LANDED）**: selfhost folder split（tools/selfhost の mainline / proof / compat / lib split を tree にした）
 - **Phase 66x（LANDED）**: next source lane selection（phase-65x handoff 後の次 source lane と folder-first corridor を選んだ）
 - **Phase 65x（LANDED）**: stage1/selfhost mainline hardening（`.hako` / Stage1 authority cluster と shell contract owner を mainline 観点で固めた）

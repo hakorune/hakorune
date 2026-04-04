@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: recut `lang/src/runner` so authority / compat / facade / entry reading is visible in the tree.
 Related:
@@ -27,11 +27,10 @@ Related:
 
 ## Current Read
 
-- `67x` has landed and split `tools/selfhost/` into folder lanes
-- current front:
-  - `68xB2 authority/compat split`
-- current intent:
-  - `lang/src/runner` should stop relying on file-name folklore for authority vs compat reading
-  - entry/facade stubs should become obvious from folder placement
-  - rust runner recut stays downstream of this `.hako` recut
+- `68x` is landed
+- landed result:
+  - `lang/src/runner` now reads facade / entry / compat more clearly from paths
+  - top-level `runner_facade.hako`, `launcher_native_entry.hako`, `stage1_cli_env_entry.hako`, and `stage1_cli.hako` stay as compatibility wrappers
   - `stage1_cli_env.hako` remains top-level authority for now because focused probes still expect its full same-file box surface
+- handoff:
+  - next lane is `phase-69x rust runner product/keep/reference recut`

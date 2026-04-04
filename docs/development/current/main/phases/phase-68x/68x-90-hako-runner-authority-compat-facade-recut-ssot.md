@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: split `lang/src/runner` into authority / compat / facade / entry lanes after the selfhost folder split landed.
 Related:
@@ -30,15 +30,15 @@ Related:
 
 ### Compat-facing
 
-- `lang/src/runner/stage1_cli.hako`
+- `lang/src/runner/compat/stage1_cli.hako`
 - `lang/src/runner/stage1_cli/`
 
 ### Facade / entry-facing
 
 - `lang/src/runner/launcher.hako`
-- `lang/src/runner/runner_facade.hako`
-- `lang/src/runner/launcher_native_entry.hako`
-- `lang/src/runner/stage1_cli_env_entry.hako`
+- `lang/src/runner/facade/runner_facade.hako`
+- `lang/src/runner/entry/launcher_native_entry.hako`
+- `lang/src/runner/entry/stage1_cli_env_entry.hako`
 
 ## Current Inventory
 
@@ -49,20 +49,23 @@ Related:
 
 ### Compat / raw subcommand cluster
 
-- `lang/src/runner/stage1_cli.hako`
 - `lang/src/runner/stage1_cli/**`
 - `lang/src/runner/compat/stage1_cli.hako`
+- `lang/src/runner/stage1_cli.hako` (wrapper)
 
 ### Facade / launcher cluster
 
 - `lang/src/runner/launcher.hako`
 - `lang/src/runner/launcher/**`
-- `lang/src/runner/runner_facade.hako`
+- `lang/src/runner/facade/runner_facade.hako`
+- `lang/src/runner/runner_facade.hako` (wrapper)
 
 ### Entry / bootstrap stubs
 
-- `lang/src/runner/launcher_native_entry.hako`
-- `lang/src/runner/stage1_cli_env_entry.hako`
+- `lang/src/runner/entry/launcher_native_entry.hako`
+- `lang/src/runner/entry/stage1_cli_env_entry.hako`
+- `lang/src/runner/launcher_native_entry.hako` (wrapper)
+- `lang/src/runner/stage1_cli_env_entry.hako` (wrapper)
 - `lang/src/runner/hako_module.toml`
 
 ## Target Layout
@@ -110,4 +113,6 @@ lang/src/runner/
 ## Current Progress
 
 - `68xB1` landed: facade and entry stubs have canonical homes under `facade/` and `entry/`
-- `68xB2` active: top-level compat owner is being wrapped while `stage1_cli_env.hako` stays authority-top-level for now
+- `68xB2` landed: top-level compat owner is wrapped while `stage1_cli_env.hako` stays authority-top-level for now
+- `68xC1` landed: live readmes now read canonical paths first and wrappers as aliases only
+- `68xD1` landed: `cargo check --bin hakorune`, `git diff --check`, and `tools/selfhost/mainline/stage1_mainline_smoke.sh` stayed green; focused `emit_mir_mainline` red remains inherited from `build_box.hako`
