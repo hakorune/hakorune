@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `phase-55x rust-vm route-surface retirement prep`
+- lane: `phase-56x proof/compat keep pruning`
 - `49xD1` landed: proof / closeout
 - `50xA1` landed: residual rust-vm surface inventory lock
 - `50xA2` landed: proof-only / compat keep classification
@@ -55,7 +55,13 @@ Related:
 - `55xB1 cli/backend affordance cleanup` landed
 - `55xB2 selfhost route-surface cleanup` landed
 - `55xC1 dispatch/orchestrator explicit keep narrowing` landed
-- `55xD1 proof / closeout` active
+- `55xD1 proof / closeout` landed
+- `56xA1 proof-only keep inventory lock` active
+- `56xA2 compat keep boundary freeze` queued
+- `56xB1 stage-a compat route pruning prep` queued
+- `56xB2 vm fallback/core.hako keep pruning` queued
+- `56xC1 proof smoke keep pruning` queued
+- `56xD1 proof / closeout` queued
 - `56x proof/compat keep pruning` planned
 - `57x rust-vm delete-ready audit / removal wave` planned
 - `47xA1` landed: runtime/default contract lock
@@ -102,7 +108,7 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `55xD1 proof / closeout`
+- active micro task: `56xA1 proof-only keep inventory lock`
 - plain reading:
   - current source no longer treats `--backend vm` as a live owner lane; remaining live references are explicit compat/proof/reference keeps plus archive evidence
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep
@@ -148,6 +154,6 @@ Related:
 
 1. read `CURRENT_TASK.md`
 2. read `15-Workstream-Map.md`
-3. read `docs/development/current/main/phases/phase-55x/README.md`
-4. read `docs/development/current/main/phases/phase-55x/55x-90-rust-vm-route-surface-retirement-prep-ssot.md`
-5. read `docs/development/current/main/phases/phase-55x/55x-91-task-board.md`
+3. read `docs/development/current/main/phases/phase-56x/README.md`
+4. read `docs/development/current/main/phases/phase-56x/56x-90-proof-compat-keep-pruning-ssot.md`
+5. read `docs/development/current/main/phases/phase-56x/56x-91-task-board.md`

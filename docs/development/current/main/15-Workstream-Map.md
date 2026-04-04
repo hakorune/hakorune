@@ -37,7 +37,7 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-55x rust-vm route-surface retirement prep`
+     - current active lane is `phase-56x proof/compat keep pruning`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
@@ -70,7 +70,7 @@ Related:
      - `phase-49x` is landed and the remaining current-doc wording / compat-route narration is closed
      - `phase-51x` is landed and the canonical compat-codegen bucket now lives under the archive path
      - `phase-52x` is landed and polishes archive/historical labeling after source cleanup
-     - `phase-53x` is landed, `phase-54x` is landed, and `phase-55x` is active; the residual rust-vm / vm-hako audit has handed off to route-surface retirement prep
+     - `phase-53x` is landed, `phase-54x` is landed, `phase-55x` is landed, and `phase-56x` is active; the route-surface retirement prep has handed off to proof/compat keep pruning
      - `48xA1` inventory lock is landed; `48xA2` proof-only / compat keep classification is landed
      - `48xB1` smoke script stale-route cleanup is landed; `48xB2` proof-only smoke gate lock is landed; `48xC1` source helper stale-route cleanup is landed; `48xC2` vm.rs / vm_fallback thin keep trim is landed
      - `47xA1` landed, `47xA2` landed, `47xA3` landed, `47xB1` landed, `47xB2` landed, `47xB3` landed, `47xC1` landed, `47xC2` landed, `47xC3` landed, `47xD1` landed, `47xD2` landed, and `47xD3` landed
@@ -132,16 +132,16 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `55xD1 proof / closeout` |
+     | Now | `56xA1 proof-only keep inventory lock` |
      | Blocker | `none` |
-     | Next | `56x proof/compat keep pruning` |
-     | After Next | `57x rust-vm delete-ready audit / removal wave` |
+     | Next | `56xA2 compat keep boundary freeze` |
+     | After Next | `56xB1 stage-a compat route pruning prep` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `55xD1 proof / closeout` |
-     | Next | `56x proof/compat keep pruning` |
+     | Now | `56xA1 proof-only keep inventory lock` |
+     | Next | `56xA2 compat keep boundary freeze` |
      | Later | `56x proof/compat keep pruning` |
    - stage0 shell residue waves:
 
@@ -189,7 +189,7 @@ Related:
      - `51xA2 proof-only / archive-later classification`
      - Queued backend surface tasks:
      - `55xA2 backend/default/help exposure freeze`
-     - `55xD1 proof / closeout`
+     - `56xA1 proof-only keep inventory lock`
      - `56x proof/compat keep pruning`
      - `56x proof/compat keep pruning`
      - `57x rust-vm delete-ready audit / removal wave`

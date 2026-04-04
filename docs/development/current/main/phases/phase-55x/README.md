@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: retire the last route/default/help surfaces that still make rust-vm look like a selectable live owner path.
 Related:

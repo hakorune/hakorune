@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 ---
 
@@ -21,7 +21,7 @@ Date: 2026-04-04
 | `55xB1` | landed | cli/backend affordance cleanup |
 | `55xB2` | landed | selfhost route-surface cleanup |
 | `55xC1` | landed | dispatch/orchestrator explicit keep narrowing |
-| `55xD1` | active | proof / closeout |
+| `55xD1` | landed | proof / closeout |
 
 ## Inventory Snapshot
 
