@@ -15,10 +15,10 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-94 escape route P5b “完全E2E” のための ch 再代入対応` |
-| Front | `TBD` |
+| Front | `P5b ch derived-value lowering / escape_cond contract` |
 | Blocker | `none` |
-| Next | `TBD` |
-| After Next | `TBD` |
+| Next | `phase-95x current pointer / SSOT stale-focus correction` |
+| After Next | `phase-96x selfhost root wrapper and fixture contraction` |
 
 ## Current Read
 
@@ -41,7 +41,13 @@ Related:
 
 ## Successor Corridor
 
-1. `phase-94 escape route P5b “完全E2E” のための ch 再代入対応`
+1. `phase-95x current pointer / SSOT stale-focus correction`
+2. `phase-96x selfhost root wrapper and fixture contraction`
+3. `phase-97x rust-vm explicit keep hardening`
+
+## Parked After Optimization
+
+- `vm-hako` small reference interpreter recut
 
 ## Structural Stop Lines
 
@@ -54,15 +60,8 @@ Related:
 ## Reference
 
 - current lane docs:
+  - `docs/development/current/main/phases/phase-94/README.md`
+- recent landed:
   - `docs/development/current/main/phases/phase-93x/README.md`
-  - `docs/development/current/main/phases/phase-93x/93x-90-archive-later-engineering-helper-sweep-ssot.md`
-  - `docs/development/current/main/phases/phase-93x/93x-91-task-board.md`
-- previous landed lanes:
-  - `docs/development/current/main/phases/phase-88x/README.md`
-  - `docs/development/current/main/phases/phase-87x/README.md`
-  - `docs/development/current/main/phases/phase-86x/README.md`
-  - `docs/development/current/main/phases/phase-85x/README.md`
-  - `docs/development/current/main/phases/phase-84x/README.md`
-  - `docs/development/current/main/phases/phase-83x/README.md`
-  - `docs/development/current/main/phases/phase-82x/README.md`
-  - `docs/development/current/main/phases/phase-81x/README.md`
+  - `docs/development/current/main/phases/phase-92x/README.md`
+  - `docs/development/current/main/phases/phase-91x/README.md`

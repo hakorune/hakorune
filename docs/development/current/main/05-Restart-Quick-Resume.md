@@ -21,7 +21,7 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-94 escape route P5b “完全E2E” のための ch 再代入対応`
-- current front: `TBD`
+- current front: `P5b ch derived-value lowering / escape_cond contract`
 - blocker: `none`
 - recent landed:
   - `phase-93x archive-later engineering helper sweep`
@@ -35,6 +35,16 @@ tools/checks/dev_gate.sh quick
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
 3. `docs/development/current/main/phases/phase-94/README.md`
+
+## Successor Corridor
+
+1. `phase-95x current pointer / SSOT stale-focus correction`
+2. `phase-96x selfhost root wrapper and fixture contraction`
+3. `phase-97x rust-vm explicit keep hardening`
+
+## Parked After Optimization
+
+- `vm-hako` small reference interpreter recut
 
 ## Current Proof Bundle
 

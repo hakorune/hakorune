@@ -13,7 +13,7 @@ Related:
 ## Current
 
 - lane: `phase-94 escape route P5b “完全E2E” のための ch 再代入対応`
-- current front: `TBD`
+- current front: `P5b ch derived-value lowering / escape_cond contract`
 - blocker: `none`
 - recent landed:
   - `phase-93x archive-later engineering helper sweep`
@@ -28,7 +28,8 @@ Related:
 - `launcher.hako emit_mir_mainline` is green
 - `stage1_mainline_smoke.sh` is green
 - `93x` finished moving archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
-- current cleanup is thin; the next lane is the existing `phase-94` task
+- top-level wrappers remain public/front-door keep unless caller audit proves otherwise
+- next cleanup corridor is `95x -> 97x`; `vm-hako` interpreter recut is parked until after optimization
 
 ## Root Anchors
 
