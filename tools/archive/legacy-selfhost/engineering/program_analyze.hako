@@ -1,11 +1,11 @@
-// tools/selfhost/program_analyze.hako - Phase 160-impl-1 Program JSON Analyzer
-// Reads Program JSON v0 and prints a summary for selfhost depth-2 verification.
+// tools/archive/legacy-selfhost/engineering/program_analyze.hako - archived Program JSON Analyzer
+// Reads Program JSON v0 and prints a summary for historical selfhost depth-2 verification.
 //
 // Usage:
-//   HAKO_PROGRAM_JSON="$(cat program.json)" ./target/release/hakorune tools/selfhost/program_analyze.hako
+//   HAKO_PROGRAM_JSON="$(cat program.json)" ./target/release/hakorune tools/archive/legacy-selfhost/engineering/program_analyze.hako
 //
 // Or via wrapper script:
-//   ./tools/selfhost/program_analyze.sh /path/to/program.json
+//   ./tools/archive/legacy-selfhost/engineering/program_analyze.sh /path/to/program.json
 
 include "tools/hako_shared/json_parser.hako"
 
@@ -47,7 +47,7 @@ static box Main {
 
     if json_str == null || json_str == "" {
       print("[ERROR] HAKO_PROGRAM_JSON environment variable not set")
-      print("Usage: HAKO_PROGRAM_JSON=\"$(cat program.json)\" ./target/release/hakorune tools/selfhost/program_analyze.hako")
+      print("Usage: HAKO_PROGRAM_JSON=\"$(cat program.json)\" ./target/release/hakorune tools/archive/legacy-selfhost/engineering/program_analyze.hako")
       return 1
     }
 

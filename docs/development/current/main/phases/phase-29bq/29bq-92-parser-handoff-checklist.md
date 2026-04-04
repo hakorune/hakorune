@@ -51,8 +51,8 @@ Related:
 - [x] parser probe(1件): `tools/selfhost/run.sh --gate --planner-required 1 --filter <parser_case_substring> --max-cases 1`
   - evidence: `tools/selfhost/run.sh --gate --planner-required 1 --filter parse_local_fini_no_init_min --max-cases 1` PASS
 - [x] legacy literal readiness flow（撤去判断前）:
-  - unified helper: `bash tools/selfhost/legacy_main_readiness.sh`
-  - strict gate: `bash tools/selfhost/legacy_main_readiness.sh --strict`
+  - unified helper: `bash tools/archive/legacy-selfhost/engineering/legacy_main_readiness.sh`
+  - strict gate: `bash tools/archive/legacy-selfhost/engineering/legacy_main_readiness.sh --strict`
 - [x] parser/mirbuilder の `.hako` 修正を含むコミットでは、internal-only emit を先に通す: `bash tools/hakorune_emit_mir_mainline.sh apps/tests/selfhost_cleanup_only_min.hako /tmp/phase29bq_cleanup_only_internal.mir.json`（latest evidence: 2026-02-25 PASS）
 
 ### 1.1 subset intentional exclusions（2026-02-24 snapshot）
@@ -119,7 +119,7 @@ Related:
 - [x] `planner_required_selfhost_subset.tsv` に 1行だけ追加する（コード変更禁止）。
 - [x] `29bq-90` の頻度ルールに従って gate を実行する（quick/probe標準、fullは節目のみ）。
 - [x] legacy literals 撤去コミットの pre-promote は機械判定で実施する:
-  - `bash tools/selfhost/pre_promote_legacy_main_removal.sh`
+  - `bash tools/archive/legacy-selfhost/engineering/pre_promote_legacy_main_removal.sh`
 - [x] PASS 証拠を `29bq-91` の snapshot に反映する。
   - evidence: `apps/tests/phase29bq_selfhost_blocker_parse_local_fini_no_init_min.hako` を PROMOTE（expected=`BA`）
   - evidence: `apps/tests/phase29bq_selfhost_local_multibind_cleanup_min.hako` を PROMOTE（expected=`13`）

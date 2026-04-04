@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-04
+Date: 2026-04-05
 Scope: current mainline / next lane / parked corridor の one-screen map。
 Related:
   - CURRENT_TASK.md
@@ -14,8 +14,8 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-92x selfhost proof/compat caller rerun` |
-| Front | `92xD1 closeout` |
+| Now | `phase-93x archive-later engineering helper sweep` |
+| Front | `93xB1 archive move and doc repoint` |
 | Blocker | `none` |
 | Next | `TBD` |
 | After Next | `TBD` |
@@ -35,7 +35,8 @@ Related:
 - `89x` selected `90x current-doc/design stale surface hygiene`
 - `90x` thinned stale wrapper/current wording in current/design docs after the latest recuts
 - `91x` froze the top-level `.hako` wrapper policy after the latest runner/selfhost recuts
-- `92x` reruns selfhost proof/compat callers against the canonical wrapper homes
+- `92x` closed the proof/compat caller rerun lane against the canonical wrapper homes
+- `93x` is moving archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
 
 ## Successor Corridor
 
@@ -52,9 +53,9 @@ Related:
 ## Reference
 
 - current lane docs:
-  - `docs/development/current/main/phases/phase-90x/README.md`
-  - `docs/development/current/main/phases/phase-90x/90x-90-current-doc-design-stale-surface-hygiene-ssot.md`
-  - `docs/development/current/main/phases/phase-90x/90x-91-task-board.md`
+  - `docs/development/current/main/phases/phase-93x/README.md`
+  - `docs/development/current/main/phases/phase-93x/93x-90-archive-later-engineering-helper-sweep-ssot.md`
+  - `docs/development/current/main/phases/phase-93x/93x-91-task-board.md`
 - previous landed lanes:
   - `docs/development/current/main/phases/phase-88x/README.md`
   - `docs/development/current/main/phases/phase-87x/README.md`

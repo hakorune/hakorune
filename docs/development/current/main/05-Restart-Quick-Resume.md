@@ -20,22 +20,22 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-92x selfhost proof/compat caller rerun`
-- current front: `92xD1 closeout`
+- lane: `phase-93x archive-later engineering helper sweep`
+- current front: `93xB1 archive move and doc repoint`
 - blocker: `none`
 - recent landed:
+  - `phase-92x selfhost proof/compat caller rerun`
   - `phase-91x top-level .hako wrapper policy review`
   - `phase-90x current-doc/design stale surface hygiene`
   - `phase-89x next source lane selection`
-  - `phase-88x archive/deletion rerun`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-92x/README.md`
-4. `docs/development/current/main/phases/phase-92x/92x-90-selfhost-proof-compat-caller-rerun-ssot.md`
-5. `docs/development/current/main/phases/phase-92x/92x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-93x/README.md`
+4. `docs/development/current/main/phases/phase-93x/93x-90-archive-later-engineering-helper-sweep-ssot.md`
+5. `docs/development/current/main/phases/phase-93x/93x-91-task-board.md`
 
 ## Current Proof Bundle
 

@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 92x selfhost proof/compat caller rerun
+- **Current (ACTIVE)**: Phase 93x archive-later engineering helper sweep
+- **Phase 92x（LANDED）**: selfhost proof/compat caller rerun（`93x archive-later engineering helper sweep` に handoff）
 - **Phase 91x（LANDED）**: top-level .hako wrapper policy review（`92x selfhost proof/compat caller rerun` に handoff）
 - **Phase 90x（LANDED）**: current-doc/design stale surface hygiene（`91x top-level .hako wrapper policy review` に handoff）
 - **Phase 89x（LANDED）**: next source lane selection（`90x current-doc/design stale surface hygiene` を選定）
@@ -68,4 +69,4 @@ phases/phase-131/
 
 ---
 
-**最終更新**: 2026-02-13
+**最終更新**: 2026-04-05

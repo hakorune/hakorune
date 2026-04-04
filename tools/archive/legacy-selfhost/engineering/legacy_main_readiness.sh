@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
+# Archived legacy-main readiness gate.
+# Historical engineering helper only; keep it frozen and non-growing.
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../../../.." && pwd)"
 IDENTITY_SCRIPT="${ROOT}/tools/selfhost_identity_check.sh"
 
 PRODUCER_PATTERN='method\s+main\(args\)|static method main'
@@ -15,7 +17,7 @@ BIN_STAGE2="${ROOT}/target/selfhost/hakorune.stage1_cli.stage2"
 
 usage() {
   cat <<'USAGE'
-Usage: tools/selfhost/legacy_main_readiness.sh [options]
+Usage: tools/archive/legacy-selfhost/engineering/legacy_main_readiness.sh [options]
 
 Options:
   --strict                Exit 1 unless readiness is met

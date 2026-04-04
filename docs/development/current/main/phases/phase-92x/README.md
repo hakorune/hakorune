@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-05
 Scope: rerun selfhost proof/compat callers against the canonical wrapper homes after the runner/selfhost recut and wrapper policy freeze.
 Related:
@@ -30,8 +30,8 @@ Related:
 ## Current Read
 
 - current front:
-  - `92xD1 closeout`
-- likely corridor:
-  - `TBD`
+  - `landed / handoff complete`
+- next corridor:
+  - `93x archive-later engineering helper sweep`
 - rerun scope is limited to the ranked proof/compat callers that still mention the canonical wrapper homes
 - canonical homes stay under `compat/`, `facade/`, and `entry/`

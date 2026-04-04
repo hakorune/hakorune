@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
+# Archived minimal v1 JSON generator.
+# Historical engineering helper only; keep it frozen and non-growing.
 set -euo pipefail
 
-# gen_v1_min.sh — 最小の v1 JSON 生成（MinMirEmitter を Hako で呼ぶ）
-# Compatibility / debug helper; explicit compat route, not a day-to-day route.
+# gen_v1_min.sh — archived minimal v1 JSON generator (historical helper only)
 # 標準出力に v1 JSON を出す。
 
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../../../.." && pwd)"
 NYASH_BIN="${NYASH_BIN:-}"
 if [ -z "$NYASH_BIN" ]; then
   if [ -x "$ROOT/target/release/hakorune" ]; then

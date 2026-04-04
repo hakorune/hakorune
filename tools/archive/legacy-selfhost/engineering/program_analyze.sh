@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
-# tools/selfhost/program_analyze.sh - Phase 160-impl-1 Program JSON Analyzer wrapper
-# Compatibility / debug helper; explicit compat route, not a day-to-day route.
+# Archived Program JSON analyzer wrapper.
+# Historical engineering helper only; keep it frozen and non-growing.
 #
 # Usage:
-#   ./tools/selfhost/program_analyze.sh /path/to/program.json
-#   ./tools/selfhost/program_analyze.sh < program.json   # stdin
+#   ./tools/archive/legacy-selfhost/engineering/program_analyze.sh /path/to/program.json
+#   ./tools/archive/legacy-selfhost/engineering/program_analyze.sh < program.json   # stdin
 #
 # This script reads a Program JSON v0 file and passes it to the .hako analyzer
 # for selfhost depth-2 verification (Rust outputs IR → .hako reads IR).
 
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../../../.." && pwd)"
 BIN="${NYASH_BIN:-$ROOT/target/release/hakorune}"
-HAKO="$ROOT/tools/selfhost/program_analyze.hako"
+HAKO="$ROOT/tools/archive/legacy-selfhost/engineering/program_analyze.hako"
 
 if [ ! -x "$BIN" ]; then
   echo "[ERROR] hakorune binary not found: $BIN" >&2

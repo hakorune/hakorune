@@ -43,8 +43,8 @@ Related:
 ### Compat-facing candidates
 
 - `tools/selfhost/run_stage1_cli.sh`
-- `tools/selfhost/legacy_main_readiness.sh`
-- `tools/selfhost/pre_promote_legacy_main_removal.sh`
+- `tools/archive/legacy-selfhost/engineering/legacy_main_readiness.sh`
+- `tools/archive/legacy-selfhost/engineering/pre_promote_legacy_main_removal.sh`
 
 ### Shared / keep-shared
 

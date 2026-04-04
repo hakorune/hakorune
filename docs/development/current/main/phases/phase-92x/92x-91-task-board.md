@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-05
 ---
 
@@ -10,7 +10,7 @@ Date: 2026-04-05
 | 1 | `92xA proof/compat caller inventory` | landed | lock proof and compat callers after `91x` handoff |
 | 2 | `92xB proof/compat rerun ranking` | landed | choose the smallest rerun set that proves the wrapper homes remain thin |
 | 3 | `92xC proof/compat caller rerun` | landed | run the explicit caller rerun set without widening scope |
-| 4 | `92xD closeout` | active | hand off cleanly to the next corridor |
+| 4 | `92xD closeout` | landed | hand off cleanly to the next corridor |
 
 ## Exact Micro Tasks
 
@@ -20,13 +20,13 @@ Date: 2026-04-05
 | `92xA2` | landed | candidate caller ranking |
 | `92xB1` | landed | caller rerun |
 | `92xC1` | landed | proof refresh |
-| `92xD1` | active | closeout |
+| `92xD1` | landed | closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `92xD1 closeout` |
+| Now | `landed / handoff complete` |
 | Blocker | `none` |
-| Next | `TBD` |
+| Next | `93x archive-later engineering helper sweep` |
 | After Next | `TBD` |

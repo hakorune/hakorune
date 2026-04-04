@@ -34,7 +34,7 @@ Updated: 2026-02-25
 - `tools/selfhost/sync_lane_a_state.sh`
 - `tools/checks/phase29bq_joinir_port_sync_guard.sh`
 - `tools/checks/phase29y_derust_blocker_sync_guard.sh`
-- `tools/selfhost/promote_tier2_case.sh`
+- `tools/archive/legacy-selfhost/engineering/promote_tier2_case.sh`
 
 ## Migration Phases (fixed order)
 
@@ -75,4 +75,3 @@ Updated: 2026-02-25
 
 - P1/P2 の各コミットは独立 revert 可能にする（まとめて大移動しない）。
 - guard fail 時は直前コミットを revert して P0 状態へ戻す。
-

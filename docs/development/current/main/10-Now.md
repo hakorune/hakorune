@@ -12,10 +12,11 @@ Related:
 
 ## Current
 
-- lane: `phase-92x selfhost proof/compat caller rerun`
-- current front: `92xD1 closeout`
+- lane: `phase-93x archive-later engineering helper sweep`
+- current front: `93xB1 archive move and doc repoint`
 - blocker: `none`
 - recent landed:
+  - `phase-92x selfhost proof/compat caller rerun`
   - `phase-91x top-level .hako wrapper policy review`
   - `phase-90x current-doc/design stale surface hygiene`
   - `phase-89x next source lane selection`
@@ -25,8 +26,8 @@ Related:
 
 - `launcher.hako emit_mir_mainline` is green
 - `stage1_mainline_smoke.sh` is green
-- `83x` froze top-level selfhost wrappers as explicit public/front-door keeps
-- current work is reviewing the top-level `.hako` wrapper policy after the latest runner/selfhost recuts
+- `93x` is moving archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
+- current cleanup is thinning residual current/design wording and archived helper surfaces
 
 ## Root Anchors
 
@@ -37,6 +38,6 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-92x/README.md`
-3. `docs/development/current/main/phases/phase-92x/92x-90-selfhost-proof-compat-caller-rerun-ssot.md`
-4. `docs/development/current/main/phases/phase-92x/92x-91-task-board.md`
+2. `docs/development/current/main/phases/phase-93x/README.md`
+3. `docs/development/current/main/phases/phase-93x/93x-90-archive-later-engineering-helper-sweep-ssot.md`
+4. `docs/development/current/main/phases/phase-93x/93x-91-task-board.md`

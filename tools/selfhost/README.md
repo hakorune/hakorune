@@ -53,12 +53,13 @@ Script
     - NYASH_BIN: path to hakorune/nyash binary (auto-detected)
     - NYASH_ROOT: repo root (auto-detected)
     - BuildBox emit-only is retired from the default caller path; use the direct/source route instead
-- tools/selfhost/promote_tier2_case.sh
+- tools/archive/legacy-selfhost/engineering/promote_tier2_case.sh
   - Parser handoff Tier-2 の 1件PROMOTEを 1コマンドで同期するヘルパー。
   - 同期対象:
     - `tools/smokes/v2/profiles/integration/selfhost/planner_required_selfhost_subset.tsv`
     - `docs/development/current/main/phases/phase-29bq/29bq-93-parser-handoff-tier2-backlog.md`
     - `CURRENT_TASK.md`（legacy compatibility block がある場合のみ）
+  - archived helper; use the archive path for historical replay only.
   - 必須引数:
     - `--fixture`
     - `--expected`
@@ -66,7 +67,7 @@ Script
     - `--next-task`
   - 例:
     ```bash
-    tools/selfhost/promote_tier2_case.sh \
+    tools/archive/legacy-selfhost/engineering/promote_tier2_case.sh \
       --fixture apps/tests/phase29bq_selfhost_local_expr_compare_rel_mixed_logic_cleanup_min.hako \
       --expected 2477 \
       --backlog-id T2-CMP-REL-MIX \
@@ -232,16 +233,16 @@ Helper — Stage3 Same-Result Check
   - `--skip-build` compares an explicit prebuilt Stage2/Stage3 pair only.
   - Use this helper when you want to confirm bootstrap reproducibility without touching G1 Program/MIR identity comparison.
 
-Helper — Legacy Main Readiness
-- `tools/selfhost/legacy_main_readiness.sh`
+Archived Helper — Legacy Main Readiness
+- `tools/archive/legacy-selfhost/engineering/legacy_main_readiness.sh`
   - Runs producer inventory + consumer inventory + identity smoke in one command.
   - Inventory count ignores comment-only matches.
   - Default command:
-    - `bash tools/selfhost/legacy_main_readiness.sh`
+    - `bash tools/archive/legacy-selfhost/engineering/legacy_main_readiness.sh`
   - Strict gate command:
-    - `bash tools/selfhost/legacy_main_readiness.sh --strict`
+    - `bash tools/archive/legacy-selfhost/engineering/legacy_main_readiness.sh --strict`
   - Compatibility probe command:
-    - `bash tools/selfhost/legacy_main_readiness.sh --cli-mode auto --bin-stage1 target/release/hakorune --bin-stage2 target/release/hakorune`
+    - `bash tools/archive/legacy-selfhost/engineering/legacy_main_readiness.sh --cli-mode auto --bin-stage1 target/release/hakorune --bin-stage2 target/release/hakorune`
   - Exit code contract:
     - `0`: flow completed (`--strict` の場合は readiness 条件も満たす)
     - `1`: readiness 条件未達（`--strict` のみ）
@@ -249,13 +250,13 @@ Helper — Legacy Main Readiness
 - Promotion rule:
   - Start legacy-literal removal only when strict gate returns `0`.
 
-Helper — Legacy Main Removal Pre-PROMOTE Gate
-- `tools/selfhost/pre_promote_legacy_main_removal.sh`
+Archived Helper — Legacy Main Removal Pre-PROMOTE Gate
+- `tools/archive/legacy-selfhost/engineering/pre_promote_legacy_main_removal.sh`
   - Dedicated pre-promote gate for commits that remove legacy literals from `compiler_stageb.hako` / `compiler.hako`.
   - Default command:
-    - `bash tools/selfhost/pre_promote_legacy_main_removal.sh`
+    - `bash tools/archive/legacy-selfhost/engineering/pre_promote_legacy_main_removal.sh`
   - Compatibility probe command:
-    - `bash tools/selfhost/pre_promote_legacy_main_removal.sh --cli-mode auto --bin-stage1 target/release/hakorune --bin-stage2 target/release/hakorune`
+    - `bash tools/archive/legacy-selfhost/engineering/pre_promote_legacy_main_removal.sh --cli-mode auto --bin-stage1 target/release/hakorune --bin-stage2 target/release/hakorune`
   - Exit code contract:
     - `0`: ready to start legacy literal removal commit
     - `1`: not ready (strict readiness failed)

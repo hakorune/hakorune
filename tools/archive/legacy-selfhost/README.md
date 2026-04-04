@@ -5,3 +5,5 @@
 - Legacy embedded bridge smoke is preserved here as archive evidence after `phase-37x`.
 - Historical compat-codegen evidence lives under:
   - `compat-codegen/`
+- Historical engineering helper evidence lives under:
+  - `engineering/`

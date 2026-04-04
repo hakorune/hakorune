@@ -64,7 +64,7 @@ Inventory command (SSOT):
 Legacy literal removal readiness (docs-first, 2026-02-08):
 - 目的: legacy literals 撤去判断を「検索と軽量 smoke」の1セットで毎回同じ順序で確認する。
 - helper:
-  - `tools/selfhost/legacy_main_readiness.sh`
+  - `tools/archive/legacy-selfhost/engineering/legacy_main_readiness.sh`
 - 実行順序（最小）:
   1. producer inventory:
      - `rg -n "method\\s+main\\(args\\)|static method main" lang/src/compiler apps/tests`
@@ -77,7 +77,7 @@ Legacy literal removal readiness (docs-first, 2026-02-08):
   - producer inventory が 0 で、identity smoke が PASS のときにだけ legacy literals 撤去タスクへ進む。
   - 上記を満たさない状態では literals を cleanup として扱わない（compatibility boundary 維持）。
   - pre-promote gate command:
-    - `bash tools/selfhost/pre_promote_legacy_main_removal.sh`
+    - `bash tools/archive/legacy-selfhost/engineering/pre_promote_legacy_main_removal.sh`
 
 Producer inventory decomposition (2026-02-08 snapshot, non-comment hits):
 - code-side (2):
@@ -88,9 +88,9 @@ Producer inventory decomposition (2026-02-08 snapshot, non-comment hits):
 
 Removal order decision (accepted, docs-only):
 1. tests-first: test-side producer 2件を `main()` へ移行し、fixture intent は維持する。
-2. readiness 再計測: `bash tools/selfhost/legacy_main_readiness.sh ...` で `producer_count=2`（code-side のみ）を確認する。
+2. readiness 再計測: `bash tools/archive/legacy-selfhost/engineering/legacy_main_readiness.sh ...` で `producer_count=2`（code-side のみ）を確認する。
 3. compiler-literals second: `compiler_stageb.hako` / `compiler.hako` の legacy literals を同一責務コミットで撤去する。
-4. pre-promote strict gate は 3) の候補差分上で実行し、`bash tools/selfhost/pre_promote_legacy_main_removal.sh ...` が `exit 0` を返すことを受理条件にする。
+4. pre-promote strict gate は 3) の候補差分上で実行し、`bash tools/archive/legacy-selfhost/engineering/pre_promote_legacy_main_removal.sh ...` が `exit 0` を返すことを受理条件にする。
 
 ## Fixed order (must follow)
 

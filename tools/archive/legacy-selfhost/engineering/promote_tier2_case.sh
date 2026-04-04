@@ -1,5 +1,6 @@
 #!/bin/bash
-# promote_tier2_case.sh - one-case promoter for parser handoff Tier-2
+# Archived one-case promoter for parser handoff Tier-2.
+# Historical engineering helper only; keep it frozen and non-growing.
 #
 # Updates in one command:
 #  1) selfhost subset TSV
@@ -7,7 +8,7 @@
 #  3) CURRENT_TASK session log + next pointer（legacy compatibility block がある場合のみ）
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+ROOT_DIR="$(cd "$(dirname "$0")/../../../.." && pwd)"
 SUBSET_TSV="$ROOT_DIR/tools/smokes/v2/profiles/integration/selfhost/planner_required_selfhost_subset.tsv"
 BACKLOG_MD="$ROOT_DIR/docs/development/current/main/phases/phase-29bq/29bq-93-parser-handoff-tier2-backlog.md"
 CURRENT_TASK_MD="$ROOT_DIR/CURRENT_TASK.md"
@@ -29,7 +30,7 @@ update_current_task=0
 usage() {
   cat <<'USAGE' >&2
 Usage:
-  tools/selfhost/promote_tier2_case.sh \
+  tools/archive/legacy-selfhost/engineering/promote_tier2_case.sh \
     --fixture <apps/tests/...hako> \
     --expected <string> \
     --backlog-id <T2-...> \
@@ -46,7 +47,7 @@ Optional:
   --dry-run                        (check-only; no file updates)
 
 Example:
-  tools/selfhost/promote_tier2_case.sh \
+  tools/archive/legacy-selfhost/engineering/promote_tier2_case.sh \
     --fixture apps/tests/phase29bq_selfhost_local_expr_compare_rel_mixed_logic_cleanup_min.hako \
     --expected 2477 \
     --backlog-id T2-CMP-REL-MIX \

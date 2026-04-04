@@ -152,7 +152,7 @@ Related:
   - [x] D4-min22: `29bq-91-mirbuilder-migration-progress-checklist.md` の 5-case daily gate 実測値を最新 run（`stageb_total_secs=18`, `avg_case_secs=3.60`）へ同期（2026-02-11）。
   - [x] D4-min23: `CURRENT_TASK.md` の Daily Checkpoint（2026-02-11）にある 5-case gate 実測値を最新 run（`stageb_total_secs=18`, `avg_case_secs=3.60`）へ同期（2026-02-11）。
   - [x] D4-min24: `CURRENT_TASK.md` の Daily Checkpoint（2026-02-11）に identity full PASS 証跡（`--mode full`）を 1 行追記し、`29bq-91` / `29bq-115` と証跡粒度を同期（2026-02-11）。
-  - [x] D4-min25: compat route は explicit opt-in（`--allow-compat-route`）必須へ固定し、`legacy_main_readiness.sh` / `pre_promote_legacy_main_removal.sh` の既定を stage1-first（`stage1-cli(.stage2)`）へ同期。guard smoke `phase29bq_selfhost_identity_compat_route_guard_vm.sh` を追加して契約を pin（2026-02-16）。
+  - [x] D4-min25: compat route は explicit opt-in（`--allow-compat-route`）必須へ固定し、`tools/archive/legacy-selfhost/engineering/legacy_main_readiness.sh` / `tools/archive/legacy-selfhost/engineering/pre_promote_legacy_main_removal.sh` の既定を stage1-first（`stage1-cli(.stage2)`）へ同期。guard smoke `phase29bq_selfhost_identity_compat_route_guard_vm.sh` を追加して契約を pin（2026-02-16）。
 
 ### D5) Selfhost Stage-A runtime route の MIR-first 契約固定
 

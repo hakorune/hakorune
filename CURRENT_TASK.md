@@ -32,18 +32,19 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 11. `phase-89x next source lane selection` (landed)
 12. `phase-90x current-doc/design stale surface hygiene` (landed)
 13. `phase-91x top-level .hako wrapper policy review` (landed)
-14. `phase-92x selfhost proof/compat caller rerun` (active)
+14. `phase-92x selfhost proof/compat caller rerun` (landed)
+15. `phase-93x archive-later engineering helper sweep` (active)
 
 ## Current Front
 
-- Active lane: `phase-92x selfhost proof/compat caller rerun`
-- Active micro: `92xD1 closeout`
+- Active lane: `phase-93x archive-later engineering helper sweep`
+- Active micro: `93xB1 archive move and doc repoint`
 - Current blocker: `none`
-- Exact focus: rerun selfhost proof/compat callers against the canonical wrapper homes after the latest runner/selfhost recuts
+- Exact focus: move legacy engineering helpers into the archive bucket and keep current/doc mirrors thin
 
 ## Successor Corridor
 
-1. `phase-92x selfhost proof/compat caller rerun`
+1. `phase-93x archive-later engineering helper sweep`
 
 ## Rust-VM Stop Line
 
@@ -56,9 +57,9 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-92x/README.md`
-4. `docs/development/current/main/phases/phase-92x/92x-90-selfhost-proof-compat-caller-rerun-ssot.md`
-5. `docs/development/current/main/phases/phase-92x/92x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-93x/README.md`
+4. `docs/development/current/main/phases/phase-93x/93x-90-archive-later-engineering-helper-sweep-ssot.md`
+5. `docs/development/current/main/phases/phase-93x/93x-91-task-board.md`
 
 ## Notes
 
@@ -67,6 +68,7 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 - `phase-90x` thinned current/design stale surface wording and is now landed.
 - `phase-91x` froze the top-level `.hako` wrapper policy and is now landed.
 - `phase-92x` reruns selfhost proof/compat callers against the canonical wrapper homes.
+- `phase-93x` moves archive-later engineering helpers out of `tools/selfhost/` and into `tools/archive/legacy-selfhost/engineering/`.
 - `launcher.hako emit_mir_mainline` is green.
 - `stage1_mainline_smoke.sh` is green.
 - `target/**`, `artifacts/**`, and `dist/**` are artifact roots only.

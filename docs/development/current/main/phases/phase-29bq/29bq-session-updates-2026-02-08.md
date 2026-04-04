@@ -696,35 +696,35 @@ Resolved (2026-02-03):
   - `rg -n "method\\s+main\\(args\\)|static method main" lang/src/compiler apps/tests` は一致あり（legacy producer まだ残存、撤去未着手で正）。
   - `tools/selfhost_identity_check.sh --mode smoke --skip-build --cli-mode auto --bin-stage1 target/release/hakorune --bin-stage2 target/release/hakorune` PASS
 - [x] next task:
-  - 上記 docs 契約を最小ヘルパー `tools/selfhost/legacy_main_readiness.sh` へ落とし込み、同じ 3-step を 1コマンドで実行できるようにする（script + `bash -n` + smoke verify）。
+  - 上記 docs 契約を最小ヘルパー `tools/archive/legacy-selfhost/engineering/legacy_main_readiness.sh` へ落とし込み、同じ 3-step を 1コマンドで実行できるようにする（script + `bash -n` + smoke verify）。
 
 ### Session Update (2026-02-08, legacy readiness helper scripted)
 
 - [x] script:
-  - `tools/selfhost/legacy_main_readiness.sh` を追加し、producer inventory + consumer inventory + identity smoke を単一コマンド化。
+  - `tools/archive/legacy-selfhost/engineering/legacy_main_readiness.sh` を追加し、producer inventory + consumer inventory + identity smoke を単一コマンド化。
   - `--strict`（readiness 未達で exit 1）と `--skip-smoke`（inventory-only）を追加。
 - [x] docs同期:
   - `selfhost-parser-mirbuilder-migration-order-ssot.md` に helper コマンドを追加。
   - `tools/selfhost/README.md` に helper の usage / exit code 契約を追加。
   - `29bq-92-parser-handoff-checklist.md` の readiness 手順を helper 呼び出しへ置換。
 - [x] verify:
-  - `bash -n tools/selfhost/legacy_main_readiness.sh`
-  - `bash tools/selfhost/legacy_main_readiness.sh --cli-mode auto --bin-stage1 target/release/hakorune --bin-stage2 target/release/hakorune` PASS（`producer_count=4`, `ready=0`）
-  - `bash tools/selfhost/legacy_main_readiness.sh --strict --cli-mode auto --bin-stage1 target/release/hakorune --bin-stage2 target/release/hakorune` FAIL expected（exit=1）
+  - `bash -n tools/archive/legacy-selfhost/engineering/legacy_main_readiness.sh`
+  - `bash tools/archive/legacy-selfhost/engineering/legacy_main_readiness.sh --cli-mode auto --bin-stage1 target/release/hakorune --bin-stage2 target/release/hakorune` PASS（`producer_count=4`, `ready=0`）
+  - `bash tools/archive/legacy-selfhost/engineering/legacy_main_readiness.sh --strict --cli-mode auto --bin-stage1 target/release/hakorune --bin-stage2 target/release/hakorune` FAIL expected（exit=1）
 - [ ] next task:
   - helper の `--strict` を pre-promote 手順へ組み込み、legacy literals 撤去着手条件を checklist 上で機械判定にする（docs + 運用更新）。
 
 ### Session Update (2026-02-08, legacy readiness strict pre-promote integration)
 
 - [x] script:
-  - `tools/selfhost/pre_promote_legacy_main_removal.sh` を追加し、`legacy_main_readiness.sh --strict` を pre-promote 専用で固定。
+  - `tools/archive/legacy-selfhost/engineering/pre_promote_legacy_main_removal.sh` を追加し、`legacy_main_readiness.sh --strict` を pre-promote 専用で固定。
 - [x] docs同期:
   - `tools/selfhost/README.md` に pre-promote gate helper と exit code 契約を追加。
   - `selfhost-parser-mirbuilder-migration-order-ssot.md` に pre-promote gate command を追加。
   - `29bq-92-parser-handoff-checklist.md` の PROMOTE 節に機械判定コマンドを追加。
 - [x] verify:
-  - `bash -n tools/selfhost/pre_promote_legacy_main_removal.sh`
-  - `bash tools/selfhost/pre_promote_legacy_main_removal.sh --cli-mode auto --bin-stage1 target/release/hakorune --bin-stage2 target/release/hakorune` FAIL expected（exit=1; producer残存）
+  - `bash -n tools/archive/legacy-selfhost/engineering/pre_promote_legacy_main_removal.sh`
+  - `bash tools/archive/legacy-selfhost/engineering/pre_promote_legacy_main_removal.sh --cli-mode auto --bin-stage1 target/release/hakorune --bin-stage2 target/release/hakorune` FAIL expected（exit=1; producer残存）
 - [x] next task:
   - legacy producer 在庫 `producer_count=4` を code/test に分解し、撤去順（tests先行 or compiler literals先行）を 1Decision で固定する（docs-only）。
 
@@ -750,7 +750,7 @@ Resolved (2026-02-03):
   - `apps/tests/emit_boxcall_length_canary_vm.hako` の entry を `method main(args)` -> `method main()` へ移行。
 - [x] verify:
   - producer inventory（non-comment）: `CODE_COUNT=2 TEST_COUNT=0 TOTAL=2`
-  - `bash tools/selfhost/legacy_main_readiness.sh --cli-mode auto --bin-stage1 target/release/hakorune --bin-stage2 target/release/hakorune` PASS（`producer_count=2`, `ready=0`）
+  - `bash tools/archive/legacy-selfhost/engineering/legacy_main_readiness.sh --cli-mode auto --bin-stage1 target/release/hakorune --bin-stage2 target/release/hakorune` PASS（`producer_count=2`, `ready=0`）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
 - [x] next task:
   - compiler-literals second 実装として `lang/src/compiler/entry/compiler_stageb.hako` の legacy producer literal（`findPattern("static method main")` + offset抽出）を撤去し、`pre_promote_legacy_main_removal.sh` strict を `exit 0` にする（1コミット）。
@@ -762,7 +762,7 @@ Resolved (2026-02-03):
   - 固定オフセット（`+19` / `+11`）を `signature.length()` ベースへ置換。
 - [x] verify:
   - producer inventory（non-comment）: `CODE_COUNT=0 TEST_COUNT=0 TOTAL=0`
-  - `bash tools/selfhost/pre_promote_legacy_main_removal.sh --cli-mode auto --bin-stage1 target/release/hakorune --bin-stage2 target/release/hakorune` PASS（exit=0）
+  - `bash tools/archive/legacy-selfhost/engineering/pre_promote_legacy_main_removal.sh --cli-mode auto --bin-stage1 target/release/hakorune --bin-stage2 target/release/hakorune` PASS（exit=0）
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
 - [ ] next task:
   - Stage-A fallback dependency `consumer_count=5` の扱いを 1Decision で固定する（keep with sunset / remove now）し、SSOT (`selfhost-parser-mirbuilder-migration-order-ssot.md`) と `CURRENT_TASK.md` を同期する（docs-only）。
