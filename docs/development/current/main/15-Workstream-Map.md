@@ -37,8 +37,8 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-74x next source lane selection`
-     - current active micro task is `74xA1 successor lane inventory lock`
+     - current active lane is `phase-76x next source lane selection`
+     - current active micro task is `76xA1 successor lane inventory lock`
      - ranked successor corridor after `68x` is:
        - `69x rust runner product/keep/reference recut`
        - `70x caller-zero archive sweep`
@@ -132,14 +132,14 @@ Related:
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-74x next source lane selection table:
+   - phase-76x next source lane selection table:
 
      | Item | State |
      | --- | --- |
-     | Now | `74xA1 successor lane inventory lock` |
+     | Now | `76xA1 successor lane inventory lock` |
      | Blocker | `none` |
-     | Next | `74xA2 candidate lane ranking` |
-     | After Next | `74xB1 successor lane decision` |
+     | Next | `76xA2 candidate lane ranking` |
+     | After Next | `76xB1 successor lane decision` |
    - rust-vm corridor outcome:
 
      | Item | State |
@@ -151,9 +151,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `74xA1 successor lane inventory lock` |
-     | Next | `74xA2 candidate lane ranking` |
-     | Later | `74xB1 successor lane decision` |
+     | Now | `76xA1 successor lane inventory lock` |
+     | Next | `75xA2 canonical path / keep-now freeze` |
+     | Later | `75xB1 selfhost top-level alias caller cleanup` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |

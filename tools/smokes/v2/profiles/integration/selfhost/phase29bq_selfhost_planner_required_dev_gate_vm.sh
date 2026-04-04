@@ -37,7 +37,7 @@ if ! [[ "$JOBS" =~ ^[0-9]+$ ]] || [ "$JOBS" -lt 1 ]; then
 fi
 
 COMPILER="$NYASH_ROOT/lang/src/compiler/entry/compiler.hako"
-STAGEB_WRAPPER="$NYASH_ROOT/tools/selfhost/run_stageb_compiler_vm.sh"
+STAGEB_WRAPPER="$NYASH_ROOT/tools/selfhost/proof/run_stageb_compiler_vm.sh"
 
 HAKO_STAGEB_MODULES_LIST="$(collect_stageb_modules_list "$NYASH_ROOT")"
 HAKO_STAGEB_MODULE_ROOTS_LIST="$(collect_stageb_module_roots_list "$NYASH_ROOT")"

@@ -243,7 +243,7 @@ PY
 
 if ! NYASH_FEATURES="$FEATURES" \
   NYASH_SELFHOST_STAGEB_PROOF_ONLY=1 \
-  "$NYASH_ROOT/tools/selfhost/run_stageb_compiler_vm.sh" --source-file "$STAGEB_SRC" \
+  "$NYASH_ROOT/tools/selfhost/proof/run_stageb_compiler_vm.sh" --source-file "$STAGEB_SRC" \
   >"$STAGEB_RAW" 2>&1; then
   log_error "selfhost Stage-B program emit failed"
   tail -n 120 "$STAGEB_RAW" >&2 || true

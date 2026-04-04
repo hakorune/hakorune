@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: choose the next source lane after phase-73x emit_mir_mainline blocker follow-up landed.
 Related:
@@ -30,5 +30,12 @@ Related:
 
 ## Current Read
 
-- current front:
-  - `74xA1 successor lane inventory lock`
+- `74xA1` landed:
+  - post-73x cleanup candidates are re-ranked from tree shape, not blocker follow-up
+  - strongest remaining pressure is top-level alias/facade drift, especially under `tools/selfhost/`
+- `74xA2` landed:
+  - ranking is fixed as `75x -> 76x -> 77x`
+- `74xB1` landed:
+  - next lane is `phase-75x selfhost top-level alias canonicalization`
+- `74xD1` landed:
+  - phase-74x closes cleanly and hands off to alias thinning work

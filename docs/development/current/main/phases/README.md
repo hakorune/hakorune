@@ -4,8 +4,10 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 74x next source lane selection
-- **Phase 74x（ACTIVE）**: next source lane selection（phase-73x closeout 後の次 source lane を決める）
+- **Current (ACTIVE)**: Phase 76x next source lane selection
+- **Phase 76x（ACTIVE）**: next source lane selection（phase-75x closeout 後の次 source lane を決める）
+- **Phase 75x（LANDED）**: selfhost top-level alias canonicalization（folder split 後の top-level alias 圧を薄くし、live caller を canonical path に寄せた）
+- **Phase 74x（LANDED）**: next source lane selection（phase-73x closeout 後の次 source lane を決め、75x を選んだ）
 - **Phase 73x（LANDED）**: emit_mir_mainline blocker follow-up（`build_box` parse seam を直し、focused probes を green に戻した）
 - **Phase 72x（LANDED）**: selfhost top-level facade thinning（canonical-backed wrappers は first wave で既に thin と確認し、no-op closeout）
 - **Phase 71x（LANDED）**: next source lane selection（phase-70x no-op closeout 後の次 source lane と `72x -> 73x -> 74x` corridor を選んだ）

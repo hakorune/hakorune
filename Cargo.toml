@@ -74,7 +74,7 @@ doctest = false
 
 # Bin layout (Stage0/Stage1)
 # - Stage0: Rust bootstrap CLI (`nyash`) — OS entry, VM/LLVM core, minimal runner.
-# - Stage1: Hakorune selfhost binary (`hakorune-selfhost`) is built via tools/selfhost/build_stage1.sh
+# - Stage1: Hakorune selfhost binary (`hakorune-selfhost`) is built via tools/selfhost/mainline/build_stage1.sh
 #           and lives under target/selfhost/, not as a Cargo [[bin]] (Phase 25.1 design).
 
 # Main CLI binary - always available (Stage0 bootstrap)

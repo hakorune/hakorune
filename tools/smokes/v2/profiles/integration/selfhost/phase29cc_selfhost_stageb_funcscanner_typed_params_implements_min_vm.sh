@@ -9,7 +9,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/../../../../.." && pwd)"
 source "$ROOT_DIR/smokes/v2/lib/test_runner.sh"
 require_env || exit 2
 
-ROUTE_SCRIPT="$NYASH_ROOT/tools/selfhost/run_stageb_compiler_vm.sh"
+ROUTE_SCRIPT="$NYASH_ROOT/tools/selfhost/proof/run_stageb_compiler_vm.sh"
 FIXTURE="${1:-$NYASH_ROOT/apps/tests/phase29cc_selfhost_funcscanner_typed_params_implements_min.hako}"
 TIMEOUT_SECS="${SMOKES_SELFHOST_STAGEB_TIMEOUT_SECS:-${RUN_TIMEOUT_SECS:-20}}"
 

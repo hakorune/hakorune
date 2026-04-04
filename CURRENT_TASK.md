@@ -70,13 +70,15 @@ Scope: repo root から current order / current blocker / next exact read に最
 48. `phase-71x next source lane selection` (landed)
 49. `phase-72x selfhost top-level facade thinning` (landed)
 50. `phase-73x emit_mir_mainline blocker follow-up` (landed)
-51. `phase-74x next source lane selection` (active)
+51. `phase-74x next source lane selection` (landed)
+52. `phase-75x selfhost top-level alias canonicalization` (landed)
+53. `phase-76x next source lane selection` (active)
 
 - `K-axis` stays `K0 / K1 / K2` and is read as a build/runtime stage axis, not a task axis.
 - current stage progression reads as `K0 -> K1 -> K2`.
 - `K2-core` / `K2-wide` are task packs inside `K2`.
 - `K2-core` is closed.
-- `K2-wide` boundary-shrink lock-down is landed enough for handoff; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, `phase-29x backend owner cutover prep` is landed, `phase-30x backend surface simplification` is landed, `phase-31x engineering lane isolation` is landed, `phase-32x product / engineering split` is landed, `phase-33x shared helper family recut` is landed, `phase-34x stage0 shell residue split` is landed, `phase-35x stage-a compat route thinning` is landed, `phase-36x selfhost source / stage1 bridge split` is landed, `phase-37x bootstrap owner split` is landed, `phase-38x cleanup/archive sweep` is landed, `phase-39x stage0 vm gate thinning` is landed, `phase-40x stage0 vm archive candidate selection` is landed, `phase-41x stage0 direct/core route hardening` is landed, `phase-42x vm caller starvation / direct-core owner migration` is landed, `phase-43x next source lane selection` is landed, `phase-44x proof / closeout` is landed, `phase-45x vm residual cleanup` is landed, `phase-46x next source lane selection` is landed, `phase-47x stage0/runtime direct-core finalization` is landed, `phase-48x smoke/source cleanup` is landed, `phase-49x legacy wording / compat route cleanup` is landed, `phase-50x rust-vm source/archive cleanup` is landed, `phase-51x compat-codegen archival sweep` is landed, `phase-52x archive historical labeling polish` is landed, `phase-53x residual VM source audit` is landed, `phase-54x next source lane selection` is landed, `phase-55x rust-vm route-surface retirement prep` is landed, `phase-56x proof/compat keep pruning` is landed, `phase-57x rust-vm delete-ready audit / removal wave` is landed, `phase-58x next source lane selection` is landed, `phase-59x rust-vm route-surface retirement continuation` is landed, `phase-60x proof/compat keep pruning continuation` is landed, `phase-61x residual rust-vm caller-zero audit rerun` is landed, `phase-62x rust-vm delete-ready removal wave` is landed, `phase-63x rust-vm final retirement decision` is landed, `phase-64x next source lane selection` is landed, `phase-65x stage1/selfhost mainline hardening` is landed, `phase-66x next source lane selection` is landed, `phase-67x selfhost folder split` is landed, `phase-68x .hako runner authority/compat/facade recut` is landed, `phase-69x rust runner product/keep/reference recut` is landed, `phase-70x caller-zero archive sweep` is landed, `phase-71x next source lane selection` is landed, `phase-72x selfhost top-level facade thinning` is landed, `phase-73x emit_mir_mainline blocker follow-up` is landed, and the current active front is `phase-74x next source lane selection`.
+- `K2-wide` boundary-shrink lock-down is landed enough for handoff; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, `phase-29x backend owner cutover prep` is landed, `phase-30x backend surface simplification` is landed, `phase-31x engineering lane isolation` is landed, `phase-32x product / engineering split` is landed, `phase-33x shared helper family recut` is landed, `phase-34x stage0 shell residue split` is landed, `phase-35x stage-a compat route thinning` is landed, `phase-36x selfhost source / stage1 bridge split` is landed, `phase-37x bootstrap owner split` is landed, `phase-38x cleanup/archive sweep` is landed, `phase-39x stage0 vm gate thinning` is landed, `phase-40x stage0 vm archive candidate selection` is landed, `phase-41x stage0 direct/core route hardening` is landed, `phase-42x vm caller starvation / direct-core owner migration` is landed, `phase-43x next source lane selection` is landed, `phase-44x proof / closeout` is landed, `phase-45x vm residual cleanup` is landed, `phase-46x next source lane selection` is landed, `phase-47x stage0/runtime direct-core finalization` is landed, `phase-48x smoke/source cleanup` is landed, `phase-49x legacy wording / compat route cleanup` is landed, `phase-50x rust-vm source/archive cleanup` is landed, `phase-51x compat-codegen archival sweep` is landed, `phase-52x archive historical labeling polish` is landed, `phase-53x residual VM source audit` is landed, `phase-54x next source lane selection` is landed, `phase-55x rust-vm route-surface retirement prep` is landed, `phase-56x proof/compat keep pruning` is landed, `phase-57x rust-vm delete-ready audit / removal wave` is landed, `phase-58x next source lane selection` is landed, `phase-59x rust-vm route-surface retirement continuation` is landed, `phase-60x proof/compat keep pruning continuation` is landed, `phase-61x residual rust-vm caller-zero audit rerun` is landed, `phase-62x rust-vm delete-ready removal wave` is landed, `phase-63x rust-vm final retirement decision` is landed, `phase-64x next source lane selection` is landed, `phase-65x stage1/selfhost mainline hardening` is landed, `phase-66x next source lane selection` is landed, `phase-67x selfhost folder split` is landed, `phase-68x .hako runner authority/compat/facade recut` is landed, `phase-69x rust runner product/keep/reference recut` is landed, `phase-70x caller-zero archive sweep` is landed, `phase-71x next source lane selection` is landed, `phase-72x selfhost top-level facade thinning` is landed, `phase-73x emit_mir_mainline blocker follow-up` is landed, `phase-74x next source lane selection` is landed, `phase-75x selfhost top-level alias canonicalization` is landed, and the current active front is `phase-76x next source lane selection`.
 - retirement corridor after `60x` is fixed as:
   - `61x residual rust-vm caller-zero audit rerun`
   - `62x rust-vm delete-ready removal wave`
@@ -85,7 +87,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 ## Immediate Handoff
 
 - Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, `phase-29x` cleanup is closed, `phase-30x` ownership flip is landed, `phase-31x` engineering rehome sweep is landed, `phase-32x` mixed-owner split is landed, `phase-33x` helper-family recut is landed, `phase-34x` shell-residue split is landed, `phase-35x` stage-a compat route thinning is landed, `phase-36x` selfhost source / stage1 bridge split is landed, `phase-37x` bootstrap owner split is landed, `phase-38x` cleanup/archive sweep is landed, `phase-39x` stage0 vm gate thinning is landed, `phase-40x` stage0 vm archive candidate selection is landed, `phase-41x` stage0 direct/core route hardening is landed, `phase-42x` vm caller starvation / direct-core owner migration is landed, `phase-43x` next source lane selection is landed, `phase-44x` proof / closeout is landed, `phase-45x` vm residual cleanup is landed, `phase-46x` next source lane selection is landed, `phase-47x` stage0/runtime direct-core finalization is landed, `phase-48x` smoke/source cleanup is landed, `phase-49x` legacy wording / compat route cleanup is landed, `phase-50x` rust-vm source/archive cleanup is landed, `phase-51x` compat-codegen archival sweep is landed, `phase-52x` archive historical labeling polish is landed, `phase-53x` residual VM source audit is landed, `phase-54x` next source lane selection is landed, `phase-55x` rust-vm route-surface retirement prep is landed, `phase-56x` proof/compat keep pruning is landed, `phase-57x` rust-vm delete-ready audit / removal wave is landed, `phase-58x` next source lane selection is landed, `phase-59x` rust-vm route-surface retirement continuation is landed, `phase-60x` proof/compat keep pruning continuation is landed, `phase-61x` residual rust-vm caller-zero audit rerun is landed, `phase-62x` rust-vm delete-ready removal wave is landed, `phase-63x` rust-vm final retirement decision is landed, `phase-64x` next source lane selection is landed, `phase-65x` stage1/selfhost mainline hardening is landed, `phase-66x` next source lane selection is landed, `phase-67x` selfhost folder split is landed, `phase-68x` .hako runner authority/compat/facade recut is landed, `phase-69x` rust runner product/keep/reference recut is landed, `phase-70x` caller-zero archive sweep is landed, `phase-71x` next source lane selection is landed, `phase-72x` selfhost top-level facade thinning is landed, and the current active front is `phase-73x emit_mir_mainline blocker follow-up`.
-- Active lane: `phase-70x-caller-zero-archive-sweep`
+- Active lane: `phase-76x next source lane selection`
 - retirement corridor lock:
   - `60x` prune remaining explicit proof/compat keeps
   - `61x` rerun caller-zero audit after keep pruning settles
@@ -149,7 +151,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `stage2plus entry / first optimization wave` is accepted
   - `phase-30x backend surface simplification` is landed
   - `phase-32x product / engineering split` is landed
-- current active lane is `phase-74x next source lane selection`
+- current active lane is `phase-76x next source lane selection`
 - landed rows already accepted:
   - `RawMap` first slice
   - `RawMap.clear`
@@ -166,12 +168,13 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `phase-74x next source lane selection`
+- Active next: `phase-76x next source lane selection`
 - Current blocker: `none`
-- Exact focus: `74xA1 successor lane inventory lock`
+- Exact focus: `76xA1 successor lane inventory lock`
 - successor lane ranking is fixed as:
-  1. `phase-74x next source lane selection`
-  2. `TBD after lane selection`
+  1. `.hako top-level alias canonicalization`
+  2. `root/current pointer thinning`
+  3. `caller-zero archive rerun`
 - folder-separation corridor after `66x` is planned as:
   - `67x selfhost folder split` (landed)
   - `68x .hako runner authority/compat/facade recut` (landed)
