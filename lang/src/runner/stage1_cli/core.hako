@@ -1,5 +1,5 @@
 // stage1_cli/core.hako
-// 56xA2 compat keep boundary freeze:
+// 56xB2 vm fallback/core.hako keep pruning:
 // - keep legacy raw compat narrow and non-growing
 // - direct/core routes own new capability work
 // - do not widen backend policy here
@@ -33,13 +33,14 @@ static box Stage1Cli {
 
   // Raw compat keep for Program(JSON v0) run requests.
   // Keep this lane narrow:
-  // - accept only vm|pyvm
+  // - accept only vm; pyvm stays historical keep
   // - reject llvm from this legacy raw route
   // - do not add new runtime capability/policy here
   // - do not thread-enable or direct-core-enable this branch; direct MIR ownership belongs below stage0
-  // Run Program(JSON v0) on selected backend (vm|pyvm)
-  // - vm/pyvm: convert to MIR(JSON) and print to stdout（実行 path は未配線）
-  // - llvm   : retired from this raw compat lane; daily/backend-zero callers stop at LlvmBackendBox
+  // Run Program(JSON v0) on selected backend (vm; pyvm historical keep)
+  // - vm: convert to MIR(JSON) and print to stdout（実行 path は未配線）
+  // - pyvm: historical keep; the legacy raw bridge still returns MIR(JSON) only
+  // - llvm: retired from this raw compat lane; daily/backend-zero callers stop at LlvmBackendBox
   method run_program_json(program_json, backend) {
     local tag = "[stage1-cli] run program-json"
     if program_json == null {
@@ -62,7 +63,7 @@ static box Stage1Cli {
       return 96
     }
 
-    // vm / pyvm: 現状は MIR(JSON) を吐いて終了（実行は Stage0 側に後続で橋渡し）
+    // vm / pyvm: 現状は MIR(JSON) を吐いて終了（pyvm は historical keep、実行は Stage0 側に後続で橋渡し）
     print(mir)
     return 0
   }
@@ -245,7 +246,7 @@ static box Stage1Cli {
 
   // Raw subcommand residue for `run`.
   // Keep ownership here limited to request parse -> Program(JSON) materialize -> run_program_json handoff.
-  // Do not widen this branch with backend policy beyond the legacy vm|pyvm compat contract.
+  // Do not widen this branch with backend policy beyond the legacy vm compat contract.
   // Thread/runtime capability work must not land here.
   method _run_raw_request(args) {
     local req = Stage1CliRawSubcommandRunBox.resolve_run_request(args)

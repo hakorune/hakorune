@@ -164,8 +164,8 @@ Scope: repo root から current order / current blocker / next exact read に最
   18. `56xA1` proof-only keep inventory lock (landed)
   19. `56xA2` compat keep boundary freeze (landed)
   20. `56xB1` stage-a compat route pruning prep (landed)
-  21. `56xB2` vm fallback/core.hako keep pruning (active)
-  22. `56xC1` proof smoke keep pruning (queued)
+  21. `56xB2` vm fallback/core.hako keep pruning (landed)
+  22. `56xC1` proof smoke keep pruning (active)
   23. `56xD1` proof / closeout (queued)
   24. `57x` rust-vm delete-ready audit / removal wave (planned)
 
@@ -259,9 +259,9 @@ Carry-over context:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-56x proof/compat keep pruning` |
+| Now | `56xC1 proof smoke keep pruning` |
 | Blocker | `none` |
-| Next | `56xB1 stage-a compat route pruning prep` |
+| Next | `56xD1 proof / closeout` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -275,9 +275,9 @@ Carry-over context:
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `phase-56x proof/compat keep pruning` | prune explicit proof/compat keeps without entering delete-ready removal |
-| Next | `55xA2 backend/default/help exposure freeze` | freeze route wording and defaults before deeper pruning |
-| Later | `56x proof/compat keep pruning` | shrink the explicit keep set after route surfaces stop widening |
+| Now | `56xC1 proof smoke keep pruning` | prune explicit proof/compat keeps without entering delete-ready removal |
+| Next | `56xD1 proof / closeout` | finish the proof-smoke pruning lane and hand off cleanly |
+| Later | `57x rust-vm delete-ready audit / removal wave` | audit remaining delete-ready surfaces after keep pruning settles |
 
 ## Phase-34x Waves
 

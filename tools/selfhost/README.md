@@ -147,7 +147,7 @@ Notes
 - Stage‑B emit uses the Stage‑B entry by default; BuildBox emit-only stays explicit compat/proof only and is retired from the day-to-day caller path
 - raw `selfhost_build.sh --in ...` whole-script routes are not the current helper-local acceptance line; use the focused probe above for the EXE consumer seam while upstream Stage-B source-route freezes remain
 - Runner executes Core‑Direct in-proc under HAKO_CORE_DIRECT_INPROC=1.
-- PyVM は historical / direct-only 扱い（既定導線は Rust VM）。legacy parity が必要な場合は `tools/historical/pyvm/*.sh` を使う。
+- PyVM は historical / direct-only 扱い（既定導線は mainline direct/core）。legacy parity が必要な場合は `tools/historical/pyvm/*.sh` を使う。
 - For heavier cases (bundles/alias/require), keep Stage‑B canaries opt‑in in quick profile.
 
 ---

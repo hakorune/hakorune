@@ -62,7 +62,7 @@ static box Stage1CliRawSubcommandInputBox {
       arg = me._coerce_text_compat(args.get(i))
       if arg == "--backend" {
         if i + 1 >= argc {
-          print("[stage1-cli] run: --backend requires a value (vm|llvm|pyvm)")
+          print("[stage1-cli] run: --backend requires a value (vm|llvm; pyvm is historical keep)")
           return null
         }
         backend = me._coerce_text_compat(args.get(i + 1))

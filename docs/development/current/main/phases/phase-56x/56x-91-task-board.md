@@ -19,8 +19,8 @@ Date: 2026-04-04
 | `56xA1` | landed | proof-only keep inventory lock |
 | `56xA2` | landed | compat keep boundary freeze |
 | `56xB1` | landed | stage-a compat route pruning prep |
-| `56xB2` | active | vm fallback/core.hako keep pruning |
-| `56xC1` | queued | proof smoke keep pruning |
+| `56xB2` | landed | vm fallback/core.hako keep pruning |
+| `56xC1` | active | proof smoke keep pruning |
 | `56xD1` | queued | proof / closeout |
 
 ## Inventory Snapshot
@@ -37,7 +37,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `56xB2 vm fallback/core.hako keep pruning` |
+| Now | `56xC1 proof smoke keep pruning` |
 | Blocker | `none` |
-| Next | `56xC1 proof smoke keep pruning` |
-| After Next | `56xD1 proof / closeout` |
+| Next | `56xD1 proof / closeout` |
+| After Next | `57x rust-vm delete-ready audit / removal wave` |

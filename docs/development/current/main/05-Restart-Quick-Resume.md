@@ -47,7 +47,8 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `56xA1 proof-only keep inventory lock`
 - landed micro task: `56xA2 compat keep boundary freeze`
 - landed micro task: `56xB1 stage-a compat route pruning prep`
-- active micro task: `56xB2 vm fallback/core.hako keep pruning`
+- landed micro task: `56xB2 vm fallback/core.hako keep pruning`
+- active micro task: `56xC1 proof smoke keep pruning`
 - planned follow-up: `57x rust-vm delete-ready audit / removal wave`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline

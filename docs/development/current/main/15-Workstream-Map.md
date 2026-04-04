@@ -132,17 +132,17 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `56xB2 vm fallback/core.hako keep pruning` |
+     | Now | `56xC1 proof smoke keep pruning` |
      | Blocker | `none` |
-     | Next | `56xC1 proof smoke keep pruning` |
-     | After Next | `56xD1 proof / closeout` |
+     | Next | `56xD1 proof / closeout` |
+     | After Next | `57x rust-vm delete-ready audit / removal wave` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `56xB2 vm fallback/core.hako keep pruning` |
-     | Next | `56xC1 proof smoke keep pruning` |
-     | Later | `56x proof/compat keep pruning` |
+     | Now | `56xC1 proof smoke keep pruning` |
+     | Next | `56xD1 proof / closeout` |
+     | Later | `57x rust-vm delete-ready audit / removal wave` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
@@ -189,7 +189,7 @@ Related:
      - `51xA2 proof-only / archive-later classification`
      - Queued backend surface tasks:
      - `55xA2 backend/default/help exposure freeze`
-     - `56xB2 vm fallback/core.hako keep pruning`
+     - `56xC1 proof smoke keep pruning`
      - `56x proof/compat keep pruning`
      - `56x proof/compat keep pruning`
      - `57x rust-vm delete-ready audit / removal wave`

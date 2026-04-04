@@ -14,7 +14,7 @@
 //   - STAGE1_SOURCE        : .hako ソースパス（FileBox 経由で読み込む）
 //   - STAGE1_SOURCE_TEXT   : ソース文字列（FileBox なしで渡すテスト用）
 //   - STAGE1_PROGRAM_JSON  : 事前生成した Program(JSON v0) のパス（emit_mir_json/run で利用）
-//   - STAGE1_BACKEND       : backend 選択（vm/llvm/pyvm、既定 vm）
+//   - STAGE1_BACKEND       : backend 選択（vm/llvm、pyvm は historical keep、既定 vm）
 //   - STAGE1_CLI_DEBUG     : debug ログを有効化
 
 using lang.runner.stage1_cli.core as Stage1Cli
