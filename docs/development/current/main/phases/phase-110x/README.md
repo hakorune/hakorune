@@ -29,3 +29,6 @@ Success condition:
 - long-lived SSOT を 1 枚に固定する
 - current/docs から `exe` / `vm` / `kernel` の多義説明を減らす
 - `phase-111x` の rename lane に渡せる vocabulary を決める
+
+Primary artifact:
+- `docs/development/architecture/selfhost_execution_ssot.md`
