@@ -1,7 +1,7 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
-Scope: thin the remaining top-level owner pressure in lang/src/runner after wrapper canonicalization settled.
+Scope: thin the remaining top-level owner pressure in lang/src/runner after wrapper canonicalization settled; phase is now landed and handed off.
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
@@ -28,5 +28,6 @@ Related:
 
 ## Current Read
 
-- current front:
-  - `77xB2 stage1_cli_env.hako authority thinning`
+- handoff complete
+- next lane: `phase-78x next source lane selection`
+- current front: `78xA1 successor lane inventory lock`

@@ -37,8 +37,8 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-77x runner top-level pressure thinning`
-     - current active micro task is `77xB2 stage1_cli_env.hako authority thinning`
+     - current active lane is `phase-78x next source lane selection`
+     - current active micro task is `78xA1 successor lane inventory lock`
      - ranked successor corridor after `68x` is:
        - `69x rust runner product/keep/reference recut`
        - `70x caller-zero archive sweep`
@@ -132,14 +132,14 @@ Related:
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-77x runner top-level pressure thinning table:
+   - phase-78x next source lane selection table:
 
      | Item | State |
      | --- | --- |
-     | Now | `77xB2 stage1_cli_env.hako authority thinning` |
+     | Now | `78xA1 successor lane inventory lock` |
      | Blocker | `launcher.hako emit_mir_mainline probe still red` |
-     | Next | `77xD1 proof / closeout` |
-     | After Next | `77xD1 proof / closeout` |
+     | Next | `78xA2 candidate lane ranking` |
+     | After Next | `78xB1 successor lane decision` |
    - rust-vm corridor outcome:
 
      | Item | State |
@@ -151,7 +151,7 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `77xB2 stage1_cli_env.hako authority thinning` |
+     | Now | `78xA1 successor lane inventory lock` |
      | Next | `75xA2 canonical path / keep-now freeze` |
      | Later | `75xB1 selfhost top-level alias caller cleanup` |
    - stage0 shell residue waves:
