@@ -22,12 +22,13 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-52x archive historical labeling polish`
+- lane: `phase-53x residual VM source audit`
 - landed micro task: `49xD1 proof / closeout`
 - landed micro task: `52xA2 archive README / wrapper wording rewrite`
 - landed micro task: `52xB1 archive pack orchestrator wording cleanup`
-- active micro task: `52xC1 proof / closeout`
-- after next: `done`
+- landed micro task: `52xC1 proof / closeout`
+- active micro task: `53xA1 residual VM caller inventory lock`
+- after next: `53xA2 proof-only / compat keep classification`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 
@@ -35,9 +36,9 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-52x/README.md`
-4. `docs/development/current/main/phases/phase-52x/52x-90-archive-historical-labeling-polish-ssot.md`
-5. `docs/development/current/main/phases/phase-52x/52x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-53x/README.md`
+4. `docs/development/current/main/phases/phase-53x/53x-90-residual-vm-source-audit-ssot.md`
+5. `docs/development/current/main/phases/phase-53x/53x-91-task-board.md`
 6. `cargo check --manifest-path Cargo.toml --bin hakorune`
 
 ## Optional Checks

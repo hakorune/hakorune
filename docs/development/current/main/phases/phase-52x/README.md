@@ -1,13 +1,16 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
-Scope: keep archive / historical labeling minimal and explicit after the rust-vm source cleanup; rewrite archive README / wrapper wording so legacy traces read as historical evidence only.
+Scope: keep archive / historical labeling minimal and explicit after the rust-vm source cleanup; hand off residual VM source audit to phase-53x while archive README / wrapper wording stays historical-only.
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/15-Workstream-Map.md
   - docs/development/current/main/phases/README.md
+  - docs/development/current/main/phases/phase-53x/README.md
+  - docs/development/current/main/phases/phase-53x/53x-90-residual-vm-source-audit-ssot.md
+  - docs/development/current/main/phases/phase-53x/53x-91-task-board.md
   - docs/development/current/main/phases/phase-51x/README.md
   - tools/archive/legacy-selfhost/README.md
   - tools/archive/legacy-selfhost/compat-codegen/README.md
@@ -28,6 +31,7 @@ Related:
 - active source cleanup already finished in phase-50x / phase-51x
 - phase-52x only polishes archive/historical labels
 - it does not restore any live owner lane
+- the residual VM source audit now continues in phase-53x
 
 ## Success Conditions
 
@@ -57,3 +61,4 @@ Related:
 - leave canonical historical rust-vm evidence in archive
 - no new live callers
 - keep active source tree free of rust-vm wording
+- phase-53x owns the remaining source/delete-ready audit
