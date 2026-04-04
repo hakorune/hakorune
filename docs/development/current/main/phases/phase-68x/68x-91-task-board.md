@@ -16,8 +16,8 @@ Date: 2026-04-04
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `68xA1` | active | runner folder inventory lock |
-| `68xA2` | queued | target layout ranking |
+| `68xA1` | landed | runner folder inventory lock |
+| `68xA2` | active | target layout ranking |
 | `68xB1` | queued | authority/compat split |
 | `68xB2` | queued | facade/entry split |
 | `68xC1` | queued | alias/readme cleanup |
@@ -27,7 +27,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `68xA1 runner folder inventory lock` |
+| Now | `68xA2 target layout ranking` |
 | Blocker | `none` |
-| Next | `68xA2 target layout ranking` |
-| After Next | `68xB1 authority/compat split` |
+| Next | `68xB1 authority/compat split` |
+| After Next | `68xB2 facade/entry split` |

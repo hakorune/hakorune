@@ -40,6 +40,30 @@ Related:
 - `lang/src/runner/runner_facade.hako`
 - `lang/src/runner/launcher_native_entry.hako`
 
+## Current Inventory
+
+### Authority / env cluster
+
+- `lang/src/runner/stage1_cli_env.hako`
+- `lang/src/runner/stage1_cli_env_entry.hako`
+
+### Compat / raw subcommand cluster
+
+- `lang/src/runner/stage1_cli.hako`
+- `lang/src/runner/stage1_cli/**`
+
+### Facade / launcher cluster
+
+- `lang/src/runner/launcher.hako`
+- `lang/src/runner/launcher/**`
+- `lang/src/runner/runner_facade.hako`
+
+### Entry / bootstrap stubs
+
+- `lang/src/runner/launcher_native_entry.hako`
+- `lang/src/runner/stage1_cli_env_entry.hako`
+- `lang/src/runner/hako_module.toml`
+
 ## Target Layout
 
 ```text

@@ -29,7 +29,7 @@ Related:
 
 - `67x` has landed and split `tools/selfhost/` into folder lanes
 - current front:
-  - `68xA1 runner folder inventory lock`
+  - `68xA2 target layout ranking`
 - current intent:
   - `lang/src/runner` should stop relying on file-name folklore for authority vs compat reading
   - entry/facade stubs should become obvious from folder placement
