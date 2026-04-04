@@ -129,16 +129,16 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `51xB2 archive pack orchestrator / live alias cleanup` |
+     | Now | `51xD1 proof / closeout` |
       | Blocker | `none` |
-     | Next | `51xC1 live docs / alias rewrite` |
+     | Next | `next source lane selection` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `51xB2 archive pack orchestrator / live alias cleanup` |
-     | Next | `51xC1 live docs / alias rewrite` |
-     | Later | `51xC2 archive README / example cleanup` |
+     | Now | `51xD1 proof / closeout` |
+     | Next | `next source lane selection` |
+     | Later | `none` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
@@ -184,8 +184,8 @@ Related:
      - Active backend surface tasks:
      - `51xA2 proof-only / archive-later classification`
       - Queued backend surface tasks:
-     - `51xB2 archive pack orchestrator / live alias cleanup`
-     - `51xC1 live docs / alias rewrite`
+     - `51xD1 proof / closeout`
+     - `next source lane selection`
     - `kilo` optimization wave (far future; not the next lane)
 - Post-`37xD1` cleanup:
   - drained shim / legacy embedded smoke archive sweep

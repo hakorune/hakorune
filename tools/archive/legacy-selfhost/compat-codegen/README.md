@@ -2,7 +2,7 @@
 
 Archived home for historical compat-codegen payloads and wrappers.
 
-## Current Surface
+## Archived Surface
 
 - `hako_llvm_selfhost_driver.hako`
 - `run_compat_pure_selfhost.sh`
@@ -22,6 +22,5 @@ links through `LlvmBackendBox.link_exe(...)`.
 - pack orchestrator:
   - `run_compat_pure_pack.sh`
 
-Read this directory as the archived compat-codegen bucket. The old
-`tools/selfhost/run_compat_pure_*` entrypoints are thin backward-compat shims
-that exec into this directory.
+Read this directory as the archived compat-codegen bucket. It is not a daily
+owner lane. Historical shell entrypoints resolve here for reference only.
