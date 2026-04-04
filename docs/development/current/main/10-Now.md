@@ -140,7 +140,7 @@ Related:
 - landed micro task: `65xB2 shell contract owner cleanup`
 - landed micro task: `65xC1 mainline proof bundle refresh`
 - landed micro task: `65xD1 proof / closeout`
-- active micro task: `67xA1 selfhost folder inventory lock`
+- active micro task: `67xC1 lib/alias cleanup`
 - ranked next-lane corridor after `67x`:
   - `68x .hako runner authority/compat/facade recut`
   - `69x rust runner product/keep/reference recut`
@@ -199,6 +199,6 @@ Related:
 
 1. read `CURRENT_TASK.md`
 2. read `15-Workstream-Map.md`
-3. read `docs/development/current/main/phases/phase-66x/README.md`
-4. read `docs/development/current/main/phases/phase-66x/66x-90-next-source-lane-selection-ssot.md`
-5. read `docs/development/current/main/phases/phase-66x/66x-91-task-board.md`
+3. read `docs/development/current/main/phases/phase-67x/README.md`
+4. read `docs/development/current/main/phases/phase-67x/67x-90-selfhost-folder-split-ssot.md`
+5. read `docs/development/current/main/phases/phase-67x/67x-91-task-board.md`

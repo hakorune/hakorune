@@ -6,7 +6,7 @@
 # - Keep selfhost/run.sh focused on parsing and thin dispatch only.
 
 GATE_SCRIPT="${GATE_SCRIPT:-$NYASH_ROOT/tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh}"
-PROOF_STAGEB_SCRIPT="$NYASH_ROOT/tools/selfhost/run_stageb_compiler_vm.sh"
+PROOF_STAGEB_SCRIPT="$NYASH_ROOT/tools/selfhost/proof/run_stageb_compiler_vm.sh"
 STEADY_STATE_SCRIPT="${STEADY_STATE_SCRIPT:-$NYASH_ROOT/tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_steady_state_vm.sh}"
 
 resolve_path() {
@@ -57,10 +57,10 @@ run_runtime_temp_mir_handoff() {
   set +e
   if [ -n "$timeout_secs" ]; then
     timeout "$timeout_secs" \
-      bash "$NYASH_ROOT/tools/selfhost/run_stage1_cli.sh" --bin "$NYASH_BIN" emit mir-json "$input_file" \
+      bash "$NYASH_ROOT/tools/selfhost/compat/run_stage1_cli.sh" --bin "$NYASH_BIN" emit mir-json "$input_file" \
       >"$tmp_mir" 2>"$tmp_emit_err"
   else
-    bash "$NYASH_ROOT/tools/selfhost/run_stage1_cli.sh" --bin "$NYASH_BIN" emit mir-json "$input_file" \
+    bash "$NYASH_ROOT/tools/selfhost/compat/run_stage1_cli.sh" --bin "$NYASH_BIN" emit mir-json "$input_file" \
       >"$tmp_mir" 2>"$tmp_emit_err"
   fi
   emit_rc=$?

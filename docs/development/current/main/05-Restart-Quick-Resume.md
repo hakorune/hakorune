@@ -90,7 +90,7 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `65xB2 shell contract owner cleanup`
 - landed micro task: `65xC1 mainline proof bundle refresh`
 - landed micro task: `65xD1 proof / closeout`
-- active micro task: `67xA1 selfhost folder inventory lock`
+- active micro task: `67xC1 lib/alias cleanup`
 - ranked successor corridor after `67x`:
   - `68x .hako runner authority/compat/facade recut`
   - `69x rust runner product/keep/reference recut`
@@ -106,9 +106,9 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-66x/README.md`
-4. `docs/development/current/main/phases/phase-66x/66x-90-next-source-lane-selection-ssot.md`
-5. `docs/development/current/main/phases/phase-66x/66x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-67x/README.md`
+4. `docs/development/current/main/phases/phase-67x/67x-90-selfhost-folder-split-ssot.md`
+5. `docs/development/current/main/phases/phase-67x/67x-91-task-board.md`
 6. `cargo check --manifest-path Cargo.toml --bin hakorune`
 
 ## Optional Checks

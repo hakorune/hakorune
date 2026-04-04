@@ -19,7 +19,7 @@ Pointers:
 - Delegate actual execution to existing backends（Rust VM / LLVM / ny-llvmc）。既定挙動は変えない。
 - `launcher.hako` is the current CLI facade/orchestration keep, not a long-term pipeline-detail owner.
 - `stage1_cli_env.hako` is the current stage1 env-entry authority cluster; future file split is deferred until authority/facade cleanup proves a blocker.
-- `launcher_native_entry.hako` / `stage1_cli_env_entry.hako` are thin bootstrap entry stubs for `tools/selfhost/build_stage1.sh`; they keep no CLI policy and exist only to wrap the bootstrap artifact entry surface.
+- `launcher_native_entry.hako` / `stage1_cli_env_entry.hako` are thin bootstrap entry stubs for `tools/selfhost/mainline/build_stage1.sh`; they keep no CLI policy and exist only to wrap the bootstrap artifact entry surface.
 
 ## Files
 
@@ -80,7 +80,7 @@ Pointers:
   - 言語意味論・最適化ロジックは compiler / opt / AotPrep に留める。
   - VM/LLVM の実行コアは Rust 側（Stage0 / NyRT）に委譲する。
 - current selfhost authority entry is `stage1_cli_env.hako`; `launcher.hako` / raw subcmd lane は authority ではなく compat/future retire target として扱う。
-- shell-side exact env transport lives in `tools/selfhost/lib/stage1_contract.sh`; `tools/selfhost/run_stage1_cli.sh` is a compatibility wrapper around that contract, not a second authority route.
+- shell-side exact env transport lives in `tools/selfhost/lib/stage1_contract.sh`; `tools/selfhost/compat/run_stage1_cli.sh` is a compatibility wrapper around that contract, not a second authority route.
 - shared env/source resolution contract is isolated in `Stage1InputContractBox` inside `stage1_cli_env.hako`; keep input shaping out of `Main` and out of authority/compat boxes.
 - reduced-artifact mode/env resolution is isolated in `Stage1ModeContractBox` inside `stage1_cli_env.hako`; keep `Main.main()` as a pure dispatcher over the exact `stage1-env-program` / `stage1-env-mir-source` contract.
 - `Stage1InputContractBox` now also centralizes env/debug stringify behind `_coerce_text_compat(...)`, `_env_flag_enabled(...)`, and `_stage1_debug_on(...)`, so source/program-json resolution no longer repeats raw `"" + x` checks inline.

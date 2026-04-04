@@ -185,7 +185,7 @@ Specs & Constraints
 ## 🧪 Self‑Hosting (Compat / Proof)
 - Guide: `docs/how-to/self-hosting.md`
 - Compat/proof bootstrap E2E: `$NYASH_BIN --backend vm apps/selfhost-minimal/main.hako`
-- Compat/proof smokes: `bash tools/jit_smoke.sh` / `bash tools/selfhost/selfhost_vm_smoke.sh`
+- Compat/proof smokes: `bash tools/jit_smoke.sh` / `bash tools/selfhost/proof/selfhost_vm_smoke.sh`
 - JSON (Operator Boxes, dev): `./tools/opbox-json.sh` / `./tools/opbox-quick.sh`
 - Makefile: `make run-minimal`, `make smoke-selfhost`
 

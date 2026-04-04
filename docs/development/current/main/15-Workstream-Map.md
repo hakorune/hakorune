@@ -38,7 +38,7 @@ Related:
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
      - current active lane is `phase-67x selfhost folder split`
-     - current active micro task is `67xA1 selfhost folder inventory lock`
+     - current active micro task is `67xC1 lib/alias cleanup`
      - ranked successor corridor after `67x` is:
        - `68x .hako runner authority/compat/facade recut`
        - `69x rust runner product/keep/reference recut`
@@ -75,7 +75,7 @@ Related:
      - `phase-49x` is landed and the remaining current-doc wording / compat-route narration is closed
      - `phase-51x` is landed and the canonical compat-codegen bucket now lives under the archive path
      - `phase-52x` is landed and polishes archive/historical labeling after source cleanup
-     - `phase-53x` is landed, `phase-54x` is landed, `phase-55x` is landed, `phase-56x` is landed, `phase-57x` is landed, `phase-58x` is landed, `phase-59x` is landed, `phase-60x` is landed, `phase-61x` is landed, `phase-62x` is landed, `phase-63x` is landed, `phase-64x` is landed, `phase-65x` is landed, and `phase-66x` is active
+     - `phase-53x` is landed, `phase-54x` is landed, `phase-55x` is landed, `phase-56x` is landed, `phase-57x` is landed, `phase-58x` is landed, `phase-59x` is landed, `phase-60x` is landed, `phase-61x` is landed, `phase-62x` is landed, `phase-63x` is landed, `phase-64x` is landed, `phase-65x` is landed, `phase-66x` is landed, and `phase-67x` is active
      - `48xA1` inventory lock is landed; `48xA2` proof-only / compat keep classification is landed
      - `48xB1` smoke script stale-route cleanup is landed; `48xB2` proof-only smoke gate lock is landed; `48xC1` source helper stale-route cleanup is landed; `48xC2` vm.rs / vm_fallback thin keep trim is landed
      - `47xA1` landed, `47xA2` landed, `47xA3` landed, `47xB1` landed, `47xB2` landed, `47xB3` landed, `47xC1` landed, `47xC2` landed, `47xC3` landed, `47xD1` landed, `47xD2` landed, and `47xD3` landed
@@ -137,10 +137,10 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `67xA1 selfhost folder inventory lock` |
+     | Now | `67xC1 lib/alias cleanup` |
      | Blocker | `none` |
-     | Next | `67xA2 target layout ranking` |
-     | After Next | `67xB1 top-level selfhost split` |
+     | Next | `67xD1 proof / closeout` |
+     | After Next | `68x .hako runner authority/compat/facade recut` |
    - rust-vm corridor outcome:
 
      | Item | State |
@@ -152,9 +152,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `67xA1 selfhost folder inventory lock` |
-     | Next | `67xA2 target layout ranking` |
-     | Later | `67xB1 top-level selfhost split` |
+     | Now | `67xC1 lib/alias cleanup` |
+     | Next | `67xD1 proof / closeout` |
+     | Later | `68x .hako runner authority/compat/facade recut` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |

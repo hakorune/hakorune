@@ -47,7 +47,7 @@ Non‑Goals
 
 ### Dev line (Stage1 core – experimental)
 
-- Dev build: `tools/selfhost/build_stage1.sh` → produces `target/selfhost/hakorune`
+- Dev build: `tools/selfhost/mainline/build_stage1.sh` → produces `target/selfhost/hakorune`
 - Role:
   - Fast iteration用の Stage1 selfhost バイナリ（Ny Executor / CLI 実験など）。
   - bridge/proof line only; not daily distribution truth.

@@ -16,7 +16,7 @@ stage0-release:
 # Stage1: Hakorune selfhost binary (Ny Executor prototype)
 # - Requires Stage0 binary (hakorune) and LLVM toolchain; ny_mir_builder.sh will build ny-llvmc/nyash_kernel as needed.
 stage1-selfhost: stage0-release
-	bash tools/selfhost/build_stage1.sh
+	bash tools/selfhost/mainline/build_stage1.sh
 
 run-minimal:
 	NYASH_DISABLE_PLUGINS=1 ./target/release/hakorune --backend vm apps/selfhost-minimal/main.hako
@@ -25,10 +25,10 @@ smoke-core:
 	bash tools/jit_smoke.sh
 
 smoke-selfhost:
-	bash tools/selfhost/selfhost_vm_smoke.sh
+	bash tools/selfhost/proof/selfhost_vm_smoke.sh
 
 bootstrap:
-	bash tools/selfhost/bootstrap_selfhost_smoke.sh
+	bash tools/selfhost/proof/bootstrap_selfhost_smoke.sh
 
 roundtrip:
 	bash tools/ny_roundtrip_smoke.sh

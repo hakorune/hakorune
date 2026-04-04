@@ -4,7 +4,7 @@ set -euo pipefail
 
 # Bootstrap Stage3 same-result sanity gate.
 # This is separate from the parser/bridge Stage3 acceptance smoke in
-# tools/selfhost/selfhost_stage3_accept_smoke.sh.
+# tools/selfhost/proof/selfhost_stage3_accept_smoke.sh.
 
 ROOT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)"
 ARTIFACT_KIND="stage1-cli"
@@ -68,8 +68,8 @@ emit_seed_payloads() {
   local prog_out="$3"
   local mir_out="$4"
 
-  bash "$ROOT_DIR/tools/selfhost/run_stage1_cli.sh" --bin "$seed_bin" emit program-json "$entry" >"$prog_out"
-  bash "$ROOT_DIR/tools/selfhost/run_stage1_cli.sh" --bin "$seed_bin" emit mir-json "$entry" >"$mir_out"
+  bash "$ROOT_DIR/tools/selfhost/compat/run_stage1_cli.sh" --bin "$seed_bin" emit program-json "$entry" >"$prog_out"
+  bash "$ROOT_DIR/tools/selfhost/compat/run_stage1_cli.sh" --bin "$seed_bin" emit mir-json "$entry" >"$mir_out"
 }
 
 while [[ $# -gt 0 ]]; do

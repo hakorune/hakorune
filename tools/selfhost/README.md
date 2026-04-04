@@ -7,7 +7,7 @@ Purpose
 - file-level responsibility inventory:
   - `docs/development/current/main/design/selfhost-authority-facade-compat-inventory-ssot.md`
 - shell split reading:
-  - `tools/selfhost/build_stage1.sh` = strategy shell
+  - `tools/selfhost/mainline/build_stage1.sh` = strategy shell
   - `tools/selfhost/lib/stage1_contract.sh` = contract shell
 - Stage/lane vocabulary note:
   - canonical stage/owner/artifact reading lives in `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
@@ -33,13 +33,13 @@ Script
     tools/selfhost/run.sh --runtime --runtime-mode exe --input apps/examples/string_p0.hako
     tools/selfhost/run.sh --direct --source-file apps/tests/phase29bq_selfhost_cleanup_only_min.hako
     ```
-- tools/selfhost/selfhost_smoke.sh
+- tools/selfhost/proof/selfhost_smoke.sh
   - Minimal selfhost smoke wrapper.
   - Emits optional JSON via the selfhost compiler route, then compares VM outputs with rewrite ON/OFF.
-- tools/selfhost/selfhost_vm_smoke.sh
+- tools/selfhost/proof/selfhost_vm_smoke.sh
   - Dedicated selfhost-minimal VM smoke.
   - Historical top-level alias was retired in `phase-31x / 31xE1`.
-- tools/selfhost/selfhost_stage3_accept_smoke.sh
+- tools/selfhost/proof/selfhost_stage3_accept_smoke.sh
   - Stage3 acceptance smoke for JSON v0 -> Bridge execution.
   - Historical top-level alias was retired in `phase-31x / 31xE1`.
 - tools/selfhost/selfhost_build.sh
@@ -161,7 +161,7 @@ Purpose
 - In this section, `launcher-exe` / `stage1-cli` are artifact kinds for the Stage1 line, not stage numbers.
 
 Script
-- tools/selfhost/build_stage1.sh
+- tools/selfhost/mainline/build_stage1.sh
   - Builds a selfhost executable from a Nyash/Hako entry point.
   - Artifact kinds:
     - `launcher-exe` (default): run-oriented launcher artifact
@@ -177,16 +177,16 @@ Script
 Usage
 ```bash
 # Build launcher-exe artifact (default)
-tools/selfhost/build_stage1.sh
+tools/selfhost/mainline/build_stage1.sh
 
 # Build stage1-cli artifact explicitly
-tools/selfhost/build_stage1.sh --artifact-kind stage1-cli
+tools/selfhost/mainline/build_stage1.sh --artifact-kind stage1-cli
 
 # Custom output path
-tools/selfhost/build_stage1.sh --out /tmp/hakorune-dev
+tools/selfhost/mainline/build_stage1.sh --out /tmp/hakorune-dev
 
 # Custom entry (experimental)
-tools/selfhost/build_stage1.sh --entry apps/selfhost-minimal/main.hako --out /tmp/hako_min
+tools/selfhost/mainline/build_stage1.sh --entry apps/selfhost-minimal/main.hako --out /tmp/hako_min
 ```
 
 How it works
@@ -264,7 +264,7 @@ Helper — Legacy Main Removal Pre-PROMOTE Gate
     - tests-side producers first, compiler literals second (see migration-order SSOT).
 
 Helper — Stage1 CLI Runner
-  - `tools/selfhost/run_stage1_cli.sh`
+  - `tools/selfhost/compat/run_stage1_cli.sh`
   - Wraps a Stage1 binary (default `target/selfhost/hakorune`) with the required runtime env:
     - `NYASH_NYRT_SILENT_RESULT=1`（Result 行を抑止して JSON stdout を維持）
     - `NYASH_DISABLE_PLUGINS=1`, `NYASH_FILEBOX_MODE=core-ro`（FileBox などのコア実装を強制）
@@ -272,13 +272,13 @@ Helper — Stage1 CLI Runner
   - `emit program-json` is retired from the wrapper surface. Use the explicit compat probe instead.
   - Non-`emit` arguments are passed verbatim to the Stage1 binary:
     ```bash
-    tools/selfhost/run_stage1_cli.sh --bin /tmp/hakorune-dev emit mir-json apps/tests/minimal.hako
+    tools/selfhost/compat/run_stage1_cli.sh --bin /tmp/hakorune-dev emit mir-json apps/tests/minimal.hako
     tools/dev/phase29ch_program_json_compat_route_probe.sh --bin /tmp/hakorune-dev apps/tests/minimal.hako
     ```
   - Use this helper (or set the env vars manually) whenever CLI output is consumed by compatibility scripts. The bootstrap acceptance path is `stage1_contract_verify_stage1_cli_bootstrap_capability()`.
   - current mainline smoke:
     ```bash
-    tools/selfhost/stage1_mainline_smoke.sh
-    tools/selfhost/stage1_mainline_smoke.sh --bin target/selfhost/hakorune.stage1_cli.stage2 apps/tests/hello_simple_llvm.hako
+    tools/selfhost/mainline/stage1_mainline_smoke.sh
+    tools/selfhost/mainline/stage1_mainline_smoke.sh --bin target/selfhost/hakorune.stage1_cli.stage2 apps/tests/hello_simple_llvm.hako
     ```
   - legacy embedded bridge smoke moved to `tools/archive/legacy-selfhost/stage1_embedded_smoke.sh` and is not the daily/mainline proof route.

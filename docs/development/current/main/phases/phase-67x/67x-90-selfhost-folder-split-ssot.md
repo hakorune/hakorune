@@ -65,6 +65,14 @@ tools/selfhost/
   examples/
 ```
 
+## Current Progress
+
+- `67xA1` landed: exact top-level inventory is fixed
+- `67xA2` landed: split order is ranked as `mainline -> proof/compat -> alias cleanup`
+- `67xB1` landed: mainline-facing scripts gained canonical homes under `mainline/`
+- `67xB2` landed: proof/compat scripts gained canonical homes under `proof/` and `compat/`
+- `67xC1` active: top-level aliases are now thin wrappers and live callers/docs are being narrowed
+
 ## Decision Rule
 
 - if a script is day-to-day mainline, it should live under `mainline/`

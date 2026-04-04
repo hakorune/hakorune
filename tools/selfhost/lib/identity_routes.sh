@@ -25,7 +25,7 @@ report_stage1_cli_capability_hint() {
   echo "          artifact_kind=${kind}" >&2
   if [[ "$kind" == "launcher-exe" ]]; then
     echo "          hint: launcher-exe cannot satisfy G1 identity emit contract" >&2
-    echo "                build a stage1-cli artifact (tools/selfhost/build_stage1.sh --artifact-kind stage1-cli)" >&2
+    echo "                build a stage1-cli artifact (tools/selfhost/mainline/build_stage1.sh --artifact-kind stage1-cli)" >&2
   else
     echo "          hint: provide prebuilt stage1-cli compatible binary via --bin-stage{1,2}" >&2
   fi
@@ -283,7 +283,7 @@ run_stage1_subcmd_route() {
   local subcmd="$2"
   local entry="$3"
   local outfile="$4"
-  bash "${ROOT}/tools/selfhost/run_stage1_cli.sh" --bin "$bin" emit "$subcmd" "$entry" >"$outfile" 2>/dev/null
+  bash "${ROOT}/tools/selfhost/compat/run_stage1_cli.sh" --bin "$bin" emit "$subcmd" "$entry" >"$outfile" 2>/dev/null
 }
 
 run_stage1_route() {
