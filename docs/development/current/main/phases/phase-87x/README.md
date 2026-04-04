@@ -1,7 +1,7 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
-Scope: rerun the deferred embedded snapshot / wrapper repoint seam after `84x` and `86x` landed.
+Scope: rerun the deferred embedded snapshot / wrapper repoint seam after `84x` and `86x` landed; phase is now landed and handed off.
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
@@ -28,8 +28,8 @@ Related:
 
 ## Current Read
 
-- current front:
-  - `87xA1 snapshot/wrapper inventory lock`
-- target seam:
-  - `src/runner/stage1_bridge/embedded_stage1_modules_snapshot.json`
-  - top-level `.hako` wrapper/source pressure deferred by `84x`
+- handoff complete
+- landed result:
+  - `embedded_stage1_modules_snapshot.json` now carries canonical `facade/runner_facade.hako`
+  - `embedded_stage1_modules_snapshot.json` now carries canonical `entry/*` stubs
+  - one repo-internal smoke caller was repointed to canonical `entry/launcher_native_entry.hako`

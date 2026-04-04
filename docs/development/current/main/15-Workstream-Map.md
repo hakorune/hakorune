@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-87x embedded snapshot / wrapper repoint rerun` |
-| Front | `87xA1 snapshot/wrapper inventory lock` |
+| Now | `phase-88x archive/deletion rerun` |
+| Front | `88xA1 archive-ready inventory lock` |
 | Blocker | `none` |
-| Next | `87xA2 target split / stop-line freeze` |
-| After Next | `87xB1 focused repoint rerun` |
+| Next | `88xA2 keep/archive/delete-ready classification` |
+| After Next | `88xB1 focused archive/deletion sweep` |
 
 ## Current Read
 
@@ -30,11 +30,12 @@ Related:
 - `84x` landed after repointing Stage1 build/default entry contracts to canonical `entry/*`
 - `85x` selected `86x` as the next structural source lane
 - `86x` landed with a thinner phase index/current mirror surface
-- `87x` reruns the deferred embedded snapshot / wrapper repoint seam
+- `87x` landed after refreshing snapshot-pinned runner paths to canonical `facade/*` and `entry/*`
+- `88x` reruns archive/delete-ready inventory after the latest repoints
 
 ## Successor Corridor
 
-1. `phase-87x embedded snapshot / wrapper repoint rerun`
+1. `phase-88x archive/deletion rerun`
 
 ## Structural Stop Lines
 
@@ -47,10 +48,11 @@ Related:
 ## Reference
 
 - current lane docs:
-  - `docs/development/current/main/phases/phase-87x/README.md`
-  - `docs/development/current/main/phases/phase-87x/87x-90-embedded-snapshot-wrapper-repoint-rerun-ssot.md`
-  - `docs/development/current/main/phases/phase-87x/87x-91-task-board.md`
+  - `docs/development/current/main/phases/phase-88x/README.md`
+  - `docs/development/current/main/phases/phase-88x/88x-90-archive-deletion-rerun-ssot.md`
+  - `docs/development/current/main/phases/phase-88x/88x-91-task-board.md`
 - previous landed lanes:
+  - `docs/development/current/main/phases/phase-87x/README.md`
   - `docs/development/current/main/phases/phase-86x/README.md`
   - `docs/development/current/main/phases/phase-85x/README.md`
   - `docs/development/current/main/phases/phase-84x/README.md`

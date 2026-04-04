@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 87x embedded snapshot / wrapper repoint rerun
+- **Current (ACTIVE)**: Phase 88x archive/deletion rerun
+- **Phase 87x（LANDED）**: embedded snapshot / wrapper repoint rerun（embedded Stage1 snapshot を canonical `facade/*` / `entry/*` へ更新）
 - **Phase 86x（LANDED）**: phase index / current mirror hygiene（`phases/README.md` を 117 行から 65 行へ縮小）
 
 ### Recent Landed

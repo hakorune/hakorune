@@ -21,7 +21,7 @@ run_step "! rg -n '\"selfhost\\.shared\\.backend\\.llvm_backend\"' lang/src/runn
 run_step "! rg -n 'LlvmBackendBox\\.compile_obj|LlvmBackendBox\\.link_exe' lang/src/runner/launcher.hako"
 run_step "rg -n 'MirBuilderBox\\.emit_root_from_source_v0|LlvmBackendBox\\.compile_obj_root|LlvmBackendBox\\.link_exe' lang/src/runner/launcher/compile_facade_impl.hako"
 run_step "! rg -n 'compile_json_path|_call_codegen_compile_json_path|_emit_exe_from_mir_json_checked' lang/src/runner/launcher.hako"
-run_step "bash tools/hakorune_emit_mir.sh lang/src/runner/launcher_native_entry.hako /tmp/phase29cl_launcher_cutover.mir.json"
+run_step "bash tools/hakorune_emit_mir.sh lang/src/runner/entry/launcher_native_entry.hako /tmp/phase29cl_launcher_cutover.mir.json"
 run_step "bash tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh"
 
 test_pass "phase29cl_by_name_lock_vm: PASS (BYN-min1 guard stays green, launcher build-exe route is root-first, and launcher source lane stays off explicit by-name/module-string backend literal)"

@@ -20,20 +20,20 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-87x embedded snapshot / wrapper repoint rerun`
-- current front: `87xA1 snapshot/wrapper inventory lock`
+- lane: `phase-88x archive/deletion rerun`
+- current front: `88xA1 archive-ready inventory lock`
 - blocker: `none`
 - recent landed:
-  - `phase-85x next source lane selection`
   - `phase-86x phase index / current mirror hygiene`
+  - `phase-87x embedded snapshot / wrapper repoint rerun`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-87x/README.md`
-4. `docs/development/current/main/phases/phase-87x/87x-90-embedded-snapshot-wrapper-repoint-rerun-ssot.md`
-5. `docs/development/current/main/phases/phase-87x/87x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-88x/README.md`
+4. `docs/development/current/main/phases/phase-88x/88x-90-archive-deletion-rerun-ssot.md`
+5. `docs/development/current/main/phases/phase-88x/88x-91-task-board.md`
 
 ## Current Proof Bundle
 

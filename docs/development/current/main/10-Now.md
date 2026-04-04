@@ -12,19 +12,19 @@ Related:
 
 ## Current
 
-- lane: `phase-87x embedded snapshot / wrapper repoint rerun`
-- current front: `87xA1 snapshot/wrapper inventory lock`
+- lane: `phase-88x archive/deletion rerun`
+- current front: `88xA1 archive-ready inventory lock`
 - blocker: `none`
 - recent landed:
-  - `phase-85x next source lane selection`
   - `phase-86x phase index / current mirror hygiene`
+  - `phase-87x embedded snapshot / wrapper repoint rerun`
 
 ## Current Read
 
 - `launcher.hako emit_mir_mainline` is green
 - `stage1_mainline_smoke.sh` is green
 - `83x` froze top-level selfhost wrappers as explicit public/front-door keeps
-- current work is rerunning the deferred embedded snapshot / wrapper repoint seam
+- current work is rerunning archive/delete-ready inventory after the latest repoints
 
 ## Root Anchors
 
@@ -35,5 +35,5 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-87x/README.md`
-3. `docs/development/current/main/phases/phase-87x/87x-91-task-board.md`
+2. `docs/development/current/main/phases/phase-88x/README.md`
+3. `docs/development/current/main/phases/phase-88x/88x-91-task-board.md`

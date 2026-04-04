@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 ---
 
@@ -7,26 +7,26 @@ Date: 2026-04-04
 
 | Order | Task | Status | Read as |
 | --- | --- | --- | --- |
-| 1 | `87xA inventory lock` | active | lock snapshot-pinned wrapper/source targets |
-| 2 | `87xB focused rerun` | queued | rerun narrow snapshot/wrapper repoints |
-| 3 | `87xC proof refresh` | queued | rerun the focused green bundle |
-| 4 | `87xD closeout` | queued | hand off cleanly after the rerun |
+| 1 | `87xA inventory lock` | landed | lock snapshot-pinned wrapper/source targets |
+| 2 | `87xB focused rerun` | landed | rerun narrow snapshot/wrapper repoints |
+| 3 | `87xC proof refresh` | landed | rerun the focused green bundle |
+| 4 | `87xD closeout` | landed | hand off cleanly after the rerun |
 
 ## Exact Micro Tasks
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `87xA1` | active | snapshot/wrapper inventory lock |
-| `87xA2` | queued | target split / stop-line freeze |
-| `87xB1` | queued | focused repoint rerun |
-| `87xC1` | queued | proof refresh |
-| `87xD1` | queued | closeout |
+| `87xA1` | landed | snapshot/wrapper inventory lock |
+| `87xA2` | landed | target split / stop-line freeze |
+| `87xB1` | landed | focused repoint rerun |
+| `87xC1` | landed | proof refresh |
+| `87xD1` | landed | closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `87xA1 snapshot/wrapper inventory lock` |
+| Now | handoff complete |
 | Blocker | `none` |
-| Next | `87xA2 target split / stop-line freeze` |
-| After Next | `87xB1 focused repoint rerun` |
+| Next | `phase-88x archive/deletion rerun` |
+| After Next | `phase-89x next source lane selection` |

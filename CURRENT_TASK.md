@@ -27,18 +27,19 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 6. `phase-84x runner wrapper/source contract thinning` (landed)
 7. `phase-85x next source lane selection` (landed)
 8. `phase-86x phase index / current mirror hygiene` (landed)
-9. `phase-87x embedded snapshot / wrapper repoint rerun` (active)
+9. `phase-87x embedded snapshot / wrapper repoint rerun` (landed)
+10. `phase-88x archive/deletion rerun` (active)
 
 ## Current Front
 
-- Active lane: `phase-87x embedded snapshot / wrapper repoint rerun`
-- Active micro: `87xA1 snapshot/wrapper inventory lock`
+- Active lane: `phase-88x archive/deletion rerun`
+- Active micro: `88xA1 archive-ready inventory lock`
 - Current blocker: `none`
-- Exact focus: rerun the deferred embedded snapshot / wrapper repoint seam after `84x` and `86x` landed
+- Exact focus: rerun archive/delete-ready inventory after the latest wrapper and snapshot repoints
 
 ## Successor Corridor
 
-1. `phase-87x embedded snapshot / wrapper repoint rerun`
+1. `phase-88x archive/deletion rerun`
 
 ## Rust-VM Stop Line
 
@@ -51,13 +52,13 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-87x/README.md`
-4. `docs/development/current/main/phases/phase-87x/87x-90-embedded-snapshot-wrapper-repoint-rerun-ssot.md`
-5. `docs/development/current/main/phases/phase-87x/87x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-88x/README.md`
+4. `docs/development/current/main/phases/phase-88x/88x-90-archive-deletion-rerun-ssot.md`
+5. `docs/development/current/main/phases/phase-88x/88x-91-task-board.md`
 
 ## Notes
 
-- `phase-86x` landed with `phases/README.md` reduced from 117 to 65 lines.
+- `phase-87x` landed after refreshing the embedded Stage1 snapshot to canonical `facade/*` and `entry/*` paths.
 - `launcher.hako emit_mir_mainline` is green.
 - `stage1_mainline_smoke.sh` is green.
 - `target/**`, `artifacts/**`, and `dist/**` are artifact roots only.
