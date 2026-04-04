@@ -14,8 +14,8 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-93x archive-later engineering helper sweep` |
-| Front | `93xB1 archive move and doc repoint` |
+| Now | `phase-94 escape route P5b “完全E2E” のための ch 再代入対応` |
+| Front | `TBD` |
 | Blocker | `none` |
 | Next | `TBD` |
 | After Next | `TBD` |
@@ -36,11 +36,12 @@ Related:
 - `90x` thinned stale wrapper/current wording in current/design docs after the latest recuts
 - `91x` froze the top-level `.hako` wrapper policy after the latest runner/selfhost recuts
 - `92x` closed the proof/compat caller rerun lane against the canonical wrapper homes
-- `93x` is moving archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
+- `93x` moved archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
+- current work has handed off to the existing `phase-94` task
 
 ## Successor Corridor
 
-1. `phase-92x selfhost proof/compat caller rerun`
+1. `phase-94 escape route P5b “完全E2E” のための ch 再代入対応`
 
 ## Structural Stop Lines
 

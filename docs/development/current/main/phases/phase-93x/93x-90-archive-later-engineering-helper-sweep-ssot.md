@@ -1,6 +1,6 @@
 # Phase 93x SSOT — archive-later engineering helper sweep
 
-Status: Draft
+Status: Landed
 Date: 2026-04-05
 Scope: archive-later helper relocation / doc repoint の最終整理。
 
@@ -38,4 +38,5 @@ Scope: archive-later helper relocation / doc repoint の最終整理。
 - no live `tools/selfhost/(legacy_main_readiness|pre_promote_legacy_main_removal|promote_tier2_case|program_analyze|gen_v1_min).sh` references remain outside archive paths
 - `git diff --check` passes
 - moved shell helpers pass `bash -n`
-
+- proof refresh completed on 2026-04-05
+- current pointer docs now hand off to the existing `phase-94` task

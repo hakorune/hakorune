@@ -7,7 +7,7 @@
 
 ## Current
 
-- **Current (ACTIVE)**: `93xB1 archive move and doc repoint`
+- **Current (LANDED)**: `archive-later engineering helper sweep`（handoff complete）
 - **Phase 92x（LANDED）**: `selfhost proof/compat caller rerun`（`93x archive-later engineering helper sweep` に handoff）
 
 ## Scope
@@ -32,6 +32,5 @@
 
 ## Read Next
 
-1. `93x-90-archive-later-engineering-helper-sweep-ssot.md`
-2. `93x-91-task-board.md`
-3. `CURRENT_TASK.md`
+1. `docs/development/current/main/phases/phase-94/README.md`
+2. `CURRENT_TASK.md`

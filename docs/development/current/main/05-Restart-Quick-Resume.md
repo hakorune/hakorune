@@ -20,10 +20,11 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-93x archive-later engineering helper sweep`
-- current front: `93xB1 archive move and doc repoint`
+- lane: `phase-94 escape route P5b “完全E2E” のための ch 再代入対応`
+- current front: `TBD`
 - blocker: `none`
 - recent landed:
+  - `phase-93x archive-later engineering helper sweep`
   - `phase-92x selfhost proof/compat caller rerun`
   - `phase-91x top-level .hako wrapper policy review`
   - `phase-90x current-doc/design stale surface hygiene`
@@ -33,9 +34,7 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-93x/README.md`
-4. `docs/development/current/main/phases/phase-93x/93x-90-archive-later-engineering-helper-sweep-ssot.md`
-5. `docs/development/current/main/phases/phase-93x/93x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-94/README.md`
 
 ## Current Proof Bundle
 

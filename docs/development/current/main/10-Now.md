@@ -12,10 +12,11 @@ Related:
 
 ## Current
 
-- lane: `phase-93x archive-later engineering helper sweep`
-- current front: `93xB1 archive move and doc repoint`
+- lane: `phase-94 escape route P5b “完全E2E” のための ch 再代入対応`
+- current front: `TBD`
 - blocker: `none`
 - recent landed:
+  - `phase-93x archive-later engineering helper sweep`
   - `phase-92x selfhost proof/compat caller rerun`
   - `phase-91x top-level .hako wrapper policy review`
   - `phase-90x current-doc/design stale surface hygiene`
@@ -26,8 +27,8 @@ Related:
 
 - `launcher.hako emit_mir_mainline` is green
 - `stage1_mainline_smoke.sh` is green
-- `93x` is moving archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
-- current cleanup is thinning residual current/design wording and archived helper surfaces
+- `93x` finished moving archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
+- current cleanup is thin; the next lane is the existing `phase-94` task
 
 ## Root Anchors
 
@@ -38,6 +39,4 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-93x/README.md`
-3. `docs/development/current/main/phases/phase-93x/93x-90-archive-later-engineering-helper-sweep-ssot.md`
-4. `docs/development/current/main/phases/phase-93x/93x-91-task-board.md`
+2. `docs/development/current/main/phases/phase-94/README.md`
