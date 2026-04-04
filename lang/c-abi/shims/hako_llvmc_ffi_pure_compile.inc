@@ -297,6 +297,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (needs.arr_get)   fprintf(f, "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.string_const_box) fprintf(f, "declare i64 @\"nyash.box.from_i8_string_const\"(ptr)\n");
       if (needs.string_len) fprintf(f, "declare i64 @\"nyash.string.len_h\"(i64)\n");
+      fprintf(f, "declare i64 @\"nyash.string.eq_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.string_substring) fprintf(f, "declare i64 @\"nyash.string.substring_hii\"(i64, i64, i64)\n");
       if (needs.string_indexof) fprintf(f, "declare i64 @\"nyash.string.indexOf_hh\"(i64, i64)\n");
       if (needs.string_concat || needs.string_substring || needs.arr_get || needs.arr_string_indexof) {
@@ -341,6 +342,30 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         EMIT("\n");
       }
       auto void emit_icmp(long long dst, const char* pred, long long lhs_reg, long long rhs_reg){ long long vL,vR; long long lhs_base=resolve_copy_source_reg(lhs_reg), rhs_base=resolve_copy_source_reg(rhs_reg); int lc=has_const(lhs_base,&vL), rc=has_const(rhs_base,&vR); EMIT("  %%r%lld = icmp %s i64 %s%lld%s, %s%lld%s\n", dst, pred, lc?"":"%r", lc?vL:lhs_base, lc?"":"", rc?"":"%r", rc?vR:rhs_base, rc?"":""); set_type(dst,T_I1); }
+      auto int should_emit_string_compare(yyjson_val* ins, long long lhs_reg, long long rhs_reg){
+        const char* cmp_kind = read_str(ins, "cmp_kind");
+        long long lhs_base = resolve_copy_source_reg(lhs_reg);
+        long long rhs_base = resolve_copy_source_reg(rhs_reg);
+        int lhs_org = get_origin(lhs_base);
+        int rhs_org = get_origin(rhs_base);
+        int lhs_scan = get_scan_origin(lhs_base);
+        int rhs_scan = get_scan_origin(rhs_base);
+        if (cmp_kind && strcmp(cmp_kind, "string") == 0) return 1;
+        if (lhs_org == ORG_STRING && rhs_org == ORG_STRING) return 1;
+        if (lhs_scan == ORG_STRING && rhs_scan == ORG_STRING) return 1;
+        return 0;
+      }
+      auto void emit_string_compare(long long dst, const char* pred, long long lhs_reg, long long rhs_reg){
+        long long lhs_base = resolve_copy_source_reg(lhs_reg);
+        long long rhs_base = resolve_copy_source_reg(rhs_reg);
+        EMIT("  %%str_eq_%lld = call i64 @\"nyash.string.eq_hh\"(i64 %%r%lld, i64 %%r%lld)\n", dst, lhs_base, rhs_base);
+        if (strcmp(pred, "eq") == 0) {
+          EMIT("  %%r%lld = icmp ne i64 %%str_eq_%lld, 0\n", dst, dst);
+        } else {
+          EMIT("  %%r%lld = icmp eq i64 %%str_eq_%lld, 0\n", dst, dst);
+        }
+        set_type(dst, T_I1);
+      }
 
       for (size_t bi=0; bi<blen; bi++) {
         yyjson_val* b = yyjson_arr_get(blocks, bi);
@@ -447,6 +472,11 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             const char* p2 = NULL; if (pred){ if (!strcmp(pred,"Lt")||!strcmp(pred,"lt")||!strcmp(pred,"<")) p2="slt"; else if (!strcmp(pred,"Le")||!strcmp(pred,"le")||!strcmp(pred,"<=")) p2="sle"; else if (!strcmp(pred,"Eq")||!strcmp(pred,"eq")||!strcmp(pred,"==")) p2="eq"; else if (!strcmp(pred,"Ne")||!strcmp(pred,"ne")||!strcmp(pred,"!=")) p2="ne"; else if (!strcmp(pred,"Ge")||!strcmp(pred,"ge")||!strcmp(pred,">=")) p2="sge"; else if (!strcmp(pred,"Gt")||!strcmp(pred,"gt")||!strcmp(pred,">")) p2="sgt"; }
             if (!p2) { yyjson_doc_free(d); goto GEN_ABORT; }
             long long dst = read_int(ins, "dst"); long long lhs = read_int(ins, "lhs"); if (!lhs) lhs=read_int(ins, "left"); long long rhs = read_int(ins, "rhs"); if (!rhs) rhs=read_int(ins, "right"); if (!lhs && !rhs){ yyjson_doc_free(d); goto GEN_ABORT; }
+            if ((strcmp(p2, "eq") == 0 || strcmp(p2, "ne") == 0) &&
+                should_emit_string_compare(ins, lhs, rhs)) {
+              emit_string_compare(dst, p2, lhs, rhs);
+              continue;
+            }
             // emit icmp
             emit_icmp(dst, p2, lhs, rhs);
             continue;

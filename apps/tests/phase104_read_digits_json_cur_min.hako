@@ -9,18 +9,11 @@ static box Main {
     loop (true) {
       local ch = src_a.substring(ai, ai+1)
       if ch == "" { break }
-      local is_digit = 0
-      if ch == "0" { is_digit = 1 }
-      if ch == "1" { is_digit = 1 }
-      if ch == "2" { is_digit = 1 }
-      if ch == "3" { is_digit = 1 }
-      if ch == "4" { is_digit = 1 }
-      if ch == "5" { is_digit = 1 }
-      if ch == "6" { is_digit = 1 }
-      if ch == "7" { is_digit = 1 }
-      if ch == "8" { is_digit = 1 }
-      if ch == "9" { is_digit = 1 }
-      if is_digit == 1 { a = a + 1  ai = ai + 1 } else { break }
+      if ch == "0" || ch == "1" || ch == "2" || ch == "3" || ch == "4" ||
+         ch == "5" || ch == "6" || ch == "7" || ch == "8" || ch == "9" {
+        a = a + 1
+        ai = ai + 1
+      } else { break }
     }
 
     local src_b = "9"
@@ -29,18 +22,11 @@ static box Main {
     loop (true) {
       local ch = src_b.substring(bi, bi+1)
       if ch == "" { break }
-      local is_digit = 0
-      if ch == "0" { is_digit = 1 }
-      if ch == "1" { is_digit = 1 }
-      if ch == "2" { is_digit = 1 }
-      if ch == "3" { is_digit = 1 }
-      if ch == "4" { is_digit = 1 }
-      if ch == "5" { is_digit = 1 }
-      if ch == "6" { is_digit = 1 }
-      if ch == "7" { is_digit = 1 }
-      if ch == "8" { is_digit = 1 }
-      if ch == "9" { is_digit = 1 }
-      if is_digit == 1 { b = b + 1  bi = bi + 1 } else { break }
+      if ch == "0" || ch == "1" || ch == "2" || ch == "3" || ch == "4" ||
+         ch == "5" || ch == "6" || ch == "7" || ch == "8" || ch == "9" {
+        b = b + 1
+        bi = bi + 1
+      } else { break }
     }
 
     print(a)

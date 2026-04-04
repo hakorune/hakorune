@@ -12,15 +12,15 @@ Related:
 
 ## Current
 
-- lane: `phase-105 digit OR-chain LLVM parity regression`
-- current front: `long digit OR-chain under loop(true) を LLVM EXE parity で戻す`
-- blocker: `LLVM EXE で long digit OR-chain が 0/1 に潰れる`
+- lane: `phase-110x selfhost execution vocabulary SSOT`
+- current front: `stage / route / backend override / lane / kernel を 1 枚 SSOT で固定する`
+- blocker: `none`
 - recent landed:
+  - `phase-105 digit OR-chain LLVM parity regression`
   - `phase-104 loop(true) + break-only digits（read_digits 系）`
   - `phase-103 if-only regression baseline（VM + LLVM EXE）`
   - `phase-102 real-app read_quoted loop regression (VM + LLVM EXE)`
   - `phase-100 Pinned Read-Only Captures`
-  - `phase-99 Trim/escape 実コード寄り強化（VM+LLVM EXE）`
 
 ## Current Read
 
@@ -34,9 +34,9 @@ Related:
 - `phase-100` landed with pinned read-only captures and accumulator proof locked
 - `phase-102` landed with real-app `read_quoted_from` loop parity on VM and LLVM EXE
 - `phase-103` landed with if-only merge / early return parity on VM and LLVM EXE
-- `phase-104` landed with a sequential-flag workaround for loop(true)+break-only digits parity
-- `phase-105` is the current lane for the original long digit OR-chain parity regression
-- after `phase-105`, execution naming cleanup is queued:
+- `phase-104` landed with loop(true)+break-only digits parity on VM and LLVM EXE
+- `phase-105` restored the original long digit OR-chain parity on VM and LLVM EXE
+- current work is the execution naming cleanup:
   - vocabulary split: `stage / route / backend override / lane / kernel`
   - route rename direction: `runtime-mode exe` -> `runtime-route mainline`
   - VM family lane names: `rust-vm-keep / vm-hako-reference / vm-compat-fallback`
@@ -51,4 +51,4 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-105/README.md`
+2. `docs/development/current/main/phases/phase-110x/README.md`
