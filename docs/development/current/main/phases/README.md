@@ -4,8 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 51x compat-codegen archival sweep
-- **Phase 51x（ACTIVE）**: compat-codegen archival sweep（canonical compat-codegen payload / wrapper bucket を archive 側へ退避し、live docs / aliases を整理する）
+- **Current (ACTIVE)**: Phase 52x archive historical labeling polish
+- **Phase 52x（ACTIVE）**: archive historical labeling polish（archive / historical wording を最小化し、legacy traces を historical-only に保つ）
+- **Phase 51x（LANDED）**: compat-codegen archival sweep（canonical compat-codegen payload / wrapper bucket を archive 側へ退避し、live docs / aliases を整理した）
 - **Phase 50x（LANDED）**: rust-vm source/archive cleanup（残っている rust-vm / vm-gated source と helper surface を inventory して keep / archive / delete-ready に分ける）
 - **Phase 49x（LANDED）**: legacy wording / compat route cleanup（current docs / guides / helper comments that still read like `rust-vm` is a day-to-day owner を rewrite した）
 - **Phase 48x（LANDED）**: smoke/source cleanup（残っている `--backend vm` smoke / helper / docs examples を inventory して clean up した）

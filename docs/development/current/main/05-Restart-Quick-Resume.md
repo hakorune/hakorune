@@ -22,11 +22,11 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-51x compat-codegen archival sweep`
+- lane: `phase-52x archive historical labeling polish`
 - landed micro task: `49xD1 proof / closeout`
-- active micro task: `51xD1 proof / closeout`
-- next micro task: `next source lane selection`
-- after next: `none`
+- active micro task: `52xA1 archive historical evidence inventory lock`
+- next micro task: `52xA2 archive README / wrapper wording rewrite`
+- after next: `52xB1 archive pack orchestrator wording cleanup`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 
@@ -34,9 +34,9 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-51x/README.md`
-4. `docs/development/current/main/phases/phase-51x/51x-90-compat-codegen-archival-sweep-ssot.md`
-5. `docs/development/current/main/phases/phase-51x/51x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-52x/README.md`
+4. `docs/development/current/main/phases/phase-52x/52x-90-archive-historical-labeling-polish-ssot.md`
+5. `docs/development/current/main/phases/phase-52x/52x-91-task-board.md`
 6. `cargo check --manifest-path Cargo.toml --bin hakorune`
 
 ## Optional Checks

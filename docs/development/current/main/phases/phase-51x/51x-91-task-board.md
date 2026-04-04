@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 ---
 
@@ -10,7 +10,7 @@ Date: 2026-04-04
 | 1 | `51xA compat-codegen inventory` | landed | caller inventory and archive classification for the canonical compat-codegen bucket |
 | 2 | `51xB archive compat-codegen bucket` | landed | move payload / transport wrapper / pack orchestrator into archive |
 | 3 | `51xC docs / alias cleanup` | landed | update live docs and alias paths to point at archive |
-| 4 | `51xD proof / closeout` | active | prove archive cleanup stays green and hand off cleanly |
+| 4 | `51xD proof / closeout` | landed | prove archive cleanup stays green and hand off cleanly |
 
 ## Exact Micro Tasks
 
@@ -22,13 +22,13 @@ Date: 2026-04-04
 | `51xB2` | landed | archive pack orchestrator / live alias cleanup |
 | `51xC1` | landed | live docs / alias rewrite |
 | `51xC2` | landed | archive README / example cleanup |
-| `51xD1` | active | proof / closeout |
+| `51xD1` | landed | proof / closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `51xD1 proof / closeout` |
+| Now | `handoff complete` |
 | Blocker | `none` |
-| Next | `next source lane selection` |
+| Next | `phase-52x archive historical labeling polish` |
 | After Next | `none` |

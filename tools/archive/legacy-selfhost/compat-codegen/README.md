@@ -1,6 +1,6 @@
 # tools/archive/legacy-selfhost/compat-codegen
 
-Archived home for historical compat-codegen payloads and wrappers.
+Archived home for historical compat-codegen evidence and wrappers.
 
 ## Archived Surface
 
@@ -8,10 +8,8 @@ Archived home for historical compat-codegen payloads and wrappers.
 - `run_compat_pure_selfhost.sh`
 - `run_compat_pure_pack.sh`
 
-The wrapper now preserves the historical shell contract while materializing the
-payload onto `vm-hako`. The rendered payload proves the provider stop-line via
-`LlvmBackendEvidenceAdapterBox.compile_obj_provider_stopline(...)` and then
-links through `LlvmBackendBox.link_exe(...)`.
+This archive keeps one canonical payload, one transport wrapper, and one pack
+orchestrator as historical evidence. It is not a daily owner lane.
 
 ## Layering
 
@@ -22,5 +20,5 @@ links through `LlvmBackendBox.link_exe(...)`.
 - pack orchestrator:
   - `run_compat_pure_pack.sh`
 
-Read this directory as the archived compat-codegen bucket. It is not a daily
-owner lane. Historical shell entrypoints resolve here for reference only.
+Read this directory as the archived compat-codegen bucket. It is historical
+evidence only; shell entrypoints resolve here for reference only.

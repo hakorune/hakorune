@@ -37,16 +37,16 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-51x compat-codegen archival sweep`
+     - current active lane is `phase-52x archive historical labeling polish`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
-     - current backend surface is role-first:
+     - current backend surface is archive/historical-first:
        - `llvm/exe` = `product`
-       - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
+       - `rust-vm` = `historical archive evidence / proof-compat keep`
        - `vm-hako` = `reference/conformance`
        - `wasm` = `experimental`
-     - `rust-vm` internal pressure is still deep in bootstrap/selfhost, plugin/macro/dev tooling, smoke/test, and docs/help
+     - remaining `rust-vm` pressure is archive-only evidence in historical smoke/docs, not a live owner lane
      - dangerous early flips remain around launcher/default/orchestrator sites
      - `phase-30x` settled ownership and docs/artifact/smoke reading
         - `phase-31x` landed low-blast engineering rehome and shim drain
@@ -67,7 +67,9 @@ Related:
      - `phase-46x` is landed and selected `stage0/runtime direct-core finalization`
      - `phase-47x` is landed and its helper-route finalization has been handed off
      - `phase-48x` is landed and the smoke/source cleanup handoff is complete
-     - `phase-49x` is active and cleans the remaining current-doc wording / compat-route narration
+     - `phase-49x` is landed and the remaining current-doc wording / compat-route narration is closed
+     - `phase-51x` is landed and the canonical compat-codegen bucket now lives under the archive path
+     - `phase-52x` is active and polishes archive/historical labeling after source cleanup
      - `48xA1` inventory lock is landed; `48xA2` proof-only / compat keep classification is landed
      - `48xB1` smoke script stale-route cleanup is landed; `48xB2` proof-only smoke gate lock is landed; `48xC1` source helper stale-route cleanup is landed; `48xC2` vm.rs / vm_fallback thin keep trim is landed
      - `47xA1` landed, `47xA2` landed, `47xA3` landed, `47xB1` landed, `47xB2` landed, `47xB3` landed, `47xC1` landed, `47xC2` landed, `47xC3` landed, `47xD1` landed, `47xD2` landed, and `47xD3` landed
@@ -125,20 +127,20 @@ Related:
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-51x compat-codegen archival sweep table:
+   - phase-52x archive historical labeling polish table:
 
      | Item | State |
      | --- | --- |
-     | Now | `51xD1 proof / closeout` |
-      | Blocker | `none` |
-     | Next | `next source lane selection` |
+     | Now | `52xA1 archive historical evidence inventory lock` |
+     | Blocker | `none` |
+     | Next | `52xA2 archive README / wrapper wording rewrite` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `51xD1 proof / closeout` |
-     | Next | `next source lane selection` |
-     | Later | `none` |
+     | Now | `52xA1 archive historical evidence inventory lock` |
+     | Next | `52xA2 archive README / wrapper wording rewrite` |
+     | Later | `52xB1 archive pack orchestrator wording cleanup` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |

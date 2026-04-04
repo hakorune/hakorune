@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Archive-later compat wrapper for the example/proof selfhost driver.
+# Archived compat wrapper for the example/proof selfhost driver.
 # This is compat-only. It preserves the historical shell contract while
 # materializing the payload template onto the archived `vm-hako` lane.
 # Usage:

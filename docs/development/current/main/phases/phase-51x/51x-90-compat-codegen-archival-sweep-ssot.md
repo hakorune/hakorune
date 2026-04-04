@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Date: 2026-04-04
-Scope: canonical compat-codegen bucket archive sweep. This SSOT keeps the archive move and doc / alias rewrite in one place.
+Scope: canonical compat-codegen bucket archive sweep. This SSOT keeps the archive move and doc / alias rewrite in one place; phase-52x now handles historical-label polish.
 Related:
   - docs/development/current/main/05-Restart-Quick-Resume.md
   - docs/development/current/main/10-Now.md
@@ -13,6 +13,7 @@ Related:
   - tools/selfhost/README.md
   - tools/archive/legacy-selfhost/compat-codegen/README.md
   - tools/archive/legacy-selfhost/README.md
+  - docs/development/current/main/phases/phase-52x/README.md
 ---
 
 # 51x-90 Compat-Codegen Archival Sweep
@@ -39,6 +40,7 @@ Related:
 - callers and docs point at the archive path, not the live canonical bucket
 - the archived payload keeps its historical contract but is not a default route
 - top-level selfhost docs no longer imply compat-codegen is a current owner
+- the historical archive wording is minimal and explicit after handoff
 
 ## Failure Criteria
 

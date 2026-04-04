@@ -1,7 +1,7 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
-Scope: archive the canonical compat-codegen bucket and redirect live docs / aliases to the archive path.
+Scope: archive the canonical compat-codegen bucket and redirect live docs / aliases to the archive path; hand off historical-label polish to phase-52x.
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
@@ -14,6 +14,9 @@ Related:
   - tools/selfhost/README.md
   - tools/archive/legacy-selfhost/compat-codegen/README.md
   - tools/archive/legacy-selfhost/README.md
+  - docs/development/current/main/phases/phase-52x/README.md
+  - docs/development/current/main/phases/phase-52x/52x-90-archive-historical-labeling-polish-ssot.md
+  - docs/development/current/main/phases/phase-52x/52x-91-task-board.md
 ---
 
 # Phase 51x: Compat-Codegen Archival Sweep
@@ -31,6 +34,7 @@ Related:
 - phase-51x deals with the canonical compat-codegen payload / wrapper bucket now moved under `tools/archive/legacy-selfhost/compat-codegen/`.
 - the bucket is archive-later material, not a daily owner.
 - the job is to keep the archive move clean, update live docs / aliases, and avoid widening compat behavior.
+- phase-52x now keeps the archive/historical labels minimal and explicit after the source cleanup.
 
 ## Success Conditions
 
@@ -38,12 +42,14 @@ Related:
 - payload, transport wrapper, and pack orchestrator live under `tools/archive/legacy-selfhost/compat-codegen/`
 - old live aliases point at the archive path or are retired cleanly
 - source / shell changes stay green on `cargo check --bin hakorune`
+- the successor lane is `phase-52x archive historical labeling polish`
 
 ## Failure Patterns
 
 - leaving the canonical compat-codegen bucket in the live tree after caller drain
 - reintroducing daily callers for proof-only / compat payloads
 - moving proof-only keeps into mainline by accident
+- archive wording drifting back toward live-owner language
 
 ## Big Tasks
 

@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `phase-51x compat-codegen archival sweep`
+- lane: `phase-52x archive historical labeling polish`
 - `49xD1` landed: proof / closeout
 - `50xA1` landed: residual rust-vm surface inventory lock
 - `50xA2` landed: proof-only / compat keep classification
@@ -36,9 +36,9 @@ Related:
 - `50xC1` landed: archive-ready docs/examples move
 - `50xC2` landed: historical PyVM / legacy wrapper archival sweep
 - `50xD1` landed: proof / closeout
-- `51xD1 proof / closeout` active
-- `next source lane selection` next
-- `none` after next
+- `52xA1 archive historical evidence inventory lock` active
+- `52xA2 archive README / wrapper wording rewrite` next
+- `52xB1 archive pack orchestrator wording cleanup` after next
 - `47xA1` landed: runtime/default contract lock
 - `47xA2` landed: stage1 source->MIR contract lock
 - `47xA3` landed: Stage-A direct/core contract lock
@@ -83,17 +83,17 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `50xA1 residual rust-vm surface inventory lock`
-- next micro task: `none`
-- after next: `none`
+- active micro task: `52xA1 archive historical evidence inventory lock`
+- next micro task: `52xA2 archive README / wrapper wording rewrite`
+- after next: `52xB1 archive pack orchestrator wording cleanup`
 - plain reading:
-  - if a bootstrap route stays on `--backend vm`, new capability work still tends to imply `rust-vm` support
+  - current source no longer treats `--backend vm` as a live owner lane; remaining references are archive-only evidence
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep
 - `phase-42x` is landed; it starved day-to-day callers away from vm-gated routes and moved owner pressure toward direct/core seams
 - `phase-43x` is landed; it selected `phase-44x stage0 direct/core follow-up` as the highest-leverage successor lane
 - `phase-44x` is landed; it keeps proof-only VM gates explicit and closes the lane
 - `phase-46x` is landed; it selected `stage0/runtime direct-core finalization` as the next source lane
-- `phase-47x` is active; it removes the last live helper-route defaults from `--backend vm`, keeps explicit vm compat mode locked, has switched Stage-A to source->MIR first, and is now draining Stage-B callers while retiring BuildBox from the default caller path
+- `phase-47x` is landed; it removed the last live helper-route defaults from `--backend vm`, kept explicit vm compat mode locked, switched Stage-A to source->MIR first, and drained Stage-B callers while retiring BuildBox from the default caller path
   - `tools/selfhost/lib/selfhost_run_routes.sh`
   - `src/runner/modes/common_util/selfhost/stage0_capture_route.rs`
   - `src/runner/modes/common_util/selfhost/stage_a_route.rs`
@@ -114,7 +114,7 @@ Related:
   - upstream Stage-B source-route red: `Undefined variable: StageBMod`
 - backend reading:
   - `llvm/exe` = `product`
-  - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
+  - `rust-vm` = `historical archive evidence / proof-compat keep`
   - `vm-hako` = `reference/conformance`
   - `wasm` = `experimental`
 - raw backend default/token rewrite stays deferred beyond `phase-42x`
