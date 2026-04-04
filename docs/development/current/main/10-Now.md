@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `phase-73x emit_mir_mainline blocker follow-up`
+- lane: `phase-74x next source lane selection`
 - `49xD1` landed: proof / closeout
 - `50xA1` landed: residual rust-vm surface inventory lock
 - `50xA2` landed: proof-only / compat keep classification
@@ -140,7 +140,7 @@ Related:
 - landed micro task: `65xB2 shell contract owner cleanup`
 - landed micro task: `65xC1 mainline proof bundle refresh`
 - landed micro task: `65xD1 proof / closeout`
-- active micro task: `73xB1 focused source fix`
+- active micro task: `74xA1 successor lane inventory lock`
 - ranked next-lane corridor after `68x`:
   - `69x rust runner product/keep/reference recut`
   - `70x caller-zero archive sweep`

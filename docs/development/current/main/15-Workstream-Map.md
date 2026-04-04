@@ -37,8 +37,8 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-73x emit_mir_mainline blocker follow-up`
-     - current active micro task is `73xB1 focused source fix`
+     - current active lane is `phase-74x next source lane selection`
+     - current active micro task is `74xA1 successor lane inventory lock`
      - ranked successor corridor after `68x` is:
        - `69x rust runner product/keep/reference recut`
        - `70x caller-zero archive sweep`
@@ -132,14 +132,14 @@ Related:
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-73x emit_mir_mainline blocker follow-up table:
+   - phase-74x next source lane selection table:
 
      | Item | State |
      | --- | --- |
-     | Now | `73xB1 focused source fix` |
-     | Blocker | `tracked focused residual red on top-level stage1_cli facade` |
-     | Next | `73xC1 proof bundle refresh` |
-     | After Next | `73xD1 proof / closeout` |
+     | Now | `74xA1 successor lane inventory lock` |
+     | Blocker | `none` |
+     | Next | `74xA2 candidate lane ranking` |
+     | After Next | `74xB1 successor lane decision` |
    - rust-vm corridor outcome:
 
      | Item | State |
@@ -151,9 +151,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `73xB1 focused source fix` |
-     | Next | `73xC1 proof bundle refresh` |
-     | Later | `73xD1 proof / closeout` |
+     | Now | `74xA1 successor lane inventory lock` |
+     | Next | `74xA2 candidate lane ranking` |
+     | Later | `74xB1 successor lane decision` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |

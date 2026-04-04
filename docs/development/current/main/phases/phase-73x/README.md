@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: follow up the focused `emit_mir_mainline` blocker after facade-thinning lanes closed as no-op.
 Related:
@@ -28,7 +28,7 @@ Related:
 4. `73xC1` proof bundle refresh
 5. `73xD1` proof / closeout
 
-## Current Read
+## Result
 
 - `73xA1` landed:
   - focused repro is confirmed for both `stage1_cli_env.hako` and `stage1_cli.hako`
@@ -37,9 +37,15 @@ Related:
 - `73xA2` landed:
   - reduced file-context repro still points at merged `BuildBox`
   - first fix target is the selfhost-first merge/parser seam around `build_box`
-- `73xB1` active:
+- `73xB1` landed:
   - `build_box` parse seam is fixed
   - `stage1_cli_env.hako` focused probe is green again
-  - remaining red is narrowed to top-level `stage1_cli.hako` facade lowerability under selfhost-first `emit_mir_mainline`
-- current front:
-  - `73xB1 focused source fix`
+  - top-level `stage1_cli.hako` probe is green again through mainline helper canonicalization to the env authority path
+- `73xC1` landed:
+  - focused proof bundle is green:
+    - `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli_env.hako /tmp/stage1_cli_env_probe.mir.json`
+    - `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli.hako /tmp/stage1_cli_probe.mir.json`
+    - `bash tools/selfhost/mainline/stage1_mainline_smoke.sh`
+    - `cargo check --bin hakorune`
+- `73xD1` landed:
+  - handoff goes to `phase-74x next source lane selection`

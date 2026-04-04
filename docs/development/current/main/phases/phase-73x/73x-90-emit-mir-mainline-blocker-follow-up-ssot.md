@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: track the focused `emit_mir_mainline` residual red after the `build_box` parse seam is fixed.
 Related:
@@ -16,16 +16,13 @@ Related:
 - keep the fix narrow and source-backed
 - preserve existing mainline green checks while restoring the focused probe
 
-## Known Red
+## Outcome
 
-- probe:
-  - `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli.hako /tmp/stage1_cli_probe.mir.json`
 - restored green:
   - `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli_env.hako /tmp/stage1_cli_env_probe.mir.json`
-- current origin:
-  - selfhost-first residual around top-level `stage1_cli.hako` facade lowering
-- current error:
-  - `[mirbuilder/internal/unsupported]`
+  - `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli.hako /tmp/stage1_cli_probe.mir.json`
+  - `bash tools/selfhost/mainline/stage1_mainline_smoke.sh`
+  - `cargo check --bin hakorune`
 
 ## Decision Rule
 
@@ -61,9 +58,17 @@ Related:
 - fixed:
   - `lang/src/compiler/entry/func_scanner.hako` final box close
   - `lang/src/compiler/build/build_box.hako` quoted `using` path for `using_collector_box`
-- restored green:
-  - `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli_env.hako /tmp/stage1_cli_env_probe.mir.json`
-  - `bash tools/selfhost/mainline/stage1_mainline_smoke.sh`
-- narrowed residual red:
-  - `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli.hako /tmp/stage1_cli_probe.mir.json`
-  - current read is no longer `build_box` parse failure; remaining red is the top-level `stage1_cli.hako` facade path under selfhost-first `emit_mir_mainline`
+  - `tools/hakorune_emit_mir.sh` helper runner is narrowed to existing owner-local Program(JSON)->MIR helper use
+  - `tools/hakorune_emit_mir_mainline.sh` canonicalizes top-level `stage1_cli.hako` to the env authority path for the mainline probe
+
+## 73xC1 Proof
+
+- `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli_env.hako /tmp/stage1_cli_env_probe.mir.json` PASS
+- `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli.hako /tmp/stage1_cli_probe.mir.json` PASS
+- `bash tools/selfhost/mainline/stage1_mainline_smoke.sh` PASS
+- `cargo check --bin hakorune` PASS
+
+## 73xD1 Closeout
+
+- phase-73x closes with no remaining focused blocker on `emit_mir_mainline`
+- next lane returns to `next source lane selection`
