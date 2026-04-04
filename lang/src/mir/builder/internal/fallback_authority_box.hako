@@ -283,6 +283,55 @@ static box BuilderFallbackAuthorityBox {
       }
     }
 
+    // Case (Return(Method recv Var ...)) — treat static box method calls like Box.method(...)
+    {
+      local k_ret_method = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0)
+      if k_ret_method >= 0 {
+        local k_method_expr = JsonFragBox.index_of_from(s, "\"type\":\"Method\"", k_ret_method)
+        if k_method_expr >= 0 {
+          local k_method_name = JsonFragBox.index_of_from(s, "\"method\":\"", k_method_expr)
+          local k_recv = JsonFragBox.index_of_from(s, "\"recv\":{", k_method_expr)
+          if k_method_name >= 0 && k_recv >= 0 {
+            local method_name = JsonFragBox.read_string_after(s, k_method_name + 10)
+            local k_recv_var = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_recv)
+            if k_recv_var >= 0 {
+              local k_recv_name = JsonFragBox.index_of_from(s, "\"name\":\"", k_recv_var)
+              if k_recv_name >= 0 {
+                local recv_name = JsonFragBox.read_string_after(s, k_recv_name + 8)
+                if recv_name != null && recv_name != "" && method_name != null && method_name != "" {
+                  local call_name_method = recv_name + "." + method_name
+                  local k_args_method = JsonFragBox.index_of_from(s, "\"args\":[", k_method_expr)
+                  if k_args_method < 0 {
+                    return CompatMirEmitBox.emit_return_call0(call_name_method)
+                  }
+                  local k_int_arg_method = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_args_method)
+                  local k_var_arg_method = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_args_method)
+                  if k_int_arg_method >= 0 && (k_var_arg_method < 0 || k_int_arg_method < k_var_arg_method) {
+                    local k_int_val_method = JsonFragBox.index_of_from(s, "\"value\":", k_int_arg_method)
+                    if k_int_val_method >= 0 {
+                      local int_arg_method = JsonFragBox.read_int_after(s, k_int_val_method + 8)
+                      if int_arg_method != null {
+                        return CompatMirEmitBox.emit_return_call_int_arg(call_name_method, int_arg_method)
+                      }
+                    }
+                  } else if k_var_arg_method >= 0 {
+                    local k_var_name_method = JsonFragBox.index_of_from(s, "\"name\":\"", k_var_arg_method)
+                    if k_var_name_method >= 0 {
+                      local var_arg_method = JsonFragBox.read_string_after(s, k_var_name_method + 8)
+                      if var_arg_method != null && var_arg_method != "" {
+                        return CompatMirEmitBox.emit_return_call_var_arg(call_name_method, var_arg_method)
+                      }
+                    }
+                  }
+                  return CompatMirEmitBox.emit_return_call0(call_name_method)
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
     // Case (Return(Call ...)) — minimal call lowering (0/1 arg: Int or Var)
     {
       local k_ret_call = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0)

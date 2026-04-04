@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: follow up the remaining focused `launcher.hako` emit_mir_mainline red after phase-77x/78x.
 Related:
@@ -28,7 +28,7 @@ Related:
 
 ## Current Read
 
-- current front:
-  - `79xA1 blocker evidence lock`
-- inherited blocker:
-  - `launcher.hako emit_mir_mainline probe still red`
+- landed outcome:
+  - `launcher.hako emit_mir_mainline` probe is green
+  - `stage1_mainline_smoke.sh` stays green
+  - focused launcher blocker is closed without widening the lane

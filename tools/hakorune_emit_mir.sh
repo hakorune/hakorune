@@ -524,32 +524,16 @@ try_selfhost_builder() {
 
 render_selfhost_builder_runner_hako() {
   local tmp_hako="$1" builder_box="$2"
-  if [ "$builder_box" = "hako.mir.builder.min" ]; then
-    cat >"$tmp_hako" <<'HCODE'
-using "hako.mir.builder.internal.runner_min" as BuilderRunnerMinBox
-static box Main { method main(args) {
-  local prog_json = env.get("HAKO_BUILDER_PROGRAM_JSON")
-  if prog_json == null { print("[builder/selfhost-first:fail:nojson]"); return 1 }
-  local mir_out = BuilderRunnerMinBox.run(prog_json)
-  if mir_out == null { print("[builder/selfhost-first:fail:emit]"); return 1 }
-  print("[builder/selfhost-first:ok]")
-  print("[MIR_OUT_BEGIN]")
-  print("" + mir_out)
-  print("[MIR_OUT_END]")
-  return 0
-} }
-HCODE
-  else
-    cat >"$tmp_hako" <<'HCODE'
-using lang.runner.stage1_cli.program_json_mir as Stage1CliProgramJsonMirBox
+  cat >"$tmp_hako" <<HCODE
+using "${builder_box}" as MirBuilderBox
 static box Main {
 method main(args) {
-  local prog_json = env.get("HAKO_BUILDER_PROGRAM_JSON")
-  if prog_json == null {
+  local program_json = env.get("HAKO_BUILDER_PROGRAM_JSON")
+  if program_json == null {
     print("[builder/selfhost-first:fail:nojson]")
     return 1
   }
-  local mir_out = Stage1CliProgramJsonMirBox.emit_from_program_json_v0("[builder/selfhost-first]", prog_json)
+  local mir_out = MirBuilderBox.emit_from_program_json_v0(program_json, null)
   if mir_out == null {
     print("[builder/selfhost-first:fail:emit]")
     return 1
@@ -561,7 +545,6 @@ method main(args) {
   return 0
 } }
 HCODE
-  fi
 }
 
 prepare_selfhost_builder_runner_context() {
