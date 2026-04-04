@@ -14,10 +14,10 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-102 real-app read_quoted loop regression (VM + LLVM EXE)` |
-| Front | `MiniJsonLoader.read_quoted_from 最小抽出 fixture を VM/LLVM EXE parity で固定する` |
+| Now | `phase-103 if-only regression baseline（VM + LLVM EXE）` |
+| Front | `if merge / early return fixture を VM と LLVM EXE で同一出力に固定する` |
 | Blocker | `none` |
-| Next | `phase-102 fixture + parity proof` |
+| Next | `phase-103 fixture + parity proof` |
 | After Next | `execution SSOT cleanup corridor` |
 
 ## Current Read
@@ -30,7 +30,8 @@ Related:
 - `98` fixed plugin loader strict/best-effort runtime proof and kept phase-97 parity green
 - `99` trailing-backslash fixture is already green on VM and LLVM EXE; next work is broader trim/escape fixture expansion
 - `100` landed with pinned read-only captures and accumulator parity proof
-- `102` is the current lane for real-app `read_quoted_from` loop parity
+- `102` landed with real-app `read_quoted_from` loop parity
+- `103` is the current lane for if-only merge / early return parity
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers
@@ -48,7 +49,7 @@ Related:
 
 ## Successor Corridor
 
-1. `phase-102 real-app read_quoted loop regression (VM + LLVM EXE)`
+1. `phase-103 if-only regression baseline（VM + LLVM EXE）`
 2. `phase-110x selfhost execution vocabulary SSOT`
 3. `phase-111x selfhost runtime route naming cleanup`
 4. `phase-112x vm-family lane naming hardening`
@@ -83,8 +84,9 @@ Related:
 
 - current lane docs:
   - `docs/development/current/main/phases/phase-100/README.md`
-  - `docs/development/current/main/phases/phase-102/README.md`
+  - `docs/development/current/main/phases/phase-103/README.md`
 - recent landed:
+  - `docs/development/current/main/phases/phase-102/README.md`
   - `docs/development/current/main/phases/phase-99/README.md`
   - `docs/development/current/main/phases/phase-98/README.md`
   - `docs/development/current/main/phases/phase-97/README.md`

@@ -29,6 +29,7 @@ OUTPUT_EXE="$NYASH_ROOT/tmp/phase102_realapp_read_quoted_min"
 EXPECTED=$'4'
 EXPECTED_LINES=1
 LLVM_BUILD_LOG="/tmp/phase102_realapp_read_quoted_build.log"
+export HAKO_BACKEND_COMPAT_REPLAY=harness
 if llvm_exe_build_and_run_numeric_smoke; then
   test_pass "phase102_realapp_read_quoted_llvm_exe: output matches expected (4)"
 else
