@@ -20,26 +20,25 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-98 Plugin loader fail-fast + LLVM parityの持続化`
-- current front: `plugin loader strict fail-fast / best-effort boundary lock`
+- lane: `phase-99 Trim/escape 実コード寄り強化（VM+LLVM EXE）`
+- current front: `trim/escape fixtures を実コード寄りケースへ拡張し、VM+LLVM parity を維持する`
 - blocker: `none`
 - recent landed:
+  - `phase-98 Plugin loader fail-fast + LLVM parityの持続化`
   - `phase-97 LLVM EXE parity for MiniJsonLoader fixtures`
   - `phase-96 MiniJsonLoader next_non_ws loop E2E lock`
   - `phase-95 json_loader escape loop E2E lock`
   - `phase-94 escape route P5b ch reassignment E2E`
-  - `phase-93x archive-later engineering helper sweep`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-98/README.md`
+3. `docs/development/current/main/phases/phase-99/README.md`
 
 ## Successor Corridor
 
-1. `phase-98 Plugin loader fail-fast + LLVM parityの持続化`
-2. `phase-99 Trim/escape 実コード寄り強化（VM+LLVM EXE）`
+1. `phase-99 Trim/escape 実コード寄り強化（VM+LLVM EXE）`
 
 ## Parked After Optimization
 
@@ -54,6 +53,8 @@ bash tools/smokes/v2/profiles/integration/apps/archive/phase95_json_loader_escap
 bash tools/smokes/v2/profiles/integration/apps/archive/phase96_json_loader_next_non_ws_vm.sh
 bash tools/smokes/v2/profiles/integration/apps/archive/phase97_json_loader_escape_llvm_exe.sh
 bash tools/smokes/v2/profiles/integration/apps/archive/phase97_next_non_ws_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase99_escape_trailing_backslash_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase99_escape_trailing_backslash_llvm_exe.sh
 git diff --check
 ```
 

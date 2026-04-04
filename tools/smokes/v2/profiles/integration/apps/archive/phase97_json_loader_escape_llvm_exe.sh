@@ -12,6 +12,7 @@ export SMOKES_USE_PYVM=0
 require_env || exit 2
 
 llvm_exe_preflight_or_skip || exit 0
+export HAKO_JOINIR_STRICT=1
 
 FILEBOX_SO="$NYASH_ROOT/plugins/nyash-filebox-plugin/libnyash_filebox_plugin.so"
 MAPBOX_SO="$NYASH_ROOT/plugins/nyash-map-plugin/libnyash_map_plugin.so"

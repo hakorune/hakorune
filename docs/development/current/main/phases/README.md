@@ -4,13 +4,13 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 97 LLVM EXE parity for MiniJsonLoader fixtures
+- **Current (ACTIVE)**: Phase 99 Trim/escape 実コード寄り強化（VM+LLVM EXE）
+- **Phase 98（LANDED）**: Plugin loader fail-fast + LLVM parityの持続化
+- **Phase 97（LANDED）**: LLVM EXE parity for MiniJsonLoader fixtures
 - **Phase 96（LANDED）**: MiniJsonLoader next_non_ws loop E2E lock
 - **Phase 95（LANDED）**: json_loader escape loop E2E lock
 - **Phase 94（LANDED）**: escape route P5b `ch` reassignment E2E（`tools/selfhost/test_pattern5b_escape_minimal.hako` を strict VM E2E で固定）
 - **Phase 93x（LANDED）**: archive-later engineering helper sweep
-- **Phase 92x（LANDED）**: selfhost proof/compat caller rerun
-- **Phase 91x（LANDED）**: top-level .hako wrapper policy review
 
 ### Recent Landed
 

@@ -194,6 +194,10 @@ print("OK")
 PY
 }
 
+llvm_exe_plugins_strict_runtime() {
+  [ "${HAKO_JOINIR_STRICT:-0}" = "1" ]
+}
+
 llvm_exe_ensure_plugins_or_fail() {
   # Uses global array LLVM_REQUIRED_PLUGINS (triples encoded as "Display|SoPath|CrateName")
   if ! declare -p LLVM_REQUIRED_PLUGINS >/dev/null 2>&1; then
@@ -207,6 +211,11 @@ llvm_exe_ensure_plugins_or_fail() {
   local -a crate_names=()
   local CHECK_OUTPUT
   local item display so_path crate_name
+  local mode_label="best-effort"
+
+  if llvm_exe_plugins_strict_runtime; then
+    mode_label="strict"
+  fi
 
   for item in "${LLVM_REQUIRED_PLUGINS[@]}"; do
     IFS='|' read -r display so_path crate_name <<<"$item"
@@ -218,12 +227,17 @@ llvm_exe_ensure_plugins_or_fail() {
     crate_names+=("$crate_name")
   done
 
-  echo "[INFO] Checking plugin artifacts (LLVM EXE)"
+  echo "[INFO] Checking plugin artifacts (LLVM EXE, runtime=${mode_label})"
   if CHECK_OUTPUT=$(llvm_exe_check_plugins "${triples[@]}" 2>&1); then
     return 0
   fi
 
   echo "$CHECK_OUTPUT"
+  if llvm_exe_plugins_strict_runtime; then
+    echo "[INFO] Strict runtime stays fail-fast; repairing plugin artifacts before entering LLVM EXE lane"
+  else
+    echo "[INFO] Best-effort runtime lane; attempting plugin repair for parity smoke"
+  fi
   echo "[INFO] Missing/broken plugin detected, running build-all"
 
   local cargo_target_dir
@@ -231,6 +245,11 @@ llvm_exe_ensure_plugins_or_fail() {
 
   local build_log="${LLVM_PLUGIN_BUILD_LOG:-/tmp/llvm_exe_plugin_build.log}"
   if ! env CARGO_TARGET_DIR="$cargo_target_dir" bash "$NYASH_ROOT/tools/plugins/build-all.sh" "${crate_names[@]}" >"$build_log" 2>&1; then
+    if llvm_exe_plugins_strict_runtime; then
+      echo "[FAIL] Strict runtime preflight could not repair required plugins"
+    else
+      echo "[FAIL] Best-effort runtime preflight could not repair required plugins"
+    fi
     echo "[FAIL] tools/plugins/build-all.sh failed"
     tail -n 80 "$build_log"
     return 1
@@ -238,7 +257,11 @@ llvm_exe_ensure_plugins_or_fail() {
 
   if ! CHECK_OUTPUT=$(llvm_exe_check_plugins "${triples[@]}" 2>&1); then
     echo "$CHECK_OUTPUT"
-    echo "[FAIL] Plugin artifacts still missing or unloadable after build-all"
+    if llvm_exe_plugins_strict_runtime; then
+      echo "[FAIL] Strict runtime would fail-fast: plugin artifacts still missing or unloadable after build-all"
+    else
+      echo "[FAIL] Best-effort runtime preflight still lacks required plugin artifacts after build-all"
+    fi
     tail -n 80 "$build_log"
     return 1
   fi

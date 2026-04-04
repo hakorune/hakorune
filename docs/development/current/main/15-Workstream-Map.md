@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-98 Plugin loader fail-fast + LLVM parityの持続化` |
-| Front | `plugin loader strict fail-fast / best-effort boundary lock` |
+| Now | `phase-99 Trim/escape 実コード寄り強化（VM+LLVM EXE）` |
+| Front | `trim/escape fixtures を実コード寄りケースへ拡張し、VM+LLVM parity を維持する` |
 | Blocker | `none` |
-| Next | `phase-98 plugin loader / parity sustain fix` |
-| After Next | `phase-99 Trim/escape 実コード寄り強化（VM+LLVM EXE）` |
+| Next | `phase-99 trim/escape fixture expansion` |
+| After Next | `optimization corridor / parked cleanup revisit` |
 
 ## Current Read
 
@@ -27,7 +27,9 @@ Related:
 - `95` fixed `apps/tests/phase95_json_loader_escape_min.hako` as strict VM E2E (`hello" world`)
 - `96` pins strict VM to the explicit VM lane (`NYASH_VM_HAKO_PREFER_STRICT_DEV=0`) for the `next_non_ws` fixture smoke
 - `97` fixed LLVM EXE parity for `phase95/96` fixtures under `HAKO_BACKEND_COMPAT_REPLAY=harness`
-- `98` is the sustain lane for plugin loader fail-fast/best-effort boundary
+- `98` fixed plugin loader strict/best-effort runtime proof and kept phase-97 parity green
+- `99` trailing-backslash fixture is already green on VM and LLVM EXE; next work is broader trim/escape fixture expansion
+- `99` is the current lane for trim/escape real-app-like fixture expansion
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers
@@ -41,12 +43,11 @@ Related:
 - `91x` froze the top-level `.hako` wrapper policy after the latest runner/selfhost recuts
 - `92x` closed the proof/compat caller rerun lane against the canonical wrapper homes
 - `93x` moved archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
-- current work has handed off to the existing `phase-97` task
+- current work has handed off to `phase-99`
 
 ## Successor Corridor
 
-1. `phase-98 Plugin loader fail-fast + LLVM parityの持続化`
-2. `phase-99 Trim/escape 実コード寄り強化（VM+LLVM EXE）`
+1. `phase-99 Trim/escape 実コード寄り強化（VM+LLVM EXE）`
 
 ## Parked After Optimization
 
@@ -64,6 +65,7 @@ Related:
 
 - current lane docs:
   - `docs/development/current/main/phases/phase-98/README.md`
+  - `docs/development/current/main/phases/phase-99/README.md`
 - recent landed:
   - `docs/development/current/main/phases/phase-97/README.md`
   - `docs/development/current/main/phases/phase-96/README.md`

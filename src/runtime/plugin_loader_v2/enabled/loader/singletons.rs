@@ -4,8 +4,12 @@ use crate::runtime::get_global_ring0;
 use crate::runtime::plugin_loader_v2::enabled::{host_bridge, types};
 
 pub(super) fn prebirth_singletons(loader: &PluginLoaderV2) -> BidResult<()> {
-    let config = loader.config.as_ref().ok_or(BidError::PluginError)?;
-    let toml_value = loader.config_toml.as_ref().ok_or(BidError::PluginError)?;
+    let Some(config) = loader.config.as_ref() else {
+        return Ok(());
+    };
+    let Some(toml_value) = loader.config_toml.as_ref() else {
+        return Ok(());
+    };
     for (lib_name, lib_def) in &config.libraries {
         for box_name in &lib_def.boxes {
             if let Some(bc) = config.get_box_config(lib_name, box_name, toml_value) {
