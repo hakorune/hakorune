@@ -160,7 +160,17 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-66x next source lane selection`
 - Current blocker: `none`
-- Exact focus: `66xA1 successor lane inventory lock`
+- Exact focus: `66xA2 candidate lane ranking`
+- successor lane ranking is fixed as:
+  1. `phase-67x selfhost folder split`
+  2. `phase-68x runner authority/compat folder recut`
+  3. `phase-69x rust runner product/keep/reference recut`
+  4. `phase-70x caller-zero archive sweep`
+- folder-separation corridor after `66x` is planned as:
+  - `67x selfhost folder split`
+  - `68x .hako runner authority/compat/facade recut`
+  - `69x rust runner product/keep/reference recut`
+  - `70x caller-zero archive sweep`
 - exact handoff order:
   1. `53xA1` residual VM caller inventory lock (landed)
   2. `53xA2` proof-only / compat keep classification (landed)
@@ -218,6 +228,11 @@ Scope: repo root から current order / current blocker / next exact read に最
   54. `62xD1` proof / closeout (landed)
   55. `63xA1` retirement-decision evidence lock (landed)
   56. `63xA2` retire-vs-residual decision (landed)
+  57. `66xA1` successor lane inventory lock (landed)
+  58. `66xA2` candidate lane ranking (active)
+  59. `66xB1` successor lane decision (queued)
+  60. `66xB2` folder-separation corridor lock (queued)
+  61. `66xD1` proof / closeout (queued)
   57. `63xB1` residual keep stop-line or retirement plan freeze (landed)
   58. `63xD1` proof / closeout (landed)
   59. `64xA1` successor lane inventory lock (landed)

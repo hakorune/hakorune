@@ -22,10 +22,12 @@ Related:
   - vm-hako remains reference/conformance
   - stage1/selfhost mainline hardening is landed
   - focused `emit_mir_mainline` parse red is a tracked follow-up, not an implicit reopen
+  - next progress should come from tree/folder separation, not from expanding design prose
 
 ## Big Tasks
 
 1. `66xA1` successor lane inventory lock
 2. `66xA2` candidate lane ranking
 3. `66xB1` successor lane decision
-4. `66xD1` proof / closeout
+4. `66xB2` folder-separation corridor lock
+5. `66xD1` proof / closeout

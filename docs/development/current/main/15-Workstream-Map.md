@@ -38,6 +38,12 @@ Related:
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
      - current active lane is `phase-66x next source lane selection`
+     - current active micro task is `66xA2 candidate lane ranking`
+     - ranked successor corridor is:
+       - `67x selfhost folder split`
+       - `68x .hako runner authority/compat/facade recut`
+       - `69x rust runner product/keep/reference recut`
+       - `70x caller-zero archive sweep`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
@@ -132,10 +138,10 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `66xA1 successor lane inventory lock` |
+     | Now | `66xA2 candidate lane ranking` |
      | Blocker | `none` |
-     | Next | `66xA2 candidate lane ranking` |
-     | After Next | `66xB1 successor lane decision` |
+     | Next | `66xB1 successor lane decision` |
+     | After Next | `66xB2 folder-separation corridor lock` |
    - rust-vm corridor outcome:
 
      | Item | State |

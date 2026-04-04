@@ -140,13 +140,19 @@ Related:
 - landed micro task: `65xB2 shell contract owner cleanup`
 - landed micro task: `65xC1 mainline proof bundle refresh`
 - landed micro task: `65xD1 proof / closeout`
-- active micro task: `66xA1 successor lane inventory lock`
+- active micro task: `66xA2 candidate lane ranking`
+- ranked next-lane corridor:
+  - `67x selfhost folder split`
+  - `68x .hako runner authority/compat/facade recut`
+  - `69x rust runner product/keep/reference recut`
+  - `70x caller-zero archive sweep`
 - rust-vm corridor outcome:
   - mainline retirement: achieved
   - full source retirement: deferred
   - residual explicit keep: frozen
 - plain reading:
   - current source no longer treats `--backend vm` as a live owner lane; remaining live references are explicit compat/proof/reference keeps plus archive evidence
+  - next source progress should come from folder separation, not from extending phase prose
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep
   - `phase-57x` closed without broad source deletion; remaining rust-vm surfaces stay explicit keep
   - `phase-59x` landed after narrowing CLI/backend, selfhost route/default, and dispatch/orchestrator affordances
