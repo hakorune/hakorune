@@ -132,16 +132,16 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `54xA1 successor lane inventory lock` |
+     | Now | `54xA2 candidate lane ranking` |
      | Blocker | `none` |
-     | Next | `54xA2 candidate lane ranking` |
-     | After Next | `54xB1 successor lane decision` |
+     | Next | `54xB1 successor lane decision` |
+     | After Next | `54xB2 retirement corridor lock` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `54xA1 successor lane inventory lock` |
-     | Next | `54xA2 candidate lane ranking` |
+     | Now | `54xA2 candidate lane ranking` |
+     | Next | `54xB1 successor lane decision` |
      | Later | `55x rust-vm route-surface retirement prep` |
    - stage0 shell residue waves:
 

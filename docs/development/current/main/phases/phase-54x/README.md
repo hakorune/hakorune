@@ -28,6 +28,26 @@ Related:
 - the current job is to decide the next source lane cleanly before any new work starts.
 - `kilo` remains far-future; this phase is about the nearer next source focus, not a delayed optimization wave.
 
+## Inventory Findings
+
+- keep-now route surfaces:
+  - `src/runner/dispatch.rs`
+  - `src/runner/route_orchestrator.rs`
+  - `tools/selfhost/run.sh`
+- archive-later wording surfaces:
+  - `src/cli/args.rs` still presents `vm` / `vm-hako` as selectable backend strings in help/default text
+  - `tools/selfhost/lib/selfhost_run_routes.sh` still has a `stage-a` branch that shells `--backend vm`
+- proof / compat / reference keeps:
+  - `src/runner/modes/vm.rs`
+  - `src/runner/modes/vm_fallback.rs`
+  - `src/runner/modes/vm_hako.rs`
+  - `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
+  - `tools/selfhost/run_stageb_compiler_vm.sh`
+  - `lang/src/runner/stage1_cli/core.hako`
+  - proof smoke surfaces and `vm_hako_caps/**`
+- delete-ready:
+  - none yet
+
 ## Retirement Corridor
 
 - this selection lane now owns the retirement corridor up to rust-vm exit from the live source surface.
@@ -42,7 +62,7 @@ Related:
 
 1. `phase-55x rust-vm route-surface retirement prep`
    - drain backend-route/default/help surfaces that still expose rust-vm as a selectable live code path
-   - focus on `dispatch.rs`, `route_orchestrator.rs`, route comments, and explicit backend affordances
+   - focus on `src/cli/args.rs`, `src/runner/dispatch.rs`, `src/runner/route_orchestrator.rs`, `tools/selfhost/lib/selfhost_run_routes.sh`, and `tools/selfhost/run.sh`
 2. `phase-56x proof/compat keep pruning`
    - reduce keep-now proof/compat surfaces down to the smallest explicit set
    - focus on `run_stageb_compiler_vm.sh`, `stage_a_compat_bridge.rs`, `vm_fallback.rs`, `core.hako`, and proof smoke routing

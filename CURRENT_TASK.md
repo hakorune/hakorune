@@ -150,8 +150,8 @@ Scope: repo root から current order / current blocker / next exact read に最
   4. `53xB2` vm-hako reference keep freeze (landed)
   5. `53xC1` archive-ready docs/examples / wrapper cleanup (landed)
   6. `53xD1` proof / closeout (landed)
-  7. `54xA1` successor lane inventory lock (active)
-  8. `54xA2` candidate lane ranking (queued)
+  7. `54xA1` successor lane inventory lock (landed)
+  8. `54xA2` candidate lane ranking (active)
   9. `54xB1` successor lane decision (queued)
   10. `54xB2` retirement corridor lock (queued)
   11. `54xD1` proof / closeout (queued)
@@ -251,7 +251,7 @@ Carry-over context:
 | --- | --- |
 | Now | `phase-54x next source lane selection` |
 | Blocker | `none` |
-| Next | `54xA1 successor lane inventory lock` |
+| Next | `54xA2 candidate lane ranking` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only

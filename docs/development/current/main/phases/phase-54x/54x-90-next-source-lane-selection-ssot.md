@@ -27,6 +27,26 @@ Related:
 - `vm-hako` stays reference/conformance and is not part of archive/delete wholesale.
 - `phase-54x` exists only to select the next source lane cleanly.
 
+## Inventory Findings
+
+- route/default/help surfaces that still feel live:
+  - `src/runner/dispatch.rs`
+  - `src/runner/route_orchestrator.rs`
+  - `tools/selfhost/run.sh`
+  - `src/cli/args.rs` help/default wording
+  - `tools/selfhost/lib/selfhost_run_routes.sh` `stage-a` branch
+- proof / compat / reference keeps:
+  - `src/runner/modes/vm.rs`
+  - `src/runner/modes/vm_fallback.rs`
+  - `src/runner/modes/vm_hako.rs`
+  - `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
+  - `tools/selfhost/run_stageb_compiler_vm.sh`
+  - `lang/src/runner/stage1_cli/core.hako`
+  - bootstrap/selfhost proof smokes
+  - `tools/smokes/v2/profiles/integration/vm_hako_caps/**`
+- delete-ready:
+  - none
+
 ## Retirement Corridor
 
 - `phase-54x` must leave behind a concrete corridor to rust-vm retirement from the live source surface.
