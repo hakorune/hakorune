@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 ---
 
@@ -20,14 +20,14 @@ Date: 2026-04-04
 | `67xA2` | landed | target layout ranking |
 | `67xB1` | landed | top-level selfhost split |
 | `67xB2` | landed | proof/compat split |
-| `67xC1` | active | lib/alias cleanup |
-| `67xD1` | queued | proof / closeout |
+| `67xC1` | landed | lib/alias cleanup |
+| `67xD1` | landed | proof / closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `67xC1 lib/alias cleanup` |
+| Now | `phase-67x landed` |
 | Blocker | `none` |
-| Next | `67xD1 proof / closeout` |
-| After Next | `68x .hako runner authority/compat/facade recut` |
+| Next | `phase-68x .hako runner authority/compat/facade recut` |
+| After Next | `68xA1 runner folder inventory lock` |

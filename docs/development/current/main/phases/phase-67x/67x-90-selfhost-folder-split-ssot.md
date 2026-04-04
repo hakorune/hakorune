@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: split tools/selfhost into folder-level lanes after phase-66x ranking.
 Related:

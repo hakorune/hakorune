@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: split tools/selfhost into mainline / proof / compat / lib surfaces, keeping the top-level facade-only.
 Related:

@@ -22,7 +22,7 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-67x selfhost folder split`
+- lane: `phase-68x .hako runner authority/compat/facade recut`
 - landed micro task: `49xD1 proof / closeout`
 - landed micro task: `52xA2 archive README / wrapper wording rewrite`
 - landed micro task: `52xB1 archive pack orchestrator wording cleanup`
@@ -90,9 +90,8 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `65xB2 shell contract owner cleanup`
 - landed micro task: `65xC1 mainline proof bundle refresh`
 - landed micro task: `65xD1 proof / closeout`
-- active micro task: `67xC1 lib/alias cleanup`
-- ranked successor corridor after `67x`:
-  - `68x .hako runner authority/compat/facade recut`
+- active micro task: `68xA1 runner folder inventory lock`
+- ranked successor corridor after `68x`:
   - `69x rust runner product/keep/reference recut`
   - `70x caller-zero archive sweep`
 - fixed corridor after `60x`:
@@ -106,9 +105,9 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-67x/README.md`
-4. `docs/development/current/main/phases/phase-67x/67x-90-selfhost-folder-split-ssot.md`
-5. `docs/development/current/main/phases/phase-67x/67x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-68x/README.md`
+4. `docs/development/current/main/phases/phase-68x/68x-90-hako-runner-authority-compat-facade-recut-ssot.md`
+5. `docs/development/current/main/phases/phase-68x/68x-91-task-board.md`
 6. `cargo check --manifest-path Cargo.toml --bin hakorune`
 
 ## Optional Checks
