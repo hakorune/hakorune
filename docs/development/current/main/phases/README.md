@@ -4,23 +4,23 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 93x archive-later engineering helper sweep
-- **Phase 92x（LANDED）**: selfhost proof/compat caller rerun（`93x archive-later engineering helper sweep` に handoff）
-- **Phase 91x（LANDED）**: top-level .hako wrapper policy review（`92x selfhost proof/compat caller rerun` に handoff）
-- **Phase 90x（LANDED）**: current-doc/design stale surface hygiene（`91x top-level .hako wrapper policy review` に handoff）
-- **Phase 89x（LANDED）**: next source lane selection（`90x current-doc/design stale surface hygiene` を選定）
-- **Phase 88x（LANDED）**: archive/deletion rerun（最新 repoint 後も true archive-ready/delete-ready は出ず、no-op closeout）
-- **Phase 87x（LANDED）**: embedded snapshot / wrapper repoint rerun（embedded Stage1 snapshot を canonical `facade/*` / `entry/*` へ更新）
+- **Current (ACTIVE)**: Phase 95 json_loader escape loop E2E lock
+- **Phase 94（LANDED）**: escape route P5b `ch` reassignment E2E（`tools/selfhost/test_pattern5b_escape_minimal.hako` を strict VM E2E で固定）
+- **Phase 93x（LANDED）**: archive-later engineering helper sweep
+- **Phase 92x（LANDED）**: selfhost proof/compat caller rerun
+- **Phase 91x（LANDED）**: top-level .hako wrapper policy review
+- **Phase 90x（LANDED）**: current-doc/design stale surface hygiene
+- **Phase 89x（LANDED）**: next source lane selection
 
 ### Recent Landed
 
-- **Phase 86x（LANDED）**: phase index / current mirror hygiene（`phases/README.md` を 117 行から 65 行へ縮小）
-- **Phase 85x（LANDED）**: next source lane selection（`86x phase index / current mirror hygiene` を選定）
-- **Phase 84x（LANDED）**: runner wrapper/source contract thinning（Stage1 build/default entry contracts を canonical `entry/*` stubs へ寄せた）
-- **Phase 83x（LANDED）**: selfhost top-level facade/archive decision（top-level selfhost wrappers は explicit public/front-door keep として固定）
+- **Phase 88x（LANDED）**: archive/deletion rerun（true archive-ready/delete-ready は出ず、no-op closeout）
+- **Phase 87x（LANDED）**: embedded snapshot / wrapper repoint rerun
+- **Phase 86x（LANDED）**: phase index / current mirror hygiene
+- **Phase 85x（LANDED）**: next source lane selection
+- **Phase 84x（LANDED）**: runner wrapper/source contract thinning
+- **Phase 83x（LANDED）**: selfhost top-level facade/archive decision
 - **Phase 82x（LANDED）**: next source lane selection
-- **Phase 81x（LANDED）**: caller-zero archive rerun（true archive-ready surface は出ず、no-op closeout）
-- **Phase 80x（LANDED）**: root/current pointer thinning（pointer docs を薄く整理）
 
 ### Important Corridors
 

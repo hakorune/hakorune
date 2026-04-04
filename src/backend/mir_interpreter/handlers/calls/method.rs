@@ -356,7 +356,19 @@ impl MirInterpreter {
             }
         }
 
-        // No slot found and no fallback matched
+        // No slot found and no fallback matched. Emit a focused trace so
+        // selfhost-first builder failures can be tied back to the current fn.
+        if crate::config::env::vm_trace_enabled() {
+            crate::runtime::get_global_ring0().log.debug(&format!(
+                "[vm-trace] unknown-method type={} method={} argc={} fn={:?} last_block={:?} last_inst={:?}",
+                type_name,
+                method,
+                args.len(),
+                self.cur_fn,
+                self.last_block,
+                self.last_inst
+            ));
+        }
         Err(self.err_method_not_found(type_name, method))
     }
 }

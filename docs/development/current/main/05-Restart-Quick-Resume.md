@@ -20,27 +20,26 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-94 escape route P5b “完全E2E” のための ch 再代入対応`
-- current front: `P5b ch derived-value lowering / escape_cond contract`
+- lane: `phase-95 json_loader escape loop E2E lock`
+- current front: `json_loader escape loop fixture / strict VM proof`
 - blocker: `none`
 - recent landed:
+  - `phase-94 escape route P5b ch reassignment E2E`
   - `phase-93x archive-later engineering helper sweep`
   - `phase-92x selfhost proof/compat caller rerun`
   - `phase-91x top-level .hako wrapper policy review`
   - `phase-90x current-doc/design stale surface hygiene`
-  - `phase-89x next source lane selection`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-94/README.md`
+3. `docs/development/current/main/phases/phase-95/README.md`
 
 ## Successor Corridor
 
-1. `phase-95x current pointer / SSOT stale-focus correction`
-2. `phase-96x selfhost root wrapper and fixture contraction`
-3. `phase-97x rust-vm explicit keep hardening`
+1. `phase-96 MiniJsonLoader next_non_ws loop E2E lock`
+2. `phase-97 LLVM EXE parity for MiniJsonLoader fixtures`
 
 ## Parked After Optimization
 
@@ -51,7 +50,7 @@ tools/checks/dev_gate.sh quick
 ```bash
 cargo check --manifest-path Cargo.toml --bin hakorune
 bash tools/selfhost/mainline/stage1_mainline_smoke.sh
-bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/launcher.hako /tmp/launcher_probe.mir.json
+bash tools/smokes/v2/profiles/integration/apps/archive/phase94_p5b_escape_e2e.sh
 git diff --check
 ```
 
