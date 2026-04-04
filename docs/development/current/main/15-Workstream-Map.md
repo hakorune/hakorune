@@ -14,10 +14,10 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-96 MiniJsonLoader next_non_ws loop E2E lock` |
-| Front | `next_non_ws loop fixture / strict VM proof` |
-| Blocker | `none` |
-| Next | `phase-97 LLVM EXE parity for MiniJsonLoader fixtures` |
+| Now | `phase-97 LLVM EXE parity for MiniJsonLoader fixtures` |
+| Front | `escape / next_non_ws fixture parity under LLVM EXE` |
+| Blocker | `compat replay=harness narrows compile; LLVM EXE runtime still returns wrong output` |
+| Next | `phase-97 focused source/runtime parity fix` |
 | After Next | `parked / review after LLVM parity` |
 
 ## Current Read
@@ -26,6 +26,7 @@ Related:
 - `stage1_mainline_smoke.sh` is green
 - `95` fixed `apps/tests/phase95_json_loader_escape_min.hako` as strict VM E2E (`hello" world`)
 - `96` pins strict VM to the explicit VM lane (`NYASH_VM_HAKO_PREFER_STRICT_DEV=0`) for the `next_non_ws` fixture smoke
+- `97` pins LLVM compile to `HAKO_BACKEND_COMPAT_REPLAY=harness`; remaining blocker is runtime parity under LLVM EXE
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers
@@ -39,7 +40,7 @@ Related:
 - `91x` froze the top-level `.hako` wrapper policy after the latest runner/selfhost recuts
 - `92x` closed the proof/compat caller rerun lane against the canonical wrapper homes
 - `93x` moved archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
-- current work has handed off to the existing `phase-96` task
+- current work has handed off to the existing `phase-97` task
 
 ## Successor Corridor
 
@@ -60,8 +61,9 @@ Related:
 ## Reference
 
 - current lane docs:
-  - `docs/development/current/main/phases/phase-96/README.md`
+  - `docs/development/current/main/phases/phase-97/README.md`
 - recent landed:
+  - `docs/development/current/main/phases/phase-96/README.md`
   - `docs/development/current/main/phases/phase-95/README.md`
   - `docs/development/current/main/phases/phase-94/README.md`
   - `docs/development/current/main/phases/phase-93x/README.md`

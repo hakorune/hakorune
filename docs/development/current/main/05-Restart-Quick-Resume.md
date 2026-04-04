@@ -20,21 +20,21 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-96 MiniJsonLoader next_non_ws loop E2E lock`
-- current front: `next_non_ws loop fixture / strict VM proof`
-- blocker: `none`
+- lane: `phase-97 LLVM EXE parity for MiniJsonLoader fixtures`
+- current front: `escape / next_non_ws fixture parity under LLVM EXE`
+- blocker: `compile pin is in place; LLVM EXE runtime still returns wrong output for phase95/96 fixtures`
 - recent landed:
+  - `phase-96 MiniJsonLoader next_non_ws loop E2E lock`
   - `phase-95 json_loader escape loop E2E lock`
   - `phase-94 escape route P5b ch reassignment E2E`
   - `phase-93x archive-later engineering helper sweep`
   - `phase-92x selfhost proof/compat caller rerun`
-  - `phase-91x top-level .hako wrapper policy review`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-96/README.md`
+3. `docs/development/current/main/phases/phase-97/README.md`
 
 ## Successor Corridor
 
@@ -51,6 +51,8 @@ cargo check --manifest-path Cargo.toml --bin hakorune
 bash tools/selfhost/mainline/stage1_mainline_smoke.sh
 bash tools/smokes/v2/profiles/integration/apps/archive/phase95_json_loader_escape_vm.sh
 bash tools/smokes/v2/profiles/integration/apps/archive/phase96_json_loader_next_non_ws_vm.sh
+HAKO_BACKEND_COMPAT_REPLAY=harness target/release/hakorune --backend llvm apps/tests/phase95_json_loader_escape_min.hako
+HAKO_BACKEND_COMPAT_REPLAY=harness target/release/hakorune --backend llvm apps/tests/phase96_json_loader_next_non_ws_min.hako
 git diff --check
 ```
 

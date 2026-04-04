@@ -1,5 +1,10 @@
 #!/bin/bash
 # Phase 97: next_non_ws fixture (LLVM EXE parity)
+#
+# Current boundary contract:
+# - pure-first default still rejects this fixture shape
+# - Phase 97 pins explicit compat replay (`harness`) so the remaining blocker is
+#   LLVM EXE runtime parity, not recipe selection
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 source "$(dirname "$0")/../../../lib/llvm_exe_runner.sh"
@@ -24,6 +29,7 @@ OUTPUT_EXE="$NYASH_ROOT/tmp/phase97_next_non_ws_llvm_exe"
 EXPECTED=$'2\n-1\n3'
 EXPECTED_LINES=3
 LLVM_BUILD_LOG="/tmp/phase97_next_non_ws_build.log"
+export HAKO_BACKEND_COMPAT_REPLAY=harness
 if llvm_exe_build_and_run_numeric_smoke; then
   test_pass "phase97_next_non_ws_llvm_exe: output matches expected (2, -1, 3)"
 else

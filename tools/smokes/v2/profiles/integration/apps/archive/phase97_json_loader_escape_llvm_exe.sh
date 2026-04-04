@@ -1,5 +1,10 @@
 #!/bin/bash
 # Phase 97: json_loader escape loop (LLVM EXE parity)
+#
+# Current boundary contract:
+# - pure-first default still rejects this fixture shape
+# - Phase 97 pins explicit compat replay (`harness`) so the remaining blocker is
+#   LLVM EXE runtime parity, not recipe selection
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 source "$(dirname "$0")/../../../lib/llvm_exe_runner.sh"
@@ -26,7 +31,7 @@ OUTPUT_EXE="$NYASH_ROOT/tmp/phase97_json_loader_escape_llvm_exe"
 echo "[INFO] Building: $INPUT_HAKO → $OUTPUT_EXE"
 
 BUILD_LOG="/tmp/phase97_json_loader_escape_build.log"
-if ! llvm_exe_with_build_lock env NYASH_DISABLE_PLUGINS=0 "$NYASH_ROOT/tools/build_llvm.sh" "$INPUT_HAKO" -o "$OUTPUT_EXE" 2>&1 | tee "$BUILD_LOG"; then
+if ! llvm_exe_with_build_lock env HAKO_BACKEND_COMPAT_REPLAY=harness NYASH_DISABLE_PLUGINS=0 "$NYASH_ROOT/tools/build_llvm.sh" "$INPUT_HAKO" -o "$OUTPUT_EXE" 2>&1 | tee "$BUILD_LOG"; then
     echo "[FAIL] build_llvm.sh failed"
     tail -n 80 "$BUILD_LOG"
     exit 1

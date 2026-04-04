@@ -36,19 +36,19 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 15. `phase-93x archive-later engineering helper sweep` (landed)
 16. `phase-94 escape route P5b “完全E2E” のための ch 再代入対応` (landed)
 17. `phase-95 json_loader escape loop E2E lock` (landed)
-18. `phase-96 MiniJsonLoader next_non_ws loop E2E lock` (active)
+18. `phase-96 MiniJsonLoader next_non_ws loop E2E lock` (landed)
+19. `phase-97 LLVM EXE parity for MiniJsonLoader fixtures` (active)
 
 ## Current Front
 
-- Active lane: `phase-96 MiniJsonLoader next_non_ws loop E2E lock`
-- Active micro: `next_non_ws loop fixture / strict VM proof`
-- Current blocker: `none`
-- Exact focus: `apps/tests/phase96_json_loader_next_non_ws_min.hako` を strict VM E2E PASS に固定し、phase-97 LLVM EXE parity に handoff する
+- Active lane: `phase-97 LLVM EXE parity for MiniJsonLoader fixtures`
+- Active micro: `escape / next_non_ws fixture parity under LLVM EXE`
+- Current blocker: `HAKO_BACKEND_COMPAT_REPLAY=harness で compile は通るが EXE output が fixture expectation に届かない`
+- Exact focus: `apps/tests/phase95_json_loader_escape_min.hako` と `apps/tests/phase96_json_loader_next_non_ws_min.hako` の LLVM EXE runtime parity を固定する
 
 ## Successor Corridor
 
-1. `phase-96 MiniJsonLoader next_non_ws loop E2E lock`
-2. `phase-97 LLVM EXE parity for MiniJsonLoader fixtures`
+1. `phase-97 LLVM EXE parity for MiniJsonLoader fixtures`
 
 ## Parked After Optimization
 
@@ -68,11 +68,12 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-96/README.md`
+3. `docs/development/current/main/phases/phase-97/README.md`
 
 ## Notes
 
-- `phase-95` fixed `apps/tests/phase95_json_loader_escape_min.hako` as strict VM E2E (`hello" world`).
+- `phase-96` fixed `apps/tests/phase96_json_loader_next_non_ws_min.hako` as strict VM E2E (`2`, `-1`, `3`).
+- `phase-97` compile route is pinned to `HAKO_BACKEND_COMPAT_REPLAY=harness`; remaining blocker is LLVM EXE runtime parity.
 - `launcher.hako emit_mir_mainline` is green.
 - `stage1_mainline_smoke.sh` is green.
 - thin top-level wrappers remain public/front-door keep, not archive-ready by default.
