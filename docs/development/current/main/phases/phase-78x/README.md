@@ -1,7 +1,7 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
-Scope: select the next source lane after runner top-level pressure thinning lands.
+Scope: select the next source lane after runner top-level pressure thinning lands; phase is now landed and handed off.
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
@@ -27,7 +27,10 @@ Related:
 
 ## Current Read
 
-- current front:
-  - `78xA1 successor lane inventory lock`
-- known residual blocker:
-  - `launcher.hako emit_mir_mainline probe still red`
+- handoff complete
+- selected successor lane:
+  - `phase-79x launcher emit_mir residual blocker follow-up`
+- ranked corridor:
+  - `phase-79x launcher emit_mir residual blocker follow-up`
+  - `phase-80x root/current pointer thinning`
+  - `phase-81x caller-zero archive rerun`

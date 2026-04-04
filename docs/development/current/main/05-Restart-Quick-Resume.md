@@ -22,8 +22,8 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-77x runner top-level pressure thinning`
-- current front: `77xB2 stage1_cli_env.hako authority thinning`
+- lane: `phase-79x launcher emit_mir residual blocker follow-up`
+- current front: `79xA1 blocker evidence lock`
 - landed micro task: `49xD1 proof / closeout`
 - landed micro task: `52xA2 archive README / wrapper wording rewrite`
 - landed micro task: `52xB1 archive pack orchestrator wording cleanup`
@@ -91,10 +91,10 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `65xB2 shell contract owner cleanup`
 - landed micro task: `65xC1 mainline proof bundle refresh`
 - landed micro task: `65xD1 proof / closeout`
-- active micro task: `77xB1 launcher.hako body thinning`
-- ranked successor corridor after `68x`:
-  - `69x rust runner product/keep/reference recut`
-  - `70x caller-zero archive sweep`
+- active micro task: `79xA1 blocker evidence lock`
+- ranked successor corridor after `79x`:
+  - `80x root/current pointer thinning`
+  - `81x caller-zero archive rerun`
 - fixed corridor after `60x`:
   - `61x residual rust-vm caller-zero audit rerun`
   - `62x rust-vm delete-ready removal wave`
@@ -106,9 +106,9 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-77x/README.md`
-4. `docs/development/current/main/phases/phase-77x/77x-90-runner-top-level-pressure-thinning-ssot.md`
-5. `docs/development/current/main/phases/phase-77x/77x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-79x/README.md`
+4. `docs/development/current/main/phases/phase-79x/79x-90-launcher-emit-mir-residual-blocker-follow-up-ssot.md`
+5. `docs/development/current/main/phases/phase-79x/79x-91-task-board.md`
 6. `cargo check --manifest-path Cargo.toml --bin hakorune`
 
 ## Optional Checks

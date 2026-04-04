@@ -37,8 +37,8 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-78x next source lane selection`
-     - current active micro task is `78xA1 successor lane inventory lock`
+     - current active lane is `phase-79x launcher emit_mir residual blocker follow-up`
+     - current active micro task is `79xA1 blocker evidence lock`
      - ranked successor corridor after `68x` is:
        - `69x rust runner product/keep/reference recut`
        - `70x caller-zero archive sweep`
@@ -132,14 +132,14 @@ Related:
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-78x next source lane selection table:
+   - phase-79x launcher emit_mir residual blocker follow-up table:
 
      | Item | State |
      | --- | --- |
-     | Now | `78xA1 successor lane inventory lock` |
+     | Now | `79xA1 blocker evidence lock` |
      | Blocker | `launcher.hako emit_mir_mainline probe still red` |
-     | Next | `78xA2 candidate lane ranking` |
-     | After Next | `78xB1 successor lane decision` |
+     | Next | `79xA2 focused fix ranking` |
+     | After Next | `79xB1 focused source fix` |
    - rust-vm corridor outcome:
 
      | Item | State |
@@ -151,9 +151,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `78xA1 successor lane inventory lock` |
-     | Next | `75xA2 canonical path / keep-now freeze` |
-     | Later | `75xB1 selfhost top-level alias caller cleanup` |
+     | Now | `79xA1 blocker evidence lock` |
+     | Next | `phase-80x root/current pointer thinning` |
+     | Later | `phase-81x caller-zero archive rerun` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
