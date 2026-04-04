@@ -14,17 +14,18 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-95 json_loader escape loop E2E lock` |
-| Front | `json_loader escape loop fixture / strict VM proof` |
+| Now | `phase-96 MiniJsonLoader next_non_ws loop E2E lock` |
+| Front | `next_non_ws loop fixture / strict VM proof` |
 | Blocker | `none` |
-| Next | `phase-96 MiniJsonLoader next_non_ws loop E2E lock` |
-| After Next | `phase-97 LLVM EXE parity for MiniJsonLoader fixtures` |
+| Next | `phase-97 LLVM EXE parity for MiniJsonLoader fixtures` |
+| After Next | `parked / review after LLVM parity` |
 
 ## Current Read
 
 - `launcher.hako emit_mir_mainline` is green
 - `stage1_mainline_smoke.sh` is green
-- `94` fixed `tools/selfhost/test_pattern5b_escape_minimal.hako` as strict VM E2E (`hello" world`)
+- `95` fixed `apps/tests/phase95_json_loader_escape_min.hako` as strict VM E2E (`hello" world`)
+- `96` pins strict VM to the explicit VM lane (`NYASH_VM_HAKO_PREFER_STRICT_DEV=0`) for the `next_non_ws` fixture smoke
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers
@@ -38,12 +39,11 @@ Related:
 - `91x` froze the top-level `.hako` wrapper policy after the latest runner/selfhost recuts
 - `92x` closed the proof/compat caller rerun lane against the canonical wrapper homes
 - `93x` moved archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
-- current work has handed off to the existing `phase-95` task
+- current work has handed off to the existing `phase-96` task
 
 ## Successor Corridor
 
-1. `phase-96 MiniJsonLoader next_non_ws loop E2E lock`
-2. `phase-97 LLVM EXE parity for MiniJsonLoader fixtures`
+1. `phase-97 LLVM EXE parity for MiniJsonLoader fixtures`
 
 ## Parked After Optimization
 
@@ -60,7 +60,8 @@ Related:
 ## Reference
 
 - current lane docs:
-  - `docs/development/current/main/phases/phase-95/README.md`
+  - `docs/development/current/main/phases/phase-96/README.md`
 - recent landed:
+  - `docs/development/current/main/phases/phase-95/README.md`
   - `docs/development/current/main/phases/phase-94/README.md`
   - `docs/development/current/main/phases/phase-93x/README.md`

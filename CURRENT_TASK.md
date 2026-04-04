@@ -35,20 +35,20 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 14. `phase-92x selfhost proof/compat caller rerun` (landed)
 15. `phase-93x archive-later engineering helper sweep` (landed)
 16. `phase-94 escape route P5b “完全E2E” のための ch 再代入対応` (landed)
-17. `phase-95 json_loader escape loop E2E lock` (active)
+17. `phase-95 json_loader escape loop E2E lock` (landed)
+18. `phase-96 MiniJsonLoader next_non_ws loop E2E lock` (active)
 
 ## Current Front
 
-- Active lane: `phase-95 json_loader escape loop E2E lock`
-- Active micro: `json_loader escape loop fixture / strict VM proof`
+- Active lane: `phase-96 MiniJsonLoader next_non_ws loop E2E lock`
+- Active micro: `next_non_ws loop fixture / strict VM proof`
 - Current blocker: `none`
-- Exact focus: `apps/tests/phase95_json_loader_escape_min.hako` を Phase 94 基盤の上で strict VM E2E PASS に固定する
+- Exact focus: `apps/tests/phase96_json_loader_next_non_ws_min.hako` を strict VM E2E PASS に固定し、phase-97 LLVM EXE parity に handoff する
 
 ## Successor Corridor
 
-1. `phase-95 json_loader escape loop E2E lock`
-2. `phase-96 MiniJsonLoader next_non_ws loop E2E lock`
-3. `phase-97 LLVM EXE parity for MiniJsonLoader fixtures`
+1. `phase-96 MiniJsonLoader next_non_ws loop E2E lock`
+2. `phase-97 LLVM EXE parity for MiniJsonLoader fixtures`
 
 ## Parked After Optimization
 
@@ -68,11 +68,11 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-95/README.md`
+3. `docs/development/current/main/phases/phase-96/README.md`
 
 ## Notes
 
-- `phase-94` fixed `tools/selfhost/test_pattern5b_escape_minimal.hako` as JoinIR loop_break VM E2E (`hello" world`).
+- `phase-95` fixed `apps/tests/phase95_json_loader_escape_min.hako` as strict VM E2E (`hello" world`).
 - `launcher.hako emit_mir_mainline` is green.
 - `stage1_mainline_smoke.sh` is green.
 - thin top-level wrappers remain public/front-door keep, not archive-ready by default.

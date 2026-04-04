@@ -12,23 +12,23 @@ Related:
 
 ## Current
 
-- lane: `phase-95 json_loader escape loop E2E lock`
-- current front: `json_loader escape loop fixture / strict VM proof`
+- lane: `phase-96 MiniJsonLoader next_non_ws loop E2E lock`
+- current front: `next_non_ws loop fixture / strict VM proof`
 - blocker: `none`
 - recent landed:
+  - `phase-95 json_loader escape loop E2E lock`
   - `phase-94 escape route P5b ch reassignment E2E`
   - `phase-93x archive-later engineering helper sweep`
   - `phase-92x selfhost proof/compat caller rerun`
   - `phase-91x top-level .hako wrapper policy review`
-  - `phase-90x current-doc/design stale surface hygiene`
 
 ## Current Read
 
-- `phase-94` fixture E2E is green (`tools/selfhost/test_pattern5b_escape_minimal.hako`)
+- `phase-95` fixture E2E is green (`apps/tests/phase95_json_loader_escape_min.hako`)
 - `stage1_mainline_smoke.sh` is green
 - `93x` finished moving archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
 - top-level wrappers remain public/front-door keep unless caller audit proves otherwise
-- next fixture corridor is `95 -> 97`; `vm-hako` interpreter recut is parked until after optimization
+- next fixture corridor is `96 -> 97`; `vm-hako` interpreter recut is parked until after optimization
 
 ## Root Anchors
 
@@ -39,4 +39,4 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-95/README.md`
+2. `docs/development/current/main/phases/phase-96/README.md`

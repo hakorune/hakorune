@@ -4,16 +4,17 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 95 json_loader escape loop E2E lock
+- **Current (ACTIVE)**: Phase 96 MiniJsonLoader next_non_ws loop E2E lock
+- **Phase 95（LANDED）**: json_loader escape loop E2E lock
 - **Phase 94（LANDED）**: escape route P5b `ch` reassignment E2E（`tools/selfhost/test_pattern5b_escape_minimal.hako` を strict VM E2E で固定）
 - **Phase 93x（LANDED）**: archive-later engineering helper sweep
 - **Phase 92x（LANDED）**: selfhost proof/compat caller rerun
 - **Phase 91x（LANDED）**: top-level .hako wrapper policy review
 - **Phase 90x（LANDED）**: current-doc/design stale surface hygiene
-- **Phase 89x（LANDED）**: next source lane selection
 
 ### Recent Landed
 
+- **Phase 89x（LANDED）**: next source lane selection
 - **Phase 88x（LANDED）**: archive/deletion rerun（true archive-ready/delete-ready は出ず、no-op closeout）
 - **Phase 87x（LANDED）**: embedded snapshot / wrapper repoint rerun
 - **Phase 86x（LANDED）**: phase index / current mirror hygiene
