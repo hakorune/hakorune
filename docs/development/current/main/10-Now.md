@@ -60,9 +60,9 @@ Related:
 - `56xA2 compat keep boundary freeze` landed
 - `56xB1 stage-a compat route pruning prep` landed
 - `56xB2 vm fallback/core.hako keep pruning` landed
-- `56xC1 proof smoke keep pruning` active
-- `56xD1 proof / closeout` queued
-- `56x proof/compat keep pruning` planned
+- `56xC1 proof smoke keep pruning` landed
+- `56xD1 proof / closeout` active
+- `56x proof/compat keep pruning` active
 - `57x rust-vm delete-ready audit / removal wave` planned
 - `47xA1` landed: runtime/default contract lock
 - `47xA2` landed: stage1 source->MIR contract lock

@@ -10,7 +10,7 @@ if [ ! -x "$BIN" ]; then
   cargo build --release --features cranelift-jit >/dev/null
 fi
 
-echo "[bootstrap] c0 (rust) -> c1 (ny) -> c1' parity (proof-only JIT bootstrap)" >&2
+echo "[bootstrap] c0 baseline -> c1 -> c1' parity (proof-only bootstrap keep)" >&2
 
 timeout -s KILL 20s env NYASH_DISABLE_PLUGINS=1 NYASH_CLI_VERBOSE=1 \
   "$BIN" --backend vm "$ROOT_DIR/apps/examples/string_p0.hako" > /tmp/nyash-c0.out
@@ -25,9 +25,9 @@ H0=$(rg -n '^Result:\s*' /tmp/nyash-c0.out | sed 's/\s\+/ /g')
 H1=$(rg -n '^Result:\s*' /tmp/nyash-c1.out | sed 's/\s\+/ /g' || true)
 H2=$(rg -n '^Result:\s*' /tmp/nyash-c1p.out | sed 's/\s\+/ /g' || true)
 
-echo "[bootstrap] c0: ${H0:-<none>}" >&2
-echo "[bootstrap] c1: ${H1:-<none>}" >&2
-echo "[bootstrap] c1': ${H2:-<none>}" >&2
+echo "[bootstrap] c0 baseline: ${H0:-<none>}" >&2
+echo "[bootstrap] c1 compat keep: ${H1:-<none>}" >&2
+echo "[bootstrap] c1' compat keep: ${H2:-<none>}" >&2
 
 if rg -q '^Result:\s*0\b' /tmp/nyash-c0.out; then
   echo "PASS: c0 baseline" >&2

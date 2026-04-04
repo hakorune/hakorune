@@ -9,8 +9,8 @@ Date: 2026-04-04
 | --- | --- | --- | --- |
 | 1 | `56xA keep lock` | active | lock the exact proof/compat keep surfaces before pruning them |
 | 2 | `56xB keep pruning` | queued | remove stale residue from explicit keep surfaces without deleting the keeps |
-| 3 | `56xC proof smoke pruning` | queued | shrink proof smoke ownership to the smallest explicit set |
-| 4 | `56xD closeout` | queued | prove and hand off cleanly |
+| 3 | `56xC proof smoke pruning` | landed | shrink proof smoke ownership to the smallest explicit set |
+| 4 | `56xD closeout` | active | prove and hand off cleanly |
 
 ## Exact Micro Tasks
 
@@ -20,8 +20,8 @@ Date: 2026-04-04
 | `56xA2` | landed | compat keep boundary freeze |
 | `56xB1` | landed | stage-a compat route pruning prep |
 | `56xB2` | landed | vm fallback/core.hako keep pruning |
-| `56xC1` | active | proof smoke keep pruning |
-| `56xD1` | queued | proof / closeout |
+| `56xC1` | landed | proof smoke keep pruning |
+| `56xD1` | active | proof / closeout |
 
 ## Inventory Snapshot
 
@@ -37,7 +37,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `56xC1 proof smoke keep pruning` |
+| Now | `56xD1 proof / closeout` |
 | Blocker | `none` |
-| Next | `56xD1 proof / closeout` |
-| After Next | `57x rust-vm delete-ready audit / removal wave` |
+| Next | `57x rust-vm delete-ready audit / removal wave` |
+| After Next | `58x` successor lane selection |

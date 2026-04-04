@@ -132,17 +132,17 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `56xC1 proof smoke keep pruning` |
+     | Now | `56xD1 proof / closeout` |
      | Blocker | `none` |
-     | Next | `56xD1 proof / closeout` |
-     | After Next | `57x rust-vm delete-ready audit / removal wave` |
+     | Next | `57x rust-vm delete-ready audit / removal wave` |
+     | After Next | `58x` successor lane selection |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `56xC1 proof smoke keep pruning` |
-     | Next | `56xD1 proof / closeout` |
-     | Later | `57x rust-vm delete-ready audit / removal wave` |
+     | Now | `56xD1 proof / closeout` |
+     | Next | `57x rust-vm delete-ready audit / removal wave` |
+     | Later | `58x` successor lane selection |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |

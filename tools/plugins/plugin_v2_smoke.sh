@@ -51,7 +51,7 @@ static box Main {
 }
 EOF
 
-echo "[plugin-v2-smoke] running compat proof: $BIN --backend vm $APP" >&2
+echo "[plugin-v2-smoke] running explicit compat proof: $BIN --backend vm $APP" >&2
 set +e
 timeout -s KILL 25s "$BIN" --backend vm "$APP" > /tmp/nyash-plugin-v2-smoke.out 2>&1
 code=$?
@@ -76,7 +76,7 @@ echo "plugin-v2-smoke: OK" >&2
 
 FUNC_APP="$ROOT_DIR/apps/tests/plugin_v2_functional.hako"
 if [[ "${NYASH_PLUGIN_V2_FUNCTIONAL:-0}" == "1" && -f "$FUNC_APP" ]]; then
-  echo "[plugin-v2-smoke] functional compat proof: $BIN --backend vm $FUNC_APP" >&2
+  echo "[plugin-v2-smoke] functional explicit compat proof: $BIN --backend vm $FUNC_APP" >&2
   set +e
   timeout -s KILL 25s "$BIN" --backend vm "$FUNC_APP" > /tmp/nyash-plugin-v2-func.out 2>&1
   code=$?
@@ -92,7 +92,7 @@ fi
 
 NET_APP="$ROOT_DIR/apps/tests/net_roundtrip.hako"
 if [[ "${NYASH_PLUGIN_V2_NET_FUNCTIONAL:-0}" == "1" && -f "$NET_APP" ]]; then
-  echo "[plugin-v2-smoke] functional (net) compat proof: $BIN --backend vm $NET_APP" >&2
+  echo "[plugin-v2-smoke] functional (net) explicit compat proof: $BIN --backend vm $NET_APP" >&2
   set +e
   timeout -s KILL 25s "$BIN" --backend vm "$NET_APP" > /tmp/nyash-plugin-v2-net.out 2>&1
   code=$?

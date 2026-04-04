@@ -33,7 +33,7 @@ static box Stage1Cli {
 
   // Raw compat keep for Program(JSON v0) run requests.
   // Keep this lane narrow:
-  // - accept only vm; pyvm stays historical keep
+  // - accept vm; pyvm stays historical keep
   // - reject llvm from this legacy raw route
   // - do not add new runtime capability/policy here
   // - do not thread-enable or direct-core-enable this branch; direct MIR ownership belongs below stage0

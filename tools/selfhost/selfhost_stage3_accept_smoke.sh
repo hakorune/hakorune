@@ -22,11 +22,11 @@ run_case_stage3() {
   local expect_code="$1"; shift
   local file="$TMP/selfhost_stage3_${name// /_}.hako"
   printf "%s\n" "$src" > "$file"
-  # 1) Produce JSON v0 via selfhost compiler program (explicit compat fallback is allowed here)
+  # 1) Produce JSON v0 via the explicit compat keep path
   set +e
   # Use unified selfhost entry (--direct) as Program(JSON v0) producer (tolerate empty).
   JSON=$("$SELFHOST_RUN" --direct --source-file "$file" --timeout-secs "${SMOKES_SELFHOST_STAGEB_TIMEOUT_SECS:-20}" --route-id "SH-SMOKE-STAGE3" 2>/dev/null | awk 'BEGIN{found=0} /^[ \t]*\{/{ if ($0 ~ /"version"/ && $0 ~ /"kind"/) { print; found=1; exit } } END{ if(found==0){} }')
-  # 2) Execute JSON v0 via Bridge (compat acceptance path).
+  # 2) Execute JSON v0 via the compat acceptance path.
   if [[ -z "$JSON" ]]; then OUT=""; CODE=0; else OUT=$(printf '%s\n' "$JSON" | NYASH_TRY_RESULT_MODE=${NYASH_TRY_RESULT_MODE:-1} "$BIN" --ny-parser-pipe --backend vm 2>&1); CODE=$?; fi
   set -e
   if [[ "$CODE" == "$expect_code" ]]; then pass "$name"; else fail "$name" "$OUT"; fi
