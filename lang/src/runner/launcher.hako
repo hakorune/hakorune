@@ -11,13 +11,9 @@
 // - This file only defines the structural dispatcher; individual commands
 //   are implemented incrementally in later phases.
 
-using lang.mir.builder.MirBuilderBox
-using lang.compiler.build.build_box as BuildBox
-using lang.runner.launcher.input_contract as LauncherInputContractBox
+using lang.runner.launcher.command_dispatch as LauncherCommandBox
 using lang.runner.launcher.dispatch as LauncherDispatchBox
-using lang.runner.launcher.artifact_io as LauncherArtifactIoBox
-using lang.runner.launcher.payload_contract as LauncherPayloadContractBox
-using lang.runner.launcher.compile_facade_impl as LauncherCompileFacadeImplBox
+using lang.runner.launcher.bootstrap as LauncherBootstrapBox
 
 static box HakoCli {
   // Entry from Main.main(args)
@@ -25,223 +21,23 @@ static box HakoCli {
     return LauncherDispatchBox.dispatch_cli(args)
   }
 
-  // hakorune run [options] <entry.hako> [-- script_args...]
-  // - See docs/development/runtime/cli-hakorune-stage1.md for semantics.
-  // - Phase 25.1: placeholder only（構造だけ定義し、後続フェーズで実装）。
   method cmd_run(args){
-    print("[hakorune] run: not implemented yet")
-    return 90
+    return LauncherCommandBox.cmd_run(args)
   }
-
-  // hakorune build exe [options] <entry.hako>
-  // - High-level wrapper around selfhost_exe_stageb / ny_mir_builder.
-  method cmd_build(args){
-    local argc = 0
-    if args { argc = args.size() }
-    if argc < 2 {
-      print("[hakorune] build: usage: hakorune build exe <source.hako>")
-      return 91
-    }
-
-    local sub_raw = args.get(1)
-    local sub = me._coerce_text_compat(sub_raw)
-    if sub == "exe" {
-      return me.cmd_build_exe(args)
-    }
-
-    print("[hakorune] build: unknown subcommand: " + sub)
-    return 91
-  }
-
-  // hakorune build exe [-o <out>] [--quiet] <source.hako>
-  // - Pipeline: .hako → Program(JSON v0) → MIR root -> facts -> ll text -> EXE
-  // - Daily launcher no longer uses temp MIR JSON as compile transport.
-  method cmd_build_exe(args){
-    local req = LauncherInputContractBox.parse_build_exe_request(args)
-    if req == null { return 91 }
-    local source_path = req.get("source_path")
-    local out_path = req.get("out_path")
-    local quiet = req.get("quiet")
-
-    local tag = "[hakorune] build exe"
-    local exe_path = me._emit_exe_from_source_root_checked(tag, source_path, out_path)
-    if exe_path == null { return 91 }
-
-    if quiet != 1 {
-      print("[hakorune] build exe: " + exe_path)
-    }
-
-    return 0
-  }
-
-  // hakorune emit {program-json|mir-json} ...
-  // - Surface for Stage-B / MirBuilder pipeline.
   method cmd_emit(args){
-    local argc = 0
-    if args { argc = args.size() }
-    if argc < 2 {
-      print("[hakorune] emit: usage: hakorune emit mir-json --from-program-json <file>")
-      return 92
-    }
-
-    local sub_raw = args.get(1)
-    local sub = me._coerce_text_compat(sub_raw)
-    if sub == "mir-json" {
-      return me.cmd_emit_mir_json(args)
-    } else if sub == "program-json" {
-      return me.cmd_emit_program_json(args)
-    }
-
-    print("[hakorune] emit: unknown subcommand: " + sub)
-    return 92
+    return LauncherCommandBox.cmd_emit(args)
   }
-
-  // hakorune emit program-json <source.hako>
-  // - Compile Hako source to Program(JSON v0) using BuildBox.emit_program_json_v0.
-  // - Output is written to stdout on success.
-  method cmd_emit_program_json(args){
-    local req = LauncherInputContractBox.parse_emit_program_json_request(args)
-    if req == null { return 92 }
-    local path = req.get("source_path")
-    local out_path = req.get("out_path")
-    local quiet = req.get("quiet")
-
-    local tag = "[hakorune] emit program-json"
-    local ps = LauncherPayloadContractBox.emit_program_json_from_source_path_checked(tag, path)
-    if ps == null { return 92 }
-
-    if LauncherArtifactIoBox.print_or_write_output(tag, out_path, ps, quiet) != 1 {
-      return 92
-    }
-
-    return 0
-  }
-
-  // hakorune emit mir-json [--from-program-json <program.json>] [-o <out>] [--quiet] [<source.hako>]
-  // - Program(JSON v0) から MIR(JSON) を生成する経路に加えて、
-  //   .hako ソースから直接 Program(JSON v0)→MIR(JSON) まで進める経路もサポートする。
-  method cmd_emit_mir_json(args){
-    local req = LauncherInputContractBox.parse_emit_mir_json_request(args)
-    if req == null { return 92 }
-    local prog_path = req.get("program_json_path")
-    local source_path = req.get("source_path")
-    local out_path = req.get("out_path")
-    local quiet = req.get("quiet")
-
-    local tag = "[hakorune] emit mir-json"
-    local prog_json = LauncherPayloadContractBox.load_program_json_from_path_or_source(tag, prog_path, source_path)
-    if prog_json == null { return 92 }
-
-    local ms = LauncherPayloadContractBox.emit_mir_json_checked(tag, prog_json)
-    if ms == null { return 92 }
-    if LauncherArtifactIoBox.print_or_write_output(tag, out_path, ms, quiet) != 1 {
-      return 92
-    }
-
-    return 0
-  }
-
-
-  // hakorune check <entry.hako>
-  // - Reserved for future static checks (syntax/using/subset).
   method cmd_check(args){
-    print("[hakorune] check: not implemented yet")
-    return 93
-  }
-
-  method _emit_exe_from_source_root_checked(tag, source_path, requested_out_path){
-    local exe_path = me._resolve_build_exe_out_path(source_path, requested_out_path)
-    if exe_path == null { return null }
-    local mir_path = me._resolve_build_exe_mir_path(exe_path)
-    if mir_path == null { return null }
-
-    local source_text = LauncherArtifactIoBox.read_file(tag, source_path)
-    if source_text == null { return null }
-    local root = LauncherCompileFacadeImplBox.emit_root_from_source_v0(source_text)
-    if root == null {
-      print(tag + ": MirBuilderBox.emit_root_from_source_v0 failed")
-      return null
-    }
-
-    local obj = LauncherCompileFacadeImplBox.compile_obj_root(root, mir_path)
-    if me._non_empty_text(obj) != 1 {
-      print(tag + ": env.codegen.compile_obj_root failed")
-      return null
-    }
-    return me._link_exe_object_checked(tag, obj, exe_path)
-  }
-
-  method _link_exe_object_checked(tag, obj_path, exe_path){
-    local linked = me._call_codegen_link_object(obj_path, exe_path)
-    if me._non_empty_text(linked) != 1 {
-      print(tag + ": env.codegen.link_object failed")
-      return null
-    }
-    local linked_path = me._coerce_text_compat(linked)
-    if linked_path != exe_path {
-      print(tag + ": env.codegen.link_object path mismatch")
-      return null
-    }
-    return exe_path
-  }
-
-  method _resolve_build_exe_out_path(source_path, requested_out_path){
-    if me._non_empty_text(requested_out_path) == 1 {
-      return me._coerce_text_compat(requested_out_path)
-    }
-    return "/tmp/hako_link_out.exe"
-  }
-
-  method _resolve_build_exe_mir_path(exe_path){
-    if me._non_empty_text(exe_path) != 1 {
-      return null
-    }
-    return me._coerce_text_compat(exe_path) + ".mir.json"
+    return LauncherCommandBox.cmd_check(args)
   }
 
   method run_bootstrap_from_env(){
-    local req = LauncherInputContractBox.parse_bootstrap_request()
-    if req == null { return 95 }
-    return me._bootstrap_emit_mir_request(req)
+    return LauncherBootstrapBox.run_bootstrap_from_env()
   }
 
   method run_native_entry(){
     return LauncherDispatchBox.dispatch_native_entry()
   }
-
-  method _bootstrap_emit_mir_request(req){
-    local tag = "[hakorune/bootstrap emit mir]"
-    local source_path = req.get("input_path")
-    local out_path = req.get("out_path")
-
-    local ms = LauncherPayloadContractBox.emit_mir_json_from_source_path_checked(tag, source_path)
-    if ms == null { return 95 }
-    if LauncherArtifactIoBox.write_file(tag, out_path, ms, 1) != 1 { return 95 }
-    return 0
-  }
-
-  method _call_codegen_link_object(obj_path, exe_path){
-    if obj_path == null { return null }
-    local obj_text = me._coerce_text_compat(obj_path)
-    if me._non_empty_text(exe_path) == 1 {
-      return LauncherCompileFacadeImplBox.link_exe(
-        obj_text,
-        me._coerce_text_compat(exe_path)
-      )
-    }
-    return null
-  }
-
-  method _coerce_text_compat(value){
-    return "" + value
-  }
-
-  method _non_empty_text(value){
-    if value == null { return 0 }
-    if me._coerce_text_compat(value) == "" { return 0 }
-    return 1
-  }
-
 }
 
 static box Main {
@@ -249,75 +45,6 @@ static box Main {
   // Bootstrap callers use HAKORUNE_BOOTSTRAP_* env; non-bootstrap falls back to
   // the regular CLI with a null argv and fails fast on missing command.
   method main(){
-    local mode_raw = env.get("HAKORUNE_BOOTSTRAP_MODE")
-    local mode = ""
-    if mode_raw != null {
-      mode = "" + mode_raw
-    }
-
-    if mode == "" {
-      print("[hakorune] usage: hakorune <command> [options]")
-      return 1
-    }
-
-    if mode != "emit-mir" {
-      print("[hakorune/bootstrap] unsupported mode: " + mode)
-      return 95
-    }
-
-    local input_path = ""
-    local input_raw = env.get("HAKORUNE_BOOTSTRAP_INPUT")
-    if input_raw != null {
-      input_path = "" + input_raw
-    }
-    if input_path == "" {
-      print("[hakorune/bootstrap emit mir]: HAKORUNE_BOOTSTRAP_INPUT is required")
-      return 95
-    }
-
-    local out_path = ""
-    local out_raw = env.get("HAKORUNE_BOOTSTRAP_OUT")
-    if out_raw != null {
-      out_path = "" + out_raw
-    }
-    if out_path == "" {
-      print("[hakorune/bootstrap emit mir]: HAKORUNE_BOOTSTRAP_OUT is required")
-      return 95
-    }
-
-    local fb = new FileBox()
-    local ok = fb.open(input_path, "r")
-    if ok != 1 {
-      print("[hakorune/bootstrap emit mir]: failed to open " + input_path)
-      return 95
-    }
-    local source_text = fb.read()
-    fb.close()
-    if source_text == null || source_text == "" {
-      print("[hakorune/bootstrap emit mir]: source is empty")
-      return 95
-    }
-
-    local prog = BuildBox.emit_program_json_v0("" + source_text, null)
-    if prog == null {
-      print("[hakorune/bootstrap emit mir]: BuildBox.emit_program_json_v0 returned null")
-      return 95
-    }
-
-    local mir = MirBuilderBox.emit_from_program_json_v0("" + prog, null)
-    if mir == null {
-      print("[hakorune/bootstrap emit mir]: MirBuilderBox.emit_from_program_json_v0 returned null")
-      return 95
-    }
-
-    local fb_out = new FileBox()
-    local ok_out = fb_out.open(out_path, "w")
-    if ok_out != 1 {
-      print("[hakorune/bootstrap emit mir]: failed to open output " + out_path)
-      return 95
-    }
-    fb_out.write("" + mir)
-    fb_out.close()
-    return 0
+    return LauncherDispatchBox.dispatch_native_entry()
   }
 }

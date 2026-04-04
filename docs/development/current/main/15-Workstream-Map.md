@@ -38,7 +38,7 @@ Related:
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
      - current active lane is `phase-77x runner top-level pressure thinning`
-     - current active micro task is `77xA2 target split / stop-line freeze`
+     - current active micro task is `77xB1 launcher.hako body thinning`
      - ranked successor corridor after `68x` is:
        - `69x rust runner product/keep/reference recut`
        - `70x caller-zero archive sweep`
@@ -136,10 +136,10 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `77xA2 target split / stop-line freeze` |
-     | Blocker | `none` |
-     | Next | `77xB1 launcher.hako body thinning` |
-     | After Next | `77xB2 stage1_cli_env.hako authority thinning` |
+     | Now | `77xB1 launcher.hako body thinning` |
+     | Blocker | `launcher.hako emit_mir_mainline probe still red` |
+     | Next | `77xB2 stage1_cli_env.hako authority thinning` |
+     | After Next | `77xD1 proof / closeout` |
    - rust-vm corridor outcome:
 
      | Item | State |
@@ -151,7 +151,7 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `77xA2 target split / stop-line freeze` |
+     | Now | `77xB1 launcher.hako body thinning` |
      | Next | `75xA2 canonical path / keep-now freeze` |
      | Later | `75xB1 selfhost top-level alias caller cleanup` |
    - stage0 shell residue waves:

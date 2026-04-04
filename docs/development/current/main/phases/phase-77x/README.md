@@ -29,4 +29,4 @@ Related:
 ## Current Read
 
 - current front:
-  - `77xA2 target split / stop-line freeze`
+  - `77xB1 launcher.hako body thinning`

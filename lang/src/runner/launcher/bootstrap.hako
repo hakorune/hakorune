@@ -1,0 +1,24 @@
+// launcher/bootstrap.hako — Stage1 launcher bootstrap helpers
+
+using lang.runner.launcher.input_contract as LauncherInputContractBox
+using lang.runner.launcher.artifact_io as LauncherArtifactIoBox
+using lang.runner.launcher.payload_contract as LauncherPayloadContractBox
+
+static box LauncherBootstrapBox {
+  method run_bootstrap_from_env(){
+    local req = LauncherInputContractBox.parse_bootstrap_request()
+    if req == null { return 95 }
+    return me._bootstrap_emit_mir_request(req)
+  }
+
+  method _bootstrap_emit_mir_request(req){
+    local tag = "[hakorune/bootstrap emit mir]"
+    local source_path = req.get("input_path")
+    local out_path = req.get("out_path")
+
+    local ms = LauncherPayloadContractBox.emit_mir_json_from_source_path_checked(tag, source_path)
+    if ms == null { return 95 }
+    if LauncherArtifactIoBox.write_file(tag, out_path, ms, 1) != 1 { return 95 }
+    return 0
+  }
+}

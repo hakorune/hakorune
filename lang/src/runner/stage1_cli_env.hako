@@ -7,45 +7,11 @@
 using lang.compiler.entry.using_resolver_box as Stage1UsingResolverBox
 using lang.compiler.build.build_box as BuildBox
 using lang.mir.builder.MirBuilderBox as MirBuilderBox
+using lang.runner.stage1_cli_env.input_contract as Stage1InputContractBox
+using lang.runner.stage1_cli_env.mode_contract as Stage1ModeContractBox
 static box Main {
   main() {
-    local mode = ""
-
-    local explicit = env.get("NYASH_STAGE1_MODE")
-    if explicit == null || "" + explicit == "" {
-      explicit = env.get("HAKO_STAGE1_MODE")
-    }
-    if explicit != null {
-      local explicit_text = "" + explicit
-      if explicit_text != "" {
-        if explicit_text == "emit_program_json" || explicit_text == "emit-program-json" {
-          mode = "emit-program"
-        } else if explicit_text == "emit_mir_json" || explicit_text == "emit-mir-json" {
-          mode = "emit-mir"
-        } else {
-          mode = explicit_text
-        }
-      }
-    }
-
-    if mode == "" {
-      local emit_program = env.get("STAGE1_EMIT_PROGRAM_JSON")
-      if emit_program != null && "" + emit_program == "1" {
-        mode = "emit-program"
-      }
-    }
-    if mode == "" {
-      local emit_mir = env.get("STAGE1_EMIT_MIR_JSON")
-      if emit_mir != null && "" + emit_mir == "1" {
-        mode = "emit-mir"
-      }
-    }
-    if mode == "" {
-      local use_cli = env.get("NYASH_USE_STAGE1_CLI")
-      if use_cli != null && "" + use_cli == "1" {
-        mode = "run"
-      }
-    }
+    local mode = Stage1ModeContractBox.resolve_mode()
 
     if mode == "" {
       return 97
@@ -175,117 +141,6 @@ static box Main {
     return Stage1EmitMirDispatchBox.run_emit_mir_program_json_compat_mode(tag)
   }
 
-}
-
-// Mode contract stays same-file so Main can stay a pure dispatcher while the
-// reduced stage1 artifact keeps one exact env/mode authority.
-static box Stage1ModeContractBox {
-  method resolve_mode() {
-    local explicit = Stage1InputContractBox.clean_env_value(env.get("NYASH_STAGE1_MODE"))
-    if explicit == "" {
-      explicit = Stage1InputContractBox.clean_env_value(env.get("HAKO_STAGE1_MODE"))
-    }
-    if explicit != "" {
-      return me._normalize_mode_alias(explicit)
-    }
-
-    if Stage1InputContractBox.clean_env_value(env.get("STAGE1_EMIT_PROGRAM_JSON")) == "1" {
-      return "emit-program"
-    }
-    if Stage1InputContractBox.clean_env_value(env.get("STAGE1_EMIT_MIR_JSON")) == "1" {
-      return "emit-mir"
-    }
-    if Stage1InputContractBox.clean_env_value(env.get("NYASH_USE_STAGE1_CLI")) == "1" {
-      return "run"
-    }
-    return ""
-  }
-
-  method _normalize_mode_alias(mode) {
-    if mode == "emit_program_json" || mode == "emit-program-json" {
-      return "emit-program"
-    }
-    if mode == "emit_mir_json" || mode == "emit-mir-json" {
-      return "emit-mir"
-    }
-    return mode
-  }
-}
-
-// Shared env/source contract keep stays same-file so authority/compat boxes can
-// share input resolution without widening the current stage1 artifact boundary.
-static box Stage1InputContractBox {
-  method resolve_supplied_program_json_text() {
-    local stage1_debug_on = me._stage1_debug_on()
-    local stage1_prog_json_text = me.clean_env_value(env.get("STAGE1_PROGRAM_JSON_TEXT"))
-    if stage1_debug_on {
-      print("[stage1-cli/debug] emit-mir STAGE1_PROGRAM_JSON_TEXT.len=" + me._debug_len_inline(stage1_prog_json_text) + " preview=" + me._debug_preview_inline(stage1_prog_json_text))
-    }
-    if stage1_prog_json_text != null && stage1_prog_json_text != "" {
-      return stage1_prog_json_text
-    }
-    return ""
-  }
-
-  method resolve_emit_program_source_text() {
-    local text = me.resolve_source_text()
-    if me._stage1_debug_on() == 1 {
-      print("[stage1-cli/debug] emit-program resolved-text.len=" + me._debug_len_inline(text) +
-            " preview=" + me._debug_preview_inline(text))
-    }
-    if text == null || text == "" {
-      print("[stage1-cli] emit program-json: STAGE1_SOURCE_TEXT is required")
-      return null
-    }
-    return text
-  }
-
-  method resolve_source_text() {
-    return me.clean_env_value(env.get("STAGE1_SOURCE_TEXT"))
-  }
-
-  method resolve_source_path() {
-    local source = me.clean_env_value(env.get("HAKO_STAGE1_INPUT"))
-    if source == "" { source = me.clean_env_value(env.get("NYASH_STAGE1_INPUT")) }
-    if source == "" { source = me.clean_env_value(env.get("STAGE1_SOURCE")) }
-    if source == "" { source = me.clean_env_value(env.get("STAGE1_INPUT")) }
-    return source
-  }
-
-  method clean_env_value(v) {
-    local s = me._coerce_text_compat(v)
-    if s == "null" || s == "Null" || s == "void" || s == "Void" {
-      return ""
-    }
-    return s
-  }
-
-  method _debug_len_inline(value) {
-    if value == null { return "null" }
-    local s = me._coerce_text_compat(value)
-    return me._coerce_text_compat(s.length())
-  }
-
-  method _debug_preview_inline(value) {
-    if value == null { return "<null>" }
-    local s = me._coerce_text_compat(value)
-    if s.length() <= 64 { return s }
-    return s.substring(0, 64)
-  }
-
-  method _coerce_text_compat(value) {
-    return "" + value
-  }
-
-  method _stage1_debug_on() {
-    return me._env_flag_enabled("STAGE1_CLI_DEBUG")
-  }
-
-  method _env_flag_enabled(name) {
-    local flag = env.get(name)
-    if flag != null && me._coerce_text_compat(flag) == "1" { return 1 }
-    return 0
-  }
 }
 
 // Emit-mir route dispatch stays same-file so Main can delegate source-vs-compat

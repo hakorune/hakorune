@@ -1,0 +1,131 @@
+// launcher/command_dispatch.hako — Stage1 launcher command helpers
+
+using lang.runner.launcher.input_contract as LauncherInputContractBox
+using lang.runner.launcher.artifact_io as LauncherArtifactIoBox
+using lang.runner.launcher.payload_contract as LauncherPayloadContractBox
+using lang.runner.launcher.build_exe as LauncherBuildExeBox
+
+static box LauncherCommandBox {
+  // hakorune run [options] <entry.hako> [-- script_args...]
+  // - See docs/development/runtime/cli-hakorune-stage1.md for semantics.
+  // - Phase 25.1: placeholder only（構造だけ定義し、後続フェーズで実装）。
+  method cmd_run(args){
+    print("[hakorune] run: not implemented yet")
+    return 90
+  }
+
+  // hakorune build exe [options] <entry.hako>
+  // - High-level wrapper around selfhost_exe_stageb / ny_mir_builder.
+  method cmd_build(args){
+    local argc = 0
+    if args { argc = args.size() }
+    if argc < 2 {
+      print("[hakorune] build: usage: hakorune build exe <source.hako>")
+      return 91
+    }
+
+    local sub_raw = args.get(1)
+    local sub = "" + sub_raw
+    if sub == "exe" {
+      return me.cmd_build_exe(args)
+    }
+
+    print("[hakorune] build: unknown subcommand: " + sub)
+    return 91
+  }
+
+  // hakorune build exe [-o <out>] [--quiet] <source.hako>
+  // - Pipeline: .hako → Program(JSON v0) → MIR root -> facts -> ll text -> EXE
+  // - Daily launcher no longer uses temp MIR JSON as compile transport.
+  method cmd_build_exe(args){
+    local req = LauncherInputContractBox.parse_build_exe_request(args)
+    if req == null { return 91 }
+    local source_path = req.get("source_path")
+    local out_path = req.get("out_path")
+    local quiet = req.get("quiet")
+
+    local tag = "[hakorune] build exe"
+    local exe_path = LauncherBuildExeBox.emit_exe_from_source_root_checked(tag, source_path, out_path)
+    if exe_path == null { return 91 }
+
+    if quiet != 1 {
+      print("[hakorune] build exe: " + exe_path)
+    }
+
+    return 0
+  }
+
+  // hakorune emit {program-json|mir-json} ...
+  // - Surface for Stage-B / MirBuilder pipeline.
+  method cmd_emit(args){
+    local argc = 0
+    if args { argc = args.size() }
+    if argc < 2 {
+      print("[hakorune] emit: usage: hakorune emit mir-json --from-program-json <file>")
+      return 92
+    }
+
+    local sub_raw = args.get(1)
+    local sub = "" + sub_raw
+    if sub == "mir-json" {
+      return me.cmd_emit_mir_json(args)
+    } else if sub == "program-json" {
+      return me.cmd_emit_program_json(args)
+    }
+
+    print("[hakorune] emit: unknown subcommand: " + sub)
+    return 92
+  }
+
+  // hakorune emit program-json <source.hako>
+  // - Compile Hako source to Program(JSON v0) using BuildBox.emit_program_json_v0.
+  // - Output is written to stdout on success.
+  method cmd_emit_program_json(args){
+    local req = LauncherInputContractBox.parse_emit_program_json_request(args)
+    if req == null { return 92 }
+    local path = req.get("source_path")
+    local out_path = req.get("out_path")
+    local quiet = req.get("quiet")
+
+    local tag = "[hakorune] emit program-json"
+    local ps = LauncherPayloadContractBox.emit_program_json_from_source_path_checked(tag, path)
+    if ps == null { return 92 }
+
+    if LauncherArtifactIoBox.print_or_write_output(tag, out_path, ps, quiet) != 1 {
+      return 92
+    }
+
+    return 0
+  }
+
+  // hakorune emit mir-json [--from-program-json <program.json>] [-o <out>] [--quiet] [<source.hako>]
+  // - Program(JSON v0) から MIR(JSON) を生成する経路に加えて、
+  //   .hako ソースから直接 Program(JSON v0)→MIR(JSON) まで進める経路もサポートする。
+  method cmd_emit_mir_json(args){
+    local req = LauncherInputContractBox.parse_emit_mir_json_request(args)
+    if req == null { return 92 }
+    local prog_path = req.get("program_json_path")
+    local source_path = req.get("source_path")
+    local out_path = req.get("out_path")
+    local quiet = req.get("quiet")
+
+    local tag = "[hakorune] emit mir-json"
+    local prog_json = LauncherPayloadContractBox.load_program_json_from_path_or_source(tag, prog_path, source_path)
+    if prog_json == null { return 92 }
+
+    local ms = LauncherPayloadContractBox.emit_mir_json_checked(tag, prog_json)
+    if ms == null { return 92 }
+    if LauncherArtifactIoBox.print_or_write_output(tag, out_path, ms, quiet) != 1 {
+      return 92
+    }
+
+    return 0
+  }
+
+  // hakorune check <entry.hako>
+  // - Reserved for future static checks (syntax/using/subset).
+  method cmd_check(args){
+    print("[hakorune] check: not implemented yet")
+    return 93
+  }
+}

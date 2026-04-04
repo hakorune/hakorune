@@ -1,0 +1,38 @@
+// stage1_cli_env/mode_contract.hako
+//
+// Shared mode contract keep for the stage1 env authority cluster.
+
+using lang.runner.stage1_cli_env.input_contract as Stage1InputContractBox
+
+static box Stage1ModeContractBox {
+  method resolve_mode() {
+    local explicit = Stage1InputContractBox.clean_env_value(env.get("NYASH_STAGE1_MODE"))
+    if explicit == "" {
+      explicit = Stage1InputContractBox.clean_env_value(env.get("HAKO_STAGE1_MODE"))
+    }
+    if explicit != "" {
+      return me._normalize_mode_alias(explicit)
+    }
+
+    if Stage1InputContractBox.clean_env_value(env.get("STAGE1_EMIT_PROGRAM_JSON")) == "1" {
+      return "emit-program"
+    }
+    if Stage1InputContractBox.clean_env_value(env.get("STAGE1_EMIT_MIR_JSON")) == "1" {
+      return "emit-mir"
+    }
+    if Stage1InputContractBox.clean_env_value(env.get("NYASH_USE_STAGE1_CLI")) == "1" {
+      return "run"
+    }
+    return ""
+  }
+
+  method _normalize_mode_alias(mode) {
+    if mode == "emit_program_json" || mode == "emit-program-json" {
+      return "emit-program"
+    }
+    if mode == "emit_mir_json" || mode == "emit-mir-json" {
+      return "emit-mir"
+    }
+    return mode
+  }
+}

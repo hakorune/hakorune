@@ -23,6 +23,7 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-77x runner top-level pressure thinning`
+- current front: `77xB1 launcher.hako body thinning`
 - landed micro task: `49xD1 proof / closeout`
 - landed micro task: `52xA2 archive README / wrapper wording rewrite`
 - landed micro task: `52xB1 archive pack orchestrator wording cleanup`
@@ -90,7 +91,7 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `65xB2 shell contract owner cleanup`
 - landed micro task: `65xC1 mainline proof bundle refresh`
 - landed micro task: `65xD1 proof / closeout`
-- active micro task: `77xA2 target split / stop-line freeze`
+- active micro task: `77xB1 launcher.hako body thinning`
 - ranked successor corridor after `68x`:
   - `69x rust runner product/keep/reference recut`
   - `70x caller-zero archive sweep`

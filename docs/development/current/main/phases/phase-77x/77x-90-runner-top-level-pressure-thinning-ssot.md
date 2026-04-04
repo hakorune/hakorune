@@ -45,3 +45,7 @@ Related:
     - `lang/src/runner/launcher.hako`
     - `lang/src/runner/stage1_cli_env.hako`
   - worker rerun agrees that wrapper canonicalization is largely done and the next leverage is body thinning in those two files
+- `77xB1` in progress:
+  - `lang/src/runner/launcher.hako` now delegates command bodies through `launcher/command_dispatch.hako`, `launcher/bootstrap.hako`, and `launcher/build_exe.hako`
+  - `lang/src/runner/stage1_cli_env.hako` now delegates mode/input authority to `stage1_cli_env/mode_contract.hako` and `stage1_cli_env/input_contract.hako`
+  - probe note: `tools/hakorune_emit_mir_mainline.sh lang/src/runner/launcher.hako ...` still trips the known `Main._emit_mir_checked/1` residual red; keep it tracked, do not reopen wrapper canonicalization
