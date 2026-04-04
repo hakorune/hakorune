@@ -4,19 +4,7 @@ fi
 source "${ROOT}/tools/selfhost/lib/stage1_contract.sh"
 
 read_artifact_kind() {
-  local bin="$1"
-  local meta="${bin}.artifact_kind"
-  if [[ ! -f "$meta" ]]; then
-    echo "unknown"
-    return 0
-  fi
-  local kind
-  kind="$(awk -F= '/^artifact_kind=/{print $2; exit}' "$meta" 2>/dev/null || true)"
-  if [[ -z "$kind" ]]; then
-    echo "unknown"
-    return 0
-  fi
-  echo "$kind"
+  stage1_contract_artifact_kind "$1"
 }
 
 cleanup_stage_temp_files() {

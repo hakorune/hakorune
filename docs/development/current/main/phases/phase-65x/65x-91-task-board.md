@@ -18,16 +18,16 @@ Date: 2026-04-04
 | --- | --- | --- |
 | `65xA1` | landed | stage1/selfhost owner inventory lock |
 | `65xA2` | landed | mainline contract / proof lock |
-| `65xB1` | active | runner authority owner cleanup |
-| `65xB2` | queued | shell contract owner cleanup |
-| `65xC1` | queued | mainline proof bundle refresh |
-| `65xD1` | queued | proof / closeout |
+| `65xB1` | landed | runner authority owner cleanup |
+| `65xB2` | landed | shell contract owner cleanup |
+| `65xC1` | landed | mainline proof bundle refresh |
+| `65xD1` | active | proof / closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `65xB1 runner authority owner cleanup` |
+| Now | `65xD1 proof / closeout` |
 | Blocker | `focused emit_mir_mainline selfhost-first parse red at build_box.hako` |
-| Next | `65xB2 shell contract owner cleanup` |
-| After Next | `65xC1 mainline proof bundle refresh` |
+| Next | `next source lane selection` |
+| After Next | `future follow-up only if the focused parse blocker still survives` |

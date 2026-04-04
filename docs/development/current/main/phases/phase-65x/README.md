@@ -47,3 +47,10 @@ Related:
 - `65xB1` progress:
   - `stage1_cli_env.hako` now delegates emit-mir source/compat choreography to same-file `Stage1EmitMirDispatchBox`
   - next is shell contract owner cleanup while the focused parse red stays tracked
+- `65xB2` progress:
+  - shell `artifact_kind` reads are now single-sourced through `stage1_contract_artifact_kind(...)`
+  - next is `65xC1 mainline proof bundle refresh`
+- `65xC1` result:
+  - stable green bundle stays green
+  - focused `emit_mir_mainline` probes stay red with the same `build_box.hako` parse blocker
+  - `65xB1/B2` introduced no new regression

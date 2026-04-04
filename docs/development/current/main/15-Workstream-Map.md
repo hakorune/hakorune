@@ -132,10 +132,10 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `65xB1 runner authority owner cleanup` |
+     | Now | `65xD1 proof / closeout` |
      | Blocker | `focused emit_mir_mainline selfhost-first parse red at build_box.hako` |
-     | Next | `65xB2 shell contract owner cleanup` |
-     | After Next | `65xC1 mainline proof bundle refresh` |
+     | Next | `next source lane selection` |
+     | After Next | `future follow-up only if the focused parse blocker still survives` |
    - rust-vm corridor outcome:
 
      | Item | State |
@@ -147,9 +147,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `65xB1 runner authority owner cleanup` |
-     | Next | `65xB2 shell contract owner cleanup` |
-     | Later | `65xC1 mainline proof bundle refresh` |
+     | Now | `65xD1 proof / closeout` |
+     | Next | `next source lane selection` |
+     | Later | `future follow-up only if the focused parse blocker still survives` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |

@@ -136,8 +136,10 @@ Related:
 - landed micro task: `64xD1 proof / closeout`
 - landed micro task: `65xA1 stage1/selfhost owner inventory lock`
 - landed micro task: `65xA2 mainline contract / proof lock`
-- active micro task: `65xB1 runner authority owner cleanup`
-- planned follow-up: `65xB2 shell contract owner cleanup`
+- landed micro task: `65xB1 runner authority owner cleanup`
+- landed micro task: `65xB2 shell contract owner cleanup`
+- landed micro task: `65xC1 mainline proof bundle refresh`
+- active micro task: `65xD1 proof / closeout`
 - rust-vm corridor outcome:
   - mainline retirement: achieved
   - full source retirement: deferred

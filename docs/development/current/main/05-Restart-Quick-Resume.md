@@ -86,8 +86,10 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `64xD1 proof / closeout`
 - landed micro task: `65xA1 stage1/selfhost owner inventory lock`
 - landed micro task: `65xA2 mainline contract / proof lock`
-- active micro task: `65xB1 runner authority owner cleanup`
-- planned follow-up: `65xB2 shell contract owner cleanup`
+- landed micro task: `65xB1 runner authority owner cleanup`
+- landed micro task: `65xB2 shell contract owner cleanup`
+- landed micro task: `65xC1 mainline proof bundle refresh`
+- active micro task: `65xD1 proof / closeout`
 - fixed corridor after `60x`:
   - `61x residual rust-vm caller-zero audit rerun`
   - `62x rust-vm delete-ready removal wave`

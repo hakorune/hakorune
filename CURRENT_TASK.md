@@ -225,10 +225,10 @@ Scope: repo root から current order / current blocker / next exact read に最
   62. `64xD1` proof / closeout (landed)
   63. `65xA1` stage1/selfhost owner inventory lock (landed)
   64. `65xA2` mainline contract / proof lock (landed)
-  65. `65xB1` runner authority owner cleanup (active)
-  66. `65xB2` shell contract owner cleanup (planned)
-  67. `65xC1` mainline proof bundle refresh (planned)
-  68. `65xD1` proof / closeout (planned)
+  65. `65xB1` runner authority owner cleanup (landed)
+  66. `65xB2` shell contract owner cleanup (landed)
+  67. `65xC1` mainline proof bundle refresh (landed)
+  68. `65xD1` proof / closeout (active)
 
 Carry-over context:
 

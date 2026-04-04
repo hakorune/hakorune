@@ -73,6 +73,31 @@ Related:
   - unchanged
   - focused mainline emit probes still remain red on the selfhost-first parse issue from `build_box.hako`
 
+## 65xB2 Progress
+
+- shell contract owner cleanup:
+  - `tools/selfhost/lib/identity_routes.sh` now reuses `stage1_contract_artifact_kind(...)`
+  - `tools/selfhost/build_stage1.sh` now reuses `stage1_contract_artifact_kind(...)`
+  - duplicate `artifact_kind` readers are removed from shell owner surfaces
+- proof:
+  - `bash -n tools/selfhost/lib/stage1_contract.sh tools/selfhost/lib/identity_routes.sh tools/selfhost/build_stage1.sh` PASS
+  - `bash tools/selfhost/stage1_mainline_smoke.sh` PASS
+
+## 65xC1 Proof Refresh
+
+- stable green bundle:
+  - `cargo check --bin hakorune` PASS
+  - `bash tools/selfhost/stage1_mainline_smoke.sh` PASS
+  - `git diff --check` PASS
+- focused blocker rerun:
+  - `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli_env.hako /tmp/stage1_cli_env_probe.mir.json`
+    - FAIL, unchanged
+  - `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli.hako /tmp/stage1_cli_probe.mir.json`
+    - FAIL, unchanged
+- blocker remains:
+  - selfhost-first parse red at `lang/src/compiler/build/build_box.hako:4`
+  - no regression introduced by `65xB1/B2`
+
 ## Big Tasks
 
 1. `65xA1` stage1/selfhost owner inventory lock

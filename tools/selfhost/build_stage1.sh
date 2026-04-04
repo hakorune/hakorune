@@ -165,21 +165,6 @@ if [ -z "${NYASH_BIN:-}" ]; then
   fi
 fi
 
-read_bootstrap_artifact_kind() {
-  local bin="${NYASH_BIN:-}"
-  local meta
-  if [ -z "$bin" ]; then
-    printf "unknown"
-    return 0
-  fi
-  meta="${bin}.artifact_kind"
-  if [ ! -f "$meta" ]; then
-    printf "unknown"
-    return 0
-  fi
-  awk -F= '$1=="artifact_kind"{print $2; exit}' "$meta" 2>/dev/null || printf "unknown"
-}
-
 build_with_stage1_cli_bootstrap() {
   local tmp_prog_raw tmp_prog tmp_mir_raw tmp_mir
   tmp_prog_raw="$(mktemp --suffix .stage1_cli_bootstrap.program.raw.json)"
@@ -374,7 +359,7 @@ if is_truthy "$REUSE_IF_FRESH"; then
 fi
 
 if [ "$SKIPPED_BUILD" -ne 1 ]; then
-  BOOTSTRAP_KIND="$(read_bootstrap_artifact_kind)"
+  BOOTSTRAP_KIND="$(stage1_contract_artifact_kind "${NYASH_BIN:-}")"
   if [ "$ARTIFACT_KIND" = "stage1-cli" ] && [ "$BOOTSTRAP_KIND" != "stage1-cli" ] && [ "${NYASH_BIN:-}" != "$ROOT/target/release/hakorune" ] && [ "${NYASH_BIN:-}" != "$ROOT/target/release/nyash" ]; then
     if [ -x "$ROOT/target/selfhost/hakorune.stage1_cli.stage2" ]; then
       NYASH_BIN="$ROOT/target/selfhost/hakorune.stage1_cli.stage2"
