@@ -168,25 +168,11 @@ static box Main {
   }
 
   method _run_emit_mir_mode(tag) {
-    local supplied_program_json_text = Stage1InputContractBox.resolve_supplied_program_json_text()
-    if Stage1ProgramJsonCompatBox.fail_fast_mixed_source_mode(tag, supplied_program_json_text) != 0 {
-      return 96
-    }
-    local source_text = Stage1InputContractBox.resolve_emit_program_source_text()
-    local mir = Stage1SourceMirAuthorityBox.emit_mir_from_source(tag, source_text)
-    if mir == null {
-      return 96
-    }
-    return Stage1MirResultValidationBox.finalize_emit_result(tag, source_text, mir)
+    return Stage1EmitMirDispatchBox.run_emit_mir_mode(tag)
   }
 
   method _run_emit_mir_program_json_compat_mode(tag) {
-    local program_json_text = Stage1InputContractBox.resolve_source_text()
-    local mir = Stage1ProgramJsonCompatBox.emit_mir_from_text(tag, program_json_text)
-    if mir == null {
-      return 96
-    }
-    return Stage1MirResultValidationBox.finalize_emit_result(tag, program_json_text, mir)
+    return Stage1EmitMirDispatchBox.run_emit_mir_program_json_compat_mode(tag)
   }
 
 }
@@ -299,6 +285,32 @@ static box Stage1InputContractBox {
     local flag = env.get(name)
     if flag != null && me._coerce_text_compat(flag) == "1" { return 1 }
     return 0
+  }
+}
+
+// Emit-mir route dispatch stays same-file so Main can delegate source-vs-compat
+// choreography without widening the current authority boundary again.
+static box Stage1EmitMirDispatchBox {
+  method run_emit_mir_mode(tag) {
+    local supplied_program_json_text = Stage1InputContractBox.resolve_supplied_program_json_text()
+    if Stage1ProgramJsonCompatBox.fail_fast_mixed_source_mode(tag, supplied_program_json_text) != 0 {
+      return 96
+    }
+    local source_text = Stage1InputContractBox.resolve_emit_program_source_text()
+    local mir = Stage1SourceMirAuthorityBox.emit_mir_from_source(tag, source_text)
+    if mir == null {
+      return 96
+    }
+    return Stage1MirResultValidationBox.finalize_emit_result(tag, source_text, mir)
+  }
+
+  method run_emit_mir_program_json_compat_mode(tag) {
+    local program_json_text = Stage1InputContractBox.resolve_source_text()
+    local mir = Stage1ProgramJsonCompatBox.emit_mir_from_text(tag, program_json_text)
+    if mir == null {
+      return 96
+    }
+    return Stage1MirResultValidationBox.finalize_emit_result(tag, program_json_text, mir)
   }
 }
 

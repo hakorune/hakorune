@@ -64,6 +64,15 @@ Related:
   - shell contract cleanup second
   - proof refresh after that
 
+## 65xB1 Progress
+
+- `stage1_cli_env.hako`
+  - emit-mir source/compat choreography moved behind same-file `Stage1EmitMirDispatchBox`
+  - `Main` now delegates the emit-mir route split instead of carrying the branch body inline
+- blocker status:
+  - unchanged
+  - focused mainline emit probes still remain red on the selfhost-first parse issue from `build_box.hako`
+
 ## Big Tasks
 
 1. `65xA1` stage1/selfhost owner inventory lock

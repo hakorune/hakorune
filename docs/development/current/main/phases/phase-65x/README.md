@@ -36,7 +36,7 @@ Related:
 - `65xA1` landed:
   - stage1/selfhost owner inventory is fixed around the `.hako` authority cluster and shell contract owners
 - current front:
-  - `65xA2 mainline contract / proof lock`
+  - `65xB1 runner authority owner cleanup`
 - current proof read:
   - `bash -n tools/selfhost/lib/stage1_contract.sh tools/selfhost/lib/identity_routes.sh tools/selfhost/build_stage1.sh` PASS
   - `bash tools/selfhost/stage1_mainline_smoke.sh` PASS
@@ -44,3 +44,6 @@ Related:
   - `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli.hako /tmp/stage1_cli_probe.mir.json` FAIL
 - immediate blocker:
   - selfhost-first parse red at merged `build_box.hako` (`Unexpected token BOX, expected LBRACE`)
+- `65xB1` progress:
+  - `stage1_cli_env.hako` now delegates emit-mir source/compat choreography to same-file `Stage1EmitMirDispatchBox`
+  - next is shell contract owner cleanup while the focused parse red stays tracked
