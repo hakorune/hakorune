@@ -94,3 +94,5 @@ Related:
 - do not target the five explicit keep surfaces in `57xC1`
 - prefer archive/manual-smoke residue and historical wrappers if they are proven disconnected from the live path
 - if `57xB2` cannot produce a justified delete-ready set, `57xC1` stays a no-op removal wave and the lane closes honestly
+- wrapper alignment that preserves explicit keep semantics is allowed in `57xB2`
+  - example: `tools/selfhost/selfhost_vm_smoke.sh` may update binary/exit-code contracts without changing its proof-only role

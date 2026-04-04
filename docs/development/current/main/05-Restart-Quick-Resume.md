@@ -53,8 +53,9 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `57xA1 residual rust-vm delete-ready inventory lock`
 - landed micro task: `57xA2 keep/delete/archive classification freeze`
 - landed micro task: `57xB1 caller-zero audit`
-- active micro task: `57xB2 removal candidate prep`
-- planned follow-up: `57xC1 removal wave`
+- landed micro task: `57xB2 removal candidate prep`
+- active micro task: `57xC1 removal wave`
+- planned follow-up: `57xD1 proof / closeout`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 

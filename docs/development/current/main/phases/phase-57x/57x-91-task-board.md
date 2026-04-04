@@ -19,8 +19,8 @@ Date: 2026-04-04
 | `57xA1` | landed | residual rust-vm delete-ready inventory lock |
 | `57xA2` | landed | keep/delete/archive classification freeze |
 | `57xB1` | landed | caller-zero audit |
-| `57xB2` | active | removal candidate prep |
-| `57xC1` | queued | removal wave |
+| `57xB2` | landed | removal candidate prep |
+| `57xC1` | active | removal wave |
 | `57xD1` | queued | proof / closeout |
 
 ## Inventory Snapshot
@@ -38,7 +38,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `57xB2 removal candidate prep` |
+| Now | `57xC1 removal wave` |
 | Blocker | `none` |
-| Next | `57xC1 removal wave` |
-| After Next | `57xD1 proof / closeout` |
+| Next | `57xD1 proof / closeout` |
+| After Next | `58x` successor lane selection |

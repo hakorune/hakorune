@@ -48,6 +48,7 @@ Related:
 - `57xA/B1` locked the first-pass inventory and caller audit.
 - no target rust-vm source surface is delete-ready yet.
 - `57xB2` therefore narrows the wave toward archive/manual-smoke residue instead of broad source deletion.
+- stale proof wrappers may still be aligned to current `hakorune` / exit-code contracts while staying explicit keeps.
 
 ## Failure Patterns
 

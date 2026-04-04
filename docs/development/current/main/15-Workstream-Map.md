@@ -132,16 +132,16 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `57xB2 removal candidate prep` |
+     | Now | `57xC1 removal wave` |
      | Blocker | `none` |
-     | Next | `57xC1 removal wave` |
-     | After Next | `57xD1 proof / closeout` |
+     | Next | `57xD1 proof / closeout` |
+     | After Next | `58x` successor lane selection |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `57xB2 removal candidate prep` |
-     | Next | `57xC1 removal wave` |
+     | Now | `57xC1 removal wave` |
+     | Next | `57xD1 proof / closeout` |
      | Later | `58x` successor lane selection |
    - stage0 shell residue waves:
 
@@ -189,9 +189,9 @@ Related:
      - `51xA2 proof-only / archive-later classification`
      - Queued backend surface tasks:
      - `55xA2 backend/default/help exposure freeze`
-     - `57xB2 removal candidate prep`
      - `57xC1 removal wave`
      - `57xD1 proof / closeout`
+     - `58x` successor lane selection
      - `57x rust-vm delete-ready audit / removal wave`
     - `kilo` optimization wave (far future; not the next lane)
 - Post-`37xD1` cleanup:
