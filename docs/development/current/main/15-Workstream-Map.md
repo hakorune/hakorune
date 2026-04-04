@@ -132,16 +132,16 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `53xB2 vm-hako reference keep freeze` |
+     | Now | `53xD1 proof / closeout` |
      | Blocker | `none` |
-     | Next | `53xC1 archive-ready docs/examples / wrapper cleanup` |
+     | Next | `next source lane selection` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `53xB2 vm-hako reference keep freeze` |
-     | Next | `53xC1 archive-ready docs/examples / wrapper cleanup` |
-     | Later | `53xD1 proof / closeout` |
+     | Now | `53xD1 proof / closeout` |
+     | Next | `next source lane selection` |
+     | Later | `none` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |

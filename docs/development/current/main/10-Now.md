@@ -42,8 +42,9 @@ Related:
 - `53xA1 residual VM caller inventory lock` landed
 - `53xA2 proof-only / compat keep classification` landed
 - `53xB1 rust-vm delete-ready source peel` landed
-- `53xB2 vm-hako reference keep freeze` active
-- after next: `53xC1 archive-ready docs/examples / wrapper cleanup`
+- `53xB2 vm-hako reference keep freeze` landed
+- `53xC1 archive-ready docs/examples / wrapper cleanup` landed
+- `53xD1 proof / closeout` active
 - `47xA1` landed: runtime/default contract lock
 - `47xA2` landed: stage1 source->MIR contract lock
 - `47xA3` landed: Stage-A direct/core contract lock
@@ -88,8 +89,7 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `53xB2 vm-hako reference keep freeze`
-- after next: `53xC1 archive-ready docs/examples / wrapper cleanup`
+- active micro task: `53xD1 proof / closeout`
 - plain reading:
   - current source no longer treats `--backend vm` as a live owner lane; remaining references are archive-only evidence
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep

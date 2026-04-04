@@ -115,3 +115,5 @@ Related:
 - `53xB1` is landed: first source peel removed stale VM-owner wording from active Rust surfaces without reopening callers
 - `53xB2` is active: vm-hako stays explicit reference/conformance keep
 - `macro_box_ny.rs` stays compat keep because deprecated env wiring can still force the VM-backed runner branch
+- `53xC1` is landed: archive-ready docs/examples moved out of the live surface
+- `53xD1` is active: proof / closeout is the remaining step
