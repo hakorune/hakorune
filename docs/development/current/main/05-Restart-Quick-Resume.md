@@ -21,7 +21,7 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-84x runner wrapper/source contract thinning`
-- current front: `84xA1 wrapper/source inventory lock`
+- current front: `84xB1 wrapper/source thinning`
 - blocker: `none`
 - recent landed:
   - `phase-82x next source lane selection`

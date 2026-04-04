@@ -15,10 +15,10 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-84x runner wrapper/source contract thinning` |
-| Front | `84xA1 wrapper/source inventory lock` |
+| Front | `84xB1 wrapper/source thinning` |
 | Blocker | `none` |
-| Next | `84xA2 target split / stop-line freeze` |
-| After Next | `84xB1 wrapper/source thinning` |
+| Next | `84xC1 proof refresh` |
+| After Next | `84xD1 closeout` |
 
 ## Current Read
 

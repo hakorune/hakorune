@@ -29,7 +29,7 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 ## Current Front
 
 - Active lane: `phase-84x runner wrapper/source contract thinning`
-- Active micro: `84xA1 wrapper/source inventory lock`
+- Active micro: `84xB1 wrapper/source thinning`
 - Current blocker: `none`
 - Exact focus: thin remaining top-level `.hako` wrapper/source pressure now that top-level selfhost shell wrappers are frozen as explicit keeps
 

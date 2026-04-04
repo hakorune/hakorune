@@ -25,6 +25,29 @@
 2. confirm whether embedded snapshot / Stage1 build contracts still pin any top-level paths
 3. thin comments/contracts or move caller-zero residue only when the interface stop-line stays explicit
 
+## Inventory Freeze
+
+- `keep-now`
+  - `lang/src/runner/stage1_cli.hako`
+    - live test/tool/bridge facade path
+  - `lang/src/runner/runner_facade.hako`
+    - still pinned by the embedded Stage1 module snapshot
+  - `lang/src/runner/launcher_native_entry.hako`
+  - `lang/src/runner/stage1_cli_env_entry.hako`
+    - top-level compatibility wrappers remain, but build/default contracts no longer need to point at them
+- `thin-now`
+  - `tools/selfhost/mainline/build_stage1.sh`
+  - `tools/selfhost/README.md`
+    - can point directly at canonical `lang/src/runner/entry/*` stubs
+- `defer`
+  - `src/runner/stage1_bridge/embedded_stage1_modules_snapshot.json`
+    - snapshot-coupled path pressure stays out of this first cut
+
+## Stop Line
+
+- do not remove top-level `.hako` wrappers in this lane
+- first cut only repoints build/default contract surfaces to canonical `entry/` paths
+
 ## Acceptance
 
 1. wrapper/source inventory is source-backed

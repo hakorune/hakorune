@@ -116,10 +116,10 @@ Usage:
 Defaults:
   artifact-kind: launcher-exe
   launcher-exe entry/out:
-    entry .hako : lang/src/runner/launcher_native_entry.hako
+    entry .hako : lang/src/runner/entry/launcher_native_entry.hako
     output exe  : target/selfhost/hakorune
   stage1-cli entry/out:
-    entry .hako : lang/src/runner/stage1_cli_env_entry.hako
+    entry .hako : lang/src/runner/entry/stage1_cli_env_entry.hako
     output exe  : target/selfhost/hakorune.stage1_cli
   Artifact semantics:
     launcher-exe / stage1-cli are Stage1 artifact kinds; Stage2 packaging is separate.
@@ -228,8 +228,8 @@ build_with_launcher_bootstrap() {
   fi
 }
 
-ENTRY_DEFAULT_LAUNCHER="$ROOT/lang/src/runner/launcher_native_entry.hako"
-ENTRY_DEFAULT_STAGE1_CLI="$ROOT/lang/src/runner/stage1_cli_env_entry.hako"
+ENTRY_DEFAULT_LAUNCHER="$ROOT/lang/src/runner/entry/launcher_native_entry.hako"
+ENTRY_DEFAULT_STAGE1_CLI="$ROOT/lang/src/runner/entry/stage1_cli_env_entry.hako"
 OUT_DEFAULT_LAUNCHER="$ROOT/target/selfhost/hakorune"
 OUT_DEFAULT_STAGE1_CLI="$ROOT/target/selfhost/hakorune.stage1_cli"
 TIMEOUT_SECS_DEFAULT=900
