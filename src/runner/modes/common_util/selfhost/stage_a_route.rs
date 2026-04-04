@@ -3,12 +3,13 @@
  *
  * Purpose:
  * - Keep `selfhost.rs` focused on high-level route sequencing.
- * - Keep Stage-A child spawn/setup and captured payload handoff under one explicit compat owner.
+ * - Keep Stage-A child spawn/setup local while leaving Program(JSON) fallback
+ *   in the explicit compat bridge only.
  */
 
 use super::{
-    child, stage0_capture, stage0_capture_route, stage_a_compat_bridge, stage_a_policy,
-    stage_a_spawn,
+    child, json, runtime_route_contract, stage0_capture, stage0_capture_route,
+    stage_a_compat_bridge, stage_a_policy, stage_a_spawn,
 };
 
 const STAGE_A_COMPILER_ENTRY: &str = "lang/src/compiler/entry/compiler.hako";
@@ -58,14 +59,33 @@ pub(crate) fn try_capture_stage_a_module(
 
     let captured = stage0_capture::run_captured_json_v0_command(cmd, timeout_ms)?;
 
-    stage_a_compat_bridge::resolve_captured_payload_to_mir(
-        exe,
-        source_name,
-        timeout_ms,
-        verbose_level,
-        captured.mir_line.as_deref(),
-        captured.program_line.as_deref(),
-    )
+    if let Some(mir_line) = captured.mir_line.as_deref() {
+        match json::parse_mir_json_v0_line(mir_line) {
+            Ok(module) => {
+                return Some(stage_a_compat_bridge::ProgramCompatMir {
+                    module,
+                    lane: runtime_route_contract::LANE_DIRECT,
+                });
+            }
+            Err(e) => {
+                let ring0 = crate::runtime::ring0::get_global_ring0();
+                ring0.log.error(&format!(
+                    "[ny-compiler] mir json parse error (child): {}",
+                    e
+                ));
+            }
+        }
+    }
+
+    captured.program_line.as_deref().and_then(|program_line| {
+        stage_a_compat_bridge::resolve_program_payload_to_mir(
+            exe,
+            source_name,
+            timeout_ms,
+            verbose_level,
+            program_line,
+        )
+    })
 }
 
 #[cfg(test)]

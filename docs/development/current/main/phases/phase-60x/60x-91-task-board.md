@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 ---
 
@@ -17,17 +17,17 @@ Date: 2026-04-04
 | Task | Status | Read as |
 | --- | --- | --- |
 | `60xA1` | landed | proof/compat keep inventory lock |
-| `60xA2` | active | compat keep boundary freeze |
-| `60xB1` | queued | stage-a compat seam pruning |
-| `60xB2` | queued | vm_fallback/core.hako keep pruning continuation |
-| `60xC1` | queued | proof smoke keep pruning continuation |
-| `60xD1` | queued | proof / closeout |
+| `60xA2` | landed | compat keep boundary freeze |
+| `60xB1` | landed | stage-a compat seam pruning |
+| `60xB2` | landed | vm_fallback/core.hako keep pruning continuation |
+| `60xC1` | landed | proof smoke keep pruning continuation |
+| `60xD1` | landed | proof / closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `60xA2 compat keep boundary freeze` |
+| Now | `60xD1 proof / closeout` |
 | Blocker | `none` |
-| Next | `60xB1 stage-a compat seam pruning` |
-| After Next | `60xB2 vm_fallback/core.hako keep pruning continuation` |
+| Next | `61x residual rust-vm caller-zero audit rerun` |
+| After Next | `62x rust-vm delete-ready removal wave` |

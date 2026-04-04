@@ -22,7 +22,7 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-60x proof/compat keep pruning continuation`
+- lane: `phase-61x residual rust-vm caller-zero audit rerun`
 - landed micro task: `49xD1 proof / closeout`
 - landed micro task: `52xA2 archive README / wrapper wording rewrite`
 - landed micro task: `52xB1 archive pack orchestrator wording cleanup`
@@ -62,8 +62,13 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `58xD1 proof / closeout`
 - landed micro task: `59xA1 route-surface inventory lock`
 - landed micro task: `60xA1 proof/compat keep inventory lock`
-- active micro task: `60xA2 compat keep boundary freeze`
-- planned follow-up: `60xB1 stage-a compat seam pruning`
+- landed micro task: `60xA2 compat keep boundary freeze`
+- landed micro task: `60xB1 stage-a compat seam pruning`
+- landed micro task: `60xB2 vm_fallback/core.hako keep pruning continuation`
+- landed micro task: `60xC1 proof smoke keep pruning continuation`
+- landed micro task: `60xD1 proof / closeout`
+- active micro task: `61xA1 residual caller inventory rerun`
+- planned follow-up: `61xA2 keep/delete-ready classification freeze`
 - fixed corridor after `60x`:
   - `61x residual rust-vm caller-zero audit rerun`
   - `62x rust-vm delete-ready removal wave`
@@ -75,9 +80,9 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-60x/README.md`
-4. `docs/development/current/main/phases/phase-60x/60x-90-proof-compat-keep-pruning-continuation-ssot.md`
-5. `docs/development/current/main/phases/phase-60x/60x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-61x/README.md`
+4. `docs/development/current/main/phases/phase-61x/61x-90-residual-rust-vm-caller-zero-audit-rerun-ssot.md`
+5. `docs/development/current/main/phases/phase-61x/61x-91-task-board.md`
 6. `cargo check --manifest-path Cargo.toml --bin hakorune`
 
 ## Optional Checks

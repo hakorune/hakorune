@@ -1,0 +1,37 @@
+---
+Status: SSOT
+Date: 2026-04-04
+Scope: rerun caller-zero facts after phase-60x pruning narrowed the explicit keep bucket.
+Related:
+  - CURRENT_TASK.md
+  - docs/development/current/main/05-Restart-Quick-Resume.md
+  - docs/development/current/main/10-Now.md
+  - docs/development/current/main/15-Workstream-Map.md
+  - docs/development/current/main/phases/phase-60x/README.md
+---
+
+# 61x-90 Residual Rust-VM Caller-Zero Audit Rerun SSOT
+
+## Intent
+
+- verify whether any residual `rust-vm` keep has become delete-ready after `60x`
+- keep the audit source-backed with `rg`/callers/smokes, not wording-only
+- avoid mixing `vm-hako` reference/conformance work into the rust-vm retirement corridor
+
+## Audit Targets
+
+- `src/runner/modes/vm.rs`
+- `src/runner/modes/vm_fallback.rs`
+- `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
+- `lang/src/runner/stage1_cli/core.hako`
+- `tools/selfhost/run_stageb_compiler_vm.sh`
+- `src/runner/dispatch.rs`
+- `src/runner/route_orchestrator.rs`
+
+## Boundary
+
+- `61x` reruns facts; it does not remove broad sources by itself
+- any delete-ready claim must show caller-zero or explicit replacement evidence
+- successor lanes stay fixed:
+  1. `62x rust-vm delete-ready removal wave`
+  2. `63x rust-vm final retirement decision`

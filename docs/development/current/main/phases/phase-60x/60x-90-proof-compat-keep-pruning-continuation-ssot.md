@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Landed
 Date: 2026-04-04
 Scope: continue pruning explicit proof/compat keeps after route/default/help retirement narrowed the outer rust-vm surface.
 Related:
@@ -89,6 +89,39 @@ Related:
   - `src/runner/dispatch.rs`
   - `src/runner/route_orchestrator.rs`
   - these stay in the later `61x -> 62x -> 63x` retirement corridor
+
+## Landed This Lane
+
+- `60xB1 stage-a compat seam pruning`
+  - `src/runner/modes/common_util/selfhost/stage_a_route.rs`
+    - direct MIR acceptance stays here
+  - `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
+    - narrowed to Program(JSON) compat fallback only
+  - read-as:
+    - mainline-like MIR acceptance no longer lives inside the compat bridge
+    - the compat seam is thinner without changing shell/runtime contracts
+- `60xB2 vm_fallback/core.hako keep pruning continuation`
+  - `src/runner/modes/vm_fallback.rs`
+    - removed caller-zero helper `execute_vm_fallback_from_ast(...)`
+  - `lang/src/runner/stage1_cli/core.hako`
+    - kept unchanged as the thin raw compat hold line
+  - read-as:
+    - the explicit compat fallback keep shrinks by deletion first
+    - `core.hako` remains present because the raw Program(JSON) boundary still has live compat callers
+
+## Proof
+
+- `cargo check --bin hakorune` PASS
+- `git diff --check` PASS
+- `bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_runtime_route_smoke_vm.sh` PASS
+- `bash tools/selfhost/selfhost_smoke.sh` PASS
+- `bash tools/selfhost/bootstrap_selfhost_smoke.sh` PASS
+
+## Handoff
+
+- `60x` closes as a pruning lane only.
+- successor lane:
+  - `61x residual rust-vm caller-zero audit rerun`
 
 ## Boundaries
 

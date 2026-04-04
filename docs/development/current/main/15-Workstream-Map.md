@@ -37,7 +37,7 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-60x proof/compat keep pruning continuation`
+     - current active lane is `phase-61x residual rust-vm caller-zero audit rerun`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
@@ -128,14 +128,14 @@ Related:
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-60x proof/compat keep pruning continuation table:
+   - phase-61x residual rust-vm caller-zero audit rerun table:
 
      | Item | State |
      | --- | --- |
-     | Now | `60xA2 compat keep boundary freeze` |
+     | Now | `61xA1 residual caller inventory rerun` |
      | Blocker | `none` |
-     | Next | `60xB1 stage-a compat seam pruning` |
-     | After Next | `60xB2 vm_fallback/core.hako keep pruning continuation` |
+     | Next | `61xA2 keep/delete-ready classification freeze` |
+     | After Next | `61xB1 caller-zero proof bundle` |
    - retirement corridor after `60x`:
 
      | Lane | Read as |
@@ -147,9 +147,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `60xA2 compat keep boundary freeze` |
-     | Next | `60xB1 stage-a compat seam pruning` |
-     | Later | `60xB2 vm_fallback/core.hako keep pruning continuation` |
+     | Now | `61xA1 residual caller inventory rerun` |
+     | Next | `61xA2 keep/delete-ready classification freeze` |
+     | Later | `61xB1 caller-zero proof bundle` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |

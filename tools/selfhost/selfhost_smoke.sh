@@ -7,6 +7,7 @@ set -euo pipefail
 
 ROOT_DIR=$(cd "$(dirname "$0")/../.." && pwd)
 NY_BIN="${ROOT_DIR}/target/release/hakorune"
+PROOF_STAGEB_SCRIPT="${ROOT_DIR}/tools/selfhost/run_stageb_compiler_vm.sh"
 
 if [[ ! -x "${NY_BIN}" ]]; then
   echo "[selfhost-smoke] hakorune binary not found at ${NY_BIN}. Please build first: cargo build --release" >&2
@@ -15,10 +16,13 @@ fi
 
 echo "[selfhost-smoke] Step 1: Emit JSON via explicit proof keep"
 OUT_JSON="/tmp/nyash_selfhost_out.json"
+INLINE_SRC="/tmp/nyash_selfhost_smoke_inline_stageb.hako"
+printf '%s\n' 'box Main { static method main() { return 0 } }' > "${INLINE_SRC}"
 set -x
-# Use lang side entry (Stage‑B proof keep). Emission is optional; failure does not fail the smoke.
-if NYASH_ENABLE_USING=1 NYASH_ALLOW_USING_FILE=1 NYASH_USING_AST=1 NYASH_FEATURES=stage3 \
-   "${NY_BIN}" --backend vm "${ROOT_DIR}/lang/src/compiler/entry/compiler_stageb.hako" -- --source 'box Main { static method main() { return 0 } }' > "${OUT_JSON}" 2>/dev/null; then
+# Route Stage-B proof emission through the explicit proof gate script.
+# Emission stays optional; failure does not fail the minimal smoke.
+if NYASH_SELFHOST_STAGEB_PROOF_ONLY=1 NYASH_ENABLE_USING=1 NYASH_ALLOW_USING_FILE=1 NYASH_USING_AST=1 NYASH_FEATURES=stage3 \
+   bash "${PROOF_STAGEB_SCRIPT}" --source-file "${INLINE_SRC}" --route-id "SH-SMOKE-MINIMAL" > "${OUT_JSON}" 2>/dev/null; then
   :
 else
   echo "[selfhost-smoke] WARN: proof keep emission failed (policy/duplicates?). Continuing." >&2

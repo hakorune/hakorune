@@ -6,7 +6,7 @@ ROOT_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/../.." && pwd)
 BIN="$ROOT_DIR/target/release/hakorune"
 
 if [ ! -x "$BIN" ]; then
-  echo "[bootstrap] building nyash (release, JIT)..." >&2
+  echo "[bootstrap] building hakorune (release, JIT)..." >&2
   cargo build --release --features cranelift-jit >/dev/null
 fi
 

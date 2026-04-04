@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: continue pruning proof/compat keeps after phase-59x narrowed the remaining rust-vm route/default/help surfaces.
 Related:
@@ -68,6 +68,10 @@ Related:
 - proof-only keeps stay explicit and non-growing
 - compat keeps stay explicit and non-default
 - `cargo check --bin hakorune` and `git diff --check` stay green
+- focused proofs stay green:
+  - `bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_runtime_route_smoke_vm.sh`
+  - `bash tools/selfhost/selfhost_smoke.sh`
+  - `bash tools/selfhost/bootstrap_selfhost_smoke.sh`
 
 ## Big Tasks
 
@@ -76,7 +80,11 @@ Related:
    - `60xA2` compat keep boundary freeze
 2. prune the live keep surfaces
    - `60xB1` stage-a compat seam pruning
+     - landed: direct MIR acceptance now stays in `stage_a_route.rs`
+     - compat bridge now owns Program(JSON) fallback only
    - `60xB2` vm_fallback/core.hako keep pruning continuation
+     - landed: caller-zero helper `execute_vm_fallback_from_ast(...)` removed from `vm_fallback.rs`
+     - `core.hako` remains a thin no-widen compat keep
    - `60xC1` proof smoke keep pruning continuation
 3. prove and close
    - `60xD1` proof / closeout
@@ -90,3 +98,14 @@ Related:
   3. `63x rust-vm final retirement decision`
 - expected reading:
   - full rust-vm retirement is only realistic after `60x` narrows the explicit keep bucket and `61x/62x` prove delete-ready facts
+
+## Result
+
+- `60xA1` landed: proof/compat keep inventory lock
+- `60xA2` landed: compat keep boundary freeze
+- `60xB1` landed: stage-a compat seam pruning
+- `60xB2` landed: vm_fallback/core.hako keep pruning continuation
+- `60xC1` landed: proof smoke keep pruning continuation
+- `60xD1` landed: proof / closeout
+- handoff:
+  - next lane is `phase-61x residual rust-vm caller-zero audit rerun`

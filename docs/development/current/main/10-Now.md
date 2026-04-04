@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `phase-60x proof/compat keep pruning continuation`
+- lane: `phase-61x residual rust-vm caller-zero audit rerun`
 - `49xD1` landed: proof / closeout
 - `50xA1` landed: residual rust-vm surface inventory lock
 - `50xA2` landed: proof-only / compat keep classification
@@ -112,7 +112,12 @@ Related:
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
 - landed micro task: `60xA1 proof/compat keep inventory lock`
-- active micro task: `60xA2 compat keep boundary freeze`
+- landed micro task: `60xA2 compat keep boundary freeze`
+- landed micro task: `60xB1 stage-a compat seam pruning`
+- landed micro task: `60xB2 vm_fallback/core.hako keep pruning continuation`
+- landed micro task: `60xC1 proof smoke keep pruning continuation`
+- landed micro task: `60xD1 proof / closeout`
+- active micro task: `61xA1 residual caller inventory rerun`
 - fixed retirement corridor:
   - `61x residual rust-vm caller-zero audit rerun`
   - `62x rust-vm delete-ready removal wave`
@@ -122,7 +127,8 @@ Related:
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep
   - `phase-57x` closed without broad source deletion; remaining rust-vm surfaces stay explicit keep
   - `phase-59x` landed after narrowing CLI/backend, selfhost route/default, and dispatch/orchestrator affordances
-  - `phase-60x` now resumes proof/compat keep pruning on the remaining explicit keep bucket
+  - `phase-60x` closed after narrowing the explicit proof/compat keep bucket further
+  - `phase-61x` now reruns caller-zero facts before any delete-ready claim
   - full rust-vm retirement is not expected before the `61x -> 62x -> 63x` corridor completes
 - `phase-42x` is landed; it starved day-to-day callers away from vm-gated routes and moved owner pressure toward direct/core seams
 - `phase-43x` is landed; it selected `phase-44x stage0 direct/core follow-up` as the highest-leverage successor lane
@@ -165,6 +171,6 @@ Related:
 
 1. read `CURRENT_TASK.md`
 2. read `15-Workstream-Map.md`
-3. read `docs/development/current/main/phases/phase-59x/README.md`
-4. read `docs/development/current/main/phases/phase-59x/59x-90-rust-vm-route-surface-retirement-continuation-ssot.md`
-5. read `docs/development/current/main/phases/phase-59x/59x-91-task-board.md`
+3. read `docs/development/current/main/phases/phase-61x/README.md`
+4. read `docs/development/current/main/phases/phase-61x/61x-90-residual-rust-vm-caller-zero-audit-rerun-ssot.md`
+5. read `docs/development/current/main/phases/phase-61x/61x-91-task-board.md`

@@ -8,9 +8,7 @@
 
 use crate::mir::MirModule;
 
-use super::{
-    json, runtime_route_contract, stage0_capture, stage0_capture_route, stage_a_policy,
-};
+use super::{json, runtime_route_contract, stage0_capture, stage0_capture_route, stage_a_policy};
 
 const MIR_BUILDER_PROGRAM_PATH: &str =
     "lang/src/compiler/mirbuilder/emit_mir_json_v0_from_program_json_v0.hako";
@@ -19,41 +17,6 @@ const CHILD_ENV_REMOVE: &[&str] = &["NYASH_USE_NY_COMPILER", "NYASH_CLI_VERBOSE"
 pub(crate) struct ProgramCompatMir {
     pub(crate) module: MirModule,
     pub(crate) lane: &'static str,
-}
-
-// Captured Stage-A payload-family resolution lives here, not in `selfhost.rs`.
-// Keep direct MIR acceptance and Program(JSON v0) compat fallback under one thin owner.
-pub(crate) fn resolve_captured_payload_to_mir(
-    exe: &std::path::Path,
-    source_name: &str,
-    timeout_ms: u64,
-    verbose_level: u8,
-    mir_line: Option<&str>,
-    program_line: Option<&str>,
-) -> Option<ProgramCompatMir> {
-    let resolved = json::resolve_stage_a_payload(mir_line, program_line);
-    if let Some(error) = resolved.mir_parse_error.as_deref() {
-        let ring0 = crate::runtime::ring0::get_global_ring0();
-        ring0.log.error(&format!(
-            "[ny-compiler] mir json parse error (child): {}",
-            error
-        ));
-    }
-
-    match resolved.payload {
-        json::StageAPayload::MirModule(module) => Some(ProgramCompatMir {
-            module,
-            lane: runtime_route_contract::LANE_DIRECT,
-        }),
-        json::StageAPayload::ProgramJson(program_line) => resolve_program_payload_to_mir(
-            exe,
-            source_name,
-            timeout_ms,
-            verbose_level,
-            program_line.as_str(),
-        ),
-        json::StageAPayload::Empty => None,
-    }
 }
 
 pub(crate) fn resolve_program_payload_to_mir(
@@ -148,44 +111,11 @@ pub(crate) fn resolve_program_payload_to_mir(
 
 #[cfg(test)]
 mod tests {
-    use super::resolve_captured_payload_to_mir;
-
     #[test]
     fn mir_builder_program_path_is_stable() {
         assert_eq!(
             super::MIR_BUILDER_PROGRAM_PATH,
             "lang/src/compiler/mirbuilder/emit_mir_json_v0_from_program_json_v0.hako"
         );
-    }
-
-    #[test]
-    fn resolve_captured_payload_to_mir_prefers_direct_lane() {
-        let resolved = resolve_captured_payload_to_mir(
-            std::path::Path::new("/tmp/unused-nyash"),
-            "inline.ny",
-            1000,
-            0,
-            Some(
-                r#"{"kind":"MIR","schema_version":"1.0","functions":[{"name":"main","blocks":[{"id":0,"instructions":[{"op":"const","dst":1,"value":{"type":"i64","value":7}},{"op":"ret","value":1}]}]}]}"#,
-            ),
-            Some(r#"{"version":0,"kind":"Program","body":[]}"#),
-        )
-        .expect("direct MIR payload must resolve");
-
-        assert_eq!(resolved.lane, super::runtime_route_contract::LANE_DIRECT);
-    }
-
-    #[test]
-    fn resolve_captured_payload_to_mir_returns_none_when_empty() {
-        let resolved = resolve_captured_payload_to_mir(
-            std::path::Path::new("/tmp/unused-nyash"),
-            "inline.ny",
-            1000,
-            0,
-            None,
-            None,
-        );
-
-        assert!(resolved.is_none());
     }
 }
