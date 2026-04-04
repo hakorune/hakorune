@@ -1,12 +1,14 @@
-// stage1_cli.hako — thin compatibility wrapper
+// stage1_cli.hako — thin stage1 facade wrapper
 //
-// Canonical compat owner now lives under `compat/stage1_cli.hako`.
+// Canonical compat owner lives under `compat/stage1_cli.hako`.
+// Top-level stage1_cli.hako stays as a facade path and delegates to the
+// current env authority entry.
 
-using lang.runner.compat.stage1_cli as Stage1CliCompatBox
+using lang.runner.stage1_cli_env as Stage1CliEnvBox
 
 static box Stage1CliMain {
   main() {
-    return Stage1CliCompatBox.Stage1CliMain.main()
+    return Stage1CliEnvBox.Main.main()
   }
 }
 

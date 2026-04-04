@@ -316,3 +316,4 @@ static box FuncScannerBox {
 
     return methods
   }
+}

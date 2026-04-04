@@ -541,18 +541,22 @@ static box Main { method main(args) {
 HCODE
   else
     cat >"$tmp_hako" <<'HCODE'
-using "__BUILDER_BOX__" as MirBuilderBox
+using lang.runner.stage1_cli.program_json_mir as Stage1CliProgramJsonMirBox
 static box Main {
 method _emit_mir_checked(prog_json) {
-  local mir_out = MirBuilderBox.emit_from_program_json_v0(prog_json, null)
-  if mir_out == null { print("[builder/selfhost-first:fail:emit]"); return null }
-  return mir_out
+  return Stage1CliProgramJsonMirBox.emit_from_program_json_v0("[builder/selfhost-first]", prog_json)
 }
 method main(args) {
   local prog_json = env.get("HAKO_BUILDER_PROGRAM_JSON")
-  if prog_json == null { print("[builder/selfhost-first:fail:nojson]"); return 1 }
+  if prog_json == null {
+    print("[builder/selfhost-first:fail:nojson]")
+    return 1
+  }
   local mir_out = me._emit_mir_checked(prog_json)
-  if mir_out == null { return 1 }
+  if mir_out == null {
+    print("[builder/selfhost-first:fail:emit]")
+    return 1
+  }
   print("[builder/selfhost-first:ok]")
   print("[MIR_OUT_BEGIN]")
   print("" + mir_out)
@@ -560,7 +564,6 @@ method main(args) {
   return 0
 } }
 HCODE
-    sed -i "s|__BUILDER_BOX__|$builder_box|g" "$tmp_hako"
   fi
 }
 

@@ -37,5 +37,9 @@ Related:
 - `73xA2` landed:
   - reduced file-context repro still points at merged `BuildBox`
   - first fix target is the selfhost-first merge/parser seam around `build_box`
+- `73xB1` active:
+  - `build_box` parse seam is fixed
+  - `stage1_cli_env.hako` focused probe is green again
+  - remaining red is narrowed to top-level `stage1_cli.hako` facade lowerability under selfhost-first `emit_mir_mainline`
 - current front:
   - `73xB1 focused source fix`

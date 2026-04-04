@@ -1,7 +1,7 @@
 // build_box.hako — BuildBox (Phase‑20.33 minimal)
 
 using lang.compiler.parser.parser_box as ParserBox
-using lang.compiler.parser.using.using_collector_box as UsingCollectorBox
+using "lang.compiler.parser.using.using_collector_box" as UsingCollectorBox
 using lang.compiler.entry.func_scanner as FuncScannerBox
 using selfhost.shared.common.string_helpers as StringHelpers
 

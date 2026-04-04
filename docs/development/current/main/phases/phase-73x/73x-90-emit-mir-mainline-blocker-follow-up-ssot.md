@@ -1,7 +1,7 @@
 ---
 Status: Active
 Date: 2026-04-04
-Scope: track the focused `emit_mir_mainline` parse red that still points at `build_box.hako`.
+Scope: track the focused `emit_mir_mainline` residual red after the `build_box` parse seam is fixed.
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/phases/phase-65x/README.md
@@ -19,12 +19,13 @@ Related:
 ## Known Red
 
 - probe:
-  - `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli_env.hako /tmp/stage1_cli_env_probe.mir.json`
   - `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli.hako /tmp/stage1_cli_probe.mir.json`
+- restored green:
+  - `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli_env.hako /tmp/stage1_cli_env_probe.mir.json`
 - current origin:
-  - `lang/src/compiler/build/build_box.hako`
+  - selfhost-first residual around top-level `stage1_cli.hako` facade lowering
 - current error:
-  - `Unexpected token BOX, expected LBRACE`
+  - `[mirbuilder/internal/unsupported]`
 
 ## Decision Rule
 
@@ -54,3 +55,15 @@ Related:
 - the file-context repro fails even in the reduced `env_source_only` case
 - this lowers the probability that `stage1_cli_env.hako` or `stage1_cli.hako` themselves are the real owner
 - `73xB1` should start from the `build_box` merge/parser seam, not from wrapper churn
+
+## 73xB1 Result
+
+- fixed:
+  - `lang/src/compiler/entry/func_scanner.hako` final box close
+  - `lang/src/compiler/build/build_box.hako` quoted `using` path for `using_collector_box`
+- restored green:
+  - `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli_env.hako /tmp/stage1_cli_env_probe.mir.json`
+  - `bash tools/selfhost/mainline/stage1_mainline_smoke.sh`
+- narrowed residual red:
+  - `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli.hako /tmp/stage1_cli_probe.mir.json`
+  - current read is no longer `build_box` parse failure; remaining red is the top-level `stage1_cli.hako` facade path under selfhost-first `emit_mir_mainline`

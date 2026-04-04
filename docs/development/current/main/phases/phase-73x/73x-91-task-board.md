@@ -27,6 +27,6 @@ Date: 2026-04-04
 | Item | State |
 | --- | --- |
 | Now | `73xB1 focused source fix` |
-| Blocker | `tracked focused parse red` |
+| Blocker | `tracked focused residual red on top-level stage1_cli facade` |
 | Next | `73xC1 proof bundle refresh` |
 | After Next | `73xD1 proof / closeout` |
