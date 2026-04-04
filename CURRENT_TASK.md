@@ -140,8 +140,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 - Current blocker: `none`
 - Exact focus: `phase-53x residual VM source audit`
 - exact phase-53x order:
-  1. `53xA1` residual VM caller inventory lock (active)
-  2. `53xA2` proof-only / compat keep classification (queued)
+  1. `53xA1` residual VM caller inventory lock (landed)
+  2. `53xA2` proof-only / compat keep classification (active)
   3. `53xB1` rust-vm delete-ready source peel (queued)
   4. `53xB2` vm-hako reference keep freeze (queued)
   5. `53xC1` archive-ready docs/examples / wrapper cleanup (queued)
@@ -254,7 +254,7 @@ Carry-over context:
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `phase-53x residual VM source audit` | keep residual VM source audit minimal and explicit after archive cleanup |
-| Next | `53xA1 residual VM caller inventory lock` | inventory remaining rust-vm / vm-hako source surfaces before any delete-ready decision |
+| Next | `53xA2 proof-only / compat keep classification` | classify the inventoried residual surfaces into keep-now / archive-later / delete-ready |
 | Later | `53xD1 proof / closeout` | prove the residual VM audit stays green and hand off cleanly |
 
 ## Phase-34x Waves

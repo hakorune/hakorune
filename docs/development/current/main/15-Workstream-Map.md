@@ -132,15 +132,15 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `53xA1 residual VM caller inventory lock` |
+     | Now | `53xA2 proof-only / compat keep classification` |
      | Blocker | `none` |
-     | Next | `53xA2 proof-only / compat keep classification` |
+     | Next | `53xB1 rust-vm delete-ready source peel` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `53xA1 residual VM caller inventory lock` |
-     | Next | `53xA2 proof-only / compat keep classification` |
+     | Now | `53xA2 proof-only / compat keep classification` |
+     | Next | `53xB1 rust-vm delete-ready source peel` |
      | Later | `53xD1 proof / closeout` |
    - stage0 shell residue waves:
 

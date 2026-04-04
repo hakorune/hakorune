@@ -36,6 +36,42 @@ Related:
 - vm-hako remains a live reference/conformance lane
 - the job is to peel delete-ready rust-vm residues without touching live vm-hako reference work
 
+## Inventory Snapshot
+
+### keep-now
+
+- `src/runner/dispatch.rs`
+- `src/runner/route_orchestrator.rs`
+- `src/runner/modes/vm.rs`
+- `src/runner/modes/vm_fallback.rs`
+- `src/runner/modes/vm_hako.rs`
+- `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
+- `lang/src/runner/stage1_cli/core.hako`
+- `tools/selfhost/run_stageb_compiler_vm.sh`
+- `tools/selfhost/bootstrap_selfhost_smoke.sh`
+- `tools/selfhost/selfhost_smoke.sh`
+- `tools/selfhost/selfhost_stage3_accept_smoke.sh`
+- `tools/plugins/plugin_v2_smoke.sh`
+- `tools/selfhost/lib/selfhost_run_routes.sh` compatibility branch
+- `tools/smokes/v2/profiles/integration/vm_hako_caps/**`
+- `tools/smokes/v2/suites/integration/vm-hako-caps.txt`
+- `tools/smokes/v2/suites/integration/vm-hako-core.txt`
+- `tools/smokes/v2/suites/integration/phase29x-vm-hako.txt`
+- `tools/checks/phase29x_vm_hako_*`
+- `tools/checks/vm_*`
+- `lang/src/vm/**`
+- `src/config/env/vm_backend_flags.rs`
+
+### archive-later
+
+- `tools/selfhost/emit_vm_hako_checkpoint_snippet.sh`
+- `tools/selfhost/README.md` lines that describe archived vm-hako / compat evidence
+- `src/macro/macro_box_ny.rs` comments that describe the explicit compat VM bridge as historical compatibility wiring
+
+### delete-ready
+
+- none in this first pass; delete-ready peel stays blocked on caller drain or on turning live proof/compat keeps into archive-only evidence
+
 ## Success Conditions
 
 - residual source surfaces are inventoried
@@ -70,4 +106,4 @@ Related:
 - proof-only gates stay explicit and non-growing
 - compat keeps remain explicit and non-growing
 - delete only after caller drain
-
+- inventory first pass did not produce delete-ready source candidates yet
