@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: prune proof/compat keep surfaces after route-surface retirement has landed, without entering delete-ready removal yet.
 Related:
@@ -60,3 +60,9 @@ Related:
    - `56xC1` proof smoke keep pruning
 3. prove and close
    - `56xD1` proof / closeout
+
+## Outcome
+
+- proof-only and compat keeps are now explicitly bounded and non-growing
+- proof smoke wrappers no longer overstate rust-vm as a day-to-day owner lane
+- the lane hands off to `phase-57x rust-vm delete-ready audit / removal wave`

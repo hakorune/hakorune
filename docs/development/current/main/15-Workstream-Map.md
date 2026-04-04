@@ -37,7 +37,7 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-56x proof/compat keep pruning`
+     - current active lane is `phase-57x rust-vm delete-ready audit / removal wave`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
@@ -70,7 +70,7 @@ Related:
      - `phase-49x` is landed and the remaining current-doc wording / compat-route narration is closed
      - `phase-51x` is landed and the canonical compat-codegen bucket now lives under the archive path
      - `phase-52x` is landed and polishes archive/historical labeling after source cleanup
-     - `phase-53x` is landed, `phase-54x` is landed, `phase-55x` is landed, and `phase-56x` is active; the route-surface retirement prep has handed off to proof/compat keep pruning
+     - `phase-53x` is landed, `phase-54x` is landed, `phase-55x` is landed, `phase-56x` is landed, and `phase-57x` is active; keep-pruning has handed off to delete-ready audit
      - `48xA1` inventory lock is landed; `48xA2` proof-only / compat keep classification is landed
      - `48xB1` smoke script stale-route cleanup is landed; `48xB2` proof-only smoke gate lock is landed; `48xC1` source helper stale-route cleanup is landed; `48xC2` vm.rs / vm_fallback thin keep trim is landed
      - `47xA1` landed, `47xA2` landed, `47xA3` landed, `47xB1` landed, `47xB2` landed, `47xB3` landed, `47xC1` landed, `47xC2` landed, `47xC3` landed, `47xD1` landed, `47xD2` landed, and `47xD3` landed
@@ -128,20 +128,20 @@ Related:
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-56x proof/compat keep pruning table:
+   - phase-57x rust-vm delete-ready audit / removal wave table:
 
      | Item | State |
      | --- | --- |
-     | Now | `56xD1 proof / closeout` |
+     | Now | `57xB1 caller-zero audit` |
      | Blocker | `none` |
-     | Next | `57x rust-vm delete-ready audit / removal wave` |
-     | After Next | `58x` successor lane selection |
+     | Next | `57xB2 removal candidate prep` |
+     | After Next | `57xC1 removal wave` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `56xD1 proof / closeout` |
-     | Next | `57x rust-vm delete-ready audit / removal wave` |
+     | Now | `57xB1 caller-zero audit` |
+     | Next | `57xB2 removal candidate prep` |
      | Later | `58x` successor lane selection |
    - stage0 shell residue waves:
 
@@ -189,9 +189,9 @@ Related:
      - `51xA2 proof-only / archive-later classification`
      - Queued backend surface tasks:
      - `55xA2 backend/default/help exposure freeze`
-     - `56xC1 proof smoke keep pruning`
-     - `56x proof/compat keep pruning`
-     - `56x proof/compat keep pruning`
+     - `57xB1 caller-zero audit`
+     - `57xB2 removal candidate prep`
+     - `57xC1 removal wave`
      - `57x rust-vm delete-ready audit / removal wave`
     - `kilo` optimization wave (far future; not the next lane)
 - Post-`37xD1` cleanup:

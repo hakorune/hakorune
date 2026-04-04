@@ -4,8 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 56x proof/compat keep pruning
-- **Phase 56x（ACTIVE）**: proof/compat keep pruning（explicit keep のまま残している rust-vm surfaces を削れる形まで狭める）
+- **Current (ACTIVE)**: Phase 57x rust-vm delete-ready audit / removal wave
+- **Phase 57x（ACTIVE）**: rust-vm delete-ready audit / removal wave（keep-now / archive-later / delete-ready を source-backed に切り分けて removal wave を作る）
+- **Phase 56x（LANDED）**: proof/compat keep pruning（explicit keep のまま残している rust-vm surfaces を削れる形まで狭めた）
 - **Phase 55x（LANDED）**: rust-vm route-surface retirement prep（route/default/help surfaces から rust-vm selectable feeling を外した）
 - **Phase 54x（LANDED）**: next source lane selection（phase-53x handoff を受けて successor lane と retirement corridor を確定した）
 - **Phase 53x（LANDED）**: residual VM source audit（残っている rust-vm / vm-hako source surfaces を inventory して keep-now / archive-later / delete-ready に分け、phase-54x に handoff した）
