@@ -4,8 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 76x next source lane selection
-- **Phase 76x（ACTIVE）**: next source lane selection（phase-75x closeout 後の次 source lane を決める）
+- **Current (ACTIVE)**: Phase 77x runner top-level pressure thinning
+- **Phase 77x（ACTIVE）**: runner top-level pressure thinning（`launcher.hako` と `stage1_cli_env.hako` の本体圧を薄くする）
+- **Phase 76x（LANDED）**: next source lane selection（phase-75x closeout 後の次 source lane として runner top-level pressure thinning を選んだ）
 - **Phase 75x（LANDED）**: selfhost top-level alias canonicalization（folder split 後の top-level alias 圧を薄くし、live caller を canonical path に寄せた）
 - **Phase 74x（LANDED）**: next source lane selection（phase-73x closeout 後の次 source lane を決め、75x を選んだ）
 - **Phase 73x（LANDED）**: emit_mir_mainline blocker follow-up（`build_box` parse seam を直し、focused probes を green に戻した）

@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: choose the next cleanup lane after selfhost top-level alias canonicalization landed.
 Related:
@@ -28,4 +28,4 @@ Related:
 ## Current Read
 
 - current front:
-  - `76xA1 successor lane inventory lock`
+  - `phase-76x landed`
