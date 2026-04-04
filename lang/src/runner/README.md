@@ -16,8 +16,8 @@ Pointers:
 - Provide script-side orchestration primitives for execution:
   - Runner facade (`facade/runner_facade.hako`) for entry selection and pre/post hooks.
   - Stage1 CLI launcher (`launcher.hako`) for top-level command dispatch.
-- Delegate actual execution to existing backends（Rust VM / LLVM / ny-llvmc）。既定挙動は変えない。
-- `launcher.hako` is the current CLI facade/orchestration keep, not a long-term pipeline-detail owner.
+- Delegate actual execution to existing backend keeps（LLVM / ny-llvmc / residual VM keep）。既定挙動は変えない。
+- `launcher.hako` is a thin public/front-door keep for Stage1 CLI facade/orchestration, not a long-term pipeline-detail owner.
 - `stage1_cli_env.hako` is the current stage1 env-entry authority cluster.
 - `entry/launcher_native_entry.hako` / `entry/stage1_cli_env_entry.hako` are the canonical thin bootstrap entry stubs for `tools/selfhost/mainline/build_stage1.sh`; top-level files stay as compatibility wrappers only.
 
@@ -80,7 +80,7 @@ Pointers:
 - Runner 層は「構造とオーケストレーション専用レイヤ」として扱う。
   - 言語意味論・最適化ロジックは compiler / opt / AotPrep に留める。
   - VM/LLVM の実行コアは Rust 側（Stage0 / NyRT）に委譲する。
-- current selfhost authority entry is `stage1_cli_env.hako`; `compat/stage1_cli.hako` / `launcher.hako` は authority ではなく compat/future retire target として扱う。
+- current selfhost authority entry is `stage1_cli_env.hako`; `compat/stage1_cli.hako` is the canonical compat owner, and `launcher.hako` is a thin public/front-door keep rather than an authority surface.
 - top-level `stage1_cli.hako` is now a compatibility wrapper; canonical compat owner lives under `compat/stage1_cli.hako`.
 - top-level `runner_facade.hako`, `launcher_native_entry.hako`, and `stage1_cli_env_entry.hako` are compatibility wrappers; canonical homes are under `facade/` and `entry/`.
 - daily/current reading should follow canonical paths first and only touch top-level wrappers when a legacy caller still names them.

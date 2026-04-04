@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-04
+Date: 2026-04-05
 Scope: 再起動直後に 2〜5 分で current lane に戻るための最短手順。
 Related:
   - CURRENT_TASK.md
@@ -20,21 +20,22 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-90x current-doc/design stale surface hygiene`
-- current front: `90xD1 closeout`
+- lane: `phase-92x selfhost proof/compat caller rerun`
+- current front: `92xA1 caller inventory lock`
 - blocker: `none`
 - recent landed:
+  - `phase-91x top-level .hako wrapper policy review`
+  - `phase-90x current-doc/design stale surface hygiene`
   - `phase-89x next source lane selection`
-  - `phase-87x embedded snapshot / wrapper repoint rerun`
   - `phase-88x archive/deletion rerun`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-90x/README.md`
-4. `docs/development/current/main/phases/phase-90x/90x-90-current-doc-design-stale-surface-hygiene-ssot.md`
-5. `docs/development/current/main/phases/phase-90x/90x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-92x/README.md`
+4. `docs/development/current/main/phases/phase-92x/92x-90-selfhost-proof-compat-caller-rerun-ssot.md`
+5. `docs/development/current/main/phases/phase-92x/92x-91-task-board.md`
 
 ## Current Proof Bundle
 

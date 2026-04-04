@@ -4,7 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 90x current-doc/design stale surface hygiene
+- **Current (ACTIVE)**: Phase 92x selfhost proof/compat caller rerun
+- **Phase 91x（LANDED）**: top-level .hako wrapper policy review（`92x selfhost proof/compat caller rerun` に handoff）
+- **Phase 90x（LANDED）**: current-doc/design stale surface hygiene（`91x top-level .hako wrapper policy review` に handoff）
 - **Phase 89x（LANDED）**: next source lane selection（`90x current-doc/design stale surface hygiene` を選定）
 - **Phase 88x（LANDED）**: archive/deletion rerun（最新 repoint 後も true archive-ready/delete-ready は出ず、no-op closeout）
 - **Phase 87x（LANDED）**: embedded snapshot / wrapper repoint rerun（embedded Stage1 snapshot を canonical `facade/*` / `entry/*` へ更新）

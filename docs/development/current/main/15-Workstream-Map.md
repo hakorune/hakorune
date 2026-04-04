@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-90x current-doc/design stale surface hygiene` |
-| Front | `90xD1 closeout` |
+| Now | `phase-92x selfhost proof/compat caller rerun` |
+| Front | `92xA1 caller inventory lock` |
 | Blocker | `none` |
-| Next | `phase-91x top-level .hako wrapper policy review` |
-| After Next | `phase-92x selfhost proof/compat caller rerun` |
+| Next | `TBD` |
+| After Next | `TBD` |
 
 ## Current Read
 
@@ -33,13 +33,13 @@ Related:
 - `87x` landed after refreshing snapshot-pinned runner paths to canonical `facade/*` and `entry/*`
 - `88x` landed as a no-op archive/deletion rerun
 - `89x` selected `90x current-doc/design stale surface hygiene`
-- `90x` thins stale wrapper/current wording in current/design docs after the latest recuts
+- `90x` thinned stale wrapper/current wording in current/design docs after the latest recuts
+- `91x` froze the top-level `.hako` wrapper policy after the latest runner/selfhost recuts
+- `92x` reruns selfhost proof/compat callers against the canonical wrapper homes
 
 ## Successor Corridor
 
-1. `phase-90x current-doc/design stale surface hygiene`
-2. `phase-91x top-level .hako wrapper policy review`
-3. `phase-92x selfhost proof/compat caller rerun`
+1. `phase-92x selfhost proof/compat caller rerun`
 
 ## Structural Stop Lines
 

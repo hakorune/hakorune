@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-04-04
+Date: 2026-04-05
 Scope: current lane / blocker / next pointer だけを置く薄い mirror。
 Related:
   - CURRENT_TASK.md
@@ -12,12 +12,13 @@ Related:
 
 ## Current
 
-- lane: `phase-90x current-doc/design stale surface hygiene`
-- current front: `90xD1 closeout`
+- lane: `phase-92x selfhost proof/compat caller rerun`
+- current front: `92xA1 caller inventory lock`
 - blocker: `none`
 - recent landed:
+  - `phase-91x top-level .hako wrapper policy review`
+  - `phase-90x current-doc/design stale surface hygiene`
   - `phase-89x next source lane selection`
-  - `phase-87x embedded snapshot / wrapper repoint rerun`
   - `phase-88x archive/deletion rerun`
 
 ## Current Read
@@ -25,7 +26,7 @@ Related:
 - `launcher.hako emit_mir_mainline` is green
 - `stage1_mainline_smoke.sh` is green
 - `83x` froze top-level selfhost wrappers as explicit public/front-door keeps
-- current work is thinning current/design stale surface wording after the latest runner/selfhost recuts
+- current work is reviewing the top-level `.hako` wrapper policy after the latest runner/selfhost recuts
 
 ## Root Anchors
 
@@ -36,5 +37,6 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-90x/README.md`
-3. `docs/development/current/main/phases/phase-90x/90x-91-task-board.md`
+2. `docs/development/current/main/phases/phase-92x/README.md`
+3. `docs/development/current/main/phases/phase-92x/92x-90-selfhost-proof-compat-caller-rerun-ssot.md`
+4. `docs/development/current/main/phases/phase-92x/92x-91-task-board.md`
