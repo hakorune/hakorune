@@ -1,7 +1,7 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
-Scope: select the next source lane after the caller-zero archive rerun landed.
+Scope: select the next source lane after the caller-zero archive rerun landed; phase is now landed and handed off.
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
@@ -27,7 +27,6 @@ Related:
 
 ## Current Read
 
-- current front:
-  - `82xA2 candidate lane ranking`
-- inherited blocker:
-  - `none`
+- handoff complete
+- selected successor lane:
+  - `phase-83x selfhost top-level facade/archive decision`

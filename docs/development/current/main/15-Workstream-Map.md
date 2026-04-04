@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-82x next source lane selection` |
-| Front | `82xA2 candidate lane ranking` |
+| Now | `phase-83x selfhost top-level facade/archive decision` |
+| Front | `83xA1 top-level facade inventory lock` |
 | Blocker | `none` |
-| Next | `82xB1 successor lane decision` |
-| After Next | `82xD1 proof / closeout` |
+| Next | `83xA2 keep/archive decision freeze` |
+| After Next | `83xB1 archive-ready sweep or explicit keep proof` |
 
 ## Current Read
 
@@ -26,11 +26,12 @@ Related:
 - `stage1_mainline_smoke.sh` is green
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
-- `82x` ranks the next tree-moving lane after the no-op result
+- `82x` selected the top-level selfhost facade/archive decision lane
+- `83x` classifies top-level selfhost wrappers into explicit keeps vs archive-ready aliases
 
 ## Successor Corridor
 
-1. `phase-82x next source lane selection`
+1. `phase-83x selfhost top-level facade/archive decision`
 
 ## Structural Stop Lines
 
@@ -43,9 +44,10 @@ Related:
 ## Reference
 
 - current lane docs:
-  - `docs/development/current/main/phases/phase-82x/README.md`
-  - `docs/development/current/main/phases/phase-82x/82x-90-next-source-lane-selection-ssot.md`
-  - `docs/development/current/main/phases/phase-82x/82x-91-task-board.md`
+  - `docs/development/current/main/phases/phase-83x/README.md`
+  - `docs/development/current/main/phases/phase-83x/83x-90-selfhost-top-level-facade-archive-decision-ssot.md`
+  - `docs/development/current/main/phases/phase-83x/83x-91-task-board.md`
 - previous landed lanes:
+  - `docs/development/current/main/phases/phase-82x/README.md`
   - `docs/development/current/main/phases/phase-81x/README.md`
   - `docs/development/current/main/phases/phase-80x/README.md`

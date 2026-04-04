@@ -20,20 +20,20 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-82x next source lane selection`
-- current front: `82xA2 candidate lane ranking`
+- lane: `phase-83x selfhost top-level facade/archive decision`
+- current front: `83xA1 top-level facade inventory lock`
 - blocker: `none`
 - recent landed:
-  - `phase-80x root/current pointer thinning`
   - `phase-81x caller-zero archive rerun`
+  - `phase-82x next source lane selection`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-82x/README.md`
-4. `docs/development/current/main/phases/phase-82x/82x-90-next-source-lane-selection-ssot.md`
-5. `docs/development/current/main/phases/phase-82x/82x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-83x/README.md`
+4. `docs/development/current/main/phases/phase-83x/83x-90-selfhost-top-level-facade-archive-decision-ssot.md`
+5. `docs/development/current/main/phases/phase-83x/83x-91-task-board.md`
 
 ## Current Proof Bundle
 

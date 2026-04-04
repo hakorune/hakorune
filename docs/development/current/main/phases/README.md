@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 82x next source lane selection
+- **Current (ACTIVE)**: Phase 83x selfhost top-level facade/archive decision
+- **Phase 82x（LANDED）**: next source lane selection（top-level selfhost facade/archive decision lane を選んだ）
 - **Phase 81x（LANDED）**: caller-zero archive rerun（true archive-ready surface は出ず、no-op closeout）
 - **Phase 80x（LANDED）**: root/current pointer thinning（pointer docs を薄く整理）
 - **Phase 79x（LANDED）**: launcher emit_mir residual blocker follow-up（focused launcher probe red を source 側で解消）

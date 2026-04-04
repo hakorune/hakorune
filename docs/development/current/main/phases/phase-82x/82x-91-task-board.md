@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 ---
 
@@ -7,24 +7,24 @@ Date: 2026-04-04
 
 | Order | Task | Status | Read as |
 | --- | --- | --- | --- |
-| 1 | `82xA inventory lock` | active | lock the next source lane candidate set after the no-op archive rerun |
-| 2 | `82xB candidate ranking` | queued | rank successor lanes by leverage and tree impact |
-| 3 | `82xD closeout` | queued | prove the decision and hand off cleanly |
+| 1 | `82xA inventory lock` | landed | lock the next source lane candidate set after the no-op archive rerun |
+| 2 | `82xB candidate ranking` | landed | rank successor lanes by leverage and tree impact |
+| 3 | `82xD closeout` | landed | prove the decision and hand off cleanly |
 
 ## Exact Micro Tasks
 
 | Task | Status | Read as |
 | --- | --- | --- |
 | `82xA1` | landed | successor lane inventory lock |
-| `82xA2` | active | candidate lane ranking |
-| `82xB1` | queued | successor lane decision |
-| `82xD1` | queued | proof / closeout |
+| `82xA2` | landed | candidate lane ranking |
+| `82xB1` | landed | successor lane decision |
+| `82xD1` | landed | proof / closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `82xA2 candidate lane ranking` |
+| Now | handoff complete |
 | Blocker | `none` |
-| Next | `82xB1 successor lane decision` |
-| After Next | `82xD1 proof / closeout` |
+| Next | `phase-83x selfhost top-level facade/archive decision` |
+| After Next | `phase-84x runner wrapper/source contract thinning` |

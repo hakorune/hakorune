@@ -22,18 +22,19 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 1. `phase-79x launcher emit_mir residual blocker follow-up` (landed)
 2. `phase-80x root/current pointer thinning` (landed)
 3. `phase-81x caller-zero archive rerun` (landed)
-4. `phase-82x next source lane selection` (active)
+4. `phase-82x next source lane selection` (landed)
+5. `phase-83x selfhost top-level facade/archive decision` (active)
 
 ## Current Front
 
-- Active lane: `phase-82x next source lane selection`
-- Active micro: `82xA2 candidate lane ranking`
+- Active lane: `phase-83x selfhost top-level facade/archive decision`
+- Active micro: `83xA1 top-level facade inventory lock`
 - Current blocker: `none`
-- Exact focus: decide whether zero-caller top-level façades should remain front-door keeps or move into an archive-focused successor lane
+- Exact focus: classify top-level `tools/selfhost/*` wrappers into explicit front-door keeps vs true archive-ready aliases
 
 ## Successor Corridor
 
-1. `phase-82x next source lane selection`
+1. `phase-83x selfhost top-level facade/archive decision`
 
 ## Rust-VM Stop Line
 
@@ -46,13 +47,13 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-82x/README.md`
-4. `docs/development/current/main/phases/phase-82x/82x-90-next-source-lane-selection-ssot.md`
-5. `docs/development/current/main/phases/phase-82x/82x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-83x/README.md`
+4. `docs/development/current/main/phases/phase-83x/83x-90-selfhost-top-level-facade-archive-decision-ssot.md`
+5. `docs/development/current/main/phases/phase-83x/83x-91-task-board.md`
 
 ## Notes
 
-- `phase-81x` is landed with an explicit no-op archive sweep.
+- `phase-82x` selected the top-level selfhost facade/archive decision lane.
 - `launcher.hako emit_mir_mainline` is green.
 - `stage1_mainline_smoke.sh` is green.
 - `target/**`, `artifacts/**`, and `dist/**` are artifact roots only.
