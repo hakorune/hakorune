@@ -12,19 +12,19 @@ Related:
 
 ## Current
 
-- lane: `phase-85x next source lane selection`
-- current front: `85xA2 candidate lane ranking`
+- lane: `phase-86x phase index / current mirror hygiene`
+- current front: `86xA1 mirror inventory lock`
 - blocker: `none`
 - recent landed:
-  - `phase-83x selfhost top-level facade/archive decision`
   - `phase-84x runner wrapper/source contract thinning`
+  - `phase-85x next source lane selection`
 
 ## Current Read
 
 - `launcher.hako emit_mir_mainline` is green
 - `stage1_mainline_smoke.sh` is green
 - `83x` froze top-level selfhost wrappers as explicit public/front-door keeps
-- current work is selecting the next structural source lane after `84x` landed
+- current work is thinning heavy phase index/current mirrors without re-inflating root pointers
 
 ## Root Anchors
 
@@ -35,5 +35,5 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-85x/README.md`
-3. `docs/development/current/main/phases/phase-85x/85x-91-task-board.md`
+2. `docs/development/current/main/phases/phase-86x/README.md`
+3. `docs/development/current/main/phases/phase-86x/86x-91-task-board.md`

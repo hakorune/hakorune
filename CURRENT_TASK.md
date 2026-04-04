@@ -25,18 +25,19 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 4. `phase-82x next source lane selection` (landed)
 5. `phase-83x selfhost top-level facade/archive decision` (landed)
 6. `phase-84x runner wrapper/source contract thinning` (landed)
-7. `phase-85x next source lane selection` (active)
+7. `phase-85x next source lane selection` (landed)
+8. `phase-86x phase index / current mirror hygiene` (active)
 
 ## Current Front
 
-- Active lane: `phase-85x next source lane selection`
-- Active micro: `85xA2 candidate lane ranking`
+- Active lane: `phase-86x phase index / current mirror hygiene`
+- Active micro: `86xA1 mirror inventory lock`
 - Current blocker: `none`
-- Exact focus: choose the next structural source lane after `84x` landed without re-inflating current pointers
+- Exact focus: thin phase index / current mirrors again now that `85x` selected the successor lane
 
 ## Successor Corridor
 
-1. `phase-85x next source lane selection`
+1. `phase-86x phase index / current mirror hygiene`
 
 ## Rust-VM Stop Line
 
@@ -49,13 +50,13 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-85x/README.md`
-4. `docs/development/current/main/phases/phase-85x/85x-90-next-source-lane-selection-ssot.md`
-5. `docs/development/current/main/phases/phase-85x/85x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-86x/README.md`
+4. `docs/development/current/main/phases/phase-86x/86x-90-phase-index-current-mirror-hygiene-ssot.md`
+5. `docs/development/current/main/phases/phase-86x/86x-91-task-board.md`
 
 ## Notes
 
-- `phase-84x` landed after repointing Stage1 build/default entry contracts to canonical `entry/*`.
+- `phase-85x` selected `phase-86x phase index / current mirror hygiene` as the next lane.
 - `launcher.hako emit_mir_mainline` is green.
 - `stage1_mainline_smoke.sh` is green.
 - `target/**`, `artifacts/**`, and `dist/**` are artifact roots only.

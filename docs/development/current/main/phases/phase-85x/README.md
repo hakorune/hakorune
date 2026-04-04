@@ -1,7 +1,7 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
-Scope: select the next source lane after `84x` landed without re-inflating root/current mirrors.
+Scope: select the next source lane after `84x` landed without re-inflating root/current mirrors; phase is now landed and handed off.
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
@@ -27,8 +27,6 @@ Related:
 
 ## Current Read
 
-- current front:
-  - `85xA2 candidate lane ranking`
-- likely corridor:
+- handoff complete
+- selected successor lane:
   - `phase-86x phase index / current mirror hygiene`
-  - `phase-87x embedded snapshot / wrapper repoint rerun`
