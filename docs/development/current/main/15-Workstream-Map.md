@@ -14,10 +14,10 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-99 Trim/escape 実コード寄り強化（VM+LLVM EXE）` |
-| Front | `trim/escape fixtures を実コード寄りケースへ拡張し、VM+LLVM parity を維持する` |
+| Now | `phase-100 Pinned Read-Only Captures` |
+| Front | `loop outer read-only locals を pinned capture として receiver 解決へ通す` |
 | Blocker | `none` |
-| Next | `phase-99 trim/escape fixture expansion` |
+| Next | `phase-100 pinned local capture wiring` |
 | After Next | `optimization corridor / parked cleanup revisit` |
 
 ## Current Read
@@ -29,7 +29,7 @@ Related:
 - `97` fixed LLVM EXE parity for `phase95/96` fixtures under `HAKO_BACKEND_COMPAT_REPLAY=harness`
 - `98` fixed plugin loader strict/best-effort runtime proof and kept phase-97 parity green
 - `99` trailing-backslash fixture is already green on VM and LLVM EXE; next work is broader trim/escape fixture expansion
-- `99` is the current lane for trim/escape real-app-like fixture expansion
+- `100` is the current lane for pinned read-only captures and loop receiver resolution
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers
@@ -47,7 +47,7 @@ Related:
 
 ## Successor Corridor
 
-1. `phase-99 Trim/escape 実コード寄り強化（VM+LLVM EXE）`
+1. `phase-100 Pinned Read-Only Captures`
 
 ## Parked After Optimization
 
@@ -66,6 +66,7 @@ Related:
 - current lane docs:
   - `docs/development/current/main/phases/phase-98/README.md`
   - `docs/development/current/main/phases/phase-99/README.md`
+  - `docs/development/current/main/phases/phase-100/README.md`
 - recent landed:
   - `docs/development/current/main/phases/phase-97/README.md`
   - `docs/development/current/main/phases/phase-96/README.md`

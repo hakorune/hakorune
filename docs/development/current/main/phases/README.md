@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 99 Trim/escape 実コード寄り強化（VM+LLVM EXE）
+- **Current (ACTIVE)**: Phase 100 Pinned Read‑Only Captures
+- **Phase 99（LANDED）**: Trim/escape 実コード寄り強化（VM+LLVM EXE）
 - **Phase 98（LANDED）**: Plugin loader fail-fast + LLVM parityの持続化
 - **Phase 97（LANDED）**: LLVM EXE parity for MiniJsonLoader fixtures
 - **Phase 96（LANDED）**: MiniJsonLoader next_non_ws loop E2E lock
