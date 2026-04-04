@@ -177,7 +177,7 @@ Related:
   - `cargo check --bin hakorune` PASS
   - `git diff --check` PASS
   - `bash tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh` PASS
-  - `bash tools/selfhost/stage1_mainline_smoke.sh --bin target/selfhost/hakorune.stage1_cli.stage2 apps/tests/hello_simple_llvm.hako` PASS
+  - `bash tools/selfhost/mainline/stage1_mainline_smoke.sh --bin target/selfhost/hakorune.stage1_cli.stage2 apps/tests/hello_simple_llvm.hako` PASS
 - inherited red outside D1 acceptance:
   - `bash tools/smokes/v2/profiles/integration/selfhost/selfhost_minimal.sh`
   - upstream Stage-B source-route red: `Undefined variable: StageBMod`

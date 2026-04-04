@@ -201,7 +201,7 @@ if [[ "$SKIP_BUILD" -eq 0 ]]; then
   echo "[G1] Building Stage1 binary..." >&2
   echo "[G1] WARNING: Build requires ~35GB+ RAM. Use --skip-build for smaller environments." >&2
   echo "[G1] Build artifact-kind: ${BUILD_ARTIFACT_KIND} (cli-mode=${CLI_MODE})" >&2
-  if ! bash "${ROOT}/tools/selfhost/build_stage1.sh" --artifact-kind "$BUILD_ARTIFACT_KIND" --out "$STAGE1_BIN" --timeout-secs "$BUILD_TIMEOUT_SECS" >/dev/null 2>&1; then
+  if ! bash "${ROOT}/tools/selfhost/mainline/build_stage1.sh" --artifact-kind "$BUILD_ARTIFACT_KIND" --out "$STAGE1_BIN" --timeout-secs "$BUILD_TIMEOUT_SECS" >/dev/null 2>&1; then
     echo "[G1:FAIL] Stage1 build failed (likely OOM - try --skip-build with prebuilt binaries)" >&2
     if [[ "$BUILD_TIMEOUT_SECS" -gt 0 ]]; then
       echo "          hint: increase --build-timeout-secs if this was a timeout" >&2
@@ -214,7 +214,7 @@ if [[ "$SKIP_BUILD" -eq 0 ]]; then
   if [[ "$BUILD_ARTIFACT_KIND" == "stage1-cli" ]]; then
     echo "[G1] Stage2 build route: stage1-cli bridge-first bootstrap (reduced case)" >&2
   fi
-  if ! env "${STAGE2_BUILD_PREFIX[@]}" bash "${ROOT}/tools/selfhost/build_stage1.sh" --artifact-kind "$BUILD_ARTIFACT_KIND" --out "$STAGE2_BIN" --timeout-secs "$BUILD_TIMEOUT_SECS" >/dev/null 2>&1; then
+  if ! env "${STAGE2_BUILD_PREFIX[@]}" bash "${ROOT}/tools/selfhost/mainline/build_stage1.sh" --artifact-kind "$BUILD_ARTIFACT_KIND" --out "$STAGE2_BIN" --timeout-secs "$BUILD_TIMEOUT_SECS" >/dev/null 2>&1; then
     echo "[G1:FAIL] Stage2 build failed (likely OOM - try --skip-build with prebuilt binaries)" >&2
     if [[ "$BUILD_TIMEOUT_SECS" -gt 0 ]]; then
       echo "          hint: increase --build-timeout-secs if this was a timeout" >&2
@@ -233,7 +233,7 @@ if [[ ! -x "$STAGE1_BIN" ]]; then
   if [[ "$SKIP_BUILD" -eq 1 ]]; then
     echo "         Provide prebuilt binary via --bin-stage1" >&2
   else
-    echo "         Run: tools/selfhost/build_stage1.sh (requires ~35GB+ RAM)" >&2
+    echo "         Run: tools/selfhost/mainline/build_stage1.sh (requires ~35GB+ RAM)" >&2
   fi
   exit 2
 fi
@@ -243,7 +243,7 @@ if [[ ! -x "$STAGE2_BIN" ]]; then
   if [[ "$SKIP_BUILD" -eq 1 ]]; then
     echo "         Provide prebuilt binary via --bin-stage2" >&2
   else
-    echo "         Run: NYASH_BIN=$STAGE1_BIN tools/selfhost/build_stage1.sh --out $STAGE2_BIN" >&2
+    echo "         Run: NYASH_BIN=$STAGE1_BIN tools/selfhost/mainline/build_stage1.sh --out $STAGE2_BIN" >&2
   fi
   exit 2
 fi

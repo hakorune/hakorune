@@ -49,8 +49,8 @@ static box Main {
 }
 HAKO
 
-bash "$ROOT/tools/selfhost/run_stage1_cli.sh" --bin "$STAGE1_BIN" emit mir-json "$helper_src" >"$stage1_mir"
-bash "$ROOT/tools/selfhost/run_stage1_cli.sh" --bin "$STAGE2_BIN" emit mir-json "$helper_src" >"$stage2_mir"
+bash "$ROOT/tools/selfhost/compat/run_stage1_cli.sh" --bin "$STAGE1_BIN" emit mir-json "$helper_src" >"$stage1_mir"
+bash "$ROOT/tools/selfhost/compat/run_stage1_cli.sh" --bin "$STAGE2_BIN" emit mir-json "$helper_src" >"$stage2_mir"
 
 if ! diff -q "$stage1_mir" "$stage2_mir" >/dev/null; then
   echo "[FAIL] Stage1/Stage2 helper MIR mismatch" >&2

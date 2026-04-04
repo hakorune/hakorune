@@ -186,8 +186,8 @@ run_case() {
   local stage1_exe="$tmp_dir/${case_name}.stage1.exe"
   local stage2_exe="$tmp_dir/${case_name}.stage2.exe"
   build_case_source "$case_name" "$src"
-  bash "$ROOT/tools/selfhost/run_stage1_cli.sh" --bin "$STAGE1_BIN" emit mir-json "$src" >"$stage1_mir"
-  bash "$ROOT/tools/selfhost/run_stage1_cli.sh" --bin "$STAGE2_BIN" emit mir-json "$src" >"$stage2_mir"
+  bash "$ROOT/tools/selfhost/compat/run_stage1_cli.sh" --bin "$STAGE1_BIN" emit mir-json "$src" >"$stage1_mir"
+  bash "$ROOT/tools/selfhost/compat/run_stage1_cli.sh" --bin "$STAGE2_BIN" emit mir-json "$src" >"$stage2_mir"
   if diff -q "$stage1_mir" "$stage2_mir" >/dev/null; then
     local mir_status="exact"
   else

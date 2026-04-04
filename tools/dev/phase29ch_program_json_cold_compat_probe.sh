@@ -103,7 +103,7 @@ fi
 if run_and_extract_stage_payload \
   "mir-json" \
   "$out_file" \
-  bash "${ROOT}/tools/selfhost/run_stage1_cli.sh" --bin "$BIN" emit mir-json --from-program-json "$tmp_prog"; then
+  bash "${ROOT}/tools/selfhost/compat/run_stage1_cli.sh" --bin "$BIN" emit mir-json --from-program-json "$tmp_prog"; then
   echo "[phase29ch/cold-compat-probe] raw wrapper sugar unexpectedly stayed live" >&2
   exit 1
 fi
