@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: split `src/runner` into product / keep / reference lanes after the `.hako` runner recut landed.
 Related:
@@ -17,52 +17,52 @@ Related:
 
 ## Starting Read
 
-- `src/runner/modes/llvm/**` and `wasm.rs` are product-facing
-- `src/runner/modes/vm.rs` and `vm_fallback.rs` are explicit keep
-- `src/runner/modes/vm_hako/**` and `vm_hako.rs` are reference/conformance
+- `src/runner/product/llvm/**` and `src/runner/product/wasm.rs` are product-facing
+- `src/runner/keep/vm.rs` and `src/runner/keep/vm_fallback.rs` are explicit keep
+- `src/runner/reference/vm_hako/**` and `src/runner/reference/vm_hako.rs` are reference/conformance
 - `dispatch.rs` and `route_orchestrator.rs` are still cross-lane coordination surfaces
 
 ## Candidate Reading
 
 ### Product-facing
 
-- `src/runner/modes/llvm/**`
-- `src/runner/modes/wasm.rs`
+- `src/runner/product/llvm/**`
+- `src/runner/product/wasm.rs`
 
 ### Keep-facing
 
-- `src/runner/modes/vm.rs`
-- `src/runner/modes/vm_fallback.rs`
+- `src/runner/keep/vm.rs`
+- `src/runner/keep/vm_fallback.rs`
 
 ### Reference-facing
 
-- `src/runner/modes/vm_hako/**`
-- `src/runner/modes/vm_hako.rs`
+- `src/runner/reference/vm_hako/**`
+- `src/runner/reference/vm_hako.rs`
 
 ## Current Inventory
 
 ### Product bucket
 
-- `src/runner/modes/llvm/**`
-- `src/runner/modes/wasm.rs`
+- `src/runner/product/llvm/**`
+- `src/runner/product/wasm.rs`
 - `src/runner/modes/mir.rs`
 - `src/runner/modes/mir_interpreter.rs`
 
 ### Keep bucket
 
-- `src/runner/modes/vm.rs`
-- `src/runner/modes/vm_fallback.rs`
+- `src/runner/keep/vm.rs`
+- `src/runner/keep/vm_fallback.rs`
 
 ### Reference bucket
 
-- `src/runner/modes/vm_hako/**`
-- `src/runner/modes/vm_hako.rs`
+- `src/runner/reference/vm_hako/**`
+- `src/runner/reference/vm_hako.rs`
 
 ### Cross-lane / hold-first surfaces
 
 - `src/runner/dispatch.rs`
 - `src/runner/route_orchestrator.rs`
-- `src/runner/modes/mod.rs`
+- `src/runner/modes/mod.rs` (compatibility re-export surface)
 - `src/runner/modes/common_util/**`
 
 ## Inventory Notes
@@ -111,4 +111,6 @@ src/runner/
 - `69xA1` landed: inventory is locked across product / keep / reference / cross-lane buckets
 - `69xA2` landed: target layout ranking is fixed before path moves start
 - `69xB1` landed: `llvm/`, `wasm.rs`, and `vm_hako*` moved under `product/` and `reference/` while `modes/` stayed as a thin compatibility re-export surface
-- `69xB2` active: `vm.rs` and `vm_fallback.rs` are moving under `keep/` while `dispatch.rs` and `route_orchestrator.rs` stay hold-first
+- `69xB2` landed: `vm.rs` and `vm_fallback.rs` moved under `keep/` while `dispatch.rs` and `route_orchestrator.rs` stayed hold-first
+- `69xC1` landed: current SSOT/readmes now read canonical `product/`, `keep/`, and `reference/` paths first and `modes/` reads as a compatibility surface only
+- `69xD1` landed: `cargo check --bin hakorune`, `git diff --check`, and `tools/selfhost/proof/selfhost_vm_smoke.sh` stayed green through the recut

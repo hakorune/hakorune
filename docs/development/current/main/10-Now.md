@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `phase-69x rust runner product/keep/reference recut`
+- lane: `phase-70x caller-zero archive sweep`
 - `49xD1` landed: proof / closeout
 - `50xA1` landed: residual rust-vm surface inventory lock
 - `50xA2` landed: proof-only / compat keep classification
@@ -140,7 +140,7 @@ Related:
 - landed micro task: `65xB2 shell contract owner cleanup`
 - landed micro task: `65xC1 mainline proof bundle refresh`
 - landed micro task: `65xD1 proof / closeout`
-- active micro task: `69xB2 keep split`
+- active micro task: `70xA1 caller-zero inventory lock`
 - ranked next-lane corridor after `68x`:
   - `69x rust runner product/keep/reference recut`
   - `70x caller-zero archive sweep`
@@ -198,6 +198,6 @@ Related:
 
 1. read `CURRENT_TASK.md`
 2. read `15-Workstream-Map.md`
-3. read `docs/development/current/main/phases/phase-69x/README.md`
-4. read `docs/development/current/main/phases/phase-69x/69x-90-rust-runner-product-keep-reference-recut-ssot.md`
-5. read `docs/development/current/main/phases/phase-69x/69x-91-task-board.md`
+3. read `docs/development/current/main/phases/phase-70x/README.md`
+4. read `docs/development/current/main/phases/phase-70x/70x-90-caller-zero-archive-sweep-ssot.md`
+5. read `docs/development/current/main/phases/phase-70x/70x-91-task-board.md`

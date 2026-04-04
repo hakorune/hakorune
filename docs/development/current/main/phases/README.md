@@ -4,8 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 69x rust runner product/keep/reference recut
-- **Phase 69x（ACTIVE）**: rust runner product/keep/reference recut（src/runner の product / keep / reference 読みを tree で揃える）
+- **Current (ACTIVE)**: Phase 70x caller-zero archive sweep
+- **Phase 70x（ACTIVE）**: caller-zero archive sweep（folder-separated surfaces のうち live caller が消えた alias/docs/wrapper を archive 側へ送る）
+- **Phase 69x（LANDED）**: rust runner product/keep/reference recut（src/runner の product / keep / reference 読みを tree で揃える）
 - **Phase 68x（LANDED）**: .hako runner authority/compat/facade recut（lang/src/runner の authority / compat / facade / entry 読みを tree で揃える）
 - **Phase 67x（LANDED）**: selfhost folder split（tools/selfhost の mainline / proof / compat / lib split を tree にした）
 - **Phase 66x（LANDED）**: next source lane selection（phase-65x handoff 後の次 source lane と folder-first corridor を選んだ）

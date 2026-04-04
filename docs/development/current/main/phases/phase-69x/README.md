@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: recut `src/runner` so product / keep / reference reading is visible in the tree.
 Related:
@@ -28,9 +28,9 @@ Related:
 ## Current Read
 
 - `68x` has landed and clarified `.hako` runner authority / compat / facade / entry reading
-- current front:
-  - `69xB2 keep split`
-- current intent:
-  - `src/runner` should stop relying on comments alone for product vs keep vs reference reading
-  - `vm-hako` should read as reference, not as rust-vm residue
-  - explicit rust-vm keep should stay explicit while imports and module paths are recut safely
+- landed result:
+  - `src/runner` now reads `product/`, `keep/`, and `reference/` directly from the tree
+  - `src/runner/modes/mod.rs` is now a compatibility re-export surface
+  - `dispatch.rs` and `route_orchestrator.rs` stayed hold-first and were not widened by the recut
+- handoff:
+  - next lane is `phase-70x caller-zero archive sweep`

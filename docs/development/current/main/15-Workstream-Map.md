@@ -37,8 +37,8 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-69x rust runner product/keep/reference recut`
-     - current active micro task is `69xB2 keep split`
+     - current active lane is `phase-70x caller-zero archive sweep`
+     - current active micro task is `70xA1 caller-zero inventory lock`
      - ranked successor corridor after `68x` is:
        - `69x rust runner product/keep/reference recut`
        - `70x caller-zero archive sweep`
@@ -74,7 +74,7 @@ Related:
      - `phase-49x` is landed and the remaining current-doc wording / compat-route narration is closed
      - `phase-51x` is landed and the canonical compat-codegen bucket now lives under the archive path
      - `phase-52x` is landed and polishes archive/historical labeling after source cleanup
-     - `phase-53x` is landed, `phase-54x` is landed, `phase-55x` is landed, `phase-56x` is landed, `phase-57x` is landed, `phase-58x` is landed, `phase-59x` is landed, `phase-60x` is landed, `phase-61x` is landed, `phase-62x` is landed, `phase-63x` is landed, `phase-64x` is landed, `phase-65x` is landed, `phase-66x` is landed, `phase-67x` is landed, `phase-68x` is landed, and `phase-69x` is active
+     - `phase-53x` is landed, `phase-54x` is landed, `phase-55x` is landed, `phase-56x` is landed, `phase-57x` is landed, `phase-58x` is landed, `phase-59x` is landed, `phase-60x` is landed, `phase-61x` is landed, `phase-62x` is landed, `phase-63x` is landed, `phase-64x` is landed, `phase-65x` is landed, `phase-66x` is landed, `phase-67x` is landed, `phase-68x` is landed, `phase-69x` is landed, and `phase-70x` is active
      - `48xA1` inventory lock is landed; `48xA2` proof-only / compat keep classification is landed
      - `48xB1` smoke script stale-route cleanup is landed; `48xB2` proof-only smoke gate lock is landed; `48xC1` source helper stale-route cleanup is landed; `48xC2` vm.rs / vm_fallback thin keep trim is landed
      - `47xA1` landed, `47xA2` landed, `47xA3` landed, `47xB1` landed, `47xB2` landed, `47xB3` landed, `47xC1` landed, `47xC2` landed, `47xC3` landed, `47xD1` landed, `47xD2` landed, and `47xD3` landed
@@ -132,14 +132,14 @@ Related:
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-69x rust runner product/keep/reference recut table:
+   - phase-70x caller-zero archive sweep table:
 
      | Item | State |
      | --- | --- |
-     | Now | `69xB2 keep split` |
+     | Now | `70xA1 caller-zero inventory lock` |
      | Blocker | `none` |
-     | Next | `69xC1 alias/module cleanup` |
-     | After Next | `69xD1 proof / closeout` |
+     | Next | `70xA2 archive-ready ranking` |
+     | After Next | `70xB1 live alias/archive sweep` |
    - rust-vm corridor outcome:
 
      | Item | State |
@@ -151,9 +151,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `69xB2 keep split` |
-     | Next | `69xC1 alias/module cleanup` |
-     | Later | `69xD1 proof / closeout` |
+     | Now | `70xA1 caller-zero inventory lock` |
+     | Next | `70xA2 archive-ready ranking` |
+     | Later | `70xB1 live alias/archive sweep` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
