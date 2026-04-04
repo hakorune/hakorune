@@ -2,24 +2,49 @@
 // Expect numeric output lines: 2 then 1
 
 static box Main {
-  read_digits_from(s, pos) {
-    local out = ""
-    local i = pos
-    if i < 0 { return out }
-
-    loop (true) {
-      local ch = s.substring(i, i+1)
-      if ch == "" { break }
-      if ch == "0" || ch == "1" || ch == "2" || ch == "3" || ch == "4" || ch == "5" || ch == "6" || ch == "7" || ch == "8" || ch == "9" { out = out + ch  i = i + 1 } else { break }
-    }
-    return out
-  }
-
   main() {
-    local a = read_digits_from("12x", 0)
-    local b = read_digits_from("9", 0)
-    print(a.length())
-    print(b.length())
-    return "OK"
+    local src_a = "12x"
+    local a = 0
+    local ai = 0
+    loop (true) {
+      local ch = src_a.substring(ai, ai+1)
+      if ch == "" { break }
+      local is_digit = 0
+      if ch == "0" { is_digit = 1 }
+      if ch == "1" { is_digit = 1 }
+      if ch == "2" { is_digit = 1 }
+      if ch == "3" { is_digit = 1 }
+      if ch == "4" { is_digit = 1 }
+      if ch == "5" { is_digit = 1 }
+      if ch == "6" { is_digit = 1 }
+      if ch == "7" { is_digit = 1 }
+      if ch == "8" { is_digit = 1 }
+      if ch == "9" { is_digit = 1 }
+      if is_digit == 1 { a = a + 1  ai = ai + 1 } else { break }
+    }
+
+    local src_b = "9"
+    local b = 0
+    local bi = 0
+    loop (true) {
+      local ch = src_b.substring(bi, bi+1)
+      if ch == "" { break }
+      local is_digit = 0
+      if ch == "0" { is_digit = 1 }
+      if ch == "1" { is_digit = 1 }
+      if ch == "2" { is_digit = 1 }
+      if ch == "3" { is_digit = 1 }
+      if ch == "4" { is_digit = 1 }
+      if ch == "5" { is_digit = 1 }
+      if ch == "6" { is_digit = 1 }
+      if ch == "7" { is_digit = 1 }
+      if ch == "8" { is_digit = 1 }
+      if ch == "9" { is_digit = 1 }
+      if is_digit == 1 { b = b + 1  bi = bi + 1 } else { break }
+    }
+
+    print(a)
+    print(b)
+    return 0
   }
 }

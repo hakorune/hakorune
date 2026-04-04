@@ -20,29 +20,28 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-104 loop(true) + break-only digits（read_digits 系）`
-- current front: `read_digits_from 形の loop(true)+break-only を VM と LLVM EXE で固定する`
+- lane: `phase-110x selfhost execution vocabulary SSOT`
+- current front: `stage / route / backend override / lane / kernel を長寿命 SSOT に固定する`
 - blocker: `none`
 - recent landed:
+  - `phase-104 loop(true) + break-only digits（read_digits 系）`
   - `phase-103 if-only regression baseline（VM + LLVM EXE）`
   - `phase-102 real-app read_quoted loop regression (VM + LLVM EXE)`
   - `phase-100 Pinned Read-Only Captures`
   - `phase-99 Trim/escape 実コード寄り強化（VM+LLVM EXE）`
-  - `phase-95 json_loader escape loop E2E lock`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-104/README.md`
+3. `docs/development/current/main/phases/phase-110x/README.md`
 
 ## Successor Corridor
 
-1. `phase-104 loop(true) + break-only digits（read_digits 系）`
-2. `phase-110x selfhost execution vocabulary SSOT`
-3. `phase-111x selfhost runtime route naming cleanup`
-4. `phase-112x vm-family lane naming hardening`
-5. `phase-113x kernel vs vm-reference cluster wording correction`
+1. `phase-110x selfhost execution vocabulary SSOT`
+2. `phase-111x selfhost runtime route naming cleanup`
+3. `phase-112x vm-family lane naming hardening`
+4. `phase-113x kernel vs vm-reference cluster wording correction`
 
 ## Parked After Optimization
 

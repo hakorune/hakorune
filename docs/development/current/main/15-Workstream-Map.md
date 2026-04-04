@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-104 loop(true) + break-only digits（read_digits 系）` |
-| Front | `read_digits_from 形の loop(true)+break-only を VM と LLVM EXE で固定する` |
+| Now | `phase-110x selfhost execution vocabulary SSOT` |
+| Front | `stage / route / backend override / lane / kernel を長寿命 SSOT に固定する` |
 | Blocker | `none` |
-| Next | `phase-104 fixture + parity proof` |
-| After Next | `execution SSOT cleanup corridor` |
+| Next | `execution vocabulary inventory + route map` |
+| After Next | `runtime route naming cleanup corridor` |
 
 ## Current Read
 
@@ -32,7 +32,8 @@ Related:
 - `100` landed with pinned read-only captures and accumulator parity proof
 - `102` landed with real-app `read_quoted_from` loop parity
 - `103` landed with if-only merge / early return parity
-- `104` is the current lane for loop(true)+break-only digits parity
+- `104` landed with loop(true)+break-only digits parity
+- `110x` is the current lane for execution vocabulary SSOT
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers
@@ -50,11 +51,10 @@ Related:
 
 ## Successor Corridor
 
-1. `phase-104 loop(true) + break-only digits（read_digits 系）`
-2. `phase-110x selfhost execution vocabulary SSOT`
-3. `phase-111x selfhost runtime route naming cleanup`
-4. `phase-112x vm-family lane naming hardening`
-5. `phase-113x kernel vs vm-reference cluster wording correction`
+1. `phase-110x selfhost execution vocabulary SSOT`
+2. `phase-111x selfhost runtime route naming cleanup`
+3. `phase-112x vm-family lane naming hardening`
+4. `phase-113x kernel vs vm-reference cluster wording correction`
 
 ## Parked After Optimization
 
@@ -84,11 +84,11 @@ Related:
 ## Reference
 
 - current lane docs:
-  - `docs/development/current/main/phases/phase-100/README.md`
+  - `docs/development/current/main/phases/phase-110x/README.md`
   - `docs/development/current/main/phases/phase-104/README.md`
 - recent landed:
   - `docs/development/current/main/phases/phase-103/README.md`
   - `docs/development/current/main/phases/phase-102/README.md`
+  - `docs/development/current/main/phases/phase-100/README.md`
   - `docs/development/current/main/phases/phase-98/README.md`
-  - `docs/development/current/main/phases/phase-97/README.md`
   - `docs/development/current/main/phases/phase-99/README.md`

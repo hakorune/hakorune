@@ -12,10 +12,11 @@ Related:
 
 ## Current
 
-- lane: `phase-104 loop(true) + break-only digits（read_digits 系）`
-- current front: `read_digits_from 形の loop(true)+break-only を VM と LLVM EXE で固定する`
+- lane: `phase-110x selfhost execution vocabulary SSOT`
+- current front: `stage / route / backend override / lane / kernel を長寿命 SSOT に固定する`
 - blocker: `none`
 - recent landed:
+  - `phase-104 loop(true) + break-only digits（read_digits 系）`
   - `phase-103 if-only regression baseline（VM + LLVM EXE）`
   - `phase-102 real-app read_quoted loop regression (VM + LLVM EXE)`
   - `phase-100 Pinned Read-Only Captures`
@@ -33,8 +34,9 @@ Related:
 - `phase-100` landed with pinned read-only captures and accumulator proof locked
 - `phase-102` landed with real-app `read_quoted_from` loop parity on VM and LLVM EXE
 - `phase-103` landed with if-only merge / early return parity on VM and LLVM EXE
-- `phase-104` is the current lane: loop(true)+break-only digits parity on VM and LLVM EXE
-- after `phase-102`, execution SSOT cleanup is queued:
+- `phase-104` landed with loop(true)+break-only digits parity on VM and LLVM EXE
+- `phase-110x` is the current lane for execution vocabulary SSOT
+- after `phase-110x`, execution naming cleanup is queued:
   - vocabulary split: `stage / route / backend override / lane / kernel`
   - route rename direction: `runtime-mode exe` -> `runtime-route mainline`
   - VM family lane names: `rust-vm-keep / vm-hako-reference / vm-compat-fallback`
@@ -49,4 +51,4 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-104/README.md`
+2. `docs/development/current/main/phases/phase-110x/README.md`
