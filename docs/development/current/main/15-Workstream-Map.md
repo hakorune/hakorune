@@ -131,16 +131,16 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `52xB1 archive pack orchestrator wording cleanup` |
+     | Now | `52xC1 proof / closeout` |
      | Blocker | `none` |
-     | Next | `52xC1 proof / closeout` |
+     | Next | `done` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `52xB1 archive pack orchestrator wording cleanup` |
-     | Next | `52xC1 proof / closeout` |
-     | Later | `done` |
+     | Now | `52xC1 proof / closeout` |
+     | Next | `done` |
+     | Later | `archive wording cleanup complete` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |

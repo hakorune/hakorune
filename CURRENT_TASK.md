@@ -141,8 +141,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 - exact phase-52x order:
   1. `52xA1` archive historical evidence inventory lock (landed)
   2. `52xA2` archive README / wrapper wording rewrite (landed)
-  3. `52xB1` archive pack orchestrator wording cleanup (active)
-  4. `52xC1` proof / closeout (queued)
+  3. `52xB1` archive pack orchestrator wording cleanup (landed)
+  4. `52xC1` proof / closeout (active)
 
 Carry-over context:
 
@@ -236,7 +236,7 @@ Carry-over context:
 | --- | --- |
 | Now | `phase-52x archive historical labeling polish` |
 | Blocker | `none` |
-| Next | `52xB1 archive pack orchestrator wording cleanup` |
+| Next | `52xC1 proof / closeout` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -251,8 +251,8 @@ Carry-over context:
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `phase-52x archive historical labeling polish` | keep archive/historical labels minimal and explicit after source cleanup |
-| Next | `52xB1 archive pack orchestrator wording cleanup` | keep archive pack wording historical-only before closeout |
-| Later | `52xC1 proof / closeout` | prove the archive wording stays historical-only and hand off cleanly |
+| Next | `52xC1 proof / closeout` | prove the archive wording stays historical-only and hand off cleanly |
+| Later | `done` | archive wording cleanup is complete |
 
 ## Phase-34x Waves
 

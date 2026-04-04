@@ -8,9 +8,9 @@ Archived home for historical compat-codegen evidence and wrappers only.
 - `run_compat_pure_selfhost.sh`
 - `run_compat_pure_pack.sh`
 
-This archive keeps one canonical payload, one transport wrapper, and one pack
-orchestrator as historical evidence. It is historical evidence only, not a
-live route.
+This archive keeps one canonical payload, one transport wrapper, and one
+historical replay driver as historical evidence. It is historical evidence
+only, not a live route.
 
 ## Layering
 
@@ -18,7 +18,7 @@ live route.
   - `hako_llvm_selfhost_driver.hako`
 - transport wrapper:
   - `run_compat_pure_selfhost.sh`
-- pack orchestrator:
+- replay driver:
   - `run_compat_pure_pack.sh`
 
 Read this directory as the archived compat-codegen bucket. It is historical

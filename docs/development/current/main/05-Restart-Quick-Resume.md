@@ -25,8 +25,8 @@ tools/checks/dev_gate.sh quick
 - lane: `phase-52x archive historical labeling polish`
 - landed micro task: `49xD1 proof / closeout`
 - landed micro task: `52xA2 archive README / wrapper wording rewrite`
-- active micro task: `52xB1 archive pack orchestrator wording cleanup`
-- next micro task: `52xC1 proof / closeout`
+- landed micro task: `52xB1 archive pack orchestrator wording cleanup`
+- active micro task: `52xC1 proof / closeout`
 - after next: `done`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
