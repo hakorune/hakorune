@@ -73,7 +73,7 @@ Related:
   - `Stage1Cli.emit_mir_json(...)` を “not wired” から `.hako` mirbuilder 呼び出しへ置換。
   - `emit mir-json` は Program ではなく MIR(JSON) を stdout へ出す。
 - 受け入れ:
-  - `tools/selfhost/run_stage1_cli.sh emit mir-json apps/tests/hello_simple_llvm.hako` で `"functions"` を含む。
+  - `tools/selfhost/compat/run_stage1_cli.sh emit mir-json apps/tests/hello_simple_llvm.hako` で `"functions"` を含む。
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_quick_suite_vm.sh --with-stage1` green。
 - 進捗:
   - [x] D1-min1: `Stage1Cli.emit_mir_json(...)` を `.hako` mirbuilder 直結へ置換（2026-02-10）。
@@ -112,7 +112,7 @@ Related:
   - [~] D3-min2c(trial): mir-json env route を helper経由 alias注入（`HAKO/NYASH/STAGE1`）+ `--from-program-json` まで拡張（2026-02-11）。
   - [x] D3-min3: prebuilt `stage1-cli` artifact で full identity を実行し、Program/MIR とも一致で green 固定（`--cli-mode` 省略 = stage1-first 既定, 2026-02-11）。
   - [x] D3-min10: `stage1_cli_env.hako` の mode alias を inline 正規化へ集約（`emit-program*` / `emit-mir*` の重複分岐を削減、2026-02-11）。
-  - [x] D3-min11: `tools/selfhost/build_stage1.sh` の stage1-cli capability probe を `stage1_contract_exec_mode` 経由へ統一（2026-02-11）。
+  - [x] D3-min11: `tools/selfhost/mainline/build_stage1.sh` の stage1-cli capability probe を `stage1_contract_exec_mode` 経由へ統一（2026-02-11）。
   - [x] D3-min12: helper-call mode 正規化で発生した `rc=97` 回帰の再導入を防ぐ guard を `phase29bq_selfhost_stage1_contract_smoke_vm.sh` に追加（alias mode 実行契約も同時固定、2026-02-11）。
 
 ### D4) Stage0 compatibility path の明示的縮退

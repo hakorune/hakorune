@@ -162,7 +162,7 @@ Do not include:
 
 ### Stage1 Exit Gate
 
-- `tools/selfhost/run_stage1_cli.sh emit mir-json apps/tests/hello_simple_llvm.hako`
+- `tools/selfhost/compat/run_stage1_cli.sh emit mir-json apps/tests/hello_simple_llvm.hako`
 - `NYASH_USE_STAGE1_CLI=1 NYASH_STAGE1_MODE=emit-mir ./target/release/hakorune --emit-mir-json <out> apps/tests/hello_simple_llvm.hako`
 - `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4`
 - `tools/selfhost_identity_check.sh --mode full --skip-build --bin-stage1 <...> --bin-stage2 <...>`

@@ -35,8 +35,8 @@ End-state note:
 - `Program(JSON v0)` / stage1 wrapper / surrogate provider はその途中にある bootstrap-only boundary で、authority ではなく最終 retire target だと扱う
 - stage/artifact/lane の共有語彙は parent SSOT `execution-lanes-and-axis-separation-ssot.md` を正本にし、この文書は stage1 bootstrap route authority だけを扱う
 - build conduit note:
-  - current explicit build/invoke conduits are `tools/selfhost/build_stage1.sh` and `tools/selfhost/run_stage1_cli.sh` for the stage1 line
-  - `build_stage1.sh` artifact entries are thin stubs (`lang/src/runner/launcher_native_entry.hako`, `lang/src/runner/stage1_cli_env_entry.hako`); logical CLI owners stay in `launcher.hako` / `stage1_cli_env.hako`
+  - current explicit build/invoke conduits are `tools/selfhost/mainline/build_stage1.sh` and `tools/selfhost/compat/run_stage1_cli.sh` for the stage1 line
+  - `tools/selfhost/mainline/build_stage1.sh` artifact entries are thin stubs (`lang/src/runner/launcher_native_entry.hako`, `lang/src/runner/stage1_cli_env_entry.hako`); logical CLI owners stay in `launcher.hako` / `stage1_cli_env.hako`
   - this SSOT does not define a standalone `stage2-mainline` build script family
   - `Stage3` here is a compare/sanity label only (`tools/selfhost/stage3_same_result_check.sh`), not a primary build conduit
 
@@ -85,7 +85,7 @@ Current blocker (2026-03-11):
 - therefore there is no active reduced-case blocker on the authority route itself; next work is to choose the first true bootstrap reduction slice without changing the current authority contract
 
 Bootstrap closure note (2026-03-17):
-- `launcher-exe` remains non-authority for G1 identity, but it is now an accepted bootstrap-capable artifact for `build_stage1.sh`
+- `launcher-exe` remains non-authority for G1 identity, but it is now an accepted bootstrap-capable artifact for `tools/selfhost/mainline/build_stage1.sh`
 - success on that lane is defined by emitted payload/file materialization on the bootstrap route
   - the reduced `stage1-cli` artifact is treated as runnable bootstrap output
   - accepted proof is `HAKORUNE_BOOTSTRAP_OUT=<tmp>` (or build output path) becoming non-empty with the expected payload shape on the stage0/bootstrap route
@@ -122,8 +122,8 @@ SSOT:
   - legacy lane / binary-only / blocker capture supplement:
     - `docs/development/current/main/design/archive/selfhost-bootstrap-route-evidence-and-legacy-lanes.md`
 - `tools/selfhost_identity_check.sh` は reduced case として artifact-kind=`stage1-cli` smoke lane で `NYASH_BIN=<stage1-cli>` bridge-first bootstrap を使う。raw direct `stage1-cli` replacement ではなく、helper-driven Stage1 bridge contract を Stage2 build に昇格した narrow reduction として扱う
-- exact probe では `target/selfhost/hakorune.stage1_cli` の raw direct contract (`emit ...` / `--emit-mir-json`) は `97` を返すが、`NYASH_USE_STAGE1_CLI=1` の env contract は current reduced artifact でまだ payload を出し切れていない。`tools/selfhost/run_stage1_cli.sh` は raw `emit program-json` / `emit mir-json` surface をこの env contract に変換する compatibility wrapper であり、新しい authority route ではない
-- `build_stage1.sh` の `stage1-cli bridge-first` bootstrap path は current reduced source (`lang/src/runner/stage1_cli_env.hako`) を single-step source→MIR へ通し、`tools/ny_mir_builder.sh` には MIR(JSON) だけを渡す。reduced artifact 自体は runnable bootstrap output として扱い、payload proof は stage0 bootstrap route に置く
+- exact probe では `target/selfhost/hakorune.stage1_cli` の raw direct contract (`emit ...` / `--emit-mir-json`) は `97` を返すが、`NYASH_USE_STAGE1_CLI=1` の env contract は current reduced artifact でまだ payload を出し切れていない。`tools/selfhost/compat/run_stage1_cli.sh` は raw `emit program-json` / `emit mir-json` surface をこの env contract に変換する compatibility wrapper であり、新しい authority route ではない
+- `tools/selfhost/mainline/build_stage1.sh` の `stage1-cli bridge-first` bootstrap path は current reduced source (`lang/src/runner/stage1_cli_env.hako`) を single-step source→MIR へ通し、`tools/ny_mir_builder.sh` には MIR(JSON) だけを渡す。reduced artifact 自体は runnable bootstrap output として扱い、payload proof は stage0 bootstrap route に置く
 - `stage1_cli_env.hako::Stage1InputContractBox` isolates the shared env/source resolution contract so authority/compat boxes do not need to duplicate input shaping
 - `stage1_cli_env.hako::Stage1SourceProgramAuthorityBox` now owns the exact source-only `emit-program` authority handoff: source text coercion, same-file using-prefix merge, and the checked `BuildBox.emit_program_json_v0(...)` call stay there, while output validation stays in `Stage1ProgramResultValidationBox`
 - `stage1_cli_env.hako::Stage1ProgramJsonMirCallerBox` isolates the checked `MirBuilderBox.emit_from_program_json_v0(...)` handoff shared by source authority and explicit Program(JSON) compat keep; `Stage1ProgramAuthorityBox` is historical and no longer part of the current contract
@@ -142,14 +142,14 @@ SSOT:
 - `phase-29ch` compare policy is split on purpose: authority and route identity stay exact, but G1 MIR comparison may start with a narrow semantic canonical compare while raw MIR exact diff remains tightening evidence
 - exact env-mainline route ids and their fail-fast hints are centralized in `tools/selfhost/lib/identity_routes.sh`
 - G1 full-mode route guard も current authority に同期しており、`tools/selfhost_identity_check.sh --mode full` は `program-json=stage1-env-program` と `mir-json=stage1-env-mir-source` の exact route 以外では pass しない
-- supplied Program(JSON) compat text transport の shell-side SSOT は `tools/selfhost/lib/stage1_contract.sh` -> `tools/selfhost/run_stage1_cli.sh` -> `tools/selfhost/lib/identity_routes.sh` で固定し、live transport は `STAGE1_SOURCE_TEXT` を再利用する
+- supplied Program(JSON) compat text transport の shell-side SSOT は `tools/selfhost/lib/stage1_contract.sh` -> `tools/selfhost/compat/run_stage1_cli.sh` -> `tools/selfhost/lib/identity_routes.sh` で固定し、live transport は `STAGE1_SOURCE_TEXT` を再利用する
 - exact-only compat helper / mode / sentinel entry (`stage1_contract_exec_program_json_compat()` / `emit-mir-program` / `__stage1_program_json__`) も `tools/selfhost/lib/stage1_contract.sh` を単一正本にする
 - `STAGE1_PROGRAM_JSON_TEXT` is outside the live shell contract and exists only for fail-fast / diagnostics probes
 - retired path transport is not part of the live shell contract anymore; live shell compat is exact-helper only
-- `tools/selfhost/build_stage1.sh --artifact-kind stage1-cli` の post-build capability probe は stage0 bootstrap route の payload proof と reduced artifact の runnable liveness を分けて読む
+- `tools/selfhost/mainline/build_stage1.sh --artifact-kind stage1-cli` の post-build capability probe は stage0 bootstrap route の payload proof と reduced artifact の runnable liveness を分けて読む
 - post-build capability probe は `stage0 bootstrap proof + reduced artifact runnable liveness` のみを保証し、reduced artifact 自身の exact `stage1-env-program` / `stage1-env-mir-source` shell contract green までは保証しない
-- reduced artifact 自身の exact emit contract は `tools/selfhost/run_stage1_cli.sh --bin <stage1-cli> emit {program-json|mir-json} <entry>` と `tools/smokes/v2/profiles/integration/selfhost/phase29ci_stage1_cli_exact_emit_contract_vm.sh` で別に監視する
-- `tools/selfhost/build_stage1.sh` の stage1-cli bridge-first bootstrap 本体は direct helper route で MIR(JSON) を materialize するが、出力 artifact 自体は runnable bootstrap output として扱う
+- reduced artifact 自身の exact emit contract は `tools/selfhost/compat/run_stage1_cli.sh --bin <stage1-cli> emit {program-json|mir-json} <entry>` と `tools/smokes/v2/profiles/integration/selfhost/phase29ci_stage1_cli_exact_emit_contract_vm.sh` で別に監視する
+- `tools/selfhost/mainline/build_stage1.sh` の stage1-cli bridge-first bootstrap 本体は direct helper route で MIR(JSON) を materialize するが、出力 artifact 自体は runnable bootstrap output として扱う
 
 ## Non-goals
 
@@ -289,8 +289,8 @@ Directory note:
 - PASS = 両方一致、FAIL = どちらか不一致
 - Binary contract (重要):
   - full mode は **Stage1 CLI emit capability** を持つ binary を前提とする
-  - `launcher-exe`（`tools/selfhost/build_stage1.sh` default artifact）は run 用であり、G1 emit identity の前提を満たさない
-  - artifact kind は `tools/selfhost/build_stage1.sh --artifact-kind ...` と `<out>.artifact_kind` で明示する
+  - `launcher-exe`（`tools/selfhost/mainline/build_stage1.sh` default artifact）は run 用であり、G1 emit identity の前提を満たさない
+  - artifact kind は `tools/selfhost/mainline/build_stage1.sh --artifact-kind ...` と `<out>.artifact_kind` で明示する
 - Build options:
   - デフォルト: Stage1/Stage2 をビルド（~35GB+ RAM 必要）
   - `--skip-build`: prebuilt binaries を使用（比較のみ、メモリ制約環境向け）

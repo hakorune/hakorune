@@ -18,15 +18,15 @@ Date: 2026-04-04
 | --- | --- | --- |
 | `90xA1` | landed | stale surface inventory lock |
 | `90xA2` | landed | target split / stop-line freeze |
-| `90xB1` | active | current/design stale surface cleanup |
-| `90xC1` | queued | proof refresh |
+| `90xB1` | landed | current/design stale surface cleanup |
+| `90xC1` | active | proof refresh |
 | `90xD1` | queued | closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `90xB1 current/design stale surface cleanup` |
+| Now | `90xC1 proof refresh` |
 | Blocker | `none` |
-| Next | `90xC1 proof refresh` |
+| Next | `90xD1 closeout` |
 | After Next | `90xD1 closeout` |

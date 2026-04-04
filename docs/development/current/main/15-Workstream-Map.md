@@ -15,10 +15,10 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-90x current-doc/design stale surface hygiene` |
-| Front | `90xB1 current/design stale surface cleanup` |
+| Front | `90xC1 proof refresh` |
 | Blocker | `none` |
 | Next | `90xA2 target split / stop-line freeze` |
-| After Next | `90xB1 current/design stale surface cleanup` |
+| After Next | `90xD1 closeout` |
 
 ## Current Read
 

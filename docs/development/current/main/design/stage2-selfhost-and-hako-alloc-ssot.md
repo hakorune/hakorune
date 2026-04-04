@@ -36,7 +36,7 @@ Related:
 - shared artifact/lane vocabulary is owned by `execution-lanes-and-axis-separation-ssot.md`; this child doc owns stage/distribution layering and library layering.
 - stage2-mainline entry order and the first optimization wave are owned by `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md`.
 - conduit note:
-  - `stage1` has concrete build/invoke conduits today (`tools/selfhost/build_stage1.sh`, `tools/selfhost/run_stage1_cli.sh`)
+  - `stage1` has concrete build/invoke conduits today (`tools/selfhost/mainline/build_stage1.sh`, `tools/selfhost/compat/run_stage1_cli.sh`)
   - `stage2-mainline` in this document is the daily mainline / target-mainline reading; `stage2+` is the umbrella end-state reading, not a current standalone build-script family
   - `stage3` remains a compare/sanity label only
 

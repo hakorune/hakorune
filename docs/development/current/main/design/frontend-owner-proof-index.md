@@ -35,7 +35,7 @@ Canonical proofs:
 ## 2. Runner Authority Owner
 
 Owners:
-- [lang/src/runner/stage1_cli_env.hako](/home/tomoaki/git/hakorune-selfhost/lang/src/runner/stage1_cli_env.hako)
+- [lang/src/runner/compat/stage1_cli.hako](/home/tomoaki/git/hakorune-selfhost/lang/src/runner/compat/stage1_cli.hako)
 - [lang/src/runner/stage1_cli.hako](/home/tomoaki/git/hakorune-selfhost/lang/src/runner/stage1_cli.hako)
 - [lang/src/runner/launcher.hako](/home/tomoaki/git/hakorune-selfhost/lang/src/runner/launcher.hako)
 
@@ -48,7 +48,7 @@ Responsibilities:
 Canonical proofs:
 - `bash tools/dev/phase29ch_program_json_cold_compat_probe.sh`
 - `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli_env.hako /tmp/stage1_cli_env_probe.mir.json`
-- `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli.hako /tmp/stage1_cli_probe.mir.json`
+- `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/compat/stage1_cli.hako /tmp/stage1_cli_probe.mir.json`
 - `bash tools/hakorune_emit_mir.sh lang/src/runner/launcher_native_entry.hako /tmp/launcher_probe.mir.json`
 
 ## 3. Shell Contract Owner
@@ -56,7 +56,7 @@ Canonical proofs:
 Owners:
 - [tools/selfhost/lib/stage1_contract.sh](/home/tomoaki/git/hakorune-selfhost/tools/selfhost/lib/stage1_contract.sh)
 - [tools/selfhost/lib/identity_routes.sh](/home/tomoaki/git/hakorune-selfhost/tools/selfhost/lib/identity_routes.sh)
-- [tools/selfhost/build_stage1.sh](/home/tomoaki/git/hakorune-selfhost/tools/selfhost/build_stage1.sh)
+- [tools/selfhost/mainline/build_stage1.sh](/home/tomoaki/git/hakorune-selfhost/tools/selfhost/mainline/build_stage1.sh)
 
 Responsibilities:
 - exact env-mode transport
@@ -65,7 +65,7 @@ Responsibilities:
 - selfhost bootstrap wrapper contract
 
 Canonical proofs:
-- `bash -n tools/selfhost/lib/stage1_contract.sh tools/selfhost/lib/identity_routes.sh tools/selfhost/build_stage1.sh`
+- `bash -n tools/selfhost/lib/stage1_contract.sh tools/selfhost/lib/identity_routes.sh tools/selfhost/mainline/build_stage1.sh`
 - `bash tools/dev/phase29ch_program_json_cold_compat_probe.sh`
 - `bash tools/selfhost/run_lane_a_daily.sh`
 

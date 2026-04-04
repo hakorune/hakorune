@@ -32,7 +32,7 @@ Related:
   - 既存 artifact を再利用して `.hako` 側の改善ループを回す。
   - 前提 artifact（`target/release/hakorune`, `target/release/ny-llvmc`, `libnyash_kernel.a`）が欠落した場合は `build-maintenance` を先に1回実行する。
   - 推奨入口:
-    - `tools/selfhost/build_stage1.sh --artifact-kind launcher-exe --reuse-if-fresh 1`
+    - `tools/selfhost/mainline/build_stage1.sh --artifact-kind launcher-exe --reuse-if-fresh 1`
     - `tools/checks/dev_gate.sh runtime-exec-zero`
     - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
     - `bash tools/perf/run_kilo_hk_bench.sh strict 1 3`
