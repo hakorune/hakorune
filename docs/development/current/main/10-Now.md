@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `phase-53x residual VM source audit`
+- lane: `phase-54x next source lane selection`
 - `49xD1` landed: proof / closeout
 - `50xA1` landed: residual rust-vm surface inventory lock
 - `50xA2` landed: proof-only / compat keep classification
@@ -44,7 +44,8 @@ Related:
 - `53xB1 rust-vm delete-ready source peel` landed
 - `53xB2 vm-hako reference keep freeze` landed
 - `53xC1 archive-ready docs/examples / wrapper cleanup` landed
-- `53xD1 proof / closeout` active
+- `53xD1 proof / closeout` landed
+- `54xA1 successor lane inventory lock` active
 - `47xA1` landed: runtime/default contract lock
 - `47xA2` landed: stage1 source->MIR contract lock
 - `47xA3` landed: Stage-A direct/core contract lock
@@ -89,7 +90,7 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `53xD1 proof / closeout`
+- active micro task: `54xA1 successor lane inventory lock`
 - plain reading:
   - current source no longer treats `--backend vm` as a live owner lane; remaining references are archive-only evidence
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep
@@ -134,6 +135,6 @@ Related:
 
 1. read `CURRENT_TASK.md`
 2. read `15-Workstream-Map.md`
-3. read `docs/development/current/main/phases/phase-47x/README.md`
-4. read `docs/development/current/main/phases/phase-47x/47x-90-stage0-runtime-direct-core-finalization-ssot.md`
-5. read `docs/development/current/main/phases/phase-47x/47x-91-task-board.md`
+3. read `docs/development/current/main/phases/phase-54x/README.md`
+4. read `docs/development/current/main/phases/phase-54x/54x-90-next-source-lane-selection-ssot.md`
+5. read `docs/development/current/main/phases/phase-54x/54x-91-task-board.md`

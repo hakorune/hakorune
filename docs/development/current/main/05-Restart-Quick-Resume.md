@@ -22,7 +22,7 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-53x residual VM source audit`
+- lane: `phase-54x next source lane selection`
 - landed micro task: `49xD1 proof / closeout`
 - landed micro task: `52xA2 archive README / wrapper wording rewrite`
 - landed micro task: `52xB1 archive pack orchestrator wording cleanup`
@@ -32,7 +32,8 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `53xB1 rust-vm delete-ready source peel`
 - landed micro task: `53xB2 vm-hako reference keep freeze`
 - landed micro task: `53xC1 archive-ready docs/examples / wrapper cleanup`
-- active micro task: `53xD1 proof / closeout`
+- landed micro task: `53xD1 proof / closeout`
+- active micro task: `54xA1 successor lane inventory lock`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 
@@ -40,9 +41,9 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-53x/README.md`
-4. `docs/development/current/main/phases/phase-53x/53x-90-residual-vm-source-audit-ssot.md`
-5. `docs/development/current/main/phases/phase-53x/53x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-54x/README.md`
+4. `docs/development/current/main/phases/phase-54x/54x-90-next-source-lane-selection-ssot.md`
+5. `docs/development/current/main/phases/phase-54x/54x-91-task-board.md`
 6. `cargo check --manifest-path Cargo.toml --bin hakorune`
 
 ## Optional Checks

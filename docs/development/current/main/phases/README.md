@@ -4,8 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 53x residual VM source audit
-- **Phase 53x（ACTIVE）**: residual VM source audit（残っている rust-vm / vm-hako source surfaces を inventory して keep-now / archive-later / delete-ready に分け、vm-hako reference/conformance を live keep に固定する）
+- **Current (ACTIVE)**: Phase 54x next source lane selection
+- **Phase 54x（ACTIVE）**: next source lane selection（phase-53x handoff を受けて、次の source lane を leverage で選ぶ）
+- **Phase 53x（LANDED）**: residual VM source audit（残っている rust-vm / vm-hako source surfaces を inventory して keep-now / archive-later / delete-ready に分け、phase-54x に handoff した）
 - **Phase 52x（LANDED）**: archive historical labeling polish（archive / historical wording を最小化し、legacy traces を historical-only に保ち、phase-53x に residual source audit を handoff した）
 - **Phase 51x（LANDED）**: compat-codegen archival sweep（canonical compat-codegen payload / wrapper bucket を archive 側へ退避し、live docs / aliases を整理した）
 - **Phase 50x（LANDED）**: rust-vm source/archive cleanup（残っている rust-vm / vm-gated source と helper surface を inventory して keep / archive / delete-ready に分ける）

@@ -1,13 +1,16 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
-Scope: inventory residual rust-vm / vm-hako source surfaces, classify keep-now / archive-later / delete-ready, and peel only drained leftovers while keeping vm-hako reference/conformance live.
+Scope: inventory residual rust-vm / vm-hako source surfaces, classify keep-now / archive-later / delete-ready, and hand off cleanly so phase-54x can select the next source lane.
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/15-Workstream-Map.md
   - docs/development/current/main/phases/README.md
+  - docs/development/current/main/phases/phase-54x/README.md
+  - docs/development/current/main/phases/phase-54x/54x-90-next-source-lane-selection-ssot.md
+  - docs/development/current/main/phases/phase-54x/54x-91-task-board.md
   - docs/development/current/main/phases/phase-52x/README.md
   - docs/development/current/main/phases/phase-52x/52x-91-task-board.md
   - src/runner/modes/vm.rs
@@ -31,10 +34,10 @@ Related:
 ## Plain Reading
 
 - phase-52x finished archive historical labeling polish
-- phase-53x audits actual remaining source surfaces
+- phase-53x audited the remaining source surfaces and is now landed
 - rust-vm is no longer day-to-day ownership
 - vm-hako remains a live reference/conformance lane
-- the job is to peel delete-ready rust-vm residues without touching live vm-hako reference work
+- the handoff now moves to phase-54x next source lane selection
 
 ## Inventory Snapshot
 
@@ -113,7 +116,8 @@ Related:
 
 - `53xA2` is landed: keep-now / archive-later / delete-ready boundaries are fixed
 - `53xB1` is landed: first source peel removed stale VM-owner wording from active Rust surfaces without reopening callers
-- `53xB2` is active: vm-hako stays explicit reference/conformance keep
+- `53xB2` is landed: vm-hako stays explicit reference/conformance keep
 - `macro_box_ny.rs` stays compat keep because deprecated env wiring can still force the VM-backed runner branch
 - `53xC1` is landed: archive-ready docs/examples moved out of the live surface
-- `53xD1` is active: proof / closeout is the remaining step
+- `53xD1` is landed: proof / closeout is complete
+- `phase-54x` is active: next source lane selection is the remaining step
