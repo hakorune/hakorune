@@ -4,8 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 64x next source lane selection
-- **Phase 64x（ACTIVE）**: next source lane selection（rust-vm retirement corridor の結果を受けて次の source lane を選ぶ）
+- **Current (ACTIVE)**: Phase 65x stage1/selfhost mainline hardening
+- **Phase 65x（ACTIVE）**: stage1/selfhost mainline hardening（`.hako` / Stage1 authority cluster と shell contract owner を mainline 観点で固める）
+- **Phase 64x（LANDED）**: next source lane selection（rust-vm retirement corridor の結果を受けて次の source lane を選んだ）
 - **Phase 63x（LANDED）**: rust-vm final retirement decision（mainline retirement achieved / full source retirement deferred / residual explicit keep frozen を確定）
 - **Phase 62x（LANDED）**: rust-vm delete-ready removal wave（caller-zero / explicit replacement が証明されたものだけを狭く remove する想定だったが、実際は no-op で closeout）
 - **Phase 61x（LANDED）**: residual rust-vm caller-zero audit rerun（phase-60x prune 後の caller-zero facts を source-backed に再監査した）

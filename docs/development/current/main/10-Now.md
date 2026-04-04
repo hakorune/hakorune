@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `phase-64x next source lane selection`
+- lane: `phase-65x stage1/selfhost mainline hardening`
 - `49xD1` landed: proof / closeout
 - `50xA1` landed: residual rust-vm surface inventory lock
 - `50xA2` landed: proof-only / compat keep classification
@@ -130,8 +130,13 @@ Related:
 - landed micro task: `63xA2 retire-vs-residual decision`
 - landed micro task: `63xB1 residual keep stop-line or retirement plan freeze`
 - landed micro task: `63xD1 proof / closeout`
-- active micro task: `64xA1 successor lane inventory lock`
-- planned follow-up: `64xA2 candidate lane ranking`
+- landed micro task: `64xA1 successor lane inventory lock`
+- landed micro task: `64xA2 candidate lane ranking`
+- landed micro task: `64xB1 successor lane decision`
+- landed micro task: `64xD1 proof / closeout`
+- landed micro task: `65xA1 stage1/selfhost owner inventory lock`
+- active micro task: `65xA2 mainline contract / proof lock`
+- planned follow-up: `65xB1 runner authority owner cleanup`
 - rust-vm corridor outcome:
   - mainline retirement: achieved
   - full source retirement: deferred
@@ -185,6 +190,6 @@ Related:
 
 1. read `CURRENT_TASK.md`
 2. read `15-Workstream-Map.md`
-3. read `docs/development/current/main/phases/phase-64x/README.md`
-4. read `docs/development/current/main/phases/phase-64x/64x-90-next-source-lane-selection-ssot.md`
-5. read `docs/development/current/main/phases/phase-64x/64x-91-task-board.md`
+3. read `docs/development/current/main/phases/phase-65x/README.md`
+4. read `docs/development/current/main/phases/phase-65x/65x-90-stage1-selfhost-mainline-hardening-ssot.md`
+5. read `docs/development/current/main/phases/phase-65x/65x-91-task-board.md`
