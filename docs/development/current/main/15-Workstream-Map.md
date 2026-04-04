@@ -135,13 +135,14 @@ Related:
      | Now | `54xA1 successor lane inventory lock` |
      | Blocker | `none` |
      | Next | `54xA2 candidate lane ranking` |
+     | After Next | `54xB1 successor lane decision` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
      | Now | `54xA1 successor lane inventory lock` |
      | Next | `54xA2 candidate lane ranking` |
-     | Later | `54xD1 proof / closeout` |
+     | Later | `55x rust-vm route-surface retirement prep` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
@@ -186,9 +187,12 @@ Related:
   - `phase-41x` stage0 direct/core route hardening (landed)
      - Active backend surface tasks:
      - `51xA2 proof-only / archive-later classification`
-      - Queued backend surface tasks:
-     - `51xD1 proof / closeout`
-     - `next source lane selection`
+     - Queued backend surface tasks:
+     - `54xA2 candidate lane ranking`
+     - `54xB1 successor lane decision`
+     - `55x rust-vm route-surface retirement prep`
+     - `56x proof/compat keep pruning`
+     - `57x rust-vm delete-ready audit / removal wave`
     - `kilo` optimization wave (far future; not the next lane)
 - Post-`37xD1` cleanup:
   - drained shim / legacy embedded smoke archive sweep

@@ -46,6 +46,11 @@ Related:
 - `53xC1 archive-ready docs/examples / wrapper cleanup` landed
 - `53xD1 proof / closeout` landed
 - `54xA1 successor lane inventory lock` active
+- `54xA2 candidate lane ranking` queued
+- `54xB1 successor lane decision` queued
+- `55x rust-vm route-surface retirement prep` planned
+- `56x proof/compat keep pruning` planned
+- `57x rust-vm delete-ready audit / removal wave` planned
 - `47xA1` landed: runtime/default contract lock
 - `47xA2` landed: stage1 source->MIR contract lock
 - `47xA3` landed: Stage-A direct/core contract lock
@@ -94,6 +99,7 @@ Related:
 - plain reading:
   - current source no longer treats `--backend vm` as a live owner lane; remaining references are archive-only evidence
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep
+  - the current lane now owns the retirement corridor up to rust-vm exit from live source surfaces
 - `phase-42x` is landed; it starved day-to-day callers away from vm-gated routes and moved owner pressure toward direct/core seams
 - `phase-43x` is landed; it selected `phase-44x stage0 direct/core follow-up` as the highest-leverage successor lane
 - `phase-44x` is landed; it keeps proof-only VM gates explicit and closes the lane

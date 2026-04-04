@@ -34,6 +34,9 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `53xC1 archive-ready docs/examples / wrapper cleanup`
 - landed micro task: `53xD1 proof / closeout`
 - active micro task: `54xA1 successor lane inventory lock`
+- queued micro task: `54xA2 candidate lane ranking`
+- queued micro task: `54xB1 successor lane decision`
+- planned follow-up: `55x rust-vm route-surface retirement prep`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 

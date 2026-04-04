@@ -28,6 +28,28 @@ Related:
 - the current job is to decide the next source lane cleanly before any new work starts.
 - `kilo` remains far-future; this phase is about the nearer next source focus, not a delayed optimization wave.
 
+## Retirement Corridor
+
+- this selection lane now owns the retirement corridor up to rust-vm exit from the live source surface.
+- the intended corridor is:
+  - `phase-55x rust-vm route-surface retirement prep`
+  - `phase-56x proof/compat keep pruning`
+  - `phase-57x rust-vm delete-ready audit / removal wave`
+- `vm-hako` is outside this corridor because it remains a live reference/conformance lane.
+- `kilo` optimization also stays outside this corridor.
+
+## Candidate Lanes
+
+1. `phase-55x rust-vm route-surface retirement prep`
+   - drain backend-route/default/help surfaces that still expose rust-vm as a selectable live code path
+   - focus on `dispatch.rs`, `route_orchestrator.rs`, route comments, and explicit backend affordances
+2. `phase-56x proof/compat keep pruning`
+   - reduce keep-now proof/compat surfaces down to the smallest explicit set
+   - focus on `run_stageb_compiler_vm.sh`, `stage_a_compat_bridge.rs`, `vm_fallback.rs`, `core.hako`, and proof smoke routing
+3. `phase-57x rust-vm delete-ready audit / removal wave`
+   - run final caller audit and delete or archive only after proof/compat replacements are explicit
+   - focus on `vm.rs` and any remaining rust-vm-only route glue
+
 ## Success Conditions
 
 - candidate next lanes are inventoried and compared
@@ -41,6 +63,7 @@ Related:
 - reopening `--backend vm` / rust-vm as a day-to-day default
 - leaving current mirrors pointed at a landed lane after handoff
 - treating proof-only or compat keeps as if they were the next default producer
+- mixing `vm-hako` reference work into the rust-vm retirement corridor
 
 ## Big Tasks
 
@@ -49,5 +72,6 @@ Related:
    - `54xA2` candidate lane ranking
 2. select the successor lane
    - `54xB1` successor lane decision
+   - `54xB2` retirement corridor lock
 3. prove and close the selection lane
    - `54xD1` proof / closeout

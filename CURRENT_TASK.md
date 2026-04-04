@@ -51,6 +51,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 29. `phase-52x archive historical labeling polish` (landed)
 30. `phase-53x residual VM source audit` (landed)
 31. `phase-54x next source lane selection` (active)
+32. `phase-55x rust-vm route-surface retirement prep` (planned)
+33. `phase-56x proof/compat keep pruning` (planned)
+34. `phase-57x rust-vm delete-ready audit / removal wave` (planned)
 
 - `K-axis` stays `K0 / K1 / K2` and is read as a build/runtime stage axis, not a task axis.
 - current stage progression reads as `K0 -> K1 -> K2`.
@@ -148,6 +151,13 @@ Scope: repo root から current order / current blocker / next exact read に最
   5. `53xC1` archive-ready docs/examples / wrapper cleanup (landed)
   6. `53xD1` proof / closeout (landed)
   7. `54xA1` successor lane inventory lock (active)
+  8. `54xA2` candidate lane ranking (queued)
+  9. `54xB1` successor lane decision (queued)
+  10. `54xB2` retirement corridor lock (queued)
+  11. `54xD1` proof / closeout (queued)
+  12. `55x` rust-vm route-surface retirement prep (planned)
+  13. `56x` proof/compat keep pruning (planned)
+  14. `57x` rust-vm delete-ready audit / removal wave (planned)
 
 Carry-over context:
 
@@ -257,7 +267,7 @@ Carry-over context:
 | --- | --- | --- |
 | Now | `phase-54x next source lane selection` | choose the next source lane after the residual VM audit handoff |
 | Next | `54xA2 candidate lane ranking` | rank the candidate source lanes by leverage |
-| Later | `54xD1 proof / closeout` | prove the selection stays green and hand off cleanly |
+| Later | `55x rust-vm route-surface retirement prep` | start the concrete retirement corridor once the successor lane is chosen |
 
 ## Phase-34x Waves
 
