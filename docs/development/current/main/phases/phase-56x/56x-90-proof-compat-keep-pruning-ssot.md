@@ -34,6 +34,25 @@ Related:
 - `tools/selfhost/run_stageb_compiler_vm.sh`
 - proof smoke wrappers that still overstate rust-vm ownership
 
+## Inventory Lock
+
+- proof-only keep:
+  - `tools/selfhost/run_stageb_compiler_vm.sh`
+  - `tools/selfhost/bootstrap_selfhost_smoke.sh`
+  - `tools/selfhost/selfhost_smoke.sh`
+  - `tools/selfhost/selfhost_stage3_accept_smoke.sh`
+  - `tools/plugins/plugin_v2_smoke.sh`
+- compat keep:
+  - `tools/selfhost/lib/selfhost_run_routes.sh` (`stage-a`)
+  - `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
+  - `src/runner/modes/vm_fallback.rs`
+  - `lang/src/runner/stage1_cli/core.hako`
+- keep-now but out of pruning scope:
+  - `src/runner/modes/vm.rs`
+  - `src/runner/modes/vm_hako.rs`
+  - `src/runner/dispatch.rs`
+  - `src/runner/route_orchestrator.rs`
+
 ## Boundaries
 
 - do not delete `vm.rs` in this lane

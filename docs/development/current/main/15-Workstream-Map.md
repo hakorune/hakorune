@@ -132,16 +132,16 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `56xA1 proof-only keep inventory lock` |
+     | Now | `56xA2 compat keep boundary freeze` |
      | Blocker | `none` |
-     | Next | `56xA2 compat keep boundary freeze` |
-     | After Next | `56xB1 stage-a compat route pruning prep` |
+     | Next | `56xB1 stage-a compat route pruning prep` |
+     | After Next | `56xB2 vm fallback/core.hako keep pruning` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `56xA1 proof-only keep inventory lock` |
-     | Next | `56xA2 compat keep boundary freeze` |
+     | Now | `56xA2 compat keep boundary freeze` |
+     | Next | `56xB1 stage-a compat route pruning prep` |
      | Later | `56x proof/compat keep pruning` |
    - stage0 shell residue waves:
 
@@ -189,7 +189,7 @@ Related:
      - `51xA2 proof-only / archive-later classification`
      - Queued backend surface tasks:
      - `55xA2 backend/default/help exposure freeze`
-     - `56xA1 proof-only keep inventory lock`
+     - `56xA2 compat keep boundary freeze`
      - `56x proof/compat keep pruning`
      - `56x proof/compat keep pruning`
      - `57x rust-vm delete-ready audit / removal wave`

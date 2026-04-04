@@ -56,8 +56,8 @@ Related:
 - `55xB2 selfhost route-surface cleanup` landed
 - `55xC1 dispatch/orchestrator explicit keep narrowing` landed
 - `55xD1 proof / closeout` landed
-- `56xA1 proof-only keep inventory lock` active
-- `56xA2 compat keep boundary freeze` queued
+- `56xA1 proof-only keep inventory lock` landed
+- `56xA2 compat keep boundary freeze` active
 - `56xB1 stage-a compat route pruning prep` queued
 - `56xB2 vm fallback/core.hako keep pruning` queued
 - `56xC1 proof smoke keep pruning` queued
@@ -108,7 +108,7 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `56xA1 proof-only keep inventory lock`
+- active micro task: `56xA2 compat keep boundary freeze`
 - plain reading:
   - current source no longer treats `--backend vm` as a live owner lane; remaining live references are explicit compat/proof/reference keeps plus archive evidence
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep

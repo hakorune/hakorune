@@ -161,8 +161,8 @@ Scope: repo root から current order / current blocker / next exact read に最
   15. `55xB2` selfhost route-surface cleanup (landed)
   16. `55xC1` dispatch/orchestrator explicit keep narrowing (landed)
   17. `55xD1` proof / closeout (landed)
-  18. `56xA1` proof-only keep inventory lock (active)
-  19. `56xA2` compat keep boundary freeze (queued)
+  18. `56xA1` proof-only keep inventory lock (landed)
+  19. `56xA2` compat keep boundary freeze (active)
   20. `56xB1` stage-a compat route pruning prep (queued)
   21. `56xB2` vm fallback/core.hako keep pruning (queued)
   22. `56xC1` proof smoke keep pruning (queued)
@@ -261,7 +261,7 @@ Carry-over context:
 | --- | --- |
 | Now | `phase-56x proof/compat keep pruning` |
 | Blocker | `none` |
-| Next | `56xA1 proof-only keep inventory lock` |
+| Next | `56xA2 compat keep boundary freeze` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
