@@ -1,8 +1,9 @@
 #!/bin/bash
 # phase29bq_selfhost_runtime_route_program_reject_smoke_vm.sh
 # Contract:
-# - stage-a runtime route must fail-fast in strict+planner_required when Program(JSON v0)
-#   reaches the runtime boundary (expected MIR(JSON v0) only).
+# - explicit stage-a-compat runtime route stays on the compat-only path even under
+#   strict+planner_required.
+# - the smoke verifies explicit compat routing, not a reject-by-default contract.
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../../../../.." && pwd)"
@@ -46,13 +47,13 @@ NYASH_USE_NY_COMPILER=1 \
   NYASH_NY_COMPILER_TIMEOUT_MS="$TIMEOUT_MS" \
   HAKO_JOINIR_STRICT=1 \
   HAKO_JOINIR_PLANNER_REQUIRED=1 \
-  "$RUNNER" --runtime --runtime-mode stage-a --input "$FIXTURE" --timeout-ms "$TIMEOUT_MS" \
+  "$RUNNER" --runtime --runtime-mode stage-a-compat --input "$FIXTURE" --timeout-ms "$TIMEOUT_MS" \
   > "$stdout_log" 2> "$stderr_log"
 rc=$?
 set -e
 
-if [ "$rc" -eq 0 ]; then
-  log_error "runtime stage-a reject smoke expected failure (rc=0)"
+if [ "$rc" -ne 0 ]; then
+  log_error "runtime stage-a-compat contract smoke expected success (rc=$rc)"
   echo "STDERR_LOG: $stderr_log"
   exit 1
 fi
@@ -63,14 +64,14 @@ if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=pipeline-entry sourc
   exit 1
 fi
 
-if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=stage-a source=' "$stderr_log"; then
-  log_error "missing runtime route tag (mode=stage-a) in stderr"
+if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=stage-a-compat source=' "$stderr_log"; then
+  log_error "missing runtime route tag (mode=stage-a-compat) in stderr"
   echo "STDERR_LOG: $stderr_log"
   exit 1
 fi
 
-if ! rg -q '^\[contract\]\[runtime-route\]\[expected=mir-json\] route=stage-a source=' "$stderr_log"; then
-  log_error "missing runtime route contract reject tag in stderr"
+if rg -q '^\[contract\]\[runtime-route\]\[expected=mir-json\] route=stage-a-compat source=' "$stderr_log"; then
+  log_error "unexpected runtime route reject tag in stderr"
   echo "STDERR_LOG: $stderr_log"
   exit 1
 fi

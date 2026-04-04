@@ -206,7 +206,7 @@ pub(crate) fn execute_file_with_backend(runner: &NyashRunner, filename: &str) {
         }
         "vm" => {
             crate::cli_v!(
-                "🚀 Hakorune VM Compat/Proof Route - Executing file: {} 🚀",
+                "🚀 Hakorune Explicit VM Keep Route - Executing file: {} 🚀",
                 filename
             );
             if !super::route_orchestrator::execute_vm_route(runner, "vm", filename) {
@@ -216,7 +216,7 @@ pub(crate) fn execute_file_with_backend(runner: &NyashRunner, filename: &str) {
         }
         "vm-hako" => {
             crate::cli_v!(
-                "🚀 Hakorune VM-Hako Reference Route - Executing file: {} 🚀",
+                "🚀 Hakorune Explicit VM-Hako Reference Route - Executing file: {} 🚀",
                 filename
             );
             if !super::route_orchestrator::execute_vm_route(runner, "vm-hako", filename) {
@@ -247,7 +247,7 @@ pub(crate) fn execute_file_with_backend(runner: &NyashRunner, filename: &str) {
         }
         other => {
             eprintln!(
-                "❌ Unknown backend: {}. Use explicit override 'vm', 'vm-hako', or 'llvm'.",
+                "❌ Unknown backend: {}. Use an explicit backend override (product: llvm; legacy keep/reference: vm, vm-hako).",
                 other
             );
             std::process::exit(2);

@@ -3,7 +3,7 @@
 # Verify runtime selfhost route tag contract on stderr.
 # Contract:
 # - mode=pipeline-entry is emitted when runtime route is engaged
-# - mode=<stage-a|exe> is emitted for selected runtime route
+# - mode=<stage-a-compat|exe> is emitted for selected runtime route
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../../../../.." && pwd)"
@@ -12,7 +12,7 @@ require_env || exit 2
 
 RUNNER="$NYASH_ROOT/tools/selfhost/run.sh"
 FIXTURE="${1:-$NYASH_ROOT/apps/examples/string_p0.hako}"
-RUNTIME_MODE="${2:-stage-a}"
+RUNTIME_MODE="${2:-stage-a-compat}"
 TIMEOUT_MS="${NYASH_NY_COMPILER_TIMEOUT_MS:-6000}"
 
 if ! [[ "$TIMEOUT_MS" =~ ^[0-9]+$ ]]; then
@@ -29,8 +29,8 @@ if [ ! -f "$FIXTURE" ]; then
   exit 2
 fi
 
-if [[ "$RUNTIME_MODE" != "stage-a" && "$RUNTIME_MODE" != "exe" ]]; then
-  log_error "runtime mode must be stage-a|exe (got: $RUNTIME_MODE)"
+if [[ "$RUNTIME_MODE" != "stage-a-compat" && "$RUNTIME_MODE" != "exe" ]]; then
+  log_error "runtime mode must be stage-a-compat|exe (got: $RUNTIME_MODE)"
   exit 2
 fi
 
@@ -56,7 +56,7 @@ if [ "$RUNTIME_MODE" = "exe" ]; then
 fi
 
 runtime_env_prefix=()
-if [ "$RUNTIME_MODE" = "stage-a" ]; then
+if [ "$RUNTIME_MODE" = "stage-a-compat" ]; then
   # Keep the positive stage-a smoke on the explicit compat-success path.
   runtime_env_prefix+=("NYASH_VM_USE_FALLBACK=1")
 fi
@@ -97,12 +97,12 @@ if ! rg -q "^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=${RUNTIME_MODE} sour
   exit 1
 fi
 
-if [ "$RUNTIME_MODE" = "stage-a" ]; then
-  log_success "stage-a runtime route success path"
+if [ "$RUNTIME_MODE" = "stage-a-compat" ]; then
+  log_success "stage-a-compat runtime route success path"
 fi
 
-if [ "$RUNTIME_MODE" = "exe" ] && rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=stage-a source=' "$stderr_log"; then
-  log_error "runtime exe route fell back to stage-a unexpectedly"
+if [ "$RUNTIME_MODE" = "exe" ] && rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=stage-a-compat source=' "$stderr_log"; then
+  log_error "runtime exe route fell back to stage-a-compat unexpectedly"
   echo "STDERR_LOG: $stderr_log"
   exit 1
 fi

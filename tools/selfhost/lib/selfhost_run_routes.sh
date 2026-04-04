@@ -21,7 +21,7 @@ resolve_path() {
 emit_runtime_route_tag() {
   local mode="$1"
   local source="$2"
-  if [ "$mode" = "stage-a" ]; then
+  if [ "$mode" = "stage-a" ] || [ "$mode" = "stage-a-compat" ]; then
     mode="stage-a-compat"
   fi
   echo "[selfhost/route] id=SH-RUNTIME-SELFHOST mode=$mode source=$source" >&2
@@ -165,7 +165,7 @@ run_runtime() {
   local -a env_prefix
   env_prefix=("NYASH_USE_NY_COMPILER=1" "NYASH_NY_COMPILER_USE_PY=0")
   case "$runtime_mode" in
-    stage-a)
+    stage-a-compat)
       # explicit compat-only keep: keep the fallback route narrow and non-growing
       env_prefix+=("NYASH_USE_NY_COMPILER_EXE=0")
       ;;
@@ -174,7 +174,7 @@ run_runtime() {
       env_prefix+=("NYASH_USE_NY_COMPILER_EXE=1")
       ;;
     *)
-      echo "[selfhost/run] --runtime-mode must be stage-a|exe (got: $runtime_mode)" >&2
+      echo "[selfhost/run] --runtime-mode must be exe|stage-a-compat (alias: stage-a; got: $runtime_mode)" >&2
       exit 2
       ;;
   esac
@@ -182,9 +182,9 @@ run_runtime() {
     env_prefix+=("NYASH_NY_COMPILER_TIMEOUT_MS=$timeout_ms")
   fi
 
-  if [ "$runtime_mode" = "stage-a" ]; then
+  if [ "$runtime_mode" = "stage-a-compat" ]; then
     echo "[selfhost/run] mode=runtime runtime_mode=$runtime_mode lane=compat-only input=$(basename "$input_file")" >&2
-    emit_runtime_route_tag "stage-a" "$(basename "$input_file")"
+    emit_runtime_route_tag "stage-a-compat" "$(basename "$input_file")"
   else
     echo "[selfhost/run] mode=runtime runtime_mode=$runtime_mode lane=mainline input=$(basename "$input_file")" >&2
   fi

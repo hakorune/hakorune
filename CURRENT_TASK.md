@@ -179,12 +179,12 @@ Scope: repo root から current order / current blocker / next exact read に最
   31. `58xA2` candidate lane ranking (landed)
   32. `58xB1` successor lane decision (landed)
   33. `58xD1` proof / closeout (landed)
-  34. `59xA1` route-surface inventory lock (active)
-  35. `59xA2` route/default/help exposure freeze (planned)
-  36. `59xB1` CLI/backend affordance narrowing (planned)
-  37. `59xB2` selfhost route/default narrowing (planned)
-  38. `59xC1` dispatch/orchestrator affordance narrowing (planned)
-  39. `59xD1` proof / closeout (planned)
+  34. `59xA1` route-surface inventory lock (landed)
+  35. `59xA2` route/default/help exposure freeze (landed)
+  36. `59xB1` CLI/backend affordance narrowing (landed)
+  37. `59xB2` selfhost route/default narrowing (landed)
+  38. `59xC1` dispatch/orchestrator affordance narrowing (landed)
+  39. `59xD1` proof / closeout (active)
 
 Carry-over context:
 

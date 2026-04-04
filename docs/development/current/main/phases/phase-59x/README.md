@@ -47,3 +47,12 @@ Related:
    - `59xC1` dispatch/orchestrator affordance narrowing
 3. prove and close
    - `59xD1` proof / closeout
+
+## Current Front
+
+- `59xA1` landed
+- `59xA2` landed
+- `59xB1` landed
+- `59xB2` landed
+- `59xC1` landed
+- active: `59xD1 proof / closeout`

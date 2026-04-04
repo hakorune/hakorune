@@ -2,7 +2,7 @@
 # Phase 29x X21: non-strict compat boundary smoke
 #
 # Contract pin:
-# 1) non-strict stage-a rejects compat lanes unless explicit.
+# 1) non-strict stage-a-compat rejects compat lanes unless explicit.
 # 2) `NYASH_VM_USE_FALLBACK=1` explicitly enables compatibility lanes.
 # 3) explicit compat run emits `[vm-route/pre-dispatch]` and no legacy route tag.
 
@@ -54,7 +54,7 @@ NYASH_USE_NY_COMPILER=1 \
   HAKO_JOINIR_PLANNER_REQUIRED=0 \
   NYASH_JOINIR_DEV=0 \
   NYASH_VM_USE_FALLBACK=0 \
-  "$RUNNER" --runtime --runtime-mode stage-a --input "$FIXTURE" --timeout-ms "$TIMEOUT_MS" \
+  "$RUNNER" --runtime --runtime-mode stage-a-compat --input "$FIXTURE" --timeout-ms "$TIMEOUT_MS" \
   > "$stdout_no_compat" 2> "$stderr_no_compat"
 rc_no_compat=$?
 set -e
@@ -65,7 +65,7 @@ if [ "$rc_no_compat" -eq 0 ]; then
   exit 1
 fi
 
-if ! rg -q '^\[contract\]\[runtime-route\]\[expected=mir-json\] route=stage-a source=.* non_strict_compat=disabled require=NYASH_VM_USE_FALLBACK=1$' "$stderr_no_compat"; then
+if ! rg -q '^\[contract\]\[runtime-route\]\[expected=mir-json\] route=stage-a-compat source=.* non_strict_compat=disabled require=NYASH_VM_USE_FALLBACK=1$' "$stderr_no_compat"; then
   log_error "missing non-strict compat-disabled contract tag"
   echo "STDERR_LOG(no-compat): $stderr_no_compat"
   exit 1
@@ -82,7 +82,7 @@ NYASH_USE_NY_COMPILER=1 \
   NYASH_JOINIR_DEV=0 \
   NYASH_VM_ROUTE_TRACE=1 \
   NYASH_VM_USE_FALLBACK=1 \
-  "$RUNNER" --runtime --runtime-mode stage-a --input "$FIXTURE" --timeout-ms "$TIMEOUT_MS" \
+  "$RUNNER" --runtime --runtime-mode stage-a-compat --input "$FIXTURE" --timeout-ms "$TIMEOUT_MS" \
   > "$stdout_with_compat" 2> "$stderr_with_compat"
 rc_with_compat=$?
 set -e
@@ -111,4 +111,4 @@ if rg -q '^\[vm-route\] pre-dispatch' "$stderr_with_compat"; then
   exit 1
 fi
 
-log_success "phase29x_vm_route_non_strict_compat_boundary_vm: PASS (non-strict compat explicit-only)"
+log_success "phase29x_vm_route_non_strict_compat_boundary_vm: PASS (non-strict stage-a-compat explicit-only)"

@@ -186,9 +186,9 @@ local py = new PyRuntimeBox()       // Pythonプラグイン
 
 Phase‑15（自己ホスト期）: レガシー経路は feature-gated または historical 扱い
 - raw CLI default はまだ `--backend vm` ですが、これは product ownership を意味しません。
-- `--backend vm` は Rust VM の engineering/bootstrap lane です。
+- `--backend vm` は Rust VM の explicit keep lane です。
 - `--backend llvm` は product の native object/EXE lane です。
-- `--backend vm-hako` は reference/conformance lane です。
+- `--backend vm-hako` は explicit reference/conformance lane です。
 - PyVM 経路は historical/direct-only で、`tools/historical/pyvm/pyvm_runner.py` に委譲します。
 - レガシー AST インタープリタを有効化するには（通常は不要）:
   ```bash
@@ -224,19 +224,19 @@ cc nyash_llvm_temp.o -L crates/nyrt/target/release -Wl,--whole-archive -lnyrt -W
 - 削除された `NYASH_LLVM_ALLOW_BY_NAME=1`: すべてのプラグイン呼び出しがmethod_idベースに統一。
   - LLVMバックエンドは性能と型安全性のため、method_idベースのプラグイン呼び出しのみ対応。
 
-### 2. **VMモード（engineering/bootstrap lane）**
+### 2. **VMモード（explicit keep lane）**
 ```bash
-# Engineering/bootstrap 既定: Rust VM
+# Explicit keep lane: Rust VM
 $NYASH_BIN --backend vm program.hako
 
 # historical PyVM パリティ確認
 bash tools/historical/pyvm/pyvm_vs_llvmlite.sh program.hako
 ```
-- 既定: Rust VM が MIR を直接実行する engineering/bootstrap lane
+- explicit keep lane: Rust VM が MIR を直接実行する compat/proof keep
 - legacy PyVM: MIR(JSON) を `tools/historical/pyvm/pyvm_runner.py` で実行
 - レガシー VM: インタープリター比で 13.5x（歴史的実測）。比較・検証用途で維持
 
-### 3. **vm-hako（reference / conformance lane）**
+### 3. **vm-hako（explicit reference / conformance lane）**
 ```bash
 $NYASH_BIN --backend vm-hako program.hako
 tools/smokes/v2/run.sh --profile integration --suite vm-hako-caps --skip-preflight

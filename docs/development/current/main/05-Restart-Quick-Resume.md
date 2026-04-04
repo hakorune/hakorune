@@ -61,8 +61,8 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `58xB1 successor lane decision`
 - landed micro task: `58xD1 proof / closeout`
 - landed micro task: `59xA1 route-surface inventory lock`
-- active micro task: `59xA2 route/default/help exposure freeze`
-- planned follow-up: `59xB1 CLI/backend affordance narrowing`
+- active micro task: `59xD1 proof / closeout`
+- planned follow-up: `next source lane selection`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 

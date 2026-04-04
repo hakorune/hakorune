@@ -97,7 +97,7 @@ extract_semantic_value() {
     value="$(sed -n 's/^Result:[[:space:]]*//p' "$stderr_log" | tail -n 1)"
   fi
   if [ -z "$value" ]; then
-    value="$(sed -n 's/^RC:[[:space:]]*//p' "$stderr_log" | tail -n 1)"
+    value="$(sed -n 's/^RC:[[:space:]]*/rc:/p' "$stderr_log" | tail -n 1)"
   fi
   if [ -z "$value" ]; then
     value="rc:$rc"
@@ -106,16 +106,16 @@ extract_semantic_value() {
   echo "$value"
 }
 
-stage_rc="$(run_mode "stage-a" "$stage_stdout" "$stage_stderr")"
+stage_rc="$(run_mode "stage-a-compat" "$stage_stdout" "$stage_stderr")"
 exe_rc="$(run_mode "exe" "$exe_stdout" "$exe_stderr")"
 
 if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=pipeline-entry source=' "$stage_stderr"; then
-  log_error "stage-a missing runtime route tag (mode=pipeline-entry)"
+  log_error "stage-a-compat missing runtime route tag (mode=pipeline-entry)"
   echo "STAGE_STDERR: $stage_stderr"
   exit 1
 fi
-if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=stage-a source=' "$stage_stderr"; then
-  log_error "stage-a missing runtime route tag (mode=stage-a)"
+if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=stage-a-compat source=' "$stage_stderr"; then
+  log_error "stage-a-compat missing runtime route tag (mode=stage-a-compat)"
   echo "STAGE_STDERR: $stage_stderr"
   exit 1
 fi
@@ -129,8 +129,8 @@ if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=exe source=' "$exe_s
   echo "EXE_STDERR: $exe_stderr"
   exit 1
 fi
-if rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=stage-a source=' "$exe_stderr"; then
-  log_error "runtime exe route fell back to stage-a unexpectedly"
+if rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=stage-a-compat source=' "$exe_stderr"; then
+  log_error "runtime exe route fell back to stage-a-compat unexpectedly"
   echo "EXE_STDERR: $exe_stderr"
   exit 1
 fi
@@ -139,7 +139,7 @@ stage_value="$(extract_semantic_value "$stage_stdout" "$stage_stderr" "$stage_rc
 exe_value="$(extract_semantic_value "$exe_stdout" "$exe_stderr" "$exe_rc")"
 
 if [ "$stage_value" != "$exe_value" ]; then
-  log_error "runtime mode parity mismatch: stage-a='$stage_value' exe='$exe_value'"
+  log_error "runtime mode parity mismatch: stage-a-compat='$stage_value' exe='$exe_value'"
   echo "STAGE_STDOUT: $stage_stdout"
   echo "STAGE_STDERR: $stage_stderr"
   echo "EXE_STDOUT: $exe_stdout"
@@ -147,4 +147,4 @@ if [ "$stage_value" != "$exe_value" ]; then
   exit 1
 fi
 
-log_success "phase29bq_selfhost_runtime_mode_parity_smoke_vm: PASS ($(basename "$fixture"), value=$stage_value, rc_stagea=$stage_rc, rc_exe=$exe_rc)"
+log_success "phase29bq_selfhost_runtime_mode_parity_smoke_vm: PASS ($(basename "$fixture"), value=$stage_value, rc_stagea_compat=$stage_rc, rc_exe=$exe_rc)"

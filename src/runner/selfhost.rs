@@ -140,7 +140,7 @@ impl NyashRunner {
             }
         }
         // Optional EXE-first route: when enabled, prefer external parser EXE.
-        // If EXE parsing fails, fall back to stage-a route.
+        // If EXE parsing fails, fall back to the explicit stage-a-compat route.
         if crate::config::env::use_ny_compiler_exe() {
             crate::runner::modes::common_util::selfhost::child::emit_runtime_route_mode(
                 crate::runner::modes::common_util::selfhost::child::ROUTE_MODE_EXE,
@@ -158,7 +158,7 @@ impl NyashRunner {
                 return true;
             }
             crate::cli_v!(
-                "[ny-compiler] exe route failed; falling back to stage-a route: {}",
+                "[ny-compiler] exe route failed; falling back to stage-a-compat route: {}",
                 filename
             );
         }

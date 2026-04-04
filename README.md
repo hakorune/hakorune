@@ -72,9 +72,9 @@ Current Backend Roles
 - Product
   - `--backend llvm` (ny-llvmc crate backend; native object/EXE ownership)
 - Compat / proof keep
-  - `--backend vm` (selfhost, recovery, plugin, macro, and tooling keep; explicit compat/proof only)
+  - `--backend vm` (legacy keep lane for selfhost, recovery, plugin, macro, and tooling proof paths; explicit only)
 - Reference / conformance
-  - `--backend vm-hako`
+  - `--backend vm-hako` (explicit reference lane)
 - Experimental / monitor-only
   - `wasm` / browser lane
 - Historical / sealed
@@ -275,9 +275,9 @@ Important current reading:
 
 Phase‑15 (Self‑Hosting): legacy routes are feature-gated or historical notes only
 - Raw CLI default is still `--backend vm` for legacy ingress only; do not read that as product ownership.
-- `--backend vm` is the Rust VM compatibility/proof lane, not a mainline ownership claim.
+- `--backend vm` is an explicit Rust VM keep lane, not a mainline ownership claim.
 - `--backend llvm` is the product native object/EXE lane.
-- `--backend vm-hako` is the reference/conformance lane.
+- `--backend vm-hako` is an explicit reference/conformance lane.
 - PyVM route is historical/direct-only and delegates to `tools/historical/pyvm/pyvm_runner.py`.
 - To enable legacy Rust VM/Interpreter, build with:
   ```bash
@@ -313,7 +313,7 @@ cc nyash_llvm_temp.o -L crates/nyrt/target/release -Wl,--whole-archive -lnyrt -W
 - Previously available `NYASH_LLVM_ALLOW_BY_NAME=1`: Removed - all plugin calls now use method_id by default.
   - The LLVM backend only supports method_id-based plugin calls for better performance and type safety.
 
-### 2. **VM Mode (compatibility/proof lane)**
+### 2. **VM Mode (explicit compatibility/proof keep lane)**
 ```bash
 # Compat/proof keep: Rust VM
 $NYASH_BIN --backend vm program.hako
@@ -321,11 +321,11 @@ $NYASH_BIN --backend vm program.hako
 # Historical PyVM parity route
 bash tools/historical/pyvm/pyvm_vs_llvmlite.sh program.hako
 ```
-- Compat/proof: Rust VM executes MIR directly for keep/regression
+- Explicit keep lane: Rust VM executes MIR directly for keep/regression
 - Legacy PyVM: executes MIR(JSON) via `tools/historical/pyvm/pyvm_runner.py`
 - Legacy VM: 13.5x over interpreter (historical); kept for comparison, plugin tests, and proof gates
 
-### 3. **vm-hako (reference / conformance lane)**
+### 3. **vm-hako (explicit reference / conformance lane)**
 ```bash
 $NYASH_BIN --backend vm-hako program.hako
 tools/smokes/v2/run.sh --profile integration --suite vm-hako-caps --skip-preflight

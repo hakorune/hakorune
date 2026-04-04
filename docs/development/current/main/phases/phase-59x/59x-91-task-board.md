@@ -17,11 +17,11 @@ Date: 2026-04-04
 | Task | Status | Read as |
 | --- | --- | --- |
 | `59xA1` | landed | route-surface inventory lock |
-| `59xA2` | active | route/default/help exposure freeze |
-| `59xB1` | queued | CLI/backend affordance narrowing |
-| `59xB2` | queued | selfhost route/default narrowing |
-| `59xC1` | queued | dispatch/orchestrator affordance narrowing |
-| `59xD1` | queued | proof / closeout |
+| `59xA2` | landed | route/default/help exposure freeze |
+| `59xB1` | landed | CLI/backend affordance narrowing |
+| `59xB2` | landed | selfhost route/default narrowing |
+| `59xC1` | landed | dispatch/orchestrator affordance narrowing |
+| `59xD1` | active | proof / closeout |
 
 ## Inventory Snapshot
 
@@ -38,7 +38,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `59xA2 route/default/help exposure freeze` |
+| Now | `59xD1 proof / closeout` |
 | Blocker | `none` |
-| Next | `59xB1 CLI/backend affordance narrowing` |
-| After Next | `59xB2 selfhost route/default narrowing` |
+| Next | `next source lane selection` |
+| After Next | `successor lane inventory lock` |

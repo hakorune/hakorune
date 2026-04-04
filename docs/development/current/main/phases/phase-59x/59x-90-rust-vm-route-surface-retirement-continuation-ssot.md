@@ -54,3 +54,14 @@ Related:
   - `README.md`
   - `README.ja.md`
   - `tools/selfhost/README.md`
+
+## Progress Snapshot
+
+- landed
+  - `59xA1` route-surface inventory lock
+  - `59xA2` route/default/help exposure freeze
+  - `59xB1` CLI/backend affordance narrowing
+  - `59xB2` selfhost route/default narrowing
+  - `59xC1` dispatch/orchestrator affordance narrowing
+- active
+  - `59xD1` proof / closeout

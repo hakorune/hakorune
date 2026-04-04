@@ -1,4 +1,4 @@
-pub const ROUTE_STAGE_A: &str = "stage-a";
+pub const ROUTE_STAGE_A: &str = "stage-a-compat";
 
 pub const LANE_DIRECT: &str = "direct";
 pub const LANE_COMPAT_PROGRAM_TO_MIR: &str = "compat-program-to-mir";
@@ -71,7 +71,7 @@ mod tests {
         let line = format_expected_mir_non_strict_compat_disabled("foo.hako");
         assert_eq!(
             line,
-            "[contract][runtime-route][expected=mir-json] route=stage-a source=foo.hako non_strict_compat=disabled require=NYASH_VM_USE_FALLBACK=1"
+            "[contract][runtime-route][expected=mir-json] route=stage-a-compat source=foo.hako non_strict_compat=disabled require=NYASH_VM_USE_FALLBACK=1"
         );
     }
 
@@ -80,7 +80,7 @@ mod tests {
         let line = format_expected_mir_strict_planner_required("foo.hako");
         assert_eq!(
             line,
-            "[contract][runtime-route][expected=mir-json] route=stage-a source=foo.hako got=program-json strict_planner_required=1"
+            "[contract][runtime-route][expected=mir-json] route=stage-a-compat source=foo.hako got=program-json strict_planner_required=1"
         );
     }
 
@@ -89,7 +89,7 @@ mod tests {
         let line = format_freeze_compat_rust_json_v0_bridge("foo.hako");
         assert_eq!(
             line,
-            "[freeze:contract][runtime-route/compat-rust-json-v0-bridge] route=stage-a source=foo.hako lane=compat-rust-json-v0-bridge require=NYASH_VM_USE_FALLBACK=1"
+            "[freeze:contract][runtime-route/compat-rust-json-v0-bridge] route=stage-a-compat source=foo.hako lane=compat-rust-json-v0-bridge require=NYASH_VM_USE_FALLBACK=1"
         );
     }
 
@@ -98,7 +98,7 @@ mod tests {
         let line = format_accepted_mir("foo.hako", LANE_DIRECT);
         assert_eq!(
             line,
-            "[contract][runtime-route][accepted=mir-json] route=stage-a source=foo.hako lane=direct"
+            "[contract][runtime-route][accepted=mir-json] route=stage-a-compat source=foo.hako lane=direct"
         );
     }
 
@@ -107,7 +107,7 @@ mod tests {
         let line = format_freeze_direct_v0_bridge_disabled("foo.hako");
         assert_eq!(
             line,
-            "[freeze:contract][runtime-route/direct-v0-bridge-disabled] route=stage-a source=foo.hako lane=direct-v0-bridge status=retired"
+            "[freeze:contract][runtime-route/direct-v0-bridge-disabled] route=stage-a-compat source=foo.hako lane=direct-v0-bridge status=retired"
         );
     }
 }

@@ -132,17 +132,17 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `59xA1 route-surface inventory lock` |
+     | Now | `59xD1 proof / closeout` |
      | Blocker | `none` |
-     | Next | `59xA2 route/default/help exposure freeze` |
-     | After Next | `59xB1 CLI/backend affordance narrowing` |
+     | Next | `next source lane selection` |
+     | After Next | `successor lane inventory lock` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `59xA1 route-surface inventory lock` |
-     | Next | `59xA2 route/default/help exposure freeze` |
-     | Later | `59xB1 CLI/backend affordance narrowing` |
+     | Now | `59xD1 proof / closeout` |
+     | Next | `next source lane selection` |
+     | Later | `successor lane inventory lock` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
@@ -190,8 +190,8 @@ Related:
      - Queued backend surface tasks:
      - `55xA2 backend/default/help exposure freeze`
      - `59xA1 route-surface inventory lock`
-     - `59xA2 route/default/help exposure freeze`
-     - `59xB1 CLI/backend affordance narrowing`
+     - `59xD1 proof / closeout`
+     - `next source lane selection`
      - `59x rust-vm route-surface retirement continuation`
     - `kilo` optimization wave (far future; not the next lane)
 - Post-`37xD1` cleanup:

@@ -1,12 +1,12 @@
 /*!
  * Route orchestrator SSOT for runner-side lane selection.
  *
- * Phase 56x A2:
- * - Centralize explicit VM compat keep selection (`vm` / `vm-hako` / compat-fallback)
- * - `compat-fallback` is a compatibility lane only.
- * - Day-to-day mainline stays on direct/core routes; this orchestrator only owns
- *   explicit VM / vm-hako / compat-fallback requests and must not silently widen
- *   back into a default owner path.
+ * Phase 59x C1:
+ * - Centralize explicit keep/reference selection for `vm`, `vm-hako`, and `compat-fallback`.
+ * - `compat-fallback` stays compatibility-only.
+ * - Day-to-day mainline stays on direct/core routes; this orchestrator owns only
+ *   explicit keep/reference requests and must not silently widen back into a
+ *   default owner path.
  */
 
 use super::NyashRunner;
@@ -133,7 +133,7 @@ pub(crate) fn decide_vm_route_plan(
                 Some(VmRoutePlan {
                     backend: "vm",
                     lane: "vm",
-                    reason: "explicit-backend-override",
+                    reason: "explicit-keep-override",
                     action: VmRouteAction::Vm,
                 })
             }
@@ -141,7 +141,7 @@ pub(crate) fn decide_vm_route_plan(
         "vm-hako" => Some(VmRoutePlan {
             backend: "vm-hako",
             lane: "vm-hako",
-            reason: "explicit-backend-override",
+            reason: "explicit-reference-override",
             action: VmRouteAction::VmHako,
         }),
         _ => None,
@@ -226,7 +226,7 @@ mod tests {
         let plan = decide_vm_route_plan("vm", false, false).expect("plan");
         assert_eq!(plan.backend, "vm");
         assert_eq!(plan.lane, "vm");
-        assert_eq!(plan.reason, "explicit-backend-override");
+        assert_eq!(plan.reason, "explicit-keep-override");
         assert_eq!(plan.action, VmRouteAction::Vm);
     }
 
@@ -253,7 +253,7 @@ mod tests {
         let plan = decide_vm_route_plan("vm-hako", false, false).expect("plan");
         assert_eq!(plan.backend, "vm-hako");
         assert_eq!(plan.lane, "vm-hako");
-        assert_eq!(plan.reason, "explicit-backend-override");
+        assert_eq!(plan.reason, "explicit-reference-override");
         assert_eq!(plan.action, VmRouteAction::VmHako);
     }
 
