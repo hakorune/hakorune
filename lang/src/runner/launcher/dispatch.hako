@@ -1,6 +1,7 @@
 // launcher/dispatch.hako — CLI dispatch entrypoints for Stage1 hakorune
 
-using lang.runner.launcher as HakoCli
+using lang.runner.launcher.command_dispatch as LauncherCommandBox
+using lang.runner.launcher.bootstrap as LauncherBootstrapBox
 using lang.runner.launcher.input_contract as LauncherInputContractBox
 
 static box LauncherDispatchBox {
@@ -13,16 +14,16 @@ static box LauncherDispatchBox {
     }
 
     local cmd_raw = args.get(0)
-    local cmd = HakoCli._coerce_text_compat(cmd_raw)
+    local cmd = me._coerce_text_compat(cmd_raw)
 
     if cmd == "run" {
-      return HakoCli.cmd_run(args)
+      return LauncherCommandBox.cmd_run(args)
     } else if cmd == "build" {
-      return HakoCli.cmd_build(args)
+      return LauncherCommandBox.cmd_build(args)
     } else if cmd == "emit" {
-      return HakoCli.cmd_emit(args)
+      return LauncherCommandBox.cmd_emit(args)
     } else if cmd == "check" {
-      return HakoCli.cmd_check(args)
+      return LauncherCommandBox.cmd_check(args)
     }
 
     print("[hakorune] unknown command: " + cmd)
@@ -31,8 +32,12 @@ static box LauncherDispatchBox {
 
   method dispatch_native_entry() {
     if LauncherInputContractBox.bootstrap_requested() == 1 {
-      return HakoCli.run_bootstrap_from_env()
+      return LauncherBootstrapBox.run_bootstrap_from_env()
     }
-    return HakoCli.run(null)
+    return me.dispatch_cli(null)
+  }
+
+  method _coerce_text_compat(value) {
+    return "" + value
   }
 }

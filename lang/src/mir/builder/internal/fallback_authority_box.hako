@@ -288,12 +288,34 @@ static box BuilderFallbackAuthorityBox {
       local k_ret_call = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0)
       if k_ret_call >= 0 {
         local k_call_expr = JsonFragBox.index_of_from(s, "\"type\":\"Call\"", k_ret_call)
+        if k_call_expr < 0 {
+          local scan_call_pos = 0
+          local last_call_expr = -1
+          loop(scan_call_pos < k_ret_call) {
+            local next_call_expr = JsonFragBox.index_of_from(s, "\"type\":\"Call\"", scan_call_pos)
+            if next_call_expr < 0 || next_call_expr >= k_ret_call { break }
+            last_call_expr = next_call_expr
+            scan_call_pos = next_call_expr + 1
+          }
+          k_call_expr = last_call_expr
+        }
         if k_call_expr >= 0 {
           local k_name_call = JsonFragBox.index_of_from(s, "\"name\":\"", k_call_expr)
+          if k_name_call < 0 {
+            local scan_pos = 0
+            local last_name_call = -1
+            loop(scan_pos < k_call_expr) {
+              local next_name_call = JsonFragBox.index_of_from(s, "\"name\":\"", scan_pos)
+              if next_name_call < 0 || next_name_call >= k_call_expr { break }
+              last_name_call = next_name_call
+              scan_pos = next_name_call + 1
+            }
+            k_name_call = last_name_call
+          }
           if k_name_call >= 0 {
             local call_name = JsonFragBox.read_string_after(s, k_name_call + 8)
             if call_name != null && call_name != "" {
-              local k_args = JsonFragBox.index_of_from(s, "\"args\":[", k_call_expr)
+              local k_args = JsonFragBox.index_of_from(s, "\"args\":[", 0)
               if k_args < 0 {
                 return CompatMirEmitBox.emit_return_call0(call_name)
               }

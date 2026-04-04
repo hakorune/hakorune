@@ -543,16 +543,13 @@ HCODE
     cat >"$tmp_hako" <<'HCODE'
 using lang.runner.stage1_cli.program_json_mir as Stage1CliProgramJsonMirBox
 static box Main {
-method _emit_mir_checked(prog_json) {
-  return Stage1CliProgramJsonMirBox.emit_from_program_json_v0("[builder/selfhost-first]", prog_json)
-}
 method main(args) {
   local prog_json = env.get("HAKO_BUILDER_PROGRAM_JSON")
   if prog_json == null {
     print("[builder/selfhost-first:fail:nojson]")
     return 1
   }
-  local mir_out = me._emit_mir_checked(prog_json)
+  local mir_out = Stage1CliProgramJsonMirBox.emit_from_program_json_v0("[builder/selfhost-first]", prog_json)
   if mir_out == null {
     print("[builder/selfhost-first:fail:emit]")
     return 1

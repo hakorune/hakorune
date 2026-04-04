@@ -142,6 +142,17 @@ static box FuncLoweringBox {
 
     // Check for Call in Return
     local call_idx = JsonFragBox.index_of_from(body_str, "\"type\":\"Call\"", ret_idx)
+    if call_idx < 0 {
+      local scan_call_pos = 0
+      local last_call_idx = -1
+      loop(scan_call_pos < ret_idx) {
+        local next_call_idx = JsonFragBox.index_of_from(body_str, "\"type\":\"Call\"", scan_call_pos)
+        if next_call_idx < 0 || next_call_idx >= ret_idx { break }
+        last_call_idx = next_call_idx
+        scan_call_pos = next_call_idx + 1
+      }
+      call_idx = last_call_idx
+    }
     if call_idx >= 0 {
       // Return(Call(name, args))
       return me._lower_return_call(func_name, box_name, params_arr, body_str, call_idx, func_map)
@@ -280,10 +291,32 @@ static box FuncLoweringBox {
 
   // Lower Return(Call(name, args))
   method _lower_return_call(func_name, box_name, params_arr, body_str, call_idx, func_map) {
+    local ret_idx = JsonFragBox.index_of_from(body_str, "\"type\":\"Return\"", 0)
+    if ret_idx < 0 { ret_idx = 0 }
+
     // Extract call function name
     local func_idx = JsonFragBox.index_of_from(body_str, "\"func\":\"", call_idx)
-    if func_idx < 0 { return null }
-    local call_name = JsonFragBox.read_string_after(body_str, func_idx + 8)
+    local call_name = null
+    if func_idx >= 0 {
+      call_name = JsonFragBox.read_string_after(body_str, func_idx + 8)
+    } else {
+      local name_idx = JsonFragBox.index_of_from(body_str, "\"name\":\"", call_idx)
+      if name_idx >= 0 {
+        call_name = JsonFragBox.read_string_after(body_str, name_idx + 8)
+      } else {
+        local scan_pos = 0
+        local last_name_idx = -1
+        loop(scan_pos < call_idx) {
+          local next_name_idx = JsonFragBox.index_of_from(body_str, "\"name\":\"", scan_pos)
+          if next_name_idx < 0 || next_name_idx >= call_idx { break }
+          last_name_idx = next_name_idx
+          scan_pos = next_name_idx + 1
+        }
+        if last_name_idx >= 0 {
+          call_name = JsonFragBox.read_string_after(body_str, last_name_idx + 8)
+        }
+      }
+    }
     if call_name == null { return null }
 
     // Resolve call target
@@ -291,7 +324,7 @@ static box FuncLoweringBox {
 
     // Extract args (minimal: Int or Var)
     local args_arr = new ArrayBox()
-    local args_idx = JsonFragBox.index_of_from(body_str, "\"args\":[", call_idx)
+    local args_idx = JsonFragBox.index_of_from(body_str, "\"args\":[", 0)
     if args_idx >= 0 {
       // Parse args array (simplified)
       local args_pos = args_idx + 8

@@ -132,6 +132,15 @@ static box JsonEmitBox {
       local inner_box = val.get("value")
       if inner_box != null { inner = inner_box }
     }
+    if ty == "string" {
+      return "{\"type\":\"string\",\"value\":" + me._quote(inner) + "}"
+    }
+    if ty == "bool" {
+      if inner == true || ("" + inner) == "true" {
+        return "{\"type\":\"bool\",\"value\":true}"
+      }
+      return "{\"type\":\"bool\",\"value\":false}"
+    }
     return "{\"type\":" + me._quote(ty) + ",\"value\":" + me._int_str(inner) + "}"
   }
 
@@ -255,6 +264,21 @@ static box JsonEmitBox {
              ",\"mir_call\":{\"callee\":" + callee_json +
              ",\"args\":" + args_json +
              ",\"effects\":" + effects_json + "}}"
+    }
+    if op == "call" {
+      local func_id = me._map_get_soft(inst, "func")
+      if me._is_map_missing_sentinel(func_id) == 1 { func_id = null }
+      if func_id == null {
+        func_id = me._map_get_soft(inst, "name")
+      }
+      local args_box2 = me._map_get_soft(inst, "args")
+      if args_box2 == null || me._is_map_missing_sentinel(args_box2) == 1 || !BoxHelpers.is_array(args_box2) {
+        args_box2 = []
+      }
+      local dst2 = me._map_get_soft(inst, "dst")
+      return "{\"op\":\"call\",\"func\":" + me._emit_vid_or_null(func_id) +
+             ",\"args\":" + me._emit_vid_array(args_box2) +
+             ",\"dst\":" + me._emit_vid_or_null(dst2) + "}"
     }
     // Fallback: emit op only (unexpected instruction kinds are outside P1 scope)
     return "{\"op\":" + me._quote(op) + "}"

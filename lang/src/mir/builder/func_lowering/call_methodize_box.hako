@@ -1,12 +1,14 @@
 // call_methodize_box.hako — Call methodization utilities split from func_lowering.hako
-// Responsibility: rewrite legacy Call into unified mir_call(Method) when possible.
+// Responsibility: rewrite legacy Call into unified mir_call(ModuleFunction)
+// when the callee is a string-qualified static function name.
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
 
 static box CallMethodizeBox {
-  // Dev-only: rewrite legacy Call into unified mir_call(Method) when possible
-  // Heuristic: find call {func:K,args:[..],dst:R} and match preceding const {dst:K,value:"Box.method/N"}
-  // Receiverは省略（VM 側で静的シングルトンを補完）。LLVM 経路はPoCの範囲外。
+  // Dev-only: rewrite legacy Call into unified mir_call(ModuleFunction) when possible.
+  // Heuristic: find call {func:K,args:[..],dst:R} and match preceding const
+  // {dst:K,value:"Box.method/N"}.
   method methodize_calls_in_mir(mir_json) {
     // methodization は既定ON。明示的に "0" のときだけ無効化。
     local dm = env.get("HAKO_MIR_BUILDER_METHODIZE")
@@ -21,40 +23,58 @@ static box CallMethodizeBox {
         out = out + s.substring(pos, s.length())
         break
       }
-      // copy up to call
-      out = out + s.substring(pos, k_call)
+      local obj_start = JsonFragBox.last_index_of_from(s, "{", k_call)
+      if obj_start < pos { obj_start = pos }
+      local obj_end = JsonCursorBox.seek_obj_end(s, obj_start)
+      if obj_end < 0 {
+        out = out + s.substring(pos, s.length())
+        break
+      }
+      // copy up to the call instruction object
+      out = out + s.substring(pos, obj_start)
       // parse func register
       local k_func = JsonFragBox.index_of_from(s, "\"func\":", k_call)
       local k_dst_call = JsonFragBox.index_of_from(s, "\"dst\":", k_call)
-      if k_func < 0 || k_dst_call < 0 { out = out + "\"op\":\"call\""  pos = k_call + 14  continue }
+      if k_func < 0 || k_dst_call < 0 {
+        out = out + s.substring(obj_start, obj_end + 1)
+        pos = obj_end + 1
+        continue
+      }
       local func_reg = JsonFragBox.read_int_after(s, k_func + 7)
       local call_dst = JsonFragBox.read_int_after(s, k_dst_call + 6)
-      if func_reg == null || call_dst == null { out = out + "\"op\":\"call\""  pos = k_call + 14  continue }
+      if func_reg == null || call_dst == null {
+        out = out + s.substring(obj_start, obj_end + 1)
+        pos = obj_end + 1
+        continue
+      }
       // find args list for splice
       local k_args = JsonFragBox.index_of_from(s, "\"args\":[", k_call)
-      if k_args < 0 { out = out + "\"op\":\"call\""  pos = k_call + 14  continue }
+      if k_args < 0 {
+        out = out + s.substring(obj_start, obj_end + 1)
+        pos = obj_end + 1
+        continue
+      }
       local args_start = k_args + 7
       // find closing ] for args
       local args_end = me._find_args_end(s, args_start)
-      if args_end < 0 { out = out + "\"op\":\"call\""  pos = k_call + 14  continue }
+      if args_end < 0 {
+        out = out + s.substring(obj_start, obj_end + 1)
+        pos = obj_end + 1
+        continue
+      }
       local args_text = s.substring(args_start + 1, args_end)
       // scan from start to k_call for const dst==func_reg and a string value
       local last_val = me._find_func_name(s, k_call, func_reg)
       if last_val == null {
-        // no match; keep original token and advance
-        out = out + "\"op\":\"call\""
-        pos = k_call + 14
+        // no match; keep original object and advance
+        out = out + s.substring(obj_start, obj_end + 1)
+        pos = obj_end + 1
         continue
       }
-      // split Box.method[/N]
-      local dot = JsonFragBox.index_of_from(last_val, ".", 0)
-      local slash = JsonFragBox.index_of_from(last_val, "/", 0)
-      local bname = (dot >= 0 ? last_val.substring(0, dot) : last_val)
-      local mname = (dot >= 0 ? last_val.substring(dot + 1, (slash >= 0 ? slash : last_val.length())) : last_val)
-      // emit methodized mir_call head
-      out = out + ("\"op\":\"mir_call\",\"dst\":" + call_dst + ",\"mir_call\":{\"callee\":{\"type\":\"Method\",\"box_name\":\"" + bname + "\",\"method\":\"" + mname + "\"},\"args\":[" + args_text + "],\"effects\":[]}")
-      // advance pos to after this call instruction object key we handled (skip minimal)
-      pos = args_end
+      // Emit canonical ModuleFunction callee.
+      out = out + ("{\"op\":\"mir_call\",\"dst\":" + call_dst + ",\"mir_call\":{\"callee\":{\"type\":\"ModuleFunction\",\"name\":\"" + last_val + "\"},\"args\":[" + args_text + "],\"effects\":[]}}")
+      // advance pos to after this call instruction object
+      pos = obj_end + 1
     }
     return out
   }
