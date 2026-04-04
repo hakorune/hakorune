@@ -1,9 +1,9 @@
 /*!
- * Stage-A Program(JSON v0) compatibility ladder.
+ * Stage-A Program(JSON v0) compat keep boundary.
  *
  * Purpose:
  * - Keep `selfhost.rs` focused on route sequencing.
- * - Keep Program(JSON v0) -> MIR(JSON v0) fallback ownership in one box.
+ * - Keep Program(JSON v0) -> MIR(JSON v0) fallback ownership in one compat-only box.
  */
 
 use crate::mir::MirModule;
@@ -63,7 +63,7 @@ pub(crate) fn resolve_program_payload_to_mir(
     verbose_level: u8,
     program_line: &str,
 ) -> Option<ProgramCompatMir> {
-    // Program(JSON v0) remains an explicit compat lane.
+    // Program(JSON v0) remains an explicit compat-only keep.
     // Do not widen this bridge with unrelated runtime capabilities.
     // Phase D5-min1 contract:
     // strict/dev(+planner_required) must reject Program(JSON v0) at runtime route boundary.

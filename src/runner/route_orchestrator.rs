@@ -1,8 +1,8 @@
 /*!
  * Route orchestrator SSOT for runner-side lane selection.
  *
- * Phase 29x X25:
- * - Centralize explicit VM keep selection (`vm` / `vm-hako` / compat-fallback)
+ * Phase 56x A2:
+ * - Centralize explicit VM compat keep selection (`vm` / `vm-hako` / compat-fallback)
  * - `compat-fallback` is a compatibility lane only.
  * - Day-to-day mainline stays on direct/core routes; this orchestrator only owns
  *   explicit VM / vm-hako / compat-fallback requests and must not silently widen

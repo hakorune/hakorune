@@ -4,7 +4,8 @@ use crate::{mir::MirCompiler, parser::NyashParser};
 use std::{fs, process};
 
 impl NyashRunner {
-    /// Lightweight VM compat fallback using the in-crate MIR interpreter.
+    /// Explicit VM compat keep using the in-crate MIR interpreter.
+    /// Keep this path narrow and non-growing.
     /// - Respects using preprocessing done earlier in the pipeline
     /// - Relies on global plugin host initialized by runner
     pub(crate) fn execute_vm_fallback_interpreter(&self, filename: &str) {

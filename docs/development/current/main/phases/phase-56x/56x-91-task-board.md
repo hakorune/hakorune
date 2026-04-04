@@ -17,8 +17,8 @@ Date: 2026-04-04
 | Task | Status | Read as |
 | --- | --- | --- |
 | `56xA1` | landed | proof-only keep inventory lock |
-| `56xA2` | active | compat keep boundary freeze |
-| `56xB1` | queued | stage-a compat route pruning prep |
+| `56xA2` | landed | compat keep boundary freeze |
+| `56xB1` | active | stage-a compat route pruning prep |
 | `56xB2` | queued | vm fallback/core.hako keep pruning |
 | `56xC1` | queued | proof smoke keep pruning |
 | `56xD1` | queued | proof / closeout |
@@ -37,7 +37,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `56xA2 compat keep boundary freeze` |
+| Now | `56xB1 stage-a compat route pruning prep` |
 | Blocker | `none` |
-| Next | `56xB1 stage-a compat route pruning prep` |
-| After Next | `56xB2 vm fallback/core.hako keep pruning` |
+| Next | `56xB2 vm fallback/core.hako keep pruning` |
+| After Next | `56xC1 proof smoke keep pruning` |

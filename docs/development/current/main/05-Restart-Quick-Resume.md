@@ -45,7 +45,8 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `55xC1 dispatch/orchestrator explicit keep narrowing`
 - landed micro task: `55xD1 proof / closeout`
 - landed micro task: `56xA1 proof-only keep inventory lock`
-- active micro task: `56xA2 compat keep boundary freeze`
+- landed micro task: `56xA2 compat keep boundary freeze`
+- active micro task: `56xB1 stage-a compat route pruning prep`
 - planned follow-up: `57x rust-vm delete-ready audit / removal wave`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
