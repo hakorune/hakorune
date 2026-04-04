@@ -36,9 +36,9 @@ Related:
 - `50xC1` landed: archive-ready docs/examples move
 - `50xC2` landed: historical PyVM / legacy wrapper archival sweep
 - `50xD1` landed: proof / closeout
-- `51xB1 archive payload / transport wrapper` active
-- `51xB2 archive pack orchestrator / live alias cleanup` next
-- `51xC1 live docs / alias rewrite` after next
+- `51xB2 archive pack orchestrator / live alias cleanup` active
+- `51xC1 live docs / alias rewrite` next
+- `51xC2 archive README / example cleanup` after next
 - `47xA1` landed: runtime/default contract lock
 - `47xA2` landed: stage1 source->MIR contract lock
 - `47xA3` landed: Stage-A direct/core contract lock

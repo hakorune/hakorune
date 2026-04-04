@@ -18,8 +18,8 @@ Date: 2026-04-04
 | --- | --- | --- |
 | `51xA1` | landed | compat-codegen caller inventory lock |
 | `51xA2` | landed | proof-only / archive-later classification |
-| `51xB1` | active | archive payload / transport wrapper |
-| `51xB2` | queued | archive pack orchestrator / live alias cleanup |
+| `51xB1` | landed | archive payload / transport wrapper |
+| `51xB2` | active | archive pack orchestrator / live alias cleanup |
 | `51xC1` | queued | live docs / alias rewrite |
 | `51xC2` | queued | archive README / example cleanup |
 | `51xD1` | queued | proof / closeout |
@@ -28,7 +28,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `51xB1 archive payload / transport wrapper` |
+| Now | `51xB2 archive pack orchestrator / live alias cleanup` |
 | Blocker | `none` |
-| Next | `51xB2 archive pack orchestrator / live alias cleanup` |
-| After Next | `51xC1 live docs / alias rewrite` |
+| Next | `51xC1 live docs / alias rewrite` |
+| After Next | `51xC2 archive README / example cleanup` |

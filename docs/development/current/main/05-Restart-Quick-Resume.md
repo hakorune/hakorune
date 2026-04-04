@@ -24,9 +24,9 @@ tools/checks/dev_gate.sh quick
 
 - lane: `phase-51x compat-codegen archival sweep`
 - landed micro task: `49xD1 proof / closeout`
-- active micro task: `51xB1 archive payload / transport wrapper`
-- next micro task: `51xB2 archive pack orchestrator / live alias cleanup`
-- after next: `51xC1 live docs / alias rewrite`
+- active micro task: `51xB2 archive pack orchestrator / live alias cleanup`
+- next micro task: `51xC1 live docs / alias rewrite`
+- after next: `51xC2 archive README / example cleanup`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 
