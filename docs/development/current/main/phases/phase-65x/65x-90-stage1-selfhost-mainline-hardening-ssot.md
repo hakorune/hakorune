@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: harden the current stage1/selfhost mainline owner cluster around `.hako` authority entry and shell contract seams.
 Related:
@@ -106,3 +106,12 @@ Related:
 4. `65xB2` shell contract owner cleanup
 5. `65xC1` mainline proof bundle refresh
 6. `65xD1` proof / closeout
+
+## Handoff
+
+- lane result:
+  - stage1/selfhost owner cluster is narrower and better single-sourced than before
+  - stable green mainline proof bundle is preserved
+  - focused selfhost-first parse blocker remains outside this lane's narrow cleanup scope
+- next lane:
+  - `phase-66x next source lane selection`

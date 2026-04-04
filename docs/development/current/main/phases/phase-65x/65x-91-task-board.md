@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 ---
 
@@ -7,10 +7,10 @@ Date: 2026-04-04
 
 | Order | Task | Status | Read as |
 | --- | --- | --- | --- |
-| 1 | `65xA inventory/lock` | active | fix the current stage1/selfhost owner set and proof bundle |
-| 2 | `65xB cleanup` | queued | narrow runner/shell contract owners around the mainline path |
-| 3 | `65xC proof` | queued | refresh focused mainline proofs |
-| 4 | `65xD closeout` | queued | prove and hand off cleanly |
+| 1 | `65xA inventory/lock` | landed | fix the current stage1/selfhost owner set and proof bundle |
+| 2 | `65xB cleanup` | landed | narrow runner/shell contract owners around the mainline path |
+| 3 | `65xC proof` | landed | refresh focused mainline proofs |
+| 4 | `65xD closeout` | landed | prove and hand off cleanly |
 
 ## Exact Micro Tasks
 
@@ -21,13 +21,13 @@ Date: 2026-04-04
 | `65xB1` | landed | runner authority owner cleanup |
 | `65xB2` | landed | shell contract owner cleanup |
 | `65xC1` | landed | mainline proof bundle refresh |
-| `65xD1` | active | proof / closeout |
+| `65xD1` | landed | proof / closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `65xD1 proof / closeout` |
+| Now | `phase-65x landed` |
 | Blocker | `focused emit_mir_mainline selfhost-first parse red at build_box.hako` |
-| Next | `next source lane selection` |
+| Next | `phase-66x next source lane selection` |
 | After Next | `future follow-up only if the focused parse blocker still survives` |

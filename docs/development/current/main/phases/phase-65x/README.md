@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: harden the current stage1/selfhost mainline owner cluster after rust-vm retirement was frozen as residual explicit keep.
 Related:
@@ -54,3 +54,15 @@ Related:
   - stable green bundle stays green
   - focused `emit_mir_mainline` probes stay red with the same `build_box.hako` parse blocker
   - `65xB1/B2` introduced no new regression
+
+## Result
+
+- `65xA1` landed: stage1/selfhost owner inventory lock
+- `65xA2` landed: mainline contract / proof lock
+- `65xB1` landed: runner authority owner cleanup
+- `65xB2` landed: shell contract owner cleanup
+- `65xC1` landed: mainline proof bundle refresh
+- `65xD1` landed: proof / closeout
+- handoff:
+  - next lane is `phase-66x next source lane selection`
+  - focused `emit_mir_mainline` parse red stays as a future follow-up blocker, not a `65x` reopen trigger by itself
