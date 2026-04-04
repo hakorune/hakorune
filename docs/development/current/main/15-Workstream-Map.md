@@ -128,20 +128,20 @@ Related:
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-55x rust-vm route-surface retirement prep table:
+   - phase-56x proof/compat keep pruning table:
 
      | Item | State |
      | --- | --- |
-     | Now | `56xB1 stage-a compat route pruning prep` |
+     | Now | `56xB2 vm fallback/core.hako keep pruning` |
      | Blocker | `none` |
-     | Next | `56xB2 vm fallback/core.hako keep pruning` |
-     | After Next | `56xC1 proof smoke keep pruning` |
+     | Next | `56xC1 proof smoke keep pruning` |
+     | After Next | `56xD1 proof / closeout` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `56xB1 stage-a compat route pruning prep` |
-     | Next | `56xB2 vm fallback/core.hako keep pruning` |
+     | Now | `56xB2 vm fallback/core.hako keep pruning` |
+     | Next | `56xC1 proof smoke keep pruning` |
      | Later | `56x proof/compat keep pruning` |
    - stage0 shell residue waves:
 
@@ -189,7 +189,7 @@ Related:
      - `51xA2 proof-only / archive-later classification`
      - Queued backend surface tasks:
      - `55xA2 backend/default/help exposure freeze`
-     - `56xB1 stage-a compat route pruning prep`
+     - `56xB2 vm fallback/core.hako keep pruning`
      - `56x proof/compat keep pruning`
      - `56x proof/compat keep pruning`
      - `57x rust-vm delete-ready audit / removal wave`
