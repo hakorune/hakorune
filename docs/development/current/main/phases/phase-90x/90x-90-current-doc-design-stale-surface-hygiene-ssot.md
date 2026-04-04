@@ -24,7 +24,22 @@
    - `10-Now.md`
    - `15-Workstream-Map.md`
 2. current/design docs that still overstate stale wrapper/current surfaces
+   - `docs/development/runtime/cli-hakorune-stage1.md`
+   - `docs/development/selfhosting/quickstart.md`
+   - `docs/development/architecture/mir-logs-observability.md`
+   - `docs/reference/environment-variables.md`
+   - `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
 3. phase-local references that should point at canonical `facade/*`, `entry/*`, `mainline/*`, `proof/*`, or `compat/*` surfaces
+
+## Inventory Lock
+
+- included in-lane:
+  - current mirrors listed above
+  - current/design docs that still name top-level wrapper surfaces as if they were primary owners
+- explicitly out of lane:
+  - `docs/archive/**`
+  - historical `phase-*` records outside current pointer needs
+  - source moves, archive sweeps, and caller-zero decisions
 
 ## Stop Lines
 

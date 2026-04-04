@@ -15,7 +15,7 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-90x current-doc/design stale surface hygiene` |
-| Front | `90xA1 stale surface inventory lock` |
+| Front | `90xA2 target split / stop-line freeze` |
 | Blocker | `none` |
 | Next | `90xA2 target split / stop-line freeze` |
 | After Next | `90xB1 current/design stale surface cleanup` |

@@ -21,7 +21,7 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-90x current-doc/design stale surface hygiene`
-- current front: `90xA1 stale surface inventory lock`
+- current front: `90xA2 target split / stop-line freeze`
 - blocker: `none`
 - recent landed:
   - `phase-89x next source lane selection`
