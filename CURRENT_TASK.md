@@ -142,7 +142,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-57x rust-vm delete-ready audit / removal wave`
 - Current blocker: `none`
-- Exact focus: `57xB1 caller-zero audit`
+- Exact focus: `57xB2 removal candidate prep`
 - exact handoff order:
   1. `53xA1` residual VM caller inventory lock (landed)
   2. `53xA2` proof-only / compat keep classification (landed)
@@ -169,8 +169,8 @@ Scope: repo root から current order / current blocker / next exact read に最
   23. `56xD1` proof / closeout (landed)
   24. `57xA1` residual rust-vm delete-ready inventory lock (landed)
   25. `57xA2` keep/delete/archive classification freeze (landed)
-  26. `57xB1` caller-zero audit (active)
-  27. `57xB2` removal candidate prep (planned)
+  26. `57xB1` caller-zero audit (landed)
+  27. `57xB2` removal candidate prep (active)
   28. `57xC1` removal wave (planned)
   29. `57xD1` proof / closeout (planned)
 

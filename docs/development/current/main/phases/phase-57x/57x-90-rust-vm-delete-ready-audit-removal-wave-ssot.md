@@ -67,3 +67,30 @@ Related:
   - residual archive/manual-smoke wrappers and historical docs around the explicit keep surfaces
 - `delete-ready`
   - none in the first pass; all target surfaces still have live proof/compat callers
+
+## Caller-Zero Audit Result
+
+- `src/runner/modes/vm.rs`
+  - still selected by `src/runner/route_orchestrator.rs` for explicit `VmRouteAction::Vm`
+  - still exercised by proof/compat scripts and smokes that invoke `--backend vm`
+- `src/runner/modes/vm_fallback.rs`
+  - still selected by `src/runner/route_orchestrator.rs` for `VmRouteAction::CompatFallback`
+  - still guarded by `tools/checks/vm_route_bypass_guard.sh`
+- `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
+  - still called from `src/runner/modes/common_util/selfhost/stage_a_route.rs`
+  - still owns the explicit Program(JSON) compat bridge
+- `lang/src/runner/stage1_cli/core.hako`
+  - `run_program_json` still remains the raw compat hold line
+  - stage1 tests still exercise the raw compat entry
+- `tools/selfhost/run_stageb_compiler_vm.sh`
+  - still referenced by `tools/selfhost/lib/selfhost_run_routes.sh`
+  - still referenced by focused selfhost proof smokes
+- first-pass conclusion:
+  - no target surface is caller-zero yet
+  - `57xB2` must narrow removal candidates before any delete wave
+
+## Removal-Prep Direction
+
+- do not target the five explicit keep surfaces in `57xC1`
+- prefer archive/manual-smoke residue and historical wrappers if they are proven disconnected from the live path
+- if `57xB2` cannot produce a justified delete-ready set, `57xC1` stays a no-op removal wave and the lane closes honestly

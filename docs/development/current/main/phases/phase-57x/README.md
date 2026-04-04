@@ -43,6 +43,12 @@ Related:
 - no `vm-hako` reference/conformance payload is mixed into rust-vm removal
 - `cargo check --bin hakorune` and `git diff --check` stay green
 
+## First-Pass Result
+
+- `57xA/B1` locked the first-pass inventory and caller audit.
+- no target rust-vm source surface is delete-ready yet.
+- `57xB2` therefore narrows the wave toward archive/manual-smoke residue instead of broad source deletion.
+
 ## Failure Patterns
 
 - deleting proof/compat keeps without a caller/replacement audit
