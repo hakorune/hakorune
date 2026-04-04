@@ -20,20 +20,20 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-81x caller-zero archive rerun`
-- current front: `81xA1 caller inventory rerun`
+- lane: `phase-82x next source lane selection`
+- current front: `82xA1 successor lane inventory lock`
 - blocker: `none`
 - recent landed:
-  - `phase-79x launcher emit_mir residual blocker follow-up`
   - `phase-80x root/current pointer thinning`
+  - `phase-81x caller-zero archive rerun`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-81x/README.md`
-4. `docs/development/current/main/phases/phase-81x/81x-90-caller-zero-archive-rerun-ssot.md`
-5. `docs/development/current/main/phases/phase-81x/81x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-82x/README.md`
+4. `docs/development/current/main/phases/phase-82x/82x-90-next-source-lane-selection-ssot.md`
+5. `docs/development/current/main/phases/phase-82x/82x-91-task-board.md`
 
 ## Current Proof Bundle
 

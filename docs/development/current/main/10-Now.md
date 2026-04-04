@@ -12,19 +12,19 @@ Related:
 
 ## Current
 
-- lane: `phase-81x caller-zero archive rerun`
-- current front: `81xA1 caller inventory rerun`
+- lane: `phase-82x next source lane selection`
+- current front: `82xA1 successor lane inventory lock`
 - blocker: `none`
 - recent landed:
-  - `phase-79x launcher emit_mir residual blocker follow-up`
   - `phase-80x root/current pointer thinning`
+  - `phase-81x caller-zero archive rerun`
 
 ## Current Read
 
 - `launcher.hako emit_mir_mainline` is green
 - `stage1_mainline_smoke.sh` is green
-- current work is caller-zero/archive readiness rerun
-- next decision is whether any wrapper or alias newly became archive-ready
+- `81x` confirmed there are still no true archive-ready wrappers
+- current work is ranking the next tree-moving cleanup lane
 
 ## Root Anchors
 
@@ -35,5 +35,5 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-81x/README.md`
-3. `docs/development/current/main/phases/phase-81x/81x-91-task-board.md`
+2. `docs/development/current/main/phases/phase-82x/README.md`
+3. `docs/development/current/main/phases/phase-82x/82x-91-task-board.md`

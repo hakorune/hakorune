@@ -1,7 +1,7 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
-Scope: rerun caller-zero/archive readiness after the pointer-thinning cleanup.
+Scope: rerun caller-zero/archive readiness after the pointer-thinning cleanup; phase is now landed and handed off.
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
@@ -28,7 +28,8 @@ Related:
 
 ## Current Read
 
-- current front:
-  - `81xA1 caller inventory rerun`
-- inherited blocker:
-  - `none`
+- handoff complete
+- rerun result:
+  - no true archive-ready wrapper or alias surfaced
+- selected successor lane:
+  - `phase-82x next source lane selection`

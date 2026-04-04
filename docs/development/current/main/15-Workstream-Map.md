@@ -14,23 +14,23 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-81x caller-zero archive rerun` |
-| Front | `81xA1 caller inventory rerun` |
+| Now | `phase-82x next source lane selection` |
+| Front | `82xA1 successor lane inventory lock` |
 | Blocker | `none` |
-| Next | `81xA2 keep/archive candidate classification` |
-| After Next | `81xB1 archive-ready sweep or no-op proof` |
+| Next | `82xA2 candidate lane ranking` |
+| After Next | `82xB1 successor lane decision` |
 
 ## Current Read
 
-- `phase-79x` closed the focused launcher blocker
 - `launcher.hako emit_mir_mainline` is green
 - `stage1_mainline_smoke.sh` is green
 - `80x` is landed; pointer docs are thin again
-- `81x` reruns caller-zero facts after the recuts settled
+- `81x` closed with a no-op archive sweep
+- `82x` ranks the next tree-moving lane after the no-op result
 
 ## Successor Corridor
 
-1. `phase-81x caller-zero archive rerun`
+1. `phase-82x next source lane selection`
 
 ## Structural Stop Lines
 
@@ -43,10 +43,9 @@ Related:
 ## Reference
 
 - current lane docs:
-  - `docs/development/current/main/phases/phase-79x/README.md`
-  - `docs/development/current/main/phases/phase-81x/README.md`
-  - `docs/development/current/main/phases/phase-81x/81x-90-caller-zero-archive-rerun-ssot.md`
-  - `docs/development/current/main/phases/phase-81x/81x-91-task-board.md`
+  - `docs/development/current/main/phases/phase-82x/README.md`
+  - `docs/development/current/main/phases/phase-82x/82x-90-next-source-lane-selection-ssot.md`
+  - `docs/development/current/main/phases/phase-82x/82x-91-task-board.md`
 - previous landed lanes:
+  - `docs/development/current/main/phases/phase-81x/README.md`
   - `docs/development/current/main/phases/phase-80x/README.md`
-  - `docs/development/current/main/phases/phase-79x/README.md`
