@@ -29,18 +29,21 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 8. `phase-86x phase index / current mirror hygiene` (landed)
 9. `phase-87x embedded snapshot / wrapper repoint rerun` (landed)
 10. `phase-88x archive/deletion rerun` (landed)
-11. `phase-89x next source lane selection` (active)
+11. `phase-89x next source lane selection` (landed)
+12. `phase-90x current-doc/design stale surface hygiene` (active)
 
 ## Current Front
 
-- Active lane: `phase-89x next source lane selection`
-- Active micro: `89xA1 successor lane inventory lock`
+- Active lane: `phase-90x current-doc/design stale surface hygiene`
+- Active micro: `90xA1 stale surface inventory lock`
 - Current blocker: `none`
-- Exact focus: select the next structural source lane after `88x` confirmed archive/deletion is still a no-op
+- Exact focus: thin current/design docs that still describe old wrapper or current surfaces too noisily after the latest runner/selfhost recuts
 
 ## Successor Corridor
 
-1. `phase-89x next source lane selection`
+1. `phase-90x current-doc/design stale surface hygiene`
+2. `phase-91x top-level .hako wrapper policy review`
+3. `phase-92x selfhost proof/compat caller rerun`
 
 ## Rust-VM Stop Line
 
@@ -53,13 +56,14 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-89x/README.md`
-4. `docs/development/current/main/phases/phase-89x/89x-90-next-source-lane-selection-ssot.md`
-5. `docs/development/current/main/phases/phase-89x/89x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-90x/README.md`
+4. `docs/development/current/main/phases/phase-90x/90x-90-current-doc-design-stale-surface-hygiene-ssot.md`
+5. `docs/development/current/main/phases/phase-90x/90x-91-task-board.md`
 
 ## Notes
 
 - `phase-88x` confirmed there are still no true archive-ready/delete-ready wrapper surfaces.
+- `phase-89x` selected current/design stale surface hygiene as the next structural lane.
 - `launcher.hako emit_mir_mainline` is green.
 - `stage1_mainline_smoke.sh` is green.
 - `target/**`, `artifacts/**`, and `dist/**` are artifact roots only.

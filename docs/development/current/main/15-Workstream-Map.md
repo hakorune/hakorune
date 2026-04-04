@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-89x next source lane selection` |
-| Front | `89xA1 successor lane inventory lock` |
+| Now | `phase-90x current-doc/design stale surface hygiene` |
+| Front | `90xA1 stale surface inventory lock` |
 | Blocker | `none` |
-| Next | `89xA2 candidate lane ranking` |
-| After Next | `89xB1 successor lane decision` |
+| Next | `90xA2 target split / stop-line freeze` |
+| After Next | `90xB1 current/design stale surface cleanup` |
 
 ## Current Read
 
@@ -32,11 +32,14 @@ Related:
 - `86x` landed with a thinner phase index/current mirror surface
 - `87x` landed after refreshing snapshot-pinned runner paths to canonical `facade/*` and `entry/*`
 - `88x` landed as a no-op archive/deletion rerun
-- `89x` selects the next structural source lane
+- `89x` selected `90x current-doc/design stale surface hygiene`
+- `90x` thins stale wrapper/current wording in current/design docs after the latest recuts
 
 ## Successor Corridor
 
-1. `phase-89x next source lane selection`
+1. `phase-90x current-doc/design stale surface hygiene`
+2. `phase-91x top-level .hako wrapper policy review`
+3. `phase-92x selfhost proof/compat caller rerun`
 
 ## Structural Stop Lines
 
@@ -49,9 +52,9 @@ Related:
 ## Reference
 
 - current lane docs:
-  - `docs/development/current/main/phases/phase-89x/README.md`
-  - `docs/development/current/main/phases/phase-89x/89x-90-next-source-lane-selection-ssot.md`
-  - `docs/development/current/main/phases/phase-89x/89x-91-task-board.md`
+  - `docs/development/current/main/phases/phase-90x/README.md`
+  - `docs/development/current/main/phases/phase-90x/90x-90-current-doc-design-stale-surface-hygiene-ssot.md`
+  - `docs/development/current/main/phases/phase-90x/90x-91-task-board.md`
 - previous landed lanes:
   - `docs/development/current/main/phases/phase-88x/README.md`
   - `docs/development/current/main/phases/phase-87x/README.md`

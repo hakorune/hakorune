@@ -1,7 +1,7 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
-Scope: select the next source lane after `88x` confirmed archive/deletion is still a no-op.
+Scope: select the next source lane after `88x` confirmed archive/deletion is still a no-op; phase is now landed and handed off.
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
@@ -27,7 +27,9 @@ Related:
 
 ## Current Read
 
-- current front:
-  - `89xA1 successor lane inventory lock`
-- likely corridor:
-  - `phase-90x successor lane`
+- handoff complete
+- landed result:
+  - `phase-90x current-doc/design stale surface hygiene` selected as the next structural lane
+  - lower-ranked alternatives remain:
+    - `phase-91x top-level .hako wrapper policy review`
+    - `phase-92x selfhost proof/compat caller rerun`

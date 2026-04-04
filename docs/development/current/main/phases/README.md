@@ -4,13 +4,14 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 89x next source lane selection
+- **Current (ACTIVE)**: Phase 90x current-doc/design stale surface hygiene
+- **Phase 89x（LANDED）**: next source lane selection（`90x current-doc/design stale surface hygiene` を選定）
 - **Phase 88x（LANDED）**: archive/deletion rerun（最新 repoint 後も true archive-ready/delete-ready は出ず、no-op closeout）
 - **Phase 87x（LANDED）**: embedded snapshot / wrapper repoint rerun（embedded Stage1 snapshot を canonical `facade/*` / `entry/*` へ更新）
-- **Phase 86x（LANDED）**: phase index / current mirror hygiene（`phases/README.md` を 117 行から 65 行へ縮小）
 
 ### Recent Landed
 
+- **Phase 86x（LANDED）**: phase index / current mirror hygiene（`phases/README.md` を 117 行から 65 行へ縮小）
 - **Phase 85x（LANDED）**: next source lane selection（`86x phase index / current mirror hygiene` を選定）
 - **Phase 84x（LANDED）**: runner wrapper/source contract thinning（Stage1 build/default entry contracts を canonical `entry/*` stubs へ寄せた）
 - **Phase 83x（LANDED）**: selfhost top-level facade/archive decision（top-level selfhost wrappers は explicit public/front-door keep として固定）

@@ -20,10 +20,11 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-89x next source lane selection`
-- current front: `89xA1 successor lane inventory lock`
+- lane: `phase-90x current-doc/design stale surface hygiene`
+- current front: `90xA1 stale surface inventory lock`
 - blocker: `none`
 - recent landed:
+  - `phase-89x next source lane selection`
   - `phase-87x embedded snapshot / wrapper repoint rerun`
   - `phase-88x archive/deletion rerun`
 
@@ -31,9 +32,9 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-89x/README.md`
-4. `docs/development/current/main/phases/phase-89x/89x-90-next-source-lane-selection-ssot.md`
-5. `docs/development/current/main/phases/phase-89x/89x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-90x/README.md`
+4. `docs/development/current/main/phases/phase-90x/90x-90-current-doc-design-stale-surface-hygiene-ssot.md`
+5. `docs/development/current/main/phases/phase-90x/90x-91-task-board.md`
 
 ## Current Proof Bundle
 
