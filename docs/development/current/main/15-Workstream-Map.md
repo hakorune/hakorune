@@ -132,10 +132,10 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `62xA1 delete-ready candidate confirmation` |
+     | Now | `62xD1 proof / closeout` |
      | Blocker | `none` |
-     | Next | `62xA2 removal/no-op decision` |
-     | After Next | `62xB1 delete-ready removal` |
+     | Next | `63x rust-vm final retirement decision` |
+     | After Next | `next lane after retirement decision` |
    - retirement corridor after `60x`:
 
      | Lane | Read as |
@@ -147,9 +147,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `62xA1 delete-ready candidate confirmation` |
-     | Next | `62xA2 removal/no-op decision` |
-     | Later | `62xB1 delete-ready removal` |
+     | Now | `62xD1 proof / closeout` |
+     | Next | `63x rust-vm final retirement decision` |
+     | Later | `next lane after retirement decision` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |

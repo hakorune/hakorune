@@ -157,7 +157,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-62x rust-vm delete-ready removal wave`
 - Current blocker: `none`
-- Exact focus: `62xA1 delete-ready candidate confirmation`
+- Exact focus: `62xD1 proof / closeout`
 - exact handoff order:
   1. `53xA1` residual VM caller inventory lock (landed)
   2. `53xA2` proof-only / compat keep classification (landed)
@@ -209,10 +209,10 @@ Scope: repo root から current order / current blocker / next exact read に最
   48. `61xB1` caller-zero proof bundle (landed)
   49. `61xB2` removal candidate shortlist (landed)
   50. `61xD1` proof / closeout (landed)
-  51. `62xA1` delete-ready candidate confirmation (active)
-  52. `62xA2` removal/no-op decision (planned)
-  53. `62xB1` delete-ready removal (planned)
-  54. `62xD1` proof / closeout (planned)
+  51. `62xA1` delete-ready candidate confirmation (landed)
+  52. `62xA2` removal/no-op decision (landed)
+  53. `62xB1` delete-ready removal (landed, no-op)
+  54. `62xD1` proof / closeout (active)
   55. `63xA1` rust-vm final retirement decision (planned)
 
 Carry-over context:

@@ -28,6 +28,23 @@ Related:
   - removal may be empty
   - proof matters more than deletion count
 
+## Candidate Confirmation
+
+- confirmed again in `62xA1`:
+  - `vm.rs` still has `route_orchestrator` caller
+  - `vm_fallback.rs` still has `route_orchestrator` caller
+  - `stage_a_compat_bridge.rs` still has `stage_a_route` caller
+  - `core.hako` still has raw compat callers
+  - `run_stageb_compiler_vm.sh` still has proof smoke callers
+- confirmation result:
+  - `delete-ready`: none
+
+## Removal / No-Op Decision
+
+- `62xA2` decision: no-op removal wave
+- reason:
+  - no source-backed caller-zero candidate was promoted after the `61x` rerun
+
 ## Big Tasks
 
 1. confirm removal candidates

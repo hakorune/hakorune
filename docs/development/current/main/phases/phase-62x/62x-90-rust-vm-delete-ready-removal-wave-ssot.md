@@ -21,6 +21,24 @@ Related:
   - `delete-ready`: none
   - `keep-now`: `vm.rs`, `vm_fallback.rs`, `stage_a_compat_bridge.rs`, `core.hako`, `run_stageb_compiler_vm.sh`, `dispatch.rs`, `route_orchestrator.rs`
 
+## Candidate Confirmation
+
+- `62xA1` rerun confirms:
+  - `src/runner/modes/vm.rs` still called by `route_orchestrator`
+  - `src/runner/modes/vm_fallback.rs` still called by `route_orchestrator`
+  - `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs` still called by `stage_a_route`
+  - `lang/src/runner/stage1_cli/core.hako` still owns raw compat callers
+  - `tools/selfhost/run_stageb_compiler_vm.sh` still has proof callers
+- result:
+  - `delete-ready`: none
+
+## Removal / No-Op Decision
+
+- `62xA2` decision: no-op
+- rationale:
+  - forcing deletion here would violate the `61x` source-backed audit result
+  - `62x` therefore serves as proof that the current removal wave is empty, not as a forced delete lane
+
 ## Boundary
 
 - do not delete broad rust-vm core just to satisfy the phase title

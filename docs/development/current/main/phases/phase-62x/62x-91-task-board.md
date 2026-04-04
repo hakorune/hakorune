@@ -15,16 +15,16 @@ Date: 2026-04-04
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `62xA1` | active | delete-ready candidate confirmation |
-| `62xA2` | queued | removal/no-op decision |
-| `62xB1` | queued | delete-ready removal |
-| `62xD1` | queued | proof / closeout |
+| `62xA1` | landed | delete-ready candidate confirmation |
+| `62xA2` | landed | removal/no-op decision |
+| `62xB1` | landed | delete-ready removal |
+| `62xD1` | active | proof / closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `62xA1 delete-ready candidate confirmation` |
+| Now | `62xD1 proof / closeout` |
 | Blocker | `none` |
-| Next | `62xA2 removal/no-op decision` |
-| After Next | `62xB1 delete-ready removal` |
+| Next | `63x rust-vm final retirement decision` |
+| After Next | `next lane after retirement decision` |
