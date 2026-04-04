@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `phase-59x rust-vm route-surface retirement continuation`
+- lane: `phase-60x proof/compat keep pruning continuation`
 - `49xD1` landed: proof / closeout
 - `50xA1` landed: residual rust-vm surface inventory lock
 - `50xA2` landed: proof-only / compat keep classification
@@ -65,7 +65,8 @@ Related:
 - `56x proof/compat keep pruning` landed
 - `57x rust-vm delete-ready audit / removal wave` landed
 - `58x next source lane selection` landed
-- `59x rust-vm route-surface retirement continuation` active
+- `59x rust-vm route-surface retirement continuation` landed
+- `60x proof/compat keep pruning continuation` active
 - `47xA1` landed: runtime/default contract lock
 - `47xA2` landed: stage1 source->MIR contract lock
 - `47xA3` landed: Stage-A direct/core contract lock
@@ -110,12 +111,13 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `59xD1 proof / closeout`
+- active micro task: `60xA1 proof/compat keep inventory lock`
 - plain reading:
   - current source no longer treats `--backend vm` as a live owner lane; remaining live references are explicit compat/proof/reference keeps plus archive evidence
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep
   - `phase-57x` closed without broad source deletion; remaining rust-vm surfaces stay explicit keep
-  - `phase-59x` has landed CLI/backend, selfhost route/default, and dispatch/orchestrator affordance narrowing; proof closeout is the current front
+  - `phase-59x` landed after narrowing CLI/backend, selfhost route/default, and dispatch/orchestrator affordances
+  - `phase-60x` now resumes proof/compat keep pruning on the remaining explicit keep bucket
 - `phase-42x` is landed; it starved day-to-day callers away from vm-gated routes and moved owner pressure toward direct/core seams
 - `phase-43x` is landed; it selected `phase-44x stage0 direct/core follow-up` as the highest-leverage successor lane
 - `phase-44x` is landed; it keeps proof-only VM gates explicit and closes the lane

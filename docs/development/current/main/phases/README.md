@@ -4,8 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 59x rust-vm route-surface retirement continuation
-- **Phase 59x（ACTIVE）**: rust-vm route-surface retirement continuation（route/default/help exposure をさらに狭める）
+- **Current (ACTIVE)**: Phase 60x proof/compat keep pruning continuation
+- **Phase 60x（ACTIVE）**: proof/compat keep pruning continuation（残っている explicit keep bucket をさらに狭める）
+- **Phase 59x（LANDED）**: rust-vm route-surface retirement continuation（route/default/help exposure をさらに狭めた）
 - **Phase 58x（LANDED）**: next source lane selection（phase-57x の audit 結果を受けて successor lane を決めた）
 - **Phase 57x（LANDED）**: rust-vm delete-ready audit / removal wave（keep-now / archive-later / delete-ready を source-backed に切り分け、broad source deletionなしで closeout）
 - **Phase 56x（LANDED）**: proof/compat keep pruning（explicit keep のまま残している rust-vm surfaces を削れる形まで狭めた）

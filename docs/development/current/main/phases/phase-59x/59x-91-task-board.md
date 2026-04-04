@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 ---
 
@@ -7,10 +7,10 @@ Date: 2026-04-04
 
 | Order | Task | Status | Read as |
 | --- | --- | --- | --- |
-| 1 | `59xA inventory/freeze` | active | lock the route/default/help surfaces before narrowing them |
-| 2 | `59xB live affordance narrowing` | queued | reduce visible rust-vm affordance pressure while keeping explicit routes |
-| 3 | `59xC orchestrator narrowing` | queued | narrow the dispatch/orchestrator seam last |
-| 4 | `59xD closeout` | queued | prove and hand off cleanly |
+| 1 | `59xA inventory/freeze` | landed | lock the route/default/help surfaces before narrowing them |
+| 2 | `59xB live affordance narrowing` | landed | reduce visible rust-vm affordance pressure while keeping explicit routes |
+| 3 | `59xC orchestrator narrowing` | landed | narrow the dispatch/orchestrator seam last |
+| 4 | `59xD closeout` | landed | prove and hand off cleanly |
 
 ## Exact Micro Tasks
 
@@ -21,7 +21,7 @@ Date: 2026-04-04
 | `59xB1` | landed | CLI/backend affordance narrowing |
 | `59xB2` | landed | selfhost route/default narrowing |
 | `59xC1` | landed | dispatch/orchestrator affordance narrowing |
-| `59xD1` | active | proof / closeout |
+| `59xD1` | landed | proof / closeout |
 
 ## Inventory Snapshot
 
@@ -38,7 +38,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `59xD1 proof / closeout` |
+| Now | `phase-59x landed` |
 | Blocker | `none` |
-| Next | `next source lane selection` |
-| After Next | `successor lane inventory lock` |
+| Next | `60xA1 proof/compat keep inventory lock` |
+| After Next | `60xA2 compat keep boundary freeze` |

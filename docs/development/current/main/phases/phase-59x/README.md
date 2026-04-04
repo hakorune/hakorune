@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: continue retiring rust-vm route/default/help surfaces after phase-58x selected this lane as the highest-leverage successor.
 Related:
@@ -55,4 +55,5 @@ Related:
 - `59xB1` landed
 - `59xB2` landed
 - `59xC1` landed
-- active: `59xD1 proof / closeout`
+- `59xD1` landed
+- next: `phase-60x proof/compat keep pruning continuation`

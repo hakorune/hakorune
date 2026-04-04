@@ -22,7 +22,7 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-59x rust-vm route-surface retirement continuation`
+- lane: `phase-60x proof/compat keep pruning continuation`
 - landed micro task: `49xD1 proof / closeout`
 - landed micro task: `52xA2 archive README / wrapper wording rewrite`
 - landed micro task: `52xB1 archive pack orchestrator wording cleanup`
@@ -61,8 +61,8 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `58xB1 successor lane decision`
 - landed micro task: `58xD1 proof / closeout`
 - landed micro task: `59xA1 route-surface inventory lock`
-- active micro task: `59xD1 proof / closeout`
-- planned follow-up: `next source lane selection`
+- active micro task: `60xA1 proof/compat keep inventory lock`
+- planned follow-up: `60xA2 compat keep boundary freeze`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 
@@ -70,9 +70,9 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-59x/README.md`
-4. `docs/development/current/main/phases/phase-59x/59x-90-rust-vm-route-surface-retirement-continuation-ssot.md`
-5. `docs/development/current/main/phases/phase-59x/59x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-60x/README.md`
+4. `docs/development/current/main/phases/phase-60x/60x-90-proof-compat-keep-pruning-continuation-ssot.md`
+5. `docs/development/current/main/phases/phase-60x/60x-91-task-board.md`
 6. `cargo check --manifest-path Cargo.toml --bin hakorune`
 
 ## Optional Checks
