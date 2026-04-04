@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: archive or retire live aliases/docs/wrappers whose callers fell to zero after the folder-separated recuts.
 Related:
@@ -27,11 +27,14 @@ Related:
 ## Current Read
 
 - `69x` has landed and the runner tree now reads `product / keep / reference`
-- current front:
-  - `70xB1 live alias/archive sweep`
-- current intent:
-  - only caller-zero live aliases/wrappers move
-  - proof-only keep and reference routes stay live
-  - archive should collect history, not current explicit keep
-  - the first inventory pass found no archive-ready live wrappers yet
-  - this sweep is expected to close as a no-op unless a doc-only alias drains to zero
+## Result
+
+- `70xA1` landed: caller-zero inventory lock
+- `70xA2` landed: archive-ready ranking
+- `70xB1` landed: live alias/archive sweep
+- `70xC1` landed: current pointer cleanup
+- `70xD1` landed: proof / closeout
+- outcome:
+  - the first caller-zero sweep closed as a no-op
+  - no live wrapper or alias was proven archive-ready
+  - the next move is `phase-71x next source lane selection`

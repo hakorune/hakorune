@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 ---
 
@@ -7,10 +7,10 @@ Date: 2026-04-04
 
 | Order | Task | Status | Read as |
 | --- | --- | --- | --- |
-| 1 | `70xA inventory` | active | lock caller-zero facts and archive-ready ranking |
-| 2 | `70xB sweep` | queued | move only drained aliases/docs/wrappers |
-| 3 | `70xC cleanup` | queued | tighten current pointers after the sweep |
-| 4 | `70xD closeout` | queued | prove and hand off cleanly |
+| 1 | `70xA inventory` | landed | lock caller-zero facts and archive-ready ranking |
+| 2 | `70xB sweep` | landed | move only drained aliases/docs/wrappers |
+| 3 | `70xC cleanup` | landed | tighten current pointers after the sweep |
+| 4 | `70xD closeout` | landed | prove and hand off cleanly |
 
 ## Exact Micro Tasks
 
@@ -18,15 +18,15 @@ Date: 2026-04-04
 | --- | --- | --- |
 | `70xA1` | landed | caller-zero inventory lock |
 | `70xA2` | landed | archive-ready ranking |
-| `70xB1` | active | live alias/archive sweep |
-| `70xC1` | queued | current pointer cleanup |
-| `70xD1` | queued | proof / closeout |
+| `70xB1` | landed | live alias/archive sweep |
+| `70xC1` | landed | current pointer cleanup |
+| `70xD1` | landed | proof / closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `70xB1 live alias/archive sweep` |
+| Now | `landed / handoff complete` |
 | Blocker | `none` |
-| Next | `70xC1 current pointer cleanup` |
-| After Next | `70xD1 proof / closeout` |
+| Next | `phase-71x next source lane selection` |
+| After Next | `TBD by successor lane` |

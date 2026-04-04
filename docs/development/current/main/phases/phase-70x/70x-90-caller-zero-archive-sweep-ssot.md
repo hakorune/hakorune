@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: sweep caller-zero aliases/docs/wrappers after the selfhost, `.hako` runner, and rust runner folder recuts landed.
 Related:
@@ -81,3 +81,15 @@ Related:
   - keep the tree unchanged
   - keep current pointers honest
   - close the lane without forcing archive churn
+
+## 70xB1 Result
+
+- no archive move was performed
+- no caller-zero live wrapper was proven in the current surface
+- `70xC1` is limited to pointer honesty, not archive expansion
+
+## 70xC1 Result
+
+- current mirrors now agree on the no-op sweep reading
+- no extra path rewrite was needed after the `70xA1/70xB1` fact lock
+- lane can close from here with proof only

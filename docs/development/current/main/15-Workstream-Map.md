@@ -37,8 +37,8 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-70x caller-zero archive sweep`
-     - current active micro task is `70xB1 live alias/archive sweep`
+     - current active lane is `phase-71x next source lane selection`
+     - current active micro task is `71xA1 successor lane inventory lock`
      - ranked successor corridor after `68x` is:
        - `69x rust runner product/keep/reference recut`
        - `70x caller-zero archive sweep`
@@ -132,14 +132,14 @@ Related:
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-70x caller-zero archive sweep table:
+   - phase-71x next source lane selection table:
 
      | Item | State |
      | --- | --- |
-     | Now | `70xB1 live alias/archive sweep` |
+     | Now | `71xA1 successor lane inventory lock` |
      | Blocker | `none` |
-     | Next | `70xC1 current pointer cleanup` |
-     | After Next | `70xD1 proof / closeout` |
+     | Next | `71xA2 candidate lane ranking` |
+     | After Next | `71xB1 successor lane decision` |
    - rust-vm corridor outcome:
 
      | Item | State |
@@ -151,9 +151,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `70xB1 live alias/archive sweep` |
-     | Next | `70xC1 current pointer cleanup` |
-     | Later | `70xD1 proof / closeout` |
+     | Now | `71xA1 successor lane inventory lock` |
+     | Next | `71xA2 candidate lane ranking` |
+     | Later | `TBD by successor lane` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
