@@ -39,10 +39,21 @@ tools/checks/dev_gate.sh quick
 ## Successor Corridor
 
 1. `phase-102 real-app read_quoted loop regression (VM + LLVM EXE)`
+2. `phase-110x selfhost execution vocabulary SSOT`
+3. `phase-111x selfhost runtime route naming cleanup`
+4. `phase-112x vm-family lane naming hardening`
+5. `phase-113x kernel vs vm-reference cluster wording correction`
 
 ## Parked After Optimization
 
 - `vm-hako` small reference interpreter recut
+
+## Next Cleanup Corridor
+
+- separate `stage / route / backend override / lane / kernel`
+- rename `runtime-mode exe` toward `runtime-route mainline`
+- harden VM family lane names as `rust-vm-keep / vm-hako-reference / vm-compat-fallback`
+- reserve `kernel` for `nyash_kernel`; treat `lang/src/vm` as VM/reference cluster
 
 ## Current Proof Bundle
 

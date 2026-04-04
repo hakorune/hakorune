@@ -32,6 +32,11 @@ Related:
 - `phase-99` trailing-backslash fixture is already green on both VM and LLVM EXE
 - `phase-100` landed with pinned read-only captures and accumulator proof locked
 - `phase-102` is the current lane: real-app `read_quoted_from` loop parity on VM and LLVM EXE
+- after `phase-102`, execution SSOT cleanup is queued:
+  - vocabulary split: `stage / route / backend override / lane / kernel`
+  - route rename direction: `runtime-mode exe` -> `runtime-route mainline`
+  - VM family lane names: `rust-vm-keep / vm-hako-reference / vm-compat-fallback`
+  - `kernel` reserved for `nyash_kernel`; `lang/src/vm` treated as VM/reference cluster
 
 ## Root Anchors
 

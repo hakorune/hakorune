@@ -18,7 +18,7 @@ Related:
 | Front | `MiniJsonLoader.read_quoted_from 最小抽出 fixture を VM/LLVM EXE parity で固定する` |
 | Blocker | `none` |
 | Next | `phase-102 fixture + parity proof` |
-| After Next | `optimization corridor / parked cleanup revisit` |
+| After Next | `execution SSOT cleanup corridor` |
 
 ## Current Read
 
@@ -49,6 +49,10 @@ Related:
 ## Successor Corridor
 
 1. `phase-102 real-app read_quoted loop regression (VM + LLVM EXE)`
+2. `phase-110x selfhost execution vocabulary SSOT`
+3. `phase-111x selfhost runtime route naming cleanup`
+4. `phase-112x vm-family lane naming hardening`
+5. `phase-113x kernel vs vm-reference cluster wording correction`
 
 ## Parked After Optimization
 
@@ -61,6 +65,19 @@ Related:
   - residual explicit keep: frozen
 - `vm-hako`
   - reference/conformance keep
+
+## Planned Execution SSOT Split
+
+- `stage`
+  - artifact generation / historical phase naming only
+- `route`
+  - end-to-end shell/runtime path (`runtime/mainline`, `runtime/compat`, `direct/proof`)
+- `backend override`
+  - explicit CLI family (`llvm`, `vm`, `vm-hako`)
+- `lane`
+  - concrete VM-family implementation (`rust-vm-keep`, `vm-hako-reference`, `vm-compat-fallback`)
+- `kernel`
+  - reserved for `nyash_kernel`; `lang/src/vm` is VM/reference cluster, not product kernel
 
 ## Reference
 

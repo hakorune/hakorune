@@ -53,6 +53,10 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 ## Successor Corridor
 
 1. `phase-102 real-app read_quoted loop regression (VM + LLVM EXE)`
+2. `phase-110x selfhost execution vocabulary SSOT`
+3. `phase-111x selfhost runtime route naming cleanup`
+4. `phase-112x vm-family lane naming hardening`
+5. `phase-113x kernel vs vm-reference cluster wording correction`
 
 ## Parked After Optimization
 
@@ -80,6 +84,11 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 - `phase-100` fixed pinned read-only captures and locked VM/LLVM proof for accumulator cases.
 - `phase-99` fixed trailing-backslash trim/escape parity on both VM and LLVM EXE.
 - `phase-97` fixed LLVM EXE parity for `phase95/96` fixtures under `HAKO_BACKEND_COMPAT_REPLAY=harness`.
+- post-`phase-102`, execution SSOT cleanup will separate `stage / route / backend override / lane / kernel`.
+- planned naming corrections:
+  - `runtime-mode exe` -> `runtime-route mainline` family
+  - internal VM lanes -> `rust-vm-keep / vm-hako-reference / vm-compat-fallback`
+  - `kernel` stays reserved for `nyash_kernel`; `lang/src/vm` is treated as VM/reference cluster
 - `launcher.hako emit_mir_mainline` is green.
 - `stage1_mainline_smoke.sh` is green.
 - thin top-level wrappers remain public/front-door keep, not archive-ready by default.
