@@ -29,8 +29,9 @@ Related:
 
 - `67x` has landed and split `tools/selfhost/` into folder lanes
 - current front:
-  - `68xB1 facade/entry split`
+  - `68xB2 authority/compat split`
 - current intent:
   - `lang/src/runner` should stop relying on file-name folklore for authority vs compat reading
   - entry/facade stubs should become obvious from folder placement
   - rust runner recut stays downstream of this `.hako` recut
+  - `stage1_cli_env.hako` remains top-level authority for now because focused probes still expect its full same-file box surface

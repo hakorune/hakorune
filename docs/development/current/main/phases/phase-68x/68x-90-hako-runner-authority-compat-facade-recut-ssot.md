@@ -51,6 +51,7 @@ Related:
 
 - `lang/src/runner/stage1_cli.hako`
 - `lang/src/runner/stage1_cli/**`
+- `lang/src/runner/compat/stage1_cli.hako`
 
 ### Facade / launcher cluster
 
@@ -81,6 +82,7 @@ lang/src/runner/
    - compatibility wrappers can preserve old paths while the canonical tree becomes visible
 2. `68xB2 authority/compat split`
    - higher blast: `stage1_cli_env.hako`, `stage1_cli.hako`, and `stage1_cli/**` participate in direct `using` chains and should move after the low-blast slice lands
+   - safe first slice: move the top-level `stage1_cli.hako` compat owner behind a wrapper, but keep `stage1_cli_env.hako` at top level until focused probes stop depending on its full same-file box set
 
 ## Known Blocker Read
 
@@ -104,3 +106,8 @@ lang/src/runner/
 4. `68xB2` authority/compat split
 5. `68xC1` alias/readme cleanup
 6. `68xD1` proof / closeout
+
+## Current Progress
+
+- `68xB1` landed: facade and entry stubs have canonical homes under `facade/` and `entry/`
+- `68xB2` active: top-level compat owner is being wrapped while `stage1_cli_env.hako` stays authority-top-level for now

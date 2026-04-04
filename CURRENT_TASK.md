@@ -162,7 +162,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-68x .hako runner authority/compat/facade recut`
 - Current blocker: `none`
-- Exact focus: `68xB1 facade/entry split`
+- Exact focus: `68xB2 authority/compat split`
 - successor lane ranking is fixed as:
   1. `phase-68x .hako runner authority/compat/facade recut`
   2. `phase-69x rust runner product/keep/reference recut`

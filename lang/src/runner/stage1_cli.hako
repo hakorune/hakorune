@@ -1,33 +1,15 @@
-// stage1_cli.hako — Stage‑1 self-host CLI skeleton（entry）
+// stage1_cli.hako — thin compatibility wrapper
 //
-// 役割: Stage‑B → Stage‑1 UsingResolver → MirBuilder を経由する self-host CLI の
-//      入口シグネチャを固定するだけの箱。Phase 25.1A-3 で最低限の中身を実装。
-// Note:
-// - This embedded raw/subcmd lane is a non-authority future retire target.
-// - Current green selfhost authority is `stage1_cli_env.hako`, not this file.
-// - Route selection is centralized in `Stage1CliDispatchBox`; action bodies live in stage1_cli/*.
-// トグル（既定OFF）:
-//   - NYASH_USE_STAGE1_CLI=1             : Rust 側がこの CLI を呼ぶときに使用
-//   - STAGE1_EMIT_PROGRAM_JSON=1         : source → Program(JSON v0) を emit
-//   - STAGE1_EMIT_MIR_JSON=1             : Program(JSON v0) → MIR(JSON) を emit
-// 環境変数（env-only 仕様）:
-//   - STAGE1_SOURCE        : .hako ソースパス（FileBox 経由で読み込む）
-//   - STAGE1_SOURCE_TEXT   : ソース文字列（FileBox なしで渡すテスト用）
-//   - STAGE1_PROGRAM_JSON  : 事前生成した Program(JSON v0) のパス（emit_mir_json/run で利用）
-//   - STAGE1_BACKEND       : backend 選択（vm/llvm、pyvm は historical keep、既定 vm）
-//   - STAGE1_CLI_DEBUG     : debug ログを有効化
+// Canonical compat owner now lives under `compat/stage1_cli.hako`.
 
-using lang.runner.stage1_cli.core as Stage1Cli
+using lang.runner.compat.stage1_cli as Stage1CliCompatBox
 
 static box Stage1CliMain {
-  // SSOT entry: delegate all mode handling to Stage1Cli.
   main() {
-    return Stage1Cli.stage1_main(null)
+    return Stage1CliCompatBox.Stage1CliMain.main()
   }
 }
 
-// Compatibility entry for selfhost_exe artifacts.
-// Some generated executables still boot from Main.main/0 by default.
 static box Main {
   main() {
     return Stage1CliMain.main()

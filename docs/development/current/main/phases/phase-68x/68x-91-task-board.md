@@ -18,8 +18,8 @@ Date: 2026-04-04
 | --- | --- | --- |
 | `68xA1` | landed | runner folder inventory lock |
 | `68xA2` | landed | target layout ranking |
-| `68xB1` | active | facade/entry split |
-| `68xB2` | queued | authority/compat split |
+| `68xB1` | landed | facade/entry split |
+| `68xB2` | active | authority/compat split |
 | `68xC1` | queued | alias/readme cleanup |
 | `68xD1` | queued | proof / closeout |
 
@@ -27,7 +27,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `68xB1 facade/entry split` |
+| Now | `68xB2 authority/compat split` |
 | Blocker | `none` |
-| Next | `68xB2 authority/compat split` |
-| After Next | `68xC1 alias/readme cleanup` |
+| Next | `68xC1 alias/readme cleanup` |
+| After Next | `68xD1 proof / closeout` |

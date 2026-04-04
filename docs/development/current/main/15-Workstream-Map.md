@@ -38,7 +38,7 @@ Related:
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
      - current active lane is `phase-68x .hako runner authority/compat/facade recut`
-     - current active micro task is `68xB1 facade/entry split`
+     - current active micro task is `68xB2 authority/compat split`
      - ranked successor corridor after `68x` is:
        - `69x rust runner product/keep/reference recut`
        - `70x caller-zero archive sweep`
@@ -136,10 +136,10 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `68xB1 facade/entry split` |
+     | Now | `68xB2 authority/compat split` |
      | Blocker | `none` |
-     | Next | `68xB2 authority/compat split` |
-     | After Next | `68xC1 alias/readme cleanup` |
+     | Next | `68xC1 alias/readme cleanup` |
+     | After Next | `68xD1 proof / closeout` |
    - rust-vm corridor outcome:
 
      | Item | State |
@@ -151,9 +151,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `68xB1 facade/entry split` |
-     | Next | `68xB2 authority/compat split` |
-     | Later | `68xC1 alias/readme cleanup` |
+     | Now | `68xB2 authority/compat split` |
+     | Next | `68xC1 alias/readme cleanup` |
+     | Later | `68xD1 proof / closeout` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |

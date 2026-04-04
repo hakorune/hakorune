@@ -23,7 +23,7 @@ Pointers:
 
 ## Files
 
-- `stage1_cli.hako`
+- `compat/stage1_cli.hako`
   - Contract:
     - Entry: `Main.main() -> i64`
     - Role: embedded/raw Stage1 CLI lane for env/bootstrap emit/run contracts.
@@ -79,7 +79,8 @@ Pointers:
 - Runner 層は「構造とオーケストレーション専用レイヤ」として扱う。
   - 言語意味論・最適化ロジックは compiler / opt / AotPrep に留める。
   - VM/LLVM の実行コアは Rust 側（Stage0 / NyRT）に委譲する。
-- current selfhost authority entry is `stage1_cli_env.hako`; `launcher.hako` / raw subcmd lane は authority ではなく compat/future retire target として扱う。
+- current selfhost authority entry is `stage1_cli_env.hako`; `compat/stage1_cli.hako` / `launcher.hako` は authority ではなく compat/future retire target として扱う。
+- top-level `stage1_cli.hako` is now a compatibility wrapper; canonical compat owner lives under `compat/stage1_cli.hako`.
 - top-level `runner_facade.hako`, `launcher_native_entry.hako`, and `stage1_cli_env_entry.hako` are compatibility wrappers; canonical homes are under `facade/` and `entry/`.
 - shell-side exact env transport lives in `tools/selfhost/lib/stage1_contract.sh`; `tools/selfhost/compat/run_stage1_cli.sh` is a compatibility wrapper around that contract, not a second authority route.
 - shared env/source resolution contract is isolated in `Stage1InputContractBox` inside `stage1_cli_env.hako`; keep input shaping out of `Main` and out of authority/compat boxes.
