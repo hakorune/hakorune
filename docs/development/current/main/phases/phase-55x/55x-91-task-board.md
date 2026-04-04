@@ -17,8 +17,8 @@ Date: 2026-04-04
 | Task | Status | Read as |
 | --- | --- | --- |
 | `55xA1` | landed | route-surface inventory lock |
-| `55xA2` | active | backend/default/help exposure freeze |
-| `55xB1` | queued | cli/backend affordance cleanup |
+| `55xA2` | landed | backend/default/help exposure freeze |
+| `55xB1` | active | cli/backend affordance cleanup |
 | `55xB2` | queued | selfhost route-surface cleanup |
 | `55xC1` | queued | dispatch/orchestrator explicit keep narrowing |
 | `55xD1` | queued | proof / closeout |
@@ -37,7 +37,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `55xA2 backend/default/help exposure freeze` |
+| Now | `55xB1 cli/backend affordance cleanup` |
 | Blocker | `none` |
-| Next | `55xB1 cli/backend affordance cleanup` |
-| After Next | `55xB2 selfhost route-surface cleanup` |
+| Next | `55xB2 selfhost route-surface cleanup` |
+| After Next | `55xC1 dispatch/orchestrator explicit keep narrowing` |

@@ -39,8 +39,8 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `54xB2 retirement corridor lock`
 - landed micro task: `54xD1 proof / closeout`
 - landed micro task: `55xA1 route-surface inventory lock`
-- active micro task: `55xA2 backend/default/help exposure freeze`
-- queued micro task: `55xB1 cli/backend affordance cleanup`
+- landed micro task: `55xA2 backend/default/help exposure freeze`
+- active micro task: `55xB1 cli/backend affordance cleanup`
 - planned follow-up: `56x proof/compat keep pruning`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline

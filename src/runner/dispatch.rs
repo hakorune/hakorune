@@ -205,7 +205,10 @@ pub(crate) fn execute_file_with_backend(runner: &NyashRunner, filename: &str) {
             runner.execute_mir_mode(filename);
         }
         "vm" => {
-            crate::cli_v!("🚀 Hakorune VM Backend - Executing file: {} 🚀", filename);
+            crate::cli_v!(
+                "🚀 Hakorune VM Compat/Proof Route - Executing file: {} 🚀",
+                filename
+            );
             if !super::route_orchestrator::execute_vm_route(runner, "vm", filename) {
                 eprintln!("❌ VM route orchestration error: backend=vm");
                 std::process::exit(2);
@@ -213,7 +216,7 @@ pub(crate) fn execute_file_with_backend(runner: &NyashRunner, filename: &str) {
         }
         "vm-hako" => {
             crate::cli_v!(
-                "🚀 Hakorune VM-Hako Backend (frame) - Executing file: {} 🚀",
+                "🚀 Hakorune VM-Hako Reference Route - Executing file: {} 🚀",
                 filename
             );
             if !super::route_orchestrator::execute_vm_route(runner, "vm-hako", filename) {
@@ -244,7 +247,7 @@ pub(crate) fn execute_file_with_backend(runner: &NyashRunner, filename: &str) {
         }
         other => {
             eprintln!(
-                "❌ Unknown backend: {}. Use 'vm', 'vm-hako', or 'llvm'.",
+                "❌ Unknown backend: {}. Use explicit override 'vm', 'vm-hako', or 'llvm'.",
                 other
             );
             std::process::exit(2);

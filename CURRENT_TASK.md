@@ -156,8 +156,8 @@ Scope: repo root から current order / current blocker / next exact read に最
   10. `54xB2` retirement corridor lock (landed)
   11. `54xD1` proof / closeout (landed)
   12. `55xA1` route-surface inventory lock (landed)
-  13. `55xA2` backend/default/help exposure freeze (active)
-  14. `55xB1` cli/backend affordance cleanup (queued)
+  13. `55xA2` backend/default/help exposure freeze (landed)
+  14. `55xB1` cli/backend affordance cleanup (active)
   15. `55xB2` selfhost route-surface cleanup (queued)
   16. `55xC1` dispatch/orchestrator explicit keep narrowing (queued)
   17. `55xD1` proof / closeout (queued)
@@ -256,7 +256,7 @@ Carry-over context:
 | --- | --- |
 | Now | `phase-55x rust-vm route-surface retirement prep` |
 | Blocker | `none` |
-| Next | `55xA2 backend/default/help exposure freeze` |
+| Next | `55xB1 cli/backend affordance cleanup` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only

@@ -179,7 +179,11 @@ run_runtime() {
     env_prefix+=("NYASH_NY_COMPILER_TIMEOUT_MS=$timeout_ms")
   fi
 
-  echo "[selfhost/run] mode=runtime runtime_mode=$runtime_mode input=$(basename "$input_file")" >&2
+  if [ "$runtime_mode" = "stage-a" ]; then
+    echo "[selfhost/run] mode=runtime runtime_mode=$runtime_mode lane=compat-only input=$(basename "$input_file")" >&2
+  else
+    echo "[selfhost/run] mode=runtime runtime_mode=$runtime_mode lane=mainline input=$(basename "$input_file")" >&2
+  fi
   if [ "$runtime_mode" = "exe" ]; then
     run_runtime_temp_mir_handoff
     return
