@@ -50,3 +50,13 @@ Related:
    - `60xC1` proof smoke keep pruning continuation
 3. prove and close
    - `60xD1` proof / closeout
+
+## Retirement Corridor
+
+- `60x` does not claim full retirement by itself.
+- fixed follow-up corridor:
+  1. `61x residual rust-vm caller-zero audit rerun`
+  2. `62x rust-vm delete-ready removal wave`
+  3. `63x rust-vm final retirement decision`
+- expected reading:
+  - full rust-vm retirement is only realistic after `60x` narrows the explicit keep bucket and `61x/62x` prove delete-ready facts

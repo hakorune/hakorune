@@ -136,6 +136,13 @@ Related:
      | Blocker | `none` |
      | Next | `60xA2 compat keep boundary freeze` |
      | After Next | `60xB1 stage-a compat seam pruning` |
+   - retirement corridor after `60x`:
+
+     | Lane | Read as |
+     | --- | --- |
+     | `61x residual rust-vm caller-zero audit rerun` | rerun caller-zero facts after keep pruning settles |
+     | `62x rust-vm delete-ready removal wave` | remove only surfaces proven delete-ready |
+     | `63x rust-vm final retirement decision` | decide full retirement vs residual keep |
    - stage0 shell residue bands:
 
      | Band | State |

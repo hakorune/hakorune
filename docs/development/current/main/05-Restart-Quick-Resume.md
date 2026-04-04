@@ -63,6 +63,10 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `59xA1 route-surface inventory lock`
 - active micro task: `60xA1 proof/compat keep inventory lock`
 - planned follow-up: `60xA2 compat keep boundary freeze`
+- fixed corridor after `60x`:
+  - `61x residual rust-vm caller-zero audit rerun`
+  - `62x rust-vm delete-ready removal wave`
+  - `63x rust-vm final retirement decision`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 

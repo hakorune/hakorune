@@ -112,12 +112,17 @@ Related:
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
 - active micro task: `60xA1 proof/compat keep inventory lock`
+- fixed retirement corridor:
+  - `61x residual rust-vm caller-zero audit rerun`
+  - `62x rust-vm delete-ready removal wave`
+  - `63x rust-vm final retirement decision`
 - plain reading:
   - current source no longer treats `--backend vm` as a live owner lane; remaining live references are explicit compat/proof/reference keeps plus archive evidence
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep
   - `phase-57x` closed without broad source deletion; remaining rust-vm surfaces stay explicit keep
   - `phase-59x` landed after narrowing CLI/backend, selfhost route/default, and dispatch/orchestrator affordances
   - `phase-60x` now resumes proof/compat keep pruning on the remaining explicit keep bucket
+  - full rust-vm retirement is not expected before the `61x -> 62x -> 63x` corridor completes
 - `phase-42x` is landed; it starved day-to-day callers away from vm-gated routes and moved owner pressure toward direct/core seams
 - `phase-43x` is landed; it selected `phase-44x stage0 direct/core follow-up` as the highest-leverage successor lane
 - `phase-44x` is landed; it keeps proof-only VM gates explicit and closes the lane

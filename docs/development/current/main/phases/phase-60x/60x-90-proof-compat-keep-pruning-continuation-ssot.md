@@ -39,3 +39,11 @@ Related:
 - do not reopen CLI/default/backend selection work from phase-59x
 - do not mix `vm-hako` reference/conformance cleanup into this lane
 - do not claim delete-ready broad rust-vm source until caller-zero facts materially change
+
+## Successor Corridor Lock
+
+- after `60x`, the rust-vm retirement corridor is fixed as:
+  1. `61x residual rust-vm caller-zero audit rerun`
+  2. `62x rust-vm delete-ready removal wave`
+  3. `63x rust-vm final retirement decision`
+- `60x` is therefore a pruning lane, not a final-retirement claim
