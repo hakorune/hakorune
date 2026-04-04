@@ -123,6 +123,8 @@ Current note:
 ### 2. `stage1` selfhost authority entry
 
 Primary owner:
+- `lang/src/runner/compat/stage1_cli.hako` (`canonical Stage1 CLI compat owner`)
+- `lang/src/runner/stage1_cli.hako` (`thin keep wrapper / public facade`)
 - `lang/src/runner/stage1_cli_env.hako`
 - `lang/src/runner/stage1_cli_env.hako::Stage1InputContractBox` (`shared input/env contract`, same-file)
 - `lang/src/runner/stage1_cli_env.hako::Stage1SourceProgramAuthorityBox` (`exact source-only emit-program authority`, same-file)
@@ -223,11 +225,11 @@ Must not:
 ### 6. Shell orchestration / proof contract
 
 Primary owner:
-- `tools/selfhost/build_stage1.sh`
+- `tools/selfhost/mainline/build_stage1.sh`
 - `tools/selfhost/lib/stage1_contract.sh`
 - `tools/selfhost/lib/identity_routes.sh`
 - `tools/selfhost_identity_check.sh`
-- `tools/selfhost/run_stage1_cli.sh`
+- `tools/selfhost/compat/run_stage1_cli.sh`
 
 Responsibility:
 - proof-first bootstrap contract
@@ -261,7 +263,7 @@ Do not leave plugin ownership ambiguous.
 - current authority lock: `phase-29ch` (`closeout-ready`)
 - reduced proof source: `lang/src/runner/stage1_cli_env.hako`
 - current authority route:
-  - `tools/selfhost/build_stage1.sh`
+  - `tools/selfhost/mainline/build_stage1.sh`
   - `tools/selfhost/lib/stage1_contract.sh`
   - env-mode `stage1_contract_exec_mode ... emit-mir <entry> <source_text>`
   - `lang/src/runner/stage1_cli_env.hako`

@@ -35,7 +35,7 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 ## Current Front
 
 - Active lane: `phase-90x current-doc/design stale surface hygiene`
-- Active micro: `90xA2 target split / stop-line freeze`
+- Active micro: `90xB1 current/design stale surface cleanup`
 - Current blocker: `none`
 - Exact focus: thin current/design docs that still describe old wrapper or current surfaces too noisily after the latest runner/selfhost recuts
 

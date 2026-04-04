@@ -74,7 +74,7 @@ NYASH_LEAK_LOG=2 NYASH_LLVM_USE_HARNESS=1 ./target/release/hakorune --backend ll
 | `HAKO_STAGE1_PROGRAM_JSON=path` | unset | Stage-1 | `.hako` stub 用 Program(JSON v0) パス（compat-only） |
 | `NYASH_STAGE1_BACKEND=vm` | `vm` | Stage-1 | Stage-1 実行の backend ヒント（alias: `STAGE1_BACKEND`） |
 | `NYASH_STAGE1_CLI_CHILD=1` | OFF | Stage-1 | 再帰呼び出しガード |
-| `STAGE1_CLI_ENTRY=...` | `lang/src/runner/stage1_cli.hako` | Stage-1 | Stage-1 stub のエントリ差し替え |
+| `STAGE1_CLI_ENTRY=...` | `lang/src/runner/stage1_cli.hako` | Stage-1 | Stage-1 stub のエントリ差し替え。canonical compat owner は `lang/src/runner/compat/stage1_cli.hako`、この default は薄い keep wrapper を指す。 |
 | `NYASH_STAGE1_BINARY_ONLY_DIRECT={0\|1}` | unset | Stage-1 | binary-only direct route を強制ON/OFF（unset は OFF。明示時のみ有効） |
 | `NYASH_STAGE1_BINARY_ONLY_RUN_DIRECT={0\|1}` | unset | Stage-1 | `--hako-run` の binary-only direct route を強制ON/OFF（unset は `NYASH_STAGE1_BINARY_ONLY_DIRECT` を継承し、最終的に OFF） |
 | `HAKO_SELFHOST_NO_DELEGATE={0\|1}` | unset | Stage-1 / selfhost | `env.mirbuilder.emit` の delegate route を禁止（`1` で fail-fast 固定） |

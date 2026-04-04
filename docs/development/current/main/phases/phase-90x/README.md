@@ -29,7 +29,7 @@ Related:
 ## Current Read
 
 - current front:
-  - `90xA1 stale surface inventory lock`
+  - `90xB1 current/design stale surface cleanup`
 - likely corridor:
   - `phase-91x top-level .hako wrapper policy review`
   - `phase-92x selfhost proof/compat caller rerun`

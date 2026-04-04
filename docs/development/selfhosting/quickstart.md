@@ -6,6 +6,7 @@ This note shows how to run the Hakorune self‑host compiler MVP. Read the curre
 - product main: `llvm/exe`
 - compat/proof keep: `rust-vm`
 - reference/conformance: `vm-hako`
+- canonical helper homes: `tools/selfhost/mainline`, `tools/selfhost/proof`, `tools/selfhost/compat`
 
 The flow below keeps raw defaults unchanged and uses small, opt‑in flags for development.
 
@@ -66,7 +67,7 @@ Notes:
 Run a minimal engineering smoke that tries to emit JSON (best‑effort) and verifies VM outputs match with Known rewrite ON/OFF:
 
 ```
-tools/selfhost/selfhost_smoke.sh
+tools/selfhost/proof/selfhost_smoke.sh
 ```
 
 It does not modify defaults and is safe to run locally.

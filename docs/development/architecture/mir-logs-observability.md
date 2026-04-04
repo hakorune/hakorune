@@ -14,7 +14,7 @@
 
 ### 1. Stage-1 CLI Debug（10箇所）
 
-**場所**: `lang/src/runner/stage1_cli.hako`
+**場所**: `lang/src/runner/compat/stage1_cli.hako`
 
 | 行番号 | タグ | 説明 | 用途 |
 |-------|------|-----|------|
@@ -176,6 +176,6 @@ static box MirLogBox {
 ## 参考
 
 - Phase 25.4 計画: `docs/private/roadmap2/phases/phase-25.4-naming-cli-cleanup/README.md`
-- Stage-1 CLI: `lang/src/runner/stage1_cli.hako`
+- Stage-1 CLI compat owner: `lang/src/runner/compat/stage1_cli.hako`
 - FuncScanner: `lang/src/compiler/entry/func_scanner.hako`
 - StringHelpers: `lang/src/shared/common/string_helpers.hako`

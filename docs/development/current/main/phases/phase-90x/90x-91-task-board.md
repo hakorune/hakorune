@@ -17,8 +17,8 @@ Date: 2026-04-04
 | Task | Status | Read as |
 | --- | --- | --- |
 | `90xA1` | landed | stale surface inventory lock |
-| `90xA2` | active | target split / stop-line freeze |
-| `90xB1` | queued | current/design stale surface cleanup |
+| `90xA2` | landed | target split / stop-line freeze |
+| `90xB1` | active | current/design stale surface cleanup |
 | `90xC1` | queued | proof refresh |
 | `90xD1` | queued | closeout |
 
@@ -26,7 +26,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `90xA2 target split / stop-line freeze` |
+| Now | `90xB1 current/design stale surface cleanup` |
 | Blocker | `none` |
-| Next | `90xB1 current/design stale surface cleanup` |
-| After Next | `90xC1 proof refresh` |
+| Next | `90xC1 proof refresh` |
+| After Next | `90xD1 closeout` |
