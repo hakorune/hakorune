@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 88x archive/deletion rerun
+- **Current (ACTIVE)**: Phase 89x next source lane selection
+- **Phase 88x（LANDED）**: archive/deletion rerun（最新 repoint 後も true archive-ready/delete-ready は出ず、no-op closeout）
 - **Phase 87x（LANDED）**: embedded snapshot / wrapper repoint rerun（embedded Stage1 snapshot を canonical `facade/*` / `entry/*` へ更新）
 - **Phase 86x（LANDED）**: phase index / current mirror hygiene（`phases/README.md` を 117 行から 65 行へ縮小）
 

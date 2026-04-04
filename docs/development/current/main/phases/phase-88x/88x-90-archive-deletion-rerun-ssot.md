@@ -20,6 +20,28 @@
 2. classify true archive-ready/delete-ready surfaces vs explicit keep surfaces
 3. only sweep focused residue if classification is source-backed
 
+## Inventory Freeze
+
+- `keep-now`
+  - `lang/src/runner/stage1_cli.hako`
+    - still has live source/tool/test callers
+  - `lang/src/runner/runner_facade.hako`
+  - `lang/src/runner/launcher_native_entry.hako`
+  - `lang/src/runner/stage1_cli_env_entry.hako`
+    - repo-internal source/tools callers are now effectively gone, but prior stop-line still treats these as explicit public keep surfaces
+  - top-level selfhost shell wrappers
+    - still treated as explicit public/front-door keeps
+- `archive-ready`
+  - none
+- `delete-ready`
+  - none
+
+## Rerun Result
+
+- `87x` did remove snapshot-pinned old runner paths and one repo-internal smoke caller
+- that did **not** create a safe delete/archive candidate in current source
+- result: `88x` is a no-op archive/deletion sweep
+
 ## Acceptance
 
 1. archive/delete-ready inventory is source-backed

@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-88x archive/deletion rerun` |
-| Front | `88xA1 archive-ready inventory lock` |
+| Now | `phase-89x next source lane selection` |
+| Front | `89xA1 successor lane inventory lock` |
 | Blocker | `none` |
-| Next | `88xA2 keep/archive/delete-ready classification` |
-| After Next | `88xB1 focused archive/deletion sweep` |
+| Next | `89xA2 candidate lane ranking` |
+| After Next | `89xB1 successor lane decision` |
 
 ## Current Read
 
@@ -31,11 +31,12 @@ Related:
 - `85x` selected `86x` as the next structural source lane
 - `86x` landed with a thinner phase index/current mirror surface
 - `87x` landed after refreshing snapshot-pinned runner paths to canonical `facade/*` and `entry/*`
-- `88x` reruns archive/delete-ready inventory after the latest repoints
+- `88x` landed as a no-op archive/deletion rerun
+- `89x` selects the next structural source lane
 
 ## Successor Corridor
 
-1. `phase-88x archive/deletion rerun`
+1. `phase-89x next source lane selection`
 
 ## Structural Stop Lines
 
@@ -48,10 +49,11 @@ Related:
 ## Reference
 
 - current lane docs:
-  - `docs/development/current/main/phases/phase-88x/README.md`
-  - `docs/development/current/main/phases/phase-88x/88x-90-archive-deletion-rerun-ssot.md`
-  - `docs/development/current/main/phases/phase-88x/88x-91-task-board.md`
+  - `docs/development/current/main/phases/phase-89x/README.md`
+  - `docs/development/current/main/phases/phase-89x/89x-90-next-source-lane-selection-ssot.md`
+  - `docs/development/current/main/phases/phase-89x/89x-91-task-board.md`
 - previous landed lanes:
+  - `docs/development/current/main/phases/phase-88x/README.md`
   - `docs/development/current/main/phases/phase-87x/README.md`
   - `docs/development/current/main/phases/phase-86x/README.md`
   - `docs/development/current/main/phases/phase-85x/README.md`

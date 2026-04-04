@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 ---
 
@@ -7,26 +7,26 @@ Date: 2026-04-04
 
 | Order | Task | Status | Read as |
 | --- | --- | --- | --- |
-| 1 | `88xA inventory lock` | active | lock archive-ready candidates after `87x` |
-| 2 | `88xB focused sweep` | queued | archive or delete only if candidates are real |
-| 3 | `88xC proof refresh` | queued | rerun the focused green bundle |
-| 4 | `88xD closeout` | queued | hand off cleanly after the rerun |
+| 1 | `88xA inventory lock` | landed | lock archive-ready candidates after `87x` |
+| 2 | `88xB focused sweep` | landed | archive or delete only if candidates are real |
+| 3 | `88xC proof refresh` | landed | rerun the focused green bundle |
+| 4 | `88xD closeout` | landed | hand off cleanly after the rerun |
 
 ## Exact Micro Tasks
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `88xA1` | active | archive-ready inventory lock |
-| `88xA2` | queued | keep/archive/delete-ready classification |
-| `88xB1` | queued | focused archive/deletion sweep |
-| `88xC1` | queued | proof refresh |
-| `88xD1` | queued | closeout |
+| `88xA1` | landed | archive-ready inventory lock |
+| `88xA2` | landed | keep/archive/delete-ready classification |
+| `88xB1` | landed | focused archive/deletion sweep |
+| `88xC1` | landed | proof refresh |
+| `88xD1` | landed | closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `88xA1 archive-ready inventory lock` |
+| Now | handoff complete |
 | Blocker | `none` |
-| Next | `88xA2 keep/archive/delete-ready classification` |
-| After Next | `88xB1 focused archive/deletion sweep` |
+| Next | `phase-89x next source lane selection` |
+| After Next | `phase-90x successor lane` |

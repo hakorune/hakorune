@@ -1,7 +1,7 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
-Scope: rerun archive/delete-ready inventory after the latest wrapper and snapshot repoints.
+Scope: rerun archive/delete-ready inventory after the latest wrapper and snapshot repoints; phase is now landed and handed off.
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
@@ -28,8 +28,7 @@ Related:
 
 ## Current Read
 
-- current front:
-  - `88xA1 archive-ready inventory lock`
-- target seam:
-  - top-level wrapper aliases after `87x`
-  - stale archive candidates created by canonical repoints
+- handoff complete
+- landed result:
+  - wrapper/source caller rerun stayed `keep-now`
+  - true archive-ready/delete-ready surfaces are still none

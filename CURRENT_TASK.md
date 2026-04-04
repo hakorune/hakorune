@@ -28,18 +28,19 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 7. `phase-85x next source lane selection` (landed)
 8. `phase-86x phase index / current mirror hygiene` (landed)
 9. `phase-87x embedded snapshot / wrapper repoint rerun` (landed)
-10. `phase-88x archive/deletion rerun` (active)
+10. `phase-88x archive/deletion rerun` (landed)
+11. `phase-89x next source lane selection` (active)
 
 ## Current Front
 
-- Active lane: `phase-88x archive/deletion rerun`
-- Active micro: `88xA1 archive-ready inventory lock`
+- Active lane: `phase-89x next source lane selection`
+- Active micro: `89xA1 successor lane inventory lock`
 - Current blocker: `none`
-- Exact focus: rerun archive/delete-ready inventory after the latest wrapper and snapshot repoints
+- Exact focus: select the next structural source lane after `88x` confirmed archive/deletion is still a no-op
 
 ## Successor Corridor
 
-1. `phase-88x archive/deletion rerun`
+1. `phase-89x next source lane selection`
 
 ## Rust-VM Stop Line
 
@@ -52,13 +53,13 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-88x/README.md`
-4. `docs/development/current/main/phases/phase-88x/88x-90-archive-deletion-rerun-ssot.md`
-5. `docs/development/current/main/phases/phase-88x/88x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-89x/README.md`
+4. `docs/development/current/main/phases/phase-89x/89x-90-next-source-lane-selection-ssot.md`
+5. `docs/development/current/main/phases/phase-89x/89x-91-task-board.md`
 
 ## Notes
 
-- `phase-87x` landed after refreshing the embedded Stage1 snapshot to canonical `facade/*` and `entry/*` paths.
+- `phase-88x` confirmed there are still no true archive-ready/delete-ready wrapper surfaces.
 - `launcher.hako emit_mir_mainline` is green.
 - `stage1_mainline_smoke.sh` is green.
 - `target/**`, `artifacts/**`, and `dist/**` are artifact roots only.
