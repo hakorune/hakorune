@@ -17,15 +17,15 @@ Date: 2026-04-04
 | --- | --- | --- |
 | `61xA1` | landed | residual caller inventory rerun |
 | `61xA2` | landed | keep/delete-ready classification freeze |
-| `61xB1` | active | caller-zero proof bundle |
-| `61xB2` | queued | removal candidate shortlist |
-| `61xD1` | queued | proof / closeout |
+| `61xB1` | landed | caller-zero proof bundle |
+| `61xB2` | landed | removal candidate shortlist |
+| `61xD1` | active | proof / closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `61xB1 caller-zero proof bundle` |
+| Now | `61xD1 proof / closeout` |
 | Blocker | `none` |
-| Next | `61xB2 removal candidate shortlist` |
-| After Next | `61xD1 proof / closeout` |
+| Next | `62x rust-vm delete-ready removal wave` |
+| After Next | `63x rust-vm final retirement decision` |

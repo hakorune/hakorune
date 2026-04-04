@@ -73,6 +73,43 @@ Related:
   - `61xB` collects proof bundles only
   - `62x` stays gated on new caller-zero or replacement evidence
 
+## Caller-Zero Proof Bundle
+
+- `src/runner/modes/vm.rs`
+  - evidence:
+    - `src/runner/route_orchestrator.rs:179` -> `VmRouteAction::Vm => runner.execute_vm_mode(filename)`
+- `src/runner/modes/vm_fallback.rs`
+  - evidence:
+    - `src/runner/route_orchestrator.rs:181` -> `VmRouteAction::CompatFallback => runner.execute_vm_fallback_interpreter(filename)`
+- `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
+  - evidence:
+    - `src/runner/modes/common_util/selfhost/stage_a_route.rs:81` -> `resolve_program_payload_to_mir(...)`
+    - `src/runner/selfhost.rs:176` -> `stage_a_route::try_capture_stage_a_module(...)`
+- `lang/src/runner/stage1_cli/core.hako`
+  - evidence:
+    - `core.hako:163` -> `_mode_run(...) -> run_program_json(...)`
+    - `core.hako:257` -> `_run_raw_request(...) -> run_program_json(...)`
+- `tools/selfhost/run_stageb_compiler_vm.sh`
+  - evidence:
+    - `tools/selfhost/selfhost_smoke.sh:10`
+    - `tools/selfhost/lib/selfhost_run_routes.sh:9`
+    - `tools/smokes/v2/profiles/integration/selfhost/*stageb*_vm.sh`
+    - `tools/smokes/v2/profiles/integration/parser/parser_rune_decl_local_attrs_selected_entry_trace.sh:246`
+- `src/runner/dispatch.rs`
+  - evidence:
+    - explicit backend override surface still documents/accepts `vm` / `vm-hako`
+- `src/runner/route_orchestrator.rs`
+  - evidence:
+    - keeps `Vm`, `CompatFallback`, and `VmHako` explicit route actions live
+
+## Removal Candidate Shortlist
+
+- shortlist: none
+- reason:
+  - every audited surface still has at least one explicit caller, route owner, or compat contract role
+- implication:
+  - `62x` should only remove anything if `61xD1` or later prep adds new caller-zero facts
+
 ## Boundary
 
 - `61x` reruns facts; it does not remove broad sources by itself

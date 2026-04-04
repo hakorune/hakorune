@@ -69,8 +69,9 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `60xD1 proof / closeout`
 - landed micro task: `61xA1 residual caller inventory rerun`
 - landed micro task: `61xA2 keep/delete-ready classification freeze`
-- active micro task: `61xB1 caller-zero proof bundle`
-- planned follow-up: `61xB2 removal candidate shortlist`
+- landed micro task: `61xB1 caller-zero proof bundle`
+- landed micro task: `61xB2 removal candidate shortlist`
+- active micro task: `61xD1 proof / closeout`
 - fixed corridor after `60x`:
   - `61x residual rust-vm caller-zero audit rerun`
   - `62x rust-vm delete-ready removal wave`

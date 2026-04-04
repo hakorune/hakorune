@@ -157,7 +157,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-61x residual rust-vm caller-zero audit rerun`
 - Current blocker: `none`
-- Exact focus: `61xB1 caller-zero proof bundle`
+- Exact focus: `61xD1 proof / closeout`
 - exact handoff order:
   1. `53xA1` residual VM caller inventory lock (landed)
   2. `53xA2` proof-only / compat keep classification (landed)
@@ -206,9 +206,9 @@ Scope: repo root から current order / current blocker / next exact read に最
   45. `60xD1` proof / closeout (landed)
   46. `61xA1` residual rust-vm caller-zero audit rerun (landed)
   47. `61xA2` keep/delete-ready classification freeze (landed)
-  48. `61xB1` caller-zero proof bundle (active)
-  49. `61xB2` removal candidate shortlist (planned)
-  50. `61xD1` proof / closeout (planned)
+  48. `61xB1` caller-zero proof bundle (landed)
+  49. `61xB2` removal candidate shortlist (landed)
+  50. `61xD1` proof / closeout (active)
   51. `62xA1` rust-vm delete-ready removal wave (planned)
   52. `63xA1` rust-vm final retirement decision (planned)
 

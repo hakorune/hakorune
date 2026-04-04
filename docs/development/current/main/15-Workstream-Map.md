@@ -132,10 +132,10 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `61xB1 caller-zero proof bundle` |
+     | Now | `61xD1 proof / closeout` |
      | Blocker | `none` |
-     | Next | `61xB2 removal candidate shortlist` |
-     | After Next | `61xD1 proof / closeout` |
+     | Next | `62x rust-vm delete-ready removal wave` |
+     | After Next | `63x rust-vm final retirement decision` |
    - retirement corridor after `60x`:
 
      | Lane | Read as |
@@ -147,9 +147,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `61xB1 caller-zero proof bundle` |
-     | Next | `61xB2 removal candidate shortlist` |
-     | Later | `61xD1 proof / closeout` |
+     | Now | `61xD1 proof / closeout` |
+     | Next | `62x rust-vm delete-ready removal wave` |
+     | Later | `63x rust-vm final retirement decision` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |

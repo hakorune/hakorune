@@ -76,6 +76,27 @@ Related:
   - `61x` does not manufacture removal candidates from wording-only cleanup
   - `62x` may remove only surfaces that gain caller-zero or explicit replacement proof after `61xB`
 
+## Caller-Zero Proof Bundle
+
+- `src/runner/modes/vm.rs`
+  - proof: `src/runner/route_orchestrator.rs` still dispatches `VmRouteAction::Vm -> execute_vm_mode(...)`
+- `src/runner/modes/vm_fallback.rs`
+  - proof: `src/runner/route_orchestrator.rs` still dispatches `VmRouteAction::CompatFallback -> execute_vm_fallback_interpreter(...)`
+- `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
+  - proof: `src/runner/modes/common_util/selfhost/stage_a_route.rs` still calls `resolve_program_payload_to_mir(...)`
+- `lang/src/runner/stage1_cli/core.hako`
+  - proof: `_mode_run(...)` and `_run_raw_request(...)` still call `run_program_json(...)`
+- `tools/selfhost/run_stageb_compiler_vm.sh`
+  - proof: still referenced by `tools/selfhost/selfhost_smoke.sh`, `tools/selfhost/lib/selfhost_run_routes.sh`, Stage-B selfhost proof smokes, and parser trace proof smoke
+- `src/runner/dispatch.rs` / `src/runner/route_orchestrator.rs`
+  - proof: explicit backend override / explicit keep-reference orchestration still present for `vm` and `vm-hako`
+
+## Removal Candidate Shortlist
+
+- first-pass shortlist: none
+- reason:
+  - every audited rust-vm surface still has at least one live explicit caller or contract owner
+
 ## Success Conditions
 
 - caller-zero facts are source-backed, not inferred from wording
