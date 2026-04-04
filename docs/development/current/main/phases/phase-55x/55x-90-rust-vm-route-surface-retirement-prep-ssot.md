@@ -35,7 +35,7 @@ Related:
 
 ## Inventory Findings
 
-- strongest stale exposure: `src/cli/args.rs` backend help/default text
+- strongest stale exposure: `src/cli/args.rs` raw backend default text/behavior, after help wording has already been narrowed
 - strongest behaviorally live compat surface: `tools/selfhost/lib/selfhost_run_routes.sh` `stage-a` branch
 - explicit router seams to keep but narrow: `src/runner/dispatch.rs`, `src/runner/route_orchestrator.rs`
 - explicit narrow facade already in good shape: `tools/selfhost/run.sh`

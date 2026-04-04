@@ -18,16 +18,16 @@ Date: 2026-04-04
 | --- | --- | --- |
 | `55xA1` | landed | route-surface inventory lock |
 | `55xA2` | landed | backend/default/help exposure freeze |
-| `55xB1` | active | cli/backend affordance cleanup |
-| `55xB2` | queued | selfhost route-surface cleanup |
-| `55xC1` | queued | dispatch/orchestrator explicit keep narrowing |
-| `55xD1` | queued | proof / closeout |
+| `55xB1` | landed | cli/backend affordance cleanup |
+| `55xB2` | landed | selfhost route-surface cleanup |
+| `55xC1` | landed | dispatch/orchestrator explicit keep narrowing |
+| `55xD1` | active | proof / closeout |
 
 ## Inventory Snapshot
 
 | Surface | Current state | Next treatment |
 | --- | --- | --- |
-| `src/cli/args.rs` | CLI help/default still says `Backend: vm (default), vm-hako (S0 frame), llvm, interpreter` | freeze as route-surface retirement target |
+| `src/cli/args.rs` | help is narrowed to explicit override wording; raw backend default is still a deferred legacy-ingress setting | keep affordance narrow without flipping the raw default here |
 | `src/runner/dispatch.rs` | still exposes explicit `vm` / `vm-hako` backend match arms | keep explicit router seam, narrow wording/affordance |
 | `src/runner/route_orchestrator.rs` | still owns explicit `vm` / `vm-hako` / `compat-fallback` route planning | keep-now seam, narrow to explicit keep-only reading |
 | `tools/selfhost/lib/selfhost_run_routes.sh` | `runtime_mode=stage-a` still shells `--backend vm` | keep compat path, retire hidden-default feeling |
@@ -37,7 +37,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `55xB1 cli/backend affordance cleanup` |
+| Now | `55xD1 proof / closeout` |
 | Blocker | `none` |
-| Next | `55xB2 selfhost route-surface cleanup` |
-| After Next | `55xC1 dispatch/orchestrator explicit keep narrowing` |
+| Next | `56x proof/compat keep pruning` |
+| After Next | `57x rust-vm delete-ready audit / removal wave` |

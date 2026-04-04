@@ -37,7 +37,7 @@ Related:
 
 ## Inventory Findings
 
-- `src/cli/args.rs` is still the strongest stale affordance because the help/default text still presents `vm` as default and `vm-hako` as a normal backend string.
+- `src/cli/args.rs` help is now narrowed to explicit override wording, but the raw backend default still remains as a deferred legacy-ingress setting.
 - `src/runner/dispatch.rs` and `src/runner/route_orchestrator.rs` are still the central explicit router seams, but they should read as explicit keep-only routing rather than as a mainline backend family.
 - `tools/selfhost/lib/selfhost_run_routes.sh` still owns a `stage-a -> --backend vm` compat branch; that branch stays explicit but must stop feeling like a hidden default.
 - `tools/selfhost/run.sh` is already mostly correct and should be kept narrow.

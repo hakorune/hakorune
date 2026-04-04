@@ -157,10 +157,10 @@ Scope: repo root から current order / current blocker / next exact read に最
   11. `54xD1` proof / closeout (landed)
   12. `55xA1` route-surface inventory lock (landed)
   13. `55xA2` backend/default/help exposure freeze (landed)
-  14. `55xB1` cli/backend affordance cleanup (active)
-  15. `55xB2` selfhost route-surface cleanup (queued)
-  16. `55xC1` dispatch/orchestrator explicit keep narrowing (queued)
-  17. `55xD1` proof / closeout (queued)
+  14. `55xB1` cli/backend affordance cleanup (landed)
+  15. `55xB2` selfhost route-surface cleanup (landed)
+  16. `55xC1` dispatch/orchestrator explicit keep narrowing (landed)
+  17. `55xD1` proof / closeout (active)
   18. `56x` proof/compat keep pruning (planned)
   19. `57x` rust-vm delete-ready audit / removal wave (planned)
 
@@ -244,7 +244,7 @@ Carry-over context:
   4. `docs/development/current/main/phases/phase-52x/52x-91-task-board.md`
   5. `cargo check --manifest-path Cargo.toml --bin hakorune`
 - Plain reading:
-  - every remaining `--backend vm` mention is archive-only evidence; current source no longer treats it as a live owner lane
+  - every remaining `--backend vm` mention is either explicit compat/proof keep or archive evidence; current source no longer treats it as a live owner lane
   - `phase-41x` is a route-hardening wave that keeps stage0/bootstrap mainline on `hakorune` binary direct/core routes
   - success means keeping the proof-only VM gate set frozen, hardening `selfhost_build.sh` / `run.sh` as facades, and shrinking `vm.rs` only after caller drain
   - failure means letting selfhost/bootstrap mainline or stage1 compat/raw routes absorb new feature work again
@@ -256,7 +256,7 @@ Carry-over context:
 | --- | --- |
 | Now | `phase-55x rust-vm route-surface retirement prep` |
 | Blocker | `none` |
-| Next | `55xB1 cli/backend affordance cleanup` |
+| Next | `55xD1 proof / closeout` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only

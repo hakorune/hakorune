@@ -2,7 +2,7 @@
  * Route orchestrator SSOT for runner-side lane selection.
  *
  * Phase 29x X25:
- * - Centralize VM lane selection (`vm` / `vm-hako` / compat-fallback)
+ * - Centralize explicit VM keep selection (`vm` / `vm-hako` / compat-fallback)
  * - `compat-fallback` is a compatibility lane only.
  * - Day-to-day mainline stays on direct/core routes; this orchestrator only owns
  *   explicit VM / vm-hako / compat-fallback requests and must not silently widen
@@ -133,7 +133,7 @@ pub(crate) fn decide_vm_route_plan(
                 Some(VmRoutePlan {
                     backend: "vm",
                     lane: "vm",
-                    reason: "default",
+                    reason: "explicit-backend-override",
                     action: VmRouteAction::Vm,
                 })
             }
@@ -141,7 +141,7 @@ pub(crate) fn decide_vm_route_plan(
         "vm-hako" => Some(VmRoutePlan {
             backend: "vm-hako",
             lane: "vm-hako",
-            reason: "backend:vm-hako",
+            reason: "explicit-backend-override",
             action: VmRouteAction::VmHako,
         }),
         _ => None,
@@ -226,7 +226,7 @@ mod tests {
         let plan = decide_vm_route_plan("vm", false, false).expect("plan");
         assert_eq!(plan.backend, "vm");
         assert_eq!(plan.lane, "vm");
-        assert_eq!(plan.reason, "default");
+        assert_eq!(plan.reason, "explicit-backend-override");
         assert_eq!(plan.action, VmRouteAction::Vm);
     }
 
@@ -253,7 +253,7 @@ mod tests {
         let plan = decide_vm_route_plan("vm-hako", false, false).expect("plan");
         assert_eq!(plan.backend, "vm-hako");
         assert_eq!(plan.lane, "vm-hako");
-        assert_eq!(plan.reason, "backend:vm-hako");
+        assert_eq!(plan.reason, "explicit-backend-override");
         assert_eq!(plan.action, VmRouteAction::VmHako);
     }
 

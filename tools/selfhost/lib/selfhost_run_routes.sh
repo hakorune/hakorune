@@ -21,6 +21,9 @@ resolve_path() {
 emit_runtime_route_tag() {
   local mode="$1"
   local source="$2"
+  if [ "$mode" = "stage-a" ]; then
+    mode="stage-a-compat"
+  fi
   echo "[selfhost/route] id=SH-RUNTIME-SELFHOST mode=$mode source=$source" >&2
 }
 
@@ -181,6 +184,7 @@ run_runtime() {
 
   if [ "$runtime_mode" = "stage-a" ]; then
     echo "[selfhost/run] mode=runtime runtime_mode=$runtime_mode lane=compat-only input=$(basename "$input_file")" >&2
+    emit_runtime_route_tag "stage-a" "$(basename "$input_file")"
   else
     echo "[selfhost/run] mode=runtime runtime_mode=$runtime_mode lane=mainline input=$(basename "$input_file")" >&2
   fi

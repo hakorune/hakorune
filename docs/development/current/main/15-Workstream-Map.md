@@ -46,7 +46,7 @@ Related:
        - `rust-vm` = `historical archive evidence / proof-compat keep`
        - `vm-hako` = `reference/conformance`
        - `wasm` = `experimental`
-     - remaining `rust-vm` pressure is archive-only evidence in historical smoke/docs, not a live owner lane
+     - remaining `rust-vm` pressure is explicit compat/proof keep plus archive evidence, not a live owner lane
      - dangerous early flips remain around launcher/default/orchestrator sites
      - `phase-30x` settled ownership and docs/artifact/smoke reading
         - `phase-31x` landed low-blast engineering rehome and shim drain
@@ -132,16 +132,16 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `55xB1 cli/backend affordance cleanup` |
+     | Now | `55xD1 proof / closeout` |
      | Blocker | `none` |
-     | Next | `55xB2 selfhost route-surface cleanup` |
-     | After Next | `55xC1 dispatch/orchestrator explicit keep narrowing` |
+     | Next | `56x proof/compat keep pruning` |
+     | After Next | `57x rust-vm delete-ready audit / removal wave` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `55xB1 cli/backend affordance cleanup` |
-     | Next | `55xB2 selfhost route-surface cleanup` |
+     | Now | `55xD1 proof / closeout` |
+     | Next | `56x proof/compat keep pruning` |
      | Later | `56x proof/compat keep pruning` |
    - stage0 shell residue waves:
 
@@ -189,7 +189,7 @@ Related:
      - `51xA2 proof-only / archive-later classification`
      - Queued backend surface tasks:
      - `55xA2 backend/default/help exposure freeze`
-     - `55xB1 cli/backend affordance cleanup`
+     - `55xD1 proof / closeout`
      - `56x proof/compat keep pruning`
      - `56x proof/compat keep pruning`
      - `57x rust-vm delete-ready audit / removal wave`
