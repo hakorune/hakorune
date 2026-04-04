@@ -20,25 +20,25 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-103 if-only regression baseline（VM + LLVM EXE）`
-- current front: `if merge / early return fixture を VM と LLVM EXE で同一出力に固定する`
+- lane: `phase-104 loop(true) + break-only digits（read_digits 系）`
+- current front: `read_digits_from 形の loop(true)+break-only を VM と LLVM EXE で固定する`
 - blocker: `none`
 - recent landed:
+  - `phase-103 if-only regression baseline（VM + LLVM EXE）`
   - `phase-102 real-app read_quoted loop regression (VM + LLVM EXE)`
   - `phase-100 Pinned Read-Only Captures`
   - `phase-99 Trim/escape 実コード寄り強化（VM+LLVM EXE）`
-  - `phase-98 Plugin loader fail-fast + LLVM parityの持続化`
   - `phase-95 json_loader escape loop E2E lock`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-103/README.md`
+3. `docs/development/current/main/phases/phase-104/README.md`
 
 ## Successor Corridor
 
-1. `phase-103 if-only regression baseline（VM + LLVM EXE）`
+1. `phase-104 loop(true) + break-only digits（read_digits 系）`
 2. `phase-110x selfhost execution vocabulary SSOT`
 3. `phase-111x selfhost runtime route naming cleanup`
 4. `phase-112x vm-family lane naming hardening`
@@ -69,6 +69,10 @@ bash tools/smokes/v2/profiles/integration/apps/archive/phase100_mutable_accumula
 bash tools/smokes/v2/profiles/integration/apps/archive/phase100_string_accumulator_llvm_exe.sh
 bash tools/smokes/v2/profiles/integration/apps/archive/phase102_realapp_read_quoted_vm.sh
 bash tools/smokes/v2/profiles/integration/apps/archive/phase102_realapp_read_quoted_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase103_if_only_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase103_if_only_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase103_if_only_early_return_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase103_if_only_early_return_llvm_exe.sh
 bash tools/smokes/v2/profiles/integration/apps/archive/phase99_escape_trailing_backslash_vm.sh
 bash tools/smokes/v2/profiles/integration/apps/archive/phase99_escape_trailing_backslash_llvm_exe.sh
 git diff --check

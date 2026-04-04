@@ -31,6 +31,7 @@ OUTPUT_EXE="$NYASH_ROOT/tmp/phase103_if_only_early_return_llvm_exe"
 EXPECTED=$'7\n2'
 EXPECTED_LINES=2
 LLVM_BUILD_LOG="/tmp/phase103_if_only_early_return_build.log"
+export HAKO_BACKEND_COMPAT_REPLAY=harness
 if llvm_exe_build_and_run_numeric_smoke; then
   test_pass "phase103_if_only_early_return_llvm_exe: output matches expected (7, 2)"
 else

@@ -4,7 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 102 real-app read_quoted loop regression（VM + LLVM EXE）
+- **Current (ACTIVE)**: Phase 104 loop(true) + break-only digits（read_digits 系）
+- **Phase 103（LANDED）**: if-only regression baseline（VM + LLVM EXE）
+- **Phase 102（LANDED）**: real-app read_quoted loop regression（VM + LLVM EXE）
 - **Phase 100（LANDED）**: Pinned Read‑Only Captures
 - **Phase 99（LANDED）**: Trim/escape 実コード寄り強化（VM+LLVM EXE）
 - **Phase 98（LANDED）**: Plugin loader fail-fast + LLVM parityの持続化
