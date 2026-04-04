@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: remove only rust-vm surfaces that are proven delete-ready after the phase-61x rerun.
 Related:
@@ -54,3 +54,12 @@ Related:
    - `62xB1` delete-ready removal
 3. prove and close
    - `62xD1` proof / closeout
+
+## Result
+
+- `62xA1` landed: delete-ready candidate confirmation
+- `62xA2` landed: removal/no-op decision
+- `62xB1` landed: delete-ready removal (no-op)
+- `62xD1` landed: proof / closeout
+- handoff:
+  - next lane is `phase-63x rust-vm final retirement decision`

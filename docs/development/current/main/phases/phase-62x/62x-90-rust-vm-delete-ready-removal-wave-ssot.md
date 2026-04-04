@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Landed
 Date: 2026-04-04
 Scope: execute a narrow removal wave only if delete-ready rust-vm surfaces are proven by phase-61x facts.
 Related:
@@ -44,3 +44,14 @@ Related:
 - do not delete broad rust-vm core just to satisfy the phase title
 - delete only if source-backed caller-zero facts change inside `62x`
 - if the shortlist stays empty, close `62x` as a no-op removal wave and hand off to `63x`
+
+## Proof
+
+- `cargo check --bin hakorune` PASS
+- `git diff --check` PASS
+
+## Handoff
+
+- `62x` closes as a no-op removal wave.
+- successor lane:
+  - `63x rust-vm final retirement decision`

@@ -4,8 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 62x rust-vm delete-ready removal wave
-- **Phase 62x（ACTIVE）**: rust-vm delete-ready removal wave（caller-zero / explicit replacement が証明されたものだけを狭く remove する）
+- **Current (ACTIVE)**: Phase 63x rust-vm final retirement decision
+- **Phase 63x（ACTIVE）**: rust-vm final retirement decision（完全撤退か residual explicit keep 維持かを最終判断する）
+- **Phase 62x（LANDED）**: rust-vm delete-ready removal wave（caller-zero / explicit replacement が証明されたものだけを狭く remove する想定だったが、実際は no-op で closeout）
 - **Phase 61x（LANDED）**: residual rust-vm caller-zero audit rerun（phase-60x prune 後の caller-zero facts を source-backed に再監査した）
 - **Phase 60x（LANDED）**: proof/compat keep pruning continuation（残っている explicit keep bucket をさらに狭めた）
 - **Phase 59x（LANDED）**: rust-vm route-surface retirement continuation（route/default/help exposure をさらに狭めた）

@@ -22,7 +22,7 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-62x rust-vm delete-ready removal wave`
+- lane: `phase-63x rust-vm final retirement decision`
 - landed micro task: `49xD1 proof / closeout`
 - landed micro task: `52xA2 archive README / wrapper wording rewrite`
 - landed micro task: `52xB1 archive pack orchestrator wording cleanup`
@@ -75,7 +75,9 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `62xA1 delete-ready candidate confirmation`
 - landed micro task: `62xA2 removal/no-op decision`
 - landed micro task: `62xB1 delete-ready removal` (no-op)
-- active micro task: `62xD1 proof / closeout`
+- landed micro task: `62xD1 proof / closeout`
+- active micro task: `63xA1 retirement-decision evidence lock`
+- planned follow-up: `63xA2 retire-vs-residual decision`
 - fixed corridor after `60x`:
   - `61x residual rust-vm caller-zero audit rerun`
   - `62x rust-vm delete-ready removal wave`
@@ -87,9 +89,9 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-62x/README.md`
-4. `docs/development/current/main/phases/phase-62x/62x-90-rust-vm-delete-ready-removal-wave-ssot.md`
-5. `docs/development/current/main/phases/phase-62x/62x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-63x/README.md`
+4. `docs/development/current/main/phases/phase-63x/63x-90-rust-vm-final-retirement-decision-ssot.md`
+5. `docs/development/current/main/phases/phase-63x/63x-91-task-board.md`
 6. `cargo check --manifest-path Cargo.toml --bin hakorune`
 
 ## Optional Checks

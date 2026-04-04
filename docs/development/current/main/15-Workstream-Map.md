@@ -37,7 +37,7 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-62x rust-vm delete-ready removal wave`
+     - current active lane is `phase-63x rust-vm final retirement decision`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
@@ -128,14 +128,14 @@ Related:
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-62x rust-vm delete-ready removal wave table:
+   - phase-63x rust-vm final retirement decision table:
 
      | Item | State |
      | --- | --- |
-     | Now | `62xD1 proof / closeout` |
+     | Now | `63xA1 retirement-decision evidence lock` |
      | Blocker | `none` |
-     | Next | `63x rust-vm final retirement decision` |
-     | After Next | `next lane after retirement decision` |
+     | Next | `63xA2 retire-vs-residual decision` |
+     | After Next | `63xB1 residual keep stop-line or retirement plan freeze` |
    - retirement corridor after `60x`:
 
      | Lane | Read as |
@@ -147,9 +147,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `62xD1 proof / closeout` |
-     | Next | `63x rust-vm final retirement decision` |
-     | Later | `next lane after retirement decision` |
+     | Now | `63xA1 retirement-decision evidence lock` |
+     | Next | `63xA2 retire-vs-residual decision` |
+     | Later | `63xB1 residual keep stop-line or retirement plan freeze` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
