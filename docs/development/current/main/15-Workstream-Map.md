@@ -37,8 +37,8 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-72x selfhost top-level facade thinning`
-     - current active micro task is `72xA1 top-level facade inventory lock`
+     - current active lane is `phase-73x emit_mir_mainline blocker follow-up`
+     - current active micro task is `73xA1 blocker evidence lock`
      - ranked successor corridor after `68x` is:
        - `69x rust runner product/keep/reference recut`
        - `70x caller-zero archive sweep`
@@ -132,14 +132,14 @@ Related:
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-72x selfhost top-level facade thinning table:
+   - phase-73x emit_mir_mainline blocker follow-up table:
 
      | Item | State |
      | --- | --- |
-     | Now | `72xA1 top-level facade inventory lock` |
-     | Blocker | `none` |
-     | Next | `72xA2 keep-vs-thin ranking` |
-     | After Next | `72xB1 facade thinning wave` |
+     | Now | `73xA1 blocker evidence lock` |
+     | Blocker | `tracked focused parse red` |
+     | Next | `73xA2 target fix ranking` |
+     | After Next | `73xB1 focused source fix` |
    - rust-vm corridor outcome:
 
      | Item | State |
@@ -151,9 +151,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `72xA1 top-level facade inventory lock` |
-     | Next | `72xA2 keep-vs-thin ranking` |
-     | Later | `72xB1 facade thinning wave` |
+     | Now | `73xA1 blocker evidence lock` |
+     | Next | `73xA2 target fix ranking` |
+     | Later | `73xB1 focused source fix` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |

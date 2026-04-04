@@ -27,3 +27,18 @@ Related:
 3. `72xB1` facade thinning wave
 4. `72xC1` current pointer cleanup
 5. `72xD1` proof / closeout
+
+## Current Read
+
+- `72xA1` landed:
+  - top-level `run.sh`, `selfhost_build.sh`, and `build_stage1.sh` stay front-door keep
+  - canonical-backed smoke/compat/proof wrappers are the first thinning targets
+- `72xA2` landed:
+  - first-wave thinning stayed focused on canonical-backed wrappers
+- `72xB1` landed:
+  - those wrappers were already thin exec facades, so the wave closed as a no-op
+- `72xC1` landed:
+  - current pointers match that no-op result
+  - adjacent top-level `.hako` wrappers are already thin too
+- current front:
+  - `72xD1 proof / closeout`

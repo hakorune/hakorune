@@ -7,26 +7,26 @@ Date: 2026-04-04
 
 | Order | Task | Status | Read as |
 | --- | --- | --- | --- |
-| 1 | `72xA inventory` | active | lock top-level facade facts |
-| 2 | `72xB thinning` | queued | reduce top-level facade spread |
-| 3 | `72xC cleanup` | queued | align current pointers |
-| 4 | `72xD closeout` | queued | prove and hand off cleanly |
+| 1 | `72xA inventory` | landed | lock top-level facade facts |
+| 2 | `72xB thinning` | landed | reduce top-level facade spread |
+| 3 | `72xC cleanup` | landed | align current pointers |
+| 4 | `72xD closeout` | active | prove and hand off cleanly |
 
 ## Exact Micro Tasks
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `72xA1` | active | top-level facade inventory lock |
-| `72xA2` | queued | keep-vs-thin ranking |
-| `72xB1` | queued | facade thinning wave |
-| `72xC1` | queued | current pointer cleanup |
-| `72xD1` | queued | proof / closeout |
+| `72xA1` | landed | top-level facade inventory lock |
+| `72xA2` | landed | keep-vs-thin ranking |
+| `72xB1` | landed | facade thinning wave |
+| `72xC1` | landed | current pointer cleanup |
+| `72xD1` | active | proof / closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `72xA1 top-level facade inventory lock` |
+| Now | `72xD1 proof / closeout` |
 | Blocker | `none` |
-| Next | `72xA2 keep-vs-thin ranking` |
-| After Next | `72xB1 facade thinning wave` |
+| Next | `phase-73x emit_mir_mainline blocker follow-up` |
+| After Next | `TBD by successor lane` |
