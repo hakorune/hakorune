@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: rerun caller-zero facts after phase-60x narrowed the remaining proof/compat keep bucket.
 Related:
@@ -113,3 +113,13 @@ Related:
    - `61xB2` removal candidate shortlist
 3. prove and close
    - `61xD1` proof / closeout
+
+## Result
+
+- `61xA1` landed: residual caller inventory rerun
+- `61xA2` landed: keep/delete-ready classification freeze
+- `61xB1` landed: caller-zero proof bundle
+- `61xB2` landed: removal candidate shortlist
+- `61xD1` landed: proof / closeout
+- handoff:
+  - next lane is `phase-62x rust-vm delete-ready removal wave`

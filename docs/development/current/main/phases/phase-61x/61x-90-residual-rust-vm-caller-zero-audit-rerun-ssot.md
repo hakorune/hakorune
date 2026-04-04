@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Landed
 Date: 2026-04-04
 Scope: rerun caller-zero facts after phase-60x pruning narrowed the explicit keep bucket.
 Related:
@@ -109,6 +109,17 @@ Related:
   - every audited surface still has at least one explicit caller, route owner, or compat contract role
 - implication:
   - `62x` should only remove anything if `61xD1` or later prep adds new caller-zero facts
+
+## Proof
+
+- `cargo check --bin hakorune` PASS
+- `git diff --check` PASS
+
+## Handoff
+
+- `61x` closes with no newly proven delete-ready rust-vm core surfaces.
+- successor lane:
+  - `62x rust-vm delete-ready removal wave`
 
 ## Boundary
 

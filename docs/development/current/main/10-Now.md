@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `phase-61x residual rust-vm caller-zero audit rerun`
+- lane: `phase-62x rust-vm delete-ready removal wave`
 - `49xD1` landed: proof / closeout
 - `50xA1` landed: residual rust-vm surface inventory lock
 - `50xA2` landed: proof-only / compat keep classification
@@ -121,7 +121,8 @@ Related:
 - landed micro task: `61xA2 keep/delete-ready classification freeze`
 - landed micro task: `61xB1 caller-zero proof bundle`
 - landed micro task: `61xB2 removal candidate shortlist`
-- active micro task: `61xD1 proof / closeout`
+- landed micro task: `61xD1 proof / closeout`
+- active micro task: `62xA1 delete-ready candidate confirmation`
 - fixed retirement corridor:
   - `61x residual rust-vm caller-zero audit rerun`
   - `62x rust-vm delete-ready removal wave`

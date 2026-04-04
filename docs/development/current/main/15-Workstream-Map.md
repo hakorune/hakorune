@@ -37,7 +37,7 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-61x residual rust-vm caller-zero audit rerun`
+     - current active lane is `phase-62x rust-vm delete-ready removal wave`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
@@ -128,14 +128,14 @@ Related:
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-61x residual rust-vm caller-zero audit rerun table:
+   - phase-62x rust-vm delete-ready removal wave table:
 
      | Item | State |
      | --- | --- |
-     | Now | `61xD1 proof / closeout` |
+     | Now | `62xA1 delete-ready candidate confirmation` |
      | Blocker | `none` |
-     | Next | `62x rust-vm delete-ready removal wave` |
-     | After Next | `63x rust-vm final retirement decision` |
+     | Next | `62xA2 removal/no-op decision` |
+     | After Next | `62xB1 delete-ready removal` |
    - retirement corridor after `60x`:
 
      | Lane | Read as |
@@ -147,9 +147,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `61xD1 proof / closeout` |
-     | Next | `62x rust-vm delete-ready removal wave` |
-     | Later | `63x rust-vm final retirement decision` |
+     | Now | `62xA1 delete-ready candidate confirmation` |
+     | Next | `62xA2 removal/no-op decision` |
+     | Later | `62xB1 delete-ready removal` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |

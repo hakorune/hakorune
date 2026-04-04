@@ -57,15 +57,15 @@ Scope: repo root から current order / current blocker / next exact read に最
 35. `phase-58x next source lane selection` (landed)
 36. `phase-59x rust-vm route-surface retirement continuation` (landed)
 37. `phase-60x proof/compat keep pruning continuation` (landed)
-38. `phase-61x residual rust-vm caller-zero audit rerun` (active)
-39. `phase-62x rust-vm delete-ready removal wave` (planned)
+38. `phase-61x residual rust-vm caller-zero audit rerun` (landed)
+39. `phase-62x rust-vm delete-ready removal wave` (active)
 40. `phase-63x rust-vm final retirement decision` (planned)
 
 - `K-axis` stays `K0 / K1 / K2` and is read as a build/runtime stage axis, not a task axis.
 - current stage progression reads as `K0 -> K1 -> K2`.
 - `K2-core` / `K2-wide` are task packs inside `K2`.
 - `K2-core` is closed.
-- `K2-wide` boundary-shrink lock-down is landed enough for handoff; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, `phase-29x backend owner cutover prep` is landed, `phase-30x backend surface simplification` is landed, `phase-31x engineering lane isolation` is landed, `phase-32x product / engineering split` is landed, `phase-33x shared helper family recut` is landed, `phase-34x stage0 shell residue split` is landed, `phase-35x stage-a compat route thinning` is landed, `phase-36x selfhost source / stage1 bridge split` is landed, `phase-37x bootstrap owner split` is landed, `phase-38x cleanup/archive sweep` is landed, `phase-39x stage0 vm gate thinning` is landed, `phase-40x stage0 vm archive candidate selection` is landed, `phase-41x stage0 direct/core route hardening` is landed, `phase-42x vm caller starvation / direct-core owner migration` is landed, `phase-43x next source lane selection` is landed, `phase-44x proof / closeout` is landed, `phase-45x vm residual cleanup` is landed, `phase-46x next source lane selection` is landed, `phase-47x stage0/runtime direct-core finalization` is landed, `phase-48x smoke/source cleanup` is landed, `phase-49x legacy wording / compat route cleanup` is landed, `phase-50x rust-vm source/archive cleanup` is landed, `phase-51x compat-codegen archival sweep` is landed, `phase-52x archive historical labeling polish` is landed, `phase-53x residual VM source audit` is landed, `phase-54x next source lane selection` is landed, `phase-55x rust-vm route-surface retirement prep` is landed, `phase-56x proof/compat keep pruning` is landed, `phase-57x rust-vm delete-ready audit / removal wave` is landed, `phase-58x next source lane selection` is landed, `phase-59x rust-vm route-surface retirement continuation` is landed, `phase-60x proof/compat keep pruning continuation` is landed, and the current active front is `phase-61x residual rust-vm caller-zero audit rerun`.
+- `K2-wide` boundary-shrink lock-down is landed enough for handoff; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, `phase-29x backend owner cutover prep` is landed, `phase-30x backend surface simplification` is landed, `phase-31x engineering lane isolation` is landed, `phase-32x product / engineering split` is landed, `phase-33x shared helper family recut` is landed, `phase-34x stage0 shell residue split` is landed, `phase-35x stage-a compat route thinning` is landed, `phase-36x selfhost source / stage1 bridge split` is landed, `phase-37x bootstrap owner split` is landed, `phase-38x cleanup/archive sweep` is landed, `phase-39x stage0 vm gate thinning` is landed, `phase-40x stage0 vm archive candidate selection` is landed, `phase-41x stage0 direct/core route hardening` is landed, `phase-42x vm caller starvation / direct-core owner migration` is landed, `phase-43x next source lane selection` is landed, `phase-44x proof / closeout` is landed, `phase-45x vm residual cleanup` is landed, `phase-46x next source lane selection` is landed, `phase-47x stage0/runtime direct-core finalization` is landed, `phase-48x smoke/source cleanup` is landed, `phase-49x legacy wording / compat route cleanup` is landed, `phase-50x rust-vm source/archive cleanup` is landed, `phase-51x compat-codegen archival sweep` is landed, `phase-52x archive historical labeling polish` is landed, `phase-53x residual VM source audit` is landed, `phase-54x next source lane selection` is landed, `phase-55x rust-vm route-surface retirement prep` is landed, `phase-56x proof/compat keep pruning` is landed, `phase-57x rust-vm delete-ready audit / removal wave` is landed, `phase-58x next source lane selection` is landed, `phase-59x rust-vm route-surface retirement continuation` is landed, `phase-60x proof/compat keep pruning continuation` is landed, `phase-61x residual rust-vm caller-zero audit rerun` is landed, and the current active front is `phase-62x rust-vm delete-ready removal wave`.
 - retirement corridor after `60x` is fixed as:
   - `61x residual rust-vm caller-zero audit rerun`
   - `62x rust-vm delete-ready removal wave`
@@ -155,9 +155,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `phase-61x residual rust-vm caller-zero audit rerun`
+- Active next: `phase-62x rust-vm delete-ready removal wave`
 - Current blocker: `none`
-- Exact focus: `61xD1 proof / closeout`
+- Exact focus: `62xA1 delete-ready candidate confirmation`
 - exact handoff order:
   1. `53xA1` residual VM caller inventory lock (landed)
   2. `53xA2` proof-only / compat keep classification (landed)
@@ -208,9 +208,12 @@ Scope: repo root から current order / current blocker / next exact read に最
   47. `61xA2` keep/delete-ready classification freeze (landed)
   48. `61xB1` caller-zero proof bundle (landed)
   49. `61xB2` removal candidate shortlist (landed)
-  50. `61xD1` proof / closeout (active)
-  51. `62xA1` rust-vm delete-ready removal wave (planned)
-  52. `63xA1` rust-vm final retirement decision (planned)
+  50. `61xD1` proof / closeout (landed)
+  51. `62xA1` delete-ready candidate confirmation (active)
+  52. `62xA2` removal/no-op decision (planned)
+  53. `62xB1` delete-ready removal (planned)
+  54. `62xD1` proof / closeout (planned)
+  55. `63xA1` rust-vm final retirement decision (planned)
 
 Carry-over context:
 
