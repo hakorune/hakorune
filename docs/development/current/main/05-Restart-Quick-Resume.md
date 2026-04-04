@@ -20,20 +20,20 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-84x runner wrapper/source contract thinning`
-- current front: `84xB1 wrapper/source thinning`
+- lane: `phase-85x next source lane selection`
+- current front: `85xA2 candidate lane ranking`
 - blocker: `none`
 - recent landed:
-  - `phase-82x next source lane selection`
   - `phase-83x selfhost top-level facade/archive decision`
+  - `phase-84x runner wrapper/source contract thinning`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-84x/README.md`
-4. `docs/development/current/main/phases/phase-84x/84x-90-runner-wrapper-source-contract-thinning-ssot.md`
-5. `docs/development/current/main/phases/phase-84x/84x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-85x/README.md`
+4. `docs/development/current/main/phases/phase-85x/85x-90-next-source-lane-selection-ssot.md`
+5. `docs/development/current/main/phases/phase-85x/85x-91-task-board.md`
 
 ## Current Proof Bundle
 

@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 84x runner wrapper/source contract thinning
+- **Current (ACTIVE)**: Phase 85x next source lane selection
+- **Phase 84x（LANDED）**: runner wrapper/source contract thinning（Stage1 build/default entry contracts を canonical `entry/*` stubs へ寄せた）
 - **Phase 83x（LANDED）**: selfhost top-level facade/archive decision（top-level selfhost wrappers は explicit public/front-door keep として固定）
 - **Phase 82x（LANDED）**: next source lane selection（top-level selfhost facade/archive decision lane を選んだ）
 - **Phase 81x（LANDED）**: caller-zero archive rerun（true archive-ready surface は出ず、no-op closeout）

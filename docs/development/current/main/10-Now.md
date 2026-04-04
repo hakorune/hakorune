@@ -12,19 +12,19 @@ Related:
 
 ## Current
 
-- lane: `phase-84x runner wrapper/source contract thinning`
-- current front: `84xB1 wrapper/source thinning`
+- lane: `phase-85x next source lane selection`
+- current front: `85xA2 candidate lane ranking`
 - blocker: `none`
 - recent landed:
-  - `phase-82x next source lane selection`
   - `phase-83x selfhost top-level facade/archive decision`
+  - `phase-84x runner wrapper/source contract thinning`
 
 ## Current Read
 
 - `launcher.hako emit_mir_mainline` is green
 - `stage1_mainline_smoke.sh` is green
 - `83x` froze top-level selfhost wrappers as explicit public/front-door keeps
-- current work is thinning the remaining top-level `.hako` wrapper/source pressure
+- current work is selecting the next structural source lane after `84x` landed
 
 ## Root Anchors
 
@@ -35,5 +35,5 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-84x/README.md`
-3. `docs/development/current/main/phases/phase-84x/84x-91-task-board.md`
+2. `docs/development/current/main/phases/phase-85x/README.md`
+3. `docs/development/current/main/phases/phase-85x/85x-91-task-board.md`

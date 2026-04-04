@@ -24,18 +24,19 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 3. `phase-81x caller-zero archive rerun` (landed)
 4. `phase-82x next source lane selection` (landed)
 5. `phase-83x selfhost top-level facade/archive decision` (landed)
-6. `phase-84x runner wrapper/source contract thinning` (active)
+6. `phase-84x runner wrapper/source contract thinning` (landed)
+7. `phase-85x next source lane selection` (active)
 
 ## Current Front
 
-- Active lane: `phase-84x runner wrapper/source contract thinning`
-- Active micro: `84xB1 wrapper/source thinning`
+- Active lane: `phase-85x next source lane selection`
+- Active micro: `85xA2 candidate lane ranking`
 - Current blocker: `none`
-- Exact focus: thin remaining top-level `.hako` wrapper/source pressure now that top-level selfhost shell wrappers are frozen as explicit keeps
+- Exact focus: choose the next structural source lane after `84x` landed without re-inflating current pointers
 
 ## Successor Corridor
 
-1. `phase-84x runner wrapper/source contract thinning`
+1. `phase-85x next source lane selection`
 
 ## Rust-VM Stop Line
 
@@ -48,13 +49,13 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-84x/README.md`
-4. `docs/development/current/main/phases/phase-84x/84x-90-runner-wrapper-source-contract-thinning-ssot.md`
-5. `docs/development/current/main/phases/phase-84x/84x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-85x/README.md`
+4. `docs/development/current/main/phases/phase-85x/85x-90-next-source-lane-selection-ssot.md`
+5. `docs/development/current/main/phases/phase-85x/85x-91-task-board.md`
 
 ## Notes
 
-- `phase-83x` closed as an explicit keep proof for top-level selfhost wrappers.
+- `phase-84x` landed after repointing Stage1 build/default entry contracts to canonical `entry/*`.
 - `launcher.hako emit_mir_mainline` is green.
 - `stage1_mainline_smoke.sh` is green.
 - `target/**`, `artifacts/**`, and `dist/**` are artifact roots only.

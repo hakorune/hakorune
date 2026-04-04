@@ -1,7 +1,7 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
-Scope: thin remaining top-level `.hako` wrapper and source contract pressure after selfhost top-level keeps are frozen.
+Scope: thin remaining top-level `.hako` wrapper and source contract pressure after selfhost top-level keeps are frozen; phase is now landed and handed off.
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
@@ -28,7 +28,7 @@ Related:
 
 ## Current Read
 
-- current front:
-  - `84xA1 wrapper/source inventory lock`
-- inherited blocker:
-  - `none`
+- handoff complete
+- landed result:
+  - Stage1 build/default contracts point at canonical `lang/src/runner/entry/*` stubs
+  - top-level `.hako` wrappers remain explicit keep surfaces
