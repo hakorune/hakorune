@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 ---
 
@@ -7,26 +7,26 @@ Date: 2026-04-04
 
 | Order | Task | Status | Read as |
 | --- | --- | --- | --- |
-| 1 | `80xA pointer inventory` | active | lock what root/current mirrors still repeat or overstate |
-| 2 | `80xB thinning pass` | queued | thin root/current docs without changing source behavior |
-| 3 | `80xC proof refresh` | queued | re-read mirrors and verify current pointer consistency |
-| 4 | `80xD closeout` | queued | hand off to the next source lane cleanly |
+| 1 | `80xA pointer inventory` | landed | lock what root/current mirrors still repeat or overstate |
+| 2 | `80xB thinning pass` | landed | thin root/current docs without changing source behavior |
+| 3 | `80xC proof refresh` | landed | re-read mirrors and verify current pointer consistency |
+| 4 | `80xD closeout` | landed | hand off to the next source lane cleanly |
 
 ## Exact Micro Tasks
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `80xA1` | active | pointer inventory lock |
-| `80xA2` | queued | thinning target ranking |
-| `80xB1` | queued | root/current thinning pass |
-| `80xC1` | queued | proof refresh |
-| `80xD1` | queued | closeout |
+| `80xA1` | landed | pointer inventory lock |
+| `80xA2` | landed | thinning target ranking |
+| `80xB1` | landed | root/current thinning pass |
+| `80xC1` | landed | proof refresh |
+| `80xD1` | landed | closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `80xA1 pointer inventory lock` |
+| Now | `80x landed` |
 | Blocker | `none` |
-| Next | `80xA2 thinning target ranking` |
-| After Next | `80xB1 root/current thinning pass` |
+| Next | `phase-81x caller-zero archive rerun` |
+| After Next | `phase-81x/81xA1 caller inventory rerun` |

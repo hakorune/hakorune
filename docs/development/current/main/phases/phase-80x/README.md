@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: thin the root/current mirrors after the launcher blocker lane landed.
 Related:
@@ -28,7 +28,6 @@ Related:
 
 ## Current Read
 
-- current front:
-  - `80xA1 pointer inventory lock`
-- inherited blocker:
-  - `none`
+- landed outcome:
+  - root/current mirrors are thin again
+  - current lane / next lane / proof bundle are readable without landed ledger carry-over
