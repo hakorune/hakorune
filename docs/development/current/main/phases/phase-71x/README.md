@@ -37,5 +37,9 @@ Related:
   - top-level selfhost facades still carry the biggest live pressure
   - top-level `.hako` wrappers are still broadly referenced
   - the `emit_mir_mainline` blocker remains tracked, but it is not yet the top folder-pressure lane
+- `71xA2` landed:
+  - ranking is fixed as `72x -> 73x -> 74x`
+- `71xB1` landed:
+  - next lane is `phase-72x selfhost top-level facade thinning`
 - current front:
-  - `71xA2 candidate lane ranking`
+  - `71xD1 proof / closeout`

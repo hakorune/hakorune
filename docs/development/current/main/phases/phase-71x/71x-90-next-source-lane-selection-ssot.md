@@ -50,3 +50,17 @@ Related:
 
 - pick the lane that creates visible tree/code progress
 - do not reopen rust-vm retirement discussion unless a new caller-zero fact appears
+
+## 71xA2 Ranking
+
+1. `72x selfhost top-level facade thinning`
+2. `73x .hako top-level facade thinning`
+3. `74x emit_mir_mainline blocker follow-up`
+
+## 71xB1 Decision
+
+- the selected next lane is `phase-72x selfhost top-level facade thinning`
+- reason:
+  - it has the heaviest live pressure
+  - it continues the folder split with low conceptual churn
+  - it produces tree/code progress without reopening the tracked focused blocker

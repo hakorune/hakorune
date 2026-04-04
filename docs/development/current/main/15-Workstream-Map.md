@@ -37,8 +37,8 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-71x next source lane selection`
-     - current active micro task is `71xA2 candidate lane ranking`
+     - current active lane is `phase-72x selfhost top-level facade thinning`
+     - current active micro task is `72xA1 top-level facade inventory lock`
      - ranked successor corridor after `68x` is:
        - `69x rust runner product/keep/reference recut`
        - `70x caller-zero archive sweep`
@@ -132,14 +132,14 @@ Related:
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-71x next source lane selection table:
+   - phase-72x selfhost top-level facade thinning table:
 
      | Item | State |
      | --- | --- |
-     | Now | `71xA2 candidate lane ranking` |
+     | Now | `72xA1 top-level facade inventory lock` |
      | Blocker | `none` |
-     | Next | `71xB1 successor lane decision` |
-     | After Next | `71xD1 proof / closeout` |
+     | Next | `72xA2 keep-vs-thin ranking` |
+     | After Next | `72xB1 facade thinning wave` |
    - rust-vm corridor outcome:
 
      | Item | State |
@@ -151,9 +151,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `71xA2 candidate lane ranking` |
-     | Next | `71xB1 successor lane decision` |
-     | Later | `TBD by successor lane` |
+     | Now | `72xA1 top-level facade inventory lock` |
+     | Next | `72xA2 keep-vs-thin ranking` |
+     | Later | `72xB1 facade thinning wave` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |

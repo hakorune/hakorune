@@ -22,7 +22,7 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-71x next source lane selection`
+- lane: `phase-72x selfhost top-level facade thinning`
 - landed micro task: `49xD1 proof / closeout`
 - landed micro task: `52xA2 archive README / wrapper wording rewrite`
 - landed micro task: `52xB1 archive pack orchestrator wording cleanup`
@@ -90,7 +90,7 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `65xB2 shell contract owner cleanup`
 - landed micro task: `65xC1 mainline proof bundle refresh`
 - landed micro task: `65xD1 proof / closeout`
-- active micro task: `71xA2 candidate lane ranking`
+- active micro task: `72xA1 top-level facade inventory lock`
 - ranked successor corridor after `68x`:
   - `69x rust runner product/keep/reference recut`
   - `70x caller-zero archive sweep`
@@ -105,9 +105,9 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-71x/README.md`
-4. `docs/development/current/main/phases/phase-71x/71x-90-next-source-lane-selection-ssot.md`
-5. `docs/development/current/main/phases/phase-71x/71x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-72x/README.md`
+4. `docs/development/current/main/phases/phase-72x/72x-90-selfhost-top-level-facade-thinning-ssot.md`
+5. `docs/development/current/main/phases/phase-72x/72x-91-task-board.md`
 6. `cargo check --manifest-path Cargo.toml --bin hakorune`
 
 ## Optional Checks

@@ -4,8 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 71x next source lane selection
-- **Phase 71x（ACTIVE）**: next source lane selection（phase-70x no-op closeout 後の次 source lane を選ぶ）
+- **Current (ACTIVE)**: Phase 72x selfhost top-level facade thinning
+- **Phase 72x（ACTIVE）**: selfhost top-level facade thinning（folder split 後に残った top-level selfhost facade を薄くする）
+- **Phase 71x（LANDED）**: next source lane selection（phase-70x no-op closeout 後の次 source lane と `72x -> 73x -> 74x` corridor を選んだ）
 - **Phase 70x（LANDED）**: caller-zero archive sweep（folder-separated surfaces のうち live caller が消えた alias/docs/wrapper を archive 側へ送る想定だったが、first pass は no-op で閉じた）
 - **Phase 69x（LANDED）**: rust runner product/keep/reference recut（src/runner の product / keep / reference 読みを tree で揃える）
 - **Phase 68x（LANDED）**: .hako runner authority/compat/facade recut（lang/src/runner の authority / compat / facade / entry 読みを tree で揃える）
