@@ -38,7 +38,7 @@ Related:
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
      - current active lane is `phase-71x next source lane selection`
-     - current active micro task is `71xA1 successor lane inventory lock`
+     - current active micro task is `71xA2 candidate lane ranking`
      - ranked successor corridor after `68x` is:
        - `69x rust runner product/keep/reference recut`
        - `70x caller-zero archive sweep`
@@ -136,10 +136,10 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `71xA1 successor lane inventory lock` |
+     | Now | `71xA2 candidate lane ranking` |
      | Blocker | `none` |
-     | Next | `71xA2 candidate lane ranking` |
-     | After Next | `71xB1 successor lane decision` |
+     | Next | `71xB1 successor lane decision` |
+     | After Next | `71xD1 proof / closeout` |
    - rust-vm corridor outcome:
 
      | Item | State |
@@ -151,8 +151,8 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `71xA1 successor lane inventory lock` |
-     | Next | `71xA2 candidate lane ranking` |
+     | Now | `71xA2 candidate lane ranking` |
+     | Next | `71xB1 successor lane decision` |
      | Later | `TBD by successor lane` |
    - stage0 shell residue waves:
 

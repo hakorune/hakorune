@@ -165,7 +165,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-71x next source lane selection`
 - Current blocker: `none`
-- Exact focus: `71xA1 successor lane inventory lock`
+- Exact focus: `71xA2 candidate lane ranking`
 - successor lane ranking is fixed as:
   1. `phase-71x next source lane selection`
   2. `TBD by successor lane`

@@ -29,6 +29,23 @@ Related:
 - current source owner cleanup around the new folder layout
 - focused blocker follow-up around `emit_mir_mainline`
 
+## 71xA1 Inventory Result
+
+### Highest Pressure
+
+- `tools/selfhost/run.sh`
+- `tools/selfhost/selfhost_build.sh`
+- `tools/selfhost/build_stage1.sh`
+- `lang/src/runner/stage1_cli_env.hako`
+- `lang/src/runner/stage1_cli.hako`
+- `lang/src/runner/launcher.hako`
+
+### Read
+
+- top-level selfhost facades still carry the heaviest live reference count after the folder split
+- top-level `.hako` runner wrappers still have broad live references after the authority/compat/facade recut
+- the focused `emit_mir_mainline` blocker remains real, but it is still narrower than the facade-thinning pressure
+
 ## Decision Rule
 
 - pick the lane that creates visible tree/code progress

@@ -30,3 +30,12 @@ Related:
 2. `71xA2` candidate lane ranking
 3. `71xB1` successor lane decision
 4. `71xD1` proof / closeout
+
+## Current Read
+
+- `71xA1` landed:
+  - top-level selfhost facades still carry the biggest live pressure
+  - top-level `.hako` wrappers are still broadly referenced
+  - the `emit_mir_mainline` blocker remains tracked, but it is not yet the top folder-pressure lane
+- current front:
+  - `71xA2 candidate lane ranking`

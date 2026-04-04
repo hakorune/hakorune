@@ -15,8 +15,8 @@ Date: 2026-04-04
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `71xA1` | active | successor lane inventory lock |
-| `71xA2` | queued | candidate lane ranking |
+| `71xA1` | landed | successor lane inventory lock |
+| `71xA2` | active | candidate lane ranking |
 | `71xB1` | queued | successor lane decision |
 | `71xD1` | queued | proof / closeout |
 
@@ -24,7 +24,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `71xA1 successor lane inventory lock` |
+| Now | `71xA2 candidate lane ranking` |
 | Blocker | `none` |
-| Next | `71xA2 candidate lane ranking` |
-| After Next | `71xB1 successor lane decision` |
+| Next | `71xB1 successor lane decision` |
+| After Next | `71xD1 proof / closeout` |
