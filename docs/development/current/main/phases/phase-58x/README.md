@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: select the successor source lane after phase-57x closed without a broad rust-vm deletion wave.
 Related:
@@ -32,6 +32,21 @@ Related:
 - rust-vm route-surface retirement continuation
 - proof/compat keep pruning continuation
 - successor selection closeout if no source deletion lane is justified yet
+
+## First Reading
+
+- route-surface continuation is leading because explicit backend affordances and the `stage-a` compat branch still form the largest remaining re-growth surface.
+- keep-pruning continuation stays second because its target set is narrower and already explicit.
+- delete-ready rerun stays third because `phase-57x` produced no new caller-zero target.
+
+## Decision
+
+- `phase-59x rust-vm route-surface retirement continuation` is the selected successor lane.
+
+## Outcome
+
+- successor inventory and ranking are locked
+- `phase-59x rust-vm route-surface retirement continuation` is selected as the highest-leverage next lane
 
 ## Success Conditions
 
