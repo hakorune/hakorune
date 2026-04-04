@@ -20,9 +20,9 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-110x selfhost execution vocabulary SSOT`
-- current front: `stage / route / backend override / lane / kernel を長寿命 SSOT に固定する`
-- blocker: `none`
+- lane: `phase-105 digit OR-chain LLVM parity regression`
+- current front: `long digit OR-chain under loop(true) を LLVM EXE parity で戻す`
+- blocker: `LLVM EXE で long digit OR-chain が 0/1 に潰れる`
 - recent landed:
   - `phase-104 loop(true) + break-only digits（read_digits 系）`
   - `phase-103 if-only regression baseline（VM + LLVM EXE）`
@@ -34,14 +34,15 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-110x/README.md`
+3. `docs/development/current/main/phases/phase-105/README.md`
 
 ## Successor Corridor
 
-1. `phase-110x selfhost execution vocabulary SSOT`
-2. `phase-111x selfhost runtime route naming cleanup`
-3. `phase-112x vm-family lane naming hardening`
-4. `phase-113x kernel vs vm-reference cluster wording correction`
+1. `phase-105 digit OR-chain LLVM parity regression`
+2. `phase-110x selfhost execution vocabulary SSOT`
+3. `phase-111x selfhost runtime route naming cleanup`
+4. `phase-112x vm-family lane naming hardening`
+5. `phase-113x kernel vs vm-reference cluster wording correction`
 
 ## Parked After Optimization
 

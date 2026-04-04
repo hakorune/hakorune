@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 110x selfhost execution vocabulary SSOT
+- **Current (ACTIVE)**: Phase 105 digit OR-chain LLVM parity regression
+- **Phase 110x（QUEUED）**: selfhost execution vocabulary SSOT
 - **Phase 104（LANDED）**: loop(true) + break-only digits（read_digits 系）
 - **Phase 103（LANDED）**: if-only regression baseline（VM + LLVM EXE）
 - **Phase 102（LANDED）**: real-app read_quoted loop regression（VM + LLVM EXE）

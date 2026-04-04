@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-110x selfhost execution vocabulary SSOT` |
-| Front | `stage / route / backend override / lane / kernel を長寿命 SSOT に固定する` |
-| Blocker | `none` |
-| Next | `execution vocabulary inventory + route map` |
-| After Next | `runtime route naming cleanup corridor` |
+| Now | `phase-105 digit OR-chain LLVM parity regression` |
+| Front | `long digit OR-chain under loop(true) を LLVM EXE parity で戻す` |
+| Blocker | `LLVM EXE で long digit OR-chain が 0/1 に潰れる` |
+| Next | `OR-chain minimal repro + lowering pinpoint` |
+| After Next | `execution vocabulary SSOT corridor` |
 
 ## Current Read
 
@@ -32,8 +32,8 @@ Related:
 - `100` landed with pinned read-only captures and accumulator parity proof
 - `102` landed with real-app `read_quoted_from` loop parity
 - `103` landed with if-only merge / early return parity
-- `104` landed with loop(true)+break-only digits parity
-- `110x` is the current lane for execution vocabulary SSOT
+- `104` landed with a sequential-flag workaround for loop(true)+break-only digits parity
+- `105` is the current lane for the original long digit OR-chain parity regression
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers
@@ -51,10 +51,11 @@ Related:
 
 ## Successor Corridor
 
-1. `phase-110x selfhost execution vocabulary SSOT`
-2. `phase-111x selfhost runtime route naming cleanup`
-3. `phase-112x vm-family lane naming hardening`
-4. `phase-113x kernel vs vm-reference cluster wording correction`
+1. `phase-105 digit OR-chain LLVM parity regression`
+2. `phase-110x selfhost execution vocabulary SSOT`
+3. `phase-111x selfhost runtime route naming cleanup`
+4. `phase-112x vm-family lane naming hardening`
+5. `phase-113x kernel vs vm-reference cluster wording correction`
 
 ## Parked After Optimization
 
@@ -84,7 +85,7 @@ Related:
 ## Reference
 
 - current lane docs:
-  - `docs/development/current/main/phases/phase-110x/README.md`
+  - `docs/development/current/main/phases/phase-105/README.md`
   - `docs/development/current/main/phases/phase-104/README.md`
 - recent landed:
   - `docs/development/current/main/phases/phase-103/README.md`
