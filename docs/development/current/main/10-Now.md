@@ -117,7 +117,8 @@ Related:
 - landed micro task: `60xB2 vm_fallback/core.hako keep pruning continuation`
 - landed micro task: `60xC1 proof smoke keep pruning continuation`
 - landed micro task: `60xD1 proof / closeout`
-- active micro task: `61xA1 residual caller inventory rerun`
+- landed micro task: `61xA1 residual caller inventory rerun`
+- active micro task: `61xA2 keep/delete-ready classification freeze`
 - fixed retirement corridor:
   - `61x residual rust-vm caller-zero audit rerun`
   - `62x rust-vm delete-ready removal wave`

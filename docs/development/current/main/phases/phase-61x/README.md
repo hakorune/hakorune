@@ -31,6 +31,33 @@ Related:
 - `src/runner/dispatch.rs`
 - `src/runner/route_orchestrator.rs`
 
+## Inventory Lock
+
+- `src/runner/modes/vm.rs`
+  - still called only from `src/runner/route_orchestrator.rs` via `VmRouteAction::Vm`
+  - not caller-zero
+- `src/runner/modes/vm_fallback.rs`
+  - still called only from `src/runner/route_orchestrator.rs` via `VmRouteAction::CompatFallback`
+  - not caller-zero
+- `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
+  - still called from `src/runner/modes/common_util/selfhost/stage_a_route.rs`
+  - narrowed in `60x`, but not caller-zero
+- `lang/src/runner/stage1_cli/core.hako`
+  - `run_program_json(...)` still owns raw compat calls from `_mode_run(...)` and `_run_raw_request(...)`
+  - not caller-zero
+- `tools/selfhost/run_stageb_compiler_vm.sh`
+  - still called by `tools/selfhost/selfhost_smoke.sh`, `tools/selfhost/lib/selfhost_run_routes.sh`, and Stage-B proof smokes
+  - not caller-zero
+- `src/runner/dispatch.rs`
+  - still accepts explicit backend override surfaces for `vm` / `vm-hako`
+  - not a removal target in `61x`
+- `src/runner/route_orchestrator.rs`
+  - still owns explicit keep/reference dispatch for `Vm`, `CompatFallback`, and `VmHako`
+  - not a removal target in `61x`
+- first-pass result:
+  - `delete-ready`: none
+  - `keep-now`: all listed focus surfaces
+
 ## Success Conditions
 
 - caller-zero facts are source-backed, not inferred from wording

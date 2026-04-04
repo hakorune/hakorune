@@ -28,6 +28,33 @@ Related:
 - `src/runner/dispatch.rs`
 - `src/runner/route_orchestrator.rs`
 
+## Inventory Lock
+
+- `src/runner/modes/vm.rs`
+  - caller: `src/runner/route_orchestrator.rs` -> `VmRouteAction::Vm`
+  - classification: `keep-now`
+- `src/runner/modes/vm_fallback.rs`
+  - caller: `src/runner/route_orchestrator.rs` -> `VmRouteAction::CompatFallback`
+  - classification: `keep-now`
+- `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
+  - caller: `src/runner/modes/common_util/selfhost/stage_a_route.rs`
+  - classification: `keep-now`
+- `lang/src/runner/stage1_cli/core.hako`
+  - callers: `_mode_run(...)`, `_run_raw_request(...)`
+  - classification: `keep-now`
+- `tools/selfhost/run_stageb_compiler_vm.sh`
+  - callers: `tools/selfhost/selfhost_smoke.sh`, `tools/selfhost/lib/selfhost_run_routes.sh`, Stage-B proof smokes
+  - classification: `keep-now`
+- `src/runner/dispatch.rs`
+  - current role: explicit backend override surface for `vm` / `vm-hako`
+  - classification: `keep-now`
+- `src/runner/route_orchestrator.rs`
+  - current role: explicit keep/reference route owner for `Vm`, `CompatFallback`, `VmHako`
+  - classification: `keep-now`
+- rerun result:
+  - `delete-ready`: none in the first pass
+  - `archive-later`: none newly promoted in `61xA1`
+
 ## Boundary
 
 - `61x` reruns facts; it does not remove broad sources by itself
