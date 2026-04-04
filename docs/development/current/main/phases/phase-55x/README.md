@@ -35,6 +35,13 @@ Related:
 - `tools/selfhost/lib/selfhost_run_routes.sh`
 - `tools/selfhost/run.sh`
 
+## Inventory Findings
+
+- `src/cli/args.rs` is still the strongest stale affordance because the help/default text still presents `vm` as default and `vm-hako` as a normal backend string.
+- `src/runner/dispatch.rs` and `src/runner/route_orchestrator.rs` are still the central explicit router seams, but they should read as explicit keep-only routing rather than as a mainline backend family.
+- `tools/selfhost/lib/selfhost_run_routes.sh` still owns a `stage-a -> --backend vm` compat branch; that branch stays explicit but must stop feeling like a hidden default.
+- `tools/selfhost/run.sh` is already mostly correct and should be kept narrow.
+
 ## Success Conditions
 
 - backend/default/help text no longer presents rust-vm as a day-to-day default

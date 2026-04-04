@@ -132,16 +132,16 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `55xA1 route-surface inventory lock` |
+     | Now | `55xA2 backend/default/help exposure freeze` |
      | Blocker | `none` |
-     | Next | `55xA2 backend/default/help exposure freeze` |
-     | After Next | `55xB1 cli/backend affordance cleanup` |
+     | Next | `55xB1 cli/backend affordance cleanup` |
+     | After Next | `55xB2 selfhost route-surface cleanup` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `55xA1 route-surface inventory lock` |
-     | Next | `55xA2 backend/default/help exposure freeze` |
+     | Now | `55xA2 backend/default/help exposure freeze` |
+     | Next | `55xB1 cli/backend affordance cleanup` |
      | Later | `56x proof/compat keep pruning` |
    - stage0 shell residue waves:
 

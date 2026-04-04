@@ -33,6 +33,13 @@ Related:
 - `tools/selfhost/lib/selfhost_run_routes.sh`
 - `tools/selfhost/run.sh`
 
+## Inventory Findings
+
+- strongest stale exposure: `src/cli/args.rs` backend help/default text
+- strongest behaviorally live compat surface: `tools/selfhost/lib/selfhost_run_routes.sh` `stage-a` branch
+- explicit router seams to keep but narrow: `src/runner/dispatch.rs`, `src/runner/route_orchestrator.rs`
+- explicit narrow facade already in good shape: `tools/selfhost/run.sh`
+
 ## Boundaries
 
 - do not prune `vm.rs`, `vm_fallback.rs`, `core.hako`, or `run_stageb_compiler_vm.sh` in this lane

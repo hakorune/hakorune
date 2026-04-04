@@ -50,8 +50,8 @@ Related:
 - `54xB1 successor lane decision` landed
 - `54xB2 retirement corridor lock` landed
 - `54xD1 proof / closeout` landed
-- `55xA1 route-surface inventory lock` active
-- `55xA2 backend/default/help exposure freeze` queued
+- `55xA1 route-surface inventory lock` landed
+- `55xA2 backend/default/help exposure freeze` active
 - `55xB1 cli/backend affordance cleanup` queued
 - `55xB2 selfhost route-surface cleanup` queued
 - `55xC1 dispatch/orchestrator explicit keep narrowing` queued
@@ -101,7 +101,7 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `55xA1 route-surface inventory lock`
+- active micro task: `55xA2 backend/default/help exposure freeze`
 - plain reading:
   - current source no longer treats `--backend vm` as a live owner lane; remaining references are archive-only evidence
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep

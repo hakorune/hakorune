@@ -38,8 +38,8 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `54xB1 successor lane decision`
 - landed micro task: `54xB2 retirement corridor lock`
 - landed micro task: `54xD1 proof / closeout`
-- active micro task: `55xA1 route-surface inventory lock`
-- queued micro task: `55xA2 backend/default/help exposure freeze`
+- landed micro task: `55xA1 route-surface inventory lock`
+- active micro task: `55xA2 backend/default/help exposure freeze`
 - queued micro task: `55xB1 cli/backend affordance cleanup`
 - planned follow-up: `56x proof/compat keep pruning`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
