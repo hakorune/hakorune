@@ -14,10 +14,10 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-100 Pinned Read-Only Captures` |
-| Front | `loop outer read-only locals を pinned capture として receiver 解決へ通す` |
+| Now | `phase-102 real-app read_quoted loop regression (VM + LLVM EXE)` |
+| Front | `MiniJsonLoader.read_quoted_from 最小抽出 fixture を VM/LLVM EXE parity で固定する` |
 | Blocker | `none` |
-| Next | `phase-100 pinned local capture wiring` |
+| Next | `phase-102 fixture + parity proof` |
 | After Next | `optimization corridor / parked cleanup revisit` |
 
 ## Current Read
@@ -29,7 +29,8 @@ Related:
 - `97` fixed LLVM EXE parity for `phase95/96` fixtures under `HAKO_BACKEND_COMPAT_REPLAY=harness`
 - `98` fixed plugin loader strict/best-effort runtime proof and kept phase-97 parity green
 - `99` trailing-backslash fixture is already green on VM and LLVM EXE; next work is broader trim/escape fixture expansion
-- `100` is the current lane for pinned read-only captures and loop receiver resolution
+- `100` landed with pinned read-only captures and accumulator parity proof
+- `102` is the current lane for real-app `read_quoted_from` loop parity
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers
@@ -43,11 +44,11 @@ Related:
 - `91x` froze the top-level `.hako` wrapper policy after the latest runner/selfhost recuts
 - `92x` closed the proof/compat caller rerun lane against the canonical wrapper homes
 - `93x` moved archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
-- current work has handed off to `phase-99`
+- current work has handed off to `phase-102`
 
 ## Successor Corridor
 
-1. `phase-100 Pinned Read-Only Captures`
+1. `phase-102 real-app read_quoted loop regression (VM + LLVM EXE)`
 
 ## Parked After Optimization
 
@@ -64,11 +65,11 @@ Related:
 ## Reference
 
 - current lane docs:
-  - `docs/development/current/main/phases/phase-98/README.md`
-  - `docs/development/current/main/phases/phase-99/README.md`
   - `docs/development/current/main/phases/phase-100/README.md`
+  - `docs/development/current/main/phases/phase-102/README.md`
 - recent landed:
+  - `docs/development/current/main/phases/phase-99/README.md`
+  - `docs/development/current/main/phases/phase-98/README.md`
   - `docs/development/current/main/phases/phase-97/README.md`
   - `docs/development/current/main/phases/phase-96/README.md`
   - `docs/development/current/main/phases/phase-95/README.md`
-  - `docs/development/current/main/phases/phase-94/README.md`

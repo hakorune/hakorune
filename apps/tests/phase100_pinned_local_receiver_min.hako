@@ -8,7 +8,8 @@ static box Main {
         s = "a" + "b" + "c"
 
         // Loop using s as receiver (requires Pinned capture)
-        // Note: loop(i < 1) currently runs 3 iterations (0,1,2) - see loop semantics
+        // Current contract: this minimal fixture only needs the first iteration
+        // to prove receiver resolution through CapturedEnv(Pinned).
         local i
         i = 0
         loop(i < 1) {

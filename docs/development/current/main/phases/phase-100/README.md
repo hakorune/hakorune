@@ -61,7 +61,12 @@ loop(i < 1) {
 }
 ```
 
-**Smoke test**: phase100_pinned_local_receiver_vm.sh
+**Smoke test**: `tools/smokes/v2/profiles/integration/apps/archive/phase100_pinned_local_receiver_vm.sh`
+
+**Pinned receiver contract**:
+- fixture は `loop(i < 1)` の 1 回実行だけを固定する
+- expected stdout は `0`
+- 目的は反復数ではなく、`CapturedEnv(Pinned)` receiver 解決が通ることの固定
 
 ### Implementation Details
 
@@ -79,7 +84,7 @@ loop(i < 1) {
 ### Test Coverage
 
 - **Fixture**: `apps/tests/phase100_pinned_local_receiver_min.hako`
-- **Smoke Test**: `tools/smokes/v2/profiles/integration/apps/phase100_pinned_local_receiver_vm.sh`
+- **Smoke Test**: `tools/smokes/v2/profiles/integration/apps/archive/phase100_pinned_local_receiver_vm.sh`
 - **Regression**: Phase 96 and Phase 94 smoke tests pass
 
 ## P2: Mutable Accumulators (s = s + x form only)

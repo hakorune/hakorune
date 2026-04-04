@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 100 Pinned Read‑Only Captures
+- **Current (ACTIVE)**: Phase 102 real-app read_quoted loop regression（VM + LLVM EXE）
+- **Phase 100（LANDED）**: Pinned Read‑Only Captures
 - **Phase 99（LANDED）**: Trim/escape 実コード寄り強化（VM+LLVM EXE）
 - **Phase 98（LANDED）**: Plugin loader fail-fast + LLVM parityの持続化
 - **Phase 97（LANDED）**: LLVM EXE parity for MiniJsonLoader fixtures

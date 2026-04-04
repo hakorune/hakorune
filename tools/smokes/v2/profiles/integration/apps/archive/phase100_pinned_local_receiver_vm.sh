@@ -3,9 +3,7 @@
 
 HAKO_FILE="apps/tests/phase100_pinned_local_receiver_min.hako"
 BACKEND="vm"
-EXPECTED_OUTPUT="0
-1
-2"
+EXPECTED_OUTPUT="0"
 
 # Run with HAKO_JOINIR_STRICT=1 (strict validation)
 ACTUAL_OUTPUT=$(HAKO_JOINIR_STRICT=1 ./target/release/hakorune --backend "$BACKEND" "$HAKO_FILE" 2>&1 | grep -E '^[0-9]+$')

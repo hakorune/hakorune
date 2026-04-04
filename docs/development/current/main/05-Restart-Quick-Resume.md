@@ -20,14 +20,14 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-100 Pinned Read-Only Captures`
-- current front: `loop outer read-only locals を pinned capture として receiver 解決へ通す`
+- lane: `phase-102 real-app read_quoted loop regression (VM + LLVM EXE)`
+- current front: `MiniJsonLoader.read_quoted_from 最小抽出 fixture を VM/LLVM EXE parity で固定する`
 - blocker: `none`
 - recent landed:
+  - `phase-100 Pinned Read-Only Captures`
   - `phase-99 Trim/escape 実コード寄り強化（VM+LLVM EXE）`
   - `phase-98 Plugin loader fail-fast + LLVM parityの持続化`
   - `phase-97 LLVM EXE parity for MiniJsonLoader fixtures`
-  - `phase-96 MiniJsonLoader next_non_ws loop E2E lock`
   - `phase-95 json_loader escape loop E2E lock`
 
 ## Read Next
@@ -38,7 +38,7 @@ tools/checks/dev_gate.sh quick
 
 ## Successor Corridor
 
-1. `phase-100 Pinned Read-Only Captures`
+1. `phase-102 real-app read_quoted loop regression (VM + LLVM EXE)`
 
 ## Parked After Optimization
 
@@ -53,6 +53,9 @@ bash tools/smokes/v2/profiles/integration/apps/archive/phase95_json_loader_escap
 bash tools/smokes/v2/profiles/integration/apps/archive/phase96_json_loader_next_non_ws_vm.sh
 bash tools/smokes/v2/profiles/integration/apps/archive/phase97_json_loader_escape_llvm_exe.sh
 bash tools/smokes/v2/profiles/integration/apps/archive/phase97_next_non_ws_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase100_pinned_local_receiver_vm.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase100_mutable_accumulator_llvm_exe.sh
+bash tools/smokes/v2/profiles/integration/apps/archive/phase100_string_accumulator_llvm_exe.sh
 bash tools/smokes/v2/profiles/integration/apps/archive/phase99_escape_trailing_backslash_vm.sh
 bash tools/smokes/v2/profiles/integration/apps/archive/phase99_escape_trailing_backslash_llvm_exe.sh
 git diff --check
