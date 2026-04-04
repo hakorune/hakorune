@@ -33,6 +33,36 @@ Related:
 - `src/runner/modes/vm_fallback.rs`
 - `lang/src/runner/stage1_cli/core.hako`
 
+## Inventory Lock
+
+- proof-only keep:
+  - `tools/selfhost/run_stageb_compiler_vm.sh`
+    - explicit Stage-B proof gate; guarded by `NYASH_SELFHOST_STAGEB_PROOF_ONLY=1`
+    - still owned by `tools/selfhost/lib/selfhost_run_routes.sh` direct proof path and Stage-B proof smokes
+  - `tools/selfhost/bootstrap_selfhost_smoke.sh`
+    - bootstrap parity smoke keep; still the c0/c1/c1' proof entry
+  - `tools/selfhost/selfhost_smoke.sh`
+    - explicit selfhost proof smoke; still exercises the compat/proof emit path
+  - `tools/selfhost/selfhost_stage3_accept_smoke.sh`
+    - stage3 acceptance proof keep; still bridges `--direct` producer and `--ny-parser-pipe --backend vm` consumer
+  - `tools/plugin_v2_smoke.sh`
+    - plugin-host proof keep; still the current explicit plugin compatibility smoke
+- compat keep:
+  - `tools/selfhost/lib/selfhost_run_routes.sh`
+    - `stage-a-compat` remains the explicit shell compat entry; still calls `--backend vm`
+  - `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
+    - still owns Program(JSON v0) compat resolution and explicit Program(JSON)->MIR fallback
+  - `src/runner/modes/vm_fallback.rs`
+    - still owns the explicit `NYASH_VM_USE_FALLBACK=1` interpreter lane
+  - `lang/src/runner/stage1_cli/core.hako`
+    - still owns the raw Program(JSON) compat hold line and `vm|pyvm` accept / `llvm` reject policy
+- explicit out-of-scope keep:
+  - `src/runner/modes/vm.rs`
+  - `src/runner/modes/vm_hako.rs`
+  - `src/runner/dispatch.rs`
+  - `src/runner/route_orchestrator.rs`
+  - these stay outside `60x`; the lane only prunes proof/compat keeps and does not reopen broad owner removal
+
 ## Success Conditions
 
 - proof-only keeps stay explicit and non-growing

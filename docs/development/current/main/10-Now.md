@@ -111,7 +111,8 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `60xA1 proof/compat keep inventory lock`
+- landed micro task: `60xA1 proof/compat keep inventory lock`
+- active micro task: `60xA2 compat keep boundary freeze`
 - fixed retirement corridor:
   - `61x residual rust-vm caller-zero audit rerun`
   - `62x rust-vm delete-ready removal wave`

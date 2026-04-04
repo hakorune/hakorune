@@ -61,8 +61,9 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `58xB1 successor lane decision`
 - landed micro task: `58xD1 proof / closeout`
 - landed micro task: `59xA1 route-surface inventory lock`
-- active micro task: `60xA1 proof/compat keep inventory lock`
-- planned follow-up: `60xA2 compat keep boundary freeze`
+- landed micro task: `60xA1 proof/compat keep inventory lock`
+- active micro task: `60xA2 compat keep boundary freeze`
+- planned follow-up: `60xB1 stage-a compat seam pruning`
 - fixed corridor after `60x`:
   - `61x residual rust-vm caller-zero audit rerun`
   - `62x rust-vm delete-ready removal wave`

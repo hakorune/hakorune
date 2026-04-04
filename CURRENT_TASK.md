@@ -157,7 +157,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-60x proof/compat keep pruning continuation`
 - Current blocker: `none`
-- Exact focus: `59xA1 route-surface inventory lock`
+- Exact focus: `60xA2 compat keep boundary freeze`
 - exact handoff order:
   1. `53xA1` residual VM caller inventory lock (landed)
   2. `53xA2` proof-only / compat keep classification (landed)
@@ -198,8 +198,8 @@ Scope: repo root から current order / current blocker / next exact read に最
   37. `59xB2` selfhost route/default narrowing (landed)
   38. `59xC1` dispatch/orchestrator affordance narrowing (landed)
   39. `59xD1` proof / closeout (landed)
-  40. `60xA1` proof/compat keep inventory lock (active)
-  41. `60xA2` compat keep boundary freeze (planned)
+  40. `60xA1` proof/compat keep inventory lock (landed)
+  41. `60xA2` compat keep boundary freeze (active)
   42. `60xB1` stage-a compat seam pruning (planned)
   43. `60xB2` vm_fallback/core.hako keep pruning continuation (planned)
   44. `60xC1` proof smoke keep pruning continuation (planned)

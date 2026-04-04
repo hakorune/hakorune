@@ -132,10 +132,10 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `60xA1 proof/compat keep inventory lock` |
+     | Now | `60xA2 compat keep boundary freeze` |
      | Blocker | `none` |
-     | Next | `60xA2 compat keep boundary freeze` |
-     | After Next | `60xB1 stage-a compat seam pruning` |
+     | Next | `60xB1 stage-a compat seam pruning` |
+     | After Next | `60xB2 vm_fallback/core.hako keep pruning continuation` |
    - retirement corridor after `60x`:
 
      | Lane | Read as |
@@ -147,9 +147,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `60xA1 proof/compat keep inventory lock` |
-     | Next | `60xA2 compat keep boundary freeze` |
-     | Later | `60xB1 stage-a compat seam pruning` |
+     | Now | `60xA2 compat keep boundary freeze` |
+     | Next | `60xB1 stage-a compat seam pruning` |
+     | Later | `60xB2 vm_fallback/core.hako keep pruning continuation` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
