@@ -132,15 +132,15 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `53xB1 rust-vm delete-ready source peel` |
+     | Now | `53xB2 vm-hako reference keep freeze` |
      | Blocker | `none` |
-     | Next | `53xB2 vm-hako reference keep freeze` |
+     | Next | `53xC1 archive-ready docs/examples / wrapper cleanup` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `53xB1 rust-vm delete-ready source peel` |
-     | Next | `53xB2 vm-hako reference keep freeze` |
+     | Now | `53xB2 vm-hako reference keep freeze` |
+     | Next | `53xC1 archive-ready docs/examples / wrapper cleanup` |
      | Later | `53xD1 proof / closeout` |
    - stage0 shell residue waves:
 

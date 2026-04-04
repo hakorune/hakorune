@@ -142,8 +142,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 - exact phase-53x order:
   1. `53xA1` residual VM caller inventory lock (landed)
   2. `53xA2` proof-only / compat keep classification (landed)
-  3. `53xB1` rust-vm delete-ready source peel (active)
-  4. `53xB2` vm-hako reference keep freeze (queued)
+  3. `53xB1` rust-vm delete-ready source peel (landed)
+  4. `53xB2` vm-hako reference keep freeze (active)
   5. `53xC1` archive-ready docs/examples / wrapper cleanup (queued)
   6. `53xD1` proof / closeout (queued)
 

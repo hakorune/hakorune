@@ -24,6 +24,10 @@ impl NyashRunner {
     /// - Compile source to MIR(JSON v0)
     /// - Accept subset (S0 + S1a + S1b + S1c + S1d method-call(id 1-int) bridge + S1e direct boxcall(id 1-int) contract + S1f call-bridge optimize-on contract + S2a externcall(print 1-int) + S2b compare-origin bool(0/1) print + S2c externcall-only vm execution + S2d externcall(env.get/1) + S2e full legacy mir_call(print) withdrawal + S2f compare(!=) + S3a safepoint + S3b keepalive + S3c release_strong + S4a debug + S4b select + S4c barrier + S5a load + S5b store + S5c phi + S5d typeop + S5e weakref + S5f ref_new + S5g future_new + S5h future_set + S5i await + S5k array_get + S5l array_set)
     /// - Execute accepted MIR payload via .hako MiniVmEntry bridge
+    ///
+    /// This stays as the explicit reference/conformance lane. It is not a
+    /// day-to-day mainline owner and should only move when the reference bucket
+    /// itself changes.
     pub(crate) fn execute_vm_hako_mode(&self, filename: &str) {
         let code = match std::fs::read_to_string(filename) {
             Ok(content) => content,

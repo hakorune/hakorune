@@ -149,7 +149,7 @@ pub fn vm_capture_last_inst_enabled() -> bool {
         || !vm_fast_enabled()
 }
 
-/// Prefer vm-hako lane when strict/dev gate is active.
+/// Prefer the vm-hako reference/conformance lane when strict/dev gate is active.
 ///
 /// Default: ON under strict/dev gate.
 /// Override: `NYASH_VM_HAKO_PREFER_STRICT_DEV=0|1`.

@@ -72,6 +72,11 @@ Inventory residual rust-vm / vm-hako source surfaces, classify keep-now / archiv
 - `delete-ready`
   - none in the first pass
 
+## B Read
+
+- `53xB1` peeled stale VM-owner wording from active Rust surfaces without deleting live compat/reference code.
+- `53xB2` freezes `vm-hako` as explicit reference/conformance keep, not as archive-later residue.
+
 ## Guard Rails
 
 - do not archive or delete `vm-hako` wholesale

@@ -94,8 +94,9 @@ pub(super) fn demo_parser_system() {
 pub(super) fn demo_interpreter_system() {
     println!("\n🎭 7. Interpreter System:");
     println!("  ⚠️  Legacy interpreter removed - use VM or LLVM backends instead");
-    println!("  💡 Try: ./target/release/nyash --backend vm program.hako");
-    println!("  💡 Try: ./target/release/nyash --backend llvm program.hako");
+    println!("  💡 Day-to-day: ./target/release/hakorune --mir-json-file <mir.json>");
+    println!("  💡 Explicit compat/proof: ./target/release/hakorune --backend vm program.hako");
+    println!("  💡 LLVM lane: ./target/release/hakorune --backend llvm program.hako");
 }
 
 /// Run all demo sections (moved from runner/mod.rs)

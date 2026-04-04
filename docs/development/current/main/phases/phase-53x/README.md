@@ -108,4 +108,10 @@ Related:
 - delete only after caller drain
 - inventory first pass did not produce delete-ready source candidates yet
 - second-pass worker audit confirmed `emit_vm_hako_checkpoint_snippet.sh` is still a live manual helper, so it stays keep-now
+
+## Current Read
+
+- `53xA2` is landed: keep-now / archive-later / delete-ready boundaries are fixed
+- `53xB1` is landed: first source peel removed stale VM-owner wording from active Rust surfaces without reopening callers
+- `53xB2` is active: vm-hako stays explicit reference/conformance keep
 - `macro_box_ny.rs` stays compat keep because deprecated env wiring can still force the VM-backed runner branch

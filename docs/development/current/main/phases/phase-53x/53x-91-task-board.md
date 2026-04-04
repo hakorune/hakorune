@@ -18,8 +18,8 @@ Date: 2026-04-04
 | --- | --- | --- |
 | `53xA1` | landed | residual VM caller inventory lock |
 | `53xA2` | landed | proof-only / compat keep classification |
-| `53xB1` | active | rust-vm delete-ready source peel |
-| `53xB2` | queued | vm-hako reference keep freeze |
+| `53xB1` | landed | rust-vm delete-ready source peel |
+| `53xB2` | active | vm-hako reference keep freeze |
 | `53xC1` | queued | archive-ready docs/examples / wrapper cleanup |
 | `53xD1` | queued | proof / closeout |
 
@@ -27,7 +27,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `53xB1 rust-vm delete-ready source peel` |
+| Now | `53xB2 vm-hako reference keep freeze` |
 | Blocker | `none` |
-| Next | `53xB2 vm-hako reference keep freeze` |
-| After Next | `53xB2 vm-hako reference keep freeze` |
+| Next | `53xC1 archive-ready docs/examples / wrapper cleanup` |
+| After Next | `53xD1 proof / closeout` |
