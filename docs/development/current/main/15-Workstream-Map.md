@@ -38,7 +38,7 @@ Related:
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
      - current active lane is `phase-73x emit_mir_mainline blocker follow-up`
-     - current active micro task is `73xA1 blocker evidence lock`
+     - current active micro task is `73xB1 focused source fix`
      - ranked successor corridor after `68x` is:
        - `69x rust runner product/keep/reference recut`
        - `70x caller-zero archive sweep`
@@ -136,10 +136,10 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `73xA1 blocker evidence lock` |
+     | Now | `73xB1 focused source fix` |
      | Blocker | `tracked focused parse red` |
-     | Next | `73xA2 target fix ranking` |
-     | After Next | `73xB1 focused source fix` |
+     | Next | `73xC1 proof bundle refresh` |
+     | After Next | `73xD1 proof / closeout` |
    - rust-vm corridor outcome:
 
      | Item | State |
@@ -151,9 +151,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `73xA1 blocker evidence lock` |
-     | Next | `73xA2 target fix ranking` |
-     | Later | `73xB1 focused source fix` |
+     | Now | `73xB1 focused source fix` |
+     | Next | `73xC1 proof bundle refresh` |
+     | Later | `73xD1 proof / closeout` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |

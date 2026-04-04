@@ -16,9 +16,9 @@ Date: 2026-04-04
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `73xA1` | active | blocker evidence lock |
-| `73xA2` | queued | target fix ranking |
-| `73xB1` | queued | focused source fix |
+| `73xA1` | landed | blocker evidence lock |
+| `73xA2` | landed | target fix ranking |
+| `73xB1` | active | focused source fix |
 | `73xC1` | queued | proof bundle refresh |
 | `73xD1` | queued | proof / closeout |
 
@@ -26,7 +26,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `73xA1 blocker evidence lock` |
+| Now | `73xB1 focused source fix` |
 | Blocker | `tracked focused parse red` |
-| Next | `73xA2 target fix ranking` |
-| After Next | `73xB1 focused source fix` |
+| Next | `73xC1 proof bundle refresh` |
+| After Next | `73xD1 proof / closeout` |

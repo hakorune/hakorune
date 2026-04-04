@@ -27,3 +27,15 @@ Related:
 3. `73xB1` focused source fix
 4. `73xC1` proof bundle refresh
 5. `73xD1` proof / closeout
+
+## Current Read
+
+- `73xA1` landed:
+  - focused repro is confirmed for both `stage1_cli_env.hako` and `stage1_cli.hako`
+  - merged origin still points at `lang/src/compiler/build/build_box.hako:4`
+  - `tools/selfhost/mainline/stage1_mainline_smoke.sh` stays green
+- `73xA2` landed:
+  - reduced file-context repro still points at merged `BuildBox`
+  - first fix target is the selfhost-first merge/parser seam around `build_box`
+- current front:
+  - `73xB1 focused source fix`

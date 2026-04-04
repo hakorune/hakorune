@@ -167,7 +167,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-73x emit_mir_mainline blocker follow-up`
 - Current blocker: `tracked focused parse red in build_box.hako`
-- Exact focus: `73xA1 blocker evidence lock`
+- Exact focus: `73xB1 focused source fix`
 - successor lane ranking is fixed as:
   1. `phase-73x emit_mir_mainline blocker follow-up`
   2. `TBD after blocker follow-up`
