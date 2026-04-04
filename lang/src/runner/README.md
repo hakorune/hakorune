@@ -18,8 +18,8 @@ Pointers:
   - Stage1 CLI launcher (`launcher.hako`) for top-level command dispatch.
 - Delegate actual execution to existing backends（Rust VM / LLVM / ny-llvmc）。既定挙動は変えない。
 - `launcher.hako` is the current CLI facade/orchestration keep, not a long-term pipeline-detail owner.
-- `stage1_cli_env.hako` is the current stage1 env-entry authority cluster; future file split is deferred until authority/facade cleanup proves a blocker.
-- `launcher_native_entry.hako` / `stage1_cli_env_entry.hako` are thin bootstrap entry stubs for `tools/selfhost/mainline/build_stage1.sh`; they keep no CLI policy and exist only to wrap the bootstrap artifact entry surface.
+- `stage1_cli_env.hako` is the current stage1 env-entry authority cluster.
+- `entry/launcher_native_entry.hako` / `entry/stage1_cli_env_entry.hako` are the canonical thin bootstrap entry stubs for `tools/selfhost/mainline/build_stage1.sh`; top-level files stay as compatibility wrappers only.
 
 ## Files
 
@@ -39,7 +39,7 @@ Pointers:
     - Program(JSON) marker predicates are now also centralized behind `_program_json_text_present(...)` and `_program_json_has_markers(...)`, so inline payload probing, emit-program output validation, and emit-mir input validation share one same-file contract
     - visible legacy stringify in env/debug/argv shaping is now centralized behind `_coerce_text_compat(...)`, so raw/subcmd cleanup can reduce `"" + x` residue without changing the lane contract
 
-- `runner_facade.hako`
+- `facade/runner_facade.hako`
   - Contract（draft）:
     - Entry: `Runner.run(entry: string, args: array<string>) -> i64`
     - Gate: `HAKO_SCRIPT_RUNNER=1`（default OFF）。
@@ -80,6 +80,7 @@ Pointers:
   - 言語意味論・最適化ロジックは compiler / opt / AotPrep に留める。
   - VM/LLVM の実行コアは Rust 側（Stage0 / NyRT）に委譲する。
 - current selfhost authority entry is `stage1_cli_env.hako`; `launcher.hako` / raw subcmd lane は authority ではなく compat/future retire target として扱う。
+- top-level `runner_facade.hako`, `launcher_native_entry.hako`, and `stage1_cli_env_entry.hako` are compatibility wrappers; canonical homes are under `facade/` and `entry/`.
 - shell-side exact env transport lives in `tools/selfhost/lib/stage1_contract.sh`; `tools/selfhost/compat/run_stage1_cli.sh` is a compatibility wrapper around that contract, not a second authority route.
 - shared env/source resolution contract is isolated in `Stage1InputContractBox` inside `stage1_cli_env.hako`; keep input shaping out of `Main` and out of authority/compat boxes.
 - reduced-artifact mode/env resolution is isolated in `Stage1ModeContractBox` inside `stage1_cli_env.hako`; keep `Main.main()` as a pure dispatcher over the exact `stage1-env-program` / `stage1-env-mir-source` contract.

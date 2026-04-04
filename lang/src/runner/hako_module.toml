@@ -3,6 +3,6 @@ name = "selfhost.runner"
 version = "1.0.0"
 
 [exports]
-Runner = "runner_facade.hako"
-entry.launcher_native_entry = "launcher_native_entry.hako"
-entry.stage1_cli_env_entry = "stage1_cli_env_entry.hako"
+Runner = "facade/runner_facade.hako"
+entry.launcher_native_entry = "entry/launcher_native_entry.hako"
+entry.stage1_cli_env_entry = "entry/stage1_cli_env_entry.hako"

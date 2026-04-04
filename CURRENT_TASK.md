@@ -162,7 +162,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-68x .hako runner authority/compat/facade recut`
 - Current blocker: `none`
-- Exact focus: `68xA2 target layout ranking`
+- Exact focus: `68xB1 facade/entry split`
 - successor lane ranking is fixed as:
   1. `phase-68x .hako runner authority/compat/facade recut`
   2. `phase-69x rust runner product/keep/reference recut`
@@ -253,9 +253,9 @@ Scope: repo root から current order / current blocker / next exact read に最
   73. `67xC1` lib/alias cleanup (landed)
   74. `67xD1` proof / closeout (landed)
   75. `68xA1` runner folder inventory lock (landed)
-  76. `68xA2` target layout ranking (active)
-  77. `68xB1` authority/compat split (planned)
-  78. `68xB2` facade/entry split (planned)
+  76. `68xA2` target layout ranking (landed)
+  77. `68xB1` facade/entry split (active)
+  78. `68xB2` authority/compat split (planned)
   79. `68xC1` alias/readme cleanup (planned)
   80. `68xD1` proof / closeout (planned)
 

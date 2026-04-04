@@ -1,0 +1,23 @@
+// runner_facade.hako — Phase 20.10 Script Runner (facade, draft)
+// Gate: HAKO_SCRIPT_RUNNER=1 (not wired by default in 20.10)
+
+static box Runner {
+  // Run facade. Returns process exit code (i64).
+  run(entry, args){
+    // Validate entry (simple dotted form expected)
+    if (entry == null || entry == "") {
+      console.warn("VALIDATION");
+      return 2;
+    }
+    // Trace invocation (stable short line for smokes) — opt-in
+    // HAKO_SCRIPT_RUNNER_TRACE=1 で出力（既定は静穏）
+    local tr = env.get("HAKO_SCRIPT_RUNNER_TRACE");
+    if tr && tr != "0" && tr != "false" {
+      print("[script-runner] invoke");
+    }
+    // Future: pre-hooks (env snapshot / quiet-result policy)
+    // Delegate to backend via existing CLI (placeholder; not wired in 20.10)
+    // This facade is documented first; wiring is added from Rust side behind a gate.
+    return 0;
+  }
+}

@@ -27,7 +27,6 @@ Related:
 ### Authority-facing
 
 - `lang/src/runner/stage1_cli_env.hako`
-- `lang/src/runner/stage1_cli_env_entry.hako`
 
 ### Compat-facing
 
@@ -39,6 +38,7 @@ Related:
 - `lang/src/runner/launcher.hako`
 - `lang/src/runner/runner_facade.hako`
 - `lang/src/runner/launcher_native_entry.hako`
+- `lang/src/runner/stage1_cli_env_entry.hako`
 
 ## Current Inventory
 
@@ -74,6 +74,21 @@ lang/src/runner/
   entry/
 ```
 
+## Ranking
+
+1. `68xB1 facade/entry split`
+   - low-blast move: `runner_facade.hako` and bootstrap entry stubs are wired mostly through `hako_module.toml` and thin wrappers
+   - compatibility wrappers can preserve old paths while the canonical tree becomes visible
+2. `68xB2 authority/compat split`
+   - higher blast: `stage1_cli_env.hako`, `stage1_cli.hako`, and `stage1_cli/**` participate in direct `using` chains and should move after the low-blast slice lands
+
+## Known Blocker Read
+
+- focused `emit_mir_mainline` probes against both the moved entry stub and the top-level wrapper still hit the existing selfhost-first parse red
+- current origin remains `lang/src/compiler/build/build_box.hako`
+- current error remains `Unexpected token BOX, expected LBRACE`
+- read this as inherited blocker, not as a new path-regression from the `68xB1` move
+
 ## Decision Rule
 
 - authority-heavy owners go under `authority/`
@@ -85,7 +100,7 @@ lang/src/runner/
 
 1. `68xA1` runner folder inventory lock
 2. `68xA2` target layout ranking
-3. `68xB1` authority/compat split
-4. `68xB2` facade/entry split
+3. `68xB1` facade/entry split
+4. `68xB2` authority/compat split
 5. `68xC1` alias/readme cleanup
 6. `68xD1` proof / closeout

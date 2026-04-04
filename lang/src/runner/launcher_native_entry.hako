@@ -1,11 +1,11 @@
-// launcher_native_entry.hako
+// launcher_native_entry.hako — thin compatibility wrapper
 //
-// Purpose:
-// - Provide a tiny argv-based bootstrap wrapper for launcher build artifacts.
-// - Keep the active path free of same-file helper boxes, file IO, and env reads.
+// Canonical entry stub now lives under `entry/launcher_native_entry.hako`.
+
+using lang.runner.entry.launcher_native_entry as LauncherNativeEntryBox
 
 static box Main {
   main(args) {
-    return 0
+    return LauncherNativeEntryBox.main(args)
   }
 }

@@ -20,8 +20,8 @@ Related:
 
 1. `68xA1` runner folder inventory lock
 2. `68xA2` target layout ranking
-3. `68xB1` authority/compat split
-4. `68xB2` facade/entry split
+3. `68xB1` facade/entry split
+4. `68xB2` authority/compat split
 5. `68xC1` alias/readme cleanup
 6. `68xD1` proof / closeout
 
@@ -29,7 +29,7 @@ Related:
 
 - `67x` has landed and split `tools/selfhost/` into folder lanes
 - current front:
-  - `68xA2 target layout ranking`
+  - `68xB1 facade/entry split`
 - current intent:
   - `lang/src/runner` should stop relying on file-name folklore for authority vs compat reading
   - entry/facade stubs should become obvious from folder placement

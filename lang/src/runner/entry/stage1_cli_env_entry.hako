@@ -1,0 +1,12 @@
+// stage1_cli_env_entry.hako
+//
+// Purpose:
+// - Minimal argv-based bootstrap wrapper for stage1-cli build artifacts.
+// - Keep the active path free of same-file helper boxes, file IO, and direct
+//   source->MIR compile calls.
+
+static box Main {
+  main(args) {
+    return 0
+  }
+}
