@@ -58,6 +58,24 @@ Related:
   - `delete-ready`: none
   - `keep-now`: all listed focus surfaces
 
+## Classification Freeze
+
+- `keep-now`
+  - `src/runner/modes/vm.rs`
+  - `src/runner/modes/vm_fallback.rs`
+  - `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
+  - `lang/src/runner/stage1_cli/core.hako`
+  - `tools/selfhost/run_stageb_compiler_vm.sh`
+  - `src/runner/dispatch.rs`
+  - `src/runner/route_orchestrator.rs`
+- `delete-ready`
+  - none
+- `archive-later`
+  - none newly promoted in `61x`
+- freeze rule:
+  - `61x` does not manufacture removal candidates from wording-only cleanup
+  - `62x` may remove only surfaces that gain caller-zero or explicit replacement proof after `61xB`
+
 ## Success Conditions
 
 - caller-zero facts are source-backed, not inferred from wording

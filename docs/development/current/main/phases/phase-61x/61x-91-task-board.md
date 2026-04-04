@@ -16,8 +16,8 @@ Date: 2026-04-04
 | Task | Status | Read as |
 | --- | --- | --- |
 | `61xA1` | landed | residual caller inventory rerun |
-| `61xA2` | active | keep/delete-ready classification freeze |
-| `61xB1` | queued | caller-zero proof bundle |
+| `61xA2` | landed | keep/delete-ready classification freeze |
+| `61xB1` | active | caller-zero proof bundle |
 | `61xB2` | queued | removal candidate shortlist |
 | `61xD1` | queued | proof / closeout |
 
@@ -25,7 +25,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `61xA2 keep/delete-ready classification freeze` |
+| Now | `61xB1 caller-zero proof bundle` |
 | Blocker | `none` |
-| Next | `61xB1 caller-zero proof bundle` |
-| After Next | `61xB2 removal candidate shortlist` |
+| Next | `61xB2 removal candidate shortlist` |
+| After Next | `61xD1 proof / closeout` |

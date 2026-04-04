@@ -55,6 +55,24 @@ Related:
   - `delete-ready`: none in the first pass
   - `archive-later`: none newly promoted in `61xA1`
 
+## Classification Freeze
+
+- `keep-now`
+  - `src/runner/modes/vm.rs`
+  - `src/runner/modes/vm_fallback.rs`
+  - `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
+  - `lang/src/runner/stage1_cli/core.hako`
+  - `tools/selfhost/run_stageb_compiler_vm.sh`
+  - `src/runner/dispatch.rs`
+  - `src/runner/route_orchestrator.rs`
+- `delete-ready`
+  - none
+- `archive-later`
+  - none newly promoted in `61x`
+- frozen reading:
+  - `61xB` collects proof bundles only
+  - `62x` stays gated on new caller-zero or replacement evidence
+
 ## Boundary
 
 - `61x` reruns facts; it does not remove broad sources by itself

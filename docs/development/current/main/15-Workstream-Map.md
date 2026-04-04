@@ -132,10 +132,10 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `61xA2 keep/delete-ready classification freeze` |
+     | Now | `61xB1 caller-zero proof bundle` |
      | Blocker | `none` |
-     | Next | `61xB1 caller-zero proof bundle` |
-     | After Next | `61xB2 removal candidate shortlist` |
+     | Next | `61xB2 removal candidate shortlist` |
+     | After Next | `61xD1 proof / closeout` |
    - retirement corridor after `60x`:
 
      | Lane | Read as |
@@ -147,9 +147,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `61xA2 keep/delete-ready classification freeze` |
-     | Next | `61xB1 caller-zero proof bundle` |
-     | Later | `61xB2 removal candidate shortlist` |
+     | Now | `61xB1 caller-zero proof bundle` |
+     | Next | `61xB2 removal candidate shortlist` |
+     | Later | `61xD1 proof / closeout` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
