@@ -12,19 +12,19 @@ Related:
 
 ## Current
 
-- lane: `phase-83x selfhost top-level facade/archive decision`
-- current front: `83xA1 top-level facade inventory lock`
+- lane: `phase-84x runner wrapper/source contract thinning`
+- current front: `84xA1 wrapper/source inventory lock`
 - blocker: `none`
 - recent landed:
-  - `phase-81x caller-zero archive rerun`
   - `phase-82x next source lane selection`
+  - `phase-83x selfhost top-level facade/archive decision`
 
 ## Current Read
 
 - `launcher.hako emit_mir_mainline` is green
 - `stage1_mainline_smoke.sh` is green
-- `82x` selected the top-level selfhost facade/archive decision lane
-- current work is classifying top-level `tools/selfhost/*` wrappers into keep vs archive-ready
+- `83x` froze top-level selfhost wrappers as explicit public/front-door keeps
+- current work is thinning the remaining top-level `.hako` wrapper/source pressure
 
 ## Root Anchors
 
@@ -35,5 +35,5 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-83x/README.md`
-3. `docs/development/current/main/phases/phase-83x/83x-91-task-board.md`
+2. `docs/development/current/main/phases/phase-84x/README.md`
+3. `docs/development/current/main/phases/phase-84x/84x-91-task-board.md`

@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 83x selfhost top-level facade/archive decision
+- **Current (ACTIVE)**: Phase 84x runner wrapper/source contract thinning
+- **Phase 83x（LANDED）**: selfhost top-level facade/archive decision（top-level selfhost wrappers は explicit public/front-door keep として固定）
 - **Phase 82x（LANDED）**: next source lane selection（top-level selfhost facade/archive decision lane を選んだ）
 - **Phase 81x（LANDED）**: caller-zero archive rerun（true archive-ready surface は出ず、no-op closeout）
 - **Phase 80x（LANDED）**: root/current pointer thinning（pointer docs を薄く整理）

@@ -23,18 +23,19 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 2. `phase-80x root/current pointer thinning` (landed)
 3. `phase-81x caller-zero archive rerun` (landed)
 4. `phase-82x next source lane selection` (landed)
-5. `phase-83x selfhost top-level facade/archive decision` (active)
+5. `phase-83x selfhost top-level facade/archive decision` (landed)
+6. `phase-84x runner wrapper/source contract thinning` (active)
 
 ## Current Front
 
-- Active lane: `phase-83x selfhost top-level facade/archive decision`
-- Active micro: `83xA1 top-level facade inventory lock`
+- Active lane: `phase-84x runner wrapper/source contract thinning`
+- Active micro: `84xA1 wrapper/source inventory lock`
 - Current blocker: `none`
-- Exact focus: classify top-level `tools/selfhost/*` wrappers into explicit front-door keeps vs true archive-ready aliases
+- Exact focus: thin remaining top-level `.hako` wrapper/source pressure now that top-level selfhost shell wrappers are frozen as explicit keeps
 
 ## Successor Corridor
 
-1. `phase-83x selfhost top-level facade/archive decision`
+1. `phase-84x runner wrapper/source contract thinning`
 
 ## Rust-VM Stop Line
 
@@ -47,13 +48,13 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-83x/README.md`
-4. `docs/development/current/main/phases/phase-83x/83x-90-selfhost-top-level-facade-archive-decision-ssot.md`
-5. `docs/development/current/main/phases/phase-83x/83x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-84x/README.md`
+4. `docs/development/current/main/phases/phase-84x/84x-90-runner-wrapper-source-contract-thinning-ssot.md`
+5. `docs/development/current/main/phases/phase-84x/84x-91-task-board.md`
 
 ## Notes
 
-- `phase-82x` selected the top-level selfhost facade/archive decision lane.
+- `phase-83x` closed as an explicit keep proof for top-level selfhost wrappers.
 - `launcher.hako emit_mir_mainline` is green.
 - `stage1_mainline_smoke.sh` is green.
 - `target/**`, `artifacts/**`, and `dist/**` are artifact roots only.

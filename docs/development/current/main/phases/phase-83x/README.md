@@ -1,7 +1,7 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
-Scope: decide which zero-caller top-level selfhost façades stay as public compatibility surfaces and which can move out of the live front door.
+Scope: decide which zero-caller top-level selfhost façades stay as public compatibility surfaces and which can move out of the live front door; phase is now landed and handed off.
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
@@ -28,7 +28,8 @@ Related:
 
 ## Current Read
 
-- current front:
-  - `83xA1 top-level facade inventory lock`
-- inherited blocker:
-  - `none`
+- handoff complete
+- result:
+  - top-level selfhost wrappers stay as explicit public/front-door keeps
+- selected successor lane:
+  - `phase-84x runner wrapper/source contract thinning`

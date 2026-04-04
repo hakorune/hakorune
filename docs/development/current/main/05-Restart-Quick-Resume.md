@@ -20,20 +20,20 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-83x selfhost top-level facade/archive decision`
-- current front: `83xA1 top-level facade inventory lock`
+- lane: `phase-84x runner wrapper/source contract thinning`
+- current front: `84xA1 wrapper/source inventory lock`
 - blocker: `none`
 - recent landed:
-  - `phase-81x caller-zero archive rerun`
   - `phase-82x next source lane selection`
+  - `phase-83x selfhost top-level facade/archive decision`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-83x/README.md`
-4. `docs/development/current/main/phases/phase-83x/83x-90-selfhost-top-level-facade-archive-decision-ssot.md`
-5. `docs/development/current/main/phases/phase-83x/83x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-84x/README.md`
+4. `docs/development/current/main/phases/phase-84x/84x-90-runner-wrapper-source-contract-thinning-ssot.md`
+5. `docs/development/current/main/phases/phase-84x/84x-91-task-board.md`
 
 ## Current Proof Bundle
 

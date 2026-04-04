@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-83x selfhost top-level facade/archive decision` |
-| Front | `83xA1 top-level facade inventory lock` |
+| Now | `phase-84x runner wrapper/source contract thinning` |
+| Front | `84xA1 wrapper/source inventory lock` |
 | Blocker | `none` |
-| Next | `83xA2 keep/archive decision freeze` |
-| After Next | `83xB1 archive-ready sweep or explicit keep proof` |
+| Next | `84xA2 target split / stop-line freeze` |
+| After Next | `84xB1 wrapper/source thinning` |
 
 ## Current Read
 
@@ -26,12 +26,12 @@ Related:
 - `stage1_mainline_smoke.sh` is green
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
-- `82x` selected the top-level selfhost facade/archive decision lane
-- `83x` classifies top-level selfhost wrappers into explicit keeps vs archive-ready aliases
+- `83x` closed as an explicit keep proof for top-level selfhost wrappers
+- `84x` thins the remaining top-level `.hako` wrapper/source pressure
 
 ## Successor Corridor
 
-1. `phase-83x selfhost top-level facade/archive decision`
+1. `phase-84x runner wrapper/source contract thinning`
 
 ## Structural Stop Lines
 
@@ -44,10 +44,11 @@ Related:
 ## Reference
 
 - current lane docs:
-  - `docs/development/current/main/phases/phase-83x/README.md`
-  - `docs/development/current/main/phases/phase-83x/83x-90-selfhost-top-level-facade-archive-decision-ssot.md`
-  - `docs/development/current/main/phases/phase-83x/83x-91-task-board.md`
+  - `docs/development/current/main/phases/phase-84x/README.md`
+  - `docs/development/current/main/phases/phase-84x/84x-90-runner-wrapper-source-contract-thinning-ssot.md`
+  - `docs/development/current/main/phases/phase-84x/84x-91-task-board.md`
 - previous landed lanes:
+  - `docs/development/current/main/phases/phase-83x/README.md`
   - `docs/development/current/main/phases/phase-82x/README.md`
   - `docs/development/current/main/phases/phase-81x/README.md`
   - `docs/development/current/main/phases/phase-80x/README.md`
