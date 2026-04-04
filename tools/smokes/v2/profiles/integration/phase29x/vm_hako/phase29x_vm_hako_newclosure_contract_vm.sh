@@ -8,7 +8,7 @@
 # Contract pin:
 # 1) MIR allowlist still accepts `new_closure` shape (compiler-side canonical contract).
 # 2) Runtime probe keeps fail-fast behavior:
-#    - rust-vm route: unsupported op(new_closure) in loader
+#    - vm route: unsupported op(new_closure) in loader
 #    - hako-runner route: [vm-hako/unimplemented op=new_closure]
 
 set -euo pipefail

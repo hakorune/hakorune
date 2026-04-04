@@ -2,7 +2,7 @@
 # Phase29z-S5j-probe: new_closure current-route probe smoke
 #
 # Contract (current behavior pin):
-# - rust-vm core route rejects at MIR JSON v0 loader with unsupported op(new_closure)
+# - vm core route rejects at MIR JSON v0 loader with unsupported op(new_closure)
 # - hako-runner route rejects with [vm-hako/unimplemented op=new_closure]
 
 set -euo pipefail
@@ -53,17 +53,17 @@ RUST_RC=$?
 set -e
 
 if [ "$RUST_RC" -eq 124 ]; then
-    test_fail "phase29z_vm_hako_s5_newclosure_probe_vm: rust-vm route timed out"
+    test_fail "phase29z_vm_hako_s5_newclosure_probe_vm: vm route timed out"
     exit 1
 fi
 if [ "$RUST_RC" -eq 0 ]; then
     echo "$RUST_OUTPUT" | tail -n 80 || true
-    test_fail "phase29z_vm_hako_s5_newclosure_probe_vm: rust-vm expected non-zero"
+    test_fail "phase29z_vm_hako_s5_newclosure_probe_vm: vm expected non-zero"
     exit 1
 fi
 if ! echo "$RUST_OUTPUT" | rg -q "unsupported op 'new_closure' in mir_json_v0 loader"; then
     echo "$RUST_OUTPUT" | tail -n 120 || true
-    test_fail "phase29z_vm_hako_s5_newclosure_probe_vm: rust-vm missing unsupported-op marker"
+    test_fail "phase29z_vm_hako_s5_newclosure_probe_vm: vm missing unsupported-op marker"
     exit 1
 fi
 
@@ -105,4 +105,4 @@ if ! echo "$HAKO_OUTPUT" | rg -q '^\[vm-hako/unimplemented op=new_closure\]'; th
     exit 1
 fi
 
-test_pass "phase29z_vm_hako_s5_newclosure_probe_vm: PASS (rust-vm=$RUST_RC hako-runner=$HAKO_RC)"
+test_pass "phase29z_vm_hako_s5_newclosure_probe_vm: PASS (vm=$RUST_RC hako-runner=$HAKO_RC)"

@@ -10,7 +10,7 @@
 # - VM_HAKO_PARITY_DENY_OPS (comma-separated op list that must not appear in fixture)
 #
 # Route contract:
-# - Both rust-vm and hako-runner subprocesses are executed via vm route pin helper
+# - Both vm and hako-runner subprocesses are executed via vm route pin helper
 #   so strict/dev default changes do not drift parity probes.
 
 set -euo pipefail
@@ -129,7 +129,7 @@ RUST_RC=$?
 set -e
 
 if [ "$RUST_RC" -eq 124 ]; then
-    test_fail "$SMOKE_NAME: rust-vm route timed out (>${RUN_TIMEOUT_SECS}s)"
+    test_fail "$SMOKE_NAME: vm route timed out (>${RUN_TIMEOUT_SECS}s)"
     exit 1
 fi
 
@@ -144,9 +144,9 @@ if [ "$HAKO_RC" -eq 124 ]; then
 fi
 
 if [ "$RUST_RC" -ne "$EXPECTED_RC" ]; then
-    echo "[FAIL] expected rust-vm route rc=$EXPECTED_RC, got rc=$RUST_RC"
+    echo "[FAIL] expected vm route rc=$EXPECTED_RC, got rc=$RUST_RC"
     echo "$RUST_OUTPUT" | tail -n 80 || true
-    test_fail "$SMOKE_NAME: rust-vm rc mismatch"
+    test_fail "$SMOKE_NAME: vm rc mismatch"
     exit 1
 fi
 
@@ -158,7 +158,7 @@ if [ "$HAKO_RC" -ne "$EXPECTED_RC" ]; then
 fi
 
 if [ "$RUST_RC" -ne "$HAKO_RC" ]; then
-    echo "[FAIL] parity mismatch: rust-vm=$RUST_RC hako-runner=$HAKO_RC"
+    echo "[FAIL] parity mismatch: vm=$RUST_RC hako-runner=$HAKO_RC"
     test_fail "$SMOKE_NAME: parity mismatch"
     exit 1
 fi
@@ -177,4 +177,4 @@ if echo "$HAKO_OUTPUT" | rg -q '^\[vm-hako/contract\]'; then
     exit 1
 fi
 
-test_pass "$SMOKE_NAME: PASS (rust-vm=$RUST_RC hako-runner=$HAKO_RC)"
+test_pass "$SMOKE_NAME: PASS (vm=$RUST_RC hako-runner=$HAKO_RC)"

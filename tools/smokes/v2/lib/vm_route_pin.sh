@@ -2,8 +2,8 @@
 # vm_route_pin.sh - shared helpers for vm route pin (NYASH_VM_HAKO_PREFER_STRICT_DEV=0)
 #
 # Contract:
-# - Compiler/selfhost gate scripts that must stay on rust-vm lane should use these
-#   helpers instead of duplicating raw env assignment at each callsite.
+# - Compiler/selfhost gate scripts that must stay on the VM compat lane should
+#   use these helpers instead of duplicating raw env assignment at each callsite.
 
 set -euo pipefail
 

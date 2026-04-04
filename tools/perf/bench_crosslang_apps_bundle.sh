@@ -19,7 +19,7 @@ set -euo pipefail
 #   [bench4-app] chip8_aot_status=<ok|skip|fail> chip8_ratio_c_aot=<r> chip8_ny_aot_ms=<n> \
 #                kilo_aot_status=<ok|skip|fail> kilo_ratio_c_aot=<r> kilo_ny_aot_ms=<n> \
 #                kilo_mode=<strict|diagnostic> kilo_result_parity=<ok|skip> \
-#                kilo_fallback_guard=<strict-no-fallback|...> kilo_vm_engine=<rust-vm|hako-vm|unknown> \
+#                kilo_fallback_guard=<strict-no-fallback|...> kilo_vm_engine=<vm|hako-vm|unknown> \
 #                apps_total_ms=<n> apps_hotspot_case=<name> apps_hotspot_ms=<n> \
 #                entry_source_total_ms=<n> entry_prebuilt_total_ms=<n> entry_delta_ms=<n> entry_winner=<name>
 
@@ -168,7 +168,7 @@ if [[ "${kilo_fallback_guard}" != "strict-no-fallback" ]]; then
   exit 1
 fi
 case "${kilo_vm_engine}" in
-  rust-vm|hako-vm|unknown)
+  vm|hako-vm|unknown)
     ;;
   *)
     echo "[error] invalid kilo vm_engine: ${kilo_vm_engine}" >&2

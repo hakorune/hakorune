@@ -101,7 +101,7 @@ if ! echo "${OUTPUT}" | grep -q "kilo_fallback_guard=strict-no-fallback"; then
   test_fail "${SMOKE_NAME}: kilo_fallback_guard is not strict-no-fallback"
   exit 1
 fi
-if ! echo "${OUTPUT}" | grep -qE "kilo_vm_engine=(rust-vm|hako-vm|unknown)"; then
+if ! echo "${OUTPUT}" | grep -qE "kilo_vm_engine=(vm|hako-vm|unknown)"; then
   echo "${OUTPUT}" | tail -n 80 || true
   test_fail "${SMOKE_NAME}: invalid kilo_vm_engine"
   exit 1

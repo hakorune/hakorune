@@ -69,7 +69,7 @@ fi
 
 cat <<EOF_MD
   - [x] \`bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_backend_frame_vm.sh\` PASS（\`phase=$PHASE\`, \`rc=1\` fail-fast 契約維持）
-  - [x] \`bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_array_get_parity_vm.sh\` PASS（\`rust-vm=42\`, \`hako-runner=42\`）
-  - [x] \`bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_array_set_parity_vm.sh\` PASS（\`rust-vm=42\`, \`hako-runner=42\`）
+  - [x] \`bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_array_get_parity_vm.sh\` PASS（\`vm=42\`, \`hako-runner=42\`）
+  - [x] \`bash tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_array_set_parity_vm.sh\` PASS（\`vm=42\`, \`hako-runner=42\`）
   - [x] \`./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4\` PASS（\`$CASES\`, \`stageb_total_secs=$STAGEB\`, \`avg_case_secs=$AVG\`）
 EOF_MD

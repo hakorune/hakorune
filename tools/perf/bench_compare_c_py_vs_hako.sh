@@ -226,7 +226,7 @@ if [[ "${ROUTE_PROBE_ENABLED}" == "1" ]]; then
   fi
   case "${DERUST_SOURCE}" in
     rust* | *rust*)
-      VM_ENGINE="rust-vm"
+      VM_ENGINE="vm"
       ;;
     hako* | *hako*)
       VM_ENGINE="hako-vm"

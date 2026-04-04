@@ -28,7 +28,7 @@ if [ -n "${NYASH_BIN:-}" ] && [ -x "${NYASH_BIN}" ]; then
 fi
 
 # Compiler-lane gate contract:
-# keep runtime execution on rust-vm lane to avoid vm-hako route drift
+# keep runtime execution on the VM compat lane to avoid vm-hako route drift
 # contaminating JoinIR/CorePlan acceptance checks.
 export_vm_route_pin
 

@@ -54,7 +54,7 @@ if rg -q "vm step budget exceeded" "$TMP_ERR"; then
   exit 1
 fi
 
-if rg -q "Invalid value: \\[rust-vm\\] use of undefined value ValueId\\(0\\)" "$TMP_ERR"; then
+if rg -q "Invalid value: \\[vm\\] use of undefined value ValueId\\(0\\)" "$TMP_ERR"; then
   echo "[FAIL] phase216_direct_loop_progression: ValueId(0) regression" >&2
   head -n 40 "$TMP_ERR" >&2 || true
   exit 1

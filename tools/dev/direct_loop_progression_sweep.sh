@@ -186,7 +186,7 @@ classify_run_result() {
     echo "run:ok"
     return 0
   fi
-  if rg -q 'vm step budget exceeded|Invalid value: \[rust-vm\] use of undefined value|undefined value ValueId' "$file"; then
+  if rg -q 'vm step budget exceeded|Invalid value: \[vm\] use of undefined value|undefined value ValueId' "$file"; then
     echo "run:loop-progression-blocker"
     return 0
   fi

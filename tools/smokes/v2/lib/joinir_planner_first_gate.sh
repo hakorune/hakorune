@@ -64,7 +64,7 @@ run_planner_first_gate() {
   local output
   # Make the gate hermetic: do not inherit developer-local debug/trace envs that would
   # leak extra lines into stdout/stderr and break output matching.
-  # Planner-first gates are compiler-lane contracts, so pin route to rust-vm lane.
+  # Planner-first gates are compiler-lane contracts, so pin route to the VM compat lane.
   output=$(run_hermetic_vm_with_route_pin \
     timeout "$timeout_secs" \
     "$NYASH_BIN" --backend vm "$fixture" 2>&1)

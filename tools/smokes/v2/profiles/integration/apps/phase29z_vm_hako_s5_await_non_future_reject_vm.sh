@@ -2,7 +2,7 @@
 # Phase29z-S5i-clean: await non-future precondition reject smoke
 #
 # Contract:
-# - rust-vm core route must fail on await(non-future)
+# - vm core route must fail on await(non-future)
 # - hako-runner route must fail-fast with [await-non-future]
 
 set -euo pipefail
@@ -52,12 +52,12 @@ RUST_RC=$?
 set -e
 
 if [ "$RUST_RC" -eq 124 ]; then
-    test_fail "phase29z_vm_hako_s5_await_non_future_reject_vm: rust-vm route timed out"
+    test_fail "phase29z_vm_hako_s5_await_non_future_reject_vm: vm route timed out"
     exit 1
 fi
 if [ "$RUST_RC" -eq 0 ]; then
     echo "$RUST_OUTPUT" | tail -n 80 || true
-    test_fail "phase29z_vm_hako_s5_await_non_future_reject_vm: rust-vm expected non-zero"
+    test_fail "phase29z_vm_hako_s5_await_non_future_reject_vm: vm expected non-zero"
     exit 1
 fi
 
@@ -99,4 +99,4 @@ if ! echo "$HAKO_OUTPUT" | rg -q '^\[vm-hako/contract\]\[await-non-future\]'; th
     exit 1
 fi
 
-test_pass "phase29z_vm_hako_s5_await_non_future_reject_vm: PASS (rust-vm=$RUST_RC hako-runner=$HAKO_RC)"
+test_pass "phase29z_vm_hako_s5_await_non_future_reject_vm: PASS (vm=$RUST_RC hako-runner=$HAKO_RC)"

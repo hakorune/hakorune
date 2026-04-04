@@ -61,7 +61,7 @@ if rg -q '\[freeze:contract\]\[emit-mir/direct-verify\]|defined in non-dominatin
   exit 1
 fi
 
-if rg -q 'vm step budget exceeded|Invalid value: \[rust-vm\] use of undefined value|undefined value ValueId' "$tmp_run_err"; then
+if rg -q 'vm step budget exceeded|Invalid value: \[vm\] use of undefined value|undefined value ValueId' "$tmp_run_err"; then
   echo "[FAIL] phase29ca_direct_verify_dominance_block: loop progression regression detected" >&2
   sed -n '1,80p' "$tmp_run_err" >&2 || true
   exit 1

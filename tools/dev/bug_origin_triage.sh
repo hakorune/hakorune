@@ -200,7 +200,7 @@ if [ -n "$STAGE1_ENTRY" ]; then
 fi
 echo
 
-print_route_summary "rust_vm" "rust-vm (--backend vm)"
+print_route_summary "rust_vm" "vm (--backend vm)"
 print_route_summary "stage1_run" "stage1-route (--hako-run)"
 print_route_summary "vm_hako" "vm-hako (--backend vm-hako)"
 echo
@@ -217,7 +217,7 @@ echo "[diagnosis]"
 
 if [ "$rust_timeout" = "timeout" ]; then
   PRESERVE_ON_EXIT=1
-  echo "  - rust-vm route timed out; cannot classify. Check parser/compile recursion first."
+  echo "  - vm route timed out; cannot classify. Check parser/compile recursion first."
 elif [ -z "$EXPECT_REGEX" ] && [ -z "$EXPECT_RC" ]; then
   PRESERVE_ON_EXIT=1
   echo "  - no expectation provided; verdict is tag-based only."
@@ -235,7 +235,7 @@ else
 
   if [ "$rust_v" = "pass" ]; then
     if [ "$stage1_v" = "fail" ]; then
-      echo "  - rust-vm matches expectation but stage1-route does not."
+      echo "  - vm matches expectation but stage1-route does not."
       echo "  - likely origin: .hako compiler/stage1 lane."
     elif [ "$stage1_v" = "unknown" ]; then
       echo "  - stage1-route timed out/unknown; stage1 stability issue may hide .hako lane bugs."
@@ -244,7 +244,7 @@ else
     if [ "$vmh_v" = "fail" ]; then
       if has_tag "vm_hako" '^\[vm-hako/unimplemented\]'; then
         echo "  - vm-hako mismatch is due to subset unimplemented."
-        echo "  - likely origin: vm-hako capability gap (not rust-vm semantics)."
+        echo "  - likely origin: vm-hako capability gap (not vm semantics)."
       else
         echo "  - vm-hako mismatches without unimplemented tag."
         echo "  - likely origin: vm-hako runtime semantics."
@@ -258,10 +258,10 @@ else
     fi
   else
     if [ "$stage1_v" = "pass" ]; then
-      echo "  - stage1-route matches expectation but rust-vm does not."
+      echo "  - stage1-route matches expectation but vm does not."
       echo "  - likely origin: Rust compiler/runtime lane."
     elif [ "$stage1_v" = "fail" ] || [ "$stage1_v" = "unknown" ]; then
-      echo "  - rust-vm also fails expectation and stage1 is not clearly healthy."
+      echo "  - vm also fails expectation and stage1 is not clearly healthy."
       echo "  - likely origin: shared frontend/core lowering contract (SSOT-level bug)."
     fi
   fi
@@ -270,7 +270,7 @@ fi
 echo
 if [ "$KEEP_TEMP" -eq 1 ] || [ "$PRESERVE_ON_EXIT" -eq 1 ]; then
   echo "[hint] inspect raw logs:"
-  echo "  - rust_vm:    $TMP_DIR/rust_vm.out"
+  echo "  - vm:         $TMP_DIR/rust_vm.out"
   echo "  - stage1_run: $TMP_DIR/stage1_run.out"
   echo "  - vm_hako:    $TMP_DIR/vm_hako.out"
 else
