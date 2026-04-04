@@ -37,10 +37,9 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-66x next source lane selection`
-     - current active micro task is `66xA2 candidate lane ranking`
-     - ranked successor corridor is:
-       - `67x selfhost folder split`
+     - current active lane is `phase-67x selfhost folder split`
+     - current active micro task is `67xA1 selfhost folder inventory lock`
+     - ranked successor corridor after `67x` is:
        - `68x .hako runner authority/compat/facade recut`
        - `69x rust runner product/keep/reference recut`
        - `70x caller-zero archive sweep`
@@ -134,14 +133,14 @@ Related:
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-66x next source lane selection table:
+   - phase-67x selfhost folder split table:
 
      | Item | State |
      | --- | --- |
-     | Now | `66xA2 candidate lane ranking` |
+     | Now | `67xA1 selfhost folder inventory lock` |
      | Blocker | `none` |
-     | Next | `66xB1 successor lane decision` |
-     | After Next | `66xB2 folder-separation corridor lock` |
+     | Next | `67xA2 target layout ranking` |
+     | After Next | `67xB1 top-level selfhost split` |
    - rust-vm corridor outcome:
 
      | Item | State |
@@ -153,9 +152,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `66xA1 successor lane inventory lock` |
-     | Next | `66xA2 candidate lane ranking` |
-     | Later | `66xB1 successor lane decision` |
+     | Now | `67xA1 selfhost folder inventory lock` |
+     | Next | `67xA2 target layout ranking` |
+     | Later | `67xB1 top-level selfhost split` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |

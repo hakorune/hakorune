@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `phase-66x next source lane selection`
+- lane: `phase-67x selfhost folder split`
 - `49xD1` landed: proof / closeout
 - `50xA1` landed: residual rust-vm surface inventory lock
 - `50xA2` landed: proof-only / compat keep classification
@@ -140,9 +140,8 @@ Related:
 - landed micro task: `65xB2 shell contract owner cleanup`
 - landed micro task: `65xC1 mainline proof bundle refresh`
 - landed micro task: `65xD1 proof / closeout`
-- active micro task: `66xA2 candidate lane ranking`
-- ranked next-lane corridor:
-  - `67x selfhost folder split`
+- active micro task: `67xA1 selfhost folder inventory lock`
+- ranked next-lane corridor after `67x`:
   - `68x .hako runner authority/compat/facade recut`
   - `69x rust runner product/keep/reference recut`
   - `70x caller-zero archive sweep`

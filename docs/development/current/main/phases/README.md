@@ -4,8 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 66x next source lane selection
-- **Phase 66x（ACTIVE）**: next source lane selection（phase-65x handoff 後の次 source lane を選ぶ）
+- **Current (ACTIVE)**: Phase 67x selfhost folder split
+- **Phase 67x（ACTIVE）**: selfhost folder split（tools/selfhost の mainline / proof / compat / lib split）
+- **Phase 66x（LANDED）**: next source lane selection（phase-65x handoff 後の次 source lane と folder-first corridor を選んだ）
 - **Phase 65x（LANDED）**: stage1/selfhost mainline hardening（`.hako` / Stage1 authority cluster と shell contract owner を mainline 観点で固めた）
 - **Phase 64x（LANDED）**: next source lane selection（rust-vm retirement corridor の結果を受けて次の source lane を選んだ）
 - **Phase 63x（LANDED）**: rust-vm final retirement decision（mainline retirement achieved / full source retirement deferred / residual explicit keep frozen を確定）

@@ -22,7 +22,7 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-66x next source lane selection`
+- lane: `phase-67x selfhost folder split`
 - landed micro task: `49xD1 proof / closeout`
 - landed micro task: `52xA2 archive README / wrapper wording rewrite`
 - landed micro task: `52xB1 archive pack orchestrator wording cleanup`
@@ -90,9 +90,8 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `65xB2 shell contract owner cleanup`
 - landed micro task: `65xC1 mainline proof bundle refresh`
 - landed micro task: `65xD1 proof / closeout`
-- active micro task: `66xA2 candidate lane ranking`
-- ranked successor corridor:
-  - `67x selfhost folder split`
+- active micro task: `67xA1 selfhost folder inventory lock`
+- ranked successor corridor after `67x`:
   - `68x .hako runner authority/compat/facade recut`
   - `69x rust runner product/keep/reference recut`
   - `70x caller-zero archive sweep`
