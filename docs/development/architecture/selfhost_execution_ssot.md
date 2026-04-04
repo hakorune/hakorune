@@ -27,6 +27,9 @@ Date: 2026-04-05
 [tools/selfhost/lib/selfhost_run_routes.sh](/home/tomoaki/git/hakorune-selfhost/tools/selfhost/lib/selfhost_run_routes.sh)
 が持つ。
 
+外向き surface では当面 `--runtime-mode exe` / `stage-a-compat` を受けるが、
+SSOT の canonical route 名は `runtime/mainline` / `runtime/compat` として読む。
+
 ### CLI backend override
 
 - `hakorune --backend llvm`
@@ -123,6 +126,7 @@ Public surface:
 Body:
 - explicit compat keep
 - 実行時には `--backend vm` を使う narrow keep route
+- `stage-a` は thin alias only で、canonical route 名ではない
 
 ### `direct/proof`
 
@@ -159,6 +163,9 @@ current lane set:
 - `rust-vm-keep`
 - `vm-hako-reference`
 - `vm-compat-fallback`
+
+現在の source では trace / debug 表示に `lane=vm` や `lane=vm-hako` が残る。
+それらは legacy lane labels で、SSOT 上の canonical 名は上の 3 つとする。
 
 ### `--backend vm-hako`
 

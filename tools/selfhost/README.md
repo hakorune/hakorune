@@ -10,7 +10,7 @@ Purpose
   - `tools/selfhost/mainline/build_stage1.sh` = strategy shell
   - `tools/selfhost/lib/stage1_contract.sh` = contract shell
 - Stage/lane vocabulary note:
-  - canonical stage/owner/artifact reading lives in `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
+  - canonical stage/route/backend/lane/kernel reading lives in `docs/development/architecture/selfhost_execution_ssot.md`
   - `stage0` = bootstrap keep
   - `stage1` = current bootstrap artifacts / proof line
   - `stage2-mainline` = daily mainline lane
@@ -24,7 +24,7 @@ Script
   - Modes:
     - `--gate`: run selfhost gate (`phase29bq_selfhost_planner_required_dev_gate_vm.sh`)
     - `--runtime`: run runtime selfhost route (`NYASH_USE_NY_COMPILER=1`)
-      - `--runtime-mode exe|stage-a-compat` (default `exe`; `stage-a` remains a thin alias; `stage-a-compat` is explicit compat-only)
+      - `--runtime-mode exe|stage-a-compat` (default `exe`; canonical route reading is `runtime/mainline|runtime/compat`; `stage-a` remains a thin alias; `stage-a-compat` is explicit compat-only)
     - `--direct`: run Stage-B direct/source route (proof-oriented; VM wrapper is kept explicit-only)
   - Examples:
     ```bash

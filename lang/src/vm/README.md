@@ -1,7 +1,7 @@
-# Hakorune VM Layout (Current → Target)
+# Hako VM / Reference Cluster Layout (Current → Target)
 
 Current
-- `lang/src/vm/hakorune-vm/` — Hakorune VM (nyvm) implementation
+- `lang/src/vm/hakorune-vm/` — Hako-side VM/reference implementation
 - `lang/src/vm/boxes/` — Shared helpers (op_handlers, scanners, compare, etc.)
 - Mini‑VM minimal executor lives as boxes (e.g., `boxes/mir_vm_min.hako`)
 
@@ -11,9 +11,9 @@ Mini VM vs Hakorune VM (Roles)
   system is verification: given MIR(JSON v0), compute the return value and
   map it to an exit code (Int → value, Bool → 1/0). It must not depend on
   env/get or include; inputs are passed as inline JSON strings.
-- Hakorune VM (Rust): production runtime with Boxes/Plugins/Externs and wider
-  semantics. Used for day‑to‑day execution and integration. Mini VM validates
-  meanings; Hakorune VM executes applications.
+- Hako VM cluster (`lang/src/vm`): reference/conformance executor cluster for
+  `vm-hako` and selfhost-side verification lanes. It is not the day-to-day
+  mainline owner and should not be described as the product kernel/runtime.
 
 Verify Pipeline (hakovm primary / Fail‑Fast)
 1) Emit MIR(JSON v0) as a single JSON string (noise trimmed in runner).
