@@ -15,10 +15,10 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-90x current-doc/design stale surface hygiene` |
-| Front | `90xC1 proof refresh` |
+| Front | `90xD1 closeout` |
 | Blocker | `none` |
-| Next | `90xA2 target split / stop-line freeze` |
-| After Next | `90xD1 closeout` |
+| Next | `phase-91x top-level .hako wrapper policy review` |
+| After Next | `phase-92x selfhost proof/compat caller rerun` |
 
 ## Current Read
 

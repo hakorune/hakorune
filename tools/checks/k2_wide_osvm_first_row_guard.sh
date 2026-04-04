@@ -5,7 +5,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT_DIR"
 
 OSVM_CORE_FILE="lang/src/runtime/substrate/osvm/osvm_core_box.hako"
-VM_SUBSET_FILE="src/runner/modes/vm_hako/subset_check/mod.rs"
+VM_SUBSET_FILE="src/runner/reference/vm_hako/subset_check/mod.rs"
 VM_BOXCALL_FILE="lang/src/vm/boxes/mir_vm_s0_boxcall_builtin.hako"
 VM_EXTERNCALL_FILE="lang/src/vm/boxes/mir_vm_s0_call_exec.hako"
 VM_MIRCALL_FILE="lang/src/vm/boxes/mir_call_v1_handler.hako"

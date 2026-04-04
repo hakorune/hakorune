@@ -21,7 +21,7 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-90x current-doc/design stale surface hygiene`
-- current front: `90xC1 proof refresh`
+- current front: `90xD1 closeout`
 - blocker: `none`
 - recent landed:
   - `phase-89x next source lane selection`

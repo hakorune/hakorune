@@ -29,7 +29,7 @@ Related:
 ## Current Read
 
 - current front:
-  - `90xC1 proof refresh`
+  - `90xD1 closeout`
 - likely corridor:
   - `phase-91x top-level .hako wrapper policy review`
   - `phase-92x selfhost proof/compat caller rerun`

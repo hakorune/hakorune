@@ -19,14 +19,14 @@ Date: 2026-04-04
 | `90xA1` | landed | stale surface inventory lock |
 | `90xA2` | landed | target split / stop-line freeze |
 | `90xB1` | landed | current/design stale surface cleanup |
-| `90xC1` | active | proof refresh |
-| `90xD1` | queued | closeout |
+| `90xC1` | landed | proof refresh |
+| `90xD1` | active | closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `90xC1 proof refresh` |
+| Now | `90xD1 closeout` |
 | Blocker | `none` |
-| Next | `90xD1 closeout` |
-| After Next | `90xD1 closeout` |
+| Next | `phase-91x top-level .hako wrapper policy review` |
+| After Next | `phase-92x selfhost proof/compat caller rerun` |
