@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 ---
 
@@ -8,9 +8,9 @@ Date: 2026-04-04
 | Order | Task | Status | Read as |
 | --- | --- | --- | --- |
 | 1 | `57xA inventory/classify` | landed | lock the exact residual rust-vm surfaces before any removal |
-| 2 | `57xB audit/prep` | active | prove caller-zero or replacement coverage for removal candidates |
-| 3 | `57xC removal wave` | queued | remove only the delete-ready residue |
-| 4 | `57xD closeout` | queued | prove and hand off cleanly |
+| 2 | `57xB audit/prep` | landed | prove caller-zero or replacement coverage for removal candidates |
+| 3 | `57xC removal wave` | landed | remove only the delete-ready residue |
+| 4 | `57xD closeout` | landed | prove and hand off cleanly |
 
 ## Exact Micro Tasks
 
@@ -20,8 +20,8 @@ Date: 2026-04-04
 | `57xA2` | landed | keep/delete/archive classification freeze |
 | `57xB1` | landed | caller-zero audit |
 | `57xB2` | landed | removal candidate prep |
-| `57xC1` | active | removal wave |
-| `57xD1` | queued | proof / closeout |
+| `57xC1` | landed | removal wave |
+| `57xD1` | landed | proof / closeout |
 
 ## Inventory Snapshot
 
@@ -38,7 +38,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `57xC1 removal wave` |
+| Now | `phase-57x landed` |
 | Blocker | `none` |
-| Next | `57xD1 proof / closeout` |
-| After Next | `58x` successor lane selection |
+| Next | `58xA1 successor lane inventory lock` |
+| After Next | `58xA2 candidate lane ranking` |

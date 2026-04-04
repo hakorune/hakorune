@@ -4,8 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 57x rust-vm delete-ready audit / removal wave
-- **Phase 57x（ACTIVE）**: rust-vm delete-ready audit / removal wave（keep-now / archive-later / delete-ready を source-backed に切り分けて removal wave を作る）
+- **Current (ACTIVE)**: Phase 58x next source lane selection
+- **Phase 58x（ACTIVE）**: next source lane selection（phase-57x の audit 結果を受けて successor lane を決める）
+- **Phase 57x（LANDED）**: rust-vm delete-ready audit / removal wave（keep-now / archive-later / delete-ready を source-backed に切り分け、broad source deletionなしで closeout）
 - **Phase 56x（LANDED）**: proof/compat keep pruning（explicit keep のまま残している rust-vm surfaces を削れる形まで狭めた）
 - **Phase 55x（LANDED）**: rust-vm route-surface retirement prep（route/default/help surfaces から rust-vm selectable feeling を外した）
 - **Phase 54x（LANDED）**: next source lane selection（phase-53x handoff を受けて successor lane と retirement corridor を確定した）

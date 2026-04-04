@@ -22,7 +22,7 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-57x rust-vm delete-ready audit / removal wave`
+- lane: `phase-58x next source lane selection`
 - landed micro task: `49xD1 proof / closeout`
 - landed micro task: `52xA2 archive README / wrapper wording rewrite`
 - landed micro task: `52xB1 archive pack orchestrator wording cleanup`
@@ -54,8 +54,10 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `57xA2 keep/delete/archive classification freeze`
 - landed micro task: `57xB1 caller-zero audit`
 - landed micro task: `57xB2 removal candidate prep`
-- active micro task: `57xC1 removal wave`
-- planned follow-up: `57xD1 proof / closeout`
+- landed micro task: `57xC1 removal wave`
+- landed micro task: `57xD1 proof / closeout`
+- active micro task: `58xA1 successor lane inventory lock`
+- planned follow-up: `58xA2 candidate lane ranking`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 
@@ -63,9 +65,9 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-57x/README.md`
-4. `docs/development/current/main/phases/phase-57x/57x-90-rust-vm-delete-ready-audit-removal-wave-ssot.md`
-5. `docs/development/current/main/phases/phase-57x/57x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-58x/README.md`
+4. `docs/development/current/main/phases/phase-58x/58x-90-next-source-lane-selection-ssot.md`
+5. `docs/development/current/main/phases/phase-58x/58x-91-task-board.md`
 6. `cargo check --manifest-path Cargo.toml --bin hakorune`
 
 ## Optional Checks

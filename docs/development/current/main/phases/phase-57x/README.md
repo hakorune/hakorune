@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: audit the remaining rust-vm surfaces for delete-ready removal now that route-surface retirement and keep-pruning are landed.
 Related:
@@ -49,6 +49,12 @@ Related:
 - no target rust-vm source surface is delete-ready yet.
 - `57xB2` therefore narrows the wave toward archive/manual-smoke residue instead of broad source deletion.
 - stale proof wrappers may still be aligned to current `hakorune` / exit-code contracts while staying explicit keeps.
+
+## Outcome
+
+- delete-ready inventory and caller audit are locked
+- no broad rust-vm source surface became delete-ready in this lane
+- the lane closed with narrow wrapper contract cleanup only and handed off to successor selection
 
 ## Failure Patterns
 

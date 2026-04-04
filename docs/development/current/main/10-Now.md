@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `phase-57x rust-vm delete-ready audit / removal wave`
+- lane: `phase-58x next source lane selection`
 - `49xD1` landed: proof / closeout
 - `50xA1` landed: residual rust-vm surface inventory lock
 - `50xA2` landed: proof-only / compat keep classification
@@ -63,7 +63,8 @@ Related:
 - `56xC1 proof smoke keep pruning` landed
 - `56xD1 proof / closeout` landed
 - `56x proof/compat keep pruning` landed
-- `57x rust-vm delete-ready audit / removal wave` active
+- `57x rust-vm delete-ready audit / removal wave` landed
+- `58x next source lane selection` active
 - `47xA1` landed: runtime/default contract lock
 - `47xA2` landed: stage1 source->MIR contract lock
 - `47xA3` landed: Stage-A direct/core contract lock
@@ -108,12 +109,12 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `57xC1 removal wave`
+- active micro task: `58xA1 successor lane inventory lock`
 - plain reading:
   - current source no longer treats `--backend vm` as a live owner lane; remaining live references are explicit compat/proof/reference keeps plus archive evidence
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep
-  - first-pass delete-ready inventory and caller-zero audit are locked; no target surface is delete-ready yet because proof/compat callers still exist
-  - the removal wave is therefore narrow: wrapper/contract cleanup only unless a true caller-zero target appears
+  - `phase-57x` closed without broad source deletion; remaining rust-vm surfaces stay explicit keep
+  - `phase-58x` selects the next lane after the delete-ready audit result
 - `phase-42x` is landed; it starved day-to-day callers away from vm-gated routes and moved owner pressure toward direct/core seams
 - `phase-43x` is landed; it selected `phase-44x stage0 direct/core follow-up` as the highest-leverage successor lane
 - `phase-44x` is landed; it keeps proof-only VM gates explicit and closes the lane
@@ -155,6 +156,6 @@ Related:
 
 1. read `CURRENT_TASK.md`
 2. read `15-Workstream-Map.md`
-3. read `docs/development/current/main/phases/phase-57x/README.md`
-4. read `docs/development/current/main/phases/phase-57x/57x-90-rust-vm-delete-ready-audit-removal-wave-ssot.md`
-5. read `docs/development/current/main/phases/phase-57x/57x-91-task-board.md`
+3. read `docs/development/current/main/phases/phase-58x/README.md`
+4. read `docs/development/current/main/phases/phase-58x/58x-90-next-source-lane-selection-ssot.md`
+5. read `docs/development/current/main/phases/phase-58x/58x-91-task-board.md`
