@@ -18,8 +18,8 @@ Date: 2026-04-04
 | --- | --- | --- |
 | `69xA1` | landed | runner folder inventory lock |
 | `69xA2` | landed | target layout ranking |
-| `69xB1` | active | product/reference split |
-| `69xB2` | queued | keep split |
+| `69xB1` | landed | product/reference split |
+| `69xB2` | active | keep split |
 | `69xC1` | queued | alias/module cleanup |
 | `69xD1` | queued | proof / closeout |
 
@@ -27,7 +27,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `69xB1 product/reference split` |
+| Now | `69xB2 keep split` |
 | Blocker | `none` |
-| Next | `69xB2 keep split` |
-| After Next | `69xC1 alias/module cleanup` |
+| Next | `69xC1 alias/module cleanup` |
+| After Next | `69xD1 proof / closeout` |

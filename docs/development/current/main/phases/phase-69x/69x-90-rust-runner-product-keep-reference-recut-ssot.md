@@ -110,4 +110,5 @@ src/runner/
 
 - `69xA1` landed: inventory is locked across product / keep / reference / cross-lane buckets
 - `69xA2` landed: target layout ranking is fixed before path moves start
-- `69xB1` active: `llvm/`, `wasm.rs`, and `vm_hako*` are moving under `product/` and `reference/` while `modes/` stays as a thin compatibility re-export surface
+- `69xB1` landed: `llvm/`, `wasm.rs`, and `vm_hako*` moved under `product/` and `reference/` while `modes/` stayed as a thin compatibility re-export surface
+- `69xB2` active: `vm.rs` and `vm_fallback.rs` are moving under `keep/` while `dispatch.rs` and `route_orchestrator.rs` stay hold-first
