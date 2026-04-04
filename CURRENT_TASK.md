@@ -37,7 +37,7 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 ## Current Front
 
 - Active lane: `phase-92x selfhost proof/compat caller rerun`
-- Active micro: `92xA1 caller inventory lock`
+- Active micro: `92xD1 closeout`
 - Current blocker: `none`
 - Exact focus: rerun selfhost proof/compat callers against the canonical wrapper homes after the latest runner/selfhost recuts
 

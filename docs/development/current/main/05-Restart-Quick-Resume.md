@@ -21,7 +21,7 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-92x selfhost proof/compat caller rerun`
-- current front: `92xA1 caller inventory lock`
+- current front: `92xD1 closeout`
 - blocker: `none`
 - recent landed:
   - `phase-91x top-level .hako wrapper policy review`

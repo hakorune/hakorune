@@ -30,8 +30,8 @@ Related:
 ## Current Read
 
 - current front:
-  - `92xA1 caller inventory lock`
+  - `92xD1 closeout`
 - likely corridor:
   - `TBD`
-- rerun scope is limited to proof/compat callers that still mention the canonical wrapper homes
+- rerun scope is limited to the ranked proof/compat callers that still mention the canonical wrapper homes
 - canonical homes stay under `compat/`, `facade/`, and `entry/`

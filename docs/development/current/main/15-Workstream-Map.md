@@ -15,7 +15,7 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-92x selfhost proof/compat caller rerun` |
-| Front | `92xA1 caller inventory lock` |
+| Front | `92xD1 closeout` |
 | Blocker | `none` |
 | Next | `TBD` |
 | After Next | `TBD` |
