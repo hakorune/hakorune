@@ -3,7 +3,7 @@
  *
  * Purpose:
  * - Keep `selfhost.rs` focused on high-level route sequencing.
- * - Keep Stage-A child spawn/setup and captured payload handoff under one thin owner.
+ * - Keep Stage-A child spawn/setup and captured payload handoff under one explicit compat owner.
  */
 
 use super::{
@@ -46,9 +46,8 @@ pub(crate) fn try_capture_stage_a_module(
         .map(|(k, v)| (k.as_str(), v.as_str()))
         .collect();
 
-    // Stage-A source path is now direct/core-first.
-    // Keep the compat-only Program(JSON) bridge for fallback, but do not
-    // anchor the mainline capture on `--backend vm`.
+    // Stage-A keeps an explicit compat-only Program(JSON) bridge for fallback.
+    // Do not widen this branch into a day-to-day owner or re-anchor it on `--backend vm`.
     let cmd = stage0_capture_route::build_stage0_non_vm_capture_command(
         exe,
         parser_prog,

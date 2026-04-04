@@ -72,7 +72,7 @@ pub(crate) fn resolve_program_payload_to_mir(
     if verbose_level >= 2 {
         let ring0 = crate::runtime::ring0::get_global_ring0();
         ring0.log.info(&format!(
-            "[selfhost/ny] stage-a compat lane: Program(JSON v0) -> MIR(JSON v0) via .hako mirbuilder (size={} bytes)",
+            "[selfhost/ny] stage-a compat keep: Program(JSON v0) -> MIR(JSON v0) via .hako mirbuilder (size={} bytes)",
             program_line.len()
         ));
     }
@@ -120,7 +120,7 @@ pub(crate) fn resolve_program_payload_to_mir(
         let ring0 = crate::runtime::ring0::get_global_ring0();
         ring0
             .log
-            .error("[ny-compiler] stage-a compat lane produced no MIR(JSON v0)");
+            .error("[ny-compiler] stage-a compat keep produced no MIR(JSON v0)");
     }
 
     // RDM-1-min1 contract:
