@@ -27,9 +27,9 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 ## Current Front
 
 - Active lane: `phase-82x next source lane selection`
-- Active micro: `82xA1 successor lane inventory lock`
+- Active micro: `82xA2 candidate lane ranking`
 - Current blocker: `none`
-- Exact focus: rank the next tree-moving cleanup lane after `81x` proved there are still no true archive-ready wrappers
+- Exact focus: decide whether zero-caller top-level façades should remain front-door keeps or move into an archive-focused successor lane
 
 ## Successor Corridor
 

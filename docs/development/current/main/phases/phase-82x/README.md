@@ -28,6 +28,6 @@ Related:
 ## Current Read
 
 - current front:
-  - `82xA1 successor lane inventory lock`
+  - `82xA2 candidate lane ranking`
 - inherited blocker:
   - `none`

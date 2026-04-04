@@ -15,10 +15,10 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-82x next source lane selection` |
-| Front | `82xA1 successor lane inventory lock` |
+| Front | `82xA2 candidate lane ranking` |
 | Blocker | `none` |
-| Next | `82xA2 candidate lane ranking` |
-| After Next | `82xB1 successor lane decision` |
+| Next | `82xB1 successor lane decision` |
+| After Next | `82xD1 proof / closeout` |
 
 ## Current Read
 

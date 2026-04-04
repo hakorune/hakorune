@@ -13,7 +13,7 @@ Related:
 ## Current
 
 - lane: `phase-82x next source lane selection`
-- current front: `82xA1 successor lane inventory lock`
+- current front: `82xA2 candidate lane ranking`
 - blocker: `none`
 - recent landed:
   - `phase-80x root/current pointer thinning`
@@ -24,7 +24,7 @@ Related:
 - `launcher.hako emit_mir_mainline` is green
 - `stage1_mainline_smoke.sh` is green
 - `81x` confirmed there are still no true archive-ready wrappers
-- current work is ranking the next tree-moving cleanup lane
+- current work is ranking the next tree-moving cleanup lane after the zero-caller façade rerun
 
 ## Root Anchors
 

@@ -21,7 +21,7 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-82x next source lane selection`
-- current front: `82xA1 successor lane inventory lock`
+- current front: `82xA2 candidate lane ranking`
 - blocker: `none`
 - recent landed:
   - `phase-80x root/current pointer thinning`
