@@ -39,6 +39,41 @@ Related:
 - `src/runner/modes/vm_hako/**`
 - `src/runner/modes/vm_hako.rs`
 
+## Current Inventory
+
+### Product bucket
+
+- `src/runner/modes/llvm/**`
+- `src/runner/modes/wasm.rs`
+- `src/runner/modes/mir.rs`
+- `src/runner/modes/mir_interpreter.rs`
+
+### Keep bucket
+
+- `src/runner/modes/vm.rs`
+- `src/runner/modes/vm_fallback.rs`
+
+### Reference bucket
+
+- `src/runner/modes/vm_hako/**`
+- `src/runner/modes/vm_hako.rs`
+
+### Cross-lane / hold-first surfaces
+
+- `src/runner/dispatch.rs`
+- `src/runner/route_orchestrator.rs`
+- `src/runner/modes/mod.rs`
+- `src/runner/modes/common_util/**`
+
+## Inventory Notes
+
+- current explicit keep core is still compact:
+  - `vm.rs` 302 LOC
+  - `vm_fallback.rs` 191 LOC
+- current reference shell is smaller than the `.hako` reference payload behind it:
+  - `vm_hako.rs` 125 LOC
+- `dispatch.rs` (423 LOC) and `route_orchestrator.rs` (356 LOC) are still cross-lane coordination surfaces and should not move in the first split
+
 ## Target Layout
 
 ```text
@@ -70,3 +105,8 @@ src/runner/
 4. `69xB2` keep split
 5. `69xC1` alias/module cleanup
 6. `69xD1` proof / closeout
+
+## Current Progress
+
+- `69xA1` landed: inventory is locked across product / keep / reference / cross-lane buckets
+- `69xA2` active: target layout ranking is being fixed before path moves start

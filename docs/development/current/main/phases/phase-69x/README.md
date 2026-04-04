@@ -29,7 +29,7 @@ Related:
 
 - `68x` has landed and clarified `.hako` runner authority / compat / facade / entry reading
 - current front:
-  - `69xA1 runner folder inventory lock`
+  - `69xA2 target layout ranking`
 - current intent:
   - `src/runner` should stop relying on comments alone for product vs keep vs reference reading
   - `vm-hako` should read as reference, not as rust-vm residue
