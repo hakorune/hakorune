@@ -16,9 +16,9 @@ Date: 2026-04-04
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `70xA1` | active | caller-zero inventory lock |
-| `70xA2` | queued | archive-ready ranking |
-| `70xB1` | queued | live alias/archive sweep |
+| `70xA1` | landed | caller-zero inventory lock |
+| `70xA2` | landed | archive-ready ranking |
+| `70xB1` | active | live alias/archive sweep |
 | `70xC1` | queued | current pointer cleanup |
 | `70xD1` | queued | proof / closeout |
 
@@ -26,7 +26,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `70xA1 caller-zero inventory lock` |
+| Now | `70xB1 live alias/archive sweep` |
 | Blocker | `none` |
-| Next | `70xA2 archive-ready ranking` |
-| After Next | `70xB1 live alias/archive sweep` |
+| Next | `70xC1 current pointer cleanup` |
+| After Next | `70xD1 proof / closeout` |

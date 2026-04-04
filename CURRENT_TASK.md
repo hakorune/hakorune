@@ -80,7 +80,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Handoff
 
-- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, `phase-29x` cleanup is closed, `phase-30x` ownership flip is landed, `phase-31x` engineering rehome sweep is landed, `phase-32x` mixed-owner split is landed, `phase-33x` helper-family recut is landed, `phase-34x` shell-residue split is landed, `phase-35x` stage-a compat route thinning is landed, `phase-36x` selfhost source / stage1 bridge split is landed, `phase-37x` bootstrap owner split is landed, `phase-38x` cleanup/archive sweep is landed, `phase-39x` stage0 vm gate thinning is landed, `phase-40x` stage0 vm archive candidate selection is landed, `phase-41x` stage0 direct/core route hardening is landed, `phase-42x` vm caller starvation / direct-core owner migration is landed, `phase-43x` next source lane selection is landed, `phase-44x` proof / closeout is landed, `phase-45x` vm residual cleanup is landed, `phase-46x` next source lane selection is landed, `phase-47x` stage0/runtime direct-core finalization is landed, `phase-48x` smoke/source cleanup is landed, `phase-49x` legacy wording / compat route cleanup is landed, `phase-50x` rust-vm source/archive cleanup is landed, `phase-51x` compat-codegen archival sweep is landed, `phase-52x` archive historical labeling polish is landed, `phase-53x` residual VM source audit is landed, `phase-54x` next source lane selection is landed, `phase-55x` rust-vm route-surface retirement prep is landed, `phase-56x` proof/compat keep pruning is landed, `phase-57x` rust-vm delete-ready audit / removal wave is landed, `phase-58x` next source lane selection is landed, `phase-59x` rust-vm route-surface retirement continuation is landed, `phase-60x` proof/compat keep pruning continuation is landed, `phase-61x` residual rust-vm caller-zero audit rerun is landed, `phase-62x` rust-vm delete-ready removal wave is landed, `phase-63x` rust-vm final retirement decision is landed, `phase-64x` next source lane selection is landed, `phase-65x` stage1/selfhost mainline hardening is landed, `phase-66x` next source lane selection is landed, and the current active front is `phase-67x selfhost folder split`.
+- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, `phase-29x` cleanup is closed, `phase-30x` ownership flip is landed, `phase-31x` engineering rehome sweep is landed, `phase-32x` mixed-owner split is landed, `phase-33x` helper-family recut is landed, `phase-34x` shell-residue split is landed, `phase-35x` stage-a compat route thinning is landed, `phase-36x` selfhost source / stage1 bridge split is landed, `phase-37x` bootstrap owner split is landed, `phase-38x` cleanup/archive sweep is landed, `phase-39x` stage0 vm gate thinning is landed, `phase-40x` stage0 vm archive candidate selection is landed, `phase-41x` stage0 direct/core route hardening is landed, `phase-42x` vm caller starvation / direct-core owner migration is landed, `phase-43x` next source lane selection is landed, `phase-44x` proof / closeout is landed, `phase-45x` vm residual cleanup is landed, `phase-46x` next source lane selection is landed, `phase-47x` stage0/runtime direct-core finalization is landed, `phase-48x` smoke/source cleanup is landed, `phase-49x` legacy wording / compat route cleanup is landed, `phase-50x` rust-vm source/archive cleanup is landed, `phase-51x` compat-codegen archival sweep is landed, `phase-52x` archive historical labeling polish is landed, `phase-53x` residual VM source audit is landed, `phase-54x` next source lane selection is landed, `phase-55x` rust-vm route-surface retirement prep is landed, `phase-56x` proof/compat keep pruning is landed, `phase-57x` rust-vm delete-ready audit / removal wave is landed, `phase-58x` next source lane selection is landed, `phase-59x` rust-vm route-surface retirement continuation is landed, `phase-60x` proof/compat keep pruning continuation is landed, `phase-61x` residual rust-vm caller-zero audit rerun is landed, `phase-62x` rust-vm delete-ready removal wave is landed, `phase-63x` rust-vm final retirement decision is landed, `phase-64x` next source lane selection is landed, `phase-65x` stage1/selfhost mainline hardening is landed, `phase-66x` next source lane selection is landed, and the current active front is `phase-70x caller-zero archive sweep`.
 - Active lane: `phase-70x-caller-zero-archive-sweep`
 - retirement corridor lock:
   - `60x` prune remaining explicit proof/compat keeps
@@ -145,7 +145,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `stage2plus entry / first optimization wave` is accepted
   - `phase-30x backend surface simplification` is landed
   - `phase-32x product / engineering split` is landed
-  - current active lane is `phase-67x selfhost folder split`
+  - current active lane is `phase-70x caller-zero archive sweep`
 - landed rows already accepted:
   - `RawMap` first slice
   - `RawMap.clear`
@@ -164,15 +164,15 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-70x caller-zero archive sweep`
 - Current blocker: `none`
-- Exact focus: `70xA1 caller-zero inventory lock`
+- Exact focus: `70xB1 live alias/archive sweep`
 - successor lane ranking is fixed as:
   1. `phase-70x caller-zero archive sweep`
   2. `next source lane selection`
 - folder-separation corridor after `66x` is planned as:
   - `67x selfhost folder split` (landed)
-  - `68x .hako runner authority/compat/facade recut` (active)
-  - `69x rust runner product/keep/reference recut`
-  - `70x caller-zero archive sweep`
+  - `68x .hako runner authority/compat/facade recut` (landed)
+  - `69x rust runner product/keep/reference recut` (landed)
+  - `70x caller-zero archive sweep` (active)
 - exact handoff order:
   1. `53xA1` residual VM caller inventory lock (landed)
   2. `53xA2` proof-only / compat keep classification (landed)

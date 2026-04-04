@@ -38,7 +38,7 @@ Related:
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
      - current active lane is `phase-70x caller-zero archive sweep`
-     - current active micro task is `70xA1 caller-zero inventory lock`
+     - current active micro task is `70xB1 live alias/archive sweep`
      - ranked successor corridor after `68x` is:
        - `69x rust runner product/keep/reference recut`
        - `70x caller-zero archive sweep`
@@ -136,10 +136,10 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `70xA1 caller-zero inventory lock` |
+     | Now | `70xB1 live alias/archive sweep` |
      | Blocker | `none` |
-     | Next | `70xA2 archive-ready ranking` |
-     | After Next | `70xB1 live alias/archive sweep` |
+     | Next | `70xC1 current pointer cleanup` |
+     | After Next | `70xD1 proof / closeout` |
    - rust-vm corridor outcome:
 
      | Item | State |
@@ -151,9 +151,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `70xA1 caller-zero inventory lock` |
-     | Next | `70xA2 archive-ready ranking` |
-     | Later | `70xB1 live alias/archive sweep` |
+     | Now | `70xB1 live alias/archive sweep` |
+     | Next | `70xC1 current pointer cleanup` |
+     | Later | `70xD1 proof / closeout` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |

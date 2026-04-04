@@ -90,7 +90,7 @@ tools/checks/dev_gate.sh quick
 - landed micro task: `65xB2 shell contract owner cleanup`
 - landed micro task: `65xC1 mainline proof bundle refresh`
 - landed micro task: `65xD1 proof / closeout`
-- active micro task: `70xA1 caller-zero inventory lock`
+- active micro task: `70xB1 live alias/archive sweep`
 - ranked successor corridor after `68x`:
   - `69x rust runner product/keep/reference recut`
   - `70x caller-zero archive sweep`

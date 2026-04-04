@@ -28,8 +28,10 @@ Related:
 
 - `69x` has landed and the runner tree now reads `product / keep / reference`
 - current front:
-  - `70xA1 caller-zero inventory lock`
+  - `70xB1 live alias/archive sweep`
 - current intent:
   - only caller-zero live aliases/wrappers move
   - proof-only keep and reference routes stay live
   - archive should collect history, not current explicit keep
+  - the first inventory pass found no archive-ready live wrappers yet
+  - this sweep is expected to close as a no-op unless a doc-only alias drains to zero
