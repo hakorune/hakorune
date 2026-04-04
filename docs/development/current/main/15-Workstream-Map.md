@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-86x phase index / current mirror hygiene` |
-| Front | `86xA1 mirror inventory lock` |
+| Now | `phase-87x embedded snapshot / wrapper repoint rerun` |
+| Front | `87xA1 snapshot/wrapper inventory lock` |
 | Blocker | `none` |
-| Next | `86xA2 target cut ranking` |
-| After Next | `86xB1 phase index thinning` |
+| Next | `87xA2 target split / stop-line freeze` |
+| After Next | `87xB1 focused repoint rerun` |
 
 ## Current Read
 
@@ -29,11 +29,12 @@ Related:
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers
 - `84x` landed after repointing Stage1 build/default entry contracts to canonical `entry/*`
 - `85x` selected `86x` as the next structural source lane
-- `86x` thins phase index / current mirror surfaces
+- `86x` landed with a thinner phase index/current mirror surface
+- `87x` reruns the deferred embedded snapshot / wrapper repoint seam
 
 ## Successor Corridor
 
-1. `phase-86x phase index / current mirror hygiene`
+1. `phase-87x embedded snapshot / wrapper repoint rerun`
 
 ## Structural Stop Lines
 
@@ -46,10 +47,11 @@ Related:
 ## Reference
 
 - current lane docs:
-  - `docs/development/current/main/phases/phase-86x/README.md`
-  - `docs/development/current/main/phases/phase-86x/86x-90-phase-index-current-mirror-hygiene-ssot.md`
-  - `docs/development/current/main/phases/phase-86x/86x-91-task-board.md`
+  - `docs/development/current/main/phases/phase-87x/README.md`
+  - `docs/development/current/main/phases/phase-87x/87x-90-embedded-snapshot-wrapper-repoint-rerun-ssot.md`
+  - `docs/development/current/main/phases/phase-87x/87x-91-task-board.md`
 - previous landed lanes:
+  - `docs/development/current/main/phases/phase-86x/README.md`
   - `docs/development/current/main/phases/phase-85x/README.md`
   - `docs/development/current/main/phases/phase-84x/README.md`
   - `docs/development/current/main/phases/phase-83x/README.md`

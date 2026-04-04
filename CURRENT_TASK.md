@@ -26,18 +26,19 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 5. `phase-83x selfhost top-level facade/archive decision` (landed)
 6. `phase-84x runner wrapper/source contract thinning` (landed)
 7. `phase-85x next source lane selection` (landed)
-8. `phase-86x phase index / current mirror hygiene` (active)
+8. `phase-86x phase index / current mirror hygiene` (landed)
+9. `phase-87x embedded snapshot / wrapper repoint rerun` (active)
 
 ## Current Front
 
-- Active lane: `phase-86x phase index / current mirror hygiene`
-- Active micro: `86xA1 mirror inventory lock`
+- Active lane: `phase-87x embedded snapshot / wrapper repoint rerun`
+- Active micro: `87xA1 snapshot/wrapper inventory lock`
 - Current blocker: `none`
-- Exact focus: thin phase index / current mirrors again now that `85x` selected the successor lane
+- Exact focus: rerun the deferred embedded snapshot / wrapper repoint seam after `84x` and `86x` landed
 
 ## Successor Corridor
 
-1. `phase-86x phase index / current mirror hygiene`
+1. `phase-87x embedded snapshot / wrapper repoint rerun`
 
 ## Rust-VM Stop Line
 
@@ -50,13 +51,13 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-86x/README.md`
-4. `docs/development/current/main/phases/phase-86x/86x-90-phase-index-current-mirror-hygiene-ssot.md`
-5. `docs/development/current/main/phases/phase-86x/86x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-87x/README.md`
+4. `docs/development/current/main/phases/phase-87x/87x-90-embedded-snapshot-wrapper-repoint-rerun-ssot.md`
+5. `docs/development/current/main/phases/phase-87x/87x-91-task-board.md`
 
 ## Notes
 
-- `phase-85x` selected `phase-86x phase index / current mirror hygiene` as the next lane.
+- `phase-86x` landed with `phases/README.md` reduced from 117 to 65 lines.
 - `launcher.hako emit_mir_mainline` is green.
 - `stage1_mainline_smoke.sh` is green.
 - `target/**`, `artifacts/**`, and `dist/**` are artifact roots only.

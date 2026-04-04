@@ -1,7 +1,7 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
-Scope: thin heavy phase index / current mirror surfaces now that `85x` selected this lane.
+Scope: thin heavy phase index / current mirror surfaces now that `85x` selected this lane; phase is now landed and handed off.
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
@@ -29,8 +29,7 @@ Related:
 
 ## Current Read
 
-- current front:
-  - `86xA1 mirror inventory lock`
-- target surfaces:
-  - `docs/development/current/main/phases/README.md`
-  - root/current mirror files only
+- handoff complete
+- landed result:
+  - `docs/development/current/main/phases/README.md` shrank from `117` to `65` lines
+  - `CURRENT_TASK.md`, `05-Restart-Quick-Resume.md`, `10-Now.md`, and `15-Workstream-Map.md` remained pointer-thin

@@ -12,19 +12,19 @@ Related:
 
 ## Current
 
-- lane: `phase-86x phase index / current mirror hygiene`
-- current front: `86xA1 mirror inventory lock`
+- lane: `phase-87x embedded snapshot / wrapper repoint rerun`
+- current front: `87xA1 snapshot/wrapper inventory lock`
 - blocker: `none`
 - recent landed:
-  - `phase-84x runner wrapper/source contract thinning`
   - `phase-85x next source lane selection`
+  - `phase-86x phase index / current mirror hygiene`
 
 ## Current Read
 
 - `launcher.hako emit_mir_mainline` is green
 - `stage1_mainline_smoke.sh` is green
 - `83x` froze top-level selfhost wrappers as explicit public/front-door keeps
-- current work is thinning heavy phase index/current mirrors without re-inflating root pointers
+- current work is rerunning the deferred embedded snapshot / wrapper repoint seam
 
 ## Root Anchors
 
@@ -35,5 +35,5 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-86x/README.md`
-3. `docs/development/current/main/phases/phase-86x/86x-91-task-board.md`
+2. `docs/development/current/main/phases/phase-87x/README.md`
+3. `docs/development/current/main/phases/phase-87x/87x-91-task-board.md`

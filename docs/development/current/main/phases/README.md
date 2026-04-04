@@ -4,81 +4,30 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 86x phase index / current mirror hygiene
+- **Current (ACTIVE)**: Phase 87x embedded snapshot / wrapper repoint rerun
+- **Phase 86x（LANDED）**: phase index / current mirror hygiene（`phases/README.md` を 117 行から 65 行へ縮小）
+
+### Recent Landed
+
 - **Phase 85x（LANDED）**: next source lane selection（`86x phase index / current mirror hygiene` を選定）
 - **Phase 84x（LANDED）**: runner wrapper/source contract thinning（Stage1 build/default entry contracts を canonical `entry/*` stubs へ寄せた）
 - **Phase 83x（LANDED）**: selfhost top-level facade/archive decision（top-level selfhost wrappers は explicit public/front-door keep として固定）
-- **Phase 82x（LANDED）**: next source lane selection（top-level selfhost facade/archive decision lane を選んだ）
+- **Phase 82x（LANDED）**: next source lane selection
 - **Phase 81x（LANDED）**: caller-zero archive rerun（true archive-ready surface は出ず、no-op closeout）
 - **Phase 80x（LANDED）**: root/current pointer thinning（pointer docs を薄く整理）
+
+### Important Corridors
+
 - **Phase 79x（LANDED）**: launcher emit_mir residual blocker follow-up（focused launcher probe red を source 側で解消）
-- **Phase 77x（LANDED）**: runner top-level pressure thinning（`launcher.hako` と `stage1_cli_env.hako` の本体圧を薄くした）
-- **Phase 78x（LANDED）**: next source lane selection（`77x` の proof/closeout 後に successor lane を選んだ）
-- **Phase 76x（LANDED）**: next source lane selection（phase-75x closeout 後の次 source lane として runner top-level pressure thinning を選んだ）
-- **Phase 75x（LANDED）**: selfhost top-level alias canonicalization（folder split 後の top-level alias 圧を薄くし、live caller を canonical path に寄せた）
-- **Phase 74x（LANDED）**: next source lane selection（phase-73x closeout 後の次 source lane を決め、75x を選んだ）
-- **Phase 73x（LANDED）**: emit_mir_mainline blocker follow-up（`build_box` parse seam を直し、focused probes を green に戻した）
-- **Phase 72x（LANDED）**: selfhost top-level facade thinning（canonical-backed wrappers は first wave で既に thin と確認し、no-op closeout）
-- **Phase 71x（LANDED）**: next source lane selection（phase-70x no-op closeout 後の次 source lane と `72x -> 73x -> 74x` corridor を選んだ）
-- **Phase 70x（LANDED）**: caller-zero archive sweep（folder-separated surfaces のうち live caller が消えた alias/docs/wrapper を archive 側へ送る想定だったが、first pass は no-op で閉じた）
-- **Phase 69x（LANDED）**: rust runner product/keep/reference recut（src/runner の product / keep / reference 読みを tree で揃える）
-- **Phase 68x（LANDED）**: .hako runner authority/compat/facade recut（lang/src/runner の authority / compat / facade / entry 読みを tree で揃える）
-- **Phase 67x（LANDED）**: selfhost folder split（tools/selfhost の mainline / proof / compat / lib split を tree にした）
-- **Phase 66x（LANDED）**: next source lane selection（phase-65x handoff 後の次 source lane と folder-first corridor を選んだ）
-- **Phase 65x（LANDED）**: stage1/selfhost mainline hardening（`.hako` / Stage1 authority cluster と shell contract owner を mainline 観点で固めた）
-- **Phase 64x（LANDED）**: next source lane selection（rust-vm retirement corridor の結果を受けて次の source lane を選んだ）
-- **Phase 63x（LANDED）**: rust-vm final retirement decision（mainline retirement achieved / full source retirement deferred / residual explicit keep frozen を確定）
-- **Phase 62x（LANDED）**: rust-vm delete-ready removal wave（caller-zero / explicit replacement が証明されたものだけを狭く remove する想定だったが、実際は no-op で closeout）
-- **Phase 61x（LANDED）**: residual rust-vm caller-zero audit rerun（phase-60x prune 後の caller-zero facts を source-backed に再監査した）
-- **Phase 60x（LANDED）**: proof/compat keep pruning continuation（残っている explicit keep bucket をさらに狭めた）
-- **Phase 59x（LANDED）**: rust-vm route-surface retirement continuation（route/default/help exposure をさらに狭めた）
-- **Phase 58x（LANDED）**: next source lane selection（phase-57x の audit 結果を受けて successor lane を決めた）
-- **Phase 57x（LANDED）**: rust-vm delete-ready audit / removal wave（keep-now / archive-later / delete-ready を source-backed に切り分け、broad source deletionなしで closeout）
-- **Phase 56x（LANDED）**: proof/compat keep pruning（explicit keep のまま残している rust-vm surfaces を削れる形まで狭めた）
-- **Phase 55x（LANDED）**: rust-vm route-surface retirement prep（route/default/help surfaces から rust-vm selectable feeling を外した）
-- **Phase 54x（LANDED）**: next source lane selection（phase-53x handoff を受けて successor lane と retirement corridor を確定した）
-- **Phase 53x（LANDED）**: residual VM source audit（残っている rust-vm / vm-hako source surfaces を inventory して keep-now / archive-later / delete-ready に分け、phase-54x に handoff した）
-- **Phase 52x（LANDED）**: archive historical labeling polish（archive / historical wording を最小化し、legacy traces を historical-only に保ち、phase-53x に residual source audit を handoff した）
-- **Phase 51x（LANDED）**: compat-codegen archival sweep（canonical compat-codegen payload / wrapper bucket を archive 側へ退避し、live docs / aliases を整理した）
-- **Phase 50x（LANDED）**: rust-vm source/archive cleanup（残っている rust-vm / vm-gated source と helper surface を inventory して keep / archive / delete-ready に分ける）
-- **Phase 49x（LANDED）**: legacy wording / compat route cleanup（current docs / guides / helper comments that still read like `rust-vm` is a day-to-day owner を rewrite した）
-- **Phase 48x（LANDED）**: smoke/source cleanup（残っている `--backend vm` smoke / helper / docs examples を inventory して clean up した）
-- **Phase 47x（LANDED）**: stage0/runtime direct-core finalization（day-to-day helper-route defaults are now off `--backend vm`）
-- **Phase 46x（LANDED）**: next source lane selection（残っている live VM pressure を棚卸しして、後継 lane に `stage0/runtime direct-core finalization` を選んだ）
-- **Phase 45x（LANDED）**: vm residual cleanup（`rust-vm` の残り owner surfaces を proof/oracle/compat keep に縮める）
-- **Phase 44x（LANDED）**: stage0 direct/core follow-up（live stage0/selfhost owners を direct/core route 側へ寄せた）
-- **Phase 43x（LANDED）**: next source lane selection（phase-42x closeout 後の successor lane として `direct/core follow-up` を選んだ）
-- **Phase 42x（LANDED）**: vm caller starvation / direct-core owner migration（day-to-day caller を vm-gated routes から外し、direct/core owner へ寄せる）
-- **Phase 41x（LANDED）**: stage0 direct/core route hardening（remaining direct/core route ownership を harden し、proof-only VM gates と compat keep を固定する）
-- **Phase 40x（LANDED）**: stage0 vm archive candidate selection（drained vm-facing shims と stale compat wrappers を archive/delete した）
-- **Phase 39x（LANDED）**: stage0 vm gate thinning（bootstrap/source route で `--backend vm` 残面を inventory して direct route と keep gate を分ける）
-- **Phase 38x（LANDED）**: cleanup/archive sweep（legacy embedded smoke archive first, then delete-ready shim sweep）
-- **Phase 37x（LANDED）**: bootstrap owner split（`selfhost_build.sh` / `build.rs` first, speed-first）
-- **Phase 36x（LANDED）**: selfhost source / stage1 bridge split（`selfhost.rs` source prepare / `stage1_cli` raw bridge first）
-- **Phase 35x（LANDED）**: stage-a compat route thinning（`selfhost.rs` / `stage_a_compat_bridge.rs` first）
-- **Phase 34x（LANDED）**: stage0 shell residue split（`child.rs` / `stage1_cli` / `core_executor` first）
-- **Phase 33x（LANDED）**: shared helper family recut（`hako_check` / `emit_mir` helper-family truth fixed）
-- **Phase 32x（LANDED）**: product / engineering split（mixed-owner source/smoke split, `build.rs` / `phase2100` first）
-- **Phase 31x（LANDED）**: engineering lane isolation（`tools/engineering/**` への rehome / shim drain / source-smoke sweep）
-- **Phase 30x（LANDED）**: backend surface simplification（`llvm/exe` product main / `rust-vm` engineering / `vm-hako` reference / `wasm` experimental）
-- **Phase 29x（LANDED）**: backend owner cutover / explicit helper deletion / semantic proof-home recut
-- **Phase 29cc（ACTIVE）**: Rust -> .hako migration orchestration（M0-M4 fixed order）
-- **Phase 139（DONE）**: post-if `post_k` の return lowering を `ReturnValueLowererBox` に統一（出口 SSOT 完成）
-- **Phase 140（DONE）**: `NormalizedExprLowererBox` 初版（pure expression のみ）
-- **Phase 141 P0（DONE）**: impure 拡張点（contract）を SSOT 化（Call/MethodCall はまだ out-of-scope）
-- **Phase 141 P1（DONE）**: “既知 intrinsic だけ” を許可して段階投入（length0）
-- **Phase 141 P1.5（DONE）**: known intrinsic registry + available_inputs 3-source merge + diagnostics
-- **Phase 141 P2+（planned）**: Call/MethodCall 対応（effects + typing の段階投入）
-- **Phase 142-loopstmt P0（DONE）**: 正規化単位を statement（loop 1個）へ寄せる（パターン爆発を止める）
-- **Phase 142-loopstmt P1（DONE）**: LLVM EXE smoke（同 fixture）を追加
-- **Phase 143-loopvocab（planned）**: StepTree の語彙拡張（loop 内 if/break/continue を「語彙追加」で吸収）
-- **Phase 91–92**: Selfhost depth‑2 coverage（P5b escape recognition → lowering）
-- **Phase 94–100**: P5b escape E2E / Trim policy / pinned + accumulator（VM/LLVM EXE parity）
-- **Phase 102**: real-app read_quoted loop regression（VM + LLVM EXE）
-- **Phase 103**: if-only regression baseline（VM + LLVM EXE / plan）
-- **Phase 113**: if-only partial assign parity（片側代入の保持 merge）
-- **Phase 107–109**: real-app depth-scan / policy router SSOT / error hint SSOT
-- **Phase 110–112**: ControlTree / StepTree（構造SSOT, dev-only）※設計SSOTは `../design/control-tree.md`
+- **Phase 69x–67x（LANDED）**: runner/selfhost folder recut（product/keep/reference, authority/compat/facade, selfhost split）
+- **Phase 63x（LANDED）**: rust-vm final retirement decision（mainline retirement achieved / residual explicit keep frozen）
+- **Phase 47x–42x（LANDED）**: stage0/runtime direct-core migration corridor
+
+### Deeper History
+
+- older landed phases remain in their `phase-*` folders
+- `phase-29cc` remains the long-range Rust -> `.hako` migration orchestration track
+- older `DONE/planned` items are preserved in git history and phase-local documents, not repeated here
 
 ## Phase フォルダ構成（推奨）
 

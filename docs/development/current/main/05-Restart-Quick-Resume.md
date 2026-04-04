@@ -20,20 +20,20 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-86x phase index / current mirror hygiene`
-- current front: `86xA1 mirror inventory lock`
+- lane: `phase-87x embedded snapshot / wrapper repoint rerun`
+- current front: `87xA1 snapshot/wrapper inventory lock`
 - blocker: `none`
 - recent landed:
-  - `phase-84x runner wrapper/source contract thinning`
   - `phase-85x next source lane selection`
+  - `phase-86x phase index / current mirror hygiene`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-86x/README.md`
-4. `docs/development/current/main/phases/phase-86x/86x-90-phase-index-current-mirror-hygiene-ssot.md`
-5. `docs/development/current/main/phases/phase-86x/86x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-87x/README.md`
+4. `docs/development/current/main/phases/phase-87x/87x-90-embedded-snapshot-wrapper-repoint-rerun-ssot.md`
+5. `docs/development/current/main/phases/phase-87x/87x-91-task-board.md`
 
 ## Current Proof Bundle
 
