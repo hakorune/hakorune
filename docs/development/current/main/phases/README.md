@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 120x vm route retirement decision refresh
+- **Current (ACTIVE)**: Phase 121x vm backend retirement gate decision
+- **Phase 120x（LANDED）**: vm route retirement decision refresh
 - **Phase 119x（LANDED）**: vm debug/observability surface review
 - **Phase 118x（LANDED）**: proof wrapper surface review
 - **Phase 117x（LANDED）**: vm compat/proof env hardening

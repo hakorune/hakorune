@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-120x vm route retirement decision refresh` |
-| Front | `compat / proof / debug-observability の3 buckets から retirement order を再固定する` |
+| Now | `phase-121x vm backend retirement gate decision` |
+| Front | `--backend vm` を public explicit gate のまま残すか internal-only へ狭めるかを blocker ベースで判断する` |
 | Blocker | `none` |
-| Next | `compat / proof / debug-observability の残存理由を refresh し、次の cut を source-backed に固定する` |
-| After Next | `phase-121x vm backend retirement gate decision` |
+| Next | `args.rs` / compat route / proof gate / docs examples が gate decision をどこで止めているかを固定する` |
+| After Next | `phase-122x vm compat route exit plan` |
 
 ## Current Read
 
@@ -45,6 +45,7 @@ Related:
 - `118x` is narrowing proof wrapper surface next: public proof surface stays small, bootstrap/acceptance helpers stay internal
 - `119x` now narrows the remaining vm-family debug/observability keep: route observability stays live, generic probe pressure should thin further
 - `120x` now refreshes the retirement order across `compat / proof / debug-observability` before any broader backend decision
+- `121x` now decides whether `--backend vm` can shrink from public explicit gate to internal-only, or whether concrete blockers still keep it public
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers
@@ -62,9 +63,9 @@ Related:
 
 ## Successor Corridor
 
-1. `phase-120x vm route retirement decision refresh`
-2. `phase-121x vm backend retirement gate decision`
-3. `phase-122x vm compat route exit plan`
+1. `phase-121x vm backend retirement gate decision`
+2. `phase-122x vm compat route exit plan`
+3. `phase-123x proof gate shrink follow-up`
 
 ## Parked After Optimization
 
@@ -94,6 +95,7 @@ Related:
 ## Reference
 
 - current lane docs:
+  - `docs/development/current/main/phases/phase-121x/README.md`
   - `docs/development/current/main/phases/phase-119x/README.md`
   - `docs/development/current/main/phases/phase-120x/README.md`
   - `docs/development/current/main/phases/phase-118x/README.md`
