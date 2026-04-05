@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-127x compat route raw vm cut prep` |
-| Front | `compat boundary smoke` を route-first contract に寄せて raw vm tag 断言を外す |
-| Blocker | `compat emit-helper recursion returns rc=98 under runtime compat env` |
-| Next | `compat/run_stage1_cli.sh emit mir-json` が compat env で selfhost route に再入する理由を絞る |
-| After Next | `phase-128x stage1 bridge vm gate softening` |
+| Now | `phase-128x stage1 bridge vm gate softening` |
+| Front | `stage1_bridge` の backend-hint chain を source-backed に薄くする |
+| Blocker | `stage1_bridge/direct_route/mod.rs` がまだ backend-hint を hard gate として保つ |
+| Next | `stage1_bridge` の `plan/args/env/direct_route` から `backend=vm` の強い依存をほどく |
+| After Next | `phase-129x vm orchestrator/public gate follow-up` |
 
 ## Current Read
 
@@ -51,7 +51,7 @@ Related:
 - `124x` demoted broad docs/manual wording so proof/debug gates no longer read like the default selfhost route
 - `125x` returned to source blockers that still keep raw `--backend vm` wired into compat/direct paths
 - `126x` fixed the hard blocker as compat smoke contract and identified the `stage1_bridge` backend-hint chain as the next source seam
-- `127x` prepares the raw-vm cut by making compat boundary smoke route-first instead of vm-tag-first
+- `127x` landed after making compat boundary smoke route-first and restoring the compat temp-MIR handoff.
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers
@@ -65,7 +65,7 @@ Related:
 - `91x` froze the top-level `.hako` wrapper policy after the latest runner/selfhost recuts
 - `92x` closed the proof/compat caller rerun lane against the canonical wrapper homes
 - `93x` moved archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
-- current work is now on `phase-115x vm route retirement planning`
+- current work is now on `phase-128x stage1 bridge vm gate softening`
 
 ## Successor Corridor
 
@@ -101,6 +101,7 @@ Related:
 ## Reference
 
 - current lane docs:
+  - `docs/development/current/main/phases/phase-128x/README.md`
   - `docs/development/current/main/phases/phase-127x/README.md`
   - `docs/development/current/main/phases/phase-126x/README.md`
   - `docs/development/current/main/phases/phase-125x/README.md`

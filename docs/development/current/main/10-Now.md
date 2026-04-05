@@ -12,10 +12,11 @@ Related:
 
 ## Current
 
-- lane: `phase-127x compat route raw vm cut prep`
-- current front: `compat boundary smoke` を route-first contract に寄せて raw vm tag 断言を外す
-- blocker: `compat emit-helper recursion returns rc=98 under runtime compat env`
+- lane: `phase-128x stage1 bridge vm gate softening`
+- current front: `stage1_bridge` の backend-hint chain を source-backed に薄くする
+- blocker: `stage1_bridge/direct_route/mod.rs` がまだ backend-hint を hard gate として保つ
 - recent landed:
+  - `phase-127x compat route raw vm cut prep`
   - `phase-125x vm bridge/backend gate follow-up`
   - `phase-124x vm public docs/manual demotion`
   - `phase-123x proof gate shrink follow-up`
@@ -51,11 +52,10 @@ Related:
 - `phase-103` landed with if-only merge / early return parity on VM and LLVM EXE
 - `phase-104` landed with loop(true)+break-only digits parity on VM and LLVM EXE
 - `phase-105` restored the original long digit OR-chain parity on VM and LLVM EXE
-- current work is the compat raw-vm cut prep lane:
-  - compat boundary smoke no longer needs to pin raw `vm-route/*` tags
-  - route-first contract becomes `runtime_route=compat` + `mode=stage-a-compat`
-  - explicit fallback env (`NYASH_VM_USE_FALLBACK=1`) remains the positive keep gate
-  - naive temp-MIR cut currently fails because `compat/run_stage1_cli.sh emit mir-json` drops the payload marker under compat env and exits `98`
+- current work is the stage1 bridge vm gate softening lane:
+  - compat boundary smoke is route-first and green
+  - compat temp-MIR handoff is green again with the parser-EXE preference env applied internally
+  - the next source seam is `stage1_bridge` backend-hint / direct-route plumbing
 
 ## Root Anchors
 

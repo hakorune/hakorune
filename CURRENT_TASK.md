@@ -62,20 +62,20 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 41. `phase-124x vm public docs/manual demotion` (landed)
 42. `phase-125x vm bridge/backend gate follow-up` (landed)
 43. `phase-126x vm public gate shrink decision` (landed)
-44. `phase-127x compat route raw vm cut prep` (active)
+44. `phase-127x compat route raw vm cut prep` (landed)
+45. `phase-128x stage1 bridge vm gate softening` (active)
 
 ## Current Front
 
-- Active lane: `phase-127x compat route raw vm cut prep`
-- Active micro: `compat boundary smoke` を route-first contract に寄せて raw vm tag 断言を外す
-- Current blocker: `compat emit-helper recursion returns rc=98 under runtime compat env`
-- Exact focus: `phase29x_vm_route_non_strict_compat_boundary_vm.sh` は route-first 化済み; 次は `compat/run_stage1_cli.sh emit mir-json` が compat env で payload を落とす理由を詰める
+- Active lane: `phase-128x stage1 bridge vm gate softening`
+- Active micro: `stage1_bridge` の backend-hint chain を source-backed に薄くする
+- Current blocker: `stage1_bridge/direct_route/mod.rs` がまだ backend-hint を hard gate として保つ
+- Exact focus: `phase29x` compat smokes は route-first contract で green; 次は `stage1_bridge` の `plan/args/env/direct_route` から `backend=vm` の強い依存をほどく
 
 ## Successor Corridor
 
-1. `phase-127x compat route raw vm cut prep`
-2. `phase-128x stage1 bridge vm gate softening`
-3. `phase-129x vm orchestrator/public gate follow-up`
+1. `phase-128x stage1 bridge vm gate softening`
+2. `phase-129x vm orchestrator/public gate follow-up`
 
 ## Parked After Optimization
 
@@ -95,7 +95,7 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-126x/README.md`
+3. `docs/development/current/main/phases/phase-128x/README.md`
 
 ## Notes
 
@@ -116,11 +116,11 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 - `phase-124x` demoted public docs/manual wording so raw `--backend vm` and proof gates stop reading like day-to-day runtime guidance.
 - `phase-125x` returned to source blockers and fixed the cut order: shell compat first, direct bridge second, backend gate last.
 - `phase-126x` decided that compat smoke contract is the hard blocker and that the next source seam after compat is the `stage1_bridge` backend-hint chain.
-- `phase-127x` converts compat boundary smoke from raw vm-route assertions to route-first selfhost contract checks before cutting the compat branch itself.
-- naive compat temp-MIR handoff cut currently fails with `[stage1-contract/emit-invalid] mode=emit-mir rc=0 but payload marker missing` under runtime compat env; raw compat branch stays until that recursion is isolated.
-- deeper inventory added `src/runner/stage1_bridge/plan.rs`, `src/runner/stage1_bridge/args.rs`, `src/runner/stage1_bridge/env/stage1_aliases.rs`, and `src/config/env/stage1.rs` as the next source-side seam after compat contract softening.
+- `phase-127x` landed after compat boundary smoke was converted to route-first selfhost contract checks.
+- compat temp-MIR handoff is green again because the helper now receives the parser-EXE preference env internally.
+- deeper inventory keeps `src/runner/stage1_bridge/plan.rs`, `src/runner/stage1_bridge/args.rs`, `src/runner/stage1_bridge/env/stage1_aliases.rs`, `src/config/env/stage1.rs`, and `src/runner/stage1_bridge/direct_route/mod.rs` as the next source-side seam.
 - current inventory buckets are:
-  - compat route: `tools/selfhost/run.sh --runtime --runtime-route compat` -> raw `--backend vm` under `NYASH_VM_USE_FALLBACK=1`
+  - compat route: `tools/selfhost/run.sh --runtime --runtime-route compat`
   - proof gates: `tools/selfhost/proof/run_stageb_compiler_vm.sh` / `tools/selfhost/proof/selfhost_vm_smoke.sh`
   - active debug/observability: phase29x vm-family route smokes
 - `phase-98` locked plugin loader strict/best-effort runtime contract and kept `phase-97` LLVM EXE parity green.

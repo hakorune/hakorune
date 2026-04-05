@@ -20,10 +20,11 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-127x compat route raw vm cut prep`
-- current front: `compat boundary smoke` を route-first contract に寄せて raw vm tag 断言を外す
-- blocker: `compat emit-helper recursion returns rc=98 under runtime compat env`
+- lane: `phase-128x stage1 bridge vm gate softening`
+- current front: `stage1_bridge` の backend-hint chain を source-backed に薄くする
+- blocker: `stage1_bridge/direct_route/mod.rs` がまだ backend-hint を hard gate として保つ
 - recent landed:
+  - `phase-127x compat route raw vm cut prep`
   - `phase-125x vm bridge/backend gate follow-up`
   - `phase-124x vm public docs/manual demotion`
   - `phase-123x proof gate shrink follow-up`
@@ -49,7 +50,7 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-127x/README.md`
+3. `docs/development/current/main/phases/phase-128x/README.md`
 
 ## Successor Corridor
 

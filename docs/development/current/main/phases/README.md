@@ -4,7 +4,7 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 127x compat route raw vm cut prep
+- **Current (ACTIVE)**: Phase 128x stage1 bridge vm gate softening
 - **Phase 126x（LANDED）**: vm public gate shrink decision
 - **Phase 125x（LANDED）**: vm bridge/backend gate follow-up
 - **Phase 124x（LANDED）**: vm public docs/manual demotion
@@ -37,6 +37,7 @@
 
 ### Recent Landed
 
+- **Phase 127x（LANDED）**: compat route raw vm cut prep
 - **Phase 90x（LANDED）**: current-doc/design stale surface hygiene
 - **Phase 89x（LANDED）**: next source lane selection
 - **Phase 88x（LANDED）**: archive/deletion rerun（true archive-ready/delete-ready は出ず、no-op closeout）

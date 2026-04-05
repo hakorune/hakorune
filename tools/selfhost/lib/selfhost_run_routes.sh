@@ -79,15 +79,27 @@ run_runtime_temp_mir_handoff() {
   emit_runtime_route_tag "pipeline-entry" "$source_name"
   emit_runtime_route_tag "$runtime_mode" "$source_name"
 
+  local -a helper_env
+  helper_env=(
+    "NYASH_USE_NY_COMPILER=1"
+    "NYASH_NY_COMPILER_USE_PY=0"
+    "NYASH_USE_NY_COMPILER_EXE=1"
+  )
+  if [ -n "$timeout_ms" ]; then
+    helper_env+=("NYASH_NY_COMPILER_TIMEOUT_MS=$timeout_ms")
+  fi
+
   local emit_rc=0
   set +e
   if [ -n "$timeout_secs" ]; then
     timeout "$timeout_secs" \
-      bash "$NYASH_ROOT/tools/selfhost/compat/run_stage1_cli.sh" --bin "$NYASH_BIN" emit mir-json "$input_file" \
-      >"$tmp_mir" 2>"$tmp_emit_err"
+      env "${helper_env[@]}" \
+      bash "$NYASH_ROOT/tools/hakorune_emit_mir.sh" "$input_file" "$tmp_mir" \
+      >/dev/null 2>"$tmp_emit_err"
   else
-    bash "$NYASH_ROOT/tools/selfhost/compat/run_stage1_cli.sh" --bin "$NYASH_BIN" emit mir-json "$input_file" \
-      >"$tmp_mir" 2>"$tmp_emit_err"
+    env "${helper_env[@]}" \
+      bash "$NYASH_ROOT/tools/hakorune_emit_mir.sh" "$input_file" "$tmp_mir" \
+      >/dev/null 2>"$tmp_emit_err"
   fi
   emit_rc=$?
   set -e
@@ -195,7 +207,7 @@ run_runtime() {
   case "$runtime_mode" in
     stage-a-compat)
       # explicit compat-only keep: keep the fallback route narrow and non-growing
-      env_prefix+=("NYASH_USE_NY_COMPILER_EXE=0")
+      env_prefix+=("NYASH_USE_NY_COMPILER_EXE=1")
       ;;
     exe)
       # mainline route: temp MIR handoff stays on the direct/core path
@@ -214,6 +226,8 @@ run_runtime() {
     require_compat_fallback_env_or_exit "$(basename "$input_file")"
     echo "[selfhost/run] mode=runtime runtime_route=$route_name runtime_mode=$runtime_mode lane=compat-only input=$(basename "$input_file")" >&2
     emit_runtime_route_tag "stage-a-compat" "$(basename "$input_file")"
+    run_runtime_temp_mir_handoff
+    return
   else
     echo "[selfhost/run] mode=runtime runtime_route=$route_name runtime_mode=$runtime_mode lane=mainline input=$(basename "$input_file")" >&2
   fi
