@@ -1,7 +1,7 @@
 #!/bin/bash
 # phase29bq_selfhost_runtime_route_program_reject_smoke_vm.sh
 # Contract:
-# - explicit stage-a-compat runtime route stays on the compat-only path even under
+# - explicit compat runtime route stays on the compat-only path even under
 #   strict+planner_required.
 # - the smoke verifies explicit compat routing, not a reject-by-default contract.
 set -euo pipefail
@@ -47,19 +47,26 @@ NYASH_USE_NY_COMPILER=1 \
   NYASH_NY_COMPILER_TIMEOUT_MS="$TIMEOUT_MS" \
   HAKO_JOINIR_STRICT=1 \
   HAKO_JOINIR_PLANNER_REQUIRED=1 \
-  "$RUNNER" --runtime --runtime-mode stage-a-compat --input "$FIXTURE" --timeout-ms "$TIMEOUT_MS" \
+  NYASH_VM_USE_FALLBACK=1 \
+  "$RUNNER" --runtime --runtime-route compat --input "$FIXTURE" --timeout-ms "$TIMEOUT_MS" \
   > "$stdout_log" 2> "$stderr_log"
 rc=$?
 set -e
 
 if [ "$rc" -ne 0 ]; then
-  log_error "runtime stage-a-compat contract smoke expected success (rc=$rc)"
+  log_error "runtime compat contract smoke expected success (rc=$rc)"
   echo "STDERR_LOG: $stderr_log"
   exit 1
 fi
 
 if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=pipeline-entry source=' "$stderr_log"; then
   log_error "missing runtime route tag (mode=pipeline-entry) in stderr"
+  echo "STDERR_LOG: $stderr_log"
+  exit 1
+fi
+
+if ! rg -q '^\[selfhost/run\] mode=runtime runtime_route=compat runtime_mode=stage-a-compat ' "$stderr_log"; then
+  log_error "missing runtime run tag (route=compat, mode=stage-a-compat) in stderr"
   echo "STDERR_LOG: $stderr_log"
   exit 1
 fi

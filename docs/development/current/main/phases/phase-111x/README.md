@@ -13,6 +13,9 @@
   - `tools/selfhost/lib/selfhost_run_routes.sh`
   - `tools/selfhost/README.md`
   - `docs/development/architecture/selfhost_execution_ssot.md`
+  - `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
+  - `tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_runtime_route_smoke_vm.sh`
+  - `tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_runtime_mode_parity_smoke_vm.sh`
 - success:
   - `--runtime-route mainline|compat` で既存 runtime surface を叩ける
   - `--runtime-mode` は壊さず alias として残す

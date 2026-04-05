@@ -1,6 +1,6 @@
 #!/bin/bash
 # phase29bq_selfhost_runtime_mode_parity_smoke_vm.sh
-# Compare runtime selfhost semantic result between stage-a and exe routes.
+# Compare runtime selfhost semantic result between compat and mainline routes.
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../../../../.." && pwd)"
@@ -66,19 +66,36 @@ cleanup() {
 }
 trap cleanup EXIT
 
-run_mode() {
-  local mode="$1"
+run_route() {
+  local route="$1"
   local stdout_log="$2"
   local stderr_log="$3"
   local rc=0
+  local expected_mode=""
+  local -a route_env=()
+
+  case "$route" in
+    compat)
+      expected_mode="stage-a-compat"
+      route_env+=("NYASH_VM_USE_FALLBACK=1")
+      ;;
+    mainline)
+      expected_mode="exe"
+      ;;
+    *)
+      log_error "unknown runtime route: $route"
+      exit 2
+      ;;
+  esac
 
   set +e
-  NYASH_USE_NY_COMPILER=1 \
+  env "${route_env[@]}" \
+    NYASH_USE_NY_COMPILER=1 \
     NYASH_NY_COMPILER_USE_PY=0 \
     NYASH_NY_COMPILER_EMIT_ONLY=0 \
     NYASH_NY_COMPILER_USE_TMP_ONLY=1 \
     NYASH_NY_COMPILER_TIMEOUT_MS="$TIMEOUT_MS" \
-    "$RUNNER" --runtime --runtime-mode "$mode" --input "$fixture" --timeout-ms "$TIMEOUT_MS" \
+    "$RUNNER" --runtime --runtime-route "$route" --input "$fixture" --timeout-ms "$TIMEOUT_MS" \
     > "$stdout_log" 2> "$stderr_log"
   rc=$?
   set -e
@@ -106,40 +123,50 @@ extract_semantic_value() {
   echo "$value"
 }
 
-stage_rc="$(run_mode "stage-a-compat" "$stage_stdout" "$stage_stderr")"
-exe_rc="$(run_mode "exe" "$exe_stdout" "$exe_stderr")"
+compat_rc="$(run_route "compat" "$stage_stdout" "$stage_stderr")"
+mainline_rc="$(run_route "mainline" "$exe_stdout" "$exe_stderr")"
 
 if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=pipeline-entry source=' "$stage_stderr"; then
-  log_error "stage-a-compat missing runtime route tag (mode=pipeline-entry)"
+  log_error "compat missing runtime route tag (mode=pipeline-entry)"
+  echo "STAGE_STDERR: $stage_stderr"
+  exit 1
+fi
+if ! rg -q '^\[selfhost/run\] mode=runtime runtime_route=compat runtime_mode=stage-a-compat ' "$stage_stderr"; then
+  log_error "compat missing runtime run tag (route=compat, mode=stage-a-compat)"
   echo "STAGE_STDERR: $stage_stderr"
   exit 1
 fi
 if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=stage-a-compat source=' "$stage_stderr"; then
-  log_error "stage-a-compat missing runtime route tag (mode=stage-a-compat)"
+  log_error "compat missing runtime route tag (mode=stage-a-compat)"
   echo "STAGE_STDERR: $stage_stderr"
   exit 1
 fi
 if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=pipeline-entry source=' "$exe_stderr"; then
-  log_error "exe missing runtime route tag (mode=pipeline-entry)"
+  log_error "mainline missing runtime route tag (mode=pipeline-entry)"
+  echo "EXE_STDERR: $exe_stderr"
+  exit 1
+fi
+if ! rg -q '^\[selfhost/run\] mode=runtime runtime_route=mainline runtime_mode=exe ' "$exe_stderr"; then
+  log_error "mainline missing runtime run tag (route=mainline, mode=exe)"
   echo "EXE_STDERR: $exe_stderr"
   exit 1
 fi
 if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=exe source=' "$exe_stderr"; then
-  log_error "exe missing runtime route tag (mode=exe)"
+  log_error "mainline missing runtime route tag (mode=exe)"
   echo "EXE_STDERR: $exe_stderr"
   exit 1
 fi
 if rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=stage-a-compat source=' "$exe_stderr"; then
-  log_error "runtime exe route fell back to stage-a-compat unexpectedly"
+  log_error "runtime mainline route fell back to stage-a-compat unexpectedly"
   echo "EXE_STDERR: $exe_stderr"
   exit 1
 fi
 
-stage_value="$(extract_semantic_value "$stage_stdout" "$stage_stderr" "$stage_rc")"
-exe_value="$(extract_semantic_value "$exe_stdout" "$exe_stderr" "$exe_rc")"
+compat_value="$(extract_semantic_value "$stage_stdout" "$stage_stderr" "$compat_rc")"
+mainline_value="$(extract_semantic_value "$exe_stdout" "$exe_stderr" "$mainline_rc")"
 
-if [ "$stage_value" != "$exe_value" ]; then
-  log_error "runtime mode parity mismatch: stage-a-compat='$stage_value' exe='$exe_value'"
+if [ "$compat_value" != "$mainline_value" ]; then
+  log_error "runtime route parity mismatch: compat='$compat_value' mainline='$mainline_value'"
   echo "STAGE_STDOUT: $stage_stdout"
   echo "STAGE_STDERR: $stage_stderr"
   echo "EXE_STDOUT: $exe_stdout"
@@ -147,4 +174,4 @@ if [ "$stage_value" != "$exe_value" ]; then
   exit 1
 fi
 
-log_success "phase29bq_selfhost_runtime_mode_parity_smoke_vm: PASS ($(basename "$fixture"), value=$stage_value, rc_stagea_compat=$stage_rc, rc_exe=$exe_rc)"
+log_success "phase29bq_selfhost_runtime_mode_parity_smoke_vm: PASS ($(basename "$fixture"), value=$compat_value, rc_compat=$compat_rc, rc_mainline=$mainline_rc)"

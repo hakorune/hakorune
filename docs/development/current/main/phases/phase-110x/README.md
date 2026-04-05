@@ -5,7 +5,7 @@
 Current front:
 - inventory lock: public surfaces と internal owners を 5 語に割り当てる
 - exact focus:
-  - `tools/selfhost/run.sh --runtime --runtime-mode exe`
+  - `tools/selfhost/run.sh --runtime --runtime-route mainline`
   - `hakorune --backend vm|vm-hako|llvm`
   - `src/runner/dispatch.rs`
   - `src/runner/route_orchestrator.rs`

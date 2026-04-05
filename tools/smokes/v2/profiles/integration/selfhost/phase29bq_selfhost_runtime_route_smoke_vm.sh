@@ -3,7 +3,8 @@
 # Verify runtime selfhost route tag contract on stderr.
 # Contract:
 # - mode=pipeline-entry is emitted when runtime route is engaged
-# - mode=<stage-a-compat|exe> is emitted for selected runtime route
+# - runtime-route uses canonical `mainline|compat`
+# - mode=<stage-a-compat|exe> remains a compatibility tag for selected runtime route
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../../../../.." && pwd)"
@@ -12,7 +13,7 @@ require_env || exit 2
 
 RUNNER="$NYASH_ROOT/tools/selfhost/run.sh"
 FIXTURE="${1:-$NYASH_ROOT/apps/examples/string_p0.hako}"
-RUNTIME_MODE="${2:-stage-a-compat}"
+RUNTIME_ROUTE_INPUT="${2:-compat}"
 TIMEOUT_MS="${NYASH_NY_COMPILER_TIMEOUT_MS:-6000}"
 
 if ! [[ "$TIMEOUT_MS" =~ ^[0-9]+$ ]]; then
@@ -29,17 +30,27 @@ if [ ! -f "$FIXTURE" ]; then
   exit 2
 fi
 
-if [[ "$RUNTIME_MODE" != "stage-a-compat" && "$RUNTIME_MODE" != "exe" ]]; then
-  log_error "runtime mode must be stage-a-compat|exe (got: $RUNTIME_MODE)"
-  exit 2
-fi
+case "$RUNTIME_ROUTE_INPUT" in
+  compat|stage-a|stage-a-compat)
+    RUNTIME_ROUTE="compat"
+    EXPECTED_MODE="stage-a-compat"
+    ;;
+  mainline|exe)
+    RUNTIME_ROUTE="mainline"
+    EXPECTED_MODE="exe"
+    ;;
+  *)
+    log_error "runtime route must be compat|mainline (compat aliases: stage-a|stage-a-compat|exe; got: $RUNTIME_ROUTE_INPUT)"
+    exit 2
+    ;;
+esac
 
 if [ ! -x "$RUNNER" ]; then
   log_error "selfhost runner not found/executable: $RUNNER"
   exit 2
 fi
 
-if [ "$RUNTIME_MODE" = "exe" ]; then
+if [ "$RUNTIME_ROUTE" = "mainline" ]; then
   parser_exe=""
   if [ -n "${NYASH_NY_COMPILER_EXE_PATH:-}" ]; then
     parser_exe="${NYASH_NY_COMPILER_EXE_PATH}"
@@ -56,7 +67,7 @@ if [ "$RUNTIME_MODE" = "exe" ]; then
 fi
 
 runtime_env_prefix=()
-if [ "$RUNTIME_MODE" = "stage-a-compat" ]; then
+if [ "$RUNTIME_ROUTE" = "compat" ]; then
   # Keep the positive stage-a smoke on the explicit compat-success path.
   runtime_env_prefix+=("NYASH_VM_USE_FALLBACK=1")
 fi
@@ -74,7 +85,7 @@ env "${runtime_env_prefix[@]}" \
   NYASH_NY_COMPILER_EMIT_ONLY=1 \
   NYASH_NY_COMPILER_USE_TMP_ONLY=1 \
   NYASH_NY_COMPILER_TIMEOUT_MS="$TIMEOUT_MS" \
-  "$RUNNER" --runtime --runtime-mode "$RUNTIME_MODE" --input "$FIXTURE" --timeout-ms "$TIMEOUT_MS" \
+  "$RUNNER" --runtime --runtime-route "$RUNTIME_ROUTE" --input "$FIXTURE" --timeout-ms "$TIMEOUT_MS" \
   > "$stdout_log" 2> "$stderr_log"
 rc=$?
 set -e
@@ -91,20 +102,26 @@ if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=pipeline-entry sourc
   exit 1
 fi
 
-if ! rg -q "^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=${RUNTIME_MODE} source=" "$stderr_log"; then
-  log_error "missing runtime route tag (mode=${RUNTIME_MODE}) in stderr"
+if ! rg -q "^\[selfhost/run\] mode=runtime runtime_route=${RUNTIME_ROUTE} runtime_mode=${EXPECTED_MODE} " "$stderr_log"; then
+  log_error "missing runtime run tag (route=${RUNTIME_ROUTE}, mode=${EXPECTED_MODE}) in stderr"
   echo "STDERR_LOG: $stderr_log"
   exit 1
 fi
 
-if [ "$RUNTIME_MODE" = "stage-a-compat" ]; then
-  log_success "stage-a-compat runtime route success path"
-fi
-
-if [ "$RUNTIME_MODE" = "exe" ] && rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=stage-a-compat source=' "$stderr_log"; then
-  log_error "runtime exe route fell back to stage-a-compat unexpectedly"
+if ! rg -q "^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=${EXPECTED_MODE} source=" "$stderr_log"; then
+  log_error "missing runtime route tag (mode=${EXPECTED_MODE}) in stderr"
   echo "STDERR_LOG: $stderr_log"
   exit 1
 fi
 
-log_success "phase29bq_selfhost_runtime_route_smoke_vm: PASS ($(basename "$FIXTURE"), mode=${RUNTIME_MODE})"
+if [ "$RUNTIME_ROUTE" = "compat" ]; then
+  log_success "compat runtime route success path"
+fi
+
+if [ "$RUNTIME_ROUTE" = "mainline" ] && rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=stage-a-compat source=' "$stderr_log"; then
+  log_error "runtime mainline route fell back to stage-a-compat unexpectedly"
+  echo "STDERR_LOG: $stderr_log"
+  exit 1
+fi
+
+log_success "phase29bq_selfhost_runtime_route_smoke_vm: PASS ($(basename "$FIXTURE"), route=${RUNTIME_ROUTE}, mode=${EXPECTED_MODE})"
