@@ -1,6 +1,6 @@
 # Phase 156x: perf counter instrumentation
 
-- Status: Active
+- Status: Landed
 - 目的: `phase-137x` の canonical perf front を推定ではなく route-tagged counter で読めるようにする。
 - 対象:
   - `CURRENT_TASK.md`

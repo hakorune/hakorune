@@ -20,9 +20,9 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-156x perf counter instrumentation`
-- current front: `store.array.str` / `const_suffix` を推定ではなく route-tagged counter で読めるようにする
-- blocker: asm/bundle だけでは cache miss reason と fallback rate が足りないこと
+- lane: `phase-157x observe feature split`
+- current front: observer を authority stack の外に固定し、default release から compile-out する
+- blocker: counter 実装が default release にも入って見えること
 - landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -40,7 +40,7 @@ tools/checks/dev_gate.sh quick
 3. `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
 4. `docs/development/current/main/phases/phase-152x/README.md`
 5. `docs/development/current/main/phases/phase-154x/README.md`
-6. `docs/development/current/main/phases/phase-156x/README.md`
+6. `docs/development/current/main/phases/phase-157x/README.md`
 
 ## Decision Lock
 
@@ -128,13 +128,13 @@ tools/checks/dev_gate.sh quick
   - `docs/reference/environment-variables.md` labels `NYASH_LLVM_USE_HARNESS=1` examples as explicit keep-lane
 - `phase-155x` landed:
   - perf front is now read canonical reading first
-- `phase-156x` freezes the first counter surface:
-  - `store.array.str` -> `array_string_store_handle_at(...)`
-  - `const_suffix` / `thaw.str + lit.str + str.concat2 + freeze.str` -> `concat_const_suffix_fallback(...)`
-  - `NYASH_PERF_COUNTERS=1` emits route-tagged summary lines at process exit
-  - current counters:
-    - `store.array.str`: `cache_hit` / `cache_miss_handle` / `cache_miss_epoch` / `retarget_hit` / `source_store` / `non_string_source`
-    - `const_suffix`: `cached_handle_hit` / `text_cache_reload` / `freeze_fallback`
+- `phase-156x` landed:
+  - first counter surface exists for `store.array.str` and `const_suffix`
+  - first exact probe disproved cache-churn on `kilo_micro_array_string_store`
+- `phase-157x` current:
+  - `perf-observe` feature controls compile-in / compile-out
+  - `NYASH_PERF_COUNTERS=1` is runtime gate only inside feature-on build
+  - default release must stay zero-cost
 - latest bundle anchor:
   - `target/trace_logs/kilo-string-trace-asm/20260406-024104/summary.txt`
   - `target/trace_logs/kilo-string-trace-asm/20260406-024104/asm/perf_report.txt`

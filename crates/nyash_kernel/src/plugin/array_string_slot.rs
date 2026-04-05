@@ -4,7 +4,7 @@ use super::value_codec::{
     is_string_handle_source, maybe_store_string_box_from_verified_source,
     try_retarget_borrowed_string_slot_verified,
 };
-use crate::perf_counters::{self, CacheProbeKind as PerfCacheProbeKind};
+use crate::observe::{self, CacheProbeKind as ObserveCacheProbeKind};
 use crate::exports::string_view::resolve_string_span_from_handle;
 use memchr::{memchr, memmem};
 use nyash_rust::runtime::host_handles as handles;
@@ -144,16 +144,16 @@ fn execute_store_array_str_slot(
                     value_obj,
                     drop_epoch,
                 ) {
-                    perf_counters::record_store_array_str_retarget_hit();
+                    observe::record_store_array_str_retarget_hit();
                     return 1;
                 }
             }
         }
     }
     if source_is_string {
-        perf_counters::record_store_array_str_source_store();
+        observe::record_store_array_str_source_store();
     } else {
-        perf_counters::record_store_array_str_non_string_source();
+        observe::record_store_array_str_non_string_source();
     }
     let value = maybe_store_string_box_from_verified_source(
         value_h,
@@ -175,14 +175,14 @@ fn execute_store_array_str_contract(handle: i64, idx: i64, value_h: i64) -> i64 
         return 0;
     }
     let drop_epoch = handles::drop_epoch();
-    perf_counters::record_store_array_str_enter();
-    if perf_counters::enabled() {
+    observe::record_store_array_str_enter();
+    if observe::enabled() {
         let kind = match cache_probe_kind(handle, drop_epoch) {
-            HandleCacheProbeKind::Hit => PerfCacheProbeKind::Hit,
-            HandleCacheProbeKind::MissHandle => PerfCacheProbeKind::MissHandle,
-            HandleCacheProbeKind::MissDropEpoch => PerfCacheProbeKind::MissDropEpoch,
+            HandleCacheProbeKind::Hit => ObserveCacheProbeKind::Hit,
+            HandleCacheProbeKind::MissHandle => ObserveCacheProbeKind::MissHandle,
+            HandleCacheProbeKind::MissDropEpoch => ObserveCacheProbeKind::MissDropEpoch,
         };
-        perf_counters::record_store_array_str_cache_probe(kind);
+        observe::record_store_array_str_cache_probe(kind);
     }
     super::array_handle_cache::with_array_box(handle, |arr| {
         let idx = idx as usize;

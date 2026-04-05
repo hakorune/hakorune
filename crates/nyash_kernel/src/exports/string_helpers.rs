@@ -23,7 +23,7 @@ use super::super::string_view::{
     BorrowedSubstringPlan, StringSpan,
 };
 use crate::hako_forward_bridge;
-use crate::perf_counters;
+use crate::observe;
 use crate::plugin::materialize_owned_string;
 use nyash_rust::runtime::host_handles as handles;
 use std::{
@@ -528,7 +528,7 @@ fn concat_pair_fallback(a_h: i64, b_h: i64) -> i64 {
 
 #[inline(always)]
 fn execute_concat2_freeze_from_text(a_h: i64, suffix: &str, placement: RetainedForm) -> i64 {
-    perf_counters::record_const_suffix_freeze_fallback();
+    observe::record_const_suffix_freeze_fallback();
     match placement {
         RetainedForm::ReturnHandle => a_h,
         RetainedForm::KeepTransient | RetainedForm::MustFreeze(_) => {
@@ -582,7 +582,7 @@ fn execute_const_suffix_contract(a_h: i64, suffix_ptr: *const i8) -> i64 {
             if cache.ptr.get() != addr || cache.text.borrow().is_none() {
                 let bytes = unsafe { CStr::from_ptr(ptr) }.to_bytes();
                 let text = String::from_utf8_lossy(bytes).into_owned();
-                perf_counters::record_const_suffix_text_cache_reload();
+                observe::record_const_suffix_text_cache_reload();
                 cache.ptr.set(addr);
                 cache.is_empty.set(text.is_empty());
                 *cache.text.borrow_mut() = Some(text);
@@ -607,7 +607,7 @@ fn execute_const_suffix_contract(a_h: i64, suffix_ptr: *const i8) -> i64 {
     if suffix_ptr.is_null() {
         return a_h;
     }
-    perf_counters::record_const_suffix_enter();
+    observe::record_const_suffix_enter();
     let addr = suffix_ptr as usize;
     if let Some(out) = CONST_SUFFIX_TEXT_CACHE.with(|cache| {
         if cache.ptr.get() != addr {
@@ -617,7 +617,7 @@ fn execute_const_suffix_contract(a_h: i64, suffix_ptr: *const i8) -> i64 {
         if cached <= 0 {
             return None;
         }
-        perf_counters::record_const_suffix_cached_handle_hit();
+        observe::record_const_suffix_cached_handle_hit();
         let placement = concat_suffix_retention_class(cache.is_empty.get());
         if let Some(out) = execute_concat2_with_cached_const_handle(a_h, cached, placement) {
             return Some(out);

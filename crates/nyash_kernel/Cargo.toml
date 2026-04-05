@@ -3,6 +3,10 @@ name = "nyash_kernel"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+default = []
+perf-observe = []
+
 [lib]
 name = "nyash_kernel"
 crate-type = ["staticlib", "rlib"]

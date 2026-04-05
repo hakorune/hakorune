@@ -117,6 +117,21 @@ LLVM が持つもの:
 LLVM に owner-aware placement を発見させない。
 `borrow / freeze / store` の semantic choice は MIR までで確定する。
 
+## Observer Plane
+
+observer は authority stack の外に置く。
+
+- observer identity は canonical contract 名に揃える
+- observer backend は exact counter / trace / sink に分ける
+- observer は route 選択や fallback 条件を決めない
+- observer は default release から compile-out 可能でなければならない
+
+Current rule:
+
+- default build: observer compile-out
+- `--features perf-observe`: observer compile-in
+- `NYASH_PERF_COUNTERS=1`: feature-on build の runtime gate
+
 ## Stop Lines
 
 - `.hako` は owner / policy / route semantics まで

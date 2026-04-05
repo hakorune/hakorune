@@ -4,9 +4,10 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 156x perf counter instrumentation
+- **Current (ACTIVE)**: Phase 157x observe feature split
 - **Phase 137x（NEXT）**: main kilo reopen selection
-- **Phase 156x（ACTIVE）**: perf counter instrumentation
+- **Phase 157x（ACTIVE）**: observe feature split
+- **Phase 156x（LANDED）**: perf counter instrumentation
 - **Phase 155x（LANDED）**: perf canonical visibility tighten
 - **Phase 154x（LANDED）**: llvmlite archive lock
 - **Phase 153x（LANDED）**: ny_mir_builder harness drop

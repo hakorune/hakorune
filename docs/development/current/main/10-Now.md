@@ -12,9 +12,9 @@ Related:
 
 ## Current
 
-- lane: `phase-156x perf counter instrumentation`
-- current front: `store.array.str` / `const_suffix` を route-tagged counter で読めるようにする
-- blocker: asm/bundle だけでは miss reason と fallback rate が足りないこと
+- lane: `phase-157x observe feature split`
+- current front: observer を authority stack の外に固定し、default release から compile-out する
+- blocker: counter 実装が default release にも入って見えること
 - first landed slice:
   - `tools/selfhost/lib/selfhost_build_exe.sh` no longer forces harness on the daily EXE lane
   - provider/selfhost docs now read llvmlite as explicit keep only
@@ -25,10 +25,12 @@ Related:
 - perf reopen front:
   - `store.array.str` -> `array_string_store_handle_at(...)`
   - `const_suffix` / `thaw.str + lit.str + str.concat2 + freeze.str` -> `concat_const_suffix_fallback(...)`
-- counter front:
+- observe front:
+  - `--features perf-observe`
   - `NYASH_PERF_COUNTERS=1`
-  - `store.array.str` -> `cache_hit` / `cache_miss_handle` / `cache_miss_epoch` / `retarget_hit` / `source_store` / `non_string_source`
-  - `const_suffix` -> `cached_handle_hit` / `text_cache_reload` / `freeze_fallback`
+  - contract identity:
+    - `store.array.str`
+    - `const_suffix`
 - latest bundle anchor:
   - `target/trace_logs/kilo-string-trace-asm/20260406-024104/summary.txt`
   - `target/trace_logs/kilo-string-trace-asm/20260406-024104/asm/perf_report.txt`
@@ -92,10 +94,10 @@ Related:
 - landed visibility lock:
   - `const_suffix`, `ArrayStoreString`, `MapStoreAny` all read through owner -> canonical -> concrete lowering -> executor
 - current stop-line:
-  - do not reopen `phase-137x` until canonical perf fronts are visible in both current lowering and opt-in counters
-  - cleaner Rust executor shape alone is not enough
+  - do not reopen `phase-137x` until observer is compile-out by default and feature-on by choice
+  - observer must not look like a fifth authority layer
 - perf lane is paused, not cancelled:
-  - `phase-137x main kilo reopen selection` is the first consumer after counter proof
+  - `phase-137x main kilo reopen selection` is the first consumer after observe feature split
   - current perf truth:
     - baseline `1529ms`
     - after string const fast path `775ms`
