@@ -21,7 +21,7 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-133x micro kilo reopen selection`
-- current front: `micro kilo` を current に固定し、first slice を `kilo_micro_substring_concat` に寄せる
+- current front: `kilo_micro_substring_concat` owner lock
 - blocker: stop-line は順番だけ。`main kilo` や broad array retune に飛ばない
 - landed: `phase-132x vm default backend decision`
 - active next: `phase-133x micro kilo reopen selection`
@@ -79,6 +79,9 @@ tools/checks/dev_gate.sh quick
   - first owner: `kilo_micro_substring_concat`
   - recheck lane: `kilo_micro_array_getset`
   - stable baseline: `kilo_kernel_small_hk`
+ - fresh readings:
+  - `kilo_micro_substring_concat`: `c_ms=3-4 / ny_aot_ms=5 / ratio_ms=0.60-0.80`
+  - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4 / ratio_ms=1.00`
 
 ## Current Proof Bundle
 

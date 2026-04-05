@@ -15,9 +15,9 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-133x micro kilo reopen selection` |
-| Front | `micro kilo` を current に固定し、first slice を `kilo_micro_substring_concat` に寄せる |
+| Front | `kilo_micro_substring_concat` owner lock |
 | Blocker | stop-line は順番だけ。`main kilo` や broad array retune に飛ばない |
-| Next | `kilo_micro_substring_concat` owner lock |
+| Next | asm/bundle で `substring_concat` owner を固める |
 | After Next | `phase-kx vm-hako small reference interpreter recut` |
 
 ## Current Read
@@ -75,6 +75,15 @@ Related:
   - `kilo_micro_substring_concat` first
   - `kilo_micro_array_getset` second
   - `kilo_micro_indexof_line` third
+- fresh micro ladder:
+  - `kilo_micro_substring_concat`: `c_ms=3-4 / ny_aot_ms=5 / ratio_ms=0.60-0.80`
+  - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4 / ratio_ms=1.00`
+  - `kilo_micro_indexof_line`: `c_ms=5 / ny_aot_ms=7 / ratio_ms=0.71`
+- fresh `substring_concat` MIR hotops:
+  - `RuntimeDataBox.substring` x3
+  - `StringBox.length` x2
+  - `RuntimeDataBox.length` x1
+- fresh quick asm on `substring_concat` still shows `ny_main` dominating the hot tier, so the next cut stays owner-lock / bundle-first rather than broad substrate work
 - `array_getset` already has strong direct-route same-artifact proof, so it is a recheck lane rather than the first owner target
 
 ## Successor Corridor

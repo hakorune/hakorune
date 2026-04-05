@@ -13,7 +13,7 @@ Related:
 ## Current
 
 - lane: `phase-133x micro kilo reopen selection`
-- current front: `micro kilo` を current に固定し、first slice を `kilo_micro_substring_concat` に寄せる
+- current front: `kilo_micro_substring_concat` owner lock
 - blocker: stop-line は順番だけ。`main kilo` や broad array retune に飛ばない
 - recent landed:
   - `phase-131x vm legacy contract migration`
@@ -63,7 +63,14 @@ Related:
   - `kilo_micro_substring_concat` first
   - `kilo_micro_array_getset` second
   - `kilo_micro_indexof_line` third
+- fresh microstat is:
+  - `kilo_micro_substring_concat`: `c_ms=3-4 / ny_aot_ms=5 / ratio_ms=0.60-0.80`
+  - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4 / ratio_ms=1.00`
 - `array_getset` is no longer the first owner target; it stays as a recheck lane because its direct-route same-artifact proof is already strong
+- fresh MIR hotops for `substring_concat`:
+  - `RuntimeDataBox.substring` x3
+  - `StringBox.length` x2
+  - `RuntimeDataBox.length` x1
 
 ## Root Anchors
 
