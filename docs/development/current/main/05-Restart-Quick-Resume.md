@@ -21,7 +21,7 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-115x vm route retirement planning`
-- current front: `compat / proof / debug だけに残る vm-family route の retirement order を固定する`
+- current front: `compat / proof / debug だけに残る vm-family route の inventory と retirement order を固定する`
 - blocker: `none`
 - recent landed:
   - `phase-114x execution surface wording closeout`
@@ -55,6 +55,10 @@ tools/checks/dev_gate.sh quick
 - keep `stage / route / backend override / lane / kernel` split fixed
 - keep VM family lane names fixed
 - keep `--backend vm` in compat/proof/debug only and fix the retirement order before pruning aliases
+- current buckets:
+  - compat route: `run.sh --runtime --runtime-route compat`
+  - proof wrappers: `tools/selfhost/proof/*`
+  - debug/observability: phase29x vm-family smokes
 
 ## Current Proof Bundle
 

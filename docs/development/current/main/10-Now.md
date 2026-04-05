@@ -13,7 +13,7 @@ Related:
 ## Current
 
 - lane: `phase-115x vm route retirement planning`
-- current front: `compat / proof / debug だけに残る vm-family route の retirement order を固定する`
+- current front: `compat / proof / debug だけに残る vm-family route の inventory と retirement order を固定する`
 - blocker: `none`
 - recent landed:
   - `phase-114x execution surface wording closeout`
@@ -44,6 +44,7 @@ Related:
   - vocabulary split: `stage / route / backend override / lane / kernel`
   - selfhost mainline already reads as `runtime-route mainline`
   - raw `--backend vm` is now treated as compat/proof/debug only
+  - current buckets are `compat route`, `proof wrappers`, `debug/observability`
   - next step is retirement order, not another wording-only pass
 
 ## Root Anchors

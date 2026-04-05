@@ -15,9 +15,9 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-115x vm route retirement planning` |
-| Front | `compat / proof / debug だけに残る vm-family route の retirement order を固定する` |
+| Front | `compat / proof / debug だけに残る vm-family route の inventory と retirement order を固定する` |
 | Blocker | `none` |
-| Next | `route_orchestrator.rs` / `run.sh` / `selfhost_run_routes.sh` / `tools/selfhost/proof/*` の vm dependency inventory |
+| Next | `run.sh` / `selfhost_run_routes.sh` / `tools/selfhost/proof/*` / active observability smokes の vm dependency inventory |
 | After Next | `phase-116x execution surface alias pruning` |
 
 ## Current Read
@@ -39,6 +39,7 @@ Related:
 - `110x` fixed long-lived execution vocabulary SSOT and corrected stale wording in `lang/src/vm` / `tools/selfhost`
 - `113x` reserved `kernel` for `nyash_kernel` and fixed `lang/src/vm` as a VM/reference cluster
 - `114x` made public/help surface read `mainline route` vs `explicit keep/reference override`
+- `115x` inventory is now split into `compat route`, `proof wrappers`, and `debug/observability`
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers

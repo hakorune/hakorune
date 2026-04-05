@@ -55,9 +55,9 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 ## Current Front
 
 - Active lane: `phase-115x vm route retirement planning`
-- Active micro: `compat / proof / debug だけに残る vm-family route の retirement order を固定する`
+- Active micro: `compat / proof / debug だけに残る vm-family route の inventory と retirement order を固定する`
 - Current blocker: `none`
-- Exact focus: `route_orchestrator.rs` / `run.sh` / `selfhost_run_routes.sh` / `tools/selfhost/proof/*` の vm dependency を source-backed に棚卸する`
+- Exact focus: `route_orchestrator.rs` / `run.sh` / `selfhost_run_routes.sh` / `tools/selfhost/proof/*` / active observability smokes の vm dependency を source-backed に棚卸する`
 
 ## Successor Corridor
 
@@ -93,6 +93,10 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 - `phase-110x` fixed long-lived execution vocabulary SSOT and corrected `lang/src/vm` / `tools/selfhost` wording to match it.
 - `phase-114x` closed out remaining public/help wording where raw `--backend vm` still looked like a normal execution route.
 - `phase-115x` now inventories the remaining vm-family route as compat/proof/debug only, ahead of alias pruning or explicit env hardening.
+- current inventory buckets are:
+  - compat route: `tools/selfhost/run.sh --runtime --runtime-route compat` -> raw `--backend vm` under `NYASH_VM_USE_FALLBACK=1`
+  - proof wrappers: `tools/selfhost/proof/*`
+  - active debug/observability: phase29x vm-family route smokes
 - `phase-98` locked plugin loader strict/best-effort runtime contract and kept `phase-97` LLVM EXE parity green.
 - `phase-103` fixed if-only merge / early return parity on VM and LLVM EXE.
 - `phase-102` fixed real-app read_quoted loop parity on VM and LLVM EXE under compat replay=harness.
