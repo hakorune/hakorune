@@ -172,15 +172,11 @@ fn requested_object_output_path() -> Option<String> {
 fn emit_requested_object_or_exit(_module: &nyash_rust::mir::MirModule, _out_path: &str) {
     #[cfg(feature = "llvm-harness")]
     {
-        if crate::config::env::llvm_use_harness() {
-            if let Err(e) =
-                crate::runner::modes::common_util::exec::llvmlite_emit_obj_lib(_module, _out_path)
-            {
-                report::emit_error_and_exit(LlvmRunError::fatal(format!("{}", e)));
-            }
-            return;
+        if let Err(e) =
+            crate::runner::modes::common_util::exec::ny_llvmc_emit_obj_lib(_module, _out_path)
+        {
+            report::emit_error_and_exit(LlvmRunError::fatal(format!("{}", e)));
         }
-        verify_requested_harness_object_output_or_exit(_out_path);
         return;
     }
     #[cfg(all(not(feature = "llvm-harness"), feature = "llvm-inkwell-legacy"))]
@@ -193,33 +189,6 @@ fn emit_requested_object_or_exit(_module: &nyash_rust::mir::MirModule, _out_path
         report::emit_error_and_exit(LlvmRunError::fatal(
             "LLVM backend not available (object emit)",
         ));
-    }
-}
-
-#[cfg(feature = "llvm-harness")]
-fn verify_requested_harness_object_output_or_exit(out_path: &str) {
-    match std::fs::metadata(out_path) {
-        Ok(meta) => {
-            if meta.len() == 0 {
-                report::emit_error_and_exit(LlvmRunError::fatal(format!(
-                    "harness object is empty: {}",
-                    out_path
-                )));
-            }
-            if std::env::var("NYASH_CLI_VERBOSE").ok().as_deref() == Some("1") {
-                crate::console_println!(
-                    "[LLVM] object emitted: {} ({} bytes)",
-                    out_path,
-                    meta.len()
-                );
-            }
-        }
-        Err(e) => {
-            report::emit_error_and_exit(LlvmRunError::fatal(format!(
-                "harness output not found after emit: {} ({})",
-                out_path, e
-            )));
-        }
     }
 }
 

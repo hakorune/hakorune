@@ -8,11 +8,11 @@ Purpose
 
 Route at a glance
 - daily mainline: `.hako -> ny-llvmc (boundary default route) -> object/exe`
-- explicit keep lane: `.hako -> ny-llvmc --driver harness` or `NYASH_LLVM_USE_HARNESS=1 -> tools/llvmlite_harness.py -> src/llvm_py/**`
+- explicit keep lane: `.hako -> ny-llvmc --driver harness -> tools/llvmlite_harness.py -> src/llvm_py/**`
 - llvmlite is never the default route; it is only entered by explicit opt-in or replay.
 
 Switch
-- `NYASH_LLVM_USE_HARNESS=1` で explicit keep lane として起動する。
+- `NYASH_LLVM_USE_HARNESS=1` は legacy compat hint として残るが、daily object emit の current owner ではない。
 - daily route から自動選択される mainline backend ではない。
 
 Tracing
@@ -47,11 +47,11 @@ Quick Start
   - `nyash_kernel` とリンクして EXE 化（例: `cc /tmp/dummy.o -L target/release -Wl,--whole-archive -lnyash_kernel -Wl,--no-whole-archive -lpthread -ldl -lm -o app_dummy`）。
 
 Wiring（Rust 側）
-- `NYASH_LLVM_USE_HARNESS=1` のとき:
-  1) Rust helper が temp MIR(JSON) ファイルを書き出す
-  2) `python3 tools/llvmlite_harness.py --in <mir.json> --out <obj.o>` を直接起動
+- explicit keep lane (`--driver harness`) のとき:
+  1) `ny-llvmc` が harness driver を選ぶ
+  2) `python3 tools/llvmlite_harness.py --in <mir.json> --out <obj.o>` を起動
   3) 成功後は通常のリンク手順（`libnyash_kernel.a` とリンク）
-  - Rust 側の object emit は MIR JSON を文字列に戻して legacy front door に渡さない
+  - daily runner object emit は current mainline で `ny-llvmc --emit obj` を読む
 
 Mainline note
 - current daily/mainline route は `ny-llvmc` の default boundary route だよ。

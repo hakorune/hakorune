@@ -1,7 +1,7 @@
 # Phase 137x: main kilo reopen selection
 
-- Status: Active
-- 目的: semantic ownership の最終形と canonical lowering visibility lock が landed した split kernel 上で `main kilo` を reopen する。
+- Status: Paused
+- 目的: semantic ownership の最終形と canonical lowering visibility lock が landed した split kernel 上で `main kilo` を reopen する。現在は llvmlite object emit retreat の後続 consumer として待機。
 - 対象:
   - `CURRENT_TASK.md`
   - `docs/development/current/main/05-Restart-Quick-Resume.md`
@@ -20,7 +20,8 @@
   3. `main kilo`
 - `phase-134x` structural split is landed
 - `phase-138x` / `phase-139x` / `phase-140x` / `phase-141x` semantic-owner corridor is landed
-- contract-first corridor は landed、perf consumer が reopen 済み
+- contract-first corridor は landed
+- perf consumer は llvmlite object emit retreat の後で reopen
 - `vm-hako` stays parked as reference/conformance
 
 ## Fresh Read

@@ -107,7 +107,7 @@ fn main() {
             if verify {
                 std::env::set_var("NYASH_LLVM_VERIFY", "1");
             }
-            std::env::set_var("NYASH_LLVM_USE_HARNESS", "1");
+            std::env::remove_var("NYASH_LLVM_USE_HARNESS");
             // remove stale
             let _ = fs::remove_file(&out_path);
             run_nyash_pipe(&nyash_bin, &in_file);
@@ -128,7 +128,7 @@ fn main() {
             if verify {
                 std::env::set_var("NYASH_LLVM_VERIFY", "1");
             }
-            std::env::set_var("NYASH_LLVM_USE_HARNESS", "1");
+            std::env::remove_var("NYASH_LLVM_USE_HARNESS");
             let _ = fs::remove_file(&obj_path);
             run_nyash_pipe(&nyash_bin, &in_file);
             if !Path::new(&obj_path).exists() {

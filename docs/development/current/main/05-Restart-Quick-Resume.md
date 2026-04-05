@@ -20,9 +20,9 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-137x main kilo reopen selection`
-- current front: contract-first corridor 済みの split kernel 上で `array_string_store_handle_at(...)` を first exact front として詰める
-- blocker: perf tuning から canonical contract 側へ owner drift を戻さないこと
+- lane: `phase-152x llvmlite object emit cutover`
+- current front: `NYASH_LLVM_OBJ_OUT` と `ny_mir_builder obj|exe` を `ny-llvmc --emit obj` mainline に寄せる
+- blocker: runner object emit と tool-side object emit がまだ llvmlite keep lane を踏むこと
 - landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -30,19 +30,26 @@ tools/checks/dev_gate.sh quick
   - `phase-134x nyash_kernel layer recut selection`
   - `phase-133x micro kilo reopen selection`
 - active next:
-  - `phase-kx vm-hako small reference interpreter recut`
+  - `phase-153x ny_mir_builder harness drop`
+  - `phase-154x llvmlite archive lock`
+  - `phase-137x main kilo reopen selection`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
 3. `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
-4. `docs/development/current/main/phases/phase-137x/README.md`
+4. `docs/development/current/main/phases/phase-152x/README.md`
 5. `docs/development/current/main/design/canonical-lowering-visibility-ssot.md`
 6. `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
 
 ## Decision Lock
 
+- llvmlite retreat order is fixed:
+  1. runner object emit cutover
+  2. `ny_mir_builder` harness drop
+  3. llvmlite keep/archive lock
+  4. perf reopen
 - fixed perf order remains:
   - `leaf-proof micro`
   - `micro kilo`
@@ -144,9 +151,8 @@ git diff --check
   - `kilo_micro_indexof_line`: `c_ms=4 / ny_aot_ms=4`
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
-- perf consumer reopened:
-  - `phase-137x` is now the first consumer after the contract corridor
-  - keep exact fronts on `array_string_store_handle_at(...)` and `concat_const_suffix_fallback(...)`
+- perf consumer is paused behind llvmlite retreat:
+  - `phase-137x` resumes only after object emit reads `ny-llvmc` first
 - `phase-144x` landed:
   - `StringCoreBox.{size,indexOf,lastIndexOf,substring}` now reads through helperized wrapper paths
   - `indexOf(search, fromIndex)` delegates to `StringSearchKernelBox.find_index_from(...)`

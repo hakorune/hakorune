@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-137x main kilo reopen selection` |
-| Front | contract-first corridor 済みの split kernel 上で `array_string_store_handle_at(...)` を first exact front に pin する |
-| Blocker | perf tuning から canonical contract 側へ owner drift を戻さないこと |
-| Next | `phase-kx vm-hako small reference interpreter recut` |
-| After Next | parked only |
+| Now | `phase-152x llvmlite object emit cutover` |
+| Front | `NYASH_LLVM_OBJ_OUT` と `ny_mir_builder obj|exe` を `ny-llvmc --emit obj` mainline に寄せる |
+| Blocker | runner/tool object emit がまだ llvmlite keep lane を踏むこと |
+| Next | `phase-153x ny_mir_builder harness drop` |
+| After Next | `phase-154x llvmlite archive lock` |
 
 ## Current Read
 
@@ -62,8 +62,10 @@ Related:
 - `phase-151x` landed visibility lock:
   - canonical MIR readings are now visible against current concrete lowering
 - next fixed corridor:
-  1. `phase-137x main kilo reopen selection`
-  2. `phase-kx vm-hako small reference interpreter recut`
+  1. `phase-152x llvmlite object emit cutover`
+  2. `phase-153x ny_mir_builder harness drop`
+  3. `phase-154x llvmlite archive lock`
+  4. `phase-137x main kilo reopen selection`
 - paused reopen truth:
   - baseline: `kilo_kernel_small_hk = 1529ms`
   - string const fast-path: `775ms`
@@ -80,8 +82,10 @@ Related:
 
 ## Successor Corridor
 
-1. `phase-137x main kilo reopen selection`
-2. `phase-kx vm-hako small reference interpreter recut`
+1. `phase-153x ny_mir_builder harness drop`
+2. `phase-154x llvmlite archive lock`
+3. `phase-137x main kilo reopen selection`
+4. `phase-kx vm-hako small reference interpreter recut`
 
 ## Parked After Optimization
 

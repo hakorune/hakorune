@@ -37,22 +37,30 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 16. `phase-149x concat const-suffix vertical slice` (landed)
 17. `phase-150x array string-store vertical slice` (landed)
 18. `phase-151x canonical lowering visibility lock` (landed)
-19. `phase-137x main kilo reopen selection` (active after contract corridor)
-20. `phase-kx vm-hako small reference interpreter recut` (parked after optimization)
+19. `phase-137x main kilo reopen selection` (paused after reopen proof)
+20. `phase-152x llvmlite object emit cutover` (active)
+21. `phase-153x ny_mir_builder harness drop` (next)
+22. `phase-154x llvmlite archive lock` (next)
+23. `phase-137x main kilo reopen selection` (resume after llvmlite retreat)
+24. `phase-kx vm-hako small reference interpreter recut` (parked after optimization)
 
 ## Current Front
 
-- Active lane: `phase-137x main kilo reopen selection`
-- Active front: contract-first corridor 済みの split kernel 上で `kilo_kernel_small_hk` の next hot leaf を取り直す
-- Current blocker: perf tuning を canonical contract から逆流させないこと
+- Active lane: `phase-152x llvmlite object emit cutover`
+- Active front: LLVM object emit の current authority を `llvmlite` keep lane から `ny-llvmc` mainline lane へ一本化する
+- Current blocker: `NYASH_LLVM_OBJ_OUT` / `ny_mir_builder obj|exe` / runner object emit がまだ harness keep を踏むこと
 - Exact focus:
-  - `array_string_store_handle_at(...)`
-  - `concat_const_suffix_fallback(...)`
-  - exact micro と whole-kilo の両方を truth にする
+  - `src/runner/modes/common_util/exec.rs`
+  - `src/runner/product/llvm/mod.rs`
+  - `src/bin/ny_mir_builder.rs`
+  - `tools/build_llvm.sh`
 
 ## Successor Corridor
 
-1. `phase-kx vm-hako small reference interpreter recut`
+1. `phase-153x ny_mir_builder harness drop`
+2. `phase-154x llvmlite archive lock`
+3. `phase-137x main kilo reopen selection`
+4. `phase-kx vm-hako small reference interpreter recut`
 
 ## Parked After Optimization
 
@@ -89,6 +97,11 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   - remove `vm` from the default backend
   - keep explicit `vm` / `vm-hako` proof-debug callers alive
   - do not wait for full vm source retirement before resuming mainline work
+- llvmlite retreat order is fixed:
+  1. runner object emit cutover
+  2. `ny_mir_builder` harness drop
+  3. llvmlite keep/archive lock
+  4. perf reopen
 - fixed perf reopen order remains:
   - `leaf-proof micro`
   - `micro kilo`
@@ -208,6 +221,20 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 - `phase-137x` is reopened:
   - perf consumer resumes only after the contract corridor landed
   - do not let new perf work invent a parallel owner or canonical contract
+- `phase-152x` current seam:
+  - `--backend llvm` / `--emit-exe` daily mainline is already `ny-llvmc`
+  - remaining mismatch is `.o` emit:
+    - `src/runner/modes/common_util/exec.rs::llvmlite_emit_obj_lib(...)`
+    - `src/runner/modes/common_util/exec.rs::ny_llvmc_emit_obj_lib(...)` compatibility alias still routes to llvmlite
+    - `src/runner/product/llvm/mod.rs::emit_requested_object_or_exit(...)`
+    - `src/bin/ny_mir_builder.rs` `obj` / `exe` still force `NYASH_LLVM_USE_HARNESS=1`
+  - cut goal:
+    - current object emit reads `ny-llvmc --emit obj`
+    - llvmlite becomes explicit compat/archive keep only
+  - current landed slice:
+    - `src/runner/product/llvm/mod.rs::emit_requested_object_or_exit(...)` now routes object emit to `ny_llvmc_emit_obj_lib(...)`
+    - `src/runner/modes/common_util/exec.rs::ny_llvmc_emit_obj_lib(...)` now uses `ny-llvmc --emit obj`
+    - `src/bin/ny_mir_builder.rs` `obj|exe` no longer force `NYASH_LLVM_USE_HARNESS=1`
 - first exact slices:
   - `crates/nyash_kernel/src/exports/string.rs`
   - `crates/nyash_kernel/src/plugin/map_substrate.rs`

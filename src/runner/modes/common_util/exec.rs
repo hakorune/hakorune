@@ -157,6 +157,22 @@ fn prepare_ny_llvmc_emit_json_path() -> std::path::PathBuf {
     tmp_dir.join("nyash_cli_emit.json")
 }
 
+fn build_ny_llvmc_emit_obj_command(
+    ny_llvmc: &std::path::Path,
+    json_path: &std::path::Path,
+    obj_out: &str,
+) -> Result<std::process::Command, String> {
+    let mut cmd = std::process::Command::new(ny_llvmc);
+    cmd.arg("--in")
+        .arg(json_path)
+        .arg("--emit")
+        .arg("obj")
+        .arg("--out")
+        .arg(obj_out);
+    apply_ny_llvmc_driver_arg(&mut cmd)?;
+    Ok(cmd)
+}
+
 fn build_ny_llvmc_emit_exe_command(
     ny_llvmc: &std::path::Path,
     json_path: &std::path::Path,
@@ -197,6 +213,33 @@ fn spawn_ny_llvmc_emit_exe_command(
     Ok(())
 }
 
+fn spawn_ny_llvmc_emit_obj_command(
+    ny_llvmc: &std::path::Path,
+    cmd: &mut std::process::Command,
+    obj_out: &str,
+) -> Result<(), String> {
+    let status = cmd.status().map_err(|e| {
+        format!(
+            "failed to spawn ny-llvmc: {}\n{}",
+            e,
+            hint_ny_llvmc_missing(ny_llvmc)
+        )
+    })?;
+    if !status.success() {
+        return Err(format!(
+            "ny-llvmc object emit failed with status: {:?} (out={})",
+            status.code(),
+            obj_out
+        ));
+    }
+    let metadata = std::fs::metadata(obj_out)
+        .map_err(|e| format!("ny-llvmc object not found after emit: {} ({})", obj_out, e))?;
+    if metadata.len() == 0 {
+        return Err(format!("ny-llvmc object is empty: {}", obj_out));
+    }
+    Ok(())
+}
+
 fn run_ny_llvmc_emit_exe(
     json_path: &std::path::Path,
     exe_out: &str,
@@ -210,6 +253,19 @@ fn run_ny_llvmc_emit_exe(
     let mut cmd =
         build_ny_llvmc_emit_exe_command(&ny_llvmc, json_path, exe_out, nyrt_dir, extra_libs)?;
     spawn_ny_llvmc_emit_exe_command(&ny_llvmc, &mut cmd)
+}
+
+fn run_ny_llvmc_emit_obj(json_path: &std::path::Path, obj_out: &str) -> Result<(), String> {
+    let ny_llvmc = resolve_ny_llvmc();
+    if !ny_llvmc.exists() {
+        return Err(hint_ny_llvmc_missing(&ny_llvmc));
+    }
+    if let Some(parent) = Path::new(obj_out).parent() {
+        std::fs::create_dir_all(parent)
+            .map_err(|e| format!("[llvmemit/ny-llvmc/out-parent-failed] {}", e))?;
+    }
+    let mut cmd = build_ny_llvmc_emit_obj_command(&ny_llvmc, json_path, obj_out)?;
+    spawn_ny_llvmc_emit_obj_command(&ny_llvmc, &mut cmd, obj_out)
 }
 
 fn emit_json_and_run_ny_llvmc_emit_exe(
@@ -279,7 +335,12 @@ pub fn ny_llvmc_emit_obj_lib(
     module: &nyash_rust::mir::MirModule,
     obj_out: &str,
 ) -> Result<(), String> {
-    llvmlite_emit_obj_lib(module, obj_out)
+    let json_path = prepare_ny_llvmc_emit_json_path();
+    crate::runner::mir_json_emit::emit_mir_json_for_harness(module, &json_path)
+        .map_err(|e| format!("MIR JSON emit error: {}", e))?;
+    let result = run_ny_llvmc_emit_obj(&json_path, obj_out);
+    let _ = std::fs::remove_file(&json_path);
+    result
 }
 
 /// Emit native executable via ny-llvmc (bin-side MIR)

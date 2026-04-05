@@ -12,9 +12,9 @@ Related:
 
 ## Current
 
-- lane: `phase-137x main kilo reopen selection`
-- current front: contract-first corridor 済みの split kernel 上で `array_string_store_handle_at(...)` を first exact front に固定する
-- blocker: perf tuning から canonical contract 側へ owner drift を戻さないこと
+- lane: `phase-152x llvmlite object emit cutover`
+- current front: object emit の daily mainline を `ny-llvmc --emit obj` に一本化する
+- blocker: `NYASH_LLVM_OBJ_OUT` と `ny_mir_builder obj|exe` がまだ harness keep を踏むこと
 - recent landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
