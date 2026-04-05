@@ -7,13 +7,28 @@
 
 - `store.array.str`
   - current executor detail: `array_string_store_handle_at(...)`
-  - future capability seam: `RawArray` + lower memory/buffer family
+  - future capability seam: `RawArray` consumer + lower `hako.value_repr` / `hako.mem` / `hako.ptr`
 - `const_suffix`
   - current executor detail: `concat_const_suffix_fallback(...)`
-  - future capability seam: string borrow/freeze family
+  - future capability seam: string borrow/span + freeze/materialize family
 - observer backend
   - current executor detail: `observe/backend/tls.rs`
-  - future seam: runtime mechanics keep under final native metal boundary
+  - future seam: runtime mechanics keep under final native metal boundary, with canonical identity only aligned upward
+
+## Planned Deliverable
+
+1. source-backed mapping for `store.array.str`
+   - current executor detail
+   - `RawArray` consumer seam
+   - lower value-repr / memory seam
+2. source-backed mapping for `const_suffix`
+   - current executor detail
+   - string borrow/span seam
+   - string freeze/materialize seam
+3. source-backed mapping for observer exact counter
+   - canonical identity
+   - runtime TLS backend
+   - final native keep reading
 
 ## Exit
 

@@ -55,6 +55,58 @@
 | `observe/backend/tls.rs` | observer runtime backend; identity above, mechanics below | out-of-band native runtime mechanics keep |
 | `src/runtime/host_handles.rs` | host handle/runtime mechanics keep | final native metal boundary side |
 
+## Hot-Path Mapping Notes
+
+### `const_suffix`
+
+- canonical reading:
+  - `.hako const_suffix -> thaw.str + lit.str + str.concat2 + freeze.str`
+- current executor detail:
+  - `crates/nyash_kernel/src/exports/string_helpers.rs::concat_const_suffix_fallback(...)`
+  - `crates/nyash_kernel/src/exports/string_helpers.rs::execute_const_suffix_contract(...)`
+- capability-family reading:
+  - borrow/view resolution side:
+    - `crates/nyash_kernel/src/exports/string_view.rs::resolve_string_span_from_handle(...)`
+    - future string borrow/span family above `hako.ptr` / `hako.value_repr`
+  - freeze/materialize side:
+    - `crates/nyash_kernel/src/exports/string_plan.rs::concat_const_suffix_plan_from_handle(...)`
+    - `crates/nyash_kernel/src/exports/string_helpers.rs::freeze_text_plan(...)`
+    - future string freeze/copy family above `hako.mem` / `hako.buf` / `hako.ptr`
+- native keep now:
+  - raw copy/search/materialize remains Rust accelerator work
+
+### `store.array.str`
+
+- canonical reading:
+  - `store.array.str`
+- current executor detail:
+  - `crates/nyash_kernel/src/plugin/array_string_slot.rs::array_string_store_handle_at(...)`
+  - `crates/nyash_kernel/src/plugin/array_string_slot.rs::execute_store_array_str_contract(...)`
+- capability-family reading:
+  - array substrate side:
+    - `crates/nyash_kernel/src/plugin/array_handle_cache.rs::with_array_box_at_epoch(...)`
+    - future `RawArray` consumer helper
+  - string/value store side:
+    - `crates/nyash_kernel/src/plugin/value_codec/string_store.rs`
+    - `crates/nyash_kernel/src/plugin/value_codec/borrowed_handle.rs`
+    - future lower `hako.value_repr` / `hako.mem` / `hako.ptr` family
+- native keep now:
+  - borrowed-slot retarget / source-store leaf remains Rust accelerator work
+
+### observer exact counter
+
+- canonical identity:
+  - `store.array.str`
+  - `const_suffix`
+- current backend detail:
+  - `crates/nyash_kernel/src/observe/backend/tls.rs`
+  - `crates/nyash_kernel/src/observe/sink/stderr.rs`
+- capability-family reading:
+  - identity aligns upward to canonical contract names
+  - backend mechanics remain runtime keep, closest to `hako.tls` / host integration seam
+- native keep now:
+  - TLS bucket / flush / sink are still Rust runtime mechanics
+
 ## Planned Granularity
 
 1. inventory each hot file by capability family
