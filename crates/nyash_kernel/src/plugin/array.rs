@@ -1,5 +1,5 @@
 pub use super::array_compat::*;
-pub use super::array_runtime_facade::*;
+pub use super::array_runtime_aliases::*;
 pub use super::array_substrate::*;
 
 #[cfg(test)]

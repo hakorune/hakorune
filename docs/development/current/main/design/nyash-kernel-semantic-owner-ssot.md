@@ -70,6 +70,8 @@ This bucket owns meaning, not raw unsafe leaf work.
   - `lang/src/runtime/substrate/ptr/ptr_core_box.hako`
 - ABI facade:
   - `crates/nyash_kernel/src/plugin/array_substrate.rs`
+- compat alias surface:
+  - `crates/nyash_kernel/src/plugin/array_runtime_aliases.rs`
 - compat/runtime forwarding:
   - `crates/nyash_kernel/src/plugin/array_runtime_facade.rs`
 - native accelerators kept in Rust:
@@ -79,6 +81,8 @@ This bucket owns meaning, not raw unsafe leaf work.
 The first pilot moves visible `ArrayBox.{get,set,push,len,length,size}` semantics,
 fallback, and state bookkeeping to `.hako` owner authority. It does not move raw
 slot implementation or cache/fast-path substrate out of Rust.
+Historical runtime aliases remain a separate shrink-only surface and must not
+pull owner logic back into Rust forwarding code.
 
 #### Map semantic owner seam
 
