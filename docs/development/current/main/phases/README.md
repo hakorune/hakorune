@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 131x vm legacy contract migration
+- **Current (ACTIVE)**: Phase 132x vm default backend decision
+- **Phase 131x（LANDED）**: vm legacy contract migration
 - **Phase 130x（LANDED）**: vm public gate final cleanup
 - **Phase 129x（LANDED）**: vm orchestrator/public gate follow-up
 - **Phase 128x（LANDED）**: stage1 bridge vm gate softening
@@ -40,6 +41,7 @@
 
 ### Recent Landed
 
+- **Phase 131x（LANDED）**: vm legacy contract migration
 - **Phase 130x（LANDED）**: vm public gate final cleanup
 - **Phase 128x（LANDED）**: stage1 bridge vm gate softening
 - **Phase 127x（LANDED）**: compat route raw vm cut prep

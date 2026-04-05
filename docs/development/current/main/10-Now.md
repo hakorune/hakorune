@@ -12,10 +12,11 @@ Related:
 
 ## Current
 
-- lane: `phase-131x vm legacy contract migration`
-- current front: explicit legacy `vm` contract smoke は archive 済み。backend-hint chain を順に畳む
-- blocker: `src/runner/stage1_bridge/stub_child.rs` と `src/runner/stage1_bridge/env/stage1_aliases.rs` がまだ legacy contract を支えている
+- lane: `phase-132x vm default backend decision`
+- current front: omitted-backend caller inventory を根拠に default `vm` を keep するか決める
+- blocker: `src/cli/args.rs` default-vm がまだ legacy default として残っている
 - recent landed:
+  - `phase-131x vm legacy contract migration`
   - `phase-130x vm public gate final cleanup`
   - `phase-127x compat route raw vm cut prep`
   - `phase-125x vm bridge/backend gate follow-up`
@@ -57,7 +58,7 @@ Related:
   - compat boundary smoke is route-first and green
   - compat temp-MIR handoff is green again with the parser-EXE preference env applied internally
   - the default `stage1_cli_env.hako` child path no longer forwards backend hints
-  - the next source seam is the remaining public gate / orchestrator wording and selection plumbing
+  - the remaining question is whether the public `vm` default stays explicit legacy keep/debug or becomes internal-only
 
 ## Root Anchors
 
@@ -68,4 +69,4 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-131x/README.md`
+2. `docs/development/current/main/phases/phase-132x/README.md`

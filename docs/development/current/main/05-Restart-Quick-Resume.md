@@ -20,11 +20,11 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-131x vm legacy contract migration`
-- current front: explicit legacy `vm` contract smoke は archive 済み。backend-hint chain を順に畳む
-- blocker: `src/runner/stage1_bridge/stub_child.rs` と `src/runner/stage1_bridge/env/stage1_aliases.rs` がまだ legacy contract を支えている
+- lane: `phase-132x vm default backend decision`
+- current front: omitted-backend caller inventory を根拠に default `vm` を keep するか決める
+- blocker: `src/cli/args.rs` default-vm がまだ legacy default として残っている
 - landed: `phase-130x` wording-only public gate cleanup
-- active next: `phase-131x vm legacy contract migration`
+- active next: `phase-132x vm default backend decision`
 - recent landed:
   - `phase-130x vm public gate final cleanup`
   - `phase-129x vm orchestrator/public gate follow-up`
@@ -55,12 +55,12 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-131x/README.md`
+3. `docs/development/current/main/phases/phase-132x/README.md`
 
 ## Successor Corridor
 
 1. `phase-130x vm public gate final cleanup`
-2. `phase-131x vm legacy contract migration`
+2. `phase-132x vm default backend decision`
 
 ## Parked After Optimization
 

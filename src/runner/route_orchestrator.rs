@@ -155,35 +155,17 @@ pub(crate) fn decide_vm_route_plan(
     }
 }
 
-fn force_vm_lane_for_emit(groups: &crate::cli::CliGroups) -> bool {
-    groups.emit.emit_mir_json.is_some() || groups.emit.emit_exe.is_some()
-}
-
 pub(crate) fn execute_vm_family_route(
     runner: &NyashRunner,
     backend: &str,
     filename: &str,
 ) -> bool {
-    let groups = runner.config.as_groups();
     let force_fallback = crate::config::env::vm_use_fallback();
-    let force_vm_for_emit = force_vm_lane_for_emit(&groups);
-    let prefer_vm_hako = crate::config::env::vm_hako_prefer_strict_dev() && !force_vm_for_emit;
+    let prefer_vm_hako = crate::config::env::vm_hako_prefer_strict_dev();
     let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
         || crate::config::env::joinir_dev_enabled();
-    let plan = if backend == "vm" && force_vm_for_emit && !force_fallback {
-        // Emit-mode keeps the legacy rust-vm lane explicit for compat/debug
-        // contracts; this is not a new mainline owner path.
-        VmRoutePlan {
-            backend: "vm",
-            lane: VM_LANE_RUST_KEEP,
-            reason: "emit-mode-force-rust-vm-keep",
-            action: VmRouteAction::Vm,
-        }
-    } else {
-        let Some(plan) = decide_vm_route_plan(backend, force_fallback, prefer_vm_hako) else {
-            return false;
-        };
-        plan
+    let Some(plan) = decide_vm_route_plan(backend, force_fallback, prefer_vm_hako) else {
+        return false;
     };
     let source = decide_derust_route_source(backend, strict_or_dev, force_fallback, prefer_vm_hako);
     emit_vm_route_select(&plan);
@@ -273,16 +255,6 @@ mod tests {
     #[test]
     fn decide_vm_route_plan_unknown_backend_is_none() {
         assert!(decide_vm_route_plan("llvm", false, false).is_none());
-    }
-
-    #[test]
-    fn force_vm_lane_for_emit_mir_json() {
-        let mut cfg = crate::cli::CliConfig::default();
-        cfg.emit_mir_json = Some("/tmp/out.json".to_string());
-        let mut groups = cfg.as_groups();
-        assert!(force_vm_lane_for_emit(&groups));
-        groups.emit.emit_mir_json = None;
-        assert!(!force_vm_lane_for_emit(&groups));
     }
 
     #[test]

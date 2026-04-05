@@ -14,10 +14,10 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-131x vm legacy contract migration` |
-| Front | explicit legacy `vm` contract smoke は archive 済み。backend-hint chain を順に畳む |
-| Blocker | `src/runner/stage1_bridge/stub_child.rs` と `src/runner/stage1_bridge/env/stage1_aliases.rs` がまだ legacy contract を支えている |
-| Next | explicit legacy `vm` contract caller migration を source-backed に進める |
+| Now | `phase-132x vm default backend decision` |
+| Front | omitted-backend caller inventory を根拠に default `vm` を keep するか決める |
+| Blocker | `src/cli/args.rs` default-vm がまだ legacy default として残っている |
+| Next | omitted-backend caller inventory を取って default backend decision を固める |
 | After Next | `phase-kx vm-hako small reference interpreter recut` |
 
 ## Current Read
@@ -67,11 +67,11 @@ Related:
 - `91x` froze the top-level `.hako` wrapper policy after the latest runner/selfhost recuts
 - `92x` closed the proof/compat caller rerun lane against the canonical wrapper homes
 - `93x` moved archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
-- current work is now on `phase-131x vm legacy contract migration`
+- current work is now on `phase-132x vm default backend decision`
 
 ## Successor Corridor
 
-1. `phase-131x vm legacy contract migration`
+1. `phase-132x vm default backend decision`
 2. `phase-kx vm-hako small reference interpreter recut`
 
 ## Parked After Optimization
@@ -102,7 +102,7 @@ Related:
 ## Reference
 
 - current lane docs:
-  - `docs/development/current/main/phases/phase-131x/README.md`
+  - `docs/development/current/main/phases/phase-132x/README.md`
   - `docs/development/current/main/phases/phase-130x/README.md`
   - `docs/development/current/main/phases/phase-128x/README.md`
   - `docs/development/current/main/phases/phase-127x/README.md`

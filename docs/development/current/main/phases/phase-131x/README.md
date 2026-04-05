@@ -16,7 +16,7 @@
   - default child path stays backend-hint free
   - backend-hint child env only survives on explicit override paths
   - direct-route legacy gate remains isolated until its caller contract is migrated
-  - `args.rs` default-vm is only re-evaluated after the caller surfaces are cut
+  - `args.rs` default-vm decision is handed off to phase-132x after the caller surfaces are cut
 
 ## Decision Now
 
@@ -26,10 +26,10 @@
   1. narrow the backend-hint chain in `stub_child.rs` / `env/stage1_aliases.rs`
   2. narrow direct-route selection in `plan.rs`
   3. isolate or remove `emit-mode-force-rust-vm-keep` in `route_orchestrator.rs`
-  4. only then re-evaluate `args.rs` default-vm
+  4. only then hand off `args.rs` default-vm decision to phase-132x
 
 ## Next
 
 1. confirm the default child path stays backend-hint free
 2. narrow the direct-route selection path only after the caller contract is isolated
-3. keep the `--backend vm` default as a last-step decision
+3. move the `--backend vm` default decision into phase-132x
