@@ -1,10 +1,12 @@
-#[cfg(feature = "perf-observe")]
+#[cfg(any(feature = "perf-observe", feature = "perf-trace"))]
 pub(crate) mod contract;
 
 #[cfg(feature = "perf-observe")]
 mod backend;
 #[cfg(feature = "perf-observe")]
 mod config;
+#[cfg(feature = "perf-trace")]
+mod trace;
 #[cfg(feature = "perf-observe")]
 mod sink;
 
@@ -115,3 +117,11 @@ mod real {
 }
 
 pub(crate) use real::*;
+
+#[cfg(feature = "perf-trace")]
+pub(crate) fn flush_trace() {
+    trace::flush();
+}
+
+#[cfg(not(feature = "perf-trace"))]
+pub(crate) fn flush_trace() {}

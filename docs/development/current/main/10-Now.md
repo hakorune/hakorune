@@ -14,7 +14,7 @@ Related:
 
 - lane: `phase-159x observe trace split`
 - current front: exact counter と heavy trace を分け、default release / observe release / trace debug の役割を混ぜない
-- blocker: exact counter と future trace の plane がまだ同じ observe lane に見えること
+- blocker: `perf-trace` lane の置き場所はできたが、trace sink / sampled probe はまだ placeholder のまま
 - first landed slice:
   - `tools/selfhost/lib/selfhost_build_exe.sh` no longer forces harness on the daily EXE lane
   - provider/selfhost docs now read llvmlite as explicit keep only
@@ -29,7 +29,9 @@ Related:
   - `--features perf-observe`
   - `NYASH_PERF_COUNTERS=1`
   - TLS exact counter backend
-  - next: trace-only feature split
+  - `--features perf-trace`
+  - `NYASH_PERF_TRACE=1`
+  - next: sampled trace / scoped probe split
   - contract identity:
     - `store.array.str`
     - `const_suffix`

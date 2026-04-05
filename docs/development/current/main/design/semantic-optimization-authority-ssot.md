@@ -135,6 +135,8 @@ Current rule:
 - stderr summary: current-thread flush + exited-thread merge を current truth にする
 - observer backend / sink remain Rust runtime mechanics keep; only observer
   identity is allowed to align with `.hako` / MIR canonical contract names
+- `--features perf-trace`: heavy trace / sampled probe / scoped timing lane
+- `NYASH_PERF_TRACE=1`: trace-only runtime gate
 
 ## Stop Lines
 

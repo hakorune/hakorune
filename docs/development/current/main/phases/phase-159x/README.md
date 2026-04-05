@@ -22,10 +22,10 @@
   - canonical contract identity
   - TLS exact counters
   - stderr summary
-- next split target
-  - sampled trace
-  - scoped duration probe
-  - expensive debug-only observer
+- `perf-trace`
+  - heavy trace placeholder
+  - stderr trace sink placeholder
+  - runtime gate: `NYASH_PERF_TRACE=1`
 
 ## Next
 
@@ -37,3 +37,9 @@
 - exact counter lane が `perf-observe` として固定される
 - trace/debug-only observer lane の置き場所が source-backed に読める
 - perf reopen 前に observer plane が `exact` と `trace` で混ざらない
+
+## First Proof
+
+- `crates/nyash_kernel/src/observe/trace.rs` exists as the first trace-only lane
+- `crates/nyash_kernel/Cargo.toml` defines `perf-trace`
+- `entry.rs` flush path reads exact counter and trace sink separately

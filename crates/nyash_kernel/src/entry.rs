@@ -195,6 +195,7 @@ pub extern "C" fn main() -> i32 {
         // Leak diagnostics functionality removed with JIT archival
         // handles::type_tally() no longer available in Plugin-First architecture
         crate::observe::flush();
+        crate::observe::flush_trace();
         exit_code as i32
     }
 }

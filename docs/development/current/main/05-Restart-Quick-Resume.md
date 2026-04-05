@@ -22,7 +22,7 @@ tools/checks/dev_gate.sh quick
 
 - lane: `phase-159x observe trace split`
 - current front: exact counter と heavy trace を分け、default release / observe release / trace debug の役割を混ぜない
-- blocker: exact counter と future trace の plane がまだ同じ observe lane に見えること
+- blocker: `perf-trace` lane の置き場所はできたが、trace sink / sampled probe はまだ placeholder のまま
 - landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -141,7 +141,7 @@ tools/checks/dev_gate.sh quick
   - current-thread flush is the active exact counter truth
 - `phase-159x` current:
   - exact counter is now stable enough to split heavy trace out
-  - next lane is trace/debug-only observer separation
+  - `perf-trace` feature is the first trace/debug-only observer lane
 - latest bundle anchor:
   - `target/trace_logs/kilo-string-trace-asm/20260406-024104/summary.txt`
   - `target/trace_logs/kilo-string-trace-asm/20260406-024104/asm/perf_report.txt`

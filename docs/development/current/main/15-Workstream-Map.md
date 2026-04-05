@@ -16,7 +16,7 @@ Related:
 | --- | --- |
 | Now | `phase-159x observe trace split` |
 | Front | exact counter と heavy trace を分け、default release / observe release / trace debug の役割を混ぜない |
-| Blocker | exact counter と future trace の plane がまだ同じ observe lane に見えること |
+| Blocker | `perf-trace` lane の置き場所はできたが、trace sink / sampled probe はまだ placeholder のまま |
 | Next | `phase-137x main kilo reopen selection` |
 | After Next | `phase-kx vm-hako small reference interpreter recut` |
 
@@ -89,6 +89,7 @@ Related:
 - `phase-159x` current:
   - exact counter remains `perf-observe`
   - heavy trace is the next split target
+  - first trace/debug-only lane is `perf-trace`
   - trace/debug-only observer semantics must not contaminate the exact counter lane
 - paused reopen truth:
   - baseline: `kilo_kernel_small_hk = 1529ms`
