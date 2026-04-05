@@ -12,8 +12,8 @@ use std::any::Any;
 use std::sync::Arc;
 
 // Lifetime-sensitive string substrate.
-// Keep borrowed view/span ownership in Rust even if higher-level String
-// semantics move toward `.hako` owner code.
+// Keep borrowed view/span ownership in Rust even if higher-level String semantics move toward
+// `.hako` owner code. This file is native substrate, not a semantic owner.
 
 /// StringView(base_handle, [start, end)) keeps substring metadata only.
 /// v0 contract:

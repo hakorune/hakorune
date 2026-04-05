@@ -48,6 +48,13 @@ Related:
 
 This bucket must not absorb new collection semantics.
 
+Keep the following files here explicitly:
+- `crates/nyash_kernel/src/plugin/future.rs`
+- `crates/nyash_kernel/src/plugin/invoke_core.rs`
+- `crates/nyash_kernel/src/hako_forward_bridge.rs`
+
+These are host service contracts / runtime glue, not compat quarantine.
+
 ### 2. `.hako` semantic kernel
 
 - collection owner semantics
@@ -176,6 +183,9 @@ that facade in Rust.
 - shrink-only until absorbed by either host microkernel or `.hako` semantic kernel
 - current example:
   - `crates/nyash_kernel/src/plugin/module_string_dispatch/**`
+
+Do not classify `future.rs`, `invoke_core.rs`, or `hako_forward_bridge.rs` as quarantine.
+They are Rust host microkernel glue.
 
 ## Stop Lines
 

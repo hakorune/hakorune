@@ -1,3 +1,7 @@
+// Host-side future/runtime glue.
+// This remains in the Rust host microkernel because it owns scheduler / handle / plugin-host
+// contracts, not collection or module semantics.
+//
 // Spawn a plugin instance method asynchronously and return a Future handle (i64).
 
 fn build_spawn_method_tlv(argc: i64, vals: *const i64, tags: *const i64) -> Vec<u8> {

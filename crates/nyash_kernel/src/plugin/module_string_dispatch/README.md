@@ -1,6 +1,14 @@
 # Stage1 Module Dispatch
 
+Status: compat quarantine / shrink-only.
+
 Scope: compiled-stage1 string-module dispatch helpers under `crates/nyash_kernel/src/plugin/module_string_dispatch/`.
+
+## Placement Rule
+
+- this directory is `compat quarantine`, not `Rust host microkernel`
+- it may stay temporarily, but it must not gain new semantic ownership
+- shrink or absorb it; do not widen it
 
 ## Responsibility Split
 

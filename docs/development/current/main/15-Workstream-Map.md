@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-137x main kilo reopen selection` |
-| Front | string const-path follow-up が current。top explicit hot symbol はまだ `concat_const_suffix_fallback` |
-| Blocker | `kilo_kernel_small_hk` は `ny_aot_ms=723` まで落ちたが、まだ C との差は大きい |
-| Next | `phase-kx vm-hako small reference interpreter recut` |
-| After Next | parked |
+| Now | `phase-145x compat quarantine shrink` |
+| Front | host microkernel glue と compat quarantine の source境界を締める |
+| Blocker | quarantine residue が host-side contract と近く見える |
+| Next | `phase-146x string semantic boundary tighten` |
+| After Next | `phase-137x main kilo reopen selection` |
 
 ## Current Read
 
@@ -50,6 +50,8 @@ Related:
   - `phase-142x` = landed Array owner cutover implementation
   - `phase-143x` = landed Map owner cutover implementation
   - `phase-144x` = landed String semantic owner follow-up
+  - `phase-145x` = compat quarantine shrink
+  - `phase-146x` = string semantic boundary tighten
 - `phase-140x` landed the second pilot:
   - `.hako` owner = `map_core_box.hako` / `map_state_core_box.hako`
   - substrate below = `raw_map_core_box.hako`
@@ -67,8 +69,10 @@ Related:
   - Rust lifetime/native substrate = `string_view.rs` / `string_helpers.rs` / `string_plan.rs`
   - `module_string_dispatch/**` stays quarantine, not owner
 - next fixed corridor:
-  1. `phase-137x main kilo reopen selection`
-  2. `phase-kx vm-hako small reference interpreter recut`
+  1. `phase-145x compat quarantine shrink`
+  2. `phase-146x string semantic boundary tighten`
+  3. `phase-137x main kilo reopen selection`
+  4. `phase-kx vm-hako small reference interpreter recut`
 - current reopen read:
   - baseline: `kilo_kernel_small_hk = 1529ms`
   - string const fast-path: `905ms`
@@ -97,13 +101,15 @@ Related:
   - `ABI facade` stays thin keep in Rust
   - lifetime-sensitive hot leaves and native accelerators stay in Rust until proven otherwise
   - semantic ownership moves toward `.hako`
-  - compat quarantine must not become a permanent owner layer
-  - do not reopen broad perf tuning before Array/Map owner implementation cutover is complete
+- compat quarantine must not become a permanent owner layer
+  - do not reopen broad perf tuning before compat/string cleanup is complete
 
 ## Reference
 
 - current lane docs:
   - `docs/development/current/main/phases/phase-143x/README.md`
+  - `docs/development/current/main/phases/phase-145x/README.md`
+  - `docs/development/current/main/phases/phase-146x/README.md`
   - `docs/development/current/main/phases/phase-141x/README.md`
   - `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
   - `docs/development/current/main/phases/phase-142x/README.md`

@@ -1,14 +1,14 @@
 # runtime/kernel/string
 
-このディレクトリは `.hako` string kernel の owner map だよ。
+このディレクトリは `.hako` string semantic kernel の owner map だよ。
 
 ## Core Position
 
 - surface / public boundary は `Everything is Box`
-- low-level string algorithm control structure は `.hako` / docs 側が owner
+- low-level string algorithm control structure / route policy は `.hako` 側が owner
 - raw byte scan / compare / copy / allocation / freeze leaf は substrate 側に残す
 
-つまり、ここに置くのは「boxed helper を何度も呼ぶ実装」ではなく、algorithm/control structure の truth だよ。
+つまり、ここに置くのは「boxed helper を何度も呼ぶ leaf 実装」ではなく、semantic policy / algorithm control structure の truth だよ。
 
 ## This Directory Owns
 
@@ -72,7 +72,7 @@ freeze.str
 ## Current Narrow Frontier
 
 - `search.hako` is at the v0 landing point for the current string-search pilot
-- current authoring lane is helper extraction / control-structure cleanup only
+- current authoring lane is semantic boundary tightening only
 - further widening is paused until a new exact blocker appears; if none appears, stop the lane and move to inventory or the next fixed order
 
 ## Examples

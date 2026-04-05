@@ -20,9 +20,9 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-137x main kilo reopen selection`
-- current front: string const-path follow-up が current。top explicit hot symbol はまだ `concat_const_suffix_fallback`
-- blocker: `kilo_kernel_small_hk` は `ny_aot_ms=723` まで落ちたが、まだ C との差は大きい
+- lane: `phase-145x compat quarantine shrink`
+- current front: host glue と quarantine residue の境界固定が current
+- blocker: `hako_forward_bridge` / `future` / `invoke_core` と `module_string_dispatch/**` が source 上でまだ近く見える
 - landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -36,7 +36,7 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-137x/README.md`
+3. `docs/development/current/main/phases/phase-145x/README.md`
 4. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
 
 ## Decision Lock
@@ -82,6 +82,15 @@ tools/checks/dev_gate.sh quick
   - `.hako` semantic owner lives under `runtime/kernel/string/**`
   - `string_core_box.hako` is the VM-facing runtime wrapper
   - `module_string_dispatch/**` stays quarantine, not owner
+- `phase-145x` current:
+  - host-side glue:
+    - `crates/nyash_kernel/src/hako_forward_bridge.rs`
+    - `crates/nyash_kernel/src/plugin/future.rs`
+    - `crates/nyash_kernel/src/plugin/invoke_core.rs`
+  - quarantine:
+    - `crates/nyash_kernel/src/plugin/module_string_dispatch/**`
+- `phase-146x` next:
+  - tighten string semantic owner / wrapper / native substrate wording and helper boundaries
 
 ## First Design Slices
 
@@ -107,8 +116,8 @@ git diff --check
   - `kilo_micro_indexof_line`: `c_ms=4 / ny_aot_ms=4`
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
-- next source slice:
-  - `crates/nyash_kernel/src/plugin/array_string_slot.rs`
+- successor perf slice:
+  - `crates/nyash_kernel/src/exports/string_helpers.rs`
   - first target: `concat_const_suffix_fallback(...)`
   - second target: `array_string_store_handle_at(...)`
 - `phase-144x` landed:

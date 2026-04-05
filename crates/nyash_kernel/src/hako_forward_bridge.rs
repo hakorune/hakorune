@@ -1,3 +1,6 @@
+// Host-service contract for hookable `.hako` entrypoints.
+// This file belongs to the Rust host microkernel glue layer.
+
 pub(crate) type HakoFutureSpawnInstanceFn = extern "C" fn(i64, i64, i64, i64) -> i64;
 pub(crate) type HakoStringDispatchFn = extern "C" fn(i64, i64, i64, i64) -> i64;
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -113,7 +116,7 @@ pub(crate) fn register_string_dispatch(f: Option<HakoStringDispatchFn>) -> i64 {
     unsafe { ffi::nyrt_hako_register_string_dispatch(f) }
 }
 
-/// Mainline fallback policy shared by hookable entrypoints.
+/// Mainline host-service fallback policy shared by hookable entrypoints.
 ///
 /// `NYASH_VM_USE_FALLBACK=0` means "do not execute Rust fallback routes"
 /// when a `.hako` hook is not registered.

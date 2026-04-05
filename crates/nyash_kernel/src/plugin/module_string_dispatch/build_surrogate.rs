@@ -1,3 +1,6 @@
+// Compiled-stage1 compat quarantine.
+// Keep this as a shrink-only surrogate route; do not let it become a permanent owner.
+
 use super::{decode_string_handle, encode_string_handle, trace_log};
 
 const BUILD_BOX_MODULE: &str = "lang.compiler.build.build_box";

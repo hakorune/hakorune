@@ -1,3 +1,7 @@
+// Native string plan carrier.
+// This file stays below semantic ownership: it packages span/inline pieces for Rust materialize
+// and freeze leaves, but it does not decide string route semantics.
+
 use super::string_view::{resolve_string_span_from_handle, StringSpan};
 use std::ptr;
 

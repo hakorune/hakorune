@@ -4,7 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 137x main kilo reopen selection
+- **Current (ACTIVE)**: Phase 145x compat quarantine shrink
+- **Phase 146x（NEXT）**: string semantic boundary tighten
+- **Phase 145x（ACTIVE）**: compat quarantine shrink
 - **Phase 144x（LANDED）**: string semantic owner follow-up
 - **Phase 143x（LANDED）**: map owner cutover implementation
 - **Phase 141x（LANDED）**: string semantic boundary review

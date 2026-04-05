@@ -1,3 +1,6 @@
+// Compiled-stage1 compat quarantine for llvm backend residue.
+// This stays shrink-only until callers stop at the thin backend boundary directly.
+
 use std::fs;
 use super::{decode_string_handle, encode_string_handle, trace_log};
 use std::path::Path;

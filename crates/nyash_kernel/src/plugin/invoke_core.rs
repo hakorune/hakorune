@@ -1,6 +1,9 @@
+// Host-side runtime glue for plugin invoke shims.
+// Keep receiver resolution / TLV decode policy here; do not let semantic ownership flow back in.
+
 use nyash_rust::runtime::plugin_loader_v2::PluginBoxV2;
 
-/// Thin shared helpers for plugin invoke shims (i64/f64)
+/// Thin shared host-service helpers for plugin invoke shims (i64/f64)
 ///
 /// Goal: centralize receiver resolution and the dynamic buffer call loop,
 /// keeping extern functions in invoke.rs small and consistent.
@@ -28,7 +31,7 @@ pub type InvokeFn =
 
 #[inline]
 fn compat_fallback_allowed() -> bool {
-    // Keep fallback policy SSOT aligned with runtime route contracts.
+    // Keep host-side fallback policy SSOT aligned with runtime route contracts.
     crate::hako_forward_bridge::rust_fallback_allowed()
 }
 

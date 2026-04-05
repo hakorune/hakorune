@@ -12,9 +12,9 @@ Related:
 
 ## Current
 
-- lane: `phase-137x main kilo reopen selection`
-- current front: string const-path follow-up が current。top explicit hot symbol はまだ `concat_const_suffix_fallback`
-- blocker: `kilo_kernel_small_hk` は `ny_aot_ms=723` まで落ちたが、まだ C との差は大きい
+- lane: `phase-145x compat quarantine shrink`
+- current front: host microkernel glue と compat quarantine の source境界を締める
+- blocker: quarantine residue が host-side contract と近く見える
 - recent landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -57,8 +57,11 @@ Related:
   - `phase-142x` = landed Array owner cutover implementation
   - `phase-143x` = landed Map owner cutover implementation
   - `phase-144x` = landed String semantic owner follow-up
+- current cleanup lane:
+  - `phase-145x` = compat quarantine shrink
+  - `phase-146x` = string semantic boundary tighten
 - perf lane is delayed, not cancelled:
-  - `phase-137x main kilo reopen selection` waits until owner implementation cutover is clean
+  - `phase-137x main kilo reopen selection` waits until compat/string cleanup is clean
   - reopen win:
     - baseline `1529ms`
     - after string const fast path `905ms`
