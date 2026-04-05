@@ -70,7 +70,7 @@ Related:
 
 1. `phase-126x vm public gate shrink decision`
 2. `phase-127x compat route raw vm cut prep`
-3. `phase-128x direct-route vm gate softening`
+3. `phase-128x stage1 bridge vm gate softening`
 
 ## Parked After Optimization
 

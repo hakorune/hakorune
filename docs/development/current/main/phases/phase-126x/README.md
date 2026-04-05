@@ -5,7 +5,11 @@
   - `tools/selfhost/lib/selfhost_run_routes.sh`
   - `tools/smokes/v2/profiles/integration/selfhost/phase29x_vm_route_non_strict_compat_boundary_vm.sh`
   - `tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_runtime_mode_parity_smoke_vm.sh`
+  - `src/runner/stage1_bridge/plan.rs`
+  - `src/runner/stage1_bridge/args.rs`
+  - `src/runner/stage1_bridge/env/stage1_aliases.rs`
   - `src/runner/stage1_bridge/direct_route/mod.rs`
+  - `src/config/env/stage1.rs`
   - `src/runner/route_orchestrator.rs`
   - `src/runner/dispatch.rs`
   - `src/cli/args.rs`
@@ -24,6 +28,19 @@
 - `tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_runtime_mode_parity_smoke_vm.sh`
   - `runtime-route compat` is still the positive explicit fallback lane
 
+### source-side blockers
+
+- `src/runner/stage1_bridge/plan.rs`
+  - `backend_cli_hint().is_some()` still selects `BinaryOnlyRunDirect` when run-direct is enabled
+- `src/runner/stage1_bridge/args.rs`
+  - stage1 child args still materialize `run --backend <hint> <source>`
+- `src/runner/stage1_bridge/env/stage1_aliases.rs`
+  - child env still propagates `NYASH_STAGE1_BACKEND` / `STAGE1_BACKEND`
+- `src/config/env/stage1.rs`
+  - backend hint and binary-only direct toggles are still live SSOT
+- `src/runner/stage1_bridge/direct_route/mod.rs`
+  - binary-only direct run still rejects any backend except `vm`
+
 ### route-agnostic keep
 
 - `tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_runtime_route_smoke_vm.sh`
@@ -37,8 +54,6 @@
 
 ### soft blockers
 
-- `src/runner/stage1_bridge/direct_route/mod.rs`
-  - `backend == "vm"` guard looks removable after shell compat no longer depends on raw vm
 - `src/runner/route_orchestrator.rs`
   - `emit-mode-force-rust-vm-keep` should be revisited only after compat route changes
 - `src/runner/dispatch.rs`
@@ -51,7 +66,7 @@
 - do not shrink public `--backend vm` yet
 - first cut must be compat route contract, not CLI/default wording
 - proof gates stay explicit and optional
-- direct bridge is a follow-up seam, not the first cut
+- after compat contract softens, the next source seam is the Stage1 bridge backend-hint chain, not `args.rs`
 
 ## Minimal Change Before Raw-VM Exit
 
@@ -65,4 +80,10 @@
 3. keep `phase29bq` runtime route/parity smokes
    - route labels stay valid
    - parity checks stay valid
-4. revisit direct bridge / backend gate only after compat shell no longer reintroduces raw `--backend vm`
+4. then cut the Stage1 bridge backend-hint chain
+   - `src/runner/stage1_bridge/plan.rs`
+   - `src/runner/stage1_bridge/args.rs`
+   - `src/runner/stage1_bridge/env/stage1_aliases.rs`
+   - `src/config/env/stage1.rs`
+   - `src/runner/stage1_bridge/direct_route/mod.rs`
+5. revisit orchestrator / dispatch / CLI default only after compat shell and Stage1 bridge no longer reintroduce raw `--backend vm`
