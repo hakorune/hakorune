@@ -1,6 +1,6 @@
 # Phase 143x: map owner cutover implementation
 
-- Status: Active
+- Status: Landed
 - 目的: `phase-140x` で固定した Map seam を implementation authority に進め、`.hako` 側へ visible owner behavior を寄せる。
 
 ## Success
@@ -34,11 +34,11 @@
 
 - this lane is not about moving raw map probe/load/store leaves out of Rust
 - this lane is about making `.hako` the actual owner of visible Map semantics
-- first exact cutover unit is `MapBox.set`; `get/has` are landed; next exact unit is `MapBox.len/length/size`
+- first exact cutover unit is `MapBox.set`; `get/has` are landed; final exact unit `MapBox.len/length/size` is landed
 - Rust should retain capability, forwarding core, and isolated thin facade surfaces only
 
 ## Next
 
-1. keep visible `MapBox.set/get/has/len/length/size` behavior on `.hako` owner helpers
-2. keep Rust map forwarding/facade surfaces thin and non-owning
+1. visible `MapBox.{set,get,has,len/length/size}` behavior now sits on `.hako` owner helpers
+2. Rust map forwarding/facade surfaces stay thin and non-owning
 3. hand off to `phase-144x string semantic owner follow-up`

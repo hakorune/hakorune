@@ -20,9 +20,9 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-143x map owner cutover implementation`
-- current front: `MapBox.set/get/has` landed の次として `MapBox.len/length/size` を owner-helper 粒度に揃え、宣言で終わらせず `.hako` owner 実装へ寄せる
-- blocker: semantic seam は landed したが、Map owner implementation はまだ inline branch に残っている
+- lane: `phase-144x string semantic owner follow-up`
+- current front: `StringCoreBox` の `size alias / indexOf / substring / lastIndexOf` residue を owner helper / string-kernel delegation に寄せる
+- blocker: String seam は landed したが、VM-facing wrapper に visible branch が残っている
 - landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -30,14 +30,14 @@ tools/checks/dev_gate.sh quick
   - `phase-134x nyash_kernel layer recut selection`
   - `phase-133x micro kilo reopen selection`
 - active next:
-  - `phase-144x string semantic owner follow-up`
   - `phase-137x main kilo reopen selection`
+  - `phase-kx vm-hako small reference interpreter recut`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-137x/README.md`
+3. `docs/development/current/main/phases/phase-144x/README.md`
 4. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
 
 ## Decision Lock
@@ -74,6 +74,9 @@ tools/checks/dev_gate.sh quick
   - Rust `map_aliases.rs` stays thin facade
   - Rust `map_runtime_facade.rs` stays compat/runtime forwarding
   - Rust `map_probe.rs` / `map_slot_load.rs` / `map_slot_store.rs` stay native/raw leaves
+- `phase-143x` landed:
+  - visible `MapBox.{set,get,has,len/length/size}` behavior now reads through `.hako` owner helpers
+  - Rust map surface stays thin facade / observer shim / forwarding / accelerators
 - `phase-141x` landed the final boundary review:
   - `string.rs` stays thin ABI facade
   - `string_view.rs` / `string_helpers.rs` / `string_plan.rs` stay Rust lifetime/native substrate
@@ -97,7 +100,7 @@ bash tools/selfhost/mainline/stage1_mainline_smoke.sh
 tools/checks/dev_gate.sh quick
 git diff --check
 ```
- - `phase-144x` will revisit String after Array/Map:
+- `phase-144x` revisits String after Array/Map:
   - semantic owner stays `.hako`
   - no full lifetime substrate move is planned
-  - follow-up is about owner enforcement, not Rust-zero
+  - follow-up is about wrapper enforcement and owner delegation, not Rust-zero

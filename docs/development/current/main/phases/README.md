@@ -4,9 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 142x array owner cutover implementation
-- **Phase 144x（SUCCESSOR）**: string semantic owner follow-up
-- **Phase 143x（SUCCESSOR）**: map owner cutover implementation
+- **Current (ACTIVE)**: Phase 144x string semantic owner follow-up
+- **Phase 143x（LANDED）**: map owner cutover implementation
+- **Phase 137x（SUCCESSOR）**: main kilo reopen selection
 - **Phase 141x（LANDED）**: string semantic boundary review
 - **Phase 140x（LANDED）**: map owner pilot
 - **Phase 139x（LANDED）**: array owner pilot

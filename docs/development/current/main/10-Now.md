@@ -12,9 +12,9 @@ Related:
 
 ## Current
 
-- lane: `phase-143x map owner cutover implementation`
-- current front: `MapBox.set/get/has` landed; next は `MapBox.len/length/size` を owner-helper 粒度に揃えて Map owner seam を実装 authority に変え、Rust 側を forwarding/accelerator に押し戻す
-- blocker: owner seam は宣言済みだが、Map owner implementation はまだ inline branch に残っている
+- lane: `phase-144x string semantic owner follow-up`
+- current front: `StringCoreBox` の visible wrapper residue を owner helper / string-kernel delegation に寄せて String semantic-owner enforcement を強める
+- blocker: String seam は宣言済みだが、`StringCoreBox` に visible inline branch が残っている
 - recent landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -55,8 +55,8 @@ Related:
   - quarantine: `module_string_dispatch/**`
 - current architecture follow-up is implementation-first:
   - `phase-142x` = landed Array owner cutover implementation
-  - `phase-143x` = Map owner cutover implementation
-  - `phase-144x` = String semantic owner follow-up
+  - `phase-143x` = landed Map owner cutover implementation
+  - `phase-144x` = active String semantic owner follow-up
 - perf lane is delayed, not cancelled:
   - `phase-137x main kilo reopen selection` waits until owner implementation cutover is clean
 
@@ -69,5 +69,5 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-143x/README.md`
+2. `docs/development/current/main/phases/phase-144x/README.md`
 3. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`

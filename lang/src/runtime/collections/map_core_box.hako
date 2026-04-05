@@ -247,6 +247,18 @@ static box MapCoreBox {
     return 1
   }
 
+  _size_alias_runtime(regs, dst, recv_h) {
+    local size_i64 = me.size_i64(recv_h)
+    me._write_i64_dst(regs, dst, size_i64)
+    me._trace("[vm/adapter/map_core:size_i64]")
+    return 1
+  }
+
+  _size_alias_state_only(regs, dst, cur_len) {
+    me._write_i64_dst(regs, dst, cur_len)
+    return 1
+  }
+
   try_handle(seg, regs, handle_regs, mname) {
     local rid = MiniMirV1Scan.receiver_id(seg)
     local per_recv = me._size_state_per_recv()
@@ -302,13 +314,9 @@ static box MapCoreBox {
 
     if MethodAliasPolicy.is_size_alias(mname) == 1 {
       if recv_h != null && recv_h > 0 {
-        local size_i64 = me.size_i64(recv_h)
-        me._write_i64_dst(regs, dst, size_i64)
-        me._trace("[vm/adapter/map_core:size_i64]")
-        return 1
+        return me._size_alias_runtime(regs, dst, recv_h)
       }
-      me._write_i64_dst(regs, dst, cur_len)
-      return 1
+      return me._size_alias_state_only(regs, dst, cur_len)
     }
 
     return 0
