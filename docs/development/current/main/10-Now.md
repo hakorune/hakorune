@@ -12,10 +12,11 @@ Related:
 
 ## Current
 
-- lane: `phase-125x vm bridge/backend gate follow-up`
-- current front: `compat bridge / backend gate / CLI default の blocker を source-backed に再固定する`
+- lane: `phase-126x vm public gate shrink decision`
+- current front: `compat/proof/debug contracts を含めて、public vm gate を今 shrink できるかを判断する`
 - blocker: `none`
 - recent landed:
+  - `phase-125x vm bridge/backend gate follow-up`
   - `phase-124x vm public docs/manual demotion`
   - `phase-123x proof gate shrink follow-up`
   - `phase-122x vm compat route exit plan`
@@ -50,12 +51,12 @@ Related:
 - `phase-103` landed with if-only merge / early return parity on VM and LLVM EXE
 - `phase-104` landed with loop(true)+break-only digits parity on VM and LLVM EXE
 - `phase-105` restored the original long digit OR-chain parity on VM and LLVM EXE
-- current work is the vm bridge/backend gate follow-up lane:
+- current work is the vm public gate shrink decision lane:
   - vocabulary split: `stage / route / backend override / lane / kernel`
   - selfhost mainline already reads as `runtime-route mainline`
   - raw `--backend vm` is now treated as compat/proof/debug only
   - current buckets are `compat route`, `proof gates`, `debug/observability`
-  - current target is to revisit the source blockers that still keep `--backend vm` public and wired into compat/direct routes
+  - current target is to decide whether the hard blocker is the compat smoke contract itself, or whether public vm gate can already shrink
 
 ## Root Anchors
 
@@ -66,4 +67,4 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-125x/README.md`
+2. `docs/development/current/main/phases/phase-126x/README.md`

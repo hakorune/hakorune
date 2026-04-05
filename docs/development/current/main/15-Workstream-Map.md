@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-125x vm bridge/backend gate follow-up` |
-| Front | `compat bridge / backend gate / CLI default の blocker を source-backed に再固定する` |
+| Now | `phase-126x vm public gate shrink decision` |
+| Front | `compat/proof/debug contracts を含めて、public vm gate を今 shrink できるかを判断する` |
 | Blocker | `none` |
-| Next | `stage1_bridge/direct_route / route_orchestrator / dispatch / args / selfhost_run_routes の blocker を再確認する` |
-| After Next | `phase-126x vm public gate shrink decision` |
+| Next | `compat route smoke contract が hard blocker かを決め、raw vm cut prep に渡す` |
+| After Next | `phase-127x compat route raw vm cut prep` |
 
 ## Current Read
 
@@ -49,7 +49,8 @@ Related:
 - `122x` locked the compat-route exit order: shell surface first, Stage1 direct bridge second, backend gate last
 - `123x` narrowed the remaining public proof gate surface and separated it from internal engineering callers
 - `124x` demoted broad docs/manual wording so proof/debug gates no longer read like the default selfhost route
-- `125x` now returns to source blockers that still keep raw `--backend vm` wired into compat/direct paths
+- `125x` returned to source blockers that still keep raw `--backend vm` wired into compat/direct paths
+- `126x` now decides whether public vm gate can shrink before compat route smokes stop asserting raw vm-family tags
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers
@@ -67,9 +68,9 @@ Related:
 
 ## Successor Corridor
 
-1. `phase-125x vm bridge/backend gate follow-up`
-2. `phase-126x vm public gate shrink decision`
-3. `phase-127x compat route raw vm cut prep`
+1. `phase-126x vm public gate shrink decision`
+2. `phase-127x compat route raw vm cut prep`
+3. `phase-128x direct-route vm gate softening`
 
 ## Parked After Optimization
 
@@ -99,6 +100,7 @@ Related:
 ## Reference
 
 - current lane docs:
+  - `docs/development/current/main/phases/phase-126x/README.md`
   - `docs/development/current/main/phases/phase-125x/README.md`
   - `docs/development/current/main/phases/phase-124x/README.md`
   - `docs/development/current/main/phases/phase-123x/README.md`

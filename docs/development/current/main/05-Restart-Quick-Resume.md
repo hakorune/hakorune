@@ -20,10 +20,11 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-125x vm bridge/backend gate follow-up`
-- current front: `compat bridge / backend gate / CLI default の blocker を source-backed に再固定する`
+- lane: `phase-126x vm public gate shrink decision`
+- current front: `compat/proof/debug contracts を含めて、public vm gate を今 shrink できるかを判断する`
 - blocker: `none`
 - recent landed:
+  - `phase-125x vm bridge/backend gate follow-up`
   - `phase-124x vm public docs/manual demotion`
   - `phase-123x proof gate shrink follow-up`
   - `phase-122x vm compat route exit plan`
@@ -48,13 +49,13 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-125x/README.md`
+3. `docs/development/current/main/phases/phase-126x/README.md`
 
 ## Successor Corridor
 
-1. `phase-125x vm bridge/backend gate follow-up`
-2. `phase-126x vm public gate shrink decision`
-3. `phase-127x compat route raw vm cut prep`
+1. `phase-126x vm public gate shrink decision`
+2. `phase-127x compat route raw vm cut prep`
+3. `phase-128x direct-route vm gate softening`
 
 ## Parked After Optimization
 
