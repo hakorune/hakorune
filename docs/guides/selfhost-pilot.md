@@ -42,7 +42,7 @@ Useful Env Flags
 Troubleshooting (short)
 - No Python found: install `python3` (llvmlite harness / legacy PyVM tools).
 - No `llvm-config-18`: install LLVM 18 dev (see EXE‑first workflow).
-- llvmlite import error: `python3 -m pip install llvmlite`.
+- llvmlite import error: only relevant for explicit compat/probe keep lanes; daily selfhost/product routes do not require it.
 - Parser child timeout: raise `NYASH_NY_COMPILER_TIMEOUT_MS`.
 - EXE‑first bridge mismatch: re‑run with `NYASH_CLI_VERBOSE=1` and keep `dist/nyash_compiler/sample.json` for inspection.
 

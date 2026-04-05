@@ -1,7 +1,7 @@
 # Phase 137x: main kilo reopen selection
 
-- Status: Paused
-- 目的: semantic ownership の最終形と canonical lowering visibility lock が landed した split kernel 上で `main kilo` を reopen する。現在は llvmlite object emit retreat の後続 consumer として待機。
+- Status: Active
+- 目的: semantic ownership の最終形と canonical lowering visibility lock が landed した split kernel 上で `main kilo` を reopen する。llvmlite object emit retreat は landed し、現在は perf consumer として resumed。
 - 対象:
   - `CURRENT_TASK.md`
   - `docs/development/current/main/05-Restart-Quick-Resume.md`

@@ -8,6 +8,9 @@
   - docs / smoke callers
   - `tools/selfhost/lib/selfhost_build_exe.sh`
   - `src/host_providers/llvm_codegen/README.md`
+  - `docs/guides/exe-first-wsl.md`
+  - `docs/guides/selfhost-pilot.md`
+  - `docs/reference/environment-variables.md`
 
 ## Current slice
 
@@ -25,3 +28,9 @@
   - historical LLVM smoke is now an explicit llvmlite compat/probe keep script
 - `src/host_providers/llvm_codegen/README.md`
   - mainline object emit owner is documented as `ny-llvmc --emit obj`
+- `docs/guides/exe-first-wsl.md`
+  - WSL quickstart now treats `ny-llvmc` as the daily EXE-first owner; llvmlite is keep-only troubleshooting
+- `docs/guides/selfhost-pilot.md`
+  - troubleshooting no longer presents llvmlite as a daily requirement
+- `docs/reference/environment-variables.md`
+  - `NYASH_LLVM_USE_HARNESS=1` examples are labeled explicit keep-lane, not current owner

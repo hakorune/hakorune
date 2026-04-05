@@ -1,11 +1,10 @@
 # EXE‑First Quickstart (WSL/Ubuntu)
 
-This guide prioritizes building and running the Nyash parser as a native executable on WSL (Ubuntu). It uses the LLVM harness (llvmlite) and the NyRT static runtime.
+This guide prioritizes building and running the Nyash parser as a native executable on WSL (Ubuntu). It uses the `ny-llvmc` mainline route and the NyRT static runtime.
 
 Prerequisites
 - Rust toolchain (stable): `curl https://sh.rustup.rs -sSf | sh`
-- Build tools: `sudo apt update && sudo apt install -y build-essential git python3 python3-pip`
-- llvmlite: `pip3 install --user llvmlite`
+- Build tools: `sudo apt update && sudo apt install -y build-essential git python3`
 - LLVM 18 (for `llvm-config-18` used by the Rust build + tools):
   - Ubuntu (with apt.llvm.org):
     - `sudo apt install -y wget gnupg lsb-release`
@@ -14,7 +13,6 @@ Prerequisites
 
 Verify
 - `rustc --version`
-- `python3 -c "import llvmlite, sys; print('llvmlite', llvmlite.__version__)"`
 - `llvm-config-18 --version`
 
 Build Parser EXE (bundle)
@@ -42,14 +40,16 @@ Runner with EXE‑First Parser
 Troubleshooting
 - `llvm-config-18: not found`
   - Ensure apt.llvm.org installation worked (see above), or install the distro’s `llvm-18-dev` package.
-- `ModuleNotFoundError: llvmlite`
-  - `pip3 install --user llvmlite` and re‑run the build/smoke.
 - Link errors (`cc` not found or missing libs)
   - `sudo apt install -y build-essential`
   - If you have a custom toolchain, export `CC` to point at your compiler.
 - Plugin resolution
   - The EXE bundle includes a minimal `nyash.toml` and plugin paths under `dist/nyash_compiler/plugins/`.
+- `ModuleNotFoundError: llvmlite`
+  - Only relevant for the explicit historical keep lane. Daily EXE-first does not require llvmlite.
+  - If you intentionally run the keep lane, install it with `pip3 install --user llvmlite`.
 
 Notes
 - The EXE‑first path is the delivery priority. PyVM remains a historical/opt‑in parity aid.
+- llvmlite is an explicit compat/probe keep only; it is not part of the daily EXE-first owner route.
 - Windows support is evolving; WSL is the recommended environment for now.

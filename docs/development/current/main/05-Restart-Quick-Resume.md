@@ -20,9 +20,9 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-154x llvmlite archive lock`
-- current front: llvmlite / harness surface を explicit compat/archive keep に押し込み、current-facing docs/env から default-owner 読みを消す
-- blocker: `NYASH_LLVM_USE_HARNESS` と llvmlite keep lane が still current-facing docs/env で default に見えること
+- lane: `phase-137x main kilo reopen selection`
+- current front: split kernel / semantic-optimization contract / llvmlite retreat後の current truth を取り直し、next hot leaf を pin する
+- blocker: first exact front は `array_string_store_handle_at(...)`、second front は `concat_const_suffix_fallback(...)`
 - landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -122,6 +122,14 @@ tools/checks/dev_gate.sh quick
   - `MIR canonical reading`
   - `current concrete lowering`
   - `Rust executor`
+- `phase-154x` landed current-facing wording slice:
+  - `docs/guides/exe-first-wsl.md` now reads `ny-llvmc` as the daily EXE-first owner route
+  - `docs/guides/selfhost-pilot.md` no longer presents llvmlite as a daily selfhost/product requirement
+  - `docs/reference/environment-variables.md` labels `NYASH_LLVM_USE_HARNESS=1` examples as explicit keep-lane
+- current perf reopen truth:
+  - `kilo_kernel_small_hk`: latest reread `ny_aot_ms=745`
+  - `kilo_micro_concat_const_suffix`: `ny_aot_ms=85`
+  - `kilo_micro_array_string_store`: `ny_aot_ms=207`
 
 ## First Design Slices
 

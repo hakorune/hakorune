@@ -14,10 +14,10 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-154x llvmlite archive lock` |
-| Front | llvmlite / harness surface を explicit compat/archive keep に押し込み、current-facing docs/env から default-owner 読みを消す |
-| Blocker | `NYASH_LLVM_USE_HARNESS` と llvmlite keep lane が still current-facing docs/env で default に見えること |
-| Next | `phase-137x main kilo reopen selection` |
+| Now | `phase-137x main kilo reopen selection` |
+| Front | split kernel / semantic-optimization contract / llvmlite retreat後の current truth を取り直し、next hot leaf を pin する |
+| Blocker | first exact front は `array_string_store_handle_at(...)`、second front は `concat_const_suffix_fallback(...)` |
+| Next | `phase-kx vm-hako small reference interpreter recut` |
 | After Next | `phase-kx vm-hako small reference interpreter recut` |
 
 ## Current Read
@@ -66,6 +66,11 @@ Related:
   2. `phase-153x ny_mir_builder harness drop`
   3. `phase-154x llvmlite archive lock`
   4. `phase-137x main kilo reopen selection`
+- `phase-154x` landed current-facing wording slice:
+  - `docs/guides/exe-first-wsl.md`
+  - `docs/guides/selfhost-pilot.md`
+  - `docs/reference/environment-variables.md`
+  now treat llvmlite as explicit keep-lane only
 - paused reopen truth:
   - baseline: `kilo_kernel_small_hk = 1529ms`
   - string const fast-path: `775ms`
@@ -73,19 +78,16 @@ Related:
   - const empty-flag cache: `723ms`
   - shared text-based const-handle helper: `903ms`
   - single-closure const suffix fast path: `820ms`
-  - latest sampled whole-kilo reread: `775ms`
-  - first implementation consumer: `concat const-suffix`
+  - latest sampled whole-kilo reread: `745ms`
+  - first implementation consumer: `array string-store`
   - second implementation consumer: `concat const-suffix`
   - exact micro:
     - `kilo_micro_concat_const_suffix = 85ms`
-    - `kilo_micro_array_string_store = 217ms`
+    - `kilo_micro_array_string_store = 207ms`
 
 ## Successor Corridor
 
-1. `phase-153x ny_mir_builder harness drop`
-2. `phase-154x llvmlite archive lock`
-3. `phase-137x main kilo reopen selection`
-4. `phase-kx vm-hako small reference interpreter recut`
+1. `phase-kx vm-hako small reference interpreter recut`
 
 ## Parked After Optimization
 

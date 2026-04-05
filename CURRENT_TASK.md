@@ -40,15 +40,15 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 19. `phase-137x main kilo reopen selection` (paused after reopen proof)
 20. `phase-152x llvmlite object emit cutover` (landed)
 21. `phase-153x ny_mir_builder harness drop` (landed)
-22. `phase-154x llvmlite archive lock` (active)
-23. `phase-137x main kilo reopen selection` (resume after llvmlite retreat)
+22. `phase-154x llvmlite archive lock` (landed)
+23. `phase-137x main kilo reopen selection` (active)
 24. `phase-kx vm-hako small reference interpreter recut` (parked after optimization)
 
 ## Current Front
 
-- Active lane: `phase-154x llvmlite archive lock`
-- Active front: llvmlite / harness surface を explicit compat/archive keep に押し込み、current-facing docs/env から default-owner 読みを消す
-- Current blocker: `NYASH_LLVM_USE_HARNESS` と llvmlite keep lane がまだ current-facing docs/env で default に見えること
+- Active lane: `phase-137x main kilo reopen selection`
+- Active front: split kernel / semantic-optimization contract / llvmlite retreat後の current truth を取り直し、next hot leaf を pin する
+- Current blocker: first exact front は `array_string_store_handle_at(...)`、second front は `concat_const_suffix_fallback(...)`
 - Exact focus:
   - `docs/reference/architecture/llvm-harness.md`
   - `docs/reference/environment-variables.md`
@@ -59,8 +59,7 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 
 ## Successor Corridor
 
-1. `phase-137x main kilo reopen selection`
-2. `phase-kx vm-hako small reference interpreter recut`
+1. `phase-kx vm-hako small reference interpreter recut`
 
 ## Parked After Optimization
 
@@ -102,11 +101,18 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   2. `ny_mir_builder` harness drop
   3. llvmlite keep/archive lock
   4. perf reopen
-- `phase-154x` first slice:
+- `phase-154x` landed:
   - `tools/selfhost/lib/selfhost_build_exe.sh` no longer forces `NYASH_LLVM_USE_HARNESS=1`
   - `tools/selfhost/README.md` and `src/host_providers/llvm_codegen/README.md` now read `ny-llvmc` as the daily owner and llvmlite as explicit keep
   - `tools/build_llvm.sh` harness keep now routes through `ny-llvmc --driver harness`
   - `tools/llvm_smoke.sh` is explicit llvmlite compat/probe keep, not daily mainline evidence
+  - `docs/guides/exe-first-wsl.md` now treats `ny-llvmc` as the daily EXE-first route
+  - `docs/guides/selfhost-pilot.md` no longer requires llvmlite for daily selfhost/product flows
+  - `docs/reference/environment-variables.md` labels `NYASH_LLVM_USE_HARNESS=1` examples as explicit keep-lane
+- current perf reopen truth:
+  - `kilo_kernel_small_hk`: latest reread `ny_aot_ms=745`
+  - `kilo_micro_concat_const_suffix`: `ny_aot_ms=85`
+  - `kilo_micro_array_string_store`: `ny_aot_ms=207`
 - fixed perf reopen order remains:
   - `leaf-proof micro`
   - `micro kilo`
