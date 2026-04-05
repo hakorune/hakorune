@@ -64,7 +64,7 @@ Notes:
 - `--backend vm` remains the raw legacy compat/proof ingress for now; do not read it as product ownership or as the general front-door proof surface.
 
 ## One‑shot dev smoke
-Public proof surfaces:
+Optional proof/debug surfaces:
 
 ```
 tools/selfhost/proof/run_stageb_compiler_vm.sh --source-file apps/tests/hello_simple_llvm.hako
@@ -79,6 +79,8 @@ tools/selfhost/proof/selfhost_smoke.sh
 
 This helper tries to emit JSON (best-effort) and verifies VM outputs match with Known rewrite ON/OFF:
 It does not modify defaults and is safe to run locally.
+
+Do not read these proof gates as the day-to-day selfhost runtime route. Daily runtime stays on `tools/selfhost/run.sh --runtime --runtime-route mainline`.
 
 ## Flags (dev)
 - Known rewrite default ON (userbox only, strict guards): `NYASH_REWRITE_KNOWN_DEFAULT=0|1`

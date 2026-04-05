@@ -138,6 +138,7 @@ Public surface:
 Body:
 - `tools/selfhost/proof/run_stageb_compiler_vm.sh`
 - proof-only keep
+- treat this as an explicit proof/debug route, not the day-to-day runtime path
 
 ### `direct/mir-json`
 

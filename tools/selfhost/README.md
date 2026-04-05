@@ -37,11 +37,11 @@ Script
     tools/selfhost/run.sh --direct --source-file apps/tests/phase29bq_selfhost_cleanup_only_min.hako
     ```
 - tools/selfhost/proof/run_stageb_compiler_vm.sh
-  - Public proof gate for explicit Stage-B VM keep.
-  - Use this when you need the proof-only Stage-B compiler route on purpose.
+  - Optional public proof gate for explicit Stage-B VM keep.
+  - Use this only when you need the proof-only Stage-B compiler route on purpose.
 - tools/selfhost/proof/selfhost_vm_smoke.sh
-  - Public proof smoke for selfhost-minimal on the explicit VM keep.
-  - Historical top-level alias was retired in `phase-31x / 31xE1`.
+  - Optional public proof smoke for selfhost-minimal on the explicit VM keep.
+  - Historical top-level alias remains a compatibility facade; do not read this as the day-to-day runtime route.
 - Internal proof helpers (engineering keep)
   - `tools/selfhost/proof/bootstrap_selfhost_smoke.sh`
   - `tools/selfhost/proof/selfhost_smoke.sh`

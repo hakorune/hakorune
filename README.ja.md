@@ -100,10 +100,11 @@ Phase‑15（2025‑09）アップデート
 <a id="self-hosting"></a>
 ## 🧪 Self-Hosting（自己ホスト開発）
 - ガイド: `docs/how-to/self-hosting.md`
-- raw legacy proof/debug 入口: `$NYASH_BIN --backend vm apps/selfhost-minimal/main.hako`
-- Public proof surface:
+- raw legacy proof/debug 専用入口: `$NYASH_BIN --backend vm apps/selfhost-minimal/main.hako`
+- optional proof/debug surface:
   - `bash tools/selfhost/proof/run_stageb_compiler_vm.sh --source-file apps/tests/hello_simple_llvm.hako`
   - `bash tools/selfhost/proof/selfhost_vm_smoke.sh`
+- これらは日常 runtime route ではなく、明示 proof/debug gate としてだけ扱う
 - bootstrap / acceptance の engineering helper は `tools/selfhost/proof/*` に残すが、一般 front-door proof surface とは分けて扱う
 - Makefile: `make run-minimal`, `make smoke-selfhost`
 

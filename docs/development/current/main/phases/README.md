@@ -4,7 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 122x vm compat route exit plan
+- **Current (ACTIVE)**: Phase 124x vm public docs/manual demotion
+- **Phase 123x（LANDED）**: proof gate shrink follow-up
+- **Phase 122x（LANDED）**: vm compat route exit plan
 - **Phase 121x（LANDED）**: vm backend retirement gate decision
 - **Phase 120x（LANDED）**: vm route retirement decision refresh
 - **Phase 119x（LANDED）**: vm debug/observability surface review

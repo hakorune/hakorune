@@ -20,10 +20,12 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-122x vm compat route exit plan`
-- current front: `runtime-route compat / stage-a-compat / raw --backend vm の依存をどの順で外すかを具体化する`
+- lane: `phase-124x vm public docs/manual demotion`
+- current front: `raw --backend vm` と proof gates を docs/manual 上で日常 route に見せない wording に寄せる`
 - blocker: `none`
 - recent landed:
+  - `phase-123x proof gate shrink follow-up`
+  - `phase-122x vm compat route exit plan`
   - `phase-121x vm backend retirement gate decision`
   - `phase-120x vm route retirement decision refresh`
   - `phase-119x vm debug/observability surface review`
@@ -45,13 +47,13 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-122x/README.md`
+3. `docs/development/current/main/phases/phase-124x/README.md`
 
 ## Successor Corridor
 
-1. `phase-122x vm compat route exit plan`
-2. `phase-123x proof gate shrink follow-up`
-3. `phase-124x vm public docs/manual demotion`
+1. `phase-124x vm public docs/manual demotion`
+2. `phase-125x vm bridge/backend gate follow-up`
+3. `phase-126x vm public gate shrink decision`
 
 ## Parked After Optimization
 
@@ -61,10 +63,10 @@ tools/checks/dev_gate.sh quick
 
 - keep `stage / route / backend override / lane / kernel` split fixed
 - keep VM family lane names fixed
-- keep `--backend vm` in compat/proof/debug only and fix the retirement order before pruning aliases
+- keep `--backend vm` in compat/proof/debug only and demote broad docs/manual wording before touching the backend gate again
 - current buckets:
   - compat route: `run.sh --runtime --runtime-route compat`
-  - proof wrappers: `tools/selfhost/proof/*`
+  - proof gates: `tools/selfhost/proof/run_stageb_compiler_vm.sh`, `tools/selfhost/proof/selfhost_vm_smoke.sh`
   - debug/observability: phase29x vm-family smokes
 
 ## Current Proof Bundle

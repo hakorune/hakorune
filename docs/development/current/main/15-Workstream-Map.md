@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-122x vm compat route exit plan` |
-| Front | `runtime-route compat / stage-a-compat / raw --backend vm の依存をどの順で外すかを具体化する` |
+| Now | `phase-124x vm public docs/manual demotion` |
+| Front | `raw --backend vm` と proof gates を docs/manual 上で日常 route に見せない wording に寄せる` |
 | Blocker | `none` |
-| Next | `shell compat route -> Stage1 direct bridge -> backend gate` の順で exit plan を固定する` |
-| After Next | `phase-123x proof gate shrink follow-up` |
+| Next | `README / README.ja / tools/selfhost/README / quickstart / bootstrap SSOT を proof/debug gate 読みに寄せる` |
+| After Next | `phase-125x vm bridge/backend gate follow-up` |
 
 ## Current Read
 
@@ -46,7 +46,9 @@ Related:
 - `119x` now narrows the remaining vm-family debug/observability keep: route observability stays live, generic probe pressure should thin further
 - `120x` now refreshes the retirement order across `compat / proof / debug-observability` before any broader backend decision
 - `121x` now decides whether `--backend vm` can shrink from public explicit gate to internal-only, or whether concrete blockers still keep it public
-- `122x` now turns that gate decision into a concrete compat-route exit order
+- `122x` locked the compat-route exit order: shell surface first, Stage1 direct bridge second, backend gate last
+- `123x` narrowed the remaining public proof gate surface and separated it from internal engineering callers
+- `124x` now demotes broad docs/manual wording so proof/debug gates no longer read like the default selfhost route
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers
@@ -64,9 +66,9 @@ Related:
 
 ## Successor Corridor
 
-1. `phase-122x vm compat route exit plan`
-2. `phase-123x proof gate shrink follow-up`
-3. `phase-124x vm public docs/manual demotion`
+1. `phase-124x vm public docs/manual demotion`
+2. `phase-125x vm bridge/backend gate follow-up`
+3. `phase-126x vm public gate shrink decision`
 
 ## Parked After Optimization
 
@@ -96,6 +98,8 @@ Related:
 ## Reference
 
 - current lane docs:
+  - `docs/development/current/main/phases/phase-124x/README.md`
+  - `docs/development/current/main/phases/phase-123x/README.md`
   - `docs/development/current/main/phases/phase-122x/README.md`
   - `docs/development/current/main/phases/phase-121x/README.md`
   - `docs/development/current/main/phases/phase-119x/README.md`

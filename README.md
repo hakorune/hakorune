@@ -189,10 +189,11 @@ Specs & Constraints
 ## 🧪 Self‑Hosting (Compat / Proof)
 - Guide: `docs/how-to/self-hosting.md`
 - Mainline runtime E2E: `tools/selfhost/run.sh --runtime --runtime-route mainline --input apps/selfhost-minimal/main.hako`
-- Raw legacy proof/debug ingress: `$NYASH_BIN --backend vm apps/selfhost-minimal/main.hako`
-- Public proof surfaces:
+- Raw legacy proof/debug ingress only: `$NYASH_BIN --backend vm apps/selfhost-minimal/main.hako`
+- Optional proof/debug surfaces:
   - `bash tools/selfhost/proof/run_stageb_compiler_vm.sh --source-file apps/tests/hello_simple_llvm.hako`
   - `bash tools/selfhost/proof/selfhost_vm_smoke.sh`
+- These are explicit proof/debug gates, not the day-to-day runtime route.
 - Internal proof helpers remain under `tools/selfhost/proof/*` for bootstrap/acceptance engineering checks.
 - JSON (Operator Boxes, dev): `./tools/opbox-json.sh` / `./tools/opbox-quick.sh`
 - Makefile: `make run-minimal`, `make smoke-selfhost`
