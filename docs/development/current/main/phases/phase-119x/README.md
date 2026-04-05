@@ -25,3 +25,4 @@
 - reading
   - suite pin lives in `tools/smokes/v2/suites/integration/phase29x-vm-route.txt`
   - keep-now surface is route observability + strict-dev priority + explicit compat boundary + vm-hako strict replay
+  - candidate-thin surface should read as internal engineering guard/triage, not as a general front-door runtime path

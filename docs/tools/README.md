@@ -25,7 +25,7 @@ git status -sb
 tools/checks/dev_gate.sh quick
 ```
 
-### 1. バグ起点の切り分け（Rust か .hako か vm-hako か）
+### 1. バグ起点の切り分け（internal engineering triage）
 
 ```bash
 tools/dev/bug_origin_triage.sh <source.hako> --expect '<regex>' --expect-rc <n>
@@ -43,6 +43,10 @@ tools/dev/bug_origin_triage.sh apps/tests/phase29y_loop_if_assignment_carry_min.
 - `stage1-route=pass` かつ `rust-vm=fail`: Rust lane 側
 - `vm-hako` に `[vm-hako/unimplemented]`: vm-hako 未実装ギャップ
 - 複数 route 同時 fail: frontend/core 契約（SSOT）側を優先調査
+
+補足:
+- `bug_origin_triage.sh` は internal engineering helper。
+- day-to-day runtime front door ではない。
 
 ## 2. `.hako` ルール検証（hako_check）
 

@@ -15,6 +15,7 @@ tools/smokes/v2/profiles/integration/core/phase2043/lower_typeop_cast_direct_str
 tools/smokes/v2/profiles/integration/core/phase2043/lower_typeop_check_direct_struct_canary_vm.sh
 tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh
 tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_quick_suite_vm.sh
+tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase1_min_vm.sh
 tools/smokes/v2/profiles/integration/joinir/phase29bq_joinir_port01_parity_probe_vm.sh
 tools/smokes/v2/profiles/integration/joinir/phase29bq_joinir_port04_phi_exit_invariant_lock_vm.sh
 tools/smokes/v2/profiles/integration/joinir/phase29bq_loop_conditional_update_release_route_vm.sh

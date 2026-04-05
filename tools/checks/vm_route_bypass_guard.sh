@@ -18,14 +18,14 @@ if [[ -z "$hits" ]]; then
   exit 1
 fi
 
-disallowed="$(printf "%s\n" "$hits" | rg -v "src/runner/route_orchestrator.rs|src/runner/modes/vm_fallback.rs" || true)"
+disallowed="$(printf "%s\n" "$hits" | rg -v "src/runner/route_orchestrator.rs|src/runner/keep/vm_fallback.rs" || true)"
 if [[ -n "$disallowed" ]]; then
   echo "[vm-route-bypass-guard] ERROR: disallowed fallback callsite detected"
   echo "$disallowed"
   exit 1
 fi
 
-if ! rg -q "enforce_vm_compat_fallback_guard_or_exit" src/runner/modes/vm_fallback.rs; then
+if ! rg -q "enforce_vm_compat_fallback_guard_or_exit" src/runner/keep/vm_fallback.rs; then
   echo "[vm-route-bypass-guard] ERROR: vm_fallback guard hook missing"
   exit 1
 fi

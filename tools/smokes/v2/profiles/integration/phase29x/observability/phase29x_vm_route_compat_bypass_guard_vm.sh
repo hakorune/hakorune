@@ -1,7 +1,7 @@
 #!/bin/bash
-# Phase 29x X27: compat bypass fail-fast guard smoke
+# Phase 29x X27: compat bypass fail-fast engineering guard
 #
-# Contract pin:
+# Engineering guard:
 # 1) Direct callsites of `execute_vm_fallback_interpreter` are owned by route_orchestrator only.
 # 2) vm_fallback entry must enforce explicit fallback guard.
 

@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 # bug_origin_triage.sh
 #
-# Quick route triage to identify likely bug origin:
+# Internal engineering triage helper to identify likely bug origin across vm-family lanes:
 # - Rust VM route (--backend vm)
 # - Stage1 .hako route (--backend vm --hako-run)
 # - vm-hako route (--backend vm-hako)
+#
+# This is not a front-door runtime surface. Use it for focused route triage only.
 #
 # Usage:
 #   tools/dev/bug_origin_triage.sh <source.hako> [--expect '<regex>'] [--expect-rc <n>] [--timeout <sec>] [--stage1-entry <path>] [--keep-temp]

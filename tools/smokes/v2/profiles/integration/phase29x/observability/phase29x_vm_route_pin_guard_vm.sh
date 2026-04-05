@@ -1,7 +1,7 @@
 #!/bin/bash
-# Phase 29x X48: route pin inventory guard smoke
+# Phase 29x X48: route pin inventory engineering guard
 #
-# Contract pin:
+# Engineering guard:
 # - `NYASH_VM_HAKO_PREFER_STRICT_DEV` hard-pin assignments stay in allowlisted gate/smoke callsites only.
 
 set -euo pipefail
