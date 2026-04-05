@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 119x vm debug/observability surface review
+- **Current (ACTIVE)**: Phase 120x vm route retirement decision refresh
+- **Phase 119x（LANDED）**: vm debug/observability surface review
 - **Phase 118x（LANDED）**: proof wrapper surface review
 - **Phase 117x（LANDED）**: vm compat/proof env hardening
 - **Phase 116x（LANDED）**: execution surface alias pruning

@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-119x vm debug/observability surface review` |
-| Front | `vm-family debug/observability surface を keep-now と candidate-thin に分ける` |
+| Now | `phase-120x vm route retirement decision refresh` |
+| Front | `compat / proof / debug-observability の3 buckets から retirement order を再固定する` |
 | Blocker | `none` |
-| Next | `phase29x observability keep と bug_origin_triage.sh の public/internal 読みを固定する` |
-| After Next | `phase-120x vm route retirement decision refresh` |
+| Next | `compat / proof / debug-observability の残存理由を refresh し、次の cut を source-backed に固定する` |
+| After Next | `phase-121x vm backend retirement gate decision` |
 
 ## Current Read
 
@@ -44,6 +44,7 @@ Related:
 - `117x` is hardening compat ingress next: shell preflight must require `NYASH_VM_USE_FALLBACK=1`
 - `118x` is narrowing proof wrapper surface next: public proof surface stays small, bootstrap/acceptance helpers stay internal
 - `119x` now narrows the remaining vm-family debug/observability keep: route observability stays live, generic probe pressure should thin further
+- `120x` now refreshes the retirement order across `compat / proof / debug-observability` before any broader backend decision
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers
@@ -61,9 +62,9 @@ Related:
 
 ## Successor Corridor
 
-1. `phase-119x vm debug/observability surface review`
-2. `phase-120x vm route retirement decision refresh`
-3. `phase-121x vm backend retirement gate decision`
+1. `phase-120x vm route retirement decision refresh`
+2. `phase-121x vm backend retirement gate decision`
+3. `phase-122x vm compat route exit plan`
 
 ## Parked After Optimization
 
@@ -94,6 +95,7 @@ Related:
 
 - current lane docs:
   - `docs/development/current/main/phases/phase-119x/README.md`
+  - `docs/development/current/main/phases/phase-120x/README.md`
   - `docs/development/current/main/phases/phase-118x/README.md`
   - `docs/development/current/main/phases/phase-117x/README.md`
   - `docs/development/current/main/phases/phase-116x/README.md`

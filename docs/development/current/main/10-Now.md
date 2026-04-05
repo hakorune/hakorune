@@ -12,10 +12,11 @@ Related:
 
 ## Current
 
-- lane: `phase-119x vm debug/observability surface review`
-- current front: `vm-family debug/observability surface を keep-now と candidate-thin に分ける`
+- lane: `phase-120x vm route retirement decision refresh`
+- current front: `compat / proof / debug-observability の3 buckets から retirement order を再固定する`
 - blocker: `none`
 - recent landed:
+  - `phase-119x vm debug/observability surface review`
   - `phase-118x proof wrapper surface review`
   - `phase-117x vm compat/proof env hardening`
   - `phase-116x execution surface alias pruning`
@@ -44,12 +45,12 @@ Related:
 - `phase-103` landed with if-only merge / early return parity on VM and LLVM EXE
 - `phase-104` landed with loop(true)+break-only digits parity on VM and LLVM EXE
 - `phase-105` restored the original long digit OR-chain parity on VM and LLVM EXE
-- current work is the vm debug/observability surface review lane:
+- current work is the vm route retirement decision refresh lane:
   - vocabulary split: `stage / route / backend override / lane / kernel`
   - selfhost mainline already reads as `runtime-route mainline`
   - raw `--backend vm` is now treated as compat/proof/debug only
   - current buckets are `compat route`, `proof wrappers`, `debug/observability`
-  - current target is the remaining debug/observability keep, not proof wrappers
+  - current target is the next retirement order across those buckets
 
 ## Root Anchors
 
@@ -60,4 +61,4 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-119x/README.md`
+2. `docs/development/current/main/phases/phase-120x/README.md`
