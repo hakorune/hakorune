@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 132x vm default backend decision
+- **Current (ACTIVE)**: Phase 133x mainline/compiler resume selection
+- **Phase 132x（LANDED）**: vm default backend decision
 - **Phase 131x（LANDED）**: vm legacy contract migration
 - **Phase 130x（LANDED）**: vm public gate final cleanup
 - **Phase 129x（LANDED）**: vm orchestrator/public gate follow-up

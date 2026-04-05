@@ -12,9 +12,9 @@ Related:
 
 ## Current
 
-- lane: `phase-132x vm default backend decision`
-- current front: `default=mir` / help wording / explicit caller pins を landed にして closeout を詰める
-- blocker: major blocker は解消。explicit keep caller の freeze と closeout pointer 更新だけ残る
+- lane: `phase-133x mainline/compiler resume selection`
+- current front: vm cleanup を current から外し、次の compiler/mainline lane を固定する
+- blocker: vm-family caller-zero は parked debt のまま残るが、mainline 再開の blocker ではない
 - recent landed:
   - `phase-131x vm legacy contract migration`
   - `phase-130x vm public gate final cleanup`
@@ -59,7 +59,7 @@ Related:
   - compat temp-MIR handoff is green again with the parser-EXE preference env applied internally
   - the default `stage1_cli_env.hako` child path no longer forwards backend hints
   - phase-132x decision is fixed: default `vm` should be removed now
-  - caller buckets stay explicit: route-first candidate は `tools/using_e2e_smoke.sh` だけで、他は keep-now proof-debug / JSON v0 / debug helper
+  - caller buckets stay explicit: default removal は landed、残りの vm-family caller-zero は parked debt
 
 ## Root Anchors
 

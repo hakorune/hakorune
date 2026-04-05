@@ -20,11 +20,11 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-132x vm default backend decision`
-- current front: `default=mir` / help wording / explicit caller pins を landed にして closeout を詰める
-- blocker: major blocker は解消。explicit keep caller の freeze と closeout pointer 更新だけ残る
-- landed: `phase-130x` wording-only public gate cleanup
-- active next: `phase-132x vm default backend decision`
+- lane: `phase-133x mainline/compiler resume selection`
+- current front: vm cleanup を current から外し、次の compiler/mainline lane を固定する
+- blocker: vm-family caller-zero は parked debt のまま残るが、mainline 再開の blocker ではない
+- landed: `phase-132x vm default backend decision`
+- active next: `phase-133x mainline/compiler resume selection`
 - recent landed:
   - `phase-130x vm public gate final cleanup`
   - `phase-129x vm orchestrator/public gate follow-up`
@@ -55,12 +55,12 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-132x/README.md`
+3. `docs/development/current/main/phases/phase-133x/README.md`
 
 ## Successor Corridor
 
-1. `phase-130x vm public gate final cleanup`
-2. `phase-132x vm default backend decision`
+1. `phase-132x vm default backend decision`
+2. `phase-133x mainline/compiler resume selection`
 
 ## Parked After Optimization
 

@@ -14,10 +14,10 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-132x vm default backend decision` |
-| Front | `default=mir` / help wording / explicit caller pins を landed にして closeout を詰める |
-| Blocker | major blocker は解消。explicit keep caller の freeze と closeout pointer 更新だけ残る |
-| Next | closeout 後に mainline/compiler 側へ戻すか、必要なら explicit keep caller の追加 migration を切る |
+| Now | `phase-133x mainline/compiler resume selection` |
+| Front | vm cleanup を current から外し、次の compiler/mainline lane を固定する |
+| Blocker | vm-family caller-zero は parked debt のまま残るが、mainline 再開の blocker ではない |
+| Next | compiler/mainline 実装 lane を起こす |
 | After Next | `phase-kx vm-hako small reference interpreter recut` |
 
 ## Current Read
@@ -68,12 +68,12 @@ Related:
 - `92x` closed the proof/compat caller rerun lane against the canonical wrapper homes
 - `93x` moved archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
 - current work is now on `phase-132x vm default backend decision`
-- `132x` narrowed route-first migration to `tools/using_e2e_smoke.sh`; the rest of the old candidates stay explicit vm keep because they still depend on JSON v0 / json-file / debug-helper contracts
-- `132x` now has the implementation landed: `--backend` defaults to `mir`, public help/docs read `mainline/default mir`, and explicit proof/debug callers stay alive
+- `132x` landed: `--backend` now defaults to `mir`, public help/docs read `mainline/default mir`, `using_e2e_smoke.sh` moved to route-first mainline, and explicit proof/debug callers stay alive
+- current work is no longer vm cleanup; caller-zero remains parked debt while mainline/compiler work resumes
 
 ## Successor Corridor
 
-1. `phase-132x vm default backend decision`
+1. `phase-133x mainline/compiler resume selection`
 2. `phase-kx vm-hako small reference interpreter recut`
 
 ## Parked After Optimization
@@ -104,6 +104,7 @@ Related:
 ## Reference
 
 - current lane docs:
+  - `docs/development/current/main/phases/phase-133x/README.md`
   - `docs/development/current/main/phases/phase-132x/README.md`
   - `docs/development/current/main/phases/phase-130x/README.md`
   - `docs/development/current/main/phases/phase-128x/README.md`
