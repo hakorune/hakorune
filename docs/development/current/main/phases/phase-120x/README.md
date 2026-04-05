@@ -39,3 +39,26 @@
   - `tools/selfhost/README.md`
   - `docs/development/runtime/cli-hakorune-stage1.md`
   - `docs/development/selfhosting/quickstart.md`
+
+## Retirement order
+
+1. retire-first: docs/manual candidate-thin
+   - `tools/dev/bug_origin_triage.sh`
+   - `tools/checks/route_env_probe.sh`
+   - `docs/tools/README.md`
+   - role: internal engineering triage / diagnostics only
+2. second: proof/docs pressure narrowing
+   - `tools/selfhost/proof/run_stageb_compiler_vm.sh`
+   - `tools/selfhost/proof/selfhost_vm_smoke.sh`
+   - `README.md`
+   - `README.ja.md`
+   - `tools/selfhost/README.md`
+   - `docs/development/runtime/cli-hakorune-stage1.md`
+   - `docs/development/selfhosting/quickstart.md`
+   - blocked by live callers in `Makefile`, `tools/selfhost/lib/selfhost_run_routes.sh`, parser trace, and phase29bq selfhost/stageb smokes
+3. last-cut: compat route and backend gate
+   - `tools/selfhost/run.sh`
+   - `tools/selfhost/lib/selfhost_run_routes.sh`
+   - `src/runner/dispatch.rs`
+   - `src/runner/route_orchestrator.rs`
+   - blocked by explicit `runtime-route compat` contract and `NYASH_VM_USE_FALLBACK=1` gate
