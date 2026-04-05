@@ -14,7 +14,7 @@ Related:
 
 - lane: `phase-127x compat route raw vm cut prep`
 - current front: `compat boundary smoke` を route-first contract に寄せて raw vm tag 断言を外す
-- blocker: `selfhost_run_routes.sh compat branch still shells raw --backend vm`
+- blocker: `compat emit-helper recursion returns rc=98 under runtime compat env`
 - recent landed:
   - `phase-125x vm bridge/backend gate follow-up`
   - `phase-124x vm public docs/manual demotion`
@@ -55,7 +55,7 @@ Related:
   - compat boundary smoke no longer needs to pin raw `vm-route/*` tags
   - route-first contract becomes `runtime_route=compat` + `mode=stage-a-compat`
   - explicit fallback env (`NYASH_VM_USE_FALLBACK=1`) remains the positive keep gate
-  - after this prep, compat branch itself can move to temp-MIR handoff
+  - naive temp-MIR cut currently fails because `compat/run_stage1_cli.sh emit mir-json` drops the payload marker under compat env and exits `98`
 
 ## Root Anchors
 

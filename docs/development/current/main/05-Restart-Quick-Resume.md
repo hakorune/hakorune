@@ -22,7 +22,7 @@ tools/checks/dev_gate.sh quick
 
 - lane: `phase-127x compat route raw vm cut prep`
 - current front: `compat boundary smoke` を route-first contract に寄せて raw vm tag 断言を外す
-- blocker: `selfhost_run_routes.sh compat branch still shells raw --backend vm`
+- blocker: `compat emit-helper recursion returns rc=98 under runtime compat env`
 - recent landed:
   - `phase-125x vm bridge/backend gate follow-up`
   - `phase-124x vm public docs/manual demotion`

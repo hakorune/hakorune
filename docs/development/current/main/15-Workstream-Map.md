@@ -16,8 +16,8 @@ Related:
 | --- | --- |
 | Now | `phase-127x compat route raw vm cut prep` |
 | Front | `compat boundary smoke` を route-first contract に寄せて raw vm tag 断言を外す |
-| Blocker | `selfhost_run_routes.sh compat branch still shells raw --backend vm` |
-| Next | `selfhost_run_routes.sh` compat branch を temp-MIR handoff 化する |
+| Blocker | `compat emit-helper recursion returns rc=98 under runtime compat env` |
+| Next | `compat/run_stage1_cli.sh emit mir-json` が compat env で selfhost route に再入する理由を絞る |
 | After Next | `phase-128x stage1 bridge vm gate softening` |
 
 ## Current Read

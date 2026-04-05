@@ -9,16 +9,22 @@
 - success:
   - compat boundary smoke が raw `vm-route/pre-dispatch` / `lane=vm-compat-fallback` を contract pin しない
   - route-first tag (`runtime_route=compat`, `mode=stage-a-compat`) と explicit fallback env だけで compat keep を説明できる
-  - 次 lane で `selfhost_run_routes.sh` compat branch を temp-MIR handoff 化できる
+  - `selfhost_run_routes.sh` compat branch cut の blocker が source-backed に分かる
 
 ## Decision Now
 
 - `phase29bq` route/parity smokes are already route-first
 - remaining prep seam is `phase29x_vm_route_non_strict_compat_boundary_vm.sh`
-- do not cut `selfhost_run_routes.sh` in this phase; first make the smoke contract route-first
+- naive compat temp-MIR cut is blocked:
+  - `tools/selfhost/compat/run_stage1_cli.sh emit mir-json ...`
+  - under runtime compat env
+  - returns `[stage1-contract/emit-invalid] mode=emit-mir rc=0 but payload marker missing`
+  - and exits `98`
+- keep `selfhost_run_routes.sh` compat branch on raw `--backend vm` until that emit-helper recursion is isolated
 
 ## Next
 
-1. switch `tools/selfhost/lib/selfhost_run_routes.sh` compat branch from raw `--backend vm` to temp-MIR handoff
+1. isolate why compat env re-enters selfhost route during `emit mir-json`
 2. keep explicit fallback env contract (`NYASH_VM_USE_FALLBACK=1`)
-3. then move to `phase-128x stage1 bridge vm gate softening`
+3. cut the compat branch only after emit-helper recursion is fixed
+4. then move to `phase-128x stage1 bridge vm gate softening`

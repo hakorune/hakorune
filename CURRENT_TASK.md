@@ -68,8 +68,8 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 
 - Active lane: `phase-127x compat route raw vm cut prep`
 - Active micro: `compat boundary smoke` を route-first contract に寄せて raw vm tag 断言を外す
-- Current blocker: `selfhost_run_routes.sh compat branch still shells raw --backend vm`
-- Exact focus: `phase29x_vm_route_non_strict_compat_boundary_vm.sh` を future compat MIR-handoff で壊れない contract にする
+- Current blocker: `compat emit-helper recursion returns rc=98 under runtime compat env`
+- Exact focus: `phase29x_vm_route_non_strict_compat_boundary_vm.sh` は route-first 化済み; 次は `compat/run_stage1_cli.sh emit mir-json` が compat env で payload を落とす理由を詰める
 
 ## Successor Corridor
 
@@ -117,6 +117,7 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 - `phase-125x` returned to source blockers and fixed the cut order: shell compat first, direct bridge second, backend gate last.
 - `phase-126x` decided that compat smoke contract is the hard blocker and that the next source seam after compat is the `stage1_bridge` backend-hint chain.
 - `phase-127x` converts compat boundary smoke from raw vm-route assertions to route-first selfhost contract checks before cutting the compat branch itself.
+- naive compat temp-MIR handoff cut currently fails with `[stage1-contract/emit-invalid] mode=emit-mir rc=0 but payload marker missing` under runtime compat env; raw compat branch stays until that recursion is isolated.
 - deeper inventory added `src/runner/stage1_bridge/plan.rs`, `src/runner/stage1_bridge/args.rs`, `src/runner/stage1_bridge/env/stage1_aliases.rs`, and `src/config/env/stage1.rs` as the next source-side seam after compat contract softening.
 - current inventory buckets are:
   - compat route: `tools/selfhost/run.sh --runtime --runtime-route compat` -> raw `--backend vm` under `NYASH_VM_USE_FALLBACK=1`
