@@ -54,7 +54,7 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 ## Current Front
 
 - Active lane: `phase-137x main kilo reopen selection`
-- Active front: canonical `store.array.str` を first exact front として詰めつつ、helper 名ではなく capability seam 名を first reading にする
+- Active front: exact observe で current AOT consumer を確定しつつ、helper 名ではなく capability seam 名を first reading にする
 - Current blocker: executor-local trims は regress しやすいので、exact micro と whole-kilo を同時に良化する patch だけを採る
 - Exact focus:
   - `docs/development/current/main/phases/phase-137x/README.md`
@@ -137,13 +137,17 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   2. freeze hot-path mapping for `store.array.str` / `const_suffix` / observer backend
   3. resume micro + main kilo tuning with seam names as first reading
 - `phase-155x` current perf order is fixed as canonical reading first:
-  1. `store.array.str`
+  1. generic string concat/len fast path under the current `kilo_micro_concat_const_suffix` workload
+     - current AOT consumer: `nyash.string.concat_hh` + `nyash.string.len_h`
+     - executor detail: `string_concat_hh_export_impl(...)` + `string_len_from_handle(...)`
+     - exact micro: `kilo_micro_concat_const_suffix`
+  2. `store.array.str`
      - executor detail: `array_string_store_handle_at(...)`
      - exact micro: `kilo_micro_array_string_store`
-  2. `const_suffix`
+  3. `const_suffix`
      - canonical reading: `thaw.str + lit.str + str.concat2 + freeze.str`
      - executor detail: `concat_const_suffix_fallback(...)`
-     - exact micro: `kilo_micro_concat_const_suffix`
+     - exact micro consumer is not the current `kilo_micro_concat_const_suffix` AOT path
 - `phase-156x` landed:
   - route-tagged counters exist for `store.array.str` and `const_suffix`
   - drill-down counters now exist for:
@@ -152,6 +156,9 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   - first exact probe:
     - `bench_kilo_micro_array_string_store.hako` -> `cache_hit=800000`, `cache_miss_epoch=0`
     - current cache-churn hypothesis is not supported on that exact micro
+  - deeper exact probe:
+    - `bench_kilo_micro_array_string_store.hako` -> `retarget_hit=800000`, `existing_slot=800000`, `source_string_box=800000`
+    - `bench_kilo_micro_concat_const_suffix.hako` AOT run does not hit `const_suffix`; it currently lowers through `nyash.string.concat_hh` + `nyash.string.len_h`
 - `phase-157x` current rule:
   - observer is out-of-band only
   - default build compiles observer out

@@ -53,12 +53,24 @@
  - deeper observe drill-down now exists for:
    - `store.array.str`: `existing_slot / append_slot / source_string_box / source_string_view / source_missing`
    - `const_suffix`: `empty_return / cached_fast_str_hit / cached_span_hit`
+ - exact observe read:
+   - `kilo_micro_array_string_store` AOT direct probe is saturated on one shape:
+     - `cache_hit=800000`
+     - `retarget_hit=800000`
+     - `existing_slot=800000`
+     - `source_string_box=800000`
+   - current cache-churn hypothesis is not supported on that exact micro
+   - `kilo_micro_concat_const_suffix` AOT direct probe does not hit `const_suffix`
+   - the current AOT workload lowers through `nyash.string.concat_hh` and `nyash.string.len_h`
+   - next local trim should therefore target the generic string concat/len consumer, not `concat_hs`
 
 ## Next
 
 1. keep canonical contract corridor landed and immutable
-2. continue canonical `store.array.str` as first exact front
+2. treat `kilo_micro_concat_const_suffix` as the current generic string concat/len front
+   - current AOT consumer: `nyash.string.concat_hh` + `nyash.string.len_h`
+   - current executor: `string_concat_hh_export_impl(...)` + `string_len_from_handle(...)`
+3. keep canonical `store.array.str` as the next exact front
    - current executor: `array_string_store_handle_at(...)`
-3. keep canonical `const_suffix` / `thaw.str + lit.str + str.concat2 + freeze.str` as second exact front
-   - current executor: `concat_const_suffix_fallback(...)`
-4. use exact micro + whole-kilo together before moving to a new leaf
+4. keep canonical `const_suffix` / `thaw.str + lit.str + str.concat2 + freeze.str` as a separate route, but do not assume the current exact micro exercises it
+5. use exact micro + whole-kilo together before moving to a new leaf
