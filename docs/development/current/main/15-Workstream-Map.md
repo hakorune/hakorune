@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-112x vm-family lane naming hardening` |
-| Front | `backend family=vm` と internal lane を canonical 名へ揃える` |
+| Now | `phase-113x kernel vs vm-reference cluster wording correction` |
+| Front | `nyash_kernel` だけを kernel と呼び、`lang/src/vm` を VM/reference cluster に固定する` |
 | Blocker | `none` |
-| Next | `route_orchestrator.rs` / `dispatch.rs` / observability smokes の lane label hardening |
-| After Next | `phase-113x kernel vs vm-reference cluster wording correction` |
+| Next | `nyash_kernel README` / `lang/src/vm README` / execution SSOT wording correction |
+| After Next | `phase-114x execution surface wording closeout` |
 
 ## Current Read
 
@@ -34,6 +34,7 @@ Related:
 - `103` landed with if-only merge / early return parity
 - `104` landed with loop(true)+break-only digits parity on VM and LLVM EXE
 - `105` restored the original long digit OR-chain parity on VM and LLVM EXE
+- `112x` hardened vm-family lane naming to `rust-vm-keep / vm-hako-reference / vm-compat-fallback`
 - `111x` made live selfhost runtime smokes and current docs route-first (`--runtime-route mainline|compat`)
 - `110x` fixed long-lived execution vocabulary SSOT and corrected stale wording in `lang/src/vm` / `tools/selfhost`
 - `80x` is landed; pointer docs are thin again
@@ -49,13 +50,13 @@ Related:
 - `91x` froze the top-level `.hako` wrapper policy after the latest runner/selfhost recuts
 - `92x` closed the proof/compat caller rerun lane against the canonical wrapper homes
 - `93x` moved archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
-- current work is now on `phase-112x vm-family lane naming hardening`
+- current work is now on `phase-113x kernel vs vm-reference cluster wording correction`
 
 ## Successor Corridor
 
-1. `phase-112x vm-family lane naming hardening`
-2. `phase-113x kernel vs vm-reference cluster wording correction`
-3. `phase-114x execution surface wording closeout`
+1. `phase-113x kernel vs vm-reference cluster wording correction`
+2. `phase-114x execution surface wording closeout`
+3. `phase-115x vm route retirement planning`
 
 ## Parked After Optimization
 
@@ -85,8 +86,8 @@ Related:
 ## Reference
 
 - current lane docs:
+  - `docs/development/current/main/phases/phase-113x/README.md`
   - `docs/development/current/main/phases/phase-112x/README.md`
-  - `docs/development/current/main/phases/phase-111x/README.md`
 - recent landed:
   - `docs/development/current/main/phases/phase-103/README.md`
   - `docs/development/current/main/phases/phase-102/README.md`

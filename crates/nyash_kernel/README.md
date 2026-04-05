@@ -1,13 +1,17 @@
 # Nyash Kernel
 
-**Minimal runtime kernel for Nyash language - Plugin-First Architecture**
+**Minimal native/product runtime kernel for Nyash language - Plugin-First Architecture**
 
 Generated: 2025-09-24
 Architecture: Phase 2.4 NyRT→NyKernel Revolution Complete
 
 ## Overview
 
-The Nyash Kernel (`nyash_kernel`) is the minimal runtime core that replaced the legacy NyRT system. This represents a **42% reduction** in runtime complexity by moving from VM-dependent architecture to a unified Plugin-First system.
+The Nyash Kernel (`nyash_kernel`) is the minimal native/product runtime core that replaced the legacy NyRT system. This represents a **42% reduction** in runtime complexity by moving from VM-dependent architecture to a unified Plugin-First system.
+
+Scope note:
+- `nyash_kernel` is the only surface in this repo that should be called `kernel`.
+- `lang/src/vm` is a VM/reference cluster, not a product kernel.
 
 ## Architecture Revolution
 
@@ -132,9 +136,9 @@ Notes:
 - `libnyash_kernel.a` is required for **native executable linking** (AOT/`--emit-exe`/`ny-llvmc --emit exe`).
 - The Python llvmlite **explicit compat/probe keep lane** (`NYASH_LLVM_USE_HARNESS=1`) does not require the static library.
 
-### For VM Backend
+### For VM-family integration
 ```bash
-# Runtime integration (automatic)
+# Explicit keep/reference integration (automatic when those lanes are selected)
 ./target/release/hakorune program.hako
 ```
 
@@ -145,7 +149,7 @@ Notes:
 ### Core Principles
 1. **Minimal Surface**: Only GC, handles, plugins, and process entry
 2. **Plugin-First**: All Box operations through unified plugin host
-3. **C ABI Clean**: Stable interface for LLVM/VM integration
+3. **C ABI Clean**: Stable interface for LLVM/native executable integration
 4. **Zero Legacy**: Complete removal of VM-dependent code paths
 
 ## ChatGPT5 × codex × Claude Collaboration
@@ -158,9 +162,9 @@ This kernel represents a historic achievement in AI-assisted architecture design
 
 ## Integration
 
-The Nyash Kernel integrates seamlessly with:
-- **LLVM Backend**: Static linking via libnyash_kernel.a
-- **VM Backend**: Dynamic plugin loading
+The Nyash Kernel integrates with:
+- **LLVM/native executable route**: Static linking via libnyash_kernel.a
+- **runtime/plugin host surfaces**: Dynamic plugin loading where the product runtime needs it
 - **Build System**: tools/build_llvm.sh integration complete
 
 ---

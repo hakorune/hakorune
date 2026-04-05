@@ -1,5 +1,10 @@
 # Hako VM / Reference Cluster Layout (Current → Target)
 
+Status
+- `lang/src/vm` is a VM/reference cluster.
+- It is not the product kernel.
+- It is not the day-to-day mainline owner.
+
 Current
 - `lang/src/vm/hakorune-vm/` — Hako-side VM/reference implementation
 - `lang/src/vm/boxes/` — Shared helpers (op_handlers, scanners, compare, etc.)
@@ -11,7 +16,7 @@ Mini VM vs Hakorune VM (Roles)
   system is verification: given MIR(JSON v0), compute the return value and
   map it to an exit code (Int → value, Bool → 1/0). It must not depend on
   env/get or include; inputs are passed as inline JSON strings.
-- Hako VM cluster (`lang/src/vm`): reference/conformance executor cluster for
+- Hako VM cluster (`lang/src/vm`): VM/reference executor cluster for
   `vm-hako` and selfhost-side verification lanes. It is not the day-to-day
   mainline owner and should not be described as the product kernel/runtime.
 

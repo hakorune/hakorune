@@ -171,7 +171,7 @@ current lane set:
 
 ## Kernel Naming
 
-### Product kernel
+### Native/product kernel
 
 - [crates/nyash_kernel](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel)
 - native executable linking / AOT runtime core
@@ -182,6 +182,7 @@ current lane set:
 - mini VM / reference semantic executor / boxes / engines
 
 `lang/src/vm` は `kernel` ではなく `VM/reference cluster` として扱う。
+日常 mainline owner でも product runtime core でもない。
 
 ## Deprecation Direction
 

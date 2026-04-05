@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 112x vm-family lane naming hardening
+- **Current (ACTIVE)**: Phase 113x kernel vs vm-reference cluster wording correction
+- **Phase 112x（LANDED）**: vm-family lane naming hardening
 - **Phase 111x（LANDED）**: selfhost runtime route naming cleanup
 - **Phase 110x（LANDED）**: selfhost execution vocabulary SSOT
 - **Phase 105（LANDED）**: digit OR-chain LLVM parity regression
