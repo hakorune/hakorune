@@ -77,6 +77,7 @@ Related:
   - const-handle cache follow-up: `731ms`
   - const empty-flag cache: `723ms`
   - shared text-based const-handle helper: `903ms`
+  - single-closure const suffix fast path: `820ms`
   - first leaf: `crates/nyash_kernel/src/exports/string_helpers.rs::concat_const_suffix_fallback`
   - second leaf: `crates/nyash_kernel/src/plugin/array_string_slot.rs::array_string_store_handle_at`
 

@@ -148,13 +148,14 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   - after const-handle cache follow-up: `c_ms=84 / ny_aot_ms=731`
   - after const empty-flag cache: `c_ms=81 / ny_aot_ms=723`
   - after shared text-based const-handle helper: `c_ms=80 / ny_aot_ms=903`
+  - after single-closure const suffix fast path: `c_ms=83 / ny_aot_ms=820`
   - `kilo_micro_indexof_line`: `c_ms=4 / ny_aot_ms=4`
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
 - latest bundle read:
   - string trace contract unchanged for `concat_hs` / `insert_hsi`
-  - `20260406-004222` bundle still has `concat_const_suffix_fallback` as the top explicit hot symbol (`9.68%`)
-  - `array_string_store_handle_at` is still second (`6.44%`) after string const-path
+  - `20260406-004537` bundle still has `concat_const_suffix_fallback` as the top explicit hot symbol (`10.63%`)
+  - `array_string_store_handle_at` is still second (`5.69%`) after string const-path
 - `phase-137x` delay condition is cleared:
   - compat/string cleanup landed, so perf reopen is current work again
 - first exact slices:

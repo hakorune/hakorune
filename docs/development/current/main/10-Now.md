@@ -68,6 +68,7 @@ Related:
     - after const-handle cache follow-up `731ms`
     - after const empty-flag cache `723ms`
     - after shared text-based const-handle helper `903ms`
+    - after single-closure const suffix fast path `820ms`
 
 ## Root Anchors
 

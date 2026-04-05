@@ -115,6 +115,7 @@ git diff --check
   - const-handle cache follow-up: `c_ms=84 / ny_aot_ms=731`
   - const empty-flag cache: `c_ms=81 / ny_aot_ms=723`
   - shared text-based const-handle helper: `c_ms=80 / ny_aot_ms=903`
+  - single-closure const suffix fast path: `c_ms=83 / ny_aot_ms=820`
   - `kilo_micro_indexof_line`: `c_ms=4 / ny_aot_ms=4`
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
@@ -122,7 +123,7 @@ git diff --check
   - `crates/nyash_kernel/src/exports/string_helpers.rs`
   - first target: `concat_const_suffix_fallback(...)`
   - second target: `array_string_store_handle_at(...)`
-  - latest asm bundle: `20260406-004222`
+  - latest asm bundle: `20260406-004537`
 - `phase-144x` landed:
   - `StringCoreBox.{size,indexOf,lastIndexOf,substring}` now reads through helperized wrapper paths
   - `indexOf(search, fromIndex)` delegates to `StringSearchKernelBox.find_index_from(...)`
