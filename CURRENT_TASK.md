@@ -70,8 +70,8 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 
 - Active lane: `phase-129x vm orchestrator/public gate follow-up`
 - Active micro: public `vm` gate surfaces を source-backed に再点検する
-- Current blocker: `src/cli/args.rs` の `backend=vm` default と `route_orchestrator.rs` の public gate surface がまだ残る
-- Exact focus: `phase128x` で default child path は backend-hint free になったので、次は public help/docs と orchestrator/dispatch の `vm` wording を最後に締める
+- Current blocker: `src/runner/route_orchestrator.rs` の public gate surface と `src/runner/stage1_bridge/direct_route/mod.rs` の binary-only legacy gate がまだ残る
+- Exact focus: `phase128x` で default child path と route tags は canonical 化済みなので、次は orchestrator/direct-route の explicit legacy `vm` gate を最後に締める
 
 ## Successor Corridor
 
@@ -120,7 +120,7 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 - `phase-127x` landed after compat boundary smoke was converted to route-first selfhost contract checks.
 - compat temp-MIR handoff is green again because the helper now receives the parser-EXE preference env internally.
 - `phase-128x` kept the binary-only direct-route vm gate as an explicit legacy contract while removing backend-hint forwarding from the default child path.
-- deeper inventory keeps `src/cli/args.rs`, `src/runner/dispatch.rs`, `src/runner/route_orchestrator.rs`, `tools/selfhost/run.sh`, and `tools/selfhost/lib/selfhost_run_routes.sh` as the next public-gate seam.
+- deeper inventory keeps `src/runner/dispatch.rs`, `src/runner/route_orchestrator.rs`, `src/runner/stage1_bridge/direct_route/mod.rs`, and the legacy compat/proof entry points as the next public-gate seam.
 - current inventory buckets are:
   - compat route: `tools/selfhost/run.sh --runtime --runtime-route compat`
   - proof gates: `tools/selfhost/proof/run_stageb_compiler_vm.sh` / `tools/selfhost/proof/selfhost_vm_smoke.sh`

@@ -20,12 +20,13 @@
 - `phase-128x` is landed with the backend-hint chain narrowed
 - default `stage1_cli_env.hako` child path no longer forwards backend hints
 - runtime child route tags now emit canonical `mainline|compat`
+- `tools/selfhost/lib/selfhost_run_routes.sh` no longer has a raw `--backend vm` fallback in the runtime path
 - binary-only direct-route vm gate remains an explicit legacy contract
-- `phase-129x` follows the remaining public vm gate / orchestrator surfaces
+- `phase-129x` follows the remaining public vm gate / orchestrator / direct-route surfaces
 
 ## Next
 
 1. inventory remaining public `vm` wording in CLI/help/docs
-2. decide whether any public `--backend vm` callsites can be demoted without breaking explicit legacy keep/debug callers
-3. keep the direct-route legacy gate isolated
+2. keep the direct-route legacy gate isolated
+3. decide whether any public `--backend vm` callsites can be demoted without breaking explicit legacy keep/debug callers
 4. then move to the next vm public-gate cleanup lane

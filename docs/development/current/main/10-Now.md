@@ -14,7 +14,7 @@ Related:
 
 - lane: `phase-129x vm orchestrator/public gate follow-up`
 - current front: public `vm` gate surfaces を source-backed に再点検する
-- blocker: `src/cli/args.rs` の `backend=vm` default と `route_orchestrator.rs` の public gate surface がまだ残る
+- blocker: `src/runner/route_orchestrator.rs` の public gate surface と `src/runner/stage1_bridge/direct_route/mod.rs` の binary-only legacy gate がまだ残る
 - recent landed:
   - `phase-127x compat route raw vm cut prep`
   - `phase-125x vm bridge/backend gate follow-up`

@@ -235,11 +235,6 @@ run_runtime() {
     run_runtime_temp_mir_handoff
     return
   fi
-  if [ -n "$timeout_secs" ]; then
-    env "${env_prefix[@]}" timeout "$timeout_secs" "$NYASH_BIN" --backend vm "$input_file"
-  else
-    env "${env_prefix[@]}" "$NYASH_BIN" --backend vm "$input_file"
-  fi
 }
 
 run_direct() {

@@ -16,8 +16,8 @@ Related:
 | --- | --- |
 | Now | `phase-129x vm orchestrator/public gate follow-up` |
 | Front | public `vm` gate surfaces を source-backed に再点検する |
-| Blocker | `src/cli/args.rs` の `backend=vm` default と `route_orchestrator.rs` の public gate surface がまだ残る |
-| Next | `public help/docs` と `dispatch` / `route_orchestrator` の `vm` wording を締める |
+| Blocker | `src/runner/route_orchestrator.rs` の public gate surface と `src/runner/stage1_bridge/direct_route/mod.rs` の binary-only legacy gate がまだ残る |
+| Next | `dispatch` / `route_orchestrator` / `direct_route` の explicit legacy `vm` wording を締める |
 | After Next | `phase-130x vm public gate final cleanup` |
 
 ## Current Read
