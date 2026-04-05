@@ -259,7 +259,7 @@ NYASH_LLVM_DEBUG_PHI=1 NYASH_LLVM_DEBUG_PHI_TRACE=1 \
 | 変数 | デフォルト | 説明 |
 | --- | --- | --- |
 | `NYASH_BIN` | `./target/release/hakorune` | hakorune バイナリのパス |
-| `NYASH_LLVM_COMPILER` | `harness` | `tools/build_llvm.sh` のローカル mode selector。`harness` または `crate`。mainline backend boundary の ny-llvmc path truth には使わない |
+| `NYASH_LLVM_COMPILER` | `crate` | `tools/build_llvm.sh` のローカル mode selector。`harness` または `crate`。mainline backend boundary の ny-llvmc path truth には使わない |
 | `NYASH_NY_LLVM_COMPILER` | `target/release/ny-llvmc` | ny-llvmc バイナリのパス。backend-zero thin boundary / selfhost / stage1 helper で使う path truth |
 | `NYASH_LLVM_FEATURE` | `llvm` | LLVM feature flag (`llvm` または `llvm-inkwell-legacy`) |
 | `NYASH_LLVM_OBJ_OUT` | `target/aot_objects/<stem>.o` | オブジェクトファイル出力パス |
@@ -278,7 +278,7 @@ NYASH_LLVM_DEBUG_PHI=1 NYASH_LLVM_DEBUG_PHI_TRACE=1 \
 | `NYASH_LLVM_EMIT` | `obj` | 出力タイプ: `obj` または `exe` (crate only) |
 | `NYASH_LLVM_NYRT` | `crates/nyash_kernel/target/release` | Nyash Kernel runtime パス |
 | `NYASH_LLVM_LIBS` | (empty) | 追加リンクライブラリ |
-| `NYASH_LLVM_USE_HARNESS` | (auto) | Python llvmlite の explicit compat/probe keep lane を強制 |
+| `NYASH_LLVM_USE_HARNESS` | explicit keep only | Python llvmlite の explicit compat/probe keep lane を要求する legacy hint。daily object emit の current owner ではない |
 
 ### LLVM harness debug（Python llvmlite）
 

@@ -7,8 +7,8 @@ use super::{env_bool, env_flag, warn_alias_once};
 
 // ---- LLVM harness toggle (llvmlite) ----
 pub fn llvm_use_harness() -> bool {
-    // Phase 15: デフォルトON（LLVMバックエンドはPythonハーネス使用）
-    // NYASH_LLVM_USE_HARNESS=0 で明示的に無効化可能
+    // Legacy compat hint for harness execution/replay lanes.
+    // Daily object emit no longer reads this as the mainline owner gate.
     if let Some(v) = env_flag("NYASH_LLVM_USE_HARNESS") {
         return v;
     }
@@ -17,7 +17,7 @@ pub fn llvm_use_harness() -> bool {
         warn_alias_once("HAKO_LLVM_USE_HARNESS", "NYASH_LLVM_USE_HARNESS");
         return v;
     }
-    true // デフォルト: ON（ハーネス使用）
+    true // legacy default remains ON for surviving harness keep callers
 }
 
 /// LLVM opt level (primary: NYASH_LLVM_OPT_LEVEL; alias: HAKO_LLVM_OPT_LEVEL)

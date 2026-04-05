@@ -74,7 +74,7 @@ NYASH_DISABLE_PLUGINS = "1"
 - NYASH_LLVM_VINVOKE_RET_SMOKE, NYASH_LLVM_ARRAY_RET_SMOKE: CI 用スモークトグル
 - NYASH_LLVM_OBJ_OUT: LLVM経路で生成する `.o` の出力パス（Runner/スクリプトが尊重）
 - NYASH_AOT_OBJECT_OUT: AOT パイプラインで使用する `.o` 出力ディレクトリ/パス
-- NYASH_LLVM_USE_HARNESS: "1" で llvmlite ハーネス経路を有効化（MIR(JSON)→Python→.ll→llc→.o）
+- NYASH_LLVM_USE_HARNESS: "1" で llvmlite compat/probe keep lane を要求する legacy hint（daily object emit の current owner ではない）
 
 ## AotPrep / Numeric Core（Phase 25 実験用）
 - NYASH_AOT_COLLECTIONS_HOT: Array/Map boxcall を externcall に書き換えるホットパス（CollectionsHot パスを有効化）
@@ -82,7 +82,7 @@ NYASH_DISABLE_PLUGINS = "1"
 - NYASH_AOT_NUMERIC_CORE_TRACE: 上記 numeric core パスの詳細トレース（"1" で `mul_naive/at/set` など候補 BoxCall を stderr にログ出力）
 
 ### LLVM Feature 詳細
-- **llvm** (デフォルト): llvmlite Python ハーネス使用、LLVM_SYS_180_PREFIX不要
+- **llvm** (デフォルト): ny-llvmc mainline route、LLVM_SYS_180_PREFIX不要
 - **llvm-inkwell-legacy**: Rust inkwell bindings使用、LLVM_SYS_180_PREFIX必要
 
 ## 管理方針（提案）
