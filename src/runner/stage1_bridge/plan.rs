@@ -35,7 +35,7 @@ fn decide_with_flags(
         };
     }
 
-    if run_direct_enabled {
+    if args_result.mode == Stage1ArgsMode::Run && run_direct_enabled {
         return Stage1BridgePlan::BinaryOnlyRunDirect {
             reason: "explicit:NYASH_STAGE1_BINARY_ONLY_RUN_DIRECT=1",
         };
@@ -91,6 +91,17 @@ mod tests {
             plan.reason(),
             "explicit:NYASH_STAGE1_BINARY_ONLY_RUN_DIRECT=1"
         );
+    }
+
+    #[test]
+    fn run_direct_is_not_selected_for_emit_shapes() {
+        let args = make_args(
+            &["emit", "mir-json", "foo.hako"],
+            Stage1ArgsMode::EmitMirJson,
+        );
+        let plan = decide_with_flags(&args, false, true);
+        assert!(matches!(plan, Stage1BridgePlan::Stage1Stub { .. }));
+        assert_eq!(plan.reason(), "default:stage1-stub");
     }
 
     #[test]
