@@ -12,9 +12,9 @@ Related:
 
 ## Current
 
-- lane: `phase-133x mainline/compiler resume selection`
-- current front: vm cleanup を current から外し、次の compiler/mainline lane を固定する
-- blocker: vm-family caller-zero は parked debt のまま残るが、mainline 再開の blocker ではない
+- lane: `phase-133x micro kilo reopen selection`
+- current front: `micro kilo` を current に固定し、first slice を `kilo_micro_substring_concat` に寄せる
+- blocker: stop-line は順番だけ。`main kilo` や broad array retune に飛ばない
 - recent landed:
   - `phase-131x vm legacy contract migration`
   - `phase-130x vm public gate final cleanup`
@@ -54,12 +54,16 @@ Related:
 - `phase-103` landed with if-only merge / early return parity on VM and LLVM EXE
 - `phase-104` landed with loop(true)+break-only digits parity on VM and LLVM EXE
 - `phase-105` restored the original long digit OR-chain parity on VM and LLVM EXE
-- current work is the stage1 bridge vm gate softening lane:
-  - compat boundary smoke is route-first and green
-  - compat temp-MIR handoff is green again with the parser-EXE preference env applied internally
-  - the default `stage1_cli_env.hako` child path no longer forwards backend hints
-  - phase-132x decision is fixed: default `vm` should be removed now
-  - caller buckets stay explicit: default removal は landed、残りの vm-family caller-zero は parked debt
+- vm cleanup is no longer current work
+- fixed perf reopen order is:
+  - `leaf-proof micro`
+  - `micro kilo`
+  - `main kilo`
+- current `micro kilo` ranking is:
+  - `kilo_micro_substring_concat` first
+  - `kilo_micro_array_getset` second
+  - `kilo_micro_indexof_line` third
+- `array_getset` is no longer the first owner target; it stays as a recheck lane because its direct-route same-artifact proof is already strong
 
 ## Root Anchors
 
@@ -70,4 +74,4 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-132x/README.md`
+2. `docs/development/current/main/phases/phase-133x/README.md`

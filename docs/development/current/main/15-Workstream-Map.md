@@ -14,10 +14,10 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-133x mainline/compiler resume selection` |
-| Front | vm cleanup を current から外し、次の compiler/mainline lane を固定する |
-| Blocker | vm-family caller-zero は parked debt のまま残るが、mainline 再開の blocker ではない |
-| Next | compiler/mainline 実装 lane を起こす |
+| Now | `phase-133x micro kilo reopen selection` |
+| Front | `micro kilo` を current に固定し、first slice を `kilo_micro_substring_concat` に寄せる |
+| Blocker | stop-line は順番だけ。`main kilo` や broad array retune に飛ばない |
+| Next | `kilo_micro_substring_concat` owner lock |
 | After Next | `phase-kx vm-hako small reference interpreter recut` |
 
 ## Current Read
@@ -69,11 +69,17 @@ Related:
 - `93x` moved archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
 - current work is now on `phase-132x vm default backend decision`
 - `132x` landed: `--backend` now defaults to `mir`, public help/docs read `mainline/default mir`, `using_e2e_smoke.sh` moved to route-first mainline, and explicit proof/debug callers stay alive
-- current work is no longer vm cleanup; caller-zero remains parked debt while mainline/compiler work resumes
+- vm caller-zero is now parked debt while perf/mainline work resumes
+- fixed perf reopen order is `leaf-proof micro -> micro kilo -> main kilo`
+- current `micro kilo` ranking is:
+  - `kilo_micro_substring_concat` first
+  - `kilo_micro_array_getset` second
+  - `kilo_micro_indexof_line` third
+- `array_getset` already has strong direct-route same-artifact proof, so it is a recheck lane rather than the first owner target
 
 ## Successor Corridor
 
-1. `phase-133x mainline/compiler resume selection`
+1. `phase-133x micro kilo reopen selection`
 2. `phase-kx vm-hako small reference interpreter recut`
 
 ## Parked After Optimization

@@ -20,11 +20,11 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-133x mainline/compiler resume selection`
-- current front: vm cleanup を current から外し、次の compiler/mainline lane を固定する
-- blocker: vm-family caller-zero は parked debt のまま残るが、mainline 再開の blocker ではない
+- lane: `phase-133x micro kilo reopen selection`
+- current front: `micro kilo` を current に固定し、first slice を `kilo_micro_substring_concat` に寄せる
+- blocker: stop-line は順番だけ。`main kilo` や broad array retune に飛ばない
 - landed: `phase-132x vm default backend decision`
-- active next: `phase-133x mainline/compiler resume selection`
+- active next: `phase-133x micro kilo reopen selection`
 - recent landed:
   - `phase-130x vm public gate final cleanup`
   - `phase-129x vm orchestrator/public gate follow-up`
@@ -60,7 +60,7 @@ tools/checks/dev_gate.sh quick
 ## Successor Corridor
 
 1. `phase-132x vm default backend decision`
-2. `phase-133x mainline/compiler resume selection`
+2. `phase-133x micro kilo reopen selection`
 
 ## Parked After Optimization
 
@@ -70,17 +70,15 @@ tools/checks/dev_gate.sh quick
 
 - keep `stage / route / backend override / lane / kernel` split fixed
 - keep VM family lane names fixed
-- keep `--backend vm` in compat/proof/debug only and demote broad docs/manual wording before touching the backend gate again
-- default `stage1_cli_env.hako` child path is backend-hint free
-- current buckets:
-  - compat route: `run.sh --runtime --runtime-route compat`
-  - proof gates: `tools/selfhost/proof/run_stageb_compiler_vm.sh`, `tools/selfhost/proof/selfhost_vm_smoke.sh`
-  - debug/observability: phase29x vm-family smokes
-  - route-first candidates: `tools/using_e2e_smoke.sh` only; other JSON v0 / json-file / debug helpers stay explicit vm keep
-  - delete/archive: none in the active tree
-- decision:
-  - remove `vm` from the default backend now
-  - keep explicit vm / vm-hako proof-debug lanes alive
+- vm caller-zero is now parked debt, not current work
+- fixed perf order:
+  - `leaf-proof micro`
+  - `micro kilo`
+  - `main kilo`
+- current exact reopen point:
+  - first owner: `kilo_micro_substring_concat`
+  - recheck lane: `kilo_micro_array_getset`
+  - stable baseline: `kilo_kernel_small_hk`
 
 ## Current Proof Bundle
 
