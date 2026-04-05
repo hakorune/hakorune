@@ -15,7 +15,8 @@
 - [x] keep compat fallback env explicit
 - [x] default `stage1_cli_env.hako` child path stays backend-hint free
 - [x] `BinaryOnlyRunDirect` plan no longer depends on backend CLI hint
-- [ ] decide whether the binary-only direct-route vm gate should remain as an explicit legacy contract
+- [x] decide whether the binary-only direct-route vm gate should remain as an explicit legacy contract
+- [x] result: keep the binary-only direct-route vm gate as an explicit legacy contract
 
 ## C. Proof
 

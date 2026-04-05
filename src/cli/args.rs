@@ -137,7 +137,7 @@ pub fn build_command() -> Command {
             Arg::new("backend")
                 .long("backend")
                 .value_name("BACKEND")
-                .help("Explicit backend override family: product/native (llvm), legacy keep/debug (vm), reference/conformance (vm-hako), or historical interpreter")
+                .help("Legacy explicit backend override family: product/native (llvm), legacy keep/debug (vm), reference/conformance (vm-hako), or historical interpreter")
                 .default_value("vm"),
         )
         .arg(Arg::new("verbose").long("verbose").short('v').help("Verbose CLI output (sets NYASH_CLI_VERBOSE=1)").action(clap::ArgAction::SetTrue))

@@ -49,7 +49,6 @@ Examples:
   tools/selfhost/run.sh --steady-state --cleanup-old-logs
   tools/selfhost/run.sh --runtime --input apps/examples/string_p0.hako
   tools/selfhost/run.sh --runtime --runtime-route mainline --input apps/examples/string_p0.hako
-  tools/selfhost/run.sh --runtime --runtime-mode exe --input apps/examples/string_p0.hako
   tools/selfhost/run.sh --runtime --runtime-mode stage-a-compat --input apps/examples/string_p0.hako
   tools/selfhost/run.sh --direct --source-file apps/tests/phase29bq_selfhost_cleanup_only_min.hako
 USAGE

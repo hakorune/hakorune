@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 128x stage1 bridge vm gate softening
+- **Current (ACTIVE)**: Phase 129x vm orchestrator/public gate follow-up
+- **Phase 128x（LANDED）**: stage1 bridge vm gate softening
 - **Phase 126x（LANDED）**: vm public gate shrink decision
 - **Phase 125x（LANDED）**: vm bridge/backend gate follow-up
 - **Phase 124x（LANDED）**: vm public docs/manual demotion
@@ -37,6 +38,7 @@
 
 ### Recent Landed
 
+- **Phase 128x（LANDED）**: stage1 bridge vm gate softening
 - **Phase 127x（LANDED）**: compat route raw vm cut prep
 - **Phase 90x（LANDED）**: current-doc/design stale surface hygiene
 - **Phase 89x（LANDED）**: next source lane selection

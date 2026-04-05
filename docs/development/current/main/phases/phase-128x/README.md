@@ -13,16 +13,19 @@
   - `stage1_bridge` backend-hint chain is source-backed and narrow
   - default `stage1_cli_env.hako` child paths no longer forward backend hints
   - raw `--backend vm` is no longer treated as a public compat/direct bridge surface
+  - binary-only direct-route vm gate remains explicit legacy and isolated
 
 ## Decision Now
 
 - `phase-127x` is landed
-- `phase-128x` softens the `stage1_bridge` backend-hint chain next
-- `stage1_bridge/direct_route/mod.rs` is the first hard-gate seam to inventory
+- `phase-128x` landed with the `stage1_bridge` backend-hint chain narrowed
+- default `stage1_cli_env.hako` child path no longer forwards backend hints
+- binary-only direct-route vm gate remains an explicit legacy contract
+- `phase-129x` follows the remaining public vm gate / orchestrator surfaces
 
 ## Next
 
-1. isolate which helper still requires `backend=vm`
-2. keep compat fallback explicit while shrinking the bridge hint chain
-3. decide whether the binary-only direct-route vm gate should stay as an explicit legacy contract
-4. then move to `phase-129x vm orchestrator/public gate follow-up`
+1. inventory remaining public `vm` wording in CLI/help/docs
+2. decide whether any public `--backend vm` callsites can be demoted without breaking explicit legacy keep/debug callers
+3. keep the direct-route legacy gate isolated
+4. then move to the next vm public-gate cleanup lane

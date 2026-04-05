@@ -20,11 +20,14 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-128x stage1 bridge vm gate softening`
-- current front: `stage1_bridge` の backend-hint chain を source-backed に薄くする
-- blocker: `stage1_bridge/direct_route/mod.rs` が binary-only direct route の explicit legacy vm gate を保つ
+- lane: `phase-129x vm orchestrator/public gate follow-up`
+- current front: public `vm` gate surfaces を source-backed に再点検する
+- blocker: `src/cli/args.rs` の `backend=vm` default と `route_orchestrator.rs` の public gate surface がまだ残る
+- landed: `phase-128x` backend-hint chain narrowing
+- active next: `phase-129x vm orchestrator/public gate follow-up`
 - recent landed:
   - `phase-127x compat route raw vm cut prep`
+  - `phase-128x stage1 bridge vm gate softening`
   - `phase-125x vm bridge/backend gate follow-up`
   - `phase-124x vm public docs/manual demotion`
   - `phase-123x proof gate shrink follow-up`
@@ -54,9 +57,8 @@ tools/checks/dev_gate.sh quick
 
 ## Successor Corridor
 
-1. `phase-127x compat route raw vm cut prep`
-2. `phase-128x stage1 bridge vm gate softening`
-3. `phase-129x vm orchestrator/public gate follow-up`
+1. `phase-129x vm orchestrator/public gate follow-up`
+2. `phase-130x vm public gate final cleanup`
 
 ## Parked After Optimization
 

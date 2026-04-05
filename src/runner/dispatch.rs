@@ -206,7 +206,7 @@ pub(crate) fn execute_file_with_backend(runner: &NyashRunner, filename: &str) {
         }
         "vm" => {
             crate::cli_v!(
-                "🚀 Hakorune Explicit VM Family Keep Route - Executing file: {} 🚀",
+                "🚀 Hakorune Legacy VM Keep/Debug Route - Executing file: {} 🚀",
                 filename
             );
             if !super::route_orchestrator::execute_vm_family_route(runner, "vm", filename) {
