@@ -35,6 +35,7 @@ impl std::fmt::Debug for StringViewBox {
 }
 
 impl StringViewBox {
+    #[inline(always)]
     pub(crate) fn new(
         base_handle: i64,
         base_obj: Arc<dyn NyashBox>,
@@ -55,6 +56,7 @@ impl StringViewBox {
         }
     }
 
+    #[inline(always)]
     fn materialize_owned(&self) -> String {
         resolve_string_span_from_view(self)
             .map(|span| span.as_str().to_string())
@@ -138,14 +140,17 @@ impl StringSpan {
         self.end
     }
 
+    #[inline(always)]
     pub(crate) fn len(&self) -> usize {
-        self.as_str().len()
+        self.span_bytes_len()
     }
 
+    #[inline(always)]
     pub(super) fn span_bytes_len(&self) -> usize {
         self.end.saturating_sub(self.start)
     }
 
+    #[inline(always)]
     pub(crate) fn as_str(&self) -> &str {
         let Some(sb) = self.base_obj.as_any().downcast_ref::<StringBox>() else {
             return "";
@@ -153,6 +158,7 @@ impl StringSpan {
         sb.value.get(self.start..self.end).unwrap_or("")
     }
 
+    #[inline(always)]
     pub(crate) fn slice_range(&self, start: usize, end: usize) -> Self {
         let (st, en) = clamp_usize_range(self.span_bytes_len(), start, end);
         Self {
@@ -163,6 +169,7 @@ impl StringSpan {
         }
     }
 
+    #[inline(always)]
     pub(crate) fn into_view_box(self) -> StringViewBox {
         StringViewBox::new(self.base_handle, self.base_obj, self.start, self.end)
     }
@@ -436,6 +443,7 @@ fn trace_borrowed_substring_plan(
     string_trace::emit("carrier", result, reason, &extra);
 }
 
+#[inline(always)]
 pub(crate) fn resolve_string_span_from_obj(
     handle: i64,
     obj: Arc<dyn NyashBox>,
@@ -455,6 +463,7 @@ pub(crate) fn resolve_string_span_from_obj(
     None
 }
 
+#[inline(always)]
 fn resolve_string_span_from_handle_uncached(handle: i64) -> Option<StringSpan> {
     if handle <= 0 {
         return None;
@@ -481,10 +490,12 @@ fn resolve_string_span_from_handle_with_epoch(handle: i64, drop_epoch: u64) -> O
     Some(span)
 }
 
+#[inline(always)]
 pub(crate) fn resolve_string_span_from_handle(handle: i64) -> Option<StringSpan> {
     resolve_string_span_from_handle_with_epoch(handle, handles::drop_epoch())
 }
 
+#[inline(always)]
 pub(crate) fn resolve_string_span_pair_from_handles(
     a_h: i64,
     b_h: i64,
@@ -521,6 +532,7 @@ pub(crate) fn resolve_string_span_pair_from_handles(
     Some((a_span, b_span))
 }
 
+#[inline(always)]
 pub(crate) fn resolve_string_span_triplet_from_handles(
     a_h: i64,
     b_h: i64,
@@ -569,6 +581,7 @@ pub(crate) fn resolve_string_span_triplet_from_handles(
     Some((a_span, b_span, c_span))
 }
 
+#[inline(always)]
 fn resolve_string_span_from_view(view: &StringViewBox) -> Option<StringSpan> {
     // Fast path: v0 views keep a strong root reference to avoid repeated
     // registry lookup on every string helper call.

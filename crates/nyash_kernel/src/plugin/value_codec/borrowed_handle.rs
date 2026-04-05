@@ -104,6 +104,7 @@ impl NyashBox for BorrowedHandleBox {
     }
 }
 
+#[inline(always)]
 pub(crate) fn maybe_borrow_string_handle(
     obj: Arc<dyn NyashBox>,
     source_handle: i64,

@@ -98,8 +98,12 @@ pub(crate) fn string_is_empty_from_handle(handle: i64) -> Option<bool> {
     fallback
 }
 
+#[inline(always)]
 fn string_handle_from_owned(value: String) -> i64 {
     let len = value.len();
+    if len == 0 {
+        return shared_empty_string_handle();
+    }
     let handle = materialize_owned_string(value);
     if string_trace::enabled() {
         let extra = format!("source=owned len={} handle={}", len, handle);
@@ -191,6 +195,7 @@ fn concat_three_str(a: &str, b: &str, c: &str) -> String {
     out
 }
 
+#[inline(always)]
 fn shared_empty_string_handle() -> i64 {
     #[cfg(test)]
     {

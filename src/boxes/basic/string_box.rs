@@ -15,6 +15,7 @@ pub struct StringBox {
 }
 
 impl StringBox {
+    #[inline(always)]
     pub fn new(value: impl Into<String>) -> Self {
         Self {
             value: value.into(),
@@ -22,6 +23,7 @@ impl StringBox {
         }
     }
 
+    #[inline(always)]
     pub fn empty() -> Self {
         Self::new("")
     }

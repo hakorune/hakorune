@@ -1,4 +1,5 @@
 use super::string_view::{resolve_string_span_from_handle, StringSpan};
+use std::ptr;
 
 #[derive(Clone, Debug)]
 pub(crate) enum TextPiece<'a> {
@@ -7,6 +8,7 @@ pub(crate) enum TextPiece<'a> {
 }
 
 impl<'a> TextPiece<'a> {
+    #[inline(always)]
     fn len(&self) -> usize {
         match self {
             Self::Span(span) => span.len(),
@@ -14,15 +16,46 @@ impl<'a> TextPiece<'a> {
         }
     }
 
+    #[inline(always)]
     fn is_empty(&self) -> bool {
         self.len() == 0
     }
 
-    fn append_to(&self, out: &mut String) {
+    #[inline(always)]
+    fn append_to_reserved(&self, out: &mut String) {
         match self {
-            Self::Span(span) => out.push_str(span.as_str()),
-            Self::Inline(text) => out.push_str(text),
+            Self::Span(span) => {
+                let text = span.as_str();
+                let len = text.len();
+                if len == 0 {
+                    return;
+                }
+                let dst_len = out.len();
+                unsafe {
+                    let dst = out.as_mut_ptr().add(dst_len);
+                    ptr::copy_nonoverlapping(text.as_ptr(), dst, len);
+                    out.as_mut_vec().set_len(dst_len + len);
+                }
+            }
+            Self::Inline(text) => {
+                let len = text.len();
+                if len == 0 {
+                    return;
+                }
+                let dst_len = out.len();
+                unsafe {
+                    let dst = out.as_mut_ptr().add(dst_len);
+                    ptr::copy_nonoverlapping(text.as_ptr(), dst, len);
+                    out.as_mut_vec().set_len(dst_len + len);
+                }
+            }
         }
+    }
+
+    #[inline(always)]
+    fn append_to(&self, out: &mut String) {
+        out.reserve(self.len());
+        self.append_to_reserved(out);
     }
 }
 
@@ -51,18 +84,22 @@ pub(crate) enum TextPlan<'a> {
 }
 
 impl<'a> TextPlan<'a> {
+    #[inline(always)]
     pub(crate) fn from_span(span: StringSpan) -> Self {
         Self::View1(span)
     }
 
+    #[inline(always)]
     pub(crate) fn from_owned(value: String) -> Self {
         Self::OwnedTmp(value)
     }
 
+    #[inline(always)]
     pub(crate) fn from_handle(handle: i64) -> Option<Self> {
         resolve_string_span_from_handle(handle).map(Self::View1)
     }
 
+    #[inline(always)]
     fn from_pair(a: TextPiece<'a>, b: TextPiece<'a>) -> Self {
         match (a.is_empty(), b.is_empty()) {
             (true, true) => Self::OwnedTmp(String::new()),
@@ -81,10 +118,12 @@ impl<'a> TextPlan<'a> {
         }
     }
 
+    #[inline(always)]
     pub(crate) fn from_two(a: TextPiece<'a>, b: TextPiece<'a>) -> Self {
         Self::from_pair(a, b)
     }
 
+    #[inline(always)]
     pub(crate) fn from_three(a: TextPiece<'a>, b: TextPiece<'a>, c: TextPiece<'a>) -> Self {
         match (a.is_empty(), b.is_empty(), c.is_empty()) {
             (true, true, true) => Self::OwnedTmp(String::new()),
@@ -159,6 +198,7 @@ impl<'a> TextPlan<'a> {
         }
     }
 
+    #[inline(always)]
     pub(crate) fn concat_inline(self, inline: &'a str) -> Self {
         if inline.is_empty() {
             return self;
@@ -192,10 +232,10 @@ impl<'a> TextPlan<'a> {
                 total_len,
             } => {
                 let mut out = String::with_capacity(total_len.saturating_add(inline.len()));
-                a.append_to(&mut out);
-                b.append_to(&mut out);
-                c.append_to(&mut out);
-                d.append_to(&mut out);
+                a.append_to_reserved(&mut out);
+                b.append_to_reserved(&mut out);
+                c.append_to_reserved(&mut out);
+                d.append_to_reserved(&mut out);
                 out.push_str(inline);
                 Self::OwnedTmp(out)
             }
@@ -206,6 +246,7 @@ impl<'a> TextPlan<'a> {
         }
     }
 
+    #[inline(always)]
     pub(crate) fn insert_inline(self, middle: &'a str, split: usize) -> Self {
         if middle.is_empty() {
             return self;
@@ -240,20 +281,28 @@ impl<'a> TextPlan<'a> {
         }
     }
 
+    #[inline(always)]
     pub(crate) fn into_owned(self) -> String {
         match self {
-            Self::View1(span) => span.as_str().to_string(),
+            Self::View1(span) => {
+                let text = span.as_str();
+                if text.is_empty() {
+                    String::new()
+                } else {
+                    text.to_string()
+                }
+            }
             Self::Pieces2 { a, b, total_len } => {
                 let mut out = String::with_capacity(total_len);
-                a.append_to(&mut out);
-                b.append_to(&mut out);
+                a.append_to_reserved(&mut out);
+                b.append_to_reserved(&mut out);
                 out
             }
             Self::Pieces3 { a, b, c, total_len } => {
                 let mut out = String::with_capacity(total_len);
-                a.append_to(&mut out);
-                b.append_to(&mut out);
-                c.append_to(&mut out);
+                a.append_to_reserved(&mut out);
+                b.append_to_reserved(&mut out);
+                c.append_to_reserved(&mut out);
                 out
             }
             Self::Pieces4 {
@@ -264,10 +313,10 @@ impl<'a> TextPlan<'a> {
                 total_len,
             } => {
                 let mut out = String::with_capacity(total_len);
-                a.append_to(&mut out);
-                b.append_to(&mut out);
-                c.append_to(&mut out);
-                d.append_to(&mut out);
+                a.append_to_reserved(&mut out);
+                b.append_to_reserved(&mut out);
+                c.append_to_reserved(&mut out);
+                d.append_to_reserved(&mut out);
                 out
             }
             Self::OwnedTmp(text) => text,

@@ -13,7 +13,7 @@ trait StringSpanCachePolicy {
 struct DefaultStringSpanCachePolicy;
 
 impl StringSpanCachePolicy for DefaultStringSpanCachePolicy {
-    const SLOTS: usize = 2;
+    const SLOTS: usize = 3;
     const MAX_SPAN_BYTES: usize = 256;
 
     #[inline(always)]
@@ -32,7 +32,7 @@ type ActiveStringSpanCachePolicy = DefaultStringSpanCachePolicy;
 // Keep small-to-medium spans in the TLS cache; larger strings are common
 // in kilo/text loops and benefit from avoiding repeated handle map lookups.
 const STRING_SPAN_CACHE_SLOTS: usize = ActiveStringSpanCachePolicy::SLOTS;
-const _: [(); 2] = [(); STRING_SPAN_CACHE_SLOTS];
+const _: [(); 3] = [(); STRING_SPAN_CACHE_SLOTS];
 
 #[inline(always)]
 fn active_string_span_cache_policy_mode() -> StringSpanCachePolicyMode {
@@ -62,14 +62,14 @@ impl StringSpanCacheState {
     const fn new() -> Self {
         Self {
             drop_epoch: 0,
-            slots: [None, None],
+            slots: [None, None, None],
         }
     }
 
     fn ensure_epoch(&mut self, drop_epoch: u64) {
         if self.drop_epoch != drop_epoch {
             self.drop_epoch = drop_epoch;
-            self.slots = [None, None];
+            self.slots = [None, None, None];
         }
     }
 }

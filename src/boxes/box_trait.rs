@@ -16,6 +16,7 @@ pub type SharedNyashBox = Arc<dyn NyashBox>;
 
 /// 🔥 BoxBase + BoxCore革命 - 統一ID生成システム
 /// CharmFlow教訓を活かした互換性保証の基盤
+#[inline(always)]
 pub fn next_box_id() -> u64 {
     static COUNTER: AtomicU64 = AtomicU64::new(1);
     COUNTER.fetch_add(1, Ordering::Relaxed)
@@ -77,6 +78,7 @@ pub struct BoxBase {
 
 impl BoxBase {
     /// 新しいBoxBase作成 - 安全なID生成
+    #[inline(always)]
     pub fn new() -> Self {
         Self {
             id: next_box_id(),
@@ -85,6 +87,7 @@ impl BoxBase {
     }
 
     /// ビルトインBox継承用コンストラクタ
+    #[inline(always)]
     pub fn with_parent_type(parent_type_id: std::any::TypeId) -> Self {
         Self {
             id: next_box_id(),

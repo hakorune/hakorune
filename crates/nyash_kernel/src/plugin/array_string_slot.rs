@@ -1,7 +1,6 @@
 use super::array_guard::valid_handle_idx;
 use super::value_codec::{
-    is_string_handle_source, store_string_box_from_source, store_string_box_from_string_source,
-    try_retarget_borrowed_string_slot_with_source,
+    store_string_box_from_source, try_retarget_borrowed_string_slot_with_source,
 };
 use crate::exports::string_view::resolve_string_span_from_handle;
 use memchr::{memchr, memmem};
@@ -121,6 +120,8 @@ pub(super) fn array_string_indexof_by_index(handle: i64, idx: i64, needle_h: i64
     })
 }
 
+#[inline(always)]
+#[inline(always)]
 pub(super) fn array_string_store_handle_at(handle: i64, idx: i64, value_h: i64) -> i64 {
     if !valid_handle_idx(handle, idx) || value_h <= 0 {
         return 0;
@@ -145,12 +146,7 @@ pub(super) fn array_string_store_handle_at(handle: i64, idx: i64, value_h: i64) 
                         }
                     }
                 }
-                let value = match source_obj {
-                    Some(value_obj) if is_string_handle_source(value_obj) => {
-                        store_string_box_from_string_source(value_h, value_obj, drop_epoch)
-                    }
-                    _ => store_string_box_from_source(value_h, source_obj, drop_epoch),
-                };
+                let value = store_string_box_from_source(value_h, source_obj, drop_epoch);
                 if idx < items.len() {
                     items[idx] = value;
                 } else {
