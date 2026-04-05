@@ -11,7 +11,7 @@ pub(super) fn execute_emit_mir(
     reason: &'static str,
 ) -> i32 {
     crate::runtime::get_global_ring0().log.warn(&format!(
-        "[stage1-cli] emit-mir: binary-only direct route engaged ({})",
+        "[stage1-cli] emit-mir: binary-only direct route engaged (legacy keep, {})",
         reason
     ));
     match super::super::direct_route::emit_mir_binary_only_direct(runner, groups) {
@@ -27,7 +27,7 @@ pub(super) fn execute_emit_mir(
 
 pub(super) fn execute_run(runner: &NyashRunner, groups: &CliGroups, reason: &'static str) -> i32 {
     crate::runtime::get_global_ring0().log.warn(&format!(
-        "[stage1-cli] run: binary-only direct route engaged ({})",
+        "[stage1-cli] run: binary-only direct route engaged (legacy keep, {})",
         reason
     ));
     match super::super::direct_route::run_binary_only_direct(runner, groups) {

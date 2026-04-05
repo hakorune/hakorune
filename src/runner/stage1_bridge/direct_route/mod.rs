@@ -25,7 +25,7 @@ pub(super) fn run_binary_only_direct(
 ) -> Result<i32, String> {
     if groups.backend.backend != "vm" {
         return Err(format!(
-            "unsupported backend for run binary-only direct route: {}",
+            "binary-only direct route is legacy keep; backend must be vm (got {})",
             groups.backend.backend
         ));
     }

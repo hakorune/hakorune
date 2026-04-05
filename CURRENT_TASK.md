@@ -71,7 +71,7 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 - Active lane: `phase-129x vm orchestrator/public gate follow-up`
 - Active micro: public `vm` gate surfaces を source-backed に再点検する
 - Current blocker: `src/runner/route_orchestrator.rs` の public gate surface と `src/runner/stage1_bridge/direct_route/mod.rs` の binary-only legacy gate がまだ残る
-- Exact focus: `phase128x` で default child path と route tags は canonical 化済みなので、次は orchestrator/direct-route の explicit legacy `vm` gate を最後に締める
+- Exact focus: raw `--backend vm` の runtime fallback は落としたので、次は orchestrator/direct-route の explicit legacy `vm` gate を最後に締める
 
 ## Successor Corridor
 

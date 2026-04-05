@@ -4,10 +4,10 @@
 
 - [x] `src/cli/args.rs`
 - [x] `src/runner/dispatch.rs`
-- [ ] `src/runner/route_orchestrator.rs`
+- [x] `src/runner/route_orchestrator.rs`
 - [x] `tools/selfhost/run.sh`
 - [x] `tools/selfhost/lib/selfhost_run_routes.sh`
-- [ ] `src/runner/stage1_bridge/direct_route/mod.rs`
+- [x] `src/runner/stage1_bridge/direct_route/mod.rs`
 
 ## B. Public Gate Follow-up
 

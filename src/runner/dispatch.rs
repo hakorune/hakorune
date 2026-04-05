@@ -206,7 +206,7 @@ pub(crate) fn execute_file_with_backend(runner: &NyashRunner, filename: &str) {
         }
         "vm" => {
             crate::cli_v!(
-                "🚀 Hakorune Legacy VM Keep/Debug Route - Executing file: {} 🚀",
+                "🚀 Hakorune Legacy VM Keep/Debug Override (explicit only) - Executing file: {} 🚀",
                 filename
             );
             if !super::route_orchestrator::execute_vm_family_route(runner, "vm", filename) {
@@ -216,7 +216,7 @@ pub(crate) fn execute_file_with_backend(runner: &NyashRunner, filename: &str) {
         }
         "vm-hako" => {
             crate::cli_v!(
-                "🚀 Hakorune Explicit VM-Hako Reference Route - Executing file: {} 🚀",
+                "🚀 Hakorune Explicit VM-Hako Reference Override (explicit only) - Executing file: {} 🚀",
                 filename
             );
             if !super::route_orchestrator::execute_vm_family_route(runner, "vm-hako", filename) {

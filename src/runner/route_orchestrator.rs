@@ -6,6 +6,8 @@
  * - Canonical internal lane names are `rust-vm-keep`, `vm-hako-reference`,
  *   and `vm-compat-fallback`.
  * - `vm-compat-fallback` stays compatibility-only.
+ * - `vm` backend family is explicit legacy keep/debug only; it is not a
+ *   day-to-day route.
  * - Day-to-day mainline stays on direct/core routes; this orchestrator owns only
  *   explicit keep/reference requests and must not silently widen back into a
  *   default owner path.
@@ -169,6 +171,8 @@ pub(crate) fn execute_vm_family_route(
     let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
         || crate::config::env::joinir_dev_enabled();
     let plan = if backend == "vm" && force_vm_for_emit && !force_fallback {
+        // Emit-mode keeps the legacy rust-vm lane explicit for compat/debug
+        // contracts; this is not a new mainline owner path.
         VmRoutePlan {
             backend: "vm",
             lane: VM_LANE_RUST_KEEP,
