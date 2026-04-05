@@ -131,6 +131,7 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 - current perf reopen truth:
   - `kilo_kernel_small_hk`: latest reread `ny_aot_ms=741`
   - `kilo_micro_concat_const_suffix`: `ny_aot_ms=84`
+  - `kilo_micro_concat_hh_len`: `ny_aot_ms=57`
   - `kilo_micro_array_string_store`: `ny_aot_ms=181`
 - capability-family lock before perf reopen: landed
   1. inventory current Rust helpers by future capability family
@@ -141,6 +142,7 @@ Scope: repo root から current lane / next lane / restart read order に最短�
      - current AOT consumer: `nyash.string.concat_hh` + `nyash.string.len_h`
      - executor detail: `string_concat_hh_export_impl(...)` + `string_len_from_handle(...)`
      - exact micro: `kilo_micro_concat_const_suffix`
+     - isolated exact micro: `kilo_micro_concat_hh_len`
   2. `store.array.str`
      - executor detail: `array_string_store_handle_at(...)`
      - exact micro: `kilo_micro_array_string_store`
@@ -159,6 +161,9 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   - deeper exact probe:
     - `bench_kilo_micro_array_string_store.hako` -> `retarget_hit=800000`, `existing_slot=800000`, `source_string_box=800000`
     - `bench_kilo_micro_concat_const_suffix.hako` AOT run does not hit `const_suffix`; it currently lowers through `nyash.string.concat_hh` + `nyash.string.len_h`
+  - new exact split:
+    - `bench_kilo_micro_concat_hh_len.hako` isolates `concat_hh + len_h` without substring carry
+    - latest exact read: `c_ms=3 / ny_aot_ms=57`
 - `phase-157x` current rule:
   - observer is out-of-band only
   - default build compiles observer out

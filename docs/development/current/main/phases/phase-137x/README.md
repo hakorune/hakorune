@@ -43,6 +43,7 @@
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
   - `kilo_micro_concat_const_suffix`: `c_ms=3 / ny_aot_ms=84`
+  - `kilo_micro_concat_hh_len`: `c_ms=3 / ny_aot_ms=57`
   - `kilo_micro_array_string_store`: `c_ms=10 / ny_aot_ms=181`
   - whole-kilo recheck after array-cache epoch pass-through: `c_ms=81 / ny_aot_ms=741`
 - latest bundle read:
@@ -63,6 +64,11 @@
    - `kilo_micro_concat_const_suffix` AOT direct probe does not hit `const_suffix`
    - the current AOT workload lowers through `nyash.string.concat_hh` and `nyash.string.len_h`
    - next local trim should therefore target the generic string concat/len consumer, not `concat_hs`
+   - `kilo_micro_concat_hh_len` now isolates that generic consumer without substring carry
+   - current microasm read:
+     - `string_concat_hh_export_impl`: `54.04%`
+     - `string_len_from_handle`: `21.37%`
+     - `__memmove_avx512_unaligned_erms`: `15.40%`
 
 ## Next
 
@@ -70,6 +76,7 @@
 2. treat `kilo_micro_concat_const_suffix` as the current generic string concat/len front
    - current AOT consumer: `nyash.string.concat_hh` + `nyash.string.len_h`
    - current executor: `string_concat_hh_export_impl(...)` + `string_len_from_handle(...)`
+   - use `kilo_micro_concat_hh_len` as the exact isolated repro before changing this front
 3. keep canonical `store.array.str` as the next exact front
    - current executor: `array_string_store_handle_at(...)`
 4. keep canonical `const_suffix` / `thaw.str + lit.str + str.concat2 + freeze.str` as a separate route, but do not assume the current exact micro exercises it
