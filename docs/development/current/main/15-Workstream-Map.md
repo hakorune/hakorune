@@ -15,8 +15,8 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-137x main kilo reopen selection` |
-| Front | `kilo_kernel_small_hk` / kilo micro baseline は refresh 済み。trace/asm bundle で next hot leaf を pin する |
-| Blocker | main kilo gap は依然大きいが、next hot leaf がまだ未固定 |
+| Front | string const-path reopen win は landed。next exact leaf は `array_string_store_handle_at` |
+| Blocker | `kilo_kernel_small_hk` は `ny_aot_ms=731` まで落ちたが、まだ C との差は大きい |
 | Next | `phase-kx vm-hako small reference interpreter recut` |
 | After Next | parked |
 
@@ -69,6 +69,11 @@ Related:
 - next fixed corridor:
   1. `phase-137x main kilo reopen selection`
   2. `phase-kx vm-hako small reference interpreter recut`
+- current reopen read:
+  - baseline: `kilo_kernel_small_hk = 1529ms`
+  - string const fast-path: `905ms`
+  - const-handle cache follow-up: `731ms`
+  - next leaf: `crates/nyash_kernel/src/plugin/array_string_slot.rs::array_string_store_handle_at`
 
 ## Successor Corridor
 

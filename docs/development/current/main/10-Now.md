@@ -13,8 +13,8 @@ Related:
 ## Current
 
 - lane: `phase-137x main kilo reopen selection`
-- current front: `kilo_kernel_small_hk` / kilo micro baseline は refresh 済み。次は trace/asm bundle で next hot leaf を pin する
-- blocker: main kilo gap は依然大きいが、next hot leaf がまだ未固定
+- current front: string const-path reopen win は landed。次の exact leaf は `array_string_store_handle_at`
+- blocker: `kilo_kernel_small_hk` は `ny_aot_ms=731` まで落ちたが、まだ C との差は大きい
 - recent landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -59,6 +59,10 @@ Related:
   - `phase-144x` = landed String semantic owner follow-up
 - perf lane is delayed, not cancelled:
   - `phase-137x main kilo reopen selection` waits until owner implementation cutover is clean
+  - reopen win:
+    - baseline `1529ms`
+    - after string const fast path `905ms`
+    - after const-handle cache follow-up `731ms`
 
 ## Root Anchors
 

@@ -21,8 +21,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-137x main kilo reopen selection`
-- current front: `kilo_kernel_small_hk` / kilo micro baseline は refresh 済み。next hot leaf を trace/asm bundle で pin する
-- blocker: main kilo gap は見えているが、next hot leaf がまだ未固定
+- current front: string const-path の reopen win は landed。next exact leaf は `array_string_store_handle_at`
+- blocker: `kilo_kernel_small_hk` は `ny_aot_ms=731` まで落ちたが、まだ C との差は大きい
 - landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -100,10 +100,15 @@ tools/checks/dev_gate.sh quick
 git diff --check
 ```
 - reopened perf read:
-  - `kilo_kernel_small_hk`: `c_ms=81 / ny_aot_ms=1529`
+  - baseline: `kilo_kernel_small_hk`: `c_ms=81 / ny_aot_ms=1529`
+  - string const fast-path: `c_ms=83 / ny_aot_ms=905`
+  - const-handle cache follow-up: `c_ms=84 / ny_aot_ms=731`
   - `kilo_micro_indexof_line`: `c_ms=4 / ny_aot_ms=4`
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
+- next source slice:
+  - `crates/nyash_kernel/src/plugin/array_string_slot.rs`
+  - target: `array_string_store_handle_at(...)`
 - `phase-144x` landed:
   - `StringCoreBox.{size,indexOf,lastIndexOf,substring}` now reads through helperized wrapper paths
   - `indexOf(search, fromIndex)` delegates to `StringSearchKernelBox.find_index_from(...)`

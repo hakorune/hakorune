@@ -536,10 +536,29 @@ fn concat_const_suffix_from_handle(a_h: i64, suffix: &str) -> i64 {
 }
 
 #[inline(always)]
+fn concat_const_suffix_from_const_handle_fast(a_h: i64, suffix_h: i64) -> Option<i64> {
+    let suffix_is_empty = string_is_empty_from_handle(suffix_h)?;
+    match concat_suffix_retention_class(suffix_is_empty) {
+        RetainedForm::ReturnHandle => Some(a_h),
+        RetainedForm::KeepTransient | RetainedForm::MustFreeze(_) => {
+            if let Some(out) = concat_pair_from_fast_str(a_h, suffix_h) {
+                return Some(out);
+            }
+            if let Some(out) = concat_pair_from_spans(a_h, suffix_h) {
+                return Some(out);
+            }
+            None
+        }
+        RetainedForm::RetainView => unreachable!("concat_hs cannot retain a view"),
+    }
+}
+
+#[inline(always)]
 fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i64 {
     #[derive(Default)]
     struct ConstCStringCache {
         ptr: Cell<usize>,
+        handle: Cell<i64>,
         text: RefCell<Option<String>>,
     }
 
@@ -567,12 +586,34 @@ fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i64 {
     thread_local! {
         static CONST_SUFFIX_TEXT_CACHE: ConstCStringCache = const { ConstCStringCache {
             ptr: Cell::new(0),
+            handle: Cell::new(0),
             text: RefCell::new(None),
         } };
     }
 
     if suffix_ptr.is_null() {
         return a_h;
+    }
+    let suffix_h = CONST_SUFFIX_TEXT_CACHE.with(|cache| {
+        let addr = suffix_ptr as usize;
+        if cache.ptr.get() == addr {
+            let cached = cache.handle.get();
+            if cached > 0 {
+                return cached;
+            }
+        }
+        let handle = super::super::nyash_box_from_i8_string_const(suffix_ptr);
+        if handle > 0 {
+            cache.ptr.set(addr);
+            cache.handle.set(handle);
+            *cache.text.borrow_mut() = None;
+        }
+        handle
+    });
+    if suffix_h > 0 {
+        if let Some(out) = concat_const_suffix_from_const_handle_fast(a_h, suffix_h) {
+            return out;
+        }
     }
     with_cached_const_text(&CONST_SUFFIX_TEXT_CACHE, suffix_ptr, |suffix| {
         concat_const_suffix_from_handle(a_h, suffix)
@@ -584,6 +625,7 @@ fn insert_const_mid_fallback(source_h: i64, middle_ptr: *const i8, split: i64) -
     #[derive(Default)]
     struct ConstCStringCache {
         ptr: Cell<usize>,
+        handle: Cell<i64>,
         text: RefCell<Option<String>>,
     }
 
@@ -611,9 +653,31 @@ fn insert_const_mid_fallback(source_h: i64, middle_ptr: *const i8, split: i64) -
     thread_local! {
         static CONST_INSERT_TEXT_CACHE: ConstCStringCache = const { ConstCStringCache {
             ptr: Cell::new(0),
+            handle: Cell::new(0),
             text: RefCell::new(None),
         } };
     }
+
+    let middle_h = if middle_ptr.is_null() {
+        0
+    } else {
+        CONST_INSERT_TEXT_CACHE.with(|cache| {
+            let addr = middle_ptr as usize;
+            if cache.ptr.get() == addr {
+                let cached = cache.handle.get();
+                if cached > 0 {
+                    return cached;
+                }
+            }
+            let handle = super::super::nyash_box_from_i8_string_const(middle_ptr);
+            if handle > 0 {
+                cache.ptr.set(addr);
+                cache.handle.set(handle);
+                *cache.text.borrow_mut() = None;
+            }
+            handle
+        })
+    };
 
     with_cached_const_text(&CONST_INSERT_TEXT_CACHE, middle_ptr, |middle| {
         let source_is_empty = string_is_empty_from_handle(source_h) == Some(true);
@@ -621,7 +685,7 @@ fn insert_const_mid_fallback(source_h: i64, middle_ptr: *const i8, split: i64) -
             RetainedForm::ReturnHandle => source_h,
             RetainedForm::KeepTransient | RetainedForm::MustFreeze(_) => {
                 if source_is_empty {
-                    super::super::nyash_box_from_i8_string_const(middle_ptr)
+                    middle_h
                 } else {
                     freeze_text_plan(insert_const_mid_plan_from_handle(source_h, middle, split))
                 }
