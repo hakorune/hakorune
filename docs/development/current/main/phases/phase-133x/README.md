@@ -12,7 +12,8 @@
   - `phase-132x` is landed
   - current no longer reads like vm retirement work
   - `micro kilo` is fixed as the active optimization reopening point
-  - first owner target is `kilo_micro_substring_concat`, not broad array retune
+  - `micro kilo` is now closed with `substring_concat` parity lock, `indexof_line` faster-than-C freeze, and `array_getset` parity lock
+  - successor is `phase-134x nyash_kernel layer recut selection`
 
 ## Decision Now
 
@@ -20,17 +21,18 @@
 - explicit `vm` / `vm-hako` proof-debug lanes remain frozen keep
 - caller-zero remains parked debt, not current work
 - fixed order remains `leaf-proof micro -> micro kilo -> main kilo`
-- current `micro kilo` ranking is:
-  - `kilo_micro_substring_concat` first
-  - `kilo_micro_array_getset` second
-  - `kilo_micro_indexof_line` third
-- `array_getset` is recheck-only for now because its same-artifact direct-route proof is already strong
+- micro reopen is now closed:
+  - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3 / ratio_ms=1.00`
+  - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4 / ratio_ms=1.00`
+  - `kilo_micro_indexof_line`: `c_ms=4 / ny_aot_ms=3 / ratio_ms=1.33`
+- before main kilo, one structural kernel lane is now fixed
+- successor lane is `phase-134x nyash_kernel layer recut selection`
 
 ## Fresh Read
 
-- `bash tools/perf/run_kilo_micro_machine_ladder.sh 1 3`
-  - `kilo_micro_indexof_line`: `c_ms=5 / ny_aot_ms=7 / ratio_ms=0.71`
-  - `kilo_micro_substring_concat`: `c_ms=3-4 / ny_aot_ms=5 / ratio_ms=0.60-0.80`
+- `bash tools/perf/run_kilo_micro_machine_ladder.sh 1 7`
+  - `kilo_micro_indexof_line`: `c_ms=4 / ny_aot_ms=3 / ratio_ms=1.33`
+  - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3 / ratio_ms=1.00`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4 / ratio_ms=1.00`
 - `bash tools/perf/report_mir_hotops.sh kilo_micro_substring_concat --top 20`
   - `RuntimeDataBox.substring` x3
@@ -43,6 +45,6 @@
 ## Next
 
 1. keep `phase-132x` closed
-2. lock `kilo_micro_substring_concat` as the first owner slice
-3. recheck `kilo_micro_array_getset`
-4. keep vm-family retirement work parked unless a new exact blocker appears
+2. keep `kilo_micro_substring_concat` parity-locked
+3. keep `kilo_micro_indexof_line` frozen faster-than-C
+4. carry `kilo_kernel_small_hk` as the next post-recut main-kilo front

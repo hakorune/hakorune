@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 133x mainline/compiler resume selection
+- **Current (ACTIVE)**: Phase 134x nyash_kernel layer recut selection
+- **Phase 133x（LANDED）**: micro kilo reopen selection
 - **Phase 132x（LANDED）**: vm default backend decision
 - **Phase 131x（LANDED）**: vm legacy contract migration
 - **Phase 130x（LANDED）**: vm public gate final cleanup
@@ -42,6 +43,8 @@
 
 ### Recent Landed
 
+- **Phase 133x（LANDED）**: micro kilo reopen selection
+- **Phase 132x（LANDED）**: vm default backend decision
 - **Phase 131x（LANDED）**: vm legacy contract migration
 - **Phase 130x（LANDED）**: vm public gate final cleanup
 - **Phase 128x（LANDED）**: stage1 bridge vm gate softening

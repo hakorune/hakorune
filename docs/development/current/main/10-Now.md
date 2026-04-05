@@ -12,65 +12,36 @@ Related:
 
 ## Current
 
-- lane: `phase-133x micro kilo reopen selection`
-- current front: `kilo_micro_substring_concat` owner lock
-- blocker: stop-line は順番だけ。`main kilo` や broad array retune に飛ばない
+- lane: `phase-134x nyash_kernel layer recut selection`
+- current front: `exports/string.rs` split inventory + `plugin/map_substrate.rs` thin-alias inventory
+- blocker: `.hako` owner 移行を急がない。先に Rust 側で `ABI / glue / substrate` を分ける
 - recent landed:
-  - `phase-131x vm legacy contract migration`
-  - `phase-130x vm public gate final cleanup`
-  - `phase-127x compat route raw vm cut prep`
-  - `phase-125x vm bridge/backend gate follow-up`
-  - `phase-124x vm public docs/manual demotion`
-  - `phase-123x proof gate shrink follow-up`
-  - `phase-122x vm compat route exit plan`
-  - `phase-121x vm backend retirement gate decision`
-  - `phase-120x vm route retirement decision refresh`
-  - `phase-119x vm debug/observability surface review`
-  - `phase-118x proof wrapper surface review`
-  - `phase-117x vm compat/proof env hardening`
-  - `phase-116x execution surface alias pruning`
-  - `phase-115x vm route retirement planning`
-  - `phase-114x execution surface wording closeout`
-  - `phase-113x kernel vs vm-reference cluster wording correction`
-  - `phase-112x vm-family lane naming hardening`
-  - `phase-111x selfhost runtime route naming cleanup`
-  - `phase-110x selfhost execution vocabulary SSOT`
-  - `phase-105 digit OR-chain LLVM parity regression`
-  - `phase-104 loop(true) + break-only digits（read_digits 系）`
-  - `phase-103 if-only regression baseline（VM + LLVM EXE）`
-  - `phase-102 real-app read_quoted loop regression (VM + LLVM EXE)`
+  - `phase-133x micro kilo reopen selection`
+  - `phase-132x vm default backend decision`
 
 ## Current Read
 
-- `phase-95` fixture E2E is green on VM (`apps/tests/phase95_json_loader_escape_min.hako`)
-- `phase-96` fixture E2E is green on VM (`apps/tests/phase96_json_loader_next_non_ws_min.hako`)
-- `stage1_mainline_smoke.sh` is green
-- top-level wrappers remain public/front-door keep unless caller audit proves otherwise
-- `phase-97` fixed LLVM EXE parity for `phase95/96` fixtures under `compat replay=harness`
-- `phase-98` fixed plugin loader strict/best-effort runtime proof and kept LLVM EXE parity green
-- `phase-99` trailing-backslash fixture is already green on both VM and LLVM EXE
-- `phase-100` landed with pinned read-only captures and accumulator proof locked
-- `phase-102` landed with real-app `read_quoted_from` loop parity on VM and LLVM EXE
-- `phase-103` landed with if-only merge / early return parity on VM and LLVM EXE
-- `phase-104` landed with loop(true)+break-only digits parity on VM and LLVM EXE
-- `phase-105` restored the original long digit OR-chain parity on VM and LLVM EXE
-- vm cleanup is no longer current work
-- fixed perf reopen order is:
+- `vm` cleanup is no longer current work
+- fixed perf order stays:
   - `leaf-proof micro`
   - `micro kilo`
   - `main kilo`
-- current `micro kilo` ranking is:
-  - `kilo_micro_substring_concat` first
-  - `kilo_micro_array_getset` second
-  - `kilo_micro_indexof_line` third
-- fresh microstat is:
-  - `kilo_micro_substring_concat`: `c_ms=3-4 / ny_aot_ms=5 / ratio_ms=0.60-0.80`
-  - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4 / ratio_ms=1.00`
-- `array_getset` is no longer the first owner target; it stays as a recheck lane because its direct-route same-artifact proof is already strong
-- fresh MIR hotops for `substring_concat`:
-  - `RuntimeDataBox.substring` x3
-  - `StringBox.length` x2
-  - `RuntimeDataBox.length` x1
+- `phase-133x` is closed:
+  - `kilo_micro_substring_concat`: parity locked
+  - `kilo_micro_array_getset`: parity locked
+  - `kilo_micro_indexof_line`: frozen faster than C
+- before `main kilo`, current work re-cuts `nyash_kernel` into four buckets:
+  - `keep`
+  - `thin keep`
+  - `compat glue`
+  - `substrate candidate`
+- first source slices:
+  - `crates/nyash_kernel/src/exports/string.rs`
+  - `crates/nyash_kernel/src/plugin/map_substrate.rs`
+- target shape:
+  - `phase-135x string export split`
+  - `phase-136x map substrate thin-alias recut`
+  - `phase-137x main kilo reopen selection`
 
 ## Root Anchors
 
@@ -81,4 +52,4 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-133x/README.md`
+2. `docs/development/current/main/phases/phase-134x/README.md`

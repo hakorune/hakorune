@@ -20,96 +20,45 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-133x micro kilo reopen selection`
-- current front: `kilo_micro_substring_concat` owner lock
-- blocker: stop-line は順番だけ。`main kilo` や broad array retune に飛ばない
-- landed: `phase-132x vm default backend decision`
-- active next: `phase-133x micro kilo reopen selection`
-- recent landed:
-  - `phase-130x vm public gate final cleanup`
-  - `phase-129x vm orchestrator/public gate follow-up`
-  - `phase-127x compat route raw vm cut prep`
-  - `phase-128x stage1 bridge vm gate softening`
-  - `phase-125x vm bridge/backend gate follow-up`
-  - `phase-124x vm public docs/manual demotion`
-  - `phase-123x proof gate shrink follow-up`
-  - `phase-122x vm compat route exit plan`
-  - `phase-121x vm backend retirement gate decision`
-  - `phase-120x vm route retirement decision refresh`
-  - `phase-119x vm debug/observability surface review`
-  - `phase-118x proof wrapper surface review`
-  - `phase-117x vm compat/proof env hardening`
-  - `phase-116x execution surface alias pruning`
-  - `phase-115x vm route retirement planning`
-  - `phase-114x execution surface wording closeout`
-  - `phase-113x kernel vs vm-reference cluster wording correction`
-  - `phase-112x vm-family lane naming hardening`
-  - `phase-111x selfhost runtime route naming cleanup`
-  - `phase-110x selfhost execution vocabulary SSOT`
-  - `phase-105 digit OR-chain LLVM parity regression`
-  - `phase-104 loop(true) + break-only digits（read_digits 系）`
-  - `phase-103 if-only regression baseline（VM + LLVM EXE）`
-  - `phase-102 real-app read_quoted loop regression (VM + LLVM EXE)`
+- lane: `phase-134x nyash_kernel layer recut selection`
+- current front: `exports/string.rs` split inventory + `plugin/map_substrate.rs` thin-alias inventory
+- blocker: `.hako` 移植を先に始めない。先に `ABI / glue / substrate` を Rust 側で切り分ける
+- landed: `phase-133x micro kilo reopen selection`
+- active next:
+  - `phase-135x string export split`
+  - `phase-136x map substrate thin-alias recut`
+  - `phase-137x main kilo reopen selection`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-133x/README.md`
+3. `docs/development/current/main/phases/phase-134x/README.md`
 
-## Successor Corridor
+## Decision Lock
 
-1. `phase-132x vm default backend decision`
-2. `phase-133x micro kilo reopen selection`
-
-## Parked After Optimization
-
-- `vm-hako` small reference interpreter recut
-
-## Next Cleanup Corridor
-
-- keep `stage / route / backend override / lane / kernel` split fixed
-- keep VM family lane names fixed
-- vm caller-zero is now parked debt, not current work
-- fixed perf order:
+- fixed perf order remains:
   - `leaf-proof micro`
   - `micro kilo`
   - `main kilo`
-- current exact reopen point:
-  - first owner: `kilo_micro_substring_concat`
-  - recheck lane: `kilo_micro_array_getset`
-  - stable baseline: `kilo_kernel_small_hk`
- - fresh readings:
-  - `kilo_micro_substring_concat`: `c_ms=3-4 / ny_aot_ms=5 / ratio_ms=0.60-0.80`
-  - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4 / ratio_ms=1.00`
+- `phase-133x` is closed:
+  - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
+  - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
+  - `kilo_micro_indexof_line`: `c_ms=4 / ny_aot_ms=3`
+- current work is structural:
+  - classify `nyash_kernel` into `keep / thin keep / compat glue / substrate candidate`
+  - do not start broad `.hako` migration before that split is source-backed
+
+## First Source Slices
+
+- `crates/nyash_kernel/src/exports/string.rs`
+- `crates/nyash_kernel/src/plugin/map_substrate.rs`
 
 ## Current Proof Bundle
 
 ```bash
 cargo check --manifest-path Cargo.toml --bin hakorune
 bash tools/selfhost/mainline/stage1_mainline_smoke.sh
-bash tools/smokes/v2/profiles/integration/apps/archive/phase95_json_loader_escape_vm.sh
-bash tools/smokes/v2/profiles/integration/apps/archive/phase96_json_loader_next_non_ws_vm.sh
-bash tools/smokes/v2/profiles/integration/apps/archive/phase97_json_loader_escape_llvm_exe.sh
-bash tools/smokes/v2/profiles/integration/apps/archive/phase97_next_non_ws_llvm_exe.sh
-bash tools/smokes/v2/profiles/integration/apps/archive/phase100_pinned_local_receiver_vm.sh
-bash tools/smokes/v2/profiles/integration/apps/archive/phase100_mutable_accumulator_llvm_exe.sh
-bash tools/smokes/v2/profiles/integration/apps/archive/phase100_string_accumulator_llvm_exe.sh
-bash tools/smokes/v2/profiles/integration/apps/archive/phase102_realapp_read_quoted_vm.sh
-bash tools/smokes/v2/profiles/integration/apps/archive/phase102_realapp_read_quoted_llvm_exe.sh
-bash tools/smokes/v2/profiles/integration/apps/archive/phase103_if_only_vm.sh
-bash tools/smokes/v2/profiles/integration/apps/archive/phase103_if_only_llvm_exe.sh
-bash tools/smokes/v2/profiles/integration/apps/archive/phase103_if_only_early_return_vm.sh
-bash tools/smokes/v2/profiles/integration/apps/archive/phase103_if_only_early_return_llvm_exe.sh
-bash tools/smokes/v2/profiles/integration/apps/archive/phase99_escape_trailing_backslash_vm.sh
-bash tools/smokes/v2/profiles/integration/apps/archive/phase99_escape_trailing_backslash_llvm_exe.sh
+tools/checks/dev_gate.sh quick
 git diff --check
-```
-
-## Optional Checks
-
-```bash
-bash tools/smokes/v2/profiles/integration/apps/phase29x_llvm_only_daily_gate.sh
-bash tools/selfhost/run_lane_a_daily.sh
-./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4
 ```
