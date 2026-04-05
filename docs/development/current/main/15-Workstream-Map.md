@@ -15,7 +15,7 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-142x array owner cutover implementation` |
-| Front | `ArrayBox.push` landed の次として `ArrayBox.get/set` を owner-helper 粒度に揃え、Array owner seam を `.hako` 実装 authority に変える |
+| Front | `ArrayBox.push/get/set` landed の次として `size aliases/pop` を owner-helper 粒度に揃え、Array owner seam を `.hako` 実装 authority に変える |
 | Blocker | seam 宣言は landed したが、owner implementation はまだ cutover されていない |
 | Next | `phase-143x map owner cutover implementation` |
 | After Next | `phase-144x string semantic owner follow-up` |

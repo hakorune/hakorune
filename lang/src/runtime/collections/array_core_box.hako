@@ -159,18 +159,26 @@ static box ArrayCoreBox {
     return JsonFragBox._str_to_int(cur_len_raw)
   }
 
-  _try_handle_size_alias(regs, mname, dst, rid, recv_h) {
-    if MethodAliasPolicy.is_size_alias(mname) != 1 { return 0 }
-    if recv_h != null && recv_h > 0 {
-      local len_i64 = me.len_i64(recv_h)
-      me._write_i64_dst(regs, dst, len_i64)
-      me._trace("[vm/adapter/array_core:len_i64]")
-      return 1
-    }
+  _size_alias_runtime(regs, dst, recv_h) {
+    local len_i64 = me.len_i64(recv_h)
+    me._write_i64_dst(regs, dst, len_i64)
+    me._trace("[vm/adapter/array_core:len_i64]")
+    return 1
+  }
+
+  _size_alias_state_only(regs, dst, rid) {
     local key = me._len_state_key(rid)
     local cur_len = me._len_state_value(regs, key)
     me._write_i64_dst(regs, dst, cur_len)
     return 1
+  }
+
+  _try_handle_size_alias(regs, mname, dst, rid, recv_h) {
+    if MethodAliasPolicy.is_size_alias(mname) != 1 { return 0 }
+    if recv_h != null && recv_h > 0 {
+      return me._size_alias_runtime(regs, dst, recv_h)
+    }
+    return me._size_alias_state_only(regs, dst, rid)
   }
 
   _fail_set_oob(regs, dst) {
@@ -278,24 +286,35 @@ static box ArrayCoreBox {
     return 0
   }
 
-  _try_handle_pop(regs, rid, dst, recv_h) {
-    if recv_h != null && recv_h > 0 {
-      local len_i64 = me.len_i64(recv_h)
-      if len_i64 <= 0 {
-        me._emit_oob_tag("[array/empty/pop] empty array")
-        me._write_zero_dst(regs, dst)
-        return 1
-      }
-      return 0
+  _fail_pop_empty(regs, dst) {
+    me._write_zero_dst(regs, dst)
+    return 1
+  }
+
+  _pop_visible_owner_runtime(regs, dst, recv_h) {
+    local len_i64 = me.len_i64(recv_h)
+    if len_i64 <= 0 {
+      me._emit_oob_tag("[array/empty/pop] empty array")
+      return me._fail_pop_empty(regs, dst)
     }
+    return 0
+  }
+
+  _pop_visible_owner_state_only(regs, rid, dst) {
     local key = me._len_state_key(rid)
     local cur_len = me._len_state_value(regs, key)
     if cur_len <= 0 {
       me._emit_oob_tag("[array/empty/pop] empty array")
-      me._write_zero_dst(regs, dst)
-      return 1
+      return me._fail_pop_empty(regs, dst)
     }
     return 0
+  }
+
+  _try_handle_pop(regs, rid, dst, recv_h) {
+    if recv_h != null && recv_h > 0 {
+      return me._pop_visible_owner_runtime(regs, dst, recv_h)
+    }
+    return me._pop_visible_owner_state_only(regs, rid, dst)
   }
 
   _try_handle_push(seg, regs, kinds, rid, per_recv, key, cur_len, recv_h, dst) {
