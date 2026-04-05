@@ -27,6 +27,10 @@
 - `tools/selfhost/lib/selfhost_run_routes.sh`
   - `runtime-route compat` still shells into raw `--backend vm`
   - `run.sh --direct` still shells into `tools/selfhost/proof/run_stageb_compiler_vm.sh`
+  - `tools/smokes/v2/profiles/integration/selfhost/phase29x_vm_route_non_strict_compat_boundary_vm.sh`
+    still pins `vm-route/pre-dispatch` and `vm-compat-fallback` tags under explicit fallback
+  - `tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_runtime_mode_parity_smoke_vm.sh`
+    still treats `runtime-route compat` as the positive explicit fallback lane
 - `src/runner/stage1_bridge/direct_route/mod.rs`
   - binary-only direct run still requires backend `vm`
 - `src/runner/route_orchestrator.rs`
@@ -63,6 +67,7 @@
    - no new broad docs/manual examples
 2. cut shell compat dependence before backend gate changes
    - otherwise `runtime-route compat` still reintroduces raw `--backend vm`
+   - and active compat-boundary smokes still assert vm-family route tags
 3. cut direct bridge dependence next
    - otherwise binary-only direct route still requires backend `vm`
 4. touch backend gate and CLI defaults last
