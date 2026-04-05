@@ -1,8 +1,8 @@
-use super::backend_tls;
-use super::contract;
+use super::super::backend;
+use super::super::contract;
 
 pub(crate) fn emit_summary_to_stderr() {
-    let snapshot = backend_tls::snapshot();
+    let snapshot = backend::snapshot();
     eprintln!(
         "[perf/counter][{}] total={} {}={} {}={} {}={} {}={} {}={} {}={}",
         contract::STORE_ARRAY_STR,

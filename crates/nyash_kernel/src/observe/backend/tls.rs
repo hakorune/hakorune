@@ -1,7 +1,7 @@
 use std::cell::Cell;
 use std::sync::atomic::{AtomicU64, Ordering};
 
-use super::config;
+use super::super::config;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum CacheProbeKind {

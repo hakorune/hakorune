@@ -39,7 +39,7 @@
 ## Exit
 
 - `backend_atomic.rs` が current backend でなくなる
-- `backend_tls.rs` が current backend として source-backed に読める
+- `observe/backend/tls.rs` が current backend として source-backed に読める
 - `perf-observe` build の exact counter summary が維持される
 - current docs が TLS backend を current truth として読める
 
@@ -48,5 +48,5 @@
 - `cargo check -p nyash_kernel` PASS
 - `cargo check -p nyash_kernel --features perf-observe` PASS
 - `cargo build --release -p nyash_kernel --features perf-observe` PASS
-- `cargo test -p nyash_kernel --features perf-observe observe::backend_tls::tests::tls_store_array_str_counters_flush_current_thread -- --nocapture` PASS
-- `cargo test -p nyash_kernel --features perf-observe observe::backend_tls::tests::tls_const_suffix_counters_flush_current_thread -- --nocapture` PASS
+- `cargo test -p nyash_kernel --features perf-observe observe::backend::tls::tests::tls_store_array_str_counters_flush_current_thread -- --nocapture` PASS
+- `cargo test -p nyash_kernel --features perf-observe observe::backend::tls::tests::tls_const_suffix_counters_flush_current_thread -- --nocapture` PASS

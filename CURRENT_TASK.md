@@ -58,9 +58,9 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   - `docs/development/current/main/phases/phase-159x/README.md`
   - `crates/nyash_kernel/src/observe/mod.rs`
   - `crates/nyash_kernel/src/observe/contract.rs`
-  - `crates/nyash_kernel/src/observe/backend_tls.rs`
+  - `crates/nyash_kernel/src/observe/backend/tls.rs`
   - `crates/nyash_kernel/src/observe/config.rs`
-  - `crates/nyash_kernel/src/observe/sink_stderr.rs`
+  - `crates/nyash_kernel/src/observe/sink/stderr.rs`
 
 ## Successor Corridor
 
