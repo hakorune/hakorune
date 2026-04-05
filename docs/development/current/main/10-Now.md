@@ -13,8 +13,8 @@ Related:
 ## Current
 
 - lane: `phase-132x vm default backend decision`
-- current front: caller bucketization complete; route-first candidates identified; keep-now proof/debug retained; delete/archive none
-- blocker: `src/cli/args.rs` default-vm がまだ legacy default として残っている
+- current front: default `vm` removal を前提に `args.rs` / help / caller updates を一括で入れる
+- blocker: explicit keep callers は残すが、default/mainline 表札がまだ `vm` のまま
 - recent landed:
   - `phase-131x vm legacy contract migration`
   - `phase-130x vm public gate final cleanup`
@@ -58,8 +58,8 @@ Related:
   - compat boundary smoke is route-first and green
   - compat temp-MIR handoff is green again with the parser-EXE preference env applied internally
   - the default `stage1_cli_env.hako` child path no longer forwards backend hints
-  - the remaining question is whether the public `vm` default stays explicit legacy keep/debug or becomes internal-only
-  - caller buckets are now explicit: route-first candidates / keep-now proof-debug / delete-or-archive none
+  - phase-132x decision is fixed: default `vm` should be removed now
+  - caller buckets stay explicit: route-first candidates / keep-now proof-debug / delete-or-archive none
 
 ## Root Anchors
 

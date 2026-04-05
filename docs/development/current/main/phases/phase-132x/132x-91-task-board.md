@@ -38,9 +38,9 @@
 ## B. Decision
 
 - [ ] omitted-backend caller inventory complete
-- [ ] determine whether default `vm` is still required
-- [ ] if retained, align help/docs with explicit legacy keep/debug wording
-- [ ] if changed, update code and callers together
+- [ ] remove `vm` from the default backend
+- [ ] align help/docs with mainline default + explicit legacy keep/debug wording
+- [ ] keep explicit vm / vm-hako proof-debug callers alive
 - [ ] move route-first candidates out of `--backend vm` calls where semantics do not change
 
 ## C. Proof

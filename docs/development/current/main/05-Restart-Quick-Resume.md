@@ -21,8 +21,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-132x vm default backend decision`
-- current front: caller bucketization complete; route-first candidates identified; keep-now proof/debug retained; delete/archive none
-- blocker: `src/cli/args.rs` default-vm がまだ legacy default として残っている
+- current front: default `vm` removal を前提に `args.rs` / help / caller updates を一括で入れる
+- blocker: explicit keep callers は残すが、default/mainline 表札がまだ `vm` のまま
 - landed: `phase-130x` wording-only public gate cleanup
 - active next: `phase-132x vm default backend decision`
 - recent landed:
@@ -78,6 +78,9 @@ tools/checks/dev_gate.sh quick
   - debug/observability: phase29x vm-family smokes
   - route-first candidates: route-first helper and bridge smoke paths that do not need the legacy VM-family gate as an execution surface
   - delete/archive: none in the active tree
+- decision:
+  - remove `vm` from the default backend now
+  - keep explicit vm / vm-hako proof-debug lanes alive
 
 ## Current Proof Bundle
 

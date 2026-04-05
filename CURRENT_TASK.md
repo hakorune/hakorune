@@ -72,9 +72,9 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 ## Current Front
 
 - Active lane: `phase-132x vm default backend decision`
-- Active micro: caller bucketization complete; route-first candidates identified; keep-now proof/debug retained; delete/archive none
-- Current blocker: `src/cli/args.rs` default-vm がまだ legacy default として残っている
-- Exact focus: default backend decision は phase-132x で最後に決める
+- Active micro: default `vm` removal を前提に `args.rs` / help / caller updates を一括で入れる
+- Current blocker: explicit keep callers は残すが、default/mainline 表札がまだ `vm` のまま
+- Exact focus: default は外す。proof/debug/compat は explicit keep のまま閉じ込める
 
 ## Successor Corridor
 
@@ -127,6 +127,10 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   - move to mainline / route-first candidates
   - keep now as explicit vm / vm-hako proof-debug / compat
   - delete/archive candidate: none in the active tree
+- phase-132x decision is now fixed:
+  - remove `vm` from the default backend
+  - keep explicit vm / vm-hako proof-debug callers alive
+  - do not wait for full vm source retirement before resuming mainline work
 - deeper inventory keeps `src/runner/dispatch.rs`, `src/runner/route_orchestrator.rs`, `src/runner/stage1_bridge/direct_route/mod.rs`, and the legacy compat/proof entry points as the next public-gate seam.
 - current inventory buckets are:
   - compat route: `tools/selfhost/run.sh --runtime --runtime-route compat`

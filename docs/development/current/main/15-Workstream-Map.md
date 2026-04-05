@@ -15,9 +15,9 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-132x vm default backend decision` |
-| Front | caller bucketization complete; route-first candidates identified; keep-now proof/debug retained; delete/archive none |
-| Blocker | `src/cli/args.rs` default-vm がまだ legacy default として残っている |
-| Next | route-first candidates を mainline へ寄せるか、keep-now proof/debug を残すかの最終判断 |
+| Front | default `vm` removal を前提に `args.rs` / help / caller updates を一括で入れる |
+| Blocker | explicit keep callers は残すが、default/mainline 表札がまだ `vm` のまま |
+| Next | `default=vm` を外しつつ explicit keep callers を残す実装 |
 | After Next | `phase-kx vm-hako small reference interpreter recut` |
 
 ## Current Read
@@ -69,6 +69,7 @@ Related:
 - `93x` moved archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
 - current work is now on `phase-132x vm default backend decision`
 - `132x` has now bucketed the remaining `vm` callers into route-first candidates, keep-now proof/debug, and no active delete/archive candidates
+- `132x` decision is now fixed: remove `vm` from the default backend, keep explicit proof/debug callers, and stop blocking mainline work on full vm retirement
 
 ## Successor Corridor
 

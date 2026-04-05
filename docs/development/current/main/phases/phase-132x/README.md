@@ -1,6 +1,6 @@
 # Phase 132x: vm default backend decision
 
-- 目的: `args.rs` の default backend が `vm` のままでよいかを、omitted-backend caller inventory を根拠に最後に決める。
+- 目的: `args.rs` から default `vm` を外し、mainline/default と explicit vm keep を分離する。
 - 対象:
   - `src/cli/args.rs`
   - `src/runner/dispatch.rs`
@@ -9,10 +9,11 @@
   - `tools/stage1_debug.sh`
   - `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_direct_emit_dominance_block_vm.sh`
 - success:
-  - omitted-backend caller inventory is complete
-  - `--backend vm` default is either retained as an explicit legacy keep/debug default or moved only after all dependent callers are updated
+  - caller bucketization is complete
+  - `--backend vm` is no longer the default backend
+  - explicit vm / vm-hako proof-debug callers still work
   - help/docs wording matches the final decision
-  - phase-131x migration lands cleanly into this decision lane
+  - phase-131x migration lands cleanly into the default-removal implementation
 
 ## Decision Now
 
@@ -20,7 +21,8 @@
 - default child path is backend-hint free
 - direct-route selection is narrowed
 - the legacy emit-mode special-case has been removed from `route_orchestrator.rs`
-- the last open question is whether `args.rs` should keep `vm` as the default backend or move to an explicit legacy-only surface
+- decision fixed: remove `vm` from the default backend now
+- explicit vm / vm-hako proof-debug / compat callers remain explicit keep
 
 ## Caller Buckets
 
@@ -55,6 +57,6 @@
 
 ## Next
 
-1. inventory callers that omit `--backend`
-2. decide whether `vm` should remain the default backend
-3. update help/docs/callers in one shot after the decision
+1. change `args.rs` default away from `vm`
+2. align help / error wording with mainline default + explicit keep callers
+3. update route-first candidates only where semantics do not depend on vm-family behavior
