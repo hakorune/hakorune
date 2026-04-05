@@ -21,3 +21,15 @@
 3. backend/lane gate
    - `src/runner/route_orchestrator.rs`
    - `src/runner/dispatch.rs`
+
+## Exit blockers
+
+- shell compat surface
+  - `tools/selfhost/lib/selfhost_run_routes.sh` still resolves `runtime-route compat` / `runtime-mode stage-a-compat` to raw `--backend vm`
+  - compat preflight is intentionally pinned on `NYASH_VM_USE_FALLBACK=1`
+- Stage1 direct bridge
+  - `src/runner/stage1_bridge/direct_route/mod.rs` still rejects non-`vm` backend for binary-only direct run
+- backend/lane gate
+  - `src/cli/args.rs` still defaults `--backend` to `vm`
+  - `src/runner/dispatch.rs` still exposes `backend=vm` as a public branch
+  - `src/runner/route_orchestrator.rs` still has `emit-mode-force-rust-vm-keep`
