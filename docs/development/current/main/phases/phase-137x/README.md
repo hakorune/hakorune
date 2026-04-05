@@ -1,7 +1,7 @@
 # Phase 137x: main kilo reopen selection
 
-- Status: Active
-- 目的: semantic ownership の最終形が landed したので、split kernel 上で `main kilo` を reopen する。
+- Status: Paused
+- 目的: semantic ownership の最終形が landed した split kernel 上で `main kilo` を reopen する。現在は optimization authority contract freeze の後続 consumer として待機。
 - 対象:
   - `CURRENT_TASK.md`
   - `docs/development/current/main/05-Restart-Quick-Resume.md`
@@ -20,7 +20,7 @@
   3. `main kilo`
 - `phase-134x` structural split is landed
 - `phase-138x` / `phase-139x` / `phase-140x` / `phase-141x` semantic-owner corridor is landed
-- current work is `main kilo` reopen
+- current work is paused until `phase-147x` / `148x` / `149x` contract-first corridor is fixed
 - `vm-hako` stays parked as reference/conformance
 
 ## Fresh Read
@@ -50,9 +50,8 @@
 
 ## Next
 
-1. optimize `concat_const_suffix_fallback(...)`
-2. recheck `array_string_store_handle_at(...)` only after string const-path stalls
-3. refresh `kilo_kernel_small_hk`
-4. keep exact micro probes next to whole-kilo truth
-5. re-bundle and decide whether string or array-handle-cache is next
-6. hand off to the next optimization lane
+1. consume `phase-147x` contract lock
+2. consume `phase-148x` borrowed text / sink contract freeze
+3. consume `phase-149x` concat const-suffix vertical slice
+4. reopen `concat_const_suffix_fallback(...)`
+5. recheck `array_string_store_handle_at(...)` only after string const-path stalls

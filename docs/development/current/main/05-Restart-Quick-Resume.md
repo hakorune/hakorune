@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-05
+Date: 2026-04-06
 Scope: 再起動直後に 2〜5 分で current lane に戻るための最短手順。
 Related:
   - CURRENT_TASK.md
@@ -20,9 +20,9 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-137x main kilo reopen selection`
-- current front: split kernel 上の `kilo_kernel_small_hk` を再ベースラインして next hot leaf を pin する
-- blocker: string const-path と array string-store path の優先順位を bundle/asm で再確認する
+- lane: `phase-147x semantic optimization contract selection`
+- current front: `.hako owner -> MIR canonical contract -> Rust executor` を perf lane の前に正本として固定する
+- blocker: borrowed/sink 面を Rust helper authority に見せず contract-first へ揃える
 - landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -30,14 +30,20 @@ tools/checks/dev_gate.sh quick
   - `phase-134x nyash_kernel layer recut selection`
   - `phase-133x micro kilo reopen selection`
 - active next:
+  - `phase-148x borrowed text and sink contract freeze`
+  - `phase-149x concat const-suffix vertical slice`
+  - `phase-150x array string-store vertical slice`
+  - `phase-137x main kilo reopen selection`
   - `phase-kx vm-hako small reference interpreter recut`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-137x/README.md`
-4. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
+3. `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
+4. `docs/development/current/main/phases/phase-147x/README.md`
+5. `docs/development/current/main/phases/phase-137x/README.md`
+6. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
 
 ## Decision Lock
 
@@ -92,9 +98,15 @@ tools/checks/dev_gate.sh quick
 - `phase-146x` landed:
   - tighten string semantic owner / wrapper / native substrate wording and helper boundaries
   - close the wrapper-vs-owner naming gap in `StringCoreBox`
+- `phase-147x` current lock:
+  - `.hako` keeps route / retained-form / boundary authority
+  - MIR keeps canonical optimization contract
+  - Rust keeps executor / accelerator only
+  - LLVM keeps generic optimization / codegen only
 
 ## First Design Slices
 
+- `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
 - `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
 - `lang/src/runtime/collections/map_core_box.hako`
 - `lang/src/runtime/collections/map_state_core_box.hako`
@@ -109,7 +121,7 @@ bash tools/selfhost/mainline/stage1_mainline_smoke.sh
 tools/checks/dev_gate.sh quick
 git diff --check
 ```
-- reopened perf read:
+- paused perf truth:
   - baseline: `kilo_kernel_small_hk`: `c_ms=81 / ny_aot_ms=1529`
   - string const fast-path: `c_ms=82 / ny_aot_ms=775`
   - const-handle cache follow-up: `c_ms=84 / ny_aot_ms=731`
@@ -119,14 +131,12 @@ git diff --check
   - `kilo_micro_indexof_line`: `c_ms=4 / ny_aot_ms=4`
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
-- successor perf slice:
-  - `crates/nyash_kernel/src/exports/string_helpers.rs`
-  - first target: `concat_const_suffix_fallback(...)`
-  - second target: `array_string_store_handle_at(...)`
-  - latest asm bundle: `20260406-004537`
-  - exact micro probes:
-    - `kilo_micro_concat_const_suffix`: `c_ms=2 / ny_aot_ms=85`
-    - `kilo_micro_array_string_store`: `c_ms=9 / ny_aot_ms=217`
+- next contract-first slice:
+  - owner-side vocabulary freeze
+  - MIR op candidates: `lit.str`, `str.concat2`, `store.array.str`, `store.map.value`
+  - first vertical slice: `concat const-suffix`
+  - second vertical slice: `array string-store`
+  - perf consumer stays `phase-137x`
 - `phase-144x` landed:
   - `StringCoreBox.{size,indexOf,lastIndexOf,substring}` now reads through helperized wrapper paths
   - `indexOf(search, fromIndex)` delegates to `StringSearchKernelBox.find_index_from(...)`

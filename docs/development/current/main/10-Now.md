@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-04-05
+Date: 2026-04-06
 Scope: current lane / blocker / next pointer だけを置く薄い mirror。
 Related:
   - CURRENT_TASK.md
@@ -12,9 +12,9 @@ Related:
 
 ## Current
 
-- lane: `phase-137x main kilo reopen selection`
-- current front: split kernel で `kilo_kernel_small_hk` の next hot leaf を pin する
-- blocker: string const-path と array string-store path の優先順位を bundle/asm で再確定する
+- lane: `phase-147x semantic optimization contract selection`
+- current front: `.hako owner -> MIR canonical contract -> Rust executor` を current optimization authority として固定する
+- blocker: BorrowedText / TextSink を Rust helper authority に見せない contract-first 化
 - recent landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -60,9 +60,13 @@ Related:
 - current cleanup lane:
   - `phase-145x` = landed compat quarantine shrink
   - `phase-146x` = landed string semantic boundary tighten
-- perf lane is delayed, not cancelled:
-  - `phase-137x main kilo reopen selection` is current again now that compat/string cleanup is landed
-  - reopen win:
+- current optimization authority lock:
+  - `.hako` owns route / retained-form / boundary
+  - MIR owns canonical substrate contract
+  - Rust owns executor / accelerator only
+- perf lane is paused, not cancelled:
+  - `phase-137x main kilo reopen selection` is the first consumer after contract freeze
+  - current perf truth:
     - baseline `1529ms`
     - after string const fast path `775ms`
     - after const-handle cache follow-up `731ms`
@@ -81,5 +85,7 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-137x/README.md`
-3. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
+2. `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
+3. `docs/development/current/main/phases/phase-147x/README.md`
+4. `docs/development/current/main/phases/phase-137x/README.md`
+5. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`

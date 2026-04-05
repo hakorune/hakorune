@@ -7,6 +7,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/15-Workstream-Map.md
+  - docs/development/current/main/design/semantic-optimization-authority-ssot.md
   - docs/development/current/main/design/kernel-replacement-axis-ssot.md
   - docs/development/current/main/phases/phase-134x/README.md
   - docs/development/current/main/phases/phase-138x/README.md
@@ -31,6 +32,7 @@ Related:
 - Rust は `host microkernel` と `native accelerators` に寄せる
 - `.hako` は collection / route / adapter semantics の owner になる
 - `compat quarantine` を permanent owner にしない
+- optimization authority は `.hako owner / policy -> MIR canonical contract -> Rust executor` に従う
 
 ## Final Owner Graph
 

@@ -4,7 +4,11 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 137x main kilo reopen selection
+- **Current (ACTIVE)**: Phase 147x semantic optimization contract selection
+- **Phase 150x（PLANNED）**: array string-store vertical slice
+- **Phase 149x（PLANNED）**: concat const-suffix vertical slice
+- **Phase 148x（PLANNED）**: borrowed text and sink contract freeze
+- **Phase 147x（ACTIVE）**: semantic optimization contract selection
 - **Phase 146x（LANDED）**: string semantic boundary tighten
 - **Phase 145x（LANDED）**: compat quarantine shrink
 - **Phase 144x（LANDED）**: string semantic owner follow-up
@@ -13,7 +17,7 @@
 - **Phase 140x（LANDED）**: map owner pilot
 - **Phase 139x（LANDED）**: array owner pilot
 - **Phase 138x（LANDED）**: nyash_kernel semantic owner cutover
-- **Phase 137x（ACTIVE）**: main kilo reopen selection
+- **Phase 137x（PAUSED）**: main kilo reopen selection
 - **Phase 134x（LANDED）**: nyash_kernel layer recut selection
 - **Phase 133x（LANDED）**: micro kilo reopen selection
 - **Phase 132x（LANDED）**: vm default backend decision
