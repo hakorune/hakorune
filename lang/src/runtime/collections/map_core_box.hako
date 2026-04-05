@@ -143,6 +143,12 @@ static box MapCoreBox {
     return me._read_reg_i64_or_null(regs, arg_rt)
   }
 
+  _read_norm_key_str_or_null(regs, handle_regs, arg0) {
+    if arg0 == null || arg0 < 0 { return null }
+    local key_str_raw = me._read_reg_text_or_null(regs, handle_regs, arg0)
+    return me.norm_key_str(key_str_raw)
+  }
+
   record_set_state(regs, per_recv, rid, key_str, cur_len, value_state, arg1_id) {
     local next_len = cur_len
     if key_str != null {
@@ -175,6 +181,29 @@ static box MapCoreBox {
     return 1
   }
 
+  _record_set_owner_state(regs, per_recv, rid, key, key_str, cur_len, value_state, arg1_id) {
+    local next_len = me.record_set_state(regs, per_recv, rid, key_str, cur_len, value_state, arg1_id)
+    regs.setField(key, StringHelpers.int_to_str(next_len))
+    return next_len
+  }
+
+  _set_visible_owner_runtime(regs, per_recv, rid, key, key_str, cur_len, value_state, recv_h, dst, key_any, val_any, arg1_id) {
+    local set_rt = me.set_hhh(recv_h, key_any, val_any)
+    if set_rt != 0 {
+      me._record_set_owner_state(regs, per_recv, rid, key, key_str, cur_len, value_state, arg1_id)
+    }
+    me._write_zero_dst(regs, dst)
+    me._trace("[vm/adapter/map_core:slot_store_hhh]")
+    return 1
+  }
+
+  _set_visible_owner_state_only(regs, per_recv, rid, key, key_str, cur_len, value_state, dst, arg1_id) {
+    me._record_set_owner_state(regs, per_recv, rid, key, key_str, cur_len, value_state, arg1_id)
+    me._write_zero_dst(regs, dst)
+    me._trace("[vm/adapter/map_core:set_state]")
+    return 1
+  }
+
   try_handle(seg, regs, handle_regs, mname) {
     local rid = MiniMirV1Scan.receiver_id(seg)
     local per_recv = me._size_state_per_recv()
@@ -186,29 +215,14 @@ static box MapCoreBox {
 
     if mname == "set" {
       local arg0 = MiniMirV1Scan.first_arg_register(seg)
-      local key_str = null
-      if arg0 >= 0 {
-        local key_str_raw = me._read_reg_text_or_null(regs, handle_regs, arg0)
-        key_str = me.norm_key_str(key_str_raw)
-      }
+      local key_str = me._read_norm_key_str_or_null(regs, handle_regs, arg0)
       local arg1_id = MiniMirV1Scan.nth_arg_register(seg, 1)
       local key_any = me._read_reg_i64_or_null(regs, arg0)
       local val_any = me._read_reg_i64_or_null(regs, arg1_id)
       if recv_h != null && recv_h > 0 && key_any != null && val_any != null {
-        local set_rt = me.set_hhh(recv_h, key_any, val_any)
-        if set_rt != 0 {
-          cur_len = me.record_set_state(regs, per_recv, rid, key_str, cur_len, value_state, arg1_id)
-          regs.setField(key, StringHelpers.int_to_str(cur_len))
-        }
-        me._write_zero_dst(regs, dst)
-        me._trace("[vm/adapter/map_core:slot_store_hhh]")
-        return 1
+        return me._set_visible_owner_runtime(regs, per_recv, rid, key, key_str, cur_len, value_state, recv_h, dst, key_any, val_any, arg1_id)
       }
-      cur_len = me.record_set_state(regs, per_recv, rid, key_str, cur_len, value_state, arg1_id)
-      regs.setField(key, StringHelpers.int_to_str(cur_len))
-      me._write_zero_dst(regs, dst)
-      me._trace("[vm/adapter/map_core:set_state]")
-      return 1
+      return me._set_visible_owner_state_only(regs, per_recv, rid, key, key_str, cur_len, value_state, dst, arg1_id)
     }
 
     if mname == "get" {

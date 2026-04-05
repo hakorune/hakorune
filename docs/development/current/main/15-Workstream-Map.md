@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-142x array owner cutover implementation` |
-| Front | `ArrayBox.push/get/set` landed の次として `size aliases/pop` を owner-helper 粒度に揃え、Array owner seam を `.hako` 実装 authority に変える |
-| Blocker | seam 宣言は landed したが、owner implementation はまだ cutover されていない |
-| Next | `phase-143x map owner cutover implementation` |
-| After Next | `phase-144x string semantic owner follow-up` |
+| Now | `phase-143x map owner cutover implementation` |
+| Front | `MapBox.set` landed の次として `MapBox.get/has` を owner-helper 粒度に揃え、Map owner seam を `.hako` 実装 authority に変える |
+| Blocker | seam 宣言は landed したが、Map owner implementation はまだ inline branch に残っている |
+| Next | `phase-144x string semantic owner follow-up` |
+| After Next | `phase-137x main kilo reopen selection` |
 
 ## Current Read
 
@@ -47,7 +47,7 @@ Related:
   - Rust compat/runtime forwarding = `array_runtime_facade.rs`
   - Rust accelerators = `array_handle_cache.rs` / `array_string_slot.rs`
 - current implementation corridor:
-  - `phase-142x` = Array owner cutover implementation
+  - `phase-142x` = landed Array owner cutover implementation
   - `phase-143x` = Map owner cutover implementation
   - `phase-144x` = String semantic owner follow-up
 - `phase-140x` landed the second pilot:
@@ -74,10 +74,9 @@ Related:
 
 ## Successor Corridor
 
-1. `phase-143x map owner cutover implementation`
-2. `phase-144x string semantic owner follow-up`
-3. `phase-137x main kilo reopen selection`
-4. `phase-kx vm-hako small reference interpreter recut`
+1. `phase-144x string semantic owner follow-up`
+2. `phase-137x main kilo reopen selection`
+3. `phase-kx vm-hako small reference interpreter recut`
 
 ## Parked After Optimization
 
@@ -101,9 +100,10 @@ Related:
 ## Reference
 
 - current lane docs:
-  - `docs/development/current/main/phases/phase-142x/README.md`
+  - `docs/development/current/main/phases/phase-143x/README.md`
   - `docs/development/current/main/phases/phase-141x/README.md`
   - `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
+  - `docs/development/current/main/phases/phase-142x/README.md`
   - `docs/development/current/main/phases/phase-140x/README.md`
   - `docs/development/current/main/phases/phase-139x/README.md`
   - `docs/development/current/main/phases/phase-137x/README.md`
