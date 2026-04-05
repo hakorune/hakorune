@@ -4,9 +4,11 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 157x observe feature split
+- **Current (ACTIVE)**: Phase 159x observe trace split
 - **Phase 137x（NEXT）**: main kilo reopen selection
-- **Phase 157x（ACTIVE）**: observe feature split
+- **Phase 159x（ACTIVE）**: observe trace split
+- **Phase 158x（LANDED）**: observe tls backend
+- **Phase 157x（LANDED）**: observe feature split
 - **Phase 156x（LANDED）**: perf counter instrumentation
 - **Phase 155x（LANDED）**: perf canonical visibility tighten
 - **Phase 154x（LANDED）**: llvmlite archive lock

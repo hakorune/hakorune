@@ -1,7 +1,8 @@
+#[cfg(feature = "perf-observe")]
 pub(crate) mod contract;
 
 #[cfg(feature = "perf-observe")]
-mod backend_atomic;
+mod backend_tls;
 #[cfg(feature = "perf-observe")]
 mod config;
 #[cfg(feature = "perf-observe")]
@@ -9,7 +10,7 @@ mod sink_stderr;
 
 #[cfg(feature = "perf-observe")]
 mod real {
-    pub(crate) use super::backend_atomic::CacheProbeKind;
+    pub(crate) use super::backend_tls::CacheProbeKind;
 
     #[inline(always)]
     pub(crate) fn enabled() -> bool {
@@ -18,47 +19,47 @@ mod real {
 
     #[inline(always)]
     pub(crate) fn record_store_array_str_enter() {
-        super::backend_atomic::store_array_str_enter();
+        super::backend_tls::store_array_str_enter();
     }
 
     #[inline(always)]
     pub(crate) fn record_store_array_str_cache_probe(kind: CacheProbeKind) {
-        super::backend_atomic::store_array_str_cache_probe(kind);
+        super::backend_tls::store_array_str_cache_probe(kind);
     }
 
     #[inline(always)]
     pub(crate) fn record_store_array_str_retarget_hit() {
-        super::backend_atomic::store_array_str_retarget_hit();
+        super::backend_tls::store_array_str_retarget_hit();
     }
 
     #[inline(always)]
     pub(crate) fn record_store_array_str_source_store() {
-        super::backend_atomic::store_array_str_source_store();
+        super::backend_tls::store_array_str_source_store();
     }
 
     #[inline(always)]
     pub(crate) fn record_store_array_str_non_string_source() {
-        super::backend_atomic::store_array_str_non_string_source();
+        super::backend_tls::store_array_str_non_string_source();
     }
 
     #[inline(always)]
     pub(crate) fn record_const_suffix_enter() {
-        super::backend_atomic::const_suffix_enter();
+        super::backend_tls::const_suffix_enter();
     }
 
     #[inline(always)]
     pub(crate) fn record_const_suffix_cached_handle_hit() {
-        super::backend_atomic::const_suffix_cached_handle_hit();
+        super::backend_tls::const_suffix_cached_handle_hit();
     }
 
     #[inline(always)]
     pub(crate) fn record_const_suffix_text_cache_reload() {
-        super::backend_atomic::const_suffix_text_cache_reload();
+        super::backend_tls::const_suffix_text_cache_reload();
     }
 
     #[inline(always)]
     pub(crate) fn record_const_suffix_freeze_fallback() {
-        super::backend_atomic::const_suffix_freeze_fallback();
+        super::backend_tls::const_suffix_freeze_fallback();
     }
 
     pub(crate) fn flush() {

@@ -12,9 +12,9 @@ Related:
 
 ## Current
 
-- lane: `phase-157x observe feature split`
-- current front: observer を authority stack の外に固定し、default release から compile-out する
-- blocker: counter 実装が default release にも入って見えること
+- lane: `phase-159x observe trace split`
+- current front: exact counter と heavy trace を分け、default release / observe release / trace debug の役割を混ぜない
+- blocker: exact counter と future trace の plane がまだ同じ observe lane に見えること
 - first landed slice:
   - `tools/selfhost/lib/selfhost_build_exe.sh` no longer forces harness on the daily EXE lane
   - provider/selfhost docs now read llvmlite as explicit keep only
@@ -28,6 +28,8 @@ Related:
 - observe front:
   - `--features perf-observe`
   - `NYASH_PERF_COUNTERS=1`
+  - TLS exact counter backend
+  - next: trace-only feature split
   - contract identity:
     - `store.array.str`
     - `const_suffix`
@@ -96,8 +98,10 @@ Related:
 - current stop-line:
   - do not reopen `phase-137x` until observer is compile-out by default and feature-on by choice
   - observer must not look like a fifth authority layer
+  - exact counter backend must not keep shared atomic cost on the hot path
+  - heavy trace must not piggyback on exact counter backend or sink
 - perf lane is paused, not cancelled:
-  - `phase-137x main kilo reopen selection` is the first consumer after observe feature split
+  - `phase-137x main kilo reopen selection` is the first consumer after observe trace split
   - current perf truth:
     - baseline `1529ms`
     - after string const fast path `775ms`
@@ -119,5 +123,5 @@ Related:
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
 3. `docs/development/current/main/phases/phase-137x/README.md`
-4. `docs/development/current/main/phases/phase-137x/README.md`
+4. `docs/development/current/main/phases/phase-159x/README.md`
 5. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`

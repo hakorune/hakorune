@@ -131,6 +131,8 @@ Current rule:
 - default build: observer compile-out
 - `--features perf-observe`: observer compile-in
 - `NYASH_PERF_COUNTERS=1`: feature-on build の runtime gate
+- exact counter backend: TLS-first
+- stderr summary: current-thread flush + exited-thread merge を current truth にする
 
 ## Stop Lines
 

@@ -1,6 +1,6 @@
 # Phase 157x: observe feature split
 
-- Status: Active
+- Status: Landed
 - 目的: observer を authority stack の外に固定し、default release から compile-out する。
 - 対象:
   - `CURRENT_TASK.md`
@@ -28,7 +28,7 @@
     - `store.array.str`
     - `const_suffix`
   - backend:
-    - atomic exact counters
+    - exact counters
   - sink:
     - stderr summary
 

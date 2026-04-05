@@ -14,9 +14,9 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-157x observe feature split` |
-| Front | observer を authority stack の外に固定し、default release から compile-out する |
-| Blocker | counter 実装が default release にも入って見えること |
+| Now | `phase-159x observe trace split` |
+| Front | exact counter と heavy trace を分け、default release / observe release / trace debug の役割を混ぜない |
+| Blocker | exact counter と future trace の plane がまだ同じ observe lane に見えること |
 | Next | `phase-137x main kilo reopen selection` |
 | After Next | `phase-kx vm-hako small reference interpreter recut` |
 
@@ -78,10 +78,18 @@ Related:
 - `phase-156x` landed:
   - route-tagged counters exist for `store.array.str` and `const_suffix`
   - first exact probe on `store.array.str` showed `cache_hit=800000`, `cache_miss_epoch=0`
-- `phase-157x` current:
+- `phase-157x` landed:
   - observer is feature-gated and out-of-band
   - default build compiles observer out
   - `perf-observe` build + `NYASH_PERF_COUNTERS=1` is the canonical observe lane
+- `phase-158x` current:
+  - exact counter backend is TLS-first
+  - stderr summary stays the current sink
+  - hot path should not pay shared atomic cost in the observe lane
+- `phase-159x` current:
+  - exact counter remains `perf-observe`
+  - heavy trace is the next split target
+  - trace/debug-only observer semantics must not contaminate the exact counter lane
 - paused reopen truth:
   - baseline: `kilo_kernel_small_hk = 1529ms`
   - string const fast-path: `775ms`
