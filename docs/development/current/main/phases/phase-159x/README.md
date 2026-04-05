@@ -1,6 +1,6 @@
 # Phase 159x: observe trace split
 
-- Status: Active
+- Status: Landed
 - 目的: exact counter lane と heavy trace lane を分け、observe plane を `release / observe-release / trace-debug` に整理する。
 - 対象:
   - `CURRENT_TASK.md`
@@ -34,9 +34,9 @@
 
 ## Exit
 
-- exact counter lane が `perf-observe` として固定される
-- trace/debug-only observer lane の置き場所が source-backed に読める
-- perf reopen 前に observer plane が `exact` と `trace` で混ざらない
+- exact counter lane は `perf-observe` として固定された
+- trace/debug-only observer lane の置き場所は source-backed に読める
+- perf reopen 前に observer plane は `exact` と `trace` で分離された
 
 ## First Proof
 

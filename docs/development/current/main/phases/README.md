@@ -4,9 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 159x observe trace split
-- **Phase 137x（NEXT）**: main kilo reopen selection
-- **Phase 159x（ACTIVE）**: observe trace split
+- **Current (ACTIVE)**: Phase 137x main kilo reopen selection
+- **Phase 159x（LANDED）**: observe trace split
 - **Phase 158x（LANDED）**: observe tls backend
 - **Phase 157x（LANDED）**: observe feature split
 - **Phase 156x（LANDED）**: perf counter instrumentation
@@ -27,7 +26,7 @@
 - **Phase 140x（LANDED）**: map owner pilot
 - **Phase 139x（LANDED）**: array owner pilot
 - **Phase 138x（LANDED）**: nyash_kernel semantic owner cutover
-- **Phase 137x（PAUSED）**: main kilo reopen selection
+- **Phase 137x（ACTIVE）**: main kilo reopen selection
 - **Phase 134x（LANDED）**: nyash_kernel layer recut selection
 - **Phase 133x（LANDED）**: micro kilo reopen selection
 - **Phase 132x（LANDED）**: vm default backend decision

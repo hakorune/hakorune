@@ -30,7 +30,7 @@ pub(crate) fn array_get_index_encoded_i64(handle: i64, idx: i64) -> Option<i64> 
     }
     let idx_usize = idx as usize;
     let drop_epoch = handles::drop_epoch();
-    with_array_box(handle, |arr| {
+    with_array_box_at_epoch(handle, drop_epoch, |arr| {
         arr.with_items_read(|items| {
             let item = items.get(idx_usize)?;
             Some(encode_array_item_to_i64(item.as_ref(), drop_epoch))
@@ -41,12 +41,20 @@ pub(crate) fn array_get_index_encoded_i64(handle: i64, idx: i64) -> Option<i64> 
 
 #[inline(always)]
 pub(crate) fn with_array_box<R>(handle: i64, f: impl FnOnce(&ArrayBox) -> R) -> Option<R> {
+    with_array_box_at_epoch(handle, handles::drop_epoch(), f)
+}
+
+#[inline(always)]
+pub(crate) fn with_array_box_at_epoch<R>(
+    handle: i64,
+    drop_epoch: u64,
+    f: impl FnOnce(&ArrayBox) -> R,
+) -> Option<R> {
     // Array-specialized fast path keeps the same contract as with_typed_box:
     // invalid handle or type mismatch returns None.
     if handle <= 0 {
         return None;
     }
-    let drop_epoch = handles::drop_epoch();
     let mut f = Some(f);
     if let Some(out) = with_cache_entry(handle, drop_epoch, |entry| {
         let arr = entry.array_ref()?;

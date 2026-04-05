@@ -20,9 +20,9 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-159x observe trace split`
-- current front: exact counter と heavy trace を分け、default release / observe release / trace debug の役割を混ぜない
-- blocker: `perf-trace` lane の置き場所はできたが、trace sink / sampled probe はまだ placeholder のまま
+- lane: `phase-137x main kilo reopen selection`
+- current front: canonical `store.array.str` first で `array_string_store_handle_at(...)` の executor overhead を詰める
+- blocker: executor-local trims は regress しやすいので、exact micro と whole-kilo の両方で良化した patch だけを採る
 - landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -40,7 +40,7 @@ tools/checks/dev_gate.sh quick
 3. `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
 4. `docs/development/current/main/phases/phase-152x/README.md`
 5. `docs/development/current/main/phases/phase-154x/README.md`
-6. `docs/development/current/main/phases/phase-159x/README.md`
+6. `docs/development/current/main/phases/phase-137x/README.md`
 
 ## Decision Lock
 
@@ -139,16 +139,16 @@ tools/checks/dev_gate.sh quick
   - exact counter backend is TLS-first
   - summary remains stderr sink based
   - current-thread flush is the active exact counter truth
-- `phase-159x` current:
-  - exact counter is now stable enough to split heavy trace out
-  - `perf-trace` feature is the first trace/debug-only observer lane
+- `phase-159x` landed:
+  - exact counter lane と trace lane の split place は source-backed
+  - `perf-trace` is keep-only placeholder, not the current blocker
 - latest bundle anchor:
   - `target/trace_logs/kilo-string-trace-asm/20260406-024104/summary.txt`
   - `target/trace_logs/kilo-string-trace-asm/20260406-024104/asm/perf_report.txt`
 - current perf reopen truth:
-  - `kilo_kernel_small_hk`: latest reread `ny_aot_ms=745`
-  - `kilo_micro_concat_const_suffix`: `ny_aot_ms=85`
-  - `kilo_micro_array_string_store`: `ny_aot_ms=207`
+  - `kilo_kernel_small_hk`: latest reread `ny_aot_ms=741`
+  - `kilo_micro_concat_const_suffix`: `ny_aot_ms=84`
+  - `kilo_micro_array_string_store`: `ny_aot_ms=181`
 
 ## First Design Slices
 

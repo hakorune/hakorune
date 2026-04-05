@@ -45,23 +45,20 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 24. `phase-156x perf counter instrumentation` (landed)
 25. `phase-157x observe feature split` (landed)
 26. `phase-158x observe tls backend` (landed)
-27. `phase-159x observe trace split` (active)
-28. `phase-137x main kilo reopen selection` (active consumer after observe trace split)
+27. `phase-159x observe trace split` (landed)
+28. `phase-137x main kilo reopen selection` (active after observe trace split)
 29. `phase-kx vm-hako small reference interpreter recut` (parked after optimization)
 
 ## Current Front
 
-- Active lane: `phase-159x observe trace split`
-- Active front: exact counter と heavy trace を分け、default release / observe release / trace debug の役割を混ぜない
-- Current blocker: `perf-trace` lane の置き場所はできたが、trace sink / sampled probe はまだ placeholder のまま
+- Active lane: `phase-137x main kilo reopen selection`
+- Active front: canonical `store.array.str` を first exact front として詰め、`array_string_store_handle_at(...)` の executor overhead を削る
+- Current blocker: executor-local trims は regress しやすいので、exact micro と whole-kilo の両方で同時に良化する patch だけを採る
 - Exact focus:
-  - `docs/development/current/main/phases/phase-159x/README.md`
-  - `crates/nyash_kernel/src/observe/mod.rs`
-  - `crates/nyash_kernel/src/observe/contract.rs`
-  - `crates/nyash_kernel/src/observe/backend/tls.rs`
-  - `crates/nyash_kernel/src/observe/config.rs`
-  - `crates/nyash_kernel/src/observe/sink/stderr.rs`
-  - `crates/nyash_kernel/src/observe/trace.rs`
+  - `docs/development/current/main/phases/phase-137x/README.md`
+  - `crates/nyash_kernel/src/plugin/array_handle_cache.rs`
+  - `crates/nyash_kernel/src/plugin/array_string_slot.rs`
+  - `crates/nyash_kernel/src/exports/string_helpers.rs`
 
 ## Successor Corridor
 
@@ -127,9 +124,9 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   - `docs/guides/selfhost-pilot.md` no longer requires llvmlite for daily selfhost/product flows
   - `docs/reference/environment-variables.md` labels `NYASH_LLVM_USE_HARNESS=1` examples as explicit keep-lane
 - current perf reopen truth:
-  - `kilo_kernel_small_hk`: latest reread `ny_aot_ms=745`
-  - `kilo_micro_concat_const_suffix`: `ny_aot_ms=85`
-  - `kilo_micro_array_string_store`: `ny_aot_ms=207`
+  - `kilo_kernel_small_hk`: latest reread `ny_aot_ms=741`
+  - `kilo_micro_concat_const_suffix`: `ny_aot_ms=84`
+  - `kilo_micro_array_string_store`: `ny_aot_ms=181`
 - `phase-155x` current perf order is fixed as canonical reading first:
   1. `store.array.str`
      - executor detail: `array_string_store_handle_at(...)`
@@ -153,7 +150,7 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   - exact counter backend is TLS-first inside `perf-observe`
   - current-thread flush owns end-of-run summary
   - shared atomic cost should stay out of hot path unless a future fallback backend explicitly asks for it
-- `phase-159x` current rule:
+- `phase-159x` landed rule:
   - exact counter remains `perf-observe`
   - heavy trace / sampled probe must move to a separate feature lane
   - do not mix trace semantics into exact counter identity or sink

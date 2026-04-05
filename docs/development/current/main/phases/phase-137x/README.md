@@ -1,6 +1,6 @@
 # Phase 137x: main kilo reopen selection
 
-- Status: Paused (consumer after phase-155x)
+- Status: Active
 - 目的: semantic ownership の最終形と canonical lowering visibility lock が landed した split kernel 上で `main kilo` を reopen する。llvmlite object emit retreat は landed し、現在は canonical perf front freeze の後続 consumer として待機。
 - 対象:
   - `CURRENT_TASK.md`
@@ -42,9 +42,9 @@
   - `kilo_micro_indexof_line`: `c_ms=4 / ny_aot_ms=4`
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
-  - `kilo_micro_concat_const_suffix`: `c_ms=2 / ny_aot_ms=85`
-  - `kilo_micro_array_string_store`: `c_ms=10 / ny_aot_ms=207`
-  - whole-kilo recheck after array-string-store executor trim: `c_ms=81 / ny_aot_ms=745`
+  - `kilo_micro_concat_const_suffix`: `c_ms=3 / ny_aot_ms=84`
+  - `kilo_micro_array_string_store`: `c_ms=10 / ny_aot_ms=181`
+  - whole-kilo recheck after array-cache epoch pass-through: `c_ms=81 / ny_aot_ms=741`
 - latest bundle read:
   - string contracts remain `keep_transient -> fresh_handle` for non-empty const concat/insert
   - `20260406-024104` still shows `crates/nyash_kernel/src/exports/string_helpers.rs::concat_const_suffix_fallback` as the top explicit hot symbol (`11.70%`)

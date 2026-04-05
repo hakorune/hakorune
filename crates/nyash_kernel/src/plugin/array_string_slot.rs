@@ -184,7 +184,7 @@ fn execute_store_array_str_contract(handle: i64, idx: i64, value_h: i64) -> i64 
         };
         observe::record_store_array_str_cache_probe(kind);
     }
-    super::array_handle_cache::with_array_box(handle, |arr| {
+    super::array_handle_cache::with_array_box_at_epoch(handle, drop_epoch, |arr| {
         let idx = idx as usize;
         arr.with_items_write(|items| {
             handles::with_handle(value_h as u64, |source_obj| {

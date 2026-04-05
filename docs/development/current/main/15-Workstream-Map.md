@@ -14,10 +14,10 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-159x observe trace split` |
-| Front | exact counter と heavy trace を分け、default release / observe release / trace debug の役割を混ぜない |
-| Blocker | `perf-trace` lane の置き場所はできたが、trace sink / sampled probe はまだ placeholder のまま |
-| Next | `phase-137x main kilo reopen selection` |
+| Now | `phase-137x main kilo reopen selection` |
+| Front | canonical `store.array.str` first で array string-store executor overhead を削る |
+| Blocker | exact micro と whole-kilo を同時に良化する patch だけを採る |
+| Next | `phase-kx vm-hako small reference interpreter recut` |
 | After Next | `phase-kx vm-hako small reference interpreter recut` |
 
 ## Current Read
@@ -86,11 +86,10 @@ Related:
   - exact counter backend is TLS-first
   - stderr summary stays the current sink
   - hot path should not pay shared atomic cost in the observe lane
-- `phase-159x` current:
+- `phase-159x` landed:
   - exact counter remains `perf-observe`
-  - heavy trace is the next split target
-  - first trace/debug-only lane is `perf-trace`
-  - trace/debug-only observer semantics must not contaminate the exact counter lane
+  - trace/debug-only lane is `perf-trace`
+  - trace lane is parked placeholder and no longer blocks perf reopen
 - paused reopen truth:
   - baseline: `kilo_kernel_small_hk = 1529ms`
   - string const fast-path: `775ms`
@@ -98,12 +97,12 @@ Related:
   - const empty-flag cache: `723ms`
   - shared text-based const-handle helper: `903ms`
   - single-closure const suffix fast path: `820ms`
-  - latest sampled whole-kilo reread: `745ms`
+  - latest sampled whole-kilo reread: `741ms`
   - first implementation consumer: `array string-store`
   - second implementation consumer: `concat const-suffix`
   - exact micro:
-    - `kilo_micro_concat_const_suffix = 85ms`
-    - `kilo_micro_array_string_store = 207ms`
+    - `kilo_micro_concat_const_suffix = 84ms`
+    - `kilo_micro_array_string_store = 181ms`
 
 ## Successor Corridor
 

@@ -12,9 +12,9 @@ Related:
 
 ## Current
 
-- lane: `phase-159x observe trace split`
-- current front: exact counter と heavy trace を分け、default release / observe release / trace debug の役割を混ぜない
-- blocker: `perf-trace` lane の置き場所はできたが、trace sink / sampled probe はまだ placeholder のまま
+- lane: `phase-137x main kilo reopen selection`
+- current front: `store.array.str` -> `array_string_store_handle_at(...)` を first exact front として詰める
+- blocker: whole-kilo regress を出さずに executor overhead を削る必要がある
 - first landed slice:
   - `tools/selfhost/lib/selfhost_build_exe.sh` no longer forces harness on the daily EXE lane
   - provider/selfhost docs now read llvmlite as explicit keep only
@@ -25,13 +25,13 @@ Related:
 - perf reopen front:
   - `store.array.str` -> `array_string_store_handle_at(...)`
   - `const_suffix` / `thaw.str + lit.str + str.concat2 + freeze.str` -> `concat_const_suffix_fallback(...)`
-- observe front:
+- observe lane:
   - `--features perf-observe`
   - `NYASH_PERF_COUNTERS=1`
   - TLS exact counter backend
   - `--features perf-trace`
   - `NYASH_PERF_TRACE=1`
-  - next: sampled trace / scoped probe split
+  - trace lane is now parked placeholder
   - contract identity:
     - `store.array.str`
     - `const_suffix`
@@ -98,21 +98,15 @@ Related:
 - landed visibility lock:
   - `const_suffix`, `ArrayStoreString`, `MapStoreAny` all read through owner -> canonical -> concrete lowering -> executor
 - current stop-line:
-  - do not reopen `phase-137x` until observer is compile-out by default and feature-on by choice
+  - observer stays compile-out by default and feature-on by choice
   - observer must not look like a fifth authority layer
   - exact counter backend must not keep shared atomic cost on the hot path
   - heavy trace must not piggyback on exact counter backend or sink
-- perf lane is paused, not cancelled:
-  - `phase-137x main kilo reopen selection` is the first consumer after observe trace split
+- perf lane is active again:
   - current perf truth:
-    - baseline `1529ms`
-    - after string const fast path `775ms`
-    - after const-handle cache follow-up `731ms`
-    - after const empty-flag cache `723ms`
-    - after shared text-based const-handle helper `903ms`
-    - after single-closure const suffix fast path `820ms`
-    - exact micro `concat_const_suffix` `85ms`
-    - exact micro `array_string_store` `217ms`
+    - whole `kilo_kernel_small_hk = 741ms`
+    - exact micro `kilo_micro_concat_const_suffix = 84ms`
+    - exact micro `kilo_micro_array_string_store = 181ms`
 
 ## Root Anchors
 
@@ -125,5 +119,5 @@ Related:
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
 3. `docs/development/current/main/phases/phase-137x/README.md`
-4. `docs/development/current/main/phases/phase-159x/README.md`
+4. `docs/development/current/main/phases/phase-137x/README.md`
 5. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
