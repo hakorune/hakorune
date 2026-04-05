@@ -62,6 +62,8 @@ freeze.str
   - keep it narrow; no widening to the rest of the string kernel yet
   - `StringCoreBox` wrapper should call into this owner vocabulary rather than
     carry search policy locally
+  - VM wrapper helper names should read like wrapper-via-owner adapters, not
+    like the final owner entrypoints themselves
 - `chain_policy.hako`
   - `boundary_kind_store() -> "Store"`
   - `post_store_use_len_observer() -> "LenObserver"`

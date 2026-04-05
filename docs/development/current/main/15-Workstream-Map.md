@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-146x string semantic boundary tighten` |
-| Front | `.hako` string semantic owner / wrapper / Rust native substrate の stop-line を締める |
-| Blocker | wrapper residue と native substrate helper がまだ近く見える |
-| Next | `phase-137x main kilo reopen selection` |
-| After Next | `phase-kx vm-hako small reference interpreter recut` |
+| Now | `phase-137x main kilo reopen selection` |
+| Front | split kernel 上の `kilo_kernel_small_hk` を再ベースラインして next hot leaf を pin する |
+| Blocker | string const-path と array string-store path の優先順位を bundle/asm で再確定する |
+| Next | `phase-kx vm-hako small reference interpreter recut` |
+| After Next | parked optimization follow-ups |
 
 ## Current Read
 
@@ -51,7 +51,7 @@ Related:
   - `phase-143x` = landed Map owner cutover implementation
   - `phase-144x` = landed String semantic owner follow-up
   - `phase-145x` = landed compat quarantine shrink
-  - `phase-146x` = active string semantic boundary tighten
+  - `phase-146x` = landed string semantic boundary tighten
 - `phase-140x` landed the second pilot:
   - `.hako` owner = `map_core_box.hako` / `map_state_core_box.hako`
   - substrate below = `raw_map_core_box.hako`
@@ -69,9 +69,8 @@ Related:
   - Rust lifetime/native substrate = `string_view.rs` / `string_helpers.rs` / `string_plan.rs`
   - `module_string_dispatch/**` stays quarantine, not owner
 - next fixed corridor:
-  1. `phase-146x string semantic boundary tighten`
-  2. `phase-137x main kilo reopen selection`
-  3. `phase-kx vm-hako small reference interpreter recut`
+  1. `phase-137x main kilo reopen selection`
+  2. `phase-kx vm-hako small reference interpreter recut`
 - current reopen read:
   - baseline: `kilo_kernel_small_hk = 1529ms`
   - string const fast-path: `905ms`

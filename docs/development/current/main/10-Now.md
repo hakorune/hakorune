@@ -12,9 +12,9 @@ Related:
 
 ## Current
 
-- lane: `phase-146x string semantic boundary tighten`
-- current front: `.hako` string semantic owner / wrapper / Rust native substrate の stop-line を締める
-- blocker: wrapper residue と Rust substrate helper がまだ近く見える
+- lane: `phase-137x main kilo reopen selection`
+- current front: split kernel で `kilo_kernel_small_hk` の next hot leaf を pin する
+- blocker: string const-path と array string-store path の優先順位を bundle/asm で再確定する
 - recent landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -59,9 +59,9 @@ Related:
   - `phase-144x` = landed String semantic owner follow-up
 - current cleanup lane:
   - `phase-145x` = landed compat quarantine shrink
-  - `phase-146x` = active string semantic boundary tighten
+  - `phase-146x` = landed string semantic boundary tighten
 - perf lane is delayed, not cancelled:
-  - `phase-137x main kilo reopen selection` waits until compat/string cleanup is clean
+  - `phase-137x main kilo reopen selection` is current again now that compat/string cleanup is landed
   - reopen win:
     - baseline `1529ms`
     - after string const fast path `905ms`

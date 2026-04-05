@@ -20,9 +20,9 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-146x string semantic boundary tighten`
-- current front: `.hako` string semantic owner / wrapper / Rust substrate の stop-line 固定が current
-- blocker: `string_core_box.hako` wrapper residue と Rust string substrate helper が source 上でまだ近く見える
+- lane: `phase-137x main kilo reopen selection`
+- current front: split kernel 上の `kilo_kernel_small_hk` を再ベースラインして next hot leaf を pin する
+- blocker: string const-path と array string-store path の優先順位を bundle/asm で再確認する
 - landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -36,7 +36,7 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-146x/README.md`
+3. `docs/development/current/main/phases/phase-137x/README.md`
 4. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
 
 ## Decision Lock
@@ -89,8 +89,9 @@ tools/checks/dev_gate.sh quick
     - `crates/nyash_kernel/src/plugin/invoke_core.rs`
   - quarantine:
     - `crates/nyash_kernel/src/plugin/module_string_dispatch/**`
-- `phase-146x` current:
+- `phase-146x` landed:
   - tighten string semantic owner / wrapper / native substrate wording and helper boundaries
+  - close the wrapper-vs-owner naming gap in `StringCoreBox`
 
 ## First Design Slices
 

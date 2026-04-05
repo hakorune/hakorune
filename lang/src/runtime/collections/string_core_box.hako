@@ -134,7 +134,7 @@ static box StringCoreBox {
     return 1
   }
 
-  _indexof_owner_runtime(regs, kinds, handle_regs, dst, seg, text) {
+  _indexof_wrapper_via_owner_runtime(regs, kinds, handle_regs, dst, seg, text) {
     local arg0 = MiniMirV1Scan.first_arg_register(seg)
     local needle_raw = me._read_reg_text_or_null(regs, handle_regs, arg0)
     local needle = needle_raw == null ? "" : ("" + needle_raw)
@@ -145,7 +145,7 @@ static box StringCoreBox {
     return 1
   }
 
-  _lastindexof_owner_runtime(regs, kinds, handle_regs, dst, seg, text) {
+  _lastindexof_wrapper_via_owner_runtime(regs, kinds, handle_regs, dst, seg, text) {
     local arg0_rt = MiniMirV1Scan.first_arg_register(seg)
     local needle_rt = me._read_reg_text_or_null(regs, handle_regs, arg0_rt)
     local needle = needle_rt == null ? "" : ("" + needle_rt)
@@ -155,7 +155,7 @@ static box StringCoreBox {
     return 1
   }
 
-  _substring_owner_runtime(regs, kinds, handle_regs, dst, seg, text) {
+  _substring_wrapper_runtime(regs, kinds, handle_regs, dst, seg, text) {
     local start_raw = me._read_reg_int_or_zero(regs, MiniMirV1Scan.first_arg_register(seg))
     local end_raw = me._read_reg_int_or_zero(regs, MiniMirV1Scan.nth_arg_register(seg, 1))
     local n = text.length()
@@ -180,13 +180,13 @@ static box StringCoreBox {
     if raw == null { return 0 }
     local text = "" + raw
     if mname == "indexOf" {
-      return me._indexof_owner_runtime(regs, kinds, handle_regs, dst, seg, text)
+      return me._indexof_wrapper_via_owner_runtime(regs, kinds, handle_regs, dst, seg, text)
     }
     if mname == "lastIndexOf" {
-      return me._lastindexof_owner_runtime(regs, kinds, handle_regs, dst, seg, text)
+      return me._lastindexof_wrapper_via_owner_runtime(regs, kinds, handle_regs, dst, seg, text)
     }
     if mname == "substring" || mname == "substr" {
-      return me._substring_owner_runtime(regs, kinds, handle_regs, dst, seg, text)
+      return me._substring_wrapper_runtime(regs, kinds, handle_regs, dst, seg, text)
     }
     return 0
   }
