@@ -67,6 +67,7 @@ Related:
     - after string const fast path `905ms`
     - after const-handle cache follow-up `731ms`
     - after const empty-flag cache `723ms`
+    - after shared text-based const-handle helper `903ms`
 
 ## Root Anchors
 

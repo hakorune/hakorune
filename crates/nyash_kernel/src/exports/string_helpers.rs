@@ -601,23 +601,23 @@ fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i64 {
     if suffix_ptr.is_null() {
         return a_h;
     }
-    let suffix_h = CONST_SUFFIX_TEXT_CACHE.with(|cache| {
-        let addr = suffix_ptr as usize;
-        if cache.ptr.get() == addr {
-            let cached = cache.handle.get();
-            if cached > 0 {
-                return cached;
+    let suffix_h = with_cached_const_text(&CONST_SUFFIX_TEXT_CACHE, suffix_ptr, |suffix| {
+        CONST_SUFFIX_TEXT_CACHE.with(|cache| {
+            let addr = suffix_ptr as usize;
+            if cache.ptr.get() == addr {
+                let cached = cache.handle.get();
+                if cached > 0 {
+                    return cached;
+                }
             }
-        }
-        let suffix_is_empty = unsafe { CStr::from_ptr(suffix_ptr) }.to_bytes().is_empty();
-        let handle = super::super::nyash_box_from_i8_string_const(suffix_ptr);
-        if handle > 0 {
-            cache.ptr.set(addr);
-            cache.handle.set(handle);
-            cache.is_empty.set(suffix_is_empty);
-            *cache.text.borrow_mut() = None;
-        }
-        handle
+            let handle = super::super::string_const_handle_from_text(suffix);
+            if handle > 0 {
+                cache.ptr.set(addr);
+                cache.handle.set(handle);
+                cache.is_empty.set(suffix.is_empty());
+            }
+            handle
+        })
     });
     if suffix_h > 0 {
         let suffix_is_empty =
@@ -672,21 +672,22 @@ fn insert_const_mid_fallback(source_h: i64, middle_ptr: *const i8, split: i64) -
     let middle_h = if middle_ptr.is_null() {
         0
     } else {
-        CONST_INSERT_TEXT_CACHE.with(|cache| {
-            let addr = middle_ptr as usize;
-            if cache.ptr.get() == addr {
-                let cached = cache.handle.get();
-                if cached > 0 {
-                    return cached;
+        with_cached_const_text(&CONST_INSERT_TEXT_CACHE, middle_ptr, |middle| {
+            CONST_INSERT_TEXT_CACHE.with(|cache| {
+                let addr = middle_ptr as usize;
+                if cache.ptr.get() == addr {
+                    let cached = cache.handle.get();
+                    if cached > 0 {
+                        return cached;
+                    }
                 }
-            }
-            let handle = super::super::nyash_box_from_i8_string_const(middle_ptr);
-            if handle > 0 {
-                cache.ptr.set(addr);
-                cache.handle.set(handle);
-                *cache.text.borrow_mut() = None;
-            }
-            handle
+                let handle = super::super::string_const_handle_from_text(middle);
+                if handle > 0 {
+                    cache.ptr.set(addr);
+                    cache.handle.set(handle);
+                }
+                handle
+            })
         })
     };
 
