@@ -1,0 +1,22 @@
+// kilo/text exact hotspot microbench:
+// constant suffix reopen path (`concat_hs`) under stable-length rotation.
+static box Main {
+  main() {
+    local ops = 600000
+    local text = "line-seed-abcdef"
+    local base_len = text.length()
+    local i = 0
+    local acc = 0
+
+    loop (i < ops) {
+      local out = text + "xy"
+      acc = acc + out.length()
+
+      // Keep base length stable while forcing a fresh concat_hs each round.
+      text = out.substring(2, base_len + 2)
+      i = i + 1
+    }
+
+    return acc + text.length()
+  }
+}

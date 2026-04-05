@@ -1,0 +1,30 @@
+// kilo/text exact hotspot microbench:
+// array string-store path (`set_his`) with rotating string handles.
+static box Main {
+  main() {
+    local size = 128
+    local ops = 800000
+    local arr = new ArrayBox()
+    local seed = "line-seed-abcdef"
+    local i = 0
+
+    loop (i < size) {
+      arr.push(seed)
+      i = i + 1
+    }
+
+    local sum = 0
+    local text = seed
+    i = 0
+    loop (i < ops) {
+      local idx = i % size
+      local out = text + "xy"
+      arr.set(idx, out)
+      sum = sum + arr.get(idx).length()
+      text = out.substring(2, seed.length() + 2)
+      i = i + 1
+    }
+
+    return sum + text.length()
+  }
+}

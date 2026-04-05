@@ -21,6 +21,8 @@ if [[ ! -x "${STAT}" ]]; then
 fi
 
 cases=(
+  kilo_micro_concat_const_suffix
+  kilo_micro_array_string_store
   kilo_micro_indexof_line
   kilo_micro_substring_concat
   kilo_micro_array_getset

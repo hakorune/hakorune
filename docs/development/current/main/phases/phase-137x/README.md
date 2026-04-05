@@ -37,9 +37,12 @@
   - after const empty-flag cache: `c_ms=81 / ny_aot_ms=723`
   - after shared text-based const-handle helper: `c_ms=80 / ny_aot_ms=903`
   - after single-closure const suffix fast path: `c_ms=83 / ny_aot_ms=820`
+  - latest sampled whole-kilo reread: `c_ms=82 / ny_aot_ms=905`
   - `kilo_micro_indexof_line`: `c_ms=4 / ny_aot_ms=4`
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
+  - `kilo_micro_concat_const_suffix`: `c_ms=2 / ny_aot_ms=85`
+  - `kilo_micro_array_string_store`: `c_ms=9 / ny_aot_ms=217`
 - latest bundle read:
   - string contracts remain `keep_transient -> fresh_handle` for non-empty const concat/insert
   - `20260406-004537` still shows `crates/nyash_kernel/src/exports/string_helpers.rs::concat_const_suffix_fallback` as the top explicit hot symbol (`10.63%`)
@@ -50,5 +53,6 @@
 1. optimize `concat_const_suffix_fallback(...)`
 2. recheck `array_string_store_handle_at(...)` only after string const-path stalls
 3. refresh `kilo_kernel_small_hk`
-4. re-bundle and decide whether string or array-handle-cache is next
-5. hand off to the next optimization lane
+4. keep exact micro probes next to whole-kilo truth
+5. re-bundle and decide whether string or array-handle-cache is next
+6. hand off to the next optimization lane

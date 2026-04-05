@@ -69,6 +69,8 @@ Related:
     - after const empty-flag cache `723ms`
     - after shared text-based const-handle helper `903ms`
     - after single-closure const suffix fast path `820ms`
+    - exact micro `concat_const_suffix` `85ms`
+    - exact micro `array_string_store` `217ms`
 
 ## Root Anchors
 

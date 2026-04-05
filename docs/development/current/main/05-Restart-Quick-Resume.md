@@ -124,6 +124,9 @@ git diff --check
   - first target: `concat_const_suffix_fallback(...)`
   - second target: `array_string_store_handle_at(...)`
   - latest asm bundle: `20260406-004537`
+  - exact micro probes:
+    - `kilo_micro_concat_const_suffix`: `c_ms=2 / ny_aot_ms=85`
+    - `kilo_micro_array_string_store`: `c_ms=9 / ny_aot_ms=217`
 - `phase-144x` landed:
   - `StringCoreBox.{size,indexOf,lastIndexOf,substring}` now reads through helperized wrapper paths
   - `indexOf(search, fromIndex)` delegates to `StringSearchKernelBox.find_index_from(...)`
