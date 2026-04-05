@@ -18,8 +18,8 @@ Re-cut `crates/nyash_kernel` into four responsibility buckets before the next op
 
 ## Current First Slices
 
-- `crates/nyash_kernel/src/exports/string.rs`
-- `crates/nyash_kernel/src/plugin/map_substrate.rs`
+- `crates/nyash_kernel/src/exports/string.rs` split landed
+- `crates/nyash_kernel/src/plugin/map_substrate.rs` thin-alias recut landed
 
 ## Constraints
 
@@ -34,6 +34,5 @@ Re-cut `crates/nyash_kernel` into four responsibility buckets before the next op
 ## Success Condition
 
 - The four-bucket inventory is recorded and source-backed.
-- `phase-135x` is fixed to `string export split`.
-- `phase-136x` is fixed to `map substrate thin-alias recut`.
+- The first two source slices have landed.
 - `phase-137x main kilo reopen selection` remains the next optimization lane.

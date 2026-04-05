@@ -20,20 +20,20 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-134x nyash_kernel layer recut selection`
-- current front: `exports/string.rs` split inventory + `plugin/map_substrate.rs` thin-alias inventory
-- blocker: `.hako` 移植を先に始めない。先に `ABI / glue / substrate` を Rust 側で切り分ける
-- landed: `phase-133x micro kilo reopen selection`
+- lane: `phase-137x main kilo reopen selection`
+- current front: `kilo_kernel_small_hk` 再ベースライン + `kilo_micro_substring_concat` / `kilo_micro_array_getset` 再確認
+- blocker: `nyash_kernel` の構造分割は landed。split kernel 上で `main kilo` を reopen する
+- landed:
+  - `phase-134x nyash_kernel layer recut selection`
+  - `phase-133x micro kilo reopen selection`
 - active next:
-  - `phase-135x string export split`
-  - `phase-136x map substrate thin-alias recut`
-  - `phase-137x main kilo reopen selection`
+  - `phase-kx vm-hako small reference interpreter recut`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-134x/README.md`
+3. `docs/development/current/main/phases/phase-137x/README.md`
 
 ## Decision Lock
 
@@ -51,8 +51,8 @@ tools/checks/dev_gate.sh quick
 
 ## First Source Slices
 
-- `crates/nyash_kernel/src/exports/string.rs`
-- `crates/nyash_kernel/src/plugin/map_substrate.rs`
+- `crates/nyash_kernel/src/exports/string.rs` split
+- `crates/nyash_kernel/src/plugin/map_substrate.rs` thin-alias recut
 
 ## Current Proof Bundle
 

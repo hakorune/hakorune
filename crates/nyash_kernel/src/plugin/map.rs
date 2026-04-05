@@ -1,5 +1,5 @@
+pub use super::map_aliases::*;
 pub use super::map_compat::*;
-pub use super::map_substrate::*;
 
 #[cfg(test)]
 mod tests {

@@ -1,5 +1,6 @@
 # Phase 134x: nyash_kernel layer recut selection
 
+- Status: ✅ landed
 - 目的: 最適化を再開する前に `crates/nyash_kernel` を `keep / thin keep / compat glue / substrate candidate` の4層で再分類し、最初の source slice を固定する。
 - 対象:
   - `CURRENT_TASK.md`
@@ -16,7 +17,8 @@
   - `phase-133x` is landed
   - current no longer reads like direct perf work
   - `nyash_kernel` four-bucket split is source-backed
-  - first two source slices are fixed as `phase-135x` and `phase-136x`
+  - the first two source slices are landed
+  - `phase-137x main kilo reopen selection` is next
 
 ## Decision Now
 
@@ -29,7 +31,7 @@
   - classify `nyash_kernel` by responsibility
   - not broad `.hako` migration
   - not broad hot-path tuning
-- first exact slices:
+- landed source slices:
   - `exports/string.rs` split
   - `plugin/map_substrate.rs` thin-alias recut
 
@@ -46,7 +48,6 @@
 
 ## Next
 
-1. lock the four-bucket inventory in the task board
-2. cut `phase-135x string export split`
-3. cut `phase-136x map substrate thin-alias recut`
-4. reopen `main kilo` only after those two cuts are fixed
+1. reopen `main kilo` on the split kernel
+2. refresh `kilo_kernel_small_hk` baseline
+3. recheck `kilo_micro_substring_concat` and `kilo_micro_array_getset`

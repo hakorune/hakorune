@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 134x nyash_kernel layer recut selection
+- **Current (ACTIVE)**: Phase 137x main kilo reopen selection
+- **Phase 134x（LANDED）**: nyash_kernel layer recut selection
 - **Phase 133x（LANDED）**: micro kilo reopen selection
 - **Phase 132x（LANDED）**: vm default backend decision
 - **Phase 131x（LANDED）**: vm legacy contract migration
@@ -43,6 +44,7 @@
 
 ### Recent Landed
 
+- **Phase 134x（LANDED）**: nyash_kernel layer recut selection
 - **Phase 133x（LANDED）**: micro kilo reopen selection
 - **Phase 132x（LANDED）**: vm default backend decision
 - **Phase 131x（LANDED）**: vm legacy contract migration
@@ -75,11 +77,10 @@
 ## Phase フォルダ構成（推奨）
 
 ```
-phases/phase-131/
-├── README.md                          (Phase 全体概要)
-├── 131-03-llvm-lowering-inventory.md (LLVM 部分のテスト・検証)
-├── 131-11-case-c-summary.md          (Case C 実装サマリー)
-└── phase131-11-case-c-root-cause-analysis.md (根本原因分析)
+phases/phase-137x/
+├── README.md
+├── 137x-90-main-kilo-reopen-selection-ssot.md
+└── 137x-91-task-board.md
 ```
 
 ## 参照方法

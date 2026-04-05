@@ -12,12 +12,12 @@ Related:
 
 ## Current
 
-- lane: `phase-134x nyash_kernel layer recut selection`
-- current front: `exports/string.rs` split inventory + `plugin/map_substrate.rs` thin-alias inventory
-- blocker: `.hako` owner 移行を急がない。先に Rust 側で `ABI / glue / substrate` を分ける
+- lane: `phase-137x main kilo reopen selection`
+- current front: `kilo_kernel_small_hk` 再ベースライン + `kilo_micro_substring_concat` / `kilo_micro_array_getset` 再確認
+- blocker: `nyash_kernel` の構造分割は landed。split kernel 上で `main kilo` を reopen する
 - recent landed:
+  - `phase-134x nyash_kernel layer recut selection`
   - `phase-133x micro kilo reopen selection`
-  - `phase-132x vm default backend decision`
 
 ## Current Read
 
@@ -30,17 +30,15 @@ Related:
   - `kilo_micro_substring_concat`: parity locked
   - `kilo_micro_array_getset`: parity locked
   - `kilo_micro_indexof_line`: frozen faster than C
-- before `main kilo`, current work re-cuts `nyash_kernel` into four buckets:
+- before `main kilo`, current work re-cut `nyash_kernel` into four buckets:
   - `keep`
   - `thin keep`
   - `compat glue`
   - `substrate candidate`
-- first source slices:
-  - `crates/nyash_kernel/src/exports/string.rs`
-  - `crates/nyash_kernel/src/plugin/map_substrate.rs`
+- landed source slices:
+  - `crates/nyash_kernel/src/exports/string.rs` split
+  - `crates/nyash_kernel/src/plugin/map_substrate.rs` thin-alias recut
 - target shape:
-  - `phase-135x string export split`
-  - `phase-136x map substrate thin-alias recut`
   - `phase-137x main kilo reopen selection`
 
 ## Root Anchors
@@ -52,4 +50,4 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-134x/README.md`
+2. `docs/development/current/main/phases/phase-137x/README.md`
