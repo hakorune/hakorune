@@ -540,9 +540,9 @@ fn concat_const_suffix_from_handle(a_h: i64, suffix: &str) -> i64 {
 fn concat_const_suffix_from_const_handle_cached(
     a_h: i64,
     suffix_h: i64,
-    suffix_is_empty: bool,
+    placement: RetainedForm,
 ) -> Option<i64> {
-    match concat_suffix_retention_class(suffix_is_empty) {
+    match placement {
         RetainedForm::ReturnHandle => Some(a_h),
         RetainedForm::KeepTransient | RetainedForm::MustFreeze(_) => {
             if let Some(out) = concat_pair_from_fast_str(a_h, suffix_h) {
@@ -601,36 +601,39 @@ fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i64 {
     if suffix_ptr.is_null() {
         return a_h;
     }
+    let addr = suffix_ptr as usize;
+    if let Some(out) = CONST_SUFFIX_TEXT_CACHE.with(|cache| {
+        if cache.ptr.get() != addr {
+            return None;
+        }
+        let cached = cache.handle.get();
+        if cached <= 0 {
+            return None;
+        }
+        let placement = concat_suffix_retention_class(cache.is_empty.get());
+        if let Some(out) = concat_const_suffix_from_const_handle_cached(a_h, cached, placement) {
+            return Some(out);
+        }
+        let text_ref = cache.text.borrow();
+        text_ref
+            .as_deref()
+            .map(|suffix| concat_const_suffix_from_handle(a_h, suffix))
+    }) {
+        return out;
+    }
     with_cached_const_text(&CONST_SUFFIX_TEXT_CACHE, suffix_ptr, |suffix| {
         let suffix_is_empty = suffix.is_empty();
-        if matches!(
-            concat_suffix_retention_class(suffix_is_empty),
-            RetainedForm::ReturnHandle
-        ) {
+        let placement = concat_suffix_retention_class(suffix_is_empty);
+        if matches!(placement, RetainedForm::ReturnHandle) {
             return a_h;
         }
         CONST_SUFFIX_TEXT_CACHE.with(|cache| {
-            let addr = suffix_ptr as usize;
-            if cache.ptr.get() == addr {
-                let cached = cache.handle.get();
-                if cached > 0 {
-                    if let Some(out) = concat_const_suffix_from_const_handle_cached(
-                        a_h,
-                        cached,
-                        suffix_is_empty,
-                    ) {
-                        return out;
-                    }
-                    return concat_const_suffix_from_handle(a_h, suffix);
-                }
-            }
             let handle = super::super::string_const_handle_from_text(suffix);
             if handle > 0 {
                 cache.ptr.set(addr);
                 cache.handle.set(handle);
                 cache.is_empty.set(suffix_is_empty);
-                if let Some(out) =
-                    concat_const_suffix_from_const_handle_cached(a_h, handle, suffix_is_empty)
+                if let Some(out) = concat_const_suffix_from_const_handle_cached(a_h, handle, placement)
                 {
                     return out;
                 }

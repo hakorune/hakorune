@@ -147,12 +147,12 @@ Scope: repo root から current lane / next lane / restart read order に最短�
     - `crates/nyash_kernel/src/exports/string_helpers.rs`
 - `phase-137x` current baseline and first reopen wins:
   - baseline: `kilo_kernel_small_hk`: `c_ms=81 / ny_aot_ms=1529`
-  - after `concat_const_suffix_fallback` fast path: `c_ms=83 / ny_aot_ms=905`
+  - after string const-path branch collapse: `c_ms=82 / ny_aot_ms=775`
   - after const-handle cache follow-up: `c_ms=84 / ny_aot_ms=731`
   - after const empty-flag cache: `c_ms=81 / ny_aot_ms=723`
   - after shared text-based const-handle helper: `c_ms=80 / ny_aot_ms=903`
   - after single-closure const suffix fast path: `c_ms=83 / ny_aot_ms=820`
-  - latest sampled whole-kilo reread: `c_ms=82 / ny_aot_ms=905`
+  - latest sampled whole-kilo reread: `c_ms=82 / ny_aot_ms=775`
   - exact micro `kilo_micro_concat_const_suffix`: `c_ms=2 / ny_aot_ms=85`
   - exact micro `kilo_micro_array_string_store`: `c_ms=9 / ny_aot_ms=217`
   - `kilo_micro_indexof_line`: `c_ms=4 / ny_aot_ms=4`

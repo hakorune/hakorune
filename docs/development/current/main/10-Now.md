@@ -64,7 +64,7 @@ Related:
   - `phase-137x main kilo reopen selection` is current again now that compat/string cleanup is landed
   - reopen win:
     - baseline `1529ms`
-    - after string const fast path `905ms`
+    - after string const fast path `775ms`
     - after const-handle cache follow-up `731ms`
     - after const empty-flag cache `723ms`
     - after shared text-based const-handle helper `903ms`

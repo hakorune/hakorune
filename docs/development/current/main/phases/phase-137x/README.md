@@ -32,12 +32,12 @@
 - `src/tests.rs` has been split into `tests/filebox.rs` and `tests/string.rs`, so the root test module is no longer a 1000+ line monolith
 - reopened perf read:
   - baseline: `kilo_kernel_small_hk`: `c_ms=81 / ny_aot_ms=1529`
-  - after `concat_const_suffix_fallback` fast path: `c_ms=83 / ny_aot_ms=905`
+  - after string const-path branch collapse: `c_ms=82 / ny_aot_ms=775`
   - after const-handle cache follow-up: `c_ms=84 / ny_aot_ms=731`
   - after const empty-flag cache: `c_ms=81 / ny_aot_ms=723`
   - after shared text-based const-handle helper: `c_ms=80 / ny_aot_ms=903`
   - after single-closure const suffix fast path: `c_ms=83 / ny_aot_ms=820`
-  - latest sampled whole-kilo reread: `c_ms=82 / ny_aot_ms=905`
+  - latest sampled whole-kilo reread: `c_ms=82 / ny_aot_ms=775`
   - `kilo_micro_indexof_line`: `c_ms=4 / ny_aot_ms=4`
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`

@@ -111,7 +111,7 @@ git diff --check
 ```
 - reopened perf read:
   - baseline: `kilo_kernel_small_hk`: `c_ms=81 / ny_aot_ms=1529`
-  - string const fast-path: `c_ms=83 / ny_aot_ms=905`
+  - string const fast-path: `c_ms=82 / ny_aot_ms=775`
   - const-handle cache follow-up: `c_ms=84 / ny_aot_ms=731`
   - const empty-flag cache: `c_ms=81 / ny_aot_ms=723`
   - shared text-based const-handle helper: `c_ms=80 / ny_aot_ms=903`
