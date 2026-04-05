@@ -14,9 +14,9 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-155x perf canonical visibility tighten` |
-| Front | `phase-137x` の exact perf front を canonical contract reading から先に読めるように固定する |
-| Blocker | perf front がまだ Rust executor 名先行で読まれやすいこと |
+| Now | `phase-156x perf counter instrumentation` |
+| Front | `store.array.str` / `const_suffix` を route-tagged counter で読めるようにする |
+| Blocker | asm/bundle だけでは miss reason と fallback rate が足りないこと |
 | Next | `phase-137x main kilo reopen selection` |
 | After Next | `phase-kx vm-hako small reference interpreter recut` |
 
@@ -75,6 +75,10 @@ Related:
   - `store.array.str` first
   - `const_suffix` / `thaw.str + lit.str + str.concat2 + freeze.str` second
   - latest bundle anchor = `20260406-024104`
+- `phase-156x` adds opt-in perf counters:
+  - `NYASH_PERF_COUNTERS=1`
+  - `store.array.str`: `cache_hit` / `cache_miss_handle` / `cache_miss_epoch` / `retarget_hit` / `source_store` / `non_string_source`
+  - `const_suffix`: `cached_handle_hit` / `text_cache_reload` / `freeze_fallback`
 - paused reopen truth:
   - baseline: `kilo_kernel_small_hk = 1529ms`
   - string const fast-path: `775ms`
@@ -111,7 +115,7 @@ Related:
   - lifetime-sensitive hot leaves and native accelerators stay in Rust until proven otherwise
   - semantic ownership moves toward `.hako`
 - compat quarantine must not become a permanent owner layer
-  - do not reopen broad perf tuning before optimization authority contract freeze and canonical-lowering visibility lock are complete
+  - do not reopen broad perf tuning before optimization authority contract freeze, canonical-lowering visibility lock, and counter proof are complete
 
 ## Reference
 

@@ -180,6 +180,7 @@ direct-v0 bridge policy:
 | --- | --- | --- | --- |
 | `NYASH_STR_CP=1` | OFF | Any | 文字列の `length` / `indexOf` / `lastIndexOf` / `substring` をコードポイント基準にする（既定はバイト基準） |
 | `NYASH_STRING_SPAN_CACHE_POLICY=on\|off\|enabled\|disabled\|1\|0` | `on` | Any | TLS string span cache の policy。`on` は現行挙動、`off` は span cache を bypass（lookup/put しない）。 |
+| `NYASH_PERF_COUNTERS=1` | OFF | Any | canonical perf front の opt-in counter summary を process exit 時に stderr へ出す。current route tags は `store.array.str` と `const_suffix`。 |
 
 ---
 

@@ -1,6 +1,6 @@
 # Phase 155x: perf canonical visibility tighten
 
-- Status: Active
+- Status: Landed
 - 目的: `phase-137x` の exact perf front を Rust executor 名だけでなく canonical contract reading から追えるように固定する。
 - 対象:
   - `CURRENT_TASK.md`

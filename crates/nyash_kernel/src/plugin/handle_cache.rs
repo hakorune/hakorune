@@ -83,6 +83,13 @@ thread_local! {
     static HANDLE_CACHE: RefCell<Option<HandleCacheEntry>> = RefCell::new(None);
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum CacheProbeKind {
+    Hit,
+    MissHandle,
+    MissDropEpoch,
+}
+
 #[cfg(test)]
 #[inline(always)]
 pub(crate) fn clear_cache_slot() {
@@ -102,6 +109,23 @@ pub(super) fn with_cache_entry<R>(
             return None;
         }
         f(entry)
+    })
+}
+
+#[inline(always)]
+pub(super) fn cache_probe_kind(handle: i64, drop_epoch: u64) -> CacheProbeKind {
+    HANDLE_CACHE.with(|slot| {
+        let cached = slot.borrow();
+        let Some(entry) = cached.as_ref() else {
+            return CacheProbeKind::MissHandle;
+        };
+        if entry.handle != handle {
+            return CacheProbeKind::MissHandle;
+        }
+        if entry.drop_epoch != drop_epoch {
+            return CacheProbeKind::MissDropEpoch;
+        }
+        CacheProbeKind::Hit
     })
 }
 

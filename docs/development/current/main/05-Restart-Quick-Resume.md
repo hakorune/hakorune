@@ -20,9 +20,9 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-155x perf canonical visibility tighten`
-- current front: `phase-137x` の exact perf front を canonical contract reading から先に読めるように固定する
-- blocker: perf front がまだ Rust executor 名先行で読まれやすいこと
+- lane: `phase-156x perf counter instrumentation`
+- current front: `store.array.str` / `const_suffix` を推定ではなく route-tagged counter で読めるようにする
+- blocker: asm/bundle だけでは cache miss reason と fallback rate が足りないこと
 - landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -40,7 +40,7 @@ tools/checks/dev_gate.sh quick
 3. `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
 4. `docs/development/current/main/phases/phase-152x/README.md`
 5. `docs/development/current/main/phases/phase-154x/README.md`
-6. `docs/development/current/main/phases/phase-155x/README.md`
+6. `docs/development/current/main/phases/phase-156x/README.md`
 
 ## Decision Lock
 
@@ -126,9 +126,15 @@ tools/checks/dev_gate.sh quick
   - `docs/guides/exe-first-wsl.md` now reads `ny-llvmc` as the daily EXE-first owner route
   - `docs/guides/selfhost-pilot.md` no longer presents llvmlite as a daily selfhost/product requirement
   - `docs/reference/environment-variables.md` labels `NYASH_LLVM_USE_HARNESS=1` examples as explicit keep-lane
-- `phase-155x` freezes perf front as canonical reading first:
+- `phase-155x` landed:
+  - perf front is now read canonical reading first
+- `phase-156x` freezes the first counter surface:
   - `store.array.str` -> `array_string_store_handle_at(...)`
   - `const_suffix` / `thaw.str + lit.str + str.concat2 + freeze.str` -> `concat_const_suffix_fallback(...)`
+  - `NYASH_PERF_COUNTERS=1` emits route-tagged summary lines at process exit
+  - current counters:
+    - `store.array.str`: `cache_hit` / `cache_miss_handle` / `cache_miss_epoch` / `retarget_hit` / `source_store` / `non_string_source`
+    - `const_suffix`: `cached_handle_hit` / `text_cache_reload` / `freeze_fallback`
 - latest bundle anchor:
   - `target/trace_logs/kilo-string-trace-asm/20260406-024104/summary.txt`
   - `target/trace_logs/kilo-string-trace-asm/20260406-024104/asm/perf_report.txt`

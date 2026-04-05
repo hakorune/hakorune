@@ -4,9 +4,10 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 155x perf canonical visibility tighten
+- **Current (ACTIVE)**: Phase 156x perf counter instrumentation
 - **Phase 137x（NEXT）**: main kilo reopen selection
-- **Phase 155x（ACTIVE）**: perf canonical visibility tighten
+- **Phase 156x（ACTIVE）**: perf counter instrumentation
+- **Phase 155x（LANDED）**: perf canonical visibility tighten
 - **Phase 154x（LANDED）**: llvmlite archive lock
 - **Phase 153x（LANDED）**: ny_mir_builder harness drop
 - **Phase 152x（LANDED）**: llvmlite object emit cutover

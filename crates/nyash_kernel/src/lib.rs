@@ -7,6 +7,7 @@ mod exports;
 mod ffi;
 mod hako_forward;
 mod hako_forward_bridge;
+mod perf_counters;
 mod plugin;
 mod user_box_registry;
 
