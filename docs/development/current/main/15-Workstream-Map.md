@@ -16,7 +16,7 @@ Related:
 | --- | --- |
 | Now | `phase-131x vm legacy contract migration` |
 | Front | explicit legacy `vm` contract smoke は archive 済み。backend-hint chain を順に畳む |
-| Blocker | `src/runner/stage1_bridge/stub_child.rs` がまだ legacy contract を支えている |
+| Blocker | `src/runner/stage1_bridge/stub_child.rs` と `src/runner/stage1_bridge/env/stage1_aliases.rs` がまだ legacy contract を支えている |
 | Next | explicit legacy `vm` contract caller migration を source-backed に進める |
 | After Next | `phase-kx vm-hako small reference interpreter recut` |
 

@@ -22,7 +22,7 @@ tools/checks/dev_gate.sh quick
 
 - lane: `phase-131x vm legacy contract migration`
 - current front: explicit legacy `vm` contract smoke は archive 済み。backend-hint chain を順に畳む
-- blocker: `src/runner/stage1_bridge/stub_child.rs` がまだ legacy contract を支えている
+- blocker: `src/runner/stage1_bridge/stub_child.rs` と `src/runner/stage1_bridge/env/stage1_aliases.rs` がまだ legacy contract を支えている
 - landed: `phase-130x` wording-only public gate cleanup
 - active next: `phase-131x vm legacy contract migration`
 - recent landed:

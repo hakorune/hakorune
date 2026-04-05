@@ -25,7 +25,7 @@ pub(super) fn apply(cmd: &mut Command, config: &Stage1ChildEnvConfig<'_>) {
     }
 
     if std::env::var("NYASH_STAGE1_BACKEND").is_err() {
-        if let Some(backend) = stage1::backend_hint().or_else(stage1::backend_alias_warned) {
+        if let Some(backend) = config.backend_hint {
             cmd.env("NYASH_STAGE1_BACKEND", backend);
         }
     }
@@ -53,7 +53,7 @@ pub(super) fn apply(cmd: &mut Command, config: &Stage1ChildEnvConfig<'_>) {
     }
 
     if std::env::var("STAGE1_BACKEND").is_err() {
-        if let Some(backend) = stage1::backend_hint().or(config.backend_hint.map(str::to_string)) {
+        if let Some(backend) = config.backend_hint {
             cmd.env("STAGE1_BACKEND", backend);
         }
     }

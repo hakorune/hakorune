@@ -7,6 +7,7 @@
 - [x] `tools/smokes/v2/profiles/integration/phase29x/observability/phase29x_vm_route_strict_dev_priority_vm.sh`
 - [x] `tools/smokes/v2/profiles/integration/phase29x/derust/phase29x_derust_strict_default_route_vm.sh`
 - [x] `src/runner/stage1_bridge/stub_child.rs`
+- [x] `src/runner/stage1_bridge/env/stage1_aliases.rs`
 - [x] `src/runner/stage1_bridge/plan.rs`
 - [x] `src/runner/route_orchestrator.rs`
 - [x] `src/cli/args.rs`

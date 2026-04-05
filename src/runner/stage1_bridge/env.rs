@@ -94,7 +94,7 @@ mod tests {
     }
 
     #[test]
-    fn configure_stage1_env_promotes_legacy_stage1_aliases() {
+    fn configure_stage1_env_keeps_parent_backend_aliases_out_of_child_env() {
         let _lock = test_support::env_lock().lock().unwrap();
         let _clear = EnvGuard::clear(&[
             "HAKO_STAGE1_MODE",
@@ -139,7 +139,8 @@ mod tests {
             envs.get("NYASH_STAGE1_PROGRAM_JSON"),
             Some(&"target/demo.program.json".to_string())
         );
-        assert_eq!(envs.get("NYASH_STAGE1_BACKEND"), Some(&"llvm".to_string()));
+        assert!(!envs.contains_key("NYASH_STAGE1_BACKEND"));
+        assert!(!envs.contains_key("STAGE1_BACKEND"));
         assert_eq!(
             envs.get("STAGE1_CLI_ENTRY"),
             Some(&"lang/src/runner/stage1_cli_env.hako".to_string())
@@ -230,6 +231,7 @@ mod tests {
             envs.get("HAKORUNE_STAGE1_ENTRY"),
             Some(&"lang/src/runner/stage1_cli_env.hako".to_string())
         );
+        assert_eq!(envs.get("NYASH_STAGE1_BACKEND"), Some(&"vm".to_string()));
         assert_eq!(envs.get("STAGE1_BACKEND"), Some(&"vm".to_string()));
     }
 

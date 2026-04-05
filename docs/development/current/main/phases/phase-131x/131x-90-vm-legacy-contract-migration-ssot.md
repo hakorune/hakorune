@@ -10,7 +10,7 @@
 - `vm-hako` remains a reference/conformance lane.
 - the explicit legacy contract smoke is archived; the remaining work starts from backend-hint chain and direct-route gates.
 - `route_orchestrator.rs`, `stage1_bridge/direct_route/mod.rs`, and `stage1_bridge/plan.rs` are still behavior gates.
-- `stub_child.rs` is the next source seam because it still carries backend-hint chain behavior.
+- `stub_child.rs` and `stage1_bridge/env/stage1_aliases.rs` are the next source seams because they still carry backend-hint chain behavior.
 - `args.rs` default-vm is the last decision, not the first.
 
 ## Safe Order

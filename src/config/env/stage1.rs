@@ -1,6 +1,6 @@
 //! Stage-1 / selfhost CLI environment helpers (SSOT).
 
-use crate::config::env::{env_bool, warn_alias_once};
+use crate::config::env::env_bool;
 
 /// Primary toggle: enable Stage-1 stub routing.
 pub fn enabled() -> bool {
@@ -97,15 +97,6 @@ pub fn child_args_env() -> Option<String> {
 /// Stage-1 debug flag (verbose child stderr).
 pub fn debug() -> bool {
     std::env::var("STAGE1_CLI_DEBUG").ok().as_deref() == Some("1")
-}
-
-/// Alias compatibility for backends (warn once).
-pub fn backend_alias_warned() -> Option<String> {
-    if let Some(be) = std::env::var("STAGE1_BACKEND").ok() {
-        warn_alias_once("STAGE1_BACKEND", "NYASH_STAGE1_BACKEND");
-        return Some(be);
-    }
-    None
 }
 
 fn parse_bool_override(raw: String) -> Option<bool> {
