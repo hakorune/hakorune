@@ -12,9 +12,14 @@ Related:
 
 ## Current
 
-- lane: `phase-152x llvmlite object emit cutover`
-- current front: object emit の daily mainline を `ny-llvmc --emit obj` に一本化する
-- blocker: `NYASH_LLVM_OBJ_OUT` と `ny_mir_builder obj|exe` がまだ harness keep を踏むこと
+- lane: `phase-154x llvmlite archive lock`
+- current front: llvmlite / harness surface を explicit compat/archive keep に押し込み、current-facing docs/env から default-owner 読みを消す
+- blocker: `NYASH_LLVM_USE_HARNESS` と llvmlite keep lane がまだ current-facing docs/env で default に見えること
+- first landed slice:
+  - `tools/selfhost/lib/selfhost_build_exe.sh` no longer forces harness on the daily EXE lane
+  - provider/selfhost docs now read llvmlite as explicit keep only
+  - `tools/build_llvm.sh` harness keep now routes through `ny-llvmc --driver harness`
+  - `tools/llvm_smoke.sh` is explicit compat/probe keep
 - recent landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`

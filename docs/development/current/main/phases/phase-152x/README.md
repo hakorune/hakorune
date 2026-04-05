@@ -1,6 +1,6 @@
 # Phase 152x: llvmlite object emit cutover
 
-- Status: Active
+- Status: Landed
 - 目的: LLVM object emit の current authority を `llvmlite` keep lane から `ny-llvmc --emit obj` mainline lane へ切り替える。
 - 対象:
   - `src/runner/modes/common_util/exec.rs`

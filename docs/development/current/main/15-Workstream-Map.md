@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-152x llvmlite object emit cutover` |
-| Front | `NYASH_LLVM_OBJ_OUT` と `ny_mir_builder obj|exe` を `ny-llvmc --emit obj` mainline に寄せる |
-| Blocker | runner/tool object emit がまだ llvmlite keep lane を踏むこと |
-| Next | `phase-153x ny_mir_builder harness drop` |
-| After Next | `phase-154x llvmlite archive lock` |
+| Now | `phase-154x llvmlite archive lock` |
+| Front | llvmlite / harness surface を explicit compat/archive keep に押し込み、current-facing docs/env から default-owner 読みを消す |
+| Blocker | `NYASH_LLVM_USE_HARNESS` と llvmlite keep lane が still current-facing docs/env で default に見えること |
+| Next | `phase-137x main kilo reopen selection` |
+| After Next | `phase-kx vm-hako small reference interpreter recut` |
 
 ## Current Read
 

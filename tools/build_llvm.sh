@@ -20,7 +20,7 @@ Requirements:
   - Nyash Kernel static runtime (crates/nyash_kernel)
 
 Implementation detail:
-  - default route is `NYASH_LLVM_COMPILER=crate` when `target/release/ny-llvmc` exists.
+  - default route is `NYASH_LLVM_COMPILER=crate` (mainline).
   - `NYASH_LLVM_COMPILER=harness` is explicit llvmlite compat/probe keep.
   - `NYASH_LLVM_BACKEND=native` is no longer accepted here; native canary replay must call `ny-llvmc --driver native` directly.
 USAGE
@@ -128,13 +128,16 @@ if [[ "${NYASH_LLVM_SKIP_EMIT:-0}" != "1" ]]; then
   rm -f "$OBJ"
   if [[ -n "${NYASH_LLVM_COMPILER:-}" ]]; then
     COMPILER_MODE="${NYASH_LLVM_COMPILER}"
-  elif [[ -x "./target/release/ny-llvmc" ]]; then
-    COMPILER_MODE="crate"
   else
-    COMPILER_MODE="harness"
+    COMPILER_MODE="crate"
   fi
   case "$COMPILER_MODE" in
     crate)
+      if [[ ! -x "./target/release/ny-llvmc" ]]; then
+        echo "error: ny-llvmc not found for mainline object emit" >&2
+        echo "hint: build target/release/ny-llvmc or set NYASH_LLVM_COMPILER=harness for explicit llvmlite compat/probe keep" >&2
+        exit 4
+      fi
       # Use crates/nyash-llvm-compiler (ny-llvmc): requires pre-generated MIR JSON path in NYASH_LLVM_MIR_JSON
       if [[ -z "${NYASH_LLVM_MIR_JSON:-}" ]]; then
         # Auto‑emit MIR JSON via nyash CLI flag
@@ -171,6 +174,14 @@ if [[ "${NYASH_LLVM_SKIP_EMIT:-0}" != "1" ]]; then
       fi
       ;;
     harness)
+      if [[ -z "${NYASH_LLVM_MIR_JSON:-}" ]]; then
+        mkdir -p tmp
+        NYASH_LLVM_MIR_JSON="tmp/nyash_harness_mir.json"
+        echo "    emitting MIR JSON for harness keep: $NYASH_LLVM_MIR_JSON" >&2
+        "$BIN" --emit-mir-json "$NYASH_LLVM_MIR_JSON" --backend mir "$INPUT" >/dev/null
+      fi
+      cargo build --release -p nyash-llvm-compiler >/dev/null
+      ./target/release/ny-llvmc --driver harness --in "$NYASH_LLVM_MIR_JSON" --out "$OBJ"
       ;;
     *)
       echo "error: unsupported NYASH_LLVM_COMPILER=$COMPILER_MODE" >&2
@@ -178,18 +189,6 @@ if [[ "${NYASH_LLVM_SKIP_EMIT:-0}" != "1" ]]; then
       exit 4
       ;;
   esac
-  if [[ "$COMPILER_MODE" == "harness" ]]; then
-    if [[ "${NYASH_LLVM_FEATURE:-llvm}" == "llvm-inkwell-legacy" ]]; then
-      # Legacy path: harness keep still uses the LLVM feature gate through hakorune.
-      _LLVMPREFIX=$(llvm-config-18 --prefix)
-      NYASH_LLVM_OBJ_OUT="$OBJ" LLVM_SYS_181_PREFIX="${_LLVMPREFIX}" LLVM_SYS_180_PREFIX="${_LLVMPREFIX}" \
-        "$BIN" --backend llvm "$INPUT" >/dev/null || true
-    else
-      # Explicit llvmlite compat/probe keep path.
-      NYASH_LLVM_OBJ_OUT="$OBJ" NYASH_LLVM_USE_HARNESS=1 \
-        "$BIN" --backend llvm "$INPUT" >/dev/null || true
-    fi
-  fi
 fi
 if [[ ! -f "$OBJ" ]]; then
   echo "error: object not generated: $OBJ" >&2

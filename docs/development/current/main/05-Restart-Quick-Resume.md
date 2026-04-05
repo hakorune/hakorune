@@ -20,9 +20,9 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-152x llvmlite object emit cutover`
-- current front: `NYASH_LLVM_OBJ_OUT` と `ny_mir_builder obj|exe` を `ny-llvmc --emit obj` mainline に寄せる
-- blocker: runner object emit と tool-side object emit がまだ llvmlite keep lane を踏むこと
+- lane: `phase-154x llvmlite archive lock`
+- current front: llvmlite / harness surface を explicit compat/archive keep に押し込み、current-facing docs/env から default-owner 読みを消す
+- blocker: `NYASH_LLVM_USE_HARNESS` と llvmlite keep lane が still current-facing docs/env で default に見えること
 - landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -30,9 +30,8 @@ tools/checks/dev_gate.sh quick
   - `phase-134x nyash_kernel layer recut selection`
   - `phase-133x micro kilo reopen selection`
 - active next:
-  - `phase-153x ny_mir_builder harness drop`
-  - `phase-154x llvmlite archive lock`
   - `phase-137x main kilo reopen selection`
+  - `phase-kx vm-hako small reference interpreter recut`
 
 ## Read Next
 
@@ -40,7 +39,7 @@ tools/checks/dev_gate.sh quick
 2. `docs/development/current/main/15-Workstream-Map.md`
 3. `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
 4. `docs/development/current/main/phases/phase-152x/README.md`
-5. `docs/development/current/main/design/canonical-lowering-visibility-ssot.md`
+5. `docs/development/current/main/phases/phase-154x/README.md`
 6. `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
 
 ## Decision Lock

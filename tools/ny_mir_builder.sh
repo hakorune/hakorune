@@ -191,12 +191,17 @@ case "$EMIT" in
           echo "error: native builder failed" >&2; exit 4
         fi
         ;;
-      llvmlite|*)
+      llvmlite)
         # Directly use llvmlite harness with MIR v1 JSON input
         rm -f "$OUT"
         if ! run_backend_quietly python3 "$PWD/tools/llvmlite_harness.py" --in "$IN_FILE" --out "$OUT"; then
           echo "error: harness failed to produce $OUT" >&2; exit 4
         fi
+        ;;
+      *)
+        echo "error: unsupported NYASH_LLVM_BACKEND=$BACKEND" >&2
+        echo "hint: use 'crate' (mainline), 'llvmlite' (explicit keep), or 'native' (canary replay)" >&2
+        exit 4
         ;;
     esac
     if [[ ! -f "$OUT" ]]; then echo "error: failed to produce $OUT" >&2; exit 4; fi
@@ -250,7 +255,7 @@ case "$EMIT" in
           -Wl,--whole-archive -lnyash_kernel -Wl,--no-whole-archive \
           -lpthread -ldl -lm -o "$OUT"
         ;;
-      llvmlite|*)
+      llvmlite)
         if ! run_backend_quietly python3 "$PWD/tools/llvmlite_harness.py" --in "$IN_FILE" --out "$OBJ"; then
           echo "error: harness failed to produce object $OBJ" >&2; exit 4
         fi
@@ -262,6 +267,11 @@ case "$EMIT" in
           -L "$NYRT_BASE/target/release" \
           -Wl,--whole-archive -lnyash_kernel -Wl,--no-whole-archive \
           -lpthread -ldl -lm -o "$OUT"
+        ;;
+      *)
+        echo "error: unsupported NYASH_LLVM_BACKEND=$BACKEND" >&2
+        echo "hint: use 'crate' (mainline), 'llvmlite' (explicit keep), or 'native' (canary replay)" >&2
+        exit 4
         ;;
     esac
     [[ "$QUIET" == "0" ]] && echo "OK exe:$OUT"

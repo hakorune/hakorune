@@ -2,15 +2,23 @@
 set -euo pipefail
 
 # LLVM Phase 11.2 smoke test
-# - Builds nyash with LLVM backend
-# - Compiles example via --backend llvm (object emission inside)
-# - Verifies object file presence and non-zero size
+# - historical compat/probe keep for the llvmlite harness lane
+# - not product-mainline evidence for the ny-llvmc daily route
 
 MODE=${1:-release}
-BIN=./target/${MODE}/nyash
+BIN=./target/${MODE}/hakorune
+[[ -x "$BIN" ]] || BIN=./target/${MODE}/nyash
 # Fixed object output directory for stability
 mkdir -p target/aot_objects
 OBJ="$PWD/target/aot_objects/core_smoke.o"
+
+emit_obj_harness_keep() {
+  local input="$1"
+  local obj="$2"
+  rm -f "$obj"
+  NYASH_LLVM_COMPILER=harness NYASH_LLVM_ONLY_OBJ=1 NYASH_LLVM_OBJ_OUT="$obj" \
+    ./tools/build_llvm.sh "$input" >/dev/null || true
+}
 
 if ! command -v llvm-config-18 >/dev/null 2>&1; then
   echo "error: llvm-config-18 not found. Please install LLVM 18 dev packages." >&2
@@ -26,8 +34,8 @@ if [[ "$LLVM_FEATURE" == "llvm-inkwell-legacy" ]]; then
   export LLVM_SYS_180_PREFIX="${_LLVMPREFIX}"
   echo "[llvm-smoke] Using legacy inkwell with LLVM_SYS_180_PREFIX=${_LLVMPREFIX}" >&2
 else
-  # llvm-harness (default) doesn't need LLVM_SYS_180_PREFIX
-  echo "[llvm-smoke] Using llvm-harness (LLVM_SYS_180_PREFIX not required)" >&2
+  # Explicit llvmlite compat/probe keep route doesn't need LLVM_SYS_180_PREFIX.
+  echo "[llvm-smoke] Using llvmlite compat/probe keep route (LLVM_SYS_180_PREFIX not required)" >&2
 fi
 
 # --- AOT smoke: apps/ny-llvm-bitops (bitwise & shift operations) ---
@@ -35,7 +43,7 @@ if [[ "${NYASH_LLVM_BITOPS_SMOKE:-0}" == "1" ]]; then
   echo "[llvm-smoke] building + linking apps/ny-llvm-bitops ..." >&2
   OBJ_BIT="$PWD/target/aot_objects/bitops_smoke.o"
   rm -f "$OBJ_BIT"
-  NYASH_LLVM_OBJ_OUT="$OBJ_BIT" "$BIN" --backend llvm apps/tests/ny-llvm-bitops/main.hako >/dev/null || true
+  emit_obj_harness_keep apps/tests/ny-llvm-bitops/main.hako "$OBJ_BIT"
   NYASH_LLVM_SKIP_EMIT=1 NYASH_LLVM_OBJ_OUT="$OBJ_BIT" ./tools/build_llvm.sh apps/tests/ny-llvm-bitops/main.hako -o app_bitops_llvm >/dev/null || true
   echo "[llvm-smoke] running app_bitops_llvm ..." >&2
   out_bit=$(./app_bitops_llvm || true)
@@ -54,7 +62,7 @@ cargo build -q ${MODE:+--${MODE}} --features "${LLVM_FEATURE}"
 
 echo "[llvm-smoke] running --backend llvm on examples/llvm11_core_smoke.hako ..." >&2
 rm -f "$OBJ"
-NYASH_LLVM_USE_HARNESS=1 NYASH_LLVM_OBJ_OUT="$OBJ" "$BIN" --backend llvm examples/llvm11_core_smoke.hako >/dev/null || true
+emit_obj_harness_keep examples/llvm11_core_smoke.hako "$OBJ"
 
 if [[ ! -f "$OBJ" ]]; then
   echo "error: expected object not found: $OBJ" >&2
@@ -72,9 +80,8 @@ if [[ "${NYASH_LLVM_STAGE3_SMOKE:-0}" == "1" ]]; then
   echo "[llvm-smoke] building + linking apps/tests/llvm_stage3_loop_only.hako ..." >&2
   OBJ_STAGE3="$PWD/target/aot_objects/stage3_loop_smoke.o"
   rm -f "$OBJ_STAGE3"
-  # Loop-only case: harness should succeed (no exceptions in IR)
-  NYASH_LLVM_USE_HARNESS=1 NYASH_LLVM_OBJ_OUT="$OBJ_STAGE3" \
-    "$BIN" --backend llvm apps/tests/llvm_stage3_loop_only.hako >/dev/null || true
+  # Loop-only case remains on the explicit llvmlite keep lane here.
+  emit_obj_harness_keep apps/tests/llvm_stage3_loop_only.hako "$OBJ_STAGE3"
   NYASH_LLVM_SKIP_EMIT=1 NYASH_LLVM_OBJ_OUT="$OBJ_STAGE3" \
     ./tools/build_llvm.sh apps/tests/llvm_stage3_loop_only.hako -o app_stage3_loop >/dev/null || true
   echo "[llvm-smoke] running app_stage3_loop ..." >&2
@@ -95,7 +102,7 @@ if [[ "${NYASH_LLVM_ARRAY_SMOKE:-0}" == "1" ]]; then
   # Pre-emit object explicitly (more stable)
   OBJ_ARRAY="$PWD/target/aot_objects/array_smoke.o"
   rm -f "$OBJ_ARRAY"
-  NYASH_LLVM_OBJ_OUT="$OBJ_ARRAY" "$BIN" --backend llvm apps/tests/ny-llvm-smoke/main.hako >/dev/null || true
+  emit_obj_harness_keep apps/tests/ny-llvm-smoke/main.hako "$OBJ_ARRAY"
   NYASH_LLVM_SKIP_EMIT=1 NYASH_LLVM_OBJ_OUT="$OBJ_ARRAY" ./tools/build_llvm.sh apps/tests/ny-llvm-smoke/main.hako -o app_link >/dev/null
   echo "[llvm-smoke] running app_link ..." >&2
   out_smoke=$(./app_link || true)
@@ -117,7 +124,7 @@ if [[ "${NYASH_LLVM_ARRAY_RET_SMOKE:-0}" == "1" ]] && [[ "${NYASH_DISABLE_PLUGIN
   fi
   OBJ_AR="$PWD/target/aot_objects/array_ret_smoke.o"
   rm -f "$OBJ_AR"
-  NYASH_LLVM_OBJ_OUT="$OBJ_AR" "$BIN" --backend llvm apps/tests/ny-array-llvm-ret/main.hako >/dev/null || true
+  emit_obj_harness_keep apps/tests/ny-array-llvm-ret/main.hako "$OBJ_AR"
   NYASH_LLVM_SKIP_EMIT=1 NYASH_LLVM_OBJ_OUT="$OBJ_AR" ./tools/build_llvm.sh apps/tests/ny-array-llvm-ret/main.hako -o app_array_ret_llvm >/dev/null || true
   echo "[llvm-smoke] running app_array_ret_llvm ..." >&2
   out_ar=$(./app_array_ret_llvm || true)
@@ -136,7 +143,7 @@ if [[ "${NYASH_LLVM_ECHO_SMOKE:-0}" == "1" ]]; then
   echo "[llvm-smoke] building + linking apps/ny-echo-lite ..." >&2
   OBJ_ECHO="$PWD/target/aot_objects/echo_smoke.o"
   rm -f "$OBJ_ECHO"
-  NYASH_LLVM_OBJ_OUT="$OBJ_ECHO" "$BIN" --backend llvm apps/tests/ny-echo-lite/main.hako >/dev/null || true
+  emit_obj_harness_keep apps/tests/ny-echo-lite/main.hako "$OBJ_ECHO"
   NYASH_LLVM_SKIP_EMIT=1 NYASH_LLVM_OBJ_OUT="$OBJ_ECHO" ./tools/build_llvm.sh apps/tests/ny-echo-lite/main.hako -o app_echo_llvm >/dev/null
   echo "[llvm-smoke] running app_echo_llvm with stdin ..." >&2
   echo "hello-llvm" | ./app_echo_llvm > /tmp/ny_echo_llvm.out || true
@@ -161,7 +168,7 @@ if [[ "${NYASH_LLVM_MAP_SMOKE:-0}" == "1" ]] && [[ "${NYASH_DISABLE_PLUGINS:-0}"
   # Pre-emit object to avoid current lowering gaps, then link
   OBJ_MAP="$PWD/target/aot_objects/map_smoke.o"
   rm -f "$OBJ_MAP"
-  NYASH_LLVM_OBJ_OUT="$OBJ_MAP" "$BIN" --backend llvm apps/tests/ny-map-llvm-smoke/main.hako >/dev/null || true
+  emit_obj_harness_keep apps/tests/ny-map-llvm-smoke/main.hako "$OBJ_MAP"
   NYASH_LLVM_SKIP_EMIT=1 NYASH_LLVM_OBJ_OUT="$OBJ_MAP" ./tools/build_llvm.sh apps/tests/ny-map-llvm-smoke/main.hako -o app_map_llvm >/dev/null || true
   echo "[llvm-smoke] running app_map_llvm ..." >&2
   out_map=$(./app_map_llvm || true)
@@ -183,7 +190,7 @@ if [[ "${NYASH_LLVM_VINVOKE_SMOKE:-0}" == "1" ]] && [[ "${NYASH_DISABLE_PLUGINS:
   fi
   OBJ_V="$PWD/target/aot_objects/vinvoke_smoke.o"
   rm -f "$OBJ_V"
-  NYASH_LLVM_OBJ_OUT="$OBJ_V" "$BIN" --backend llvm apps/tests/ny-vinvoke-smoke/main.hako >/dev/null || true
+  emit_obj_harness_keep apps/tests/ny-vinvoke-smoke/main.hako "$OBJ_V"
   NYASH_LLVM_SKIP_EMIT=1 NYASH_LLVM_OBJ_OUT="$OBJ_V" ./tools/build_llvm.sh apps/tests/ny-vinvoke-smoke/main.hako -o app_vinvoke_llvm >/dev/null || true
   echo "[llvm-smoke] running app_vinvoke_llvm ..." >&2
   out_v=$(./app_vinvoke_llvm || true)
@@ -205,7 +212,7 @@ if [[ "${NYASH_LLVM_VINVOKE_RET_SMOKE:-0}" == "1" ]] && [[ "${NYASH_DISABLE_PLUG
   fi
   OBJ_VR="$PWD/target/aot_objects/vinvoke_ret_smoke.o"
   rm -f "$OBJ_VR"
-  NYASH_LLVM_OBJ_OUT="$OBJ_VR" "$BIN" --backend llvm apps/tests/ny-vinvoke-llvm-ret/main.hako >/dev/null || true
+  emit_obj_harness_keep apps/tests/ny-vinvoke-llvm-ret/main.hako "$OBJ_VR"
   NYASH_LLVM_SKIP_EMIT=1 NYASH_LLVM_OBJ_OUT="$OBJ_VR" ./tools/build_llvm.sh apps/tests/ny-vinvoke-llvm-ret/main.hako -o app_vinvoke_ret_llvm >/dev/null || true
   echo "[llvm-smoke] running app_vinvoke_ret_llvm ..." >&2
   out_vr=$(./app_vinvoke_ret_llvm || true)
@@ -227,7 +234,7 @@ if [[ "${NYASH_LLVM_VINVOKE_RET_SMOKE:-0}" == "1" ]] && [[ "${NYASH_DISABLE_PLUG
   fi
   OBJ_SIZE="$PWD/target/aot_objects/vinvoke_size_smoke.o"
   rm -f "$OBJ_SIZE"
-  NYASH_LLVM_OBJ_OUT="$OBJ_SIZE" "$BIN" --backend llvm apps/tests/ny-vinvoke-llvm-ret-size/main.hako >/dev/null || true
+  emit_obj_harness_keep apps/tests/ny-vinvoke-llvm-ret-size/main.hako "$OBJ_SIZE"
 
   NYASH_LLVM_SKIP_EMIT=1 NYASH_LLVM_OBJ_OUT="$OBJ_SIZE" ./tools/build_llvm.sh apps/tests/ny-vinvoke-llvm-ret-size/main.hako -o app_vinvoke_ret_size_llvm >/dev/null || true
   echo "[llvm-smoke] running app_vinvoke_ret_size_llvm ..." >&2
@@ -247,7 +254,7 @@ if [[ "${NYASH_LLVM_PLUGIN_RET_SMOKE:-0}" == "1" ]] && [[ "${NYASH_DISABLE_PLUGI
   echo "[llvm-smoke] building + linking apps/ny-plugin-ret-llvm-smoke ..." >&2
   OBJ_RET="$PWD/target/aot_objects/plugin_ret_smoke.o"
   rm -f "$OBJ_RET"
-  NYASH_LLVM_OBJ_OUT="$OBJ_RET" "$BIN" --backend llvm apps/tests/ny-plugin-ret-llvm-smoke/main.hako >/dev/null || true
+  emit_obj_harness_keep apps/tests/ny-plugin-ret-llvm-smoke/main.hako "$OBJ_RET"
   NYASH_LLVM_SKIP_EMIT=1 NYASH_LLVM_OBJ_OUT="$OBJ_RET" ./tools/build_llvm.sh apps/tests/ny-plugin-ret-llvm-smoke/main.hako -o app_plugin_ret_llvm >/dev/null || true
   echo "[llvm-smoke] running app_plugin_ret_llvm ..." >&2
   out_ret=$(./app_plugin_ret_llvm || true)

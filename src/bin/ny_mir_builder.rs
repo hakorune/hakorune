@@ -67,7 +67,7 @@ fn main() {
         .unwrap_or("crates/nyash_kernel".to_string());
 
     // Determine sibling nyash binary path (target dir)
-    let nyash_bin = current_dir_bin("nyash");
+    let nyash_bin = current_dir_bin(&["hakorune", "nyash"]);
     if emit == "json" {
         if out_path == "/dev/stdout" {
             let mut f = File::open(&in_file).expect("open in");
@@ -148,35 +148,41 @@ fn main() {
     }
 }
 
-fn current_dir_bin(name: &str) -> PathBuf {
+fn current_dir_bin(names: &[&str]) -> PathBuf {
     // Resolve sibling binary in target/<profile>
     // Try current_exe parent dir first
     if let Ok(cur) = std::env::current_exe() {
         if let Some(dir) = cur.parent() {
-            let cand = dir.join(name);
-            if cand.exists() {
-                return cand;
-            }
-            #[cfg(windows)]
-            {
-                let cand = dir.join(format!("{}.exe", name));
+            for name in names {
+                let cand = dir.join(name);
                 if cand.exists() {
                     return cand;
+                }
+                #[cfg(windows)]
+                {
+                    let cand = dir.join(format!("{}.exe", name));
+                    if cand.exists() {
+                        return cand;
+                    }
                 }
             }
         }
     }
     // Fallback to target/release
-    let cand = PathBuf::from("target/release").join(name);
-    if cand.exists() {
-        return cand;
+    for name in names {
+        let cand = PathBuf::from("target/release").join(name);
+        if cand.exists() {
+            return cand;
+        }
+        #[cfg(windows)]
+        {
+            let cand = PathBuf::from("target/release").join(format!("{}.exe", name));
+            if cand.exists() {
+                return cand;
+            }
+        }
     }
-    #[cfg(windows)]
-    {
-        let cand = PathBuf::from("target/release").join(format!("{}.exe", name));
-        return cand;
-    }
-    cand
+    PathBuf::from("target/release").join(names[0])
 }
 
 fn run_nyash_pipe(nyash_bin: &Path, json_file: &Path) {
@@ -191,7 +197,7 @@ fn run_nyash_pipe(nyash_bin: &Path, json_file: &Path) {
     }
     let status = cmd.status().expect("run nyash");
     if !status.success() {
-        eprintln!("error: nyash harness failed (status {:?})", status.code());
+        eprintln!("error: llvm backend route failed (status {:?})", status.code());
         std::process::exit(4);
     }
 }

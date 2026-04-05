@@ -51,7 +51,7 @@ Script
   - --in <file.hako>: input Hako source
   - --json <out.json>: retired wrapper surface; use `--mir` for day-to-day flow and raw compat probes/flags for Program(JSON)
   - --mir <out.json>: emit MIR(JSON) from source (preferred runner path)
-  - --exe <out>: build native executable via ny-llvmc (llvmlite harness)
+  - --exe <out>: build native executable via ny-llvmc mainline route
   - --run: run via Gate‑C/Core Direct (in‑proc). Exit code mirrors program return.
   - `--exe` now keeps context resolution behind `resolve_emit_exe_context()` and Program(JSON)->MIR->EXE execution behind `emit_exe_from_program_json_v0_with_context()`, so EXE lane cleanup stays separate from the top-level route tail.
   - Env:

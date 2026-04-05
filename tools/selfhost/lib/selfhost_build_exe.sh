@@ -16,7 +16,6 @@ resolve_emit_exe_nyllvm() {
 
 apply_emit_exe_env() {
   local nyll="$1" nyrt_dir="$2"
-  export NYASH_LLVM_USE_HARNESS=1
   export NYASH_NY_LLVM_COMPILER="$nyll"
   export NYASH_EMIT_EXE_NYRT="$nyrt_dir"
 }
