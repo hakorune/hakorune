@@ -12,9 +12,9 @@ Related:
 
 ## Current
 
-- lane: `phase-137x main kilo reopen selection`
-- current front: semantic-owner corridor が landed した前提で `main kilo` を reopen し、split kernel 上の next hot leaf を選び直す
-- blocker: architecture corridor は閉じた。次は baseline refresh と hot-leaf recheck
+- lane: `phase-142x array owner cutover implementation`
+- current front: Array owner seam を実装 authority に変え、Rust 側を forwarding/accelerator に押し戻す
+- blocker: owner seam は宣言済みだが、cutover implementation は未完
 - recent landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -53,8 +53,12 @@ Related:
   - thin facade: `string.rs`
   - lifetime/native substrate: `string_view.rs` / `string_helpers.rs` / `string_plan.rs`
   - quarantine: `module_string_dispatch/**`
-- perf lane is paused, not cancelled:
-  - `phase-137x main kilo reopen selection` is current again after semantic owner cutover
+- current architecture follow-up is implementation-first:
+  - `phase-142x` = Array owner cutover implementation
+  - `phase-143x` = Map owner cutover implementation
+  - `phase-144x` = String semantic owner follow-up
+- perf lane is delayed, not cancelled:
+  - `phase-137x main kilo reopen selection` waits until owner implementation cutover is clean
 
 ## Root Anchors
 
@@ -65,5 +69,5 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-137x/README.md`
+2. `docs/development/current/main/phases/phase-142x/README.md`
 3. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`

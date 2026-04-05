@@ -4,12 +4,14 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 137x main kilo reopen selection
+- **Current (ACTIVE)**: Phase 142x array owner cutover implementation
+- **Phase 144x（SUCCESSOR）**: string semantic owner follow-up
+- **Phase 143x（SUCCESSOR）**: map owner cutover implementation
 - **Phase 141x（LANDED）**: string semantic boundary review
 - **Phase 140x（LANDED）**: map owner pilot
 - **Phase 139x（LANDED）**: array owner pilot
 - **Phase 138x（LANDED）**: nyash_kernel semantic owner cutover
-- **Phase 137x（ACTIVE）**: main kilo reopen selection
+- **Phase 137x（SUCCESSOR）**: main kilo reopen selection
 - **Phase 134x（LANDED）**: nyash_kernel layer recut selection
 - **Phase 133x（LANDED）**: micro kilo reopen selection
 - **Phase 132x（LANDED）**: vm default backend decision
@@ -86,7 +88,7 @@
 ## Phase フォルダ構成（推奨）
 
 ```
-phases/phase-137x/
+phases/phase-142x/
 └── README.md
 
 phases/phase-141x/

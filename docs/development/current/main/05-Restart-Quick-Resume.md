@@ -20,9 +20,9 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-137x main kilo reopen selection`
-- current front: semantic-owner corridor が landed した前提で、split kernel 上の `main kilo` baseline を取り直す
-- blocker: architecture corridor は閉じた。次は `main kilo` を reopen して split kernel の next hot leaf を選ぶ
+- lane: `phase-142x array owner cutover implementation`
+- current front: Array owner seam を宣言で終わらせず、`.hako` owner 実装へ寄せる
+- blocker: semantic seam は landed したが、owner implementation はまだ Rust/runtime forwarding に残っている
 - landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -30,6 +30,8 @@ tools/checks/dev_gate.sh quick
   - `phase-134x nyash_kernel layer recut selection`
   - `phase-133x micro kilo reopen selection`
 - active next:
+  - `phase-143x map owner cutover implementation`
+  - `phase-144x string semantic owner follow-up`
   - `phase-137x main kilo reopen selection`
 
 ## Read Next
@@ -63,6 +65,10 @@ tools/checks/dev_gate.sh quick
   - Rust `array_substrate.rs` stays thin ABI facade
   - Rust `array_runtime_facade.rs` stays compat/runtime forwarding
   - Rust cache/fast-path leaves stay native accelerators
+- current work is the Array implementation cutover:
+  - move visible owner behavior from declared seam into `.hako` implementation authority
+  - keep `array_handle_cache.rs` / `array_string_slot.rs` in Rust
+  - keep `array_substrate.rs` thin and `array_runtime_facade.rs` shrink-only
 - `phase-140x` landed the second pilot:
   - `MapCoreBox` / `MapStateCoreBox` hold visible semantics
   - `RawMapCoreBox` stays substrate
@@ -79,12 +85,10 @@ tools/checks/dev_gate.sh quick
 ## First Design Slices
 
 - `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
-- `lang/src/runtime/kernel/string/README.md`
-- `lang/src/runtime/kernel/string/chain_policy.hako`
-- `lang/src/runtime/kernel/string/search.hako`
-- `crates/nyash_kernel/src/exports/string.rs`
-- `crates/nyash_kernel/src/exports/string_view.rs`
-- `crates/nyash_kernel/src/plugin/module_string_dispatch/README.md`
+- `lang/src/runtime/collections/array_core_box.hako`
+- `lang/src/runtime/collections/array_state_core_box.hako`
+- `crates/nyash_kernel/src/plugin/array_runtime_facade.rs`
+- `crates/nyash_kernel/src/plugin/array_substrate.rs`
 
 ## Current Proof Bundle
 
@@ -94,3 +98,7 @@ bash tools/selfhost/mainline/stage1_mainline_smoke.sh
 tools/checks/dev_gate.sh quick
 git diff --check
 ```
+ - `phase-144x` will revisit String after Array/Map:
+  - semantic owner stays `.hako`
+  - no full lifetime substrate move is planned
+  - follow-up is about owner enforcement, not Rust-zero

@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-137x main kilo reopen selection` |
-| Front | semantic-owner corridor が landed した前提で、split kernel の `main kilo` baseline を再開する |
-| Blocker | architecture corridor は閉じた。次は `kilo_kernel_small_hk` の再ベースラインと hot-leaf 再選定 |
-| Next | `phase-kx vm-hako small reference interpreter recut` |
-| After Next | `TBD after perf reopen` |
+| Now | `phase-142x array owner cutover implementation` |
+| Front | Array owner seam を `.hako` 実装 authority に変える |
+| Blocker | seam 宣言は landed したが、owner implementation はまだ cutover されていない |
+| Next | `phase-143x map owner cutover implementation` |
+| After Next | `phase-144x string semantic owner follow-up` |
 
 ## Current Read
 
@@ -46,6 +46,10 @@ Related:
   - Rust ABI facade = `array_substrate.rs`
   - Rust compat/runtime forwarding = `array_runtime_facade.rs`
   - Rust accelerators = `array_handle_cache.rs` / `array_string_slot.rs`
+- current implementation corridor:
+  - `phase-142x` = Array owner cutover implementation
+  - `phase-143x` = Map owner cutover implementation
+  - `phase-144x` = String semantic owner follow-up
 - `phase-140x` landed the second pilot:
   - `.hako` owner = `map_core_box.hako` / `map_state_core_box.hako`
   - substrate below = `raw_map_core_box.hako`
@@ -63,11 +67,17 @@ Related:
   - Rust lifetime/native substrate = `string_view.rs` / `string_helpers.rs` / `string_plan.rs`
   - `module_string_dispatch/**` stays quarantine, not owner
 - next fixed corridor:
-  1. `phase-kx vm-hako small reference interpreter recut`
+  1. `phase-143x map owner cutover implementation`
+  2. `phase-144x string semantic owner follow-up`
+  3. `phase-137x main kilo reopen selection`
+  4. `phase-kx vm-hako small reference interpreter recut`
 
 ## Successor Corridor
 
-1. `phase-kx vm-hako small reference interpreter recut`
+1. `phase-143x map owner cutover implementation`
+2. `phase-144x string semantic owner follow-up`
+3. `phase-137x main kilo reopen selection`
+4. `phase-kx vm-hako small reference interpreter recut`
 
 ## Parked After Optimization
 
@@ -86,15 +96,17 @@ Related:
   - lifetime-sensitive hot leaves and native accelerators stay in Rust until proven otherwise
   - semantic ownership moves toward `.hako`
   - compat quarantine must not become a permanent owner layer
+  - do not reopen broad perf tuning before Array/Map owner implementation cutover is complete
 
 ## Reference
 
 - current lane docs:
+  - `docs/development/current/main/phases/phase-142x/README.md`
   - `docs/development/current/main/phases/phase-141x/README.md`
-  - `docs/development/current/main/phases/phase-137x/README.md`
   - `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
   - `docs/development/current/main/phases/phase-140x/README.md`
   - `docs/development/current/main/phases/phase-139x/README.md`
+  - `docs/development/current/main/phases/phase-137x/README.md`
   - `docs/development/current/main/phases/phase-138x/README.md`
   - `docs/development/current/main/phases/phase-134x/README.md`
   - `docs/development/current/main/phases/phase-133x/README.md`
