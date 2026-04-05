@@ -13,6 +13,7 @@
   - `lang/src/runtime/substrate/raw_array/raw_array_core_box.hako`
   - `crates/nyash_kernel/src/plugin/array_substrate.rs`
   - `crates/nyash_kernel/src/plugin/array_runtime_aliases.rs`
+  - `crates/nyash_kernel/src/plugin/array_runtime_any.rs`
   - `crates/nyash_kernel/src/plugin/array_runtime_facade.rs`
   - `crates/nyash_kernel/src/plugin/runtime_data_array_dispatch.rs`
   - `crates/nyash_kernel/src/plugin/array_handle_cache.rs`
@@ -20,6 +21,7 @@
 - success:
   - Array visible owner behavior is implemented on the `.hako` side, not only declared
   - historical runtime aliases are isolated from the forwarding core
+  - RuntimeData-style any-key array routes are isolated from the slot/substrate forwarding core
   - `RuntimeDataBox` array branch is isolated from the top-level dispatch shell
   - `array_runtime_facade.rs` is forwarding-only and shrink-only
   - `array_substrate.rs` stays thin ABI facade
@@ -38,6 +40,8 @@
   - `array_substrate.rs`
 - Rust compat alias surface:
   - `array_runtime_aliases.rs`
+- Rust any-key runtime shell:
+  - `array_runtime_any.rs`
 - Rust compat/runtime forwarding:
   - `array_runtime_facade.rs`
 - Rust RuntimeData array branch:

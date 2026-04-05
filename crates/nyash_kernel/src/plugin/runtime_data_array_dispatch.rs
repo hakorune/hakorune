@@ -1,7 +1,7 @@
-use super::array_runtime_facade::{
-    array_runtime_get_any_key, array_runtime_has_any_key, array_runtime_push_any,
-    array_runtime_set_any_key,
+use super::array_runtime_any::{
+    array_runtime_get_any_key, array_runtime_has_any_key, array_runtime_set_any_key,
 };
+use super::array_runtime_facade::array_runtime_push_any;
 
 // Array branch for RuntimeDataBox facade dispatch.
 // Keep RuntimeDataBox itself protocol-only by isolating Array-specific routing

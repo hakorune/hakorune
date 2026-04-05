@@ -1,4 +1,3 @@
-use super::array_guard::valid_handle;
 use super::array_compat::nyash_array_length_h;
 use super::array_slot_append::array_slot_append_any;
 use super::array_slot_capacity::{array_slot_cap_i64, array_slot_grow_i64, array_slot_reserve_i64};
@@ -7,46 +6,17 @@ use super::array_slot_store::{
     array_slot_rmw_add1_i64, array_slot_store_any, array_slot_store_i64, array_slot_store_string_handle,
 };
 use super::array_string_slot::{array_string_indexof_by_index, array_string_len_by_index};
-use super::value_codec::any_arg_to_index;
 
 // Runtime/compat forwarding only.
 // Array semantic ownership lives in `.hako` (`ArrayCoreBox` / `ArrayStateCoreBox`);
 // keep this module limited to handle/index coercion and stable host ABI forwarding.
 
-// Shared fail-safe guards for runtime-only array routes.
-#[inline(always)]
-fn with_runtime_index_or_zero(handle: i64, key_any: i64, f: impl FnOnce(i64) -> i64) -> i64 {
-    if !valid_handle(handle) {
-        return 0;
-    }
-    let Some(idx) = any_arg_to_index(key_any) else {
-        return 0;
-    };
-    f(idx)
-}
-
 #[inline(always)]
 fn with_runtime_handle_or_zero(handle: i64, f: impl FnOnce() -> i64) -> i64 {
-    if !valid_handle(handle) {
+    if !super::array_guard::valid_handle(handle) {
         return 0;
     }
     f()
-}
-
-// Any-key runtime facade.
-// Used by RuntimeData-style dispatch when the key stays in `any` form.
-pub(super) fn array_runtime_get_any_key(handle: i64, key_any: i64) -> i64 {
-    with_runtime_index_or_zero(handle, key_any, |idx| array_runtime_get_idx(handle, idx))
-}
-
-pub(super) fn array_runtime_set_any_key(handle: i64, key_any: i64, val_any: i64) -> i64 {
-    with_runtime_index_or_zero(handle, key_any, |idx| {
-        array_runtime_set_idx_any(handle, idx, val_any)
-    })
-}
-
-pub(super) fn array_runtime_has_any_key(handle: i64, key_any: i64) -> i64 {
-    with_runtime_index_or_zero(handle, key_any, |idx| array_runtime_has_idx(handle, idx))
 }
 
 // Handle-only runtime facade.
