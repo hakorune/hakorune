@@ -20,12 +20,13 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-130x vm public gate final cleanup`
-- current front: public `vm` gate の最終整理を source-backed に決める
-- blocker: `src/runner/route_orchestrator.rs` の public gate surface と `src/runner/stage1_bridge/direct_route/mod.rs` の binary-only legacy gate がまだ残る
-- landed: `phase-128x` backend-hint chain narrowing
-- active next: `phase-130x vm public gate final cleanup`
+- lane: `phase-131x vm legacy contract migration`
+- current front: explicit legacy `vm` contract smoke を route-first contract へ移し、backend-hint chain を順に畳む
+- blocker: `tools/smokes/v2/profiles/integration/apps/phase29y_hako_run_binary_only_backend_mismatch_block_vm.sh` と `src/runner/stage1_bridge/stub_child.rs` がまだ legacy contract を支えている
+- landed: `phase-130x` wording-only public gate cleanup
+- active next: `phase-131x vm legacy contract migration`
 - recent landed:
+  - `phase-130x vm public gate final cleanup`
   - `phase-129x vm orchestrator/public gate follow-up`
   - `phase-127x compat route raw vm cut prep`
   - `phase-128x stage1 bridge vm gate softening`
@@ -54,12 +55,12 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-128x/README.md`
+3. `docs/development/current/main/phases/phase-131x/README.md`
 
 ## Successor Corridor
 
-1. `phase-129x vm orchestrator/public gate follow-up`
-2. `phase-130x vm public gate final cleanup`
+1. `phase-130x vm public gate final cleanup`
+2. `phase-131x vm legacy contract migration`
 
 ## Parked After Optimization
 

@@ -14,10 +14,10 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-130x vm public gate final cleanup` |
-| Front | public `vm` gate の最終整理を source-backed に決める |
-| Blocker | `src/runner/route_orchestrator.rs` の public gate surface と `src/runner/stage1_bridge/direct_route/mod.rs` の binary-only legacy gate がまだ残る |
-| Next | `dispatch` / `route_orchestrator` / `direct_route` の explicit legacy `vm` wording を締める |
+| Now | `phase-131x vm legacy contract migration` |
+| Front | explicit legacy `vm` contract smoke を route-first contract へ移し、backend-hint chain を順に畳む |
+| Blocker | `tools/smokes/v2/profiles/integration/apps/phase29y_hako_run_binary_only_backend_mismatch_block_vm.sh` と `src/runner/stage1_bridge/stub_child.rs` がまだ legacy contract を支えている |
+| Next | explicit legacy `vm` contract caller migration を source-backed に進める |
 | After Next | `phase-kx vm-hako small reference interpreter recut` |
 
 ## Current Read
@@ -67,11 +67,11 @@ Related:
 - `91x` froze the top-level `.hako` wrapper policy after the latest runner/selfhost recuts
 - `92x` closed the proof/compat caller rerun lane against the canonical wrapper homes
 - `93x` moved archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
-- current work is now on `phase-130x vm public gate final cleanup`
+- current work is now on `phase-131x vm legacy contract migration`
 
 ## Successor Corridor
 
-1. `phase-130x vm public gate final cleanup`
+1. `phase-131x vm legacy contract migration`
 2. `phase-kx vm-hako small reference interpreter recut`
 
 ## Parked After Optimization
@@ -102,6 +102,7 @@ Related:
 ## Reference
 
 - current lane docs:
+  - `docs/development/current/main/phases/phase-131x/README.md`
   - `docs/development/current/main/phases/phase-130x/README.md`
   - `docs/development/current/main/phases/phase-128x/README.md`
   - `docs/development/current/main/phases/phase-127x/README.md`

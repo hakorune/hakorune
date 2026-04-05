@@ -4,7 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 129x vm orchestrator/public gate follow-up
+- **Current (ACTIVE)**: Phase 131x vm legacy contract migration
+- **Phase 130x（LANDED）**: vm public gate final cleanup
+- **Phase 129x（LANDED）**: vm orchestrator/public gate follow-up
 - **Phase 128x（LANDED）**: stage1 bridge vm gate softening
 - **Phase 126x（LANDED）**: vm public gate shrink decision
 - **Phase 125x（LANDED）**: vm bridge/backend gate follow-up
@@ -38,6 +40,7 @@
 
 ### Recent Landed
 
+- **Phase 130x（LANDED）**: vm public gate final cleanup
 - **Phase 128x（LANDED）**: stage1 bridge vm gate softening
 - **Phase 127x（LANDED）**: compat route raw vm cut prep
 - **Phase 90x（LANDED）**: current-doc/design stale surface hygiene
