@@ -5,6 +5,7 @@ mod array_compat;
 mod array_runtime_any;
 mod array_runtime_aliases;
 mod array_runtime_facade;
+mod array_runtime_substrate;
 mod array_slot_append;
 mod array_slot_capacity;
 mod array_slot_load;

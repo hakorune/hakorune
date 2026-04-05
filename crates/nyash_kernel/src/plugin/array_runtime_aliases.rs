@@ -3,9 +3,10 @@ use super::array_runtime_any::{
     array_runtime_get_any_key, array_runtime_has_any_key, array_runtime_set_any_key,
 };
 use super::array_runtime_facade::{
-    array_runtime_get_idx, array_runtime_has_idx, array_runtime_push_any,
-    array_runtime_set_idx_any, array_runtime_set_idx_i64, array_runtime_set_idx_string_handle,
+    array_runtime_get_idx, array_runtime_has_idx, array_runtime_set_idx_any,
+    array_runtime_set_idx_i64, array_runtime_set_idx_string_handle,
 };
+use super::array_runtime_substrate::array_runtime_push_any;
 
 // Historical/compat array ABI aliases.
 // Keep these exported names separate from the forwarding core so `.hako` owner

@@ -1,28 +1,11 @@
-use super::array_compat::nyash_array_length_h;
-use super::array_slot_append::array_slot_append_any;
-use super::array_slot_capacity::{array_slot_cap_i64, array_slot_grow_i64, array_slot_reserve_i64};
 use super::array_slot_load::{array_slot_has_index, array_slot_load_encoded_i64};
 use super::array_slot_store::{
     array_slot_rmw_add1_i64, array_slot_store_any, array_slot_store_i64, array_slot_store_string_handle,
 };
-use super::array_string_slot::{array_string_indexof_by_index, array_string_len_by_index};
 
 // Runtime/compat forwarding only.
 // Array semantic ownership lives in `.hako` (`ArrayCoreBox` / `ArrayStateCoreBox`);
-// keep this module limited to handle/index coercion and stable host ABI forwarding.
-
-#[inline(always)]
-fn with_runtime_handle_or_zero(handle: i64, f: impl FnOnce() -> i64) -> i64 {
-    if !super::array_guard::valid_handle(handle) {
-        return 0;
-    }
-    f()
-}
-
-// Handle-only runtime facade.
-pub(super) fn array_runtime_push_any(handle: i64, val_any: i64) -> i64 {
-    with_runtime_handle_or_zero(handle, || array_slot_append_any(handle, val_any))
-}
+// keep this module limited to index-backed forwarding only.
 
 // Index-backed slot facade.
 pub(super) fn array_runtime_get_idx(handle: i64, idx: i64) -> i64 {
@@ -47,30 +30,4 @@ pub(super) fn array_runtime_has_idx(handle: i64, idx: i64) -> i64 {
 
 pub(super) fn array_runtime_rmw_add1_idx(handle: i64, idx: i64) -> i64 {
     array_slot_rmw_add1_i64(handle, idx)
-}
-
-// Length/capacity facade.
-pub(super) fn array_runtime_len(handle: i64) -> i64 {
-    nyash_array_length_h(handle)
-}
-
-pub(super) fn array_runtime_cap(handle: i64) -> i64 {
-    array_slot_cap_i64(handle)
-}
-
-pub(super) fn array_runtime_reserve(handle: i64, additional: i64) -> i64 {
-    array_slot_reserve_i64(handle, additional)
-}
-
-pub(super) fn array_runtime_grow(handle: i64, target_capacity: i64) -> i64 {
-    array_slot_grow_i64(handle, target_capacity)
-}
-
-// String slot facade.
-pub(super) fn array_runtime_string_len_at(handle: i64, idx: i64) -> i64 {
-    array_string_len_by_index(handle, idx)
-}
-
-pub(super) fn array_runtime_string_indexof_at(handle: i64, idx: i64, needle_h: i64) -> i64 {
-    array_string_indexof_by_index(handle, idx, needle_h)
 }

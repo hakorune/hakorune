@@ -1,7 +1,9 @@
 use super::array_runtime_facade::{
-    array_runtime_cap, array_runtime_get_idx, array_runtime_grow, array_runtime_len,
-    array_runtime_push_any, array_runtime_reserve, array_runtime_rmw_add1_idx, array_runtime_set_idx_any,
-    array_runtime_set_idx_i64, array_runtime_string_indexof_at, array_runtime_string_len_at,
+    array_runtime_get_idx, array_runtime_rmw_add1_idx, array_runtime_set_idx_any, array_runtime_set_idx_i64,
+};
+use super::array_runtime_substrate::{
+    array_runtime_cap, array_runtime_grow, array_runtime_len, array_runtime_push_any,
+    array_runtime_reserve, array_runtime_string_indexof_at, array_runtime_string_len_at,
 };
 
 // Mainline substrate aliases used by `.hako` collection owners and adapter defaults.
