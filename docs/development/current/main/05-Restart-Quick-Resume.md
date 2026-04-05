@@ -20,9 +20,9 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-147x semantic optimization contract selection`
-- current front: `.hako owner -> MIR canonical contract -> Rust executor` を perf lane の前に正本として固定する
-- blocker: borrowed/sink 面を Rust helper authority に見せず contract-first へ揃える
+- lane: `phase-149x concat const-suffix vertical slice`
+- current front: `const_suffix` route を `.hako owner -> MIR canonical reading -> Rust executor` の最初の consumer として通す
+- blocker: current concrete helper `nyash.string.concat_hs` を authority ではなく executor detail に押し込むこと
 - landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -30,8 +30,6 @@ tools/checks/dev_gate.sh quick
   - `phase-134x nyash_kernel layer recut selection`
   - `phase-133x micro kilo reopen selection`
 - active next:
-  - `phase-148x borrowed text and sink contract freeze`
-  - `phase-149x concat const-suffix vertical slice`
   - `phase-150x array string-store vertical slice`
   - `phase-137x main kilo reopen selection`
   - `phase-kx vm-hako small reference interpreter recut`
@@ -41,7 +39,7 @@ tools/checks/dev_gate.sh quick
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
 3. `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
-4. `docs/development/current/main/phases/phase-147x/README.md`
+4. `docs/development/current/main/phases/phase-149x/README.md`
 5. `docs/development/current/main/phases/phase-137x/README.md`
 6. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
 
@@ -98,11 +96,15 @@ tools/checks/dev_gate.sh quick
 - `phase-146x` landed:
   - tighten string semantic owner / wrapper / native substrate wording and helper boundaries
   - close the wrapper-vs-owner naming gap in `StringCoreBox`
-- `phase-147x` current lock:
+- `phase-147x` landed lock:
   - `.hako` keeps route / retained-form / boundary authority
   - MIR keeps canonical optimization contract
   - Rust keeps executor / accelerator only
   - LLVM keeps generic optimization / codegen only
+- `phase-148x` landed freeze:
+  - `const_suffix -> thaw.str + lit.str + str.concat2 + freeze.str`
+  - `ArrayStoreString -> store.array.str`
+  - `MapStoreAny -> store.map.value`
 
 ## First Design Slices
 
@@ -132,8 +134,6 @@ git diff --check
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
 - next contract-first slice:
-  - owner-side vocabulary freeze
-  - MIR op candidates: `lit.str`, `str.concat2`, `store.array.str`, `store.map.value`
   - first vertical slice: `concat const-suffix`
   - second vertical slice: `array string-store`
   - perf consumer stays `phase-137x`

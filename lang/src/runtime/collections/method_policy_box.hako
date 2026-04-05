@@ -57,6 +57,9 @@ static box CollectionMethodPolicyBox {
   }
 
   route_map_store_any() {
+    // Owner-side route tag for the future canonical collection-store contract.
+    // MIR/docs may read this as `store.map.value`, but this box should stay on
+    // route vocabulary rather than canonical op naming.
     return "MapStoreAny"
   }
 
@@ -69,6 +72,8 @@ static box CollectionMethodPolicyBox {
   }
 
   route_array_store_string() {
+    // Owner-side route tag for string-handle array store.
+    // MIR/docs may later normalize this to `store.array.str`.
     return "ArrayStoreString"
   }
 
@@ -150,6 +155,8 @@ static box CollectionMethodPolicyBox {
   }
 
   set_route(box_name, recv_origin, runtime_array_string, value_is_i64, value_is_string_handle) {
+    // This owner keeps visible collection-store semantics only.
+    // Concrete ABI symbols and canonical MIR spellings are compiler-side mirrors.
     if box_name == "RuntimeDataBox" {
       return me.route_runtime_data_store_any()
     }

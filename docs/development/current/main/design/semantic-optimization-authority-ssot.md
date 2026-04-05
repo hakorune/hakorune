@@ -73,6 +73,21 @@ Next candidate ops:
 - `store.array.str`
 - `store.map.value`
 
+Current source-backed mapping:
+
+- `.hako` route `const_suffix`
+  - current concrete path: `nyash.string.concat_hs`
+  - intended canonical MIR reading: `thaw.str + lit.str + str.concat2 + freeze.str`
+- `.hako` route `ArrayStoreString`
+  - current concrete path: `nyash.array.set_his`
+  - intended canonical MIR reading: `store.array.str`
+- `.hako` route `MapStoreAny`
+  - current concrete path: `nyash.map.slot_store_hhh`
+  - intended canonical MIR reading: `store.map.value`
+
+The candidate MIR names are current docs/SSOT truth.
+They are not first-class MIR enum variants yet.
+
 Do not encode `return_handle` as a standalone executor op.
 It is a rewrite / elision outcome.
 

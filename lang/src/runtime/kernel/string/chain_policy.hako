@@ -43,6 +43,10 @@ static box StringChainPolicyBox {
   }
 
   concat_pair_route(has_const_suffix, has_chain_consumer, has_direct_store_consumer) {
+    // Owner-side route vocabulary only.
+    // Compiler / MIR mirrors may later normalize `const_suffix` to
+    // `thaw.str + lit.str + str.concat2 + freeze.str`, but this box does not
+    // own canonical op spellings.
     if has_chain_consumer == 1 {
       return "defer_pair"
     }
@@ -60,6 +64,8 @@ static box StringChainPolicyBox {
   }
 
   concat3_route(lhs_has_pair, rhs_has_pair) {
+    // Keep pair-vs-chain routing authority here and leave the exact canonical
+    // MIR spelling (`str.concat3`) to docs/compiler mirrors.
     if lhs_has_pair == 1 {
       return "concat3_chain"
     }

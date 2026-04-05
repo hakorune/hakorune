@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-147x semantic optimization contract selection` |
-| Front | `.hako owner -> MIR canonical contract -> Rust executor` を current optimization authority に固定する |
-| Blocker | borrowed/sink 面を Rust helper authority に見せないこと |
-| Next | `phase-148x borrowed text and sink contract freeze` |
-| After Next | `phase-149x concat const-suffix vertical slice` / `phase-150x array string-store vertical slice` / `phase-137x main kilo reopen selection` |
+| Now | `phase-149x concat const-suffix vertical slice` |
+| Front | `const_suffix` route を `.hako owner -> MIR canonical reading -> Rust executor` で通す |
+| Blocker | current concrete helper `nyash.string.concat_hs` を authority に見せないこと |
+| Next | `phase-150x array string-store vertical slice` |
+| After Next | `phase-137x main kilo reopen selection` / `phase-kx vm-hako small reference interpreter recut` |
 
 ## Current Read
 
@@ -46,17 +46,20 @@ Related:
   - `phase-144x` = landed String semantic owner follow-up
   - `phase-145x` = landed compat quarantine shrink
   - `phase-146x` = landed string semantic boundary tighten
-- `phase-147x` current lock:
+- `phase-147x` landed lock:
   - `.hako` keeps owner policy and route vocabulary
   - MIR keeps canonical optimization contract
   - Rust keeps executor / accelerator only
   - LLVM stays generic
+- `phase-148x` landed freeze:
+  - `const_suffix -> thaw.str + lit.str + str.concat2 + freeze.str`
+  - `ArrayStoreString -> store.array.str`
+  - `MapStoreAny -> store.map.value`
 - next fixed corridor:
-  1. `phase-148x borrowed text and sink contract freeze`
-  2. `phase-149x concat const-suffix vertical slice`
-  3. `phase-150x array string-store vertical slice`
-  4. `phase-137x main kilo reopen selection`
-  5. `phase-kx vm-hako small reference interpreter recut`
+  1. `phase-149x concat const-suffix vertical slice`
+  2. `phase-150x array string-store vertical slice`
+  3. `phase-137x main kilo reopen selection`
+  4. `phase-kx vm-hako small reference interpreter recut`
 - paused reopen truth:
   - baseline: `kilo_kernel_small_hk = 1529ms`
   - string const fast-path: `775ms`
@@ -73,11 +76,10 @@ Related:
 
 ## Successor Corridor
 
-1. `phase-148x borrowed text and sink contract freeze`
-2. `phase-149x concat const-suffix vertical slice`
-3. `phase-150x array string-store vertical slice`
-4. `phase-137x main kilo reopen selection`
-5. `phase-kx vm-hako small reference interpreter recut`
+1. `phase-149x concat const-suffix vertical slice`
+2. `phase-150x array string-store vertical slice`
+3. `phase-137x main kilo reopen selection`
+4. `phase-kx vm-hako small reference interpreter recut`
 
 ## Parked After Optimization
 
@@ -102,9 +104,8 @@ Related:
 
 - current lane docs:
   - `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
-  - `docs/development/current/main/phases/phase-147x/README.md`
-  - `docs/development/current/main/phases/phase-148x/README.md`
   - `docs/development/current/main/phases/phase-149x/README.md`
+  - `docs/development/current/main/phases/phase-148x/README.md`
   - `docs/development/current/main/phases/phase-146x/README.md`
   - `docs/development/current/main/phases/phase-145x/README.md`
   - `docs/development/current/main/phases/phase-141x/README.md`

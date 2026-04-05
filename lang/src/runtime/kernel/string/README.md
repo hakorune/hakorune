@@ -38,7 +38,9 @@ SSOT 上の canonical 名は次だよ。
 
 ```text
 thaw.str
+lit.str
 str.slice
+str.concat2
 str.concat3
 str.len
 str.find_byte_from
@@ -48,6 +50,25 @@ freeze.str
 
 `.hako` 側では internal spelling として `__str.*` を使ってよい。
 ただし docs/SSOT では contract 名を上の canonical 形で揃える。
+
+## Current Source-Backed Mapping
+
+phase-148x では、canonical 名と current concrete symbol の対応を次で固定する。
+
+- owner route tag:
+  - `StringChainPolicyBox.concat_pair_route(...)->"const_suffix"`
+- current compiler-side mirror:
+  - `lang/c-abi/shims/hako_llvmc_ffi_string_chain_policy.inc`
+  - `emit_string_concat_pair_by_policy(...)`
+- current concrete executor path:
+  - `nyash.string.concat_hs`
+  - `crates/nyash_kernel/src/exports/string_helpers.rs`
+    - `concat_const_suffix_fallback(...)`
+- intended canonical reading:
+  - `thaw.str + lit.str + str.concat2 + freeze.str`
+
+This mapping does not make `concat_hs` the semantic source of truth.
+It only records the current executor path under a `.hako`-owned route.
 
 ## Current Module
 

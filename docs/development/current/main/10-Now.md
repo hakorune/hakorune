@@ -12,9 +12,9 @@ Related:
 
 ## Current
 
-- lane: `phase-147x semantic optimization contract selection`
-- current front: `.hako owner -> MIR canonical contract -> Rust executor` を current optimization authority として固定する
-- blocker: BorrowedText / TextSink を Rust helper authority に見せない contract-first 化
+- lane: `phase-149x concat const-suffix vertical slice`
+- current front: `const_suffix` route の first contract-first consumer を実装する
+- blocker: current concrete helper `nyash.string.concat_hs` を authority ではなく executor detail に押し込むこと
 - recent landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -64,6 +64,10 @@ Related:
   - `.hako` owns route / retained-form / boundary
   - MIR owns canonical substrate contract
   - Rust owns executor / accelerator only
+- landed contract freeze:
+  - `const_suffix -> thaw.str + lit.str + str.concat2 + freeze.str`
+  - `ArrayStoreString -> store.array.str`
+  - `MapStoreAny -> store.map.value`
 - perf lane is paused, not cancelled:
   - `phase-137x main kilo reopen selection` is the first consumer after contract freeze
   - current perf truth:
@@ -86,6 +90,6 @@ Related:
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
-3. `docs/development/current/main/phases/phase-147x/README.md`
+3. `docs/development/current/main/phases/phase-149x/README.md`
 4. `docs/development/current/main/phases/phase-137x/README.md`
 5. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`

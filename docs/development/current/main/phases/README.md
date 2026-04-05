@@ -4,11 +4,11 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 147x semantic optimization contract selection
+- **Current (ACTIVE)**: Phase 149x concat const-suffix vertical slice
 - **Phase 150x（PLANNED）**: array string-store vertical slice
-- **Phase 149x（PLANNED）**: concat const-suffix vertical slice
-- **Phase 148x（PLANNED）**: borrowed text and sink contract freeze
-- **Phase 147x（ACTIVE）**: semantic optimization contract selection
+- **Phase 149x（ACTIVE）**: concat const-suffix vertical slice
+- **Phase 148x（LANDED）**: borrowed text and sink contract freeze
+- **Phase 147x（LANDED）**: semantic optimization contract selection
 - **Phase 146x（LANDED）**: string semantic boundary tighten
 - **Phase 145x（LANDED）**: compat quarantine shrink
 - **Phase 144x（LANDED）**: string semantic owner follow-up

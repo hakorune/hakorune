@@ -112,6 +112,34 @@ Rule:
     -> eleventh-stage fallback route vocabulary for generic `get`; compiler-state-heavy window probes stay outside this owner box
   - compiler-side action mirror lives in `lang/c-abi/shims/hako_llvmc_ffi_generic_method_get_policy.inc`
 
+## Canonical Collection Store Contract
+
+phase-148x freezes the owner-to-contract reading like this:
+
+- owner route tag:
+  - `CollectionMethodPolicyBox.route_array_store_string() -> "ArrayStoreString"`
+  - intended canonical MIR reading: `store.array.str`
+  - current compiler-side mirror:
+    - `lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc`
+    - `lang/c-abi/shims/hako_llvmc_ffi_generic_method_lowering.inc`
+  - current concrete executor path:
+    - `nyash.array.set_his`
+    - `crates/nyash_kernel/src/plugin/array_string_slot.rs`
+      - `array_string_store_handle_at(...)`
+
+- owner route tag:
+  - `CollectionMethodPolicyBox.route_map_store_any() -> "MapStoreAny"`
+  - intended canonical MIR reading: `store.map.value`
+  - current compiler-side mirror:
+    - `lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc`
+    - `lang/c-abi/shims/hako_llvmc_ffi_generic_method_lowering.inc`
+  - current concrete executor path:
+    - `nyash.map.slot_store_hhh`
+    - `crates/nyash_kernel/src/plugin/map_slot_store.rs`
+
+The owner remains `.hako` route vocabulary.
+Canonical MIR names stay in docs/SSOT until a first-class contract layer lands.
+
 ## Current proof lock
 
 - source-contract smoke:
