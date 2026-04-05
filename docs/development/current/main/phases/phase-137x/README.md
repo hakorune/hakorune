@@ -28,6 +28,7 @@
 - `plugin/map_substrate.rs` is now raw substrate helpers only
 - `plugin/map_aliases.rs` now owns the ABI alias surface
 - `nyash_kernel` is ready to be re-baselined under the new responsibility split
+- `src/tests.rs` has been split into `tests/filebox.rs` and `tests/string.rs`, so the root test module is no longer a 1000+ line monolith
 
 ## Next
 
