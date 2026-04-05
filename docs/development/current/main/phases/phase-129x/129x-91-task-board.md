@@ -24,7 +24,7 @@
 
 ## D. Closeout
 
-- [ ] update `CURRENT_TASK.md`
-- [ ] update `05-Restart-Quick-Resume.md`
-- [ ] update `10-Now.md`
-- [ ] update `15-Workstream-Map.md`
+- [x] update `CURRENT_TASK.md`
+- [x] update `05-Restart-Quick-Resume.md`
+- [x] update `10-Now.md`
+- [x] update `15-Workstream-Map.md`

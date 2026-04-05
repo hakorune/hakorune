@@ -22,7 +22,7 @@
 - runtime child route tags now emit canonical `mainline|compat`
 - `tools/selfhost/lib/selfhost_run_routes.sh` no longer has a raw `--backend vm` fallback in the runtime path
 - binary-only direct-route vm gate remains an explicit legacy contract
-- `phase-129x` follows the remaining public vm gate / orchestrator / direct-route surfaces
+- `phase-130x` follows the remaining public vm gate / orchestrator / direct-route surfaces
 
 ## Next
 

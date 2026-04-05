@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-129x vm orchestrator/public gate follow-up` |
-| Front | public `vm` gate surfaces を source-backed に再点検する |
+| Now | `phase-130x vm public gate final cleanup` |
+| Front | public `vm` gate の最終整理を source-backed に決める |
 | Blocker | `src/runner/route_orchestrator.rs` の public gate surface と `src/runner/stage1_bridge/direct_route/mod.rs` の binary-only legacy gate がまだ残る |
 | Next | `dispatch` / `route_orchestrator` / `direct_route` の explicit legacy `vm` wording を締める |
-| After Next | `phase-130x vm public gate final cleanup` |
+| After Next | `phase-kx vm-hako small reference interpreter recut` |
 
 ## Current Read
 

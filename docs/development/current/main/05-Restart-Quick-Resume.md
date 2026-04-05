@@ -20,12 +20,13 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-129x vm orchestrator/public gate follow-up`
-- current front: public `vm` gate surfaces を source-backed に再点検する
+- lane: `phase-130x vm public gate final cleanup`
+- current front: public `vm` gate の最終整理を source-backed に決める
 - blocker: `src/runner/route_orchestrator.rs` の public gate surface と `src/runner/stage1_bridge/direct_route/mod.rs` の binary-only legacy gate がまだ残る
 - landed: `phase-128x` backend-hint chain narrowing
-- active next: `phase-129x vm orchestrator/public gate follow-up`
+- active next: `phase-130x vm public gate final cleanup`
 - recent landed:
+  - `phase-129x vm orchestrator/public gate follow-up`
   - `phase-127x compat route raw vm cut prep`
   - `phase-128x stage1 bridge vm gate softening`
   - `phase-125x vm bridge/backend gate follow-up`
