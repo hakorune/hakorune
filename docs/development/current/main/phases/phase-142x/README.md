@@ -14,11 +14,13 @@
   - `crates/nyash_kernel/src/plugin/array_substrate.rs`
   - `crates/nyash_kernel/src/plugin/array_runtime_aliases.rs`
   - `crates/nyash_kernel/src/plugin/array_runtime_facade.rs`
+  - `crates/nyash_kernel/src/plugin/runtime_data_array_dispatch.rs`
   - `crates/nyash_kernel/src/plugin/array_handle_cache.rs`
   - `crates/nyash_kernel/src/plugin/array_string_slot.rs`
 - success:
   - Array visible owner behavior is implemented on the `.hako` side, not only declared
   - historical runtime aliases are isolated from the forwarding core
+  - `RuntimeDataBox` array branch is isolated from the top-level dispatch shell
   - `array_runtime_facade.rs` is forwarding-only and shrink-only
   - `array_substrate.rs` stays thin ABI facade
   - accelerator leaves remain Rust-owned
@@ -38,6 +40,8 @@
   - `array_runtime_aliases.rs`
 - Rust compat/runtime forwarding:
   - `array_runtime_facade.rs`
+- Rust RuntimeData array branch:
+  - `runtime_data_array_dispatch.rs`
 - Rust accelerators:
   - `array_handle_cache.rs`
   - `array_string_slot.rs`

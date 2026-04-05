@@ -19,8 +19,10 @@ Scope: `.hako` ring1 collection core for user-visible collection semantics on th
   - `crates/nyash_kernel/src/plugin/array.rs` and `map.rs` are thin facades
   - actual Rust implementations live in:
     - `crates/nyash_kernel/src/plugin/array_compat.rs`
+    - `crates/nyash_kernel/src/plugin/array_runtime_aliases.rs`
     - `crates/nyash_kernel/src/plugin/array_runtime_facade.rs`
     - `crates/nyash_kernel/src/plugin/array_substrate.rs`
+    - `crates/nyash_kernel/src/plugin/runtime_data_array_dispatch.rs`
     - `crates/nyash_kernel/src/plugin/map_compat.rs`
     - `crates/nyash_kernel/src/plugin/map_substrate.rs`
 - `RuntimeDataBox` stays protocol / facade only; do not turn it into a collection-semantics owner.
@@ -151,4 +153,5 @@ Rule:
   - landed first slice: active lowering now routes array non-i64 `get/has` and non-i64 `set` through `nyash.runtime_data.*`
   - landed substrate deepen: the i64-key array set route now uses `nyash.array.slot_store_hii` for i64/i64 and `nyash.array.slot_store_hih` for i64-key + handle/any-value
   - `nyash.array.set_hih` / `nyash.array.set_hii` remain compat-only aliases
+  - landed owner-cutover first slices: historical array runtime aliases now live under `array_runtime_aliases.rs`, and RuntimeDataBox array routing now lives under `runtime_data_array_dispatch.rs`
   - keep `RuntimeDataBox` facade-only while doing so
