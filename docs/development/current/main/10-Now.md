@@ -12,10 +12,11 @@ Related:
 
 ## Current
 
-- lane: `phase-116x execution surface alias pruning`
-- current front: `naked stage-a alias を削り、compat surface を route/mode の二段に揃える`
+- lane: `phase-117x vm compat/proof env hardening`
+- current front: `compat route が raw --backend vm に入る前に explicit env を要求する`
 - blocker: `none`
 - recent landed:
+  - `phase-116x execution surface alias pruning`
   - `phase-115x vm route retirement planning`
   - `phase-114x execution surface wording closeout`
   - `phase-113x kernel vs vm-reference cluster wording correction`
@@ -41,12 +42,12 @@ Related:
 - `phase-103` landed with if-only merge / early return parity on VM and LLVM EXE
 - `phase-104` landed with loop(true)+break-only digits parity on VM and LLVM EXE
 - `phase-105` restored the original long digit OR-chain parity on VM and LLVM EXE
-- current work is the execution surface alias pruning lane:
+- current work is the vm compat/proof env hardening lane:
   - vocabulary split: `stage / route / backend override / lane / kernel`
   - selfhost mainline already reads as `runtime-route mainline`
   - raw `--backend vm` is now treated as compat/proof/debug only
   - current buckets are `compat route`, `proof wrappers`, `debug/observability`
-  - live alias target is the naked `stage-a` route name
+  - compat route now hardens explicit ingress before raw `--backend vm`
 
 ## Root Anchors
 
@@ -57,4 +58,4 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-116x/README.md`
+2. `docs/development/current/main/phases/phase-117x/README.md`

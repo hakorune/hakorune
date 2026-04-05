@@ -26,6 +26,7 @@ Script
     - `--runtime`: run runtime selfhost route (`NYASH_USE_NY_COMPILER=1`)
       - `--runtime-route mainline|compat` is canonical
       - `--runtime-mode exe|stage-a-compat` remains a compatibility alias
+      - `runtime-route compat` stays explicit and now requires `NYASH_VM_USE_FALLBACK=1` before entering raw `--backend vm`
     - `--direct`: run Stage-B direct/source route (proof-oriented; VM wrapper is kept explicit-only)
   - Examples:
     ```bash

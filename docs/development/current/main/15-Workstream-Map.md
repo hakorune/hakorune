@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-116x execution surface alias pruning` |
-| Front | `naked stage-a alias を削り、compat surface を route/mode の二段に揃える` |
+| Now | `phase-117x vm compat/proof env hardening` |
+| Front | `compat route が raw --backend vm に入る前に explicit env を要求する` |
 | Blocker | `none` |
-| Next | `run.sh` / `selfhost_run_routes.sh` / `tools/selfhost/README.md` / execution SSOT から `stage-a` alias を削る |
-| After Next | `phase-117x vm compat/proof env hardening` |
+| Next | `selfhost_run_routes.sh` / `tools/selfhost/README.md` / execution SSOT で compat preflight を NYASH_VM_USE_FALLBACK=1 固定にする |
+| After Next | `phase-118x proof wrapper surface review` |
 
 ## Current Read
 
@@ -41,6 +41,7 @@ Related:
 - `114x` made public/help surface read `mainline route` vs `explicit keep/reference override`
 - `115x` inventory is now split into `compat route`, `proof wrappers`, and `debug/observability`
 - `116x` is shrinking alias pressure first: `stage-a` goes away, `runtime-route compat` and `runtime-mode stage-a-compat` stay
+- `117x` is hardening compat ingress next: shell preflight must require `NYASH_VM_USE_FALLBACK=1`
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers
@@ -58,9 +59,9 @@ Related:
 
 ## Successor Corridor
 
-1. `phase-116x execution surface alias pruning`
-2. `phase-117x vm compat/proof env hardening`
-3. `phase-118x proof wrapper surface review`
+1. `phase-117x vm compat/proof env hardening`
+2. `phase-118x proof wrapper surface review`
+3. `phase-119x vm debug/observability surface review`
 
 ## Parked After Optimization
 
@@ -90,6 +91,7 @@ Related:
 ## Reference
 
 - current lane docs:
+  - `docs/development/current/main/phases/phase-117x/README.md`
   - `docs/development/current/main/phases/phase-116x/README.md`
   - `docs/development/current/main/phases/phase-115x/README.md`
   - `docs/development/current/main/phases/phase-114x/README.md`

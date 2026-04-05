@@ -41,6 +41,15 @@ canonical_runtime_route_name() {
   esac
 }
 
+require_compat_fallback_env_or_exit() {
+  local source_name="$1"
+  if [ "${NYASH_VM_USE_FALLBACK:-0}" = "1" ]; then
+    return 0
+  fi
+  echo "[contract][runtime-route][expected=mir-json] route=stage-a-compat source=$source_name non_strict_compat=disabled require=NYASH_VM_USE_FALLBACK=1" >&2
+  exit 1
+}
+
 run_runtime_temp_mir_handoff() {
   # Shared helper body for the runtime temp-MIR handoff.
   # B1 introduced the body; B2 makes the exe route call it by default.
@@ -202,6 +211,7 @@ run_runtime() {
   fi
 
   if [ "$runtime_mode" = "stage-a-compat" ]; then
+    require_compat_fallback_env_or_exit "$(basename "$input_file")"
     echo "[selfhost/run] mode=runtime runtime_route=$route_name runtime_mode=$runtime_mode lane=compat-only input=$(basename "$input_file")" >&2
     emit_runtime_route_tag "stage-a-compat" "$(basename "$input_file")"
   else

@@ -20,10 +20,11 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-116x execution surface alias pruning`
-- current front: `naked stage-a alias を削り、compat surface を route/mode の二段に揃える`
+- lane: `phase-117x vm compat/proof env hardening`
+- current front: `compat route が raw --backend vm に入る前に explicit env を要求する`
 - blocker: `none`
 - recent landed:
+  - `phase-116x execution surface alias pruning`
   - `phase-115x vm route retirement planning`
   - `phase-114x execution surface wording closeout`
   - `phase-113x kernel vs vm-reference cluster wording correction`
@@ -39,13 +40,13 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-116x/README.md`
+3. `docs/development/current/main/phases/phase-117x/README.md`
 
 ## Successor Corridor
 
-1. `phase-116x execution surface alias pruning`
-2. `phase-117x vm compat/proof env hardening`
-3. `phase-118x proof wrapper surface review`
+1. `phase-117x vm compat/proof env hardening`
+2. `phase-118x proof wrapper surface review`
+3. `phase-119x vm debug/observability surface review`
 
 ## Parked After Optimization
 

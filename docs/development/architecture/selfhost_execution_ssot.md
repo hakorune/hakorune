@@ -29,6 +29,7 @@ Date: 2026-04-05
 
 外向き surface の canonical 名は `--runtime-route mainline|compat`。
 `--runtime-mode exe|stage-a-compat` は compatibility alias として残す。
+`runtime-route compat` は shell preflight で `NYASH_VM_USE_FALLBACK=1` を要求する。
 
 ### CLI backend override
 
@@ -127,6 +128,7 @@ Body:
 - explicit compat keep
 - 実行時には `--backend vm` を使う narrow keep route
 - naked `stage-a` alias は retired。compat surface は `runtime-route compat` / `runtime-mode stage-a-compat` に揃える。
+- shell preflight は `NYASH_VM_USE_FALLBACK=1` を要求する
 
 ### `direct/proof`
 
@@ -193,6 +195,7 @@ current lane set:
 - `stage-a-compat` -> `runtime-route compat`
 
 互換 alias は当面残してよいが、SSOT の canonical 名は `mainline` / `compat` に寄せる。
+compat ingress は alias を残しても explicit env (`NYASH_VM_USE_FALLBACK=1`) を要求する。
 
 ### Lane naming
 
