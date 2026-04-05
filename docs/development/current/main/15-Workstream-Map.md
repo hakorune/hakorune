@@ -15,8 +15,8 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-131x vm legacy contract migration` |
-| Front | explicit legacy `vm` contract smoke を route-first contract へ移し、backend-hint chain を順に畳む |
-| Blocker | `tools/smokes/v2/profiles/integration/apps/phase29y_hako_run_binary_only_backend_mismatch_block_vm.sh` と `src/runner/stage1_bridge/stub_child.rs` がまだ legacy contract を支えている |
+| Front | explicit legacy `vm` contract smoke は archive 済み。backend-hint chain を順に畳む |
+| Blocker | `src/runner/stage1_bridge/stub_child.rs` がまだ legacy contract を支えている |
 | Next | explicit legacy `vm` contract caller migration を source-backed に進める |
 | After Next | `phase-kx vm-hako small reference interpreter recut` |
 

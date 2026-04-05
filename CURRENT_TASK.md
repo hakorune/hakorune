@@ -71,8 +71,8 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 ## Current Front
 
 - Active lane: `phase-131x vm legacy contract migration`
-- Active micro: explicit legacy `vm` contract smoke を route-first contract へ移し、backend-hint chain を順に畳む
-- Current blocker: `tools/smokes/v2/profiles/integration/apps/phase29y_hako_run_binary_only_backend_mismatch_block_vm.sh` と `src/runner/stage1_bridge/stub_child.rs` がまだ legacy contract を支えている
+- Active micro: explicit legacy `vm` contract smoke は archive 済み。backend-hint chain を順に畳む
+- Current blocker: `src/runner/stage1_bridge/stub_child.rs` がまだ legacy contract を支えている
 - Exact focus: wording-only は終わり、次は explicit legacy `vm` gate の caller migration を source-backed に進める
 
 ## Successor Corridor
@@ -143,4 +143,4 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 - thin top-level wrappers remain public/front-door keep, not archive-ready by default.
 - `vm-hako` stays reference/conformance keep; future interpreter recut is parked until after optimization work.
 - `phase-130x` closed the final wording-only public gate cleanup and left the behavior gate isolated.
-- `phase-131x` now follows the remaining explicit legacy `vm` contract callers and bridge seams.
+- `phase-131x` now follows the remaining explicit legacy `vm` contract callers and bridge seams; the legacy mismatch smoke has already been archived.

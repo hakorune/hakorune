@@ -18,7 +18,7 @@
 - [x] `bash tools/selfhost/mainline/stage1_mainline_smoke.sh`
 - [x] `bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_runtime_mode_parity_smoke_vm.sh`
 - [x] `bash tools/smokes/v2/profiles/integration/selfhost/phase29x_vm_route_non_strict_compat_boundary_vm.sh`
-- [x] `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_run_binary_only_backend_mismatch_block_vm.sh`
+- [x] `bash tools/smokes/v2/profiles/integration/apps/archive/phase29y_hako_run_binary_only_backend_mismatch_block_vm.sh`
 
 ## D. Closeout
 
