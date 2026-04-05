@@ -1,6 +1,6 @@
 # Phase 160x: capability-family inventory
 
-- Status: Active
+- Status: Landed
 - 目的: current Rust helper 群を future capability family 名で棚卸しし、hot path がどの seam に属するかを perf 再開前に source-backed に固定する。
 - 対象:
   - `CURRENT_TASK.md`
@@ -117,3 +117,9 @@
 
 1. `phase-161x hot-path capability seam freeze`
 2. `phase-137x main kilo reopen selection`
+
+## Exit
+
+- inventory table is source-backed
+- `const_suffix` / `store.array.str` / observer exact counter all have explicit capability-family notes
+- future phases can read helper clusters through seam names first

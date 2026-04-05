@@ -1,6 +1,6 @@
 # Phase 161x: hot-path capability seam freeze
 
-- Status: Next
+- Status: Landed
 - 目的: `phase-160x` の棚卸し結果を hot path 単位で固定し、`phase-137x` の perf front を capability seam 経由で読めるようにする。
 
 ## Planned Scope
@@ -34,3 +34,4 @@
 
 - hot path ごとの capability family reading が source-backed に読める
 - `phase-137x` current front が helper 名だけでなく seam 名でも追える
+- perf reopen can now treat capability seam names as the primary reading and helper names as executor detail

@@ -20,9 +20,9 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-160x capability-family inventory`
-- current front: hot Rust helpers を future capability family ごとに棚卸しし、perf front がどの seam に属するかを lock する
-- blocker: seam が曖昧なまま最適化を続けると、後で capability family 化するときに hot path を再整理する二度手間が出る
+- lane: `phase-137x main kilo reopen selection`
+- current front: `store.array.str` first で array string-store executor overhead を詰める
+- blocker: exact micro と whole-kilo を同時に良化する patch だけを採る
 - landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -40,7 +40,7 @@ tools/checks/dev_gate.sh quick
 3. `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
 4. `docs/development/current/main/phases/phase-152x/README.md`
 5. `docs/development/current/main/phases/phase-154x/README.md`
-6. `docs/development/current/main/phases/phase-160x/README.md`
+6. `docs/development/current/main/phases/phase-137x/README.md`
 
 ## Decision Lock
 
@@ -149,10 +149,9 @@ tools/checks/dev_gate.sh quick
   - `kilo_kernel_small_hk`: latest reread `ny_aot_ms=741`
   - `kilo_micro_concat_const_suffix`: `ny_aot_ms=84`
   - `kilo_micro_array_string_store`: `ny_aot_ms=181`
-- immediate capability map order:
-  1. `phase-160x capability-family inventory`
-  2. `phase-161x hot-path capability seam freeze`
-  3. `phase-137x main kilo reopen selection`
+- capability map lock: landed
+  - `phase-160x capability-family inventory`
+  - `phase-161x hot-path capability seam freeze`
 
 ## First Design Slices
 
