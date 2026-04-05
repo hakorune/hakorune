@@ -4,7 +4,7 @@
 # Contract pin:
 # 1) non-strict compat route rejects compat lanes unless explicit.
 # 2) `NYASH_VM_USE_FALLBACK=1` explicitly enables compatibility lanes.
-# 3) explicit compat run emits `[vm-route/pre-dispatch]` and no legacy route tag.
+# 3) explicit compat run emits route-first selfhost tags; raw vm-family tags are optional.
 
 set -euo pipefail
 
@@ -93,20 +93,26 @@ if [ "$rc_with_compat" -ne 0 ]; then
   exit 1
 fi
 
-if ! rg -q '^\[vm-route/pre-dispatch\] backend=vm file=' "$stderr_with_compat"; then
-  log_error "missing vm pre-dispatch route tag under explicit fallback"
+if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=pipeline-entry source=' "$stderr_with_compat"; then
+  log_error "missing runtime route tag (mode=pipeline-entry) under explicit fallback"
   echo "STDERR_LOG(with-compat): $stderr_with_compat"
   exit 1
 fi
 
-if ! rg -q '^\[vm-route/select\] backend=vm lane=vm-compat-fallback reason=env:NYASH_VM_USE_FALLBACK=1$' "$stderr_with_compat"; then
-  log_error "missing vm compat-fallback route tag under explicit fallback"
+if ! rg -q '^\[selfhost/run\] mode=runtime runtime_route=compat runtime_mode=stage-a-compat ' "$stderr_with_compat"; then
+  log_error "missing runtime run tag (route=compat, mode=stage-a-compat) under explicit fallback"
   echo "STDERR_LOG(with-compat): $stderr_with_compat"
   exit 1
 fi
 
-if rg -q '^\[vm-route\] pre-dispatch' "$stderr_with_compat"; then
-  log_error "legacy pre-dispatch route tag detected under explicit fallback"
+if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=stage-a-compat source=' "$stderr_with_compat"; then
+  log_error "missing runtime route tag (mode=stage-a-compat) under explicit fallback"
+  echo "STDERR_LOG(with-compat): $stderr_with_compat"
+  exit 1
+fi
+
+if rg -q '^\[contract\]\[runtime-route\]\[expected=mir-json\] route=stage-a-compat source=.* non_strict_compat=disabled require=NYASH_VM_USE_FALLBACK=1$' "$stderr_with_compat"; then
+  log_error "compat reject contract unexpectedly remained on explicit fallback success path"
   echo "STDERR_LOG(with-compat): $stderr_with_compat"
   exit 1
 fi

@@ -12,9 +12,9 @@ Related:
 
 ## Current
 
-- lane: `phase-126x vm public gate shrink decision`
-- current front: `compat/proof/debug contracts を含めて、public vm gate を今 shrink できるかを判断する`
-- blocker: `none`
+- lane: `phase-127x compat route raw vm cut prep`
+- current front: `compat boundary smoke` を route-first contract に寄せて raw vm tag 断言を外す
+- blocker: `selfhost_run_routes.sh compat branch still shells raw --backend vm`
 - recent landed:
   - `phase-125x vm bridge/backend gate follow-up`
   - `phase-124x vm public docs/manual demotion`
@@ -51,12 +51,11 @@ Related:
 - `phase-103` landed with if-only merge / early return parity on VM and LLVM EXE
 - `phase-104` landed with loop(true)+break-only digits parity on VM and LLVM EXE
 - `phase-105` restored the original long digit OR-chain parity on VM and LLVM EXE
-- current work is the vm public gate shrink decision lane:
-  - vocabulary split: `stage / route / backend override / lane / kernel`
-  - selfhost mainline already reads as `runtime-route mainline`
-  - raw `--backend vm` is now treated as compat/proof/debug only
-  - current buckets are `compat route`, `proof gates`, `debug/observability`
-  - current target is to decide whether the hard blocker is the compat smoke contract itself, or whether public vm gate can already shrink
+- current work is the compat raw-vm cut prep lane:
+  - compat boundary smoke no longer needs to pin raw `vm-route/*` tags
+  - route-first contract becomes `runtime_route=compat` + `mode=stage-a-compat`
+  - explicit fallback env (`NYASH_VM_USE_FALLBACK=1`) remains the positive keep gate
+  - after this prep, compat branch itself can move to temp-MIR handoff
 
 ## Root Anchors
 
@@ -67,4 +66,4 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-126x/README.md`
+2. `docs/development/current/main/phases/phase-127x/README.md`
