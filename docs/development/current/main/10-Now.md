@@ -12,9 +12,9 @@ Related:
 
 ## Current
 
-- lane: `phase-137x main kilo reopen selection`
-- current front: `store.array.str` -> `array_string_store_handle_at(...)` を first exact front として詰める
-- blocker: whole-kilo regress を出さずに executor overhead を削る必要がある
+- lane: `phase-160x capability-family inventory`
+- current front: hot Rust helpers を capability family 名で読み替え、future seam を source-backed に固定する
+- blocker: perf front を seam 未固定のまま詰めると、後で family 化するときに説明責務が崩れる
 - first landed slice:
   - `tools/selfhost/lib/selfhost_build_exe.sh` no longer forces harness on the daily EXE lane
   - provider/selfhost docs now read llvmlite as explicit keep only
@@ -103,6 +103,10 @@ Related:
   - exact counter backend must not keep shared atomic cost on the hot path
   - heavy trace must not piggyback on exact counter backend or sink
 - perf lane is active again:
+  - capability lock is now ahead of perf tuning:
+    - `phase-160x capability-family inventory`
+    - `phase-161x hot-path capability seam freeze`
+    - `phase-137x main kilo reopen selection`
   - current perf truth:
     - whole `kilo_kernel_small_hk = 741ms`
     - exact micro `kilo_micro_concat_const_suffix = 84ms`
@@ -119,5 +123,5 @@ Related:
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
 3. `docs/development/current/main/phases/phase-137x/README.md`
-4. `docs/development/current/main/phases/phase-137x/README.md`
+4. `docs/development/current/main/phases/phase-160x/README.md`
 5. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`

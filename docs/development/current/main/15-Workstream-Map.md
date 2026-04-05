@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-137x main kilo reopen selection` |
-| Front | canonical `store.array.str` first で array string-store executor overhead を削る |
-| Blocker | exact micro と whole-kilo を同時に良化する patch だけを採る |
-| Next | `phase-kx vm-hako small reference interpreter recut` |
-| After Next | `phase-kx vm-hako small reference interpreter recut` |
+| Now | `phase-160x capability-family inventory` |
+| Front | hot Rust helpers を future capability family に棚卸しして perf seam を固定する |
+| Blocker | seam が曖昧なまま最適化を積むと family 化の時に二度手間になる |
+| Next | `phase-161x hot-path capability seam freeze` |
+| After Next | `phase-137x main kilo reopen selection` |
 
 ## Current Read
 
@@ -90,6 +90,10 @@ Related:
   - exact counter remains `perf-observe`
   - trace/debug-only lane is `perf-trace`
   - trace lane is parked placeholder and no longer blocks perf reopen
+- next fixed corridor before perf reopen:
+  1. `phase-160x capability-family inventory`
+  2. `phase-161x hot-path capability seam freeze`
+  3. `phase-137x main kilo reopen selection`
 - paused reopen truth:
   - baseline: `kilo_kernel_small_hk = 1529ms`
   - string const fast-path: `775ms`

@@ -138,6 +138,27 @@ Current rule:
 - `--features perf-trace`: heavy trace / sampled probe / scoped timing lane
 - `NYASH_PERF_TRACE=1`: trace-only runtime gate
 
+Observer reading lock:
+
+- canonical contract identity belongs above, with `.hako` / MIR naming
+- backend / sink / TLS exact counter mechanics remain below, in Rust runtime keep
+- do not try to move observer backend itself into `.hako`; move only its public
+  identity and policy vocabulary upward
+
+## Capability-Seam Consumer Rule
+
+Current hot executors should be read as capability-seam consumers before they
+are read as standalone helpers.
+
+| Canonical contract | Current Rust executor detail | Future capability seam reading |
+| --- | --- | --- |
+| `store.array.str` | `array_string_store_handle_at(...)` | `RawArray` consumer + lower `hako.mem` / `hako.ptr` / `hako.value_repr` family |
+| `const_suffix` | `concat_const_suffix_fallback(...)` | string borrow/freeze consumer + lower `hako.mem` / `hako.ptr` family |
+| observer exact counter | `observe/backend/tls.rs` | out-of-band runtime mechanics keep; only contract identity aligns upward |
+
+This rule exists so perf work does not accidentally grow helper-local policy
+again while capability-family planning is still docs-first.
+
 ## Stop Lines
 
 - `.hako` は owner / policy / route semantics まで

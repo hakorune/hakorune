@@ -62,6 +62,8 @@ when perf work or observer work reopens.
     replaceable, and capability-shaped
 - this does **not** mean forcing every accelerator or observer backend into
   `.hako` immediately
+- capability family is the intended final seam; the thing to shrink over time is
+  the broad Rust helper sprawl below that seam, not the seam itself
 - the immediate design rule is:
   - remove semantic authority from Rust first
   - make Rust runtime mechanics replaceable second
@@ -70,9 +72,42 @@ when perf work or observer work reopens.
 In short:
 
 - mid-term: `Rust = semantics-free runtime mechanics kernel`
-- long-term: `Rust -> OS / ABI / host boundary asymptote`
+- long-term: `capability seam stays; Rust native metal keep -> OS / ABI / host boundary asymptote`
 
 The long-term asymptote is a direction lock, not a near-term migration demand.
+
+## Capability-Family Reading Lock
+
+The next narrowing step is not `move helper X into .hako now`.
+The next narrowing step is to read current Rust helpers as consumers of future
+capability families.
+
+### Reading Rule
+
+- `.hako owner`
+  - meaning / visible contract / route / policy
+- `.hako substrate`
+  - algorithm substrate built on capability families
+- capability family seam
+  - stable future substrate seam
+- native metal keep
+  - final host/runtime mechanics under that seam
+
+### First Inventory Buckets
+
+| Current Rust surface | Future capability family reading | Final seam reading |
+| --- | --- | --- |
+| `crates/nyash_kernel/src/exports/string_view.rs` | string borrow/span family on top of `hako.ptr` / `hako.value_repr` | lifetime-sensitive native substrate keep until a truthful capability seam exists |
+| `crates/nyash_kernel/src/exports/string_helpers.rs` | string freeze/copy/search family on top of `hako.mem` / `hako.ptr` / `hako.buf` | native accelerator leaf, non-owning |
+| `crates/nyash_kernel/src/plugin/array_handle_cache.rs` | `RawArray` consumer helper with `hako.tls` / handle-cache support | native runtime mechanics keep below `RawArray` |
+| `crates/nyash_kernel/src/plugin/array_string_slot.rs` | `RawArray` + string-store consumer over `hako.mem` / `hako.ptr` / `hako.value_repr` | native accelerator leaf under canonical `store.array.str` |
+| `crates/nyash_kernel/src/plugin/map_probe.rs` | `RawMap` consumer over key/probe substrate | native accelerator leaf under map substrate |
+| `src/runtime/host_handles.rs` | host-handle/runtime mechanics, not future semantic substrate | final native metal keep / host boundary side |
+| `crates/nyash_kernel/src/observe/backend/tls.rs` | observer runtime backend using `hako.tls` naming above it, but not owned by `.hako` | out-of-band native runtime mechanics keep |
+
+This table is the first inventory truth.
+It is allowed to get more precise, but future phases should not revert to
+helper-name-first reading once a capability-family reading exists.
 
 ## Final Owner Graph
 
