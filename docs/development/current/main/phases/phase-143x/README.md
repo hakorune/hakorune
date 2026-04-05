@@ -34,11 +34,11 @@
 
 - this lane is not about moving raw map probe/load/store leaves out of Rust
 - this lane is about making `.hako` the actual owner of visible Map semantics
-- first exact cutover unit is `MapBox.set`; next exact unit is `MapBox.get/has`
+- first exact cutover unit is `MapBox.set`; `get/has` are landed; next exact unit is `MapBox.len/length/size`
 - Rust should retain capability, forwarding core, and isolated thin facade surfaces only
 
 ## Next
 
-1. keep visible `MapBox.set/get/has` behavior on `.hako` owner helpers
+1. keep visible `MapBox.set/get/has/len/length/size` behavior on `.hako` owner helpers
 2. keep Rust map forwarding/facade surfaces thin and non-owning
 3. hand off to `phase-144x string semantic owner follow-up`

@@ -15,7 +15,7 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-143x map owner cutover implementation` |
-| Front | `MapBox.set` landed の次として `MapBox.get/has` を owner-helper 粒度に揃え、Map owner seam を `.hako` 実装 authority に変える |
+| Front | `MapBox.set/get/has` landed の次として `MapBox.len/length/size` を owner-helper 粒度に揃え、Map owner seam を `.hako` 実装 authority に変える |
 | Blocker | seam 宣言は landed したが、Map owner implementation はまだ inline branch に残っている |
 | Next | `phase-144x string semantic owner follow-up` |
 | After Next | `phase-137x main kilo reopen selection` |

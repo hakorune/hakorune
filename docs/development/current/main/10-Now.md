@@ -13,7 +13,7 @@ Related:
 ## Current
 
 - lane: `phase-143x map owner cutover implementation`
-- current front: `MapBox.set` landed; next は `MapBox.get/has` を owner-helper 粒度に揃えて Map owner seam を実装 authority に変え、Rust 側を forwarding/accelerator に押し戻す
+- current front: `MapBox.set/get/has` landed; next は `MapBox.len/length/size` を owner-helper 粒度に揃えて Map owner seam を実装 authority に変え、Rust 側を forwarding/accelerator に押し戻す
 - blocker: owner seam は宣言済みだが、Map owner implementation はまだ inline branch に残っている
 - recent landed:
   - `phase-140x map owner pilot`

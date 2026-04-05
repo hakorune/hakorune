@@ -21,7 +21,7 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-143x map owner cutover implementation`
-- current front: `MapBox.set` landed の次として `MapBox.get/has` を owner-helper 粒度に揃え、宣言で終わらせず `.hako` owner 実装へ寄せる
+- current front: `MapBox.set/get/has` landed の次として `MapBox.len/length/size` を owner-helper 粒度に揃え、宣言で終わらせず `.hako` owner 実装へ寄せる
 - blocker: semantic seam は landed したが、Map owner implementation はまだ inline branch に残っている
 - landed:
   - `phase-140x map owner pilot`

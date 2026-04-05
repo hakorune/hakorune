@@ -204,6 +204,49 @@ static box MapCoreBox {
     return 1
   }
 
+  _get_visible_owner_state(regs, per_recv, rid, dst, key_str) {
+    local state_val = me.get_state_value(regs, per_recv, rid, key_str)
+    if state_val == null { return 0 }
+    if dst != null { regs.setField(StringHelpers.int_to_str(dst), "" + state_val) }
+    me._trace("[vm/adapter/map_core:get_state]")
+    return 1
+  }
+
+  _get_visible_owner_runtime(regs, recv_h, dst, key_any) {
+    local got_rt = me.get_hh(recv_h, key_any)
+    me._write_i64_dst(regs, dst, got_rt)
+    me._trace("[vm/adapter/map_core:slot_load_hh]")
+    return 1
+  }
+
+  _get_visible_owner_value_state_zero(regs, dst) {
+    if dst != null { regs.setField(StringHelpers.int_to_str(dst), "0") }
+    return 1
+  }
+
+  _has_visible_owner_state(regs, per_recv, rid, dst, key_str) {
+    if key_str == null { return 0 }
+    local has_state = me.has_state_value(regs, per_recv, rid, key_str)
+    me._write_i64_dst(regs, dst, has_state)
+    if has_state == 1 {
+      me._trace("[vm/adapter/map_core:has_state]")
+      return 1
+    }
+    return 0
+  }
+
+  _has_visible_owner_runtime(regs, recv_h, dst, key_any) {
+    local has_rt = me.has_hh(recv_h, key_any)
+    me._write_i64_dst(regs, dst, has_rt)
+    me._trace("[vm/adapter/map_core:probe_hh]")
+    return 1
+  }
+
+  _has_visible_owner_value_state_zero(regs, dst) {
+    me._write_i64_dst(regs, dst, 0)
+    return 1
+  }
+
   try_handle(seg, regs, handle_regs, mname) {
     local rid = MiniMirV1Scan.receiver_id(seg)
     local per_recv = me._size_state_per_recv()
@@ -227,56 +270,32 @@ static box MapCoreBox {
 
     if mname == "get" {
       local arg0 = MiniMirV1Scan.first_arg_register(seg)
-      local key_str = null
-      if arg0 >= 0 {
-        local key_str_raw = me._read_reg_text_or_null(regs, handle_regs, arg0)
-        key_str = me.norm_key_str(key_str_raw)
-      }
-      local state_val = me.get_state_value(regs, per_recv, rid, key_str)
-      if state_val != null {
-        if dst != null { regs.setField(StringHelpers.int_to_str(dst), "" + state_val) }
-        me._trace("[vm/adapter/map_core:get_state]")
+      local key_str = me._read_norm_key_str_or_null(regs, handle_regs, arg0)
+      if me._get_visible_owner_state(regs, per_recv, rid, dst, key_str) == 1 {
         return 1
       }
       local key_any = me._read_reg_i64_or_null(regs, arg0)
       if value_state == "1" {
-        if dst != null { regs.setField(StringHelpers.int_to_str(dst), "0") }
-        return 1
+        return me._get_visible_owner_value_state_zero(regs, dst)
       }
       if recv_h != null && recv_h > 0 && key_any != null {
-        local got_rt = me.get_hh(recv_h, key_any)
-        me._write_i64_dst(regs, dst, got_rt)
-        me._trace("[vm/adapter/map_core:slot_load_hh]")
-        return 1
+        return me._get_visible_owner_runtime(regs, recv_h, dst, key_any)
       }
       return 0
     }
 
     if mname == "has" {
       local arg0 = MiniMirV1Scan.first_arg_register(seg)
-      local key_str = null
-      if arg0 >= 0 {
-        local key_str_raw = me._read_reg_text_or_null(regs, handle_regs, arg0)
-        key_str = me.norm_key_str(key_str_raw)
-      }
-      if key_str != null {
-        local has_state = me.has_state_value(regs, per_recv, rid, key_str)
-        me._write_i64_dst(regs, dst, has_state)
-        if has_state == 1 {
-          me._trace("[vm/adapter/map_core:has_state]")
-          return 1
-        }
+      local key_str = me._read_norm_key_str_or_null(regs, handle_regs, arg0)
+      if me._has_visible_owner_state(regs, per_recv, rid, dst, key_str) == 1 {
+        return 1
       }
       local key_any = me._read_reg_i64_or_null(regs, arg0)
       if value_state == "1" {
-        me._write_i64_dst(regs, dst, 0)
-        return 1
+        return me._has_visible_owner_value_state_zero(regs, dst)
       }
       if recv_h != null && recv_h > 0 && key_any != null {
-        local has_rt = me.has_hh(recv_h, key_any)
-        me._write_i64_dst(regs, dst, has_rt)
-        me._trace("[vm/adapter/map_core:probe_hh]")
-        return 1
+        return me._has_visible_owner_runtime(regs, recv_h, dst, key_any)
       }
       return 0
     }
