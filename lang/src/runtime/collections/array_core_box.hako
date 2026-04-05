@@ -173,6 +173,44 @@ static box ArrayCoreBox {
     return 1
   }
 
+  _fail_set_oob(regs, dst) {
+    me._write_zero_dst(regs, dst)
+    return 1
+  }
+
+  _set_visible_owner_runtime(regs, rid, per_recv, key, cur_len, recv_h, dst, idx_i64, arg1_i, val_i64) {
+    local rc = me.set_i64(recv_h, idx_i64, val_i64)
+    local strict = env.get("HAKO_VM_ARRAY_CORE_STRICT"); if strict == null { strict = "0" }
+    if strict == "1" && rc == 0 {
+      print("[vm/adapter/freeze:array_set_i64]")
+      return 1
+    }
+    if rc != 0 {
+      local value_state_rt = me._value_state()
+      local next_len_rt = ArrayStateCoreBox.record_set_state(
+        regs,
+        per_recv,
+        rid,
+        idx_i64,
+        cur_len,
+        value_state_rt,
+        arg1_i
+      )
+      regs.setField(key, StringHelpers.int_to_str(next_len_rt))
+    }
+    me._write_zero_dst(regs, dst)
+    me._trace("[vm/adapter/array_core:set_i64]")
+    return 1
+  }
+
+  _set_visible_owner_state_only(regs, rid, per_recv, key, cur_len, dst, idx, arg1_i) {
+    local value_state = me._value_state()
+    local next_len = ArrayStateCoreBox.record_set_state(regs, per_recv, rid, idx, cur_len, value_state, arg1_i)
+    regs.setField(key, StringHelpers.int_to_str(next_len))
+    me._write_zero_dst(regs, dst)
+    return 1
+  }
+
   _try_handle_set(seg, regs, rid, per_recv, key, cur_len, recv_h, dst) {
     local arg0_i = MiniMirV1Scan.first_arg_register(seg)
     local arg1_i = MiniMirV1Scan.nth_arg_register(seg, 1)
@@ -180,40 +218,44 @@ static box ArrayCoreBox {
     local val_i64 = me._read_reg_i64_or_null(regs, arg1_i)
     if idx_i64 != null && idx_i64 < 0 {
       me._emit_oob_tag("[oob/array/set] index out of bounds")
-      me._write_zero_dst(regs, dst)
-      return 1
+      return me._fail_set_oob(regs, dst)
     }
     if idx_i64 != null && idx_i64 >= cur_len {
       me._emit_oob_tag("[oob/array/set] index out of bounds")
-      me._write_zero_dst(regs, dst)
-      return 1
+      return me._fail_set_oob(regs, dst)
     }
     if recv_h != null && idx_i64 != null && val_i64 != null {
-      local rc = me.set_i64(recv_h, idx_i64, val_i64)
-      local strict = env.get("HAKO_VM_ARRAY_CORE_STRICT"); if strict == null { strict = "0" }
-      if strict == "1" && rc == 0 {
-        print("[vm/adapter/freeze:array_set_i64]")
-        return 1
-      }
-      if rc != 0 {
-        local value_state_rt = me._value_state()
-        local next_len_rt = ArrayStateCoreBox.record_set_state(regs, per_recv, rid, idx_i64, cur_len, value_state_rt, arg1_i)
-        regs.setField(key, StringHelpers.int_to_str(next_len_rt))
-      }
-      me._write_zero_dst(regs, dst)
-      me._trace("[vm/adapter/array_core:set_i64]")
-      return 1
+      return me._set_visible_owner_runtime(regs, rid, per_recv, key, cur_len, recv_h, dst, idx_i64, arg1_i, val_i64)
     }
 
-    local value_state = me._value_state()
     local idx = me._read_reg_int_or_zero(regs, arg0_i)
     if idx < 0 {
-      me._write_zero_dst(regs, dst)
-      return 1
+      return me._fail_set_oob(regs, dst)
     }
-    local next_len = ArrayStateCoreBox.record_set_state(regs, per_recv, rid, idx, cur_len, value_state, arg1_i)
-    regs.setField(key, StringHelpers.int_to_str(next_len))
+    return me._set_visible_owner_state_only(regs, rid, per_recv, key, cur_len, dst, idx, arg1_i)
+  }
+
+  _fail_get_oob(regs, dst) {
     me._write_zero_dst(regs, dst)
+    return 1
+  }
+
+  _get_visible_owner_runtime(regs, dst, recv_h, idx_i64) {
+    local got_i64 = me.get_i64(recv_h, idx_i64)
+    me._write_i64_dst(regs, dst, got_i64)
+    me._trace("[vm/adapter/array_core:get_i64]")
+    return 1
+  }
+
+  _get_visible_owner_state_only(regs, rid, per_recv, dst, idx) {
+    local val_str = ArrayStateCoreBox.get_state_value(regs, per_recv, rid, idx)
+    if dst != null {
+      if val_str != null {
+        regs.setField(StringHelpers.int_to_str(dst), "" + val_str)
+      } else {
+        regs.setField(StringHelpers.int_to_str(dst), "0")
+      }
+    }
     return 1
   }
 
@@ -221,30 +263,17 @@ static box ArrayCoreBox {
     local arg0_i = MiniMirV1Scan.first_arg_register(seg)
     local idx_i64 = me._read_reg_i64_or_null(regs, arg0_i)
     if idx_i64 != null && idx_i64 < 0 {
-      me._write_zero_dst(regs, dst)
-      return 1
+      return me._fail_get_oob(regs, dst)
     }
     if recv_h != null && idx_i64 != null {
-      local got_i64 = me.get_i64(recv_h, idx_i64)
-      me._write_i64_dst(regs, dst, got_i64)
-      me._trace("[vm/adapter/array_core:get_i64]")
-      return 1
+      return me._get_visible_owner_runtime(regs, dst, recv_h, idx_i64)
     }
     if value_state == "1" {
       local idx = me._read_reg_int_or_zero(regs, arg0_i)
       if idx < 0 {
-        me._write_zero_dst(regs, dst)
-        return 1
+        return me._fail_get_oob(regs, dst)
       }
-      local val_str = ArrayStateCoreBox.get_state_value(regs, per_recv, rid, idx)
-      if dst != null {
-        if val_str != null {
-          regs.setField(StringHelpers.int_to_str(dst), "" + val_str)
-        } else {
-          regs.setField(StringHelpers.int_to_str(dst), "0")
-        }
-      }
-      return 1
+      return me._get_visible_owner_state_only(regs, rid, per_recv, dst, idx)
     }
     return 0
   }

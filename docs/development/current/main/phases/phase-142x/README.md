@@ -21,6 +21,7 @@
   - `crates/nyash_kernel/src/plugin/array_string_slot.rs`
 - success:
   - `ArrayBox.push` visible semantics are explicitly owned by `.hako` first
+  - `ArrayBox.get/set` visible semantics are expressed through `.hako` owner helpers, not embedded inline in dispatch branches
   - Array visible owner behavior is implemented on the `.hako` side, not only declared
   - historical runtime aliases are isolated from the forwarding core
   - RuntimeData-style any-key array routes are isolated from the slot/substrate forwarding core
@@ -59,11 +60,11 @@
 
 - this lane is not about moving cache/string-slot leaves out of Rust
 - this lane is about making `.hako` the actual owner of visible Array semantics
-- first exact cutover unit is `ArrayBox.push`
+- first exact cutover unit is `ArrayBox.push` and next exact unit is `ArrayBox.get/set`
 - Rust should retain capability, forwarding core, and isolated compat alias surfaces only
 
 ## Next
 
-1. cut visible `ArrayBox.push` behavior over to `.hako`
+1. keep visible `ArrayBox.push/get/set` behavior on `.hako` owner helpers
 2. keep historical runtime aliases out of `array_runtime_facade.rs`
 3. hand off to `phase-143x map owner cutover implementation`

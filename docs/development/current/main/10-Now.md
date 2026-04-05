@@ -13,7 +13,7 @@ Related:
 ## Current
 
 - lane: `phase-142x array owner cutover implementation`
-- current front: `ArrayBox.push` を first cutover unit にして Array owner seam を実装 authority に変え、Rust 側を forwarding/accelerator に押し戻す
+- current front: `ArrayBox.push` landed; next は `ArrayBox.get/set` を owner-helper 粒度に揃えて Array owner seam を実装 authority に変え、Rust 側を forwarding/accelerator に押し戻す
 - blocker: owner seam は宣言済みだが、cutover implementation は未完
 - recent landed:
   - `phase-140x map owner pilot`
