@@ -121,7 +121,39 @@ pub(super) fn array_string_indexof_by_index(handle: i64, idx: i64, needle_h: i64
 }
 
 #[inline(always)]
-pub(super) fn array_string_store_handle_at(handle: i64, idx: i64, value_h: i64) -> i64 {
+fn execute_store_array_str_slot(
+    items: &mut Vec<Box<dyn nyash_rust::box_trait::NyashBox>>,
+    idx: usize,
+    value_h: i64,
+    source_obj: Option<&std::sync::Arc<dyn nyash_rust::box_trait::NyashBox>>,
+    drop_epoch: u64,
+) -> i64 {
+    if idx > items.len() {
+        return 0;
+    }
+    if idx < items.len() {
+        if let Some(value_obj) = source_obj {
+            if try_retarget_borrowed_string_slot_with_source(
+                &mut items[idx],
+                value_h,
+                value_obj,
+                drop_epoch,
+            ) {
+                return 1;
+            }
+        }
+    }
+    let value = store_string_box_from_source(value_h, source_obj, drop_epoch);
+    if idx < items.len() {
+        items[idx] = value;
+    } else {
+        items.push(value);
+    }
+    1
+}
+
+#[inline(always)]
+fn execute_store_array_str_contract(handle: i64, idx: i64, value_h: i64) -> i64 {
     if !valid_handle_idx(handle, idx) || value_h <= 0 {
         return 0;
     }
@@ -129,31 +161,18 @@ pub(super) fn array_string_store_handle_at(handle: i64, idx: i64, value_h: i64) 
     super::array_handle_cache::with_array_box(handle, |arr| {
         let idx = idx as usize;
         arr.with_items_write(|items| {
-            if idx > items.len() {
-                return 0;
-            }
             handles::with_handle(value_h as u64, |source_obj| {
-                if idx < items.len() {
-                    if let Some(value_obj) = source_obj {
-                        if try_retarget_borrowed_string_slot_with_source(
-                            &mut items[idx],
-                            value_h,
-                            value_obj,
-                            drop_epoch,
-                        ) {
-                            return 1;
-                        }
-                    }
-                }
-                let value = store_string_box_from_source(value_h, source_obj, drop_epoch);
-                if idx < items.len() {
-                    items[idx] = value;
-                } else {
-                    items.push(value);
-                }
-                1
+                execute_store_array_str_slot(items, idx, value_h, source_obj, drop_epoch)
             })
         })
     })
     .unwrap_or(0)
+}
+
+#[inline(always)]
+pub(super) fn array_string_store_handle_at(handle: i64, idx: i64, value_h: i64) -> i64 {
+    // phase-150x: keep array-string store semantics owned above this layer and
+    // treat the Rust path as the executor for the canonical `store.array.str`
+    // reading only.
+    execute_store_array_str_contract(handle, idx, value_h)
 }

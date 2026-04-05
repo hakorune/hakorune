@@ -526,8 +526,8 @@ fn concat_pair_fallback(a_h: i64, b_h: i64) -> i64 {
 }
 
 #[inline(always)]
-fn concat_const_suffix_from_handle(a_h: i64, suffix: &str) -> i64 {
-    match concat_suffix_retention_class(suffix.is_empty()) {
+fn execute_concat2_freeze_from_text(a_h: i64, suffix: &str, placement: RetainedForm) -> i64 {
+    match placement {
         RetainedForm::ReturnHandle => a_h,
         RetainedForm::KeepTransient | RetainedForm::MustFreeze(_) => {
             freeze_text_plan(concat_const_suffix_plan_from_handle(a_h, suffix))
@@ -537,7 +537,7 @@ fn concat_const_suffix_from_handle(a_h: i64, suffix: &str) -> i64 {
 }
 
 #[inline(always)]
-fn concat_const_suffix_from_const_handle_cached(
+fn execute_concat2_with_cached_const_handle(
     a_h: i64,
     suffix_h: i64,
     placement: RetainedForm,
@@ -558,7 +558,7 @@ fn concat_const_suffix_from_const_handle_cached(
 }
 
 #[inline(always)]
-fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i64 {
+fn execute_const_suffix_contract(a_h: i64, suffix_ptr: *const i8) -> i64 {
     #[derive(Default)]
     struct ConstCStringCache {
         ptr: Cell<usize>,
@@ -611,13 +611,13 @@ fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i64 {
             return None;
         }
         let placement = concat_suffix_retention_class(cache.is_empty.get());
-        if let Some(out) = concat_const_suffix_from_const_handle_cached(a_h, cached, placement) {
+        if let Some(out) = execute_concat2_with_cached_const_handle(a_h, cached, placement) {
             return Some(out);
         }
         let text_ref = cache.text.borrow();
         text_ref
             .as_deref()
-            .map(|suffix| concat_const_suffix_from_handle(a_h, suffix))
+            .map(|suffix| execute_concat2_freeze_from_text(a_h, suffix, placement))
     }) {
         return out;
     }
@@ -633,14 +633,21 @@ fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i64 {
                 cache.ptr.set(addr);
                 cache.handle.set(handle);
                 cache.is_empty.set(suffix_is_empty);
-                if let Some(out) = concat_const_suffix_from_const_handle_cached(a_h, handle, placement)
+                if let Some(out) = execute_concat2_with_cached_const_handle(a_h, handle, placement)
                 {
                     return out;
                 }
             }
-            concat_const_suffix_from_handle(a_h, suffix)
+            execute_concat2_freeze_from_text(a_h, suffix, placement)
         })
     })
+}
+
+#[inline(always)]
+fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i64 {
+    // phase-149x: keep `concat_hs` as the current concrete executor path, but
+    // read this route as `.hako const_suffix -> thaw.str + lit.str + str.concat2 + freeze.str`.
+    execute_const_suffix_contract(a_h, suffix_ptr)
 }
 
 #[inline(always)]
