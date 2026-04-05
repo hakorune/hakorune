@@ -20,9 +20,9 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-144x string semantic owner follow-up`
-- current front: `StringCoreBox` の `size alias / indexOf / substring / lastIndexOf` residue を owner helper / string-kernel delegation に寄せる
-- blocker: String seam は landed したが、VM-facing wrapper に visible branch が残っている
+- lane: `phase-137x main kilo reopen selection`
+- current front: `kilo_kernel_small_hk` / kilo micro baseline は refresh 済み。next hot leaf を trace/asm bundle で pin する
+- blocker: main kilo gap は見えているが、next hot leaf がまだ未固定
 - landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -30,14 +30,13 @@ tools/checks/dev_gate.sh quick
   - `phase-134x nyash_kernel layer recut selection`
   - `phase-133x micro kilo reopen selection`
 - active next:
-  - `phase-137x main kilo reopen selection`
   - `phase-kx vm-hako small reference interpreter recut`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-144x/README.md`
+3. `docs/development/current/main/phases/phase-137x/README.md`
 4. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
 
 ## Decision Lock
@@ -100,7 +99,12 @@ bash tools/selfhost/mainline/stage1_mainline_smoke.sh
 tools/checks/dev_gate.sh quick
 git diff --check
 ```
-- `phase-144x` revisits String after Array/Map:
-  - semantic owner stays `.hako`
-  - no full lifetime substrate move is planned
-  - follow-up is about wrapper enforcement and owner delegation, not Rust-zero
+- reopened perf read:
+  - `kilo_kernel_small_hk`: `c_ms=81 / ny_aot_ms=1529`
+  - `kilo_micro_indexof_line`: `c_ms=4 / ny_aot_ms=4`
+  - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
+  - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
+- `phase-144x` landed:
+  - `StringCoreBox.{size,indexOf,lastIndexOf,substring}` now reads through helperized wrapper paths
+  - `indexOf(search, fromIndex)` delegates to `StringSearchKernelBox.find_index_from(...)`
+  - no lifetime substrate move was made

@@ -1,10 +1,12 @@
 // StringCoreBox — thin VM runtime wrapper over string i64 ABI helper
 // Responsibility:
 // - provide VM-low-level i64 length path without std-layer coupling
-// - own adapter-on StringBox size-alias dispatch so VM handler stays orchestration-only
+// - delegate visible StringBox search semantics to `.hako` string-kernel owners
+// - keep runtime wrapper residue narrow (`size alias` / `substring` / `lastIndexOf`)
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.runtime.kernel.string.search as StringSearchKernelBox
 using selfhost.vm.helpers.mini_mir_v1_scan as MiniMirV1Scan
 using selfhost.vm.helpers.method_alias_policy as MethodAliasPolicy
 using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
@@ -116,55 +118,73 @@ static box StringCoreBox {
     return raw.length()
   }
 
+  _size_alias_runtime(regs, kinds, handle_regs, dst, rid) {
+    local len_i64 = 0
+    local raw_len = me._read_reg_text_or_null(regs, handle_regs, rid)
+    if raw_len != null {
+      len_i64 = ("" + raw_len).length()
+    } else {
+      local recv_h = me._read_reg_i64_or_null(regs, rid)
+      if recv_h == null || recv_h <= 0 { return 0 }
+      len_i64 = me.len_i64(recv_h)
+    }
+    me._write_scalar_dst(regs, kinds, dst, len_i64)
+    me._trace("[vm/adapter/string_core:len_i64]")
+    return 1
+  }
+
+  _indexof_owner_runtime(regs, kinds, handle_regs, dst, seg, text) {
+    local arg0 = MiniMirV1Scan.first_arg_register(seg)
+    local needle_raw = me._read_reg_text_or_null(regs, handle_regs, arg0)
+    local needle = needle_raw == null ? "" : ("" + needle_raw)
+    local start = me._read_reg_int_or_zero(regs, MiniMirV1Scan.nth_arg_register(seg, 1))
+    local idx = StringSearchKernelBox.find_index_from(text, needle, start)
+    me._write_scalar_dst(regs, kinds, dst, idx)
+    me._trace("[vm/adapter/string_core:indexof]")
+    return 1
+  }
+
+  _lastindexof_wrapper_runtime(regs, kinds, handle_regs, dst, seg, text) {
+    local arg0_rt = MiniMirV1Scan.first_arg_register(seg)
+    local needle_rt = me._read_reg_text_or_null(regs, handle_regs, arg0_rt)
+    local needle = needle_rt == null ? "" : ("" + needle_rt)
+    me._write_scalar_dst(regs, kinds, dst, text.lastIndexOf(needle))
+    me._trace("[vm/adapter/string_core:lastindexof]")
+    return 1
+  }
+
+  _substring_owner_runtime(regs, kinds, handle_regs, dst, seg, text) {
+    local start_raw = me._read_reg_int_or_zero(regs, MiniMirV1Scan.first_arg_register(seg))
+    local end_raw = me._read_reg_int_or_zero(regs, MiniMirV1Scan.nth_arg_register(seg, 1))
+    local n = text.length()
+    local start = me._clamp_index(start_raw, n)
+    local end = me._clamp_index(end_raw, n)
+    if start > end {
+      me._write_text_dst(regs, kinds, handle_regs, dst, "")
+    } else {
+      me._write_text_dst(regs, kinds, handle_regs, dst, text.substring(start, end))
+    }
+    me._trace("[vm/adapter/string_core:substring]")
+    return 1
+  }
+
   try_handle(seg, regs, kinds, handle_regs, mname) {
     local rid = MiniMirV1Scan.receiver_id(seg)
     local dst = JsonFragBox.get_int(seg, "dst")
     if MethodAliasPolicy.is_size_alias(mname) == 1 {
-      local len_i64 = 0
-      local raw_len = me._read_reg_text_or_null(regs, handle_regs, rid)
-      if raw_len != null {
-        len_i64 = ("" + raw_len).length()
-      } else {
-        local recv_h = me._read_reg_i64_or_null(regs, rid)
-        if recv_h == null || recv_h <= 0 { return 0 }
-        len_i64 = me.len_i64(recv_h)
-      }
-      me._write_scalar_dst(regs, kinds, dst, len_i64)
-      me._trace("[vm/adapter/string_core:len_i64]")
-      return 1
+      return me._size_alias_runtime(regs, kinds, handle_regs, dst, rid)
     }
     local raw = me._read_reg_text_or_null(regs, handle_regs, rid)
     if raw == null { return 0 }
     local text = "" + raw
     if mname == "indexOf" {
-      local arg0 = MiniMirV1Scan.first_arg_register(seg)
-      local needle_raw = me._read_reg_text_or_null(regs, handle_regs, arg0)
-      local needle = needle_raw == null ? "" : ("" + needle_raw)
-      me._write_scalar_dst(regs, kinds, dst, text.indexOf(needle))
-      me._trace("[vm/adapter/string_core:indexof]")
-      return 1
+      return me._indexof_owner_runtime(regs, kinds, handle_regs, dst, seg, text)
     }
     if mname == "lastIndexOf" {
-      local arg0_rt = MiniMirV1Scan.first_arg_register(seg)
-      local needle_rt = me._read_reg_text_or_null(regs, handle_regs, arg0_rt)
-      local needle2 = needle_rt == null ? "" : ("" + needle_rt)
-      me._write_scalar_dst(regs, kinds, dst, text.lastIndexOf(needle2))
-      me._trace("[vm/adapter/string_core:lastindexof]")
-      return 1
+      return me._lastindexof_wrapper_runtime(regs, kinds, handle_regs, dst, seg, text)
     }
     if mname == "substring" || mname == "substr" {
-      local start_raw = me._read_reg_int_or_zero(regs, MiniMirV1Scan.first_arg_register(seg))
-      local end_raw = me._read_reg_int_or_zero(regs, MiniMirV1Scan.nth_arg_register(seg, 1))
-      local n = text.length()
-      local start = me._clamp_index(start_raw, n)
-      local end = me._clamp_index(end_raw, n)
-      if start > end {
-        me._write_text_dst(regs, kinds, handle_regs, dst, "")
-      } else {
-        me._write_text_dst(regs, kinds, handle_regs, dst, text.substring(start, end))
-      }
-      me._trace("[vm/adapter/string_core:substring]")
-      return 1
+      return me._substring_owner_runtime(regs, kinds, handle_regs, dst, seg, text)
     }
     return 0
   }

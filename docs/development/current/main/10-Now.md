@@ -12,9 +12,9 @@ Related:
 
 ## Current
 
-- lane: `phase-144x string semantic owner follow-up`
-- current front: `StringCoreBox` の visible wrapper residue を owner helper / string-kernel delegation に寄せて String semantic-owner enforcement を強める
-- blocker: String seam は宣言済みだが、`StringCoreBox` に visible inline branch が残っている
+- lane: `phase-137x main kilo reopen selection`
+- current front: `kilo_kernel_small_hk` / kilo micro baseline は refresh 済み。次は trace/asm bundle で next hot leaf を pin する
+- blocker: main kilo gap は依然大きいが、next hot leaf がまだ未固定
 - recent landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -56,7 +56,7 @@ Related:
 - current architecture follow-up is implementation-first:
   - `phase-142x` = landed Array owner cutover implementation
   - `phase-143x` = landed Map owner cutover implementation
-  - `phase-144x` = active String semantic owner follow-up
+  - `phase-144x` = landed String semantic owner follow-up
 - perf lane is delayed, not cancelled:
   - `phase-137x main kilo reopen selection` waits until owner implementation cutover is clean
 
@@ -69,5 +69,5 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-144x/README.md`
+2. `docs/development/current/main/phases/phase-137x/README.md`
 3. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`

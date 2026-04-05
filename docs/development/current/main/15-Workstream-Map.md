@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-144x string semantic owner follow-up` |
-| Front | `StringCoreBox` の `size alias / indexOf / substring / lastIndexOf` residue を owner helper / string-kernel delegation に寄せる |
-| Blocker | String seam は landed したが、VM-facing wrapper に visible inline branch が残っている |
-| Next | `phase-137x main kilo reopen selection` |
-| After Next | `phase-kx vm-hako small reference interpreter recut` |
+| Now | `phase-137x main kilo reopen selection` |
+| Front | `kilo_kernel_small_hk` / kilo micro baseline は refresh 済み。trace/asm bundle で next hot leaf を pin する |
+| Blocker | main kilo gap は依然大きいが、next hot leaf がまだ未固定 |
+| Next | `phase-kx vm-hako small reference interpreter recut` |
+| After Next | parked |
 
 ## Current Read
 
@@ -49,7 +49,7 @@ Related:
 - current implementation corridor:
   - `phase-142x` = landed Array owner cutover implementation
   - `phase-143x` = landed Map owner cutover implementation
-  - `phase-144x` = active String semantic owner follow-up
+  - `phase-144x` = landed String semantic owner follow-up
 - `phase-140x` landed the second pilot:
   - `.hako` owner = `map_core_box.hako` / `map_state_core_box.hako`
   - substrate below = `raw_map_core_box.hako`
@@ -67,14 +67,12 @@ Related:
   - Rust lifetime/native substrate = `string_view.rs` / `string_helpers.rs` / `string_plan.rs`
   - `module_string_dispatch/**` stays quarantine, not owner
 - next fixed corridor:
-  1. `phase-144x string semantic owner follow-up`
-  2. `phase-137x main kilo reopen selection`
-  3. `phase-kx vm-hako small reference interpreter recut`
+  1. `phase-137x main kilo reopen selection`
+  2. `phase-kx vm-hako small reference interpreter recut`
 
 ## Successor Corridor
 
-1. `phase-137x main kilo reopen selection`
-2. `phase-kx vm-hako small reference interpreter recut`
+1. `phase-kx vm-hako small reference interpreter recut`
 
 ## Parked After Optimization
 

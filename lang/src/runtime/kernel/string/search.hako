@@ -29,17 +29,22 @@ static box StringSearchKernelBox {
     return 1
   }
 
-  find_index(hay, needle) {
+  find_index_from(hay, needle, start_pos) {
     if hay == null { return -1 }
     local needle_text = me._normalize_needle(needle)
     local n = hay.length()
     local m = needle_text.length()
-    if m == 0 { return 0 }
+    local start = start_pos
+    if start < 0 { start = 0 }
+    if m == 0 {
+      if start > n { return n }
+      return start
+    }
     if n < m { return -1 }
     // Single-pass scan: keep the search owner strict-friendly by avoiding a
     // nested outer/inner loop pair. This remains the canonical control shape
     // for the string-search pilot.
-    local i = 0
+    local i = start
     local j = 0
     loop(i <= (n - m)) {
       if hay.substring(i + j, i + j + 1) == needle_text.substring(j, j + 1) {
@@ -51,6 +56,10 @@ static box StringSearchKernelBox {
       }
     }
     return -1
+  }
+
+  find_index(hay, needle) {
+    return me.find_index_from(hay, needle, 0)
   }
 
   starts_with(hay, needle) {

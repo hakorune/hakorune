@@ -30,10 +30,15 @@
 - `plugin/map_aliases.rs` now owns the ABI alias surface
 - `nyash_kernel` is ready to be re-baselined under the new responsibility split
 - `src/tests.rs` has been split into `tests/filebox.rs` and `tests/string.rs`, so the root test module is no longer a 1000+ line monolith
+- reopened perf read:
+  - `kilo_kernel_small_hk`: `c_ms=81 / ny_aot_ms=1529`
+  - `kilo_micro_indexof_line`: `c_ms=4 / ny_aot_ms=4`
+  - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
+  - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
 
 ## Next
 
-1. refresh `kilo_kernel_small_hk` baselines
-2. recheck `kilo_micro_substring_concat`
-3. recheck `kilo_micro_array_getset`
-4. choose the next hot leaf under the split kernel
+1. collect `kilo_kernel_small_hk` trace/asm bundle
+2. choose the next hot leaf under the split kernel
+3. refresh current pointers / stop-lines
+4. hand off to the next optimization lane

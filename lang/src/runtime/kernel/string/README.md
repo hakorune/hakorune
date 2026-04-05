@@ -51,6 +51,7 @@ freeze.str
 
 - `search.hako`
   - `find_index(hay, needle) -> i64`
+  - `find_index_from(hay, needle, start) -> i64`
   - `contains(hay, needle) -> i64`
   - `starts_with(hay, needle) -> i64`
   - `ends_with(hay, needle) -> i64`
