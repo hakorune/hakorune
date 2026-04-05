@@ -31,6 +31,7 @@ tools/checks/dev_gate.sh quick
   - `phase-133x micro kilo reopen selection`
 - active next:
   - `phase-150x array string-store vertical slice`
+  - `phase-151x canonical lowering visibility lock`
   - `phase-137x main kilo reopen selection`
   - `phase-kx vm-hako small reference interpreter recut`
 
@@ -136,7 +137,8 @@ git diff --check
 - next contract-first slice:
   - first vertical slice: `concat const-suffix`
   - second vertical slice: `array string-store`
-  - perf consumer stays `phase-137x`
+  - then canonical lowering visibility lock
+  - perf consumer stays blocked until that lands
 - `phase-144x` landed:
   - `StringCoreBox.{size,indexOf,lastIndexOf,substring}` now reads through helperized wrapper paths
   - `indexOf(search, fromIndex)` delegates to `StringSearchKernelBox.find_index_from(...)`

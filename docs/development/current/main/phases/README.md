@@ -6,6 +6,7 @@
 
 - **Current (ACTIVE)**: Phase 149x concat const-suffix vertical slice
 - **Phase 150x（PLANNED）**: array string-store vertical slice
+- **Phase 151x（PLANNED）**: canonical lowering visibility lock
 - **Phase 149x（ACTIVE）**: concat const-suffix vertical slice
 - **Phase 148x（LANDED）**: borrowed text and sink contract freeze
 - **Phase 147x（LANDED）**: semantic optimization contract selection

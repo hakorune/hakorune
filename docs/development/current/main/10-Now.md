@@ -68,6 +68,9 @@ Related:
   - `const_suffix -> thaw.str + lit.str + str.concat2 + freeze.str`
   - `ArrayStoreString -> store.array.str`
   - `MapStoreAny -> store.map.value`
+- current stop-line:
+  - do not reopen `phase-137x` until those canonical readings are visible against current concrete lowering
+  - cleaner Rust executor shape alone is not enough
 - perf lane is paused, not cancelled:
   - `phase-137x main kilo reopen selection` is the first consumer after contract freeze
   - current perf truth:

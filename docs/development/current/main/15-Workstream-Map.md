@@ -18,7 +18,7 @@ Related:
 | Front | `const_suffix` route を `.hako owner -> MIR canonical reading -> Rust executor` で通す |
 | Blocker | current concrete helper `nyash.string.concat_hs` を authority に見せないこと |
 | Next | `phase-150x array string-store vertical slice` |
-| After Next | `phase-137x main kilo reopen selection` / `phase-kx vm-hako small reference interpreter recut` |
+| After Next | `phase-151x canonical lowering visibility lock` / `phase-137x main kilo reopen selection` / `phase-kx vm-hako small reference interpreter recut` |
 
 ## Current Read
 
@@ -58,8 +58,9 @@ Related:
 - next fixed corridor:
   1. `phase-149x concat const-suffix vertical slice`
   2. `phase-150x array string-store vertical slice`
-  3. `phase-137x main kilo reopen selection`
-  4. `phase-kx vm-hako small reference interpreter recut`
+  3. `phase-151x canonical lowering visibility lock`
+  4. `phase-137x main kilo reopen selection`
+  5. `phase-kx vm-hako small reference interpreter recut`
 - paused reopen truth:
   - baseline: `kilo_kernel_small_hk = 1529ms`
   - string const fast-path: `775ms`
@@ -78,8 +79,9 @@ Related:
 
 1. `phase-149x concat const-suffix vertical slice`
 2. `phase-150x array string-store vertical slice`
-3. `phase-137x main kilo reopen selection`
-4. `phase-kx vm-hako small reference interpreter recut`
+3. `phase-151x canonical lowering visibility lock`
+4. `phase-137x main kilo reopen selection`
+5. `phase-kx vm-hako small reference interpreter recut`
 
 ## Parked After Optimization
 
@@ -98,7 +100,7 @@ Related:
   - lifetime-sensitive hot leaves and native accelerators stay in Rust until proven otherwise
   - semantic ownership moves toward `.hako`
 - compat quarantine must not become a permanent owner layer
-  - do not reopen broad perf tuning before optimization authority contract freeze is complete
+  - do not reopen broad perf tuning before optimization authority contract freeze and canonical-lowering visibility lock are complete
 
 ## Reference
 

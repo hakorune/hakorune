@@ -123,6 +123,15 @@ LLVM に owner-aware placement を発見させない。
 - Rust は executor / accelerator に徹する
 - LLVM は generic optimization と codegen に留める
 
+Reopen gate:
+
+- do not reopen `phase-137x` while canonical readings only exist as doc-level names
+- first make the current concrete lowering visibly answer to:
+  - `thaw.str + lit.str + str.concat2 + freeze.str`
+  - `store.array.str`
+  - `store.map.value`
+- only then treat perf work as the next consumer
+
 Do not:
 
 - make Rust helper names the semantic source of truth
@@ -135,4 +144,6 @@ Do not:
 2. freeze MIR canonical op set
 3. adopt the first vertical slice on `concat const-suffix`
 4. adopt the second vertical slice on `array string-store`
-5. only then generalize helper naming inside Rust
+5. lock canonical-lowering visibility against current concrete symbols
+6. only then generalize helper naming inside Rust
+7. only then reopen perf consumers
