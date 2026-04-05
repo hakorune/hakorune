@@ -32,4 +32,18 @@
   - `src/cli/args.rs` still defaults `--backend` to `vm`
   - `tools/selfhost/lib/selfhost_run_routes.sh` compat branch still shells into raw `--backend vm`
   - `src/runner/route_orchestrator.rs` still has `emit-mode-force-rust-vm-keep`
+  - `src/runner/stage1_bridge/direct_route/mod.rs` still requires `backend == "vm"` for binary-only direct run
   - public docs still carry explicit `--backend vm` examples for proof/debug
+
+## Decision
+
+- decision-now
+  - keep `--backend vm` public as an explicit gate for now
+- why
+  - CLI contract still defaults `--backend` to `vm`
+  - dispatch still exposes `backend=vm` as a first-class branch
+  - compat route and Stage1 direct bridge still rely on raw `--backend vm`
+- demote-first
+  - docs/manual surfaces and engineering triage helpers can shrink earlier than the backend gate itself
+- next lane
+  - `phase-122x vm compat route exit plan`
