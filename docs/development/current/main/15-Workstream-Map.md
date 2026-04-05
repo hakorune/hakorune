@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-121x vm backend retirement gate decision` |
-| Front | `--backend vm` を public explicit gate のまま残すか internal-only へ狭めるかを blocker ベースで判断する` |
+| Now | `phase-122x vm compat route exit plan` |
+| Front | `runtime-route compat / stage-a-compat / raw --backend vm の依存をどの順で外すかを具体化する` |
 | Blocker | `none` |
-| Next | `args.rs` / compat route / proof gate / docs examples が gate decision をどこで止めているかを固定する` |
-| After Next | `phase-122x vm compat route exit plan` |
+| Next | `shell compat route -> Stage1 direct bridge -> backend gate` の順で exit plan を固定する` |
+| After Next | `phase-123x proof gate shrink follow-up` |
 
 ## Current Read
 
@@ -46,6 +46,7 @@ Related:
 - `119x` now narrows the remaining vm-family debug/observability keep: route observability stays live, generic probe pressure should thin further
 - `120x` now refreshes the retirement order across `compat / proof / debug-observability` before any broader backend decision
 - `121x` now decides whether `--backend vm` can shrink from public explicit gate to internal-only, or whether concrete blockers still keep it public
+- `122x` now turns that gate decision into a concrete compat-route exit order
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers
@@ -63,9 +64,9 @@ Related:
 
 ## Successor Corridor
 
-1. `phase-121x vm backend retirement gate decision`
-2. `phase-122x vm compat route exit plan`
-3. `phase-123x proof gate shrink follow-up`
+1. `phase-122x vm compat route exit plan`
+2. `phase-123x proof gate shrink follow-up`
+3. `phase-124x vm public docs/manual demotion`
 
 ## Parked After Optimization
 
@@ -95,6 +96,7 @@ Related:
 ## Reference
 
 - current lane docs:
+  - `docs/development/current/main/phases/phase-122x/README.md`
   - `docs/development/current/main/phases/phase-121x/README.md`
   - `docs/development/current/main/phases/phase-119x/README.md`
   - `docs/development/current/main/phases/phase-120x/README.md`

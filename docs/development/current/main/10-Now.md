@@ -12,10 +12,11 @@ Related:
 
 ## Current
 
-- lane: `phase-121x vm backend retirement gate decision`
-- current front: `--backend vm` を public explicit gate のまま残すか internal-only へ狭めるかを blocker ベースで判断する`
+- lane: `phase-122x vm compat route exit plan`
+- current front: `runtime-route compat / stage-a-compat / raw --backend vm の依存をどの順で外すかを具体化する`
 - blocker: `none`
 - recent landed:
+  - `phase-121x vm backend retirement gate decision`
   - `phase-120x vm route retirement decision refresh`
   - `phase-119x vm debug/observability surface review`
   - `phase-118x proof wrapper surface review`
@@ -46,12 +47,12 @@ Related:
 - `phase-103` landed with if-only merge / early return parity on VM and LLVM EXE
 - `phase-104` landed with loop(true)+break-only digits parity on VM and LLVM EXE
 - `phase-105` restored the original long digit OR-chain parity on VM and LLVM EXE
-- current work is the vm backend retirement gate decision lane:
+- current work is the vm compat route exit plan lane:
   - vocabulary split: `stage / route / backend override / lane / kernel`
   - selfhost mainline already reads as `runtime-route mainline`
   - raw `--backend vm` is now treated as compat/proof/debug only
   - current buckets are `compat route`, `proof wrappers`, `debug/observability`
-  - current target is whether `--backend vm` can shrink beyond the public explicit gate
+  - current target is how compat route exits raw `--backend vm` step by step
 
 ## Root Anchors
 
@@ -62,4 +63,4 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-121x/README.md`
+2. `docs/development/current/main/phases/phase-122x/README.md`

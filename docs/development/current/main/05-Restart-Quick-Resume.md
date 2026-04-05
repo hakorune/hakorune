@@ -20,10 +20,11 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-121x vm backend retirement gate decision`
-- current front: `--backend vm` を public explicit gate のまま残すか internal-only へ狭めるかを blocker ベースで判断する`
+- lane: `phase-122x vm compat route exit plan`
+- current front: `runtime-route compat / stage-a-compat / raw --backend vm の依存をどの順で外すかを具体化する`
 - blocker: `none`
 - recent landed:
+  - `phase-121x vm backend retirement gate decision`
   - `phase-120x vm route retirement decision refresh`
   - `phase-119x vm debug/observability surface review`
   - `phase-118x proof wrapper surface review`
@@ -44,13 +45,13 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-121x/README.md`
+3. `docs/development/current/main/phases/phase-122x/README.md`
 
 ## Successor Corridor
 
-1. `phase-121x vm backend retirement gate decision`
-2. `phase-122x vm compat route exit plan`
-3. `phase-123x proof gate shrink follow-up`
+1. `phase-122x vm compat route exit plan`
+2. `phase-123x proof gate shrink follow-up`
+3. `phase-124x vm public docs/manual demotion`
 
 ## Parked After Optimization
 
