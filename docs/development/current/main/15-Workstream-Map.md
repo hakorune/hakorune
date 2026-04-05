@@ -67,13 +67,12 @@ Related:
 - `91x` froze the top-level `.hako` wrapper policy after the latest runner/selfhost recuts
 - `92x` closed the proof/compat caller rerun lane against the canonical wrapper homes
 - `93x` moved archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
-- current work is now on `phase-128x stage1 bridge vm gate softening`
+- current work is now on `phase-130x vm public gate final cleanup`
 
 ## Successor Corridor
 
-1. `phase-127x compat route raw vm cut prep`
-2. `phase-128x stage1 bridge vm gate softening`
-3. `phase-129x vm orchestrator/public gate follow-up`
+1. `phase-130x vm public gate final cleanup`
+2. `phase-kx vm-hako small reference interpreter recut`
 
 ## Parked After Optimization
 
@@ -103,6 +102,7 @@ Related:
 ## Reference
 
 - current lane docs:
+  - `docs/development/current/main/phases/phase-130x/README.md`
   - `docs/development/current/main/phases/phase-128x/README.md`
   - `docs/development/current/main/phases/phase-127x/README.md`
   - `docs/development/current/main/phases/phase-126x/README.md`
