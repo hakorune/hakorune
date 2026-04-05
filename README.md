@@ -284,7 +284,7 @@ Important current reading:
 - Experimental / monitor-only: WASM
 
 Phase‑15 (Self‑Hosting): legacy routes are feature-gated or historical notes only
-- Raw CLI ingress still defaults to `--backend vm`, but that is a legacy/debug ingress only; do not read it as mainline ownership.
+- Raw CLI ingress now defaults to the mainline MIR route; `--backend vm` remains an explicit legacy/debug ingress only.
 - Selfhost mainline is `tools/selfhost/run.sh --runtime --runtime-route mainline`, not raw `--backend vm`.
 - `--backend vm` is an explicit Rust VM keep/debug override, not a mainline ownership claim.
 - `--backend llvm` is the product native object/EXE lane.

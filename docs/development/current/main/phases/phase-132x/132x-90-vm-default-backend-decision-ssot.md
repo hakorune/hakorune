@@ -15,8 +15,15 @@
 ## Caller Buckets
 
 - move to mainline / route-first candidates
-  - helper and bridge smoke paths that do not need the legacy VM-family gate as an execution surface
+  - `tools/using_e2e_smoke.sh`
 - keep now
+  - `tools/selfhost_json_guard_smoke.sh`
+  - `tools/selfhost_parser_json_smoke.sh`
+  - `tools/using_unresolved_smoke.sh`
+  - `tools/using_resolve_smoke.sh`
+  - `tools/using_strict_path_fail_smoke.sh`
+  - `tools/selfhost_read_tmp_dev_smoke.sh`
+  - `tools/ny_selfhost_inline.sh`
   - explicit proof/debug/compat callers
   - vm-hako reference/conformance callers
   - route observability and direct bridge probes that still intentionally observe vm-family behavior
@@ -35,6 +42,7 @@
 - the default backend is no longer `vm`
 - public docs/help match the chosen behavior
 - no caller is left depending on an accidental default
+- the last route-first candidate is moved or intentionally frozen
 
 ## Not In Scope
 

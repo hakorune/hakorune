@@ -27,15 +27,15 @@
 ## Caller Buckets
 
 - move to mainline / route-first candidates:
+  - `tools/using_e2e_smoke.sh`
+- keep-now explicit vm / vm-hako proof-debug / compat:
   - `tools/selfhost_json_guard_smoke.sh`
   - `tools/selfhost_parser_json_smoke.sh`
   - `tools/using_unresolved_smoke.sh`
   - `tools/using_resolve_smoke.sh`
-  - `tools/using_e2e_smoke.sh`
   - `tools/using_strict_path_fail_smoke.sh`
   - `tools/selfhost_read_tmp_dev_smoke.sh`
   - `tools/ny_selfhost_inline.sh`
-- keep-now explicit vm / vm-hako proof-debug / compat:
   - `tools/selfhost/proof/run_stageb_compiler_vm.sh`
   - `tools/selfhost/proof/selfhost_vm_smoke.sh`
   - `tools/selfhost/proof/bootstrap_selfhost_smoke.sh`
@@ -59,4 +59,12 @@
 
 1. change `args.rs` default away from `vm`
 2. align help / error wording with mainline default + explicit keep callers
-3. update route-first candidates only where semantics do not depend on vm-family behavior
+3. update the last route-first candidate only where semantics do not depend on vm-family behavior
+
+## Current Result
+
+- `src/cli/args.rs` now defaults `--backend` to `mir`
+- `src/runner/dispatch.rs` unknown-backend wording now points to `mir` as mainline/default
+- `README.md` / `README.ja.md` no longer describe raw CLI ingress as defaulting to `vm`
+- `tools/using_e2e_smoke.sh` now uses `tools/selfhost/run.sh --runtime --runtime-route mainline`
+- `phase21_5_perf_direct_emit_dominance_block_vm.sh` now pins its first two legacy assertions to explicit `--backend vm`

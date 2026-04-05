@@ -84,9 +84,9 @@ run_expect_failfast() {
 
 # 1) direct emit matrix must fail-fast on verifier errors.
 run_expect_failfast "route=vm emit-mir" "vm" "emit-mir/direct-verify" "$TMP_DIRECT_VM_MIR_LOG" \
-  --emit-mir-json "$TMP_DIRECT_VM_MIR" "$BENCH"
+  --backend vm --emit-mir-json "$TMP_DIRECT_VM_MIR" "$BENCH"
 run_expect_failfast "route=vm emit-exe" "vm" "emit-exe/direct-verify" "$TMP_DIRECT_VM_EXE_LOG" \
-  --emit-exe "$TMP_DIRECT_VM_EXE" "$BENCH"
+  --backend vm --emit-exe "$TMP_DIRECT_VM_EXE" "$BENCH"
 run_expect_failfast "route=mir emit-mir" "mir" "emit-mir/direct-verify" "$TMP_DIRECT_MIR_ROUTE_MIR_LOG" \
   --backend mir --emit-mir-json "$TMP_DIRECT_MIR_ROUTE_MIR" "$BENCH"
 run_expect_failfast "route=mir emit-exe" "mir" "emit-exe/direct-verify" "$TMP_DIRECT_MIR_ROUTE_EXE_LOG" \

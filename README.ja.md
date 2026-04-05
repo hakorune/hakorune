@@ -190,7 +190,7 @@ local py = new PyRuntimeBox()       // Pythonプラグイン
 - experimental / monitor-only: WASM
 
 Phase‑15（自己ホスト期）: レガシー経路は feature-gated または historical 扱い
-- raw CLI ingress はまだ `--backend vm` を既定に持ちますが、これは legacy/debug 入口であり product ownership を意味しません。
+- raw CLI ingress の既定は mainline MIR route に移し、`--backend vm` は legacy/debug の explicit 入口だけに残します。
 - selfhost mainline は `tools/selfhost/run.sh --runtime --runtime-route mainline` です。
 - `--backend vm` は Rust VM の explicit keep/debug override です。
 - `--backend llvm` は product の native object/EXE lane です。

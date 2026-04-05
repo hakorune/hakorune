@@ -3,16 +3,16 @@
 ## A. Inventory
 
 - move to mainline / route-first candidates
+  - `tools/using_e2e_smoke.sh`
+
+- keep now as explicit vm / vm-hako proof-debug / compat
   - `tools/selfhost_json_guard_smoke.sh`
   - `tools/selfhost_parser_json_smoke.sh`
   - `tools/using_unresolved_smoke.sh`
   - `tools/using_resolve_smoke.sh`
-  - `tools/using_e2e_smoke.sh`
   - `tools/using_strict_path_fail_smoke.sh`
   - `tools/selfhost_read_tmp_dev_smoke.sh`
   - `tools/ny_selfhost_inline.sh`
-
-- keep now as explicit vm / vm-hako proof-debug / compat
   - `tools/selfhost/proof/run_stageb_compiler_vm.sh`
   - `tools/selfhost/proof/selfhost_vm_smoke.sh`
   - `tools/selfhost/proof/bootstrap_selfhost_smoke.sh`
@@ -37,24 +37,28 @@
 
 ## B. Decision
 
-- [ ] omitted-backend caller inventory complete
-- [ ] remove `vm` from the default backend
-- [ ] align help/docs with mainline default + explicit legacy keep/debug wording
-- [ ] keep explicit vm / vm-hako proof-debug callers alive
-- [ ] move route-first candidates out of `--backend vm` calls where semantics do not change
+- [x] omitted-backend caller inventory complete
+- [x] remove `vm` from the default backend
+- [x] align help/docs with mainline default + explicit legacy keep/debug wording
+- [x] keep explicit vm / vm-hako proof-debug callers alive
+- [x] move route-first candidates out of `--backend vm` calls where semantics do not change
 
 ## C. Proof
 
-- [ ] `cargo test --lib route_orchestrator::tests --quiet`
-- [ ] `cargo test --lib stage1_bridge::env::tests --quiet`
-- [ ] `cargo test --lib stage1_bridge::plan::tests --quiet`
-- [ ] `cargo test --lib stage1_bridge::stub_child::tests --quiet`
-- [ ] `bash tools/selfhost/mainline/stage1_mainline_smoke.sh`
-- [ ] `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_direct_emit_dominance_block_vm.sh`
+- [x] `cargo test --lib route_orchestrator::tests --quiet`
+- [x] `cargo test --lib stage1_bridge::env::tests --quiet`
+- [x] `cargo test --lib stage1_bridge::plan::tests --quiet`
+- [x] `cargo test --lib stage1_bridge::stub_child::tests --quiet`
+- [x] `cargo check --bin hakorune`
+- [x] `target/debug/hakorune --help`
+- [x] `target/debug/hakorune apps/tests/hello_simple_llvm.hako`
+- [x] `bash tools/selfhost/mainline/stage1_mainline_smoke.sh`
+- [x] `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_direct_emit_dominance_block_vm.sh`
+- [x] `bash tools/using_e2e_smoke.sh`
 
 ## D. Closeout
 
-- [ ] update `CURRENT_TASK.md`
-- [ ] update `05-Restart-Quick-Resume.md`
-- [ ] update `10-Now.md`
-- [ ] update `15-Workstream-Map.md`
+- [x] update `CURRENT_TASK.md`
+- [x] update `05-Restart-Quick-Resume.md`
+- [x] update `10-Now.md`
+- [x] update `15-Workstream-Map.md`

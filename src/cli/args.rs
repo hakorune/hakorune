@@ -137,8 +137,8 @@ pub fn build_command() -> Command {
             Arg::new("backend")
                 .long("backend")
                 .value_name("BACKEND")
-                .help("Legacy explicit backend override family (explicit only, not mainline): product/native (llvm), legacy keep/debug (vm), reference/conformance (vm-hako), or historical interpreter")
-                .default_value("vm"),
+                .help("Backend selection. Default: mainline MIR route (mir). Explicit overrides only: product/native (llvm), legacy keep/debug (vm), reference/conformance (vm-hako), or historical interpreter")
+                .default_value("mir"),
         )
         .arg(Arg::new("verbose").long("verbose").short('v').help("Verbose CLI output (sets NYASH_CLI_VERBOSE=1)").action(clap::ArgAction::SetTrue))
         .arg(Arg::new("compile-wasm").long("compile-wasm").help("Compile to WebAssembly binary (.wasm)").action(clap::ArgAction::SetTrue))

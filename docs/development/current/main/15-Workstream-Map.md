@@ -15,9 +15,9 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-132x vm default backend decision` |
-| Front | default `vm` removal を前提に `args.rs` / help / caller updates を一括で入れる |
-| Blocker | explicit keep callers は残すが、default/mainline 表札がまだ `vm` のまま |
-| Next | `default=vm` を外しつつ explicit keep callers を残す実装 |
+| Front | `default=mir` / help wording / explicit caller pins を landed にして closeout を詰める |
+| Blocker | major blocker は解消。explicit keep caller の freeze と closeout pointer 更新だけ残る |
+| Next | closeout 後に mainline/compiler 側へ戻すか、必要なら explicit keep caller の追加 migration を切る |
 | After Next | `phase-kx vm-hako small reference interpreter recut` |
 
 ## Current Read
@@ -68,8 +68,8 @@ Related:
 - `92x` closed the proof/compat caller rerun lane against the canonical wrapper homes
 - `93x` moved archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
 - current work is now on `phase-132x vm default backend decision`
-- `132x` has now bucketed the remaining `vm` callers into route-first candidates, keep-now proof/debug, and no active delete/archive candidates
-- `132x` decision is now fixed: remove `vm` from the default backend, keep explicit proof/debug callers, and stop blocking mainline work on full vm retirement
+- `132x` narrowed route-first migration to `tools/using_e2e_smoke.sh`; the rest of the old candidates stay explicit vm keep because they still depend on JSON v0 / json-file / debug-helper contracts
+- `132x` now has the implementation landed: `--backend` defaults to `mir`, public help/docs read `mainline/default mir`, and explicit proof/debug callers stay alive
 
 ## Successor Corridor
 

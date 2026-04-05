@@ -21,8 +21,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-132x vm default backend decision`
-- current front: default `vm` removal を前提に `args.rs` / help / caller updates を一括で入れる
-- blocker: explicit keep callers は残すが、default/mainline 表札がまだ `vm` のまま
+- current front: `default=mir` / help wording / explicit caller pins を landed にして closeout を詰める
+- blocker: major blocker は解消。explicit keep caller の freeze と closeout pointer 更新だけ残る
 - landed: `phase-130x` wording-only public gate cleanup
 - active next: `phase-132x vm default backend decision`
 - recent landed:
@@ -76,7 +76,7 @@ tools/checks/dev_gate.sh quick
   - compat route: `run.sh --runtime --runtime-route compat`
   - proof gates: `tools/selfhost/proof/run_stageb_compiler_vm.sh`, `tools/selfhost/proof/selfhost_vm_smoke.sh`
   - debug/observability: phase29x vm-family smokes
-  - route-first candidates: route-first helper and bridge smoke paths that do not need the legacy VM-family gate as an execution surface
+  - route-first candidates: `tools/using_e2e_smoke.sh` only; other JSON v0 / json-file / debug helpers stay explicit vm keep
   - delete/archive: none in the active tree
 - decision:
   - remove `vm` from the default backend now
