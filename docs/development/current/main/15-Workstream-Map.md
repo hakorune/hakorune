@@ -15,9 +15,9 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-132x vm default backend decision` |
-| Front | omitted-backend caller inventory を根拠に default `vm` を keep するか決める |
+| Front | caller bucketization complete; route-first candidates identified; keep-now proof/debug retained; delete/archive none |
 | Blocker | `src/cli/args.rs` default-vm がまだ legacy default として残っている |
-| Next | omitted-backend caller inventory を取って default backend decision を固める |
+| Next | route-first candidates を mainline へ寄せるか、keep-now proof/debug を残すかの最終判断 |
 | After Next | `phase-kx vm-hako small reference interpreter recut` |
 
 ## Current Read
@@ -68,6 +68,7 @@ Related:
 - `92x` closed the proof/compat caller rerun lane against the canonical wrapper homes
 - `93x` moved archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
 - current work is now on `phase-132x vm default backend decision`
+- `132x` has now bucketed the remaining `vm` callers into route-first candidates, keep-now proof/debug, and no active delete/archive candidates
 
 ## Successor Corridor
 

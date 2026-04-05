@@ -72,7 +72,7 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 ## Current Front
 
 - Active lane: `phase-132x vm default backend decision`
-- Active micro: omitted-backend caller inventory を根拠に default `vm` を keep するか決める
+- Active micro: caller bucketization complete; route-first candidates identified; keep-now proof/debug retained; delete/archive none
 - Current blocker: `src/cli/args.rs` default-vm がまだ legacy default として残っている
 - Exact focus: default backend decision は phase-132x で最後に決める
 
@@ -123,6 +123,10 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 - `phase-127x` landed after compat boundary smoke was converted to route-first selfhost contract checks.
 - compat temp-MIR handoff is green again because the helper now receives the parser-EXE preference env internally.
 - `phase-128x` kept the binary-only direct-route vm gate as an explicit legacy contract while removing backend-hint forwarding from the default child path.
+- current vm caller buckets are:
+  - move to mainline / route-first candidates
+  - keep now as explicit vm / vm-hako proof-debug / compat
+  - delete/archive candidate: none in the active tree
 - deeper inventory keeps `src/runner/dispatch.rs`, `src/runner/route_orchestrator.rs`, `src/runner/stage1_bridge/direct_route/mod.rs`, and the legacy compat/proof entry points as the next public-gate seam.
 - current inventory buckets are:
   - compat route: `tools/selfhost/run.sh --runtime --runtime-route compat`

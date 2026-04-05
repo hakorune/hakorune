@@ -21,7 +21,7 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-132x vm default backend decision`
-- current front: omitted-backend caller inventory を根拠に default `vm` を keep するか決める
+- current front: caller bucketization complete; route-first candidates identified; keep-now proof/debug retained; delete/archive none
 - blocker: `src/cli/args.rs` default-vm がまだ legacy default として残っている
 - landed: `phase-130x` wording-only public gate cleanup
 - active next: `phase-132x vm default backend decision`
@@ -76,6 +76,8 @@ tools/checks/dev_gate.sh quick
   - compat route: `run.sh --runtime --runtime-route compat`
   - proof gates: `tools/selfhost/proof/run_stageb_compiler_vm.sh`, `tools/selfhost/proof/selfhost_vm_smoke.sh`
   - debug/observability: phase29x vm-family smokes
+  - route-first candidates: route-first helper and bridge smoke paths that do not need the legacy VM-family gate as an execution surface
+  - delete/archive: none in the active tree
 
 ## Current Proof Bundle
 

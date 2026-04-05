@@ -11,6 +11,17 @@
 - If the default is retained, document it as an explicit legacy keep/debug default.
 - If the default is changed, update callers, docs, and help text together.
 
+## Caller Buckets
+
+- move to mainline / route-first candidates
+  - helper and bridge smoke paths that do not need the legacy VM-family gate as an execution surface
+- keep now
+  - explicit proof/debug/compat callers
+  - vm-hako reference/conformance callers
+  - route observability and direct bridge probes that still intentionally observe vm-family behavior
+- delete/archive candidate
+  - none in the active tree at this point; archive-only evidence already lives under `tools/archive/**`
+
 ## Safe Order
 
 1. inventory callers that omit `--backend`
