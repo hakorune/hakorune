@@ -3,9 +3,9 @@
 #
 # Contract pin:
 # 1) `NYASH_VM_ROUTE_TRACE=1` emits stable `[vm-route/pre-dispatch]` and `[vm-route/select]` tags.
-# 2) `backend=vm` lane=vm は `NYASH_VM_HAKO_PREFER_STRICT_DEV=0` 明示時に観測する。
-# 3) `backend=vm` + `NYASH_VM_USE_FALLBACK=1` is `lane=compat-fallback`.
-# 4) `backend=vm-hako` is `lane=vm-hako`.
+# 2) `backend=vm` lane=`rust-vm-keep` は `NYASH_VM_HAKO_PREFER_STRICT_DEV=0` 明示時に観測する。
+# 3) `backend=vm` + `NYASH_VM_USE_FALLBACK=1` is `lane=vm-compat-fallback`.
+# 4) `backend=vm-hako` is `lane=vm-hako-reference`.
 # 5) legacy tag form (`[vm-route] pre-dispatch`) is absent.
 
 set -euo pipefail
@@ -47,7 +47,7 @@ if ! echo "$OUT_DEFAULT" | grep -q "^\[vm-route/pre-dispatch\] backend=vm file=.
     test_fail "phase29x_vm_route_observability_vm: missing vm pre-dispatch tag"
     exit 1
 fi
-if ! echo "$OUT_DEFAULT" | grep -q "^\[vm-route/select\] backend=vm lane=vm reason=default$"; then
+if ! echo "$OUT_DEFAULT" | grep -q "^\[vm-route/select\] backend=vm lane=rust-vm-keep reason=explicit-keep-override$"; then
     echo "[INFO] default vm output:"
     echo "$OUT_DEFAULT" | head -n 120 || true
     test_fail "phase29x_vm_route_observability_vm: missing vm default route tag"
@@ -80,7 +80,7 @@ if ! echo "$OUT_FALLBACK" | grep -q "^\[vm-route/pre-dispatch\] backend=vm file=
     test_fail "phase29x_vm_route_observability_vm: missing vm pre-dispatch tag (fallback)"
     exit 1
 fi
-if ! echo "$OUT_FALLBACK" | grep -q "^\[vm-route/select\] backend=vm lane=compat-fallback reason=env:NYASH_VM_USE_FALLBACK=1$"; then
+if ! echo "$OUT_FALLBACK" | grep -q "^\[vm-route/select\] backend=vm lane=vm-compat-fallback reason=env:NYASH_VM_USE_FALLBACK=1$"; then
     echo "[INFO] fallback vm output:"
     echo "$OUT_FALLBACK" | head -n 120 || true
     test_fail "phase29x_vm_route_observability_vm: missing vm fallback route tag"
@@ -113,7 +113,7 @@ if ! echo "$OUT_VM_HAKO" | grep -q "^\[vm-route/pre-dispatch\] backend=vm-hako f
     test_fail "phase29x_vm_route_observability_vm: missing vm-hako pre-dispatch tag"
     exit 1
 fi
-if ! echo "$OUT_VM_HAKO" | grep -q "^\[vm-route/select\] backend=vm-hako lane=vm-hako reason=backend:vm-hako$"; then
+if ! echo "$OUT_VM_HAKO" | grep -q "^\[vm-route/select\] backend=vm-hako lane=vm-hako-reference reason=explicit-reference-override$"; then
     echo "[INFO] vm-hako output:"
     echo "$OUT_VM_HAKO" | head -n 120 || true
     test_fail "phase29x_vm_route_observability_vm: missing vm-hako route tag"

@@ -206,10 +206,10 @@ pub(crate) fn execute_file_with_backend(runner: &NyashRunner, filename: &str) {
         }
         "vm" => {
             crate::cli_v!(
-                "🚀 Hakorune Explicit VM Keep Route - Executing file: {} 🚀",
+                "🚀 Hakorune Explicit VM Family Keep Route - Executing file: {} 🚀",
                 filename
             );
-            if !super::route_orchestrator::execute_vm_route(runner, "vm", filename) {
+            if !super::route_orchestrator::execute_vm_family_route(runner, "vm", filename) {
                 eprintln!("❌ VM route orchestration error: backend=vm");
                 std::process::exit(2);
             }
@@ -219,7 +219,7 @@ pub(crate) fn execute_file_with_backend(runner: &NyashRunner, filename: &str) {
                 "🚀 Hakorune Explicit VM-Hako Reference Route - Executing file: {} 🚀",
                 filename
             );
-            if !super::route_orchestrator::execute_vm_route(runner, "vm-hako", filename) {
+            if !super::route_orchestrator::execute_vm_family_route(runner, "vm-hako", filename) {
                 eprintln!("❌ VM route orchestration error: backend=vm-hako");
                 std::process::exit(2);
             }

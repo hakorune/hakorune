@@ -164,9 +164,6 @@ current lane set:
 - `vm-hako-reference`
 - `vm-compat-fallback`
 
-現在の source では trace / debug 表示に `lane=vm` や `lane=vm-hako` が残る。
-それらは legacy lane labels で、SSOT 上の canonical 名は上の 3 つとする。
-
 ### `--backend vm-hako`
 
 - explicit reference override

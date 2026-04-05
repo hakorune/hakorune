@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-111x selfhost runtime route naming cleanup` |
-| Front | `--runtime-route mainline|compat` を public surface に追加` |
+| Now | `phase-112x vm-family lane naming hardening` |
+| Front | `backend family=vm` と internal lane を canonical 名へ揃える` |
 | Blocker | `none` |
-| Next | `run.sh` / `selfhost_run_routes.sh` / docs の route alias整備 |
-| After Next | `phase-112x vm-family lane naming hardening` |
+| Next | `route_orchestrator.rs` / `dispatch.rs` / observability smokes の lane label hardening |
+| After Next | `phase-113x kernel vs vm-reference cluster wording correction` |
 
 ## Current Read
 
@@ -34,6 +34,7 @@ Related:
 - `103` landed with if-only merge / early return parity
 - `104` landed with loop(true)+break-only digits parity on VM and LLVM EXE
 - `105` restored the original long digit OR-chain parity on VM and LLVM EXE
+- `111x` made live selfhost runtime smokes and current docs route-first (`--runtime-route mainline|compat`)
 - `110x` fixed long-lived execution vocabulary SSOT and corrected stale wording in `lang/src/vm` / `tools/selfhost`
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
@@ -48,13 +49,13 @@ Related:
 - `91x` froze the top-level `.hako` wrapper policy after the latest runner/selfhost recuts
 - `92x` closed the proof/compat caller rerun lane against the canonical wrapper homes
 - `93x` moved archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
-- current work is now on `phase-110x selfhost execution vocabulary SSOT`
+- current work is now on `phase-112x vm-family lane naming hardening`
 
 ## Successor Corridor
 
-1. `phase-111x selfhost runtime route naming cleanup`
-2. `phase-112x vm-family lane naming hardening`
-3. `phase-113x kernel vs vm-reference cluster wording correction`
+1. `phase-112x vm-family lane naming hardening`
+2. `phase-113x kernel vs vm-reference cluster wording correction`
+3. `phase-114x execution surface wording closeout`
 
 ## Parked After Optimization
 
@@ -84,8 +85,8 @@ Related:
 ## Reference
 
 - current lane docs:
+  - `docs/development/current/main/phases/phase-112x/README.md`
   - `docs/development/current/main/phases/phase-111x/README.md`
-  - `docs/development/current/main/phases/phase-110x/README.md`
 - recent landed:
   - `docs/development/current/main/phases/phase-103/README.md`
   - `docs/development/current/main/phases/phase-102/README.md`

@@ -2,8 +2,10 @@
  * Route orchestrator SSOT for runner-side lane selection.
  *
  * Phase 59x C1:
- * - Centralize explicit keep/reference selection for `vm`, `vm-hako`, and `compat-fallback`.
- * - `compat-fallback` stays compatibility-only.
+ * - Centralize explicit keep/reference selection for the `vm` backend family.
+ * - Canonical internal lane names are `rust-vm-keep`, `vm-hako-reference`,
+ *   and `vm-compat-fallback`.
+ * - `vm-compat-fallback` stays compatibility-only.
  * - Day-to-day mainline stays on direct/core routes; this orchestrator owns only
  *   explicit keep/reference requests and must not silently widen back into a
  *   default owner path.
@@ -15,6 +17,9 @@ pub(crate) const VM_ROUTE_TAG_PRE_DISPATCH: &str = "vm-route/pre-dispatch";
 pub(crate) const VM_ROUTE_TAG_SELECT: &str = "vm-route/select";
 pub(crate) const VM_ROUTE_FREEZE_COMPAT_BYPASS: &str = "vm-route/compat-bypass";
 pub(crate) const DERUST_ROUTE_TAG_SELECT: &str = "derust-route/select";
+pub(crate) const VM_LANE_RUST_KEEP: &str = "rust-vm-keep";
+pub(crate) const VM_LANE_HAKO_REFERENCE: &str = "vm-hako-reference";
+pub(crate) const VM_LANE_COMPAT_FALLBACK: &str = "vm-compat-fallback";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum VmRouteAction {
@@ -118,21 +123,21 @@ pub(crate) fn decide_vm_route_plan(
             if force_fallback {
                 Some(VmRoutePlan {
                     backend: "vm",
-                    lane: "compat-fallback",
+                    lane: VM_LANE_COMPAT_FALLBACK,
                     reason: "env:NYASH_VM_USE_FALLBACK=1",
                     action: VmRouteAction::CompatFallback,
                 })
             } else if prefer_vm_hako {
                 Some(VmRoutePlan {
                     backend: "vm",
-                    lane: "vm-hako",
+                    lane: VM_LANE_HAKO_REFERENCE,
                     reason: "strict-dev-prefer",
                     action: VmRouteAction::VmHako,
                 })
             } else {
                 Some(VmRoutePlan {
                     backend: "vm",
-                    lane: "vm",
+                    lane: VM_LANE_RUST_KEEP,
                     reason: "explicit-keep-override",
                     action: VmRouteAction::Vm,
                 })
@@ -140,7 +145,7 @@ pub(crate) fn decide_vm_route_plan(
         }
         "vm-hako" => Some(VmRoutePlan {
             backend: "vm-hako",
-            lane: "vm-hako",
+            lane: VM_LANE_HAKO_REFERENCE,
             reason: "explicit-reference-override",
             action: VmRouteAction::VmHako,
         }),
@@ -152,7 +157,11 @@ fn force_vm_lane_for_emit(groups: &crate::cli::CliGroups) -> bool {
     groups.emit.emit_mir_json.is_some() || groups.emit.emit_exe.is_some()
 }
 
-pub(crate) fn execute_vm_route(runner: &NyashRunner, backend: &str, filename: &str) -> bool {
+pub(crate) fn execute_vm_family_route(
+    runner: &NyashRunner,
+    backend: &str,
+    filename: &str,
+) -> bool {
     let groups = runner.config.as_groups();
     let force_fallback = crate::config::env::vm_use_fallback();
     let force_vm_for_emit = force_vm_lane_for_emit(&groups);
@@ -162,8 +171,8 @@ pub(crate) fn execute_vm_route(runner: &NyashRunner, backend: &str, filename: &s
     let plan = if backend == "vm" && force_vm_for_emit && !force_fallback {
         VmRoutePlan {
             backend: "vm",
-            lane: "vm",
-            reason: "emit-mode-force-vm",
+            lane: VM_LANE_RUST_KEEP,
+            reason: "emit-mode-force-rust-vm-keep",
             action: VmRouteAction::Vm,
         }
     } else {
@@ -225,7 +234,7 @@ mod tests {
     fn decide_vm_route_plan_vm_default() {
         let plan = decide_vm_route_plan("vm", false, false).expect("plan");
         assert_eq!(plan.backend, "vm");
-        assert_eq!(plan.lane, "vm");
+        assert_eq!(plan.lane, VM_LANE_RUST_KEEP);
         assert_eq!(plan.reason, "explicit-keep-override");
         assert_eq!(plan.action, VmRouteAction::Vm);
     }
@@ -234,7 +243,7 @@ mod tests {
     fn decide_vm_route_plan_vm_hako_preferred() {
         let plan = decide_vm_route_plan("vm", false, true).expect("plan");
         assert_eq!(plan.backend, "vm");
-        assert_eq!(plan.lane, "vm-hako");
+        assert_eq!(plan.lane, VM_LANE_HAKO_REFERENCE);
         assert_eq!(plan.reason, "strict-dev-prefer");
         assert_eq!(plan.action, VmRouteAction::VmHako);
     }
@@ -243,7 +252,7 @@ mod tests {
     fn decide_vm_route_plan_vm_fallback_forced() {
         let plan = decide_vm_route_plan("vm", true, true).expect("plan");
         assert_eq!(plan.backend, "vm");
-        assert_eq!(plan.lane, "compat-fallback");
+        assert_eq!(plan.lane, VM_LANE_COMPAT_FALLBACK);
         assert_eq!(plan.reason, "env:NYASH_VM_USE_FALLBACK=1");
         assert_eq!(plan.action, VmRouteAction::CompatFallback);
     }
@@ -252,7 +261,7 @@ mod tests {
     fn decide_vm_route_plan_vm_hako_explicit_backend() {
         let plan = decide_vm_route_plan("vm-hako", false, false).expect("plan");
         assert_eq!(plan.backend, "vm-hako");
-        assert_eq!(plan.lane, "vm-hako");
+        assert_eq!(plan.lane, VM_LANE_HAKO_REFERENCE);
         assert_eq!(plan.reason, "explicit-reference-override");
         assert_eq!(plan.action, VmRouteAction::VmHako);
     }
@@ -284,21 +293,21 @@ mod tests {
     fn format_vm_route_select_is_stable() {
         let plan = VmRoutePlan {
             backend: "vm",
-            lane: "compat-fallback",
+            lane: VM_LANE_COMPAT_FALLBACK,
             reason: "env:NYASH_VM_USE_FALLBACK=1",
             action: VmRouteAction::CompatFallback,
         };
         assert_eq!(
             format_vm_route_select(&plan),
-            "[vm-route/select] backend=vm lane=compat-fallback reason=env:NYASH_VM_USE_FALLBACK=1"
+            "[vm-route/select] backend=vm lane=vm-compat-fallback reason=env:NYASH_VM_USE_FALLBACK=1"
         );
     }
 
     #[test]
     fn format_derust_route_select_is_stable() {
         assert_eq!(
-            format_derust_route_select("vm", "vm-hako", "hako-skeleton", "strict-dev-prefer"),
-            "[derust-route/select] backend=vm lane=vm-hako source=hako-skeleton reason=strict-dev-prefer"
+            format_derust_route_select("vm", "vm-hako-reference", "hako-skeleton", "strict-dev-prefer"),
+            "[derust-route/select] backend=vm lane=vm-hako-reference source=hako-skeleton reason=strict-dev-prefer"
         );
     }
 

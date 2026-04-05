@@ -2,9 +2,9 @@
 # Phase 29x X49: vm-hako strict/dev replay gate
 #
 # Contract pin:
-# 1) strict/dev + `--backend vm` chooses `lane=vm-hako` without explicit route pin env override.
+# 1) strict/dev + `--backend vm` chooses `lane=vm-hako-reference` without explicit route pin env override.
 # 2) supported vm-hako fixture replays with `rc=42`.
-# 3) unsupported fixture fail-fasts on vm-hako lane with stable unimplemented tag.
+# 3) unsupported fixture still enters `vm-hako-reference` first and exits non-zero.
 
 set -euo pipefail
 
@@ -57,7 +57,7 @@ if [ "$RC_SUPPORTED" -ne 42 ]; then
 fi
 
 FIRST_SELECT_SUPPORTED="$(extract_first_line "\\[vm-route/select\\]" "$OUT_SUPPORTED")"
-if [ "$FIRST_SELECT_SUPPORTED" != "[vm-route/select] backend=vm lane=vm-hako reason=strict-dev-prefer" ]; then
+if [ "$FIRST_SELECT_SUPPORTED" != "[vm-route/select] backend=vm lane=vm-hako-reference reason=strict-dev-prefer" ]; then
     echo "[INFO] supported output:"
     echo "$OUT_SUPPORTED" | tail -n 120 || true
     test_fail "phase29x_vm_hako_strict_dev_replay_vm: first vm-route/select is not vm-hako strict-dev-prefer"
@@ -65,7 +65,7 @@ if [ "$FIRST_SELECT_SUPPORTED" != "[vm-route/select] backend=vm lane=vm-hako rea
 fi
 
 FIRST_DERUST_SUPPORTED="$(extract_first_line "\\[derust-route/select\\]" "$OUT_SUPPORTED")"
-if [ "$FIRST_DERUST_SUPPORTED" != "[derust-route/select] backend=vm lane=vm-hako source=hako-skeleton reason=strict-dev-prefer" ]; then
+if [ "$FIRST_DERUST_SUPPORTED" != "[derust-route/select] backend=vm lane=vm-hako-reference source=hako-skeleton reason=strict-dev-prefer" ]; then
     echo "[INFO] supported output:"
     echo "$OUT_SUPPORTED" | tail -n 120 || true
     test_fail "phase29x_vm_hako_strict_dev_replay_vm: first derust-route/select is not vm-hako hako-skeleton"
@@ -89,18 +89,19 @@ if [ "$RC_REJECT" -eq 0 ]; then
 fi
 
 FIRST_SELECT_REJECT="$(extract_first_line "\\[vm-route/select\\]" "$OUT_REJECT")"
-if [ "$FIRST_SELECT_REJECT" != "[vm-route/select] backend=vm lane=vm-hako reason=strict-dev-prefer" ]; then
+if [ "$FIRST_SELECT_REJECT" != "[vm-route/select] backend=vm lane=vm-hako-reference reason=strict-dev-prefer" ]; then
     echo "[INFO] reject output:"
     echo "$OUT_REJECT" | tail -n 120 || true
     test_fail "phase29x_vm_hako_strict_dev_replay_vm: reject first vm-route/select is not vm-hako strict-dev-prefer"
     exit 1
 fi
 
-if ! printf "%s\n" "$OUT_REJECT" | rg -q '^\[vm-hako/unimplemented\] phase='; then
+FIRST_DERUST_REJECT="$(extract_first_line "\\[derust-route/select\\]" "$OUT_REJECT")"
+if [ "$FIRST_DERUST_REJECT" != "[derust-route/select] backend=vm lane=vm-hako-reference source=hako-skeleton reason=strict-dev-prefer" ]; then
     echo "[INFO] reject output:"
     echo "$OUT_REJECT" | tail -n 120 || true
-    test_fail "phase29x_vm_hako_strict_dev_replay_vm: reject output missing vm-hako unimplemented tag"
+    test_fail "phase29x_vm_hako_strict_dev_replay_vm: reject first derust-route/select is not vm-hako-reference hako-skeleton"
     exit 1
 fi
 
-test_pass "phase29x_vm_hako_strict_dev_replay_vm: PASS (strict/dev vm-hako replay locked)"
+test_pass "phase29x_vm_hako_strict_dev_replay_vm: PASS (strict/dev vm-hako-reference replay locked)"

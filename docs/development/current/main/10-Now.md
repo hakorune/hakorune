@@ -12,10 +12,11 @@ Related:
 
 ## Current
 
-- lane: `phase-111x selfhost runtime route naming cleanup`
-- current front: `--runtime-route mainline|compat` を public surface に足す`
+- lane: `phase-112x vm-family lane naming hardening`
+- current front: `backend family=vm` と internal lane を canonical 名へ揃える`
 - blocker: `none`
 - recent landed:
+  - `phase-111x selfhost runtime route naming cleanup`
   - `phase-110x selfhost execution vocabulary SSOT`
   - `phase-105 digit OR-chain LLVM parity regression`
   - `phase-104 loop(true) + break-only digits（read_digits 系）`
@@ -36,9 +37,8 @@ Related:
 - `phase-103` landed with if-only merge / early return parity on VM and LLVM EXE
 - `phase-104` landed with loop(true)+break-only digits parity on VM and LLVM EXE
 - `phase-105` restored the original long digit OR-chain parity on VM and LLVM EXE
-- current work is the runtime route naming cleanup:
+- current work is the VM-family lane naming hardening:
   - vocabulary split: `stage / route / backend override / lane / kernel`
-  - route alias direction: `runtime-mode exe|stage-a-compat` -> `runtime-route mainline|compat`
   - VM family lane names: `rust-vm-keep / vm-hako-reference / vm-compat-fallback`
   - `kernel` reserved for `nyash_kernel`; `lang/src/vm` treated as VM/reference cluster
 
@@ -51,4 +51,4 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-111x/README.md`
+2. `docs/development/current/main/phases/phase-112x/README.md`

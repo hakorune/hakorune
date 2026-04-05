@@ -99,7 +99,7 @@ if ! rg -q '^\[vm-route/pre-dispatch\] backend=vm file=' "$stderr_with_compat"; 
   exit 1
 fi
 
-if ! rg -q '^\[vm-route/select\] backend=vm lane=compat-fallback reason=env:NYASH_VM_USE_FALLBACK=1$' "$stderr_with_compat"; then
+if ! rg -q '^\[vm-route/select\] backend=vm lane=vm-compat-fallback reason=env:NYASH_VM_USE_FALLBACK=1$' "$stderr_with_compat"; then
   log_error "missing vm compat-fallback route tag under explicit fallback"
   echo "STDERR_LOG(with-compat): $stderr_with_compat"
   exit 1

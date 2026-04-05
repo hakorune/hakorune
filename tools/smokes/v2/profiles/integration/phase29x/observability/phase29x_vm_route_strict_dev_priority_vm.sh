@@ -2,8 +2,8 @@
 # Phase 29x X20: strict/dev vm-hako priority smoke
 #
 # Contract pin:
-# 1) strict/dev gate (`NYASH_JOINIR_STRICT=1`) makes `--backend vm` choose `lane=vm-hako`.
-# 2) compat lane remains explicit-only (`NYASH_VM_USE_FALLBACK=1`).
+# 1) strict/dev gate (`NYASH_JOINIR_STRICT=1`) makes `--backend vm` choose `lane=vm-hako-reference`.
+# 2) compat lane remains explicit-only (`NYASH_VM_USE_FALLBACK=1`) via `vm-compat-fallback`.
 # 3) `[vm-route/pre-dispatch]` is emitted and legacy tag form is absent.
 
 set -euo pipefail
@@ -44,7 +44,7 @@ if ! echo "$OUT_STRICT" | grep -q "^\[vm-route/pre-dispatch\] backend=vm file=.*
     test_fail "phase29x_vm_route_strict_dev_priority_vm: missing strict pre-dispatch tag"
     exit 1
 fi
-if ! echo "$OUT_STRICT" | grep -q "^\[vm-route/select\] backend=vm lane=vm-hako reason=strict-dev-prefer$"; then
+if ! echo "$OUT_STRICT" | grep -q "^\[vm-route/select\] backend=vm lane=vm-hako-reference reason=strict-dev-prefer$"; then
     echo "[INFO] strict vm output:"
     echo "$OUT_STRICT" | head -n 120 || true
     test_fail "phase29x_vm_route_strict_dev_priority_vm: missing strict-dev vm-hako tag"
@@ -77,7 +77,7 @@ if ! echo "$OUT_FALLBACK" | grep -q "^\[vm-route/pre-dispatch\] backend=vm file=
     test_fail "phase29x_vm_route_strict_dev_priority_vm: missing pre-dispatch tag (strict+fallback)"
     exit 1
 fi
-if ! echo "$OUT_FALLBACK" | grep -q "^\[vm-route/select\] backend=vm lane=compat-fallback reason=env:NYASH_VM_USE_FALLBACK=1$"; then
+if ! echo "$OUT_FALLBACK" | grep -q "^\[vm-route/select\] backend=vm lane=vm-compat-fallback reason=env:NYASH_VM_USE_FALLBACK=1$"; then
     echo "[INFO] strict+fallback vm output:"
     echo "$OUT_FALLBACK" | head -n 120 || true
     test_fail "phase29x_vm_route_strict_dev_priority_vm: missing explicit compat fallback tag"
@@ -90,4 +90,4 @@ if echo "$OUT_FALLBACK" | grep -q "^\[vm-route\] pre-dispatch"; then
     exit 1
 fi
 
-test_pass "phase29x_vm_route_strict_dev_priority_vm: PASS (strict/dev prefers vm-hako; compat explicit)"
+test_pass "phase29x_vm_route_strict_dev_priority_vm: PASS (strict/dev prefers vm-hako-reference; compat explicit)"

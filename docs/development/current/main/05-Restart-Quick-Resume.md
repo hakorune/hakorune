@@ -20,10 +20,11 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-111x selfhost runtime route naming cleanup`
-- current front: `--runtime-route mainline|compat` を public surface に足す`
+- lane: `phase-112x vm-family lane naming hardening`
+- current front: `backend family=vm` と internal lane を canonical 名へ揃える`
 - blocker: `none`
 - recent landed:
+  - `phase-111x selfhost runtime route naming cleanup`
   - `phase-110x selfhost execution vocabulary SSOT`
   - `phase-105 digit OR-chain LLVM parity regression`
   - `phase-104 loop(true) + break-only digits（read_digits 系）`
@@ -34,13 +35,13 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-111x/README.md`
+3. `docs/development/current/main/phases/phase-112x/README.md`
 
 ## Successor Corridor
 
-1. `phase-111x selfhost runtime route naming cleanup`
-2. `phase-112x vm-family lane naming hardening`
-3. `phase-113x kernel vs vm-reference cluster wording correction`
+1. `phase-112x vm-family lane naming hardening`
+2. `phase-113x kernel vs vm-reference cluster wording correction`
+3. `phase-114x execution surface wording closeout`
 
 ## Parked After Optimization
 
@@ -48,10 +49,9 @@ tools/checks/dev_gate.sh quick
 
 ## Next Cleanup Corridor
 
-- separate `stage / route / backend override / lane / kernel`
-- rename `runtime-mode exe` toward `runtime-route mainline`
+- keep `stage / route / backend override / lane / kernel` split fixed
 - harden VM family lane names as `rust-vm-keep / vm-hako-reference / vm-compat-fallback`
-- reserve `kernel` for `nyash_kernel`; treat `lang/src/vm` as VM/reference cluster
+- close out remaining `kernel` wording on `lang/src/vm`
 
 ## Current Proof Bundle
 
