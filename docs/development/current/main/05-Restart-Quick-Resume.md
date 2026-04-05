@@ -112,4 +112,5 @@ git diff --check
 - `phase-144x` landed:
   - `StringCoreBox.{size,indexOf,lastIndexOf,substring}` now reads through helperized wrapper paths
   - `indexOf(search, fromIndex)` delegates to `StringSearchKernelBox.find_index_from(...)`
+  - `lastIndexOf(needle)` delegates to `StringSearchKernelBox.last_index(...)`
   - no lifetime substrate move was made

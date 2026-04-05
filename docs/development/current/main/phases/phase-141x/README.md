@@ -45,6 +45,7 @@
 
 - String is not a direct Array/Map-style owner move
 - final semantic ownership belongs in `.hako` string-kernel policy/control modules
+- `indexOf` / `lastIndexOf` search wrappers should read through `.hako` search owner helpers
 - `string_core_box.hako` remains a VM/runtime wrapper, not the final semantic owner
 - borrowed view/span ownership and materialize boundaries stay in Rust
 - raw copy/search fast paths stay in Rust

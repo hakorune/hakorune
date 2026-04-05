@@ -125,6 +125,7 @@ move raw probe/load/store substrate out of Rust.
 
 String is not an owner cutover like Array/Map. The clean stop-line is:
 - semantic owner lives in `.hako` string-kernel policy/control modules
+- search wrappers such as `indexOf` / `lastIndexOf` read through `.hako` search owner helpers
 - VM runtime wrapper remains separate from final semantic ownership
 - borrowed view/span ownership, materialize boundaries, and raw copy/search fast
   paths stay in Rust

@@ -12,7 +12,7 @@
 
 ## This Directory Owns
 
-- `indexOf` / `contains` / `startsWith` / `endsWith` の algorithm contract
+- `indexOf` / `lastIndexOf` / `contains` / `startsWith` / `endsWith` の algorithm contract
 - `substring` / `concat` / `length` chain の orchestration policy
 - materialize/view boundary rule
 - `.hako` string kernel library の entry shape
@@ -52,6 +52,7 @@ freeze.str
 - `search.hako`
   - `find_index(hay, needle) -> i64`
   - `find_index_from(hay, needle, start) -> i64`
+  - `last_index(hay, needle) -> i64`
   - `contains(hay, needle) -> i64`
   - `starts_with(hay, needle) -> i64`
   - `ends_with(hay, needle) -> i64`

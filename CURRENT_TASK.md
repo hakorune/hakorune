@@ -120,6 +120,7 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   - Rust map surface remains thin facade / observer shim / forwarding / raw leaves
 - `phase-144x` landed follow-up:
   - `StringCoreBox.{size,indexOf,lastIndexOf,substring}` now reads through helperized wrapper paths
+  - `lastIndexOf` now delegates to `.hako` search owner helper instead of wrapper-local search
   - `indexOf(search, fromIndex)` now delegates to `.hako` search owner via `StringSearchKernelBox.find_index_from(...)`
 - `phase-137x` reopened baseline and first reopen wins:
   - baseline: `kilo_kernel_small_hk`: `c_ms=81 / ny_aot_ms=1529`

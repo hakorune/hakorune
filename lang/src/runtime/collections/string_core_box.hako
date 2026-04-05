@@ -2,7 +2,7 @@
 // Responsibility:
 // - provide VM-low-level i64 length path without std-layer coupling
 // - delegate visible StringBox search semantics to `.hako` string-kernel owners
-// - keep runtime wrapper residue narrow (`size alias` / `substring` / `lastIndexOf`)
+// - keep runtime wrapper residue narrow (`size alias` / `substring` / delegated search wrappers)
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 using selfhost.shared.common.string_helpers as StringHelpers
@@ -148,7 +148,8 @@ static box StringCoreBox {
     local arg0_rt = MiniMirV1Scan.first_arg_register(seg)
     local needle_rt = me._read_reg_text_or_null(regs, handle_regs, arg0_rt)
     local needle = needle_rt == null ? "" : ("" + needle_rt)
-    me._write_scalar_dst(regs, kinds, dst, text.lastIndexOf(needle))
+    local idx = StringSearchKernelBox.last_index(text, needle)
+    me._write_scalar_dst(regs, kinds, dst, idx)
     me._trace("[vm/adapter/string_core:lastindexof]")
     return 1
   }
