@@ -1,7 +1,7 @@
 # Phase 137x: main kilo reopen selection
 
-- Status: Paused
-- 目的: semantic ownership の最終形が landed した split kernel 上で `main kilo` を reopen する。現在は optimization authority contract freeze の後続 consumer として待機。
+- Status: Active
+- 目的: semantic ownership の最終形と canonical lowering visibility lock が landed した split kernel 上で `main kilo` を reopen する。
 - 対象:
   - `CURRENT_TASK.md`
   - `docs/development/current/main/05-Restart-Quick-Resume.md`
@@ -20,7 +20,7 @@
   3. `main kilo`
 - `phase-134x` structural split is landed
 - `phase-138x` / `phase-139x` / `phase-140x` / `phase-141x` semantic-owner corridor is landed
-- current work is paused until `phase-147x` / `148x` / `149x` contract-first corridor is fixed
+- contract-first corridor は landed、perf consumer が reopen 済み
 - `vm-hako` stays parked as reference/conformance
 
 ## Fresh Read
@@ -37,21 +37,22 @@
   - after const empty-flag cache: `c_ms=81 / ny_aot_ms=723`
   - after shared text-based const-handle helper: `c_ms=80 / ny_aot_ms=903`
   - after single-closure const suffix fast path: `c_ms=83 / ny_aot_ms=820`
-  - latest sampled whole-kilo reread: `c_ms=82 / ny_aot_ms=775`
+  - latest whole-kilo reread after visibility lock: `c_ms=83 / ny_aot_ms=762`
   - `kilo_micro_indexof_line`: `c_ms=4 / ny_aot_ms=4`
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
   - `kilo_micro_concat_const_suffix`: `c_ms=2 / ny_aot_ms=85`
-  - `kilo_micro_array_string_store`: `c_ms=9 / ny_aot_ms=217`
+  - `kilo_micro_array_string_store`: `c_ms=10 / ny_aot_ms=207`
+  - whole-kilo recheck after array-string-store executor trim: `c_ms=81 / ny_aot_ms=745`
 - latest bundle read:
   - string contracts remain `keep_transient -> fresh_handle` for non-empty const concat/insert
-  - `20260406-004537` still shows `crates/nyash_kernel/src/exports/string_helpers.rs::concat_const_suffix_fallback` as the top explicit hot symbol (`10.63%`)
-  - next independent leaf is `crates/nyash_kernel/src/plugin/array_string_slot.rs::array_string_store_handle_at` (`5.69%`)
+  - `20260406-024104` still shows `crates/nyash_kernel/src/exports/string_helpers.rs::concat_const_suffix_fallback` as the top explicit hot symbol (`11.70%`)
+  - `crates/nyash_kernel/src/plugin/array_string_slot.rs::array_string_store_handle_at` remains second (`5.68%`)
+  - exact micro gap is currently larger on `array_string_store`
 
 ## Next
 
-1. consume `phase-147x` contract lock
-2. consume `phase-148x` borrowed text / sink contract freeze
-3. consume `phase-149x` concat const-suffix vertical slice
-4. reopen `concat_const_suffix_fallback(...)`
-5. recheck `array_string_store_handle_at(...)` only after string const-path stalls
+1. keep canonical contract corridor landed and immutable
+2. continue `array_string_store_handle_at(...)` as first exact front
+3. keep `concat_const_suffix_fallback(...)` as second exact front
+4. use exact micro + whole-kilo together before moving to a new leaf

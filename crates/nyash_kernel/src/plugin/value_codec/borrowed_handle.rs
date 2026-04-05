@@ -152,3 +152,22 @@ pub(crate) fn try_retarget_borrowed_string_slot_with_source(
     alias.source_drop_epoch = source_drop_epoch;
     true
 }
+
+#[inline(always)]
+pub(crate) fn try_retarget_borrowed_string_slot_verified(
+    slot: &mut Box<dyn NyashBox>,
+    source_handle: i64,
+    source_obj: &Arc<dyn NyashBox>,
+    source_drop_epoch: u64,
+) -> bool {
+    if source_handle <= 0 {
+        return false;
+    }
+    let Some(alias) = slot.as_any_mut().downcast_mut::<BorrowedHandleBox>() else {
+        return false;
+    };
+    alias.inner = source_obj.clone();
+    alias.source_handle = source_handle;
+    alias.source_drop_epoch = source_drop_epoch;
+    true
+}

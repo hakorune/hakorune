@@ -21,7 +21,7 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-137x main kilo reopen selection`
-- current front: contract-first corridor 済みの split kernel 上で `kilo_kernel_small_hk` next hot leaf を再取得する
+- current front: contract-first corridor 済みの split kernel 上で `array_string_store_handle_at(...)` を first exact front として詰める
 - blocker: perf tuning から canonical contract 側へ owner drift を戻さないこと
 - landed:
   - `phase-140x map owner pilot`
@@ -146,7 +146,7 @@ git diff --check
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
 - perf consumer reopened:
   - `phase-137x` is now the first consumer after the contract corridor
-  - keep exact fronts on `concat_const_suffix_fallback(...)` and `array_string_store_handle_at(...)`
+  - keep exact fronts on `array_string_store_handle_at(...)` and `concat_const_suffix_fallback(...)`
 - `phase-144x` landed:
   - `StringCoreBox.{size,indexOf,lastIndexOf,substring}` now reads through helperized wrapper paths
   - `indexOf(search, fromIndex)` delegates to `StringSearchKernelBox.find_index_from(...)`

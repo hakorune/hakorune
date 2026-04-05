@@ -1,6 +1,7 @@
 use super::array_guard::valid_handle_idx;
 use super::value_codec::{
-    store_string_box_from_source, try_retarget_borrowed_string_slot_with_source,
+    is_string_handle_source, maybe_store_string_box_from_verified_source,
+    try_retarget_borrowed_string_slot_verified,
 };
 use crate::exports::string_view::resolve_string_span_from_handle;
 use memchr::{memchr, memmem};
@@ -131,19 +132,27 @@ fn execute_store_array_str_slot(
     if idx > items.len() {
         return 0;
     }
+    let source_is_string = source_obj.is_some_and(is_string_handle_source);
     if idx < items.len() {
-        if let Some(value_obj) = source_obj {
-            if try_retarget_borrowed_string_slot_with_source(
-                &mut items[idx],
-                value_h,
-                value_obj,
-                drop_epoch,
-            ) {
-                return 1;
+        if source_is_string {
+            if let Some(value_obj) = source_obj {
+                if try_retarget_borrowed_string_slot_verified(
+                    &mut items[idx],
+                    value_h,
+                    value_obj,
+                    drop_epoch,
+                ) {
+                    return 1;
+                }
             }
         }
     }
-    let value = store_string_box_from_source(value_h, source_obj, drop_epoch);
+    let value = maybe_store_string_box_from_verified_source(
+        value_h,
+        source_obj,
+        drop_epoch,
+        source_is_string,
+    );
     if idx < items.len() {
         items[idx] = value;
     } else {

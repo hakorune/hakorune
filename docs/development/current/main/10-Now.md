@@ -13,7 +13,7 @@ Related:
 ## Current
 
 - lane: `phase-137x main kilo reopen selection`
-- current front: contract-first corridor 済みの split kernel 上で next hot leaf を pin する
+- current front: contract-first corridor 済みの split kernel 上で `array_string_store_handle_at(...)` を first exact front に固定する
 - blocker: perf tuning から canonical contract 側へ owner drift を戻さないこと
 - recent landed:
   - `phase-140x map owner pilot`

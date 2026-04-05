@@ -15,7 +15,7 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-137x main kilo reopen selection` |
-| Front | contract-first corridor 済みの split kernel 上で next hot leaf を pin する |
+| Front | contract-first corridor 済みの split kernel 上で `array_string_store_handle_at(...)` を first exact front に pin する |
 | Blocker | perf tuning から canonical contract 側へ owner drift を戻さないこと |
 | Next | `phase-kx vm-hako small reference interpreter recut` |
 | After Next | parked only |
@@ -73,7 +73,7 @@ Related:
   - single-closure const suffix fast path: `820ms`
   - latest sampled whole-kilo reread: `775ms`
   - first implementation consumer: `concat const-suffix`
-  - second implementation consumer: `array string-store`
+  - second implementation consumer: `concat const-suffix`
   - exact micro:
     - `kilo_micro_concat_const_suffix = 85ms`
     - `kilo_micro_array_string_store = 217ms`

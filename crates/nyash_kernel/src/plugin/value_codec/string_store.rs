@@ -59,3 +59,26 @@ pub(crate) fn store_string_box_from_string_source(
     debug_assert!(is_string_handle_source(source_obj));
     maybe_borrow_string_handle_with_epoch(source_obj.clone(), source_handle, source_drop_epoch)
 }
+
+#[inline(always)]
+pub(crate) fn maybe_store_string_box_from_verified_source(
+    source_handle: i64,
+    source_obj: Option<&Arc<dyn NyashBox>>,
+    source_drop_epoch: u64,
+    source_is_string: bool,
+) -> Box<dyn NyashBox> {
+    if source_handle <= 0 {
+        return int_arg_to_box(source_handle);
+    }
+    let Some(obj) = source_obj else {
+        return int_arg_to_box(source_handle);
+    };
+    if source_is_string {
+        return maybe_borrow_string_handle_with_epoch(
+            obj.clone(),
+            source_handle,
+            source_drop_epoch,
+        );
+    }
+    int_arg_to_box(source_handle)
+}
