@@ -20,9 +20,9 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-149x concat const-suffix vertical slice`
-- current front: `const_suffix` route を `.hako owner -> MIR canonical reading -> Rust executor` の最初の consumer として通す
-- blocker: current concrete helper `nyash.string.concat_hs` を authority ではなく executor detail に押し込むこと
+- lane: `phase-150x array string-store vertical slice`
+- current front: `ArrayStoreString` route を `.hako owner -> MIR canonical reading -> Rust executor` の第2 consumer として通す
+- blocker: current concrete symbol `nyash.array.set_his` を authority ではなく ABI/executor detail に押し込むこと
 - landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -30,7 +30,6 @@ tools/checks/dev_gate.sh quick
   - `phase-134x nyash_kernel layer recut selection`
   - `phase-133x micro kilo reopen selection`
 - active next:
-  - `phase-150x array string-store vertical slice`
   - `phase-151x canonical lowering visibility lock`
   - `phase-137x main kilo reopen selection`
   - `phase-kx vm-hako small reference interpreter recut`
@@ -40,7 +39,7 @@ tools/checks/dev_gate.sh quick
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
 3. `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
-4. `docs/development/current/main/phases/phase-149x/README.md`
+4. `docs/development/current/main/phases/phase-150x/README.md`
 5. `docs/development/current/main/phases/phase-137x/README.md`
 6. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
 
@@ -106,6 +105,8 @@ tools/checks/dev_gate.sh quick
   - `const_suffix -> thaw.str + lit.str + str.concat2 + freeze.str`
   - `ArrayStoreString -> store.array.str`
   - `MapStoreAny -> store.map.value`
+- `phase-149x` landed:
+  - `const_suffix` current lowering now reads as canonical executor detail
 
 ## First Design Slices
 

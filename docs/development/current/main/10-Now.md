@@ -12,9 +12,9 @@ Related:
 
 ## Current
 
-- lane: `phase-149x concat const-suffix vertical slice`
-- current front: `const_suffix` route の first contract-first consumer を実装する
-- blocker: current concrete helper `nyash.string.concat_hs` を authority ではなく executor detail に押し込むこと
+- lane: `phase-150x array string-store vertical slice`
+- current front: `ArrayStoreString` route の second contract-first consumer を実装する
+- blocker: current concrete symbol `nyash.array.set_his` を authority ではなく ABI/executor detail に押し込むこと
 - recent landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -68,6 +68,8 @@ Related:
   - `const_suffix -> thaw.str + lit.str + str.concat2 + freeze.str`
   - `ArrayStoreString -> store.array.str`
   - `MapStoreAny -> store.map.value`
+- landed first consumer:
+  - `const_suffix` current lowering now reads as executor detail under the canonical contract
 - current stop-line:
   - do not reopen `phase-137x` until those canonical readings are visible against current concrete lowering
   - cleaner Rust executor shape alone is not enough
@@ -93,6 +95,6 @@ Related:
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
-3. `docs/development/current/main/phases/phase-149x/README.md`
+3. `docs/development/current/main/phases/phase-150x/README.md`
 4. `docs/development/current/main/phases/phase-137x/README.md`
 5. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`

@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-149x concat const-suffix vertical slice` |
-| Front | `const_suffix` route を `.hako owner -> MIR canonical reading -> Rust executor` で通す |
-| Blocker | current concrete helper `nyash.string.concat_hs` を authority に見せないこと |
-| Next | `phase-150x array string-store vertical slice` |
-| After Next | `phase-151x canonical lowering visibility lock` / `phase-137x main kilo reopen selection` / `phase-kx vm-hako small reference interpreter recut` |
+| Now | `phase-150x array string-store vertical slice` |
+| Front | `ArrayStoreString` route を `.hako owner -> MIR canonical reading -> Rust executor` で通す |
+| Blocker | current concrete symbol `nyash.array.set_his` を authority に見せないこと |
+| Next | `phase-151x canonical lowering visibility lock` |
+| After Next | `phase-137x main kilo reopen selection` / `phase-kx vm-hako small reference interpreter recut` |
 
 ## Current Read
 
@@ -55,12 +55,13 @@ Related:
   - `const_suffix -> thaw.str + lit.str + str.concat2 + freeze.str`
   - `ArrayStoreString -> store.array.str`
   - `MapStoreAny -> store.map.value`
+- `phase-149x` landed first consumer:
+  - `const_suffix` route is now shaped as executor detail under the canonical contract
 - next fixed corridor:
-  1. `phase-149x concat const-suffix vertical slice`
-  2. `phase-150x array string-store vertical slice`
-  3. `phase-151x canonical lowering visibility lock`
-  4. `phase-137x main kilo reopen selection`
-  5. `phase-kx vm-hako small reference interpreter recut`
+  1. `phase-150x array string-store vertical slice`
+  2. `phase-151x canonical lowering visibility lock`
+  3. `phase-137x main kilo reopen selection`
+  4. `phase-kx vm-hako small reference interpreter recut`
 - paused reopen truth:
   - baseline: `kilo_kernel_small_hk = 1529ms`
   - string const fast-path: `775ms`
@@ -77,11 +78,10 @@ Related:
 
 ## Successor Corridor
 
-1. `phase-149x concat const-suffix vertical slice`
-2. `phase-150x array string-store vertical slice`
-3. `phase-151x canonical lowering visibility lock`
-4. `phase-137x main kilo reopen selection`
-5. `phase-kx vm-hako small reference interpreter recut`
+1. `phase-150x array string-store vertical slice`
+2. `phase-151x canonical lowering visibility lock`
+3. `phase-137x main kilo reopen selection`
+4. `phase-kx vm-hako small reference interpreter recut`
 
 ## Parked After Optimization
 
@@ -106,8 +106,8 @@ Related:
 
 - current lane docs:
   - `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
-  - `docs/development/current/main/phases/phase-149x/README.md`
   - `docs/development/current/main/phases/phase-148x/README.md`
+  - `docs/development/current/main/phases/phase-150x/README.md`
   - `docs/development/current/main/phases/phase-146x/README.md`
   - `docs/development/current/main/phases/phase-145x/README.md`
   - `docs/development/current/main/phases/phase-141x/README.md`

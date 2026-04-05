@@ -43,6 +43,8 @@ pub(super) fn array_slot_store_i64(handle: i64, idx: i64, value_i64: i64) -> i64
 
 #[inline(always)]
 pub(super) fn array_slot_store_string_handle(handle: i64, idx: i64, value_h: i64) -> i64 {
+    // Executor leaf for the current concrete `nyash.array.set_his` path that
+    // phase-150x reads as canonical `store.array.str`.
     array_string_store_handle_at(handle, idx, value_h)
 }
 
