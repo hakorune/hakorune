@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-114x execution surface wording closeout` |
-| Front | `mainline route と explicit keep/reference override を public/help surface で分離する` |
+| Now | `phase-115x vm route retirement planning` |
+| Front | `compat / proof / debug だけに残る vm-family route の retirement order を固定する` |
 | Blocker | `none` |
-| Next | `args.rs` / `dispatch.rs` / `README*` / `cli-hakorune-stage1.md` の route-first wording correction |
-| After Next | `phase-115x vm route retirement planning` |
+| Next | `route_orchestrator.rs` / `run.sh` / `selfhost_run_routes.sh` / `tools/selfhost/proof/*` の vm dependency inventory |
+| After Next | `phase-116x execution surface alias pruning` |
 
 ## Current Read
 
@@ -38,6 +38,7 @@ Related:
 - `111x` made live selfhost runtime smokes and current docs route-first (`--runtime-route mainline|compat`)
 - `110x` fixed long-lived execution vocabulary SSOT and corrected stale wording in `lang/src/vm` / `tools/selfhost`
 - `113x` reserved `kernel` for `nyash_kernel` and fixed `lang/src/vm` as a VM/reference cluster
+- `114x` made public/help surface read `mainline route` vs `explicit keep/reference override`
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers
@@ -51,13 +52,13 @@ Related:
 - `91x` froze the top-level `.hako` wrapper policy after the latest runner/selfhost recuts
 - `92x` closed the proof/compat caller rerun lane against the canonical wrapper homes
 - `93x` moved archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
-- current work is now on `phase-114x execution surface wording closeout`
+- current work is now on `phase-115x vm route retirement planning`
 
 ## Successor Corridor
 
-1. `phase-114x execution surface wording closeout`
-2. `phase-115x vm route retirement planning`
-3. `phase-116x execution surface alias pruning`
+1. `phase-115x vm route retirement planning`
+2. `phase-116x execution surface alias pruning`
+3. `phase-117x vm compat/proof env hardening`
 
 ## Parked After Optimization
 
@@ -87,9 +88,9 @@ Related:
 ## Reference
 
 - current lane docs:
+  - `docs/development/current/main/phases/phase-115x/README.md`
   - `docs/development/current/main/phases/phase-114x/README.md`
   - `docs/development/current/main/phases/phase-113x/README.md`
-  - `docs/development/current/main/phases/phase-112x/README.md`
 - recent landed:
   - `docs/development/current/main/phases/phase-103/README.md`
   - `docs/development/current/main/phases/phase-102/README.md`

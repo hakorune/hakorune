@@ -12,10 +12,11 @@ Related:
 
 ## Current
 
-- lane: `phase-114x execution surface wording closeout`
-- current front: `mainline route と explicit keep/reference override を public/help surface で分離する`
+- lane: `phase-115x vm route retirement planning`
+- current front: `compat / proof / debug だけに残る vm-family route の retirement order を固定する`
 - blocker: `none`
 - recent landed:
+  - `phase-114x execution surface wording closeout`
   - `phase-113x kernel vs vm-reference cluster wording correction`
   - `phase-112x vm-family lane naming hardening`
   - `phase-111x selfhost runtime route naming cleanup`
@@ -39,10 +40,11 @@ Related:
 - `phase-103` landed with if-only merge / early return parity on VM and LLVM EXE
 - `phase-104` landed with loop(true)+break-only digits parity on VM and LLVM EXE
 - `phase-105` restored the original long digit OR-chain parity on VM and LLVM EXE
-- current work is the execution surface wording closeout:
+- current work is the vm route retirement planning lane:
   - vocabulary split: `stage / route / backend override / lane / kernel`
-  - selfhost mainline reads as `runtime-route mainline`
-  - raw `--backend vm` reads as explicit keep/debug override only
+  - selfhost mainline already reads as `runtime-route mainline`
+  - raw `--backend vm` is now treated as compat/proof/debug only
+  - next step is retirement order, not another wording-only pass
 
 ## Root Anchors
 
@@ -53,4 +55,4 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-114x/README.md`
+2. `docs/development/current/main/phases/phase-115x/README.md`

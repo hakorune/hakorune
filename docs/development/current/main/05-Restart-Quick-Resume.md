@@ -20,10 +20,11 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-114x execution surface wording closeout`
-- current front: `mainline route と explicit keep/reference override を public/help surface で分離する`
+- lane: `phase-115x vm route retirement planning`
+- current front: `compat / proof / debug だけに残る vm-family route の retirement order を固定する`
 - blocker: `none`
 - recent landed:
+  - `phase-114x execution surface wording closeout`
   - `phase-113x kernel vs vm-reference cluster wording correction`
   - `phase-112x vm-family lane naming hardening`
   - `phase-111x selfhost runtime route naming cleanup`
@@ -37,13 +38,13 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-114x/README.md`
+3. `docs/development/current/main/phases/phase-115x/README.md`
 
 ## Successor Corridor
 
-1. `phase-114x execution surface wording closeout`
-2. `phase-115x vm route retirement planning`
-3. `phase-116x execution surface alias pruning`
+1. `phase-115x vm route retirement planning`
+2. `phase-116x execution surface alias pruning`
+3. `phase-117x vm compat/proof env hardening`
 
 ## Parked After Optimization
 
@@ -53,7 +54,7 @@ tools/checks/dev_gate.sh quick
 
 - keep `stage / route / backend override / lane / kernel` split fixed
 - keep VM family lane names fixed
-- close out remaining public/help wording where raw `--backend vm` still reads like a normal route
+- keep `--backend vm` in compat/proof/debug only and fix the retirement order before pruning aliases
 
 ## Current Proof Bundle
 
