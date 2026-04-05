@@ -59,20 +59,21 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 38. `phase-121x vm backend retirement gate decision` (landed)
 39. `phase-122x vm compat route exit plan` (landed)
 40. `phase-123x proof gate shrink follow-up` (landed)
-41. `phase-124x vm public docs/manual demotion` (active)
+41. `phase-124x vm public docs/manual demotion` (landed)
+42. `phase-125x vm bridge/backend gate follow-up` (active)
 
 ## Current Front
 
-- Active lane: `phase-124x vm public docs/manual demotion`
-- Active micro: `raw --backend vm` と proof gates を docs/manual 上で日常 route に見せない wording に寄せる`
+- Active lane: `phase-125x vm bridge/backend gate follow-up`
+- Active micro: `compat bridge / backend gate / CLI default の blocker を source-backed に再固定する`
 - Current blocker: `none`
-- Exact focus: `README` / `README.ja` / `tools/selfhost/README` / `quickstart` / `selfhost-bootstrap-route-ssot` の wording を proof/debug gate 読みに狭める`
+- Exact focus: `stage1_bridge/direct_route` / `route_orchestrator` / `dispatch` / `args` / `selfhost_run_routes` の vm gate blockers を次の cut order に落とす`
 
 ## Successor Corridor
 
-1. `phase-124x vm public docs/manual demotion`
-2. `phase-125x vm bridge/backend gate follow-up`
-3. `phase-126x vm public gate shrink decision`
+1. `phase-125x vm bridge/backend gate follow-up`
+2. `phase-126x vm public gate shrink decision`
+3. `phase-127x compat route raw vm cut prep`
 
 ## Parked After Optimization
 
@@ -92,7 +93,7 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-124x/README.md`
+3. `docs/development/current/main/phases/phase-125x/README.md`
 
 ## Notes
 
@@ -110,7 +111,8 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 - `phase-121x` decides whether `--backend vm` can shrink beyond a public explicit gate, or whether the remaining blockers still keep it public.
 - `phase-122x` locked the compat-route exit order: shell surface first, bridge/direct route second, backend gate last.
 - `phase-123x` narrowed the remaining proof surface so public proof entry stays small and the rest is explicit engineering keep only.
-- `phase-124x` now demotes public docs/manual wording so raw `--backend vm` and proof gates stop reading like day-to-day runtime guidance.
+- `phase-124x` demoted public docs/manual wording so raw `--backend vm` and proof gates stop reading like day-to-day runtime guidance.
+- `phase-125x` now returns to source blockers: compat bridge, backend gate, and CLI default/help surface.
 - current inventory buckets are:
   - compat route: `tools/selfhost/run.sh --runtime --runtime-route compat` -> raw `--backend vm` under `NYASH_VM_USE_FALLBACK=1`
   - proof gates: `tools/selfhost/proof/run_stageb_compiler_vm.sh` / `tools/selfhost/proof/selfhost_vm_smoke.sh`

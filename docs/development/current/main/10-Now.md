@@ -12,10 +12,11 @@ Related:
 
 ## Current
 
-- lane: `phase-124x vm public docs/manual demotion`
-- current front: `raw --backend vm` と proof gates を docs/manual 上で日常 route に見せない wording に寄せる`
+- lane: `phase-125x vm bridge/backend gate follow-up`
+- current front: `compat bridge / backend gate / CLI default の blocker を source-backed に再固定する`
 - blocker: `none`
 - recent landed:
+  - `phase-124x vm public docs/manual demotion`
   - `phase-123x proof gate shrink follow-up`
   - `phase-122x vm compat route exit plan`
   - `phase-121x vm backend retirement gate decision`
@@ -49,12 +50,12 @@ Related:
 - `phase-103` landed with if-only merge / early return parity on VM and LLVM EXE
 - `phase-104` landed with loop(true)+break-only digits parity on VM and LLVM EXE
 - `phase-105` restored the original long digit OR-chain parity on VM and LLVM EXE
-- current work is the vm public docs/manual demotion lane:
+- current work is the vm bridge/backend gate follow-up lane:
   - vocabulary split: `stage / route / backend override / lane / kernel`
   - selfhost mainline already reads as `runtime-route mainline`
   - raw `--backend vm` is now treated as compat/proof/debug only
   - current buckets are `compat route`, `proof gates`, `debug/observability`
-  - current target is to keep proof gates public but optional, and move broad docs/manual wording off the day-to-day route narrative
+  - current target is to revisit the source blockers that still keep `--backend vm` public and wired into compat/direct routes
 
 ## Root Anchors
 
@@ -65,4 +66,4 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-124x/README.md`
+2. `docs/development/current/main/phases/phase-125x/README.md`

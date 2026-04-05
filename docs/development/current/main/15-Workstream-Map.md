@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-124x vm public docs/manual demotion` |
-| Front | `raw --backend vm` と proof gates を docs/manual 上で日常 route に見せない wording に寄せる` |
+| Now | `phase-125x vm bridge/backend gate follow-up` |
+| Front | `compat bridge / backend gate / CLI default の blocker を source-backed に再固定する` |
 | Blocker | `none` |
-| Next | `README / README.ja / tools/selfhost/README / quickstart / bootstrap SSOT を proof/debug gate 読みに寄せる` |
-| After Next | `phase-125x vm bridge/backend gate follow-up` |
+| Next | `stage1_bridge/direct_route / route_orchestrator / dispatch / args / selfhost_run_routes の blocker を再確認する` |
+| After Next | `phase-126x vm public gate shrink decision` |
 
 ## Current Read
 
@@ -48,7 +48,8 @@ Related:
 - `121x` now decides whether `--backend vm` can shrink from public explicit gate to internal-only, or whether concrete blockers still keep it public
 - `122x` locked the compat-route exit order: shell surface first, Stage1 direct bridge second, backend gate last
 - `123x` narrowed the remaining public proof gate surface and separated it from internal engineering callers
-- `124x` now demotes broad docs/manual wording so proof/debug gates no longer read like the default selfhost route
+- `124x` demoted broad docs/manual wording so proof/debug gates no longer read like the default selfhost route
+- `125x` now returns to source blockers that still keep raw `--backend vm` wired into compat/direct paths
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers
@@ -66,9 +67,9 @@ Related:
 
 ## Successor Corridor
 
-1. `phase-124x vm public docs/manual demotion`
-2. `phase-125x vm bridge/backend gate follow-up`
-3. `phase-126x vm public gate shrink decision`
+1. `phase-125x vm bridge/backend gate follow-up`
+2. `phase-126x vm public gate shrink decision`
+3. `phase-127x compat route raw vm cut prep`
 
 ## Parked After Optimization
 
@@ -98,6 +99,7 @@ Related:
 ## Reference
 
 - current lane docs:
+  - `docs/development/current/main/phases/phase-125x/README.md`
   - `docs/development/current/main/phases/phase-124x/README.md`
   - `docs/development/current/main/phases/phase-123x/README.md`
   - `docs/development/current/main/phases/phase-122x/README.md`

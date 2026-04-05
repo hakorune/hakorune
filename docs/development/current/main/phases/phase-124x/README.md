@@ -7,6 +7,7 @@
   - `tools/selfhost/README.md`
   - `docs/development/selfhosting/quickstart.md`
   - `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
+  - `.github/pull_request_template.md`
 - success:
   - public docs は `runtime-route mainline` を日常 route として読める
   - `--backend vm` は explicit proof/debug ingress としてだけ読める

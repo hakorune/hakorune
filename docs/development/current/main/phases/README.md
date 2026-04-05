@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 124x vm public docs/manual demotion
+- **Current (ACTIVE)**: Phase 125x vm bridge/backend gate follow-up
+- **Phase 124x（LANDED）**: vm public docs/manual demotion
 - **Phase 123x（LANDED）**: proof gate shrink follow-up
 - **Phase 122x（LANDED）**: vm compat route exit plan
 - **Phase 121x（LANDED）**: vm backend retirement gate decision
