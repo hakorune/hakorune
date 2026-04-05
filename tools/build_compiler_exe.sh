@@ -9,7 +9,7 @@ usage() {
   cat << USAGE
 Usage: tools/build_compiler_exe.sh [-o <name>] [--no-pack]
 
-Builds the selfhost Nyash parser as a native EXE using the LLVM harness,
+Builds the selfhost Nyash parser as a native EXE using the ny-llvmc mainline route,
 and stages a runnable bundle with required plugin (FileBox) and nyash.toml.
 
 Options:
@@ -47,7 +47,7 @@ if [[ "$LLVM_FEATURE" == "llvm-inkwell-legacy" ]]; then
   LLVM_SYS_181_PREFIX="${_LLVMPREFIX}" LLVM_SYS_180_PREFIX="${_LLVMPREFIX}" \
     cargo build --release -j 24 --features "${LLVM_FEATURE}" >/dev/null
 else
-  # llvm-harness (default) doesn't need LLVM_SYS_180_PREFIX
+  # ny-llvmc mainline route doesn't need LLVM_SYS_180_PREFIX
   cargo build --release -j 24 --features "${LLVM_FEATURE}" >/dev/null
 fi
 

@@ -12,7 +12,7 @@ Recommended daily route
 - Day-to-day selfhost runtime: `tools/selfhost/run.sh --runtime --input apps/examples/string_p0.hako`
 
 Recommended Flows
-- Product native path: `NYASH_LLVM_USE_HARNESS=1 tools/build_llvm.sh apps/... -o app && ./app`
+- Product native path: `tools/build_llvm.sh apps/... -o app && ./app`
 - Product EXE-first (crate path): `bash tools/crate_exe_smoke.sh apps/tests/ternary_basic.hako`
 - Compat/proof bootstrap E2E (legacy VM keep): `NYASH_USE_NY_COMPILER=1 ./target/release/hakorune --backend vm apps/examples/string_p0.hako`
 - Emit‑only: `NYASH_USE_NY_COMPILER=1 NYASH_NY_COMPILER_EMIT_ONLY=1 ...`
@@ -29,7 +29,7 @@ CI Workflows
     3) 実行: `./tmp/app`（戻り値が exit code）
   - ワンコマンドスモーク: `bash tools/crate_exe_smoke.sh apps/tests/ternary_basic.hako`
   - CLI で直接 EXE 出力: `./target/release/hakorune --emit-exe tmp/app --backend mir apps/tests/ternary_basic.hako`
-  - Installs LLVM 18 + llvmlite, then runs `tools/exe_first_smoke.sh`.
+  - Installs LLVM 18, builds `ny-llvmc`, then runs `tools/exe_first_smoke.sh`.
 
 Useful Env Flags
 - `NYASH_USE_NY_COMPILER=1`: Enable selfhost compiler pipeline.
