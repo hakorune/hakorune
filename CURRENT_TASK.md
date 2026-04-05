@@ -86,6 +86,16 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   - move semantic ownership, collection owner policy, and route semantics toward `.hako`
   - do not turn compat quarantine into a permanent owner layer
 
+## Long-Term Direction Lock
+
+- design truth lives in:
+  - `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
+  - `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
+- fixed wording:
+  - mid-term stop-line: `Rust = semantics-free runtime mechanics kernel`
+  - long-term asymptote: `Rust -> OS / ABI / host boundary`
+- do not let this long-term target disappear behind phase churn or perf-only notes
+
 ## Read Next
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`

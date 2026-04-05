@@ -133,6 +133,8 @@ Current rule:
 - `NYASH_PERF_COUNTERS=1`: feature-on build の runtime gate
 - exact counter backend: TLS-first
 - stderr summary: current-thread flush + exited-thread merge を current truth にする
+- observer backend / sink remain Rust runtime mechanics keep; only observer
+  identity is allowed to align with `.hako` / MIR canonical contract names
 
 ## Stop Lines
 

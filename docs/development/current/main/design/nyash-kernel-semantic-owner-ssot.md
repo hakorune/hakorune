@@ -34,6 +34,46 @@ Related:
 - `compat quarantine` を permanent owner にしない
 - optimization authority は `.hako owner / policy -> MIR canonical contract -> Rust executor` に従う
 
+## Long-Range Direction
+
+### Mid-term stop-line
+
+- Rust の current keep line は `host/runtime mechanics kernel`
+- keep buckets:
+  - `Rust host microkernel`
+  - `ABI facade`
+  - `lifetime-sensitive substrate`
+  - `native accelerators`
+  - `observer backend / sink` as out-of-band runtime mechanics
+- `.hako` / MIR の current responsibility:
+  - semantic authority
+  - route vocabulary
+  - visible collection contract
+  - canonical contract naming
+
+This is the current defended stop-line. The repo should preserve this line even
+when perf work or observer work reopens.
+
+### Long-term asymptote
+
+- long-term target is narrower than the current stop-line:
+  - Rust should trend toward `OS / ABI / host boundary` responsibility only
+  - runtime mechanics that remain in Rust should stay explicitly non-owning,
+    replaceable, and capability-shaped
+- this does **not** mean forcing every accelerator or observer backend into
+  `.hako` immediately
+- the immediate design rule is:
+  - remove semantic authority from Rust first
+  - make Rust runtime mechanics replaceable second
+  - only then consider shrinking Rust further toward pure host boundary
+
+In short:
+
+- mid-term: `Rust = semantics-free runtime mechanics kernel`
+- long-term: `Rust -> OS / ABI / host boundary asymptote`
+
+The long-term asymptote is a direction lock, not a near-term migration demand.
+
 ## Final Owner Graph
 
 ### 1. Rust host microkernel
@@ -197,6 +237,8 @@ They are Rust host microkernel glue.
 - do not move `StringView` lifetime ownership to `.hako`
 - do not broaden `compat quarantine`
 - do not attach new semantics to ABI facades
+- do not treat the long-term asymptote as permission to push host/runtime
+  mechanics into `.hako` before they stop owning runtime detail
 
 ## Migration Order
 
