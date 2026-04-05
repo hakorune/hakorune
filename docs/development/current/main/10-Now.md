@@ -13,8 +13,8 @@ Related:
 ## Current
 
 - lane: `phase-137x main kilo reopen selection`
-- current front: string const-path reopen win は landed。次の exact leaf は `array_string_store_handle_at`
-- blocker: `kilo_kernel_small_hk` は `ny_aot_ms=731` まで落ちたが、まだ C との差は大きい
+- current front: string const-path follow-up が current。top explicit hot symbol はまだ `concat_const_suffix_fallback`
+- blocker: `kilo_kernel_small_hk` は `ny_aot_ms=723` まで落ちたが、まだ C との差は大きい
 - recent landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -63,6 +63,7 @@ Related:
     - baseline `1529ms`
     - after string const fast path `905ms`
     - after const-handle cache follow-up `731ms`
+    - after const empty-flag cache `723ms`
 
 ## Root Anchors
 

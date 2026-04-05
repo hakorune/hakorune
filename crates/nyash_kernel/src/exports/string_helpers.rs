@@ -536,8 +536,11 @@ fn concat_const_suffix_from_handle(a_h: i64, suffix: &str) -> i64 {
 }
 
 #[inline(always)]
-fn concat_const_suffix_from_const_handle_fast(a_h: i64, suffix_h: i64) -> Option<i64> {
-    let suffix_is_empty = string_is_empty_from_handle(suffix_h)?;
+fn concat_const_suffix_from_const_handle_cached(
+    a_h: i64,
+    suffix_h: i64,
+    suffix_is_empty: bool,
+) -> Option<i64> {
     match concat_suffix_retention_class(suffix_is_empty) {
         RetainedForm::ReturnHandle => Some(a_h),
         RetainedForm::KeepTransient | RetainedForm::MustFreeze(_) => {
@@ -559,6 +562,7 @@ fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i64 {
     struct ConstCStringCache {
         ptr: Cell<usize>,
         handle: Cell<i64>,
+        is_empty: Cell<bool>,
         text: RefCell<Option<String>>,
     }
 
@@ -576,6 +580,7 @@ fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i64 {
                 let bytes = unsafe { CStr::from_ptr(ptr) }.to_bytes();
                 let text = String::from_utf8_lossy(bytes).into_owned();
                 cache.ptr.set(addr);
+                cache.is_empty.set(text.is_empty());
                 *cache.text.borrow_mut() = Some(text);
             }
             let text_ref = cache.text.borrow();
@@ -587,6 +592,7 @@ fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i64 {
         static CONST_SUFFIX_TEXT_CACHE: ConstCStringCache = const { ConstCStringCache {
             ptr: Cell::new(0),
             handle: Cell::new(0),
+            is_empty: Cell::new(false),
             text: RefCell::new(None),
         } };
     }
@@ -602,16 +608,20 @@ fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i64 {
                 return cached;
             }
         }
+        let suffix_is_empty = unsafe { CStr::from_ptr(suffix_ptr) }.to_bytes().is_empty();
         let handle = super::super::nyash_box_from_i8_string_const(suffix_ptr);
         if handle > 0 {
             cache.ptr.set(addr);
             cache.handle.set(handle);
+            cache.is_empty.set(suffix_is_empty);
             *cache.text.borrow_mut() = None;
         }
         handle
     });
     if suffix_h > 0 {
-        if let Some(out) = concat_const_suffix_from_const_handle_fast(a_h, suffix_h) {
+        let suffix_is_empty =
+            CONST_SUFFIX_TEXT_CACHE.with(|cache| cache.ptr.get() == suffix_ptr as usize && cache.is_empty.get());
+        if let Some(out) = concat_const_suffix_from_const_handle_cached(a_h, suffix_h, suffix_is_empty) {
             return out;
         }
     }

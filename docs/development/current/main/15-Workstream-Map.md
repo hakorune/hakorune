@@ -15,8 +15,8 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-137x main kilo reopen selection` |
-| Front | string const-path reopen win は landed。next exact leaf は `array_string_store_handle_at` |
-| Blocker | `kilo_kernel_small_hk` は `ny_aot_ms=731` まで落ちたが、まだ C との差は大きい |
+| Front | string const-path follow-up が current。top explicit hot symbol はまだ `concat_const_suffix_fallback` |
+| Blocker | `kilo_kernel_small_hk` は `ny_aot_ms=723` まで落ちたが、まだ C との差は大きい |
 | Next | `phase-kx vm-hako small reference interpreter recut` |
 | After Next | parked |
 
@@ -73,7 +73,9 @@ Related:
   - baseline: `kilo_kernel_small_hk = 1529ms`
   - string const fast-path: `905ms`
   - const-handle cache follow-up: `731ms`
-  - next leaf: `crates/nyash_kernel/src/plugin/array_string_slot.rs::array_string_store_handle_at`
+  - const empty-flag cache: `723ms`
+  - first leaf: `crates/nyash_kernel/src/exports/string_helpers.rs::concat_const_suffix_fallback`
+  - second leaf: `crates/nyash_kernel/src/plugin/array_string_slot.rs::array_string_store_handle_at`
 
 ## Successor Corridor
 
