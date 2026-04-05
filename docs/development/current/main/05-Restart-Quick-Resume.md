@@ -20,10 +20,11 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-118x proof wrapper surface review`
-- current front: `public proof surface と internal proof helper を分けて narrow keep に固定する`
+- lane: `phase-119x vm debug/observability surface review`
+- current front: `vm-family debug/observability surface を keep-now と candidate-thin に分ける`
 - blocker: `none`
 - recent landed:
+  - `phase-118x proof wrapper surface review`
   - `phase-117x vm compat/proof env hardening`
   - `phase-116x execution surface alias pruning`
   - `phase-115x vm route retirement planning`
@@ -41,13 +42,13 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-118x/README.md`
+3. `docs/development/current/main/phases/phase-119x/README.md`
 
 ## Successor Corridor
 
-1. `phase-118x proof wrapper surface review`
-2. `phase-119x vm debug/observability surface review`
-3. `phase-120x vm route retirement decision refresh`
+1. `phase-119x vm debug/observability surface review`
+2. `phase-120x vm route retirement decision refresh`
+3. `phase-121x vm backend retirement gate decision`
 
 ## Parked After Optimization
 

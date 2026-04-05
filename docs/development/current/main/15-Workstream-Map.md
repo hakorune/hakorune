@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-118x proof wrapper surface review` |
-| Front | `public proof surface と internal proof helper を分けて narrow keep に固定する` |
+| Now | `phase-119x vm debug/observability surface review` |
+| Front | `vm-family debug/observability surface を keep-now と candidate-thin に分ける` |
 | Blocker | `none` |
-| Next | `tools/selfhost/proof/*` の public/internal split を README / Makefile / route SSOT に反映する |
-| After Next | `phase-119x vm debug/observability surface review` |
+| Next | `phase29x observability keep と bug_origin_triage.sh の public/internal 読みを固定する` |
+| After Next | `phase-120x vm route retirement decision refresh` |
 
 ## Current Read
 
@@ -43,6 +43,7 @@ Related:
 - `116x` is shrinking alias pressure first: `stage-a` goes away, `runtime-route compat` and `runtime-mode stage-a-compat` stay
 - `117x` is hardening compat ingress next: shell preflight must require `NYASH_VM_USE_FALLBACK=1`
 - `118x` is narrowing proof wrapper surface next: public proof surface stays small, bootstrap/acceptance helpers stay internal
+- `119x` now narrows the remaining vm-family debug/observability keep: route observability stays live, generic probe pressure should thin further
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers
@@ -60,9 +61,9 @@ Related:
 
 ## Successor Corridor
 
-1. `phase-118x proof wrapper surface review`
-2. `phase-119x vm debug/observability surface review`
-3. `phase-120x vm route retirement decision refresh`
+1. `phase-119x vm debug/observability surface review`
+2. `phase-120x vm route retirement decision refresh`
+3. `phase-121x vm backend retirement gate decision`
 
 ## Parked After Optimization
 
@@ -92,6 +93,7 @@ Related:
 ## Reference
 
 - current lane docs:
+  - `docs/development/current/main/phases/phase-119x/README.md`
   - `docs/development/current/main/phases/phase-118x/README.md`
   - `docs/development/current/main/phases/phase-117x/README.md`
   - `docs/development/current/main/phases/phase-116x/README.md`

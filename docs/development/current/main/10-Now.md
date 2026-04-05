@@ -12,10 +12,11 @@ Related:
 
 ## Current
 
-- lane: `phase-118x proof wrapper surface review`
-- current front: `public proof surface と internal proof helper を分けて narrow keep に固定する`
+- lane: `phase-119x vm debug/observability surface review`
+- current front: `vm-family debug/observability surface を keep-now と candidate-thin に分ける`
 - blocker: `none`
 - recent landed:
+  - `phase-118x proof wrapper surface review`
   - `phase-117x vm compat/proof env hardening`
   - `phase-116x execution surface alias pruning`
   - `phase-115x vm route retirement planning`
@@ -43,12 +44,12 @@ Related:
 - `phase-103` landed with if-only merge / early return parity on VM and LLVM EXE
 - `phase-104` landed with loop(true)+break-only digits parity on VM and LLVM EXE
 - `phase-105` restored the original long digit OR-chain parity on VM and LLVM EXE
-- current work is the proof wrapper surface review lane:
+- current work is the vm debug/observability surface review lane:
   - vocabulary split: `stage / route / backend override / lane / kernel`
   - selfhost mainline already reads as `runtime-route mainline`
   - raw `--backend vm` is now treated as compat/proof/debug only
   - current buckets are `compat route`, `proof wrappers`, `debug/observability`
-  - proof wrappers are now being split into public proof surface vs internal engineering helper
+  - current target is the remaining debug/observability keep, not proof wrappers
 
 ## Root Anchors
 
@@ -59,4 +60,4 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-118x/README.md`
+2. `docs/development/current/main/phases/phase-119x/README.md`
