@@ -143,7 +143,7 @@ impl NyashRunner {
         // If EXE parsing fails, fall back to the explicit stage-a-compat route.
         if crate::config::env::use_ny_compiler_exe() {
             crate::runner::modes::common_util::selfhost::child::emit_runtime_route_mode(
-                crate::runner::modes::common_util::selfhost::child::ROUTE_MODE_EXE,
+                crate::runner::modes::common_util::selfhost::child::ROUTE_MODE_MAINLINE,
                 source_name,
             );
             let timeout_ms = crate::config::env::ny_compiler_timeout_ms();

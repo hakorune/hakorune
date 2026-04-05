@@ -26,7 +26,7 @@ pub(crate) fn try_capture_stage_a_module(
         return None;
     }
 
-    child::emit_runtime_route_mode(child::ROUTE_MODE_STAGE_A, source_name);
+    child::emit_runtime_route_mode(child::ROUTE_MODE_COMPAT, source_name);
 
     // Non-strict Stage-A compat lanes remain explicit-only.
     stage_a_policy::enforce_stage_a_compat_policy_or_exit(source_name);

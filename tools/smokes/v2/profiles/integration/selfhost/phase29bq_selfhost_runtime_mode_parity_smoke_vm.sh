@@ -76,11 +76,11 @@ run_route() {
 
   case "$route" in
     compat)
-      expected_mode="stage-a-compat"
+      expected_mode="compat"
       route_env+=("NYASH_VM_USE_FALLBACK=1")
       ;;
     mainline)
-      expected_mode="exe"
+      expected_mode="mainline"
       ;;
     *)
       log_error "unknown runtime route: $route"
@@ -131,13 +131,13 @@ if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=pipeline-entry sourc
   echo "STAGE_STDERR: $stage_stderr"
   exit 1
 fi
-if ! rg -q '^\[selfhost/run\] mode=runtime runtime_route=compat runtime_mode=stage-a-compat ' "$stage_stderr"; then
-  log_error "compat missing runtime run tag (route=compat, mode=stage-a-compat)"
+if ! rg -q '^\[selfhost/run\] mode=runtime runtime_route=compat runtime_mode=compat ' "$stage_stderr"; then
+  log_error "compat missing runtime run tag (route=compat, mode=compat)"
   echo "STAGE_STDERR: $stage_stderr"
   exit 1
 fi
-if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=stage-a-compat source=' "$stage_stderr"; then
-  log_error "compat missing runtime route tag (mode=stage-a-compat)"
+if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=compat source=' "$stage_stderr"; then
+  log_error "compat missing runtime route tag (mode=compat)"
   echo "STAGE_STDERR: $stage_stderr"
   exit 1
 fi
@@ -146,18 +146,18 @@ if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=pipeline-entry sourc
   echo "EXE_STDERR: $exe_stderr"
   exit 1
 fi
-if ! rg -q '^\[selfhost/run\] mode=runtime runtime_route=mainline runtime_mode=exe ' "$exe_stderr"; then
-  log_error "mainline missing runtime run tag (route=mainline, mode=exe)"
+if ! rg -q '^\[selfhost/run\] mode=runtime runtime_route=mainline runtime_mode=mainline ' "$exe_stderr"; then
+  log_error "mainline missing runtime run tag (route=mainline, mode=mainline)"
   echo "EXE_STDERR: $exe_stderr"
   exit 1
 fi
-if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=exe source=' "$exe_stderr"; then
-  log_error "mainline missing runtime route tag (mode=exe)"
+if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=mainline source=' "$exe_stderr"; then
+  log_error "mainline missing runtime route tag (mode=mainline)"
   echo "EXE_STDERR: $exe_stderr"
   exit 1
 fi
-if rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=stage-a-compat source=' "$exe_stderr"; then
-  log_error "runtime mainline route fell back to stage-a-compat unexpectedly"
+if rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=compat source=' "$exe_stderr"; then
+  log_error "runtime mainline route fell back to compat unexpectedly"
   echo "EXE_STDERR: $exe_stderr"
   exit 1
 fi

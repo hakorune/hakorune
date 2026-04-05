@@ -4,7 +4,7 @@
 # Contract:
 # - mode=pipeline-entry is emitted when runtime route is engaged
 # - runtime-route uses canonical `mainline|compat`
-# - mode=<stage-a-compat|exe> remains a compatibility tag for selected runtime route
+# - mode=<compat|mainline> remains a route-first tag for selected runtime route
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../../../../.." && pwd)"
@@ -33,11 +33,11 @@ fi
 case "$RUNTIME_ROUTE_INPUT" in
   compat|stage-a|stage-a-compat)
     RUNTIME_ROUTE="compat"
-    EXPECTED_MODE="stage-a-compat"
+    EXPECTED_MODE="compat"
     ;;
   mainline|exe)
     RUNTIME_ROUTE="mainline"
-    EXPECTED_MODE="exe"
+    EXPECTED_MODE="mainline"
     ;;
   *)
     log_error "runtime route must be compat|mainline (compat aliases: stage-a|stage-a-compat|exe; got: $RUNTIME_ROUTE_INPUT)"
@@ -118,8 +118,8 @@ if [ "$RUNTIME_ROUTE" = "compat" ]; then
   log_success "compat runtime route success path"
 fi
 
-if [ "$RUNTIME_ROUTE" = "mainline" ] && rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=stage-a-compat source=' "$stderr_log"; then
-  log_error "runtime mainline route fell back to stage-a-compat unexpectedly"
+if [ "$RUNTIME_ROUTE" = "mainline" ] && rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=compat source=' "$stderr_log"; then
+  log_error "runtime mainline route fell back to compat unexpectedly"
   echo "STDERR_LOG: $stderr_log"
   exit 1
 fi

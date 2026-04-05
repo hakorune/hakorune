@@ -11,6 +11,7 @@
 - success:
   - public help/docs do not read `--backend vm` as a day-to-day route
   - compat/mainline remain route-first
+  - `selfhost/route` child tags use canonical `mainline|compat` while alias inputs remain accepted
   - binary-only direct-route vm gate remains explicit legacy and isolated
   - no new caller widens vm back into a default owner path
 
@@ -18,6 +19,7 @@
 
 - `phase-128x` is landed with the backend-hint chain narrowed
 - default `stage1_cli_env.hako` child path no longer forwards backend hints
+- runtime child route tags now emit canonical `mainline|compat`
 - binary-only direct-route vm gate remains an explicit legacy contract
 - `phase-129x` follows the remaining public vm gate / orchestrator surfaces
 

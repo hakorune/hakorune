@@ -46,7 +46,7 @@ require_compat_fallback_env_or_exit() {
   if [ "${NYASH_VM_USE_FALLBACK:-0}" = "1" ]; then
     return 0
   fi
-  echo "[contract][runtime-route][expected=mir-json] route=stage-a-compat source=$source_name non_strict_compat=disabled require=NYASH_VM_USE_FALLBACK=1" >&2
+  echo "[contract][runtime-route][expected=mir-json] route=compat source=$source_name non_strict_compat=disabled require=NYASH_VM_USE_FALLBACK=1" >&2
   exit 1
 }
 
@@ -75,9 +75,9 @@ run_runtime_temp_mir_handoff() {
   local route_name
   route_name="$(canonical_runtime_route_name "$runtime_mode")"
 
-  echo "[selfhost/run] mode=runtime runtime_route=$route_name runtime_mode=$runtime_mode input=$(basename "$input_file") handoff=temp-mir" >&2
+  echo "[selfhost/run] mode=runtime runtime_route=$route_name runtime_mode=$route_name input=$(basename "$input_file") handoff=temp-mir" >&2
   emit_runtime_route_tag "pipeline-entry" "$source_name"
-  emit_runtime_route_tag "$runtime_mode" "$source_name"
+  emit_runtime_route_tag "$route_name" "$source_name"
 
   local -a helper_env
   helper_env=(
@@ -124,7 +124,7 @@ run_runtime_temp_mir_handoff() {
     exit 1
   fi
 
-  echo "[selfhost/run] mode=runtime runtime_route=$route_name runtime_mode=$runtime_mode handoff=mir-json-file" >&2
+  echo "[selfhost/run] mode=runtime runtime_route=$route_name runtime_mode=$route_name handoff=mir-json-file" >&2
 
   local run_rc=0
   set +e
@@ -224,12 +224,12 @@ run_runtime() {
 
   if [ "$runtime_mode" = "stage-a-compat" ]; then
     require_compat_fallback_env_or_exit "$(basename "$input_file")"
-    echo "[selfhost/run] mode=runtime runtime_route=$route_name runtime_mode=$runtime_mode lane=compat-only input=$(basename "$input_file")" >&2
-    emit_runtime_route_tag "stage-a-compat" "$(basename "$input_file")"
+    echo "[selfhost/run] mode=runtime runtime_route=$route_name runtime_mode=$route_name lane=compat-only input=$(basename "$input_file")" >&2
+    emit_runtime_route_tag "$route_name" "$(basename "$input_file")"
     run_runtime_temp_mir_handoff
     return
   else
-    echo "[selfhost/run] mode=runtime runtime_route=$route_name runtime_mode=$runtime_mode lane=mainline input=$(basename "$input_file")" >&2
+    echo "[selfhost/run] mode=runtime runtime_route=$route_name runtime_mode=$route_name lane=mainline input=$(basename "$input_file")" >&2
   fi
   if [ "$runtime_mode" = "exe" ]; then
     run_runtime_temp_mir_handoff

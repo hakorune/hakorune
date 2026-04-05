@@ -1,7 +1,9 @@
 pub const ROUTE_RUNTIME_SELFHOST: &str = "SH-RUNTIME-SELFHOST";
 pub const ROUTE_MODE_PIPELINE_ENTRY: &str = "pipeline-entry";
-pub const ROUTE_MODE_STAGE_A: &str = "stage-a-compat";
-pub const ROUTE_MODE_EXE: &str = "exe";
+pub const ROUTE_MODE_MAINLINE: &str = "mainline";
+pub const ROUTE_MODE_COMPAT: &str = "compat";
+pub const ROUTE_MODE_STAGE_A: &str = ROUTE_MODE_COMPAT;
+pub const ROUTE_MODE_EXE: &str = ROUTE_MODE_MAINLINE;
 
 pub fn format_route_tag(route_id: &str, mode: &str, source: &str) -> String {
     format!(
@@ -42,7 +44,7 @@ mod tests {
         );
         assert_eq!(
             line,
-            "[selfhost/route] id=SH-RUNTIME-SELFHOST mode=stage-a-compat source=foo.hako"
+            "[selfhost/route] id=SH-RUNTIME-SELFHOST mode=compat source=foo.hako"
         );
     }
 
@@ -55,7 +57,7 @@ mod tests {
         );
         assert_eq!(
             line,
-            "[selfhost/route] id=SH-RUNTIME-SELFHOST mode=exe source=foo.hako"
+            "[selfhost/route] id=SH-RUNTIME-SELFHOST mode=mainline source=foo.hako"
         );
     }
 }

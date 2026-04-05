@@ -65,7 +65,7 @@ if [ "$rc_no_compat" -eq 0 ]; then
   exit 1
 fi
 
-if ! rg -q '^\[contract\]\[runtime-route\]\[expected=mir-json\] route=stage-a-compat source=.* non_strict_compat=disabled require=NYASH_VM_USE_FALLBACK=1$' "$stderr_no_compat"; then
+if ! rg -q '^\[contract\]\[runtime-route\]\[expected=mir-json\] route=compat source=.* non_strict_compat=disabled require=NYASH_VM_USE_FALLBACK=1$' "$stderr_no_compat"; then
   log_error "missing non-strict compat-disabled contract tag"
   echo "STDERR_LOG(no-compat): $stderr_no_compat"
   exit 1
@@ -99,19 +99,19 @@ if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=pipeline-entry sourc
   exit 1
 fi
 
-if ! rg -q '^\[selfhost/run\] mode=runtime runtime_route=compat runtime_mode=stage-a-compat ' "$stderr_with_compat"; then
-  log_error "missing runtime run tag (route=compat, mode=stage-a-compat) under explicit fallback"
+if ! rg -q '^\[selfhost/run\] mode=runtime runtime_route=compat runtime_mode=compat ' "$stderr_with_compat"; then
+  log_error "missing runtime run tag (route=compat, mode=compat) under explicit fallback"
   echo "STDERR_LOG(with-compat): $stderr_with_compat"
   exit 1
 fi
 
-if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=stage-a-compat source=' "$stderr_with_compat"; then
-  log_error "missing runtime route tag (mode=stage-a-compat) under explicit fallback"
+if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=compat source=' "$stderr_with_compat"; then
+  log_error "missing runtime route tag (mode=compat) under explicit fallback"
   echo "STDERR_LOG(with-compat): $stderr_with_compat"
   exit 1
 fi
 
-if rg -q '^\[contract\]\[runtime-route\]\[expected=mir-json\] route=stage-a-compat source=.* non_strict_compat=disabled require=NYASH_VM_USE_FALLBACK=1$' "$stderr_with_compat"; then
+if rg -q '^\[contract\]\[runtime-route\]\[expected=mir-json\] route=compat source=.* non_strict_compat=disabled require=NYASH_VM_USE_FALLBACK=1$' "$stderr_with_compat"; then
   log_error "compat reject contract unexpectedly remained on explicit fallback success path"
   echo "STDERR_LOG(with-compat): $stderr_with_compat"
   exit 1

@@ -65,19 +65,19 @@ if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=pipeline-entry sourc
   exit 1
 fi
 
-if ! rg -q '^\[selfhost/run\] mode=runtime runtime_route=compat runtime_mode=stage-a-compat ' "$stderr_log"; then
-  log_error "missing runtime run tag (route=compat, mode=stage-a-compat) in stderr"
+if ! rg -q '^\[selfhost/run\] mode=runtime runtime_route=compat runtime_mode=compat ' "$stderr_log"; then
+  log_error "missing runtime run tag (route=compat, mode=compat) in stderr"
   echo "STDERR_LOG: $stderr_log"
   exit 1
 fi
 
-if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=stage-a-compat source=' "$stderr_log"; then
-  log_error "missing runtime route tag (mode=stage-a-compat) in stderr"
+if ! rg -q '^\[selfhost/route\] id=SH-RUNTIME-SELFHOST mode=compat source=' "$stderr_log"; then
+  log_error "missing runtime route tag (mode=compat) in stderr"
   echo "STDERR_LOG: $stderr_log"
   exit 1
 fi
 
-if rg -q '^\[contract\]\[runtime-route\]\[expected=mir-json\] route=stage-a-compat source=' "$stderr_log"; then
+if rg -q '^\[contract\]\[runtime-route\]\[expected=mir-json\] route=compat source=' "$stderr_log"; then
   log_error "unexpected runtime route reject tag in stderr"
   echo "STDERR_LOG: $stderr_log"
   exit 1
