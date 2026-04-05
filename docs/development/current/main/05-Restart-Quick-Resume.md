@@ -22,7 +22,7 @@ tools/checks/dev_gate.sh quick
 
 - lane: `phase-128x stage1 bridge vm gate softening`
 - current front: `stage1_bridge` の backend-hint chain を source-backed に薄くする
-- blocker: `stage1_bridge/direct_route/mod.rs` がまだ backend-hint を hard gate として保つ
+- blocker: `stage1_bridge/direct_route/mod.rs` が binary-only direct route の explicit legacy vm gate を保つ
 - recent landed:
   - `phase-127x compat route raw vm cut prep`
   - `phase-125x vm bridge/backend gate follow-up`
@@ -67,6 +67,7 @@ tools/checks/dev_gate.sh quick
 - keep `stage / route / backend override / lane / kernel` split fixed
 - keep VM family lane names fixed
 - keep `--backend vm` in compat/proof/debug only and demote broad docs/manual wording before touching the backend gate again
+- default `stage1_cli_env.hako` child path is backend-hint free
 - current buckets:
   - compat route: `run.sh --runtime --runtime-route compat`
   - proof gates: `tools/selfhost/proof/run_stageb_compiler_vm.sh`, `tools/selfhost/proof/selfhost_vm_smoke.sh`

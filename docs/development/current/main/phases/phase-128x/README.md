@@ -11,6 +11,7 @@
 - success:
   - compat boundary smoke is green with route-first contract
   - `stage1_bridge` backend-hint chain is source-backed and narrow
+  - default `stage1_cli_env.hako` child paths no longer forward backend hints
   - raw `--backend vm` is no longer treated as a public compat/direct bridge surface
 
 ## Decision Now
@@ -22,6 +23,6 @@
 ## Next
 
 1. isolate which helper still requires `backend=vm`
-2. decide whether direct-route temp-MIR handoff can stay route-first only
-3. keep compat fallback explicit while shrinking the bridge hint chain
+2. keep compat fallback explicit while shrinking the bridge hint chain
+3. decide whether the binary-only direct-route vm gate should stay as an explicit legacy contract
 4. then move to `phase-129x vm orchestrator/public gate follow-up`

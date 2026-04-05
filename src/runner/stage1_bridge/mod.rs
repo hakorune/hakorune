@@ -7,7 +7,7 @@
  * - Mode toggles:
  *     - STAGE1_EMIT_PROGRAM_JSON=1 : emit program-json <source.hako>
  *     - STAGE1_EMIT_MIR_JSON=1     : emit mir-json (<source.hako> or STAGE1_PROGRAM_JSON)
- *     - STAGE1_BACKEND={vm|llvm} hint for run path (default: CLI backend)
+ *     - STAGE1_BACKEND={vm|llvm} hint for legacy override paths only (default: CLI backend)
  *
  * Notes
  * - This bridge aims to keep Rust Stage0 thin: it only invokes the Stage1 stub

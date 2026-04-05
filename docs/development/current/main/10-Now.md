@@ -14,7 +14,7 @@ Related:
 
 - lane: `phase-128x stage1 bridge vm gate softening`
 - current front: `stage1_bridge` の backend-hint chain を source-backed に薄くする
-- blocker: `stage1_bridge/direct_route/mod.rs` がまだ backend-hint を hard gate として保つ
+- blocker: `stage1_bridge/direct_route/mod.rs` が binary-only direct route の explicit legacy vm gate を保つ
 - recent landed:
   - `phase-127x compat route raw vm cut prep`
   - `phase-125x vm bridge/backend gate follow-up`
@@ -55,7 +55,8 @@ Related:
 - current work is the stage1 bridge vm gate softening lane:
   - compat boundary smoke is route-first and green
   - compat temp-MIR handoff is green again with the parser-EXE preference env applied internally
-  - the next source seam is `stage1_bridge` backend-hint / direct-route plumbing
+  - the default `stage1_cli_env.hako` child path no longer forwards backend hints
+  - the next source seam is the remaining legacy override / direct-route gate plumbing
 
 ## Root Anchors
 

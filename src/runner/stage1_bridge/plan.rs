@@ -35,7 +35,7 @@ fn decide_with_flags(
         };
     }
 
-    if args_result.backend_cli_hint().is_some() && run_direct_enabled {
+    if run_direct_enabled {
         return Stage1BridgePlan::BinaryOnlyRunDirect {
             reason: "explicit:NYASH_STAGE1_BINARY_ONLY_RUN_DIRECT=1",
         };

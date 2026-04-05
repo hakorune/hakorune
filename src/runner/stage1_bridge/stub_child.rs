@@ -56,6 +56,11 @@ fn prepare_with(
     executable: PathBuf,
 ) -> PreparedStage1StubChild {
     let entry_fn = std::env::var("NYASH_ENTRY").unwrap_or_else(|_| "Main.main/0".to_string());
+    let backend_hint = if stage1::entry_override().is_some() {
+        args_result.backend_cli_hint()
+    } else {
+        None
+    };
     let mut cmd = Command::new(executable);
     cmd.arg(&entry).arg("--");
     for arg in &args_result.args {
@@ -68,7 +73,7 @@ fn prepare_with(
         super::env::Stage1ChildEnvConfig {
             entry_path: Some(entry.as_str()),
             entry_fn: &entry_fn,
-            backend_hint: args_result.backend_cli_hint(),
+            backend_hint,
             module_env_lists,
         },
     );
@@ -303,6 +308,21 @@ mod tests {
         }
     }
 
+    fn run_args_fixture(backend: &str, source_env: Option<String>) -> Stage1Args {
+        Stage1Args {
+            mode: Stage1ArgsMode::Run,
+            args: vec![
+                "run".to_string(),
+                "--backend".to_string(),
+                backend.to_string(),
+                "fixture.hako".to_string(),
+            ],
+            env_script_args: Some("[\"run\",\"--backend\"]".to_string()),
+            source_env,
+            progjson_env: None,
+        }
+    }
+
     fn env_map(command: &std::process::Command) -> Vec<(OsString, Option<OsString>)> {
         command
             .get_envs()
@@ -398,6 +418,31 @@ mod tests {
             env_value(&prepared.command, "STAGE1_PROGRAM_JSON"),
             Some("payload.program.json".to_string())
         );
+    }
+
+    #[test]
+    fn prepare_with_default_entry_does_not_forward_backend_hint() {
+        let _lock = test_support::env_lock().lock().expect("env lock");
+        let _env = EnvGuard::clear(&[
+            "NYASH_ENTRY",
+            "STAGE1_CLI_ENTRY",
+            "HAKORUNE_STAGE1_ENTRY",
+            "NYASH_STAGE1_BACKEND",
+            "STAGE1_BACKEND",
+        ]);
+
+        let groups = groups_fixture(Some("fixture.hako".to_string()));
+        let args = run_args_fixture("vm", Some("fixture.hako".to_string()));
+        let prepared = prepare_with(
+            &groups,
+            &args,
+            "stage1_cli.embedded.hako".to_string(),
+            super::super::modules::Stage1ModuleEnvLists::default(),
+            std::path::PathBuf::from("target/release/nyash"),
+        );
+
+        assert_eq!(env_value(&prepared.command, "NYASH_STAGE1_BACKEND"), None);
+        assert_eq!(env_value(&prepared.command, "STAGE1_BACKEND"), None);
     }
 
     #[test]

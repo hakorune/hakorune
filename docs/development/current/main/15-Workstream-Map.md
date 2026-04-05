@@ -16,8 +16,8 @@ Related:
 | --- | --- |
 | Now | `phase-128x stage1 bridge vm gate softening` |
 | Front | `stage1_bridge` の backend-hint chain を source-backed に薄くする |
-| Blocker | `stage1_bridge/direct_route/mod.rs` がまだ backend-hint を hard gate として保つ |
-| Next | `stage1_bridge` の `plan/args/env/direct_route` から `backend=vm` の強い依存をほどく |
+| Blocker | `stage1_bridge/direct_route/mod.rs` が binary-only direct route の explicit legacy vm gate を保つ |
+| Next | `stage1_bridge` の legacy override / direct-route gate をどこまで残すか決める |
 | After Next | `phase-129x vm orchestrator/public gate follow-up` |
 
 ## Current Read
@@ -52,6 +52,7 @@ Related:
 - `125x` returned to source blockers that still keep raw `--backend vm` wired into compat/direct paths
 - `126x` fixed the hard blocker as compat smoke contract and identified the `stage1_bridge` backend-hint chain as the next source seam
 - `127x` landed after making compat boundary smoke route-first and restoring the compat temp-MIR handoff.
+- `128x` already narrowed the backend-hint chain so the default `stage1_cli_env.hako` child path stays backend-hint free; the remaining question is whether the binary-only direct-route vm gate should stay as an explicit legacy contract
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers

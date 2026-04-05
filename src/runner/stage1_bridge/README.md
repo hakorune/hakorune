@@ -18,7 +18,7 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 - do not describe this route as the mainline JSON boundary; mainline boundary is `MIR(JSON)`
 
 - Stage1 bridge mode classification is fixed in `args.rs::Stage1ArgsMode`
-- backend CLI hint extraction is fixed in `args.rs::Stage1Args::backend_cli_hint()`
+- backend CLI hint extraction is fixed in `args.rs::Stage1Args::backend_cli_hint()` and only forwarded to explicit legacy override entry paths
 - bridge entry child/enable guard + trace logging live in `entry_guard.rs`
 - stub capture-vs-delegate contract is fixed in `args.rs::Stage1Args::stub_exec_plan()`
 - exact execution plan selection is fixed in `plan.rs::Stage1BridgePlan`
@@ -43,7 +43,7 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 - stub emit writeback policy lives in `stub_emit/writeback.rs`
 - child env policy stays behind `env.rs` and `env/README.md`
 - runtime defaults live in `env/runtime_defaults.rs`
-- Stage-1 alias propagation lives in `env/stage1_aliases.rs`
+- Stage-1 alias propagation lives in `env/stage1_aliases.rs`; default `stage1_cli_env.hako` entry paths stay backend-hint free unless an explicit override is selected
 - parser / using toggle propagation lives in `env/parser_stageb.rs`
 - Stage-B module payload generation + child-env apply live in `modules.rs`
 - `embedded_stage1_modules_snapshot.json` is a derived artifact for binary-only default route; refresh it via `tools/selfhost/refresh_stage1_module_env_snapshot.sh`, do not hand-edit it
