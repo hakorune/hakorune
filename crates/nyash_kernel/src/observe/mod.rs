@@ -45,6 +45,31 @@ mod real {
     }
 
     #[inline(always)]
+    pub(crate) fn record_store_array_str_existing_slot() {
+        super::backend::store_array_str_existing_slot();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_append_slot() {
+        super::backend::store_array_str_append_slot();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_source_string_box() {
+        super::backend::store_array_str_source_string_box();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_source_string_view() {
+        super::backend::store_array_str_source_string_view();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_source_missing() {
+        super::backend::store_array_str_source_missing();
+    }
+
+    #[inline(always)]
     pub(crate) fn record_const_suffix_enter() {
         super::backend::const_suffix_enter();
     }
@@ -62,6 +87,21 @@ mod real {
     #[inline(always)]
     pub(crate) fn record_const_suffix_freeze_fallback() {
         super::backend::const_suffix_freeze_fallback();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_const_suffix_empty_return() {
+        super::backend::const_suffix_empty_return();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_const_suffix_cached_fast_str_hit() {
+        super::backend::const_suffix_cached_fast_str_hit();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_const_suffix_cached_span_hit() {
+        super::backend::const_suffix_cached_span_hit();
     }
 
     pub(crate) fn flush() {
@@ -101,6 +141,21 @@ mod real {
     pub(crate) fn record_store_array_str_non_string_source() {}
 
     #[inline(always)]
+    pub(crate) fn record_store_array_str_existing_slot() {}
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_append_slot() {}
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_source_string_box() {}
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_source_string_view() {}
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_source_missing() {}
+
+    #[inline(always)]
     pub(crate) fn record_const_suffix_enter() {}
 
     #[inline(always)]
@@ -111,6 +166,15 @@ mod real {
 
     #[inline(always)]
     pub(crate) fn record_const_suffix_freeze_fallback() {}
+
+    #[inline(always)]
+    pub(crate) fn record_const_suffix_empty_return() {}
+
+    #[inline(always)]
+    pub(crate) fn record_const_suffix_cached_fast_str_hit() {}
+
+    #[inline(always)]
+    pub(crate) fn record_const_suffix_cached_span_hit() {}
 
     #[inline(always)]
     pub(crate) fn flush() {}

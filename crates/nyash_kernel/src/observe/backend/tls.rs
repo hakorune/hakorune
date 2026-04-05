@@ -18,10 +18,18 @@ struct GlobalCounters {
     store_array_str_retarget_hit: AtomicU64,
     store_array_str_source_store: AtomicU64,
     store_array_str_non_string_source: AtomicU64,
+    store_array_str_existing_slot: AtomicU64,
+    store_array_str_append_slot: AtomicU64,
+    store_array_str_source_string_box: AtomicU64,
+    store_array_str_source_string_view: AtomicU64,
+    store_array_str_source_missing: AtomicU64,
     const_suffix_total: AtomicU64,
     const_suffix_cached_handle_hit: AtomicU64,
     const_suffix_text_cache_reload: AtomicU64,
     const_suffix_freeze_fallback: AtomicU64,
+    const_suffix_empty_return: AtomicU64,
+    const_suffix_cached_fast_str_hit: AtomicU64,
+    const_suffix_cached_span_hit: AtomicU64,
 }
 
 impl GlobalCounters {
@@ -34,10 +42,18 @@ impl GlobalCounters {
             store_array_str_retarget_hit: AtomicU64::new(0),
             store_array_str_source_store: AtomicU64::new(0),
             store_array_str_non_string_source: AtomicU64::new(0),
+            store_array_str_existing_slot: AtomicU64::new(0),
+            store_array_str_append_slot: AtomicU64::new(0),
+            store_array_str_source_string_box: AtomicU64::new(0),
+            store_array_str_source_string_view: AtomicU64::new(0),
+            store_array_str_source_missing: AtomicU64::new(0),
             const_suffix_total: AtomicU64::new(0),
             const_suffix_cached_handle_hit: AtomicU64::new(0),
             const_suffix_text_cache_reload: AtomicU64::new(0),
             const_suffix_freeze_fallback: AtomicU64::new(0),
+            const_suffix_empty_return: AtomicU64::new(0),
+            const_suffix_cached_fast_str_hit: AtomicU64::new(0),
+            const_suffix_cached_span_hit: AtomicU64::new(0),
         }
     }
 }
@@ -52,10 +68,18 @@ struct ThreadCounters {
     store_array_str_retarget_hit: Cell<u64>,
     store_array_str_source_store: Cell<u64>,
     store_array_str_non_string_source: Cell<u64>,
+    store_array_str_existing_slot: Cell<u64>,
+    store_array_str_append_slot: Cell<u64>,
+    store_array_str_source_string_box: Cell<u64>,
+    store_array_str_source_string_view: Cell<u64>,
+    store_array_str_source_missing: Cell<u64>,
     const_suffix_total: Cell<u64>,
     const_suffix_cached_handle_hit: Cell<u64>,
     const_suffix_text_cache_reload: Cell<u64>,
     const_suffix_freeze_fallback: Cell<u64>,
+    const_suffix_empty_return: Cell<u64>,
+    const_suffix_cached_fast_str_hit: Cell<u64>,
+    const_suffix_cached_span_hit: Cell<u64>,
 }
 
 impl ThreadCounters {
@@ -68,10 +92,18 @@ impl ThreadCounters {
             store_array_str_retarget_hit: Cell::new(0),
             store_array_str_source_store: Cell::new(0),
             store_array_str_non_string_source: Cell::new(0),
+            store_array_str_existing_slot: Cell::new(0),
+            store_array_str_append_slot: Cell::new(0),
+            store_array_str_source_string_box: Cell::new(0),
+            store_array_str_source_string_view: Cell::new(0),
+            store_array_str_source_missing: Cell::new(0),
             const_suffix_total: Cell::new(0),
             const_suffix_cached_handle_hit: Cell::new(0),
             const_suffix_text_cache_reload: Cell::new(0),
             const_suffix_freeze_fallback: Cell::new(0),
+            const_suffix_empty_return: Cell::new(0),
+            const_suffix_cached_fast_str_hit: Cell::new(0),
+            const_suffix_cached_span_hit: Cell::new(0),
         }
     }
 
@@ -110,6 +142,31 @@ impl ThreadCounters {
     }
 
     #[inline(always)]
+    fn store_array_str_existing_slot(&self) {
+        Self::bump(&self.store_array_str_existing_slot);
+    }
+
+    #[inline(always)]
+    fn store_array_str_append_slot(&self) {
+        Self::bump(&self.store_array_str_append_slot);
+    }
+
+    #[inline(always)]
+    fn store_array_str_source_string_box(&self) {
+        Self::bump(&self.store_array_str_source_string_box);
+    }
+
+    #[inline(always)]
+    fn store_array_str_source_string_view(&self) {
+        Self::bump(&self.store_array_str_source_string_view);
+    }
+
+    #[inline(always)]
+    fn store_array_str_source_missing(&self) {
+        Self::bump(&self.store_array_str_source_missing);
+    }
+
+    #[inline(always)]
     fn const_suffix_enter(&self) {
         Self::bump(&self.const_suffix_total);
     }
@@ -127,6 +184,21 @@ impl ThreadCounters {
     #[inline(always)]
     fn const_suffix_freeze_fallback(&self) {
         Self::bump(&self.const_suffix_freeze_fallback);
+    }
+
+    #[inline(always)]
+    fn const_suffix_empty_return(&self) {
+        Self::bump(&self.const_suffix_empty_return);
+    }
+
+    #[inline(always)]
+    fn const_suffix_cached_fast_str_hit(&self) {
+        Self::bump(&self.const_suffix_cached_fast_str_hit);
+    }
+
+    #[inline(always)]
+    fn const_suffix_cached_span_hit(&self) {
+        Self::bump(&self.const_suffix_cached_span_hit);
     }
 
     fn flush_into_global(&self) {
@@ -155,6 +227,26 @@ impl ThreadCounters {
             &self.store_array_str_non_string_source,
             &GLOBAL.store_array_str_non_string_source,
         );
+        flush_cell(
+            &self.store_array_str_existing_slot,
+            &GLOBAL.store_array_str_existing_slot,
+        );
+        flush_cell(
+            &self.store_array_str_append_slot,
+            &GLOBAL.store_array_str_append_slot,
+        );
+        flush_cell(
+            &self.store_array_str_source_string_box,
+            &GLOBAL.store_array_str_source_string_box,
+        );
+        flush_cell(
+            &self.store_array_str_source_string_view,
+            &GLOBAL.store_array_str_source_string_view,
+        );
+        flush_cell(
+            &self.store_array_str_source_missing,
+            &GLOBAL.store_array_str_source_missing,
+        );
         flush_cell(&self.const_suffix_total, &GLOBAL.const_suffix_total);
         flush_cell(
             &self.const_suffix_cached_handle_hit,
@@ -167,6 +259,18 @@ impl ThreadCounters {
         flush_cell(
             &self.const_suffix_freeze_fallback,
             &GLOBAL.const_suffix_freeze_fallback,
+        );
+        flush_cell(
+            &self.const_suffix_empty_return,
+            &GLOBAL.const_suffix_empty_return,
+        );
+        flush_cell(
+            &self.const_suffix_cached_fast_str_hit,
+            &GLOBAL.const_suffix_cached_fast_str_hit,
+        );
+        flush_cell(
+            &self.const_suffix_cached_span_hit,
+            &GLOBAL.const_suffix_cached_span_hit,
         );
     }
 }
@@ -222,6 +326,31 @@ pub(crate) fn store_array_str_non_string_source() {
 }
 
 #[inline(always)]
+pub(crate) fn store_array_str_existing_slot() {
+    with_tls(ThreadCounters::store_array_str_existing_slot);
+}
+
+#[inline(always)]
+pub(crate) fn store_array_str_append_slot() {
+    with_tls(ThreadCounters::store_array_str_append_slot);
+}
+
+#[inline(always)]
+pub(crate) fn store_array_str_source_string_box() {
+    with_tls(ThreadCounters::store_array_str_source_string_box);
+}
+
+#[inline(always)]
+pub(crate) fn store_array_str_source_string_view() {
+    with_tls(ThreadCounters::store_array_str_source_string_view);
+}
+
+#[inline(always)]
+pub(crate) fn store_array_str_source_missing() {
+    with_tls(ThreadCounters::store_array_str_source_missing);
+}
+
+#[inline(always)]
 pub(crate) fn const_suffix_enter() {
     with_tls(ThreadCounters::const_suffix_enter);
 }
@@ -241,11 +370,26 @@ pub(crate) fn const_suffix_freeze_fallback() {
     with_tls(ThreadCounters::const_suffix_freeze_fallback);
 }
 
+#[inline(always)]
+pub(crate) fn const_suffix_empty_return() {
+    with_tls(ThreadCounters::const_suffix_empty_return);
+}
+
+#[inline(always)]
+pub(crate) fn const_suffix_cached_fast_str_hit() {
+    with_tls(ThreadCounters::const_suffix_cached_fast_str_hit);
+}
+
+#[inline(always)]
+pub(crate) fn const_suffix_cached_span_hit() {
+    with_tls(ThreadCounters::const_suffix_cached_span_hit);
+}
+
 fn flush_current_thread() {
     TLS_COUNTERS.with(ThreadCounters::flush_into_global);
 }
 
-pub(crate) fn snapshot() -> [u64; 11] {
+pub(crate) fn snapshot() -> [u64; 19] {
     flush_current_thread();
     [
         GLOBAL.store_array_str_total.load(Ordering::Relaxed),
@@ -255,10 +399,18 @@ pub(crate) fn snapshot() -> [u64; 11] {
         GLOBAL.store_array_str_retarget_hit.load(Ordering::Relaxed),
         GLOBAL.store_array_str_source_store.load(Ordering::Relaxed),
         GLOBAL.store_array_str_non_string_source.load(Ordering::Relaxed),
+        GLOBAL.store_array_str_existing_slot.load(Ordering::Relaxed),
+        GLOBAL.store_array_str_append_slot.load(Ordering::Relaxed),
+        GLOBAL.store_array_str_source_string_box.load(Ordering::Relaxed),
+        GLOBAL.store_array_str_source_string_view.load(Ordering::Relaxed),
+        GLOBAL.store_array_str_source_missing.load(Ordering::Relaxed),
         GLOBAL.const_suffix_total.load(Ordering::Relaxed),
         GLOBAL.const_suffix_cached_handle_hit.load(Ordering::Relaxed),
         GLOBAL.const_suffix_text_cache_reload.load(Ordering::Relaxed),
         GLOBAL.const_suffix_freeze_fallback.load(Ordering::Relaxed),
+        GLOBAL.const_suffix_empty_return.load(Ordering::Relaxed),
+        GLOBAL.const_suffix_cached_fast_str_hit.load(Ordering::Relaxed),
+        GLOBAL.const_suffix_cached_span_hit.load(Ordering::Relaxed),
     ]
 }
 
@@ -301,9 +453,9 @@ mod tests {
         const_suffix_freeze_fallback();
         let after = snapshot();
 
-        assert_eq!(after[7] - before[7], 1);
-        assert_eq!(after[8] - before[8], 1);
-        assert_eq!(after[9] - before[9], 1);
-        assert_eq!(after[10] - before[10], 1);
+        assert_eq!(after[12] - before[12], 1);
+        assert_eq!(after[13] - before[13], 1);
+        assert_eq!(after[14] - before[14], 1);
+        assert_eq!(after[15] - before[15], 1);
     }
 }

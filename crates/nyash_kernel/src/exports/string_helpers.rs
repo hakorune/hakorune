@@ -548,9 +548,11 @@ fn execute_concat2_with_cached_const_handle(
         RetainedForm::ReturnHandle => Some(a_h),
         RetainedForm::KeepTransient | RetainedForm::MustFreeze(_) => {
             if let Some(out) = concat_pair_from_fast_str(a_h, suffix_h) {
+                observe::record_const_suffix_cached_fast_str_hit();
                 return Some(out);
             }
             if let Some(out) = concat_pair_from_spans(a_h, suffix_h) {
+                observe::record_const_suffix_cached_span_hit();
                 return Some(out);
             }
             None
@@ -619,6 +621,9 @@ fn execute_const_suffix_contract(a_h: i64, suffix_ptr: *const i8) -> i64 {
         }
         observe::record_const_suffix_cached_handle_hit();
         let placement = concat_suffix_retention_class(cache.is_empty.get());
+        if matches!(placement, RetainedForm::ReturnHandle) {
+            observe::record_const_suffix_empty_return();
+        }
         if let Some(out) = execute_concat2_with_cached_const_handle(a_h, cached, placement) {
             return Some(out);
         }
@@ -633,6 +638,7 @@ fn execute_const_suffix_contract(a_h: i64, suffix_ptr: *const i8) -> i64 {
         let suffix_is_empty = suffix.is_empty();
         let placement = concat_suffix_retention_class(suffix_is_empty);
         if matches!(placement, RetainedForm::ReturnHandle) {
+            observe::record_const_suffix_empty_return();
             return a_h;
         }
         CONST_SUFFIX_TEXT_CACHE.with(|cache| {

@@ -146,6 +146,9 @@ Scope: repo root から current lane / next lane / restart read order に最短�
      - exact micro: `kilo_micro_concat_const_suffix`
 - `phase-156x` landed:
   - route-tagged counters exist for `store.array.str` and `const_suffix`
+  - drill-down counters now exist for:
+    - `store.array.str`: `existing_slot / append_slot / source_string_box / source_string_view / source_missing`
+    - `const_suffix`: `empty_return / cached_fast_str_hit / cached_span_hit`
   - first exact probe:
     - `bench_kilo_micro_array_string_store.hako` -> `cache_hit=800000`, `cache_miss_epoch=0`
     - current cache-churn hypothesis is not supported on that exact micro

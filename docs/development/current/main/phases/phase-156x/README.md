@@ -31,11 +31,19 @@
    - `retarget_hit`
    - `source_store`
    - `non_string_source`
+   - `existing_slot`
+   - `append_slot`
+   - `source_string_box`
+   - `source_string_view`
+   - `source_missing`
 2. `const_suffix`
    - `total`
    - `cached_handle_hit`
    - `text_cache_reload`
    - `freeze_fallback`
+   - `empty_return`
+   - `cached_fast_str_hit`
+   - `cached_span_hit`
 
 ## Env
 

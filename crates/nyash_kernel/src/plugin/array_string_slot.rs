@@ -134,6 +134,31 @@ fn execute_store_array_str_slot(
     if idx > items.len() {
         return 0;
     }
+    if observe::enabled() {
+        if idx < items.len() {
+            observe::record_store_array_str_existing_slot();
+        } else {
+            observe::record_store_array_str_append_slot();
+        }
+        match source_obj {
+            Some(source_obj) => {
+                if source_obj
+                    .as_any()
+                    .downcast_ref::<nyash_rust::box_trait::StringBox>()
+                    .is_some()
+                {
+                    observe::record_store_array_str_source_string_box();
+                } else if source_obj
+                    .as_any()
+                    .downcast_ref::<crate::exports::string_view::StringViewBox>()
+                    .is_some()
+                {
+                    observe::record_store_array_str_source_string_view();
+                }
+            }
+            None => observe::record_store_array_str_source_missing(),
+        }
+    }
     let source_is_string = source_obj.is_some_and(is_string_handle_source);
     if idx < items.len() {
         if source_is_string {

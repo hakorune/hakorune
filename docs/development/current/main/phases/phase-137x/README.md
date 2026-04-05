@@ -50,6 +50,9 @@
   - `20260406-024104` still shows `crates/nyash_kernel/src/exports/string_helpers.rs::concat_const_suffix_fallback` as the top explicit hot symbol (`11.70%`)
   - `crates/nyash_kernel/src/plugin/array_string_slot.rs::array_string_store_handle_at` remains second (`5.68%`)
   - exact micro gap is currently larger on `array_string_store`
+ - deeper observe drill-down now exists for:
+   - `store.array.str`: `existing_slot / append_slot / source_string_box / source_string_view / source_missing`
+   - `const_suffix`: `empty_return / cached_fast_str_hit / cached_span_hit`
 
 ## Next
 
