@@ -69,10 +69,12 @@ Call system (unified by default)
   See environment knobs and policies in `docs/ENV_VARS.md`.
 
 Current Backend Roles
-- Product
+- Mainline route
+  - `tools/selfhost/run.sh --runtime --runtime-route mainline` (source -> temp MIR -> `--mir-json-file` -> core executor)
+- Product / native override
   - `--backend llvm` (ny-llvmc crate backend; native object/EXE ownership)
-- Compat / proof keep
-  - `--backend vm` (legacy keep lane for selfhost, recovery, plugin, macro, and tooling proof paths; explicit only)
+- Keep / debug override
+  - `--backend vm` (legacy keep/debug/proof override for selfhost, recovery, plugin, macro, and tooling proof paths; explicit only)
 - Reference / conformance
   - `--backend vm-hako` (explicit reference lane)
 - Experimental / monitor-only
@@ -123,8 +125,10 @@ Self‑hosting one‑pager: `docs/how-to/self-hosting.md`.
 ExternCall (env.*) and println normalization: `docs/reference/runtime/externcall.md`.
 
 ### Minimal ENV (compat/proof vs LLVM harness)
-- Explicit compat/proof lane: no extra environment needed when you need the Rust VM compat/proof keep.
-  - Example (compat/proof keep): `$NYASH_BIN --backend vm apps/tests/ternary_basic.hako`
+- Mainline selfhost route:
+  - `tools/selfhost/run.sh --runtime --runtime-route mainline --input apps/examples/string_p0.hako`
+- Explicit compat/proof override:
+  - Example: `$NYASH_BIN --backend vm apps/tests/ternary_basic.hako`
 - LLVM harness: set three variables so the runner finds the harness and runtime.
   - `NYASH_LLVM_USE_HARNESS=1`
   - `NYASH_NY_LLVM_COMPILER=$NYASH_ROOT/target/release/ny-llvmc`
@@ -184,6 +188,7 @@ Specs & Constraints
 <a id="self-hosting"></a>
 ## 🧪 Self‑Hosting (Compat / Proof)
 - Guide: `docs/how-to/self-hosting.md`
+- Mainline runtime E2E: `tools/selfhost/run.sh --runtime --runtime-route mainline --input apps/selfhost-minimal/main.hako`
 - Compat/proof bootstrap E2E: `$NYASH_BIN --backend vm apps/selfhost-minimal/main.hako`
 - Compat/proof smokes: `bash tools/jit_smoke.sh` / `bash tools/selfhost/proof/selfhost_vm_smoke.sh`
 - JSON (Operator Boxes, dev): `./tools/opbox-json.sh` / `./tools/opbox-quick.sh`
@@ -268,14 +273,16 @@ local py = new PyRuntimeBox()       // Python plugin
 ## 🏗️ **Execution Modes**
 
 Important current reading:
-- Product main: LLVM AOT (`--backend llvm`, `ny-llvmc`)
-- Compatibility/proof keep: Rust VM (`--backend vm`)
+- Selfhost mainline route: `tools/selfhost/run.sh --runtime --runtime-route mainline`
+- Product/native override: LLVM AOT (`--backend llvm`, `ny-llvmc`)
+- Compatibility/proof keep override: Rust VM (`--backend vm`)
 - Reference/conformance: `vm-hako`
 - Experimental / monitor-only: WASM
 
 Phase‑15 (Self‑Hosting): legacy routes are feature-gated or historical notes only
-- Raw CLI default is still `--backend vm` for legacy ingress only; do not read that as product ownership.
-- `--backend vm` is an explicit Rust VM keep lane, not a mainline ownership claim.
+- Raw CLI ingress still defaults to `--backend vm`, but that is a legacy/debug ingress only; do not read it as mainline ownership.
+- Selfhost mainline is `tools/selfhost/run.sh --runtime --runtime-route mainline`, not raw `--backend vm`.
+- `--backend vm` is an explicit Rust VM keep/debug override, not a mainline ownership claim.
 - `--backend llvm` is the product native object/EXE lane.
 - `--backend vm-hako` is an explicit reference/conformance lane.
 - PyVM route is historical/direct-only and delegates to `tools/historical/pyvm/pyvm_runner.py`.
@@ -313,15 +320,15 @@ cc nyash_llvm_temp.o -L crates/nyrt/target/release -Wl,--whole-archive -lnyrt -W
 - Previously available `NYASH_LLVM_ALLOW_BY_NAME=1`: Removed - all plugin calls now use method_id by default.
   - The LLVM backend only supports method_id-based plugin calls for better performance and type safety.
 
-### 2. **VM Mode (explicit compatibility/proof keep lane)**
+### 2. **VM Mode (explicit keep/debug override)**
 ```bash
-# Compat/proof keep: Rust VM
+# Explicit keep/debug override: Rust VM
 $NYASH_BIN --backend vm program.hako
 
 # Historical PyVM parity route
 bash tools/historical/pyvm/pyvm_vs_llvmlite.sh program.hako
 ```
-- Explicit keep lane: Rust VM executes MIR directly for keep/regression
+- Explicit keep/debug override: Rust VM executes MIR directly for keep/regression
 - Legacy PyVM: executes MIR(JSON) via `tools/historical/pyvm/pyvm_runner.py`
 - Legacy VM: 13.5x over interpreter (historical); kept for comparison, plugin tests, and proof gates
 

@@ -247,7 +247,7 @@ pub(crate) fn execute_file_with_backend(runner: &NyashRunner, filename: &str) {
         }
         other => {
             eprintln!(
-                "❌ Unknown backend: {}. Use an explicit backend override (product: llvm; legacy keep/reference: vm, vm-hako).",
+                "❌ Unknown backend: {}. Use an explicit backend override family (product/native: llvm; legacy keep/debug: vm; reference/conformance: vm-hako).",
                 other
             );
             std::process::exit(2);

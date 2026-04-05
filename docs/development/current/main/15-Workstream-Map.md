@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-113x kernel vs vm-reference cluster wording correction` |
-| Front | `nyash_kernel` だけを kernel と呼び、`lang/src/vm` を VM/reference cluster に固定する` |
+| Now | `phase-114x execution surface wording closeout` |
+| Front | `mainline route と explicit keep/reference override を public/help surface で分離する` |
 | Blocker | `none` |
-| Next | `nyash_kernel README` / `lang/src/vm README` / execution SSOT wording correction |
-| After Next | `phase-114x execution surface wording closeout` |
+| Next | `args.rs` / `dispatch.rs` / `README*` / `cli-hakorune-stage1.md` の route-first wording correction |
+| After Next | `phase-115x vm route retirement planning` |
 
 ## Current Read
 
@@ -37,6 +37,7 @@ Related:
 - `112x` hardened vm-family lane naming to `rust-vm-keep / vm-hako-reference / vm-compat-fallback`
 - `111x` made live selfhost runtime smokes and current docs route-first (`--runtime-route mainline|compat`)
 - `110x` fixed long-lived execution vocabulary SSOT and corrected stale wording in `lang/src/vm` / `tools/selfhost`
+- `113x` reserved `kernel` for `nyash_kernel` and fixed `lang/src/vm` as a VM/reference cluster
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers
@@ -50,13 +51,13 @@ Related:
 - `91x` froze the top-level `.hako` wrapper policy after the latest runner/selfhost recuts
 - `92x` closed the proof/compat caller rerun lane against the canonical wrapper homes
 - `93x` moved archive-later engineering helpers into `tools/archive/legacy-selfhost/engineering/`
-- current work is now on `phase-113x kernel vs vm-reference cluster wording correction`
+- current work is now on `phase-114x execution surface wording closeout`
 
 ## Successor Corridor
 
-1. `phase-113x kernel vs vm-reference cluster wording correction`
-2. `phase-114x execution surface wording closeout`
-3. `phase-115x vm route retirement planning`
+1. `phase-114x execution surface wording closeout`
+2. `phase-115x vm route retirement planning`
+3. `phase-116x execution surface alias pruning`
 
 ## Parked After Optimization
 
@@ -86,6 +87,7 @@ Related:
 ## Reference
 
 - current lane docs:
+  - `docs/development/current/main/phases/phase-114x/README.md`
   - `docs/development/current/main/phases/phase-113x/README.md`
   - `docs/development/current/main/phases/phase-112x/README.md`
 - recent landed:

@@ -12,10 +12,11 @@ Related:
 
 ## Current
 
-- lane: `phase-113x kernel vs vm-reference cluster wording correction`
-- current front: `nyash_kernel` だけを kernel と呼び、`lang/src/vm` を VM/reference cluster に固定する`
+- lane: `phase-114x execution surface wording closeout`
+- current front: `mainline route と explicit keep/reference override を public/help surface で分離する`
 - blocker: `none`
 - recent landed:
+  - `phase-113x kernel vs vm-reference cluster wording correction`
   - `phase-112x vm-family lane naming hardening`
   - `phase-111x selfhost runtime route naming cleanup`
   - `phase-110x selfhost execution vocabulary SSOT`
@@ -38,9 +39,10 @@ Related:
 - `phase-103` landed with if-only merge / early return parity on VM and LLVM EXE
 - `phase-104` landed with loop(true)+break-only digits parity on VM and LLVM EXE
 - `phase-105` restored the original long digit OR-chain parity on VM and LLVM EXE
-- current work is the kernel/vm-reference wording correction:
+- current work is the execution surface wording closeout:
   - vocabulary split: `stage / route / backend override / lane / kernel`
-  - `kernel` reserved for `nyash_kernel`; `lang/src/vm` treated as VM/reference cluster
+  - selfhost mainline reads as `runtime-route mainline`
+  - raw `--backend vm` reads as explicit keep/debug override only
 
 ## Root Anchors
 
@@ -51,4 +53,4 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-113x/README.md`
+2. `docs/development/current/main/phases/phase-114x/README.md`

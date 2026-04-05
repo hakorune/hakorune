@@ -103,8 +103,9 @@ hakorune run [options] <entry.hako> [-- script_args...]
 - `.hako` ソースを Stage‑B → MirBuilder → AotPrep まで通し、選択された backend で実行する。
 - current reading では `run` は compat/proof 検証面であり、product main runtime の説明ではない。
 - 実行経路:
-  - backend=`vm`   : Stage0 Rust VM（現行 `--backend vm` 相当）
-  - backend=`llvm` : ny-llvmc＋NyRT を通した EXE 実行（実装は後続フェーズ）
+  - route=`runtime/mainline`: `.hako -> temp MIR -> --mir-json-file -> core executor`
+  - backend override=`vm`   : explicit Rust VM keep/debug route（現行 `--backend vm` 相当）
+  - backend override=`llvm` : product/native object/EXE route
 - プログラムの戻り値をプロセスの exit code にマッピング（現行 Rust CLI と同じ）。
 
 ### 主なオプション案
@@ -315,8 +316,9 @@ hakorune check [options] <entry.hako>
   - パイプライン選択とオプション解釈。
   - JSON v0/v1 の配線・一時ファイル管理。
 - Stage0（nyash / hakorune-bootstrap）
-  - VM 実行（vm/backend=vm）。
-  - LLVM ハーネス／ny-llvmc 経由の AOT（backend=llvm）。
+  - MIR(JSON) terminal owner / core executor。
+  - explicit keep/debug override（backend=vm）。
+  - product/native override（backend=llvm）。
   - env.codegen / env.mirbuilder などのホストブリッジ提供。
 
 原則:

@@ -179,14 +179,16 @@ local py = new PyRuntimeBox()       // Pythonプラグイン
 ## 🏗️ **複数の実行モード**
 
 重要な現在の読み:
-- product main: LLVM AOT（`--backend llvm`, `ny‑llvmc`）
-- engineering/bootstrap keep: Rust VM（`--backend vm`）
+- selfhost mainline route: `tools/selfhost/run.sh --runtime --runtime-route mainline`
+- product native override: LLVM AOT（`--backend llvm`, `ny‑llvmc`）
+- engineering/bootstrap keep override: Rust VM（`--backend vm`）
 - reference/conformance: `vm-hako`
 - experimental / monitor-only: WASM
 
 Phase‑15（自己ホスト期）: レガシー経路は feature-gated または historical 扱い
-- raw CLI default はまだ `--backend vm` ですが、これは product ownership を意味しません。
-- `--backend vm` は Rust VM の explicit keep lane です。
+- raw CLI ingress はまだ `--backend vm` を既定に持ちますが、これは legacy/debug 入口であり product ownership を意味しません。
+- selfhost mainline は `tools/selfhost/run.sh --runtime --runtime-route mainline` です。
+- `--backend vm` は Rust VM の explicit keep/debug override です。
 - `--backend llvm` は product の native object/EXE lane です。
 - `--backend vm-hako` は explicit reference/conformance lane です。
 - PyVM 経路は historical/direct-only で、`tools/historical/pyvm/pyvm_runner.py` に委譲します。
@@ -224,15 +226,15 @@ cc nyash_llvm_temp.o -L crates/nyrt/target/release -Wl,--whole-archive -lnyrt -W
 - 削除された `NYASH_LLVM_ALLOW_BY_NAME=1`: すべてのプラグイン呼び出しがmethod_idベースに統一。
   - LLVMバックエンドは性能と型安全性のため、method_idベースのプラグイン呼び出しのみ対応。
 
-### 2. **VMモード（explicit keep lane）**
+### 2. **VMモード（explicit keep/debug override）**
 ```bash
-# Explicit keep lane: Rust VM
+# Explicit keep/debug override: Rust VM
 $NYASH_BIN --backend vm program.hako
 
 # historical PyVM パリティ確認
 bash tools/historical/pyvm/pyvm_vs_llvmlite.sh program.hako
 ```
-- explicit keep lane: Rust VM が MIR を直接実行する compat/proof keep
+- explicit keep/debug override: Rust VM が MIR を直接実行する compat/proof keep
 - legacy PyVM: MIR(JSON) を `tools/historical/pyvm/pyvm_runner.py` で実行
 - レガシー VM: インタープリター比で 13.5x（歴史的実測）。比較・検証用途で維持
 
