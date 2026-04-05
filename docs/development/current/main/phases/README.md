@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 117x vm compat/proof env hardening
+- **Current (ACTIVE)**: Phase 118x proof wrapper surface review
+- **Phase 117x（LANDED）**: vm compat/proof env hardening
 - **Phase 116x（LANDED）**: execution surface alias pruning
 - **Phase 115x（LANDED）**: vm route retirement planning
 - **Phase 114x（LANDED）**: execution surface wording closeout

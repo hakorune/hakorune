@@ -10,7 +10,7 @@ current launcher implementation keeps top-level command selection and bootstrap 
 - `llvm/exe` は product main の native object / EXE lane。
 - Stage1 CLI / `rust-vm` は compat/proof orchestration surface で、canonical compat owner は `lang/src/runner/compat/stage1_cli.hako`。
 - `vm-hako` は reference/conformance lane。
-- `stage-a` は explicit compat-only で、day-to-day mainline route ではない。
+- `stage-a-compat` は explicit compat-only で、day-to-day mainline route ではない。
 - したがって、この文書は product front door の説明ではなく、stage1/bootstrap surface の設計メモとして読む。
 
 ## ゴール
@@ -104,13 +104,14 @@ hakorune run [options] <entry.hako> [-- script_args...]
 - current reading では `run` は compat/proof 検証面であり、product main runtime の説明ではない。
 - 実行経路:
   - route=`runtime/mainline`: `.hako -> temp MIR -> --mir-json-file -> core executor`
-  - backend override=`vm`   : explicit Rust VM keep/debug route（現行 `--backend vm` 相当）
+  - route=`runtime/compat`  : explicit compat keep route（shell preflight で `NYASH_VM_USE_FALLBACK=1` 必須）
+  - backend override=`vm`   : raw explicit Rust VM keep/debug route（現行 `--backend vm` 相当）
   - backend override=`llvm` : product/native object/EXE route
 - プログラムの戻り値をプロセスの exit code にマッピング（現行 Rust CLI と同じ）。
 
 ### 主なオプション案
 
-- `--backend {vm|llvm}`（既定: `vm`）
+- `--backend {vm|llvm}`（design note; raw explicit override reading）
 - `--profile {dev|ci|lite|strict}`
   - `dev`   : 詳細ログ・トレースを有効（Phase 15/25 の既存 ENV を束ねる）
   - `ci`    : 安定志向・プラグイン無効化など（現行 quick profile 相当）

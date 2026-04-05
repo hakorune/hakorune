@@ -27,6 +27,7 @@ smoke-core:
 smoke-selfhost:
 	bash tools/selfhost/proof/selfhost_vm_smoke.sh
 
+# bootstrap parity proof helper (engineering keep)
 bootstrap:
 	bash tools/selfhost/proof/bootstrap_selfhost_smoke.sh
 

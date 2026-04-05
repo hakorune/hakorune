@@ -36,15 +36,17 @@ Script
     tools/selfhost/run.sh --runtime --runtime-route compat --input apps/examples/string_p0.hako
     tools/selfhost/run.sh --direct --source-file apps/tests/phase29bq_selfhost_cleanup_only_min.hako
     ```
-- tools/selfhost/proof/selfhost_smoke.sh
-  - Minimal selfhost smoke wrapper.
-  - Emits optional JSON via the selfhost compiler route, then compares VM outputs with rewrite ON/OFF.
+- tools/selfhost/proof/run_stageb_compiler_vm.sh
+  - Public proof gate for explicit Stage-B VM keep.
+  - Use this when you need the proof-only Stage-B compiler route on purpose.
 - tools/selfhost/proof/selfhost_vm_smoke.sh
-  - Dedicated selfhost-minimal VM smoke.
+  - Public proof smoke for selfhost-minimal on the explicit VM keep.
   - Historical top-level alias was retired in `phase-31x / 31xE1`.
-- tools/selfhost/proof/selfhost_stage3_accept_smoke.sh
-  - Stage3 acceptance smoke for JSON v0 -> Bridge execution.
-  - Historical top-level alias was retired in `phase-31x / 31xE1`.
+- Internal proof helpers (engineering keep)
+  - `tools/selfhost/proof/bootstrap_selfhost_smoke.sh`
+  - `tools/selfhost/proof/selfhost_smoke.sh`
+  - `tools/selfhost/proof/selfhost_stage3_accept_smoke.sh`
+  - keep these for bootstrap/acceptance engineering proof; they are not the general front-door proof surface.
 - tools/selfhost/selfhost_build.sh
   - --in <file.hako>: input Hako source
   - --json <out.json>: retired wrapper surface; use `--mir` for day-to-day flow and raw compat probes/flags for Program(JSON)

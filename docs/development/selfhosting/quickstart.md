@@ -36,9 +36,9 @@ NYASH_SELFHOST_READ_TMP=1 ./target/release/nyash lang/src/compiler/entry/compile
 ```
 
 ## Execute MIR(JSON v0)
-Use Rust VM only as the compat/proof keep lane. Product native output lives on the LLVM/EXE line. Historical PyVM checks are direct-only scripts.
+Use Rust VM only as the raw legacy compat/proof ingress. Day-to-day selfhost runtime goes through `tools/selfhost/run.sh --runtime --runtime-route mainline`, and public proof surface stays under `tools/selfhost/proof/`. Product native output lives on the LLVM/EXE line. Historical PyVM checks are direct-only scripts.
 
-Rust VM (compat/proof keep):
+Raw legacy VM ingress (compat/proof keep):
 ```
 ./target/release/nyash --backend vm apps/examples/json_query/main.hako
 ```
@@ -61,15 +61,23 @@ Product EXE line:
 
 Notes:
 - For self‑host emitted JSON, route the file to your runner pipeline or a small loader script (dev only). Keep defaults unchanged in CI (no new jobs required).
-- `--backend vm` remains the raw legacy compat/proof ingress for now; do not read it as product ownership.
+- `--backend vm` remains the raw legacy compat/proof ingress for now; do not read it as product ownership or as the general front-door proof surface.
 
 ## One‑shot dev smoke
-Run a minimal engineering smoke that tries to emit JSON (best‑effort) and verifies VM outputs match with Known rewrite ON/OFF:
+Public proof surfaces:
+
+```
+tools/selfhost/proof/run_stageb_compiler_vm.sh --source-file apps/tests/hello_simple_llvm.hako
+tools/selfhost/proof/selfhost_vm_smoke.sh
+```
+
+Internal engineering helper:
 
 ```
 tools/selfhost/proof/selfhost_smoke.sh
 ```
 
+This helper tries to emit JSON (best-effort) and verifies VM outputs match with Known rewrite ON/OFF:
 It does not modify defaults and is safe to run locally.
 
 ## Flags (dev)

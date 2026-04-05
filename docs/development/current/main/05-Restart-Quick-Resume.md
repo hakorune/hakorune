@@ -20,10 +20,11 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-117x vm compat/proof env hardening`
-- current front: `compat route が raw --backend vm に入る前に explicit env を要求する`
+- lane: `phase-118x proof wrapper surface review`
+- current front: `public proof surface と internal proof helper を分けて narrow keep に固定する`
 - blocker: `none`
 - recent landed:
+  - `phase-117x vm compat/proof env hardening`
   - `phase-116x execution surface alias pruning`
   - `phase-115x vm route retirement planning`
   - `phase-114x execution surface wording closeout`
@@ -40,13 +41,13 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-117x/README.md`
+3. `docs/development/current/main/phases/phase-118x/README.md`
 
 ## Successor Corridor
 
-1. `phase-117x vm compat/proof env hardening`
-2. `phase-118x proof wrapper surface review`
-3. `phase-119x vm debug/observability surface review`
+1. `phase-118x proof wrapper surface review`
+2. `phase-119x vm debug/observability surface review`
+3. `phase-120x vm route retirement decision refresh`
 
 ## Parked After Optimization
 

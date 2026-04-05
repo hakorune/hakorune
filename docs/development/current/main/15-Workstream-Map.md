@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-117x vm compat/proof env hardening` |
-| Front | `compat route が raw --backend vm に入る前に explicit env を要求する` |
+| Now | `phase-118x proof wrapper surface review` |
+| Front | `public proof surface と internal proof helper を分けて narrow keep に固定する` |
 | Blocker | `none` |
-| Next | `selfhost_run_routes.sh` / `tools/selfhost/README.md` / execution SSOT で compat preflight を NYASH_VM_USE_FALLBACK=1 固定にする |
-| After Next | `phase-118x proof wrapper surface review` |
+| Next | `tools/selfhost/proof/*` の public/internal split を README / Makefile / route SSOT に反映する |
+| After Next | `phase-119x vm debug/observability surface review` |
 
 ## Current Read
 
@@ -42,6 +42,7 @@ Related:
 - `115x` inventory is now split into `compat route`, `proof wrappers`, and `debug/observability`
 - `116x` is shrinking alias pressure first: `stage-a` goes away, `runtime-route compat` and `runtime-mode stage-a-compat` stay
 - `117x` is hardening compat ingress next: shell preflight must require `NYASH_VM_USE_FALLBACK=1`
+- `118x` is narrowing proof wrapper surface next: public proof surface stays small, bootstrap/acceptance helpers stay internal
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers
@@ -59,9 +60,9 @@ Related:
 
 ## Successor Corridor
 
-1. `phase-117x vm compat/proof env hardening`
-2. `phase-118x proof wrapper surface review`
-3. `phase-119x vm debug/observability surface review`
+1. `phase-118x proof wrapper surface review`
+2. `phase-119x vm debug/observability surface review`
+3. `phase-120x vm route retirement decision refresh`
 
 ## Parked After Optimization
 
@@ -91,9 +92,9 @@ Related:
 ## Reference
 
 - current lane docs:
+  - `docs/development/current/main/phases/phase-118x/README.md`
   - `docs/development/current/main/phases/phase-117x/README.md`
   - `docs/development/current/main/phases/phase-116x/README.md`
-  - `docs/development/current/main/phases/phase-115x/README.md`
   - `docs/development/current/main/phases/phase-114x/README.md`
 - recent landed:
   - `docs/development/current/main/phases/phase-103/README.md`

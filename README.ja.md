@@ -100,8 +100,11 @@ Phase‑15（2025‑09）アップデート
 <a id="self-hosting"></a>
 ## 🧪 Self-Hosting（自己ホスト開発）
 - ガイド: `docs/how-to/self-hosting.md`
-- Engineering bootstrap E2E: `$NYASH_BIN --backend vm apps/selfhost-minimal/main.hako`
-- Engineering smokes: `bash tools/jit_smoke.sh` / `bash tools/selfhost/proof/selfhost_vm_smoke.sh`
+- raw legacy proof/debug 入口: `$NYASH_BIN --backend vm apps/selfhost-minimal/main.hako`
+- Public proof surface:
+  - `bash tools/selfhost/proof/run_stageb_compiler_vm.sh --source-file apps/tests/hello_simple_llvm.hako`
+  - `bash tools/selfhost/proof/selfhost_vm_smoke.sh`
+- bootstrap / acceptance の engineering helper は `tools/selfhost/proof/*` に残すが、一般 front-door proof surface とは分けて扱う
 - Makefile: `make run-minimal`, `make smoke-selfhost`
 
 MIR注記: Core‑13 最小カーネルは既定で有効（NYASH_MIR_CORE13=1）。旧命令は正規化されます（Array/Ref→BoxCall、TypeCheck/Cast/Barrier/WeakRefの統一）。
