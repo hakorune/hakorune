@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-151x canonical lowering visibility lock` |
-| Front | canonical MIR readings を current concrete lowering に対して source-backed に固定する |
-| Blocker | docs 上の canonical names だけでは perf reopen gate を開けないこと |
-| Next | `phase-137x main kilo reopen selection` |
-| After Next | `phase-kx vm-hako small reference interpreter recut` |
+| Now | `phase-137x main kilo reopen selection` |
+| Front | contract-first corridor 済みの split kernel 上で next hot leaf を pin する |
+| Blocker | perf tuning から canonical contract 側へ owner drift を戻さないこと |
+| Next | `phase-kx vm-hako small reference interpreter recut` |
+| After Next | parked only |
 
 ## Current Read
 
@@ -59,10 +59,11 @@ Related:
   - `const_suffix` route is now shaped as executor detail under the canonical contract
 - `phase-150x` landed second consumer:
   - `ArrayStoreString` route is now shaped as ABI/executor detail under canonical `store.array.str`
+- `phase-151x` landed visibility lock:
+  - canonical MIR readings are now visible against current concrete lowering
 - next fixed corridor:
-  1. `phase-151x canonical lowering visibility lock`
-  2. `phase-137x main kilo reopen selection`
-  3. `phase-kx vm-hako small reference interpreter recut`
+  1. `phase-137x main kilo reopen selection`
+  2. `phase-kx vm-hako small reference interpreter recut`
 - paused reopen truth:
   - baseline: `kilo_kernel_small_hk = 1529ms`
   - string const fast-path: `775ms`
@@ -79,9 +80,8 @@ Related:
 
 ## Successor Corridor
 
-1. `phase-151x canonical lowering visibility lock`
-2. `phase-137x main kilo reopen selection`
-3. `phase-kx vm-hako small reference interpreter recut`
+1. `phase-137x main kilo reopen selection`
+2. `phase-kx vm-hako small reference interpreter recut`
 
 ## Parked After Optimization
 

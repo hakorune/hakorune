@@ -4,8 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 151x canonical lowering visibility lock
-- **Phase 151x（ACTIVE）**: canonical lowering visibility lock
+- **Current (ACTIVE)**: Phase 137x main kilo reopen selection
+- **Phase 151x（LANDED）**: canonical lowering visibility lock
 - **Phase 150x（LANDED）**: array string-store vertical slice
 - **Phase 149x（LANDED）**: concat const-suffix vertical slice
 - **Phase 148x（LANDED）**: borrowed text and sink contract freeze

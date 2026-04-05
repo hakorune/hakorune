@@ -20,9 +20,9 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-151x canonical lowering visibility lock`
-- current front: `.hako owner -> MIR canonical reading -> current concrete lowering -> Rust executor` を source-backed に固定する
-- blocker: canonical MIR readings が docs だけでなく concrete lowering 側にも読めること
+- lane: `phase-137x main kilo reopen selection`
+- current front: contract-first corridor 済みの split kernel 上で `kilo_kernel_small_hk` next hot leaf を再取得する
+- blocker: perf tuning から canonical contract 側へ owner drift を戻さないこと
 - landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -30,7 +30,6 @@ tools/checks/dev_gate.sh quick
   - `phase-134x nyash_kernel layer recut selection`
   - `phase-133x micro kilo reopen selection`
 - active next:
-  - `phase-137x main kilo reopen selection`
   - `phase-kx vm-hako small reference interpreter recut`
 
 ## Read Next
@@ -38,9 +37,9 @@ tools/checks/dev_gate.sh quick
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
 3. `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
-4. `docs/development/current/main/phases/phase-151x/README.md`
-5. `docs/development/current/main/phases/phase-137x/README.md`
-6. `docs/development/current/main/design/canonical-lowering-visibility-ssot.md`
+4. `docs/development/current/main/phases/phase-137x/README.md`
+5. `docs/development/current/main/design/canonical-lowering-visibility-ssot.md`
+6. `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
 
 ## Decision Lock
 
@@ -108,7 +107,7 @@ tools/checks/dev_gate.sh quick
   - `const_suffix` current lowering now reads as canonical executor detail
 - `phase-150x` landed:
   - `ArrayStoreString` current lowering now reads as ABI/executor detail under canonical `store.array.str`
-- `phase-151x` current lock:
+- `phase-151x` landed lock:
   - `const_suffix`
   - `ArrayStoreString`
   - `MapStoreAny`
@@ -145,9 +144,9 @@ git diff --check
   - `kilo_micro_indexof_line`: `c_ms=4 / ny_aot_ms=4`
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
-- next contract-first slice:
-  - canonical lowering visibility lock
-  - perf consumer stays blocked until that lands
+- perf consumer reopened:
+  - `phase-137x` is now the first consumer after the contract corridor
+  - keep exact fronts on `concat_const_suffix_fallback(...)` and `array_string_store_handle_at(...)`
 - `phase-144x` landed:
   - `StringCoreBox.{size,indexOf,lastIndexOf,substring}` now reads through helperized wrapper paths
   - `indexOf(search, fromIndex)` delegates to `StringSearchKernelBox.find_index_from(...)`
