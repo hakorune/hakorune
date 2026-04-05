@@ -12,9 +12,9 @@ Related:
 
 ## Current
 
-- lane: `phase-145x compat quarantine shrink`
-- current front: host microkernel glue と compat quarantine の source境界を締める
-- blocker: quarantine residue が host-side contract と近く見える
+- lane: `phase-146x string semantic boundary tighten`
+- current front: `.hako` string semantic owner / wrapper / Rust native substrate の stop-line を締める
+- blocker: wrapper residue と Rust substrate helper がまだ近く見える
 - recent landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -58,8 +58,8 @@ Related:
   - `phase-143x` = landed Map owner cutover implementation
   - `phase-144x` = landed String semantic owner follow-up
 - current cleanup lane:
-  - `phase-145x` = compat quarantine shrink
-  - `phase-146x` = string semantic boundary tighten
+  - `phase-145x` = landed compat quarantine shrink
+  - `phase-146x` = active string semantic boundary tighten
 - perf lane is delayed, not cancelled:
   - `phase-137x main kilo reopen selection` waits until compat/string cleanup is clean
   - reopen win:

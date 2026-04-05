@@ -1,3 +1,7 @@
+// Compiled-stage1 compat quarantine route table.
+// Keep this internal-only, probe it explicitly from invoke paths, and do not let
+// it grow into a general semantic owner.
+
 #[cfg(test)]
 use crate::test_support::with_env_vars;
 use nyash_rust::box_trait::{NyashBox, StringBox};
@@ -137,7 +141,7 @@ pub(crate) fn try_dispatch(
 ) -> Option<i64> {
     let module_name = decode_string_handle(recv_handle)?;
     trace_log(format!(
-        "[stage1/module_dispatch] probe module={} method={} argc={}",
+        "[stage1/compat_quarantine] probe module={} method={} argc={}",
         module_name, method_name, arg_count
     ));
 
@@ -145,7 +149,7 @@ pub(crate) fn try_dispatch(
         build_surrogate::try_dispatch(&module_name, method_name, arg_count, arg1, arg2)
     {
         trace_log(format!(
-            "[stage1/module_dispatch] hit build_surrogate module={} method={}",
+            "[stage1/compat_quarantine] hit build_surrogate module={} method={}",
             module_name, method_name
         ));
         return Some(result);
@@ -155,7 +159,7 @@ pub(crate) fn try_dispatch(
         llvm_backend_surrogate::try_dispatch(&module_name, method_name, arg_count, arg1, arg2)
     {
         trace_log(format!(
-            "[stage1/module_dispatch] hit llvm_backend_surrogate module={} method={}",
+            "[stage1/compat_quarantine] hit llvm_backend_surrogate module={} method={}",
             module_name, method_name
         ));
         return Some(result);
@@ -164,7 +168,7 @@ pub(crate) fn try_dispatch(
     for route in DISPATCH_ROUTES {
         if module_name == route.module && method_name == route.method {
             trace_log(format!(
-                "[stage1/module_dispatch] hit module={} method={}",
+                "[stage1/compat_quarantine] hit module={} method={}",
                 route.module, route.method
             ));
             return (route.handler)(arg_count, arg1, arg2);
@@ -199,13 +203,13 @@ fn handle_mir_builder_emit_from_program_json_v0(
         Err(result) => return Some(result),
     };
     trace_log(format!(
-        "[stage1/module_dispatch] mir_builder input_bytes={}",
+        "[stage1/compat_quarantine] mir_builder input_bytes={}",
         program_json.len()
     ));
     if trace_enabled() {
         let preview: String = program_json.chars().take(120).collect();
         trace_log(format!(
-            "[stage1/module_dispatch] mir_builder input_preview={:?}",
+            "[stage1/compat_quarantine] mir_builder input_preview={:?}",
             preview
         ));
     }
@@ -220,12 +224,12 @@ fn handle_mir_builder_emit_from_program_json_v0(
             Err(error_text) => return Some(mir_builder_error_result("mir_builder", &error_text)),
         };
     trace_log(format!(
-        "[stage1/module_dispatch] mir_builder output_bytes={}",
+        "[stage1/compat_quarantine] mir_builder output_bytes={}",
         mir_json.len()
     ));
     let out = encode_string_handle(&mir_json);
     trace_log(format!(
-        "[stage1/module_dispatch] mir_builder output_handle={}",
+        "[stage1/compat_quarantine] mir_builder output_handle={}",
         out
     ));
     Some(out)

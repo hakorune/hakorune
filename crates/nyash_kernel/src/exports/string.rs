@@ -8,7 +8,7 @@ use self::string_helpers::*;
 
 // Thin ABI facade only.
 // String semantic ownership should live above this layer; keep exports here as
-// stable entrypoints into Rust string substrate and sink glue.
+// stable entrypoints into Rust substrate/sink glue, not as a policy owner.
 
 // String.len_h(handle) -> i64
 #[export_name = "nyash.string.len_h"]

@@ -35,6 +35,7 @@ use std::{
 // Native string substrate helpers.
 // These routines stay below semantic ownership and keep raw copy/search/materialize
 // fast paths in Rust unless a source-backed replacement proves safe.
+// They serve the thin ABI facade and VM wrappers; they do not own route policy.
 
 pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
     if handle <= 0 {

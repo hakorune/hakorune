@@ -1,6 +1,6 @@
 # Phase 146x: string semantic boundary tighten
 
-- Status: Next
+- Status: Active
 - 目的: `.hako` string semantic owner, VM wrapper, Rust native substrate の stop-line を source/docs 上でさらに読みやすくする。
 - 対象:
   - `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
@@ -26,4 +26,5 @@
 1. `.hako` string kernel README names policy/control ownership directly
 2. `string_core_box.hako` names itself as wrapper residue, not owner
 3. `string_view.rs` / `string_plan.rs` / `string_helpers.rs` state their Rust substrate role clearly
-4. `phase-137x` can reopen optimization without string-boundary ambiguity
+4. wrapper helper names stop looking like final owner entrypoints where avoidable
+5. `phase-137x` can reopen optimization without string-boundary ambiguity

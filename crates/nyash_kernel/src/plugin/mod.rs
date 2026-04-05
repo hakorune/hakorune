@@ -1,3 +1,6 @@
+// Plugin-side runtime surface.
+// Keep public host-service glue visible here, but keep compat quarantine internal-only.
+
 pub mod array;
 mod array_guard;
 mod array_handle_cache;

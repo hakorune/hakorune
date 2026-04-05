@@ -1,6 +1,6 @@
 # Phase 145x: compat quarantine shrink
 
-- Status: Active
+- Status: Landed
 - 目的: `host microkernel` glue と `compat quarantine` を source/docs 上で取り違えない状態にする。
 - 対象:
   - `CURRENT_TASK.md`
@@ -28,11 +28,11 @@
 
 1. host-side glue files say `host service contract` / `runtime glue` explicitly
 2. `module_string_dispatch/**` says `compat quarantine` / `shrink-only` explicitly
-3. `nyash-kernel-semantic-owner-ssot.md` matches source wording
-4. next lane can tighten string boundaries without re-opening quarantine confusion
+3. invoke/trace wording no longer makes quarantine read like a main route owner
+4. `nyash-kernel-semantic-owner-ssot.md` matches source wording
+5. next lane can tighten string boundaries without re-opening quarantine confusion
 
 ## Next
 
-1. close `phase-145x`
-2. start `phase-146x string semantic boundary tighten`
-3. return to `phase-137x main kilo reopen selection`
+1. start `phase-146x string semantic boundary tighten`
+2. return to `phase-137x main kilo reopen selection`

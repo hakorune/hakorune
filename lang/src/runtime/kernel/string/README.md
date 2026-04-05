@@ -1,6 +1,8 @@
 # runtime/kernel/string
 
 このディレクトリは `.hako` string semantic kernel の owner map だよ。
+`StringCoreBox` wrapper の上にある policy/control truth をここへ集約し、Rust substrate
+へ route policy を戻さないのが役割だよ。
 
 ## Core Position
 
@@ -52,12 +54,14 @@ freeze.str
 - `search.hako`
   - `find_index(hay, needle) -> i64`
   - `find_index_from(hay, needle, start) -> i64`
-  - `last_index(hay, needle) -> i64`
+ - `last_index(hay, needle) -> i64`
   - `contains(hay, needle) -> i64`
   - `starts_with(hay, needle) -> i64`
   - `ends_with(hay, needle) -> i64`
   - `split_once_index(hay, needle) -> i64`
   - keep it narrow; no widening to the rest of the string kernel yet
+  - `StringCoreBox` wrapper should call into this owner vocabulary rather than
+    carry search policy locally
 - `chain_policy.hako`
   - `boundary_kind_store() -> "Store"`
   - `post_store_use_len_observer() -> "LenObserver"`

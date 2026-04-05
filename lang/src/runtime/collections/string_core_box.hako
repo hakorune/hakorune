@@ -3,6 +3,7 @@
 // - provide VM-low-level i64 length path without std-layer coupling
 // - delegate visible StringBox search semantics to `.hako` string-kernel owners
 // - keep this file as a VM-facing wrapper residue only (`size alias` / `substring` / delegated search wrappers)
+// - do not let wrapper-local helpers turn back into string semantic owners
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 using selfhost.shared.common.string_helpers as StringHelpers
@@ -118,7 +119,7 @@ static box StringCoreBox {
     return raw.length()
   }
 
-  _size_alias_runtime(regs, kinds, handle_regs, dst, rid) {
+  _size_alias_wrapper_runtime(regs, kinds, handle_regs, dst, rid) {
     local len_i64 = 0
     local raw_len = me._read_reg_text_or_null(regs, handle_regs, rid)
     if raw_len != null {
@@ -173,7 +174,7 @@ static box StringCoreBox {
     local rid = MiniMirV1Scan.receiver_id(seg)
     local dst = JsonFragBox.get_int(seg, "dst")
     if MethodAliasPolicy.is_size_alias(mname) == 1 {
-      return me._size_alias_runtime(regs, kinds, handle_regs, dst, rid)
+      return me._size_alias_wrapper_runtime(regs, kinds, handle_regs, dst, rid)
     }
     local raw = me._read_reg_text_or_null(regs, handle_regs, rid)
     if raw == null { return 0 }

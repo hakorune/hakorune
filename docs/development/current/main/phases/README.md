@@ -4,9 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 145x compat quarantine shrink
-- **Phase 146x（NEXT）**: string semantic boundary tighten
-- **Phase 145x（ACTIVE）**: compat quarantine shrink
+- **Current (ACTIVE)**: Phase 146x string semantic boundary tighten
+- **Phase 146x（ACTIVE）**: string semantic boundary tighten
+- **Phase 145x（LANDED）**: compat quarantine shrink
 - **Phase 144x（LANDED）**: string semantic owner follow-up
 - **Phase 143x（LANDED）**: map owner cutover implementation
 - **Phase 141x（LANDED）**: string semantic boundary review
