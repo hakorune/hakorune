@@ -22,6 +22,8 @@
   - `tools/smokes/v2/profiles/integration/selfhost/phase29x_vm_route_non_strict_compat_boundary_vm.sh`
   - `tools/smokes/v2/profiles/integration/apps/phase29x_vm_hako_strict_dev_replay_vm.sh`
   - `tools/smokes/v2/profiles/integration/phase29x/derust/phase29x_derust_strict_default_route_vm.sh`
+  - `tools/smokes/v2/profiles/integration/phase29x/observability/phase29x_vm_route_compat_bypass_guard_vm.sh`
+  - `tools/smokes/v2/profiles/integration/phase29x/observability/phase29x_vm_route_pin_guard_vm.sh`
 - candidate-thin
   - `tools/dev/bug_origin_triage.sh`
   - `tools/checks/route_env_probe.sh`
@@ -29,8 +31,6 @@
   - `tools/checks/phase29x_vm_route_pin_guard.sh`
   - `tools/checks/phase29x_vm_route_pin_allowlist.txt`
   - `tools/smokes/v2/suites/integration/phase29x-vm-route.txt`
-  - `tools/smokes/v2/profiles/integration/phase29x/observability/phase29x_vm_route_compat_bypass_guard_vm.sh`
-  - `tools/smokes/v2/profiles/integration/phase29x/observability/phase29x_vm_route_pin_guard_vm.sh`
 - retire-later pressure
   - `tools/selfhost/proof/run_stageb_compiler_vm.sh`
   - `tools/selfhost/proof/selfhost_vm_smoke.sh`
