@@ -32,6 +32,10 @@ use std::{
     thread::LocalKey,
 };
 
+// Native string substrate helpers.
+// These routines stay below semantic ownership and keep raw copy/search/materialize
+// fast paths in Rust unless a source-backed replacement proves safe.
+
 pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
     if handle <= 0 {
         trace_observer_resolution("observer", handle, "none", "invalid_handle", "");

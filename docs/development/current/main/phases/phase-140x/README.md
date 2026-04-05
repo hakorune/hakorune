@@ -1,6 +1,6 @@
 # Phase 140x: map owner pilot
 
-- Status: Active
+- Status: Landed
 - 目的: `MapCoreBox` / `MapStateCoreBox` を visible semantics owner として固定し、Rust 側を thin map facade / observer shim / raw substrate / compat forwarding に限定する second pilot を source-backed に詰める。
 - 対象:
   - `CURRENT_TASK.md`

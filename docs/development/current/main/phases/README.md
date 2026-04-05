@@ -4,10 +4,12 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 140x map owner pilot
+- **Current (ACTIVE)**: Phase 137x main kilo reopen selection
+- **Phase 141x（LANDED）**: string semantic boundary review
+- **Phase 140x（LANDED）**: map owner pilot
 - **Phase 139x（LANDED）**: array owner pilot
 - **Phase 138x（LANDED）**: nyash_kernel semantic owner cutover
-- **Phase 137x（SUCCESSOR）**: main kilo reopen selection
+- **Phase 137x（ACTIVE）**: main kilo reopen selection
 - **Phase 134x（LANDED）**: nyash_kernel layer recut selection
 - **Phase 133x（LANDED）**: micro kilo reopen selection
 - **Phase 132x（LANDED）**: vm default backend decision
@@ -47,6 +49,8 @@
 
 ### Recent Landed
 
+- **Phase 141x（LANDED）**: string semantic boundary review
+- **Phase 140x（LANDED）**: map owner pilot
 - **Phase 139x（LANDED）**: array owner pilot
 - **Phase 138x（LANDED）**: nyash_kernel semantic owner cutover
 - **Phase 134x（LANDED）**: nyash_kernel layer recut selection
@@ -82,10 +86,13 @@
 ## Phase フォルダ構成（推奨）
 
 ```
-phases/phase-140x/
+phases/phase-137x/
+└── README.md
+
+phases/phase-141x/
 ├── README.md
-├── 140x-90-map-owner-pilot-ssot.md
-└── 140x-91-task-board.md
+├── 141x-90-string-semantic-boundary-review-ssot.md
+└── 141x-91-task-board.md
 ```
 
 ## 参照方法

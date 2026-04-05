@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-140x map owner pilot` |
-| Front | `MapCoreBox` / `MapStateCoreBox` を visible owner に固定し、Rust を thin facade / substrate / forwarding に保つ |
-| Blocker | `Array owner` seam は landed。次は Map owner の exact seam と compat/runtime forwarding の shrink line を source-backed に決める |
-| Next | `phase-141x string semantic boundary review` |
-| After Next | `phase-137x main kilo reopen selection` |
+| Now | `phase-137x main kilo reopen selection` |
+| Front | semantic-owner corridor が landed した前提で、split kernel の `main kilo` baseline を再開する |
+| Blocker | architecture corridor は閉じた。次は `kilo_kernel_small_hk` の再ベースラインと hot-leaf 再選定 |
+| Next | `phase-kx vm-hako small reference interpreter recut` |
+| After Next | `TBD after perf reopen` |
 
 ## Current Read
 
@@ -46,28 +46,28 @@ Related:
   - Rust ABI facade = `array_substrate.rs`
   - Rust compat/runtime forwarding = `array_runtime_facade.rs`
   - Rust accelerators = `array_handle_cache.rs` / `array_string_slot.rs`
-- landed source slices:
-  - `crates/nyash_kernel/src/exports/string.rs` split
-  - `crates/nyash_kernel/src/plugin/map_substrate.rs` thin-alias recut
-- current work is the second narrow `.hako` owner cut:
+- `phase-140x` landed the second pilot:
   - `.hako` owner = `map_core_box.hako` / `map_state_core_box.hako`
   - substrate below = `raw_map_core_box.hako`
   - Rust thin facade = `map_aliases.rs`
   - Rust observer shim = `map_substrate.rs`
   - Rust compat/runtime forwarding = `map_runtime_facade.rs`
   - Rust accelerators = `map_probe.rs` / `map_slot_load.rs` / `map_slot_store.rs`
+- landed source slices:
+  - `crates/nyash_kernel/src/exports/string.rs` split
+  - `crates/nyash_kernel/src/plugin/map_substrate.rs` thin-alias recut
+- `phase-141x` landed the final string boundary review:
+  - `.hako` semantic owner = `runtime/kernel/string/**`
+  - VM-facing wrapper = `string_core_box.hako`
+  - Rust thin facade = `string.rs`
+  - Rust lifetime/native substrate = `string_view.rs` / `string_helpers.rs` / `string_plan.rs`
+  - `module_string_dispatch/**` stays quarantine, not owner
 - next fixed corridor:
-  1. `phase-140x map owner pilot`
-  2. `phase-141x string semantic boundary review`
-  3. `phase-137x main kilo reopen selection`
-  4. `phase-kx vm-hako small reference interpreter recut`
+  1. `phase-kx vm-hako small reference interpreter recut`
 
 ## Successor Corridor
 
-1. `phase-140x map owner pilot`
-2. `phase-141x string semantic boundary review`
-3. `phase-137x main kilo reopen selection`
-4. `phase-kx vm-hako small reference interpreter recut`
+1. `phase-kx vm-hako small reference interpreter recut`
 
 ## Parked After Optimization
 
@@ -90,11 +90,12 @@ Related:
 ## Reference
 
 - current lane docs:
-  - `docs/development/current/main/phases/phase-140x/README.md`
+  - `docs/development/current/main/phases/phase-141x/README.md`
+  - `docs/development/current/main/phases/phase-137x/README.md`
   - `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
+  - `docs/development/current/main/phases/phase-140x/README.md`
   - `docs/development/current/main/phases/phase-139x/README.md`
   - `docs/development/current/main/phases/phase-138x/README.md`
-  - `docs/development/current/main/phases/phase-137x/README.md`
   - `docs/development/current/main/phases/phase-134x/README.md`
   - `docs/development/current/main/phases/phase-133x/README.md`
   - `docs/development/current/main/phases/phase-132x/README.md`

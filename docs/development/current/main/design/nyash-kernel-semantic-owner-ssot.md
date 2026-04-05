@@ -102,6 +102,30 @@ The second pilot moves visible `MapBox.{get,set,has,len,length,size}` semantics,
 key normalization, and state bookkeeping to `.hako` owner authority. It does not
 move raw probe/load/store substrate out of Rust.
 
+#### String semantic boundary seam
+
+- `.hako` semantic owner:
+  - `lang/src/runtime/kernel/string/README.md`
+  - `lang/src/runtime/kernel/string/chain_policy.hako`
+  - `lang/src/runtime/kernel/string/search.hako`
+- VM-facing runtime wrapper:
+  - `lang/src/runtime/collections/string_core_box.hako`
+- Rust thin ABI facade:
+  - `crates/nyash_kernel/src/exports/string.rs`
+- Rust native/lifetime substrate:
+  - `crates/nyash_kernel/src/exports/string_view.rs`
+  - `crates/nyash_kernel/src/exports/string_helpers.rs`
+  - `crates/nyash_kernel/src/exports/string_plan.rs`
+- compat quarantine:
+  - `crates/nyash_kernel/src/plugin/module_string_dispatch/**`
+
+String is not an owner cutover like Array/Map. The clean stop-line is:
+- semantic owner lives in `.hako` string-kernel policy/control modules
+- VM runtime wrapper remains separate from final semantic ownership
+- borrowed view/span ownership, materialize boundaries, and raw copy/search fast
+  paths stay in Rust
+- quarantine dispatch code does not become a permanent string owner
+
 ### 3. native accelerators
 
 - lifetime-sensitive substrate
@@ -136,6 +160,10 @@ For `Map`, the thin facade ends at `nyash.map.slot_*`, `probe_*`, and
 `entry_count_i64`. Historical aliases such as `entry_count_h`, `cap_h`,
 `clear_h`, and `delete_hh` remain compat-only and must not regain owner logic.
 
+For `String`, the thin facade ends at exported `nyash.string.*` entrypoints.
+Borrowed substring/view policy and materialize/search/copy substrate stay below
+that facade in Rust.
+
 ### compat quarantine
 
 - surrogate / stop-gap / migration-only route surfaces
@@ -158,10 +186,11 @@ For `Map`, the thin facade ends at `nyash.map.slot_*`, `probe_*`, and
 1. freeze the final owner graph
 2. move `Array owner` to `.hako`
 3. move `Map owner` to `.hako`
-4. shrink `module_string_dispatch/**` toward `.hako` semantic ownership
-5. review `String` last:
+4. review `String` last:
    - semantic owner can move
    - lifetime substrate stays in Rust unless proven safe
+5. shrink `module_string_dispatch/**` toward either `.hako` semantic ownership
+   or non-owner quarantine removal
 
 ## Success Reading
 
