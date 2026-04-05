@@ -15,7 +15,7 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-142x array owner cutover implementation` |
-| Front | Array owner seam を `.hako` 実装 authority に変える |
+| Front | `ArrayBox.push` を first cutover unit にして Array owner seam を `.hako` 実装 authority に変える |
 | Blocker | seam 宣言は landed したが、owner implementation はまだ cutover されていない |
 | Next | `phase-143x map owner cutover implementation` |
 | After Next | `phase-144x string semantic owner follow-up` |

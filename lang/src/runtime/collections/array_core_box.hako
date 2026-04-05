@@ -84,6 +84,47 @@ static box ArrayCoreBox {
     return RawArrayCoreBox.slot_append_any(handle, value_any)
   }
 
+  _normalize_push_any(regs, kinds, arg0_i) {
+    local val_any = me._read_reg_i64_or_null(regs, arg0_i)
+    if val_any == null { return null }
+    local arg0_kind = me._read_reg_kind_or_scalar(kinds, arg0_i)
+    if arg0_kind == "handle" { return val_any }
+    return externcall "nyash.box.from_i64"(val_any)
+  }
+
+  _record_push_owner_state(regs, per_recv, rid, key, cur_len, next_len, arg0_i) {
+    local value_state = me._value_state()
+    local _next_len_state = ArrayStateCoreBox.record_push_state(
+      regs,
+      per_recv,
+      rid,
+      cur_len,
+      value_state,
+      arg0_i
+    )
+    regs.setField(key, StringHelpers.int_to_str(next_len))
+  }
+
+  _push_visible_owner_runtime(regs, kinds, rid, per_recv, key, cur_len, recv_h, dst, arg0_i) {
+    local append_any = me._normalize_push_any(regs, kinds, arg0_i)
+    if append_any == null { return 0 }
+    local next_len_rt = me.push_hh(recv_h, append_any)
+    if next_len_rt > 0 {
+      me._record_push_owner_state(regs, per_recv, rid, key, cur_len, next_len_rt, arg0_i)
+    }
+    me._write_zero_dst(regs, dst)
+    me._trace("[vm/adapter/array_core:slot_append_hh]")
+    return 1
+  }
+
+  _push_visible_owner_state_only(regs, rid, per_recv, key, cur_len, dst, arg0_i) {
+    local value_state = me._value_state()
+    local next_len = ArrayStateCoreBox.record_push_state(regs, per_recv, rid, cur_len, value_state, arg0_i)
+    regs.setField(key, StringHelpers.int_to_str(next_len))
+    me._write_zero_dst(regs, dst)
+    return 1
+  }
+
   _size_state_per_recv() {
     local per_recv = env.get("HAKO_VM_MIRCALL_SIZESTATE_PER_RECV")
     if per_recv == null { per_recv = "0" }
@@ -230,28 +271,10 @@ static box ArrayCoreBox {
 
   _try_handle_push(seg, regs, kinds, rid, per_recv, key, cur_len, recv_h, dst) {
     local arg0_i = MiniMirV1Scan.first_arg_register(seg)
-    local val_any = me._read_reg_i64_or_null(regs, arg0_i)
-    local arg0_kind = me._read_reg_kind_or_scalar(kinds, arg0_i)
-    if recv_h != null && val_any != null {
-      local append_any = val_any
-      if arg0_kind != "handle" {
-        append_any = externcall "nyash.box.from_i64"(val_any)
-      }
-      local next_len_rt = me.push_hh(recv_h, append_any)
-      if next_len_rt > 0 {
-        local value_state_rt = me._value_state()
-        local _next_len_state = ArrayStateCoreBox.record_push_state(regs, per_recv, rid, cur_len, value_state_rt, arg0_i)
-        regs.setField(key, StringHelpers.int_to_str(next_len_rt))
-      }
-      me._write_zero_dst(regs, dst)
-      me._trace("[vm/adapter/array_core:slot_append_hh]")
-      return 1
+    if recv_h != null && recv_h > 0 {
+      return me._push_visible_owner_runtime(regs, kinds, rid, per_recv, key, cur_len, recv_h, dst, arg0_i)
     }
-    local value_state = me._value_state()
-    local next_len = ArrayStateCoreBox.record_push_state(regs, per_recv, rid, cur_len, value_state, arg0_i)
-    regs.setField(key, StringHelpers.int_to_str(next_len))
-    me._write_zero_dst(regs, dst)
-    return 1
+    return me._push_visible_owner_state_only(regs, rid, per_recv, key, cur_len, dst, arg0_i)
   }
 
   try_handle(seg, regs, kinds, mname) {

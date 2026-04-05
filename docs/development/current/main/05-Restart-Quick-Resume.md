@@ -21,7 +21,7 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-142x array owner cutover implementation`
-- current front: Array owner seam を宣言で終わらせず、`.hako` owner 実装へ寄せる
+- current front: `ArrayBox.push` を first cutover unit に固定し、宣言で終わらせず `.hako` owner 実装へ寄せる
 - blocker: semantic seam は landed したが、owner implementation はまだ Rust/runtime forwarding に残っている
 - landed:
   - `phase-140x map owner pilot`
