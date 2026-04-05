@@ -12,10 +12,11 @@ Related:
 
 ## Current
 
-- lane: `phase-139x array owner pilot`
-- current front: `ArrayCoreBox` / `ArrayStateCoreBox` を visible semantics owner とし、Rust は `ABI facade` / `raw substrate` / `native accelerators` に限定する
-- blocker: final owner graph は fixed。次は Array owner の exact seam を current source に固定する
+- lane: `phase-140x map owner pilot`
+- current front: `MapCoreBox` / `MapStateCoreBox` を visible semantics owner とし、Rust は thin map facade / raw substrate / compat forwarding に限定する
+- blocker: `Array owner` seam は landed。次は `Map owner` の exact seam を current source に固定する
 - recent landed:
+  - `phase-139x array owner pilot`
   - `phase-138x nyash_kernel semantic owner cutover`
   - `phase-134x nyash_kernel layer recut selection`
   - `phase-133x micro kilo reopen selection`
@@ -46,11 +47,12 @@ Related:
   - `ABI facade` as thin keep
   - `compat quarantine` as non-owner
 - current seam:
-  - owner: `array_core_box.hako` / `array_state_core_box.hako`
-  - substrate: `raw_array_core_box.hako` / `ptr_core_box.hako`
-  - ABI facade: `array_substrate.rs`
-  - compat/runtime forwarding: `array_runtime_facade.rs`
-  - accelerators: `array_handle_cache.rs` / `array_string_slot.rs`
+  - owner: `map_core_box.hako` / `map_state_core_box.hako`
+  - substrate: `raw_map_core_box.hako`
+  - thin facade: `map_aliases.rs`
+  - observer shim: `map_substrate.rs`
+  - compat/runtime forwarding: `map_runtime_facade.rs`
+  - accelerators: `map_probe.rs` / `map_slot_load.rs` / `map_slot_store.rs`
 - perf lane is paused, not cancelled:
   - `phase-137x main kilo reopen selection` remains the successor after semantic owner cutover
 
@@ -63,5 +65,5 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-139x/README.md`
+2. `docs/development/current/main/phases/phase-140x/README.md`
 3. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`

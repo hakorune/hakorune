@@ -8,8 +8,9 @@ use super::map_slot_store::{map_slot_store_any, map_slot_store_i64_any};
 use super::value_codec::runtime_i64_from_box_ref;
 use nyash_rust::{boxes::map_box::MapBox, runtime::host_handles as handles};
 
-// Shared RawMap substrate facade.
-// This stays below MapCoreBox and above the map slot/probe/store leaves.
+// Runtime/compat forwarding only.
+// Map semantic ownership lives in `.hako` (`MapCoreBox` / `MapStateCoreBox`);
+// keep this module below the owner and above raw slot/probe/store leaves.
 
 // Observer facade.
 pub(super) fn map_runtime_entry_count(handle: i64) -> i64 {
@@ -70,7 +71,7 @@ pub(super) fn map_runtime_store_any(handle: i64, key_any: i64, val_any: i64) -> 
     map_slot_store_any(handle, key_any, val_any)
 }
 
-// RuntimeData-facing facade.
+// RuntimeData-facing facade. This is compat/runtime forwarding, not owner logic.
 #[inline(never)]
 fn with_runtime_map_box<R>(handle: i64, f: impl FnOnce(&MapBox) -> R) -> Option<R> {
     if handle <= 0 {

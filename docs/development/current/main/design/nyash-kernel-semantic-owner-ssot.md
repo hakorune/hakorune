@@ -80,6 +80,28 @@ The first pilot moves visible `ArrayBox.{get,set,push,len,length,size}` semantic
 fallback, and state bookkeeping to `.hako` owner authority. It does not move raw
 slot implementation or cache/fast-path substrate out of Rust.
 
+#### Map semantic owner seam
+
+- visible owner:
+  - `lang/src/runtime/collections/map_core_box.hako`
+  - `lang/src/runtime/collections/map_state_core_box.hako`
+- substrate below the owner:
+  - `lang/src/runtime/substrate/raw_map/raw_map_core_box.hako`
+- ABI facade:
+  - `crates/nyash_kernel/src/plugin/map_aliases.rs`
+- observer shim:
+  - `crates/nyash_kernel/src/plugin/map_substrate.rs`
+- compat/runtime forwarding:
+  - `crates/nyash_kernel/src/plugin/map_runtime_facade.rs`
+- native accelerators kept in Rust:
+  - `crates/nyash_kernel/src/plugin/map_probe.rs`
+  - `crates/nyash_kernel/src/plugin/map_slot_load.rs`
+  - `crates/nyash_kernel/src/plugin/map_slot_store.rs`
+
+The second pilot moves visible `MapBox.{get,set,has,len,length,size}` semantics,
+key normalization, and state bookkeeping to `.hako` owner authority. It does not
+move raw probe/load/store substrate out of Rust.
+
 ### 3. native accelerators
 
 - lifetime-sensitive substrate
@@ -109,6 +131,10 @@ No new domain semantics belong here.
 For `Array`, the thin facade ends at `nyash.array.slot_*` aliases. Historical
 runtime aliases such as `nyash.array.get_hh` / `set_hhh` / `has_hh` remain
 compat forwarding only and must not regain owner logic.
+
+For `Map`, the thin facade ends at `nyash.map.slot_*`, `probe_*`, and
+`entry_count_i64`. Historical aliases such as `entry_count_h`, `cap_h`,
+`clear_h`, and `delete_hh` remain compat-only and must not regain owner logic.
 
 ### compat quarantine
 

@@ -1,6 +1,6 @@
 # Phase 139x: array owner pilot
 
-- Status: Active
+- Status: Landed
 - 目的: `ArrayCoreBox` / `ArrayStateCoreBox` を visible semantics owner として固定し、Rust 側を `ABI facade` / `raw substrate` / `native accelerators` に限定する first pilot を source-backed に詰める。
 - 対象:
   - `CURRENT_TASK.md`
@@ -48,6 +48,5 @@
 
 ## Next
 
-1. lock exact owner/substrate/facade/accelerator boundaries
-2. mark compat/runtime forwarding shrink-only
-3. hand off to `phase-140x map owner pilot`
+1. hand off to `phase-140x map owner pilot`
+2. keep `phase-137x` as perf successor

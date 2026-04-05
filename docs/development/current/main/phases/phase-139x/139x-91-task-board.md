@@ -5,4 +5,4 @@
 - [x] A3 lock Rust accelerator boundaries
 - [x] B1 mark `array_runtime_facade.rs` shrink-only compat/runtime forwarding
 - [x] C1 refresh current pointers / stop-lines
-- [ ] D1 hand off to `phase-140x map owner pilot`
+- [x] D1 hand off to `phase-140x map owner pilot`

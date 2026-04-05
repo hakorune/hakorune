@@ -23,26 +23,25 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 2. `phase-133x micro kilo reopen selection` (landed)
 3. `phase-134x nyash_kernel layer recut selection` (landed)
 4. `phase-138x nyash_kernel semantic owner cutover` (landed)
-5. `phase-139x array owner pilot` (active)
-6. `phase-140x map owner pilot` (next)
+5. `phase-139x array owner pilot` (landed)
+6. `phase-140x map owner pilot` (active)
 7. `phase-141x string semantic boundary review` (next)
 8. `phase-137x main kilo reopen selection` (successor after architecture)
 9. `phase-kx vm-hako small reference interpreter recut` (parked after optimization)
 
 ## Current Front
 
-- Active lane: `phase-139x array owner pilot`
-- Active front: `ArrayCoreBox` / `ArrayStateCoreBox` を visible semantics owner として固定し、Rust を `ABI facade` + `raw substrate` + `native accelerators` に保つ cutover seam を詰める
-- Current blocker: final owner graph は fixed。次は `Array owner` pilot で、`.hako` owner が持つ範囲と Rust 側 compat/runtime forwarding の shrink line を source-backed に決める
-- Exact focus: `ArrayBox.{get,set,push,len,length,size}` の policy/fallback/state は `.hako` owner に、`nyash.array.slot_*` と cache/fast-path substrate は Rust に残す stop-line を current phase docs に落とす
+- Active lane: `phase-140x map owner pilot`
+- Active front: `MapCoreBox` / `MapStateCoreBox` を visible semantics owner として固定し、Rust を thin map facade + raw substrate + compat/runtime forwarding に保つ cutover seam を詰める
+- Current blocker: `Array owner` seam は fixed。次は `Map owner` pilot で、key normalization / state bookkeeping / visible dispatch を `.hako` owner に固定する
+- Exact focus: `MapBox.{get,set,has,len,length,size}` の visible semantics は `.hako` owner に、`nyash.map.slot_*` / `probe_*` / `entry_count_i64` と probe/load/store leaves は Rust に残す stop-line を current phase docs に落とす
 
 ## Successor Corridor
 
-1. `phase-139x array owner pilot`
-2. `phase-140x map owner pilot`
-3. `phase-141x string semantic boundary review`
-4. `phase-137x main kilo reopen selection`
-5. `phase-kx vm-hako small reference interpreter recut`
+1. `phase-140x map owner pilot`
+2. `phase-141x string semantic boundary review`
+3. `phase-137x main kilo reopen selection`
+4. `phase-kx vm-hako small reference interpreter recut`
 
 ## Parked After Optimization
 
@@ -67,7 +66,7 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-139x/README.md`
+3. `docs/development/current/main/phases/phase-140x/README.md`
 4. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
 
 ## Notes
@@ -95,11 +94,18 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   - landed: `compat quarantine` is non-owner and shrink-only
   - landed: `Array owner` is the first cutover pilot
 - `phase-139x` current seam:
-  - owner: `lang/src/runtime/collections/array_core_box.hako`
-  - substrate: `lang/src/runtime/substrate/raw_array/raw_array_core_box.hako`
-  - ABI facade: `crates/nyash_kernel/src/plugin/array_substrate.rs`
-  - compat/runtime forwarders: `crates/nyash_kernel/src/plugin/array_runtime_facade.rs`
-  - accelerators: `crates/nyash_kernel/src/plugin/array_handle_cache.rs`, `crates/nyash_kernel/src/plugin/array_string_slot.rs`
+  - landed: owner = `lang/src/runtime/collections/array_core_box.hako`
+  - landed: substrate = `lang/src/runtime/substrate/raw_array/raw_array_core_box.hako`
+  - landed: ABI facade = `crates/nyash_kernel/src/plugin/array_substrate.rs`
+  - landed: compat/runtime forwarders = `crates/nyash_kernel/src/plugin/array_runtime_facade.rs`
+  - landed: accelerators = `crates/nyash_kernel/src/plugin/array_handle_cache.rs`, `crates/nyash_kernel/src/plugin/array_string_slot.rs`
+- `phase-140x` current seam:
+  - owner: `lang/src/runtime/collections/map_core_box.hako`, `lang/src/runtime/collections/map_state_core_box.hako`
+  - substrate: `lang/src/runtime/substrate/raw_map/raw_map_core_box.hako`
+  - thin facade: `crates/nyash_kernel/src/plugin/map_aliases.rs`
+  - observer shim: `crates/nyash_kernel/src/plugin/map_substrate.rs`
+  - compat/runtime forwarding: `crates/nyash_kernel/src/plugin/map_runtime_facade.rs`
+  - accelerators: `crates/nyash_kernel/src/plugin/map_probe.rs`, `crates/nyash_kernel/src/plugin/map_slot_load.rs`, `crates/nyash_kernel/src/plugin/map_slot_store.rs`
 - `phase-137x` is not cancelled:
   - it remains the perf successor after semantic ownership is fixed
 - first exact slices:
