@@ -12,9 +12,9 @@ Related:
 
 ## Current
 
-- lane: `phase-137x main kilo reopen selection`
-- current front: `kilo_kernel_small_hk` 再ベースライン + `kilo_micro_substring_concat` / `kilo_micro_array_getset` 再確認
-- blocker: `nyash_kernel` の構造分割は landed。split kernel 上で `main kilo` を reopen する
+- lane: `phase-138x nyash_kernel semantic owner cutover`
+- current front: `Rust host microkernel` / `.hako semantic kernel` / `native accelerators` の最終 owner model を current SSOT に固定する
+- blocker: 4層 split は landed したが final architecture はまだ中間形。`main kilo` reopen の前に semantic ownership の stop-line を決める
 - recent landed:
   - `phase-134x nyash_kernel layer recut selection`
   - `phase-133x micro kilo reopen selection`
@@ -30,7 +30,7 @@ Related:
   - `kilo_micro_substring_concat`: parity locked
   - `kilo_micro_array_getset`: parity locked
   - `kilo_micro_indexof_line`: frozen faster than C
-- before `main kilo`, current work re-cut `nyash_kernel` into four buckets:
+- `phase-134x` re-cut `nyash_kernel` into four buckets:
   - `keep`
   - `thin keep`
   - `compat glue`
@@ -38,8 +38,14 @@ Related:
 - landed source slices:
   - `crates/nyash_kernel/src/exports/string.rs` split
   - `crates/nyash_kernel/src/plugin/map_substrate.rs` thin-alias recut
-- target shape:
-  - `phase-137x main kilo reopen selection`
+- current architecture target:
+  - `Rust host microkernel`
+  - `.hako semantic kernel`
+  - `native accelerators`
+  - `ABI facade` as thin keep
+  - `compat quarantine` as non-owner
+- perf lane is paused, not cancelled:
+  - `phase-137x main kilo reopen selection` remains the successor after semantic owner cutover
 
 ## Root Anchors
 
@@ -50,4 +56,5 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-137x/README.md`
+2. `docs/development/current/main/phases/phase-138x/README.md`
+3. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`

@@ -2,13 +2,15 @@
 
 ## Goal
 
-Reopen `main kilo` on the landed `nyash_kernel` split without re-expanding `.hako` migration or reintroducing `vm` cleanup work.
+Reopen `main kilo` on the landed `nyash_kernel` split after `phase-138x` fixes the final semantic-owner graph.
 
 ## Current Focus
 
-- Rebaseline `kilo_kernel_small_hk`
-- Recheck `kilo_micro_substring_concat`
-- Recheck `kilo_micro_array_getset`
+- Keep this lane as the perf successor
+- Wait for `phase-138x` to finish semantic owner cutover
+- Then rebaseline `kilo_kernel_small_hk`
+- Then recheck `kilo_micro_substring_concat`
+- Then recheck `kilo_micro_array_getset`
 - Keep the fixed perf order:
   1. `leaf-proof micro`
   2. `micro kilo`
@@ -16,7 +18,8 @@ Reopen `main kilo` on the landed `nyash_kernel` split without re-expanding `.hak
 
 ## Constraints
 
-- Do not broaden `.hako` migration.
+- Do not broaden `.hako` migration from this lane.
+- Do not pre-empt `phase-138x`.
 - Keep `vm-hako` parked as reference/conformance only.
 - Keep the `keep / thin keep / compat glue / substrate candidate` split intact.
 

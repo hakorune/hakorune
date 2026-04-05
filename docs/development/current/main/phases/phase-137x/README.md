@@ -1,7 +1,7 @@
 # Phase 137x: main kilo reopen selection
 
-- Status: Active
-- 目的: `phase-134x` で landed した `nyash_kernel` の 4 層 split を前提に、`main kilo` を split kernel 上で reopen する。
+- Status: Successor
+- 目的: `phase-138x` で semantic ownership の最終形を固定した後、split kernel 上で `main kilo` を reopen する。
 - 対象:
   - `CURRENT_TASK.md`
   - `docs/development/current/main/05-Restart-Quick-Resume.md`
@@ -19,7 +19,8 @@
   2. `micro kilo`
   3. `main kilo`
 - `phase-134x` structural split is landed
-- current work is to reopen `main kilo` on the split `nyash_kernel`
+- `phase-138x` semantic owner cutover is intentionally one architecture corridor ahead of this lane
+- current work is not `main kilo` yet
 - `vm-hako` stays parked as reference/conformance
 
 ## Fresh Read
@@ -32,7 +33,8 @@
 
 ## Next
 
-1. refresh `kilo_kernel_small_hk` baselines
-2. recheck `kilo_micro_substring_concat`
-3. recheck `kilo_micro_array_getset`
-4. choose the next hot leaf under the split kernel
+1. finish `phase-138x nyash_kernel semantic owner cutover`
+2. refresh `kilo_kernel_small_hk` baselines
+3. recheck `kilo_micro_substring_concat`
+4. recheck `kilo_micro_array_getset`
+5. choose the next hot leaf under the split kernel

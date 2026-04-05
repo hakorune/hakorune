@@ -20,20 +20,21 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-137x main kilo reopen selection`
-- current front: `kilo_kernel_small_hk` 再ベースライン + `kilo_micro_substring_concat` / `kilo_micro_array_getset` 再確認
-- blocker: `nyash_kernel` の構造分割は landed。split kernel 上で `main kilo` を reopen する
+- lane: `phase-138x nyash_kernel semantic owner cutover`
+- current front: `Rust host microkernel` / `.hako semantic kernel` / `native accelerators` の最終 owner model を固定し、`Array owner` pilot を次の実装 lane にする
+- blocker: `nyash_kernel` の4層 split は landed。`main kilo` を reopen する前に semantic ownership の最終形を current SSOT に固定する
 - landed:
   - `phase-134x nyash_kernel layer recut selection`
   - `phase-133x micro kilo reopen selection`
 - active next:
-  - `phase-kx vm-hako small reference interpreter recut`
+  - `phase-139x array owner pilot`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-137x/README.md`
+3. `docs/development/current/main/phases/phase-138x/README.md`
+4. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
 
 ## Decision Lock
 
@@ -45,14 +46,20 @@ tools/checks/dev_gate.sh quick
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
   - `kilo_micro_indexof_line`: `c_ms=4 / ny_aot_ms=3`
-- current work is structural:
-  - classify `nyash_kernel` into `keep / thin keep / compat glue / substrate candidate`
-  - do not start broad `.hako` migration before that split is source-backed
+- `phase-134x` landed the split:
+  - `keep / thin keep / compat glue / substrate candidate`
+- current work is architectural:
+  - fix the final owner model after the split
+  - keep host/kernel keep, ABI thin facade, and hot leaf substrate in Rust
+  - move semantic ownership and collection policy toward `.hako`
+  - keep compat quarantine out of the permanent owner graph
 
-## First Source Slices
+## First Design Slices
 
-- `crates/nyash_kernel/src/exports/string.rs` split
-- `crates/nyash_kernel/src/plugin/map_substrate.rs` thin-alias recut
+- `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
+- `crates/nyash_kernel/src/plugin/array_substrate.rs`
+- `crates/nyash_kernel/src/plugin/map_aliases.rs`
+- `crates/nyash_kernel/src/plugin/module_string_dispatch/`
 
 ## Current Proof Bundle
 

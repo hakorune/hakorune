@@ -1,5 +1,6 @@
 # Phase 137x Task Board
 
+- successor lane; start after `phase-138x`
 - [ ] A1 refresh `kilo_kernel_small_hk` baselines
 - [ ] A2 recheck `kilo_micro_substring_concat`
 - [ ] A3 recheck `kilo_micro_array_getset`
