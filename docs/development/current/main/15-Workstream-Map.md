@@ -14,11 +14,11 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-115x vm route retirement planning` |
-| Front | `compat / proof / debug だけに残る vm-family route の inventory と retirement order を固定する` |
+| Now | `phase-116x execution surface alias pruning` |
+| Front | `naked stage-a alias を削り、compat surface を route/mode の二段に揃える` |
 | Blocker | `none` |
-| Next | `run.sh` / `selfhost_run_routes.sh` / `tools/selfhost/proof/*` / active observability smokes の vm dependency inventory |
-| After Next | `phase-116x execution surface alias pruning` |
+| Next | `run.sh` / `selfhost_run_routes.sh` / `tools/selfhost/README.md` / execution SSOT から `stage-a` alias を削る |
+| After Next | `phase-117x vm compat/proof env hardening` |
 
 ## Current Read
 
@@ -40,6 +40,7 @@ Related:
 - `113x` reserved `kernel` for `nyash_kernel` and fixed `lang/src/vm` as a VM/reference cluster
 - `114x` made public/help surface read `mainline route` vs `explicit keep/reference override`
 - `115x` inventory is now split into `compat route`, `proof wrappers`, and `debug/observability`
+- `116x` is shrinking alias pressure first: `stage-a` goes away, `runtime-route compat` and `runtime-mode stage-a-compat` stay
 - `80x` is landed; pointer docs are thin again
 - `81x` closed with a no-op archive sweep
 - `83x` closed as an explicit keep proof for top-level selfhost wrappers
@@ -57,9 +58,9 @@ Related:
 
 ## Successor Corridor
 
-1. `phase-115x vm route retirement planning`
-2. `phase-116x execution surface alias pruning`
-3. `phase-117x vm compat/proof env hardening`
+1. `phase-116x execution surface alias pruning`
+2. `phase-117x vm compat/proof env hardening`
+3. `phase-118x proof wrapper surface review`
 
 ## Parked After Optimization
 
@@ -89,9 +90,9 @@ Related:
 ## Reference
 
 - current lane docs:
+  - `docs/development/current/main/phases/phase-116x/README.md`
   - `docs/development/current/main/phases/phase-115x/README.md`
   - `docs/development/current/main/phases/phase-114x/README.md`
-  - `docs/development/current/main/phases/phase-113x/README.md`
 - recent landed:
   - `docs/development/current/main/phases/phase-103/README.md`
   - `docs/development/current/main/phases/phase-102/README.md`

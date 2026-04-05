@@ -21,7 +21,7 @@ resolve_path() {
 emit_runtime_route_tag() {
   local mode="$1"
   local source="$2"
-  if [ "$mode" = "stage-a" ] || [ "$mode" = "stage-a-compat" ]; then
+  if [ "$mode" = "stage-a-compat" ]; then
     mode="stage-a-compat"
   fi
   echo "[selfhost/route] id=SH-RUNTIME-SELFHOST mode=$mode source=$source" >&2
@@ -29,7 +29,7 @@ emit_runtime_route_tag() {
 
 canonical_runtime_route_name() {
   case "$1" in
-    stage-a|stage-a-compat|compat)
+    stage-a-compat|compat)
       echo "compat"
       ;;
     exe|mainline|"")

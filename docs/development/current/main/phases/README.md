@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 115x vm route retirement planning
+- **Current (ACTIVE)**: Phase 116x execution surface alias pruning
+- **Phase 115x（LANDED）**: vm route retirement planning
 - **Phase 114x（LANDED）**: execution surface wording closeout
 - **Phase 113x（LANDED）**: kernel vs vm-reference cluster wording correction
 - **Phase 112x（LANDED）**: vm-family lane naming hardening

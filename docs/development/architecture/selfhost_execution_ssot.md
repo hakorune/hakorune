@@ -28,7 +28,7 @@ Date: 2026-04-05
 が持つ。
 
 外向き surface の canonical 名は `--runtime-route mainline|compat`。
-`--runtime-mode exe|stage-a-compat` と `stage-a` は compatibility alias として残す。
+`--runtime-mode exe|stage-a-compat` は compatibility alias として残す。
 
 ### CLI backend override
 
@@ -126,7 +126,7 @@ Public surface:
 Body:
 - explicit compat keep
 - 実行時には `--backend vm` を使う narrow keep route
-- `stage-a` は thin alias only で、canonical route 名ではない
+- naked `stage-a` alias は retired。compat surface は `runtime-route compat` / `runtime-mode stage-a-compat` に揃える。
 
 ### `direct/proof`
 
@@ -190,7 +190,7 @@ current lane set:
 
 外向き rename 方向:
 - `runtime-mode exe` -> `runtime-route mainline`
-- `stage-a` / `stage-a-compat` -> `runtime-route compat`
+- `stage-a-compat` -> `runtime-route compat`
 
 互換 alias は当面残してよいが、SSOT の canonical 名は `mainline` / `compat` に寄せる。
 

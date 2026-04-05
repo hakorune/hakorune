@@ -25,7 +25,7 @@ Script
     - `--gate`: run selfhost gate (`phase29bq_selfhost_planner_required_dev_gate_vm.sh`)
     - `--runtime`: run runtime selfhost route (`NYASH_USE_NY_COMPILER=1`)
       - `--runtime-route mainline|compat` is canonical
-      - `--runtime-mode exe|stage-a-compat` remains a compatibility alias (`stage-a` is also a thin alias)
+      - `--runtime-mode exe|stage-a-compat` remains a compatibility alias
     - `--direct`: run Stage-B direct/source route (proof-oriented; VM wrapper is kept explicit-only)
   - Examples:
     ```bash

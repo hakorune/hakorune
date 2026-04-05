@@ -12,10 +12,11 @@ Related:
 
 ## Current
 
-- lane: `phase-115x vm route retirement planning`
-- current front: `compat / proof / debug だけに残る vm-family route の inventory と retirement order を固定する`
+- lane: `phase-116x execution surface alias pruning`
+- current front: `naked stage-a alias を削り、compat surface を route/mode の二段に揃える`
 - blocker: `none`
 - recent landed:
+  - `phase-115x vm route retirement planning`
   - `phase-114x execution surface wording closeout`
   - `phase-113x kernel vs vm-reference cluster wording correction`
   - `phase-112x vm-family lane naming hardening`
@@ -40,12 +41,12 @@ Related:
 - `phase-103` landed with if-only merge / early return parity on VM and LLVM EXE
 - `phase-104` landed with loop(true)+break-only digits parity on VM and LLVM EXE
 - `phase-105` restored the original long digit OR-chain parity on VM and LLVM EXE
-- current work is the vm route retirement planning lane:
+- current work is the execution surface alias pruning lane:
   - vocabulary split: `stage / route / backend override / lane / kernel`
   - selfhost mainline already reads as `runtime-route mainline`
   - raw `--backend vm` is now treated as compat/proof/debug only
   - current buckets are `compat route`, `proof wrappers`, `debug/observability`
-  - next step is retirement order, not another wording-only pass
+  - live alias target is the naked `stage-a` route name
 
 ## Root Anchors
 
@@ -56,4 +57,4 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-115x/README.md`
+2. `docs/development/current/main/phases/phase-116x/README.md`

@@ -177,7 +177,7 @@ canonical_runtime_route() {
     mainline|exe)
       echo "mainline"
       ;;
-    compat|stage-a|stage-a-compat)
+    compat|stage-a-compat)
       echo "compat"
       ;;
     *)
@@ -187,7 +187,7 @@ canonical_runtime_route() {
 }
 
 # Canonical runtime surface is route-first (`mainline|compat`).
-# Keep `--runtime-mode exe|stage-a-compat` and `stage-a` as compatibility aliases only.
+# Keep `--runtime-mode exe|stage-a-compat` as a compatibility alias only.
 if [ "$mode" = "runtime" ]; then
   runtime_route_from_mode=""
   runtime_route_from_arg=""
@@ -200,11 +200,11 @@ if [ "$mode" = "runtime" ]; then
   fi
 
   if [ -n "$runtime_route" ] && [ -z "$runtime_route_from_arg" ]; then
-    echo "[selfhost/run] --runtime-route must be mainline|compat (compat aliases: stage-a|stage-a-compat; got: $runtime_route)" >&2
+    echo "[selfhost/run] --runtime-route must be mainline|compat (compat mode alias stays on --runtime-mode stage-a-compat; got: $runtime_route)" >&2
     exit 2
   fi
   if [ "$runtime_mode_explicit" = "1" ] && [ -z "$runtime_route_from_mode" ]; then
-    echo "[selfhost/run] --runtime-mode must be exe|stage-a-compat (alias: stage-a; got: $runtime_mode)" >&2
+    echo "[selfhost/run] --runtime-mode must be exe|stage-a-compat (got: $runtime_mode)" >&2
     exit 2
   fi
   if [ -n "$runtime_route_from_arg" ] && [ -n "$runtime_route_from_mode" ] && [ "$runtime_route_from_arg" != "$runtime_route_from_mode" ]; then

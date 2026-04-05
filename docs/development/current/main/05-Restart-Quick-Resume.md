@@ -20,10 +20,11 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-115x vm route retirement planning`
-- current front: `compat / proof / debug だけに残る vm-family route の inventory と retirement order を固定する`
+- lane: `phase-116x execution surface alias pruning`
+- current front: `naked stage-a alias を削り、compat surface を route/mode の二段に揃える`
 - blocker: `none`
 - recent landed:
+  - `phase-115x vm route retirement planning`
   - `phase-114x execution surface wording closeout`
   - `phase-113x kernel vs vm-reference cluster wording correction`
   - `phase-112x vm-family lane naming hardening`
@@ -38,13 +39,13 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-115x/README.md`
+3. `docs/development/current/main/phases/phase-116x/README.md`
 
 ## Successor Corridor
 
-1. `phase-115x vm route retirement planning`
-2. `phase-116x execution surface alias pruning`
-3. `phase-117x vm compat/proof env hardening`
+1. `phase-116x execution surface alias pruning`
+2. `phase-117x vm compat/proof env hardening`
+3. `phase-118x proof wrapper surface review`
 
 ## Parked After Optimization
 
