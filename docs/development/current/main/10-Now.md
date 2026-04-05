@@ -12,9 +12,9 @@ Related:
 
 ## Current
 
-- lane: `phase-137x main kilo reopen selection`
-- current front: split kernel / semantic-optimization contract / llvmlite retreat後の current truth を取り直し、next hot leaf を pin する
-- blocker: first exact front は `array_string_store_handle_at(...)`、second front は `concat_const_suffix_fallback(...)`
+- lane: `phase-155x perf canonical visibility tighten`
+- current front: `phase-137x` の exact perf front を canonical contract reading から先に読めるように固定する
+- blocker: perf front がまだ Rust executor 名先行で読まれやすいこと
 - first landed slice:
   - `tools/selfhost/lib/selfhost_build_exe.sh` no longer forces harness on the daily EXE lane
   - provider/selfhost docs now read llvmlite as explicit keep only
@@ -23,8 +23,11 @@ Related:
   - WSL EXE-first and selfhost pilot guides now treat llvmlite as keep-only
   - public env reference labels `NYASH_LLVM_USE_HARNESS=1` examples as explicit keep-lane
 - perf reopen front:
-  - `array_string_store_handle_at(...)`
-  - `concat_const_suffix_fallback(...)`
+  - `store.array.str` -> `array_string_store_handle_at(...)`
+  - `const_suffix` / `thaw.str + lit.str + str.concat2 + freeze.str` -> `concat_const_suffix_fallback(...)`
+- latest bundle anchor:
+  - `target/trace_logs/kilo-string-trace-asm/20260406-024104/summary.txt`
+  - `target/trace_logs/kilo-string-trace-asm/20260406-024104/asm/perf_report.txt`
 - recent landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`

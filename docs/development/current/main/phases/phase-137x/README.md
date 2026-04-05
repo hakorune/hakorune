@@ -1,7 +1,7 @@
 # Phase 137x: main kilo reopen selection
 
-- Status: Active
-- 目的: semantic ownership の最終形と canonical lowering visibility lock が landed した split kernel 上で `main kilo` を reopen する。llvmlite object emit retreat は landed し、現在は perf consumer として resumed。
+- Status: Paused (consumer after phase-155x)
+- 目的: semantic ownership の最終形と canonical lowering visibility lock が landed した split kernel 上で `main kilo` を reopen する。llvmlite object emit retreat は landed し、現在は canonical perf front freeze の後続 consumer として待機。
 - 対象:
   - `CURRENT_TASK.md`
   - `docs/development/current/main/05-Restart-Quick-Resume.md`
@@ -54,6 +54,8 @@
 ## Next
 
 1. keep canonical contract corridor landed and immutable
-2. continue `array_string_store_handle_at(...)` as first exact front
-3. keep `concat_const_suffix_fallback(...)` as second exact front
+2. continue canonical `store.array.str` as first exact front
+   - current executor: `array_string_store_handle_at(...)`
+3. keep canonical `const_suffix` / `thaw.str + lit.str + str.concat2 + freeze.str` as second exact front
+   - current executor: `concat_const_suffix_fallback(...)`
 4. use exact micro + whole-kilo together before moving to a new leaf

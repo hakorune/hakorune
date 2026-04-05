@@ -14,10 +14,10 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-137x main kilo reopen selection` |
-| Front | split kernel / semantic-optimization contract / llvmlite retreat後の current truth を取り直し、next hot leaf を pin する |
-| Blocker | first exact front は `array_string_store_handle_at(...)`、second front は `concat_const_suffix_fallback(...)` |
-| Next | `phase-kx vm-hako small reference interpreter recut` |
+| Now | `phase-155x perf canonical visibility tighten` |
+| Front | `phase-137x` の exact perf front を canonical contract reading から先に読めるように固定する |
+| Blocker | perf front がまだ Rust executor 名先行で読まれやすいこと |
+| Next | `phase-137x main kilo reopen selection` |
 | After Next | `phase-kx vm-hako small reference interpreter recut` |
 
 ## Current Read
@@ -71,6 +71,10 @@ Related:
   - `docs/guides/selfhost-pilot.md`
   - `docs/reference/environment-variables.md`
   now treat llvmlite as explicit keep-lane only
+- `phase-155x` freezes canonical perf front:
+  - `store.array.str` first
+  - `const_suffix` / `thaw.str + lit.str + str.concat2 + freeze.str` second
+  - latest bundle anchor = `20260406-024104`
 - paused reopen truth:
   - baseline: `kilo_kernel_small_hk = 1529ms`
   - string const fast-path: `775ms`
@@ -87,7 +91,8 @@ Related:
 
 ## Successor Corridor
 
-1. `phase-kx vm-hako small reference interpreter recut`
+1. `phase-137x main kilo reopen selection`
+2. `phase-kx vm-hako small reference interpreter recut`
 
 ## Parked After Optimization
 

@@ -4,10 +4,12 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 152x llvmlite object emit cutover
-- **Phase 154x（NEXT）**: llvmlite archive lock
-- **Phase 153x（NEXT）**: ny_mir_builder harness drop
-- **Phase 152x（ACTIVE）**: llvmlite object emit cutover
+- **Current (ACTIVE)**: Phase 155x perf canonical visibility tighten
+- **Phase 137x（NEXT）**: main kilo reopen selection
+- **Phase 155x（ACTIVE）**: perf canonical visibility tighten
+- **Phase 154x（LANDED）**: llvmlite archive lock
+- **Phase 153x（LANDED）**: ny_mir_builder harness drop
+- **Phase 152x（LANDED）**: llvmlite object emit cutover
 - **Phase 151x（LANDED）**: canonical lowering visibility lock
 - **Phase 150x（LANDED）**: array string-store vertical slice
 - **Phase 149x（LANDED）**: concat const-suffix vertical slice

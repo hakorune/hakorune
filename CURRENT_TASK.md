@@ -41,25 +41,27 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 20. `phase-152x llvmlite object emit cutover` (landed)
 21. `phase-153x ny_mir_builder harness drop` (landed)
 22. `phase-154x llvmlite archive lock` (landed)
-23. `phase-137x main kilo reopen selection` (active)
-24. `phase-kx vm-hako small reference interpreter recut` (parked after optimization)
+23. `phase-155x perf canonical visibility tighten` (active)
+24. `phase-137x main kilo reopen selection` (active consumer after visibility tighten)
+25. `phase-kx vm-hako small reference interpreter recut` (parked after optimization)
 
 ## Current Front
 
-- Active lane: `phase-137x main kilo reopen selection`
-- Active front: split kernel / semantic-optimization contract / llvmlite retreat後の current truth を取り直し、next hot leaf を pin する
-- Current blocker: first exact front は `array_string_store_handle_at(...)`、second front は `concat_const_suffix_fallback(...)`
+- Active lane: `phase-155x perf canonical visibility tighten`
+- Active front: `phase-137x` の exact perf front を canonical contract reading から先に読めるように固定する
+- Current blocker: perf front がまだ Rust executor 名先行で読まれやすいこと
 - Exact focus:
-  - `docs/reference/architecture/llvm-harness.md`
-  - `docs/reference/environment-variables.md`
-  - `docs/development/runtime/ENV_VARS.md`
-  - `src/config/env/vm_backend_flags.rs`
-  - `tools/llvmlite_harness.py`
-  - `src/llvm_py/**`
+  - `docs/development/current/main/phases/phase-137x/README.md`
+  - `docs/development/current/main/phases/phase-155x/README.md`
+  - `crates/nyash_kernel/src/plugin/array_string_slot.rs`
+  - `crates/nyash_kernel/src/exports/string_helpers.rs`
+  - `target/trace_logs/kilo-string-trace-asm/20260406-024104/summary.txt`
+  - `target/trace_logs/kilo-string-trace-asm/20260406-024104/asm/perf_report.txt`
 
 ## Successor Corridor
 
-1. `phase-kx vm-hako small reference interpreter recut`
+1. `phase-137x main kilo reopen selection`
+2. `phase-kx vm-hako small reference interpreter recut`
 
 ## Parked After Optimization
 
@@ -113,6 +115,17 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   - `kilo_kernel_small_hk`: latest reread `ny_aot_ms=745`
   - `kilo_micro_concat_const_suffix`: `ny_aot_ms=85`
   - `kilo_micro_array_string_store`: `ny_aot_ms=207`
+- `phase-155x` current perf order is fixed as canonical reading first:
+  1. `store.array.str`
+     - executor detail: `array_string_store_handle_at(...)`
+     - exact micro: `kilo_micro_array_string_store`
+  2. `const_suffix`
+     - canonical reading: `thaw.str + lit.str + str.concat2 + freeze.str`
+     - executor detail: `concat_const_suffix_fallback(...)`
+     - exact micro: `kilo_micro_concat_const_suffix`
+- latest bundle anchor:
+  - `target/trace_logs/kilo-string-trace-asm/20260406-024104/summary.txt`
+  - `target/trace_logs/kilo-string-trace-asm/20260406-024104/asm/perf_report.txt`
 - fixed perf reopen order remains:
   - `leaf-proof micro`
   - `micro kilo`
