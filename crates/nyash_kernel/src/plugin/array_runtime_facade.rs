@@ -9,6 +9,10 @@ use super::array_slot_store::{
 use super::array_string_slot::{array_string_indexof_by_index, array_string_len_by_index};
 use super::value_codec::any_arg_to_index;
 
+// Runtime/compat forwarding only.
+// Array semantic ownership lives in `.hako` (`ArrayCoreBox` / `ArrayStateCoreBox`);
+// keep this module limited to handle/index coercion and stable host ABI forwarding.
+
 // Shared fail-safe guards for runtime-only array routes.
 #[inline(always)]
 fn with_runtime_index_or_zero(handle: i64, key_any: i64, f: impl FnOnce(i64) -> i64) -> i64 {
@@ -101,8 +105,8 @@ pub(super) fn array_runtime_string_indexof_at(handle: i64, idx: i64, needle_h: i
     array_string_indexof_by_index(handle, idx, needle_h)
 }
 
-// ABI exports for runtime-only aliases. These are not the canonical `.hako`
-// collection-owner symbols; they preserve the existing host ABI surface.
+// ABI exports for runtime-only aliases. These are intentionally non-owning and
+// should shrink over time as `.hako` semantic owners absorb visible policy.
 #[export_name = "nyash.array.get_hh"]
 pub extern "C" fn nyash_array_get_hh_alias(handle: i64, key_any: i64) -> i64 {
     array_runtime_get_any_key(handle, key_any)

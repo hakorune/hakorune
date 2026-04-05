@@ -14,10 +14,10 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-138x nyash_kernel semantic owner cutover` |
-| Front | `Rust host microkernel` / `.hako semantic kernel` / `native accelerators` の最終 owner model を固定する |
-| Blocker | `nyash_kernel` の4層 split は landed。次に reopen する前に semantic ownership の stop-line を current SSOT に落とす |
-| Next | `phase-139x array owner pilot` |
+| Now | `phase-139x array owner pilot` |
+| Front | `ArrayCoreBox` / `ArrayStateCoreBox` を visible owner に固定し、Rust を ABI facade / substrate / accelerators に保つ |
+| Blocker | final owner graph は fixed。次は Array owner の exact seam と compat/runtime forwarding の shrink line を source-backed に決める |
+| Next | `phase-140x map owner pilot` |
 | After Next | `phase-137x main kilo reopen selection` |
 
 ## Current Read
@@ -34,35 +34,35 @@ Related:
   - `thin keep`
   - `compat glue`
   - `substrate candidate`
-- landed source slices:
-  - `crates/nyash_kernel/src/exports/string.rs` split
-  - `crates/nyash_kernel/src/plugin/map_substrate.rs` thin-alias recut
-- current work is not broad `.hako` migration:
-  - first lock the permanent owner graph
-  - then move `Array owner`
-  - then move `Map owner`
-- final architecture reading:
+- `phase-138x` landed the final owner graph:
   - `Rust host microkernel`
   - `.hako semantic kernel`
   - `native accelerators`
   - `ABI facade` thin keep
   - `compat quarantine` non-owner
+- landed source slices:
+  - `crates/nyash_kernel/src/exports/string.rs` split
+  - `crates/nyash_kernel/src/plugin/map_substrate.rs` thin-alias recut
+- current work is the first narrow `.hako` owner cut:
+  - `.hako` owner = `array_core_box.hako` / `array_state_core_box.hako`
+  - substrate below = `raw_array_core_box.hako` / `ptr_core_box.hako`
+  - Rust ABI facade = `array_substrate.rs`
+  - Rust compat/runtime forwarding = `array_runtime_facade.rs`
+  - Rust accelerators = `array_handle_cache.rs` / `array_string_slot.rs`
 - next fixed corridor:
-  1. `phase-138x nyash_kernel semantic owner cutover`
-  2. `phase-139x array owner pilot`
-  3. `phase-140x map owner pilot`
-  4. `phase-141x string semantic boundary review`
-  5. `phase-137x main kilo reopen selection`
-  6. `phase-kx vm-hako small reference interpreter recut`
+  1. `phase-139x array owner pilot`
+  2. `phase-140x map owner pilot`
+  3. `phase-141x string semantic boundary review`
+  4. `phase-137x main kilo reopen selection`
+  5. `phase-kx vm-hako small reference interpreter recut`
 
 ## Successor Corridor
 
-1. `phase-138x nyash_kernel semantic owner cutover`
-2. `phase-139x array owner pilot`
-3. `phase-140x map owner pilot`
-4. `phase-141x string semantic boundary review`
-5. `phase-137x main kilo reopen selection`
-6. `phase-kx vm-hako small reference interpreter recut`
+1. `phase-139x array owner pilot`
+2. `phase-140x map owner pilot`
+3. `phase-141x string semantic boundary review`
+4. `phase-137x main kilo reopen selection`
+5. `phase-kx vm-hako small reference interpreter recut`
 
 ## Parked After Optimization
 
@@ -85,8 +85,9 @@ Related:
 ## Reference
 
 - current lane docs:
-  - `docs/development/current/main/phases/phase-138x/README.md`
+  - `docs/development/current/main/phases/phase-139x/README.md`
   - `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
+  - `docs/development/current/main/phases/phase-138x/README.md`
   - `docs/development/current/main/phases/phase-137x/README.md`
   - `docs/development/current/main/phases/phase-134x/README.md`
   - `docs/development/current/main/phases/phase-133x/README.md`

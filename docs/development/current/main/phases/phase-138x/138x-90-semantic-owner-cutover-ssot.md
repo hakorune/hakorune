@@ -30,6 +30,25 @@ Turn the landed four-bucket split into a stable final owner model before reopeni
 2. `Map owner`
 3. `String` semantic boundary review
 
+## Array Pilot Seam
+
+- visible owner:
+  - `lang/src/runtime/collections/array_core_box.hako`
+  - `lang/src/runtime/collections/array_state_core_box.hako`
+- substrate below the owner:
+  - `lang/src/runtime/substrate/raw_array/raw_array_core_box.hako`
+  - `lang/src/runtime/substrate/ptr/ptr_core_box.hako`
+- Rust ABI facade:
+  - `crates/nyash_kernel/src/plugin/array_substrate.rs`
+- Rust compat/runtime forwarding:
+  - `crates/nyash_kernel/src/plugin/array_runtime_facade.rs`
+- Rust accelerators:
+  - `crates/nyash_kernel/src/plugin/array_handle_cache.rs`
+  - `crates/nyash_kernel/src/plugin/array_string_slot.rs`
+
+The pilot moves visible semantics only. Raw slot implementation and cache/fast
+path remain Rust-native.
+
 ## Success Condition
 
 - current docs read `semantic owner cutover`, not `perf reopen`

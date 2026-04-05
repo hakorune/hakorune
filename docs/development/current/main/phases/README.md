@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 138x nyash_kernel semantic owner cutover
+- **Current (ACTIVE)**: Phase 139x array owner pilot
+- **Phase 138x（LANDED）**: nyash_kernel semantic owner cutover
 - **Phase 137x（SUCCESSOR）**: main kilo reopen selection
 - **Phase 134x（LANDED）**: nyash_kernel layer recut selection
 - **Phase 133x（LANDED）**: micro kilo reopen selection
@@ -45,6 +46,7 @@
 
 ### Recent Landed
 
+- **Phase 138x（LANDED）**: nyash_kernel semantic owner cutover
 - **Phase 134x（LANDED）**: nyash_kernel layer recut selection
 - **Phase 133x（LANDED）**: micro kilo reopen selection
 - **Phase 132x（LANDED）**: vm default backend decision
@@ -78,10 +80,10 @@
 ## Phase フォルダ構成（推奨）
 
 ```
-phases/phase-138x/
+phases/phase-139x/
 ├── README.md
-├── 138x-90-semantic-owner-cutover-ssot.md
-└── 138x-91-task-board.md
+├── 139x-90-array-owner-pilot-ssot.md
+└── 139x-91-task-board.md
 ```
 
 ## 参照方法

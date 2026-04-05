@@ -60,6 +60,26 @@ This bucket must not absorb new collection semantics.
 
 This bucket owns meaning, not raw unsafe leaf work.
 
+#### Array semantic owner seam
+
+- visible owner:
+  - `lang/src/runtime/collections/array_core_box.hako`
+  - `lang/src/runtime/collections/array_state_core_box.hako`
+- substrate below the owner:
+  - `lang/src/runtime/substrate/raw_array/raw_array_core_box.hako`
+  - `lang/src/runtime/substrate/ptr/ptr_core_box.hako`
+- ABI facade:
+  - `crates/nyash_kernel/src/plugin/array_substrate.rs`
+- compat/runtime forwarding:
+  - `crates/nyash_kernel/src/plugin/array_runtime_facade.rs`
+- native accelerators kept in Rust:
+  - `crates/nyash_kernel/src/plugin/array_handle_cache.rs`
+  - `crates/nyash_kernel/src/plugin/array_string_slot.rs`
+
+The first pilot moves visible `ArrayBox.{get,set,push,len,length,size}` semantics,
+fallback, and state bookkeeping to `.hako` owner authority. It does not move raw
+slot implementation or cache/fast-path substrate out of Rust.
+
 ### 3. native accelerators
 
 - lifetime-sensitive substrate
@@ -85,6 +105,10 @@ This bucket provides capability only and must not become a semantic owner.
   - `crates/nyash_kernel/src/plugin/map_aliases.rs`
 
 No new domain semantics belong here.
+
+For `Array`, the thin facade ends at `nyash.array.slot_*` aliases. Historical
+runtime aliases such as `nyash.array.get_hh` / `set_hhh` / `has_hh` remain
+compat forwarding only and must not regain owner logic.
 
 ### compat quarantine
 

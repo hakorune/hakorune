@@ -20,20 +20,21 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-138x nyash_kernel semantic owner cutover`
-- current front: `Rust host microkernel` / `.hako semantic kernel` / `native accelerators` の最終 owner model を固定し、`Array owner` pilot を次の実装 lane にする
-- blocker: `nyash_kernel` の4層 split は landed。`main kilo` を reopen する前に semantic ownership の最終形を current SSOT に固定する
+- lane: `phase-139x array owner pilot`
+- current front: `ArrayCoreBox` / `ArrayStateCoreBox` を visible semantics owner として固定し、Rust を ABI facade + raw substrate + accelerators に保つ
+- blocker: final owner graph は fixed。次は `Array owner` pilot で、owner と forwarding の境界を source-backed に固定する
 - landed:
+  - `phase-138x nyash_kernel semantic owner cutover`
   - `phase-134x nyash_kernel layer recut selection`
   - `phase-133x micro kilo reopen selection`
 - active next:
-  - `phase-139x array owner pilot`
+  - `phase-140x map owner pilot`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-138x/README.md`
+3. `docs/development/current/main/phases/phase-139x/README.md`
 4. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
 
 ## Decision Lock
@@ -48,18 +49,26 @@ tools/checks/dev_gate.sh quick
   - `kilo_micro_indexof_line`: `c_ms=4 / ny_aot_ms=3`
 - `phase-134x` landed the split:
   - `keep / thin keep / compat glue / substrate candidate`
-- current work is architectural:
-  - fix the final owner model after the split
-  - keep host/kernel keep, ABI thin facade, and hot leaf substrate in Rust
-  - move semantic ownership and collection policy toward `.hako`
-  - keep compat quarantine out of the permanent owner graph
+- `phase-138x` landed the final owner model:
+  - `Rust host microkernel`
+  - `.hako semantic kernel`
+  - `native accelerators`
+  - `ABI facade`
+  - `compat quarantine`
+- current work is the first pilot:
+  - `ArrayCoreBox` / `ArrayStateCoreBox` hold visible semantics
+  - `RawArrayCoreBox` / `PtrCoreBox` stay substrate
+  - Rust `array_substrate.rs` stays thin ABI facade
+  - Rust `array_runtime_facade.rs` stays compat/runtime forwarding
+  - Rust cache/fast-path leaves stay native accelerators
 
 ## First Design Slices
 
 - `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
+- `lang/src/runtime/collections/array_core_box.hako`
+- `lang/src/runtime/collections/array_state_core_box.hako`
 - `crates/nyash_kernel/src/plugin/array_substrate.rs`
-- `crates/nyash_kernel/src/plugin/map_aliases.rs`
-- `crates/nyash_kernel/src/plugin/module_string_dispatch/`
+- `crates/nyash_kernel/src/plugin/array_runtime_facade.rs`
 
 ## Current Proof Bundle
 
