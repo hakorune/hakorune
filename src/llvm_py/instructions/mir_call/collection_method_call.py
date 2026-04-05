@@ -51,6 +51,19 @@ def _lower_call_spec(
     return None
 
 
+def _lower_store_map_value_current_lowering(
+    *, builder: ir.IRBuilder, declare: Callable, recv_h, key, value
+):
+    """
+    phase-151x visibility lock:
+    current concrete lowering for canonical `store.map.value`.
+    Keep semantic ownership above this helper.
+    """
+    i64 = ir.IntType(64)
+    callee = declare("nyash.map.slot_store_hhh", i64, [i64, i64, i64])
+    return builder.call(callee, [recv_h, key, value], name="unified_map_slot_store_hhh")
+
+
 def _lower_array_collection_method_call(
     *,
     builder: ir.IRBuilder,
@@ -140,8 +153,13 @@ def _lower_map_collection_method_call(
             return recv_h
         key = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
         value = _resolve_or_zero(resolve_arg, arg_ids, 1, zero)
-        callee = declare("nyash.map.slot_store_hhh", i64, [i64, i64, i64])
-        return builder.call(callee, [recv_h, key, value], name="unified_map_slot_store_hhh")
+        return _lower_store_map_value_current_lowering(
+            builder=builder,
+            declare=declare,
+            recv_h=recv_h,
+            key=key,
+            value=value,
+        )
 
     if method_name == "has":
         key = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)

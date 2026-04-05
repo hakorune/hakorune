@@ -1,6 +1,6 @@
 # Phase 149x: concat const-suffix vertical slice
 
-- Status: Current
+- Status: Landed
 - 目的: `concat const-suffix` を最初の contract-first vertical slice にする
 
 ## Slice Order

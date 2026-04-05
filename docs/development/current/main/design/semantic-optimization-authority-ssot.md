@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/15-Workstream-Map.md
   - docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md
+  - docs/development/current/main/design/canonical-lowering-visibility-ssot.md
   - lang/src/runtime/kernel/string/README.md
   - lang/src/runtime/kernel/string/chain_policy.hako
   - lang/src/runtime/kernel/string/search.hako

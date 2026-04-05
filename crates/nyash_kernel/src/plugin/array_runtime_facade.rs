@@ -20,7 +20,8 @@ pub(super) fn array_runtime_set_idx_i64(handle: i64, idx: i64, value_i64: i64) -
     array_slot_store_i64(handle, idx, value_i64)
 }
 
-// Current runtime facade spelling for the canonical `store.array.str` contract.
+// phase-151x visibility lock:
+// current runtime facade spelling for canonical `store.array.str`.
 // Keep semantic ownership above this layer and treat this as index-backed
 // forwarding only.
 pub(super) fn array_runtime_store_array_string(handle: i64, idx: i64, value_h: i64) -> i64 {

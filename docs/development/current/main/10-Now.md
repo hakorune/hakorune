@@ -12,9 +12,9 @@ Related:
 
 ## Current
 
-- lane: `phase-150x array string-store vertical slice`
-- current front: `ArrayStoreString` route の second contract-first consumer を実装する
-- blocker: current concrete symbol `nyash.array.set_his` を authority ではなく ABI/executor detail に押し込むこと
+- lane: `phase-151x canonical lowering visibility lock`
+- current front: canonical MIR readings を current concrete lowering に対して source-backed に固定する
+- blocker: docs 上の canonical names だけでは perf reopen gate を開けないこと
 - recent landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -70,6 +70,8 @@ Related:
   - `MapStoreAny -> store.map.value`
 - landed first consumer:
   - `const_suffix` current lowering now reads as executor detail under the canonical contract
+- landed second consumer:
+  - `ArrayStoreString` current lowering now reads as ABI/executor detail under canonical `store.array.str`
 - current stop-line:
   - do not reopen `phase-137x` until those canonical readings are visible against current concrete lowering
   - cleaner Rust executor shape alone is not enough
@@ -95,6 +97,6 @@ Related:
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
-3. `docs/development/current/main/phases/phase-150x/README.md`
+3. `docs/development/current/main/phases/phase-151x/README.md`
 4. `docs/development/current/main/phases/phase-137x/README.md`
 5. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`

@@ -20,9 +20,9 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-150x array string-store vertical slice`
-- current front: `ArrayStoreString` route を `.hako owner -> MIR canonical reading -> Rust executor` の第2 consumer として通す
-- blocker: current concrete symbol `nyash.array.set_his` を authority ではなく ABI/executor detail に押し込むこと
+- lane: `phase-151x canonical lowering visibility lock`
+- current front: `.hako owner -> MIR canonical reading -> current concrete lowering -> Rust executor` を source-backed に固定する
+- blocker: canonical MIR readings が docs だけでなく concrete lowering 側にも読めること
 - landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -30,7 +30,6 @@ tools/checks/dev_gate.sh quick
   - `phase-134x nyash_kernel layer recut selection`
   - `phase-133x micro kilo reopen selection`
 - active next:
-  - `phase-151x canonical lowering visibility lock`
   - `phase-137x main kilo reopen selection`
   - `phase-kx vm-hako small reference interpreter recut`
 
@@ -39,9 +38,9 @@ tools/checks/dev_gate.sh quick
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
 3. `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
-4. `docs/development/current/main/phases/phase-150x/README.md`
+4. `docs/development/current/main/phases/phase-151x/README.md`
 5. `docs/development/current/main/phases/phase-137x/README.md`
-6. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
+6. `docs/development/current/main/design/canonical-lowering-visibility-ssot.md`
 
 ## Decision Lock
 
@@ -107,6 +106,17 @@ tools/checks/dev_gate.sh quick
   - `MapStoreAny -> store.map.value`
 - `phase-149x` landed:
   - `const_suffix` current lowering now reads as canonical executor detail
+- `phase-150x` landed:
+  - `ArrayStoreString` current lowering now reads as ABI/executor detail under canonical `store.array.str`
+- `phase-151x` current lock:
+  - `const_suffix`
+  - `ArrayStoreString`
+  - `MapStoreAny`
+  must all be readable as:
+  - `.hako owner`
+  - `MIR canonical reading`
+  - `current concrete lowering`
+  - `Rust executor`
 
 ## First Design Slices
 
@@ -136,9 +146,7 @@ git diff --check
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
 - next contract-first slice:
-  - first vertical slice: `concat const-suffix`
-  - second vertical slice: `array string-store`
-  - then canonical lowering visibility lock
+  - canonical lowering visibility lock
   - perf consumer stays blocked until that lands
 - `phase-144x` landed:
   - `StringCoreBox.{size,indexOf,lastIndexOf,substring}` now reads through helperized wrapper paths

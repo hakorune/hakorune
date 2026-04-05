@@ -65,7 +65,8 @@
               case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_ANY:
                 /* owner route: `MapStoreAny`
                  * intended canonical MIR reading: `store.map.value`
-                 * current lowering still goes through the concrete substrate symbol.
+                 * phase-151x visibility lock keeps the current concrete lowering
+                 * visible instead of promoting this symbol to authority.
                  */
                 if (dst) {
                   fprintf(f, "  %%r%lld = call i64 @\"nyash.map.slot_store_hhh\"(%s)\n", dst, ab);
@@ -85,7 +86,8 @@
               case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_STRING:
                 /* owner route: `ArrayStoreString`
                  * intended canonical MIR reading: `store.array.str`
-                 * current lowering still goes through the concrete substrate symbol.
+                 * phase-151x visibility lock keeps the current concrete lowering
+                 * visible instead of promoting this symbol to authority.
                  */
                 if (dst) {
                   fprintf(f, "  %%r%lld = call i64 @\"nyash.array.set_his\"(%s)\n", dst, ab);

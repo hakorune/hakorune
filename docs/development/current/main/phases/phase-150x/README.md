@@ -1,6 +1,6 @@
 # Phase 150x: array string-store vertical slice
 
-- Status: Current
+- Status: Landed
 - 目的: `array string-store` を contract-first vertical slice の第2本目として固定する
 
 ## Slice Order

@@ -75,9 +75,9 @@
         }
         if (route == HAKO_LLVMC_STRING_CONCAT_PAIR_ROUTE_CONST_SUFFIX) {
           /* Current concrete lowering for the owner-side `const_suffix` route.
-           * phase-148x freezes the intended canonical reading as:
+           * phase-151x visibility lock keeps the intended canonical reading:
            *   thaw.str + lit.str + str.concat2 + freeze.str
-           * but this shim still emits the legacy helper call until phase-149x.
+           * while this shim still emits the current concrete helper path.
            */
           if (try_emit_string_concat_const_suffix_call(f, ii, ilen, insts, dst, lhs, rhs)) {
             if (hako_llvmc_route_trace_enabled()) {

@@ -589,6 +589,9 @@ fn execute_const_suffix_contract(a_h: i64, suffix_ptr: *const i8) -> i64 {
         })
     }
 
+    // phase-151x visibility lock:
+    // `.hako const_suffix -> thaw.str + lit.str + str.concat2 + freeze.str`
+    // is the public reading. This function is only the current Rust executor.
     thread_local! {
         static CONST_SUFFIX_TEXT_CACHE: ConstCStringCache = const { ConstCStringCache {
             ptr: Cell::new(0),
