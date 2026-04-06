@@ -61,9 +61,11 @@ pub(crate) const STR_CONCAT2_ROUTE_FAST_STR_RETURN_HANDLE: &str = "fast_str_retu
 pub(crate) const STR_CONCAT2_ROUTE_SPAN_FREEZE: &str = "span_freeze";
 pub(crate) const STR_CONCAT2_ROUTE_SPAN_RETURN_HANDLE: &str = "span_return_handle";
 pub(crate) const STR_CONCAT2_ROUTE_MATERIALIZE_FALLBACK: &str = "materialize_fallback";
+pub(crate) const STR_CONCAT2_ROUTE_UNCLASSIFIED: &str = "unclassified";
 
 pub(crate) const STR_LEN_ROUTE_TOTAL: &str = "total";
 pub(crate) const STR_LEN_ROUTE_DISPATCH_HIT: &str = "dispatch_hit";
 pub(crate) const STR_LEN_ROUTE_FAST_STR_HIT: &str = "fast_str_hit";
 pub(crate) const STR_LEN_ROUTE_FALLBACK_HIT: &str = "fallback_hit";
 pub(crate) const STR_LEN_ROUTE_MISS: &str = "miss";
+pub(crate) const STR_LEN_ROUTE_UNCLASSIFIED: &str = "unclassified";

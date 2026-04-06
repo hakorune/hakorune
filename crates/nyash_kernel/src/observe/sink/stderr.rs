@@ -4,6 +4,11 @@ use std::fmt::Write as _;
 
 pub(crate) fn emit_summary_to_stderr() {
     let snapshot = backend::snapshot();
+    let str_concat2_classified =
+        snapshot[47] + snapshot[48] + snapshot[49] + snapshot[50] + snapshot[51];
+    let str_concat2_unclassified = snapshot[45].saturating_sub(str_concat2_classified);
+    let str_len_classified = snapshot[54] + snapshot[55] + snapshot[56];
+    let str_len_unclassified = snapshot[52].saturating_sub(str_len_classified);
     eprintln!(
         "[perf/counter][{}] total={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
         contract::STORE_ARRAY_STR,
@@ -97,7 +102,7 @@ pub(crate) fn emit_summary_to_stderr() {
     }
     eprintln!("{}", birth_backend_line);
     eprintln!(
-        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
+        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
         contract::STR_CONCAT2_ROUTE,
         contract::STR_CONCAT2_ROUTE_TOTAL,
         snapshot[45],
@@ -113,9 +118,11 @@ pub(crate) fn emit_summary_to_stderr() {
         snapshot[50],
         contract::STR_CONCAT2_ROUTE_MATERIALIZE_FALLBACK,
         snapshot[51],
+        contract::STR_CONCAT2_ROUTE_UNCLASSIFIED,
+        str_concat2_unclassified,
     );
     eprintln!(
-        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={}",
+        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={}",
         contract::STR_LEN_ROUTE,
         contract::STR_LEN_ROUTE_TOTAL,
         snapshot[52],
@@ -127,5 +134,7 @@ pub(crate) fn emit_summary_to_stderr() {
         snapshot[55],
         contract::STR_LEN_ROUTE_MISS,
         snapshot[56],
+        contract::STR_LEN_ROUTE_UNCLASSIFIED,
+        str_len_unclassified,
     );
 }
