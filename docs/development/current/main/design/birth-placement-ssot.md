@@ -80,6 +80,53 @@ Interpretation:
 - `StoreFromSource`
   - collection sink that preserves source-based string storage when allowed
 
+Do not add `box_id` to this top-level vocabulary.
+`box_id` belongs below this layer as a Rust-side objectization contract.
+
+## Backend Second Axis
+
+Birth / Placement outcome is the first reading.
+Rust birth backend sub-contract is the second reading.
+
+Use this backend-only axis when the question is about object identity or
+registry payload shape:
+
+### `Objectization`
+
+1. `None`
+2. `StableBoxNow`
+3. `DeferredStableBox`
+
+Interpretation:
+
+- `None`
+  - no stable Nyash object is created at this point
+  - no `box_id` contract is involved
+- `StableBoxNow`
+  - a real `NyashBox` object is created now
+  - strict unique `box_id` belongs here
+- `DeferredStableBox`
+  - owned/transient payload exists now
+  - stable `NyashBox` objectization is intentionally delayed
+
+### `RegistryIssue`
+
+1. `None`
+2. `ReuseSourceHandle`
+3. `FreshRegistryHandle`
+
+Interpretation:
+
+- `None`
+  - no host handle is issued
+- `ReuseSourceHandle`
+  - an existing host handle survives the seam
+- `FreshRegistryHandle`
+  - a new host handle is issued by the Rust runtime backend
+
+This second axis is backend-only.
+It must not replace the top-level Birth / Placement vocabulary.
+
 ## Layer Responsibilities
 
 ### `.hako owner / policy`
@@ -142,6 +189,10 @@ These are backend leaves only.
 They must not become public policy vocabulary.
 Rust keeps C-like storage/lifetime mechanics here.
 
+`box_id` also belongs here.
+Treat it as part of `Objectization::StableBoxNow`, not as a top-level outcome
+visible to `.hako` owner or MIR naming.
+
 ## Current Source Mapping
 
 | Outcome vocabulary | Current Rust detail | Scope |
@@ -152,6 +203,32 @@ Rust keeps C-like storage/lifetime mechanics here.
 | `FreshHandle` | `string_handle_from_owned(...)` | fresh handle backend |
 | `MaterializeOwned` | `materialize_owned_string(...)` | registry/alloc backend |
 | `StoreFromSource` | `store_string_box_from_source(...)` | collection sink backend |
+
+## Current Coupling
+
+Current implementation still couples:
+
+- `FreshHandle`
+- `MaterializeOwned`
+- `Objectization::StableBoxNow`
+- `RegistryIssue::FreshRegistryHandle`
+
+Reason:
+
+- host registry payload is currently `u64 -> Arc<dyn NyashBox>`
+- `materialize_owned_string(...)` therefore creates:
+  - `StringBox`
+  - `Arc<dyn NyashBox>`
+  - fresh host handle
+in one backend chain
+
+This means current `FreshHandle` often implies:
+
+- stable objectization now
+- strict unique `box_id` issue now
+
+That coupling is current implementation detail, not the desired top-level
+semantic vocabulary.
 
 ## First Vertical Slice
 
@@ -184,6 +261,29 @@ Do **not** read it as:
 
 Those are implementation details, not the seam vocabulary.
 
+## Smallest Useful Backend Slice
+
+Before widening registry payloads or changing object identity rules, split the
+current backend read into these three responsibilities:
+
+1. `materialize_owned_bytes`
+2. `objectize_stable_string_box`
+3. `issue_fresh_handle`
+
+Interpretation:
+
+- `materialize_owned_bytes`
+  - owned bytes exist in native runtime
+  - may still be `DeferredStableBox`
+- `objectize_stable_string_box`
+  - transition into `StableBoxNow`
+  - this is where `box_id` becomes relevant
+- `issue_fresh_handle`
+  - transition into `FreshRegistryHandle`
+
+The current implementation may still execute them as one path.
+The SSOT should nevertheless read them as separate responsibilities first.
+
 ## Optimization Rule
 
 Before adding a new hot-path optimization:
@@ -210,6 +310,16 @@ For the current `concat_hh + len_h` front:
 - specifically:
   - `FreshHandle`
   - `MaterializeOwned`
+
+For backend interpretation, also read the same front as:
+
+- current objectization: `StableBoxNow`
+- current registry issue: `FreshRegistryHandle`
+
+The next structural optimization target is not “make `next_box_id` faster at
+any cost”.
+It is “reduce the number of paths that must reach `StableBoxNow` before they
+reach `FreshRegistryHandle`”.
 
 That means the next optimization work should target birth backend leaves while
 keeping this SSOT vocabulary fixed.

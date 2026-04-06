@@ -132,6 +132,23 @@ It is a reading lock that keeps:
 The Rust side remains a high-density runtime mechanics kernel even when birth
 backend leaves are optimized aggressively.
 
+`box_id` is not part of the top-level Birth / Placement vocabulary.
+It belongs to Rust-side objectization mechanics only.
+
+Backend-only second axis:
+
+- `Objectization = None | StableBoxNow | DeferredStableBox`
+- `RegistryIssue = None | ReuseSourceHandle | FreshRegistryHandle`
+
+This keeps:
+
+- `.hako` / MIR
+  - route / retained-form / boundary / canonical contract
+- Rust keep line
+  - stable objectization timing
+  - `box_id` issue
+  - registry handle issue
+
 ## Final Owner Graph
 
 ### 1. Rust host microkernel

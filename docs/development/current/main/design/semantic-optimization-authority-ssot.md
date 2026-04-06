@@ -143,6 +143,19 @@ The same rule applies to birth backend leaves.
 These are executor/backend details only. Treat them as the Rust birth backend
 family, not as semantic vocabulary.
 
+The same rule applies to `box_id`.
+
+- do not lift `box_id` into `.hako` route vocabulary
+- do not encode `box_id` as a MIR top-level outcome name
+- keep `box_id` inside Rust-side objectization contract
+
+Read it through the Birth / Placement backend second axis:
+
+- `Objectization = None | StableBoxNow | DeferredStableBox`
+- `RegistryIssue = None | ReuseSourceHandle | FreshRegistryHandle`
+
+`box_id` belongs only to `Objectization::StableBoxNow`.
+
 ## LLVM generic optimization / codegen
 
 LLVM が持つもの:
@@ -222,6 +235,21 @@ Layer split:
   - birth backend / registry issue / materialize / freeze / store execution
 
 This keeps helper-local names below the public seam.
+
+Backend-only follow-up:
+
+- top-level Birth / Placement outcome stays:
+  - `ReturnHandle`
+  - `BorrowView`
+  - `FreezeOwned`
+  - `FreshHandle`
+  - `MaterializeOwned`
+  - `StoreFromSource`
+- second-axis backend reading may additionally ask:
+  - did this path require `StableBoxNow`?
+  - did this path require `FreshRegistryHandle`?
+
+That second axis is a Rust keep-line question, not a `.hako` owner question.
 
 ## Stop Lines
 

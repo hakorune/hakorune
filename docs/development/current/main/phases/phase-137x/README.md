@@ -116,6 +116,17 @@
    - next deeper trim should therefore target:
      1. `next_box_id`
      2. host handle registry issue
+   - backend second-axis lock:
+     - top-level Birth / Placement vocabulary stays unchanged
+     - `box_id` is not promoted into that vocabulary
+     - backend-only reading is now:
+       - `Objectization = None | StableBoxNow | DeferredStableBox`
+       - `RegistryIssue = None | ReuseSourceHandle | FreshRegistryHandle`
+     - current `concat_birth` path still couples:
+       - `FreshHandle`
+       - `MaterializeOwned`
+       - `StableBoxNow`
+       - `FreshRegistryHandle`
    - current microasm read:
      - `string_concat_hh_export_impl`: `54.04%`
      - `string_len_from_handle`: `21.37%`
@@ -137,8 +148,13 @@
      - `BorrowView`
      - `FreezeOwned`
    - next backend trim order:
-     1. `StringBox` ctor/birth side
-     2. host handle registry issue
+     1. split backend reading into:
+        - `materialize_owned_bytes`
+        - `objectize_stable_string_box`
+        - `issue_fresh_handle`
+     2. only then trim:
+        - `next_box_id`
+        - host handle registry issue
 3. keep canonical `store.array.str` as the next exact front
    - current executor: `array_string_store_handle_at(...)`
 4. keep canonical `const_suffix` / `thaw.str + lit.str + str.concat2 + freeze.str` as a separate route, but do not assume the current exact micro exercises it
