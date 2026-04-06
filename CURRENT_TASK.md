@@ -284,6 +284,13 @@ Scope: repo root から current lane / next lane / restart read order に最短�
         - `kilo_micro_array_string_store: 183 ms`
         - `kilo_kernel_small_hk: 746 ms`
       - keep only the counter truth; behavior change is reverted
+    - latest-fresh stable object cache truth:
+      - caching the newest `Arc<dyn NyashBox>` in TLS and short-circuiting `with_handle(ArrayStoreStrSource)` regressed both exact and whole
+      - plain release 3-run:
+        - `kilo_micro_array_string_store: 210 ms`
+        - `kilo_micro_concat_hh_len: 78 ms`
+        - `kilo_kernel_small_hk: 760 ms`
+      - the behavior change is reverted
   - immediate next observation order is fixed:
     1. split the `store.array.str -> with_handle(ArrayStoreStrSource)` object contract again before changing behavior
     2. only then retry delayed `StableBoxNow`
