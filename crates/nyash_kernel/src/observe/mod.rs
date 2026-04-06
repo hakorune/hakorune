@@ -40,8 +40,18 @@ mod real {
     }
 
     #[inline(always)]
+    pub(crate) fn record_store_array_str_latest_fresh_retarget_hit() {
+        super::backend::store_array_str_latest_fresh_retarget_hit();
+    }
+
+    #[inline(always)]
     pub(crate) fn record_store_array_str_source_store() {
         super::backend::store_array_str_source_store();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_latest_fresh_source_store() {
+        super::backend::store_array_str_latest_fresh_source_store();
     }
 
     #[inline(always)]
@@ -325,7 +335,13 @@ mod real {
     pub(crate) fn record_store_array_str_retarget_hit() {}
 
     #[inline(always)]
+    pub(crate) fn record_store_array_str_latest_fresh_retarget_hit() {}
+
+    #[inline(always)]
     pub(crate) fn record_store_array_str_source_store() {}
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_latest_fresh_source_store() {}
 
     #[inline(always)]
     pub(crate) fn record_store_array_str_non_string_source() {}

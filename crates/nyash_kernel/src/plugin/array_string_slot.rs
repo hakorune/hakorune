@@ -160,6 +160,7 @@ fn execute_store_array_str_slot(
         }
     }
     let source_is_string = source_obj.is_some_and(is_string_handle_source);
+    let latest_fresh_source = observe::len_route_matches_latest_fresh_handle(value_h);
     if idx < items.len() {
         if source_is_string {
             if let Some(value_obj) = source_obj {
@@ -170,6 +171,9 @@ fn execute_store_array_str_slot(
                     drop_epoch,
                 ) {
                     observe::record_store_array_str_retarget_hit();
+                    if latest_fresh_source {
+                        observe::record_store_array_str_latest_fresh_retarget_hit();
+                    }
                     return 1;
                 }
             }
@@ -177,6 +181,9 @@ fn execute_store_array_str_slot(
     }
     if source_is_string {
         observe::record_store_array_str_source_store();
+        if latest_fresh_source {
+            observe::record_store_array_str_latest_fresh_source_store();
+        }
     } else {
         observe::record_store_array_str_non_string_source();
     }

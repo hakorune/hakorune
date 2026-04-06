@@ -157,6 +157,9 @@
        - `stable_box_demand.object_with_handle_decode_array_fast_latest_fresh=0`
        - `stable_box_demand.object_with_handle_decode_any_arg_latest_fresh=0`
        - `stable_box_demand.object_with_handle_decode_any_index_latest_fresh=0`
+     - source-backed `store.array.str` split confirms that this whole-kilo latest-fresh demand is entirely retarget-side:
+       - `store.array.str latest_fresh_retarget_hit=540000`
+       - `store.array.str latest_fresh_source_store=0`
      - current first widening target is therefore:
        - `store.array.str` source read under `array_string_slot.rs`
      - attempted widening truth:
@@ -165,6 +168,12 @@
          - `kilo_micro_array_string_store: 181 -> 187 ms`
          - `kilo_kernel_small_hk: 757 -> 916 ms`
        - the behavior change is reverted; keep the caller attribution only
+     - narrow `retarget` retry truth:
+       - a no-op guard in `try_retarget_borrowed_string_slot_verified(...)` for unchanged `(source_handle, source_drop_epoch)` did not materially move the front
+       - plain release recheck:
+         - `kilo_micro_array_string_store: 183 ms`
+         - `kilo_kernel_small_hk: 746 ms`
+       - the behavior change is reverted; keep the counter truth only
    - next observation order is fixed:
      1. widen or bypass the `store.array.str` source-read consumer that still pulls latest fresh string handles into generic object `with_handle(...)`
      2. only then recheck the remaining `with_handle(...)` callers before retrying delayed `StableBoxNow`

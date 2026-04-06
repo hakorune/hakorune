@@ -255,6 +255,9 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       - `stable_box_demand.object_with_handle_decode_array_fast_latest_fresh=0`
       - `stable_box_demand.object_with_handle_decode_any_arg_latest_fresh=0`
       - `stable_box_demand.object_with_handle_decode_any_index_latest_fresh=0`
+    - source-backed `store.array.str` split now confirms the whole-kilo latest-fresh demand is retarget-only:
+      - `store.array.str latest_fresh_retarget_hit=540000`
+      - `store.array.str latest_fresh_source_store=0`
     - current first widening target is:
       - `store.array.str` source read under `array_string_slot.rs`
     - attempted widening truth:
@@ -263,6 +266,12 @@ Scope: repo root から current lane / next lane / restart read order に最短�
         - `kilo_micro_array_string_store: 181 -> 187 ms`
         - `kilo_kernel_small_hk: 757 -> 916 ms`
       - actual behavior change is reverted
+    - narrow `retarget` retry truth:
+      - a no-op `try_retarget_borrowed_string_slot_verified(...)` guard on unchanged `(source_handle, drop_epoch)` did not materially move the front
+      - plain release recheck:
+        - `kilo_micro_array_string_store: 183 ms`
+        - `kilo_kernel_small_hk: 746 ms`
+      - keep only the counter truth; behavior change is reverted
   - immediate next observation order is fixed:
     1. inventory the generic object `with_handle(...)` consumers that touch latest fresh string handles in whole-kilo
     2. widen or bypass that consumer seam before retrying delayed `StableBoxNow`

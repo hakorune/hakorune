@@ -16,7 +16,9 @@ struct GlobalCounters {
     store_array_str_cache_miss_handle: AtomicU64,
     store_array_str_cache_miss_epoch: AtomicU64,
     store_array_str_retarget_hit: AtomicU64,
+    store_array_str_latest_fresh_retarget_hit: AtomicU64,
     store_array_str_source_store: AtomicU64,
+    store_array_str_latest_fresh_source_store: AtomicU64,
     store_array_str_non_string_source: AtomicU64,
     store_array_str_existing_slot: AtomicU64,
     store_array_str_append_slot: AtomicU64,
@@ -80,7 +82,9 @@ impl GlobalCounters {
             store_array_str_cache_miss_handle: AtomicU64::new(0),
             store_array_str_cache_miss_epoch: AtomicU64::new(0),
             store_array_str_retarget_hit: AtomicU64::new(0),
+            store_array_str_latest_fresh_retarget_hit: AtomicU64::new(0),
             store_array_str_source_store: AtomicU64::new(0),
+            store_array_str_latest_fresh_source_store: AtomicU64::new(0),
             store_array_str_non_string_source: AtomicU64::new(0),
             store_array_str_existing_slot: AtomicU64::new(0),
             store_array_str_append_slot: AtomicU64::new(0),
@@ -146,7 +150,9 @@ struct ThreadCounters {
     store_array_str_cache_miss_handle: Cell<u64>,
     store_array_str_cache_miss_epoch: Cell<u64>,
     store_array_str_retarget_hit: Cell<u64>,
+    store_array_str_latest_fresh_retarget_hit: Cell<u64>,
     store_array_str_source_store: Cell<u64>,
+    store_array_str_latest_fresh_source_store: Cell<u64>,
     store_array_str_non_string_source: Cell<u64>,
     store_array_str_existing_slot: Cell<u64>,
     store_array_str_append_slot: Cell<u64>,
@@ -211,7 +217,9 @@ impl ThreadCounters {
             store_array_str_cache_miss_handle: Cell::new(0),
             store_array_str_cache_miss_epoch: Cell::new(0),
             store_array_str_retarget_hit: Cell::new(0),
+            store_array_str_latest_fresh_retarget_hit: Cell::new(0),
             store_array_str_source_store: Cell::new(0),
+            store_array_str_latest_fresh_source_store: Cell::new(0),
             store_array_str_non_string_source: Cell::new(0),
             store_array_str_existing_slot: Cell::new(0),
             store_array_str_append_slot: Cell::new(0),
@@ -294,8 +302,18 @@ impl ThreadCounters {
     }
 
     #[inline(always)]
+    fn store_array_str_latest_fresh_retarget_hit(&self) {
+        Self::bump(&self.store_array_str_latest_fresh_retarget_hit);
+    }
+
+    #[inline(always)]
     fn store_array_str_source_store(&self) {
         Self::bump(&self.store_array_str_source_store);
+    }
+
+    #[inline(always)]
+    fn store_array_str_latest_fresh_source_store(&self) {
+        Self::bump(&self.store_array_str_latest_fresh_source_store);
     }
 
     #[inline(always)]
@@ -577,8 +595,16 @@ impl ThreadCounters {
             &GLOBAL.store_array_str_retarget_hit,
         );
         flush_cell(
+            &self.store_array_str_latest_fresh_retarget_hit,
+            &GLOBAL.store_array_str_latest_fresh_retarget_hit,
+        );
+        flush_cell(
             &self.store_array_str_source_store,
             &GLOBAL.store_array_str_source_store,
+        );
+        flush_cell(
+            &self.store_array_str_latest_fresh_source_store,
+            &GLOBAL.store_array_str_latest_fresh_source_store,
         );
         flush_cell(
             &self.store_array_str_non_string_source,
@@ -824,8 +850,18 @@ pub(crate) fn store_array_str_retarget_hit() {
 }
 
 #[inline(always)]
+pub(crate) fn store_array_str_latest_fresh_retarget_hit() {
+    with_tls(ThreadCounters::store_array_str_latest_fresh_retarget_hit);
+}
+
+#[inline(always)]
 pub(crate) fn store_array_str_source_store() {
     with_tls(ThreadCounters::store_array_str_source_store);
+}
+
+#[inline(always)]
+pub(crate) fn store_array_str_latest_fresh_source_store() {
+    with_tls(ThreadCounters::store_array_str_latest_fresh_source_store);
 }
 
 #[inline(always)]
@@ -1077,7 +1113,7 @@ fn flush_current_thread() {
     TLS_COUNTERS.with(ThreadCounters::flush_into_global);
 }
 
-pub(crate) fn snapshot() -> [u64; 59] {
+pub(crate) fn snapshot() -> [u64; 61] {
     flush_current_thread();
     [
         GLOBAL.store_array_str_total.load(Ordering::Relaxed),
@@ -1085,7 +1121,13 @@ pub(crate) fn snapshot() -> [u64; 59] {
         GLOBAL.store_array_str_cache_miss_handle.load(Ordering::Relaxed),
         GLOBAL.store_array_str_cache_miss_epoch.load(Ordering::Relaxed),
         GLOBAL.store_array_str_retarget_hit.load(Ordering::Relaxed),
+        GLOBAL
+            .store_array_str_latest_fresh_retarget_hit
+            .load(Ordering::Relaxed),
         GLOBAL.store_array_str_source_store.load(Ordering::Relaxed),
+        GLOBAL
+            .store_array_str_latest_fresh_source_store
+            .load(Ordering::Relaxed),
         GLOBAL.store_array_str_non_string_source.load(Ordering::Relaxed),
         GLOBAL.store_array_str_existing_slot.load(Ordering::Relaxed),
         GLOBAL.store_array_str_append_slot.load(Ordering::Relaxed),
