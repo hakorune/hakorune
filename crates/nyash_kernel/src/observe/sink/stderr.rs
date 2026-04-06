@@ -122,7 +122,7 @@ pub(crate) fn emit_summary_to_stderr() {
         str_concat2_unclassified,
     );
     eprintln!(
-        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={}",
+        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
         contract::STR_LEN_ROUTE,
         contract::STR_LEN_ROUTE_TOTAL,
         snapshot[52],
@@ -134,6 +134,10 @@ pub(crate) fn emit_summary_to_stderr() {
         snapshot[55],
         contract::STR_LEN_ROUTE_MISS,
         snapshot[56],
+        contract::STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FAST_STR_HIT,
+        snapshot[57],
+        contract::STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FALLBACK_HIT,
+        snapshot[58],
         contract::STR_LEN_ROUTE_UNCLASSIFIED,
         str_len_unclassified,
     );

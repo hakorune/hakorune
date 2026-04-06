@@ -58,7 +58,7 @@
    - `const_suffix`: `empty_return / cached_fast_str_hit / cached_span_hit`
    - generic string consumer:
      - `str.concat2.route`: `total / dispatch_hit / fast_str_owned / fast_str_return_handle / span_freeze / span_return_handle / materialize_fallback / unclassified`
-     - `str.len.route`: `total / dispatch_hit / fast_str_hit / fallback_hit / miss / unclassified`
+     - `str.len.route`: `total / dispatch_hit / fast_str_hit / fallback_hit / miss / latest_fresh_handle_fast_str_hit / latest_fresh_handle_fallback_hit / unclassified`
    - `birth.placement`: `return_handle / borrow_view / freeze_owned / fresh_handle / materialize_owned / store_from_source`
    - `birth.backend`: `freeze_text_plan_total / view1 / pieces2 / pieces3 / pieces4 / owned_tmp / materialize_owned_total / materialize_owned_bytes / string_box_new_total / string_box_new_bytes / string_box_ctor_total / string_box_ctor_bytes / arc_wrap_total / handle_issue_total / gc_alloc_called / gc_alloc_bytes / gc_alloc_skipped`
  - exact observe read:
@@ -77,12 +77,12 @@
      - `birth.placement`: `fresh_handle=800000`
      - `birth.backend`: `materialize_owned_total=800000`, `materialize_owned_bytes=14400000`, `gc_alloc_called=800000`, `gc_alloc_bytes=14400000`
      - `str.concat2.route`: `fast_str_owned=800000`, other classified routes `0`, `unclassified=0`
-     - `str.len.route`: `fast_str_hit=1`, other classified routes `0`, `unclassified=0`
+     - `str.len.route`: `fast_str_hit=1`, `latest_fresh_handle_fast_str_hit=1`, other classified routes `0`, `unclassified=0`
    - `kilo_micro_concat_hh_len` Birth / Placement direct probe currently shows:
      - `birth.placement`: `fresh_handle=800000`
-     - `birth.backend`: `materialize_owned_total=800000`, `materialize_owned_bytes=14400000`, `string_box_new_total=800000`, `string_box_new_bytes=14400000`, `handle_issue_total=800000`, `gc_alloc_called=800000`, `gc_alloc_bytes=14400000`
+      - `birth.backend`: `materialize_owned_total=800000`, `materialize_owned_bytes=14400000`, `string_box_new_total=800000`, `string_box_new_bytes=14400000`, `handle_issue_total=800000`, `gc_alloc_called=800000`, `gc_alloc_bytes=14400000`
      - `str.concat2.route`: `fast_str_owned=800000`, other classified routes `0`, `unclassified=0`
-     - `str.len.route`: `fast_str_hit=800002`, other classified routes `0`, `unclassified=0`
+     - `str.len.route`: `fast_str_hit=800002`, `latest_fresh_handle_fast_str_hit=800000`, other classified routes `0`, `unclassified=0`
      - `return_handle / borrow_view / freeze_owned = 0`
    - `NYASH_PERF_BYPASS_GC_ALLOC=1` diagnostic observe lane shows:
      - `kilo_micro_concat_birth`: `50 -> 51 ms`
@@ -95,7 +95,11 @@
    - route conservation now also says:
      - both exact fronts stay on `fast_str_owned`
      - both `len` consumers stay on `fast_str_hit`
+     - `concat_hh + len_h` exact path usually reads the latest fresh handle directly after issue
      - `unclassified=0`
+   - next observation order is fixed:
+     1. reopen `DeferredStableBox` / delayed objectization discussion for the `concat_hh + len_h` consumer
+     2. if that slice is blocked, keep trimming backend leaves under `materialize_owned_bytes` and `issue_fresh_handle`
    - current exact backend front is therefore:
      - `FreshHandle`
      - `MaterializeOwned`

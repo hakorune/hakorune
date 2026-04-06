@@ -260,13 +260,33 @@ mod real {
     }
 
     #[inline(always)]
+    pub(crate) fn record_str_len_route_latest_fresh_handle_fast_str_hit() {
+        super::backend::str_len_route_latest_fresh_handle_fast_str_hit();
+    }
+
+    #[inline(always)]
     pub(crate) fn record_str_len_route_fallback_hit() {
         super::backend::str_len_route_fallback_hit();
     }
 
     #[inline(always)]
+    pub(crate) fn record_str_len_route_latest_fresh_handle_fallback_hit() {
+        super::backend::str_len_route_latest_fresh_handle_fallback_hit();
+    }
+
+    #[inline(always)]
     pub(crate) fn record_str_len_route_miss() {
         super::backend::str_len_route_miss();
+    }
+
+    #[inline(always)]
+    pub(crate) fn mark_latest_fresh_handle(handle: i64) {
+        super::backend::mark_latest_fresh_handle(handle);
+    }
+
+    #[inline(always)]
+    pub(crate) fn len_route_matches_latest_fresh_handle(handle: i64) -> bool {
+        super::backend::matches_latest_fresh_handle(handle)
     }
 
     pub(crate) fn flush() {
@@ -437,10 +457,24 @@ mod real {
     pub(crate) fn record_str_len_route_fast_str_hit() {}
 
     #[inline(always)]
+    pub(crate) fn record_str_len_route_latest_fresh_handle_fast_str_hit() {}
+
+    #[inline(always)]
     pub(crate) fn record_str_len_route_fallback_hit() {}
 
     #[inline(always)]
+    pub(crate) fn record_str_len_route_latest_fresh_handle_fallback_hit() {}
+
+    #[inline(always)]
     pub(crate) fn record_str_len_route_miss() {}
+
+    #[inline(always)]
+    pub(crate) fn mark_latest_fresh_handle(_handle: i64) {}
+
+    #[inline(always)]
+    pub(crate) fn len_route_matches_latest_fresh_handle(_handle: i64) -> bool {
+        false
+    }
 
     #[inline(always)]
     pub(crate) fn flush() {}

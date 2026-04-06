@@ -49,6 +49,9 @@ pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
     });
     if fast_len.is_some() {
         observe::record_str_len_route_fast_str_hit();
+        if observe::len_route_matches_latest_fresh_handle(handle) {
+            observe::record_str_len_route_latest_fresh_handle_fast_str_hit();
+        }
         trace_observer_resolution(
             "observer",
             handle,
@@ -61,6 +64,9 @@ pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
     let fallback = string_len_impl(handle);
     if fallback.is_some() {
         observe::record_str_len_route_fallback_hit();
+        if observe::len_route_matches_latest_fresh_handle(handle) {
+            observe::record_str_len_route_latest_fresh_handle_fallback_hit();
+        }
     } else {
         observe::record_str_len_route_miss();
     }

@@ -53,7 +53,9 @@ fn objectize_stable_string_box(value: String) -> Arc<dyn NyashBox> {
 fn issue_fresh_handle(arc: Arc<dyn NyashBox>) -> i64 {
     crate::observe::record_birth_backend_handle_issue();
     crate::observe::record_birth_backend_issue_fresh_handle();
-    handles::to_handle_arc(arc) as i64
+    let handle = handles::to_handle_arc(arc) as i64;
+    crate::observe::mark_latest_fresh_handle(handle);
+    handle
 }
 
 #[cfg(not(feature = "perf-observe"))]

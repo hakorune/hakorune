@@ -68,4 +68,8 @@ pub(crate) const STR_LEN_ROUTE_DISPATCH_HIT: &str = "dispatch_hit";
 pub(crate) const STR_LEN_ROUTE_FAST_STR_HIT: &str = "fast_str_hit";
 pub(crate) const STR_LEN_ROUTE_FALLBACK_HIT: &str = "fallback_hit";
 pub(crate) const STR_LEN_ROUTE_MISS: &str = "miss";
+pub(crate) const STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FAST_STR_HIT: &str =
+    "latest_fresh_handle_fast_str_hit";
+pub(crate) const STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FALLBACK_HIT: &str =
+    "latest_fresh_handle_fallback_hit";
 pub(crate) const STR_LEN_ROUTE_UNCLASSIFIED: &str = "unclassified";

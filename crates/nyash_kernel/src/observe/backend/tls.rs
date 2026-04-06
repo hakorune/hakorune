@@ -68,6 +68,8 @@ struct GlobalCounters {
     str_len_route_fast_str_hit: AtomicU64,
     str_len_route_fallback_hit: AtomicU64,
     str_len_route_miss: AtomicU64,
+    str_len_route_latest_fresh_handle_fast_str_hit: AtomicU64,
+    str_len_route_latest_fresh_handle_fallback_hit: AtomicU64,
 }
 
 impl GlobalCounters {
@@ -130,6 +132,8 @@ impl GlobalCounters {
             str_len_route_fast_str_hit: AtomicU64::new(0),
             str_len_route_fallback_hit: AtomicU64::new(0),
             str_len_route_miss: AtomicU64::new(0),
+            str_len_route_latest_fresh_handle_fast_str_hit: AtomicU64::new(0),
+            str_len_route_latest_fresh_handle_fallback_hit: AtomicU64::new(0),
         }
     }
 }
@@ -194,6 +198,9 @@ struct ThreadCounters {
     str_len_route_fast_str_hit: Cell<u64>,
     str_len_route_fallback_hit: Cell<u64>,
     str_len_route_miss: Cell<u64>,
+    str_len_route_latest_fresh_handle_fast_str_hit: Cell<u64>,
+    str_len_route_latest_fresh_handle_fallback_hit: Cell<u64>,
+    latest_fresh_handle: Cell<i64>,
 }
 
 impl ThreadCounters {
@@ -256,6 +263,9 @@ impl ThreadCounters {
             str_len_route_fast_str_hit: Cell::new(0),
             str_len_route_fallback_hit: Cell::new(0),
             str_len_route_miss: Cell::new(0),
+            str_len_route_latest_fresh_handle_fast_str_hit: Cell::new(0),
+            str_len_route_latest_fresh_handle_fallback_hit: Cell::new(0),
+            latest_fresh_handle: Cell::new(0),
         }
     }
 
@@ -528,6 +538,26 @@ impl ThreadCounters {
         Self::bump(&self.str_len_route_miss);
     }
 
+    #[inline(always)]
+    fn str_len_route_latest_fresh_handle_fast_str_hit(&self) {
+        Self::bump(&self.str_len_route_latest_fresh_handle_fast_str_hit);
+    }
+
+    #[inline(always)]
+    fn str_len_route_latest_fresh_handle_fallback_hit(&self) {
+        Self::bump(&self.str_len_route_latest_fresh_handle_fallback_hit);
+    }
+
+    #[inline(always)]
+    fn mark_latest_fresh_handle(&self, handle: i64) {
+        self.latest_fresh_handle.set(handle);
+    }
+
+    #[inline(always)]
+    fn matches_latest_fresh_handle(&self, handle: i64) -> bool {
+        handle > 0 && self.latest_fresh_handle.get() == handle
+    }
+
     fn flush_into_global(&self) {
         flush_cell(&self.store_array_str_total, &GLOBAL.store_array_str_total);
         flush_cell(
@@ -742,6 +772,14 @@ impl ThreadCounters {
             &GLOBAL.str_len_route_fallback_hit,
         );
         flush_cell(&self.str_len_route_miss, &GLOBAL.str_len_route_miss);
+        flush_cell(
+            &self.str_len_route_latest_fresh_handle_fast_str_hit,
+            &GLOBAL.str_len_route_latest_fresh_handle_fast_str_hit,
+        );
+        flush_cell(
+            &self.str_len_route_latest_fresh_handle_fallback_hit,
+            &GLOBAL.str_len_route_latest_fresh_handle_fallback_hit,
+        );
     }
 }
 
@@ -1015,11 +1053,31 @@ pub(crate) fn str_len_route_miss() {
     with_tls(ThreadCounters::str_len_route_miss);
 }
 
+#[inline(always)]
+pub(crate) fn str_len_route_latest_fresh_handle_fast_str_hit() {
+    with_tls(ThreadCounters::str_len_route_latest_fresh_handle_fast_str_hit);
+}
+
+#[inline(always)]
+pub(crate) fn str_len_route_latest_fresh_handle_fallback_hit() {
+    with_tls(ThreadCounters::str_len_route_latest_fresh_handle_fallback_hit);
+}
+
+#[inline(always)]
+pub(crate) fn mark_latest_fresh_handle(handle: i64) {
+    with_tls(|tls| tls.mark_latest_fresh_handle(handle));
+}
+
+#[inline(always)]
+pub(crate) fn matches_latest_fresh_handle(handle: i64) -> bool {
+    TLS_COUNTERS.with(|tls| tls.matches_latest_fresh_handle(handle))
+}
+
 fn flush_current_thread() {
     TLS_COUNTERS.with(ThreadCounters::flush_into_global);
 }
 
-pub(crate) fn snapshot() -> [u64; 57] {
+pub(crate) fn snapshot() -> [u64; 59] {
     flush_current_thread();
     [
         GLOBAL.store_array_str_total.load(Ordering::Relaxed),
@@ -1091,6 +1149,12 @@ pub(crate) fn snapshot() -> [u64; 57] {
         GLOBAL.str_len_route_fast_str_hit.load(Ordering::Relaxed),
         GLOBAL.str_len_route_fallback_hit.load(Ordering::Relaxed),
         GLOBAL.str_len_route_miss.load(Ordering::Relaxed),
+        GLOBAL
+            .str_len_route_latest_fresh_handle_fast_str_hit
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .str_len_route_latest_fresh_handle_fallback_hit
+            .load(Ordering::Relaxed),
     ]
 }
 
@@ -1176,5 +1240,29 @@ mod tests {
         assert_eq!(after[42] - before[42], 1);
         assert_eq!(after[43] - before[43], 18);
         assert_eq!(after[44] - before[44], 1);
+    }
+
+    #[test]
+    fn tls_string_route_counters_flush_current_thread() {
+        let _guard = test_lock().lock().expect("observe test lock");
+        std::env::set_var("NYASH_PERF_COUNTERS", "1");
+
+        let before = snapshot();
+        str_concat2_route_enter();
+        str_concat2_route_fast_str_owned();
+        str_len_route_enter();
+        str_len_route_fast_str_hit();
+        mark_latest_fresh_handle(77);
+        assert!(matches_latest_fresh_handle(77));
+        str_len_route_latest_fresh_handle_fast_str_hit();
+        str_len_route_latest_fresh_handle_fallback_hit();
+        let after = snapshot();
+
+        assert_eq!(after[45] - before[45], 1);
+        assert_eq!(after[47] - before[47], 1);
+        assert_eq!(after[52] - before[52], 1);
+        assert_eq!(after[54] - before[54], 1);
+        assert_eq!(after[57] - before[57], 1);
+        assert_eq!(after[58] - before[58], 1);
     }
 }
