@@ -57,7 +57,7 @@
    - `store.array.str`: `existing_slot / append_slot / source_string_box / source_string_view / source_missing`
    - `const_suffix`: `empty_return / cached_fast_str_hit / cached_span_hit`
    - `birth.placement`: `return_handle / borrow_view / freeze_owned / fresh_handle / materialize_owned / store_from_source`
-   - `birth.backend`: `freeze_text_plan_total / view1 / pieces2 / pieces3 / pieces4 / owned_tmp / materialize_owned_total / materialize_owned_bytes / gc_alloc_called / gc_alloc_bytes`
+   - `birth.backend`: `freeze_text_plan_total / view1 / pieces2 / pieces3 / pieces4 / owned_tmp / materialize_owned_total / materialize_owned_bytes / string_box_new_total / string_box_new_bytes / handle_issue_total / gc_alloc_called / gc_alloc_bytes / gc_alloc_skipped`
  - exact observe read:
    - `kilo_micro_array_string_store` AOT direct probe is saturated on one shape:
      - `cache_hit=800000`
@@ -75,7 +75,7 @@
      - `birth.backend`: `materialize_owned_total=800000`, `materialize_owned_bytes=14400000`, `gc_alloc_called=800000`, `gc_alloc_bytes=14400000`
    - `kilo_micro_concat_hh_len` Birth / Placement direct probe currently shows:
      - `birth.placement`: `fresh_handle=800000`
-     - `birth.backend`: `materialize_owned_total=800000`, `materialize_owned_bytes=14400000`, `gc_alloc_called=800000`, `gc_alloc_bytes=14400000`
+     - `birth.backend`: `materialize_owned_total=800000`, `materialize_owned_bytes=14400000`, `string_box_new_total=800000`, `string_box_new_bytes=14400000`, `handle_issue_total=800000`, `gc_alloc_called=800000`, `gc_alloc_bytes=14400000`
      - `return_handle / borrow_view / freeze_owned = 0`
    - `NYASH_PERF_BYPASS_GC_ALLOC=1` diagnostic observe lane shows:
      - `kilo_micro_concat_birth`: `50 -> 51 ms`
@@ -88,6 +88,13 @@
    - current exact backend front is therefore:
      - `FreshHandle`
      - `MaterializeOwned`
+   - current birth backend split now reads:
+     - `StringBox / Arc` birth before registry issue
+     - observe-build `kilo_micro_concat_birth` microasm top:
+       - `birth_string_arc_from_owned`: `32.70%` to `35.33%`
+       - `issue_string_handle_from_arc`: `23.07%` to `24.81%`
+       - `__memmove_avx512_unaligned_erms`: `15.30%` to `15.34%`
+       - `string_concat_hh_export_impl`: `13.04%` to `13.46%`
    - next backend front should move to:
      - `StringBox` birth
      - host handle registry issue
@@ -111,6 +118,9 @@
      - `ReturnHandle`
      - `BorrowView`
      - `FreezeOwned`
+   - next backend trim order:
+     1. `StringBox / Arc` birth
+     2. host handle registry issue
 3. keep canonical `store.array.str` as the next exact front
    - current executor: `array_string_store_handle_at(...)`
 4. keep canonical `const_suffix` / `thaw.str + lit.str + str.concat2 + freeze.str` as a separate route, but do not assume the current exact micro exercises it

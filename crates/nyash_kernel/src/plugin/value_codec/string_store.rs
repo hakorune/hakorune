@@ -6,6 +6,32 @@ use nyash_rust::{
 };
 use std::sync::Arc;
 
+#[cfg(feature = "perf-observe")]
+#[inline(never)]
+fn birth_string_arc_from_owned(value: String) -> Arc<dyn NyashBox> {
+    crate::observe::record_birth_backend_string_box_new(value.len());
+    Arc::new(StringBox::new(value))
+}
+
+#[cfg(not(feature = "perf-observe"))]
+#[inline(always)]
+fn birth_string_arc_from_owned(value: String) -> Arc<dyn NyashBox> {
+    Arc::new(StringBox::new(value))
+}
+
+#[cfg(feature = "perf-observe")]
+#[inline(never)]
+fn issue_string_handle_from_arc(arc: Arc<dyn NyashBox>) -> i64 {
+    crate::observe::record_birth_backend_handle_issue();
+    handles::to_handle_arc(arc) as i64
+}
+
+#[cfg(not(feature = "perf-observe"))]
+#[inline(always)]
+fn issue_string_handle_from_arc(arc: Arc<dyn NyashBox>) -> i64 {
+    handles::to_handle_arc(arc) as i64
+}
+
 #[inline(always)]
 pub(crate) fn materialize_owned_string(value: String) -> i64 {
     crate::observe::record_birth_backend_materialize_owned(value.len());
@@ -15,8 +41,8 @@ pub(crate) fn materialize_owned_string(value: String) -> i64 {
         crate::observe::record_birth_backend_gc_alloc(value.len());
         nyash_rust::runtime::global_hooks::gc_alloc(value.len() as u64);
     }
-    let arc: Arc<dyn NyashBox> = Arc::new(StringBox::new(value));
-    handles::to_handle_arc(arc) as i64
+    let arc = birth_string_arc_from_owned(value);
+    issue_string_handle_from_arc(arc)
 }
 
 #[inline(always)]
