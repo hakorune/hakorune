@@ -1,7 +1,7 @@
 use super::array_guard::valid_handle_idx;
 use super::handle_cache::{cache_probe_kind, CacheProbeKind as HandleCacheProbeKind};
 use super::value_codec::{
-    classify_string_handle_source, maybe_store_string_box_from_verified_source,
+    maybe_store_string_box_from_verified_source, with_array_store_str_source, ArrayStoreStrSource,
     BorrowedHandleBox, StringHandleSourceKind, try_retarget_borrowed_string_slot_verified,
 };
 use crate::observe::{self, CacheProbeKind as ObserveCacheProbeKind};
@@ -76,11 +76,10 @@ impl StoreArrayStrPlan {
         items: &[Box<dyn nyash_rust::box_trait::NyashBox>],
         idx: usize,
         value_h: i64,
-        source_obj: Option<&std::sync::Arc<dyn nyash_rust::box_trait::NyashBox>>,
+        source_kind_contract: StringHandleSourceKind,
     ) -> Self {
-        let source_contract = classify_string_handle_source(source_obj);
-        let source_is_string = matches!(source_contract, StringHandleSourceKind::StringLike);
-        let source_kind = match source_contract {
+        let source_is_string = matches!(source_kind_contract, StringHandleSourceKind::StringLike);
+        let source_kind = match source_kind_contract {
             StringHandleSourceKind::StringLike => StoreArrayStrPlanSourceKind::StringLike,
             StringHandleSourceKind::OtherObject => StoreArrayStrPlanSourceKind::OtherObject,
             StringHandleSourceKind::Missing => StoreArrayStrPlanSourceKind::Missing,
@@ -279,12 +278,13 @@ fn execute_store_array_str_slot(
     items: &mut Vec<Box<dyn nyash_rust::box_trait::NyashBox>>,
     idx: usize,
     value_h: i64,
-    source_obj: Option<&std::sync::Arc<dyn nyash_rust::box_trait::NyashBox>>,
+    source: ArrayStoreStrSource<'_>,
     drop_epoch: u64,
 ) -> i64 {
     if idx > items.len() {
         return 0;
     }
+    let source_obj = source.object_ref();
     if observe::enabled() {
         if idx < items.len() {
             observe::record_store_array_str_existing_slot();
@@ -311,7 +311,7 @@ fn execute_store_array_str_slot(
             None => observe::record_store_array_str_source_missing(),
         }
     }
-    let plan = StoreArrayStrPlan::from_slot(items.as_slice(), idx, value_h, source_obj);
+    let plan = StoreArrayStrPlan::from_slot(items.as_slice(), idx, value_h, source.source_kind());
     plan.record();
     if idx < items.len() {
         if plan.can_retarget_alias() {
@@ -371,11 +371,9 @@ fn execute_store_array_str_contract(handle: i64, idx: i64, value_h: i64) -> i64 
     super::array_handle_cache::with_array_box_at_epoch(handle, drop_epoch, |arr| {
         let idx = idx as usize;
         arr.with_items_write(|items| {
-            handles::with_handle_caller(
-                value_h as u64,
-                handles::PerfObserveObjectWithHandleCaller::ArrayStoreStrSource,
-                |source_obj| execute_store_array_str_slot(items, idx, value_h, source_obj, drop_epoch),
-            )
+            with_array_store_str_source(value_h, |source| {
+                execute_store_array_str_slot(items, idx, value_h, source, drop_epoch)
+            })
         })
     })
     .unwrap_or(0)

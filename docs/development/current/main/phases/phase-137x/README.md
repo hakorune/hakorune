@@ -257,6 +257,10 @@
        - keep only the no-behavior structural split:
          - `StoreArrayStrPlan` separates planner from executor
          - borrowed retarget now exposes `keep_source_arc` / `alias_update` helpers
+     - typed `ArrayStoreStrSource` helper is now landed:
+       - `with_array_store_str_source(...)` wraps `with_handle_caller(ArrayStoreStrSource)`
+       - `store.array.str` now consumes a typed source contract instead of open-coding generic object entry at the executor callsite
+       - this is still no-behavior-change; the next actual bypass can stay inside the typed helper
    - next observation order is fixed:
      1. split the `store.array.str -> with_handle(ArrayStoreStrSource)` object contract again before changing behavior
      2. keep borrowed alias string-read trimming closed; live-source fast read was not enough
