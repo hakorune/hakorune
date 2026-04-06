@@ -160,6 +160,22 @@
      - source-backed `store.array.str` split confirms that this whole-kilo latest-fresh demand is entirely retarget-side:
        - `store.array.str latest_fresh_retarget_hit=540000`
        - `store.array.str latest_fresh_source_store=0`
+     - no-behavior-change planner truth now confirms the source-contract mismatch itself:
+       - whole-kilo:
+         - `plan.source_kind_string_like=540000`
+         - `plan.source_kind_other_object=0`
+         - `plan.source_kind_missing=0`
+         - `plan.slot_kind_borrowed_alias=540000`
+         - `plan.slot_kind_other=0`
+         - `plan.action_retarget_alias=540000`
+         - `plan.action_store_from_source=0`
+         - `plan.action_need_stable_object=0`
+       - exact `kilo_micro_array_string_store`:
+         - `plan.source_kind_string_like=800000`
+         - `plan.slot_kind_borrowed_alias=800000`
+         - `plan.action_retarget_alias=800000`
+         - `plan.action_store_from_source=0`
+         - `plan.action_need_stable_object=0`
      - borrowed alias whole-kilo truth:
        - `borrowed.alias.borrowed_source_fast=540000`
        - `borrowed.alias.as_str_fast=540064`
@@ -175,6 +191,8 @@
        - `BorrowedHandleBox::as_str_fast()` stays entirely on the live-source side in whole-kilo
        - `array_string_len_by_index(...)` / `array_string_indexof_by_index(...)` are not the 540k latest-fresh culprit
        - the remaining stable object pressure stays on `store.array.str -> with_handle(ArrayStoreStrSource)` itself, not alias runtime encode
+       - planner says this hot path is pure `RetargetAlias`
+       - the expensive escalation therefore happens before action selection, not because planner asked for `NeedStableObject`
      - current first widening target is therefore:
        - `store.array.str` source read under `array_string_slot.rs`
      - attempted widening truth:

@@ -3,7 +3,7 @@ mod decode;
 mod encode;
 mod string_store;
 
-pub(crate) use borrowed_handle::try_retarget_borrowed_string_slot_verified;
+pub(crate) use borrowed_handle::{try_retarget_borrowed_string_slot_verified, BorrowedHandleBox};
 pub(crate) use decode::{
     any_arg_to_box, any_arg_to_box_with_profile, any_arg_to_index, decode_array_fast_value,
     int_arg_to_box, ArrayFastDecodedValue, CodecProfile,

@@ -25,6 +25,14 @@ struct GlobalCounters {
     store_array_str_source_string_box: AtomicU64,
     store_array_str_source_string_view: AtomicU64,
     store_array_str_source_missing: AtomicU64,
+    store_array_str_plan_source_kind_string_like: AtomicU64,
+    store_array_str_plan_source_kind_other_object: AtomicU64,
+    store_array_str_plan_source_kind_missing: AtomicU64,
+    store_array_str_plan_slot_kind_borrowed_alias: AtomicU64,
+    store_array_str_plan_slot_kind_other: AtomicU64,
+    store_array_str_plan_action_retarget_alias: AtomicU64,
+    store_array_str_plan_action_store_from_source: AtomicU64,
+    store_array_str_plan_action_need_stable_object: AtomicU64,
     const_suffix_total: AtomicU64,
     const_suffix_cached_handle_hit: AtomicU64,
     const_suffix_text_cache_reload: AtomicU64,
@@ -103,6 +111,14 @@ impl GlobalCounters {
             store_array_str_source_string_box: AtomicU64::new(0),
             store_array_str_source_string_view: AtomicU64::new(0),
             store_array_str_source_missing: AtomicU64::new(0),
+            store_array_str_plan_source_kind_string_like: AtomicU64::new(0),
+            store_array_str_plan_source_kind_other_object: AtomicU64::new(0),
+            store_array_str_plan_source_kind_missing: AtomicU64::new(0),
+            store_array_str_plan_slot_kind_borrowed_alias: AtomicU64::new(0),
+            store_array_str_plan_slot_kind_other: AtomicU64::new(0),
+            store_array_str_plan_action_retarget_alias: AtomicU64::new(0),
+            store_array_str_plan_action_store_from_source: AtomicU64::new(0),
+            store_array_str_plan_action_need_stable_object: AtomicU64::new(0),
             const_suffix_total: AtomicU64::new(0),
             const_suffix_cached_handle_hit: AtomicU64::new(0),
             const_suffix_text_cache_reload: AtomicU64::new(0),
@@ -183,6 +199,14 @@ struct ThreadCounters {
     store_array_str_source_string_box: Cell<u64>,
     store_array_str_source_string_view: Cell<u64>,
     store_array_str_source_missing: Cell<u64>,
+    store_array_str_plan_source_kind_string_like: Cell<u64>,
+    store_array_str_plan_source_kind_other_object: Cell<u64>,
+    store_array_str_plan_source_kind_missing: Cell<u64>,
+    store_array_str_plan_slot_kind_borrowed_alias: Cell<u64>,
+    store_array_str_plan_slot_kind_other: Cell<u64>,
+    store_array_str_plan_action_retarget_alias: Cell<u64>,
+    store_array_str_plan_action_store_from_source: Cell<u64>,
+    store_array_str_plan_action_need_stable_object: Cell<u64>,
     const_suffix_total: Cell<u64>,
     const_suffix_cached_handle_hit: Cell<u64>,
     const_suffix_text_cache_reload: Cell<u64>,
@@ -262,6 +286,14 @@ impl ThreadCounters {
             store_array_str_source_string_box: Cell::new(0),
             store_array_str_source_string_view: Cell::new(0),
             store_array_str_source_missing: Cell::new(0),
+            store_array_str_plan_source_kind_string_like: Cell::new(0),
+            store_array_str_plan_source_kind_other_object: Cell::new(0),
+            store_array_str_plan_source_kind_missing: Cell::new(0),
+            store_array_str_plan_slot_kind_borrowed_alias: Cell::new(0),
+            store_array_str_plan_slot_kind_other: Cell::new(0),
+            store_array_str_plan_action_retarget_alias: Cell::new(0),
+            store_array_str_plan_action_store_from_source: Cell::new(0),
+            store_array_str_plan_action_need_stable_object: Cell::new(0),
             const_suffix_total: Cell::new(0),
             const_suffix_cached_handle_hit: Cell::new(0),
             const_suffix_text_cache_reload: Cell::new(0),
@@ -392,6 +424,46 @@ impl ThreadCounters {
     #[inline(always)]
     fn store_array_str_source_missing(&self) {
         Self::bump(&self.store_array_str_source_missing);
+    }
+
+    #[inline(always)]
+    fn store_array_str_plan_source_kind_string_like(&self) {
+        Self::bump(&self.store_array_str_plan_source_kind_string_like);
+    }
+
+    #[inline(always)]
+    fn store_array_str_plan_source_kind_other_object(&self) {
+        Self::bump(&self.store_array_str_plan_source_kind_other_object);
+    }
+
+    #[inline(always)]
+    fn store_array_str_plan_source_kind_missing(&self) {
+        Self::bump(&self.store_array_str_plan_source_kind_missing);
+    }
+
+    #[inline(always)]
+    fn store_array_str_plan_slot_kind_borrowed_alias(&self) {
+        Self::bump(&self.store_array_str_plan_slot_kind_borrowed_alias);
+    }
+
+    #[inline(always)]
+    fn store_array_str_plan_slot_kind_other(&self) {
+        Self::bump(&self.store_array_str_plan_slot_kind_other);
+    }
+
+    #[inline(always)]
+    fn store_array_str_plan_action_retarget_alias(&self) {
+        Self::bump(&self.store_array_str_plan_action_retarget_alias);
+    }
+
+    #[inline(always)]
+    fn store_array_str_plan_action_store_from_source(&self) {
+        Self::bump(&self.store_array_str_plan_action_store_from_source);
+    }
+
+    #[inline(always)]
+    fn store_array_str_plan_action_need_stable_object(&self) {
+        Self::bump(&self.store_array_str_plan_action_need_stable_object);
     }
 
     #[inline(always)]
@@ -738,6 +810,38 @@ impl ThreadCounters {
             &self.store_array_str_source_missing,
             &GLOBAL.store_array_str_source_missing,
         );
+        flush_cell(
+            &self.store_array_str_plan_source_kind_string_like,
+            &GLOBAL.store_array_str_plan_source_kind_string_like,
+        );
+        flush_cell(
+            &self.store_array_str_plan_source_kind_other_object,
+            &GLOBAL.store_array_str_plan_source_kind_other_object,
+        );
+        flush_cell(
+            &self.store_array_str_plan_source_kind_missing,
+            &GLOBAL.store_array_str_plan_source_kind_missing,
+        );
+        flush_cell(
+            &self.store_array_str_plan_slot_kind_borrowed_alias,
+            &GLOBAL.store_array_str_plan_slot_kind_borrowed_alias,
+        );
+        flush_cell(
+            &self.store_array_str_plan_slot_kind_other,
+            &GLOBAL.store_array_str_plan_slot_kind_other,
+        );
+        flush_cell(
+            &self.store_array_str_plan_action_retarget_alias,
+            &GLOBAL.store_array_str_plan_action_retarget_alias,
+        );
+        flush_cell(
+            &self.store_array_str_plan_action_store_from_source,
+            &GLOBAL.store_array_str_plan_action_store_from_source,
+        );
+        flush_cell(
+            &self.store_array_str_plan_action_need_stable_object,
+            &GLOBAL.store_array_str_plan_action_need_stable_object,
+        );
         flush_cell(&self.const_suffix_total, &GLOBAL.const_suffix_total);
         flush_cell(
             &self.const_suffix_cached_handle_hit,
@@ -1048,6 +1152,46 @@ pub(crate) fn store_array_str_source_missing() {
 }
 
 #[inline(always)]
+pub(crate) fn store_array_str_plan_source_kind_string_like() {
+    with_tls(ThreadCounters::store_array_str_plan_source_kind_string_like);
+}
+
+#[inline(always)]
+pub(crate) fn store_array_str_plan_source_kind_other_object() {
+    with_tls(ThreadCounters::store_array_str_plan_source_kind_other_object);
+}
+
+#[inline(always)]
+pub(crate) fn store_array_str_plan_source_kind_missing() {
+    with_tls(ThreadCounters::store_array_str_plan_source_kind_missing);
+}
+
+#[inline(always)]
+pub(crate) fn store_array_str_plan_slot_kind_borrowed_alias() {
+    with_tls(ThreadCounters::store_array_str_plan_slot_kind_borrowed_alias);
+}
+
+#[inline(always)]
+pub(crate) fn store_array_str_plan_slot_kind_other() {
+    with_tls(ThreadCounters::store_array_str_plan_slot_kind_other);
+}
+
+#[inline(always)]
+pub(crate) fn store_array_str_plan_action_retarget_alias() {
+    with_tls(ThreadCounters::store_array_str_plan_action_retarget_alias);
+}
+
+#[inline(always)]
+pub(crate) fn store_array_str_plan_action_store_from_source() {
+    with_tls(ThreadCounters::store_array_str_plan_action_store_from_source);
+}
+
+#[inline(always)]
+pub(crate) fn store_array_str_plan_action_need_stable_object() {
+    with_tls(ThreadCounters::store_array_str_plan_action_need_stable_object);
+}
+
+#[inline(always)]
 pub(crate) fn const_suffix_enter() {
     with_tls(ThreadCounters::const_suffix_enter);
 }
@@ -1326,7 +1470,7 @@ fn flush_current_thread() {
     TLS_COUNTERS.with(ThreadCounters::flush_into_global);
 }
 
-pub(crate) fn snapshot() -> [u64; 73] {
+pub(crate) fn snapshot() -> [u64; 81] {
     flush_current_thread();
     [
         GLOBAL.store_array_str_total.load(Ordering::Relaxed),
@@ -1432,6 +1576,30 @@ pub(crate) fn snapshot() -> [u64; 73] {
         GLOBAL.borrowed_alias_encode_epoch_hit.load(Ordering::Relaxed),
         GLOBAL.borrowed_alias_encode_ptr_eq_hit.load(Ordering::Relaxed),
         GLOBAL.borrowed_alias_encode_to_handle_arc.load(Ordering::Relaxed),
+        GLOBAL
+            .store_array_str_plan_source_kind_string_like
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .store_array_str_plan_source_kind_other_object
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .store_array_str_plan_source_kind_missing
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .store_array_str_plan_slot_kind_borrowed_alias
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .store_array_str_plan_slot_kind_other
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .store_array_str_plan_action_retarget_alias
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .store_array_str_plan_action_store_from_source
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .store_array_str_plan_action_need_stable_object
+            .load(Ordering::Relaxed),
     ]
 }
 

@@ -20,6 +20,20 @@ pub(crate) const STORE_ARRAY_STR_APPEND_SLOT: &str = "append_slot";
 pub(crate) const STORE_ARRAY_STR_SOURCE_STRING_BOX: &str = "source_string_box";
 pub(crate) const STORE_ARRAY_STR_SOURCE_STRING_VIEW: &str = "source_string_view";
 pub(crate) const STORE_ARRAY_STR_SOURCE_MISSING: &str = "source_missing";
+pub(crate) const STORE_ARRAY_STR_PLAN_SOURCE_KIND_STRING_LIKE: &str =
+    "plan.source_kind_string_like";
+pub(crate) const STORE_ARRAY_STR_PLAN_SOURCE_KIND_OTHER_OBJECT: &str =
+    "plan.source_kind_other_object";
+pub(crate) const STORE_ARRAY_STR_PLAN_SOURCE_KIND_MISSING: &str = "plan.source_kind_missing";
+pub(crate) const STORE_ARRAY_STR_PLAN_SLOT_KIND_BORROWED_ALIAS: &str =
+    "plan.slot_kind_borrowed_alias";
+pub(crate) const STORE_ARRAY_STR_PLAN_SLOT_KIND_OTHER: &str = "plan.slot_kind_other";
+pub(crate) const STORE_ARRAY_STR_PLAN_ACTION_RETARGET_ALIAS: &str =
+    "plan.action_retarget_alias";
+pub(crate) const STORE_ARRAY_STR_PLAN_ACTION_STORE_FROM_SOURCE: &str =
+    "plan.action_store_from_source";
+pub(crate) const STORE_ARRAY_STR_PLAN_ACTION_NEED_STABLE_OBJECT: &str =
+    "plan.action_need_stable_object";
 
 pub(crate) const CONST_SUFFIX_CACHED_HANDLE_HIT: &str = "cached_handle_hit";
 pub(crate) const CONST_SUFFIX_TEXT_CACHE_RELOAD: &str = "text_cache_reload";

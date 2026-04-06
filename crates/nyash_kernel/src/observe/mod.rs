@@ -85,6 +85,46 @@ mod real {
     }
 
     #[inline(always)]
+    pub(crate) fn record_store_array_str_plan_source_kind_string_like() {
+        super::backend::store_array_str_plan_source_kind_string_like();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_plan_source_kind_other_object() {
+        super::backend::store_array_str_plan_source_kind_other_object();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_plan_source_kind_missing() {
+        super::backend::store_array_str_plan_source_kind_missing();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_plan_slot_kind_borrowed_alias() {
+        super::backend::store_array_str_plan_slot_kind_borrowed_alias();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_plan_slot_kind_other() {
+        super::backend::store_array_str_plan_slot_kind_other();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_plan_action_retarget_alias() {
+        super::backend::store_array_str_plan_action_retarget_alias();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_plan_action_store_from_source() {
+        super::backend::store_array_str_plan_action_store_from_source();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_plan_action_need_stable_object() {
+        super::backend::store_array_str_plan_action_need_stable_object();
+    }
+
+    #[inline(always)]
     pub(crate) fn record_const_suffix_enter() {
         super::backend::const_suffix_enter();
     }
@@ -420,6 +460,30 @@ mod real {
 
     #[inline(always)]
     pub(crate) fn record_store_array_str_source_missing() {}
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_plan_source_kind_string_like() {}
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_plan_source_kind_other_object() {}
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_plan_source_kind_missing() {}
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_plan_slot_kind_borrowed_alias() {}
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_plan_slot_kind_other() {}
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_plan_action_retarget_alias() {}
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_plan_action_store_from_source() {}
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_plan_action_need_stable_object() {}
 
     #[inline(always)]
     pub(crate) fn record_const_suffix_enter() {}

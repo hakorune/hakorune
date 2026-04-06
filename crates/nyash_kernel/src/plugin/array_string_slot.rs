@@ -1,7 +1,7 @@
 use super::array_guard::valid_handle_idx;
 use super::handle_cache::{cache_probe_kind, CacheProbeKind as HandleCacheProbeKind};
 use super::value_codec::{
-    is_string_handle_source, maybe_store_string_box_from_verified_source,
+    is_string_handle_source, maybe_store_string_box_from_verified_source, BorrowedHandleBox,
     try_retarget_borrowed_string_slot_verified,
 };
 use crate::observe::{self, CacheProbeKind as ObserveCacheProbeKind};
@@ -38,6 +38,67 @@ fn record_borrowed_alias_string_read_latest_fresh(
         observe::record_borrowed_alias_array_indexof_by_index_latest_fresh();
     } else {
         observe::record_borrowed_alias_array_len_by_index_latest_fresh();
+    }
+}
+
+#[derive(Clone, Copy)]
+enum StoreArrayStrPlanSourceKind {
+    StringLike,
+    OtherObject,
+    Missing,
+}
+
+#[derive(Clone, Copy)]
+enum StoreArrayStrPlanSlotKind {
+    BorrowedAlias,
+    Other,
+}
+
+#[derive(Clone, Copy)]
+enum StoreArrayStrPlanAction {
+    RetargetAlias,
+    StoreFromSource,
+    NeedStableObject,
+}
+
+#[inline(always)]
+fn record_store_array_str_plan(
+    source_kind: StoreArrayStrPlanSourceKind,
+    slot_kind: StoreArrayStrPlanSlotKind,
+    action: StoreArrayStrPlanAction,
+) {
+    if !observe::enabled() {
+        return;
+    }
+    match source_kind {
+        StoreArrayStrPlanSourceKind::StringLike => {
+            observe::record_store_array_str_plan_source_kind_string_like();
+        }
+        StoreArrayStrPlanSourceKind::OtherObject => {
+            observe::record_store_array_str_plan_source_kind_other_object();
+        }
+        StoreArrayStrPlanSourceKind::Missing => {
+            observe::record_store_array_str_plan_source_kind_missing();
+        }
+    }
+    match slot_kind {
+        StoreArrayStrPlanSlotKind::BorrowedAlias => {
+            observe::record_store_array_str_plan_slot_kind_borrowed_alias();
+        }
+        StoreArrayStrPlanSlotKind::Other => {
+            observe::record_store_array_str_plan_slot_kind_other();
+        }
+    }
+    match action {
+        StoreArrayStrPlanAction::RetargetAlias => {
+            observe::record_store_array_str_plan_action_retarget_alias();
+        }
+        StoreArrayStrPlanAction::StoreFromSource => {
+            observe::record_store_array_str_plan_action_store_from_source();
+        }
+        StoreArrayStrPlanAction::NeedStableObject => {
+            observe::record_store_array_str_plan_action_need_stable_object();
+        }
     }
 }
 
@@ -185,6 +246,31 @@ fn execute_store_array_str_slot(
         }
     }
     let source_is_string = source_obj.is_some_and(is_string_handle_source);
+    let source_kind = match source_obj {
+        Some(_) if source_is_string => StoreArrayStrPlanSourceKind::StringLike,
+        Some(_) => StoreArrayStrPlanSourceKind::OtherObject,
+        None => StoreArrayStrPlanSourceKind::Missing,
+    };
+    let slot_kind = if idx < items.len()
+        && items[idx]
+            .as_any()
+            .downcast_ref::<BorrowedHandleBox>()
+            .is_some()
+    {
+        StoreArrayStrPlanSlotKind::BorrowedAlias
+    } else {
+        StoreArrayStrPlanSlotKind::Other
+    };
+    let action = if source_is_string {
+        if matches!(slot_kind, StoreArrayStrPlanSlotKind::BorrowedAlias) && idx < items.len() {
+            StoreArrayStrPlanAction::RetargetAlias
+        } else {
+            StoreArrayStrPlanAction::StoreFromSource
+        }
+    } else {
+        StoreArrayStrPlanAction::NeedStableObject
+    };
+    record_store_array_str_plan(source_kind, slot_kind, action);
     let latest_fresh_source = observe::len_route_matches_latest_fresh_handle(value_h);
     if idx < items.len() {
         if source_is_string {

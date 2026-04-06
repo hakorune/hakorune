@@ -27,6 +27,26 @@ pub(crate) fn emit_summary_to_stderr() {
         (contract::STORE_ARRAY_STR_SOURCE_STRING_BOX, snapshot[11]),
         (contract::STORE_ARRAY_STR_SOURCE_STRING_VIEW, snapshot[12]),
         (contract::STORE_ARRAY_STR_SOURCE_MISSING, snapshot[13]),
+        (contract::STORE_ARRAY_STR_PLAN_SOURCE_KIND_STRING_LIKE, snapshot[73]),
+        (contract::STORE_ARRAY_STR_PLAN_SOURCE_KIND_OTHER_OBJECT, snapshot[74]),
+        (contract::STORE_ARRAY_STR_PLAN_SOURCE_KIND_MISSING, snapshot[75]),
+        (
+            contract::STORE_ARRAY_STR_PLAN_SLOT_KIND_BORROWED_ALIAS,
+            snapshot[76],
+        ),
+        (contract::STORE_ARRAY_STR_PLAN_SLOT_KIND_OTHER, snapshot[77]),
+        (
+            contract::STORE_ARRAY_STR_PLAN_ACTION_RETARGET_ALIAS,
+            snapshot[78],
+        ),
+        (
+            contract::STORE_ARRAY_STR_PLAN_ACTION_STORE_FROM_SOURCE,
+            snapshot[79],
+        ),
+        (
+            contract::STORE_ARRAY_STR_PLAN_ACTION_NEED_STABLE_OBJECT,
+            snapshot[80],
+        ),
     ] {
         let _ = write!(&mut store_array_str_line, " {}={}", name, value);
     }
