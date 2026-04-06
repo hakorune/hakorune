@@ -176,7 +176,7 @@ Scope: repo root から current lane / next lane / restart read order に最短�
     - `freeze_text_plan_total`
     - `freeze_text_plan_view1 / pieces2 / pieces3 / pieces4 / owned_tmp`
     - `materialize_owned_total / materialize_owned_bytes`
-    - `gc_alloc_called / gc_alloc_bytes`
+    - `gc_alloc_called / gc_alloc_bytes / gc_alloc_skipped`
   - drill-down counters now exist for:
     - `store.array.str`: `existing_slot / append_slot / source_string_box / source_string_view / source_missing`
     - `const_suffix`: `empty_return / cached_fast_str_hit / cached_span_hit`
@@ -203,6 +203,15 @@ Scope: repo root から current lane / next lane / restart read order に最短�
     - direct probe:
       - `birth.placement`: `fresh_handle=800000`
       - `birth.backend`: `materialize_owned_total=800000`, `materialize_owned_bytes=14400000`, `gc_alloc_called=800000`, `gc_alloc_bytes=14400000`
+  - `NYASH_PERF_BYPASS_GC_ALLOC=1` diagnostic observe lane:
+    - `bench_kilo_micro_concat_birth.hako`: `50 -> 51 ms`
+    - `bench_kilo_micro_concat_hh_len.hako`: `72 -> 70 ms`
+    - observe-build `kilo_kernel_small_hk`: `1077 -> 1084 ms`
+    - direct probe cleanly flips:
+      - `gc_alloc_called=800000 -> 0`
+      - `gc_alloc_skipped=0 -> 800000`
+    - current evidence does not support `gc_alloc(...)` call overhead as the next main driver
+    - next backend front remains `StringBox` birth / host handle registry issue
 - `phase-157x` current rule:
   - observer is out-of-band only
   - default build compiles observer out

@@ -20,6 +20,11 @@ mod real {
     }
 
     #[inline(always)]
+    pub(crate) fn bypass_gc_alloc_enabled() -> bool {
+        super::config::bypass_gc_alloc_enabled()
+    }
+
+    #[inline(always)]
     pub(crate) fn record_store_array_str_enter() {
         super::backend::store_array_str_enter();
     }
@@ -164,6 +169,16 @@ mod real {
         super::backend::birth_backend_materialize_owned(bytes as u64);
     }
 
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_gc_alloc(bytes: usize) {
+        super::backend::birth_backend_gc_alloc(bytes as u64);
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_gc_alloc_skipped() {
+        super::backend::birth_backend_gc_alloc_skipped();
+    }
+
     pub(crate) fn flush() {
         if super::config::enabled() {
             super::sink::emit_summary_to_stderr();
@@ -182,6 +197,11 @@ mod real {
 
     #[inline(always)]
     pub(crate) fn enabled() -> bool {
+        false
+    }
+
+    #[inline(always)]
+    pub(crate) fn bypass_gc_alloc_enabled() -> bool {
         false
     }
 
@@ -271,6 +291,12 @@ mod real {
 
     #[inline(always)]
     pub(crate) fn record_birth_backend_materialize_owned(_bytes: usize) {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_gc_alloc(_bytes: usize) {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_gc_alloc_skipped() {}
 
     #[inline(always)]
     pub(crate) fn flush() {}

@@ -77,9 +77,20 @@
      - `birth.placement`: `fresh_handle=800000`
      - `birth.backend`: `materialize_owned_total=800000`, `materialize_owned_bytes=14400000`, `gc_alloc_called=800000`, `gc_alloc_bytes=14400000`
      - `return_handle / borrow_view / freeze_owned = 0`
+   - `NYASH_PERF_BYPASS_GC_ALLOC=1` diagnostic observe lane shows:
+     - `kilo_micro_concat_birth`: `50 -> 51 ms`
+     - `kilo_micro_concat_hh_len`: `72 -> 70 ms`
+     - observe-build `kilo_kernel_small_hk`: `1077 -> 1084 ms`
+     - direct probe cleanly flips:
+       - `gc_alloc_called=800000 -> 0`
+       - `gc_alloc_skipped=0 -> 800000`
+   - current evidence does not support `gc_alloc(...)` call overhead as the next main driver
    - current exact backend front is therefore:
      - `FreshHandle`
      - `MaterializeOwned`
+   - next backend front should move to:
+     - `StringBox` birth
+     - host handle registry issue
    - current microasm read:
      - `string_concat_hh_export_impl`: `54.04%`
      - `string_len_from_handle`: `21.37%`

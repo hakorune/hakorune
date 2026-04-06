@@ -64,7 +64,7 @@ pub(crate) fn emit_summary_to_stderr() {
         snapshot[24],
     );
     eprintln!(
-        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
+        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
         contract::BIRTH_BACKEND,
         contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_TOTAL,
         snapshot[25],
@@ -86,5 +86,7 @@ pub(crate) fn emit_summary_to_stderr() {
         snapshot[33],
         contract::BIRTH_BACKEND_GC_ALLOC_BYTES,
         snapshot[34],
+        contract::BIRTH_BACKEND_GC_ALLOC_SKIPPED,
+        snapshot[35],
     );
 }

@@ -46,6 +46,7 @@ struct GlobalCounters {
     birth_backend_materialize_owned_bytes: AtomicU64,
     birth_backend_gc_alloc_called: AtomicU64,
     birth_backend_gc_alloc_bytes: AtomicU64,
+    birth_backend_gc_alloc_skipped: AtomicU64,
 }
 
 impl GlobalCounters {
@@ -86,6 +87,7 @@ impl GlobalCounters {
             birth_backend_materialize_owned_bytes: AtomicU64::new(0),
             birth_backend_gc_alloc_called: AtomicU64::new(0),
             birth_backend_gc_alloc_bytes: AtomicU64::new(0),
+            birth_backend_gc_alloc_skipped: AtomicU64::new(0),
         }
     }
 }
@@ -128,6 +130,7 @@ struct ThreadCounters {
     birth_backend_materialize_owned_bytes: Cell<u64>,
     birth_backend_gc_alloc_called: Cell<u64>,
     birth_backend_gc_alloc_bytes: Cell<u64>,
+    birth_backend_gc_alloc_skipped: Cell<u64>,
 }
 
 impl ThreadCounters {
@@ -168,6 +171,7 @@ impl ThreadCounters {
             birth_backend_materialize_owned_bytes: Cell::new(0),
             birth_backend_gc_alloc_called: Cell::new(0),
             birth_backend_gc_alloc_bytes: Cell::new(0),
+            birth_backend_gc_alloc_skipped: Cell::new(0),
         }
     }
 
@@ -328,11 +332,20 @@ impl ThreadCounters {
     #[inline(always)]
     fn birth_backend_materialize_owned(&self, bytes: u64) {
         Self::bump(&self.birth_backend_materialize_owned_total);
-        Self::bump(&self.birth_backend_gc_alloc_called);
         self.birth_backend_materialize_owned_bytes
             .set(self.birth_backend_materialize_owned_bytes.get() + bytes);
+    }
+
+    #[inline(always)]
+    fn birth_backend_gc_alloc(&self, bytes: u64) {
+        Self::bump(&self.birth_backend_gc_alloc_called);
         self.birth_backend_gc_alloc_bytes
             .set(self.birth_backend_gc_alloc_bytes.get() + bytes);
+    }
+
+    #[inline(always)]
+    fn birth_backend_gc_alloc_skipped(&self) {
+        Self::bump(&self.birth_backend_gc_alloc_skipped);
     }
 
     fn flush_into_global(&self) {
@@ -469,6 +482,10 @@ impl ThreadCounters {
         flush_cell(
             &self.birth_backend_gc_alloc_bytes,
             &GLOBAL.birth_backend_gc_alloc_bytes,
+        );
+        flush_cell(
+            &self.birth_backend_gc_alloc_skipped,
+            &GLOBAL.birth_backend_gc_alloc_skipped,
         );
     }
 }
@@ -643,11 +660,21 @@ pub(crate) fn birth_backend_materialize_owned(bytes: u64) {
     with_tls(|tls| tls.birth_backend_materialize_owned(bytes));
 }
 
+#[inline(always)]
+pub(crate) fn birth_backend_gc_alloc(bytes: u64) {
+    with_tls(|tls| tls.birth_backend_gc_alloc(bytes));
+}
+
+#[inline(always)]
+pub(crate) fn birth_backend_gc_alloc_skipped() {
+    with_tls(ThreadCounters::birth_backend_gc_alloc_skipped);
+}
+
 fn flush_current_thread() {
     TLS_COUNTERS.with(ThreadCounters::flush_into_global);
 }
 
-pub(crate) fn snapshot() -> [u64; 35] {
+pub(crate) fn snapshot() -> [u64; 36] {
     flush_current_thread();
     [
         GLOBAL.store_array_str_total.load(Ordering::Relaxed),
@@ -685,6 +712,7 @@ pub(crate) fn snapshot() -> [u64; 35] {
         GLOBAL.birth_backend_materialize_owned_bytes.load(Ordering::Relaxed),
         GLOBAL.birth_backend_gc_alloc_called.load(Ordering::Relaxed),
         GLOBAL.birth_backend_gc_alloc_bytes.load(Ordering::Relaxed),
+        GLOBAL.birth_backend_gc_alloc_skipped.load(Ordering::Relaxed),
     ]
 }
 
@@ -743,6 +771,8 @@ mod tests {
         birth_placement_fresh_handle();
         birth_backend_freeze_text_plan_pieces2();
         birth_backend_materialize_owned(18);
+        birth_backend_gc_alloc(18);
+        birth_backend_gc_alloc_skipped();
         let after = snapshot();
 
         assert_eq!(after[21] - before[21], 1);
@@ -752,5 +782,6 @@ mod tests {
         assert_eq!(after[32] - before[32], 18);
         assert_eq!(after[33] - before[33], 1);
         assert_eq!(after[34] - before[34], 18);
+        assert_eq!(after[35] - before[35], 1);
     }
 }

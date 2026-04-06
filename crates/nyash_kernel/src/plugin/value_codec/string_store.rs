@@ -9,7 +9,12 @@ use std::sync::Arc;
 #[inline(always)]
 pub(crate) fn materialize_owned_string(value: String) -> i64 {
     crate::observe::record_birth_backend_materialize_owned(value.len());
-    nyash_rust::runtime::global_hooks::gc_alloc(value.len() as u64);
+    if crate::observe::bypass_gc_alloc_enabled() {
+        crate::observe::record_birth_backend_gc_alloc_skipped();
+    } else {
+        crate::observe::record_birth_backend_gc_alloc(value.len());
+        nyash_rust::runtime::global_hooks::gc_alloc(value.len() as u64);
+    }
     let arc: Arc<dyn NyashBox> = Arc::new(StringBox::new(value));
     handles::to_handle_arc(arc) as i64
 }
