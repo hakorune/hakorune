@@ -21,6 +21,7 @@
 - `phase-134x` structural split is landed
 - `phase-138x` / `phase-139x` / `phase-140x` / `phase-141x` semantic-owner corridor is landed
 - contract-first corridor は landed
+- Birth / Placement vocabulary lock is now landed in design SSOT
 - perf consumer は llvmlite object emit retreat の後で reopen
 - `vm-hako` stays parked as reference/conformance
 
@@ -77,6 +78,12 @@
    - current AOT consumer: `nyash.string.concat_hh` + `nyash.string.len_h`
    - current executor: `string_concat_hh_export_impl(...)` + `string_len_from_handle(...)`
    - use `kilo_micro_concat_hh_len` as the exact isolated repro before changing this front
+   - read this front through Birth / Placement outcome names first:
+     - `ReturnHandle`
+     - `BorrowView`
+     - `FreezeOwned`
+     - `FreshHandle`
+     - `MaterializeOwned`
 3. keep canonical `store.array.str` as the next exact front
    - current executor: `array_string_store_handle_at(...)`
 4. keep canonical `const_suffix` / `thaw.str + lit.str + str.concat2 + freeze.str` as a separate route, but do not assume the current exact micro exercises it

@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/15-Workstream-Map.md
   - docs/development/current/main/design/semantic-optimization-authority-ssot.md
+  - docs/development/current/main/design/birth-placement-ssot.md
   - docs/development/current/main/design/kernel-replacement-axis-ssot.md
   - docs/development/current/main/phases/phase-134x/README.md
   - docs/development/current/main/phases/phase-138x/README.md
@@ -108,6 +109,28 @@ capability families.
 This table is the first inventory truth.
 It is allowed to get more precise, but future phases should not revert to
 helper-name-first reading once a capability-family reading exists.
+
+## Birth / Placement Reading Lock
+
+String hot paths should also be read through Birth / Placement outcome names,
+not helper names.
+
+- `ReturnHandle`
+- `BorrowView`
+- `FreezeOwned`
+- `FreshHandle`
+- `MaterializeOwned`
+- `StoreFromSource`
+
+This does not create a new owner layer.
+It is a reading lock that keeps:
+
+- owner trigger / retained-form choice above
+- canonical contract naming in the middle
+- native mechanics below
+
+The Rust side remains a high-density runtime mechanics kernel even when birth
+backend leaves are optimized aggressively.
 
 ## Final Owner Graph
 

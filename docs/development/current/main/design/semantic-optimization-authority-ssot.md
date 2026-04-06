@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/15-Workstream-Map.md
   - docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md
+  - docs/development/current/main/design/birth-placement-ssot.md
   - docs/development/current/main/design/canonical-lowering-visibility-ssot.md
   - lang/src/runtime/kernel/string/README.md
   - lang/src/runtime/kernel/string/chain_policy.hako
@@ -92,6 +93,9 @@ They are not first-class MIR enum variants yet.
 Do not encode `return_handle` as a standalone executor op.
 It is a rewrite / elision outcome.
 
+Birth / Placement vocabulary should also be read through canonical contract
+names, not helper names. See `birth-placement-ssot.md`.
+
 ## Rust executor / accelerator
 
 Rust が持つもの:
@@ -105,6 +109,15 @@ Rust が持つもの:
 
 `BorrowedText` と `TextSink` を使う場合でも、位置づけは Rust 内部 protocol のみ。
 Public authority 名にしない。
+
+The same rule applies to birth backend leaves.
+
+- `string_handle_from_owned(...)`
+- `freeze_text_plan(...)`
+- `materialize_owned_string(...)`
+
+These are executor/backend details only. Treat them as the Rust birth backend
+family, not as semantic vocabulary.
 
 ## LLVM generic optimization / codegen
 
@@ -158,6 +171,33 @@ are read as standalone helpers.
 
 This rule exists so perf work does not accidentally grow helper-local policy
 again while capability-family planning is still docs-first.
+
+## Birth / Placement Rule
+
+Hot-path performance work must read Birth / Placement outcome before it reads a
+helper name.
+
+Current outcome vocabulary is:
+
+1. `ReturnHandle`
+2. `BorrowView`
+3. `FreezeOwned`
+4. `FreshHandle`
+5. `MaterializeOwned`
+6. `StoreFromSource`
+
+Layer split:
+
+- `.hako owner / policy`
+  - birth trigger
+  - retained-form / boundary choice
+- `MIR canonical contract`
+  - rewrite / elision reading
+  - stable contract name
+- `Rust executor / accelerator`
+  - birth backend / registry issue / materialize / freeze / store execution
+
+This keeps helper-local names below the public seam.
 
 ## Stop Lines
 
