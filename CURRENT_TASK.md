@@ -301,10 +301,17 @@ Scope: repo root から current lane / next lane / restart read order に最短�
         - `kilo_micro_concat_hh_len: 69 ms`
         - `kilo_kernel_small_hk: 798 ms`
       - the behavior change is reverted
+    - typed string payload truth:
+      - issuing fresh string handles through a typed `StringBox` payload and using a typed retarget fast path regressed the exact fronts immediately
+      - plain release 3-run:
+        - `kilo_micro_array_string_store: 201 ms`
+        - `kilo_micro_concat_hh_len: 72 ms`
+      - whole-kilo was not pursued; the behavior change is reverted
   - immediate next observation order is fixed:
     1. split the `store.array.str -> with_handle(ArrayStoreStrSource)` object contract again before changing behavior
     2. keep borrowed alias string-read trimming closed; live-source fast read was not enough
-    3. only then retry delayed `StableBoxNow`
+    3. keep typed `StringBox` payload widening closed at the host-handle layer
+    4. only then retry delayed `StableBoxNow`
   - `DeferredString` experiment truth:
     - exact micro improved:
       - `kilo_micro_concat_hh_len`: `57 -> 51 ms`
