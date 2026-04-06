@@ -148,6 +148,15 @@ This keeps:
   - stable objectization timing
   - `box_id` issue
   - registry handle issue
+  - backend-private carriers such as `OwnedBytes` and `TextReadSession`
+
+Current next narrowing rule:
+
+- prefer `OwnedBytes` over eager `StableBoxNow` for newly materialized text
+- prefer `TextReadSession` over repeated object-world read access for pure
+  string consumers
+- only demand `StableBoxNow` at object/sink boundaries that truly need stable
+  identity
 
 ## Final Owner Graph
 

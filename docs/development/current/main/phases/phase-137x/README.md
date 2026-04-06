@@ -97,9 +97,20 @@
      - both `len` consumers stay on `fast_str_hit`
      - `concat_hh + len_h` exact path usually reads the latest fresh handle directly after issue
      - `unclassified=0`
+   - external design lock after the latest exact/whole split:
+     - do not treat birth as one fused event
+     - read current backend as:
+       - byte birth = `MaterializeOwned`
+       - object birth = `StableBoxNow`
+       - publication birth = `FreshRegistryHandle`
+     - next backend-private carriers are:
+       - `OwnedBytes`
+       - `TextReadSession`
+     - next structural goal is to reduce `StableBoxNow` demand before trying to
+       make `next_box_id` or registry issue cheaper again
    - next observation order is fixed:
-     1. reopen `DeferredStableBox` / delayed objectization discussion for the `concat_hh + len_h` consumer
-     2. if that slice is blocked, keep trimming backend leaves under `materialize_owned_bytes` and `issue_fresh_handle`
+     1. design `OwnedBytes` / `TextReadSession` as the next narrow seam for the `concat_hh + len_h` consumer
+     2. only after that, reopen delayed objectization or backend trimming under `materialize_owned_bytes` / `issue_fresh_handle`
    - `DeferredString` experiment truth:
      - exact micro improved:
        - `kilo_micro_concat_hh_len`: `57 -> 51 ms`

@@ -83,6 +83,49 @@ Interpretation:
 Do not add `box_id` to this top-level vocabulary.
 `box_id` belongs below this layer as a Rust-side objectization contract.
 
+## Carrier Split
+
+Birth should not be treated as one fused runtime event.
+
+Current fused chain is:
+
+- byte birth = `MaterializeOwned`
+- object birth = `Objectization::StableBoxNow`
+- publication birth = `RegistryIssue::FreshRegistryHandle`
+
+Target reading:
+
+- `MaterializeOwned` creates owned bytes
+- `StableBoxNow` creates a stable Nyash object only when object world demands it
+- `FreshRegistryHandle` publishes only when handle world demands it
+
+This means:
+
+- `MaterializeOwned` does not imply `StableBoxNow`
+- `StableBoxNow` does not imply `FreshRegistryHandle`
+- `FreshRegistryHandle` must not be used as a synonym for objectization
+
+## Private Backend Carriers
+
+Rust backend may keep private carriers below the public seam.
+
+Current next carriers are:
+
+1. `OwnedBytes`
+2. `TextReadSession`
+
+Interpretation:
+
+- `OwnedBytes`
+  - owned text payload that is not yet a stable `NyashBox`
+- `TextReadSession`
+  - end-to-end read-only borrowed string session
+  - keeps drop-epoch / handle lookup / span reuse together for pure string reads
+
+These names are Rust backend family names only.
+Do not promote them into `.hako` route vocabulary or MIR top-level outcome
+names.
+
 ## Backend Second Axis
 
 Birth / Placement outcome is the first reading.
@@ -185,6 +228,11 @@ Current backend leaves include:
 - `string_handle_from_span(...)`
 - `store_string_box_from_source(...)`
 
+Current next backend-private carriers are:
+
+- `OwnedBytes`
+- `TextReadSession`
+
 These are backend leaves only.
 They must not become public policy vocabulary.
 Rust keeps C-like storage/lifetime mechanics here.
@@ -229,6 +277,18 @@ This means current `FreshHandle` often implies:
 
 That coupling is current implementation detail, not the desired top-level
 semantic vocabulary.
+
+## Current Direction Lock
+
+The next design slice is not “make `StringBox` cheaper first”.
+The next design slice is:
+
+1. keep owned text in `OwnedBytes`
+2. keep pure string reads in `TextReadSession`
+3. enter `StableBoxNow` only at object/sink boundaries
+
+This is the intended way to break the current fused pipeline without lifting
+`box_id` into the public Birth / Placement vocabulary.
 
 ## First Vertical Slice
 

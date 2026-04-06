@@ -56,8 +56,14 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 - Active lane: `phase-137x main kilo reopen selection`
 - Active front: exact observe で current AOT consumer を確定しつつ、helper 名ではなく capability seam 名を first reading にする
 - Current blocker: executor-local trims は regress しやすいので、exact micro と whole-kilo を同時に良化する patch だけを採る
+- Current next design slice:
+  - keep `OwnedBytes` as backend-private carrier below `MaterializeOwned`
+  - keep `TextReadSession` as backend-private read seam below pure string consumers
+  - reduce `StableBoxNow` demand before trimming `box_id` or registry issue again
 - Exact focus:
   - `docs/development/current/main/phases/phase-137x/README.md`
+  - `docs/development/current/main/design/birth-placement-ssot.md`
+  - `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
   - `docs/development/current/main/phases/phase-160x/README.md`
   - `docs/development/current/main/phases/phase-161x/README.md`
   - `crates/nyash_kernel/src/plugin/array_handle_cache.rs`
@@ -191,6 +197,15 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       - `materialize_owned_bytes`
       - `objectize_stable_box_now`
       - `issue_fresh_handle`
+  - latest design lock:
+    - treat birth as three backend events, not one:
+      - byte birth = `MaterializeOwned`
+      - object birth = `StableBoxNow`
+      - publication birth = `FreshRegistryHandle`
+    - next backend-private carriers are:
+      - `OwnedBytes`
+      - `TextReadSession`
+    - reduce `StableBoxNow` demand before trying to make `box_id` cheaper again
   - immediate next observation order is fixed:
     1. treat `StableBoxNow` delay / objectization deferral as the next design slice for `concat_hh + len_h`
     2. if that slice is blocked, fall back to backend leaf trimming under `materialize_owned_bytes / issue_fresh_handle`

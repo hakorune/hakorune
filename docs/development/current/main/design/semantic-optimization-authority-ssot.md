@@ -251,6 +251,17 @@ Backend-only follow-up:
 
 That second axis is a Rust keep-line question, not a `.hako` owner question.
 
+Current backend-private support seam:
+
+- `OwnedBytes`
+  - private owned-text carrier below top-level Birth / Placement naming
+- `TextReadSession`
+  - private read-only borrowed string session across
+    `string_view.rs` / `string_helpers.rs` / `host_handles.rs`
+
+These names are allowed only as Rust backend family names.
+Do not lift them into `.hako` route vocabulary or MIR top-level outcome names.
+
 ## Stop Lines
 
 - `.hako` は owner / policy / route semantics まで
