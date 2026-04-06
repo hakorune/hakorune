@@ -135,6 +135,15 @@ perf_aot_observe_requested() {
   [[ "${NYASH_PERF_COUNTERS:-0}" == "1" || "${NYASH_PERF_TRACE:-0}" == "1" ]]
 }
 
+perf_aot_nm_has_symbol() {
+  local path=$1
+  local symbol=$2
+  if ! command -v nm >/dev/null 2>&1; then
+    return 2
+  fi
+  nm -C "${path}" 2>/dev/null | grep -Fq "${symbol}"
+}
+
 perf_aot_assert_default_release_alignment() {
   local root_dir=$1
   local hako_bin=$2
@@ -157,13 +166,13 @@ perf_aot_assert_default_release_alignment() {
     return 1
   fi
 
-  if grep -aFq 'birth.backend' "${lib_kernel}"; then
+  if perf_aot_nm_has_symbol "${lib_kernel}" 'nyash_kernel::observe::backend::birth_backend_issue_fresh_handle'; then
     echo "[error] default release lane is linked against perf-observe nyash_kernel artifacts: ${lib_kernel}" >&2
     echo "[hint] rebuild plain release: bash tools/perf/build_perf_release.sh" >&2
     return 1
   fi
 
-  if grep -aFq 'perf_observe_from_owned' "${hako_bin}"; then
+  if perf_aot_nm_has_symbol "${hako_bin}" 'nyash_rust::boxes::basic::string_box::StringBox::perf_observe_from_owned'; then
     echo "[error] default release lane is using perf-observe hakorune binary: ${hako_bin}" >&2
     echo "[hint] rebuild plain release: bash tools/perf/build_perf_release.sh" >&2
     return 1
@@ -200,7 +209,7 @@ perf_aot_assert_observe_release_alignment() {
     return 1
   fi
 
-  if ! grep -aFq 'birth.backend' "${lib_kernel}"; then
+  if ! perf_aot_nm_has_symbol "${lib_kernel}" 'nyash_kernel::observe::backend::birth_backend_issue_fresh_handle'; then
     echo "[error] perf-observe lane requires perf-observe nyash_kernel artifacts; counter symbols missing from ${lib_kernel}" >&2
     echo "[hint] run: bash tools/perf/build_perf_observe_release.sh" >&2
     return 1
