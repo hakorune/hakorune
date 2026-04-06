@@ -406,14 +406,22 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       - `BorrowedStringKeep` is the backend-private seam under alias source-lifetime
       - current behavior still uses `StableBox(...)` only
       - this is still no-behavior-change; it narrows the next structural cut away from generic object transport
+    - closed follow-up:
+      - a typed `BorrowedStringKeep::StringBox` fast path regressed on both exact and whole
+      - 3-run plain release:
+        - `kilo_micro_array_string_store: 198 ms`
+        - `kilo_micro_concat_hh_len: 71 ms`
+        - `kilo_kernel_small_hk: 777 ms`
+      - revert the behavior change; keep `BorrowedStringKeep` on `StableBox(...)` until source-lifetime keep semantics change
   - immediate next observation order is fixed:
     1. split the `store.array.str -> with_handle(ArrayStoreStrSource)` object contract again before changing behavior
     2. keep borrowed alias string-read trimming closed; live-source fast read was not enough
     3. keep typed `StringBox` payload widening closed at the host-handle layer
     4. keep `keep_source_arc` clone-elision ideas closed; ptr-eq never hits on the current culprit
-    5. do not add more typed-helper transport; move the next cut to the source-lifetime contract side
-    6. use `BorrowedStringKeep` as the next backend-private seam instead of widening generic object payloads
-    7. only then retry delayed `StableBoxNow`
+    5. keep typed `BorrowedStringKeep::StringBox` fast path closed; transport-only specialization still loses
+    6. do not add more typed-helper transport; move the next cut to the source-lifetime contract side
+    7. use `BorrowedStringKeep` as the backend-private seam, but change keep semantics before changing keep representation again
+    8. only then retry delayed `StableBoxNow`
   - `DeferredString` experiment truth:
     - exact micro improved:
       - `kilo_micro_concat_hh_len`: `57 -> 51 ms`
