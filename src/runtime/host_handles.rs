@@ -19,6 +19,7 @@ use crate::config::env::HostHandleAllocPolicyMode;
 
 enum HandlePayload {
     StableBox(Arc<dyn NyashBox>),
+    DeferredString(String),
 }
 
 impl HandlePayload {
@@ -26,17 +27,26 @@ impl HandlePayload {
     fn stable_box_ref(&self) -> &Arc<dyn NyashBox> {
         match self {
             Self::StableBox(obj) => obj,
+            Self::DeferredString(_) => {
+                host_handle_panic("[host_handles] deferred payload requires objectization")
+            }
         }
     }
 
     #[inline(always)]
-    fn cloned_stable_box(&self) -> Arc<dyn NyashBox> {
-        self.stable_box_ref().clone()
+    fn as_str_fast(&self) -> Option<&str> {
+        match self {
+            Self::StableBox(obj) => obj.as_ref().as_str_fast(),
+            Self::DeferredString(text) => Some(text.as_str()),
+        }
     }
 
     #[inline(always)]
-    fn as_str_fast(&self) -> Option<&str> {
-        self.stable_box_ref().as_ref().as_str_fast()
+    fn objectize(self) -> Arc<dyn NyashBox> {
+        match self {
+            Self::StableBox(obj) => obj,
+            Self::DeferredString(text) => Arc::new(crate::box_trait::StringBox::new(text)),
+        }
     }
 }
 
@@ -134,9 +144,18 @@ impl Registry {
 
     #[inline(always)]
     fn alloc(&self, obj: Arc<dyn NyashBox>) -> u64 {
+        self.alloc_payload(HandlePayload::StableBox(obj))
+    }
+
+    #[inline(always)]
+    fn alloc_deferred_string(&self, text: String) -> u64 {
+        self.alloc_payload(HandlePayload::DeferredString(text))
+    }
+
+    #[inline(always)]
+    fn alloc_payload(&self, payload: HandlePayload) -> u64 {
         let policy_mode = self.alloc_policy_mode();
         let mut table = self.table.write();
-        let payload = HandlePayload::StableBox(obj);
 
         if let Some(h) = host_handles_policy::take_reusable_handle(policy_mode, &mut table.free) {
             let idx = handle_index_or_panic(h, "[host_handles] reusable handle overflow");
@@ -167,21 +186,36 @@ impl Registry {
     }
     #[inline(always)]
     fn get(&self, h: u64) -> Option<Arc<dyn NyashBox>> {
-        let table = self.table.read();
-        slot_ref(&table, h).map(HandlePayload::cloned_stable_box)
+        {
+            let table = self.table.read();
+            match slot_ref(&table, h) {
+                Some(HandlePayload::StableBox(obj)) => return Some(obj.clone()),
+                Some(HandlePayload::DeferredString(_)) => {}
+                None => return None,
+            }
+        }
+        let mut table = self.table.write();
+        objectize_slot_payload(&mut table, h).map(|obj| obj.clone())
     }
 
     #[inline(always)]
     fn with_handle<R>(&self, h: u64, f: impl FnOnce(Option<&Arc<dyn NyashBox>>) -> R) -> R {
-        let table = self.table.read();
-        let obj = slot_ref(&table, h).map(HandlePayload::stable_box_ref);
+        {
+            let table = self.table.read();
+            match slot_ref(&table, h) {
+                Some(HandlePayload::StableBox(obj)) => return f(Some(obj)),
+                Some(HandlePayload::DeferredString(_)) => {}
+                None => return f(None),
+            }
+        }
+        let mut table = self.table.write();
+        let obj = objectize_slot_payload(&mut table, h);
         f(obj)
     }
     #[inline(always)]
     fn get_pair(&self, a: u64, b: u64) -> (Option<Arc<dyn NyashBox>>, Option<Arc<dyn NyashBox>>) {
-        let table = self.table.read();
-        let a_obj = slot_ref(&table, a).map(HandlePayload::cloned_stable_box);
-        let b_obj = slot_ref(&table, b).map(HandlePayload::cloned_stable_box);
+        let a_obj = self.get(a);
+        let b_obj = self.get(b);
         (a_obj, b_obj)
     }
 
@@ -192,10 +226,9 @@ impl Registry {
         b: u64,
         f: impl FnOnce(Option<&Arc<dyn NyashBox>>, Option<&Arc<dyn NyashBox>>) -> R,
     ) -> R {
-        let table = self.table.read();
-        let a_obj = slot_ref(&table, a).map(HandlePayload::stable_box_ref);
-        let b_obj = slot_ref(&table, b).map(HandlePayload::stable_box_ref);
-        f(a_obj, b_obj)
+        let a_obj = self.get(a);
+        let b_obj = self.get(b);
+        f(a_obj.as_ref(), b_obj.as_ref())
     }
 
     #[inline(always)]
@@ -210,12 +243,10 @@ impl Registry {
             Option<&Arc<dyn NyashBox>>,
         ) -> R,
     ) -> R {
-        let table = self.table.read();
-        f(
-            slot_ref(&table, a).map(HandlePayload::stable_box_ref),
-            slot_ref(&table, b).map(HandlePayload::stable_box_ref),
-            slot_ref(&table, c).map(HandlePayload::stable_box_ref),
-        )
+        let a_obj = self.get(a);
+        let b_obj = self.get(b);
+        let c_obj = self.get(c);
+        f(a_obj.as_ref(), b_obj.as_ref(), c_obj.as_ref())
     }
 
     #[inline(always)]
@@ -259,20 +290,23 @@ impl Registry {
         Option<Arc<dyn NyashBox>>,
         Option<Arc<dyn NyashBox>>,
     ) {
-        let table = self.table.read();
-        let a_obj = slot_ref(&table, a).map(HandlePayload::cloned_stable_box);
-        let b_obj = slot_ref(&table, b).map(HandlePayload::cloned_stable_box);
-        let c_obj = slot_ref(&table, c).map(HandlePayload::cloned_stable_box);
+        let a_obj = self.get(a);
+        let b_obj = self.get(b);
+        let c_obj = self.get(c);
         (a_obj, b_obj, c_obj)
     }
     #[inline(always)]
     fn snapshot(&self) -> Vec<Arc<dyn NyashBox>> {
-        let table = self.table.read();
-        table
-            .slots
-            .iter()
-            .filter_map(|slot| slot.as_ref().map(HandlePayload::cloned_stable_box))
-            .collect()
+        let handles = {
+            let table = self.table.read();
+            table
+                .slots
+                .iter()
+                .enumerate()
+                .filter_map(|(idx, slot)| slot.as_ref().map(|_| idx as u64))
+                .collect::<Vec<_>>()
+        };
+        handles.into_iter().filter_map(|handle| self.get(handle)).collect()
     }
     #[inline(always)]
     fn drop_handle(&self, h: u64) {
@@ -298,6 +332,15 @@ impl Registry {
     }
 }
 
+#[inline(always)]
+fn objectize_slot_payload(table: &mut SlotTable, h: u64) -> Option<&Arc<dyn NyashBox>> {
+    let idx = usize::try_from(h).ok()?;
+    let slot = table.slots.get_mut(idx)?;
+    let payload = slot.take()?;
+    *slot = Some(HandlePayload::StableBox(payload.objectize()));
+    slot.as_ref().map(HandlePayload::stable_box_ref)
+}
+
 static REG: OnceCell<Registry> = OnceCell::new();
 #[inline(always)]
 fn reg() -> &'static Registry {
@@ -313,6 +356,12 @@ pub fn to_handle_box(bx: Box<dyn NyashBox>) -> u64 {
 #[inline(always)]
 pub fn to_handle_arc(arc: Arc<dyn NyashBox>) -> u64 {
     reg().alloc(arc)
+}
+
+/// Deferred string bytes -> HostHandle (u64) without immediate stable box objectization.
+#[inline(always)]
+pub fn to_handle_deferred_string(text: String) -> u64 {
+    reg().alloc_deferred_string(text)
 }
 /// HostHandle(u64) → Arc<dyn NyashBox>
 #[inline(always)]

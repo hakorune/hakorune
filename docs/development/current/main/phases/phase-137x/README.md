@@ -107,6 +107,11 @@
      - single-handle string-only access is also separated now:
        - `host_handles::with_str_handle(...)`
        - `string_len_from_handle(...)` and `string_is_empty_from_handle(...)` consume that seam
+   - current smallest useful `DeferredStableBox` slice is now:
+     - `materialize_owned_string(...)` issues `DeferredString` payloads through `to_handle_deferred_string(...)`
+     - `StableBoxNow` is postponed until object-world APIs (`get/with_handle/get_pair/get3/snapshot`) require it
+     - first exact read after this slice:
+       - `kilo_micro_concat_hh_len`: `57 -> 51 ms` on plain release (single exact probe)
    - current exact backend front is therefore:
      - `FreshHandle`
      - `MaterializeOwned`
