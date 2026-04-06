@@ -151,9 +151,23 @@
        - exact micro stays inside the single-handle text-read seam
        - whole-kilo quickly promotes latest fresh string handles into generic object `with_handle(...)`
        - delayed objectization must not be relanded until that consumer is widened or bypassed
+     - caller-attributed whole-kilo truth:
+       - `stable_box_demand.object_with_handle_array_store_str_source_latest_fresh=540000`
+       - `stable_box_demand.object_with_handle_substring_plan_latest_fresh=0`
+       - `stable_box_demand.object_with_handle_decode_array_fast_latest_fresh=0`
+       - `stable_box_demand.object_with_handle_decode_any_arg_latest_fresh=0`
+       - `stable_box_demand.object_with_handle_decode_any_index_latest_fresh=0`
+     - current first widening target is therefore:
+       - `store.array.str` source read under `array_string_slot.rs`
+     - attempted widening truth:
+       - redirecting `store.array.str` source read into `TextReadSession` moved latest fresh demand out of `object_with_handle(...)`
+       - but plain release regressed:
+         - `kilo_micro_array_string_store: 181 -> 187 ms`
+         - `kilo_kernel_small_hk: 757 -> 916 ms`
+       - the behavior change is reverted; keep the caller attribution only
    - next observation order is fixed:
-     1. inventory the generic object `with_handle(...)` consumers that still pull latest fresh string handles out of the text-read seam in whole-kilo
-     2. widen or bypass that consumer seam before retrying delayed `StableBoxNow`
+     1. widen or bypass the `store.array.str` source-read consumer that still pulls latest fresh string handles into generic object `with_handle(...)`
+     2. only then recheck the remaining `with_handle(...)` callers before retrying delayed `StableBoxNow`
      3. only after that, reopen backend trimming under `materialize_owned_bytes` / `issue_fresh_handle`
    - `DeferredString` experiment truth:
      - exact micro improved:
@@ -253,7 +267,7 @@
      - latest fresh handles are consumed through `text_read_handle`
      - they are not currently leaking into object get/with/pair/triple APIs on the exact fronts
    - next backend trim order:
-     1. identify the non-exact generic object `with_handle(...)` consumers that still demand `StableBoxNow`
+     1. widen or bypass `store.array.str` source read so latest fresh string handles stay inside `TextReadSession`
      2. only after that retry delayed `StableBoxNow`
      3. only then trim:
         - `materialize_owned_bytes`

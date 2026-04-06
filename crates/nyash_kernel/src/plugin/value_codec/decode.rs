@@ -29,7 +29,10 @@ pub(crate) fn decode_array_fast_value(arg: i64) -> ArrayFastDecodedValue {
     if arg <= 0 {
         return ArrayFastDecodedValue::ImmediateI64(arg);
     }
-    handles::with_handle(arg as u64, |obj| {
+    handles::with_handle_caller(
+        arg as u64,
+        handles::PerfObserveObjectWithHandleCaller::DecodeArrayFast,
+        |obj| {
         let Some(obj) = obj else {
             return ArrayFastDecodedValue::ImmediateI64(arg);
         };
@@ -47,7 +50,10 @@ pub(crate) fn decode_array_fast_value(arg: i64) -> ArrayFastDecodedValue {
 pub(crate) fn any_arg_to_box_with_profile(arg: i64, profile: CodecProfile) -> Box<dyn NyashBox> {
     if arg > 0 {
         if profile == CodecProfile::ArrayBorrowStringOnly {
-            return handles::with_handle(arg as u64, |obj| {
+            return handles::with_handle_caller(
+                arg as u64,
+                handles::PerfObserveObjectWithHandleCaller::DecodeAnyArg,
+                |obj| {
                 let Some(obj) = obj else {
                     return int_arg_to_box(arg);
                 };
@@ -59,7 +65,10 @@ pub(crate) fn any_arg_to_box_with_profile(arg: i64, profile: CodecProfile) -> Bo
         }
         // Phase-29cc route lock: ArrayFastBorrowString keeps scalar-prefer behavior.
         let scalar_prefer = profile == CodecProfile::ArrayFastBorrowString;
-        return handles::with_handle(arg as u64, |obj| {
+        return handles::with_handle_caller(
+            arg as u64,
+            handles::PerfObserveObjectWithHandleCaller::DecodeAnyArg,
+            |obj| {
             let Some(obj) = obj else {
                 return int_arg_to_box(arg);
             };
@@ -97,7 +106,10 @@ pub(crate) fn any_arg_to_index(arg: i64) -> Option<i64> {
     if arg <= 0 {
         return Some(arg);
     }
-    handles::with_handle(arg as u64, |obj| {
+    handles::with_handle_caller(
+        arg as u64,
+        handles::PerfObserveObjectWithHandleCaller::DecodeAnyIndex,
+        |obj| {
         let Some(obj) = obj else {
             return Some(arg);
         };

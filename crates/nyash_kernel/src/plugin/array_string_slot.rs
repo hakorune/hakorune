@@ -212,9 +212,11 @@ fn execute_store_array_str_contract(handle: i64, idx: i64, value_h: i64) -> i64 
     super::array_handle_cache::with_array_box_at_epoch(handle, drop_epoch, |arr| {
         let idx = idx as usize;
         arr.with_items_write(|items| {
-            handles::with_handle(value_h as u64, |source_obj| {
-                execute_store_array_str_slot(items, idx, value_h, source_obj, drop_epoch)
-            })
+            handles::with_handle_caller(
+                value_h as u64,
+                handles::PerfObserveObjectWithHandleCaller::ArrayStoreStrSource,
+                |source_obj| execute_store_array_str_slot(items, idx, value_h, source_obj, drop_epoch),
+            )
         })
     })
     .unwrap_or(0)

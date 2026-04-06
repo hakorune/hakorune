@@ -24,6 +24,11 @@ mod perf_observe {
     static LATEST_FRESH_HANDLE: AtomicU64 = AtomicU64::new(0);
     static OBJECT_GET_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
     static OBJECT_WITH_HANDLE_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
+    static OBJECT_WITH_HANDLE_ARRAY_STORE_STR_SOURCE_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
+    static OBJECT_WITH_HANDLE_SUBSTRING_PLAN_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
+    static OBJECT_WITH_HANDLE_DECODE_ARRAY_FAST_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
+    static OBJECT_WITH_HANDLE_DECODE_ANY_ARG_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
+    static OBJECT_WITH_HANDLE_DECODE_ANY_INDEX_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
     static OBJECT_PAIR_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
     static OBJECT_TRIPLE_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
     static TEXT_READ_HANDLE_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
@@ -48,9 +53,31 @@ mod perf_observe {
     }
 
     #[inline(always)]
-    pub(super) fn object_with_handle(handle: u64) {
+    pub(super) fn object_with_handle(handle: u64, caller: super::PerfObserveObjectWithHandleCaller) {
         if is_latest_fresh_handle(handle) {
             OBJECT_WITH_HANDLE_LATEST_FRESH.fetch_add(1, Ordering::Relaxed);
+            match caller {
+                super::PerfObserveObjectWithHandleCaller::Generic => {}
+                super::PerfObserveObjectWithHandleCaller::ArrayStoreStrSource => {
+                    OBJECT_WITH_HANDLE_ARRAY_STORE_STR_SOURCE_LATEST_FRESH
+                        .fetch_add(1, Ordering::Relaxed);
+                }
+                super::PerfObserveObjectWithHandleCaller::SubstringPlan => {
+                    OBJECT_WITH_HANDLE_SUBSTRING_PLAN_LATEST_FRESH.fetch_add(1, Ordering::Relaxed);
+                }
+                super::PerfObserveObjectWithHandleCaller::DecodeArrayFast => {
+                    OBJECT_WITH_HANDLE_DECODE_ARRAY_FAST_LATEST_FRESH
+                        .fetch_add(1, Ordering::Relaxed);
+                }
+                super::PerfObserveObjectWithHandleCaller::DecodeAnyArg => {
+                    OBJECT_WITH_HANDLE_DECODE_ANY_ARG_LATEST_FRESH
+                        .fetch_add(1, Ordering::Relaxed);
+                }
+                super::PerfObserveObjectWithHandleCaller::DecodeAnyIndex => {
+                    OBJECT_WITH_HANDLE_DECODE_ANY_INDEX_LATEST_FRESH
+                        .fetch_add(1, Ordering::Relaxed);
+                }
+            }
         }
     }
 
@@ -89,7 +116,7 @@ mod perf_observe {
         }
     }
 
-    pub fn snapshot() -> [u64; 7] {
+    pub fn snapshot() -> [u64; 12] {
         [
             OBJECT_GET_LATEST_FRESH.load(Ordering::Relaxed),
             OBJECT_WITH_HANDLE_LATEST_FRESH.load(Ordering::Relaxed),
@@ -98,6 +125,11 @@ mod perf_observe {
             TEXT_READ_HANDLE_LATEST_FRESH.load(Ordering::Relaxed),
             TEXT_READ_PAIR_LATEST_FRESH.load(Ordering::Relaxed),
             TEXT_READ_TRIPLE_LATEST_FRESH.load(Ordering::Relaxed),
+            OBJECT_WITH_HANDLE_ARRAY_STORE_STR_SOURCE_LATEST_FRESH.load(Ordering::Relaxed),
+            OBJECT_WITH_HANDLE_SUBSTRING_PLAN_LATEST_FRESH.load(Ordering::Relaxed),
+            OBJECT_WITH_HANDLE_DECODE_ARRAY_FAST_LATEST_FRESH.load(Ordering::Relaxed),
+            OBJECT_WITH_HANDLE_DECODE_ANY_ARG_LATEST_FRESH.load(Ordering::Relaxed),
+            OBJECT_WITH_HANDLE_DECODE_ANY_INDEX_LATEST_FRESH.load(Ordering::Relaxed),
         ]
     }
 }
@@ -109,20 +141,29 @@ mod perf_observe {
     #[inline(always)]
     pub(super) fn object_get(_handle: u64) {}
     #[inline(always)]
-    pub(super) fn object_with_handle(_handle: u64) {}
+    pub(super) fn object_with_handle(_handle: u64, _caller: super::PerfObserveObjectWithHandleCaller) {}
     #[inline(always)]
     pub(super) fn object_pair(_a: u64, _b: u64) {}
     #[inline(always)]
     pub(super) fn object_triple(_a: u64, _b: u64, _c: u64) {}
     #[inline(always)]
     pub(super) fn text_read_handle(_handle: u64) {}
-    #[inline(always)]
     pub(super) fn text_read_pair(_a: u64, _b: u64) {}
     #[inline(always)]
     pub(super) fn text_read_triple(_a: u64, _b: u64, _c: u64) {}
-    pub fn snapshot() -> [u64; 7] {
-        [0; 7]
+    pub fn snapshot() -> [u64; 12] {
+        [0; 12]
     }
+}
+
+#[derive(Copy, Clone)]
+pub enum PerfObserveObjectWithHandleCaller {
+    Generic,
+    ArrayStoreStrSource,
+    SubstringPlan,
+    DecodeArrayFast,
+    DecodeAnyArg,
+    DecodeAnyIndex,
 }
 
 enum HandlePayload {
@@ -146,6 +187,7 @@ impl HandlePayload {
     fn as_str_fast(&self) -> Option<&str> {
         self.stable_box_ref().as_ref().as_str_fast()
     }
+
 }
 
 pub struct TextReadSession<'a> {
@@ -324,7 +366,7 @@ impl Registry {
         let table = self.table.read();
         let obj = slot_ref(&table, h).map(HandlePayload::stable_box_ref);
         if obj.is_some() {
-            perf_observe::object_with_handle(h);
+            perf_observe::object_with_handle(h, PerfObserveObjectWithHandleCaller::Generic);
         }
         f(obj)
     }
@@ -484,7 +526,7 @@ pub fn perf_observe_mark_latest_fresh_handle(h: u64) {
 }
 
 #[inline(always)]
-pub fn perf_observe_snapshot() -> [u64; 7] {
+pub fn perf_observe_snapshot() -> [u64; 12] {
     perf_observe::snapshot()
 }
 /// HostHandle(u64) → Arc<dyn NyashBox>
@@ -498,6 +540,20 @@ pub fn get(h: u64) -> Option<Arc<dyn NyashBox>> {
 #[inline(always)]
 pub fn with_handle<R>(h: u64, f: impl FnOnce(Option<&Arc<dyn NyashBox>>) -> R) -> R {
     reg().with_handle(h, f)
+}
+
+#[inline(always)]
+pub fn with_handle_caller<R>(
+    h: u64,
+    caller: PerfObserveObjectWithHandleCaller,
+    f: impl FnOnce(Option<&Arc<dyn NyashBox>>) -> R,
+) -> R {
+    let table = reg().table.read();
+    let obj = slot_ref(&table, h).map(HandlePayload::stable_box_ref);
+    if obj.is_some() {
+        perf_observe::object_with_handle(h, caller);
+    }
+    f(obj)
 }
 
 /// HostHandle(u64) -> borrowed &str under one registry read lock.

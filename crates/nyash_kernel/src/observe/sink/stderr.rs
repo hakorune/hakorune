@@ -143,7 +143,7 @@ pub(crate) fn emit_summary_to_stderr() {
     );
     let stable_box_demand = nyash_rust::runtime::host_handles::perf_observe_snapshot();
     eprintln!(
-        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
+        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
         contract::STABLE_BOX_DEMAND,
         contract::STABLE_BOX_DEMAND_OBJECT_GET_LATEST_FRESH,
         stable_box_demand[0],
@@ -159,5 +159,15 @@ pub(crate) fn emit_summary_to_stderr() {
         stable_box_demand[5],
         contract::STABLE_BOX_DEMAND_TEXT_READ_TRIPLE_LATEST_FRESH,
         stable_box_demand[6],
+        contract::STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_ARRAY_STORE_STR_SOURCE_LATEST_FRESH,
+        stable_box_demand[7],
+        contract::STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_SUBSTRING_PLAN_LATEST_FRESH,
+        stable_box_demand[8],
+        contract::STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ARRAY_FAST_LATEST_FRESH,
+        stable_box_demand[9],
+        contract::STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ANY_ARG_LATEST_FRESH,
+        stable_box_demand[10],
+        contract::STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ANY_INDEX_LATEST_FRESH,
+        stable_box_demand[11],
     );
 }

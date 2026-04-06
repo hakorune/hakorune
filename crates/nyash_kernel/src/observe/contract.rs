@@ -87,3 +87,13 @@ pub(crate) const STABLE_BOX_DEMAND_TEXT_READ_PAIR_LATEST_FRESH: &str =
     "text_read_pair_latest_fresh";
 pub(crate) const STABLE_BOX_DEMAND_TEXT_READ_TRIPLE_LATEST_FRESH: &str =
     "text_read_triple_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_ARRAY_STORE_STR_SOURCE_LATEST_FRESH: &str =
+    "object_with_handle_array_store_str_source_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_SUBSTRING_PLAN_LATEST_FRESH: &str =
+    "object_with_handle_substring_plan_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ARRAY_FAST_LATEST_FRESH: &str =
+    "object_with_handle_decode_array_fast_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ANY_ARG_LATEST_FRESH: &str =
+    "object_with_handle_decode_any_arg_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ANY_INDEX_LATEST_FRESH: &str =
+    "object_with_handle_decode_any_index_latest_fresh";

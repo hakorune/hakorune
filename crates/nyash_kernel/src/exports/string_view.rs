@@ -221,7 +221,10 @@ pub(crate) fn borrowed_substring_plan_from_handle(
     if handle <= 0 {
         return None;
     }
-    handles::with_handle(handle as u64, |obj| {
+    handles::with_handle_caller(
+        handle as u64,
+        handles::PerfObserveObjectWithHandleCaller::SubstringPlan,
+        |obj| {
         let Some(obj) = obj else {
             return None;
         };
