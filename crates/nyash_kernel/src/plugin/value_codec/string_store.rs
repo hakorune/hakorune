@@ -6,6 +6,25 @@ use nyash_rust::{
 };
 use std::sync::Arc;
 
+struct OwnedBytes(String);
+
+impl OwnedBytes {
+    #[inline(always)]
+    fn from_string(value: String) -> Self {
+        Self(value)
+    }
+
+    #[inline(always)]
+    fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    #[inline(always)]
+    fn into_string(self) -> String {
+        self.0
+    }
+}
+
 #[cfg(feature = "perf-observe")]
 #[inline(never)]
 fn birth_string_box_from_owned(value: String) -> StringBox {
@@ -34,17 +53,17 @@ fn wrap_string_box_in_arc(string_box: StringBox) -> Arc<dyn NyashBox> {
 
 #[cfg(feature = "perf-observe")]
 #[inline(never)]
-fn objectize_stable_string_box(value: String) -> Arc<dyn NyashBox> {
-    crate::observe::record_birth_backend_string_box_new(value.len());
-    crate::observe::record_birth_backend_objectize_stable_box_now(value.len());
-    let string_box = birth_string_box_from_owned(value);
+fn objectize_stable_string_box(bytes: OwnedBytes) -> Arc<dyn NyashBox> {
+    crate::observe::record_birth_backend_string_box_new(bytes.len());
+    crate::observe::record_birth_backend_objectize_stable_box_now(bytes.len());
+    let string_box = birth_string_box_from_owned(bytes.into_string());
     wrap_string_box_in_arc(string_box)
 }
 
 #[cfg(not(feature = "perf-observe"))]
 #[inline(always)]
-fn objectize_stable_string_box(value: String) -> Arc<dyn NyashBox> {
-    let string_box = birth_string_box_from_owned(value);
+fn objectize_stable_string_box(bytes: OwnedBytes) -> Arc<dyn NyashBox> {
+    let string_box = birth_string_box_from_owned(bytes.into_string());
     wrap_string_box_in_arc(string_box)
 }
 
@@ -66,7 +85,7 @@ fn issue_fresh_handle(arc: Arc<dyn NyashBox>) -> i64 {
 
 #[cfg(feature = "perf-observe")]
 #[inline(never)]
-fn materialize_owned_bytes(value: String) -> String {
+fn materialize_owned_bytes(value: String) -> OwnedBytes {
     crate::observe::record_birth_backend_materialize_owned(value.len());
     if crate::observe::bypass_gc_alloc_enabled() {
         crate::observe::record_birth_backend_gc_alloc_skipped();
@@ -74,12 +93,12 @@ fn materialize_owned_bytes(value: String) -> String {
         crate::observe::record_birth_backend_gc_alloc(value.len());
         nyash_rust::runtime::global_hooks::gc_alloc(value.len() as u64);
     }
-    value
+    OwnedBytes::from_string(value)
 }
 
 #[cfg(not(feature = "perf-observe"))]
 #[inline(always)]
-fn materialize_owned_bytes(value: String) -> String {
+fn materialize_owned_bytes(value: String) -> OwnedBytes {
     crate::observe::record_birth_backend_materialize_owned(value.len());
     if crate::observe::bypass_gc_alloc_enabled() {
         crate::observe::record_birth_backend_gc_alloc_skipped();
@@ -87,7 +106,7 @@ fn materialize_owned_bytes(value: String) -> String {
         crate::observe::record_birth_backend_gc_alloc(value.len());
         nyash_rust::runtime::global_hooks::gc_alloc(value.len() as u64);
     }
-    value
+    OwnedBytes::from_string(value)
 }
 
 #[inline(always)]

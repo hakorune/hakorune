@@ -44,7 +44,9 @@ pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
         trace_observer_resolution("observer", handle, "none", "invalid_handle", "");
         return None;
     }
-    let fast_len = handles::with_str_handle(handle as u64, |text| text.len() as i64);
+    let fast_len = handles::with_text_read_session(|session| {
+        session.str_handle(handle as u64, |text| text.len() as i64)
+    });
     if fast_len.is_some() {
         observe::record_str_len_route_fast_str_hit();
         if observe::len_route_matches_latest_fresh_handle(handle) {
@@ -87,7 +89,8 @@ pub(crate) fn string_is_empty_from_handle(handle: i64) -> Option<bool> {
         trace_observer_resolution("observer", handle, "none", "invalid_handle", "");
         return None;
     }
-    let fast_empty = handles::with_str_handle(handle as u64, str::is_empty);
+    let fast_empty =
+        handles::with_text_read_session(|session| session.str_handle(handle as u64, str::is_empty));
     if fast_empty.is_some() {
         trace_observer_resolution(
             "observer",
@@ -411,7 +414,8 @@ fn concat3_plan_from_fast_str(a_h: i64, b_h: i64, c_h: i64) -> Option<i64> {
     if a_h <= 0 || b_h <= 0 || c_h <= 0 {
         return None;
     }
-    let plan = handles::with_str3(a_h as u64, b_h as u64, c_h as u64, |a, b, c| {
+    let plan = handles::with_text_read_session(|session| {
+        session.str3(a_h as u64, b_h as u64, c_h as u64, |a, b, c| {
         let placement = concat3_retention_class(a.is_empty(), b.is_empty(), c.is_empty(), true);
         debug_assert!(!matches!(placement, RetainedForm::RetainView));
         if a.is_empty() {
@@ -433,6 +437,7 @@ fn concat3_plan_from_fast_str(a_h: i64, b_h: i64, c_h: i64) -> Option<i64> {
             return ConcatFastPath::Owned(concat_two_str(a, b));
         }
         ConcatFastPath::Owned(concat_three_str(a, b, c))
+        })
     })?;
     Some(match plan {
         ConcatFastPath::ReuseHandle(handle) => handle,
@@ -516,14 +521,16 @@ fn concat_pair_from_fast_str(a_h: i64, b_h: i64) -> Option<i64> {
     if a_h <= 0 || b_h <= 0 {
         return None;
     }
-    let plan = handles::with_str_pair(a_h as u64, b_h as u64, |a, b| {
-        if a.is_empty() {
-            return ConcatFastPath::ReuseHandle(b_h);
-        }
-        if b.is_empty() {
-            return ConcatFastPath::ReuseHandle(a_h);
-        }
-        ConcatFastPath::Owned(concat_two_str(a, b))
+    let plan = handles::with_text_read_session(|session| {
+        session.str_pair(a_h as u64, b_h as u64, |a, b| {
+            if a.is_empty() {
+                return ConcatFastPath::ReuseHandle(b_h);
+            }
+            if b.is_empty() {
+                return ConcatFastPath::ReuseHandle(a_h);
+            }
+            ConcatFastPath::Owned(concat_two_str(a, b))
+        })
     })?;
     Some(match plan {
         ConcatFastPath::ReuseHandle(handle) => {

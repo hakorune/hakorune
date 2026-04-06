@@ -108,6 +108,13 @@
        - `TextReadSession`
      - next structural goal is to reduce `StableBoxNow` demand before trying to
        make `next_box_id` or registry issue cheaper again
+   - source-backed private seam slice is now in place:
+     - `OwnedBytes` exists in `string_store.rs`
+     - `TextReadSession` exists in `host_handles.rs`
+     - `string_len_from_handle(...)`, `string_is_empty_from_handle(...)`,
+       `concat_pair_from_fast_str(...)`, and `concat3_plan_from_fast_str(...)`
+       now read through the session seam
+     - this slice does not reintroduce deferred objectization behavior
    - next observation order is fixed:
      1. design `OwnedBytes` / `TextReadSession` as the next narrow seam for the `concat_hh + len_h` consumer
      2. only after that, reopen delayed objectization or backend trimming under `materialize_owned_bytes` / `issue_fresh_handle`

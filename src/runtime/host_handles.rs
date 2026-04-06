@@ -40,6 +40,39 @@ impl HandlePayload {
     }
 }
 
+pub struct TextReadSession<'a> {
+    table: &'a SlotTable,
+}
+
+impl<'a> TextReadSession<'a> {
+    #[inline(always)]
+    pub fn str_handle<R>(&self, h: u64, f: impl FnOnce(&str) -> R) -> Option<R> {
+        let text = slot_str_ref(self.table, h)?;
+        Some(f(text))
+    }
+
+    #[inline(always)]
+    pub fn str_pair<R>(&self, a: u64, b: u64, f: impl FnOnce(&str, &str) -> R) -> Option<R> {
+        let a = slot_str_ref(self.table, a)?;
+        let b = slot_str_ref(self.table, b)?;
+        Some(f(a, b))
+    }
+
+    #[inline(always)]
+    pub fn str3<R>(
+        &self,
+        a: u64,
+        b: u64,
+        c: u64,
+        f: impl FnOnce(&str, &str, &str) -> R,
+    ) -> Option<R> {
+        let a = slot_str_ref(self.table, a)?;
+        let b = slot_str_ref(self.table, b)?;
+        let c = slot_str_ref(self.table, c)?;
+        Some(f(a, b, c))
+    }
+}
+
 struct SlotTable {
     // Fresh handle counter. Updated only under table write lock.
     next: u64,
@@ -220,17 +253,18 @@ impl Registry {
 
     #[inline(always)]
     fn with_str_pair<R>(&self, a: u64, b: u64, f: impl FnOnce(&str, &str) -> R) -> Option<R> {
-        let table = self.table.read();
-        let a = slot_str_ref(&table, a)?;
-        let b = slot_str_ref(&table, b)?;
-        Some(f(a, b))
+        self.with_text_read_session(|session| session.str_pair(a, b, f))
     }
 
     #[inline(always)]
     fn with_str_handle<R>(&self, h: u64, f: impl FnOnce(&str) -> R) -> Option<R> {
+        self.with_text_read_session(|session| session.str_handle(h, f))
+    }
+
+    #[inline(always)]
+    fn with_text_read_session<R>(&self, f: impl FnOnce(TextReadSession<'_>) -> R) -> R {
         let table = self.table.read();
-        let text = slot_str_ref(&table, h)?;
-        Some(f(text))
+        f(TextReadSession { table: &table })
     }
 
     #[inline(always)]
@@ -241,11 +275,7 @@ impl Registry {
         c: u64,
         f: impl FnOnce(&str, &str, &str) -> R,
     ) -> Option<R> {
-        let table = self.table.read();
-        let a = slot_str_ref(&table, a)?;
-        let b = slot_str_ref(&table, b)?;
-        let c = slot_str_ref(&table, c)?;
-        Some(f(a, b, c))
+        self.with_text_read_session(|session| session.str3(a, b, c, f))
     }
 
     #[inline(always)]
@@ -333,6 +363,14 @@ pub fn with_str_handle<R>(h: u64, f: impl FnOnce(&str) -> R) -> Option<R> {
     reg().with_str_handle(h, f)
 }
 
+/// Borrow a read-only string session under one registry read lock.
+/// Use this when a pure string consumer needs multiple string-like handle reads
+/// without escalating into object-world APIs.
+#[inline(always)]
+pub fn with_text_read_session<R>(f: impl FnOnce(TextReadSession<'_>) -> R) -> R {
+    reg().with_text_read_session(|session| f(session))
+}
+
 /// HostHandle(u64)x2 -> Arc<dyn NyashBox>x2.
 /// Uses a single registry read-lock acquisition for paired lookups.
 #[inline(always)]
@@ -380,6 +418,7 @@ pub fn with_str_pair<R>(a: u64, b: u64, f: impl FnOnce(&str, &str) -> R) -> Opti
 pub fn with_str3<R>(a: u64, b: u64, c: u64, f: impl FnOnce(&str, &str, &str) -> R) -> Option<R> {
     reg().with_str3(a, b, c, f)
 }
+
 
 /// HostHandle(u64)x3 -> Arc<dyn NyashBox>x3.
 /// Uses a single registry read-lock acquisition for triple lookups.
