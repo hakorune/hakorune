@@ -300,6 +300,9 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       - but the current contract is not only source-kind probing:
         - retarget also keeps the source `Arc` alive so the alias survives source-handle drop
       - next slice must separate `source_kind_check` from `keep_source_arc`, not assume object entry is fully removable
+      - target assembly shape:
+        - hot `RetargetAlias` should spend cycles on source metadata update and slot mutation, not generic object fetch/downcast
+        - object-world entry should remain only for source-lifetime keep semantics, not for source-kind probing itself
     - borrowed alias whole-kilo truth:
       - `borrowed.alias.borrowed_source_fast=540000`
       - `borrowed.alias.as_str_fast=540064`
@@ -329,6 +332,9 @@ Scope: repo root から current lane / next lane / restart read order に最短�
     - current read:
       - this is not a large exact-front win
       - but it is a cleaner source-contract split and keeps whole-kilo near the good end of the current band
+      - target assembly shape remains:
+        - `with_handle(ArrayStoreStrSource)` should stop dominating the hot path
+        - planner-proved string-like retarget should approach metadata-heavy code instead of object-world transport
     - closed follow-up:
       - replacing `with_handle(ArrayStoreStrSource)` with direct `get()` source load regressed slightly
       - 3-run plain release:
@@ -467,6 +473,9 @@ Scope: repo root から current lane / next lane / restart read order に最短�
     - current exact backend front is:
       - `FreshHandle`
       - `MaterializeOwned`
+    - target string-chain assembly shape:
+      - `concat_hh + len_h` should spend most hot-path cycles in text/materialize work, not registry/object machinery
+      - ideal fast path is `OwnedBytes` / text-read first, with `StableBoxNow` and `FreshRegistryHandle` pushed to sink/object boundaries only
   - new exact split:
     - `bench_kilo_micro_concat_hh_len.hako` isolates `concat_hh + len_h` without substring carry
     - latest exact read: `c_ms=3 / ny_aot_ms=57`

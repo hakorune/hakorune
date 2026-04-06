@@ -151,6 +151,9 @@
        - exact micro stays inside the single-handle text-read seam
        - whole-kilo quickly promotes latest fresh string handles into generic object `with_handle(...)`
        - delayed objectization must not be relanded until that consumer is widened or bypassed
+       - target assembly shape:
+         - `concat_hh + len_h` should stay on text/materialize paths for as long as possible
+         - registry/object traffic should appear only at sink/object boundaries, not between concat and immediate len
      - caller-attributed whole-kilo truth:
        - `stable_box_demand.object_with_handle_array_store_str_source_latest_fresh=540000`
        - `stable_box_demand.object_with_handle_substring_plan_latest_fresh=0`
@@ -214,6 +217,9 @@
      - current read:
        - this is not a large exact-front win
        - but it is a cleaner source-contract split and keeps whole-kilo near the good end of the current band
+       - target assembly shape remains:
+         - planner-proved `RetargetAlias` should become metadata-heavy code
+         - generic object fetch/downcast should disappear from the hot retarget path except for true source-lifetime keep
      - closed follow-up:
        - replacing `with_handle(ArrayStoreStrSource)` with direct `get()` source load regressed slightly
        - 3-run plain release:
@@ -353,6 +359,9 @@
    - current exact backend front is therefore:
      - `FreshHandle`
      - `MaterializeOwned`
+   - target string-chain assembly shape:
+     - `concat_hh + len_h` should spend most cycles in text/materialize work, not registry/object machinery
+     - `StableBoxNow` and `FreshRegistryHandle` should move to sink/object boundaries only
    - current birth backend split now reads:
      - `StringBox` ctor side before registry issue
      - direct probe now also shows:
