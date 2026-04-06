@@ -61,6 +61,7 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   - keep `TextReadSession` as backend-private read seam below pure string consumers
   - reduce `StableBoxNow` demand before trimming `box_id` or registry issue again
   - freeze `store.array.str` source contract before widening Rust leaf helpers again
+  - no-behavior-change `source_kind_check` split is now landed in `string_store.rs`
   - split `store.array.str` source contract into:
     - `source_kind_check`
     - `keep_source_arc`

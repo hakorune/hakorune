@@ -6,6 +6,13 @@ use nyash_rust::{
 };
 use std::sync::Arc;
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum StringHandleSourceKind {
+    StringLike,
+    OtherObject,
+    Missing,
+}
+
 struct OwnedBytes(String);
 
 impl OwnedBytes {
@@ -148,12 +155,30 @@ pub(crate) fn store_string_box_from_source(
 }
 
 #[inline(always)]
-pub(crate) fn is_string_handle_source(source_obj: &Arc<dyn NyashBox>) -> bool {
-    source_obj.as_any().downcast_ref::<StringBox>().is_some()
+pub(crate) fn classify_string_handle_source(
+    source_obj: Option<&Arc<dyn NyashBox>>,
+) -> StringHandleSourceKind {
+    let Some(source_obj) = source_obj else {
+        return StringHandleSourceKind::Missing;
+    };
+    if source_obj.as_any().downcast_ref::<StringBox>().is_some()
         || source_obj
             .as_any()
             .downcast_ref::<crate::exports::string_view::StringViewBox>()
             .is_some()
+    {
+        StringHandleSourceKind::StringLike
+    } else {
+        StringHandleSourceKind::OtherObject
+    }
+}
+
+#[inline(always)]
+pub(crate) fn is_string_handle_source(source_obj: &Arc<dyn NyashBox>) -> bool {
+    matches!(
+        classify_string_handle_source(Some(source_obj)),
+        StringHandleSourceKind::StringLike
+    )
 }
 
 #[inline(always)]

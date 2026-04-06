@@ -206,6 +206,10 @@
          - `source_kind_via_object`
          - `retarget_keep_source_arc`
          - `retarget_alias_update`
+       - no-behavior-change `source_kind_check` split is now landed:
+         - `StringHandleSourceKind`
+         - `classify_string_handle_source(...)`
+         - `array_string_slot.rs` planning now reads that contract instead of open-coding string-like checks
        - next structural slice is therefore:
          - split `source_kind_check` from `keep_source_arc`
          - do not assume object entry can simply disappear

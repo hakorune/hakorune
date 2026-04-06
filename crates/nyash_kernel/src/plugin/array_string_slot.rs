@@ -1,8 +1,8 @@
 use super::array_guard::valid_handle_idx;
 use super::handle_cache::{cache_probe_kind, CacheProbeKind as HandleCacheProbeKind};
 use super::value_codec::{
-    is_string_handle_source, maybe_store_string_box_from_verified_source, BorrowedHandleBox,
-    try_retarget_borrowed_string_slot_verified,
+    classify_string_handle_source, maybe_store_string_box_from_verified_source, BorrowedHandleBox,
+    StringHandleSourceKind, try_retarget_borrowed_string_slot_verified,
 };
 use crate::observe::{self, CacheProbeKind as ObserveCacheProbeKind};
 use crate::exports::string_view::resolve_string_span_from_handle;
@@ -246,11 +246,12 @@ fn execute_store_array_str_slot(
             None => observe::record_store_array_str_source_missing(),
         }
     }
-    let source_is_string = source_obj.is_some_and(is_string_handle_source);
-    let source_kind = match source_obj {
-        Some(_) if source_is_string => StoreArrayStrPlanSourceKind::StringLike,
-        Some(_) => StoreArrayStrPlanSourceKind::OtherObject,
-        None => StoreArrayStrPlanSourceKind::Missing,
+    let source_contract = classify_string_handle_source(source_obj);
+    let source_is_string = matches!(source_contract, StringHandleSourceKind::StringLike);
+    let source_kind = match source_contract {
+        StringHandleSourceKind::StringLike => StoreArrayStrPlanSourceKind::StringLike,
+        StringHandleSourceKind::OtherObject => StoreArrayStrPlanSourceKind::OtherObject,
+        StringHandleSourceKind::Missing => StoreArrayStrPlanSourceKind::Missing,
     };
     let slot_kind = if idx < items.len()
         && items[idx]

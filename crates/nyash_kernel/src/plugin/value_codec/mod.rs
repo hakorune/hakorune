@@ -10,7 +10,8 @@ pub(crate) use decode::{
 };
 pub(crate) use encode::{box_to_handle, box_to_runtime_i64, runtime_i64_from_box_ref};
 pub(crate) use string_store::{
-    is_string_handle_source, materialize_owned_string, maybe_store_string_box_from_verified_source,
+    classify_string_handle_source, is_string_handle_source, materialize_owned_string,
+    maybe_store_string_box_from_verified_source, StringHandleSourceKind,
     store_string_box_from_source,
     store_string_box_from_string_source,
 };
