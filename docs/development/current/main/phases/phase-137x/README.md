@@ -99,23 +99,22 @@
        - `issue_string_handle_from_arc`: `27.66%` to `31.54%`
        - `__memmove_avx512_unaligned_erms`: `9.10%` to `10.88%`
        - `string_concat_hh_export_impl`: `11.53%` to `12.73%`
-   - next backend front should move to:
-     - `StringBox` ctor/birth side
-     - host handle registry issue
-   - `Arc` wrap is visible in counters but not the first standalone perf target
-   - diagnostic `perf-observe` propagation into `nyash-rust` is now in place
-   - explicit diagnostic shims now expose:
-     - `StringBox::perf_observe_from_owned`
-     - `BoxBase::perf_observe_new`
-     - `next_box_id`
-   - `kilo_micro_concat_birth` observe-build microasm now reads:
-     - `issue_string_handle_from_arc`: about `27-30%`
-     - `next_box_id`: about `27-30%`
-     - `StringBox::perf_observe_from_owned`: about `12-14%`
-   - `next_box_id` annotate is dominated by `lock xadd`
-   - next deeper trim should therefore target:
-     1. `next_box_id`
-     2. host handle registry issue
+   - release observe direct probe now confirms second-axis counters too:
+     - `objectize_stable_box_now_total=800000`
+     - `objectize_stable_box_now_bytes=14400000`
+     - `issue_fresh_handle_total=800000`
+   - `kilo_micro_concat_birth` observe-build microasm after backend split now reads:
+     - `materialize_owned_bytes`: `25.81%`
+     - `issue_fresh_handle`: `24.62%`
+     - `StringBox::perf_observe_from_owned`: `21.27%`
+     - `__memmove_avx512_unaligned_erms`: `14.67%`
+     - `nyash.string.concat_hh`: `5.81%`
+   - annotate for `issue_fresh_handle(...)` shows the dominant local leaf is the final registry unlock/release path
+   - next backend front is therefore:
+     1. `materialize_owned_bytes`
+     2. `issue_fresh_handle`
+     3. `StringBox::perf_observe_from_owned`
+   - `objectize_stable_string_box` stays as the seam name, but most runtime cost is currently absorbed by ctor/issue leaves
    - backend second-axis lock:
      - top-level Birth / Placement vocabulary stays unchanged
      - `box_id` is not promoted into that vocabulary

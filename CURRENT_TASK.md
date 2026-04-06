@@ -226,30 +226,24 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       - `string_box_ctor_total=800000`
       - `arc_wrap_total=800000`
       - `handle_issue_total=800000`
-    - `kilo_micro_concat_birth` microasm top now splits the backend:
-      - `birth_string_box_from_owned`: `38.23%` to `41.46%`
-      - `issue_string_handle_from_arc`: `27.66%` to `31.54%`
-      - `__memmove_avx512_unaligned_erms`: `9.10%` to `10.88%`
-      - `string_concat_hh_export_impl`: `11.53%` to `12.73%`
+    - release observe direct probe now confirms second-axis counters too:
+      - `objectize_stable_box_now_total=800000`
+      - `objectize_stable_box_now_bytes=14400000`
+      - `issue_fresh_handle_total=800000`
+    - `kilo_micro_concat_birth` observe-build microasm after backend split reads:
+      - `materialize_owned_bytes`: `25.81%`
+      - `issue_fresh_handle`: `24.62%`
+      - `StringBox::perf_observe_from_owned`: `21.27%`
+      - `__memmove_avx512_unaligned_erms`: `14.67%`
+      - `nyash.string.concat_hh`: `5.81%`
+    - annotate of `issue_fresh_handle(...)` shows the dominant leaf is registry unlock/release:
+      - final `lock cmpxchg` in `host_handles::REG` release path dominates local samples
     - current backend order is therefore:
-      1. `StringBox` ctor side inside `birth_string_box_from_owned(...)`
-      2. host handle registry issue
-      3. `Arc` wrap is not the first standalone target
-    - diagnostic feature propagation:
-      - `perf-observe` now propagates into `nyash-rust`
-      - explicit diagnostic shims now expose:
-        - `StringBox::perf_observe_from_owned`
-        - `BoxBase::perf_observe_new`
-        - `next_box_id`
-      - `kilo_micro_concat_birth` observe-build microasm now reads:
-        - `issue_string_handle_from_arc` about `27-30%`
-        - `next_box_id` about `27-30%`
-        - `StringBox::perf_observe_from_owned` about `12-14%`
-      - `next_box_id` annotate is dominated by `lock xadd`
-      - next deeper trim should therefore target:
-        1. `next_box_id`
-        2. host handle registry issue
-      - structural reading lock:
+      1. `materialize_owned_bytes(...)`
+      2. `issue_fresh_handle(...)`
+      3. `StringBox::perf_observe_from_owned(...)`
+      4. `objectize_stable_string_box(...)` remains a naming seam, but most cost sits in the ctor/issue leaves
+    - structural reading lock:
         - do not treat `box_id` as a top-level Birth outcome
         - first split the backend read into:
           1. `materialize_owned_bytes`
