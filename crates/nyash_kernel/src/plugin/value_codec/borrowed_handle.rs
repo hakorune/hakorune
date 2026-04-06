@@ -6,8 +6,57 @@ use crate::observe;
 use std::{any::Any, sync::Arc};
 
 #[derive(Debug, Clone)]
+enum BorrowedStringKeep {
+    StableBox(Arc<dyn NyashBox>),
+}
+
+impl BorrowedStringKeep {
+    #[inline(always)]
+    fn stable_box_ref(&self) -> &Arc<dyn NyashBox> {
+        match self {
+            Self::StableBox(obj) => obj,
+        }
+    }
+
+    #[inline(always)]
+    fn replace_stable_box(&mut self, obj: Arc<dyn NyashBox>) {
+        *self = Self::StableBox(obj);
+    }
+
+    #[inline(always)]
+    fn as_str_fast(&self) -> Option<&str> {
+        self.stable_box_ref().as_ref().as_str_fast()
+    }
+
+    #[inline(always)]
+    fn to_string_box(&self) -> StringBox {
+        self.stable_box_ref().as_ref().to_string_box()
+    }
+
+    #[inline(always)]
+    fn equals(&self, other: &dyn NyashBox) -> BoolBox {
+        self.stable_box_ref().as_ref().equals(other)
+    }
+
+    #[inline(always)]
+    fn type_name(&self) -> &'static str {
+        self.stable_box_ref().as_ref().type_name()
+    }
+
+    #[inline(always)]
+    fn clone_box(&self) -> Box<dyn NyashBox> {
+        self.stable_box_ref().clone().clone_box()
+    }
+
+    #[inline(always)]
+    fn is_identity(&self) -> bool {
+        self.stable_box_ref().as_ref().is_identity()
+    }
+}
+
+#[derive(Debug, Clone)]
 pub(crate) struct BorrowedHandleBox {
-    pub(crate) inner: Arc<dyn NyashBox>,
+    keep: BorrowedStringKeep,
     pub(crate) source_handle: i64,
     pub(crate) source_drop_epoch: u64,
     base: BoxBase,
@@ -25,7 +74,7 @@ impl BorrowedHandleBox {
             next_box_id()
         };
         Self {
-            inner,
+            keep: BorrowedStringKeep::StableBox(inner),
             source_handle,
             source_drop_epoch,
             // Fast path: borrowed wrapper is an alias view for an existing handle.
@@ -35,6 +84,11 @@ impl BorrowedHandleBox {
                 parent_type_id: None,
             },
         }
+    }
+
+    #[inline(always)]
+    pub(crate) fn stable_box_ref(&self) -> &Arc<dyn NyashBox> {
+        self.keep.stable_box_ref()
     }
 }
 
@@ -48,7 +102,7 @@ impl BoxCore for BorrowedHandleBox {
     }
 
     fn fmt_box(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        self.inner.fmt_box(f)
+        self.keep.stable_box_ref().fmt_box(f)
     }
 
     fn as_any(&self) -> &dyn Any {
@@ -63,25 +117,29 @@ impl BoxCore for BorrowedHandleBox {
 impl NyashBox for BorrowedHandleBox {
     fn to_string_box(&self) -> StringBox {
         observe::record_borrowed_alias_to_string_box();
-        self.inner.to_string_box()
+        self.keep.to_string_box()
     }
 
     fn equals(&self, other: &dyn NyashBox) -> BoolBox {
         observe::record_borrowed_alias_equals();
         if let Some(other_alias) = other.as_any().downcast_ref::<BorrowedHandleBox>() {
-            return self.inner.equals(other_alias.inner.as_ref());
+            return self
+                .keep
+                .stable_box_ref()
+                .as_ref()
+                .equals(other_alias.keep.stable_box_ref().as_ref());
         }
-        self.inner.equals(other)
+        self.keep.equals(other)
     }
 
     fn type_name(&self) -> &'static str {
-        self.inner.type_name()
+        self.keep.type_name()
     }
 
     fn clone_box(&self) -> Box<dyn NyashBox> {
         observe::record_borrowed_alias_clone_box();
         Box::new(Self::new(
-            self.inner.clone(),
+            self.keep.stable_box_ref().clone(),
             self.source_handle,
             self.source_drop_epoch,
         ))
@@ -92,7 +150,7 @@ impl NyashBox for BorrowedHandleBox {
     }
 
     fn is_identity(&self) -> bool {
-        self.inner.is_identity()
+        self.keep.is_identity()
     }
 
     fn borrowed_handle_source_fast(&self) -> Option<(i64, u64)> {
@@ -113,7 +171,7 @@ impl NyashBox for BorrowedHandleBox {
                 observe::record_borrowed_alias_as_str_fast_stale_source();
             }
         }
-        self.inner.as_str_fast()
+        self.keep.as_str_fast()
     }
 }
 
@@ -190,13 +248,13 @@ pub(crate) fn keep_borrowed_string_slot_source_arc(
 ) {
     observe::record_store_array_str_reason_retarget_keep_source_arc();
     if observe::enabled() {
-        if Arc::ptr_eq(&alias.inner, source_obj) {
+        if Arc::ptr_eq(alias.keep.stable_box_ref(), source_obj) {
             observe::record_store_array_str_reason_retarget_keep_source_arc_ptr_eq_hit();
         } else {
             observe::record_store_array_str_reason_retarget_keep_source_arc_ptr_eq_miss();
         }
     }
-    alias.inner = source_obj.clone();
+    alias.keep.replace_stable_box(source_obj.clone());
 }
 
 #[inline(always)]

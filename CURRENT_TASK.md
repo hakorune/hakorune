@@ -375,13 +375,19 @@ Scope: repo root から current lane / next lane / restart read order に最短�
         - `reason.retarget_keep_source_arc_ptr_eq_miss=540000`
       - `keep_source_arc` is always seeing a different source object on the current hot path
       - clone-elision / ptr-eq guard ideas are therefore closed
+    - borrowed string keep seam is now landed:
+      - `BorrowedHandleBox` no longer treats stable source object keep as an anonymous field
+      - `BorrowedStringKeep` is the backend-private seam under alias source-lifetime
+      - current behavior still uses `StableBox(...)` only
+      - this is still no-behavior-change; it narrows the next structural cut away from generic object transport
   - immediate next observation order is fixed:
     1. split the `store.array.str -> with_handle(ArrayStoreStrSource)` object contract again before changing behavior
     2. keep borrowed alias string-read trimming closed; live-source fast read was not enough
     3. keep typed `StringBox` payload widening closed at the host-handle layer
     4. keep `keep_source_arc` clone-elision ideas closed; ptr-eq never hits on the current culprit
-    5. do not add more typed-helper transport; move the next cut to the contract side
-    6. only then retry delayed `StableBoxNow`
+    5. do not add more typed-helper transport; move the next cut to the source-lifetime contract side
+    6. use `BorrowedStringKeep` as the next backend-private seam instead of widening generic object payloads
+    7. only then retry delayed `StableBoxNow`
   - `DeferredString` experiment truth:
     - exact micro improved:
       - `kilo_micro_concat_hh_len`: `57 -> 51 ms`
