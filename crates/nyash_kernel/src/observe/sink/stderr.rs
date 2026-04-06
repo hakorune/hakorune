@@ -96,4 +96,36 @@ pub(crate) fn emit_summary_to_stderr() {
         let _ = write!(&mut birth_backend_line, " {}={}", name, value);
     }
     eprintln!("{}", birth_backend_line);
+    eprintln!(
+        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
+        contract::STR_CONCAT2_ROUTE,
+        contract::STR_CONCAT2_ROUTE_TOTAL,
+        snapshot[45],
+        contract::STR_CONCAT2_ROUTE_DISPATCH_HIT,
+        snapshot[46],
+        contract::STR_CONCAT2_ROUTE_FAST_STR_OWNED,
+        snapshot[47],
+        contract::STR_CONCAT2_ROUTE_FAST_STR_RETURN_HANDLE,
+        snapshot[48],
+        contract::STR_CONCAT2_ROUTE_SPAN_FREEZE,
+        snapshot[49],
+        contract::STR_CONCAT2_ROUTE_SPAN_RETURN_HANDLE,
+        snapshot[50],
+        contract::STR_CONCAT2_ROUTE_MATERIALIZE_FALLBACK,
+        snapshot[51],
+    );
+    eprintln!(
+        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={}",
+        contract::STR_LEN_ROUTE,
+        contract::STR_LEN_ROUTE_TOTAL,
+        snapshot[52],
+        contract::STR_LEN_ROUTE_DISPATCH_HIT,
+        snapshot[53],
+        contract::STR_LEN_ROUTE_FAST_STR_HIT,
+        snapshot[54],
+        contract::STR_LEN_ROUTE_FALLBACK_HIT,
+        snapshot[55],
+        contract::STR_LEN_ROUTE_MISS,
+        snapshot[56],
+    );
 }

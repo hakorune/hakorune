@@ -209,6 +209,66 @@ mod real {
         super::backend::birth_backend_gc_alloc_skipped();
     }
 
+    #[inline(always)]
+    pub(crate) fn record_str_concat2_route_enter() {
+        super::backend::str_concat2_route_enter();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_str_concat2_route_dispatch_hit() {
+        super::backend::str_concat2_route_dispatch_hit();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_str_concat2_route_fast_str_owned() {
+        super::backend::str_concat2_route_fast_str_owned();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_str_concat2_route_fast_str_return_handle() {
+        super::backend::str_concat2_route_fast_str_return_handle();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_str_concat2_route_span_freeze() {
+        super::backend::str_concat2_route_span_freeze();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_str_concat2_route_span_return_handle() {
+        super::backend::str_concat2_route_span_return_handle();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_str_concat2_route_materialize_fallback() {
+        super::backend::str_concat2_route_materialize_fallback();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_str_len_route_enter() {
+        super::backend::str_len_route_enter();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_str_len_route_dispatch_hit() {
+        super::backend::str_len_route_dispatch_hit();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_str_len_route_fast_str_hit() {
+        super::backend::str_len_route_fast_str_hit();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_str_len_route_fallback_hit() {
+        super::backend::str_len_route_fallback_hit();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_str_len_route_miss() {
+        super::backend::str_len_route_miss();
+    }
+
     pub(crate) fn flush() {
         if super::config::enabled() {
             super::sink::emit_summary_to_stderr();
@@ -345,6 +405,42 @@ mod real {
 
     #[inline(always)]
     pub(crate) fn record_birth_backend_gc_alloc_skipped() {}
+
+    #[inline(always)]
+    pub(crate) fn record_str_concat2_route_enter() {}
+
+    #[inline(always)]
+    pub(crate) fn record_str_concat2_route_dispatch_hit() {}
+
+    #[inline(always)]
+    pub(crate) fn record_str_concat2_route_fast_str_owned() {}
+
+    #[inline(always)]
+    pub(crate) fn record_str_concat2_route_fast_str_return_handle() {}
+
+    #[inline(always)]
+    pub(crate) fn record_str_concat2_route_span_freeze() {}
+
+    #[inline(always)]
+    pub(crate) fn record_str_concat2_route_span_return_handle() {}
+
+    #[inline(always)]
+    pub(crate) fn record_str_concat2_route_materialize_fallback() {}
+
+    #[inline(always)]
+    pub(crate) fn record_str_len_route_enter() {}
+
+    #[inline(always)]
+    pub(crate) fn record_str_len_route_dispatch_hit() {}
+
+    #[inline(always)]
+    pub(crate) fn record_str_len_route_fast_str_hit() {}
+
+    #[inline(always)]
+    pub(crate) fn record_str_len_route_fallback_hit() {}
+
+    #[inline(always)]
+    pub(crate) fn record_str_len_route_miss() {}
 
     #[inline(always)]
     pub(crate) fn flush() {}

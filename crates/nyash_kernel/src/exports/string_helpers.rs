@@ -40,6 +40,7 @@ use std::{
 
 pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
     if handle <= 0 {
+        observe::record_str_len_route_miss();
         trace_observer_resolution("observer", handle, "none", "invalid_handle", "");
         return None;
     }
@@ -47,6 +48,7 @@ pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
         obj.and_then(|boxed| boxed.as_ref().as_str_fast().map(|s| s.len() as i64))
     });
     if fast_len.is_some() {
+        observe::record_str_len_route_fast_str_hit();
         trace_observer_resolution(
             "observer",
             handle,
@@ -57,6 +59,11 @@ pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
         return fast_len;
     }
     let fallback = string_len_impl(handle);
+    if fallback.is_some() {
+        observe::record_str_len_route_fallback_hit();
+    } else {
+        observe::record_str_len_route_miss();
+    }
     trace_observer_resolution(
         "observer",
         handle,
@@ -486,13 +493,16 @@ fn concat_pair_from_spans(a_h: i64, b_h: i64) -> Option<i64> {
     let a = a_span.as_str();
     let b = b_span.as_str();
     if a.is_empty() {
+        observe::record_str_concat2_route_span_return_handle();
         observe::record_birth_placement_return_handle();
         return Some(b_h);
     }
     if b.is_empty() {
+        observe::record_str_concat2_route_span_return_handle();
         observe::record_birth_placement_return_handle();
         return Some(a_h);
     }
+    observe::record_str_concat2_route_span_freeze();
     Some(freeze_text_plan(TextPlan::from_two(
         TextPiece::Span(a_span),
         TextPiece::Span(b_span),
@@ -515,15 +525,20 @@ fn concat_pair_from_fast_str(a_h: i64, b_h: i64) -> Option<i64> {
     })?;
     Some(match plan {
         ConcatFastPath::ReuseHandle(handle) => {
+            observe::record_str_concat2_route_fast_str_return_handle();
             observe::record_birth_placement_return_handle();
             handle
         }
-        ConcatFastPath::Owned(text) => string_handle_from_owned(text),
+        ConcatFastPath::Owned(text) => {
+            observe::record_str_concat2_route_fast_str_owned();
+            string_handle_from_owned(text)
+        }
     })
 }
 
 #[inline(always)]
 fn concat_pair_with_materialize(a_h: i64, b_h: i64) -> i64 {
+    observe::record_str_concat2_route_materialize_fallback();
     let lhs = to_owned_string_handle_arg(a_h);
     let rhs = to_owned_string_handle_arg(b_h);
     let out = concat_to_string_handle(&[lhs.as_str(), rhs.as_str()]);
@@ -809,7 +824,9 @@ fn hook_miss_freeze_handle(route: &str) -> i64 {
 
 #[inline(always)]
 fn dispatch_or_fallback_concat_hh(a_h: i64, b_h: i64) -> i64 {
+    observe::record_str_concat2_route_enter();
     if let Some(v) = hako_string_dispatch(hako_forward_bridge::string_ops::CONCAT_HH, a_h, b_h, 0) {
+        observe::record_str_concat2_route_dispatch_hit();
         return v;
     }
     if !allow_rust_string_fallback() {
@@ -832,7 +849,9 @@ fn dispatch_or_fallback_concat3_hhh(a_h: i64, b_h: i64, c_h: i64) -> i64 {
 }
 
 pub(super) fn string_len_export_impl(handle: i64) -> i64 {
+    observe::record_str_len_route_enter();
     if let Some(v) = hako_string_dispatch(hako_forward_bridge::string_ops::LEN_H, handle, 0, 0) {
+        observe::record_str_len_route_dispatch_hit();
         return v;
     }
     if !allow_rust_string_fallback() {

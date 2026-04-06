@@ -56,6 +56,18 @@ struct GlobalCounters {
     birth_backend_gc_alloc_called: AtomicU64,
     birth_backend_gc_alloc_bytes: AtomicU64,
     birth_backend_gc_alloc_skipped: AtomicU64,
+    str_concat2_route_total: AtomicU64,
+    str_concat2_route_dispatch_hit: AtomicU64,
+    str_concat2_route_fast_str_owned: AtomicU64,
+    str_concat2_route_fast_str_return_handle: AtomicU64,
+    str_concat2_route_span_freeze: AtomicU64,
+    str_concat2_route_span_return_handle: AtomicU64,
+    str_concat2_route_materialize_fallback: AtomicU64,
+    str_len_route_total: AtomicU64,
+    str_len_route_dispatch_hit: AtomicU64,
+    str_len_route_fast_str_hit: AtomicU64,
+    str_len_route_fallback_hit: AtomicU64,
+    str_len_route_miss: AtomicU64,
 }
 
 impl GlobalCounters {
@@ -106,6 +118,18 @@ impl GlobalCounters {
             birth_backend_gc_alloc_called: AtomicU64::new(0),
             birth_backend_gc_alloc_bytes: AtomicU64::new(0),
             birth_backend_gc_alloc_skipped: AtomicU64::new(0),
+            str_concat2_route_total: AtomicU64::new(0),
+            str_concat2_route_dispatch_hit: AtomicU64::new(0),
+            str_concat2_route_fast_str_owned: AtomicU64::new(0),
+            str_concat2_route_fast_str_return_handle: AtomicU64::new(0),
+            str_concat2_route_span_freeze: AtomicU64::new(0),
+            str_concat2_route_span_return_handle: AtomicU64::new(0),
+            str_concat2_route_materialize_fallback: AtomicU64::new(0),
+            str_len_route_total: AtomicU64::new(0),
+            str_len_route_dispatch_hit: AtomicU64::new(0),
+            str_len_route_fast_str_hit: AtomicU64::new(0),
+            str_len_route_fallback_hit: AtomicU64::new(0),
+            str_len_route_miss: AtomicU64::new(0),
         }
     }
 }
@@ -158,6 +182,18 @@ struct ThreadCounters {
     birth_backend_gc_alloc_called: Cell<u64>,
     birth_backend_gc_alloc_bytes: Cell<u64>,
     birth_backend_gc_alloc_skipped: Cell<u64>,
+    str_concat2_route_total: Cell<u64>,
+    str_concat2_route_dispatch_hit: Cell<u64>,
+    str_concat2_route_fast_str_owned: Cell<u64>,
+    str_concat2_route_fast_str_return_handle: Cell<u64>,
+    str_concat2_route_span_freeze: Cell<u64>,
+    str_concat2_route_span_return_handle: Cell<u64>,
+    str_concat2_route_materialize_fallback: Cell<u64>,
+    str_len_route_total: Cell<u64>,
+    str_len_route_dispatch_hit: Cell<u64>,
+    str_len_route_fast_str_hit: Cell<u64>,
+    str_len_route_fallback_hit: Cell<u64>,
+    str_len_route_miss: Cell<u64>,
 }
 
 impl ThreadCounters {
@@ -208,6 +244,18 @@ impl ThreadCounters {
             birth_backend_gc_alloc_called: Cell::new(0),
             birth_backend_gc_alloc_bytes: Cell::new(0),
             birth_backend_gc_alloc_skipped: Cell::new(0),
+            str_concat2_route_total: Cell::new(0),
+            str_concat2_route_dispatch_hit: Cell::new(0),
+            str_concat2_route_fast_str_owned: Cell::new(0),
+            str_concat2_route_fast_str_return_handle: Cell::new(0),
+            str_concat2_route_span_freeze: Cell::new(0),
+            str_concat2_route_span_return_handle: Cell::new(0),
+            str_concat2_route_materialize_fallback: Cell::new(0),
+            str_len_route_total: Cell::new(0),
+            str_len_route_dispatch_hit: Cell::new(0),
+            str_len_route_fast_str_hit: Cell::new(0),
+            str_len_route_fallback_hit: Cell::new(0),
+            str_len_route_miss: Cell::new(0),
         }
     }
 
@@ -420,6 +468,66 @@ impl ThreadCounters {
         Self::bump(&self.birth_backend_gc_alloc_skipped);
     }
 
+    #[inline(always)]
+    fn str_concat2_route_enter(&self) {
+        Self::bump(&self.str_concat2_route_total);
+    }
+
+    #[inline(always)]
+    fn str_concat2_route_dispatch_hit(&self) {
+        Self::bump(&self.str_concat2_route_dispatch_hit);
+    }
+
+    #[inline(always)]
+    fn str_concat2_route_fast_str_owned(&self) {
+        Self::bump(&self.str_concat2_route_fast_str_owned);
+    }
+
+    #[inline(always)]
+    fn str_concat2_route_fast_str_return_handle(&self) {
+        Self::bump(&self.str_concat2_route_fast_str_return_handle);
+    }
+
+    #[inline(always)]
+    fn str_concat2_route_span_freeze(&self) {
+        Self::bump(&self.str_concat2_route_span_freeze);
+    }
+
+    #[inline(always)]
+    fn str_concat2_route_span_return_handle(&self) {
+        Self::bump(&self.str_concat2_route_span_return_handle);
+    }
+
+    #[inline(always)]
+    fn str_concat2_route_materialize_fallback(&self) {
+        Self::bump(&self.str_concat2_route_materialize_fallback);
+    }
+
+    #[inline(always)]
+    fn str_len_route_enter(&self) {
+        Self::bump(&self.str_len_route_total);
+    }
+
+    #[inline(always)]
+    fn str_len_route_dispatch_hit(&self) {
+        Self::bump(&self.str_len_route_dispatch_hit);
+    }
+
+    #[inline(always)]
+    fn str_len_route_fast_str_hit(&self) {
+        Self::bump(&self.str_len_route_fast_str_hit);
+    }
+
+    #[inline(always)]
+    fn str_len_route_fallback_hit(&self) {
+        Self::bump(&self.str_len_route_fallback_hit);
+    }
+
+    #[inline(always)]
+    fn str_len_route_miss(&self) {
+        Self::bump(&self.str_len_route_miss);
+    }
+
     fn flush_into_global(&self) {
         flush_cell(&self.store_array_str_total, &GLOBAL.store_array_str_total);
         flush_cell(
@@ -595,6 +703,45 @@ impl ThreadCounters {
             &self.birth_backend_gc_alloc_skipped,
             &GLOBAL.birth_backend_gc_alloc_skipped,
         );
+        flush_cell(&self.str_concat2_route_total, &GLOBAL.str_concat2_route_total);
+        flush_cell(
+            &self.str_concat2_route_dispatch_hit,
+            &GLOBAL.str_concat2_route_dispatch_hit,
+        );
+        flush_cell(
+            &self.str_concat2_route_fast_str_owned,
+            &GLOBAL.str_concat2_route_fast_str_owned,
+        );
+        flush_cell(
+            &self.str_concat2_route_fast_str_return_handle,
+            &GLOBAL.str_concat2_route_fast_str_return_handle,
+        );
+        flush_cell(
+            &self.str_concat2_route_span_freeze,
+            &GLOBAL.str_concat2_route_span_freeze,
+        );
+        flush_cell(
+            &self.str_concat2_route_span_return_handle,
+            &GLOBAL.str_concat2_route_span_return_handle,
+        );
+        flush_cell(
+            &self.str_concat2_route_materialize_fallback,
+            &GLOBAL.str_concat2_route_materialize_fallback,
+        );
+        flush_cell(&self.str_len_route_total, &GLOBAL.str_len_route_total);
+        flush_cell(
+            &self.str_len_route_dispatch_hit,
+            &GLOBAL.str_len_route_dispatch_hit,
+        );
+        flush_cell(
+            &self.str_len_route_fast_str_hit,
+            &GLOBAL.str_len_route_fast_str_hit,
+        );
+        flush_cell(
+            &self.str_len_route_fallback_hit,
+            &GLOBAL.str_len_route_fallback_hit,
+        );
+        flush_cell(&self.str_len_route_miss, &GLOBAL.str_len_route_miss);
     }
 }
 
@@ -808,11 +955,71 @@ pub(crate) fn birth_backend_gc_alloc_skipped() {
     with_tls(ThreadCounters::birth_backend_gc_alloc_skipped);
 }
 
+#[inline(always)]
+pub(crate) fn str_concat2_route_enter() {
+    with_tls(ThreadCounters::str_concat2_route_enter);
+}
+
+#[inline(always)]
+pub(crate) fn str_concat2_route_dispatch_hit() {
+    with_tls(ThreadCounters::str_concat2_route_dispatch_hit);
+}
+
+#[inline(always)]
+pub(crate) fn str_concat2_route_fast_str_owned() {
+    with_tls(ThreadCounters::str_concat2_route_fast_str_owned);
+}
+
+#[inline(always)]
+pub(crate) fn str_concat2_route_fast_str_return_handle() {
+    with_tls(ThreadCounters::str_concat2_route_fast_str_return_handle);
+}
+
+#[inline(always)]
+pub(crate) fn str_concat2_route_span_freeze() {
+    with_tls(ThreadCounters::str_concat2_route_span_freeze);
+}
+
+#[inline(always)]
+pub(crate) fn str_concat2_route_span_return_handle() {
+    with_tls(ThreadCounters::str_concat2_route_span_return_handle);
+}
+
+#[inline(always)]
+pub(crate) fn str_concat2_route_materialize_fallback() {
+    with_tls(ThreadCounters::str_concat2_route_materialize_fallback);
+}
+
+#[inline(always)]
+pub(crate) fn str_len_route_enter() {
+    with_tls(ThreadCounters::str_len_route_enter);
+}
+
+#[inline(always)]
+pub(crate) fn str_len_route_dispatch_hit() {
+    with_tls(ThreadCounters::str_len_route_dispatch_hit);
+}
+
+#[inline(always)]
+pub(crate) fn str_len_route_fast_str_hit() {
+    with_tls(ThreadCounters::str_len_route_fast_str_hit);
+}
+
+#[inline(always)]
+pub(crate) fn str_len_route_fallback_hit() {
+    with_tls(ThreadCounters::str_len_route_fallback_hit);
+}
+
+#[inline(always)]
+pub(crate) fn str_len_route_miss() {
+    with_tls(ThreadCounters::str_len_route_miss);
+}
+
 fn flush_current_thread() {
     TLS_COUNTERS.with(ThreadCounters::flush_into_global);
 }
 
-pub(crate) fn snapshot() -> [u64; 45] {
+pub(crate) fn snapshot() -> [u64; 57] {
     flush_current_thread();
     [
         GLOBAL.store_array_str_total.load(Ordering::Relaxed),
@@ -866,6 +1073,24 @@ pub(crate) fn snapshot() -> [u64; 45] {
         GLOBAL.birth_backend_gc_alloc_called.load(Ordering::Relaxed),
         GLOBAL.birth_backend_gc_alloc_bytes.load(Ordering::Relaxed),
         GLOBAL.birth_backend_gc_alloc_skipped.load(Ordering::Relaxed),
+        GLOBAL.str_concat2_route_total.load(Ordering::Relaxed),
+        GLOBAL.str_concat2_route_dispatch_hit.load(Ordering::Relaxed),
+        GLOBAL.str_concat2_route_fast_str_owned.load(Ordering::Relaxed),
+        GLOBAL
+            .str_concat2_route_fast_str_return_handle
+            .load(Ordering::Relaxed),
+        GLOBAL.str_concat2_route_span_freeze.load(Ordering::Relaxed),
+        GLOBAL
+            .str_concat2_route_span_return_handle
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .str_concat2_route_materialize_fallback
+            .load(Ordering::Relaxed),
+        GLOBAL.str_len_route_total.load(Ordering::Relaxed),
+        GLOBAL.str_len_route_dispatch_hit.load(Ordering::Relaxed),
+        GLOBAL.str_len_route_fast_str_hit.load(Ordering::Relaxed),
+        GLOBAL.str_len_route_fallback_hit.load(Ordering::Relaxed),
+        GLOBAL.str_len_route_miss.load(Ordering::Relaxed),
     ]
 }
 

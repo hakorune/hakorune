@@ -56,6 +56,9 @@
  - deeper observe drill-down now exists for:
    - `store.array.str`: `existing_slot / append_slot / source_string_box / source_string_view / source_missing`
    - `const_suffix`: `empty_return / cached_fast_str_hit / cached_span_hit`
+   - generic string consumer:
+     - `str.concat2.route`: `total / dispatch_hit / fast_str_owned / fast_str_return_handle / span_freeze / span_return_handle / materialize_fallback`
+     - `str.len.route`: `total / dispatch_hit / fast_str_hit / fallback_hit / miss`
    - `birth.placement`: `return_handle / borrow_view / freeze_owned / fresh_handle / materialize_owned / store_from_source`
    - `birth.backend`: `freeze_text_plan_total / view1 / pieces2 / pieces3 / pieces4 / owned_tmp / materialize_owned_total / materialize_owned_bytes / string_box_new_total / string_box_new_bytes / string_box_ctor_total / string_box_ctor_bytes / arc_wrap_total / handle_issue_total / gc_alloc_called / gc_alloc_bytes / gc_alloc_skipped`
  - exact observe read:
@@ -85,6 +88,9 @@
        - `gc_alloc_called=800000 -> 0`
        - `gc_alloc_skipped=0 -> 800000`
    - current evidence does not support `gc_alloc(...)` call overhead as the next main driver
+   - next read should stop guessing at helper leaves and first confirm:
+     - whether `concat_hh` is falling through `fast_str_owned`, `span_freeze`, or `materialize_fallback`
+     - whether `len_h` is mostly `fast_str_hit` or fallback/resolve
    - current exact backend front is therefore:
      - `FreshHandle`
      - `MaterializeOwned`

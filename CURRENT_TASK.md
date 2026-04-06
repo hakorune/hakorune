@@ -174,6 +174,9 @@ Scope: repo root から current lane / next lane / restart read order に最短�
      - exact micro consumer is not the current `kilo_micro_concat_const_suffix` AOT path
 - `phase-156x` landed:
   - route-tagged counters exist for `store.array.str` and `const_suffix`
+  - generic string consumer counters now also exist for:
+    - `str.concat2.route`: `total / dispatch_hit / fast_str_owned / fast_str_return_handle / span_freeze / span_return_handle / materialize_fallback`
+    - `str.len.route`: `total / dispatch_hit / fast_str_hit / fallback_hit / miss`
   - Birth / Placement counters now also exist for:
     - `ReturnHandle / BorrowView / FreezeOwned / FreshHandle / MaterializeOwned / StoreFromSource`
   - birth backend counters now also exist for:

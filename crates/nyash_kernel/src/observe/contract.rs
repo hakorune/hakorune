@@ -2,6 +2,8 @@ pub(crate) const STORE_ARRAY_STR: &str = "store.array.str";
 pub(crate) const CONST_SUFFIX: &str = "const_suffix";
 pub(crate) const BIRTH_PLACEMENT: &str = "birth.placement";
 pub(crate) const BIRTH_BACKEND: &str = "birth.backend";
+pub(crate) const STR_CONCAT2_ROUTE: &str = "str.concat2.route";
+pub(crate) const STR_LEN_ROUTE: &str = "str.len.route";
 
 pub(crate) const STORE_ARRAY_STR_CACHE_HIT: &str = "cache_hit";
 pub(crate) const STORE_ARRAY_STR_CACHE_MISS_HANDLE: &str = "cache_miss_handle";
@@ -51,3 +53,17 @@ pub(crate) const BIRTH_BACKEND_MATERIALIZE_OWNED_BYTES: &str = "materialize_owne
 pub(crate) const BIRTH_BACKEND_GC_ALLOC_CALLED: &str = "gc_alloc_called";
 pub(crate) const BIRTH_BACKEND_GC_ALLOC_BYTES: &str = "gc_alloc_bytes";
 pub(crate) const BIRTH_BACKEND_GC_ALLOC_SKIPPED: &str = "gc_alloc_skipped";
+
+pub(crate) const STR_CONCAT2_ROUTE_TOTAL: &str = "total";
+pub(crate) const STR_CONCAT2_ROUTE_DISPATCH_HIT: &str = "dispatch_hit";
+pub(crate) const STR_CONCAT2_ROUTE_FAST_STR_OWNED: &str = "fast_str_owned";
+pub(crate) const STR_CONCAT2_ROUTE_FAST_STR_RETURN_HANDLE: &str = "fast_str_return_handle";
+pub(crate) const STR_CONCAT2_ROUTE_SPAN_FREEZE: &str = "span_freeze";
+pub(crate) const STR_CONCAT2_ROUTE_SPAN_RETURN_HANDLE: &str = "span_return_handle";
+pub(crate) const STR_CONCAT2_ROUTE_MATERIALIZE_FALLBACK: &str = "materialize_fallback";
+
+pub(crate) const STR_LEN_ROUTE_TOTAL: &str = "total";
+pub(crate) const STR_LEN_ROUTE_DISPATCH_HIT: &str = "dispatch_hit";
+pub(crate) const STR_LEN_ROUTE_FAST_STR_HIT: &str = "fast_str_hit";
+pub(crate) const STR_LEN_ROUTE_FALLBACK_HIT: &str = "fallback_hit";
+pub(crate) const STR_LEN_ROUTE_MISS: &str = "miss";
