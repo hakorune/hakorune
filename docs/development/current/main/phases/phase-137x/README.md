@@ -76,9 +76,13 @@
    - `kilo_micro_concat_birth` direct probe currently shows:
      - `birth.placement`: `fresh_handle=800000`
      - `birth.backend`: `materialize_owned_total=800000`, `materialize_owned_bytes=14400000`, `gc_alloc_called=800000`, `gc_alloc_bytes=14400000`
+     - `str.concat2.route`: `fast_str_owned=800000`, other classified routes `0`, `unclassified=0`
+     - `str.len.route`: `fast_str_hit=1`, other classified routes `0`, `unclassified=0`
    - `kilo_micro_concat_hh_len` Birth / Placement direct probe currently shows:
      - `birth.placement`: `fresh_handle=800000`
      - `birth.backend`: `materialize_owned_total=800000`, `materialize_owned_bytes=14400000`, `string_box_new_total=800000`, `string_box_new_bytes=14400000`, `handle_issue_total=800000`, `gc_alloc_called=800000`, `gc_alloc_bytes=14400000`
+     - `str.concat2.route`: `fast_str_owned=800000`, other classified routes `0`, `unclassified=0`
+     - `str.len.route`: `fast_str_hit=800002`, other classified routes `0`, `unclassified=0`
      - `return_handle / borrow_view / freeze_owned = 0`
    - `NYASH_PERF_BYPASS_GC_ALLOC=1` diagnostic observe lane shows:
      - `kilo_micro_concat_birth`: `50 -> 51 ms`
@@ -88,9 +92,10 @@
        - `gc_alloc_called=800000 -> 0`
        - `gc_alloc_skipped=0 -> 800000`
    - current evidence does not support `gc_alloc(...)` call overhead as the next main driver
-   - next read should stop guessing at helper leaves and first confirm:
-     - whether `concat_hh` is falling through `fast_str_owned`, `span_freeze`, or `materialize_fallback`
-     - whether `len_h` is mostly `fast_str_hit` or fallback/resolve
+   - route conservation now also says:
+     - both exact fronts stay on `fast_str_owned`
+     - both `len` consumers stay on `fast_str_hit`
+     - `unclassified=0`
    - current exact backend front is therefore:
      - `FreshHandle`
      - `MaterializeOwned`
@@ -120,6 +125,7 @@
      1. `materialize_owned_bytes`
      2. `issue_fresh_handle`
      3. `StringBox::perf_observe_from_owned`
+   - do not spend more time on concat/len route guessing for these exact fronts unless a future counter contradicts the current read
    - `objectize_stable_string_box` stays as the seam name, but most runtime cost is currently absorbed by ctor/issue leaves
    - backend second-axis lock:
      - top-level Birth / Placement vocabulary stays unchanged
