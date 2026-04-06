@@ -141,4 +141,23 @@ pub(crate) fn emit_summary_to_stderr() {
         contract::STR_LEN_ROUTE_UNCLASSIFIED,
         str_len_unclassified,
     );
+    let stable_box_demand = nyash_rust::runtime::host_handles::perf_observe_snapshot();
+    eprintln!(
+        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
+        contract::STABLE_BOX_DEMAND,
+        contract::STABLE_BOX_DEMAND_OBJECT_GET_LATEST_FRESH,
+        stable_box_demand[0],
+        contract::STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_LATEST_FRESH,
+        stable_box_demand[1],
+        contract::STABLE_BOX_DEMAND_OBJECT_PAIR_LATEST_FRESH,
+        stable_box_demand[2],
+        contract::STABLE_BOX_DEMAND_OBJECT_TRIPLE_LATEST_FRESH,
+        stable_box_demand[3],
+        contract::STABLE_BOX_DEMAND_TEXT_READ_HANDLE_LATEST_FRESH,
+        stable_box_demand[4],
+        contract::STABLE_BOX_DEMAND_TEXT_READ_PAIR_LATEST_FRESH,
+        stable_box_demand[5],
+        contract::STABLE_BOX_DEMAND_TEXT_READ_TRIPLE_LATEST_FRESH,
+        stable_box_demand[6],
+    );
 }

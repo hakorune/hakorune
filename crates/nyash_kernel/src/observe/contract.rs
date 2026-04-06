@@ -4,6 +4,7 @@ pub(crate) const BIRTH_PLACEMENT: &str = "birth.placement";
 pub(crate) const BIRTH_BACKEND: &str = "birth.backend";
 pub(crate) const STR_CONCAT2_ROUTE: &str = "str.concat2.route";
 pub(crate) const STR_LEN_ROUTE: &str = "str.len.route";
+pub(crate) const STABLE_BOX_DEMAND: &str = "stable_box_demand";
 
 pub(crate) const STORE_ARRAY_STR_CACHE_HIT: &str = "cache_hit";
 pub(crate) const STORE_ARRAY_STR_CACHE_MISS_HANDLE: &str = "cache_miss_handle";
@@ -73,3 +74,16 @@ pub(crate) const STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FAST_STR_HIT: &str =
 pub(crate) const STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FALLBACK_HIT: &str =
     "latest_fresh_handle_fallback_hit";
 pub(crate) const STR_LEN_ROUTE_UNCLASSIFIED: &str = "unclassified";
+
+pub(crate) const STABLE_BOX_DEMAND_OBJECT_GET_LATEST_FRESH: &str = "object_get_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_LATEST_FRESH: &str =
+    "object_with_handle_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_OBJECT_PAIR_LATEST_FRESH: &str = "object_pair_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_OBJECT_TRIPLE_LATEST_FRESH: &str =
+    "object_triple_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_TEXT_READ_HANDLE_LATEST_FRESH: &str =
+    "text_read_handle_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_TEXT_READ_PAIR_LATEST_FRESH: &str =
+    "text_read_pair_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_TEXT_READ_TRIPLE_LATEST_FRESH: &str =
+    "text_read_triple_latest_fresh";

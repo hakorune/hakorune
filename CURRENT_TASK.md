@@ -209,11 +209,35 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   - source-backed seam status:
     - `OwnedBytes` now exists as a private carrier in `string_store.rs`
     - `TextReadSession` now exists in `host_handles.rs`
-    - current string fast readers (`len_h`, `is_empty`, pair/triple fast concat readers) can already consume that seam
-    - no delayed objectization behavior change is reintroduced by this slice
+  - current string fast readers (`len_h`, `is_empty`, pair/triple fast concat readers) can already consume that seam
+  - no delayed objectization behavior change is reintroduced by this slice
+  - `StableBoxNow` demand probe truth on the current exact fronts:
+    - `kilo_micro_concat_birth`
+      - `stable_box_demand`:
+        - `object_get_latest_fresh=0`
+        - `object_with_handle_latest_fresh=0`
+        - `object_pair_latest_fresh=0`
+        - `object_triple_latest_fresh=0`
+        - `text_read_handle_latest_fresh=1`
+        - `text_read_pair_latest_fresh=0`
+        - `text_read_triple_latest_fresh=0`
+    - `kilo_micro_concat_hh_len`
+      - `stable_box_demand`:
+        - `object_get_latest_fresh=0`
+        - `object_with_handle_latest_fresh=0`
+        - `object_pair_latest_fresh=0`
+        - `object_triple_latest_fresh=0`
+        - `text_read_handle_latest_fresh=800000`
+        - `text_read_pair_latest_fresh=0`
+        - `text_read_triple_latest_fresh=0`
+    - current exact problem is therefore not fresh-handle leakage into object APIs
+    - the next structural slice should stay narrow:
+      - single-handle text-read consumer
+      - delayed `StableBoxNow` only where whole-kilo does not regress
   - immediate next observation order is fixed:
-    1. treat `StableBoxNow` delay / objectization deferral as the next design slice for `concat_hh + len_h`
-    2. if that slice is blocked, fall back to backend leaf trimming under `materialize_owned_bytes / issue_fresh_handle`
+    1. treat single-handle `StableBoxNow` delay / objectization deferral as the next design slice for `concat_hh + len_h`
+    2. if that slice still regresses whole-kilo, explain the non-exact object-world consumers before widening deferred payload again
+    3. only after that, fall back to backend leaf trimming under `materialize_owned_bytes / issue_fresh_handle`
   - `DeferredString` experiment truth:
     - exact micro improved:
       - `kilo_micro_concat_hh_len`: `57 -> 51 ms`

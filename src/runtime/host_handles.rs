@@ -17,6 +17,114 @@ use super::host_handles_policy;
 use crate::box_trait::NyashBox;
 use crate::config::env::HostHandleAllocPolicyMode;
 
+#[cfg(feature = "perf-observe")]
+mod perf_observe {
+    use std::sync::atomic::{AtomicU64, Ordering};
+
+    static LATEST_FRESH_HANDLE: AtomicU64 = AtomicU64::new(0);
+    static OBJECT_GET_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
+    static OBJECT_WITH_HANDLE_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
+    static OBJECT_PAIR_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
+    static OBJECT_TRIPLE_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
+    static TEXT_READ_HANDLE_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
+    static TEXT_READ_PAIR_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
+    static TEXT_READ_TRIPLE_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
+
+    #[inline(always)]
+    fn is_latest_fresh_handle(handle: u64) -> bool {
+        handle > 0 && LATEST_FRESH_HANDLE.load(Ordering::Relaxed) == handle
+    }
+
+    #[inline(always)]
+    pub(super) fn mark_latest_fresh_handle(handle: u64) {
+        LATEST_FRESH_HANDLE.store(handle, Ordering::Relaxed);
+    }
+
+    #[inline(always)]
+    pub(super) fn object_get(handle: u64) {
+        if is_latest_fresh_handle(handle) {
+            OBJECT_GET_LATEST_FRESH.fetch_add(1, Ordering::Relaxed);
+        }
+    }
+
+    #[inline(always)]
+    pub(super) fn object_with_handle(handle: u64) {
+        if is_latest_fresh_handle(handle) {
+            OBJECT_WITH_HANDLE_LATEST_FRESH.fetch_add(1, Ordering::Relaxed);
+        }
+    }
+
+    #[inline(always)]
+    pub(super) fn object_pair(a: u64, b: u64) {
+        if is_latest_fresh_handle(a) || is_latest_fresh_handle(b) {
+            OBJECT_PAIR_LATEST_FRESH.fetch_add(1, Ordering::Relaxed);
+        }
+    }
+
+    #[inline(always)]
+    pub(super) fn object_triple(a: u64, b: u64, c: u64) {
+        if is_latest_fresh_handle(a) || is_latest_fresh_handle(b) || is_latest_fresh_handle(c) {
+            OBJECT_TRIPLE_LATEST_FRESH.fetch_add(1, Ordering::Relaxed);
+        }
+    }
+
+    #[inline(always)]
+    pub(super) fn text_read_handle(handle: u64) {
+        if is_latest_fresh_handle(handle) {
+            TEXT_READ_HANDLE_LATEST_FRESH.fetch_add(1, Ordering::Relaxed);
+        }
+    }
+
+    #[inline(always)]
+    pub(super) fn text_read_pair(a: u64, b: u64) {
+        if is_latest_fresh_handle(a) || is_latest_fresh_handle(b) {
+            TEXT_READ_PAIR_LATEST_FRESH.fetch_add(1, Ordering::Relaxed);
+        }
+    }
+
+    #[inline(always)]
+    pub(super) fn text_read_triple(a: u64, b: u64, c: u64) {
+        if is_latest_fresh_handle(a) || is_latest_fresh_handle(b) || is_latest_fresh_handle(c) {
+            TEXT_READ_TRIPLE_LATEST_FRESH.fetch_add(1, Ordering::Relaxed);
+        }
+    }
+
+    pub fn snapshot() -> [u64; 7] {
+        [
+            OBJECT_GET_LATEST_FRESH.load(Ordering::Relaxed),
+            OBJECT_WITH_HANDLE_LATEST_FRESH.load(Ordering::Relaxed),
+            OBJECT_PAIR_LATEST_FRESH.load(Ordering::Relaxed),
+            OBJECT_TRIPLE_LATEST_FRESH.load(Ordering::Relaxed),
+            TEXT_READ_HANDLE_LATEST_FRESH.load(Ordering::Relaxed),
+            TEXT_READ_PAIR_LATEST_FRESH.load(Ordering::Relaxed),
+            TEXT_READ_TRIPLE_LATEST_FRESH.load(Ordering::Relaxed),
+        ]
+    }
+}
+
+#[cfg(not(feature = "perf-observe"))]
+mod perf_observe {
+    #[inline(always)]
+    pub(super) fn mark_latest_fresh_handle(_handle: u64) {}
+    #[inline(always)]
+    pub(super) fn object_get(_handle: u64) {}
+    #[inline(always)]
+    pub(super) fn object_with_handle(_handle: u64) {}
+    #[inline(always)]
+    pub(super) fn object_pair(_a: u64, _b: u64) {}
+    #[inline(always)]
+    pub(super) fn object_triple(_a: u64, _b: u64, _c: u64) {}
+    #[inline(always)]
+    pub(super) fn text_read_handle(_handle: u64) {}
+    #[inline(always)]
+    pub(super) fn text_read_pair(_a: u64, _b: u64) {}
+    #[inline(always)]
+    pub(super) fn text_read_triple(_a: u64, _b: u64, _c: u64) {}
+    pub fn snapshot() -> [u64; 7] {
+        [0; 7]
+    }
+}
+
 enum HandlePayload {
     StableBox(Arc<dyn NyashBox>),
 }
@@ -48,11 +156,13 @@ impl<'a> TextReadSession<'a> {
     #[inline(always)]
     pub fn str_handle<R>(&self, h: u64, f: impl FnOnce(&str) -> R) -> Option<R> {
         let text = slot_str_ref(self.table, h)?;
+        perf_observe::text_read_handle(h);
         Some(f(text))
     }
 
     #[inline(always)]
     pub fn str_pair<R>(&self, a: u64, b: u64, f: impl FnOnce(&str, &str) -> R) -> Option<R> {
+        perf_observe::text_read_pair(a, b);
         let a = slot_str_ref(self.table, a)?;
         let b = slot_str_ref(self.table, b)?;
         Some(f(a, b))
@@ -66,6 +176,7 @@ impl<'a> TextReadSession<'a> {
         c: u64,
         f: impl FnOnce(&str, &str, &str) -> R,
     ) -> Option<R> {
+        perf_observe::text_read_triple(a, b, c);
         let a = slot_str_ref(self.table, a)?;
         let b = slot_str_ref(self.table, b)?;
         let c = slot_str_ref(self.table, c)?;
@@ -201,13 +312,20 @@ impl Registry {
     #[inline(always)]
     fn get(&self, h: u64) -> Option<Arc<dyn NyashBox>> {
         let table = self.table.read();
-        slot_ref(&table, h).map(HandlePayload::cloned_stable_box)
+        let out = slot_ref(&table, h).map(HandlePayload::cloned_stable_box);
+        if out.is_some() {
+            perf_observe::object_get(h);
+        }
+        out
     }
 
     #[inline(always)]
     fn with_handle<R>(&self, h: u64, f: impl FnOnce(Option<&Arc<dyn NyashBox>>) -> R) -> R {
         let table = self.table.read();
         let obj = slot_ref(&table, h).map(HandlePayload::stable_box_ref);
+        if obj.is_some() {
+            perf_observe::object_with_handle(h);
+        }
         f(obj)
     }
     #[inline(always)]
@@ -215,6 +333,9 @@ impl Registry {
         let table = self.table.read();
         let a_obj = slot_ref(&table, a).map(HandlePayload::cloned_stable_box);
         let b_obj = slot_ref(&table, b).map(HandlePayload::cloned_stable_box);
+        if a_obj.is_some() || b_obj.is_some() {
+            perf_observe::object_pair(a, b);
+        }
         (a_obj, b_obj)
     }
 
@@ -228,6 +349,9 @@ impl Registry {
         let table = self.table.read();
         let a_obj = slot_ref(&table, a).map(HandlePayload::stable_box_ref);
         let b_obj = slot_ref(&table, b).map(HandlePayload::stable_box_ref);
+        if a_obj.is_some() || b_obj.is_some() {
+            perf_observe::object_pair(a, b);
+        }
         f(a_obj, b_obj)
     }
 
@@ -244,10 +368,16 @@ impl Registry {
         ) -> R,
     ) -> R {
         let table = self.table.read();
+        let a_obj = slot_ref(&table, a).map(HandlePayload::stable_box_ref);
+        let b_obj = slot_ref(&table, b).map(HandlePayload::stable_box_ref);
+        let c_obj = slot_ref(&table, c).map(HandlePayload::stable_box_ref);
+        if a_obj.is_some() || b_obj.is_some() || c_obj.is_some() {
+            perf_observe::object_triple(a, b, c);
+        }
         f(
-            slot_ref(&table, a).map(HandlePayload::stable_box_ref),
-            slot_ref(&table, b).map(HandlePayload::stable_box_ref),
-            slot_ref(&table, c).map(HandlePayload::stable_box_ref),
+            a_obj,
+            b_obj,
+            c_obj,
         )
     }
 
@@ -293,6 +423,9 @@ impl Registry {
         let a_obj = slot_ref(&table, a).map(HandlePayload::cloned_stable_box);
         let b_obj = slot_ref(&table, b).map(HandlePayload::cloned_stable_box);
         let c_obj = slot_ref(&table, c).map(HandlePayload::cloned_stable_box);
+        if a_obj.is_some() || b_obj.is_some() || c_obj.is_some() {
+            perf_observe::object_triple(a, b, c);
+        }
         (a_obj, b_obj, c_obj)
     }
     #[inline(always)]
@@ -343,6 +476,16 @@ pub fn to_handle_box(bx: Box<dyn NyashBox>) -> u64 {
 #[inline(always)]
 pub fn to_handle_arc(arc: Arc<dyn NyashBox>) -> u64 {
     reg().alloc(arc)
+}
+
+#[inline(always)]
+pub fn perf_observe_mark_latest_fresh_handle(h: u64) {
+    perf_observe::mark_latest_fresh_handle(h);
+}
+
+#[inline(always)]
+pub fn perf_observe_snapshot() -> [u64; 7] {
+    perf_observe::snapshot()
 }
 /// HostHandle(u64) → Arc<dyn NyashBox>
 #[inline(always)]

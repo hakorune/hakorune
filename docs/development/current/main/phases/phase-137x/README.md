@@ -115,9 +115,29 @@
        `concat_pair_from_fast_str(...)`, and `concat3_plan_from_fast_str(...)`
        now read through the session seam
      - this slice does not reintroduce deferred objectization behavior
+   - `StableBoxNow` demand probe now also exists:
+     - `kilo_micro_concat_birth`
+       - `object_get_latest_fresh=0`
+       - `object_with_handle_latest_fresh=0`
+       - `object_pair_latest_fresh=0`
+       - `object_triple_latest_fresh=0`
+       - `text_read_handle_latest_fresh=1`
+       - `text_read_pair_latest_fresh=0`
+       - `text_read_triple_latest_fresh=0`
+     - `kilo_micro_concat_hh_len`
+       - `object_get_latest_fresh=0`
+       - `object_with_handle_latest_fresh=0`
+       - `object_pair_latest_fresh=0`
+       - `object_triple_latest_fresh=0`
+       - `text_read_handle_latest_fresh=800000`
+       - `text_read_pair_latest_fresh=0`
+       - `text_read_triple_latest_fresh=0`
+     - latest fresh handles are staying inside the single-handle text-read seam on the current exact fronts
+     - exact micro evidence does not support object-world leakage as the current first cause
    - next observation order is fixed:
-     1. design `OwnedBytes` / `TextReadSession` as the next narrow seam for the `concat_hh + len_h` consumer
-     2. only after that, reopen delayed objectization or backend trimming under `materialize_owned_bytes` / `issue_fresh_handle`
+     1. design single-handle delayed `StableBoxNow` on top of `OwnedBytes` / `TextReadSession` for the `concat_hh + len_h` consumer
+     2. if whole-kilo still regresses, explain which non-exact consumers force object world before widening deferred payload again
+     3. only after that, reopen backend trimming under `materialize_owned_bytes` / `issue_fresh_handle`
    - `DeferredString` experiment truth:
      - exact micro improved:
        - `kilo_micro_concat_hh_len`: `57 -> 51 ms`
@@ -212,15 +232,16 @@
      - `ReturnHandle`
      - `BorrowView`
      - `FreezeOwned`
+   - current direct probe also says:
+     - latest fresh handles are consumed through `text_read_handle`
+     - they are not currently leaking into object get/with/pair/triple APIs on the exact fronts
    - next backend trim order:
-     1. split backend reading into:
-        - `materialize_owned_bytes`
-        - `objectize_stable_string_box`
-        - `issue_fresh_handle`
-     2. re-read first-front order in plain release asm after the split
+     1. retry delayed `StableBoxNow` only for the single-handle text-read consumer
+     2. if that still fails whole-kilo, identify the non-exact object consumers before widening any deferred payload path
      3. only then trim:
+        - `materialize_owned_bytes`
+        - `issue_fresh_handle`
         - `next_box_id`
-        - host handle registry issue
 3. keep canonical `store.array.str` as the next exact front
    - current executor: `array_string_store_handle_at(...)`
 4. keep canonical `const_suffix` / `thaw.str + lit.str + str.concat2 + freeze.str` as a separate route, but do not assume the current exact micro exercises it

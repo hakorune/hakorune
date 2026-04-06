@@ -73,6 +73,7 @@ fn issue_fresh_handle(arc: Arc<dyn NyashBox>) -> i64 {
     crate::observe::record_birth_backend_handle_issue();
     crate::observe::record_birth_backend_issue_fresh_handle();
     let handle = handles::to_handle_arc(arc) as i64;
+    handles::perf_observe_mark_latest_fresh_handle(handle as u64);
     crate::observe::mark_latest_fresh_handle(handle);
     handle
 }
@@ -80,7 +81,9 @@ fn issue_fresh_handle(arc: Arc<dyn NyashBox>) -> i64 {
 #[cfg(not(feature = "perf-observe"))]
 #[inline(always)]
 fn issue_fresh_handle(arc: Arc<dyn NyashBox>) -> i64 {
-    handles::to_handle_arc(arc) as i64
+    let handle = handles::to_handle_arc(arc) as i64;
+    handles::perf_observe_mark_latest_fresh_handle(handle as u64);
+    handle
 }
 
 #[cfg(feature = "perf-observe")]
