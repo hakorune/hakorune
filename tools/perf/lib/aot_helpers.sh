@@ -131,6 +131,47 @@ perf_aot_assert_boundary_route_contract() {
   return 0
 }
 
+perf_aot_observe_requested() {
+  [[ "${NYASH_PERF_COUNTERS:-0}" == "1" || "${NYASH_PERF_TRACE:-0}" == "1" ]]
+}
+
+perf_aot_assert_observe_release_alignment() {
+  local root_dir=$1
+  local hako_bin=$2
+  local lib_kernel="${root_dir}/target/release/libnyash_kernel.a"
+  local sync_stamp="${root_dir}/target/release/.perf_observe_release_sync"
+
+  if ! perf_aot_observe_requested; then
+    return 0
+  fi
+
+  if [[ ! -f "${lib_kernel}" ]]; then
+    echo "[error] perf-observe lane requires ${lib_kernel}" >&2
+    echo "[hint] run: bash tools/perf/build_perf_observe_release.sh" >&2
+    return 1
+  fi
+
+  if [[ ! -x "${hako_bin}" ]]; then
+    echo "[error] perf-observe lane requires release hakorune binary: ${hako_bin}" >&2
+    echo "[hint] run: bash tools/perf/build_perf_observe_release.sh" >&2
+    return 1
+  fi
+
+  if ! grep -aFq 'birth.backend' "${lib_kernel}"; then
+    echo "[error] perf-observe lane requires perf-observe nyash_kernel artifacts; counter symbols missing from ${lib_kernel}" >&2
+    echo "[hint] run: bash tools/perf/build_perf_observe_release.sh" >&2
+    return 1
+  fi
+
+  if [[ ! -e "${sync_stamp}" || "${sync_stamp}" -ot "${lib_kernel}" || "${sync_stamp}" -ot "${hako_bin}" ]]; then
+    echo "[error] perf-observe release artifacts are out of sync; sync stamp is older than current release artifacts" >&2
+    echo "[hint] rerun: bash tools/perf/build_perf_observe_release.sh" >&2
+    return 1
+  fi
+
+  return 0
+}
+
 perf_aot_boundary_ffi_artifact_exists() {
   local root_dir=$1
   local override="${HAKO_AOT_FFI_LIB:-}"
@@ -350,6 +391,10 @@ perf_emit_and_build_aot_exe() {
   local tmp_json
 
   perf_aot_reset_status
+  if ! perf_aot_assert_observe_release_alignment "${root_dir}" "${hako_bin}"; then
+    perf_aot_set_status "skip" "observe_release_out_of_sync" "contract"
+    return 1
+  fi
   tmp_json=$(mktemp --suffix .json)
   if ! perf_emit_mir_json "${root_dir}" "${hako_bin}" "${hako_prog}" "${tmp_json}"; then
     rm -f "${tmp_json}" || true

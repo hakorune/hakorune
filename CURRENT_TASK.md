@@ -258,6 +258,9 @@ Scope: repo root から current lane / next lane / restart read order に最短�
         - second-axis observe counters also exist for:
           - `objectize_stable_box_now_total / bytes`
           - `issue_fresh_handle_total`
+        - observe lane contract lock:
+          - `NYASH_PERF_COUNTERS=1` / `NYASH_PERF_TRACE=1` now fail fast unless `target/release/.perf_observe_release_sync` is newer than both `target/release/libnyash_kernel.a` and `target/release/hakorune`
+          - canonical rebuild order is fixed in `tools/perf/build_perf_observe_release.sh`
 - `phase-157x` current rule:
   - observer is out-of-band only
   - default build compiles observer out
