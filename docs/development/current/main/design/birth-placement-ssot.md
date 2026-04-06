@@ -23,6 +23,7 @@ Related:
 - `string_handle_from_owned(...)` や `freeze_text_plan(...)` を semantic source of truth にしない
 - `.hako owner / policy -> MIR canonical contract -> Rust birth backend` の読みを固定する
 - string hot path の最適化を局所 hack ではなく placement seam 単位で扱う
+- Rust/C++/C/LLVM の borrowed/materialize/storage discipline を層ごとに分けて使う
 
 ## Why Now
 
@@ -97,6 +98,7 @@ Examples:
 - route vocabulary such as `const_suffix`
 
 `.hako` decides **whether** a route should reuse, borrow, freeze, or materialize.
+It borrows Rust-like ownership vocabulary as semantic meaning only.
 
 ### MIR canonical contract
 
@@ -116,6 +118,7 @@ Examples:
 - `store.map.value`
 
 MIR carries **what outcome was chosen**, not the runtime mechanics of issuing a handle.
+It is also the right place to keep delayed-materialization reading stable.
 
 ### Rust birth backend family
 
@@ -137,6 +140,7 @@ Current backend leaves include:
 
 These are backend leaves only.
 They must not become public policy vocabulary.
+Rust keeps C-like storage/lifetime mechanics here.
 
 ## Current Source Mapping
 
@@ -162,6 +166,7 @@ Reason:
   - `BorrowView`
   - `FreezeOwned`
   - `FreshHandle`
+  - `MaterializeOwned`
 
 ### Reading Lock for the First Slice
 
@@ -203,9 +208,26 @@ For the current `concat_hh + len_h` front:
 - read-side small seams have been tried and reverted
 - the next likely generic seam is Birth / Placement backend cost
 - specifically:
-  - `FreezeOwned`
   - `FreshHandle`
   - `MaterializeOwned`
 
 That means the next optimization work should target birth backend leaves while
 keeping this SSOT vocabulary fixed.
+
+## First Exact Probe Read
+
+Current direct AOT probe for `bench_kilo_micro_concat_hh_len.hako` shows:
+
+- `birth.placement`
+  - `fresh_handle=800000`
+  - `return_handle=0`
+  - `borrow_view=0`
+  - `freeze_owned=0`
+- `birth.backend`
+  - `materialize_owned_total=800000`
+  - `materialize_owned_bytes=14400000`
+  - `gc_alloc_called=800000`
+  - `gc_alloc_bytes=14400000`
+
+So the current generic exact front is not a `FreezeOwned`-heavy path.
+It is a `FreshHandle -> MaterializeOwned` path.

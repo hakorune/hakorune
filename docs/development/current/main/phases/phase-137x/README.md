@@ -68,6 +68,13 @@
    - the current AOT workload lowers through `nyash.string.concat_hh` and `nyash.string.len_h`
    - next local trim should therefore target the generic string concat/len consumer, not `concat_hs`
    - `kilo_micro_concat_hh_len` now isolates that generic consumer without substring carry
+   - `kilo_micro_concat_hh_len` Birth / Placement direct probe currently shows:
+     - `birth.placement`: `fresh_handle=800000`
+     - `birth.backend`: `materialize_owned_total=800000`, `materialize_owned_bytes=14400000`, `gc_alloc_called=800000`, `gc_alloc_bytes=14400000`
+     - `return_handle / borrow_view / freeze_owned = 0`
+   - current exact backend front is therefore:
+     - `FreshHandle`
+     - `MaterializeOwned`
    - current microasm read:
      - `string_concat_hh_export_impl`: `54.04%`
      - `string_len_from_handle`: `21.37%`
@@ -81,11 +88,12 @@
    - current executor: `string_concat_hh_export_impl(...)` + `string_len_from_handle(...)`
    - use `kilo_micro_concat_hh_len` as the exact isolated repro before changing this front
    - read this front through Birth / Placement outcome names first:
+     - `FreshHandle`
+     - `MaterializeOwned`
+   - current direct probe says this front is not exercising:
      - `ReturnHandle`
      - `BorrowView`
      - `FreezeOwned`
-     - `FreshHandle`
-     - `MaterializeOwned`
 3. keep canonical `store.array.str` as the next exact front
    - current executor: `array_string_store_handle_at(...)`
 4. keep canonical `const_suffix` / `thaw.str + lit.str + str.concat2 + freeze.str` as a separate route, but do not assume the current exact micro exercises it

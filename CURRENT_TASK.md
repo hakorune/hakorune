@@ -96,6 +96,11 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 - fixed wording:
   - mid-term stop-line: `Rust = semantics-free runtime mechanics kernel`
   - long-term asymptote: `Rust -> OS / ABI / host boundary`
+  - layer borrowing rule:
+    - `.hako` borrows Rust-like ownership vocabulary as meaning
+    - `MIR` borrows delayed-materialization reading as canonical contract
+    - `Rust` borrows C-like storage/lifetime discipline as runtime mechanics
+    - `LLVM` keeps generic optimization/codegen only
 - do not let this long-term target disappear behind phase churn or perf-only notes
 
 ## Read Next
@@ -181,6 +186,14 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   - deeper exact probe:
     - `bench_kilo_micro_array_string_store.hako` -> `retarget_hit=800000`, `existing_slot=800000`, `source_string_box=800000`
     - `bench_kilo_micro_concat_const_suffix.hako` AOT run does not hit `const_suffix`; it currently lowers through `nyash.string.concat_hh` + `nyash.string.len_h`
+  - Birth / Placement direct probe:
+    - `bench_kilo_micro_concat_hh_len.hako` AOT run is currently:
+      - `birth.placement`: `fresh_handle=800000`
+      - `birth.backend`: `materialize_owned_total=800000`, `materialize_owned_bytes=14400000`, `gc_alloc_called=800000`, `gc_alloc_bytes=14400000`
+      - `return_handle / borrow_view / freeze_owned = 0`
+    - current exact backend front is:
+      - `FreshHandle`
+      - `MaterializeOwned`
   - new exact split:
     - `bench_kilo_micro_concat_hh_len.hako` isolates `concat_hh + len_h` without substring carry
     - latest exact read: `c_ms=3 / ny_aot_ms=57`

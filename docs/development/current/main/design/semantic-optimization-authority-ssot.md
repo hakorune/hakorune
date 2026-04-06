@@ -39,6 +39,30 @@ Related:
 
 This is the only intended authority order.
 
+## Layer Borrowing Rule
+
+Hakorune should borrow ideas per layer without mixing their responsibilities.
+
+- `.hako owner / policy`
+  - borrow Rust-like ownership vocabulary as meaning only
+  - examples: `BorrowView`, `ReturnHandle`, `FreezeOwned`, `StoreFromSource`
+- `MIR canonical contract`
+  - borrow C++-like delayed materialization as canonical rewrite/placement reading
+  - keep helper names out of the contract surface
+- `Rust executor / accelerator`
+  - borrow C-like storage/lifetime discipline for runtime mechanics
+  - keep borrowed view/span, freeze/materialize, registry issue, slot/probe/store here
+- `LLVM generic optimization / codegen`
+  - borrow only generic optimization/codegen discipline
+  - do not ask LLVM to rediscover owner-aware placement
+
+This means:
+
+- do not copy Rust's type system upward into `.hako`
+- do not push C++-style materialization policy down into Rust helpers
+- do not move storage/lifetime mechanics into `.hako`
+- do not encode owner choice as an LLVM discovery problem
+
 ## `.hako owner / policy`
 
 `.hako` が持つもの:
