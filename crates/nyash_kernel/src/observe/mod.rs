@@ -315,6 +315,16 @@ mod real {
     }
 
     #[inline(always)]
+    pub(crate) fn record_borrowed_alias_as_str_fast_live_source() {
+        super::backend::borrowed_alias_as_str_fast_live_source();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_as_str_fast_stale_source() {
+        super::backend::borrowed_alias_as_str_fast_stale_source();
+    }
+
+    #[inline(always)]
     pub(crate) fn record_borrowed_alias_array_len_by_index_latest_fresh() {
         super::backend::borrowed_alias_array_len_by_index_latest_fresh();
     }
@@ -548,6 +558,12 @@ mod real {
 
     #[inline(always)]
     pub(crate) fn record_borrowed_alias_as_str_fast() {}
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_as_str_fast_live_source() {}
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_as_str_fast_stale_source() {}
 
     #[inline(always)]
     pub(crate) fn record_borrowed_alias_array_len_by_index_latest_fresh() {}

@@ -261,6 +261,8 @@ Scope: repo root から current lane / next lane / restart read order に最短�
     - borrowed alias whole-kilo truth:
       - `borrowed.alias.borrowed_source_fast=540000`
       - `borrowed.alias.as_str_fast=540064`
+      - `borrowed.alias.as_str_fast_live_source=540064`
+      - `borrowed.alias.as_str_fast_stale_source=0`
       - `borrowed.alias.array_len_by_index_latest_fresh=1`
       - `borrowed.alias.array_indexof_by_index_latest_fresh=938`
       - `borrowed.alias.encode_epoch_hit=0`
@@ -268,6 +270,7 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       - `borrowed.alias.encode_to_handle_arc=0`
     - current read:
       - retargeted latest-fresh aliases are not escaping through encoder fallback
+      - `BorrowedHandleBox::as_str_fast()` stays entirely on the live-source side in whole-kilo
       - `array_string_len_by_index(...)` / `array_string_indexof_by_index(...)` are not the 540k latest-fresh culprit
       - the remaining stable object pressure stays on `store.array.str -> with_handle(ArrayStoreStrSource)` itself, not alias runtime encode
     - current first widening target is:
@@ -291,10 +294,17 @@ Scope: repo root から current lane / next lane / restart read order に最短�
         - `kilo_micro_concat_hh_len: 78 ms`
         - `kilo_kernel_small_hk: 760 ms`
       - the behavior change is reverted
+    - borrowed alias raw string cache truth:
+      - caching source string addr/len inside `BorrowedHandleBox` and bypassing `inner.as_str_fast()` regressed exact and whole
+      - plain release 3-run:
+        - `kilo_micro_array_string_store: 196 ms`
+        - `kilo_micro_concat_hh_len: 69 ms`
+        - `kilo_kernel_small_hk: 798 ms`
+      - the behavior change is reverted
   - immediate next observation order is fixed:
     1. split the `store.array.str -> with_handle(ArrayStoreStrSource)` object contract again before changing behavior
-    2. only then retry delayed `StableBoxNow`
-    3. leave encoder-side trimming closed until borrowed alias counters move
+    2. keep borrowed alias string-read trimming closed; live-source fast read was not enough
+    3. only then retry delayed `StableBoxNow`
   - `DeferredString` experiment truth:
     - exact micro improved:
       - `kilo_micro_concat_hh_len`: `57 -> 51 ms`

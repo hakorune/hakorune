@@ -106,6 +106,8 @@ pub(crate) const BORROWED_ALIAS_EQUALS: &str = "equals";
 pub(crate) const BORROWED_ALIAS_CLONE_BOX: &str = "clone_box";
 pub(crate) const BORROWED_ALIAS_BORROWED_SOURCE_FAST: &str = "borrowed_source_fast";
 pub(crate) const BORROWED_ALIAS_AS_STR_FAST: &str = "as_str_fast";
+pub(crate) const BORROWED_ALIAS_AS_STR_FAST_LIVE_SOURCE: &str = "as_str_fast_live_source";
+pub(crate) const BORROWED_ALIAS_AS_STR_FAST_STALE_SOURCE: &str = "as_str_fast_stale_source";
 pub(crate) const BORROWED_ALIAS_ARRAY_LEN_BY_INDEX_LATEST_FRESH: &str =
     "array_len_by_index_latest_fresh";
 pub(crate) const BORROWED_ALIAS_ARRAY_INDEXOF_BY_INDEX_LATEST_FRESH: &str =
