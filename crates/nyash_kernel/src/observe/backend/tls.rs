@@ -33,6 +33,9 @@ struct GlobalCounters {
     store_array_str_plan_action_retarget_alias: AtomicU64,
     store_array_str_plan_action_store_from_source: AtomicU64,
     store_array_str_plan_action_need_stable_object: AtomicU64,
+    store_array_str_reason_source_kind_via_object: AtomicU64,
+    store_array_str_reason_retarget_keep_source_arc: AtomicU64,
+    store_array_str_reason_retarget_alias_update: AtomicU64,
     const_suffix_total: AtomicU64,
     const_suffix_cached_handle_hit: AtomicU64,
     const_suffix_text_cache_reload: AtomicU64,
@@ -119,6 +122,9 @@ impl GlobalCounters {
             store_array_str_plan_action_retarget_alias: AtomicU64::new(0),
             store_array_str_plan_action_store_from_source: AtomicU64::new(0),
             store_array_str_plan_action_need_stable_object: AtomicU64::new(0),
+            store_array_str_reason_source_kind_via_object: AtomicU64::new(0),
+            store_array_str_reason_retarget_keep_source_arc: AtomicU64::new(0),
+            store_array_str_reason_retarget_alias_update: AtomicU64::new(0),
             const_suffix_total: AtomicU64::new(0),
             const_suffix_cached_handle_hit: AtomicU64::new(0),
             const_suffix_text_cache_reload: AtomicU64::new(0),
@@ -207,6 +213,9 @@ struct ThreadCounters {
     store_array_str_plan_action_retarget_alias: Cell<u64>,
     store_array_str_plan_action_store_from_source: Cell<u64>,
     store_array_str_plan_action_need_stable_object: Cell<u64>,
+    store_array_str_reason_source_kind_via_object: Cell<u64>,
+    store_array_str_reason_retarget_keep_source_arc: Cell<u64>,
+    store_array_str_reason_retarget_alias_update: Cell<u64>,
     const_suffix_total: Cell<u64>,
     const_suffix_cached_handle_hit: Cell<u64>,
     const_suffix_text_cache_reload: Cell<u64>,
@@ -294,6 +303,9 @@ impl ThreadCounters {
             store_array_str_plan_action_retarget_alias: Cell::new(0),
             store_array_str_plan_action_store_from_source: Cell::new(0),
             store_array_str_plan_action_need_stable_object: Cell::new(0),
+            store_array_str_reason_source_kind_via_object: Cell::new(0),
+            store_array_str_reason_retarget_keep_source_arc: Cell::new(0),
+            store_array_str_reason_retarget_alias_update: Cell::new(0),
             const_suffix_total: Cell::new(0),
             const_suffix_cached_handle_hit: Cell::new(0),
             const_suffix_text_cache_reload: Cell::new(0),
@@ -464,6 +476,21 @@ impl ThreadCounters {
     #[inline(always)]
     fn store_array_str_plan_action_need_stable_object(&self) {
         Self::bump(&self.store_array_str_plan_action_need_stable_object);
+    }
+
+    #[inline(always)]
+    fn store_array_str_reason_source_kind_via_object(&self) {
+        Self::bump(&self.store_array_str_reason_source_kind_via_object);
+    }
+
+    #[inline(always)]
+    fn store_array_str_reason_retarget_keep_source_arc(&self) {
+        Self::bump(&self.store_array_str_reason_retarget_keep_source_arc);
+    }
+
+    #[inline(always)]
+    fn store_array_str_reason_retarget_alias_update(&self) {
+        Self::bump(&self.store_array_str_reason_retarget_alias_update);
     }
 
     #[inline(always)]
@@ -842,6 +869,18 @@ impl ThreadCounters {
             &self.store_array_str_plan_action_need_stable_object,
             &GLOBAL.store_array_str_plan_action_need_stable_object,
         );
+        flush_cell(
+            &self.store_array_str_reason_source_kind_via_object,
+            &GLOBAL.store_array_str_reason_source_kind_via_object,
+        );
+        flush_cell(
+            &self.store_array_str_reason_retarget_keep_source_arc,
+            &GLOBAL.store_array_str_reason_retarget_keep_source_arc,
+        );
+        flush_cell(
+            &self.store_array_str_reason_retarget_alias_update,
+            &GLOBAL.store_array_str_reason_retarget_alias_update,
+        );
         flush_cell(&self.const_suffix_total, &GLOBAL.const_suffix_total);
         flush_cell(
             &self.const_suffix_cached_handle_hit,
@@ -1192,6 +1231,21 @@ pub(crate) fn store_array_str_plan_action_need_stable_object() {
 }
 
 #[inline(always)]
+pub(crate) fn store_array_str_reason_source_kind_via_object() {
+    with_tls(ThreadCounters::store_array_str_reason_source_kind_via_object);
+}
+
+#[inline(always)]
+pub(crate) fn store_array_str_reason_retarget_keep_source_arc() {
+    with_tls(ThreadCounters::store_array_str_reason_retarget_keep_source_arc);
+}
+
+#[inline(always)]
+pub(crate) fn store_array_str_reason_retarget_alias_update() {
+    with_tls(ThreadCounters::store_array_str_reason_retarget_alias_update);
+}
+
+#[inline(always)]
 pub(crate) fn const_suffix_enter() {
     with_tls(ThreadCounters::const_suffix_enter);
 }
@@ -1470,7 +1524,7 @@ fn flush_current_thread() {
     TLS_COUNTERS.with(ThreadCounters::flush_into_global);
 }
 
-pub(crate) fn snapshot() -> [u64; 81] {
+pub(crate) fn snapshot() -> [u64; 84] {
     flush_current_thread();
     [
         GLOBAL.store_array_str_total.load(Ordering::Relaxed),
@@ -1599,6 +1653,15 @@ pub(crate) fn snapshot() -> [u64; 81] {
             .load(Ordering::Relaxed),
         GLOBAL
             .store_array_str_plan_action_need_stable_object
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .store_array_str_reason_source_kind_via_object
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .store_array_str_reason_retarget_keep_source_arc
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .store_array_str_reason_retarget_alias_update
             .load(Ordering::Relaxed),
     ]
 }

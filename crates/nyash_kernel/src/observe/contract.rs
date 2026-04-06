@@ -34,6 +34,12 @@ pub(crate) const STORE_ARRAY_STR_PLAN_ACTION_STORE_FROM_SOURCE: &str =
     "plan.action_store_from_source";
 pub(crate) const STORE_ARRAY_STR_PLAN_ACTION_NEED_STABLE_OBJECT: &str =
     "plan.action_need_stable_object";
+pub(crate) const STORE_ARRAY_STR_REASON_SOURCE_KIND_VIA_OBJECT: &str =
+    "reason.source_kind_via_object";
+pub(crate) const STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC: &str =
+    "reason.retarget_keep_source_arc";
+pub(crate) const STORE_ARRAY_STR_REASON_RETARGET_ALIAS_UPDATE: &str =
+    "reason.retarget_alias_update";
 
 pub(crate) const CONST_SUFFIX_CACHED_HANDLE_HIT: &str = "cached_handle_hit";
 pub(crate) const CONST_SUFFIX_TEXT_CACHE_RELOAD: &str = "text_cache_reload";

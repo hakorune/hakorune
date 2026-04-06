@@ -179,8 +179,10 @@ pub(crate) fn try_retarget_borrowed_string_slot_verified(
     let Some(alias) = slot.as_any_mut().downcast_mut::<BorrowedHandleBox>() else {
         return false;
     };
+    observe::record_store_array_str_reason_retarget_keep_source_arc();
     alias.inner = source_obj.clone();
     alias.source_handle = source_handle;
     alias.source_drop_epoch = source_drop_epoch;
+    observe::record_store_array_str_reason_retarget_alias_update();
     true
 }

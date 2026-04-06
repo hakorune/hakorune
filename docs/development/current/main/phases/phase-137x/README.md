@@ -173,9 +173,18 @@
        - exact `kilo_micro_array_string_store`:
          - `plan.source_kind_string_like=800000`
          - `plan.slot_kind_borrowed_alias=800000`
-         - `plan.action_retarget_alias=800000`
-         - `plan.action_store_from_source=0`
-         - `plan.action_need_stable_object=0`
+       - `plan.action_retarget_alias=800000`
+       - `plan.action_store_from_source=0`
+       - `plan.action_need_stable_object=0`
+     - no-behavior-change reason truth now clarifies the remaining contract:
+       - whole-kilo:
+         - `reason.source_kind_via_object=540000`
+         - `reason.retarget_keep_source_arc=540000`
+         - `reason.retarget_alias_update=540000`
+       - exact `kilo_micro_array_string_store`:
+         - `reason.source_kind_via_object=800000`
+         - `reason.retarget_keep_source_arc=800000`
+         - `reason.retarget_alias_update=800000`
      - borrowed alias whole-kilo truth:
        - `borrowed.alias.borrowed_source_fast=540000`
        - `borrowed.alias.as_str_fast=540064`
@@ -193,6 +202,13 @@
        - the remaining stable object pressure stays on `store.array.str -> with_handle(ArrayStoreStrSource)` itself, not alias runtime encode
        - planner says this hot path is pure `RetargetAlias`
        - the expensive escalation therefore happens before action selection, not because planner asked for `NeedStableObject`
+       - but current `retarget` still needs source-object keep:
+         - `source_kind_via_object`
+         - `retarget_keep_source_arc`
+         - `retarget_alias_update`
+       - next structural slice is therefore:
+         - split `source_kind_check` from `keep_source_arc`
+         - do not assume object entry can simply disappear
      - current first widening target is therefore:
        - `store.array.str` source read under `array_string_slot.rs`
      - attempted widening truth:

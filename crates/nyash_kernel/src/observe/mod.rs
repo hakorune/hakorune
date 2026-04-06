@@ -125,6 +125,21 @@ mod real {
     }
 
     #[inline(always)]
+    pub(crate) fn record_store_array_str_reason_source_kind_via_object() {
+        super::backend::store_array_str_reason_source_kind_via_object();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_reason_retarget_keep_source_arc() {
+        super::backend::store_array_str_reason_retarget_keep_source_arc();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_reason_retarget_alias_update() {
+        super::backend::store_array_str_reason_retarget_alias_update();
+    }
+
+    #[inline(always)]
     pub(crate) fn record_const_suffix_enter() {
         super::backend::const_suffix_enter();
     }
@@ -484,6 +499,15 @@ mod real {
 
     #[inline(always)]
     pub(crate) fn record_store_array_str_plan_action_need_stable_object() {}
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_reason_source_kind_via_object() {}
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_reason_retarget_keep_source_arc() {}
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_reason_retarget_alias_update() {}
 
     #[inline(always)]
     pub(crate) fn record_const_suffix_enter() {}

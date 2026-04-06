@@ -228,6 +228,7 @@ fn execute_store_array_str_slot(
         }
         match source_obj {
             Some(source_obj) => {
+                observe::record_store_array_str_reason_source_kind_via_object();
                 if source_obj
                     .as_any()
                     .downcast_ref::<nyash_rust::box_trait::StringBox>()

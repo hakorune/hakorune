@@ -61,7 +61,11 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   - keep `TextReadSession` as backend-private read seam below pure string consumers
   - reduce `StableBoxNow` demand before trimming `box_id` or registry issue again
   - freeze `store.array.str` source contract before widening Rust leaf helpers again
-  - only bypass generic object-world entry where planner proves `RetargetAlias` and `NeedStableObject=0`
+  - split `store.array.str` source contract into:
+    - `source_kind_check`
+    - `keep_source_arc`
+    - `alias_update`
+  - only remove generic object entry from the part that does not carry source-lifetime semantics
 - Exact focus:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - `docs/development/current/main/design/birth-placement-ssot.md`
@@ -275,10 +279,21 @@ Scope: repo root から current lane / next lane / restart read order に最短�
         - `plan.action_retarget_alias=800000`
         - `plan.action_store_from_source=0`
         - `plan.action_need_stable_object=0`
+    - no-behavior-change reason truth now clarifies why object world is still entered:
+      - whole-kilo:
+        - `reason.source_kind_via_object=540000`
+        - `reason.retarget_keep_source_arc=540000`
+        - `reason.retarget_alias_update=540000`
+      - exact `kilo_micro_array_string_store`:
+        - `reason.source_kind_via_object=800000`
+        - `reason.retarget_keep_source_arc=800000`
+        - `reason.retarget_alias_update=800000`
     - current read:
       - planner says the hot path is pure `RetargetAlias`
       - executor still escalates through `with_handle(ArrayStoreStrSource)` before reaching that action
-      - next slice should bypass generic object entry for this planner-proved case instead of adding more transport/cache helpers
+      - but the current contract is not only source-kind probing:
+        - retarget also keeps the source `Arc` alive so the alias survives source-handle drop
+      - next slice must separate `source_kind_check` from `keep_source_arc`, not assume object entry is fully removable
     - borrowed alias whole-kilo truth:
       - `borrowed.alias.borrowed_source_fast=540000`
       - `borrowed.alias.as_str_fast=540064`

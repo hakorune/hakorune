@@ -47,6 +47,18 @@ pub(crate) fn emit_summary_to_stderr() {
             contract::STORE_ARRAY_STR_PLAN_ACTION_NEED_STABLE_OBJECT,
             snapshot[80],
         ),
+        (
+            contract::STORE_ARRAY_STR_REASON_SOURCE_KIND_VIA_OBJECT,
+            snapshot[81],
+        ),
+        (
+            contract::STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC,
+            snapshot[82],
+        ),
+        (
+            contract::STORE_ARRAY_STR_REASON_RETARGET_ALIAS_UPDATE,
+            snapshot[83],
+        ),
     ] {
         let _ = write!(&mut store_array_str_line, " {}={}", name, value);
     }
