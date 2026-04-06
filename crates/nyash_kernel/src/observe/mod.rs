@@ -104,6 +104,66 @@ mod real {
         super::backend::const_suffix_cached_span_hit();
     }
 
+    #[inline(always)]
+    pub(crate) fn record_birth_placement_return_handle() {
+        super::backend::birth_placement_return_handle();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_placement_borrow_view() {
+        super::backend::birth_placement_borrow_view();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_placement_freeze_owned() {
+        super::backend::birth_placement_freeze_owned();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_placement_fresh_handle() {
+        super::backend::birth_placement_fresh_handle();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_placement_materialize_owned() {
+        super::backend::birth_placement_materialize_owned();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_placement_store_from_source() {
+        super::backend::birth_placement_store_from_source();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_freeze_text_plan_view1() {
+        super::backend::birth_backend_freeze_text_plan_view1();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_freeze_text_plan_pieces2() {
+        super::backend::birth_backend_freeze_text_plan_pieces2();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_freeze_text_plan_pieces3() {
+        super::backend::birth_backend_freeze_text_plan_pieces3();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_freeze_text_plan_pieces4() {
+        super::backend::birth_backend_freeze_text_plan_pieces4();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_freeze_text_plan_owned_tmp() {
+        super::backend::birth_backend_freeze_text_plan_owned_tmp();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_materialize_owned(bytes: usize) {
+        super::backend::birth_backend_materialize_owned(bytes as u64);
+    }
+
     pub(crate) fn flush() {
         if super::config::enabled() {
             super::sink::emit_summary_to_stderr();
@@ -175,6 +235,42 @@ mod real {
 
     #[inline(always)]
     pub(crate) fn record_const_suffix_cached_span_hit() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_placement_return_handle() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_placement_borrow_view() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_placement_freeze_owned() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_placement_fresh_handle() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_placement_materialize_owned() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_placement_store_from_source() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_freeze_text_plan_view1() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_freeze_text_plan_pieces2() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_freeze_text_plan_pieces3() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_freeze_text_plan_pieces4() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_freeze_text_plan_owned_tmp() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_materialize_owned(_bytes: usize) {}
 
     #[inline(always)]
     pub(crate) fn flush() {}

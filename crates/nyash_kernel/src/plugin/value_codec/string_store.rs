@@ -8,6 +8,7 @@ use std::sync::Arc;
 
 #[inline(always)]
 pub(crate) fn materialize_owned_string(value: String) -> i64 {
+    crate::observe::record_birth_backend_materialize_owned(value.len());
     nyash_rust::runtime::global_hooks::gc_alloc(value.len() as u64);
     let arc: Arc<dyn NyashBox> = Arc::new(StringBox::new(value));
     handles::to_handle_arc(arc) as i64
@@ -31,6 +32,7 @@ pub(crate) fn store_string_box_from_source(
             .downcast_ref::<crate::exports::string_view::StringViewBox>()
             .is_some()
     {
+        crate::observe::record_birth_placement_store_from_source();
         return maybe_borrow_string_handle_with_epoch(
             obj.clone(),
             source_handle,
@@ -57,6 +59,7 @@ pub(crate) fn store_string_box_from_string_source(
 ) -> Box<dyn NyashBox> {
     debug_assert!(source_handle > 0);
     debug_assert!(is_string_handle_source(source_obj));
+    crate::observe::record_birth_placement_store_from_source();
     maybe_borrow_string_handle_with_epoch(source_obj.clone(), source_handle, source_drop_epoch)
 }
 
@@ -74,6 +77,7 @@ pub(crate) fn maybe_store_string_box_from_verified_source(
         return int_arg_to_box(source_handle);
     };
     if source_is_string {
+        crate::observe::record_birth_placement_store_from_source();
         return maybe_borrow_string_handle_with_epoch(
             obj.clone(),
             source_handle,

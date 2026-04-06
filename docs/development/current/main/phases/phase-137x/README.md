@@ -55,6 +55,8 @@
  - deeper observe drill-down now exists for:
    - `store.array.str`: `existing_slot / append_slot / source_string_box / source_string_view / source_missing`
    - `const_suffix`: `empty_return / cached_fast_str_hit / cached_span_hit`
+   - `birth.placement`: `return_handle / borrow_view / freeze_owned / fresh_handle / materialize_owned / store_from_source`
+   - `birth.backend`: `freeze_text_plan_total / view1 / pieces2 / pieces3 / pieces4 / owned_tmp / materialize_owned_total / materialize_owned_bytes / gc_alloc_called / gc_alloc_bytes`
  - exact observe read:
    - `kilo_micro_array_string_store` AOT direct probe is saturated on one shape:
      - `cache_hit=800000`

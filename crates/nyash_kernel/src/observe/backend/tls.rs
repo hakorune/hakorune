@@ -30,6 +30,22 @@ struct GlobalCounters {
     const_suffix_empty_return: AtomicU64,
     const_suffix_cached_fast_str_hit: AtomicU64,
     const_suffix_cached_span_hit: AtomicU64,
+    birth_placement_return_handle: AtomicU64,
+    birth_placement_borrow_view: AtomicU64,
+    birth_placement_freeze_owned: AtomicU64,
+    birth_placement_fresh_handle: AtomicU64,
+    birth_placement_materialize_owned: AtomicU64,
+    birth_placement_store_from_source: AtomicU64,
+    birth_backend_freeze_text_plan_total: AtomicU64,
+    birth_backend_freeze_text_plan_view1: AtomicU64,
+    birth_backend_freeze_text_plan_pieces2: AtomicU64,
+    birth_backend_freeze_text_plan_pieces3: AtomicU64,
+    birth_backend_freeze_text_plan_pieces4: AtomicU64,
+    birth_backend_freeze_text_plan_owned_tmp: AtomicU64,
+    birth_backend_materialize_owned_total: AtomicU64,
+    birth_backend_materialize_owned_bytes: AtomicU64,
+    birth_backend_gc_alloc_called: AtomicU64,
+    birth_backend_gc_alloc_bytes: AtomicU64,
 }
 
 impl GlobalCounters {
@@ -54,6 +70,22 @@ impl GlobalCounters {
             const_suffix_empty_return: AtomicU64::new(0),
             const_suffix_cached_fast_str_hit: AtomicU64::new(0),
             const_suffix_cached_span_hit: AtomicU64::new(0),
+            birth_placement_return_handle: AtomicU64::new(0),
+            birth_placement_borrow_view: AtomicU64::new(0),
+            birth_placement_freeze_owned: AtomicU64::new(0),
+            birth_placement_fresh_handle: AtomicU64::new(0),
+            birth_placement_materialize_owned: AtomicU64::new(0),
+            birth_placement_store_from_source: AtomicU64::new(0),
+            birth_backend_freeze_text_plan_total: AtomicU64::new(0),
+            birth_backend_freeze_text_plan_view1: AtomicU64::new(0),
+            birth_backend_freeze_text_plan_pieces2: AtomicU64::new(0),
+            birth_backend_freeze_text_plan_pieces3: AtomicU64::new(0),
+            birth_backend_freeze_text_plan_pieces4: AtomicU64::new(0),
+            birth_backend_freeze_text_plan_owned_tmp: AtomicU64::new(0),
+            birth_backend_materialize_owned_total: AtomicU64::new(0),
+            birth_backend_materialize_owned_bytes: AtomicU64::new(0),
+            birth_backend_gc_alloc_called: AtomicU64::new(0),
+            birth_backend_gc_alloc_bytes: AtomicU64::new(0),
         }
     }
 }
@@ -80,6 +112,22 @@ struct ThreadCounters {
     const_suffix_empty_return: Cell<u64>,
     const_suffix_cached_fast_str_hit: Cell<u64>,
     const_suffix_cached_span_hit: Cell<u64>,
+    birth_placement_return_handle: Cell<u64>,
+    birth_placement_borrow_view: Cell<u64>,
+    birth_placement_freeze_owned: Cell<u64>,
+    birth_placement_fresh_handle: Cell<u64>,
+    birth_placement_materialize_owned: Cell<u64>,
+    birth_placement_store_from_source: Cell<u64>,
+    birth_backend_freeze_text_plan_total: Cell<u64>,
+    birth_backend_freeze_text_plan_view1: Cell<u64>,
+    birth_backend_freeze_text_plan_pieces2: Cell<u64>,
+    birth_backend_freeze_text_plan_pieces3: Cell<u64>,
+    birth_backend_freeze_text_plan_pieces4: Cell<u64>,
+    birth_backend_freeze_text_plan_owned_tmp: Cell<u64>,
+    birth_backend_materialize_owned_total: Cell<u64>,
+    birth_backend_materialize_owned_bytes: Cell<u64>,
+    birth_backend_gc_alloc_called: Cell<u64>,
+    birth_backend_gc_alloc_bytes: Cell<u64>,
 }
 
 impl ThreadCounters {
@@ -104,6 +152,22 @@ impl ThreadCounters {
             const_suffix_empty_return: Cell::new(0),
             const_suffix_cached_fast_str_hit: Cell::new(0),
             const_suffix_cached_span_hit: Cell::new(0),
+            birth_placement_return_handle: Cell::new(0),
+            birth_placement_borrow_view: Cell::new(0),
+            birth_placement_freeze_owned: Cell::new(0),
+            birth_placement_fresh_handle: Cell::new(0),
+            birth_placement_materialize_owned: Cell::new(0),
+            birth_placement_store_from_source: Cell::new(0),
+            birth_backend_freeze_text_plan_total: Cell::new(0),
+            birth_backend_freeze_text_plan_view1: Cell::new(0),
+            birth_backend_freeze_text_plan_pieces2: Cell::new(0),
+            birth_backend_freeze_text_plan_pieces3: Cell::new(0),
+            birth_backend_freeze_text_plan_pieces4: Cell::new(0),
+            birth_backend_freeze_text_plan_owned_tmp: Cell::new(0),
+            birth_backend_materialize_owned_total: Cell::new(0),
+            birth_backend_materialize_owned_bytes: Cell::new(0),
+            birth_backend_gc_alloc_called: Cell::new(0),
+            birth_backend_gc_alloc_bytes: Cell::new(0),
         }
     }
 
@@ -201,6 +265,76 @@ impl ThreadCounters {
         Self::bump(&self.const_suffix_cached_span_hit);
     }
 
+    #[inline(always)]
+    fn birth_placement_return_handle(&self) {
+        Self::bump(&self.birth_placement_return_handle);
+    }
+
+    #[inline(always)]
+    fn birth_placement_borrow_view(&self) {
+        Self::bump(&self.birth_placement_borrow_view);
+    }
+
+    #[inline(always)]
+    fn birth_placement_freeze_owned(&self) {
+        Self::bump(&self.birth_placement_freeze_owned);
+    }
+
+    #[inline(always)]
+    fn birth_placement_fresh_handle(&self) {
+        Self::bump(&self.birth_placement_fresh_handle);
+    }
+
+    #[inline(always)]
+    fn birth_placement_materialize_owned(&self) {
+        Self::bump(&self.birth_placement_materialize_owned);
+    }
+
+    #[inline(always)]
+    fn birth_placement_store_from_source(&self) {
+        Self::bump(&self.birth_placement_store_from_source);
+    }
+
+    #[inline(always)]
+    fn birth_backend_freeze_text_plan_view1(&self) {
+        Self::bump(&self.birth_backend_freeze_text_plan_total);
+        Self::bump(&self.birth_backend_freeze_text_plan_view1);
+    }
+
+    #[inline(always)]
+    fn birth_backend_freeze_text_plan_pieces2(&self) {
+        Self::bump(&self.birth_backend_freeze_text_plan_total);
+        Self::bump(&self.birth_backend_freeze_text_plan_pieces2);
+    }
+
+    #[inline(always)]
+    fn birth_backend_freeze_text_plan_pieces3(&self) {
+        Self::bump(&self.birth_backend_freeze_text_plan_total);
+        Self::bump(&self.birth_backend_freeze_text_plan_pieces3);
+    }
+
+    #[inline(always)]
+    fn birth_backend_freeze_text_plan_pieces4(&self) {
+        Self::bump(&self.birth_backend_freeze_text_plan_total);
+        Self::bump(&self.birth_backend_freeze_text_plan_pieces4);
+    }
+
+    #[inline(always)]
+    fn birth_backend_freeze_text_plan_owned_tmp(&self) {
+        Self::bump(&self.birth_backend_freeze_text_plan_total);
+        Self::bump(&self.birth_backend_freeze_text_plan_owned_tmp);
+    }
+
+    #[inline(always)]
+    fn birth_backend_materialize_owned(&self, bytes: u64) {
+        Self::bump(&self.birth_backend_materialize_owned_total);
+        Self::bump(&self.birth_backend_gc_alloc_called);
+        self.birth_backend_materialize_owned_bytes
+            .set(self.birth_backend_materialize_owned_bytes.get() + bytes);
+        self.birth_backend_gc_alloc_bytes
+            .set(self.birth_backend_gc_alloc_bytes.get() + bytes);
+    }
+
     fn flush_into_global(&self) {
         flush_cell(&self.store_array_str_total, &GLOBAL.store_array_str_total);
         flush_cell(
@@ -271,6 +405,70 @@ impl ThreadCounters {
         flush_cell(
             &self.const_suffix_cached_span_hit,
             &GLOBAL.const_suffix_cached_span_hit,
+        );
+        flush_cell(
+            &self.birth_placement_return_handle,
+            &GLOBAL.birth_placement_return_handle,
+        );
+        flush_cell(
+            &self.birth_placement_borrow_view,
+            &GLOBAL.birth_placement_borrow_view,
+        );
+        flush_cell(
+            &self.birth_placement_freeze_owned,
+            &GLOBAL.birth_placement_freeze_owned,
+        );
+        flush_cell(
+            &self.birth_placement_fresh_handle,
+            &GLOBAL.birth_placement_fresh_handle,
+        );
+        flush_cell(
+            &self.birth_placement_materialize_owned,
+            &GLOBAL.birth_placement_materialize_owned,
+        );
+        flush_cell(
+            &self.birth_placement_store_from_source,
+            &GLOBAL.birth_placement_store_from_source,
+        );
+        flush_cell(
+            &self.birth_backend_freeze_text_plan_total,
+            &GLOBAL.birth_backend_freeze_text_plan_total,
+        );
+        flush_cell(
+            &self.birth_backend_freeze_text_plan_view1,
+            &GLOBAL.birth_backend_freeze_text_plan_view1,
+        );
+        flush_cell(
+            &self.birth_backend_freeze_text_plan_pieces2,
+            &GLOBAL.birth_backend_freeze_text_plan_pieces2,
+        );
+        flush_cell(
+            &self.birth_backend_freeze_text_plan_pieces3,
+            &GLOBAL.birth_backend_freeze_text_plan_pieces3,
+        );
+        flush_cell(
+            &self.birth_backend_freeze_text_plan_pieces4,
+            &GLOBAL.birth_backend_freeze_text_plan_pieces4,
+        );
+        flush_cell(
+            &self.birth_backend_freeze_text_plan_owned_tmp,
+            &GLOBAL.birth_backend_freeze_text_plan_owned_tmp,
+        );
+        flush_cell(
+            &self.birth_backend_materialize_owned_total,
+            &GLOBAL.birth_backend_materialize_owned_total,
+        );
+        flush_cell(
+            &self.birth_backend_materialize_owned_bytes,
+            &GLOBAL.birth_backend_materialize_owned_bytes,
+        );
+        flush_cell(
+            &self.birth_backend_gc_alloc_called,
+            &GLOBAL.birth_backend_gc_alloc_called,
+        );
+        flush_cell(
+            &self.birth_backend_gc_alloc_bytes,
+            &GLOBAL.birth_backend_gc_alloc_bytes,
         );
     }
 }
@@ -385,11 +583,71 @@ pub(crate) fn const_suffix_cached_span_hit() {
     with_tls(ThreadCounters::const_suffix_cached_span_hit);
 }
 
+#[inline(always)]
+pub(crate) fn birth_placement_return_handle() {
+    with_tls(ThreadCounters::birth_placement_return_handle);
+}
+
+#[inline(always)]
+pub(crate) fn birth_placement_borrow_view() {
+    with_tls(ThreadCounters::birth_placement_borrow_view);
+}
+
+#[inline(always)]
+pub(crate) fn birth_placement_freeze_owned() {
+    with_tls(ThreadCounters::birth_placement_freeze_owned);
+}
+
+#[inline(always)]
+pub(crate) fn birth_placement_fresh_handle() {
+    with_tls(ThreadCounters::birth_placement_fresh_handle);
+}
+
+#[inline(always)]
+pub(crate) fn birth_placement_materialize_owned() {
+    with_tls(ThreadCounters::birth_placement_materialize_owned);
+}
+
+#[inline(always)]
+pub(crate) fn birth_placement_store_from_source() {
+    with_tls(ThreadCounters::birth_placement_store_from_source);
+}
+
+#[inline(always)]
+pub(crate) fn birth_backend_freeze_text_plan_view1() {
+    with_tls(ThreadCounters::birth_backend_freeze_text_plan_view1);
+}
+
+#[inline(always)]
+pub(crate) fn birth_backend_freeze_text_plan_pieces2() {
+    with_tls(ThreadCounters::birth_backend_freeze_text_plan_pieces2);
+}
+
+#[inline(always)]
+pub(crate) fn birth_backend_freeze_text_plan_pieces3() {
+    with_tls(ThreadCounters::birth_backend_freeze_text_plan_pieces3);
+}
+
+#[inline(always)]
+pub(crate) fn birth_backend_freeze_text_plan_pieces4() {
+    with_tls(ThreadCounters::birth_backend_freeze_text_plan_pieces4);
+}
+
+#[inline(always)]
+pub(crate) fn birth_backend_freeze_text_plan_owned_tmp() {
+    with_tls(ThreadCounters::birth_backend_freeze_text_plan_owned_tmp);
+}
+
+#[inline(always)]
+pub(crate) fn birth_backend_materialize_owned(bytes: u64) {
+    with_tls(|tls| tls.birth_backend_materialize_owned(bytes));
+}
+
 fn flush_current_thread() {
     TLS_COUNTERS.with(ThreadCounters::flush_into_global);
 }
 
-pub(crate) fn snapshot() -> [u64; 19] {
+pub(crate) fn snapshot() -> [u64; 35] {
     flush_current_thread();
     [
         GLOBAL.store_array_str_total.load(Ordering::Relaxed),
@@ -411,6 +669,22 @@ pub(crate) fn snapshot() -> [u64; 19] {
         GLOBAL.const_suffix_empty_return.load(Ordering::Relaxed),
         GLOBAL.const_suffix_cached_fast_str_hit.load(Ordering::Relaxed),
         GLOBAL.const_suffix_cached_span_hit.load(Ordering::Relaxed),
+        GLOBAL.birth_placement_return_handle.load(Ordering::Relaxed),
+        GLOBAL.birth_placement_borrow_view.load(Ordering::Relaxed),
+        GLOBAL.birth_placement_freeze_owned.load(Ordering::Relaxed),
+        GLOBAL.birth_placement_fresh_handle.load(Ordering::Relaxed),
+        GLOBAL.birth_placement_materialize_owned.load(Ordering::Relaxed),
+        GLOBAL.birth_placement_store_from_source.load(Ordering::Relaxed),
+        GLOBAL.birth_backend_freeze_text_plan_total.load(Ordering::Relaxed),
+        GLOBAL.birth_backend_freeze_text_plan_view1.load(Ordering::Relaxed),
+        GLOBAL.birth_backend_freeze_text_plan_pieces2.load(Ordering::Relaxed),
+        GLOBAL.birth_backend_freeze_text_plan_pieces3.load(Ordering::Relaxed),
+        GLOBAL.birth_backend_freeze_text_plan_pieces4.load(Ordering::Relaxed),
+        GLOBAL.birth_backend_freeze_text_plan_owned_tmp.load(Ordering::Relaxed),
+        GLOBAL.birth_backend_materialize_owned_total.load(Ordering::Relaxed),
+        GLOBAL.birth_backend_materialize_owned_bytes.load(Ordering::Relaxed),
+        GLOBAL.birth_backend_gc_alloc_called.load(Ordering::Relaxed),
+        GLOBAL.birth_backend_gc_alloc_bytes.load(Ordering::Relaxed),
     ]
 }
 
@@ -457,5 +731,26 @@ mod tests {
         assert_eq!(after[13] - before[13], 1);
         assert_eq!(after[14] - before[14], 1);
         assert_eq!(after[15] - before[15], 1);
+    }
+
+    #[test]
+    fn tls_birth_backend_counters_flush_current_thread() {
+        let _guard = test_lock().lock().expect("observe test lock");
+        std::env::set_var("NYASH_PERF_COUNTERS", "1");
+
+        let before = snapshot();
+        birth_placement_freeze_owned();
+        birth_placement_fresh_handle();
+        birth_backend_freeze_text_plan_pieces2();
+        birth_backend_materialize_owned(18);
+        let after = snapshot();
+
+        assert_eq!(after[21] - before[21], 1);
+        assert_eq!(after[22] - before[22], 1);
+        assert_eq!(after[25] - before[25], 1);
+        assert_eq!(after[31] - before[31], 1);
+        assert_eq!(after[32] - before[32], 18);
+        assert_eq!(after[33] - before[33], 1);
+        assert_eq!(after[34] - before[34], 18);
     }
 }

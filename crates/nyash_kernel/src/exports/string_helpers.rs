@@ -110,6 +110,7 @@ pub(super) fn string_handle_from_owned(value: String) -> i64 {
     if len == 0 {
         return shared_empty_string_handle();
     }
+    observe::record_birth_placement_fresh_handle();
     let handle = materialize_owned_string(value);
     if string_trace::enabled() {
         let extra = format!("source=owned len={} handle={}", len, handle);
@@ -133,6 +134,7 @@ pub(super) fn string_handle_from_span(span: StringSpan) -> i64 {
         }
         return shared_empty_string_handle();
     }
+    observe::record_birth_placement_materialize_owned();
     let len = source.len();
     let mut out = String::with_capacity(len);
     unsafe {
@@ -157,6 +159,14 @@ pub(super) fn string_handle_from_span(span: StringSpan) -> i64 {
 
 #[inline(always)]
 pub(super) fn freeze_text_plan<'a>(plan: TextPlan<'a>) -> i64 {
+    observe::record_birth_placement_freeze_owned();
+    match &plan {
+        TextPlan::View1(_) => observe::record_birth_backend_freeze_text_plan_view1(),
+        TextPlan::Pieces2 { .. } => observe::record_birth_backend_freeze_text_plan_pieces2(),
+        TextPlan::Pieces3 { .. } => observe::record_birth_backend_freeze_text_plan_pieces3(),
+        TextPlan::Pieces4 { .. } => observe::record_birth_backend_freeze_text_plan_pieces4(),
+        TextPlan::OwnedTmp(_) => observe::record_birth_backend_freeze_text_plan_owned_tmp(),
+    }
     if string_trace::enabled() {
         let piece_count = text_plan_piece_count(&plan);
         let total_len = text_plan_total_len(&plan);
@@ -292,6 +302,7 @@ enum Concat3Plan<'a> {
 fn freeze_concat3_plan<'a>(plan: Concat3Plan<'a>) -> i64 {
     match plan {
         Concat3Plan::ReuseHandle(handle) => {
+            observe::record_birth_placement_return_handle();
             if string_trace::enabled() {
                 let extra = format!("handle={}", handle);
                 string_trace::emit("sink", "reuse_handle", "concat3_reuse", &extra);
@@ -475,9 +486,11 @@ fn concat_pair_from_spans(a_h: i64, b_h: i64) -> Option<i64> {
     let a = a_span.as_str();
     let b = b_span.as_str();
     if a.is_empty() {
+        observe::record_birth_placement_return_handle();
         return Some(b_h);
     }
     if b.is_empty() {
+        observe::record_birth_placement_return_handle();
         return Some(a_h);
     }
     Some(freeze_text_plan(TextPlan::from_two(
@@ -501,7 +514,10 @@ fn concat_pair_from_fast_str(a_h: i64, b_h: i64) -> Option<i64> {
         ConcatFastPath::Owned(concat_two_str(a, b))
     })?;
     Some(match plan {
-        ConcatFastPath::ReuseHandle(handle) => handle,
+        ConcatFastPath::ReuseHandle(handle) => {
+            observe::record_birth_placement_return_handle();
+            handle
+        }
         ConcatFastPath::Owned(text) => string_handle_from_owned(text),
     })
 }
@@ -530,7 +546,10 @@ fn concat_pair_fallback(a_h: i64, b_h: i64) -> i64 {
 fn execute_concat2_freeze_from_text(a_h: i64, suffix: &str, placement: RetainedForm) -> i64 {
     observe::record_const_suffix_freeze_fallback();
     match placement {
-        RetainedForm::ReturnHandle => a_h,
+        RetainedForm::ReturnHandle => {
+            observe::record_birth_placement_return_handle();
+            a_h
+        }
         RetainedForm::KeepTransient | RetainedForm::MustFreeze(_) => {
             freeze_text_plan(concat_const_suffix_plan_from_handle(a_h, suffix))
         }
@@ -545,7 +564,10 @@ fn execute_concat2_with_cached_const_handle(
     placement: RetainedForm,
 ) -> Option<i64> {
     match placement {
-        RetainedForm::ReturnHandle => Some(a_h),
+        RetainedForm::ReturnHandle => {
+            observe::record_birth_placement_return_handle();
+            Some(a_h)
+        }
         RetainedForm::KeepTransient | RetainedForm::MustFreeze(_) => {
             if let Some(out) = concat_pair_from_fast_str(a_h, suffix_h) {
                 observe::record_const_suffix_cached_fast_str_hit();
@@ -915,10 +937,14 @@ pub(super) fn string_substring_hii_export_impl(h: i64, start: i64, end: i64) -> 
         return shared_empty_string_handle();
     };
     match plan {
-        BorrowedSubstringPlan::ReturnHandle => h,
+        BorrowedSubstringPlan::ReturnHandle => {
+            observe::record_birth_placement_return_handle();
+            h
+        }
         BorrowedSubstringPlan::ReturnEmpty => shared_empty_string_handle(),
         BorrowedSubstringPlan::FreezeSpan(span) => string_handle_from_span(span),
         BorrowedSubstringPlan::ViewSpan(span) => {
+            observe::record_birth_placement_borrow_view();
             handles::to_handle_arc(std::sync::Arc::new(span.into_view_box())) as i64
         }
     }
