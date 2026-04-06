@@ -100,6 +100,10 @@
    - next observation order is fixed:
      1. reopen `DeferredStableBox` / delayed objectization discussion for the `concat_hh + len_h` consumer
      2. if that slice is blocked, keep trimming backend leaves under `materialize_owned_bytes` and `issue_fresh_handle`
+   - `host_handles` now has a source-backed payload seam:
+     - slot storage reads through `HandlePayload::StableBox(...)`
+     - public registry APIs still return `Arc<dyn NyashBox>`
+     - this does not change behavior yet; it only narrows the future widening point for `DeferredStableBox`
    - current exact backend front is therefore:
      - `FreshHandle`
      - `MaterializeOwned`

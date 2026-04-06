@@ -194,6 +194,10 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   - immediate next observation order is fixed:
     1. treat `StableBoxNow` delay / objectization deferral as the next design slice for `concat_hh + len_h`
     2. if that slice is blocked, fall back to backend leaf trimming under `materialize_owned_bytes / issue_fresh_handle`
+  - payload seam scaffolding is now source-backed:
+    - `host_handles` slot storage now reads through `HandlePayload::StableBox(...)`
+    - public registry API is unchanged
+    - this is not `DeferredStableBox` yet; it only fixes the narrow widening seam so future `DeferredString` does not have to start from raw `Arc<dyn NyashBox>` slots
   - Birth / Placement counters now also exist for:
     - `ReturnHandle / BorrowView / FreezeOwned / FreshHandle / MaterializeOwned / StoreFromSource`
   - birth backend counters now also exist for:

@@ -17,12 +17,35 @@ use super::host_handles_policy;
 use crate::box_trait::NyashBox;
 use crate::config::env::HostHandleAllocPolicyMode;
 
+enum HandlePayload {
+    StableBox(Arc<dyn NyashBox>),
+}
+
+impl HandlePayload {
+    #[inline(always)]
+    fn stable_box_ref(&self) -> &Arc<dyn NyashBox> {
+        match self {
+            Self::StableBox(obj) => obj,
+        }
+    }
+
+    #[inline(always)]
+    fn cloned_stable_box(&self) -> Arc<dyn NyashBox> {
+        self.stable_box_ref().clone()
+    }
+
+    #[inline(always)]
+    fn as_str_fast(&self) -> Option<&str> {
+        self.stable_box_ref().as_ref().as_str_fast()
+    }
+}
+
 struct SlotTable {
     // Fresh handle counter. Updated only under table write lock.
     next: u64,
     // Dense slot table: handle ID is the direct index.
     // index 0 is reserved as empty to keep handle=0 invalid.
-    slots: Vec<Option<Arc<dyn NyashBox>>>,
+    slots: Vec<Option<HandlePayload>>,
     // Reusable handle IDs released via drop_handle().
     // Reuse keeps slot table growth bounded under churn.
     free: Vec<u64>,
@@ -40,14 +63,14 @@ struct Registry {
 }
 
 #[inline(always)]
-fn slot_ref(table: &SlotTable, h: u64) -> Option<&Arc<dyn NyashBox>> {
+fn slot_ref(table: &SlotTable, h: u64) -> Option<&HandlePayload> {
     let idx = usize::try_from(h).ok()?;
     table.slots.get(idx).and_then(|slot| slot.as_ref())
 }
 
 #[inline(always)]
 fn slot_str_ref<'a>(table: &'a SlotTable, h: u64) -> Option<&'a str> {
-    slot_ref(table, h).and_then(|obj| obj.as_ref().as_str_fast())
+    slot_ref(table, h).and_then(HandlePayload::as_str_fast)
 }
 
 #[cold]
@@ -113,6 +136,7 @@ impl Registry {
     fn alloc(&self, obj: Arc<dyn NyashBox>) -> u64 {
         let policy_mode = self.alloc_policy_mode();
         let mut table = self.table.write();
+        let payload = HandlePayload::StableBox(obj);
 
         if let Some(h) = host_handles_policy::take_reusable_handle(policy_mode, &mut table.free) {
             let idx = handle_index_or_panic(h, "[host_handles] reusable handle overflow");
@@ -122,14 +146,14 @@ impl Registry {
                 "[host_handles] reusable handle out of slots range",
                 "[host_handles] reusable handle points to occupied slot",
             );
-            table.slots[idx] = Some(obj);
+            table.slots[idx] = Some(payload);
             return h;
         }
 
         let h = host_handles_policy::issue_fresh_handle(policy_mode, &mut table.next);
         let idx = handle_index_or_panic(h, "[host_handles] fresh handle overflow");
         if idx == table.slots.len() {
-            table.slots.push(Some(obj));
+            table.slots.push(Some(payload));
         } else {
             ensure_slot_vacant_or_panic(
                 &table,
@@ -137,27 +161,27 @@ impl Registry {
                 "[host_handles] fresh handle out of slots range",
                 "[host_handles] fresh handle points to occupied slot",
             );
-            table.slots[idx] = Some(obj);
+            table.slots[idx] = Some(payload);
         }
         h
     }
     #[inline(always)]
     fn get(&self, h: u64) -> Option<Arc<dyn NyashBox>> {
         let table = self.table.read();
-        slot_ref(&table, h).cloned()
+        slot_ref(&table, h).map(HandlePayload::cloned_stable_box)
     }
 
     #[inline(always)]
     fn with_handle<R>(&self, h: u64, f: impl FnOnce(Option<&Arc<dyn NyashBox>>) -> R) -> R {
         let table = self.table.read();
-        let obj = slot_ref(&table, h);
+        let obj = slot_ref(&table, h).map(HandlePayload::stable_box_ref);
         f(obj)
     }
     #[inline(always)]
     fn get_pair(&self, a: u64, b: u64) -> (Option<Arc<dyn NyashBox>>, Option<Arc<dyn NyashBox>>) {
         let table = self.table.read();
-        let a_obj = slot_ref(&table, a).cloned();
-        let b_obj = slot_ref(&table, b).cloned();
+        let a_obj = slot_ref(&table, a).map(HandlePayload::cloned_stable_box);
+        let b_obj = slot_ref(&table, b).map(HandlePayload::cloned_stable_box);
         (a_obj, b_obj)
     }
 
@@ -169,8 +193,8 @@ impl Registry {
         f: impl FnOnce(Option<&Arc<dyn NyashBox>>, Option<&Arc<dyn NyashBox>>) -> R,
     ) -> R {
         let table = self.table.read();
-        let a_obj = slot_ref(&table, a);
-        let b_obj = slot_ref(&table, b);
+        let a_obj = slot_ref(&table, a).map(HandlePayload::stable_box_ref);
+        let b_obj = slot_ref(&table, b).map(HandlePayload::stable_box_ref);
         f(a_obj, b_obj)
     }
 
@@ -188,9 +212,9 @@ impl Registry {
     ) -> R {
         let table = self.table.read();
         f(
-            slot_ref(&table, a),
-            slot_ref(&table, b),
-            slot_ref(&table, c),
+            slot_ref(&table, a).map(HandlePayload::stable_box_ref),
+            slot_ref(&table, b).map(HandlePayload::stable_box_ref),
+            slot_ref(&table, c).map(HandlePayload::stable_box_ref),
         )
     }
 
@@ -229,15 +253,19 @@ impl Registry {
         Option<Arc<dyn NyashBox>>,
     ) {
         let table = self.table.read();
-        let a_obj = slot_ref(&table, a).cloned();
-        let b_obj = slot_ref(&table, b).cloned();
-        let c_obj = slot_ref(&table, c).cloned();
+        let a_obj = slot_ref(&table, a).map(HandlePayload::cloned_stable_box);
+        let b_obj = slot_ref(&table, b).map(HandlePayload::cloned_stable_box);
+        let c_obj = slot_ref(&table, c).map(HandlePayload::cloned_stable_box);
         (a_obj, b_obj, c_obj)
     }
     #[inline(always)]
     fn snapshot(&self) -> Vec<Arc<dyn NyashBox>> {
         let table = self.table.read();
-        table.slots.iter().filter_map(|slot| slot.clone()).collect()
+        table
+            .slots
+            .iter()
+            .filter_map(|slot| slot.as_ref().map(HandlePayload::cloned_stable_box))
+            .collect()
     }
     #[inline(always)]
     fn drop_handle(&self, h: u64) {
