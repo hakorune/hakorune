@@ -214,10 +214,17 @@
      - current read:
        - this is not a large exact-front win
        - but it is a cleaner source-contract split and keeps whole-kilo near the good end of the current band
-       - planner says this hot path is pure `RetargetAlias`
-       - the expensive escalation therefore happens before action selection, not because planner asked for `NeedStableObject`
-       - but current `retarget` still needs source-object keep:
-         - `source_kind_via_object`
+     - closed follow-up:
+       - replacing `with_handle(ArrayStoreStrSource)` with direct `get()` source load regressed slightly
+       - 3-run plain release:
+         - `kilo_micro_array_string_store: 192 ms`
+         - `kilo_micro_concat_hh_len: 69 ms`
+         - `kilo_kernel_small_hk: 747 ms`
+       - revert the behavior change; keep `with_handle_caller(...)` for now
+        - planner says this hot path is pure `RetargetAlias`
+        - the expensive escalation therefore happens before action selection, not because planner asked for `NeedStableObject`
+        - but current `retarget` still needs source-object keep:
+          - `source_kind_via_object`
          - `retarget_keep_source_arc`
          - `retarget_alias_update`
        - no-behavior-change `source_kind_check` split is now landed:

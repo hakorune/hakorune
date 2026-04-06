@@ -329,6 +329,13 @@ Scope: repo root から current lane / next lane / restart read order に最短�
     - current read:
       - this is not a large exact-front win
       - but it is a cleaner source-contract split and keeps whole-kilo near the good end of the current band
+    - closed follow-up:
+      - replacing `with_handle(ArrayStoreStrSource)` with direct `get()` source load regressed slightly
+      - 3-run plain release:
+        - `kilo_micro_array_string_store: 192 ms`
+        - `kilo_micro_concat_hh_len: 69 ms`
+        - `kilo_kernel_small_hk: 747 ms`
+      - revert the behavior change; keep `with_handle_caller(...)` for now
     - current first widening target is:
       - `store.array.str` source read under `array_string_slot.rs`
     - attempted widening truth:
