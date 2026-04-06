@@ -134,9 +134,26 @@
        - `text_read_triple_latest_fresh=0`
      - latest fresh handles are staying inside the single-handle text-read seam on the current exact fronts
      - exact micro evidence does not support object-world leakage as the current first cause
+   - delayed `StableBoxNow` retry truth:
+     - exact micro improved:
+       - `kilo_micro_concat_birth`: `50 -> 37 ms`
+       - `kilo_micro_concat_hh_len`: `67 -> 57 ms`
+     - whole-kilo still regressed:
+       - `kilo_kernel_small_hk`: `764 ms`
+     - whole observe probe points at early object-world escalation instead of exact-path leakage:
+       - `stable_box_demand.object_with_handle_latest_fresh=540000`
+       - `stable_box_demand.object_get_latest_fresh=0`
+       - `stable_box_demand.object_pair_latest_fresh=0`
+       - `stable_box_demand.object_triple_latest_fresh=0`
+       - `stable_box_demand.text_read_handle_latest_fresh=0`
+       - `stable_box_demand.text_read_pair_latest_fresh=938`
+     - current read:
+       - exact micro stays inside the single-handle text-read seam
+       - whole-kilo quickly promotes latest fresh string handles into generic object `with_handle(...)`
+       - delayed objectization must not be relanded until that consumer is widened or bypassed
    - next observation order is fixed:
-     1. design single-handle delayed `StableBoxNow` on top of `OwnedBytes` / `TextReadSession` for the `concat_hh + len_h` consumer
-     2. if whole-kilo still regresses, explain which non-exact consumers force object world before widening deferred payload again
+     1. inventory the generic object `with_handle(...)` consumers that still pull latest fresh string handles out of the text-read seam in whole-kilo
+     2. widen or bypass that consumer seam before retrying delayed `StableBoxNow`
      3. only after that, reopen backend trimming under `materialize_owned_bytes` / `issue_fresh_handle`
    - `DeferredString` experiment truth:
      - exact micro improved:
@@ -236,8 +253,8 @@
      - latest fresh handles are consumed through `text_read_handle`
      - they are not currently leaking into object get/with/pair/triple APIs on the exact fronts
    - next backend trim order:
-     1. retry delayed `StableBoxNow` only for the single-handle text-read consumer
-     2. if that still fails whole-kilo, identify the non-exact object consumers before widening any deferred payload path
+     1. identify the non-exact generic object `with_handle(...)` consumers that still demand `StableBoxNow`
+     2. only after that retry delayed `StableBoxNow`
      3. only then trim:
         - `materialize_owned_bytes`
         - `issue_fresh_handle`

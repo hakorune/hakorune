@@ -234,10 +234,24 @@ Scope: repo root から current lane / next lane / restart read order に最短�
     - the next structural slice should stay narrow:
       - single-handle text-read consumer
       - delayed `StableBoxNow` only where whole-kilo does not regress
+  - delayed `StableBoxNow` retry truth:
+    - exact micro improved again:
+      - `kilo_micro_concat_birth: 50 -> 37 ms`
+      - `kilo_micro_concat_hh_len: 67 -> 57 ms`
+    - whole-kilo still regressed:
+      - `kilo_kernel_small_hk: 764 ms`
+    - observe whole probe says latest fresh handles are not staying in the same narrow seam:
+      - `stable_box_demand.object_with_handle_latest_fresh=540000`
+      - `stable_box_demand.text_read_handle_latest_fresh=0`
+      - `stable_box_demand.text_read_pair_latest_fresh=938`
+    - current explanation:
+      - exact micro stays on single-handle text-read
+      - whole-kilo quickly escalates latest fresh handles into generic object `with_handle(...)`
+      - do not reland deferred objectization before that consumer is widened or bypassed
   - immediate next observation order is fixed:
-    1. treat single-handle `StableBoxNow` delay / objectization deferral as the next design slice for `concat_hh + len_h`
-    2. if that slice still regresses whole-kilo, explain the non-exact object-world consumers before widening deferred payload again
-    3. only after that, fall back to backend leaf trimming under `materialize_owned_bytes / issue_fresh_handle`
+    1. inventory the generic object `with_handle(...)` consumers that touch latest fresh string handles in whole-kilo
+    2. widen or bypass that consumer seam before retrying delayed `StableBoxNow`
+    3. only after that, reopen backend leaf trimming under `materialize_owned_bytes / issue_fresh_handle`
   - `DeferredString` experiment truth:
     - exact micro improved:
       - `kilo_micro_concat_hh_len`: `57 -> 51 ms`
