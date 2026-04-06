@@ -38,6 +38,10 @@ pub(crate) const STORE_ARRAY_STR_REASON_SOURCE_KIND_VIA_OBJECT: &str =
     "reason.source_kind_via_object";
 pub(crate) const STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC: &str =
     "reason.retarget_keep_source_arc";
+pub(crate) const STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC_PTR_EQ_HIT: &str =
+    "reason.retarget_keep_source_arc_ptr_eq_hit";
+pub(crate) const STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC_PTR_EQ_MISS: &str =
+    "reason.retarget_keep_source_arc_ptr_eq_miss";
 pub(crate) const STORE_ARRAY_STR_REASON_RETARGET_ALIAS_UPDATE: &str =
     "reason.retarget_alias_update";
 

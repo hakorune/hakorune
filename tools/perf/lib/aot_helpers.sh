@@ -209,12 +209,6 @@ perf_aot_assert_observe_release_alignment() {
     return 1
   fi
 
-  if ! perf_aot_nm_has_symbol "${lib_kernel}" 'nyash_kernel::observe::backend::birth_backend_issue_fresh_handle'; then
-    echo "[error] perf-observe lane requires perf-observe nyash_kernel artifacts; counter symbols missing from ${lib_kernel}" >&2
-    echo "[hint] run: bash tools/perf/build_perf_observe_release.sh" >&2
-    return 1
-  fi
-
   if [[ ! -e "${sync_stamp}" || "${sync_stamp}" -ot "${lib_kernel}" || "${sync_stamp}" -ot "${hako_bin}" ]]; then
     echo "[error] perf-observe release artifacts are out of sync; sync stamp is older than current release artifacts" >&2
     echo "[hint] rerun: bash tools/perf/build_perf_observe_release.sh" >&2

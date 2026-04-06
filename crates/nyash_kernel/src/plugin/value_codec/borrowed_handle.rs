@@ -189,6 +189,13 @@ pub(crate) fn keep_borrowed_string_slot_source_arc(
     source_obj: &Arc<dyn NyashBox>,
 ) {
     observe::record_store_array_str_reason_retarget_keep_source_arc();
+    if observe::enabled() {
+        if Arc::ptr_eq(&alias.inner, source_obj) {
+            observe::record_store_array_str_reason_retarget_keep_source_arc_ptr_eq_hit();
+        } else {
+            observe::record_store_array_str_reason_retarget_keep_source_arc_ptr_eq_miss();
+        }
+    }
     alias.inner = source_obj.clone();
 }
 
