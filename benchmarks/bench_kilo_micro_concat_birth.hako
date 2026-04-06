@@ -1,0 +1,18 @@
+// kilo/text exact microbench:
+// fresh concat birth/materialize without per-iteration len carry.
+static box Main {
+  main() {
+    local ops = 800000
+    local text = "line-seed-abcdef"
+    local suffix = "xy"
+    local i = 0
+    local last = ""
+
+    loop (i < ops) {
+      last = text + suffix
+      i = i + 1
+    }
+
+    return last.length() + i
+  }
+}

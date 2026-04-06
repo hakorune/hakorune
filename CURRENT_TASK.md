@@ -197,6 +197,12 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   - new exact split:
     - `bench_kilo_micro_concat_hh_len.hako` isolates `concat_hh + len_h` without substring carry
     - latest exact read: `c_ms=3 / ny_aot_ms=57`
+  - new birth-only exact split:
+    - `bench_kilo_micro_concat_birth.hako` isolates fresh concat birth/materialize with only final `len`
+    - latest exact read: `c_ms=6 / ny_aot_ms=47`
+    - direct probe:
+      - `birth.placement`: `fresh_handle=800000`
+      - `birth.backend`: `materialize_owned_total=800000`, `materialize_owned_bytes=14400000`, `gc_alloc_called=800000`, `gc_alloc_bytes=14400000`
 - `phase-157x` current rule:
   - observer is out-of-band only
   - default build compiles observer out

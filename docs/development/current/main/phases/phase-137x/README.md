@@ -45,6 +45,7 @@
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
   - `kilo_micro_concat_const_suffix`: `c_ms=3 / ny_aot_ms=84`
   - `kilo_micro_concat_hh_len`: `c_ms=3 / ny_aot_ms=57`
+  - `kilo_micro_concat_birth`: `c_ms=6 / ny_aot_ms=47`
   - `kilo_micro_array_string_store`: `c_ms=10 / ny_aot_ms=181`
   - whole-kilo recheck after array-cache epoch pass-through: `c_ms=81 / ny_aot_ms=741`
 - latest bundle read:
@@ -68,6 +69,10 @@
    - the current AOT workload lowers through `nyash.string.concat_hh` and `nyash.string.len_h`
    - next local trim should therefore target the generic string concat/len consumer, not `concat_hs`
    - `kilo_micro_concat_hh_len` now isolates that generic consumer without substring carry
+   - `kilo_micro_concat_birth` now isolates fresh concat birth/materialize with only final `len`
+   - `kilo_micro_concat_birth` direct probe currently shows:
+     - `birth.placement`: `fresh_handle=800000`
+     - `birth.backend`: `materialize_owned_total=800000`, `materialize_owned_bytes=14400000`, `gc_alloc_called=800000`, `gc_alloc_bytes=14400000`
    - `kilo_micro_concat_hh_len` Birth / Placement direct probe currently shows:
      - `birth.placement`: `fresh_handle=800000`
      - `birth.backend`: `materialize_owned_total=800000`, `materialize_owned_bytes=14400000`, `gc_alloc_called=800000`, `gc_alloc_bytes=14400000`
@@ -87,6 +92,7 @@
    - current AOT consumer: `nyash.string.concat_hh` + `nyash.string.len_h`
    - current executor: `string_concat_hh_export_impl(...)` + `string_len_from_handle(...)`
    - use `kilo_micro_concat_hh_len` as the exact isolated repro before changing this front
+   - use `kilo_micro_concat_birth` when the patch only targets fresh birth/materialize backend cost
    - read this front through Birth / Placement outcome names first:
      - `FreshHandle`
      - `MaterializeOwned`
