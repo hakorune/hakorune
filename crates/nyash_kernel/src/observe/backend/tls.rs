@@ -97,6 +97,8 @@ struct GlobalCounters {
     borrowed_alias_encode_epoch_hit: AtomicU64,
     borrowed_alias_encode_ptr_eq_hit: AtomicU64,
     borrowed_alias_encode_to_handle_arc: AtomicU64,
+    borrowed_alias_encode_to_handle_arc_array_get_index: AtomicU64,
+    borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any: AtomicU64,
 }
 
 impl GlobalCounters {
@@ -188,6 +190,8 @@ impl GlobalCounters {
             borrowed_alias_encode_epoch_hit: AtomicU64::new(0),
             borrowed_alias_encode_ptr_eq_hit: AtomicU64::new(0),
             borrowed_alias_encode_to_handle_arc: AtomicU64::new(0),
+            borrowed_alias_encode_to_handle_arc_array_get_index: AtomicU64::new(0),
+            borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any: AtomicU64::new(0),
         }
     }
 }
@@ -281,6 +285,8 @@ struct ThreadCounters {
     borrowed_alias_encode_epoch_hit: Cell<u64>,
     borrowed_alias_encode_ptr_eq_hit: Cell<u64>,
     borrowed_alias_encode_to_handle_arc: Cell<u64>,
+    borrowed_alias_encode_to_handle_arc_array_get_index: Cell<u64>,
+    borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any: Cell<u64>,
     latest_fresh_handle: Cell<i64>,
 }
 
@@ -373,6 +379,8 @@ impl ThreadCounters {
             borrowed_alias_encode_epoch_hit: Cell::new(0),
             borrowed_alias_encode_ptr_eq_hit: Cell::new(0),
             borrowed_alias_encode_to_handle_arc: Cell::new(0),
+            borrowed_alias_encode_to_handle_arc_array_get_index: Cell::new(0),
+            borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any: Cell::new(0),
             latest_fresh_handle: Cell::new(0),
         }
     }
@@ -792,6 +800,16 @@ impl ThreadCounters {
     }
 
     #[inline(always)]
+    fn borrowed_alias_encode_to_handle_arc_array_get_index(&self) {
+        Self::bump(&self.borrowed_alias_encode_to_handle_arc_array_get_index);
+    }
+
+    #[inline(always)]
+    fn borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any(&self) {
+        Self::bump(&self.borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any);
+    }
+
+    #[inline(always)]
     fn mark_latest_fresh_handle(&self, handle: i64) {
         self.latest_fresh_handle.set(handle);
     }
@@ -1127,6 +1145,14 @@ impl ThreadCounters {
         flush_cell(
             &self.borrowed_alias_encode_to_handle_arc,
             &GLOBAL.borrowed_alias_encode_to_handle_arc,
+        );
+        flush_cell(
+            &self.borrowed_alias_encode_to_handle_arc_array_get_index,
+            &GLOBAL.borrowed_alias_encode_to_handle_arc_array_get_index,
+        );
+        flush_cell(
+            &self.borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any,
+            &GLOBAL.borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any,
         );
     }
 }
@@ -1547,6 +1573,16 @@ pub(crate) fn borrowed_alias_encode_to_handle_arc() {
 }
 
 #[inline(always)]
+pub(crate) fn borrowed_alias_encode_to_handle_arc_array_get_index() {
+    with_tls(ThreadCounters::borrowed_alias_encode_to_handle_arc_array_get_index);
+}
+
+#[inline(always)]
+pub(crate) fn borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any() {
+    with_tls(ThreadCounters::borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any);
+}
+
+#[inline(always)]
 pub(crate) fn mark_latest_fresh_handle(handle: i64) {
     with_tls(|tls| tls.mark_latest_fresh_handle(handle));
 }
@@ -1560,7 +1596,7 @@ fn flush_current_thread() {
     TLS_COUNTERS.with(ThreadCounters::flush_into_global);
 }
 
-pub(crate) fn snapshot() -> [u64; 86] {
+pub(crate) fn snapshot() -> [u64; 88] {
     flush_current_thread();
     [
         GLOBAL.store_array_str_total.load(Ordering::Relaxed),
@@ -1666,6 +1702,12 @@ pub(crate) fn snapshot() -> [u64; 86] {
         GLOBAL.borrowed_alias_encode_epoch_hit.load(Ordering::Relaxed),
         GLOBAL.borrowed_alias_encode_ptr_eq_hit.load(Ordering::Relaxed),
         GLOBAL.borrowed_alias_encode_to_handle_arc.load(Ordering::Relaxed),
+        GLOBAL
+            .borrowed_alias_encode_to_handle_arc_array_get_index
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any
+            .load(Ordering::Relaxed),
         GLOBAL
             .store_array_str_plan_source_kind_string_like
             .load(Ordering::Relaxed),

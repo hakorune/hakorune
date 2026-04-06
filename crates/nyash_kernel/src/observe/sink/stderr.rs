@@ -27,45 +27,45 @@ pub(crate) fn emit_summary_to_stderr() {
         (contract::STORE_ARRAY_STR_SOURCE_STRING_BOX, snapshot[11]),
         (contract::STORE_ARRAY_STR_SOURCE_STRING_VIEW, snapshot[12]),
         (contract::STORE_ARRAY_STR_SOURCE_MISSING, snapshot[13]),
-        (contract::STORE_ARRAY_STR_PLAN_SOURCE_KIND_STRING_LIKE, snapshot[73]),
-        (contract::STORE_ARRAY_STR_PLAN_SOURCE_KIND_OTHER_OBJECT, snapshot[74]),
-        (contract::STORE_ARRAY_STR_PLAN_SOURCE_KIND_MISSING, snapshot[75]),
+        (contract::STORE_ARRAY_STR_PLAN_SOURCE_KIND_STRING_LIKE, snapshot[75]),
+        (contract::STORE_ARRAY_STR_PLAN_SOURCE_KIND_OTHER_OBJECT, snapshot[76]),
+        (contract::STORE_ARRAY_STR_PLAN_SOURCE_KIND_MISSING, snapshot[77]),
         (
             contract::STORE_ARRAY_STR_PLAN_SLOT_KIND_BORROWED_ALIAS,
-            snapshot[76],
-        ),
-        (contract::STORE_ARRAY_STR_PLAN_SLOT_KIND_OTHER, snapshot[77]),
-        (
-            contract::STORE_ARRAY_STR_PLAN_ACTION_RETARGET_ALIAS,
             snapshot[78],
         ),
+        (contract::STORE_ARRAY_STR_PLAN_SLOT_KIND_OTHER, snapshot[79]),
         (
-            contract::STORE_ARRAY_STR_PLAN_ACTION_STORE_FROM_SOURCE,
-            snapshot[79],
-        ),
-        (
-            contract::STORE_ARRAY_STR_PLAN_ACTION_NEED_STABLE_OBJECT,
+            contract::STORE_ARRAY_STR_PLAN_ACTION_RETARGET_ALIAS,
             snapshot[80],
         ),
         (
-            contract::STORE_ARRAY_STR_REASON_SOURCE_KIND_VIA_OBJECT,
+            contract::STORE_ARRAY_STR_PLAN_ACTION_STORE_FROM_SOURCE,
             snapshot[81],
         ),
         (
-            contract::STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC,
+            contract::STORE_ARRAY_STR_PLAN_ACTION_NEED_STABLE_OBJECT,
             snapshot[82],
         ),
         (
-            contract::STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC_PTR_EQ_HIT,
+            contract::STORE_ARRAY_STR_REASON_SOURCE_KIND_VIA_OBJECT,
             snapshot[83],
         ),
         (
-            contract::STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC_PTR_EQ_MISS,
+            contract::STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC,
             snapshot[84],
         ),
         (
-            contract::STORE_ARRAY_STR_REASON_RETARGET_ALIAS_UPDATE,
+            contract::STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC_PTR_EQ_HIT,
             snapshot[85],
+        ),
+        (
+            contract::STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC_PTR_EQ_MISS,
+            snapshot[86],
+        ),
+        (
+            contract::STORE_ARRAY_STR_REASON_RETARGET_ALIAS_UPDATE,
+            snapshot[87],
         ),
     ] {
         let _ = write!(&mut store_array_str_line, " {}={}", name, value);
@@ -206,7 +206,7 @@ pub(crate) fn emit_summary_to_stderr() {
         stable_box_demand[11],
     );
     eprintln!(
-        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
+        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
         contract::BORROWED_ALIAS,
         contract::BORROWED_ALIAS_TO_STRING_BOX,
         snapshot[61],
@@ -232,5 +232,9 @@ pub(crate) fn emit_summary_to_stderr() {
         snapshot[71],
         contract::BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC,
         snapshot[72],
+        contract::BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_ARRAY_GET_INDEX,
+        snapshot[73],
+        contract::BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_MAP_RUNTIME_DATA_GET_ANY,
+        snapshot[74],
     );
 }

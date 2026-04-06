@@ -139,3 +139,7 @@ pub(crate) const BORROWED_ALIAS_ARRAY_INDEXOF_BY_INDEX_LATEST_FRESH: &str =
 pub(crate) const BORROWED_ALIAS_ENCODE_EPOCH_HIT: &str = "encode_epoch_hit";
 pub(crate) const BORROWED_ALIAS_ENCODE_PTR_EQ_HIT: &str = "encode_ptr_eq_hit";
 pub(crate) const BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC: &str = "encode_to_handle_arc";
+pub(crate) const BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_ARRAY_GET_INDEX: &str =
+    "encode_to_handle_arc_array_get_index";
+pub(crate) const BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_MAP_RUNTIME_DATA_GET_ANY: &str =
+    "encode_to_handle_arc_map_runtime_data_get_any";

@@ -415,6 +415,16 @@ mod real {
     }
 
     #[inline(always)]
+    pub(crate) fn record_borrowed_alias_encode_to_handle_arc_array_get_index() {
+        super::backend::borrowed_alias_encode_to_handle_arc_array_get_index();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any() {
+        super::backend::borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any();
+    }
+
+    #[inline(always)]
     pub(crate) fn mark_latest_fresh_handle(handle: i64) {
         super::backend::mark_latest_fresh_handle(handle);
     }
@@ -683,6 +693,12 @@ mod real {
 
     #[inline(always)]
     pub(crate) fn record_borrowed_alias_encode_to_handle_arc() {}
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_encode_to_handle_arc_array_get_index() {}
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any() {}
 
     #[inline(always)]
     pub(crate) fn mark_latest_fresh_handle(_handle: i64) {}

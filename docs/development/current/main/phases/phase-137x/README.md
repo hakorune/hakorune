@@ -195,8 +195,11 @@
        - `borrowed.alias.encode_epoch_hit=0`
        - `borrowed.alias.encode_ptr_eq_hit=0`
        - `borrowed.alias.encode_to_handle_arc=0`
+       - `borrowed.alias.encode_to_handle_arc_array_get_index=0`
+       - `borrowed.alias.encode_to_handle_arc_map_runtime_data_get_any=0`
      - current read:
        - retargeted latest-fresh aliases are not escaping through encoder fallback
+       - caller-attributed encode-to-handle paths are also closed in current behavior
        - `BorrowedHandleBox::as_str_fast()` stays entirely on the live-source side in whole-kilo
        - `array_string_len_by_index(...)` / `array_string_indexof_by_index(...)` are not the 540k latest-fresh culprit
        - the remaining stable object pressure stays on `store.array.str -> with_handle(ArrayStoreStrSource)` itself, not alias runtime encode

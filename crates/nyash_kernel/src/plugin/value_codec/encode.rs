@@ -6,17 +6,32 @@ use nyash_rust::{
 };
 use std::sync::Arc;
 
+#[derive(Clone, Copy)]
+pub(crate) enum BorrowedAliasEncodeCaller {
+    Generic,
+    ArrayGetIndexEncoded,
+    MapRuntimeDataGetAnyKey,
+}
+
 pub(crate) fn box_to_handle(value: Box<dyn NyashBox>) -> i64 {
     let arc: std::sync::Arc<dyn NyashBox> = std::sync::Arc::from(value);
     handles::to_handle_arc(arc) as i64
 }
 
 pub(crate) fn box_to_runtime_i64(value: Box<dyn NyashBox>) -> i64 {
-    runtime_i64_from_box_ref(value.as_ref())
+    runtime_i64_from_box_ref_caller(value.as_ref(), BorrowedAliasEncodeCaller::Generic)
 }
 
 #[inline(always)]
 pub(crate) fn runtime_i64_from_box_ref(value: &dyn NyashBox) -> i64 {
+    runtime_i64_from_box_ref_caller(value, BorrowedAliasEncodeCaller::Generic)
+}
+
+#[inline(always)]
+pub(crate) fn runtime_i64_from_box_ref_caller(
+    value: &dyn NyashBox,
+    caller: BorrowedAliasEncodeCaller,
+) -> i64 {
     // Borrowed alias aware runtime encoder:
     // reuse source handle only while the alias epoch is still live,
     // otherwise fall back to conservative re-materialization.
@@ -45,6 +60,7 @@ pub(crate) fn runtime_i64_from_box_ref(value: &dyn NyashBox) -> i64 {
             }
         }
         observe::record_borrowed_alias_encode_to_handle_arc();
+        caller.record();
         return handles::to_handle_arc(alias.stable_box_ref().clone()) as i64;
     }
     if let Some(iv) = integer_box_to_i64(value) {
@@ -73,4 +89,19 @@ pub(crate) fn bool_box_to_i64(value: &dyn NyashBox) -> Option<i64> {
         .as_any()
         .downcast_ref::<BoolBox>()
         .map(|bb| if bb.value { 1 } else { 0 })
+}
+
+impl BorrowedAliasEncodeCaller {
+    #[inline(always)]
+    fn record(self) {
+        match self {
+            Self::Generic => {}
+            Self::ArrayGetIndexEncoded => {
+                observe::record_borrowed_alias_encode_to_handle_arc_array_get_index();
+            }
+            Self::MapRuntimeDataGetAnyKey => {
+                observe::record_borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any();
+            }
+        }
+    }
 }

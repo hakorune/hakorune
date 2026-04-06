@@ -5,7 +5,7 @@ use super::map_key_codec::map_key_string_from_any;
 use super::map_probe::{map_probe_contains_any, map_probe_contains_i64};
 use super::map_slot_load::{map_slot_load_any, map_slot_load_i64};
 use super::map_slot_store::{map_slot_store_any, map_slot_store_i64_any};
-use super::value_codec::runtime_i64_from_box_ref;
+use super::value_codec::{runtime_i64_from_box_ref_caller, BorrowedAliasEncodeCaller};
 use nyash_rust::{boxes::map_box::MapBox, runtime::host_handles as handles};
 
 // Runtime/compat forwarding only.
@@ -92,7 +92,12 @@ pub(super) fn map_runtime_data_get_any_key(handle: i64, key_any: i64) -> i64 {
     with_runtime_map_box(handle, |map| {
         map.get_opt_key_str(&key_str)
             .as_ref()
-            .map(|value| runtime_i64_from_box_ref(value.as_ref()))
+            .map(|value| {
+                runtime_i64_from_box_ref_caller(
+                    value.as_ref(),
+                    BorrowedAliasEncodeCaller::MapRuntimeDataGetAnyKey,
+                )
+            })
             .unwrap_or(0)
     })
     .unwrap_or(0)

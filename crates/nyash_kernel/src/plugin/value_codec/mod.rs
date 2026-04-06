@@ -8,7 +8,10 @@ pub(crate) use decode::{
     any_arg_to_box, any_arg_to_box_with_profile, any_arg_to_index, decode_array_fast_value,
     int_arg_to_box, ArrayFastDecodedValue, CodecProfile,
 };
-pub(crate) use encode::{box_to_handle, box_to_runtime_i64, runtime_i64_from_box_ref};
+pub(crate) use encode::{
+    box_to_handle, box_to_runtime_i64, runtime_i64_from_box_ref,
+    runtime_i64_from_box_ref_caller, BorrowedAliasEncodeCaller,
+};
 pub(crate) use string_store::{
     materialize_owned_string, maybe_store_string_box_from_verified_source,
     with_array_store_str_source, ArrayStoreStrSource, StringHandleSourceKind,
