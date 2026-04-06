@@ -134,8 +134,13 @@
        - `objectize_stable_box_now_total / bytes`
        - `issue_fresh_handle_total`
      - observe lane contract is now fail-fast:
-       - `NYASH_PERF_COUNTERS=1` / `NYASH_PERF_TRACE=1` aborts AOT probe/build unless `target/release/.perf_observe_release_sync` is newer than both `target/release/libnyash_kernel.a` and `target/release/hakorune`
-       - canonical rebuild order is fixed in `tools/perf/build_perf_observe_release.sh`
+       - default perf AOT lane aborts unless `target/release/.perf_release_sync` is newer than both `target/release/libnyash_kernel.a` and `target/release/hakorune`
+       - `NYASH_PERF_COUNTERS=1` / `NYASH_PERF_TRACE=1` still require `target/release/.perf_observe_release_sync`
+       - canonical rebuild orders are fixed in `tools/perf/build_perf_release.sh` and `tools/perf/build_perf_observe_release.sh`
+       - helper-local ranking rule:
+         - plain release asm = real cost ranking
+         - observe build = counts and symbol split
+         - `materialize_owned_bytes(...)` observe annotate is currently dominated by TLS counter work, so it is not sufficient by itself for first-front ordering
    - current microasm read:
      - `string_concat_hh_export_impl`: `54.04%`
      - `string_len_from_handle`: `21.37%`
@@ -161,7 +166,8 @@
         - `materialize_owned_bytes`
         - `objectize_stable_string_box`
         - `issue_fresh_handle`
-     2. only then trim:
+     2. re-read first-front order in plain release asm after the split
+     3. only then trim:
         - `next_box_id`
         - host handle registry issue
 3. keep canonical `store.array.str` as the next exact front

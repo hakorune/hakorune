@@ -135,6 +135,49 @@ perf_aot_observe_requested() {
   [[ "${NYASH_PERF_COUNTERS:-0}" == "1" || "${NYASH_PERF_TRACE:-0}" == "1" ]]
 }
 
+perf_aot_assert_default_release_alignment() {
+  local root_dir=$1
+  local hako_bin=$2
+  local lib_kernel="${root_dir}/target/release/libnyash_kernel.a"
+  local sync_stamp="${root_dir}/target/release/.perf_release_sync"
+
+  if perf_aot_observe_requested; then
+    return 0
+  fi
+
+  if [[ ! -f "${lib_kernel}" ]]; then
+    echo "[error] perf AOT default lane requires ${lib_kernel}" >&2
+    echo "[hint] run: bash tools/perf/build_perf_release.sh" >&2
+    return 1
+  fi
+
+  if [[ ! -x "${hako_bin}" ]]; then
+    echo "[error] perf AOT default lane requires release hakorune binary: ${hako_bin}" >&2
+    echo "[hint] run: bash tools/perf/build_perf_release.sh" >&2
+    return 1
+  fi
+
+  if grep -aFq 'birth.backend' "${lib_kernel}"; then
+    echo "[error] default release lane is linked against perf-observe nyash_kernel artifacts: ${lib_kernel}" >&2
+    echo "[hint] rebuild plain release: bash tools/perf/build_perf_release.sh" >&2
+    return 1
+  fi
+
+  if grep -aFq 'perf_observe_from_owned' "${hako_bin}"; then
+    echo "[error] default release lane is using perf-observe hakorune binary: ${hako_bin}" >&2
+    echo "[hint] rebuild plain release: bash tools/perf/build_perf_release.sh" >&2
+    return 1
+  fi
+
+  if [[ ! -e "${sync_stamp}" || "${sync_stamp}" -ot "${lib_kernel}" || "${sync_stamp}" -ot "${hako_bin}" ]]; then
+    echo "[error] default release artifacts are out of sync; sync stamp is older than current release artifacts" >&2
+    echo "[hint] rerun: bash tools/perf/build_perf_release.sh" >&2
+    return 1
+  fi
+
+  return 0
+}
+
 perf_aot_assert_observe_release_alignment() {
   local root_dir=$1
   local hako_bin=$2
@@ -391,6 +434,10 @@ perf_emit_and_build_aot_exe() {
   local tmp_json
 
   perf_aot_reset_status
+  if ! perf_aot_assert_default_release_alignment "${root_dir}" "${hako_bin}"; then
+    perf_aot_set_status "skip" "default_release_out_of_sync" "contract"
+    return 1
+  fi
   if ! perf_aot_assert_observe_release_alignment "${root_dir}" "${hako_bin}"; then
     perf_aot_set_status "skip" "observe_release_out_of_sync" "contract"
     return 1

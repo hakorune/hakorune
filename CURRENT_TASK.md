@@ -259,8 +259,13 @@ Scope: repo root から current lane / next lane / restart read order に最短�
           - `objectize_stable_box_now_total / bytes`
           - `issue_fresh_handle_total`
         - observe lane contract lock:
-          - `NYASH_PERF_COUNTERS=1` / `NYASH_PERF_TRACE=1` now fail fast unless `target/release/.perf_observe_release_sync` is newer than both `target/release/libnyash_kernel.a` and `target/release/hakorune`
-          - canonical rebuild order is fixed in `tools/perf/build_perf_observe_release.sh`
+          - default perf AOT lane now also fails fast unless `target/release/.perf_release_sync` is newer than both `target/release/libnyash_kernel.a` and `target/release/hakorune`
+          - observe lane still requires `target/release/.perf_observe_release_sync`
+          - canonical rebuild orders are fixed in `tools/perf/build_perf_release.sh` and `tools/perf/build_perf_observe_release.sh`
+          - helper-local perf ranking must use the matching lane:
+            - plain release asm = cost ranking
+            - `perf-observe` = counter totals and symbol split
+            - do not promote a helper from observe annotate alone when the body is dominated by TLS counter work
 - `phase-157x` current rule:
   - observer is out-of-band only
   - default build compiles observer out
