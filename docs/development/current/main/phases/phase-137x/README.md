@@ -104,6 +104,9 @@
      - slot storage reads through `HandlePayload::StableBox(...)`
      - public registry APIs still return `Arc<dyn NyashBox>`
      - this does not change behavior yet; it only narrows the future widening point for `DeferredStableBox`
+     - single-handle string-only access is also separated now:
+       - `host_handles::with_str_handle(...)`
+       - `string_len_from_handle(...)` and `string_is_empty_from_handle(...)` consume that seam
    - current exact backend front is therefore:
      - `FreshHandle`
      - `MaterializeOwned`

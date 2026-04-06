@@ -227,6 +227,13 @@ impl Registry {
     }
 
     #[inline(always)]
+    fn with_str_handle<R>(&self, h: u64, f: impl FnOnce(&str) -> R) -> Option<R> {
+        let table = self.table.read();
+        let text = slot_str_ref(&table, h)?;
+        Some(f(text))
+    }
+
+    #[inline(always)]
     fn with_str3<R>(
         &self,
         a: u64,
@@ -318,6 +325,12 @@ pub fn get(h: u64) -> Option<Arc<dyn NyashBox>> {
 #[inline(always)]
 pub fn with_handle<R>(h: u64, f: impl FnOnce(Option<&Arc<dyn NyashBox>>) -> R) -> R {
     reg().with_handle(h, f)
+}
+
+/// HostHandle(u64) -> borrowed &str under one registry read lock.
+#[inline(always)]
+pub fn with_str_handle<R>(h: u64, f: impl FnOnce(&str) -> R) -> Option<R> {
+    reg().with_str_handle(h, f)
 }
 
 /// HostHandle(u64)x2 -> Arc<dyn NyashBox>x2.

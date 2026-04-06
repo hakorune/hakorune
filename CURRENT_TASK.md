@@ -198,6 +198,9 @@ Scope: repo root から current lane / next lane / restart read order に最短�
     - `host_handles` slot storage now reads through `HandlePayload::StableBox(...)`
     - public registry API is unchanged
     - this is not `DeferredStableBox` yet; it only fixes the narrow widening seam so future `DeferredString` does not have to start from raw `Arc<dyn NyashBox>` slots
+    - single-handle string-only access now also has its own seam:
+      - `host_handles::with_str_handle(...)`
+      - `string_len_from_handle(...)` and `string_is_empty_from_handle(...)` now read through that path instead of generic `with_handle(...)`
   - Birth / Placement counters now also exist for:
     - `ReturnHandle / BorrowView / FreezeOwned / FreshHandle / MaterializeOwned / StoreFromSource`
   - birth backend counters now also exist for:

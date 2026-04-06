@@ -44,9 +44,7 @@ pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
         trace_observer_resolution("observer", handle, "none", "invalid_handle", "");
         return None;
     }
-    let fast_len = handles::with_handle(handle as u64, |obj| {
-        obj.and_then(|boxed| boxed.as_ref().as_str_fast().map(|s| s.len() as i64))
-    });
+    let fast_len = handles::with_str_handle(handle as u64, |text| text.len() as i64);
     if fast_len.is_some() {
         observe::record_str_len_route_fast_str_hit();
         if observe::len_route_matches_latest_fresh_handle(handle) {
@@ -89,9 +87,7 @@ pub(crate) fn string_is_empty_from_handle(handle: i64) -> Option<bool> {
         trace_observer_resolution("observer", handle, "none", "invalid_handle", "");
         return None;
     }
-    let fast_empty = handles::with_handle(handle as u64, |obj| {
-        obj.and_then(|boxed| boxed.as_ref().as_str_fast().map(str::is_empty))
-    });
+    let fast_empty = handles::with_str_handle(handle as u64, str::is_empty);
     if fast_empty.is_some() {
         trace_observer_resolution(
             "observer",
