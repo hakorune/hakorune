@@ -66,6 +66,11 @@ Scope: repo root から current lane / next lane / restart read order に最短�
     - `source_kind_check`
     - `keep_source_arc`
     - `alias_update`
+  - close `TextSnapshot` keep for now:
+    - `kilo_micro_array_string_store: 178 ms`
+    - `kilo_micro_concat_hh_len: 65 ms`
+    - `kilo_kernel_small_hk: 1792 ms`
+    - exact improved but whole-kilo collapsed, so the behavior change is reverted
   - only remove generic object entry from the part that does not carry source-lifetime semantics
 - Exact focus:
   - `docs/development/current/main/phases/phase-137x/README.md`

@@ -283,6 +283,16 @@
        - current behavior still uses `StableBox(...)` only
        - this is still no-behavior-change
        - next structural cut can target source-lifetime keep without widening generic object payloads
+     - `TextSnapshot` keep retry truth:
+       - narrow retarget-only `TextSnapshot` keep improved exact fronts:
+         - `kilo_micro_array_string_store: 178 ms`
+         - `kilo_micro_concat_hh_len: 65 ms`
+       - but whole-kilo collapsed:
+         - `kilo_kernel_small_hk: 1792 ms`
+       - the behavior change is reverted
+       - current read:
+         - snapshot keep can win on the exact retarget micro
+         - but mixed generic consumers still force enough on-demand objectization to lose badly on whole-kilo
    - next observation order is fixed:
      1. split the `store.array.str -> with_handle(ArrayStoreStrSource)` object contract again before changing behavior
      2. keep borrowed alias string-read trimming closed; live-source fast read was not enough
