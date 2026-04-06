@@ -23,6 +23,12 @@ pub fn next_box_id() -> u64 {
     COUNTER.fetch_add(1, Ordering::Relaxed)
 }
 
+#[cfg(feature = "perf-observe")]
+#[inline(never)]
+pub fn perf_observe_next_box_id() -> u64 {
+    next_box_id()
+}
+
 /// 🔥 Phase 8.8: pack透明化システム - ビルトインBox判定リスト
 /// ユーザーは`pack`を一切意識せず、`from BuiltinBox()`で自動的に内部のpack機能が呼ばれる
 pub const BUILTIN_BOXES: &[&str] = &[
@@ -85,6 +91,15 @@ impl BoxBase {
         Self {
             id: next_box_id(),
             parent_type_id: None, // ビルトインBox: 継承なし
+        }
+    }
+
+    #[cfg(feature = "perf-observe")]
+    #[inline(never)]
+    pub fn perf_observe_new() -> Self {
+        Self {
+            id: perf_observe_next_box_id(),
+            parent_type_id: None,
         }
     }
 

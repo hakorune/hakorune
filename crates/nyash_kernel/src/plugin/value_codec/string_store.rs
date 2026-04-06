@@ -10,7 +10,7 @@ use std::sync::Arc;
 #[inline(never)]
 fn birth_string_box_from_owned(value: String) -> StringBox {
     crate::observe::record_birth_backend_string_box_ctor(value.len());
-    StringBox::new(value)
+    StringBox::perf_observe_from_owned(value)
 }
 
 #[cfg(not(feature = "perf-observe"))]

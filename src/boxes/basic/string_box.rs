@@ -24,6 +24,15 @@ impl StringBox {
         }
     }
 
+    #[cfg(feature = "perf-observe")]
+    #[inline(never)]
+    pub fn perf_observe_from_owned(value: String) -> Self {
+        Self {
+            value,
+            base: BoxBase::perf_observe_new(),
+        }
+    }
+
     #[inline(always)]
     pub fn empty() -> Self {
         Self::new("")

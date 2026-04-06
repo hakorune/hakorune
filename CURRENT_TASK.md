@@ -233,9 +233,18 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       3. `Arc` wrap is not the first standalone target
     - diagnostic feature propagation:
       - `perf-observe` now propagates into `nyash-rust`
-      - observe-build symbol table still does not expose standalone sampled functions for `StringBox::new`, `BoxBase::new`, or `next_box_id`
-      - only `next_box_id::COUNTER` is visible as a data symbol
-      - next deeper read therefore needs explicit diagnostic shims, not just `cfg_attr(..., inline(never))`
+      - explicit diagnostic shims now expose:
+        - `StringBox::perf_observe_from_owned`
+        - `BoxBase::perf_observe_new`
+        - `next_box_id`
+      - `kilo_micro_concat_birth` observe-build microasm now reads:
+        - `issue_string_handle_from_arc` about `27-30%`
+        - `next_box_id` about `27-30%`
+        - `StringBox::perf_observe_from_owned` about `12-14%`
+      - `next_box_id` annotate is dominated by `lock xadd`
+      - next deeper trim should therefore target:
+        1. `next_box_id`
+        2. host handle registry issue
 - `phase-157x` current rule:
   - observer is out-of-band only
   - default build compiles observer out

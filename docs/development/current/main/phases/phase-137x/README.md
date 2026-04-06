@@ -104,12 +104,18 @@
      - host handle registry issue
    - `Arc` wrap is visible in counters but not the first standalone perf target
    - diagnostic `perf-observe` propagation into `nyash-rust` is now in place
-   - even with observe-build `inline(never)` guards, symbol-table read still does not surface standalone sampled functions for:
-     - `StringBox::new`
-     - `BoxBase::new`
+   - explicit diagnostic shims now expose:
+     - `StringBox::perf_observe_from_owned`
+     - `BoxBase::perf_observe_new`
      - `next_box_id`
-   - only `next_box_id::COUNTER` is visible as a data symbol
-   - next deeper source-backed split therefore requires explicit diagnostic shims, not only noinline guards
+   - `kilo_micro_concat_birth` observe-build microasm now reads:
+     - `issue_string_handle_from_arc`: about `27-30%`
+     - `next_box_id`: about `27-30%`
+     - `StringBox::perf_observe_from_owned`: about `12-14%`
+   - `next_box_id` annotate is dominated by `lock xadd`
+   - next deeper trim should therefore target:
+     1. `next_box_id`
+     2. host handle registry issue
    - current microasm read:
      - `string_concat_hh_export_impl`: `54.04%`
      - `string_len_from_handle`: `21.37%`
