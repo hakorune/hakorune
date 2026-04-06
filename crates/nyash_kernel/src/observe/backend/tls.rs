@@ -88,6 +88,9 @@ struct GlobalCounters {
     borrowed_alias_to_string_box: AtomicU64,
     borrowed_alias_equals: AtomicU64,
     borrowed_alias_clone_box: AtomicU64,
+    borrowed_alias_to_string_box_latest_fresh: AtomicU64,
+    borrowed_alias_equals_latest_fresh: AtomicU64,
+    borrowed_alias_clone_box_latest_fresh: AtomicU64,
     borrowed_alias_borrowed_source_fast: AtomicU64,
     borrowed_alias_as_str_fast: AtomicU64,
     borrowed_alias_as_str_fast_live_source: AtomicU64,
@@ -181,6 +184,9 @@ impl GlobalCounters {
             borrowed_alias_to_string_box: AtomicU64::new(0),
             borrowed_alias_equals: AtomicU64::new(0),
             borrowed_alias_clone_box: AtomicU64::new(0),
+            borrowed_alias_to_string_box_latest_fresh: AtomicU64::new(0),
+            borrowed_alias_equals_latest_fresh: AtomicU64::new(0),
+            borrowed_alias_clone_box_latest_fresh: AtomicU64::new(0),
             borrowed_alias_borrowed_source_fast: AtomicU64::new(0),
             borrowed_alias_as_str_fast: AtomicU64::new(0),
             borrowed_alias_as_str_fast_live_source: AtomicU64::new(0),
@@ -276,6 +282,9 @@ struct ThreadCounters {
     borrowed_alias_to_string_box: Cell<u64>,
     borrowed_alias_equals: Cell<u64>,
     borrowed_alias_clone_box: Cell<u64>,
+    borrowed_alias_to_string_box_latest_fresh: Cell<u64>,
+    borrowed_alias_equals_latest_fresh: Cell<u64>,
+    borrowed_alias_clone_box_latest_fresh: Cell<u64>,
     borrowed_alias_borrowed_source_fast: Cell<u64>,
     borrowed_alias_as_str_fast: Cell<u64>,
     borrowed_alias_as_str_fast_live_source: Cell<u64>,
@@ -370,6 +379,9 @@ impl ThreadCounters {
             borrowed_alias_to_string_box: Cell::new(0),
             borrowed_alias_equals: Cell::new(0),
             borrowed_alias_clone_box: Cell::new(0),
+            borrowed_alias_to_string_box_latest_fresh: Cell::new(0),
+            borrowed_alias_equals_latest_fresh: Cell::new(0),
+            borrowed_alias_clone_box_latest_fresh: Cell::new(0),
             borrowed_alias_borrowed_source_fast: Cell::new(0),
             borrowed_alias_as_str_fast: Cell::new(0),
             borrowed_alias_as_str_fast_live_source: Cell::new(0),
@@ -755,6 +767,21 @@ impl ThreadCounters {
     }
 
     #[inline(always)]
+    fn borrowed_alias_to_string_box_latest_fresh(&self) {
+        Self::bump(&self.borrowed_alias_to_string_box_latest_fresh);
+    }
+
+    #[inline(always)]
+    fn borrowed_alias_equals_latest_fresh(&self) {
+        Self::bump(&self.borrowed_alias_equals_latest_fresh);
+    }
+
+    #[inline(always)]
+    fn borrowed_alias_clone_box_latest_fresh(&self) {
+        Self::bump(&self.borrowed_alias_clone_box_latest_fresh);
+    }
+
+    #[inline(always)]
     fn borrowed_alias_borrowed_source_fast(&self) {
         Self::bump(&self.borrowed_alias_borrowed_source_fast);
     }
@@ -1109,6 +1136,18 @@ impl ThreadCounters {
         flush_cell(
             &self.borrowed_alias_clone_box,
             &GLOBAL.borrowed_alias_clone_box,
+        );
+        flush_cell(
+            &self.borrowed_alias_to_string_box_latest_fresh,
+            &GLOBAL.borrowed_alias_to_string_box_latest_fresh,
+        );
+        flush_cell(
+            &self.borrowed_alias_equals_latest_fresh,
+            &GLOBAL.borrowed_alias_equals_latest_fresh,
+        );
+        flush_cell(
+            &self.borrowed_alias_clone_box_latest_fresh,
+            &GLOBAL.borrowed_alias_clone_box_latest_fresh,
         );
         flush_cell(
             &self.borrowed_alias_borrowed_source_fast,
@@ -1528,6 +1567,21 @@ pub(crate) fn borrowed_alias_clone_box() {
 }
 
 #[inline(always)]
+pub(crate) fn borrowed_alias_to_string_box_latest_fresh() {
+    with_tls(ThreadCounters::borrowed_alias_to_string_box_latest_fresh);
+}
+
+#[inline(always)]
+pub(crate) fn borrowed_alias_equals_latest_fresh() {
+    with_tls(ThreadCounters::borrowed_alias_equals_latest_fresh);
+}
+
+#[inline(always)]
+pub(crate) fn borrowed_alias_clone_box_latest_fresh() {
+    with_tls(ThreadCounters::borrowed_alias_clone_box_latest_fresh);
+}
+
+#[inline(always)]
 pub(crate) fn borrowed_alias_borrowed_source_fast() {
     with_tls(ThreadCounters::borrowed_alias_borrowed_source_fast);
 }
@@ -1596,7 +1650,7 @@ fn flush_current_thread() {
     TLS_COUNTERS.with(ThreadCounters::flush_into_global);
 }
 
-pub(crate) fn snapshot() -> [u64; 88] {
+pub(crate) fn snapshot() -> [u64; 91] {
     flush_current_thread();
     [
         GLOBAL.store_array_str_total.load(Ordering::Relaxed),
@@ -1683,6 +1737,15 @@ pub(crate) fn snapshot() -> [u64; 88] {
         GLOBAL.borrowed_alias_to_string_box.load(Ordering::Relaxed),
         GLOBAL.borrowed_alias_equals.load(Ordering::Relaxed),
         GLOBAL.borrowed_alias_clone_box.load(Ordering::Relaxed),
+        GLOBAL
+            .borrowed_alias_to_string_box_latest_fresh
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .borrowed_alias_equals_latest_fresh
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .borrowed_alias_clone_box_latest_fresh
+            .load(Ordering::Relaxed),
         GLOBAL
             .borrowed_alias_borrowed_source_fast
             .load(Ordering::Relaxed),

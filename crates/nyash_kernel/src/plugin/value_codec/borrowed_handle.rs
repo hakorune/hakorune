@@ -90,6 +90,11 @@ impl BorrowedHandleBox {
     pub(crate) fn stable_box_ref(&self) -> &Arc<dyn NyashBox> {
         self.keep.stable_box_ref()
     }
+
+    #[inline(always)]
+    fn source_is_latest_fresh(&self) -> bool {
+        self.source_handle > 0 && observe::len_route_matches_latest_fresh_handle(self.source_handle)
+    }
 }
 
 impl BoxCore for BorrowedHandleBox {
@@ -117,11 +122,17 @@ impl BoxCore for BorrowedHandleBox {
 impl NyashBox for BorrowedHandleBox {
     fn to_string_box(&self) -> StringBox {
         observe::record_borrowed_alias_to_string_box();
+        if self.source_is_latest_fresh() {
+            observe::record_borrowed_alias_to_string_box_latest_fresh();
+        }
         self.keep.to_string_box()
     }
 
     fn equals(&self, other: &dyn NyashBox) -> BoolBox {
         observe::record_borrowed_alias_equals();
+        if self.source_is_latest_fresh() {
+            observe::record_borrowed_alias_equals_latest_fresh();
+        }
         if let Some(other_alias) = other.as_any().downcast_ref::<BorrowedHandleBox>() {
             return self
                 .keep
@@ -138,6 +149,9 @@ impl NyashBox for BorrowedHandleBox {
 
     fn clone_box(&self) -> Box<dyn NyashBox> {
         observe::record_borrowed_alias_clone_box();
+        if self.source_is_latest_fresh() {
+            observe::record_borrowed_alias_clone_box_latest_fresh();
+        }
         Box::new(Self::new(
             self.keep.stable_box_ref().clone(),
             self.source_handle,
@@ -258,6 +272,22 @@ pub(crate) fn keep_borrowed_string_slot_source_arc(
 }
 
 #[inline(always)]
+pub(crate) fn keep_borrowed_string_slot_source_obj(
+    alias: &mut BorrowedHandleBox,
+    source_obj: Arc<dyn NyashBox>,
+) {
+    observe::record_store_array_str_reason_retarget_keep_source_arc();
+    if observe::enabled() {
+        if Arc::ptr_eq(alias.keep.stable_box_ref(), &source_obj) {
+            observe::record_store_array_str_reason_retarget_keep_source_arc_ptr_eq_hit();
+        } else {
+            observe::record_store_array_str_reason_retarget_keep_source_arc_ptr_eq_miss();
+        }
+    }
+    alias.keep.replace_stable_box(source_obj);
+}
+
+#[inline(always)]
 pub(crate) fn update_borrowed_string_slot_alias(
     alias: &mut BorrowedHandleBox,
     source_handle: i64,
@@ -266,4 +296,22 @@ pub(crate) fn update_borrowed_string_slot_alias(
     observe::record_store_array_str_reason_retarget_alias_update();
     alias.source_handle = source_handle;
     alias.source_drop_epoch = source_drop_epoch;
+}
+
+#[inline(always)]
+pub(crate) fn try_retarget_borrowed_string_slot_take_source(
+    slot: &mut Box<dyn NyashBox>,
+    source_handle: i64,
+    source_obj: Arc<dyn NyashBox>,
+    source_drop_epoch: u64,
+) -> Result<(), Arc<dyn NyashBox>> {
+    if source_handle <= 0 {
+        return Err(source_obj);
+    }
+    let Some(alias) = slot.as_any_mut().downcast_mut::<BorrowedHandleBox>() else {
+        return Err(source_obj);
+    };
+    keep_borrowed_string_slot_source_obj(alias, source_obj);
+    update_borrowed_string_slot_alias(alias, source_handle, source_drop_epoch);
+    Ok(())
 }

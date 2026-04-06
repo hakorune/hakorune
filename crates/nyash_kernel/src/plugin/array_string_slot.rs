@@ -2,7 +2,7 @@ use super::array_guard::valid_handle_idx;
 use super::handle_cache::{cache_probe_kind, CacheProbeKind as HandleCacheProbeKind};
 use super::value_codec::{
     maybe_store_string_box_from_verified_source, with_array_store_str_source, ArrayStoreStrSource,
-    BorrowedHandleBox, StringHandleSourceKind, try_retarget_borrowed_string_slot_verified,
+    BorrowedHandleBox, StringHandleSourceKind, try_retarget_borrowed_string_slot_take_source,
 };
 use crate::observe::{self, CacheProbeKind as ObserveCacheProbeKind};
 use crate::exports::string_view::resolve_string_span_from_handle;
@@ -278,12 +278,13 @@ fn execute_store_array_str_slot(
     items: &mut Vec<Box<dyn nyash_rust::box_trait::NyashBox>>,
     idx: usize,
     value_h: i64,
-    source: &ArrayStoreStrSource,
+    source: ArrayStoreStrSource,
     drop_epoch: u64,
 ) -> i64 {
     if idx > items.len() {
         return 0;
     }
+    let mut source = source;
     let source_obj = source.object_ref();
     if observe::enabled() {
         if idx < items.len() {
@@ -315,22 +316,28 @@ fn execute_store_array_str_slot(
     plan.record();
     if idx < items.len() {
         if plan.can_retarget_alias() {
-            if let Some(value_obj) = source_obj {
-                if try_retarget_borrowed_string_slot_verified(
+            if let ArrayStoreStrSource::StringLike(source_obj) = source {
+                match try_retarget_borrowed_string_slot_take_source(
                     &mut items[idx],
                     value_h,
-                    value_obj,
+                    source_obj,
                     drop_epoch,
                 ) {
-                    observe::record_store_array_str_retarget_hit();
-                    if plan.latest_fresh_source {
-                        observe::record_store_array_str_latest_fresh_retarget_hit();
+                    Ok(()) => {
+                        observe::record_store_array_str_retarget_hit();
+                        if plan.latest_fresh_source {
+                            observe::record_store_array_str_latest_fresh_retarget_hit();
+                        }
+                        return 1;
                     }
-                    return 1;
+                    Err(source_obj) => {
+                        source = ArrayStoreStrSource::StringLike(source_obj);
+                    }
                 }
             }
         }
     }
+    let source_obj = source.object_ref();
     if plan.source_is_string {
         observe::record_store_array_str_source_store();
         if plan.latest_fresh_source {
@@ -372,7 +379,7 @@ fn execute_store_array_str_contract(handle: i64, idx: i64, value_h: i64) -> i64 
         let idx = idx as usize;
         let source = with_array_store_str_source(value_h, |source| source);
         arr.with_items_write(|items| {
-            execute_store_array_str_slot(items, idx, value_h, &source, drop_epoch)
+            execute_store_array_str_slot(items, idx, value_h, source, drop_epoch)
         })
     })
     .unwrap_or(0)

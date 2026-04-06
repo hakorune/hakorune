@@ -44,10 +44,10 @@
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
   - `kilo_micro_concat_const_suffix`: `c_ms=3 / ny_aot_ms=84`
-  - `kilo_micro_concat_hh_len`: `c_ms=3 / ny_aot_ms=57`
+  - `kilo_micro_concat_hh_len`: `c_ms=4 / ny_aot_ms=65`
   - `kilo_micro_concat_birth`: `c_ms=6 / ny_aot_ms=47`
-  - `kilo_micro_array_string_store`: `c_ms=10 / ny_aot_ms=181`
-  - whole-kilo recheck after array-cache epoch pass-through: `c_ms=81 / ny_aot_ms=741`
+  - `kilo_micro_array_string_store`: `c_ms=10 / ny_aot_ms=178`
+  - whole-kilo recheck after array-cache epoch pass-through: `c_ms=81 / ny_aot_ms=740`
 - latest bundle read:
   - string contracts remain `keep_transient -> fresh_handle` for non-empty const concat/insert
   - `20260406-024104` still shows `crates/nyash_kernel/src/exports/string_helpers.rs::concat_const_suffix_fallback` as the top explicit hot symbol (`11.70%`)
@@ -206,6 +206,11 @@
        - `BorrowedHandleBox::as_str_fast()` stays entirely on the live-source side in whole-kilo
        - `array_string_len_by_index(...)` / `array_string_indexof_by_index(...)` are not the 540k latest-fresh culprit
        - the remaining stable object pressure stays on `store.array.str -> with_handle(ArrayStoreStrSource)` itself, not alias runtime encode
+     - full object API demand also stays closed on the current culprit:
+       - `borrowed.alias.to_string_box_latest_fresh=0`
+       - `borrowed.alias.equals_latest_fresh=0`
+       - `borrowed.alias.clone_box_latest_fresh=0`
+       - current hot path is not using `BorrowedHandleBox` full stable-object APIs at all
      - landed structural slice:
        - `ArrayStoreStrSource` now owns the source `Arc`
        - `with_array_store_str_source(...)` completes host-handle source read before `arr.with_items_write(...)`
@@ -330,6 +335,13 @@
        - current read:
          - snapshot keep can win on the exact retarget micro
          - but mixed generic consumers still force enough on-demand objectization to lose badly on whole-kilo
+     - latest landed retarget success slice:
+       - move source `Arc` into alias keep on successful `RetargetAlias`
+       - this removes one extra clone from the hot retarget path without widening host-handle payloads
+       - 3-run plain release:
+         - `kilo_micro_array_string_store: 178 ms`
+         - `kilo_micro_concat_hh_len: 65 ms`
+         - `kilo_kernel_small_hk: 740 ms`
    - next observation order is fixed:
      1. split the `store.array.str -> with_handle(ArrayStoreStrSource)` object contract again before changing behavior
      2. keep borrowed alias string-read trimming closed; live-source fast read was not enough

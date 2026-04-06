@@ -128,6 +128,10 @@ pub(crate) const STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ANY_INDEX_LATEST_FR
 pub(crate) const BORROWED_ALIAS_TO_STRING_BOX: &str = "to_string_box";
 pub(crate) const BORROWED_ALIAS_EQUALS: &str = "equals";
 pub(crate) const BORROWED_ALIAS_CLONE_BOX: &str = "clone_box";
+pub(crate) const BORROWED_ALIAS_TO_STRING_BOX_LATEST_FRESH: &str =
+    "to_string_box_latest_fresh";
+pub(crate) const BORROWED_ALIAS_EQUALS_LATEST_FRESH: &str = "equals_latest_fresh";
+pub(crate) const BORROWED_ALIAS_CLONE_BOX_LATEST_FRESH: &str = "clone_box_latest_fresh";
 pub(crate) const BORROWED_ALIAS_BORROWED_SOURCE_FAST: &str = "borrowed_source_fast";
 pub(crate) const BORROWED_ALIAS_AS_STR_FAST: &str = "as_str_fast";
 pub(crate) const BORROWED_ALIAS_AS_STR_FAST_LIVE_SOURCE: &str = "as_str_fast_live_source";
