@@ -20,6 +20,27 @@ thread_local! {
     static ARRAY_STRING_INDEXOF_NEEDLE_CACHE: RefCell<Option<CachedNeedle>> = const { RefCell::new(None) };
 }
 
+#[inline(always)]
+fn record_borrowed_alias_string_read_latest_fresh(
+    item: &dyn nyash_rust::box_trait::NyashBox,
+    indexof: bool,
+) {
+    if !observe::enabled() {
+        return;
+    }
+    let Some((source_handle, _)) = item.borrowed_handle_source_fast() else {
+        return;
+    };
+    if !observe::len_route_matches_latest_fresh_handle(source_handle) {
+        return;
+    }
+    if indexof {
+        observe::record_borrowed_alias_array_indexof_by_index_latest_fresh();
+    } else {
+        observe::record_borrowed_alias_array_len_by_index_latest_fresh();
+    }
+}
+
 pub(super) fn array_string_len_by_index(handle: i64, idx: i64) -> i64 {
     if !valid_handle_idx(handle, idx) {
         return 0;
@@ -30,6 +51,7 @@ pub(super) fn array_string_len_by_index(handle: i64, idx: i64) -> i64 {
             let Some(item) = items.get(idx) else {
                 return 0;
             };
+            record_borrowed_alias_string_read_latest_fresh(item.as_ref(), false);
             item.as_str_fast().map(|s| s.len() as i64).unwrap_or(0)
         })
     })
@@ -114,7 +136,10 @@ pub(super) fn array_string_indexof_by_index(handle: i64, idx: i64, needle_h: i64
             arr.with_items_read(|items| {
                 items
                     .get(idx)
-                    .and_then(|item| item.as_str_fast())
+                    .and_then(|item| {
+                        record_borrowed_alias_string_read_latest_fresh(item.as_ref(), true);
+                        item.as_str_fast()
+                    })
                     .map(|hay| string_indexof_fast_str(hay, needle))
                     .unwrap_or(-1)
             })

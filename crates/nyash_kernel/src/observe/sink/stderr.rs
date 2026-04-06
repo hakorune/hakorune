@@ -166,7 +166,7 @@ pub(crate) fn emit_summary_to_stderr() {
         stable_box_demand[11],
     );
     eprintln!(
-        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
+        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
         contract::BORROWED_ALIAS,
         contract::BORROWED_ALIAS_TO_STRING_BOX,
         snapshot[61],
@@ -178,11 +178,15 @@ pub(crate) fn emit_summary_to_stderr() {
         snapshot[64],
         contract::BORROWED_ALIAS_AS_STR_FAST,
         snapshot[65],
-        contract::BORROWED_ALIAS_ENCODE_EPOCH_HIT,
+        contract::BORROWED_ALIAS_ARRAY_LEN_BY_INDEX_LATEST_FRESH,
         snapshot[66],
-        contract::BORROWED_ALIAS_ENCODE_PTR_EQ_HIT,
+        contract::BORROWED_ALIAS_ARRAY_INDEXOF_BY_INDEX_LATEST_FRESH,
         snapshot[67],
-        contract::BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC,
+        contract::BORROWED_ALIAS_ENCODE_EPOCH_HIT,
         snapshot[68],
+        contract::BORROWED_ALIAS_ENCODE_PTR_EQ_HIT,
+        snapshot[69],
+        contract::BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC,
+        snapshot[70],
     );
 }

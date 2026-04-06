@@ -77,6 +77,8 @@ struct GlobalCounters {
     borrowed_alias_clone_box: AtomicU64,
     borrowed_alias_borrowed_source_fast: AtomicU64,
     borrowed_alias_as_str_fast: AtomicU64,
+    borrowed_alias_array_len_by_index_latest_fresh: AtomicU64,
+    borrowed_alias_array_indexof_by_index_latest_fresh: AtomicU64,
     borrowed_alias_encode_epoch_hit: AtomicU64,
     borrowed_alias_encode_ptr_eq_hit: AtomicU64,
     borrowed_alias_encode_to_handle_arc: AtomicU64,
@@ -151,6 +153,8 @@ impl GlobalCounters {
             borrowed_alias_clone_box: AtomicU64::new(0),
             borrowed_alias_borrowed_source_fast: AtomicU64::new(0),
             borrowed_alias_as_str_fast: AtomicU64::new(0),
+            borrowed_alias_array_len_by_index_latest_fresh: AtomicU64::new(0),
+            borrowed_alias_array_indexof_by_index_latest_fresh: AtomicU64::new(0),
             borrowed_alias_encode_epoch_hit: AtomicU64::new(0),
             borrowed_alias_encode_ptr_eq_hit: AtomicU64::new(0),
             borrowed_alias_encode_to_handle_arc: AtomicU64::new(0),
@@ -227,6 +231,8 @@ struct ThreadCounters {
     borrowed_alias_clone_box: Cell<u64>,
     borrowed_alias_borrowed_source_fast: Cell<u64>,
     borrowed_alias_as_str_fast: Cell<u64>,
+    borrowed_alias_array_len_by_index_latest_fresh: Cell<u64>,
+    borrowed_alias_array_indexof_by_index_latest_fresh: Cell<u64>,
     borrowed_alias_encode_epoch_hit: Cell<u64>,
     borrowed_alias_encode_ptr_eq_hit: Cell<u64>,
     borrowed_alias_encode_to_handle_arc: Cell<u64>,
@@ -302,6 +308,8 @@ impl ThreadCounters {
             borrowed_alias_clone_box: Cell::new(0),
             borrowed_alias_borrowed_source_fast: Cell::new(0),
             borrowed_alias_as_str_fast: Cell::new(0),
+            borrowed_alias_array_len_by_index_latest_fresh: Cell::new(0),
+            borrowed_alias_array_indexof_by_index_latest_fresh: Cell::new(0),
             borrowed_alias_encode_epoch_hit: Cell::new(0),
             borrowed_alias_encode_ptr_eq_hit: Cell::new(0),
             borrowed_alias_encode_to_handle_arc: Cell::new(0),
@@ -624,6 +632,16 @@ impl ThreadCounters {
     }
 
     #[inline(always)]
+    fn borrowed_alias_array_len_by_index_latest_fresh(&self) {
+        Self::bump(&self.borrowed_alias_array_len_by_index_latest_fresh);
+    }
+
+    #[inline(always)]
+    fn borrowed_alias_array_indexof_by_index_latest_fresh(&self) {
+        Self::bump(&self.borrowed_alias_array_indexof_by_index_latest_fresh);
+    }
+
+    #[inline(always)]
     fn borrowed_alias_encode_epoch_hit(&self) {
         Self::bump(&self.borrowed_alias_encode_epoch_hit);
     }
@@ -894,6 +912,14 @@ impl ThreadCounters {
         flush_cell(
             &self.borrowed_alias_as_str_fast,
             &GLOBAL.borrowed_alias_as_str_fast,
+        );
+        flush_cell(
+            &self.borrowed_alias_array_len_by_index_latest_fresh,
+            &GLOBAL.borrowed_alias_array_len_by_index_latest_fresh,
+        );
+        flush_cell(
+            &self.borrowed_alias_array_indexof_by_index_latest_fresh,
+            &GLOBAL.borrowed_alias_array_indexof_by_index_latest_fresh,
         );
         flush_cell(
             &self.borrowed_alias_encode_epoch_hit,
@@ -1226,6 +1252,16 @@ pub(crate) fn borrowed_alias_as_str_fast() {
 }
 
 #[inline(always)]
+pub(crate) fn borrowed_alias_array_len_by_index_latest_fresh() {
+    with_tls(ThreadCounters::borrowed_alias_array_len_by_index_latest_fresh);
+}
+
+#[inline(always)]
+pub(crate) fn borrowed_alias_array_indexof_by_index_latest_fresh() {
+    with_tls(ThreadCounters::borrowed_alias_array_indexof_by_index_latest_fresh);
+}
+
+#[inline(always)]
 pub(crate) fn borrowed_alias_encode_epoch_hit() {
     with_tls(ThreadCounters::borrowed_alias_encode_epoch_hit);
 }
@@ -1254,7 +1290,7 @@ fn flush_current_thread() {
     TLS_COUNTERS.with(ThreadCounters::flush_into_global);
 }
 
-pub(crate) fn snapshot() -> [u64; 69] {
+pub(crate) fn snapshot() -> [u64; 71] {
     flush_current_thread();
     [
         GLOBAL.store_array_str_total.load(Ordering::Relaxed),
@@ -1345,6 +1381,12 @@ pub(crate) fn snapshot() -> [u64; 69] {
             .borrowed_alias_borrowed_source_fast
             .load(Ordering::Relaxed),
         GLOBAL.borrowed_alias_as_str_fast.load(Ordering::Relaxed),
+        GLOBAL
+            .borrowed_alias_array_len_by_index_latest_fresh
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .borrowed_alias_array_indexof_by_index_latest_fresh
+            .load(Ordering::Relaxed),
         GLOBAL.borrowed_alias_encode_epoch_hit.load(Ordering::Relaxed),
         GLOBAL.borrowed_alias_encode_ptr_eq_hit.load(Ordering::Relaxed),
         GLOBAL.borrowed_alias_encode_to_handle_arc.load(Ordering::Relaxed),

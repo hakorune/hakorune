@@ -261,12 +261,15 @@ Scope: repo root から current lane / next lane / restart read order に最短�
     - borrowed alias whole-kilo truth:
       - `borrowed.alias.borrowed_source_fast=540000`
       - `borrowed.alias.as_str_fast=540064`
+      - `borrowed.alias.array_len_by_index_latest_fresh=1`
+      - `borrowed.alias.array_indexof_by_index_latest_fresh=938`
       - `borrowed.alias.encode_epoch_hit=0`
       - `borrowed.alias.encode_ptr_eq_hit=0`
       - `borrowed.alias.encode_to_handle_arc=0`
     - current read:
       - retargeted latest-fresh aliases are not escaping through encoder fallback
-      - the remaining stable object pressure is alias string-read side, not alias runtime encode
+      - `array_string_len_by_index(...)` / `array_string_indexof_by_index(...)` are not the 540k latest-fresh culprit
+      - the remaining stable object pressure stays on `store.array.str -> with_handle(ArrayStoreStrSource)` itself, not alias runtime encode
     - current first widening target is:
       - `store.array.str` source read under `array_string_slot.rs`
     - attempted widening truth:
@@ -282,7 +285,7 @@ Scope: repo root から current lane / next lane / restart read order に最短�
         - `kilo_kernel_small_hk: 746 ms`
       - keep only the counter truth; behavior change is reverted
   - immediate next observation order is fixed:
-    1. widen or bypass the alias string-read side that still requires stable object access after `retarget_hit`
+    1. split the `store.array.str -> with_handle(ArrayStoreStrSource)` object contract again before changing behavior
     2. only then retry delayed `StableBoxNow`
     3. leave encoder-side trimming closed until borrowed alias counters move
   - `DeferredString` experiment truth:
