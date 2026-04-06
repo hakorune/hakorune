@@ -278,7 +278,7 @@ fn execute_store_array_str_slot(
     items: &mut Vec<Box<dyn nyash_rust::box_trait::NyashBox>>,
     idx: usize,
     value_h: i64,
-    source: ArrayStoreStrSource<'_>,
+    source: &ArrayStoreStrSource,
     drop_epoch: u64,
 ) -> i64 {
     if idx > items.len() {
@@ -370,10 +370,9 @@ fn execute_store_array_str_contract(handle: i64, idx: i64, value_h: i64) -> i64 
     }
     super::array_handle_cache::with_array_box_at_epoch(handle, drop_epoch, |arr| {
         let idx = idx as usize;
+        let source = with_array_store_str_source(value_h, |source| source);
         arr.with_items_write(|items| {
-            with_array_store_str_source(value_h, |source| {
-                execute_store_array_str_slot(items, idx, value_h, source, drop_epoch)
-            })
+            execute_store_array_str_slot(items, idx, value_h, &source, drop_epoch)
         })
     })
     .unwrap_or(0)

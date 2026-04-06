@@ -203,6 +203,17 @@
        - `BorrowedHandleBox::as_str_fast()` stays entirely on the live-source side in whole-kilo
        - `array_string_len_by_index(...)` / `array_string_indexof_by_index(...)` are not the 540k latest-fresh culprit
        - the remaining stable object pressure stays on `store.array.str -> with_handle(ArrayStoreStrSource)` itself, not alias runtime encode
+     - landed structural slice:
+       - `ArrayStoreStrSource` now owns the source `Arc`
+       - `with_array_store_str_source(...)` completes host-handle source read before `arr.with_items_write(...)`
+       - `store.array.str` no longer nests host-handle read-lock across planner/retarget execution
+     - current 3-run plain-release recheck on the landed slice:
+       - `kilo_micro_array_string_store: 189 ms`
+       - `kilo_micro_concat_hh_len: 67 ms`
+       - `kilo_kernel_small_hk: 745 ms`
+     - current read:
+       - this is not a large exact-front win
+       - but it is a cleaner source-contract split and keeps whole-kilo near the good end of the current band
        - planner says this hot path is pure `RetargetAlias`
        - the expensive escalation therefore happens before action selection, not because planner asked for `NeedStableObject`
        - but current `retarget` still needs source-object keep:

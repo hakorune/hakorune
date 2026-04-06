@@ -13,16 +13,16 @@ pub(crate) enum StringHandleSourceKind {
     Missing,
 }
 
-#[derive(Clone, Copy)]
-pub(crate) enum ArrayStoreStrSource<'a> {
-    StringLike(&'a Arc<dyn NyashBox>),
-    OtherObject(&'a Arc<dyn NyashBox>),
+#[derive(Clone)]
+pub(crate) enum ArrayStoreStrSource {
+    StringLike(Arc<dyn NyashBox>),
+    OtherObject(Arc<dyn NyashBox>),
     Missing,
 }
 
-impl<'a> ArrayStoreStrSource<'a> {
+impl ArrayStoreStrSource {
     #[inline(always)]
-    pub(crate) fn object_ref(self) -> Option<&'a Arc<dyn NyashBox>> {
+    pub(crate) fn object_ref(&self) -> Option<&Arc<dyn NyashBox>> {
         match self {
             Self::StringLike(obj) | Self::OtherObject(obj) => Some(obj),
             Self::Missing => None,
@@ -30,7 +30,7 @@ impl<'a> ArrayStoreStrSource<'a> {
     }
 
     #[inline(always)]
-    pub(crate) fn source_kind(self) -> StringHandleSourceKind {
+    pub(crate) fn source_kind(&self) -> StringHandleSourceKind {
         match self {
             Self::StringLike(_) => StringHandleSourceKind::StringLike,
             Self::OtherObject(_) => StringHandleSourceKind::OtherObject,
@@ -202,18 +202,18 @@ pub(crate) fn classify_string_handle_source(
 #[inline(always)]
 pub(crate) fn with_array_store_str_source<R>(
     source_handle: i64,
-    f: impl FnOnce(ArrayStoreStrSource<'_>) -> R,
+    f: impl FnOnce(ArrayStoreStrSource) -> R,
 ) -> R {
     handles::with_handle_caller(
         source_handle as u64,
         handles::PerfObserveObjectWithHandleCaller::ArrayStoreStrSource,
         |source_obj| {
             let source = match classify_string_handle_source(source_obj) {
-                StringHandleSourceKind::StringLike => {
-                    ArrayStoreStrSource::StringLike(source_obj.expect("string-like source object"))
-                }
+                StringHandleSourceKind::StringLike => ArrayStoreStrSource::StringLike(
+                    source_obj.expect("string-like source object").clone(),
+                ),
                 StringHandleSourceKind::OtherObject => {
-                    ArrayStoreStrSource::OtherObject(source_obj.expect("object source"))
+                    ArrayStoreStrSource::OtherObject(source_obj.expect("object source").clone())
                 }
                 StringHandleSourceKind::Missing => ArrayStoreStrSource::Missing,
             };
