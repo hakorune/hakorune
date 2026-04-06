@@ -357,12 +357,20 @@ Scope: repo root から current lane / next lane / restart read order に最短�
     - typed `ArrayStoreStrSource` helper is now landed:
       - `with_array_store_str_source(...)` wraps `with_handle_caller(ArrayStoreStrSource)`
       - `store.array.str` now consumes a typed source contract instead of open-coding generic object entry at the executor callsite
-      - this is still no-behavior-change; the next actual bypass can stay inside the typed helper instead of widening Rust leaf callsites again
+      - this remains the landed no-behavior seam
+    - typed helper internal bypass truth:
+      - trying `with_str_handle(...)` first inside `with_array_store_str_source(...)` regressed exact and whole
+      - plain release 3-run:
+        - `kilo_micro_array_string_store: 190 ms`
+        - `kilo_micro_concat_hh_len: 67 ms`
+        - `kilo_kernel_small_hk: 783 ms`
+      - the behavior change is reverted
   - immediate next observation order is fixed:
     1. split the `store.array.str -> with_handle(ArrayStoreStrSource)` object contract again before changing behavior
     2. keep borrowed alias string-read trimming closed; live-source fast read was not enough
     3. keep typed `StringBox` payload widening closed at the host-handle layer
-    4. only then retry delayed `StableBoxNow`
+    4. do not add more typed-helper transport; move the next cut to the contract side
+    5. only then retry delayed `StableBoxNow`
   - `DeferredString` experiment truth:
     - exact micro improved:
       - `kilo_micro_concat_hh_len`: `57 -> 51 ms`
