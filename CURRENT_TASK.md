@@ -231,6 +231,11 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       1. `StringBox` ctor side inside `birth_string_box_from_owned(...)`
       2. host handle registry issue
       3. `Arc` wrap is not the first standalone target
+    - diagnostic feature propagation:
+      - `perf-observe` now propagates into `nyash-rust`
+      - observe-build symbol table still does not expose standalone sampled functions for `StringBox::new`, `BoxBase::new`, or `next_box_id`
+      - only `next_box_id::COUNTER` is visible as a data symbol
+      - next deeper read therefore needs explicit diagnostic shims, not just `cfg_attr(..., inline(never))`
 - `phase-157x` current rule:
   - observer is out-of-band only
   - default build compiles observer out

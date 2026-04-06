@@ -5,7 +5,7 @@ edition = "2021"
 
 [features]
 default = []
-perf-observe = []
+perf-observe = ["nyash-rust/perf-observe"]
 perf-trace = []
 
 [lib]

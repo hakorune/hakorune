@@ -15,7 +15,8 @@ pub struct StringBox {
 }
 
 impl StringBox {
-    #[inline(always)]
+    #[cfg_attr(feature = "perf-observe", inline(never))]
+    #[cfg_attr(not(feature = "perf-observe"), inline(always))]
     pub fn new(value: impl Into<String>) -> Self {
         Self {
             value: value.into(),

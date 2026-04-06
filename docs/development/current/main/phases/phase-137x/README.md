@@ -103,6 +103,13 @@
      - `StringBox` ctor/birth side
      - host handle registry issue
    - `Arc` wrap is visible in counters but not the first standalone perf target
+   - diagnostic `perf-observe` propagation into `nyash-rust` is now in place
+   - even with observe-build `inline(never)` guards, symbol-table read still does not surface standalone sampled functions for:
+     - `StringBox::new`
+     - `BoxBase::new`
+     - `next_box_id`
+   - only `next_box_id::COUNTER` is visible as a data symbol
+   - next deeper source-backed split therefore requires explicit diagnostic shims, not only noinline guards
    - current microasm read:
      - `string_concat_hh_export_impl`: `54.04%`
      - `string_len_from_handle`: `21.37%`
