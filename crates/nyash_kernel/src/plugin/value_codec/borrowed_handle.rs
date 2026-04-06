@@ -160,9 +160,8 @@ pub(crate) fn try_retarget_borrowed_string_slot_with_source(
     if source_obj.as_any().downcast_ref::<StringBox>().is_none() {
         return false;
     }
-    alias.inner = source_obj.clone();
-    alias.source_handle = source_handle;
-    alias.source_drop_epoch = source_drop_epoch;
+    keep_borrowed_string_slot_source_arc(alias, source_obj);
+    update_borrowed_string_slot_alias(alias, source_handle, source_drop_epoch);
     true
 }
 
@@ -179,10 +178,27 @@ pub(crate) fn try_retarget_borrowed_string_slot_verified(
     let Some(alias) = slot.as_any_mut().downcast_mut::<BorrowedHandleBox>() else {
         return false;
     };
+    keep_borrowed_string_slot_source_arc(alias, source_obj);
+    update_borrowed_string_slot_alias(alias, source_handle, source_drop_epoch);
+    true
+}
+
+#[inline(always)]
+pub(crate) fn keep_borrowed_string_slot_source_arc(
+    alias: &mut BorrowedHandleBox,
+    source_obj: &Arc<dyn NyashBox>,
+) {
     observe::record_store_array_str_reason_retarget_keep_source_arc();
     alias.inner = source_obj.clone();
+}
+
+#[inline(always)]
+pub(crate) fn update_borrowed_string_slot_alias(
+    alias: &mut BorrowedHandleBox,
+    source_handle: i64,
+    source_drop_epoch: u64,
+) {
+    observe::record_store_array_str_reason_retarget_alias_update();
     alias.source_handle = source_handle;
     alias.source_drop_epoch = source_drop_epoch;
-    observe::record_store_array_str_reason_retarget_alias_update();
-    true
 }

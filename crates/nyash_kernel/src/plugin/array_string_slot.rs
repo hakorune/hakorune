@@ -1,8 +1,8 @@
 use super::array_guard::valid_handle_idx;
 use super::handle_cache::{cache_probe_kind, CacheProbeKind as HandleCacheProbeKind};
 use super::value_codec::{
-    classify_string_handle_source, maybe_store_string_box_from_verified_source, BorrowedHandleBox,
-    StringHandleSourceKind, try_retarget_borrowed_string_slot_verified,
+    classify_string_handle_source, maybe_store_string_box_from_verified_source,
+    BorrowedHandleBox, StringHandleSourceKind, try_retarget_borrowed_string_slot_verified,
 };
 use crate::observe::{self, CacheProbeKind as ObserveCacheProbeKind};
 use crate::exports::string_view::resolve_string_span_from_handle;
@@ -59,6 +59,71 @@ enum StoreArrayStrPlanAction {
     RetargetAlias,
     StoreFromSource,
     NeedStableObject,
+}
+
+#[derive(Clone, Copy)]
+struct StoreArrayStrPlan {
+    source_kind: StoreArrayStrPlanSourceKind,
+    slot_kind: StoreArrayStrPlanSlotKind,
+    action: StoreArrayStrPlanAction,
+    source_is_string: bool,
+    latest_fresh_source: bool,
+}
+
+impl StoreArrayStrPlan {
+    #[inline(always)]
+    fn from_slot(
+        items: &[Box<dyn nyash_rust::box_trait::NyashBox>],
+        idx: usize,
+        value_h: i64,
+        source_obj: Option<&std::sync::Arc<dyn nyash_rust::box_trait::NyashBox>>,
+    ) -> Self {
+        let source_contract = classify_string_handle_source(source_obj);
+        let source_is_string = matches!(source_contract, StringHandleSourceKind::StringLike);
+        let source_kind = match source_contract {
+            StringHandleSourceKind::StringLike => StoreArrayStrPlanSourceKind::StringLike,
+            StringHandleSourceKind::OtherObject => StoreArrayStrPlanSourceKind::OtherObject,
+            StringHandleSourceKind::Missing => StoreArrayStrPlanSourceKind::Missing,
+        };
+        let slot_kind = if idx < items.len()
+            && items[idx]
+                .as_any()
+                .downcast_ref::<BorrowedHandleBox>()
+                .is_some()
+        {
+            StoreArrayStrPlanSlotKind::BorrowedAlias
+        } else {
+            StoreArrayStrPlanSlotKind::Other
+        };
+        let action = if source_is_string {
+            if matches!(slot_kind, StoreArrayStrPlanSlotKind::BorrowedAlias) && idx < items.len() {
+                StoreArrayStrPlanAction::RetargetAlias
+            } else {
+                StoreArrayStrPlanAction::StoreFromSource
+            }
+        } else {
+            StoreArrayStrPlanAction::NeedStableObject
+        };
+        Self {
+            source_kind,
+            slot_kind,
+            action,
+            source_is_string,
+            latest_fresh_source: observe::len_route_matches_latest_fresh_handle(value_h),
+        }
+    }
+
+    #[inline(always)]
+    fn record(self) {
+        record_store_array_str_plan(self.source_kind, self.slot_kind, self.action);
+    }
+
+    #[inline(always)]
+    fn can_retarget_alias(self) -> bool {
+        self.source_is_string
+            && matches!(self.slot_kind, StoreArrayStrPlanSlotKind::BorrowedAlias)
+            && matches!(self.action, StoreArrayStrPlanAction::RetargetAlias)
+    }
 }
 
 #[inline(always)]
@@ -246,36 +311,10 @@ fn execute_store_array_str_slot(
             None => observe::record_store_array_str_source_missing(),
         }
     }
-    let source_contract = classify_string_handle_source(source_obj);
-    let source_is_string = matches!(source_contract, StringHandleSourceKind::StringLike);
-    let source_kind = match source_contract {
-        StringHandleSourceKind::StringLike => StoreArrayStrPlanSourceKind::StringLike,
-        StringHandleSourceKind::OtherObject => StoreArrayStrPlanSourceKind::OtherObject,
-        StringHandleSourceKind::Missing => StoreArrayStrPlanSourceKind::Missing,
-    };
-    let slot_kind = if idx < items.len()
-        && items[idx]
-            .as_any()
-            .downcast_ref::<BorrowedHandleBox>()
-            .is_some()
-    {
-        StoreArrayStrPlanSlotKind::BorrowedAlias
-    } else {
-        StoreArrayStrPlanSlotKind::Other
-    };
-    let action = if source_is_string {
-        if matches!(slot_kind, StoreArrayStrPlanSlotKind::BorrowedAlias) && idx < items.len() {
-            StoreArrayStrPlanAction::RetargetAlias
-        } else {
-            StoreArrayStrPlanAction::StoreFromSource
-        }
-    } else {
-        StoreArrayStrPlanAction::NeedStableObject
-    };
-    record_store_array_str_plan(source_kind, slot_kind, action);
-    let latest_fresh_source = observe::len_route_matches_latest_fresh_handle(value_h);
+    let plan = StoreArrayStrPlan::from_slot(items.as_slice(), idx, value_h, source_obj);
+    plan.record();
     if idx < items.len() {
-        if source_is_string {
+        if plan.can_retarget_alias() {
             if let Some(value_obj) = source_obj {
                 if try_retarget_borrowed_string_slot_verified(
                     &mut items[idx],
@@ -284,7 +323,7 @@ fn execute_store_array_str_slot(
                     drop_epoch,
                 ) {
                     observe::record_store_array_str_retarget_hit();
-                    if latest_fresh_source {
+                    if plan.latest_fresh_source {
                         observe::record_store_array_str_latest_fresh_retarget_hit();
                     }
                     return 1;
@@ -292,9 +331,9 @@ fn execute_store_array_str_slot(
             }
         }
     }
-    if source_is_string {
+    if plan.source_is_string {
         observe::record_store_array_str_source_store();
-        if latest_fresh_source {
+        if plan.latest_fresh_source {
             observe::record_store_array_str_latest_fresh_source_store();
         }
     } else {
@@ -304,7 +343,7 @@ fn execute_store_array_str_slot(
         value_h,
         source_obj,
         drop_epoch,
-        source_is_string,
+        plan.source_is_string,
     );
     if idx < items.len() {
         items[idx] = value;

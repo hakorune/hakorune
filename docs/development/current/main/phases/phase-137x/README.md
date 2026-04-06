@@ -247,6 +247,16 @@
          - `kilo_micro_array_string_store: 201 ms`
          - `kilo_micro_concat_hh_len: 72 ms`
        - whole-kilo was not pursued; the behavior change is reverted
+     - cloned source-arc retarget truth:
+       - hot `RetargetAlias` was retried with a narrow `clone source Arc first, then retarget` slice
+       - plain release 3-run regressed across exact and whole:
+         - `kilo_micro_array_string_store: 205 ms`
+         - `kilo_micro_concat_hh_len: 91 ms`
+         - `kilo_kernel_small_hk: 959 ms`
+       - the behavior change is reverted
+       - keep only the no-behavior structural split:
+         - `StoreArrayStrPlan` separates planner from executor
+         - borrowed retarget now exposes `keep_source_arc` / `alias_update` helpers
    - next observation order is fixed:
      1. split the `store.array.str -> with_handle(ArrayStoreStrSource)` object contract again before changing behavior
      2. keep borrowed alias string-read trimming closed; live-source fast read was not enough
