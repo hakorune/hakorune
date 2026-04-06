@@ -8,15 +8,43 @@ use std::sync::Arc;
 
 #[cfg(feature = "perf-observe")]
 #[inline(never)]
+fn birth_string_box_from_owned(value: String) -> StringBox {
+    crate::observe::record_birth_backend_string_box_ctor(value.len());
+    StringBox::new(value)
+}
+
+#[cfg(not(feature = "perf-observe"))]
+#[inline(always)]
+fn birth_string_box_from_owned(value: String) -> StringBox {
+    StringBox::new(value)
+}
+
+#[cfg(feature = "perf-observe")]
+#[inline(never)]
+fn wrap_string_box_in_arc(string_box: StringBox) -> Arc<dyn NyashBox> {
+    crate::observe::record_birth_backend_arc_wrap();
+    Arc::new(string_box)
+}
+
+#[cfg(not(feature = "perf-observe"))]
+#[inline(always)]
+fn wrap_string_box_in_arc(string_box: StringBox) -> Arc<dyn NyashBox> {
+    Arc::new(string_box)
+}
+
+#[cfg(feature = "perf-observe")]
+#[inline(never)]
 fn birth_string_arc_from_owned(value: String) -> Arc<dyn NyashBox> {
     crate::observe::record_birth_backend_string_box_new(value.len());
-    Arc::new(StringBox::new(value))
+    let string_box = birth_string_box_from_owned(value);
+    wrap_string_box_in_arc(string_box)
 }
 
 #[cfg(not(feature = "perf-observe"))]
 #[inline(always)]
 fn birth_string_arc_from_owned(value: String) -> Arc<dyn NyashBox> {
-    Arc::new(StringBox::new(value))
+    let string_box = birth_string_box_from_owned(value);
+    wrap_string_box_in_arc(string_box)
 }
 
 #[cfg(feature = "perf-observe")]

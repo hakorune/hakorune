@@ -57,7 +57,7 @@
    - `store.array.str`: `existing_slot / append_slot / source_string_box / source_string_view / source_missing`
    - `const_suffix`: `empty_return / cached_fast_str_hit / cached_span_hit`
    - `birth.placement`: `return_handle / borrow_view / freeze_owned / fresh_handle / materialize_owned / store_from_source`
-   - `birth.backend`: `freeze_text_plan_total / view1 / pieces2 / pieces3 / pieces4 / owned_tmp / materialize_owned_total / materialize_owned_bytes / string_box_new_total / string_box_new_bytes / handle_issue_total / gc_alloc_called / gc_alloc_bytes / gc_alloc_skipped`
+   - `birth.backend`: `freeze_text_plan_total / view1 / pieces2 / pieces3 / pieces4 / owned_tmp / materialize_owned_total / materialize_owned_bytes / string_box_new_total / string_box_new_bytes / string_box_ctor_total / string_box_ctor_bytes / arc_wrap_total / handle_issue_total / gc_alloc_called / gc_alloc_bytes / gc_alloc_skipped`
  - exact observe read:
    - `kilo_micro_array_string_store` AOT direct probe is saturated on one shape:
      - `cache_hit=800000`
@@ -89,15 +89,20 @@
      - `FreshHandle`
      - `MaterializeOwned`
    - current birth backend split now reads:
-     - `StringBox / Arc` birth before registry issue
+     - `StringBox` ctor side before registry issue
+     - direct probe now also shows:
+       - `string_box_ctor_total=800000`
+       - `string_box_ctor_bytes=14400000`
+       - `arc_wrap_total=800000`
      - observe-build `kilo_micro_concat_birth` microasm top:
-       - `birth_string_arc_from_owned`: `32.70%` to `35.33%`
-       - `issue_string_handle_from_arc`: `23.07%` to `24.81%`
-       - `__memmove_avx512_unaligned_erms`: `15.30%` to `15.34%`
-       - `string_concat_hh_export_impl`: `13.04%` to `13.46%`
+       - `birth_string_box_from_owned`: `38.23%` to `41.46%`
+       - `issue_string_handle_from_arc`: `27.66%` to `31.54%`
+       - `__memmove_avx512_unaligned_erms`: `9.10%` to `10.88%`
+       - `string_concat_hh_export_impl`: `11.53%` to `12.73%`
    - next backend front should move to:
-     - `StringBox` birth
+     - `StringBox` ctor/birth side
      - host handle registry issue
+   - `Arc` wrap is visible in counters but not the first standalone perf target
    - current microasm read:
      - `string_concat_hh_export_impl`: `54.04%`
      - `string_len_from_handle`: `21.37%`
@@ -119,7 +124,7 @@
      - `BorrowView`
      - `FreezeOwned`
    - next backend trim order:
-     1. `StringBox / Arc` birth
+     1. `StringBox` ctor/birth side
      2. host handle registry issue
 3. keep canonical `store.array.str` as the next exact front
    - current executor: `array_string_store_handle_at(...)`

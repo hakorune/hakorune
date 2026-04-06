@@ -44,6 +44,9 @@ struct GlobalCounters {
     birth_backend_freeze_text_plan_owned_tmp: AtomicU64,
     birth_backend_string_box_new_total: AtomicU64,
     birth_backend_string_box_new_bytes: AtomicU64,
+    birth_backend_string_box_ctor_total: AtomicU64,
+    birth_backend_string_box_ctor_bytes: AtomicU64,
+    birth_backend_arc_wrap_total: AtomicU64,
     birth_backend_handle_issue_total: AtomicU64,
     birth_backend_materialize_owned_total: AtomicU64,
     birth_backend_materialize_owned_bytes: AtomicU64,
@@ -88,6 +91,9 @@ impl GlobalCounters {
             birth_backend_freeze_text_plan_owned_tmp: AtomicU64::new(0),
             birth_backend_string_box_new_total: AtomicU64::new(0),
             birth_backend_string_box_new_bytes: AtomicU64::new(0),
+            birth_backend_string_box_ctor_total: AtomicU64::new(0),
+            birth_backend_string_box_ctor_bytes: AtomicU64::new(0),
+            birth_backend_arc_wrap_total: AtomicU64::new(0),
             birth_backend_handle_issue_total: AtomicU64::new(0),
             birth_backend_materialize_owned_total: AtomicU64::new(0),
             birth_backend_materialize_owned_bytes: AtomicU64::new(0),
@@ -134,6 +140,9 @@ struct ThreadCounters {
     birth_backend_freeze_text_plan_owned_tmp: Cell<u64>,
     birth_backend_string_box_new_total: Cell<u64>,
     birth_backend_string_box_new_bytes: Cell<u64>,
+    birth_backend_string_box_ctor_total: Cell<u64>,
+    birth_backend_string_box_ctor_bytes: Cell<u64>,
+    birth_backend_arc_wrap_total: Cell<u64>,
     birth_backend_handle_issue_total: Cell<u64>,
     birth_backend_materialize_owned_total: Cell<u64>,
     birth_backend_materialize_owned_bytes: Cell<u64>,
@@ -178,6 +187,9 @@ impl ThreadCounters {
             birth_backend_freeze_text_plan_owned_tmp: Cell::new(0),
             birth_backend_string_box_new_total: Cell::new(0),
             birth_backend_string_box_new_bytes: Cell::new(0),
+            birth_backend_string_box_ctor_total: Cell::new(0),
+            birth_backend_string_box_ctor_bytes: Cell::new(0),
+            birth_backend_arc_wrap_total: Cell::new(0),
             birth_backend_handle_issue_total: Cell::new(0),
             birth_backend_materialize_owned_total: Cell::new(0),
             birth_backend_materialize_owned_bytes: Cell::new(0),
@@ -349,6 +361,18 @@ impl ThreadCounters {
     }
 
     #[inline(always)]
+    fn birth_backend_string_box_ctor(&self, bytes: u64) {
+        Self::bump(&self.birth_backend_string_box_ctor_total);
+        self.birth_backend_string_box_ctor_bytes
+            .set(self.birth_backend_string_box_ctor_bytes.get() + bytes);
+    }
+
+    #[inline(always)]
+    fn birth_backend_arc_wrap(&self) {
+        Self::bump(&self.birth_backend_arc_wrap_total);
+    }
+
+    #[inline(always)]
     fn birth_backend_handle_issue(&self) {
         Self::bump(&self.birth_backend_handle_issue_total);
     }
@@ -498,6 +522,18 @@ impl ThreadCounters {
         flush_cell(
             &self.birth_backend_string_box_new_bytes,
             &GLOBAL.birth_backend_string_box_new_bytes,
+        );
+        flush_cell(
+            &self.birth_backend_string_box_ctor_total,
+            &GLOBAL.birth_backend_string_box_ctor_total,
+        );
+        flush_cell(
+            &self.birth_backend_string_box_ctor_bytes,
+            &GLOBAL.birth_backend_string_box_ctor_bytes,
+        );
+        flush_cell(
+            &self.birth_backend_arc_wrap_total,
+            &GLOBAL.birth_backend_arc_wrap_total,
         );
         flush_cell(
             &self.birth_backend_handle_issue_total,
@@ -702,6 +738,16 @@ pub(crate) fn birth_backend_string_box_new(bytes: u64) {
 }
 
 #[inline(always)]
+pub(crate) fn birth_backend_string_box_ctor(bytes: u64) {
+    with_tls(|tls| tls.birth_backend_string_box_ctor(bytes));
+}
+
+#[inline(always)]
+pub(crate) fn birth_backend_arc_wrap() {
+    with_tls(ThreadCounters::birth_backend_arc_wrap);
+}
+
+#[inline(always)]
 pub(crate) fn birth_backend_handle_issue() {
     with_tls(ThreadCounters::birth_backend_handle_issue);
 }
@@ -720,7 +766,7 @@ fn flush_current_thread() {
     TLS_COUNTERS.with(ThreadCounters::flush_into_global);
 }
 
-pub(crate) fn snapshot() -> [u64; 39] {
+pub(crate) fn snapshot() -> [u64; 42] {
     flush_current_thread();
     [
         GLOBAL.store_array_str_total.load(Ordering::Relaxed),
@@ -756,6 +802,9 @@ pub(crate) fn snapshot() -> [u64; 39] {
         GLOBAL.birth_backend_freeze_text_plan_owned_tmp.load(Ordering::Relaxed),
         GLOBAL.birth_backend_string_box_new_total.load(Ordering::Relaxed),
         GLOBAL.birth_backend_string_box_new_bytes.load(Ordering::Relaxed),
+        GLOBAL.birth_backend_string_box_ctor_total.load(Ordering::Relaxed),
+        GLOBAL.birth_backend_string_box_ctor_bytes.load(Ordering::Relaxed),
+        GLOBAL.birth_backend_arc_wrap_total.load(Ordering::Relaxed),
         GLOBAL.birth_backend_handle_issue_total.load(Ordering::Relaxed),
         GLOBAL.birth_backend_materialize_owned_total.load(Ordering::Relaxed),
         GLOBAL.birth_backend_materialize_owned_bytes.load(Ordering::Relaxed),
@@ -820,6 +869,8 @@ mod tests {
         birth_placement_fresh_handle();
         birth_backend_freeze_text_plan_pieces2();
         birth_backend_string_box_new(18);
+        birth_backend_string_box_ctor(18);
+        birth_backend_arc_wrap();
         birth_backend_handle_issue();
         birth_backend_materialize_owned(18);
         birth_backend_gc_alloc(18);
@@ -832,10 +883,13 @@ mod tests {
         assert_eq!(after[31] - before[31], 1);
         assert_eq!(after[32] - before[32], 18);
         assert_eq!(after[33] - before[33], 1);
-        assert_eq!(after[34] - before[34], 1);
-        assert_eq!(after[35] - before[35], 18);
+        assert_eq!(after[34] - before[34], 18);
+        assert_eq!(after[35] - before[35], 1);
         assert_eq!(after[36] - before[36], 1);
-        assert_eq!(after[37] - before[37], 18);
-        assert_eq!(after[38] - before[38], 1);
+        assert_eq!(after[37] - before[37], 1);
+        assert_eq!(after[38] - before[38], 18);
+        assert_eq!(after[39] - before[39], 1);
+        assert_eq!(after[40] - before[40], 18);
+        assert_eq!(after[41] - before[41], 1);
     }
 }

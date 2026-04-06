@@ -175,6 +175,16 @@ mod real {
     }
 
     #[inline(always)]
+    pub(crate) fn record_birth_backend_string_box_ctor(bytes: usize) {
+        super::backend::birth_backend_string_box_ctor(bytes as u64);
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_arc_wrap() {
+        super::backend::birth_backend_arc_wrap();
+    }
+
+    #[inline(always)]
     pub(crate) fn record_birth_backend_handle_issue() {
         super::backend::birth_backend_handle_issue();
     }
@@ -304,6 +314,12 @@ mod real {
 
     #[inline(always)]
     pub(crate) fn record_birth_backend_string_box_new(_bytes: usize) {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_string_box_ctor(_bytes: usize) {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_arc_wrap() {}
 
     #[inline(always)]
     pub(crate) fn record_birth_backend_handle_issue() {}

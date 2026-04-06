@@ -177,6 +177,8 @@ Scope: repo root から current lane / next lane / restart read order に最短�
     - `freeze_text_plan_view1 / pieces2 / pieces3 / pieces4 / owned_tmp`
     - `materialize_owned_total / materialize_owned_bytes`
     - `string_box_new_total / string_box_new_bytes`
+    - `string_box_ctor_total / string_box_ctor_bytes`
+    - `arc_wrap_total`
     - `handle_issue_total`
     - `gc_alloc_called / gc_alloc_bytes / gc_alloc_skipped`
   - drill-down counters now exist for:
@@ -217,15 +219,18 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   - observe-build birth split:
     - direct probe now also shows:
       - `string_box_new_total=800000`
+      - `string_box_ctor_total=800000`
+      - `arc_wrap_total=800000`
       - `handle_issue_total=800000`
     - `kilo_micro_concat_birth` microasm top now splits the backend:
-      - `birth_string_arc_from_owned`: `32.70%` to `35.33%`
-      - `issue_string_handle_from_arc`: `23.07%` to `24.81%`
-      - `__memmove_avx512_unaligned_erms`: `15.30%` to `15.34%`
-      - `string_concat_hh_export_impl`: `13.04%` to `13.46%`
+      - `birth_string_box_from_owned`: `38.23%` to `41.46%`
+      - `issue_string_handle_from_arc`: `27.66%` to `31.54%`
+      - `__memmove_avx512_unaligned_erms`: `9.10%` to `10.88%`
+      - `string_concat_hh_export_impl`: `11.53%` to `12.73%`
     - current backend order is therefore:
-      1. `StringBox` / `Arc` birth
+      1. `StringBox` ctor side inside `birth_string_box_from_owned(...)`
       2. host handle registry issue
+      3. `Arc` wrap is not the first standalone target
 - `phase-157x` current rule:
   - observer is out-of-band only
   - default build compiles observer out
