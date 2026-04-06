@@ -165,4 +165,24 @@ pub(crate) fn emit_summary_to_stderr() {
         contract::STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ANY_INDEX_LATEST_FRESH,
         stable_box_demand[11],
     );
+    eprintln!(
+        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
+        contract::BORROWED_ALIAS,
+        contract::BORROWED_ALIAS_TO_STRING_BOX,
+        snapshot[61],
+        contract::BORROWED_ALIAS_EQUALS,
+        snapshot[62],
+        contract::BORROWED_ALIAS_CLONE_BOX,
+        snapshot[63],
+        contract::BORROWED_ALIAS_BORROWED_SOURCE_FAST,
+        snapshot[64],
+        contract::BORROWED_ALIAS_AS_STR_FAST,
+        snapshot[65],
+        contract::BORROWED_ALIAS_ENCODE_EPOCH_HIT,
+        snapshot[66],
+        contract::BORROWED_ALIAS_ENCODE_PTR_EQ_HIT,
+        snapshot[67],
+        contract::BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC,
+        snapshot[68],
+    );
 }

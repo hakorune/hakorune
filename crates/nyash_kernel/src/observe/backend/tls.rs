@@ -72,6 +72,14 @@ struct GlobalCounters {
     str_len_route_miss: AtomicU64,
     str_len_route_latest_fresh_handle_fast_str_hit: AtomicU64,
     str_len_route_latest_fresh_handle_fallback_hit: AtomicU64,
+    borrowed_alias_to_string_box: AtomicU64,
+    borrowed_alias_equals: AtomicU64,
+    borrowed_alias_clone_box: AtomicU64,
+    borrowed_alias_borrowed_source_fast: AtomicU64,
+    borrowed_alias_as_str_fast: AtomicU64,
+    borrowed_alias_encode_epoch_hit: AtomicU64,
+    borrowed_alias_encode_ptr_eq_hit: AtomicU64,
+    borrowed_alias_encode_to_handle_arc: AtomicU64,
 }
 
 impl GlobalCounters {
@@ -138,6 +146,14 @@ impl GlobalCounters {
             str_len_route_miss: AtomicU64::new(0),
             str_len_route_latest_fresh_handle_fast_str_hit: AtomicU64::new(0),
             str_len_route_latest_fresh_handle_fallback_hit: AtomicU64::new(0),
+            borrowed_alias_to_string_box: AtomicU64::new(0),
+            borrowed_alias_equals: AtomicU64::new(0),
+            borrowed_alias_clone_box: AtomicU64::new(0),
+            borrowed_alias_borrowed_source_fast: AtomicU64::new(0),
+            borrowed_alias_as_str_fast: AtomicU64::new(0),
+            borrowed_alias_encode_epoch_hit: AtomicU64::new(0),
+            borrowed_alias_encode_ptr_eq_hit: AtomicU64::new(0),
+            borrowed_alias_encode_to_handle_arc: AtomicU64::new(0),
         }
     }
 }
@@ -206,6 +222,14 @@ struct ThreadCounters {
     str_len_route_miss: Cell<u64>,
     str_len_route_latest_fresh_handle_fast_str_hit: Cell<u64>,
     str_len_route_latest_fresh_handle_fallback_hit: Cell<u64>,
+    borrowed_alias_to_string_box: Cell<u64>,
+    borrowed_alias_equals: Cell<u64>,
+    borrowed_alias_clone_box: Cell<u64>,
+    borrowed_alias_borrowed_source_fast: Cell<u64>,
+    borrowed_alias_as_str_fast: Cell<u64>,
+    borrowed_alias_encode_epoch_hit: Cell<u64>,
+    borrowed_alias_encode_ptr_eq_hit: Cell<u64>,
+    borrowed_alias_encode_to_handle_arc: Cell<u64>,
     latest_fresh_handle: Cell<i64>,
 }
 
@@ -273,6 +297,14 @@ impl ThreadCounters {
             str_len_route_miss: Cell::new(0),
             str_len_route_latest_fresh_handle_fast_str_hit: Cell::new(0),
             str_len_route_latest_fresh_handle_fallback_hit: Cell::new(0),
+            borrowed_alias_to_string_box: Cell::new(0),
+            borrowed_alias_equals: Cell::new(0),
+            borrowed_alias_clone_box: Cell::new(0),
+            borrowed_alias_borrowed_source_fast: Cell::new(0),
+            borrowed_alias_as_str_fast: Cell::new(0),
+            borrowed_alias_encode_epoch_hit: Cell::new(0),
+            borrowed_alias_encode_ptr_eq_hit: Cell::new(0),
+            borrowed_alias_encode_to_handle_arc: Cell::new(0),
             latest_fresh_handle: Cell::new(0),
         }
     }
@@ -567,6 +599,46 @@ impl ThreadCounters {
     }
 
     #[inline(always)]
+    fn borrowed_alias_to_string_box(&self) {
+        Self::bump(&self.borrowed_alias_to_string_box);
+    }
+
+    #[inline(always)]
+    fn borrowed_alias_equals(&self) {
+        Self::bump(&self.borrowed_alias_equals);
+    }
+
+    #[inline(always)]
+    fn borrowed_alias_clone_box(&self) {
+        Self::bump(&self.borrowed_alias_clone_box);
+    }
+
+    #[inline(always)]
+    fn borrowed_alias_borrowed_source_fast(&self) {
+        Self::bump(&self.borrowed_alias_borrowed_source_fast);
+    }
+
+    #[inline(always)]
+    fn borrowed_alias_as_str_fast(&self) {
+        Self::bump(&self.borrowed_alias_as_str_fast);
+    }
+
+    #[inline(always)]
+    fn borrowed_alias_encode_epoch_hit(&self) {
+        Self::bump(&self.borrowed_alias_encode_epoch_hit);
+    }
+
+    #[inline(always)]
+    fn borrowed_alias_encode_ptr_eq_hit(&self) {
+        Self::bump(&self.borrowed_alias_encode_ptr_eq_hit);
+    }
+
+    #[inline(always)]
+    fn borrowed_alias_encode_to_handle_arc(&self) {
+        Self::bump(&self.borrowed_alias_encode_to_handle_arc);
+    }
+
+    #[inline(always)]
     fn mark_latest_fresh_handle(&self, handle: i64) {
         self.latest_fresh_handle.set(handle);
     }
@@ -805,6 +877,35 @@ impl ThreadCounters {
         flush_cell(
             &self.str_len_route_latest_fresh_handle_fallback_hit,
             &GLOBAL.str_len_route_latest_fresh_handle_fallback_hit,
+        );
+        flush_cell(
+            &self.borrowed_alias_to_string_box,
+            &GLOBAL.borrowed_alias_to_string_box,
+        );
+        flush_cell(&self.borrowed_alias_equals, &GLOBAL.borrowed_alias_equals);
+        flush_cell(
+            &self.borrowed_alias_clone_box,
+            &GLOBAL.borrowed_alias_clone_box,
+        );
+        flush_cell(
+            &self.borrowed_alias_borrowed_source_fast,
+            &GLOBAL.borrowed_alias_borrowed_source_fast,
+        );
+        flush_cell(
+            &self.borrowed_alias_as_str_fast,
+            &GLOBAL.borrowed_alias_as_str_fast,
+        );
+        flush_cell(
+            &self.borrowed_alias_encode_epoch_hit,
+            &GLOBAL.borrowed_alias_encode_epoch_hit,
+        );
+        flush_cell(
+            &self.borrowed_alias_encode_ptr_eq_hit,
+            &GLOBAL.borrowed_alias_encode_ptr_eq_hit,
+        );
+        flush_cell(
+            &self.borrowed_alias_encode_to_handle_arc,
+            &GLOBAL.borrowed_alias_encode_to_handle_arc,
         );
     }
 }
@@ -1100,6 +1201,46 @@ pub(crate) fn str_len_route_latest_fresh_handle_fallback_hit() {
 }
 
 #[inline(always)]
+pub(crate) fn borrowed_alias_to_string_box() {
+    with_tls(ThreadCounters::borrowed_alias_to_string_box);
+}
+
+#[inline(always)]
+pub(crate) fn borrowed_alias_equals() {
+    with_tls(ThreadCounters::borrowed_alias_equals);
+}
+
+#[inline(always)]
+pub(crate) fn borrowed_alias_clone_box() {
+    with_tls(ThreadCounters::borrowed_alias_clone_box);
+}
+
+#[inline(always)]
+pub(crate) fn borrowed_alias_borrowed_source_fast() {
+    with_tls(ThreadCounters::borrowed_alias_borrowed_source_fast);
+}
+
+#[inline(always)]
+pub(crate) fn borrowed_alias_as_str_fast() {
+    with_tls(ThreadCounters::borrowed_alias_as_str_fast);
+}
+
+#[inline(always)]
+pub(crate) fn borrowed_alias_encode_epoch_hit() {
+    with_tls(ThreadCounters::borrowed_alias_encode_epoch_hit);
+}
+
+#[inline(always)]
+pub(crate) fn borrowed_alias_encode_ptr_eq_hit() {
+    with_tls(ThreadCounters::borrowed_alias_encode_ptr_eq_hit);
+}
+
+#[inline(always)]
+pub(crate) fn borrowed_alias_encode_to_handle_arc() {
+    with_tls(ThreadCounters::borrowed_alias_encode_to_handle_arc);
+}
+
+#[inline(always)]
 pub(crate) fn mark_latest_fresh_handle(handle: i64) {
     with_tls(|tls| tls.mark_latest_fresh_handle(handle));
 }
@@ -1113,7 +1254,7 @@ fn flush_current_thread() {
     TLS_COUNTERS.with(ThreadCounters::flush_into_global);
 }
 
-pub(crate) fn snapshot() -> [u64; 61] {
+pub(crate) fn snapshot() -> [u64; 69] {
     flush_current_thread();
     [
         GLOBAL.store_array_str_total.load(Ordering::Relaxed),
@@ -1197,6 +1338,16 @@ pub(crate) fn snapshot() -> [u64; 61] {
         GLOBAL
             .str_len_route_latest_fresh_handle_fallback_hit
             .load(Ordering::Relaxed),
+        GLOBAL.borrowed_alias_to_string_box.load(Ordering::Relaxed),
+        GLOBAL.borrowed_alias_equals.load(Ordering::Relaxed),
+        GLOBAL.borrowed_alias_clone_box.load(Ordering::Relaxed),
+        GLOBAL
+            .borrowed_alias_borrowed_source_fast
+            .load(Ordering::Relaxed),
+        GLOBAL.borrowed_alias_as_str_fast.load(Ordering::Relaxed),
+        GLOBAL.borrowed_alias_encode_epoch_hit.load(Ordering::Relaxed),
+        GLOBAL.borrowed_alias_encode_ptr_eq_hit.load(Ordering::Relaxed),
+        GLOBAL.borrowed_alias_encode_to_handle_arc.load(Ordering::Relaxed),
     ]
 }
 

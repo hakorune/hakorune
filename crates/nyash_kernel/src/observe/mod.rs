@@ -290,6 +290,46 @@ mod real {
     }
 
     #[inline(always)]
+    pub(crate) fn record_borrowed_alias_to_string_box() {
+        super::backend::borrowed_alias_to_string_box();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_equals() {
+        super::backend::borrowed_alias_equals();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_clone_box() {
+        super::backend::borrowed_alias_clone_box();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_borrowed_source_fast() {
+        super::backend::borrowed_alias_borrowed_source_fast();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_as_str_fast() {
+        super::backend::borrowed_alias_as_str_fast();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_encode_epoch_hit() {
+        super::backend::borrowed_alias_encode_epoch_hit();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_encode_ptr_eq_hit() {
+        super::backend::borrowed_alias_encode_ptr_eq_hit();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_encode_to_handle_arc() {
+        super::backend::borrowed_alias_encode_to_handle_arc();
+    }
+
+    #[inline(always)]
     pub(crate) fn mark_latest_fresh_handle(handle: i64) {
         super::backend::mark_latest_fresh_handle(handle);
     }
@@ -483,6 +523,30 @@ mod real {
 
     #[inline(always)]
     pub(crate) fn record_str_len_route_miss() {}
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_to_string_box() {}
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_equals() {}
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_clone_box() {}
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_borrowed_source_fast() {}
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_as_str_fast() {}
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_encode_epoch_hit() {}
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_encode_ptr_eq_hit() {}
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_encode_to_handle_arc() {}
 
     #[inline(always)]
     pub(crate) fn mark_latest_fresh_handle(_handle: i64) {}

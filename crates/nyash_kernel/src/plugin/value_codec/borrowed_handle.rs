@@ -2,6 +2,7 @@ use nyash_rust::{
     box_trait::{next_box_id, BoolBox, BoxBase, BoxCore, NyashBox, StringBox},
     runtime::host_handles as handles,
 };
+use crate::observe;
 use std::{any::Any, sync::Arc};
 
 #[derive(Debug, Clone)]
@@ -61,10 +62,12 @@ impl BoxCore for BorrowedHandleBox {
 
 impl NyashBox for BorrowedHandleBox {
     fn to_string_box(&self) -> StringBox {
+        observe::record_borrowed_alias_to_string_box();
         self.inner.to_string_box()
     }
 
     fn equals(&self, other: &dyn NyashBox) -> BoolBox {
+        observe::record_borrowed_alias_equals();
         if let Some(other_alias) = other.as_any().downcast_ref::<BorrowedHandleBox>() {
             return self.inner.equals(other_alias.inner.as_ref());
         }
@@ -76,6 +79,7 @@ impl NyashBox for BorrowedHandleBox {
     }
 
     fn clone_box(&self) -> Box<dyn NyashBox> {
+        observe::record_borrowed_alias_clone_box();
         Box::new(Self::new(
             self.inner.clone(),
             self.source_handle,
@@ -92,6 +96,7 @@ impl NyashBox for BorrowedHandleBox {
     }
 
     fn borrowed_handle_source_fast(&self) -> Option<(i64, u64)> {
+        observe::record_borrowed_alias_borrowed_source_fast();
         if self.source_handle > 0 {
             Some((self.source_handle, self.source_drop_epoch))
         } else {
@@ -100,6 +105,7 @@ impl NyashBox for BorrowedHandleBox {
     }
 
     fn as_str_fast(&self) -> Option<&str> {
+        observe::record_borrowed_alias_as_str_fast();
         self.inner.as_str_fast()
     }
 }

@@ -5,6 +5,7 @@ pub(crate) const BIRTH_BACKEND: &str = "birth.backend";
 pub(crate) const STR_CONCAT2_ROUTE: &str = "str.concat2.route";
 pub(crate) const STR_LEN_ROUTE: &str = "str.len.route";
 pub(crate) const STABLE_BOX_DEMAND: &str = "stable_box_demand";
+pub(crate) const BORROWED_ALIAS: &str = "borrowed.alias";
 
 pub(crate) const STORE_ARRAY_STR_CACHE_HIT: &str = "cache_hit";
 pub(crate) const STORE_ARRAY_STR_CACHE_MISS_HANDLE: &str = "cache_miss_handle";
@@ -99,3 +100,12 @@ pub(crate) const STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ANY_ARG_LATEST_FRES
     "object_with_handle_decode_any_arg_latest_fresh";
 pub(crate) const STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ANY_INDEX_LATEST_FRESH: &str =
     "object_with_handle_decode_any_index_latest_fresh";
+
+pub(crate) const BORROWED_ALIAS_TO_STRING_BOX: &str = "to_string_box";
+pub(crate) const BORROWED_ALIAS_EQUALS: &str = "equals";
+pub(crate) const BORROWED_ALIAS_CLONE_BOX: &str = "clone_box";
+pub(crate) const BORROWED_ALIAS_BORROWED_SOURCE_FAST: &str = "borrowed_source_fast";
+pub(crate) const BORROWED_ALIAS_AS_STR_FAST: &str = "as_str_fast";
+pub(crate) const BORROWED_ALIAS_ENCODE_EPOCH_HIT: &str = "encode_epoch_hit";
+pub(crate) const BORROWED_ALIAS_ENCODE_PTR_EQ_HIT: &str = "encode_ptr_eq_hit";
+pub(crate) const BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC: &str = "encode_to_handle_arc";

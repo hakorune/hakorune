@@ -160,6 +160,15 @@
      - source-backed `store.array.str` split confirms that this whole-kilo latest-fresh demand is entirely retarget-side:
        - `store.array.str latest_fresh_retarget_hit=540000`
        - `store.array.str latest_fresh_source_store=0`
+     - borrowed alias whole-kilo truth:
+       - `borrowed.alias.borrowed_source_fast=540000`
+       - `borrowed.alias.as_str_fast=540064`
+       - `borrowed.alias.encode_epoch_hit=0`
+       - `borrowed.alias.encode_ptr_eq_hit=0`
+       - `borrowed.alias.encode_to_handle_arc=0`
+     - current read:
+       - retargeted latest-fresh aliases are not escaping through encoder fallback
+       - the remaining stable object pressure is alias string-read side, not alias runtime encode
      - current first widening target is therefore:
        - `store.array.str` source read under `array_string_slot.rs`
      - attempted widening truth:
@@ -175,9 +184,9 @@
          - `kilo_kernel_small_hk: 746 ms`
        - the behavior change is reverted; keep the counter truth only
    - next observation order is fixed:
-     1. widen or bypass the `store.array.str` source-read consumer that still pulls latest fresh string handles into generic object `with_handle(...)`
-     2. only then recheck the remaining `with_handle(...)` callers before retrying delayed `StableBoxNow`
-     3. only after that, reopen backend trimming under `materialize_owned_bytes` / `issue_fresh_handle`
+     1. widen or bypass the alias string-read side that still requires stable object access after `retarget_hit`
+     2. only then retry delayed `StableBoxNow`
+     3. leave encoder-side trimming closed until borrowed alias counters move
    - `DeferredString` experiment truth:
      - exact micro improved:
        - `kilo_micro_concat_hh_len`: `57 -> 51 ms`

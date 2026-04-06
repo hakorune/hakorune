@@ -1,4 +1,5 @@
 use super::borrowed_handle::BorrowedHandleBox;
+use crate::observe;
 use nyash_rust::{
     box_trait::{BoolBox, IntegerBox, NyashBox},
     runtime::host_handles as handles,
@@ -25,6 +26,7 @@ pub(crate) fn runtime_i64_from_box_ref(value: &dyn NyashBox) -> i64 {
             // source handle still points to the same object.
             let current_epoch = handles::drop_epoch();
             if alias.source_drop_epoch == current_epoch {
+                observe::record_borrowed_alias_encode_epoch_hit();
                 return alias.source_handle;
             }
         }
@@ -37,10 +39,12 @@ pub(crate) fn runtime_i64_from_box_ref(value: &dyn NyashBox) -> i64 {
         if alias.source_handle > 0 {
             if let Some(source_obj) = handles::get(alias.source_handle as u64) {
                 if Arc::ptr_eq(&source_obj, &alias.inner) {
+                    observe::record_borrowed_alias_encode_ptr_eq_hit();
                     return alias.source_handle;
                 }
             }
         }
+        observe::record_borrowed_alias_encode_to_handle_arc();
         return handles::to_handle_arc(alias.inner.clone()) as i64;
     }
     if let Some(iv) = integer_box_to_i64(value) {
