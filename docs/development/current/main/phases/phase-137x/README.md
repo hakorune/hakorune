@@ -100,6 +100,16 @@
    - next observation order is fixed:
      1. reopen `DeferredStableBox` / delayed objectization discussion for the `concat_hh + len_h` consumer
      2. if that slice is blocked, keep trimming backend leaves under `materialize_owned_bytes` and `issue_fresh_handle`
+   - `DeferredString` experiment truth:
+     - exact micro improved:
+       - `kilo_micro_concat_hh_len`: `57 -> 51 ms`
+       - `kilo_micro_concat_birth`: `47 -> 35 ms`
+     - whole-kilo probe regressed:
+       - `kilo_kernel_small_hk`: `741 -> 952 ms`
+     - code was reverted
+     - next widening choice is now:
+       1. explain the whole-kilo regression first
+       2. only then reconsider pair/span widening
    - `host_handles` now has a source-backed payload seam:
      - slot storage reads through `HandlePayload::StableBox(...)`
      - public registry APIs still return `Arc<dyn NyashBox>`

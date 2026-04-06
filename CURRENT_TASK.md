@@ -194,6 +194,16 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   - immediate next observation order is fixed:
     1. treat `StableBoxNow` delay / objectization deferral as the next design slice for `concat_hh + len_h`
     2. if that slice is blocked, fall back to backend leaf trimming under `materialize_owned_bytes / issue_fresh_handle`
+  - `DeferredString` experiment truth:
+    - exact micro improved:
+      - `kilo_micro_concat_hh_len`: `57 -> 51 ms`
+      - `kilo_micro_concat_birth`: `47 -> 35 ms`
+    - whole-kilo probe regressed:
+      - `kilo_kernel_small_hk`: `741 -> 952 ms`
+    - code was reverted
+    - next widening choice is now:
+      1. explain the whole-kilo regression first
+      2. only then reconsider pair/span widening
   - payload seam scaffolding is now source-backed:
     - `host_handles` slot storage now reads through `HandlePayload::StableBox(...)`
     - public registry API is unchanged
