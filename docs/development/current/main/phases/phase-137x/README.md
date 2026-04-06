@@ -127,6 +127,13 @@
        - `MaterializeOwned`
        - `StableBoxNow`
        - `FreshRegistryHandle`
+     - current source-backed backend split is now visible in `string_store.rs`:
+       - `materialize_owned_bytes`
+       - `objectize_stable_string_box`
+       - `issue_fresh_handle`
+     - second-axis counters now also exist for:
+       - `objectize_stable_box_now_total / bytes`
+       - `issue_fresh_handle_total`
    - current microasm read:
      - `string_concat_hh_export_impl`: `54.04%`
      - `string_len_from_handle`: `21.37%`

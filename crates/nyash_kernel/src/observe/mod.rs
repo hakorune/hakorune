@@ -185,8 +185,18 @@ mod real {
     }
 
     #[inline(always)]
+    pub(crate) fn record_birth_backend_objectize_stable_box_now(bytes: usize) {
+        super::backend::birth_backend_objectize_stable_box_now(bytes as u64);
+    }
+
+    #[inline(always)]
     pub(crate) fn record_birth_backend_handle_issue() {
         super::backend::birth_backend_handle_issue();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_issue_fresh_handle() {
+        super::backend::birth_backend_issue_fresh_handle();
     }
 
     #[inline(always)]
@@ -322,7 +332,13 @@ mod real {
     pub(crate) fn record_birth_backend_arc_wrap() {}
 
     #[inline(always)]
+    pub(crate) fn record_birth_backend_objectize_stable_box_now(_bytes: usize) {}
+
+    #[inline(always)]
     pub(crate) fn record_birth_backend_handle_issue() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_issue_fresh_handle() {}
 
     #[inline(always)]
     pub(crate) fn record_birth_backend_gc_alloc(_bytes: usize) {}

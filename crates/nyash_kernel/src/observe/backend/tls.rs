@@ -47,7 +47,10 @@ struct GlobalCounters {
     birth_backend_string_box_ctor_total: AtomicU64,
     birth_backend_string_box_ctor_bytes: AtomicU64,
     birth_backend_arc_wrap_total: AtomicU64,
+    birth_backend_objectize_stable_box_now_total: AtomicU64,
+    birth_backend_objectize_stable_box_now_bytes: AtomicU64,
     birth_backend_handle_issue_total: AtomicU64,
+    birth_backend_issue_fresh_handle_total: AtomicU64,
     birth_backend_materialize_owned_total: AtomicU64,
     birth_backend_materialize_owned_bytes: AtomicU64,
     birth_backend_gc_alloc_called: AtomicU64,
@@ -94,7 +97,10 @@ impl GlobalCounters {
             birth_backend_string_box_ctor_total: AtomicU64::new(0),
             birth_backend_string_box_ctor_bytes: AtomicU64::new(0),
             birth_backend_arc_wrap_total: AtomicU64::new(0),
+            birth_backend_objectize_stable_box_now_total: AtomicU64::new(0),
+            birth_backend_objectize_stable_box_now_bytes: AtomicU64::new(0),
             birth_backend_handle_issue_total: AtomicU64::new(0),
+            birth_backend_issue_fresh_handle_total: AtomicU64::new(0),
             birth_backend_materialize_owned_total: AtomicU64::new(0),
             birth_backend_materialize_owned_bytes: AtomicU64::new(0),
             birth_backend_gc_alloc_called: AtomicU64::new(0),
@@ -143,7 +149,10 @@ struct ThreadCounters {
     birth_backend_string_box_ctor_total: Cell<u64>,
     birth_backend_string_box_ctor_bytes: Cell<u64>,
     birth_backend_arc_wrap_total: Cell<u64>,
+    birth_backend_objectize_stable_box_now_total: Cell<u64>,
+    birth_backend_objectize_stable_box_now_bytes: Cell<u64>,
     birth_backend_handle_issue_total: Cell<u64>,
+    birth_backend_issue_fresh_handle_total: Cell<u64>,
     birth_backend_materialize_owned_total: Cell<u64>,
     birth_backend_materialize_owned_bytes: Cell<u64>,
     birth_backend_gc_alloc_called: Cell<u64>,
@@ -190,7 +199,10 @@ impl ThreadCounters {
             birth_backend_string_box_ctor_total: Cell::new(0),
             birth_backend_string_box_ctor_bytes: Cell::new(0),
             birth_backend_arc_wrap_total: Cell::new(0),
+            birth_backend_objectize_stable_box_now_total: Cell::new(0),
+            birth_backend_objectize_stable_box_now_bytes: Cell::new(0),
             birth_backend_handle_issue_total: Cell::new(0),
+            birth_backend_issue_fresh_handle_total: Cell::new(0),
             birth_backend_materialize_owned_total: Cell::new(0),
             birth_backend_materialize_owned_bytes: Cell::new(0),
             birth_backend_gc_alloc_called: Cell::new(0),
@@ -373,8 +385,20 @@ impl ThreadCounters {
     }
 
     #[inline(always)]
+    fn birth_backend_objectize_stable_box_now(&self, bytes: u64) {
+        Self::bump(&self.birth_backend_objectize_stable_box_now_total);
+        self.birth_backend_objectize_stable_box_now_bytes
+            .set(self.birth_backend_objectize_stable_box_now_bytes.get() + bytes);
+    }
+
+    #[inline(always)]
     fn birth_backend_handle_issue(&self) {
         Self::bump(&self.birth_backend_handle_issue_total);
+    }
+
+    #[inline(always)]
+    fn birth_backend_issue_fresh_handle(&self) {
+        Self::bump(&self.birth_backend_issue_fresh_handle_total);
     }
 
     #[inline(always)]
@@ -536,8 +560,20 @@ impl ThreadCounters {
             &GLOBAL.birth_backend_arc_wrap_total,
         );
         flush_cell(
+            &self.birth_backend_objectize_stable_box_now_total,
+            &GLOBAL.birth_backend_objectize_stable_box_now_total,
+        );
+        flush_cell(
+            &self.birth_backend_objectize_stable_box_now_bytes,
+            &GLOBAL.birth_backend_objectize_stable_box_now_bytes,
+        );
+        flush_cell(
             &self.birth_backend_handle_issue_total,
             &GLOBAL.birth_backend_handle_issue_total,
+        );
+        flush_cell(
+            &self.birth_backend_issue_fresh_handle_total,
+            &GLOBAL.birth_backend_issue_fresh_handle_total,
         );
         flush_cell(
             &self.birth_backend_materialize_owned_total,
@@ -748,8 +784,18 @@ pub(crate) fn birth_backend_arc_wrap() {
 }
 
 #[inline(always)]
+pub(crate) fn birth_backend_objectize_stable_box_now(bytes: u64) {
+    with_tls(|tls| tls.birth_backend_objectize_stable_box_now(bytes));
+}
+
+#[inline(always)]
 pub(crate) fn birth_backend_handle_issue() {
     with_tls(ThreadCounters::birth_backend_handle_issue);
+}
+
+#[inline(always)]
+pub(crate) fn birth_backend_issue_fresh_handle() {
+    with_tls(ThreadCounters::birth_backend_issue_fresh_handle);
 }
 
 #[inline(always)]
@@ -766,7 +812,7 @@ fn flush_current_thread() {
     TLS_COUNTERS.with(ThreadCounters::flush_into_global);
 }
 
-pub(crate) fn snapshot() -> [u64; 42] {
+pub(crate) fn snapshot() -> [u64; 45] {
     flush_current_thread();
     [
         GLOBAL.store_array_str_total.load(Ordering::Relaxed),
@@ -805,7 +851,16 @@ pub(crate) fn snapshot() -> [u64; 42] {
         GLOBAL.birth_backend_string_box_ctor_total.load(Ordering::Relaxed),
         GLOBAL.birth_backend_string_box_ctor_bytes.load(Ordering::Relaxed),
         GLOBAL.birth_backend_arc_wrap_total.load(Ordering::Relaxed),
+        GLOBAL
+            .birth_backend_objectize_stable_box_now_total
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .birth_backend_objectize_stable_box_now_bytes
+            .load(Ordering::Relaxed),
         GLOBAL.birth_backend_handle_issue_total.load(Ordering::Relaxed),
+        GLOBAL
+            .birth_backend_issue_fresh_handle_total
+            .load(Ordering::Relaxed),
         GLOBAL.birth_backend_materialize_owned_total.load(Ordering::Relaxed),
         GLOBAL.birth_backend_materialize_owned_bytes.load(Ordering::Relaxed),
         GLOBAL.birth_backend_gc_alloc_called.load(Ordering::Relaxed),
@@ -871,7 +926,9 @@ mod tests {
         birth_backend_string_box_new(18);
         birth_backend_string_box_ctor(18);
         birth_backend_arc_wrap();
+        birth_backend_objectize_stable_box_now(18);
         birth_backend_handle_issue();
+        birth_backend_issue_fresh_handle();
         birth_backend_materialize_owned(18);
         birth_backend_gc_alloc(18);
         birth_backend_gc_alloc_skipped();
@@ -886,10 +943,13 @@ mod tests {
         assert_eq!(after[34] - before[34], 18);
         assert_eq!(after[35] - before[35], 1);
         assert_eq!(after[36] - before[36], 1);
-        assert_eq!(after[37] - before[37], 1);
-        assert_eq!(after[38] - before[38], 18);
+        assert_eq!(after[37] - before[37], 18);
+        assert_eq!(after[38] - before[38], 1);
         assert_eq!(after[39] - before[39], 1);
-        assert_eq!(after[40] - before[40], 18);
-        assert_eq!(after[41] - before[41], 1);
+        assert_eq!(after[40] - before[40], 1);
+        assert_eq!(after[41] - before[41], 18);
+        assert_eq!(after[42] - before[42], 1);
+        assert_eq!(after[43] - before[43], 18);
+        assert_eq!(after[44] - before[44], 1);
     }
 }

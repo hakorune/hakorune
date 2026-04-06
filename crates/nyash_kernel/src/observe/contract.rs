@@ -41,6 +41,11 @@ pub(crate) const BIRTH_BACKEND_STRING_BOX_CTOR_TOTAL: &str = "string_box_ctor_to
 pub(crate) const BIRTH_BACKEND_STRING_BOX_CTOR_BYTES: &str = "string_box_ctor_bytes";
 pub(crate) const BIRTH_BACKEND_ARC_WRAP_TOTAL: &str = "arc_wrap_total";
 pub(crate) const BIRTH_BACKEND_HANDLE_ISSUE_TOTAL: &str = "handle_issue_total";
+pub(crate) const BIRTH_BACKEND_OBJECTIZE_STABLE_BOX_NOW_TOTAL: &str =
+    "objectize_stable_box_now_total";
+pub(crate) const BIRTH_BACKEND_OBJECTIZE_STABLE_BOX_NOW_BYTES: &str =
+    "objectize_stable_box_now_bytes";
+pub(crate) const BIRTH_BACKEND_ISSUE_FRESH_HANDLE_TOTAL: &str = "issue_fresh_handle_total";
 pub(crate) const BIRTH_BACKEND_MATERIALIZE_OWNED_TOTAL: &str = "materialize_owned_total";
 pub(crate) const BIRTH_BACKEND_MATERIALIZE_OWNED_BYTES: &str = "materialize_owned_bytes";
 pub(crate) const BIRTH_BACKEND_GC_ALLOC_CALLED: &str = "gc_alloc_called";

@@ -34,34 +34,37 @@ fn wrap_string_box_in_arc(string_box: StringBox) -> Arc<dyn NyashBox> {
 
 #[cfg(feature = "perf-observe")]
 #[inline(never)]
-fn birth_string_arc_from_owned(value: String) -> Arc<dyn NyashBox> {
+fn objectize_stable_string_box(value: String) -> Arc<dyn NyashBox> {
     crate::observe::record_birth_backend_string_box_new(value.len());
+    crate::observe::record_birth_backend_objectize_stable_box_now(value.len());
     let string_box = birth_string_box_from_owned(value);
     wrap_string_box_in_arc(string_box)
 }
 
 #[cfg(not(feature = "perf-observe"))]
 #[inline(always)]
-fn birth_string_arc_from_owned(value: String) -> Arc<dyn NyashBox> {
+fn objectize_stable_string_box(value: String) -> Arc<dyn NyashBox> {
     let string_box = birth_string_box_from_owned(value);
     wrap_string_box_in_arc(string_box)
 }
 
 #[cfg(feature = "perf-observe")]
 #[inline(never)]
-fn issue_string_handle_from_arc(arc: Arc<dyn NyashBox>) -> i64 {
+fn issue_fresh_handle(arc: Arc<dyn NyashBox>) -> i64 {
     crate::observe::record_birth_backend_handle_issue();
+    crate::observe::record_birth_backend_issue_fresh_handle();
     handles::to_handle_arc(arc) as i64
 }
 
 #[cfg(not(feature = "perf-observe"))]
 #[inline(always)]
-fn issue_string_handle_from_arc(arc: Arc<dyn NyashBox>) -> i64 {
+fn issue_fresh_handle(arc: Arc<dyn NyashBox>) -> i64 {
     handles::to_handle_arc(arc) as i64
 }
 
-#[inline(always)]
-pub(crate) fn materialize_owned_string(value: String) -> i64 {
+#[cfg(feature = "perf-observe")]
+#[inline(never)]
+fn materialize_owned_bytes(value: String) -> String {
     crate::observe::record_birth_backend_materialize_owned(value.len());
     if crate::observe::bypass_gc_alloc_enabled() {
         crate::observe::record_birth_backend_gc_alloc_skipped();
@@ -69,8 +72,27 @@ pub(crate) fn materialize_owned_string(value: String) -> i64 {
         crate::observe::record_birth_backend_gc_alloc(value.len());
         nyash_rust::runtime::global_hooks::gc_alloc(value.len() as u64);
     }
-    let arc = birth_string_arc_from_owned(value);
-    issue_string_handle_from_arc(arc)
+    value
+}
+
+#[cfg(not(feature = "perf-observe"))]
+#[inline(always)]
+fn materialize_owned_bytes(value: String) -> String {
+    crate::observe::record_birth_backend_materialize_owned(value.len());
+    if crate::observe::bypass_gc_alloc_enabled() {
+        crate::observe::record_birth_backend_gc_alloc_skipped();
+    } else {
+        crate::observe::record_birth_backend_gc_alloc(value.len());
+        nyash_rust::runtime::global_hooks::gc_alloc(value.len() as u64);
+    }
+    value
+}
+
+#[inline(always)]
+pub(crate) fn materialize_owned_string(value: String) -> i64 {
+    let bytes = materialize_owned_bytes(value);
+    let arc = objectize_stable_string_box(bytes);
+    issue_fresh_handle(arc)
 }
 
 #[inline(always)]

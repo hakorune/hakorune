@@ -1,5 +1,6 @@
 use super::super::backend;
 use super::super::contract;
+use std::fmt::Write as _;
 
 pub(crate) fn emit_summary_to_stderr() {
     let snapshot = backend::snapshot();
@@ -63,42 +64,36 @@ pub(crate) fn emit_summary_to_stderr() {
         contract::BIRTH_PLACEMENT_STORE_FROM_SOURCE,
         snapshot[24],
     );
-    eprintln!(
-        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
-        contract::BIRTH_BACKEND,
-        contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_TOTAL,
-        snapshot[25],
-        contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_VIEW1,
-        snapshot[26],
-        contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES2,
-        snapshot[27],
-        contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES3,
-        snapshot[28],
-        contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES4,
-        snapshot[29],
-        contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_OWNED_TMP,
-        snapshot[30],
-        contract::BIRTH_BACKEND_STRING_BOX_NEW_TOTAL,
-        snapshot[31],
-        contract::BIRTH_BACKEND_STRING_BOX_NEW_BYTES,
-        snapshot[32],
-        contract::BIRTH_BACKEND_STRING_BOX_CTOR_TOTAL,
-        snapshot[33],
-        contract::BIRTH_BACKEND_STRING_BOX_CTOR_BYTES,
-        snapshot[34],
-        contract::BIRTH_BACKEND_ARC_WRAP_TOTAL,
-        snapshot[35],
-        contract::BIRTH_BACKEND_HANDLE_ISSUE_TOTAL,
-        snapshot[36],
-        contract::BIRTH_BACKEND_MATERIALIZE_OWNED_TOTAL,
-        snapshot[37],
-        contract::BIRTH_BACKEND_MATERIALIZE_OWNED_BYTES,
-        snapshot[38],
-        contract::BIRTH_BACKEND_GC_ALLOC_CALLED,
-        snapshot[39],
-        contract::BIRTH_BACKEND_GC_ALLOC_BYTES,
-        snapshot[40],
-        contract::BIRTH_BACKEND_GC_ALLOC_SKIPPED,
-        snapshot[41],
-    );
+    let mut birth_backend_line = format!("[perf/counter][{}]", contract::BIRTH_BACKEND);
+    for (name, value) in [
+        (contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_TOTAL, snapshot[25]),
+        (contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_VIEW1, snapshot[26]),
+        (contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES2, snapshot[27]),
+        (contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES3, snapshot[28]),
+        (contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES4, snapshot[29]),
+        (contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_OWNED_TMP, snapshot[30]),
+        (contract::BIRTH_BACKEND_STRING_BOX_NEW_TOTAL, snapshot[31]),
+        (contract::BIRTH_BACKEND_STRING_BOX_NEW_BYTES, snapshot[32]),
+        (contract::BIRTH_BACKEND_STRING_BOX_CTOR_TOTAL, snapshot[33]),
+        (contract::BIRTH_BACKEND_STRING_BOX_CTOR_BYTES, snapshot[34]),
+        (contract::BIRTH_BACKEND_ARC_WRAP_TOTAL, snapshot[35]),
+        (
+            contract::BIRTH_BACKEND_OBJECTIZE_STABLE_BOX_NOW_TOTAL,
+            snapshot[36],
+        ),
+        (
+            contract::BIRTH_BACKEND_OBJECTIZE_STABLE_BOX_NOW_BYTES,
+            snapshot[37],
+        ),
+        (contract::BIRTH_BACKEND_HANDLE_ISSUE_TOTAL, snapshot[38]),
+        (contract::BIRTH_BACKEND_ISSUE_FRESH_HANDLE_TOTAL, snapshot[39]),
+        (contract::BIRTH_BACKEND_MATERIALIZE_OWNED_TOTAL, snapshot[40]),
+        (contract::BIRTH_BACKEND_MATERIALIZE_OWNED_BYTES, snapshot[41]),
+        (contract::BIRTH_BACKEND_GC_ALLOC_CALLED, snapshot[42]),
+        (contract::BIRTH_BACKEND_GC_ALLOC_BYTES, snapshot[43]),
+        (contract::BIRTH_BACKEND_GC_ALLOC_SKIPPED, snapshot[44]),
+    ] {
+        let _ = write!(&mut birth_backend_line, " {}={}", name, value);
+    }
+    eprintln!("{}", birth_backend_line);
 }
