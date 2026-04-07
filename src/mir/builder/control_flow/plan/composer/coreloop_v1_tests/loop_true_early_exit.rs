@@ -7,9 +7,7 @@ use crate::mir::builder::control_flow::plan::facts::feature_facts::{
 };
 use crate::mir::builder::control_flow::plan::facts::loop_true_early_exit_facts::LoopTrueEarlyExitFacts;
 use crate::mir::builder::control_flow::plan::facts::loop_types::LoopFacts;
-use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
-    ConditionShape, StepShape,
-};
+use crate::mir::builder::control_flow::plan::facts::scan_shapes::{ConditionShape, StepShape};
 use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{SkeletonFacts, SkeletonKind};
 use crate::mir::builder::control_flow::plan::normalize::canonicalize_loop_facts;
 use crate::mir::builder::MirBuilder;

@@ -1,6 +1,4 @@
-use nyash_rust::ast::{
-    BinaryOperator, DeclarationAttrs, LiteralValue, RuneAttr, UnaryOperator,
-};
+use nyash_rust::ast::{BinaryOperator, DeclarationAttrs, LiteralValue, RuneAttr, UnaryOperator};
 use serde_json::{json, Value};
 
 pub(super) fn attrs_to_json(attrs: &DeclarationAttrs) -> Value {

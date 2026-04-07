@@ -20,10 +20,10 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::{ConstValue, MirType, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
 
+use super::super::{dispatch, exit, stmt as parts_stmt};
 use super::analysis::collect_defined_values_from_plans;
 use super::debug::debug_log_block_effects_binop_lit3;
 use super::vars::{collect_assigned_vars, collect_carriers_from_condition, condition_vars};
-use super::super::{dispatch, exit, stmt as parts_stmt};
 
 /// Lower a `RecipeItem::LoopV0` using only RecipeTree (`RecipeBlock`) + `CondBlockView`.
 ///
@@ -364,4 +364,3 @@ pub(in crate::mir::builder) fn lower_loop_v0(
         has_explicit_step,
     }))
 }
-

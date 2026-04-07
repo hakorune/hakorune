@@ -1,14 +1,14 @@
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::observability::flowbox_tags::FlowboxVia;
 use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
+use crate::mir::builder::control_flow::plan::observability::flowbox_tags::FlowboxVia;
 use crate::mir::builder::control_flow::plan::planner::PlanBuildOutcome;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
 use crate::mir::builder::control_flow::plan::verifier::PlanVerifier;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
-use super::debug_log_recipe_entry;
 use super::super::types::{route_labels, RouterEnv};
+use super::debug_log_recipe_entry;
 use crate::mir::builder::control_flow::joinir::route_entry::router::lower_verified_core_plan;
 
 pub(crate) fn route_generic_loop_v1(

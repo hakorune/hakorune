@@ -65,7 +65,10 @@ impl NyashParser {
         Ok(true)
     }
 
-    fn parse_legacy_annotation_as_rune(&mut self, anno_name: String) -> Result<RuneAttr, ParseError> {
+    fn parse_legacy_annotation_as_rune(
+        &mut self,
+        anno_name: String,
+    ) -> Result<RuneAttr, ParseError> {
         self.consume(TokenType::LPAREN)?;
 
         let (name, arg) = match anno_name.as_str() {

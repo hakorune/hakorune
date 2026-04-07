@@ -89,4 +89,3 @@ pub(in crate::mir::builder) fn lower_nested_loop_recipe_stmt_only(
     )?;
     Ok(Some(vec![plan]))
 }
-

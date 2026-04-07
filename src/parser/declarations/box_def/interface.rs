@@ -55,7 +55,9 @@ pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseE
     let mut methods = HashMap::new();
 
     while !p.match_token(&TokenType::RBRACE) && !p.is_at_end() {
-        if p.maybe_parse_opt_annotation_noop(crate::parser::statements::helpers::AnnotationSite::Member)? {
+        if p.maybe_parse_opt_annotation_noop(
+            crate::parser::statements::helpers::AnnotationSite::Member,
+        )? {
             continue;
         }
         if let TokenType::IDENTIFIER(method_name) = &p.current_token().token_type {

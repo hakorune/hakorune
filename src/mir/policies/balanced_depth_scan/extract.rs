@@ -313,4 +313,3 @@ fn is_inc_assign(node: &ASTNode, var_name: &str, step: i64) -> bool {
 fn is_var_plus_int(node: &ASTNode, var_name: &str, n: i64) -> bool {
     expr_view::match_add_by_const(node, var_name, n, true).is_some()
 }
-

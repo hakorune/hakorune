@@ -12,4 +12,3 @@ pub struct BalancedDepthScanPolicyResult {
     pub derived_recipe: BalancedDepthScanRecipe,
     pub post_loop_early_return: PostLoopEarlyReturnPlan,
 }
-

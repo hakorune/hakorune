@@ -326,4 +326,3 @@ fn analysis_view_blockexpr_accepts_single_update_and_rejects_ambiguous_or_contro
         "BlockExpr prelude with If must be rejected"
     );
 }
-

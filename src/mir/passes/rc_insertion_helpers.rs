@@ -6,6 +6,9 @@ use crate::mir::{BasicBlockId, MirInstruction, ValueId};
 #[cfg(feature = "rc-insertion-minimal")]
 use std::collections::{HashMap, HashSet};
 #[cfg(feature = "rc-insertion-minimal")]
+#[path = "rc_insertion_helpers/apply.rs"]
+mod apply;
+#[cfg(feature = "rc-insertion-minimal")]
 #[path = "rc_insertion_helpers/cleanup.rs"]
 mod cleanup;
 #[cfg(feature = "rc-insertion-minimal")]
@@ -15,17 +18,14 @@ mod contracts;
 #[path = "rc_insertion_helpers/cycles.rs"]
 mod cycles;
 #[cfg(feature = "rc-insertion-minimal")]
+#[path = "rc_insertion_helpers/plan.rs"]
+mod plan;
+#[cfg(feature = "rc-insertion-minimal")]
 #[path = "rc_insertion_helpers/types.rs"]
 mod types;
 #[cfg(feature = "rc-insertion-minimal")]
 #[path = "rc_insertion_helpers/util.rs"]
 mod util;
-#[cfg(feature = "rc-insertion-minimal")]
-#[path = "rc_insertion_helpers/plan.rs"]
-mod plan;
-#[cfg(feature = "rc-insertion-minimal")]
-#[path = "rc_insertion_helpers/apply.rs"]
-mod apply;
 #[cfg(feature = "rc-insertion-minimal")]
 use types::{DropPoint, DropReason, DropSite};
 
@@ -394,7 +394,14 @@ pub fn insert_rc_instructions(module: &mut MirModule) -> RcInsertionStats {
                     }
                 }
                 let (new_insts, new_spans, new_terminator, new_terminator_span) =
-                    apply::apply_rc_plan(insts, spans, terminator, terminator_span, plan, &mut stats);
+                    apply::apply_rc_plan(
+                        insts,
+                        spans,
+                        terminator,
+                        terminator_span,
+                        plan,
+                        &mut stats,
+                    );
 
                 block.instructions = new_insts;
                 block.instruction_spans = new_spans;

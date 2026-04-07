@@ -40,4 +40,3 @@ pub(crate) fn is_true_literal(condition: &ASTNode) -> bool {
         }
     )
 }
-

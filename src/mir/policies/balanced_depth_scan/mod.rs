@@ -17,4 +17,3 @@ pub use classify::{
     classify_balanced_depth_scan_array_end, classify_balanced_depth_scan_object_end, decide,
 };
 pub use types::BalancedDepthScanPolicyResult;
-

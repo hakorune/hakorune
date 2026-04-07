@@ -2,7 +2,10 @@ use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredR
 use crate::mir::ValueId;
 use std::collections::BTreeSet;
 
-pub(super) fn collect_defined_values_from_plans(plans: &[LoweredRecipe], out: &mut BTreeSet<ValueId>) {
+pub(super) fn collect_defined_values_from_plans(
+    plans: &[LoweredRecipe],
+    out: &mut BTreeSet<ValueId>,
+) {
     for plan in plans {
         match plan {
             CorePlan::Effect(effect) => collect_defined_values_from_effect(effect, out),
@@ -125,4 +128,3 @@ fn collect_defined_values_from_effect(effect: &CoreEffectPlan, out: &mut BTreeSe
         CoreEffectPlan::ExitIf { .. } => {}
     }
 }
-

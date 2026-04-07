@@ -57,4 +57,3 @@ pub(crate) fn strip_trailing_continue_view<'a>(body: &'a [ASTNode]) -> (&'a [AST
         _ => (body, false),
     }
 }
-

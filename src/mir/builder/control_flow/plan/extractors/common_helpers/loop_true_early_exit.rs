@@ -30,4 +30,3 @@ pub(crate) fn validate_break_in_simple_if(body: &[ASTNode]) -> bool {
     }
     false
 }
-

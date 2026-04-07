@@ -30,4 +30,3 @@ pub(super) fn eq_int(left: ASTNode, n: i64) -> ASTNode {
         span: Span::unknown(),
     }
 }
-

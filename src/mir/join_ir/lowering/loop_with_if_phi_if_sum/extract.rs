@@ -193,7 +193,10 @@ pub(super) fn extract_unconditional_update(body: &[ASTNode], update_var: &str) -
     None
 }
 
-pub(super) fn extract_counter_update(body: &[ASTNode], loop_var: &str) -> Result<(String, i64), String> {
+pub(super) fn extract_counter_update(
+    body: &[ASTNode],
+    loop_var: &str,
+) -> Result<(String, i64), String> {
     for stmt in body {
         if let ASTNode::Assignment { target, value, .. } = stmt {
             if let Ok(target_name) = extract_variable_name(&**target) {
@@ -215,7 +218,10 @@ pub(super) fn extract_counter_update(body: &[ASTNode], loop_var: &str) -> Result
             }
         }
     }
-    Err(format!("[if-sum] No counter update found for '{}'", loop_var))
+    Err(format!(
+        "[if-sum] No counter update found for '{}'",
+        loop_var
+    ))
 }
 
 fn extract_variable_name(node: &ASTNode) -> Result<String, String> {

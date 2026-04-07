@@ -79,4 +79,3 @@ pub(super) fn collect_assigned_vars(ast: &crate::ast::ASTNode, vars: &mut BTreeS
         _ => {}
     }
 }
-

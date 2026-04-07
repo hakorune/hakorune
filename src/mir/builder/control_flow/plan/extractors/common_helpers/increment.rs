@@ -125,4 +125,3 @@ fn extract_tail_loop_assignment_value(body: &[ASTNode], loop_var: &str) -> Optio
     }
     Some(value.as_ref().clone())
 }
-

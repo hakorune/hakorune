@@ -6,10 +6,10 @@ use crate::mir::join_ir::BinOpKind;
 use crate::mir::policies::post_loop_early_return_plan::PostLoopEarlyReturnPlan;
 use std::collections::BTreeMap;
 
+use super::super::PolicyDecision;
 use super::ast_helpers::{eq_int, eq_str, var};
 use super::extract::{extract_bounded_loop_counter, extract_depth_scan_shape};
 use super::types::BalancedDepthScanPolicyResult;
-use super::super::PolicyDecision;
 
 pub fn classify_balanced_depth_scan_array_end(
     condition: &ASTNode,
@@ -118,4 +118,3 @@ fn classify_balanced_depth_scan(
         },
     })
 }
-

@@ -342,4 +342,3 @@ fn test_extract_loop_increment_plan_ignores_tail_other_var() {
     let inc = extract_loop_increment_plan(&body, "i").expect("no error");
     assert!(inc.is_none());
 }
-

@@ -11,15 +11,13 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
 use super::super::super::router::{lower_verified_core_plan, LoopRouteContext};
-use super::{
-    debug_log_recipe_entry, emit_planner_first,
-};
+use super::super::types::{route_labels, PlannerFirstMode, RouterEnv, StandardEntry};
 use super::super::utils::loop_break_recipe_needs_flowbox_adopt_tag_in_strict;
+use super::{debug_log_recipe_entry, emit_planner_first};
 use super::{
     release_allows_loop_cond_break_continue, release_allows_loop_cond_continue_only,
     release_skips_nested_loop, route_standard,
 };
-use super::super::types::{route_labels, PlannerFirstMode, RouterEnv, StandardEntry};
 
 pub(crate) fn route_loop_break_recipe(
     builder: &mut MirBuilder,
@@ -28,10 +26,12 @@ pub(crate) fn route_loop_break_recipe(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     if env.planner_required && outcome.recipe_contract.is_none() {
-        return Err(crate::mir::builder::control_flow::plan::planner::Freeze::contract(
-            "LoopBreakRecipe requires recipe_contract in planner_required mode",
-        )
-        .to_string());
+        return Err(
+            crate::mir::builder::control_flow::plan::planner::Freeze::contract(
+                "LoopBreakRecipe requires recipe_contract in planner_required mode",
+            )
+            .to_string(),
+        );
     }
     emit_planner_first(
         PlannerFirstMode::StrictOrDev,
@@ -87,10 +87,12 @@ pub(crate) fn route_if_phi_join(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     if env.planner_required && outcome.recipe_contract.is_none() {
-        return Err(crate::mir::builder::control_flow::plan::planner::Freeze::contract(
-            "IfPhiJoin requires recipe_contract in planner_required mode",
-        )
-        .to_string());
+        return Err(
+            crate::mir::builder::control_flow::plan::planner::Freeze::contract(
+                "IfPhiJoin requires recipe_contract in planner_required mode",
+            )
+            .to_string(),
+        );
     }
     emit_planner_first(PlannerFirstMode::StrictOrDev, env, PlanRuleId::IfPhiJoin);
     debug_log_recipe_entry(planner_rule_route_label(PlanRuleId::IfPhiJoin), env);
@@ -121,10 +123,12 @@ pub(crate) fn route_loop_continue_only(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     if env.planner_required && outcome.recipe_contract.is_none() {
-        return Err(crate::mir::builder::control_flow::plan::planner::Freeze::contract(
-            "LoopContinueOnly requires recipe_contract in planner_required mode",
-        )
-        .to_string());
+        return Err(
+            crate::mir::builder::control_flow::plan::planner::Freeze::contract(
+                "LoopContinueOnly requires recipe_contract in planner_required mode",
+            )
+            .to_string(),
+        );
     }
     emit_planner_first(
         PlannerFirstMode::StrictOrDev,
@@ -313,10 +317,12 @@ pub(crate) fn route_accum_const_loop(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     if env.planner_required && outcome.recipe_contract.is_none() {
-        return Err(crate::mir::builder::control_flow::plan::planner::Freeze::contract(
-            "AccumConstLoop requires recipe_contract in planner_required mode",
-        )
-        .to_string());
+        return Err(
+            crate::mir::builder::control_flow::plan::planner::Freeze::contract(
+                "AccumConstLoop requires recipe_contract in planner_required mode",
+            )
+            .to_string(),
+        );
     }
     emit_planner_first(
         PlannerFirstMode::StrictOrDev,

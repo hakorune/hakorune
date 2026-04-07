@@ -54,4 +54,3 @@ pub(super) fn debug_log_block_effects_binop_lit3(builder: &MirBuilder, effects: 
         rhs.0
     ));
 }
-

@@ -44,7 +44,10 @@ impl Default for ControlFlowDetector {
 /// - loop_continue_only: default (skip_nested=true, count_returns=false)
 /// - loop_true_early_exit: count_returns=true
 ///   (returns Err if return found)
-pub(crate) fn count_control_flow(body: &[ASTNode], detector: ControlFlowDetector) -> ControlFlowCounts {
+pub(crate) fn count_control_flow(
+    body: &[ASTNode],
+    detector: ControlFlowDetector,
+) -> ControlFlowCounts {
     let mut counts = ControlFlowCounts::default();
 
     fn scan_node(
@@ -63,7 +66,9 @@ pub(crate) fn count_control_flow(body: &[ASTNode], detector: ControlFlowDetector
             ASTNode::Return { .. } if detector.count_returns => {
                 counts.return_count += 1;
             }
-            ASTNode::Loop { body, .. } | ASTNode::While { body, .. } | ASTNode::ForRange { body, .. } => {
+            ASTNode::Loop { body, .. }
+            | ASTNode::While { body, .. }
+            | ASTNode::ForRange { body, .. } => {
                 counts.has_nested_loop = true;
                 // Skip nested loop bodies if configured
                 if detector.skip_nested_control_flow {
@@ -149,8 +154,7 @@ pub(crate) fn has_if_statement(body: &[ASTNode]) -> bool {
 pub(crate) fn has_if_else_statement(body: &[ASTNode]) -> bool {
     walk_stmt_list(body, |node| match node {
         ASTNode::If {
-            else_body: Some(_),
-            ..
+            else_body: Some(_), ..
         } => true,
         ASTNode::Loop { body, .. } => has_if_else_statement(body),
         _ => false,
@@ -169,4 +173,3 @@ pub(crate) fn find_if_else_statement(body: &[ASTNode]) -> Option<&ASTNode> {
         )
     })
 }
-

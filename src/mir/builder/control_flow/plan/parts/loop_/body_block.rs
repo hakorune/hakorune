@@ -3,8 +3,8 @@ use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
-use super::LoopBodyContractKind;
 use super::super::{entry, stmt as parts_stmt, verify};
+use super::LoopBodyContractKind;
 
 pub(in crate::mir::builder) fn lower_loop_with_body_block(
     builder: &mut MirBuilder,
@@ -177,4 +177,3 @@ pub(in crate::mir::builder) fn lower_loop_with_exit_only_body_block(
         error_prefix,
     )
 }
-
