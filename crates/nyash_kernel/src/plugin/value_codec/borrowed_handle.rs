@@ -24,7 +24,7 @@ impl SourceLifetimeKeep {
     }
 
     #[inline(always)]
-    fn as_str_fast(&self) -> Option<&str> {
+    fn stable_object_text_fast(&self) -> Option<&str> {
         self.stable_box_ref().as_ref().as_str_fast()
     }
 }
@@ -51,8 +51,8 @@ impl TextKeep {
     }
 
     #[inline(always)]
-    fn as_str_fast(&self) -> Option<&str> {
-        self.source_lifetime_ref().as_str_fast()
+    fn stable_object_text_fast(&self) -> Option<&str> {
+        self.source_lifetime_ref().stable_object_text_fast()
     }
 
 }
@@ -238,7 +238,7 @@ impl NyashBox for BorrowedHandleBox {
                 }
             }
         }
-        self.text_keep.as_str_fast()
+        self.text_keep.stable_object_text_fast()
     }
 }
 

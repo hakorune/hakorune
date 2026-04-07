@@ -432,6 +432,18 @@
       - current read:
         - keep proof on the source-contract side
         - do not widen alias keep semantics with proof transport again
+    - read-contract freeze:
+      - `BorrowedHandleBox::as_str_fast()` stays a stable-object read only
+      - `host_handles::with_str_handle(...)` / `with_text_read_session(...)` stay live-source session reads only
+      - do not push registry-backed direct read into `as_str_fast()`
+    - latest landed read-contract naming cleanup:
+      - `SourceLifetimeKeep` stable-object text read is now named as stable-object read rather than generic fast read
+      - `ArrayStoreStrSource::object_ref()` is now `stable_object_fallback_ref()`
+      - this is still no-behavior-change; it aligns backend naming with the read-contract split
+      - accept-gate reread:
+        - `kilo_micro_array_string_store: 173 ms`
+        - `kilo_micro_concat_hh_len: 62 ms`
+        - `kilo_kernel_small_hk: 698 ms`
    - next observation order is fixed:
      1. split the `store.array.str -> with_handle(ArrayStoreStrSource)` object contract again before changing behavior
      2. keep borrowed alias string-read trimming closed; live-source fast read was not enough

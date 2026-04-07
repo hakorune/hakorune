@@ -131,6 +131,34 @@ These names are Rust backend family names only.
 Do not promote them into `.hako` route vocabulary or MIR top-level outcome
 names.
 
+## Read-Contract Rule
+
+Do not mix stable-object read and live-source read.
+
+These are different backend-private contracts:
+
+1. stable-object read
+   - returns `Option<&str>`
+   - examples:
+     - `NyashBox::as_str_fast()`
+     - `BorrowedHandleBox::as_str_fast()`
+   - may read only from stable object state already held by the box
+
+2. live-source read
+   - uses closure/session APIs only
+   - examples:
+     - `host_handles::with_str_handle(...)`
+     - `host_handles::with_text_read_session(...)`
+   - may borrow text behind registry/session guards
+   - must not escape as a naked `Option<&str>`
+
+Reading rule:
+
+- do not add live-source direct read into `as_str_fast()`
+- do not use stable-object read names for registry/session-backed borrowing
+- if a caller must cross the session boundary, use a guard/session carrier
+  instead of a naked borrowed string
+
 ## Backend Second Axis
 
 Birth / Placement outcome is the first reading.
@@ -343,6 +371,11 @@ Reading rule:
 - `SourceLifetimeKeep` is lifetime mechanics
 - `AliasUpdate` is metadata update
 - `NeedStableObject` is the only branch that may justify generic object-world entry
+
+`SourceLifetimeKeep` must follow the read-contract rule:
+
+- it may carry text/lifetime survival semantics
+- it must not become a disguised live-source direct-read API
 
 This keeps lifecycle policy above Rust while keeping runtime mechanics below it.
 

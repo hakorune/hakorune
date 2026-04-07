@@ -291,7 +291,7 @@ fn execute_store_array_str_slot(
         } else {
             observe::record_store_array_str_append_slot();
         }
-        if source.object_ref().is_some() {
+        if source.stable_object_fallback_ref().is_some() {
             observe::record_store_array_str_reason_source_kind_via_object();
         }
         source.record_observe_source_kind();
@@ -328,7 +328,7 @@ fn execute_store_array_str_slot(
             }
         }
     }
-    let source_obj = source.object_ref();
+    let source_obj = source.stable_object_fallback_ref();
     if plan.source_is_string {
         observe::record_store_array_str_source_store();
         if plan.latest_fresh_source {

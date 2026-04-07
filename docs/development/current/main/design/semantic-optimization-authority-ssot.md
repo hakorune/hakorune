@@ -340,6 +340,14 @@ Current backend-private support seam:
   - private source-preserving keep contract for alias survival
   - must remain backend-private until a higher-layer lifecycle rule explicitly widens it
 
+Read-contract rule inside Rust:
+
+- `as_str_fast() -> Option<&str>` is stable-object read only
+- `with_str_handle(...)` / `with_text_read_session(...)` are live-source
+  session reads only
+- do not merge those two contracts by returning naked borrowed text from
+  registry/session-backed reads
+
 ## `store.array.str` Contract Rule
 
 Keep the visible canonical name `store.array.str`.
@@ -362,6 +370,12 @@ Interpretation:
   - slot metadata update
 - `NeedStableObject`
   - the only branch that may justify generic object-world entry
+
+Read-side corollary:
+
+- `SourceKindCheck` may use object/session-backed runtime facts
+- `SourceLifetimeKeep` may preserve text/lifetime semantics
+- neither of them should redefine `as_str_fast()` into a live-source API
 
 This rule exists to stop Rust leaf helpers from re-owning lifecycle policy.
 
