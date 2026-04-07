@@ -33,17 +33,18 @@ pub(crate) fn decode_array_fast_value(arg: i64) -> ArrayFastDecodedValue {
         arg as u64,
         handles::PerfObserveObjectWithHandleCaller::DecodeArrayFast,
         |obj| {
-        let Some(obj) = obj else {
-            return ArrayFastDecodedValue::ImmediateI64(arg);
-        };
-        if obj.as_any().downcast_ref::<StringBox>().is_some() {
-            return ArrayFastDecodedValue::Boxed(maybe_borrow_string_handle(obj.clone(), arg));
-        }
-        if let Some(ib) = obj.as_any().downcast_ref::<IntegerBox>() {
-            return ArrayFastDecodedValue::ImmediateI64(ib.value);
-        }
-        ArrayFastDecodedValue::ImmediateI64(arg)
-    })
+            let Some(obj) = obj else {
+                return ArrayFastDecodedValue::ImmediateI64(arg);
+            };
+            if obj.as_any().downcast_ref::<StringBox>().is_some() {
+                return ArrayFastDecodedValue::Boxed(maybe_borrow_string_handle(obj.clone(), arg));
+            }
+            if let Some(ib) = obj.as_any().downcast_ref::<IntegerBox>() {
+                return ArrayFastDecodedValue::ImmediateI64(ib.value);
+            }
+            ArrayFastDecodedValue::ImmediateI64(arg)
+        },
+    )
 }
 
 #[inline(always)]
@@ -54,14 +55,15 @@ pub(crate) fn any_arg_to_box_with_profile(arg: i64, profile: CodecProfile) -> Bo
                 arg as u64,
                 handles::PerfObserveObjectWithHandleCaller::DecodeAnyArg,
                 |obj| {
-                let Some(obj) = obj else {
-                    return int_arg_to_box(arg);
-                };
-                if obj.as_any().downcast_ref::<StringBox>().is_some() {
-                    return maybe_borrow_string_handle(obj.clone(), arg);
-                }
-                int_arg_to_box(arg)
-            });
+                    let Some(obj) = obj else {
+                        return int_arg_to_box(arg);
+                    };
+                    if obj.as_any().downcast_ref::<StringBox>().is_some() {
+                        return maybe_borrow_string_handle(obj.clone(), arg);
+                    }
+                    int_arg_to_box(arg)
+                },
+            );
         }
         // Phase-29cc route lock: ArrayFastBorrowString keeps scalar-prefer behavior.
         let scalar_prefer = profile == CodecProfile::ArrayFastBorrowString;
@@ -69,30 +71,31 @@ pub(crate) fn any_arg_to_box_with_profile(arg: i64, profile: CodecProfile) -> Bo
             arg as u64,
             handles::PerfObserveObjectWithHandleCaller::DecodeAnyArg,
             |obj| {
-            let Some(obj) = obj else {
-                return int_arg_to_box(arg);
-            };
-            if profile == CodecProfile::ArrayFastBorrowString {
-                if obj.as_any().downcast_ref::<StringBox>().is_some()
-                    || obj
-                        .as_any()
-                        .downcast_ref::<crate::exports::string_view::StringViewBox>()
-                        .is_some()
-                {
-                    return maybe_borrow_string_handle(obj.clone(), arg);
-                }
-                if let Some(bb) = obj.as_any().downcast_ref::<BoolBox>() {
-                    return Box::new(BoolBox::new(bb.value));
-                }
-                if scalar_prefer {
-                    if let Some(ib) = obj.as_any().downcast_ref::<IntegerBox>() {
-                        return Box::new(IntegerBox::new(ib.value));
-                    }
+                let Some(obj) = obj else {
                     return int_arg_to_box(arg);
+                };
+                if profile == CodecProfile::ArrayFastBorrowString {
+                    if obj.as_any().downcast_ref::<StringBox>().is_some()
+                        || obj
+                            .as_any()
+                            .downcast_ref::<crate::exports::string_view::StringViewBox>()
+                            .is_some()
+                    {
+                        return maybe_borrow_string_handle(obj.clone(), arg);
+                    }
+                    if let Some(bb) = obj.as_any().downcast_ref::<BoolBox>() {
+                        return Box::new(BoolBox::new(bb.value));
+                    }
+                    if scalar_prefer {
+                        if let Some(ib) = obj.as_any().downcast_ref::<IntegerBox>() {
+                            return Box::new(IntegerBox::new(ib.value));
+                        }
+                        return int_arg_to_box(arg);
+                    }
                 }
-            }
-            obj.clone_box()
-        });
+                obj.clone_box()
+            },
+        );
     }
     int_arg_to_box(arg)
 }
@@ -110,19 +113,20 @@ pub(crate) fn any_arg_to_index(arg: i64) -> Option<i64> {
         arg as u64,
         handles::PerfObserveObjectWithHandleCaller::DecodeAnyIndex,
         |obj| {
-        let Some(obj) = obj else {
-            return Some(arg);
-        };
-        // Treat integer-like handle keys as boxed indices, but keep positive immediates
-        // as raw indices when the handle is non-index-like.
-        if let Some(ib) = obj.as_any().downcast_ref::<IntegerBox>() {
-            return Some(ib.value);
-        }
-        if let Some(sb) = obj.as_any().downcast_ref::<StringBox>() {
-            return sb.value.parse::<i64>().ok().or(Some(arg));
-        }
-        Some(arg)
-    })
+            let Some(obj) = obj else {
+                return Some(arg);
+            };
+            // Treat integer-like handle keys as boxed indices, but keep positive immediates
+            // as raw indices when the handle is non-index-like.
+            if let Some(ib) = obj.as_any().downcast_ref::<IntegerBox>() {
+                return Some(ib.value);
+            }
+            if let Some(sb) = obj.as_any().downcast_ref::<StringBox>() {
+                return sb.value.parse::<i64>().ok().or(Some(arg));
+            }
+            Some(arg)
+        },
+    )
 }
 
 #[inline(always)]

@@ -166,7 +166,10 @@ mod tests {
         let scalar_h = new_int_handle(7);
 
         assert_eq!(nyash_runtime_data_get_hh(scalar_h, 0), 0);
-        assert_eq!(nyash_runtime_data_set_hhh(scalar_h, 0, new_int_handle(11)), 0);
+        assert_eq!(
+            nyash_runtime_data_set_hhh(scalar_h, 0, new_int_handle(11)),
+            0
+        );
         assert_eq!(nyash_runtime_data_has_hh(scalar_h, 0), 0);
         assert_eq!(nyash_runtime_data_push_hh(scalar_h, new_int_handle(11)), 0);
     }
@@ -191,7 +194,10 @@ mod tests {
         assert_eq!(nyash_runtime_data_set_hhh(handle, key, value), 1);
         assert_eq!(nyash_runtime_data_has_hh(handle, key), 1);
         assert_eq!(nyash_runtime_data_get_hh(handle, key), 77);
-        assert_eq!(nyash_runtime_data_get_hh(handle, new_string_handle("missing")), 0);
+        assert_eq!(
+            nyash_runtime_data_get_hh(handle, new_string_handle("missing")),
+            0
+        );
     }
 
     #[test]

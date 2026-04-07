@@ -2,11 +2,11 @@
 // Keep public host-service glue visible here, but keep compat quarantine internal-only.
 
 pub mod array;
+mod array_compat;
 mod array_guard;
 mod array_handle_cache;
-mod array_compat;
-mod array_runtime_any;
 mod array_runtime_aliases;
+mod array_runtime_any;
 mod array_runtime_facade;
 mod array_runtime_substrate;
 mod array_slot_append;
@@ -25,8 +25,8 @@ pub mod intarray;
 pub mod invoke;
 pub mod invoke_core;
 pub mod map;
-mod map_compat;
 mod map_aliases;
+mod map_compat;
 mod map_key_codec;
 mod map_probe;
 mod map_runtime_facade;

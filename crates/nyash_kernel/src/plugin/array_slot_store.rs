@@ -1,10 +1,14 @@
-use super::array_string_slot::array_string_store_handle_at;
 use super::array_guard::valid_handle_idx;
 use super::array_handle_cache::with_array_box;
+use super::array_string_slot::array_string_store_handle_at;
 use super::value_codec::{decode_array_fast_value, ArrayFastDecodedValue};
 
 #[inline(always)]
-fn array_slot_store_box(handle: i64, idx: i64, value: Box<dyn nyash_rust::box_trait::NyashBox>) -> i64 {
+fn array_slot_store_box(
+    handle: i64,
+    idx: i64,
+    value: Box<dyn nyash_rust::box_trait::NyashBox>,
+) -> i64 {
     with_array_box(handle, |arr| {
         if arr.slot_store_box_raw(idx, value) {
             1

@@ -1,10 +1,6 @@
 use super::handle_cache::{cache_store, with_cache_entry};
 use super::value_codec::{runtime_i64_from_box_ref_caller, BorrowedAliasEncodeCaller};
-use nyash_rust::{
-    box_trait::NyashBox,
-    boxes::array::ArrayBox,
-    runtime::host_handles as handles,
-};
+use nyash_rust::{box_trait::NyashBox, boxes::array::ArrayBox, runtime::host_handles as handles};
 
 #[inline(always)]
 fn encode_array_item_to_i64(item: &dyn NyashBox, drop_epoch: u64) -> i64 {

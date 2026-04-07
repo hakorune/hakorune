@@ -28,8 +28,7 @@ pub(crate) const STORE_ARRAY_STR_PLAN_SOURCE_KIND_MISSING: &str = "plan.source_k
 pub(crate) const STORE_ARRAY_STR_PLAN_SLOT_KIND_BORROWED_ALIAS: &str =
     "plan.slot_kind_borrowed_alias";
 pub(crate) const STORE_ARRAY_STR_PLAN_SLOT_KIND_OTHER: &str = "plan.slot_kind_other";
-pub(crate) const STORE_ARRAY_STR_PLAN_ACTION_RETARGET_ALIAS: &str =
-    "plan.action_retarget_alias";
+pub(crate) const STORE_ARRAY_STR_PLAN_ACTION_RETARGET_ALIAS: &str = "plan.action_retarget_alias";
 pub(crate) const STORE_ARRAY_STR_PLAN_ACTION_STORE_FROM_SOURCE: &str =
     "plan.action_store_from_source";
 pub(crate) const STORE_ARRAY_STR_PLAN_ACTION_NEED_STABLE_OBJECT: &str =
@@ -106,8 +105,7 @@ pub(crate) const STABLE_BOX_DEMAND_OBJECT_GET_LATEST_FRESH: &str = "object_get_l
 pub(crate) const STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_LATEST_FRESH: &str =
     "object_with_handle_latest_fresh";
 pub(crate) const STABLE_BOX_DEMAND_OBJECT_PAIR_LATEST_FRESH: &str = "object_pair_latest_fresh";
-pub(crate) const STABLE_BOX_DEMAND_OBJECT_TRIPLE_LATEST_FRESH: &str =
-    "object_triple_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_OBJECT_TRIPLE_LATEST_FRESH: &str = "object_triple_latest_fresh";
 pub(crate) const STABLE_BOX_DEMAND_TEXT_READ_HANDLE_LATEST_FRESH: &str =
     "text_read_handle_latest_fresh";
 pub(crate) const STABLE_BOX_DEMAND_TEXT_READ_PAIR_LATEST_FRESH: &str =
@@ -128,8 +126,7 @@ pub(crate) const STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ANY_INDEX_LATEST_FR
 pub(crate) const BORROWED_ALIAS_TO_STRING_BOX: &str = "to_string_box";
 pub(crate) const BORROWED_ALIAS_EQUALS: &str = "equals";
 pub(crate) const BORROWED_ALIAS_CLONE_BOX: &str = "clone_box";
-pub(crate) const BORROWED_ALIAS_TO_STRING_BOX_LATEST_FRESH: &str =
-    "to_string_box_latest_fresh";
+pub(crate) const BORROWED_ALIAS_TO_STRING_BOX_LATEST_FRESH: &str = "to_string_box_latest_fresh";
 pub(crate) const BORROWED_ALIAS_EQUALS_LATEST_FRESH: &str = "equals_latest_fresh";
 pub(crate) const BORROWED_ALIAS_CLONE_BOX_LATEST_FRESH: &str = "clone_box_latest_fresh";
 pub(crate) const BORROWED_ALIAS_BORROWED_SOURCE_FAST: &str = "borrowed_source_fast";

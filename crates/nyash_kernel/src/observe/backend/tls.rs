@@ -1081,7 +1081,10 @@ impl ThreadCounters {
             &self.birth_backend_gc_alloc_skipped,
             &GLOBAL.birth_backend_gc_alloc_skipped,
         );
-        flush_cell(&self.str_concat2_route_total, &GLOBAL.str_concat2_route_total);
+        flush_cell(
+            &self.str_concat2_route_total,
+            &GLOBAL.str_concat2_route_total,
+        );
         flush_cell(
             &self.str_concat2_route_dispatch_hit,
             &GLOBAL.str_concat2_route_dispatch_hit,
@@ -1655,8 +1658,12 @@ pub(crate) fn snapshot() -> [u64; 91] {
     [
         GLOBAL.store_array_str_total.load(Ordering::Relaxed),
         GLOBAL.store_array_str_cache_hit.load(Ordering::Relaxed),
-        GLOBAL.store_array_str_cache_miss_handle.load(Ordering::Relaxed),
-        GLOBAL.store_array_str_cache_miss_epoch.load(Ordering::Relaxed),
+        GLOBAL
+            .store_array_str_cache_miss_handle
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .store_array_str_cache_miss_epoch
+            .load(Ordering::Relaxed),
         GLOBAL.store_array_str_retarget_hit.load(Ordering::Relaxed),
         GLOBAL
             .store_array_str_latest_fresh_retarget_hit
@@ -1665,35 +1672,73 @@ pub(crate) fn snapshot() -> [u64; 91] {
         GLOBAL
             .store_array_str_latest_fresh_source_store
             .load(Ordering::Relaxed),
-        GLOBAL.store_array_str_non_string_source.load(Ordering::Relaxed),
+        GLOBAL
+            .store_array_str_non_string_source
+            .load(Ordering::Relaxed),
         GLOBAL.store_array_str_existing_slot.load(Ordering::Relaxed),
         GLOBAL.store_array_str_append_slot.load(Ordering::Relaxed),
-        GLOBAL.store_array_str_source_string_box.load(Ordering::Relaxed),
-        GLOBAL.store_array_str_source_string_view.load(Ordering::Relaxed),
-        GLOBAL.store_array_str_source_missing.load(Ordering::Relaxed),
+        GLOBAL
+            .store_array_str_source_string_box
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .store_array_str_source_string_view
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .store_array_str_source_missing
+            .load(Ordering::Relaxed),
         GLOBAL.const_suffix_total.load(Ordering::Relaxed),
-        GLOBAL.const_suffix_cached_handle_hit.load(Ordering::Relaxed),
-        GLOBAL.const_suffix_text_cache_reload.load(Ordering::Relaxed),
+        GLOBAL
+            .const_suffix_cached_handle_hit
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .const_suffix_text_cache_reload
+            .load(Ordering::Relaxed),
         GLOBAL.const_suffix_freeze_fallback.load(Ordering::Relaxed),
         GLOBAL.const_suffix_empty_return.load(Ordering::Relaxed),
-        GLOBAL.const_suffix_cached_fast_str_hit.load(Ordering::Relaxed),
+        GLOBAL
+            .const_suffix_cached_fast_str_hit
+            .load(Ordering::Relaxed),
         GLOBAL.const_suffix_cached_span_hit.load(Ordering::Relaxed),
         GLOBAL.birth_placement_return_handle.load(Ordering::Relaxed),
         GLOBAL.birth_placement_borrow_view.load(Ordering::Relaxed),
         GLOBAL.birth_placement_freeze_owned.load(Ordering::Relaxed),
         GLOBAL.birth_placement_fresh_handle.load(Ordering::Relaxed),
-        GLOBAL.birth_placement_materialize_owned.load(Ordering::Relaxed),
-        GLOBAL.birth_placement_store_from_source.load(Ordering::Relaxed),
-        GLOBAL.birth_backend_freeze_text_plan_total.load(Ordering::Relaxed),
-        GLOBAL.birth_backend_freeze_text_plan_view1.load(Ordering::Relaxed),
-        GLOBAL.birth_backend_freeze_text_plan_pieces2.load(Ordering::Relaxed),
-        GLOBAL.birth_backend_freeze_text_plan_pieces3.load(Ordering::Relaxed),
-        GLOBAL.birth_backend_freeze_text_plan_pieces4.load(Ordering::Relaxed),
-        GLOBAL.birth_backend_freeze_text_plan_owned_tmp.load(Ordering::Relaxed),
-        GLOBAL.birth_backend_string_box_new_total.load(Ordering::Relaxed),
-        GLOBAL.birth_backend_string_box_new_bytes.load(Ordering::Relaxed),
-        GLOBAL.birth_backend_string_box_ctor_total.load(Ordering::Relaxed),
-        GLOBAL.birth_backend_string_box_ctor_bytes.load(Ordering::Relaxed),
+        GLOBAL
+            .birth_placement_materialize_owned
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .birth_placement_store_from_source
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .birth_backend_freeze_text_plan_total
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .birth_backend_freeze_text_plan_view1
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .birth_backend_freeze_text_plan_pieces2
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .birth_backend_freeze_text_plan_pieces3
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .birth_backend_freeze_text_plan_pieces4
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .birth_backend_freeze_text_plan_owned_tmp
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .birth_backend_string_box_new_total
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .birth_backend_string_box_new_bytes
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .birth_backend_string_box_ctor_total
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .birth_backend_string_box_ctor_bytes
+            .load(Ordering::Relaxed),
         GLOBAL.birth_backend_arc_wrap_total.load(Ordering::Relaxed),
         GLOBAL
             .birth_backend_objectize_stable_box_now_total
@@ -1701,18 +1746,30 @@ pub(crate) fn snapshot() -> [u64; 91] {
         GLOBAL
             .birth_backend_objectize_stable_box_now_bytes
             .load(Ordering::Relaxed),
-        GLOBAL.birth_backend_handle_issue_total.load(Ordering::Relaxed),
+        GLOBAL
+            .birth_backend_handle_issue_total
+            .load(Ordering::Relaxed),
         GLOBAL
             .birth_backend_issue_fresh_handle_total
             .load(Ordering::Relaxed),
-        GLOBAL.birth_backend_materialize_owned_total.load(Ordering::Relaxed),
-        GLOBAL.birth_backend_materialize_owned_bytes.load(Ordering::Relaxed),
+        GLOBAL
+            .birth_backend_materialize_owned_total
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .birth_backend_materialize_owned_bytes
+            .load(Ordering::Relaxed),
         GLOBAL.birth_backend_gc_alloc_called.load(Ordering::Relaxed),
         GLOBAL.birth_backend_gc_alloc_bytes.load(Ordering::Relaxed),
-        GLOBAL.birth_backend_gc_alloc_skipped.load(Ordering::Relaxed),
+        GLOBAL
+            .birth_backend_gc_alloc_skipped
+            .load(Ordering::Relaxed),
         GLOBAL.str_concat2_route_total.load(Ordering::Relaxed),
-        GLOBAL.str_concat2_route_dispatch_hit.load(Ordering::Relaxed),
-        GLOBAL.str_concat2_route_fast_str_owned.load(Ordering::Relaxed),
+        GLOBAL
+            .str_concat2_route_dispatch_hit
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .str_concat2_route_fast_str_owned
+            .load(Ordering::Relaxed),
         GLOBAL
             .str_concat2_route_fast_str_return_handle
             .load(Ordering::Relaxed),
@@ -1762,9 +1819,15 @@ pub(crate) fn snapshot() -> [u64; 91] {
         GLOBAL
             .borrowed_alias_array_indexof_by_index_latest_fresh
             .load(Ordering::Relaxed),
-        GLOBAL.borrowed_alias_encode_epoch_hit.load(Ordering::Relaxed),
-        GLOBAL.borrowed_alias_encode_ptr_eq_hit.load(Ordering::Relaxed),
-        GLOBAL.borrowed_alias_encode_to_handle_arc.load(Ordering::Relaxed),
+        GLOBAL
+            .borrowed_alias_encode_epoch_hit
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .borrowed_alias_encode_ptr_eq_hit
+            .load(Ordering::Relaxed),
+        GLOBAL
+            .borrowed_alias_encode_to_handle_arc
+            .load(Ordering::Relaxed),
         GLOBAL
             .borrowed_alias_encode_to_handle_arc_array_get_index
             .load(Ordering::Relaxed),

@@ -1,6 +1,4 @@
-use super::handle_cache::{
-    clear_map_lookup_cache, with_map_box,
-};
+use super::handle_cache::{clear_map_lookup_cache, with_map_box};
 use super::map_key_codec::map_key_string_from_any;
 use super::map_probe::{map_probe_contains_any, map_probe_contains_i64};
 use super::map_slot_load::{map_slot_load_any, map_slot_load_i64};
@@ -125,12 +123,15 @@ pub(super) fn map_runtime_data_has_any_key(handle: i64, key_any: i64) -> i64 {
     } else {
         map_key_string_from_any(key_any)
     };
-    with_runtime_map_box(handle, |map| {
-        if map.contains_key_str(&key_str) {
-            1
-        } else {
-            0
-        }
-    })
+    with_runtime_map_box(
+        handle,
+        |map| {
+            if map.contains_key_str(&key_str) {
+                1
+            } else {
+                0
+            }
+        },
+    )
     .unwrap_or(0)
 }

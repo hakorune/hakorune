@@ -5,10 +5,10 @@ pub(crate) mod contract;
 mod backend;
 #[cfg(feature = "perf-observe")]
 mod config;
-#[cfg(feature = "perf-trace")]
-mod trace;
 #[cfg(feature = "perf-observe")]
 mod sink;
+#[cfg(feature = "perf-trace")]
+mod trace;
 
 #[cfg(feature = "perf-observe")]
 mod real {

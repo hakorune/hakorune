@@ -2,9 +2,9 @@
 // Keep this internal-only, probe it explicitly from invoke paths, and do not let
 // it grow into a general semantic owner.
 
+use crate::plugin::{materialize_owned_string, owned_string_from_handle};
 #[cfg(test)]
 use crate::test_support::with_env_vars;
-use crate::plugin::{materialize_owned_string, owned_string_from_handle};
 #[cfg(not(test))]
 use std::sync::OnceLock;
 

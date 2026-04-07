@@ -1,4 +1,6 @@
-use super::borrowed_handle::{maybe_borrow_string_handle_with_epoch, maybe_borrow_string_keep_with_epoch, SourceLifetimeKeep};
+use super::borrowed_handle::{
+    maybe_borrow_string_handle_with_epoch, maybe_borrow_string_keep_with_epoch, SourceLifetimeKeep,
+};
 use super::decode::int_arg_to_box;
 use nyash_rust::box_trait::{NyashBox, StringBox};
 use std::sync::Arc;
@@ -41,11 +43,7 @@ pub(crate) fn store_string_box_from_source_keep(
         return int_arg_to_box(source_handle);
     }
     crate::observe::record_birth_placement_store_from_source();
-    maybe_borrow_string_keep_with_epoch(
-        source_keep.clone(),
-        source_handle,
-        source_drop_epoch,
-    )
+    maybe_borrow_string_keep_with_epoch(source_keep.clone(), source_handle, source_drop_epoch)
 }
 
 #[inline(always)]

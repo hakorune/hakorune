@@ -501,27 +501,27 @@ fn concat3_plan_from_fast_str(a_h: i64, b_h: i64, c_h: i64) -> Option<i64> {
     }
     let plan = handles::with_text_read_session(|session| {
         session.str3(a_h as u64, b_h as u64, c_h as u64, |a, b, c| {
-        let placement = concat3_retention_class(a.is_empty(), b.is_empty(), c.is_empty(), true);
-        debug_assert!(!matches!(placement, RetainedForm::RetainView));
-        if a.is_empty() {
+            let placement = concat3_retention_class(a.is_empty(), b.is_empty(), c.is_empty(), true);
+            debug_assert!(!matches!(placement, RetainedForm::RetainView));
+            if a.is_empty() {
+                if b.is_empty() {
+                    return ConcatFastPath::ReuseHandle(c_h);
+                }
+                if c.is_empty() {
+                    return ConcatFastPath::ReuseHandle(b_h);
+                }
+                return ConcatFastPath::Owned(concat_two_str(b, c));
+            }
             if b.is_empty() {
-                return ConcatFastPath::ReuseHandle(c_h);
+                if c.is_empty() {
+                    return ConcatFastPath::ReuseHandle(a_h);
+                }
+                return ConcatFastPath::Owned(concat_two_str(a, c));
             }
             if c.is_empty() {
-                return ConcatFastPath::ReuseHandle(b_h);
+                return ConcatFastPath::Owned(concat_two_str(a, b));
             }
-            return ConcatFastPath::Owned(concat_two_str(b, c));
-        }
-        if b.is_empty() {
-            if c.is_empty() {
-                return ConcatFastPath::ReuseHandle(a_h);
-            }
-            return ConcatFastPath::Owned(concat_two_str(a, c));
-        }
-        if c.is_empty() {
-            return ConcatFastPath::Owned(concat_two_str(a, b));
-        }
-        ConcatFastPath::Owned(concat_three_str(a, b, c))
+            ConcatFastPath::Owned(concat_three_str(a, b, c))
         })
     })?;
     Some(match plan {

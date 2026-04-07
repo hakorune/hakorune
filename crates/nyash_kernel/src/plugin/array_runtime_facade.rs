@@ -1,6 +1,7 @@
 use super::array_slot_load::{array_slot_has_index, array_slot_load_encoded_i64};
 use super::array_slot_store::{
-    array_slot_rmw_add1_i64, array_slot_store_any, array_slot_store_i64, array_slot_store_string_handle,
+    array_slot_rmw_add1_i64, array_slot_store_any, array_slot_store_i64,
+    array_slot_store_string_handle,
 };
 
 // Runtime/compat forwarding only.

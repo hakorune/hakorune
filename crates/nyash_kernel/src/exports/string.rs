@@ -1,10 +1,10 @@
 #[path = "string_helpers.rs"]
 mod string_helpers;
 
+use self::string_helpers::*;
 pub(crate) use self::string_helpers::{
     string_is_empty_from_handle, string_len_from_handle, to_owned_string_handle_arg,
 };
-use self::string_helpers::*;
 
 // Thin ABI facade only.
 // String semantic ownership should live above this layer; keep exports here as

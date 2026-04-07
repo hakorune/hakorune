@@ -11,25 +11,41 @@ pub(crate) fn emit_summary_to_stderr() {
     let str_len_unclassified = snapshot[54].saturating_sub(str_len_classified);
     let mut store_array_str_line = format!(
         "[perf/counter][{}] total={}",
-        contract::STORE_ARRAY_STR, snapshot[0]
+        contract::STORE_ARRAY_STR,
+        snapshot[0]
     );
     for (name, value) in [
         (contract::STORE_ARRAY_STR_CACHE_HIT, snapshot[1]),
         (contract::STORE_ARRAY_STR_CACHE_MISS_HANDLE, snapshot[2]),
         (contract::STORE_ARRAY_STR_CACHE_MISS_EPOCH, snapshot[3]),
         (contract::STORE_ARRAY_STR_RETARGET_HIT, snapshot[4]),
-        (contract::STORE_ARRAY_STR_LATEST_FRESH_RETARGET_HIT, snapshot[5]),
+        (
+            contract::STORE_ARRAY_STR_LATEST_FRESH_RETARGET_HIT,
+            snapshot[5],
+        ),
         (contract::STORE_ARRAY_STR_SOURCE_STORE, snapshot[6]),
-        (contract::STORE_ARRAY_STR_LATEST_FRESH_SOURCE_STORE, snapshot[7]),
+        (
+            contract::STORE_ARRAY_STR_LATEST_FRESH_SOURCE_STORE,
+            snapshot[7],
+        ),
         (contract::STORE_ARRAY_STR_NON_STRING_SOURCE, snapshot[8]),
         (contract::STORE_ARRAY_STR_EXISTING_SLOT, snapshot[9]),
         (contract::STORE_ARRAY_STR_APPEND_SLOT, snapshot[10]),
         (contract::STORE_ARRAY_STR_SOURCE_STRING_BOX, snapshot[11]),
         (contract::STORE_ARRAY_STR_SOURCE_STRING_VIEW, snapshot[12]),
         (contract::STORE_ARRAY_STR_SOURCE_MISSING, snapshot[13]),
-        (contract::STORE_ARRAY_STR_PLAN_SOURCE_KIND_STRING_LIKE, snapshot[78]),
-        (contract::STORE_ARRAY_STR_PLAN_SOURCE_KIND_OTHER_OBJECT, snapshot[79]),
-        (contract::STORE_ARRAY_STR_PLAN_SOURCE_KIND_MISSING, snapshot[80]),
+        (
+            contract::STORE_ARRAY_STR_PLAN_SOURCE_KIND_STRING_LIKE,
+            snapshot[78],
+        ),
+        (
+            contract::STORE_ARRAY_STR_PLAN_SOURCE_KIND_OTHER_OBJECT,
+            snapshot[79],
+        ),
+        (
+            contract::STORE_ARRAY_STR_PLAN_SOURCE_KIND_MISSING,
+            snapshot[80],
+        ),
         (
             contract::STORE_ARRAY_STR_PLAN_SLOT_KIND_BORROWED_ALIAS,
             snapshot[81],
@@ -108,10 +124,22 @@ pub(crate) fn emit_summary_to_stderr() {
     for (name, value) in [
         (contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_TOTAL, snapshot[27]),
         (contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_VIEW1, snapshot[28]),
-        (contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES2, snapshot[29]),
-        (contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES3, snapshot[30]),
-        (contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES4, snapshot[31]),
-        (contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_OWNED_TMP, snapshot[32]),
+        (
+            contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES2,
+            snapshot[29],
+        ),
+        (
+            contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES3,
+            snapshot[30],
+        ),
+        (
+            contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES4,
+            snapshot[31],
+        ),
+        (
+            contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_OWNED_TMP,
+            snapshot[32],
+        ),
         (contract::BIRTH_BACKEND_STRING_BOX_NEW_TOTAL, snapshot[33]),
         (contract::BIRTH_BACKEND_STRING_BOX_NEW_BYTES, snapshot[34]),
         (contract::BIRTH_BACKEND_STRING_BOX_CTOR_TOTAL, snapshot[35]),
@@ -126,9 +154,18 @@ pub(crate) fn emit_summary_to_stderr() {
             snapshot[39],
         ),
         (contract::BIRTH_BACKEND_HANDLE_ISSUE_TOTAL, snapshot[40]),
-        (contract::BIRTH_BACKEND_ISSUE_FRESH_HANDLE_TOTAL, snapshot[41]),
-        (contract::BIRTH_BACKEND_MATERIALIZE_OWNED_TOTAL, snapshot[42]),
-        (contract::BIRTH_BACKEND_MATERIALIZE_OWNED_BYTES, snapshot[43]),
+        (
+            contract::BIRTH_BACKEND_ISSUE_FRESH_HANDLE_TOTAL,
+            snapshot[41],
+        ),
+        (
+            contract::BIRTH_BACKEND_MATERIALIZE_OWNED_TOTAL,
+            snapshot[42],
+        ),
+        (
+            contract::BIRTH_BACKEND_MATERIALIZE_OWNED_BYTES,
+            snapshot[43],
+        ),
         (contract::BIRTH_BACKEND_GC_ALLOC_CALLED, snapshot[44]),
         (contract::BIRTH_BACKEND_GC_ALLOC_BYTES, snapshot[45]),
         (contract::BIRTH_BACKEND_GC_ALLOC_SKIPPED, snapshot[46]),
@@ -210,14 +247,29 @@ pub(crate) fn emit_summary_to_stderr() {
         (contract::BORROWED_ALIAS_TO_STRING_BOX, snapshot[61]),
         (contract::BORROWED_ALIAS_EQUALS, snapshot[62]),
         (contract::BORROWED_ALIAS_CLONE_BOX, snapshot[63]),
-        (contract::BORROWED_ALIAS_TO_STRING_BOX_LATEST_FRESH, snapshot[64]),
+        (
+            contract::BORROWED_ALIAS_TO_STRING_BOX_LATEST_FRESH,
+            snapshot[64],
+        ),
         (contract::BORROWED_ALIAS_EQUALS_LATEST_FRESH, snapshot[65]),
-        (contract::BORROWED_ALIAS_CLONE_BOX_LATEST_FRESH, snapshot[66]),
+        (
+            contract::BORROWED_ALIAS_CLONE_BOX_LATEST_FRESH,
+            snapshot[66],
+        ),
         (contract::BORROWED_ALIAS_BORROWED_SOURCE_FAST, snapshot[67]),
         (contract::BORROWED_ALIAS_AS_STR_FAST, snapshot[68]),
-        (contract::BORROWED_ALIAS_AS_STR_FAST_LIVE_SOURCE, snapshot[69]),
-        (contract::BORROWED_ALIAS_AS_STR_FAST_STALE_SOURCE, snapshot[70]),
-        (contract::BORROWED_ALIAS_ARRAY_LEN_BY_INDEX_LATEST_FRESH, snapshot[71]),
+        (
+            contract::BORROWED_ALIAS_AS_STR_FAST_LIVE_SOURCE,
+            snapshot[69],
+        ),
+        (
+            contract::BORROWED_ALIAS_AS_STR_FAST_STALE_SOURCE,
+            snapshot[70],
+        ),
+        (
+            contract::BORROWED_ALIAS_ARRAY_LEN_BY_INDEX_LATEST_FRESH,
+            snapshot[71],
+        ),
         (
             contract::BORROWED_ALIAS_ARRAY_INDEXOF_BY_INDEX_LATEST_FRESH,
             snapshot[72],

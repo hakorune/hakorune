@@ -1,7 +1,7 @@
 use super::array_guard::valid_handle;
+use super::array_handle_cache::with_array_box;
 use super::array_slot_load::array_slot_load_encoded_i64;
 use super::array_slot_store::array_slot_store_i64;
-use super::array_handle_cache::with_array_box;
 use nyash_rust::box_trait::IntegerBox;
 
 #[inline(always)]
