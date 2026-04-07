@@ -1,5 +1,8 @@
 use super::borrowed_handle::SourceLifetimeKeep;
-use nyash_rust::{box_trait::{NyashBox, StringBox}, runtime::host_handles as handles};
+use nyash_rust::{
+    box_trait::{NyashBox, StringBox},
+    runtime::host_handles as handles,
+};
 use std::sync::Arc;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -16,11 +19,31 @@ pub(crate) enum StringLikeProof {
 }
 
 #[derive(Clone)]
+pub(crate) struct VerifiedTextSource {
+    proof: StringLikeProof,
+    keep: SourceLifetimeKeep,
+}
+
+impl VerifiedTextSource {
+    #[inline(always)]
+    pub(crate) fn new(proof: StringLikeProof, keep: SourceLifetimeKeep) -> Self {
+        Self { proof, keep }
+    }
+
+    #[inline(always)]
+    pub(crate) fn proof(&self) -> StringLikeProof {
+        self.proof
+    }
+
+    #[inline(always)]
+    pub(crate) fn keep(&self) -> &SourceLifetimeKeep {
+        &self.keep
+    }
+}
+
+#[derive(Clone)]
 pub(crate) enum ArrayStoreStrSource {
-    StringLike {
-        proof: StringLikeProof,
-        keep: SourceLifetimeKeep,
-    },
+    StringLike(VerifiedTextSource),
     OtherObject(Arc<dyn NyashBox>),
     Missing,
 }
@@ -29,7 +52,7 @@ impl ArrayStoreStrSource {
     #[inline(always)]
     pub(crate) fn source_kind(&self) -> StringHandleSourceKind {
         match self {
-            Self::StringLike { .. } => StringHandleSourceKind::StringLike,
+            Self::StringLike(_) => StringHandleSourceKind::StringLike,
             Self::OtherObject(_) => StringHandleSourceKind::OtherObject,
             Self::Missing => StringHandleSourceKind::Missing,
         }
@@ -38,14 +61,14 @@ impl ArrayStoreStrSource {
     #[inline(always)]
     pub(crate) fn record_observe_source_kind(&self) {
         match self {
-            Self::StringLike {
-                proof: StringLikeProof::StringBox,
-                ..
-            } => crate::observe::record_store_array_str_source_string_box(),
-            Self::StringLike {
-                proof: StringLikeProof::StringView,
-                ..
-            } => crate::observe::record_store_array_str_source_string_view(),
+            Self::StringLike(source) => match source.proof() {
+                StringLikeProof::StringBox => {
+                    crate::observe::record_store_array_str_source_string_box();
+                }
+                StringLikeProof::StringView => {
+                    crate::observe::record_store_array_str_source_string_view();
+                }
+            },
             Self::OtherObject(_) => {}
             Self::Missing => crate::observe::record_store_array_str_source_missing(),
         }
@@ -96,9 +119,9 @@ pub(crate) fn with_array_store_str_source<R>(
         handles::PerfObserveObjectWithHandleCaller::ArrayStoreStrSource,
         |source_obj| {
             let source = match classify_string_like_proof(source_obj) {
-                Some(proof) => ArrayStoreStrSource::StringLike {
+                Some(proof) => ArrayStoreStrSource::StringLike(VerifiedTextSource::new(
                     proof,
-                    keep: match proof {
+                    match proof {
                         StringLikeProof::StringBox => SourceLifetimeKeep::string_box(
                             source_obj.expect("string-like source object").clone(),
                         ),
@@ -106,7 +129,7 @@ pub(crate) fn with_array_store_str_source<R>(
                             source_obj.expect("string-like source object").clone(),
                         ),
                     },
-                },
+                )),
                 None if source_obj.is_some() => {
                     ArrayStoreStrSource::OtherObject(source_obj.expect("object source").clone())
                 }

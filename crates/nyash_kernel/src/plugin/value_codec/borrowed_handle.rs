@@ -1,47 +1,109 @@
+use crate::observe;
 use nyash_rust::{
     box_trait::{next_box_id, BoolBox, BoxBase, BoxCore, NyashBox, StringBox},
     runtime::host_handles as handles,
 };
-use crate::observe;
 use std::{any::Any, sync::Arc};
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum TextKeepClass {
+    StringBox,
+    StringView,
+}
+
 #[derive(Debug, Clone)]
-pub(crate) enum SourceLifetimeKeep {
-    StringBox(Arc<dyn NyashBox>),
-    StringView(Arc<dyn NyashBox>),
+struct TextKeepBacking {
+    stable_box: Arc<dyn NyashBox>,
+}
+
+impl TextKeepBacking {
+    #[inline(always)]
+    fn new(stable_box: Arc<dyn NyashBox>) -> Self {
+        Self { stable_box }
+    }
+
+    #[inline(always)]
+    fn stable_box_ref(&self) -> &Arc<dyn NyashBox> {
+        &self.stable_box
+    }
+
+    #[inline(always)]
+    fn stable_object_text_fast(&self) -> Option<&str> {
+        self.stable_box.as_ref().as_str_fast()
+    }
+
+    #[inline(always)]
+    fn with_text<R>(&self, f: impl FnOnce(&str) -> R) -> Option<R> {
+        self.stable_object_text_fast().map(f)
+    }
+
+    #[inline(always)]
+    fn copy_owned_text_cold(&self) -> String {
+        self.stable_box.as_ref().to_string_box().value
+    }
+
+    #[inline(always)]
+    fn clone_stable_box_cold_fallback(&self) -> Arc<dyn NyashBox> {
+        self.stable_box.clone()
+    }
+
+    #[inline(always)]
+    fn ptr_eq_backing(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.stable_box, &other.stable_box)
+    }
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct SourceLifetimeKeep {
+    class: TextKeepClass,
+    backing: TextKeepBacking,
 }
 
 impl SourceLifetimeKeep {
     #[inline(always)]
     pub(crate) fn string_box(obj: Arc<dyn NyashBox>) -> Self {
-        Self::StringBox(obj)
-    }
-
-    #[inline(always)]
-    pub(crate) fn string_view(obj: Arc<dyn NyashBox>) -> Self {
-        Self::StringView(obj)
-    }
-
-    #[inline(always)]
-    fn stable_box_ref(&self) -> &Arc<dyn NyashBox> {
-        match self {
-            Self::StringBox(obj) | Self::StringView(obj) => obj,
+        Self {
+            class: TextKeepClass::StringBox,
+            backing: TextKeepBacking::new(obj),
         }
     }
 
     #[inline(always)]
-    fn stable_object_text_fast(&self) -> Option<&str> {
-        self.stable_box_ref().as_ref().as_str_fast()
+    pub(crate) fn string_view(obj: Arc<dyn NyashBox>) -> Self {
+        Self {
+            class: TextKeepClass::StringView,
+            backing: TextKeepBacking::new(obj),
+        }
     }
 
     #[inline(always)]
-    pub(crate) fn clone_stable_box_for_store_fallback(&self) -> Arc<dyn NyashBox> {
-        self.stable_box_ref().clone()
+    pub(crate) fn class(&self) -> TextKeepClass {
+        self.class
+    }
+
+    #[inline(always)]
+    pub(crate) fn with_text<R>(&self, f: impl FnOnce(&str) -> R) -> Option<R> {
+        self.backing().with_text(f)
+    }
+
+    #[inline(always)]
+    pub(crate) fn copy_owned_text_cold(&self) -> String {
+        self.backing().copy_owned_text_cold()
     }
 
     #[inline(always)]
     fn supports_borrowed_alias(&self) -> bool {
-        matches!(self, Self::StringBox(_))
+        matches!(self.class(), TextKeepClass::StringBox)
+    }
+
+    #[inline(always)]
+    fn backing(&self) -> &TextKeepBacking {
+        &self.backing
+    }
+
+    #[inline(always)]
+    fn clone_stable_box_cold_fallback(&self) -> Arc<dyn NyashBox> {
+        self.backing().clone_stable_box_cold_fallback()
     }
 }
 
@@ -57,23 +119,35 @@ impl TextKeep {
     }
 
     #[inline(always)]
-    fn stable_object_ref(&self) -> &Arc<dyn NyashBox> {
-        self.source_lifetime.stable_box_ref()
+    fn with_text<R>(&self, f: impl FnOnce(&str) -> R) -> Option<R> {
+        self.source_lifetime.with_text(f)
     }
 
     #[inline(always)]
     fn stable_object_text_fast(&self) -> Option<&str> {
-        self.source_lifetime.stable_object_text_fast()
+        self.source_lifetime.backing().stable_object_text_fast()
     }
 
     #[inline(always)]
-    fn clone_stable_object(&self) -> Arc<dyn NyashBox> {
-        self.stable_object_ref().clone()
+    fn copy_owned_text_cold(&self) -> String {
+        self.source_lifetime.copy_owned_text_cold()
+    }
+
+    #[inline(always)]
+    fn stable_object_ref(&self) -> &Arc<dyn NyashBox> {
+        self.source_lifetime.backing().stable_box_ref()
     }
 
     #[inline(always)]
     fn ptr_eq_source_keep(&self, keep: &SourceLifetimeKeep) -> bool {
-        Arc::ptr_eq(self.stable_object_ref(), keep.stable_box_ref())
+        self.source_lifetime
+            .backing()
+            .ptr_eq_backing(keep.backing())
+    }
+
+    #[inline(always)]
+    fn clone_stable_box_cold_fallback(&self) -> Arc<dyn NyashBox> {
+        self.source_lifetime.clone_stable_box_cold_fallback()
     }
 }
 
@@ -162,7 +236,12 @@ impl BorrowedHandleBox {
 
     #[inline(always)]
     pub(crate) fn clone_stable_box_for_encode_fallback(&self) -> Arc<dyn NyashBox> {
-        self.text_keep.clone_stable_object()
+        self.text_keep.clone_stable_box_cold_fallback()
+    }
+
+    #[inline(always)]
+    pub(crate) fn copy_owned_text_cold(&self) -> String {
+        self.text_keep.copy_owned_text_cold()
     }
 
     #[inline(always)]
@@ -197,7 +276,10 @@ impl BoxCore for BorrowedHandleBox {
     }
 
     fn fmt_box(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        self.text_keep.stable_object_ref().fmt_box(f)
+        if let Some(result) = self.text_keep.with_text(|text| write!(f, "\"{}\"", text)) {
+            return result;
+        }
+        write!(f, "\"{}\"", self.copy_owned_text_cold())
     }
 
     fn as_any(&self) -> &dyn Any {
@@ -303,9 +385,9 @@ pub(crate) fn maybe_borrow_string_handle_with_epoch(
         .downcast_ref::<crate::exports::string_view::StringViewBox>()
         .is_some()
     {
-        return SourceLifetimeKeep::string_view(obj)
-            .clone_stable_box_for_store_fallback()
-            .clone_box();
+        return Box::new(StringBox::new(
+            SourceLifetimeKeep::string_view(obj).copy_owned_text_cold(),
+        ));
     }
     obj.clone_box()
 }
@@ -323,7 +405,7 @@ pub(crate) fn maybe_borrow_string_keep_with_epoch(
             source_drop_epoch,
         ));
     }
-    keep.clone_stable_box_for_store_fallback().clone_box()
+    Box::new(StringBox::new(keep.copy_owned_text_cold()))
 }
 
 #[inline(always)]

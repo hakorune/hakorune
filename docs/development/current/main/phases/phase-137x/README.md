@@ -253,11 +253,23 @@
      - target assembly shape remains:
          - planner-proved `RetargetAlias` should become metadata-heavy code
          - generic object fetch/downcast should disappear from the hot retarget path except for true source-lifetime keep
-     - current design freeze:
-       - do not add a public MIR op for `RetargetAlias`
-       - carry only:
-         - `source_preserve`
-         - `identity_demand`
+  - current design freeze:
+      - do not add a public MIR op for `RetargetAlias`
+      - carry only:
+        - `source_preserve`
+        - `identity_demand`
+  - latest keep stop-line slice:
+    - `SourceLifetimeKeep` is now opaque on its surface; backing representation stays internal
+    - target reading is now explicit:
+      - `TextKeep`
+      - `AliasSourceMeta`
+      - cold copy-out to owned text
+    - `ArrayStoreStrSource::StringLike(...)` now carries a typed `VerifiedTextSource`
+    - `StringView` keep fallback now uses cold owned text copy-out instead of object-like fallback cloning through the keep surface
+    - current accept gate:
+      - `kilo_micro_array_string_store: 170 ms`
+      - `kilo_micro_concat_hh_len: 61 ms`
+      - `kilo_kernel_small_hk: 715 ms`
          - `publication_demand`
          above Rust
        - keep runtime narrowables as backend-private seams:

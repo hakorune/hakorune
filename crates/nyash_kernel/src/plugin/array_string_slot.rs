@@ -2,11 +2,11 @@ use super::array_guard::valid_handle_idx;
 use super::handle_cache::{cache_probe_kind, CacheProbeKind as HandleCacheProbeKind};
 use super::value_codec::{
     maybe_store_non_string_box_from_verified_source, store_string_box_from_source_keep,
-    with_array_store_str_source, ArrayStoreStrSource,
-    BorrowedHandleBox, StringHandleSourceKind, try_retarget_borrowed_string_slot_take_keep,
+    try_retarget_borrowed_string_slot_take_keep, with_array_store_str_source, ArrayStoreStrSource,
+    BorrowedHandleBox, StringHandleSourceKind,
 };
-use crate::observe::{self, CacheProbeKind as ObserveCacheProbeKind};
 use crate::exports::string_view::resolve_string_span_from_handle;
+use crate::observe::{self, CacheProbeKind as ObserveCacheProbeKind};
 use memchr::{memchr, memmem};
 use nyash_rust::runtime::host_handles as handles;
 use std::cell::RefCell;
@@ -294,7 +294,7 @@ fn execute_store_array_str_slot(
         }
         if matches!(
             source,
-            ArrayStoreStrSource::StringLike { .. } | ArrayStoreStrSource::OtherObject(_)
+            ArrayStoreStrSource::StringLike(_) | ArrayStoreStrSource::OtherObject(_)
         ) {
             observe::record_store_array_str_reason_source_kind_via_object();
         }
@@ -304,15 +304,11 @@ fn execute_store_array_str_slot(
     plan.record();
     if idx < items.len() {
         if plan.can_retarget_alias() {
-            if let ArrayStoreStrSource::StringLike {
-                proof,
-                keep: source_keep,
-            } = source
-            {
+            if let ArrayStoreStrSource::StringLike(source_text) = source {
                 match try_retarget_borrowed_string_slot_take_keep(
                     &mut items[idx],
                     value_h,
-                    source_keep,
+                    source_text.keep().clone(),
                     drop_epoch,
                 ) {
                     Ok(()) => {
@@ -323,10 +319,12 @@ fn execute_store_array_str_slot(
                         return 1;
                     }
                     Err(source_keep) => {
-                        source = ArrayStoreStrSource::StringLike {
-                            proof,
-                            keep: source_keep,
-                        };
+                        source = ArrayStoreStrSource::StringLike(
+                            super::value_codec::VerifiedTextSource::new(
+                                source_text.proof(),
+                                source_keep,
+                            ),
+                        );
                     }
                 }
             }
@@ -341,8 +339,8 @@ fn execute_store_array_str_slot(
         observe::record_store_array_str_non_string_source();
     }
     let value = match source {
-        ArrayStoreStrSource::StringLike { keep, .. } => {
-            store_string_box_from_source_keep(value_h, &keep, drop_epoch)
+        ArrayStoreStrSource::StringLike(source_text) => {
+            store_string_box_from_source_keep(value_h, source_text.keep(), drop_epoch)
         }
         ArrayStoreStrSource::OtherObject(obj) => {
             maybe_store_non_string_box_from_verified_source(value_h, Some(&obj), drop_epoch)

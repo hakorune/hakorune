@@ -234,6 +234,20 @@ Rust must not invent new lifecycle policy by helper-local branching.
   - `NeedStableObject`
 - only `NeedStableObject` may justify generic object entry
 
+For the current source-preserving string path, the final keep stop-line is:
+
+- `TextKeep`
+- `AliasSourceMeta`
+- cold copy-out to owned text
+
+This means:
+
+- `SourceLifetimeKeep` is a persistent verified text anchor
+- it is not a stable object
+- it is not publication
+- backing representation may stay `Arc<dyn NyashBox>` internally until a later slice,
+  but that representation must not define the keep contract surface
+
 ## LLVM generic optimization / codegen
 
 LLVM が持つもの:

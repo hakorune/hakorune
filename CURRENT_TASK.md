@@ -285,6 +285,21 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       - `kilo_micro_array_string_store: 175 ms`
       - `kilo_micro_concat_hh_len: 63 ms`
       - `kilo_kernel_small_hk: 703 ms`
+  - latest landed verified-text-anchor slice:
+    - `SourceLifetimeKeep` is now an opaque keep carrier rather than an enum whose surface exposes object-ish backing
+    - current stop-line is now explicit:
+      - `TextKeep`
+      - `AliasSourceMeta`
+      - cold copy-out to owned text
+    - `ArrayStoreStrSource::StringLike(...)` now carries a typed `VerifiedTextSource`
+    - `StringView` keep fallback now materializes cold owned text instead of cloning an object-like fallback through the keep surface
+    - this is still structure-first:
+      - backing remains `Arc<dyn NyashBox>` internally
+      - object/publication are not pulled back into the keep contract
+    - accept-gate reread:
+      - `kilo_micro_array_string_store: 170 ms`
+      - `kilo_micro_concat_hh_len: 61 ms`
+      - `kilo_kernel_small_hk: 715 ms`
   - close `TextSnapshot` keep for now:
     - `kilo_micro_array_string_store: 178 ms`
     - `kilo_micro_concat_hh_len: 65 ms`

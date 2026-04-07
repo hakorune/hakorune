@@ -126,6 +126,12 @@ Interpretation:
   - backend-private carrier for source-preserving alias survival
   - not a public Birth / Placement outcome
   - must not be treated as a synonym for `StableBoxNow`
+  - target stop-line:
+    - `TextKeep`
+    - `AliasSourceMeta`
+    - cold copy-out to owned text
+  - do not treat it as a "small box"
+  - do not mix `OwnedBytes` into the keep carrier
 
 These names are Rust backend family names only.
 Do not promote them into `.hako` route vocabulary or MIR top-level outcome
