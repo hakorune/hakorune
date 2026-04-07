@@ -40,6 +40,10 @@
   - MIR carries that visibility through the existing lowering carrier:
     - `GenericMethodRouteState`
     - `GenericMethodEmitPlan`
+  - no-behavior carrier fields are now landed:
+    - `array_store_string_source_preserve`
+    - `array_store_string_identity_demand_stable_object`
+    - `array_store_string_publication_demand_publish_handle`
   - Rust only executes:
     - `SourceKindCheck`
     - `SourceLifetimeKeep`

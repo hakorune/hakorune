@@ -86,6 +86,13 @@
               case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_STRING:
                 /* owner route: `ArrayStoreString`
                  * intended canonical MIR reading: `store.array.str`
+                 * lifecycle visibility carried above Rust:
+                 *   - source_preserve
+                 *   - identity_demand
+                 *   - publication_demand
+                 * current carrier:
+                 *   - GenericMethodRouteState
+                 *   - GenericMethodEmitPlan
                  * phase-151x visibility lock keeps the current concrete lowering
                  * visible instead of promoting this symbol to authority.
                  */

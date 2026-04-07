@@ -27,6 +27,9 @@
         int runtime_array_has;
         int runtime_string;
         int runtime_array_string;
+        int array_store_string_source_preserve;
+        int array_store_string_identity_demand_stable_object;
+        int array_store_string_publication_demand_publish_handle;
         int runtime_map_get;
         int runtime_map_size;
         int runtime_map_has;

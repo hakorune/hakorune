@@ -17,6 +17,12 @@
           plan->runtime_array_has = route->runtime_array_has;
           plan->runtime_string = route->runtime_string;
           plan->runtime_array_string = route->runtime_array_string;
+          plan->array_store_string_source_preserve =
+              route->array_store_string_source_preserve;
+          plan->array_store_string_identity_demand_stable_object =
+              route->array_store_string_identity_demand_stable_object;
+          plan->array_store_string_publication_demand_publish_handle =
+              route->array_store_string_publication_demand_publish_handle;
           plan->runtime_map_get = route->runtime_map_get;
           plan->runtime_map_size = route->runtime_map_size;
           plan->runtime_map_has = route->runtime_map_has;
