@@ -28,6 +28,24 @@
 - perf consumer は llvmlite object emit retreat の後で reopen
 - `vm-hako` stays parked as reference/conformance
 
+## Restart Handoff
+
+- restart with the code as it is now; the owned-text backing experiment for `SourceLifetimeKeep` was reverted after regressing micro / meso / whole-kilo
+- do not re-open the live-source direct-read question on `as_str_fast()`
+- the next safe cut is still structural:
+  - keep representation unchanged
+  - narrow cold object fallback and object-demand surfaces only
+  - flatten `const_suffix` hot closure shape if needed
+  - return to `store.array.str` only after the above stays green
+- lifecycle placement is fixed:
+  - `.hako`: source-preserve / identity / publication demand
+  - `MIR`: visibility carrier and escalation contract
+  - `Rust`: mechanics only
+- if the next session needs a quick read order, start here:
+  1. this block
+  2. `CURRENT_TASK.md`
+  3. `git status -sb`
+
 ## Fresh Read
 
 - current front is structure-first:
@@ -279,6 +297,22 @@
          - it removes more object-like behavior from the keep surface
          - remaining cold object fallback work is mostly `equals` and explicit promotion paths
        - current hot path is not using `BorrowedHandleBox` full stable-object APIs at all
+     - latest landed encode object-demand sealing:
+       - borrowed-alias encode planning/fallback execution now stays inside `value_codec/borrowed_handle.rs`
+       - `encode.rs` no longer reaches into alias cold object helpers for:
+         - fallback scalar check
+         - pointer-equality reuse
+         - fallback handle issue
+       - removed encode-only cross-module helper surface:
+         - `encode_fallback_box_ref()`
+         - `clone_stable_box_for_encode_fallback()`
+         - `ptr_eq_source_object()`
+       - probe-only split-ladder reread (`repeat=1`):
+         - `kilo_micro_concat_hh_len: 62 ms`
+         - `kilo_micro_array_string_store: 183 ms`
+         - `kilo_meso_substring_concat_len: 40 ms`
+         - `kilo_meso_indexof_append_array_set: 148 ms`
+         - `kilo_kernel_small_hk: 693 ms`
      - latest landed const-suffix cache split:
        - `execute_const_suffix_contract(...)` now uses module-level cache helpers instead of carrying the text-cache closure shape inside the function body
        - hot cached-handle lookup stays on the same semantics, but the cache/read structure is flatter
@@ -599,16 +633,6 @@
         - `kilo_micro_array_string_store: 174 ms`
         - `kilo_kernel_small_hk: 715 ms`
       - one `1894 ms` whole-kilo outlier was discarded after the immediate reread returned to the current band
-    - latest landed classification/materialization split:
-      - `with_array_store_str_source(...)` now classifies the source first and materializes `SourceLifetimeKeep` through `materialize_verified_text_source(...)`
-      - `BorrowedHandleBox` cold object fallback helpers are now named explicitly as cold surfaces:
-        - `cold_stable_object_ref()`
-        - `clone_stable_box_cold_fallback()`
-      - this is still no-behavior-change; it makes the keep/object fallback seam explicit without splitting the hot executor
-      - accept-gate reread:
-        - `kilo_micro_array_string_store: 179 ms`
-        - `kilo_meso_indexof_append_array_set: 155 ms`
-        - `kilo_kernel_small_hk: 710 ms`
     - next observation order is fixed:
      1. split the `store.array.str -> with_handle(ArrayStoreStrSource)` object contract again before changing behavior
      2. keep borrowed alias string-read trimming closed; live-source fast read was not enough

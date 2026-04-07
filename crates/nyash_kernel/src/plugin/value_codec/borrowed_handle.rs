@@ -1,9 +1,16 @@
 use crate::observe;
 use nyash_rust::{
-    box_trait::{next_box_id, BoolBox, BoxBase, BoxCore, NyashBox, StringBox},
+    box_trait::{next_box_id, BoolBox, BoxBase, BoxCore, IntegerBox, NyashBox, StringBox},
     runtime::host_handles as handles,
 };
 use std::{any::Any, sync::Arc};
+
+#[derive(Clone, Copy)]
+pub(crate) enum BorrowedAliasEncodeCaller {
+    Generic,
+    ArrayGetIndexEncoded,
+    MapRuntimeDataGetAnyKey,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum TextKeepClass {
@@ -242,32 +249,17 @@ impl BorrowedHandleBox {
     }
 
     #[inline(always)]
-    pub(crate) fn encode_fallback_box_ref(&self) -> &dyn NyashBox {
-        self.cold_stable_object_ref().as_ref()
-    }
-
-    #[inline(always)]
-    pub(crate) fn clone_stable_box_for_encode_fallback(&self) -> Arc<dyn NyashBox> {
-        self.text_keep.clone_stable_box_cold_fallback()
-    }
-
-    #[inline(always)]
-    pub(crate) fn copy_owned_text_cold(&self) -> String {
+    fn copy_owned_text_cold(&self) -> String {
         self.text_keep.copy_owned_text_cold()
     }
 
     #[inline(always)]
-    pub(crate) fn ptr_eq_source_object(&self, other: &Arc<dyn NyashBox>) -> bool {
-        Arc::ptr_eq(self.cold_stable_object_ref(), other)
-    }
-
-    #[inline(always)]
-    pub(crate) fn source_handle(&self) -> i64 {
+    fn source_handle(&self) -> i64 {
         self.source_meta.source_handle()
     }
 
     #[inline(always)]
-    pub(crate) fn source_drop_epoch(&self) -> u64 {
+    fn source_drop_epoch(&self) -> u64 {
         self.source_meta.source_drop_epoch()
     }
 
@@ -465,4 +457,85 @@ pub(crate) fn try_retarget_borrowed_string_slot_take_keep(
     keep_borrowed_string_slot_source_keep(alias, source_keep);
     update_borrowed_string_slot_alias(alias, source_handle, source_drop_epoch);
     Ok(())
+}
+
+enum BorrowedAliasEncodePlan {
+    ReuseSourceHandle(i64),
+    ReturnScalar(i64),
+    EncodeFallback,
+}
+
+#[inline(always)]
+pub(crate) fn runtime_i64_from_borrowed_alias(
+    alias: &BorrowedHandleBox,
+    caller: BorrowedAliasEncodeCaller,
+) -> i64 {
+    match plan_borrowed_alias_runtime_i64(alias) {
+        BorrowedAliasEncodePlan::ReuseSourceHandle(handle) => handle,
+        BorrowedAliasEncodePlan::ReturnScalar(value) => value,
+        BorrowedAliasEncodePlan::EncodeFallback => {
+            observe::record_borrowed_alias_encode_to_handle_arc();
+            caller.record();
+            handles::to_handle_arc(alias.text_keep.clone_stable_box_cold_fallback()) as i64
+        }
+    }
+}
+
+#[inline(always)]
+fn plan_borrowed_alias_runtime_i64(alias: &BorrowedHandleBox) -> BorrowedAliasEncodePlan {
+    let source_handle = alias.source_handle();
+    if source_handle > 0 {
+        let current_epoch = handles::drop_epoch();
+        if alias.source_drop_epoch() == current_epoch {
+            observe::record_borrowed_alias_encode_epoch_hit();
+            return BorrowedAliasEncodePlan::ReuseSourceHandle(source_handle);
+        }
+    }
+    let fallback = alias.cold_stable_object_ref().as_ref();
+    if let Some(iv) = integer_box_to_i64(fallback) {
+        return BorrowedAliasEncodePlan::ReturnScalar(iv);
+    }
+    if let Some(bv) = bool_box_to_i64(fallback) {
+        return BorrowedAliasEncodePlan::ReturnScalar(bv);
+    }
+    if source_handle > 0 {
+        if let Some(source_obj) = handles::get(source_handle as u64) {
+            if Arc::ptr_eq(alias.cold_stable_object_ref(), &source_obj) {
+                observe::record_borrowed_alias_encode_ptr_eq_hit();
+                return BorrowedAliasEncodePlan::ReuseSourceHandle(source_handle);
+            }
+        }
+    }
+    BorrowedAliasEncodePlan::EncodeFallback
+}
+
+#[inline(always)]
+fn integer_box_to_i64(value: &dyn NyashBox) -> Option<i64> {
+    value
+        .as_any()
+        .downcast_ref::<IntegerBox>()
+        .map(|ib| ib.value)
+}
+
+#[inline(always)]
+fn bool_box_to_i64(value: &dyn NyashBox) -> Option<i64> {
+    value
+        .as_any()
+        .downcast_ref::<BoolBox>()
+        .map(|bb| if bb.value { 1 } else { 0 })
+}
+
+impl BorrowedAliasEncodeCaller {
+    #[inline(always)]
+    fn record(self) {
+        match self {
+            Self::Generic => {}
+            Self::ArrayGetIndexEncoded => {
+                observe::record_borrowed_alias_encode_to_handle_arc_array_get_index();
+            }
+            Self::MapRuntimeDataGetAnyKey => {
+                observe::record_borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any();
+            }
+        }
+    }
 }
