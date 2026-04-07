@@ -36,16 +36,18 @@
 - current front is fixed to `kilo_micro_substring_only`
 - exact baseline on this front:
   - `kilo_micro_substring_only: C 3 ms / AOT 5 ms`
-  - `instr: 63,462,299`
-  - `cycles: 10,440,456`
-  - `cache-miss: 9,624`
-  - symbol order: `substring_hii 46.67%`, `len_h 19.29%`, `ny_main 3.80%`
+  - `instr: 61,072,620`
+  - `cycles: 10,218,661`
+  - `cache-miss: 9,409`
+  - symbol order: `substring_hii 50.62%`, `len_h 39.89%`, `ny_main 4.35%`
 - current whole-kilo health:
   - `tools/checks/dev_gate.sh quick` is green
-  - `kilo_kernel_small_hk` strict accepted reread: `ny_aot_ms=735`
+  - `kilo_kernel_small_hk` strict accepted reread: `ny_aot_ms=701`
   - parity: `vm_result=1140576`, `aot_result=1140576`
 - current landed substring truth:
   - `substring_hii` can reissue a fresh handle from a cached `StringViewBox` object when the transient result handle dropped but the source handle still points to the same live source object
+  - `str.substring.route` observe read is now dominated by the steady-state handle-hit path: `view_arc_cache_handle_hit=599,998 / total=600,000`
+  - current keeper removes redundant `view_enabled` state from `SubstringViewArcCache`; the cache only runs under `view_enabled`, so the extra key dimension was dead hot-path work
   - `substring_hii` is the active hotspot; `len_h` is no longer the first local front
   - `nyash.string.substring_hii` / `nyash.string.len_h` / `trace_borrowed_substring_plan` stay as the fallback semantic carrier
   - WSL validation rule stays `3 runs + perf`
@@ -64,14 +66,16 @@
     5. concrete `Arc<StringViewBox>` cache carrier narrowing
 - next active cut:
   1. keep runtime cache mechanics unchanged
-  2. try a thinner backend-private `BorrowView` ticket / publication shape only
-  3. revisit `len_h` only if post-substring `3 runs + perf` reopens it
+  2. stay inside the dominant `view_arc_cache handle-hit` path only
+  3. do not widen planner / publication shape again unless counters show `miss` or `reissue` matter
+  4. revisit `len_h` only if post-substring `3 runs + perf` reopens it
 - safe restart order:
   1. `git status -sb`
   2. `tools/checks/dev_gate.sh quick`
   3. `tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_only 1 3`
   4. `tools/perf/run_kilo_hk_bench.sh strict 1 3`
-  5. read the rejected ledger before retrying any substring-local cut
+  5. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_only '' 20`
+  6. read the rejected ledger before retrying any substring-local cut
 - documentation rule for failed perf cuts:
   1. keep a short current summary in this README
   2. keep exact rejected-cut evidence in one rolling investigation doc per front/family/date
@@ -84,8 +88,9 @@
 - immediate substring follow-up:
   1. keep runtime cache mechanics as-is; do not retry the reverted `len_h` cold-split helper shape
   2. read the rejected ledger before retrying any substring-local cut
-  3. next local cut is backend-private thinner `BorrowView` ticket / publication shape only
-  4. revisit `nyash.string.len_h` only if post-substring `3 runs + perf` says it reopened
+  3. next local cut is the dominant `view_arc_cache handle-hit` branch only
+  4. do not widen planner / publication shape again unless counters show `miss` or `reissue` matter
+  5. revisit `nyash.string.len_h` only if post-substring `3 runs + perf` says it reopened
 - lifecycle placement is fixed:
   - `.hako`: source-preserve / identity / publication demand
   - `MIR`: visibility carrier and escalation contract

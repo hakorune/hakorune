@@ -27,19 +27,21 @@ Related:
 - active front is `kilo_micro_substring_only`
 - current exact baseline is:
   - `kilo_micro_substring_only: C 3 ms / AOT 5 ms`
-  - `instr: 63,462,299`
-  - `cycles: 10,440,456`
-  - `cache-miss: 9,624`
-  - symbol order: `substring_hii 46.67%`, `len_h 19.29%`, `ny_main 3.80%`
+  - `instr: 61,072,620`
+  - `cycles: 10,218,661`
+  - `cache-miss: 9,409`
+  - symbol order: `substring_hii 50.62%`, `len_h 39.89%`, `ny_main 4.35%`
 - current whole-kilo health is:
   - `tools/checks/dev_gate.sh quick`: green
-  - `kilo_kernel_small_hk` strict accepted reread: `735 ms`
+  - `kilo_kernel_small_hk` strict accepted reread: `701 ms`
   - parity: ok
 - current landed truth:
   - `substring_hii` can reissue a fresh handle from a cached `StringViewBox` object after transient drop-epoch churn if the source handle still names the same live source object
+  - `str.substring.route` observe read is dominated by `view_arc_cache_handle_hit=599,998 / total=600,000`
+  - the current keeper removed redundant `view_enabled` state from `SubstringViewArcCache`; that cache only runs on the `view_enabled` route
 - current stop-line:
   - do not widen substring runtime cache mechanics into `.hako` or `MIR`
-  - next cut should stay backend-private and narrower than the reverted trait-surface widening
+  - next cut should stay inside the dominant handle-hit path and narrower than any planner/publication reshape
 
 ## Operational Rule
 
@@ -252,6 +254,7 @@ Related:
 - keep substring runtime mechanics in Rust
 - do not create more test-by-test artifact folders for this wave
 - next local cut is:
-  1. backend-private thinner `BorrowView` ticket / publication shape only
-  2. measure again with `3 runs + perf`
-  3. revisit `len_h` only if `substring_hii` no longer dominates
+  1. trim only the dominant `view_arc_cache handle-hit` path
+  2. leave planner / publication shape alone unless counters show `miss` or `reissue` are non-trivial
+  3. measure again with `3 runs + perf`
+  4. revisit `len_h` only if `substring_hii` no longer dominates

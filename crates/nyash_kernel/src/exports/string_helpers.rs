@@ -231,16 +231,21 @@ pub(super) fn string_substring_hii_export_impl(h: i64, start: i64, end: i64) -> 
     if h <= 0 {
         return 0;
     }
+    observe::record_str_substring_route_enter();
     let SubstringRoutePolicy {
         view_enabled,
         fallback_allowed,
     } = substring_route_policy();
     if fallback_allowed {
         if view_enabled {
-            if let Some(hit) = substring_view_arc_cache_lookup(h, start, end, view_enabled) {
+            if let Some(hit) = substring_view_arc_cache_lookup(h, start, end) {
                 match hit {
-                    SubstringViewCacheHit::Handle(handle) => return handle,
+                    SubstringViewCacheHit::Handle(handle) => {
+                        observe::record_str_substring_route_view_arc_cache_handle_hit();
+                        return handle;
+                    }
                     SubstringViewCacheHit::Reissue { result_obj, len } => {
+                        observe::record_str_substring_route_view_arc_cache_reissue_hit();
                         observe::record_birth_placement_borrow_view();
                         let handle = issue_fresh_handle_from_arc(result_obj);
                         if handle > 0 {
@@ -249,7 +254,6 @@ pub(super) fn string_substring_hii_export_impl(h: i64, start: i64, end: i64) -> 
                                 h,
                                 start,
                                 end,
-                                view_enabled,
                                 handle,
                             );
                         }
@@ -257,13 +261,16 @@ pub(super) fn string_substring_hii_export_impl(h: i64, start: i64, end: i64) -> 
                     }
                 }
             }
+            observe::record_str_substring_route_view_arc_cache_miss();
         }
         if let Some(hit) = substring_fast_cache_lookup(h, start, end, view_enabled) {
+            observe::record_str_substring_route_fast_cache_hit();
             return hit;
         }
     }
     let dispatch_raw = hako_forward_bridge::string_dispatch_raw();
     if dispatch_raw != 0 {
+        observe::record_str_substring_route_dispatch_hit();
         let dispatch: hako_forward_bridge::HakoStringDispatchFn =
             unsafe { std::mem::transmute(dispatch_raw) };
         let v = dispatch(
@@ -278,6 +285,7 @@ pub(super) fn string_substring_hii_export_impl(h: i64, start: i64, end: i64) -> 
     if !fallback_allowed {
         return hook_miss_freeze_handle("string.substring_hii");
     }
+    observe::record_str_substring_route_slow_plan();
     let Some(plan) = borrowed_substring_plan_from_handle(h, start, end, view_enabled) else {
         return shared_empty_string_handle();
     };
@@ -316,7 +324,6 @@ pub(super) fn string_substring_hii_export_impl(h: i64, start: i64, end: i64) -> 
                         source_box_id,
                         start,
                         end,
-                        view_enabled,
                         len,
                         result_obj,
                         handle,

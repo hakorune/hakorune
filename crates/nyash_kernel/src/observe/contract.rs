@@ -4,6 +4,7 @@ pub(crate) const BIRTH_PLACEMENT: &str = "birth.placement";
 pub(crate) const BIRTH_BACKEND: &str = "birth.backend";
 pub(crate) const STR_CONCAT2_ROUTE: &str = "str.concat2.route";
 pub(crate) const STR_LEN_ROUTE: &str = "str.len.route";
+pub(crate) const STR_SUBSTRING_ROUTE: &str = "str.substring.route";
 pub(crate) const STABLE_BOX_DEMAND: &str = "stable_box_demand";
 pub(crate) const BORROWED_ALIAS: &str = "borrowed.alias";
 
@@ -100,6 +101,16 @@ pub(crate) const STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FAST_STR_HIT: &str =
 pub(crate) const STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FALLBACK_HIT: &str =
     "latest_fresh_handle_fallback_hit";
 pub(crate) const STR_LEN_ROUTE_UNCLASSIFIED: &str = "unclassified";
+
+pub(crate) const STR_SUBSTRING_ROUTE_TOTAL: &str = "total";
+pub(crate) const STR_SUBSTRING_ROUTE_VIEW_ARC_CACHE_HANDLE_HIT: &str =
+    "view_arc_cache_handle_hit";
+pub(crate) const STR_SUBSTRING_ROUTE_VIEW_ARC_CACHE_REISSUE_HIT: &str =
+    "view_arc_cache_reissue_hit";
+pub(crate) const STR_SUBSTRING_ROUTE_VIEW_ARC_CACHE_MISS: &str = "view_arc_cache_miss";
+pub(crate) const STR_SUBSTRING_ROUTE_FAST_CACHE_HIT: &str = "fast_cache_hit";
+pub(crate) const STR_SUBSTRING_ROUTE_DISPATCH_HIT: &str = "dispatch_hit";
+pub(crate) const STR_SUBSTRING_ROUTE_SLOW_PLAN: &str = "slow_plan";
 
 pub(crate) const STABLE_BOX_DEMAND_OBJECT_GET_LATEST_FRESH: &str = "object_get_latest_fresh";
 pub(crate) const STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_LATEST_FRESH: &str =

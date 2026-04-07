@@ -36,52 +36,52 @@ pub(crate) fn emit_summary_to_stderr() {
         (contract::STORE_ARRAY_STR_SOURCE_MISSING, snapshot[13]),
         (
             contract::STORE_ARRAY_STR_PLAN_SOURCE_KIND_STRING_LIKE,
-            snapshot[78],
-        ),
-        (
-            contract::STORE_ARRAY_STR_PLAN_SOURCE_KIND_OTHER_OBJECT,
-            snapshot[79],
-        ),
-        (
-            contract::STORE_ARRAY_STR_PLAN_SOURCE_KIND_MISSING,
-            snapshot[80],
-        ),
-        (
-            contract::STORE_ARRAY_STR_PLAN_SLOT_KIND_BORROWED_ALIAS,
-            snapshot[81],
-        ),
-        (contract::STORE_ARRAY_STR_PLAN_SLOT_KIND_OTHER, snapshot[82]),
-        (
-            contract::STORE_ARRAY_STR_PLAN_ACTION_RETARGET_ALIAS,
-            snapshot[83],
-        ),
-        (
-            contract::STORE_ARRAY_STR_PLAN_ACTION_STORE_FROM_SOURCE,
-            snapshot[84],
-        ),
-        (
-            contract::STORE_ARRAY_STR_PLAN_ACTION_NEED_STABLE_OBJECT,
             snapshot[85],
         ),
         (
-            contract::STORE_ARRAY_STR_REASON_SOURCE_KIND_VIA_OBJECT,
+            contract::STORE_ARRAY_STR_PLAN_SOURCE_KIND_OTHER_OBJECT,
             snapshot[86],
         ),
         (
-            contract::STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC,
+            contract::STORE_ARRAY_STR_PLAN_SOURCE_KIND_MISSING,
             snapshot[87],
         ),
         (
-            contract::STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC_PTR_EQ_HIT,
+            contract::STORE_ARRAY_STR_PLAN_SLOT_KIND_BORROWED_ALIAS,
             snapshot[88],
+        ),
+        (contract::STORE_ARRAY_STR_PLAN_SLOT_KIND_OTHER, snapshot[89]),
+        (
+            contract::STORE_ARRAY_STR_PLAN_ACTION_RETARGET_ALIAS,
+            snapshot[90],
+        ),
+        (
+            contract::STORE_ARRAY_STR_PLAN_ACTION_STORE_FROM_SOURCE,
+            snapshot[91],
+        ),
+        (
+            contract::STORE_ARRAY_STR_PLAN_ACTION_NEED_STABLE_OBJECT,
+            snapshot[92],
+        ),
+        (
+            contract::STORE_ARRAY_STR_REASON_SOURCE_KIND_VIA_OBJECT,
+            snapshot[93],
+        ),
+        (
+            contract::STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC,
+            snapshot[94],
+        ),
+        (
+            contract::STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC_PTR_EQ_HIT,
+            snapshot[95],
         ),
         (
             contract::STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC_PTR_EQ_MISS,
-            snapshot[89],
+            snapshot[96],
         ),
         (
             contract::STORE_ARRAY_STR_REASON_RETARGET_ALIAS_UPDATE,
-            snapshot[90],
+            snapshot[97],
         ),
     ] {
         let _ = write!(&mut store_array_str_line, " {}={}", name, value);
@@ -213,6 +213,24 @@ pub(crate) fn emit_summary_to_stderr() {
         contract::STR_LEN_ROUTE_UNCLASSIFIED,
         str_len_unclassified,
     );
+    eprintln!(
+        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
+        contract::STR_SUBSTRING_ROUTE,
+        contract::STR_SUBSTRING_ROUTE_TOTAL,
+        snapshot[61],
+        contract::STR_SUBSTRING_ROUTE_VIEW_ARC_CACHE_HANDLE_HIT,
+        snapshot[62],
+        contract::STR_SUBSTRING_ROUTE_VIEW_ARC_CACHE_REISSUE_HIT,
+        snapshot[63],
+        contract::STR_SUBSTRING_ROUTE_VIEW_ARC_CACHE_MISS,
+        snapshot[64],
+        contract::STR_SUBSTRING_ROUTE_FAST_CACHE_HIT,
+        snapshot[65],
+        contract::STR_SUBSTRING_ROUTE_DISPATCH_HIT,
+        snapshot[66],
+        contract::STR_SUBSTRING_ROUTE_SLOW_PLAN,
+        snapshot[67],
+    );
     let stable_box_demand = nyash_rust::runtime::host_handles::perf_observe_snapshot();
     eprintln!(
         "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
@@ -244,46 +262,46 @@ pub(crate) fn emit_summary_to_stderr() {
     );
     let mut borrowed_alias_line = format!("[perf/counter][{}]", contract::BORROWED_ALIAS);
     for (name, value) in [
-        (contract::BORROWED_ALIAS_TO_STRING_BOX, snapshot[61]),
-        (contract::BORROWED_ALIAS_EQUALS, snapshot[62]),
-        (contract::BORROWED_ALIAS_CLONE_BOX, snapshot[63]),
+        (contract::BORROWED_ALIAS_TO_STRING_BOX, snapshot[68]),
+        (contract::BORROWED_ALIAS_EQUALS, snapshot[69]),
+        (contract::BORROWED_ALIAS_CLONE_BOX, snapshot[70]),
         (
             contract::BORROWED_ALIAS_TO_STRING_BOX_LATEST_FRESH,
-            snapshot[64],
-        ),
-        (contract::BORROWED_ALIAS_EQUALS_LATEST_FRESH, snapshot[65]),
-        (
-            contract::BORROWED_ALIAS_CLONE_BOX_LATEST_FRESH,
-            snapshot[66],
-        ),
-        (contract::BORROWED_ALIAS_BORROWED_SOURCE_FAST, snapshot[67]),
-        (contract::BORROWED_ALIAS_AS_STR_FAST, snapshot[68]),
-        (
-            contract::BORROWED_ALIAS_AS_STR_FAST_LIVE_SOURCE,
-            snapshot[69],
-        ),
-        (
-            contract::BORROWED_ALIAS_AS_STR_FAST_STALE_SOURCE,
-            snapshot[70],
-        ),
-        (
-            contract::BORROWED_ALIAS_ARRAY_LEN_BY_INDEX_LATEST_FRESH,
             snapshot[71],
         ),
+        (contract::BORROWED_ALIAS_EQUALS_LATEST_FRESH, snapshot[72]),
         (
-            contract::BORROWED_ALIAS_ARRAY_INDEXOF_BY_INDEX_LATEST_FRESH,
-            snapshot[72],
+            contract::BORROWED_ALIAS_CLONE_BOX_LATEST_FRESH,
+            snapshot[73],
         ),
-        (contract::BORROWED_ALIAS_ENCODE_EPOCH_HIT, snapshot[73]),
-        (contract::BORROWED_ALIAS_ENCODE_PTR_EQ_HIT, snapshot[74]),
-        (contract::BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC, snapshot[75]),
+        (contract::BORROWED_ALIAS_BORROWED_SOURCE_FAST, snapshot[74]),
+        (contract::BORROWED_ALIAS_AS_STR_FAST, snapshot[75]),
         (
-            contract::BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_ARRAY_GET_INDEX,
+            contract::BORROWED_ALIAS_AS_STR_FAST_LIVE_SOURCE,
             snapshot[76],
         ),
         (
-            contract::BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_MAP_RUNTIME_DATA_GET_ANY,
+            contract::BORROWED_ALIAS_AS_STR_FAST_STALE_SOURCE,
             snapshot[77],
+        ),
+        (
+            contract::BORROWED_ALIAS_ARRAY_LEN_BY_INDEX_LATEST_FRESH,
+            snapshot[78],
+        ),
+        (
+            contract::BORROWED_ALIAS_ARRAY_INDEXOF_BY_INDEX_LATEST_FRESH,
+            snapshot[79],
+        ),
+        (contract::BORROWED_ALIAS_ENCODE_EPOCH_HIT, snapshot[80]),
+        (contract::BORROWED_ALIAS_ENCODE_PTR_EQ_HIT, snapshot[81]),
+        (contract::BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC, snapshot[82]),
+        (
+            contract::BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_ARRAY_GET_INDEX,
+            snapshot[83],
+        ),
+        (
+            contract::BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_MAP_RUNTIME_DATA_GET_ANY,
+            snapshot[84],
         ),
     ] {
         let _ = write!(&mut borrowed_alias_line, " {}={}", name, value);

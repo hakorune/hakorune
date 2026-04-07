@@ -358,6 +358,41 @@ impl ThreadCounters {
     }
 
     #[inline(always)]
+    fn str_substring_route_enter(&self) {
+        Self::bump(&self.str_substring_route_total);
+    }
+
+    #[inline(always)]
+    fn str_substring_route_view_arc_cache_handle_hit(&self) {
+        Self::bump(&self.str_substring_route_view_arc_cache_handle_hit);
+    }
+
+    #[inline(always)]
+    fn str_substring_route_view_arc_cache_reissue_hit(&self) {
+        Self::bump(&self.str_substring_route_view_arc_cache_reissue_hit);
+    }
+
+    #[inline(always)]
+    fn str_substring_route_view_arc_cache_miss(&self) {
+        Self::bump(&self.str_substring_route_view_arc_cache_miss);
+    }
+
+    #[inline(always)]
+    fn str_substring_route_fast_cache_hit(&self) {
+        Self::bump(&self.str_substring_route_fast_cache_hit);
+    }
+
+    #[inline(always)]
+    fn str_substring_route_dispatch_hit(&self) {
+        Self::bump(&self.str_substring_route_dispatch_hit);
+    }
+
+    #[inline(always)]
+    fn str_substring_route_slow_plan(&self) {
+        Self::bump(&self.str_substring_route_slow_plan);
+    }
+
+    #[inline(always)]
     fn borrowed_alias_to_string_box(&self) {
         Self::bump(&self.borrowed_alias_to_string_box);
     }
@@ -736,6 +771,34 @@ impl ThreadCounters {
         flush_cell(
             &self.str_len_route_latest_fresh_handle_fallback_hit,
             &GLOBAL.str_len_route_latest_fresh_handle_fallback_hit,
+        );
+        flush_cell(
+            &self.str_substring_route_total,
+            &GLOBAL.str_substring_route_total,
+        );
+        flush_cell(
+            &self.str_substring_route_view_arc_cache_handle_hit,
+            &GLOBAL.str_substring_route_view_arc_cache_handle_hit,
+        );
+        flush_cell(
+            &self.str_substring_route_view_arc_cache_reissue_hit,
+            &GLOBAL.str_substring_route_view_arc_cache_reissue_hit,
+        );
+        flush_cell(
+            &self.str_substring_route_view_arc_cache_miss,
+            &GLOBAL.str_substring_route_view_arc_cache_miss,
+        );
+        flush_cell(
+            &self.str_substring_route_fast_cache_hit,
+            &GLOBAL.str_substring_route_fast_cache_hit,
+        );
+        flush_cell(
+            &self.str_substring_route_dispatch_hit,
+            &GLOBAL.str_substring_route_dispatch_hit,
+        );
+        flush_cell(
+            &self.str_substring_route_slow_plan,
+            &GLOBAL.str_substring_route_slow_plan,
         );
         flush_cell(
             &self.borrowed_alias_to_string_box,

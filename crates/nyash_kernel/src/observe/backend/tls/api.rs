@@ -70,6 +70,13 @@ tls_zero_arg_api! {
     str_len_route_miss => str_len_route_miss,
     str_len_route_latest_fresh_handle_fast_str_hit => str_len_route_latest_fresh_handle_fast_str_hit,
     str_len_route_latest_fresh_handle_fallback_hit => str_len_route_latest_fresh_handle_fallback_hit,
+    str_substring_route_enter => str_substring_route_enter,
+    str_substring_route_view_arc_cache_handle_hit => str_substring_route_view_arc_cache_handle_hit,
+    str_substring_route_view_arc_cache_reissue_hit => str_substring_route_view_arc_cache_reissue_hit,
+    str_substring_route_view_arc_cache_miss => str_substring_route_view_arc_cache_miss,
+    str_substring_route_fast_cache_hit => str_substring_route_fast_cache_hit,
+    str_substring_route_dispatch_hit => str_substring_route_dispatch_hit,
+    str_substring_route_slow_plan => str_substring_route_slow_plan,
     borrowed_alias_to_string_box => borrowed_alias_to_string_box,
     borrowed_alias_equals => borrowed_alias_equals,
     borrowed_alias_clone_box => borrowed_alias_clone_box,
@@ -135,7 +142,7 @@ macro_rules! load {
     };
 }
 
-pub(crate) fn snapshot() -> [u64; 91] {
+pub(crate) fn snapshot() -> [u64; 98] {
     flush_current_thread();
     [
         load!(store_array_str_total),
@@ -199,6 +206,13 @@ pub(crate) fn snapshot() -> [u64; 91] {
         load!(str_len_route_miss),
         load!(str_len_route_latest_fresh_handle_fast_str_hit),
         load!(str_len_route_latest_fresh_handle_fallback_hit),
+        load!(str_substring_route_total),
+        load!(str_substring_route_view_arc_cache_handle_hit),
+        load!(str_substring_route_view_arc_cache_reissue_hit),
+        load!(str_substring_route_view_arc_cache_miss),
+        load!(str_substring_route_fast_cache_hit),
+        load!(str_substring_route_dispatch_hit),
+        load!(str_substring_route_slow_plan),
         load!(borrowed_alias_to_string_box),
         load!(borrowed_alias_equals),
         load!(borrowed_alias_clone_box),

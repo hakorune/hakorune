@@ -355,6 +355,41 @@ mod real {
     }
 
     #[inline(always)]
+    pub(crate) fn record_str_substring_route_enter() {
+        super::backend::str_substring_route_enter();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_str_substring_route_view_arc_cache_handle_hit() {
+        super::backend::str_substring_route_view_arc_cache_handle_hit();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_str_substring_route_view_arc_cache_reissue_hit() {
+        super::backend::str_substring_route_view_arc_cache_reissue_hit();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_str_substring_route_view_arc_cache_miss() {
+        super::backend::str_substring_route_view_arc_cache_miss();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_str_substring_route_fast_cache_hit() {
+        super::backend::str_substring_route_fast_cache_hit();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_str_substring_route_dispatch_hit() {
+        super::backend::str_substring_route_dispatch_hit();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_str_substring_route_slow_plan() {
+        super::backend::str_substring_route_slow_plan();
+    }
+
+    #[inline(always)]
     pub(crate) fn record_borrowed_alias_to_string_box() {
         super::backend::borrowed_alias_to_string_box();
     }
@@ -672,6 +707,27 @@ mod real {
 
     #[inline(always)]
     pub(crate) fn record_str_len_route_miss() {}
+
+    #[inline(always)]
+    pub(crate) fn record_str_substring_route_enter() {}
+
+    #[inline(always)]
+    pub(crate) fn record_str_substring_route_view_arc_cache_handle_hit() {}
+
+    #[inline(always)]
+    pub(crate) fn record_str_substring_route_view_arc_cache_reissue_hit() {}
+
+    #[inline(always)]
+    pub(crate) fn record_str_substring_route_view_arc_cache_miss() {}
+
+    #[inline(always)]
+    pub(crate) fn record_str_substring_route_fast_cache_hit() {}
+
+    #[inline(always)]
+    pub(crate) fn record_str_substring_route_dispatch_hit() {}
+
+    #[inline(always)]
+    pub(crate) fn record_str_substring_route_slow_plan() {}
 
     #[inline(always)]
     pub(crate) fn record_borrowed_alias_to_string_box() {}

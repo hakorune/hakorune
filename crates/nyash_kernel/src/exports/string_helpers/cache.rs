@@ -1,5 +1,5 @@
 use crate::observe;
-use nyash_rust::box_trait::{BoxCore, NyashBox};
+use nyash_rust::box_trait::NyashBox;
 use nyash_rust::runtime::host_handles as handles;
 use std::{
     cell::{Cell, RefCell},
@@ -76,7 +76,6 @@ struct SubstringViewArcCache {
     source_box_id: Cell<u64>,
     start: Cell<i64>,
     end: Cell<i64>,
-    view_enabled: Cell<bool>,
     result_drop_epoch: Cell<u64>,
     result_handle: Cell<i64>,
     len: Cell<i64>,
@@ -85,7 +84,6 @@ struct SubstringViewArcCache {
     source_box_id2: Cell<u64>,
     start2: Cell<i64>,
     end2: Cell<i64>,
-    view_enabled2: Cell<bool>,
     result_drop_epoch2: Cell<u64>,
     result_handle2: Cell<i64>,
     len2: Cell<i64>,
@@ -100,7 +98,6 @@ impl SubstringViewArcCache {
             self.source_box_id2.set(0);
             self.start2.set(0);
             self.end2.set(0);
-            self.view_enabled2.set(false);
             self.result_drop_epoch2.set(0);
             self.result_handle2.set(0);
             self.len2.set(0);
@@ -110,7 +107,6 @@ impl SubstringViewArcCache {
             self.source_box_id.set(0);
             self.start.set(0);
             self.end.set(0);
-            self.view_enabled.set(false);
             self.result_drop_epoch.set(0);
             self.result_handle.set(0);
             self.len.set(0);
@@ -124,12 +120,10 @@ impl SubstringViewArcCache {
         source_handle: i64,
         start: i64,
         end: i64,
-        view_enabled: bool,
     ) -> bool {
         self.source_handle.get() == source_handle
             && self.start.get() == start
             && self.end.get() == end
-            && self.view_enabled.get() == view_enabled
     }
 
     #[inline(always)]
@@ -138,12 +132,10 @@ impl SubstringViewArcCache {
         source_handle: i64,
         start: i64,
         end: i64,
-        view_enabled: bool,
     ) -> bool {
         self.source_handle2.get() == source_handle
             && self.start2.get() == start
             && self.end2.get() == end
-            && self.view_enabled2.get() == view_enabled
     }
 
     #[inline(always)]
@@ -230,15 +222,14 @@ impl SubstringViewArcCache {
         source_handle: i64,
         start: i64,
         end: i64,
-        view_enabled: bool,
     ) -> Option<SubstringViewCacheHit> {
         let current_drop_epoch = handles::drop_epoch();
-        if self.matches_primary(source_handle, start, end, view_enabled) {
+        if self.matches_primary(source_handle, start, end) {
             if let Some(hit) = self.entry_hit(source_handle, current_drop_epoch, false) {
                 return Some(hit);
             }
         }
-        if self.matches_secondary(source_handle, start, end, view_enabled) {
+        if self.matches_secondary(source_handle, start, end) {
             return self.entry_hit(source_handle, current_drop_epoch, true);
         }
         None
@@ -251,7 +242,6 @@ impl SubstringViewArcCache {
         source_box_id: u64,
         start: i64,
         end: i64,
-        view_enabled: bool,
         len: i64,
         result_obj: Arc<dyn NyashBox>,
         result_handle: i64,
@@ -261,7 +251,6 @@ impl SubstringViewArcCache {
         self.source_box_id2.set(self.source_box_id.get());
         self.start2.set(self.start.get());
         self.end2.set(self.end.get());
-        self.view_enabled2.set(self.view_enabled.get());
         self.result_drop_epoch2.set(self.result_drop_epoch.get());
         self.result_handle2.set(self.result_handle.get());
         self.len2.set(self.len.get());
@@ -271,7 +260,6 @@ impl SubstringViewArcCache {
         self.source_box_id.set(source_box_id);
         self.start.set(start);
         self.end.set(end);
-        self.view_enabled.set(view_enabled);
         self.result_drop_epoch.set(handles::drop_epoch());
         self.result_handle.set(result_handle);
         self.len.set(len);
@@ -284,14 +272,13 @@ impl SubstringViewArcCache {
         source_handle: i64,
         start: i64,
         end: i64,
-        view_enabled: bool,
         result_handle: i64,
     ) {
         let drop_epoch = handles::drop_epoch();
-        if self.matches_primary(source_handle, start, end, view_enabled) {
+        if self.matches_primary(source_handle, start, end) {
             self.result_drop_epoch.set(drop_epoch);
             self.result_handle.set(result_handle);
-        } else if self.matches_secondary(source_handle, start, end, view_enabled) {
+        } else if self.matches_secondary(source_handle, start, end) {
             self.result_drop_epoch2.set(drop_epoch);
             self.result_handle2.set(result_handle);
         }
@@ -343,7 +330,6 @@ thread_local! {
             source_box_id: Cell::new(0),
             start: Cell::new(0),
             end: Cell::new(0),
-            view_enabled: Cell::new(false),
             result_drop_epoch: Cell::new(0),
             result_handle: Cell::new(0),
             len: Cell::new(0),
@@ -352,7 +338,6 @@ thread_local! {
             source_box_id2: Cell::new(0),
             start2: Cell::new(0),
             end2: Cell::new(0),
-            view_enabled2: Cell::new(false),
             result_drop_epoch2: Cell::new(0),
             result_handle2: Cell::new(0),
             len2: Cell::new(0),
@@ -540,9 +525,8 @@ pub(super) fn substring_view_arc_cache_lookup(
     source_handle: i64,
     start: i64,
     end: i64,
-    view_enabled: bool,
 ) -> Option<SubstringViewCacheHit> {
-    SUBSTRING_VIEW_ARC_CACHE.with(|cache| cache.lookup(source_handle, start, end, view_enabled))
+    SUBSTRING_VIEW_ARC_CACHE.with(|cache| cache.lookup(source_handle, start, end))
 }
 
 #[inline(always)]
@@ -551,7 +535,6 @@ pub(super) fn substring_view_arc_cache_store(
     source_box_id: u64,
     start: i64,
     end: i64,
-    view_enabled: bool,
     len: i64,
     result_obj: Arc<dyn NyashBox>,
     result_handle: i64,
@@ -562,7 +545,6 @@ pub(super) fn substring_view_arc_cache_store(
             source_box_id,
             start,
             end,
-            view_enabled,
             len,
             result_obj,
             result_handle,
@@ -575,11 +557,10 @@ pub(super) fn substring_view_arc_cache_refresh_handle(
     source_handle: i64,
     start: i64,
     end: i64,
-    view_enabled: bool,
     result_handle: i64,
 ) {
     SUBSTRING_VIEW_ARC_CACHE.with(|cache| {
-        cache.refresh_handle(source_handle, start, end, view_enabled, result_handle);
+        cache.refresh_handle(source_handle, start, end, result_handle);
     });
 }
 

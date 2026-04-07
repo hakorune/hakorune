@@ -103,3 +103,23 @@ fn tls_string_route_counters_flush_current_thread() {
     assert_eq!(after[59] - before[59], 1);
     assert_eq!(after[60] - before[60], 1);
 }
+
+#[test]
+fn tls_substring_route_counters_flush_current_thread() {
+    let _guard = test_lock().lock().expect("observe test lock");
+    std::env::set_var("NYASH_PERF_COUNTERS", "1");
+
+    let before = snapshot();
+    str_substring_route_enter();
+    str_substring_route_view_arc_cache_miss();
+    str_substring_route_fast_cache_hit();
+    str_substring_route_dispatch_hit();
+    str_substring_route_slow_plan();
+    let after = snapshot();
+
+    assert_eq!(after[61] - before[61], 1);
+    assert_eq!(after[64] - before[64], 1);
+    assert_eq!(after[65] - before[65], 1);
+    assert_eq!(after[66] - before[66], 1);
+    assert_eq!(after[67] - before[67], 1);
+}
