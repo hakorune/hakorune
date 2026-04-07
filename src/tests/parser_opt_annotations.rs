@@ -1,6 +1,6 @@
 use crate::ast::ASTNode;
-use crate::r#macro::ast_json::{ast_to_json_roundtrip, json_to_ast};
 use crate::parser::NyashParser;
+use crate::r#macro::ast_json::{ast_to_json_roundtrip, json_to_ast};
 use crate::tokenizer::{NyashTokenizer, TokenizeError};
 use std::sync::{Mutex, MutexGuard, OnceLock};
 
@@ -153,9 +153,14 @@ static box Main {
   }
 }
 "#;
-        let ast = NyashParser::parse_from_string(src).expect("parse with legacy annotation under rune gate");
+        let ast = NyashParser::parse_from_string(src)
+            .expect("parse with legacy annotation under rune gate");
         let body = find_method_body(&ast, "Main", "main");
-        assert_eq!(body.len(), 2, "body-position legacy annotations stay noop during compat window");
+        assert_eq!(
+            body.len(),
+            2,
+            "body-position legacy annotations stay noop during compat window"
+        );
     });
 }
 
@@ -210,8 +215,8 @@ static box Main {
   }
 }
 "#;
-        let (ast, metadata) =
-            NyashParser::parse_from_string_with_metadata(src).expect("parse with legacy declaration metadata");
+        let (ast, metadata) = NyashParser::parse_from_string_with_metadata(src)
+            .expect("parse with legacy declaration metadata");
         let runes = find_runes(&metadata);
         assert_eq!(
             runes,
@@ -242,8 +247,8 @@ static box Main {
   }
 }
 "#;
-        let (ast, metadata) =
-            NyashParser::parse_from_string_with_metadata(src).expect("parse with canonical rune families");
+        let (ast, metadata) = NyashParser::parse_from_string_with_metadata(src)
+            .expect("parse with canonical rune families");
         let runes = find_runes(&metadata);
         assert_eq!(
             runes,
@@ -303,9 +308,13 @@ static box Main {
   main() { return 0 }
 }
 "#;
-        let ast = NyashParser::parse_from_string(src).expect("canonical rune surface should parse under compat gate");
+        let ast = NyashParser::parse_from_string(src)
+            .expect("canonical rune surface should parse under compat gate");
         let (_box_runes, method_runes) = find_box_and_method_runes(&ast, "Main", "main");
-        assert_eq!(method_runes, vec![("Hint".to_string(), vec!["hot".to_string()])]);
+        assert_eq!(
+            method_runes,
+            vec![("Hint".to_string(), vec!["hot".to_string()])]
+        );
     });
 }
 
@@ -328,8 +337,8 @@ static box Main {
   }
 }
 "#;
-        let (ast, metadata) =
-            NyashParser::parse_from_string_with_metadata(src).expect("parse canonical rune surface");
+        let (ast, metadata) = NyashParser::parse_from_string_with_metadata(src)
+            .expect("parse canonical rune surface");
         let runes = find_runes(&metadata);
         assert_eq!(
             runes,

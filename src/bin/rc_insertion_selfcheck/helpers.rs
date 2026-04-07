@@ -13,9 +13,14 @@ use nyash_rust::mir::{
 };
 use std::collections::HashMap;
 
-pub(super) const RC_PHI_EDGE_MISMATCH_TAG: &str = "[freeze:contract][rc_insertion/phi_edge_mismatch]";
+pub(super) const RC_PHI_EDGE_MISMATCH_TAG: &str =
+    "[freeze:contract][rc_insertion/phi_edge_mismatch]";
 
-pub(super) fn build_module_with_block(block: BasicBlock, func_name: &str, mod_name: &str) -> MirModule {
+pub(super) fn build_module_with_block(
+    block: BasicBlock,
+    func_name: &str,
+    mod_name: &str,
+) -> MirModule {
     let signature = FunctionSignature {
         name: func_name.to_string(),
         params: vec![],
@@ -228,7 +233,11 @@ fn panic_payload_to_string(payload: &(dyn std::any::Any + Send)) -> String {
     "<non-string panic payload>".to_string()
 }
 
-pub(super) fn assert_fail_fast_tag_from_insert(mut module: MirModule, expected_tag: &str, label: &str) {
+pub(super) fn assert_fail_fast_tag_from_insert(
+    mut module: MirModule,
+    expected_tag: &str,
+    label: &str,
+) {
     let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         let _stats = insert_rc_instructions(&mut module);
     }));
@@ -253,7 +262,11 @@ pub(super) fn assert_fail_fast_tag_from_insert(mut module: MirModule, expected_t
     }
 }
 
-pub(super) fn assert_all_release_values_sorted(mut module: MirModule, func_name: &str, label: &str) {
+pub(super) fn assert_all_release_values_sorted(
+    mut module: MirModule,
+    func_name: &str,
+    label: &str,
+) {
     let _stats = insert_rc_instructions(&mut module);
     let func = module.get_function(func_name).expect("function exists");
 

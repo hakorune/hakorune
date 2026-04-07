@@ -808,7 +808,9 @@ fn test_p2_if_merge_type_hint() {
         panic!("Expected IfMerge instruction, got: {:?}", join_inst);
     }
 
-    eprintln!("✅ Phase 64-2-2: P2 IfMerge type hint test passed - infer_type_from_mir_pattern() works!");
+    eprintln!(
+        "✅ Phase 64-2-2: P2 IfMerge type hint test passed - infer_type_from_mir_pattern() works!"
+    );
 
     std::env::remove_var("NYASH_JOINIR_IF_MERGE");
 }
