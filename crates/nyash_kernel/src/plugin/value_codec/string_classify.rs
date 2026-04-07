@@ -58,7 +58,7 @@ fn materialize_verified_text_source(
 #[derive(Clone)]
 pub(crate) enum ArrayStoreStrSource {
     StringLike(VerifiedTextSource),
-    OtherObject(Arc<dyn NyashBox>),
+    OtherObject,
     Missing,
 }
 
@@ -67,7 +67,7 @@ impl ArrayStoreStrSource {
     pub(crate) fn source_kind(&self) -> StringHandleSourceKind {
         match self {
             Self::StringLike(_) => StringHandleSourceKind::StringLike,
-            Self::OtherObject(_) => StringHandleSourceKind::OtherObject,
+            Self::OtherObject => StringHandleSourceKind::OtherObject,
             Self::Missing => StringHandleSourceKind::Missing,
         }
     }
@@ -83,7 +83,7 @@ impl ArrayStoreStrSource {
                     crate::observe::record_store_array_str_source_string_view();
                 }
             },
-            Self::OtherObject(_) => {}
+            Self::OtherObject => {}
             Self::Missing => crate::observe::record_store_array_str_source_missing(),
         }
     }
@@ -139,9 +139,7 @@ pub(crate) fn with_array_store_str_source<R>(
                         source_obj, proof,
                     ))
                 }
-                None if source_obj.is_some() => {
-                    ArrayStoreStrSource::OtherObject(source_obj.expect("object source").clone())
-                }
+                None if source_obj.is_some() => ArrayStoreStrSource::OtherObject,
                 None => ArrayStoreStrSource::Missing,
             };
             f(source)

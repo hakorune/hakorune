@@ -268,6 +268,22 @@ impl BorrowedHandleBox {
         self.source_handle() > 0
             && observe::len_route_matches_latest_fresh_handle(self.source_handle())
     }
+
+    #[cold]
+    #[inline(never)]
+    fn equals_cold_promoted_object(&self, other: &dyn NyashBox) -> BoolBox {
+        if let Some(other_alias) = other.as_any().downcast_ref::<BorrowedHandleBox>() {
+            return self
+                .text_keep
+                .cold_stable_object_ref()
+                .as_ref()
+                .equals(other_alias.text_keep.cold_stable_object_ref().as_ref());
+        }
+        self.text_keep
+            .cold_stable_object_ref()
+            .as_ref()
+            .equals(other)
+    }
 }
 
 impl BoxCore for BorrowedHandleBox {
@@ -309,17 +325,7 @@ impl NyashBox for BorrowedHandleBox {
         if self.source_is_latest_fresh() {
             observe::record_borrowed_alias_equals_latest_fresh();
         }
-        if let Some(other_alias) = other.as_any().downcast_ref::<BorrowedHandleBox>() {
-            return self
-                .text_keep
-                .cold_stable_object_ref()
-                .as_ref()
-                .equals(other_alias.text_keep.cold_stable_object_ref().as_ref());
-        }
-        self.text_keep
-            .cold_stable_object_ref()
-            .as_ref()
-            .equals(other)
+        self.equals_cold_promoted_object(other)
     }
 
     fn type_name(&self) -> &'static str {
@@ -392,9 +398,7 @@ pub(crate) fn maybe_borrow_string_handle_with_epoch(
         .downcast_ref::<crate::exports::string_view::StringViewBox>()
         .is_some()
     {
-        return Box::new(StringBox::new(
-            SourceLifetimeKeep::string_view(obj).copy_owned_text_cold(),
-        ));
+        return promote_string_view_to_owned_box_cold(obj);
     }
     obj.clone_box()
 }
@@ -412,7 +416,7 @@ pub(crate) fn maybe_borrow_string_keep_with_epoch(
             source_drop_epoch,
         ));
     }
-    Box::new(StringBox::new(keep.copy_owned_text_cold()))
+    promote_source_keep_to_owned_box_cold(keep)
 }
 
 #[inline(always)]
@@ -457,6 +461,20 @@ pub(crate) fn try_retarget_borrowed_string_slot_take_keep(
     keep_borrowed_string_slot_source_keep(alias, source_keep);
     update_borrowed_string_slot_alias(alias, source_handle, source_drop_epoch);
     Ok(())
+}
+
+#[cold]
+#[inline(never)]
+fn promote_string_view_to_owned_box_cold(obj: Arc<dyn NyashBox>) -> Box<dyn NyashBox> {
+    Box::new(StringBox::new(
+        SourceLifetimeKeep::string_view(obj).copy_owned_text_cold(),
+    ))
+}
+
+#[cold]
+#[inline(never)]
+fn promote_source_keep_to_owned_box_cold(keep: SourceLifetimeKeep) -> Box<dyn NyashBox> {
+    Box::new(StringBox::new(keep.copy_owned_text_cold()))
 }
 
 enum BorrowedAliasEncodePlan {

@@ -1,4 +1,5 @@
 use super::*;
+use crate::exports::string_view::StringViewBox;
 use crate::test_support::with_env_var;
 use nyash_rust::{
     box_trait::{IntegerBox, NyashBox, StringBox},
@@ -137,11 +138,47 @@ fn materialize_owned_string_round_trips_as_live_string_handle() {
 }
 
 #[test]
+fn with_array_store_str_source_non_string_handle_uses_other_object_contract() {
+    let value: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(91));
+    let value_h = handles::to_handle_arc(value) as i64;
+    let source_kind = with_array_store_str_source(value_h, |source| {
+        assert!(matches!(source, ArrayStoreStrSource::OtherObject));
+        source.source_kind()
+    });
+    assert_eq!(source_kind, StringHandleSourceKind::OtherObject);
+}
+
+#[test]
+fn with_array_store_str_source_missing_handle_uses_missing_contract() {
+    let value: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(12));
+    let value_h = handles::to_handle_arc(value) as i64;
+    handles::drop_handle(value_h as u64);
+    let source_kind = with_array_store_str_source(value_h, |source| {
+        assert!(matches!(source, ArrayStoreStrSource::Missing));
+        source.source_kind()
+    });
+    assert_eq!(source_kind, StringHandleSourceKind::Missing);
+}
+
+#[test]
 fn store_string_box_from_source_prefers_borrowed_alias_for_string_handles() {
     let value: Arc<dyn NyashBox> = Arc::new(StringBox::new("store-alias".to_string()));
     let value_h = handles::to_handle_arc(value) as i64;
     let source_obj = handles::get(value_h as u64).expect("source string handle");
     let boxed = store_string_box_from_source(value_h, Some(&source_obj), handles::drop_epoch());
+    assert!(boxed.as_any().downcast_ref::<BorrowedHandleBox>().is_some());
+    assert!(
+        boxed
+            .as_ref()
+            .equals(&StringBox::new("store-alias".to_string()))
+            .value
+    );
+    assert!(
+        !boxed
+            .as_ref()
+            .equals(&StringBox::new("store-alias-miss".to_string()))
+            .value
+    );
     assert_eq!(box_to_runtime_i64(boxed), value_h);
 }
 
@@ -153,6 +190,39 @@ fn store_string_box_from_source_keep_keeps_borrowed_alias_for_string_handles() {
     let keep = SourceLifetimeKeep::string_box(source_obj);
     let boxed = store_string_box_from_source_keep(value_h, &keep, handles::drop_epoch());
     assert_eq!(box_to_runtime_i64(boxed), value_h);
+}
+
+#[test]
+fn borrowed_alias_equals_same_text_from_distinct_sources() {
+    let left: Arc<dyn NyashBox> = Arc::new(StringBox::new("alias-same".to_string()));
+    let right: Arc<dyn NyashBox> = Arc::new(StringBox::new("alias-same".to_string()));
+    let left_h = handles::to_handle_arc(left) as i64;
+    let right_h = handles::to_handle_arc(right) as i64;
+    let left_obj = handles::get(left_h as u64).expect("left string handle");
+    let right_obj = handles::get(right_h as u64).expect("right string handle");
+    let left_alias = store_string_box_from_source(left_h, Some(&left_obj), handles::drop_epoch());
+    let right_alias =
+        store_string_box_from_source(right_h, Some(&right_obj), handles::drop_epoch());
+    assert!(left_alias.as_ref().equals(right_alias.as_ref()).value);
+}
+
+#[test]
+fn store_string_box_from_source_keep_materializes_string_view_sources() {
+    let base: Arc<dyn NyashBox> = Arc::new(StringBox::new("view-materialize".to_string()));
+    let base_h = handles::to_handle_arc(base.clone()) as i64;
+    let view: Arc<dyn NyashBox> = Arc::new(StringViewBox::new(
+        base_h,
+        base,
+        0,
+        "view-materialize".len(),
+    ));
+    let keep = SourceLifetimeKeep::string_view(view);
+    let boxed = store_string_box_from_source_keep(base_h, &keep, handles::drop_epoch());
+    let sb = boxed
+        .as_any()
+        .downcast_ref::<StringBox>()
+        .expect("string view should materialize as StringBox");
+    assert_eq!(sb.value, "view-materialize");
 }
 
 #[test]

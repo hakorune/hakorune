@@ -49,15 +49,10 @@ pub(crate) fn store_string_box_from_source_keep(
 #[inline(always)]
 pub(crate) fn maybe_store_non_string_box_from_verified_source(
     source_handle: i64,
-    source_obj: Option<&Arc<dyn NyashBox>>,
     _source_drop_epoch: u64,
 ) -> Box<dyn NyashBox> {
     if source_handle <= 0 {
         return int_arg_to_box(source_handle);
     }
-    let Some(obj) = source_obj else {
-        return int_arg_to_box(source_handle);
-    };
-    let _ = obj;
     int_arg_to_box(source_handle)
 }

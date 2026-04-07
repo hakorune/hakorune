@@ -25,9 +25,10 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   - `store.array.str`
   - `SourceLifetimeKeep`
   - `BorrowedHandleBox` cold fallback surface
+  - `store.array.str` source contract narrowing after the non-string object payload split
 - the safe next order after restart is:
-  1. keep representation unchanged
-  2. narrow cold object fallback / object-demand surface only
+  1. keep borrowed alias string-read trimming closed
+  2. keep typed `StringBox` payload widening closed at the host-handle layer
   3. revisit `const_suffix` hot closure shape if needed
   4. only then return to `store.array.str` whole-kilo split work
 - policy remains above Rust, mechanics remain in Rust:
@@ -295,6 +296,26 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       - `kilo_meso_substring_concat_len: 40 ms`
       - `kilo_meso_indexof_append_array_set: 148 ms`
       - `kilo_kernel_small_hk: 693 ms`
+  - latest landed borrowed-alias equals cold split:
+    - `BorrowedHandleBox::equals` now routes through a cold helper in `value_codec/borrowed_handle.rs`
+    - `maybe_borrow_string_handle_with_epoch(...)` and `maybe_borrow_string_keep_with_epoch(...)` now use cold owned-box promotion helpers for `StringView` / non-borrowable keep paths
+    - regression tests now pin:
+      - borrowed-alias equality against plain `StringBox`
+      - borrowed-alias equality across distinct source handles with the same text
+      - `StringView` store-from-source materialization into owned `StringBox`
+    - test gate:
+      - `cargo test --manifest-path crates/nyash_kernel/Cargo.toml --lib store_string_box_from_source` -> 4 passed
+      - `cargo test --manifest-path crates/nyash_kernel/Cargo.toml --lib borrowed_alias_equals_same_text_from_distinct_sources` -> 1 passed
+  - latest landed `store.array.str` non-string source-presence split:
+    - `ArrayStoreStrSource::OtherObject` no longer transports `Arc<dyn NyashBox>` across the executor seam
+    - `with_array_store_str_source(...)` still classifies under `with_handle(...)`, but the non-string branch now carries presence-only contract
+    - `maybe_store_non_string_box_from_verified_source(...)` now consumes only `source_handle` / `drop_epoch`
+    - regression tests now pin:
+      - `with_array_store_str_source(...)` -> `OtherObject` for live non-string handles
+      - `with_array_store_str_source(...)` -> `Missing` for dropped handles
+    - test gate:
+      - `cargo test --manifest-path crates/nyash_kernel/Cargo.toml --lib plugin::value_codec::tests` -> 19 passed
+      - `cargo check --manifest-path crates/nyash_kernel/Cargo.toml` -> OK
   - whole-kilo is still too coarse to drive next cuts directly:
     - read it through a supported contract split ladder first:
       - `kilo_micro_concat_hh_len`

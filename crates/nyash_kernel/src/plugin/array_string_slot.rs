@@ -294,7 +294,7 @@ fn execute_store_array_str_slot(
         }
         if matches!(
             source,
-            ArrayStoreStrSource::StringLike(_) | ArrayStoreStrSource::OtherObject(_)
+            ArrayStoreStrSource::StringLike(_) | ArrayStoreStrSource::OtherObject
         ) {
             observe::record_store_array_str_reason_source_kind_via_object();
         }
@@ -342,11 +342,11 @@ fn execute_store_array_str_slot(
         ArrayStoreStrSource::StringLike(source_text) => {
             store_string_box_from_source_keep(value_h, source_text.keep(), drop_epoch)
         }
-        ArrayStoreStrSource::OtherObject(obj) => {
-            maybe_store_non_string_box_from_verified_source(value_h, Some(&obj), drop_epoch)
+        ArrayStoreStrSource::OtherObject => {
+            maybe_store_non_string_box_from_verified_source(value_h, drop_epoch)
         }
         ArrayStoreStrSource::Missing => {
-            maybe_store_non_string_box_from_verified_source(value_h, None, drop_epoch)
+            maybe_store_non_string_box_from_verified_source(value_h, drop_epoch)
         }
     };
     if idx < items.len() {
