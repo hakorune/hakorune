@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-04-06
+Date: 2026-04-07
 Scope: repo root から current lane / next lane / restart read order に最短で戻るための薄い anchor。
 
 ## Purpose
@@ -76,6 +76,13 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       - `kilo_micro_array_string_store: 178 ms`
       - `kilo_micro_concat_hh_len: 65 ms`
       - `kilo_kernel_small_hk: 740 ms`
+  - latest landed live-source alias slice:
+    - `BorrowedHandleBox::as_str_fast()` now reads `drop_epoch()` only when `observe::enabled()`
+    - plain release hot path no longer pays the live/stale probe when counters are off
+    - 3-run plain release:
+      - `kilo_micro_array_string_store: 169 ms`
+      - `kilo_micro_concat_hh_len: 61 ms`
+      - `kilo_kernel_small_hk: 717 ms`
   - close `TextSnapshot` keep for now:
     - `kilo_micro_array_string_store: 178 ms`
     - `kilo_micro_concat_hh_len: 65 ms`
@@ -162,10 +169,10 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   - `docs/guides/selfhost-pilot.md` no longer requires llvmlite for daily selfhost/product flows
   - `docs/reference/environment-variables.md` labels `NYASH_LLVM_USE_HARNESS=1` examples as explicit keep-lane
 - current perf reopen truth:
-  - `kilo_kernel_small_hk`: latest reread `ny_aot_ms=740`
+  - `kilo_kernel_small_hk`: latest reread `ny_aot_ms=717`
   - `kilo_micro_concat_const_suffix`: `ny_aot_ms=84`
-  - `kilo_micro_concat_hh_len`: `ny_aot_ms=65`
-  - `kilo_micro_array_string_store`: `ny_aot_ms=178`
+  - `kilo_micro_concat_hh_len`: `ny_aot_ms=61`
+  - `kilo_micro_array_string_store`: `ny_aot_ms=169`
 - long-range direction lock:
   - `docs/development/current/main/design/birth-placement-ssot.md` is now the SSOT for Birth / Placement outcome vocabulary
   - read string hot paths through:

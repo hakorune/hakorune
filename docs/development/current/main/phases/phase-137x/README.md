@@ -44,10 +44,10 @@
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
   - `kilo_micro_concat_const_suffix`: `c_ms=3 / ny_aot_ms=84`
-  - `kilo_micro_concat_hh_len`: `c_ms=4 / ny_aot_ms=65`
+  - `kilo_micro_concat_hh_len`: `c_ms=3 / ny_aot_ms=61`
   - `kilo_micro_concat_birth`: `c_ms=6 / ny_aot_ms=47`
-  - `kilo_micro_array_string_store`: `c_ms=10 / ny_aot_ms=178`
-  - whole-kilo recheck after array-cache epoch pass-through: `c_ms=81 / ny_aot_ms=740`
+  - `kilo_micro_array_string_store`: `c_ms=10 / ny_aot_ms=169`
+  - whole-kilo recheck after observe-gated alias epoch probe: `c_ms=79 / ny_aot_ms=717`
 - latest bundle read:
   - string contracts remain `keep_transient -> fresh_handle` for non-empty const concat/insert
   - `20260406-024104` still shows `crates/nyash_kernel/src/exports/string_helpers.rs::concat_const_suffix_fallback` as the top explicit hot symbol (`11.70%`)
@@ -335,13 +335,20 @@
        - current read:
          - snapshot keep can win on the exact retarget micro
          - but mixed generic consumers still force enough on-demand objectization to lose badly on whole-kilo
-     - latest landed retarget success slice:
-       - move source `Arc` into alias keep on successful `RetargetAlias`
-       - this removes one extra clone from the hot retarget path without widening host-handle payloads
-       - 3-run plain release:
-         - `kilo_micro_array_string_store: 178 ms`
-         - `kilo_micro_concat_hh_len: 65 ms`
-         - `kilo_kernel_small_hk: 740 ms`
+    - latest landed retarget success slice:
+      - move source `Arc` into alias keep on successful `RetargetAlias`
+      - this removes one extra clone from the hot retarget path without widening host-handle payloads
+      - 3-run plain release:
+        - `kilo_micro_array_string_store: 178 ms`
+        - `kilo_micro_concat_hh_len: 65 ms`
+        - `kilo_kernel_small_hk: 740 ms`
+    - latest landed live-source alias slice:
+      - gate `BorrowedHandleBox::as_str_fast()` live/stale epoch probe behind `observe::enabled()`
+      - this keeps observe truth unchanged while removing the plain-release hot-path epoch read
+      - 3-run plain release:
+        - `kilo_micro_array_string_store: 169 ms`
+        - `kilo_micro_concat_hh_len: 61 ms`
+        - `kilo_kernel_small_hk: 717 ms`
    - next observation order is fixed:
      1. split the `store.array.str -> with_handle(ArrayStoreStrSource)` object contract again before changing behavior
      2. keep borrowed alias string-read trimming closed; live-source fast read was not enough

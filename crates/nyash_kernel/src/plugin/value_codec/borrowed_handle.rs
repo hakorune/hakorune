@@ -178,11 +178,13 @@ impl NyashBox for BorrowedHandleBox {
 
     fn as_str_fast(&self) -> Option<&str> {
         observe::record_borrowed_alias_as_str_fast();
-        if self.source_handle > 0 {
-            if self.source_drop_epoch == handles::drop_epoch() {
-                observe::record_borrowed_alias_as_str_fast_live_source();
-            } else {
-                observe::record_borrowed_alias_as_str_fast_stale_source();
+        if observe::enabled() {
+            if self.source_handle > 0 {
+                if self.source_drop_epoch == handles::drop_epoch() {
+                    observe::record_borrowed_alias_as_str_fast_live_source();
+                } else {
+                    observe::record_borrowed_alias_as_str_fast_stale_source();
+                }
             }
         }
         self.keep.as_str_fast()
