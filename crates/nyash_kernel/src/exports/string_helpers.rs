@@ -31,7 +31,8 @@ use std::{ffi::CStr, sync::Arc};
 use self::cache::{
     concat3_fast_cache_lookup, concat3_fast_cache_store, string_len_fast_cache_lookup,
     string_len_fast_cache_store, substring_fast_cache_lookup, substring_fast_cache_store,
-    substring_view_arc_cache_lookup, substring_view_arc_cache_store,
+    substring_view_arc_cache_lookup, substring_view_arc_cache_refresh_handle,
+    substring_view_arc_cache_store, SubstringViewCacheHit,
 };
 use self::concat::{
     concat3_fallback, concat_const_suffix_fallback, concat_pair_fallback, insert_const_mid_fallback,
@@ -68,6 +69,39 @@ fn hook_miss_scalar_error(route: &str) -> i64 {
 #[inline(always)]
 fn hook_miss_freeze_handle(route: &str) -> i64 {
     hako_forward_bridge::hook_miss_freeze_handle(route)
+}
+
+#[cold]
+#[inline(never)]
+fn trace_len_fast_hit(handle: i64, cached: i64) {
+    trace_observer_resolution_enabled(
+        true,
+        "observer",
+        handle,
+        "fast_hit",
+        "len_handle_cache",
+        || format!("len={}", cached),
+    );
+}
+
+#[cold]
+#[inline(never)]
+fn string_len_export_slow_path(handle: i64) -> i64 {
+    if !allow_rust_string_fallback() {
+        return hook_miss_scalar_error("string.len_h");
+    }
+    if jit_trace_len_enabled() {
+        let present = if handle > 0 {
+            handles::get(handle as u64).is_some()
+        } else {
+            false
+        };
+        eprintln!(
+            "[AOT-LEN_H] string.len_h handle={} present={}",
+            handle, present
+        );
+    }
+    string_len_from_handle(handle).unwrap_or(0)
 }
 
 #[inline(always)]
@@ -119,31 +153,12 @@ pub(super) fn string_len_export_impl(handle: i64) -> i64 {
         if observe::len_route_matches_latest_fresh_handle(handle) {
             observe::record_str_len_route_latest_fresh_handle_fast_str_hit();
         }
-        trace_observer_resolution_enabled(
-            jit_trace_len_enabled(),
-            "observer",
-            handle,
-            "fast_hit",
-            "len_handle_cache",
-            || format!("len={}", cached),
-        );
+        if jit_trace_len_enabled() {
+            trace_len_fast_hit(handle, cached);
+        }
         return cached;
     }
-    if !allow_rust_string_fallback() {
-        return hook_miss_scalar_error("string.len_h");
-    }
-    if jit_trace_len_enabled() {
-        let present = if handle > 0 {
-            handles::get(handle as u64).is_some()
-        } else {
-            false
-        };
-        eprintln!(
-            "[AOT-LEN_H] string.len_h handle={} present={}",
-            handle, present
-        );
-    }
-    string_len_from_handle(handle).unwrap_or(0)
+    string_len_export_slow_path(handle)
 }
 
 pub(super) fn string_length_from_ptr(ptr: *const i8, _mode: i64) -> i64 {
@@ -221,19 +236,30 @@ pub(super) fn string_substring_hii_export_impl(h: i64, start: i64, end: i64) -> 
         fallback_allowed,
     } = substring_route_policy();
     if fallback_allowed {
+        if view_enabled {
+            if let Some(hit) = substring_view_arc_cache_lookup(h, start, end, view_enabled) {
+                match hit {
+                    SubstringViewCacheHit::Handle(handle) => return handle,
+                    SubstringViewCacheHit::Reissue { result_obj, len } => {
+                        observe::record_birth_placement_borrow_view();
+                        let handle = issue_fresh_handle_from_arc(result_obj);
+                        if handle > 0 {
+                            string_len_fast_cache_store(handle, len);
+                            substring_view_arc_cache_refresh_handle(
+                                h,
+                                start,
+                                end,
+                                view_enabled,
+                                handle,
+                            );
+                        }
+                        return handle;
+                    }
+                }
+            }
+        }
         if let Some(hit) = substring_fast_cache_lookup(h, start, end, view_enabled) {
             return hit;
-        }
-        if let Some((result_obj, len)) =
-            substring_view_arc_cache_lookup(h, start, end, view_enabled)
-        {
-            observe::record_birth_placement_borrow_view();
-            let handle = issue_fresh_handle_from_arc(result_obj);
-            if handle > 0 {
-                string_len_fast_cache_store(handle, len);
-                substring_fast_cache_store(h, start, end, view_enabled, handle);
-            }
-            return handle;
         }
     }
     let dispatch_raw = hako_forward_bridge::string_dispatch_raw();
@@ -255,13 +281,26 @@ pub(super) fn string_substring_hii_export_impl(h: i64, start: i64, end: i64) -> 
     let Some(plan) = borrowed_substring_plan_from_handle(h, start, end, view_enabled) else {
         return shared_empty_string_handle();
     };
-    let result = match plan {
+    match plan {
         BorrowedSubstringPlan::ReturnHandle => {
             observe::record_birth_placement_return_handle();
+            substring_fast_cache_store(h, start, end, view_enabled, h);
             h
         }
-        BorrowedSubstringPlan::ReturnEmpty => shared_empty_string_handle(),
-        BorrowedSubstringPlan::FreezeSpan(span) => string_handle_from_span(span),
+        BorrowedSubstringPlan::ReturnEmpty => {
+            let result = shared_empty_string_handle();
+            if result > 0 {
+                substring_fast_cache_store(h, start, end, view_enabled, result);
+            }
+            result
+        }
+        BorrowedSubstringPlan::FreezeSpan(span) => {
+            let result = string_handle_from_span(span);
+            if result > 0 {
+                substring_fast_cache_store(h, start, end, view_enabled, result);
+            }
+            result
+        }
         BorrowedSubstringPlan::ViewSpan(span) => {
             observe::record_birth_placement_borrow_view();
             let len = span.len() as i64;
@@ -269,25 +308,24 @@ pub(super) fn string_substring_hii_export_impl(h: i64, start: i64, end: i64) -> 
             let handle = issue_fresh_handle_from_arc(result_obj.clone());
             if handle > 0 {
                 string_len_fast_cache_store(handle, len);
-                if let Some(source_obj) = handles::get(h as u64) {
+                if let Some(source_box_id) =
+                    handles::with_handle(h as u64, |obj| obj.map(|current| current.box_id()))
+                {
                     substring_view_arc_cache_store(
                         h,
+                        source_box_id,
                         start,
                         end,
                         view_enabled,
                         len,
-                        source_obj,
                         result_obj,
+                        handle,
                     );
                 }
             }
             handle
         }
-    };
-    if result > 0 {
-        substring_fast_cache_store(h, start, end, view_enabled, result);
     }
-    result
 }
 
 pub(super) fn string_indexof_hh_export_impl(h: i64, n: i64) -> i64 {

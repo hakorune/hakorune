@@ -1,11 +1,19 @@
 use crate::observe;
-use nyash_rust::box_trait::NyashBox;
+use nyash_rust::box_trait::{BoxCore, NyashBox};
 use nyash_rust::runtime::host_handles as handles;
 use std::{
     cell::{Cell, RefCell},
     ffi::CStr,
     sync::Arc,
 };
+
+pub(super) enum SubstringViewCacheHit {
+    Handle(i64),
+    Reissue {
+        result_obj: Arc<dyn NyashBox>,
+        len: i64,
+    },
+}
 
 #[derive(Default)]
 struct ConstSuffixTextCache {
@@ -53,30 +61,34 @@ struct SubstringFastCacheState {
     result_handle2: i64,
 }
 
-#[derive(Clone, Copy, Default)]
-struct StringLenFastCacheState {
-    drop_epoch: u64,
-    handle: i64,
-    len: i64,
-    handle2: i64,
-    len2: i64,
+#[derive(Default)]
+struct StringLenFastCache {
+    drop_epoch: Cell<u64>,
+    handle: Cell<i64>,
+    len: Cell<i64>,
+    handle2: Cell<i64>,
+    len2: Cell<i64>,
 }
 
 #[derive(Default)]
 struct SubstringViewArcCache {
     source_handle: Cell<i64>,
+    source_box_id: Cell<u64>,
     start: Cell<i64>,
     end: Cell<i64>,
     view_enabled: Cell<bool>,
+    result_drop_epoch: Cell<u64>,
+    result_handle: Cell<i64>,
     len: Cell<i64>,
-    source_obj: RefCell<Option<Arc<dyn NyashBox>>>,
     result_obj: RefCell<Option<Arc<dyn NyashBox>>>,
     source_handle2: Cell<i64>,
+    source_box_id2: Cell<u64>,
     start2: Cell<i64>,
     end2: Cell<i64>,
     view_enabled2: Cell<bool>,
+    result_drop_epoch2: Cell<u64>,
+    result_handle2: Cell<i64>,
     len2: Cell<i64>,
-    source_obj2: RefCell<Option<Arc<dyn NyashBox>>>,
     result_obj2: RefCell<Option<Arc<dyn NyashBox>>>,
 }
 
@@ -85,19 +97,23 @@ impl SubstringViewArcCache {
     fn clear_entry(&self, secondary: bool) {
         if secondary {
             self.source_handle2.set(0);
+            self.source_box_id2.set(0);
             self.start2.set(0);
             self.end2.set(0);
             self.view_enabled2.set(false);
+            self.result_drop_epoch2.set(0);
+            self.result_handle2.set(0);
             self.len2.set(0);
-            *self.source_obj2.borrow_mut() = None;
             *self.result_obj2.borrow_mut() = None;
         } else {
             self.source_handle.set(0);
+            self.source_box_id.set(0);
             self.start.set(0);
             self.end.set(0);
             self.view_enabled.set(false);
+            self.result_drop_epoch.set(0);
+            self.result_handle.set(0);
             self.len.set(0);
-            *self.source_obj.borrow_mut() = None;
             *self.result_obj.borrow_mut() = None;
         }
     }
@@ -131,32 +147,81 @@ impl SubstringViewArcCache {
     }
 
     #[inline(always)]
-    fn entry_hit(&self, source_handle: i64, secondary: bool) -> Option<(Arc<dyn NyashBox>, i64)> {
-        let (source_obj, result_obj, len) = if secondary {
+    fn entry_hit(
+        &self,
+        source_handle: i64,
+        current_drop_epoch: u64,
+        secondary: bool,
+    ) -> Option<SubstringViewCacheHit> {
+        let (result_handle, result_drop_epoch, len) = if secondary {
             (
-                self.source_obj2.borrow().as_ref().cloned(),
-                self.result_obj2.borrow().as_ref().cloned(),
+                self.result_handle2.get(),
+                self.result_drop_epoch2.get(),
                 self.len2.get(),
             )
         } else {
             (
-                self.source_obj.borrow().as_ref().cloned(),
-                self.result_obj.borrow().as_ref().cloned(),
+                self.result_handle.get(),
+                self.result_drop_epoch.get(),
                 self.len.get(),
             )
         };
-        let (Some(source_obj), Some(result_obj)) = (source_obj, result_obj) else {
-            self.clear_entry(secondary);
-            return None;
-        };
-        let source_still_live = handles::with_handle(source_handle as u64, |obj| {
-            obj.is_some_and(|current| Arc::ptr_eq(current, &source_obj))
-        });
-        if !source_still_live {
-            self.clear_entry(secondary);
-            return None;
+        if result_handle > 0 && result_drop_epoch == current_drop_epoch {
+            return Some(SubstringViewCacheHit::Handle(result_handle));
         }
-        Some((result_obj, len))
+
+        enum EntryAction {
+            Clear,
+            Hit(SubstringViewCacheHit),
+        }
+
+        let action = if secondary {
+            let result_obj = self.result_obj2.borrow();
+            match result_obj.as_ref() {
+                Some(result_obj) => {
+                    let source_box_id = self.source_box_id2.get();
+                    let source_still_live = handles::with_handle(source_handle as u64, |obj| {
+                        obj.is_some_and(|current| current.box_id() == source_box_id)
+                    });
+                    if source_still_live {
+                        EntryAction::Hit(SubstringViewCacheHit::Reissue {
+                            result_obj: result_obj.clone(),
+                            len,
+                        })
+                    } else {
+                        EntryAction::Clear
+                    }
+                }
+                None => EntryAction::Clear,
+            }
+        } else {
+            let result_obj = self.result_obj.borrow();
+            match result_obj.as_ref() {
+                Some(result_obj) => {
+                    let source_box_id = self.source_box_id.get();
+                    let source_still_live = handles::with_handle(source_handle as u64, |obj| {
+                        obj.is_some_and(|current| current.box_id() == source_box_id)
+                    });
+                    if source_still_live {
+                        EntryAction::Hit(SubstringViewCacheHit::Reissue {
+                            result_obj: result_obj.clone(),
+                            len,
+                        })
+                    } else {
+                        EntryAction::Clear
+                    }
+                }
+                None => EntryAction::Clear,
+            }
+        };
+
+        match action {
+            EntryAction::Clear => {
+                self.clear_entry(secondary);
+                None
+            }
+            EntryAction::Hit(hit) => Some(hit),
+        }
     }
 
     #[inline(always)]
@@ -166,14 +231,15 @@ impl SubstringViewArcCache {
         start: i64,
         end: i64,
         view_enabled: bool,
-    ) -> Option<(Arc<dyn NyashBox>, i64)> {
+    ) -> Option<SubstringViewCacheHit> {
+        let current_drop_epoch = handles::drop_epoch();
         if self.matches_primary(source_handle, start, end, view_enabled) {
-            if let Some(hit) = self.entry_hit(source_handle, false) {
+            if let Some(hit) = self.entry_hit(source_handle, current_drop_epoch, false) {
                 return Some(hit);
             }
         }
         if self.matches_secondary(source_handle, start, end, view_enabled) {
-            return self.entry_hit(source_handle, true);
+            return self.entry_hit(source_handle, current_drop_epoch, true);
         }
         None
     }
@@ -182,30 +248,53 @@ impl SubstringViewArcCache {
     fn store(
         &self,
         source_handle: i64,
+        source_box_id: u64,
         start: i64,
         end: i64,
         view_enabled: bool,
         len: i64,
-        source_obj: Arc<dyn NyashBox>,
         result_obj: Arc<dyn NyashBox>,
+        result_handle: i64,
     ) {
-        let prev_source = self.source_obj.borrow().as_ref().cloned();
         let prev_result = self.result_obj.borrow().as_ref().cloned();
         self.source_handle2.set(self.source_handle.get());
+        self.source_box_id2.set(self.source_box_id.get());
         self.start2.set(self.start.get());
         self.end2.set(self.end.get());
         self.view_enabled2.set(self.view_enabled.get());
+        self.result_drop_epoch2.set(self.result_drop_epoch.get());
+        self.result_handle2.set(self.result_handle.get());
         self.len2.set(self.len.get());
-        *self.source_obj2.borrow_mut() = prev_source;
         *self.result_obj2.borrow_mut() = prev_result;
 
         self.source_handle.set(source_handle);
+        self.source_box_id.set(source_box_id);
         self.start.set(start);
         self.end.set(end);
         self.view_enabled.set(view_enabled);
+        self.result_drop_epoch.set(handles::drop_epoch());
+        self.result_handle.set(result_handle);
         self.len.set(len);
-        *self.source_obj.borrow_mut() = Some(source_obj);
         *self.result_obj.borrow_mut() = Some(result_obj);
+    }
+
+    #[inline(always)]
+    fn refresh_handle(
+        &self,
+        source_handle: i64,
+        start: i64,
+        end: i64,
+        view_enabled: bool,
+        result_handle: i64,
+    ) {
+        let drop_epoch = handles::drop_epoch();
+        if self.matches_primary(source_handle, start, end, view_enabled) {
+            self.result_drop_epoch.set(drop_epoch);
+            self.result_handle.set(result_handle);
+        } else if self.matches_secondary(source_handle, start, end, view_enabled) {
+            self.result_drop_epoch2.set(drop_epoch);
+            self.result_handle2.set(result_handle);
+        }
     }
 }
 
@@ -251,28 +340,32 @@ thread_local! {
     static SUBSTRING_VIEW_ARC_CACHE: SubstringViewArcCache =
         const { SubstringViewArcCache {
             source_handle: Cell::new(0),
+            source_box_id: Cell::new(0),
             start: Cell::new(0),
             end: Cell::new(0),
             view_enabled: Cell::new(false),
+            result_drop_epoch: Cell::new(0),
+            result_handle: Cell::new(0),
             len: Cell::new(0),
-            source_obj: RefCell::new(None),
             result_obj: RefCell::new(None),
             source_handle2: Cell::new(0),
+            source_box_id2: Cell::new(0),
             start2: Cell::new(0),
             end2: Cell::new(0),
             view_enabled2: Cell::new(false),
+            result_drop_epoch2: Cell::new(0),
+            result_handle2: Cell::new(0),
             len2: Cell::new(0),
-            source_obj2: RefCell::new(None),
             result_obj2: RefCell::new(None),
         } };
-    static STRING_LEN_FAST_CACHE: Cell<StringLenFastCacheState> =
-        const { Cell::new(StringLenFastCacheState {
-            drop_epoch: 0,
-            handle: 0,
-            len: 0,
-            handle2: 0,
-            len2: 0,
-        }) };
+    static STRING_LEN_FAST_CACHE: StringLenFastCache =
+        const { StringLenFastCache {
+            drop_epoch: Cell::new(0),
+            handle: Cell::new(0),
+            len: Cell::new(0),
+            handle2: Cell::new(0),
+            len2: Cell::new(0),
+        } };
 }
 
 #[inline(always)]
@@ -448,49 +541,61 @@ pub(super) fn substring_view_arc_cache_lookup(
     start: i64,
     end: i64,
     view_enabled: bool,
-) -> Option<(Arc<dyn NyashBox>, i64)> {
+) -> Option<SubstringViewCacheHit> {
     SUBSTRING_VIEW_ARC_CACHE.with(|cache| cache.lookup(source_handle, start, end, view_enabled))
 }
 
 #[inline(always)]
 pub(super) fn substring_view_arc_cache_store(
     source_handle: i64,
+    source_box_id: u64,
     start: i64,
     end: i64,
     view_enabled: bool,
     len: i64,
-    source_obj: Arc<dyn NyashBox>,
     result_obj: Arc<dyn NyashBox>,
+    result_handle: i64,
 ) {
     SUBSTRING_VIEW_ARC_CACHE.with(|cache| {
         cache.store(
             source_handle,
+            source_box_id,
             start,
             end,
             view_enabled,
             len,
-            source_obj,
             result_obj,
+            result_handle,
         );
     });
 }
 
 #[inline(always)]
+pub(super) fn substring_view_arc_cache_refresh_handle(
+    source_handle: i64,
+    start: i64,
+    end: i64,
+    view_enabled: bool,
+    result_handle: i64,
+) {
+    SUBSTRING_VIEW_ARC_CACHE.with(|cache| {
+        cache.refresh_handle(source_handle, start, end, view_enabled, result_handle);
+    });
+}
+
+#[inline(always)]
 pub(super) fn string_len_fast_cache_lookup(handle: i64) -> Option<i64> {
-    let drop_epoch = handles::drop_epoch();
     STRING_LEN_FAST_CACHE.with(|cache| {
-        let state = cache.get();
-        if state.drop_epoch == drop_epoch {
-            if state.handle == handle {
-                Some(state.len)
-            } else if state.handle2 == handle {
-                Some(state.len2)
-            } else {
-                None
+        if cache.handle.get() == handle {
+            if cache.drop_epoch.get() == handles::drop_epoch() {
+                return Some(cache.len.get());
             }
-        } else {
-            None
+            return None;
         }
+        if cache.handle2.get() == handle && cache.drop_epoch.get() == handles::drop_epoch() {
+            return Some(cache.len2.get());
+        }
+        None
     })
 }
 
@@ -498,13 +603,10 @@ pub(super) fn string_len_fast_cache_lookup(handle: i64) -> Option<i64> {
 pub(super) fn string_len_fast_cache_store(handle: i64, len: i64) {
     let drop_epoch = handles::drop_epoch();
     STRING_LEN_FAST_CACHE.with(|cache| {
-        let state = cache.get();
-        cache.set(StringLenFastCacheState {
-            drop_epoch,
-            handle,
-            len,
-            handle2: state.handle,
-            len2: state.len,
-        });
+        let prev_handle = cache.handle.replace(handle);
+        let prev_len = cache.len.replace(len);
+        cache.handle2.set(prev_handle);
+        cache.len2.set(prev_len);
+        cache.drop_epoch.set(drop_epoch);
     });
 }
