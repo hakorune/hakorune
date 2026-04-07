@@ -287,11 +287,27 @@ pub(crate) fn store_string_box_from_string_source(
 }
 
 #[inline(always)]
-pub(crate) fn maybe_store_string_box_from_verified_source(
+pub(crate) fn store_string_box_from_source_keep(
+    source_handle: i64,
+    source_keep: &SourceLifetimeKeep,
+    source_drop_epoch: u64,
+) -> Box<dyn NyashBox> {
+    if source_handle <= 0 {
+        return int_arg_to_box(source_handle);
+    }
+    crate::observe::record_birth_placement_store_from_source();
+    maybe_borrow_string_handle_with_epoch(
+        source_keep.stable_box_ref().clone(),
+        source_handle,
+        source_drop_epoch,
+    )
+}
+
+#[inline(always)]
+pub(crate) fn maybe_store_non_string_box_from_verified_source(
     source_handle: i64,
     source_obj: Option<&Arc<dyn NyashBox>>,
-    source_drop_epoch: u64,
-    source_is_string: bool,
+    _source_drop_epoch: u64,
 ) -> Box<dyn NyashBox> {
     if source_handle <= 0 {
         return int_arg_to_box(source_handle);
@@ -299,13 +315,6 @@ pub(crate) fn maybe_store_string_box_from_verified_source(
     let Some(obj) = source_obj else {
         return int_arg_to_box(source_handle);
     };
-    if source_is_string {
-        crate::observe::record_birth_placement_store_from_source();
-        return maybe_borrow_string_handle_with_epoch(
-            obj.clone(),
-            source_handle,
-            source_drop_epoch,
-        );
-    }
+    let _ = obj;
     int_arg_to_box(source_handle)
 }

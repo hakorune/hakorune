@@ -174,6 +174,16 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       - `kilo_micro_array_string_store: 173 ms`
       - `kilo_micro_concat_hh_len: 62 ms`
       - `kilo_kernel_small_hk: 698 ms`
+  - latest landed typed store-from-source split:
+    - `store.array.str` string-like store path now goes through `SourceLifetimeKeep`
+      directly
+    - generic object fallback stays only on `OtherObject / Missing`
+    - this is still no-behavior-change at the representation level; it narrows
+      the next actual cut away from object-centric store fallback
+    - accept-gate reread:
+      - `kilo_micro_array_string_store: 175 ms`
+      - `kilo_micro_concat_hh_len: 65 ms`
+      - `kilo_kernel_small_hk: 699 ms`
   - latest landed keep/meta split:
     - `BorrowedHandleBox` now separates:
       - `TextKeep`

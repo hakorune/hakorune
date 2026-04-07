@@ -1,7 +1,8 @@
 use super::array_guard::valid_handle_idx;
 use super::handle_cache::{cache_probe_kind, CacheProbeKind as HandleCacheProbeKind};
 use super::value_codec::{
-    maybe_store_string_box_from_verified_source, with_array_store_str_source, ArrayStoreStrSource,
+    maybe_store_non_string_box_from_verified_source, store_string_box_from_source_keep,
+    with_array_store_str_source, ArrayStoreStrSource,
     BorrowedHandleBox, StringHandleSourceKind, try_retarget_borrowed_string_slot_take_keep,
 };
 use crate::observe::{self, CacheProbeKind as ObserveCacheProbeKind};
@@ -328,7 +329,6 @@ fn execute_store_array_str_slot(
             }
         }
     }
-    let source_obj = source.stable_object_fallback_ref();
     if plan.source_is_string {
         observe::record_store_array_str_source_store();
         if plan.latest_fresh_source {
@@ -337,12 +337,17 @@ fn execute_store_array_str_slot(
     } else {
         observe::record_store_array_str_non_string_source();
     }
-    let value = maybe_store_string_box_from_verified_source(
-        value_h,
-        source_obj,
-        drop_epoch,
-        plan.source_is_string,
-    );
+    let value = match source {
+        ArrayStoreStrSource::StringLike { keep, .. } => {
+            store_string_box_from_source_keep(value_h, &keep, drop_epoch)
+        }
+        ArrayStoreStrSource::OtherObject(obj) => {
+            maybe_store_non_string_box_from_verified_source(value_h, Some(&obj), drop_epoch)
+        }
+        ArrayStoreStrSource::Missing => {
+            maybe_store_non_string_box_from_verified_source(value_h, None, drop_epoch)
+        }
+    };
     if idx < items.len() {
         items[idx] = value;
     } else {

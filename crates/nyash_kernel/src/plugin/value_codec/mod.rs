@@ -16,8 +16,9 @@ pub(crate) use encode::{
     runtime_i64_from_box_ref_caller, BorrowedAliasEncodeCaller,
 };
 pub(crate) use string_store::{
-    materialize_owned_string, maybe_store_string_box_from_verified_source,
-    with_array_store_str_source, ArrayStoreStrSource, StringHandleSourceKind,
+    materialize_owned_string, maybe_store_non_string_box_from_verified_source,
+    store_string_box_from_source_keep, with_array_store_str_source,
+    ArrayStoreStrSource, StringHandleSourceKind,
     store_string_box_from_source,
     store_string_box_from_string_source,
 };
