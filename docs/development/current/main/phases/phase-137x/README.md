@@ -286,6 +286,17 @@
          - `kilo_micro_concat_const_suffix: 81 ms`
          - `kilo_meso_indexof_append_array_set: 166 ms`
          - `kilo_kernel_small_hk: 696 ms`
+     - latest landed const-suffix meta/text cache split:
+       - cached metadata and cached suffix text are now stored in separate TLS caches
+       - hot cached-handle lookup reads only metadata:
+         - `ptr`
+         - `handle`
+         - `is_empty`
+       - `RefCell<Option<String>>` text cache is only touched on reload or cold text fallback
+       - accept-gate reread:
+         - `kilo_micro_concat_const_suffix: 74 ms`
+         - `kilo_meso_indexof_append_array_set: 149 ms`
+         - `kilo_kernel_small_hk: 695 ms`
      - landed structural slice:
        - `ArrayStoreStrSource` now owns the source `Arc`
        - `with_array_store_str_source(...)` completes host-handle source read before `arr.with_items_write(...)`

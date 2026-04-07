@@ -287,6 +287,19 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       - `kilo_kernel_small_hk: 696 ms`
     - physical `string_store.rs` file split remains deferred until the keep semantics
       change lands
+  - latest landed const-suffix meta/text cache split:
+    - split cached metadata from cached suffix text inside `string_helpers.rs`
+    - hot cached-handle path now reads:
+      - `ptr`
+      - `handle`
+      - `is_empty`
+      without entering the `RefCell<Option<String>>` text cache
+    - suffix text reload still refreshes both caches, but cold text fallback is only consulted after cached-handle fast paths miss
+    - this is still structure-backed; it narrows the cache contract without changing `.hako const_suffix` semantics
+    - accept-gate reread:
+      - `kilo_micro_concat_const_suffix: 74 ms`
+      - `kilo_meso_indexof_append_array_set: 149 ms`
+      - `kilo_kernel_small_hk: 695 ms`
   - latest landed encode planner/executor split:
     - `runtime_i64_from_box_ref_caller(...)` no longer mixes borrowed-alias reuse planning
       and fallback handle issue in one block

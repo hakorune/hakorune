@@ -39,18 +39,26 @@ use std::{
 // They serve the thin ABI facade and VM wrappers; they do not own route policy.
 
 #[derive(Default)]
-struct ConstSuffixCache {
+struct ConstSuffixMetaCache {
     ptr: Cell<usize>,
     handle: Cell<i64>,
     is_empty: Cell<bool>,
+}
+
+#[derive(Default)]
+struct ConstSuffixTextCache {
+    ptr: Cell<usize>,
     text: RefCell<Option<String>>,
 }
 
 thread_local! {
-    static CONST_SUFFIX_TEXT_CACHE: ConstSuffixCache = const { ConstSuffixCache {
+    static CONST_SUFFIX_META_CACHE: ConstSuffixMetaCache = const { ConstSuffixMetaCache {
         ptr: Cell::new(0),
         handle: Cell::new(0),
         is_empty: Cell::new(false),
+    } };
+    static CONST_SUFFIX_TEXT_CACHE: ConstSuffixTextCache = const { ConstSuffixTextCache {
+        ptr: Cell::new(0),
         text: RefCell::new(None),
     } };
 }
@@ -65,10 +73,15 @@ fn with_cached_const_suffix_text<R>(ptr: *const i8, f: impl FnOnce(&str) -> R) -
         if cache.ptr.get() != addr || cache.text.borrow().is_none() {
             let bytes = unsafe { CStr::from_ptr(ptr) }.to_bytes();
             let text = String::from_utf8_lossy(bytes).into_owned();
+            let text_is_empty = text.is_empty();
             observe::record_const_suffix_text_cache_reload();
             cache.ptr.set(addr);
-            cache.is_empty.set(text.is_empty());
             *cache.text.borrow_mut() = Some(text);
+            CONST_SUFFIX_META_CACHE.with(|meta| {
+                meta.ptr.set(addr);
+                meta.handle.set(0);
+                meta.is_empty.set(text_is_empty);
+            });
         }
         let text_ref = cache.text.borrow();
         f(text_ref.as_deref().unwrap_or(""))
@@ -76,8 +89,19 @@ fn with_cached_const_suffix_text<R>(ptr: *const i8, f: impl FnOnce(&str) -> R) -
 }
 
 #[inline(always)]
-fn try_execute_cached_const_suffix(a_h: i64, addr: usize) -> Option<i64> {
+fn with_loaded_const_suffix_text<R>(addr: usize, f: impl FnOnce(Option<&str>) -> R) -> R {
     CONST_SUFFIX_TEXT_CACHE.with(|cache| {
+        if cache.ptr.get() != addr {
+            return f(None);
+        }
+        let text_ref = cache.text.borrow();
+        f(text_ref.as_deref())
+    })
+}
+
+#[inline(always)]
+fn try_execute_cached_const_suffix(a_h: i64, addr: usize) -> Option<i64> {
+    CONST_SUFFIX_META_CACHE.with(|cache| {
         if cache.ptr.get() != addr {
             return None;
         }
@@ -93,10 +117,9 @@ fn try_execute_cached_const_suffix(a_h: i64, addr: usize) -> Option<i64> {
         if let Some(out) = execute_concat2_with_cached_const_handle(a_h, cached, placement) {
             return Some(out);
         }
-        let text_ref = cache.text.borrow();
-        text_ref
-            .as_deref()
-            .map(|suffix| execute_concat2_freeze_from_text(a_h, suffix, placement))
+        with_loaded_const_suffix_text(addr, |suffix| {
+            suffix.map(|suffix| execute_concat2_freeze_from_text(a_h, suffix, placement))
+        })
     })
 }
 
@@ -689,12 +712,12 @@ fn execute_const_suffix_contract(a_h: i64, suffix_ptr: *const i8) -> i64 {
             observe::record_const_suffix_empty_return();
             return a_h;
         }
-        CONST_SUFFIX_TEXT_CACHE.with(|cache| {
+        CONST_SUFFIX_META_CACHE.with(|cache| {
             let handle = super::super::string_const_handle_from_text(suffix);
+            cache.ptr.set(addr);
+            cache.is_empty.set(suffix_is_empty);
             if handle > 0 {
-                cache.ptr.set(addr);
                 cache.handle.set(handle);
-                cache.is_empty.set(suffix_is_empty);
                 if let Some(out) = execute_concat2_with_cached_const_handle(a_h, handle, placement)
                 {
                     return out;
