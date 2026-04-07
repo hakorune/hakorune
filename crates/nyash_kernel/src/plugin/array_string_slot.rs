@@ -292,7 +292,10 @@ fn execute_store_array_str_slot(
         } else {
             observe::record_store_array_str_append_slot();
         }
-        if source.stable_object_fallback_ref().is_some() {
+        if matches!(
+            source,
+            ArrayStoreStrSource::StringLike { .. } | ArrayStoreStrSource::OtherObject(_)
+        ) {
             observe::record_store_array_str_reason_source_kind_via_object();
         }
         source.record_observe_source_kind();

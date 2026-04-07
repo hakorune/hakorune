@@ -184,6 +184,15 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       - `kilo_micro_array_string_store: 175 ms`
       - `kilo_micro_concat_hh_len: 65 ms`
       - `kilo_kernel_small_hk: 699 ms`
+  - latest landed object-fallback API narrowing:
+    - removed the unified `ArrayStoreStrSource` object-fallback accessor
+    - `StringLike` and `OtherObject` no longer rejoin through one object-ref API
+    - this is still no-behavior-change; it makes the string-like branch and the
+      object fallback branch structurally explicit in code
+    - accept-gate reread:
+      - `kilo_micro_array_string_store: 171 ms`
+      - `kilo_micro_concat_hh_len: 64 ms`
+      - `kilo_kernel_small_hk: 700 ms`
   - latest landed keep/meta split:
     - `BorrowedHandleBox` now separates:
       - `TextKeep`

@@ -452,6 +452,14 @@
         - `kilo_micro_array_string_store: 175 ms`
         - `kilo_micro_concat_hh_len: 65 ms`
         - `kilo_kernel_small_hk: 699 ms`
+    - latest landed object-fallback API narrowing:
+      - removed the unified `ArrayStoreStrSource` object-fallback accessor
+      - `StringLike` and `OtherObject` no longer rejoin through one object-ref API
+      - this is still no-behavior-change; it keeps the string-like branch and object fallback branch structurally separate
+      - accept-gate reread:
+        - `kilo_micro_array_string_store: 171 ms`
+        - `kilo_micro_concat_hh_len: 64 ms`
+        - `kilo_kernel_small_hk: 700 ms`
     - next observation order is fixed:
      1. split the `store.array.str -> with_handle(ArrayStoreStrSource)` object contract again before changing behavior
      2. keep borrowed alias string-read trimming closed; live-source fast read was not enough

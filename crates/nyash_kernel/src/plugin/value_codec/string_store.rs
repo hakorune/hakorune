@@ -31,15 +31,6 @@ pub(crate) enum ArrayStoreStrSource {
 
 impl ArrayStoreStrSource {
     #[inline(always)]
-    pub(crate) fn stable_object_fallback_ref(&self) -> Option<&Arc<dyn NyashBox>> {
-        match self {
-            Self::StringLike { keep, .. } => Some(keep.stable_box_ref()),
-            Self::OtherObject(obj) => Some(obj),
-            Self::Missing => None,
-        }
-    }
-
-    #[inline(always)]
     pub(crate) fn source_kind(&self) -> StringHandleSourceKind {
         match self {
             Self::StringLike { .. } => StringHandleSourceKind::StringLike,
