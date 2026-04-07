@@ -148,6 +148,13 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       - `kilo_micro_array_string_store: 173 ms`
       - `kilo_micro_concat_hh_len: 63 ms`
       - `kilo_kernel_small_hk: 708 ms`
+  - close proof-carrying keep direct path:
+    - carrying `StringLikeProof` inside `TextKeep` and using proof-specific `as_str_fast()` was a regress
+    - 3-run plain release:
+      - `kilo_micro_array_string_store: 178 ms`
+      - `kilo_micro_concat_hh_len: 67 ms`
+      - `kilo_kernel_small_hk: 730 ms`
+    - keep proof on the source contract side; do not move it into alias keep semantics again
   - latest landed keep/meta split:
     - `BorrowedHandleBox` now separates:
       - `TextKeep`
