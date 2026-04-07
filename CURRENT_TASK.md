@@ -265,6 +265,14 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       - `kilo_meso_substring_concat_len: 41 ms`
       - `kilo_meso_indexof_append_array_set: 152 ms`
       - `kilo_kernel_small_hk: 700 ms`
+  - latest landed const-suffix cache split:
+    - moved `execute_const_suffix_contract(...)` cache plumbing out of the function body into module-level helpers
+    - hot cached-handle path now avoids re-entering the local text-cache closure shape on every call
+    - this is still structure-backed; it does not change the public `.hako const_suffix` reading
+    - accept-gate reread:
+      - `kilo_micro_concat_const_suffix: 81 ms`
+      - `kilo_meso_indexof_append_array_set: 166 ms`
+      - `kilo_kernel_small_hk: 696 ms`
     - physical `string_store.rs` file split remains deferred until the keep semantics
       change lands
   - latest landed encode planner/executor split:

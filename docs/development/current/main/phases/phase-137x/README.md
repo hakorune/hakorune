@@ -272,6 +272,13 @@
          - it removes more object-like behavior from the keep surface
          - remaining cold object fallback work is mostly `equals` and explicit promotion paths
        - current hot path is not using `BorrowedHandleBox` full stable-object APIs at all
+     - latest landed const-suffix cache split:
+       - `execute_const_suffix_contract(...)` now uses module-level cache helpers instead of carrying the text-cache closure shape inside the function body
+       - hot cached-handle lookup stays on the same semantics, but the cache/read structure is flatter
+       - accept-gate reread:
+         - `kilo_micro_concat_const_suffix: 81 ms`
+         - `kilo_meso_indexof_append_array_set: 166 ms`
+         - `kilo_kernel_small_hk: 696 ms`
      - landed structural slice:
        - `ArrayStoreStrSource` now owns the source `Arc`
        - `with_array_store_str_source(...)` completes host-handle source read before `arr.with_items_write(...)`

@@ -38,6 +38,68 @@ use std::{
 // fast paths in Rust unless a source-backed replacement proves safe.
 // They serve the thin ABI facade and VM wrappers; they do not own route policy.
 
+#[derive(Default)]
+struct ConstSuffixCache {
+    ptr: Cell<usize>,
+    handle: Cell<i64>,
+    is_empty: Cell<bool>,
+    text: RefCell<Option<String>>,
+}
+
+thread_local! {
+    static CONST_SUFFIX_TEXT_CACHE: ConstSuffixCache = const { ConstSuffixCache {
+        ptr: Cell::new(0),
+        handle: Cell::new(0),
+        is_empty: Cell::new(false),
+        text: RefCell::new(None),
+    } };
+}
+
+#[inline(always)]
+fn with_cached_const_suffix_text<R>(ptr: *const i8, f: impl FnOnce(&str) -> R) -> R {
+    if ptr.is_null() {
+        return f("");
+    }
+    let addr = ptr as usize;
+    CONST_SUFFIX_TEXT_CACHE.with(|cache| {
+        if cache.ptr.get() != addr || cache.text.borrow().is_none() {
+            let bytes = unsafe { CStr::from_ptr(ptr) }.to_bytes();
+            let text = String::from_utf8_lossy(bytes).into_owned();
+            observe::record_const_suffix_text_cache_reload();
+            cache.ptr.set(addr);
+            cache.is_empty.set(text.is_empty());
+            *cache.text.borrow_mut() = Some(text);
+        }
+        let text_ref = cache.text.borrow();
+        f(text_ref.as_deref().unwrap_or(""))
+    })
+}
+
+#[inline(always)]
+fn try_execute_cached_const_suffix(a_h: i64, addr: usize) -> Option<i64> {
+    CONST_SUFFIX_TEXT_CACHE.with(|cache| {
+        if cache.ptr.get() != addr {
+            return None;
+        }
+        let cached = cache.handle.get();
+        if cached <= 0 {
+            return None;
+        }
+        observe::record_const_suffix_cached_handle_hit();
+        let placement = concat_suffix_retention_class(cache.is_empty.get());
+        if matches!(placement, RetainedForm::ReturnHandle) {
+            observe::record_const_suffix_empty_return();
+        }
+        if let Some(out) = execute_concat2_with_cached_const_handle(a_h, cached, placement) {
+            return Some(out);
+        }
+        let text_ref = cache.text.borrow();
+        text_ref
+            .as_deref()
+            .map(|suffix| execute_concat2_freeze_from_text(a_h, suffix, placement))
+    })
+}
+
 pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
     if handle <= 0 {
         observe::record_str_len_route_miss();
@@ -609,78 +671,18 @@ fn execute_concat2_with_cached_const_handle(
 
 #[inline(always)]
 fn execute_const_suffix_contract(a_h: i64, suffix_ptr: *const i8) -> i64 {
-    #[derive(Default)]
-    struct ConstCStringCache {
-        ptr: Cell<usize>,
-        handle: Cell<i64>,
-        is_empty: Cell<bool>,
-        text: RefCell<Option<String>>,
-    }
-
-    fn with_cached_const_text<R>(
-        cache: &'static LocalKey<ConstCStringCache>,
-        ptr: *const i8,
-        f: impl FnOnce(&str) -> R,
-    ) -> R {
-        if ptr.is_null() {
-            return f("");
-        }
-        let addr = ptr as usize;
-        cache.with(|cache| {
-            if cache.ptr.get() != addr || cache.text.borrow().is_none() {
-                let bytes = unsafe { CStr::from_ptr(ptr) }.to_bytes();
-                let text = String::from_utf8_lossy(bytes).into_owned();
-                observe::record_const_suffix_text_cache_reload();
-                cache.ptr.set(addr);
-                cache.is_empty.set(text.is_empty());
-                *cache.text.borrow_mut() = Some(text);
-            }
-            let text_ref = cache.text.borrow();
-            f(text_ref.as_deref().unwrap_or(""))
-        })
-    }
-
     // phase-151x visibility lock:
     // `.hako const_suffix -> thaw.str + lit.str + str.concat2 + freeze.str`
     // is the public reading. This function is only the current Rust executor.
-    thread_local! {
-        static CONST_SUFFIX_TEXT_CACHE: ConstCStringCache = const { ConstCStringCache {
-            ptr: Cell::new(0),
-            handle: Cell::new(0),
-            is_empty: Cell::new(false),
-            text: RefCell::new(None),
-        } };
-    }
-
     if suffix_ptr.is_null() {
         return a_h;
     }
     observe::record_const_suffix_enter();
     let addr = suffix_ptr as usize;
-    if let Some(out) = CONST_SUFFIX_TEXT_CACHE.with(|cache| {
-        if cache.ptr.get() != addr {
-            return None;
-        }
-        let cached = cache.handle.get();
-        if cached <= 0 {
-            return None;
-        }
-        observe::record_const_suffix_cached_handle_hit();
-        let placement = concat_suffix_retention_class(cache.is_empty.get());
-        if matches!(placement, RetainedForm::ReturnHandle) {
-            observe::record_const_suffix_empty_return();
-        }
-        if let Some(out) = execute_concat2_with_cached_const_handle(a_h, cached, placement) {
-            return Some(out);
-        }
-        let text_ref = cache.text.borrow();
-        text_ref
-            .as_deref()
-            .map(|suffix| execute_concat2_freeze_from_text(a_h, suffix, placement))
-    }) {
+    if let Some(out) = try_execute_cached_const_suffix(a_h, addr) {
         return out;
     }
-    with_cached_const_text(&CONST_SUFFIX_TEXT_CACHE, suffix_ptr, |suffix| {
+    with_cached_const_suffix_text(suffix_ptr, |suffix| {
         let suffix_is_empty = suffix.is_empty();
         let placement = concat_suffix_retention_class(suffix_is_empty);
         if matches!(placement, RetainedForm::ReturnHandle) {
