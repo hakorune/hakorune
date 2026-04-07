@@ -11,6 +11,7 @@
   - `crates/nyash_kernel/src/plugin/map_substrate.rs`
   - `crates/nyash_kernel/src/plugin/map_aliases.rs`
   - `crates/nyash_kernel/src/exports/string_helpers.rs`
+  - `crates/nyash_kernel/src/observe/backend/tls.rs`
 
 ## Decision Now
 
@@ -42,15 +43,41 @@
 - the current front is `kilo_micro_substring_only`:
   - remaining `substring_hii` / `string_len_from_handle` hit-path overhead after flattening the alternating two-slice cache state; `call_string_dispatch()` is already skipped when no string handler is registered
   - latest median probe is `kilo_micro_substring_only: C 3 ms / AOT 5 ms`
+  - latest exact perf counters after the local `substring_hii` result-handle churn trim:
+    - `instr: 75,760,709 -> 65,862,851`
+    - `cycles: 13,232,875 -> 12,266,603`
+    - `cache-miss: 10,824 -> 9,066`
   - hot-path bookkeeping is now trimmed by lazy trace payloads, an atomic substring route-policy cache, a cached string-dispatch absent state, an atomic JIT len trace gate, flatter two-entry TLS cache state for substring / len, and direct substring plan lookup without caller tracking
+  - the local Rust trim now reissues a fresh handle from a cached `StringViewBox` object when only the transient result handle dropped and the source handle still points to the same live source object
+  - post-change exact symbol order still reads `nyash.string.len_h` -> `nyash.string.substring_hii` -> `__memmove_avx512_unaligned_erms`
+  - `crates/nyash_kernel/src/exports/string_helpers.rs` is now split into `string_helpers/{cache,materialize,concat,tests}.rs`
+  - `crates/nyash_kernel/src/observe/backend/tls.rs` is now split into `observe/backend/tls/{state,methods,api,tests}.rs`
+  - whole-kilo `kilo_kernel_small_hk` direct pure-first AOT lane is healthy again:
+    - root cause was a `concat_hs` self-deadlock: the const-suffix fast path called `string_const_handle_from_text()` while still inside `handles::with_text_read_session()`, so it held the host-handle read lock and then waited on the write lock required by `to_handle_arc()`
+    - fix: build owned text inside the read session, then allocate the const handle only after the session releases the host-handle read lock
+    - latest probes:
+      - `diagnostic`: `c_ms=79 py_ms=109 ny_vm_ms=1010 ny_aot_ms=1915 aot_status=ok`
+      - `strict`: `c_ms=80 py_ms=112 ny_vm_ms=1019 ny_aot_ms=2336 aot_status=ok result_parity=ok`
+    - historical healthy band for the same whole-kilo lane is still roughly `696..762 ms`, so the timeout is fixed but whole-kilo perf is currently regressed
+    - current perf read on the fresh AOT exe points at the const-suffix / literal-handle path, not the substring front:
+      - runtime warning: `[perf/const_cache] capped max_entries=4096 hits=3142 misses=4097 mode=passthrough`
+      - flat `perf report` top symbols:
+        - `core::hash::sip::Hasher::write`: `65.01%`
+        - `__memmove_avx512_unaligned_erms`: `8.13%`
+        - `nyash.string.concat_hs`: `5.90%`
+        - `insert_const_mid_fallback` closure: `1.58%`
+      - current reading is that dynamic concat results are still flowing through the global const-string cache and overflow it, so whole-kilo falls into hash + alloc heavy passthrough
   - last rejected micro-slice:
     - cold-splitting the `len_h` fallback helper did not improve the median and was reverted
   - `nyash.string.substring_hii` / `nyash.string.len_h` / `trace_borrowed_substring_plan` stay as the fallback semantic carrier
   - WSL validation needs `3 runs + perf` before trusting any delta
 - the safe next order after restart is:
-  1. validate the cache-shape cut with `3 runs + perf`
-  2. if the gap persists, trim `substring_hii` result-handle churn first
-  3. if needed after that, tighten the `nyash.string.len_h` handle-backed cache and only then widen back to `const_suffix` / `store.array.str`
+  1. keep the landed `substring_hii` result-handle churn trim as-is; do not reopen `OwnedText` backing or live-source direct-read widening
+  2. keep validation blockers separate from this local front (`k2_wide_rawmap_clear_guard.sh` still stops on a stale route-lock grep, and whole-kilo `kilo_kernel_small_hk` direct pure-first AOT is green again after the `concat_hs` host-handle read-lock self-deadlock fix)
+  3. before more substring work, split the string route policy between:
+     - literal-only const handle reuse (ptr-keyed / low-cardinality)
+     - dynamic concat birth (owned string -> fresh handle, no global text-keyed const cache)
+  4. after that split, rerun whole-kilo and only then decide whether `nyash.string.len_h` still deserves the next local front
 - promotion policy for this cache family:
   1. the first proven win can stay local in Rust when one exact front is isolated and measurable
   2. once the same alternating-access pattern appears in another exact front, stop adding route-local cache variants and evaluate a shared hot-cache policy above Rust
@@ -58,8 +85,9 @@
   4. avoid repeating Rust-local cache additions in the same family without rechecking that promotion condition
 - immediate substring follow-up:
   1. keep the `len_h` wrapper hot; do not retry the reverted cold-split helper shape
-  2. trim `substring_hii` result-handle churn locally only if the gap persists on `3 runs + perf`
-  3. if `substring_concat` or another exact front shows the same cache shape, reopen the design cut for a higher-layer policy
+  2. `substring_hii` result-handle churn trim is now landed; judge it with `3 runs + perf` counters, not flat WSL wall-clock alone
+  3. if the gap persists now that the whole-kilo AOT lane is healthy again, tighten `nyash.string.len_h`
+  4. if `substring_concat` or another exact front shows the same cache shape, reopen the design cut for a higher-layer policy
 - lifecycle placement is fixed:
   - `.hako`: source-preserve / identity / publication demand
   - `MIR`: visibility carrier and escalation contract
@@ -816,12 +844,17 @@
 1. keep canonical contract corridor landed and immutable
 2. treat `kilo_micro_substring_only` as the current exact front
    - current AOT consumer: `substring_hii` / `len_h` / `trace_borrowed_substring_plan`
-   - current executor: repeated substring result-handle churn plus len handle-backed cache
+   - current executor: landed local substring result-handle churn trim plus len handle-backed cache
    - use `3 runs + perf` before judging any WSL delta
    - read this front through the substring/len boundary first
-   - next backend trim order if the seed misses:
-     1. `nyash.string.substring_hii` result-handle churn
-     2. `nyash.string.len_h` handle-backed cache
+   - latest exact reread stays `C 3 ms / AOT 5 ms`, but perf counters improved to `instr 65,862,851`, `cycles 12,266,603`, `cache-miss 9,066`
+   - post-change exact symbol order: `len_h 27.52%`, `substring_hii 26.98%`, `memmove 8.28%`
+   - current validation blockers are separate from this local trim:
+     1. quick gate currently stops in `k2_wide_rawmap_clear_guard.sh` route-lock grep drift
+     2. whole-kilo strict accept currently fails because `kilo_kernel_small_hk` direct pure-first AOT build succeeds but the exe times out at runtime (`reason=exe_runtime_timeout`, no output even under a single 30s probe)
+   - next backend trim order if the seed misses after those blockers are cleared:
+     1. `nyash.string.len_h` handle-backed cache
+     2. `nyash.string.substring_hii` remaining internal view/object overhead only if post-`len_h` perf still points there
      3. `nyash_kernel::exports::string::string_len_from_handle` remaining internal overhead
      4. `concat_birth` / `store.array.str` helper seams only if this front reopens
 3. keep canonical `concat_birth` / fresh-box materialization as the secondary front
