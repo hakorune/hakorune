@@ -1,5 +1,5 @@
-mod compat_ffi_bridge;
 pub(crate) mod compat_codegen_receiver;
+mod compat_ffi_bridge;
 mod compat_host_bridge;
 mod compat_method_resolver;
 mod errors;

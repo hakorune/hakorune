@@ -16,7 +16,10 @@ fn emit_engineering_object(
     obj_dir: &Path,
 ) -> Result<(), String> {
     std::env::set_var("NYASH_AOT_OBJECT_OUT", obj_dir);
-    println!("[emit] Cranelift object → {} (directory)", obj_dir.display());
+    println!(
+        "[emit] Cranelift object → {} (directory)",
+        obj_dir.display()
+    );
     let status = std::process::Command::new(nyash_bin_path(cwd, profile))
         .args(["--backend", "vm", app])
         .status()

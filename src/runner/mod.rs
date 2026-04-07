@@ -28,16 +28,16 @@ pub mod mir_json {
 pub mod core_executor;
 pub mod hv1_inline;
 pub(crate) mod json_artifact;
-pub mod mir_json_emit;
 pub mod keep;
-pub mod product;
+pub mod mir_json_emit;
 mod mir_json_v0;
-pub mod reference;
 pub mod modes;
 mod pipe_io;
 mod pipeline;
 pub mod plugin_init;
 mod plugins;
+pub mod product;
+pub mod reference;
 pub(crate) mod repl; // Phase 288.1: Made pub(crate) for ExternCall bridge access  // Phase 288: REPL module
 mod route_orchestrator;
 mod selfhost;

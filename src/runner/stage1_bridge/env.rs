@@ -198,10 +198,7 @@ mod tests {
             envs.get("HAKO_MIR_BUILDER_METHODIZE"),
             Some(&"1".to_string())
         );
-        assert_eq!(
-            envs.get("NYASH_MIR_UNIFIED_CALL"),
-            Some(&"1".to_string())
-        );
+        assert_eq!(envs.get("NYASH_MIR_UNIFIED_CALL"), Some(&"1".to_string()));
         assert_eq!(
             envs.get("HAKO_SELFHOST_NO_DELEGATE"),
             Some(&"1".to_string())
@@ -273,10 +270,7 @@ mod tests {
             envs.get("HAKO_MIR_BUILDER_METHODIZE"),
             Some(&"1".to_string())
         );
-        assert_eq!(
-            envs.get("NYASH_MIR_UNIFIED_CALL"),
-            Some(&"1".to_string())
-        );
+        assert_eq!(envs.get("NYASH_MIR_UNIFIED_CALL"), Some(&"1".to_string()));
         assert!(!envs.contains_key("HAKO_STAGEB_APPLY_USINGS"));
         assert!(!envs.contains_key("NYASH_ENABLE_USING"));
         assert!(!envs.contains_key("HAKO_ENABLE_USING"));

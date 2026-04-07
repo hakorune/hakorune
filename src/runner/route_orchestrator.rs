@@ -155,11 +155,7 @@ pub(crate) fn decide_vm_route_plan(
     }
 }
 
-pub(crate) fn execute_vm_family_route(
-    runner: &NyashRunner,
-    backend: &str,
-    filename: &str,
-) -> bool {
+pub(crate) fn execute_vm_family_route(runner: &NyashRunner, backend: &str, filename: &str) -> bool {
     let force_fallback = crate::config::env::vm_use_fallback();
     let prefer_vm_hako = crate::config::env::vm_hako_prefer_strict_dev();
     let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()

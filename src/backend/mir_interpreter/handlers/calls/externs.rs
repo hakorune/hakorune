@@ -67,13 +67,12 @@ impl MirInterpreter {
                     return Err(self.err_arg_count("nyash.any.handle_live_h", 1, args.len()));
                 }
                 let handle = self.reg_load(args[0])?.as_integer().unwrap_or(0);
-                let live = if handle > 0
-                    && crate::runtime::host_handles::get(handle as u64).is_some()
-                {
-                    1
-                } else {
-                    0
-                };
+                let live =
+                    if handle > 0 && crate::runtime::host_handles::get(handle as u64).is_some() {
+                        1
+                    } else {
+                        0
+                    };
                 Ok(VMValue::Integer(live))
             }
             "nyash.array.slot_len_h" => {
@@ -135,7 +134,13 @@ impl MirInterpreter {
                         obj.and_then(|obj| {
                             obj.as_any()
                                 .downcast_ref::<crate::boxes::array::ArrayBox>()
-                                .map(|arr| if arr.try_set_index_i64_integer(idx, value) { 1 } else { 0 })
+                                .map(|arr| {
+                                    if arr.try_set_index_i64_integer(idx, value) {
+                                        1
+                                    } else {
+                                        0
+                                    }
+                                })
                         })
                         .unwrap_or(0)
                     })
@@ -157,7 +162,8 @@ impl MirInterpreter {
                             obj.as_any()
                                 .downcast_ref::<crate::boxes::array::ArrayBox>()
                                 .map(|arr| {
-                                    if arr.try_set_index_i64(idx, collection_any_arg_to_box(value)) {
+                                    if arr.try_set_index_i64(idx, collection_any_arg_to_box(value))
+                                    {
                                         1
                                     } else {
                                         0
@@ -182,7 +188,9 @@ impl MirInterpreter {
                         obj.and_then(|obj| {
                             obj.as_any()
                                 .downcast_ref::<crate::boxes::array::ArrayBox>()
-                                .map(|arr| arr.slot_append_box_raw(collection_any_arg_to_box(value)))
+                                .map(|arr| {
+                                    arr.slot_append_box_raw(collection_any_arg_to_box(value))
+                                })
                         })
                         .unwrap_or(0)
                     })

@@ -5,10 +5,10 @@ use crate::mir::{
 };
 use serde_json::Value;
 
-#[path = "mir_json_v0/helpers.rs"]
-mod helpers;
 #[path = "mir_json_v0/call.rs"]
 mod call;
+#[path = "mir_json_v0/helpers.rs"]
+mod helpers;
 #[cfg(test)]
 #[path = "mir_json_v0/tests.rs"]
 mod tests;

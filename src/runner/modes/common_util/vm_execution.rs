@@ -24,7 +24,11 @@ pub(crate) fn run_vm_compiled_module(
     if crate::config::env::env_bool("NYASH_VM_ESCAPE_ANALYSIS") {
         let removed = crate::mir::passes::escape::escape_elide_barriers_vm(&mut module_vm);
         if removed > 0 {
-            crate::cli_v!("[{}] escape_elide_barriers: removed {} barriers", route, removed);
+            crate::cli_v!(
+                "[{}] escape_elide_barriers: removed {} barriers",
+                route,
+                removed
+            );
         }
     }
 
@@ -36,7 +40,9 @@ pub(crate) fn run_vm_compiled_module(
         verification_result,
         route,
         quiet_pipe,
-        |out_path| crate::runner::mir_json_emit::emit_mir_json_for_harness_bin(&module_vm, out_path),
+        |out_path| {
+            crate::runner::mir_json_emit::emit_mir_json_for_harness_bin(&module_vm, out_path)
+        },
     );
     emit_direct::maybe_emit_exe_and_exit(
         emit_exe,
@@ -67,7 +73,9 @@ pub(crate) fn run_vm_compiled_module(
     // Existing: NYASH_VM_DUMP_MIR dumps to stderr
     if crate::config::env::env_bool("NYASH_VM_DUMP_MIR") {
         let p = crate::mir::MirPrinter::new();
-        crate::runtime::ring0::get_global_ring0().log.debug(&p.print_module(&module_vm));
+        crate::runtime::ring0::get_global_ring0()
+            .log
+            .debug(&p.print_module(&module_vm));
     }
 
     // Execute via MIR interpreter
@@ -82,7 +90,9 @@ pub(crate) fn run_vm_compiled_module(
 
     if std::env::var("NYASH_DUMP_FUNCS").ok().as_deref() == Some("1") {
         let ring0 = crate::runtime::ring0::get_global_ring0();
-        ring0.log.debug(&format!("[{}] functions available:", route));
+        ring0
+            .log
+            .debug(&format!("[{}] functions available:", route));
         for k in module_vm.functions.keys() {
             ring0.log.debug(&format!("  - {}", k));
         }
@@ -90,8 +100,7 @@ pub(crate) fn run_vm_compiled_module(
 
     // Phase 33-10.0: If lowering ドライラン統合（箱化版）
     // JoinIR dev + IfSelect 有効時に IfLoweringDryRunner を使用
-    if crate::config::env::joinir_dev_enabled() && crate::config::env::joinir_if_select_enabled()
-    {
+    if crate::config::env::joinir_dev_enabled() && crate::config::env::joinir_if_select_enabled() {
         let debug_level = crate::config::env::joinir_debug_level();
         let runner =
             crate::mir::join_ir::lowering::if_dry_runner::IfLoweringDryRunner::new(debug_level);
@@ -108,9 +117,10 @@ pub(crate) fn run_vm_compiled_module(
 
     if emit_trace {
         let ring0 = crate::runtime::ring0::get_global_ring0();
-        ring0
-            .log
-            .info(&format!("[runner/{}:emit-trace] phase=execute.begin", route));
+        ring0.log.info(&format!(
+            "[runner/{}:emit-trace] phase=execute.begin",
+            route
+        ));
     }
     match vm.execute_module(&module_vm) {
         Ok(ret) => {
@@ -154,7 +164,9 @@ pub(crate) fn run_vm_compiled_module(
             }
             if std::env::var("NYASH_EMIT_MIR_TRACE").ok().as_deref() == Some("1") {
                 let ring0 = crate::runtime::ring0::get_global_ring0();
-                ring0.log.debug(&format!("[runner/{}] exit_code={}", route, exit_code));
+                ring0
+                    .log
+                    .debug(&format!("[runner/{}] exit_code={}", route, exit_code));
             }
 
             // Phase 285: Emit leak report before exit (if enabled)
@@ -166,7 +178,9 @@ pub(crate) fn run_vm_compiled_module(
         Err(e) => {
             let ring0 = crate::runtime::ring0::get_global_ring0();
             if std::env::var("NYASH_EMIT_MIR_TRACE").ok().as_deref() == Some("1") {
-                ring0.log.debug(&format!("[runner/{}] vm_error={}", route, e));
+                ring0
+                    .log
+                    .debug(&format!("[runner/{}] vm_error={}", route, e));
             }
             ring0.log.error(&format!("❌ [{}] VM error: {}", route, e));
             process::exit(1);

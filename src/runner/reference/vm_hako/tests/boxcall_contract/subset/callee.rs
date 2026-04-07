@@ -42,4 +42,3 @@ fn subset_accepts_global_callee_calls_without_legacy_func_reg() {
     let out = check_vm_hako_subset_json(&mir_json);
     assert_eq!(out, Ok(()));
 }
-

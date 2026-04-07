@@ -47,7 +47,6 @@ fn subset_accepts_boxcall_substring_with_two_args() {
     assert_eq!(out, Ok(()));
 }
 
-
 #[test]
 fn subset_rejects_boxcall_substring_with_non_reg_args() {
     let mir_json = json!({
@@ -87,7 +86,6 @@ fn subset_rejects_boxcall_substring_with_non_reg_args() {
         ))
     );
 }
-
 
 #[test]
 fn subset_accepts_boxcall_indexof_with_one_arg() {
@@ -134,7 +132,6 @@ fn subset_accepts_boxcall_indexof_with_one_arg() {
     assert_eq!(out, Ok(()));
 }
 
-
 #[test]
 fn subset_rejects_boxcall_indexof_without_arg() {
     let mir_json = json!({
@@ -174,7 +171,6 @@ fn subset_rejects_boxcall_indexof_without_arg() {
         ))
     );
 }
-
 
 #[test]
 fn subset_accepts_boxcall_indexof_with_two_args() {
@@ -226,7 +222,6 @@ fn subset_accepts_boxcall_indexof_with_two_args() {
     assert_eq!(out, Ok(()));
 }
 
-
 #[test]
 fn subset_rejects_boxcall_length_with_arg() {
     let mir_json = json!({
@@ -264,4 +259,3 @@ fn subset_rejects_boxcall_length_with_arg() {
         Err(("main".to_string(), 0, "boxcall(length:args!=0)".to_string()))
     );
 }
-

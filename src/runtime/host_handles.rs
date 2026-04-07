@@ -53,7 +53,10 @@ mod perf_observe {
     }
 
     #[inline(always)]
-    pub(super) fn object_with_handle(handle: u64, caller: super::PerfObserveObjectWithHandleCaller) {
+    pub(super) fn object_with_handle(
+        handle: u64,
+        caller: super::PerfObserveObjectWithHandleCaller,
+    ) {
         if is_latest_fresh_handle(handle) {
             OBJECT_WITH_HANDLE_LATEST_FRESH.fetch_add(1, Ordering::Relaxed);
             match caller {
@@ -70,8 +73,7 @@ mod perf_observe {
                         .fetch_add(1, Ordering::Relaxed);
                 }
                 super::PerfObserveObjectWithHandleCaller::DecodeAnyArg => {
-                    OBJECT_WITH_HANDLE_DECODE_ANY_ARG_LATEST_FRESH
-                        .fetch_add(1, Ordering::Relaxed);
+                    OBJECT_WITH_HANDLE_DECODE_ANY_ARG_LATEST_FRESH.fetch_add(1, Ordering::Relaxed);
                 }
                 super::PerfObserveObjectWithHandleCaller::DecodeAnyIndex => {
                     OBJECT_WITH_HANDLE_DECODE_ANY_INDEX_LATEST_FRESH
@@ -141,7 +143,11 @@ mod perf_observe {
     #[inline(always)]
     pub(super) fn object_get(_handle: u64) {}
     #[inline(always)]
-    pub(super) fn object_with_handle(_handle: u64, _caller: super::PerfObserveObjectWithHandleCaller) {}
+    pub(super) fn object_with_handle(
+        _handle: u64,
+        _caller: super::PerfObserveObjectWithHandleCaller,
+    ) {
+    }
     #[inline(always)]
     pub(super) fn object_pair(_a: u64, _b: u64) {}
     #[inline(always)]
@@ -187,7 +193,6 @@ impl HandlePayload {
     fn as_str_fast(&self) -> Option<&str> {
         self.stable_box_ref().as_ref().as_str_fast()
     }
-
 }
 
 pub struct TextReadSession<'a> {
@@ -416,11 +421,7 @@ impl Registry {
         if a_obj.is_some() || b_obj.is_some() || c_obj.is_some() {
             perf_observe::object_triple(a, b, c);
         }
-        f(
-            a_obj,
-            b_obj,
-            c_obj,
-        )
+        f(a_obj, b_obj, c_obj)
     }
 
     #[inline(always)]
@@ -617,7 +618,6 @@ pub fn with_str_pair<R>(a: u64, b: u64, f: impl FnOnce(&str, &str) -> R) -> Opti
 pub fn with_str3<R>(a: u64, b: u64, c: u64, f: impl FnOnce(&str, &str, &str) -> R) -> Option<R> {
     reg().with_str3(a, b, c, f)
 }
-
 
 /// HostHandle(u64)x3 -> Arc<dyn NyashBox>x3.
 /// Uses a single registry read-lock acquisition for triple lookups.

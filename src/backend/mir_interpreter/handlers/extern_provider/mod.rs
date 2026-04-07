@@ -1,8 +1,8 @@
 use super::*;
 use serde_json::Value as JsonValue;
 
-mod hostbridge;
 mod codegen;
+mod hostbridge;
 mod lane;
 mod loader_cold;
 mod runtime_direct;

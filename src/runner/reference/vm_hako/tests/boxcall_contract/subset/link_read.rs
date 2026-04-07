@@ -55,7 +55,6 @@ fn subset_accepts_boxcall_link_exe_with_three_args() {
     assert_eq!(out, Ok(()));
 }
 
-
 #[test]
 fn subset_accepts_mir_call_link_exe_with_three_args() {
     let mir_json = json!({
@@ -120,7 +119,6 @@ fn subset_accepts_mir_call_link_exe_with_three_args() {
     assert_eq!(out, Ok(()));
 }
 
-
 #[test]
 fn subset_accepts_boxcall_read_with_receiver_mirror_arg() {
     let mir_json = json!({
@@ -150,7 +148,6 @@ fn subset_accepts_boxcall_read_with_receiver_mirror_arg() {
     let out = check_vm_hako_subset_json(&mir_json);
     assert_eq!(out, Ok(()));
 }
-
 
 #[test]
 fn subset_rejects_boxcall_read_with_non_reg_receiver_mirror_arg() {

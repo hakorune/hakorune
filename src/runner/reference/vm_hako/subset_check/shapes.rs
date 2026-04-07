@@ -58,7 +58,10 @@ pub(super) fn validate_array_set_shape(inst: &Value) -> Result<(), String> {
 pub(super) fn validate_store_shape(inst: &Value) -> Result<(), String> {
     ensure_u64_fields(
         inst,
-        &[("ptr", "store(missing-ptr)"), ("value", "store(missing-value)")],
+        &[
+            ("ptr", "store(missing-ptr)"),
+            ("value", "store(missing-value)"),
+        ],
     )?;
     Ok(())
 }
@@ -179,7 +182,10 @@ pub(super) fn validate_future_set_shape(inst: &Value) -> Result<(), String> {
 pub(super) fn validate_await_shape(inst: &Value) -> Result<(), String> {
     ensure_u64_fields(
         inst,
-        &[("dst", "await(missing-dst)"), ("future", "await(missing-future)")],
+        &[
+            ("dst", "await(missing-dst)"),
+            ("future", "await(missing-future)"),
+        ],
     )?;
     Ok(())
 }
@@ -192,7 +198,10 @@ pub(super) fn validate_const_shape(inst: &Value) -> Result<(), String> {
         .get("type")
         .ok_or_else(|| "const(malformed)".to_string())?;
 
-    let is_i64_or_bool = ty.as_str().map(|s| s == "i64" || s == "bool").unwrap_or(false);
+    let is_i64_or_bool = ty
+        .as_str()
+        .map(|s| s == "i64" || s == "bool")
+        .unwrap_or(false);
     let is_void = ty.as_str().map(|s| s == "void").unwrap_or(false);
     let is_string_handle = ty
         .as_object()

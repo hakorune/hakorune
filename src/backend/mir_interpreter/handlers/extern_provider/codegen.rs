@@ -43,7 +43,9 @@ impl MirInterpreter {
         match (iface.as_str(), method_name.as_str()) {
             ("env.codegen", "emit_object") => {
                 if let Some(s) = first_arg_str {
-                    match crate::runtime::plugin_loader_v2::compat_codegen_receiver::emit_object(&s, false) {
+                    match crate::runtime::plugin_loader_v2::compat_codegen_receiver::emit_object(
+                        &s, false,
+                    ) {
                         Ok(p) => Ok(VMValue::String(p)),
                         Err(e) => {
                             Err(self.err_with_context("env.codegen.emit_object", &e.to_string()))
@@ -90,7 +92,9 @@ impl MirInterpreter {
                     None
                 };
                 let out = out.map(|p| p.to_string_lossy().into_owned());
-                match crate::runtime::plugin_loader_v2::compat_codegen_receiver::compile_ll_text(&ll_text, out) {
+                match crate::runtime::plugin_loader_v2::compat_codegen_receiver::compile_ll_text(
+                    &ll_text, out,
+                ) {
                     Ok(p) => Ok(VMValue::String(p)),
                     Err(e) => {
                         Err(self.err_with_context("env.codegen.compile_ll_text", &e.to_string()))
@@ -143,9 +147,7 @@ impl MirInterpreter {
                     }
                 };
                 match crate::runtime::plugin_loader_v2::compat_codegen_receiver::link_object(
-                    &objs,
-                    exe_s,
-                    extra_s,
+                    &objs, exe_s, extra_s,
                 ) {
                     Ok(exe) => Ok(VMValue::String(exe)),
                     Err(e) => Err(ErrorBuilder::with_context(
@@ -205,8 +207,7 @@ impl MirInterpreter {
                     None => None,
                 };
                 match crate::runtime::plugin_loader_v2::compat_codegen_receiver::compile_ll_text(
-                    &ll_text,
-                    out,
+                    &ll_text, out,
                 ) {
                     Ok(p) => Ok(VMValue::String(p)),
                     Err(e) => Err(ErrorBuilder::with_context(
@@ -229,9 +230,7 @@ impl MirInterpreter {
                     None => None,
                 };
                 match crate::runtime::plugin_loader_v2::compat_codegen_receiver::link_object(
-                    &obj_path,
-                    exe_out,
-                    extra,
+                    &obj_path, exe_out, extra,
                 ) {
                     Ok(exe) => Ok(VMValue::String(exe)),
                     Err(e) => Err(ErrorBuilder::with_context(
@@ -273,10 +272,9 @@ impl MirInterpreter {
                     }
                 }
                 other => {
-                    crate::runtime::get_global_ring0().log.debug(&format!(
-                        "[hb:provider:args] link_object third={:?}",
-                        other
-                    ));
+                    crate::runtime::get_global_ring0()
+                        .log
+                        .debug(&format!("[hb:provider:args] link_object third={:?}", other));
                 }
             }
         } else {

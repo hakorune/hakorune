@@ -1,9 +1,9 @@
 use super::*;
-use crate::mir::{
-    BasicBlock, BasicBlockId, BinaryOp, Callee, EffectMask, FunctionSignature, MirFunction,
-    MirInstruction, MirType, ValueId, ConstValue,
-};
 use crate::mir::MirModule;
+use crate::mir::{
+    BasicBlock, BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, FunctionSignature,
+    MirFunction, MirInstruction, MirType, ValueId,
+};
 
 fn make_module_with_single_const_return(value: i64) -> MirModule {
     let mut module = MirModule::new("test".to_string());
@@ -235,8 +235,7 @@ fn wasm_shape_table_detects_p10_loop_extern_candidate_contract() {
 
     module.add_function(function);
 
-    let found =
-        detect_p10_loop_extern_call_candidate(&module).expect("p10 candidate should match");
+    let found = detect_p10_loop_extern_call_candidate(&module).expect("p10 candidate should match");
     assert_eq!(found, "wsm.p10.main_loop_extern_call.v0");
 }
 

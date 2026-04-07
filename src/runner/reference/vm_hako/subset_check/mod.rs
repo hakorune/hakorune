@@ -302,7 +302,11 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                     }
                     let callee_name = call_callee_name(inst).unwrap_or("");
                     if callee_name.is_empty() {
-                        return Err((func_name.clone(), bb, "call(global:missing-name)".to_string()));
+                        return Err((
+                            func_name.clone(),
+                            bb,
+                            "call(global:missing-name)".to_string(),
+                        ));
                     }
                     if !has_dst {
                         match parse_print_arg_from_instruction(inst, &handle_by_reg) {
@@ -312,10 +316,18 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                                 return Err((func_name.clone(), bb, reason.to_string()));
                             }
                         }
-                        return Err((func_name.clone(), bb, "call(global:missing-dst)".to_string()));
+                        return Err((
+                            func_name.clone(),
+                            bb,
+                            "call(global:missing-dst)".to_string(),
+                        ));
                     }
                     if args.iter().any(|v| v.as_u64().is_none()) {
-                        return Err((func_name.clone(), bb, "call(global:arg:non-reg)".to_string()));
+                        return Err((
+                            func_name.clone(),
+                            bb,
+                            "call(global:arg:non-reg)".to_string(),
+                        ));
                     }
                 }
                 "externcall" => {
@@ -339,9 +351,10 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                         continue;
                     }
                     if func == "hako_last_error" || func == "hako_last_error/1" {
-                        if let Err(reason) =
-                            externcalls::validate_single_arg_externcall_shape(inst, "hako_last_error")
-                        {
+                        if let Err(reason) = externcalls::validate_single_arg_externcall_shape(
+                            inst,
+                            "hako_last_error",
+                        ) {
                             return Err((func_name.clone(), bb, reason));
                         }
                         continue;
@@ -398,11 +411,7 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                         continue;
                     }
                     if func.starts_with("hako_osvm_") {
-                        return Err((
-                            func_name.clone(),
-                            bb,
-                            format!("externcall({})", func),
-                        ));
+                        return Err((func_name.clone(), bb, format!("externcall({})", func)));
                     }
                     if func == "nyash.gc.barrier_write" || func == "nyash.gc.barrier_write/1" {
                         if let Err(reason) = externcalls::validate_single_arg_externcall_shape(
@@ -416,7 +425,11 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                     match parse_print_arg_from_instruction(inst, &handle_by_reg) {
                         Ok(Some(_)) => {}
                         Ok(None) => {
-                            return Err((func_name.clone(), bb, format!("externcall(func:{})", func)));
+                            return Err((
+                                func_name.clone(),
+                                bb,
+                                format!("externcall(func:{})", func),
+                            ));
                         }
                         Err(reason) => {
                             return Err((func_name.clone(), bb, reason.to_string()));

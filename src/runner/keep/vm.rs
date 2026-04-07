@@ -91,7 +91,9 @@ impl NyashRunner {
         let trace = crate::config::env::cli_verbose()
             || crate::config::env::env_bool("NYASH_RESOLVE_TRACE");
 
-        let prepared = match crate::runner::modes::common_util::vm_source_prepare::prepare_vm_source(self, filename) {
+        let prepared = match crate::runner::modes::common_util::vm_source_prepare::prepare_vm_source(
+            self, filename,
+        ) {
             Some(prepared) => prepared,
             None => process::exit(1),
         };
@@ -297,6 +299,5 @@ impl NyashRunner {
             &vm_user_factory,
             true,
         );
-
     }
 }

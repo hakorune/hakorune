@@ -111,7 +111,10 @@ pub(crate) fn link_object(
         ),
     );
     if std::env::var("NYASH_LLVM_USE_CAPI").ok().as_deref() != Some("1")
-        || std::env::var("HAKO_V1_EXTERN_PROVIDER_C_ABI").ok().as_deref() != Some("1")
+        || std::env::var("HAKO_V1_EXTERN_PROVIDER_C_ABI")
+            .ok()
+            .as_deref()
+            != Some("1")
     {
         let result = Err("env.codegen.link_object: C-API route disabled".to_string());
         trace_result("link_object", &result);
@@ -122,9 +125,10 @@ pub(crate) fn link_object(
         .and_then(optional_codegen_text)
         .map(PathBuf::from)
         .unwrap_or_else(|| std::env::temp_dir().join("hako_link_out.exe"));
-    let result = crate::host_providers::llvm_codegen::link_object_capi(&obj, &exe, extra.as_deref())
-        .map(|()| exe.to_string_lossy().into_owned())
-        .map_err(|e| e.to_string());
+    let result =
+        crate::host_providers::llvm_codegen::link_object_capi(&obj, &exe, extra.as_deref())
+            .map(|()| exe.to_string_lossy().into_owned())
+            .map_err(|e| e.to_string());
     trace_result("link_object", &result);
     result
 }
@@ -142,9 +146,7 @@ fn codegen_opts(out: Option<PathBuf>) -> crate::host_providers::llvm_codegen::Op
         crate::config::env::backend_codegen_request_defaults(None, None);
     crate::host_providers::llvm_codegen::Opts {
         out,
-        nyrt: std::env::var("NYASH_EMIT_EXE_NYRT")
-            .ok()
-            .map(PathBuf::from),
+        nyrt: std::env::var("NYASH_EMIT_EXE_NYRT").ok().map(PathBuf::from),
         opt_level: std::env::var("HAKO_LLVM_OPT_LEVEL")
             .ok()
             .or_else(|| std::env::var("NYASH_LLVM_OPT_LEVEL").ok())

@@ -37,6 +37,6 @@ pub(crate) fn prepare_vm_user_factory(
             ast,
             include_static_box_decls,
             alias_static_instances,
-    );
+        );
     VmUserFactoryState { static_box_decls }
 }

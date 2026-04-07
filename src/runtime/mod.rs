@@ -7,14 +7,19 @@ pub mod core_box_ids; // Phase 87: CoreBoxId/CoreMethodId 型安全enum
 pub mod core_method_aliases; // Phase 29ab: Core method alias SSOT
 pub mod core_services; // Phase 91: CoreServices trait 定義
 pub mod deprecations;
+pub mod extern_registry; // ExternCall (env.*) 登録・診断用レジストリ
 pub mod gc;
 pub mod gc_controller;
 pub mod gc_mode;
 pub mod gc_trace;
 mod gc_trigger_policy;
 pub mod global_hooks;
+pub mod host_api; // C ABI: plugins -> host 逆呼び出しAPI（TLSでVMに橋渡し）
+pub mod host_handles; // C ABI(TLV) 向け HostHandle レジストリ（ユーザー/内蔵Box受け渡し）
+mod host_handles_policy;
 pub mod leak_tracker;
 pub mod mirbuilder_emit;
+pub mod modules_registry;
 pub mod nyash_runtime;
 pub mod observe; // Lightweight observability flags (OOB etc.)
 pub mod plugin_config;
@@ -28,15 +33,10 @@ pub mod ring0; // Phase 88: Ring0Context - OS API 抽象化レイヤー
 pub mod runtime_profile; // Phase 109: RuntimeProfile enum (Default/NoFs)
 pub mod scheduler;
 pub mod semantics;
-pub mod unified_registry; // Deprecation warnings with warn-once guards
-pub mod extern_registry; // ExternCall (env.*) 登録・診断用レジストリ
-pub mod host_api; // C ABI: plugins -> host 逆呼び出しAPI（TLSでVMに橋渡し）
-pub mod host_handles; // C ABI(TLV) 向け HostHandle レジストリ（ユーザー/内蔵Box受け渡し）
-mod host_handles_policy;
-pub mod modules_registry;
 pub mod type_box_abi; // Phase 12: Nyash ABI (vtable) 雛形
 pub mod type_meta;
 pub mod type_registry;
+pub mod unified_registry; // Deprecation warnings with warn-once guards
 pub mod weak_handles; // Phase 285LLVM-1: WeakRef Handle レジストリ（bit 63 = 1） // Phase 12: TypeId→TypeBox 解決（雛形） // env.modules minimal registry
 
 #[cfg(test)]

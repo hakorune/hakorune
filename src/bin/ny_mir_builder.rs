@@ -197,7 +197,10 @@ fn run_nyash_pipe(nyash_bin: &Path, json_file: &Path) {
     }
     let status = cmd.status().expect("run nyash");
     if !status.success() {
-        eprintln!("error: llvm backend route failed (status {:?})", status.code());
+        eprintln!(
+            "error: llvm backend route failed (status {:?})",
+            status.code()
+        );
         std::process::exit(4);
     }
 }

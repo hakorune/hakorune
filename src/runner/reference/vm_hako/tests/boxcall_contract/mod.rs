@@ -31,5 +31,5 @@ fn with_joinir_strict_without_planner_required<F: FnOnce()>(f: F) {
     }
 }
 
-mod subset;
 mod compile;
+mod subset;

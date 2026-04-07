@@ -61,7 +61,6 @@ fn subset_accepts_boxcall_push_without_dst() {
     assert_eq!(out, Ok(()));
 }
 
-
 #[test]
 fn subset_rejects_boxcall_push_with_two_args() {
     let mir_json = json!({
@@ -94,7 +93,6 @@ fn subset_rejects_boxcall_push_with_two_args() {
         Err(("main".to_string(), 0, "boxcall(push:args!=1)".to_string()))
     );
 }
-
 
 #[test]
 fn subset_accepts_boxcall_open_with_two_args() {
@@ -146,7 +144,6 @@ fn subset_accepts_boxcall_open_with_two_args() {
     assert_eq!(out, Ok(()));
 }
 
-
 #[test]
 fn subset_rejects_boxcall_open_with_non_reg_args() {
     let mir_json = json!({
@@ -183,7 +180,6 @@ fn subset_rejects_boxcall_open_with_non_reg_args() {
         ))
     );
 }
-
 
 #[test]
 fn subset_accepts_boxcall_open_with_three_args() {
@@ -235,4 +231,3 @@ fn subset_accepts_boxcall_open_with_three_args() {
     let out = check_vm_hako_subset_json(&mir_json);
     assert_eq!(out, Ok(()));
 }
-

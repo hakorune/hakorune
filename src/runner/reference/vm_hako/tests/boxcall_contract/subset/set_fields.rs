@@ -47,7 +47,6 @@ fn subset_accepts_boxcall_set_with_two_args() {
     assert_eq!(out, Ok(()));
 }
 
-
 #[test]
 fn subset_rejects_boxcall_set_with_non_reg_args() {
     let mir_json = json!({
@@ -77,10 +76,13 @@ fn subset_rejects_boxcall_set_with_non_reg_args() {
     let out = check_vm_hako_subset_json(&mir_json);
     assert_eq!(
         out,
-        Err(("main".to_string(), 0, "boxcall(set:args:non-reg)".to_string()))
+        Err((
+            "main".to_string(),
+            0,
+            "boxcall(set:args:non-reg)".to_string()
+        ))
     );
 }
-
 
 #[test]
 fn subset_accepts_boxcall_setfield_with_two_args() {
@@ -129,7 +131,6 @@ fn subset_accepts_boxcall_setfield_with_two_args() {
     assert_eq!(out, Ok(()));
 }
 
-
 #[test]
 fn subset_rejects_boxcall_setfield_with_non_reg_args() {
     let mir_json = json!({
@@ -166,7 +167,6 @@ fn subset_rejects_boxcall_setfield_with_non_reg_args() {
         ))
     );
 }
-
 
 #[test]
 fn subset_accepts_boxcall_has_with_one_arg() {
@@ -209,4 +209,3 @@ fn subset_accepts_boxcall_has_with_one_arg() {
     let out = check_vm_hako_subset_json(&mir_json);
     assert_eq!(out, Ok(()));
 }
-

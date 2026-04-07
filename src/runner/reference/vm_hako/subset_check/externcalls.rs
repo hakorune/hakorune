@@ -38,7 +38,10 @@ pub(super) fn validate_mirbuilder_emit_externcall_shape(inst: &Value) -> Result<
     Ok(())
 }
 
-pub(super) fn validate_single_arg_externcall_shape(inst: &Value, label: &str) -> Result<(), String> {
+pub(super) fn validate_single_arg_externcall_shape(
+    inst: &Value,
+    label: &str,
+) -> Result<(), String> {
     let args = inst
         .get("args")
         .and_then(|v| v.as_array())

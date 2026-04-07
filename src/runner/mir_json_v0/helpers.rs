@@ -1,6 +1,4 @@
-use crate::mir::{
-    BarrierOp, ConstValue, MirType, TypeOpKind, ValueId,
-};
+use crate::mir::{BarrierOp, ConstValue, MirType, TypeOpKind, ValueId};
 use serde_json::Value;
 
 pub(super) fn require_u64(node: &Value, key: &str, context: &str) -> Result<u64, String> {

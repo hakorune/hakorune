@@ -6,8 +6,8 @@ mod enabled;
 mod stub;
 
 #[cfg(all(feature = "plugins", not(target_arch = "wasm32")))]
-pub use enabled::*;
-#[cfg(all(feature = "plugins", not(target_arch = "wasm32")))]
 pub(crate) use enabled::compat_codegen_receiver;
+#[cfg(all(feature = "plugins", not(target_arch = "wasm32")))]
+pub use enabled::*;
 #[cfg(any(not(feature = "plugins"), target_arch = "wasm32"))]
 pub use stub::*;

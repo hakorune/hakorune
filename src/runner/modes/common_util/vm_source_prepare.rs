@@ -14,10 +14,7 @@ pub(crate) struct PreparedVmSource {
     pub(crate) using_imports: HashMap<String, String>,
 }
 
-pub(crate) fn prepare_vm_source(
-    runner: &NyashRunner,
-    filename: &str,
-) -> Option<PreparedVmSource> {
+pub(crate) fn prepare_vm_source(runner: &NyashRunner, filename: &str) -> Option<PreparedVmSource> {
     let code = match std::fs::read_to_string(filename) {
         Ok(content) => content,
         Err(e) => {
@@ -30,9 +27,7 @@ pub(crate) fn prepare_vm_source(
     };
 
     let prepared = match crate::runner::modes::common_util::source_hint::prepare_source_with_imports(
-        runner,
-        filename,
-        &code,
+        runner, filename, &code,
     ) {
         Ok(prepared) => prepared,
         Err(e) => {

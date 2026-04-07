@@ -275,10 +275,7 @@ impl MirInterpreter {
                 let fn_name = self.cur_fn.as_deref().unwrap_or("<unknown>");
                 Err(VMError::InvalidValue(format!(
                     "[vm] use of undefined value {:?} (fn={}, last_block={:?}, last_inst={:?})",
-                    id,
-                    fn_name,
-                    self.last_block,
-                    self.last_inst,
+                    id, fn_name, self.last_block, self.last_inst,
                 )))
             }
         }

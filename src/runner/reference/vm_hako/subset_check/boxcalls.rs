@@ -25,7 +25,8 @@ fn validate_boxcall_open_shape(inst: &Value, args: &[Value]) -> Result<(), Strin
         return Err("boxcall(open:args!=2or3)".to_string());
     }
     let args_ok = if args.len() == 2 {
-        args.first().and_then(|v| v.as_u64()).is_some() && args.get(1).and_then(|v| v.as_u64()).is_some()
+        args.first().and_then(|v| v.as_u64()).is_some()
+            && args.get(1).and_then(|v| v.as_u64()).is_some()
     } else {
         args.first().and_then(|v| v.as_u64()).is_some()
             && args.get(1).and_then(|v| v.as_u64()).is_some()
@@ -36,7 +37,10 @@ fn validate_boxcall_open_shape(inst: &Value, args: &[Value]) -> Result<(), Strin
     }
     ensure_u64_fields(
         inst,
-        &[("dst", "boxcall(missing-dst)"), ("box", "boxcall(missing-box)")],
+        &[
+            ("dst", "boxcall(missing-dst)"),
+            ("box", "boxcall(missing-box)"),
+        ],
     )?;
     Ok(())
 }
@@ -52,7 +56,10 @@ fn validate_boxcall_substring_shape(inst: &Value, args: &[Value]) -> Result<(), 
     }
     ensure_u64_fields(
         inst,
-        &[("dst", "boxcall(missing-dst)"), ("box", "boxcall(missing-box)")],
+        &[
+            ("dst", "boxcall(missing-dst)"),
+            ("box", "boxcall(missing-box)"),
+        ],
     )?;
     Ok(())
 }
@@ -67,7 +74,10 @@ fn validate_boxcall_set_shape(inst: &Value, args: &[Value], method: &str) -> Res
     }
     ensure_u64_fields(
         inst,
-        &[("dst", "boxcall(missing-dst)"), ("box", "boxcall(missing-box)")],
+        &[
+            ("dst", "boxcall(missing-dst)"),
+            ("box", "boxcall(missing-box)"),
+        ],
     )?;
     Ok(())
 }
@@ -82,7 +92,10 @@ fn validate_boxcall_link_exe_shape(inst: &Value, args: &[Value]) -> Result<(), S
     }
     ensure_u64_fields(
         inst,
-        &[("dst", "boxcall(missing-dst)"), ("box", "boxcall(missing-box)")],
+        &[
+            ("dst", "boxcall(missing-dst)"),
+            ("box", "boxcall(missing-box)"),
+        ],
     )?;
     Ok(())
 }
@@ -116,7 +129,10 @@ fn validate_boxcall_noarg_shape(inst: &Value, args: &[Value], method: &str) -> R
     }
     ensure_u64_fields(
         inst,
-        &[("dst", "boxcall(missing-dst)"), ("box", "boxcall(missing-box)")],
+        &[
+            ("dst", "boxcall(missing-dst)"),
+            ("box", "boxcall(missing-box)"),
+        ],
     )?;
     Ok(())
 }
@@ -134,7 +150,10 @@ fn validate_boxcall_zero_or_one_reg_shape(
     }
     ensure_u64_fields(
         inst,
-        &[("dst", "boxcall(missing-dst)"), ("box", "boxcall(missing-box)")],
+        &[
+            ("dst", "boxcall(missing-dst)"),
+            ("box", "boxcall(missing-box)"),
+        ],
     )?;
     Ok(())
 }
@@ -152,7 +171,10 @@ fn validate_boxcall_two_reg_shape(
     }
     ensure_u64_fields(
         inst,
-        &[("dst", "boxcall(missing-dst)"), ("box", "boxcall(missing-box)")],
+        &[
+            ("dst", "boxcall(missing-dst)"),
+            ("box", "boxcall(missing-box)"),
+        ],
     )?;
     Ok(())
 }
@@ -173,7 +195,10 @@ fn validate_boxcall_indexof_shape(inst: &Value, args: &[Value]) -> Result<(), St
     }
     ensure_u64_fields(
         inst,
-        &[("dst", "boxcall(missing-dst)"), ("box", "boxcall(missing-box)")],
+        &[
+            ("dst", "boxcall(missing-dst)"),
+            ("box", "boxcall(missing-box)"),
+        ],
     )?;
     Ok(())
 }
@@ -188,7 +213,10 @@ fn validate_boxcall_default_shape(inst: &Value, args: &[Value]) -> Result<(), St
     }
     ensure_u64_fields(
         inst,
-        &[("dst", "boxcall(missing-dst)"), ("box", "boxcall(missing-box)")],
+        &[
+            ("dst", "boxcall(missing-dst)"),
+            ("box", "boxcall(missing-box)"),
+        ],
     )?;
     Ok(())
 }

@@ -1,12 +1,12 @@
 use super::NyashRunner;
 use std::path::{Path, PathBuf};
 
-#[path = "build_shared.rs"]
-mod build_shared;
-#[path = "build_product.rs"]
-mod build_product;
 #[path = "build_engineering.rs"]
 mod build_engineering;
+#[path = "build_product.rs"]
+mod build_product;
+#[path = "build_shared.rs"]
+mod build_shared;
 use build_shared::{
     apply_env_overrides, build_core, build_plugins, load_build_doc, resolve_app_entry,
 };
