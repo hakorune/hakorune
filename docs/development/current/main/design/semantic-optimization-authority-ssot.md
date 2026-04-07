@@ -39,6 +39,43 @@ Related:
 
 This is the only intended authority order.
 
+## Target Execution Flow
+
+Read hot-path lifecycle through this stack:
+
+```text
+.hako
+  decides policy:
+    - source_preserve
+    - identity_demand
+    - publication_demand
+        |
+        v
+MIR
+  carries public canonical contract:
+    - store.array.str
+    - delayed-materialization reading
+    - escalation visibility
+        |
+        v
+Rust
+  executes runtime facts and mechanics:
+    - SourceKindCheck
+    - SourceLifetimeKeep
+    - AliasUpdate
+    - NeedStableObject
+        |
+        v
+LLVM / native code
+  optimizes the chosen shape
+```
+
+The rule is:
+
+- policy is fixed above Rust
+- mechanics are executed below MIR
+- helper-local branching must not invent new lifecycle policy
+
 ## Layer Borrowing Rule
 
 Hakorune should borrow ideas per layer without mixing their responsibilities.

@@ -177,6 +177,63 @@ It must not replace the top-level Birth / Placement vocabulary.
 
 ## Layer Responsibilities
 
+## Lifecycle Flow
+
+Target lifecycle should be read as the following flow, not as one fused
+"birth" event.
+
+```text
+.hako owner / policy
+  decides:
+    - source_preserve
+    - identity_demand
+    - publication_demand
+        |
+        v
+MIR canonical contract
+  carries:
+    - public route name
+    - delayed-materialization reading
+    - escalation visibility
+        |
+        v
+Rust planner / executor
+  planner:
+    - SourceKindCheck
+    - choose RetargetAlias / StoreFromSource / NeedStableObject
+  executor:
+    - SourceLifetimeKeep
+    - AliasUpdate
+    - drop_epoch / registry / Arc mechanics
+        |
+        v
+object / handle world
+  only when demanded:
+    - StableBoxNow
+    - FreshRegistryHandle
+```
+
+This should also be read as five lifecycle stages:
+
+1. value/text world
+   - `BorrowView`
+   - `MaterializeOwned`
+   - `StoreFromSource`
+2. source-lifetime keep
+   - `SourceLifetimeKeep`
+   - still not a stable object by itself
+3. object birth
+   - `Objectization::StableBoxNow`
+4. publication
+   - `RegistryIssue::ReuseSourceHandle | FreshRegistryHandle`
+5. stale/invalidation
+   - `drop_epoch`
+   - alias survival
+   - registry invalidation
+
+For hot paths, `MaterializeOwned` should not imply `StableBoxNow`, and
+`StableBoxNow` should not imply `FreshRegistryHandle`.
+
 ### `.hako owner / policy`
 
 Owns:
