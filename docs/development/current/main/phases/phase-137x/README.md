@@ -53,27 +53,29 @@
   - `crates/nyash_kernel/src/exports/string_helpers.rs` is now split into `string_helpers/{cache,materialize,concat,tests}.rs`
   - `crates/nyash_kernel/src/observe/backend/tls.rs` is now split into `observe/backend/tls/{state,methods,api,tests}.rs`
   - whole-kilo `kilo_kernel_small_hk` direct pure-first AOT lane is healthy again:
-    - root cause was a `concat_hs` self-deadlock: the const-suffix fast path called `string_const_handle_from_text()` while still inside `handles::with_text_read_session()`, so it held the host-handle read lock and then waited on the write lock required by `to_handle_arc()`
+    - root cause was a `concat_hs` self-deadlock: the const-suffix fast path called the literal-handle helper while still inside `handles::with_text_read_session()`, so it held the host-handle read lock and then waited on the write lock required by `to_handle_arc()`
     - fix: build owned text inside the read session, then allocate the const handle only after the session releases the host-handle read lock
-    - latest probes:
-      - `diagnostic`: `c_ms=79 py_ms=109 ny_vm_ms=1010 ny_aot_ms=1915 aot_status=ok`
-      - `strict`: `c_ms=80 py_ms=112 ny_vm_ms=1019 ny_aot_ms=2336 aot_status=ok result_parity=ok`
-    - historical healthy band for the same whole-kilo lane is still roughly `696..762 ms`, so the timeout is fixed but whole-kilo perf is currently regressed
-    - current perf read on the fresh AOT exe points at the const-suffix / literal-handle path, not the substring front:
-      - runtime warning: `[perf/const_cache] capped max_entries=4096 hits=3142 misses=4097 mode=passthrough`
-      - flat `perf report` top symbols:
-        - `core::hash::sip::Hasher::write`: `65.01%`
-        - `__memmove_avx512_unaligned_erms`: `8.13%`
-        - `nyash.string.concat_hs`: `5.90%`
-        - `insert_const_mid_fallback` closure: `1.58%`
-      - current reading is that dynamic concat results are still flowing through the global const-string cache and overflow it, so whole-kilo falls into hash + alloc heavy passthrough
+    - follow-up fix landed: split literal-only reuse from dynamic concat birth
+      - literal-only helpers now stay on `string_literal_handle_from_text()`
+      - dynamic `concat_hs` owned results now go through `string_handle_from_owned()` instead of the global literal cache
+      - repeated same-source + same-suffix reuse still stays on the route-local `concat_const_suffix_fast_cache`
+    - latest probes after the split:
+      - `diagnostic`: `c_ms=80 py_ms=111 ny_vm_ms=1035 ny_aot_ms=755 aot_status=ok`
+      - `strict`: `c_ms=79 py_ms=111 ny_vm_ms=1033 ny_aot_ms=743 aot_status=ok result_parity=ok`
+    - the same whole-kilo lane is back inside the historical healthy band (`696..762 ms`)
+    - direct perf stat on the rebuilt AOT exe also dropped sharply:
+      - `cycles`: `5,049,228,728 -> 1,463,808,505`
+      - `instructions`: `11,252,740,608 -> 843,711,604`
+      - `cache-misses`: `42,739,163 -> 26,257,792`
+      - elapsed: `3.309s -> 0.750s`
+    - the `[perf/const_cache] capped ... mode=passthrough` warning disappeared on the direct run, which matches the new split
   - last rejected micro-slice:
     - cold-splitting the `len_h` fallback helper did not improve the median and was reverted
   - `nyash.string.substring_hii` / `nyash.string.len_h` / `trace_borrowed_substring_plan` stay as the fallback semantic carrier
   - WSL validation needs `3 runs + perf` before trusting any delta
 - the safe next order after restart is:
   1. keep the landed `substring_hii` result-handle churn trim as-is; do not reopen `OwnedText` backing or live-source direct-read widening
-  2. keep validation blockers separate from this local front (`k2_wide_rawmap_clear_guard.sh` still stops on a stale route-lock grep, and whole-kilo `kilo_kernel_small_hk` direct pure-first AOT is green again after the `concat_hs` host-handle read-lock self-deadlock fix)
+  2. treat the old validation blocker as cleared: `tools/checks/dev_gate.sh quick` is green again after retargeting the stale RawMap clear/delete route-lock guards from `map_substrate.rs` to the live `map_aliases.rs` exports
   3. before more substring work, split the string route policy between:
      - literal-only const handle reuse (ptr-keyed / low-cardinality)
      - dynamic concat birth (owned string -> fresh handle, no global text-keyed const cache)
@@ -849,11 +851,11 @@
    - read this front through the substring/len boundary first
    - latest exact reread stays `C 3 ms / AOT 5 ms`, but perf counters improved to `instr 65,862,851`, `cycles 12,266,603`, `cache-miss 9,066`
    - post-change exact symbol order: `len_h 27.52%`, `substring_hii 26.98%`, `memmove 8.28%`
-   - current validation blockers are separate from this local trim:
-     1. quick gate currently stops in `k2_wide_rawmap_clear_guard.sh` route-lock grep drift
-     2. whole-kilo strict accept currently fails because `kilo_kernel_small_hk` direct pure-first AOT build succeeds but the exe times out at runtime (`reason=exe_runtime_timeout`, no output even under a single 30s probe)
-   - next backend trim order if the seed misses after those blockers are cleared:
-     1. `nyash.string.len_h` handle-backed cache
+    - previous validation blockers are cleared:
+      1. quick gate is green again after retargeting the stale RawMap clear/delete guard grep from `map_substrate.rs` to `map_aliases.rs`
+      2. whole-kilo strict accept is green again after the `concat_hs` deadlock fix plus the const/dynamic split
+    - next backend trim order now that those blockers are cleared:
+      1. `nyash.string.len_h` handle-backed cache
      2. `nyash.string.substring_hii` remaining internal view/object overhead only if post-`len_h` perf still points there
      3. `nyash_kernel::exports::string::string_len_from_handle` remaining internal overhead
      4. `concat_birth` / `store.array.str` helper seams only if this front reopens

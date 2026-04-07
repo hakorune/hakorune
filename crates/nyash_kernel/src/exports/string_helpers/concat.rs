@@ -11,8 +11,8 @@ use crate::exports::string_birth_placement::{
     concat3_retention_class, concat_suffix_retention_class, insert_middle_retention_class,
     RetainedForm,
 };
-use crate::exports::string_const_handle_from_text;
 use crate::exports::string_debug::stage1_string_debug_log_concat_materialize;
+use crate::exports::string_literal_handle_from_text;
 use crate::exports::string_plan::{
     concat_const_suffix_plan_from_handle, insert_const_mid_plan_from_handle, TextPiece, TextPlan,
 };
@@ -353,7 +353,7 @@ fn execute_const_suffix_contract(a_h: i64, suffix_ptr: *const i8) -> i64 {
             return match plan {
                 ConcatFastPath::ReuseHandle(handle) => handle,
                 ConcatFastPath::Owned(text) => {
-                    let handle = string_const_handle_from_text(&text);
+                    let handle = string_handle_from_owned(text);
                     if handle > 0 {
                         concat_const_suffix_fast_cache_store(a_h, suffix_ptr, handle);
                     }
@@ -424,7 +424,7 @@ pub(super) fn insert_const_mid_fallback(source_h: i64, middle_ptr: *const i8, sp
                                 return cached;
                             }
                         }
-                        let handle = string_const_handle_from_text(middle);
+                        let handle = string_literal_handle_from_text(middle);
                         if handle > 0 {
                             cache.ptr.set(addr);
                             cache.handle.set(handle);

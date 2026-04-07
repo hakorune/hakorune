@@ -19,7 +19,7 @@ static CONST_CACHE_MISSES: AtomicU64 = AtomicU64::new(0);
 static CONST_CACHE_CAP_WARNED: AtomicBool = AtomicBool::new(false);
 
 #[inline(always)]
-pub(crate) fn string_const_handle_from_text(text: &str) -> i64 {
+pub(crate) fn string_literal_handle_from_text(text: &str) -> i64 {
     let cache = CONST_STRING_CACHE.get_or_init(|| Mutex::new(HashMap::new()));
 
     if let Ok(guard) = cache.lock() {
@@ -82,7 +82,7 @@ pub extern "C" fn nyash_box_from_i8_string_const(ptr: *const i8) -> i64 {
         Ok(v) => v,
         Err(_) => return 0,
     };
-    string_const_handle_from_text(s)
+    string_literal_handle_from_text(s)
 }
 
 // box.from_i64(val) -> handle

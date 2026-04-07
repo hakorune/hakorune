@@ -96,6 +96,33 @@ fn string_concat_hs_repeated_suffix_reuses_handle_for_same_source_text() {
 }
 
 #[test]
+fn string_concat_hs_different_sources_do_not_share_global_const_handle() {
+    let lhs_h1 = string_handle("phase21_5_concat_hs_source");
+    let lhs_h2 = string_handle("phase21_5_concat_hs_source");
+    let suffix = CString::new("::tail").expect("CString");
+
+    assert_ne!(lhs_h1, lhs_h2, "fixture needs distinct source handles");
+
+    let out_h1 = nyash_string_concat_hs_export(lhs_h1, suffix.as_ptr());
+    let out_h2 = nyash_string_concat_hs_export(lhs_h2, suffix.as_ptr());
+
+    assert!(out_h1 > 0);
+    assert!(out_h2 > 0);
+    assert_ne!(
+        out_h1, out_h2,
+        "dynamic concat_hs results should not be interned through the global literal cache"
+    );
+    assert_eq!(
+        decode_string_like_handle(out_h1).as_deref(),
+        Some("phase21_5_concat_hs_source::tail")
+    );
+    assert_eq!(
+        decode_string_like_handle(out_h2).as_deref(),
+        Some("phase21_5_concat_hs_source::tail")
+    );
+}
+
+#[test]
 fn string_concat_hh_repeated_pair_keeps_fresh_handles_and_text() {
     with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
         let lhs_h = string_handle("line-seed-abcdef");
