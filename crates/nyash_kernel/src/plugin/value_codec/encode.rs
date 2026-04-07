@@ -31,36 +31,9 @@ pub(crate) fn runtime_i64_from_box_ref_caller(
     value: &dyn NyashBox,
     caller: BorrowedAliasEncodeCaller,
 ) -> i64 {
-    // Borrowed alias aware runtime encoder:
-    // reuse source handle only while the alias epoch is still live,
-    // otherwise fall back to conservative re-materialization.
     if let Some(alias) = value.as_any().downcast_ref::<BorrowedHandleBox>() {
-        if alias.source_handle() > 0 {
-            // Fast path: if no handle drop happened since alias creation,
-            // source handle still points to the same object.
-            let current_epoch = handles::drop_epoch();
-            if alias.source_drop_epoch() == current_epoch {
-                observe::record_borrowed_alias_encode_epoch_hit();
-                return alias.source_handle();
-            }
-        }
-        if let Some(iv) = integer_box_to_i64(alias.encode_fallback_box_ref()) {
-            return iv;
-        }
-        if let Some(bv) = bool_box_to_i64(alias.encode_fallback_box_ref()) {
-            return bv;
-        }
-        if alias.source_handle() > 0 {
-            if let Some(source_obj) = handles::get(alias.source_handle() as u64) {
-                if alias.ptr_eq_source_object(&source_obj) {
-                    observe::record_borrowed_alias_encode_ptr_eq_hit();
-                    return alias.source_handle();
-                }
-            }
-        }
-        observe::record_borrowed_alias_encode_to_handle_arc();
-        caller.record();
-        return handles::to_handle_arc(alias.clone_stable_box_for_encode_fallback()) as i64;
+        let plan = plan_borrowed_alias_runtime_i64(alias);
+        return execute_borrowed_alias_runtime_i64(alias, plan, caller);
     }
     if let Some(iv) = integer_box_to_i64(value) {
         return iv;
@@ -74,6 +47,55 @@ pub(crate) fn runtime_i64_from_box_ref_caller(
         value.clone_box()
     };
     box_to_handle(cloned)
+}
+
+enum BorrowedAliasEncodePlan {
+    ReuseSourceHandle(i64),
+    ReturnScalar(i64),
+    EncodeFallback,
+}
+
+#[inline(always)]
+fn plan_borrowed_alias_runtime_i64(alias: &BorrowedHandleBox) -> BorrowedAliasEncodePlan {
+    if alias.source_handle() > 0 {
+        let current_epoch = handles::drop_epoch();
+        if alias.source_drop_epoch() == current_epoch {
+            observe::record_borrowed_alias_encode_epoch_hit();
+            return BorrowedAliasEncodePlan::ReuseSourceHandle(alias.source_handle());
+        }
+    }
+    if let Some(iv) = integer_box_to_i64(alias.encode_fallback_box_ref()) {
+        return BorrowedAliasEncodePlan::ReturnScalar(iv);
+    }
+    if let Some(bv) = bool_box_to_i64(alias.encode_fallback_box_ref()) {
+        return BorrowedAliasEncodePlan::ReturnScalar(bv);
+    }
+    if alias.source_handle() > 0 {
+        if let Some(source_obj) = handles::get(alias.source_handle() as u64) {
+            if alias.ptr_eq_source_object(&source_obj) {
+                observe::record_borrowed_alias_encode_ptr_eq_hit();
+                return BorrowedAliasEncodePlan::ReuseSourceHandle(alias.source_handle());
+            }
+        }
+    }
+    BorrowedAliasEncodePlan::EncodeFallback
+}
+
+#[inline(always)]
+fn execute_borrowed_alias_runtime_i64(
+    alias: &BorrowedHandleBox,
+    plan: BorrowedAliasEncodePlan,
+    caller: BorrowedAliasEncodeCaller,
+) -> i64 {
+    match plan {
+        BorrowedAliasEncodePlan::ReuseSourceHandle(handle) => handle,
+        BorrowedAliasEncodePlan::ReturnScalar(value) => value,
+        BorrowedAliasEncodePlan::EncodeFallback => {
+            observe::record_borrowed_alias_encode_to_handle_arc();
+            caller.record();
+            handles::to_handle_arc(alias.clone_stable_box_for_encode_fallback()) as i64
+        }
+    }
 }
 
 pub(crate) fn integer_box_to_i64(value: &dyn NyashBox) -> Option<i64> {

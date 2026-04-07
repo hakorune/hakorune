@@ -236,6 +236,20 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       - `kilo_kernel_small_hk: 712 ms`
     - physical `string_store.rs` file split remains deferred until the keep semantics
       change lands
+  - latest landed encode planner/executor split:
+    - `runtime_i64_from_box_ref_caller(...)` no longer mixes borrowed-alias reuse planning
+      and fallback handle issue in one block
+    - planner now decides:
+      - `ReuseSourceHandle`
+      - `ReturnScalar`
+      - `EncodeFallback`
+    - executor now performs only the fallback publication mechanics
+    - this is no-behavior-change structure cleanup for the review's `encode.rs` concern
+    - accept-gate reread:
+      - `kilo_micro_array_string_store: 179 ms`
+      - `kilo_kernel_small_hk: 739 ms`
+    - one `1014 ms` whole-kilo outlier was discarded after the immediate reread
+      returned to the current WSL band
   - latest landed keep/meta split:
     - `BorrowedHandleBox` now separates:
       - `TextKeep`
