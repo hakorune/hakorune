@@ -52,6 +52,18 @@ canonical MIR reading が docs の中だけに閉じず、current concrete lower
   - `CollectionMethodPolicyBox.route_array_store_string() -> "ArrayStoreString"`
 - canonical MIR reading
   - `store.array.str`
+- lifecycle visibility carried above Rust
+  - `source_preserve = eligible | ineligible`
+  - `identity_demand = none | stable_object`
+  - `publication_demand = none | publish_handle`
+- current visibility carrier
+  - `lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc`
+    - `GenericMethodRouteState`
+  - `lang/c-abi/shims/hako_llvmc_ffi_generic_method_match.inc`
+    - `classify_generic_method_emit_plan(...)`
+  - `lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc`
+    - `GenericMethodEmitPlan`
+    - `classify_generic_method_set_route(...)`
 - current concrete lowering
   - `lang/c-abi/shims/hako_llvmc_ffi_generic_method_lowering.inc`
   - `nyash.array.set_his`
@@ -63,6 +75,31 @@ canonical MIR reading が docs の中だけに閉じず、current concrete lower
   - `crates/nyash_kernel/src/plugin/array_string_slot.rs`
     - `execute_store_array_str_contract(...)`
     - `array_string_store_handle_at(...)`
+    - backend-private split:
+      - `SourceKindCheck`
+      - `SourceLifetimeKeep`
+      - `AliasUpdate`
+      - `NeedStableObject`
+
+### ArrayStoreString Visibility Rule
+
+`ArrayStoreString` is allowed to stay public as one canonical row.
+Do not promote `RetargetAlias` into a public MIR op.
+
+What must be visible above Rust is only:
+
+1. `source_preserve`
+2. `identity_demand`
+3. `publication_demand`
+
+What stays Rust-backend private is:
+
+1. `SourceKindCheck`
+2. `SourceLifetimeKeep`
+3. `AliasUpdate`
+4. `NeedStableObject`
+
+Only `NeedStableObject` may justify generic object-world entry.
 
 ### MapStoreAny
 

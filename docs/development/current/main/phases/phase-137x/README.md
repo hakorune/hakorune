@@ -34,6 +34,17 @@
   - `store.array.str` source contract
   - `SourceLifetimeKeep`
   - `RetargetAlias` source-lifetime semantics
+- current lifecycle visibility lock for `store.array.str`:
+  - public row stays `store.array.str`
+  - `.hako` owns source-preserve / identity / publication demand
+  - MIR carries that visibility through the existing lowering carrier:
+    - `GenericMethodRouteState`
+    - `GenericMethodEmitPlan`
+  - Rust only executes:
+    - `SourceKindCheck`
+    - `SourceLifetimeKeep`
+    - `AliasUpdate`
+    - `NeedStableObject`
 - benchmark numbers stay current truth, but they are now validation, not the driver for widening Rust transport
 - `exports/string.rs` is now a thin export shell with helpers split out
 - `plugin/map_substrate.rs` is now raw substrate helpers only
@@ -230,9 +241,20 @@
      - current read:
        - this is not a large exact-front win
        - but it is a cleaner source-contract split and keeps whole-kilo near the good end of the current band
-       - target assembly shape remains:
+     - target assembly shape remains:
          - planner-proved `RetargetAlias` should become metadata-heavy code
          - generic object fetch/downcast should disappear from the hot retarget path except for true source-lifetime keep
+     - current design freeze:
+       - do not add a public MIR op for `RetargetAlias`
+       - carry only:
+         - `source_preserve`
+         - `identity_demand`
+         - `publication_demand`
+         above Rust
+       - keep runtime narrowables as backend-private seams:
+         - `StringLikeProof`
+         - `TextKeep`
+         - `AliasSourceMeta`
      - closed follow-up:
        - replacing `with_handle(ArrayStoreStrSource)` with direct `get()` source load regressed slightly
        - 3-run plain release:

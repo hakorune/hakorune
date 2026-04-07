@@ -172,6 +172,10 @@ Lifecycle policy must be decided above Rust.
 - the visible canonical route name
 - delayed-materialization reading
 - escalation conditions for object-world entry
+- lifecycle visibility that must stay above Rust:
+  - `source_preserve`
+  - `identity_demand`
+  - `publication_demand`
 
 ### `Rust executor / accelerator` executes
 
@@ -182,6 +186,16 @@ Lifecycle policy must be decided above Rust.
 
 Rust may decide runtime facts.
 Rust must not invent new lifecycle policy by helper-local branching.
+
+`store.array.str` is the current concrete example.
+
+- public canonical contract stays `store.array.str`
+- backend-private split stays:
+  - `SourceKindCheck`
+  - `SourceLifetimeKeep`
+  - `AliasUpdate`
+  - `NeedStableObject`
+- only `NeedStableObject` may justify generic object entry
 
 ## LLVM generic optimization / codegen
 
