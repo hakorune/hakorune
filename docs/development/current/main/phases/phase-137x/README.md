@@ -488,6 +488,16 @@
         - `kilo_micro_array_string_store: 176 ms`
         - `kilo_micro_concat_hh_len: 63 ms`
         - `kilo_kernel_small_hk: 691 ms`
+    - latest landed module string dispatch cleanup:
+      - removed `plugin/module_string_dispatch.rs` direct `host_handles::get()/to_handle_arc()` bypass for compat string handle decode/encode
+      - compat decode now goes through `value_codec::owned_string_from_handle(...)`
+      - compat encode now goes through `materialize_owned_string(...)`
+      - this keeps the compat path inside the `value_codec` seam and removes the review's last direct `host_handles` bypass from `module_string_dispatch.rs`
+      - accept-gate reread:
+        - `kilo_micro_array_string_store: 176 ms`
+        - `kilo_micro_concat_hh_len: 67 ms`
+        - `kilo_kernel_small_hk: 712 ms`
+      - physical `string_store.rs` file split remains deferred until the keep semantics change lands
     - next observation order is fixed:
      1. split the `store.array.str -> with_handle(ArrayStoreStrSource)` object contract again before changing behavior
      2. keep borrowed alias string-read trimming closed; live-source fast read was not enough

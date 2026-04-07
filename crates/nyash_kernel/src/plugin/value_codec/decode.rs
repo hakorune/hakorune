@@ -124,3 +124,21 @@ pub(crate) fn any_arg_to_index(arg: i64) -> Option<i64> {
         Some(arg)
     })
 }
+
+#[inline(always)]
+pub(crate) fn owned_string_from_handle(handle: i64) -> Option<String> {
+    if handle <= 0 {
+        return None;
+    }
+    if let Some(text) = handles::with_str_handle(handle as u64, str::to_owned) {
+        return Some(text);
+    }
+    handles::with_handle_caller(
+        handle as u64,
+        handles::PerfObserveObjectWithHandleCaller::Generic,
+        |obj| {
+            let obj = obj?;
+            Some(obj.to_string_box().value)
+        },
+    )
+}

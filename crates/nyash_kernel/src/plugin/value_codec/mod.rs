@@ -8,7 +8,7 @@ pub(crate) use borrowed_handle::{
 };
 pub(crate) use decode::{
     any_arg_to_box, any_arg_to_box_with_profile, any_arg_to_index, decode_array_fast_value,
-    int_arg_to_box, ArrayFastDecodedValue, CodecProfile,
+    int_arg_to_box, owned_string_from_handle, ArrayFastDecodedValue, CodecProfile,
 };
 pub(crate) use encode::{
     box_to_handle, box_to_runtime_i64, runtime_i64_from_box_ref,

@@ -4,8 +4,7 @@
 
 #[cfg(test)]
 use crate::test_support::with_env_vars;
-use nyash_rust::box_trait::{NyashBox, StringBox};
-use nyash_rust::runtime::host_handles;
+use crate::plugin::{materialize_owned_string, owned_string_from_handle};
 #[cfg(not(test))]
 use std::sync::OnceLock;
 
@@ -323,19 +322,11 @@ fn mir_builder_error_result(route_label: &str, error_text: &str) -> i64 {
 }
 
 fn decode_string_handle(handle: i64) -> Option<String> {
-    if handle <= 0 {
-        return None;
-    }
-    let object = host_handles::get(handle as u64)?;
-    if let Some(string_box) = object.as_any().downcast_ref::<StringBox>() {
-        return Some(string_box.value.clone());
-    }
-    Some(object.to_string_box().value)
+    owned_string_from_handle(handle)
 }
 
 fn encode_string_handle(text: &str) -> i64 {
-    let boxed_text: std::sync::Arc<dyn NyashBox> = std::sync::Arc::new(StringBox::new(text));
-    host_handles::to_handle_arc(boxed_text) as i64
+    materialize_owned_string(text.to_owned())
 }
 
 #[cfg(test)]
