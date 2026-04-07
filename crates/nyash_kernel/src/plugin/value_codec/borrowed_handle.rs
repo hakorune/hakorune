@@ -292,65 +292,6 @@ pub(crate) fn maybe_borrow_string_handle_with_epoch(
 }
 
 #[inline(always)]
-pub(crate) fn try_retarget_borrowed_string_slot_with_source(
-    slot: &mut Box<dyn NyashBox>,
-    source_handle: i64,
-    source_obj: &Arc<dyn NyashBox>,
-    source_drop_epoch: u64,
-) -> bool {
-    // Retarget only existing borrowed-string aliases.
-    // Non-borrowed slots and non-string sources must fail closed here.
-    if source_handle <= 0 {
-        return false;
-    }
-    let Some(alias) = slot.as_any_mut().downcast_mut::<BorrowedHandleBox>() else {
-        return false;
-    };
-    if source_obj.as_any().downcast_ref::<StringBox>().is_none() {
-        return false;
-    }
-    keep_borrowed_string_slot_source_arc(alias, source_obj);
-    update_borrowed_string_slot_alias(alias, source_handle, source_drop_epoch);
-    true
-}
-
-#[inline(always)]
-pub(crate) fn try_retarget_borrowed_string_slot_verified(
-    slot: &mut Box<dyn NyashBox>,
-    source_handle: i64,
-    source_obj: &Arc<dyn NyashBox>,
-    source_drop_epoch: u64,
-) -> bool {
-    if source_handle <= 0 {
-        return false;
-    }
-    let Some(alias) = slot.as_any_mut().downcast_mut::<BorrowedHandleBox>() else {
-        return false;
-    };
-    keep_borrowed_string_slot_source_arc(alias, source_obj);
-    update_borrowed_string_slot_alias(alias, source_handle, source_drop_epoch);
-    true
-}
-
-#[inline(always)]
-pub(crate) fn keep_borrowed_string_slot_source_arc(
-    alias: &mut BorrowedHandleBox,
-    source_obj: &Arc<dyn NyashBox>,
-) {
-    observe::record_store_array_str_reason_retarget_keep_source_arc();
-    if observe::enabled() {
-        if alias.ptr_eq_source_object(source_obj) {
-            observe::record_store_array_str_reason_retarget_keep_source_arc_ptr_eq_hit();
-        } else {
-            observe::record_store_array_str_reason_retarget_keep_source_arc_ptr_eq_miss();
-        }
-    }
-    alias
-        .text_keep
-        .replace_source_lifetime(SourceLifetimeKeep::stable_box(source_obj.clone()));
-}
-
-#[inline(always)]
 pub(crate) fn keep_borrowed_string_slot_source_keep(
     alias: &mut BorrowedHandleBox,
     source_keep: SourceLifetimeKeep,

@@ -266,18 +266,6 @@ pub(crate) fn is_string_handle_source(source_obj: &Arc<dyn NyashBox>) -> bool {
 }
 
 #[inline(always)]
-pub(crate) fn store_string_box_from_string_source(
-    source_handle: i64,
-    source_obj: &Arc<dyn NyashBox>,
-    source_drop_epoch: u64,
-) -> Box<dyn NyashBox> {
-    debug_assert!(source_handle > 0);
-    debug_assert!(is_string_handle_source(source_obj));
-    crate::observe::record_birth_placement_store_from_source();
-    maybe_borrow_string_handle_with_epoch(source_obj.clone(), source_handle, source_drop_epoch)
-}
-
-#[inline(always)]
 pub(crate) fn store_string_box_from_source_keep(
     source_handle: i64,
     source_keep: &SourceLifetimeKeep,

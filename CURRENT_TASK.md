@@ -208,6 +208,21 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       - `kilo_micro_array_string_store: 172 ms`
       - `kilo_micro_concat_hh_len: 68 ms`
       - `kilo_kernel_small_hk: 711 ms`
+  - latest landed compatibility shim removal:
+    - removed unused pre-keep string/source helpers:
+      - `try_retarget_borrowed_string_slot_with_source(...)`
+      - `try_retarget_borrowed_string_slot_verified(...)`
+      - `keep_borrowed_string_slot_source_arc(...)`
+      - `store_string_box_from_string_source(...)`
+    - current structural path is now explicit:
+      - retarget: `try_retarget_borrowed_string_slot_take_keep(...)`
+      - store-from-source: `store_string_box_from_source_keep(...)`
+    - this is still no-behavior-change; it removes compatibility entry points
+      that were keeping the old object-centric shape visible
+    - accept-gate reread:
+      - `kilo_micro_array_string_store: 176 ms`
+      - `kilo_micro_concat_hh_len: 63 ms`
+      - `kilo_kernel_small_hk: 691 ms`
   - latest landed keep/meta split:
     - `BorrowedHandleBox` now separates:
       - `TextKeep`

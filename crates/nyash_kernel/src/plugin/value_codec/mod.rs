@@ -4,8 +4,7 @@ mod encode;
 mod string_store;
 
 pub(crate) use borrowed_handle::{
-    try_retarget_borrowed_string_slot_take_keep, try_retarget_borrowed_string_slot_verified,
-    BorrowedHandleBox, SourceLifetimeKeep,
+    try_retarget_borrowed_string_slot_take_keep, BorrowedHandleBox, SourceLifetimeKeep,
 };
 pub(crate) use decode::{
     any_arg_to_box, any_arg_to_box_with_profile, any_arg_to_index, decode_array_fast_value,
@@ -20,7 +19,6 @@ pub(crate) use string_store::{
     store_string_box_from_source_keep, with_array_store_str_source,
     ArrayStoreStrSource, StringHandleSourceKind,
     store_string_box_from_source,
-    store_string_box_from_string_source,
 };
 
 #[cfg(test)]

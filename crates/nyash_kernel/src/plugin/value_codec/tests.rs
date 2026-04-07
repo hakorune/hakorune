@@ -146,11 +146,12 @@ fn store_string_box_from_source_prefers_borrowed_alias_for_string_handles() {
 }
 
 #[test]
-fn store_string_box_from_string_source_keeps_borrowed_alias_for_string_handles() {
+fn store_string_box_from_source_keep_keeps_borrowed_alias_for_string_handles() {
     let value: Arc<dyn NyashBox> = Arc::new(StringBox::new("store-alias-fast".to_string()));
     let value_h = handles::to_handle_arc(value) as i64;
     let source_obj = handles::get(value_h as u64).expect("source string handle");
-    let boxed = store_string_box_from_string_source(value_h, &source_obj, handles::drop_epoch());
+    let keep = SourceLifetimeKeep::stable_box(source_obj);
+    let boxed = store_string_box_from_source_keep(value_h, &keep, handles::drop_epoch());
     assert_eq!(box_to_runtime_i64(boxed), value_h);
 }
 
