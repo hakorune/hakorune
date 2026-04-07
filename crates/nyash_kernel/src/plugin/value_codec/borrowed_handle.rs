@@ -7,19 +7,25 @@ use std::{any::Any, sync::Arc};
 
 #[derive(Debug, Clone)]
 pub(crate) enum SourceLifetimeKeep {
-    StableBox(Arc<dyn NyashBox>),
+    StringBox(Arc<dyn NyashBox>),
+    StringView(Arc<dyn NyashBox>),
 }
 
 impl SourceLifetimeKeep {
     #[inline(always)]
-    pub(crate) fn stable_box(obj: Arc<dyn NyashBox>) -> Self {
-        Self::StableBox(obj)
+    pub(crate) fn string_box(obj: Arc<dyn NyashBox>) -> Self {
+        Self::StringBox(obj)
+    }
+
+    #[inline(always)]
+    pub(crate) fn string_view(obj: Arc<dyn NyashBox>) -> Self {
+        Self::StringView(obj)
     }
 
     #[inline(always)]
     fn stable_box_ref(&self) -> &Arc<dyn NyashBox> {
         match self {
-            Self::StableBox(obj) => obj,
+            Self::StringBox(obj) | Self::StringView(obj) => obj,
         }
     }
 
@@ -31,6 +37,11 @@ impl SourceLifetimeKeep {
     #[inline(always)]
     pub(crate) fn clone_stable_box_for_store_fallback(&self) -> Arc<dyn NyashBox> {
         self.stable_box_ref().clone()
+    }
+
+    #[inline(always)]
+    fn supports_borrowed_alias(&self) -> bool {
+        matches!(self, Self::StringBox(_))
     }
 }
 
@@ -116,7 +127,7 @@ pub(crate) struct BorrowedHandleBox {
 
 impl BorrowedHandleBox {
     pub(crate) fn new(
-        inner: Arc<dyn NyashBox>,
+        keep: SourceLifetimeKeep,
         source_handle: i64,
         source_drop_epoch: u64,
     ) -> Self {
@@ -127,7 +138,7 @@ impl BorrowedHandleBox {
         };
         Self {
             text_keep: TextKeep {
-                source_lifetime: SourceLifetimeKeep::stable_box(inner),
+                source_lifetime: keep,
             },
             source_meta: AliasSourceMeta::new(source_handle, source_drop_epoch),
             // Fast path: borrowed wrapper is an alias view for an existing handle.
@@ -232,7 +243,7 @@ impl NyashBox for BorrowedHandleBox {
             observe::record_borrowed_alias_clone_box_latest_fresh();
         }
         Box::new(Self::new(
-            self.text_keep.clone_stable_object(),
+            self.text_keep.source_lifetime.clone(),
             self.source_handle(),
             self.source_drop_epoch(),
         ))
@@ -280,15 +291,39 @@ pub(crate) fn maybe_borrow_string_handle_with_epoch(
     source_handle: i64,
     source_drop_epoch: u64,
 ) -> Box<dyn NyashBox> {
-    // Only string-like sources may produce a borrowed string alias.
     if obj.as_any().downcast_ref::<StringBox>().is_some() {
         return Box::new(BorrowedHandleBox::new(
-            obj,
+            SourceLifetimeKeep::string_box(obj),
             source_handle,
             source_drop_epoch,
         ));
     }
+    if obj
+        .as_any()
+        .downcast_ref::<crate::exports::string_view::StringViewBox>()
+        .is_some()
+    {
+        return SourceLifetimeKeep::string_view(obj)
+            .clone_stable_box_for_store_fallback()
+            .clone_box();
+    }
     obj.clone_box()
+}
+
+#[inline(always)]
+pub(crate) fn maybe_borrow_string_keep_with_epoch(
+    keep: SourceLifetimeKeep,
+    source_handle: i64,
+    source_drop_epoch: u64,
+) -> Box<dyn NyashBox> {
+    if keep.supports_borrowed_alias() {
+        return Box::new(BorrowedHandleBox::new(
+            keep,
+            source_handle,
+            source_drop_epoch,
+        ));
+    }
+    keep.clone_stable_box_for_store_fallback().clone_box()
 }
 
 #[inline(always)]

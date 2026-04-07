@@ -510,6 +510,17 @@
         - `kilo_micro_array_string_store: 179 ms`
         - `kilo_kernel_small_hk: 739 ms`
       - one `1014 ms` whole-kilo outlier was discarded after the immediate reread returned to the current WSL band
+    - latest landed `SourceLifetimeKeep` subtype semantics:
+      - keep contract now distinguishes verified string-like source subtype:
+        - `StringBox`
+        - `StringView`
+      - borrowed alias creation now consumes keep semantics directly:
+        - `maybe_borrow_string_keep_with_epoch(...)`
+      - `store.array.str` string-like path now constructs keep from the verified subtype instead of treating keep as a generic stable object
+      - representation is still `Arc<dyn NyashBox>` underneath; this is a keep-semantics cut, not a transport widening
+      - accept-gate reread:
+        - `kilo_micro_array_string_store: 175 ms`
+        - `kilo_kernel_small_hk: 699 ms`
     - next observation order is fixed:
      1. split the `store.array.str -> with_handle(ArrayStoreStrSource)` object contract again before changing behavior
      2. keep borrowed alias string-read trimming closed; live-source fast read was not enough

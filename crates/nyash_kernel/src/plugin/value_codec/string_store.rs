@@ -1,4 +1,4 @@
-use super::borrowed_handle::{maybe_borrow_string_handle_with_epoch, SourceLifetimeKeep};
+use super::borrowed_handle::{maybe_borrow_string_handle_with_epoch, maybe_borrow_string_keep_with_epoch, SourceLifetimeKeep};
 use super::decode::int_arg_to_box;
 use nyash_rust::{
     box_trait::{NyashBox, StringBox},
@@ -243,9 +243,14 @@ pub(crate) fn with_array_store_str_source<R>(
             let source = match classify_string_like_proof(source_obj) {
                 Some(proof) => ArrayStoreStrSource::StringLike {
                     proof,
-                    keep: SourceLifetimeKeep::stable_box(
-                        source_obj.expect("string-like source object").clone(),
-                    ),
+                    keep: match proof {
+                        StringLikeProof::StringBox => SourceLifetimeKeep::string_box(
+                            source_obj.expect("string-like source object").clone(),
+                        ),
+                        StringLikeProof::StringView => SourceLifetimeKeep::string_view(
+                            source_obj.expect("string-like source object").clone(),
+                        ),
+                    },
                 },
                 None if source_obj.is_some() => {
                     ArrayStoreStrSource::OtherObject(source_obj.expect("object source").clone())
@@ -275,8 +280,8 @@ pub(crate) fn store_string_box_from_source_keep(
         return int_arg_to_box(source_handle);
     }
     crate::observe::record_birth_placement_store_from_source();
-    maybe_borrow_string_handle_with_epoch(
-        source_keep.clone_stable_box_for_store_fallback(),
+    maybe_borrow_string_keep_with_epoch(
+        source_keep.clone(),
         source_handle,
         source_drop_epoch,
     )
