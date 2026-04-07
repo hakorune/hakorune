@@ -285,38 +285,26 @@ fn execute_store_array_str_slot(
         return 0;
     }
     let mut source = source;
-    let source_obj = source.object_ref();
     if observe::enabled() {
         if idx < items.len() {
             observe::record_store_array_str_existing_slot();
         } else {
             observe::record_store_array_str_append_slot();
         }
-        match source_obj {
-            Some(source_obj) => {
-                observe::record_store_array_str_reason_source_kind_via_object();
-                if source_obj
-                    .as_any()
-                    .downcast_ref::<nyash_rust::box_trait::StringBox>()
-                    .is_some()
-                {
-                    observe::record_store_array_str_source_string_box();
-                } else if source_obj
-                    .as_any()
-                    .downcast_ref::<crate::exports::string_view::StringViewBox>()
-                    .is_some()
-                {
-                    observe::record_store_array_str_source_string_view();
-                }
-            }
-            None => observe::record_store_array_str_source_missing(),
+        if source.object_ref().is_some() {
+            observe::record_store_array_str_reason_source_kind_via_object();
         }
+        source.record_observe_source_kind();
     }
     let plan = StoreArrayStrPlan::from_slot(items.as_slice(), idx, value_h, source.source_kind());
     plan.record();
     if idx < items.len() {
         if plan.can_retarget_alias() {
-            if let ArrayStoreStrSource::StringLike(source_keep) = source {
+            if let ArrayStoreStrSource::StringLike {
+                proof,
+                keep: source_keep,
+            } = source
+            {
                 match try_retarget_borrowed_string_slot_take_keep(
                     &mut items[idx],
                     value_h,
@@ -331,7 +319,10 @@ fn execute_store_array_str_slot(
                         return 1;
                     }
                     Err(source_keep) => {
-                        source = ArrayStoreStrSource::StringLike(source_keep);
+                        source = ArrayStoreStrSource::StringLike {
+                            proof,
+                            keep: source_keep,
+                        };
                     }
                 }
             }

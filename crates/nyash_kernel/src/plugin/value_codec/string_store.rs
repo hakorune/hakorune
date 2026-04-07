@@ -13,9 +13,18 @@ pub(crate) enum StringHandleSourceKind {
     Missing,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum StringLikeProof {
+    StringBox,
+    StringView,
+}
+
 #[derive(Clone)]
 pub(crate) enum ArrayStoreStrSource {
-    StringLike(SourceLifetimeKeep),
+    StringLike {
+        proof: StringLikeProof,
+        keep: SourceLifetimeKeep,
+    },
     OtherObject(Arc<dyn NyashBox>),
     Missing,
 }
@@ -24,7 +33,7 @@ impl ArrayStoreStrSource {
     #[inline(always)]
     pub(crate) fn object_ref(&self) -> Option<&Arc<dyn NyashBox>> {
         match self {
-            Self::StringLike(keep) => Some(keep.stable_box_ref()),
+            Self::StringLike { keep, .. } => Some(keep.stable_box_ref()),
             Self::OtherObject(obj) => Some(obj),
             Self::Missing => None,
         }
@@ -33,9 +42,25 @@ impl ArrayStoreStrSource {
     #[inline(always)]
     pub(crate) fn source_kind(&self) -> StringHandleSourceKind {
         match self {
-            Self::StringLike(_) => StringHandleSourceKind::StringLike,
+            Self::StringLike { .. } => StringHandleSourceKind::StringLike,
             Self::OtherObject(_) => StringHandleSourceKind::OtherObject,
             Self::Missing => StringHandleSourceKind::Missing,
+        }
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_observe_source_kind(&self) {
+        match self {
+            Self::StringLike {
+                proof: StringLikeProof::StringBox,
+                ..
+            } => crate::observe::record_store_array_str_source_string_box(),
+            Self::StringLike {
+                proof: StringLikeProof::StringView,
+                ..
+            } => crate::observe::record_store_array_str_source_string_view(),
+            Self::OtherObject(_) => {}
+            Self::Missing => crate::observe::record_store_array_str_source_missing(),
         }
     }
 }
@@ -185,19 +210,34 @@ pub(crate) fn store_string_box_from_source(
 pub(crate) fn classify_string_handle_source(
     source_obj: Option<&Arc<dyn NyashBox>>,
 ) -> StringHandleSourceKind {
-    let Some(source_obj) = source_obj else {
-        return StringHandleSourceKind::Missing;
-    };
-    if source_obj.as_any().downcast_ref::<StringBox>().is_some()
-        || source_obj
-            .as_any()
-            .downcast_ref::<crate::exports::string_view::StringViewBox>()
-            .is_some()
-    {
-        StringHandleSourceKind::StringLike
-    } else {
-        StringHandleSourceKind::OtherObject
+    match classify_string_like_proof(source_obj) {
+        Some(_) => StringHandleSourceKind::StringLike,
+        None => {
+            if source_obj.is_some() {
+                StringHandleSourceKind::OtherObject
+            } else {
+                StringHandleSourceKind::Missing
+            }
+        }
     }
+}
+
+#[inline(always)]
+pub(crate) fn classify_string_like_proof(
+    source_obj: Option<&Arc<dyn NyashBox>>,
+) -> Option<StringLikeProof> {
+    let source_obj = source_obj?;
+    if source_obj.as_any().downcast_ref::<StringBox>().is_some() {
+        return Some(StringLikeProof::StringBox);
+    }
+    if source_obj
+        .as_any()
+        .downcast_ref::<crate::exports::string_view::StringViewBox>()
+        .is_some()
+    {
+        return Some(StringLikeProof::StringView);
+    }
+    None
 }
 
 #[inline(always)]
@@ -209,16 +249,17 @@ pub(crate) fn with_array_store_str_source<R>(
         source_handle as u64,
         handles::PerfObserveObjectWithHandleCaller::ArrayStoreStrSource,
         |source_obj| {
-            let source = match classify_string_handle_source(source_obj) {
-                StringHandleSourceKind::StringLike => ArrayStoreStrSource::StringLike(
-                    SourceLifetimeKeep::stable_box(
+            let source = match classify_string_like_proof(source_obj) {
+                Some(proof) => ArrayStoreStrSource::StringLike {
+                    proof,
+                    keep: SourceLifetimeKeep::stable_box(
                         source_obj.expect("string-like source object").clone(),
                     ),
-                ),
-                StringHandleSourceKind::OtherObject => {
+                },
+                None if source_obj.is_some() => {
                     ArrayStoreStrSource::OtherObject(source_obj.expect("object source").clone())
                 }
-                StringHandleSourceKind::Missing => ArrayStoreStrSource::Missing,
+                None => ArrayStoreStrSource::Missing,
             };
             f(source)
         },

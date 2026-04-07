@@ -72,10 +72,10 @@
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
   - `kilo_micro_concat_const_suffix`: `c_ms=3 / ny_aot_ms=84`
-  - `kilo_micro_concat_hh_len`: `c_ms=3 / ny_aot_ms=63`
+  - `kilo_micro_concat_hh_len`: `c_ms=2 / ny_aot_ms=68`
   - `kilo_micro_concat_birth`: `c_ms=6 / ny_aot_ms=47`
-  - `kilo_micro_array_string_store`: `c_ms=10 / ny_aot_ms=169`
-  - whole-kilo recheck after source-lifetime keep split: `c_ms=78 / ny_aot_ms=703`
+  - `kilo_micro_array_string_store`: `c_ms=9 / ny_aot_ms=173`
+  - latest whole-kilo reread after `StringLikeProof` split: `c_ms=78 / ny_aot_ms=713`
 - latest bundle read:
   - string contracts remain `keep_transient -> fresh_handle` for non-empty const concat/insert
   - `20260406-024104` still shows `crates/nyash_kernel/src/exports/string_helpers.rs::concat_const_suffix_fallback` as the top explicit hot symbol (`11.70%`)
@@ -404,6 +404,17 @@
         - `kilo_micro_array_string_store: 169 ms`
         - `kilo_micro_concat_hh_len: 63 ms`
         - `kilo_kernel_small_hk: 703 ms`
+    - latest landed string-like proof split:
+      - `SourceKindCheck` now carries `StringLikeProof` separately from `SourceLifetimeKeep`
+      - `ArrayStoreStrSource::StringLike(...)` now keeps both:
+        - `proof: StringLikeProof`
+        - `keep: SourceLifetimeKeep`
+      - `execute_store_array_str_slot(...)` now records string-like source observe truth from the typed source contract instead of repeating local downcasts
+      - this is still no-behavior-change; it narrows the next cut to keep semantics rather than source-kind transport
+      - 3-run plain release reread:
+        - `kilo_micro_array_string_store: 173 ms`
+        - `kilo_micro_concat_hh_len: 68 ms`
+        - `kilo_kernel_small_hk: 713 ms`
    - next observation order is fixed:
      1. split the `store.array.str -> with_handle(ArrayStoreStrSource)` object contract again before changing behavior
      2. keep borrowed alias string-read trimming closed; live-source fast read was not enough
