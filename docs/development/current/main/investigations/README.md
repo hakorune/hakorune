@@ -4,6 +4,19 @@ This folder contains investigation notes and analysis for debugging sessions.
 
 ## Active Investigations
 
+### Phase137x: Substring Rejected Optimizations (2026-04-08)
+
+**Status**: 🟢 active ledger
+**Problem**: `phase-137x` current front `kilo_micro_substring_only` の rejected attempts を散逸させず、next local cut を publication-shape only に固定する
+
+**Key Document**:
+1. [phase137x-substring-rejected-optimizations-2026-04-08.md](phase137x-substring-rejected-optimizations-2026-04-08.md)
+
+**Current Read**:
+- active exact baseline is `instr=63,462,299`, `cycles=10,440,456`, `cache-miss=9,624`
+- rejected broad trait widening / helper fusion / metadata-carry / slot-carry / concrete-carrier cuts are all reverted
+- failed perf cuts stay in one rolling ledger per front/family/date, not in test-by-test folders
+
 ### Perf Kilo String Birth Hot Path (2026-03-28)
 
 **Status**: 🟢 active summary
