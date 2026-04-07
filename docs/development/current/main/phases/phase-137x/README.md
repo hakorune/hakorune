@@ -18,6 +18,9 @@
   1. `leaf-proof micro`
   2. `micro kilo`
   3. `main kilo`
+- current local rule:
+  - build structure before benchmark-driven widening
+  - use exact micro + whole-kilo as accept gates after each structural slice
 - `phase-134x` structural split is landed
 - `phase-138x` / `phase-139x` / `phase-140x` / `phase-141x` semantic-owner corridor is landed
 - contract-first corridor は landed
@@ -27,6 +30,11 @@
 
 ## Fresh Read
 
+- current front is structure-first:
+  - `store.array.str` source contract
+  - `SourceLifetimeKeep`
+  - `RetargetAlias` source-lifetime semantics
+- benchmark numbers stay current truth, but they are now validation, not the driver for widening Rust transport
 - `exports/string.rs` is now a thin export shell with helpers split out
 - `plugin/map_substrate.rs` is now raw substrate helpers only
 - `plugin/map_aliases.rs` now owns the ABI alias surface

@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-04-06
+Date: 2026-04-07
 Scope: current lane / blocker / next pointer だけを置く薄い mirror。
 Related:
   - CURRENT_TASK.md
@@ -13,8 +13,8 @@ Related:
 ## Current
 
 - lane: `phase-137x main kilo reopen selection`
-- current front: `store.array.str` を first exact front に据えて executor overhead を削る
-- blocker: exact micro と whole-kilo を同時に良化する patch だけを採る
+- current front: `store.array.str` / `SourceLifetimeKeep` の structural build を先に進める
+- blocker: transport-only な Rust helper widening は regress しやすいので、bench は accept gate に留める
 - first landed slice:
   - `tools/selfhost/lib/selfhost_build_exe.sh` no longer forces harness on the daily EXE lane
   - provider/selfhost docs now read llvmlite as explicit keep only
@@ -107,9 +107,13 @@ Related:
     - `phase-160x capability-family inventory`
     - `phase-161x hot-path capability seam freeze`
   - current perf truth:
-    - whole `kilo_kernel_small_hk = 741ms`
+    - whole `kilo_kernel_small_hk = 703ms`
     - exact micro `kilo_micro_concat_const_suffix = 84ms`
-    - exact micro `kilo_micro_array_string_store = 181ms`
+    - exact micro `kilo_micro_concat_hh_len = 63ms`
+    - exact micro `kilo_micro_array_string_store = 169ms`
+  - current rule:
+    - structure first
+    - exact/whole benchmark second
 
 ## Root Anchors
 

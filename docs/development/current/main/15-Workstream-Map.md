@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-06
+Date: 2026-04-07
 Scope: current mainline / next lane / parked corridor の one-screen map。
 Related:
   - CURRENT_TASK.md
@@ -15,8 +15,8 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-137x main kilo reopen selection` |
-| Front | canonical `store.array.str` first で array string-store executor overhead を削る |
-| Blocker | exact micro と whole-kilo を同時に良化する patch だけを採る |
+| Front | `store.array.str` / `SourceLifetimeKeep` の contract build を first にする |
+| Blocker | transport-only な Rust leaf widening は regress しやすいので、bench は accept gate に下げる |
 | Next | `phase-kx vm-hako small reference interpreter recut` |
 | After Next | `phase-kx vm-hako small reference interpreter recut` |
 
@@ -75,6 +75,9 @@ Related:
   - `store.array.str` first
   - `const_suffix` / `thaw.str + lit.str + str.concat2 + freeze.str` second
   - latest bundle anchor = `20260406-024104`
+- current local execution rule:
+  - structure before benchmark-driven widening
+  - source-lifetime contract before helper-local transport trim
 - `phase-156x` landed:
   - route-tagged counters exist for `store.array.str` and `const_suffix`
   - first exact probe on `store.array.str` showed `cache_hit=800000`, `cache_miss_epoch=0`
@@ -101,12 +104,13 @@ Related:
   - const empty-flag cache: `723ms`
   - shared text-based const-handle helper: `903ms`
   - single-closure const suffix fast path: `820ms`
-  - latest sampled whole-kilo reread: `741ms`
+  - latest sampled whole-kilo reread: `703ms`
   - first implementation consumer: `array string-store`
   - second implementation consumer: `concat const-suffix`
   - exact micro:
     - `kilo_micro_concat_const_suffix = 84ms`
-    - `kilo_micro_array_string_store = 181ms`
+    - `kilo_micro_concat_hh_len = 63ms`
+    - `kilo_micro_array_string_store = 169ms`
 
 ## Successor Corridor
 
