@@ -32,11 +32,16 @@
 
 - restart with the code as it is now; the owned-text backing experiment for `SourceLifetimeKeep` was reverted after regressing micro / meso / whole-kilo
 - do not re-open the live-source direct-read question on `as_str_fast()`
-- the next safe cut is still structural:
-  - keep borrowed alias string-read trimming closed
-  - keep typed `StringBox` payload widening closed at the host-handle layer
-  - flatten `const_suffix` hot closure shape if needed
-  - return to `store.array.str` only after the above stays green
+- the current front is still structural, not benchmark-driven:
+  - `store.array.str`
+  - `SourceLifetimeKeep`
+  - `BorrowedHandleBox` cold fallback surface
+  - `store.array.str` source-lifetime helper sealing, then by-value `VerifiedTextSource` consumption on hot retarget/store
+- the safe next order after restart is:
+  1. keep borrowed alias string-read trimming closed
+  2. keep typed `StringBox` payload widening closed at the host-handle layer
+  3. revisit `const_suffix` hot closure shape if needed
+  4. only then return to `store.array.str` whole-kilo split work
 - lifecycle placement is fixed:
   - `.hako`: source-preserve / identity / publication demand
   - `MIR`: visibility carrier and escalation contract
@@ -345,6 +350,22 @@
        - test gate:
          - `cargo test --manifest-path crates/nyash_kernel/Cargo.toml --lib plugin::value_codec::tests` -> 21 passed
          - `cargo check --manifest-path crates/nyash_kernel/Cargo.toml` -> OK
+     - latest landed by-value `VerifiedTextSource` consumption:
+       - hot retarget path no longer clones keep before calling `try_retarget_borrowed_string_slot_take_keep(...)`
+       - `VerifiedTextSource` now hands off keep by value:
+         - `into_keep()`
+       - string-like store now also consumes keep by value through:
+         - `store_string_box_from_source_keep_owned(...)`
+         - `store_string_box_from_verified_text_source(...)`
+       - regression tests now pin:
+         - retarget success from verified string source into borrowed alias slot
+         - retry `Err` path preserves `StringView` semantics before store fallback
+         - owned keep store path keeps borrowed alias for string handles
+       - test gate:
+         - `cargo test --manifest-path crates/nyash_kernel/Cargo.toml --lib plugin::value_codec::tests` -> 22 passed
+         - `cargo check --manifest-path crates/nyash_kernel/Cargo.toml` -> OK
+       - exact front probe (`repeat=3`):
+         - `kilo_micro_array_string_store: 174 ms`
     - latest landed const-suffix cache split:
       - `execute_const_suffix_contract(...)` now uses module-level cache helpers instead of carrying the text-cache closure shape inside the function body
       - hot cached-handle lookup stays on the same semantics, but the cache/read structure is flatter

@@ -208,12 +208,25 @@ fn verified_text_source_err_keeps_string_view_semantics() {
     )
     .expect_err("non-borrowed slot should return source text");
     let boxed =
-        store_string_box_from_verified_text_source(view_h, &source_text, handles::drop_epoch());
+        store_string_box_from_verified_text_source(view_h, source_text, handles::drop_epoch());
     let sb = boxed
         .as_any()
         .downcast_ref::<StringBox>()
         .expect("string view source should still materialize as StringBox");
     assert_eq!(sb.value, "keep");
+}
+
+#[test]
+fn store_string_box_from_source_keep_owned_keeps_borrowed_alias_for_string_handles() {
+    let value: Arc<dyn NyashBox> = Arc::new(StringBox::new("store-owned-keep".to_string()));
+    let value_h = handles::to_handle_arc(value) as i64;
+    let source_obj = handles::get(value_h as u64).expect("source string handle");
+    let boxed = store_string_box_from_source_keep_owned(
+        value_h,
+        SourceLifetimeKeep::string_box(source_obj),
+        handles::drop_epoch(),
+    );
+    assert_eq!(box_to_runtime_i64(boxed), value_h);
 }
 
 #[test]

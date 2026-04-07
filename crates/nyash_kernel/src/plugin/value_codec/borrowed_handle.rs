@@ -471,14 +471,15 @@ pub(crate) fn try_retarget_borrowed_string_slot_take_verified_text_source(
     source_text: VerifiedTextSource,
     source_drop_epoch: u64,
 ) -> Result<(), VerifiedTextSource> {
+    let proof = source_text.proof();
     match try_retarget_borrowed_string_slot_take_keep(
         slot,
         source_handle,
-        source_text.clone_keep(),
+        source_text.into_keep(),
         source_drop_epoch,
     ) {
         Ok(()) => Ok(()),
-        Err(source_keep) => Err(source_text.replace_keep(source_keep)),
+        Err(source_keep) => Err(VerifiedTextSource::new(proof, source_keep)),
     }
 }
 

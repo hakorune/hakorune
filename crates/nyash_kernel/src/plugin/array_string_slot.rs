@@ -335,7 +335,7 @@ fn execute_store_array_str_slot(
     }
     let value = match source {
         ArrayStoreStrSource::StringLike(source_text) => {
-            store_string_box_from_verified_text_source(value_h, &source_text, drop_epoch)
+            store_string_box_from_verified_text_source(value_h, source_text, drop_epoch)
         }
         ArrayStoreStrSource::OtherObject => {
             maybe_store_non_string_box_from_verified_source(value_h, drop_epoch)

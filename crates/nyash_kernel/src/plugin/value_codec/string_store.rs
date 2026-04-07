@@ -34,26 +34,40 @@ pub(crate) fn store_string_box_from_source(
     int_arg_to_box(source_handle)
 }
 
+#[cfg(test)]
 #[inline(always)]
 pub(crate) fn store_string_box_from_source_keep(
     source_handle: i64,
     source_keep: &SourceLifetimeKeep,
     source_drop_epoch: u64,
 ) -> Box<dyn NyashBox> {
+    store_string_box_from_source_keep_owned(source_handle, source_keep.clone(), source_drop_epoch)
+}
+
+#[inline(always)]
+pub(crate) fn store_string_box_from_source_keep_owned(
+    source_handle: i64,
+    source_keep: SourceLifetimeKeep,
+    source_drop_epoch: u64,
+) -> Box<dyn NyashBox> {
     if source_handle <= 0 {
         return int_arg_to_box(source_handle);
     }
     crate::observe::record_birth_placement_store_from_source();
-    maybe_borrow_string_keep_with_epoch(source_keep.clone(), source_handle, source_drop_epoch)
+    maybe_borrow_string_keep_with_epoch(source_keep, source_handle, source_drop_epoch)
 }
 
 #[inline(always)]
 pub(crate) fn store_string_box_from_verified_text_source(
     source_handle: i64,
-    source_text: &VerifiedTextSource,
+    source_text: VerifiedTextSource,
     source_drop_epoch: u64,
 ) -> Box<dyn NyashBox> {
-    store_string_box_from_source_keep(source_handle, source_text.keep(), source_drop_epoch)
+    store_string_box_from_source_keep_owned(
+        source_handle,
+        source_text.into_keep(),
+        source_drop_epoch,
+    )
 }
 
 #[inline(always)]

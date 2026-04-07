@@ -27,6 +27,8 @@ pub(crate) use string_materialize::materialize_owned_string;
 pub(crate) use string_store::store_string_box_from_source;
 #[cfg(test)]
 pub(crate) use string_store::store_string_box_from_source_keep;
+#[cfg(test)]
+pub(crate) use string_store::store_string_box_from_source_keep_owned;
 pub(crate) use string_store::{
     maybe_store_non_string_box_from_verified_source, store_string_box_from_verified_text_source,
 };
