@@ -19,67 +19,61 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 
 ## Restart Handoff
 
-- current state is clean on the code side; the last owned-text backing attempt for `SourceLifetimeKeep` was reverted because it regressed micro / meso / whole-kilo
-- do not retry `OwnedText` backing or any live-source direct-read widening on `as_str_fast()`
-- `concat_birth` / fresh-box materialization is now landed via the AOT compiler-side literal `string + string` fold:
-  - `string_concat_hh_export_impl`
-  - `materialize_owned_string`
-  - `FreshHandle`
-  - `MaterializeOwned`
-  - latest exact probe:
-    - `kilo_micro_concat_birth: 3 ms`
-- the current front is `kilo_micro_substring_only`:
-  - WSL validation still needs `3 runs + perf` before trusting a delta
-  - latest median probe is `kilo_micro_substring_only: C 3 ms / AOT 5 ms`
-  - latest exact perf counters after the local `substring_hii` result-handle churn trim:
-    - `instr: 75,760,709 -> 65,862,851`
-    - `cycles: 13,232,875 -> 12,266,603`
-    - `cache-miss: 10,824 -> 9,066`
-  - current cut is now the `substring_hii` / `len_h` hot pair after flattening the alternating two-entry TLS caches into single state records and relanding a local view-object cache for transient substring handle churn
-  - hot-path bookkeeping is now trimmed by lazy trace payloads, an atomic substring route-policy cache, a cached string-dispatch absent state, an atomic JIT len trace gate, and direct substring plan lookup without caller tracking
-  - the local Rust trim now reissues a fresh handle from a cached `StringViewBox` object when only the prior result handle dropped and the source handle still points to the same live source object
-  - latest exact symbol order still reads `nyash.string.len_h` -> `nyash.string.substring_hii` -> `__memmove_avx512_unaligned_erms`
-  - `crates/nyash_kernel/src/exports/string_helpers.rs` is now split into:
-    - `crates/nyash_kernel/src/exports/string_helpers/cache.rs`
-    - `crates/nyash_kernel/src/exports/string_helpers/materialize.rs`
-    - `crates/nyash_kernel/src/exports/string_helpers/concat.rs`
-    - `crates/nyash_kernel/src/exports/string_helpers/tests.rs`
-  - `crates/nyash_kernel/src/observe/backend/tls.rs` is now split into:
-    - `crates/nyash_kernel/src/observe/backend/tls/state.rs`
-    - `crates/nyash_kernel/src/observe/backend/tls/methods.rs`
-    - `crates/nyash_kernel/src/observe/backend/tls/api.rs`
-    - `crates/nyash_kernel/src/observe/backend/tls/tests.rs`
-  - whole-kilo `kilo_kernel_small_hk` direct pure-first AOT lane is healthy again:
-    - root cause was a `concat_hs` self-deadlock: the literal-handle helper issued a fresh host handle while still inside `handles::with_text_read_session()`, so the const-suffix fast path held the host-handle read lock and then waited forever on the write lock needed by `to_handle_arc()`
-    - fix: `concat_hs` now builds owned text under the read session and only allocates the const handle after the session releases the host-handle read lock
-    - follow-up fix landed: split literal-only reuse from dynamic concat birth
-      - literal-only helpers now stay on `string_literal_handle_from_text()`
-      - dynamic `concat_hs` owned results now go through `string_handle_from_owned()` instead of the global literal cache
-      - repeated same-source + same-suffix reuse still stays on the route-local `concat_const_suffix_fast_cache`
-    - latest whole-kilo probes after the split:
-      - `diagnostic`: `c_ms=80 py_ms=111 ny_vm_ms=1035 ny_aot_ms=755 aot_status=ok`
-      - `strict`: `c_ms=79 py_ms=111 ny_vm_ms=1033 ny_aot_ms=743 aot_status=ok result_parity=ok`
-    - the same whole-kilo lane is back inside the historical healthy band (`696..762 ms`)
-    - direct perf stat on the rebuilt AOT exe also dropped sharply:
-      - `cycles`: `5,049,228,728 -> 1,463,808,505`
-      - `instructions`: `11,252,740,608 -> 843,711,604`
-      - `cache-misses`: `42,739,163 -> 26,257,792`
-      - elapsed: `3.309s -> 0.750s`
-    - the `[perf/const_cache] capped ... mode=passthrough` warning disappeared on the direct run, which matches the new split
-  - last rejected micro-slice:
-    - cold-splitting the `len_h` fallback helper did not improve the median and was reverted
-  - fallback semantic carrier remains:
-    - `substring_hii`
-    - `string_len_from_handle`
-    - `trace_borrowed_substring_plan`
-  - supporting isolate for raw slice cost remains `kilo_micro_substring_only`
-- the safe next order after restart is:
-  1. keep the landed `substring_hii` result-handle churn trim as-is; do not reopen `OwnedText` backing or live-source direct-read widening
-  2. treat the old validation blocker as cleared: `tools/checks/dev_gate.sh quick` is green again after retargeting the stale RawMap clear/delete route-lock guards from `map_substrate.rs` to the live `map_aliases.rs` exports
-  3. before more substring work, split the string route policy between:
-      - literal-only const handle reuse (ptr-keyed / low-cardinality)
-      - dynamic concat birth (owned string -> fresh handle, no global text-keyed const cache)
-  4. after that split, rerun whole-kilo and only then decide whether `nyash.string.len_h` still deserves the next local front
+- current owned worktree on reopen:
+  - `CURRENT_TASK.md`
+  - `crates/nyash_kernel/src/exports/string_helpers.rs`
+  - `crates/nyash_kernel/src/exports/string_helpers/cache.rs`
+  - `docs/development/current/main/phases/phase-137x/README.md`
+- active lane/front:
+  - lane: `phase-137x main kilo reopen selection`
+  - front: `kilo_micro_substring_only`
+  - rule: WSL は `3 runs + perf` でしか delta を採らない
+- do not reopen:
+  - `OwnedText` backing for this lane
+  - live-source direct-read widening on `as_str_fast()`
+  - the older standalone `len_h` fallback-helper cold split that was already reverted
+- latest landed state on the exact front:
+  - `substring_hii` now reissues a fresh handle from a cached `StringViewBox` object when only the previous result handle dropped and the source handle still points to the same live source object
+  - `len_h` now keeps the two-entry handle cache in per-slot `Cell`s and routes trace/fallback work through a cold slow-path helper
+  - latest exact reread:
+    - `kilo_micro_substring_only: C 3 ms / AOT 5 ms`
+    - `instr: 75,760,709 -> 65,862,851 -> 63,462,299`
+    - `cycles: 13,232,875 -> 12,266,603 -> 10,440,456`
+    - `cache-miss: 10,824 -> 9,066 -> 9,624`
+    - latest symbol order: `substring_hii 46.67%`, `len_h 19.29%`, `ny_main 3.80%`
+- latest accept lane / health:
+  - `tools/checks/dev_gate.sh quick` is green
+  - whole-kilo `kilo_kernel_small_hk` strict is green and still in the healthy band:
+    - after const/dynamic split: `c_ms=79 py_ms=111 ny_vm_ms=1033 ny_aot_ms=743`
+    - latest reread after the `len_h` cut: `c_ms=79 py_ms=111 ny_vm_ms=1032 ny_aot_ms=735`
+    - parity: `vm_result=1140576 aot_result=1140576`
+- important already-landed structural/perf changes:
+  - `crates/nyash_kernel/src/exports/string_helpers.rs` is split into `string_helpers/{cache,materialize,concat,tests}.rs`
+  - `crates/nyash_kernel/src/observe/backend/tls.rs` is split into `observe/backend/tls/{state,methods,api,tests}.rs`
+  - whole-kilo deadlock root cause/fix remains important context:
+    - `concat_hs` used to allocate a fresh handle while still inside `handles::with_text_read_session()`
+    - fix: build owned text under the read session, then allocate after the read lock is released
+  - whole-kilo regression fix also remains important context:
+    - literal-only helpers stay on `string_literal_handle_from_text()`
+    - dynamic `concat_hs` owned results go through `string_handle_from_owned()`
+    - route-local `concat_const_suffix_fast_cache` still preserves repeated same-source + same-suffix reuse
+  - old quick-gate blocker is gone:
+    - RawMap clear/delete route-lock guards now point at `map_aliases.rs`, and `dev_gate.sh quick` passes again
+- safe restart order:
+  1. `git status -sb`
+  2. `tools/checks/dev_gate.sh quick`
+  3. `tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_only 1 3`
+  4. `tools/perf/run_kilo_hk_bench.sh strict 1 3`
+- next active cut after reopen:
+  1. stay on `kilo_micro_substring_only`
+  2. trim `substring_hii` remaining view/object overhead first
+  3. only revisit `len_h` if `3 runs + perf` says it re-opened after the substring cut
+  4. only reopen `concat_birth` / `store.array.str` if whole-kilo regresses again
+- first files to reopen for the next slice:
+  - `crates/nyash_kernel/src/exports/string_helpers.rs`
+  - `crates/nyash_kernel/src/exports/string_helpers/cache.rs`
+  - `crates/nyash_kernel/src/exports/string_helpers/materialize.rs`
+  - `crates/nyash_kernel/src/tests/string.rs`
 - promotion policy for this optimization family is now fixed:
   1. keep the first fix local in Rust when one exact front is clearly isolated and the delta is measurable
   2. if the same access pattern appears again in at least one more exact front, stop adding route-local caches and draft a shared hot-cache policy above Rust
@@ -87,8 +81,8 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   4. do not accumulate more Rust-local cache shapes in the same family without rechecking that promotion condition
 - immediate follow-up order for the substring lane:
   1. keep the `len_h` wrapper hot; do not retry the reverted cold-split helper shape
-  2. `substring_hii` result-handle churn trim is now landed; judge it with `3 runs + perf` counters, not flat WSL wall-clock alone
-  3. if the gap persists now that the whole-kilo AOT lane is healthy again, tighten `nyash.string.len_h`
+  2. `substring_hii` is the active reopen target now; judge every cut with `3 runs + perf`, not flat WSL wall-clock alone
+  3. revisit `nyash.string.len_h` only if the substring cut re-opens it in the symbol order
   4. if a similar alternating-access cache need shows up in `substring_concat` or another exact front, open the design cut to move this family upward
 - policy remains above Rust, mechanics remain in Rust:
   - `.hako`: source-preserve / identity / publication demand
@@ -137,16 +131,21 @@ Scope: repo root から current lane / next lane / restart read order に最短�
 
 - Active lane: `phase-137x main kilo reopen selection`
 - Active front: `kilo_micro_substring_only`
-- Current blocker: WSL のブレが大きいので、`3 runs + perf` でしか delta を採らない。local perf lane / `dev_gate.sh quick` / whole-kilo hk strict はいま緑で、残っているのは次の最適化候補選定だけ
+- Current blocker: WSL のブレが大きいので、`3 runs + perf` でしか delta を採らない。local perf lane / `dev_gate.sh quick` / whole-kilo hk strict はいま緑で、残っているのは `substring_hii` front の最小差分を選んで再計測することだけ
 - Current next design slice:
   - landed: local `substring_hii` view-object cache now reissues fresh handles after transient drop-epoch churn while the source handle stays live
+  - landed follow-up: `len_h` hot path now keeps the cache state in per-slot `Cell`s and pushes the trace/fallback path behind a cold slow-path helper so the cache-hit route stays smaller
   - latest exact reread:
       - `kilo_micro_substring_only: C 3 ms / AOT 5 ms`
-      - `instr: 75,760,709 -> 65,862,851`
-      - `cycles: 13,232,875 -> 12,266,603`
-      - `cache-miss: 10,824 -> 9,066`
-      - post-change symbol order: `len_h 27.52%`, `substring_hii 26.98%`, `memmove 8.28%`
-  - next slice once the accept lane is healthy: tighten the `len_h` handle-backed cache before reopening any wider string front
+      - `instr: 75,760,709 -> 65,862,851 -> 63,462,299`
+      - `cycles: 13,232,875 -> 12,266,603 -> 10,440,456`
+      - `cache-miss: 10,824 -> 9,066 -> 9,624`
+      - post-`len_h` symbol order: `substring_hii 46.67%`, `len_h 19.29%`, `ny_main 3.80%`
+  - ordered next slices:
+      1. active now: trim `substring_hii` remaining view/object overhead on `kilo_micro_substring_only`
+      2. only after that: revisit `len_h` again if `3 runs + perf` says it re-opened after the substring cut
+      3. then: narrow remaining `string_len_from_handle` internal overhead only if the export hotpath stops shrinking
+      4. reopen `concat_birth` / `store.array.str` only if whole-kilo regresses again
   - latest landed object-demand API narrowing:
     - raw `stable_box_ref()` access no longer crosses module boundaries from
       keep/alias internals into encode/store callers

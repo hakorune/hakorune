@@ -70,7 +70,7 @@
       - elapsed: `3.309s -> 0.750s`
     - the `[perf/const_cache] capped ... mode=passthrough` warning disappeared on the direct run, which matches the new split
   - last rejected micro-slice:
-    - cold-splitting the `len_h` fallback helper did not improve the median and was reverted
+    - the older standalone `len_h` fallback-helper cold split did not improve the median and was reverted; keep it distinct from the later winning hotpath shrink
   - `nyash.string.substring_hii` / `nyash.string.len_h` / `trace_borrowed_substring_plan` stay as the fallback semantic carrier
   - WSL validation needs `3 runs + perf` before trusting any delta
 - the safe next order after restart is:
@@ -849,16 +849,16 @@
    - current executor: landed local substring result-handle churn trim plus len handle-backed cache
    - use `3 runs + perf` before judging any WSL delta
    - read this front through the substring/len boundary first
-   - latest exact reread stays `C 3 ms / AOT 5 ms`, but perf counters improved to `instr 65,862,851`, `cycles 12,266,603`, `cache-miss 9,066`
-   - post-change exact symbol order: `len_h 27.52%`, `substring_hii 26.98%`, `memmove 8.28%`
+    - latest exact reread stays `C 3 ms / AOT 5 ms`, and perf counters now read `instr 63,462,299`, `cycles 10,440,456`, `cache-miss 9,624`
+    - latest exact symbol order after the `len_h` hotpath shrink: `substring_hii 46.67%`, `len_h 19.29%`, `ny_main 3.80%`
     - previous validation blockers are cleared:
       1. quick gate is green again after retargeting the stale RawMap clear/delete guard grep from `map_substrate.rs` to `map_aliases.rs`
       2. whole-kilo strict accept is green again after the `concat_hs` deadlock fix plus the const/dynamic split
     - next backend trim order now that those blockers are cleared:
-      1. `nyash.string.len_h` handle-backed cache
-     2. `nyash.string.substring_hii` remaining internal view/object overhead only if post-`len_h` perf still points there
-     3. `nyash_kernel::exports::string::string_len_from_handle` remaining internal overhead
-     4. `concat_birth` / `store.array.str` helper seams only if this front reopens
+      1. `nyash.string.substring_hii` remaining internal view/object overhead
+      2. `nyash.string.len_h` again only if post-substring `3 runs + perf` says it re-opened
+      3. `nyash_kernel::exports::string::string_len_from_handle` remaining internal overhead
+      4. `concat_birth` / `store.array.str` helper seams only if this front reopens
 3. keep canonical `concat_birth` / fresh-box materialization as the secondary front
    - current AOT consumer: `nyash.string.concat_hh` plus the `materialize_owned_string(...)` backend seam
    - current executor: `string_concat_hh_export_impl(...)` + `materialize_owned_string(...)`
