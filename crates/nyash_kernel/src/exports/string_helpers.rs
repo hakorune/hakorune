@@ -334,13 +334,9 @@ fn string_len_fast_cache_store(handle: i64, len: i64) {
 pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
     if handle <= 0 {
         observe::record_str_len_route_miss();
-        trace_observer_resolution(
-            "observer",
-            handle,
-            "none",
-            "invalid_handle",
-            format_args!("invalid_handle"),
-        );
+        trace_observer_resolution("observer", handle, "none", "invalid_handle", || {
+            "invalid_handle".to_string()
+        });
         return None;
     }
     if let Some(cached) = string_len_fast_cache_lookup(handle) {
@@ -348,13 +344,9 @@ pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
         if observe::len_route_matches_latest_fresh_handle(handle) {
             observe::record_str_len_route_latest_fresh_handle_fast_str_hit();
         }
-        trace_observer_resolution(
-            "observer",
-            handle,
-            "fast_hit",
-            "len_handle_cache",
-            format_args!("len={}", cached),
-        );
+        trace_observer_resolution("observer", handle, "fast_hit", "len_handle_cache", || {
+            format!("len={}", cached)
+        });
         return Some(cached);
     }
     if let Some(view_len) = handles::with_handle(handle as u64, |obj| {
@@ -372,13 +364,9 @@ pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
             observe::record_str_len_route_latest_fresh_handle_fast_str_hit();
         }
         string_len_fast_cache_store(handle, view_len);
-        trace_observer_resolution(
-            "observer",
-            handle,
-            "fast_hit",
-            "live_object_fast",
-            format_args!("len={}", view_len),
-        );
+        trace_observer_resolution("observer", handle, "fast_hit", "live_object_fast", || {
+            format!("len={}", view_len)
+        });
         return Some(view_len);
     }
     let fast_len = handles::with_text_read_session(|session| {
@@ -390,13 +378,9 @@ pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
             observe::record_str_len_route_latest_fresh_handle_fast_str_hit();
         }
         string_len_fast_cache_store(handle, fast_len.unwrap_or_default());
-        trace_observer_resolution(
-            "observer",
-            handle,
-            "fast_hit",
-            "as_str_fast",
-            format_args!("len={}", fast_len.unwrap_or_default()),
-        );
+        trace_observer_resolution("observer", handle, "fast_hit", "as_str_fast", || {
+            format!("len={}", fast_len.unwrap_or_default())
+        });
         return fast_len;
     }
     let fallback = string_len_impl(handle);
@@ -418,31 +402,23 @@ pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
             "fallback_miss"
         },
         "string_len_impl",
-        format_args!("len={}", fallback.unwrap_or_default()),
+        || format!("len={}", fallback.unwrap_or_default()),
     );
     fallback
 }
 
 pub(crate) fn string_is_empty_from_handle(handle: i64) -> Option<bool> {
     if handle <= 0 {
-        trace_observer_resolution(
-            "observer",
-            handle,
-            "none",
-            "invalid_handle",
-            format_args!("invalid_handle"),
-        );
+        trace_observer_resolution("observer", handle, "none", "invalid_handle", || {
+            "invalid_handle".to_string()
+        });
         return None;
     }
     if let Some(view_len) = string_len_fast_cache_lookup(handle) {
         let empty = view_len == 0;
-        trace_observer_resolution(
-            "observer",
-            handle,
-            "fast_hit",
-            "live_object_fast",
-            format_args!("empty={}", empty),
-        );
+        trace_observer_resolution("observer", handle, "fast_hit", "live_object_fast", || {
+            format!("empty={}", empty)
+        });
         return Some(empty);
     }
     if let Some(view_len) = handles::with_handle(handle as u64, |obj| {
@@ -457,13 +433,9 @@ pub(crate) fn string_is_empty_from_handle(handle: i64) -> Option<bool> {
     }) {
         let empty = view_len == 0;
         string_len_fast_cache_store(handle, view_len);
-        trace_observer_resolution(
-            "observer",
-            handle,
-            "fast_hit",
-            "live_object_fast",
-            format_args!("empty={}", empty),
-        );
+        trace_observer_resolution("observer", handle, "fast_hit", "live_object_fast", || {
+            format!("empty={}", empty)
+        });
         return Some(empty);
     }
     let fast_len = handles::with_text_read_session(|session| {
@@ -472,13 +444,9 @@ pub(crate) fn string_is_empty_from_handle(handle: i64) -> Option<bool> {
     if fast_len.is_some() {
         let empty = fast_len.unwrap_or_default() == 0;
         string_len_fast_cache_store(handle, fast_len.unwrap_or_default());
-        trace_observer_resolution(
-            "observer",
-            handle,
-            "fast_hit",
-            "as_str_fast",
-            format_args!("empty={}", empty),
-        );
+        trace_observer_resolution("observer", handle, "fast_hit", "as_str_fast", || {
+            format!("empty={}", empty)
+        });
         return Some(empty);
     }
     let fallback = string_is_empty_impl(handle);
@@ -491,7 +459,7 @@ pub(crate) fn string_is_empty_from_handle(handle: i64) -> Option<bool> {
             "fallback_miss"
         },
         "string_is_empty_impl",
-        format_args!("empty={}", fallback.unwrap_or(false)),
+        || format!("empty={}", fallback.unwrap_or(false)),
     );
     fallback
 }
@@ -675,7 +643,7 @@ fn trace_observer_resolution(
     handle: i64,
     result: &str,
     reason: &str,
-    extra: impl std::fmt::Display,
+    extra: impl FnOnce() -> String,
 ) {
     if !string_trace::enabled() {
         return;
@@ -684,7 +652,7 @@ fn trace_observer_resolution(
         stage,
         result,
         reason,
-        format_args!("handle={} {}", handle, extra),
+        format_args!("handle={} {}", handle, extra()),
     );
 }
 
@@ -1201,8 +1169,8 @@ fn dispatch_or_fallback_concat3_hhh(a_h: i64, b_h: i64, c_h: i64) -> i64 {
 }
 
 pub(super) fn string_len_export_impl(handle: i64) -> i64 {
-    observe::record_str_len_route_enter();
-    if let Some(v) = hako_string_dispatch(hako_forward_bridge::string_ops::LEN_H, handle, 0, 0) {
+    if let Some(dispatch) = hako_forward_bridge::string_dispatch_fn() {
+        let v = dispatch(hako_forward_bridge::string_ops::LEN_H, handle, 0, 0);
         observe::record_str_len_route_dispatch_hit();
         return v;
     }
@@ -1299,12 +1267,13 @@ pub(super) fn string_substring_hii_export_impl(h: i64, start: i64, end: i64) -> 
             return hit;
         }
     }
-    if let Some(v) = hako_string_dispatch(
-        hako_forward_bridge::string_ops::SUBSTRING_HII,
-        h,
-        start,
-        end,
-    ) {
+    if let Some(dispatch) = hako_forward_bridge::string_dispatch_fn() {
+        let v = dispatch(
+            hako_forward_bridge::string_ops::SUBSTRING_HII,
+            h,
+            start,
+            end,
+        );
         substring_fast_cache_store(h, start, end, view_enabled, v);
         return v;
     }

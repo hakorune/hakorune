@@ -89,11 +89,13 @@ pub(crate) fn stage1_string_debug_log_concat_materialize(a_h: i64, b_h: i64, out
     );
 }
 
+#[inline(always)]
 pub(crate) fn substring_view_enabled() -> bool {
     static SUBSTRING_VIEW_ENABLED: OnceLock<bool> = OnceLock::new();
     env_flag_default_on_cached(&SUBSTRING_VIEW_ENABLED, "NYASH_LLVM_FAST")
 }
 
+#[inline(always)]
 pub(crate) fn jit_trace_len_enabled() -> bool {
     static JIT_TRACE_LEN_ENABLED: OnceLock<bool> = OnceLock::new();
     env_flag_cached(&JIT_TRACE_LEN_ENABLED, "NYASH_JIT_TRACE_LEN")

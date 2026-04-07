@@ -1,6 +1,7 @@
 #[cfg(not(test))]
 use std::sync::OnceLock;
 
+#[inline(always)]
 fn route_trace_enabled() -> bool {
     #[cfg(test)]
     {
@@ -16,6 +17,7 @@ fn route_trace_enabled() -> bool {
     }
 }
 
+#[inline(always)]
 pub(crate) fn enabled() -> bool {
     route_trace_enabled()
 }

@@ -63,6 +63,7 @@ pub fn vm_use_fallback() -> bool {
 /// Contract:
 /// - `NYASH_VM_USE_FALLBACK=0` => compat fallback prohibited
 /// - otherwise => compat fallback allowed by policy (subject to additional gates)
+#[inline(always)]
 pub fn vm_compat_fallback_allowed() -> bool {
     #[cfg(debug_assertions)]
     {
@@ -77,6 +78,7 @@ pub fn vm_compat_fallback_allowed() -> bool {
 }
 
 /// Trace VM route selection decisions.
+#[inline(always)]
 pub fn vm_route_trace() -> bool {
     env_bool("NYASH_VM_ROUTE_TRACE")
 }

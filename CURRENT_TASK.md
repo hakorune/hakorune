@@ -30,7 +30,7 @@ Scope: repo root から current lane / next lane / restart read order に最短�
     - `kilo_micro_concat_birth: 3 ms`
 - the current front is `kilo_micro_substring_only`:
   - WSL validation still needs `3 runs + perf` before trusting a delta
-  - current cut is the remaining `substring_hii` / `string_len_from_handle` hit-path overhead after widening the alternating two-slice caches
+  - current cut is the remaining `substring_hii` / `string_len_from_handle` hit-path overhead after widening the alternating two-slice caches; `call_string_dispatch()` is already skipped when no string handler is registered
   - fallback semantic carrier remains:
     - `substring_hii`
     - `string_len_from_handle`
@@ -39,15 +39,15 @@ Scope: repo root から current lane / next lane / restart read order に最短�
     - `kilo_micro_substring_only: c_ms=3 / ny_aot_ms=6`
 - the safe next order after restart is:
   1. validate the two-entry cache cut with `3 runs + perf`
-  2. if the gap persists, trim `string_len_from_handle` hit-path observer / trace cost
-  3. only then widen back to `const_suffix` / `store.array.str`
+  2. if the gap persists, trim `string_len_from_handle` hit-path observer / trace formatting first
+  3. if needed after that, tighten the `len_h` dispatch / fallback gate and only then widen back to `const_suffix` / `store.array.str`
 - promotion policy for this optimization family is now fixed:
   1. keep the first fix local in Rust when one exact front is clearly isolated and the delta is measurable
   2. if the same access pattern appears again in at least one more exact front, stop adding route-local caches and draft a shared hot-cache policy above Rust
   3. prefer lifting to `MIR` / shared runtime policy only when the semantics are common and lifetime / ownership boundaries stay explicit
   4. do not accumulate more Rust-local cache shapes in the same family without rechecking that promotion condition
 - immediate follow-up order for the substring lane:
-  1. measure whether the remaining `string_len_from_handle` hit-path cost is mostly observer / trace bookkeeping
+  1. measure whether the remaining `string_len_from_handle` hit-path cost is mostly observer / trace formatting
   2. if yes, trim that bookkeeping locally and remeasure with `3 runs + perf`
   3. if a similar alternating-access cache need shows up in `substring_concat` or another exact front, open the design cut to move this family upward
 - policy remains above Rust, mechanics remain in Rust:

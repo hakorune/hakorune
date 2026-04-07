@@ -82,11 +82,7 @@ pub(crate) fn call_future_spawn_instance(a0: i64, a1: i64, a2: i64, argc: i64) -
 }
 
 pub(crate) fn call_string_dispatch(op: i64, a0: i64, a1: i64, a2: i64) -> Option<i64> {
-    let raw = STRING_DISPATCH_FN.load(Ordering::Acquire);
-    if raw == 0 {
-        return None;
-    }
-    let dispatch: HakoStringDispatchFn = unsafe { std::mem::transmute(raw) };
+    let dispatch = string_dispatch_fn()?;
     let out = dispatch(op, a0, a1, a2);
     if stage1_string_dispatch_trace_enabled() {
         eprintln!(
@@ -100,6 +96,16 @@ pub(crate) fn call_string_dispatch(op: i64, a0: i64, a1: i64, a2: i64) -> Option
         );
     }
     Some(out)
+}
+
+#[inline(always)]
+pub(crate) fn string_dispatch_fn() -> Option<HakoStringDispatchFn> {
+    let raw = STRING_DISPATCH_FN.load(Ordering::Acquire);
+    if raw == 0 {
+        None
+    } else {
+        Some(unsafe { std::mem::transmute(raw) })
+    }
 }
 
 pub(crate) fn register_future_spawn_instance(f: Option<HakoFutureSpawnInstanceFn>) -> i64 {

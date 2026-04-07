@@ -723,21 +723,25 @@ impl ThreadCounters {
 
     #[inline(always)]
     fn str_len_route_dispatch_hit(&self) {
+        Self::bump(&self.str_len_route_total);
         Self::bump(&self.str_len_route_dispatch_hit);
     }
 
     #[inline(always)]
     fn str_len_route_fast_str_hit(&self) {
+        Self::bump(&self.str_len_route_total);
         Self::bump(&self.str_len_route_fast_str_hit);
     }
 
     #[inline(always)]
     fn str_len_route_fallback_hit(&self) {
+        Self::bump(&self.str_len_route_total);
         Self::bump(&self.str_len_route_fallback_hit);
     }
 
     #[inline(always)]
     fn str_len_route_miss(&self) {
+        Self::bump(&self.str_len_route_total);
         Self::bump(&self.str_len_route_miss);
     }
 

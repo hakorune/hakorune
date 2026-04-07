@@ -40,20 +40,20 @@
   - latest exact probe:
     - `kilo_micro_concat_birth: 3 ms`
 - the current front is `kilo_micro_substring_only`:
-  - remaining `substring_hii` / `string_len_from_handle` hit-path overhead after widening the alternating two-slice caches
+  - remaining `substring_hii` / `string_len_from_handle` hit-path overhead after widening the alternating two-slice caches; `call_string_dispatch()` is already skipped when no string handler is registered
   - `nyash.string.substring_hii` / `nyash.string.len_h` / `trace_borrowed_substring_plan` stay as the fallback semantic carrier
   - WSL validation needs `3 runs + perf` before trusting any delta
 - the safe next order after restart is:
   1. validate the two-entry cache cut with `3 runs + perf`
-  2. if the gap persists, trim `string_len_from_handle` hit-path observer / trace cost
-  3. only then widen back to `const_suffix` / `store.array.str`
+  2. if the gap persists, trim `string_len_from_handle` hit-path observer / trace formatting first
+  3. if needed after that, tighten the `len_h` dispatch / fallback gate and only then widen back to `const_suffix` / `store.array.str`
 - promotion policy for this cache family:
   1. the first proven win can stay local in Rust when one exact front is isolated and measurable
   2. once the same alternating-access pattern appears in another exact front, stop adding route-local cache variants and evaluate a shared hot-cache policy above Rust
   3. lift only when the semantics are common and lifetime / ownership boundaries remain explicit at the higher layer
   4. avoid repeating Rust-local cache additions in the same family without rechecking that promotion condition
 - immediate substring follow-up:
-  1. measure whether the residual `string_len_from_handle` cost is mostly observer / trace bookkeeping
+  1. measure whether the residual `string_len_from_handle` cost is mostly observer / trace formatting
   2. trim that hit path locally only if `3 runs + perf` keeps pointing there
   3. if `substring_concat` or another exact front shows the same cache shape, reopen the design cut for a higher-layer policy
 - lifecycle placement is fixed:
