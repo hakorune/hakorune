@@ -1,5 +1,5 @@
 #[cfg(not(test))]
-use std::sync::OnceLock;
+static ROUTE_TRACE_ENABLED_CACHE: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(2);
 
 #[inline(always)]
 fn route_trace_enabled() -> bool {
@@ -12,8 +12,16 @@ fn route_trace_enabled() -> bool {
     }
     #[cfg(not(test))]
     {
-        static TRACE_ENABLED: OnceLock<bool> = OnceLock::new();
-        *TRACE_ENABLED.get_or_init(|| nyash_rust::config::env::vm_route_trace())
+        match ROUTE_TRACE_ENABLED_CACHE.load(std::sync::atomic::Ordering::Relaxed) {
+            0 => false,
+            1 => true,
+            _ => {
+                let enabled = nyash_rust::config::env::vm_route_trace();
+                ROUTE_TRACE_ENABLED_CACHE
+                    .store(enabled as u8, std::sync::atomic::Ordering::Relaxed);
+                enabled
+            }
+        }
     }
 }
 

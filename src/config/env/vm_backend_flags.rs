@@ -5,6 +5,10 @@
 
 use super::{env_bool, env_flag, warn_alias_once};
 
+#[cfg(not(debug_assertions))]
+static VM_COMPAT_FALLBACK_ALLOWED_CACHE: std::sync::atomic::AtomicU8 =
+    std::sync::atomic::AtomicU8::new(2);
+
 // ---- LLVM harness toggle (llvmlite) ----
 pub fn llvm_use_harness() -> bool {
     // Legacy compat hint for harness execution/replay lanes.
@@ -71,9 +75,16 @@ pub fn vm_compat_fallback_allowed() -> bool {
     }
     #[cfg(not(debug_assertions))]
     {
-        static VM_COMPAT_FALLBACK_ALLOWED: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
-        *VM_COMPAT_FALLBACK_ALLOWED
-            .get_or_init(|| std::env::var("NYASH_VM_USE_FALLBACK").ok().as_deref() != Some("0"))
+        match VM_COMPAT_FALLBACK_ALLOWED_CACHE.load(std::sync::atomic::Ordering::Relaxed) {
+            0 => false,
+            1 => true,
+            _ => {
+                let allowed = std::env::var("NYASH_VM_USE_FALLBACK").ok().as_deref() != Some("0");
+                VM_COMPAT_FALLBACK_ALLOWED_CACHE
+                    .store(allowed as u8, std::sync::atomic::Ordering::Relaxed);
+                allowed
+            }
+        }
     }
 }
 

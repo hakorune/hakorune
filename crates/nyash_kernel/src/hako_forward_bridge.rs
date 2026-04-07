@@ -9,6 +9,8 @@ use std::sync::OnceLock;
 
 static FUTURE_SPAWN_INSTANCE_FN: AtomicUsize = AtomicUsize::new(0);
 static STRING_DISPATCH_FN: AtomicUsize = AtomicUsize::new(0);
+#[cfg(not(test))]
+static STRING_DISPATCH_STATE: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
 
 mod ffi {
     use super::{HakoFutureSpawnInstanceFn, HakoStringDispatchFn};
@@ -81,6 +83,7 @@ pub(crate) fn call_future_spawn_instance(a0: i64, a1: i64, a2: i64, argc: i64) -
     Some(spawn(a0, a1, a2, argc))
 }
 
+#[inline(always)]
 pub(crate) fn call_string_dispatch(op: i64, a0: i64, a1: i64, a2: i64) -> Option<i64> {
     let dispatch = string_dispatch_fn()?;
     let out = dispatch(op, a0, a1, a2);
@@ -99,8 +102,29 @@ pub(crate) fn call_string_dispatch(op: i64, a0: i64, a1: i64, a2: i64) -> Option
 }
 
 #[inline(always)]
+pub(crate) fn string_dispatch_raw() -> usize {
+    #[cfg(test)]
+    {
+        let raw = STRING_DISPATCH_FN.load(Ordering::Relaxed);
+        raw
+    }
+    #[cfg(not(test))]
+    {
+        match STRING_DISPATCH_STATE.load(Ordering::Relaxed) {
+            1 => 0,
+            2 => STRING_DISPATCH_FN.load(Ordering::Relaxed),
+            _ => {
+                let raw = STRING_DISPATCH_FN.load(Ordering::Relaxed);
+                STRING_DISPATCH_STATE.store(if raw == 0 { 1 } else { 2 }, Ordering::Release);
+                raw
+            }
+        }
+    }
+}
+
+#[inline(always)]
 pub(crate) fn string_dispatch_fn() -> Option<HakoStringDispatchFn> {
-    let raw = STRING_DISPATCH_FN.load(Ordering::Acquire);
+    let raw = string_dispatch_raw();
     if raw == 0 {
         None
     } else {
@@ -118,6 +142,8 @@ pub(crate) fn register_future_spawn_instance(f: Option<HakoFutureSpawnInstanceFn
 pub(crate) fn register_string_dispatch(f: Option<HakoStringDispatchFn>) -> i64 {
     let raw = f.map(|fp| fp as usize).unwrap_or(0);
     STRING_DISPATCH_FN.store(raw, Ordering::Release);
+    #[cfg(not(test))]
+    STRING_DISPATCH_STATE.store(if raw == 0 { 1 } else { 2 }, Ordering::Release);
     // SAFETY: function pointer is passed through to C registry as an opaque callback.
     unsafe { ffi::nyrt_hako_register_string_dispatch(f) }
 }
@@ -169,6 +195,8 @@ pub(crate) fn reset_for_tests() {
     let _ = register_string_dispatch(None);
     FUTURE_SPAWN_INSTANCE_FN.store(0, Ordering::Release);
     STRING_DISPATCH_FN.store(0, Ordering::Release);
+    #[cfg(not(test))]
+    STRING_DISPATCH_STATE.store(0, Ordering::Release);
 }
 
 #[cfg(test)]

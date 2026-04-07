@@ -1,4 +1,6 @@
 use super::string_view::resolve_string_span_from_handle_nocache;
+#[cfg(not(test))]
+use std::sync::atomic::{AtomicU8, Ordering};
 use std::sync::OnceLock;
 
 fn env_flag_cached(_cell: &'static OnceLock<bool>, key: &str) -> bool {
@@ -95,8 +97,65 @@ pub(crate) fn substring_view_enabled() -> bool {
     env_flag_default_on_cached(&SUBSTRING_VIEW_ENABLED, "NYASH_LLVM_FAST")
 }
 
+#[derive(Clone, Copy)]
+pub(crate) struct SubstringRoutePolicy {
+    pub(crate) view_enabled: bool,
+    pub(crate) fallback_allowed: bool,
+}
+
+#[cfg(not(test))]
+static SUBSTRING_ROUTE_POLICY_CACHE: AtomicU8 = AtomicU8::new(0);
+
+#[inline(always)]
+pub(crate) fn substring_route_policy() -> SubstringRoutePolicy {
+    #[cfg(test)]
+    {
+        return SubstringRoutePolicy {
+            view_enabled: substring_view_enabled(),
+            fallback_allowed: crate::hako_forward_bridge::rust_fallback_allowed(),
+        };
+    }
+    #[cfg(not(test))]
+    {
+        match SUBSTRING_ROUTE_POLICY_CACHE.load(Ordering::Relaxed) {
+            0 => {
+                let policy = SubstringRoutePolicy {
+                    view_enabled: substring_view_enabled(),
+                    fallback_allowed: crate::hako_forward_bridge::rust_fallback_allowed(),
+                };
+                SUBSTRING_ROUTE_POLICY_CACHE.store(
+                    0b100 | (policy.view_enabled as u8) | ((policy.fallback_allowed as u8) << 1),
+                    Ordering::Relaxed,
+                );
+                policy
+            }
+            raw => SubstringRoutePolicy {
+                view_enabled: raw & 0b001 != 0,
+                fallback_allowed: raw & 0b010 != 0,
+            },
+        }
+    }
+}
+
+#[cfg(not(test))]
+static JIT_TRACE_LEN_ENABLED_CACHE: AtomicU8 = AtomicU8::new(2);
+
 #[inline(always)]
 pub(crate) fn jit_trace_len_enabled() -> bool {
-    static JIT_TRACE_LEN_ENABLED: OnceLock<bool> = OnceLock::new();
-    env_flag_cached(&JIT_TRACE_LEN_ENABLED, "NYASH_JIT_TRACE_LEN")
+    #[cfg(test)]
+    {
+        std::env::var("NYASH_JIT_TRACE_LEN").ok().as_deref() == Some("1")
+    }
+    #[cfg(not(test))]
+    {
+        match JIT_TRACE_LEN_ENABLED_CACHE.load(Ordering::Relaxed) {
+            0 => false,
+            1 => true,
+            _ => {
+                let enabled = std::env::var("NYASH_JIT_TRACE_LEN").ok().as_deref() == Some("1");
+                JIT_TRACE_LEN_ENABLED_CACHE.store(enabled as u8, Ordering::Relaxed);
+                enabled
+            }
+        }
+    }
 }

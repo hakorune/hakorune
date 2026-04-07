@@ -41,20 +41,21 @@
     - `kilo_micro_concat_birth: 3 ms`
 - the current front is `kilo_micro_substring_only`:
   - remaining `substring_hii` / `string_len_from_handle` hit-path overhead after widening the alternating two-slice caches; `call_string_dispatch()` is already skipped when no string handler is registered
+  - hot-path bookkeeping is now trimmed by lazy trace payloads, an atomic substring route-policy cache, a cached string-dispatch absent state, and an atomic JIT len trace gate
   - `nyash.string.substring_hii` / `nyash.string.len_h` / `trace_borrowed_substring_plan` stay as the fallback semantic carrier
   - WSL validation needs `3 runs + perf` before trusting any delta
 - the safe next order after restart is:
   1. validate the two-entry cache cut with `3 runs + perf`
-  2. if the gap persists, trim `string_len_from_handle` hit-path observer / trace formatting first
-  3. if needed after that, tighten the `len_h` dispatch / fallback gate and only then widen back to `const_suffix` / `store.array.str`
+  2. if the gap persists, trim `substring_hii` result-handle churn first
+  3. if needed after that, tighten the `nyash.string.len_h` handle-backed cache and only then widen back to `const_suffix` / `store.array.str`
 - promotion policy for this cache family:
   1. the first proven win can stay local in Rust when one exact front is isolated and measurable
   2. once the same alternating-access pattern appears in another exact front, stop adding route-local cache variants and evaluate a shared hot-cache policy above Rust
   3. lift only when the semantics are common and lifetime / ownership boundaries remain explicit at the higher layer
   4. avoid repeating Rust-local cache additions in the same family without rechecking that promotion condition
 - immediate substring follow-up:
-  1. measure whether the residual `string_len_from_handle` cost is mostly observer / trace formatting
-  2. trim that hit path locally only if `3 runs + perf` keeps pointing there
+  1. measure whether the residual `substring_hii` / `len_h` cost is mostly result-handle churn vs handle-backed cache
+  2. trim `substring_hii` result-handle churn locally only if `3 runs + perf` keeps pointing there
   3. if `substring_concat` or another exact front shows the same cache shape, reopen the design cut for a higher-layer policy
 - lifecycle placement is fixed:
   - `.hako`: source-preserve / identity / publication demand
@@ -813,13 +814,13 @@
 1. keep canonical contract corridor landed and immutable
 2. treat `kilo_micro_substring_only` as the current exact front
    - current AOT consumer: `substring_hii` / `len_h` / `trace_borrowed_substring_plan`
-   - current executor: repeated substring result-handle churn plus len trace formatting
+   - current executor: repeated substring result-handle churn plus len handle-backed cache
    - use `3 runs + perf` before judging any WSL delta
    - read this front through the substring/len boundary first
    - next backend trim order if the seed misses:
      1. `nyash.string.substring_hii` result-handle churn
-     2. `nyash_kernel::exports::string::string_len_from_handle` trace formatting
-     3. `nyash.string.len_h` handle-backed cache
+     2. `nyash.string.len_h` handle-backed cache
+     3. `nyash_kernel::exports::string::string_len_from_handle` remaining internal overhead
      4. `concat_birth` / `store.array.str` helper seams only if this front reopens
 3. keep canonical `concat_birth` / fresh-box materialization as the secondary front
    - current AOT consumer: `nyash.string.concat_hh` plus the `materialize_owned_string(...)` backend seam
