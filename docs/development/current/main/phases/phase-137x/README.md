@@ -44,10 +44,10 @@
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
   - `kilo_micro_concat_const_suffix`: `c_ms=3 / ny_aot_ms=84`
-  - `kilo_micro_concat_hh_len`: `c_ms=3 / ny_aot_ms=61`
+  - `kilo_micro_concat_hh_len`: `c_ms=3 / ny_aot_ms=63`
   - `kilo_micro_concat_birth`: `c_ms=6 / ny_aot_ms=47`
   - `kilo_micro_array_string_store`: `c_ms=10 / ny_aot_ms=169`
-  - whole-kilo recheck after observe-gated alias epoch probe: `c_ms=79 / ny_aot_ms=717`
+  - whole-kilo recheck after source-lifetime keep split: `c_ms=78 / ny_aot_ms=703`
 - latest bundle read:
   - string contracts remain `keep_transient -> fresh_handle` for non-empty const concat/insert
   - `20260406-024104` still shows `crates/nyash_kernel/src/exports/string_helpers.rs::concat_const_suffix_fallback` as the top explicit hot symbol (`11.70%`)
@@ -349,6 +349,14 @@
         - `kilo_micro_array_string_store: 169 ms`
         - `kilo_micro_concat_hh_len: 61 ms`
         - `kilo_kernel_small_hk: 717 ms`
+    - latest landed source-lifetime keep split:
+      - `ArrayStoreStrSource::StringLike(...)` now carries `SourceLifetimeKeep`
+      - retarget success path now consumes `try_retarget_borrowed_string_slot_take_keep(...)`
+      - this is still no-behavior-change and keeps `StableBox(...)` underneath; it only fixes the next cut onto keep semantics
+      - 3-run plain release reread:
+        - `kilo_micro_array_string_store: 169 ms`
+        - `kilo_micro_concat_hh_len: 63 ms`
+        - `kilo_kernel_small_hk: 703 ms`
    - next observation order is fixed:
      1. split the `store.array.str -> with_handle(ArrayStoreStrSource)` object contract again before changing behavior
      2. keep borrowed alias string-read trimming closed; live-source fast read was not enough

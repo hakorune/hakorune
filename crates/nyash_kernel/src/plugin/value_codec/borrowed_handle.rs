@@ -6,21 +6,33 @@ use crate::observe;
 use std::{any::Any, sync::Arc};
 
 #[derive(Debug, Clone)]
-enum BorrowedStringKeep {
+pub(crate) enum SourceLifetimeKeep {
     StableBox(Arc<dyn NyashBox>),
 }
 
-impl BorrowedStringKeep {
+impl SourceLifetimeKeep {
     #[inline(always)]
-    fn stable_box_ref(&self) -> &Arc<dyn NyashBox> {
+    pub(crate) fn stable_box(obj: Arc<dyn NyashBox>) -> Self {
+        Self::StableBox(obj)
+    }
+
+    #[inline(always)]
+    pub(crate) fn stable_box_ref(&self) -> &Arc<dyn NyashBox> {
         match self {
             Self::StableBox(obj) => obj,
         }
     }
 
     #[inline(always)]
-    fn replace_stable_box(&mut self, obj: Arc<dyn NyashBox>) {
+    pub(crate) fn replace_stable_box(&mut self, obj: Arc<dyn NyashBox>) {
         *self = Self::StableBox(obj);
+    }
+
+    #[inline(always)]
+    pub(crate) fn into_stable_box(self) -> Arc<dyn NyashBox> {
+        match self {
+            Self::StableBox(obj) => obj,
+        }
     }
 
     #[inline(always)]
@@ -55,6 +67,60 @@ impl BorrowedStringKeep {
 }
 
 #[derive(Debug, Clone)]
+enum BorrowedStringKeep {
+    SourceLifetime(SourceLifetimeKeep),
+}
+
+impl BorrowedStringKeep {
+    #[inline(always)]
+    fn source_lifetime_ref(&self) -> &SourceLifetimeKeep {
+        match self {
+            Self::SourceLifetime(keep) => keep,
+        }
+    }
+
+    #[inline(always)]
+    fn replace_source_lifetime(&mut self, keep: SourceLifetimeKeep) {
+        *self = Self::SourceLifetime(keep);
+    }
+
+    #[inline(always)]
+    fn stable_box_ref(&self) -> &Arc<dyn NyashBox> {
+        self.source_lifetime_ref().stable_box_ref()
+    }
+
+    #[inline(always)]
+    fn as_str_fast(&self) -> Option<&str> {
+        self.source_lifetime_ref().as_str_fast()
+    }
+
+    #[inline(always)]
+    fn to_string_box(&self) -> StringBox {
+        self.source_lifetime_ref().to_string_box()
+    }
+
+    #[inline(always)]
+    fn equals(&self, other: &dyn NyashBox) -> BoolBox {
+        self.source_lifetime_ref().equals(other)
+    }
+
+    #[inline(always)]
+    fn type_name(&self) -> &'static str {
+        self.source_lifetime_ref().type_name()
+    }
+
+    #[inline(always)]
+    fn clone_box(&self) -> Box<dyn NyashBox> {
+        self.source_lifetime_ref().clone_box()
+    }
+
+    #[inline(always)]
+    fn is_identity(&self) -> bool {
+        self.source_lifetime_ref().is_identity()
+    }
+}
+
+#[derive(Debug, Clone)]
 pub(crate) struct BorrowedHandleBox {
     keep: BorrowedStringKeep,
     pub(crate) source_handle: i64,
@@ -74,7 +140,7 @@ impl BorrowedHandleBox {
             next_box_id()
         };
         Self {
-            keep: BorrowedStringKeep::StableBox(inner),
+            keep: BorrowedStringKeep::SourceLifetime(SourceLifetimeKeep::stable_box(inner)),
             source_handle,
             source_drop_epoch,
             // Fast path: borrowed wrapper is an alias view for an existing handle.
@@ -270,23 +336,25 @@ pub(crate) fn keep_borrowed_string_slot_source_arc(
             observe::record_store_array_str_reason_retarget_keep_source_arc_ptr_eq_miss();
         }
     }
-    alias.keep.replace_stable_box(source_obj.clone());
+    alias
+        .keep
+        .replace_source_lifetime(SourceLifetimeKeep::stable_box(source_obj.clone()));
 }
 
 #[inline(always)]
-pub(crate) fn keep_borrowed_string_slot_source_obj(
+pub(crate) fn keep_borrowed_string_slot_source_keep(
     alias: &mut BorrowedHandleBox,
-    source_obj: Arc<dyn NyashBox>,
+    source_keep: SourceLifetimeKeep,
 ) {
     observe::record_store_array_str_reason_retarget_keep_source_arc();
     if observe::enabled() {
-        if Arc::ptr_eq(alias.keep.stable_box_ref(), &source_obj) {
+        if Arc::ptr_eq(alias.keep.stable_box_ref(), source_keep.stable_box_ref()) {
             observe::record_store_array_str_reason_retarget_keep_source_arc_ptr_eq_hit();
         } else {
             observe::record_store_array_str_reason_retarget_keep_source_arc_ptr_eq_miss();
         }
     }
-    alias.keep.replace_stable_box(source_obj);
+    alias.keep.replace_source_lifetime(source_keep);
 }
 
 #[inline(always)]
@@ -301,19 +369,19 @@ pub(crate) fn update_borrowed_string_slot_alias(
 }
 
 #[inline(always)]
-pub(crate) fn try_retarget_borrowed_string_slot_take_source(
+pub(crate) fn try_retarget_borrowed_string_slot_take_keep(
     slot: &mut Box<dyn NyashBox>,
     source_handle: i64,
-    source_obj: Arc<dyn NyashBox>,
+    source_keep: SourceLifetimeKeep,
     source_drop_epoch: u64,
-) -> Result<(), Arc<dyn NyashBox>> {
+) -> Result<(), SourceLifetimeKeep> {
     if source_handle <= 0 {
-        return Err(source_obj);
+        return Err(source_keep);
     }
     let Some(alias) = slot.as_any_mut().downcast_mut::<BorrowedHandleBox>() else {
-        return Err(source_obj);
+        return Err(source_keep);
     };
-    keep_borrowed_string_slot_source_obj(alias, source_obj);
+    keep_borrowed_string_slot_source_keep(alias, source_keep);
     update_borrowed_string_slot_alias(alias, source_handle, source_drop_epoch);
     Ok(())
 }

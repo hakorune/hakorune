@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Decision: current
-Date: 2026-04-06
+Date: 2026-04-07
 Scope: semantic optimization authority を `.hako owner -> MIR canonical contract -> Rust executor -> LLVM generic optimization/codegen` で固定する。
 Related:
   - CURRENT_TASK.md
@@ -156,6 +156,33 @@ Read it through the Birth / Placement backend second axis:
 
 `box_id` belongs only to `Objectization::StableBoxNow`.
 
+## Lifecycle Policy Rule
+
+Lifecycle policy must be decided above Rust.
+
+### `.hako owner / policy` decides
+
+- source-preserve eligibility
+- retained-form / boundary choice
+- identity demand
+- publication demand
+
+### `MIR canonical contract` carries
+
+- the visible canonical route name
+- delayed-materialization reading
+- escalation conditions for object-world entry
+
+### `Rust executor / accelerator` executes
+
+- source kind checks
+- source-lifetime keep
+- alias survival / alias update
+- drop-epoch / registry / `Arc` mechanics
+
+Rust may decide runtime facts.
+Rust must not invent new lifecycle policy by helper-local branching.
+
 ## LLVM generic optimization / codegen
 
 LLVM が持つもの:
@@ -258,6 +285,34 @@ Current backend-private support seam:
 - `TextReadSession`
   - private read-only borrowed string session across
     `string_view.rs` / `string_helpers.rs` / `host_handles.rs`
+- `SourceLifetimeKeep`
+  - private source-preserving keep contract for alias survival
+  - must remain backend-private until a higher-layer lifecycle rule explicitly widens it
+
+## `store.array.str` Contract Rule
+
+Keep the visible canonical name `store.array.str`.
+Do not promote `RetargetAlias` into a public MIR op.
+
+Below that canonical name, freeze the backend-private split as:
+
+1. `SourceKindCheck`
+2. `SourceLifetimeKeep`
+3. `AliasUpdate`
+4. `NeedStableObject`
+
+Interpretation:
+
+- `SourceKindCheck`
+  - runtime fact gathering
+- `SourceLifetimeKeep`
+  - source-preserving keep mechanics
+- `AliasUpdate`
+  - slot metadata update
+- `NeedStableObject`
+  - the only branch that may justify generic object-world entry
+
+This rule exists to stop Rust leaf helpers from re-owning lifecycle policy.
 
 These names are allowed only as Rust backend family names.
 Do not lift them into `.hako` route vocabulary or MIR top-level outcome names.

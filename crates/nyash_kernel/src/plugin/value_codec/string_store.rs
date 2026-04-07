@@ -1,4 +1,4 @@
-use super::borrowed_handle::maybe_borrow_string_handle_with_epoch;
+use super::borrowed_handle::{maybe_borrow_string_handle_with_epoch, SourceLifetimeKeep};
 use super::decode::int_arg_to_box;
 use nyash_rust::{
     box_trait::{NyashBox, StringBox},
@@ -15,7 +15,7 @@ pub(crate) enum StringHandleSourceKind {
 
 #[derive(Clone)]
 pub(crate) enum ArrayStoreStrSource {
-    StringLike(Arc<dyn NyashBox>),
+    StringLike(SourceLifetimeKeep),
     OtherObject(Arc<dyn NyashBox>),
     Missing,
 }
@@ -24,7 +24,8 @@ impl ArrayStoreStrSource {
     #[inline(always)]
     pub(crate) fn object_ref(&self) -> Option<&Arc<dyn NyashBox>> {
         match self {
-            Self::StringLike(obj) | Self::OtherObject(obj) => Some(obj),
+            Self::StringLike(keep) => Some(keep.stable_box_ref()),
+            Self::OtherObject(obj) => Some(obj),
             Self::Missing => None,
         }
     }
@@ -210,7 +211,9 @@ pub(crate) fn with_array_store_str_source<R>(
         |source_obj| {
             let source = match classify_string_handle_source(source_obj) {
                 StringHandleSourceKind::StringLike => ArrayStoreStrSource::StringLike(
-                    source_obj.expect("string-like source object").clone(),
+                    SourceLifetimeKeep::stable_box(
+                        source_obj.expect("string-like source object").clone(),
+                    ),
                 ),
                 StringHandleSourceKind::OtherObject => {
                     ArrayStoreStrSource::OtherObject(source_obj.expect("object source").clone())

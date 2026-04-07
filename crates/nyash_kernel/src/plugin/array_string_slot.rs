@@ -2,7 +2,7 @@ use super::array_guard::valid_handle_idx;
 use super::handle_cache::{cache_probe_kind, CacheProbeKind as HandleCacheProbeKind};
 use super::value_codec::{
     maybe_store_string_box_from_verified_source, with_array_store_str_source, ArrayStoreStrSource,
-    BorrowedHandleBox, StringHandleSourceKind, try_retarget_borrowed_string_slot_take_source,
+    BorrowedHandleBox, StringHandleSourceKind, try_retarget_borrowed_string_slot_take_keep,
 };
 use crate::observe::{self, CacheProbeKind as ObserveCacheProbeKind};
 use crate::exports::string_view::resolve_string_span_from_handle;
@@ -316,11 +316,11 @@ fn execute_store_array_str_slot(
     plan.record();
     if idx < items.len() {
         if plan.can_retarget_alias() {
-            if let ArrayStoreStrSource::StringLike(source_obj) = source {
-                match try_retarget_borrowed_string_slot_take_source(
+            if let ArrayStoreStrSource::StringLike(source_keep) = source {
+                match try_retarget_borrowed_string_slot_take_keep(
                     &mut items[idx],
                     value_h,
-                    source_obj,
+                    source_keep,
                     drop_epoch,
                 ) {
                     Ok(()) => {
@@ -330,8 +330,8 @@ fn execute_store_array_str_slot(
                         }
                         return 1;
                     }
-                    Err(source_obj) => {
-                        source = ArrayStoreStrSource::StringLike(source_obj);
+                    Err(source_keep) => {
+                        source = ArrayStoreStrSource::StringLike(source_keep);
                     }
                 }
             }

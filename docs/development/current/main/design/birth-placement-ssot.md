@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Decision: current
-Date: 2026-04-06
+Date: 2026-04-07
 Scope: string/collection hot path で helper 名ではなく Birth / Placement outcome を正本にし、`.hako owner -> MIR canonical contract -> Rust birth backend` の責務を固定する。
 Related:
   - CURRENT_TASK.md
@@ -113,6 +113,7 @@ Current next carriers are:
 
 1. `OwnedBytes`
 2. `TextReadSession`
+3. `SourceLifetimeKeep`
 
 Interpretation:
 
@@ -121,6 +122,10 @@ Interpretation:
 - `TextReadSession`
   - end-to-end read-only borrowed string session
   - keeps drop-epoch / handle lookup / span reuse together for pure string reads
+- `SourceLifetimeKeep`
+  - backend-private carrier for source-preserving alias survival
+  - not a public Birth / Placement outcome
+  - must not be treated as a synonym for `StableBoxNow`
 
 These names are Rust backend family names only.
 Do not promote them into `.hako` route vocabulary or MIR top-level outcome
@@ -190,6 +195,12 @@ Examples:
 `.hako` decides **whether** a route should reuse, borrow, freeze, or materialize.
 It borrows Rust-like ownership vocabulary as semantic meaning only.
 
+`.hako` also owns lifecycle policy questions such as:
+
+- whether source-preserve is semantically allowed
+- whether stable identity is semantically required
+- whether publication is semantically required
+
 ### MIR canonical contract
 
 Owns:
@@ -209,6 +220,13 @@ Examples:
 
 MIR carries **what outcome was chosen**, not the runtime mechanics of issuing a handle.
 It is also the right place to keep delayed-materialization reading stable.
+
+MIR is also the right layer to freeze visible lifecycle policy for hot paths:
+
+- source-preserve eligibility
+- identity demand
+- publication demand
+- escalation conditions that allow object-world entry
 
 ### Rust birth backend family
 
@@ -237,9 +255,39 @@ These are backend leaves only.
 They must not become public policy vocabulary.
 Rust keeps C-like storage/lifetime mechanics here.
 
+Rust must not decide lifecycle policy.
+Rust may only decide runtime facts under the already-frozen contract, for example:
+
+- source kind at runtime
+- whether a slot is a borrowed alias
+- how source-lifetime keep is executed
+- how alias metadata is updated
+- how drop-epoch / registry / `Arc` mechanics are carried out
+
 `box_id` also belongs here.
 Treat it as part of `Objectization::StableBoxNow`, not as a top-level outcome
 visible to `.hako` owner or MIR naming.
+
+## Source-Contract Rule
+
+For `store.array.str`, keep the public canonical name unchanged and split the
+backend-private contract below it.
+
+Current intended split:
+
+1. `SourceKindCheck`
+2. `SourceLifetimeKeep`
+3. `AliasUpdate`
+4. `NeedStableObject`
+
+Reading rule:
+
+- `SourceKindCheck` is a runtime fact read
+- `SourceLifetimeKeep` is lifetime mechanics
+- `AliasUpdate` is metadata update
+- `NeedStableObject` is the only branch that may justify generic object-world entry
+
+This keeps lifecycle policy above Rust while keeping runtime mechanics below it.
 
 ## Current Source Mapping
 
