@@ -71,28 +71,28 @@ struct ConcatConstSuffixFastCache {
     result_handle: Cell<i64>,
 }
 
-#[derive(Default)]
-struct SubstringFastCache {
-    drop_epoch: Cell<u64>,
-    source_handle: Cell<i64>,
-    start: Cell<i64>,
-    end: Cell<i64>,
-    view_enabled: Cell<bool>,
-    result_handle: Cell<i64>,
-    source_handle2: Cell<i64>,
-    start2: Cell<i64>,
-    end2: Cell<i64>,
-    view_enabled2: Cell<bool>,
-    result_handle2: Cell<i64>,
+#[derive(Clone, Copy, Default)]
+struct SubstringFastCacheState {
+    drop_epoch: u64,
+    source_handle: i64,
+    start: i64,
+    end: i64,
+    view_enabled: bool,
+    result_handle: i64,
+    source_handle2: i64,
+    start2: i64,
+    end2: i64,
+    view_enabled2: bool,
+    result_handle2: i64,
 }
 
-#[derive(Default)]
-struct StringLenFastCache {
-    drop_epoch: Cell<u64>,
-    handle: Cell<i64>,
-    len: Cell<i64>,
-    handle2: Cell<i64>,
-    len2: Cell<i64>,
+#[derive(Clone, Copy, Default)]
+struct StringLenFastCacheState {
+    drop_epoch: u64,
+    handle: i64,
+    len: i64,
+    handle2: i64,
+    len2: i64,
 }
 
 thread_local! {
@@ -119,26 +119,28 @@ thread_local! {
         suffix_ptr: Cell::new(0),
         result_handle: Cell::new(0),
     } };
-    static SUBSTRING_FAST_CACHE: SubstringFastCache = const { SubstringFastCache {
-        drop_epoch: Cell::new(0),
-        source_handle: Cell::new(0),
-        start: Cell::new(0),
-        end: Cell::new(0),
-        view_enabled: Cell::new(false),
-        result_handle: Cell::new(0),
-        source_handle2: Cell::new(0),
-        start2: Cell::new(0),
-        end2: Cell::new(0),
-        view_enabled2: Cell::new(false),
-        result_handle2: Cell::new(0),
-    } };
-    static STRING_LEN_FAST_CACHE: StringLenFastCache = const { StringLenFastCache {
-        drop_epoch: Cell::new(0),
-        handle: Cell::new(0),
-        len: Cell::new(0),
-        handle2: Cell::new(0),
-        len2: Cell::new(0),
-    } };
+    static SUBSTRING_FAST_CACHE: Cell<SubstringFastCacheState> =
+        const { Cell::new(SubstringFastCacheState {
+            drop_epoch: 0,
+            source_handle: 0,
+            start: 0,
+            end: 0,
+            view_enabled: false,
+            result_handle: 0,
+            source_handle2: 0,
+            start2: 0,
+            end2: 0,
+            view_enabled2: false,
+            result_handle2: 0,
+        }) };
+    static STRING_LEN_FAST_CACHE: Cell<StringLenFastCacheState> =
+        const { Cell::new(StringLenFastCacheState {
+            drop_epoch: 0,
+            handle: 0,
+            len: 0,
+            handle2: 0,
+            len2: 0,
+        }) };
 }
 
 #[inline(always)]
@@ -255,22 +257,23 @@ fn substring_fast_cache_lookup(
 ) -> Option<i64> {
     let drop_epoch = handles::drop_epoch();
     SUBSTRING_FAST_CACHE.with(|cache| {
-        if cache.drop_epoch.get() == drop_epoch {
-            if cache.source_handle.get() == source_handle
-                && cache.start.get() == start
-                && cache.end.get() == end
-                && cache.view_enabled.get() == view_enabled
-                && cache.result_handle.get() > 0
+        let state = cache.get();
+        if state.drop_epoch == drop_epoch {
+            if state.source_handle == source_handle
+                && state.start == start
+                && state.end == end
+                && state.view_enabled == view_enabled
+                && state.result_handle > 0
             {
-                return Some(cache.result_handle.get());
+                return Some(state.result_handle);
             }
-            if cache.source_handle2.get() == source_handle
-                && cache.start2.get() == start
-                && cache.end2.get() == end
-                && cache.view_enabled2.get() == view_enabled
-                && cache.result_handle2.get() > 0
+            if state.source_handle2 == source_handle
+                && state.start2 == start
+                && state.end2 == end
+                && state.view_enabled2 == view_enabled
+                && state.result_handle2 > 0
             {
-                return Some(cache.result_handle2.get());
+                return Some(state.result_handle2);
             }
         }
         None
@@ -287,17 +290,20 @@ fn substring_fast_cache_store(
 ) {
     let drop_epoch = handles::drop_epoch();
     SUBSTRING_FAST_CACHE.with(|cache| {
-        cache.drop_epoch.set(drop_epoch);
-        cache.source_handle2.set(cache.source_handle.get());
-        cache.start2.set(cache.start.get());
-        cache.end2.set(cache.end.get());
-        cache.view_enabled2.set(cache.view_enabled.get());
-        cache.result_handle2.set(cache.result_handle.get());
-        cache.source_handle.set(source_handle);
-        cache.start.set(start);
-        cache.end.set(end);
-        cache.view_enabled.set(view_enabled);
-        cache.result_handle.set(result_handle);
+        let state = cache.get();
+        cache.set(SubstringFastCacheState {
+            drop_epoch,
+            source_handle,
+            start,
+            end,
+            view_enabled,
+            result_handle,
+            source_handle2: state.source_handle,
+            start2: state.start,
+            end2: state.end,
+            view_enabled2: state.view_enabled,
+            result_handle2: state.result_handle,
+        });
     });
 }
 
@@ -305,11 +311,12 @@ fn substring_fast_cache_store(
 fn string_len_fast_cache_lookup(handle: i64) -> Option<i64> {
     let drop_epoch = handles::drop_epoch();
     STRING_LEN_FAST_CACHE.with(|cache| {
-        if cache.drop_epoch.get() == drop_epoch {
-            if cache.handle.get() == handle {
-                Some(cache.len.get())
-            } else if cache.handle2.get() == handle {
-                Some(cache.len2.get())
+        let state = cache.get();
+        if state.drop_epoch == drop_epoch {
+            if state.handle == handle {
+                Some(state.len)
+            } else if state.handle2 == handle {
+                Some(state.len2)
             } else {
                 None
             }
@@ -323,11 +330,14 @@ fn string_len_fast_cache_lookup(handle: i64) -> Option<i64> {
 fn string_len_fast_cache_store(handle: i64, len: i64) {
     let drop_epoch = handles::drop_epoch();
     STRING_LEN_FAST_CACHE.with(|cache| {
-        cache.drop_epoch.set(drop_epoch);
-        cache.handle2.set(cache.handle.get());
-        cache.len2.set(cache.len.get());
-        cache.handle.set(handle);
-        cache.len.set(len);
+        let state = cache.get();
+        cache.set(StringLenFastCacheState {
+            drop_epoch,
+            handle,
+            len,
+            handle2: state.handle,
+            len2: state.len,
+        });
     });
 }
 
@@ -1233,6 +1243,21 @@ pub(super) fn string_len_export_impl(handle: i64) -> i64 {
         let v = dispatch(hako_forward_bridge::string_ops::LEN_H, handle, 0, 0);
         observe::record_str_len_route_dispatch_hit();
         return v;
+    }
+    if let Some(cached) = string_len_fast_cache_lookup(handle) {
+        observe::record_str_len_route_fast_str_hit();
+        if observe::len_route_matches_latest_fresh_handle(handle) {
+            observe::record_str_len_route_latest_fresh_handle_fast_str_hit();
+        }
+        trace_observer_resolution_enabled(
+            jit_trace_len_enabled(),
+            "observer",
+            handle,
+            "fast_hit",
+            "len_handle_cache",
+            || format!("len={}", cached),
+        );
+        return cached;
     }
     if !allow_rust_string_fallback() {
         return hook_miss_scalar_error("string.len_h");

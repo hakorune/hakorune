@@ -40,12 +40,15 @@
   - latest exact probe:
     - `kilo_micro_concat_birth: 3 ms`
 - the current front is `kilo_micro_substring_only`:
-  - remaining `substring_hii` / `string_len_from_handle` hit-path overhead after widening the alternating two-slice caches; `call_string_dispatch()` is already skipped when no string handler is registered
-  - hot-path bookkeeping is now trimmed by lazy trace payloads, an atomic substring route-policy cache, a cached string-dispatch absent state, and an atomic JIT len trace gate
+  - remaining `substring_hii` / `string_len_from_handle` hit-path overhead after flattening the alternating two-slice cache state; `call_string_dispatch()` is already skipped when no string handler is registered
+  - latest median probe is `kilo_micro_substring_only: C 3 ms / AOT 5 ms`
+  - hot-path bookkeeping is now trimmed by lazy trace payloads, an atomic substring route-policy cache, a cached string-dispatch absent state, an atomic JIT len trace gate, flatter two-entry TLS cache state for substring / len, and direct substring plan lookup without caller tracking
+  - last rejected micro-slice:
+    - cold-splitting the `len_h` fallback helper did not improve the median and was reverted
   - `nyash.string.substring_hii` / `nyash.string.len_h` / `trace_borrowed_substring_plan` stay as the fallback semantic carrier
   - WSL validation needs `3 runs + perf` before trusting any delta
 - the safe next order after restart is:
-  1. validate the two-entry cache cut with `3 runs + perf`
+  1. validate the cache-shape cut with `3 runs + perf`
   2. if the gap persists, trim `substring_hii` result-handle churn first
   3. if needed after that, tighten the `nyash.string.len_h` handle-backed cache and only then widen back to `const_suffix` / `store.array.str`
 - promotion policy for this cache family:
@@ -54,8 +57,8 @@
   3. lift only when the semantics are common and lifetime / ownership boundaries remain explicit at the higher layer
   4. avoid repeating Rust-local cache additions in the same family without rechecking that promotion condition
 - immediate substring follow-up:
-  1. measure whether the residual `substring_hii` / `len_h` cost is mostly result-handle churn vs handle-backed cache
-  2. trim `substring_hii` result-handle churn locally only if `3 runs + perf` keeps pointing there
+  1. keep the `len_h` wrapper hot; do not retry the reverted cold-split helper shape
+  2. trim `substring_hii` result-handle churn locally only if the gap persists on `3 runs + perf`
   3. if `substring_concat` or another exact front shows the same cache shape, reopen the design cut for a higher-layer policy
 - lifecycle placement is fixed:
   - `.hako`: source-preserve / identity / publication demand
@@ -71,12 +74,11 @@
 - current front is structure-first:
   - `kilo_micro_substring_only`
   - `nyash.string.substring_hii` / `nyash.string.len_h` / `trace_borrowed_substring_plan` source contract as fallback semantic carrier
+  - `substring` / `len` cache state now uses flattened TLS records to reduce lookup shape overhead
   - `SourceLifetimeKeep`
   - `RetargetAlias` source-lifetime semantics
   - `concat_birth` fresh-box materialization landed
   - AOT compiler-side literal `string + string` fold landed
-  - supporting isolate for raw substring cost:
-    - `kilo_micro_substring_only: c_ms=3 / ny_aot_ms=6`
  - whole-kilo read order is now fixed through a supported contract split ladder:
    - `kilo_micro_concat_hh_len`
    - `kilo_micro_array_string_store`

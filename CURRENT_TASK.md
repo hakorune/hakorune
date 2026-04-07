@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-04-07
+Date: 2026-04-08
 Scope: repo root から current lane / next lane / restart read order に最短で戻るための薄い anchor。
 
 ## Purpose
@@ -30,16 +30,18 @@ Scope: repo root から current lane / next lane / restart read order に最短�
     - `kilo_micro_concat_birth: 3 ms`
 - the current front is `kilo_micro_substring_only`:
   - WSL validation still needs `3 runs + perf` before trusting a delta
-  - current cut is now the `substring_hii` / `len_h` hot pair after relaxing the `string_dispatch_fn()` gate load
-  - hot-path bookkeeping is now trimmed by lazy trace payloads, an atomic substring route-policy cache, a cached string-dispatch absent state, and an atomic JIT len trace gate
+  - latest median probe is `kilo_micro_substring_only: C 3 ms / AOT 5 ms`
+  - current cut is now the `substring_hii` / `len_h` hot pair after flattening the alternating two-entry TLS caches into single state records
+  - hot-path bookkeeping is now trimmed by lazy trace payloads, an atomic substring route-policy cache, a cached string-dispatch absent state, an atomic JIT len trace gate, and direct substring plan lookup without caller tracking
+  - last rejected micro-slice:
+    - cold-splitting the `len_h` fallback helper did not improve the median and was reverted
   - fallback semantic carrier remains:
     - `substring_hii`
     - `string_len_from_handle`
     - `trace_borrowed_substring_plan`
-  - supporting isolate for raw slice cost:
-    - `kilo_micro_substring_only: c_ms=3 / ny_aot_ms=6`
+  - supporting isolate for raw slice cost remains `kilo_micro_substring_only`
 - the safe next order after restart is:
-  1. validate the two-entry cache cut with `3 runs + perf`
+  1. validate the cache-shape cut with `3 runs + perf`
   2. if the gap persists, trim `substring_hii` result-handle churn first
   3. if needed after that, tighten the `nyash.string.len_h` handle-backed cache and only then widen back to `const_suffix` / `store.array.str`
 - promotion policy for this optimization family is now fixed:
@@ -48,8 +50,8 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   3. prefer lifting to `MIR` / shared runtime policy only when the semantics are common and lifetime / ownership boundaries stay explicit
   4. do not accumulate more Rust-local cache shapes in the same family without rechecking that promotion condition
 - immediate follow-up order for the substring lane:
-  1. measure whether the remaining `substring_hii` / `len_h` cost is mostly result-handle churn vs handle-backed cache
-  2. if yes, trim `substring_hii` result-handle churn locally and remeasure with `3 runs + perf`
+  1. keep the `len_h` wrapper hot; do not retry the reverted cold-split helper shape
+  2. if the gap persists, trim `substring_hii` result-handle churn locally and remeasure with `3 runs + perf`
   3. if a similar alternating-access cache need shows up in `substring_concat` or another exact front, open the design cut to move this family upward
 - policy remains above Rust, mechanics remain in Rust:
   - `.hako`: source-preserve / identity / publication demand

@@ -419,16 +419,12 @@ pub(crate) fn borrowed_substring_plan_from_handle(
     if handle <= 0 {
         return None;
     }
-    handles::with_handle_caller(
-        handle as u64,
-        handles::PerfObserveObjectWithHandleCaller::SubstringPlan,
-        |obj| {
-            let Some(obj) = obj else {
-                return None;
-            };
-            borrowed_substring_plan_from_live_object(handle, start, end, view_enabled, obj)
-        },
-    )
+    handles::with_handle(handle as u64, |obj| {
+        let Some(obj) = obj else {
+            return None;
+        };
+        borrowed_substring_plan_from_live_object(handle, start, end, view_enabled, obj)
+    })
 }
 
 fn clamp_usize_range(len: usize, start: usize, end: usize) -> (usize, usize) {
