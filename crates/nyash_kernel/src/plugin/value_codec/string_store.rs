@@ -288,7 +288,7 @@ pub(crate) fn store_string_box_from_source_keep(
     }
     crate::observe::record_birth_placement_store_from_source();
     maybe_borrow_string_handle_with_epoch(
-        source_keep.stable_box_ref().clone(),
+        source_keep.clone_stable_box_for_store_fallback(),
         source_handle,
         source_drop_epoch,
     )

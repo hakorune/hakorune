@@ -193,6 +193,21 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       - `kilo_micro_array_string_store: 171 ms`
       - `kilo_micro_concat_hh_len: 64 ms`
       - `kilo_kernel_small_hk: 700 ms`
+  - latest landed object-demand API narrowing:
+    - raw `stable_box_ref()` access no longer crosses module boundaries from
+      keep/alias internals into encode/store callers
+    - encode-side object demand is now explicit:
+      - `encode_fallback_box_ref()`
+      - `clone_stable_box_for_encode_fallback()`
+      - `ptr_eq_source_object()`
+    - store-from-source keep demand is now explicit:
+      - `clone_stable_box_for_store_fallback()`
+    - this is still no-behavior-change; it narrows object-demand API shape
+      without changing representation
+    - accept-gate reread:
+      - `kilo_micro_array_string_store: 172 ms`
+      - `kilo_micro_concat_hh_len: 68 ms`
+      - `kilo_kernel_small_hk: 711 ms`
   - latest landed keep/meta split:
     - `BorrowedHandleBox` now separates:
       - `TextKeep`

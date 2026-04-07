@@ -4,7 +4,6 @@ use nyash_rust::{
     box_trait::{BoolBox, IntegerBox, NyashBox},
     runtime::host_handles as handles,
 };
-use std::sync::Arc;
 
 #[derive(Clone, Copy)]
 pub(crate) enum BorrowedAliasEncodeCaller {
@@ -45,15 +44,15 @@ pub(crate) fn runtime_i64_from_box_ref_caller(
                 return alias.source_handle();
             }
         }
-        if let Some(iv) = integer_box_to_i64(alias.stable_box_ref().as_ref()) {
+        if let Some(iv) = integer_box_to_i64(alias.encode_fallback_box_ref()) {
             return iv;
         }
-        if let Some(bv) = bool_box_to_i64(alias.stable_box_ref().as_ref()) {
+        if let Some(bv) = bool_box_to_i64(alias.encode_fallback_box_ref()) {
             return bv;
         }
         if alias.source_handle() > 0 {
             if let Some(source_obj) = handles::get(alias.source_handle() as u64) {
-                if Arc::ptr_eq(&source_obj, alias.stable_box_ref()) {
+                if alias.ptr_eq_source_object(&source_obj) {
                     observe::record_borrowed_alias_encode_ptr_eq_hit();
                     return alias.source_handle();
                 }
@@ -61,7 +60,7 @@ pub(crate) fn runtime_i64_from_box_ref_caller(
         }
         observe::record_borrowed_alias_encode_to_handle_arc();
         caller.record();
-        return handles::to_handle_arc(alias.stable_box_ref().clone()) as i64;
+        return handles::to_handle_arc(alias.clone_stable_box_for_encode_fallback()) as i64;
     }
     if let Some(iv) = integer_box_to_i64(value) {
         return iv;
