@@ -2,6 +2,7 @@ mod borrowed_handle;
 mod decode;
 mod encode;
 mod string_classify;
+mod string_materialize;
 mod string_store;
 
 #[cfg(test)]
@@ -19,11 +20,11 @@ pub(crate) use encode::{box_to_runtime_i64, runtime_i64_from_box_ref};
 pub(crate) use string_classify::{
     with_array_store_str_source, ArrayStoreStrSource, StringHandleSourceKind, VerifiedTextSource,
 };
+pub(crate) use string_materialize::materialize_owned_string;
 #[cfg(test)]
 pub(crate) use string_store::store_string_box_from_source;
 pub(crate) use string_store::{
-    materialize_owned_string, maybe_store_non_string_box_from_verified_source,
-    store_string_box_from_source_keep,
+    maybe_store_non_string_box_from_verified_source, store_string_box_from_source_keep,
 };
 
 #[cfg(test)]

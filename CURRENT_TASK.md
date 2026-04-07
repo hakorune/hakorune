@@ -218,6 +218,18 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       - retarget: `try_retarget_borrowed_string_slot_take_keep(...)`
       - store-from-source: `store_string_box_from_source_keep(...)`
     - this is still no-behavior-change; it removes compatibility entry points
+  - latest landed materialize/store split:
+    - `value_codec/string_materialize.rs` now owns:
+      - `OwnedBytes`
+      - `MaterializeOwned`
+      - `StableBoxNow`
+      - `FreshRegistryHandle`
+    - `value_codec/string_store.rs` now focuses on store-from-source execution only
+    - this is a no-behavior visibility split; it removes the remaining materialize/objectize/publication coupling from the store executor file
+    - accept-gate reread:
+      - `kilo_micro_array_string_store: 179 ms`
+      - `kilo_meso_indexof_append_array_set: 150 ms`
+      - `kilo_kernel_small_hk: 695 ms`
       that were keeping the old object-centric shape visible
     - accept-gate reread:
       - `kilo_micro_array_string_store: 176 ms`

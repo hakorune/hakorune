@@ -74,6 +74,13 @@
     - `AliasUpdate`
     - `NeedStableObject`
 - benchmark numbers stay current truth, but they are now validation, not the driver for widening Rust transport
+- latest structural visibility split:
+  - `value_codec/string_materialize.rs` now owns `OwnedBytes -> StableBoxNow -> FreshRegistryHandle`
+  - `value_codec/string_store.rs` now stays on store-from-source execution
+  - accept-gate reread:
+    - `kilo_micro_array_string_store: 179 ms`
+    - `kilo_meso_indexof_append_array_set: 150 ms`
+    - `kilo_kernel_small_hk: 695 ms`
 - `exports/string.rs` is now a thin export shell with helpers split out
 - `plugin/map_substrate.rs` is now raw substrate helpers only
 - `plugin/map_aliases.rs` now owns the ABI alias surface
