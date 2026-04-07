@@ -184,6 +184,27 @@ static box CollectionMethodPolicyBox {
     return me.route_array_store_any()
   }
 
+  array_store_string_source_preserve(box_name, recv_origin, runtime_array_string, value_is_i64, value_is_string_handle) {
+    if me.set_route(box_name, recv_origin, runtime_array_string, value_is_i64, value_is_string_handle) == me.route_array_store_string() {
+      return 1
+    }
+    return 0
+  }
+
+  array_store_string_identity_demand(box_name, recv_origin, runtime_array_string, value_is_i64, value_is_string_handle) {
+    if me.set_route(box_name, recv_origin, runtime_array_string, value_is_i64, value_is_string_handle) == me.route_array_store_string() {
+      return 0
+    }
+    return 0
+  }
+
+  array_store_string_publication_demand(box_name, recv_origin, runtime_array_string, value_is_i64, value_is_string_handle) {
+    if me.set_route(box_name, recv_origin, runtime_array_string, value_is_i64, value_is_string_handle) == me.route_array_store_string() {
+      return 0
+    }
+    return 0
+  }
+
   get_route(box_name, runtime_map_get, runtime_array_get, runtime_array_string) {
     if box_name == "RuntimeDataBox" {
       return me.route_runtime_data_load_any()

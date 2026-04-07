@@ -44,6 +44,11 @@
     - `array_store_string_source_preserve`
     - `array_store_string_identity_demand_stable_object`
     - `array_store_string_publication_demand_publish_handle`
+  - `.hako` owner-side policy methods are now landed:
+    - `array_store_string_source_preserve(...)`
+    - `array_store_string_identity_demand(...)`
+    - `array_store_string_publication_demand(...)`
+  - current mirror reads those lifecycle policy fields through `set_route`
   - Rust only executes:
     - `SourceKindCheck`
     - `SourceLifetimeKeep`

@@ -82,6 +82,11 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       - source preserve: eligible
       - identity demand: none
       - publication demand: none
+  - `.hako` owner-side lifecycle policy methods are now landed:
+    - `array_store_string_source_preserve(...)`
+    - `array_store_string_identity_demand(...)`
+    - `array_store_string_publication_demand(...)`
+    - current C mirror refines `GenericMethodEmitPlan` from `set_route`
   - no-behavior-change `source_kind_check` split is now landed in `string_store.rs`
   - split `store.array.str` source contract into:
     - `SourceKindCheck`

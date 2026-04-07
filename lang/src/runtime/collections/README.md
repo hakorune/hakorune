@@ -119,8 +119,13 @@ phase-148x freezes the owner-to-contract reading like this:
 - owner route tag:
   - `CollectionMethodPolicyBox.route_array_store_string() -> "ArrayStoreString"`
   - intended canonical MIR reading: `store.array.str`
+  - owner-side lifecycle policy methods:
+    - `CollectionMethodPolicyBox.array_store_string_source_preserve(...)`
+    - `CollectionMethodPolicyBox.array_store_string_identity_demand(...)`
+    - `CollectionMethodPolicyBox.array_store_string_publication_demand(...)`
   - current compiler-side mirror:
     - `lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc`
+    - `lang/c-abi/shims/hako_llvmc_ffi_generic_method_match.inc`
     - `lang/c-abi/shims/hako_llvmc_ffi_generic_method_lowering.inc`
   - current concrete executor path:
     - `nyash.array.set_his`

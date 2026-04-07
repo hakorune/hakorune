@@ -35,6 +35,23 @@
         int runtime_map_has;
       };
 
+      auto int classify_array_store_string_source_preserve(
+          enum GenericMethodSetRouteKind set_route) {
+        return set_route == HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_STRING;
+      }
+
+      auto int classify_array_store_string_identity_demand_stable_object(
+          enum GenericMethodSetRouteKind set_route) {
+        (void)set_route;
+        return 0;
+      }
+
+      auto int classify_array_store_string_publication_demand_publish_handle(
+          enum GenericMethodSetRouteKind set_route) {
+        (void)set_route;
+        return 0;
+      }
+
       auto enum GenericMethodEmitKind classify_generic_method_emit_kind(
           const char* bname,
           const char* mname,

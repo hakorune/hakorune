@@ -28,5 +28,17 @@
           plan->runtime_map_has = route->runtime_map_has;
         }
         plan->kind = classify_generic_method_emit_kind(bname, mname, route, a0, a1);
+        if (plan->kind == HAKO_LLVMC_GENERIC_METHOD_EMIT_SET) {
+          int value_is_i64 = a1 && is_plain_i64_value(a1);
+          int value_is_string_handle = a1 && get_origin(a1) == ORG_STRING;
+          enum GenericMethodSetRouteKind set_route = classify_generic_method_set_route(
+              bname, plan, value_is_i64, value_is_string_handle);
+          plan->array_store_string_source_preserve =
+              classify_array_store_string_source_preserve(set_route);
+          plan->array_store_string_identity_demand_stable_object =
+              classify_array_store_string_identity_demand_stable_object(set_route);
+          plan->array_store_string_publication_demand_publish_handle =
+              classify_array_store_string_publication_demand_publish_handle(set_route);
+        }
         return plan->kind != HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE;
       }
