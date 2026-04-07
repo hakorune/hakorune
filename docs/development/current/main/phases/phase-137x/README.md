@@ -255,6 +255,14 @@
          - `StringLikeProof`
          - `TextKeep`
          - `AliasSourceMeta`
+     - latest landed structural split:
+       - `BorrowedHandleBox` now separates `TextKeep` from `AliasSourceMeta`
+       - `SourceLifetimeKeep` remains the current keep carrier, still backed by `StableBox(...)`
+       - this is a no-behavior split to narrow the next cut to keep semantics
+       - accept-gate reread:
+         - `kilo_micro_array_string_store: 175 ms`
+         - `kilo_micro_concat_hh_len: 63 ms`
+         - `kilo_kernel_small_hk: 703 ms`
      - closed follow-up:
        - replacing `with_handle(ArrayStoreStrSource)` with direct `get()` source load regressed slightly
        - 3-run plain release:

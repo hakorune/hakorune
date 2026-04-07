@@ -36,13 +36,13 @@ pub(crate) fn runtime_i64_from_box_ref_caller(
     // reuse source handle only while the alias epoch is still live,
     // otherwise fall back to conservative re-materialization.
     if let Some(alias) = value.as_any().downcast_ref::<BorrowedHandleBox>() {
-        if alias.source_handle > 0 {
+        if alias.source_handle() > 0 {
             // Fast path: if no handle drop happened since alias creation,
             // source handle still points to the same object.
             let current_epoch = handles::drop_epoch();
-            if alias.source_drop_epoch == current_epoch {
+            if alias.source_drop_epoch() == current_epoch {
                 observe::record_borrowed_alias_encode_epoch_hit();
-                return alias.source_handle;
+                return alias.source_handle();
             }
         }
         if let Some(iv) = integer_box_to_i64(alias.stable_box_ref().as_ref()) {
@@ -51,11 +51,11 @@ pub(crate) fn runtime_i64_from_box_ref_caller(
         if let Some(bv) = bool_box_to_i64(alias.stable_box_ref().as_ref()) {
             return bv;
         }
-        if alias.source_handle > 0 {
-            if let Some(source_obj) = handles::get(alias.source_handle as u64) {
+        if alias.source_handle() > 0 {
+            if let Some(source_obj) = handles::get(alias.source_handle() as u64) {
                 if Arc::ptr_eq(&source_obj, alias.stable_box_ref()) {
                     observe::record_borrowed_alias_encode_ptr_eq_hit();
-                    return alias.source_handle;
+                    return alias.source_handle();
                 }
             }
         }

@@ -67,21 +67,19 @@ impl SourceLifetimeKeep {
 }
 
 #[derive(Debug, Clone)]
-enum BorrowedStringKeep {
-    SourceLifetime(SourceLifetimeKeep),
+struct TextKeep {
+    source_lifetime: SourceLifetimeKeep,
 }
 
-impl BorrowedStringKeep {
+impl TextKeep {
     #[inline(always)]
     fn source_lifetime_ref(&self) -> &SourceLifetimeKeep {
-        match self {
-            Self::SourceLifetime(keep) => keep,
-        }
+        &self.source_lifetime
     }
 
     #[inline(always)]
     fn replace_source_lifetime(&mut self, keep: SourceLifetimeKeep) {
-        *self = Self::SourceLifetime(keep);
+        self.source_lifetime = keep;
     }
 
     #[inline(always)]
@@ -120,11 +118,51 @@ impl BorrowedStringKeep {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+struct AliasSourceMeta {
+    source_handle: i64,
+    source_drop_epoch: u64,
+}
+
+impl AliasSourceMeta {
+    #[inline(always)]
+    fn new(source_handle: i64, source_drop_epoch: u64) -> Self {
+        Self {
+            source_handle,
+            source_drop_epoch,
+        }
+    }
+
+    #[inline(always)]
+    fn source_handle(self) -> i64 {
+        self.source_handle
+    }
+
+    #[inline(always)]
+    fn source_drop_epoch(self) -> u64 {
+        self.source_drop_epoch
+    }
+
+    #[inline(always)]
+    fn replace(&mut self, source_handle: i64, source_drop_epoch: u64) {
+        self.source_handle = source_handle;
+        self.source_drop_epoch = source_drop_epoch;
+    }
+
+    #[inline(always)]
+    fn borrowed_handle_source_fast(self) -> Option<(i64, u64)> {
+        if self.source_handle > 0 {
+            Some((self.source_handle, self.source_drop_epoch))
+        } else {
+            None
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub(crate) struct BorrowedHandleBox {
-    keep: BorrowedStringKeep,
-    pub(crate) source_handle: i64,
-    pub(crate) source_drop_epoch: u64,
+    text_keep: TextKeep,
+    source_meta: AliasSourceMeta,
     base: BoxBase,
 }
 
@@ -140,9 +178,10 @@ impl BorrowedHandleBox {
             next_box_id()
         };
         Self {
-            keep: BorrowedStringKeep::SourceLifetime(SourceLifetimeKeep::stable_box(inner)),
-            source_handle,
-            source_drop_epoch,
+            text_keep: TextKeep {
+                source_lifetime: SourceLifetimeKeep::stable_box(inner),
+            },
+            source_meta: AliasSourceMeta::new(source_handle, source_drop_epoch),
             // Fast path: borrowed wrapper is an alias view for an existing handle.
             // Reuse source handle as stable id to avoid per-call id allocation churn.
             base: BoxBase {
@@ -154,12 +193,23 @@ impl BorrowedHandleBox {
 
     #[inline(always)]
     pub(crate) fn stable_box_ref(&self) -> &Arc<dyn NyashBox> {
-        self.keep.stable_box_ref()
+        self.text_keep.stable_box_ref()
+    }
+
+    #[inline(always)]
+    pub(crate) fn source_handle(&self) -> i64 {
+        self.source_meta.source_handle()
+    }
+
+    #[inline(always)]
+    pub(crate) fn source_drop_epoch(&self) -> u64 {
+        self.source_meta.source_drop_epoch()
     }
 
     #[inline(always)]
     fn source_is_latest_fresh(&self) -> bool {
-        self.source_handle > 0 && observe::len_route_matches_latest_fresh_handle(self.source_handle)
+        self.source_handle() > 0
+            && observe::len_route_matches_latest_fresh_handle(self.source_handle())
     }
 }
 
@@ -173,7 +223,7 @@ impl BoxCore for BorrowedHandleBox {
     }
 
     fn fmt_box(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        self.keep.stable_box_ref().fmt_box(f)
+        self.text_keep.stable_box_ref().fmt_box(f)
     }
 
     fn as_any(&self) -> &dyn Any {
@@ -191,7 +241,7 @@ impl NyashBox for BorrowedHandleBox {
         if self.source_is_latest_fresh() {
             observe::record_borrowed_alias_to_string_box_latest_fresh();
         }
-        self.keep.to_string_box()
+        self.text_keep.to_string_box()
     }
 
     fn equals(&self, other: &dyn NyashBox) -> BoolBox {
@@ -201,16 +251,16 @@ impl NyashBox for BorrowedHandleBox {
         }
         if let Some(other_alias) = other.as_any().downcast_ref::<BorrowedHandleBox>() {
             return self
-                .keep
+                .text_keep
                 .stable_box_ref()
                 .as_ref()
-                .equals(other_alias.keep.stable_box_ref().as_ref());
+                .equals(other_alias.text_keep.stable_box_ref().as_ref());
         }
-        self.keep.equals(other)
+        self.text_keep.equals(other)
     }
 
     fn type_name(&self) -> &'static str {
-        self.keep.type_name()
+        self.text_keep.type_name()
     }
 
     fn clone_box(&self) -> Box<dyn NyashBox> {
@@ -219,9 +269,9 @@ impl NyashBox for BorrowedHandleBox {
             observe::record_borrowed_alias_clone_box_latest_fresh();
         }
         Box::new(Self::new(
-            self.keep.stable_box_ref().clone(),
-            self.source_handle,
-            self.source_drop_epoch,
+            self.text_keep.stable_box_ref().clone(),
+            self.source_handle(),
+            self.source_drop_epoch(),
         ))
     }
 
@@ -230,30 +280,26 @@ impl NyashBox for BorrowedHandleBox {
     }
 
     fn is_identity(&self) -> bool {
-        self.keep.is_identity()
+        self.text_keep.is_identity()
     }
 
     fn borrowed_handle_source_fast(&self) -> Option<(i64, u64)> {
         observe::record_borrowed_alias_borrowed_source_fast();
-        if self.source_handle > 0 {
-            Some((self.source_handle, self.source_drop_epoch))
-        } else {
-            None
-        }
+        self.source_meta.borrowed_handle_source_fast()
     }
 
     fn as_str_fast(&self) -> Option<&str> {
         observe::record_borrowed_alias_as_str_fast();
         if observe::enabled() {
-            if self.source_handle > 0 {
-                if self.source_drop_epoch == handles::drop_epoch() {
+            if self.source_handle() > 0 {
+                if self.source_drop_epoch() == handles::drop_epoch() {
                     observe::record_borrowed_alias_as_str_fast_live_source();
                 } else {
                     observe::record_borrowed_alias_as_str_fast_stale_source();
                 }
             }
         }
-        self.keep.as_str_fast()
+        self.text_keep.as_str_fast()
     }
 }
 
@@ -330,14 +376,14 @@ pub(crate) fn keep_borrowed_string_slot_source_arc(
 ) {
     observe::record_store_array_str_reason_retarget_keep_source_arc();
     if observe::enabled() {
-        if Arc::ptr_eq(alias.keep.stable_box_ref(), source_obj) {
+        if Arc::ptr_eq(alias.text_keep.stable_box_ref(), source_obj) {
             observe::record_store_array_str_reason_retarget_keep_source_arc_ptr_eq_hit();
         } else {
             observe::record_store_array_str_reason_retarget_keep_source_arc_ptr_eq_miss();
         }
     }
     alias
-        .keep
+        .text_keep
         .replace_source_lifetime(SourceLifetimeKeep::stable_box(source_obj.clone()));
 }
 
@@ -348,13 +394,13 @@ pub(crate) fn keep_borrowed_string_slot_source_keep(
 ) {
     observe::record_store_array_str_reason_retarget_keep_source_arc();
     if observe::enabled() {
-        if Arc::ptr_eq(alias.keep.stable_box_ref(), source_keep.stable_box_ref()) {
+        if Arc::ptr_eq(alias.text_keep.stable_box_ref(), source_keep.stable_box_ref()) {
             observe::record_store_array_str_reason_retarget_keep_source_arc_ptr_eq_hit();
         } else {
             observe::record_store_array_str_reason_retarget_keep_source_arc_ptr_eq_miss();
         }
     }
-    alias.keep.replace_source_lifetime(source_keep);
+    alias.text_keep.replace_source_lifetime(source_keep);
 }
 
 #[inline(always)]
@@ -364,8 +410,7 @@ pub(crate) fn update_borrowed_string_slot_alias(
     source_drop_epoch: u64,
 ) {
     observe::record_store_array_str_reason_retarget_alias_update();
-    alias.source_handle = source_handle;
-    alias.source_drop_epoch = source_drop_epoch;
+    alias.source_meta.replace(source_handle, source_drop_epoch);
 }
 
 #[inline(always)]
