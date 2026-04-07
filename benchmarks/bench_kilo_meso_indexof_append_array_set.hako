@@ -1,0 +1,30 @@
+// kilo/text meso benchmark:
+// rotating row `indexOf("line") + append + array.set`.
+static box Main {
+  main() {
+    local rows = 128
+    local ops = 320000
+    local lines = new ArrayBox()
+    local i = 0
+
+    loop (i < rows) {
+      lines.push("line-seed-abcdef")
+      i = i + 1
+    }
+
+    local total = 0
+    i = 0
+    loop (i < ops) {
+      local row = i % rows
+      local current = lines.get(row)
+      if current.indexOf("line") >= 0 {
+        local updated = current + "ln"
+        lines.set(row, updated)
+        total = total + lines.get(row).length()
+      }
+      i = i + 1
+    }
+
+    return total + lines.length()
+  }
+}

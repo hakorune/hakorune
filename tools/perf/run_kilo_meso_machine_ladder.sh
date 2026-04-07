@@ -28,8 +28,7 @@ fi
 
 cases=(
   kilo_meso_substring_concat_len
-  kilo_meso_substring_concat_array_set
-  kilo_meso_substring_concat_array_set_loopcarry
+  kilo_meso_indexof_append_array_set
 )
 
 for key in "${cases[@]}"; do

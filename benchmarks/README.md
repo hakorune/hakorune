@@ -41,6 +41,16 @@ Fixed micro cases (files live in `benchmarks/` + `benchmarks/c/`):
 - `kilo_micro_substring_concat`: substring + concat tight loop
 - `kilo_micro_array_getset`: integer-key array get/set loop
 
+Meso split cases (use these before `kilo_kernel_small_hk` when the whole app is still too coarse):
+
+- `kilo_meso_substring_concat_len`: pure substring + concat + len chain
+- `kilo_meso_indexof_append_array_set`: rotating row `indexOf("line") + append + array.set`
+
+Exploratory meso shapes (keep these out of the default pure-first ladder until AOT support catches up):
+
+- `kilo_meso_substring_concat_array_set`: substring + concat + array.set, no loop-carry
+- `kilo_meso_substring_concat_array_set_loopcarry`: substring + concat + array.set with loop-carried text
+
 Commands:
 
 ```bash
@@ -52,6 +62,12 @@ tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_indexof_line 1 15
 
 # Run all three fixed cases
 tools/perf/run_kilo_micro_machine_ladder.sh 1 15
+
+# Run the meso split ladder
+tools/perf/run_kilo_meso_machine_ladder.sh 1 15
+
+# Run the contract split ladder up to whole kilo
+tools/perf/run_kilo_kernel_split_ladder.sh 1 15
 
 # Assembly-first probe (top report + annotate + objdump snippet)
 tools/perf/bench_micro_aot_asm.sh \

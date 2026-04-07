@@ -245,6 +245,26 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       - `kilo_micro_array_string_store: 182 ms`
       - `kilo_micro_concat_hh_len: 65 ms`
       - `kilo_kernel_small_hk: 696 ms`
+  - whole-kilo is still too coarse to drive next cuts directly:
+    - read it through a supported contract split ladder first:
+      - `kilo_micro_concat_hh_len`
+      - `kilo_micro_array_string_store`
+      - `kilo_meso_substring_concat_len`
+      - `kilo_meso_indexof_append_array_set`
+      - `kilo_kernel_small_hk`
+    - missing whole corridor is now made explicit as:
+      - rotating row `indexOf("line") + append + array.set`
+    - current exploratory meso shapes are still useful for design reading but not for the default AOT accept ladder:
+      - `kilo_meso_substring_concat_array_set`
+      - `kilo_meso_substring_concat_array_set_loopcarry`
+      - both are still `pure-first` unsupported today
+    - use `tools/perf/run_kilo_kernel_split_ladder.sh` before treating `kilo_kernel_small_hk` as the driver again
+    - current probe-only split-ladder reread (`repeat=1`):
+      - `kilo_micro_concat_hh_len: 61 ms`
+      - `kilo_micro_array_string_store: 176 ms`
+      - `kilo_meso_substring_concat_len: 41 ms`
+      - `kilo_meso_indexof_append_array_set: 152 ms`
+      - `kilo_kernel_small_hk: 700 ms`
     - physical `string_store.rs` file split remains deferred until the keep semantics
       change lands
   - latest landed encode planner/executor split:
