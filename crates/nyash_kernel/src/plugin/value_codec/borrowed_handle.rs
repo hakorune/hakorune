@@ -24,45 +24,8 @@ impl SourceLifetimeKeep {
     }
 
     #[inline(always)]
-    pub(crate) fn replace_stable_box(&mut self, obj: Arc<dyn NyashBox>) {
-        *self = Self::StableBox(obj);
-    }
-
-    #[inline(always)]
-    pub(crate) fn into_stable_box(self) -> Arc<dyn NyashBox> {
-        match self {
-            Self::StableBox(obj) => obj,
-        }
-    }
-
-    #[inline(always)]
     fn as_str_fast(&self) -> Option<&str> {
         self.stable_box_ref().as_ref().as_str_fast()
-    }
-
-    #[inline(always)]
-    fn to_string_box(&self) -> StringBox {
-        self.stable_box_ref().as_ref().to_string_box()
-    }
-
-    #[inline(always)]
-    fn equals(&self, other: &dyn NyashBox) -> BoolBox {
-        self.stable_box_ref().as_ref().equals(other)
-    }
-
-    #[inline(always)]
-    fn type_name(&self) -> &'static str {
-        self.stable_box_ref().as_ref().type_name()
-    }
-
-    #[inline(always)]
-    fn clone_box(&self) -> Box<dyn NyashBox> {
-        self.stable_box_ref().clone().clone_box()
-    }
-
-    #[inline(always)]
-    fn is_identity(&self) -> bool {
-        self.stable_box_ref().as_ref().is_identity()
     }
 }
 
@@ -92,30 +55,6 @@ impl TextKeep {
         self.source_lifetime_ref().as_str_fast()
     }
 
-    #[inline(always)]
-    fn to_string_box(&self) -> StringBox {
-        self.source_lifetime_ref().to_string_box()
-    }
-
-    #[inline(always)]
-    fn equals(&self, other: &dyn NyashBox) -> BoolBox {
-        self.source_lifetime_ref().equals(other)
-    }
-
-    #[inline(always)]
-    fn type_name(&self) -> &'static str {
-        self.source_lifetime_ref().type_name()
-    }
-
-    #[inline(always)]
-    fn clone_box(&self) -> Box<dyn NyashBox> {
-        self.source_lifetime_ref().clone_box()
-    }
-
-    #[inline(always)]
-    fn is_identity(&self) -> bool {
-        self.source_lifetime_ref().is_identity()
-    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -241,7 +180,7 @@ impl NyashBox for BorrowedHandleBox {
         if self.source_is_latest_fresh() {
             observe::record_borrowed_alias_to_string_box_latest_fresh();
         }
-        self.text_keep.to_string_box()
+        self.text_keep.stable_box_ref().as_ref().to_string_box()
     }
 
     fn equals(&self, other: &dyn NyashBox) -> BoolBox {
@@ -256,11 +195,11 @@ impl NyashBox for BorrowedHandleBox {
                 .as_ref()
                 .equals(other_alias.text_keep.stable_box_ref().as_ref());
         }
-        self.text_keep.equals(other)
+        self.text_keep.stable_box_ref().as_ref().equals(other)
     }
 
     fn type_name(&self) -> &'static str {
-        self.text_keep.type_name()
+        self.text_keep.stable_box_ref().as_ref().type_name()
     }
 
     fn clone_box(&self) -> Box<dyn NyashBox> {
@@ -280,7 +219,7 @@ impl NyashBox for BorrowedHandleBox {
     }
 
     fn is_identity(&self) -> bool {
-        self.text_keep.is_identity()
+        self.text_keep.stable_box_ref().as_ref().is_identity()
     }
 
     fn borrowed_handle_source_fast(&self) -> Option<(i64, u64)> {

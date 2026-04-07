@@ -72,10 +72,10 @@
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
   - `kilo_micro_concat_const_suffix`: `c_ms=3 / ny_aot_ms=84`
-  - `kilo_micro_concat_hh_len`: `c_ms=2 / ny_aot_ms=68`
+  - `kilo_micro_concat_hh_len`: `c_ms=3 / ny_aot_ms=63`
   - `kilo_micro_concat_birth`: `c_ms=6 / ny_aot_ms=47`
   - `kilo_micro_array_string_store`: `c_ms=9 / ny_aot_ms=173`
-  - latest whole-kilo reread after `StringLikeProof` split: `c_ms=78 / ny_aot_ms=713`
+  - latest whole-kilo reread after keep API narrowing: `c_ms=77 / ny_aot_ms=708`
 - latest bundle read:
   - string contracts remain `keep_transient -> fresh_handle` for non-empty const concat/insert
   - `20260406-024104` still shows `crates/nyash_kernel/src/exports/string_helpers.rs::concat_const_suffix_fallback` as the top explicit hot symbol (`11.70%`)
@@ -415,6 +415,14 @@
         - `kilo_micro_array_string_store: 173 ms`
         - `kilo_micro_concat_hh_len: 68 ms`
         - `kilo_kernel_small_hk: 713 ms`
+    - latest landed keep API narrowing:
+      - `SourceLifetimeKeep` now exposes only text/lifetime-side API on the keep seam
+      - full object API stays on `BorrowedHandleBox` through `stable_box_ref()` instead of the keep carrier
+      - representation is still `StableBox(...)`; this is API narrowing only
+      - 3-run plain release reread:
+        - `kilo_micro_array_string_store: 173 ms`
+        - `kilo_micro_concat_hh_len: 63 ms`
+        - `kilo_kernel_small_hk: 708 ms`
    - next observation order is fixed:
      1. split the `store.array.str -> with_handle(ArrayStoreStrSource)` object contract again before changing behavior
      2. keep borrowed alias string-read trimming closed; live-source fast read was not enough

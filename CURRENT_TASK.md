@@ -140,6 +140,14 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       - `kilo_micro_array_string_store: 173 ms`
       - `kilo_micro_concat_hh_len: 68 ms`
       - `kilo_kernel_small_hk: 713 ms`
+  - latest landed keep API narrowing:
+    - `SourceLifetimeKeep` now exposes only text/lifetime-side API on the keep seam
+    - full object API calls stay on `BorrowedHandleBox` through `stable_box_ref()` and are no longer part of the keep carrier surface
+    - representation is still `StableBox(...)`; this is a required-API narrowing, not a representation change
+    - reread after the structural slice:
+      - `kilo_micro_array_string_store: 173 ms`
+      - `kilo_micro_concat_hh_len: 63 ms`
+      - `kilo_kernel_small_hk: 708 ms`
   - latest landed keep/meta split:
     - `BorrowedHandleBox` now separates:
       - `TextKeep`
@@ -237,9 +245,9 @@ Scope: repo root から current lane / next lane / restart read order に最短�
   - `docs/guides/selfhost-pilot.md` no longer requires llvmlite for daily selfhost/product flows
   - `docs/reference/environment-variables.md` labels `NYASH_LLVM_USE_HARNESS=1` examples as explicit keep-lane
 - current perf reopen truth:
-  - `kilo_kernel_small_hk`: latest reread `ny_aot_ms=713`
+  - `kilo_kernel_small_hk`: latest reread `ny_aot_ms=708`
   - `kilo_micro_concat_const_suffix`: `ny_aot_ms=84`
-  - `kilo_micro_concat_hh_len`: `ny_aot_ms=68`
+  - `kilo_micro_concat_hh_len`: `ny_aot_ms=63`
   - `kilo_micro_array_string_store`: `ny_aot_ms=173`
 - long-range direction lock:
   - `docs/development/current/main/design/birth-placement-ssot.md` is now the SSOT for Birth / Placement outcome vocabulary
