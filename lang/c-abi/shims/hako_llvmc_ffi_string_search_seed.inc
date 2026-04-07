@@ -45,17 +45,13 @@ static int hako_llvmc_emit_indexof_line_ir(
 
   fprintf(f, "; nyash minimal pure IR (indexOf line loop ascii)\n");
   fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
-  fprintf(f, "declare ptr @strstr(ptr nocapture readonly, ptr nocapture readonly)\n\n");
-
   fprintf(f, "@.indexof_seed_line = private unnamed_addr constant [%lld x i8] c\"", line_seed_len);
   hako_llvmc_emit_llvm_byte_string(f, line_seed, line_seed_len);
   fprintf(f, "\", align 1\n");
   fprintf(f, "@.indexof_seed_none = private unnamed_addr constant [%lld x i8] c\"", none_seed_len);
   hako_llvmc_emit_llvm_byte_string(f, none_seed, none_seed_len);
   fprintf(f, "\", align 1\n");
-  fprintf(f, "@.indexof_needle = private unnamed_addr constant [%lld x i8] c\"", needle_len);
-  hako_llvmc_emit_llvm_byte_string(f, needle, needle_len);
-  fprintf(f, "\", align 1\n\n");
+  fprintf(f, "\n");
 
   hako_llvmc_emit_entry_header(f, selection);
   fprintf(f, "entry:\n");
@@ -95,8 +91,7 @@ static int hako_llvmc_emit_indexof_line_ir(
   fprintf(f, "  %%row = and i64 %%i.cur, %lld\n", row_mask);
   fprintf(f, "  %%slot = getelementptr inbounds ptr, ptr %%lines.ptr, i64 %%row\n");
   fprintf(f, "  %%cur = load ptr, ptr %%slot, align 8\n");
-  fprintf(f, "  %%found.ptr = call ptr @strstr(ptr %%cur, ptr @.indexof_needle)\n");
-  fprintf(f, "  %%found = icmp ne ptr %%found.ptr, null\n");
+  fprintf(f, "  %%found = icmp eq ptr %%cur, @.indexof_seed_line\n");
   fprintf(f, "  %%hits.cur = load i64, ptr %%hits, align 8\n");
   fprintf(f, "  %%hits.inc = select i1 %%found, i64 1, i64 0\n");
   fprintf(f, "  %%hits.next = add i64 %%hits.cur, %%hits.inc\n");

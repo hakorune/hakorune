@@ -20,9 +20,9 @@ pub(crate) use encode::{
     box_to_handle, runtime_i64_from_box_ref_caller, BorrowedAliasEncodeCaller,
 };
 pub(crate) use string_classify::{
-    with_array_store_str_source, ArrayStoreStrSource, StringHandleSourceKind,
+    with_array_store_str_source, ArrayStoreStrSource, StringHandleSourceKind, StringLikeProof,
 };
-pub(crate) use string_materialize::materialize_owned_string;
+pub(crate) use string_materialize::{issue_fresh_handle_from_arc, materialize_owned_string};
 #[cfg(test)]
 pub(crate) use string_store::store_string_box_from_source;
 #[cfg(test)]

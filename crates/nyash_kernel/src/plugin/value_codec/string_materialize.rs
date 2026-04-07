@@ -84,6 +84,11 @@ fn issue_fresh_handle(arc: Arc<dyn NyashBox>) -> i64 {
     handle
 }
 
+#[inline(always)]
+pub(crate) fn issue_fresh_handle_from_arc(arc: Arc<dyn NyashBox>) -> i64 {
+    issue_fresh_handle(arc)
+}
+
 #[cfg(feature = "perf-observe")]
 #[inline(never)]
 fn materialize_owned_bytes(value: String) -> OwnedBytes {

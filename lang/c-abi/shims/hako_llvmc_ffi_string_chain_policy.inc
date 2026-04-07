@@ -48,6 +48,25 @@
           long long dst,
           long long lhs,
           long long rhs) {
+        if (get_str_const(dst) != NULL) {
+          char route_extra[384];
+          if (hako_llvmc_route_trace_enabled()) {
+            snprintf(
+                route_extra,
+                sizeof(route_extra),
+                "ii=%zu dst=%lld lhs=%lld rhs=%lld folded=1",
+                ii,
+                dst,
+                lhs,
+                rhs);
+            hako_llvmc_emit_route_trace(
+                "string_concat_add_route",
+                hako_llvmc_fast_enabled() ? "const_fold_hoisted" : "const_fold_emit",
+                "literal_pair",
+                route_extra);
+          }
+          return emit_string_const_box_result(f, dst);
+        }
         int direct_set = 0;
         char route_extra[384];
         enum StringConcatPairRouteKind route = classify_string_concat_pair_route(

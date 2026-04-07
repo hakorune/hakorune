@@ -62,33 +62,6 @@ pub(crate) enum ArrayStoreStrSource {
     Missing,
 }
 
-impl ArrayStoreStrSource {
-    #[inline(always)]
-    pub(crate) fn source_kind(&self) -> StringHandleSourceKind {
-        match self {
-            Self::StringLike(_) => StringHandleSourceKind::StringLike,
-            Self::OtherObject => StringHandleSourceKind::OtherObject,
-            Self::Missing => StringHandleSourceKind::Missing,
-        }
-    }
-
-    #[inline(always)]
-    pub(crate) fn record_observe_source_kind(&self) {
-        match self {
-            Self::StringLike(source) => match source.proof() {
-                StringLikeProof::StringBox => {
-                    crate::observe::record_store_array_str_source_string_box();
-                }
-                StringLikeProof::StringView => {
-                    crate::observe::record_store_array_str_source_string_view();
-                }
-            },
-            Self::OtherObject => {}
-            Self::Missing => crate::observe::record_store_array_str_source_missing(),
-        }
-    }
-}
-
 #[inline(always)]
 pub(crate) fn classify_string_handle_source(
     source_obj: Option<&Arc<dyn NyashBox>>,
@@ -126,23 +99,32 @@ pub(crate) fn classify_string_like_proof(
 #[inline(always)]
 pub(crate) fn with_array_store_str_source<R>(
     source_handle: i64,
-    f: impl FnOnce(ArrayStoreStrSource) -> R,
+    f: impl FnOnce(StringHandleSourceKind, ArrayStoreStrSource) -> R,
 ) -> R {
     handles::with_handle_caller(
         source_handle as u64,
         handles::PerfObserveObjectWithHandleCaller::ArrayStoreStrSource,
         |source_obj| {
-            let source = match classify_string_like_proof(source_obj) {
+            let (source_kind, source) = match classify_string_like_proof(source_obj) {
                 Some(proof) => {
                     let source_obj = source_obj.expect("string-like source object");
-                    ArrayStoreStrSource::StringLike(materialize_verified_text_source(
-                        source_obj, proof,
-                    ))
+                    (
+                        StringHandleSourceKind::StringLike,
+                        ArrayStoreStrSource::StringLike(materialize_verified_text_source(
+                            source_obj, proof,
+                        )),
+                    )
                 }
-                None if source_obj.is_some() => ArrayStoreStrSource::OtherObject,
-                None => ArrayStoreStrSource::Missing,
+                None if source_obj.is_some() => (
+                    StringHandleSourceKind::OtherObject,
+                    ArrayStoreStrSource::OtherObject,
+                ),
+                None => (
+                    StringHandleSourceKind::Missing,
+                    ArrayStoreStrSource::Missing,
+                ),
             };
-            f(source)
+            f(source_kind, source)
         },
     )
 }

@@ -141,9 +141,9 @@ fn materialize_owned_string_round_trips_as_live_string_handle() {
 fn with_array_store_str_source_non_string_handle_uses_other_object_contract() {
     let value: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(91));
     let value_h = handles::to_handle_arc(value) as i64;
-    let source_kind = with_array_store_str_source(value_h, |source| {
+    let source_kind = with_array_store_str_source(value_h, |source_kind, source| {
         assert!(matches!(source, ArrayStoreStrSource::OtherObject));
-        source.source_kind()
+        source_kind
     });
     assert_eq!(source_kind, StringHandleSourceKind::OtherObject);
 }
@@ -153,9 +153,9 @@ fn with_array_store_str_source_missing_handle_uses_missing_contract() {
     let value: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(12));
     let value_h = handles::to_handle_arc(value) as i64;
     handles::drop_handle(value_h as u64);
-    let source_kind = with_array_store_str_source(value_h, |source| {
+    let source_kind = with_array_store_str_source(value_h, |source_kind, source| {
         assert!(matches!(source, ArrayStoreStrSource::Missing));
-        source.source_kind()
+        source_kind
     });
     assert_eq!(source_kind, StringHandleSourceKind::Missing);
 }
@@ -168,9 +168,12 @@ fn retarget_borrowed_alias_from_verified_text_source_updates_slot() {
     let new_h = handles::to_handle_arc(new_value) as i64;
     let old_obj = handles::get(old_h as u64).expect("old string handle");
     let mut slot = store_string_box_from_source(old_h, Some(&old_obj), handles::drop_epoch());
-    let source_text = with_array_store_str_source(new_h, |source| match source {
-        ArrayStoreStrSource::StringLike(source_text) => source_text,
-        _ => panic!("expected string-like source"),
+    let source_text = with_array_store_str_source(new_h, |source_kind, source| {
+        assert_eq!(source_kind, StringHandleSourceKind::StringLike);
+        match source {
+            ArrayStoreStrSource::StringLike(source_text) => source_text,
+            _ => panic!("expected string-like source"),
+        }
     });
 
     assert!(try_retarget_borrowed_string_slot_take_verified_text_source(
@@ -194,9 +197,12 @@ fn verified_text_source_err_keeps_string_view_semantics() {
     let base_h = handles::to_handle_arc(base.clone()) as i64;
     let view: Arc<dyn NyashBox> = Arc::new(StringViewBox::new(base_h, base, 5, 9));
     let view_h = handles::to_handle_arc(view) as i64;
-    let source_text = with_array_store_str_source(view_h, |source| match source {
-        ArrayStoreStrSource::StringLike(source_text) => source_text,
-        _ => panic!("expected string-like source"),
+    let source_text = with_array_store_str_source(view_h, |source_kind, source| {
+        assert_eq!(source_kind, StringHandleSourceKind::StringLike);
+        match source {
+            ArrayStoreStrSource::StringLike(source_text) => source_text,
+            _ => panic!("expected string-like source"),
+        }
     });
     let mut slot: Box<dyn NyashBox> = Box::new(IntegerBox::new(7));
 

@@ -52,7 +52,9 @@ pub use map::*;
 pub use runtime_data::*;
 pub use semantics::*;
 pub use string::*;
-pub(crate) use value_codec::{materialize_owned_string, owned_string_from_handle};
+pub(crate) use value_codec::{
+    issue_fresh_handle_from_arc, materialize_owned_string, owned_string_from_handle,
+};
 
 #[cfg(test)]
 #[cfg(test)]

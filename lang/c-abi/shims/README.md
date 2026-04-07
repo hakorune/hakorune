@@ -16,10 +16,14 @@ Current partitions:
   - env, route-trace, file, and string helpers
 - `hako_llvmc_ffi_string_loop_seed.inc`
   - pure-first seed emit/match helpers for loop/string hot paths
+- `hako_llvmc_ffi_array_string_store_seed.inc`
+  - pure-first seed emit/match helpers for the exact array/string-store micro path
 - `hako_llvmc_ffi_string_search_seed.inc`
   - pure-first seed emit/match helpers for search/index-of paths
 - `hako_llvmc_ffi_array_micro_seed.inc`
   - pure-first seed emit/match helpers for array get/set micro paths
+- `hako_llvmc_ffi_concat_const_suffix_seed.inc`
+  - dedicated exact-micro pure-first seed for `kilo_micro_concat_const_suffix`
 - `hako_llvmc_ffi_indexof_observer_state.inc`
   - shared `indexOf` observer match/state helpers used by pure-first and probe lanes
 - `hako_llvmc_ffi_indexof_observer_direct_match.inc`
@@ -38,6 +42,8 @@ Current partitions:
   - thin wrapper for string concat lowering that now delegates emit details
 - `hako_llvmc_ffi_string_concat_emit.inc`
   - string concat chain state plus `concat_hh` / `concat3_hhh` emit helpers and route-adjacent trace hooks
+- `hako_llvmc_ffi_concat_hh_len_seed.inc`
+  - dedicated exact-micro pure-first seed for `kilo_micro_concat_hh_len`
 - `hako_llvmc_ffi_string_chain_terms.inc`
   - shared string-chain enum/name terms used by policy and producer-window seams
 - `hako_llvmc_ffi_string_chain_policy.inc`

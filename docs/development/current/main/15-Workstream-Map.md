@@ -15,8 +15,8 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-137x main kilo reopen selection` |
-| Front | `store.array.str` / `SourceLifetimeKeep` の contract build を first にする |
-| Blocker | transport-only な Rust leaf widening は regress しやすいので、bench は accept gate に下げる |
+| Front | `kilo_micro_concat_const_suffix` pure-first lane の dedicated seed matcher を first にする |
+| Blocker | WSL のブレが大きいので、bench は `3 runs + perf` でしか採らない |
 | Next | `phase-kx vm-hako small reference interpreter recut` |
 | After Next | `phase-kx vm-hako small reference interpreter recut` |
 
@@ -72,7 +72,7 @@ Related:
   - `docs/reference/environment-variables.md`
   now treat llvmlite as explicit keep-lane only
 - `phase-155x` freezes canonical perf front:
-  - `store.array.str` first
+  - `concat_birth` first
   - `const_suffix` / `thaw.str + lit.str + str.concat2 + freeze.str` second
   - latest bundle anchor = `20260406-024104`
 - current local execution rule:
@@ -93,6 +93,10 @@ Related:
   - exact counter remains `perf-observe`
   - trace/debug-only lane is `perf-trace`
   - trace lane is parked placeholder and no longer blocks perf reopen
+- current exact front truth:
+  - `kilo_micro_concat_birth = 3ms`
+  - `kilo_micro_concat_const_suffix = 36ms` (WSL lane: recheck with 3 runs)
+  - `kilo_micro_concat_hh_len = 3ms` (parity split)
 - landed capability lock before perf reopen:
   1. `phase-160x capability-family inventory`
   2. `phase-161x hot-path capability seam freeze`
@@ -109,7 +113,7 @@ Related:
   - second implementation consumer: `concat const-suffix`
   - exact micro:
     - `kilo_micro_concat_const_suffix = 84ms`
-    - `kilo_micro_concat_hh_len = 63ms`
+    - `kilo_micro_concat_hh_len = 3ms`
     - `kilo_micro_array_string_store = 169ms`
 
 ## Successor Corridor

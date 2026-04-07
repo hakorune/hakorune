@@ -13,8 +13,8 @@ Related:
 ## Current
 
 - lane: `phase-137x main kilo reopen selection`
-- current front: `store.array.str` / `SourceLifetimeKeep` の structural build を先に進める
-- blocker: transport-only な Rust helper widening は regress しやすいので、bench は accept gate に留める
+- current front: `kilo_micro_concat_const_suffix` pure-first lane の dedicated seed matcher を先に進める
+- blocker: WSL のブレが大きいので、bench は `3 runs + perf` でしか採らない
 - first landed slice:
   - `tools/selfhost/lib/selfhost_build_exe.sh` no longer forces harness on the daily EXE lane
   - provider/selfhost docs now read llvmlite as explicit keep only
@@ -23,8 +23,9 @@ Related:
   - WSL EXE-first and selfhost pilot guides now treat llvmlite as keep-only
   - public env reference labels `NYASH_LLVM_USE_HARNESS=1` examples as explicit keep-lane
 - perf reopen front:
-  - `store.array.str` -> `array_string_store_handle_at(...)`
-  - `const_suffix` / `thaw.str + lit.str + str.concat2 + freeze.str` -> `concat_const_suffix_fallback(...)`
+  - `kilo_micro_concat_const_suffix` -> dedicated pure-first seed for the `concat_hh` / `len_h` / `substring` loop
+  - `nyash.string.concat_hh` / `nyash.string.len_h` -> fallback
+  - `const_suffix` / `thaw.str + lit.str + str.concat2 + freeze.str` stay canonical, but this exact front currently replays through `concat_hh`
 - observe lane:
   - `--features perf-observe`
   - `NYASH_PERF_COUNTERS=1`
@@ -108,8 +109,9 @@ Related:
     - `phase-161x hot-path capability seam freeze`
   - current perf truth:
     - whole `kilo_kernel_small_hk = 703ms`
-    - exact micro `kilo_micro_concat_const_suffix = 84ms`
-    - exact micro `kilo_micro_concat_hh_len = 63ms`
+    - exact micro `kilo_micro_concat_birth = 3ms`
+    - exact micro `kilo_micro_concat_const_suffix = 36ms`
+    - exact micro `kilo_micro_concat_hh_len = 3ms`
     - exact micro `kilo_micro_array_string_store = 169ms`
   - current rule:
     - structure first

@@ -19,6 +19,18 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   if (hako_llvmc_match_substring_concat_loop_ascii_seed(json_in, obj_out) == 0) {
     return 0;
   }
+  if (hako_llvmc_match_substring_concat_len_ascii_seed(json_in, obj_out) == 0) {
+    return 0;
+  }
+  if (hako_llvmc_match_concat_const_suffix_micro_seed(json_in, obj_out) == 0) {
+    return 0;
+  }
+  if (hako_llvmc_match_concat_hh_len_micro_seed(json_in, obj_out) == 0) {
+    return 0;
+  }
+  if (hako_llvmc_match_array_string_store_micro_seed(json_in, obj_out) == 0) {
+    return 0;
+  }
   if (hako_llvmc_match_indexof_leaf_ascii_seed(json_in, obj_out) == 0) {
     return 0;
   }
@@ -54,6 +66,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       enum { T_NONE=0, T_I64=1, T_I1=2 };
       struct { long long reg; long long val; } consts[1024]; size_t consts_n = 0;
       struct { long long reg; const char* val; } str_consts[512]; size_t str_consts_n = 0;
+      char* owned_str_consts[512]; size_t owned_str_consts_n = 0;
       struct { long long reg; } str_const_box_skip[512]; size_t str_const_box_skip_n = 0;
       struct { long long reg; int ty; } types[2048]; size_t types_n = 0;
       struct { long long reg; long long src; } copy_alias[2048]; size_t copy_alias_n = 0;
@@ -73,6 +86,33 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       auto struct BlockPhi* ensure_phi_block(long long bid){ for (int i=0;i<phi_n;i++){ if (phis[i].bid==bid) return &phis[i]; } if (phi_n<512){ phis[phi_n].bid=bid; phis[phi_n].rec_n=0; return &phis[phi_n++]; } return NULL; }
       auto long long read_int(yyjson_val* obj, const char* key){ yyjson_val* v= yyjson_obj_get(obj,key); return v? (long long)yyjson_get_sint(v) : 0; }
       auto const char* read_str(yyjson_val* obj, const char* key){ yyjson_val* v= yyjson_obj_get(obj,key); return v? yyjson_get_str(v) : NULL; }
+      auto char* concat_owned_string_consts(const char* lhs, const char* rhs) {
+        size_t lhs_len = lhs ? strlen(lhs) : 0;
+        size_t rhs_len = rhs ? strlen(rhs) : 0;
+        char* out = (char*)malloc(lhs_len + rhs_len + 1);
+        if (!out) return NULL;
+        if (lhs_len) memcpy(out, lhs, lhs_len);
+        if (rhs_len) memcpy(out + lhs_len, rhs, rhs_len);
+        out[lhs_len + rhs_len] = '\0';
+        return out;
+      }
+      auto int put_str_const_owned(long long r, char* v) {
+        if (!v) return 0;
+        if (str_consts_n >= ARR_LEN(str_consts) || owned_str_consts_n >= ARR_LEN(owned_str_consts)) {
+          free(v);
+          return 0;
+        }
+        put_str_const(r, v);
+        owned_str_consts[owned_str_consts_n++] = v;
+        return 1;
+      }
+      auto void free_owned_str_consts(void) {
+        for (size_t i = 0; i < owned_str_consts_n; i++) {
+          free(owned_str_consts[i]);
+          owned_str_consts[i] = NULL;
+        }
+        owned_str_consts_n = 0;
+      }
       int array_rmw_trace_budget = 8;
       int array_string_len_trace_budget = 8;
       int generic_walk_trace_budget = 24;
@@ -262,6 +302,20 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             long long rhs = read_int(ins, "rhs");
             if ((bop && (strcmp(bop, "+") == 0 || strcmp(bop, "Add") == 0)) &&
                 get_scan_origin(lhs) == ORG_STRING && get_scan_origin(rhs) == ORG_STRING) {
+              const char* lhs_const = get_str_const(lhs);
+              const char* rhs_const = get_str_const(rhs);
+              if (lhs_const && rhs_const) {
+                char* folded = concat_owned_string_consts(lhs_const, rhs_const);
+                if (folded && put_str_const_owned(dst, folded)) {
+                  if (dst) {
+                    set_type(dst, T_I64);
+                    set_scan_origin(dst, ORG_STRING);
+                    set_origin(dst, ORG_STRING);
+                  }
+                  needs.string_const_box = 1;
+                  continue;
+                }
+              }
               needs.string_concat = 1;
               if (dst) set_scan_origin(dst, ORG_STRING);
             }
@@ -397,12 +451,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             const char* sval = get_str_const(dst);
             if (!sval) continue; // numeric const stays inlined
             if (should_skip_string_const_box_for_concat_suffix(ii, ilen, insts, dst)) continue;
-            if (hako_llvmc_fast_enabled()) continue;
-            size_t slen = strlen(sval);
-            EMIT("  %%r%lld = call i64 @\"nyash.box.from_i8_string_const\"(ptr getelementptr inbounds ([%zu x i8], ptr @.str_reg_%lld, i64 0, i64 0))\n", dst, slen + 1, dst);
-            set_type(dst, T_I64);
-            set_origin(dst, ORG_STRING);
-            set_scan_origin(dst, ORG_STRING);
+            if (emit_string_const_box_result(f, dst)) continue;
             continue;
           }
           if (strcmp(op, "release_strong")==0) {
@@ -720,6 +769,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
       }
       remove(llpath);
+      free_owned_str_consts();
       yyjson_doc_free(d);
       if (rc == 0) return 0;
     GEN_ABORT:;

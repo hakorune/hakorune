@@ -76,6 +76,49 @@ fn string_concat_hs_contract() {
 }
 
 #[test]
+fn string_concat_hs_repeated_suffix_reuses_handle_for_same_source_text() {
+    let lhs_h = string_handle("xyxyxyxyxyxyxyxy");
+    let suffix = CString::new("xy").expect("CString");
+
+    let out_h1 = nyash_string_concat_hs_export(lhs_h, suffix.as_ptr());
+    let out_h2 = nyash_string_concat_hs_export(lhs_h, suffix.as_ptr());
+
+    assert!(out_h1 > 0);
+    assert!(out_h2 > 0);
+    assert_eq!(
+        out_h1, out_h2,
+        "repeat concat_hs should reuse the same handle for stable source text"
+    );
+    assert_eq!(
+        decode_string_like_handle(out_h1).as_deref(),
+        Some("xyxyxyxyxyxyxyxyxy")
+    );
+}
+
+#[test]
+fn string_concat_hh_repeated_pair_keeps_fresh_handles_and_text() {
+    with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
+        let lhs_h = string_handle("line-seed-abcdef");
+        let rhs_h = string_handle("xy");
+
+        let out_h1 = nyash_string_concat_hh_export(lhs_h, rhs_h);
+        let out_h2 = nyash_string_concat_hh_export(lhs_h, rhs_h);
+
+        assert!(out_h1 > 0);
+        assert!(out_h2 > 0);
+        assert_ne!(out_h1, out_h2, "fresh concat handles should stay fresh");
+        assert_eq!(
+            decode_string_like_handle(out_h1).as_deref(),
+            Some("line-seed-abcdefxy")
+        );
+        assert_eq!(
+            decode_string_like_handle(out_h2).as_deref(),
+            Some("line-seed-abcdefxy")
+        );
+    });
+}
+
+#[test]
 fn string_insert_hsi_contract() {
     let source_h = string_handle("line-seed");
     let middle = CString::new("xx").expect("CString");
@@ -220,6 +263,25 @@ fn string_indexof_lastindexof_multibyte_contract() {
 
         assert_eq!(nyash_string_indexof_hh_export(hay_h, needle_h), 2);
         assert_eq!(nyash_string_lastindexof_hh_export(hay_h, needle_h), 7);
+    });
+}
+
+#[test]
+fn substring_hii_repeated_same_input_reuses_handle_for_view_contract() {
+    with_env_var("NYASH_LLVM_FAST", "1", || {
+        let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("line-seed-abcdefxy".to_string()));
+        let source_handle = handles::to_handle_arc(source) as i64;
+
+        let view_h1 = nyash_string_substring_hii_export(source_handle, 2, 18);
+        let view_h2 = nyash_string_substring_hii_export(source_handle, 2, 18);
+
+        assert!(view_h1 > 0);
+        assert!(view_h2 > 0);
+        assert_eq!(
+            view_h1, view_h2,
+            "repeat substring should reuse the same handle for a stable view source"
+        );
+        assert_eq!(nyash_string_len_h(view_h1), 16);
     });
 }
 

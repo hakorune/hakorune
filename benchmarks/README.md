@@ -38,6 +38,7 @@ Leaf-proof cases (run these first when adding/changing one observer/mutator leaf
 Fixed micro cases (files live in `benchmarks/` + `benchmarks/c/`):
 
 - `kilo_micro_indexof_line`: indexOf-heavy loop with stable array routing
+- `kilo_micro_substring_only`: substring-only loop, no concat and no loop-carry
 - `kilo_micro_substring_concat`: substring + concat tight loop
 - `kilo_micro_array_getset`: integer-key array get/set loop
 

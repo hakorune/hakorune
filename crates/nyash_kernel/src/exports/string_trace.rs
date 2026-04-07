@@ -20,7 +20,7 @@ pub(crate) fn enabled() -> bool {
     route_trace_enabled()
 }
 
-pub(crate) fn emit(stage: &str, result: &str, reason: &str, extra: &str) {
+pub(crate) fn emit(stage: &str, result: &str, reason: &str, extra: impl std::fmt::Display) {
     if !route_trace_enabled() {
         return;
     }
@@ -29,6 +29,6 @@ pub(crate) fn emit(stage: &str, result: &str, reason: &str, extra: &str) {
         if stage.is_empty() { "unknown" } else { stage },
         if result.is_empty() { "unknown" } else { result },
         if reason.is_empty() { "unknown" } else { reason },
-        if extra.is_empty() { "" } else { extra }
+        extra
     );
 }

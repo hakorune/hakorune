@@ -32,16 +32,30 @@
 
 - restart with the code as it is now; the owned-text backing experiment for `SourceLifetimeKeep` was reverted after regressing micro / meso / whole-kilo
 - do not re-open the live-source direct-read question on `as_str_fast()`
-- the current front is still structural, not benchmark-driven:
-  - `store.array.str`
-  - `SourceLifetimeKeep`
-  - `BorrowedHandleBox` cold fallback surface
-  - `store.array.str` source-lifetime helper sealing, then by-value `VerifiedTextSource` consumption on hot retarget/store
+- `concat_birth` / fresh-box materialization is now landed via the AOT compiler-side literal `string + string` fold:
+  - `string_concat_hh_export_impl`
+  - `materialize_owned_string`
+  - `FreshHandle`
+  - `MaterializeOwned`
+  - latest exact probe:
+    - `kilo_micro_concat_birth: 3 ms`
+- the current front is `kilo_micro_substring_only`:
+  - remaining `substring_hii` / `string_len_from_handle` hit-path overhead after widening the alternating two-slice caches
+  - `nyash.string.substring_hii` / `nyash.string.len_h` / `trace_borrowed_substring_plan` stay as the fallback semantic carrier
+  - WSL validation needs `3 runs + perf` before trusting any delta
 - the safe next order after restart is:
-  1. keep borrowed alias string-read trimming closed
-  2. keep typed `StringBox` payload widening closed at the host-handle layer
-  3. revisit `const_suffix` hot closure shape if needed
-  4. only then return to `store.array.str` whole-kilo split work
+  1. validate the two-entry cache cut with `3 runs + perf`
+  2. if the gap persists, trim `string_len_from_handle` hit-path observer / trace cost
+  3. only then widen back to `const_suffix` / `store.array.str`
+- promotion policy for this cache family:
+  1. the first proven win can stay local in Rust when one exact front is isolated and measurable
+  2. once the same alternating-access pattern appears in another exact front, stop adding route-local cache variants and evaluate a shared hot-cache policy above Rust
+  3. lift only when the semantics are common and lifetime / ownership boundaries remain explicit at the higher layer
+  4. avoid repeating Rust-local cache additions in the same family without rechecking that promotion condition
+- immediate substring follow-up:
+  1. measure whether the residual `string_len_from_handle` cost is mostly observer / trace bookkeeping
+  2. trim that hit path locally only if `3 runs + perf` keeps pointing there
+  3. if `substring_concat` or another exact front shows the same cache shape, reopen the design cut for a higher-layer policy
 - lifecycle placement is fixed:
   - `.hako`: source-preserve / identity / publication demand
   - `MIR`: visibility carrier and escalation contract
@@ -54,9 +68,14 @@
 ## Fresh Read
 
 - current front is structure-first:
-  - `store.array.str` source contract
+  - `kilo_micro_substring_only`
+  - `nyash.string.substring_hii` / `nyash.string.len_h` / `trace_borrowed_substring_plan` source contract as fallback semantic carrier
   - `SourceLifetimeKeep`
   - `RetargetAlias` source-lifetime semantics
+  - `concat_birth` fresh-box materialization landed
+  - AOT compiler-side literal `string + string` fold landed
+  - supporting isolate for raw substring cost:
+    - `kilo_micro_substring_only: c_ms=3 / ny_aot_ms=6`
  - whole-kilo read order is now fixed through a supported contract split ladder:
    - `kilo_micro_concat_hh_len`
    - `kilo_micro_array_string_store`
@@ -70,12 +89,12 @@
    - `kilo_meso_substring_concat_array_set_loopcarry`
    - current `pure-first` route still rejects both
  - use `tools/perf/run_kilo_kernel_split_ladder.sh` when re-reading whole-kilo after a structural slice
- - current probe-only split-ladder reread (`repeat=1`):
-   - `kilo_micro_concat_hh_len: 61 ms`
-   - `kilo_micro_array_string_store: 176 ms`
-   - `kilo_meso_substring_concat_len: 41 ms`
-   - `kilo_meso_indexof_append_array_set: 152 ms`
-   - `kilo_kernel_small_hk: 700 ms`
+- current probe-only split-ladder reread (`repeat=1`):
+  - `kilo_micro_concat_hh_len: 61 ms`
+  - `kilo_micro_array_string_store: 176 ms`
+  - `kilo_meso_substring_concat_len: 33 ms`
+  - `kilo_meso_indexof_append_array_set: 152 ms`
+  - `kilo_kernel_small_hk: 700 ms`
 - current lifecycle visibility lock for `store.array.str`:
   - public row stays `store.array.str`
   - `.hako` owns source-preserve / identity / publication demand
@@ -120,9 +139,9 @@
   - `kilo_micro_indexof_line`: `c_ms=4 / ny_aot_ms=4`
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
-  - `kilo_micro_concat_const_suffix`: `c_ms=3 / ny_aot_ms=84`
-  - `kilo_micro_concat_hh_len`: `c_ms=3 / ny_aot_ms=63`
-  - `kilo_micro_concat_birth`: `c_ms=6 / ny_aot_ms=47`
+  - `kilo_micro_concat_const_suffix`: `c_ms=3 / ny_aot_ms=36`
+  - `kilo_micro_concat_hh_len`: `c_ms=3 / ny_aot_ms=3`
+  - `kilo_micro_concat_birth`: `c_ms=6 / ny_aot_ms=3`
   - `kilo_micro_array_string_store`: `c_ms=9 / ny_aot_ms=173`
  - latest whole-kilo reread after keep API narrowing: `c_ms=77 / ny_aot_ms=708`
   - latest whole-kilo reread after keep-anchor cold fallback narrowing: `c_ms=79 / ny_aot_ms=696`
@@ -366,6 +385,18 @@
          - `cargo check --manifest-path crates/nyash_kernel/Cargo.toml` -> OK
        - exact front probe (`repeat=3`):
          - `kilo_micro_array_string_store: 174 ms`
+     - latest landed source-kind observation split:
+       - `with_array_store_str_source(...)` now returns `StringHandleSourceKind` alongside the payload
+       - `array_string_slot.rs` now consumes the kind explicitly for planning instead of asking the payload again
+       - regression tests now pin:
+         - `StringLike`
+         - `OtherObject`
+         - `Missing`
+       - test gate:
+         - `cargo test --manifest-path crates/nyash_kernel/Cargo.toml --lib plugin::value_codec::tests` -> 22 passed
+         - `cargo check --manifest-path crates/nyash_kernel/Cargo.toml` -> OK
+       - exact front probe (`repeat=5`):
+         - `kilo_micro_array_string_store: 178 ms`
     - latest landed const-suffix cache split:
       - `execute_const_suffix_contract(...)` now uses module-level cache helpers instead of carrying the text-cache closure shape inside the function body
       - hot cached-handle lookup stays on the same semantics, but the cache/read structure is flatter
@@ -772,7 +803,7 @@
          - plain release asm = real cost ranking
          - observe build = counts and symbol split
          - `materialize_owned_bytes(...)` observe annotate is currently dominated by TLS counter work, so it is not sufficient by itself for first-front ordering
-   - current microasm read:
+  - current microasm read:
      - `string_concat_hh_export_impl`: `54.04%`
      - `string_len_from_handle`: `21.37%`
      - `__memmove_avx512_unaligned_erms`: `15.40%`
@@ -780,29 +811,21 @@
 ## Next
 
 1. keep canonical contract corridor landed and immutable
-2. treat `kilo_micro_concat_const_suffix` as the current generic string concat/len front
-   - current AOT consumer: `nyash.string.concat_hh` + `nyash.string.len_h`
-   - current executor: `string_concat_hh_export_impl(...)` + `string_len_from_handle(...)`
-   - use `kilo_micro_concat_hh_len` as the exact isolated repro before changing this front
-   - use `kilo_micro_concat_birth` when the patch only targets fresh birth/materialize backend cost
-   - read this front through Birth / Placement outcome names first:
-     - `FreshHandle`
-     - `MaterializeOwned`
-   - current direct probe says this front is not exercising:
-     - `ReturnHandle`
-     - `BorrowView`
-     - `FreezeOwned`
-   - current direct probe also says:
-     - latest fresh handles are consumed through `text_read_handle`
-     - they are not currently leaking into object get/with/pair/triple APIs on the exact fronts
-   - next backend trim order:
-     1. widen or bypass `store.array.str` source read so latest fresh string handles stay inside `TextReadSession`
-     2. only after that retry delayed `StableBoxNow`
-     3. only then trim:
-        - `materialize_owned_bytes`
-        - `issue_fresh_handle`
-        - `next_box_id`
-3. keep canonical `store.array.str` as the next exact front
+2. treat `kilo_micro_substring_only` as the current exact front
+   - current AOT consumer: `substring_hii` / `len_h` / `trace_borrowed_substring_plan`
+   - current executor: repeated substring result-handle churn plus len trace formatting
+   - use `3 runs + perf` before judging any WSL delta
+   - read this front through the substring/len boundary first
+   - next backend trim order if the seed misses:
+     1. `nyash.string.substring_hii` result-handle churn
+     2. `nyash_kernel::exports::string::string_len_from_handle` trace formatting
+     3. `nyash.string.len_h` handle-backed cache
+     4. `concat_birth` / `store.array.str` helper seams only if this front reopens
+3. keep canonical `concat_birth` / fresh-box materialization as the secondary front
+   - current AOT consumer: `nyash.string.concat_hh` plus the `materialize_owned_string(...)` backend seam
+   - current executor: `string_concat_hh_export_impl(...)` + `materialize_owned_string(...)`
+   - use `kilo_micro_concat_birth` as the exact isolated repro before changing this front
+4. keep canonical `store.array.str` as the fallback exact front when the seam reopens
    - current executor: `array_string_store_handle_at(...)`
-4. keep canonical `const_suffix` / `thaw.str + lit.str + str.concat2 + freeze.str` as a separate route, but do not assume the current exact micro exercises it
-5. use exact micro + whole-kilo together before moving to a new leaf
+5. keep canonical `const_suffix` / `thaw.str + lit.str + str.concat2 + freeze.str` as the second route, but do not assume the current exact micro exercises it
+6. use exact micro + whole-kilo together before moving to a new leaf

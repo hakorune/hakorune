@@ -3,7 +3,7 @@ use super::handle_cache::{cache_probe_kind, CacheProbeKind as HandleCacheProbeKi
 use super::value_codec::{
     maybe_store_non_string_box_from_verified_source, store_string_box_from_verified_text_source,
     try_retarget_borrowed_string_slot_take_verified_text_source, with_array_store_str_source,
-    ArrayStoreStrSource, BorrowedHandleBox, StringHandleSourceKind,
+    ArrayStoreStrSource, BorrowedHandleBox, StringHandleSourceKind, StringLikeProof,
 };
 use crate::exports::string_view::resolve_string_span_from_handle;
 use crate::observe::{self, CacheProbeKind as ObserveCacheProbeKind};
@@ -279,6 +279,7 @@ fn execute_store_array_str_slot(
     items: &mut Vec<Box<dyn nyash_rust::box_trait::NyashBox>>,
     idx: usize,
     value_h: i64,
+    source_kind: StringHandleSourceKind,
     source: ArrayStoreStrSource,
     drop_epoch: u64,
 ) -> i64 {
@@ -293,14 +294,25 @@ fn execute_store_array_str_slot(
             observe::record_store_array_str_append_slot();
         }
         if matches!(
-            source,
-            ArrayStoreStrSource::StringLike(_) | ArrayStoreStrSource::OtherObject
+            source_kind,
+            StringHandleSourceKind::StringLike | StringHandleSourceKind::OtherObject
         ) {
             observe::record_store_array_str_reason_source_kind_via_object();
         }
-        source.record_observe_source_kind();
+        match &source {
+            ArrayStoreStrSource::StringLike(source_text) => match source_text.proof() {
+                StringLikeProof::StringBox => {
+                    observe::record_store_array_str_source_string_box();
+                }
+                StringLikeProof::StringView => {
+                    observe::record_store_array_str_source_string_view();
+                }
+            },
+            ArrayStoreStrSource::OtherObject => {}
+            ArrayStoreStrSource::Missing => observe::record_store_array_str_source_missing(),
+        }
     }
-    let plan = StoreArrayStrPlan::from_slot(items.as_slice(), idx, value_h, source.source_kind());
+    let plan = StoreArrayStrPlan::from_slot(items.as_slice(), idx, value_h, source_kind);
     plan.record();
     if idx < items.len() {
         if plan.can_retarget_alias() {
@@ -369,9 +381,10 @@ fn execute_store_array_str_contract(handle: i64, idx: i64, value_h: i64) -> i64 
     }
     super::array_handle_cache::with_array_box_at_epoch(handle, drop_epoch, |arr| {
         let idx = idx as usize;
-        let source = with_array_store_str_source(value_h, |source| source);
+        let (source_kind, source) =
+            with_array_store_str_source(value_h, |source_kind, source| (source_kind, source));
         arr.with_items_write(|items| {
-            execute_store_array_str_slot(items, idx, value_h, source, drop_epoch)
+            execute_store_array_str_slot(items, idx, value_h, source_kind, source, drop_epoch)
         })
     })
     .unwrap_or(0)

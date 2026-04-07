@@ -20,16 +20,18 @@ use super::super::string_view::{
     borrowed_substring_plan_from_handle, resolve_string_span_from_handle,
     resolve_string_span_pair_from_handles, resolve_string_span_triplet_from_handles,
     string_is_empty_from_handle as string_is_empty_impl, string_len_from_handle as string_len_impl,
-    BorrowedSubstringPlan, StringSpan,
+    BorrowedSubstringPlan, StringSpan, StringViewBox,
 };
 use crate::hako_forward_bridge;
 use crate::observe;
-use crate::plugin::materialize_owned_string;
+use crate::plugin::{issue_fresh_handle_from_arc, materialize_owned_string};
+use nyash_rust::box_trait::{NyashBox, StringBox};
 use nyash_rust::runtime::host_handles as handles;
 use std::{
     cell::{Cell, RefCell},
     ffi::CStr,
     ptr,
+    sync::Arc,
     thread::LocalKey,
 };
 
@@ -39,27 +41,103 @@ use std::{
 // They serve the thin ABI facade and VM wrappers; they do not own route policy.
 
 #[derive(Default)]
-struct ConstSuffixMetaCache {
-    ptr: Cell<usize>,
-    handle: Cell<i64>,
-    is_empty: Cell<bool>,
-}
-
-#[derive(Default)]
 struct ConstSuffixTextCache {
     ptr: Cell<usize>,
     text: RefCell<Option<String>>,
 }
 
+#[derive(Default)]
+struct ConcatPairFastCache {
+    drop_epoch: Cell<u64>,
+    lhs_handle: Cell<i64>,
+    rhs_handle: Cell<i64>,
+    result: RefCell<Option<Arc<dyn NyashBox>>>,
+}
+
+#[derive(Default)]
+struct Concat3FastCache {
+    drop_epoch: Cell<u64>,
+    a_handle: Cell<i64>,
+    b_handle: Cell<i64>,
+    c_handle: Cell<i64>,
+    result_handle: Cell<i64>,
+}
+
+#[derive(Default)]
+struct ConcatConstSuffixFastCache {
+    drop_epoch: Cell<u64>,
+    source_handle: Cell<i64>,
+    suffix_ptr: Cell<usize>,
+    result_handle: Cell<i64>,
+}
+
+#[derive(Default)]
+struct SubstringFastCache {
+    drop_epoch: Cell<u64>,
+    source_handle: Cell<i64>,
+    start: Cell<i64>,
+    end: Cell<i64>,
+    view_enabled: Cell<bool>,
+    result_handle: Cell<i64>,
+    source_handle2: Cell<i64>,
+    start2: Cell<i64>,
+    end2: Cell<i64>,
+    view_enabled2: Cell<bool>,
+    result_handle2: Cell<i64>,
+}
+
+#[derive(Default)]
+struct StringLenFastCache {
+    drop_epoch: Cell<u64>,
+    handle: Cell<i64>,
+    len: Cell<i64>,
+    handle2: Cell<i64>,
+    len2: Cell<i64>,
+}
+
 thread_local! {
-    static CONST_SUFFIX_META_CACHE: ConstSuffixMetaCache = const { ConstSuffixMetaCache {
-        ptr: Cell::new(0),
-        handle: Cell::new(0),
-        is_empty: Cell::new(false),
-    } };
     static CONST_SUFFIX_TEXT_CACHE: ConstSuffixTextCache = const { ConstSuffixTextCache {
         ptr: Cell::new(0),
         text: RefCell::new(None),
+    } };
+    static CONCAT_PAIR_FAST_CACHE: ConcatPairFastCache = const { ConcatPairFastCache {
+        drop_epoch: Cell::new(0),
+        lhs_handle: Cell::new(0),
+        rhs_handle: Cell::new(0),
+        result: RefCell::new(None),
+    } };
+    static CONCAT3_FAST_CACHE: Concat3FastCache = const { Concat3FastCache {
+        drop_epoch: Cell::new(0),
+        a_handle: Cell::new(0),
+        b_handle: Cell::new(0),
+        c_handle: Cell::new(0),
+        result_handle: Cell::new(0),
+    } };
+    static CONCAT_CONST_SUFFIX_FAST_CACHE: ConcatConstSuffixFastCache = const { ConcatConstSuffixFastCache {
+        drop_epoch: Cell::new(0),
+        source_handle: Cell::new(0),
+        suffix_ptr: Cell::new(0),
+        result_handle: Cell::new(0),
+    } };
+    static SUBSTRING_FAST_CACHE: SubstringFastCache = const { SubstringFastCache {
+        drop_epoch: Cell::new(0),
+        source_handle: Cell::new(0),
+        start: Cell::new(0),
+        end: Cell::new(0),
+        view_enabled: Cell::new(false),
+        result_handle: Cell::new(0),
+        source_handle2: Cell::new(0),
+        start2: Cell::new(0),
+        end2: Cell::new(0),
+        view_enabled2: Cell::new(false),
+        result_handle2: Cell::new(0),
+    } };
+    static STRING_LEN_FAST_CACHE: StringLenFastCache = const { StringLenFastCache {
+        drop_epoch: Cell::new(0),
+        handle: Cell::new(0),
+        len: Cell::new(0),
+        handle2: Cell::new(0),
+        len2: Cell::new(0),
     } };
 }
 
@@ -73,15 +151,9 @@ fn with_cached_const_suffix_text<R>(ptr: *const i8, f: impl FnOnce(&str) -> R) -
         if cache.ptr.get() != addr || cache.text.borrow().is_none() {
             let bytes = unsafe { CStr::from_ptr(ptr) }.to_bytes();
             let text = String::from_utf8_lossy(bytes).into_owned();
-            let text_is_empty = text.is_empty();
             observe::record_const_suffix_text_cache_reload();
             cache.ptr.set(addr);
             *cache.text.borrow_mut() = Some(text);
-            CONST_SUFFIX_META_CACHE.with(|meta| {
-                meta.ptr.set(addr);
-                meta.handle.set(0);
-                meta.is_empty.set(text_is_empty);
-            });
         }
         let text_ref = cache.text.borrow();
         f(text_ref.as_deref().unwrap_or(""))
@@ -89,45 +161,225 @@ fn with_cached_const_suffix_text<R>(ptr: *const i8, f: impl FnOnce(&str) -> R) -
 }
 
 #[inline(always)]
-fn with_loaded_const_suffix_text<R>(addr: usize, f: impl FnOnce(Option<&str>) -> R) -> R {
-    CONST_SUFFIX_TEXT_CACHE.with(|cache| {
-        if cache.ptr.get() != addr {
-            return f(None);
+fn concat_pair_fast_cache_lookup(a_h: i64, b_h: i64) -> Option<Arc<dyn NyashBox>> {
+    let drop_epoch = handles::drop_epoch();
+    CONCAT_PAIR_FAST_CACHE.with(|cache| {
+        if cache.drop_epoch.get() != drop_epoch
+            || cache.lhs_handle.get() != a_h
+            || cache.rhs_handle.get() != b_h
+        {
+            return None;
         }
-        let text_ref = cache.text.borrow();
-        f(text_ref.as_deref())
+        let result = cache.result.borrow();
+        result.as_ref().cloned()
     })
 }
 
 #[inline(always)]
-fn try_execute_cached_const_suffix(a_h: i64, addr: usize) -> Option<i64> {
-    CONST_SUFFIX_META_CACHE.with(|cache| {
-        if cache.ptr.get() != addr {
-            return None;
+fn concat_pair_fast_cache_store(a_h: i64, b_h: i64, result: Arc<dyn NyashBox>) {
+    let drop_epoch = handles::drop_epoch();
+    CONCAT_PAIR_FAST_CACHE.with(|cache| {
+        cache.drop_epoch.set(drop_epoch);
+        cache.lhs_handle.set(a_h);
+        cache.rhs_handle.set(b_h);
+        *cache.result.borrow_mut() = Some(result);
+    });
+}
+
+#[inline(always)]
+fn concat3_fast_cache_lookup(a_h: i64, b_h: i64, c_h: i64) -> Option<i64> {
+    let drop_epoch = handles::drop_epoch();
+    CONCAT3_FAST_CACHE.with(|cache| {
+        if cache.drop_epoch.get() == drop_epoch
+            && cache.a_handle.get() == a_h
+            && cache.b_handle.get() == b_h
+            && cache.c_handle.get() == c_h
+            && cache.result_handle.get() > 0
+        {
+            Some(cache.result_handle.get())
+        } else {
+            None
         }
-        let cached = cache.handle.get();
-        if cached <= 0 {
-            return None;
-        }
-        observe::record_const_suffix_cached_handle_hit();
-        let placement = concat_suffix_retention_class(cache.is_empty.get());
-        if matches!(placement, RetainedForm::ReturnHandle) {
-            observe::record_const_suffix_empty_return();
-        }
-        if let Some(out) = execute_concat2_with_cached_const_handle(a_h, cached, placement) {
-            return Some(out);
-        }
-        with_loaded_const_suffix_text(addr, |suffix| {
-            suffix.map(|suffix| execute_concat2_freeze_from_text(a_h, suffix, placement))
-        })
     })
+}
+
+#[inline(always)]
+fn concat3_fast_cache_store(a_h: i64, b_h: i64, c_h: i64, result_handle: i64) {
+    let drop_epoch = handles::drop_epoch();
+    CONCAT3_FAST_CACHE.with(|cache| {
+        cache.drop_epoch.set(drop_epoch);
+        cache.a_handle.set(a_h);
+        cache.b_handle.set(b_h);
+        cache.c_handle.set(c_h);
+        cache.result_handle.set(result_handle);
+    });
+}
+
+#[inline(always)]
+fn concat_const_suffix_fast_cache_lookup(source_handle: i64, suffix_ptr: *const i8) -> Option<i64> {
+    let drop_epoch = handles::drop_epoch();
+    CONCAT_CONST_SUFFIX_FAST_CACHE.with(|cache| {
+        if cache.drop_epoch.get() == drop_epoch
+            && cache.source_handle.get() == source_handle
+            && cache.suffix_ptr.get() == suffix_ptr as usize
+            && cache.result_handle.get() > 0
+        {
+            Some(cache.result_handle.get())
+        } else {
+            None
+        }
+    })
+}
+
+#[inline(always)]
+fn concat_const_suffix_fast_cache_store(
+    source_handle: i64,
+    suffix_ptr: *const i8,
+    result_handle: i64,
+) {
+    let drop_epoch = handles::drop_epoch();
+    CONCAT_CONST_SUFFIX_FAST_CACHE.with(|cache| {
+        cache.drop_epoch.set(drop_epoch);
+        cache.source_handle.set(source_handle);
+        cache.suffix_ptr.set(suffix_ptr as usize);
+        cache.result_handle.set(result_handle);
+    });
+}
+
+#[inline(always)]
+fn substring_fast_cache_lookup(
+    source_handle: i64,
+    start: i64,
+    end: i64,
+    view_enabled: bool,
+) -> Option<i64> {
+    let drop_epoch = handles::drop_epoch();
+    SUBSTRING_FAST_CACHE.with(|cache| {
+        if cache.drop_epoch.get() == drop_epoch {
+            if cache.source_handle.get() == source_handle
+                && cache.start.get() == start
+                && cache.end.get() == end
+                && cache.view_enabled.get() == view_enabled
+                && cache.result_handle.get() > 0
+            {
+                return Some(cache.result_handle.get());
+            }
+            if cache.source_handle2.get() == source_handle
+                && cache.start2.get() == start
+                && cache.end2.get() == end
+                && cache.view_enabled2.get() == view_enabled
+                && cache.result_handle2.get() > 0
+            {
+                return Some(cache.result_handle2.get());
+            }
+        }
+        None
+    })
+}
+
+#[inline(always)]
+fn substring_fast_cache_store(
+    source_handle: i64,
+    start: i64,
+    end: i64,
+    view_enabled: bool,
+    result_handle: i64,
+) {
+    let drop_epoch = handles::drop_epoch();
+    SUBSTRING_FAST_CACHE.with(|cache| {
+        cache.drop_epoch.set(drop_epoch);
+        cache.source_handle2.set(cache.source_handle.get());
+        cache.start2.set(cache.start.get());
+        cache.end2.set(cache.end.get());
+        cache.view_enabled2.set(cache.view_enabled.get());
+        cache.result_handle2.set(cache.result_handle.get());
+        cache.source_handle.set(source_handle);
+        cache.start.set(start);
+        cache.end.set(end);
+        cache.view_enabled.set(view_enabled);
+        cache.result_handle.set(result_handle);
+    });
+}
+
+#[inline(always)]
+fn string_len_fast_cache_lookup(handle: i64) -> Option<i64> {
+    let drop_epoch = handles::drop_epoch();
+    STRING_LEN_FAST_CACHE.with(|cache| {
+        if cache.drop_epoch.get() == drop_epoch {
+            if cache.handle.get() == handle {
+                Some(cache.len.get())
+            } else if cache.handle2.get() == handle {
+                Some(cache.len2.get())
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    })
+}
+
+#[inline(always)]
+fn string_len_fast_cache_store(handle: i64, len: i64) {
+    let drop_epoch = handles::drop_epoch();
+    STRING_LEN_FAST_CACHE.with(|cache| {
+        cache.drop_epoch.set(drop_epoch);
+        cache.handle2.set(cache.handle.get());
+        cache.len2.set(cache.len.get());
+        cache.handle.set(handle);
+        cache.len.set(len);
+    });
 }
 
 pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
     if handle <= 0 {
         observe::record_str_len_route_miss();
-        trace_observer_resolution("observer", handle, "none", "invalid_handle", "");
+        trace_observer_resolution(
+            "observer",
+            handle,
+            "none",
+            "invalid_handle",
+            format_args!("invalid_handle"),
+        );
         return None;
+    }
+    if let Some(cached) = string_len_fast_cache_lookup(handle) {
+        observe::record_str_len_route_fast_str_hit();
+        if observe::len_route_matches_latest_fresh_handle(handle) {
+            observe::record_str_len_route_latest_fresh_handle_fast_str_hit();
+        }
+        trace_observer_resolution(
+            "observer",
+            handle,
+            "fast_hit",
+            "len_handle_cache",
+            format_args!("len={}", cached),
+        );
+        return Some(cached);
+    }
+    if let Some(view_len) = handles::with_handle(handle as u64, |obj| {
+        let Some(obj) = obj else {
+            return None;
+        };
+        if let Some(sb) = obj.as_any().downcast_ref::<StringBox>() {
+            return Some(sb.value.len() as i64);
+        }
+        let view = obj.as_any().downcast_ref::<StringViewBox>()?;
+        Some(view.end.saturating_sub(view.start) as i64)
+    }) {
+        observe::record_str_len_route_fast_str_hit();
+        if observe::len_route_matches_latest_fresh_handle(handle) {
+            observe::record_str_len_route_latest_fresh_handle_fast_str_hit();
+        }
+        string_len_fast_cache_store(handle, view_len);
+        trace_observer_resolution(
+            "observer",
+            handle,
+            "fast_hit",
+            "live_object_fast",
+            format_args!("len={}", view_len),
+        );
+        return Some(view_len);
     }
     let fast_len = handles::with_text_read_session(|session| {
         session.str_handle(handle as u64, |text| text.len() as i64)
@@ -137,12 +389,13 @@ pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
         if observe::len_route_matches_latest_fresh_handle(handle) {
             observe::record_str_len_route_latest_fresh_handle_fast_str_hit();
         }
+        string_len_fast_cache_store(handle, fast_len.unwrap_or_default());
         trace_observer_resolution(
             "observer",
             handle,
             "fast_hit",
             "as_str_fast",
-            &format!("len={}", fast_len.unwrap_or_default()),
+            format_args!("len={}", fast_len.unwrap_or_default()),
         );
         return fast_len;
     }
@@ -152,6 +405,7 @@ pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
         if observe::len_route_matches_latest_fresh_handle(handle) {
             observe::record_str_len_route_latest_fresh_handle_fallback_hit();
         }
+        string_len_fast_cache_store(handle, fallback.unwrap_or_default());
     } else {
         observe::record_str_len_route_miss();
     }
@@ -164,27 +418,68 @@ pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
             "fallback_miss"
         },
         "string_len_impl",
-        &format!("len={}", fallback.unwrap_or_default()),
+        format_args!("len={}", fallback.unwrap_or_default()),
     );
     fallback
 }
 
 pub(crate) fn string_is_empty_from_handle(handle: i64) -> Option<bool> {
     if handle <= 0 {
-        trace_observer_resolution("observer", handle, "none", "invalid_handle", "");
+        trace_observer_resolution(
+            "observer",
+            handle,
+            "none",
+            "invalid_handle",
+            format_args!("invalid_handle"),
+        );
         return None;
     }
-    let fast_empty =
-        handles::with_text_read_session(|session| session.str_handle(handle as u64, str::is_empty));
-    if fast_empty.is_some() {
+    if let Some(view_len) = string_len_fast_cache_lookup(handle) {
+        let empty = view_len == 0;
+        trace_observer_resolution(
+            "observer",
+            handle,
+            "fast_hit",
+            "live_object_fast",
+            format_args!("empty={}", empty),
+        );
+        return Some(empty);
+    }
+    if let Some(view_len) = handles::with_handle(handle as u64, |obj| {
+        let Some(obj) = obj else {
+            return None;
+        };
+        if let Some(sb) = obj.as_any().downcast_ref::<StringBox>() {
+            return Some(sb.value.len() as i64);
+        }
+        let view = obj.as_any().downcast_ref::<StringViewBox>()?;
+        Some(view.end.saturating_sub(view.start) as i64)
+    }) {
+        let empty = view_len == 0;
+        string_len_fast_cache_store(handle, view_len);
+        trace_observer_resolution(
+            "observer",
+            handle,
+            "fast_hit",
+            "live_object_fast",
+            format_args!("empty={}", empty),
+        );
+        return Some(empty);
+    }
+    let fast_len = handles::with_text_read_session(|session| {
+        session.str_handle(handle as u64, |text| text.len() as i64)
+    });
+    if fast_len.is_some() {
+        let empty = fast_len.unwrap_or_default() == 0;
+        string_len_fast_cache_store(handle, fast_len.unwrap_or_default());
         trace_observer_resolution(
             "observer",
             handle,
             "fast_hit",
             "as_str_fast",
-            &format!("empty={}", fast_empty.unwrap_or(false)),
+            format_args!("empty={}", empty),
         );
-        return fast_empty;
+        return Some(empty);
     }
     let fallback = string_is_empty_impl(handle);
     trace_observer_resolution(
@@ -196,7 +491,7 @@ pub(crate) fn string_is_empty_from_handle(handle: i64) -> Option<bool> {
             "fallback_miss"
         },
         "string_is_empty_impl",
-        &format!("empty={}", fallback.unwrap_or(false)),
+        format_args!("empty={}", fallback.unwrap_or(false)),
     );
     fallback
 }
@@ -210,8 +505,12 @@ pub(super) fn string_handle_from_owned(value: String) -> i64 {
     observe::record_birth_placement_fresh_handle();
     let handle = materialize_owned_string(value);
     if string_trace::enabled() {
-        let extra = format!("source=owned len={} handle={}", len, handle);
-        string_trace::emit("sink", "fresh_handle", "materialize_owned_string", &extra);
+        string_trace::emit(
+            "sink",
+            "fresh_handle",
+            "materialize_owned_string",
+            format_args!("source=owned len={} handle={}", len, handle),
+        );
     }
     handle
 }
@@ -221,13 +520,17 @@ pub(super) fn string_handle_from_span(span: StringSpan) -> i64 {
     let source = span.as_str();
     if source.is_empty() {
         if string_trace::enabled() {
-            let extra = format!(
-                "source=span len=0 base_handle={} range={}..{}",
-                span.base_handle(),
-                span.start(),
-                span.end()
+            string_trace::emit(
+                "sink",
+                "shared_empty",
+                "span_empty",
+                format_args!(
+                    "source=span len=0 base_handle={} range={}..{}",
+                    span.base_handle(),
+                    span.start(),
+                    span.end()
+                ),
             );
-            string_trace::emit("sink", "shared_empty", "span_empty", &extra);
         }
         return shared_empty_string_handle();
     }
@@ -241,15 +544,19 @@ pub(super) fn string_handle_from_span(span: StringSpan) -> i64 {
     }
     let handle = string_handle_from_owned(out);
     if string_trace::enabled() {
-        let extra = format!(
-            "source=span len={} base_handle={} range={}..{} handle={}",
-            len,
-            span.base_handle(),
-            span.start(),
-            span.end(),
-            handle
+        string_trace::emit(
+            "sink",
+            "fresh_handle",
+            "span_materialize",
+            format_args!(
+                "source=span len={} base_handle={} range={}..{} handle={}",
+                len,
+                span.base_handle(),
+                span.start(),
+                span.end(),
+                handle
+            ),
         );
-        string_trace::emit("sink", "fresh_handle", "span_materialize", &extra);
     }
     handle
 }
@@ -267,13 +574,17 @@ pub(super) fn freeze_text_plan<'a>(plan: TextPlan<'a>) -> i64 {
     if string_trace::enabled() {
         let piece_count = text_plan_piece_count(&plan);
         let total_len = text_plan_total_len(&plan);
-        let extra = format!(
-            "plan_shape={} piece_count={} total_len={}",
-            text_plan_shape(&plan),
-            piece_count,
-            total_len
+        string_trace::emit(
+            "sink",
+            "freeze_plan",
+            "freeze_text_plan",
+            format_args!(
+                "plan_shape={} piece_count={} total_len={}",
+                text_plan_shape(&plan),
+                piece_count,
+                total_len
+            ),
         );
-        string_trace::emit("sink", "freeze_plan", "freeze_text_plan", &extra);
     }
     string_handle_from_owned(plan.into_owned())
 }
@@ -359,16 +670,22 @@ fn text_plan_total_len(plan: &TextPlan<'_>) -> usize {
 }
 
 #[inline(always)]
-fn trace_observer_resolution(stage: &str, handle: i64, result: &str, reason: &str, extra: &str) {
+fn trace_observer_resolution(
+    stage: &str,
+    handle: i64,
+    result: &str,
+    reason: &str,
+    extra: impl std::fmt::Display,
+) {
     if !string_trace::enabled() {
         return;
     }
-    let extra = if extra.is_empty() {
-        format!("handle={}", handle)
-    } else {
-        format!("handle={} {}", handle, extra)
-    };
-    string_trace::emit(stage, result, reason, &extra);
+    string_trace::emit(
+        stage,
+        result,
+        reason,
+        format_args!("handle={} {}", handle, extra),
+    );
 }
 
 fn concat_to_string_handle(parts: &[&str]) -> i64 {
@@ -401,20 +718,28 @@ fn freeze_concat3_plan<'a>(plan: Concat3Plan<'a>) -> i64 {
         Concat3Plan::ReuseHandle(handle) => {
             observe::record_birth_placement_return_handle();
             if string_trace::enabled() {
-                let extra = format!("handle={}", handle);
-                string_trace::emit("sink", "reuse_handle", "concat3_reuse", &extra);
+                string_trace::emit(
+                    "sink",
+                    "reuse_handle",
+                    "concat3_reuse",
+                    format_args!("handle={}", handle),
+                );
             }
             handle
         }
         Concat3Plan::Materialize(value) => {
             if string_trace::enabled() {
-                let extra = format!(
-                    "plan_shape={} piece_count={} total_len={}",
-                    text_plan_shape(&value),
-                    text_plan_piece_count(&value),
-                    text_plan_total_len(&value)
+                string_trace::emit(
+                    "sink",
+                    "freeze_plan",
+                    "concat3_materialize",
+                    format_args!(
+                        "plan_shape={} piece_count={} total_len={}",
+                        text_plan_shape(&value),
+                        text_plan_piece_count(&value),
+                        text_plan_total_len(&value)
+                    ),
                 );
-                string_trace::emit("sink", "freeze_plan", "concat3_materialize", &extra);
             }
             freeze_text_plan(value)
         }
@@ -606,6 +931,11 @@ fn concat_pair_from_fast_str(a_h: i64, b_h: i64) -> Option<i64> {
     if a_h <= 0 || b_h <= 0 {
         return None;
     }
+    if let Some(cached) = concat_pair_fast_cache_lookup(a_h, b_h) {
+        observe::record_str_concat2_route_fast_str_owned();
+        observe::record_birth_placement_fresh_handle();
+        return Some(issue_fresh_handle_from_arc(cached));
+    }
     let plan = handles::with_text_read_session(|session| {
         session.str_pair(a_h as u64, b_h as u64, |a, b| {
             if a.is_empty() {
@@ -625,7 +955,13 @@ fn concat_pair_from_fast_str(a_h: i64, b_h: i64) -> Option<i64> {
         }
         ConcatFastPath::Owned(text) => {
             observe::record_str_concat2_route_fast_str_owned();
-            string_handle_from_owned(text)
+            let handle = string_handle_from_owned(text);
+            if handle > 0 {
+                if let Some(result) = handles::get(handle as u64) {
+                    concat_pair_fast_cache_store(a_h, b_h, result);
+                }
+            }
+            handle
         }
     })
 }
@@ -667,32 +1003,6 @@ fn execute_concat2_freeze_from_text(a_h: i64, suffix: &str, placement: RetainedF
 }
 
 #[inline(always)]
-fn execute_concat2_with_cached_const_handle(
-    a_h: i64,
-    suffix_h: i64,
-    placement: RetainedForm,
-) -> Option<i64> {
-    match placement {
-        RetainedForm::ReturnHandle => {
-            observe::record_birth_placement_return_handle();
-            Some(a_h)
-        }
-        RetainedForm::KeepTransient | RetainedForm::MustFreeze(_) => {
-            if let Some(out) = concat_pair_from_fast_str(a_h, suffix_h) {
-                observe::record_const_suffix_cached_fast_str_hit();
-                return Some(out);
-            }
-            if let Some(out) = concat_pair_from_spans(a_h, suffix_h) {
-                observe::record_const_suffix_cached_span_hit();
-                return Some(out);
-            }
-            None
-        }
-        RetainedForm::RetainView => unreachable!("concat_hs cannot retain a view"),
-    }
-}
-
-#[inline(always)]
 fn execute_const_suffix_contract(a_h: i64, suffix_ptr: *const i8) -> i64 {
     // phase-151x visibility lock:
     // `.hako const_suffix -> thaw.str + lit.str + str.concat2 + freeze.str`
@@ -701,30 +1011,38 @@ fn execute_const_suffix_contract(a_h: i64, suffix_ptr: *const i8) -> i64 {
         return a_h;
     }
     observe::record_const_suffix_enter();
-    let addr = suffix_ptr as usize;
-    if let Some(out) = try_execute_cached_const_suffix(a_h, addr) {
-        return out;
-    }
     with_cached_const_suffix_text(suffix_ptr, |suffix| {
         let suffix_is_empty = suffix.is_empty();
         let placement = concat_suffix_retention_class(suffix_is_empty);
         if matches!(placement, RetainedForm::ReturnHandle) {
             observe::record_const_suffix_empty_return();
+            observe::record_birth_placement_return_handle();
             return a_h;
         }
-        CONST_SUFFIX_META_CACHE.with(|cache| {
-            let handle = super::super::string_const_handle_from_text(suffix);
-            cache.ptr.set(addr);
-            cache.is_empty.set(suffix_is_empty);
-            if handle > 0 {
-                cache.handle.set(handle);
-                if let Some(out) = execute_concat2_with_cached_const_handle(a_h, handle, placement)
-                {
-                    return out;
+        if let Some(hit) = concat_const_suffix_fast_cache_lookup(a_h, suffix_ptr) {
+            observe::record_const_suffix_cached_fast_str_hit();
+            observe::record_birth_placement_return_handle();
+            return hit;
+        }
+        if let Some(handle) = handles::with_text_read_session(|session| {
+            session.str_handle(a_h as u64, |lhs| {
+                if let Some(hit) = concat_const_suffix_fast_cache_lookup(a_h, suffix_ptr) {
+                    observe::record_const_suffix_cached_fast_str_hit();
+                    observe::record_birth_placement_return_handle();
+                    return hit;
                 }
-            }
-            execute_concat2_freeze_from_text(a_h, suffix, placement)
-        })
+                observe::record_const_suffix_freeze_fallback();
+                let out = concat_two_str(lhs, suffix);
+                let handle = super::super::string_const_handle_from_text(&out);
+                if handle > 0 {
+                    concat_const_suffix_fast_cache_store(a_h, suffix_ptr, handle);
+                }
+                handle
+            })
+        }) {
+            return handle;
+        }
+        execute_concat2_freeze_from_text(a_h, suffix, placement)
     })
 }
 
@@ -773,35 +1091,27 @@ fn insert_const_mid_fallback(source_h: i64, middle_ptr: *const i8, split: i64) -
         } };
     }
 
-    let middle_h = if middle_ptr.is_null() {
-        0
-    } else {
-        with_cached_const_text(&CONST_INSERT_TEXT_CACHE, middle_ptr, |middle| {
-            CONST_INSERT_TEXT_CACHE.with(|cache| {
-                let addr = middle_ptr as usize;
-                if cache.ptr.get() == addr {
-                    let cached = cache.handle.get();
-                    if cached > 0 {
-                        return cached;
-                    }
-                }
-                let handle = super::super::string_const_handle_from_text(middle);
-                if handle > 0 {
-                    cache.ptr.set(addr);
-                    cache.handle.set(handle);
-                }
-                handle
-            })
-        })
-    };
-
     with_cached_const_text(&CONST_INSERT_TEXT_CACHE, middle_ptr, |middle| {
         let source_is_empty = string_is_empty_from_handle(source_h) == Some(true);
         match insert_middle_retention_class(source_is_empty, middle.is_empty()) {
             RetainedForm::ReturnHandle => source_h,
             RetainedForm::KeepTransient | RetainedForm::MustFreeze(_) => {
                 if source_is_empty {
-                    middle_h
+                    let addr = middle_ptr as usize;
+                    CONST_INSERT_TEXT_CACHE.with(|cache| {
+                        if cache.ptr.get() == addr {
+                            let cached = cache.handle.get();
+                            if cached > 0 {
+                                return cached;
+                            }
+                        }
+                        let handle = super::super::string_const_handle_from_text(middle);
+                        if handle > 0 {
+                            cache.ptr.set(addr);
+                            cache.handle.set(handle);
+                        }
+                        handle
+                    })
                 } else {
                     freeze_text_plan(insert_const_mid_plan_from_handle(source_h, middle, split))
                 }
@@ -871,15 +1181,23 @@ fn dispatch_or_fallback_concat_hh(a_h: i64, b_h: i64) -> i64 {
 
 #[inline(always)]
 fn dispatch_or_fallback_concat3_hhh(a_h: i64, b_h: i64, c_h: i64) -> i64 {
+    if let Some(cached) = concat3_fast_cache_lookup(a_h, b_h, c_h) {
+        return cached;
+    }
     if let Some(v) =
         hako_string_dispatch(hako_forward_bridge::string_ops::CONCAT3_HHH, a_h, b_h, c_h)
     {
+        concat3_fast_cache_store(a_h, b_h, c_h, v);
         return v;
     }
     if !allow_rust_string_fallback() {
         return hook_miss_freeze_handle("string.concat3_hhh");
     }
-    concat3_fallback(a_h, b_h, c_h)
+    let v = concat3_fallback(a_h, b_h, c_h);
+    if v > 0 {
+        concat3_fast_cache_store(a_h, b_h, c_h, v);
+    }
+    v
 }
 
 pub(super) fn string_len_export_impl(handle: i64) -> i64 {
@@ -971,25 +1289,32 @@ pub(super) fn string_eq_hh_export_impl(a_h: i64, b_h: i64) -> i64 {
 }
 
 pub(super) fn string_substring_hii_export_impl(h: i64, start: i64, end: i64) -> i64 {
+    if h <= 0 {
+        return 0;
+    }
+    let view_enabled = substring_view_enabled();
+    let fallback_allowed = allow_rust_string_fallback();
+    if fallback_allowed {
+        if let Some(hit) = substring_fast_cache_lookup(h, start, end, view_enabled) {
+            return hit;
+        }
+    }
     if let Some(v) = hako_string_dispatch(
         hako_forward_bridge::string_ops::SUBSTRING_HII,
         h,
         start,
         end,
     ) {
+        substring_fast_cache_store(h, start, end, view_enabled, v);
         return v;
     }
-    if !allow_rust_string_fallback() {
+    if !fallback_allowed {
         return hook_miss_freeze_handle("string.substring_hii");
     }
-    if h <= 0 {
-        return 0;
-    }
-    let view_enabled = substring_view_enabled();
     let Some(plan) = borrowed_substring_plan_from_handle(h, start, end, view_enabled) else {
         return shared_empty_string_handle();
     };
-    match plan {
+    let result = match plan {
         BorrowedSubstringPlan::ReturnHandle => {
             observe::record_birth_placement_return_handle();
             h
@@ -1000,7 +1325,11 @@ pub(super) fn string_substring_hii_export_impl(h: i64, start: i64, end: i64) -> 
             observe::record_birth_placement_borrow_view();
             handles::to_handle_arc(std::sync::Arc::new(span.into_view_box())) as i64
         }
+    };
+    if result > 0 {
+        substring_fast_cache_store(h, start, end, view_enabled, result);
     }
+    result
 }
 
 pub(super) fn string_indexof_hh_export_impl(h: i64, n: i64) -> i64 {
@@ -1058,4 +1387,85 @@ pub(super) fn string_from_u64x2_export_impl(lo: i64, hi: i64, len: i64) -> i64 {
     }
     let s = String::from_utf8_lossy(&bytes).to_string();
     string_handle_from_owned(s)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use nyash_rust::box_trait::{NyashBox, StringBox};
+    use nyash_rust::runtime::host_handles as handles;
+    use std::{ffi::CString, sync::Arc};
+
+    #[test]
+    fn concat_pair_fast_cache_invalidates_on_drop_epoch() {
+        let lhs: Arc<dyn NyashBox> = Arc::new(StringBox::new("lhs-cache".to_string()));
+        let rhs: Arc<dyn NyashBox> = Arc::new(StringBox::new("rhs-cache".to_string()));
+        let result: Arc<dyn NyashBox> = Arc::new(StringBox::new("out-cache".to_string()));
+        let lhs_h = handles::to_handle_arc(lhs) as i64;
+        let rhs_h = handles::to_handle_arc(rhs) as i64;
+
+        concat_pair_fast_cache_store(lhs_h, rhs_h, result.clone());
+        assert!(concat_pair_fast_cache_lookup(lhs_h, rhs_h).is_some());
+
+        handles::drop_handle(lhs_h as u64);
+        assert!(concat_pair_fast_cache_lookup(lhs_h, rhs_h).is_none());
+    }
+
+    #[test]
+    fn const_suffix_fast_cache_invalidates_on_drop_epoch() {
+        let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("source-cache".to_string()));
+        let source_h = handles::to_handle_arc(source) as i64;
+        let suffix = CString::new("xy").expect("CString");
+        let suffix_ptr = suffix.as_ptr();
+
+        concat_const_suffix_fast_cache_store(source_h, suffix_ptr, 77);
+        assert_eq!(
+            concat_const_suffix_fast_cache_lookup(source_h, suffix_ptr),
+            Some(77)
+        );
+
+        handles::drop_handle(source_h as u64);
+        assert_eq!(
+            concat_const_suffix_fast_cache_lookup(source_h, suffix_ptr),
+            None
+        );
+    }
+
+    #[test]
+    fn substring_fast_cache_invalidates_on_drop_epoch() {
+        let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("substring-cache".to_string()));
+        let source_h = handles::to_handle_arc(source) as i64;
+
+        substring_fast_cache_store(source_h, 2, 6, false, 88);
+        assert_eq!(substring_fast_cache_lookup(source_h, 2, 6, false), Some(88));
+
+        handles::drop_handle(source_h as u64);
+        assert_eq!(substring_fast_cache_lookup(source_h, 2, 6, false), None);
+    }
+
+    #[test]
+    fn substring_fast_cache_keeps_two_recent_slices_hot() {
+        let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("substring-cache".to_string()));
+        let source_h = handles::to_handle_arc(source) as i64;
+
+        substring_fast_cache_store(source_h, 0, 4, true, 101);
+        substring_fast_cache_store(source_h, 4, 8, true, 202);
+
+        assert_eq!(substring_fast_cache_lookup(source_h, 0, 4, true), Some(101));
+        assert_eq!(substring_fast_cache_lookup(source_h, 4, 8, true), Some(202));
+    }
+
+    #[test]
+    fn string_len_fast_cache_keeps_two_recent_handles_hot() {
+        let a: Arc<dyn NyashBox> = Arc::new(StringBox::new("abcd".to_string()));
+        let b: Arc<dyn NyashBox> = Arc::new(StringBox::new("ef".to_string()));
+        let a_h = handles::to_handle_arc(a) as i64;
+        let b_h = handles::to_handle_arc(b) as i64;
+
+        string_len_fast_cache_store(a_h, 4);
+        string_len_fast_cache_store(b_h, 2);
+
+        assert_eq!(string_len_fast_cache_lookup(a_h), Some(4));
+        assert_eq!(string_len_fast_cache_lookup(b_h), Some(2));
+    }
 }
