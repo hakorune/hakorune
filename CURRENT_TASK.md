@@ -234,6 +234,17 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       - `kilo_micro_array_string_store: 176 ms`
       - `kilo_micro_concat_hh_len: 67 ms`
       - `kilo_kernel_small_hk: 712 ms`
+  - latest landed keep-anchor cold fallback narrowing:
+    - `BorrowedHandleBox::{to_string_box,type_name,is_identity}` no longer route through stable object fallback
+    - cold object semantics now come from verified text anchor + keep class:
+      - `to_string_box` uses `copy_owned_text_cold()`
+      - `type_name` comes from `TextKeepClass`
+      - `is_identity` is fixed `false`
+    - this keeps object/publication outside the keep surface and narrows the next remaining fallback work to `equals` and explicit cold promotion paths
+    - accept-gate reread:
+      - `kilo_micro_array_string_store: 182 ms`
+      - `kilo_micro_concat_hh_len: 65 ms`
+      - `kilo_kernel_small_hk: 696 ms`
     - physical `string_store.rs` file split remains deferred until the keep semantics
       change lands
   - latest landed encode planner/executor split:

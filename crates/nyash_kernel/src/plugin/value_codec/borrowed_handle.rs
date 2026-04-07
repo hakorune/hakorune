@@ -134,6 +134,14 @@ impl TextKeep {
     }
 
     #[inline(always)]
+    fn type_name(&self) -> &'static str {
+        match self.source_lifetime.class() {
+            TextKeepClass::StringBox => "StringBox",
+            TextKeepClass::StringView => "StringViewBox",
+        }
+    }
+
+    #[inline(always)]
     fn stable_object_ref(&self) -> &Arc<dyn NyashBox> {
         self.source_lifetime.backing().stable_box_ref()
     }
@@ -297,7 +305,7 @@ impl NyashBox for BorrowedHandleBox {
         if self.source_is_latest_fresh() {
             observe::record_borrowed_alias_to_string_box_latest_fresh();
         }
-        self.text_keep.stable_object_ref().as_ref().to_string_box()
+        StringBox::new(self.copy_owned_text_cold())
     }
 
     fn equals(&self, other: &dyn NyashBox) -> BoolBox {
@@ -316,7 +324,7 @@ impl NyashBox for BorrowedHandleBox {
     }
 
     fn type_name(&self) -> &'static str {
-        self.text_keep.stable_object_ref().as_ref().type_name()
+        self.text_keep.type_name()
     }
 
     fn clone_box(&self) -> Box<dyn NyashBox> {
@@ -336,7 +344,7 @@ impl NyashBox for BorrowedHandleBox {
     }
 
     fn is_identity(&self) -> bool {
-        self.text_keep.stable_object_ref().as_ref().is_identity()
+        false
     }
 
     fn borrowed_handle_source_fast(&self) -> Option<(i64, u64)> {

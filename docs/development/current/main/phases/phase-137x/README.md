@@ -75,7 +75,8 @@
   - `kilo_micro_concat_hh_len`: `c_ms=3 / ny_aot_ms=63`
   - `kilo_micro_concat_birth`: `c_ms=6 / ny_aot_ms=47`
   - `kilo_micro_array_string_store`: `c_ms=9 / ny_aot_ms=173`
-  - latest whole-kilo reread after keep API narrowing: `c_ms=77 / ny_aot_ms=708`
+ - latest whole-kilo reread after keep API narrowing: `c_ms=77 / ny_aot_ms=708`
+  - latest whole-kilo reread after keep-anchor cold fallback narrowing: `c_ms=79 / ny_aot_ms=696`
 - latest bundle read:
   - string contracts remain `keep_transient -> fresh_handle` for non-empty const concat/insert
   - `20260406-024104` still shows `crates/nyash_kernel/src/exports/string_helpers.rs::concat_const_suffix_fallback` as the top explicit hot symbol (`11.70%`)
@@ -238,6 +239,19 @@
        - `borrowed.alias.to_string_box_latest_fresh=0`
        - `borrowed.alias.equals_latest_fresh=0`
        - `borrowed.alias.clone_box_latest_fresh=0`
+     - latest landed keep-anchor cold fallback narrowing:
+       - `BorrowedHandleBox::{to_string_box,type_name,is_identity}` now derive cold semantics from verified text anchor + keep class instead of stable object fallback
+       - `to_string_box` now uses cold owned copy-out
+       - `type_name` is derived from `TextKeepClass`
+       - `is_identity` is fixed `false`
+       - current exact/whole reread:
+         - `kilo_micro_array_string_store`: `182 ms`
+         - `kilo_micro_concat_hh_len`: `65 ms`
+         - `kilo_kernel_small_hk`: `696 ms`
+       - read:
+         - this is a structure-first slice, not a hot-path trim
+         - it removes more object-like behavior from the keep surface
+         - remaining cold object fallback work is mostly `equals` and explicit promotion paths
        - current hot path is not using `BorrowedHandleBox` full stable-object APIs at all
      - landed structural slice:
        - `ArrayStoreStrSource` now owns the source `Arc`
