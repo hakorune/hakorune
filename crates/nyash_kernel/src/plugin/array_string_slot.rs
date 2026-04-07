@@ -1,9 +1,9 @@
 use super::array_guard::valid_handle_idx;
 use super::handle_cache::{cache_probe_kind, CacheProbeKind as HandleCacheProbeKind};
 use super::value_codec::{
-    maybe_store_non_string_box_from_verified_source, store_string_box_from_source_keep,
-    try_retarget_borrowed_string_slot_take_keep, with_array_store_str_source, ArrayStoreStrSource,
-    BorrowedHandleBox, StringHandleSourceKind,
+    maybe_store_non_string_box_from_verified_source, store_string_box_from_verified_text_source,
+    try_retarget_borrowed_string_slot_take_verified_text_source, with_array_store_str_source,
+    ArrayStoreStrSource, BorrowedHandleBox, StringHandleSourceKind,
 };
 use crate::exports::string_view::resolve_string_span_from_handle;
 use crate::observe::{self, CacheProbeKind as ObserveCacheProbeKind};
@@ -305,10 +305,10 @@ fn execute_store_array_str_slot(
     if idx < items.len() {
         if plan.can_retarget_alias() {
             if let ArrayStoreStrSource::StringLike(source_text) = source {
-                match try_retarget_borrowed_string_slot_take_keep(
+                match try_retarget_borrowed_string_slot_take_verified_text_source(
                     &mut items[idx],
                     value_h,
-                    source_text.keep().clone(),
+                    source_text,
                     drop_epoch,
                 ) {
                     Ok(()) => {
@@ -319,12 +319,7 @@ fn execute_store_array_str_slot(
                         return 1;
                     }
                     Err(source_keep) => {
-                        source = ArrayStoreStrSource::StringLike(
-                            super::value_codec::VerifiedTextSource::new(
-                                source_text.proof(),
-                                source_keep,
-                            ),
-                        );
+                        source = ArrayStoreStrSource::StringLike(source_keep);
                     }
                 }
             }
@@ -340,7 +335,7 @@ fn execute_store_array_str_slot(
     }
     let value = match source {
         ArrayStoreStrSource::StringLike(source_text) => {
-            store_string_box_from_source_keep(value_h, source_text.keep(), drop_epoch)
+            store_string_box_from_verified_text_source(value_h, &source_text, drop_epoch)
         }
         ArrayStoreStrSource::OtherObject => {
             maybe_store_non_string_box_from_verified_source(value_h, drop_epoch)

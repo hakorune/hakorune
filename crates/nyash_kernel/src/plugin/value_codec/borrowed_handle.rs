@@ -1,3 +1,4 @@
+use super::string_classify::VerifiedTextSource;
 use crate::observe;
 use nyash_rust::{
     box_trait::{next_box_id, BoolBox, BoxBase, BoxCore, IntegerBox, NyashBox, StringBox},
@@ -461,6 +462,24 @@ pub(crate) fn try_retarget_borrowed_string_slot_take_keep(
     keep_borrowed_string_slot_source_keep(alias, source_keep);
     update_borrowed_string_slot_alias(alias, source_handle, source_drop_epoch);
     Ok(())
+}
+
+#[inline(always)]
+pub(crate) fn try_retarget_borrowed_string_slot_take_verified_text_source(
+    slot: &mut Box<dyn NyashBox>,
+    source_handle: i64,
+    source_text: VerifiedTextSource,
+    source_drop_epoch: u64,
+) -> Result<(), VerifiedTextSource> {
+    match try_retarget_borrowed_string_slot_take_keep(
+        slot,
+        source_handle,
+        source_text.clone_keep(),
+        source_drop_epoch,
+    ) {
+        Ok(()) => Ok(()),
+        Err(source_keep) => Err(source_text.replace_keep(source_keep)),
+    }
 }
 
 #[cold]

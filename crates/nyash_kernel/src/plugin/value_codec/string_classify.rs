@@ -39,6 +39,19 @@ impl VerifiedTextSource {
     pub(crate) fn keep(&self) -> &SourceLifetimeKeep {
         &self.keep
     }
+
+    #[inline(always)]
+    pub(crate) fn clone_keep(&self) -> SourceLifetimeKeep {
+        self.keep.clone()
+    }
+
+    #[inline(always)]
+    pub(crate) fn replace_keep(self, keep: SourceLifetimeKeep) -> Self {
+        Self {
+            proof: self.proof,
+            keep,
+        }
+    }
 }
 
 #[inline(always)]

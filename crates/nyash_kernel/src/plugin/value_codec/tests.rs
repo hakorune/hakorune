@@ -161,6 +161,62 @@ fn with_array_store_str_source_missing_handle_uses_missing_contract() {
 }
 
 #[test]
+fn retarget_borrowed_alias_from_verified_text_source_updates_slot() {
+    let old_value: Arc<dyn NyashBox> = Arc::new(StringBox::new("retarget-old".to_string()));
+    let new_value: Arc<dyn NyashBox> = Arc::new(StringBox::new("retarget-new".to_string()));
+    let old_h = handles::to_handle_arc(old_value) as i64;
+    let new_h = handles::to_handle_arc(new_value) as i64;
+    let old_obj = handles::get(old_h as u64).expect("old string handle");
+    let mut slot = store_string_box_from_source(old_h, Some(&old_obj), handles::drop_epoch());
+    let source_text = with_array_store_str_source(new_h, |source| match source {
+        ArrayStoreStrSource::StringLike(source_text) => source_text,
+        _ => panic!("expected string-like source"),
+    });
+
+    assert!(try_retarget_borrowed_string_slot_take_verified_text_source(
+        &mut slot,
+        new_h,
+        source_text,
+        handles::drop_epoch(),
+    )
+    .is_ok());
+    assert!(
+        slot.as_ref()
+            .equals(&StringBox::new("retarget-new".to_string()))
+            .value
+    );
+    assert_eq!(box_to_runtime_i64(slot), new_h);
+}
+
+#[test]
+fn verified_text_source_err_keeps_string_view_semantics() {
+    let base: Arc<dyn NyashBox> = Arc::new(StringBox::new("view-keep-proof".to_string()));
+    let base_h = handles::to_handle_arc(base.clone()) as i64;
+    let view: Arc<dyn NyashBox> = Arc::new(StringViewBox::new(base_h, base, 5, 9));
+    let view_h = handles::to_handle_arc(view) as i64;
+    let source_text = with_array_store_str_source(view_h, |source| match source {
+        ArrayStoreStrSource::StringLike(source_text) => source_text,
+        _ => panic!("expected string-like source"),
+    });
+    let mut slot: Box<dyn NyashBox> = Box::new(IntegerBox::new(7));
+
+    let source_text = try_retarget_borrowed_string_slot_take_verified_text_source(
+        &mut slot,
+        view_h,
+        source_text,
+        handles::drop_epoch(),
+    )
+    .expect_err("non-borrowed slot should return source text");
+    let boxed =
+        store_string_box_from_verified_text_source(view_h, &source_text, handles::drop_epoch());
+    let sb = boxed
+        .as_any()
+        .downcast_ref::<StringBox>()
+        .expect("string view source should still materialize as StringBox");
+    assert_eq!(sb.value, "keep");
+}
+
+#[test]
 fn store_string_box_from_source_prefers_borrowed_alias_for_string_handles() {
     let value: Arc<dyn NyashBox> = Arc::new(StringBox::new("store-alias".to_string()));
     let value_h = handles::to_handle_arc(value) as i64;

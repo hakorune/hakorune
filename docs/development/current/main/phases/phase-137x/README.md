@@ -333,6 +333,18 @@
        - test gate:
          - `cargo test --manifest-path crates/nyash_kernel/Cargo.toml --lib plugin::value_codec::tests` -> 19 passed
          - `cargo check --manifest-path crates/nyash_kernel/Cargo.toml` -> OK
+     - latest landed source-lifetime helper sealing:
+       - `array_string_slot.rs` no longer clones keep / rebuilds proof directly from `VerifiedTextSource`
+       - string-like retarget/store now go back through `value_codec` helpers:
+         - `try_retarget_borrowed_string_slot_take_verified_text_source(...)`
+         - `store_string_box_from_verified_text_source(...)`
+       - `VerifiedTextSource` now owns keep-preserving rewrite helpers for the retry path
+       - regression tests now pin:
+         - retarget success from verified string source into borrowed alias slot
+         - retry `Err` path preserves `StringView` semantics before store fallback
+       - test gate:
+         - `cargo test --manifest-path crates/nyash_kernel/Cargo.toml --lib plugin::value_codec::tests` -> 21 passed
+         - `cargo check --manifest-path crates/nyash_kernel/Cargo.toml` -> OK
     - latest landed const-suffix cache split:
       - `execute_const_suffix_contract(...)` now uses module-level cache helpers instead of carrying the text-cache closure shape inside the function body
       - hot cached-handle lookup stays on the same semantics, but the cache/read structure is flatter
