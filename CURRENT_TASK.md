@@ -263,6 +263,17 @@ Scope: repo root から current lane / next lane / restart read order に最短�
     - accept-gate reread:
       - `kilo_micro_array_string_store: 175 ms`
       - `kilo_kernel_small_hk: 699 ms`
+  - latest landed `string_classify.rs` split:
+    - moved `SourceKindCheck` and typed `ArrayStoreStrSource` construction out of
+      `string_store.rs` into `value_codec/string_classify.rs`
+    - `string_store.rs` now keeps materialize/objectize/publication and store fallback
+      execution only
+    - this is a no-behavior physical split after the module-string layer bypass removal
+    - accept-gate reread:
+      - `kilo_micro_array_string_store: 174 ms`
+      - `kilo_kernel_small_hk: 715 ms`
+    - one `1894 ms` whole-kilo outlier was discarded after the immediate reread
+      returned to the current band
   - latest landed keep/meta split:
     - `BorrowedHandleBox` now separates:
       - `TextKeep`
