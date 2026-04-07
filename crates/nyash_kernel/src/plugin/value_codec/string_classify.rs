@@ -41,6 +41,20 @@ impl VerifiedTextSource {
     }
 }
 
+#[inline(always)]
+fn materialize_verified_text_source(
+    source_obj: &Arc<dyn NyashBox>,
+    proof: StringLikeProof,
+) -> VerifiedTextSource {
+    VerifiedTextSource::new(
+        proof,
+        match proof {
+            StringLikeProof::StringBox => SourceLifetimeKeep::string_box(source_obj.clone()),
+            StringLikeProof::StringView => SourceLifetimeKeep::string_view(source_obj.clone()),
+        },
+    )
+}
+
 #[derive(Clone)]
 pub(crate) enum ArrayStoreStrSource {
     StringLike(VerifiedTextSource),
@@ -119,17 +133,12 @@ pub(crate) fn with_array_store_str_source<R>(
         handles::PerfObserveObjectWithHandleCaller::ArrayStoreStrSource,
         |source_obj| {
             let source = match classify_string_like_proof(source_obj) {
-                Some(proof) => ArrayStoreStrSource::StringLike(VerifiedTextSource::new(
-                    proof,
-                    match proof {
-                        StringLikeProof::StringBox => SourceLifetimeKeep::string_box(
-                            source_obj.expect("string-like source object").clone(),
-                        ),
-                        StringLikeProof::StringView => SourceLifetimeKeep::string_view(
-                            source_obj.expect("string-like source object").clone(),
-                        ),
-                    },
-                )),
+                Some(proof) => {
+                    let source_obj = source_obj.expect("string-like source object");
+                    ArrayStoreStrSource::StringLike(materialize_verified_text_source(
+                        source_obj, proof,
+                    ))
+                }
                 None if source_obj.is_some() => {
                     ArrayStoreStrSource::OtherObject(source_obj.expect("object source").clone())
                 }

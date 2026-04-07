@@ -42,7 +42,8 @@ impl TextKeepBacking {
         self.stable_box.as_ref().to_string_box().value
     }
 
-    #[inline(always)]
+    #[cold]
+    #[inline(never)]
     fn clone_stable_box_cold_fallback(&self) -> Arc<dyn NyashBox> {
         self.stable_box.clone()
     }
@@ -141,8 +142,9 @@ impl TextKeep {
         }
     }
 
-    #[inline(always)]
-    fn stable_object_ref(&self) -> &Arc<dyn NyashBox> {
+    #[cold]
+    #[inline(never)]
+    fn cold_stable_object_ref(&self) -> &Arc<dyn NyashBox> {
         self.source_lifetime.backing().stable_box_ref()
     }
 
@@ -153,7 +155,8 @@ impl TextKeep {
             .ptr_eq_backing(keep.backing())
     }
 
-    #[inline(always)]
+    #[cold]
+    #[inline(never)]
     fn clone_stable_box_cold_fallback(&self) -> Arc<dyn NyashBox> {
         self.source_lifetime.clone_stable_box_cold_fallback()
     }
@@ -232,14 +235,15 @@ impl BorrowedHandleBox {
         }
     }
 
-    #[inline(always)]
-    fn stable_object_ref(&self) -> &Arc<dyn NyashBox> {
-        self.text_keep.stable_object_ref()
+    #[cold]
+    #[inline(never)]
+    fn cold_stable_object_ref(&self) -> &Arc<dyn NyashBox> {
+        self.text_keep.cold_stable_object_ref()
     }
 
     #[inline(always)]
     pub(crate) fn encode_fallback_box_ref(&self) -> &dyn NyashBox {
-        self.stable_object_ref().as_ref()
+        self.cold_stable_object_ref().as_ref()
     }
 
     #[inline(always)]
@@ -254,7 +258,7 @@ impl BorrowedHandleBox {
 
     #[inline(always)]
     pub(crate) fn ptr_eq_source_object(&self, other: &Arc<dyn NyashBox>) -> bool {
-        Arc::ptr_eq(self.stable_object_ref(), other)
+        Arc::ptr_eq(self.cold_stable_object_ref(), other)
     }
 
     #[inline(always)]
@@ -316,11 +320,14 @@ impl NyashBox for BorrowedHandleBox {
         if let Some(other_alias) = other.as_any().downcast_ref::<BorrowedHandleBox>() {
             return self
                 .text_keep
-                .stable_object_ref()
+                .cold_stable_object_ref()
                 .as_ref()
-                .equals(other_alias.text_keep.stable_object_ref().as_ref());
+                .equals(other_alias.text_keep.cold_stable_object_ref().as_ref());
         }
-        self.text_keep.stable_object_ref().as_ref().equals(other)
+        self.text_keep
+            .cold_stable_object_ref()
+            .as_ref()
+            .equals(other)
     }
 
     fn type_name(&self) -> &'static str {

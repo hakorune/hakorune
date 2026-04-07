@@ -156,6 +156,16 @@ Scope: repo root から current lane / next lane / restart read order に最短�
       - `kilo_micro_array_string_store: 173 ms`
       - `kilo_micro_concat_hh_len: 63 ms`
       - `kilo_kernel_small_hk: 708 ms`
+  - latest landed classification/materialization split:
+    - `with_array_store_str_source(...)` now classifies the source first and materializes `SourceLifetimeKeep` through `materialize_verified_text_source(...)`
+    - `BorrowedHandleBox` cold object fallback helpers are now named explicitly as cold surfaces:
+      - `cold_stable_object_ref()`
+      - `clone_stable_box_cold_fallback()`
+    - this is still no-behavior-change; it makes the keep/object fallback seam explicit without splitting the hot executor
+    - accept-gate reread:
+      - `kilo_micro_array_string_store: 179 ms`
+      - `kilo_meso_indexof_append_array_set: 155 ms`
+      - `kilo_kernel_small_hk: 710 ms`
   - close proof-carrying keep direct path:
     - carrying `StringLikeProof` inside `TextKeep` and using proof-specific `as_str_fast()` was a regress
     - 3-run plain release:
