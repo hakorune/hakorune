@@ -1028,6 +1028,50 @@ Related:
 
 - only reopen if another slice already changes the hot caller shape and the provider cleanup can ride along with a measured win
 
+### 2026-04-09: `substring_hii` route/provider snapshot + eager `DROP_EPOCH` snapshot
+
+**Hypothesis**
+
+- move the successful `len_h` box idea one level down into the active `substring_hii` caller
+- capture route/provider state at entry and carry a single `DROP_EPOCH` snapshot into `SubstringViewArcCache`
+- this should narrow the cache-entry kernel without changing runtime cache mechanics
+
+**Touched owner area**
+
+- [string_debug.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_debug.rs)
+- [string_helpers.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers.rs)
+- [cache.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers/cache.rs)
+
+**Observed result**
+
+- exact:
+  - `kilo_micro_substring_only: instr=53,272,488 / cycles=8,244,187 / cache-miss=9,499 / AOT 5 ms`
+  - `kilo_micro_substring_views_only: instr=38,272,706 / cycles=6,550,726 / cache-miss=9,201 / AOT 4 ms`
+  - `kilo_micro_len_substring_views: instr=16,072,566 / cycles=4,508,116 / cache-miss=9,651 / AOT 4 ms`
+- whole:
+  - `kilo_kernel_small_hk strict = 751 ms`
+  - parity ok
+- asm:
+  - route/provider prologue widened before the cache-entry block
+  - eager `DROP_EPOCH` snapshot moved the load earlier, but did not remove the later expensive mechanics enough to compensate
+  - `substring_hii` still carried the reissue-side `REG` ready probe path, so the new entry work became pure overhead on this front
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Why**
+
+- this was not a provider-only retry; it paired route snapshot with the cache-entry epoch source, but the result still regressed both exact fronts and whole strict
+- the active hot path is sensitive to extra caller-entry work, and the eager `DROP_EPOCH` snapshot widened the prologue before any compare-path win showed up
+- for `substring_hii`, the next keeper slice must reduce caller-entry work or immediately pay for itself with an asm-visible reduction below the TLS entry
+
+**Reopen Condition**
+
+- only reopen if the route/provider snapshot is paired with a demonstrated removal in the hot cache-entry/TLS block
+- do not reopen with eager `DROP_EPOCH` capture by itself
+
 ## Next Candidate
 
 - keep substring runtime mechanics in Rust
