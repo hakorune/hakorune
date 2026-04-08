@@ -39,6 +39,8 @@ Fixed micro cases (files live in `benchmarks/` + `benchmarks/c/`):
 
 - `kilo_micro_indexof_line`: indexOf-heavy loop with stable array routing
 - `kilo_micro_substring_only`: substring-only loop, no concat and no loop-carry
+- `kilo_micro_substring_views_only`: retained-view substring publication/reuse only
+- `kilo_micro_len_substring_views`: `len_h` on stable retained substring views only
 - `kilo_micro_substring_concat`: substring + concat tight loop
 - `kilo_micro_array_getset`: integer-key array get/set loop
 
@@ -63,6 +65,10 @@ tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_indexof_line 1 15
 
 # Run all three fixed cases
 tools/perf/run_kilo_micro_machine_ladder.sh 1 15
+
+# Current string split pack:
+# mixed accept gate -> substring-only split -> len-only split -> whole strict
+tools/perf/run_kilo_string_split_pack.sh 1 15
 
 # Run the meso split ladder
 tools/perf/run_kilo_meso_machine_ladder.sh 1 15
@@ -90,6 +96,13 @@ AOT runs in this lane use deterministic defaults unless explicitly overridden:
 - `NYASH_SCHED_POLL_IN_SAFEPOINT=0`
 - `NYASH_DISABLE_PLUGINS=1`
 - `NYASH_SKIP_TOML_ENV=1`
+
+Current string split reading rule:
+
+- keep `kilo_micro_substring_only` as the accept gate
+- use `kilo_micro_substring_views_only` to read retained-view publication/reuse by itself
+- use `kilo_micro_len_substring_views` to read `len_h` on stable views by itself
+- use `tools/perf/run_kilo_string_split_pack.sh` when the active wave is the substring/len split lane
 
 ## Notes
 

@@ -81,12 +81,9 @@
 - safe restart order:
   1. `git status -sb`
   2. `tools/checks/dev_gate.sh quick`
-  3. `tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_only 1 3`
-  4. `tools/perf/run_kilo_hk_bench.sh strict 1 3`
-  5. `tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_views_only 1 3`
-  6. `tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_len_substring_views 1 3`
-  7. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_only '' 20`
-  8. read the rejected ledger before retrying any substring-local cut
+  3. `tools/perf/run_kilo_string_split_pack.sh 1 3`
+  4. `tools/perf/bench_micro_aot_asm.sh kilo_micro_len_substring_views 'nyash.string.len_h' 20`
+  5. read the rejected ledger before retrying any substring-local cut
 - documentation rule for failed perf cuts:
   1. keep a short current summary in this README
   2. keep exact rejected-cut evidence in one rolling investigation doc per front/family/date
