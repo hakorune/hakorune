@@ -35,6 +35,8 @@
 - restart with the code as it is now
 - runtime-wide pattern anchor is now:
   - `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+- current upstream string corridor design anchor is now:
+  - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
 - mixed accept gate stays `kilo_micro_substring_only`
 - split exact fronts are now:
   - `kilo_micro_substring_views_only`
@@ -100,6 +102,7 @@
   - live-source direct-read widening on `as_str_fast()`
   - global `dispatch` / `trace` false-state fast probes outside `string_len_export_impl()`
   - lifting substring runtime cache mechanics into `.hako` or `MIR`
+  - widening `@rune` beyond declaration-local metadata for this lane
   - generic scalar/cache/route frameworks before a second lane proves the same keeper pattern
 - rejected local probes are now centralized in:
   - [phase137x-substring-rejected-optimizations-2026-04-08.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/investigations/phase137x-substring-rejected-optimizations-2026-04-08.md)
@@ -135,42 +138,37 @@
   2. use `kilo_micro_substring_views_only` for local `substring_hii` cuts
   3. keep `len_h` runtime mechanics stable unless split fronts move again
   4. latest keeper already removed the remaining `len_h` control-plane hot loads
-  5. both `len_lane` separation-only and combined lane+snapshot retries were rejected; lane boundary alone is not the next keeper slice
-  6. the earlier `drop_epoch()` global mirror rejection was invalidated by stale release artifacts; the hypothesis is now landed, and future perf reads must rebuild release artifacts first
-  7. fixed task order:
-     - step 1: do not retry the same `len_h`-specific 4-box slice as-is; it did not clear exact or asm gates
-     - step 2: keep this lane specific; do not generalize into a reusable scalar framework until the `len_h` box shape actually wins
-     - step 3: next keeper candidate must be `substring_hii`-local and beat `kilo_micro_substring_views_only`
-     - step 4: do not swap the active `substring` providers to `raw read + cold init` as one slice; that provider-adoption cut regressed the local split
-     - step 5: do not duplicate the common-case `substring_hii` body again; the earlier `route_raw == 0b111` duplication regressed badly
-     - step 6: next shape cleanup must stay below the active caller or pair with an asm-visible win
-     - step 7: `substring_route_policy()` cold split alone is also blocked; even with the caller unchanged it regressed the local split
-     - step 8: any future `len_h` reopen must preserve direct dispatch probe + single trace-state load + direct `DROP_EPOCH` load
-     - step 9: only after a second lane confirms the same keeper invariant, consider generic framework extraction
-     - step 10: only after `substring_hii` is re-read under the new split pair, reconsider a crate-local lane/kernel boundary
-     - step 11: do not retry the same `substring_hii` route/provider snapshot with eager `DROP_EPOCH` capture; it widened the caller prologue and regressed exact/whole together
-     - step 12: do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear in isolation; it regressed every split front and whole strict
-  8. `len_h` で当たった box 理論は pattern としてだけ再利用する:
-     - active target is no longer `len_h`
-     - read the next `substring_hii` slice as:
-       1. route/provider snapshot box
-       2. hot cache-entry kernel
-       3. cold slow-plan / materialize sink
-     - keep runtime cache mechanics in Rust; do not lift them into `.hako` / `MIR`
-  9. next implementation order is fixed:
-     - step 1: snapshot route/provider state at the active caller entry
-     - step 2: shrink the hot cache-entry kernel under that snapshot
-     - step 3: only after an asm-visible win, isolate cold slow-plan / materialize farther away
-     - step 4: only after a `substring_hii` keeper, reconsider a crate-local kernel boundary
-  10. next local cut must show an exact-visible or asm-visible change on `substring_hii` before keeper evaluation
+  5. current pivot is upstream, not another leaf-local `substring_hii` split:
+     - `.hako policy -> canonical MIR facts -> placement/effect pass -> Rust microkernel -> LLVM`
+  6. do not add a permanent second public MIR dialect for this wave
+  7. both `len_lane` separation-only and combined lane+snapshot retries were rejected; lane boundary alone is not the next keeper slice
+  8. the earlier `drop_epoch()` global mirror rejection was invalidated by stale release artifacts; the hypothesis is now landed, and future perf reads must rebuild release artifacts first
+  9. fixed task order:
+     - step 1: docs-first; treat `string-canonical-mir-corridor-and-placement-pass-ssot.md` as the active design owner
+     - step 2: inventory canonical string corridor sites and current lowering carriers for `str.slice` / `str.len` / `freeze.str`
+     - step 3: add a canonical MIR-side fact carrier for string outcome/effect reading with no runtime behavior change
+     - step 4: add a placement/effect pass scaffold that is no-op or trace-only first
+     - step 5: land the first borrowed-corridor sinking pilot before reopening new runtime leaf cuts
+     - step 6: after corridor facts stabilize, add AOT-internal direct kernel entry selection; ABI/FFI keeps the facade
+     - step 7: only then reopen new `substring_hii` runtime leaf cuts, and only with exact/asm proof
+     - step 8: do not retry the same `len_h`-specific 4-box slice as-is; it did not clear exact or asm gates
+     - step 9: keep this lane specific; do not generalize into a reusable scalar framework until a second lane wins the same pattern
+     - step 10: do not swap the active `substring` providers to `raw read + cold init` as one slice; that provider-adoption cut regressed the local split
+     - step 11: do not duplicate the common-case `substring_hii` body again; the earlier `route_raw == 0b111` duplication regressed badly
+     - step 12: `substring_route_policy()` cold split alone is also blocked; even with the caller unchanged it regressed the local split
+     - step 13: any future `len_h` reopen must preserve direct dispatch probe + single trace-state load + direct `DROP_EPOCH` load
+     - step 14: do not retry the same `substring_hii` route/provider snapshot with eager `DROP_EPOCH` capture; it widened the caller prologue and regressed exact/whole together
+     - step 15: do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear in isolation; it regressed every split front and whole strict
+  10. next local cut must show an exact-visible or asm-visible change on `substring_hii`, but only after the upstream corridor slices are in place
 - safe restart order:
   1. `git status -sb`
   2. `tools/checks/dev_gate.sh quick`
   3. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-  4. after any `nyash_kernel` / `hakorune` runtime source edit, rerun `bash tools/perf/build_perf_release.sh` before exact micro / asm probes
-  5. `tools/perf/run_kilo_string_split_pack.sh 1 3`
-  6. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_views_only 'nyash.string.substring_hii' 200`
-  7. read the rejected ledger before retrying any substring-local cut
+  4. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+  5. after any `nyash_kernel` / `hakorune` runtime source edit, rerun `bash tools/perf/build_perf_release.sh` before exact micro / asm probes
+  6. `tools/perf/run_kilo_string_split_pack.sh 1 3`
+  7. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_views_only 'nyash.string.substring_hii' 200`
+  8. read the rejected ledger before retrying any substring-local cut
 - documentation rule for failed perf cuts:
   1. keep a short current summary in this README
   2. keep exact rejected-cut evidence in one rolling investigation doc per front/family/date

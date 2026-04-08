@@ -24,6 +24,8 @@ Scope: repo root から current lane / current front / restart read order に最
   - clean after the latest keeper commit
 - runtime-wide pattern anchor:
   - `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+- current string corridor design anchor:
+  - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
 - active lane/front:
   - lane: `phase-137x main kilo reopen selection`
   - accept gate front: `kilo_micro_substring_only`
@@ -66,6 +68,7 @@ Scope: repo root から current lane / current front / restart read order に最
   - live-source direct-read widening on `as_str_fast()`
   - global `dispatch` / `trace` false-state fast probes outside `string_len_export_impl()`
   - lifting substring runtime cache mechanics (`cache lookup` / `source liveness check` / `handle reissue`) into `.hako` or `MIR`
+  - widening `@rune` beyond declaration-local metadata for this lane
   - generic scalar/cache/route frameworks before a second keeper lane proves the same invariant
 - current landed substring truth:
   - `str.substring.route` observe read shows `view_arc_cache_handle_hit=599,998 / total=600,000`
@@ -127,33 +130,39 @@ Scope: repo root から current lane / current front / restart read order に最
   - use `kilo_micro_substring_views_only` for local `substring_hii` cuts
   - keep `len_h` runtime mechanics stable unless split fronts move again
   - latest keeper eliminated the remaining `len_h` control-plane hot loads; do not reopen `len_h` local cuts until `substring` is re-read
-  - active shape rule:
-    - do not read the successful `len_h` 3-box advice literally; reuse the pattern on `substring_hii`
-    - active `substring_hii` box split is:
-      1. route/provider snapshot box
-      2. hot cache-entry kernel
-      3. cold slow-plan / materialize sink
+  - active design rule:
+    - stop treating the next move as another `substring_hii` leaf/provider/cache split
+    - current upstream design is:
+      - `.hako policy -> canonical MIR facts -> placement/effect pass -> Rust microkernel -> LLVM`
+    - do not add a permanent second public MIR dialect
+    - do not widen current `@rune` surface for boundary/cache/provider mechanics
   - task order is fixed:
-    1. do not retry `len_lane` separation by itself; both separation-only and combined snapshot retries failed keeper gates
-    2. the earlier `drop_epoch()` global mirror rejection was invalidated by stale release artifacts; the hypothesis is now landed, and future perf reads must rebuild release artifacts first
-    3. do not retry the same `len_h`-specific 4-box slice as-is; it lost before the control-plane fixes landed
-    4. `len_h` の箱が当たるまで generic framework にはしない; reusable abstraction は後回し
-    5. do not genericize implementation from `string` alone; first collect keeper patterns in the runtime-hot-lane pattern SSOT
-    6. active implementation order for `substring_hii` is fixed:
-       - step 1: capture route/provider snapshot at entry; target `route policy / fallback / dispatch / drop_epoch` reads, but keep runtime cache mechanics in Rust
-       - step 2: narrow the hot cache-entry kernel under that snapshot; target `SUBSTRING_VIEW_ARC_CACHE` TLS entry/state check and steady-state compare path
-       - step 3: only after an asm-visible win, isolate cold slow-plan / materialize work farther from the hot caller
-       - step 4: only after a `substring_hii` keeper, reconsider a crate-local lane/kernel boundary
-       - step 5: only after a second lane proves the same invariant, discuss generic framework extraction
-    7. hot caller での `substring` provider swap は 1 本では keep しない:
+    1. docs-first: treat `string-canonical-mir-corridor-and-placement-pass-ssot.md` as the active design owner for this wave
+    2. first implementation slice is MIR-side inventory for `str.slice` / `str.len` / `freeze.str` facts; no runtime behavior change
+    3. second slice is a canonical MIR fact carrier for string outcome/effect reading; dumps must expose the facts
+    4. third slice is a placement/effect pass scaffold that is trace-only or no-op first
+    5. fourth slice is the first real borrowed-corridor sinking pilot; prefer the narrowest internal `str.slice -> str.len` style corridor
+    6. fifth slice is AOT-internal direct kernel entry selection; ABI/FFI keeps the facade
+    7. only after the upstream corridor slices land and move exact/asm, reopen new `substring_hii` runtime leaf cuts
+    8. keep the cross-lane scope-control table in `string-canonical-mir-corridor-and-placement-pass-ssot.md` truthful; do not let the `string` pilot silently redefine `array/map` or ABI structure
+    9. do not retry `len_lane` separation by itself; both separation-only and combined snapshot retries failed keeper gates
+    10. the earlier `drop_epoch()` global mirror rejection was invalidated by stale release artifacts; the hypothesis is now landed, and future perf reads must rebuild release artifacts first
+    11. do not retry the same `len_h`-specific 4-box slice as-is; it lost before the control-plane fixes landed
+    12. `len_h` の箱が当たるまで generic framework にはしない; reusable abstraction は後回し
+    13. do not genericize implementation from `string` alone; first collect keeper patterns in the runtime-hot-lane pattern SSOT
+    14. hot caller での `substring` provider swap は 1 本では keep しない:
        `substring_view_enabled` / fallback policy / route policy を同時に `raw read + cold init` へ切り替える slice は local front を落とした
-    8. shape cleanup では hot body duplication をしない; `route_raw == common-case` の全文複製は reopen しない
-    9. next shape cleanup must stay below the active caller or pair with an asm-visible win; provider foundation only is allowed, but hot caller adoption needs proof
-    10. `substring_route_policy()` cold split alone is also blocked; even without caller adoption it lost the local split
-    11. if a future slice reopens `len_h`, it must beat the new `DROP_EPOCH`-based asm and preserve direct dispatch / single trace-state loads
-    12. do not retry the same `substring_hii` route/provider snapshot with eager `DROP_EPOCH` capture; it regressed both exact fronts and whole strict before any cache-entry win appeared
-    13. do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear path in isolation; the call boundary/code layout regressed all split fronts badly
+    15. shape cleanup では hot body duplication をしない; `route_raw == common-case` の全文複製は reopen しない
+    16. next shape cleanup must stay below the active caller or pair with an asm-visible win; provider foundation only is allowed, but hot caller adoption needs proof
+    17. `substring_route_policy()` cold split alone is also blocked; even without caller adoption it lost the local split
+    18. if a future slice reopens `len_h`, it must beat the new `DROP_EPOCH`-based asm and preserve direct dispatch / single trace-state loads
+    19. do not retry the same `substring_hii` route/provider snapshot with eager `DROP_EPOCH` capture; it regressed both exact fronts and whole strict before any cache-entry win appeared
+    20. do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear path in isolation; the call boundary/code layout regressed all split fronts badly
 - first files to reopen for the next slice:
+  - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+  - `crates/hakorune_mir_core/src/effect.rs`
+  - `crates/hakorune_mir_defs/src/call_unified.rs`
+  - `src/mir/**`
   - `crates/nyash_kernel/src/exports/string_helpers.rs`
   - `crates/nyash_kernel/src/exports/string_helpers/cache.rs`
   - `crates/nyash_kernel/src/exports/string_debug.rs`
@@ -165,10 +174,11 @@ Scope: repo root から current lane / current front / restart read order に最
   1. `git status -sb`
   2. `tools/checks/dev_gate.sh quick`
   3. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-  4. after any `nyash_kernel` / `hakorune` runtime source edit, rerun `bash tools/perf/build_perf_release.sh` before exact micro / asm probes
-  5. `tools/perf/run_kilo_string_split_pack.sh 1 3`
-  6. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_views_only 'nyash.string.substring_hii' 200`
-  7. `docs/development/current/main/investigations/phase137x-substring-rejected-optimizations-2026-04-08.md`
+  4. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+  5. after any `nyash_kernel` / `hakorune` runtime source edit, rerun `bash tools/perf/build_perf_release.sh` before exact micro / asm probes
+  6. `tools/perf/run_kilo_string_split_pack.sh 1 3`
+  7. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_views_only 'nyash.string.substring_hii' 200`
+  8. `docs/development/current/main/investigations/phase137x-substring-rejected-optimizations-2026-04-08.md`
 - documentation rule for failed perf cuts:
   1. keep a short current summary in the phase README
   2. keep exact rejected-cut evidence in one rolling doc per front/family/date
