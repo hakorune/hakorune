@@ -33,6 +33,8 @@
 
 - this block is the current truth for restart; if older numbers below disagree, prefer this block
 - restart with the code as it is now
+- runtime-wide pattern anchor is now:
+  - `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
 - mixed accept gate stays `kilo_micro_substring_only`
 - split exact fronts are now:
   - `kilo_micro_substring_views_only`
@@ -79,6 +81,7 @@
   - live-source direct-read widening on `as_str_fast()`
   - global `dispatch` / `trace` false-state fast probes outside `string_len_export_impl()`
   - lifting substring runtime cache mechanics into `.hako` or `MIR`
+  - generic scalar/cache/route frameworks before a second lane proves the same keeper pattern
 - rejected local probes are now centralized in:
   - [phase137x-substring-rejected-optimizations-2026-04-08.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/investigations/phase137x-substring-rejected-optimizations-2026-04-08.md)
   - current rejected list:
@@ -113,15 +116,17 @@
      - step 2: keep this lane specific; do not generalize into a reusable scalar framework until the `len_h` box shape actually wins
      - step 3: next keeper candidate must be `substring_hii`-local and beat `kilo_micro_substring_views_only`
      - step 4: any future `len_h` reopen must preserve direct dispatch probe + single trace-state load + direct `DROP_EPOCH` load
-     - step 5: only after `substring_hii` is re-read under the new split pair, reconsider a crate-local lane/kernel boundary
+     - step 5: only after a second lane confirms the same keeper invariant, consider generic framework extraction
+     - step 6: only after `substring_hii` is re-read under the new split pair, reconsider a crate-local lane/kernel boundary
   8. next local cut must show an exact-visible or asm-visible change on `substring_hii` before keeper evaluation
 - safe restart order:
   1. `git status -sb`
   2. `tools/checks/dev_gate.sh quick`
-  3. after any `nyash_kernel` / `hakorune` runtime source edit, rerun `bash tools/perf/build_perf_release.sh` before exact micro / asm probes
-  4. `tools/perf/run_kilo_string_split_pack.sh 1 3`
-  5. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_views_only 'nyash.string.substring_hii' 20`
-  6. read the rejected ledger before retrying any substring-local cut
+  3. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+  4. after any `nyash_kernel` / `hakorune` runtime source edit, rerun `bash tools/perf/build_perf_release.sh` before exact micro / asm probes
+  5. `tools/perf/run_kilo_string_split_pack.sh 1 3`
+  6. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_views_only 'nyash.string.substring_hii' 20`
+  7. read the rejected ledger before retrying any substring-local cut
 - documentation rule for failed perf cuts:
   1. keep a short current summary in this README
   2. keep exact rejected-cut evidence in one rolling investigation doc per front/family/date

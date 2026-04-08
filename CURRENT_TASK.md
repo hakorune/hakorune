@@ -22,6 +22,8 @@ Scope: repo root から current lane / current front / restart read order に最
 
 - current expected worktree on reopen:
   - clean after the latest keeper commit
+- runtime-wide pattern anchor:
+  - `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
 - active lane/front:
   - lane: `phase-137x main kilo reopen selection`
   - accept gate front: `kilo_micro_substring_only`
@@ -59,6 +61,7 @@ Scope: repo root から current lane / current front / restart read order に最
   - live-source direct-read widening on `as_str_fast()`
   - global `dispatch` / `trace` false-state fast probes outside `string_len_export_impl()`
   - lifting substring runtime cache mechanics (`cache lookup` / `source liveness check` / `handle reissue`) into `.hako` or `MIR`
+  - generic scalar/cache/route frameworks before a second keeper lane proves the same invariant
 - current landed substring truth:
   - `str.substring.route` observe read shows `view_arc_cache_handle_hit=599,998 / total=600,000`
   - `view_arc_cache_reissue_hit=0`, `view_arc_cache_miss=2`, `fast_cache_hit=0`, `dispatch_hit=0`, `slow_plan=2`
@@ -103,9 +106,10 @@ Scope: repo root から current lane / current front / restart read order に最
     2. the earlier `drop_epoch()` global mirror rejection was invalidated by stale release artifacts; the hypothesis is now landed, and future perf reads must rebuild release artifacts first
     3. do not retry the same `len_h`-specific 4-box slice as-is; it lost before the control-plane fixes landed
     4. `len_h` の箱が当たるまで generic framework にはしない; reusable abstraction は後回し
-    5. next local cut must be `substring_hii`-local and show an asm-visible or exact-visible win on `kilo_micro_substring_views_only`
-    6. if a future slice reopens `len_h`, it must beat the new `DROP_EPOCH`-based asm and preserve direct dispatch / single trace-state loads
-    7. only after `substring_hii` is re-read under the new split pair, reconsider a crate-local lane/kernel boundary
+    5. do not genericize implementation from `string` alone; first collect keeper patterns in the runtime-hot-lane pattern SSOT
+    6. next local cut must be `substring_hii`-local and show an asm-visible or exact-visible win on `kilo_micro_substring_views_only`
+    7. if a future slice reopens `len_h`, it must beat the new `DROP_EPOCH`-based asm and preserve direct dispatch / single trace-state loads
+    8. only after `substring_hii` is re-read under the new split pair, reconsider a crate-local lane/kernel boundary
 - first files to reopen for the next slice:
   - `crates/nyash_kernel/src/exports/string_helpers.rs`
   - `crates/nyash_kernel/src/exports/string_helpers/cache.rs`
@@ -115,10 +119,11 @@ Scope: repo root から current lane / current front / restart read order に最
 - safe restart order:
   1. `git status -sb`
   2. `tools/checks/dev_gate.sh quick`
-  3. after any `nyash_kernel` / `hakorune` runtime source edit, rerun `bash tools/perf/build_perf_release.sh` before exact micro / asm probes
-  4. `tools/perf/run_kilo_string_split_pack.sh 1 3`
-  5. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_views_only 'nyash.string.substring_hii' 20`
-  6. `docs/development/current/main/investigations/phase137x-substring-rejected-optimizations-2026-04-08.md`
+  3. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+  4. after any `nyash_kernel` / `hakorune` runtime source edit, rerun `bash tools/perf/build_perf_release.sh` before exact micro / asm probes
+  5. `tools/perf/run_kilo_string_split_pack.sh 1 3`
+  6. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_views_only 'nyash.string.substring_hii' 20`
+  7. `docs/development/current/main/investigations/phase137x-substring-rejected-optimizations-2026-04-08.md`
 - documentation rule for failed perf cuts:
   1. keep a short current summary in the phase README
   2. keep exact rejected-cut evidence in one rolling doc per front/family/date
