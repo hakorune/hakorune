@@ -129,6 +129,7 @@
     23. `substring` provider `raw read + cold init` adoption (`substring_view_enabled` / fallback policy / route policy)
     24. `substring_route_policy()` cold init split while keeping the active caller shape unchanged
     25. `substring_hii` route/provider snapshot + eager `DROP_EPOCH` snapshot
+    26. `SubstringViewArcCache::entry_hit` reissue/clear cold split
 - next active cut:
   1. keep `kilo_micro_substring_only` as accept gate
   2. use `kilo_micro_substring_views_only` for local `substring_hii` cuts
@@ -148,6 +149,7 @@
      - step 9: only after a second lane confirms the same keeper invariant, consider generic framework extraction
      - step 10: only after `substring_hii` is re-read under the new split pair, reconsider a crate-local lane/kernel boundary
      - step 11: do not retry the same `substring_hii` route/provider snapshot with eager `DROP_EPOCH` capture; it widened the caller prologue and regressed exact/whole together
+     - step 12: do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear in isolation; it regressed every split front and whole strict
   8. `len_h` で当たった box 理論は pattern としてだけ再利用する:
      - active target is no longer `len_h`
      - read the next `substring_hii` slice as:

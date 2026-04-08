@@ -121,6 +121,7 @@ Scope: repo root から current lane / current front / restart read order に最
     23. `substring` provider `raw read + cold init` adoption (`substring_view_enabled` / fallback policy / route policy)
     24. `substring_route_policy()` cold init split while keeping the active caller shape unchanged
     25. `substring_hii` route/provider snapshot + eager `DROP_EPOCH` snapshot
+    26. `SubstringViewArcCache::entry_hit` reissue/clear cold split
 - next active cut:
   - keep `kilo_micro_substring_only` as accept gate
   - use `kilo_micro_substring_views_only` for local `substring_hii` cuts
@@ -151,6 +152,7 @@ Scope: repo root から current lane / current front / restart read order に最
     10. `substring_route_policy()` cold split alone is also blocked; even without caller adoption it lost the local split
     11. if a future slice reopens `len_h`, it must beat the new `DROP_EPOCH`-based asm and preserve direct dispatch / single trace-state loads
     12. do not retry the same `substring_hii` route/provider snapshot with eager `DROP_EPOCH` capture; it regressed both exact fronts and whole strict before any cache-entry win appeared
+    13. do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear path in isolation; the call boundary/code layout regressed all split fronts badly
 - first files to reopen for the next slice:
   - `crates/nyash_kernel/src/exports/string_helpers.rs`
   - `crates/nyash_kernel/src/exports/string_helpers/cache.rs`

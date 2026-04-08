@@ -1072,6 +1072,43 @@ Related:
 - only reopen if the route/provider snapshot is paired with a demonstrated removal in the hot cache-entry/TLS block
 - do not reopen with eager `DROP_EPOCH` capture by itself
 
+### 2026-04-09: `SubstringViewArcCache::entry_hit` reissue/clear cold split
+
+**Hypothesis**
+
+- reissue is effectively zero on the active front, so
+- pushing `entry_hit`'s reissue/clear side into a cold helper should shrink the steady-state cache-entry block
+- this is a cache-entry-kernel cut below the active caller, without changing route/provider shape
+
+**Touched owner area**
+
+- [cache.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers/cache.rs)
+
+**Observed result**
+
+- exact:
+  - `kilo_micro_substring_only: instr=65,272,135 / cycles=10,897,675 / cache-miss=9,826 / AOT 5 ms`
+  - `kilo_micro_substring_views_only: instr=50,273,602 / cycles=8,475,540 / cache-miss=8,757 / AOT 5 ms`
+  - `kilo_micro_len_substring_views: instr=16,072,650 / cycles=3,730,554 / cache-miss=9,411 / AOT 3 ms`
+- whole:
+  - `kilo_kernel_small_hk strict = 864 ms`
+  - parity ok
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Why**
+
+- isolating the rare reissue path as a cold helper did not shrink the hot block in practice; it produced a much worse code layout and regressed every relevant front
+- the active `substring_hii` fast path appears very sensitive to this extra call boundary / layout split
+- for this lane, `entry_hit` is not a safe place for isolated cold splitting
+
+**Reopen Condition**
+
+- never reopen in this form
+
 ## Next Candidate
 
 - keep substring runtime mechanics in Rust
