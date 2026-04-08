@@ -9,6 +9,7 @@ pub mod escape;
 pub mod method_id_inject;
 pub mod rc_insertion;
 pub mod rc_insertion_helpers;
+pub mod string_corridor_sink;
 pub mod type_hints;
 
 /// Minimal pass trait for future expansion. Currently unused by the main

@@ -95,6 +95,10 @@
   - split exact reread now moves first priority back to `substring_hii`; `len_h` becomes the control split
   - pure Rust reference is the current lower bound for this front; current AOT is about `6.06x instr / 4.10x cycles` over it
   - C-like Rust reference is the current contract-aligned comparison point; current AOT is about `2.73x instr / 1.91x cycles` over it
+  - upstream corridor pilot is now structurally landed:
+    - single-use `substring(...).length()` chains sink to `nyash.string.substring_len_hii`
+    - kernel export + MIR interpreter fallback are in place
+    - this is not yet a perf keeper; exact/whole/asm validation is still pending
   - `nyash.string.substring_hii` / `nyash.string.len_h` / `trace_borrowed_substring_plan` stay as the fallback semantic carrier
   - WSL validation rule stays `3 runs + perf`
 - do not reopen for this lane:
@@ -148,17 +152,18 @@
      - step 2: landed; inventory canonical string corridor sites and current lowering carriers for `str.slice` / `str.len` / `freeze.str` via `src/mir/string_corridor.rs`
      - step 3: landed; canonical MIR-side fact carrier is `FunctionMetadata.string_corridor_facts`, and verbose dumps expose it with no runtime behavior change
      - step 4: landed; `src/mir/string_corridor_placement.rs` now reads `FunctionMetadata.string_corridor_facts`, emits no-op candidate decisions into `FunctionMetadata.string_corridor_candidates`, and exposes them in verbose MIR dumps
-     - step 5: next; land the first borrowed-corridor sinking pilot before reopening new runtime leaf cuts
-     - step 6: after corridor facts stabilize, add AOT-internal direct kernel entry selection; ABI/FFI keeps the facade
-     - step 7: only then reopen new `substring_hii` runtime leaf cuts, and only with exact/asm proof
-     - step 8: do not retry the same `len_h`-specific 4-box slice as-is; it did not clear exact or asm gates
-     - step 9: keep this lane specific; do not generalize into a reusable scalar framework until a second lane wins the same pattern
-     - step 10: do not swap the active `substring` providers to `raw read + cold init` as one slice; that provider-adoption cut regressed the local split
-     - step 11: do not duplicate the common-case `substring_hii` body again; the earlier `route_raw == 0b111` duplication regressed badly
-     - step 12: `substring_route_policy()` cold split alone is also blocked; even with the caller unchanged it regressed the local split
-     - step 13: any future `len_h` reopen must preserve direct dispatch probe + single trace-state load + direct `DROP_EPOCH` load
-     - step 14: do not retry the same `substring_hii` route/provider snapshot with eager `DROP_EPOCH` capture; it widened the caller prologue and regressed exact/whole together
-     - step 15: do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear in isolation; it regressed every split front and whole strict
+     - step 5: landed structurally; the first borrowed-corridor sinking pilot now rewrites single-use `substring(...).length()` chains to `nyash.string.substring_len_hii`
+     - step 6: next; validate that pilot with exact/whole/asm before claiming a keeper
+     - step 7: after corridor facts stabilize, add AOT-internal direct kernel entry selection; ABI/FFI keeps the facade
+     - step 8: only then reopen new `substring_hii` runtime leaf cuts, and only with exact/asm proof
+     - step 9: do not retry the same `len_h`-specific 4-box slice as-is; it did not clear exact or asm gates
+     - step 10: keep this lane specific; do not generalize into a reusable scalar framework until a second lane wins the same pattern
+     - step 11: do not swap the active `substring` providers to `raw read + cold init` as one slice; that provider-adoption cut regressed the local split
+     - step 12: do not duplicate the common-case `substring_hii` body again; the earlier `route_raw == 0b111` duplication regressed badly
+     - step 13: `substring_route_policy()` cold split alone is also blocked; even with the caller unchanged it regressed the local split
+     - step 14: any future `len_h` reopen must preserve direct dispatch probe + single trace-state load + direct `DROP_EPOCH` load
+     - step 15: do not retry the same `substring_hii` route/provider snapshot with eager `DROP_EPOCH` capture; it widened the caller prologue and regressed exact/whole together
+     - step 16: do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear in isolation; it regressed every split front and whole strict
   10. next local cut must show an exact-visible or asm-visible change on `substring_hii`, but only after the upstream corridor slices are in place
 - safe restart order:
   1. `git status -sb`

@@ -243,6 +243,17 @@ impl MirInterpreter {
                 let c = self.reg_load(args[2])?.to_string();
                 Ok(VMValue::String(format!("{}{}{}", a, b, c)))
             }
+            "nyash.string.substring_len_hii" => {
+                if args.len() < 3 {
+                    return Err(self.err_arg_count("nyash.string.substring_len_hii", 3, args.len()));
+                }
+                let source = self.reg_load(args[0])?.to_string();
+                let start = self.reg_load(args[1])?.as_integer().unwrap_or(0);
+                let end = self.reg_load(args[2])?.as_integer().unwrap_or(0);
+                let mode = crate::boxes::string_ops::index_mode_from_env();
+                let sub = crate::boxes::string_ops::substring(&source, start, Some(end), mode);
+                Ok(VMValue::Integer(sub.len() as i64))
+            }
             // Direct provider calls (bypass hostbridge.extern_invoke)
             // Above provider covers env.* family; keep legacy fallbacks below
             "exit" => {

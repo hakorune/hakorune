@@ -95,6 +95,10 @@ Scope: repo root から current lane / current front / restart read order に最
   - latest split exact reread moves first priority back to `substring_hii`; `len_h` now reads as the secondary control split
   - pure Rust reference is the current lower bound for this front; current AOT is about `6.06x instr / 4.10x cycles` over it
   - C-like Rust reference is the current contract-aligned comparison point; current AOT is about `2.73x instr / 1.91x cycles` over it
+  - upstream corridor pilot is now structurally landed:
+    - single-use `substring(...).length()` chains can sink to `nyash.string.substring_len_hii`
+    - kernel export + MIR interpreter fallback are in place
+    - this is not yet a perf keeper; exact/whole/asm validation is still pending
 - rejected perf history:
   - exact evidence is centralized in
     `docs/development/current/main/investigations/phase137x-substring-rejected-optimizations-2026-04-08.md`
@@ -141,27 +145,29 @@ Scope: repo root から current lane / current front / restart read order に最
     2. landed: MIR-side inventory for `str.slice` / `str.len` / `freeze.str` now lives in `src/mir/string_corridor.rs`; refresh is behavior-preserving
     3. landed: canonical MIR fact carrier is `FunctionMetadata.string_corridor_facts`; verbose dumps expose the facts
     4. landed: placement/effect scaffold is now `src/mir/string_corridor_placement.rs`; it reads `FunctionMetadata.string_corridor_facts`, emits no-op candidate decisions into `FunctionMetadata.string_corridor_candidates`, and leaves runtime lowering unchanged
-    5. next slice is the first real borrowed-corridor sinking pilot; prefer the narrowest internal `str.slice -> str.len` style corridor
-    6. fifth slice is AOT-internal direct kernel entry selection; ABI/FFI keeps the facade
-    7. only after the upstream corridor slices land and move exact/asm, reopen new `substring_hii` runtime leaf cuts
-    8. keep the cross-lane scope-control table in `string-canonical-mir-corridor-and-placement-pass-ssot.md` truthful; do not let the `string` pilot silently redefine `array/map` or ABI structure
-    9. do not retry `len_lane` separation by itself; both separation-only and combined snapshot retries failed keeper gates
-    10. the earlier `drop_epoch()` global mirror rejection was invalidated by stale release artifacts; the hypothesis is now landed, and future perf reads must rebuild release artifacts first
-    11. do not retry the same `len_h`-specific 4-box slice as-is; it lost before the control-plane fixes landed
-    12. `len_h` の箱が当たるまで generic framework にはしない; reusable abstraction は後回し
-    13. do not genericize implementation from `string` alone; first collect keeper patterns in the runtime-hot-lane pattern SSOT
-    14. hot caller での `substring` provider swap は 1 本では keep しない:
+    5. landed structurally: the first borrowed-corridor sinking pilot now rewrites single-use `substring(...).length()` chains to `nyash.string.substring_len_hii` via `src/mir/passes/string_corridor_sink.rs`; interpreter fallback and kernel export are in place
+    6. next slice is perf/asm validation for that pilot; do not claim accept-gate wins before exact/whole evidence exists
+    7. after the pilot is validated, add AOT-internal direct kernel entry selection; ABI/FFI keeps the facade
+    8. only after the upstream corridor slices land and move exact/asm, reopen new `substring_hii` runtime leaf cuts
+    9. keep the cross-lane scope-control table in `string-canonical-mir-corridor-and-placement-pass-ssot.md` truthful; do not let the `string` pilot silently redefine `array/map` or ABI structure
+    10. do not retry `len_lane` separation by itself; both separation-only and combined snapshot retries failed keeper gates
+    11. the earlier `drop_epoch()` global mirror rejection was invalidated by stale release artifacts; the hypothesis is now landed, and future perf reads must rebuild release artifacts first
+    12. do not retry the same `len_h`-specific 4-box slice as-is; it lost before the control-plane fixes landed
+    13. `len_h` の箱が当たるまで generic framework にはしない; reusable abstraction は後回し
+    14. do not genericize implementation from `string` alone; first collect keeper patterns in the runtime-hot-lane pattern SSOT
+    15. hot caller での `substring` provider swap は 1 本では keep しない:
        `substring_view_enabled` / fallback policy / route policy を同時に `raw read + cold init` へ切り替える slice は local front を落とした
-    15. shape cleanup では hot body duplication をしない; `route_raw == common-case` の全文複製は reopen しない
-    16. next shape cleanup must stay below the active caller or pair with an asm-visible win; provider foundation only is allowed, but hot caller adoption needs proof
-    17. `substring_route_policy()` cold split alone is also blocked; even without caller adoption it lost the local split
-    18. if a future slice reopens `len_h`, it must beat the new `DROP_EPOCH`-based asm and preserve direct dispatch / single trace-state loads
-    19. do not retry the same `substring_hii` route/provider snapshot with eager `DROP_EPOCH` capture; it regressed both exact fronts and whole strict before any cache-entry win appeared
-    20. do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear path in isolation; the call boundary/code layout regressed all split fronts badly
+    16. shape cleanup では hot body duplication をしない; `route_raw == common-case` の全文複製は reopen しない
+    17. next shape cleanup must stay below the active caller or pair with an asm-visible win; provider foundation only is allowed, but hot caller adoption needs proof
+    18. `substring_route_policy()` cold split alone is also blocked; even without caller adoption it lost the local split
+    19. if a future slice reopens `len_h`, it must beat the new `DROP_EPOCH`-based asm and preserve direct dispatch / single trace-state loads
+    20. do not retry the same `substring_hii` route/provider snapshot with eager `DROP_EPOCH` capture; it regressed both exact fronts and whole strict before any cache-entry win appeared
+    21. do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear path in isolation; the call boundary/code layout regressed all split fronts badly
 - first files to reopen for the next slice:
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
   - `src/mir/string_corridor.rs`
   - `src/mir/string_corridor_placement.rs`
+  - `src/mir/passes/string_corridor_sink.rs`
   - `crates/hakorune_mir_core/src/effect.rs`
   - `crates/hakorune_mir_defs/src/call_unified.rs`
   - `src/mir/**`

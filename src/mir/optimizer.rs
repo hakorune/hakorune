@@ -91,6 +91,13 @@ impl MirOptimizer {
             crate::mir::optimizer_passes::normalize::normalize_python_helper_calls(self, module),
         );
 
+        // Step 5 pilot: sink the narrowest borrowed string corridor before DCE so
+        // dead intermediate substring values can be removed in the same optimize wave.
+        let corridor_sunk = crate::mir::passes::string_corridor_sink::sink_borrowed_string_corridors(module);
+        if corridor_sunk > 0 {
+            stats.intrinsic_optimizations += corridor_sunk;
+        }
+
         // Pass 1: Dead code elimination (modularized pass)
         {
             let eliminated = crate::mir::passes::dce::eliminate_dead_code(module);

@@ -280,6 +280,9 @@ fn infer_from_runtime_export(name: &str) -> Option<StringCorridorFact> {
         "nyash.string.substring_hii" => Some(StringCorridorFact::str_slice(
             StringCorridorCarrier::RuntimeExport,
         )),
+        "nyash.string.substring_len_hii" => Some(StringCorridorFact::str_len(
+            StringCorridorCarrier::RuntimeExport,
+        )),
         "nyash.string.length_si" | "nyrt_string_length" | "nyrt.string.length" => Some(
             StringCorridorFact::str_len(StringCorridorCarrier::RuntimeExport),
         ),

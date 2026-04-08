@@ -214,6 +214,20 @@ fn string_len_h_invalid_handle_contract() {
 }
 
 #[test]
+fn string_substring_len_hii_matches_substring_handle_length() {
+    with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
+        let source_h = string_handle("prefix-middle-suffix");
+        let sub_h = nyash_string_substring_hii_export(source_h, 7, 13);
+
+        assert!(sub_h > 0);
+        assert_eq!(nyash_string_len_h(sub_h), 6);
+        assert_eq!(nyash_string_substring_len_hii_export(source_h, 7, 13), 6);
+        assert_eq!(nyash_string_substring_len_hii_export(source_h, 0, 6), 6);
+        assert_eq!(nyash_string_substring_len_hii_export(source_h, 99, 100), 0);
+    });
+}
+
+#[test]
 fn string_exports_prefer_hako_forward_hook_when_registered() {
     extern "C" fn string_hook(op: i64, a0: i64, a1: i64, a2: i64) -> i64 {
         op * 1000 + a0 + a1 + a2

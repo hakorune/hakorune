@@ -69,6 +69,14 @@ pub extern "C" fn nyash_string_substring_hii_export(h: i64, start: i64, end: i64
     string_substring_hii_export_impl(h, start, end)
 }
 
+// String.substring_len_hii(handle, start, end) -> i64
+// Internal borrowed-corridor helper for AOT lowering. This computes the
+// resulting substring length without forcing view publication/materialization.
+#[export_name = "nyash.string.substring_len_hii"]
+pub extern "C" fn nyash_string_substring_len_hii_export(h: i64, start: i64, end: i64) -> i64 {
+    string_substring_len_hii_export_impl(h, start, end)
+}
+
 // String.indexOf_hh(haystack_h, needle_h) -> i64
 #[export_name = "nyash.string.indexOf_hh"]
 pub extern "C" fn nyash_string_indexof_hh_export(h: i64, n: i64) -> i64 {

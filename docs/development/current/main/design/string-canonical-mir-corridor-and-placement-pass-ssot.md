@@ -270,6 +270,10 @@ Acceptance:
 - pilot on the narrowest useful string corridor first
 - prefer `str.slice -> str.len` or equally narrow borrowed consumer chains
 - sink publication/materialization when the path remains internal and borrowed
+- landed structural pilot:
+  - `src/mir/passes/string_corridor_sink.rs` rewrites single-use `substring(...).length()` chains to `nyash.string.substring_len_hii`
+  - `nyash.string.substring_len_hii` is now available in both the kernel export layer and the MIR interpreter extern fallback
+  - current status is structural only: compile/test are green, but accept-gate perf evidence is still pending
 
 Acceptance:
 

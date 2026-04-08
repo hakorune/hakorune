@@ -355,6 +355,22 @@ pub(super) fn string_substring_hii_export_impl(h: i64, start: i64, end: i64) -> 
     }
 }
 
+#[inline(always)]
+pub(super) fn string_substring_len_hii_export_impl(h: i64, start: i64, end: i64) -> i64 {
+    let Some(plan) = borrowed_substring_plan_from_handle(h, start, end, true) else {
+        return 0;
+    };
+    match plan {
+        BorrowedSubstringPlan::ReturnHandle => resolve_string_span_from_handle(h)
+            .map(|span| span.len() as i64)
+            .unwrap_or(0),
+        BorrowedSubstringPlan::ReturnEmpty => 0,
+        BorrowedSubstringPlan::FreezeSpan(span) | BorrowedSubstringPlan::ViewSpan(span) => {
+            span.len() as i64
+        }
+    }
+}
+
 pub(super) fn string_indexof_hh_export_impl(h: i64, n: i64) -> i64 {
     if let Some(v) = hako_string_dispatch(hako_forward_bridge::string_ops::INDEXOF_HH, h, n, 0) {
         return v;
