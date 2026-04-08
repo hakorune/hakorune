@@ -67,6 +67,10 @@ Scope: repo root から current lane / current front / restart read order に最
   - `view_arc_cache_reissue_hit=0`, `view_arc_cache_miss=2`, `fast_cache_hit=0`, `dispatch_hit=0`, `slow_plan=2`
   - current keeper removes redundant `view_enabled` state from `SubstringViewArcCache`; this cache only runs under the `view_enabled` route, so the flag compare/store was dead hot-path work
   - split exact fronts now put `substring_hii` retained-view path at `34.37M instr`
+  - latest baseline asm reread says the next visible tax is still before the view-arc cache compare block:
+    1. `SUBSTRING_ROUTE_POLICY_CACHE` decode
+    2. `substring_view_enabled` / fallback provider state reads
+    3. only then `SubstringViewArcCache` steady-state compare path
   - current keeper is on `len_h`: `string_len_fast_cache_lookup()` now hoists one `handles::drop_epoch()` read and reuses it across primary/secondary slot checks
   - current keeper also keeps the `len_h` fast-hit return thin: `string_len_export_impl()` now tail-calls a tiny helper so trace-off steady state returns `cached` without carrying `trace_len_fast_hit(...)` inline
   - current keeper removes the `STRING_DISPATCH_STATE` state machine from emitted `nyash.string.len_h`; the hot entry now probes `STRING_DISPATCH_FN` directly once
@@ -96,6 +100,10 @@ Scope: repo root から current lane / current front / restart read order に最
     17. `len_h` `ReadOnlyScalarLane` separation-only slice
     18. `len_h` combined `ReadOnlyScalarLane` + entry snapshot slice
     19. `len_h`-specific 4-box slice (`façade + control snapshot + pure cache probe + cold path`)
+    20. `SubstringViewArcCache` global compare reorder (`start/end` before `source_handle`)
+    21. `SubstringViewArcCache` `same_source_pair` specialization
+    22. `substring_hii` common-case body duplication via `route_raw == 0b111`
+    23. `substring` provider `raw read + cold init` adoption (`substring_view_enabled` / fallback policy / route policy)
 - next active cut:
   - keep `kilo_micro_substring_only` as accept gate
   - use `kilo_micro_substring_views_only` for local `substring_hii` cuts
@@ -107,9 +115,12 @@ Scope: repo root から current lane / current front / restart read order に最
     3. do not retry the same `len_h`-specific 4-box slice as-is; it lost before the control-plane fixes landed
     4. `len_h` の箱が当たるまで generic framework にはしない; reusable abstraction は後回し
     5. do not genericize implementation from `string` alone; first collect keeper patterns in the runtime-hot-lane pattern SSOT
-    6. next local cut must be `substring_hii`-local and show an asm-visible or exact-visible win on `kilo_micro_substring_views_only`
-    7. if a future slice reopens `len_h`, it must beat the new `DROP_EPOCH`-based asm and preserve direct dispatch / single trace-state loads
-    8. only after `substring_hii` is re-read under the new split pair, reconsider a crate-local lane/kernel boundary
+    6. hot caller での `substring` provider swap は 1 本では keep しない:
+       `substring_view_enabled` / fallback policy / route policy を同時に `raw read + cold init` へ切り替える slice は local front を落とした
+    7. shape cleanup では hot body duplication をしない; `route_raw == common-case` の全文複製は reopen しない
+    8. next shape cleanup must stay below the active caller or pair with an asm-visible win; provider foundation only is allowed, but hot caller adoption needs proof
+    9. if a future slice reopens `len_h`, it must beat the new `DROP_EPOCH`-based asm and preserve direct dispatch / single trace-state loads
+    10. only after `substring_hii` is re-read under the new split pair, reconsider a crate-local lane/kernel boundary
 - first files to reopen for the next slice:
   - `crates/nyash_kernel/src/exports/string_helpers.rs`
   - `crates/nyash_kernel/src/exports/string_helpers/cache.rs`

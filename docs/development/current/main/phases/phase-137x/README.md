@@ -67,6 +67,10 @@
   - `substring_hii` can reissue a fresh handle from a cached `StringViewBox` object when the transient result handle dropped but the source handle still points to the same live source object
   - `str.substring.route` observe read is now dominated by the steady-state handle-hit path: `view_arc_cache_handle_hit=599,998 / total=600,000`
   - current keeper removes redundant `view_enabled` state from `SubstringViewArcCache`; the cache only runs under `view_enabled`, so the extra key dimension was dead hot-path work
+  - latest baseline asm reread still shows the next visible tax before the view-arc cache compare block:
+    1. `SUBSTRING_ROUTE_POLICY_CACHE` decode
+    2. `substring_view_enabled` / fallback provider state reads
+    3. only then `SubstringViewArcCache` steady-state compare
   - split exact reread now puts `substring_hii` retained-view path at `34.37M instr` while `len_h` becomes the smaller control split
   - current keeper is on `len_h`: hoist one `handles::drop_epoch()` read in `string_len_fast_cache_lookup()` and reuse it for both cache slots
   - current keeper also keeps `len_h` trace-off steady state thin by tail-calling a tiny fast-return helper instead of carrying `trace_len_fast_hit(...)` inline in the hot cache-hit block
@@ -104,6 +108,10 @@
     17. `len_h` `ReadOnlyScalarLane` separation-only slice
     18. `len_h` combined `ReadOnlyScalarLane` + entry snapshot slice
     19. `len_h`-specific 4-box slice (`façade + control snapshot + pure cache probe + cold path`)
+    20. `SubstringViewArcCache` global compare reorder (`start/end` before `source_handle`)
+    21. `SubstringViewArcCache` `same_source_pair` specialization
+    22. `substring_hii` common-case body duplication via `route_raw == 0b111`
+    23. `substring` provider `raw read + cold init` adoption (`substring_view_enabled` / fallback policy / route policy)
 - next active cut:
   1. keep `kilo_micro_substring_only` as accept gate
   2. use `kilo_micro_substring_views_only` for local `substring_hii` cuts
@@ -115,9 +123,12 @@
      - step 1: do not retry the same `len_h`-specific 4-box slice as-is; it did not clear exact or asm gates
      - step 2: keep this lane specific; do not generalize into a reusable scalar framework until the `len_h` box shape actually wins
      - step 3: next keeper candidate must be `substring_hii`-local and beat `kilo_micro_substring_views_only`
-     - step 4: any future `len_h` reopen must preserve direct dispatch probe + single trace-state load + direct `DROP_EPOCH` load
-     - step 5: only after a second lane confirms the same keeper invariant, consider generic framework extraction
-     - step 6: only after `substring_hii` is re-read under the new split pair, reconsider a crate-local lane/kernel boundary
+     - step 4: do not swap the active `substring` providers to `raw read + cold init` as one slice; that provider-adoption cut regressed the local split
+     - step 5: do not duplicate the common-case `substring_hii` body again; the earlier `route_raw == 0b111` duplication regressed badly
+     - step 6: next shape cleanup must stay below the active caller or pair with an asm-visible win
+     - step 7: any future `len_h` reopen must preserve direct dispatch probe + single trace-state load + direct `DROP_EPOCH` load
+     - step 8: only after a second lane confirms the same keeper invariant, consider generic framework extraction
+     - step 9: only after `substring_hii` is re-read under the new split pair, reconsider a crate-local lane/kernel boundary
   8. next local cut must show an exact-visible or asm-visible change on `substring_hii` before keeper evaluation
 - safe restart order:
   1. `git status -sb`
@@ -137,11 +148,11 @@
   3. lift only when the semantics are common and lifetime / ownership boundaries remain explicit at the higher layer
   4. avoid repeating Rust-local cache additions in the same family without rechecking that promotion condition
 - immediate substring follow-up:
-  1. keep runtime cache mechanics as-is; substring-side local shape is no longer the first cut
-  2. read the rejected ledger before retrying any substring-local cut
-  3. use the split exact pair before touching `substring_hii` again
-  4. current next local cut is `nyash.string.len_h` fast-hit dispatch-state / TLS slot / epoch-guard only
-  5. only reopen substring-local structural cuts if the split pair says `substring_hii` moved back on top
+  1. `substring_hii` is first target again under the split pair
+  2. keep runtime cache mechanics as-is; broad provider adoption into the hot caller lost the local split
+  3. read the rejected ledger before retrying any substring-local cut
+  4. use the split exact pair before and after every provider-side change
+  5. next cleanup task must stay narrower than the rejected provider-adoption slice
 - lifecycle placement is fixed:
   - `.hako`: source-preserve / identity / publication demand
   - `MIR`: visibility carrier and escalation contract

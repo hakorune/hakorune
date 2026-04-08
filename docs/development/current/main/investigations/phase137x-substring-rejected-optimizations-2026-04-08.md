@@ -856,14 +856,157 @@ Related:
 - only retry after a narrower control-plane cut proves an asm-visible reduction in `STRING_DISPATCH_STATE` or `JIT_TRACE_LEN_ENABLED_CACHE`
 - keep generic scalar-lane abstraction out until that happens
 
+### 2026-04-08: `SubstringViewArcCache` global compare reorder
+
+**Hypothesis**
+
+- steady-state alternating views hit the same `source_handle`, so
+- checking `start/end` before `source_handle` in both cache slots should reject the common primary miss earlier
+- this should lower `kilo_micro_substring_views_only` without changing runtime semantics
+
+**Touched owner area**
+
+- [cache.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers/cache.rs)
+
+**Observed result**
+
+- exact:
+  - `kilo_micro_substring_views_only: instr=33,773,243 / cycles=6,576,608 / cache-miss=10,303 / AOT 5 ms`
+  - `kilo_micro_substring_only: instr=48,773,078 / cycles=8,868,685 / cache-miss=10,512 / AOT 5 ms`
+  - `kilo_micro_len_substring_views: instr=16,072,318 / cycles=4,455,388 / cache-miss=9,581 / AOT 5 ms`
+- whole:
+  - `kilo_kernel_small_hk strict = 749 ms`
+  - serial reread: `1074 ms`
+  - parity ok
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Why**
+
+- split exact and mixed exact were better, but whole strict moved out of the accepted `<= 709 ms` band
+- the reorder optimized the isolated same-source alternating micro by making broader whole behavior worse
+- this confirmed that a global compare-order change is too broad for the current lane
+
+**Reopen Condition**
+
+- only revisit if another front proves the same-source pair invariant dominates beyond the isolated substring split
+
+### 2026-04-08: `SubstringViewArcCache` `same_source_pair` specialization
+
+**Hypothesis**
+
+- if the two hot substring slots come from the same source, cache metadata can remember that
+- then secondary lookup can skip the second `source_handle` compare and only check `start/end`
+- this should keep whole behavior stable while specializing the alternating exact micro
+
+**Touched owner area**
+
+- [cache.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers/cache.rs)
+
+**Observed result**
+
+- exact:
+  - `kilo_micro_substring_views_only: instr=35,272,678 / cycles=6,561,016 / cache-miss=8,957 / AOT 4 ms`
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Why**
+
+- the local exact front regressed immediately, so there was no reason to continue to mixed or whole
+- the extra metadata and branch cost more than the saved compare
+- this says the current TLS cache shape is already near a floor for that exact micro
+
+**Reopen Condition**
+
+- do not reopen unless a later asm read shows the secondary source-handle compare dominating on a keeper shape
+
+### 2026-04-08: `substring_hii` common-case body duplication via `route_raw == 0b111`
+
+**Hypothesis**
+
+- the current common route is effectively `view_enabled + fallback_allowed + valid`
+- duplicating the hot `substring_hii` body for that route should remove route-policy decode and let LLVM inline a thinner common path
+
+**Touched owner area**
+
+- [string_debug.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_debug.rs)
+- [string_helpers.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers.rs)
+
+**Observed result**
+
+- exact:
+  - `kilo_micro_substring_views_only: instr=61,973,423 / cycles=11,459,653 / cache-miss=10,833 / AOT 5 ms`
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Why**
+
+- code size / register pressure exploded and the local exact front regressed catastrophically
+- duplicating the full common-case body is the wrong expression of provider-shape cleanup for this lane
+- future route/provider work must avoid cloning the whole `substring_hii` fast path
+
+**Reopen Condition**
+
+- never reopen in this form; only narrower provider-side cuts are allowed
+
+### 2026-04-08: `substring` provider `raw read + cold init` adoption
+
+**Hypothesis**
+
+- before more substring-local compare/order cuts, align the active providers with the `len_h` pattern:
+  - `substring_view_enabled`
+  - fallback policy
+  - route policy
+- then let `substring_hii` consume that cleaned provider shape without changing runtime mechanics
+
+**Touched owner area**
+
+- [vm_backend_flags.rs](/home/tomoaki/git/hakorune-selfhost/src/config/env/vm_backend_flags.rs)
+- [hako_forward_bridge.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/hako_forward_bridge.rs)
+- [string_debug.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_debug.rs)
+- [string_helpers.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers.rs)
+
+**Observed result**
+
+- exact:
+  - `kilo_micro_substring_views_only: instr=35,873,299 / cycles=6,404,773 / cache-miss=9,382 / AOT 4 ms`
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Why**
+
+- the shape cleanup itself regressed the active local split before any narrower optimization was applied
+- unlike `len_h`, swapping the active `substring` providers to raw/cold in one slice did not produce a compensating hot-path win
+- this means provider cleanup for substring must stay below the active caller unless it comes with an asm-visible win
+
+**Reopen Condition**
+
+- only retry as a narrower foundation slice that does not replace the active caller path by itself
+- or pair it with an asm-visible `substring_hii` win in the same cut
+
 ## Next Candidate
 
 - keep substring runtime mechanics in Rust
 - do not create more test-by-test artifact folders for this wave
 - next local cut is:
   1. keep `kilo_micro_substring_only` as the accept gate
-  2. use `kilo_micro_len_substring_views` for local `len_h` cuts
-  3. keep substring runtime mechanics unchanged unless the split pair moves again
-  4. helper/state rewrites and cache-shape rewrites did not move emitted `len_h` hot asm enough
-  5. `ReadOnlyScalarLane` separation, `drop_epoch()` source reshapes, and the lane-specific 4-box split are all blocked until they prove an asm-visible hot-block change
-  6. focus next on control-plane hot loads (`STRING_DISPATCH_STATE` / `JIT_TRACE_LEN_ENABLED_CACHE`) before retrying another structural lane slice
+  2. use `kilo_micro_substring_views_only` for local `substring_hii` cuts
+  3. keep substring runtime mechanics unchanged while provider-adoption stays rejected
+  4. next shape task must stay below the active caller:
+     - foundation helpers are allowed
+     - hot caller swaps are not
+     - keep the `substring_hii` body single-copy
+  5. retry only narrow optimizations that can show an exact-visible or asm-visible change on top of baseline caller shape
+  6. do not reopen global compare-order or body-duplication cuts
