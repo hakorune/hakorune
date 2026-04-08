@@ -672,6 +672,48 @@ Related:
 
 - host-handle layer で raw registry access が cross-family hotspot と示せた時だけ
 
+### 2026-04-08: `len_h` `ReadOnlyScalarLane` separation-only slice
+
+**Hypothesis**
+
+- `len_h` を façade と `ReadOnlyScalarLane` に分けて
+- fast hit を `FastHit(len)` / `Miss(reason)` だけ返す small lane に固定すれば
+- 次の snapshot slice を入れる前に hot/cold ownership を clean にできる
+
+**Touched owner area**
+
+- [string_helpers.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers.rs)
+- [len_lane.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers/len_lane.rs)
+
+**Observed result**
+
+- serial exact rerun A:
+  - `kilo_micro_substring_only: instr=58,672,896 / cycles=9,951,136 / cache-miss=9,763 / AOT 5 ms`
+  - `kilo_micro_len_substring_views: instr=22,672,125 / cycles=4,113,347 / cache-miss=9,639 / AOT 3 ms`
+  - `kilo_micro_substring_views_only: instr=37,076,670 / cycles=6,956,285 / cache-miss=8,874 / AOT 4 ms`
+- serial exact rerun B:
+  - `kilo_micro_substring_only: instr=58,673,042 / cycles=10,066,456 / cache-miss=9,578 / AOT 5 ms`
+  - `kilo_micro_len_substring_views: instr=22,672,847 / cycles=4,222,683 / cache-miss=8,867 / AOT 4 ms`
+- serial whole:
+  - `kilo_kernel_small_hk strict = 1263 ms`
+  - parity ok
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Why**
+
+- exact was only noise-band on the first serial reread and lost the baseline on the second
+- whole strict regressed too far to justify landing a structure-only slice
+- lane separation is still the right direction, but it cannot land alone; the next retry must combine the lane boundary with entry snapshots so the hot block actually changes
+
+**Reopen Condition**
+
+- retry only as a combined step with control/data snapshots in the same slice
+  and require an asm-visible hot-block change before keeper evaluation
+
 ## Next Candidate
 
 - keep substring runtime mechanics in Rust
@@ -681,4 +723,5 @@ Related:
   2. use `kilo_micro_len_substring_views` for local `len_h` cuts
   3. keep substring runtime mechanics unchanged unless the split pair moves again
   4. helper/state rewrites and cache-shape rewrites did not move emitted `len_h` hot asm enough
-  5. focus next on any cut that can prove an asm-visible hot-block change before another keeper attempt
+  5. `ReadOnlyScalarLane` separation remains the right design, but not as a stand-alone slice
+  6. focus next on a combined lane-boundary + snapshot cut that can prove an asm-visible hot-block change before another keeper attempt
