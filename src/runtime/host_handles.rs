@@ -243,7 +243,6 @@ struct SlotTable {
 }
 
 struct Registry {
-    drop_epoch: AtomicU64,
     // slots/free are updated together under one write lock to avoid
     // double-lock overhead on alloc/drop hot paths.
     table: RwLock<SlotTable>,
@@ -300,7 +299,6 @@ impl Registry {
         let mut slots = Vec::with_capacity(131072);
         slots.push(None);
         Self {
-            drop_epoch: AtomicU64::new(0),
             table: RwLock::new(SlotTable {
                 next: 1,
                 slots,
@@ -494,16 +492,13 @@ impl Registry {
         };
         if removed {
             host_handles_policy::recycle_handle(self.alloc_policy_mode(), &mut table.free, h);
-            self.drop_epoch.fetch_add(1, Ordering::Relaxed);
+            DROP_EPOCH.fetch_add(1, Ordering::Relaxed);
         }
     }
 
-    #[inline(always)]
-    fn drop_epoch(&self) -> u64 {
-        self.drop_epoch.load(Ordering::Relaxed)
-    }
 }
 
+static DROP_EPOCH: AtomicU64 = AtomicU64::new(0);
 static REG: OnceCell<Registry> = OnceCell::new();
 #[inline(always)]
 fn reg() -> &'static Registry {
@@ -650,7 +645,7 @@ pub fn drop_handle(h: u64) {
 /// Consumers can use this to invalidate per-thread fast caches safely.
 #[inline(always)]
 pub fn drop_epoch() -> u64 {
-    reg().drop_epoch()
+    DROP_EPOCH.load(Ordering::Relaxed)
 }
 
 #[cfg(test)]

@@ -27,15 +27,15 @@ Related:
 - active front is `kilo_micro_substring_only`
 - current exact baseline is:
   - `kilo_micro_substring_only: C 3 ms / AOT 5 ms`
-  - `instr: 56,272,428`
-  - `cycles: 9,499,835`
-  - `cache-miss: 9,299`
+  - `instr: 49,372,458`
+  - `cycles: 8,539,682`
+  - `cache-miss: 9,294`
   - split exact reread:
-    - `kilo_micro_substring_views_only: instr=37,072,491 / cycles=7,329,020 / cache-miss=9,996`
-    - `kilo_micro_len_substring_views: instr=20,272,485 / cycles=4,301,279 / cache-miss=9,068`
+    - `kilo_micro_substring_views_only: instr=34,373,156 / cycles=6,421,062 / cache-miss=9,550`
+    - `kilo_micro_len_substring_views: instr=16,073,034 / cycles=4,347,479 / cache-miss=8,958`
 - current whole-kilo health is:
   - `tools/checks/dev_gate.sh quick`: green
-  - `kilo_kernel_small_hk` strict accepted reread: `736 ms`
+  - `kilo_kernel_small_hk` strict accepted reread: `709 ms`
   - parity: ok
 - current landed truth:
   - `substring_hii` can reissue a fresh handle from a cached `StringViewBox` object after transient drop-epoch churn if the source handle still names the same live source object
@@ -45,6 +45,8 @@ Related:
   - the current keeper also keeps `len_h` trace-off steady state thin by tail-calling a tiny fast-return helper from `string_len_export_impl()`
   - the current keeper now removes the `STRING_DISPATCH_STATE` state machine from emitted `nyash.string.len_h`; the hot path probes `STRING_DISPATCH_FN` once
   - the current keeper also splits trace state into raw-read + cold-init helpers, so the hot cache-hit path sees one trace-state load and returns directly when trace is off
+  - the current keeper also lands the `drop_epoch()` global mirror and removes the `host_handles::REG` ready probe from emitted `nyash.string.len_h`
+  - split exact reread now makes `substring_hii` the first target again
   - perf micro / asm reads are only trustworthy after rerunning `bash tools/perf/build_perf_release.sh` on runtime source edits; stale `target/release` artifacts otherwise mask the active probe
 - current stop-line:
   - do not widen substring runtime cache mechanics into `.hako` or `MIR`
@@ -765,6 +767,12 @@ Related:
   その asm-visible change を先に確認できた時だけ
 
 ### 2026-04-08: `host_handles::drop_epoch()` global mirror probe
+
+**Historical note**
+
+- this verdict was later invalidated by stale `target/release` artifacts
+- the same hypothesis was retried after enforcing `bash tools/perf/build_perf_release.sh` before exact/asm probes and then landed
+- keep this section only as a record of the earlier mis-read, not as a current stop-line
 
 **Hypothesis**
 

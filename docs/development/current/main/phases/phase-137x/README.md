@@ -37,40 +37,41 @@
 - split exact fronts are now:
   - `kilo_micro_substring_views_only`
   - `kilo_micro_len_substring_views`
-- current local cut front is `kilo_micro_len_substring_views`
+- current local cut front is `kilo_micro_substring_views_only`
 - exact baseline on this front:
   - `kilo_micro_substring_only: C 3 ms / AOT 5 ms`
-  - `instr: 56,272,428`
-  - `cycles: 9,499,835`
-  - `cache-miss: 9,299`
+  - `instr: 49,372,458`
+  - `cycles: 8,539,682`
+  - `cache-miss: 9,294`
   - split exact reread:
-    - `kilo_micro_substring_views_only: instr=37,072,491 / cycles=7,329,020 / cache-miss=9,996 / AOT 4 ms`
-    - `kilo_micro_len_substring_views: instr=20,272,485 / cycles=4,301,279 / cache-miss=9,068 / AOT 4 ms`
+    - `kilo_micro_substring_views_only: instr=34,373,156 / cycles=6,421,062 / cache-miss=9,550 / AOT 5 ms`
+    - `kilo_micro_len_substring_views: instr=16,073,034 / cycles=4,347,479 / cache-miss=8,958 / AOT 4 ms`
 - target band for the next keeper:
-  - mixed accept gate: `instr <= 56.1M`
-  - local split `kilo_micro_len_substring_views`: `instr <= 20.1M`
-  - control split `kilo_micro_substring_views_only`: roughly flat is acceptable
-  - whole strict: keep `<= 736 ms`; ideal band is `720-735 ms`
+  - mixed accept gate: `instr <= 49.1M`
+  - local split `kilo_micro_substring_views_only`: `instr <= 34.2M`
+  - control split `kilo_micro_len_substring_views`: roughly flat is acceptable
+  - whole strict: keep `<= 709 ms`; ideal band is `690-705 ms`
 - ideal `len_h` steady-state asm shape:
   - direct `STRING_DISPATCH_FN` load once; no `STRING_DISPATCH_STATE` state machine in `nyash.string.len_h`
-  - `handles::drop_epoch()` load once
+  - direct `host_handles::DROP_EPOCH` load once
   - primary/secondary handle compare only
   - `JIT_TRACE_LEN_ENABLED_CACHE` load once with cold init off the hot return path
   - trace-off fast hit returns directly
 - current whole-kilo health:
   - `tools/checks/dev_gate.sh quick` is green
-  - `kilo_kernel_small_hk` strict accepted reread: `ny_aot_ms=736`
+  - `kilo_kernel_small_hk` strict accepted reread: `ny_aot_ms=709`
   - parity: `vm_result=1140576`, `aot_result=1140576`
 - current landed substring truth:
   - `substring_hii` can reissue a fresh handle from a cached `StringViewBox` object when the transient result handle dropped but the source handle still points to the same live source object
   - `str.substring.route` observe read is now dominated by the steady-state handle-hit path: `view_arc_cache_handle_hit=599,998 / total=600,000`
   - current keeper removes redundant `view_enabled` state from `SubstringViewArcCache`; the cache only runs under `view_enabled`, so the extra key dimension was dead hot-path work
-  - split exact reread now shows `substring_hii` retained-view path is basically flat while `len_h` moves independently
+  - split exact reread now puts `substring_hii` retained-view path at `34.37M instr` while `len_h` becomes the smaller control split
   - current keeper is on `len_h`: hoist one `handles::drop_epoch()` read in `string_len_fast_cache_lookup()` and reuse it for both cache slots
   - current keeper also keeps `len_h` trace-off steady state thin by tail-calling a tiny fast-return helper instead of carrying `trace_len_fast_hit(...)` inline in the hot cache-hit block
   - current keeper removes the `STRING_DISPATCH_STATE` state machine from emitted `len_h` hot asm by probing `STRING_DISPATCH_FN` directly once
   - current keeper also splits trace state into raw-read + cold-init helpers, so the hot cache-hit path sees one `JIT_TRACE_LEN_ENABLED_CACHE` load
-  - the remaining local hot artifact is `host_handles::REG` ready probing ahead of the epoch compare
+  - current keeper also lands the `drop_epoch()` global mirror: `nyash.string.len_h` now reads `host_handles::DROP_EPOCH` directly, and the `host_handles::REG` ready probe is gone from the hot block
+  - split exact reread now moves first priority back to `substring_hii`; `len_h` becomes the control split
   - `nyash.string.substring_hii` / `nyash.string.len_h` / `trace_borrowed_substring_plan` stay as the fallback semantic carrier
   - WSL validation rule stays `3 runs + perf`
 - do not reopen for this lane:
@@ -99,28 +100,27 @@
     16. registry-pointer epoch read on len cache hits
     17. `len_h` `ReadOnlyScalarLane` separation-only slice
     18. `len_h` combined `ReadOnlyScalarLane` + entry snapshot slice
-    19. `host_handles::drop_epoch()` global mirror probe
-    20. `len_h`-specific 4-box slice (`façade + control snapshot + pure cache probe + cold path`)
+    19. `len_h`-specific 4-box slice (`façade + control snapshot + pure cache probe + cold path`)
 - next active cut:
   1. keep `kilo_micro_substring_only` as accept gate
-  2. use `kilo_micro_len_substring_views` for local `len_h` cuts
-  3. keep substring runtime cache mechanics unchanged unless split fronts move again
-  4. helper/state rewrites and cache-shape rewrites did not move emitted `len_h` hot asm enough
+  2. use `kilo_micro_substring_views_only` for local `substring_hii` cuts
+  3. keep `len_h` runtime mechanics stable unless split fronts move again
+  4. latest keeper already removed the remaining `len_h` control-plane hot loads
   5. both `len_lane` separation-only and combined lane+snapshot retries were rejected; lane boundary alone is not the next keeper slice
-  6. `drop_epoch()` global mirror also failed; source-level epoch reshapes alone did not remove the `REG` ready probe from emitted asm
+  6. the earlier `drop_epoch()` global mirror rejection was invalidated by stale release artifacts; the hypothesis is now landed, and future perf reads must rebuild release artifacts first
   7. fixed task order:
      - step 1: do not retry the same `len_h`-specific 4-box slice as-is; it did not clear exact or asm gates
      - step 2: keep this lane specific; do not generalize into a reusable scalar framework until the `len_h` box shape actually wins
-     - step 3: `STRING_DISPATCH_STATE` / trace rereads are now solved for `len_h`; next keeper candidate must reduce the remaining `host_handles::REG` ready probe with an asm-visible change
-     - step 4: any future `drop_epoch()` cut must prove that the `host_handles::REG` ready probe is gone from `nyash.string.len_h` without reintroducing extra dispatch / trace loads
-     - step 5: only after that control/data seam shrinks, reconsider a crate-local lane/kernel boundary
-  8. next local cut must show an asm-visible change in `len_h` hot block before retrying as a keeper candidate
+     - step 3: next keeper candidate must be `substring_hii`-local and beat `kilo_micro_substring_views_only`
+     - step 4: any future `len_h` reopen must preserve direct dispatch probe + single trace-state load + direct `DROP_EPOCH` load
+     - step 5: only after `substring_hii` is re-read under the new split pair, reconsider a crate-local lane/kernel boundary
+  8. next local cut must show an exact-visible or asm-visible change on `substring_hii` before keeper evaluation
 - safe restart order:
   1. `git status -sb`
   2. `tools/checks/dev_gate.sh quick`
   3. after any `nyash_kernel` / `hakorune` runtime source edit, rerun `bash tools/perf/build_perf_release.sh` before exact micro / asm probes
   4. `tools/perf/run_kilo_string_split_pack.sh 1 3`
-  5. `tools/perf/bench_micro_aot_asm.sh kilo_micro_len_substring_views 'nyash.string.len_h' 20`
+  5. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_views_only 'nyash.string.substring_hii' 20`
   6. read the rejected ledger before retrying any substring-local cut
 - documentation rule for failed perf cuts:
   1. keep a short current summary in this README
