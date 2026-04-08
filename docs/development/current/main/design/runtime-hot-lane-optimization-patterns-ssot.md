@@ -142,6 +142,17 @@ Related:
 3. pattern 名で docs に登録する
 4. 2 lane 目で再利用が confirmed してから framework 化する
 
+## Active Transfer Rule
+
+- `len_h` で当たった box/pattern を、そのまま同名 lane として generic 化しない
+- active front が `substring_hii` に移ったら、pattern だけを移植する
+- current `substring_hii` proving shape は:
+  1. route/provider snapshot box
+  2. hot cache-entry kernel
+  3. cold slow-plan / materialize sink
+- これは `Read-Only Scalar Lane` の generic 化ではなく、`hot path を thin block にする` という pattern の移植
+- runtime cache mechanics 自体は Rust に残し、`.hako` / `MIR` へ上げない
+
 ## Operational Rule
 
 - pattern doc は implementation ledger ではない

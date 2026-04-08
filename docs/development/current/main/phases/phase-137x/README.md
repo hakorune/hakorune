@@ -72,6 +72,14 @@
   - `substring_hii` can reissue a fresh handle from a cached `StringViewBox` object when the transient result handle dropped but the source handle still points to the same live source object
   - `str.substring.route` observe read is now dominated by the steady-state handle-hit path: `view_arc_cache_handle_hit=599,998 / total=600,000`
   - current keeper removes redundant `view_enabled` state from `SubstringViewArcCache`; the cache only runs under `view_enabled`, so the extra key dimension was dead hot-path work
+  - `2026-04-09` perf reread on `kilo_micro_substring_views_only`:
+    - exact: `instr=34,372,749 / cycles=6,415,829 / cache-miss=8,601 / AOT 4 ms`
+    - top: `nyash.string.substring_hii 85.99%`, `ny_main 7.30%`
+    - annotate says the first visible tax is still inside the caller entry:
+      1. `SUBSTRING_ROUTE_POLICY_CACHE` load/decode
+      2. `substring` provider state read + `SUBSTRING_VIEW_ARC_CACHE` TLS entry/state check
+      3. only then the steady-state compare path
+      4. slow plan / materialize is not the dominant block on this front
   - latest baseline asm reread still shows the next visible tax before the view-arc cache compare block:
     1. `SUBSTRING_ROUTE_POLICY_CACHE` decode
     2. `substring_view_enabled` / fallback provider state reads
@@ -138,14 +146,26 @@
      - step 8: any future `len_h` reopen must preserve direct dispatch probe + single trace-state load + direct `DROP_EPOCH` load
      - step 9: only after a second lane confirms the same keeper invariant, consider generic framework extraction
      - step 10: only after `substring_hii` is re-read under the new split pair, reconsider a crate-local lane/kernel boundary
-  8. next local cut must show an exact-visible or asm-visible change on `substring_hii` before keeper evaluation
+  8. `len_h` で当たった box 理論は pattern としてだけ再利用する:
+     - active target is no longer `len_h`
+     - read the next `substring_hii` slice as:
+       1. route/provider snapshot box
+       2. hot cache-entry kernel
+       3. cold slow-plan / materialize sink
+     - keep runtime cache mechanics in Rust; do not lift them into `.hako` / `MIR`
+  9. next implementation order is fixed:
+     - step 1: snapshot route/provider state at the active caller entry
+     - step 2: shrink the hot cache-entry kernel under that snapshot
+     - step 3: only after an asm-visible win, isolate cold slow-plan / materialize farther away
+     - step 4: only after a `substring_hii` keeper, reconsider a crate-local kernel boundary
+  10. next local cut must show an exact-visible or asm-visible change on `substring_hii` before keeper evaluation
 - safe restart order:
   1. `git status -sb`
   2. `tools/checks/dev_gate.sh quick`
   3. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
   4. after any `nyash_kernel` / `hakorune` runtime source edit, rerun `bash tools/perf/build_perf_release.sh` before exact micro / asm probes
   5. `tools/perf/run_kilo_string_split_pack.sh 1 3`
-  6. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_views_only 'nyash.string.substring_hii' 20`
+  6. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_views_only 'nyash.string.substring_hii' 200`
   7. read the rejected ledger before retrying any substring-local cut
 - documentation rule for failed perf cuts:
   1. keep a short current summary in this README

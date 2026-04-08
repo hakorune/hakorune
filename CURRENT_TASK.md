@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-04-08
+Date: 2026-04-09
 Scope: repo root から current lane / current front / restart read order に最短で戻るための薄い pointer。
 
 ## Purpose
@@ -72,6 +72,14 @@ Scope: repo root から current lane / current front / restart read order に最
   - `view_arc_cache_reissue_hit=0`, `view_arc_cache_miss=2`, `fast_cache_hit=0`, `dispatch_hit=0`, `slow_plan=2`
   - current keeper removes redundant `view_enabled` state from `SubstringViewArcCache`; this cache only runs under the `view_enabled` route, so the flag compare/store was dead hot-path work
   - split exact fronts now put `substring_hii` retained-view path at `34.37M instr`
+  - `2026-04-09` perf reread on `kilo_micro_substring_views_only`:
+    - exact: `instr=34,372,749 / cycles=6,415,829 / cache-miss=8,601 / AOT 4 ms`
+    - top: `nyash.string.substring_hii 85.99%`, `ny_main 7.30%`
+    - annotate reading:
+      1. first hot cluster is `SUBSTRING_ROUTE_POLICY_CACHE` load/decode
+      2. second hot cluster is `substring` provider state read + `SUBSTRING_VIEW_ARC_CACHE` TLS entry/state check
+      3. only then `SubstringViewArcCache` steady-state compare path
+      4. slow plan / materialize is not the dominant cost on this front
   - latest baseline asm reread says the next visible tax is still before the view-arc cache compare block:
     1. `SUBSTRING_ROUTE_POLICY_CACHE` decode
     2. `substring_view_enabled` / fallback provider state reads
@@ -117,22 +125,35 @@ Scope: repo root から current lane / current front / restart read order に最
   - use `kilo_micro_substring_views_only` for local `substring_hii` cuts
   - keep `len_h` runtime mechanics stable unless split fronts move again
   - latest keeper eliminated the remaining `len_h` control-plane hot loads; do not reopen `len_h` local cuts until `substring` is re-read
+  - active shape rule:
+    - do not read the successful `len_h` 3-box advice literally; reuse the pattern on `substring_hii`
+    - active `substring_hii` box split is:
+      1. route/provider snapshot box
+      2. hot cache-entry kernel
+      3. cold slow-plan / materialize sink
   - task order is fixed:
     1. do not retry `len_lane` separation by itself; both separation-only and combined snapshot retries failed keeper gates
     2. the earlier `drop_epoch()` global mirror rejection was invalidated by stale release artifacts; the hypothesis is now landed, and future perf reads must rebuild release artifacts first
     3. do not retry the same `len_h`-specific 4-box slice as-is; it lost before the control-plane fixes landed
     4. `len_h` の箱が当たるまで generic framework にはしない; reusable abstraction は後回し
     5. do not genericize implementation from `string` alone; first collect keeper patterns in the runtime-hot-lane pattern SSOT
-    6. hot caller での `substring` provider swap は 1 本では keep しない:
+    6. active implementation order for `substring_hii` is fixed:
+       - step 1: capture route/provider snapshot at entry; target `route policy / fallback / dispatch / drop_epoch` reads, but keep runtime cache mechanics in Rust
+       - step 2: narrow the hot cache-entry kernel under that snapshot; target `SUBSTRING_VIEW_ARC_CACHE` TLS entry/state check and steady-state compare path
+       - step 3: only after an asm-visible win, isolate cold slow-plan / materialize work farther from the hot caller
+       - step 4: only after a `substring_hii` keeper, reconsider a crate-local lane/kernel boundary
+       - step 5: only after a second lane proves the same invariant, discuss generic framework extraction
+    7. hot caller での `substring` provider swap は 1 本では keep しない:
        `substring_view_enabled` / fallback policy / route policy を同時に `raw read + cold init` へ切り替える slice は local front を落とした
-    7. shape cleanup では hot body duplication をしない; `route_raw == common-case` の全文複製は reopen しない
-    8. next shape cleanup must stay below the active caller or pair with an asm-visible win; provider foundation only is allowed, but hot caller adoption needs proof
-    9. `substring_route_policy()` cold split alone is also blocked; even without caller adoption it lost the local split
-    10. if a future slice reopens `len_h`, it must beat the new `DROP_EPOCH`-based asm and preserve direct dispatch / single trace-state loads
-    11. only after `substring_hii` is re-read under the new split pair, reconsider a crate-local lane/kernel boundary
+    8. shape cleanup では hot body duplication をしない; `route_raw == common-case` の全文複製は reopen しない
+    9. next shape cleanup must stay below the active caller or pair with an asm-visible win; provider foundation only is allowed, but hot caller adoption needs proof
+    10. `substring_route_policy()` cold split alone is also blocked; even without caller adoption it lost the local split
+    11. if a future slice reopens `len_h`, it must beat the new `DROP_EPOCH`-based asm and preserve direct dispatch / single trace-state loads
 - first files to reopen for the next slice:
   - `crates/nyash_kernel/src/exports/string_helpers.rs`
   - `crates/nyash_kernel/src/exports/string_helpers/cache.rs`
+  - `crates/nyash_kernel/src/exports/string_debug.rs`
+  - `crates/nyash_kernel/src/hako_forward_bridge.rs`
   - `crates/nyash_kernel/src/exports/string_helpers/materialize.rs`
   - `crates/nyash_kernel/src/exports/string_view.rs`
   - `crates/nyash_kernel/src/tests/string.rs`
@@ -142,7 +163,7 @@ Scope: repo root から current lane / current front / restart read order に最
   3. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
   4. after any `nyash_kernel` / `hakorune` runtime source edit, rerun `bash tools/perf/build_perf_release.sh` before exact micro / asm probes
   5. `tools/perf/run_kilo_string_split_pack.sh 1 3`
-  6. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_views_only 'nyash.string.substring_hii' 20`
+  6. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_views_only 'nyash.string.substring_hii' 200`
   7. `docs/development/current/main/investigations/phase137x-substring-rejected-optimizations-2026-04-08.md`
 - documentation rule for failed perf cuts:
   1. keep a short current summary in the phase README
