@@ -57,9 +57,20 @@ pub fn vm_use_dispatch() -> bool {
     false
 }
 
-/// Force VM fallback interpreter route (dev-only escape hatch).
-pub fn vm_use_fallback() -> bool {
+/// Force the runner-side compat fallback interpreter lane.
+///
+/// This is the route-orchestrator switch for `vm-compat-fallback`.
+/// It is intentionally distinct from the kernel-side
+/// `vm_compat_fallback_allowed()` policy below.
+#[inline(always)]
+pub fn vm_force_compat_fallback_interpreter() -> bool {
     env_bool("NYASH_VM_USE_FALLBACK")
+}
+
+/// Legacy alias kept for older callers that still say "use fallback".
+#[inline(always)]
+pub fn vm_use_fallback() -> bool {
+    vm_force_compat_fallback_interpreter()
 }
 
 /// Compat fallback policy shared by runtime/kernel internals.

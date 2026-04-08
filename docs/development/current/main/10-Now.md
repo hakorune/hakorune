@@ -13,19 +13,15 @@ Related:
 ## Current
 
 - lane: `phase-137x main kilo reopen selection`
-- current front: `kilo_micro_concat_const_suffix` pure-first lane の dedicated seed matcher を先に進める
-- blocker: WSL のブレが大きいので、bench は `3 runs + perf` でしか採らない
-- first landed slice:
-  - `tools/selfhost/lib/selfhost_build_exe.sh` no longer forces harness on the daily EXE lane
-  - provider/selfhost docs now read llvmlite as explicit keep only
-  - `tools/build_llvm.sh` harness keep now routes through `ny-llvmc --driver harness`
-  - `tools/llvm_smoke.sh` is explicit compat/probe keep
-  - WSL EXE-first and selfhost pilot guides now treat llvmlite as keep-only
-  - public env reference labels `NYASH_LLVM_USE_HARNESS=1` examples as explicit keep-lane
-- perf reopen front:
-  - `kilo_micro_concat_const_suffix` -> dedicated pure-first seed for the `concat_hh` / `len_h` / `substring` loop
-  - `nyash.string.concat_hh` / `nyash.string.len_h` -> fallback
-  - `const_suffix` / `thaw.str + lit.str + str.concat2 + freeze.str` stay canonical, but this exact front currently replays through `concat_hh`
+- current front: `kilo_micro_substring_views_only` on the string corridor-first lane
+- blocker: corridor sink pilot の perf proof の前に `vm fallback` owner split を整理する
+- current landed upstream slices:
+  - string corridor facts inventory
+  - placement/effect scaffold
+  - first borrowed-corridor sink pilot for single-use `substring(...).length()`
+- inserted pre-optimization cleanup:
+  - `phase-162x vm fallback lane separation cleanup`
+  - runner compat fallback / kernel Rust fallback / `vm-hako` reference を別 owner に固定する
 - observe lane:
   - `--features perf-observe`
   - `NYASH_PERF_COUNTERS=1`
@@ -48,7 +44,8 @@ Related:
 
 ## Current Read
 
-- `vm` cleanup is no longer current work
+- `vm` removal is not current work
+- but `vm fallback` owner split cleanup is now inserted before the next perf proof
 - fixed perf order stays:
   - `leaf-proof micro`
   - `micro kilo`
@@ -126,7 +123,7 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
-3. `docs/development/current/main/phases/phase-137x/README.md`
+2. `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
+3. `docs/development/current/main/phases/phase-162x/README.md`
 4. `docs/development/current/main/phases/phase-137x/README.md`
-5. `docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md`
+5. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`

@@ -26,6 +26,8 @@ Scope: repo root から current lane / current front / restart read order に最
   - `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
 - current string corridor design anchor:
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+- vm fallback separation anchor:
+  - `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
 - active lane/front:
   - lane: `phase-137x main kilo reopen selection`
   - accept gate front: `kilo_micro_substring_only`
@@ -146,28 +148,34 @@ Scope: repo root から current lane / current front / restart read order に最
     3. landed: canonical MIR fact carrier is `FunctionMetadata.string_corridor_facts`; verbose dumps expose the facts
     4. landed: placement/effect scaffold is now `src/mir/string_corridor_placement.rs`; it reads `FunctionMetadata.string_corridor_facts`, emits no-op candidate decisions into `FunctionMetadata.string_corridor_candidates`, and leaves runtime lowering unchanged
     5. landed structurally: the first borrowed-corridor sinking pilot now rewrites single-use `substring(...).length()` chains to `nyash.string.substring_len_hii` via `src/mir/passes/string_corridor_sink.rs`; interpreter fallback and kernel export are in place
-    6. next slice is perf/asm validation for that pilot; do not claim accept-gate wins before exact/whole evidence exists
-    7. after the pilot is validated, add AOT-internal direct kernel entry selection; ABI/FFI keeps the facade
-    8. only after the upstream corridor slices land and move exact/asm, reopen new `substring_hii` runtime leaf cuts
-    9. keep the cross-lane scope-control table in `string-canonical-mir-corridor-and-placement-pass-ssot.md` truthful; do not let the `string` pilot silently redefine `array/map` or ABI structure
-    10. do not retry `len_lane` separation by itself; both separation-only and combined snapshot retries failed keeper gates
-    11. the earlier `drop_epoch()` global mirror rejection was invalidated by stale release artifacts; the hypothesis is now landed, and future perf reads must rebuild release artifacts first
-    12. do not retry the same `len_h`-specific 4-box slice as-is; it lost before the control-plane fixes landed
-    13. `len_h` の箱が当たるまで generic framework にはしない; reusable abstraction は後回し
-    14. do not genericize implementation from `string` alone; first collect keeper patterns in the runtime-hot-lane pattern SSOT
-    15. hot caller での `substring` provider swap は 1 本では keep しない:
+    6. before the next perf proof, insert `phase-162x vm fallback lane separation cleanup`; keep runner compat fallback / kernel Rust fallback / `vm-hako` reference as separate owners
+    7. after that cleanup, validate the corridor-sink pilot with exact/whole/asm; do not claim accept-gate wins before evidence exists
+    8. after the pilot is validated, add AOT-internal direct kernel entry selection; ABI/FFI keeps the facade
+    9. only after the upstream corridor slices land and move exact/asm, reopen new `substring_hii` runtime leaf cuts
+    10. keep the cross-lane scope-control table in `string-canonical-mir-corridor-and-placement-pass-ssot.md` truthful; do not let the `string` pilot silently redefine `array/map` or ABI structure
+    11. do not retry `len_lane` separation by itself; both separation-only and combined snapshot retries failed keeper gates
+    12. the earlier `drop_epoch()` global mirror rejection was invalidated by stale release artifacts; the hypothesis is now landed, and future perf reads must rebuild release artifacts first
+    13. do not retry the same `len_h`-specific 4-box slice as-is; it lost before the control-plane fixes landed
+    14. `len_h` の箱が当たるまで generic framework にはしない; reusable abstraction は後回し
+    15. do not genericize implementation from `string` alone; first collect keeper patterns in the runtime-hot-lane pattern SSOT
+    16. hot caller での `substring` provider swap は 1 本では keep しない:
        `substring_view_enabled` / fallback policy / route policy を同時に `raw read + cold init` へ切り替える slice は local front を落とした
-    16. shape cleanup では hot body duplication をしない; `route_raw == common-case` の全文複製は reopen しない
-    17. next shape cleanup must stay below the active caller or pair with an asm-visible win; provider foundation only is allowed, but hot caller adoption needs proof
-    18. `substring_route_policy()` cold split alone is also blocked; even without caller adoption it lost the local split
-    19. if a future slice reopens `len_h`, it must beat the new `DROP_EPOCH`-based asm and preserve direct dispatch / single trace-state loads
-    20. do not retry the same `substring_hii` route/provider snapshot with eager `DROP_EPOCH` capture; it regressed both exact fronts and whole strict before any cache-entry win appeared
-    21. do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear path in isolation; the call boundary/code layout regressed all split fronts badly
+    17. shape cleanup では hot body duplication をしない; `route_raw == common-case` の全文複製は reopen しない
+    18. next shape cleanup must stay below the active caller or pair with an asm-visible win; provider foundation only is allowed, but hot caller adoption needs proof
+    19. `substring_route_policy()` cold split alone is also blocked; even without caller adoption it lost the local split
+    20. if a future slice reopens `len_h`, it must beat the new `DROP_EPOCH`-based asm and preserve direct dispatch / single trace-state loads
+    21. do not retry the same `substring_hii` route/provider snapshot with eager `DROP_EPOCH` capture; it regressed both exact fronts and whole strict before any cache-entry win appeared
+    22. do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear path in isolation; the call boundary/code layout regressed all split fronts badly
 - first files to reopen for the next slice:
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+  - `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
+  - `docs/development/current/main/phases/phase-162x/README.md`
   - `src/mir/string_corridor.rs`
   - `src/mir/string_corridor_placement.rs`
   - `src/mir/passes/string_corridor_sink.rs`
+  - `src/config/env/vm_backend_flags.rs`
+  - `src/runner/route_orchestrator.rs`
+  - `src/runner/keep/vm_fallback.rs`
   - `crates/hakorune_mir_core/src/effect.rs`
   - `crates/hakorune_mir_defs/src/call_unified.rs`
   - `src/mir/**`

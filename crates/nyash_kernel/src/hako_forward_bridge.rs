@@ -155,6 +155,9 @@ pub(crate) fn register_string_dispatch(f: Option<HakoStringDispatchFn>) -> i64 {
 
 /// Mainline host-service fallback policy shared by hookable entrypoints.
 ///
+/// This is the kernel/runtime-side Rust fallback policy.
+/// It is distinct from the runner-side `vm-compat-fallback` interpreter lane.
+///
 /// `NYASH_VM_USE_FALLBACK=0` means "do not execute Rust fallback routes"
 /// when a `.hako` hook is not registered.
 #[inline]

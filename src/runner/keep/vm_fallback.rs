@@ -1,3 +1,10 @@
+//! Explicit runner-side compat fallback interpreter keep.
+//!
+//! This file owns the `vm-compat-fallback` execution lane only.
+//! It is separate from:
+//! - kernel-side Rust fallback policy in `hako_forward_bridge.rs`
+//! - the `vm-hako` reference/conformance lane
+
 use super::super::NyashRunner;
 use crate::runtime::get_global_ring0;
 use crate::{mir::MirCompiler, parser::NyashParser};

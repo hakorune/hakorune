@@ -156,7 +156,7 @@ pub(crate) fn decide_vm_route_plan(
 }
 
 pub(crate) fn execute_vm_family_route(runner: &NyashRunner, backend: &str, filename: &str) -> bool {
-    let force_fallback = crate::config::env::vm_use_fallback();
+    let force_fallback = crate::config::env::vm_force_compat_fallback_interpreter();
     let prefer_vm_hako = crate::config::env::vm_hako_prefer_strict_dev();
     let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
         || crate::config::env::joinir_dev_enabled();
@@ -200,7 +200,7 @@ pub(crate) fn format_vm_compat_bypass_freeze(route: &str) -> String {
 }
 
 pub(crate) fn enforce_vm_compat_fallback_guard_or_exit(route: &str) {
-    let force_fallback = crate::config::env::vm_use_fallback();
+    let force_fallback = crate::config::env::vm_force_compat_fallback_interpreter();
     let plan = decide_vm_compat_fallback_guard(force_fallback);
     if plan.action == VmCompatGuardAction::Reject {
         eprintln!("{}", format_vm_compat_bypass_freeze(route));

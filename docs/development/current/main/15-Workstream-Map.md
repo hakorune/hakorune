@@ -15,16 +15,20 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-137x main kilo reopen selection` |
-| Front | `kilo_micro_concat_const_suffix` pure-first lane の dedicated seed matcher を first にする |
-| Blocker | WSL のブレが大きいので、bench は `3 runs + perf` でしか採らない |
-| Next | `phase-kx vm-hako small reference interpreter recut` |
-| After Next | `phase-kx vm-hako small reference interpreter recut` |
+| Front | `kilo_micro_substring_views_only` string corridor-first lane |
+| Blocker | borrowed-corridor pilot の perf proof の前に `vm fallback` owner split を整理する |
+| Next | `phase-162x vm fallback lane separation cleanup` |
+| After Next | `phase-137x borrowed corridor perf validation` |
 
 ## Current Read
 
 - `phase-132x` landed:
   - `--backend` default is now `mir`
   - explicit `vm` / `vm-hako` proof-debug lanes stay frozen keep
+- current pre-optimization cleanup:
+  - separate `vm-compat-fallback`
+  - separate kernel-side Rust fallback policy
+  - keep `vm-hako` as reference/conformance only
 - `phase-133x` landed:
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
@@ -119,7 +123,8 @@ Related:
 ## Successor Corridor
 
 1. `phase-137x main kilo reopen selection`
-2. `phase-kx vm-hako small reference interpreter recut`
+2. `phase-162x vm fallback lane separation cleanup`
+3. `phase-137x borrowed corridor perf validation`
 
 ## Parked After Optimization
 

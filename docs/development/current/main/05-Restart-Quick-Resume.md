@@ -21,8 +21,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-137x main kilo reopen selection`
-- current front: `store.array.str` first で array string-store executor overhead を詰める
-- blocker: exact micro と whole-kilo を同時に良化する patch だけを採る
+- current front: `kilo_micro_substring_views_only` string corridor-first lane
+- blocker: borrowed-corridor pilot の perf proof の前に `vm fallback` owner split を整理する
 - landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
@@ -30,17 +30,17 @@ tools/checks/dev_gate.sh quick
   - `phase-134x nyash_kernel layer recut selection`
   - `phase-133x micro kilo reopen selection`
 - active next:
-  - `phase-137x main kilo reopen selection`
-  - `phase-kx vm-hako small reference interpreter recut`
+  - `phase-162x vm fallback lane separation cleanup`
+  - `phase-137x borrowed corridor perf validation`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/design/semantic-optimization-authority-ssot.md`
-4. `docs/development/current/main/phases/phase-152x/README.md`
-5. `docs/development/current/main/phases/phase-154x/README.md`
-6. `docs/development/current/main/phases/phase-137x/README.md`
+3. `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
+4. `docs/development/current/main/phases/phase-162x/README.md`
+5. `docs/development/current/main/phases/phase-137x/README.md`
+6. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
 
 ## Decision Lock
 

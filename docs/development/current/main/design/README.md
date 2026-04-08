@@ -116,6 +116,7 @@
 - String helper density optimization SSOT（substring/concat/indexOf/length 最適化責務）: `docs/development/current/main/design/optimization-ssot-string-helper-density.md`
 - Runtime hot lane optimization patterns SSOT（keeper pattern は先に固定し、generic framework 化は second winner の後に行う）: `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
 - String canonical MIR corridor + placement/effect pass SSOT（string hot lane を `.hako policy -> canonical MIR facts -> placement/effect pass -> Rust microkernel` へ寄せる設計正本）: `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+- VM fallback lane separation SSOT（runner compat fallback / kernel Rust fallback / `vm-hako` reference lane の owner split を optimization 前に固定する）: `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
 - Helper boundary policy SSOT（host handle / string span cache tuning 集約）: `docs/development/current/main/design/helper-boundary-policy-ssot.md`
 - Optimization portability classification SSOT（最適化の移植可能性分類）: `docs/development/current/main/design/optimization-portability-classification-ssot.md`
 - AutoSpecializeBox SSOT（MIRCall 自動分岐 v0 契約）: `docs/development/current/main/design/auto-specialize-box-ssot.md`

@@ -37,6 +37,8 @@
   - `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
 - current upstream string corridor design anchor is now:
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+- pre-optimization cleanup anchor is now:
+  - `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
 - mixed accept gate stays `kilo_micro_substring_only`
 - split exact fronts are now:
   - `kilo_micro_substring_views_only`
@@ -153,17 +155,18 @@
      - step 3: landed; canonical MIR-side fact carrier is `FunctionMetadata.string_corridor_facts`, and verbose dumps expose it with no runtime behavior change
      - step 4: landed; `src/mir/string_corridor_placement.rs` now reads `FunctionMetadata.string_corridor_facts`, emits no-op candidate decisions into `FunctionMetadata.string_corridor_candidates`, and exposes them in verbose MIR dumps
      - step 5: landed structurally; the first borrowed-corridor sinking pilot now rewrites single-use `substring(...).length()` chains to `nyash.string.substring_len_hii`
-     - step 6: next; validate that pilot with exact/whole/asm before claiming a keeper
-     - step 7: after corridor facts stabilize, add AOT-internal direct kernel entry selection; ABI/FFI keeps the facade
-     - step 8: only then reopen new `substring_hii` runtime leaf cuts, and only with exact/asm proof
-     - step 9: do not retry the same `len_h`-specific 4-box slice as-is; it did not clear exact or asm gates
-     - step 10: keep this lane specific; do not generalize into a reusable scalar framework until a second lane wins the same pattern
-     - step 11: do not swap the active `substring` providers to `raw read + cold init` as one slice; that provider-adoption cut regressed the local split
-     - step 12: do not duplicate the common-case `substring_hii` body again; the earlier `route_raw == 0b111` duplication regressed badly
-     - step 13: `substring_route_policy()` cold split alone is also blocked; even with the caller unchanged it regressed the local split
-     - step 14: any future `len_h` reopen must preserve direct dispatch probe + single trace-state load + direct `DROP_EPOCH` load
-     - step 15: do not retry the same `substring_hii` route/provider snapshot with eager `DROP_EPOCH` capture; it widened the caller prologue and regressed exact/whole together
-     - step 16: do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear in isolation; it regressed every split front and whole strict
+     - step 6: before the next perf proof, run `phase-162x vm fallback lane separation cleanup`; keep runner compat fallback / kernel Rust fallback / `vm-hako` reference as separate owners
+     - step 7: next; validate the corridor-sink pilot with exact/whole/asm before claiming a keeper
+     - step 8: after corridor facts stabilize, add AOT-internal direct kernel entry selection; ABI/FFI keeps the facade
+     - step 9: only then reopen new `substring_hii` runtime leaf cuts, and only with exact/asm proof
+     - step 10: do not retry the same `len_h`-specific 4-box slice as-is; it did not clear exact or asm gates
+     - step 11: keep this lane specific; do not generalize into a reusable scalar framework until a second lane wins the same pattern
+     - step 12: do not swap the active `substring` providers to `raw read + cold init` as one slice; that provider-adoption cut regressed the local split
+     - step 13: do not duplicate the common-case `substring_hii` body again; the earlier `route_raw == 0b111` duplication regressed badly
+     - step 14: `substring_route_policy()` cold split alone is also blocked; even with the caller unchanged it regressed the local split
+     - step 15: any future `len_h` reopen must preserve direct dispatch probe + single trace-state load + direct `DROP_EPOCH` load
+     - step 16: do not retry the same `substring_hii` route/provider snapshot with eager `DROP_EPOCH` capture; it widened the caller prologue and regressed exact/whole together
+     - step 17: do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear in isolation; it regressed every split front and whole strict
   10. next local cut must show an exact-visible or asm-visible change on `substring_hii`, but only after the upstream corridor slices are in place
 - safe restart order:
   1. `git status -sb`
