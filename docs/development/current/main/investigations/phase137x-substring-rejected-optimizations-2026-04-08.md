@@ -996,6 +996,38 @@ Related:
 - only retry as a narrower foundation slice that does not replace the active caller path by itself
 - or pair it with an asm-visible `substring_hii` win in the same cut
 
+### 2026-04-08: `substring_route_policy()` cold init split
+
+**Hypothesis**
+
+- the active caller should stay untouched for now, but
+- moving only the `substring_route_policy()` init path into a cold helper might still shrink the common provider body
+- this would be a narrower shape cleanup below the active caller than the earlier provider-adoption slice
+
+**Touched owner area**
+
+- [string_debug.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_debug.rs)
+
+**Observed result**
+
+- exact:
+  - `kilo_micro_substring_views_only: instr=35,873,350 / cycles=6,421,186 / cache-miss=8,661 / AOT 4 ms`
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Why**
+
+- even with the active `substring_hii` caller restored, the provider-only cold split still regressed the local split
+- this means current substring provider shape is sensitive enough that a clean cold-init extraction is not automatically a win
+- future substring work should avoid provider-shape cleanup unless the slice also proves an asm-visible reduction in the hot caller path
+
+**Reopen Condition**
+
+- only reopen if another slice already changes the hot caller shape and the provider cleanup can ride along with a measured win
+
 ## Next Candidate
 
 - keep substring runtime mechanics in Rust
@@ -1003,7 +1035,7 @@ Related:
 - next local cut is:
   1. keep `kilo_micro_substring_only` as the accept gate
   2. use `kilo_micro_substring_views_only` for local `substring_hii` cuts
-  3. keep substring runtime mechanics unchanged while provider-adoption stays rejected
+  3. keep substring runtime mechanics unchanged while provider-adoption and provider-only cold split both stay rejected
   4. next shape task must stay below the active caller:
      - foundation helpers are allowed
      - hot caller swaps are not

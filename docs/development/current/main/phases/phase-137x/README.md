@@ -112,6 +112,7 @@
     21. `SubstringViewArcCache` `same_source_pair` specialization
     22. `substring_hii` common-case body duplication via `route_raw == 0b111`
     23. `substring` provider `raw read + cold init` adoption (`substring_view_enabled` / fallback policy / route policy)
+    24. `substring_route_policy()` cold init split while keeping the active caller shape unchanged
 - next active cut:
   1. keep `kilo_micro_substring_only` as accept gate
   2. use `kilo_micro_substring_views_only` for local `substring_hii` cuts
@@ -126,9 +127,10 @@
      - step 4: do not swap the active `substring` providers to `raw read + cold init` as one slice; that provider-adoption cut regressed the local split
      - step 5: do not duplicate the common-case `substring_hii` body again; the earlier `route_raw == 0b111` duplication regressed badly
      - step 6: next shape cleanup must stay below the active caller or pair with an asm-visible win
-     - step 7: any future `len_h` reopen must preserve direct dispatch probe + single trace-state load + direct `DROP_EPOCH` load
-     - step 8: only after a second lane confirms the same keeper invariant, consider generic framework extraction
-     - step 9: only after `substring_hii` is re-read under the new split pair, reconsider a crate-local lane/kernel boundary
+     - step 7: `substring_route_policy()` cold split alone is also blocked; even with the caller unchanged it regressed the local split
+     - step 8: any future `len_h` reopen must preserve direct dispatch probe + single trace-state load + direct `DROP_EPOCH` load
+     - step 9: only after a second lane confirms the same keeper invariant, consider generic framework extraction
+     - step 10: only after `substring_hii` is re-read under the new split pair, reconsider a crate-local lane/kernel boundary
   8. next local cut must show an exact-visible or asm-visible change on `substring_hii` before keeper evaluation
 - safe restart order:
   1. `git status -sb`

@@ -104,6 +104,7 @@ Scope: repo root から current lane / current front / restart read order に最
     21. `SubstringViewArcCache` `same_source_pair` specialization
     22. `substring_hii` common-case body duplication via `route_raw == 0b111`
     23. `substring` provider `raw read + cold init` adoption (`substring_view_enabled` / fallback policy / route policy)
+    24. `substring_route_policy()` cold init split while keeping the active caller shape unchanged
 - next active cut:
   - keep `kilo_micro_substring_only` as accept gate
   - use `kilo_micro_substring_views_only` for local `substring_hii` cuts
@@ -119,8 +120,9 @@ Scope: repo root から current lane / current front / restart read order に最
        `substring_view_enabled` / fallback policy / route policy を同時に `raw read + cold init` へ切り替える slice は local front を落とした
     7. shape cleanup では hot body duplication をしない; `route_raw == common-case` の全文複製は reopen しない
     8. next shape cleanup must stay below the active caller or pair with an asm-visible win; provider foundation only is allowed, but hot caller adoption needs proof
-    9. if a future slice reopens `len_h`, it must beat the new `DROP_EPOCH`-based asm and preserve direct dispatch / single trace-state loads
-    10. only after `substring_hii` is re-read under the new split pair, reconsider a crate-local lane/kernel boundary
+    9. `substring_route_policy()` cold split alone is also blocked; even without caller adoption it lost the local split
+    10. if a future slice reopens `len_h`, it must beat the new `DROP_EPOCH`-based asm and preserve direct dispatch / single trace-state loads
+    11. only after `substring_hii` is re-read under the new split pair, reconsider a crate-local lane/kernel boundary
 - first files to reopen for the next slice:
   - `crates/nyash_kernel/src/exports/string_helpers.rs`
   - `crates/nyash_kernel/src/exports/string_helpers/cache.rs`
