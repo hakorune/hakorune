@@ -44,6 +44,11 @@ Fixed micro cases (files live in `benchmarks/` + `benchmarks/c/`):
 - `kilo_micro_substring_concat`: substring + concat tight loop
 - `kilo_micro_array_getset`: integer-key array get/set loop
 
+Rust reference micro case for the current substring lane:
+
+- `benchmarks/rust/bench_kilo_micro_substring_views_only.rs`: pure `&str` slice reference for the retained-view split front
+- `benchmarks/rust/bench_kilo_micro_substring_views_only_clike.rs`: C-like byte-copy + stack-buffer reference for the same split front
+
 Meso split cases (use these before `kilo_kernel_small_hk` when the whole app is still too coarse):
 
 - `kilo_meso_substring_concat_len`: pure substring + concat + len chain
@@ -69,6 +74,12 @@ tools/perf/run_kilo_micro_machine_ladder.sh 1 15
 # Current string split pack:
 # mixed accept gate -> substring-only split -> len-only split -> whole strict
 tools/perf/run_kilo_string_split_pack.sh 1 15
+
+# Pure Rust vs Hakorune AOT for the current substring split front
+tools/perf/bench_rust_vs_hako_stat.sh kilo_micro_substring_views_only 1 3
+
+# C-like Rust vs Hakorune AOT for the same front
+tools/perf/bench_rust_vs_hako_stat.sh kilo_micro_substring_views_only 1 3 clike
 
 # Run the meso split ladder
 tools/perf/run_kilo_meso_machine_ladder.sh 1 15

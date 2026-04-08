@@ -40,6 +40,11 @@
   - `kilo_micro_substring_views_only`
   - `kilo_micro_len_substring_views`
 - current local cut front is `kilo_micro_substring_views_only`
+- pure Rust reference compare lane:
+  - `benchmarks/rust/bench_kilo_micro_substring_views_only.rs`
+  - `tools/perf/bench_rust_vs_hako_stat.sh kilo_micro_substring_views_only 1 3`
+  - latest pure Rust reference: `instr=5,667,104 / cycles=1,572,750 / cache-miss=5,254 / ms=3`
+  - latest C-like Rust reference: `instr=12,566,914 / cycles=3,404,383 / cache-miss=5,256 / ms=3`
 - exact baseline on this front:
   - `kilo_micro_substring_only: C 3 ms / AOT 5 ms`
   - `instr: 49,372,458`
@@ -78,6 +83,8 @@
   - current keeper also splits trace state into raw-read + cold-init helpers, so the hot cache-hit path sees one `JIT_TRACE_LEN_ENABLED_CACHE` load
   - current keeper also lands the `drop_epoch()` global mirror: `nyash.string.len_h` now reads `host_handles::DROP_EPOCH` directly, and the `host_handles::REG` ready probe is gone from the hot block
   - split exact reread now moves first priority back to `substring_hii`; `len_h` becomes the control split
+  - pure Rust reference is the current lower bound for this front; current AOT is about `6.06x instr / 4.10x cycles` over it
+  - C-like Rust reference is the current contract-aligned comparison point; current AOT is about `2.73x instr / 1.91x cycles` over it
   - `nyash.string.substring_hii` / `nyash.string.len_h` / `trace_borrowed_substring_plan` stay as the fallback semantic carrier
   - WSL validation rule stays `3 runs + perf`
 - do not reopen for this lane:

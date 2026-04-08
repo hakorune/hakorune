@@ -165,6 +165,8 @@ bash tools/perf/run_kilo_meso_machine_ladder.sh 1 3
 - `micro` は leaf 密度を見る
 - `run_kilo_string_split_pack.sh` は current substring/len split wave 専用の thin wrapper
 - mixed accept gate -> substring-only split -> len-only split -> whole strict の順で回す
+- pure Rust reference compare は `tools/perf/bench_rust_vs_hako_stat.sh kilo_micro_substring_views_only 1 3`
+- C-like Rust reference compare は `tools/perf/bench_rust_vs_hako_stat.sh kilo_micro_substring_views_only 1 3 clike`
 - `meso` は `len -> array_set -> loopcarry` で `micro` と `kilo_kernel_small_hk` の gap を分離して読む
 - C/AOT 比較は `tools/perf/bench_micro_c_vs_aot_stat.sh <bench_key> 1 3` を使う
 

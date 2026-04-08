@@ -31,6 +31,11 @@ Scope: repo root から current lane / current front / restart read order に最
     - `kilo_micro_substring_views_only`
     - `kilo_micro_len_substring_views`
   - active local cut front: `kilo_micro_substring_views_only`
+  - pure Rust reference compare lane:
+    - `benchmarks/rust/bench_kilo_micro_substring_views_only.rs`
+    - `tools/perf/bench_rust_vs_hako_stat.sh kilo_micro_substring_views_only 1 3`
+    - latest pure Rust reference: `instr=5,667,104 / cycles=1,572,750 / cache-miss=5,254 / ms=3`
+    - latest C-like Rust reference: `instr=12,566,914 / cycles=3,404,383 / cache-miss=5,256 / ms=3`
   - rule: WSL は `3 runs + perf` でしか delta を採らない
 - current exact baseline:
   - `kilo_micro_substring_only: C 3 ms / AOT 5 ms`
@@ -77,6 +82,8 @@ Scope: repo root から current lane / current front / restart read order に最
   - current keeper also splits trace state into `jit_trace_len_state_raw()` and cold `jit_trace_len_state_init()`, so the hot cache-hit path sees one trace-state load and returns directly when trace is off
   - current keeper also lands the `drop_epoch()` global mirror: emitted `nyash.string.len_h` now reads `host_handles::DROP_EPOCH` directly and no longer carries the `host_handles::REG` ready probe / `OnceCell` path
   - latest split exact reread moves first priority back to `substring_hii`; `len_h` now reads as the secondary control split
+  - pure Rust reference is the current lower bound for this front; current AOT is about `6.06x instr / 4.10x cycles` over it
+  - C-like Rust reference is the current contract-aligned comparison point; current AOT is about `2.73x instr / 1.91x cycles` over it
 - rejected perf history:
   - exact evidence is centralized in
     `docs/development/current/main/investigations/phase137x-substring-rejected-optimizations-2026-04-08.md`
