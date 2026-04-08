@@ -90,11 +90,16 @@
     10. `trace_len_state()` helper / trace cache single-load probe
     11. `len_h` two-slot pre-match + single epoch-guard probe
     12. local `dispatch_known_absent_fast` + cold dispatch probe combo
+    13. `drop_epoch_after_cache_hit()` ready-after-hit probe
+    14. `len_h` dispatch single-probe + raw trace-state split
+    15. `len_h` 1-probe hash-slot cache shape
+    16. registry-pointer epoch read on len cache hits
 - next active cut:
   1. keep `kilo_micro_substring_only` as accept gate
   2. use `kilo_micro_len_substring_views` for local `len_h` cuts
   3. keep substring runtime cache mechanics unchanged unless split fronts move again
-  4. next local cut is `len_h` fast-hit dispatch-state / TLS slot / epoch-guard shape only
+  4. helper/state rewrites and cache-shape rewrites did not move emitted `len_h` hot asm enough
+  5. next local cut must show an asm-visible change in `len_h` hot block before retrying as a keeper candidate
 - safe restart order:
   1. `git status -sb`
   2. `tools/checks/dev_gate.sh quick`

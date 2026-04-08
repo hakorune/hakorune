@@ -530,6 +530,148 @@ Related:
 
 - dispatch-state cached-absent path が another exact family でも dominant と示せた時だけ
 
+### 2026-04-08: `drop_epoch_after_cache_hit()` ready-after-hit probe
+
+**Hypothesis**
+
+- `string_len_fast_cache_lookup()` で handle match が先に確定した後なら
+- host-handle registry は already ready とみなせる
+- `drop_epoch()` の full helper を避けて exact front の epoch read を軽くできる
+
+**Touched owner area**
+
+- [host_handles.rs](/home/tomoaki/git/hakorune-selfhost/src/runtime/host_handles.rs)
+- [cache.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers/cache.rs)
+
+**Observed result**
+
+- exact rerun A:
+  - `kilo_micro_len_substring_views: instr=22,672,620 / cycles=3,981,913 / cache-miss=8,583 / AOT 4 ms`
+  - `kilo_micro_substring_only: instr=58,672,145 / cycles=10,916,669 / cache-miss=9,409 / AOT 5 ms`
+- exact rerun B:
+  - `kilo_micro_len_substring_views: instr=22,672,586 / cycles=3,988,684 / cache-miss=8,913 / AOT 3 ms`
+  - `kilo_micro_substring_only: instr=58,672,908 / cycles=9,903,816 / cache-miss=9,459 / AOT 4 ms`
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Why**
+
+- mixed front は一度少し下がったが rerun で baseline 帯へ戻った
+- local `len` split は両 rerun とも baseline `22,672,209` を超えた
+- `REG.get()` fast path を after-hit に寄せただけでは enough win にならなかった
+
+**Reopen Condition**
+
+- `OnceCell` ready probe を完全に hot path から外せる stronger cut が見つかった時だけ
+
+### 2026-04-08: `len_h` dispatch single-probe + raw trace-state split
+
+**Hypothesis**
+
+- `string_dispatch_raw()` と `jit_trace_len_enabled()` の helper shape を外して
+- `len_h` entry が raw state を一度だけ読む形に寄せれば
+- ideal asm の `dispatch load once` / `trace load once` に近づける
+
+**Touched owner area**
+
+- [string_helpers.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers.rs)
+- [string_debug.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_debug.rs)
+- [hako_forward_bridge.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/hako_forward_bridge.rs)
+
+**Observed result**
+
+- exact:
+  - `kilo_micro_len_substring_views: instr=22,672,516 / cycles=3,985,063 / cache-miss=9,131 / AOT 4 ms`
+  - `kilo_micro_substring_only: instr=58,672,529 / cycles=9,905,697 / cache-miss=9,299 / AOT 4 ms`
+- asm:
+  - `nyash.string.len_h` still reloads both `STRING_DISPATCH_STATE` and `JIT_TRACE_LEN_ENABLED_CACHE`
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Why**
+
+- exact gate は両 front とも baseline を clear しなかった
+- source shape は変わっても emitted hot asm はほぼ同じままだった
+- helper vocabulary の置き換えだけでは current lane の win にならない
+
+**Reopen Condition**
+
+- same logic を another exact family にも適用できる common helper benefit が見えた時だけ
+
+### 2026-04-08: `len_h` 1-probe hash-slot cache shape
+
+**Hypothesis**
+
+- `len_h` fast cache を 2-slot recent compare から 1-probe hash slot へ変えれば
+- alternating 2-handle lane の secondary-hit cost を落とせる
+- exact split と mixed の両方で instruction win を狙える
+
+**Touched owner area**
+
+- [cache.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers/cache.rs)
+
+**Observed result**
+
+- exact:
+  - `kilo_micro_len_substring_views: instr=22,672,814 / cycles=4,015,092 / cache-miss=9,472 / AOT 5 ms`
+  - `kilo_micro_substring_only: instr=58,672,735 / cycles=9,975,762 / cache-miss=10,125 / AOT 4 ms`
+  - `kilo_micro_substring_views_only: instr=37,073,366 / cycles=6,825,751 / cache-miss=8,838 / AOT 4 ms`
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Why**
+
+- alternating 2-handle micro でも hash/slot compute の cost を回収できなかった
+- mixed / len / control の 3 front 全部で baseline を超えた
+- current exact lane では cache shape rewrite より existing 2-slot compare の方が still better
+
+**Reopen Condition**
+
+- handle-distribution evidence が出て 2-slot compare 自体が another family でも limit だと示せた時だけ
+
+### 2026-04-08: registry-pointer epoch read on len cache hits
+
+**Hypothesis**
+
+- store 側で raw registry pointer を capture しておけば
+- `len_h` cache hit 後は `OnceCell REG.get()` を通らずに epoch を読める
+- `drop_epoch_after_cache_hit()` より stronger に ready probe を hot path から外せる
+
+**Touched owner area**
+
+- [host_handles.rs](/home/tomoaki/git/hakorune-selfhost/src/runtime/host_handles.rs)
+- [cache.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers/cache.rs)
+
+**Observed result**
+
+- exact:
+  - `kilo_micro_len_substring_views: instr=22,673,076 / cycles=4,024,980 / cache-miss=8,992 / AOT 3 ms`
+  - `kilo_micro_substring_only: instr=58,672,992 / cycles=10,205,799 / cache-miss=9,706 / AOT 4 ms`
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Why**
+
+- `REG` state probe を raw pointer へ落としても exact front は悪化した
+- safety surface を増やす割に current lane の hot block は still enough 動かなかった
+- ready-probe elimination 単体では keeper 条件を満たさない
+
+**Reopen Condition**
+
+- host-handle layer で raw registry access が cross-family hotspot と示せた時だけ
+
 ## Next Candidate
 
 - keep substring runtime mechanics in Rust
@@ -538,4 +680,5 @@ Related:
   1. keep `kilo_micro_substring_only` as the accept gate
   2. use `kilo_micro_len_substring_views` for local `len_h` cuts
   3. keep substring runtime mechanics unchanged unless the split pair moves again
-  4. focus next on `len_h` fast-hit dispatch-state load, TLS 2-slot compare, and epoch-guard shape
+  4. helper/state rewrites and cache-shape rewrites did not move emitted `len_h` hot asm enough
+  5. focus next on any cut that can prove an asm-visible hot-block change before another keeper attempt

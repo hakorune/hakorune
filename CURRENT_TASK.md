@@ -82,11 +82,16 @@ Scope: repo root から current lane / current front / restart read order に最
     10. `trace_len_state()` helper / trace cache single-load probe
     11. `len_h` two-slot pre-match + single epoch-guard probe
     12. local `dispatch_known_absent_fast` + cold dispatch probe combo
+    13. `drop_epoch_after_cache_hit()` ready-after-hit probe
+    14. `len_h` dispatch single-probe + raw trace-state split
+    15. `len_h` 1-probe hash-slot cache shape
+    16. registry-pointer epoch read on len cache hits
 - next active cut:
   - keep `kilo_micro_substring_only` as accept gate
   - use `kilo_micro_len_substring_views` for local `len_h` cuts
   - keep `substring_hii` runtime cache mechanics unchanged unless split fronts move again
-  - next likely touch points are `len_h` fast-hit dispatch-state load, TLS 2-slot compare, and epoch-guard shape
+  - helper/state rewrites and cache-shape rewrites did not change emitted `len_h` hot asm enough
+  - next likely touch points are `len_h` prologue/`REG` ready probe cost and any cut that can prove an asm-visible hot-block change before retrying
 - first files to reopen for the next slice:
   - `crates/nyash_kernel/src/exports/string_helpers/cache.rs`
   - `crates/nyash_kernel/src/exports/string_helpers.rs`
