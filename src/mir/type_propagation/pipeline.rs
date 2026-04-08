@@ -57,6 +57,11 @@ impl TypePropagationPipeline {
         function: &mut MirFunction,
         value_types: &mut BTreeMap<ValueId, MirType>,
     ) -> Result<(), String> {
+        // Pre-seed declared field types before copy/binop/phi propagation.
+        // This keeps canonical `field.get` in the same type-flow pipeline
+        // without introducing a second type authority.
+        Self::seed_declared_field_types(function, value_types);
+
         // Step 1: Copy propagation (initial)
         Self::step1_copy_propagation(function, value_types)?;
 
@@ -70,6 +75,28 @@ impl TypePropagationPipeline {
         Self::step4_phi_type_inference(function, value_types)?;
 
         Ok(())
+    }
+
+    fn seed_declared_field_types(function: &MirFunction, value_types: &mut BTreeMap<ValueId, MirType>) {
+        for bb in function.blocks.values() {
+            for inst in &bb.instructions {
+                if let MirInstruction::FieldGet {
+                    dst,
+                    declared_type: Some(declared_type),
+                    ..
+                } = inst
+                {
+                    let should_seed = match value_types.get(dst) {
+                        None => true,
+                        Some(MirType::Unknown) => true,
+                        Some(_) => false,
+                    };
+                    if should_seed {
+                        value_types.insert(*dst, declared_type.clone());
+                    }
+                }
+            }
+        }
     }
 
     // ========================================================================
@@ -326,5 +353,47 @@ fn classify_operand_type(ty: Option<&MirType>) -> OperandTypeClass {
         Some(MirType::Bool) => OperandTypeClass::Integer,
         Some(MirType::Float) => OperandTypeClass::Float, // Phase 275 P0
         _ => OperandTypeClass::Unknown,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirInstruction};
+
+    #[test]
+    fn pipeline_seeds_declared_field_types_before_copy_propagation() {
+        let signature = FunctionSignature {
+            name: "field_type_seed".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        let entry = function
+            .get_block_mut(BasicBlockId::new(0))
+            .expect("entry block");
+        entry.add_instruction(MirInstruction::FieldGet {
+            dst: ValueId::new(1),
+            base: ValueId::new(0),
+            field: "x".to_string(),
+            declared_type: Some(MirType::Box("IntegerBox".to_string())),
+        });
+        entry.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(2),
+            src: ValueId::new(1),
+        });
+
+        let mut value_types = BTreeMap::new();
+        TypePropagationPipeline::run(&mut function, &mut value_types).expect("pipeline");
+
+        assert_eq!(
+            value_types.get(&ValueId::new(1)),
+            Some(&MirType::Box("IntegerBox".to_string()))
+        );
+        assert_eq!(
+            value_types.get(&ValueId::new(2)),
+            Some(&MirType::Box("IntegerBox".to_string()))
+        );
     }
 }

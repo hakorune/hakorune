@@ -39,7 +39,11 @@ impl super::MirBuilder {
             }
         }
 
-        let field_val = self.next_value_id();
+        let field_val = if let Some(ref ty) = declared_type {
+            self.alloc_typed(ty.clone())
+        } else {
+            self.next_value_id()
+        };
         self.emit_instruction(crate::mir::MirInstruction::FieldGet {
             dst: field_val,
             base: object_value,

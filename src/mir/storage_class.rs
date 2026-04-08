@@ -57,6 +57,23 @@ pub fn refresh_function_storage_class_facts(function: &mut MirFunction) {
     for (value, class) in entries {
         function.metadata.value_storage_classes.insert(value, class);
     }
+
+    for block in function.blocks.values() {
+        for inst in &block.instructions {
+            if let super::MirInstruction::FieldGet {
+                dst,
+                declared_type: Some(declared_type),
+                ..
+            } = inst
+            {
+                let inferred = infer_storage_class(declared_type);
+                let current = function.metadata.value_storage_classes.get(dst).copied();
+                if current.is_none() || current == Some(StorageClass::Opaque) {
+                    function.metadata.value_storage_classes.insert(*dst, inferred);
+                }
+            }
+        }
+    }
 }
 
 fn infer_storage_class(ty: &MirType) -> StorageClass {
@@ -150,6 +167,36 @@ mod tests {
                 .value_storage_classes
                 .get(&ValueId::new(2)),
             Some(&StorageClass::BoxRef)
+        );
+    }
+
+    #[test]
+    fn refresh_function_collects_storage_classes_from_field_get_declared_type() {
+        let signature = FunctionSignature {
+            name: "test_func".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        function
+            .get_block_mut(BasicBlockId::new(0))
+            .expect("entry block")
+            .add_instruction(super::super::MirInstruction::FieldGet {
+                dst: ValueId::new(1),
+                base: ValueId::new(0),
+                field: "x".to_string(),
+                declared_type: Some(MirType::Box("IntegerBox".to_string())),
+            });
+
+        refresh_function_storage_class_facts(&mut function);
+
+        assert_eq!(
+            function
+                .metadata
+                .value_storage_classes
+                .get(&ValueId::new(1)),
+            Some(&StorageClass::InlineI64)
         );
     }
 }

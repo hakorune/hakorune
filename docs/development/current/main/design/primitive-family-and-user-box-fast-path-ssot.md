@@ -48,8 +48,10 @@ Current user-box / primitive cost reading:
   - typed `field_decls` now survive `.hako` parser -> AST -> Stage1 Program JSON -> MIR metadata -> MIR JSON
   - canonical MIR now has first-class `FieldGet` / `FieldSet`
   - MIR interpreter and LLVM/PyVM compatibility paths accept those field ops while keeping current generic field semantics
+- landed:
+  - declared field types now seed `FieldGet` value types on the `.hako` builder path
+  - type propagation and storage-class refresh also treat `FieldGet.declared_type` as a fallback seed
 - next:
-  - wire `StorageClass` inference to declared field types
   - pilot typed primitive fast path
   - then pilot typed user-box field access on the internal path
 - not yet:
