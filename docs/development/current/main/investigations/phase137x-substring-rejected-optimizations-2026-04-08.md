@@ -714,6 +714,90 @@ Related:
 - retry only as a combined step with control/data snapshots in the same slice
   and require an asm-visible hot-block change before keeper evaluation
 
+### 2026-04-08: `len_h` combined `ReadOnlyScalarLane` + entry snapshot slice
+
+**Hypothesis**
+
+- `len_h` を façade + `ReadOnlyScalarLane` に split した上で
+- control-plane (`dispatch`, `trace`) と data-plane (`drop_epoch`) を entry snapshot すれば
+- hot block の reread を潰して ideal asm に寄せられる
+
+**Touched owner area**
+
+- [string_helpers.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers.rs)
+- [string_debug.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_debug.rs)
+- [hako_forward_bridge.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/hako_forward_bridge.rs)
+- [cache.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers/cache.rs)
+- [len_lane.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers/len_lane.rs)
+
+**Observed result**
+
+- exact:
+  - `kilo_micro_substring_only: instr=58,672,761 / cycles=10,080,628 / cache-miss=10,570 / AOT 5 ms`
+  - `kilo_micro_len_substring_views: instr=22,672,605 / cycles=4,049,035 / cache-miss=9,201 / AOT 4 ms`
+  - `kilo_micro_substring_views_only: instr=37,073,526 / cycles=6,906,063 / cache-miss=9,583 / AOT 4 ms`
+- exact serial reread:
+  - `kilo_micro_substring_only: instr=58,672,903 / cycles=9,964,932 / cache-miss=9,925 / AOT 5 ms`
+  - `kilo_micro_len_substring_views: instr=22,672,830 / cycles=3,995,191 / cache-miss=8,755 / AOT 4 ms`
+- whole:
+  - `kilo_kernel_small_hk strict = 713 ms`
+  - parity ok
+- asm:
+  - `nyash.string.len_h` still reloads both `STRING_DISPATCH_STATE` and `JIT_TRACE_LEN_ENABLED_CACHE`
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Why**
+
+- whole strict は良化したが、local split `kilo_micro_len_substring_views` が baseline を clear しなかった
+- lane + snapshot を足しても hot asm は細くならず、dispatch/trace の reread が残った
+- current lane では structure の clean-up より emitted hot block change が先に必要
+
+**Reopen Condition**
+
+- dispatch/trace hot loads を実際に減らせる stronger control-plane cut があり
+  その asm-visible change を先に確認できた時だけ
+
+### 2026-04-08: `host_handles::drop_epoch()` global mirror probe
+
+**Hypothesis**
+
+- `drop_epoch()` を registry 本体から global mirror へ切り出せば
+- `len_h` fast cache hit から `host_handles::REG` ready probe を外せる
+- registry-side `OnceCell` path を経由しない epoch read にできる
+
+**Touched owner area**
+
+- [host_handles.rs](/home/tomoaki/git/hakorune-selfhost/src/runtime/host_handles.rs)
+
+**Observed result**
+
+- exact:
+  - `kilo_micro_len_substring_views: instr=22,672,032 / cycles=4,031,342 / cache-miss=9,168 / AOT 3 ms`
+  - `kilo_micro_substring_only: instr=58,672,687 / cycles=10,181,019 / cache-miss=9,465 / AOT 5 ms`
+- exact serial reread:
+  - `kilo_micro_len_substring_views: instr=22,672,808 / cycles=4,265,903 / cache-miss=9,793 / AOT 4 ms`
+- asm:
+  - `nyash.string.len_h` annotate still shows the `host_handles::REG` ready probe / `OnceCell::initialize` branch
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Why**
+
+- first exact run は良く見えたが、serial reread で local split が baseline を落とした
+- more importantly、狙っていた `REG` probe removal が asm 上で確認できなかった
+- source-level mirror 追加だけでは current codegen を enough 変えられない
+
+**Reopen Condition**
+
+- `drop_epoch()` source change が emitted `len_h` hot asm から `REG` probe を消したと確認できた時だけ
+
 ## Next Candidate
 
 - keep substring runtime mechanics in Rust
@@ -723,5 +807,5 @@ Related:
   2. use `kilo_micro_len_substring_views` for local `len_h` cuts
   3. keep substring runtime mechanics unchanged unless the split pair moves again
   4. helper/state rewrites and cache-shape rewrites did not move emitted `len_h` hot asm enough
-  5. `ReadOnlyScalarLane` separation remains the right design, but not as a stand-alone slice
-  6. focus next on a combined lane-boundary + snapshot cut that can prove an asm-visible hot-block change before another keeper attempt
+  5. `ReadOnlyScalarLane` separation and `drop_epoch()` source reshapes are both blocked until they prove an asm-visible hot-block change
+  6. focus next on control-plane hot loads (`STRING_DISPATCH_STATE` / `JIT_TRACE_LEN_ENABLED_CACHE`) before retrying another structural lane slice

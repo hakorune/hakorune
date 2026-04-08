@@ -95,18 +95,19 @@
     15. `len_h` 1-probe hash-slot cache shape
     16. registry-pointer epoch read on len cache hits
     17. `len_h` `ReadOnlyScalarLane` separation-only slice
+    18. `len_h` combined `ReadOnlyScalarLane` + entry snapshot slice
+    19. `host_handles::drop_epoch()` global mirror probe
 - next active cut:
   1. keep `kilo_micro_substring_only` as accept gate
   2. use `kilo_micro_len_substring_views` for local `len_h` cuts
   3. keep substring runtime cache mechanics unchanged unless split fronts move again
   4. helper/state rewrites and cache-shape rewrites did not move emitted `len_h` hot asm enough
-  5. next design slice is `ReadOnlyScalarLane` separation for `len_h`
-  6. fixed task order:
-     - step 1: carve `string_helpers/len_lane.rs` and make the lane return only `FastHit(len)` / `Miss(reason)`
-     - step 2: keep dispatch / trace / slow maintenance outside the lane so the façade owns orchestration
-     - step 3: after the lane boundary exists, add entry snapshots for control-plane (`dispatch`, `trace`) and data-plane (`drop_epoch`)
-     - step 4: if asm still does not change enough, tighten locality with a crate-local final kernel instead of more helper micro-tweaks
-  7. separation-only lane split did not clear exact or whole gates; next retry must bundle step 1 + step 2 in one slice
+  5. both `len_lane` separation-only and combined lane+snapshot retries were rejected; lane boundary alone is not the next keeper slice
+  6. `drop_epoch()` global mirror also failed; source-level epoch reshapes alone did not remove the `REG` ready probe from emitted asm
+  7. fixed task order:
+     - step 1: target `STRING_DISPATCH_STATE` / `JIT_TRACE_LEN_ENABLED_CACHE` hot loads directly and require an asm-visible reduction
+     - step 2: keep `drop_epoch()` / registry-shape experiments out unless they prove the `REG` probe actually disappeared from `nyash.string.len_h`
+     - step 3: only after the control-plane hot block shrinks, reconsider a crate-local lane/kernel boundary
   8. next local cut must show an asm-visible change in `len_h` hot block before retrying as a keeper candidate
 - safe restart order:
   1. `git status -sb`

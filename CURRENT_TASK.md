@@ -87,23 +87,21 @@ Scope: repo root から current lane / current front / restart read order に最
     15. `len_h` 1-probe hash-slot cache shape
     16. registry-pointer epoch read on len cache hits
     17. `len_h` `ReadOnlyScalarLane` separation-only slice
+    18. `len_h` combined `ReadOnlyScalarLane` + entry snapshot slice
+    19. `host_handles::drop_epoch()` global mirror probe
 - next active cut:
   - keep `kilo_micro_substring_only` as accept gate
   - use `kilo_micro_len_substring_views` for local `len_h` cuts
   - keep `substring_hii` runtime cache mechanics unchanged unless split fronts move again
   - helper/state rewrites and cache-shape rewrites did not change emitted `len_h` hot asm enough
-  - next design slice is `ReadOnlyScalarLane` separation for `len_h`
   - task order is fixed:
-    1. carve `len_h` fast path into `string_helpers/len_lane.rs` and make it return `FastHit(len)` / `Miss(reason)` only
-    2. move dispatch/trace/slow maintenance out of the lane body so the façade owns orchestration and the lane owns read-only hot logic
-    3. only after the lane boundary exists, add entry snapshots for control-plane (`dispatch`, `trace`) and data-plane (`drop_epoch`)
-    4. if asm still does not change enough, tighten locality further with a crate-local final kernel instead of more helper micro-tweaks
-  - separation-only lane split did not clear exact or whole gates; next retry must bundle step 1 + step 2 in one slice
+    1. do not retry `len_lane` separation by itself; both separation-only and combined snapshot retries failed keeper gates
+    2. do not retry `drop_epoch()` source reshapes by themselves; the global mirror probe did not remove the `REG` ready path from emitted `len_h` asm
+    3. next local cut must reduce `STRING_DISPATCH_STATE` or `JIT_TRACE_LEN_ENABLED_CACHE` hot loads in `nyash.string.len_h` with an asm-visible change before keeper evaluation
+    4. only after the control-plane hot block actually shrinks, reconsider a crate-local lane/kernel boundary
 - first files to reopen for the next slice:
-  - `crates/nyash_kernel/src/exports/string_helpers/cache.rs`
   - `crates/nyash_kernel/src/exports/string_helpers.rs`
-  - `crates/nyash_kernel/src/exports/string_helpers/len_lane.rs`
-  - `crates/nyash_kernel/src/exports/string_helpers/materialize.rs`
+  - `crates/nyash_kernel/src/exports/string_helpers/cache.rs`
   - `crates/nyash_kernel/src/exports/string_debug.rs`
   - `crates/nyash_kernel/src/hako_forward_bridge.rs`
   - `crates/nyash_kernel/src/tests/string.rs`
