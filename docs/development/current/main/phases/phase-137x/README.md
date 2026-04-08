@@ -97,6 +97,7 @@
     17. `len_h` `ReadOnlyScalarLane` separation-only slice
     18. `len_h` combined `ReadOnlyScalarLane` + entry snapshot slice
     19. `host_handles::drop_epoch()` global mirror probe
+    20. `len_h`-specific 4-box slice (`façade + control snapshot + pure cache probe + cold path`)
 - next active cut:
   1. keep `kilo_micro_substring_only` as accept gate
   2. use `kilo_micro_len_substring_views` for local `len_h` cuts
@@ -105,9 +106,11 @@
   5. both `len_lane` separation-only and combined lane+snapshot retries were rejected; lane boundary alone is not the next keeper slice
   6. `drop_epoch()` global mirror also failed; source-level epoch reshapes alone did not remove the `REG` ready probe from emitted asm
   7. fixed task order:
-     - step 1: target `STRING_DISPATCH_STATE` / `JIT_TRACE_LEN_ENABLED_CACHE` hot loads directly and require an asm-visible reduction
-     - step 2: keep `drop_epoch()` / registry-shape experiments out unless they prove the `REG` probe actually disappeared from `nyash.string.len_h`
-     - step 3: only after the control-plane hot block shrinks, reconsider a crate-local lane/kernel boundary
+     - step 1: do not retry the same `len_h`-specific 4-box slice as-is; it did not clear exact or asm gates
+     - step 2: keep this lane specific; do not generalize into a reusable scalar framework until the `len_h` box shape actually wins
+     - step 3: require an asm-visible reduction in `STRING_DISPATCH_STATE` or `JIT_TRACE_LEN_ENABLED_CACHE` hot loads before keeper evaluation
+     - step 4: any future `drop_epoch()` cut must prove that the `host_handles::REG` ready probe is gone from `nyash.string.len_h`
+     - step 5: only after the control-plane hot block shrinks, reconsider a crate-local lane/kernel boundary
   8. next local cut must show an asm-visible change in `len_h` hot block before retrying as a keeper candidate
 - safe restart order:
   1. `git status -sb`

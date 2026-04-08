@@ -89,6 +89,7 @@ Scope: repo root から current lane / current front / restart read order に最
     17. `len_h` `ReadOnlyScalarLane` separation-only slice
     18. `len_h` combined `ReadOnlyScalarLane` + entry snapshot slice
     19. `host_handles::drop_epoch()` global mirror probe
+    20. `len_h`-specific 4-box slice (`façade + control snapshot + pure cache probe + cold path`)
 - next active cut:
   - keep `kilo_micro_substring_only` as accept gate
   - use `kilo_micro_len_substring_views` for local `len_h` cuts
@@ -97,13 +98,17 @@ Scope: repo root から current lane / current front / restart read order に最
   - task order is fixed:
     1. do not retry `len_lane` separation by itself; both separation-only and combined snapshot retries failed keeper gates
     2. do not retry `drop_epoch()` source reshapes by themselves; the global mirror probe did not remove the `REG` ready path from emitted `len_h` asm
-    3. next local cut must reduce `STRING_DISPATCH_STATE` or `JIT_TRACE_LEN_ENABLED_CACHE` hot loads in `nyash.string.len_h` with an asm-visible change before keeper evaluation
-    4. only after the control-plane hot block actually shrinks, reconsider a crate-local lane/kernel boundary
+    3. do not retry the same `len_h`-specific 4-box slice as-is; exact stayed above baseline and asm still reread `dispatch` / `trace`
+    4. `len_h` の箱が当たるまで generic framework にはしない; reusable abstraction は後回し
+    5. next local cut must reduce `STRING_DISPATCH_STATE` or `JIT_TRACE_LEN_ENABLED_CACHE` hot loads in `nyash.string.len_h` with an asm-visible change before keeper evaluation
+    6. if a future slice touches `drop_epoch()` again, it must prove that the `host_handles::REG` ready probe disappeared from `len_h` asm
+    7. only after the control-plane hot block actually shrinks, reconsider a crate-local lane/kernel boundary
 - first files to reopen for the next slice:
   - `crates/nyash_kernel/src/exports/string_helpers.rs`
   - `crates/nyash_kernel/src/exports/string_helpers/cache.rs`
   - `crates/nyash_kernel/src/exports/string_debug.rs`
   - `crates/nyash_kernel/src/hako_forward_bridge.rs`
+  - `src/runtime/host_handles.rs`
   - `crates/nyash_kernel/src/tests/string.rs`
 - safe restart order:
   1. `git status -sb`

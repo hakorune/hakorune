@@ -798,6 +798,53 @@ Related:
 
 - `drop_epoch()` source change が emitted `len_h` hot asm から `REG` probe を消したと確認できた時だけ
 
+### 2026-04-08: `len_h`-specific 4-box slice (`façade + control snapshot + pure cache probe + cold path`)
+
+**Hypothesis**
+
+- `len_h` を reusable framework にせず lane-specific に 4 箱へ split すれば
+- façade / control snapshot / pure cache probe / cold path の境界が立って
+- `trace` reread と `drop_epoch()` registry path を同時に hot block から薄くできる
+
+**Touched owner area**
+
+- [string_helpers.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers.rs)
+- [string_helpers/cache.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers/cache.rs)
+- [string_helpers/len_lane.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers/len_lane.rs)
+- [string_debug.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_debug.rs)
+- [hako_forward_bridge.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/hako_forward_bridge.rs)
+- [host_handles.rs](/home/tomoaki/git/hakorune-selfhost/src/runtime/host_handles.rs)
+
+**Observed result**
+
+- exact:
+  - `kilo_micro_substring_only: instr=58,672,662 / cycles=10,685,150 / cache-miss=9,814 / AOT 6 ms`
+  - `kilo_micro_len_substring_views: instr=22,672,634 / cycles=4,061,970 / cache-miss=9,279 / AOT 4 ms`
+- whole:
+  - `kilo_kernel_small_hk strict = 787 ms`
+  - parity ok
+- asm:
+  - `nyash.string.len_h` still rereads `STRING_DISPATCH_STATE`
+  - `nyash.string.len_h` still rereads `JIT_TRACE_LEN_ENABLED_CACHE`
+  - `host_handles::REG` ready probe is still visible in the hot block
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Why**
+
+- mixed exact improved slightly, but the active local front `kilo_micro_len_substring_views` stayed above baseline
+- whole strict regressed from the accepted `755 ms` band to `787 ms`
+- most importantly, the emitted hot asm did not reflect the intended box separation; the same control-plane rereads remained
+- this confirms that “cleaner source boxes” are not enough unless they physically change the hot CFG
+
+**Reopen Condition**
+
+- only retry after a narrower control-plane cut proves an asm-visible reduction in `STRING_DISPATCH_STATE` or `JIT_TRACE_LEN_ENABLED_CACHE`
+- keep generic scalar-lane abstraction out until that happens
+
 ## Next Candidate
 
 - keep substring runtime mechanics in Rust
@@ -807,5 +854,5 @@ Related:
   2. use `kilo_micro_len_substring_views` for local `len_h` cuts
   3. keep substring runtime mechanics unchanged unless the split pair moves again
   4. helper/state rewrites and cache-shape rewrites did not move emitted `len_h` hot asm enough
-  5. `ReadOnlyScalarLane` separation and `drop_epoch()` source reshapes are both blocked until they prove an asm-visible hot-block change
+  5. `ReadOnlyScalarLane` separation, `drop_epoch()` source reshapes, and the lane-specific 4-box split are all blocked until they prove an asm-visible hot-block change
   6. focus next on control-plane hot loads (`STRING_DISPATCH_STATE` / `JIT_TRACE_LEN_ENABLED_CACHE`) before retrying another structural lane slice
