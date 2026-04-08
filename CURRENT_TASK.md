@@ -26,6 +26,8 @@ Scope: repo root から current lane / current front / restart read order に最
   - `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
 - current string corridor design anchor:
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+- next primitive/user-box fast-path anchor:
+  - `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
 - vm fallback separation anchor:
   - `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
 - active lane/front:
@@ -144,6 +146,8 @@ Scope: repo root から current lane / current front / restart read order に最
     - stop treating the next move as another `substring_hii` leaf/provider/cache split
     - current upstream design is:
       - `.hako policy -> canonical MIR facts -> placement/effect pass -> Rust microkernel -> LLVM`
+    - next follow-on design after the current string wave is:
+      - `primitive semantic builtin family -> canonical MIR field access -> storage class facts -> typed fast path`
     - do not add a permanent second public MIR dialect
     - do not widen current `@rune` surface for boundary/cache/provider mechanics
   - task order is fixed:
@@ -156,22 +160,31 @@ Scope: repo root から current lane / current front / restart read order に最
     7. after that cleanup, validate the corridor-sink pilot with exact/whole/asm; do not claim accept-gate wins before evidence exists
     8. after the pilot is validated, add AOT-internal direct kernel entry selection; ABI/FFI keeps the facade
     9. only after the upstream corridor slices land and move exact/asm, reopen new `substring_hii` runtime leaf cuts
-    10. keep the cross-lane scope-control table in `string-canonical-mir-corridor-and-placement-pass-ssot.md` truthful; do not let the `string` pilot silently redefine `array/map` or ABI structure
-    11. do not retry `len_lane` separation by itself; both separation-only and combined snapshot retries failed keeper gates
-    12. the earlier `drop_epoch()` global mirror rejection was invalidated by stale release artifacts; the hypothesis is now landed, and future perf reads must rebuild release artifacts first
-    13. do not retry the same `len_h`-specific 4-box slice as-is; it lost before the control-plane fixes landed
-    14. `len_h` の箱が当たるまで generic framework にはしない; reusable abstraction は後回し
-    15. do not genericize implementation from `string` alone; first collect keeper patterns in the runtime-hot-lane pattern SSOT
-    16. hot caller での `substring` provider swap は 1 本では keep しない:
+    10. after the current string wave stabilizes, use `primitive-family-and-user-box-fast-path-ssot.md` as the follow-on design owner
+    11. first follow-on pack is docs/inventory only:
+       - primitive family inventory
+       - user box field inventory
+       - canonical MIR `field.get` / `field.set` shape
+       - storage class fact table (`InlineI64` / `InlineBool` / `BorrowedText` / `BoxRef` / `Opaque`)
+    12. only after those facts land, pilot typed primitive access
+    13. user box flattening is explicitly later; do not jump there before typed field access wins
+    14. keep the cross-lane scope-control table in `string-canonical-mir-corridor-and-placement-pass-ssot.md` truthful; do not let the `string` pilot silently redefine `array/map` or ABI structure
+    15. do not retry `len_lane` separation by itself; both separation-only and combined snapshot retries failed keeper gates
+    16. the earlier `drop_epoch()` global mirror rejection was invalidated by stale release artifacts; the hypothesis is now landed, and future perf reads must rebuild release artifacts first
+    17. do not retry the same `len_h`-specific 4-box slice as-is; it lost before the control-plane fixes landed
+    18. `len_h` の箱が当たるまで generic framework にはしない; reusable abstraction は後回し
+    19. do not genericize implementation from `string` alone; first collect keeper patterns in the runtime-hot-lane pattern SSOT
+    20. hot caller での `substring` provider swap は 1 本では keep しない:
        `substring_view_enabled` / fallback policy / route policy を同時に `raw read + cold init` へ切り替える slice は local front を落とした
-    17. shape cleanup では hot body duplication をしない; `route_raw == common-case` の全文複製は reopen しない
-    18. next shape cleanup must stay below the active caller or pair with an asm-visible win; provider foundation only is allowed, but hot caller adoption needs proof
-    19. `substring_route_policy()` cold split alone is also blocked; even without caller adoption it lost the local split
-    20. if a future slice reopens `len_h`, it must beat the new `DROP_EPOCH`-based asm and preserve direct dispatch / single trace-state loads
-    21. do not retry the same `substring_hii` route/provider snapshot with eager `DROP_EPOCH` capture; it regressed both exact fronts and whole strict before any cache-entry win appeared
-    22. do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear path in isolation; the call boundary/code layout regressed all split fronts badly
+    21. shape cleanup では hot body duplication をしない; `route_raw == common-case` の全文複製は reopen しない
+    22. next shape cleanup must stay below the active caller or pair with an asm-visible win; provider foundation only is allowed, but hot caller adoption needs proof
+    23. `substring_route_policy()` cold split alone is also blocked; even without caller adoption it lost the local split
+    24. if a future slice reopens `len_h`, it must beat the new `DROP_EPOCH`-based asm and preserve direct dispatch / single trace-state loads
+    25. do not retry the same `substring_hii` route/provider snapshot with eager `DROP_EPOCH` capture; it regressed both exact fronts and whole strict before any cache-entry win appeared
+    26. do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear path in isolation; the call boundary/code layout regressed all split fronts badly
 - first files to reopen for the next slice:
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+  - `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
   - `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
   - `docs/development/current/main/phases/phase-162x/README.md`
   - `src/mir/string_corridor.rs`

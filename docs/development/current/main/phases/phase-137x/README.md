@@ -37,6 +37,8 @@
   - `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
 - current upstream string corridor design anchor is now:
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+- next primitive/user-box fast-path anchor is now:
+  - `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
 - pre-optimization cleanup anchor is now:
   - `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
 - mixed accept gate stays `kilo_micro_substring_only`
@@ -150,10 +152,12 @@
   4. latest keeper already removed the remaining `len_h` control-plane hot loads
   5. current pivot is upstream, not another leaf-local `substring_hii` split:
      - `.hako policy -> canonical MIR facts -> placement/effect pass -> Rust microkernel -> LLVM`
-  6. do not add a permanent second public MIR dialect for this wave
-  7. both `len_lane` separation-only and combined lane+snapshot retries were rejected; lane boundary alone is not the next keeper slice
-  8. the earlier `drop_epoch()` global mirror rejection was invalidated by stale release artifacts; the hypothesis is now landed, and future perf reads must rebuild release artifacts first
-  9. fixed task order:
+  6. follow-on after the current string wave is fixed:
+     - `primitive semantic builtin family -> canonical MIR field access -> storage class facts -> typed primitive fast path -> typed user box field access`
+  7. do not add a permanent second public MIR dialect for this wave
+  8. both `len_lane` separation-only and combined lane+snapshot retries were rejected; lane boundary alone is not the next keeper slice
+  9. the earlier `drop_epoch()` global mirror rejection was invalidated by stale release artifacts; the hypothesis is now landed, and future perf reads must rebuild release artifacts first
+  10. fixed task order:
      - step 1: docs-first; treat `string-canonical-mir-corridor-and-placement-pass-ssot.md` as the active design owner
      - step 2: landed; inventory canonical string corridor sites and current lowering carriers for `str.slice` / `str.len` / `freeze.str` via `src/mir/string_corridor.rs`
      - step 3: landed; canonical MIR-side fact carrier is `FunctionMetadata.string_corridor_facts`, and verbose dumps expose it with no runtime behavior change
@@ -171,17 +175,23 @@
      - step 15: any future `len_h` reopen must preserve direct dispatch probe + single trace-state load + direct `DROP_EPOCH` load
      - step 16: do not retry the same `substring_hii` route/provider snapshot with eager `DROP_EPOCH` capture; it widened the caller prologue and regressed exact/whole together
      - step 17: do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear in isolation; it regressed every split front and whole strict
-  10. next local cut must show an exact-visible or asm-visible change on `substring_hii`, but only after the upstream corridor slices are in place
+     - step 18: after the current string wave stabilizes, switch to `primitive-family-and-user-box-fast-path-ssot.md` for the next semantic fast-path wave
+     - step 19: first follow-on slice is docs/inventory only:
+       primitive family inventory, user box field inventory, canonical MIR `field.get` / `field.set`, storage class fact table
+     - step 20: typed primitive access comes before user box flattening
+     - step 21: user box flattening is later and optional; do not make it the first move
+  11. next local cut must show an exact-visible or asm-visible change on `substring_hii`, but only after the upstream corridor slices are in place
 - safe restart order:
   1. `git status -sb`
   2. `tools/checks/dev_gate.sh quick`
   3. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
   4. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-  5. `src/mir/string_corridor.rs`
-  6. after any `nyash_kernel` / `hakorune` runtime source edit, rerun `bash tools/perf/build_perf_release.sh` before exact micro / asm probes
-  7. `tools/perf/run_kilo_string_split_pack.sh 1 3`
-  8. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_views_only 'nyash.string.substring_hii' 200`
-  9. read the rejected ledger before retrying any substring-local cut
+  5. `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
+  6. `src/mir/string_corridor.rs`
+  7. after any `nyash_kernel` / `hakorune` runtime source edit, rerun `bash tools/perf/build_perf_release.sh` before exact micro / asm probes
+  8. `tools/perf/run_kilo_string_split_pack.sh 1 3`
+  9. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_views_only 'nyash.string.substring_hii' 200`
+  10. read the rejected ledger before retrying any substring-local cut
 - documentation rule for failed perf cuts:
   1. keep a short current summary in this README
   2. keep exact rejected-cut evidence in one rolling investigation doc per front/family/date
