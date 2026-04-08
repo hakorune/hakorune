@@ -123,6 +123,11 @@ pub(crate) fn string_dispatch_raw() -> usize {
 }
 
 #[inline(always)]
+pub(crate) fn string_len_dispatch_probe_raw() -> usize {
+    STRING_DISPATCH_FN.load(Ordering::Relaxed)
+}
+
+#[inline(always)]
 pub(crate) fn string_dispatch_fn() -> Option<HakoStringDispatchFn> {
     let raw = string_dispatch_raw();
     if raw == 0 {

@@ -32,27 +32,27 @@ Scope: repo root から current lane / current front / restart read order に最
   - rule: WSL は `3 runs + perf` でしか delta を採らない
 - current exact baseline:
   - `kilo_micro_substring_only: C 3 ms / AOT 5 ms`
-  - `instr: 58,672,982`
-  - `cycles: 9,979,794`
-  - `cache-miss: 9,939`
+  - `instr: 56,272,428`
+  - `cycles: 9,499,835`
+  - `cache-miss: 9,299`
   - split exact reread:
-    - `kilo_micro_substring_views_only: instr=37,073,017 / cycles=6,804,272 / cache-miss=9,648 / AOT 4 ms`
-    - `kilo_micro_len_substring_views: instr=22,672,209 / cycles=3,991,125 / cache-miss=8,789 / AOT 4 ms`
+    - `kilo_micro_substring_views_only: instr=37,072,491 / cycles=7,329,020 / cache-miss=9,996 / AOT 4 ms`
+    - `kilo_micro_len_substring_views: instr=20,272,485 / cycles=4,301,279 / cache-miss=9,068 / AOT 4 ms`
   - reading: mixed front の win は `substring_hii` ではなく `len_h` fast-hit 側から来ている
 - target band for the next keeper:
-  - mixed accept gate: `instr <= 58.5M`
-  - local split `kilo_micro_len_substring_views`: `instr <= 22.4M`
+  - mixed accept gate: `instr <= 56.1M`
+  - local split `kilo_micro_len_substring_views`: `instr <= 20.1M`
   - control split `kilo_micro_substring_views_only`: roughly flat is acceptable
-  - whole strict: hold `<= 755 ms`; ideal band is `730-745 ms`
+  - whole strict: hold `<= 736 ms`; ideal band is `720-735 ms`
 - ideal `len_h` steady-state asm shape:
-  - `STRING_DISPATCH_STATE` load once
+  - direct `STRING_DISPATCH_FN` load once; do not carry the `STRING_DISPATCH_STATE` state machine in `nyash.string.len_h`
   - `handles::drop_epoch()` load once
   - primary/secondary handle compare only
-  - `JIT_TRACE_LEN_ENABLED_CACHE` load once
+  - `JIT_TRACE_LEN_ENABLED_CACHE` load once with cold init off the hot return path
   - trace-off fast hit returns directly without carrying extra cold work inline
 - current whole-kilo health:
   - `tools/checks/dev_gate.sh quick` is green
-  - `kilo_kernel_small_hk` strict latest accepted reread: `ny_aot_ms=755`
+  - `kilo_kernel_small_hk` strict latest accepted reread: `ny_aot_ms=736`
   - parity: `vm_result=1140576`, `aot_result=1140576`
 - do not reopen:
   - `OwnedText` backing for this lane
@@ -66,6 +66,9 @@ Scope: repo root から current lane / current front / restart read order に最
   - split exact fronts show `substring_hii` steady-state retained-view path is roughly unchanged at `37.07M instr`
   - current keeper is on `len_h`: `string_len_fast_cache_lookup()` now hoists one `handles::drop_epoch()` read and reuses it across primary/secondary slot checks
   - current keeper also keeps the `len_h` fast-hit return thin: `string_len_export_impl()` now tail-calls a tiny helper so trace-off steady state returns `cached` without carrying `trace_len_fast_hit(...)` inline
+  - current keeper removes the `STRING_DISPATCH_STATE` state machine from emitted `nyash.string.len_h`; the hot entry now probes `STRING_DISPATCH_FN` directly once
+  - current keeper also splits trace state into `jit_trace_len_state_raw()` and cold `jit_trace_len_state_init()`, so the hot cache-hit path sees one trace-state load and returns directly when trace is off
+  - remaining local hot artifact is `host_handles::REG` ready probing in `len_h` before the cache epoch compare
 - rejected perf history:
   - exact evidence is centralized in
     `docs/development/current/main/investigations/phase137x-substring-rejected-optimizations-2026-04-08.md`
@@ -100,9 +103,9 @@ Scope: repo root から current lane / current front / restart read order に最
     2. do not retry `drop_epoch()` source reshapes by themselves; the global mirror probe did not remove the `REG` ready path from emitted `len_h` asm
     3. do not retry the same `len_h`-specific 4-box slice as-is; exact stayed above baseline and asm still reread `dispatch` / `trace`
     4. `len_h` の箱が当たるまで generic framework にはしない; reusable abstraction は後回し
-    5. next local cut must reduce `STRING_DISPATCH_STATE` or `JIT_TRACE_LEN_ENABLED_CACHE` hot loads in `nyash.string.len_h` with an asm-visible change before keeper evaluation
-    6. if a future slice touches `drop_epoch()` again, it must prove that the `host_handles::REG` ready probe disappeared from `len_h` asm
-    7. only after the control-plane hot block actually shrinks, reconsider a crate-local lane/kernel boundary
+    5. `STRING_DISPATCH_STATE` / trace rereads are now solved for `len_h`; next local cut must target the remaining `host_handles::REG` ready probe with an asm-visible change before keeper evaluation
+    6. if a future slice touches `drop_epoch()` again, it must prove that the `host_handles::REG` ready probe disappeared from `len_h` asm without reintroducing extra dispatch / trace loads
+    7. only after the `REG`-owned control/data seam actually shrinks, reconsider a crate-local lane/kernel boundary
 - first files to reopen for the next slice:
   - `crates/nyash_kernel/src/exports/string_helpers.rs`
   - `crates/nyash_kernel/src/exports/string_helpers/cache.rs`
@@ -113,9 +116,10 @@ Scope: repo root から current lane / current front / restart read order に最
 - safe restart order:
   1. `git status -sb`
   2. `tools/checks/dev_gate.sh quick`
-  3. `tools/perf/run_kilo_string_split_pack.sh 1 3`
-  4. `tools/perf/bench_micro_aot_asm.sh kilo_micro_len_substring_views 'nyash.string.len_h' 20`
-  5. `docs/development/current/main/investigations/phase137x-substring-rejected-optimizations-2026-04-08.md`
+  3. after any `nyash_kernel` / `hakorune` runtime source edit, rerun `bash tools/perf/build_perf_release.sh` before exact micro / asm probes
+  4. `tools/perf/run_kilo_string_split_pack.sh 1 3`
+  5. `tools/perf/bench_micro_aot_asm.sh kilo_micro_len_substring_views 'nyash.string.len_h' 20`
+  6. `docs/development/current/main/investigations/phase137x-substring-rejected-optimizations-2026-04-08.md`
 - documentation rule for failed perf cuts:
   1. keep a short current summary in the phase README
   2. keep exact rejected-cut evidence in one rolling doc per front/family/date

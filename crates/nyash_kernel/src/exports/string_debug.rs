@@ -141,21 +141,31 @@ pub(crate) fn substring_route_policy() -> SubstringRoutePolicy {
 static JIT_TRACE_LEN_ENABLED_CACHE: AtomicU8 = AtomicU8::new(2);
 
 #[inline(always)]
-pub(crate) fn jit_trace_len_enabled() -> bool {
+pub(crate) fn jit_trace_len_state_raw() -> u8 {
     #[cfg(test)]
     {
-        std::env::var("NYASH_JIT_TRACE_LEN").ok().as_deref() == Some("1")
+        (std::env::var("NYASH_JIT_TRACE_LEN").ok().as_deref() == Some("1")) as u8
     }
     #[cfg(not(test))]
     {
-        match JIT_TRACE_LEN_ENABLED_CACHE.load(Ordering::Relaxed) {
-            0 => false,
-            1 => true,
-            _ => {
-                let enabled = std::env::var("NYASH_JIT_TRACE_LEN").ok().as_deref() == Some("1");
-                JIT_TRACE_LEN_ENABLED_CACHE.store(enabled as u8, Ordering::Relaxed);
-                enabled
-            }
-        }
+        JIT_TRACE_LEN_ENABLED_CACHE.load(Ordering::Relaxed)
+    }
+}
+
+#[cold]
+#[inline(never)]
+pub(crate) fn jit_trace_len_state_init() -> u8 {
+    let enabled = std::env::var("NYASH_JIT_TRACE_LEN").ok().as_deref() == Some("1");
+    #[cfg(not(test))]
+    JIT_TRACE_LEN_ENABLED_CACHE.store(enabled as u8, Ordering::Relaxed);
+    enabled as u8
+}
+
+#[inline(always)]
+pub(crate) fn jit_trace_len_enabled() -> bool {
+    match jit_trace_len_state_raw() {
+        0 => false,
+        1 => true,
+        _ => jit_trace_len_state_init() != 0,
     }
 }

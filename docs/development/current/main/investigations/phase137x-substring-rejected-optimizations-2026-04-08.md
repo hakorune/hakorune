@@ -27,15 +27,15 @@ Related:
 - active front is `kilo_micro_substring_only`
 - current exact baseline is:
   - `kilo_micro_substring_only: C 3 ms / AOT 5 ms`
-  - `instr: 58,672,982`
-  - `cycles: 9,979,794`
-  - `cache-miss: 9,939`
+  - `instr: 56,272,428`
+  - `cycles: 9,499,835`
+  - `cache-miss: 9,299`
   - split exact reread:
-    - `kilo_micro_substring_views_only: instr=37,073,017 / cycles=6,804,272 / cache-miss=9,648`
-    - `kilo_micro_len_substring_views: instr=22,672,209 / cycles=3,991,125 / cache-miss=8,789`
+    - `kilo_micro_substring_views_only: instr=37,072,491 / cycles=7,329,020 / cache-miss=9,996`
+    - `kilo_micro_len_substring_views: instr=20,272,485 / cycles=4,301,279 / cache-miss=9,068`
 - current whole-kilo health is:
   - `tools/checks/dev_gate.sh quick`: green
-  - `kilo_kernel_small_hk` strict accepted reread: `755 ms`
+  - `kilo_kernel_small_hk` strict accepted reread: `736 ms`
   - parity: ok
 - current landed truth:
   - `substring_hii` can reissue a fresh handle from a cached `StringViewBox` object after transient drop-epoch churn if the source handle still names the same live source object
@@ -43,6 +43,9 @@ Related:
   - the current keeper removed redundant `view_enabled` state from `SubstringViewArcCache`; that cache only runs on the `view_enabled` route
   - split exact reread separated `substring_hii` and `len_h`; the mixed-front keeper in this pass comes from `len_h`, not substring publication/reissue
   - the current keeper also keeps `len_h` trace-off steady state thin by tail-calling a tiny fast-return helper from `string_len_export_impl()`
+  - the current keeper now removes the `STRING_DISPATCH_STATE` state machine from emitted `nyash.string.len_h`; the hot path probes `STRING_DISPATCH_FN` once
+  - the current keeper also splits trace state into raw-read + cold-init helpers, so the hot cache-hit path sees one trace-state load and returns directly when trace is off
+  - perf micro / asm reads are only trustworthy after rerunning `bash tools/perf/build_perf_release.sh` on runtime source edits; stale `target/release` artifacts otherwise mask the active probe
 - current stop-line:
   - do not widen substring runtime cache mechanics into `.hako` or `MIR`
   - keep `kilo_micro_substring_only` as the accept gate, but use split exact fronts before retrying substring-local structural cuts

@@ -12,7 +12,8 @@ mod materialize;
 mod tests;
 
 use crate::exports::string_debug::{
-    jit_trace_len_enabled, stage1_string_debug_log_eq, substring_route_policy, SubstringRoutePolicy,
+    jit_trace_len_enabled, jit_trace_len_state_init, jit_trace_len_state_raw,
+    stage1_string_debug_log_eq, substring_route_policy, SubstringRoutePolicy,
 };
 use crate::exports::string_search::{
     compare_string_pair_hh, empty_needle_indexof, empty_needle_lastindexof, find_substr_byte_index,
@@ -140,7 +141,7 @@ fn dispatch_or_fallback_concat3_hhh(a_h: i64, b_h: i64, c_h: i64) -> i64 {
 
 #[inline(always)]
 pub(super) fn string_len_export_impl(handle: i64) -> i64 {
-    let dispatch_raw = hako_forward_bridge::string_dispatch_raw();
+    let dispatch_raw = hako_forward_bridge::string_len_dispatch_probe_raw();
     if dispatch_raw != 0 {
         let dispatch: hako_forward_bridge::HakoStringDispatchFn =
             unsafe { std::mem::transmute(dispatch_raw) };
@@ -153,24 +154,31 @@ pub(super) fn string_len_export_impl(handle: i64) -> i64 {
         if observe::len_route_matches_latest_fresh_handle(handle) {
             observe::record_str_len_route_latest_fresh_handle_fast_str_hit();
         }
-        return string_len_fast_return(handle, cached);
+        let trace_state = jit_trace_len_state_raw();
+        if trace_state == 0 {
+            return cached;
+        }
+        if trace_state == 1 {
+            return string_len_trace_fast_return(handle, cached);
+        }
+        return string_len_fast_return_unknown_trace_state(handle, cached);
     }
     string_len_export_slow_path(handle)
-}
-
-#[inline(always)]
-fn string_len_fast_return(handle: i64, cached: i64) -> i64 {
-    if jit_trace_len_enabled() {
-        string_len_trace_fast_return(handle, cached)
-    } else {
-        cached
-    }
 }
 
 #[inline(never)]
 fn string_len_trace_fast_return(handle: i64, cached: i64) -> i64 {
     trace_len_fast_hit(handle, cached);
     cached
+}
+
+#[inline(never)]
+fn string_len_fast_return_unknown_trace_state(handle: i64, cached: i64) -> i64 {
+    if jit_trace_len_state_init() != 0 {
+        string_len_trace_fast_return(handle, cached)
+    } else {
+        cached
+    }
 }
 
 pub(super) fn string_length_from_ptr(ptr: *const i8, _mode: i64) -> i64 {
