@@ -39,8 +39,12 @@
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
 - next primitive/user-box fast-path anchor is now:
   - `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
+- landed inventory scaffold:
+  - `src/mir/storage_class.rs`
+  - storage-class facts are refreshed after corridor facts and exposed in verbose MIR / JSON dumps
 - pre-optimization cleanup anchor is now:
   - `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
+- perf release gate now builds `ny-llvmc` as well; do not run exact/asm probes after editing compiler sources without refreshing release artifacts first
 - mixed accept gate stays `kilo_micro_substring_only`
 - split exact fronts are now:
   - `kilo_micro_substring_views_only`

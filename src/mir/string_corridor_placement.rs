@@ -107,7 +107,8 @@ fn infer_candidates(fact: &StringCorridorFact) -> Vec<StringCorridorCandidate> {
                 out.push(StringCorridorCandidate {
                     kind: StringCorridorCandidateKind::PublicationSink,
                     state: StringCorridorCandidateState::Candidate,
-                    reason: "slice result may sink publication until an externally visible boundary",
+                    reason:
+                        "slice result may sink publication until an externally visible boundary",
                 });
             }
         }
@@ -132,7 +133,10 @@ fn infer_candidates(fact: &StringCorridorFact) -> Vec<StringCorridorCandidate> {
         StringPlacementFact::None => {}
     }
 
-    if matches!(fact.op, StringCorridorOp::StrSlice | StringCorridorOp::StrLen) {
+    if matches!(
+        fact.op,
+        StringCorridorOp::StrSlice | StringCorridorOp::StrLen
+    ) {
         out.push(StringCorridorCandidate {
             kind: StringCorridorCandidateKind::DirectKernelEntry,
             state: StringCorridorCandidateState::Candidate,
@@ -182,7 +186,8 @@ mod tests {
 
     #[test]
     fn freeze_fact_marks_materialization_sink_as_already_satisfied() {
-        let fact = StringCorridorFact::freeze_str(crate::mir::StringCorridorCarrier::CanonicalIntrinsic);
+        let fact =
+            StringCorridorFact::freeze_str(crate::mir::StringCorridorCarrier::CanonicalIntrinsic);
         let candidates = infer_candidates(&fact);
 
         assert!(candidates.iter().any(|candidate| {
@@ -212,8 +217,8 @@ mod tests {
             .string_corridor_candidates
             .get(&ValueId::new(1))
             .expect("candidates");
-        assert!(candidates.iter().any(|candidate| {
-            candidate.kind == StringCorridorCandidateKind::DirectKernelEntry
-        }));
+        assert!(candidates
+            .iter()
+            .any(|candidate| { candidate.kind == StringCorridorCandidateKind::DirectKernelEntry }));
     }
 }

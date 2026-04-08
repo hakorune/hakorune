@@ -5,8 +5,9 @@
  */
 
 use super::{
-    string_corridor::StringCorridorFact, string_corridor_placement::StringCorridorCandidate,
-    BasicBlock, BasicBlockId, EffectMask, MirInstruction, MirType, ValueId,
+    storage_class::StorageClass, string_corridor::StringCorridorFact,
+    string_corridor_placement::StringCorridorCandidate, BasicBlock, BasicBlockId, EffectMask,
+    MirInstruction, MirType, ValueId,
 };
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fmt;
@@ -93,6 +94,10 @@ pub struct FunctionMetadata {
     /// pass and must not change runtime behavior in this wave.
     pub string_corridor_candidates:
         std::collections::BTreeMap<ValueId, Vec<StringCorridorCandidate>>,
+
+    /// No-op storage-class inventory derived from the current MIR value types.
+    /// This is the first-step scaffold for primitive-family / user-box fast paths.
+    pub value_storage_classes: std::collections::BTreeMap<ValueId, StorageClass>,
 }
 
 impl MirFunction {

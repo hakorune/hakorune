@@ -10,6 +10,9 @@ cd "${ROOT_DIR}"
 echo "[perf-release] building nyash_kernel static runtime"
 cargo build --release -p nyash_kernel
 
+echo "[perf-release] building ny-llvmc release binary"
+cargo build --release --bin ny-llvmc -p nyash-llvm-compiler
+
 echo "[perf-release] building hakorune release binary"
 cargo build --release --bin hakorune -p nyash-rust
 

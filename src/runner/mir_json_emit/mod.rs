@@ -80,6 +80,9 @@ fn build_mir_json_root(module: &crate::mir::MirModule) -> Result<serde_json::Val
                     _ => json!(null),
                 };
                 (k.as_u32().to_string(), type_str)
+            }).collect::<serde_json::Map<String, serde_json::Value>>(),
+            "storage_classes": f.metadata.value_storage_classes.iter().map(|(k, v)| {
+                (k.as_u32().to_string(), json!(v.to_string()))
             }).collect::<serde_json::Map<String, serde_json::Value>>()
         });
         let attrs_json = json!({

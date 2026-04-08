@@ -495,7 +495,6 @@ impl Registry {
             DROP_EPOCH.fetch_add(1, Ordering::Relaxed);
         }
     }
-
 }
 
 static DROP_EPOCH: AtomicU64 = AtomicU64::new(0);

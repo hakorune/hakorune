@@ -20,16 +20,19 @@ REPEAT="${2:-3}"
 ASM_RUNS="${3:-0}"
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+BUILD_RELEASE="${ROOT_DIR}/tools/perf/build_perf_release.sh"
 STAT="${ROOT_DIR}/tools/perf/bench_micro_c_vs_aot_stat.sh"
 WHOLE="${ROOT_DIR}/tools/perf/run_kilo_hk_bench.sh"
 ASM="${ROOT_DIR}/tools/perf/bench_micro_aot_asm.sh"
 
-for script in "${STAT}" "${WHOLE}"; do
+for script in "${BUILD_RELEASE}" "${STAT}" "${WHOLE}"; do
   if [[ ! -f "${script}" ]]; then
     echo "[error] missing script: ${script}" >&2
     exit 2
   fi
 done
+
+bash "${BUILD_RELEASE}"
 
 cases=(
   kilo_micro_substring_only

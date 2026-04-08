@@ -229,11 +229,9 @@ fn infer_from_method(box_name: &str, method: &str, arity: usize) -> Option<Strin
         ("length", 0) | ("len", 0) if is_stringish => Some(StringCorridorFact::str_len(
             StringCorridorCarrier::MethodCall,
         )),
-        ("substring", 2) | ("slice", 2) if is_stringish || is_runtime_data_string_facade => {
-            Some(StringCorridorFact::str_slice(
-                StringCorridorCarrier::MethodCall,
-            ))
-        }
+        ("substring", 2) | ("slice", 2) if is_stringish || is_runtime_data_string_facade => Some(
+            StringCorridorFact::str_slice(StringCorridorCarrier::MethodCall),
+        ),
         _ => None,
     }
 }
@@ -314,8 +312,7 @@ mod tests {
 
     #[test]
     fn infer_runtime_data_substring_fact() {
-        let fact =
-            infer_from_method("RuntimeDataBox", "substring", 2).expect("substring fact");
+        let fact = infer_from_method("RuntimeDataBox", "substring", 2).expect("substring fact");
         assert_eq!(fact.op, StringCorridorOp::StrSlice);
         assert_eq!(fact.role, StringCorridorRole::BorrowProducer);
         assert_eq!(fact.carrier, StringCorridorCarrier::MethodCall);

@@ -115,24 +115,14 @@ impl SubstringViewArcCache {
     }
 
     #[inline(always)]
-    fn matches_primary(
-        &self,
-        source_handle: i64,
-        start: i64,
-        end: i64,
-    ) -> bool {
+    fn matches_primary(&self, source_handle: i64, start: i64, end: i64) -> bool {
         self.source_handle.get() == source_handle
             && self.start.get() == start
             && self.end.get() == end
     }
 
     #[inline(always)]
-    fn matches_secondary(
-        &self,
-        source_handle: i64,
-        start: i64,
-        end: i64,
-    ) -> bool {
+    fn matches_secondary(&self, source_handle: i64, start: i64, end: i64) -> bool {
         self.source_handle2.get() == source_handle
             && self.start2.get() == start
             && self.end2.get() == end
@@ -217,12 +207,7 @@ impl SubstringViewArcCache {
     }
 
     #[inline(always)]
-    fn lookup(
-        &self,
-        source_handle: i64,
-        start: i64,
-        end: i64,
-    ) -> Option<SubstringViewCacheHit> {
+    fn lookup(&self, source_handle: i64, start: i64, end: i64) -> Option<SubstringViewCacheHit> {
         let current_drop_epoch = handles::drop_epoch();
         if self.matches_primary(source_handle, start, end) {
             if let Some(hit) = self.entry_hit(source_handle, current_drop_epoch, false) {
@@ -267,13 +252,7 @@ impl SubstringViewArcCache {
     }
 
     #[inline(always)]
-    fn refresh_handle(
-        &self,
-        source_handle: i64,
-        start: i64,
-        end: i64,
-        result_handle: i64,
-    ) {
+    fn refresh_handle(&self, source_handle: i64, start: i64, end: i64, result_handle: i64) {
         let drop_epoch = handles::drop_epoch();
         if self.matches_primary(source_handle, start, end) {
             self.result_drop_epoch.set(drop_epoch);

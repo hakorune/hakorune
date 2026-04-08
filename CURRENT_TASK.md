@@ -28,6 +28,9 @@ Scope: repo root から current lane / current front / restart read order に最
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
 - next primitive/user-box fast-path anchor:
   - `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
+- landed inventory scaffold:
+  - `src/mir/storage_class.rs`
+  - `StorageClass` facts are now refreshed after corridor facts and surfaced in verbose MIR / JSON dumps
 - vm fallback separation anchor:
   - `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
 - active lane/front:
@@ -206,12 +209,13 @@ Scope: repo root から current lane / current front / restart read order に最
 - safe restart order:
   1. `git status -sb`
   2. `tools/checks/dev_gate.sh quick`
-  3. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-  4. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-  5. after any `nyash_kernel` / `hakorune` runtime source edit, rerun `bash tools/perf/build_perf_release.sh` before exact micro / asm probes
-  6. `tools/perf/run_kilo_string_split_pack.sh 1 3`
-  7. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_views_only 'nyash.string.substring_hii' 200`
-  8. `docs/development/current/main/investigations/phase137x-substring-rejected-optimizations-2026-04-08.md`
+  3. `tools/perf/build_perf_release.sh` (includes `ny-llvmc` now)
+  4. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+  5. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+  6. after any `nyash_kernel` / `hakorune` / `ny-llvmc` runtime source edit, rerun `bash tools/perf/build_perf_release.sh` before exact micro / asm probes
+  7. `tools/perf/run_kilo_string_split_pack.sh 1 3`
+  8. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_views_only 'nyash.string.substring_hii' 200`
+  9. `docs/development/current/main/investigations/phase137x-substring-rejected-optimizations-2026-04-08.md`
 - documentation rule for failed perf cuts:
   1. keep a short current summary in the phase README
   2. keep exact rejected-cut evidence in one rolling doc per front/family/date

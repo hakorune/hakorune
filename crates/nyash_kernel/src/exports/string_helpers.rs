@@ -271,12 +271,7 @@ pub(super) fn string_substring_hii_export_impl(h: i64, start: i64, end: i64) -> 
                         let handle = issue_fresh_handle_from_arc(result_obj);
                         if handle > 0 {
                             string_len_fast_cache_store(handle, len);
-                            substring_view_arc_cache_refresh_handle(
-                                h,
-                                start,
-                                end,
-                                handle,
-                            );
+                            substring_view_arc_cache_refresh_handle(h, start, end, handle);
                         }
                         return handle;
                     }

@@ -14,7 +14,7 @@ use crate::tests::helpers::joinir_frontend::JoinIrFrontendTestRunner;
 #[test]
 fn joinir_frontend_if_select_simple_ab_test() {
     JoinIrFrontendTestRunner::from_fixture(
-        "../../tests/fixtures/joinir_frontend/joinir_if_select_simple.program.json"
+        "../../tests/fixtures/joinir_frontend/joinir_if_select_simple.program.json",
     )
     .lower()
     .expect("Failed to lower fixture")
@@ -33,7 +33,7 @@ fn joinir_frontend_if_select_simple_ab_test() {
 #[test]
 fn joinir_frontend_if_select_local_ab_test() {
     JoinIrFrontendTestRunner::from_fixture(
-        "../../tests/fixtures/joinir_frontend/joinir_if_select_local.program.json"
+        "../../tests/fixtures/joinir_frontend/joinir_if_select_local.program.json",
     )
     .lower()
     .expect("Failed to lower fixture")
@@ -52,7 +52,7 @@ fn joinir_frontend_if_select_local_ab_test() {
 #[test]
 fn joinir_frontend_json_shape_read_value_ab_test() {
     JoinIrFrontendTestRunner::from_fixture(
-        "../../tests/fixtures/joinir_frontend/json_shape_read_value.program.json"
+        "../../tests/fixtures/joinir_frontend/json_shape_read_value.program.json",
     )
     .lower()
     .expect("Failed to lower fixture")
@@ -77,7 +77,7 @@ fn joinir_frontend_json_shape_read_value_ab_test() {
 #[test]
 fn joinir_frontend_loop_simple_ab_test() {
     JoinIrFrontendTestRunner::from_fixture(
-        "../../tests/fixtures/joinir_frontend/loop_frontend_simple.program.json"
+        "../../tests/fixtures/joinir_frontend/loop_frontend_simple.program.json",
     )
     .lower()
     .expect("Failed to lower fixture")
@@ -97,14 +97,14 @@ fn joinir_frontend_loop_simple_ab_test() {
 #[test]
 fn joinir_frontend_loop_break_ab_test() {
     JoinIrFrontendTestRunner::from_fixture(
-        "../../tests/fixtures/joinir_frontend/loop_frontend_break.program.json"
+        "../../tests/fixtures/joinir_frontend/loop_frontend_break.program.json",
     )
     .lower()
     .expect("Failed to lower fixture")
     .run_cases(&[
-        (vec![JoinValue::Int(0)], JoinValue::Int(0)),   // n=0 → 0
-        (vec![JoinValue::Int(5)], JoinValue::Int(10)),  // n=5 → 10 (0+1+2+3+4)
-        (vec![JoinValue::Int(3)], JoinValue::Int(3)),   // n=3 → 3 (0+1+2)
+        (vec![JoinValue::Int(0)], JoinValue::Int(0)),  // n=0 → 0
+        (vec![JoinValue::Int(5)], JoinValue::Int(10)), // n=5 → 10 (0+1+2+3+4)
+        (vec![JoinValue::Int(3)], JoinValue::Int(3)),  // n=3 → 3 (0+1+2)
     ])
     .expect("Test cases failed");
 }
@@ -117,14 +117,14 @@ fn joinir_frontend_loop_break_ab_test() {
 #[test]
 fn joinir_frontend_loop_continue_ab_test() {
     JoinIrFrontendTestRunner::from_fixture(
-        "../../tests/fixtures/joinir_frontend/loop_frontend_continue.program.json"
+        "../../tests/fixtures/joinir_frontend/loop_frontend_continue.program.json",
     )
     .lower()
     .expect("Failed to lower fixture")
     .run_cases(&[
-        (vec![JoinValue::Int(0)], JoinValue::Int(0)),   // n=0 → 0
-        (vec![JoinValue::Int(5)], JoinValue::Int(12)),  // n=5 → 12 (1+2+4+5)
-        (vec![JoinValue::Int(2)], JoinValue::Int(3)),   // n=2 → 3 (1+2)
+        (vec![JoinValue::Int(0)], JoinValue::Int(0)),  // n=0 → 0
+        (vec![JoinValue::Int(5)], JoinValue::Int(12)), // n=5 → 12 (1+2+4+5)
+        (vec![JoinValue::Int(2)], JoinValue::Int(3)),  // n=2 → 3 (1+2)
     ])
     .expect("Test cases failed");
 }

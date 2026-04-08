@@ -270,6 +270,12 @@ impl MirPrinter {
                     }
                 }
             }
+            if !function.metadata.value_storage_classes.is_empty() {
+                writeln!(output, "  ;   Storage Classes:").unwrap();
+                for (value, class) in &function.metadata.value_storage_classes {
+                    writeln!(output, "  ;     %{}: {}", value.0, class).unwrap();
+                }
+            }
             writeln!(output).unwrap();
         }
 
@@ -379,7 +385,7 @@ impl Default for MirPrinter {
 mod tests {
     use super::*;
     use crate::mir::{
-        BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType,
+        BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType, StorageClass,
         StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateState,
         StringCorridorCarrier, StringCorridorFact, ValueId,
     };
@@ -452,5 +458,31 @@ mod tests {
         assert!(output.contains("String Corridor Candidates"));
         assert!(output.contains("%1: str.len"));
         assert!(output.contains("direct_kernel_entry"));
+    }
+
+    #[test]
+    fn test_verbose_printing_shows_storage_classes() {
+        let signature = FunctionSignature {
+            name: "test_func".to_string(),
+            params: vec![MirType::Integer],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        function
+            .metadata
+            .value_storage_classes
+            .insert(ValueId::new(1), StorageClass::InlineI64);
+        function
+            .metadata
+            .value_storage_classes
+            .insert(ValueId::new(2), StorageClass::BorrowedText);
+        let printer = MirPrinter::verbose();
+
+        let output = printer.print_function(&function);
+
+        assert!(output.contains("Storage Classes"));
+        assert!(output.contains("%1: inline_i64"));
+        assert!(output.contains("%2: borrowed_text"));
     }
 }

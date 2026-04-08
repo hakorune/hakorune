@@ -8,8 +8,8 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use crate::mir::{
     refresh_function_string_corridor_candidates, refresh_function_string_corridor_facts,
-    BasicBlockId, Callee, EffectMask, MirFunction, MirInstruction, MirModule,
-    StringCorridorOp, ValueId,
+    BasicBlockId, Callee, EffectMask, MirFunction, MirInstruction, MirModule, StringCorridorOp,
+    ValueId,
 };
 
 pub const SUBSTRING_LEN_EXTERN: &str = "nyash.string.substring_len_hii";
@@ -114,7 +114,8 @@ fn collect_plans(
                 continue;
             }
 
-            let Some((source, start, end)) = extract_substring_args(&block.instructions[inner_idx]) else {
+            let Some((source, start, end)) = extract_substring_args(&block.instructions[inner_idx])
+            else {
                 continue;
             };
 
@@ -170,7 +171,9 @@ fn match_len_call(inst: &MirInstruction) -> Option<(ValueId, ValueId, EffectMask
             dst: Some(dst),
             callee:
                 Some(Callee::Method {
-                    method, receiver: Some(receiver), ..
+                    method,
+                    receiver: Some(receiver),
+                    ..
                 }),
             args,
             effects,
@@ -187,7 +190,9 @@ fn extract_substring_args(inst: &MirInstruction) -> Option<(ValueId, ValueId, Va
         MirInstruction::Call {
             callee:
                 Some(Callee::Method {
-                    method, receiver: Some(source), ..
+                    method,
+                    receiver: Some(source),
+                    ..
                 }),
             args,
             ..
@@ -314,7 +319,11 @@ mod tests {
         let mut module = MirModule::new("substring_len".to_string());
         let signature = FunctionSignature {
             name: "main".to_string(),
-            params: vec![MirType::Box("StringBox".to_string()), MirType::Integer, MirType::Integer],
+            params: vec![
+                MirType::Box("StringBox".to_string()),
+                MirType::Integer,
+                MirType::Integer,
+            ],
             return_type: MirType::Integer,
             effects: EffectMask::PURE,
         };
@@ -347,7 +356,10 @@ mod tests {
             .metadata
             .value_types
             .insert(ValueId(3), MirType::Box("StringBox".to_string()));
-        function.metadata.value_types.insert(ValueId(4), MirType::Integer);
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(4), MirType::Integer);
         module.add_function(function);
 
         let rewritten = sink_borrowed_string_corridors(&mut module);
@@ -420,19 +432,22 @@ mod tests {
             value: Some(ValueId(6)),
         });
 
-        function.metadata.value_types.insert(
-            ValueId(3),
-            MirType::Box("RuntimeDataBox".to_string()),
-        );
-        function.metadata.value_types.insert(
-            ValueId(4),
-            MirType::Box("RuntimeDataBox".to_string()),
-        );
-        function.metadata.value_types.insert(
-            ValueId(5),
-            MirType::Box("RuntimeDataBox".to_string()),
-        );
-        function.metadata.value_types.insert(ValueId(6), MirType::Integer);
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(3), MirType::Box("RuntimeDataBox".to_string()));
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(4), MirType::Box("RuntimeDataBox".to_string()));
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(5), MirType::Box("RuntimeDataBox".to_string()));
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(6), MirType::Integer);
         module.add_function(function);
 
         let rewritten = sink_borrowed_string_corridors(&mut module);
@@ -461,7 +476,11 @@ mod tests {
         let mut module = MirModule::new("substring_len_multiuse".to_string());
         let signature = FunctionSignature {
             name: "main".to_string(),
-            params: vec![MirType::Box("StringBox".to_string()), MirType::Integer, MirType::Integer],
+            params: vec![
+                MirType::Box("StringBox".to_string()),
+                MirType::Integer,
+                MirType::Integer,
+            ],
             return_type: MirType::Integer,
             effects: EffectMask::PURE,
         };
@@ -503,8 +522,14 @@ mod tests {
             .metadata
             .value_types
             .insert(ValueId(3), MirType::Box("StringBox".to_string()));
-        function.metadata.value_types.insert(ValueId(4), MirType::Integer);
-        function.metadata.value_types.insert(ValueId(5), MirType::Integer);
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(4), MirType::Integer);
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(5), MirType::Integer);
         module.add_function(function);
 
         let rewritten = sink_borrowed_string_corridors(&mut module);

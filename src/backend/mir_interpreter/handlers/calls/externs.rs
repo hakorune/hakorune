@@ -245,7 +245,11 @@ impl MirInterpreter {
             }
             "nyash.string.substring_len_hii" => {
                 if args.len() < 3 {
-                    return Err(self.err_arg_count("nyash.string.substring_len_hii", 3, args.len()));
+                    return Err(self.err_arg_count(
+                        "nyash.string.substring_len_hii",
+                        3,
+                        args.len(),
+                    ));
                 }
                 let source = self.reg_load(args[0])?.to_string();
                 let start = self.reg_load(args[1])?.as_integer().unwrap_or(0);

@@ -103,8 +103,7 @@ pub(crate) const STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FALLBACK_HIT: &str =
 pub(crate) const STR_LEN_ROUTE_UNCLASSIFIED: &str = "unclassified";
 
 pub(crate) const STR_SUBSTRING_ROUTE_TOTAL: &str = "total";
-pub(crate) const STR_SUBSTRING_ROUTE_VIEW_ARC_CACHE_HANDLE_HIT: &str =
-    "view_arc_cache_handle_hit";
+pub(crate) const STR_SUBSTRING_ROUTE_VIEW_ARC_CACHE_HANDLE_HIT: &str = "view_arc_cache_handle_hit";
 pub(crate) const STR_SUBSTRING_ROUTE_VIEW_ARC_CACHE_REISSUE_HIT: &str =
     "view_arc_cache_reissue_hit";
 pub(crate) const STR_SUBSTRING_ROUTE_VIEW_ARC_CACHE_MISS: &str = "view_arc_cache_miss";

@@ -93,7 +93,8 @@ impl MirOptimizer {
 
         // Step 5 pilot: sink the narrowest borrowed string corridor before DCE so
         // dead intermediate substring values can be removed in the same optimize wave.
-        let corridor_sunk = crate::mir::passes::string_corridor_sink::sink_borrowed_string_corridors(module);
+        let corridor_sunk =
+            crate::mir::passes::string_corridor_sink::sink_borrowed_string_corridors(module);
         if corridor_sunk > 0 {
             stats.intrinsic_optimizations += corridor_sunk;
         }

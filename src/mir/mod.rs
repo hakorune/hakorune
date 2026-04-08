@@ -50,6 +50,7 @@ pub mod query; // Phase 26-G: MIR read/write/CFGビュー (MirQuery)
 pub mod region; // Phase 25.1l: Region/GC観測レイヤ（LoopForm v2 × RefKind）
 pub mod slot_registry; // Phase 9.79b.1: method slot resolution (IDs)
 mod spanned_instruction;
+pub mod storage_class; // primitive / user-box storage-class inventory + refresh helper
 pub mod string_corridor; // string canonical corridor facts + refresh helper
 pub mod string_corridor_placement; // placement/effect scaffold over canonical string facts
 pub mod type_propagation; // Phase 279 P0: SSOT type propagation pipeline
@@ -86,6 +87,9 @@ pub use printer::MirPrinter;
 pub use query::{MirQuery, MirQueryBox};
 pub use slot_registry::{BoxTypeId, MethodSlot};
 pub use spanned_instruction::{SpannedInstRef, SpannedInstruction};
+pub use storage_class::{
+    refresh_function_storage_class_facts, refresh_module_storage_class_facts, StorageClass,
+};
 pub use string_corridor::{
     refresh_function_string_corridor_facts, refresh_module_string_corridor_facts,
     StringCorridorCarrier, StringCorridorFact, StringCorridorOp, StringCorridorRole,
@@ -207,6 +211,7 @@ impl MirCompiler {
         let _rc_stats = insert_rc_instructions(&mut module);
         refresh_module_string_corridor_facts(&mut module);
         refresh_module_string_corridor_candidates(&mut module);
+        refresh_module_storage_class_facts(&mut module);
 
         Ok(MirCompileResult {
             module,
