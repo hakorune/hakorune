@@ -44,7 +44,9 @@ pub struct MirInterpreter {
     pub(super) obj_fields: FxHashMap<u64, FxHashMap<String, VMValue>>,
     pub(super) functions: BTreeMap<String, MirFunction>,
     pub(super) cur_fn: Option<String>,
-    // User-defined Box field declarations (compiler-provided; used for NewBox)
+    // Names-only compatibility mirror for user-defined Box field declarations.
+    // Typed authority lives upstream in `field_decls`; this map remains for
+    // legacy runtime consumers and old payload compatibility.
     pub(super) user_box_field_decls: FxHashMap<String, Vec<String>>,
     // Trace context (dev-only; enabled with NYASH_VM_TRACE=1)
     pub(super) last_block: Option<BasicBlockId>,

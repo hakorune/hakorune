@@ -7,6 +7,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/15-Workstream-Map.md
   - docs/development/current/main/phases/phase-137x/README.md
+  - docs/development/current/main/phases/phase-163x/README.md
   - docs/development/current/main/phases/phase-162x/README.md
   - docs/development/current/main/design/artifact-policy-ssot.md
   - src/config/env/vm_backend_flags.rs
@@ -21,7 +22,7 @@ Related:
 
 - optimization の前に `vm fallback` を 1 つの曖昧な語として扱うのをやめる
 - current repo に残る 3 つの keep/reference/fallback surface を別 owner に固定する
-- `phase-137x` の string corridor 最適化が runner / compat / reference lane に引きずられないようにする
+- current implementation lane と string guardrail lane の両方が runner / compat / reference lane に引きずられないようにする
 
 ## Fixed Split
 
@@ -51,10 +52,10 @@ Related:
 1. docs-first: make current pointers say that cleanup is inserted before the next optimization proof
 2. naming/comment cleanup: make runner compat fallback vs kernel Rust fallback readable in code
 3. no behavior change verification
-4. return to `phase-137x` borrowed-corridor perf/asm validation
+4. return to `phase-163x` as the current implementation lane while keeping `phase-137x` as sibling string guardrail
 
 ## Success Condition
 
 - restart docs no longer blur the 3 surfaces together
 - code comments/names no longer suggest that runner compat fallback and kernel Rust fallback are the same seam
-- `phase-137x` can resume optimization without dragging `vm` cleanup ambiguity into the lane
+- current pointers can resume optimization without dragging `vm` cleanup ambiguity into either lane

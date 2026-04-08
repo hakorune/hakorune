@@ -12,16 +12,24 @@ Related:
 
 ## Current
 
-- lane: `phase-137x main kilo reopen selection`
-- current front: `kilo_micro_substring_views_only` on the string corridor-first lane
-- blocker: corridor sink pilot の perf proof の前に `vm fallback` owner split を整理する
+- lane: `phase-163x primitive and user-box fast path`
+- current implementation focus:
+  - keep `field_decls` as authority
+  - keep names-only `fields` as compatibility mirror
+  - next add `kilo_micro_userbox_point_add`
+  - then pilot typed user-box field access on the internal path
+- sibling string guardrail:
+  - `phase-137x main kilo reopen selection`
+  - `kilo_micro_substring_views_only`
+- prerequisite cleanup:
+  - `phase-162x vm fallback lane separation cleanup` is landed and no longer the current blocker
 - current landed upstream slices:
   - string corridor facts inventory
   - placement/effect scaffold
   - first borrowed-corridor sink pilot for single-use `substring(...).length()`
-- inserted pre-optimization cleanup:
-  - `phase-162x vm fallback lane separation cleanup`
-  - runner compat fallback / kernel Rust fallback / `vm-hako` reference を別 owner に固定する
+  - typed `field_decls` carrier + canonical `field.get` / `field.set`
+  - declared-field storage bridge
+  - narrow typed primitive pilot for `IntegerBox` / `BoolBox`
 - observe lane:
   - `--features perf-observe`
   - `NYASH_PERF_COUNTERS=1`
@@ -123,7 +131,7 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
-3. `docs/development/current/main/phases/phase-162x/README.md`
+2. `docs/development/current/main/phases/phase-163x/README.md`
+3. `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
 4. `docs/development/current/main/phases/phase-137x/README.md`
 5. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`

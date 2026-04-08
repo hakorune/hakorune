@@ -14,11 +14,12 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-137x main kilo reopen selection` |
-| Front | `kilo_micro_substring_views_only` string corridor-first lane |
-| Blocker | borrowed-corridor pilot の perf proof の前に `vm fallback` owner split を整理する |
-| Next | `phase-162x vm fallback lane separation cleanup` |
-| After Next | `phase-137x borrowed corridor perf validation` |
+| Now | `phase-163x primitive and user-box fast path` |
+| Front | `field_decls authority -> user-box local gate -> typed user-box field access` |
+| Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
+| Blocker | user-box local perf gate `kilo_micro_userbox_point_add` がまだない |
+| Next | `phase-163x typed user-box field access pilot` |
+| After Next | `phase-137x` string guardrail reread / validation |
 
 ## Current Read
 
@@ -69,7 +70,7 @@ Related:
   1. `phase-152x llvmlite object emit cutover`
   2. `phase-153x ny_mir_builder harness drop`
   3. `phase-154x llvmlite archive lock`
-  4. `phase-137x main kilo reopen selection`
+  4. `phase-137x main kilo reopen selection` (historical reopen lane; now sibling string guardrail)
 - `phase-154x` landed current-facing wording slice:
   - `docs/guides/exe-first-wsl.md`
   - `docs/guides/selfhost-pilot.md`
@@ -104,7 +105,7 @@ Related:
 - landed capability lock before perf reopen:
   1. `phase-160x capability-family inventory`
   2. `phase-161x hot-path capability seam freeze`
-  3. `phase-137x main kilo reopen selection`
+  3. `phase-137x main kilo reopen selection` (historical reopen lane; now sibling string guardrail)
 - paused reopen truth:
   - baseline: `kilo_kernel_small_hk = 1529ms`
   - string const fast-path: `775ms`
@@ -122,9 +123,8 @@ Related:
 
 ## Successor Corridor
 
-1. `phase-137x main kilo reopen selection`
-2. `phase-162x vm fallback lane separation cleanup`
-3. `phase-137x borrowed corridor perf validation`
+1. `phase-163x primitive and user-box fast path`
+2. `phase-137x` string guardrail / borrowed-corridor perf validation
 
 ## Parked After Optimization
 

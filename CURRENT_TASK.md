@@ -14,7 +14,7 @@ Scope: repo root から current lane / current front / restart read order に最
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-137x/README.md`
+3. `docs/development/current/main/phases/phase-163x/README.md`
 4. `git status -sb`
 5. `tools/checks/dev_gate.sh quick`
 
@@ -24,10 +24,16 @@ Scope: repo root から current lane / current front / restart read order に最
   - clean after the latest keeper commit
 - runtime-wide pattern anchor:
   - `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-- current string corridor design anchor:
-  - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-- next primitive/user-box fast-path anchor:
+- current implementation lane:
+  - `phase-163x primitive and user-box fast path`
+- current primitive/user-box design anchor:
   - `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
+- sibling string guardrail anchor:
+  - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+- current implementation phase:
+  - `docs/development/current/main/phases/phase-163x/README.md`
+- sibling string guardrail phase:
+  - `docs/development/current/main/phases/phase-137x/README.md`
 - landed inventory scaffold:
   - `src/mir/storage_class.rs`
   - `StorageClass` facts are now refreshed after corridor facts and surfaced in verbose MIR / JSON dumps
@@ -43,22 +49,28 @@ Scope: repo root から current lane / current front / restart read order に最
   - LLVM lowering now treats `IntegerBox` / `BoolBox` handle facts as primitive numeric sources in `binop` / `compare`
   - numeric paths call `nyash.integer.get_h` / `nyash.bool.get_h` before integer arithmetic or integer compare
   - current pilot is still narrow: primitive handle unbox only, no typed user-box internal path yet
+- fixed typed field authority:
+  - `field_decls` is the typed authority
+  - names-only `fields` stays as a compatibility mirror for old payloads and old runtime consumers
 - vm fallback separation anchor:
   - `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
 - active lane/front:
-  - lane: `phase-137x main kilo reopen selection`
-  - accept gate front: `kilo_micro_substring_only`
-  - split exact fronts:
+  - lane: `phase-163x primitive and user-box fast path`
+  - next local gate to add: `kilo_micro_userbox_point_add`
+  - immediate next cut: typed user-box field access on the internal path
+  - sibling string guardrail accept gate:
+    - `kilo_micro_substring_only`
+  - sibling string guardrail split exact fronts:
     - `kilo_micro_substring_views_only`
     - `kilo_micro_len_substring_views`
-  - active local cut front: `kilo_micro_substring_views_only`
-  - pure Rust reference compare lane:
+  - sibling string guardrail local cut front: `kilo_micro_substring_views_only`
+  - pure Rust reference compare lane for string guardrail:
     - `benchmarks/rust/bench_kilo_micro_substring_views_only.rs`
     - `tools/perf/bench_rust_vs_hako_stat.sh kilo_micro_substring_views_only 1 3`
     - latest pure Rust reference: `instr=5,667,104 / cycles=1,572,750 / cache-miss=5,254 / ms=3`
     - latest C-like Rust reference: `instr=12,566,914 / cycles=3,404,383 / cache-miss=5,256 / ms=3`
   - rule: WSL は `3 runs + perf` でしか delta を採らない
-- current exact baseline:
+- current string guardrail baseline:
   - `kilo_micro_substring_only: C 3 ms / AOT 8 ms`
   - `instr: 47,270,021`
   - `cycles: 28,264,307`
@@ -67,10 +79,10 @@ Scope: repo root から current lane / current front / restart read order に最
     - `kilo_micro_substring_views_only: instr=34,372,839 / cycles=6,483,811 / cache-miss=8,932 / AOT 5 ms`
     - `kilo_micro_len_substring_views: instr=16,072,530 / cycles=4,296,034 / cache-miss=8,783 / AOT 4 ms`
   - reading: latest keeper came from `len_h`, and the split pair now says `substring_hii` is first target again
-- current mixed sink candidate:
+- current string mixed sink candidate:
   - `nyash.string.substring_len_hii`
   - latest reread: `instr=47,270,021 / cycles=28,264,307 / cache-miss=9,191 / AOT 8 ms`
-- target band for the next keeper:
+- target band for the next string guardrail keeper:
   - mixed accept gate: `instr <= 47.1M`
   - local split `kilo_micro_substring_views_only`: `instr <= 34.2M`
   - control split `kilo_micro_len_substring_views`: roughly flat is acceptable
@@ -153,79 +165,48 @@ Scope: repo root から current lane / current front / restart read order に最
     25. `substring_hii` route/provider snapshot + eager `DROP_EPOCH` snapshot
     26. `SubstringViewArcCache::entry_hit` reissue/clear cold split
 - next active cut:
-  - keep `kilo_micro_substring_only` as accept gate
-  - use `kilo_micro_substring_views_only` for local `substring_hii` cuts
-  - keep `len_h` runtime mechanics stable unless split fronts move again
-  - latest keeper eliminated the remaining `len_h` control-plane hot loads; do not reopen `len_h` local cuts until `substring` is re-read
-  - active design rule:
-    - stop treating the next move as another `substring_hii` leaf/provider/cache split
-    - current upstream design is:
-      - `.hako policy -> canonical MIR facts -> placement/effect pass -> Rust microkernel -> LLVM`
-    - next follow-on design after the current string wave is:
-      - `primitive semantic builtin family -> canonical MIR field access -> storage class facts -> typed fast path`
-    - do not add a permanent second public MIR dialect
-    - do not widen current `@rune` surface for boundary/cache/provider mechanics
-  - task order is fixed:
-    1. docs-first: treat `string-canonical-mir-corridor-and-placement-pass-ssot.md` as the active design owner for this wave
-    2. landed: MIR-side inventory for `str.slice` / `str.len` / `freeze.str` now lives in `src/mir/string_corridor.rs`; refresh is behavior-preserving
-    3. landed: canonical MIR fact carrier is `FunctionMetadata.string_corridor_facts`; verbose dumps expose the facts
-    4. landed: placement/effect scaffold is now `src/mir/string_corridor_placement.rs`; it reads `FunctionMetadata.string_corridor_facts`, emits no-op candidate decisions into `FunctionMetadata.string_corridor_candidates`, and leaves runtime lowering unchanged
-    5. landed structurally: the first borrowed-corridor sinking pilot now rewrites single-use `substring(...).length()` chains to `nyash.string.substring_len_hii` via `src/mir/passes/string_corridor_sink.rs`; interpreter fallback and kernel export are in place
-    6. before the next perf proof, insert `phase-162x vm fallback lane separation cleanup`; keep runner compat fallback / kernel Rust fallback / `vm-hako` reference as separate owners
-    7. after that cleanup, validate the corridor-sink pilot with exact/whole/asm; do not claim accept-gate wins before evidence exists
-    8. after the pilot is validated, add AOT-internal direct kernel entry selection; ABI/FFI keeps the facade
-    9. only after the upstream corridor slices land and move exact/asm, reopen new `substring_hii` runtime leaf cuts
-    10. after the current string wave stabilizes, use `primitive-family-and-user-box-fast-path-ssot.md` as the follow-on design owner
-    11. landed: the first follow-on pack is no longer docs-only; typed `field_decls` now survive `.hako parser -> AST -> Stage1 Program JSON -> MIR metadata -> MIR JSON`, and canonical MIR now has `field.get` / `field.set`
-    12. landed: storage-class facts now wire through declared field types without changing `.hako` surface or generic field semantics
-    13. landed: first typed primitive pilot now unboxes `IntegerBox` / `BoolBox` handles on LLVM numeric paths (`binop` / `compare`)
-    14. next: typed user-box field access on the internal path
-    15. user box flattening is explicitly later; do not jump there before typed field access wins
-    16. keep the cross-lane scope-control table in `string-canonical-mir-corridor-and-placement-pass-ssot.md` truthful; do not let the `string` pilot silently redefine `array/map` or ABI structure
-    17. do not retry `len_lane` separation by itself; both separation-only and combined snapshot retries failed keeper gates
-    18. the earlier `drop_epoch()` global mirror rejection was invalidated by stale release artifacts; the hypothesis is now landed, and future perf reads must rebuild release artifacts first
-    19. do not retry the same `len_h`-specific 4-box slice as-is; it lost before the control-plane fixes landed
-    20. `len_h` の箱が当たるまで generic framework にはしない; reusable abstraction は後回し
-    21. do not genericize implementation from `string` alone; first collect keeper patterns in the runtime-hot-lane pattern SSOT
-    22. hot caller での `substring` provider swap は 1 本では keep しない:
-       `substring_view_enabled` / fallback policy / route policy を同時に `raw read + cold init` へ切り替える slice は local front を落とした
-    23. shape cleanup では hot body duplication をしない; `route_raw == common-case` の全文複製は reopen しない
-    24. next shape cleanup must stay below the active caller or pair with an asm-visible win; provider foundation only is allowed, but hot caller adoption needs proof
-    25. `substring_route_policy()` cold split alone is also blocked; even without caller adoption it lost the local split
-    26. if a future slice reopens `len_h`, it must beat the new `DROP_EPOCH`-based asm and preserve direct dispatch / single trace-state loads
-    27. do not retry the same `substring_hii` route/provider snapshot with eager `DROP_EPOCH` capture; it regressed both exact fronts and whole strict before any cache-entry win appeared
-    28. do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear path in isolation; the call boundary/code layout regressed all split fronts badly
+  - current implementation lane:
+    1. keep `primitive-family-and-user-box-fast-path-ssot.md` as the design owner
+    2. keep `field_decls` as authority and treat names-only `fields` as compatibility mirror only
+    3. add `kilo_micro_userbox_point_add` before wider typed lowering
+    4. pilot typed user-box field access only for internal `IntegerBox` / `BoolBox` fields first
+    5. keep plugin / reflection / ABI / weak-field paths on generic fallback
+    6. keep flattening, tagged pointer, and `@rune` widening out of this wave
+  - sibling string guardrail:
+    1. keep `kilo_micro_substring_only` as accept gate
+    2. use `kilo_micro_substring_views_only` for local `substring_hii` cuts
+    3. keep `len_h` runtime mechanics stable unless split fronts move again
+    4. latest keeper eliminated the remaining `len_h` control-plane hot loads; do not reopen `len_h` local cuts until `substring` is re-read
+    5. do not reopen broad provider-adoption or common-case body duplication cuts already rejected in `phase-137x`
 - first files to reopen for the next slice:
+  - `docs/development/current/main/phases/phase-163x/README.md`
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
   - `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
   - `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
   - `docs/development/current/main/phases/phase-162x/README.md`
+  - `docs/development/current/main/phases/phase-137x/README.md`
   - `src/mir/string_corridor.rs`
   - `src/mir/string_corridor_placement.rs`
   - `src/mir/passes/string_corridor_sink.rs`
   - `src/config/env/vm_backend_flags.rs`
   - `src/runner/route_orchestrator.rs`
   - `src/runner/keep/vm_fallback.rs`
-  - `crates/hakorune_mir_core/src/effect.rs`
-  - `crates/hakorune_mir_defs/src/call_unified.rs`
   - `src/mir/**`
-  - `crates/nyash_kernel/src/exports/string_helpers.rs`
-  - `crates/nyash_kernel/src/exports/string_helpers/cache.rs`
-  - `crates/nyash_kernel/src/exports/string_debug.rs`
-  - `crates/nyash_kernel/src/hako_forward_bridge.rs`
-  - `crates/nyash_kernel/src/exports/string_helpers/materialize.rs`
-  - `crates/nyash_kernel/src/exports/string_view.rs`
-  - `crates/nyash_kernel/src/tests/string.rs`
+  - `src/llvm_py/instructions/**`
+  - `src/backend/mir_interpreter/**`
 - safe restart order:
   1. `git status -sb`
   2. `tools/checks/dev_gate.sh quick`
   3. `tools/perf/build_perf_release.sh` (includes `ny-llvmc` now)
   4. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-  5. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-  6. after any `nyash_kernel` / `hakorune` / `ny-llvmc` runtime source edit, rerun `bash tools/perf/build_perf_release.sh` before exact micro / asm probes
-  7. `tools/perf/run_kilo_string_split_pack.sh 1 3`
-  8. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_views_only 'nyash.string.substring_hii' 200`
-  9. `docs/development/current/main/investigations/phase137x-substring-rejected-optimizations-2026-04-08.md`
+  5. `docs/development/current/main/phases/phase-163x/README.md`
+  6. `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
+  7. `docs/development/current/main/phases/phase-137x/README.md`
+  8. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+  9. after any `nyash_kernel` / `hakorune` / `ny-llvmc` runtime source edit, rerun `bash tools/perf/build_perf_release.sh` before exact micro / asm probes
+  10. `tools/perf/run_kilo_string_split_pack.sh 1 3`
+  11. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_views_only 'nyash.string.substring_hii' 200`
+  12. `docs/development/current/main/investigations/phase137x-substring-rejected-optimizations-2026-04-08.md`
 - documentation rule for failed perf cuts:
   1. keep a short current summary in the phase README
   2. keep exact rejected-cut evidence in one rolling doc per front/family/date
@@ -233,13 +214,13 @@ Scope: repo root から current lane / current front / restart read order に最
 
 ## Implementation Order
 
-1. `docs` first: keep the string corridor and primitive/user-box design SSOT current.
-2. `storage_class` inventory: keep primitive/user-box facts fresh in MIR dumps and JSON.
-3. `canonical MIR` field access: add `field.get` / `field.set` shape and storage-class facts.
-4. `typed primitive fast path`: pilot one primitive lane with the new MIR facts.
-5. `typed user box field access`: pilot one user-box lane after primitive wins.
+1. `docs` first: keep the primitive/user-box lane and the string guardrail lane separate.
+2. `field_decls` authority: keep typed field declarations as the source of truth and names-only `fields` as compatibility mirror.
+3. `storage_class` inventory: keep primitive/user-box facts fresh in MIR dumps and JSON.
+4. `typed primitive fast path`: keep the narrow primitive pilot green.
+5. `typed user box field access`: pilot one user-box lane after the local micro gate is added.
 6. `flattening` later: only after typed field access has proof.
-7. `sink` stays as a pilot: do not delete the corridor sink path yet; keep it until a newer direct lowering path replaces it with evidence.
+7. `sink` stays as a string-lane pilot: do not delete the corridor sink path yet; keep it until a newer direct lowering path replaces it with evidence.
 
 ## Order At A Glance
 
@@ -255,9 +236,11 @@ Scope: repo root から current lane / current front / restart read order に最
 10. `phase-159x observe trace split` (landed)
 11. `phase-160x capability-family inventory` (landed)
 12. `phase-161x hot-path capability seam freeze` (landed)
-13. `phase-137x main kilo reopen selection` (active)
+13. `phase-137x main kilo reopen selection` (active sibling string guardrail)
+14. `phase-163x primitive and user-box fast path` (active implementation lane)
 
 ## Current Front
 
-- read [phase-137x/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-137x/README.md) for current lane context
+- read [phase-163x/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-163x/README.md) for current implementation lane context
+- read [phase-137x/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-137x/README.md) for string guardrail context
 - read [phase137x-substring-rejected-optimizations-2026-04-08.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/investigations/phase137x-substring-rejected-optimizations-2026-04-08.md) before retrying any substring-local perf cut

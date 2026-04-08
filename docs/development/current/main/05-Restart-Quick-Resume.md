@@ -20,25 +20,33 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-137x main kilo reopen selection`
-- current front: `kilo_micro_substring_views_only` string corridor-first lane
-- blocker: borrowed-corridor pilot の perf proof の前に `vm fallback` owner split を整理する
+- lane: `phase-163x primitive and user-box fast path`
+- current implementation focus:
+  - `field_decls` authority
+  - names-only `fields` compatibility mirror
+  - next local gate: `kilo_micro_userbox_point_add`
+  - next implementation cut: typed user-box field access on the internal path
+- sibling string guardrail:
+  - `phase-137x main kilo reopen selection`
+  - current front: `kilo_micro_substring_views_only`
 - landed:
   - `phase-140x map owner pilot`
   - `phase-139x array owner pilot`
   - `phase-138x nyash_kernel semantic owner cutover`
   - `phase-134x nyash_kernel layer recut selection`
   - `phase-133x micro kilo reopen selection`
-- active next:
+- landed pre-cleanup:
   - `phase-162x vm fallback lane separation cleanup`
-  - `phase-137x borrowed corridor perf validation`
+- active next:
+  - `phase-163x typed user-box field access pilot`
+  - `phase-137x` stays the string guardrail/perf validation sibling
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
-4. `docs/development/current/main/phases/phase-162x/README.md`
+3. `docs/development/current/main/phases/phase-163x/README.md`
+4. `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
 5. `docs/development/current/main/phases/phase-137x/README.md`
 6. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
 

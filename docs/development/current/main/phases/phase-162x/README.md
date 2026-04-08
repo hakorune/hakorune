@@ -1,6 +1,6 @@
 # Phase 162x: vm fallback lane separation cleanup
 
-- Status: Active
+- Status: Landed
 - 目的: optimization の前に `vm fallback` の owner split を固定し、runner compat fallback / kernel Rust fallback / `vm-hako` reference lane を別 surface として読めるようにする。
 - 対象:
   - `CURRENT_TASK.md`
@@ -13,11 +13,12 @@
   - `src/runner/keep/vm_fallback.rs`
   - `crates/nyash_kernel/src/hako_forward_bridge.rs`
 
-## Decision Now
+## Decision Lock
 
 - this is a cleanup wave, not a removal wave
 - behavior stays the same
-- `phase-137x` perf validation resumes only after this owner split is readable again
+- current implementation lane is now `phase-163x`
+- `phase-137x` remains the sibling string guardrail lane
 
 ## Fixed Owner Split
 
@@ -42,4 +43,4 @@
 
 1. docs/current pointers no longer blur the three surfaces
 2. code comments/names match that split
-3. `phase-137x` task order resumes at borrowed-corridor perf validation
+3. current pointers can move to `phase-163x` without blurring fallback ownership

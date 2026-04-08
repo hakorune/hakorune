@@ -5,6 +5,7 @@ Date: 2026-04-09
 Scope: primitive family と user box field access を、`.hako` surface を汚さずに compiler/MIR 主導で高速化する設計と実装順を固定する。
 Related:
   - CURRENT_TASK.md
+  - docs/development/current/main/phases/phase-163x/README.md
   - docs/development/current/main/phases/phase-137x/README.md
   - docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md
   - docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md
@@ -123,6 +124,20 @@ Target reading:
   - storage class fact
 
 This is the clean bridge from box language surface to typed/direct internal access.
+
+### 4.5 `field_decls` is the authority
+
+For typed field work, the authority is:
+
+- `field_decls`
+
+The names-only `fields` list stays only as:
+
+- compatibility mirror
+- fallback for old payloads
+- legacy runtime consumers that have not been upgraded yet
+
+Do not treat `fields` as the typed design truth again.
 
 ### 5. Text world, object world, and handle world stay split
 
@@ -243,6 +258,8 @@ Current landing status:
 - pilot typed `field.get` / `field.set` for a user box whose fields are all primitive-friendly
 - avoid ABI/plugin/reflection boundaries in the first slice
 - do not require full flattening
+- add a narrow local perf gate first:
+  - `kilo_micro_userbox_point_add`
 
 Acceptance:
 

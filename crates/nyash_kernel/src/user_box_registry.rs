@@ -1,4 +1,6 @@
-// Phase 285LLVM-1.1: Global registry for user box field declarations.
+// Phase 285LLVM-1.1: Names-only compatibility registry for user box fields.
+// Typed authority is `field_decls` upstream in compiler/MIR metadata; this
+// registry stays as a mirror for old runtime consumers.
 
 use std::collections::HashMap;
 use std::sync::RwLock;
