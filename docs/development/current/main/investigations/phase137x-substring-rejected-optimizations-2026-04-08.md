@@ -27,21 +27,22 @@ Related:
 - active front is `kilo_micro_substring_only`
 - current exact baseline is:
   - `kilo_micro_substring_only: C 3 ms / AOT 5 ms`
-  - `instr: 59,272,932`
-  - `cycles: 10,007,852`
-  - `cache-miss: 8,699`
+  - `instr: 58,672,982`
+  - `cycles: 9,979,794`
+  - `cache-miss: 9,939`
   - split exact reread:
-    - `kilo_micro_substring_views_only: instr=37,073,398 / cycles=6,880,057 / cache-miss=9,746`
-    - `kilo_micro_len_substring_views: instr=23,272,760 / cycles=4,123,725 / cache-miss=9,284`
+    - `kilo_micro_substring_views_only: instr=37,073,017 / cycles=6,804,272 / cache-miss=9,648`
+    - `kilo_micro_len_substring_views: instr=22,672,209 / cycles=3,991,125 / cache-miss=8,789`
 - current whole-kilo health is:
   - `tools/checks/dev_gate.sh quick`: green
-  - `kilo_kernel_small_hk` strict accepted reread: `744 ms`
+  - `kilo_kernel_small_hk` strict accepted reread: `755 ms`
   - parity: ok
 - current landed truth:
   - `substring_hii` can reissue a fresh handle from a cached `StringViewBox` object after transient drop-epoch churn if the source handle still names the same live source object
   - `str.substring.route` observe read is dominated by `view_arc_cache_handle_hit=599,998 / total=600,000`
   - the current keeper removed redundant `view_enabled` state from `SubstringViewArcCache`; that cache only runs on the `view_enabled` route
   - split exact reread separated `substring_hii` and `len_h`; the mixed-front keeper in this pass comes from `len_h`, not substring publication/reissue
+  - the current keeper also keeps `len_h` trace-off steady state thin by tail-calling a tiny fast-return helper from `string_len_export_impl()`
 - current stop-line:
   - do not widen substring runtime cache mechanics into `.hako` or `MIR`
   - keep `kilo_micro_substring_only` as the accept gate, but use split exact fronts before retrying substring-local structural cuts
@@ -292,27 +293,76 @@ Related:
 - fast-hit bias が shared exact family で支配的と示せて
 - dispatch-active whole lane への escape hatch を同時に作れる時だけ
 
-### 2026-04-08: dispatch/trace false-state helper split
+### 2026-04-08: `drop_epoch_if_ready()` fast accessor probe
 
 **Hypothesis**
 
-- `string_dispatch_raw()` と `jit_trace_len_enabled()` の false-state を cold helper へ逃がせば
-- `len_h` steady-state の guard cost をもっと薄くできる
-- split `kilo_micro_len_substring_views` と mixed exact の両方で勝てる
+- `string_len_fast_cache_lookup()` の steady-state が already ready なら
+- `drop_epoch()` の full helper を通さずに fast accessor で済ませられる
+- `kilo_micro_len_substring_views` の epoch compare cost をさらに削れる
 
 **Touched owner area**
 
+- [host_handles.rs](/home/tomoaki/git/hakorune-selfhost/src/runtime/host_handles.rs)
+- [cache.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers/cache.rs)
+
+**Observed result**
+
+- variant A (`None => miss`):
+  - split exact:
+    - `kilo_micro_len_substring_views: instr=22,072,405 / cycles=4,389,400 / cache-miss=10,257 / AOT 5 ms`
+  - mixed exact:
+    - `kilo_micro_substring_only: instr=58,072,406 / cycles=9,677,483 / cache-miss=9,908 / AOT 5 ms`
+  - whole:
+    - `kilo_kernel_small_hk strict = 863 ms`, probe outlier `1003 ms`
+    - parity ok
+- variant B (`None => drop_epoch()` fallback):
+  - split exact:
+    - `kilo_micro_len_substring_views: instr=23,272,188 / cycles=4,932,870 / cache-miss=9,730 / AOT 4 ms`
+  - mixed exact:
+    - `kilo_micro_substring_only: instr=59,272,204 / cycles=9,981,287 / cache-miss=9,306 / AOT 5 ms`
+  - whole:
+    - `kilo_kernel_small_hk strict = 749 ms`, rerun `764 ms`
+    - parity ok
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Why**
+
+- fail-closed variant は split exact の instruction win があっても whole strict を大きく壊した
+- fallback variant は whole を守れても exact win がほぼ消えた
+- runtime handle API surface を増やす割に keeper 条件を満たさなかった
+
+**Reopen Condition**
+
+- host handle layer で drop-epoch read が cross-family hotspot と示せた時だけ
+
+### 2026-04-08: global `dispatch` / `trace` false-state fast probes
+
+**Hypothesis**
+
+- `string_dispatch_raw()` と `jit_trace_len_enabled()` の false-state を
+  `string_len_export_impl()` の外で fast probe すれば
+- `len_h` steady-state の guard cost をさらに thin にできる
+- split `kilo_micro_len_substring_views` と mixed exact の両方で keeper を狙える
+
+**Touched owner area**
+
+- [string_helpers.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers.rs)
 - [hako_forward_bridge.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/hako_forward_bridge.rs)
 - [string_debug.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_debug.rs)
 
 **Observed result**
 
 - split exact:
-  - `kilo_micro_len_substring_views: instr=22,071,954 / cycles=4,012,624 / cache-miss=9,216 / AOT 4 ms`
+  - `kilo_micro_len_substring_views: instr=22,672,636 / cycles=4,057,151 / cache-miss=9,018 / AOT 4 ms`
 - mixed exact:
-  - `kilo_micro_substring_only: instr=57,172,575 / cycles=9,700,690 / cache-miss=9,623 / AOT 5 ms`
+  - `kilo_micro_substring_only: instr=58,672,598 / cycles=10,039,095 / cache-miss=9,574 / AOT 5 ms`
 - whole:
-  - `kilo_kernel_small_hk strict = 754 ms`, rerun `789 ms`
+  - `kilo_kernel_small_hk strict = 770 ms`, rerun `782 ms`
   - parity ok
 
 **Verdict**
@@ -322,13 +372,13 @@ Related:
 
 **Why**
 
-- exact はこの wave で一番強く動いた
-- それでも strict whole が accepted band を外れた
-- global false-state helper split は exact 用には強いが、whole lane への branch/layout side effect がまだ大きい
+- exact は current keeper と同じ帯まで動いた
+- ただし same-machine baseline `749 ms` / `754 ms` に対して strict whole が `770 ms` / `782 ms` へ悪化した
+- global false-state probes は `len_h` exact には効いても、whole lane での branch/layout side effect が still too large だった
 
 **Reopen Condition**
 
-- whole strict で同じ helpers が actually hot と asm で示せる時だけ
+- whole strict で同じ global helpers が actually hot と asm で示せる時だけ
 
 ## Next Candidate
 
@@ -338,4 +388,4 @@ Related:
   1. keep `kilo_micro_substring_only` as the accept gate
   2. use `kilo_micro_len_substring_views` for local `len_h` cuts
   3. keep substring runtime mechanics unchanged unless the split pair moves again
-  4. measure again with `3 runs + perf`
+  4. focus next on `len_h` fast-hit dispatch-state load, TLS 2-slot compare, and epoch-guard shape

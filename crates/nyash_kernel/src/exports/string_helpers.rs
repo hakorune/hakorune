@@ -153,12 +153,24 @@ pub(super) fn string_len_export_impl(handle: i64) -> i64 {
         if observe::len_route_matches_latest_fresh_handle(handle) {
             observe::record_str_len_route_latest_fresh_handle_fast_str_hit();
         }
-        if jit_trace_len_enabled() {
-            trace_len_fast_hit(handle, cached);
-        }
-        return cached;
+        return string_len_fast_return(handle, cached);
     }
     string_len_export_slow_path(handle)
+}
+
+#[inline(always)]
+fn string_len_fast_return(handle: i64, cached: i64) -> i64 {
+    if jit_trace_len_enabled() {
+        string_len_trace_fast_return(handle, cached)
+    } else {
+        cached
+    }
+}
+
+#[inline(never)]
+fn string_len_trace_fast_return(handle: i64, cached: i64) -> i64 {
+    trace_len_fast_hit(handle, cached);
+    cached
 }
 
 pub(super) fn string_length_from_ptr(ptr: *const i8, _mode: i64) -> i64 {

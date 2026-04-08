@@ -40,15 +40,15 @@
 - current local cut front is `kilo_micro_len_substring_views`
 - exact baseline on this front:
   - `kilo_micro_substring_only: C 3 ms / AOT 5 ms`
-  - `instr: 59,272,932`
-  - `cycles: 10,007,852`
-  - `cache-miss: 8,699`
+  - `instr: 58,672,982`
+  - `cycles: 9,979,794`
+  - `cache-miss: 9,939`
   - split exact reread:
-    - `kilo_micro_substring_views_only: instr=37,073,398 / cycles=6,880,057 / cache-miss=9,746 / AOT 3 ms`
-    - `kilo_micro_len_substring_views: instr=23,272,760 / cycles=4,123,725 / cache-miss=9,284 / AOT 4 ms`
+    - `kilo_micro_substring_views_only: instr=37,073,017 / cycles=6,804,272 / cache-miss=9,648 / AOT 4 ms`
+    - `kilo_micro_len_substring_views: instr=22,672,209 / cycles=3,991,125 / cache-miss=8,789 / AOT 4 ms`
 - current whole-kilo health:
   - `tools/checks/dev_gate.sh quick` is green
-  - `kilo_kernel_small_hk` strict accepted reread: `ny_aot_ms=744`
+  - `kilo_kernel_small_hk` strict accepted reread: `ny_aot_ms=755`
   - parity: `vm_result=1140576`, `aot_result=1140576`
 - current landed substring truth:
   - `substring_hii` can reissue a fresh handle from a cached `StringViewBox` object when the transient result handle dropped but the source handle still points to the same live source object
@@ -56,12 +56,13 @@
   - current keeper removes redundant `view_enabled` state from `SubstringViewArcCache`; the cache only runs under `view_enabled`, so the extra key dimension was dead hot-path work
   - split exact reread now shows `substring_hii` retained-view path is basically flat while `len_h` moves independently
   - current keeper is on `len_h`: hoist one `handles::drop_epoch()` read in `string_len_fast_cache_lookup()` and reuse it for both cache slots
+  - current keeper also keeps `len_h` trace-off steady state thin by tail-calling a tiny fast-return helper instead of carrying `trace_len_fast_hit(...)` inline in the hot cache-hit block
   - `nyash.string.substring_hii` / `nyash.string.len_h` / `trace_borrowed_substring_plan` stay as the fallback semantic carrier
   - WSL validation rule stays `3 runs + perf`
 - do not reopen for this lane:
   - `OwnedText` backing for substring source lifetime
   - live-source direct-read widening on `as_str_fast()`
-  - the reverted standalone `len_h` cold-split helper shape
+  - global `dispatch` / `trace` false-state fast probes outside `string_len_export_impl()`
   - lifting substring runtime cache mechanics into `.hako` or `MIR`
 - rejected local probes are now centralized in:
   - [phase137x-substring-rejected-optimizations-2026-04-08.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/investigations/phase137x-substring-rejected-optimizations-2026-04-08.md)
@@ -72,12 +73,13 @@
     4. reissue-side slot carry / `refresh_handle` rematch removal
     5. concrete `Arc<StringViewBox>` cache carrier narrowing
     6. `len_h` cache-first reorder
-    7. dispatch/trace false-state helper split
+    7. `drop_epoch_if_ready()` fast accessor probe
+    8. global `dispatch` / `trace` false-state fast probes
 - next active cut:
   1. keep `kilo_micro_substring_only` as accept gate
   2. use `kilo_micro_len_substring_views` for local `len_h` cuts
   3. keep substring runtime cache mechanics unchanged unless split fronts move again
-  4. next local cut is `len_h` fast-hit / trace-off path only
+  4. next local cut is `len_h` fast-hit dispatch-state / TLS slot / epoch-guard shape only
 - safe restart order:
   1. `git status -sb`
   2. `tools/checks/dev_gate.sh quick`
@@ -97,7 +99,7 @@
   1. keep runtime cache mechanics as-is; substring-side local shape is no longer the first cut
   2. read the rejected ledger before retrying any substring-local cut
   3. use the split exact pair before touching `substring_hii` again
-  4. current next local cut is `nyash.string.len_h` fast-hit / trace-off only
+  4. current next local cut is `nyash.string.len_h` fast-hit dispatch-state / TLS slot / epoch-guard only
   5. only reopen substring-local structural cuts if the split pair says `substring_hii` moved back on top
 - lifecycle placement is fixed:
   - `.hako`: source-preserve / identity / publication demand
