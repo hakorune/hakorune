@@ -1,0 +1,101 @@
+{
+  "version": 0,
+  "kind": "Program",
+  "defs": [
+    {
+      "type": "FunctionDef",
+      "name": "simple",
+      "params": ["n"],
+      "body": {
+        "type": "Block",
+        "body": [
+          {
+            "type": "Local",
+            "name": "i",
+            "expr": {
+              "type": "Int",
+              "value": 0
+            }
+          },
+          {
+            "type": "Local",
+            "name": "acc",
+            "expr": {
+              "type": "Int",
+              "value": 0
+            }
+          },
+          {
+            "type": "Loop",
+            "cond": {
+              "type": "Bool",
+              "value": true
+            },
+            "body": [
+              {
+                "type": "If",
+                "cond": {
+                  "type": "Compare",
+                  "op": ">=",
+                  "lhs": {
+                    "type": "Var",
+                    "name": "i"
+                  },
+                  "rhs": {
+                    "type": "Var",
+                    "name": "n"
+                  }
+                },
+                "then": [
+                  {
+                    "type": "Break"
+                  }
+                ],
+                "else": []
+              },
+              {
+                "type": "Local",
+                "name": "acc",
+                "expr": {
+                  "type": "Binary",
+                  "op": "+",
+                  "lhs": {
+                    "type": "Var",
+                    "name": "acc"
+                  },
+                  "rhs": {
+                    "type": "Var",
+                    "name": "i"
+                  }
+                }
+              },
+              {
+                "type": "Local",
+                "name": "i",
+                "expr": {
+                  "type": "Binary",
+                  "op": "+",
+                  "lhs": {
+                    "type": "Var",
+                    "name": "i"
+                  },
+                  "rhs": {
+                    "type": "Int",
+                    "value": 1
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "Return",
+            "expr": {
+              "type": "Var",
+              "name": "acc"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

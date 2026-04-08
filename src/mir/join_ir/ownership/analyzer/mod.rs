@@ -295,7 +295,7 @@ mod tests {
     #[test]
     fn test_program_json_v0_break_fixture_relay_and_capture() {
         let program_json: serde_json::Value = serde_json::from_str(include_str!(
-            "../../../../../docs/private/roadmap2/phases/phase-34-joinir-frontend/fixtures/loop_frontend_break.program.json"
+            "../../../../../tests/fixtures/joinir_frontend/loop_frontend_break.program.json"
         ))
         .expect("fixture json");
 

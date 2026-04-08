@@ -1,0 +1,52 @@
+{
+  "version": 0,
+  "kind": "Program",
+  "body": [],
+  "defs": [
+    {
+      "name": "_read_value_from_pair",
+      "params": ["v", "at"],
+      "box": "JsonShapeToMap",
+      "body": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {
+            "type": "If",
+            "cond": {
+              "type": "Var",
+              "name": "at"
+            },
+            "then": [
+              {
+                "type": "Return",
+                "expr": {
+                  "type": "Method",
+                  "receiver": {
+                    "type": "Var",
+                    "name": "v"
+                  },
+                  "method": "substring",
+                  "args": [
+                    { "type": "Int", "value": 0 },
+                    { "type": "Var", "name": "at" }
+                  ]
+                }
+              }
+            ],
+            "else": [
+              {
+                "type": "Return",
+                "expr": {
+                  "type": "Var",
+                  "name": "v"
+                }
+              }
+            ]
+          }
+        ],
+        "defs": []
+      }
+    }
+  ]
+}

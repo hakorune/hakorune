@@ -1,0 +1,88 @@
+{
+  "version": 0,
+  "kind": "Program",
+  "defs": [
+    {
+      "type": "FunctionDef",
+      "name": "simple",
+      "params": ["n"],
+      "body": {
+        "type": "Block",
+        "body": [
+          {
+            "type": "Local",
+            "name": "i",
+            "expr": {
+              "type": "Int",
+              "value": 0
+            }
+          },
+          {
+            "type": "Local",
+            "name": "acc",
+            "expr": {
+              "type": "Int",
+              "value": 0
+            }
+          },
+          {
+            "type": "Loop",
+            "cond": {
+              "type": "Compare",
+              "op": "<",
+              "lhs": {
+                "type": "Var",
+                "name": "i"
+              },
+              "rhs": {
+                "type": "Var",
+                "name": "n"
+              }
+            },
+            "body": [
+              {
+                "type": "Local",
+                "name": "acc",
+                "expr": {
+                  "type": "Binary",
+                  "op": "+",
+                  "lhs": {
+                    "type": "Var",
+                    "name": "acc"
+                  },
+                  "rhs": {
+                    "type": "Int",
+                    "value": 1
+                  }
+                }
+              },
+              {
+                "type": "Local",
+                "name": "i",
+                "expr": {
+                  "type": "Binary",
+                  "op": "+",
+                  "lhs": {
+                    "type": "Var",
+                    "name": "i"
+                  },
+                  "rhs": {
+                    "type": "Int",
+                    "value": 1
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "Return",
+            "expr": {
+              "type": "Var",
+              "name": "acc"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

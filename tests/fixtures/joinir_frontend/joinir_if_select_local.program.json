@@ -1,0 +1,44 @@
+{
+  "version": 0,
+  "kind": "Program",
+  "body": [],
+  "defs": [
+    {
+      "name": "local",
+      "params": ["cond"],
+      "box": "IfSelectTest",
+      "body": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {
+            "type": "If",
+            "cond": {
+              "type": "Var",
+              "name": "cond"
+            },
+            "then": [
+              {
+                "type": "Return",
+                "expr": {
+                  "type": "Int",
+                  "value": 10
+                }
+              }
+            ],
+            "else": [
+              {
+                "type": "Return",
+                "expr": {
+                  "type": "Int",
+                  "value": 20
+                }
+              }
+            ]
+          }
+        ],
+        "defs": []
+      }
+    }
+  ]
+}
