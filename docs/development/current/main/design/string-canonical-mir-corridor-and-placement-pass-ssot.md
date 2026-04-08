@@ -223,6 +223,9 @@ Interpretation:
 - inventory where current string canonical ops or their current surrogates are created
 - inventory where current lowering still bakes helper/route identity into the compiler path
 - identify the narrowest carrier for string outcome/effect facts with no runtime behavior change
+- landed:
+  - `src/mir/string_corridor.rs` now refreshes per-function string corridor inventory from current MIR instructions
+  - current carrier reading stays on existing MIR shapes: `MethodCall`, `GlobalLoweredFunction`, `RuntimeExport`, `CanonicalIntrinsic`
 
 Acceptance:
 
@@ -233,6 +236,10 @@ Acceptance:
 - add a canonical MIR-side fact carrier for string outcome/effect reading
 - keep current runtime behavior unchanged
 - dumps/inspection must show the facts
+- landed:
+  - `FunctionMetadata.string_corridor_facts` is the no-op carrier
+  - `MirCompiler` refreshes the facts after the current pipeline finishes
+  - `MirPrinter::verbose()` shows the facts without adding a second MIR dialect
 
 Acceptance:
 

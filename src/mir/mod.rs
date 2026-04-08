@@ -50,6 +50,7 @@ pub mod query; // Phase 26-G: MIR read/write/CFGビュー (MirQuery)
 pub mod region; // Phase 25.1l: Region/GC観測レイヤ（LoopForm v2 × RefKind）
 pub mod slot_registry; // Phase 9.79b.1: method slot resolution (IDs)
 mod spanned_instruction;
+pub mod string_corridor; // string canonical corridor facts + refresh helper
 pub mod type_propagation; // Phase 279 P0: SSOT type propagation pipeline
 pub mod value_id;
 pub mod value_kind; // Phase 26-A: ValueId型安全化
@@ -84,6 +85,11 @@ pub use printer::MirPrinter;
 pub use query::{MirQuery, MirQueryBox};
 pub use slot_registry::{BoxTypeId, MethodSlot};
 pub use spanned_instruction::{SpannedInstRef, SpannedInstruction};
+pub use string_corridor::{
+    refresh_function_string_corridor_facts, refresh_module_string_corridor_facts,
+    StringCorridorCarrier, StringCorridorFact, StringCorridorOp, StringCorridorRole,
+    StringOutcomeFact, StringPlacementFact,
+};
 pub use types::{
     BarrierOp, BinaryOp, CompareOp, ConstValue, MirType, TypeOpKind, UnaryOp, WeakRefOp,
 };
@@ -194,6 +200,7 @@ impl MirCompiler {
         // Phase 29y.1: RC insertion pass (skeleton - no-op for now)
         // Runs after optimization and verification, before backend codegen
         let _rc_stats = insert_rc_instructions(&mut module);
+        refresh_module_string_corridor_facts(&mut module);
 
         Ok(MirCompileResult {
             module,
@@ -389,6 +396,35 @@ mod tests {
             dump.contains(".push("),
             "Expected BoxCall to .push(...). Got:\n{}",
             dump
+        );
+    }
+
+    #[test]
+    fn test_compile_attaches_string_corridor_fact_for_string_length() {
+        let ast = ASTNode::MethodCall {
+            object: Box::new(ASTNode::Literal {
+                value: LiteralValue::String("hello".to_string()),
+                span: crate::ast::Span::unknown(),
+            }),
+            method: "length".to_string(),
+            arguments: vec![],
+            span: crate::ast::Span::unknown(),
+        };
+
+        let mut compiler = MirCompiler::new();
+        let result = compiler.compile(ast).expect("compile should succeed");
+
+        let len_fact_count = result
+            .module
+            .functions
+            .values()
+            .flat_map(|function| function.metadata.string_corridor_facts.values())
+            .filter(|fact| fact.op == StringCorridorOp::StrLen)
+            .count();
+
+        assert!(
+            len_fact_count >= 1,
+            "expected at least one str.len fact in compiled MIR"
         );
     }
 

@@ -4,7 +4,10 @@
  * Functions contain basic blocks and SSA values, modules contain functions
  */
 
-use super::{BasicBlock, BasicBlockId, EffectMask, MirInstruction, MirType, ValueId};
+use super::{
+    string_corridor::StringCorridorFact, BasicBlock, BasicBlockId, EffectMask, MirInstruction,
+    MirType, ValueId,
+};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fmt;
 
@@ -79,6 +82,11 @@ pub struct FunctionMetadata {
 
     /// Declaration-local Rune attrs carried from AST/direct MIR routes.
     pub runes: Vec<crate::ast::RuneAttr>,
+
+    /// No-op string corridor facts attached to current MIR values.
+    /// These facts inventory current carriers (`str.slice`, `str.len`, `freeze.str`)
+    /// without introducing a second MIR dialect or changing runtime behavior.
+    pub string_corridor_facts: std::collections::BTreeMap<ValueId, StringCorridorFact>,
 }
 
 impl MirFunction {

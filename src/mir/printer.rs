@@ -256,6 +256,12 @@ impl MirPrinter {
                 )
                 .unwrap();
             }
+            if !function.metadata.string_corridor_facts.is_empty() {
+                writeln!(output, "  ;   String Corridor Facts:").unwrap();
+                for (value, fact) in &function.metadata.string_corridor_facts {
+                    writeln!(output, "  ;     %{}: {}", value.0, fact.summary()).unwrap();
+                }
+            }
             writeln!(output).unwrap();
         }
 
@@ -366,6 +372,7 @@ mod tests {
     use super::*;
     use crate::mir::{
         BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType,
+        StringCorridorCarrier, StringCorridorFact, ValueId,
     };
 
     #[test]
@@ -405,5 +412,26 @@ mod tests {
         let output = printer.print_module(&module);
 
         assert!(output.contains("Module Statistics"));
+    }
+
+    #[test]
+    fn test_verbose_printing_shows_string_corridor_facts() {
+        let signature = FunctionSignature {
+            name: "test_func".to_string(),
+            params: vec![MirType::Integer],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        function.metadata.string_corridor_facts.insert(
+            ValueId::new(1),
+            StringCorridorFact::str_len(StringCorridorCarrier::CanonicalIntrinsic),
+        );
+        let printer = MirPrinter::verbose();
+
+        let output = printer.print_function(&function);
+
+        assert!(output.contains("String Corridor Facts"));
+        assert!(output.contains("%1: str.len"));
     }
 }

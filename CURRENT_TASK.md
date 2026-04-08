@@ -138,9 +138,9 @@ Scope: repo root から current lane / current front / restart read order に最
     - do not widen current `@rune` surface for boundary/cache/provider mechanics
   - task order is fixed:
     1. docs-first: treat `string-canonical-mir-corridor-and-placement-pass-ssot.md` as the active design owner for this wave
-    2. first implementation slice is MIR-side inventory for `str.slice` / `str.len` / `freeze.str` facts; no runtime behavior change
-    3. second slice is a canonical MIR fact carrier for string outcome/effect reading; dumps must expose the facts
-    4. third slice is a placement/effect pass scaffold that is trace-only or no-op first
+    2. landed: MIR-side inventory for `str.slice` / `str.len` / `freeze.str` now lives in `src/mir/string_corridor.rs`; refresh is behavior-preserving
+    3. landed: canonical MIR fact carrier is `FunctionMetadata.string_corridor_facts`; verbose dumps expose the facts
+    4. next slice is a placement/effect pass scaffold that is trace-only or no-op first
     5. fourth slice is the first real borrowed-corridor sinking pilot; prefer the narrowest internal `str.slice -> str.len` style corridor
     6. fifth slice is AOT-internal direct kernel entry selection; ABI/FFI keeps the facade
     7. only after the upstream corridor slices land and move exact/asm, reopen new `substring_hii` runtime leaf cuts
@@ -160,6 +160,7 @@ Scope: repo root から current lane / current front / restart read order に最
     20. do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear path in isolation; the call boundary/code layout regressed all split fronts badly
 - first files to reopen for the next slice:
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+  - `src/mir/string_corridor.rs`
   - `crates/hakorune_mir_core/src/effect.rs`
   - `crates/hakorune_mir_defs/src/call_unified.rs`
   - `src/mir/**`

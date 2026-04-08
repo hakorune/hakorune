@@ -145,9 +145,9 @@
   8. the earlier `drop_epoch()` global mirror rejection was invalidated by stale release artifacts; the hypothesis is now landed, and future perf reads must rebuild release artifacts first
   9. fixed task order:
      - step 1: docs-first; treat `string-canonical-mir-corridor-and-placement-pass-ssot.md` as the active design owner
-     - step 2: inventory canonical string corridor sites and current lowering carriers for `str.slice` / `str.len` / `freeze.str`
-     - step 3: add a canonical MIR-side fact carrier for string outcome/effect reading with no runtime behavior change
-     - step 4: add a placement/effect pass scaffold that is no-op or trace-only first
+     - step 2: landed; inventory canonical string corridor sites and current lowering carriers for `str.slice` / `str.len` / `freeze.str` via `src/mir/string_corridor.rs`
+     - step 3: landed; canonical MIR-side fact carrier is `FunctionMetadata.string_corridor_facts`, and verbose dumps expose it with no runtime behavior change
+     - step 4: next; add a placement/effect pass scaffold that is no-op or trace-only first
      - step 5: land the first borrowed-corridor sinking pilot before reopening new runtime leaf cuts
      - step 6: after corridor facts stabilize, add AOT-internal direct kernel entry selection; ABI/FFI keeps the facade
      - step 7: only then reopen new `substring_hii` runtime leaf cuts, and only with exact/asm proof
@@ -165,10 +165,11 @@
   2. `tools/checks/dev_gate.sh quick`
   3. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
   4. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-  5. after any `nyash_kernel` / `hakorune` runtime source edit, rerun `bash tools/perf/build_perf_release.sh` before exact micro / asm probes
-  6. `tools/perf/run_kilo_string_split_pack.sh 1 3`
-  7. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_views_only 'nyash.string.substring_hii' 200`
-  8. read the rejected ledger before retrying any substring-local cut
+  5. `src/mir/string_corridor.rs`
+  6. after any `nyash_kernel` / `hakorune` runtime source edit, rerun `bash tools/perf/build_perf_release.sh` before exact micro / asm probes
+  7. `tools/perf/run_kilo_string_split_pack.sh 1 3`
+  8. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_views_only 'nyash.string.substring_hii' 200`
+  9. read the rejected ledger before retrying any substring-local cut
 - documentation rule for failed perf cuts:
   1. keep a short current summary in this README
   2. keep exact rejected-cut evidence in one rolling investigation doc per front/family/date
