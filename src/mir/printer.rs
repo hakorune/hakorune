@@ -262,6 +262,14 @@ impl MirPrinter {
                     writeln!(output, "  ;     %{}: {}", value.0, fact.summary()).unwrap();
                 }
             }
+            if !function.metadata.string_corridor_candidates.is_empty() {
+                writeln!(output, "  ;   String Corridor Candidates:").unwrap();
+                for (value, candidates) in &function.metadata.string_corridor_candidates {
+                    for candidate in candidates {
+                        writeln!(output, "  ;     %{}: {}", value.0, candidate.summary()).unwrap();
+                    }
+                }
+            }
             writeln!(output).unwrap();
         }
 
@@ -372,6 +380,7 @@ mod tests {
     use super::*;
     use crate::mir::{
         BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType,
+        StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateState,
         StringCorridorCarrier, StringCorridorFact, ValueId,
     };
 
@@ -427,11 +436,21 @@ mod tests {
             ValueId::new(1),
             StringCorridorFact::str_len(StringCorridorCarrier::CanonicalIntrinsic),
         );
+        function.metadata.string_corridor_candidates.insert(
+            ValueId::new(1),
+            vec![StringCorridorCandidate {
+                kind: StringCorridorCandidateKind::DirectKernelEntry,
+                state: StringCorridorCandidateState::Candidate,
+                reason: "scalar string consumer can bypass ABI facade on the AOT-internal path",
+            }],
+        );
         let printer = MirPrinter::verbose();
 
         let output = printer.print_function(&function);
 
         assert!(output.contains("String Corridor Facts"));
+        assert!(output.contains("String Corridor Candidates"));
         assert!(output.contains("%1: str.len"));
+        assert!(output.contains("direct_kernel_entry"));
     }
 }

@@ -51,6 +51,7 @@ pub mod region; // Phase 25.1l: Region/GC観測レイヤ（LoopForm v2 × RefKin
 pub mod slot_registry; // Phase 9.79b.1: method slot resolution (IDs)
 mod spanned_instruction;
 pub mod string_corridor; // string canonical corridor facts + refresh helper
+pub mod string_corridor_placement; // placement/effect scaffold over canonical string facts
 pub mod type_propagation; // Phase 279 P0: SSOT type propagation pipeline
 pub mod value_id;
 pub mod value_kind; // Phase 26-A: ValueId型安全化
@@ -89,6 +90,10 @@ pub use string_corridor::{
     refresh_function_string_corridor_facts, refresh_module_string_corridor_facts,
     StringCorridorCarrier, StringCorridorFact, StringCorridorOp, StringCorridorRole,
     StringOutcomeFact, StringPlacementFact,
+};
+pub use string_corridor_placement::{
+    refresh_function_string_corridor_candidates, refresh_module_string_corridor_candidates,
+    StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateState,
 };
 pub use types::{
     BarrierOp, BinaryOp, CompareOp, ConstValue, MirType, TypeOpKind, UnaryOp, WeakRefOp,
@@ -201,6 +206,7 @@ impl MirCompiler {
         // Runs after optimization and verification, before backend codegen
         let _rc_stats = insert_rc_instructions(&mut module);
         refresh_module_string_corridor_facts(&mut module);
+        refresh_module_string_corridor_candidates(&mut module);
 
         Ok(MirCompileResult {
             module,
@@ -425,6 +431,36 @@ mod tests {
         assert!(
             len_fact_count >= 1,
             "expected at least one str.len fact in compiled MIR"
+        );
+    }
+
+    #[test]
+    fn test_compile_attaches_string_corridor_candidate_for_string_length() {
+        let ast = ASTNode::MethodCall {
+            object: Box::new(ASTNode::Literal {
+                value: LiteralValue::String("hello".to_string()),
+                span: crate::ast::Span::unknown(),
+            }),
+            method: "length".to_string(),
+            arguments: vec![],
+            span: crate::ast::Span::unknown(),
+        };
+
+        let mut compiler = MirCompiler::new();
+        let result = compiler.compile(ast).expect("compile should succeed");
+
+        let direct_kernel_candidate_count = result
+            .module
+            .functions
+            .values()
+            .flat_map(|function| function.metadata.string_corridor_candidates.values())
+            .flatten()
+            .filter(|candidate| candidate.kind == StringCorridorCandidateKind::DirectKernelEntry)
+            .count();
+
+        assert!(
+            direct_kernel_candidate_count >= 1,
+            "expected at least one direct-kernel-entry candidate in compiled MIR"
         );
     }
 

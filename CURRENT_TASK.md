@@ -140,8 +140,8 @@ Scope: repo root から current lane / current front / restart read order に最
     1. docs-first: treat `string-canonical-mir-corridor-and-placement-pass-ssot.md` as the active design owner for this wave
     2. landed: MIR-side inventory for `str.slice` / `str.len` / `freeze.str` now lives in `src/mir/string_corridor.rs`; refresh is behavior-preserving
     3. landed: canonical MIR fact carrier is `FunctionMetadata.string_corridor_facts`; verbose dumps expose the facts
-    4. next slice is a placement/effect pass scaffold that is trace-only or no-op first
-    5. fourth slice is the first real borrowed-corridor sinking pilot; prefer the narrowest internal `str.slice -> str.len` style corridor
+    4. landed: placement/effect scaffold is now `src/mir/string_corridor_placement.rs`; it reads `FunctionMetadata.string_corridor_facts`, emits no-op candidate decisions into `FunctionMetadata.string_corridor_candidates`, and leaves runtime lowering unchanged
+    5. next slice is the first real borrowed-corridor sinking pilot; prefer the narrowest internal `str.slice -> str.len` style corridor
     6. fifth slice is AOT-internal direct kernel entry selection; ABI/FFI keeps the facade
     7. only after the upstream corridor slices land and move exact/asm, reopen new `substring_hii` runtime leaf cuts
     8. keep the cross-lane scope-control table in `string-canonical-mir-corridor-and-placement-pass-ssot.md` truthful; do not let the `string` pilot silently redefine `array/map` or ABI structure
@@ -161,6 +161,7 @@ Scope: repo root から current lane / current front / restart read order に最
 - first files to reopen for the next slice:
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
   - `src/mir/string_corridor.rs`
+  - `src/mir/string_corridor_placement.rs`
   - `crates/hakorune_mir_core/src/effect.rs`
   - `crates/hakorune_mir_defs/src/call_unified.rs`
   - `src/mir/**`

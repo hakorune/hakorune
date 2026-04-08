@@ -147,8 +147,8 @@
      - step 1: docs-first; treat `string-canonical-mir-corridor-and-placement-pass-ssot.md` as the active design owner
      - step 2: landed; inventory canonical string corridor sites and current lowering carriers for `str.slice` / `str.len` / `freeze.str` via `src/mir/string_corridor.rs`
      - step 3: landed; canonical MIR-side fact carrier is `FunctionMetadata.string_corridor_facts`, and verbose dumps expose it with no runtime behavior change
-     - step 4: next; add a placement/effect pass scaffold that is no-op or trace-only first
-     - step 5: land the first borrowed-corridor sinking pilot before reopening new runtime leaf cuts
+     - step 4: landed; `src/mir/string_corridor_placement.rs` now reads `FunctionMetadata.string_corridor_facts`, emits no-op candidate decisions into `FunctionMetadata.string_corridor_candidates`, and exposes them in verbose MIR dumps
+     - step 5: next; land the first borrowed-corridor sinking pilot before reopening new runtime leaf cuts
      - step 6: after corridor facts stabilize, add AOT-internal direct kernel entry selection; ABI/FFI keeps the facade
      - step 7: only then reopen new `substring_hii` runtime leaf cuts, and only with exact/asm proof
      - step 8: do not retry the same `len_h`-specific 4-box slice as-is; it did not clear exact or asm gates

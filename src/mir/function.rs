@@ -5,8 +5,8 @@
  */
 
 use super::{
-    string_corridor::StringCorridorFact, BasicBlock, BasicBlockId, EffectMask, MirInstruction,
-    MirType, ValueId,
+    string_corridor::StringCorridorFact, string_corridor_placement::StringCorridorCandidate,
+    BasicBlock, BasicBlockId, EffectMask, MirInstruction, MirType, ValueId,
 };
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fmt;
@@ -87,6 +87,12 @@ pub struct FunctionMetadata {
     /// These facts inventory current carriers (`str.slice`, `str.len`, `freeze.str`)
     /// without introducing a second MIR dialect or changing runtime behavior.
     pub string_corridor_facts: std::collections::BTreeMap<ValueId, StringCorridorFact>,
+
+    /// No-op placement/effect candidate decisions derived from string corridor facts.
+    /// These candidates are inspection-only scaffolding for the future placement/effect
+    /// pass and must not change runtime behavior in this wave.
+    pub string_corridor_candidates:
+        std::collections::BTreeMap<ValueId, Vec<StringCorridorCandidate>>,
 }
 
 impl MirFunction {

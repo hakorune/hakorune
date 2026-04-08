@@ -250,6 +250,15 @@ Acceptance:
 
 - add a no-op or trace-only placement/effect pass
 - it must read the new facts and report candidate decisions without changing runtime behavior yet
+- landed:
+  - `src/mir/string_corridor_placement.rs` now refreshes per-function candidate decisions from `FunctionMetadata.string_corridor_facts`
+  - candidate surface is inspection-only and currently covers:
+    - borrowed corridor fusion
+    - publication sinking
+    - materialization sinking
+    - direct kernel entry
+  - `MirCompiler` refreshes the candidates after fact refresh and before returning the compiled module
+  - `MirPrinter::verbose()` shows `FunctionMetadata.string_corridor_candidates`
 
 Acceptance:
 
