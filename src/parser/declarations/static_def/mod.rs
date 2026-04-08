@@ -1,7 +1,7 @@
 //! Static Box Definition (staged split)
 #![allow(dead_code)]
 
-use crate::ast::{ASTNode, Span};
+use crate::ast::{ASTNode, FieldDecl, Span};
 use crate::parser::common::ParserUtils;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
@@ -191,9 +191,20 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
             .insert(name.clone(), std::collections::HashSet::new());
     }
 
+    let field_decls = fields
+        .iter()
+        .cloned()
+        .map(|name| FieldDecl {
+            is_weak: weak_fields.contains(&name),
+            name,
+            declared_type_name: None,
+        })
+        .collect();
+
     Ok(ASTNode::BoxDeclaration {
         name,
         fields,
+        field_decls,
         public_fields: vec![],
         private_fields: vec![],
         methods,

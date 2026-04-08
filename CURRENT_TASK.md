@@ -31,6 +31,10 @@ Scope: repo root から current lane / current front / restart read order に最
 - landed inventory scaffold:
   - `src/mir/storage_class.rs`
   - `StorageClass` facts are now refreshed after corridor facts and surfaced in verbose MIR / JSON dumps
+- landed typed field scaffold:
+  - `.hako` parser / AST / Stage1 Program JSON / MIR metadata / MIR JSON now preserve typed `field_decls`
+  - canonical MIR now has first-class `FieldGet` / `FieldSet`
+  - MIR interpreter and LLVM/PyVM compatibility paths accept the canonical field ops without changing current field semantics
 - vm fallback separation anchor:
   - `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
 - active lane/front:
@@ -164,13 +168,10 @@ Scope: repo root から current lane / current front / restart read order に最
     8. after the pilot is validated, add AOT-internal direct kernel entry selection; ABI/FFI keeps the facade
     9. only after the upstream corridor slices land and move exact/asm, reopen new `substring_hii` runtime leaf cuts
     10. after the current string wave stabilizes, use `primitive-family-and-user-box-fast-path-ssot.md` as the follow-on design owner
-    11. first follow-on pack is docs/inventory only:
-       - primitive family inventory
-       - user box field inventory
-       - canonical MIR `field.get` / `field.set` shape
-       - storage class fact table (`InlineI64` / `InlineBool` / `BorrowedText` / `BoxRef` / `Opaque`)
-    12. only after those facts land, pilot typed primitive access
-    13. user box flattening is explicitly later; do not jump there before typed field access wins
+    11. landed: the first follow-on pack is no longer docs-only; typed `field_decls` now survive `.hako parser -> AST -> Stage1 Program JSON -> MIR metadata -> MIR JSON`, and canonical MIR now has `field.get` / `field.set`
+    12. next: wire storage-class facts to declared field types without changing `.hako` surface or generic field semantics
+    13. next: pilot typed primitive access first, then typed user-box field access on the internal path
+    14. user box flattening is explicitly later; do not jump there before typed field access wins
     14. keep the cross-lane scope-control table in `string-canonical-mir-corridor-and-placement-pass-ssot.md` truthful; do not let the `string` pilot silently redefine `array/map` or ABI structure
     15. do not retry `len_lane` separation by itself; both separation-only and combined snapshot retries failed keeper gates
     16. the earlier `drop_epoch()` global mirror rejection was invalidated by stale release artifacts; the hypothesis is now landed, and future perf reads must rebuild release artifacts first

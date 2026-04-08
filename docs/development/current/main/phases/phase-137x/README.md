@@ -42,6 +42,10 @@
 - landed inventory scaffold:
   - `src/mir/storage_class.rs`
   - storage-class facts are refreshed after corridor facts and exposed in verbose MIR / JSON dumps
+- landed typed field scaffold:
+  - `.hako` parser / AST / Stage1 Program JSON / MIR metadata / MIR JSON now preserve typed `field_decls`
+  - canonical MIR now has first-class `FieldGet` / `FieldSet`
+  - MIR interpreter and LLVM/PyVM compatibility paths now accept the canonical field ops while keeping generic field semantics
 - pre-optimization cleanup anchor is now:
   - `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
 - perf release gate now builds `ny-llvmc` as well; do not run exact/asm probes after editing compiler sources without refreshing release artifacts first
@@ -180,10 +184,11 @@
      - step 16: do not retry the same `substring_hii` route/provider snapshot with eager `DROP_EPOCH` capture; it widened the caller prologue and regressed exact/whole together
      - step 17: do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear in isolation; it regressed every split front and whole strict
      - step 18: after the current string wave stabilizes, switch to `primitive-family-and-user-box-fast-path-ssot.md` for the next semantic fast-path wave
-     - step 19: first follow-on slice is docs/inventory only:
-       primitive family inventory, user box field inventory, canonical MIR `field.get` / `field.set`, storage class fact table
-     - step 20: typed primitive access comes before user box flattening
-     - step 21: user box flattening is later and optional; do not make it the first move
+     - step 19: landed; the first follow-on slice is no longer docs-only:
+       typed `field_decls` now survive `.hako parser -> AST -> Stage1 Program JSON -> MIR metadata -> MIR JSON`, and canonical MIR now has `field.get` / `field.set`
+     - step 20: next; wire storage-class facts to declared field types without changing `.hako` surface or generic field semantics
+     - step 21: next; typed primitive access comes before typed user-box field access
+     - step 22: user box flattening is later and optional; do not make it the first move
   11. next local cut must show an exact-visible or asm-visible change on `substring_hii`, but only after the upstream corridor slices are in place
 - safe restart order:
   1. `git status -sb`

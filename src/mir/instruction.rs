@@ -58,6 +58,24 @@ pub enum MirInstruction {
     /// `store %value -> %ptr`
     Store { value: ValueId, ptr: ValueId },
 
+    /// Canonical object field read.
+    /// `%dst = field.get %base .field`
+    FieldGet {
+        dst: ValueId,
+        base: ValueId,
+        field: String,
+        declared_type: Option<MirType>,
+    },
+
+    /// Canonical object field write.
+    /// `field.set %base .field = %value`
+    FieldSet {
+        base: ValueId,
+        field: String,
+        value: ValueId,
+        declared_type: Option<MirType>,
+    },
+
     // === Function Calls ===
     /// Call a function with type-safe target resolution
     /// `%dst = call %func(%args...)` (legacy)

@@ -1,6 +1,7 @@
 mod basic;
 mod calls;
 mod control_flow;
+mod fields;
 mod phi;
 mod weak;
 
@@ -83,6 +84,18 @@ fn emit_instruction(
             rhs,
             &func.metadata.value_types,
         )),
+        I::FieldGet {
+            dst,
+            base,
+            field,
+            declared_type,
+        } => Ok(fields::emit_field_get(dst, base, field, declared_type)),
+        I::FieldSet {
+            base,
+            field,
+            value,
+            declared_type,
+        } => Ok(fields::emit_field_set(base, field, value, declared_type)),
         I::Select {
             dst,
             cond,

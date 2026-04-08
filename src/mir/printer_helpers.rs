@@ -55,6 +55,38 @@ pub fn format_instruction(
             format!("store {} -> {}", value, ptr)
         }
 
+        MirInstruction::FieldGet {
+            dst,
+            base,
+            field,
+            declared_type,
+        } => {
+            let type_suffix = declared_type
+                .as_ref()
+                .map(|ty| format!(" : {}", format_type(ty)))
+                .unwrap_or_default();
+            format!(
+                "{} field.get {}.{}{}",
+                format_dst(dst, types),
+                base,
+                field,
+                type_suffix
+            )
+        }
+
+        MirInstruction::FieldSet {
+            base,
+            field,
+            value,
+            declared_type,
+        } => {
+            let type_suffix = declared_type
+                .as_ref()
+                .map(|ty| format!(" : {}", format_type(ty)))
+                .unwrap_or_default();
+            format!("field.set {}.{} = {}{}", base, field, value, type_suffix)
+        }
+
         MirInstruction::Call {
             dst,
             func,

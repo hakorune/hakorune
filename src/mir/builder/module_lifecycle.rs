@@ -134,6 +134,7 @@ impl super::MirBuilder {
                         methods,
                         is_static,
                         fields,
+                        field_decls,
                         constructors,
                         weak_fields,
                         ..
@@ -192,8 +193,15 @@ impl super::MirBuilder {
                         } else {
                             // Instance box: register type and lower instance methods/ctors as functions
                             // Phase 285LLVM-1.1: Register with field information for LLVM harness
-                            self.comp_ctx
-                                .register_user_box_with_fields(name.clone(), fields.clone());
+                            if field_decls.is_empty() {
+                                self.comp_ctx
+                                    .register_user_box_with_fields(name.clone(), fields.clone());
+                            } else {
+                                self.comp_ctx.register_user_box_with_field_decls(
+                                    name.clone(),
+                                    field_decls.clone(),
+                                );
+                            }
                             self.build_box_declaration(
                                 name.clone(),
                                 methods.clone(),
@@ -460,6 +468,25 @@ impl super::MirBuilder {
 
         // Phase 285LLVM-1.1: Copy user box declarations to module metadata for LLVM harness
         module.metadata.user_box_decls = self.comp_ctx.user_defined_boxes.clone();
+        module.metadata.user_box_field_decls = self
+            .comp_ctx
+            .user_box_field_decls
+            .clone()
+            .into_iter()
+            .map(|(name, decls)| {
+                (
+                    name,
+                    decls
+                        .into_iter()
+                        .map(|decl| crate::mir::UserBoxFieldDecl {
+                            name: decl.name,
+                            declared_type_name: decl.declared_type_name,
+                            is_weak: decl.is_weak,
+                        })
+                        .collect(),
+                )
+            })
+            .collect();
 
         Ok(module)
     }

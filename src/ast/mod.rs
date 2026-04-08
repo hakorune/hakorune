@@ -35,6 +35,7 @@ pub enum StructureNode {
     BoxDeclaration {
         name: String,
         fields: Vec<String>,
+        field_decls: Vec<FieldDecl>,
         methods: Vec<ASTNode>,
         constructors: Vec<ASTNode>,
         init_fields: Vec<String>,
@@ -188,6 +189,14 @@ pub struct CatchClause {
     pub variable_name: Option<String>,  // 例外を受け取る変数名
     pub body: Vec<ASTNode>,             // catch本体
     pub span: Span,                     // ソースコード位置
+}
+
+/// Typed field declaration carried from `.hako` through MIR metadata.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FieldDecl {
+    pub name: String,
+    pub declared_type_name: Option<String>,
+    pub is_weak: bool,
 }
 
 /// リテラル値の型 (Clone可能)
@@ -480,6 +489,7 @@ pub enum ASTNode {
     BoxDeclaration {
         name: String,
         fields: Vec<String>,
+        field_decls: Vec<FieldDecl>,
         /// 公開フィールド（public { ... }）
         public_fields: Vec<String>,
         /// 非公開フィールド（private { ... }）

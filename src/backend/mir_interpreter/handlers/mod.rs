@@ -61,6 +61,46 @@ impl MirInterpreter {
             MirInstruction::Copy { dst, src } => self.handle_copy(*dst, *src)?,
             MirInstruction::Load { dst, ptr } => self.handle_load(*dst, *ptr)?,
             MirInstruction::Store { ptr, value } => self.handle_store(*ptr, *value)?,
+            MirInstruction::FieldGet {
+                dst, base, field, ..
+            } => {
+                let field_id = ValueId::new(u32::MAX - 2);
+                self.regs.insert(field_id, VMValue::String(field.clone()));
+                let handled = boxes_object_fields::try_handle_object_fields(
+                    self,
+                    Some(*dst),
+                    *base,
+                    "getField",
+                    &[field_id],
+                )?;
+                self.regs.remove(&field_id);
+                if !handled {
+                    return Err(self.err_invalid(format!(
+                        "MIR interp: field.get unsupported for {}.{}",
+                        base, field
+                    )));
+                }
+            }
+            MirInstruction::FieldSet {
+                base, field, value, ..
+            } => {
+                let field_id = ValueId::new(u32::MAX - 2);
+                self.regs.insert(field_id, VMValue::String(field.clone()));
+                let handled = boxes_object_fields::try_handle_object_fields(
+                    self,
+                    None,
+                    *base,
+                    "setField",
+                    &[field_id, *value],
+                )?;
+                self.regs.remove(&field_id);
+                if !handled {
+                    return Err(self.err_invalid(format!(
+                        "MIR interp: field.set unsupported for {}.{}",
+                        base, field
+                    )));
+                }
+            }
             MirInstruction::Call {
                 dst,
                 func,

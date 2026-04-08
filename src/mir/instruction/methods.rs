@@ -29,8 +29,8 @@ impl MirInstruction {
             | MirInstruction::KeepAlive { .. } => EffectMask::PURE,
 
             // Memory operations
-            MirInstruction::Load { .. } => EffectMask::READ,
-            MirInstruction::Store { .. } => EffectMask::WRITE,
+            MirInstruction::Load { .. } | MirInstruction::FieldGet { .. } => EffectMask::READ,
+            MirInstruction::Store { .. } | MirInstruction::FieldSet { .. } => EffectMask::WRITE,
 
             // Phase 287: Reference lifecycle
             MirInstruction::ReleaseStrong { .. } => EffectMask::WRITE,
@@ -87,6 +87,7 @@ impl MirInstruction {
             | MirInstruction::UnaryOp { dst, .. }
             | MirInstruction::Compare { dst, .. }
             | MirInstruction::Load { dst, .. }
+            | MirInstruction::FieldGet { dst, .. }
             | MirInstruction::Phi { dst, .. }
             | MirInstruction::NewBox { dst, .. }
             | MirInstruction::TypeOp { dst, .. }
@@ -101,6 +102,7 @@ impl MirInstruction {
             MirInstruction::Call { dst, .. } => *dst,
 
             MirInstruction::Store { .. }
+            | MirInstruction::FieldSet { .. }
             | MirInstruction::Branch { .. }
             | MirInstruction::Jump { .. }
             | MirInstruction::Return { .. }
@@ -191,6 +193,9 @@ impl MirInstruction {
                 ptr: rhs,
                 ..
             } => vec![*lhs, *rhs],
+
+            MirInstruction::FieldGet { base, .. } => vec![*base],
+            MirInstruction::FieldSet { base, value, .. } => vec![*base, *value],
 
             // Phase 287: Lifecycle management uses all values
             MirInstruction::KeepAlive { values } => values.clone(),

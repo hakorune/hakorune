@@ -60,15 +60,22 @@ pub(super) fn index_declarations(builder: &mut MirBuilder, node: &ASTNode) {
         ASTNode::BoxDeclaration {
             name,
             fields, // Phase 285LLVM-1.1: Extract fields
+            field_decls,
             methods,
             is_static,
             ..
         } => {
             if !*is_static {
                 // Phase 285LLVM-1.1: Register instance box with field information
-                builder
-                    .comp_ctx
-                    .register_user_box_with_fields(name.clone(), fields.clone());
+                if field_decls.is_empty() {
+                    builder
+                        .comp_ctx
+                        .register_user_box_with_fields(name.clone(), fields.clone());
+                } else {
+                    builder
+                        .comp_ctx
+                        .register_user_box_with_field_decls(name.clone(), field_decls.clone());
+                }
             } else {
                 // Static box: no fields
                 builder.comp_ctx.register_user_box(name.clone());

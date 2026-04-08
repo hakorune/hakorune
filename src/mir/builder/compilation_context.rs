@@ -23,6 +23,7 @@
  */
 
 use crate::ast::ASTNode;
+use crate::ast::FieldDecl;
 use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
 use crate::mir::{MirType, ValueId};
 use std::collections::{HashMap, HashSet};
@@ -49,6 +50,9 @@ pub(crate) struct CompilationContext {
     /// For static boxes: empty Vec (no fields)
     /// For instance boxes: Vec of field names
     pub user_defined_boxes: HashMap<String, Vec<String>>,
+
+    /// Typed field declarations keyed by user box name.
+    pub user_box_field_decls: HashMap<String, Vec<FieldDecl>>,
 
     /// Phase 201-A: Reserved ValueIds that must not be allocated
     /// These are PHI dst ValueIds created by LoopHeaderPhiBuilder.
@@ -113,6 +117,7 @@ impl CompilationContext {
             compilation_context: None,
             current_static_box: None,
             user_defined_boxes: HashMap::new(), // Phase 285LLVM-1.1: HashMap for fields
+            user_box_field_decls: HashMap::new(),
             reserved_value_ids: HashSet::new(),
             fn_body_ast: None,
             weak_fields_by_box: HashMap::new(),
@@ -145,12 +150,27 @@ impl CompilationContext {
 
     /// Register a user-defined box (backward compatibility - no fields)
     pub fn register_user_box(&mut self, name: String) {
-        self.user_defined_boxes.insert(name, Vec::new()); // Phase 285LLVM-1.1: Empty fields
+        self.user_defined_boxes.insert(name.clone(), Vec::new()); // Phase 285LLVM-1.1: Empty fields
+        self.user_box_field_decls.insert(name, Vec::new());
     }
 
     /// Phase 285LLVM-1.1: Register a user-defined box with field information
     pub fn register_user_box_with_fields(&mut self, name: String, fields: Vec<String>) {
-        self.user_defined_boxes.insert(name, fields);
+        self.user_defined_boxes.insert(name.clone(), fields);
+        self.user_box_field_decls.insert(name, Vec::new());
+    }
+
+    pub fn register_user_box_with_field_decls(&mut self, name: String, field_decls: Vec<FieldDecl>) {
+        let fields = field_decls.iter().map(|decl| decl.name.clone()).collect();
+        self.user_defined_boxes.insert(name.clone(), fields);
+        self.user_box_field_decls.insert(name, field_decls);
+    }
+
+    pub fn declared_field_type_name(&self, box_name: &str, field_name: &str) -> Option<&str> {
+        self.user_box_field_decls
+            .get(box_name)
+            .and_then(|decls| decls.iter().find(|decl| decl.name == field_name))
+            .and_then(|decl| decl.declared_type_name.as_deref())
     }
 
     /// Check if a ValueId is reserved

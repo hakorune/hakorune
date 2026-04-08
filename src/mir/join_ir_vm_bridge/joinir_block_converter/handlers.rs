@@ -156,19 +156,11 @@ pub(crate) fn handle_field_access(
     object: &ValueId,
     field: &str,
 ) -> Result<(), JoinIrVmBridgeError> {
-    // Phase 51: FieldAccess → Call(Method) getter pattern
-    let mir_inst = MirInstruction::Call {
-        dst: Some(*dst),
-        func: ValueId::INVALID,
-        callee: Some(Callee::Method {
-            box_name: "RuntimeDataBox".to_string(),
-            method: field.to_string(),
-            receiver: Some(*object),
-            certainty: crate::mir::definitions::call_unified::TypeCertainty::Union,
-            box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
-        }),
-        args: vec![],
-        effects: EffectMask::PURE,
+    let mir_inst = MirInstruction::FieldGet {
+        dst: *dst,
+        base: *object,
+        field: field.to_string(),
+        declared_type: None,
     };
     ctx.current_instructions.push(mir_inst);
     Ok(())

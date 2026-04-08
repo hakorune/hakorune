@@ -63,6 +63,8 @@ impl<'m> MirQuery for MirQueryBox<'m> {
                 vec![*lhs, *rhs]
             }
             TypeOp { value, .. } => vec![*value],
+            FieldGet { base, .. } => vec![*base],
+            FieldSet { base, value, .. } => vec![*base, *value],
             Load { ptr, .. } => vec![*ptr],
             Store { ptr, value } => vec![*ptr, *value],
             Call {
@@ -126,6 +128,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             | BinOp { dst, .. }
             | Compare { dst, .. }
             | TypeOp { dst, .. }
+            | FieldGet { dst, .. }
             | Load { dst, .. }
             | Call { dst: Some(dst), .. }
             | Phi { dst, .. }
@@ -139,6 +142,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             | Select { dst, .. } => vec![*dst], // Copy writes to dst, Select writes to dst
             // No writes
             Store { .. }
+            | FieldSet { .. }
             | Call { dst: None, .. }
             | Return { .. }
             | Branch { .. }

@@ -14,6 +14,7 @@ from instructions.ret import lower_return
 from instructions.copy import lower_copy
 from instructions.call import lower_call
 from instructions.boxcall import lower_boxcall
+from instructions.field_access import lower_field_get, lower_field_set
 from instructions.externcall import lower_externcall
 from instructions.typeop import lower_typeop
 from instructions.newbox import lower_newbox
@@ -31,6 +32,8 @@ SUPPORTED_OPS = {
     "binop",
     "jump",
     "copy",
+    "field_get",
+    "field_set",
     "branch",
     "ret",
     "phi",
@@ -94,6 +97,34 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
         dst = inst.get("dst")
         src = inst.get("src")
         lower_copy(builder, dst, src, vmap_ctx, ctx.resolver, builder.block, ctx.preds, ctx.block_end_values, ctx.bb_map, ctx.lower_ctx)
+
+    elif op == "field_get":
+        lower_field_get(
+            builder,
+            ctx.module,
+            inst.get("box"),
+            inst.get("field", ""),
+            inst.get("dst"),
+            vmap_ctx,
+            ctx.resolver,
+            ctx.preds,
+            ctx.block_end_values,
+            ctx.bb_map,
+        )
+
+    elif op == "field_set":
+        lower_field_set(
+            builder,
+            ctx.module,
+            inst.get("box"),
+            inst.get("field", ""),
+            inst.get("value"),
+            vmap_ctx,
+            ctx.resolver,
+            ctx.preds,
+            ctx.block_end_values,
+            ctx.bb_map,
+        )
 
     elif op == "branch":
         cond = inst.get("cond")

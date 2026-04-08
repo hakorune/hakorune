@@ -4,11 +4,11 @@
 //! Handles JoinIR FieldAccess instruction conversion.
 
 use crate::mir::join_ir_vm_bridge::JoinIrVmBridgeError;
-use crate::mir::{Callee, EffectMask, MirInstruction, ValueId};
+use crate::mir::{MirInstruction, ValueId};
 
 /// Handle JoinIR FieldAccess instruction
 ///
-/// Converts field access to canonical Call(Method) getter pattern (Phase 51).
+/// Converts field access to canonical FieldGet pattern.
 ///
 /// # Arguments
 ///
@@ -22,19 +22,11 @@ pub fn handle_field_access(
     object: &ValueId,
     field: &str,
 ) -> Result<(), JoinIrVmBridgeError> {
-    // Phase 51: FieldAccess → Call(Method) getter pattern
-    let mir_inst = MirInstruction::Call {
-        dst: Some(*dst),
-        func: ValueId::INVALID,
-        callee: Some(Callee::Method {
-            box_name: "RuntimeDataBox".to_string(),
-            method: field.to_string(),
-            receiver: Some(*object),
-            certainty: crate::mir::definitions::call_unified::TypeCertainty::Union,
-            box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
-        }),
-        args: vec![],
-        effects: EffectMask::PURE,
+    let mir_inst = MirInstruction::FieldGet {
+        dst: *dst,
+        base: *object,
+        field: field.to_string(),
+        declared_type: None,
     };
     instructions.push(mir_inst);
     Ok(())
@@ -55,27 +47,19 @@ mod tests {
         assert!(result.is_ok());
         assert_eq!(instructions.len(), 1);
 
-        if let MirInstruction::Call {
-            dst: Some(inst_dst),
-            func,
-            callee:
-                Some(Callee::Method {
-                    method,
-                    receiver: Some(box_val),
-                    ..
-                }),
-            args,
-            effects,
+        if let MirInstruction::FieldGet {
+            dst: inst_dst,
+            base: box_val,
+            field: method,
+            declared_type,
         } = &instructions[0]
         {
             assert_eq!(*inst_dst, ValueId(100));
             assert_eq!(*box_val, ValueId(200));
-            assert_eq!(*func, ValueId::INVALID);
             assert_eq!(method, "my_field");
-            assert!(args.is_empty());
-            assert_eq!(*effects, EffectMask::PURE);
+            assert!(declared_type.is_none());
         } else {
-            panic!("Expected Call(Method) instruction");
+            panic!("Expected FieldGet instruction");
         }
     }
 }

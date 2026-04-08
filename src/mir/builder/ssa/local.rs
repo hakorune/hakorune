@@ -53,6 +53,8 @@ fn def_inst_kind(inst: &MirInstruction) -> &'static str {
         MirInstruction::UnaryOp { .. } => "UnaryOp",
         MirInstruction::Compare { .. } => "Compare",
         MirInstruction::Copy { .. } => "Copy",
+        MirInstruction::FieldGet { .. } => "FieldGet",
+        MirInstruction::FieldSet { .. } => "FieldSet",
         MirInstruction::Load { .. } => "Load",
         MirInstruction::Store { .. } => "Store",
         MirInstruction::Call { .. } => "Call",

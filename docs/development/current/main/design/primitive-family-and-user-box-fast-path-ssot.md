@@ -42,6 +42,21 @@ Current user-box / primitive cost reading:
 - user box field access still tends to look like object lookup + downcast + value extraction
 - `.hako` には field type declarations がすでにあるが、compiler がその declared type を十分に使っていない
 
+## Current Landing Status
+
+- landed:
+  - typed `field_decls` now survive `.hako` parser -> AST -> Stage1 Program JSON -> MIR metadata -> MIR JSON
+  - canonical MIR now has first-class `FieldGet` / `FieldSet`
+  - MIR interpreter and LLVM/PyVM compatibility paths accept those field ops while keeping current generic field semantics
+- next:
+  - wire `StorageClass` inference to declared field types
+  - pilot typed primitive fast path
+  - then pilot typed user-box field access on the internal path
+- not yet:
+  - no user-box flattening
+  - no tagged pointer / NaN-boxing
+  - no new `.hako` syntax or widened `@rune`
+
 ## Fixed Decisions
 
 ### 1. `.hako` surface stays simple

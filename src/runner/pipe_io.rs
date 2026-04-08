@@ -125,7 +125,13 @@ mod tests {
             "kind": "Program",
             "user_box_decls": [
                 {"name":"Main","fields":[]},
-                {"name":"PipeBox","fields":["slot"]}
+                {
+                    "name":"PipeBox",
+                    "fields":["slot"],
+                    "field_decls":[
+                        {"name":"slot","declared_type":"IntegerBox","is_weak":false}
+                    ]
+                }
             ],
             "defs": [
                 {
@@ -150,6 +156,7 @@ mod tests {
         assert!(mir_json.contains("\"user_box_decls\""));
         assert!(mir_json.contains("\"name\":\"PipeBox\""));
         assert!(mir_json.contains("\"fields\":[\"slot\"]"));
+        assert!(mir_json.contains("\"field_decls\":[{\"declared_type\":\"IntegerBox\",\"is_weak\":false,\"name\":\"slot\"}]"));
         assert!(!mir_json.contains("\"name\":\"CompatOnlyBox\""));
     }
 }

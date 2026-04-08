@@ -212,6 +212,7 @@ impl ReplAstRewriter {
             ASTNode::BoxDeclaration {
                 name,
                 fields,
+                field_decls,
                 public_fields,
                 private_fields,
                 methods,
@@ -250,6 +251,7 @@ impl ReplAstRewriter {
                 ASTNode::BoxDeclaration {
                     name,
                     fields,
+                    field_decls,
                     public_fields,
                     private_fields,
                     methods: rewritten_methods,

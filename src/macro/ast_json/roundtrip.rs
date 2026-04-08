@@ -1,4 +1,4 @@
-use nyash_rust::ast::{ASTNode, DeclarationAttrs, LiteralValue, RuneAttr, Span};
+use nyash_rust::ast::{ASTNode, DeclarationAttrs, FieldDecl, LiteralValue, RuneAttr, Span};
 use serde_json::Value;
 use std::collections::HashMap;
 
@@ -77,15 +77,57 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
                 s.as_array()
                     .map(|arr| arr.iter().filter_map(json_to_ast).collect::<Vec<ASTNode>>())
             });
+            let fields: Vec<String> = v
+                .get("fields")?
+                .as_array()?
+                .iter()
+                .filter_map(|s| s.as_str().map(|x| x.to_string()))
+                .collect();
+            let weak_fields: Vec<String> = v
+                .get("weak_fields")
+                .and_then(|a| a.as_array())
+                .map(|arr| {
+                    arr.iter()
+                        .filter_map(|s| s.as_str().map(|x| x.to_string()))
+                        .collect::<Vec<_>>()
+                })
+                .unwrap_or_default();
+            let field_decls = v
+                .get("field_decls")
+                .and_then(|a| a.as_array())
+                .map(|arr| {
+                    arr.iter()
+                        .filter_map(|item| {
+                            Some(FieldDecl {
+                                name: item.get("name")?.as_str()?.to_string(),
+                                declared_type_name: item
+                                    .get("declared_type")
+                                    .and_then(|s| s.as_str())
+                                    .map(|s| s.to_string()),
+                                is_weak: item
+                                    .get("is_weak")
+                                    .and_then(|b| b.as_bool())
+                                    .unwrap_or(false),
+                            })
+                        })
+                        .collect::<Vec<_>>()
+                })
+                .unwrap_or_else(|| {
+                    fields
+                        .iter()
+                        .cloned()
+                        .map(|name| FieldDecl {
+                            is_weak: weak_fields.contains(&name),
+                            name,
+                            declared_type_name: None,
+                        })
+                        .collect()
+                });
 
             ASTNode::BoxDeclaration {
                 name: v.get("name")?.as_str()?.to_string(),
-                fields: v
-                    .get("fields")?
-                    .as_array()?
-                    .iter()
-                    .filter_map(|s| s.as_str().map(|x| x.to_string()))
-                    .collect(),
+                fields,
+                field_decls,
                 public_fields: v
                     .get("public_fields")
                     .and_then(|a| a.as_array())
@@ -115,15 +157,7 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
                             .collect::<Vec<_>>()
                     })
                     .unwrap_or_default(),
-                weak_fields: v
-                    .get("weak_fields")
-                    .and_then(|a| a.as_array())
-                    .map(|arr| {
-                        arr.iter()
-                            .filter_map(|s| s.as_str().map(|x| x.to_string()))
-                            .collect::<Vec<_>>()
-                    })
-                    .unwrap_or_default(),
+                weak_fields,
                 is_interface: v
                     .get("is_interface")
                     .and_then(|b| b.as_bool())

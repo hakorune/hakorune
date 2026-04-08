@@ -7,6 +7,8 @@ pub fn instruction_tag(inst: &MirInstruction) -> &'static str {
         MirInstruction::BinOp { .. } => "BinOp",
         MirInstruction::UnaryOp { .. } => "UnaryOp",
         MirInstruction::Compare { .. } => "Compare",
+        MirInstruction::FieldGet { .. } => "FieldGet",
+        MirInstruction::FieldSet { .. } => "FieldSet",
         MirInstruction::Load { .. } => "Load",
         MirInstruction::Store { .. } => "Store",
         MirInstruction::Call { .. } => "Call",
@@ -54,6 +56,8 @@ pub const MIR_INSTRUCTION_KEPT_TAGS: &[&str] = &[
     "Debug",
     "FutureNew",
     "FutureSet",
+    "FieldGet",
+    "FieldSet",
     "Jump",
     "KeepAlive",
     "Load",
@@ -111,6 +115,8 @@ pub fn instruction_diet_cohort(inst: &MirInstruction) -> InstructionDietCohort {
         | MirInstruction::Debug { .. }
         | MirInstruction::FutureNew { .. }
         | MirInstruction::FutureSet { .. }
+        | MirInstruction::FieldGet { .. }
+        | MirInstruction::FieldSet { .. }
         | MirInstruction::Jump { .. }
         | MirInstruction::KeepAlive { .. }
         | MirInstruction::Load { .. }
@@ -176,6 +182,8 @@ pub fn is_supported_mir_json_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::BinOp { .. }
             | MirInstruction::Compare { .. }
             | MirInstruction::Select { .. }
+            | MirInstruction::FieldGet { .. }
+            | MirInstruction::FieldSet { .. }
             | MirInstruction::Call { .. }
             | MirInstruction::NewBox { .. }
             | MirInstruction::NewClosure { .. }
@@ -211,6 +219,8 @@ pub fn is_supported_vm_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::Compare { .. }
             | MirInstruction::TypeOp { .. }
             | MirInstruction::Copy { .. }
+            | MirInstruction::FieldGet { .. }
+            | MirInstruction::FieldSet { .. }
             | MirInstruction::Load { .. }
             | MirInstruction::Store { .. }
             | MirInstruction::Call { .. }
@@ -242,6 +252,8 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
         MirInstruction::BinOp { .. } => &["binop"],
         MirInstruction::UnaryOp { .. } => &["unop"],
         MirInstruction::Compare { .. } => &["compare"],
+        MirInstruction::FieldGet { .. } => &["field_get"],
+        MirInstruction::FieldSet { .. } => &["field_set"],
         MirInstruction::Call { .. } => &["mir_call", "call", "boxcall", "externcall"],
         MirInstruction::Branch { .. } => &["branch"],
         MirInstruction::Jump { .. } => &["jump"],
@@ -280,6 +292,8 @@ pub const LLVM_SUPPORTED_JSON_OPS: &[&str] = &[
     "ret",
     "phi",
     "compare",
+    "field_get",
+    "field_set",
     "unop",
     "mir_call",
     "call",

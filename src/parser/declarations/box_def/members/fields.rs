@@ -1,5 +1,5 @@
 //! Fields parsing (header-first: `name: Type` + unified members gates)
-use crate::ast::{ASTNode, Span};
+use crate::ast::{ASTNode, FieldDecl, Span};
 use crate::parser::common::ParserUtils;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
@@ -18,22 +18,32 @@ pub(crate) fn try_parse_header_first_field_or_property(
     fname: String,
     methods: &mut HashMap<String, ASTNode>,
     fields: &mut Vec<String>,
+    field_decls: &mut Vec<FieldDecl>,
     _weak_fields: &mut Vec<String>,
+    is_weak: bool,
 ) -> Result<bool, ParseError> {
     // Expect ':' Type after name
     if !p.match_token(&TokenType::COLON) {
         // No type annotation: treat as bare stored field
-        fields.push(fname);
+        fields.push(fname.clone());
+        field_decls.push(FieldDecl {
+            name: fname,
+            declared_type_name: None,
+            is_weak,
+        });
         return Ok(true);
     }
     p.advance(); // consume ':'
-                 // Optional type name (identifier). For now we accept and ignore.
-    if let TokenType::IDENTIFIER(_ty) = &p.current_token().token_type {
+                 // Optional type name (identifier). Keep it as declared field metadata.
+    let declared_type_name = if let TokenType::IDENTIFIER(ty) = &p.current_token().token_type {
+        let ty = Some(ty.clone());
         p.advance();
+        ty
     } else {
         // If no type present, still proceed (tolerant parsing), but only when unified_members gate is off
         // Keep behavior aligned with existing parser (it allowed missing type in some branches)
-    }
+        None
+    };
 
     // Unified members gate behavior
     if crate::config::env::unified_members() {
@@ -41,7 +51,12 @@ pub(crate) fn try_parse_header_first_field_or_property(
         if p.match_token(&TokenType::ASSIGN) {
             p.advance();
             let _init_expr = p.parse_expression()?; // P0: parse and discard
-            fields.push(fname);
+            fields.push(fname.clone());
+            field_decls.push(FieldDecl {
+                name: fname,
+                declared_type_name,
+                is_weak,
+            });
             return Ok(true);
         }
         // name: Type => expr  → computed property (getter method with return expr)
@@ -88,7 +103,12 @@ pub(crate) fn try_parse_header_first_field_or_property(
     }
 
     // Default: treat as a plain field when unified-members gate didn't match any special form
-    fields.push(fname);
+    fields.push(fname.clone());
+    field_decls.push(FieldDecl {
+        name: fname,
+        declared_type_name,
+        is_weak,
+    });
     Ok(true)
 }
 
@@ -103,6 +123,7 @@ pub(crate) fn try_parse_visibility_block_or_single(
     visibility: &str,
     methods: &mut HashMap<String, ASTNode>,
     fields: &mut Vec<String>,
+    field_decls: &mut Vec<FieldDecl>,
     public_fields: &mut Vec<String>,
     private_fields: &mut Vec<String>,
     last_method_name: &mut Option<String>,
@@ -132,7 +153,12 @@ pub(crate) fn try_parse_visibility_block_or_single(
                 if is_weak {
                     weak_fields.push(fname.clone());
                 }
-                fields.push(fname);
+                fields.push(fname.clone());
+                field_decls.push(FieldDecl {
+                    name: fname,
+                    declared_type_name: None,
+                    is_weak,
+                });
                 p.advance();
                 if p.match_token(&TokenType::COMMA) {
                     p.advance();
@@ -163,7 +189,7 @@ pub(crate) fn try_parse_visibility_block_or_single(
             p.advance(); // consume IDENTIFIER
 
             // Delegate to existing weak field parser (handles type annotation, etc.)
-            parse_weak_field(p, fname.clone(), methods, fields, weak_fields)?;
+            parse_weak_field(p, fname.clone(), methods, fields, field_decls, weak_fields)?;
 
             // Register with visibility tracking
             if visibility == "public" {
@@ -185,7 +211,15 @@ pub(crate) fn try_parse_visibility_block_or_single(
     if let TokenType::IDENTIFIER(n) = &p.current_token().token_type {
         let fname = n.clone();
         p.advance();
-        if try_parse_header_first_field_or_property(p, fname.clone(), methods, fields, weak_fields)?
+        if try_parse_header_first_field_or_property(
+            p,
+            fname.clone(),
+            methods,
+            fields,
+            field_decls,
+            weak_fields,
+            false,
+        )?
         {
             if visibility == "public" {
                 public_fields.push(fname.clone());
@@ -216,10 +250,19 @@ pub(crate) fn parse_weak_field(
     field_name: String,
     methods: &mut HashMap<String, ASTNode>,
     fields: &mut Vec<String>,
+    field_decls: &mut Vec<FieldDecl>,
     weak_fields: &mut Vec<String>,
 ) -> Result<(), ParseError> {
     // Parse optional type annotation or property syntax via header-first parser
-    try_parse_header_first_field_or_property(p, field_name.clone(), methods, fields, weak_fields)?;
+    try_parse_header_first_field_or_property(
+        p,
+        field_name.clone(),
+        methods,
+        fields,
+        field_decls,
+        weak_fields,
+        true,
+    )?;
     // Add to weak_fields vector (unified location for all weak field tracking)
     weak_fields.push(field_name);
     Ok(())

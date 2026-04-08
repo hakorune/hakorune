@@ -82,6 +82,38 @@ fn test_ref_new_instruction() {
 }
 
 #[test]
+fn test_field_get_instruction() {
+    let dst = ValueId::new(0);
+    let base = ValueId::new(1);
+    let inst = MirInstruction::FieldGet {
+        dst,
+        base,
+        field: "x".to_string(),
+        declared_type: Some(crate::mir::MirType::Box("IntegerBox".to_string())),
+    };
+
+    assert_eq!(inst.dst_value(), Some(dst));
+    assert_eq!(inst.used_values(), vec![base]);
+    assert!(!inst.effects().is_pure());
+}
+
+#[test]
+fn test_field_set_instruction() {
+    let base = ValueId::new(0);
+    let value = ValueId::new(1);
+    let inst = MirInstruction::FieldSet {
+        base,
+        field: "x".to_string(),
+        value,
+        declared_type: Some(crate::mir::MirType::Box("IntegerBox".to_string())),
+    };
+
+    assert_eq!(inst.dst_value(), None);
+    assert_eq!(inst.used_values(), vec![base, value]);
+    assert!(!inst.effects().is_pure());
+}
+
+#[test]
 fn test_method_call_instruction() {
     use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
     use crate::mir::definitions::Callee;

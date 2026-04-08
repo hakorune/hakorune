@@ -1,5 +1,5 @@
 // Field access and assignment lowering
-use super::{EffectMask, ValueId};
+use super::ValueId;
 use crate::ast::ASTNode;
 
 impl super::MirBuilder {
@@ -12,6 +12,12 @@ impl super::MirBuilder {
         let object_clone = object.clone();
         let object_value = self.build_expression(object.clone())?;
         let object_value = self.local_field_base(object_value);
+        let declared_type = self
+            .type_ctx
+            .value_origin_newbox
+            .get(&object_value)
+            .and_then(|box_name| self.comp_ctx.declared_field_type_name(box_name, &field))
+            .map(Self::parse_type_name_to_mir);
 
         // Unified members: if object class is known and has a synthetic getter for `field`,
         // rewrite to method call `__get_<field>()`.
@@ -33,28 +39,13 @@ impl super::MirBuilder {
             }
         }
 
-        // Emit: field name const (boxed)
-        let field_name_id =
-            crate::mir::builder::emission::constant::emit_string(self, field.clone())?;
-        // Finalize operands (base + args) in current block
-        let mut base = object_value;
-        let mut args_vec = vec![field_name_id];
-        crate::mir::builder::ssa::local::finalize_field_base_and_args(
-            self,
-            &mut base,
-            &mut args_vec,
-        )?;
-        // Call(Method): getField(name)
         let field_val = self.next_value_id();
-        self.emit_instruction(crate::mir::ssot::method_call::runtime_method_call(
-            Some(field_val),
-            base,
-            "RuntimeDataBox",
-            "getField",
-            args_vec,
-            EffectMask::READ,
-            crate::mir::definitions::call_unified::TypeCertainty::Union,
-        ))?;
+        self.emit_instruction(crate::mir::MirInstruction::FieldGet {
+            dst: field_val,
+            base: object_value,
+            field: field.clone(),
+            declared_type,
+        })?;
 
         // Propagate recorded origin class for this field if any (ValueId-scoped)
         if let Some(class_name) = self
@@ -153,6 +144,12 @@ impl super::MirBuilder {
         let mut value_result = self.build_expression(value)?;
         // LocalSSA: argument in-block (optional safety)
         value_result = self.local_arg(value_result);
+        let declared_type = self
+            .type_ctx
+            .value_origin_newbox
+            .get(&object_value)
+            .and_then(|box_name| self.comp_ctx.declared_field_type_name(box_name, &field))
+            .map(Self::parse_type_name_to_mir);
 
         // Phase 285A1: If field is weak, enforce type contract (3 allowed cases)
         // Delegated to WeakFieldValidatorBox
@@ -175,27 +172,12 @@ impl super::MirBuilder {
             }
         }
 
-        // Emit: field name const
-        let field_name_id =
-            crate::mir::builder::emission::constant::emit_string(self, field.clone())?;
-        // Finalize operands (base + args) in current block
-        let mut base = object_value;
-        let mut args_vec = vec![field_name_id, value_result];
-        crate::mir::builder::ssa::local::finalize_field_base_and_args(
-            self,
-            &mut base,
-            &mut args_vec,
-        )?;
-        // Set the field via Call(Method): setField(name, value)
-        self.emit_instruction(crate::mir::ssot::method_call::runtime_method_call(
-            None,
-            base,
-            "RuntimeDataBox",
-            "setField",
-            args_vec,
-            EffectMask::WRITE,
-            crate::mir::definitions::call_unified::TypeCertainty::Union,
-        ))?;
+        self.emit_instruction(crate::mir::MirInstruction::FieldSet {
+            base: object_value,
+            field: field.clone(),
+            value: value_result,
+            declared_type,
+        })?;
 
         // Write barrier if weak field
         if let Some(class_name) = self

@@ -72,6 +72,8 @@ impl JoinIrIdRemapper {
             Compare { dst, lhs, rhs, .. } => vec![*dst, *lhs, *rhs],
             Load { dst, ptr } => vec![*dst, *ptr],
             Store { value, ptr } => vec![*value, *ptr],
+            FieldGet { dst, base, .. } => vec![*dst, *base],
+            FieldSet { base, value, .. } => vec![*base, *value],
             Call {
                 dst,
                 func,
@@ -238,6 +240,28 @@ impl JoinIrIdRemapper {
             Store { value, ptr } => Store {
                 value: remap(*value),
                 ptr: remap(*ptr),
+            },
+            FieldGet {
+                dst,
+                base,
+                field,
+                declared_type,
+            } => FieldGet {
+                dst: remap(*dst),
+                base: remap(*base),
+                field: field.clone(),
+                declared_type: declared_type.clone(),
+            },
+            FieldSet {
+                base,
+                field,
+                value,
+                declared_type,
+            } => FieldSet {
+                base: remap(*base),
+                field: field.clone(),
+                value: remap(*value),
+                declared_type: declared_type.clone(),
             },
             Call {
                 dst,

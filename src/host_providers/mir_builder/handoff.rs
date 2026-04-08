@@ -37,7 +37,9 @@ impl Stage1ProgramJsonModuleHandoff {
 
     pub(super) fn into_finalized_module(self) -> Stage1FinalizedMirModule {
         let mut module = self.module;
-        module.metadata.user_box_decls = self.user_box_decls.into_metadata_map();
+        let (user_box_decls, user_box_field_decls) = self.user_box_decls.into_metadata_maps();
+        module.metadata.user_box_decls = user_box_decls;
+        module.metadata.user_box_field_decls = user_box_field_decls;
         Stage1FinalizedMirModule { module }
     }
 }

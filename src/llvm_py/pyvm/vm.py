@@ -298,6 +298,33 @@ class PyVM:
                     i += 1
                     continue
 
+                if op == "field_get":
+                    recv = self._read(regs, inst.get("box"))
+                    field = str(inst.get("field") or "")
+                    out = None
+                    if isinstance(recv, dict):
+                        if recv.get("__box__") == "MapBox":
+                            out = recv.get("__map", {}).get(field)
+                        else:
+                            out = recv.get(field)
+                    self._set(regs, inst.get("dst"), out)
+                    i += 1
+                    continue
+
+                if op == "field_set":
+                    recv = self._read(regs, inst.get("box"))
+                    field = str(inst.get("field") or "")
+                    value = self._read(regs, inst.get("value"))
+                    if isinstance(recv, dict):
+                        if recv.get("__box__") == "MapBox":
+                            mapping = recv.get("__map", {})
+                            mapping[field] = value
+                            recv["__map"] = mapping
+                        else:
+                            recv[field] = value
+                    i += 1
+                    continue
+
                 if op == "boxcall":
                     op_boxcall(self, fn, inst, regs)
                     i += 1

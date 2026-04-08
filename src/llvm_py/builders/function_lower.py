@@ -51,6 +51,11 @@ def _collect_branch_only_compare_dsts(blocks: List[Dict[str, Any]]) -> Set[int]:
                 add_use(ins.get("operand"))
             elif op == "copy":
                 add_use(ins.get("src"))
+            elif op == "field_get":
+                add_use(ins.get("box"))
+            elif op == "field_set":
+                add_use(ins.get("box"))
+                add_use(ins.get("value"))
             elif op == "branch":
                 add_use(ins.get("cond"), branch=True)
             elif op == "ret":
@@ -219,7 +224,7 @@ def _collect_block_defs(block: Dict[str, Any]) -> set[int]:
 def _collect_block_uses(block: Dict[str, Any]) -> set[int]:
     uses: set[int] = set()
     for ins in block.get("instructions") or []:
-        for key in ("lhs", "rhs", "value", "cond", "box_val"):
+        for key in ("lhs", "rhs", "value", "cond", "box_val", "box"):
             try:
                 value = ins.get(key)
                 if isinstance(value, int):

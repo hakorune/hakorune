@@ -382,6 +382,14 @@ pub struct FunctionStats {
     pub is_pure: bool,
 }
 
+/// Typed field declaration metadata carried alongside names-only user box decls.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct UserBoxFieldDecl {
+    pub name: String,
+    pub declared_type_name: Option<String>,
+    pub is_weak: bool,
+}
+
 /// A MIR module containing multiple functions
 #[derive(Debug, Clone)]
 pub struct MirModule {
@@ -420,6 +428,10 @@ pub struct ModuleMetadata {
     /// Phase 285LLVM-1.1: User-defined box declarations with fields
     /// HashMap: box name → field names (empty Vec for static boxes)
     pub user_box_decls: std::collections::HashMap<String, Vec<String>>,
+
+    /// Typed field declarations for user-defined boxes.
+    /// This stays parallel to `user_box_decls` so names-only compatibility remains intact.
+    pub user_box_field_decls: std::collections::HashMap<String, Vec<UserBoxFieldDecl>>,
 
     /// NCL-1: Externalized closure bodies (`body_id -> AST body`).
     /// NewClosure keeps only a small descriptor and references this table.

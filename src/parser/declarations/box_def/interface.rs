@@ -107,6 +107,7 @@ pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseE
     Ok(ASTNode::BoxDeclaration {
         name,
         fields: vec![], // インターフェースはフィールドなし
+        field_decls: vec![],
         public_fields: vec![],
         private_fields: vec![],
         methods,

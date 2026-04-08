@@ -105,6 +105,7 @@ impl MacroEngine {
             ASTNode::BoxDeclaration {
                 name,
                 fields,
+                field_decls,
                 public_fields,
                 private_fields,
                 mut methods,
@@ -168,6 +169,7 @@ impl MacroEngine {
                 ASTNode::BoxDeclaration {
                     name,
                     fields,
+                    field_decls,
                     public_fields,
                     private_fields,
                     methods,

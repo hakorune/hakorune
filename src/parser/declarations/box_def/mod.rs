@@ -3,7 +3,7 @@
 //! Box宣言（box, interface box, static box）の解析を担当
 //! Nyashの中核概念「Everything is Box」を実現する重要モジュール
 
-use crate::ast::{ASTNode, Span};
+use crate::ast::{ASTNode, FieldDecl, Span};
 use crate::parser::common::ParserUtils;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
@@ -72,6 +72,7 @@ fn box_try_visibility(
     visibility: &str,
     methods: &mut HashMap<String, ASTNode>,
     fields: &mut Vec<String>,
+    field_decls: &mut Vec<FieldDecl>,
     public_fields: &mut Vec<String>,
     private_fields: &mut Vec<String>,
     last_method_name: &mut Option<String>,
@@ -86,6 +87,7 @@ fn box_try_visibility(
         visibility,
         methods,
         fields,
+        field_decls,
         public_fields,
         private_fields,
         last_method_name,
@@ -101,6 +103,7 @@ fn box_try_method_or_field(
     is_override: bool,
     methods: &mut HashMap<String, ASTNode>,
     fields: &mut Vec<String>,
+    field_decls: &mut Vec<FieldDecl>,
     birth_once_props: &Vec<String>,
     last_method_name: &mut Option<String>,
     weak_fields: &mut Vec<String>,
@@ -120,7 +123,9 @@ fn box_try_method_or_field(
         name,
         methods,
         fields,
+        field_decls,
         weak_fields,
+        false,
     )?;
     if parsed {
         p.ensure_no_pending_runes("field/property")?;
@@ -145,6 +150,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
     p.consume(TokenType::LBRACE)?;
 
     let mut fields = Vec::new();
+    let mut field_decls = Vec::new();
     let mut methods = HashMap::new();
     let mut public_fields: Vec<String> = Vec::new();
     let mut private_fields: Vec<String> = Vec::new();
@@ -218,6 +224,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
                     field_name,
                     &mut methods,
                     &mut fields,
+                    &mut field_decls,
                     &mut weak_fields,
                 )?;
                 continue;
@@ -241,6 +248,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
                 &field_or_method,
                 &mut methods,
                 &mut fields,
+                &mut field_decls,
                 &mut public_fields,
                 &mut private_fields,
                 &mut last_method_name,
@@ -272,6 +280,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
                 is_override,
                 &mut methods,
                 &mut fields,
+                &mut field_decls,
                 &birth_once_props,
                 &mut last_method_name,
                 &mut weak_fields,
@@ -302,6 +311,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
     Ok(ASTNode::BoxDeclaration {
         name,
         fields,
+        field_decls,
         public_fields,
         private_fields,
         methods,
