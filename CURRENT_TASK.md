@@ -39,6 +39,17 @@ Scope: repo root から current lane / current front / restart read order に最
     - `kilo_micro_substring_views_only: instr=37,073,017 / cycles=6,804,272 / cache-miss=9,648 / AOT 4 ms`
     - `kilo_micro_len_substring_views: instr=22,672,209 / cycles=3,991,125 / cache-miss=8,789 / AOT 4 ms`
   - reading: mixed front の win は `substring_hii` ではなく `len_h` fast-hit 側から来ている
+- target band for the next keeper:
+  - mixed accept gate: `instr <= 58.5M`
+  - local split `kilo_micro_len_substring_views`: `instr <= 22.4M`
+  - control split `kilo_micro_substring_views_only`: roughly flat is acceptable
+  - whole strict: hold `<= 755 ms`; ideal band is `730-745 ms`
+- ideal `len_h` steady-state asm shape:
+  - `STRING_DISPATCH_STATE` load once
+  - `handles::drop_epoch()` load once
+  - primary/secondary handle compare only
+  - `JIT_TRACE_LEN_ENABLED_CACHE` load once
+  - trace-off fast hit returns directly without carrying extra cold work inline
 - current whole-kilo health:
   - `tools/checks/dev_gate.sh quick` is green
   - `kilo_kernel_small_hk` strict latest accepted reread: `ny_aot_ms=755`
