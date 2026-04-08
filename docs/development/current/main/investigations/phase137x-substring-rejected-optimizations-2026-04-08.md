@@ -380,6 +380,156 @@ Related:
 
 - whole strict で同じ global helpers が actually hot と asm で示せる時だけ
 
+### 2026-04-08: `len_h` dispatch-hit cold split
+
+**Hypothesis**
+
+- dispatch hit path を cold helper に逃がせば
+- `string_len_export_impl()` の hot body から dispatch call setup を抜ける
+- exact front の i-cache / branch layout が少し軽くなる
+
+**Touched owner area**
+
+- [string_helpers.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers.rs)
+
+**Observed result**
+
+- split exact:
+  - `kilo_micro_len_substring_views: instr=22,672,426 / cycles=4,021,740 / cache-miss=8,743 / AOT 3 ms`
+- mixed exact:
+  - `kilo_micro_substring_only: instr=58,672,410 / cycles=9,909,575 / cache-miss=9,872 / AOT 5 ms`
+- whole:
+  - `kilo_kernel_small_hk strict = 734 ms`
+  - parity ok
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Why**
+
+- whole strict は良かった
+- ただし exact instruction の改善量が小さすぎて noise band を出なかった
+- dispatch body を cold に逃がしただけでは `len_h` entry 先頭の main compare chain は残った
+
+**Reopen Condition**
+
+- dispatch-hit lane が別 exact front で支配的になった時だけ
+
+### 2026-04-08: `trace_len_state()` helper / trace cache single-load probe
+
+**Hypothesis**
+
+- trace flag を `bool` ではなく state で返せば
+- steady-state `len_h` fast return で `JIT_TRACE_LEN_ENABLED_CACHE` load を 1 回に寄せられる
+- ideal asm の `trace-state load once` に近づける
+
+**Touched owner area**
+
+- [string_debug.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_debug.rs)
+- [string_helpers.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers.rs)
+
+**Observed result**
+
+- split exact:
+  - `kilo_micro_len_substring_views: instr=22,672,716 / cycles=4,051,113 / cache-miss=9,204 / AOT 4 ms`
+- mixed exact:
+  - `kilo_micro_substring_only: instr=58,672,971 / cycles=9,982,147 / cache-miss=9,782 / AOT 5 ms`
+- asm:
+  - `nyash.string.len_h` still reloads `JIT_TRACE_LEN_ENABLED_CACHE` on the non-zero path
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Why**
+
+- exact gate を超えなかった
+- source shape は変わっても emitted asm の double trace-cache load は残った
+- current lane では helper vocabulary の追加より emitted hot block の実変化が必要
+
+**Reopen Condition**
+
+- trace-state helper が another hot family でも共通化できる時だけ
+
+### 2026-04-08: `len_h` two-slot pre-match + single epoch-guard probe
+
+**Hypothesis**
+
+- primary/secondary handle match を先に決めて
+- shared `drop_epoch` compare を 1 回へ寄せれば
+- alternating 2-slot front の compare chain を short にできる
+
+**Touched owner area**
+
+- [cache.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers/cache.rs)
+
+**Observed result**
+
+- exact rerun A:
+  - `kilo_micro_len_substring_views: instr=22,672,154 / cycles=4,036,620 / cache-miss=8,828 / AOT 4 ms`
+  - `kilo_micro_substring_only: instr=58,672,650 / cycles=9,871,677 / cache-miss=9,501 / AOT 5 ms`
+- exact rerun B:
+  - `kilo_micro_len_substring_views: instr=22,672,879 / cycles=3,990,150 / cache-miss=8,978 / AOT 3 ms`
+  - `kilo_micro_substring_only: instr=58,672,469 / cycles=9,864,252 / cache-miss=10,073 / AOT 4 ms`
+- asm:
+  - emitted `nyash.string.len_h` still keeps the same two epoch compares in the hot block
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Why**
+
+- exact delta が small かつ rerun で揺れた
+- source rewrite だけでは LLVM が hot compare order を変えなかった
+- ideal asm の `epoch compare once` に届かなかった
+
+**Reopen Condition**
+
+- counter or codegen evidence で TLS slot shape を stronger に変えられる cut が見つかった時だけ
+
+### 2026-04-08: local `dispatch_known_absent_fast` + cold dispatch probe combo
+
+**Hypothesis**
+
+- `len_h` entry で cached-absent dispatch state を 1 load だけ見て
+- dispatch body 自体は cold helper に逃がせば
+- ideal asm の `STRING_DISPATCH_STATE load once` に寄せられる
+
+**Touched owner area**
+
+- [hako_forward_bridge.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/hako_forward_bridge.rs)
+- [string_helpers.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string_helpers.rs)
+
+**Observed result**
+
+- split exact:
+  - `kilo_micro_len_substring_views: instr=22,673,236 / cycles=3,962,213 / cache-miss=8,741 / AOT 4 ms`
+- mixed exact:
+  - `kilo_micro_substring_only: instr=58,672,979 / cycles=9,937,709 / cache-miss=9,887 / AOT 4 ms`
+- whole:
+  - `kilo_kernel_small_hk strict = 716 ms`
+  - parity ok
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Why**
+
+- whole strict は強く良化した
+- ただし exact gate は両 front とも baseline を超えられなかった
+- local fast probe + cold split の組み合わせでも `len_h` entry 先頭の emitted compare chain 自体はまだ残った
+
+**Reopen Condition**
+
+- dispatch-state cached-absent path が another exact family でも dominant と示せた時だけ
+
 ## Next Candidate
 
 - keep substring runtime mechanics in Rust

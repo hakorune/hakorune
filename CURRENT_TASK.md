@@ -78,6 +78,10 @@ Scope: repo root から current lane / current front / restart read order に最
     6. `len_h` cache-first reorder
     7. `drop_epoch_if_ready()` fast accessor probe
     8. global `dispatch` / `trace` false-state fast probes
+    9. `len_h` dispatch-hit cold split
+    10. `trace_len_state()` helper / trace cache single-load probe
+    11. `len_h` two-slot pre-match + single epoch-guard probe
+    12. local `dispatch_known_absent_fast` + cold dispatch probe combo
 - next active cut:
   - keep `kilo_micro_substring_only` as accept gate
   - use `kilo_micro_len_substring_views` for local `len_h` cuts
