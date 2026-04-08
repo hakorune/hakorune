@@ -221,6 +221,16 @@ Scope: repo root から current lane / current front / restart read order に最
   2. keep exact rejected-cut evidence in one rolling doc per front/family/date
   3. do not create test-by-test folders unless that artifact family itself becomes an independent lane
 
+## Implementation Order
+
+1. `docs` first: keep the string corridor and primitive/user-box design SSOT current.
+2. `storage_class` inventory: keep primitive/user-box facts fresh in MIR dumps and JSON.
+3. `canonical MIR` field access: add `field.get` / `field.set` shape and storage-class facts.
+4. `typed primitive fast path`: pilot one primitive lane with the new MIR facts.
+5. `typed user box field access`: pilot one user-box lane after primitive wins.
+6. `flattening` later: only after typed field access has proof.
+7. `sink` stays as a pilot: do not delete the corridor sink path yet; keep it until a newer direct lowering path replaces it with evidence.
+
 ## Order At A Glance
 
 1. `phase-147x semantic optimization contract selection` (landed)
