@@ -51,9 +51,11 @@ Current user-box / primitive cost reading:
 - landed:
   - declared field types now seed `FieldGet` value types on the `.hako` builder path
   - type propagation and storage-class refresh also treat `FieldGet.declared_type` as a fallback seed
+- landed:
+  - LLVM lowering now treats `IntegerBox` / `BoolBox` handle facts as primitive numeric inputs on `binop` / `compare`
+  - numeric lowering unboxes via `nyash.integer.get_h` / `nyash.bool.get_h` before integer arithmetic or integer compare
 - next:
-  - pilot typed primitive fast path
-  - then pilot typed user-box field access on the internal path
+  - pilot typed user-box field access on the internal path
 - not yet:
   - no user-box flattening
   - no tagged pointer / NaN-boxing
@@ -229,6 +231,12 @@ Acceptance:
 
 - exact front improves
 - public surface stays unchanged
+
+Current landing status:
+
+- first pilot is in: LLVM lowering now unboxes `IntegerBox` / `BoolBox` handle facts on `binop` / `compare`
+- this is intentionally narrow and does not yet rewrite user-box field storage or layout
+- typed primitive access now precedes typed user-box field access in the execution order
 
 ### Step 7. User box typed field access pilot
 

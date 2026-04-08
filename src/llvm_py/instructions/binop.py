@@ -9,6 +9,11 @@ from utils.values import resolve_i64_strict, safe_vmap_write
 import os
 from instructions.string_fast import string_ptr_for_value
 from .compare import lower_compare
+from .primitive_handles import (
+    primitive_numeric_meta_kind,
+    resolver_value_type,
+    unbox_primitive_handle_if_needed,
+)
 from trace import hot_count as trace_hot_count
 
 _BINOP_COMMUTATIVE_OPS = {"+", "*", "&", "|", "^"}
@@ -571,6 +576,8 @@ def _resolve_binop_i64_operands(
     bb_map=None,
 ):
     fast_int = os.environ.get("NYASH_LLVM_FAST_INT") == "1"
+    lhs_meta = resolver_value_type(resolver, lhs)
+    rhs_meta = resolver_value_type(resolver, rhs)
     lhs_val = vmap.get(lhs) if fast_int else None
     rhs_val = vmap.get(rhs) if fast_int else None
     if lhs_val is None:
@@ -597,6 +604,18 @@ def _resolve_binop_i64_operands(
         )
     lhs_val = _canonicalize_i64(builder, lhs_val, lhs, vmap, "bin_lhs")
     rhs_val = _canonicalize_i64(builder, rhs_val, rhs, vmap, "bin_rhs")
+    lhs_val = unbox_primitive_handle_if_needed(
+        builder,
+        lhs_val,
+        lhs_meta,
+        name_hint=f"bin_lhs_{lhs}",
+    )
+    rhs_val = unbox_primitive_handle_if_needed(
+        builder,
+        rhs_val,
+        rhs_meta,
+        name_hint=f"bin_rhs_{rhs}",
+    )
     if lhs_val is None:
         lhs_val = ir.Constant(ir.IntType(64), 0)
     if rhs_val is None:
@@ -605,15 +624,7 @@ def _resolve_binop_i64_operands(
 
 
 def _binop_numeric_meta_kind(meta) -> Optional[str]:
-    if meta == "i64" or meta == "Integer" or (
-        isinstance(meta, dict) and meta.get("kind") in ("i64", "Integer")
-    ):
-        return "Integer"
-    if meta == "f64" or meta == "Float" or (
-        isinstance(meta, dict) and meta.get("kind") in ("f64", "Float")
-    ):
-        return "Float"
-    return None
+    return primitive_numeric_meta_kind(meta)
 
 
 def _binop_plus_numeric_types(resolver, lhs: int, rhs: int) -> tuple[Optional[str], Optional[str]]:
@@ -699,15 +710,27 @@ def _lower_int_float_addition(
 
     trace_values(f"[binop] Int+Float addition: lhs={lhs}({lhs_type}) rhs={rhs}({rhs_type})")
     f64 = ir.DoubleType()
+    lhs_meta = resolver_value_type(resolver, lhs)
+    rhs_meta = resolver_value_type(resolver, rhs)
     lhs_val = _resolve_binop_value(resolver, lhs, vmap, current_block, preds, block_end_values, bb_map)
     rhs_val = _resolve_binop_value(resolver, rhs, vmap, current_block, preds, block_end_values, bb_map)
 
     if lhs_type == "Integer":
-        int_val = lhs_val
+        int_val = unbox_primitive_handle_if_needed(
+            builder,
+            lhs_val,
+            lhs_meta,
+            name_hint=f"bin_int_float_lhs_{lhs}",
+        )
         float_val_or_handle = rhs_val
     else:
         float_val_or_handle = lhs_val
-        int_val = rhs_val
+        int_val = unbox_primitive_handle_if_needed(
+            builder,
+            rhs_val,
+            rhs_meta,
+            name_hint=f"bin_int_float_rhs_{rhs}",
+        )
 
     int_as_float = builder.sitofp(int_val, f64, name="int_to_f64")
     float_val = _coerce_float_operand_to_f64(builder, float_val_or_handle, trace_values=trace_values)

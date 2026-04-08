@@ -49,7 +49,11 @@
 - landed declared-field storage bridge:
   - `.hako` builder path now seeds `FieldGet` results from declared field type into `value_types`
   - type propagation and storage-class refresh also treat `FieldGet.declared_type` as a fallback seed
-  - current typed field path is still behavior-preserving; no typed fast path is enabled yet
+  - current typed field path is still behavior-preserving for generic field semantics
+- landed typed primitive pilot:
+  - LLVM lowering now treats `IntegerBox` / `BoolBox` handle facts as primitive numeric sources on `binop` / `compare`
+  - numeric paths unbox through `nyash.integer.get_h` / `nyash.bool.get_h` before arithmetic or integer compare
+  - current pilot is narrow; typed user-box field access is still pending
 - pre-optimization cleanup anchor is now:
   - `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
 - perf release gate now builds `ny-llvmc` as well; do not run exact/asm probes after editing compiler sources without refreshing release artifacts first
@@ -191,8 +195,9 @@
      - step 19: landed; the first follow-on slice is no longer docs-only:
        typed `field_decls` now survive `.hako parser -> AST -> Stage1 Program JSON -> MIR metadata -> MIR JSON`, and canonical MIR now has `field.get` / `field.set`
      - step 20: landed; storage-class facts now wire through declared field types without changing `.hako` surface or generic field semantics
-     - step 21: next; typed primitive access comes before typed user-box field access
-     - step 22: user box flattening is later and optional; do not make it the first move
+     - step 21: landed; typed primitive access now exists as a narrow LLVM-side unbox pilot for `IntegerBox` / `BoolBox`
+     - step 22: next; typed user-box field access comes after the primitive pilot
+     - step 23: user box flattening is later and optional; do not make it the first move
   11. next local cut must show an exact-visible or asm-visible change on `substring_hii`, but only after the upstream corridor slices are in place
 - safe restart order:
   1. `git status -sb`

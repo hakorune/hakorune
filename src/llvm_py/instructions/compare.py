@@ -8,6 +8,11 @@ from typing import Dict, Optional, Any
 from utils.values import resolve_i64_strict, safe_vmap_write
 import os
 from .externcall import lower_externcall
+from .primitive_handles import (
+    primitive_numeric_meta_kind,
+    resolver_value_type,
+    unbox_primitive_handle_if_needed,
+)
 from .string_fast import llvm_fast_enabled
 from trace import values as trace_values
 from trace import hot_count as trace_hot_count
@@ -96,18 +101,13 @@ def lower_compare(
     if op in ('==', '!='):
         lhs_type = None
         rhs_type = None
+        lhs_meta = None
+        rhs_meta = None
         if resolver is not None and hasattr(resolver, 'value_types') and isinstance(resolver.value_types, dict):
             lhs_meta = resolver.value_types.get(lhs)
             rhs_meta = resolver.value_types.get(rhs)
-            # Normalize type metadata
-            if lhs_meta == 'i64' or lhs_meta == 'Integer' or (isinstance(lhs_meta, dict) and lhs_meta.get('kind') in ('i64', 'Integer')):
-                lhs_type = 'Integer'
-            elif lhs_meta == 'f64' or lhs_meta == 'Float' or (isinstance(lhs_meta, dict) and lhs_meta.get('kind') in ('f64', 'Float')):
-                lhs_type = 'Float'
-            if rhs_meta == 'i64' or rhs_meta == 'Integer' or (isinstance(rhs_meta, dict) and rhs_meta.get('kind') in ('i64', 'Integer')):
-                rhs_type = 'Integer'
-            elif rhs_meta == 'f64' or rhs_meta == 'Float' or (isinstance(rhs_meta, dict) and rhs_meta.get('kind') in ('f64', 'Float')):
-                rhs_type = 'Float'
+            lhs_type = primitive_numeric_meta_kind(lhs_meta)
+            rhs_type = primitive_numeric_meta_kind(rhs_meta)
 
         # Int↔Float equality: use kernel helper (avoid Float→i64 conversion)
         if (lhs_type == 'Integer' and rhs_type == 'Float') or (lhs_type == 'Float' and rhs_type == 'Integer'):
@@ -141,11 +141,21 @@ def lower_compare(
 
             # Determine which is int and which is float
             if lhs_type == 'Integer' and rhs_type == 'Float':
-                int_val = lhs_val
+                int_val = unbox_primitive_handle_if_needed(
+                    builder,
+                    lhs_val,
+                    lhs_meta,
+                    name_hint=f"cmp_int_float_lhs_{lhs}",
+                )
                 float_handle = rhs_val
             else:
                 float_handle = lhs_val
-                int_val = rhs_val
+                int_val = unbox_primitive_handle_if_needed(
+                    builder,
+                    rhs_val,
+                    rhs_meta,
+                    name_hint=f"cmp_int_float_rhs_{rhs}",
+                )
 
             # Call kernel helper: i64 nyash.cmp.int_float_eq(i64 int_val, f64 float_val)
             # Phase 275 P0: Float as double (LLVM harness emits Float constants as double, not handle)
@@ -178,16 +188,15 @@ def lower_compare(
     if op in ('==', '!=', '<', '>', '<=', '>='):
         lhs_type = None
         rhs_type = None
+        lhs_meta = None
+        rhs_meta = None
 
         # First, check MIR type metadata
         if resolver is not None and hasattr(resolver, 'value_types') and isinstance(resolver.value_types, dict):
             lhs_meta = resolver.value_types.get(lhs)
             rhs_meta = resolver.value_types.get(rhs)
-            # Normalize type metadata
-            if lhs_meta == 'f64' or lhs_meta == 'Float' or (isinstance(lhs_meta, dict) and lhs_meta.get('kind') in ('f64', 'Float')):
-                lhs_type = 'Float'
-            if rhs_meta == 'f64' or rhs_meta == 'Float' or (isinstance(rhs_meta, dict) and rhs_meta.get('kind') in ('f64', 'Float')):
-                rhs_type = 'Float'
+            lhs_type = primitive_numeric_meta_kind(lhs_meta)
+            rhs_type = primitive_numeric_meta_kind(rhs_meta)
 
         # Phase 275 P0 FIX: Also check actual LLVM type from vmap (fallback for missing metadata)
         # If vmap has a double value, treat it as Float
@@ -299,6 +308,18 @@ def lower_compare(
         )
     lhs_val = _canonicalize_i64(builder, lhs_val, lhs, vmap, "cmp_lhs")
     rhs_val = _canonicalize_i64(builder, rhs_val, rhs, vmap, "cmp_rhs")
+    lhs_val = unbox_primitive_handle_if_needed(
+        builder,
+        lhs_val,
+        resolver_value_type(resolver, lhs),
+        name_hint=f"cmp_lhs_{lhs}",
+    )
+    rhs_val = unbox_primitive_handle_if_needed(
+        builder,
+        rhs_val,
+        resolver_value_type(resolver, rhs),
+        name_hint=f"cmp_rhs_{rhs}",
+    )
 
     # String-aware equality: if meta marks string or either side is tagged string-ish,
     # compare handles directly via nyash.string.eq_hh
