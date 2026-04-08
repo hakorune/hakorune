@@ -50,15 +50,18 @@
   - latest pure Rust reference: `instr=5,667,104 / cycles=1,572,750 / cache-miss=5,254 / ms=3`
   - latest C-like Rust reference: `instr=12,566,914 / cycles=3,404,383 / cache-miss=5,256 / ms=3`
 - exact baseline on this front:
-  - `kilo_micro_substring_only: C 3 ms / AOT 5 ms`
-  - `instr: 49,372,458`
-  - `cycles: 8,539,682`
-  - `cache-miss: 9,294`
+  - `kilo_micro_substring_only: C 3 ms / AOT 8 ms`
+  - `instr: 47,270,021`
+  - `cycles: 28,264,307`
+  - `cache-miss: 9,191`
   - split exact reread:
-    - `kilo_micro_substring_views_only: instr=34,373,156 / cycles=6,421,062 / cache-miss=9,550 / AOT 5 ms`
-    - `kilo_micro_len_substring_views: instr=16,073,034 / cycles=4,347,479 / cache-miss=8,958 / AOT 4 ms`
+    - `kilo_micro_substring_views_only: instr=34,372,839 / cycles=6,483,811 / cache-miss=8,932 / AOT 5 ms`
+    - `kilo_micro_len_substring_views: instr=16,072,530 / cycles=4,296,034 / cache-miss=8,783 / AOT 4 ms`
+- current sink candidate on the mixed accept gate:
+  - `nyash.string.substring_len_hii`
+  - `instr=47,270,021 / cycles=28,264,307 / cache-miss=9,191 / AOT 8 ms`
 - target band for the next keeper:
-  - mixed accept gate: `instr <= 49.1M`
+  - mixed accept gate: `instr <= 47.1M`
   - local split `kilo_micro_substring_views_only`: `instr <= 34.2M`
   - control split `kilo_micro_len_substring_views`: roughly flat is acceptable
   - whole strict: keep `<= 709 ms`; ideal band is `690-705 ms`
@@ -88,6 +91,7 @@
     1. `SUBSTRING_ROUTE_POLICY_CACHE` decode
     2. `substring_view_enabled` / fallback provider state reads
     3. only then `SubstringViewArcCache` steady-state compare
+  - current `substring_len_hii` pilot uses `with_text_read_session_ready(...)` to avoid the hot `REG` ready probe; current helper perf is the mixed sink candidate above
   - split exact reread now puts `substring_hii` retained-view path at `34.37M instr` while `len_h` becomes the smaller control split
   - current keeper is on `len_h`: hoist one `handles::drop_epoch()` read in `string_len_fast_cache_lookup()` and reuse it for both cache slots
   - current keeper also keeps `len_h` trace-off steady state thin by tail-calling a tiny fast-return helper instead of carrying `trace_len_fast_hit(...)` inline in the hot cache-hit block
@@ -100,7 +104,7 @@
   - upstream corridor pilot is now structurally landed:
     - single-use `substring(...).length()` chains sink to `nyash.string.substring_len_hii`
     - kernel export + MIR interpreter fallback are in place
-    - this is not yet a perf keeper; exact/whole/asm validation is still pending
+    - current status is structural plus perf-positive candidate: compile/test are green, and the mixed accept gate now rereads at `instr=47,270,021 / cycles=28,264,307 / cache-miss=9,191 / AOT 8 ms`
   - `nyash.string.substring_hii` / `nyash.string.len_h` / `trace_borrowed_substring_plan` stay as the fallback semantic carrier
   - WSL validation rule stays `3 runs + perf`
 - do not reopen for this lane:
@@ -948,20 +952,21 @@
 
 1. keep canonical contract corridor landed and immutable
 2. treat `kilo_micro_substring_only` as the current exact front
-   - current AOT consumer: `substring_hii` / `len_h` / `trace_borrowed_substring_plan`
-   - current executor: landed local substring result-handle churn trim plus len handle-backed cache
+   - current AOT consumer: `substring_len_hii` / `substring_hii` / `len_h` / `trace_borrowed_substring_plan`
+   - current executor: landed borrowed-corridor sink plus len handle-backed cache
    - use `3 runs + perf` before judging any WSL delta
    - read this front through the substring/len boundary first
-    - latest exact reread stays `C 3 ms / AOT 5 ms`, and perf counters now read `instr 63,462,299`, `cycles 10,440,456`, `cache-miss 9,624`
-    - latest exact symbol order after the `len_h` hotpath shrink: `substring_hii 46.67%`, `len_h 19.29%`, `ny_main 3.80%`
-    - previous validation blockers are cleared:
+    - latest exact reread after the borrowed-corridor sink stays `C 3 ms / AOT 8 ms`, and perf counters now read `instr 47,270,021`, `cycles 28,264,307`, `cache-miss 9,191`
+    - current sink candidate on the mixed gate is `nyash.string.substring_len_hii`
+    - split exact reread after the sink: `kilo_micro_substring_views_only: instr=34,372,839 / cycles=6,483,811 / cache-miss=8,932 / AOT 5 ms`, `kilo_micro_len_substring_views: instr=16,072,530 / cycles=4,296,034 / cache-miss=8,783 / AOT 4 ms`
+    - current validation blockers are cleared:
       1. quick gate is green again after retargeting the stale RawMap clear/delete guard grep from `map_substrate.rs` to `map_aliases.rs`
       2. whole-kilo strict accept is green again after the `concat_hs` deadlock fix plus the const/dynamic split
-    - next backend trim order now that those blockers are cleared:
-      1. `nyash.string.substring_hii` remaining internal view/object overhead
-      2. `nyash.string.len_h` again only if post-substring `3 runs + perf` says it re-opened
-      3. `nyash_kernel::exports::string::string_len_from_handle` remaining internal overhead
-      4. `concat_birth` / `store.array.str` helper seams only if this front reopens
+    - next backend trim order now that the sink is landed:
+      1. `nyash.string.substring_hii` remaining internal view/object overhead on the view-only front
+      2. `nyash.string.substring_len_hii` if the mixed gate needs one more narrow cut
+      3. `nyash.string.len_h` only if post-substring `3 runs + perf` says it re-opened
+      4. `nyash_kernel::exports::string::string_len_from_handle` remaining internal overhead
 3. keep canonical `concat_birth` / fresh-box materialization as the secondary front
    - current AOT consumer: `nyash.string.concat_hh` plus the `materialize_owned_string(...)` backend seam
    - current executor: `string_concat_hh_export_impl(...)` + `materialize_owned_string(...)`

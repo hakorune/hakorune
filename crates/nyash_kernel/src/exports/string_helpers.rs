@@ -20,7 +20,8 @@ use crate::exports::string_search::{
     rfind_substr_byte_index, search_string_pair_hh,
 };
 use crate::exports::string_view::{
-    borrowed_substring_plan_from_handle, resolve_string_span_from_handle, BorrowedSubstringPlan,
+    borrowed_substring_plan_from_handle, clamp_i64_range, resolve_string_span_from_handle,
+    BorrowedSubstringPlan,
 };
 use crate::hako_forward_bridge;
 use crate::observe;
@@ -357,18 +358,18 @@ pub(super) fn string_substring_hii_export_impl(h: i64, start: i64, end: i64) -> 
 
 #[inline(always)]
 pub(super) fn string_substring_len_hii_export_impl(h: i64, start: i64, end: i64) -> i64 {
-    let Some(plan) = borrowed_substring_plan_from_handle(h, start, end, true) else {
+    if h <= 0 {
         return 0;
-    };
-    match plan {
-        BorrowedSubstringPlan::ReturnHandle => resolve_string_span_from_handle(h)
-            .map(|span| span.len() as i64)
-            .unwrap_or(0),
-        BorrowedSubstringPlan::ReturnEmpty => 0,
-        BorrowedSubstringPlan::FreezeSpan(span) | BorrowedSubstringPlan::ViewSpan(span) => {
-            span.len() as i64
-        }
     }
+    handles::with_text_read_session_ready(|session| {
+        session
+            .str_handle(h as u64, |text| {
+                let (start, end) = clamp_i64_range(text.len(), start, end);
+                end.saturating_sub(start) as i64
+            })
+            .unwrap_or(0)
+    })
+    .unwrap_or(0)
 }
 
 pub(super) fn string_indexof_hh_export_impl(h: i64, n: i64) -> i64 {

@@ -42,16 +42,19 @@ Scope: repo root から current lane / current front / restart read order に最
     - latest C-like Rust reference: `instr=12,566,914 / cycles=3,404,383 / cache-miss=5,256 / ms=3`
   - rule: WSL は `3 runs + perf` でしか delta を採らない
 - current exact baseline:
-  - `kilo_micro_substring_only: C 3 ms / AOT 5 ms`
-  - `instr: 49,372,458`
-  - `cycles: 8,539,682`
-  - `cache-miss: 9,294`
+  - `kilo_micro_substring_only: C 3 ms / AOT 8 ms`
+  - `instr: 47,270,021`
+  - `cycles: 28,264,307`
+  - `cache-miss: 9,191`
   - split exact reread:
-    - `kilo_micro_substring_views_only: instr=34,373,156 / cycles=6,421,062 / cache-miss=9,550 / AOT 5 ms`
-    - `kilo_micro_len_substring_views: instr=16,073,034 / cycles=4,347,479 / cache-miss=8,958 / AOT 4 ms`
+    - `kilo_micro_substring_views_only: instr=34,372,839 / cycles=6,483,811 / cache-miss=8,932 / AOT 5 ms`
+    - `kilo_micro_len_substring_views: instr=16,072,530 / cycles=4,296,034 / cache-miss=8,783 / AOT 4 ms`
   - reading: latest keeper came from `len_h`, and the split pair now says `substring_hii` is first target again
+- current mixed sink candidate:
+  - `nyash.string.substring_len_hii`
+  - latest reread: `instr=47,270,021 / cycles=28,264,307 / cache-miss=9,191 / AOT 8 ms`
 - target band for the next keeper:
-  - mixed accept gate: `instr <= 49.1M`
+  - mixed accept gate: `instr <= 47.1M`
   - local split `kilo_micro_substring_views_only`: `instr <= 34.2M`
   - control split `kilo_micro_len_substring_views`: roughly flat is acceptable
   - whole strict: hold `<= 709 ms`; ideal band is `690-705 ms`
@@ -76,6 +79,7 @@ Scope: repo root から current lane / current front / restart read order に最
   - `str.substring.route` observe read shows `view_arc_cache_handle_hit=599,998 / total=600,000`
   - `view_arc_cache_reissue_hit=0`, `view_arc_cache_miss=2`, `fast_cache_hit=0`, `dispatch_hit=0`, `slow_plan=2`
   - current keeper removes redundant `view_enabled` state from `SubstringViewArcCache`; this cache only runs under the `view_enabled` route, so the flag compare/store was dead hot-path work
+  - `nyash.string.substring_len_hii` is now the current mixed sink candidate; it uses `with_text_read_session_ready(...)` to avoid the hot `REG` ready probe and currently rereads at `47,270,021 instr / 28,264,307 cycles / 9,191 cache-miss / 8 ms`
   - split exact fronts now put `substring_hii` retained-view path at `34.37M instr`
   - `2026-04-09` perf reread on `kilo_micro_substring_views_only`:
     - exact: `instr=34,372,749 / cycles=6,415,829 / cache-miss=8,601 / AOT 4 ms`
@@ -100,7 +104,7 @@ Scope: repo root から current lane / current front / restart read order に最
   - upstream corridor pilot is now structurally landed:
     - single-use `substring(...).length()` chains can sink to `nyash.string.substring_len_hii`
     - kernel export + MIR interpreter fallback are in place
-    - this is not yet a perf keeper; exact/whole/asm validation is still pending
+    - current status is structural plus perf-positive candidate: compile/test are green, and the mixed accept gate now rereads at `instr=47,270,021 / cycles=28,264,307 / cache-miss=9,191 / AOT 8 ms`
 - rejected perf history:
   - exact evidence is centralized in
     `docs/development/current/main/investigations/phase137x-substring-rejected-optimizations-2026-04-08.md`

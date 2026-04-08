@@ -13,6 +13,7 @@
         HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_NONE = 0,
         HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_CONCAT_HH,
         HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_CONCAT3_HHH,
+        HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_SUBSTRING_LEN_HII,
       };
 
       auto enum MirCallConstructorSurfaceKind
@@ -41,6 +42,9 @@
         }
         if (mname && !strcmp(mname, "nyash.string.concat3_hhh")) {
           return HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_CONCAT3_HHH;
+        }
+        if (mname && !strcmp(mname, "nyash.string.substring_len_hii")) {
+          return HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_SUBSTRING_LEN_HII;
         }
         return HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_NONE;
       }

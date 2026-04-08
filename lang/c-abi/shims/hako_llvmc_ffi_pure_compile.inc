@@ -370,6 +370,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       // Unboxer (declare opportunistically; low cost)
       fprintf(f, "declare i64 @\"nyash.integer.get_h\"(i64)\n");
       if (needs.printf)    fprintf(f, "declare i32 @printf(ptr, ...)\n");
+      if (needs.string_substring_len) fprintf(f, "declare i64 @\"nyash.string.substring_len_hii\"(i64, i64, i64)\n");
       fprintf(f, "\n");
       // Unboxer (declare opportunistically; low cost)
       hako_llvmc_emit_entry_header(f, &selection);

@@ -14,6 +14,7 @@
         int string_const_box;
         int string_len;
         int string_substring;
+        int string_substring_len;
         int string_indexof;
         int string_concat;
         int printf;
@@ -35,6 +36,7 @@
         HAKO_LLVMC_MIR_CALL_NEED_ARRAY_STRING_INDEXOF,
         HAKO_LLVMC_MIR_CALL_NEED_STRING_LEN,
         HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING,
+        HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING_LEN,
         HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF,
         HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT,
         HAKO_LLVMC_MIR_CALL_NEED_PRINTF,
@@ -86,6 +88,9 @@
             break;
           case HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING:
             needs->string_substring = 1;
+            break;
+          case HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING_LEN:
+            needs->string_substring_len = 1;
             break;
           case HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF:
             needs->string_indexof = 1;
@@ -209,6 +214,9 @@
             (!strcmp(mname, "nyash.string.concat_hh") ||
              !strcmp(mname, "nyash.string.concat3_hhh"))) {
           return HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT;
+        }
+        if (mname && !strcmp(mname, "nyash.string.substring_len_hii")) {
+          return HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING_LEN;
         }
         return HAKO_LLVMC_MIR_CALL_NEED_NONE;
       }

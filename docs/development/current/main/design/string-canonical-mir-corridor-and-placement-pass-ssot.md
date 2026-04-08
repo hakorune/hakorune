@@ -48,6 +48,16 @@ Current active local front is `kilo_micro_substring_views_only`.
 Current reading says the next large win is not another local helper rewrite.
 It is reducing per-call route/provider/cache-entry tax by deciding more of the
 borrowed corridor before Rust runtime mechanics run.
+The first sink candidate on that path is now `nyash.string.substring_len_hii`:
+
+- mixed accept gate reread on 2026-04-09:
+  - `instr=47,270,021`
+  - `cycles=28,264,307`
+  - `cache-miss=9,191`
+  - `ny_aot_ms=8`
+- split exact reread on the same date:
+  - `kilo_micro_substring_views_only: instr=34,372,839 / cycles=6,483,811 / cache-miss=8,932 / AOT 5 ms`
+  - `kilo_micro_len_substring_views: instr=16,072,530 / cycles=4,296,034 / cache-miss=8,783 / AOT 4 ms`
 
 ## Fixed Decisions
 
@@ -273,7 +283,7 @@ Acceptance:
 - landed structural pilot:
   - `src/mir/passes/string_corridor_sink.rs` rewrites single-use `substring(...).length()` chains to `nyash.string.substring_len_hii`
   - `nyash.string.substring_len_hii` is now available in both the kernel export layer and the MIR interpreter extern fallback
-  - current status is structural only: compile/test are green, but accept-gate perf evidence is still pending
+  - current status is structural plus perf-positive candidate: compile/test are green, and the mixed accept gate now rereads at `instr=47,270,021 / cycles=28,264,307 / cache-miss=9,191 / AOT 8 ms`
 
 Acceptance:
 

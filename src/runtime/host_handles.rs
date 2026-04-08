@@ -566,6 +566,14 @@ pub fn with_text_read_session<R>(f: impl FnOnce(TextReadSession<'_>) -> R) -> R 
     reg().with_text_read_session(|session| f(session))
 }
 
+/// Borrow a read-only string session only when the registry is already initialized.
+/// This avoids the `get_or_init` slow path on hot pure-string corridors.
+#[inline(always)]
+pub fn with_text_read_session_ready<R>(f: impl FnOnce(TextReadSession<'_>) -> R) -> Option<R> {
+    let reg = REG.get()?;
+    Some(reg.with_text_read_session(|session| f(session)))
+}
+
 /// HostHandle(u64)x2 -> Arc<dyn NyashBox>x2.
 /// Uses a single registry read-lock acquisition for paired lookups.
 #[inline(always)]

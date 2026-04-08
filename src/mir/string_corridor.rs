@@ -222,17 +222,18 @@ fn infer_fact_from_instruction(inst: &MirInstruction) -> Option<(ValueId, String
 }
 
 fn infer_from_method(box_name: &str, method: &str, arity: usize) -> Option<StringCorridorFact> {
-    if !is_stringish_box_name(box_name) {
-        return None;
-    }
+    let is_runtime_data_string_facade = box_name == "RuntimeDataBox";
+    let is_stringish = is_stringish_box_name(box_name);
 
     match (method, arity) {
-        ("length", 0) | ("len", 0) => Some(StringCorridorFact::str_len(
+        ("length", 0) | ("len", 0) if is_stringish => Some(StringCorridorFact::str_len(
             StringCorridorCarrier::MethodCall,
         )),
-        ("substring", 2) | ("slice", 2) => Some(StringCorridorFact::str_slice(
-            StringCorridorCarrier::MethodCall,
-        )),
+        ("substring", 2) | ("slice", 2) if is_stringish || is_runtime_data_string_facade => {
+            Some(StringCorridorFact::str_slice(
+                StringCorridorCarrier::MethodCall,
+            ))
+        }
         _ => None,
     }
 }
@@ -309,6 +310,15 @@ mod tests {
         assert_eq!(fact.role, StringCorridorRole::ScalarConsumer);
         assert_eq!(fact.carrier, StringCorridorCarrier::MethodCall);
         assert_eq!(fact.objectize, StringPlacementFact::None);
+    }
+
+    #[test]
+    fn infer_runtime_data_substring_fact() {
+        let fact =
+            infer_from_method("RuntimeDataBox", "substring", 2).expect("substring fact");
+        assert_eq!(fact.op, StringCorridorOp::StrSlice);
+        assert_eq!(fact.role, StringCorridorRole::BorrowProducer);
+        assert_eq!(fact.carrier, StringCorridorCarrier::MethodCall);
     }
 
     #[test]

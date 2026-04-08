@@ -338,5 +338,44 @@
           return 1;
         }
 
+        if (kind == HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_SUBSTRING_LEN_HII) {
+          if (argc != 3) return -1;
+          append_i64_arg_ref(
+              ab, sizeof(ab), (long long)yyjson_get_sint(yyjson_arr_get(args, 0)), 1);
+          append_i64_arg_ref(
+              ab, sizeof(ab), (long long)yyjson_get_sint(yyjson_arr_get(args, 1)), 0);
+          append_i64_arg_ref(
+              ab, sizeof(ab), (long long)yyjson_get_sint(yyjson_arr_get(args, 2)), 0);
+          if (dst) {
+            fprintf(
+                f,
+                "  %%r%lld = call i64 @\"nyash.string.substring_len_hii\"(%s)\n",
+                dst,
+                ab);
+            set_type(dst, T_I64);
+          } else {
+            fprintf(f, "  call i64 @\"nyash.string.substring_len_hii\"(%s)\n", ab);
+          }
+          if (hako_llvmc_route_trace_enabled()) {
+            char extra[192];
+            snprintf(extra, sizeof(extra), "argc=%zu args=%s", argc, ab);
+            hako_llvmc_emit_route_trace(
+                "mir_call_string_extern",
+                "hit",
+                "substring_len_hii",
+                extra);
+          }
+          return 1;
+        }
+
+        if (hako_llvmc_route_trace_enabled()) {
+          char extra[192];
+          snprintf(extra, sizeof(extra), "kind=%d argc=%zu", (int)kind, argc);
+          hako_llvmc_emit_route_trace(
+              "mir_call_string_extern",
+              "miss",
+              "unsupported",
+              extra);
+        }
         return -1;
       }

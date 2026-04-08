@@ -94,25 +94,20 @@ fn collect_plans(
                 continue;
             };
 
-            let Some(outer_fact) = function.metadata.string_corridor_facts.get(&outer_dst) else {
-                continue;
-            };
-            if outer_fact.op != StringCorridorOp::StrLen {
+            let receiver_root = resolve_copy_chain_source(function, def_map, receiver);
+            if use_counts.get(&receiver_root).copied().unwrap_or(0) != 1 {
                 continue;
             }
 
-            if use_counts.get(&receiver).copied().unwrap_or(0) != 1 {
-                continue;
-            }
-
-            let Some((inner_bbid, inner_idx)) = def_map.get(&receiver).copied() else {
+            let Some((inner_bbid, inner_idx)) = def_map.get(&receiver_root).copied() else {
                 continue;
             };
             if inner_bbid != *bbid || inner_idx >= outer_idx {
                 continue;
             }
 
-            let Some(inner_fact) = function.metadata.string_corridor_facts.get(&receiver) else {
+            let Some(inner_fact) = function.metadata.string_corridor_facts.get(&receiver_root)
+            else {
                 continue;
             };
             if inner_fact.op != StringCorridorOp::StrSlice {
@@ -141,6 +136,32 @@ fn collect_plans(
     }
 
     plans_by_block
+}
+
+fn resolve_copy_chain_source(
+    function: &MirFunction,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    mut value: ValueId,
+) -> ValueId {
+    let mut visited: BTreeSet<ValueId> = BTreeSet::new();
+    while visited.insert(value) {
+        let Some((bbid, idx)) = def_map.get(&value).copied() else {
+            break;
+        };
+        let Some(block) = function.blocks.get(&bbid) else {
+            break;
+        };
+        let Some(inst) = block.instructions.get(idx) else {
+            break;
+        };
+        match inst {
+            MirInstruction::Copy { src, .. } => {
+                value = *src;
+            }
+            _ => break,
+        }
+    }
+    value
 }
 
 fn match_len_call(inst: &MirInstruction) -> Option<(ValueId, ValueId, EffectMask)> {
@@ -344,6 +365,90 @@ mod tests {
                 ..
             } => {
                 assert_eq!(*dst, Some(ValueId(4)));
+                assert_eq!(name, SUBSTRING_LEN_EXTERN);
+                assert_eq!(args, &vec![ValueId(0), ValueId(1), ValueId(2)]);
+            }
+            other => panic!("expected direct extern rewrite, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn rewrites_runtime_data_substring_length_chain_through_copy_chain() {
+        let mut module = MirModule::new("substring_len_runtime_data".to_string());
+        let signature = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![
+                MirType::Box("RuntimeDataBox".to_string()),
+                MirType::Integer,
+                MirType::Integer,
+            ],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId(0));
+        let block = function.blocks.get_mut(&BasicBlockId(0)).expect("entry");
+
+        block.instructions.push(method_call(
+            ValueId(3),
+            ValueId(0),
+            "RuntimeDataBox",
+            "substring",
+            vec![ValueId(1), ValueId(2)],
+            MirType::Box("RuntimeDataBox".to_string()),
+        ));
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Copy {
+            dst: ValueId(4),
+            src: ValueId(3),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Copy {
+            dst: ValueId(5),
+            src: ValueId(4),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(method_call(
+            ValueId(6),
+            ValueId(5),
+            "RuntimeDataBox",
+            "length",
+            vec![],
+            MirType::Integer,
+        ));
+        block.instruction_spans.push(Span::unknown());
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId(6)),
+        });
+
+        function.metadata.value_types.insert(
+            ValueId(3),
+            MirType::Box("RuntimeDataBox".to_string()),
+        );
+        function.metadata.value_types.insert(
+            ValueId(4),
+            MirType::Box("RuntimeDataBox".to_string()),
+        );
+        function.metadata.value_types.insert(
+            ValueId(5),
+            MirType::Box("RuntimeDataBox".to_string()),
+        );
+        function.metadata.value_types.insert(ValueId(6), MirType::Integer);
+        module.add_function(function);
+
+        let rewritten = sink_borrowed_string_corridors(&mut module);
+        assert_eq!(rewritten, 1);
+
+        let function = module.get_function("main").expect("main");
+        let block = function.blocks.get(&BasicBlockId(0)).expect("entry");
+        assert_eq!(block.instructions.len(), 3);
+        match &block.instructions[2] {
+            MirInstruction::Call {
+                dst,
+                callee: Some(Callee::Extern(name)),
+                args,
+                ..
+            } => {
+                assert_eq!(*dst, Some(ValueId(6)));
                 assert_eq!(name, SUBSTRING_LEN_EXTERN);
                 assert_eq!(args, &vec![ValueId(0), ValueId(1), ValueId(2)]);
             }
