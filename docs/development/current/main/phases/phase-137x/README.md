@@ -33,22 +33,29 @@
 
 - this block is the current truth for restart; if older numbers below disagree, prefer this block
 - restart with the code as it is now
-- current front is fixed to `kilo_micro_substring_only`
+- mixed accept gate stays `kilo_micro_substring_only`
+- split exact fronts are now:
+  - `kilo_micro_substring_views_only`
+  - `kilo_micro_len_substring_views`
+- current local cut front is `kilo_micro_len_substring_views`
 - exact baseline on this front:
   - `kilo_micro_substring_only: C 3 ms / AOT 5 ms`
-  - `instr: 61,072,620`
-  - `cycles: 10,218,661`
-  - `cache-miss: 9,409`
-  - symbol order: `substring_hii 50.62%`, `len_h 39.89%`, `ny_main 4.35%`
+  - `instr: 59,272,932`
+  - `cycles: 10,007,852`
+  - `cache-miss: 8,699`
+  - split exact reread:
+    - `kilo_micro_substring_views_only: instr=37,073,398 / cycles=6,880,057 / cache-miss=9,746 / AOT 3 ms`
+    - `kilo_micro_len_substring_views: instr=23,272,760 / cycles=4,123,725 / cache-miss=9,284 / AOT 4 ms`
 - current whole-kilo health:
   - `tools/checks/dev_gate.sh quick` is green
-  - `kilo_kernel_small_hk` strict accepted reread: `ny_aot_ms=701`
+  - `kilo_kernel_small_hk` strict accepted reread: `ny_aot_ms=744`
   - parity: `vm_result=1140576`, `aot_result=1140576`
 - current landed substring truth:
   - `substring_hii` can reissue a fresh handle from a cached `StringViewBox` object when the transient result handle dropped but the source handle still points to the same live source object
   - `str.substring.route` observe read is now dominated by the steady-state handle-hit path: `view_arc_cache_handle_hit=599,998 / total=600,000`
   - current keeper removes redundant `view_enabled` state from `SubstringViewArcCache`; the cache only runs under `view_enabled`, so the extra key dimension was dead hot-path work
-  - `substring_hii` is the active hotspot; `len_h` is no longer the first local front
+  - split exact reread now shows `substring_hii` retained-view path is basically flat while `len_h` moves independently
+  - current keeper is on `len_h`: hoist one `handles::drop_epoch()` read in `string_len_fast_cache_lookup()` and reuse it for both cache slots
   - `nyash.string.substring_hii` / `nyash.string.len_h` / `trace_borrowed_substring_plan` stay as the fallback semantic carrier
   - WSL validation rule stays `3 runs + perf`
 - do not reopen for this lane:
@@ -64,18 +71,22 @@
     3. birth-side second `with_handle(...)` removal via planner-local source metadata carry
     4. reissue-side slot carry / `refresh_handle` rematch removal
     5. concrete `Arc<StringViewBox>` cache carrier narrowing
+    6. `len_h` cache-first reorder
+    7. dispatch/trace false-state helper split
 - next active cut:
-  1. keep runtime cache mechanics unchanged
-  2. stay inside the dominant `view_arc_cache handle-hit` path only
-  3. do not widen planner / publication shape again unless counters show `miss` or `reissue` matter
-  4. revisit `len_h` only if post-substring `3 runs + perf` reopens it
+  1. keep `kilo_micro_substring_only` as accept gate
+  2. use `kilo_micro_len_substring_views` for local `len_h` cuts
+  3. keep substring runtime cache mechanics unchanged unless split fronts move again
+  4. next local cut is `len_h` fast-hit / trace-off path only
 - safe restart order:
   1. `git status -sb`
   2. `tools/checks/dev_gate.sh quick`
   3. `tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_only 1 3`
   4. `tools/perf/run_kilo_hk_bench.sh strict 1 3`
-  5. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_only '' 20`
-  6. read the rejected ledger before retrying any substring-local cut
+  5. `tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_views_only 1 3`
+  6. `tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_len_substring_views 1 3`
+  7. `tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_only '' 20`
+  8. read the rejected ledger before retrying any substring-local cut
 - documentation rule for failed perf cuts:
   1. keep a short current summary in this README
   2. keep exact rejected-cut evidence in one rolling investigation doc per front/family/date
@@ -86,11 +97,11 @@
   3. lift only when the semantics are common and lifetime / ownership boundaries remain explicit at the higher layer
   4. avoid repeating Rust-local cache additions in the same family without rechecking that promotion condition
 - immediate substring follow-up:
-  1. keep runtime cache mechanics as-is; do not retry the reverted `len_h` cold-split helper shape
+  1. keep runtime cache mechanics as-is; substring-side local shape is no longer the first cut
   2. read the rejected ledger before retrying any substring-local cut
-  3. next local cut is the dominant `view_arc_cache handle-hit` branch only
-  4. do not widen planner / publication shape again unless counters show `miss` or `reissue` matter
-  5. revisit `nyash.string.len_h` only if post-substring `3 runs + perf` says it reopened
+  3. use the split exact pair before touching `substring_hii` again
+  4. current next local cut is `nyash.string.len_h` fast-hit / trace-off only
+  5. only reopen substring-local structural cuts if the split pair says `substring_hii` moved back on top
 - lifecycle placement is fixed:
   - `.hako`: source-preserve / identity / publication demand
   - `MIR`: visibility carrier and escalation contract

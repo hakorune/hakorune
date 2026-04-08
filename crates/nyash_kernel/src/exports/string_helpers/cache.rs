@@ -567,13 +567,14 @@ pub(super) fn substring_view_arc_cache_refresh_handle(
 #[inline(always)]
 pub(super) fn string_len_fast_cache_lookup(handle: i64) -> Option<i64> {
     STRING_LEN_FAST_CACHE.with(|cache| {
+        let current_drop_epoch = handles::drop_epoch();
         if cache.handle.get() == handle {
-            if cache.drop_epoch.get() == handles::drop_epoch() {
+            if cache.drop_epoch.get() == current_drop_epoch {
                 return Some(cache.len.get());
             }
             return None;
         }
-        if cache.handle2.get() == handle && cache.drop_epoch.get() == handles::drop_epoch() {
+        if cache.handle2.get() == handle && cache.drop_epoch.get() == current_drop_epoch {
             return Some(cache.len2.get());
         }
         None

@@ -1,0 +1,21 @@
+// kilo/text exact microbench:
+// retained substring view publication/reuse with len moved out of the loop.
+static box Main {
+  main() {
+    local ops = 300000
+    local text = "line-seed-abcdef"
+    local len = text.length()
+    local split = len / 2
+    local i = 0
+    local left = text
+    local right = text
+
+    loop (i < ops) {
+      left = text.substring(0, split)
+      right = text.substring(split, len)
+      i = i + 1
+    }
+
+    return left.length() + right.length() + len
+  }
+}

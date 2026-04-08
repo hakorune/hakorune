@@ -1,0 +1,21 @@
+// kilo/text exact microbench:
+// len_h on stable retained substring views with substring moved out of the loop.
+static box Main {
+  main() {
+    local ops = 300000
+    local text = "line-seed-abcdef"
+    local len = text.length()
+    local split = len / 2
+    local left = text.substring(0, split)
+    local right = text.substring(split, len)
+    local i = 0
+    local acc = 0
+
+    loop (i < ops) {
+      acc = acc + left.length() + right.length()
+      i = i + 1
+    }
+
+    return acc + len
+  }
+}
