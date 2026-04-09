@@ -18,6 +18,7 @@ from instructions.field_access import lower_field_get, lower_field_set
 from instructions.externcall import lower_externcall
 from instructions.typeop import lower_typeop
 from instructions.newbox import lower_newbox
+from instructions.sum_ops import lower_sum_make, lower_sum_project, lower_sum_tag
 from instructions.safepoint import lower_safepoint
 from instructions.barrier import lower_barrier
 from instructions.select import lower_select  # Phase 256 P1.5: Select instruction
@@ -44,6 +45,9 @@ SUPPORTED_OPS = {
     "boxcall",
     "externcall",
     "newbox",
+    "sum_make",
+    "sum_tag",
+    "sum_project",
     "typeop",
     "safepoint",
     "barrier",
@@ -227,6 +231,54 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
         dst = inst.get("dst")
         lower_newbox(builder, ctx.module, box_type, args, dst,
                      vmap_ctx, ctx.resolver, ctx.lower_ctx)
+
+    elif op == "sum_make":
+        lower_sum_make(
+            builder,
+            ctx.module,
+            inst.get("dst"),
+            inst.get("enum"),
+            inst.get("variant"),
+            inst.get("tag"),
+            inst.get("payload"),
+            inst.get("payload_type"),
+            vmap_ctx,
+            ctx.resolver,
+            ctx.preds,
+            ctx.block_end_values,
+            ctx.bb_map,
+        )
+
+    elif op == "sum_tag":
+        lower_sum_tag(
+            builder,
+            ctx.module,
+            inst.get("dst"),
+            inst.get("value"),
+            inst.get("enum"),
+            vmap_ctx,
+            ctx.resolver,
+            ctx.preds,
+            ctx.block_end_values,
+            ctx.bb_map,
+        )
+
+    elif op == "sum_project":
+        lower_sum_project(
+            builder,
+            ctx.module,
+            inst.get("dst"),
+            inst.get("value"),
+            inst.get("enum"),
+            inst.get("variant"),
+            inst.get("tag"),
+            inst.get("payload_type"),
+            vmap_ctx,
+            ctx.resolver,
+            ctx.preds,
+            ctx.block_end_values,
+            ctx.bb_map,
+        )
 
     elif op == "typeop":
         operation = inst.get("operation")

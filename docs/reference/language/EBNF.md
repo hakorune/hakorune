@@ -78,10 +78,12 @@ default_arm:= '_' '=>' (expr | block) ','?
 
 pattern   := '_'
            | STRING | INT | FLOAT | 'true' | 'false' | 'null'
-           | IDENT '(' IDENT? ')'           ; Type pattern e.g., StringBox(s)
-           | '[' (IDENT (',' '..' IDENT)? )? ']'
-           | '{' ( (STRING|IDENT) ':' IDENT (',' '..')? )? '}'
-           | pattern '|' pattern            ; OR pattern (same arm)
+            | IDENT '(' IDENT? ')'           ; Type pattern or known-enum single-payload shorthand
+            | IDENT                          ; Known-enum unit shorthand, e.g. None
+            | IDENT '{' IDENT (',' IDENT)* '}' ; Known-enum record shorthand, e.g. Ident { name }
+            | '[' (IDENT (',' '..' IDENT)? )? ']'
+            | '{' ( (STRING|IDENT) ':' IDENT (',' '..')? )? '}'
+            | pattern '|' pattern            ; OR pattern (same arm)
 
 guard     := 'if' expr
 
@@ -107,6 +109,8 @@ Notes
 - Map literal is enabled when syntax sugar is on (NYASH_SYNTAX_SUGAR_LEVEL=basic|full) or when NYASH_ENABLE_MAP_LITERAL=1 is set.
 - Identifier keys in map literals are out of v1 scope (string keys only): use `%{"name" => v}`.
 - Pattern matching: `match` replaces legacy `peek`. MVP supports wildcard `_`, literals, simple type patterns, fixed/variadic array heads `[hd, ..tl]`, simple map key extract `{ "k": v, .. }`, OR patterns, and guards `if`.
+- Known-enum shorthand: `Some(v)` / `None` is accepted only when the arm set resolves to a known enum declaration in the current source inventory.
+- Known-enum exhaustiveness: shorthand enum matches must name every variant explicitly; `_` does not satisfy exhaustiveness for that lane.
 
 ## Box Members (Phase‑15, env gate: NYASH_ENABLE_UNIFIED_MEMBERS; default ON)
 
@@ -190,7 +194,27 @@ Semantics (SSOT):
 - `init { weak x, weak y }` declares **weak fields** (equivalent to writing `weak x` / `weak y` as members).
 - It does not execute code. Initialization logic belongs in `birth(...) { ... }` and assignments.
 - **New code** should prefer the direct syntax: `weak field_name` (Phase 285A1.2) or the unified member model (`stored/computed/once/birth_once`).
-  - Legacy `init { weak field }` syntax still works for backward compatibility but is superseded by `weak field`.
+- Legacy `init { weak field }` syntax still works for backward compatibility but is superseded by `weak field`.
+
+## Enum Declarations (Phase-163x parser surface)
+
+```ebnf
+enum_decl        := 'enum' IDENT ('<' IDENT (',' IDENT)* '>')? '{' enum_variant* '}'
+enum_variant     := IDENT
+                  | IDENT '(' TYPE_REF ')'
+                  | IDENT '{' enum_record_field (',' enum_record_field)* '}'
+enum_record_field:= IDENT ':' TYPE_REF
+qualified_ctor   := IDENT '::' IDENT '(' args? ')'
+                  | IDENT '::' IDENT '{' enum_record_init (',' enum_record_init)* '}'
+enum_record_init := IDENT ':' expr
+```
+
+Notes:
+- current executable surface includes unit variants, single-payload tuple variants, and a narrow named-record variant cut
+- known-enum shorthand includes `Some(v)` / `None` and narrow record patterns like `Ident { name }`
+- record constructors / patterns must mention the declared field set exactly
+- multi-payload variants and block-bodied record shorthand arms are not part of this cut yet
+- `qualified_ctor` is the narrow constructor surface used by enum values; this does not imply a general `::` static-method migration
 
 ## Stage‑3 (Gated) Additions
 

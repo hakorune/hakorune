@@ -52,6 +52,13 @@ pub enum StructureNode {
         attrs: DeclarationAttrs,
         span: Span,
     },
+    EnumDeclaration {
+        name: String,
+        variants: Vec<EnumVariantDecl>,
+        type_parameters: Vec<String>,
+        attrs: DeclarationAttrs,
+        span: Span,
+    },
     FunctionDeclaration {
         name: String,
         params: Vec<String>,
@@ -138,6 +145,13 @@ pub enum ExpressionNode {
         else_expr: Box<ASTNode>,
         span: Span,
     },
+    EnumMatchExpr {
+        enum_name: String,
+        scrutinee: Box<ASTNode>,
+        arms: Vec<EnumMatchArm>,
+        else_expr: Option<Box<ASTNode>>,
+        span: Span,
+    },
     // (Stage‑2 sugar for literals is represented in unified ASTNode, not here)
 }
 
@@ -197,6 +211,32 @@ pub struct FieldDecl {
     pub name: String,
     pub declared_type_name: Option<String>,
     pub is_weak: bool,
+}
+
+/// First-class enum variant declaration carried from parser surface.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct EnumVariantDecl {
+    pub name: String,
+    pub payload_type_name: Option<String>,
+    pub record_field_decls: Vec<FieldDecl>,
+}
+
+impl EnumVariantDecl {
+    pub fn has_payload(&self) -> bool {
+        self.payload_type_name.is_some() || !self.record_field_decls.is_empty()
+    }
+
+    pub fn is_record_payload(&self) -> bool {
+        !self.record_field_decls.is_empty()
+    }
+}
+
+/// Known-enum shorthand match arm carried until canonical sum lowering lands.
+#[derive(Debug, Clone, PartialEq)]
+pub struct EnumMatchArm {
+    pub variant_name: String,
+    pub binding_name: Option<String>,
+    pub body: ASTNode,
 }
 
 /// リテラル値の型 (Clone可能)
@@ -439,6 +479,13 @@ pub enum ASTNode {
         else_expr: Box<ASTNode>,
         span: Span,
     },
+    EnumMatchExpr {
+        enum_name: String,
+        scrutinee: Box<ASTNode>,
+        arms: Vec<EnumMatchArm>,
+        else_expr: Option<Box<ASTNode>>,
+        span: Span,
+    },
     /// 配列リテラル（糖衣）: [e1, e2, ...]
     ArrayLiteral { elements: Vec<ASTNode>, span: Span },
     /// マップリテラル（糖衣）: { "k": v, ... } （Stage‑2: 文字列キー限定）
@@ -517,6 +564,15 @@ pub enum ASTNode {
         body: Vec<ASTNode>,
         is_static: bool,   // 🔥 静的メソッドフラグ
         is_override: bool, // 🔥 オーバーライドフラグ
+        attrs: DeclarationAttrs,
+        span: Span,
+    },
+
+    /// enum宣言: enum Name<T> { None, Some(T) }
+    EnumDeclaration {
+        name: String,
+        variants: Vec<EnumVariantDecl>,
+        type_parameters: Vec<String>,
         attrs: DeclarationAttrs,
         span: Span,
     },

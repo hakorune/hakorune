@@ -390,6 +390,20 @@ pub struct UserBoxFieldDecl {
     pub is_weak: bool,
 }
 
+/// Declared variant inventory for first-class enum/sum metadata.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MirEnumVariantDecl {
+    pub name: String,
+    pub payload_type_name: Option<String>,
+}
+
+/// Declared enum inventory carried alongside MIR modules.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MirEnumDecl {
+    pub type_parameters: Vec<String>,
+    pub variants: Vec<MirEnumVariantDecl>,
+}
+
 /// A MIR module containing multiple functions
 #[derive(Debug, Clone)]
 pub struct MirModule {
@@ -432,6 +446,9 @@ pub struct ModuleMetadata {
     /// Typed field declarations for user-defined boxes.
     /// This stays parallel to `user_box_decls` so names-only compatibility remains intact.
     pub user_box_field_decls: std::collections::HashMap<String, Vec<UserBoxFieldDecl>>,
+
+    /// Declared enum inventory for canonical sum lowering and runtime/codegen handoff.
+    pub enum_decls: BTreeMap<String, MirEnumDecl>,
 
     /// NCL-1: Externalized closure bodies (`body_id -> AST body`).
     /// NewClosure keeps only a small descriptor and references this table.

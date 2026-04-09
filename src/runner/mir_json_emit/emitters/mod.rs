@@ -3,6 +3,7 @@ mod calls;
 mod control_flow;
 mod fields;
 mod phi;
+mod sum;
 mod weak;
 
 use crate::mir::MirInstruction as I;
@@ -96,6 +97,41 @@ fn emit_instruction(
             value,
             declared_type,
         } => Ok(fields::emit_field_set(base, field, value, declared_type)),
+        I::SumMake {
+            dst,
+            enum_name,
+            variant,
+            tag,
+            payload,
+            payload_type,
+        } => Ok(sum::emit_sum_make(
+            dst,
+            enum_name,
+            variant,
+            *tag,
+            payload.as_ref(),
+            payload_type.as_ref(),
+        )),
+        I::SumTag {
+            dst,
+            value,
+            enum_name,
+        } => Ok(sum::emit_sum_tag(dst, value, enum_name)),
+        I::SumProject {
+            dst,
+            value,
+            enum_name,
+            variant,
+            tag,
+            payload_type,
+        } => Ok(sum::emit_sum_project(
+            dst,
+            value,
+            enum_name,
+            variant,
+            *tag,
+            payload_type.as_ref(),
+        )),
         I::Select {
             dst,
             cond,

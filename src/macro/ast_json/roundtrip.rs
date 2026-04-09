@@ -1,4 +1,6 @@
-use nyash_rust::ast::{ASTNode, DeclarationAttrs, FieldDecl, LiteralValue, RuneAttr, Span};
+use nyash_rust::ast::{
+    ASTNode, DeclarationAttrs, EnumVariantDecl, FieldDecl, LiteralValue, RuneAttr, Span,
+};
 use serde_json::Value;
 use std::collections::HashMap;
 
@@ -198,6 +200,56 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
                 span: Span::unknown(),
             }
         }
+        "EnumDeclaration" => ASTNode::EnumDeclaration {
+            name: v.get("name")?.as_str()?.to_string(),
+            variants: v
+                .get("variants")?
+                .as_array()?
+                .iter()
+                .filter_map(|item| {
+                    Some(EnumVariantDecl {
+                        name: item.get("name")?.as_str()?.to_string(),
+                        payload_type_name: item
+                            .get("payload_type")
+                            .and_then(|s| s.as_str())
+                            .map(str::to_string),
+                        record_field_decls: item
+                            .get("record_fields")
+                            .and_then(|value| value.as_array())
+                            .map(|fields| {
+                                fields
+                                    .iter()
+                                    .filter_map(|field| {
+                                        Some(FieldDecl {
+                                            name: field.get("name")?.as_str()?.to_string(),
+                                            declared_type_name: field
+                                                .get("declared_type")
+                                                .and_then(|value| value.as_str())
+                                                .map(str::to_string),
+                                            is_weak: field
+                                                .get("is_weak")
+                                                .and_then(|value| value.as_bool())
+                                                .unwrap_or(false),
+                                        })
+                                    })
+                                    .collect::<Vec<_>>()
+                            })
+                            .unwrap_or_default(),
+                    })
+                })
+                .collect(),
+            type_parameters: v
+                .get("type_parameters")
+                .and_then(|a| a.as_array())
+                .map(|arr| {
+                    arr.iter()
+                        .filter_map(|s| s.as_str().map(str::to_string))
+                        .collect::<Vec<_>>()
+                })
+                .unwrap_or_default(),
+            attrs: json_to_attrs(v.get("attrs")),
+            span: Span::unknown(),
+        },
         "Loop" => ASTNode::Loop {
             condition: Box::new(json_to_ast(v.get("condition")?)?),
             body: v
@@ -388,6 +440,28 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
                 scrutinee: Box::new(scr),
                 arms,
                 else_expr: Box::new(else_expr),
+                span: Span::unknown(),
+            }
+        }
+        "EnumMatchExpr" => {
+            let scr = json_to_ast(v.get("scrutinee")?)?;
+            let arms_json = v.get("arms")?.as_array()?.iter();
+            let mut arms = Vec::new();
+            for arm_v in arms_json {
+                arms.push(crate::ast::EnumMatchArm {
+                    variant_name: arm_v.get("variant_name")?.as_str()?.to_string(),
+                    binding_name: arm_v
+                        .get("binding_name")
+                        .and_then(|value| value.as_str())
+                        .map(str::to_string),
+                    body: json_to_ast(arm_v.get("body")?)?,
+                });
+            }
+            ASTNode::EnumMatchExpr {
+                enum_name: v.get("enum_name")?.as_str()?.to_string(),
+                scrutinee: Box::new(scr),
+                arms,
+                else_expr: v.get("else").and_then(json_to_ast).map(Box::new),
                 span: Span::unknown(),
             }
         }

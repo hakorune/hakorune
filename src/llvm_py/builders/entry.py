@@ -4,6 +4,7 @@ import sys
 # NamingBox SSOT: Add parent directory to path for naming_helper import
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from naming_helper import encode_static_method
+from instructions.sum_runtime import merge_user_box_decls
 
 def ensure_ny_main(builder) -> None:
     """Ensure ny_main wrapper exists by delegating to Main.main/1 or main().
@@ -37,9 +38,12 @@ def ensure_ny_main(builder) -> None:
     b = ir.IRBuilder(entry)
 
     # Phase 285LLVM-1.1: Register user box declarations before calling main
-    user_box_decls = getattr(builder, 'user_box_decls', [])
-    if user_box_decls:
-        _emit_user_box_registration(b, builder.module, user_box_decls)
+    registered_box_decls = merge_user_box_decls(
+        getattr(builder, 'user_box_decls', []),
+        getattr(builder, 'enum_decls', []),
+    )
+    if registered_box_decls:
+        _emit_user_box_registration(b, builder.module, registered_box_decls)
     def _build_main_args_handle():
         # Build args handle for entry functions that take one parameter.
         i64 = builder.i64

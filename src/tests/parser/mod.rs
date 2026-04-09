@@ -5,6 +5,10 @@ pub mod parser_bitops_test;
 pub mod parser_block_postfix_catch;
 #[path = "../parser_block_postfix_errors.rs"]
 pub mod parser_block_postfix_errors;
+#[path = "../parser_enum_match.rs"]
+pub mod parser_enum_match;
+#[path = "../parser_enum_surface.rs"]
+pub mod parser_enum_surface;
 #[cfg(feature = "legacy-tests")]
 #[path = "../parser_expr_postfix_catch.rs"]
 pub mod parser_expr_postfix_catch;

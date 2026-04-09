@@ -196,6 +196,20 @@ impl<'a> FreeVarCollector<'a> {
                 }
                 self.walk(else_expr, false);
             }
+            ASTNode::EnumMatchExpr {
+                scrutinee,
+                arms,
+                else_expr,
+                ..
+            } => {
+                self.walk(scrutinee, false);
+                for arm in arms {
+                    self.walk(&arm.body, false);
+                }
+                if let Some(else_expr) = else_expr {
+                    self.walk(else_expr, false);
+                }
+            }
             ASTNode::Program { statements, .. } => {
                 if is_root {
                     self.walk_block(statements);

@@ -22,6 +22,9 @@ impl MirInstruction {
             | MirInstruction::BinOp { .. }
             | MirInstruction::UnaryOp { .. }
             | MirInstruction::Compare { .. }
+            | MirInstruction::SumMake { .. }
+            | MirInstruction::SumTag { .. }
+            | MirInstruction::SumProject { .. }
             | MirInstruction::TypeOp { .. }
             | MirInstruction::Copy { .. }
             | MirInstruction::Phi { .. }
@@ -88,6 +91,9 @@ impl MirInstruction {
             | MirInstruction::Compare { dst, .. }
             | MirInstruction::Load { dst, .. }
             | MirInstruction::FieldGet { dst, .. }
+            | MirInstruction::SumMake { dst, .. }
+            | MirInstruction::SumTag { dst, .. }
+            | MirInstruction::SumProject { dst, .. }
             | MirInstruction::Phi { dst, .. }
             | MirInstruction::NewBox { dst, .. }
             | MirInstruction::TypeOp { dst, .. }
@@ -196,6 +202,10 @@ impl MirInstruction {
 
             MirInstruction::FieldGet { base, .. } => vec![*base],
             MirInstruction::FieldSet { base, value, .. } => vec![*base, *value],
+            MirInstruction::SumMake { payload, .. } => payload.iter().copied().collect(),
+            MirInstruction::SumTag { value, .. } | MirInstruction::SumProject { value, .. } => {
+                vec![*value]
+            }
 
             // Phase 287: Lifecycle management uses all values
             MirInstruction::KeepAlive { values } => values.clone(),

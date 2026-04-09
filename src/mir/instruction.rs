@@ -76,6 +76,37 @@ pub enum MirInstruction {
         declared_type: Option<MirType>,
     },
 
+    // === Sum Operations ===
+    /// Canonical sum construction.
+    /// `%dst = sum.make Enum::Variant(tag, payload?)`
+    SumMake {
+        dst: ValueId,
+        enum_name: String,
+        variant: String,
+        tag: u32,
+        payload: Option<ValueId>,
+        payload_type: Option<MirType>,
+    },
+
+    /// Canonical sum tag read.
+    /// `%dst = sum.tag %value`
+    SumTag {
+        dst: ValueId,
+        value: ValueId,
+        enum_name: String,
+    },
+
+    /// Canonical sum payload projection for a matched variant.
+    /// `%dst = sum.project %value as Enum::Variant`
+    SumProject {
+        dst: ValueId,
+        value: ValueId,
+        enum_name: String,
+        variant: String,
+        tag: u32,
+        payload_type: Option<MirType>,
+    },
+
     // === Function Calls ===
     /// Call a function with type-safe target resolution
     /// `%dst = call %func(%args...)` (legacy)

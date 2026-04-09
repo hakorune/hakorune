@@ -681,7 +681,9 @@ impl BoxCore for ArrayBox {
                     .collect();
                 write!(f, "[{}]", strings.join(", "))
             }
-            ArrayStorage::InlineI64(values) => write!(f, "[{}]", Self::format_inline_values(values)),
+            ArrayStorage::InlineI64(values) => {
+                write!(f, "[{}]", Self::format_inline_values(values))
+            }
         }
     }
 

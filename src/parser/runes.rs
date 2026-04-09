@@ -73,6 +73,12 @@ impl NyashParser {
                 attrs.runes = runes;
                 Ok(())
             }
+            ASTNode::EnumDeclaration { attrs, .. } => {
+                validate_runes_for_target(&runes, RuneTarget::Box, line)?;
+                self.rune_metadata.extend(runes.iter().cloned());
+                attrs.runes = runes;
+                Ok(())
+            }
             ASTNode::FunctionDeclaration { attrs, .. } => {
                 validate_runes_for_target(&runes, RuneTarget::StaticFunction, line)?;
                 self.rune_metadata.extend(runes.iter().cloned());

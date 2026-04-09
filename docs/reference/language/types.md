@@ -23,6 +23,33 @@ Coercion SSOT status:
 - `local` declares a variable; **re-assignment is allowed** (single keyword policy).
 - There is currently no static type checker. Some parts of MIR carry **type facts** as metadata for optimization / routing, not for semantics.
 
+### First-class enum surface (current landing)
+
+- `enum Name<T> { ... }` now parses as a first-class declaration surface.
+- accepted constructor surface now includes:
+  - `Type::Variant(...)`
+  - narrow record constructors like `Type::Variant { name: expr }`
+- Stage1 Program JSON now carries:
+  - `enum_decls`
+  - `EnumCtor`
+  - synthetic hidden payload box declarations for narrow record variants
+- known-enum shorthand `match` is now landed on the same narrow parser / AST / Stage1 lane:
+  - shorthand patterns like `Some(v)` / `None`
+  - narrow record shorthand like `Ident { name }`
+  - Stage1 `EnumMatch`
+  - exhaustiveness against the known enum inventory
+  - exact field-set checking for record constructors / patterns
+- canonical sum MIR lowering is now landed too:
+  - `EnumCtor` lowers to `SumMake`
+  - `EnumMatch` lowers to `SumTag` + compare/branch + `SumProject`
+- VM/LLVM fallback runtime semantics are landed on the current route too:
+  - enum values use the existing synthetic sum runtime box `__NySum_<Enum>` where fallback representation is needed
+  - narrow record payloads use synthetic hidden payload boxes `__NyEnumPayload_<Enum>_<Variant>`
+  - LLVM recovers erased/generic payloads back to typed `Integer` / `Bool` / `Float` when local payload facts are known
+- Current guardrails:
+  - unknown/genuinely dynamic payloads still stay on boxed-handle fallback
+  - record shorthand block bodies and multi-payload variants are still deferred
+
 Terminology (SSOT):
 - **Runtime type**: what the VM executes on (`VMValue`).
 - **MIR type facts**: builder annotations (`MirType`, `value_types`, `value_origin_newbox`, `TypeCertainty`).

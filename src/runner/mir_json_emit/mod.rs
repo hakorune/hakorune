@@ -119,6 +119,7 @@ fn build_mir_json_root(module: &crate::mir::MirModule) -> Result<serde_json::Val
 
     // Phase 285LLVM-1.1: Extract user box declarations for LLVM harness
     let user_box_decls = collect_sorted_user_box_decl_values(module);
+    let enum_decls = collect_sorted_enum_decl_values(module);
 
     let root = if use_v1_schema {
         let mut root = helpers::create_json_v1_root(json!(funs));
@@ -126,6 +127,7 @@ fn build_mir_json_root(module: &crate::mir::MirModule) -> Result<serde_json::Val
         if let Some(obj) = root.as_object_mut() {
             obj.insert("cfg".to_string(), cfg_info);
             obj.insert("user_box_decls".to_string(), json!(user_box_decls)); // Phase 285LLVM-1.1
+            obj.insert("enum_decls".to_string(), json!(enum_decls));
         }
         root
     } else {
@@ -133,7 +135,8 @@ fn build_mir_json_root(module: &crate::mir::MirModule) -> Result<serde_json::Val
         json!({
             "functions": funs,
             "cfg": cfg_info,
-            "user_box_decls": user_box_decls  // Phase 285LLVM-1.1
+            "user_box_decls": user_box_decls,  // Phase 285LLVM-1.1
+            "enum_decls": enum_decls
         })
     };
 
@@ -204,6 +207,24 @@ fn collect_sorted_user_box_decl_values(module: &crate::mir::MirModule) -> Vec<se
                     "name": decl.name,
                     "declared_type": decl.declared_type_name,
                     "is_weak": decl.is_weak,
+                })).collect::<Vec<_>>(),
+            })
+        })
+        .collect()
+}
+
+fn collect_sorted_enum_decl_values(module: &crate::mir::MirModule) -> Vec<serde_json::Value> {
+    module
+        .metadata
+        .enum_decls
+        .iter()
+        .map(|(name, decl)| {
+            json!({
+                "name": name,
+                "type_parameters": decl.type_parameters,
+                "variants": decl.variants.iter().map(|variant| json!({
+                    "name": variant.name,
+                    "payload_type": variant.payload_type_name,
                 })).collect::<Vec<_>>(),
             })
         })
@@ -330,6 +351,34 @@ mod tests {
                 .and_then(serde_json::Value::as_bool),
             Some(true)
         );
+    }
+
+    #[test]
+    fn collect_sorted_enum_decl_values_preserves_variant_inventory() {
+        let mut module = crate::mir::MirModule::new("test".to_string());
+        module.metadata.enum_decls.insert(
+            "Option".to_string(),
+            crate::mir::MirEnumDecl {
+                type_parameters: vec!["T".to_string()],
+                variants: vec![
+                    crate::mir::MirEnumVariantDecl {
+                        name: "None".to_string(),
+                        payload_type_name: None,
+                    },
+                    crate::mir::MirEnumVariantDecl {
+                        name: "Some".to_string(),
+                        payload_type_name: Some("T".to_string()),
+                    },
+                ],
+            },
+        );
+
+        let decls = collect_sorted_enum_decl_values(&module);
+        assert_eq!(decls.len(), 1);
+        assert_eq!(decls[0]["name"], "Option");
+        assert_eq!(decls[0]["type_parameters"], json!(["T"]));
+        assert_eq!(decls[0]["variants"][1]["name"], "Some");
+        assert_eq!(decls[0]["variants"][1]["payload_type"], "T");
     }
 
     #[test]

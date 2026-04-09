@@ -13,6 +13,10 @@ pub(super) struct ProgramV0 {
     /// e.g., {"FuncScannerBox": "lang.compiler.entry.func_scanner.FuncScannerBox"}
     #[serde(default)]
     pub(super) imports: std::collections::BTreeMap<String, String>,
+    #[serde(default)]
+    pub(super) user_box_decls: Vec<UserBoxDeclV0>,
+    #[serde(default)]
+    pub(super) enum_decls: Vec<EnumDeclV0>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, Default)]
@@ -113,6 +117,50 @@ pub(super) struct MatchArmV0 {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
+pub(super) struct UserBoxFieldDeclV0 {
+    pub(super) name: String,
+    #[serde(rename = "declared_type", default)]
+    pub(super) declared_type: Option<String>,
+    #[serde(default)]
+    pub(super) is_weak: bool,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub(super) struct UserBoxDeclV0 {
+    pub(super) name: String,
+    #[serde(default)]
+    pub(super) fields: Vec<String>,
+    #[serde(default)]
+    pub(super) field_decls: Vec<UserBoxFieldDeclV0>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub(super) struct EnumVariantDeclV0 {
+    pub(super) name: String,
+    #[serde(rename = "payload_type", default)]
+    pub(super) payload_type: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub(super) struct EnumDeclV0 {
+    pub(super) name: String,
+    #[serde(default)]
+    pub(super) type_parameters: Vec<String>,
+    #[serde(default)]
+    pub(super) variants: Vec<EnumVariantDeclV0>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub(super) struct EnumMatchArmV0 {
+    pub(super) variant: String,
+    #[serde(default)]
+    pub(super) bind: Option<String>,
+    #[serde(rename = "payload_type", default)]
+    pub(super) payload_type: Option<String>,
+    pub(super) expr: ExprV0,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
 #[serde(tag = "type")]
 pub(super) enum ExprV0 {
     Int {
@@ -154,6 +202,10 @@ pub(super) enum ExprV0 {
         method: String,
         args: Vec<ExprV0>,
     },
+    Field {
+        recv: Box<ExprV0>,
+        field: String,
+    },
     New {
         class: String,
         args: Vec<ExprV0>,
@@ -181,5 +233,22 @@ pub(super) enum ExprV0 {
         arms: Vec<MatchArmV0>,
         #[serde(rename = "else")]
         r#else: Box<ExprV0>,
+    },
+    EnumCtor {
+        #[serde(rename = "enum")]
+        enum_name: String,
+        variant: String,
+        #[serde(rename = "payload_type", default)]
+        payload_type: Option<String>,
+        #[serde(default)]
+        args: Vec<ExprV0>,
+    },
+    EnumMatch {
+        #[serde(rename = "enum")]
+        enum_name: String,
+        scrutinee: Box<ExprV0>,
+        arms: Vec<EnumMatchArmV0>,
+        #[serde(rename = "else", default)]
+        r#else: Option<Box<ExprV0>>,
     },
 }

@@ -9,6 +9,9 @@ pub fn instruction_tag(inst: &MirInstruction) -> &'static str {
         MirInstruction::Compare { .. } => "Compare",
         MirInstruction::FieldGet { .. } => "FieldGet",
         MirInstruction::FieldSet { .. } => "FieldSet",
+        MirInstruction::SumMake { .. } => "SumMake",
+        MirInstruction::SumTag { .. } => "SumTag",
+        MirInstruction::SumProject { .. } => "SumProject",
         MirInstruction::Load { .. } => "Load",
         MirInstruction::Store { .. } => "Store",
         MirInstruction::Call { .. } => "Call",
@@ -58,6 +61,9 @@ pub const MIR_INSTRUCTION_KEPT_TAGS: &[&str] = &[
     "FutureSet",
     "FieldGet",
     "FieldSet",
+    "SumMake",
+    "SumTag",
+    "SumProject",
     "Jump",
     "KeepAlive",
     "Load",
@@ -117,6 +123,9 @@ pub fn instruction_diet_cohort(inst: &MirInstruction) -> InstructionDietCohort {
         | MirInstruction::FutureSet { .. }
         | MirInstruction::FieldGet { .. }
         | MirInstruction::FieldSet { .. }
+        | MirInstruction::SumMake { .. }
+        | MirInstruction::SumTag { .. }
+        | MirInstruction::SumProject { .. }
         | MirInstruction::Jump { .. }
         | MirInstruction::KeepAlive { .. }
         | MirInstruction::Load { .. }
@@ -184,6 +193,9 @@ pub fn is_supported_mir_json_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::Select { .. }
             | MirInstruction::FieldGet { .. }
             | MirInstruction::FieldSet { .. }
+            | MirInstruction::SumMake { .. }
+            | MirInstruction::SumTag { .. }
+            | MirInstruction::SumProject { .. }
             | MirInstruction::Call { .. }
             | MirInstruction::NewBox { .. }
             | MirInstruction::NewClosure { .. }
@@ -221,6 +233,9 @@ pub fn is_supported_vm_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::Copy { .. }
             | MirInstruction::FieldGet { .. }
             | MirInstruction::FieldSet { .. }
+            | MirInstruction::SumMake { .. }
+            | MirInstruction::SumTag { .. }
+            | MirInstruction::SumProject { .. }
             | MirInstruction::Load { .. }
             | MirInstruction::Store { .. }
             | MirInstruction::Call { .. }
@@ -254,6 +269,9 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
         MirInstruction::Compare { .. } => &["compare"],
         MirInstruction::FieldGet { .. } => &["field_get"],
         MirInstruction::FieldSet { .. } => &["field_set"],
+        MirInstruction::SumMake { .. } => &["sum_make"],
+        MirInstruction::SumTag { .. } => &["sum_tag"],
+        MirInstruction::SumProject { .. } => &["sum_project"],
         MirInstruction::Call { .. } => &["mir_call", "call", "boxcall", "externcall"],
         MirInstruction::Branch { .. } => &["branch"],
         MirInstruction::Jump { .. } => &["jump"],
@@ -514,11 +532,43 @@ mod tests {
     }
 
     #[test]
+    fn mir_json_allowlist_accepts_sum_lane_ops() {
+        let make = MirInstruction::SumMake {
+            dst: ValueId::new(0),
+            enum_name: "Option".to_string(),
+            variant: "Some".to_string(),
+            tag: 1,
+            payload: Some(ValueId::new(1)),
+            payload_type: Some(crate::mir::MirType::Integer),
+        };
+        let tag = MirInstruction::SumTag {
+            dst: ValueId::new(2),
+            value: ValueId::new(0),
+            enum_name: "Option".to_string(),
+        };
+        let project = MirInstruction::SumProject {
+            dst: ValueId::new(3),
+            value: ValueId::new(0),
+            enum_name: "Option".to_string(),
+            variant: "Some".to_string(),
+            tag: 1,
+            payload_type: Some(crate::mir::MirType::Integer),
+        };
+        assert!(is_supported_mir_json_instruction(&make));
+        assert!(is_supported_mir_json_instruction(&tag));
+        assert!(is_supported_mir_json_instruction(&project));
+        assert!(is_supported_vm_instruction(&make));
+        assert!(is_supported_vm_instruction(&tag));
+        assert!(is_supported_vm_instruction(&project));
+        assert_eq!(instruction_tag(&project), "SumProject");
+    }
+
+    #[test]
     fn instruction_diet_ledger_counts_match_ssot() {
-        assert_eq!(MIR_INSTRUCTION_KEPT_TAGS.len(), 28);
+        assert_eq!(MIR_INSTRUCTION_KEPT_TAGS.len(), 33);
         assert_eq!(MIR_INSTRUCTION_LOWERED_AWAY_TAGS.len(), 0);
         assert_eq!(MIR_INSTRUCTION_REMOVED_TAGS.len(), 16);
-        assert_eq!(MIR_INSTRUCTION_VOCABULARY_COUNT, 44);
+        assert_eq!(MIR_INSTRUCTION_VOCABULARY_COUNT, 49);
     }
 
     #[test]

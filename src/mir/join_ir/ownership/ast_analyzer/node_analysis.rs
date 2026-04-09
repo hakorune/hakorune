@@ -45,6 +45,8 @@ impl AstOwnershipAnalyzer {
                 self.analyze_function_decl(node, Some(current_scope))?;
             }
 
+            ASTNode::EnumDeclaration { .. } => {}
+
             ASTNode::BoxDeclaration {
                 methods,
                 constructors,
@@ -351,6 +353,21 @@ impl AstOwnershipAnalyzer {
                     self.analyze_node(e, current_scope, is_condition)?;
                 }
                 self.analyze_node(else_expr, current_scope, is_condition)?;
+            }
+
+            ASTNode::EnumMatchExpr {
+                scrutinee,
+                arms,
+                else_expr,
+                ..
+            } => {
+                self.analyze_node(scrutinee, current_scope, is_condition)?;
+                for arm in arms {
+                    self.analyze_node(&arm.body, current_scope, is_condition)?;
+                }
+                if let Some(else_expr) = else_expr {
+                    self.analyze_node(else_expr, current_scope, is_condition)?;
+                }
             }
 
             ASTNode::Lambda { .. } => {}

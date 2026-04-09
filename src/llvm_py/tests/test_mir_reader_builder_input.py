@@ -17,9 +17,10 @@ class TestMirReaderBuilderInput(unittest.TestCase):
         self.assertEqual(len(functions), 1)
         self.assertEqual(functions[0]["name"], "main")
 
-    def test_build_builder_input_collects_functions_user_box_decls_and_call_arities(self):
+    def test_build_builder_input_collects_functions_box_inventories_and_call_arities(self):
         mir_json = {
             "user_box_decls": [{"name": "Main"}],
+            "enum_decls": [{"name": "Option", "variants": [{"name": "None"}]}],
             "functions": [
                 {
                     "name": "main",
@@ -35,6 +36,7 @@ class TestMirReaderBuilderInput(unittest.TestCase):
 
         builder_input = build_builder_input(mir_json, fake_scan)
         self.assertEqual(builder_input.user_box_decls, [{"name": "Main"}])
+        self.assertEqual(builder_input.enum_decls, [{"name": "Option", "variants": [{"name": "None"}]}])
         self.assertEqual(builder_input.functions[0]["name"], "main")
         self.assertEqual(builder_input.call_arities, {"main": 0})
 

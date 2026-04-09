@@ -6,6 +6,7 @@
  */
 
 pub(crate) mod params;
+pub(crate) mod type_refs;
 
 use super::ParseError;
 use crate::ast::Span;

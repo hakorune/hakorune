@@ -416,6 +416,26 @@ impl ReplAstRewriter {
                 else_expr: Box::new(self.rewrite_node(*else_expr)),
                 span,
             },
+            ASTNode::EnumMatchExpr {
+                enum_name,
+                scrutinee,
+                arms,
+                else_expr,
+                span,
+            } => ASTNode::EnumMatchExpr {
+                enum_name,
+                scrutinee: Box::new(self.rewrite_node(*scrutinee)),
+                arms: arms
+                    .into_iter()
+                    .map(|arm| crate::ast::EnumMatchArm {
+                        variant_name: arm.variant_name,
+                        binding_name: arm.binding_name,
+                        body: self.rewrite_node(arm.body),
+                    })
+                    .collect(),
+                else_expr: else_expr.map(|expr| Box::new(self.rewrite_node(*expr))),
+                span,
+            },
 
             // All other nodes pass through unchanged
             other => other,
@@ -504,7 +524,8 @@ impl ReplAstRewriter {
             | ASTNode::MethodCall { .. }
             | ASTNode::FunctionCall { .. }
             | ASTNode::New { .. }
-            | ASTNode::MatchExpr { .. } => true,
+            | ASTNode::MatchExpr { .. }
+            | ASTNode::EnumMatchExpr { .. } => true,
 
             // Statements: don't display
             ASTNode::Assignment { .. }

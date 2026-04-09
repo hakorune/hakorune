@@ -87,7 +87,20 @@ Current user-box / primitive cost reading:
     - focused ArrayBox / kernel tests pass, and `phase21_5_perf_kilo_micro_machine_lane_contract_vm` stays green
 - not yet:
   - `Null` / `Void` fast paths are still conservative and low priority in this wave
-  - first-class enum/sum MIR types and user-defined generics remain backlog items
+  - first-class enum/sum MIR types and user-defined generics remain partially landed items
+    - parser / AST / Stage1 surface is now landed:
+      - `enum Name<T> { ... }`
+      - Stage1 `enum_decls`
+      - Stage1 `EnumCtor`
+    - known-enum shorthand match / exhaustiveness is now landed:
+      - parser resolves `Some(v)` / `None` against known enum inventory
+      - Stage1 lowers that lane as `EnumMatch`
+      - `_` does not satisfy known-enum exhaustiveness
+    - canonical sum MIR lowering is now landed:
+      - `SumMake` / `SumTag` / `SumProject`
+      - JSON v0 bridge now lowers `EnumCtor` / `EnumMatch` into that lane
+    - runtime/codegen semantics are still pending
+    - design owner: `docs/development/current/main/design/enum-sum-and-generic-surface-ssot.md`
   - no user-box flattening
   - no tagged pointer / NaN-boxing
   - no new `.hako` syntax or widened `@rune`
@@ -300,8 +313,8 @@ Acceptance:
 
 ### Current post-Step-7 queue
 
-- land the narrow `ArrayBox` typed-slot pilot on `InlineI64`
-- keep enum/generic work in backlog until primitive-family + array keeper work is stable
+- keep the landed `ArrayBox` typed-slot pilot green on `InlineI64`
+- move to enum Step 4 (`VM / LLVM / fallback runtime`) now that the primitive/array keeper slice is stable
 
 ### Step 7.5. Array typed-slot SSOT and pilot
 
@@ -342,8 +355,8 @@ Acceptance:
 
 Resulting next cut:
 
-- keep enum/generic work in backlog until the array keeper slice is stable
-- return to kilo/perf rereads with the array keeper lane now landed
+- land VM / LLVM / fallback runtime support for the enum sum lane
+- return to kilo/perf rereads after that sum-runtime slice is fixed
 
 ### Step 8. Optional flattening only later
 

@@ -36,6 +36,45 @@ impl fmt::Display for MirInstruction {
             } => {
                 write!(f, "field.set {} .{} = {}", base, field, value)
             }
+            MirInstruction::SumMake {
+                dst,
+                enum_name,
+                variant,
+                tag,
+                payload,
+                ..
+            } => {
+                if let Some(payload) = payload {
+                    write!(
+                        f,
+                        "{} = sum.make {}::{} tag={} payload={}",
+                        dst, enum_name, variant, tag, payload
+                    )
+                } else {
+                    write!(
+                        f,
+                        "{} = sum.make {}::{} tag={}",
+                        dst, enum_name, variant, tag
+                    )
+                }
+            }
+            MirInstruction::SumTag {
+                dst,
+                value,
+                enum_name,
+            } => write!(f, "{} = sum.tag {} as {}", dst, value, enum_name),
+            MirInstruction::SumProject {
+                dst,
+                value,
+                enum_name,
+                variant,
+                tag,
+                ..
+            } => write!(
+                f,
+                "{} = sum.project {} as {}::{} tag={}",
+                dst, value, enum_name, variant, tag
+            ),
             MirInstruction::Call {
                 dst,
                 func,

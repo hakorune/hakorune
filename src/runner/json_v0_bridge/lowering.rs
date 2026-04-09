@@ -1,4 +1,4 @@
-use super::ast::{ProgramV0, StmtV0};
+use super::ast::{EnumDeclV0, ProgramV0, StmtV0, UserBoxDeclV0};
 use crate::mir::{
     BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType, ValueId,
 };
@@ -55,6 +55,10 @@ pub(super) struct BridgeEnv {
     /// Static-box method call resolution table (JSON v0 bridge).
     /// Key format: "{BoxName}.{method}/{arity}" (e.g. "RewriteKnownMini.run/0")
     pub(super) static_methods: BTreeMap<String, ()>,
+    /// Declared enum inventory for canonical sum lowering.
+    pub(super) enum_decls: BTreeMap<String, EnumDeclV0>,
+    /// User-defined box declarations needed for source-route NewBox/FieldGet lowering.
+    pub(super) user_box_decls: BTreeMap<String, UserBoxDeclV0>,
 }
 
 impl BridgeEnv {
@@ -80,6 +84,8 @@ impl BridgeEnv {
             try_result_mode: trm,
             imports,
             static_methods: BTreeMap::new(),
+            enum_decls: BTreeMap::new(),
+            user_box_decls: BTreeMap::new(),
         }
     }
 }
@@ -170,6 +176,16 @@ pub(super) fn lower_program(
         return Err("empty body".into());
     }
     let mut env = BridgeEnv::with_imports(imports);
+    env.user_box_decls = prog
+        .user_box_decls
+        .iter()
+        .map(|decl| (decl.name.clone(), decl.clone()))
+        .collect();
+    env.enum_decls = prog
+        .enum_decls
+        .iter()
+        .map(|decl| (decl.name.clone(), decl.clone()))
+        .collect();
     // Precompute static-box method table from defs, so Expr lowering can resolve `BoxName.method()`
     // even when `BoxName` isn't a runtime variable in JSON v0.
     for def in &prog.defs {
@@ -182,6 +198,48 @@ pub(super) fn lower_program(
         env.static_methods.insert(q, ());
     }
     let mut module = MirModule::new("ny_json_v0".into());
+    module.metadata.user_box_decls = env
+        .user_box_decls
+        .iter()
+        .map(|(name, decl)| (name.clone(), decl.fields.clone()))
+        .collect();
+    module.metadata.user_box_field_decls = env
+        .user_box_decls
+        .iter()
+        .map(|(name, decl)| {
+            (
+                name.clone(),
+                decl.field_decls
+                    .iter()
+                    .map(|field| crate::mir::UserBoxFieldDecl {
+                        name: field.name.clone(),
+                        declared_type_name: field.declared_type.clone(),
+                        is_weak: field.is_weak,
+                    })
+                    .collect(),
+            )
+        })
+        .collect();
+    module.metadata.enum_decls = env
+        .enum_decls
+        .iter()
+        .map(|(name, decl)| {
+            (
+                name.clone(),
+                crate::mir::MirEnumDecl {
+                    type_parameters: decl.type_parameters.clone(),
+                    variants: decl
+                        .variants
+                        .iter()
+                        .map(|variant| crate::mir::MirEnumVariantDecl {
+                            name: variant.name.clone(),
+                            payload_type_name: variant.payload_type.clone(),
+                        })
+                        .collect(),
+                },
+            )
+        })
+        .collect();
     program::lower_main_body(&mut module, &prog.body, &env)?;
     if let Some(entry_def) = prog
         .defs

@@ -13,6 +13,7 @@ pub enum TokenType {
 
     // キーワード
     BOX,
+    ENUM,
     GLOBAL,
     SINGLETON,
     NEW,

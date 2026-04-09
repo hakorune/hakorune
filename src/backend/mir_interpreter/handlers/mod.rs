@@ -33,6 +33,7 @@ mod memory;
 mod misc;
 mod string_fastpath;
 mod string_method_helpers;
+mod sum_ops;
 mod temp_dispatch;
 mod type_ops;
 mod weak; // Phase 285A0: WeakRef handlers
@@ -101,6 +102,41 @@ impl MirInterpreter {
                     )));
                 }
             }
+            MirInstruction::SumMake {
+                dst,
+                enum_name,
+                variant,
+                tag,
+                payload,
+                payload_type,
+            } => self.handle_sum_make(
+                *dst,
+                enum_name,
+                variant,
+                *tag,
+                *payload,
+                payload_type.as_ref(),
+            )?,
+            MirInstruction::SumTag {
+                dst,
+                value,
+                enum_name,
+            } => self.handle_sum_tag(*dst, *value, enum_name)?,
+            MirInstruction::SumProject {
+                dst,
+                value,
+                enum_name,
+                variant,
+                tag,
+                payload_type,
+            } => self.handle_sum_project(
+                *dst,
+                *value,
+                enum_name,
+                variant,
+                *tag,
+                payload_type.as_ref(),
+            )?,
             MirInstruction::Call {
                 dst,
                 func,

@@ -28,6 +28,8 @@ Scope: repo root から current lane / current front / restart read order に最
   - `phase-163x primitive and user-box fast path`
 - current primitive/user-box design anchor:
   - `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
+- post-primitive enum/generic design anchor:
+  - `docs/development/current/main/design/enum-sum-and-generic-surface-ssot.md`
 - sibling string guardrail anchor:
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
 - current implementation phase:
@@ -75,7 +77,39 @@ Scope: repo root から current lane / current front / restart read order に最
     - internal i64-specialized array routes now birth/preserve a narrow `InlineI64` storage lane
     - boxed/string/mixed routes explicitly promote back to boxed storage before mutation
     - focused ArrayBox/kernel tests and `phase21_5_perf_kilo_micro_machine_lane_contract_vm` are green on this slice
-  - `Null` / `Void` fast paths, first-class enum/sum MIR types, and user-defined generics remain backlog and are outside the current keeper wave
+  - `Null` / `Void` fast paths remain backlog and are outside the current keeper wave
+  - enum/sum + generic backlog is now inventoried in a dedicated SSOT:
+    - `enum` stays first-class and separate from `box`
+    - user-facing `template` is rejected; generic surface stays on `<T>`
+    - MVP target is `Type::Variant(...)` + shorthand patterns only for known-enum matches
+  - enum parser / AST / Stage1 surface is now landed:
+    - `enum Name<T> { ... }` parses as first-class surface
+    - Stage1 Program JSON now inventories `enum_decls`
+    - `Type::Variant(...)` now lowers to Stage1 `EnumCtor`
+  - known-enum shorthand match is now landed on the parser / AST / Stage1 lane:
+    - `match x { Some(v) => ... None => ... }` now resolves against known enum inventory
+    - known-enum matches now fail fast on missing variant arms
+    - current shorthand lane stays narrow:
+      - unit + single-payload variants only
+      - no guarded enum shorthand arms yet
+      - `_` does not satisfy known-enum exhaustiveness
+    - canonical sum MIR lowering is now landed on the JSON v0 bridge:
+      - `EnumCtor` now lowers to `SumMake`
+      - `EnumMatch` now lowers to `SumTag` + compare/branch + `SumProject` + PHI
+      - MIR JSON emit/parse now preserves the sum lane too
+    - VM / LLVM / fallback runtime parity is now landed on the MVP sum lane:
+      - VM interpreter executes `SumMake` / `SumTag` / `SumProject` via synthetic `__NySum_<Enum>` fallback boxes
+      - LLVM/Py builder registers the same synthetic enum runtime boxes at entry and lowers sum ops through `nyash.instance.*_field_h`
+      - malformed tag projections now fail fast (`[vm/sum:*]` on VM, `unreachable` on LLVM)
+      - LLVM now recovers erased/generic payloads back to typed `Integer` / `Bool` / `Float` when `sum_make` can observe an actual payload fact locally
+      - unknown/genuinely dynamic payloads still stay on boxed-handle fallback
+      - product `ny-llvmc` ownership remains separate from this compat/harness slice
+    - narrow record variants are now landed on the same source / JSON v0 route:
+      - declaration surface accepts `Ident { name: String }`
+      - qualified construction accepts `Token::Ident { name: expr }`
+      - known-enum shorthand match accepts `Ident { name } => ...`
+      - implementation uses synthetic hidden payload boxes `__NyEnumPayload_<Enum>_<Variant>` while the sum runtime box stays `__NySum_<Enum>`
+      - constructors / patterns must mention the declared field set exactly; multi-payload variants remain deferred
 - fixed typed field authority:
   - `field_decls` is the typed authority
   - names-only `fields` stays as a compatibility mirror for old payloads and old runtime consumers
@@ -86,9 +120,11 @@ Scope: repo root から current lane / current front / restart read order に最
   - local gates:
     - `kilo_micro_userbox_point_add`
     - `kilo_micro_userbox_flag_toggle`
-  - immediate next queue:
-    1. keep enum/generic work as explicit backlog outside this wave
-    2. return to kilo optimization rereads with `kilo_micro_array_getset` as the first post-pilot keeper
+  - post-primitive follow-on queue:
+    1. decide the next post-record enum cut:
+       - multi-payload expansion
+       - or a separate `ny-llvmc` parity wave
+    2. keep `where` / enum methods / full monomorphization in backlog
   - sibling string guardrail accept gate:
     - `kilo_micro_substring_only`
   - sibling string guardrail split exact fronts:

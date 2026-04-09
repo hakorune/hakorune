@@ -174,6 +174,151 @@ static box Main {
     }
 
     #[test]
+    fn source_to_program_json_v0_emits_enum_inventory_and_ctor() {
+        let source = r#"
+enum Option<T> {
+  None
+  Some(T)
+}
+
+static box Main {
+  main() {
+    local x = Option::Some("hello")
+    return 0
+  }
+}
+"#;
+
+        let json = source_to_program_json_v0_strict(source).expect("program json");
+        let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+        let enum_decls = value["enum_decls"].as_array().expect("enum decls");
+        assert_eq!(enum_decls.len(), 1);
+        assert_eq!(enum_decls[0]["name"], "Option");
+        assert_eq!(enum_decls[0]["type_parameters"], serde_json::json!(["T"]));
+        assert_eq!(enum_decls[0]["variants"][1]["name"], "Some");
+        assert_eq!(enum_decls[0]["variants"][1]["payload_type"], "T");
+
+        let body = value["body"].as_array().expect("body");
+        assert_eq!(body[0]["type"], "Local");
+        assert_eq!(body[0]["expr"]["type"], "EnumCtor");
+        assert_eq!(body[0]["expr"]["enum"], "Option");
+        assert_eq!(body[0]["expr"]["variant"], "Some");
+    }
+
+    #[test]
+    fn source_to_program_json_v0_emits_known_enum_match() {
+        let source = r#"
+enum Option<T> {
+  None
+  Some(T)
+}
+
+static box Main {
+  main() {
+    local value = Option::Some(1)
+    return match value {
+      Some(v) => v
+      None => 0
+    }
+  }
+}
+"#;
+
+        let json = source_to_program_json_v0_strict(source).expect("program json");
+        let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+        let body = value["body"].as_array().expect("body");
+        assert_eq!(body[1]["type"], "Return");
+        assert_eq!(body[1]["expr"]["type"], "EnumMatch");
+        assert_eq!(body[1]["expr"]["enum"], "Option");
+        assert_eq!(body[1]["expr"]["arms"][0]["variant"], "Some");
+        assert_eq!(body[1]["expr"]["arms"][0]["bind"], "v");
+        assert_eq!(body[1]["expr"]["arms"][1]["variant"], "None");
+        assert!(body[1]["expr"]["else"].is_null());
+    }
+
+    #[test]
+    fn source_to_program_json_v0_rejects_non_exhaustive_enum_match() {
+        let source = r#"
+enum Option<T> {
+  None
+  Some(T)
+}
+
+static box Main {
+  main() {
+    local value = Option::Some(1)
+    return match value {
+      Some(v) => v
+      _ => 0
+    }
+  }
+}
+"#;
+
+        let error = source_to_program_json_v0_strict(source)
+            .expect_err("non-exhaustive enum match should fail");
+        assert!(error.contains("non-exhaustive enum match"));
+        assert!(error.contains("None"));
+    }
+
+    #[test]
+    fn source_to_program_json_v0_emits_record_enum_payload_box_contract() {
+        let source = r#"
+enum Token {
+  Ident { name: String }
+  Eof
+}
+
+static box Main {
+  main() {
+    local tok = Token::Ident { name: "hello" }
+    return match tok {
+      Ident { name } => name
+      Eof => "eof"
+    }
+  }
+}
+"#;
+
+        let json = source_to_program_json_v0_strict(source).expect("program json");
+        let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+        let payload_box = "__NyEnumPayload_Token_Ident";
+
+        let enum_decls = value["enum_decls"].as_array().expect("enum decls");
+        assert_eq!(enum_decls[0]["variants"][0]["payload_type"], payload_box);
+        assert_eq!(
+            enum_decls[0]["variants"][0]["record_fields"][0]["name"],
+            "name"
+        );
+
+        let user_box_decls = value["user_box_decls"].as_array().expect("user box decls");
+        let payload_decl = user_box_decls
+            .iter()
+            .find(|decl| decl["name"] == payload_box)
+            .expect("hidden payload box decl");
+        assert_eq!(payload_decl["field_decls"][0]["name"], "name");
+        assert_eq!(payload_decl["field_decls"][0]["declared_type"], "String");
+
+        let body = value["body"].as_array().expect("body");
+        assert_eq!(body[0]["expr"]["type"], "EnumCtor");
+        assert_eq!(body[0]["expr"]["payload_type"], payload_box);
+        assert_eq!(body[0]["expr"]["args"][0]["type"], "New");
+        assert_eq!(body[0]["expr"]["args"][0]["class"], payload_box);
+
+        assert_eq!(body[1]["expr"]["type"], "EnumMatch");
+        assert_eq!(body[1]["expr"]["arms"][0]["payload_type"], payload_box);
+        assert_eq!(body[1]["expr"]["arms"][0]["expr"]["type"], "BlockExpr");
+        assert_eq!(
+            body[1]["expr"]["arms"][0]["expr"]["prelude"][0]["expr"]["type"],
+            "Field"
+        );
+        assert_eq!(
+            body[1]["expr"]["arms"][0]["expr"]["prelude"][0]["expr"]["field"],
+            "name"
+        );
+    }
+
+    #[test]
     fn source_to_program_json_v0_compiler_stageb_main_supported() {
         let source = include_str!("../../lang/src/compiler/entry/compiler_stageb.hako");
         let json = source_to_program_json_v0_strict(source).expect("program json");

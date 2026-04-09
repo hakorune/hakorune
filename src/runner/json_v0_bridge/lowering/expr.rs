@@ -12,6 +12,7 @@ mod access_ops;
 mod binary_ops;
 mod block_expr;
 mod call_ops;
+mod sum_ops;
 
 pub(super) trait VarScope {
     fn resolve(
@@ -170,9 +171,27 @@ pub(super) fn lower_expr_with_scope<S: VarScope>(
         ExprV0::Method { recv, method, args } => {
             call_ops::lower_method_expr(env, f, cur_bb, recv, method, args, vars)
         }
+        ExprV0::Field { recv, field } => {
+            access_ops::lower_field_expr(env, f, cur_bb, recv, field, vars)
+        }
         ExprV0::New { class, args } => {
             call_ops::lower_new_expr(env, f, cur_bb, class, args, vars)
         }
+        ExprV0::EnumCtor {
+            enum_name,
+            variant,
+            payload_type,
+            args,
+        } => sum_ops::lower_enum_ctor_expr_with_scope(
+            env,
+            f,
+            cur_bb,
+            enum_name,
+            variant,
+            payload_type.as_deref(),
+            args,
+            vars,
+        ),
         ExprV0::Var { name } => access_ops::lower_var_expr(env, f, cur_bb, name, vars),
         ExprV0::Throw { expr } => {
             let (exc, cur) = lower_expr_with_scope(env, f, cur_bb, expr, vars)?;
@@ -190,6 +209,10 @@ pub(super) fn lower_expr_with_scope<S: VarScope>(
             arms,
             r#else,
         } => match_expr::lower_match_expr_with_scope(env, f, cur_bb, scrutinee, arms, r#else, vars),
+        ExprV0::EnumMatch { enum_name, .. } => Err(format!(
+            "[freeze:contract][json_v0][enum_match] requires var scope for `{}`",
+            enum_name
+        )),
     }
 }
 
@@ -230,6 +253,24 @@ pub(super) fn lower_expr_with_vars(
 ) -> Result<(ValueId, BasicBlockId), String> {
     if let ExprV0::BlockExpr { prelude, tail } = e {
         return block_expr::lower_blockexpr_with_vars(env, f, cur_bb, prelude, tail, vars);
+    }
+    if let ExprV0::EnumMatch {
+        enum_name,
+        scrutinee,
+        arms,
+        r#else,
+    } = e
+    {
+        return sum_ops::lower_enum_match_expr_with_vars(
+            env,
+            f,
+            cur_bb,
+            enum_name,
+            scrutinee,
+            arms,
+            r#else.as_deref(),
+            vars,
+        );
     }
     let mut scope = MapVars::new(vars);
     lower_expr_with_scope(env, f, cur_bb, e, &mut scope)

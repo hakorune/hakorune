@@ -36,7 +36,7 @@ pub mod sugar_gate; // thread-local gate for sugar parsing (tests/docs)
 
 use common::ParserUtils;
 
-use crate::ast::{ASTNode, RuneAttr, Span};
+use crate::ast::{ASTNode, EnumVariantDecl, RuneAttr, Span};
 use crate::tokenizer::{Token, TokenType, TokenizeError};
 use thiserror::Error;
 
@@ -116,6 +116,9 @@ pub enum ParseError {
     #[error("Invalid statement at line {line}")]
     InvalidStatement { line: usize },
 
+    #[error("Invalid match pattern: {detail} at line {line}")]
+    InvalidMatchPattern { detail: String, line: usize },
+
     #[error("Unsupported identifier '{name}' at line {line}")]
     UnsupportedIdentifier { name: String, line: usize },
 
@@ -157,6 +160,8 @@ pub struct NyashParser {
     pub(super) pending_runes: Vec<RuneAttr>,
     /// Committed rune metadata in source order.
     pub(super) rune_metadata: Vec<RuneAttr>,
+    /// Enum declarations parsed so far, used to resolve shorthand enum matches.
+    pub(super) known_enums: std::collections::BTreeMap<String, Vec<EnumVariantDecl>>,
 }
 
 // ParserUtils trait implementation now lives here (legacy depth tracking removed)
@@ -171,7 +176,12 @@ impl NyashParser {
             debug_fuel: Some(100_000), // デフォルト値
             pending_runes: Vec::new(),
             rune_metadata: Vec::new(),
+            known_enums: std::collections::BTreeMap::new(),
         }
+    }
+
+    pub(super) fn register_enum_declaration(&mut self, name: &str, variants: &[EnumVariantDecl]) {
+        self.known_enums.insert(name.to_string(), variants.to_vec());
     }
 
     /// 文字列からパース (トークナイズ + パース)

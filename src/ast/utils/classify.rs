@@ -6,6 +6,7 @@ impl ASTNode {
         use ASTNodeType::{Expression as E, Statement as S, Structure as St};
         match self {
             ASTNode::BoxDeclaration { .. } => St,
+            ASTNode::EnumDeclaration { .. } => St,
             ASTNode::FunctionDeclaration { .. } => St,
             ASTNode::If { .. } => St,
             ASTNode::Loop { .. } => St,
@@ -29,6 +30,7 @@ impl ASTNode {
             ASTNode::MeField { .. } => E,
             ASTNode::Index { .. } => E,
             ASTNode::MatchExpr { .. } => E,
+            ASTNode::EnumMatchExpr { .. } => E,
             ASTNode::QMarkPropagate { .. } => E,
             ASTNode::Lambda { .. } => E,
             ASTNode::ArrayLiteral { .. } => E,

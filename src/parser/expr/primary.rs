@@ -2,6 +2,7 @@ use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::parser::common::ParserUtils;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
+use std::collections::{BTreeMap, BTreeSet};
 
 impl NyashParser {
     pub(crate) fn expr_parse_primary(&mut self) -> Result<ASTNode, ParseError> {
@@ -265,16 +266,18 @@ impl NyashParser {
                             });
                         }
                     };
-                    self.consume(TokenType::LPAREN)?;
-                    let mut arguments = Vec::new();
-                    while !self.match_token(&TokenType::RPAREN) && !self.is_at_end() {
-                        crate::must_advance!(self, _unused, "Parent::method call argument parsing");
-                        arguments.push(self.parse_expression()?);
-                        if self.match_token(&TokenType::COMMA) {
-                            self.advance();
-                        }
-                    }
-                    self.consume(TokenType::RPAREN)?;
+                    let arguments = if self.match_token(&TokenType::LPAREN) {
+                        self.parse_parent_colon_arguments()?
+                    } else if self.match_token(&TokenType::LBRACE) {
+                        self.parse_known_enum_record_ctor_arguments(&parent, &method)?
+                    } else {
+                        let line = self.current_token().line;
+                        return Err(ParseError::UnexpectedToken {
+                            found: self.current_token().token_type.clone(),
+                            expected: "`(` or `{` after `Type::Variant`".to_string(),
+                            line,
+                        });
+                    };
                     Ok(ASTNode::FromCall {
                         parent,
                         method,
@@ -342,6 +345,123 @@ impl NyashParser {
                 Err(ParseError::InvalidExpression { line })
             }
         }
+    }
+
+    fn parse_parent_colon_arguments(&mut self) -> Result<Vec<ASTNode>, ParseError> {
+        self.consume(TokenType::LPAREN)?;
+        let mut arguments = Vec::new();
+        while !self.match_token(&TokenType::RPAREN) && !self.is_at_end() {
+            crate::must_advance!(self, _unused, "Parent::method call argument parsing");
+            arguments.push(self.parse_expression()?);
+            if self.match_token(&TokenType::COMMA) {
+                self.advance();
+            }
+        }
+        self.consume(TokenType::RPAREN)?;
+        Ok(arguments)
+    }
+
+    fn parse_known_enum_record_ctor_arguments(
+        &mut self,
+        enum_name: &str,
+        variant_name: &str,
+    ) -> Result<Vec<ASTNode>, ParseError> {
+        let line = self.current_token().line;
+        let variant_decl = self
+            .known_enums
+            .get(enum_name)
+            .and_then(|variants| variants.iter().find(|variant| variant.name == variant_name))
+            .cloned()
+            .ok_or_else(|| ParseError::UnexpectedToken {
+                found: TokenType::LBRACE,
+                expected: format!("known enum variant `{}` for `{}`", variant_name, enum_name),
+                line,
+            })?;
+        if !variant_decl.is_record_payload() {
+            return Err(ParseError::UnexpectedToken {
+                found: TokenType::LBRACE,
+                expected: format!("tuple constructor `{}::{}(...)`", enum_name, variant_name),
+                line,
+            });
+        }
+
+        self.consume(TokenType::LBRACE)?;
+        let mut values = BTreeMap::new();
+        let mut seen = BTreeSet::new();
+        while !self.match_token(&TokenType::RBRACE) && !self.is_at_end() {
+            if self.match_token(&TokenType::COMMA) || self.match_token(&TokenType::NEWLINE) {
+                self.advance();
+                continue;
+            }
+
+            let field_name = match &self.current_token().token_type {
+                TokenType::IDENTIFIER(name) => {
+                    let name = name.clone();
+                    self.advance();
+                    name
+                }
+                other => {
+                    return Err(ParseError::UnexpectedToken {
+                        found: other.clone(),
+                        expected: "record field name".to_string(),
+                        line: self.current_token().line,
+                    });
+                }
+            };
+            if !seen.insert(field_name.clone()) {
+                return Err(ParseError::InvalidMatchPattern {
+                    detail: format!(
+                        "duplicate field `{}` in record enum constructor {}::{}",
+                        field_name, enum_name, variant_name
+                    ),
+                    line: self.current_token().line,
+                });
+            }
+            if !variant_decl
+                .record_field_decls
+                .iter()
+                .any(|field| field.name == field_name)
+            {
+                return Err(ParseError::InvalidMatchPattern {
+                    detail: format!(
+                        "unknown field `{}` in record enum constructor {}::{}",
+                        field_name, enum_name, variant_name
+                    ),
+                    line: self.current_token().line,
+                });
+            }
+
+            self.consume(TokenType::COLON)?;
+            let value = self.parse_expression()?;
+            values.insert(field_name, value);
+
+            if self.match_token(&TokenType::COMMA) {
+                self.advance();
+            }
+        }
+        self.consume(TokenType::RBRACE)?;
+
+        let mut ordered = Vec::with_capacity(variant_decl.record_field_decls.len());
+        let mut missing = Vec::new();
+        for field in &variant_decl.record_field_decls {
+            if let Some(value) = values.remove(&field.name) {
+                ordered.push(value);
+            } else {
+                missing.push(field.name.clone());
+            }
+        }
+        if !missing.is_empty() {
+            return Err(ParseError::InvalidMatchPattern {
+                detail: format!(
+                    "record enum constructor {}::{} is missing field(s): {}",
+                    enum_name,
+                    variant_name,
+                    missing.join(", ")
+                ),
+                line,
+            });
+        }
+        Ok(ordered)
     }
 
     /// Check if current position looks like legacy map literal: { "key" : ...

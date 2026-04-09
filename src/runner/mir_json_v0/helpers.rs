@@ -121,6 +121,17 @@ pub(super) fn parse_typeop_target_type(inst: &Value) -> Result<MirType, String> 
         .or_else(|| inst.get("ty"))
         .and_then(Value::as_str)
         .ok_or_else(|| "typeop missing target_type/ty".to_string())?;
+    parse_type_name(raw)
+}
+
+pub(super) fn parse_optional_type_name(inst: &Value, key: &str) -> Result<Option<MirType>, String> {
+    let Some(raw) = inst.get(key).and_then(Value::as_str) else {
+        return Ok(None);
+    };
+    parse_type_name(raw).map(Some)
+}
+
+fn parse_type_name(raw: &str) -> Result<MirType, String> {
     let lower = raw.to_ascii_lowercase();
     Ok(match lower.as_str() {
         "integer" | "int" | "i64" | "integerbox" => MirType::Integer,

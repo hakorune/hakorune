@@ -15,6 +15,7 @@ impl NyashParser {
     pub(super) fn parse_declaration_statement(&mut self) -> Result<ASTNode, ParseError> {
         match &self.current_token().token_type {
             TokenType::BOX => crate::parser::declarations::box_def::parse_box_declaration(self),
+            TokenType::ENUM => crate::parser::declarations::enum_def::parse_enum_declaration(self),
             TokenType::FLOW => crate::parser::declarations::box_def::parse_box_declaration(self), // flow is syntactic sugar for static box
             TokenType::IMPORT => self.parse_import(),
             TokenType::INTERFACE => {

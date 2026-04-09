@@ -1,7 +1,8 @@
 // Box helper exports.
 
 use nyash_rust::{
-    box_trait::{NyashBox, StringBox},
+    box_trait::{BoolBox, NyashBox, StringBox},
+    boxes::FloatBox,
     runtime::host_handles as handles,
 };
 use std::{
@@ -97,4 +98,22 @@ pub extern "C" fn nyash_box_from_i64(val: i64) -> i64 {
     nyash_rust::runtime::global_hooks::gc_alloc(8);
     let h = handles::to_handle_arc(arc) as i64;
     h
+}
+
+// box.from_bool(val) -> handle
+// Helper: build a BoolBox and return a handle
+#[export_name = "nyash.box.from_bool"]
+pub extern "C" fn nyash_box_from_bool(val: i64) -> i64 {
+    let arc: std::sync::Arc<dyn NyashBox> = std::sync::Arc::new(BoolBox::new(val != 0));
+    nyash_rust::runtime::global_hooks::gc_alloc(1);
+    handles::to_handle_arc(arc) as i64
+}
+
+// box.from_f64(val) -> handle
+// Helper: build a FloatBox and return a handle
+#[export_name = "nyash.box.from_f64"]
+pub extern "C" fn nyash_box_from_f64(val: f64) -> i64 {
+    let arc: std::sync::Arc<dyn NyashBox> = std::sync::Arc::new(FloatBox::new(val));
+    nyash_rust::runtime::global_hooks::gc_alloc(8);
+    handles::to_handle_arc(arc) as i64
 }

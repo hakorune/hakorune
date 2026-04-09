@@ -188,6 +188,8 @@ pub(super) fn parse_source_v0_to_json(input: &str) -> Result<String, String> {
         attrs: Default::default(),
         defs: vec![],
         imports: std::collections::BTreeMap::new(),
+        user_box_decls: vec![],
+        enum_decls: vec![],
     };
     serde_json::to_string(&prog).map_err(|e| e.to_string())
 }

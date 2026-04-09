@@ -79,7 +79,10 @@ pub(crate) use builder::detect_escape_skip_shape;
 pub use cfg_extractor::extract_cfg_info; // Phase 154: CFG extraction
 pub use definitions::{CallFlags, Callee, MirCall}; // Unified call definitions
 pub use effect::{Effect, EffectMask};
-pub use function::{ClosureBodyId, FunctionSignature, MirFunction, MirModule, UserBoxFieldDecl};
+pub use function::{
+    ClosureBodyId, FunctionSignature, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule,
+    UserBoxFieldDecl,
+};
 pub use instruction::MirInstruction;
 pub use join_ir_runner::{run_joinir_function, JoinRuntimeError, JoinValue};
 pub use optimizer::MirOptimizer;

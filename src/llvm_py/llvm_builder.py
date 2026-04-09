@@ -164,6 +164,9 @@ class NyashLLVMBuilder:
         # P0-1: Connect builder's SSOT structures to resolver
         self.resolver.def_blocks = self.def_blocks
         self.resolver.block_end_values = self.block_end_values
+        self.user_box_decls: List[Dict[str, Any]] = []
+        self.enum_decls: List[Dict[str, Any]] = []
+        self.call_arities: Dict[str, int] = {}
 
         # Statistics
         self.loop_count = 0
@@ -180,6 +183,7 @@ class NyashLLVMBuilder:
         """Build LLVM IR from MIR JSON"""
         builder_input = build_builder_input(mir_json, scan_call_arities)
         self.user_box_decls = builder_input.user_box_decls
+        self.enum_decls = builder_input.enum_decls
         functions = builder_input.functions
         self.call_arities = builder_input.call_arities
         

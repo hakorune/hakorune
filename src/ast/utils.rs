@@ -89,6 +89,23 @@ impl ASTNode {
                 desc.push(')');
                 desc
             }
+            ASTNode::EnumDeclaration {
+                name,
+                variants,
+                type_parameters,
+                ..
+            } => {
+                if type_parameters.is_empty() {
+                    format!("EnumDeclaration({}, {} variants)", name, variants.len())
+                } else {
+                    format!(
+                        "EnumDeclaration({}<{}>, {} variants)",
+                        name,
+                        type_parameters.join(", "),
+                        variants.len()
+                    )
+                }
+            }
             ASTNode::FunctionDeclaration {
                 name,
                 params,
@@ -201,6 +218,7 @@ impl ASTNode {
                 format!("Await({:?})", expression)
             }
             ASTNode::MatchExpr { .. } => "MatchExpr".to_string(),
+            ASTNode::EnumMatchExpr { .. } => "EnumMatchExpr".to_string(),
             ASTNode::QMarkPropagate { .. } => "QMarkPropagate".to_string(),
             ASTNode::Lambda { params, body, .. } => {
                 format!("Lambda({} params, {} statements)", params.len(), body.len())
@@ -253,6 +271,7 @@ impl ASTNode {
             ASTNode::TryCatch { span, .. } => *span,
             ASTNode::Throw { span, .. } => *span,
             ASTNode::BoxDeclaration { span, .. } => *span,
+            ASTNode::EnumDeclaration { span, .. } => *span,
             ASTNode::FunctionDeclaration { span, .. } => *span,
             ASTNode::GlobalVar { span, .. } => *span,
             ASTNode::Literal { span, .. } => *span,
@@ -275,6 +294,7 @@ impl ASTNode {
             ASTNode::Call { span, .. } => *span,
             ASTNode::AwaitExpression { span, .. } => *span,
             ASTNode::MatchExpr { span, .. } => *span,
+            ASTNode::EnumMatchExpr { span, .. } => *span,
             ASTNode::QMarkPropagate { span, .. } => *span,
             ASTNode::Lambda { span, .. } => *span,
             ASTNode::ArrayLiteral { span, .. } => *span,
@@ -312,6 +332,7 @@ impl ASTNode {
 
                 ASTNode::Lambda { .. }
                 | ASTNode::FunctionDeclaration { .. }
+                | ASTNode::EnumDeclaration { .. }
                 | ASTNode::BoxDeclaration { .. } => false,
 
                 ASTNode::Program { statements, .. } => statements.iter().any(contains),
@@ -354,6 +375,16 @@ impl ASTNode {
                     contains(scrutinee)
                         || arms.iter().any(|(_, arm_expr)| contains(arm_expr))
                         || contains(else_expr)
+                }
+                ASTNode::EnumMatchExpr {
+                    scrutinee,
+                    arms,
+                    else_expr,
+                    ..
+                } => {
+                    contains(scrutinee)
+                        || arms.iter().any(|arm| contains(&arm.body))
+                        || else_expr.as_ref().is_some_and(|expr| contains(expr))
                 }
                 ASTNode::ArrayLiteral { elements, .. } => elements.iter().any(contains),
                 ASTNode::MapLiteral { entries, .. } => {
@@ -418,6 +449,7 @@ impl ASTNode {
 
                 ASTNode::Lambda { .. }
                 | ASTNode::FunctionDeclaration { .. }
+                | ASTNode::EnumDeclaration { .. }
                 | ASTNode::BoxDeclaration { .. } => false,
 
                 ASTNode::Program { statements, .. } => statements.iter().any(contains),
@@ -460,6 +492,16 @@ impl ASTNode {
                     contains(scrutinee)
                         || arms.iter().any(|(_, arm_expr)| contains(arm_expr))
                         || contains(else_expr)
+                }
+                ASTNode::EnumMatchExpr {
+                    scrutinee,
+                    arms,
+                    else_expr,
+                    ..
+                } => {
+                    contains(scrutinee)
+                        || arms.iter().any(|arm| contains(&arm.body))
+                        || else_expr.as_ref().is_some_and(|expr| contains(expr))
                 }
                 ASTNode::ArrayLiteral { elements, .. } => elements.iter().any(contains),
                 ASTNode::MapLiteral { entries, .. } => {
@@ -524,6 +566,7 @@ impl ASTNode {
             // Scope boundary: exits inside nested function/box/lambda do not escape.
             ASTNode::Lambda { .. }
             | ASTNode::FunctionDeclaration { .. }
+            | ASTNode::EnumDeclaration { .. }
             | ASTNode::BoxDeclaration { .. } => false,
 
             ASTNode::Program { statements, .. } => {
@@ -576,6 +619,18 @@ impl ASTNode {
                         .iter()
                         .any(|(_, arm_expr)| arm_expr.contains_non_local_exit())
                     || else_expr.contains_non_local_exit()
+            }
+            ASTNode::EnumMatchExpr {
+                scrutinee,
+                arms,
+                else_expr,
+                ..
+            } => {
+                scrutinee.contains_non_local_exit()
+                    || arms.iter().any(|arm| arm.body.contains_non_local_exit())
+                    || else_expr
+                        .as_ref()
+                        .is_some_and(|expr| expr.contains_non_local_exit())
             }
             ASTNode::ArrayLiteral { elements, .. } => {
                 elements.iter().any(ASTNode::contains_non_local_exit)
@@ -670,6 +725,7 @@ impl ASTNode {
 
                 ASTNode::Lambda { .. }
                 | ASTNode::FunctionDeclaration { .. }
+                | ASTNode::EnumDeclaration { .. }
                 | ASTNode::BoxDeclaration { .. } => false,
 
                 ASTNode::Program { statements, .. } => {
@@ -726,6 +782,18 @@ impl ASTNode {
                             .iter()
                             .any(|(_, arm_expr)| contains(arm_expr, loop_depth))
                         || contains(else_expr, loop_depth)
+                }
+                ASTNode::EnumMatchExpr {
+                    scrutinee,
+                    arms,
+                    else_expr,
+                    ..
+                } => {
+                    contains(scrutinee, loop_depth)
+                        || arms.iter().any(|arm| contains(&arm.body, loop_depth))
+                        || else_expr
+                            .as_ref()
+                            .is_some_and(|expr| contains(expr, loop_depth))
                 }
                 ASTNode::ArrayLiteral { elements, .. } => {
                     elements.iter().any(|e| contains(e, loop_depth))

@@ -48,6 +48,7 @@ pub struct MirInterpreter {
     // Typed authority lives upstream in `field_decls`; this map remains for
     // legacy runtime consumers and old payload compatibility.
     pub(super) user_box_field_decls: FxHashMap<String, Vec<String>>,
+    pub(super) enum_decls: BTreeMap<String, crate::mir::MirEnumDecl>,
     // Trace context (dev-only; enabled with NYASH_VM_TRACE=1)
     pub(super) last_block: Option<BasicBlockId>,
     pub(super) last_inst: Option<MirInstruction>,
@@ -131,6 +132,7 @@ impl MirInterpreter {
             functions: BTreeMap::new(),
             cur_fn: None,
             user_box_field_decls: FxHashMap::default(),
+            enum_decls: BTreeMap::new(),
             last_block: None,
             last_inst: None,
             last_inst_index: None,
@@ -336,6 +338,7 @@ impl MirInterpreter {
         self.functions = module.functions.clone();
         self.refresh_operator_box_flags();
         self.user_box_field_decls = module.metadata.user_box_decls.clone().into_iter().collect();
+        self.enum_decls = module.metadata.enum_decls.clone();
 
         // 🎯 Phase 173-B: Auto-detect static boxes from MIR function names
         // This handles using-imported static boxes that aren't in AST
@@ -461,6 +464,8 @@ impl MirInterpreter {
         // Snapshot functions for call resolution
         self.functions = module.functions.clone();
         self.refresh_operator_box_flags();
+        self.user_box_field_decls = module.metadata.user_box_decls.clone().into_iter().collect();
+        self.enum_decls = module.metadata.enum_decls.clone();
 
         let func = self
             .functions

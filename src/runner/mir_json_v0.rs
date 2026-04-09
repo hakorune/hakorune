@@ -219,6 +219,74 @@ pub fn parse_mir_v0_to_module(json: &str) -> Result<MirModule, String> {
                         });
                         max_value_id = max_value_id.max(dst + 1);
                     }
+                    "sum_make" => {
+                        let dst = require_u64(inst, "dst", "sum_make dst")? as u32;
+                        let enum_name = inst
+                            .get("enum")
+                            .and_then(Value::as_str)
+                            .ok_or_else(|| "sum_make missing enum".to_string())?
+                            .to_string();
+                        let variant = inst
+                            .get("variant")
+                            .and_then(Value::as_str)
+                            .ok_or_else(|| "sum_make missing variant".to_string())?
+                            .to_string();
+                        let tag = require_u64(inst, "tag", "sum_make tag")? as u32;
+                        let payload = inst
+                            .get("payload")
+                            .and_then(Value::as_u64)
+                            .map(|value| ValueId::new(value as u32));
+                        let payload_type = parse_optional_type_name(inst, "payload_type")?;
+                        block_ref.add_instruction(MirInstruction::SumMake {
+                            dst: ValueId::new(dst),
+                            enum_name,
+                            variant,
+                            tag,
+                            payload,
+                            payload_type,
+                        });
+                        max_value_id = max_value_id.max(dst + 1);
+                    }
+                    "sum_tag" => {
+                        let dst = require_u64(inst, "dst", "sum_tag dst")? as u32;
+                        let value = require_u64(inst, "value", "sum_tag value")? as u32;
+                        let enum_name = inst
+                            .get("enum")
+                            .and_then(Value::as_str)
+                            .ok_or_else(|| "sum_tag missing enum".to_string())?
+                            .to_string();
+                        block_ref.add_instruction(MirInstruction::SumTag {
+                            dst: ValueId::new(dst),
+                            value: ValueId::new(value),
+                            enum_name,
+                        });
+                        max_value_id = max_value_id.max(dst + 1);
+                    }
+                    "sum_project" => {
+                        let dst = require_u64(inst, "dst", "sum_project dst")? as u32;
+                        let value = require_u64(inst, "value", "sum_project value")? as u32;
+                        let enum_name = inst
+                            .get("enum")
+                            .and_then(Value::as_str)
+                            .ok_or_else(|| "sum_project missing enum".to_string())?
+                            .to_string();
+                        let variant = inst
+                            .get("variant")
+                            .and_then(Value::as_str)
+                            .ok_or_else(|| "sum_project missing variant".to_string())?
+                            .to_string();
+                        let tag = require_u64(inst, "tag", "sum_project tag")? as u32;
+                        let payload_type = parse_optional_type_name(inst, "payload_type")?;
+                        block_ref.add_instruction(MirInstruction::SumProject {
+                            dst: ValueId::new(dst),
+                            value: ValueId::new(value),
+                            enum_name,
+                            variant,
+                            tag,
+                            payload_type,
+                        });
+                        max_value_id = max_value_id.max(dst + 1);
+                    }
                     "ref_new" => {
                         let dst = require_u64(inst, "dst", "ref_new dst")? as u32;
                         let box_val = require_u64(inst, "box_val", "ref_new box_val")? as u32;

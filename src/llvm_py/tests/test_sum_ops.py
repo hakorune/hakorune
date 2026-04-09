@@ -1,0 +1,278 @@
+#!/usr/bin/env python3
+import sys
+import unittest
+from pathlib import Path
+
+import llvmlite.ir as ir
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from instructions.sum_ops import lower_sum_make, lower_sum_project
+from type_facts import make_box_handle_fact
+
+
+class _ResolverStub:
+    def __init__(self):
+        self.value_types = {}
+        self.integerish_ids = set()
+        self.def_blocks = {}
+        self.sum_payload_facts = {}
+
+    def resolve_i64(self, value_id, current_block, preds, block_end_values, vmap, bb_map):
+        return ir.Constant(ir.IntType(64), int(value_id))
+
+    def mark_string(self, value_id):
+        self.value_types[int(value_id)] = make_box_handle_fact("StringBox")
+
+
+class TestSumOps(unittest.TestCase):
+    def _make_builder(self):
+        mod = ir.Module(name="sum_ops")
+        i64 = ir.IntType(64)
+        fn = ir.Function(mod, ir.FunctionType(i64, []), name="main")
+        bb = fn.append_basic_block("bb1")
+        return mod, ir.IRBuilder(bb), bb, i64
+
+    def test_sum_make_uses_typed_integer_payload_lane_for_concrete_payload(self):
+        mod, builder, bb, i64 = self._make_builder()
+        resolver = _ResolverStub()
+        vmap = {1: ir.Constant(i64, 7)}
+        resolver.value_types[1] = "i64"
+
+        lower_sum_make(
+            builder,
+            mod,
+            2,
+            "OptionInt",
+            "Some",
+            1,
+            1,
+            "Integer",
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+
+        ir_txt = str(mod)
+        self.assertIn("__NySum_OptionInt", ir_txt, msg=ir_txt)
+        self.assertIn('call i64 @"nyash.instance.set_i64_field_h"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.instance.set_field_h"', ir_txt, msg=ir_txt)
+        self.assertEqual(vmap[2].type.width, 64)
+
+    def test_sum_make_generic_integer_payload_uses_actual_integer_fact_for_typed_storage(self):
+        mod, builder, bb, i64 = self._make_builder()
+        resolver = _ResolverStub()
+        vmap = {1: ir.Constant(i64, 7)}
+        resolver.value_types[1] = "i64"
+
+        lower_sum_make(
+            builder,
+            mod,
+            2,
+            "Option",
+            "Some",
+            1,
+            1,
+            None,
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+
+        ir_txt = str(mod)
+        self.assertIn('call i64 @"nyash.instance.set_i64_field_h"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.box.from_i64"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.instance.set_field_h"', ir_txt, msg=ir_txt)
+        self.assertEqual(resolver.sum_payload_facts[2], "i64")
+
+    def test_sum_make_generic_handle_payload_keeps_handle_storage(self):
+        mod, builder, bb, i64 = self._make_builder()
+        resolver = _ResolverStub()
+        vmap = {1: ir.Constant(i64, 777)}
+        resolver.value_types[1] = make_box_handle_fact("Point")
+
+        lower_sum_make(
+            builder,
+            mod,
+            2,
+            "Option",
+            "Some",
+            1,
+            1,
+            None,
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+
+        ir_txt = str(mod)
+        self.assertIn('call i64 @"nyash.instance.set_field_h"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.box.from_i64"', ir_txt, msg=ir_txt)
+        self.assertEqual(resolver.sum_payload_facts[2], make_box_handle_fact("Point"))
+
+    def test_sum_project_uses_typed_integer_getter_and_fail_fast_trap(self):
+        mod, builder, bb, i64 = self._make_builder()
+        resolver = _ResolverStub()
+        vmap = {1: ir.Constant(i64, 101)}
+        resolver.value_types[1] = make_box_handle_fact("__NySum_OptionInt")
+
+        lower_sum_project(
+            builder,
+            mod,
+            2,
+            1,
+            "OptionInt",
+            "Some",
+            1,
+            "Integer",
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+
+        ir_txt = str(mod)
+        self.assertIn('call i64 @"nyash.instance.get_i64_field_h"', ir_txt, msg=ir_txt)
+        self.assertIn("unreachable", ir_txt, msg=ir_txt)
+        self.assertEqual(resolver.value_types[2], "i64")
+        self.assertIn(2, resolver.integerish_ids)
+
+    def test_sum_project_generic_integer_uses_recorded_fact_for_typed_getter(self):
+        mod, builder, bb, i64 = self._make_builder()
+        resolver = _ResolverStub()
+        vmap = {1: ir.Constant(i64, 7)}
+        resolver.value_types[1] = "i64"
+
+        lower_sum_make(
+            builder,
+            mod,
+            2,
+            "Option",
+            "Some",
+            1,
+            1,
+            None,
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+        lower_sum_project(
+            builder,
+            mod,
+            3,
+            2,
+            "Option",
+            "Some",
+            1,
+            None,
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+
+        ir_txt = str(mod)
+        self.assertIn('call i64 @"nyash.instance.get_i64_field_h"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.instance.get_field_h"', ir_txt, msg=ir_txt)
+        self.assertEqual(resolver.value_types[3], "i64")
+
+    def test_sum_project_generic_bool_uses_recorded_fact_for_typed_getter(self):
+        mod, builder, bb, i64 = self._make_builder()
+        resolver = _ResolverStub()
+        bool_val = ir.Constant(ir.IntType(1), 1)
+        vmap = {1: bool_val}
+        resolver.value_types[1] = "i1"
+
+        lower_sum_make(
+            builder,
+            mod,
+            2,
+            "Option",
+            "Some",
+            1,
+            1,
+            None,
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+        lower_sum_project(
+            builder,
+            mod,
+            3,
+            2,
+            "Option",
+            "Some",
+            1,
+            None,
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+
+        ir_txt = str(mod)
+        self.assertIn('call i64 @"nyash.instance.set_bool_field_h"', ir_txt, msg=ir_txt)
+        self.assertIn('call i64 @"nyash.instance.get_bool_field_h"', ir_txt, msg=ir_txt)
+        self.assertEqual(resolver.value_types[3], "i1")
+
+    def test_sum_project_generic_float_uses_recorded_fact_for_typed_getter(self):
+        mod, builder, bb, i64 = self._make_builder()
+        resolver = _ResolverStub()
+        vmap = {1: ir.Constant(ir.DoubleType(), 1.25)}
+        resolver.value_types[1] = "Float"
+
+        lower_sum_make(
+            builder,
+            mod,
+            2,
+            "Option",
+            "Some",
+            1,
+            1,
+            None,
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+        lower_sum_project(
+            builder,
+            mod,
+            3,
+            2,
+            "Option",
+            "Some",
+            1,
+            None,
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+
+        ir_txt = str(mod)
+        self.assertIn('call i64 @"nyash.instance.set_float_field_h"', ir_txt, msg=ir_txt)
+        self.assertIn('call double @"nyash.instance.get_float_field_h"', ir_txt, msg=ir_txt)
+        self.assertEqual(resolver.value_types[3], "Float")
+
+
+if __name__ == "__main__":
+    unittest.main()

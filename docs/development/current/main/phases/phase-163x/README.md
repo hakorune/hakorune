@@ -27,6 +27,8 @@
 
 - design owner:
   - `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
+- post-primitive backlog design owner:
+  - `docs/development/current/main/design/enum-sum-and-generic-surface-ssot.md`
 - sibling guardrail lane:
   - `docs/development/current/main/phases/phase-137x/README.md`
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
@@ -62,10 +64,42 @@
     - internal i64-specialized routes now birth/preserve a narrow `InlineI64` storage lane
     - boxed/string/mixed routes explicitly promote back to boxed storage before mutation
     - current keeper proof is focused ArrayBox/kernel tests + `phase21_5_perf_kilo_micro_machine_lane_contract_vm`
-  - enum/sum MIR types and user-defined generics stay explicit backlog items for later waves
-- current next cut:
-  1. keep enum/generic work as backlog outside the current lane
-  2. return to kilo optimization rereads with `kilo_micro_array_getset` as the first post-pilot keeper check
+  - enum/sum MIR types and user-defined generics now have a backlog SSOT:
+    - `enum` stays separate from `box`
+    - user-facing `template` is rejected; generic surface stays on `<T>`
+    - constructor target is `Type::Variant(...)`, while shorthand patterns stay limited to known-enum matches
+  - enum parser / AST / Stage1 MVP is now landed:
+    - `enum Name<T> { ... }` parses on the Rust surface
+    - unit variants + single-payload tuple variants are inventoried in AST / Stage1 Program JSON
+    - `Type::Variant(...)` now lowers to Stage1 `EnumCtor`
+  - known-enum shorthand match / exhaustiveness is now landed on the same narrow lane:
+    - `Some(v)` / `None` shorthand now resolves against known enum inventory
+    - known-enum matches must name every variant explicitly
+    - `_` does not satisfy known-enum exhaustiveness
+    - guarded enum shorthand arms remain out of MVP
+  - canonical sum MIR lowering is now landed on the same compiler-first lane:
+    - MIR now has `SumMake` / `SumTag` / `SumProject`
+    - JSON v0 bridge lowers `EnumCtor` / `EnumMatch` into the dedicated sum lane instead of object-field encoding
+    - MIR JSON emit/parse now preserves the same sum ops for handoff/debug
+  - VM / LLVM / fallback runtime support is now landed for the same MVP sum lane:
+    - VM interpreter snapshots `enum_decls` and executes `SumMake` / `SumTag` / `SumProject` through synthetic `__NySum_<Enum>` fallback `InstanceBox` values
+    - LLVM/Py builder registers the same synthetic runtime boxes before `ny_main` and lowers sum ops through `nyash.instance.*_field_h`
+    - concrete `Integer` / `Bool` / `Float` payload hints use typed helper lanes
+    - LLVM now also recovers erased/generic payloads back to typed `Integer` / `Bool` / `Float` when `sum_make` can observe an actual payload fact locally
+    - unknown/genuinely dynamic payloads still stay on boxed-handle fallback
+    - malformed tag projections fail fast on both backends instead of silently projecting
+    - product `ny-llvmc` ownership remains separate from this compat/harness slice
+  - narrow record variants are now landed on the same source / JSON v0 route:
+    - declaration surface accepts `Ident { name: String }`
+    - qualified construction accepts `Token::Ident { name: expr }`
+    - known-enum shorthand match accepts `Ident { name } => ...`
+    - record payloads lower through synthetic hidden payload boxes `__NyEnumPayload_<Enum>_<Variant>` while enum values themselves stay on the existing sum lane
+    - constructors / patterns must mention the declared field set exactly; multi-payload variants stay deferred
+- post-primitive follow-on queue:
+  1. decide the next post-record enum follow-up:
+     - multi-payload expansion
+     - or a separate `ny-llvmc` parity wave
+  2. keep `where` / enum methods / full monomorphization in backlog
 
 ## Fixed Task Order
 

@@ -87,6 +87,66 @@ pub fn format_instruction(
             format!("field.set {}.{} = {}{}", base, field, value, type_suffix)
         }
 
+        MirInstruction::SumMake {
+            dst,
+            enum_name,
+            variant,
+            tag,
+            payload,
+            payload_type,
+        } => {
+            let payload_suffix = payload
+                .map(|payload| format!(" payload={}", payload))
+                .unwrap_or_default();
+            let type_suffix = payload_type
+                .as_ref()
+                .map(|ty| format!(" : {}", format_type(ty)))
+                .unwrap_or_default();
+            format!(
+                "{} sum.make {}::{} tag={}{}{}",
+                format_dst(dst, types),
+                enum_name,
+                variant,
+                tag,
+                payload_suffix,
+                type_suffix
+            )
+        }
+
+        MirInstruction::SumTag {
+            dst,
+            value,
+            enum_name,
+        } => format!(
+            "{} sum.tag {} as {}",
+            format_dst(dst, types),
+            value,
+            enum_name
+        ),
+
+        MirInstruction::SumProject {
+            dst,
+            value,
+            enum_name,
+            variant,
+            tag,
+            payload_type,
+        } => {
+            let type_suffix = payload_type
+                .as_ref()
+                .map(|ty| format!(" : {}", format_type(ty)))
+                .unwrap_or_default();
+            format!(
+                "{} sum.project {} as {}::{} tag={}{}",
+                format_dst(dst, types),
+                value,
+                enum_name,
+                variant,
+                tag,
+                type_suffix
+            )
+        }
+
         MirInstruction::Call {
             dst,
             func,
