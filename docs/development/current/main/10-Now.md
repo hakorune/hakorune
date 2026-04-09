@@ -34,9 +34,12 @@ Related:
   - recommended post-selection order is now locked:
     1. `sum placement/effect pilot` (`sum outer-box sinking` first proving slice)
     2. `ny-llvmc` parity wave
-    3. `tuple multi-payload` only as a later compat-only transport branch
-  - current active follow-on after the parity slice: keep `tuple multi-payload` deferred unless a separate canonical sum decision reopens it
-  - tuple multi-payload stays deferred because AST / Stage1 / MIR still carry single-slot semantic blockers
+    3. `tuple multi-payload` compat transport
+  - tuple multi-payload compat transport is now landed:
+    - parser/AST accept `Variant(T, U, ...)` while keeping tuple payload truth above canonical MIR
+    - Stage1 lowers tuple ctors/matches through `__NyEnumPayload_<Enum>_<Variant>` with synthetic `_0`, `_1`, ... fields
+    - canonical `EnumCtor` / `EnumMatch` / `SumMake` / `SumProject` stay single-slot
+  - remaining follow-ons stay backlog-only: `where`, enum methods, full monomorphization
 - sibling string guardrail:
   - `phase-137x main kilo reopen selection`
   - `kilo_micro_substring_views_only`

@@ -82,6 +82,7 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             "variants": variants.into_iter().map(|variant| json!({
                 "name": variant.name,
                 "payload_type": variant.payload_type_name,
+                "tuple_payload_types": variant.tuple_payload_type_names,
                 "record_fields": variant.record_field_decls.into_iter().map(|field| json!({
                     "name": field.name,
                     "declared_type": field.declared_type_name,
@@ -644,6 +645,16 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
                             .get("payload_type")
                             .and_then(|value| value.as_str())
                             .map(str::to_string),
+                        tuple_payload_type_names: item
+                            .get("tuple_payload_types")
+                            .and_then(|value| value.as_array())
+                            .map(|types| {
+                                types
+                                    .iter()
+                                    .filter_map(|value| value.as_str().map(str::to_string))
+                                    .collect::<Vec<_>>()
+                            })
+                            .unwrap_or_default(),
                         record_field_decls: item
                             .get("record_fields")
                             .and_then(|value| value.as_array())

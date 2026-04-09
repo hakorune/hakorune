@@ -9,7 +9,7 @@ pub(super) fn collect_enum_record_payload_box_decls(
             continue;
         };
         for variant in variants {
-            if !variant.is_record_payload() {
+            if !variant.requires_compat_payload_box() {
                 continue;
             }
             decls.push(enum_record_payload_box_decl(name, variant));
@@ -22,7 +22,7 @@ pub(super) fn enum_variant_payload_type_name(
     enum_name: &str,
     variant: &EnumVariantDecl,
 ) -> Option<String> {
-    if variant.is_record_payload() {
+    if variant.requires_compat_payload_box() {
         Some(enum_record_payload_box_name(enum_name, &variant.name))
     } else {
         variant.payload_type_name.clone()
@@ -34,14 +34,14 @@ pub(super) fn enum_record_payload_box_name(enum_name: &str, variant_name: &str) 
 }
 
 fn enum_record_payload_box_decl(enum_name: &str, variant: &EnumVariantDecl) -> serde_json::Value {
+    let field_decls = variant.compat_payload_field_decls();
     serde_json::json!({
         "name": enum_record_payload_box_name(enum_name, &variant.name),
-        "fields": variant
-            .record_field_decls
+        "fields": field_decls
             .iter()
             .map(|field| field.name.clone())
             .collect::<Vec<_>>(),
-        "field_decls": variant.record_field_decls.iter().map(|field| serde_json::json!({
+        "field_decls": field_decls.iter().map(|field| serde_json::json!({
             "name": field.name,
             "declared_type": field.declared_type_name,
             "is_weak": field.is_weak,

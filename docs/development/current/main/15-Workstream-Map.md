@@ -15,10 +15,10 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-163x primitive and user-box fast path` |
-| Front | `lifecycle value parent locked -> audits landed -> thin-entry inventory/selection landed -> sum placement pilot landed -> ny-llvmc parity proving slice landed` |
+| Front | `lifecycle value parent locked -> audits landed -> thin-entry inventory/selection landed -> sum placement pilot landed -> ny-llvmc parity proving slice landed -> tuple compat transport landed` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `tuple multi-payload` remains deferred unless explicitly reopened as compat-only hidden payload transport |
-| Next | `phase-163x tuple multi-payload compat transport` only if it is still chosen after the landed sum/parity slices |
+| Blocker | `canonical multi-slot sum remains deferred; current tuple route stays compat-boxed` |
+| Next | `phase-163x` follow-on is closed; keep `where / enum methods / monomorphization` backlog-only |
 | After Next | `where / enum methods / monomorphization stay backlog-only` |
 
 ## Current Read

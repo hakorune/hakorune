@@ -4,7 +4,7 @@
 //! - `routing.rs`: source-shape and build-route policy
 //! - `authority.rs`: strict source authority
 //! - `extract.rs`: source observation / helper extraction
-//! - `record_payload.rs`: shared enum record payload boxification helpers
+//! - `record_payload.rs`: shared enum compat payload boxification helpers
 //! - `lowering.rs`: AST subset -> Program(JSON v0) lowering
 //!
 //! Cross-crate surface:
@@ -322,22 +322,67 @@ static box Main {
     }
 
     #[test]
-    fn source_to_program_json_v0_rejects_multi_payload_tuple_variant_surface_for_now() {
+    fn source_to_program_json_v0_emits_tuple_enum_payload_box_contract() {
         let source = r#"
 enum Pair {
   Both(Integer, Integer)
+  None
 }
 
 static box Main {
   main() {
-    return 0
+    local pair = Pair::Both(1, 2)
+    return match pair {
+      Both(left, right) => left + right
+      None => 0
+    }
   }
 }
 "#;
 
-        let error =
-            source_to_program_json_v0_strict(source).expect_err("multi-payload tuple stays out");
-        assert!(error.contains("single payload variant in the current enum surface"));
+        let json = source_to_program_json_v0_strict(source).expect("program json");
+        let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+        let payload_box = "__NyEnumPayload_Pair_Both";
+
+        let enum_decls = value["enum_decls"].as_array().expect("enum decls");
+        assert_eq!(enum_decls[0]["variants"][0]["payload_type"], payload_box);
+        assert!(
+            enum_decls[0]["variants"][0]["record_fields"]
+                .as_array()
+                .expect("record fields")
+                .is_empty(),
+            "tuple surface stays tuple-shaped in enum inventory"
+        );
+
+        let user_box_decls = value["user_box_decls"].as_array().expect("user box decls");
+        let payload_decl = user_box_decls
+            .iter()
+            .find(|decl| decl["name"] == payload_box)
+            .expect("hidden payload box decl");
+        assert_eq!(payload_decl["field_decls"][0]["name"], "_0");
+        assert_eq!(payload_decl["field_decls"][0]["declared_type"], "Integer");
+        assert_eq!(payload_decl["field_decls"][1]["name"], "_1");
+        assert_eq!(payload_decl["field_decls"][1]["declared_type"], "Integer");
+
+        let body = value["body"].as_array().expect("body");
+        assert_eq!(body[0]["expr"]["type"], "EnumCtor");
+        assert_eq!(body[0]["expr"]["payload_type"], payload_box);
+        assert_eq!(body[0]["expr"]["args"][0]["type"], "New");
+        assert_eq!(body[0]["expr"]["args"][0]["class"], payload_box);
+        assert_eq!(body[0]["expr"]["args"][0]["args"][0]["value"], 1);
+        assert_eq!(body[0]["expr"]["args"][0]["args"][1]["value"], 2);
+
+        assert_eq!(body[1]["expr"]["type"], "EnumMatch");
+        assert_eq!(body[1]["expr"]["arms"][0]["payload_type"], payload_box);
+        assert_eq!(body[1]["expr"]["arms"][0]["expr"]["type"], "BlockExpr");
+        assert_eq!(
+            body[1]["expr"]["arms"][0]["expr"]["prelude"][0]["expr"]["field"],
+            "_0"
+        );
+        assert_eq!(
+            body[1]["expr"]["arms"][0]["expr"]["prelude"][1]["expr"]["field"],
+            "_1"
+        );
     }
 
     #[test]

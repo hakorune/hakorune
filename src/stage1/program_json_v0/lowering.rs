@@ -371,11 +371,7 @@ fn enum_ctor_to_json_v0(
                 enum_name, variant_name
             )
         })?;
-    let expected_arity = if variant.is_record_payload() {
-        variant.record_field_decls.len()
-    } else {
-        usize::from(variant.has_payload())
-    };
+    let expected_arity = variant.payload_arity();
     if arguments.len() != expected_arity {
         return Err(format!(
             "enum constructor arity mismatch in Main.main/0: {}::{} expects {} arg(s), got {}",
@@ -386,10 +382,10 @@ fn enum_ctor_to_json_v0(
         ));
     }
     let payload_type = enum_variant_payload_type_name(enum_name, variant);
-    let lowered_args = if variant.is_record_payload() {
+    let lowered_args = if variant.requires_compat_payload_box() {
         let payload_box = payload_type.clone().ok_or_else(|| {
             format!(
-                "record enum payload box missing for {}::{}",
+                "compat enum payload box missing for {}::{}",
                 enum_name, variant_name
             )
         })?;

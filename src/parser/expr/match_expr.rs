@@ -22,6 +22,7 @@ enum ParsedMatchArm {
         name: String,
         binding: Option<String>,
         record_bindings: Option<Vec<RecordPatternBinding>>,
+        tuple_bindings: Option<Vec<String>>,
         guard: Option<ASTNode>,
         body: ASTNode,
         line: usize,
@@ -81,7 +82,9 @@ impl NyashParser {
                     body,
                     line: arm_line,
                 });
-            } else if let Some((name, binding, record_bindings)) = self.parse_named_match_head()? {
+            } else if let Some((name, binding, record_bindings, tuple_bindings)) =
+                self.parse_named_match_head()?
+            {
                 let guard = if self.match_token(&TokenType::IF) {
                     self.advance();
                     Some(self.parse_expression()?)
@@ -94,6 +97,7 @@ impl NyashParser {
                     name,
                     binding,
                     record_bindings,
+                    tuple_bindings,
                     guard,
                     body,
                     line: arm_line,
@@ -245,15 +249,21 @@ impl NyashParser {
                     name,
                     binding,
                     record_bindings,
+                    tuple_bindings,
                     guard,
                     body,
                     line,
                 } => {
-                    if record_bindings.is_some() {
+                    if record_bindings.is_some() || tuple_bindings.is_some() {
+                        let surface = if record_bindings.is_some() {
+                            "record"
+                        } else {
+                            "tuple"
+                        };
                         return Err(ParseError::InvalidMatchPattern {
                             detail: format!(
-                                "record arm `{}` requires a known enum shorthand context",
-                                name
+                                "{} arm `{}` requires a known enum shorthand context",
+                                surface, name
                             ),
                             line,
                         });
@@ -371,15 +381,24 @@ impl NyashParser {
                 name,
                 binding,
                 record_bindings,
+                tuple_bindings,
                 ..
             } => variants
                 .iter()
                 .find(|variant| variant.name == *name)
-                .map(|variant| match record_bindings {
-                    Some(_) => variant.is_record_payload() && binding.is_none(),
-                    None => {
-                        !variant.is_record_payload() && variant.has_payload() == binding.is_some()
+                .map(|variant| match (record_bindings, tuple_bindings, binding) {
+                    (Some(_), None, None) => variant.is_record_payload(),
+                    (None, Some(tuple_bindings), None) => {
+                        variant.is_multi_payload_tuple()
+                            && tuple_bindings.len() == variant.payload_arity()
                     }
+                    (None, None, Some(_)) => {
+                        !variant.is_record_payload()
+                            && !variant.is_multi_payload_tuple()
+                            && variant.payload_arity() == 1
+                    }
+                    (None, None, None) => !variant.has_payload(),
+                    _ => false,
                 })
                 .unwrap_or(false),
             ParsedMatchArm::Default { .. } => true,
@@ -415,6 +434,7 @@ impl NyashParser {
                     name,
                     binding,
                     record_bindings,
+                    tuple_bindings,
                     guard,
                     body,
                     line,
@@ -456,7 +476,7 @@ impl NyashParser {
                         )?;
                         let payload_binding =
                             format!("__ny_enum_record_payload_{}_{}", enum_arms.len(), name);
-                        let wrapped_body = wrap_record_enum_arm_body(
+                        let wrapped_body = wrap_compat_payload_enum_arm_body(
                             &payload_binding,
                             &record_bindings,
                             body,
@@ -477,6 +497,60 @@ impl NyashParser {
                             body: wrapped_body,
                         });
                         continue;
+                    }
+                    if let Some(tuple_bindings) = tuple_bindings {
+                        if !variant.is_multi_payload_tuple() {
+                            return Err(ParseError::InvalidMatchPattern {
+                                detail: format!(
+                                    "unit/single-payload/record variant `{}` for `{}` does not accept a tuple pattern",
+                                    name, enum_name
+                                ),
+                                line,
+                            });
+                        }
+                        let payload_binding =
+                            format!("__ny_enum_tuple_payload_{}_{}", enum_arms.len(), name);
+                        let wrapped_body = wrap_compat_payload_enum_arm_body(
+                            &payload_binding,
+                            &tuple_pattern_bindings(variant, &tuple_bindings, line)?,
+                            body,
+                            line,
+                        )?;
+                        if !covered_variants.insert(name.clone()) {
+                            return Err(ParseError::InvalidMatchPattern {
+                                detail: format!(
+                                    "duplicate enum variant arm `{}` in match for `{}`",
+                                    name, enum_name
+                                ),
+                                line,
+                            });
+                        }
+                        enum_arms.push(EnumMatchArm {
+                            variant_name: name,
+                            binding_name: Some(payload_binding),
+                            body: wrapped_body,
+                        });
+                        continue;
+                    }
+                    if variant.is_record_payload() {
+                        return Err(ParseError::InvalidMatchPattern {
+                            detail: format!(
+                                "record variant `{}` for `{}` requires a record pattern",
+                                name, enum_name
+                            ),
+                            line,
+                        });
+                    }
+                    if variant.is_multi_payload_tuple() {
+                        return Err(ParseError::InvalidMatchPattern {
+                            detail: format!(
+                                "enum variant `{}` for `{}` requires exactly {} tuple binding(s)",
+                                name,
+                                enum_name,
+                                variant.payload_arity()
+                            ),
+                            line,
+                        });
                     }
                     if variant.has_payload() != binding.is_some() {
                         let detail = if variant.payload_type_name.is_some() {
@@ -562,44 +636,60 @@ impl NyashParser {
 
     fn parse_named_match_head(
         &mut self,
-    ) -> Result<Option<(String, Option<String>, Option<Vec<RecordPatternBinding>>)>, ParseError>
-    {
+    ) -> Result<
+        Option<(
+            String,
+            Option<String>,
+            Option<Vec<RecordPatternBinding>>,
+            Option<Vec<String>>,
+        )>,
+        ParseError,
+    > {
         let TokenType::IDENTIFIER(name) = self.current_token().token_type.clone() else {
             return Ok(None);
         };
 
-        if self.peek_token() == &TokenType::LPAREN
-            && matches!(self.peek_nth_token(2), TokenType::IDENTIFIER(_))
-            && self.peek_nth_token(3) == &TokenType::RPAREN
-        {
+        if self.peek_token() == &TokenType::LPAREN {
             self.advance(); // TypeName / VariantName
             self.consume(TokenType::LPAREN)?;
-            let binding = match self.current_token().token_type.clone() {
-                TokenType::IDENTIFIER(binding) => {
+            let mut bindings = Vec::new();
+            loop {
+                let binding = match self.current_token().token_type.clone() {
+                    TokenType::IDENTIFIER(binding) => {
+                        self.advance();
+                        binding
+                    }
+                    other => {
+                        return Err(ParseError::UnexpectedToken {
+                            found: other,
+                            expected: "identifier".to_string(),
+                            line: self.current_token().line,
+                        });
+                    }
+                };
+                bindings.push(binding);
+                if self.match_token(&TokenType::COMMA) {
                     self.advance();
-                    binding
+                    continue;
                 }
-                other => {
-                    return Err(ParseError::UnexpectedToken {
-                        found: other,
-                        expected: "identifier".to_string(),
-                        line: self.current_token().line,
-                    });
-                }
-            };
+                break;
+            }
             self.consume(TokenType::RPAREN)?;
-            return Ok(Some((name, Some(binding), None)));
+            if bindings.len() == 1 {
+                return Ok(Some((name, bindings.pop(), None, None)));
+            }
+            return Ok(Some((name, None, None, Some(bindings))));
         }
 
         if self.peek_token() == &TokenType::LBRACE {
             self.advance(); // VariantName
             let record_bindings = self.parse_record_match_bindings()?;
-            return Ok(Some((name, None, Some(record_bindings))));
+            return Ok(Some((name, None, Some(record_bindings), None)));
         }
 
         if matches!(self.peek_token(), &TokenType::IF | &TokenType::FatArrow) {
             self.advance(); // bare unit shorthand / unresolved bare head
-            return Ok(Some((name, None, None)));
+            return Ok(Some((name, None, None, None)));
         }
 
         Ok(None)
@@ -799,7 +889,7 @@ fn validate_record_pattern_fields(
     Ok(())
 }
 
-fn wrap_record_enum_arm_body(
+fn wrap_compat_payload_enum_arm_body(
     payload_binding: &str,
     record_bindings: &[RecordPatternBinding],
     body: ASTNode,
@@ -807,7 +897,7 @@ fn wrap_record_enum_arm_body(
 ) -> Result<ASTNode, ParseError> {
     if matches!(body, ASTNode::Program { .. }) {
         return Err(ParseError::InvalidMatchPattern {
-            detail: "record enum shorthand block bodies are outside the first record-variant cut"
+            detail: "payload-box enum shorthand block bodies are outside the first compat cut"
                 .to_string(),
             line,
         });
@@ -834,4 +924,29 @@ fn wrap_record_enum_arm_body(
         tail_expr: Box::new(body),
         span: Span::unknown(),
     })
+}
+
+fn tuple_pattern_bindings(
+    variant: &crate::ast::EnumVariantDecl,
+    tuple_bindings: &[String],
+    line: usize,
+) -> Result<Vec<RecordPatternBinding>, ParseError> {
+    let field_decls = variant.compat_payload_field_decls();
+    if field_decls.len() != tuple_bindings.len() {
+        return Err(ParseError::InvalidMatchPattern {
+            detail: format!(
+                "tuple enum pattern requires exactly {} binding(s)",
+                field_decls.len()
+            ),
+            line,
+        });
+    }
+    Ok(field_decls
+        .into_iter()
+        .zip(tuple_bindings.iter())
+        .map(|(field_decl, binding_name)| RecordPatternBinding {
+            field_name: field_decl.name,
+            binding_name: binding_name.clone(),
+        })
+        .collect())
 }

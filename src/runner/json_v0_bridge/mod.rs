@@ -369,6 +369,154 @@ mod tests {
     }
 
     #[test]
+    fn parse_json_v0_to_module_lowers_tuple_enum_payload_through_hidden_box() {
+        let payload_box = "__NyEnumPayload_Pair_Both";
+        let json = json!({
+            "version": 0,
+            "kind": "Program",
+            "user_box_decls": [
+                {
+                    "name": payload_box,
+                    "fields": ["_0", "_1"],
+                    "field_decls": [
+                        { "name": "_0", "declared_type": "Integer", "is_weak": false },
+                        { "name": "_1", "declared_type": "Integer", "is_weak": false }
+                    ]
+                }
+            ],
+            "enum_decls": [
+                {
+                    "name": "Pair",
+                    "type_parameters": [],
+                    "variants": [
+                        { "name": "Both", "payload_type": payload_box },
+                        { "name": "None", "payload_type": null }
+                    ]
+                }
+            ],
+            "body": [
+                {
+                    "type": "Local",
+                    "name": "pair",
+                    "expr": {
+                        "type": "EnumCtor",
+                        "enum": "Pair",
+                        "variant": "Both",
+                        "payload_type": payload_box,
+                        "args": [
+                            {
+                                "type": "New",
+                                "class": payload_box,
+                                "args": [
+                                    { "type": "Int", "value": 1 },
+                                    { "type": "Int", "value": 2 }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "Return",
+                    "expr": {
+                        "type": "EnumMatch",
+                        "enum": "Pair",
+                        "scrutinee": { "type": "Var", "name": "pair" },
+                        "arms": [
+                            {
+                                "variant": "Both",
+                                "bind": "payload",
+                                "payload_type": payload_box,
+                                "expr": {
+                                    "type": "BlockExpr",
+                                    "prelude": [
+                                        {
+                                            "type": "Local",
+                                            "name": "left",
+                                            "expr": {
+                                                "type": "Field",
+                                                "recv": { "type": "Var", "name": "payload" },
+                                                "field": "_0"
+                                            }
+                                        },
+                                        {
+                                            "type": "Local",
+                                            "name": "right",
+                                            "expr": {
+                                                "type": "Field",
+                                                "recv": { "type": "Var", "name": "payload" },
+                                                "field": "_1"
+                                            }
+                                        }
+                                    ],
+                                    "tail": {
+                                        "type": "Expr",
+                                        "expr": {
+                                            "type": "Binary",
+                                            "op": "+",
+                                            "lhs": { "type": "Var", "name": "left" },
+                                            "rhs": { "type": "Var", "name": "right" }
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "variant": "None",
+                                "expr": { "type": "Int", "value": 0 }
+                            }
+                        ]
+                    }
+                }
+            ]
+        })
+        .to_string();
+
+        let module = parse_json_v0_to_module(&json).expect("tuple enum lowers");
+        let insts = main_instructions(&module);
+
+        assert_eq!(
+            module
+                .metadata
+                .user_box_decls
+                .get(payload_box)
+                .expect("payload box names"),
+            &vec!["_0".to_string(), "_1".to_string()]
+        );
+        assert!(
+            insts.iter().any(|inst| matches!(
+                inst,
+                MirInstruction::NewBox { box_type, .. } if box_type == payload_box
+            )),
+            "tuple payload should materialize through one hidden payload box"
+        );
+        assert!(
+            insts
+                .iter()
+                .any(|inst| matches!(inst, MirInstruction::SumMake { .. })),
+            "tuple enum constructor must still stay on sum lane"
+        );
+        assert!(
+            insts
+                .iter()
+                .any(|inst| matches!(inst, MirInstruction::SumProject { .. })),
+            "tuple enum match must still project through sum lane"
+        );
+        assert!(
+            insts.iter().any(|inst| matches!(
+                inst,
+                MirInstruction::FieldGet { field, .. } if field == "_0"
+            )),
+            "tuple enum bindings should lower through field_get on the hidden payload box"
+        );
+        assert!(
+            insts.iter().any(|inst| matches!(
+                inst,
+                MirInstruction::FieldGet { field, .. } if field == "_1"
+            )),
+            "tuple enum bindings should lower through field_get on the hidden payload box"
+        );
+    }
+
+    #[test]
     fn parse_json_v0_to_module_rejects_ctor_with_multiple_payload_args() {
         let json = json!({
             "version": 0,

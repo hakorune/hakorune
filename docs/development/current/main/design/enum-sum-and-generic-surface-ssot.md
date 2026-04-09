@@ -125,7 +125,6 @@ match tok {
 
 Still not in this cut:
 
-- multi-payload tuple variants
 - relaxed / partial record patterns
 - enum methods
 - generic `where` bounds
@@ -133,10 +132,11 @@ Still not in this cut:
 
 ### 4.1 tuple multi-payload route stays boxed unless canonical sum changes
 
-- current tuple multi-payload is not a parser-only gap
-- AST / Stage1 Program JSON / JSON v0 bridge / MIR metadata all currently assume the canonical sum lane carries at most one payload slot
-- under the lifecycle-value parent, land thin-entry inventory for known user-box / enum local routes before reopening tuple multi-payload
-- when tuple multi-payload work resumes, prefer the same synthetic hidden payload box route already used by record variants
+- multi-payload tuple variants are accepted on the current surface, but only through the compat hidden payload box route
+- AST now carries tuple payload type truth, while Stage1 / JSON v0 still keep the canonical sum lane at one payload slot
+- constructors lower through the same synthetic hidden payload box route already used by record variants (`__NyEnumPayload_<Enum>_<Variant>`)
+- tuple shorthand matches (`Both(left, right)`) rewrite through hidden payload binding plus `_0`, `_1`, ... field access on that compat box
+- this keeps `EnumCtor` / `EnumMatch` / `SumMake` / `SumProject` singular in the same cut
 - do not widen `EnumCtor` / `EnumMatch` / `SumMake` / `SumProject` in the same cut unless a separate canonical-sum decision explicitly approves it
 
 ### 5. generic semantics start as declaration/type-fact support

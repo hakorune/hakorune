@@ -151,3 +151,41 @@ static box Main {
         "record enum arm should be rewritten through BlockExpr prelude bindings"
     );
 }
+
+#[test]
+fn parse_tuple_enum_match_rewrites_arm_with_hidden_payload_binding() {
+    let src = r#"
+enum Pair {
+  Both(Integer, Integer)
+  None
+}
+
+static box Main {
+  main() {
+    local pair = Pair::Both(1, 2)
+    return match pair {
+      Both(left, right) => left + right
+      None => 0
+    }
+  }
+}
+"#;
+
+    let ast = NyashParser::parse_from_string(src).expect("parse ok");
+    let Some((enum_name, arms, has_else)) = find_enum_match(&ast) else {
+        panic!("expected EnumMatchExpr");
+    };
+
+    assert_eq!(enum_name, "Pair");
+    assert_eq!(arms.len(), 2);
+    assert!(!has_else);
+    assert_eq!(arms[0].variant_name, "Both");
+    assert!(arms[0]
+        .binding_name
+        .as_deref()
+        .is_some_and(|name| name.starts_with("__ny_enum_tuple_payload_")));
+    assert!(
+        matches!(arms[0].body, ASTNode::BlockExpr { .. }),
+        "tuple enum arm should be rewritten through BlockExpr prelude bindings"
+    );
+}

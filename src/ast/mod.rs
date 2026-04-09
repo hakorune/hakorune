@@ -219,15 +219,52 @@ pub struct EnumVariantDecl {
     pub name: String,
     pub payload_type_name: Option<String>,
     pub record_field_decls: Vec<FieldDecl>,
+    pub tuple_payload_type_names: Vec<String>,
 }
 
 impl EnumVariantDecl {
     pub fn has_payload(&self) -> bool {
-        self.payload_type_name.is_some() || !self.record_field_decls.is_empty()
+        self.payload_arity() > 0
     }
 
     pub fn is_record_payload(&self) -> bool {
         !self.record_field_decls.is_empty()
+    }
+
+    pub fn is_multi_payload_tuple(&self) -> bool {
+        !self.tuple_payload_type_names.is_empty()
+    }
+
+    pub fn payload_arity(&self) -> usize {
+        if self.is_record_payload() {
+            self.record_field_decls.len()
+        } else if self.is_multi_payload_tuple() {
+            self.tuple_payload_type_names.len()
+        } else {
+            usize::from(self.payload_type_name.is_some())
+        }
+    }
+
+    pub fn requires_compat_payload_box(&self) -> bool {
+        self.is_record_payload() || self.is_multi_payload_tuple()
+    }
+
+    pub fn compat_payload_field_decls(&self) -> Vec<FieldDecl> {
+        if self.is_record_payload() {
+            self.record_field_decls.clone()
+        } else if self.is_multi_payload_tuple() {
+            self.tuple_payload_type_names
+                .iter()
+                .enumerate()
+                .map(|(index, declared_type_name)| FieldDecl {
+                    name: format!("_{}", index),
+                    declared_type_name: Some(declared_type_name.clone()),
+                    is_weak: false,
+                })
+                .collect()
+        } else {
+            Vec::new()
+        }
     }
 }
 

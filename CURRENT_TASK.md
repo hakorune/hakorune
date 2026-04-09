@@ -156,9 +156,10 @@ Scope: repo root から current lane / current front / restart read order に最
           - product LLVM/Python lowering seeds `thin_entry_selections` into the resolver alongside the already-landed sum placement metadata
           - metadata-bearing product smoke is green on `phase163x_boundary_sum_metadata_keep_min.sh` via boundary compat replay -> harness keep lane
         - native-driver metadata awareness remains canary-only backlog, not the current lane blocker
-    5. only then, if still chosen:
-        - `tuple multi-payload`
-        - reopen it as compat-only hidden payload transport unless a separate canonical sum decision supersedes that route
+    5. `tuple multi-payload` compat transport is now landed:
+        - parser/AST accept `Variant(T, U, ...)` and shorthand `Variant(a, b)` arms
+        - Stage1 lowers tuple ctors/matches through `__NyEnumPayload_<Enum>_<Variant>` with `_0`, `_1`, ... synthetic field slots
+        - canonical `EnumCtor` / `EnumMatch` / `SumMake` / `SumProject` stay single-slot
     6. keep `where` / enum methods / full monomorphization in backlog
   - sibling string guardrail accept gate:
     - `kilo_micro_substring_only`

@@ -3,7 +3,7 @@
 //! Current narrow surface:
 //! - `enum Name<T> { None, Some(T) }`
 //! - unit variants
-//! - single-payload tuple variants
+//! - tuple variants (`Some(T)`, `Pair(T, U)`)
 //! - record variants with named fields (`Ident { name: String }`)
 
 use crate::ast::{ASTNode, EnumVariantDecl, FieldDecl, Span};
@@ -37,29 +37,38 @@ pub fn parse_enum_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError
             });
         };
 
-        let (payload_type_name, record_field_decls) = if p.match_token(&TokenType::LPAREN) {
-            p.advance();
-            let payload_type_name =
-                crate::parser::common::type_refs::parse_type_ref_text(p, "enum variant payload")?;
-            if p.match_token(&TokenType::COMMA) {
-                return Err(ParseError::UnexpectedToken {
-                    found: p.current_token().token_type.clone(),
-                    expected: "single payload variant in the current enum surface".to_string(),
-                    line: p.current_token().line,
-                });
-            }
-            p.consume(TokenType::RPAREN)?;
-            (Some(payload_type_name), Vec::new())
-        } else if p.match_token(&TokenType::LBRACE) {
-            (None, parse_record_variant_fields(p)?)
-        } else {
-            (None, Vec::new())
-        };
+        let (payload_type_name, record_field_decls, tuple_payload_type_names) =
+            if p.match_token(&TokenType::LPAREN) {
+                p.advance();
+                let mut payload_type_names = Vec::new();
+                loop {
+                    payload_type_names.push(crate::parser::common::type_refs::parse_type_ref_text(
+                        p,
+                        "enum variant payload",
+                    )?);
+                    if p.match_token(&TokenType::COMMA) {
+                        p.advance();
+                        continue;
+                    }
+                    break;
+                }
+                p.consume(TokenType::RPAREN)?;
+                if payload_type_names.len() == 1 {
+                    (Some(payload_type_names.remove(0)), Vec::new(), Vec::new())
+                } else {
+                    (None, Vec::new(), payload_type_names)
+                }
+            } else if p.match_token(&TokenType::LBRACE) {
+                (None, parse_record_variant_fields(p)?, Vec::new())
+            } else {
+                (None, Vec::new(), Vec::new())
+            };
 
         variants.push(EnumVariantDecl {
             name: variant_name,
             payload_type_name,
             record_field_decls,
+            tuple_payload_type_names,
         });
 
         if p.match_token(&TokenType::COMMA) || p.match_token(&TokenType::SEMICOLON) {
