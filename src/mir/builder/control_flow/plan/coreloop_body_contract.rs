@@ -16,6 +16,8 @@ pub(in crate::mir::builder) fn is_leaf_effect_plan(effect: &CoreEffectPlan) -> b
             | CoreEffectPlan::GlobalCall { .. }
             | CoreEffectPlan::ValueCall { .. }
             | CoreEffectPlan::NewBox { .. }
+            | CoreEffectPlan::FieldGet { .. }
+            | CoreEffectPlan::FieldSet { .. }
             | CoreEffectPlan::BinOp { .. }
             | CoreEffectPlan::Compare { .. }
             | CoreEffectPlan::Select { .. }

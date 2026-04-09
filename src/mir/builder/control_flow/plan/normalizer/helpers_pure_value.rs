@@ -89,10 +89,10 @@ pub(super) fn is_pure_value_expr(ast: &crate::ast::ASTNode) -> bool {
 #[cfg(test)]
 mod tests {
     use super::is_pure_value_expr;
-    use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
+    use crate::ast::{ASTNode, BinaryOperator, FieldDecl, LiteralValue, Span, UnaryOperator};
     use crate::mir::builder::control_flow::plan::CoreEffectPlan;
     use crate::mir::builder::control_flow::plan::PlanNormalizer;
-    use crate::mir::builder::MirBuilder;
+    use crate::mir::builder::{MirBuilder, MirType};
     use std::collections::BTreeMap;
 
     fn var(name: &str) -> ASTNode {
@@ -112,6 +112,13 @@ mod tests {
     fn bool_lit(value: bool) -> ASTNode {
         ASTNode::Literal {
             value: LiteralValue::Bool(value),
+            span: Span::unknown(),
+        }
+    }
+
+    fn float_lit(value: f64) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Float(value),
             span: Span::unknown(),
         }
     }
@@ -342,6 +349,200 @@ mod tests {
                 value: crate::mir::ConstValue::Integer(10),
                 ..
             })
+        ));
+    }
+
+    #[test]
+    fn lower_value_ast_accepts_field_access_and_emits_field_get() {
+        let expr = ASTNode::FieldAccess {
+            object: Box::new(var("p")),
+            field: "x".to_string(),
+            span: Span::unknown(),
+        };
+
+        let mut builder = MirBuilder::new();
+        builder.comp_ctx.register_user_box_with_field_decls(
+            "Point".to_string(),
+            vec![FieldDecl {
+                name: "x".to_string(),
+                declared_type_name: Some("IntegerBox".to_string()),
+                is_weak: false,
+            }],
+        );
+        let point_id = builder.alloc_typed(MirType::Box("Point".to_string()));
+        builder
+            .variable_ctx
+            .variable_map
+            .insert("p".to_string(), point_id);
+        builder
+            .type_ctx
+            .value_origin_newbox
+            .insert(point_id, "Point".to_string());
+
+        let (value_id, effects) =
+            PlanNormalizer::lower_value_ast(&expr, &mut builder, &BTreeMap::new())
+                .expect("FieldAccess should lower in value context");
+
+        assert_eq!(
+            builder.type_ctx.get_type(value_id),
+            Some(&MirType::Box("IntegerBox".to_string()))
+        );
+        assert!(matches!(
+            effects.as_slice(),
+            [CoreEffectPlan::FieldGet {
+                dst,
+                base,
+                field,
+                declared_type: Some(MirType::Box(type_name)),
+            }] if *dst == value_id
+                && *base == point_id
+                && field == "x"
+                && type_name == "IntegerBox"
+        ));
+    }
+
+    #[test]
+    fn lower_value_ast_accepts_compare_value_and_emits_compare() {
+        let expr = ASTNode::BinaryOp {
+            operator: BinaryOperator::Less,
+            left: Box::new(var("i")),
+            right: Box::new(int_lit(10)),
+            span: Span::unknown(),
+        };
+
+        let mut builder = MirBuilder::new();
+        let i_id = builder.alloc_typed(MirType::Integer);
+        builder
+            .variable_ctx
+            .variable_map
+            .insert("i".to_string(), i_id);
+
+        let (value_id, effects) =
+            PlanNormalizer::lower_value_ast(&expr, &mut builder, &BTreeMap::new())
+                .expect("compare value should lower in value context");
+
+        assert_eq!(builder.type_ctx.get_type(value_id), Some(&MirType::Bool));
+        assert!(matches!(
+            effects.last(),
+            Some(CoreEffectPlan::Compare { dst, lhs, rhs, .. })
+                if *dst == value_id && *lhs == i_id && *rhs != i_id
+        ));
+    }
+
+    #[test]
+    fn lower_value_ast_accepts_float_literal() {
+        let expr = float_lit(3.5);
+
+        let mut builder = MirBuilder::new();
+        let (value_id, effects) =
+            PlanNormalizer::lower_value_ast(&expr, &mut builder, &BTreeMap::new())
+                .expect("float literal should lower in value context");
+
+        assert_eq!(builder.type_ctx.get_type(value_id), Some(&MirType::Float));
+        assert!(matches!(
+            effects.as_slice(),
+            [CoreEffectPlan::Const {
+                dst,
+                value: crate::mir::ConstValue::Float(value),
+            }] if *dst == value_id && (*value - 3.5).abs() < f64::EPSILON
+        ));
+    }
+
+    #[test]
+    fn lower_value_ast_float_add_result_stays_float() {
+        let expr = ASTNode::BinaryOp {
+            operator: BinaryOperator::Add,
+            left: Box::new(float_lit(1.25)),
+            right: Box::new(float_lit(2.75)),
+            span: Span::unknown(),
+        };
+
+        let mut builder = MirBuilder::new();
+        let (value_id, effects) =
+            PlanNormalizer::lower_value_ast(&expr, &mut builder, &BTreeMap::new())
+                .expect("float add should lower in value context");
+
+        assert_eq!(builder.type_ctx.get_type(value_id), Some(&MirType::Float));
+        assert!(
+            effects
+                .iter()
+                .filter(|effect| matches!(
+                    effect,
+                    CoreEffectPlan::Const {
+                        value: crate::mir::ConstValue::Float(_),
+                        ..
+                    }
+                ))
+                .count()
+                >= 2
+        );
+        assert!(matches!(
+            effects.last(),
+            Some(CoreEffectPlan::BinOp { dst, op, .. })
+                if *dst == value_id && *op == crate::mir::BinaryOp::Add
+        ));
+    }
+
+    #[test]
+    fn lower_value_ast_accepts_compare_nested_inside_add() {
+        let expr = ASTNode::BinaryOp {
+            operator: BinaryOperator::Add,
+            left: Box::new(var("acc")),
+            right: Box::new(ASTNode::BinaryOp {
+                operator: BinaryOperator::Equal,
+                left: Box::new(ASTNode::FieldAccess {
+                    object: Box::new(var("f")),
+                    field: "enabled".to_string(),
+                    span: Span::unknown(),
+                }),
+                right: Box::new(bool_lit(true)),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        };
+
+        let mut builder = MirBuilder::new();
+        builder.comp_ctx.register_user_box_with_field_decls(
+            "Flag".to_string(),
+            vec![FieldDecl {
+                name: "enabled".to_string(),
+                declared_type_name: Some("BoolBox".to_string()),
+                is_weak: false,
+            }],
+        );
+        let acc_id = builder.alloc_typed(MirType::Integer);
+        let flag_id = builder.alloc_typed(MirType::Box("Flag".to_string()));
+        builder
+            .variable_ctx
+            .variable_map
+            .insert("acc".to_string(), acc_id);
+        builder
+            .variable_ctx
+            .variable_map
+            .insert("f".to_string(), flag_id);
+        builder
+            .type_ctx
+            .value_origin_newbox
+            .insert(flag_id, "Flag".to_string());
+
+        let (value_id, effects) =
+            PlanNormalizer::lower_value_ast(&expr, &mut builder, &BTreeMap::new())
+                .expect("compare nested inside add should lower in value context");
+
+        assert_eq!(builder.type_ctx.get_type(value_id), Some(&MirType::Integer));
+        assert!(effects.iter().any(|effect| matches!(
+            effect,
+            CoreEffectPlan::FieldGet { field, declared_type, .. }
+                if field == "enabled"
+                    && declared_type == &Some(MirType::Box("BoolBox".to_string()))
+        )));
+        assert!(effects
+            .iter()
+            .any(|effect| matches!(effect, CoreEffectPlan::Compare { .. })));
+        assert!(matches!(
+            effects.last(),
+            Some(CoreEffectPlan::BinOp { dst, lhs, op, .. })
+                if *dst == value_id && *lhs == acc_id && *op == crate::mir::BinaryOp::Add
         ));
     }
 

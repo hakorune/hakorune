@@ -480,6 +480,7 @@ fn collect_defined_values_from_effect(
             }
         }
         CoreEffectPlan::NewBox { dst, .. }
+        | CoreEffectPlan::FieldGet { dst, .. }
         | CoreEffectPlan::BinOp { dst, .. }
         | CoreEffectPlan::Compare { dst, .. }
         | CoreEffectPlan::Select { dst, .. }
@@ -501,7 +502,7 @@ fn collect_defined_values_from_effect(
                 }
             }
         }
-        CoreEffectPlan::ExitIf { .. } => {}
+        CoreEffectPlan::FieldSet { .. } | CoreEffectPlan::ExitIf { .. } => {}
     }
 }
 

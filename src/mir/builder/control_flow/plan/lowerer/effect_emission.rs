@@ -171,6 +171,35 @@ impl super::PlanLowerer {
                     args: args.clone(),
                 })?;
             }
+            CoreEffectPlan::FieldGet {
+                dst,
+                base,
+                field,
+                declared_type,
+            } => {
+                let base = builder.local_field_base(*base);
+                builder.emit_instruction(MirInstruction::FieldGet {
+                    dst: *dst,
+                    base,
+                    field: field.clone(),
+                    declared_type: declared_type.clone(),
+                })?;
+            }
+            CoreEffectPlan::FieldSet {
+                base,
+                field,
+                value,
+                declared_type,
+            } => {
+                let base = builder.local_field_base(*base);
+                let value = builder.local_arg(*value);
+                builder.emit_instruction(MirInstruction::FieldSet {
+                    base,
+                    field: field.clone(),
+                    value,
+                    declared_type: declared_type.clone(),
+                })?;
+            }
             CoreEffectPlan::BinOp { dst, lhs, op, rhs } => {
                 let emit_caller = std::panic::Location::caller();
                 // LocalSSA: arithmetic operands must be defined in the current function and materialized

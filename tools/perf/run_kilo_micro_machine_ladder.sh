@@ -27,6 +27,8 @@ cases=(
   kilo_micro_substring_only
   kilo_micro_substring_concat
   kilo_micro_array_getset
+  kilo_micro_userbox_point_add
+  kilo_micro_userbox_flag_toggle
 )
 
 for key in "${cases[@]}"; do

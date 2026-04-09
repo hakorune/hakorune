@@ -2,8 +2,6 @@ use super::array_guard::valid_handle;
 use super::array_handle_cache::with_array_box;
 use super::array_slot_load::array_slot_load_encoded_i64;
 use super::array_slot_store::array_slot_store_i64;
-use nyash_rust::box_trait::IntegerBox;
-
 #[inline(always)]
 pub(super) fn cli_verbose_enabled() -> bool {
     #[cfg(test)]
@@ -23,7 +21,12 @@ pub(super) fn append_integer_raw(handle: i64, value_i64: i64) -> i64 {
         return 0;
     }
     with_array_box(handle, |arr| {
-        arr.slot_append_box_raw(Box::new(IntegerBox::new(value_i64)))
+        let idx = arr.len() as i64;
+        if arr.slot_store_i64_raw(idx, value_i64) {
+            idx + 1
+        } else {
+            0
+        }
     })
     .unwrap_or(0)
 }

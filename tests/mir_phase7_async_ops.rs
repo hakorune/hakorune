@@ -73,6 +73,7 @@ fn test_mir_phase7_basic_nowait_await() {
     let ast = ASTNode::BoxDeclaration {
         name: "Main".to_string(),
         fields: vec![],
+        field_decls: vec![],
         public_fields: vec![],
         private_fields: vec![],
         methods: main_methods,
@@ -237,6 +238,7 @@ fn test_mir_phase7_multiple_nowait_await() {
     let ast = ASTNode::BoxDeclaration {
         name: "Main".to_string(),
         fields: vec![],
+        field_decls: vec![],
         public_fields: vec![],
         private_fields: vec![],
         methods: main_methods,
@@ -362,6 +364,7 @@ fn test_mir_phase7_nested_await() {
     let ast = ASTNode::BoxDeclaration {
         name: "Main".to_string(),
         fields: vec![],
+        field_decls: vec![],
         public_fields: vec![],
         private_fields: vec![],
         methods: main_methods,

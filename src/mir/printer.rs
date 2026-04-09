@@ -477,6 +477,10 @@ mod tests {
             .metadata
             .value_storage_classes
             .insert(ValueId::new(2), StorageClass::BorrowedText);
+        function
+            .metadata
+            .value_storage_classes
+            .insert(ValueId::new(3), StorageClass::InlineF64);
         let printer = MirPrinter::verbose();
 
         let output = printer.print_function(&function);
@@ -484,5 +488,6 @@ mod tests {
         assert!(output.contains("Storage Classes"));
         assert!(output.contains("%1: inline_i64"));
         assert!(output.contains("%2: borrowed_text"));
+        assert!(output.contains("%3: inline_f64"));
     }
 }

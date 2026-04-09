@@ -55,7 +55,8 @@ impl Stage1UserBoxDecl {
             .get("field_decls")
             .and_then(serde_json::Value::as_array)
             .map(|items| {
-                items.iter()
+                items
+                    .iter()
                     .filter_map(Self::parse_field_decl_entry)
                     .collect::<Vec<_>>()
             })

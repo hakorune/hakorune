@@ -160,7 +160,11 @@ impl CompilationContext {
         self.user_box_field_decls.insert(name, Vec::new());
     }
 
-    pub fn register_user_box_with_field_decls(&mut self, name: String, field_decls: Vec<FieldDecl>) {
+    pub fn register_user_box_with_field_decls(
+        &mut self,
+        name: String,
+        field_decls: Vec<FieldDecl>,
+    ) {
         let fields = field_decls.iter().map(|decl| decl.name.clone()).collect();
         self.user_defined_boxes.insert(name.clone(), fields);
         self.user_box_field_decls.insert(name, field_decls);

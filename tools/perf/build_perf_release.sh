@@ -13,6 +13,9 @@ cargo build --release -p nyash_kernel
 echo "[perf-release] building ny-llvmc release binary"
 cargo build --release --bin ny-llvmc -p nyash-llvm-compiler
 
+echo "[perf-release] building boundary FFI library"
+bash tools/build_hako_llvmc_ffi.sh
+
 echo "[perf-release] building hakorune release binary"
 cargo build --release --bin hakorune -p nyash-rust
 

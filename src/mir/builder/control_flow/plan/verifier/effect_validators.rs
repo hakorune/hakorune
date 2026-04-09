@@ -107,6 +107,38 @@ pub(super) fn verify_effect(
                 primitives::verify_value_id_basic(*arg, depth, &format!("NewBox.args[{}]", i))?;
             }
         }
+        CoreEffectPlan::FieldGet {
+            dst,
+            base,
+            field,
+            declared_type: _,
+        } => {
+            primitives::verify_value_id_basic(*dst, depth, "FieldGet.dst")?;
+            primitives::verify_value_id_basic(*base, depth, "FieldGet.base")?;
+            if field.is_empty() {
+                return Err(primitives::err(
+                    "V6",
+                    "field_get_empty_name",
+                    format!("FieldGet at depth {} has empty field name", depth),
+                ));
+            }
+        }
+        CoreEffectPlan::FieldSet {
+            base,
+            field,
+            value,
+            declared_type: _,
+        } => {
+            primitives::verify_value_id_basic(*base, depth, "FieldSet.base")?;
+            primitives::verify_value_id_basic(*value, depth, "FieldSet.value")?;
+            if field.is_empty() {
+                return Err(primitives::err(
+                    "V6",
+                    "field_set_empty_name",
+                    format!("FieldSet at depth {} has empty field name", depth),
+                ));
+            }
+        }
         CoreEffectPlan::BinOp {
             dst,
             lhs,

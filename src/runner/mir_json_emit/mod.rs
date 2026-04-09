@@ -181,7 +181,8 @@ fn collect_sorted_user_box_decl_values(module: &crate::mir::MirModule) -> Vec<se
     names.extend(module.metadata.user_box_decls.keys().cloned());
     names.extend(module.metadata.user_box_field_decls.keys().cloned());
 
-    names.into_iter()
+    names
+        .into_iter()
         .map(|name| {
             let field_decls = module
                 .metadata
@@ -280,10 +281,10 @@ mod tests {
     #[test]
     fn collect_sorted_user_box_decl_values_includes_typed_field_decls() {
         let mut module = crate::mir::MirModule::new("test".to_string());
-        module.metadata.user_box_decls.insert(
-            "Point".to_string(),
-            vec!["x".to_string(), "y".to_string()],
-        );
+        module
+            .metadata
+            .user_box_decls
+            .insert("Point".to_string(), vec!["x".to_string(), "y".to_string()]);
         module.metadata.user_box_field_decls.insert(
             "Point".to_string(),
             vec![
@@ -311,7 +312,12 @@ mod tests {
             .expect("field_decls array");
 
         assert_eq!(field_decls.len(), 2);
-        assert_eq!(field_decls[0].get("name").and_then(serde_json::Value::as_str), Some("x"));
+        assert_eq!(
+            field_decls[0]
+                .get("name")
+                .and_then(serde_json::Value::as_str),
+            Some("x")
+        );
         assert_eq!(
             field_decls[0]
                 .get("declared_type")
@@ -319,7 +325,9 @@ mod tests {
             Some("IntegerBox")
         );
         assert_eq!(
-            field_decls[1].get("is_weak").and_then(serde_json::Value::as_bool),
+            field_decls[1]
+                .get("is_weak")
+                .and_then(serde_json::Value::as_bool),
             Some(true)
         );
     }

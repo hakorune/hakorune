@@ -55,9 +55,39 @@ Current user-box / primitive cost reading:
 - landed:
   - LLVM lowering now treats `IntegerBox` / `BoolBox` handle facts as primitive numeric inputs on `binop` / `compare`
   - numeric lowering unboxes via `nyash.integer.get_h` / `nyash.bool.get_h` before integer arithmetic or integer compare
-- next:
-  - pilot typed user-box field access on the internal path
+- landed:
+  - `kilo_micro_userbox_point_add` now exists as the narrow local user-box perf gate
+  - LLVM `field_get` / `field_set` now take a typed IntegerBox path for known user-box `field_decls`
+  - weak fields and non-user-box paths stay on the generic fallback
+- landed:
+  - LLVM `field_get` now also takes a typed BoolBox path for known user-box `field_decls`
+  - LLVM `field_set` now takes a typed BoolBox path only when the set source is bool-safe (`BoolBox` handle or bool immediate)
+  - ambiguous/non-boolish set sources stay on the generic fallback
+- landed:
+  - compare/bool expressions now lower in value context on the `.hako` builder path, so compare-as-value loop bodies are accepted structurally
+  - `kilo_micro_userbox_flag_toggle` now exists as the dedicated BoolBox local perf proof
+  - pure-first boundary matching now covers the narrow Flag/BoolBox toggle micro
+  - `Float` surface-close on the current route:
+    - Stage1 Program JSON v0 now lowers float literals, including unary-minus float literals
+    - recent value-lowering now accepts float literals and preserves `MirType::Float` for float arithmetic results on the same keeper path
+  - `FloatBox` fast-path pilot on the current keeper slice:
+    - primitive-handle lowering now recognizes `FloatBox` handles as the float family
+    - LLVM `field_get` now uses `nyash.instance.get_float_field_h` for typed non-weak `FloatBox` fields
+    - LLVM `field_set` now uses `nyash.instance.set_float_field_h` only when the source is float-safe (`FloatBox` handle or actual `f64`)
+  - `Float` storage-class promotion is now landed as MIR inventory only:
+    - `MirType::Float` and typed `FloatBox` field facts now classify as `InlineF64`
+    - dumps / MIR JSON surface the new storage fact without changing runtime behavior
+- landed:
+  - `ArrayBox` narrow typed-slot pilot is now landed on the `InlineI64` lane:
+    - runtime authority stays in `ArrayBox`; `NyashValue::Array` is still not the keeper lane
+    - `slot_store_i64_raw` / `slot_rmw_add1_i64_raw` can birth or preserve the narrow `InlineI64` storage
+    - `nyash.array.slot_append_hh` / `nyash.array.push_hi` now route integer-shaped values through the same narrow lane
+    - `slot_store_box_raw` and string/mixed boxed writes explicitly promote back to boxed storage before mutation
+    - `array_slot_load_encoded_i64` now reads the `InlineI64` lane directly without re-boxing
+    - focused ArrayBox / kernel tests pass, and `phase21_5_perf_kilo_micro_machine_lane_contract_vm` stays green
 - not yet:
+  - `Null` / `Void` fast paths are still conservative and low priority in this wave
+  - first-class enum/sum MIR types and user-defined generics remain backlog items
   - no user-box flattening
   - no tagged pointer / NaN-boxing
   - no new `.hako` syntax or widened `@rune`
@@ -173,6 +203,7 @@ Initial storage-class reading for this wave:
 | --- | --- | --- | --- |
 | `InlineI64` | immediate integer payload | `IntegerBox` fast path | compiler/MIR fact, Rust can materialize late |
 | `InlineBool` | immediate bool payload | `BoolBox` fast path | compiler/MIR fact, Rust can materialize late |
+| `InlineF64` | immediate float payload | `Float` / `FloatBox` fast path | compiler/MIR fact, Rust can materialize late |
 | `BorrowedText` | non-owning text corridor | `str.slice`, `str.len`, `str.eq` lane | MIR + placement/effect facts, Rust handles lifetime mechanics |
 | `BoxRef` | stable object reference required | generic object/user box path | Rust object world |
 | `Opaque` | no direct typed fast path yet | plugin / unknown / dynamic cases | fallback keep |
@@ -225,6 +256,7 @@ Acceptance:
 - start with:
   - `InlineI64`
   - `InlineBool`
+  - `InlineF64`
   - `BorrowedText`
   - `BoxRef`
   - `Opaque`
@@ -258,12 +290,60 @@ Current landing status:
 - pilot typed `field.get` / `field.set` for a user box whose fields are all primitive-friendly
 - avoid ABI/plugin/reflection boundaries in the first slice
 - do not require full flattening
-- add a narrow local perf gate first:
+- add narrow local perf gates first:
   - `kilo_micro_userbox_point_add`
+  - `kilo_micro_userbox_flag_toggle`
 
 Acceptance:
 
 - a user box field consumer can avoid repeated object/handle/downcast work on the internal path
+
+### Current post-Step-7 queue
+
+- land the narrow `ArrayBox` typed-slot pilot on `InlineI64`
+- keep enum/generic work in backlog until primitive-family + array keeper work is stable
+
+### Step 7.5. Array typed-slot SSOT and pilot
+
+- runtime authority stays in `ArrayBox`
+  - do not switch the pilot authority to `NyashValue::Array`
+  - `NyashValue::Array` remains a separate value-world substrate, not the keeper lane for this pilot
+- public surface stays unchanged
+  - keep visible `ArrayBox.{push,get,set,len/length/size,pop}` semantics
+  - keep `nyash.array.*` exports as the ABI surface
+  - do not add `.hako` syntax, array generics, or public benchmark-only ops
+- first slot vocabulary is narrow
+  - default keep lane: `Boxed`
+  - first typed pilot: `InlineI64`
+  - later-only candidates: `InlineF64`, `InlineBool`, `BorrowedText`
+- implementation boundary stays below the current raw seams
+  - `slot_append_box_raw`
+  - `slot_store_box_raw`
+  - `slot_store_i64_raw`
+  - `slot_rmw_add1_i64_raw`
+  - kernel `nyash.array.slot_*` leaves remain the execution entry, not a second truth
+- promotion rule must be explicit, one-way, and behavior-safe
+  - typed-slot birth is opt-in for compiler/internal routes only
+  - incompatible store / reflection / plugin / mixed-value routes must explicitly promote the array back to boxed storage before mutation
+  - no silent reinterpretation, no hidden fallback coercion
+- non-goals for the first pilot
+  - no heterogeneous typed-slot lane
+  - no union/variant slot layout
+  - no string-lane merge into the array pilot; borrowed string stays a sibling guardrail lane
+- acceptance for the first pilot
+  - prove a narrow `InlineI64` array lane first
+  - preserve current public ArrayBox behavior
+  - keep plugin/reflection/mixed arrays on the boxed lane
+- landed pilot facts
+  - `ArrayBox` now has a narrow internal `InlineI64` storage lane beside the default boxed lane
+  - internal i64-specialized routes can birth/preserve the lane without changing public `ArrayBox` semantics
+  - boxed/string routes promote back to boxed storage before mutation
+  - `array_slot_load_encoded_i64` reads the inline lane directly; no re-box roundtrip on the narrow keeper path
+
+Resulting next cut:
+
+- keep enum/generic work in backlog until the array keeper slice is stable
+- return to kilo/perf rereads with the array keeper lane now landed
 
 ### Step 8. Optional flattening only later
 

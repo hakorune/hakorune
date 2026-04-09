@@ -33,5 +33,6 @@
 #include "hako_llvmc_ffi_concat_hh_len_seed.inc"
 #include "hako_llvmc_ffi_string_search_seed.inc"
 #include "hako_llvmc_ffi_array_micro_seed.inc"
+#include "hako_llvmc_ffi_user_box_micro_seed.inc"
 #include "hako_llvmc_ffi_route.inc"
 #include "hako_llvmc_ffi_pure_compile.inc"

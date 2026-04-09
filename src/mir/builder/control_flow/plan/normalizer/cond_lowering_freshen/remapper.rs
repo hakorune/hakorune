@@ -385,6 +385,24 @@ fn remap_effect_in_place(value_map: &BTreeMap<ValueId, ValueId>, effect: &mut Co
             *dst = remap_value_id(value_map, *dst);
             *args = remap_value_ids(value_map, args);
         }
+        CoreEffectPlan::FieldGet {
+            dst,
+            base,
+            field: _,
+            declared_type: _,
+        } => {
+            *dst = remap_value_id(value_map, *dst);
+            *base = remap_value_id(value_map, *base);
+        }
+        CoreEffectPlan::FieldSet {
+            base,
+            field: _,
+            value,
+            declared_type: _,
+        } => {
+            *base = remap_value_id(value_map, *base);
+            *value = remap_value_id(value_map, *value);
+        }
         CoreEffectPlan::BinOp {
             dst,
             lhs,

@@ -216,7 +216,8 @@ fn collect_lit3_from_effect(
 ///
 /// Contract:
 /// - Callers should use this helper for boolean conditions (`==`, `<`, `&&`, `||`, etc.).
-/// - Value lowering (`PlanNormalizer::lower_value_ast`) intentionally does not support comparisons.
+/// - Value lowering may also lower compare/bool expressions when they are used as values,
+///   but condition sites should still prefer this dedicated entrypoint.
 ///
 /// This is a thin wrapper around `lower_cond_value()` to make the intended entrypoint explicit.
 pub fn lower_bool_expr_value_id(

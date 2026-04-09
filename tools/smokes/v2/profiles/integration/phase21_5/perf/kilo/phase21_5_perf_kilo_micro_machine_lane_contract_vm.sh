@@ -2,7 +2,7 @@
 # phase21_5_perf_kilo_micro_machine_lane_contract_vm.sh
 #
 # Contract pin:
-# - fixed machine-code micro ladder exists and runs all 3 kilo/text cases.
+# - fixed machine-code micro ladder exists and runs the pinned kilo/text/userbox cases.
 # - each case reports [microstat] with aot_status=ok.
 
 set -euo pipefail
@@ -29,7 +29,7 @@ if [ "$RC" -ne 0 ]; then
   exit 1
 fi
 
-for key in kilo_micro_indexof_line kilo_micro_substring_concat kilo_micro_array_getset; do
+for key in kilo_micro_indexof_line kilo_micro_substring_concat kilo_micro_array_getset kilo_micro_userbox_point_add kilo_micro_userbox_flag_toggle; do
   if ! printf '%s\n' "$OUT" | grep -q "\\[microstat\\] name=${key} "; then
     printf '%s\n' "$OUT"
     test_fail "$SMOKE_NAME: missing microstat line for ${key}"
@@ -38,9 +38,9 @@ for key in kilo_micro_indexof_line kilo_micro_substring_concat kilo_micro_array_
 done
 
 aot_ok_count="$(printf '%s\n' "$OUT" | grep -c 'aot_status=ok' || true)"
-if [ "$aot_ok_count" -lt 3 ]; then
+if [ "$aot_ok_count" -lt 5 ]; then
   printf '%s\n' "$OUT"
-  test_fail "$SMOKE_NAME: expected aot_status=ok for all 3 cases (got $aot_ok_count)"
+  test_fail "$SMOKE_NAME: expected aot_status=ok for all 5 cases (got $aot_ok_count)"
   exit 1
 fi
 

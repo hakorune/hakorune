@@ -1,0 +1,24 @@
+// kilo/userbox typed-bool-field microbench:
+// Flag.enabled declared as BoolBox and stressed through repeated compare/set.
+box Flag {
+  enabled: BoolBox
+}
+
+static box Main {
+  main() {
+    local ops = 2000000
+    local flip_at = 1000000
+    local f = new Flag()
+    f.enabled = true
+
+    local acc = 0
+    local i = 0
+    loop (i < ops) {
+      acc = acc + (f.enabled == true)
+      f.enabled = i < flip_at
+      i = i + 1
+    }
+
+    return acc + (f.enabled == true)
+  }
+}

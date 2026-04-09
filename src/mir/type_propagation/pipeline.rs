@@ -77,7 +77,10 @@ impl TypePropagationPipeline {
         Ok(())
     }
 
-    fn seed_declared_field_types(function: &MirFunction, value_types: &mut BTreeMap<ValueId, MirType>) {
+    fn seed_declared_field_types(
+        function: &MirFunction,
+        value_types: &mut BTreeMap<ValueId, MirType>,
+    ) {
         for bb in function.blocks.values() {
             for inst in &bb.instructions {
                 if let MirInstruction::FieldGet {

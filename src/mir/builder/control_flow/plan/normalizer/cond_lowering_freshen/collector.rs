@@ -102,6 +102,9 @@ fn collect_effect_definitions(effect: &CoreEffectPlan, defs: &mut BTreeSet<Value
         CoreEffectPlan::NewBox { dst, .. } => {
             defs.insert(*dst);
         }
+        CoreEffectPlan::FieldGet { dst, .. } => {
+            defs.insert(*dst);
+        }
         CoreEffectPlan::BinOp { dst, .. } => {
             defs.insert(*dst);
         }
@@ -117,6 +120,8 @@ fn collect_effect_definitions(effect: &CoreEffectPlan, defs: &mut BTreeSet<Value
         CoreEffectPlan::Copy { dst, .. } => {
             defs.insert(*dst);
         }
-        CoreEffectPlan::ExitIf { .. } | CoreEffectPlan::IfEffect { .. } => {} // No dst
+        CoreEffectPlan::FieldSet { .. }
+        | CoreEffectPlan::ExitIf { .. }
+        | CoreEffectPlan::IfEffect { .. } => {} // No dst
     }
 }

@@ -1,5 +1,5 @@
 use super::exit::CoreExitPlan;
-use crate::mir::{BinaryOp, CompareOp, ConstValue, EffectMask, ValueId};
+use crate::mir::{BinaryOp, CompareOp, ConstValue, EffectMask, MirType, ValueId};
 
 /// Phase 273 P1: Effect plan (side effects already lowered to ValueId)
 ///
@@ -49,6 +49,22 @@ pub(in crate::mir::builder) enum CoreEffectPlan {
         dst: ValueId,
         box_type: String,
         args: Vec<ValueId>,
+    },
+
+    /// Canonical field read on a known base value
+    FieldGet {
+        dst: ValueId,
+        base: ValueId,
+        field: String,
+        declared_type: Option<MirType>,
+    },
+
+    /// Canonical field write on a known base value
+    FieldSet {
+        base: ValueId,
+        field: String,
+        value: ValueId,
+        declared_type: Option<MirType>,
     },
 
     /// Binary operation

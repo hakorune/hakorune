@@ -48,7 +48,34 @@ Scope: repo root から current lane / current front / restart read order に最
 - landed typed primitive pilot:
   - LLVM lowering now treats `IntegerBox` / `BoolBox` handle facts as primitive numeric sources in `binop` / `compare`
   - numeric paths call `nyash.integer.get_h` / `nyash.bool.get_h` before integer arithmetic or integer compare
-  - current pilot is still narrow: primitive handle unbox only, no typed user-box internal path yet
+  - current pilot is still narrow: primitive handle unbox only
+- landed typed user-box integer pilot:
+  - local perf gate `kilo_micro_userbox_point_add` now exists in `benchmarks/` + kilo micro ladder
+  - LLVM `field_get` / `field_set` now select a typed IntegerBox internal path for known user-box `field_decls`
+  - weak fields and non-user-box paths stay on the generic fallback
+- landed typed user-box bool pilot:
+  - LLVM `field_get` now selects a typed BoolBox internal path for known user-box `field_decls`
+  - LLVM `field_set` now selects a typed BoolBox internal path only when the source is bool-safe (`BoolBox` handle or bool immediate)
+  - ambiguous/non-boolish set sources stay on the generic fallback
+- landed BoolBox perf proof:
+  - compare/bool expressions now lower in value context on the `.hako` builder path, so loop bodies like `acc + (f.enabled == true)` and `f.enabled = i < flip_at` are accepted structurally
+  - `kilo_micro_userbox_flag_toggle` now exists in `benchmarks/` + kilo micro ladder as the dedicated BoolBox local perf proof
+  - pure-first boundary seed now matches the narrow Flag/BoolBox toggle micro
+- primitive-family audit snapshot:
+  - parser surface already accepts `Float` / `Bool` / `Null` literals and typed `field_decls`; docs must stay synced to that current surface
+  - current recent MIR keeper is solid for `IntegerBox` / bool-safe `BoolBox`, and the `Float` route now has both the surface-close and the first narrow fast path:
+    - Stage1 Program JSON v0 now lowers float literals, including unary-minus float literals
+    - recent value lowering now accepts float literals and keeps float arithmetic results typed as `MirType::Float` on the same keeper path
+    - LLVM primitive-handle lowering now recognizes `FloatBox` handles as the float family
+    - LLVM `field_get` now takes a typed `FloatBox` path for known user-box `field_decls`
+    - LLVM `field_set` now takes a typed `FloatBox` path only when the source stays on the float-safe boundary (`FloatBox` handle or actual `f64`)
+    - `MirType::Float` / typed `FloatBox` field facts now classify as `InlineF64` in MIR storage-class inventory
+  - `ArrayBox` narrow typed-slot pilot is now landed:
+    - runtime authority stays in `ArrayBox`; `NyashValue::Array` is not the keeper lane
+    - internal i64-specialized array routes now birth/preserve a narrow `InlineI64` storage lane
+    - boxed/string/mixed routes explicitly promote back to boxed storage before mutation
+    - focused ArrayBox/kernel tests and `phase21_5_perf_kilo_micro_machine_lane_contract_vm` are green on this slice
+  - `Null` / `Void` fast paths, first-class enum/sum MIR types, and user-defined generics remain backlog and are outside the current keeper wave
 - fixed typed field authority:
   - `field_decls` is the typed authority
   - names-only `fields` stays as a compatibility mirror for old payloads and old runtime consumers
@@ -56,8 +83,12 @@ Scope: repo root から current lane / current front / restart read order に最
   - `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
 - active lane/front:
   - lane: `phase-163x primitive and user-box fast path`
-  - next local gate to add: `kilo_micro_userbox_point_add`
-  - immediate next cut: typed user-box field access on the internal path
+  - local gates:
+    - `kilo_micro_userbox_point_add`
+    - `kilo_micro_userbox_flag_toggle`
+  - immediate next queue:
+    1. keep enum/generic work as explicit backlog outside this wave
+    2. return to kilo optimization rereads with `kilo_micro_array_getset` as the first post-pilot keeper
   - sibling string guardrail accept gate:
     - `kilo_micro_substring_only`
   - sibling string guardrail split exact fronts:

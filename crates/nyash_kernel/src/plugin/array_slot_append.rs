@@ -8,10 +8,17 @@ pub(super) fn array_slot_append_any(handle: i64, val_any: i64) -> i64 {
         return 0;
     }
     with_array_box(handle, |arr| {
-        arr.slot_append_box_raw(any_arg_to_box_with_profile(
-            val_any,
-            CodecProfile::ArrayFastBorrowString,
-        ))
+        let value = any_arg_to_box_with_profile(val_any, CodecProfile::ArrayFastBorrowString);
+        if let Some(i64_value) = value.as_i64_fast() {
+            let idx = arr.len() as i64;
+            if arr.slot_store_i64_raw(idx, i64_value) {
+                idx + 1
+            } else {
+                0
+            }
+        } else {
+            arr.slot_append_box_raw(value)
+        }
     })
     .unwrap_or(0)
 }

@@ -18,6 +18,10 @@ mod tests {
         handles::to_handle_arc(arr) as i64
     }
 
+    fn storage_tag(handle: i64) -> Option<String> {
+        with_array_box(handle, |arr| format!("{arr:?}"))
+    }
+
     #[test]
     fn legacy_set_h_returns_zero_but_applies_value() {
         let handle = new_array_handle();
@@ -51,6 +55,9 @@ mod tests {
         assert_eq!(nyash_array_push_hi_alias(handle, 9), 2);
         assert_eq!(nyash_array_get_hi_alias(handle, 0), 7);
         assert_eq!(nyash_array_get_hi_alias(handle, 1), 9);
+        assert!(storage_tag(handle)
+            .as_deref()
+            .is_some_and(|text| text.contains("inline_i64")));
     }
 
     #[test]
@@ -157,6 +164,19 @@ mod tests {
     }
 
     #[test]
+    fn slot_append_raw_alias_births_inline_i64_lane_for_integer_values() {
+        let handle = new_array_handle();
+
+        assert_eq!(nyash_array_slot_append_hh_alias(handle, 7), 1);
+        assert_eq!(nyash_array_slot_append_hh_alias(handle, 9), 2);
+        assert_eq!(nyash_array_slot_load_hi_alias(handle, 0), 7);
+        assert_eq!(nyash_array_slot_load_hi_alias(handle, 1), 9);
+        assert!(storage_tag(handle)
+            .as_deref()
+            .is_some_and(|text| text.contains("inline_i64")));
+    }
+
+    #[test]
     fn slot_reserve_and_grow_raw_aliases_keep_length_and_expand_capacity() {
         let handle = new_array_handle();
         assert_eq!(nyash_array_push_h(handle, 1), 1);
@@ -182,7 +202,10 @@ mod tests {
     #[test]
     fn set_his_alias_sets_string_handle_value() {
         let handle = new_array_handle();
-        assert_eq!(nyash_array_push_h(handle, 1), 1);
+        assert_eq!(nyash_array_push_hi_alias(handle, 1), 1);
+        assert!(storage_tag(handle)
+            .as_deref()
+            .is_some_and(|text| text.contains("inline_i64")));
         let string_handle_a = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
             nyash_rust::box_trait::StringBox::new("ok".to_string()),
         )
@@ -193,6 +216,9 @@ mod tests {
             as std::sync::Arc<dyn NyashBox>) as i64;
         assert_eq!(nyash_array_set_his_alias(handle, 0, string_handle_a), 1);
         assert_eq!(nyash_array_get_hi_alias(handle, 0), string_handle_a);
+        assert!(storage_tag(handle)
+            .as_deref()
+            .is_some_and(|text| text.contains("boxed")));
         // Re-set same slot keeps alias contract and must expose the latest handle.
         assert_eq!(nyash_array_set_his_alias(handle, 0, string_handle_b), 1);
         assert_eq!(nyash_array_get_hi_alias(handle, 0), string_handle_b);

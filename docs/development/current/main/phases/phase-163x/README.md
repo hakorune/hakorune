@@ -35,19 +35,43 @@
   - canonical MIR now has `FieldGet` / `FieldSet`
   - `FieldGet.declared_type` now seeds `value_types` and `StorageClass`
   - LLVM lowering now has the first typed primitive pilot for `IntegerBox` / `BoolBox` via `nyash.integer.get_h` / `nyash.bool.get_h`
+  - local perf gate `kilo_micro_userbox_point_add` now exists in `benchmarks/` + the kilo micro ladder
+  - local perf gate `kilo_micro_userbox_flag_toggle` now also exists in `benchmarks/` + the kilo micro ladder as the dedicated BoolBox proof
+  - LLVM `field_get` / `field_set` now take a typed IntegerBox path for known user-box `field_decls`
+  - LLVM `field_get` now also takes a typed BoolBox path for known user-box `field_decls`
+  - LLVM `field_set` now takes a typed BoolBox path only when the source stays on the bool-safe boundary (`BoolBox` handle or bool immediate)
+  - compare/bool expressions now lower in value context on the `.hako` builder path, so the BoolBox micro loop shape is accepted structurally instead of via a `.hako` workaround
 - fixed authority:
   - `field_decls` = source of truth for typed field declarations
   - `fields` = names-only compatibility mirror for old payloads and old runtime consumers
+- primitive-family audit snapshot:
+  - parser/current surface already accepts float/bool/null literals and typed field declarations; docs must stay aligned to that
+  - current keeper pair is `kilo_micro_userbox_point_add` + `kilo_micro_userbox_flag_toggle`
+  - `Float` surface-close is now landed on the current compiler route:
+    - Stage1 Program JSON v0 now lowers float literals, including unary-minus float literals
+    - recent value-lowering now accepts float literals and preserves `MirType::Float` on float arithmetic results
+  - `FloatBox` fast-path pilot is now landed on the LLVM/current keeper slice:
+    - primitive-handle lowering now treats `FloatBox` handles as float-family numeric values
+    - LLVM `field_get` now uses a typed `FloatBox` helper for known user-box `field_decls`
+    - LLVM `field_set` now uses a typed `FloatBox` helper only when the source is float-safe (`FloatBox` handle or actual `f64`)
+  - `Float` storage-class inventory is now promoted too:
+    - `MirType::Float` and typed `FloatBox` field facts now classify as `InlineF64`
+    - this is inventory-only for this wave; runtime behavior stays unchanged
+  - `ArrayBox` narrow typed-slot pilot is now landed:
+    - runtime authority stays in `ArrayBox`; `NyashValue::Array` is not the keeper lane
+    - internal i64-specialized routes now birth/preserve a narrow `InlineI64` storage lane
+    - boxed/string/mixed routes explicitly promote back to boxed storage before mutation
+    - current keeper proof is focused ArrayBox/kernel tests + `phase21_5_perf_kilo_micro_machine_lane_contract_vm`
+  - enum/sum MIR types and user-defined generics stay explicit backlog items for later waves
 - current next cut:
-  1. add a narrow user-box local perf gate: `kilo_micro_userbox_point_add`
-  2. pilot typed user-box field access on the internal path
-  3. validate with the new user-box gate while keeping string split pack green
+  1. keep enum/generic work as backlog outside the current lane
+  2. return to kilo optimization rereads with `kilo_micro_array_getset` as the first post-pilot keeper check
 
 ## Fixed Task Order
 
 1. keep `field_decls` as authority and stop treating names-only `fields` as design truth
 2. add the user-box local micro before wider typed lowering
-3. pilot typed user-box field access only for `declared_type = IntegerBox | BoolBox`
+3. pilot typed user-box field access on `declared_type = IntegerBox` first; only then allow `BoolBox` on a bool-safe internal slice
 4. keep plugin / reflection / ABI / weak-field paths on generic fallback
 5. do not reopen flattening until typed user-box access has a keeper
 

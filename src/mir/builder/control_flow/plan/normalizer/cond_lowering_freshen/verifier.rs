@@ -351,6 +351,24 @@ fn find_unremapped_value_id_effect(
             }
             None
         }
+        CoreEffectPlan::FieldGet { dst, base, .. } => {
+            if let Some(&new) = value_map.get(dst) {
+                return Some((*dst, new, "Effect::FieldGet.dst"));
+            }
+            value_map
+                .get(base)
+                .copied()
+                .map(|new| (*base, new, "Effect::FieldGet.base"))
+        }
+        CoreEffectPlan::FieldSet { base, value, .. } => {
+            if let Some(&new) = value_map.get(base) {
+                return Some((*base, new, "Effect::FieldSet.base"));
+            }
+            value_map
+                .get(value)
+                .copied()
+                .map(|new| (*value, new, "Effect::FieldSet.value"))
+        }
         CoreEffectPlan::MethodCall {
             dst, object, args, ..
         } => {

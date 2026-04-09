@@ -9,6 +9,49 @@ use crate::mir::{BinaryOp, ConstValue, Effect, EffectMask, MirType, ValueId};
 use std::collections::BTreeMap;
 
 impl super::PlanNormalizer {
+    pub(in crate::mir::builder) fn declared_field_type_for_base(
+        builder: &MirBuilder,
+        base: ValueId,
+        field: &str,
+    ) -> Option<MirType> {
+        builder
+            .type_ctx
+            .value_origin_newbox
+            .get(&base)
+            .and_then(|box_name| builder.comp_ctx.declared_field_type_name(box_name, field))
+            .map(MirBuilder::parse_type_name_to_mir)
+    }
+
+    fn allocate_field_result(builder: &mut MirBuilder, declared_type: &Option<MirType>) -> ValueId {
+        match declared_type {
+            Some(ty) => {
+                let value_id = builder.alloc_typed(ty.clone());
+                if let MirType::Box(class_name) = ty {
+                    builder
+                        .type_ctx
+                        .value_origin_newbox
+                        .insert(value_id, class_name.clone());
+                }
+                value_id
+            }
+            None => {
+                let value_id = builder.next_value_id();
+                builder.type_ctx.set_type(value_id, MirType::Unknown);
+                value_id
+            }
+        }
+    }
+
+    fn arithmetic_result_type(builder: &MirBuilder, lhs: ValueId, rhs: ValueId) -> MirType {
+        let lhs_ty = builder.type_ctx.get_type(lhs);
+        let rhs_ty = builder.type_ctx.get_type(rhs);
+        if matches!(lhs_ty, Some(MirType::Float)) || matches!(rhs_ty, Some(MirType::Float)) {
+            MirType::Float
+        } else {
+            MirType::Integer
+        }
+    }
+
     /// Helper: Lower value AST to (ValueId, const_effects)
     /// Returns the ValueId and any Const instructions needed to define literals
     ///
@@ -36,6 +79,19 @@ impl super::PlanNormalizer {
                     Err(format!("[normalizer] Variable {} not found", name))
                 }
             }
+            ASTNode::FieldAccess { object, field, .. } => {
+                let (object_id, mut effects) =
+                    Self::lower_value_ast(object, builder, phi_bindings)?;
+                let declared_type = Self::declared_field_type_for_base(builder, object_id, field);
+                let result_id = Self::allocate_field_result(builder, &declared_type);
+                effects.push(CoreEffectPlan::FieldGet {
+                    dst: result_id,
+                    base: object_id,
+                    field: field.clone(),
+                    declared_type,
+                });
+                Ok((result_id, effects))
+            }
             ASTNode::Literal { value, span, .. } => {
                 let value_id = builder.next_value_id();
                 // Diagnostics-only: record literal origin spans only when strict/dev or debug is enabled.
@@ -48,16 +104,11 @@ impl super::PlanNormalizer {
                 }
                 let (const_value, value_type) = match value {
                     LiteralValue::Integer(n) => (ConstValue::Integer(*n), MirType::Integer),
+                    LiteralValue::Float(n) => (ConstValue::Float(*n), MirType::Float),
                     LiteralValue::String(s) => (ConstValue::String(s.clone()), MirType::String),
                     LiteralValue::Bool(b) => (ConstValue::Bool(*b), MirType::Bool),
                     LiteralValue::Null => (ConstValue::Null, MirType::Unknown),
                     LiteralValue::Void => (ConstValue::Void, MirType::Void),
-                    _ => {
-                        return Err(format!(
-                            "[normalizer] Unsupported literal type: {:?}",
-                            value
-                        ))
-                    }
                 };
 
                 builder.type_ctx.set_type(value_id, value_type);
@@ -445,12 +496,35 @@ impl super::PlanNormalizer {
                 effects.append(&mut tail_effects);
                 Ok((tail_id, effects))
             }
-            ASTNode::BinaryOp { .. } => {
-                let (lhs, op, rhs, mut consts) = Self::lower_binop_ast(ast, builder, phi_bindings)?;
-                let dst = builder.alloc_typed(MirType::Integer);
-                consts.push(CoreEffectPlan::BinOp { dst, lhs, op, rhs });
-                Ok((dst, consts))
-            }
+            ASTNode::BinaryOp { operator, .. } => match operator {
+                crate::ast::BinaryOperator::Add
+                | crate::ast::BinaryOperator::Subtract
+                | crate::ast::BinaryOperator::Multiply
+                | crate::ast::BinaryOperator::Divide
+                | crate::ast::BinaryOperator::Modulo => {
+                    let (lhs, op, rhs, mut consts) =
+                        Self::lower_binop_ast(ast, builder, phi_bindings)?;
+                    let dst = builder.alloc_typed(Self::arithmetic_result_type(builder, lhs, rhs));
+                    consts.push(CoreEffectPlan::BinOp { dst, lhs, op, rhs });
+                    Ok((dst, consts))
+                }
+                crate::ast::BinaryOperator::And
+                | crate::ast::BinaryOperator::Or
+                | crate::ast::BinaryOperator::Less
+                | crate::ast::BinaryOperator::LessEqual
+                | crate::ast::BinaryOperator::Greater
+                | crate::ast::BinaryOperator::GreaterEqual
+                | crate::ast::BinaryOperator::Equal
+                | crate::ast::BinaryOperator::NotEqual => {
+                    super::loop_body_lowering::lower_bool_expr(
+                        builder,
+                        phi_bindings,
+                        ast,
+                        "[normalizer] value bool binary op",
+                    )
+                }
+                _ => Err(format!("[normalizer] Unsupported value AST: {:?}", ast)),
+            },
             ASTNode::If {
                 condition,
                 then_body,

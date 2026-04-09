@@ -22,6 +22,8 @@ Current partitions:
   - pure-first seed emit/match helpers for search/index-of paths
 - `hako_llvmc_ffi_array_micro_seed.inc`
   - pure-first seed emit/match helpers for array get/set micro paths
+- `hako_llvmc_ffi_user_box_micro_seed.inc`
+  - pure-first seed emit/match helpers for the narrow typed user-box point-add / flag-toggle micro paths
 - `hako_llvmc_ffi_concat_const_suffix_seed.inc`
   - dedicated exact-micro pure-first seed for `kilo_micro_concat_const_suffix`
 - `hako_llvmc_ffi_indexof_observer_state.inc`

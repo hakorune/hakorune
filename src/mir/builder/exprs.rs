@@ -293,10 +293,8 @@ impl super::MirBuilder {
                         self.comp_ctx
                             .register_user_box_with_fields(name.clone(), fields.clone());
                     } else {
-                        self.comp_ctx.register_user_box_with_field_decls(
-                            name.clone(),
-                            field_decls.clone(),
-                        );
+                        self.comp_ctx
+                            .register_user_box_with_field_decls(name.clone(), field_decls.clone());
                     }
                     self.build_box_declaration(
                         name.clone(),

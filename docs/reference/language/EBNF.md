@@ -46,16 +46,24 @@ unary     := ( '-' | '!' | 'not' | '~' ) unary
 ; expression starting with `(`. (Write `weak x`, not `weak(x)`.)
 weak_unary := 'weak' unary_no_group
 unary_no_group := ( '-' | '!' | 'not' | '~' ) unary_no_group
-               | INT
-               | STRING
-               | IDENT call_tail*
-               | 'new' IDENT '(' args? ')'
-               | '[' args? ']'           ; Array literal (Stage‑1 sugar, gated)
-               | '%{' map_entries? '}'   ; Map literal (Stage‑2 sugar, gated)
-               | match_expr              ; Pattern matching (replaces legacy peek)
+                | INT
+                | FLOAT
+                | STRING
+                | 'true'
+                | 'false'
+                | 'null'
+                | IDENT call_tail*
+                | 'new' IDENT '(' args? ')'
+                | '[' args? ']'           ; Array literal (Stage‑1 sugar, gated)
+                | '%{' map_entries? '}'   ; Map literal (Stage‑2 sugar, gated)
+                | match_expr              ; Pattern matching (replaces legacy peek)
 
 factor    := INT
+           | FLOAT
            | STRING
+           | 'true'
+           | 'false'
+           | 'null'
            | IDENT call_tail*
            | '(' expr ')'
            | '(' assignment_expr ')'  ; Stage‑3: grouped assignment as expression
@@ -69,7 +77,7 @@ match_arm  := pattern guard? '=>' (expr | block) ','?
 default_arm:= '_' '=>' (expr | block) ','?
 
 pattern   := '_'
-           | STRING | INT | 'true' | 'false' | 'null'
+           | STRING | INT | FLOAT | 'true' | 'false' | 'null'
            | IDENT '(' IDENT? ')'           ; Type pattern e.g., StringBox(s)
            | '[' (IDENT (',' '..' IDENT)? )? ']'
            | '{' ( (STRING|IDENT) ':' IDENT (',' '..')? )? '}'

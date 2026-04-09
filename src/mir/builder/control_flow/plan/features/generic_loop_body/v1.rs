@@ -122,16 +122,21 @@ fn lower_body_stmt_v1(
                     return Ok(plans);
                 }
             }
-            let (name, value_id, effects) = loop_body_lowering::lower_assignment_value(
+            let (binding, effects) = loop_body_lowering::lower_assignment_stmt(
                 builder,
                 phi_bindings,
                 target,
                 value,
                 GENERIC_LOOP_ERR,
             )?;
-            builder.variable_ctx.variable_map.insert(name, value_id);
-            if let ASTNode::Variable { name, .. } = target.as_ref() {
-                phi_bindings.insert(name.clone(), value_id);
+            if let Some((name, value_id)) = binding {
+                builder
+                    .variable_ctx
+                    .variable_map
+                    .insert(name.clone(), value_id);
+                if let ASTNode::Variable { name, .. } = target.as_ref() {
+                    phi_bindings.insert(name.clone(), value_id);
+                }
             }
             Ok(effects_to_plans(effects))
         }

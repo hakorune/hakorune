@@ -29,21 +29,14 @@ pub(in crate::mir::builder) fn lower_assignment_stmt(
             let (value_id, mut value_effects) =
                 PlanNormalizer::lower_value_ast(value, builder, phi_bindings)?;
             effects.append(&mut value_effects);
+            let declared_type =
+                PlanNormalizer::declared_field_type_for_base(builder, object_id, field);
 
-            let field_lit = ASTNode::Literal {
-                value: LiteralValue::String(field.clone()),
-                span: Span::unknown(),
-            };
-            let (field_name_id, mut field_effects) =
-                PlanNormalizer::lower_value_ast(&field_lit, builder, phi_bindings)?;
-            effects.append(&mut field_effects);
-
-            effects.push(CoreEffectPlan::MethodCall {
-                dst: None,
-                object: object_id,
-                method: "setField".to_string(),
-                args: vec![field_name_id, value_id],
-                effects: EffectMask::WRITE,
+            effects.push(CoreEffectPlan::FieldSet {
+                base: object_id,
+                field: field.clone(),
+                value: value_id,
+                declared_type,
             });
             Ok((None, effects))
         }

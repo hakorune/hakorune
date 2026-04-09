@@ -219,8 +219,7 @@ pub(crate) fn try_parse_visibility_block_or_single(
             field_decls,
             weak_fields,
             false,
-        )?
-        {
+        )? {
             if visibility == "public" {
                 public_fields.push(fname.clone());
             } else {

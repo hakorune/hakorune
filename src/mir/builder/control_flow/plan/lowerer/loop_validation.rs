@@ -51,6 +51,7 @@ pub fn effect_defined_value(effect: &CoreEffectPlan) -> Option<(ValueId, &'stati
         CoreEffectPlan::ValueCall { dst: Some(v), .. } => Some((*v, "ValueCall")),
         CoreEffectPlan::ExternCall { dst: Some(v), .. } => Some((*v, "ExternCall")),
         CoreEffectPlan::NewBox { dst, .. } => Some((*dst, "NewBox")),
+        CoreEffectPlan::FieldGet { dst, .. } => Some((*dst, "FieldGet")),
         CoreEffectPlan::BinOp { dst, .. } => Some((*dst, "BinOp")),
         CoreEffectPlan::Compare { dst, .. } => Some((*dst, "Compare")),
         CoreEffectPlan::Select { dst, .. } => Some((*dst, "Select")),

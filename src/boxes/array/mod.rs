@@ -9,8 +9,29 @@ use std::any::Any;
 use std::fmt::Display;
 use std::sync::Arc;
 
+enum ArrayStorage {
+    Boxed(Vec<Box<dyn NyashBox>>),
+    InlineI64(Vec<i64>),
+}
+
+impl ArrayStorage {
+    fn len(&self) -> usize {
+        match self {
+            Self::Boxed(items) => items.len(),
+            Self::InlineI64(values) => values.len(),
+        }
+    }
+
+    fn capacity(&self) -> usize {
+        match self {
+            Self::Boxed(items) => items.capacity(),
+            Self::InlineI64(values) => values.capacity(),
+        }
+    }
+}
+
 pub struct ArrayBox {
-    items: Arc<RwLock<Vec<Box<dyn NyashBox>>>>,
+    items: Arc<RwLock<ArrayStorage>>,
     base: BoxBase,
 }
 
@@ -19,32 +40,96 @@ impl ArrayBox {
         env::env_bool("HAKO_OOB_STRICT") || env::env_bool("NYASH_OOB_STRICT")
     }
 
-    /// 新しいArrayBoxを作成
-    pub fn new() -> Self {
+    fn new_with_storage(storage: ArrayStorage) -> Self {
         ArrayBox {
-            items: Arc::new(RwLock::new(Vec::new())), // Arc::new追加
+            items: Arc::new(RwLock::new(storage)),
             base: BoxBase::new(),
         }
     }
 
+    fn boxed_from_inline(values: &[i64]) -> Vec<Box<dyn NyashBox>> {
+        values
+            .iter()
+            .map(|value| Box::new(IntegerBox::new(*value)) as Box<dyn NyashBox>)
+            .collect()
+    }
+
+    fn try_inline_i64_values(items: &[Box<dyn NyashBox>]) -> Option<Vec<i64>> {
+        items.iter().map(|item| item.as_i64_fast()).collect()
+    }
+
+    fn ensure_boxed(storage: &mut ArrayStorage) -> &mut Vec<Box<dyn NyashBox>> {
+        if let ArrayStorage::InlineI64(values) = storage {
+            *storage = ArrayStorage::Boxed(Self::boxed_from_inline(values));
+        }
+        match storage {
+            ArrayStorage::Boxed(items) => items,
+            ArrayStorage::InlineI64(_) => unreachable!("inline storage promoted to boxed"),
+        }
+    }
+
+    fn ensure_inline_i64(storage: &mut ArrayStorage) -> Option<&mut Vec<i64>> {
+        if let ArrayStorage::Boxed(items) = storage {
+            let values = Self::try_inline_i64_values(items)?;
+            *storage = ArrayStorage::InlineI64(values);
+        }
+        match storage {
+            ArrayStorage::InlineI64(values) => Some(values),
+            ArrayStorage::Boxed(_) => None,
+        }
+    }
+
+    fn clone_visible_item(item: &dyn NyashBox) -> Box<dyn NyashBox> {
+        #[cfg(all(feature = "plugins", not(target_arch = "wasm32")))]
+        if item
+            .as_any()
+            .downcast_ref::<crate::runtime::plugin_loader_v2::PluginBoxV2>()
+            .is_some()
+        {
+            return item.share_box();
+        }
+        item.clone_box()
+    }
+
+    fn format_inline_values(values: &[i64]) -> String {
+        values
+            .iter()
+            .map(|value| value.to_string())
+            .collect::<Vec<_>>()
+            .join(", ")
+    }
+
+    /// 新しいArrayBoxを作成
+    pub fn new() -> Self {
+        Self::new_with_storage(ArrayStorage::Boxed(Vec::new()))
+    }
+
     /// 要素を持つArrayBoxを作成
     pub fn new_with_elements(elements: Vec<Box<dyn NyashBox>>) -> Self {
-        ArrayBox {
-            items: Arc::new(RwLock::new(elements)), // Arc::new追加
-            base: BoxBase::new(),
-        }
+        Self::new_with_storage(ArrayStorage::Boxed(elements))
+    }
+
+    fn new_with_inline_i64_elements(values: Vec<i64>) -> Self {
+        Self::new_with_storage(ArrayStorage::InlineI64(values))
     }
 
     #[inline(always)]
     pub fn with_items_read<R>(&self, f: impl FnOnce(&Vec<Box<dyn NyashBox>>) -> R) -> R {
         let items = self.items.read();
-        f(&items)
+        match &*items {
+            ArrayStorage::Boxed(items) => f(items),
+            ArrayStorage::InlineI64(values) => {
+                let materialized = Self::boxed_from_inline(values);
+                f(&materialized)
+            }
+        }
     }
 
     #[inline(always)]
     pub fn with_items_write<R>(&self, f: impl FnOnce(&mut Vec<Box<dyn NyashBox>>) -> R) -> R {
         let mut items = self.items.write();
-        f(&mut items)
+        let boxed = Self::ensure_boxed(&mut items);
+        f(boxed)
     }
 
     #[inline(always)]
@@ -62,15 +147,19 @@ impl ArrayBox {
     /// Visible `push()` semantics stay above this seam.
     pub fn slot_append_box_raw(&self, item: Box<dyn NyashBox>) -> i64 {
         let mut items = self.items.write();
-        items.push(item);
-        items.len() as i64
+        let boxed = Self::ensure_boxed(&mut items);
+        boxed.push(item);
+        boxed.len() as i64
     }
 
     /// Raw reserve helper for substrate/plugin routes.
     /// Keeps visible owner semantics above the capacity seam.
     pub fn slot_reserve_capacity_raw(&self, additional: usize) -> bool {
         let mut items = self.items.write();
-        items.reserve(additional);
+        match &mut *items {
+            ArrayStorage::Boxed(items) => items.reserve(additional),
+            ArrayStorage::InlineI64(values) => values.reserve(additional),
+        }
         true
     }
 
@@ -78,10 +167,14 @@ impl ArrayBox {
     /// Keeps visible owner semantics above the capacity seam.
     pub fn slot_grow_capacity_raw(&self, target_capacity: usize) -> bool {
         let mut items = self.items.write();
-        if items.capacity() < target_capacity {
+        let current_capacity = items.capacity();
+        if current_capacity < target_capacity {
             let needed = target_capacity.saturating_sub(items.len());
             if needed > 0 {
-                items.reserve(needed);
+                match &mut *items {
+                    ArrayStorage::Boxed(items) => items.reserve(needed),
+                    ArrayStorage::InlineI64(values) => values.reserve(needed),
+                }
             }
         }
         true
@@ -89,15 +182,28 @@ impl ArrayBox {
 
     /// 最後の要素を取り出す
     pub fn pop(&self) -> Box<dyn NyashBox> {
-        match self.items.write().pop() {
-            Some(item) => item,
-            None => {
-                if Self::oob_strict_enabled() {
-                    Box::new(StringBox::new("[array/empty/pop] empty array"))
-                } else {
-                    Box::new(crate::boxes::null_box::NullBox::new())
+        let mut items = self.items.write();
+        match &mut *items {
+            ArrayStorage::Boxed(items) => match items.pop() {
+                Some(item) => item,
+                None => {
+                    if Self::oob_strict_enabled() {
+                        Box::new(StringBox::new("[array/empty/pop] empty array"))
+                    } else {
+                        Box::new(crate::boxes::null_box::NullBox::new())
+                    }
                 }
-            }
+            },
+            ArrayStorage::InlineI64(values) => match values.pop() {
+                Some(value) => Box::new(IntegerBox::new(value)),
+                None => {
+                    if Self::oob_strict_enabled() {
+                        Box::new(StringBox::new("[array/empty/pop] empty array"))
+                    } else {
+                        Box::new(crate::boxes::null_box::NullBox::new())
+                    }
+                }
+            },
         }
     }
 
@@ -116,6 +222,19 @@ impl ArrayBox {
         self.items.read().len()
     }
 
+    #[inline(always)]
+    pub fn slot_load_i64_raw(&self, idx: i64) -> Option<i64> {
+        if idx < 0 {
+            return None;
+        }
+        let idx = idx as usize;
+        let items = self.items.read();
+        match &*items {
+            ArrayStorage::Boxed(items) => items.get(idx).and_then(|item| item.as_i64_fast()),
+            ArrayStorage::InlineI64(values) => values.get(idx).copied(),
+        }
+    }
+
     /// インデックス(i64)で要素を取得（FFI/Kernel hot path 用）
     pub fn get_index_i64(&self, idx: i64) -> Box<dyn NyashBox> {
         if idx < 0 {
@@ -127,27 +246,29 @@ impl ArrayBox {
         }
         let idx = idx as usize;
         let items = self.items.read();
-        match items.get(idx) {
-            Some(item) => {
-                #[cfg(all(feature = "plugins", not(target_arch = "wasm32")))]
-                if item
-                    .as_any()
-                    .downcast_ref::<crate::runtime::plugin_loader_v2::PluginBoxV2>()
-                    .is_some()
-                {
-                    return item.share_box();
+        match &*items {
+            ArrayStorage::Boxed(items) => match items.get(idx) {
+                Some(item) => Self::clone_visible_item(item.as_ref()),
+                None => {
+                    if Self::oob_strict_enabled() {
+                        crate::runtime::observe::mark_oob();
+                        Box::new(StringBox::new("[oob/array/get] index out of bounds"))
+                    } else {
+                        Box::new(crate::boxes::null_box::NullBox::new())
+                    }
                 }
-                item.clone_box()
-            }
-            None => {
-                if Self::oob_strict_enabled() {
-                    // Mark OOB occurrence for runner policies (Gate‑C strict fail, etc.)
-                    crate::runtime::observe::mark_oob();
-                    Box::new(StringBox::new("[oob/array/get] index out of bounds"))
-                } else {
-                    Box::new(crate::boxes::null_box::NullBox::new())
+            },
+            ArrayStorage::InlineI64(values) => match values.get(idx) {
+                Some(value) => Box::new(IntegerBox::new(*value)),
+                None => {
+                    if Self::oob_strict_enabled() {
+                        crate::runtime::observe::mark_oob();
+                        Box::new(StringBox::new("[oob/array/get] index out of bounds"))
+                    } else {
+                        Box::new(crate::boxes::null_box::NullBox::new())
+                    }
                 }
-            }
+            },
         }
     }
 
@@ -167,12 +288,13 @@ impl ArrayBox {
         }
         let idx = idx as usize;
         let mut items = self.items.write();
-        if idx < items.len() {
-            items[idx] = value;
+        let boxed = Self::ensure_boxed(&mut items);
+        if idx < boxed.len() {
+            boxed[idx] = value;
             true
-        } else if idx == items.len() {
+        } else if idx == boxed.len() {
             // Pragmatic semantics: allow set at exact end to append
-            items.push(value);
+            boxed.push(value);
             true
         } else {
             if Self::oob_strict_enabled() {
@@ -200,21 +322,37 @@ impl ArrayBox {
         }
         let idx = idx as usize;
         let mut items = self.items.write();
-        if idx < items.len() {
-            if let Some(slot) = items[idx].i64_slot_mut() {
-                *slot = value;
+        if let Some(values) = Self::ensure_inline_i64(&mut items) {
+            if idx < values.len() {
+                values[idx] = value;
+                true
+            } else if idx == values.len() {
+                values.push(value);
+                true
             } else {
-                items[idx] = Box::new(IntegerBox::new(value));
+                if Self::oob_strict_enabled() {
+                    crate::runtime::observe::mark_oob();
+                }
+                false
             }
-            true
-        } else if idx == items.len() {
-            items.push(Box::new(IntegerBox::new(value)));
-            true
         } else {
-            if Self::oob_strict_enabled() {
-                crate::runtime::observe::mark_oob();
+            let boxed = Self::ensure_boxed(&mut items);
+            if idx < boxed.len() {
+                if let Some(slot) = boxed[idx].i64_slot_mut() {
+                    *slot = value;
+                } else {
+                    boxed[idx] = Box::new(IntegerBox::new(value));
+                }
+                true
+            } else if idx == boxed.len() {
+                boxed.push(Box::new(IntegerBox::new(value)));
+                true
+            } else {
+                if Self::oob_strict_enabled() {
+                    crate::runtime::observe::mark_oob();
+                }
+                false
             }
-            false
         }
     }
 
@@ -230,7 +368,13 @@ impl ArrayBox {
         }
         let idx = idx as usize;
         let mut items = self.items.write();
-        let item = items.get_mut(idx)?;
+        if let Some(values) = Self::ensure_inline_i64(&mut items) {
+            let slot = values.get_mut(idx)?;
+            *slot = slot.checked_add(1)?;
+            return Some(*slot);
+        }
+        let boxed = Self::ensure_boxed(&mut items);
+        let item = boxed.get_mut(idx)?;
         if let Some(slot) = item.i64_slot_mut() {
             *slot += 1;
             return Some(*slot);
@@ -282,10 +426,21 @@ impl ArrayBox {
         if let Some(idx_box) = index.as_any().downcast_ref::<IntegerBox>() {
             let idx = idx_box.value as usize;
             let mut items = self.items.write();
-            if idx < items.len() {
-                items.remove(idx)
-            } else {
-                Box::new(crate::boxes::null_box::NullBox::new())
+            match &mut *items {
+                ArrayStorage::Boxed(items) => {
+                    if idx < items.len() {
+                        items.remove(idx)
+                    } else {
+                        Box::new(crate::boxes::null_box::NullBox::new())
+                    }
+                }
+                ArrayStorage::InlineI64(values) => {
+                    if idx < values.len() {
+                        Box::new(IntegerBox::new(values.remove(idx)))
+                    } else {
+                        Box::new(crate::boxes::null_box::NullBox::new())
+                    }
+                }
             }
         } else {
             Box::new(StringBox::new("Error: remove() requires integer index"))
@@ -295,9 +450,20 @@ impl ArrayBox {
     /// 指定された値のインデックスを検索
     pub fn indexOf(&self, value: Box<dyn NyashBox>) -> Box<dyn NyashBox> {
         let items = self.items.read();
-        for (i, item) in items.iter().enumerate() {
-            if item.equals(value.as_ref()).value {
-                return Box::new(IntegerBox::new(i as i64));
+        match &*items {
+            ArrayStorage::Boxed(items) => {
+                for (i, item) in items.iter().enumerate() {
+                    if item.equals(value.as_ref()).value {
+                        return Box::new(IntegerBox::new(i as i64));
+                    }
+                }
+            }
+            ArrayStorage::InlineI64(values) => {
+                if let Some(needle) = value.as_i64_fast() {
+                    if let Some(idx) = values.iter().position(|item| *item == needle) {
+                        return Box::new(IntegerBox::new(idx as i64));
+                    }
+                }
             }
         }
         Box::new(IntegerBox::new(-1))
@@ -306,9 +472,18 @@ impl ArrayBox {
     /// 指定された値が含まれているか確認
     pub fn contains(&self, value: Box<dyn NyashBox>) -> Box<dyn NyashBox> {
         let items = self.items.read();
-        for item in items.iter() {
-            if item.equals(value.as_ref()).value {
-                return Box::new(BoolBox::new(true));
+        match &*items {
+            ArrayStorage::Boxed(items) => {
+                for item in items.iter() {
+                    if item.equals(value.as_ref()).value {
+                        return Box::new(BoolBox::new(true));
+                    }
+                }
+            }
+            ArrayStorage::InlineI64(values) => {
+                if let Some(needle) = value.as_i64_fast() {
+                    return Box::new(BoolBox::new(values.iter().any(|item| *item == needle)));
+                }
             }
         }
         Box::new(BoolBox::new(false))
@@ -316,7 +491,11 @@ impl ArrayBox {
 
     /// 配列を空にする
     pub fn clear(&self) -> Box<dyn NyashBox> {
-        self.items.write().clear();
+        let mut items = self.items.write();
+        match &mut *items {
+            ArrayStorage::Boxed(items) => items.clear(),
+            ArrayStorage::InlineI64(values) => values.clear(),
+        }
         Box::new(StringBox::new("ok"))
     }
 
@@ -324,10 +503,15 @@ impl ArrayBox {
     pub fn join(&self, delimiter: Box<dyn NyashBox>) -> Box<dyn NyashBox> {
         if let Some(sep_box) = delimiter.as_any().downcast_ref::<StringBox>() {
             let items = self.items.read();
-            let parts: Vec<String> = items
-                .iter()
-                .map(|item| item.to_string_box().value)
-                .collect();
+            let parts: Vec<String> = match &*items {
+                ArrayStorage::Boxed(items) => items
+                    .iter()
+                    .map(|item| item.to_string_box().value)
+                    .collect(),
+                ArrayStorage::InlineI64(values) => {
+                    values.iter().map(|value| value.to_string()).collect()
+                }
+            };
             Box::new(StringBox::new(&parts.join(&sep_box.value)))
         } else {
             Box::new(StringBox::new("Error: join() requires string separator"))
@@ -337,59 +521,63 @@ impl ArrayBox {
     /// 配列をソート（昇順）
     pub fn sort(&self) -> Box<dyn NyashBox> {
         let mut items = self.items.write();
+        match &mut *items {
+            ArrayStorage::InlineI64(values) => values.sort_unstable(),
+            ArrayStorage::Boxed(items) => {
+                // Numeric values first, then string values
+                items.sort_by(|a, b| {
+                    use std::cmp::Ordering;
 
-        // Numeric values first, then string values
-        items.sort_by(|a, b| {
-            use std::cmp::Ordering;
+                    // Try to compare as numbers first
+                    if let (Some(a_int), Some(b_int)) = (
+                        a.as_any().downcast_ref::<IntegerBox>(),
+                        b.as_any().downcast_ref::<IntegerBox>(),
+                    ) {
+                        return a_int.value.cmp(&b_int.value);
+                    }
 
-            // Try to compare as numbers first
-            if let (Some(a_int), Some(b_int)) = (
-                a.as_any().downcast_ref::<IntegerBox>(),
-                b.as_any().downcast_ref::<IntegerBox>(),
-            ) {
-                return a_int.value.cmp(&b_int.value);
+                    // Try FloatBox comparison
+                    if let (Some(a_float), Some(b_float)) = (
+                        a.as_any()
+                            .downcast_ref::<crate::boxes::math_box::FloatBox>(),
+                        b.as_any()
+                            .downcast_ref::<crate::boxes::math_box::FloatBox>(),
+                    ) {
+                        return a_float
+                            .value
+                            .partial_cmp(&b_float.value)
+                            .unwrap_or(Ordering::Equal);
+                    }
+
+                    // Mixed numeric types
+                    if let (Some(a_int), Some(b_float)) = (
+                        a.as_any().downcast_ref::<IntegerBox>(),
+                        b.as_any()
+                            .downcast_ref::<crate::boxes::math_box::FloatBox>(),
+                    ) {
+                        return (a_int.value as f64)
+                            .partial_cmp(&b_float.value)
+                            .unwrap_or(Ordering::Equal);
+                    }
+
+                    if let (Some(a_float), Some(b_int)) = (
+                        a.as_any()
+                            .downcast_ref::<crate::boxes::math_box::FloatBox>(),
+                        b.as_any().downcast_ref::<IntegerBox>(),
+                    ) {
+                        return a_float
+                            .value
+                            .partial_cmp(&(b_int.value as f64))
+                            .unwrap_or(Ordering::Equal);
+                    }
+
+                    // Fall back to string comparison
+                    let a_str = a.to_string_box().value;
+                    let b_str = b.to_string_box().value;
+                    a_str.cmp(&b_str)
+                });
             }
-
-            // Try FloatBox comparison
-            if let (Some(a_float), Some(b_float)) = (
-                a.as_any()
-                    .downcast_ref::<crate::boxes::math_box::FloatBox>(),
-                b.as_any()
-                    .downcast_ref::<crate::boxes::math_box::FloatBox>(),
-            ) {
-                return a_float
-                    .value
-                    .partial_cmp(&b_float.value)
-                    .unwrap_or(Ordering::Equal);
-            }
-
-            // Mixed numeric types
-            if let (Some(a_int), Some(b_float)) = (
-                a.as_any().downcast_ref::<IntegerBox>(),
-                b.as_any()
-                    .downcast_ref::<crate::boxes::math_box::FloatBox>(),
-            ) {
-                return (a_int.value as f64)
-                    .partial_cmp(&b_float.value)
-                    .unwrap_or(Ordering::Equal);
-            }
-
-            if let (Some(a_float), Some(b_int)) = (
-                a.as_any()
-                    .downcast_ref::<crate::boxes::math_box::FloatBox>(),
-                b.as_any().downcast_ref::<IntegerBox>(),
-            ) {
-                return a_float
-                    .value
-                    .partial_cmp(&(b_int.value as f64))
-                    .unwrap_or(Ordering::Equal);
-            }
-
-            // Fall back to string comparison
-            let a_str = a.to_string_box().value;
-            let b_str = b.to_string_box().value;
-            a_str.cmp(&b_str)
-        });
+        }
 
         Box::new(StringBox::new("ok"))
     }
@@ -397,7 +585,10 @@ impl ArrayBox {
     /// 配列を反転
     pub fn reverse(&self) -> Box<dyn NyashBox> {
         let mut items = self.items.write();
-        items.reverse();
+        match &mut *items {
+            ArrayStorage::Boxed(items) => items.reverse(),
+            ArrayStorage::InlineI64(values) => values.reverse(),
+        }
         Box::new(StringBox::new("ok"))
     }
 
@@ -435,48 +626,37 @@ impl ArrayBox {
             return Box::new(ArrayBox::new());
         }
 
-        // Create slice
-        let slice_items: Vec<Box<dyn NyashBox>> = items[start_idx..end_idx]
-            .iter()
-            .map(|item| {
-                #[cfg(all(feature = "plugins", not(target_arch = "wasm32")))]
-                if item
-                    .as_any()
-                    .downcast_ref::<crate::runtime::plugin_loader_v2::PluginBoxV2>()
-                    .is_some()
-                {
-                    return item.share_box();
-                }
-                item.clone_box()
-            })
-            .collect();
-
-        Box::new(ArrayBox::new_with_elements(slice_items))
+        match &*items {
+            ArrayStorage::Boxed(items) => {
+                let slice_items: Vec<Box<dyn NyashBox>> = items[start_idx..end_idx]
+                    .iter()
+                    .map(|item| Self::clone_visible_item(item.as_ref()))
+                    .collect();
+                Box::new(ArrayBox::new_with_elements(slice_items))
+            }
+            ArrayStorage::InlineI64(values) => Box::new(ArrayBox::new_with_inline_i64_elements(
+                values[start_idx..end_idx].to_vec(),
+            )),
+        }
     }
 }
 
 // Clone implementation for ArrayBox (needed since RwLock doesn't auto-derive Clone)
 impl Clone for ArrayBox {
     fn clone(&self) -> Self {
-        // ディープコピー（独立インスタンス）
         let items_guard = self.items.read();
-        let cloned_items: Vec<Box<dyn NyashBox>> = items_guard
-            .iter()
-            .map(|item| {
-                #[cfg(all(feature = "plugins", not(target_arch = "wasm32")))]
-                if item
-                    .as_any()
-                    .downcast_ref::<crate::runtime::plugin_loader_v2::PluginBoxV2>()
-                    .is_some()
-                {
-                    return item.share_box();
-                }
-                item.clone_box()
-            }) // 要素もディープコピー（ハンドルは共有）
-            .collect();
+        let cloned_items = match &*items_guard {
+            ArrayStorage::Boxed(items) => ArrayStorage::Boxed(
+                items
+                    .iter()
+                    .map(|item| Self::clone_visible_item(item.as_ref()))
+                    .collect(),
+            ),
+            ArrayStorage::InlineI64(values) => ArrayStorage::InlineI64(values.clone()),
+        };
 
         ArrayBox {
-            items: Arc::new(RwLock::new(cloned_items)), // 新しいArc
+            items: Arc::new(RwLock::new(cloned_items)),
             base: BoxBase::new(),
         }
     }
@@ -493,11 +673,16 @@ impl BoxCore for ArrayBox {
 
     fn fmt_box(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let items = self.items.read();
-        let strings: Vec<String> = items
-            .iter()
-            .map(|item| item.to_string_box().value)
-            .collect();
-        write!(f, "[{}]", strings.join(", "))
+        match &*items {
+            ArrayStorage::Boxed(items) => {
+                let strings: Vec<String> = items
+                    .iter()
+                    .map(|item| item.to_string_box().value)
+                    .collect();
+                write!(f, "[{}]", strings.join(", "))
+            }
+            ArrayStorage::InlineI64(values) => write!(f, "[{}]", Self::format_inline_values(values)),
+        }
     }
 
     fn as_any(&self) -> &dyn Any {
@@ -534,11 +719,18 @@ impl NyashBox for ArrayBox {
 
     fn to_string_box(&self) -> StringBox {
         let items = self.items.read();
-        let strings: Vec<String> = items
-            .iter()
-            .map(|item| item.to_string_box().value)
-            .collect();
-        StringBox::new(format!("[{}]", strings.join(", ")))
+        match &*items {
+            ArrayStorage::Boxed(items) => {
+                let strings: Vec<String> = items
+                    .iter()
+                    .map(|item| item.to_string_box().value)
+                    .collect();
+                StringBox::new(format!("[{}]", strings.join(", ")))
+            }
+            ArrayStorage::InlineI64(values) => {
+                StringBox::new(format!("[{}]", Self::format_inline_values(values)))
+            }
+        }
     }
 
     fn type_name(&self) -> &'static str {
@@ -554,9 +746,30 @@ impl NyashBox for ArrayBox {
                 return BoolBox::new(false);
             }
 
-            for (a, b) in self_items.iter().zip(other_items.iter()) {
-                if !a.equals(b.as_ref()).value {
-                    return BoolBox::new(false);
+            match (&*self_items, &*other_items) {
+                (ArrayStorage::InlineI64(lhs), ArrayStorage::InlineI64(rhs)) => {
+                    return BoolBox::new(lhs == rhs);
+                }
+                (ArrayStorage::InlineI64(lhs), ArrayStorage::Boxed(rhs)) => {
+                    for (a, b) in lhs.iter().zip(rhs.iter()) {
+                        if b.as_i64_fast() != Some(*a) {
+                            return BoolBox::new(false);
+                        }
+                    }
+                }
+                (ArrayStorage::Boxed(lhs), ArrayStorage::InlineI64(rhs)) => {
+                    for (a, b) in lhs.iter().zip(rhs.iter()) {
+                        if a.as_i64_fast() != Some(*b) {
+                            return BoolBox::new(false);
+                        }
+                    }
+                }
+                (ArrayStorage::Boxed(lhs), ArrayStorage::Boxed(rhs)) => {
+                    for (a, b) in lhs.iter().zip(rhs.iter()) {
+                        if !a.equals(b.as_ref()).value {
+                            return BoolBox::new(false);
+                        }
+                    }
                 }
             }
 
@@ -571,9 +784,47 @@ impl NyashBox for ArrayBox {
 impl std::fmt::Debug for ArrayBox {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let items = self.items.read();
+        let storage_kind = match &*items {
+            ArrayStorage::Boxed(_) => "boxed",
+            ArrayStorage::InlineI64(_) => "inline_i64",
+        };
         f.debug_struct("ArrayBox")
             .field("id", &self.base.id)
             .field("length", &items.len())
+            .field("storage", &storage_kind)
             .finish()
+    }
+}
+
+#[cfg(test)]
+impl ArrayBox {
+    pub fn uses_inline_i64_slots(&self) -> bool {
+        matches!(&*self.items.read(), ArrayStorage::InlineI64(_))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn slot_store_i64_births_inline_lane() {
+        let array = ArrayBox::new();
+        assert!(array.slot_store_i64_raw(0, 10));
+        assert!(array.uses_inline_i64_slots());
+        assert_eq!(array.slot_load_i64_raw(0), Some(10));
+        assert_eq!(array.get_index_i64(0).to_string_box().value, "10");
+    }
+
+    #[test]
+    fn slot_store_box_promotes_inline_lane_to_boxed() {
+        let array = ArrayBox::new();
+        assert!(array.slot_store_i64_raw(0, 10));
+        assert!(array.uses_inline_i64_slots());
+
+        assert!(array.slot_store_box_raw(0, Box::new(StringBox::new("hello"))));
+        assert!(!array.uses_inline_i64_slots());
+        assert_eq!(array.get_index_i64(0).to_string_box().value, "hello");
+        assert_eq!(array.slot_rmw_add1_i64_raw(0), None);
     }
 }

@@ -1,0 +1,27 @@
+// kilo/userbox typed-field microbench:
+// Point.x / Point.y declared as IntegerBox and stressed through repeated add/set.
+box Point {
+  x: IntegerBox
+  y: IntegerBox
+}
+
+static box Main {
+  main() {
+    local ops = 2000000
+    local p = new Point()
+    p.x = 1
+    p.y = 2
+
+    local acc = 0
+    local i = 0
+    loop (i < ops) {
+      local sum = p.x + p.y
+      p.x = p.x + 1
+      p.y = p.y + 2
+      acc = acc + sum
+      i = i + 1
+    }
+
+    return acc + p.x + p.y
+  }
+}

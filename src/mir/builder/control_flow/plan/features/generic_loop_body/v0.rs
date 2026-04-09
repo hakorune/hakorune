@@ -30,14 +30,16 @@ pub(in crate::mir::builder) fn lower_generic_loop_v0_body(
 
         match stmt {
             ASTNode::Assignment { target, value, .. } => {
-                let (name, value_id, effects) = loop_body_lowering::lower_assignment_value(
+                let (binding, effects) = loop_body_lowering::lower_assignment_stmt(
                     builder,
                     phi_bindings,
                     target,
                     value,
                     GENERIC_LOOP_ERR,
                 )?;
-                builder.variable_ctx.variable_map.insert(name, value_id);
+                if let Some((name, value_id)) = binding {
+                    builder.variable_ctx.variable_map.insert(name, value_id);
+                }
                 append_effects(&mut body_plans, effects);
             }
             ASTNode::Local {
