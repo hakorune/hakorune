@@ -90,7 +90,10 @@ fi
 
 count_symbol() {
   local symbol="$1"
-  grep -Fc "\"$symbol\"" "$tmp_main" || true
+  local unquoted quoted
+  unquoted="$(grep -Fc "@${symbol}(" "$tmp_main" 2>/dev/null || true)"
+  quoted="$(grep -Fc "@\"${symbol}\"(" "$tmp_main" 2>/dev/null || true)"
+  echo $((unquoted + quoted))
 }
 
 array_get_count="$(count_symbol "$ROUTE_ARRAY_GET")"

@@ -104,7 +104,7 @@ for line in lines:
             break
 
 for idx, line in enumerate(main):
-    m = re.search(r'(%r\d+)\s*=\s*call i64 @"nyash\.box\.from_i8_string_const"', line)
+    m = re.search(r'(%r\d+)\s*=\s*call i64 @"?nyash\.box\.from_i8_string_const"?', line)
     if m:
         defs.append((idx, m.group(1)))
 
@@ -143,18 +143,55 @@ if grep -q 'nyash.any.length_h' "$tmp_main"; then
   exit 1
 fi
 
-if ! grep -q 'declare i64 @"nyash.array.string_indexof_hih"(i64, i64, i64) nounwind readonly willreturn' "$tmp_ir"; then
-  test_fail "$SMOKE_NAME: array.string_indexof_hih declaration is missing readonly attrs"
-  exit 1
-fi
-if ! grep -q 'declare i64 @"nyash.array.slot_load_hi"(i64, i64) nounwind readonly willreturn' "$tmp_ir"; then
-  test_fail "$SMOKE_NAME: array.slot_load_hi declaration is missing readonly attrs"
-  exit 1
-fi
-if grep -q 'declare i64 @"nyash.array.set_his"(i64, i64, i64) nounwind readonly willreturn' "$tmp_ir"; then
-  test_fail "$SMOKE_NAME: mutating array.set_his must not be stamped readonly"
-  exit 1
-fi
+ir_attr_check="$(python3 - "$tmp_ir" <<'PY'
+import re
+import sys
+
+path = sys.argv[1]
+lines = open(path, encoding="utf-8").read().splitlines()
+attrs = {}
+decls = {}
+
+for line in lines:
+    m = re.match(r'^(?:attributes\s+)?#(\d+)\s*=\s*\{([^}]*)\}', line)
+    if m:
+        attrs[m.group(1)] = m.group(2)
+    m = re.match(r'^declare\s+\S+\s+@("?)(nyash\.array\.(string_indexof_hih|slot_load_hi|set_his))\1\([^)]*\)(?:\s+#(\d+))?.*$', line)
+    if m:
+        decls[m.group(2)] = (line, m.group(4))
+
+def merged_text(name: str) -> str:
+    line, attr_id = decls[name]
+    if attr_id and attr_id in attrs:
+        return f"{line} {attrs[attr_id]}"
+    return line
+
+required = ("nyash.array.string_indexof_hih", "nyash.array.slot_load_hi")
+for name in required:
+    text = merged_text(name)
+    if "nounwind" not in text or "willreturn" not in text or ("readonly" not in text and "memory(read)" not in text):
+        print(f"missing-readonly {name}")
+        raise SystemExit(0)
+
+text = merged_text("nyash.array.set_his")
+if "readonly" in text or "memory(read)" in text:
+    print("readonly-mutating nyash.array.set_his")
+    raise SystemExit(0)
+
+print("ok")
+PY
+)"
+
+case "$ir_attr_check" in
+  missing-readonly\ *)
+    test_fail "$SMOKE_NAME: ${ir_attr_check#missing-readonly } declaration is missing readonly attrs"
+    exit 1
+    ;;
+  readonly-mutating\ *)
+    test_fail "$SMOKE_NAME: mutating ${ir_attr_check#readonly-mutating } must not be stamped readonly"
+    exit 1
+    ;;
+esac
 
 set_consumer_stats="$(python3 - "$tmp_main" <<'PY'
 import re
@@ -166,11 +203,11 @@ set_consume = 0
 set_zero = 0
 
 for line in text:
-    m = re.search(r'(%r\d+)\s*=\s*call i64 @"(nyash\.string\.concat_hs|nyash\.string\.concat_hh|nyash\.string\.concat3_hhh|nyash\.string\.insert_hsi)"', line)
+    m = re.search(r'(%r\d+)\s*=\s*call i64 @"?(nyash\.string\.concat_hs|nyash\.string\.concat_hh|nyash\.string\.concat3_hhh|nyash\.string\.insert_hsi)"?', line)
     if m:
         concat_regs.add(m.group(1))
         continue
-    m = re.search(r'call i64 @"(nyash\.array\.set_his|nyash\.array\.set_hih|nyash\.array\.set_hii)"\((.*)\)$', line)
+    m = re.search(r'call i64 @"?(nyash\.array\.set_his|nyash\.array\.set_hih|nyash\.array\.set_hii)"?\((.*)\)$', line)
     if not m:
         continue
     if re.search(r', i64 0\)$', line):

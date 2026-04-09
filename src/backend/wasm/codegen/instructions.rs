@@ -262,7 +262,7 @@ impl WasmCodegen {
         let const_instruction = match value {
             ConstValue::Integer(n) => format!("i32.const {}", n),
             ConstValue::Bool(b) => format!("i32.const {}", if *b { 1 } else { 0 }),
-            ConstValue::Void => "i32.const 0".to_string(),
+            ConstValue::Null | ConstValue::Void => "i32.const 0".to_string(),
             ConstValue::String(s) => {
                 // Register the string literal and get its offset
                 let data_offset = self.register_string_literal(s);

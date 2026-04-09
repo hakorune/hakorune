@@ -331,6 +331,43 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         }
       }
 
+      // Cross-block refinement for string literal hoists.
+      // Some literals are defined in an entry block but only consumed by a
+      // single later concat/set window. The per-block pre-scan above cannot see
+      // those uses, so rescan the function and suppress the hoisted box when the
+      // literal has exactly one use and that use is a raw-ptr concat window.
+      for (size_t sci = 0; sci < str_consts_n; sci++) {
+        long long reg = str_consts[sci].reg;
+        size_t use_count = 0;
+        size_t use_bi = 0;
+        if (!reg || should_skip_hoisted_string_const_box(reg)) continue;
+        for (size_t bi = 0; bi < blen; bi++) {
+          yyjson_val* b = yyjson_arr_get(blocks, bi);
+          yyjson_val* insts = b ? yyjson_obj_get(b, "instructions") : NULL;
+          if (!insts || !yyjson_is_arr(insts)) continue;
+          size_t ilen = yyjson_arr_size(insts);
+          for (size_t ii = 0; ii < ilen; ii++) {
+            yyjson_val* ins = yyjson_arr_get(insts, ii);
+            if (!inst_uses_reg(ins, reg)) continue;
+            use_count++;
+            use_bi = bi;
+            if (use_count > 1) break;
+          }
+          if (use_count > 1) break;
+        }
+        if (use_count != 1) continue;
+        {
+          yyjson_val* ub = yyjson_arr_get(blocks, use_bi);
+          yyjson_val* uinsts = ub ? yyjson_obj_get(ub, "instructions") : NULL;
+          if (!uinsts || !yyjson_is_arr(uinsts)) continue;
+          size_t uilen = yyjson_arr_size(uinsts);
+          if (should_skip_string_const_box_for_concat_suffix((size_t)-1, uilen, uinsts, reg) ||
+              should_skip_string_const_box_for_insert_mid_window((size_t)-1, uilen, uinsts, reg)) {
+            mark_hoisted_string_const_box_skip(reg);
+          }
+        }
+      }
+
       // IR temp file
       char llpath[1024]; snprintf(llpath, sizeof(llpath), "%s/hako_pure_gen_%d.ll", "/tmp", (int)getpid());
       FILE* f = fopen(llpath, "wb"); if (!f) { yyjson_doc_free(d); break; }
@@ -361,6 +398,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (needs.string_len) fprintf(f, "declare i64 @\"nyash.string.len_h\"(i64)\n");
       fprintf(f, "declare i64 @\"nyash.string.eq_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.string_substring) fprintf(f, "declare i64 @\"nyash.string.substring_hii\"(i64, i64, i64)\n");
+      if (needs.string_substring) fprintf(f, "declare i64 @\"nyash.string.substring_concat_hhii\"(i64, i64, i64, i64)\n");
+      if (needs.string_substring) fprintf(f, "declare i64 @\"nyash.string.substring_concat3_hhhii\"(i64, i64, i64, i64, i64)\n");
       if (needs.string_indexof) fprintf(f, "declare i64 @\"nyash.string.indexOf_hh\"(i64, i64)\n");
       if (needs.string_concat || needs.string_substring || needs.arr_get || needs.arr_string_indexof) {
         fprintf(f, "declare i64 @\"nyash.string.concat_hh\"(i64, i64)\n");

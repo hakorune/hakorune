@@ -51,6 +51,29 @@ pub extern "C" fn nyash_string_insert_hsi_export(
     string_insert_hsi_export_impl(source_h, middle_ptr, split)
 }
 
+// String.substring_concat_hhii(lhs_h, rhs_h, start_i64, end_i64) -> handle
+#[export_name = "nyash.string.substring_concat_hhii"]
+pub extern "C" fn nyash_string_substring_concat_hhii_export(
+    a_h: i64,
+    b_h: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    string_substring_concat_hhii_export_impl(a_h, b_h, start, end)
+}
+
+// String.substring_concat3_hhhii(a_h, b_h, c_h, start_i64, end_i64) -> handle
+#[export_name = "nyash.string.substring_concat3_hhhii"]
+pub extern "C" fn nyash_string_substring_concat3_hhhii_export(
+    a_h: i64,
+    b_h: i64,
+    c_h: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    string_substring_concat3_hhhii_export_impl(a_h, b_h, c_h, start, end)
+}
+
 // String.concat3_hhh(a_h, b_h, c_h) -> handle
 #[export_name = "nyash.string.concat3_hhh"]
 pub extern "C" fn nyash_string_concat3_hhh_export(a_h: i64, b_h: i64, c_h: i64) -> i64 {

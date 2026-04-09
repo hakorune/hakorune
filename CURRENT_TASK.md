@@ -154,6 +154,9 @@ Scope: repo root から current lane / current front / restart read order に最
         - `ny-llvmc` parity wave
         - proving slice is now landed:
           - product LLVM/Python lowering seeds `thin_entry_selections` into the resolver alongside the already-landed sum placement metadata
+          - product LLVM/Python user-box `field_get` / `field_set` now consult `thin_entry_selections` first for known selector subjects
+          - selected `user_box_field_{get,set}.inline_scalar` rows can keep the typed primitive helpers without re-discovering `field_decls` on the backend side when the declared box family is already pinned
+          - selected `user_box_field_{get,set}.public_default` rows still keep the generic fallback even if the compat mirror looks scalar-shaped
           - metadata-bearing product smoke is green on `phase163x_boundary_sum_metadata_keep_min.sh` via boundary compat replay -> harness keep lane
         - native-driver metadata awareness remains canary-only backlog, not the current lane blocker
     5. `tuple multi-payload` compat transport is now landed:
@@ -266,14 +269,17 @@ Scope: repo root から current lane / current front / restart read order に最
     - landed first generic observer pilot:
       - defer concat pair/triple when the consumer stays in compiler-visible string observers
       - lower `len()` from concat chain state without forcing immediate handle birth when the chain stays compile-time-known
+    - landed second compiler-visible concat consumer slice:
+      - pair/triple concat chains now lower `substring(...)` through `nyash.string.substring_concat_hhii` / `nyash.string.substring_concat3_hhhii`
+      - direct pure-first route proof on the dynamic split fixture now hits `string_substring_route -> substring_concat3_hhhii`
     - `2026-04-09` observe direct probe on `kilo_micro_concat_hh_len` now shows:
       - `birth.placement`: `return_handle=0 / borrow_view=0 / freeze_owned=0 / fresh_handle=0 / materialize_owned=0 / store_from_source=0`
       - `birth.backend`: `freeze_text_plan_total=0 / string_box_new_total=0 / handle_issue_total=0 / materialize_owned_total=0 / gc_alloc_called=0`
       - `str.concat2.route=0`, `str.len.route=0`
     - `2026-04-09` exact reread on `kilo_micro_concat_hh_len`: `instr=7,657,032 / cycles=2,284,266 / cache-miss=8,479 / AOT 4 ms`
-    - next concat barrier slice stays deferred:
-      - `substring` / `return` / `store` / host-boundary concat consumers
-      - keep that work separate from this landed `concat -> len` observer cut
+    - remaining concat publication barriers stay deferred:
+      - `return` / `store` / host-boundary concat consumers
+      - keep that work separate from the landed `concat -> len` and `concat -> substring` cuts
 - rejected perf history:
   - exact evidence is centralized in
     `docs/development/current/main/investigations/phase137x-substring-rejected-optimizations-2026-04-08.md`
@@ -321,8 +327,9 @@ Scope: repo root から current lane / current front / restart read order に最
     6. treat concat transient work as a separate observer front:
        - exact seed lane: `kilo_micro_substring_concat`
        - generic consumer lane: `kilo_micro_concat_hh_len`
-       - first cut is `concat -> len` only; broader concat barrier elimination waits for a second proof
-- first files to reopen for the next slice:
+       - landed compiler-visible cuts: `concat -> len`, then `concat -> substring`
+       - remaining publication barriers: `return` / `store` / host-boundary
+- first files to reopen for the next string guardrail slice:
   - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
   - `docs/development/current/main/phases/phase-163x/README.md`
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`

@@ -37,7 +37,8 @@ use self::cache::{
     substring_view_arc_cache_store, SubstringViewCacheHit,
 };
 use self::concat::{
-    concat3_fallback, concat_const_suffix_fallback, concat_pair_fallback, insert_const_mid_fallback,
+    concat3_fallback, concat3_substring_fallback, concat_const_suffix_fallback,
+    concat_pair_fallback, concat_pair_substring_fallback, insert_const_mid_fallback,
 };
 use self::materialize::{
     shared_empty_string_handle, string_handle_from_owned, string_handle_from_span,
@@ -229,6 +230,25 @@ pub(super) fn string_insert_hsi_export_impl(
     split: i64,
 ) -> i64 {
     insert_const_mid_fallback(source_h, middle_ptr, split)
+}
+
+pub(super) fn string_substring_concat_hhii_export_impl(
+    a_h: i64,
+    b_h: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    concat_pair_substring_fallback(a_h, b_h, start, end)
+}
+
+pub(super) fn string_substring_concat3_hhhii_export_impl(
+    a_h: i64,
+    b_h: i64,
+    c_h: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    concat3_substring_fallback(a_h, b_h, c_h, start, end)
 }
 
 pub(super) fn string_concat3_hhh_export_impl(a_h: i64, b_h: i64, c_h: i64) -> i64 {

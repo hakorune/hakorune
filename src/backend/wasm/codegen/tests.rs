@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod tests {
-    use super::super::{WasmCodegen, WasmModule};
+    use super::super::{wasm_result_type, WasmCodegen, WasmModule};
     use crate::backend::wasm::WasmError;
-    use crate::mir::{Callee, ConstValue, EffectMask, MirInstruction, ValueId};
+    use crate::mir::{Callee, ConstValue, EffectMask, MirInstruction, MirType, ValueId};
 
     #[test]
     fn test_wasm_module_wat_generation() {
@@ -34,6 +34,23 @@ mod tests {
         });
 
         assert!(result.is_err()); // Should fail without local mapping
+    }
+
+    #[test]
+    fn test_null_constant_generation_uses_zero_handle() {
+        let mut codegen = WasmCodegen::new();
+        let dst = ValueId::new(0);
+        codegen.current_locals.insert(dst, 0);
+        codegen.next_local_index = 1;
+
+        let result = codegen
+            .generate_instruction(&crate::mir::MirInstruction::Const {
+                dst,
+                value: ConstValue::Null,
+            })
+            .expect("null const should lower");
+
+        assert_eq!(result, vec!["i32.const 0".to_string(), "local.set $0".to_string()]);
     }
 
     #[test]
@@ -74,6 +91,33 @@ mod tests {
                 assert!(msg.contains("error"));
             }
             other => panic!("expected unsupported boxcall error, got: {:?}", other),
+        }
+    }
+
+    #[test]
+    fn test_wasm_result_type_accepts_handle_like_returns() {
+        for ty in [
+            MirType::Integer,
+            MirType::Bool,
+            MirType::String,
+            MirType::Box("StringBox".to_string()),
+            MirType::Array(Box::new(MirType::Integer)),
+            MirType::Future(Box::new(MirType::Box("StringBox".to_string()))),
+            MirType::WeakRef,
+        ] {
+            assert_eq!(wasm_result_type(&ty).unwrap(), Some("i32"));
+        }
+        assert_eq!(wasm_result_type(&MirType::Void).unwrap(), None);
+    }
+
+    #[test]
+    fn test_wasm_result_type_rejects_float() {
+        match wasm_result_type(&MirType::Float) {
+            Err(WasmError::UnsupportedInstruction(msg)) => {
+                assert!(msg.contains("Unsupported return type"));
+                assert!(msg.contains("Float"));
+            }
+            other => panic!("expected unsupported float result type, got: {:?}", other),
         }
     }
 }

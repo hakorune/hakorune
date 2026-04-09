@@ -14,13 +14,12 @@ extract_ir_entry_function() {
     fi
 
     awk '
-      /^define .*@"main"\(/ { in_entry=1 }
-      /^define .*@"ny_main"\(/ { in_entry=1 }
+      /^define .*@"?(main|ny_main)"?\(/ { in_entry=1 }
       in_entry { print }
       in_entry && /^}$/ { exit }
     ' "$ir_path" >"$out_path"
 
-    grep -Eq '^define .*@"(main|ny_main)"' "$out_path"
+    grep -Eq '^define .*@"?(main|ny_main)"?' "$out_path"
 }
 
 require_smoke_path() {
@@ -774,4 +773,3 @@ HCODE
     HAKO_FAIL_FAST_ON_HAKO_IN_NYASH_VM=0 NYASH_USING_AST=1 NYASH_RESOLVE_FIX_BRACES=1 \
     NYASH_VERIFY_JSON="$json_literal" run_nyash_vm -c "$code" 2>/dev/null | tr -d '\r' | awk '/^-?[0-9]+$/{n=$0} END{if(n!="") print n}'
 }
-

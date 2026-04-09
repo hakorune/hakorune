@@ -6,8 +6,8 @@
  */
 
 use super::{MemoryManager, RuntimeImports, WasmError};
-use crate::mir::{BasicBlockId, MirFunction, MirModule, MirType, ValueId};
-use std::collections::HashMap;
+use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction, MirModule, MirType, ValueId};
+use std::collections::{BTreeSet, HashMap, VecDeque};
 
 mod builtins;
 mod instructions;
@@ -117,6 +117,7 @@ impl WasmCodegen {
             self.function_return_types
                 .insert(name.clone(), function.signature.return_type.clone());
         }
+        let reachable_function_names = reachable_function_names(&mir_module);
 
         // Add memory declaration (64KB initial)
         wasm_module.memory = "(memory (export \"memory\") 1)".to_string();
@@ -143,9 +144,7 @@ impl WasmCodegen {
         }
 
         // Generate functions in deterministic order to keep WAT output stable.
-        let mut function_names: Vec<String> = mir_module.functions.keys().cloned().collect();
-        function_names.sort();
-        for name in function_names {
+        for name in reachable_function_names {
             let function = mir_module.functions.get(&name).ok_or_else(|| {
                 WasmError::CodegenError(format!("Function not found during codegen: {}", name))
             })?;
@@ -186,17 +185,9 @@ impl WasmCodegen {
             function_body.push_str(&format!(" (param ${} i32)", pid.as_u32()));
         }
 
-        // Add return type if not void
-        match mir_function.signature.return_type {
-            crate::mir::MirType::Integer => function_body.push_str(" (result i32)"),
-            crate::mir::MirType::Bool => function_body.push_str(" (result i32)"),
-            crate::mir::MirType::Void => {} // No return type
-            _ => {
-                return Err(WasmError::UnsupportedInstruction(format!(
-                    "Unsupported return type: {:?}",
-                    mir_function.signature.return_type
-                )))
-            }
+        // Current WASM backend returns raw i32 values or i32 handles.
+        if let Some(result_ty) = wasm_result_type(&mir_function.signature.return_type)? {
+            function_body.push_str(&format!(" (result {})", result_ty));
         }
 
         // Collect all local variables needed
@@ -281,14 +272,14 @@ impl WasmCodegen {
         let ty = self.function_return_types.get(name).ok_or_else(|| {
             WasmError::UnsupportedInstruction(format!("Unknown global callee: {}", name))
         })?;
-        match ty {
-            MirType::Integer | MirType::Bool => Ok(true),
-            MirType::Void => Ok(false),
-            other => Err(WasmError::UnsupportedInstruction(format!(
-                "Unsupported global return type for {}: {:?}",
-                name, other
-            ))),
-        }
+        wasm_result_type(ty)
+            .map(|result_ty| result_ty.is_some())
+            .map_err(|_| {
+                WasmError::UnsupportedInstruction(format!(
+                    "Unsupported global return type for {}: {:?}",
+                    name, ty
+                ))
+            })
     }
 
     pub(crate) fn supported_global_calls_csv(&self) -> String {
@@ -373,5 +364,55 @@ impl WasmCodegen {
                 value_id
             ))
         })
+    }
+}
+
+fn reachable_function_names(mir_module: &MirModule) -> BTreeSet<String> {
+    if !mir_module.functions.contains_key("main") {
+        return mir_module.functions.keys().cloned().collect();
+    }
+
+    let mut reachable = BTreeSet::new();
+    let mut worklist = VecDeque::from([String::from("main")]);
+
+    while let Some(name) = worklist.pop_front() {
+        if !reachable.insert(name.clone()) {
+            continue;
+        }
+        let Some(function) = mir_module.functions.get(&name) else {
+            continue;
+        };
+        for block in function.blocks.values() {
+            for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+                if let MirInstruction::Call {
+                    callee: Some(Callee::Global(target)),
+                    ..
+                } = instruction
+                {
+                    if mir_module.functions.contains_key(target) && !reachable.contains(target) {
+                        worklist.push_back(target.clone());
+                    }
+                }
+            }
+        }
+    }
+
+    reachable
+}
+
+fn wasm_result_type(ty: &MirType) -> Result<Option<&'static str>, WasmError> {
+    match ty {
+        MirType::Integer
+        | MirType::Bool
+        | MirType::String
+        | MirType::Box(_)
+        | MirType::Array(_)
+        | MirType::Future(_)
+        | MirType::WeakRef => Ok(Some("i32")),
+        MirType::Void => Ok(None),
+        other => Err(WasmError::UnsupportedInstruction(format!(
+            "Unsupported return type: {:?}",
+            other
+        ))),
     }
 }

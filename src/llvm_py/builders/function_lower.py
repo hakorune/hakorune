@@ -581,26 +581,33 @@ def _load_thin_entry_selection_metadata(builder, func_data: Dict[str, Any]) -> N
 
         normalized_rows = []
         by_value = {}
+        by_subject = {}
         for row in rows:
             try:
                 if not isinstance(row, dict):
                     continue
                 normalized = dict(row)
+                surface = normalized.get("surface")
+                subject = normalized.get("subject")
                 value = normalized.get("value")
                 if isinstance(value, int):
                     normalized["value"] = int(value)
                     by_value.setdefault(int(value), []).append(normalized)
                 else:
                     normalized["value"] = None
+                if isinstance(surface, str) and isinstance(subject, str):
+                    by_subject.setdefault((surface, subject), []).append(normalized)
                 normalized_rows.append(normalized)
             except Exception:
                 pass
 
         builder.resolver.thin_entry_selections = normalized_rows
         builder.resolver.thin_entry_selection_by_value = by_value
+        builder.resolver.thin_entry_selection_by_subject = by_subject
     except Exception:
         builder.resolver.thin_entry_selections = []
         builder.resolver.thin_entry_selection_by_value = {}
+        builder.resolver.thin_entry_selection_by_subject = {}
 
 
 def _load_sum_placement_metadata(builder, func_data: Dict[str, Any]) -> None:

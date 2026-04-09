@@ -55,6 +55,9 @@
     - primitive user-box field routes now choose between `inline_scalar` thin entries and explicit `public_default` rows
     - known user-box methods and enum/sum local routes now surface manifest-selected thin internal entries while current carriers remain public/compat where the backend has not switched yet
     - verbose MIR, MIR JSON, and `Program(JSON v0)` now surface the same selection results
+    - product LLVM/Python user-box `field_get` / `field_set` now consult the selector first:
+      - `user_box_field_{get,set}.inline_scalar` rows can keep the typed primitive helper path even when backend-side `field_decls` rediscovery is absent
+      - `user_box_field_{get,set}.public_default` rows still keep the generic fallback path for the selected subject
   - sum placement/effect pilot inspection chain is now landed for the enum/sum local route:
     - `sum_placement_facts` record local-vs-objectization evidence on top of `thin_entry_selections`
     - `sum_placement_selections` distinguish selected local aggregate routes from compat/runtime fallback routes

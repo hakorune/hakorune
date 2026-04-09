@@ -6,14 +6,14 @@ source "$(dirname "$0")/lib/guard_common.sh"
 
 TAG="macos-portability-guard"
 PLUGIN_LOADER_RS="$ROOT_DIR/src/runtime/plugin_loader_v2/enabled/loader/library.rs"
-LLVM_CODEGEN_RS="$ROOT_DIR/src/host_providers/llvm_codegen.rs"
+LLVM_CODEGEN_DEFAULTS_RS="$ROOT_DIR/src/host_providers/llvm_codegen/defaults.rs"
 FFI_BUILD_SH="$ROOT_DIR/tools/build_hako_llvmc_ffi.sh"
 PLAN_DOC="$ROOT_DIR/docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md"
 
 cd "$ROOT_DIR"
 
 guard_require_command "$TAG" rg
-guard_require_files "$TAG" "$PLUGIN_LOADER_RS" "$LLVM_CODEGEN_RS" "$FFI_BUILD_SH" "$PLAN_DOC"
+guard_require_files "$TAG" "$PLUGIN_LOADER_RS" "$LLVM_CODEGEN_DEFAULTS_RS" "$FFI_BUILD_SH" "$PLAN_DOC"
 
 echo "[$TAG] checking macOS portability contracts"
 
@@ -31,12 +31,12 @@ guard_expect_in_file \
 guard_expect_in_file \
   "$TAG" \
   'ffi_library_default_candidates' \
-  "$LLVM_CODEGEN_RS" \
+  "$LLVM_CODEGEN_DEFAULTS_RS" \
   "llvm_codegen must centralize FFI library candidate resolution"
 guard_expect_in_file \
   "$TAG" \
   'libhako_llvmc_ffi\.dylib' \
-  "$LLVM_CODEGEN_RS" \
+  "$LLVM_CODEGEN_DEFAULTS_RS" \
   "llvm_codegen must include .dylib candidate for macOS"
 
 guard_expect_in_file \

@@ -394,8 +394,8 @@ impl Default for WasmBackend {
 mod tests {
     use super::*;
     use crate::mir::{
-        BasicBlockId, ConstValue, FunctionSignature, MirFunction, MirInstruction, MirModule,
-        MirType, ValueId,
+        BasicBlock, BasicBlockId, ConstValue, FunctionSignature, MirFunction, MirInstruction,
+        MirModule, MirType, ValueId,
     };
 
     #[test]
@@ -413,6 +413,98 @@ mod tests {
         // Should handle empty module gracefully
         let result = backend.compile_to_wat(module);
         assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_compile_to_wasm_skips_unreachable_branch_helper_contract() {
+        let mut module = MirModule::new("test".to_string());
+
+        let main_entry = BasicBlockId::new(0);
+        let mut main_func = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: Vec::new(),
+                return_type: MirType::Integer,
+                effects: crate::mir::EffectMask::PURE,
+            },
+            main_entry,
+        );
+        {
+            let block = main_func
+                .get_block_mut(main_entry)
+                .expect("main entry block must exist");
+            let out = ValueId::new(1);
+            block.add_instruction(MirInstruction::Const {
+                dst: out,
+                value: ConstValue::Integer(7),
+            });
+            block.add_instruction(MirInstruction::Return { value: Some(out) });
+        }
+        module.add_function(main_func);
+
+        let dead_entry = BasicBlockId::new(0);
+        let then_bb = BasicBlockId::new(1);
+        let else_bb = BasicBlockId::new(2);
+        let mut dead_func = MirFunction::new(
+            FunctionSignature {
+                name: "dead_branch".to_string(),
+                params: Vec::new(),
+                return_type: MirType::Integer,
+                effects: crate::mir::EffectMask::PURE,
+            },
+            dead_entry,
+        );
+        {
+            let block = dead_func
+                .get_block_mut(dead_entry)
+                .expect("dead helper entry block must exist");
+            let cond = ValueId::new(1);
+            block.add_instruction(MirInstruction::Const {
+                dst: cond,
+                value: ConstValue::Integer(1),
+            });
+            block.add_instruction(MirInstruction::Branch {
+                condition: cond,
+                then_bb,
+                else_bb,
+                then_edge_args: None,
+                else_edge_args: None,
+            });
+        }
+        let mut then_block = BasicBlock::new(then_bb);
+        let then_out = ValueId::new(2);
+        then_block.add_instruction(MirInstruction::Const {
+            dst: then_out,
+            value: ConstValue::Integer(1),
+        });
+        then_block.add_instruction(MirInstruction::Return {
+            value: Some(then_out),
+        });
+        dead_func.add_block(then_block);
+
+        let mut else_block = BasicBlock::new(else_bb);
+        let else_out = ValueId::new(3);
+        else_block.add_instruction(MirInstruction::Const {
+            dst: else_out,
+            value: ConstValue::Integer(0),
+        });
+        else_block.add_instruction(MirInstruction::Return {
+            value: Some(else_out),
+        });
+        dead_func.add_block(else_block);
+        module.add_function(dead_func);
+
+        let mut backend = WasmBackend::new();
+        let wat = backend
+            .compile_to_wat(module)
+            .expect("WAT generation should succeed");
+        assert!(wat.contains("(func $main"));
+        assert!(!wat.contains("(func $dead_branch"));
+
+        let wasm = backend
+            .convert_wat_to_wasm(&wat)
+            .expect("unused branching helper must not poison validation");
+        assert!(wasm.starts_with(&[0x00, 0x61, 0x73, 0x6d]));
     }
 
     #[test]

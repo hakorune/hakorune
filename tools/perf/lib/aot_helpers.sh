@@ -3,6 +3,11 @@
 # Shared helpers for PERF_AOT flows.
 # Keep behavior consistent between bench_compare and baseline recorder.
 
+if [[ -z "${ROOT_DIR:-}" ]]; then
+  ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+fi
+source "${ROOT_DIR}/tools/lib/ffi_contract.sh"
+
 PERF_AOT_LAST_STATUS="skip"
 PERF_AOT_LAST_REASON="not_attempted"
 PERF_AOT_LAST_STAGE="none"
@@ -218,25 +223,24 @@ perf_aot_assert_observe_release_alignment() {
   return 0
 }
 
-perf_aot_boundary_ffi_artifact_exists() {
+perf_aot_boundary_ffi_artifact_is_fresh() {
   local root_dir=$1
   local override="${HAKO_AOT_FFI_LIB:-}"
   if [[ -n "${override}" ]]; then
-    [[ -f "${override}" ]]
-    return $?
+    if [[ ! -f "${override}" ]]; then
+      return 1
+    fi
+    if ffi_contract_artifact_is_stale "${root_dir}" "${override}"; then
+      return 1
+    fi
+    return 0
   fi
 
-  local candidate
-  for candidate in \
-    "${root_dir}/target/release/libhako_llvmc_ffi.so" \
-    "${root_dir}/target/release/libhako_llvmc_ffi.dylib" \
-    "${root_dir}/target/release/hako_llvmc_ffi.dll"; do
-    if [[ -f "${candidate}" ]]; then
-      return 0
-    fi
-  done
+  ffi_contract_artifact_is_fresh "${root_dir}"
+}
 
-  return 1
+perf_aot_boundary_ffi_artifact_exists() {
+  perf_aot_boundary_ffi_artifact_is_fresh "$@"
 }
 
 perf_aot_resolve_skip_build() {
@@ -259,7 +263,7 @@ perf_aot_resolve_skip_build() {
   local bin_llvmc="${root_dir}/target/release/ny-llvmc"
   local lib_kernel="${root_dir}/target/release/libnyash_kernel.a"
   if [[ -x "${bin_hakorune}" && -x "${bin_llvmc}" && -f "${lib_kernel}" ]] \
-    && perf_aot_boundary_ffi_artifact_exists "${root_dir}"; then
+    && perf_aot_boundary_ffi_artifact_is_fresh "${root_dir}"; then
     printf '1\n'
   else
     printf '0\n'

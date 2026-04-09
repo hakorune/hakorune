@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+source "$ROOT_DIR/tools/lib/ffi_contract.sh"
+
 usage() {
   cat << USAGE
 Usage: tools/run_llvm_harness.sh [--no-build] <input.hako> [-- <args...>]
 
 Builds LLVM-harness prerequisites and runs the program via the explicit
 compat/probe keep lane:
-  NYASH_LLVM_USE_HARNESS=1 ./target/release/hakorune --backend llvm <input.hako>
+  NYASH_LLVM_USE_HARNESS=1 "$ROOT_DIR/target/release/hakorune" --backend llvm <input.hako>
+  Rebuilds libhako_llvmc_ffi when shim sources are newer than the artifact.
 
 Options:
   --no-build   Skip cargo builds and run with existing artifacts.
@@ -38,18 +42,18 @@ if [[ ! -f "$INPUT" ]]; then
   exit 1
 fi
 
-CARGO_TARGET_DIR_EFFECTIVE="${CARGO_TARGET_DIR:-$PWD/target}"
+CARGO_TARGET_DIR_EFFECTIVE="${CARGO_TARGET_DIR:-$ROOT_DIR/target}"
 BIN_DEFAULT="$CARGO_TARGET_DIR_EFFECTIVE/release/hakorune"
 BIN="${NYASH_BIN:-$BIN_DEFAULT}"
 
 if [[ "$NO_BUILD" != "1" ]]; then
-  echo "[1/4] Building hakorune (llvm feature)..."
+  echo "[1/5] Building hakorune (llvm feature)..."
   cargo build --release -p nyash-rust --features llvm --bin hakorune -j 24
 
-  echo "[2/4] Building ny-llvmc..."
+  echo "[2/5] Building ny-llvmc..."
   cargo build --release -p nyash-llvm-compiler -j 24
 
-  echo "[3/4] Building nyash_kernel..."
+  echo "[3/5] Building nyash_kernel..."
   cargo build --release -p nyash_kernel -j 24
 else
   # Fail-fast: avoid silently running with stale/missing artifacts.
@@ -63,6 +67,13 @@ else
     echo "hint: run without --no-build once to build LLVM harness prerequisites" >&2
     exit 1
   fi
+fi
+
+echo "[4/5] Ensuring libhako_llvmc_ffi freshness..."
+if [[ "$NO_BUILD" == "1" ]]; then
+  ffi_contract_require_fresh "$ROOT_DIR"
+else
+  ffi_contract_ensure_fresh "$ROOT_DIR"
 fi
 
 if [[ ! -x "$BIN" ]]; then
@@ -80,5 +91,5 @@ if [[ ! -x "$BIN" ]]; then
   fi
 fi
 
-echo "[4/4] Running LLVM harness..."
+echo "[5/5] Running LLVM harness..."
 NYASH_LLVM_USE_HARNESS=1 "$BIN" --backend llvm "$INPUT" "$@"

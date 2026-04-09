@@ -102,6 +102,7 @@ Related:
   - `kilo_micro_concat_birth = 3ms`
   - `kilo_micro_concat_const_suffix = 36ms` (WSL lane: recheck with 3 runs)
   - `kilo_micro_concat_hh_len = 4ms` (landed `concat -> len` observer slice)
+  - compiler-visible `concat pair/triple -> substring(...)` is now also landed on the same pure-first route; remaining concat backlog is `return` / `store` / host-boundary publication
 - landed capability lock before perf reopen:
   1. `phase-160x capability-family inventory`
   2. `phase-161x hot-path capability seam freeze`

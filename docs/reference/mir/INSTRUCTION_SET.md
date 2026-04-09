@@ -1,7 +1,7 @@
 # Nyash MIR Instruction Set (Canonical SSOT)
 
 Status: Canonical (Source of Truth) — transitioning
-Last Updated: 2026-04-09
+Last Updated: 2026-04-10
 
 この文書はNyashのMIR命令セットの唯一の参照だよ。
 `src/mir/contracts/backend_core_ops.rs` の ledger と、この文書の機械可読カウントが一致することを SSOT 契約とする。
@@ -206,6 +206,16 @@ Current emitted keys:
 - `sum_placement_facts`
 - `sum_placement_selections`
 - `sum_placement_layouts`
+
+Current backend-private string helper surfaces referenced by `Call`/`mir_call`
+lowering on the pure-first route:
+
+- `nyash.string.substring_len_hii`
+- `nyash.string.substring_concat_hhii`
+- `nyash.string.substring_concat3_hhhii`
+
+These helper names are lowering-owned implementation details, not additional MIR
+ops.
 
 ## 同期ルール
 - 命令の追加/削除/統合は、まずこの文書を更新し、次に実装（列挙/Printer/Verifier/Optimizer/VM）を同期する。

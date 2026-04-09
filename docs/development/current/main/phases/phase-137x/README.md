@@ -107,7 +107,11 @@
       - `birth.backend`: `freeze_text_plan_total=0`, `string_box_new_total=0`, `handle_issue_total=0`, `materialize_owned_total=0`, `gc_alloc_called=0`
       - `str.concat2.route=0`, `str.len.route=0`
     - exact reread on `kilo_micro_concat_hh_len`: `instr=7,657,032 / cycles=2,284,266 / cache-miss=8,479 / AOT 4 ms`
-    - reading: this closes the first `concat -> len` observer slice; broader concat barriers stay on non-`len` consumers
+    - reading: this closes the first `concat -> len` observer slice
+  - boundary `pure-first` now also lands the first generic non-`len` concat consumer slice:
+    - compiler-visible `concat pair/triple -> substring(...)` now routes to `nyash.string.substring_concat_hhii` / `nyash.string.substring_concat3_hhhii`
+    - dynamic route proof hits `string_substring_route -> substring_concat3_hhhii`
+    - reading: this removes the intermediate concat handle birth for substring consumers; remaining concat backlog is `return` / `store` / host-boundary publication
   - current `substring_len_hii` pilot uses `with_text_read_session_ready(...)` to avoid the hot `REG` ready probe; current helper perf is the mixed sink candidate above
   - split exact reread now puts `substring_hii` retained-view path at `34.37M instr` while `len_h` becomes the smaller control split
   - current keeper is on `len_h`: hoist one `handles::drop_epoch()` read in `string_len_fast_cache_lookup()` and reuse it for both cache slots
@@ -178,7 +182,7 @@
      - step 5: landed structurally; the first borrowed-corridor sinking pilot now rewrites single-use `substring(...).length()` chains to `nyash.string.substring_len_hii`
      - step 6: landed; `phase-162x vm fallback lane separation cleanup` is complete, so this front now reads through `ny-llvmc(boundary pure-first)` without mixing fallback owners
      - step 7: landed; boundary `pure-first` now consumes MIR JSON `string_corridor_*` metadata for `substring(...).length()` and hits `string_len_corridor -> substring_len_direct_kernel_entry`
-     - step 8: next; extend that consumer-side carrier to retained-view `substring_hii` local shapes on `kilo_micro_substring_views_only`
+      - step 8: landed; boundary `pure-first` now also routes compiler-visible concat pair/triple `substring(...)` consumers to `nyash.string.substring_concat_hhii` / `nyash.string.substring_concat3_hhhii`
      - step 9: only then reopen new `substring_hii` runtime leaf cuts, and only with exact/asm proof
      - step 10: do not retry the same `len_h`-specific 4-box slice as-is; it did not clear exact or asm gates
      - step 11: keep this lane specific; do not generalize into a reusable scalar framework until a second lane wins the same pattern
@@ -215,8 +219,9 @@
   2. keep runtime cache mechanics as-is; broad provider adoption into the hot caller lost the local split
   3. read the rejected ledger before retrying any substring-local cut
   4. use the split exact pair before and after every provider-side change
-  5. use the landed `substring(...).length()` corridor consumer as the template for the next retained-view `substring_hii` carrier cut
-  6. next cleanup task must stay narrower than the rejected provider-adoption slice
+  5. use the landed `substring(...).length()` corridor consumer plus the landed `concat -> substring(...)` carrier as the templates for the next retained-view `substring_hii` cut
+  6. retained-view `substring_hii` local shapes remain the next string-only keeper front
+  7. next cleanup task must stay narrower than the rejected provider-adoption slice
 - lifecycle placement is fixed:
   - `.hako`: source-preserve / identity / publication demand
   - `MIR`: visibility carrier and escalation contract

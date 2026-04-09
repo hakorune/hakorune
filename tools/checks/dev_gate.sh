@@ -19,6 +19,7 @@ set -euo pipefail
 
 PROFILE="${1:-quick}"
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+source "${ROOT_DIR}/tools/lib/ffi_contract.sh"
 
 usage() {
   cat <<'USAGE'
@@ -140,6 +141,7 @@ list_profiles() {
   portability:
     - tools/checks/windows_wsl_cmd_smoke.sh (preflight by default)
     - tools/checks/macos_portability_guard.sh
+    - libhako_llvmc_ffi freshness guard (shim sources must not be newer than the loaded artifact)
     - tools/checks/phase29cc_plg_hm2_rust_recovery_line_guard.sh
     - tools/checks/phase29cc_plg_hm2_min3_route_policy_matrix_guard.sh
     - tools/checks/phase29cc_runtime_vm_aot_route_lock_guard.sh
@@ -428,6 +430,8 @@ run_portability() {
     bash tools/checks/windows_wsl_cmd_smoke.sh
   run_step "macOS portability guard" \
     bash tools/checks/macos_portability_guard.sh
+  run_step "libhako_llvmc_ffi freshness guard" \
+    ffi_contract_require_fresh "$ROOT_DIR"
   run_step "PLG-HM2 rust recovery line guard" \
     bash tools/checks/phase29cc_plg_hm2_rust_recovery_line_guard.sh
   run_step "PLG-HM2 min3 route policy matrix guard" \

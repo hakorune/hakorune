@@ -48,7 +48,8 @@ Related:
     - runtime nullish checks now converge on `NullBox::check_null()` for the safe compat/tolerance paths touched in this slice
     - MIR reference docs are now split into instruction SSOT + metadata SSOT, while stale "all-in-one" references are reduced to thin pointers
   - next ready follow-on is `phase163x-optimization-resume`
-    - immediate cut: extend the landed boundary `pure-first` corridor consumer from `substring(...).length()` into retained-view `substring_hii` local shapes
+    - immediate cut: `phase163x-sum-thin-entry-cutover`
+    - sibling string follow-on after that: extend the landed boundary `pure-first` consumer family from `substring(...).length()` plus `concat -> substring(...)` into retained-view `substring_hii` local shapes
   - remaining semantic follow-ons stay backlog-only: `where`, enum methods, full monomorphization
 - sibling string guardrail:
   - `phase-137x main kilo reopen selection`
@@ -60,6 +61,7 @@ Related:
   - placement/effect scaffold
   - MIR JSON carrier for `string_corridor_facts` / `string_corridor_candidates`
   - boundary `pure-first` consumer for `substring(...).length()` via `substring_len_hii`
+  - boundary `pure-first` consumer for compiler-visible `concat pair/triple -> substring(...)` via `substring_concat_hhii` / `substring_concat3_hhhii`
   - first borrowed-corridor sink pilot for single-use `substring(...).length()`
   - typed `field_decls` carrier + canonical `field.get` / `field.set`
   - declared-field storage bridge
