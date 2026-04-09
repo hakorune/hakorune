@@ -5,6 +5,10 @@ import llvmlite.ir as ir
 
 from instructions.mir_call.runtime_data_dispatch import lower_runtime_data_field_call
 from instructions.primitive_handles import resolver_value_type, unbox_primitive_handle_if_needed
+from instructions.user_box_local import (
+    lower_local_user_box_field_get,
+    lower_local_user_box_field_set,
+)
 from type_facts import is_box_handle_fact
 from utils.resolver_helpers import mark_as_handle
 from utils.values import resolve_i64_strict
@@ -742,6 +746,19 @@ def lower_field_get(
     block_end_values,
     bb_map,
 ) -> ir.Value:
+    local_result = lower_local_user_box_field_get(
+        builder,
+        box_vid,
+        field_name,
+        dst_vid,
+        vmap,
+        resolver,
+        _mark_integer_immediate,
+        _mark_bool_immediate,
+        _mark_float_immediate,
+    )
+    if local_result is not None:
+        return local_result
     if _typed_float_field_enabled(
         box_vid=box_vid,
         field_name=field_name,
@@ -844,6 +861,18 @@ def lower_field_set(
     block_end_values,
     bb_map,
 ) -> ir.Value:
+    if lower_local_user_box_field_set(
+        builder,
+        box_vid,
+        field_name,
+        value_vid,
+        vmap,
+        resolver,
+        preds,
+        block_end_values,
+        bb_map,
+    ):
+        return ir.Constant(ir.IntType(64), 0)
     if _typed_float_field_set_enabled(
         box_vid=box_vid,
         field_name=field_name,

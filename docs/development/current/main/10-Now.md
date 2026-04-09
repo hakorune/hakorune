@@ -29,8 +29,16 @@ Related:
   - LLVM now keeps selected local sum aggregates boxless through `sum_make` / `sum_tag` / `sum_project` and only materializes runtime `__NySum_*` compat boxes at `return` / `call` / `boxcall` escape barriers
   - the `ny-llvmc` parity proving slice is also landed:
     - product LLVM/Python lowering now seeds `thin_entry_selections` into the resolver alongside `sum_placement_selections` / `sum_placement_layouts`
+    - product LLVM/Python lowering now also keeps selected primitive user-box bodies boxless through `newbox` / `field_get` / `field_set` when the birth block fully initializes the declared primitive fields
+    - the same selected user-box route now materializes a compat runtime box only at `call` / `boxcall` / `ret`
     - metadata-bearing product smoke is green on `phase163x_boundary_sum_metadata_keep_min.sh` via boundary compat replay -> harness keep lane
-    - native-driver metadata awareness remains canary-only backlog, not the current blocker
+    - thin-entry inventory now normalizes boxed primitive `declared_type` hints back to inline scalar classes for user-box field routes
+    - the current Point/Flag `ny-llvmc(boundary pure-first)` keeper seeds now require `user_box_field_{get,set}.inline_scalar` selector rows before firing
+    - latest WSL `3 runs + asm` reread on the actual AOT route stays call-free:
+      - point-add keeper seed now carries only the loop-visible `sum` lane plus the volatile accumulator anchor, matching the C-style bottom-tested induction loop
+      - `kilo_micro_userbox_point_add`: `ny_aot_instr=8,456,727 / ny_aot_cycles=2,756,274 / ny_aot_ms=3`
+      - `kilo_micro_userbox_flag_toggle`: `ny_aot_instr=16,457,454 / ny_aot_cycles=3,369,293 / ny_aot_ms=4`
+    - generic native-driver / `ny-llvmc` parity for the broader user-box local-body route remains canary-only backlog, not the current blocker
   - recommended post-selection order is now locked:
     1. `sum placement/effect pilot` (`sum outer-box sinking` first proving slice)
     2. `ny-llvmc` parity wave

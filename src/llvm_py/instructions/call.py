@@ -8,6 +8,7 @@ from typing import Dict, List, Optional, Any
 from trace import debug as trace_debug
 from instructions.safepoint import insert_automatic_safepoint
 from instructions.sum_escape import materialize_sum_escape_value_if_needed
+from instructions.user_box_local import materialize_user_box_escape_value_if_needed
 from naming_helper import encode_static_method
 from utils.values import resolve_i64_strict
 
@@ -82,6 +83,16 @@ def lower_call(
         )
         if local_sum_value is not None:
             return local_sum_value
+        local_user_box = materialize_user_box_escape_value_if_needed(
+            builder,
+            module,
+            int(vid),
+            vmap,
+            r,
+            name_hint=f"call_arg_{vid}",
+        )
+        if local_user_box is not None:
+            return local_user_box
         if r is not None and p is not None and bev is not None and bbm is not None:
             try:
                 return resolve_i64_strict(
@@ -109,6 +120,16 @@ def lower_call(
         )
         if local_sum_value is not None:
             return local_sum_value
+        local_user_box = materialize_user_box_escape_value_if_needed(
+            builder,
+            module,
+            int(vid),
+            vmap,
+            r,
+            name_hint=f"call_ptr_arg_{vid}",
+        )
+        if local_user_box is not None:
+            return local_user_box
         if r is not None and p is not None and bev is not None:
             try:
                 return r.resolve_ptr(vid, builder.block, p, bev, vmap)

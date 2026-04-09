@@ -132,6 +132,34 @@ Scope: repo root から current lane / current front / restart read order に最
   - local gates:
     - `kilo_micro_userbox_point_add`
     - `kilo_micro_userbox_flag_toggle`
+    - latest `2026-04-09` WSL `3 runs + asm` reread:
+      - pre-cleanup baseline:
+        - `kilo_micro_userbox_point_add`: `c_instr=12,120,416 / c_cycles=2,187,984 / c_ms=3` vs `ny_aot_instr=22,457,049 / ny_aot_cycles=4,461,297 / ny_aot_ms=4`
+        - `kilo_micro_userbox_flag_toggle`: `c_instr=18,120,465 / c_cycles=4,203,879 / c_ms=4` vs `ny_aot_instr=20,457,266 / ny_aot_cycles=3,972,375 / ny_aot_ms=4`
+      - landed micro-seed cleanup on the pure proof route:
+        - `lang/c-abi/shims/hako_llvmc_ffi_user_box_micro_seed.inc` now keeps only the benchmark-anchor accumulator volatile and leaves synthetic field slots `%x/%y/%enabled` promotable for `mem2reg`
+      - post-cleanup reread:
+        - `kilo_micro_userbox_point_add`: `c_instr=12,120,460 / c_cycles=2,197,103 / c_ms=3` vs `ny_aot_instr=12,457,600 / ny_aot_cycles=3,033,086 / ny_aot_ms=4`
+        - `kilo_micro_userbox_flag_toggle`: `c_instr=18,120,421 / c_cycles=4,198,832 / c_ms=4` vs `ny_aot_instr=16,456,964 / ny_aot_cycles=3,545,279 / ny_aot_ms=4`
+      - post-selector-normalization + actual-consumer keeper reread:
+        - thin-entry inventory now normalizes boxed primitive field hints like `MirType::Box("IntegerBox")` / `MirType::Box("BoolBox")` back to inline scalar value classes for user-box field routes
+        - `kilo_micro_userbox_point_add`: `c_instr=12,120,460 / c_cycles=2,210,315 / c_ms=4` vs `ny_aot_instr=12,456,831 / ny_aot_cycles=3,045,907 / ny_aot_ms=3`
+        - `kilo_micro_userbox_flag_toggle`: `c_instr=18,120,465 / c_cycles=4,212,866 / c_ms=4` vs `ny_aot_instr=16,456,727 / ny_aot_cycles=3,348,861 / ny_aot_ms=3`
+      - post-point-add loop-shape cut on the actual keeper seed:
+        - `lang/c-abi/shims/hako_llvmc_ffi_user_box_micro_seed.inc` now carries point-add through the loop-visible `sum` lane instead of separate `x/y/i` allocas, keeping only the volatile accumulator as the benchmark anchor
+        - latest exact reread: `kilo_micro_userbox_point_add` = `c_instr=12,120,458 / c_cycles=2,187,858 / c_ms=3` vs `ny_aot_instr=8,456,727 / ny_aot_cycles=2,756,274 / ny_aot_ms=3`
+        - latest exact reread: `kilo_micro_userbox_flag_toggle` = `c_instr=18,120,421 / c_cycles=4,188,196 / c_ms=4` vs `ny_aot_instr=16,457,454 / ny_aot_cycles=3,369,293 / ny_aot_ms=4`
+      - current `ny_main` asm for both benches is still call-free in the hot loop:
+        - point-add now matches the C-style bottom-tested `sum += 3` induction loop and keeps only the volatile accumulator store in the body
+        - flag-toggle now keeps `enabled` in a register and only spills the volatile accumulator
+      - current reading: box/helper cost is gone on this keeper pair, and point-add hot-loop shape is now close to the C loop; the remaining cycle delta is increasingly dominated by fixed process/runtime overhead outside `ny_main` on the actual AOT route
+      - fixed-cost audit result:
+        - `_dl_fini` is a harness/process-exit artifact from repeated `posix_spawn`/child execution in `tools/perf/bench_micro_aot_asm.sh`, not a codegen win
+        - `trim_matches` is startup parsing overhead from runner/config quote stripping (`src/runner/mod.rs`, `src/runtime/plugin_config.rs`, `src/runner/modes/common_util/resolve/*`), not perf-report overhead
+      - first product LLVM/Python proving slice is now landed for that reusable family:
+        - selected primitive user boxes stay boxless through `newbox` / `field_get` / `field_set` when the birth block initializes every declared primitive field before first read
+        - the selected local route is inferred from `field_decls` + `thin_entry_selections.inline_scalar` and materializes only at `call` / `boxcall` / `ret`
+        - this keeps canonical MIR unchanged
   - post-primitive follow-on queue:
     1. keep `lifecycle-typed-value-language-ssot.md` as the architecture parent for boxless interior / boxed boundary work
     2. keep the landed audit pair as the decision base:
@@ -157,8 +185,13 @@ Scope: repo root から current lane / current front / restart read order に最
           - product LLVM/Python user-box `field_get` / `field_set` now consult `thin_entry_selections` first for known selector subjects
           - selected `user_box_field_{get,set}.inline_scalar` rows can keep the typed primitive helpers without re-discovering `field_decls` on the backend side when the declared box family is already pinned
           - selected `user_box_field_{get,set}.public_default` rows still keep the generic fallback even if the compat mirror looks scalar-shaped
+          - product LLVM/Python now also keeps selected primitive user-box bodies boxless through `newbox` / `field_get` / `field_set` and materializes only at `call` / `boxcall` / `ret`
           - metadata-bearing product smoke is green on `phase163x_boundary_sum_metadata_keep_min.sh` via boundary compat replay -> harness keep lane
-        - native-driver metadata awareness remains canary-only backlog, not the current lane blocker
+        - narrow actual-consumer parity is now also landed for the current keeper pair:
+          - `thin_entry_candidates` now classify boxed primitive `declared_type` hints (`IntegerBox` / `BoolBox` / `FloatBox`) as inline scalar value classes instead of leaving them on the generic handle lane
+          - `lang/c-abi/shims/hako_llvmc_ffi_user_box_micro_seed.inc` now requires the same `user_box_field_{get,set}.inline_scalar` selector rows before the Point/Flag keeper seeds fire
+          - focused `3 runs + asm` still shows call-free `ny_main` loops on `kilo_micro_userbox_point_add` and `kilo_micro_userbox_flag_toggle`
+        - generic native-driver / `ny-llvmc` parity for the broader local user-box body route remains canary-only backlog, not the current lane blocker
     5. `tuple multi-payload` compat transport is now landed:
         - parser/AST accept `Variant(T, U, ...)` and shorthand `Variant(a, b)` arms
         - Stage1 lowers tuple ctors/matches through `__NyEnumPayload_<Enum>_<Variant>` with `_0`, `_1`, ... synthetic field slots
@@ -173,6 +206,9 @@ Scope: repo root から current lane / current front / restart read order に最
         - MIR reference docs now split cleanly into instruction SSOT + metadata SSOT, and stale "all-in-one" references are reduced to thin pointers
     8. next ready task: resume optimization lane
         - `phase163x-optimization-resume`
+        - next reusable optimization family after that:
+          - selected local non-escaping known-layout user boxes should stay in `agg_local` / per-field SSA on the actual AOT consumer path instead of returning to handle world
+          - treat this as backend-private metadata + lowering work on the actual consumer, not as `.hako` syntax work and not as a public MIR dialect fork
     9. deferred deep deletions (backlog only; do not mix into the current perf proof cut)
         - `phase163x-deep-delete-sum-compat-carriers`
           - retire the remaining `__NySum_*` / tuple-enum compat carriers after the current string guardrail keeper lands

@@ -84,6 +84,7 @@ class Resolver:
         self.thin_entry_selection_by_subject: Dict[Tuple[str, str], Any] = {}
         self.sum_local_aggregate_paths: Dict[int, str] = {}
         self.sum_local_aggregate_layouts: Dict[int, str] = {}
+        self.user_box_local_aggregate_layouts: Dict[int, Dict[str, Any]] = {}
 
         # Type shortcuts
         self.i64 = ir.IntType(64)

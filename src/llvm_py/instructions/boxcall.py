@@ -21,6 +21,7 @@ from instructions.mir_call.auto_specialize import (
 from instructions.boxcall_runtime_data import try_lower_collection_boxcall
 from instructions.direct_box_method import try_lower_known_box_method_call
 from instructions.sum_escape import materialize_sum_escape_value_if_needed
+from instructions.user_box_local import materialize_user_box_escape_value_if_needed
 from instructions.string_fast import literal_string_for_receiver
 from instructions.string_result_policy import mark_string_result_if_needed
 from utils.values import resolve_i64_strict
@@ -139,6 +140,28 @@ def lower_boxcall(
 
         # Get receiver value
         recv_val = vmap.get(box_vid)
+        if isinstance(box_vid, int):
+            local_sum_value = materialize_sum_escape_value_if_needed(
+                builder,
+                module,
+                int(box_vid),
+                vmap,
+                resolver,
+                name_hint=f"boxcall_recv_{box_vid}",
+            )
+            if local_sum_value is not None:
+                recv_val = local_sum_value
+            else:
+                local_user_box = materialize_user_box_escape_value_if_needed(
+                    builder,
+                    module,
+                    int(box_vid),
+                    vmap,
+                    resolver,
+                    name_hint=f"boxcall_recv_{box_vid}",
+                )
+                if local_user_box is not None:
+                    recv_val = local_user_box
         if recv_val is None:
             recv_val = ir.Constant(i64, 0)
 
@@ -196,6 +219,16 @@ def lower_boxcall(
         )
         if local_sum_value is not None:
             return local_sum_value
+        local_user_box = materialize_user_box_escape_value_if_needed(
+            builder,
+            module,
+            int(vid),
+            vmap,
+            r,
+            name_hint=f"boxcall_arg_{vid}",
+        )
+        if local_user_box is not None:
+            return local_user_box
         # SSOT: Use the common resolver policy (prefer local SSA, then global vmap, then PHI-localize).
         if r is not None and p is not None and bev is not None:
             try:

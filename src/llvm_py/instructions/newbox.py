@@ -7,6 +7,7 @@ import llvmlite.ir as ir
 import os
 from typing import Dict, List, Optional, Any
 from instructions.string_fast import can_reuse_literal_string_handle
+from instructions.user_box_local import build_local_user_box_aggregate_for_newbox
 from utils.resolver_helpers import mark_as_handle
 
 def lower_newbox(
@@ -86,6 +87,12 @@ def lower_newbox(
                         resolver.mark_string(dst_vid)
             except (AttributeError, TypeError, KeyError):
                 pass
+
+    local_user_box = build_local_user_box_aggregate_for_newbox(resolver, dst_vid, box_type)
+    if local_user_box is not None:
+        vmap[dst_vid] = local_user_box
+        _mark_box_handle()
+        return
 
     if box_type == "StringBox":
         arg0_vid = args[0] if args else None

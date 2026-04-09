@@ -58,6 +58,17 @@
     - product LLVM/Python user-box `field_get` / `field_set` now consult the selector first:
       - `user_box_field_{get,set}.inline_scalar` rows can keep the typed primitive helper path even when backend-side `field_decls` rediscovery is absent
       - `user_box_field_{get,set}.public_default` rows still keep the generic fallback path for the selected subject
+    - first local user-box body proving slice is now landed on the product LLVM/Python consumer:
+      - selected primitive user boxes now stay boxless through `newbox` / `field_get` / `field_set` when the birth block initializes every declared primitive field before first read
+      - the selected local route is inferred from `field_decls` + `thin_entry_selections.inline_scalar`, without widening canonical MIR
+      - `call` / `boxcall` / `ret` now materialize a compat runtime box only at the escape boundary for that selected local route
+    - narrow actual-consumer parity is now landed for the current keeper pair:
+      - thin-entry inventory now normalizes boxed primitive `declared_type` hints (`IntegerBox` / `BoolBox` / `FloatBox`) back to inline scalar classes for user-box field routes
+      - `lang/c-abi/shims/hako_llvmc_ffi_user_box_micro_seed.inc` now requires the same `user_box_field_{get,set}.inline_scalar` selector rows before the Point/Flag keeper seeds fire
+      - latest WSL `3 runs + asm` reread on `ny-llvmc(boundary pure-first)` stays call-free:
+        - point-add keeper seed now carries only the loop-visible `sum` lane plus the volatile accumulator anchor, matching the C-style bottom-tested induction loop
+        - `kilo_micro_userbox_point_add`: `ny_aot_instr=8,456,727 / ny_aot_cycles=2,756,274 / ny_aot_ms=3`
+        - `kilo_micro_userbox_flag_toggle`: `ny_aot_instr=16,457,454 / ny_aot_cycles=3,369,293 / ny_aot_ms=4`
   - sum placement/effect pilot inspection chain is now landed for the enum/sum local route:
     - `sum_placement_facts` record local-vs-objectization evidence on top of `thin_entry_selections`
     - `sum_placement_selections` distinguish selected local aggregate routes from compat/runtime fallback routes
@@ -131,8 +142,10 @@
     4. after that, run a separate `ny-llvmc` parity wave
       - proving slice is now landed:
         - product LLVM/Python lowering seeds `thin_entry_selections` into the resolver alongside the already-landed sum placement metadata
+        - product LLVM/Python lowering now also keeps selected primitive user-box bodies boxless through `newbox` / `field_get` / `field_set` and materializes only at `call` / `boxcall` / `ret`
         - metadata-bearing product smoke is green on `phase163x_boundary_sum_metadata_keep_min.sh` via boundary compat replay -> harness keep lane
-      - native-driver metadata awareness remains canary-only backlog, not the current blocker
+        - thin-entry inventory now classifies boxed primitive field hints as `inline_scalar`, and the current Point/Flag native-driver keeper seeds require those selector rows before firing
+      - generic native-driver / `ny-llvmc` parity for the broader user-box local-body route remains the next actual-consumer backlog, not the current blocker
     5. `tuple multi-payload` compat transport is now landed
       - parser/AST now accept tuple payload declarations while preserving tuple payload truth above canonical MIR
       - Stage1 lowers tuple ctors/matches through `__NyEnumPayload_<Enum>_<Variant>` hidden payload boxes with `_0`, `_1`, ... field slots

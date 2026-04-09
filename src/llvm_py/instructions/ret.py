@@ -8,6 +8,7 @@ import sys
 import llvmlite.ir as ir
 from typing import Dict, Optional, Any
 from instructions.sum_escape import materialize_sum_escape_value_if_needed
+from instructions.user_box_local import materialize_user_box_escape_value_if_needed
 try:
     # Create PHIs at block head to satisfy LLVM invariant
     from ..phi_wiring.wiring import phi_at_block_head as _phi_at_block_head
@@ -275,6 +276,15 @@ def lower_return(
         ret_val = None
         if isinstance(value_id, int):
             ret_val = materialize_sum_escape_value_if_needed(
+                builder,
+                builder.block.parent.module,
+                int(value_id),
+                vmap,
+                resolver,
+                name_hint=f"ret_{value_id}",
+            )
+        if ret_val is None and isinstance(value_id, int):
+            ret_val = materialize_user_box_escape_value_if_needed(
                 builder,
                 builder.block.parent.module,
                 int(value_id),

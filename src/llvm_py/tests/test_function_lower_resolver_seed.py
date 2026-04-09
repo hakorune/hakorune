@@ -18,11 +18,14 @@ class _ResolverStub:
         self.integerish_ids = None
         self.array_ids = None
         self.string_ids = None
+        self.thin_entry_selection_by_subject = {}
+        self.user_box_local_aggregate_layouts = {}
 
 
 class _BuilderStub:
     def __init__(self):
         self.resolver = _ResolverStub()
+        self.user_box_decls = []
 
 
 class TestFunctionLowerResolverSeed(unittest.TestCase):
@@ -152,6 +155,122 @@ class TestFunctionLowerResolverSeed(unittest.TestCase):
         self.assertEqual(builder.resolver.array_ids, {4})
         self.assertEqual(context.resolver_string_ids, {5, 6})
         self.assertIs(builder.resolver.string_ids, context.resolver_string_ids)
+
+    def test_load_user_box_local_aggregate_metadata_selects_fully_initialized_primitive_box(self):
+        builder = _BuilderStub()
+        builder.user_box_decls = [
+            {
+                "name": "Point",
+                "field_decls": [
+                    {"name": "x", "declared_type": "IntegerBox", "is_weak": False},
+                    {"name": "y", "declared_type": "IntegerBox", "is_weak": False},
+                ],
+            }
+        ]
+        builder.resolver.thin_entry_selection_by_subject = {
+            ("user_box_field_set", "Point.x"): [
+                {
+                    "manifest_row": "user_box_field_set.inline_scalar",
+                    "selected_entry": "thin_internal_entry",
+                }
+            ],
+            ("user_box_field_set", "Point.y"): [
+                {
+                    "manifest_row": "user_box_field_set.inline_scalar",
+                    "selected_entry": "thin_internal_entry",
+                }
+            ],
+            ("user_box_field_get", "Point.x"): [
+                {
+                    "manifest_row": "user_box_field_get.inline_scalar",
+                    "selected_entry": "thin_internal_entry",
+                }
+            ],
+            ("user_box_field_get", "Point.y"): [
+                {
+                    "manifest_row": "user_box_field_get.inline_scalar",
+                    "selected_entry": "thin_internal_entry",
+                }
+            ],
+        }
+        func_data = {
+            "blocks": [
+                {
+                    "id": 0,
+                    "instructions": [
+                        {"op": "newbox", "dst": 10, "type": "Point", "args": []},
+                        {"op": "field_set", "box": 10, "field": "x", "value": 1},
+                        {"op": "field_set", "box": 10, "field": "y", "value": 2},
+                    ],
+                },
+                {
+                    "id": 1,
+                    "instructions": [
+                        {"op": "field_get", "box": 10, "field": "x", "dst": 11},
+                        {"op": "field_get", "box": 10, "field": "y", "dst": 12},
+                        {"op": "ret", "value": 10},
+                    ],
+                },
+            ]
+        }
+
+        function_lower._load_user_box_local_aggregate_metadata(builder, func_data)
+
+        self.assertEqual(
+            builder.resolver.user_box_local_aggregate_layouts,
+            {
+                10: {
+                    "box_name": "Point",
+                    "field_order": ["x", "y"],
+                    "field_layouts": {
+                        "x": "inline_i64",
+                        "y": "inline_i64",
+                    },
+                    "reason": "primitive user-box fields initialize in the birth block and only leave the local route through explicit call/ret boundaries",
+                }
+            },
+        )
+
+    def test_load_user_box_local_aggregate_metadata_rejects_read_before_init(self):
+        builder = _BuilderStub()
+        builder.user_box_decls = [
+            {
+                "name": "Flag",
+                "field_decls": [
+                    {"name": "enabled", "declared_type": "BoolBox", "is_weak": False},
+                ],
+            }
+        ]
+        builder.resolver.thin_entry_selection_by_subject = {
+            ("user_box_field_set", "Flag.enabled"): [
+                {
+                    "manifest_row": "user_box_field_set.inline_scalar",
+                    "selected_entry": "thin_internal_entry",
+                }
+            ],
+            ("user_box_field_get", "Flag.enabled"): [
+                {
+                    "manifest_row": "user_box_field_get.inline_scalar",
+                    "selected_entry": "thin_internal_entry",
+                }
+            ],
+        }
+        func_data = {
+            "blocks": [
+                {
+                    "id": 0,
+                    "instructions": [
+                        {"op": "newbox", "dst": 10, "type": "Flag", "args": []},
+                        {"op": "field_get", "box": 10, "field": "enabled", "dst": 11},
+                        {"op": "field_set", "box": 10, "field": "enabled", "value": 1},
+                    ],
+                }
+            ]
+        }
+
+        function_lower._load_user_box_local_aggregate_metadata(builder, func_data)
+
+        self.assertEqual(builder.resolver.user_box_local_aggregate_layouts, {})
 
 
 if __name__ == "__main__":

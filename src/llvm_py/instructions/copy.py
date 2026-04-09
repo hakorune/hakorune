@@ -8,6 +8,10 @@ import os
 import sys
 from typing import Dict, Optional, Any
 from instructions.sum_ops import _copy_local_sum_metadata_alias, _resolve_local_sum_aggregate
+from instructions.user_box_local import (
+    _copy_local_user_box_metadata_alias,
+    _resolve_local_user_box_aggregate,
+)
 from utils.values import resolve_i64_strict, safe_vmap_write
 from utils.resolver_helpers import safe_get_type_tag, safe_set_type_tag
 
@@ -49,6 +53,9 @@ def lower_copy(
     local_sum = _resolve_local_sum_aggregate(int(src), vmap, resolver)
     if local_sum is not None:
         val = dict(local_sum)
+    local_user_box = _resolve_local_user_box_aggregate(int(src), vmap, resolver)
+    if local_user_box is not None:
+        val = dict(local_user_box)
     if os.environ.get('NYASH_LLVM_FAST') == '1':
         try:
             if val is None:
@@ -66,6 +73,7 @@ def lower_copy(
         print(f"[vmap/id] copy dst={dst} src={src} vmap id={id(vmap)} before_write", file=sys.stderr)
     safe_vmap_write(vmap, dst, val, "copy", resolver=resolver)
     _copy_local_sum_metadata_alias(resolver, int(src), int(dst))
+    _copy_local_user_box_metadata_alias(resolver, int(src), int(dst))
 
     # TypeFacts propagation (SSOT): preserve type tags across Copy.
     # Many MIR patterns materialize a temp then Copy into a local; without this,

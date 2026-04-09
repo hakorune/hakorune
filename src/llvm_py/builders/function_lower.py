@@ -20,6 +20,7 @@ from phi_wiring import (
     build_succs as _build_succs,
 )
 from context import FunctionLowerContext
+from instructions.user_box_local import seed_local_user_box_layouts_from_function_data
 from phi_manager import PhiManager
 
 
@@ -648,6 +649,13 @@ def _load_sum_placement_metadata(builder, func_data: Dict[str, Any]) -> None:
         builder.resolver.sum_local_aggregate_layouts = {}
 
 
+def _load_user_box_local_aggregate_metadata(builder, func_data: Dict[str, Any]) -> None:
+    try:
+        seed_local_user_box_layouts_from_function_data(builder, func_data)
+    except Exception:
+        builder.resolver.user_box_local_aggregate_layouts = {}
+
+
 def _seed_resolver_fact_sets(builder, context: FunctionLowerContext, blocks: List[Dict[str, Any]]) -> None:
     try:
         context.non_negative_value_ids = collect_non_negative_value_ids(blocks)
@@ -705,6 +713,7 @@ def lower_function(builder, func_data: Dict[str, Any]):
     _load_value_types_metadata(builder, func_data)
     _load_thin_entry_selection_metadata(builder, func_data)
     _load_sum_placement_metadata(builder, func_data)
+    _load_user_box_local_aggregate_metadata(builder, func_data)
 
     # Conservative sign analysis for power-of-two modulo fast path.
     _seed_resolver_fact_sets(builder, context, blocks)

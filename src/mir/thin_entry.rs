@@ -348,7 +348,13 @@ fn value_class_from_declared_type(ty: Option<&MirType>) -> ThinEntryValueClass {
         Some(MirType::Bool) => ThinEntryValueClass::InlineBool,
         Some(MirType::Float) => ThinEntryValueClass::InlineF64,
         Some(MirType::String) => ThinEntryValueClass::BorrowedText,
-        Some(MirType::Box(_)) => ThinEntryValueClass::Handle,
+        Some(MirType::Box(box_name)) => match type_name_hint_to_mir(Some(box_name.as_str())) {
+            Some(MirType::Integer) => ThinEntryValueClass::InlineI64,
+            Some(MirType::Bool) => ThinEntryValueClass::InlineBool,
+            Some(MirType::Float) => ThinEntryValueClass::InlineF64,
+            Some(MirType::String) => ThinEntryValueClass::BorrowedText,
+            _ => ThinEntryValueClass::Handle,
+        },
         Some(MirType::Void)
         | Some(MirType::Array(_))
         | Some(MirType::Future(_))
@@ -488,6 +494,59 @@ mod tests {
             candidate.surface == ThinEntrySurface::SumProject
                 && candidate.value_class == ThinEntryValueClass::InlineI64
                 && candidate.subject == "Option::Some"
+        }));
+    }
+
+    #[test]
+    fn refresh_function_normalizes_primitive_box_declared_types() {
+        let signature = FunctionSignature {
+            name: "test_func".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        let base = ValueId::new(1);
+        let field_dst = ValueId::new(2);
+        function
+            .metadata
+            .value_types
+            .insert(base, MirType::Box("Point".to_string()));
+        function
+            .get_block_mut(BasicBlockId::new(0))
+            .expect("entry block")
+            .add_instruction(MirInstruction::FieldGet {
+                dst: field_dst,
+                base,
+                field: "x".to_string(),
+                declared_type: Some(MirType::Box("IntegerBox".to_string())),
+            });
+
+        let mut module = MirModule::new("test".to_string());
+        module.functions.insert("test".to_string(), function);
+        module
+            .metadata
+            .user_box_decls
+            .insert("Point".to_string(), vec!["x".to_string()]);
+        module.metadata.user_box_field_decls.insert(
+            "Point".to_string(),
+            vec![UserBoxFieldDecl {
+                name: "x".to_string(),
+                declared_type_name: Some("IntegerBox".to_string()),
+                is_weak: false,
+            }],
+        );
+
+        refresh_module_thin_entry_candidates(&mut module);
+        let function = module.get_function("test").expect("function exists");
+        let candidates = &function.metadata.thin_entry_candidates;
+
+        assert_eq!(candidates.len(), 1);
+        assert!(candidates.iter().any(|candidate| {
+            candidate.surface == ThinEntrySurface::UserBoxFieldGet
+                && candidate.current_carrier == ThinEntryCurrentCarrier::BackendTyped
+                && candidate.value_class == ThinEntryValueClass::InlineI64
+                && candidate.subject == "Point.x"
         }));
     }
 
