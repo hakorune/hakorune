@@ -574,6 +574,73 @@ def _load_value_types_metadata(builder, func_data: Dict[str, Any]) -> None:
         builder.resolver.value_types = {}
 
 
+def _load_thin_entry_selection_metadata(builder, func_data: Dict[str, Any]) -> None:
+    try:
+        metadata = func_data.get("metadata", {})
+        rows = metadata.get("thin_entry_selections", [])
+
+        normalized_rows = []
+        by_value = {}
+        for row in rows:
+            try:
+                if not isinstance(row, dict):
+                    continue
+                normalized = dict(row)
+                value = normalized.get("value")
+                if isinstance(value, int):
+                    normalized["value"] = int(value)
+                    by_value.setdefault(int(value), []).append(normalized)
+                else:
+                    normalized["value"] = None
+                normalized_rows.append(normalized)
+            except Exception:
+                pass
+
+        builder.resolver.thin_entry_selections = normalized_rows
+        builder.resolver.thin_entry_selection_by_value = by_value
+    except Exception:
+        builder.resolver.thin_entry_selections = []
+        builder.resolver.thin_entry_selection_by_value = {}
+
+
+def _load_sum_placement_metadata(builder, func_data: Dict[str, Any]) -> None:
+    try:
+        metadata = func_data.get("metadata", {})
+        selections = metadata.get("sum_placement_selections", [])
+        layouts = metadata.get("sum_placement_layouts", [])
+
+        local_paths = {}
+        for row in selections:
+            try:
+                if row.get("surface") != "sum_make":
+                    continue
+                if row.get("selected_path") != "local_aggregate":
+                    continue
+                value = row.get("value")
+                if isinstance(value, int):
+                    local_paths[int(value)] = "local_aggregate"
+            except Exception:
+                pass
+
+        local_layouts = {}
+        for row in layouts:
+            try:
+                if row.get("surface") != "sum_make":
+                    continue
+                value = row.get("value")
+                layout = row.get("layout")
+                if isinstance(value, int) and isinstance(layout, str):
+                    local_layouts[int(value)] = layout
+            except Exception:
+                pass
+
+        builder.resolver.sum_local_aggregate_paths = local_paths
+        builder.resolver.sum_local_aggregate_layouts = local_layouts
+    except Exception:
+        builder.resolver.sum_local_aggregate_paths = {}
+        builder.resolver.sum_local_aggregate_layouts = {}
+
+
 def _seed_resolver_fact_sets(builder, context: FunctionLowerContext, blocks: List[Dict[str, Any]]) -> None:
     try:
         context.non_negative_value_ids = collect_non_negative_value_ids(blocks)
@@ -629,6 +696,8 @@ def lower_function(builder, func_data: Dict[str, Any]):
 
     # Phase 131-15-P1: Load value_types metadata from JSON into resolver
     _load_value_types_metadata(builder, func_data)
+    _load_thin_entry_selection_metadata(builder, func_data)
+    _load_sum_placement_metadata(builder, func_data)
 
     # Conservative sign analysis for power-of-two modulo fast path.
     _seed_resolver_fact_sets(builder, context, blocks)

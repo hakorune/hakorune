@@ -20,8 +20,23 @@ Related:
   - aggregate/objectization audits landed:
     - `phase163x-aggregate-truth-audit-2026-04-09.md`
     - `phase163x-early-objectization-audit-2026-04-09.md`
-  - next fixed cut: thin-entry inventory for known user-box + enum/sum local routes
-  - tuple multi-payload stays deferred until after thin-entry inventory and any later canonical-sum decision
+  - thin-entry inventory + first manifest-driven selection pilot landed in MIR metadata / verbose MIR / MIR JSON for known user-box + enum/sum local routes
+  - the sum placement/effect pilot now also lands its inspection chain on top of that route:
+    - `sum_placement_facts`
+    - `sum_placement_selections`
+    - `sum_placement_layouts`
+  - `Program(JSON v0)` bridge now refreshes the same thin-entry + sum-placement metadata chain
+  - LLVM now keeps selected local sum aggregates boxless through `sum_make` / `sum_tag` / `sum_project` and only materializes runtime `__NySum_*` compat boxes at `return` / `call` / `boxcall` escape barriers
+  - the `ny-llvmc` parity proving slice is also landed:
+    - product LLVM/Python lowering now seeds `thin_entry_selections` into the resolver alongside `sum_placement_selections` / `sum_placement_layouts`
+    - metadata-bearing product smoke is green on `phase163x_boundary_sum_metadata_keep_min.sh` via boundary compat replay -> harness keep lane
+    - native-driver metadata awareness remains canary-only backlog, not the current blocker
+  - recommended post-selection order is now locked:
+    1. `sum placement/effect pilot` (`sum outer-box sinking` first proving slice)
+    2. `ny-llvmc` parity wave
+    3. `tuple multi-payload` only as a later compat-only transport branch
+  - current active follow-on after the parity slice: keep `tuple multi-payload` deferred unless a separate canonical sum decision reopens it
+  - tuple multi-payload stays deferred because AST / Stage1 / MIR still carry single-slot semantic blockers
 - sibling string guardrail:
   - `phase-137x main kilo reopen selection`
   - `kilo_micro_substring_views_only`

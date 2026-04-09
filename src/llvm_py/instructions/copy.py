@@ -7,6 +7,7 @@ import llvmlite.ir as ir
 import os
 import sys
 from typing import Dict, Optional, Any
+from instructions.sum_ops import _copy_local_sum_metadata_alias, _resolve_local_sum_aggregate
 from utils.values import resolve_i64_strict, safe_vmap_write
 from utils.resolver_helpers import safe_get_type_tag, safe_set_type_tag
 
@@ -45,11 +46,16 @@ def lower_copy(
     # Prefer local SSA directly in FAST lane to avoid resolver round-trip overhead
     # on dense copy chains (numeric_mixed_medium hotspot).
     val = None
+    local_sum = _resolve_local_sum_aggregate(int(src), vmap, resolver)
+    if local_sum is not None:
+        val = dict(local_sum)
     if os.environ.get('NYASH_LLVM_FAST') == '1':
         try:
-            val = vmap.get(src)
+            if val is None:
+                val = vmap.get(src)
         except Exception:
-            val = None
+            if val is None:
+                val = None
     # Resolve otherwise to preserve dominance
     if val is None:
         val = resolve_i64_strict(resolver, src, current_block, preds, block_end_values, vmap, bb_map)
@@ -59,6 +65,7 @@ def lower_copy(
     if os.environ.get('NYASH_LLVM_VMAP_TRACE') == '1':
         print(f"[vmap/id] copy dst={dst} src={src} vmap id={id(vmap)} before_write", file=sys.stderr)
     safe_vmap_write(vmap, dst, val, "copy", resolver=resolver)
+    _copy_local_sum_metadata_alias(resolver, int(src), int(dst))
 
     # TypeFacts propagation (SSOT): preserve type tags across Copy.
     # Many MIR patterns materialize a temp then Copy into a local; without this,

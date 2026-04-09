@@ -276,6 +276,36 @@ impl MirPrinter {
                     writeln!(output, "  ;     %{}: {}", value.0, class).unwrap();
                 }
             }
+            if !function.metadata.thin_entry_candidates.is_empty() {
+                writeln!(output, "  ;   Thin Entry Candidates:").unwrap();
+                for candidate in &function.metadata.thin_entry_candidates {
+                    writeln!(output, "  ;     {}", candidate.summary()).unwrap();
+                }
+            }
+            if !function.metadata.thin_entry_selections.is_empty() {
+                writeln!(output, "  ;   Thin Entry Selections:").unwrap();
+                for selection in &function.metadata.thin_entry_selections {
+                    writeln!(output, "  ;     {}", selection.summary()).unwrap();
+                }
+            }
+            if !function.metadata.sum_placement_facts.is_empty() {
+                writeln!(output, "  ;   Sum Placement Facts:").unwrap();
+                for fact in &function.metadata.sum_placement_facts {
+                    writeln!(output, "  ;     {}", fact.summary()).unwrap();
+                }
+            }
+            if !function.metadata.sum_placement_selections.is_empty() {
+                writeln!(output, "  ;   Sum Placement Selections:").unwrap();
+                for selection in &function.metadata.sum_placement_selections {
+                    writeln!(output, "  ;     {}", selection.summary()).unwrap();
+                }
+            }
+            if !function.metadata.sum_placement_layouts.is_empty() {
+                writeln!(output, "  ;   Sum Placement Layouts:").unwrap();
+                for layout in &function.metadata.sum_placement_layouts {
+                    writeln!(output, "  ;     {}", layout.summary()).unwrap();
+                }
+            }
             writeln!(output).unwrap();
         }
 
@@ -387,7 +417,9 @@ mod tests {
     use crate::mir::{
         BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType, StorageClass,
         StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateState,
-        StringCorridorCarrier, StringCorridorFact, ValueId,
+        StringCorridorCarrier, StringCorridorFact, SumLocalAggregateLayout,
+        SumObjectizationBarrier, SumPlacementFact, SumPlacementLayout, SumPlacementPath,
+        SumPlacementSelection, SumPlacementState, ValueId,
     };
 
     #[test]
@@ -489,5 +521,216 @@ mod tests {
         assert!(output.contains("%1: inline_i64"));
         assert!(output.contains("%2: borrowed_text"));
         assert!(output.contains("%3: inline_f64"));
+    }
+
+    #[test]
+    fn test_verbose_printing_shows_thin_entry_candidates() {
+        let signature = FunctionSignature {
+            name: "test_func".to_string(),
+            params: vec![MirType::Integer],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        function
+            .metadata
+            .thin_entry_candidates
+            .push(crate::mir::ThinEntryCandidate {
+                block: BasicBlockId::new(0),
+                instruction_index: 1,
+                value: Some(ValueId::new(3)),
+                surface: crate::mir::ThinEntrySurface::SumMake,
+                subject: "Option::Some".to_string(),
+                preferred_entry: crate::mir::ThinEntryPreferredEntry::ThinInternalEntry,
+                current_carrier: crate::mir::ThinEntryCurrentCarrier::CompatBox,
+                value_class: crate::mir::ThinEntryValueClass::AggLocal,
+                reason: "sum.make stays aggregate-first".to_string(),
+            });
+        let printer = MirPrinter::verbose();
+
+        let output = printer.print_function(&function);
+
+        assert!(output.contains("Thin Entry Candidates"));
+        assert!(output.contains("sum_make Option::Some"));
+        assert!(output.contains("thin_internal_entry"));
+    }
+
+    #[test]
+    fn test_verbose_printing_shows_thin_entry_selections() {
+        let signature = FunctionSignature {
+            name: "test_func".to_string(),
+            params: vec![MirType::Integer],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        function
+            .metadata
+            .thin_entry_selections
+            .push(crate::mir::ThinEntrySelection {
+                block: BasicBlockId::new(0),
+                instruction_index: 2,
+                value: Some(ValueId::new(3)),
+                surface: crate::mir::ThinEntrySurface::UserBoxFieldGet,
+                subject: "Point.x".to_string(),
+                manifest_row: "user_box_field_get.inline_scalar",
+                selected_entry: crate::mir::ThinEntryPreferredEntry::ThinInternalEntry,
+                state: crate::mir::ThinEntrySelectionState::AlreadySatisfied,
+                current_carrier: crate::mir::ThinEntryCurrentCarrier::BackendTyped,
+                value_class: crate::mir::ThinEntryValueClass::InlineI64,
+                reason: "typed field reads stay on thin internal scalar lane".to_string(),
+            });
+        let printer = MirPrinter::verbose();
+
+        let output = printer.print_function(&function);
+
+        assert!(output.contains("Thin Entry Selections"));
+        assert!(output.contains("user_box_field_get.inline_scalar"));
+        assert!(output.contains("[already_satisfied]"));
+    }
+
+    #[test]
+    fn test_verbose_printing_shows_sum_placement_facts() {
+        let signature = FunctionSignature {
+            name: "test_func".to_string(),
+            params: vec![MirType::Integer],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        function
+            .metadata
+            .sum_placement_facts
+            .push(SumPlacementFact {
+                block: BasicBlockId::new(0),
+                instruction_index: 2,
+                value: Some(ValueId::new(5)),
+                surface: crate::mir::ThinEntrySurface::SumMake,
+                subject: "Option::Some".to_string(),
+                source_sum: None,
+                value_class: crate::mir::ThinEntryValueClass::AggLocal,
+                state: SumPlacementState::LocalAggregateCandidate,
+                tag_reads: 1,
+                project_reads: 1,
+                barriers: Vec::new(),
+                reason: "sum value stays local to sum.tag/sum.project".to_string(),
+            });
+        function
+            .metadata
+            .sum_placement_facts
+            .push(SumPlacementFact {
+                block: BasicBlockId::new(0),
+                instruction_index: 3,
+                value: Some(ValueId::new(6)),
+                surface: crate::mir::ThinEntrySurface::SumProject,
+                subject: "Option::Some".to_string(),
+                source_sum: Some(ValueId::new(5)),
+                value_class: crate::mir::ThinEntryValueClass::InlineI64,
+                state: SumPlacementState::NeedsObjectization,
+                tag_reads: 0,
+                project_reads: 1,
+                barriers: vec![SumObjectizationBarrier::Return],
+                reason: "sum.project source still crosses return".to_string(),
+            });
+        let printer = MirPrinter::verbose();
+
+        let output = printer.print_function(&function);
+
+        assert!(output.contains("Sum Placement Facts"));
+        assert!(output.contains("local_agg_candidate"));
+        assert!(output.contains("source_sum=%5"));
+        assert!(output.contains("barriers=[return]"));
+    }
+
+    #[test]
+    fn test_verbose_printing_shows_sum_placement_selections() {
+        let signature = FunctionSignature {
+            name: "test_func".to_string(),
+            params: vec![MirType::Integer],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        function
+            .metadata
+            .sum_placement_selections
+            .push(SumPlacementSelection {
+                block: BasicBlockId::new(0),
+                instruction_index: 4,
+                value: Some(ValueId::new(7)),
+                surface: crate::mir::ThinEntrySurface::SumMake,
+                subject: "Option::Some".to_string(),
+                source_sum: None,
+                manifest_row: "sum_make.local_aggregate",
+                selected_path: SumPlacementPath::LocalAggregate,
+                reason: "selected local aggregate sum route".to_string(),
+            });
+        function
+            .metadata
+            .sum_placement_selections
+            .push(SumPlacementSelection {
+                block: BasicBlockId::new(0),
+                instruction_index: 5,
+                value: Some(ValueId::new(8)),
+                surface: crate::mir::ThinEntrySurface::SumProject,
+                subject: "Option::Some".to_string(),
+                source_sum: Some(ValueId::new(7)),
+                manifest_row: "sum_project.compat_fallback",
+                selected_path: SumPlacementPath::CompatRuntimeBox,
+                reason: "compat/runtime fallback remains".to_string(),
+            });
+        let printer = MirPrinter::verbose();
+
+        let output = printer.print_function(&function);
+
+        assert!(output.contains("Sum Placement Selections"));
+        assert!(output.contains("sum_make.local_aggregate"));
+        assert!(output.contains("compat_runtime_box"));
+        assert!(output.contains("source_sum=%7"));
+    }
+
+    #[test]
+    fn test_verbose_printing_shows_sum_placement_layouts() {
+        let signature = FunctionSignature {
+            name: "test_func".to_string(),
+            params: vec![MirType::Integer],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        function
+            .metadata
+            .sum_placement_layouts
+            .push(SumPlacementLayout {
+                block: BasicBlockId::new(0),
+                instruction_index: 6,
+                value: Some(ValueId::new(9)),
+                surface: crate::mir::ThinEntrySurface::SumMake,
+                subject: "Option::Some".to_string(),
+                source_sum: None,
+                layout: SumLocalAggregateLayout::TagI64Payload,
+                reason: "selected local aggregate uses tag+i64 payload lane".to_string(),
+            });
+        function
+            .metadata
+            .sum_placement_layouts
+            .push(SumPlacementLayout {
+                block: BasicBlockId::new(0),
+                instruction_index: 7,
+                value: Some(ValueId::new(10)),
+                surface: crate::mir::ThinEntrySurface::SumProject,
+                subject: "Option::Some".to_string(),
+                source_sum: Some(ValueId::new(9)),
+                layout: SumLocalAggregateLayout::TagHandlePayload,
+                reason: "selected local aggregate uses handle payload lane".to_string(),
+            });
+        let printer = MirPrinter::verbose();
+
+        let output = printer.print_function(&function);
+
+        assert!(output.contains("Sum Placement Layouts"));
+        assert!(output.contains("tag_i64_payload"));
+        assert!(output.contains("tag_handle_payload"));
+        assert!(output.contains("source_sum=%9"));
     }
 }

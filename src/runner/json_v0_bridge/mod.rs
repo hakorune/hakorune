@@ -44,6 +44,11 @@ pub fn parse_json_v0_to_module_with_imports(
     let mut module = lower_program(prog, imports)?;
     // Keep Program(JSON v0) bridge aligned with runtime preflight callsite contract.
     let _ = crate::mir::passes::callsite_canonicalize::canonicalize_callsites(&mut module);
+    crate::mir::refresh_module_thin_entry_candidates(&mut module);
+    crate::mir::refresh_module_thin_entry_selections(&mut module);
+    crate::mir::refresh_module_sum_placement_facts(&mut module);
+    crate::mir::refresh_module_sum_placement_selections(&mut module);
+    crate::mir::refresh_module_sum_placement_layouts(&mut module);
     Ok(module)
 }
 
@@ -391,6 +396,119 @@ mod tests {
             parse_json_v0_to_module(&json).expect_err("json v0 sum lane stays single-payload");
         assert!(error.contains("[freeze:contract][json_v0][enum_ctor]"));
         assert!(error.contains("expects 1 arg(s), got 2"));
+    }
+
+    #[test]
+    fn parse_json_v0_to_module_attaches_thin_entry_candidates_for_sum_lane() {
+        let json = json!({
+            "version": 0,
+            "kind": "Program",
+            "enum_decls": option_enum_decls(),
+            "body": [
+                {
+                    "type": "Local",
+                    "name": "opt",
+                    "expr": option_some_ctor(1)
+                },
+                {
+                    "type": "Return",
+                    "expr": {
+                        "type": "EnumMatch",
+                        "enum": "Option",
+                        "scrutinee": { "type": "Var", "name": "opt" },
+                        "arms": [
+                            {
+                                "variant": "Some",
+                                "bind": "v",
+                                "payload_type": "Integer",
+                                "expr": { "type": "Var", "name": "v" }
+                            },
+                            {
+                                "variant": "None",
+                                "expr": { "type": "Int", "value": 0 }
+                            }
+                        ]
+                    }
+                }
+            ]
+        })
+        .to_string();
+
+        let module = parse_json_v0_to_module(&json).expect("sum thin-entry inventory");
+        let func = module.get_function("main").expect("main exists");
+
+        assert!(func.metadata.thin_entry_candidates.iter().any(|candidate| {
+            candidate.surface == crate::mir::ThinEntrySurface::SumMake
+                && candidate.subject == "Option::Some"
+                && candidate.preferred_entry
+                    == crate::mir::ThinEntryPreferredEntry::ThinInternalEntry
+                && candidate.current_carrier == crate::mir::ThinEntryCurrentCarrier::CompatBox
+        }));
+        assert!(func.metadata.thin_entry_candidates.iter().any(|candidate| {
+            candidate.surface == crate::mir::ThinEntrySurface::SumProject
+                && candidate.subject == "Option::Some"
+                && candidate.value_class == crate::mir::ThinEntryValueClass::InlineI64
+        }));
+        assert!(func.metadata.thin_entry_selections.iter().any(|selection| {
+            selection.surface == crate::mir::ThinEntrySurface::SumMake
+                && selection.subject == "Option::Some"
+                && selection.manifest_row == "sum_make.aggregate_local"
+                && selection.selected_entry
+                    == crate::mir::ThinEntryPreferredEntry::ThinInternalEntry
+                && selection.state == crate::mir::ThinEntrySelectionState::Candidate
+        }));
+        assert!(func.metadata.thin_entry_selections.iter().any(|selection| {
+            selection.surface == crate::mir::ThinEntrySurface::SumProject
+                && selection.subject == "Option::Some"
+                && selection.manifest_row == "sum_project.payload_local"
+                && selection.selected_entry
+                    == crate::mir::ThinEntryPreferredEntry::ThinInternalEntry
+        }));
+        assert!(func.metadata.sum_placement_facts.iter().any(|fact| {
+            fact.surface == crate::mir::ThinEntrySurface::SumMake
+                && fact.subject == "Option::Some"
+                && fact.state == crate::mir::SumPlacementState::LocalAggregateCandidate
+                && fact.tag_reads >= 1
+                && fact.project_reads >= 1
+        }));
+        assert!(func.metadata.sum_placement_facts.iter().any(|fact| {
+            fact.surface == crate::mir::ThinEntrySurface::SumProject
+                && fact.subject == "Option::Some"
+                && fact.source_sum.is_some()
+                && fact.state == crate::mir::SumPlacementState::LocalAggregateCandidate
+        }));
+        assert!(func
+            .metadata
+            .sum_placement_selections
+            .iter()
+            .any(|selection| {
+                selection.surface == crate::mir::ThinEntrySurface::SumMake
+                    && selection.subject == "Option::Some"
+                    && selection.manifest_row == "sum_make.local_aggregate"
+                    && selection.selected_path == crate::mir::SumPlacementPath::LocalAggregate
+            }));
+        assert!(func
+            .metadata
+            .sum_placement_selections
+            .iter()
+            .any(|selection| {
+                selection.surface == crate::mir::ThinEntrySurface::SumProject
+                    && selection.subject == "Option::Some"
+                    && selection.manifest_row == "sum_project.local_aggregate"
+                    && selection.selected_path == crate::mir::SumPlacementPath::LocalAggregate
+                    && selection.source_sum.is_some()
+            }));
+        assert!(func.metadata.sum_placement_layouts.iter().any(|layout| {
+            layout.surface == crate::mir::ThinEntrySurface::SumMake
+                && layout.subject == "Option::Some"
+                && layout.layout == crate::mir::SumLocalAggregateLayout::TagI64Payload
+        }));
+        assert!(func.metadata.sum_placement_layouts.iter().any(|layout| {
+            layout.surface == crate::mir::ThinEntrySurface::SumProject
+                && layout.subject == "Option::Some"
+                && layout.layout == crate::mir::SumLocalAggregateLayout::TagI64Payload
+                && layout.source_sum.is_some()
+        }));
     }
 
     #[test]

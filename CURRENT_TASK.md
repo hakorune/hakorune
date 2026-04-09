@@ -121,6 +121,14 @@ Scope: repo root から current lane / current front / restart read order に最
   - lane: `phase-163x primitive and user-box fast path`
   - lifecycle/value parent anchor:
     - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
+  - design reading lock for this lane:
+    - authority order stays `.hako owner / policy -> MIR canonical contract -> Rust executor / accelerator -> LLVM generic optimization / codegen`
+    - `Birth / Placement` is outcome vocabulary / seam reading, not a fifth authority layer
+    - keep one canonical `Call`; thin/public physical entry split stays below canonical MIR via pass + manifest
+    - current runtime/public value truth is still `imm_i64 / imm_bool / handle_owned / handle_borrowed_string / boxed_local`
+    - parent-design `imm / borrow / agg_local / handle` is architecture/end-state vocabulary; `owned_buf` remains backend-private / future-child vocabulary
+    - thin-entry inventory and the first manifest-driven selection pilot are landed as inspection metadata; direct thin-entry lowering is still not the current default lowering truth
+    - `null` / `void` are already language-surface aliases of runtime `Void`, but fast-path work for them is outside the current keeper wave
   - local gates:
     - `kilo_micro_userbox_point_add`
     - `kilo_micro_userbox_flag_toggle`
@@ -130,11 +138,28 @@ Scope: repo root から current lane / current front / restart read order に最
        - `docs/development/current/main/investigations/phase163x-aggregate-truth-audit-2026-04-09.md`
        - `docs/development/current/main/investigations/phase163x-early-objectization-audit-2026-04-09.md`
     3. next fixed cut:
-       - thin-entry inventory for known user-box + enum/sum local routes under the lifecycle-value parent
-    4. only after thin-entry inventory, re-evaluate:
-       - tuple multi-payload expansion with aggregate truth and compat-only payload boxing
-       - or a separate `ny-llvmc` parity wave
-    5. keep `where` / enum methods / full monomorphization in backlog
+        - `sum placement/effect pilot`
+        - the inspection chain is now landed for the `sum outer-box sinking` slice:
+          - `thin_entry_selections`
+          - `sum_placement_facts`
+          - `sum_placement_selections`
+          - `sum_placement_layouts`
+        - LLVM now uses the landed selection/layout metadata to keep selected local non-escaping sums boxless through `sum_make` / `sum_tag` / `sum_project`
+        - LLVM now materializes runtime `__NySum_*` compat boxes only at `return` / `call` / `boxcall` escape barriers for that selected local route
+        - next active substep: validate the proving slice with focused tests/docs before moving to the separate `ny-llvmc` parity wave
+        - keep canonical `SumMake` / `SumTag` / `SumProject` unchanged
+        - keep VM / JSON v0 compat fallback unchanged in this slice
+        - after the slice is proven, fold the shape into a later generic placement/effect pass instead of growing a permanent sum-only framework
+    4. after that:
+        - `ny-llvmc` parity wave
+        - proving slice is now landed:
+          - product LLVM/Python lowering seeds `thin_entry_selections` into the resolver alongside the already-landed sum placement metadata
+          - metadata-bearing product smoke is green on `phase163x_boundary_sum_metadata_keep_min.sh` via boundary compat replay -> harness keep lane
+        - native-driver metadata awareness remains canary-only backlog, not the current lane blocker
+    5. only then, if still chosen:
+        - `tuple multi-payload`
+        - reopen it as compat-only hidden payload transport unless a separate canonical sum decision supersedes that route
+    6. keep `where` / enum methods / full monomorphization in backlog
   - sibling string guardrail accept gate:
     - `kilo_micro_substring_only`
   - sibling string guardrail split exact fronts:

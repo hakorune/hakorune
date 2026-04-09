@@ -15,11 +15,11 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-163x primitive and user-box fast path` |
-| Front | `lifecycle value parent locked -> aggregate/objectization audits landed -> thin-entry inventory` |
+| Front | `lifecycle value parent locked -> audits landed -> thin-entry inventory/selection landed -> sum placement pilot landed -> ny-llvmc parity proving slice landed` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | thin-entry inventory under the lifecycle-value parent is not landed yet |
-| Next | `phase-163x thin-entry inventory under the lifecycle-value parent` |
-| After Next | `re-evaluate tuple multi-payload vs ny-llvmc parity after thin-entry inventory` |
+| Blocker | `tuple multi-payload` remains deferred unless explicitly reopened as compat-only hidden payload transport |
+| Next | `phase-163x tuple multi-payload compat transport` only if it is still chosen after the landed sum/parity slices |
+| After Next | `where / enum methods / monomorphization stay backlog-only` |
 
 ## Current Read
 

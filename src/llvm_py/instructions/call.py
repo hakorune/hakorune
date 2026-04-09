@@ -7,6 +7,7 @@ import llvmlite.ir as ir
 from typing import Dict, List, Optional, Any
 from trace import debug as trace_debug
 from instructions.safepoint import insert_automatic_safepoint
+from instructions.sum_ops import _resolve_local_sum_aggregate, materialize_local_sum_aggregate
 from naming_helper import encode_static_method
 from utils.values import resolve_i64_strict
 
@@ -71,6 +72,15 @@ def lower_call(
 
     # Resolver helpers (prefer resolver when available)
     def _res_i64(vid: int):
+        local_sum = _resolve_local_sum_aggregate(int(vid), vmap, r)
+        if local_sum is not None:
+            return materialize_local_sum_aggregate(
+                builder,
+                module,
+                local_sum,
+                r,
+                name_hint=f"call_arg_{vid}",
+            )
         if r is not None and p is not None and bev is not None and bbm is not None:
             try:
                 return resolve_i64_strict(
@@ -88,6 +98,15 @@ def lower_call(
         return vmap.get(vid)
 
     def _res_ptr(vid: int):
+        local_sum = _resolve_local_sum_aggregate(int(vid), vmap, r)
+        if local_sum is not None:
+            return materialize_local_sum_aggregate(
+                builder,
+                module,
+                local_sum,
+                r,
+                name_hint=f"call_ptr_arg_{vid}",
+            )
         if r is not None and p is not None and bev is not None:
             try:
                 return r.resolve_ptr(vid, builder.block, p, bev, vmap)

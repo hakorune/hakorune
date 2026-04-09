@@ -9,7 +9,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from instructions.sum_ops import lower_sum_make, lower_sum_project
+from instructions.copy import lower_copy
+from instructions.sum_ops import lower_sum_make, lower_sum_project, lower_sum_tag
 from type_facts import make_box_handle_fact
 
 
@@ -19,6 +20,9 @@ class _ResolverStub:
         self.integerish_ids = set()
         self.def_blocks = {}
         self.sum_payload_facts = {}
+        self.sum_local_aggregate_paths = {}
+        self.sum_local_aggregate_layouts = {}
+        self.global_vmap = None
 
     def resolve_i64(self, value_id, current_block, preds, block_end_values, vmap, bb_map):
         return ir.Constant(ir.IntType(64), int(value_id))
@@ -117,6 +121,38 @@ class TestSumOps(unittest.TestCase):
         self.assertIn('call i64 @"nyash.instance.set_field_h"', ir_txt, msg=ir_txt)
         self.assertNotIn('call i64 @"nyash.box.from_i64"', ir_txt, msg=ir_txt)
         self.assertEqual(resolver.sum_payload_facts[2], make_box_handle_fact("Point"))
+
+    def test_sum_make_selected_local_aggregate_skips_outer_runtime_box(self):
+        mod, builder, bb, i64 = self._make_builder()
+        resolver = _ResolverStub()
+        vmap = {1: ir.Constant(i64, 7)}
+        resolver.value_types[1] = "i64"
+        resolver.sum_local_aggregate_paths[2] = "local_aggregate"
+        resolver.sum_local_aggregate_layouts[2] = "tag_i64_payload"
+
+        lower_sum_make(
+            builder,
+            mod,
+            2,
+            "Option",
+            "Some",
+            1,
+            1,
+            "Integer",
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+
+        ir_txt = str(mod)
+        self.assertNotIn("__NySum_Option", ir_txt, msg=ir_txt)
+        self.assertNotIn('nyash.instance.set_i64_field_h', ir_txt, msg=ir_txt)
+        self.assertIsInstance(vmap[2], dict)
+        self.assertEqual(vmap[2]["kind"], "local_sum_aggregate")
+        self.assertEqual(vmap[2]["layout"], "tag_i64_payload")
+        self.assertEqual(resolver.sum_payload_facts[2], "i64")
 
     def test_sum_project_uses_typed_integer_getter_and_fail_fast_trap(self):
         mod, builder, bb, i64 = self._make_builder()
@@ -272,6 +308,147 @@ class TestSumOps(unittest.TestCase):
         self.assertIn('call i64 @"nyash.instance.set_float_field_h"', ir_txt, msg=ir_txt)
         self.assertIn('call double @"nyash.instance.get_float_field_h"', ir_txt, msg=ir_txt)
         self.assertEqual(resolver.value_types[3], "Float")
+
+    def test_sum_tag_reads_selected_local_aggregate_without_runtime_getter(self):
+        mod, builder, bb, i64 = self._make_builder()
+        resolver = _ResolverStub()
+        vmap = {1: ir.Constant(i64, 7)}
+        resolver.value_types[1] = "i64"
+        resolver.sum_local_aggregate_paths[2] = "local_aggregate"
+        resolver.sum_local_aggregate_layouts[2] = "tag_i64_payload"
+
+        lower_sum_make(
+            builder,
+            mod,
+            2,
+            "Option",
+            "Some",
+            1,
+            1,
+            "Integer",
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+        lower_sum_tag(
+            builder,
+            mod,
+            3,
+            2,
+            "Option",
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+
+        ir_txt = str(mod)
+        self.assertNotIn('call i64 @"nyash.instance.get_i64_field_h"', ir_txt, msg=ir_txt)
+        self.assertNotIn("__NySum_Option", ir_txt, msg=ir_txt)
+        self.assertEqual(vmap[3].type.width, 64)
+
+    def test_sum_project_reads_selected_local_aggregate_without_runtime_getter(self):
+        mod, builder, bb, i64 = self._make_builder()
+        resolver = _ResolverStub()
+        vmap = {1: ir.Constant(i64, 7)}
+        resolver.value_types[1] = "i64"
+        resolver.sum_local_aggregate_paths[2] = "local_aggregate"
+        resolver.sum_local_aggregate_layouts[2] = "tag_i64_payload"
+
+        lower_sum_make(
+            builder,
+            mod,
+            2,
+            "Option",
+            "Some",
+            1,
+            1,
+            None,
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+        lower_sum_project(
+            builder,
+            mod,
+            3,
+            2,
+            "Option",
+            "Some",
+            1,
+            None,
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+
+        ir_txt = str(mod)
+        self.assertNotIn('call i64 @"nyash.instance.get_i64_field_h"', ir_txt, msg=ir_txt)
+        self.assertNotIn("__NySum_Option", ir_txt, msg=ir_txt)
+        self.assertIn("unreachable", ir_txt, msg=ir_txt)
+        self.assertEqual(resolver.value_types[3], "i64")
+
+    def test_copy_preserves_selected_local_sum_aggregate_alias(self):
+        mod, builder, bb, i64 = self._make_builder()
+        resolver = _ResolverStub()
+        vmap = {1: ir.Constant(i64, 7)}
+        resolver.value_types[1] = "i64"
+        resolver.sum_local_aggregate_paths[2] = "local_aggregate"
+        resolver.sum_local_aggregate_layouts[2] = "tag_i64_payload"
+
+        lower_sum_make(
+            builder,
+            mod,
+            2,
+            "Option",
+            "Some",
+            1,
+            1,
+            None,
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+        lower_copy(
+            builder,
+            4,
+            2,
+            vmap,
+            resolver=resolver,
+            current_block=bb,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+        lower_sum_project(
+            builder,
+            mod,
+            5,
+            4,
+            "Option",
+            "Some",
+            1,
+            None,
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+
+        ir_txt = str(mod)
+        self.assertNotIn('call i64 @"nyash.instance.get_i64_field_h"', ir_txt, msg=ir_txt)
+        self.assertNotIn("__NySum_Option", ir_txt, msg=ir_txt)
+        self.assertEqual(resolver.value_types[5], "i64")
 
 
 if __name__ == "__main__":

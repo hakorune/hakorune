@@ -83,7 +83,76 @@ fn build_mir_json_root(module: &crate::mir::MirModule) -> Result<serde_json::Val
             }).collect::<serde_json::Map<String, serde_json::Value>>(),
             "storage_classes": f.metadata.value_storage_classes.iter().map(|(k, v)| {
                 (k.as_u32().to_string(), json!(v.to_string()))
-            }).collect::<serde_json::Map<String, serde_json::Value>>()
+            }).collect::<serde_json::Map<String, serde_json::Value>>(),
+            "thin_entry_candidates": f.metadata.thin_entry_candidates.iter().map(|candidate| {
+                json!({
+                    "block": candidate.block.as_u32(),
+                    "instruction_index": candidate.instruction_index,
+                    "value": candidate.value.map(|value| value.as_u32()),
+                    "surface": candidate.surface.to_string(),
+                    "subject": candidate.subject,
+                    "preferred_entry": candidate.preferred_entry.to_string(),
+                    "current_carrier": candidate.current_carrier.to_string(),
+                    "value_class": candidate.value_class.to_string(),
+                    "reason": candidate.reason,
+                })
+            }).collect::<Vec<_>>(),
+            "thin_entry_selections": f.metadata.thin_entry_selections.iter().map(|selection| {
+                json!({
+                    "block": selection.block.as_u32(),
+                    "instruction_index": selection.instruction_index,
+                    "value": selection.value.map(|value| value.as_u32()),
+                    "surface": selection.surface.to_string(),
+                    "subject": selection.subject,
+                    "manifest_row": selection.manifest_row,
+                    "selected_entry": selection.selected_entry.to_string(),
+                    "state": selection.state.to_string(),
+                    "current_carrier": selection.current_carrier.to_string(),
+                    "value_class": selection.value_class.to_string(),
+                    "reason": selection.reason,
+                })
+            }).collect::<Vec<_>>(),
+            "sum_placement_facts": f.metadata.sum_placement_facts.iter().map(|fact| {
+                json!({
+                    "block": fact.block.as_u32(),
+                    "instruction_index": fact.instruction_index,
+                    "value": fact.value.map(|value| value.as_u32()),
+                    "surface": fact.surface.to_string(),
+                    "subject": fact.subject,
+                    "source_sum": fact.source_sum.map(|value| value.as_u32()),
+                    "value_class": fact.value_class.to_string(),
+                    "state": fact.state.to_string(),
+                    "tag_reads": fact.tag_reads,
+                    "project_reads": fact.project_reads,
+                    "barriers": fact.barriers.iter().map(|barrier| barrier.to_string()).collect::<Vec<_>>(),
+                    "reason": fact.reason,
+                })
+            }).collect::<Vec<_>>(),
+            "sum_placement_selections": f.metadata.sum_placement_selections.iter().map(|selection| {
+                json!({
+                    "block": selection.block.as_u32(),
+                    "instruction_index": selection.instruction_index,
+                    "value": selection.value.map(|value| value.as_u32()),
+                    "surface": selection.surface.to_string(),
+                    "subject": selection.subject,
+                    "source_sum": selection.source_sum.map(|value| value.as_u32()),
+                    "manifest_row": selection.manifest_row,
+                    "selected_path": selection.selected_path.to_string(),
+                    "reason": selection.reason,
+                })
+            }).collect::<Vec<_>>(),
+            "sum_placement_layouts": f.metadata.sum_placement_layouts.iter().map(|layout| {
+                json!({
+                    "block": layout.block.as_u32(),
+                    "instruction_index": layout.instruction_index,
+                    "value": layout.value.map(|value| value.as_u32()),
+                    "surface": layout.surface.to_string(),
+                    "subject": layout.subject,
+                    "source_sum": layout.source_sum.map(|value| value.as_u32()),
+                    "layout": layout.layout.to_string(),
+                    "reason": layout.reason,
+                })
+            }).collect::<Vec<_>>()
         });
         let attrs_json = json!({
             "runes": f
@@ -431,5 +500,173 @@ mod tests {
         assert_eq!(runes[0]["args"], serde_json::json!(["main_sym"]));
         assert_eq!(runes[1]["name"], "CallConv");
         assert_eq!(runes[1]["args"], serde_json::json!(["c"]));
+    }
+
+    #[test]
+    fn build_mir_json_root_emits_thin_entry_candidates() {
+        let mut module = MirModule::new("test".to_string());
+        let mut function = make_function("main", true);
+        function
+            .metadata
+            .thin_entry_candidates
+            .push(crate::mir::ThinEntryCandidate {
+                block: BasicBlockId::new(0),
+                instruction_index: 2,
+                value: Some(crate::mir::ValueId::new(7)),
+                surface: crate::mir::ThinEntrySurface::SumMake,
+                subject: "Option::Some".to_string(),
+                preferred_entry: crate::mir::ThinEntryPreferredEntry::ThinInternalEntry,
+                current_carrier: crate::mir::ThinEntryCurrentCarrier::CompatBox,
+                value_class: crate::mir::ThinEntryValueClass::AggLocal,
+                reason: "sum.make stays aggregate-first".to_string(),
+            });
+        module.functions.insert("main".to_string(), function);
+
+        let root = build_mir_json_root(&module).expect("mir json root");
+        let candidates = root["functions"][0]["metadata"]["thin_entry_candidates"]
+            .as_array()
+            .expect("thin_entry_candidates array");
+
+        assert_eq!(candidates.len(), 1);
+        assert_eq!(candidates[0]["surface"], "sum_make");
+        assert_eq!(candidates[0]["subject"], "Option::Some");
+        assert_eq!(candidates[0]["preferred_entry"], "thin_internal_entry");
+        assert_eq!(candidates[0]["current_carrier"], "compat_box");
+        assert_eq!(candidates[0]["value_class"], "agg_local");
+        assert_eq!(candidates[0]["value"], 7);
+    }
+
+    #[test]
+    fn build_mir_json_root_emits_thin_entry_selections() {
+        let mut module = MirModule::new("test".to_string());
+        let mut function = make_function("main", true);
+        function
+            .metadata
+            .thin_entry_selections
+            .push(crate::mir::ThinEntrySelection {
+                block: BasicBlockId::new(0),
+                instruction_index: 3,
+                value: Some(crate::mir::ValueId::new(8)),
+                surface: crate::mir::ThinEntrySurface::UserBoxFieldGet,
+                subject: "Point.x".to_string(),
+                manifest_row: "user_box_field_get.inline_scalar",
+                selected_entry: crate::mir::ThinEntryPreferredEntry::ThinInternalEntry,
+                state: crate::mir::ThinEntrySelectionState::AlreadySatisfied,
+                current_carrier: crate::mir::ThinEntryCurrentCarrier::BackendTyped,
+                value_class: crate::mir::ThinEntryValueClass::InlineI64,
+                reason: "typed field read stays on thin internal scalar lane".to_string(),
+            });
+        module.functions.insert("main".to_string(), function);
+
+        let root = build_mir_json_root(&module).expect("mir json root");
+        let selections = root["functions"][0]["metadata"]["thin_entry_selections"]
+            .as_array()
+            .expect("thin_entry_selections array");
+
+        assert_eq!(selections.len(), 1);
+        assert_eq!(
+            selections[0]["manifest_row"],
+            "user_box_field_get.inline_scalar"
+        );
+        assert_eq!(selections[0]["selected_entry"], "thin_internal_entry");
+        assert_eq!(selections[0]["state"], "already_satisfied");
+        assert_eq!(selections[0]["value"], 8);
+    }
+
+    #[test]
+    fn build_mir_json_root_emits_sum_placement_facts() {
+        let mut module = MirModule::new("test".to_string());
+        let mut function = make_function("main", true);
+        function
+            .metadata
+            .sum_placement_facts
+            .push(crate::mir::SumPlacementFact {
+                block: BasicBlockId::new(0),
+                instruction_index: 4,
+                value: Some(crate::mir::ValueId::new(9)),
+                surface: crate::mir::ThinEntrySurface::SumMake,
+                subject: "Option::Some".to_string(),
+                source_sum: None,
+                value_class: crate::mir::ThinEntryValueClass::AggLocal,
+                state: crate::mir::SumPlacementState::LocalAggregateCandidate,
+                tag_reads: 1,
+                project_reads: 1,
+                barriers: vec![crate::mir::SumObjectizationBarrier::Call],
+                reason: "sum value stays local until call boundary".to_string(),
+            });
+        module.functions.insert("main".to_string(), function);
+
+        let root = build_mir_json_root(&module).expect("mir json root");
+        let facts = root["functions"][0]["metadata"]["sum_placement_facts"]
+            .as_array()
+            .expect("sum_placement_facts array");
+
+        assert_eq!(facts.len(), 1);
+        assert_eq!(facts[0]["surface"], "sum_make");
+        assert_eq!(facts[0]["state"], "local_agg_candidate");
+        assert_eq!(facts[0]["barriers"][0], "call");
+        assert_eq!(facts[0]["value"], 9);
+    }
+
+    #[test]
+    fn build_mir_json_root_emits_sum_placement_selections() {
+        let mut module = MirModule::new("test".to_string());
+        let mut function = make_function("main", true);
+        function
+            .metadata
+            .sum_placement_selections
+            .push(crate::mir::SumPlacementSelection {
+                block: BasicBlockId::new(0),
+                instruction_index: 5,
+                value: Some(crate::mir::ValueId::new(10)),
+                surface: crate::mir::ThinEntrySurface::SumProject,
+                subject: "Option::Some".to_string(),
+                source_sum: Some(crate::mir::ValueId::new(9)),
+                manifest_row: "sum_project.local_aggregate",
+                selected_path: crate::mir::SumPlacementPath::LocalAggregate,
+                reason: "selected local aggregate projection".to_string(),
+            });
+        module.functions.insert("main".to_string(), function);
+
+        let root = build_mir_json_root(&module).expect("mir json root");
+        let selections = root["functions"][0]["metadata"]["sum_placement_selections"]
+            .as_array()
+            .expect("sum_placement_selections array");
+
+        assert_eq!(selections.len(), 1);
+        assert_eq!(selections[0]["manifest_row"], "sum_project.local_aggregate");
+        assert_eq!(selections[0]["selected_path"], "local_aggregate");
+        assert_eq!(selections[0]["source_sum"], 9);
+        assert_eq!(selections[0]["value"], 10);
+    }
+
+    #[test]
+    fn build_mir_json_root_emits_sum_placement_layouts() {
+        let mut module = MirModule::new("test".to_string());
+        let mut function = make_function("main", true);
+        function
+            .metadata
+            .sum_placement_layouts
+            .push(crate::mir::SumPlacementLayout {
+                block: BasicBlockId::new(0),
+                instruction_index: 6,
+                value: Some(crate::mir::ValueId::new(11)),
+                surface: crate::mir::ThinEntrySurface::SumMake,
+                subject: "Option::Some".to_string(),
+                source_sum: None,
+                layout: crate::mir::SumLocalAggregateLayout::TagI64Payload,
+                reason: "selected local aggregate uses i64 payload lane".to_string(),
+            });
+        module.functions.insert("main".to_string(), function);
+
+        let root = build_mir_json_root(&module).expect("mir json root");
+        let layouts = root["functions"][0]["metadata"]["sum_placement_layouts"]
+            .as_array()
+            .expect("sum_placement_layouts array");
+
+        assert_eq!(layouts.len(), 1);
+        assert_eq!(layouts[0]["layout"], "tag_i64_payload");
+        assert_eq!(layouts[0]["surface"], "sum_make");
+        assert_eq!(layouts[0]["value"], 11);
     }
 }

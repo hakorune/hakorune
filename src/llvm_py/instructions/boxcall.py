@@ -20,6 +20,7 @@ from instructions.mir_call.auto_specialize import (
 )
 from instructions.boxcall_runtime_data import try_lower_collection_boxcall
 from instructions.direct_box_method import try_lower_known_box_method_call
+from instructions.sum_ops import _resolve_local_sum_aggregate, materialize_local_sum_aggregate
 from instructions.string_fast import literal_string_for_receiver
 from instructions.string_result_policy import mark_string_result_if_needed
 from utils.values import resolve_i64_strict
@@ -185,6 +186,15 @@ def lower_boxcall(
         except Exception:
             pass
     def _res_i64(vid: int):
+        local_sum = _resolve_local_sum_aggregate(int(vid), vmap, r)
+        if local_sum is not None:
+            return materialize_local_sum_aggregate(
+                builder,
+                module,
+                local_sum,
+                r,
+                name_hint=f"boxcall_arg_{vid}",
+            )
         # SSOT: Use the common resolver policy (prefer local SSA, then global vmap, then PHI-localize).
         if r is not None and p is not None and bev is not None:
             try:

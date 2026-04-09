@@ -53,6 +53,11 @@ mod spanned_instruction;
 pub mod storage_class; // primitive / user-box storage-class inventory + refresh helper
 pub mod string_corridor; // string canonical corridor facts + refresh helper
 pub mod string_corridor_placement; // placement/effect scaffold over canonical string facts
+pub mod sum_placement; // sum-local proving slice for later generic placement/effect pass
+pub mod sum_placement_layout; // LLVM-side payload-lane choices for selected local sums
+pub mod sum_placement_selection; // selection pilot over sum-local placement facts
+pub mod thin_entry; // thin-entry inventory for known local routes
+pub mod thin_entry_selection; // manifest-driven thin-entry selection pilot
 pub mod type_propagation; // Phase 279 P0: SSOT type propagation pipeline
 pub mod value_id;
 pub mod value_kind; // Phase 26-A: ValueId型安全化
@@ -101,6 +106,27 @@ pub use string_corridor::{
 pub use string_corridor_placement::{
     refresh_function_string_corridor_candidates, refresh_module_string_corridor_candidates,
     StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateState,
+};
+pub use sum_placement::{
+    refresh_function_sum_placement_facts, refresh_module_sum_placement_facts,
+    SumObjectizationBarrier, SumPlacementFact, SumPlacementState,
+};
+pub use sum_placement_layout::{
+    refresh_function_sum_placement_layouts, refresh_module_sum_placement_layouts,
+    SumLocalAggregateLayout, SumPlacementLayout,
+};
+pub use sum_placement_selection::{
+    refresh_function_sum_placement_selections, refresh_module_sum_placement_selections,
+    SumPlacementPath, SumPlacementSelection,
+};
+pub use thin_entry::{
+    refresh_function_thin_entry_candidates, refresh_module_thin_entry_candidates,
+    ThinEntryCandidate, ThinEntryCurrentCarrier, ThinEntryPreferredEntry, ThinEntrySurface,
+    ThinEntryValueClass,
+};
+pub use thin_entry_selection::{
+    refresh_function_thin_entry_selections, refresh_module_thin_entry_selections,
+    ThinEntrySelection, ThinEntrySelectionState,
 };
 pub use types::{
     BarrierOp, BinaryOp, CompareOp, ConstValue, MirType, TypeOpKind, UnaryOp, WeakRefOp,
@@ -215,6 +241,11 @@ impl MirCompiler {
         refresh_module_string_corridor_facts(&mut module);
         refresh_module_string_corridor_candidates(&mut module);
         refresh_module_storage_class_facts(&mut module);
+        refresh_module_thin_entry_candidates(&mut module);
+        refresh_module_thin_entry_selections(&mut module);
+        refresh_module_sum_placement_facts(&mut module);
+        refresh_module_sum_placement_selections(&mut module);
+        refresh_module_sum_placement_layouts(&mut module);
 
         Ok(MirCompileResult {
             module,

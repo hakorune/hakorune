@@ -46,6 +46,20 @@
   - LLVM `field_get` now also takes a typed BoolBox path for known user-box `field_decls`
   - LLVM `field_set` now takes a typed BoolBox path only when the source stays on the bool-safe boundary (`BoolBox` handle or bool immediate)
   - compare/bool expressions now lower in value context on the `.hako` builder path, so the BoolBox micro loop shape is accepted structurally instead of via a `.hako` workaround
+  - thin-entry inventory is now landed as a no-behavior-change MIR metadata lane:
+    - known user-box field/method routes and enum/sum local routes now emit `thin_entry_candidates`
+    - verbose MIR and MIR JSON now surface the same inventory
+    - `Program(JSON v0)` bridge now refreshes the inventory after callsite canonicalization
+  - thin-entry selection pilot is now landed as a no-behavior-change manifest metadata lane:
+    - `thin_entry_selections` now bind manifest rows on top of `thin_entry_candidates`
+    - primitive user-box field routes now choose between `inline_scalar` thin entries and explicit `public_default` rows
+    - known user-box methods and enum/sum local routes now surface manifest-selected thin internal entries while current carriers remain public/compat where the backend has not switched yet
+    - verbose MIR, MIR JSON, and `Program(JSON v0)` now surface the same selection results
+  - sum placement/effect pilot inspection chain is now landed for the enum/sum local route:
+    - `sum_placement_facts` record local-vs-objectization evidence on top of `thin_entry_selections`
+    - `sum_placement_selections` distinguish selected local aggregate routes from compat/runtime fallback routes
+    - `sum_placement_layouts` choose the LLVM-side payload lane (`tag_only` / `tag_i64_payload` / `tag_f64_payload` / `tag_handle_payload`) for selected local aggregate routes
+    - verbose MIR, MIR JSON, and `Program(JSON v0)` now surface the same facts/selections/layouts chain
 - fixed authority:
   - `field_decls` = source of truth for typed field declarations
   - `fields` = names-only compatibility mirror for old payloads and old runtime consumers
@@ -103,11 +117,23 @@
     2. keep the aggregate/objectization audit pair as the current evidence base:
       - `docs/development/current/main/investigations/phase163x-aggregate-truth-audit-2026-04-09.md`
       - `docs/development/current/main/investigations/phase163x-early-objectization-audit-2026-04-09.md`
-    3. next fixed cut = thin-entry inventory for known user-box + enum/sum local routes under the lifecycle-value parent
-    4. only after thin-entry inventory, re-open the next post-record enum follow-up:
-      - tuple multi-payload expansion only if semantic truth stays aggregate/sum-first and compat boxing remains backend-local
-      - or a separate `ny-llvmc` parity wave
-    5. keep `where` / enum methods / full monomorphization in backlog
+    3. recommended next cut = `sum placement/effect pilot`
+      - first proving slice: `sum outer-box sinking`
+      - the inspection chain (`thin_entry_selections` -> `sum_placement_facts` -> `sum_placement_selections` -> `sum_placement_layouts`) is now landed
+      - LLVM now uses the landed selection/layout metadata to keep selected local non-escaping sums boxless through `sum_make` / `sum_tag` / `sum_project`
+      - LLVM now materializes runtime `__NySum_*` compat boxes only at `return` / `call` / `boxcall` escape barriers for that selected local route
+      - next active substep: validate the proving slice with focused tests/docs before starting the separate `ny-llvmc` parity wave
+      - keep canonical `Sum*` unchanged and leave VM / JSON v0 compat fallback intact in this slice
+      - after the slice is proven, fold it into the later generic placement/effect pass instead of growing a permanent sum-only branch family
+    4. after that, run a separate `ny-llvmc` parity wave
+      - proving slice is now landed:
+        - product LLVM/Python lowering seeds `thin_entry_selections` into the resolver alongside the already-landed sum placement metadata
+        - metadata-bearing product smoke is green on `phase163x_boundary_sum_metadata_keep_min.sh` via boundary compat replay -> harness keep lane
+      - native-driver metadata awareness remains canary-only backlog, not the current blocker
+    5. only then reopen `tuple multi-payload`
+      - keep it on compat-only hidden payload transport unless a separate canonical sum decision supersedes that route
+      - do not widen canonical `SumMake` / `SumProject` in the same wave
+    6. keep `where` / enum methods / full monomorphization in backlog
 
 ## Fixed Task Order
 

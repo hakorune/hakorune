@@ -34,6 +34,89 @@ class TestFunctionLowerResolverSeed(unittest.TestCase):
 
         self.assertEqual(builder.resolver.value_types, {10: {"kind": "int"}})
 
+    def test_load_sum_placement_metadata_extracts_local_sum_maps(self):
+        builder = _BuilderStub()
+        func_data = {
+            "metadata": {
+                "sum_placement_selections": [
+                    {
+                        "surface": "sum_make",
+                        "value": 12,
+                        "selected_path": "local_aggregate",
+                    },
+                    {
+                        "surface": "sum_make",
+                        "value": 13,
+                        "selected_path": "compat_runtime_box",
+                    },
+                    {
+                        "surface": "sum_project",
+                        "value": 21,
+                        "source_sum": 12,
+                        "selected_path": "local_aggregate",
+                    },
+                ],
+                "sum_placement_layouts": [
+                    {
+                        "surface": "sum_make",
+                        "value": 12,
+                        "layout": "tag_i64_payload",
+                    },
+                    {
+                        "surface": "sum_project",
+                        "value": 21,
+                        "source_sum": 12,
+                        "layout": "tag_i64_payload",
+                    },
+                ],
+            }
+        }
+
+        function_lower._load_sum_placement_metadata(builder, func_data)
+
+        self.assertEqual(builder.resolver.sum_local_aggregate_paths, {12: "local_aggregate"})
+        self.assertEqual(builder.resolver.sum_local_aggregate_layouts, {12: "tag_i64_payload"})
+
+    def test_load_thin_entry_selection_metadata_indexes_rows_by_value(self):
+        builder = _BuilderStub()
+        func_data = {
+            "metadata": {
+                "thin_entry_selections": [
+                    {
+                        "surface": "sum_make",
+                        "value": 12,
+                        "subject": "Option::Some",
+                        "manifest_row": "sum_make.aggregate_local",
+                        "selected_entry": "thin_internal_entry",
+                        "state": "candidate",
+                    },
+                    {
+                        "surface": "user_box_method",
+                        "value": 18,
+                        "subject": "Point.length",
+                        "manifest_row": "user_box_method.known_receiver",
+                        "selected_entry": "thin_internal_entry",
+                        "state": "candidate",
+                    },
+                    {
+                        "surface": "user_box_field_get",
+                        "value": None,
+                        "subject": "Point.x",
+                        "manifest_row": "user_box_field_get.inline_scalar",
+                        "selected_entry": "thin_internal_entry",
+                        "state": "already_satisfied",
+                    },
+                ]
+            }
+        }
+
+        function_lower._load_thin_entry_selection_metadata(builder, func_data)
+
+        self.assertEqual(len(builder.resolver.thin_entry_selections), 3)
+        self.assertEqual(builder.resolver.thin_entry_selection_by_value[12][0]["subject"], "Option::Some")
+        self.assertEqual(builder.resolver.thin_entry_selection_by_value[18][0]["manifest_row"], "user_box_method.known_receiver")
+        self.assertNotIn(None, builder.resolver.thin_entry_selection_by_value)
+
     def test_seed_resolver_fact_sets_syncs_context_and_resolver(self):
         builder = _BuilderStub()
         context = FunctionLowerContext("Demo/0")

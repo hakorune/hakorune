@@ -6,8 +6,10 @@
 
 use super::{
     storage_class::StorageClass, string_corridor::StringCorridorFact,
-    string_corridor_placement::StringCorridorCandidate, BasicBlock, BasicBlockId, EffectMask,
-    MirInstruction, MirType, ValueId,
+    string_corridor_placement::StringCorridorCandidate, sum_placement::SumPlacementFact,
+    sum_placement_layout::SumPlacementLayout, sum_placement_selection::SumPlacementSelection,
+    thin_entry::ThinEntryCandidate, thin_entry_selection::ThinEntrySelection, BasicBlock,
+    BasicBlockId, EffectMask, MirInstruction, MirType, ValueId,
 };
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fmt;
@@ -98,6 +100,34 @@ pub struct FunctionMetadata {
     /// No-op storage-class inventory derived from the current MIR value types.
     /// This is the first-step scaffold for primitive-family / user-box fast paths.
     pub value_storage_classes: std::collections::BTreeMap<ValueId, StorageClass>,
+
+    /// No-op thin-entry inventory derived from canonical MIR plus current metadata.
+    /// This records where pass + manifest can later choose public vs thin internal
+    /// physical entries without adding a second semantic call dialect.
+    pub thin_entry_candidates: Vec<ThinEntryCandidate>,
+
+    /// No-op thin-entry selection pilot derived from thin-entry inventory plus the
+    /// current manifest rows.
+    /// This binds the first public-vs-thin entry choice without mutating canonical
+    /// MIR or changing runtime behavior in this wave.
+    pub thin_entry_selections: Vec<ThinEntrySelection>,
+
+    /// Sum-local placement/objectization facts for the current proving slice.
+    /// This is sum-specific inspection metadata for now, but it should fold into a
+    /// later generic placement/effect pass instead of becoming a permanent
+    /// sum-only framework.
+    pub sum_placement_facts: Vec<SumPlacementFact>,
+
+    /// Selected sum-local placement routes derived from the current sum facts.
+    /// This still does not mutate MIR or runtime behavior; it only distinguishes
+    /// selected local aggregate routes from compat/runtime fallback routes so the
+    /// later layout/lowering slices can stay thin.
+    pub sum_placement_selections: Vec<SumPlacementSelection>,
+
+    /// LLVM-side local aggregate layout choices for selected local sum routes.
+    /// This remains metadata-only in the current slice so lowering can consume a
+    /// single layout SSOT in the next step.
+    pub sum_placement_layouts: Vec<SumPlacementLayout>,
 }
 
 impl MirFunction {
