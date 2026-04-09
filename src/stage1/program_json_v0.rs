@@ -4,6 +4,7 @@
 //! - `routing.rs`: source-shape and build-route policy
 //! - `authority.rs`: strict source authority
 //! - `extract.rs`: source observation / helper extraction
+//! - `record_payload.rs`: shared enum record payload boxification helpers
 //! - `lowering.rs`: AST subset -> Program(JSON v0) lowering
 //!
 //! Cross-crate surface:
@@ -17,6 +18,8 @@ mod authority;
 mod extract;
 #[path = "program_json_v0/lowering.rs"]
 mod lowering;
+#[path = "program_json_v0/record_payload.rs"]
+mod record_payload;
 #[path = "program_json_v0/routing.rs"]
 mod routing;
 

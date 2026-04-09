@@ -6,6 +6,9 @@ use super::extract::{collect_using_imports, find_static_main_box, preexpand_dev_
 use super::lowering::{
     defs_json_v0_from_methods, program_json_v0_from_body_with_context, ProgramJsonV0LoweringContext,
 };
+use super::record_payload::{
+    collect_enum_record_payload_box_decls, enum_variant_payload_type_name,
+};
 use super::routing;
 
 pub(super) fn source_to_program_json_v0_relaxed(source_text: &str) -> Result<String, String> {
@@ -184,43 +187,4 @@ fn collect_enum_decls(ast: &ASTNode) -> Vec<serde_json::Value> {
             }))
         })
         .collect()
-}
-
-fn collect_enum_record_payload_box_decls(statements: &[ASTNode]) -> Vec<serde_json::Value> {
-    let mut decls = Vec::new();
-    for statement in statements {
-        let ASTNode::EnumDeclaration { name, variants, .. } = statement else {
-            continue;
-        };
-        for variant in variants {
-            if !variant.is_record_payload() {
-                continue;
-            }
-            decls.push(serde_json::json!({
-                "name": enum_record_payload_box_name(name, &variant.name),
-                "fields": variant.record_field_decls.iter().map(|field| field.name.clone()).collect::<Vec<_>>(),
-                "field_decls": variant.record_field_decls.iter().map(|field| serde_json::json!({
-                    "name": field.name,
-                    "declared_type": field.declared_type_name,
-                    "is_weak": field.is_weak,
-                })).collect::<Vec<_>>(),
-            }));
-        }
-    }
-    decls
-}
-
-fn enum_variant_payload_type_name(
-    enum_name: &str,
-    variant: &crate::ast::EnumVariantDecl,
-) -> Option<String> {
-    if variant.is_record_payload() {
-        Some(enum_record_payload_box_name(enum_name, &variant.name))
-    } else {
-        variant.payload_type_name.clone()
-    }
-}
-
-fn enum_record_payload_box_name(enum_name: &str, variant_name: &str) -> String {
-    format!("__NyEnumPayload_{}_{}", enum_name, variant_name)
 }

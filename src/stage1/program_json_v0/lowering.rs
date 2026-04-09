@@ -1,4 +1,5 @@
 use super::extract::HelperMethod;
+use super::record_payload::enum_variant_payload_type_name;
 use crate::ast::{
     ASTNode, BinaryOperator, CatchClause, EnumVariantDecl, LiteralValue, UnaryOperator,
 };
@@ -445,18 +446,6 @@ fn enum_match_expr_to_json_v0(
             .map(|expr| expression_to_json_v0(expr, context))
             .transpose()?,
     }))
-}
-
-fn enum_variant_payload_type_name(enum_name: &str, variant: &EnumVariantDecl) -> Option<String> {
-    if variant.is_record_payload() {
-        Some(enum_record_payload_box_name(enum_name, &variant.name))
-    } else {
-        variant.payload_type_name.clone()
-    }
-}
-
-fn enum_record_payload_box_name(enum_name: &str, variant_name: &str) -> String {
-    format!("__NyEnumPayload_{}_{}", enum_name, variant_name)
 }
 
 fn unary_expr_to_json_v0(

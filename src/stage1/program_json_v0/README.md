@@ -23,6 +23,8 @@ Public route-family SSOT: `docs/development/current/main/design/json-v0-route-ma
   - `using` import collection
   - `static box Main` / helper method extraction
   - dev-local alias sugar preexpand + detection
+- `src/stage1/program_json_v0/record_payload.rs`
+  - shared enum record payload boxification helpers
 - `src/stage1/program_json_v0/lowering.rs`
   - AST subset -> Program(JSON v0) lowering
   - helper defs serialization
