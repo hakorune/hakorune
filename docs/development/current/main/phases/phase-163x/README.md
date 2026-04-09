@@ -134,7 +134,16 @@
       - parser/AST now accept tuple payload declarations while preserving tuple payload truth above canonical MIR
       - Stage1 lowers tuple ctors/matches through `__NyEnumPayload_<Enum>_<Variant>` hidden payload boxes with `_0`, `_1`, ... field slots
       - canonical `EnumCtor` / `EnumMatch` / `SumMake` / `SumProject` stay single-slot in the same wave
-    6. keep `where` / enum methods / full monomorphization in backlog
+    6. `void/null` cleanup is now landed
+      - tokenizer/parser accept both `null` and `void` literal surface, including literal-match arms
+      - direct compat null checks treat `NullBox` and `VoidBox` as the same no-value family
+      - reference EBNF now matches the executable surface for both literals
+    7. pre-optimization cleanup/doc sync is now landed
+      - LLVM/Python local-sum escape barriers now share one helper instead of repeating materialization wrappers in `call` / `boxcall` / `ret`
+      - safe runtime nullish checks touched in this lane now converge on `NullBox::check_null()`
+      - MIR reference docs now split into instruction SSOT + metadata SSOT, while stale all-in-one references are reduced to thin pointers
+    8. next ready task: `phase163x-optimization-resume`
+    9. keep `where` / enum methods / full monomorphization in backlog
 
 ## Fixed Task Order
 

@@ -65,6 +65,7 @@ impl NyashTokenizer {
             "true" => TokenType::TRUE,
             "false" => TokenType::FALSE,
             "null" => TokenType::NULL,
+            "void" => TokenType::VOID,
             _ => TokenType::IDENTIFIER(identifier.clone()),
         };
 

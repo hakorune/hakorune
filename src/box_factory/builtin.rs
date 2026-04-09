@@ -60,7 +60,7 @@ impl BoxFactory for BuiltinBoxFactory {
             // Phase 113: FileHandleBox Nyash API
             "FileHandleBox" => builtin_impls::filehandle_box::create(args),
 
-            // Special: Keep vs Delete discussion needed
+            // Surface/compat alias for the runtime no-value family.
             "NullBox" => builtin_impls::null_box::create(args),
 
             // Leave other types to other factories (user/plugin)

@@ -1,5 +1,4 @@
 use super::*;
-use crate::box_trait::VoidBox;
 use std::string::String as StdString;
 
 impl MirInterpreter {
@@ -305,7 +304,7 @@ impl MirInterpreter {
         let (a, b) = if tolerate {
             let norm = |v: VMValue| -> VMValue {
                 if let VMValue::BoxRef(bx) = &v {
-                    if bx.as_any().downcast_ref::<VoidBox>().is_some() {
+                    if crate::boxes::null_box::NullBox::check_null(bx.as_ref()) {
                         return VMValue::Void;
                     }
                 }
@@ -407,7 +406,7 @@ impl MirInterpreter {
         let (a, b) = if tolerate {
             let norm = |v: VMValue| -> VMValue {
                 if let VMValue::BoxRef(bx) = &v {
-                    if bx.as_any().downcast_ref::<VoidBox>().is_some() {
+                    if crate::boxes::null_box::NullBox::check_null(bx.as_ref()) {
                         return VMValue::Void;
                     }
                 }

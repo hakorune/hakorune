@@ -7,6 +7,7 @@
 
 use crate::ast::Span;
 use crate::box_trait::{BoolBox, IntegerBox, NyashBox, StringBox, VoidBox};
+use crate::boxes::null_box::NullBox;
 use crate::mir::{BasicBlockId, ConstValue};
 use std::sync::{Arc, Weak};
 
@@ -260,7 +261,7 @@ impl VMValue {
                 {
                     return Ok(ib.value != 0);
                 }
-                if b.as_any().downcast_ref::<VoidBox>().is_some() {
+                if NullBox::check_null(b.as_ref()) {
                     return Ok(false);
                 }
                 Err(VMError::TypeError(format!(

@@ -52,6 +52,7 @@ unary_no_group := ( '-' | '!' | 'not' | '~' ) unary_no_group
                 | 'true'
                 | 'false'
                 | 'null'
+                | 'void'
                 | IDENT call_tail*
                 | 'new' IDENT '(' args? ')'
                 | '[' args? ']'           ; Array literal (Stage‑1 sugar, gated)
@@ -64,6 +65,7 @@ factor    := INT
            | 'true'
            | 'false'
            | 'null'
+           | 'void'
            | IDENT call_tail*
            | '(' expr ')'
            | '(' assignment_expr ')'  ; Stage‑3: grouped assignment as expression
@@ -77,7 +79,7 @@ match_arm  := pattern guard? '=>' (expr | block) ','?
 default_arm:= '_' '=>' (expr | block) ','?
 
 pattern   := '_'
-           | STRING | INT | FLOAT | 'true' | 'false' | 'null'
+           | STRING | INT | FLOAT | 'true' | 'false' | 'null' | 'void'
             | IDENT '(' IDENT? ')'           ; Type pattern or known-enum single-payload shorthand
             | IDENT                          ; Known-enum unit shorthand, e.g. None
             | IDENT '{' IDENT (',' IDENT)* '}' ; Known-enum record shorthand, e.g. Ident { name }

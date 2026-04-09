@@ -340,6 +340,13 @@ impl ExprParserWithCursor {
                     span: Span::unknown(),
                 })
             }
+            TokenType::VOID => {
+                cursor.advance();
+                Ok(ASTNode::Literal {
+                    value: LiteralValue::Void,
+                    span: Span::unknown(),
+                })
+            }
             TokenType::IDENTIFIER(name) => {
                 let name = name.clone();
                 cursor.advance();

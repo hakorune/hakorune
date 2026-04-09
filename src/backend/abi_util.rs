@@ -7,7 +7,8 @@
 
 use crate::backend::runtime_type_tag::{tag_from_vmvalue, tag_to_str};
 use crate::backend::vm::VMValue;
-use crate::box_trait::{BoolBox, IntegerBox, NyashBox, StringBox, VoidBox};
+use crate::box_trait::{BoolBox, IntegerBox, NyashBox, StringBox};
+use crate::boxes::null_box::NullBox;
 use std::sync::Arc;
 
 /// Opaque handle type used by JIT/runtime bridges.
@@ -33,9 +34,9 @@ pub fn to_bool_vm(v: &VMValue) -> Result<bool, String> {
             if let Some(sb) = b.as_any().downcast_ref::<StringBox>() {
                 return Ok(!sb.value.is_empty());
             }
-            // VoidBox treated as Void → TypeError
-            if b.as_any().downcast_ref::<VoidBox>().is_some() {
-                return Err("VoidBox in boolean context".to_string());
+            // Null/Void surface aliases share one runtime no-value meaning.
+            if NullBox::check_null(b.as_ref()) {
+                return Err("Null/Void box in boolean context".to_string());
             }
             Err(format!("cannot coerce BoxRef({}) to bool", b.type_name()))
         }
@@ -69,16 +70,16 @@ pub fn eq_vm(a: &VMValue, b: &VMValue) -> bool {
             false
         }
         (BoxRef(ax), BoxRef(by)) => Arc::ptr_eq(ax, by),
-        // Treat BoxRef(VoidBox/MissingBox) as equal to Void (null) for backward compatibility
+        // Treat BoxRef(NullBox/VoidBox/MissingBox) as equal to runtime Void for compatibility.
         (BoxRef(bx), Void) => {
-            bx.as_any().downcast_ref::<VoidBox>().is_some()
+            NullBox::check_null(bx.as_ref())
                 || bx
                     .as_any()
                     .downcast_ref::<crate::boxes::missing_box::MissingBox>()
                     .is_some()
         }
         (Void, BoxRef(bx)) => {
-            bx.as_any().downcast_ref::<VoidBox>().is_some()
+            NullBox::check_null(bx.as_ref())
                 || bx
                     .as_any()
                     .downcast_ref::<crate::boxes::missing_box::MissingBox>()

@@ -1,7 +1,8 @@
 /*! 🚫 NullBox - NULL値表現Box
  *
  * ## 📝 概要
- * null/void値を表現する特別なBox。
+ * null値の互換表現Box。
+ * 実行意味論の正本は `Void` で、NullBox は surface/compat 用の別名として扱う。
  * JavaScript null、Python None、C# nullと同等の機能を提供。
  * NULL安全プログラミングをサポート。
  *
@@ -84,7 +85,7 @@
  * - メソッド呼び出し時のnullチェックでNullPointerException防止
  */
 
-use crate::box_trait::{BoolBox, BoxBase, BoxCore, NyashBox, StringBox};
+use crate::box_trait::{BoolBox, BoxBase, BoxCore, NyashBox, StringBox, VoidBox};
 use std::any::Any;
 use std::fmt::{Debug, Display};
 
@@ -114,6 +115,7 @@ impl NullBox {
     /// 他の値がnullかどうかを判定
     pub fn check_null(value: &dyn NyashBox) -> bool {
         value.as_any().downcast_ref::<NullBox>().is_some()
+            || value.as_any().downcast_ref::<VoidBox>().is_some()
     }
 
     /// 他の値がnullでないかを判定
@@ -172,8 +174,7 @@ impl NyashBox for NullBox {
     }
 
     fn equals(&self, other: &dyn NyashBox) -> BoolBox {
-        // すべてのNullBoxは等しい
-        BoolBox::new(other.as_any().downcast_ref::<NullBox>().is_some())
+        BoolBox::new(Self::check_null(other))
     }
 }
 
@@ -205,11 +206,14 @@ mod tests {
     fn test_null_check() {
         let null_box = null();
         let int_box = Box::new(IntegerBox::new(42));
+        let void_box = Box::new(VoidBox::new());
 
         assert!(NullBox::check_null(null_box.as_ref()));
+        assert!(NullBox::check_null(void_box.as_ref()));
         assert!(!NullBox::check_null(int_box.as_ref()));
 
         assert!(!NullBox::check_not_null(null_box.as_ref()));
+        assert!(!NullBox::check_not_null(void_box.as_ref()));
         assert!(NullBox::check_not_null(int_box.as_ref()));
     }
 
@@ -217,9 +221,11 @@ mod tests {
     fn test_null_equality() {
         let null1 = NullBox::new();
         let null2 = NullBox::new();
+        let void_box = VoidBox::new();
         let int_box = IntegerBox::new(42);
 
         assert!(null1.equals(&null2).value);
+        assert!(null1.equals(&void_box).value);
         assert!(!null1.equals(&int_box).value);
     }
 

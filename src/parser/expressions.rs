@@ -298,6 +298,10 @@ impl NyashParser {
                 self.advance();
                 Ok(crate::ast::LiteralValue::Null)
             }
+            TokenType::VOID => {
+                self.advance();
+                Ok(crate::ast::LiteralValue::Void)
+            }
             _ => {
                 let line = self.current_token().line;
                 Err(ParseError::UnexpectedToken {

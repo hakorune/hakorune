@@ -23,6 +23,8 @@ pub mod parser_lambda_call;
 pub mod parser_loop_scan_range_shape;
 #[path = "../parser_method_postfix.rs"]
 pub mod parser_method_postfix;
+#[path = "../parser_null_void_surface.rs"]
+pub mod parser_null_void_surface;
 #[path = "../parser_opt_annotations.rs"]
 pub mod parser_opt_annotations;
 #[path = "../parser_outbox_contract.rs"]

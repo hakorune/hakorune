@@ -20,7 +20,7 @@
  *
  * ### 🗄️ コレクション・データBox
  * - **MapBox**: キー値ストレージ - `map.set(key, val)`, `map.get(key)`
- * - **NullBox**: NULL値表現 - `null.toString()` → "void"
+ * - **NullBox**: surface/compat 用の no-value alias（runtime 意味論は Void に収束）
  *
  * ### 🖼️ GUI・グラフィックBox
  * - **EguiBox**: デスクトップGUI - `gui.setTitle()`, `gui.run()`

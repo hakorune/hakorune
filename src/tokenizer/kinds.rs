@@ -10,6 +10,7 @@ pub enum TokenType {
     TRUE,
     FALSE,
     NULL,
+    VOID,
 
     // キーワード
     BOX,

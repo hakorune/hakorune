@@ -7,7 +7,7 @@ import os
 import sys
 import llvmlite.ir as ir
 from typing import Dict, Optional, Any
-from instructions.sum_ops import _resolve_local_sum_aggregate, materialize_local_sum_aggregate
+from instructions.sum_escape import materialize_sum_escape_value_if_needed
 try:
     # Create PHIs at block head to satisfy LLVM invariant
     from ..phi_wiring.wiring import phi_at_block_head as _phi_at_block_head
@@ -274,15 +274,14 @@ def lower_return(
         # Get return value (prefer resolver)
         ret_val = None
         if isinstance(value_id, int):
-            local_sum = _resolve_local_sum_aggregate(int(value_id), vmap, resolver)
-            if local_sum is not None:
-                ret_val = materialize_local_sum_aggregate(
-                    builder,
-                    builder.block.parent.module,
-                    local_sum,
-                    resolver,
-                    name_hint=f"ret_{value_id}",
-                )
+            ret_val = materialize_sum_escape_value_if_needed(
+                builder,
+                builder.block.parent.module,
+                int(value_id),
+                vmap,
+                resolver,
+                name_hint=f"ret_{value_id}",
+            )
         # Fast path (dominance-safe):
         # only reuse vmap value when it is guaranteed to dominate this return block.
         if ret_val is None and isinstance(value_id, int):

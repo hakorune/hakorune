@@ -158,6 +158,15 @@ impl NyashParser {
                     span: Span::new(0, 0, line, column),
                 })
             }
+            TokenType::VOID => {
+                let line = self.current_token().line;
+                let column = self.current_token().column;
+                self.advance();
+                Ok(ASTNode::Literal {
+                    value: LiteralValue::Void,
+                    span: Span::new(0, 0, line, column),
+                })
+            }
             TokenType::THIS => {
                 let line = self.current_token().line;
                 let column = self.current_token().column;

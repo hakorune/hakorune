@@ -30,9 +30,7 @@ pub fn matches_spec(value: &VMValue, spec: &RuntimeTypeSpec) -> bool {
         RuntimeTypeSpec::Void => match value {
             VMValue::Void => true,
             VMValue::BoxRef(bx) => {
-                bx.as_any()
-                    .downcast_ref::<crate::box_trait::VoidBox>()
-                    .is_some()
+                crate::boxes::null_box::NullBox::check_null(bx.as_ref())
                     || bx
                         .as_any()
                         .downcast_ref::<crate::boxes::missing_box::MissingBox>()

@@ -1,8 +1,9 @@
-//! VoidBox - Void/null values in Nyash
+//! VoidBox - canonical no-value representation in Nyash.
 //!
-//! Implements the core VoidBox type representing empty or null results.
+//! `null` remains a surface/compat spelling, but runtime semantics collapse to `Void`.
 
 use crate::box_trait::{BoolBox, BoxBase, BoxCore, NyashBox, StringBox};
+use crate::boxes::null_box::NullBox;
 use std::any::Any;
 use std::fmt::{Debug, Display};
 
@@ -54,7 +55,7 @@ impl NyashBox for VoidBox {
     }
 
     fn equals(&self, other: &dyn NyashBox) -> BoolBox {
-        BoolBox::new(other.as_any().is::<VoidBox>())
+        BoolBox::new(other.as_any().is::<VoidBox>() || other.as_any().is::<NullBox>())
     }
 
     fn type_name(&self) -> &'static str {

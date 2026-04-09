@@ -1,18 +1,16 @@
 /*!
- * Builtin NullBox Implementation (Phase 15.5: Consider Keeping?)
+ * Builtin NullBox fallback.
  *
- * 🤔 CONSIDERATION: NullBox might be fundamental enough to remain builtin
- * 📋 Discussion needed: Is null a language primitive or plugin concern?
+ * `null` remains a surface/compat spelling. The runtime no-value meaning is
+ * canonicalized on `Void`, but builtin construction still needs a thin NullBox
+ * route for legacy/plugin-free paths.
  */
 
 use crate::box_factory::RuntimeError;
 use crate::box_trait::NyashBox;
 
-/// Create builtin NullBox instance
-///
-/// 🤔 DISCUSSION: Should null remain as builtin language primitive?
+/// Create builtin NullBox instance for fallback/runtime-compat paths.
 pub fn create(_args: &[Box<dyn NyashBox>]) -> Result<Box<dyn NyashBox>, RuntimeError> {
-    // Note: No deprecation warning - null might remain builtin
     Ok(Box::new(crate::boxes::null_box::NullBox::new()))
 }
 
