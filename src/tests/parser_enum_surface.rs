@@ -76,3 +76,16 @@ enum Token {
     assert_eq!(variants[1].name, "Eof");
     assert!(variants[1].record_field_decls.is_empty());
 }
+
+#[test]
+fn parse_enum_surface_rejects_multi_payload_tuple_variants_for_now() {
+    let src = r#"
+enum Pair {
+  Both(Integer, Integer)
+}
+"#;
+
+    let error = NyashParser::parse_from_string(src).expect_err("multi-payload tuple stays out");
+    let message = error.to_string();
+    assert!(message.contains("single payload variant in the current enum surface"));
+}

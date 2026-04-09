@@ -131,6 +131,14 @@ Still not in this cut:
 - generic `where` bounds
 - partial specialization / template metaprogramming
 
+### 4.1 tuple multi-payload route stays boxed unless canonical sum changes
+
+- current tuple multi-payload is not a parser-only gap
+- AST / Stage1 Program JSON / JSON v0 bridge / MIR metadata all currently assume the canonical sum lane carries at most one payload slot
+- under the lifecycle-value parent, land thin-entry inventory for known user-box / enum local routes before reopening tuple multi-payload
+- when tuple multi-payload work resumes, prefer the same synthetic hidden payload box route already used by record variants
+- do not widen `EnumCtor` / `EnumMatch` / `SumMake` / `SumProject` in the same cut unless a separate canonical-sum decision explicitly approves it
+
 ### 5. generic semantics start as declaration/type-fact support
 
 - generic parameters belong in declarations and type references first

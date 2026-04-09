@@ -322,6 +322,25 @@ static box Main {
     }
 
     #[test]
+    fn source_to_program_json_v0_rejects_multi_payload_tuple_variant_surface_for_now() {
+        let source = r#"
+enum Pair {
+  Both(Integer, Integer)
+}
+
+static box Main {
+  main() {
+    return 0
+  }
+}
+"#;
+
+        let error =
+            source_to_program_json_v0_strict(source).expect_err("multi-payload tuple stays out");
+        assert!(error.contains("single payload variant in the current enum surface"));
+    }
+
+    #[test]
     fn source_to_program_json_v0_compiler_stageb_main_supported() {
         let source = include_str!("../../lang/src/compiler/entry/compiler_stageb.hako");
         let json = source_to_program_json_v0_strict(source).expect("program json");

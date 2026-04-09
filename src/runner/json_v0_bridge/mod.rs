@@ -364,6 +364,36 @@ mod tests {
     }
 
     #[test]
+    fn parse_json_v0_to_module_rejects_ctor_with_multiple_payload_args() {
+        let json = json!({
+            "version": 0,
+            "kind": "Program",
+            "enum_decls": option_enum_decls(),
+            "body": [
+                {
+                    "type": "Return",
+                    "expr": {
+                        "type": "EnumCtor",
+                        "enum": "Option",
+                        "variant": "Some",
+                        "payload_type": "Integer",
+                        "args": [
+                            { "type": "Int", "value": 1 },
+                            { "type": "Int", "value": 2 }
+                        ]
+                    }
+                }
+            ]
+        })
+        .to_string();
+
+        let error =
+            parse_json_v0_to_module(&json).expect_err("json v0 sum lane stays single-payload");
+        assert!(error.contains("[freeze:contract][json_v0][enum_ctor]"));
+        assert!(error.contains("expects 1 arg(s), got 2"));
+    }
+
+    #[test]
     fn sum_ops_survive_mir_json_roundtrip() {
         let _lock = env_guard().lock().expect("env lock");
         std::env::set_var("NYASH_JSON_SCHEMA_V1", "0");

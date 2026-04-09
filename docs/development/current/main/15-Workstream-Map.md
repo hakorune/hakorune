@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-07
+Date: 2026-04-09
 Scope: current mainline / next lane / parked corridor の one-screen map。
 Related:
   - CURRENT_TASK.md
@@ -15,11 +15,11 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-163x primitive and user-box fast path` |
-| Front | `field_decls authority -> user-box local gate -> typed user-box field access` |
+| Front | `lifecycle value parent locked -> aggregate/objectization audits landed -> thin-entry inventory` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | user-box local perf gate `kilo_micro_userbox_point_add` がまだない |
-| Next | `phase-163x typed user-box field access pilot` |
-| After Next | `phase-137x` string guardrail reread / validation |
+| Blocker | thin-entry inventory under the lifecycle-value parent is not landed yet |
+| Next | `phase-163x thin-entry inventory under the lifecycle-value parent` |
+| After Next | `re-evaluate tuple multi-payload vs ny-llvmc parity after thin-entry inventory` |
 
 ## Current Read
 

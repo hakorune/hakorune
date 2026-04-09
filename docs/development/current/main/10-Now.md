@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-04-07
+Date: 2026-04-09
 Scope: current lane / blocker / next pointer だけを置く薄い mirror。
 Related:
   - CURRENT_TASK.md
@@ -14,10 +14,14 @@ Related:
 
 - lane: `phase-163x primitive and user-box fast path`
 - current implementation focus:
+  - parent design locked: `lifecycle-typed-value-language-ssot.md`
   - keep `field_decls` as authority
   - keep names-only `fields` as compatibility mirror
-  - next add `kilo_micro_userbox_point_add`
-  - then pilot typed user-box field access on the internal path
+  - aggregate/objectization audits landed:
+    - `phase163x-aggregate-truth-audit-2026-04-09.md`
+    - `phase163x-early-objectization-audit-2026-04-09.md`
+  - next fixed cut: thin-entry inventory for known user-box + enum/sum local routes
+  - tuple multi-payload stays deferred until after thin-entry inventory and any later canonical-sum decision
 - sibling string guardrail:
   - `phase-137x main kilo reopen selection`
   - `kilo_micro_substring_views_only`
@@ -131,7 +135,7 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-163x/README.md`
-3. `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
-4. `docs/development/current/main/phases/phase-137x/README.md`
-5. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+2. `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
+3. `docs/development/current/main/phases/phase-163x/README.md`
+4. `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
+5. `docs/development/current/main/phases/phase-137x/README.md`

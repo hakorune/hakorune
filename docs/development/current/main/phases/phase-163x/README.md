@@ -7,6 +7,7 @@
   - `docs/development/current/main/05-Restart-Quick-Resume.md`
   - `docs/development/current/main/10-Now.md`
   - `docs/development/current/main/15-Workstream-Map.md`
+  - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
   - `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
   - `src/mir/storage_class.rs`
   - `src/mir/instruction.rs`
@@ -27,6 +28,8 @@
 
 - design owner:
   - `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
+- lifecycle/value parent design owner:
+  - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
 - post-primitive backlog design owner:
   - `docs/development/current/main/design/enum-sum-and-generic-surface-ssot.md`
 - sibling guardrail lane:
@@ -95,11 +98,16 @@
     - known-enum shorthand match accepts `Ident { name } => ...`
     - record payloads lower through synthetic hidden payload boxes `__NyEnumPayload_<Enum>_<Variant>` while enum values themselves stay on the existing sum lane
     - constructors / patterns must mention the declared field set exactly; multi-payload variants stay deferred
-- post-primitive follow-on queue:
-  1. decide the next post-record enum follow-up:
-     - multi-payload expansion
-     - or a separate `ny-llvmc` parity wave
-  2. keep `where` / enum methods / full monomorphization in backlog
+  - post-primitive follow-on queue:
+    1. keep `lifecycle-typed-value-language-ssot.md` as the parent reading for boxless interior / boxed boundary work
+    2. keep the aggregate/objectization audit pair as the current evidence base:
+      - `docs/development/current/main/investigations/phase163x-aggregate-truth-audit-2026-04-09.md`
+      - `docs/development/current/main/investigations/phase163x-early-objectization-audit-2026-04-09.md`
+    3. next fixed cut = thin-entry inventory for known user-box + enum/sum local routes under the lifecycle-value parent
+    4. only after thin-entry inventory, re-open the next post-record enum follow-up:
+      - tuple multi-payload expansion only if semantic truth stays aggregate/sum-first and compat boxing remains backend-local
+      - or a separate `ny-llvmc` parity wave
+    5. keep `where` / enum methods / full monomorphization in backlog
 
 ## Fixed Task Order
 

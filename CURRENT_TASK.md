@@ -28,6 +28,8 @@ Scope: repo root から current lane / current front / restart read order に最
   - `phase-163x primitive and user-box fast path`
 - current primitive/user-box design anchor:
   - `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
+- lifecycle/value architecture anchor:
+  - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
 - post-primitive enum/generic design anchor:
   - `docs/development/current/main/design/enum-sum-and-generic-surface-ssot.md`
 - sibling string guardrail anchor:
@@ -117,14 +119,22 @@ Scope: repo root から current lane / current front / restart read order に最
   - `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
 - active lane/front:
   - lane: `phase-163x primitive and user-box fast path`
+  - lifecycle/value parent anchor:
+    - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
   - local gates:
     - `kilo_micro_userbox_point_add`
     - `kilo_micro_userbox_flag_toggle`
   - post-primitive follow-on queue:
-    1. decide the next post-record enum cut:
-       - multi-payload expansion
+    1. keep `lifecycle-typed-value-language-ssot.md` as the architecture parent for boxless interior / boxed boundary work
+    2. keep the landed audit pair as the decision base:
+       - `docs/development/current/main/investigations/phase163x-aggregate-truth-audit-2026-04-09.md`
+       - `docs/development/current/main/investigations/phase163x-early-objectization-audit-2026-04-09.md`
+    3. next fixed cut:
+       - thin-entry inventory for known user-box + enum/sum local routes under the lifecycle-value parent
+    4. only after thin-entry inventory, re-evaluate:
+       - tuple multi-payload expansion with aggregate truth and compat-only payload boxing
        - or a separate `ny-llvmc` parity wave
-    2. keep `where` / enum methods / full monomorphization in backlog
+    5. keep `where` / enum methods / full monomorphization in backlog
   - sibling string guardrail accept gate:
     - `kilo_micro_substring_only`
   - sibling string guardrail split exact fronts:
@@ -246,6 +256,7 @@ Scope: repo root から current lane / current front / restart read order に最
     4. latest keeper eliminated the remaining `len_h` control-plane hot loads; do not reopen `len_h` local cuts until `substring` is re-read
     5. do not reopen broad provider-adoption or common-case body duplication cuts already rejected in `phase-137x`
 - first files to reopen for the next slice:
+  - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
   - `docs/development/current/main/phases/phase-163x/README.md`
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
   - `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
