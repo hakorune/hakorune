@@ -93,6 +93,63 @@
         return 0;
       }
 
+      auto int known_string_concat_piece_len(
+          long long reg,
+          long long* out_len,
+          int depth);
+
+      auto int known_string_concat_chain_len(long long reg, long long* out_len) {
+        long long lhs = 0;
+        long long rhs = 0;
+        long long first = 0;
+        long long second = 0;
+        long long third = 0;
+        long long total = 0;
+        reg = resolve_copy_source_reg(reg);
+        if (!reg) return 0;
+        if (find_string_concat_pair(reg, &lhs, &rhs)) {
+          long long lhs_len = 0;
+          long long rhs_len = 0;
+          if (!known_string_concat_piece_len(lhs, &lhs_len, 0)) return 0;
+          if (!known_string_concat_piece_len(rhs, &rhs_len, 0)) return 0;
+          total = lhs_len + rhs_len;
+          if (out_len) *out_len = total;
+          return 1;
+        }
+        if (find_string_concat_triple(reg, &first, &second, &third)) {
+          long long first_len = 0;
+          long long second_len = 0;
+          long long third_len = 0;
+          if (!known_string_concat_piece_len(first, &first_len, 0)) return 0;
+          if (!known_string_concat_piece_len(second, &second_len, 0)) return 0;
+          if (!known_string_concat_piece_len(third, &third_len, 0)) return 0;
+          total = first_len + second_len + third_len;
+          if (out_len) *out_len = total;
+          return 1;
+        }
+        return 0;
+      }
+
+      auto int known_string_concat_piece_len(
+          long long reg,
+          long long* out_len,
+          int depth) {
+        long long nested_len = 0;
+        const char* text = NULL;
+        reg = resolve_copy_source_reg(reg);
+        if (!reg || depth > 8) return 0;
+        text = get_str_const(reg);
+        if (text != NULL) {
+          if (out_len) *out_len = (long long)strlen(text);
+          return 1;
+        }
+        if (known_string_concat_chain_len(reg, &nested_len)) {
+          if (out_len) *out_len = nested_len;
+          return 1;
+        }
+        return 0;
+      }
+
       auto const char* string_concat_producer_kind_for_reg(long long reg) {
         long long lhs = 0;
         long long rhs = 0;
@@ -210,6 +267,37 @@
         other = lhs == reg ? rhs : lhs;
         if (is_known_string_concat_operand(other)) return 1;
         return future_reg_becomes_string_operand(insts, start_ii, use_ii, 0, other);
+      }
+
+      auto int is_string_concat_len_consumer_inst(
+          yyjson_val* ins,
+          long long reg) {
+        yyjson_val* mc = NULL;
+        yyjson_val* cal = NULL;
+        yyjson_val* args = NULL;
+        const char* op = read_str(ins, "op");
+        const char* ctype = NULL;
+        const char* mname = NULL;
+        long long recv = 0;
+        long long known_len = 0;
+        if (!(op && !strcmp(op, "mir_call"))) return 0;
+        mc = yyjson_obj_get(ins, "mir_call");
+        cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
+        args = mc ? yyjson_obj_get(mc, "args") : NULL;
+        ctype = cal ? read_str(cal, "type") : NULL;
+        mname = cal ? (read_str(cal, "method") ? read_str(cal, "method")
+                                               : read_str(cal, "name"))
+                    : NULL;
+        recv = cal ? resolve_copy_source_reg(read_int(cal, "receiver")) : 0;
+        if (!(ctype && !strcmp(ctype, "Method"))) return 0;
+        if (!(mname &&
+              (!strcmp(mname, "length") || !strcmp(mname, "len") ||
+               !strcmp(mname, "size")))) {
+          return 0;
+        }
+        if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) == 0)) return 0;
+        if (recv != resolve_copy_source_reg(reg)) return 0;
+        return known_string_concat_chain_len(recv, &known_len);
       }
 
       auto int is_string_concat_array_set_consumer_inst(yyjson_val* ins, long long reg) {
@@ -635,8 +723,14 @@
           yyjson_val* insts,
           long long dst) {
         size_t use_ii = 0;
+        long long final_reg = 0;
         if (!dst) return 0;
-        if (!find_single_use_inst(ii + 1, ilen, insts, dst, &use_ii)) return 0;
+        if (!follow_single_use_copy_chain_to_use(
+                ii + 1, ilen, insts, dst, &use_ii, &final_reg, NULL, NULL)) {
+          return 0;
+        }
         return is_string_concat_chain_consumer_inst(
-            yyjson_arr_get(insts, use_ii), insts, ii + 1, use_ii, dst);
+                   yyjson_arr_get(insts, use_ii), insts, ii + 1, use_ii, final_reg) ||
+               is_string_concat_len_consumer_inst(
+                   yyjson_arr_get(insts, use_ii), final_reg);
       }

@@ -66,6 +66,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       yyjson_val* fns = yyjson_obj_get(root, "functions");
       yyjson_val* fn0 = hako_llvmc_find_entry_function(fns);
       hako_llvmc_entry_rune_selection selection;
+      yyjson_val* fn_metadata =
+          fn0 && yyjson_is_obj(fn0) ? yyjson_obj_get(fn0, "metadata") : NULL;
       yyjson_val* blocks = fn0 && yyjson_is_obj(fn0) ? yyjson_obj_get(fn0, "blocks") : NULL;
       if (!(blocks && yyjson_is_arr(blocks) && yyjson_arr_size(blocks) >= 1)) { yyjson_doc_free(d); break; }
       hako_llvmc_select_entry_runes(fn0, &selection);

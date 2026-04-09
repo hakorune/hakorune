@@ -1,11 +1,18 @@
 # Nyash MIR Instruction Set (Canonical SSOT)
 
 Status: Canonical (Source of Truth) — transitioning
-Last Updated: 2026-02-12
+Last Updated: 2026-04-09
 
 この文書はNyashのMIR命令セットの唯一の参照だよ。
 `src/mir/contracts/backend_core_ops.rs` の ledger と、この文書の機械可読カウントが一致することを SSOT 契約とする。
 Core-26 / Core-15 / Core-14 は運用プロファイル（目標）で、実装語彙（kept/removed）とは別軸。
+
+Primary implementation pointers:
+
+- `src/mir/instruction.rs` — canonical enum shape
+- `src/mir/contracts/backend_core_ops.rs` — kept/removed ledger, backend allowlists, doc-sync tests
+- `src/runner/mir_json_emit/mod.rs` — JSON metadata emission contract
+- `docs/reference/mir/metadata-facts-ssot.md` — function metadata JSON SSOT
 
 注意: Debug/Safepointはビルドモードでの降格用メタ命令であり、コア命令数には数えない。
 注意: KeepAlive/ReleaseStrong は lifecycle conformance のための命令（weak/hidden-root 対策）であり、Core-14/15 の最小コア数には数えない（ただし backend が実行する “実命令” である）。
@@ -42,6 +49,81 @@ Transition Note
 - SumMake
 - SumTag
 - SumProject
+
+## Current Kept Vocabulary（33）
+
+This is the current executable kept vocabulary from
+`src/mir/contracts/backend_core_ops.rs::MIR_INSTRUCTION_KEPT_TAGS`.
+It is the right inventory to consult when implementation, JSON emit, or backend
+allowlists are being updated.
+
+### Core data/control
+
+- Const
+- Copy
+- Load
+- Store
+- UnaryOp
+- BinOp
+- Compare
+- Branch
+- Jump
+- Phi
+- Return
+- Select
+
+### Object / field / construction
+
+- NewBox
+- NewClosure
+- FieldGet
+- FieldSet
+- RefNew
+
+### Call / type / lifecycle
+
+- Call
+- TypeOp
+- WeakRef
+- Barrier
+- KeepAlive
+- ReleaseStrong
+
+### Sum lane
+
+- SumMake
+- SumTag
+- SumProject
+
+### Exceptions / async / meta
+
+- Throw
+- Catch
+- Safepoint
+- FutureNew
+- FutureSet
+- Await
+- Debug
+
+## Canonical Sum JSON Ops
+
+`SumMake` / `SumTag` / `SumProject` are part of the kept vocabulary and are emitted
+to MIR JSON as dedicated ops. The concrete JSON shape comes from
+`src/runner/mir_json_emit/emitters/sum.rs`.
+
+| MIR instruction | JSON op | Required fields | Optional fields |
+| --- | --- | --- | --- |
+| `SumMake` | `sum_make` | `dst`, `enum`, `variant`, `tag` | `payload`, `payload_type` |
+| `SumTag` | `sum_tag` | `dst`, `value`, `enum` | none |
+| `SumProject` | `sum_project` | `dst`, `value`, `enum`, `variant`, `tag` | `payload_type` |
+
+Notes:
+
+- `payload_type` is a lowering hint, not a second semantic dialect.
+- Canonical MIR still keeps singular payload shape; tuple multi-payload stays on
+  compat transport above MIR.
+- `sum_make` / `sum_project` can be paired with the phase-163x metadata chain in
+  `functions[].metadata`; see `docs/reference/mir/metadata-facts-ssot.md`.
 
 ## Core Instructions（26）
 - Const
@@ -104,6 +186,26 @@ Notes
 ## Meta (降格対象; カウント外)
 - Debug
 - Safepoint
+
+## Function Metadata JSON
+
+The instruction ledger is only half of the current MIR contract. Metadata emitted
+under `functions[].metadata` is documented separately so instruction docs stay
+focused:
+
+- `docs/reference/mir/metadata-facts-ssot.md`
+
+Current emitted keys:
+
+- `value_types`
+- `storage_classes`
+- `string_corridor_facts`
+- `string_corridor_candidates`
+- `thin_entry_candidates`
+- `thin_entry_selections`
+- `sum_placement_facts`
+- `sum_placement_selections`
+- `sum_placement_layouts`
 
 ## 同期ルール
 - 命令の追加/削除/統合は、まずこの文書を更新し、次に実装（列挙/Printer/Verifier/Optimizer/VM）を同期する。

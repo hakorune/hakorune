@@ -84,8 +84,8 @@
   - `str.substring.route` observe read is now dominated by the steady-state handle-hit path: `view_arc_cache_handle_hit=599,998 / total=600,000`
   - current keeper removes redundant `view_enabled` state from `SubstringViewArcCache`; the cache only runs under `view_enabled`, so the extra key dimension was dead hot-path work
   - `2026-04-09` perf reread on `kilo_micro_substring_views_only`:
-    - exact: `instr=34,372,749 / cycles=6,415,829 / cache-miss=8,601 / AOT 4 ms`
-    - top: `nyash.string.substring_hii 85.99%`, `ny_main 7.30%`
+    - exact: `instr=34,363,814 / cycles=6,537,017 / cache-miss=10,232 / AOT 4 ms`
+    - top: `nyash.string.substring_hii 87.04%`, `ny_main 6.00%`
     - annotate says the first visible tax is still inside the caller entry:
       1. `SUBSTRING_ROUTE_POLICY_CACHE` load/decode
       2. `substring` provider state read + `SUBSTRING_VIEW_ARC_CACHE` TLS entry/state check
@@ -95,6 +95,19 @@
     1. `SUBSTRING_ROUTE_POLICY_CACHE` decode
     2. `substring_view_enabled` / fallback provider state reads
     3. only then `SubstringViewArcCache` steady-state compare
+  - boundary `pure-first` now consumes MIR JSON `string_corridor_*` for `substring(...).length()`:
+    - direct route trace hits `string_len_corridor -> substring_len_direct_kernel_entry`
+    - post-consumer reread on `kilo_micro_len_substring_views`: `instr=47,263,778 / cycles=28,345,762 / cache-miss=10,603 / AOT 9 ms`
+    - post-consumer reread on `kilo_micro_substring_views_only`: `instr=34,364,317 / cycles=6,565,794 / cache-miss=9,276 / AOT 5 ms`
+    - reading: this is a structural enabler, not yet the next local `substring_hii` keeper
+  - boundary `pure-first` now also lands the first generic concat observer pilot:
+    - single-use `concat pair/triple -> len()` now defers the concat producer and reads known chain length without forcing handle birth
+    - observe direct probe on `kilo_micro_concat_hh_len` now shows:
+      - `birth.placement`: all `0`
+      - `birth.backend`: `freeze_text_plan_total=0`, `string_box_new_total=0`, `handle_issue_total=0`, `materialize_owned_total=0`, `gc_alloc_called=0`
+      - `str.concat2.route=0`, `str.len.route=0`
+    - exact reread on `kilo_micro_concat_hh_len`: `instr=7,657,032 / cycles=2,284,266 / cache-miss=8,479 / AOT 4 ms`
+    - reading: this closes the first `concat -> len` observer slice; broader concat barriers stay on non-`len` consumers
   - current `substring_len_hii` pilot uses `with_text_read_session_ready(...)` to avoid the hot `REG` ready probe; current helper perf is the mixed sink candidate above
   - split exact reread now puts `substring_hii` retained-view path at `34.37M instr` while `len_h` becomes the smaller control split
   - current keeper is on `len_h`: hoist one `handles::drop_epoch()` read in `string_len_fast_cache_lookup()` and reuse it for both cache slots
@@ -160,12 +173,12 @@
   9. fixed task order:
      - step 1: docs-first; treat `string-canonical-mir-corridor-and-placement-pass-ssot.md` as the active design owner
      - step 2: landed; inventory canonical string corridor sites and current lowering carriers for `str.slice` / `str.len` / `freeze.str` via `src/mir/string_corridor.rs`
-     - step 3: landed; canonical MIR-side fact carrier is `FunctionMetadata.string_corridor_facts`, and verbose dumps expose it with no runtime behavior change
-     - step 4: landed; `src/mir/string_corridor_placement.rs` now reads `FunctionMetadata.string_corridor_facts`, emits no-op candidate decisions into `FunctionMetadata.string_corridor_candidates`, and exposes them in verbose MIR dumps
+     - step 3: landed; canonical MIR-side fact carrier is `FunctionMetadata.string_corridor_facts`, and verbose dumps plus MIR JSON expose it with no runtime behavior change
+     - step 4: landed; `src/mir/string_corridor_placement.rs` now reads `FunctionMetadata.string_corridor_facts`, emits no-op candidate decisions into `FunctionMetadata.string_corridor_candidates`, and exposes them in verbose MIR dumps plus MIR JSON
      - step 5: landed structurally; the first borrowed-corridor sinking pilot now rewrites single-use `substring(...).length()` chains to `nyash.string.substring_len_hii`
-     - step 6: before the next perf proof, run `phase-162x vm fallback lane separation cleanup`; keep runner compat fallback / kernel Rust fallback / `vm-hako` reference as separate owners
-     - step 7: next; validate the corridor-sink pilot with exact/whole/asm before claiming a keeper
-     - step 8: after corridor facts stabilize, add AOT-internal direct kernel entry selection; ABI/FFI keeps the facade
+     - step 6: landed; `phase-162x vm fallback lane separation cleanup` is complete, so this front now reads through `ny-llvmc(boundary pure-first)` without mixing fallback owners
+     - step 7: landed; boundary `pure-first` now consumes MIR JSON `string_corridor_*` metadata for `substring(...).length()` and hits `string_len_corridor -> substring_len_direct_kernel_entry`
+     - step 8: next; extend that consumer-side carrier to retained-view `substring_hii` local shapes on `kilo_micro_substring_views_only`
      - step 9: only then reopen new `substring_hii` runtime leaf cuts, and only with exact/asm proof
      - step 10: do not retry the same `len_h`-specific 4-box slice as-is; it did not clear exact or asm gates
      - step 11: keep this lane specific; do not generalize into a reusable scalar framework until a second lane wins the same pattern
@@ -202,7 +215,8 @@
   2. keep runtime cache mechanics as-is; broad provider adoption into the hot caller lost the local split
   3. read the rejected ledger before retrying any substring-local cut
   4. use the split exact pair before and after every provider-side change
-  5. next cleanup task must stay narrower than the rejected provider-adoption slice
+  5. use the landed `substring(...).length()` corridor consumer as the template for the next retained-view `substring_hii` carrier cut
+  6. next cleanup task must stay narrower than the rejected provider-adoption slice
 - lifecycle placement is fixed:
   - `.hako`: source-preserve / identity / publication demand
   - `MIR`: visibility carrier and escalation contract
@@ -286,7 +300,7 @@
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
   - `kilo_micro_concat_const_suffix`: `c_ms=3 / ny_aot_ms=36`
-  - `kilo_micro_concat_hh_len`: `c_ms=3 / ny_aot_ms=3`
+  - `kilo_micro_concat_hh_len`: `c_ms=3 / ny_aot_ms=4`
   - `kilo_micro_concat_birth`: `c_ms=6 / ny_aot_ms=3`
   - `kilo_micro_array_string_store`: `c_ms=9 / ny_aot_ms=173`
  - latest whole-kilo reread after keep API narrowing: `c_ms=77 / ny_aot_ms=708`
@@ -312,34 +326,26 @@
      - `source_string_box=800000`
    - current cache-churn hypothesis is not supported on that exact micro
    - `kilo_micro_concat_const_suffix` AOT direct probe does not hit `const_suffix`
-   - the current AOT workload lowers through `nyash.string.concat_hh` and `nyash.string.len_h`
-   - next local trim should therefore target the generic string concat/len consumer, not `concat_hs`
-   - `kilo_micro_concat_hh_len` now isolates that generic consumer without substring carry
+   - `kilo_micro_concat_hh_len` isolated the generic `concat -> len` consumer without substring carry, and that slice is now landed
    - `kilo_micro_concat_birth` now isolates fresh concat birth/materialize with only final `len`
    - `kilo_micro_concat_birth` direct probe currently shows:
      - `birth.placement`: `fresh_handle=800000`
      - `birth.backend`: `materialize_owned_total=800000`, `materialize_owned_bytes=14400000`, `gc_alloc_called=800000`, `gc_alloc_bytes=14400000`
      - `str.concat2.route`: `fast_str_owned=800000`, other classified routes `0`, `unclassified=0`
      - `str.len.route`: `fast_str_hit=1`, `latest_fresh_handle_fast_str_hit=1`, other classified routes `0`, `unclassified=0`
-   - `kilo_micro_concat_hh_len` Birth / Placement direct probe currently shows:
-     - `birth.placement`: `fresh_handle=800000`
-      - `birth.backend`: `materialize_owned_total=800000`, `materialize_owned_bytes=14400000`, `string_box_new_total=800000`, `string_box_new_bytes=14400000`, `handle_issue_total=800000`, `gc_alloc_called=800000`, `gc_alloc_bytes=14400000`
-     - `str.concat2.route`: `fast_str_owned=800000`, other classified routes `0`, `unclassified=0`
-     - `str.len.route`: `fast_str_hit=800002`, `latest_fresh_handle_fast_str_hit=800000`, other classified routes `0`, `unclassified=0`
-     - `return_handle / borrow_view / freeze_owned = 0`
-   - `NYASH_PERF_BYPASS_GC_ALLOC=1` diagnostic observe lane shows:
+   - `kilo_micro_concat_hh_len` observe direct probe now shows:
+     - `birth.placement`: `return_handle=0 / borrow_view=0 / freeze_owned=0 / fresh_handle=0 / materialize_owned=0 / store_from_source=0`
+     - `birth.backend`: `freeze_text_plan_total=0`, `string_box_new_total=0`, `handle_issue_total=0`, `materialize_owned_total=0`, `gc_alloc_called=0`
+     - `str.concat2.route`: `total=0`
+     - `str.len.route`: `total=0`
+     - latest exact reread: `instr=7,657,032 / cycles=2,284,266 / cache-miss=8,479 / AOT 4 ms`
+   - `NYASH_PERF_BYPASS_GC_ALLOC=1` diagnostic observe lane still matters only for `kilo_micro_concat_birth`:
      - `kilo_micro_concat_birth`: `50 -> 51 ms`
-     - `kilo_micro_concat_hh_len`: `72 -> 70 ms`
      - observe-build `kilo_kernel_small_hk`: `1077 -> 1084 ms`
      - direct probe cleanly flips:
        - `gc_alloc_called=800000 -> 0`
        - `gc_alloc_skipped=0 -> 800000`
-   - current evidence does not support `gc_alloc(...)` call overhead as the next main driver
-   - route conservation now also says:
-     - both exact fronts stay on `fast_str_owned`
-     - both `len` consumers stay on `fast_str_hit`
-     - `concat_hh + len_h` exact path usually reads the latest fresh handle directly after issue
-     - `unclassified=0`
+   - current evidence keeps `kilo_micro_concat_birth` as the remaining concat birth front; the landed `concat_hh_len` observer slice no longer exercises runtime concat/len routes
    - external design lock after the latest exact/whole split:
      - do not treat birth as one fused event
      - read current backend as:

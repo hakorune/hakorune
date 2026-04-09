@@ -18,7 +18,7 @@ Related:
 | Front | `lifecycle value parent locked -> audits landed -> thin-entry inventory/selection landed -> sum placement pilot landed -> ny-llvmc parity proving slice landed -> tuple compat transport landed` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
 | Blocker | `canonical multi-slot sum remains deferred; current tuple route stays compat-boxed` |
-| Next | `phase-163x` follow-on is closed; keep `where / enum methods / monomorphization` backlog-only |
+| Next | `phase163x-optimization-resume` after the landed void/null cleanup |
 | After Next | `where / enum methods / monomorphization stay backlog-only` |
 
 ## Current Read
@@ -101,7 +101,7 @@ Related:
 - current exact front truth:
   - `kilo_micro_concat_birth = 3ms`
   - `kilo_micro_concat_const_suffix = 36ms` (WSL lane: recheck with 3 runs)
-  - `kilo_micro_concat_hh_len = 3ms` (parity split)
+  - `kilo_micro_concat_hh_len = 4ms` (landed `concat -> len` observer slice)
 - landed capability lock before perf reopen:
   1. `phase-160x capability-family inventory`
   2. `phase-161x hot-path capability seam freeze`
@@ -118,7 +118,7 @@ Related:
   - second implementation consumer: `concat const-suffix`
   - exact micro:
     - `kilo_micro_concat_const_suffix = 84ms`
-    - `kilo_micro_concat_hh_len = 3ms`
+    - `kilo_micro_concat_hh_len = 4ms`
     - `kilo_micro_array_string_store = 169ms`
 
 ## Successor Corridor

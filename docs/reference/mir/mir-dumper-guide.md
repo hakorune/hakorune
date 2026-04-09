@@ -1,59 +1,81 @@
 # MIR Dumper Output Guide
 
-MIRダンプ出力を正しく読み解くためのガイドです。
+SSOT:
 
-## BoxCall vs 通常のCall の見分け方
+- `docs/reference/mir/INSTRUCTION_SET.md`
+- `docs/reference/mir/metadata-facts-ssot.md`
+- `docs/reference/mir/call-instructions-current.md`
 
-### BoxCall形式（プラグイン/ビルトインBoxのメソッド）
+このガイドは、現在の MIR テキストダンプ / verbose ダンプ / MIR JSON をどう読むかの
+入口だけを扱うよ。命令総覧や metadata の正本は上の SSOT を参照してね。
+
+## 1. Call の読み方
+
+Canonical MIR では callsite は `MirInstruction::Call` に統一されている。
+古い `BoxCall` / `ExternCall` は **canonical MIR の正本ではない**。
+
+### 典型的な読み方
+
 ```mir
-%8 = call %7.cloneSelf()
-%17 = call %7.open(%14, %16)
-%22 = call %7.write(%21)
-%23 = call %8.copyFrom(%7)
+%17 = call @main(%1, %2)
 ```
 
-**特徴：**
-- `call %値.メソッド名(引数)` の形式
-- 値（%7, %8など）に対して直接メソッドを呼ぶ
-- プラグインBoxやビルトインBoxで使用される
+- 実際の呼び先種別 (`Global` / `Method` / `Extern` / `Value`) は `callee` 側の契約で決まる
+- 詳細は `docs/reference/mir/call-instructions-current.md`
 
-### 通常のCall形式（ユーザー定義Boxのメソッド）
+## 2. Sum 命令の読み方
+
+phase-163x 以降、canonical sum lane は専用命令で観測する。
+
 ```mir
-%func = const "UserBox.calculate/2"
-%result = call %func(%me, %arg1)
+%7 = sum.make Option::Some(tag=1, payload=%3)
+%8 = sum.tag %7
+%9 = sum.project %7 as Option::Some(tag=1)
 ```
 
-**特徴：**
-- 事前に `const "クラス名.メソッド名/引数数"` で関数値を取得
-- `call %関数値(%me, 引数...)` の形式で呼び出し
-- 第1引数は常に `%me`（self相当）
+- `sum.make` = canonical sum construction
+- `sum.tag` = tag read
+- `sum.project` = matched variant payload projection
+- JSON ではそれぞれ `sum_make` / `sum_tag` / `sum_project`
 
-## 実例での比較
+## 3. Verbose ダンプで見える metadata
 
-### plugin_boxref_return.hakoのMIRダンプ
-```mir
-11: %7 = new FileBox()
-12: call %7.birth()
-13: %8 = call %7.cloneSelf()        ← BoxCall（プラグインメソッド）
-26: %17 = call %7.open(%14, %16)    ← BoxCall（プラグインメソッド）
-33: %22 = call %7.write(%21)        ← BoxCall（プラグインメソッド）
-34: %23 = call %8.copyFrom(%7)      ← BoxCall（プラグインメソッド）
+Verbose MIR (`--mir-verbose`) では命令本体に加えて inspection metadata が出る。
+
+主な見出し:
+
+- `String Corridor Facts`
+- `Thin Entry Candidates`
+- `Thin Entry Selections`
+- `Sum Placement Facts`
+- `Sum Placement Selections`
+- `Sum Placement Layouts`
+
+意味や JSON shape の正本は `docs/reference/mir/metadata-facts-ssot.md`。
+
+## 4. MIR JSON で見る場所
+
+MIR JSON では次の 2 箇所を読む:
+
+1. `functions[].blocks[].instructions[]` — canonical instructions
+2. `functions[].metadata` — inspection-only metadata facts
+
+例:
+
+```json
+{
+  "op": "sum_make",
+  "dst": 7,
+  "enum": "Option",
+  "variant": "Some",
+  "tag": 1,
+  "payload": 3,
+  "payload_type": "Integer"
+}
 ```
 
-これらはすべてBoxCall形式で、プラグインのFileBoxメソッドを直接呼び出しています。
+## 5. Historical note
 
-### ユーザー定義Boxの場合（仮想例）
-```mir
-; ユーザー定義Box "Calculator" のメソッド呼び出し
-%calc_func = const "Calculator.add/2"
-%result = call %calc_func(%me, %10, %20)
-```
-
-この場合は、MIR関数として事前にlower済みのメソッドを呼び出しています。
-
-## まとめ
-
-- **`call %値.メソッド()`** → BoxCall（プラグイン/ビルトイン）
-- **`call %関数値(%me, ...)`** → 通常のCall（ユーザー定義Box）
-
-MIRダンプを見る際は、この形式の違いに注目することで、どのタイプのメソッド呼び出しかを判断できます。
+このガイドの旧版は「BoxCall vs 通常の Call」の見分け方が主題だったけど、
+それは retired になった古い読み方だよ。現在の call 読みは `Call + Callee`
+前提で統一すること。

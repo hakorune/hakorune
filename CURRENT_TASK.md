@@ -160,7 +160,22 @@ Scope: repo root から current lane / current front / restart read order に最
         - parser/AST accept `Variant(T, U, ...)` and shorthand `Variant(a, b)` arms
         - Stage1 lowers tuple ctors/matches through `__NyEnumPayload_<Enum>_<Variant>` with `_0`, `_1`, ... synthetic field slots
         - canonical `EnumCtor` / `EnumMatch` / `SumMake` / `SumProject` stay single-slot
-    6. keep `where` / enum methods / full monomorphization in backlog
+    6. `void/null` cleanup is now landed:
+        - tokenizer/parser accept both `null` and `void` literal surface, including literal-match arms
+        - box helper aliasing now treats `null` and `void` as the same no-value family for direct compat checks
+        - reference EBNF now matches the executable surface for both literals
+    7. pre-optimization cleanup/doc sync is now landed:
+        - LLVM/Python local-sum escape barriers now share one helper instead of repeating materialization logic in `call` / `boxcall` / `ret`
+        - runtime nullish checks now converge on the `NullBox::check_null()` helper in the safe compat/tolerance paths touched by this lane
+        - MIR reference docs now split cleanly into instruction SSOT + metadata SSOT, and stale "all-in-one" references are reduced to thin pointers
+    8. next ready task: resume optimization lane
+        - `phase163x-optimization-resume`
+    9. deferred deep deletions (backlog only; do not mix into the current perf proof cut)
+        - `phase163x-deep-delete-sum-compat-carriers`
+          - retire the remaining `__NySum_*` / tuple-enum compat carriers after the current string guardrail keeper lands
+        - `phase163x-deep-delete-instance-legacy-field-store`
+          - remove `InstanceBox` dual legacy field-storage paths only after the current optimization proof and follow-on parity remain green
+    10. keep `where` / enum methods / full monomorphization in backlog
   - sibling string guardrail accept gate:
     - `kilo_micro_substring_only`
   - sibling string guardrail split exact fronts:
@@ -214,8 +229,8 @@ Scope: repo root から current lane / current front / restart read order に最
   - `nyash.string.substring_len_hii` is now the current mixed sink candidate; it uses `with_text_read_session_ready(...)` to avoid the hot `REG` ready probe and currently rereads at `47,270,021 instr / 28,264,307 cycles / 9,191 cache-miss / 8 ms`
   - split exact fronts now put `substring_hii` retained-view path at `34.37M instr`
   - `2026-04-09` perf reread on `kilo_micro_substring_views_only`:
-    - exact: `instr=34,372,749 / cycles=6,415,829 / cache-miss=8,601 / AOT 4 ms`
-    - top: `nyash.string.substring_hii 85.99%`, `ny_main 7.30%`
+    - exact: `instr=34,363,814 / cycles=6,537,017 / cache-miss=10,232 / AOT 4 ms`
+    - top: `nyash.string.substring_hii 87.04%`, `ny_main 6.00%`
     - annotate reading:
       1. first hot cluster is `SUBSTRING_ROUTE_POLICY_CACHE` load/decode
       2. second hot cluster is `substring` provider state read + `SUBSTRING_VIEW_ARC_CACHE` TLS entry/state check
@@ -237,6 +252,28 @@ Scope: repo root から current lane / current front / restart read order に最
     - single-use `substring(...).length()` chains can sink to `nyash.string.substring_len_hii`
     - kernel export + MIR interpreter fallback are in place
     - current status is structural plus perf-positive candidate: compile/test are green, and the mixed accept gate now rereads at `instr=47,270,021 / cycles=28,264,307 / cache-miss=9,191 / AOT 8 ms`
+  - upstream carrier is now also landed in MIR JSON:
+    - `functions[].metadata` emits `string_corridor_facts` and `string_corridor_candidates`
+    - boundary `pure-first` can now consume the same corridor vocabulary that verbose MIR already exposed
+  - boundary `pure-first` consumer is now landed for `substring(...).length()`:
+    - direct route trace on `kilo_micro_len_substring_views` shows `string_len_corridor -> substring_len_direct_kernel_entry`
+    - post-consumer reread on `kilo_micro_len_substring_views`: `instr=47,263,778 / cycles=28,345,762 / cache-miss=10,603 / AOT 9 ms`
+    - post-consumer reread on `kilo_micro_substring_views_only`: `instr=34,364,317 / cycles=6,565,794 / cache-miss=9,276 / AOT 5 ms`
+    - current reading: the consumer slice is a structural enabler, but the next visible keeper still has to come from retained-view `substring_hii` shapes rather than another runtime-local retry
+  - concat/objectization reading is now fixed before the next cut:
+    - exact `kilo_micro_substring_concat` is already parity-locked through the existing pure-first exact seed, so it does not prove the generic concat consumer lane
+    - the generic concat observer front is `kilo_micro_concat_hh_len`
+    - landed first generic observer pilot:
+      - defer concat pair/triple when the consumer stays in compiler-visible string observers
+      - lower `len()` from concat chain state without forcing immediate handle birth when the chain stays compile-time-known
+    - `2026-04-09` observe direct probe on `kilo_micro_concat_hh_len` now shows:
+      - `birth.placement`: `return_handle=0 / borrow_view=0 / freeze_owned=0 / fresh_handle=0 / materialize_owned=0 / store_from_source=0`
+      - `birth.backend`: `freeze_text_plan_total=0 / string_box_new_total=0 / handle_issue_total=0 / materialize_owned_total=0 / gc_alloc_called=0`
+      - `str.concat2.route=0`, `str.len.route=0`
+    - `2026-04-09` exact reread on `kilo_micro_concat_hh_len`: `instr=7,657,032 / cycles=2,284,266 / cache-miss=8,479 / AOT 4 ms`
+    - next concat barrier slice stays deferred:
+      - `substring` / `return` / `store` / host-boundary concat consumers
+      - keep that work separate from this landed `concat -> len` observer cut
 - rejected perf history:
   - exact evidence is centralized in
     `docs/development/current/main/investigations/phase137x-substring-rejected-optimizations-2026-04-08.md`
@@ -281,6 +318,10 @@ Scope: repo root から current lane / current front / restart read order に最
     3. keep `len_h` runtime mechanics stable unless split fronts move again
     4. latest keeper eliminated the remaining `len_h` control-plane hot loads; do not reopen `len_h` local cuts until `substring` is re-read
     5. do not reopen broad provider-adoption or common-case body duplication cuts already rejected in `phase-137x`
+    6. treat concat transient work as a separate observer front:
+       - exact seed lane: `kilo_micro_substring_concat`
+       - generic consumer lane: `kilo_micro_concat_hh_len`
+       - first cut is `concat -> len` only; broader concat barrier elimination waits for a second proof
 - first files to reopen for the next slice:
   - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
   - `docs/development/current/main/phases/phase-163x/README.md`

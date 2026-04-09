@@ -39,7 +39,17 @@ Related:
     - parser/AST accept `Variant(T, U, ...)` while keeping tuple payload truth above canonical MIR
     - Stage1 lowers tuple ctors/matches through `__NyEnumPayload_<Enum>_<Variant>` with synthetic `_0`, `_1`, ... fields
     - canonical `EnumCtor` / `EnumMatch` / `SumMake` / `SumProject` stay single-slot
-  - remaining follow-ons stay backlog-only: `where`, enum methods, full monomorphization
+  - void/null cleanup is now landed too:
+    - executable surface now accepts both `null` and `void`
+    - literal-match parsing accepts `void` arms
+    - direct compat null checks treat `VoidBox` and `NullBox` as the same no-value family
+  - pre-optimization cleanup/doc sync is now landed too:
+    - LLVM/Python local-sum escape barriers now share one helper instead of repeating the same materialization wrapper in `call` / `boxcall` / `ret`
+    - runtime nullish checks now converge on `NullBox::check_null()` for the safe compat/tolerance paths touched in this slice
+    - MIR reference docs are now split into instruction SSOT + metadata SSOT, while stale "all-in-one" references are reduced to thin pointers
+  - next ready follow-on is `phase163x-optimization-resume`
+    - immediate cut: extend the landed boundary `pure-first` corridor consumer from `substring(...).length()` into retained-view `substring_hii` local shapes
+  - remaining semantic follow-ons stay backlog-only: `where`, enum methods, full monomorphization
 - sibling string guardrail:
   - `phase-137x main kilo reopen selection`
   - `kilo_micro_substring_views_only`
@@ -48,6 +58,8 @@ Related:
 - current landed upstream slices:
   - string corridor facts inventory
   - placement/effect scaffold
+  - MIR JSON carrier for `string_corridor_facts` / `string_corridor_candidates`
+  - boundary `pure-first` consumer for `substring(...).length()` via `substring_len_hii`
   - first borrowed-corridor sink pilot for single-use `substring(...).length()`
   - typed `field_decls` carrier + canonical `field.get` / `field.set`
   - declared-field storage bridge
@@ -138,8 +150,12 @@ Related:
     - whole `kilo_kernel_small_hk = 703ms`
     - exact micro `kilo_micro_concat_birth = 3ms`
     - exact micro `kilo_micro_concat_const_suffix = 36ms`
-    - exact micro `kilo_micro_concat_hh_len = 3ms`
+    - exact micro `kilo_micro_concat_hh_len = 4ms`
     - exact micro `kilo_micro_array_string_store = 169ms`
+  - landed concat observer pilot:
+    - generic `concat -> len` on `kilo_micro_concat_hh_len` now stays fully boxless in the observe lane
+    - direct probe now shows `birth.placement=0`, `materialize_owned_total=0`, `string_box_new_total=0`, `handle_issue_total=0`
+    - remaining concat barrier work stays on non-`len` consumers (`substring` / `return` / `store` / host boundary)
   - current rule:
     - structure first
     - exact/whole benchmark second

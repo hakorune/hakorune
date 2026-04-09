@@ -66,4 +66,34 @@
         }
       }
 
+      auto yyjson_val* hako_llvmc_string_corridor_value_candidates(long long value) {
+        char key[32];
+        yyjson_val* candidates = NULL;
+        if (!(fn_metadata && value)) return NULL;
+        value = resolve_copy_source_reg(value);
+        snprintf(key, sizeof(key), "%lld", value);
+        candidates = yyjson_obj_get(fn_metadata, "string_corridor_candidates");
+        if (!(candidates && yyjson_is_obj(candidates))) return NULL;
+        candidates = yyjson_obj_get(candidates, key);
+        if (!(candidates && yyjson_is_arr(candidates))) return NULL;
+        return candidates;
+      }
+
+      auto int hako_llvmc_string_corridor_has_candidate(
+          long long value,
+          const char* kind) {
+        yyjson_val* candidates = hako_llvmc_string_corridor_value_candidates(value);
+        size_t count = candidates ? yyjson_arr_size(candidates) : 0;
+        if (!(candidates && kind)) return 0;
+        for (size_t i = 0; i < count; i++) {
+          yyjson_val* candidate = yyjson_arr_get(candidates, i);
+          const char* candidate_kind =
+              candidate ? yyjson_get_str(yyjson_obj_get(candidate, "kind")) : NULL;
+          if (candidate_kind && !strcmp(candidate_kind, kind)) {
+            return 1;
+          }
+        }
+        return 0;
+      }
+
       #endif

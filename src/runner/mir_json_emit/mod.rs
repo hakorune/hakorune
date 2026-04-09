@@ -84,6 +84,26 @@ fn build_mir_json_root(module: &crate::mir::MirModule) -> Result<serde_json::Val
             "storage_classes": f.metadata.value_storage_classes.iter().map(|(k, v)| {
                 (k.as_u32().to_string(), json!(v.to_string()))
             }).collect::<serde_json::Map<String, serde_json::Value>>(),
+            "string_corridor_facts": f.metadata.string_corridor_facts.iter().map(|(k, fact)| {
+                (k.as_u32().to_string(), json!({
+                    "op": fact.op.to_string(),
+                    "role": fact.role.to_string(),
+                    "carrier": fact.carrier.to_string(),
+                    "outcome": fact.outcome.map(|outcome| outcome.to_string()),
+                    "objectize": fact.objectize.to_string(),
+                    "publish": fact.publish.to_string(),
+                    "materialize": fact.materialize.to_string(),
+                }))
+            }).collect::<serde_json::Map<String, serde_json::Value>>(),
+            "string_corridor_candidates": f.metadata.string_corridor_candidates.iter().map(|(k, candidates)| {
+                (k.as_u32().to_string(), json!(candidates.iter().map(|candidate| {
+                    json!({
+                        "kind": candidate.kind.to_string(),
+                        "state": candidate.state.to_string(),
+                        "reason": candidate.reason,
+                    })
+                }).collect::<Vec<_>>()))
+            }).collect::<serde_json::Map<String, serde_json::Value>>(),
             "thin_entry_candidates": f.metadata.thin_entry_candidates.iter().map(|candidate| {
                 json!({
                     "block": candidate.block.as_u32(),
@@ -534,6 +554,64 @@ mod tests {
         assert_eq!(candidates[0]["current_carrier"], "compat_box");
         assert_eq!(candidates[0]["value_class"], "agg_local");
         assert_eq!(candidates[0]["value"], 7);
+    }
+
+    #[test]
+    fn build_mir_json_root_emits_string_corridor_facts() {
+        let mut module = MirModule::new("test".to_string());
+        let mut function = make_function("main", true);
+        function.metadata.string_corridor_facts.insert(
+            crate::mir::ValueId::new(7),
+            crate::mir::StringCorridorFact::str_slice(
+                crate::mir::StringCorridorCarrier::MethodCall,
+            ),
+        );
+        module.functions.insert("main".to_string(), function);
+
+        let root = build_mir_json_root(&module).expect("mir json root");
+        let facts = root["functions"][0]["metadata"]["string_corridor_facts"]
+            .as_object()
+            .expect("string_corridor_facts object");
+
+        assert_eq!(facts["7"]["op"], "str.slice");
+        assert_eq!(facts["7"]["role"], "borrow_producer");
+        assert_eq!(facts["7"]["carrier"], "method_call");
+        assert!(facts["7"]["outcome"].is_null());
+        assert_eq!(facts["7"]["objectize"], "?");
+        assert_eq!(facts["7"]["publish"], "?");
+        assert_eq!(facts["7"]["materialize"], "?");
+    }
+
+    #[test]
+    fn build_mir_json_root_emits_string_corridor_candidates() {
+        let mut module = MirModule::new("test".to_string());
+        let mut function = make_function("main", true);
+        function.metadata.string_corridor_candidates.insert(
+            crate::mir::ValueId::new(8),
+            vec![crate::mir::StringCorridorCandidate {
+                kind: crate::mir::StringCorridorCandidateKind::DirectKernelEntry,
+                state: crate::mir::StringCorridorCandidateState::Candidate,
+                reason:
+                    "borrowed slice corridor can target a direct kernel entry before publication",
+            }],
+        );
+        module.functions.insert("main".to_string(), function);
+
+        let root = build_mir_json_root(&module).expect("mir json root");
+        let candidates = root["functions"][0]["metadata"]["string_corridor_candidates"]
+            .as_object()
+            .expect("string_corridor_candidates object");
+        let value_candidates = candidates["8"]
+            .as_array()
+            .expect("string corridor candidate array");
+
+        assert_eq!(value_candidates.len(), 1);
+        assert_eq!(value_candidates[0]["kind"], "direct_kernel_entry");
+        assert_eq!(value_candidates[0]["state"], "candidate");
+        assert_eq!(
+            value_candidates[0]["reason"],
+            "borrowed slice corridor can target a direct kernel entry before publication"
+        );
     }
 
     #[test]
