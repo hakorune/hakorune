@@ -248,8 +248,17 @@ Scope: repo root から current lane / current front / restart read order に最
           - `kilo_micro_substring_only` now compiles without `substring_len_hii` / `substring_hii` in emitted MIR
           - latest exact reread on `kilo_micro_substring_only`: `instr=1,669,909 / cycles=1,061,204 / cache-miss=8,516 / AOT 3 ms`
           - latest microasm dump: `ny_main` now keeps only the preloop source-length read and the hot loop is scalar `add %rax,%rcx`
+        - sibling string retained-slice length consumer expansion is now landed too:
+          - `string_corridor_sink` now rewrites `length()` / `len()` on retained slice values into `substring_len_hii` even when the slice producer lives in a dominating block and is only reached through local copy aliases
+          - `kilo_micro_len_substring_views` now compiles without loop `RuntimeDataBox.length` / `substring_len_hii` consumers
+          - latest exact reread on `kilo_micro_len_substring_views`: `instr=1,672,259 / cycles=1,022,005 / cache-miss=10,525 / AOT 3 ms`
+          - latest split-pack reread now keeps all three string split fronts in the same 3 ms band:
+            - `kilo_micro_substring_only = instr=1,669,659 / cycles=1,077,794 / cache-miss=8,810`
+            - `kilo_micro_substring_views_only = instr=466,001 / cycles=841,958 / cache-miss=9,391`
+            - `kilo_micro_len_substring_views = instr=1,672,096 / cycles=1,009,964 / cache-miss=8,902`
         - next substep after the current parity-wave keeper:
           - move from the landed sibling exact micros into the broader string corridor placement/effect rewrite before widening any broader user-box local-body parity backlog
+          - fresh broader-corridor reread now points at `kilo_micro_substring_concat` (`instr=5,565,734 / cycles=5,773,584 / cache-miss=8,319 / AOT 4 ms`) as the next exact reopen front for `publication_sink` / `materialization_sink`
         - keep `phi_merge` and `call` / `boxcall` / `return` barrier relaxation out of this cut; those require a separate metadata-contract phase first
         - verified non-Variant optimization order after the current parity wave:
           1. broader string corridor placement/effect rewrite
@@ -302,7 +311,7 @@ Scope: repo root から current lane / current front / restart read order に最
   - sibling string guardrail split exact fronts:
     - `kilo_micro_substring_views_only`
     - `kilo_micro_len_substring_views`
-  - sibling string guardrail local cut front: `kilo_micro_substring_views_only`
+  - sibling string broader-corridor reopen front: `kilo_micro_substring_concat`
   - pure Rust reference compare lane for string guardrail:
     - `benchmarks/rust/bench_kilo_micro_substring_views_only.rs`
     - `tools/perf/bench_rust_vs_hako_stat.sh kilo_micro_substring_views_only 1 3`
@@ -310,21 +319,22 @@ Scope: repo root から current lane / current front / restart read order に最
     - latest C-like Rust reference: `instr=12,566,914 / cycles=3,404,383 / cache-miss=5,256 / ms=3`
   - rule: WSL は `3 runs + perf` でしか delta を採らない
   - current string guardrail baseline:
-  - `kilo_micro_substring_only: C 3 ms / AOT 8 ms`
-  - `instr: 47,270,021`
-  - `cycles: 28,264,307`
-  - `cache-miss: 9,191`
-  - split exact reread:
-    - `kilo_micro_substring_views_only: instr=465,637 / cycles=704,757 / cache-miss=8,280 / AOT 3 ms`
-    - `kilo_micro_len_substring_views: instr=16,072,530 / cycles=4,296,034 / cache-miss=8,783 / AOT 4 ms`
-  - reading: the sibling exact micro is now cut over at boundary `pure-first`, so the next string keeper target moves back to the mixed accept gate and corridor rewrite family
-- current string mixed sink candidate:
-  - `nyash.string.substring_len_hii`
-  - latest reread: `instr=47,270,021 / cycles=28,264,307 / cache-miss=9,191 / AOT 8 ms`
+    - `kilo_micro_substring_only: instr=1,669,659 / cycles=1,077,794 / cache-miss=8,810 / AOT 3 ms`
+    - split exact reread:
+      - `kilo_micro_substring_views_only: instr=466,001 / cycles=841,958 / cache-miss=9,391 / AOT 3 ms`
+      - `kilo_micro_len_substring_views: instr=1,672,096 / cycles=1,009,964 / cache-miss=8,902 / AOT 3 ms`
+    - broader-corridor reopen front:
+      - `kilo_micro_substring_concat: instr=5,565,734 / cycles=5,773,584 / cache-miss=8,319 / AOT 4 ms`
+      - `kilo_micro_array_string_store: c_ms=9 / ny_aot_ms=9`; this family is not the current blocker
+    - reading: the sibling exact micros are now closed at boundary `pure-first`, so the next string keeper target is the broader corridor publication/materialization family
+- current string broader-corridor reopen candidate:
+  - loop-carried `text = out.substring(...)` inside `kilo_micro_substring_concat`
+  - latest reread: `instr=5,565,734 / cycles=5,773,584 / cache-miss=8,319 / AOT 4 ms`
 - target band for the next string guardrail keeper:
-  - mixed accept gate: `instr <= 47.1M`
+  - mixed accept gate: hold `instr <= 1.8M`
   - local split `kilo_micro_substring_views_only`: hold `instr <= 0.6M`
-  - control split `kilo_micro_len_substring_views`: roughly flat is acceptable
+  - control split `kilo_micro_len_substring_views`: hold `instr <= 1.8M`
+  - broader-corridor reopen `kilo_micro_substring_concat`: first keeper target `instr < 5.5M`
   - whole strict: hold `<= 709 ms`; ideal band is `690-705 ms`
 - ideal `len_h` steady-state asm shape:
   - direct `STRING_DISPATCH_FN` load once; do not carry the `STRING_DISPATCH_STATE` state machine in `nyash.string.len_h`

@@ -44,30 +44,28 @@
   - `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
 - perf release gate now builds `ny-llvmc` as well; do not run exact/asm probes after editing compiler sources without refreshing release artifacts first
 - mixed accept gate stays `kilo_micro_substring_only`
-- split exact fronts are now:
+- split exact fronts are now keeper checks, not active blockers:
   - `kilo_micro_substring_views_only`
   - `kilo_micro_len_substring_views`
-- current local cut front is `kilo_micro_substring_views_only`
+- current broader-corridor reopen front is `kilo_micro_substring_concat`
 - pure Rust reference compare lane:
   - `benchmarks/rust/bench_kilo_micro_substring_views_only.rs`
   - `tools/perf/bench_rust_vs_hako_stat.sh kilo_micro_substring_views_only 1 3`
   - latest pure Rust reference: `instr=5,667,104 / cycles=1,572,750 / cache-miss=5,254 / ms=3`
   - latest C-like Rust reference: `instr=12,566,914 / cycles=3,404,383 / cache-miss=5,256 / ms=3`
-- exact baseline on this front:
-  - `kilo_micro_substring_only: C 3 ms / AOT 8 ms`
-  - `instr: 47,270,021`
-  - `cycles: 28,264,307`
-  - `cache-miss: 9,191`
+- latest exact reread on the mixed accept gate:
+  - `kilo_micro_substring_only: instr=1,669,659 / cycles=1,077,794 / cache-miss=8,810 / AOT 3 ms`
   - split exact reread:
-    - `kilo_micro_substring_views_only: instr=465,637 / cycles=704,757 / cache-miss=8,280 / AOT 3 ms`
-    - `kilo_micro_len_substring_views: instr=16,072,530 / cycles=4,296,034 / cache-miss=8,783 / AOT 4 ms`
-- current sink candidate on the mixed accept gate:
-  - `nyash.string.substring_len_hii`
-  - `instr=47,270,021 / cycles=28,264,307 / cache-miss=9,191 / AOT 8 ms`
+    - `kilo_micro_substring_views_only: instr=466,001 / cycles=841,958 / cache-miss=9,391 / AOT 3 ms`
+    - `kilo_micro_len_substring_views: instr=1,672,096 / cycles=1,009,964 / cache-miss=8,902 / AOT 3 ms`
+- current broader-corridor reopen front:
+  - `kilo_micro_substring_concat: instr=5,565,734 / cycles=5,773,584 / cache-miss=8,319 / AOT 4 ms`
+  - `kilo_micro_array_string_store: c_ms=9 / ny_aot_ms=9`; this family is not the current blocker
 - target band for the next keeper:
-  - mixed accept gate: `instr <= 47.1M`
+  - mixed accept gate: hold `instr <= 1.8M`
   - local split `kilo_micro_substring_views_only`: hold `instr <= 0.6M`
-  - control split `kilo_micro_len_substring_views`: roughly flat is acceptable
+  - control split `kilo_micro_len_substring_views`: hold `instr <= 1.8M`
+  - broader-corridor reopen `kilo_micro_substring_concat`: first keeper target `instr < 5.5M`
   - whole strict: keep `<= 709 ms`; ideal band is `690-705 ms`
 - ideal `len_h` steady-state asm shape:
   - direct `STRING_DISPATCH_FN` load once; no `STRING_DISPATCH_STATE` state machine in `nyash.string.len_h`
@@ -102,9 +100,10 @@
     3. only then `SubstringViewArcCache` steady-state compare
   - boundary `pure-first` now consumes MIR JSON `string_corridor_*` for `substring(...).length()`:
     - direct route trace hits `string_len_corridor -> substring_len_direct_kernel_entry`
-    - post-consumer reread on `kilo_micro_len_substring_views`: `instr=47,263,778 / cycles=28,345,762 / cache-miss=10,603 / AOT 9 ms`
-    - post-consumer reread on `kilo_micro_substring_views_only`: `instr=34,364,317 / cycles=6,565,794 / cache-miss=9,276 / AOT 5 ms`
-    - reading: this is a structural enabler, not yet the next local `substring_hii` keeper
+    - retained-slice `length()` / `len()` consumers now also rewrite through the same direct entry even when the slice producer dominates from another block through local copy aliases
+    - latest exact reread on `kilo_micro_len_substring_views`: `instr=1,672,259 / cycles=1,022,005 / cache-miss=10,525 / AOT 3 ms`
+    - latest split-pack reread on `kilo_micro_substring_views_only`: `instr=466,001 / cycles=841,958 / cache-miss=9,391 / AOT 3 ms`
+    - reading: the split retained-view fronts are now closed; the next string keeper reopens on broader corridor publication/materialization work
   - boundary `pure-first` now also lands the first generic concat observer pilot:
     - single-use `concat pair/triple -> len()` now defers the concat producer and reads known chain length without forcing handle birth
     - observe direct probe on `kilo_micro_concat_hh_len` now shows:

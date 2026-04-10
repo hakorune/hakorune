@@ -99,7 +99,16 @@ Related:
       - `kilo_micro_substring_only` now emits no `substring_len_hii` / `substring_hii`
       - latest exact reread: `instr=1,669,909 / cycles=1,061,204 / cache-miss=8,516 / AOT 3 ms`
       - latest microasm: `ny_main` now keeps only the preloop source-length read and the loop body is scalar `add %rax,%rcx`
+    - sibling string retained-slice length consumer expansion is now landed too:
+      - `string_corridor_sink` now rewrites `length()` / `len()` on retained slice values into `substring_len_hii` even when the slice producer lives in a dominating block and is only reached through local copy aliases
+      - `kilo_micro_len_substring_views` now compiles without loop `RuntimeDataBox.length` / `substring_len_hii` consumers
+      - latest exact reread: `instr=1,672,259 / cycles=1,022,005 / cache-miss=10,525 / AOT 3 ms`
+      - latest split-pack reread keeps all three string split fronts in the same 3 ms band:
+        - `kilo_micro_substring_only = instr=1,669,659 / cycles=1,077,794 / cache-miss=8,810`
+        - `kilo_micro_substring_views_only = instr=466,001 / cycles=841,958 / cache-miss=9,391`
+        - `kilo_micro_len_substring_views = instr=1,672,096 / cycles=1,009,964 / cache-miss=8,902`
     - next substep after the current parity-wave keeper: broader string corridor placement/effect rewrite
+    - fresh broader-corridor reread now points at `kilo_micro_substring_concat` (`instr=5,565,734 / cycles=5,773,584 / cache-miss=8,319 / AOT 4 ms`) as the next exact reopen front for `publication_sink` / `materialization_sink`
     - separate phase, not this cut: relax `phi_merge` or `call` / `boxcall` / `return` barriers only with a metadata-contract update first
     - sibling string follow-on after that: move from the landed exact micro to the broader corridor rewrite family on the mixed accept gate
     - restart handoff: cleanup queue is empty; continue `phase163x-optimization-resume` next; `phase137x-substring-retained-view-consumer` remains in progress as the sibling string lane

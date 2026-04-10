@@ -1,8 +1,9 @@
 //! Borrowed string corridor sinking pilot.
 //!
 //! First real transforms for the string corridor lane:
-//! `substring(...).length()` is rewritten into a single direct extern call so
-//! the corridor can stay borrowed without forcing publication/materialization.
+//! `substring(...).length()` and retained-slice `length()` consumers are
+//! rewritten into a single direct extern call so the corridor can stay
+//! borrowed without forcing publication/materialization.
 //! Complementary `substring_len_hii` pairs can then fuse back to one source
 //! length add when the compiler can prove they partition the same source.
 
@@ -33,6 +34,10 @@ fn sink_borrowed_string_corridors_in_function(function: &mut MirFunction) -> usi
     let mut rewritten = apply_plans(function, plans_by_block);
 
     let def_map = build_def_map(function);
+    let retained_len_plans = collect_retained_len_plans(function, &def_map);
+    rewritten += apply_retained_len_plans(function, retained_len_plans);
+
+    let def_map = build_def_map(function);
     let use_counts = build_use_counts(function);
     let fusion_plans =
         collect_complementary_len_fusion_plans(function, &def_map, &use_counts);
@@ -45,6 +50,16 @@ fn sink_borrowed_string_corridors_in_function(function: &mut MirFunction) -> usi
 struct SubstringLenPlan {
     inner_idx: usize,
     inner_dst: ValueId,
+    outer_idx: usize,
+    outer_dst: ValueId,
+    source: ValueId,
+    start: ValueId,
+    end: ValueId,
+    effects: EffectMask,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct RetainedSubstringLenPlan {
     outer_idx: usize,
     outer_dst: ValueId,
     source: ValueId,
@@ -675,6 +690,113 @@ fn apply_plans(
         refresh_function_string_corridor_facts(function);
         refresh_function_string_corridor_candidates(function);
     }
+    rewritten
+}
+
+fn collect_retained_len_plans(
+    function: &MirFunction,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+) -> BTreeMap<BasicBlockId, Vec<RetainedSubstringLenPlan>> {
+    let mut plans_by_block: BTreeMap<BasicBlockId, Vec<RetainedSubstringLenPlan>> =
+        BTreeMap::new();
+
+    for (bbid, block) in &function.blocks {
+        let mut plans: Vec<RetainedSubstringLenPlan> = Vec::new();
+
+        for (outer_idx, inst) in block.instructions.iter().enumerate() {
+            let Some((outer_dst, receiver, effects)) = match_len_call(inst) else {
+                continue;
+            };
+            let receiver_root = resolve_copy_chain_source(function, def_map, receiver);
+            let Some(inner_fact) = function.metadata.string_corridor_facts.get(&receiver_root) else {
+                continue;
+            };
+            if inner_fact.op != StringCorridorOp::StrSlice {
+                continue;
+            }
+
+            let Some((inner_bbid, inner_idx)) = def_map.get(&receiver_root).copied() else {
+                continue;
+            };
+            if inner_bbid == *bbid && inner_idx >= outer_idx {
+                continue;
+            }
+            let Some(inner_block) = function.blocks.get(&inner_bbid) else {
+                continue;
+            };
+            let Some((source, start, end)) = inner_block
+                .instructions
+                .get(inner_idx)
+                .and_then(extract_substring_args)
+            else {
+                continue;
+            };
+
+            plans.push(RetainedSubstringLenPlan {
+                outer_idx,
+                outer_dst,
+                source,
+                start,
+                end,
+                effects,
+            });
+        }
+
+        if !plans.is_empty() {
+            plans_by_block.insert(*bbid, plans);
+        }
+    }
+
+    plans_by_block
+}
+
+fn apply_retained_len_plans(
+    function: &mut MirFunction,
+    plans_by_block: BTreeMap<BasicBlockId, Vec<RetainedSubstringLenPlan>>,
+) -> usize {
+    let mut rewritten = 0usize;
+
+    for (bbid, plans) in plans_by_block {
+        if plans.is_empty() {
+            continue;
+        }
+        let Some(block) = function.blocks.get_mut(&bbid) else {
+            continue;
+        };
+
+        let mut replacements: BTreeMap<usize, MirInstruction> = BTreeMap::new();
+
+        for plan in plans {
+            replacements.insert(
+                plan.outer_idx,
+                MirInstruction::Call {
+                    dst: Some(plan.outer_dst),
+                    func: ValueId::INVALID,
+                    callee: Some(Callee::Extern(SUBSTRING_LEN_EXTERN.to_string())),
+                    args: vec![plan.source, plan.start, plan.end],
+                    effects: plan.effects,
+                },
+            );
+            function.metadata.optimization_hints.push(format!(
+                "string_corridor_sink:borrowed_slice_len:%{}",
+                plan.outer_dst.0
+            ));
+            rewritten += 1;
+        }
+
+        for (idx, inst) in block.instructions.iter_mut().enumerate() {
+            if let Some(rewritten_inst) = replacements.get(&idx) {
+                *inst = rewritten_inst.clone();
+            }
+        }
+    }
+
+    if rewritten > 0 {
+        function.update_cfg();
+        refresh_function_string_corridor_facts(function);
+        refresh_function_string_corridor_candidates(function);
+    }
+
     rewritten
 }
 
@@ -1431,6 +1553,118 @@ mod tests {
     }
 
     #[test]
+    fn rewrites_retained_slice_length_consumer_across_blocks() {
+        let mut module = MirModule::new("substring_len_retained_cross_block".to_string());
+        let signature = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![MirType::Box("StringBox".to_string())],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId(0));
+        let entry = function.blocks.get_mut(&BasicBlockId(0)).expect("entry");
+        entry.instructions.push(method_call(
+            ValueId(1),
+            ValueId(0),
+            "StringBox",
+            "length",
+            vec![],
+            MirType::Integer,
+        ));
+        entry.instruction_spans.push(Span::unknown());
+        entry.instructions.push(MirInstruction::Const {
+            dst: ValueId(2),
+            value: crate::mir::ConstValue::Integer(2),
+        });
+        entry.instruction_spans.push(Span::unknown());
+        entry.instructions.push(MirInstruction::BinOp {
+            dst: ValueId(3),
+            op: crate::mir::BinaryOp::Div,
+            lhs: ValueId(1),
+            rhs: ValueId(2),
+        });
+        entry.instruction_spans.push(Span::unknown());
+        entry.instructions.push(MirInstruction::Const {
+            dst: ValueId(4),
+            value: crate::mir::ConstValue::Integer(0),
+        });
+        entry.instruction_spans.push(Span::unknown());
+        entry.instructions.push(method_call(
+            ValueId(5),
+            ValueId(0),
+            "StringBox",
+            "substring",
+            vec![ValueId(4), ValueId(3)],
+            MirType::Box("StringBox".to_string()),
+        ));
+        entry.instruction_spans.push(Span::unknown());
+        entry.set_terminator(MirInstruction::Jump {
+            target: BasicBlockId(1),
+            edge_args: None,
+        });
+
+        let mut loop_block = BasicBlock::new(BasicBlockId(1));
+        loop_block.instructions.push(MirInstruction::Copy {
+            dst: ValueId(6),
+            src: ValueId(5),
+        });
+        loop_block.instruction_spans.push(Span::unknown());
+        loop_block.instructions.push(MirInstruction::Copy {
+            dst: ValueId(7),
+            src: ValueId(6),
+        });
+        loop_block.instruction_spans.push(Span::unknown());
+        loop_block.instructions.push(method_call(
+            ValueId(8),
+            ValueId(7),
+            "RuntimeDataBox",
+            "length",
+            vec![],
+            MirType::Integer,
+        ));
+        loop_block.instruction_spans.push(Span::unknown());
+        loop_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId(8)),
+        });
+        function.add_block(loop_block);
+
+        for (vid, ty) in [
+            (ValueId(1), MirType::Integer),
+            (ValueId(2), MirType::Integer),
+            (ValueId(3), MirType::Integer),
+            (ValueId(4), MirType::Integer),
+            (ValueId(5), MirType::Box("StringBox".to_string())),
+            (ValueId(8), MirType::Integer),
+        ] {
+            function.metadata.value_types.insert(vid, ty);
+        }
+        module.add_function(function);
+
+        let rewritten = sink_borrowed_string_corridors(&mut module);
+        assert_eq!(rewritten, 1);
+
+        let function = module.get_function("main").expect("main");
+        let block = function.blocks.get(&BasicBlockId(1)).expect("loop");
+        assert!(
+            block.instructions.iter().any(|inst| {
+                matches!(
+                    inst,
+                    MirInstruction::Call {
+                        dst: Some(dst),
+                        callee: Some(Callee::Extern(name)),
+                        args,
+                        ..
+                    } if *dst == ValueId(8)
+                        && name == SUBSTRING_LEN_EXTERN
+                        && args.as_slice() == [ValueId(0), ValueId(4), ValueId(3)]
+                )
+            }),
+            "retained slice length should rewrite to substring_len_hii: {:?}",
+            block.instructions
+        );
+    }
+
+    #[test]
     fn benchmark_substring_only_compiles_without_substring_len_calls() {
         ensure_ring0_initialized();
         let path = concat!(
@@ -1468,6 +1702,61 @@ mod tests {
             substring_len_calls.is_empty(),
             "benchmark should fuse substring_len_hii away, found {:?}",
             substring_len_calls
+        );
+    }
+
+    #[test]
+    fn benchmark_len_substring_views_compiles_without_loop_string_consumers() {
+        ensure_ring0_initialized();
+        let path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/benchmarks/bench_kilo_micro_len_substring_views.hako"
+        );
+        let source = std::fs::read_to_string(path).expect("benchmark source");
+        let prepared =
+            crate::runner::modes::common_util::source_hint::prepare_source_minimal(&source, path)
+                .expect("prepare benchmark source");
+        let ast = NyashParser::parse_from_string(&prepared).expect("parse benchmark");
+        let mut compiler = MirCompiler::with_options(true);
+        let result = compiler
+            .compile_with_source(ast, Some(path))
+            .expect("compile benchmark");
+
+        let mut leftover_string_consumers = Vec::new();
+        for (name, function) in &result.module.functions {
+            for (bbid, block) in &function.blocks {
+                for inst in &block.instructions {
+                    match inst {
+                        MirInstruction::Call {
+                            callee: Some(Callee::Extern(callee)),
+                            ..
+                        } if callee == SUBSTRING_LEN_EXTERN => leftover_string_consumers
+                            .push(format!("fn={name} bb={} extern={callee} inst={inst:?}", bbid.0)),
+                        MirInstruction::Call {
+                            callee:
+                                Some(Callee::Method {
+                                    box_name,
+                                    method,
+                                    receiver: Some(_),
+                                    ..
+                                }),
+                            ..
+                        } if method == "length" && box_name == "RuntimeDataBox" => {
+                            leftover_string_consumers.push(format!(
+                                "fn={name} bb={} runtime-data length inst={inst:?}",
+                                bbid.0
+                            ))
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        }
+
+        assert!(
+            leftover_string_consumers.is_empty(),
+            "len_substring_views should fuse away loop string consumers, found {:?}",
+            leftover_string_consumers
         );
     }
 }

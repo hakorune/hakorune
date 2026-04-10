@@ -186,8 +186,14 @@
         - `kilo_micro_substring_only` now emits no `substring_len_hii` / `substring_hii`
         - latest exact reread: `instr=1,669,909 / cycles=1,061,204 / cache-miss=8,516 / AOT 3 ms`
         - latest microasm: `ny_main` now keeps only the preloop source-length read and the loop body is scalar `add %rax,%rcx`
+      - sibling string retained-slice length consumer expansion is now landed too:
+        - `string_corridor_sink` now rewrites retained-slice `length()` / `len()` consumers into `substring_len_hii` even when the slice producer lives in a dominating block and is reached only through local copy aliases
+        - `kilo_micro_len_substring_views` now compiles without loop `RuntimeDataBox.length` / `substring_len_hii` consumers
+        - latest exact reread: `instr=1,672,259 / cycles=1,022,005 / cache-miss=10,525 / AOT 3 ms`
+        - latest split-pack reread now keeps `kilo_micro_substring_only`, `kilo_micro_substring_views_only`, and `kilo_micro_len_substring_views` in the same 3 ms band
       - immediate next task after the parity keeper:
         - move from the landed sibling exact micros into the broader string corridor placement/effect rewrite
+        - fresh reread now reopens `kilo_micro_substring_concat` (`instr=5,565,734 / cycles=5,773,584 / cache-miss=8,319 / AOT 4 ms`) as the best exact front for `publication_sink` / `materialization_sink`
       - verified non-Variant optimization order after this parity wave:
         1. broader string corridor placement/effect rewrite
            - `src/mir/string_corridor_placement.rs` is still inspection-only in this wave
