@@ -91,6 +91,34 @@ This keeps:
 - provider/TLS state machine
 - publication mechanics
 
+### 2.5. Plan metadata, not a new IR
+
+The next genericization step should extend existing string-corridor metadata.
+Do not introduce a new public IR family or a second canonical string dialect.
+
+Reading lock:
+
+- canonical MIR remains the only IR truth
+- `string_corridor_facts` remain the observation layer
+- `string_corridor_candidates` should grow into proof-bearing plan metadata
+- backend/lowering should consume that plan metadata instead of re-deriving
+  benchmark-shaped decisions from helper names or exact block shapes
+
+Plan fields that are allowed to grow here:
+
+- borrowed root/source identity
+- `start` / `end`
+- known-length proof
+- publication demand
+- materialization demand
+- direct-kernel-entry legality
+
+Do not encode:
+
+- runtime cache layout
+- ABI/private token details
+- a benchmark-specific special form such as a permanent `InsertMid` IR op
+
 ### 3. `@rune` is not the next tool
 
 Do not widen `@rune` for this wave.
@@ -290,17 +318,72 @@ Acceptance:
 - exact/micro proof moves
 - dumps show fewer forced boundaries before Rust microkernel
 
-### Step 6. Direct kernel entry selection
+### Step 6. Next genericization slice: plan metadata widening
 
-- once corridor facts are stable, let AOT-internal paths select direct kernel entry
-- keep ABI/FFI facade unchanged
+- keep using the existing `string_corridor_candidates` carrier
+- enrich it from inspection-only candidate rows toward proof-bearing plan rows
+- do not add a separate `StringRecipe` / `OptimizedStringMIR` family
+- the first widening should support the current broader-corridor reopen front
+  `kilo_micro_substring_concat`
 
 Acceptance:
 
-- internal path no longer replays facade-only control work
-- public boundaries remain correct
+- dumps show enough plan evidence to explain the chosen broader-corridor transform
+- lowering no longer needs to infer the same shape from exact helper names alone
 
-### Step 7. Only then revisit syntax
+### Step 7. First generic transform family: `publication_sink`
+
+- after the landed narrow borrowed-corridor sink, the next real generic transform
+  is `publication_sink`
+- use `kilo_micro_substring_concat` as the exact reopen front
+- keep the semantic reading as:
+  - canonical meaning = concat/slice corridor
+  - specialization = a plan-selected internal route, not a new canonical op
+
+Acceptance:
+
+- broader concat/slice corridors stay borrowed longer without forcing early
+  publication on the internal path
+- exact/front evidence moves on `kilo_micro_substring_concat`
+
+### Step 8. Follow-on generic transform: `materialization_sink`
+
+- once publication sinking is explicit in plan metadata, sink materialization to
+  the last semantically required boundary
+- keep `freeze.str` / externally visible sinks as the forcing boundaries
+
+Acceptance:
+
+- no new public syntax or IR
+- fewer early owned-materialization points appear in the broader corridor path
+
+### Step 9. Direct kernel entry as plan consumer
+
+- `direct_kernel_entry` should be selected from plan metadata close to lowering
+- builder should not decide it
+- this is the intended replacement direction for the remaining exact seed logic
+
+Acceptance:
+
+- AOT/internal path uses plan-selected direct kernel entry
+- public ABI path still goes through the facade
+
+### Step 10. Exact-seed retirement rule
+
+- exact seed logic in backend shims is a temporary bridge, not the target design
+- when a generic plan-selected route wins on the same exact front, shrink the
+  corresponding exact seed instead of growing another permanent benchmark path
+
+Current bridge target:
+
+- `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc`
+
+Acceptance:
+
+- generic corridor plan owns more of the route choice
+- exact seed surface shrinks only after the generic path proves the same keeper
+
+### Step 11. Only then revisit syntax
 
 - only if MIR inference still cannot express a needed boundary
 - only after at least one corridor win is proven
@@ -321,8 +404,11 @@ For the current lane, read the next work as:
 1. upstream corridor/fact design
 2. compiler-side fact carrier
 3. placement/effect pass
-4. direct kernel entry pilot
-5. only then new runtime leaf cuts
+4. proof-bearing plan metadata on `string_corridor_candidates`
+5. `publication_sink` as the first broader generic transform
+6. `materialization_sink`
+7. plan-selected `direct_kernel_entry`
+8. only then more exact-seed retirement and any new runtime leaf cuts
 
 This replaces the earlier reading where the next move was another
 `substring_hii`-local provider/cache split.

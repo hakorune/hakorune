@@ -14,6 +14,9 @@ Related:
 
 - lane: `phase-163x primitive and user-box fast path`
 - current implementation focus:
+  - owner-target reminder:
+    - except for OS / process / file / env boundaries, backend / ABI / alloc / GC / kernel substrate, and explicit compat/bootstrap keeps already named in SSOT, implementation should move toward `.hako`
+    - do not leave new compiler meaning / route policy / semantic helper logic in Rust for convenience
   - parent design locked: `lifecycle-typed-value-language-ssot.md`
   - keep `field_decls` as authority
   - keep names-only `fields` as compatibility mirror
@@ -59,11 +62,12 @@ Related:
   - verified post-Variant optimization order is now locked:
     1. `ny-llvmc` parity wave for the already-landed local enum/user-box routes
     2. sibling string retained-view `substring_hii` consumer expansion on the landed boundary `pure-first` corridor family
-    3. broader string corridor placement/effect rewrite using the existing candidate vocabulary:
-       - `borrowed_corridor_fusion`
+    3. broader string corridor genericization on the existing metadata path (do not add a new string-only MIR dialect):
+       - widen `string_corridor_candidates` into proof-bearing plan metadata
        - `publication_sink`
        - `materialization_sink`
-       - `direct_kernel_entry`
+       - plan-selected `direct_kernel_entry`
+       - shrink the temporary exact-seed bridge in `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc`
     4. actual-consumer switch for selected thin-entry user-box method routes that are still metadata-only today (`user_box_method.known_receiver` first)
     5. `ArrayBox` typed-slot expansion beyond the landed `InlineI64` pilot
   - tuple multi-payload compat transport is now landed:
@@ -107,9 +111,11 @@ Related:
         - `kilo_micro_substring_only = instr=1,669,659 / cycles=1,077,794 / cache-miss=8,810`
         - `kilo_micro_substring_views_only = instr=466,001 / cycles=841,958 / cache-miss=9,391`
         - `kilo_micro_len_substring_views = instr=1,672,096 / cycles=1,009,964 / cache-miss=8,902`
-    - next substep after the current parity-wave keeper: broader string corridor placement/effect rewrite
+    - next substep after the current parity-wave keeper: broader string corridor genericization on the mixed gate family
     - keeper repair landed: the exact `pure-first` `kilo_micro_substring_concat` seed now accepts the post-sink body shape (`substring_len_hii` pair + `substring_concat3_hhhii`), so the generic concat-observer rewrite keeps the exact lane instead of falling back
-    - fresh broader-corridor reread now points at `kilo_micro_substring_concat` (`instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`) as the next exact reopen front for `publication_sink` / `materialization_sink`
+    - fresh broader-corridor reread now points at `kilo_micro_substring_concat` (`instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`) as the next exact reopen front for plan-metadata widening, then `publication_sink`, then `materialization_sink`
+    - string genericization order is now fixed: keep canonical MIR as the only IR truth, grow `string_corridor_candidates` into proof-bearing plan metadata first, then select `direct_kernel_entry` from that plan near lowering
+    - the exact `pure-first` seed in `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc` is temporary bridge surface and should shrink only after the generic plan-selected route proves out
     - separate phase, not this cut: relax `phi_merge` or `call` / `boxcall` / `return` barriers only with a metadata-contract update first
     - sibling string follow-on after that: move from the landed exact micro to the broader corridor rewrite family on the mixed accept gate
     - restart handoff: cleanup queue is empty; continue `phase163x-optimization-resume` next; `phase137x-substring-retained-view-consumer` remains in progress as the sibling string lane

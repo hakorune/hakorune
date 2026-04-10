@@ -48,6 +48,11 @@
   - `kilo_micro_substring_views_only`
   - `kilo_micro_len_substring_views`
 - current broader-corridor reopen front is `kilo_micro_substring_concat`
+- current broader-corridor genericization rule:
+  - do not add a new string-only MIR dialect
+  - grow `string_corridor_candidates` from inspection-only rows toward proof-bearing plan metadata
+  - use `publication_sink` as the first broader generic transform
+  - treat exact seed logic in `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc` as temporary bridge surface to shrink after generic plan-selected routes prove out
 - pure Rust reference compare lane:
   - `benchmarks/rust/bench_kilo_micro_substring_views_only.rs`
   - `tools/perf/bench_rust_vs_hako_stat.sh kilo_micro_substring_views_only 1 3`
@@ -190,17 +195,21 @@
      - step 5: landed structurally; the first borrowed-corridor sinking pilot now rewrites single-use `substring(...).length()` chains to `nyash.string.substring_len_hii`
      - step 6: landed; `phase-162x vm fallback lane separation cleanup` is complete, so this front now reads through `ny-llvmc(boundary pure-first)` without mixing fallback owners
      - step 7: landed; boundary `pure-first` now consumes MIR JSON `string_corridor_*` metadata for `substring(...).length()` and hits `string_len_corridor -> substring_len_direct_kernel_entry`
-      - step 8: landed; boundary `pure-first` now also routes compiler-visible concat pair/triple `substring(...)` consumers to `nyash.string.substring_concat_hhii` / `nyash.string.substring_concat3_hhhii`
-     - step 9: only then reopen new `substring_hii` runtime leaf cuts, and only with exact/asm proof
-     - step 10: do not retry the same `len_h`-specific 4-box slice as-is; it did not clear exact or asm gates
-     - step 11: keep this lane specific; do not generalize into a reusable scalar framework until a second lane wins the same pattern
-     - step 12: do not swap the active `substring` providers to `raw read + cold init` as one slice; that provider-adoption cut regressed the local split
-     - step 13: do not duplicate the common-case `substring_hii` body again; the earlier `route_raw == 0b111` duplication regressed badly
-     - step 14: `substring_route_policy()` cold split alone is also blocked; even with the caller unchanged it regressed the local split
-     - step 15: any future `len_h` reopen must preserve direct dispatch probe + single trace-state load + direct `DROP_EPOCH` load
-     - step 16: do not retry the same `substring_hii` route/provider snapshot with eager `DROP_EPOCH` capture; it widened the caller prologue and regressed exact/whole together
-     - step 17: do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear in isolation; it regressed every split front and whole strict
-     - step 18: primitive/user-box follow-on work now lives in `phase-163x`; keep this README string-only
+     - step 8: landed; boundary `pure-first` now also routes compiler-visible concat pair/triple `substring(...)` consumers to `nyash.string.substring_concat_hhii` / `nyash.string.substring_concat3_hhhii`
+     - step 9: next genericization slice is not a new IR; grow `FunctionMetadata.string_corridor_candidates` toward proof-bearing plan metadata on the broader-corridor reopen front `kilo_micro_substring_concat`
+     - step 10: first broader generic transform is `publication_sink`
+     - step 11: second broader generic transform is `materialization_sink`
+     - step 12: only then widen plan-selected `direct_kernel_entry` and shrink matching exact seed paths
+     - step 13: only after that reopen new `substring_hii` runtime leaf cuts, and only with exact/asm proof
+     - step 14: do not retry the same `len_h`-specific 4-box slice as-is; it did not clear exact or asm gates
+     - step 15: keep this lane specific; do not generalize into a reusable scalar framework until a second lane wins the same pattern
+     - step 16: do not swap the active `substring` providers to `raw read + cold init` as one slice; that provider-adoption cut regressed the local split
+     - step 17: do not duplicate the common-case `substring_hii` body again; the earlier `route_raw == 0b111` duplication regressed badly
+     - step 18: `substring_route_policy()` cold split alone is also blocked; even with the caller unchanged it regressed the local split
+     - step 19: any future `len_h` reopen must preserve direct dispatch probe + single trace-state load + direct `DROP_EPOCH` load
+     - step 20: do not retry the same `substring_hii` route/provider snapshot with eager `DROP_EPOCH` capture; it widened the caller prologue and regressed exact/whole together
+     - step 21: do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear in isolation; it regressed every split front and whole strict
+     - step 22: primitive/user-box follow-on work now lives in `phase-163x`; keep this README string-only
   10. next local cut must show an exact-visible or asm-visible change on `substring_hii`, but only after the upstream corridor slices are in place
 - safe restart order:
   1. `git status -sb`

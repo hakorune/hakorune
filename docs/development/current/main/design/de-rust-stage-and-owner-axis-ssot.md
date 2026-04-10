@@ -77,6 +77,7 @@ Related:
 11. collection cleanup detail belongs to owner/substrate SSOTs; this doc keeps stage vocabulary only and does not use domain-phase progress as a stage definition.
 12. exact `stage1 -> stage2-mainline` entry order and the first optimization wave are owned by `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md`; this doc owns axis vocabulary only.
 13. `K-axis` belongs to `kernel-replacement-axis-ssot.md`; do not reuse `stage0/stage1/stage2-mainline/stage2+` as `K0/K1/K2` synonyms, and do not reuse task-pack nouns as stage names.
+14. `stage1` proof should already push non-OS/non-substrate compiler residue toward `.hako`; a Stage2 artifact that still depends on broad Rust compiler meaning is artifact selfhost, not owner selfhost.
 
 ## 3. Current De-Rust Reading
 
@@ -91,6 +92,15 @@ Canonical short read:
 - `stage1`: bridge / proof line
 - `stage2-mainline`: `.hako` mainline target / daily distribution lane
 - `stage2+`: umbrella / end-state distribution target
+
+Stage1 quality bar:
+
+- the acceptable Rust residue in `stage1` should shrink toward:
+  - OS / process / file / env boundaries
+  - backend / ABI / alloc / GC / kernel substrate
+  - explicit compat/bootstrap keep
+- parser meaning / mirbuilder meaning / canonical MIR policy / route policy should move toward `.hako` as early as possible inside the stage1 line
+- therefore `stage1 -> stage2-mainline` is not just “artifact builds artifact”; it is also an owner-reduction gate
 
 ### 3.2 Owner axis now
 

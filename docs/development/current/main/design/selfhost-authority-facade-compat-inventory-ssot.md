@@ -87,6 +87,18 @@ selfhost lane で混線しやすい 3 軸
 - `launcher.hako` should shrink toward CLI facade/orchestration shape
 - `build_stage1.sh` should be read as `strategy shell`
 - `stage1_contract.sh` should be read as `contract shell`
+- stage1 migration must prefer pushing Rust residue toward OS/kernel/substrate/bootstrap seams, not keeping broad parser/mirbuilder/policy logic on the Rust side
+
+## Stage1 Rust-Residue Rule
+
+When a Stage1 cleanup choice is ambiguous, use this order:
+
+1. move compiler meaning / policy / semantic helper logic toward `.hako`
+2. keep Rust only for:
+   - OS / process / file / env boundary
+   - backend / ABI / alloc / GC / kernel substrate
+   - explicit compat/bootstrap keep already named here or in parent SSOTs
+3. treat any wider Rust compiler residue as temporary bootstrap debt and inventory it explicitly instead of normalizing it as the steady-state Stage1 shape
 
 ## Deferred On Purpose
 

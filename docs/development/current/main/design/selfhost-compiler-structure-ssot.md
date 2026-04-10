@@ -56,6 +56,8 @@ The key rule is:
 - language meaning lives in `.hako`
 - host capability lives in Rust
 - bootstrap debt lives in compat quarantine and remains a retire target
+- except for OS/kernel/substrate boundaries and explicit compat/bootstrap keeps,
+  implementation should move to `.hako`
 
 ## Reading Order
 
@@ -119,6 +121,10 @@ Current note:
 - `.hako` 側 workaround で route を増やさない
 - plugin implementation も最終的にはここへ寄せる
 - 新しい言語判断や plugin meaning を Rust 側へ増やさない
+- new implementation default is `.hako` unless it is clearly one of:
+  - OS / process / file / env boundary
+  - backend / ABI / alloc / GC / kernel substrate
+  - explicit compat/bootstrap keep already named in SSOT
 
 ### 2. `stage1` selfhost authority entry
 
@@ -146,6 +152,7 @@ Responsibility:
 - shared MIR materialization / validation / debug surface を `Stage1MirResultValidationBox` に閉じる
 - explicit supplied `Program(JSON)` は compat-only input shape として受ける
 - explicit compat MIR call と mixed-input fail-fast gate は `Stage1ProgramJsonCompatBox` へ隔離する
+- stage1 cleanup should keep pushing Rust residue toward OS/kernel/substrate/bootstrap seams; do not treat a runnable bridge artifact as permission to leave broad compiler meaning on the Rust side
 
 Must not:
 - new authority route を増やさない
@@ -190,6 +197,9 @@ Must not:
 Current note:
 - plugin host / ABI / runtime handle surface はまだ Rust owner
 - ただし plugin behavior 本体は `.hako` side へ寄せるのが end state
+- this bucket is not a general-purpose escape hatch:
+  - compiler logic / route policy / semantic helpers / plugin meaning must not stay
+    here just because Rust is convenient
 
 ### 5. Rust bootstrap compatibility boundary
 

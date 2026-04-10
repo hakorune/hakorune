@@ -33,6 +33,7 @@ End-state note:
   plugin behavior も `.hako` 側へ寄り、Rust は host/runtime/backend の最小面だけを残すこと
 - operationally, `stage0` Rust bootstrap is allowed to remain as the first-build / recovery lane, while `stage2-mainline` is the first `0rust` selfhost mainline and `stage2+` remains the umbrella / end-state reading
 - `Program(JSON v0)` / stage1 wrapper / surrogate provider はその途中にある bootstrap-only boundary で、authority ではなく最終 retire target だと扱う
+- stage1 proof line の accept reading is not only `artifact can build artifact`; it also means the remaining Rust compiler residue is being pushed toward OS/kernel/substrate/bootstrap seams instead of staying as broad compiler meaning
 - stage/artifact/lane の共有語彙は parent SSOT `execution-lanes-and-axis-separation-ssot.md` を正本にし、この文書は stage1 bootstrap route authority だけを扱う
 - build conduit note:
   - current explicit build/invoke conduits are `tools/selfhost/mainline/build_stage1.sh` and `tools/selfhost/compat/run_stage1_cli.sh` for the stage1 line
@@ -93,6 +94,16 @@ Bootstrap closure note (2026-03-17):
 - compiled launcher helper defs still contain file-I/O helpers, so the native lowering keep remains a narrow llvm-py by-name fallback for `FileBox.{open,read,readBytes,write,writeBytes,close}` only
 - the current proven alternating closure is:
   - `stage3 launcher -> stage4 stage1-cli -> stage5 launcher -> stage6 stage1-cli -> stage7 launcher`
+
+Stage1 owner-reduction rule:
+
+- stage1 bootstrap success alone is not sufficient
+- stage1 should actively shrink Rust-side compiler residue toward:
+  - OS / process / file / env boundaries
+  - backend / ABI / alloc / GC / kernel substrate
+  - explicit compat/bootstrap keep
+- parser meaning / mirbuilder meaning / canonical MIR policy / route policy must not remain broad Rust owners merely because the bridge artifact is already runnable
+- if a stage1 route still needs broad Rust compiler meaning, read it as temporary bootstrap debt rather than as stage2-mainline readiness
 
 SSOT:
 - `docs/development/current/main/design/recipe-tree-and-parts-ssot.md`
