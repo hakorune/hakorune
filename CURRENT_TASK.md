@@ -200,6 +200,7 @@ Scope: repo root から current lane / current front / restart read order に最
           - selected `user_box_field_{get,set}.inline_scalar` rows can keep the typed primitive helpers without re-discovering `field_decls` on the backend side when the declared box family is already pinned
           - selected `user_box_field_{get,set}.public_default` rows still keep the generic fallback even if the compat mirror looks scalar-shaped
           - selected `user_box_method.known_receiver` rows now also act as an actual consumer on the LLVM/Python route: `mir_call.method_call` first tries a thin-known-receiver direct box-method call beneath canonical `Call`, while the previous direct known-box route stays as compatibility fallback
+          - selected `user_box_method.known_receiver` rows now also have a first native-driver/shim boundary consumer slice: `hako_llvmc_ffi_user_box_micro_seed.inc` accepts a metadata-bearing `Counter.step` fixture only when the selector row and the matching scalar `Counter.value` field selections are both present
           - product LLVM/Python now also keeps selected primitive user-box bodies boxless through `newbox` / `field_get` / `field_set` and materializes only at `call` / `boxcall` / `ret`
           - metadata-bearing sum smoke is green on `phase163x_boundary_sum_metadata_keep_min.sh` via boundary `pure-first` owner lane without compat replay
         - narrow actual-consumer parity is now also landed for the current keeper pair:
@@ -208,8 +209,8 @@ Scope: repo root から current lane / current front / restart read order に最
           - focused `3 runs + asm` still shows call-free `ny_main` loops on `kilo_micro_userbox_point_add` and `kilo_micro_userbox_flag_toggle`
         - generic native-driver / `ny-llvmc` parity for the broader local user-box body route remains canary-only backlog, not the current lane blocker
         - next thin-entry actual-consumer follow-on after this slice:
-          - either promote the same `user_box_method.known_receiver` contract into the native-driver/shim route
-          - or land the first non-field local user-box method keeper if a measured hotspot appears first
+          - only widen beyond the landed `Counter.step` boundary seed if a measured local-method keeper appears first
+          - otherwise continue to the next ordered lane (`ArrayBox` typed-slot expansion)
     5. `tuple multi-payload` compat transport is now landed:
         - parser/AST accept `Variant(T, U, ...)` and shorthand `Variant(a, b)` arms
         - Stage1 lowers tuple ctors/matches through `__NyEnumPayload_<Enum>_<Variant>` with `_0`, `_1`, ... synthetic field slots

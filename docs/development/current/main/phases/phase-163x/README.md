@@ -209,7 +209,10 @@
            - landed first LLVM/Python consumer slice:
              - `mir_call.method_call` now checks `user_box_method.known_receiver` selector rows before the legacy direct known-box fallback
              - when the selector says `thin_internal_entry`, lowering takes a dedicated thin-known-receiver direct route while keeping the old direct known-box call as compatibility fallback
-           - next follow-on is native-driver/shim parity for the same selector contract, unless a measured local-method keeper appears first
+           - landed first native-driver/shim boundary pure-first consumer slice too:
+             - `phase163x_boundary_user_box_method_known_receiver_min.sh` pins a metadata-bearing `Counter.step` fixture on the owner lane without compat replay
+             - the current shim consumer stays seed-narrow and consumes `user_box_method.known_receiver` together with the already-landed scalar `Counter.value` field selections
+           - broader native-driver local-method parity remains backlog-only until a measured keeper or stronger SSOT justifies widening
         4. `ArrayBox` typed-slot expansion beyond the landed `InlineI64` pilot
            - later candidates are `InlineBool` / `InlineF64`
         5. backlog-only after the above:

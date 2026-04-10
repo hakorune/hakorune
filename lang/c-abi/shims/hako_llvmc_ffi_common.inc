@@ -216,6 +216,49 @@ static int hako_llvmc_string_corridor_has_candidate(
   return 0;
 }
 
+static int hako_llvmc_has_thin_entry_selection(
+    yyjson_val* fn,
+    const char* surface,
+    const char* subject,
+    const char* manifest_row,
+    const char* selected_entry) {
+  yyjson_val* metadata;
+  yyjson_val* selections;
+  size_t i;
+
+  if (!(fn && yyjson_is_obj(fn) && surface && subject && manifest_row &&
+        selected_entry)) {
+    return 0;
+  }
+
+  metadata = yyjson_obj_get(fn, "metadata");
+  selections = metadata ? yyjson_obj_get(metadata, "thin_entry_selections") : NULL;
+  if (!(selections && yyjson_is_arr(selections))) {
+    return 0;
+  }
+
+  for (i = 0; i < yyjson_arr_size(selections); i++) {
+    yyjson_val* row = yyjson_arr_get(selections, i);
+    const char* row_surface = row ? yyjson_get_str(yyjson_obj_get(row, "surface")) : NULL;
+    const char* row_subject = row ? yyjson_get_str(yyjson_obj_get(row, "subject")) : NULL;
+    const char* row_manifest =
+        row ? yyjson_get_str(yyjson_obj_get(row, "manifest_row")) : NULL;
+    const char* row_selected =
+        row ? yyjson_get_str(yyjson_obj_get(row, "selected_entry")) : NULL;
+    if (!(row_surface && row_subject && row_manifest && row_selected)) {
+      continue;
+    }
+    if (strcmp(row_surface, surface) == 0 &&
+        strcmp(row_subject, subject) == 0 &&
+        strcmp(row_manifest, manifest_row) == 0 &&
+        strcmp(row_selected, selected_entry) == 0) {
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
 static int set_err_owned(char** err_out, const char* msg) {
   if (!err_out) return -1;
   if (!msg) { *err_out = NULL; return -1; }
