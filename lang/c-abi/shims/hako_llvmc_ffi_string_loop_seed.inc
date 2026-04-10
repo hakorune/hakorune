@@ -1613,17 +1613,8 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
   if (!middle || !hako_llvmc_ascii_strlen(middle, &middle_len)) { yyjson_doc_free(doc); return -1; }
   {
     yyjson_val* mc0 = yyjson_obj_get(interesting[6], "mir_call");
-    yyjson_val* cal0 = mc0 ? yyjson_obj_get(mc0, "callee") : NULL;
-    const char* name0 = cal0 ? (READ_STR(cal0, "method") ? READ_STR(cal0, "method") : READ_STR(cal0, "name")) : NULL;
-    yyjson_val* args0 = mc0 ? yyjson_obj_get(mc0, "args") : NULL;
     yyjson_val* mc1 = yyjson_obj_get(interesting[9], "mir_call");
-    yyjson_val* cal1 = mc1 ? yyjson_obj_get(mc1, "callee") : NULL;
-    const char* name1 = cal1 ? (READ_STR(cal1, "method") ? READ_STR(cal1, "method") : READ_STR(cal1, "name")) : NULL;
-    yyjson_val* args1 = mc1 ? yyjson_obj_get(mc1, "args") : NULL;
-    if (!(name0 && strcmp(name0, "nyash.string.substring_len_hii") == 0 &&
-          args0 && yyjson_is_arr(args0) && yyjson_arr_size(args0) == 3 &&
-          name1 && strcmp(name1, "nyash.string.substring_len_hii") == 0 &&
-          args1 && yyjson_is_arr(args1) && yyjson_arr_size(args1) == 3)) {
+    if (!(mc0 && mc1)) {
       yyjson_doc_free(doc);
       return -1;
     }
