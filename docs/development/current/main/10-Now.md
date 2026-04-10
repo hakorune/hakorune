@@ -17,6 +17,10 @@ Related:
   - owner-target reminder:
     - except for OS / process / file / env boundaries, backend / ABI / alloc / GC / kernel substrate, and explicit compat/bootstrap keeps already named in SSOT, implementation should move toward `.hako`
     - do not leave new compiler meaning / route policy / semantic helper logic in Rust for convenience
+    - mirbuilder migration double-work guard:
+      - stop adding new syntax/AST-close lowering, source-shape recognizers, or builder-local sugar to `src/mir/builder/**` unless it is required for current canonical MIR parity/cleanup
+      - keep new optimization work on canonical MIR contracts, MIR-to-MIR passes, and backend lowering where `.hako` and Rust builders share the same asset
+      - next selfhost structural move is `.hako` builder authority replacement; Rust builder should trend toward oracle/fallback, not renewed mainline growth
   - parent design locked: `lifecycle-typed-value-language-ssot.md`
   - keep `field_decls` as authority
   - keep names-only `fields` as compatibility mirror

@@ -175,6 +175,35 @@ Current note:
 - current reduced selfhost authority そのものではない
 - ただし compiler structure / MIR semantics の重要な reference SSOT である
 - final destination is still `.hako`; Rust here is a reference / migration source, not the end state
+- while `.hako` mirbuilder migration is active, this bucket is a reference/oracle lane, not the place to grow new builder intelligence
+
+### 3.5 MirBuilder migration double-work guard
+
+To avoid doing the same compiler work twice, split tasks as follows.
+
+Move to `.hako` first:
+- syntax / AST-close lowering
+- source-shape recognizers that depend on builder-side source reading
+- builder-local sugar expansion
+- `Program(JSON v0) -> MIR(JSON)` authority
+
+Keep moving in Rust:
+- canonical MIR contract
+- MIR-to-MIR optimization
+- string corridor facts / candidates / sink / direct-kernel-entry planning
+- backend / LLVM lowering
+- perf harness / MIR compare / parity harness
+
+Rust builder stop-line:
+- do not add new source-aware language-lowering or benchmark-specific builder intelligence to `src/mir/builder/**`
+- current builder-side shape exports such as `src/mir/mod.rs` re-exported `detect_*` helpers are migration-source debt to shrink, not a growth surface
+
+Fixed task order:
+1. freeze canonical MIR output contracts and structural compare harnesses first
+2. make `.hako` mirbuilder the primary `Program(JSON v0) -> MIR(JSON)` lane
+3. keep the Rust builder as oracle / fallback / structural reference only
+4. retire remaining Rust builder residue one family at a time
+5. continue MIR/backend optimization in parallel because it survives builder cutover
 
 ### 4. Rust host / runtime minimal surface
 

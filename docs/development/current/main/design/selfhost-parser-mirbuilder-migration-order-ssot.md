@@ -32,6 +32,13 @@ Related:
 - AST rewrite 禁止。analysis-only 観測で進める。
 - silent fallback 禁止（失敗は fail-fast）。
 - `.hako mirbuilder` 側の失敗タグは `[freeze:contract][hako_mirbuilder]` で統一。
+- `.hako` mirbuilder migration 中は Rust builder widening を凍結する。
+  - 新しい syntax/AST-close lowering
+  - 新しい source-shape recognizer
+  - 新しい builder-local sugar 展開
+  は `src/mir/builder/**` に増やさない。
+  - 例外は current canonical MIR contract parity / existing-builder cleanup のための最小差分だけ。
+  - 一方で canonical MIR contract / MIR-to-MIR optimization / backend lowering は builder-independent asset として継続してよい。
 
 ## Entry signature migration contract (main args)
 
