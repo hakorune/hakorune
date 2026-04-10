@@ -14,15 +14,14 @@ use crate::mir::{
     refresh_function_string_corridor_candidates, refresh_function_string_corridor_facts,
     string_corridor_recognizer::{
         build_def_map, const_string_length, extract_substring_args, match_add_in_block,
-        match_concat_triplet, match_len_call, match_substring_call,
-        match_substring_call_shape, match_substring_concat3_helper_call,
-        match_substring_len_call, resolve_copy_chain_source, string_source_identity,
-        ConcatTripletShape, StringSourceIdentity, SubstringCallProducerShape,
-        SubstringConcat3HelperShape,
+        match_concat_triplet, match_len_call, match_method_set_call, match_substring_call,
+        match_substring_call_shape, match_substring_concat3_helper_call, match_substring_len_call,
+        resolve_copy_chain_source, string_source_identity, ConcatTripletShape, MethodSetCallShape,
+        StringSourceIdentity, SubstringCallProducerShape, SubstringConcat3HelperShape,
     },
-    BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, MirFunction, MirInstruction,
-    MirModule, MirType, StringCorridorCandidateKind, StringCorridorCandidateProof,
-    StringCorridorOp, ValueId,
+    BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, MirFunction, MirInstruction, MirModule,
+    MirType, StringCorridorCandidateKind, StringCorridorCandidatePlan,
+    StringCorridorCandidateProof, StringCorridorOp, ValueId,
 };
 
 pub const SUBSTRING_LEN_EXTERN: &str = "nyash.string.substring_len_hii";
@@ -50,13 +49,13 @@ fn sink_borrowed_string_corridors_in_function(function: &mut MirFunction) -> usi
     rewritten += apply_retained_len_plans(function, retained_len_plans);
 
     let def_map = build_def_map(function);
-    let concat_corridor_plans = collect_concat_corridor_plans(function, &def_map);
+    let use_counts = build_use_counts(function);
+    let concat_corridor_plans = collect_concat_corridor_plans(function, &def_map, &use_counts);
     rewritten += apply_concat_corridor_plans(function, concat_corridor_plans);
 
     let def_map = build_def_map(function);
     let use_counts = build_use_counts(function);
-    let fusion_plans =
-        collect_complementary_len_fusion_plans(function, &def_map, &use_counts);
+    let fusion_plans = collect_complementary_len_fusion_plans(function, &def_map, &use_counts);
     rewritten += apply_complementary_len_fusion_plans(function, fusion_plans);
 
     rewritten
@@ -128,11 +127,26 @@ struct PublicationHelperSubstringPlan {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+struct MaterializationStorePlan {
+    helper_idx: usize,
+    helper_dst: ValueId,
+    store_idx: usize,
+    left: ValueId,
+    middle: ValueId,
+    right: ValueId,
+    start: ValueId,
+    end: ValueId,
+    helper_effects: EffectMask,
+    copy_indices: Vec<usize>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 enum ConcatCorridorPlan {
     Len(ConcatSubstringLenPlan),
     Substring(ConcatSubstringPlan),
     PublicationLen(PublicationHelperLenPlan),
     PublicationSubstring(PublicationHelperSubstringPlan),
+    MaterializationStore(MaterializationStorePlan),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -320,25 +334,34 @@ fn match_substring_len_call_in_block(
     })
 }
 
-fn publication_helper_shape(
+fn helper_plan_for_kind(
     function: &MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    value: ValueId,
-) -> Option<SubstringConcat3HelperShape> {
-    let root = resolve_copy_chain_source(function, def_map, value);
-    let publication = function
+    root: ValueId,
+    kind: StringCorridorCandidateKind,
+) -> Option<StringCorridorCandidatePlan> {
+    function
         .metadata
         .string_corridor_candidates
         .get(&root)?
         .iter()
         .find(|candidate| {
-            candidate.kind == StringCorridorCandidateKind::PublicationSink
+            candidate.kind == kind
                 && matches!(
                     candidate.plan.map(|plan| plan.proof),
                     Some(StringCorridorCandidateProof::ConcatTriplet { .. })
                 )
-        })?;
-    let plan = publication.plan?;
+        })?
+        .plan
+}
+
+fn corridor_helper_shape(
+    function: &MirFunction,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    value: ValueId,
+    kind: StringCorridorCandidateKind,
+) -> Option<SubstringConcat3HelperShape> {
+    let root = resolve_copy_chain_source(function, def_map, value);
+    let plan = helper_plan_for_kind(function, root, kind)?;
     let (bbid, idx) = def_map.get(&root).copied()?;
     let block = function.blocks.get(&bbid)?;
     let helper = match_substring_concat3_helper_call(block.instructions.get(idx)?)?;
@@ -346,6 +369,81 @@ fn publication_helper_shape(
         return None;
     }
     Some(helper)
+}
+
+fn publication_helper_shape(
+    function: &MirFunction,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    value: ValueId,
+) -> Option<SubstringConcat3HelperShape> {
+    corridor_helper_shape(
+        function,
+        def_map,
+        value,
+        StringCorridorCandidateKind::PublicationSink,
+    )
+}
+
+fn materialization_helper_shape(
+    function: &MirFunction,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    value: ValueId,
+) -> Option<SubstringConcat3HelperShape> {
+    corridor_helper_shape(
+        function,
+        def_map,
+        value,
+        StringCorridorCandidateKind::MaterializationSink,
+    )
+}
+
+fn array_store_candidate(
+    function: &MirFunction,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    inst: &MirInstruction,
+) -> Option<MethodSetCallShape> {
+    let store = match_method_set_call(inst)?;
+    if !matches!(store.box_name.as_str(), "ArrayBox" | "RuntimeDataBox") {
+        return None;
+    }
+    let receiver_root = resolve_copy_chain_source(function, def_map, store.receiver);
+    match function.metadata.value_types.get(&receiver_root) {
+        Some(MirType::Box(name)) if name == "ArrayBox" => Some(MethodSetCallShape {
+            box_name: store.box_name,
+            receiver: receiver_root,
+            key: resolve_copy_chain_source(function, def_map, store.key),
+            value: store.value,
+        }),
+        _ => None,
+    }
+}
+
+fn rewrite_array_store_value(inst: &MirInstruction, new_value: ValueId) -> Option<MirInstruction> {
+    match inst {
+        MirInstruction::Call {
+            dst,
+            func,
+            callee,
+            args,
+            effects,
+        } => {
+            if let Some(MethodSetCallShape { .. }) = match_method_set_call(inst) {
+                let mut new_args = args.clone();
+                if new_args.len() == 2 {
+                    new_args[1] = new_value;
+                    return Some(MirInstruction::Call {
+                        dst: *dst,
+                        func: *func,
+                        callee: callee.clone(),
+                        args: new_args,
+                        effects: *effects,
+                    });
+                }
+            }
+            None
+        }
+        _ => None,
+    }
 }
 
 fn value_is_const_i64(
@@ -421,7 +519,6 @@ fn complementary_pair_source_len(
     None
 }
 
-
 fn substring_pair_shares_source(
     function: &MirFunction,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
@@ -457,17 +554,21 @@ fn try_match_complementary_len_fusion_plan(
         return None;
     }
 
-    for (acc_leaf, first_leaf) in [(inner_add.lhs, inner_add.rhs), (inner_add.rhs, inner_add.lhs)] {
+    for (acc_leaf, first_leaf) in [
+        (inner_add.lhs, inner_add.rhs),
+        (inner_add.rhs, inner_add.lhs),
+    ] {
         let first_chain = match resolve_single_use_copy_chain_in_block(
             function, bbid, def_map, use_counts, first_leaf,
         ) {
             Some(chain) => chain,
             None => continue,
         };
-        let first_call = match match_substring_len_call_in_block(function, bbid, def_map, first_chain.root) {
-            Some(call) => call,
-            None => continue,
-        };
+        let first_call =
+            match match_substring_len_call_in_block(function, bbid, def_map, first_chain.root) {
+                Some(call) => call,
+                None => continue,
+            };
         let second_call =
             match match_substring_len_call_in_block(function, bbid, def_map, other_chain.root) {
                 Some(call) => call,
@@ -527,35 +628,17 @@ fn collect_complementary_len_fusion_plans(
             };
 
             let Some(plan) = try_match_complementary_len_fusion_plan(
-                function,
-                *bbid,
-                outer_idx,
-                *dst,
-                *lhs,
-                *rhs,
-                def_map,
-                use_counts,
+                function, *bbid, outer_idx, *dst, *lhs, *rhs, def_map, use_counts,
             )
             .or_else(|| {
                 try_match_complementary_len_fusion_plan(
-                    function,
-                    *bbid,
-                    outer_idx,
-                    *dst,
-                    *rhs,
-                    *lhs,
-                    def_map,
-                    use_counts,
+                    function, *bbid, outer_idx, *dst, *rhs, *lhs, def_map, use_counts,
                 )
             }) else {
                 continue;
             };
 
-            if plan
-                .remove_indices
-                .iter()
-                .any(|idx| occupied.contains(idx))
-            {
+            if plan.remove_indices.iter().any(|idx| occupied.contains(idx)) {
                 continue;
             }
             for idx in &plan.remove_indices {
@@ -650,8 +733,7 @@ fn collect_retained_len_plans(
     function: &MirFunction,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
 ) -> BTreeMap<BasicBlockId, Vec<RetainedSubstringLenPlan>> {
-    let mut plans_by_block: BTreeMap<BasicBlockId, Vec<RetainedSubstringLenPlan>> =
-        BTreeMap::new();
+    let mut plans_by_block: BTreeMap<BasicBlockId, Vec<RetainedSubstringLenPlan>> = BTreeMap::new();
 
     for (bbid, block) in &function.blocks {
         let mut plans: Vec<RetainedSubstringLenPlan> = Vec::new();
@@ -661,7 +743,8 @@ fn collect_retained_len_plans(
                 continue;
             };
             let receiver_root = resolve_copy_chain_source(function, def_map, receiver);
-            let Some(inner_fact) = function.metadata.string_corridor_facts.get(&receiver_root) else {
+            let Some(inner_fact) = function.metadata.string_corridor_facts.get(&receiver_root)
+            else {
                 continue;
             };
             if inner_fact.op != StringCorridorOp::StrSlice {
@@ -756,6 +839,7 @@ fn apply_retained_len_plans(
 fn collect_concat_corridor_plans(
     function: &MirFunction,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    use_counts: &HashMap<ValueId, usize>,
 ) -> BTreeMap<BasicBlockId, Vec<ConcatCorridorPlan>> {
     let mut plans_by_block: BTreeMap<BasicBlockId, Vec<ConcatCorridorPlan>> = BTreeMap::new();
 
@@ -807,7 +891,46 @@ fn collect_concat_corridor_plans(
                 continue;
             }
 
-            let Some((outer_dst, receiver, start, end, effects)) = match_substring_call(inst) else {
+            if let Some(store) = array_store_candidate(function, def_map, inst) {
+                let Some(value_chain) = resolve_single_use_copy_chain_in_block(
+                    function,
+                    *bbid,
+                    def_map,
+                    use_counts,
+                    store.value,
+                ) else {
+                    continue;
+                };
+                let Some(helper) =
+                    materialization_helper_shape(function, def_map, value_chain.root)
+                else {
+                    continue;
+                };
+                let Some((helper_bbid, helper_idx)) = def_map.get(&helper.dst).copied() else {
+                    continue;
+                };
+                if helper_bbid != *bbid || helper_idx >= outer_idx {
+                    continue;
+                }
+                plans.push(ConcatCorridorPlan::MaterializationStore(
+                    MaterializationStorePlan {
+                        helper_idx,
+                        helper_dst: helper.dst,
+                        store_idx: outer_idx,
+                        left: helper.left,
+                        middle: helper.middle,
+                        right: helper.right,
+                        start: helper.start,
+                        end: helper.end,
+                        helper_effects: helper.effects,
+                        copy_indices: value_chain.copy_indices,
+                    },
+                ));
+                continue;
+            }
+
+            let Some((outer_dst, receiver, start, end, effects)) = match_substring_call(inst)
+            else {
                 continue;
             };
             if let Some(ConcatTripletShape {
@@ -910,6 +1033,15 @@ enum ResolvedConcatCorridorPlan {
         inner_end: ValueId,
         effects: EffectMask,
     },
+    MaterializationStore {
+        helper_dst: ValueId,
+        left: ValueId,
+        middle: ValueId,
+        right: ValueId,
+        start: ValueId,
+        end: ValueId,
+        helper_effects: EffectMask,
+    },
 }
 
 fn apply_concat_corridor_plans(
@@ -925,6 +1057,7 @@ fn apply_concat_corridor_plans(
         }
 
         let mut resolved_by_idx: BTreeMap<usize, ResolvedConcatCorridorPlan> = BTreeMap::new();
+        let mut remove_indices: BTreeSet<usize> = BTreeSet::new();
         let mut hints = Vec::new();
         for plan in plans {
             match plan {
@@ -945,7 +1078,10 @@ fn apply_concat_corridor_plans(
                         .metadata
                         .value_types
                         .insert(plan.outer_dst, MirType::Integer);
-                    hints.push(format!("string_corridor_sink:concat_slice_len:%{}", plan.outer_dst.0));
+                    hints.push(format!(
+                        "string_corridor_sink:concat_slice_len:%{}",
+                        plan.outer_dst.0
+                    ));
                     resolved_by_idx.insert(
                         plan.outer_idx,
                         ResolvedConcatCorridorPlan::Len {
@@ -1031,6 +1167,26 @@ fn apply_concat_corridor_plans(
                         },
                     );
                 }
+                ConcatCorridorPlan::MaterializationStore(plan) => {
+                    remove_indices.insert(plan.helper_idx);
+                    remove_indices.extend(plan.copy_indices.iter().copied());
+                    hints.push(format!(
+                        "string_corridor_sink:materialization_store:%{}",
+                        plan.helper_dst.0
+                    ));
+                    resolved_by_idx.insert(
+                        plan.store_idx,
+                        ResolvedConcatCorridorPlan::MaterializationStore {
+                            helper_dst: plan.helper_dst,
+                            left: plan.left,
+                            middle: plan.middle,
+                            right: plan.right,
+                            start: plan.start,
+                            end: plan.end,
+                            helper_effects: plan.helper_effects,
+                        },
+                    );
+                }
             }
         }
 
@@ -1044,6 +1200,9 @@ fn apply_concat_corridor_plans(
         let mut new_spans = Vec::with_capacity(spans.len() + resolved_by_idx.len());
 
         for (idx, (inst, span)) in insts.into_iter().zip(spans.into_iter()).enumerate() {
+            if remove_indices.contains(&idx) {
+                continue;
+            }
             let Some(plan) = resolved_by_idx.get(&idx) else {
                 new_insts.push(inst);
                 new_spans.push(span);
@@ -1173,6 +1332,30 @@ fn apply_concat_corridor_plans(
                         args: vec![*left, *middle, *right, *composed_start, *composed_end],
                         effects: *effects,
                     });
+                    new_spans.push(span);
+                    rewritten += 1;
+                }
+                ResolvedConcatCorridorPlan::MaterializationStore {
+                    helper_dst,
+                    left,
+                    middle,
+                    right,
+                    start,
+                    end,
+                    helper_effects,
+                    ..
+                } => {
+                    new_insts.push(MirInstruction::Call {
+                        dst: Some(*helper_dst),
+                        func: ValueId::INVALID,
+                        callee: Some(Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string())),
+                        args: vec![*left, *middle, *right, *start, *end],
+                        effects: *helper_effects,
+                    });
+                    new_spans.push(span.clone());
+                    let rewritten_store = rewrite_array_store_value(&inst, *helper_dst)
+                        .expect("materialization store rewrite should preserve set call shape");
+                    new_insts.push(rewritten_store);
                     new_spans.push(span);
                     rewritten += 1;
                 }
@@ -1605,15 +1788,42 @@ mod tests {
             value: Some(ValueId(8)),
         });
 
-        function.metadata.value_types.insert(ValueId(1), MirType::Integer);
-        function.metadata.value_types.insert(ValueId(2), MirType::Integer);
-        function.metadata.value_types.insert(ValueId(3), MirType::Integer);
-        function.metadata.value_types.insert(ValueId(4), MirType::Integer);
-        function.metadata.value_types.insert(ValueId(5), MirType::Integer);
-        function.metadata.value_types.insert(ValueId(6), MirType::Integer);
-        function.metadata.value_types.insert(ValueId(7), MirType::Integer);
-        function.metadata.value_types.insert(ValueId(8), MirType::Integer);
-        function.metadata.value_types.insert(ValueId(9), MirType::Integer);
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(1), MirType::Integer);
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(2), MirType::Integer);
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(3), MirType::Integer);
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(4), MirType::Integer);
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(5), MirType::Integer);
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(6), MirType::Integer);
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(7), MirType::Integer);
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(8), MirType::Integer);
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(9), MirType::Integer);
         module.add_function(function);
 
         let rewritten = sink_borrowed_string_corridors(&mut module);
@@ -1705,12 +1915,30 @@ mod tests {
             value: Some(ValueId(6)),
         });
 
-        function.metadata.value_types.insert(ValueId(1), MirType::Integer);
-        function.metadata.value_types.insert(ValueId(2), MirType::Integer);
-        function.metadata.value_types.insert(ValueId(3), MirType::Integer);
-        function.metadata.value_types.insert(ValueId(4), MirType::Integer);
-        function.metadata.value_types.insert(ValueId(5), MirType::Integer);
-        function.metadata.value_types.insert(ValueId(6), MirType::Integer);
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(1), MirType::Integer);
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(2), MirType::Integer);
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(3), MirType::Integer);
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(4), MirType::Integer);
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(5), MirType::Integer);
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(6), MirType::Integer);
         module.add_function(function);
 
         let rewritten = sink_borrowed_string_corridors(&mut module);
@@ -2548,8 +2776,217 @@ mod tests {
         assert_eq!(&helper_args[..3], &[ValueId(5), ValueId(7), ValueId(6)]);
         let composed_start = helper_args[3];
         let composed_end = helper_args[4];
-        assert_eq!(add_roots.get(&composed_start), Some(&(ValueId(8), ValueId(12))));
-        assert_eq!(add_roots.get(&composed_end), Some(&(ValueId(8), ValueId(13))));
+        assert_eq!(
+            add_roots.get(&composed_start),
+            Some(&(ValueId(8), ValueId(12)))
+        );
+        assert_eq!(
+            add_roots.get(&composed_end),
+            Some(&(ValueId(8), ValueId(13)))
+        );
+    }
+
+    #[test]
+    fn sinks_materialization_helper_to_array_store_boundary() {
+        let mut module = MirModule::new("substring_concat_materialization_store".to_string());
+        let signature = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![
+                MirType::Box("ArrayBox".to_string()),
+                MirType::Box("RuntimeDataBox".to_string()),
+            ],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId(0));
+        let block = function.blocks.get_mut(&BasicBlockId(0)).expect("entry");
+
+        block.instructions.push(method_call(
+            ValueId(2),
+            ValueId(1),
+            "RuntimeDataBox",
+            "length",
+            vec![],
+            MirType::Integer,
+        ));
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId(3),
+            value: crate::mir::ConstValue::Integer(2),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::BinOp {
+            dst: ValueId(4),
+            op: crate::mir::BinaryOp::Div,
+            lhs: ValueId(2),
+            rhs: ValueId(3),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId(5),
+            value: crate::mir::ConstValue::Integer(0),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(method_call(
+            ValueId(6),
+            ValueId(1),
+            "RuntimeDataBox",
+            "substring",
+            vec![ValueId(5), ValueId(4)],
+            MirType::Box("RuntimeDataBox".to_string()),
+        ));
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(method_call(
+            ValueId(7),
+            ValueId(1),
+            "RuntimeDataBox",
+            "substring",
+            vec![ValueId(4), ValueId(2)],
+            MirType::Box("RuntimeDataBox".to_string()),
+        ));
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId(8),
+            value: crate::mir::ConstValue::String("xx".to_string()),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId(9),
+            value: crate::mir::ConstValue::Integer(1),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::BinOp {
+            dst: ValueId(10),
+            op: crate::mir::BinaryOp::Add,
+            lhs: ValueId(2),
+            rhs: ValueId(9),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(extern_call(
+            ValueId(11),
+            SUBSTRING_CONCAT3_EXTERN,
+            vec![ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)],
+        ));
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Copy {
+            dst: ValueId(12),
+            src: ValueId(11),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId(13),
+            value: crate::mir::ConstValue::Integer(99),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(method_call(
+            ValueId(14),
+            ValueId(0),
+            "ArrayBox",
+            "set",
+            vec![ValueId(5), ValueId(12)],
+            MirType::Integer,
+        ));
+        block.instruction_spans.push(Span::unknown());
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId(14)),
+        });
+
+        for (vid, ty) in [
+            (ValueId(0), MirType::Box("ArrayBox".to_string())),
+            (ValueId(2), MirType::Integer),
+            (ValueId(3), MirType::Integer),
+            (ValueId(4), MirType::Integer),
+            (ValueId(5), MirType::Integer),
+            (ValueId(6), MirType::Box("RuntimeDataBox".to_string())),
+            (ValueId(7), MirType::Box("RuntimeDataBox".to_string())),
+            (ValueId(8), MirType::Box("StringBox".to_string())),
+            (ValueId(9), MirType::Integer),
+            (ValueId(10), MirType::Integer),
+            (ValueId(11), MirType::Box("RuntimeDataBox".to_string())),
+            (ValueId(12), MirType::Box("RuntimeDataBox".to_string())),
+            (ValueId(13), MirType::Integer),
+            (ValueId(14), MirType::Integer),
+        ] {
+            function.metadata.value_types.insert(vid, ty);
+        }
+        module.add_function(function);
+
+        let rewritten = sink_borrowed_string_corridors(&mut module);
+        assert!(
+            rewritten >= 1,
+            "materialization store sink should rewrite, got {rewritten}"
+        );
+
+        let function = module.get_function("main").expect("main");
+        let block = function.blocks.get(&BasicBlockId(0)).expect("entry");
+        assert!(
+            block.instructions.iter().all(|inst| {
+                !matches!(inst, MirInstruction::Copy { dst, .. } if *dst == ValueId(12))
+            }),
+            "copy-only store consumer should disappear: {:?}",
+            block.instructions
+        );
+
+        let helper_idx = block
+            .instructions
+            .iter()
+            .position(|inst| {
+                matches!(
+                    inst,
+                    MirInstruction::Call {
+                        dst: Some(dst),
+                        callee: Some(Callee::Extern(name)),
+                        args,
+                        ..
+                    } if *dst == ValueId(11)
+                        && name == SUBSTRING_CONCAT3_EXTERN
+                        && args.as_slice()
+                            == [ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)]
+                )
+            })
+            .expect("materialization helper call");
+        let const_idx = block
+            .instructions
+            .iter()
+            .position(|inst| {
+                matches!(
+                    inst,
+                    MirInstruction::Const {
+                        dst,
+                        value: crate::mir::ConstValue::Integer(99),
+                    } if *dst == ValueId(13)
+                )
+            })
+            .expect("unrelated const");
+        let store_idx = block
+            .instructions
+            .iter()
+            .position(|inst| {
+                matches!(
+                    inst,
+                    MirInstruction::Call {
+                        dst: Some(dst),
+                        callee: Some(Callee::Method { method, receiver: Some(receiver), .. }),
+                        args,
+                        ..
+                    } if *dst == ValueId(14)
+                        && method == "set"
+                        && *receiver == ValueId(0)
+                        && args.as_slice() == [ValueId(5), ValueId(11)]
+                )
+            })
+            .expect("array store");
+        assert!(
+            helper_idx > const_idx,
+            "helper should sink past unrelated pure instructions: {:?}",
+            block.instructions
+        );
+        assert_eq!(
+            helper_idx + 1,
+            store_idx,
+            "materialization helper should sit right before the store boundary: {:?}",
+            block.instructions
+        );
     }
 
     #[test]
@@ -2574,15 +3011,18 @@ mod tests {
             .iter()
             .flat_map(|(name, function)| {
                 function.blocks.iter().flat_map(move |(bbid, block)| {
-                    block.instructions.iter().filter_map(move |inst| match inst {
-                        MirInstruction::Call {
-                            callee: Some(Callee::Extern(callee)),
-                            ..
-                        } if callee == SUBSTRING_LEN_EXTERN => {
-                            Some(format!("fn={name} bb={} inst={inst:?}", bbid.0))
-                        }
-                        _ => None,
-                    })
+                    block
+                        .instructions
+                        .iter()
+                        .filter_map(move |inst| match inst {
+                            MirInstruction::Call {
+                                callee: Some(Callee::Extern(callee)),
+                                ..
+                            } if callee == SUBSTRING_LEN_EXTERN => {
+                                Some(format!("fn={name} bb={} inst={inst:?}", bbid.0))
+                            }
+                            _ => None,
+                        })
                 })
             })
             .collect();
@@ -2618,8 +3058,9 @@ mod tests {
                         MirInstruction::Call {
                             callee: Some(Callee::Extern(callee)),
                             ..
-                        } if callee == SUBSTRING_LEN_EXTERN => leftover_string_consumers
-                            .push(format!("fn={name} bb={} extern={callee} inst={inst:?}", bbid.0)),
+                        } if callee == SUBSTRING_LEN_EXTERN => leftover_string_consumers.push(
+                            format!("fn={name} bb={} extern={callee} inst={inst:?}", bbid.0),
+                        ),
                         MirInstruction::Call {
                             callee:
                                 Some(Callee::Method {
@@ -2690,7 +3131,8 @@ mod tests {
                             ..
                         } if box_name == "RuntimeDataBox"
                             && method == "substring"
-                            && match_concat_triplet(function, *bbid, &def_map, *receiver).is_some() =>
+                            && match_concat_triplet(function, *bbid, &def_map, *receiver)
+                                .is_some() =>
                         {
                             leftover_concat_consumers.push(format!(
                                 "fn={name} bb={} concat substring inst={inst:?}",
@@ -2708,7 +3150,8 @@ mod tests {
                             ..
                         } if box_name == "RuntimeDataBox"
                             && method == "length"
-                            && match_concat_triplet(function, *bbid, &def_map, *receiver).is_some() =>
+                            && match_concat_triplet(function, *bbid, &def_map, *receiver)
+                                .is_some() =>
                         {
                             leftover_concat_lengths.push(format!(
                                 "fn={name} bb={} concat length inst={inst:?}",
@@ -2721,10 +3164,7 @@ mod tests {
             }
         }
 
-        assert!(
-            saw_helper,
-            "benchmark should emit substring_concat3 helper"
-        );
+        assert!(saw_helper, "benchmark should emit substring_concat3 helper");
         assert!(
             leftover_concat_consumers.is_empty(),
             "substring_concat should sink concat substring consumers, found {:?}",

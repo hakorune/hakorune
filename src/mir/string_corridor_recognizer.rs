@@ -49,6 +49,14 @@ pub(crate) struct SubstringConcat3HelperShape {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct MethodSetCallShape {
+    pub box_name: String,
+    pub receiver: ValueId,
+    pub key: ValueId,
+    pub value: ValueId,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum StringSourceIdentity {
     Value(ValueId),
     ConstString(String),
@@ -212,8 +220,8 @@ pub(crate) fn match_substring_concat3_helper_call(
             args,
             effects,
             ..
-        } if args.len() == 5 && name == "nyash.string.substring_concat3_hhhii" => Some(
-            SubstringConcat3HelperShape {
+        } if args.len() == 5 && name == "nyash.string.substring_concat3_hhhii" => {
+            Some(SubstringConcat3HelperShape {
                 dst: *dst,
                 left: args[0],
                 middle: args[1],
@@ -221,15 +229,35 @@ pub(crate) fn match_substring_concat3_helper_call(
                 start: args[3],
                 end: args[4],
                 effects: *effects,
-            },
-        ),
+            })
+        }
         _ => None,
     }
 }
 
-pub(crate) fn extract_substring_args(
-    inst: &MirInstruction,
-) -> Option<(ValueId, ValueId, ValueId)> {
+pub(crate) fn match_method_set_call(inst: &MirInstruction) -> Option<MethodSetCallShape> {
+    match inst {
+        MirInstruction::Call {
+            callee:
+                Some(Callee::Method {
+                    box_name,
+                    method,
+                    receiver: Some(receiver),
+                    ..
+                }),
+            args,
+            ..
+        } if args.len() == 2 && method == "set" => Some(MethodSetCallShape {
+            box_name: box_name.clone(),
+            receiver: *receiver,
+            key: args[0],
+            value: args[1],
+        }),
+        _ => None,
+    }
+}
+
+pub(crate) fn extract_substring_args(inst: &MirInstruction) -> Option<(ValueId, ValueId, ValueId)> {
     match inst {
         MirInstruction::Call {
             callee:

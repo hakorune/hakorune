@@ -53,7 +53,8 @@
   - landed: `string_corridor_candidates` now carry proof-bearing plan metadata for borrowed-slice and concat-triplet routes
   - landed: direct `substring_concat3_hhhii` helper results now stay on the same proof-bearing lane with concat-triplet-backed `publication_sink` plan metadata
   - landed: direct helper-result `length()` / `substring()` now consume that same `publication_sink` plan in `string_corridor_sink`
-  - next: use `materialization_sink` as the next broader generic transform; keep loop-carried `phi_merge` outside this cut
+  - landed: first non-`phi` `materialization_sink` slice now sinks a direct `substring_concat3_hhhii` helper birth to a single local `ArrayBox.set` boundary when only copy aliases separate the helper from the store
+  - next: keep loop-carried `phi_merge` outside this cut, and reopen the practical materialization lane on `concat -> array.set -> trailing length()` facts instead of widening beyond the new store-only sink
   - treat exact seed logic in `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc` as temporary bridge surface to shrink after generic plan-selected routes prove out
 - pure Rust reference compare lane:
   - `benchmarks/rust/bench_kilo_micro_substring_views_only.rs`
