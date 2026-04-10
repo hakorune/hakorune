@@ -1650,12 +1650,8 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
   }
   {
     yyjson_val* mc = yyjson_obj_get(interesting[15], "mir_call");
-    yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-    const char* name = cal ? (READ_STR(cal, "method") ? READ_STR(cal, "method") : READ_STR(cal, "name")) : NULL;
-    yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
     long long helper_result = READ_INT(interesting[15], "dst");
-    if (!(name && strcmp(name, "nyash.string.substring_concat3_hhhii") == 0 &&
-          args && yyjson_is_arr(args) && yyjson_arr_size(args) == 5)) {
+    if (!mc) {
       yyjson_doc_free(doc);
       return -1;
     }
