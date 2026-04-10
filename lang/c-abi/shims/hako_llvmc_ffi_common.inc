@@ -133,6 +133,55 @@ static int hako_llvmc_string_corridor_plan_matches(
   return 0;
 }
 
+static int hako_llvmc_string_corridor_read_plan_source_window_fn(
+    yyjson_val* fn,
+    long long value,
+    const char* kind,
+    long long* source_root,
+    long long* start,
+    long long* end) {
+  yyjson_val* metadata;
+  yyjson_val* candidates;
+  yyjson_val* arr;
+  size_t i;
+  char key[32];
+
+  if (!(fn && kind && value > 0)) return 0;
+
+  metadata = yyjson_obj_get(fn, "metadata");
+  candidates = metadata ? yyjson_obj_get(metadata, "string_corridor_candidates") : NULL;
+  if (!(candidates && yyjson_is_obj(candidates))) return 0;
+
+  snprintf(key, sizeof(key), "%lld", value);
+  arr = yyjson_obj_get(candidates, key);
+  if (!(arr && yyjson_is_arr(arr))) return 0;
+
+  for (i = 0; i < yyjson_arr_size(arr); i++) {
+    yyjson_val* candidate = yyjson_arr_get(arr, i);
+    yyjson_val* candidate_kind = candidate ? yyjson_obj_get(candidate, "kind") : NULL;
+    yyjson_val* plan = candidate ? yyjson_obj_get(candidate, "plan") : NULL;
+    yyjson_val* source_val = plan ? yyjson_obj_get(plan, "source_root") : NULL;
+    yyjson_val* start_val = plan ? yyjson_obj_get(plan, "start") : NULL;
+    yyjson_val* end_val = plan ? yyjson_obj_get(plan, "end") : NULL;
+
+    if (!(candidate_kind && yyjson_is_str(candidate_kind) &&
+          strcmp(yyjson_get_str(candidate_kind), kind) == 0)) {
+      continue;
+    }
+    if (!(plan && yyjson_is_obj(plan) && source_val && start_val && end_val &&
+          yyjson_is_num(source_val) && yyjson_is_num(start_val) &&
+          yyjson_is_num(end_val))) {
+      return 0;
+    }
+    if (source_root) *source_root = (long long)yyjson_get_sint(source_val);
+    if (start) *start = (long long)yyjson_get_sint(start_val);
+    if (end) *end = (long long)yyjson_get_sint(end_val);
+    return 1;
+  }
+
+  return 0;
+}
+
 static int hako_llvmc_string_corridor_has_candidate(
     yyjson_val* fn,
     long long value,
