@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-04-09
+Date: 2026-04-10
 Scope: repo root から current lane / current front / restart read order に最短で戻るための薄い pointer。
 
 ## Purpose
@@ -231,29 +231,55 @@ Scope: repo root から current lane / current front / restart read order に最
           - `sum_result_ok_tag_local_handle_min.prebuilt.mir.json` now proves the same cutover for `variant_tag` on a handle payload lane
         - `phase163x-sum-thin-entry-cutover` is complete; next substep is `ny-llvmc` parity wave
         - keep `phi_merge` and `call` / `boxcall` / `return` barrier relaxation out of this cut; those require a separate metadata-contract phase first
-        - next reusable optimization family after that:
-          - selected local non-escaping known-layout user boxes should stay in `agg_local` / per-field SSA on the actual AOT consumer path instead of returning to handle world
-          - treat this as backend-private metadata + lowering work on the actual consumer, not as `.hako` syntax work and not as a public MIR dialect fork
+        - verified non-Variant optimization order after the current parity wave:
+          1. sibling string retained-view consumer expansion
+             - extend the landed boundary `pure-first` consumer family from `substring(...).length()` plus `concat -> substring(...)` into retained-view `substring_hii` local shapes
+             - keep `kilo_micro_substring_views_only` as the local exact front
+          2. broader string corridor placement/effect rewrite
+             - current `string_corridor_placement.rs` is inspection-only and does not mutate MIR
+             - fold the next real string work around the existing candidate vocabulary:
+               - `borrowed_corridor_fusion`
+               - `publication_sink`
+               - `materialization_sink`
+               - `direct_kernel_entry`
+          3. actual-consumer switch for selected user-box thin entries that are still metadata-only today
+             - `thin_entry_selection` already inventories `user_box_method.known_receiver`
+             - keep this as backend-private lowering work under canonical `Call`, not `.hako` syntax work and not a public MIR dialect fork
+          4. `ArrayBox` typed-slot expansion beyond the landed `InlineI64` pilot
+             - later candidates are `InlineBool` / `InlineF64`
+             - do not widen this before the string and user-box consumer cuts above have evidence
         - restart handoff:
           - cleanup queue is empty
           - continue `phase163x-optimization-resume` next
           - `phase137x-substring-retained-view-consumer` stays in progress as the sibling string lane
     9. deferred deep deletions (backlog only; do not mix into the current perf proof cut)
         - `phase163x-deep-delete-sum-compat-carriers`
-          - retire the remaining `__NySum_*` / tuple-enum compat carriers after the current string guardrail keeper lands
-          - landed slice: llvm_py entry no longer synthesizes enum-facing `__NySum_*` user box declarations; runtime fallback materialization stays on demand in lowering/escape barriers
+          - retire the remaining `__NyVariant_*` / tuple-enum compat carriers after the current string guardrail keeper lands
+          - landed slice: llvm_py entry no longer synthesizes enum-facing `__NyVariant_*` user box declarations; runtime fallback materialization stays on demand in lowering/escape barriers
         - `phase163x-deep-delete-instance-legacy-field-store`
           - remove `InstanceBox` dual legacy field-storage paths only after the current optimization proof and follow-on parity remain green
           - landed:
-            - VM sum runtime fallback no longer uses `InstanceBox::set_field_dynamic_legacy`; payloads now ride the interpreter `obj_fields` compatibility store
+            - VM variant runtime fallback no longer uses `InstanceBox::set_field_dynamic_legacy`; payloads now ride the interpreter `obj_fields` compatibility store
             - `InstanceBox` no longer gates box-valued fields behind `NYASH_LEGACY_FIELDS_ENABLE`; dedicated `box_fields` are always present for identity-carrying handles
             - legacy helper/toggle cleanup landed: `set_field_dynamic_legacy`, `get_field_legacy`, `set_field_legacy`, and the `NYASH_LEGACY_FIELDS_ENABLE` env toggle are gone
             - `InstanceBox.size` / debug field listing now read the unified field-name union (`fields_ng` + `box_fields`)
             - dead unified/weak InstanceBox facades are gone; `host_box_ops` now calls the canonical `get_field_ng` / `set_field_ng` field path directly
-            - sum fallback bridge is now isolated in `sum_bridge`; `__NySum_*`, `__sum_tag`, and `__sum_payload` helpers no longer leak across handlers
+            - sum fallback bridge is now isolated in `sum_bridge`; `__NyVariant_*`, `__variant_tag`, and `__variant_payload` helpers no longer leak across handlers
             - interpreter object-field access is now wrapped by `object_field_store`; `get_object_field` / `set_object_field` / `object_field_root_count` are the only live entry points
             - array/string source cleanup landed: `StringHandleSourceKind` is gone, `with_array_store_str_source` now returns only `ArrayStoreStrSource`, and `array_string_slot` derives source-kind from the enum directly
-    10. keep `where` / enum methods / full monomorphization in backlog
+    10. verified backlog-only optimization inventory
+        - semantic/generic backlog:
+          - keep `where` / enum methods / full monomorphization in backlog
+          - do not promote full monomorphization into the current perf lane; generic surface/type-resolution infrastructure exists, but whole-program specialization is not the next hot-path cut
+        - generic optimizer backlog:
+          - basic MIR DCE already exists in `src/mir/passes/dce.rs` for unused pure instructions
+          - stronger cross-block / partial DCE is later-only and is not the current keeper blocker
+          - generic `escape_elide_barriers_vm` remains explicitly VM-only footing in `src/mir/passes/escape.rs`
+          - keep any generic LLVM-side escape pass separate from the already-landed narrow objectization-at-boundary route for selected local enums/user boxes
+        - not yet fixed as current SSOT tasks:
+          - `MapBox` typed value slots
+          - float niche tuning (`fast-math` / `FMA` / SIMD-style follow-ons)
+          - closure/lambda optimization
   - sibling string guardrail accept gate:
     - `kilo_micro_substring_only`
   - sibling string guardrail split exact fronts:

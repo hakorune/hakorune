@@ -55,10 +55,16 @@ Related:
       - use it for front-end startup checks; the existing three-lane AOT split stays the kernel/startup companion
     - generic native-driver / `ny-llvmc` parity for the broader user-box local-body route remains canary-only backlog, not the current blocker
     - portability-ci on `public-main` succeeded for commit `6b91896c0` (run `24211665863`), covering Windows check and macOS build (release)
-  - recommended post-selection order is now locked:
-    1. `enum placement/effect pilot` (`enum outer-box sinking` first proving slice)
-    2. `ny-llvmc` parity wave
-    3. `tuple multi-payload` compat transport
+  - verified post-Variant optimization order is now locked:
+    1. `ny-llvmc` parity wave for the already-landed local enum/user-box routes
+    2. sibling string retained-view `substring_hii` consumer expansion on the landed boundary `pure-first` corridor family
+    3. broader string corridor placement/effect rewrite using the existing candidate vocabulary:
+       - `borrowed_corridor_fusion`
+       - `publication_sink`
+       - `materialization_sink`
+       - `direct_kernel_entry`
+    4. actual-consumer switch for selected thin-entry user-box method routes that are still metadata-only today (`user_box_method.known_receiver` first)
+    5. `ArrayBox` typed-slot expansion beyond the landed `InlineI64` pilot
   - tuple multi-payload compat transport is now landed:
     - parser/AST accept `Variant(T, U, ...)` while keeping tuple payload truth above canonical MIR
     - Stage1 lowers tuple ctors/matches through `__NyVariantPayload_<Enum>_<Variant>` with synthetic `_0`, `_1`, ... fields
@@ -86,7 +92,13 @@ Related:
     - separate phase, not this cut: relax `phi_merge` or `call` / `boxcall` / `return` barriers only with a metadata-contract update first
     - sibling string follow-on after that: extend the landed boundary `pure-first` consumer family from `substring(...).length()` plus `concat -> substring(...)` into retained-view `substring_hii` local shapes
     - restart handoff: cleanup queue is empty; continue `phase163x-optimization-resume` next; `phase137x-substring-retained-view-consumer` remains in progress as the sibling string lane
-  - remaining semantic follow-ons stay backlog-only: `where`, enum methods, full monomorphization
+  - verified backlog-only follow-ons:
+    - semantic/generic backlog: `where`, enum methods, full monomorphization
+    - generic optimizer backlog: stronger cross-block/partial DCE beyond current pure-instruction DCE, and a generic LLVM-side escape pass beyond the already-landed narrow local objectization-at-boundary route
+  - not yet fixed as current SSOT tasks:
+    - `MapBox` typed value slots
+    - float niche tuning (`fast-math` / `FMA` / SIMD-style follow-ons)
+    - closure/lambda optimization
 - sibling string guardrail:
   - `phase-137x main kilo reopen selection`
   - `kilo_micro_substring_views_only`

@@ -175,6 +175,30 @@
         - metadata-bearing sum smoke is green on `phase163x_boundary_sum_metadata_keep_min.sh` via boundary `pure-first` owner lane without compat replay
         - thin-entry inventory now classifies boxed primitive field hints as `inline_scalar`, and the current Point/Flag native-driver keeper seeds require those selector rows before firing
       - generic native-driver / `ny-llvmc` parity for the broader user-box local-body route remains the next actual-consumer backlog, not the current blocker
+      - verified non-Variant optimization order after this parity wave:
+        1. sibling string retained-view consumer expansion
+           - extend the landed boundary `pure-first` consumer family from `substring(...).length()` plus `concat -> substring(...)` into retained-view `substring_hii` local shapes
+           - keep `kilo_micro_substring_views_only` as the local exact front
+        2. broader string corridor placement/effect rewrite
+           - `src/mir/string_corridor_placement.rs` is still inspection-only in this wave
+           - use the already-landed candidate vocabulary as the contract for the next real transform family:
+             - `borrowed_corridor_fusion`
+             - `publication_sink`
+             - `materialization_sink`
+             - `direct_kernel_entry`
+        3. actual-consumer switch for selected user-box thin entries that are still metadata-only today
+           - `thin_entry_selection` already inventories `user_box_method.known_receiver`
+           - keep this beneath canonical `Call`; do not widen surface syntax or add a public MIR dialect fork
+        4. `ArrayBox` typed-slot expansion beyond the landed `InlineI64` pilot
+           - later candidates are `InlineBool` / `InlineF64`
+        5. backlog-only after the above:
+           - stronger cross-block / partial DCE beyond current pure-instruction DCE
+           - generic LLVM-side escape pass beyond the already-landed narrow local objectization-at-boundary route
+           - `where` / enum methods / full monomorphization
+        6. do not promote these into the current phase task order without a measured hotspot + SSOT first:
+           - `MapBox` typed value slots
+           - float niche tuning (`fast-math` / `FMA` / SIMD-style follow-ons)
+           - closure/lambda optimization
     5. `tuple multi-payload` compat transport is now landed
       - parser/AST now accept tuple payload declarations while preserving tuple payload truth above canonical MIR
       - Stage1 lowers tuple ctors/matches through `__NyVariantPayload_<Enum>_<Variant>` hidden payload boxes with `_0`, `_1`, ... field slots
