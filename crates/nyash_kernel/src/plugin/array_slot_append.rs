@@ -16,6 +16,13 @@ pub(super) fn array_slot_append_any(handle: i64, val_any: i64) -> i64 {
             } else {
                 0
             }
+        } else if let Some(bool_value) = value.as_bool_fast() {
+            let idx = arr.len() as i64;
+            if arr.slot_store_bool_raw(idx, bool_value) {
+                idx + 1
+            } else {
+                0
+            }
         } else {
             arr.slot_append_box_raw(value)
         }

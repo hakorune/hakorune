@@ -14,6 +14,8 @@ TESTS=(
   hi_hii_aliases_keep_fail_safe_contract
   slot_load_store_raw_aliases_keep_contract
   slot_append_raw_alias_keeps_contract
+  slot_store_any_bool_handle_births_inline_bool_lane
+  slot_append_raw_alias_births_inline_bool_lane_for_bool_values
   slot_reserve_and_grow_raw_aliases_keep_length_and_expand_capacity
 )
 

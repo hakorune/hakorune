@@ -93,6 +93,8 @@ Related:
          - first native-driver/shim boundary pure-first consumer slice for the same selector contract
        - next follow-on is a measured broader local-method keeper only if evidence appears first; otherwise continue to the next ordered lane
     5. `ArrayBox` typed-slot expansion beyond the landed `InlineI64` pilot
+       - landed next narrow slice: existing `slot_store_hih` / `slot_append_hh` any routes now birth/preserve `InlineBool` for `BoolBox` payloads without widening ABI rows
+       - next candidate: `InlineF64`
   - tuple multi-payload compat transport is now landed:
     - parser/AST accept `Variant(T, U, ...)` while keeping tuple payload truth above canonical MIR
     - Stage1 lowers tuple ctors/matches through `__NyVariantPayload_<Enum>_<Variant>` with synthetic `_0`, `_1`, ... fields

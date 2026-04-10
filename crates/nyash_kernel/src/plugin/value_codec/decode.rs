@@ -15,6 +15,7 @@ pub(crate) enum CodecProfile {
 // Public ABI rows must use canonical value classes from docs, not this enum directly.
 pub(crate) enum ArrayFastDecodedValue {
     ImmediateI64(i64),
+    ImmediateBool(bool),
     Boxed(Box<dyn NyashBox>),
 }
 
@@ -41,6 +42,9 @@ pub(crate) fn decode_array_fast_value(arg: i64) -> ArrayFastDecodedValue {
             }
             if let Some(ib) = obj.as_any().downcast_ref::<IntegerBox>() {
                 return ArrayFastDecodedValue::ImmediateI64(ib.value);
+            }
+            if let Some(bb) = obj.as_any().downcast_ref::<BoolBox>() {
+                return ArrayFastDecodedValue::ImmediateBool(bb.value);
             }
             ArrayFastDecodedValue::ImmediateI64(arg)
         },

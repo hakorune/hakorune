@@ -102,6 +102,7 @@
   - `ArrayBox` narrow typed-slot pilot is now landed:
     - runtime authority stays in `ArrayBox`; `NyashValue::Array` is not the keeper lane
     - internal i64-specialized routes now birth/preserve a narrow `InlineI64` storage lane
+    - existing generic any-store/append routes now also birth/preserve a narrow `InlineBool` lane for `BoolBox` payloads without widening the public ABI rows
     - boxed/string/mixed routes explicitly promote back to boxed storage before mutation
     - current keeper proof is focused ArrayBox/kernel tests + `phase21_5_perf_kilo_micro_machine_lane_contract_vm`
   - enum/sum MIR types and user-defined generics now have a backlog SSOT:
@@ -214,7 +215,8 @@
              - the current shim consumer stays seed-narrow and consumes `user_box_method.known_receiver` together with the already-landed scalar `Counter.value` field selections
            - broader native-driver local-method parity remains backlog-only until a measured keeper or stronger SSOT justifies widening
         4. `ArrayBox` typed-slot expansion beyond the landed `InlineI64` pilot
-           - later candidates are `InlineBool` / `InlineF64`
+           - landed next narrow slice: `InlineBool` birth/preserve on existing `slot_store_hih` / `slot_append_hh` any routes
+           - next candidate is `InlineF64`
         5. backlog-only after the above:
            - stronger cross-block / partial DCE beyond current pure-instruction DCE
            - generic LLVM-side escape pass beyond the already-landed narrow local objectization-at-boundary route

@@ -177,6 +177,37 @@ mod tests {
     }
 
     #[test]
+    fn slot_store_any_bool_handle_births_inline_bool_lane() {
+        let handle = new_array_handle();
+        let bool_handle = nyash_rust::runtime::host_handles::to_handle_arc(
+            std::sync::Arc::new(nyash_rust::box_trait::BoolBox::new(true))
+                as std::sync::Arc<dyn NyashBox>,
+        ) as i64;
+
+        assert_eq!(nyash_array_slot_store_hih_alias(handle, 0, bool_handle), 1);
+        assert_eq!(nyash_array_slot_len_h_alias(handle), 1);
+        assert_eq!(nyash_array_slot_load_hi_alias(handle, 0), 1);
+        assert!(storage_tag(handle)
+            .as_deref()
+            .is_some_and(|text| text.contains("inline_bool")));
+    }
+
+    #[test]
+    fn slot_append_raw_alias_births_inline_bool_lane_for_bool_values() {
+        let handle = new_array_handle();
+        let bool_handle = nyash_rust::runtime::host_handles::to_handle_arc(
+            std::sync::Arc::new(nyash_rust::box_trait::BoolBox::new(true))
+                as std::sync::Arc<dyn NyashBox>,
+        ) as i64;
+
+        assert_eq!(nyash_array_slot_append_hh_alias(handle, bool_handle), 1);
+        assert_eq!(nyash_array_slot_load_hi_alias(handle, 0), 1);
+        assert!(storage_tag(handle)
+            .as_deref()
+            .is_some_and(|text| text.contains("inline_bool")));
+    }
+
+    #[test]
     fn slot_reserve_and_grow_raw_aliases_keep_length_and_expand_capacity() {
         let handle = new_array_handle();
         assert_eq!(nyash_array_push_h(handle, 1), 1);

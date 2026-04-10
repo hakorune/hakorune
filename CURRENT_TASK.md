@@ -80,6 +80,7 @@ Scope: repo root から current lane / current front / restart read order に最
   - `ArrayBox` narrow typed-slot pilot is now landed:
     - runtime authority stays in `ArrayBox`; `NyashValue::Array` is not the keeper lane
     - internal i64-specialized array routes now birth/preserve a narrow `InlineI64` storage lane
+    - existing generic any-store/append routes now also birth/preserve a narrow `InlineBool` lane for `BoolBox` payloads without widening the public ABI symbol surface
     - boxed/string/mixed routes explicitly promote back to boxed storage before mutation
     - focused ArrayBox/kernel tests and `phase21_5_perf_kilo_micro_machine_lane_contract_vm` are green on this slice
   - `Null` / `Void` fast paths remain backlog and are outside the current keeper wave
@@ -297,7 +298,8 @@ Scope: repo root から current lane / current front / restart read order に最
              - `thin_entry_selection` already inventories `user_box_method.known_receiver`
              - keep this as backend-private lowering work under canonical `Call`, not `.hako` syntax work and not a public MIR dialect fork
           3. `ArrayBox` typed-slot expansion beyond the landed `InlineI64` pilot
-             - later candidates are `InlineBool` / `InlineF64`
+             - landed next narrow slice: `InlineBool` birth/preserve on existing `slot_store_hih` / `slot_append_hh` any routes
+             - next candidate is `InlineF64`
              - do not widen this before the string and user-box consumer cuts above have evidence
         - restart handoff:
           - cleanup queue is empty
