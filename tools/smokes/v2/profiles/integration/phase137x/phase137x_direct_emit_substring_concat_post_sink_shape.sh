@@ -6,6 +6,7 @@
 #    for `bench_kilo_micro_substring_concat.hako`.
 # 2) the loop body keeps the current live post-sink non-copy shape:
 #      - 17 interesting ops
+#      - shared-source substring producers at positions 3 and 4
 #      - direct-kernel scalar-consumer candidates at positions 6 and 9
 #      - `nyash.string.substring_concat3_hhhii` at position 15
 # 3) the helper result keeps its live proof-bearing corridor metadata:
@@ -68,16 +69,43 @@ def callee_name(ins):
     cal = mc.get("callee", {})
     return cal.get("method") or cal.get("name")
 
+candidates = main_fn.get("metadata", {}).get("string_corridor_candidates", {})
+
 def has_candidate(value, kind):
     items = candidates.get(str(value))
     if not isinstance(items, list):
         return False
     return any(cand.get("kind") == kind for cand in items)
 
+def find_candidate(value, kind):
+    items = candidates.get(str(value))
+    if not isinstance(items, list):
+        return None
+    for cand in items:
+        if cand.get("kind") == kind:
+            return cand
+    return None
+
+def require_slice(idx, start, end):
+    ins = interesting[idx]
+    if ins.get("op") != "mir_call" or callee_name(ins) != "substring":
+        raise SystemExit(f"expected substring producer at interesting[{idx}]")
+    cand = find_candidate(ins.get("dst"), "publication_sink")
+    if cand is None:
+        raise SystemExit(f"expected publication_sink candidate at interesting[{idx}]")
+    plan = cand.get("plan", {})
+    if plan.get("source_root") != 21 or plan.get("start") != start or plan.get("end") != end:
+        raise SystemExit(
+            f"unexpected publication_sink plan on interesting[{idx}]: "
+            f"source_root={plan.get('source_root')} start={plan.get('start')} end={plan.get('end')}"
+        )
+
+require_slice(3, 46, 47)
+require_slice(4, 47, 5)
+
 if interesting[15].get("op") != "mir_call" or callee_name(interesting[15]) != "nyash.string.substring_concat3_hhhii":
     raise SystemExit("expected substring_concat3_hhhii at interesting[15]")
 
-candidates = main_fn.get("metadata", {}).get("string_corridor_candidates", {})
 if interesting[6].get("op") != "mir_call" or not has_candidate(interesting[6].get("dst"), "direct_kernel_entry"):
     raise SystemExit("expected direct_kernel_entry candidate at interesting[6]")
 
