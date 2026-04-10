@@ -96,4 +96,48 @@
         return 0;
       }
 
+      auto yyjson_val* hako_llvmc_string_corridor_candidate_by_kind(
+          long long value,
+          const char* kind) {
+        yyjson_val* candidates = hako_llvmc_string_corridor_value_candidates(value);
+        size_t count = candidates ? yyjson_arr_size(candidates) : 0;
+        if (!(candidates && kind)) return NULL;
+        for (size_t i = 0; i < count; i++) {
+          yyjson_val* candidate = yyjson_arr_get(candidates, i);
+          const char* candidate_kind =
+              candidate ? yyjson_get_str(yyjson_obj_get(candidate, "kind")) : NULL;
+          if (candidate_kind && !strcmp(candidate_kind, kind)) {
+            return candidate;
+          }
+        }
+        return NULL;
+      }
+
+      auto yyjson_val* hako_llvmc_string_corridor_candidate_plan_by_kind(
+          long long value,
+          const char* kind) {
+        yyjson_val* candidate =
+            hako_llvmc_string_corridor_candidate_by_kind(value, kind);
+        yyjson_val* plan = candidate ? yyjson_obj_get(candidate, "plan") : NULL;
+        if (!(plan && yyjson_is_obj(plan))) return NULL;
+        return plan;
+      }
+
+      auto int hako_llvmc_string_corridor_read_plan_window(
+          long long value,
+          const char* kind,
+          long long* start,
+          long long* end) {
+        yyjson_val* plan =
+            hako_llvmc_string_corridor_candidate_plan_by_kind(value, kind);
+        yyjson_val* start_val = plan ? yyjson_obj_get(plan, "start") : NULL;
+        yyjson_val* end_val = plan ? yyjson_obj_get(plan, "end") : NULL;
+        if (!(start_val && end_val && yyjson_is_num(start_val) && yyjson_is_num(end_val))) {
+          return 0;
+        }
+        if (start) *start = (long long)yyjson_get_sint(start_val);
+        if (end) *end = (long long)yyjson_get_sint(end_val);
+        return 1;
+      }
+
       #endif

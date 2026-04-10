@@ -55,7 +55,9 @@
   - landed: direct helper-result `length()` / `substring()` now consume that same `publication_sink` plan in `string_corridor_sink`
   - landed: first non-`phi` `materialization_sink` slice now sinks a direct `substring_concat3_hhhii` helper birth to a single local `ArrayBox.set` boundary when only copy aliases separate the helper from the store
   - landed: first post-store observer slice now keeps `array.set` as the first `Store` boundary while rewriting one trailing helper-result `length()` observer to `end - start` and deleting the copy-only observer/store chains
-  - next: keep loop-carried `phi_merge` outside this cut, move the non-`phi` string lane to plan-selected `direct_kernel_entry`, and treat any further `array.set + trailing length()` widening as a separate metadata-contract phase only if fresh perf evidence appears
+  - landed: first plan-selected `direct_kernel_entry` slice now reads `string_corridor_candidates[*].plan.start/end` on direct helper-result receivers and lowers `length()` as window arithmetic in boundary `pure-first`
+  - targeted proof: `apps/tests/mir_shape_guard/string_direct_kernel_plan_len_window_min_v1.mir.json` + `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_string_direct_kernel_plan_len_min.sh`
+  - next: keep loop-carried `phi_merge` outside this cut, shrink the remaining dynamic/exact bridge paths that still do not read the plan directly, and treat any further `array.set + trailing length()` widening as a separate metadata-contract phase only if fresh perf evidence appears
   - migration-safe reading: this lane should keep landing in canonical MIR facts/candidates/sink plus kernel/backend substrate, not in Rust-builder-local shape logic
   - treat exact seed logic in `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc` as temporary bridge surface to shrink after generic plan-selected routes prove out
 - pure Rust reference compare lane:
@@ -213,11 +215,12 @@
      - step 10: landed; direct `substring_concat3_hhhii` helper results now stay on the corridor metadata lane with concat-triplet-backed `publication_sink` proof
      - step 11: landed; direct helper-result `length()` / `substring()` now consume that same `publication_sink` proof in `string_corridor_sink`
      - step 12: landed; `materialization_sink` now covers the non-`phi` local `ArrayBox.set` store boundary and the first trailing `length()` post-store observer window on the same canonical MIR lane
-     - step 13: next widen plan-selected `direct_kernel_entry` and shrink matching exact seed paths
-     - step 14: separate phase, not this cut: any `phi_merge` relaxation for the loop-carried `text = out.substring(...)` route
-     - step 15: only after that reopen new `substring_hii` runtime leaf cuts, and only with exact/asm proof
-     - step 16: do not retry the same `len_h`-specific 4-box slice as-is; it did not clear exact or asm gates
-     - step 17: keep this lane specific; do not generalize into a reusable scalar framework until a second lane wins the same pattern
+     - step 13: landed first plan-selected `direct_kernel_entry` slice; boundary `pure-first` now reads plan windows on direct helper-result receivers and lowers `length()` as window arithmetic
+     - step 14: next shrink the remaining dynamic/exact bridge paths that still bypass the plan
+     - step 15: separate phase, not this cut: any `phi_merge` relaxation for the loop-carried `text = out.substring(...)` route
+     - step 16: only after that reopen new `substring_hii` runtime leaf cuts, and only with exact/asm proof
+     - step 17: do not retry the same `len_h`-specific 4-box slice as-is; it did not clear exact or asm gates
+     - step 18: keep this lane specific; do not generalize into a reusable scalar framework until a second lane wins the same pattern
      - step 18: do not swap the active `substring` providers to `raw read + cold init` as one slice; that provider-adoption cut regressed the local split
      - step 19: do not duplicate the common-case `substring_hii` body again; the earlier `route_raw == 0b111` duplication regressed badly
      - step 20: `substring_route_policy()` cold split alone is also blocked; even with the caller unchanged it regressed the local split

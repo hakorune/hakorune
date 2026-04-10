@@ -22,6 +22,51 @@
         return HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_NONE;
       }
 
+      auto void format_i64_ssa_operand_ref(
+          char* out,
+          size_t out_cap,
+          long long reg) {
+        long long cv = 0;
+        long long base = resolve_copy_source_reg(reg);
+        if (!out || out_cap == 0) return;
+        if (has_const(base, &cv)) {
+          snprintf(out, out_cap, "%lld", cv);
+        } else {
+          snprintf(out, out_cap, "%%r%lld", base);
+        }
+      }
+
+      auto int emit_string_len_window_from_plan(
+          FILE* f,
+          long long dst,
+          long long recv,
+          long long start,
+          long long end) {
+        long long start_const = 0;
+        long long end_const = 0;
+        long long start_base = resolve_copy_source_reg(start);
+        long long end_base = resolve_copy_source_reg(end);
+        if (!dst) return 1;
+        if (has_const(start_base, &start_const) && has_const(end_base, &end_const)) {
+          long long window_len = end_const - start_const;
+          fprintf(f, "  %%r%lld = add i64 0, %lld\n", dst, window_len);
+          set_type(dst, T_I64);
+          put_const(dst, window_len);
+          remember_string_length_call(dst, recv);
+          return 1;
+        }
+        {
+          char start_ref[64];
+          char end_ref[64];
+          format_i64_ssa_operand_ref(start_ref, sizeof(start_ref), start_base);
+          format_i64_ssa_operand_ref(end_ref, sizeof(end_ref), end_base);
+          fprintf(f, "  %%r%lld = sub i64 %s, %s\n", dst, end_ref, start_ref);
+        }
+        set_type(dst, T_I64);
+        remember_string_length_call(dst, recv);
+        return 1;
+      }
+
       auto int emit_generic_method_len_by_policy(
           FILE* f,
           const char* bname,
@@ -71,6 +116,34 @@
                     "string_len_corridor",
                     "hit",
                     "concat_chain_known_len",
+                    extra);
+              }
+              return 1;
+            }
+            if (hako_llvmc_string_corridor_read_plan_window(
+                    resolved_recv,
+                    "direct_kernel_entry",
+                    &substring_start,
+                    &substring_end)) {
+              emit_string_len_window_from_plan(
+                  f,
+                  dst,
+                  resolved_recv,
+                  substring_start,
+                  substring_end);
+              if (hako_llvmc_route_trace_enabled()) {
+                char extra[160];
+                snprintf(
+                    extra,
+                    sizeof(extra),
+                    "recv=%lld start=%lld end=%lld",
+                    resolved_recv,
+                    substring_start,
+                    substring_end);
+                hako_llvmc_emit_route_trace(
+                    "string_len_corridor",
+                    "hit",
+                    "substring_len_direct_kernel_plan_window",
                     extra);
               }
               return 1;
