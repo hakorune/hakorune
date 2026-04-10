@@ -10,13 +10,14 @@ use super::{
     string_corridor::{
         StringCorridorFact, StringCorridorOp, StringCorridorRole, StringPlacementFact,
     },
+    string_corridor_phi::collect_string_corridor_phi_carries,
     string_corridor_recognizer::{
         build_def_map, const_string_length, match_concat_triplet, match_len_call,
         match_substring_call, match_substring_call_shape, match_substring_concat3_helper_call,
         resolve_copy_chain_source, string_source_identity, ConcatTripletShape,
         StringSourceIdentity,
     },
-    BasicBlockId, MirFunction, MirInstruction, MirModule, ValueId,
+    BasicBlockId, MirFunction, MirModule, ValueId,
 };
 use std::collections::HashMap;
 
@@ -197,17 +198,21 @@ fn refresh_function_string_corridor_phi_candidates(
 ) {
     let mut phi_updates: Vec<(ValueId, Vec<StringCorridorCandidate>)> = Vec::new();
 
-    for block in function.blocks.values() {
-        for inst in &block.instructions {
-            let MirInstruction::Phi { dst, inputs, .. } = inst else {
-                continue;
-            };
-            let Some(candidates) = infer_phi_carry_candidates(function, *dst, inputs, def_map)
-            else {
-                continue;
-            };
-            phi_updates.push((*dst, candidates));
-        }
+    for carry in collect_string_corridor_phi_carries(function, def_map) {
+        let Some(base_candidates) = base_phi_carry_candidates(function, carry.base_value) else {
+            continue;
+        };
+        let carried_candidates = base_candidates
+            .into_iter()
+            .map(|candidate| StringCorridorCandidate {
+                kind: candidate.kind,
+                state: candidate.state,
+                reason:
+                    "narrow phi continuity keeps the current string corridor lane without widening the plan window",
+                plan: None,
+            })
+            .collect();
+        phi_updates.push((carry.phi_value, carried_candidates));
     }
 
     for (value, candidates) in phi_updates {
@@ -217,63 +222,6 @@ fn refresh_function_string_corridor_phi_candidates(
             .entry(value)
             .or_default()
             .extend(candidates);
-    }
-}
-
-fn infer_phi_carry_candidates(
-    function: &MirFunction,
-    _dst: ValueId,
-    inputs: &[(BasicBlockId, ValueId)],
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-) -> Option<Vec<StringCorridorCandidate>> {
-    match inputs {
-        [(_, carried)] => {
-            let base_value = phi_single_input_base_value(function, def_map, *carried)?;
-            let candidates = base_phi_carry_candidates(function, base_value)?;
-            Some(
-                candidates
-                    .into_iter()
-                    .map(|candidate| StringCorridorCandidate {
-                        kind: candidate.kind,
-                        state: candidate.state,
-                        reason:
-                            "single-input phi preserves the current string corridor lane without widening the plan window",
-                        plan: None,
-                    })
-                    .collect(),
-            )
-        }
-        [(_, lhs), (_, rhs)] => {
-            let lhs_root = resolve_copy_chain_source(function, def_map, *lhs);
-            let rhs_root = resolve_copy_chain_source(function, def_map, *rhs);
-            let lhs_base = phi_two_input_carry_base_value(function, def_map, lhs_root);
-            let rhs_base = phi_two_input_carry_base_value(function, def_map, rhs_root);
-            let (base_value, seed_root) = match (lhs_base, rhs_base) {
-                (Some(base), None) => (base, rhs_root),
-                (None, Some(base)) => (base, lhs_root),
-                _ => return None,
-            };
-            if base_value == seed_root {
-                return None;
-            }
-            if base_value == seed_root || base_phi_carry_candidates(function, seed_root).is_some() {
-                return None;
-            }
-            let candidates = base_phi_carry_candidates(function, base_value)?;
-            Some(
-                candidates
-                    .into_iter()
-                    .map(|candidate| StringCorridorCandidate {
-                        kind: candidate.kind,
-                        state: candidate.state,
-                        reason:
-                            "two-input phi keeps the carried string corridor lane while leaving the entry seed outside the window contract",
-                        plan: None,
-                    })
-                    .collect(),
-            )
-        }
-        _ => None,
     }
 }
 
@@ -302,45 +250,6 @@ fn base_phi_carry_candidates(
     } else {
         Some(carried)
     }
-}
-
-fn phi_single_input_base_value(
-    function: &MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    value: ValueId,
-) -> Option<ValueId> {
-    let root = resolve_copy_chain_source(function, def_map, value);
-    if base_phi_carry_candidates(function, root).is_some() {
-        return Some(root);
-    }
-    let (bbid, idx) = def_map.get(&root).copied()?;
-    let block = function.blocks.get(&bbid)?;
-    let MirInstruction::Phi { inputs, .. } = block.instructions.get(idx)? else {
-        return None;
-    };
-    let [(_, carried)] = inputs.as_slice() else {
-        return None;
-    };
-    let carried_root = resolve_copy_chain_source(function, def_map, *carried);
-    base_phi_carry_candidates(function, carried_root)?;
-    Some(carried_root)
-}
-
-fn phi_two_input_carry_base_value(
-    function: &MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    value: ValueId,
-) -> Option<ValueId> {
-    let root = resolve_copy_chain_source(function, def_map, value);
-    let (bbid, idx) = def_map.get(&root).copied()?;
-    let block = function.blocks.get(&bbid)?;
-    let MirInstruction::Phi { inputs, .. } = block.instructions.get(idx)? else {
-        return None;
-    };
-    let [(_, carried)] = inputs.as_slice() else {
-        return None;
-    };
-    phi_single_input_base_value(function, def_map, *carried)
 }
 
 fn infer_borrowed_slice_plan(

@@ -52,6 +52,7 @@ pub mod slot_registry; // Phase 9.79b.1: method slot resolution (IDs)
 mod spanned_instruction;
 pub mod storage_class; // primitive / user-box storage-class inventory + refresh helper
 pub mod string_corridor; // string canonical corridor facts + refresh helper
+pub(crate) mod string_corridor_phi; // narrow PHI continuity helper for string corridor
 pub mod string_corridor_placement; // placement/effect scaffold over canonical string facts
 pub(crate) mod string_corridor_recognizer; // shared pure shape recognizers for string corridor
 pub mod sum_placement; // sum-local proving slice for later generic placement/effect pass
