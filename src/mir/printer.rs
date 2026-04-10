@@ -480,6 +480,7 @@ mod tests {
                 kind: StringCorridorCandidateKind::DirectKernelEntry,
                 state: StringCorridorCandidateState::Candidate,
                 reason: "scalar string consumer can bypass ABI facade on the AOT-internal path",
+                plan: None,
             }],
         );
         let printer = MirPrinter::verbose();

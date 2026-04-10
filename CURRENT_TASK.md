@@ -259,15 +259,16 @@ Scope: repo root から current lane / current front / restart read order に最
         - next substep after the current parity-wave keeper:
           - move from the landed sibling exact micros into the broader string corridor placement/effect rewrite before widening any broader user-box local-body parity backlog
           - keeper repair landed: the exact `pure-first` `kilo_micro_substring_concat` seed now re-accepts the post-sink body shape (`substring_len_hii` pair + `substring_concat3_hhhii`), so the generic concat-observer rewrite no longer ejects the exact lane into the slow fallback route
-          - fresh broader-corridor reread now points at `kilo_micro_substring_concat` (`instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`) as the next exact reopen front for plan-metadata widening, then `publication_sink`, then `materialization_sink`
-          - fixed reading: do not add a new string-only MIR dialect; grow `string_corridor_candidates` into proof-bearing plan metadata first, then select `direct_kernel_entry` from that plan near lowering
+          - proof-bearing plan metadata widening is now landed: `StringCorridorCandidate` carries `plan` metadata for borrowed-slice and concat-triplet proofs, and MIR JSON exposes the same plan surface to downstream consumers
+          - fresh broader-corridor reread still points at `kilo_micro_substring_concat` (`instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`) as the next exact reopen front, now for `publication_sink` first and `materialization_sink` next
+          - fixed reading: do not add a new string-only MIR dialect; with plan metadata landed, select the next string work in this order: `publication_sink` -> `materialization_sink` -> plan-selected `direct_kernel_entry`
           - exact `pure-first` seed logic in `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc` is bridge-only and should shrink only after the generic plan-selected route proves out
         - keep `phi_merge` and `call` / `boxcall` / `return` barrier relaxation out of this cut; those require a separate metadata-contract phase first
         - verified non-Variant optimization order after the current parity wave:
           1. broader string corridor genericization on the existing metadata path
              - current `string_corridor_placement.rs` is inspection-only and does not mutate MIR
              - do not introduce a second string MIR dialect; keep canonical MIR as the only truth
-             - grow `string_corridor_candidates` toward proof-bearing plan metadata first
+             - landed: `string_corridor_candidates` now carry proof-bearing plan metadata for borrowed-slice and concat-triplet routes
              - then land the next real string transforms in this order:
                - `publication_sink`
                - `materialization_sink`
@@ -332,7 +333,7 @@ Scope: repo root から current lane / current front / restart read order に最
       - `kilo_micro_substring_concat: instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`
       - `kilo_micro_array_string_store: c_ms=9 / ny_aot_ms=9`; this family is not the current blocker
     - reading: the sibling exact micros are now closed at boundary `pure-first`, and the post-sink `substring_concat` exact seed is repaired too, so the next string keeper target stays the broader corridor genericization family
-    - fixed genericization order: proof-bearing plan metadata on `string_corridor_candidates` -> `publication_sink` -> `materialization_sink` -> plan-selected `direct_kernel_entry`
+    - fixed genericization order: landed proof-bearing plan metadata on `string_corridor_candidates` -> next `publication_sink` -> then `materialization_sink` -> then plan-selected `direct_kernel_entry`
     - bridge rule: keep `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc` as temporary exact-seed surface only until the generic route can consume the same proof
 - current string broader-corridor reopen candidate:
   - loop-carried `text = out.substring(...)` inside `kilo_micro_substring_concat`

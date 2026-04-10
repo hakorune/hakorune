@@ -50,8 +50,8 @@
 - current broader-corridor reopen front is `kilo_micro_substring_concat`
 - current broader-corridor genericization rule:
   - do not add a new string-only MIR dialect
-  - grow `string_corridor_candidates` from inspection-only rows toward proof-bearing plan metadata
-  - use `publication_sink` as the first broader generic transform
+  - landed: `string_corridor_candidates` now carry proof-bearing plan metadata for borrowed-slice and concat-triplet routes
+  - next: use `publication_sink` as the first broader generic transform
   - treat exact seed logic in `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc` as temporary bridge surface to shrink after generic plan-selected routes prove out
 - pure Rust reference compare lane:
   - `benchmarks/rust/bench_kilo_micro_substring_views_only.rs`
@@ -196,8 +196,8 @@
      - step 6: landed; `phase-162x vm fallback lane separation cleanup` is complete, so this front now reads through `ny-llvmc(boundary pure-first)` without mixing fallback owners
      - step 7: landed; boundary `pure-first` now consumes MIR JSON `string_corridor_*` metadata for `substring(...).length()` and hits `string_len_corridor -> substring_len_direct_kernel_entry`
      - step 8: landed; boundary `pure-first` now also routes compiler-visible concat pair/triple `substring(...)` consumers to `nyash.string.substring_concat_hhii` / `nyash.string.substring_concat3_hhhii`
-     - step 9: next genericization slice is not a new IR; grow `FunctionMetadata.string_corridor_candidates` toward proof-bearing plan metadata on the broader-corridor reopen front `kilo_micro_substring_concat`
-     - step 10: first broader generic transform is `publication_sink`
+     - step 9: landed; `FunctionMetadata.string_corridor_candidates` now carries proof-bearing plan metadata on the broader-corridor reopen front `kilo_micro_substring_concat`, and MIR JSON exports the same plan surface
+     - step 10: next broader generic transform is `publication_sink`
      - step 11: second broader generic transform is `materialization_sink`
      - step 12: only then widen plan-selected `direct_kernel_entry` and shrink matching exact seed paths
      - step 13: only after that reopen new `substring_hii` runtime leaf cuts, and only with exact/asm proof

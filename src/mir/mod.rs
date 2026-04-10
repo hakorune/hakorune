@@ -105,7 +105,8 @@ pub use string_corridor::{
 };
 pub use string_corridor_placement::{
     refresh_function_string_corridor_candidates, refresh_module_string_corridor_candidates,
-    StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateState,
+    StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidatePlan,
+    StringCorridorCandidateProof, StringCorridorCandidateState,
 };
 pub use sum_placement::{
     refresh_function_sum_placement_facts, refresh_module_sum_placement_facts,

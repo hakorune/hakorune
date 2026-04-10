@@ -101,6 +101,45 @@ fn build_mir_json_root(module: &crate::mir::MirModule) -> Result<serde_json::Val
                         "kind": candidate.kind.to_string(),
                         "state": candidate.state.to_string(),
                         "reason": candidate.reason,
+                        "plan": candidate.plan.map(|plan| json!({
+                            "corridor_root": plan.corridor_root.as_u32(),
+                            "source_root": plan.source_root.map(|value| value.as_u32()),
+                            "start": plan.start.map(|value| value.as_u32()),
+                            "end": plan.end.map(|value| value.as_u32()),
+                            "known_length": plan.known_length,
+                            "proof": match plan.proof {
+                                crate::mir::string_corridor_placement::StringCorridorCandidateProof::BorrowedSlice {
+                                    source,
+                                    start,
+                                    end,
+                                } => json!({
+                                    "kind": "borrowed_slice",
+                                    "source": source.as_u32(),
+                                    "start": start.as_u32(),
+                                    "end": end.as_u32(),
+                                }),
+                                crate::mir::string_corridor_placement::StringCorridorCandidateProof::ConcatTriplet {
+                                    left_source,
+                                    left_start,
+                                    left_end,
+                                    middle,
+                                    right_source,
+                                    right_start,
+                                    right_end,
+                                    shared_source,
+                                } => json!({
+                                    "kind": "concat_triplet",
+                                    "left_source": left_source.as_u32(),
+                                    "left_start": left_start.as_u32(),
+                                    "left_end": left_end.as_u32(),
+                                    "middle": middle.as_u32(),
+                                    "right_source": right_source.as_u32(),
+                                    "right_start": right_start.as_u32(),
+                                    "right_end": right_end.as_u32(),
+                                    "shared_source": shared_source,
+                                }),
+                            },
+                        })),
                     })
                 }).collect::<Vec<_>>()))
             }).collect::<serde_json::Map<String, serde_json::Value>>(),
@@ -593,6 +632,24 @@ mod tests {
                 state: crate::mir::StringCorridorCandidateState::Candidate,
                 reason:
                     "borrowed slice corridor can target a direct kernel entry before publication",
+                plan: Some(crate::mir::string_corridor_placement::StringCorridorCandidatePlan {
+                    corridor_root: crate::mir::ValueId::new(7),
+                    source_root: Some(crate::mir::ValueId::new(1)),
+                    start: Some(crate::mir::ValueId::new(2)),
+                    end: Some(crate::mir::ValueId::new(3)),
+                    known_length: Some(2),
+                    proof:
+                        crate::mir::string_corridor_placement::StringCorridorCandidateProof::ConcatTriplet {
+                            left_source: crate::mir::ValueId::new(1),
+                            left_start: crate::mir::ValueId::new(4),
+                            left_end: crate::mir::ValueId::new(5),
+                            middle: crate::mir::ValueId::new(6),
+                            right_source: crate::mir::ValueId::new(1),
+                            right_start: crate::mir::ValueId::new(5),
+                            right_end: crate::mir::ValueId::new(9),
+                            shared_source: true,
+                        },
+                }),
             }],
         );
         module.functions.insert("main".to_string(), function);
@@ -612,6 +669,14 @@ mod tests {
             value_candidates[0]["reason"],
             "borrowed slice corridor can target a direct kernel entry before publication"
         );
+        assert_eq!(value_candidates[0]["plan"]["corridor_root"], 7);
+        assert_eq!(value_candidates[0]["plan"]["source_root"], 1);
+        assert_eq!(value_candidates[0]["plan"]["start"], 2);
+        assert_eq!(value_candidates[0]["plan"]["end"], 3);
+        assert_eq!(value_candidates[0]["plan"]["known_length"], 2);
+        assert_eq!(value_candidates[0]["plan"]["proof"]["kind"], "concat_triplet");
+        assert_eq!(value_candidates[0]["plan"]["proof"]["middle"], 6);
+        assert_eq!(value_candidates[0]["plan"]["proof"]["shared_source"], true);
     }
 
     #[test]
