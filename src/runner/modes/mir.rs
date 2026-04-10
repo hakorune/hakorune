@@ -110,6 +110,13 @@ impl NyashRunner {
                 )
             },
         );
+
+        // Normal `backend=mir` execution should run the compiled MIR module.
+        // The emit/diagnostic routes above exit early, so only the plain
+        // interpreter path reaches here.
+        if !groups.debug.dump_mir && !groups.debug.verify_mir {
+            std::process::exit(self.execute_mir_module_quiet_exit(&compile_result.module));
+        }
     }
 
     /// Minimal MIR emit mode for perf-sensitive startup measurements.

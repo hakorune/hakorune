@@ -206,6 +206,22 @@ memory = "readwrite"
 lanes = ["hako-ll-min-v0", "compare"]
 
 [[rows]]
+symbol = "nyash.string.substring_len_hii"
+args = ["handle_owned", "imm_i64", "imm_i64"]
+ret = "imm_i64"
+attrs = ["nounwind"]
+memory = "readwrite"
+lanes = ["pure-first", "hako-ll-min-v0", "compare"]
+
+[[rows]]
+symbol = "nyash.string.substring_concat3_hhhii"
+args = ["handle_owned", "handle_owned", "handle_owned", "imm_i64", "imm_i64"]
+ret = "handle_owned"
+attrs = ["nounwind", "willreturn"]
+memory = "readwrite"
+lanes = ["pure-first", "hako-ll-min-v0", "compare"]
+
+[[rows]]
 symbol = "nyash.string.insert_hsi"
 args = ["handle_owned", "ptr_const_i8", "imm_i64"]
 ret = "handle_owned"

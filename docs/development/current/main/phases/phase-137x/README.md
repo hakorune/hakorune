@@ -133,6 +133,7 @@
     - `string_corridor_sink` rewrites `concat(left_slice, const, right_slice).length()` into `substring_len_hii(left) + const_len + substring_len_hii(right)` and keeps `substring(concat3(...))` on `substring_concat3_hhhii`
     - the exact `pure-first` `kilo_micro_substring_concat` seed now accepts both the pre-sink and post-sink body shapes, so this generic sink no longer ejects the exact lane into the slow fallback route
     - current inventory says the live `--emit-mir-json` route emits the post-sink `interesting_n = 17` body, and the active phase29x backend-owner daily smoke now points at `apps/tests/mir_shape_guard/substring_concat_loop_pure_min_v1_post_sink.mir.json`, so exact-seed narrowing can follow the aligned post-sink shape instead of guessing the benchmark body
+    - the phase29x daily-owner blocker is now cleared too: plain `backend=mir` executes the compiled module again, and the `.hako ll emitter` runtime decl manifest now accepts `nyash.string.substring_len_hii` / `nyash.string.substring_concat3_hhhii`, so the daily smoke reaches the expected owner evidence on the same post-sink fixture
     - current live post-sink shape is now pinned separately by `phase137x_direct_emit_substring_concat_post_sink_shape.sh`, and the phase29x daily smoke uses the same post-sink contract as its daily owner proof
     - latest exact reread on `kilo_micro_substring_concat`: `instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`
   - first broader-corridor `publication_sink` inventory slice is now landed:
