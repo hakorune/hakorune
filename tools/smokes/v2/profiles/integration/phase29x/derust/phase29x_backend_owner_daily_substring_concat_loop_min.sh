@@ -14,7 +14,7 @@ fi
 SMOKE_NAME="phase29x_backend_owner_daily_substring_concat_loop_min"
 HAKORUNE_BIN="$NYASH_ROOT/target/release/hakorune"
 APP="$NYASH_ROOT/apps/tests/phase29x_backend_owner_daily_min.hako"
-FIXTURE="$NYASH_ROOT/apps/tests/mir_shape_guard/substring_concat_loop_pure_min_v1.mir.json"
+FIXTURE="$NYASH_ROOT/apps/tests/mir_shape_guard/substring_concat_loop_pure_min_v1_post_sink.mir.json"
 RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-90}"
 RAW_LOG="$(mktemp "/tmp/${SMOKE_NAME}.XXXXXX.log")"
 

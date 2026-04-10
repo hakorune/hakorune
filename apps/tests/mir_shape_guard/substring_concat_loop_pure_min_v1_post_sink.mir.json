@@ -1,0 +1,2159 @@
+{
+  "capabilities": [
+    "unified_call",
+    "phi",
+    "effects",
+    "callee_typing"
+  ],
+  "cfg": {
+    "functions": [
+      {
+        "blocks": [
+          {
+            "id": 14,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          }
+        ],
+        "entry_block": 14,
+        "name": "AddOperator.apply/2"
+      },
+      {
+        "blocks": [
+          {
+            "id": 15,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          }
+        ],
+        "entry_block": 15,
+        "name": "AddOperator.equals/1"
+      },
+      {
+        "blocks": [
+          {
+            "id": 13,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          }
+        ],
+        "entry_block": 13,
+        "name": "AddOperator.toString/0"
+      },
+      {
+        "blocks": [
+          {
+            "id": 11,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          }
+        ],
+        "entry_block": 11,
+        "name": "CompareOperator.apply/3"
+      },
+      {
+        "blocks": [
+          {
+            "id": 12,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          }
+        ],
+        "entry_block": 12,
+        "name": "CompareOperator.equals/1"
+      },
+      {
+        "blocks": [
+          {
+            "id": 10,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          }
+        ],
+        "entry_block": 10,
+        "name": "CompareOperator.toString/0"
+      },
+      {
+        "blocks": [
+          {
+            "id": 17,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          }
+        ],
+        "entry_block": 17,
+        "name": "Main.equals/1"
+      },
+      {
+        "blocks": [
+          {
+            "id": 16,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          }
+        ],
+        "entry_block": 16,
+        "name": "Main.toString/0"
+      },
+      {
+        "blocks": [
+          {
+            "id": 1,
+            "reachable": false,
+            "successors": [
+              2,
+              3
+            ],
+            "terminator": "Branch"
+          },
+          {
+            "id": 2,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          },
+          {
+            "id": 3,
+            "reachable": false,
+            "successors": [
+              4
+            ],
+            "terminator": "Jump"
+          },
+          {
+            "id": 4,
+            "reachable": false,
+            "successors": [
+              5,
+              6
+            ],
+            "terminator": "Branch"
+          },
+          {
+            "id": 5,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          },
+          {
+            "id": 6,
+            "reachable": false,
+            "successors": [
+              7
+            ],
+            "terminator": "Jump"
+          },
+          {
+            "id": 7,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          }
+        ],
+        "entry_block": 1,
+        "name": "StringifyOperator.apply/1"
+      },
+      {
+        "blocks": [
+          {
+            "id": 8,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          }
+        ],
+        "entry_block": 8,
+        "name": "StringifyOperator.equals/1"
+      },
+      {
+        "blocks": [
+          {
+            "id": 9,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          }
+        ],
+        "entry_block": 9,
+        "name": "StringifyOperator.toString/0"
+      },
+      {
+        "blocks": [
+          {
+            "id": 0,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          }
+        ],
+        "entry_block": 0,
+        "name": "condition_fn"
+      },
+      {
+        "blocks": [
+          {
+            "id": 0,
+            "reachable": false,
+            "successors": [
+              18
+            ],
+            "terminator": "Jump"
+          },
+          {
+            "id": 18,
+            "reachable": false,
+            "successors": [
+              19,
+              21
+            ],
+            "terminator": "Branch"
+          },
+          {
+            "id": 19,
+            "reachable": false,
+            "successors": [
+              20
+            ],
+            "terminator": "Jump"
+          },
+          {
+            "id": 20,
+            "reachable": false,
+            "successors": [
+              18
+            ],
+            "terminator": "Jump"
+          },
+          {
+            "id": 21,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          }
+        ],
+        "entry_block": 0,
+        "name": "main"
+      }
+    ]
+  },
+  "enum_decls": [],
+  "functions": [
+    {
+      "attrs": {
+        "runes": []
+      },
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "dst": 3,
+              "op": "const",
+              "value": {
+                "type": {
+                  "box_type": "StringBox",
+                  "kind": "handle"
+                },
+                "value": "line-seed-abcdef"
+              }
+            },
+            {
+              "dst": 4,
+              "op": "copy",
+              "src": 3
+            },
+            {
+              "dst": 9,
+              "op": "const",
+              "value": {
+                "type": {
+                  "box_type": "StringBox",
+                  "kind": "handle"
+                },
+                "value": "line-seed-abcdef"
+              }
+            },
+            {
+              "dst": 8,
+              "op": "copy",
+              "src": 9
+            },
+            {
+              "dst": 5,
+              "mir_call": {
+                "args": [],
+                "callee": {
+                  "box_name": "StringBox",
+                  "certainty": "Known",
+                  "name": "length",
+                  "receiver": 8,
+                  "type": "Method"
+                },
+                "effects": [],
+                "flags": {}
+              },
+              "op": "mir_call"
+            },
+            {
+              "dst": 11,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "dst": 12,
+              "op": "copy",
+              "src": 11
+            },
+            {
+              "dst": 13,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "dst": 14,
+              "op": "copy",
+              "src": 13
+            },
+            {
+              "op": "jump",
+              "target": 18
+            }
+          ]
+        },
+        {
+          "id": 18,
+          "instructions": [
+            {
+              "dst": 15,
+              "dst_type": "i64",
+              "incoming": [
+                [
+                  12,
+                  0
+                ],
+                [
+                  16,
+                  20
+                ]
+              ],
+              "op": "phi"
+            },
+            {
+              "dst": 19,
+              "dst_type": "i64",
+              "incoming": [
+                [
+                  14,
+                  0
+                ],
+                [
+                  20,
+                  20
+                ]
+              ],
+              "op": "phi"
+            },
+            {
+              "dst": 21,
+              "dst_type": {
+                "kind": "string"
+              },
+              "incoming": [
+                [
+                  4,
+                  0
+                ],
+                [
+                  22,
+                  20
+                ]
+              ],
+              "op": "phi"
+            },
+            {
+              "dst": 39,
+              "op": "copy",
+              "src": 15
+            },
+            {
+              "dst": 41,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 300000
+              }
+            },
+            {
+              "dst": 40,
+              "op": "copy",
+              "src": 41
+            },
+            {
+              "dst": 37,
+              "lhs": 39,
+              "op": "compare",
+              "operation": "<",
+              "rhs": 40
+            },
+            {
+              "cond": 37,
+              "else": 21,
+              "op": "branch",
+              "then": 19
+            }
+          ]
+        },
+        {
+          "id": 19,
+          "instructions": [
+            {
+              "dst": 43,
+              "op": "copy",
+              "src": 5
+            },
+            {
+              "dst": 42,
+              "op": "copy",
+              "src": 43
+            },
+            {
+              "dst": 45,
+              "op": "copy",
+              "src": 21
+            },
+            {
+              "dst": 46,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "dst": 49,
+              "op": "copy",
+              "src": 43
+            },
+            {
+              "dst": 48,
+              "op": "copy",
+              "src": 49
+            },
+            {
+              "dst": 50,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 2
+              }
+            },
+            {
+              "dst": 47,
+              "lhs": 48,
+              "op": "binop",
+              "operation": "/",
+              "rhs": 50
+            },
+            {
+              "dst": 51,
+              "op": "copy",
+              "src": 45
+            },
+            {
+              "dst": 26,
+              "mir_call": {
+                "args": [
+                  46,
+                  47
+                ],
+                "callee": {
+                  "box_name": "RuntimeDataBox",
+                  "certainty": "Union",
+                  "name": "substring",
+                  "receiver": 51,
+                  "type": "Method"
+                },
+                "effects": [
+                  "IO"
+                ],
+                "flags": {}
+              },
+              "op": "mir_call"
+            },
+            {
+              "dst": 27,
+              "mir_call": {
+                "args": [
+                  47,
+                  42
+                ],
+                "callee": {
+                  "box_name": "RuntimeDataBox",
+                  "certainty": "Union",
+                  "name": "substring",
+                  "receiver": 51,
+                  "type": "Method"
+                },
+                "effects": [
+                  "IO"
+                ],
+                "flags": {}
+              },
+              "op": "mir_call"
+            },
+            {
+              "dst": 66,
+              "op": "const",
+              "value": {
+                "type": {
+                  "box_type": "StringBox",
+                  "kind": "handle"
+                },
+                "value": "xx"
+              }
+            },
+            {
+              "dst": 88,
+              "mir_call": {
+                "args": [
+                  21,
+                  46,
+                  47
+                ],
+                "callee": {
+                  "name": "nyash.string.substring_len_hii",
+                  "type": "Extern"
+                },
+                "effects": [
+                  "IO"
+                ],
+                "flags": {}
+              },
+              "op": "mir_call"
+            },
+            {
+              "dst": 90,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 2
+              }
+            },
+            {
+              "dst": 91,
+              "dst_type": "i64",
+              "lhs": 88,
+              "op": "binop",
+              "operation": "+",
+              "rhs": 90
+            },
+            {
+              "dst": 89,
+              "mir_call": {
+                "args": [
+                  21,
+                  47,
+                  5
+                ],
+                "callee": {
+                  "name": "nyash.string.substring_len_hii",
+                  "type": "Extern"
+                },
+                "effects": [
+                  "IO"
+                ],
+                "flags": {}
+              },
+              "op": "mir_call"
+            },
+            {
+              "dst": 31,
+              "dst_type": "i64",
+              "lhs": 91,
+              "op": "binop",
+              "operation": "+",
+              "rhs": 89
+            },
+            {
+              "dst": 68,
+              "op": "copy",
+              "src": 19
+            },
+            {
+              "dst": 69,
+              "op": "copy",
+              "src": 31
+            },
+            {
+              "dst": 32,
+              "dst_type": "i64",
+              "lhs": 68,
+              "op": "binop",
+              "operation": "+",
+              "rhs": 69
+            },
+            {
+              "dst": 71,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 1
+              }
+            },
+            {
+              "dst": 73,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 1
+              }
+            },
+            {
+              "dst": 72,
+              "dst_type": "i64",
+              "lhs": 48,
+              "op": "binop",
+              "operation": "+",
+              "rhs": 73
+            },
+            {
+              "dst": 36,
+              "mir_call": {
+                "args": [
+                  26,
+                  66,
+                  27,
+                  71,
+                  72
+                ],
+                "callee": {
+                  "name": "nyash.string.substring_concat3_hhhii",
+                  "type": "Extern"
+                },
+                "effects": [
+                  "IO"
+                ],
+                "flags": {}
+              },
+              "op": "mir_call"
+            },
+            {
+              "op": "jump",
+              "target": 20
+            }
+          ]
+        },
+        {
+          "id": 20,
+          "instructions": [
+            {
+              "dst": 20,
+              "dst_type": "i64",
+              "incoming": [
+                [
+                  32,
+                  19
+                ]
+              ],
+              "op": "phi"
+            },
+            {
+              "dst": 22,
+              "dst_type": "i64",
+              "incoming": [
+                [
+                  36,
+                  19
+                ]
+              ],
+              "op": "phi"
+            },
+            {
+              "dst": 79,
+              "op": "copy",
+              "src": 15
+            },
+            {
+              "dst": 80,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 1
+              }
+            },
+            {
+              "dst": 16,
+              "dst_type": "i64",
+              "lhs": 79,
+              "op": "binop",
+              "operation": "+",
+              "rhs": 80
+            },
+            {
+              "op": "jump",
+              "target": 18
+            }
+          ]
+        },
+        {
+          "id": 21,
+          "instructions": [
+            {
+              "dst": 83,
+              "op": "copy",
+              "src": 21
+            },
+            {
+              "dst": 84,
+              "op": "copy",
+              "src": 83
+            },
+            {
+              "dst": 82,
+              "mir_call": {
+                "args": [],
+                "callee": {
+                  "box_name": "StringBox",
+                  "certainty": "Known",
+                  "name": "length",
+                  "receiver": 84,
+                  "type": "Method"
+                },
+                "effects": [],
+                "flags": {}
+              },
+              "op": "mir_call"
+            },
+            {
+              "dst": 85,
+              "op": "copy",
+              "src": 19
+            },
+            {
+              "dst": 86,
+              "op": "copy",
+              "src": 82
+            },
+            {
+              "dst": 87,
+              "dst_type": "i64",
+              "lhs": 85,
+              "op": "binop",
+              "operation": "+",
+              "rhs": 86
+            },
+            {
+              "op": "ret",
+              "value": 87
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "storage_classes": {
+          "1": "inline_i64",
+          "10": "inline_i64",
+          "11": "inline_i64",
+          "12": "inline_i64",
+          "13": "inline_i64",
+          "14": "inline_i64",
+          "15": "inline_i64",
+          "16": "inline_i64",
+          "17": "inline_bool",
+          "18": "inline_i64",
+          "19": "inline_i64",
+          "2": "inline_i64",
+          "20": "inline_i64",
+          "21": "borrowed_text",
+          "22": "inline_i64",
+          "23": "inline_i64",
+          "24": "inline_i64",
+          "25": "inline_i64",
+          "26": "inline_i64",
+          "27": "inline_i64",
+          "28": "borrowed_text",
+          "29": "inline_i64",
+          "3": "borrowed_text",
+          "30": "inline_i64",
+          "31": "inline_i64",
+          "32": "inline_i64",
+          "33": "inline_i64",
+          "34": "inline_i64",
+          "35": "inline_i64",
+          "36": "inline_i64",
+          "37": "inline_bool",
+          "38": "inline_i64",
+          "39": "inline_i64",
+          "4": "borrowed_text",
+          "40": "inline_i64",
+          "41": "inline_i64",
+          "42": "inline_i64",
+          "43": "inline_i64",
+          "44": "inline_i64",
+          "45": "borrowed_text",
+          "46": "inline_i64",
+          "47": "inline_i64",
+          "48": "inline_i64",
+          "49": "inline_i64",
+          "5": "inline_i64",
+          "50": "inline_i64",
+          "51": "borrowed_text",
+          "52": "inline_i64",
+          "53": "borrowed_text",
+          "54": "inline_i64",
+          "55": "inline_i64",
+          "56": "borrowed_text",
+          "57": "inline_i64",
+          "58": "inline_i64",
+          "59": "inline_i64",
+          "6": "borrowed_text",
+          "60": "inline_i64",
+          "61": "borrowed_text",
+          "62": "inline_i64",
+          "63": "inline_i64",
+          "64": "inline_i64",
+          "65": "inline_i64",
+          "66": "borrowed_text",
+          "67": "inline_i64",
+          "68": "inline_i64",
+          "69": "inline_i64",
+          "7": "borrowed_text",
+          "70": "inline_i64",
+          "71": "inline_i64",
+          "72": "inline_i64",
+          "73": "inline_i64",
+          "74": "inline_i64",
+          "75": "inline_i64",
+          "76": "inline_i64",
+          "77": "inline_i64",
+          "78": "inline_i64",
+          "79": "inline_i64",
+          "8": "borrowed_text",
+          "80": "inline_i64",
+          "81": "opaque",
+          "82": "inline_i64",
+          "83": "borrowed_text",
+          "84": "borrowed_text",
+          "85": "inline_i64",
+          "86": "inline_i64",
+          "87": "inline_i64",
+          "88": "inline_i64",
+          "89": "inline_i64",
+          "9": "borrowed_text",
+          "90": "inline_i64",
+          "91": "inline_i64"
+        },
+        "string_corridor_candidates": {
+          "26": [
+            {
+              "kind": "borrowed_corridor_fusion",
+              "plan": {
+                "corridor_root": 26,
+                "end": 47,
+                "known_length": null,
+                "proof": {
+                  "end": 47,
+                  "kind": "borrowed_slice",
+                  "source": 21,
+                  "start": 46
+                },
+                "source_root": 21,
+                "start": 46
+              },
+              "reason": "borrow-producing slice value can stay inside a borrowed corridor",
+              "state": "candidate"
+            },
+            {
+              "kind": "publication_sink",
+              "plan": {
+                "corridor_root": 26,
+                "end": 47,
+                "known_length": null,
+                "proof": {
+                  "end": 47,
+                  "kind": "borrowed_slice",
+                  "source": 21,
+                  "start": 46
+                },
+                "source_root": 21,
+                "start": 46
+              },
+              "reason": "slice result may sink publication until an externally visible boundary",
+              "state": "candidate"
+            },
+            {
+              "kind": "materialization_sink",
+              "plan": {
+                "corridor_root": 26,
+                "end": 47,
+                "known_length": null,
+                "proof": {
+                  "end": 47,
+                  "kind": "borrowed_slice",
+                  "source": 21,
+                  "start": 46
+                },
+                "source_root": 21,
+                "start": 46
+              },
+              "reason": "slice result may defer materialization until a birth sink forces it",
+              "state": "candidate"
+            },
+            {
+              "kind": "direct_kernel_entry",
+              "plan": {
+                "corridor_root": 26,
+                "end": 47,
+                "known_length": null,
+                "proof": {
+                  "end": 47,
+                  "kind": "borrowed_slice",
+                  "source": 21,
+                  "start": 46
+                },
+                "source_root": 21,
+                "start": 46
+              },
+              "reason": "borrowed slice corridor can target a direct kernel entry before publication",
+              "state": "candidate"
+            }
+          ],
+          "27": [
+            {
+              "kind": "borrowed_corridor_fusion",
+              "plan": {
+                "corridor_root": 27,
+                "end": 5,
+                "known_length": null,
+                "proof": {
+                  "end": 5,
+                  "kind": "borrowed_slice",
+                  "source": 21,
+                  "start": 47
+                },
+                "source_root": 21,
+                "start": 47
+              },
+              "reason": "borrow-producing slice value can stay inside a borrowed corridor",
+              "state": "candidate"
+            },
+            {
+              "kind": "publication_sink",
+              "plan": {
+                "corridor_root": 27,
+                "end": 5,
+                "known_length": null,
+                "proof": {
+                  "end": 5,
+                  "kind": "borrowed_slice",
+                  "source": 21,
+                  "start": 47
+                },
+                "source_root": 21,
+                "start": 47
+              },
+              "reason": "slice result may sink publication until an externally visible boundary",
+              "state": "candidate"
+            },
+            {
+              "kind": "materialization_sink",
+              "plan": {
+                "corridor_root": 27,
+                "end": 5,
+                "known_length": null,
+                "proof": {
+                  "end": 5,
+                  "kind": "borrowed_slice",
+                  "source": 21,
+                  "start": 47
+                },
+                "source_root": 21,
+                "start": 47
+              },
+              "reason": "slice result may defer materialization until a birth sink forces it",
+              "state": "candidate"
+            },
+            {
+              "kind": "direct_kernel_entry",
+              "plan": {
+                "corridor_root": 27,
+                "end": 5,
+                "known_length": null,
+                "proof": {
+                  "end": 5,
+                  "kind": "borrowed_slice",
+                  "source": 21,
+                  "start": 47
+                },
+                "source_root": 21,
+                "start": 47
+              },
+              "reason": "borrowed slice corridor can target a direct kernel entry before publication",
+              "state": "candidate"
+            }
+          ],
+          "36": [
+            {
+              "kind": "borrowed_corridor_fusion",
+              "plan": {
+                "corridor_root": 36,
+                "end": 72,
+                "known_length": 2,
+                "proof": {
+                  "kind": "concat_triplet",
+                  "left_end": 47,
+                  "left_source": 21,
+                  "left_start": 46,
+                  "middle": 66,
+                  "right_end": 5,
+                  "right_source": 21,
+                  "right_start": 47,
+                  "shared_source": true
+                },
+                "source_root": 21,
+                "start": 71
+              },
+              "reason": "borrow-producing slice value can stay inside a borrowed corridor",
+              "state": "candidate"
+            },
+            {
+              "kind": "publication_sink",
+              "plan": {
+                "corridor_root": 36,
+                "end": 72,
+                "known_length": 2,
+                "proof": {
+                  "kind": "concat_triplet",
+                  "left_end": 47,
+                  "left_source": 21,
+                  "left_start": 46,
+                  "middle": 66,
+                  "right_end": 5,
+                  "right_source": 21,
+                  "right_start": 47,
+                  "shared_source": true
+                },
+                "source_root": 21,
+                "start": 71
+              },
+              "reason": "slice result may sink publication until an externally visible boundary",
+              "state": "candidate"
+            },
+            {
+              "kind": "materialization_sink",
+              "plan": {
+                "corridor_root": 36,
+                "end": 72,
+                "known_length": 2,
+                "proof": {
+                  "kind": "concat_triplet",
+                  "left_end": 47,
+                  "left_source": 21,
+                  "left_start": 46,
+                  "middle": 66,
+                  "right_end": 5,
+                  "right_source": 21,
+                  "right_start": 47,
+                  "shared_source": true
+                },
+                "source_root": 21,
+                "start": 71
+              },
+              "reason": "slice result may defer materialization until a birth sink forces it",
+              "state": "candidate"
+            },
+            {
+              "kind": "direct_kernel_entry",
+              "plan": {
+                "corridor_root": 36,
+                "end": 72,
+                "known_length": 2,
+                "proof": {
+                  "kind": "concat_triplet",
+                  "left_end": 47,
+                  "left_source": 21,
+                  "left_start": 46,
+                  "middle": 66,
+                  "right_end": 5,
+                  "right_source": 21,
+                  "right_start": 47,
+                  "shared_source": true
+                },
+                "source_root": 21,
+                "start": 71
+              },
+              "reason": "borrowed slice corridor can target a direct kernel entry before publication",
+              "state": "candidate"
+            }
+          ],
+          "5": [
+            {
+              "kind": "direct_kernel_entry",
+              "plan": null,
+              "reason": "scalar string consumer can bypass ABI facade on the AOT-internal path",
+              "state": "candidate"
+            }
+          ],
+          "82": [
+            {
+              "kind": "direct_kernel_entry",
+              "plan": null,
+              "reason": "scalar string consumer can bypass ABI facade on the AOT-internal path",
+              "state": "candidate"
+            }
+          ],
+          "88": [
+            {
+              "kind": "direct_kernel_entry",
+              "plan": null,
+              "reason": "scalar string consumer can bypass ABI facade on the AOT-internal path",
+              "state": "candidate"
+            }
+          ],
+          "89": [
+            {
+              "kind": "direct_kernel_entry",
+              "plan": null,
+              "reason": "scalar string consumer can bypass ABI facade on the AOT-internal path",
+              "state": "candidate"
+            }
+          ]
+        },
+        "string_corridor_facts": {
+          "26": {
+            "carrier": "method_call",
+            "materialize": "?",
+            "objectize": "?",
+            "op": "str.slice",
+            "outcome": null,
+            "publish": "?",
+            "role": "borrow_producer"
+          },
+          "27": {
+            "carrier": "method_call",
+            "materialize": "?",
+            "objectize": "?",
+            "op": "str.slice",
+            "outcome": null,
+            "publish": "?",
+            "role": "borrow_producer"
+          },
+          "36": {
+            "carrier": "runtime_export",
+            "materialize": "?",
+            "objectize": "?",
+            "op": "str.slice",
+            "outcome": null,
+            "publish": "?",
+            "role": "borrow_producer"
+          },
+          "5": {
+            "carrier": "method_call",
+            "materialize": "none",
+            "objectize": "none",
+            "op": "str.len",
+            "outcome": null,
+            "publish": "none",
+            "role": "scalar_consumer"
+          },
+          "82": {
+            "carrier": "method_call",
+            "materialize": "none",
+            "objectize": "none",
+            "op": "str.len",
+            "outcome": null,
+            "publish": "none",
+            "role": "scalar_consumer"
+          },
+          "88": {
+            "carrier": "runtime_export",
+            "materialize": "none",
+            "objectize": "none",
+            "op": "str.len",
+            "outcome": null,
+            "publish": "none",
+            "role": "scalar_consumer"
+          },
+          "89": {
+            "carrier": "runtime_export",
+            "materialize": "none",
+            "objectize": "none",
+            "op": "str.len",
+            "outcome": null,
+            "publish": "none",
+            "role": "scalar_consumer"
+          }
+        },
+        "sum_placement_facts": [],
+        "sum_placement_layouts": [],
+        "sum_placement_selections": [],
+        "thin_entry_candidates": [],
+        "thin_entry_selections": [],
+        "value_types": {
+          "1": "i64",
+          "10": {
+            "box_type": "IntegerBox",
+            "kind": "handle"
+          },
+          "11": "i64",
+          "12": "i64",
+          "13": "i64",
+          "14": "i64",
+          "15": "i64",
+          "16": "i64",
+          "17": "i1",
+          "18": "i64",
+          "19": "i64",
+          "2": "i64",
+          "20": "i64",
+          "21": {
+            "kind": "string"
+          },
+          "22": "i64",
+          "23": "i64",
+          "24": "i64",
+          "25": "i64",
+          "26": "i64",
+          "27": "i64",
+          "28": {
+            "kind": "string"
+          },
+          "29": "i64",
+          "3": {
+            "kind": "string"
+          },
+          "30": "i64",
+          "31": "i64",
+          "32": "i64",
+          "33": "i64",
+          "34": "i64",
+          "35": "i64",
+          "36": "i64",
+          "37": "i1",
+          "38": "i64",
+          "39": "i64",
+          "4": {
+            "kind": "string"
+          },
+          "40": "i64",
+          "41": "i64",
+          "42": {
+            "box_type": "IntegerBox",
+            "kind": "handle"
+          },
+          "43": {
+            "box_type": "IntegerBox",
+            "kind": "handle"
+          },
+          "44": "i64",
+          "45": {
+            "kind": "string"
+          },
+          "46": "i64",
+          "47": "i64",
+          "48": {
+            "box_type": "IntegerBox",
+            "kind": "handle"
+          },
+          "49": {
+            "box_type": "IntegerBox",
+            "kind": "handle"
+          },
+          "5": {
+            "box_type": "IntegerBox",
+            "kind": "handle"
+          },
+          "50": "i64",
+          "51": {
+            "kind": "string"
+          },
+          "52": "i64",
+          "53": {
+            "kind": "string"
+          },
+          "54": "i64",
+          "55": "i64",
+          "56": {
+            "kind": "string"
+          },
+          "57": "i64",
+          "58": "i64",
+          "59": "i64",
+          "6": {
+            "kind": "string"
+          },
+          "60": "i64",
+          "61": {
+            "kind": "string"
+          },
+          "62": "i64",
+          "63": "i64",
+          "64": "i64",
+          "65": "i64",
+          "66": {
+            "kind": "string"
+          },
+          "67": "i64",
+          "68": "i64",
+          "69": "i64",
+          "7": {
+            "kind": "string"
+          },
+          "70": "i64",
+          "71": "i64",
+          "72": "i64",
+          "73": "i64",
+          "74": "i64",
+          "75": "i64",
+          "76": "i64",
+          "77": "i64",
+          "78": "i64",
+          "79": "i64",
+          "8": {
+            "kind": "string"
+          },
+          "80": "i64",
+          "81": "void",
+          "82": {
+            "box_type": "IntegerBox",
+            "kind": "handle"
+          },
+          "83": {
+            "kind": "string"
+          },
+          "84": {
+            "kind": "string"
+          },
+          "85": "i64",
+          "86": {
+            "box_type": "IntegerBox",
+            "kind": "handle"
+          },
+          "87": "i64",
+          "88": "i64",
+          "89": "i64",
+          "9": {
+            "kind": "string"
+          },
+          "90": "i64",
+          "91": "i64"
+        }
+      },
+      "name": "main",
+      "params": []
+    },
+    {
+      "attrs": {
+        "runes": []
+      },
+      "blocks": [
+        {
+          "id": 14,
+          "instructions": [
+            {
+              "dst": 2,
+              "op": "copy",
+              "src": 0
+            },
+            {
+              "dst": 3,
+              "op": "copy",
+              "src": 1
+            },
+            {
+              "dst": 4,
+              "lhs": 2,
+              "op": "binop",
+              "operation": "+",
+              "rhs": 3
+            },
+            {
+              "op": "ret",
+              "value": 4
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "storage_classes": {},
+        "string_corridor_candidates": {},
+        "string_corridor_facts": {},
+        "sum_placement_facts": [],
+        "sum_placement_layouts": [],
+        "sum_placement_selections": [],
+        "thin_entry_candidates": [],
+        "thin_entry_selections": [],
+        "value_types": {}
+      },
+      "name": "AddOperator.apply/2",
+      "params": [
+        0,
+        1
+      ]
+    },
+    {
+      "attrs": {
+        "runes": []
+      },
+      "blocks": [
+        {
+          "id": 15,
+          "instructions": [
+            {
+              "dst": 1,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 1
+              }
+            },
+            {
+              "op": "ret",
+              "value": 1
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "storage_classes": {},
+        "string_corridor_candidates": {},
+        "string_corridor_facts": {},
+        "sum_placement_facts": [],
+        "sum_placement_layouts": [],
+        "sum_placement_selections": [],
+        "thin_entry_candidates": [],
+        "thin_entry_selections": [],
+        "value_types": {}
+      },
+      "name": "AddOperator.equals/1",
+      "params": [
+        0
+      ]
+    },
+    {
+      "attrs": {
+        "runes": []
+      },
+      "blocks": [
+        {
+          "id": 13,
+          "instructions": [
+            {
+              "dst": 3,
+              "op": "const",
+              "value": {
+                "type": {
+                  "box_type": "StringBox",
+                  "kind": "handle"
+                },
+                "value": "AddOperator("
+              }
+            },
+            {
+              "dst": 4,
+              "op": "const",
+              "value": {
+                "type": {
+                  "box_type": "StringBox",
+                  "kind": "handle"
+                },
+                "value": ")"
+              }
+            },
+            {
+              "dst": 5,
+              "lhs": 3,
+              "op": "binop",
+              "operation": "+",
+              "rhs": 4
+            },
+            {
+              "op": "ret",
+              "value": 5
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "storage_classes": {},
+        "string_corridor_candidates": {},
+        "string_corridor_facts": {},
+        "sum_placement_facts": [],
+        "sum_placement_layouts": [],
+        "sum_placement_selections": [],
+        "thin_entry_candidates": [],
+        "thin_entry_selections": [],
+        "value_types": {}
+      },
+      "name": "AddOperator.toString/0",
+      "params": []
+    },
+    {
+      "attrs": {
+        "runes": []
+      },
+      "blocks": [
+        {
+          "id": 11,
+          "instructions": [
+            {
+              "dst": 3,
+              "op": "const",
+              "value": {
+                "type": "void",
+                "value": 0
+              }
+            },
+            {
+              "op": "ret",
+              "value": 3
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "storage_classes": {},
+        "string_corridor_candidates": {},
+        "string_corridor_facts": {},
+        "sum_placement_facts": [],
+        "sum_placement_layouts": [],
+        "sum_placement_selections": [],
+        "thin_entry_candidates": [],
+        "thin_entry_selections": [],
+        "value_types": {}
+      },
+      "name": "CompareOperator.apply/3",
+      "params": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "attrs": {
+        "runes": []
+      },
+      "blocks": [
+        {
+          "id": 12,
+          "instructions": [
+            {
+              "dst": 1,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 1
+              }
+            },
+            {
+              "op": "ret",
+              "value": 1
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "storage_classes": {},
+        "string_corridor_candidates": {},
+        "string_corridor_facts": {},
+        "sum_placement_facts": [],
+        "sum_placement_layouts": [],
+        "sum_placement_selections": [],
+        "thin_entry_candidates": [],
+        "thin_entry_selections": [],
+        "value_types": {}
+      },
+      "name": "CompareOperator.equals/1",
+      "params": [
+        0
+      ]
+    },
+    {
+      "attrs": {
+        "runes": []
+      },
+      "blocks": [
+        {
+          "id": 10,
+          "instructions": [
+            {
+              "dst": 3,
+              "op": "const",
+              "value": {
+                "type": {
+                  "box_type": "StringBox",
+                  "kind": "handle"
+                },
+                "value": "CompareOperator("
+              }
+            },
+            {
+              "dst": 4,
+              "op": "const",
+              "value": {
+                "type": {
+                  "box_type": "StringBox",
+                  "kind": "handle"
+                },
+                "value": ")"
+              }
+            },
+            {
+              "dst": 5,
+              "lhs": 3,
+              "op": "binop",
+              "operation": "+",
+              "rhs": 4
+            },
+            {
+              "op": "ret",
+              "value": 5
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "storage_classes": {},
+        "string_corridor_candidates": {},
+        "string_corridor_facts": {},
+        "sum_placement_facts": [],
+        "sum_placement_layouts": [],
+        "sum_placement_selections": [],
+        "thin_entry_candidates": [],
+        "thin_entry_selections": [],
+        "value_types": {}
+      },
+      "name": "CompareOperator.toString/0",
+      "params": []
+    },
+    {
+      "attrs": {
+        "runes": []
+      },
+      "blocks": [
+        {
+          "id": 17,
+          "instructions": [
+            {
+              "dst": 1,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 1
+              }
+            },
+            {
+              "op": "ret",
+              "value": 1
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "storage_classes": {},
+        "string_corridor_candidates": {},
+        "string_corridor_facts": {},
+        "sum_placement_facts": [],
+        "sum_placement_layouts": [],
+        "sum_placement_selections": [],
+        "thin_entry_candidates": [],
+        "thin_entry_selections": [],
+        "value_types": {}
+      },
+      "name": "Main.equals/1",
+      "params": [
+        0
+      ]
+    },
+    {
+      "attrs": {
+        "runes": []
+      },
+      "blocks": [
+        {
+          "id": 16,
+          "instructions": [
+            {
+              "dst": 3,
+              "op": "const",
+              "value": {
+                "type": {
+                  "box_type": "StringBox",
+                  "kind": "handle"
+                },
+                "value": "Main("
+              }
+            },
+            {
+              "dst": 4,
+              "op": "const",
+              "value": {
+                "type": {
+                  "box_type": "StringBox",
+                  "kind": "handle"
+                },
+                "value": ")"
+              }
+            },
+            {
+              "dst": 5,
+              "lhs": 3,
+              "op": "binop",
+              "operation": "+",
+              "rhs": 4
+            },
+            {
+              "op": "ret",
+              "value": 5
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "storage_classes": {},
+        "string_corridor_candidates": {},
+        "string_corridor_facts": {},
+        "sum_placement_facts": [],
+        "sum_placement_layouts": [],
+        "sum_placement_selections": [],
+        "thin_entry_candidates": [],
+        "thin_entry_selections": [],
+        "value_types": {}
+      },
+      "name": "Main.toString/0",
+      "params": []
+    },
+    {
+      "attrs": {
+        "runes": []
+      },
+      "blocks": [
+        {
+          "id": 1,
+          "instructions": [
+            {
+              "dst": 3,
+              "op": "copy",
+              "src": 0
+            },
+            {
+              "dst": 6,
+              "op": "copy",
+              "src": 3
+            },
+            {
+              "dst": 9,
+              "op": "copy",
+              "src": 6
+            },
+            {
+              "dst": 10,
+              "op": "const",
+              "value": {
+                "type": "void",
+                "value": 0
+              }
+            },
+            {
+              "dst": 8,
+              "lhs": 9,
+              "op": "compare",
+              "operation": "==",
+              "rhs": 10
+            },
+            {
+              "cond": 8,
+              "else": 3,
+              "op": "branch",
+              "then": 2
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "instructions": [
+            {
+              "dst": 12,
+              "op": "const",
+              "value": {
+                "type": {
+                  "box_type": "StringBox",
+                  "kind": "handle"
+                },
+                "value": "null"
+              }
+            },
+            {
+              "op": "ret",
+              "value": 12
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "instructions": [
+            {
+              "dst": 13,
+              "incoming": [
+                [
+                  0,
+                  1
+                ]
+              ],
+              "op": "phi"
+            },
+            {
+              "op": "jump",
+              "target": 4
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "instructions": [
+            {
+              "dst": 17,
+              "op": "copy",
+              "src": 13
+            },
+            {
+              "box": 17,
+              "dst": 18,
+              "field": "stringify",
+              "op": "field_get"
+            },
+            {
+              "dst": 19,
+              "op": "copy",
+              "src": 18
+            },
+            {
+              "dst": 22,
+              "op": "copy",
+              "src": 19
+            },
+            {
+              "dst": 25,
+              "op": "copy",
+              "src": 22
+            },
+            {
+              "dst": 28,
+              "op": "copy",
+              "src": 25
+            },
+            {
+              "dst": 29,
+              "op": "const",
+              "value": {
+                "type": "void",
+                "value": 0
+              }
+            },
+            {
+              "dst": 27,
+              "lhs": 28,
+              "op": "compare",
+              "operation": "!=",
+              "rhs": 29
+            },
+            {
+              "cond": 27,
+              "else": 6,
+              "op": "branch",
+              "then": 5
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "instructions": [
+            {
+              "dst": 31,
+              "incoming": [
+                [
+                  13,
+                  4
+                ]
+              ],
+              "op": "phi"
+            },
+            {
+              "dst": 33,
+              "op": "copy",
+              "src": 31
+            },
+            {
+              "dst": 32,
+              "mir_call": {
+                "args": [],
+                "callee": {
+                  "box_name": "RuntimeDataBox",
+                  "certainty": "Union",
+                  "name": "stringify",
+                  "receiver": 33,
+                  "type": "Method"
+                },
+                "effects": [],
+                "flags": {}
+              },
+              "op": "mir_call"
+            },
+            {
+              "op": "ret",
+              "value": 32
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "instructions": [
+            {
+              "dst": 35,
+              "incoming": [
+                [
+                  13,
+                  4
+                ]
+              ],
+              "op": "phi"
+            },
+            {
+              "op": "jump",
+              "target": 7
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "instructions": [
+            {
+              "dst": 40,
+              "op": "const",
+              "value": {
+                "type": {
+                  "box_type": "StringBox",
+                  "kind": "handle"
+                },
+                "value": ""
+              }
+            },
+            {
+              "dst": 41,
+              "op": "copy",
+              "src": 35
+            },
+            {
+              "dst": 42,
+              "lhs": 40,
+              "op": "binop",
+              "operation": "+",
+              "rhs": 41
+            },
+            {
+              "op": "ret",
+              "value": 42
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "storage_classes": {},
+        "string_corridor_candidates": {},
+        "string_corridor_facts": {},
+        "sum_placement_facts": [],
+        "sum_placement_layouts": [],
+        "sum_placement_selections": [],
+        "thin_entry_candidates": [],
+        "thin_entry_selections": [],
+        "value_types": {}
+      },
+      "name": "StringifyOperator.apply/1",
+      "params": [
+        0
+      ]
+    },
+    {
+      "attrs": {
+        "runes": []
+      },
+      "blocks": [
+        {
+          "id": 8,
+          "instructions": [
+            {
+              "dst": 1,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 1
+              }
+            },
+            {
+              "op": "ret",
+              "value": 1
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "storage_classes": {},
+        "string_corridor_candidates": {},
+        "string_corridor_facts": {},
+        "sum_placement_facts": [],
+        "sum_placement_layouts": [],
+        "sum_placement_selections": [],
+        "thin_entry_candidates": [],
+        "thin_entry_selections": [],
+        "value_types": {}
+      },
+      "name": "StringifyOperator.equals/1",
+      "params": [
+        0
+      ]
+    },
+    {
+      "attrs": {
+        "runes": []
+      },
+      "blocks": [
+        {
+          "id": 9,
+          "instructions": [
+            {
+              "dst": 3,
+              "op": "const",
+              "value": {
+                "type": {
+                  "box_type": "StringBox",
+                  "kind": "handle"
+                },
+                "value": "StringifyOperator("
+              }
+            },
+            {
+              "dst": 4,
+              "op": "const",
+              "value": {
+                "type": {
+                  "box_type": "StringBox",
+                  "kind": "handle"
+                },
+                "value": ")"
+              }
+            },
+            {
+              "dst": 5,
+              "lhs": 3,
+              "op": "binop",
+              "operation": "+",
+              "rhs": 4
+            },
+            {
+              "op": "ret",
+              "value": 5
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "storage_classes": {},
+        "string_corridor_candidates": {},
+        "string_corridor_facts": {},
+        "sum_placement_facts": [],
+        "sum_placement_layouts": [],
+        "sum_placement_selections": [],
+        "thin_entry_candidates": [],
+        "thin_entry_selections": [],
+        "value_types": {}
+      },
+      "name": "StringifyOperator.toString/0",
+      "params": []
+    },
+    {
+      "attrs": {
+        "runes": []
+      },
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "dst": 1,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 1
+              }
+            },
+            {
+              "op": "ret",
+              "value": 1
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "storage_classes": {},
+        "string_corridor_candidates": {},
+        "string_corridor_facts": {},
+        "sum_placement_facts": [],
+        "sum_placement_layouts": [],
+        "sum_placement_selections": [],
+        "thin_entry_candidates": [],
+        "thin_entry_selections": [],
+        "value_types": {}
+      },
+      "name": "condition_fn",
+      "params": [
+        0
+      ]
+    }
+  ],
+  "metadata": {
+    "build_time": "Phase 15.5 Development",
+    "features": [
+      "mir_call_unification",
+      "json_v1_schema"
+    ],
+    "generator": "nyash-rust",
+    "phase": "15.5"
+  },
+  "schema_version": "1.0",
+  "user_box_decls": [
+    {
+      "field_decls": [],
+      "fields": [],
+      "name": "AddOperator"
+    },
+    {
+      "field_decls": [],
+      "fields": [],
+      "name": "CompareOperator"
+    },
+    {
+      "field_decls": [],
+      "fields": [],
+      "name": "Main"
+    },
+    {
+      "field_decls": [],
+      "fields": [],
+      "name": "StringifyOperator"
+    }
+  ]
+}

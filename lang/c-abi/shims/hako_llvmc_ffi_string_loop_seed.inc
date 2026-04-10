@@ -1554,36 +1554,24 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
 
   /* body */
   BUILD_INTERESTING(yyjson_arr_get(blocks, 2));
-  if (!(n == 15 || n == 17)) { yyjson_doc_free(doc); return -1; }
+  if (n != 17) { yyjson_doc_free(doc); return -1; }
   EXPECT_OP(0, "const");
   EXPECT_OP(1, "const");
   EXPECT_OP(2, "binop");
   EXPECT_OP(3, "mir_call");
   EXPECT_OP(4, "mir_call");
   EXPECT_OP(5, "const");
-  if (n == 15) {
-    EXPECT_OP(6, "binop");
-    EXPECT_OP(7, "binop");
-    EXPECT_OP(8, "mir_call");
-    EXPECT_OP(9, "binop");
-    EXPECT_OP(10, "const");
-    EXPECT_OP(11, "const");
-    EXPECT_OP(12, "binop");
-    EXPECT_OP(13, "mir_call");
-    EXPECT_OP(14, "jump");
-  } else {
-    EXPECT_OP(6, "mir_call");
-    EXPECT_OP(7, "const");
-    EXPECT_OP(8, "binop");
-    EXPECT_OP(9, "mir_call");
-    EXPECT_OP(10, "binop");
-    EXPECT_OP(11, "binop");
-    EXPECT_OP(12, "const");
-    EXPECT_OP(13, "const");
-    EXPECT_OP(14, "binop");
-    EXPECT_OP(15, "mir_call");
-    EXPECT_OP(16, "jump");
-  }
+  EXPECT_OP(6, "mir_call");
+  EXPECT_OP(7, "const");
+  EXPECT_OP(8, "binop");
+  EXPECT_OP(9, "mir_call");
+  EXPECT_OP(10, "binop");
+  EXPECT_OP(11, "binop");
+  EXPECT_OP(12, "const");
+  EXPECT_OP(13, "const");
+  EXPECT_OP(14, "binop");
+  EXPECT_OP(15, "mir_call");
+  EXPECT_OP(16, "jump");
   divisor = READ_INT(yyjson_obj_get(interesting[1], "value"), "value");
   {
     const char* div_op = READ_STR(interesting[2], "operation");
@@ -1620,11 +1608,28 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
   }
   middle = READ_STR(yyjson_obj_get(interesting[5], "value"), "value");
   if (!middle || !hako_llvmc_ascii_strlen(middle, &middle_len)) { yyjson_doc_free(doc); return -1; }
-  if (n == 15) {
-    const char* add0 = READ_STR(interesting[6], "operation");
-    const char* add1 = READ_STR(interesting[7], "operation");
-    const char* add2 = READ_STR(interesting[9], "operation");
-    const char* add3 = READ_STR(interesting[12], "operation");
+  {
+    yyjson_val* mc0 = yyjson_obj_get(interesting[6], "mir_call");
+    yyjson_val* cal0 = mc0 ? yyjson_obj_get(mc0, "callee") : NULL;
+    const char* name0 = cal0 ? (READ_STR(cal0, "method") ? READ_STR(cal0, "method") : READ_STR(cal0, "name")) : NULL;
+    yyjson_val* args0 = mc0 ? yyjson_obj_get(mc0, "args") : NULL;
+    yyjson_val* mc1 = yyjson_obj_get(interesting[9], "mir_call");
+    yyjson_val* cal1 = mc1 ? yyjson_obj_get(mc1, "callee") : NULL;
+    const char* name1 = cal1 ? (READ_STR(cal1, "method") ? READ_STR(cal1, "method") : READ_STR(cal1, "name")) : NULL;
+    yyjson_val* args1 = mc1 ? yyjson_obj_get(mc1, "args") : NULL;
+    if (!(name0 && strcmp(name0, "nyash.string.substring_len_hii") == 0 &&
+          args0 && yyjson_is_arr(args0) && yyjson_arr_size(args0) == 3 &&
+          name1 && strcmp(name1, "nyash.string.substring_len_hii") == 0 &&
+          args1 && yyjson_is_arr(args1) && yyjson_arr_size(args1) == 3)) {
+      yyjson_doc_free(doc);
+      return -1;
+    }
+  }
+  {
+    const char* add0 = READ_STR(interesting[8], "operation");
+    const char* add1 = READ_STR(interesting[10], "operation");
+    const char* add2 = READ_STR(interesting[11], "operation");
+    const char* add3 = READ_STR(interesting[14], "operation");
     if (!(hako_llvmc_str_eq(add0, "+") &&
           hako_llvmc_str_eq(add1, "+") &&
           hako_llvmc_str_eq(add2, "+") &&
@@ -1632,81 +1637,21 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
       yyjson_doc_free(doc);
       return -1;
     }
-    {
-      yyjson_val* mc = yyjson_obj_get(interesting[8], "mir_call");
-      yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-      const char* box_name = cal ? (READ_STR(cal, "box_name") ? READ_STR(cal, "box_name") : READ_STR(cal, "box_type")) : NULL;
-      const char* name = cal ? (READ_STR(cal, "method") ? READ_STR(cal, "method") : READ_STR(cal, "name")) : NULL;
-      yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
-      if (!(REQUIRE_STRINGISH_BOX(box_name) && name && strcmp(name, "length") == 0 &&
-            args && yyjson_is_arr(args) && yyjson_arr_size(args) == 0)) {
-        yyjson_doc_free(doc);
-        return -1;
-      }
-    }
-    if (READ_INT(yyjson_obj_get(interesting[10], "value"), "value") != 1 ||
-        READ_INT(yyjson_obj_get(interesting[11], "value"), "value") != 1) {
+  }
+  if (READ_INT(yyjson_obj_get(interesting[12], "value"), "value") != 1 ||
+      READ_INT(yyjson_obj_get(interesting[13], "value"), "value") != 1) {
+    yyjson_doc_free(doc);
+    return -1;
+  }
+  {
+    yyjson_val* mc = yyjson_obj_get(interesting[15], "mir_call");
+    yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
+    const char* name = cal ? (READ_STR(cal, "method") ? READ_STR(cal, "method") : READ_STR(cal, "name")) : NULL;
+    yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
+    if (!(name && strcmp(name, "nyash.string.substring_concat3_hhhii") == 0 &&
+          args && yyjson_is_arr(args) && yyjson_arr_size(args) == 5)) {
       yyjson_doc_free(doc);
       return -1;
-    }
-    {
-      yyjson_val* mc = yyjson_obj_get(interesting[13], "mir_call");
-      yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-      const char* box_name = cal ? (READ_STR(cal, "box_name") ? READ_STR(cal, "box_name") : READ_STR(cal, "box_type")) : NULL;
-      const char* name = cal ? (READ_STR(cal, "method") ? READ_STR(cal, "method") : READ_STR(cal, "name")) : NULL;
-      yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
-      if (!(REQUIRE_STRINGISH_BOX(box_name) && name && strcmp(name, "substring") == 0 &&
-            args && yyjson_is_arr(args) && yyjson_arr_size(args) == 2)) {
-        yyjson_doc_free(doc);
-        return -1;
-      }
-    }
-  } else {
-    {
-      yyjson_val* mc0 = yyjson_obj_get(interesting[6], "mir_call");
-      yyjson_val* cal0 = mc0 ? yyjson_obj_get(mc0, "callee") : NULL;
-      const char* name0 = cal0 ? (READ_STR(cal0, "method") ? READ_STR(cal0, "method") : READ_STR(cal0, "name")) : NULL;
-      yyjson_val* args0 = mc0 ? yyjson_obj_get(mc0, "args") : NULL;
-      yyjson_val* mc1 = yyjson_obj_get(interesting[9], "mir_call");
-      yyjson_val* cal1 = mc1 ? yyjson_obj_get(mc1, "callee") : NULL;
-      const char* name1 = cal1 ? (READ_STR(cal1, "method") ? READ_STR(cal1, "method") : READ_STR(cal1, "name")) : NULL;
-      yyjson_val* args1 = mc1 ? yyjson_obj_get(mc1, "args") : NULL;
-      if (!(name0 && strcmp(name0, "nyash.string.substring_len_hii") == 0 &&
-            args0 && yyjson_is_arr(args0) && yyjson_arr_size(args0) == 3 &&
-            name1 && strcmp(name1, "nyash.string.substring_len_hii") == 0 &&
-            args1 && yyjson_is_arr(args1) && yyjson_arr_size(args1) == 3)) {
-        yyjson_doc_free(doc);
-        return -1;
-      }
-    }
-    {
-      const char* add0 = READ_STR(interesting[8], "operation");
-      const char* add1 = READ_STR(interesting[10], "operation");
-      const char* add2 = READ_STR(interesting[11], "operation");
-      const char* add3 = READ_STR(interesting[14], "operation");
-      if (!(hako_llvmc_str_eq(add0, "+") &&
-            hako_llvmc_str_eq(add1, "+") &&
-            hako_llvmc_str_eq(add2, "+") &&
-            hako_llvmc_str_eq(add3, "+"))) {
-        yyjson_doc_free(doc);
-        return -1;
-      }
-    }
-    if (READ_INT(yyjson_obj_get(interesting[12], "value"), "value") != 1 ||
-        READ_INT(yyjson_obj_get(interesting[13], "value"), "value") != 1) {
-      yyjson_doc_free(doc);
-      return -1;
-    }
-    {
-      yyjson_val* mc = yyjson_obj_get(interesting[15], "mir_call");
-      yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-      const char* name = cal ? (READ_STR(cal, "method") ? READ_STR(cal, "method") : READ_STR(cal, "name")) : NULL;
-      yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
-      if (!(name && strcmp(name, "nyash.string.substring_concat3_hhhii") == 0 &&
-            args && yyjson_is_arr(args) && yyjson_arr_size(args) == 5)) {
-        yyjson_doc_free(doc);
-        return -1;
-      }
     }
   }
 

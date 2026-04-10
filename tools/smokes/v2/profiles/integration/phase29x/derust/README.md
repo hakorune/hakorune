@@ -16,7 +16,7 @@ De-rust route and lane contract gates for phase29x.
 - `phase29x_backend_owner_daily_string_length_min.sh`: daily owner flip pin for `string_length_ascii_min_v1`
 - `phase29x_backend_owner_daily_string_indexof_min.sh`: daily owner flip pin for `string_indexof_ascii_min_v1`
 - `phase29x_backend_owner_daily_indexof_line_min.sh`: daily owner flip pin for `indexof_line_pure_min_v1`
-- `phase29x_backend_owner_daily_substring_concat_loop_min.sh`: daily owner flip pin for `substring_concat_loop_pure_min_v1`
+- `phase29x_backend_owner_daily_substring_concat_loop_min.sh`: daily owner flip pin for `substring_concat_loop_pure_min_v1_post_sink`
 - `phase29x_backend_owner_daily_concat3_extern_min.sh`: daily owner flip pin for `string_concat3_extern_min_v1`
 - `phase29x_backend_owner_daily_runtime_data_length_min.sh`: daily owner flip pin for `runtime_data_string_length_ascii_min_v1`
 - `phase29x_backend_owner_daily_runtime_data_array_length_min.sh`: daily owner flip pin for `runtime_data_array_length_min_v1`
