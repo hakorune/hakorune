@@ -53,6 +53,7 @@ mod spanned_instruction;
 pub mod storage_class; // primitive / user-box storage-class inventory + refresh helper
 pub mod string_corridor; // string canonical corridor facts + refresh helper
 pub mod string_corridor_placement; // placement/effect scaffold over canonical string facts
+pub(crate) mod string_corridor_recognizer; // shared pure shape recognizers for string corridor
 pub mod sum_placement; // sum-local proving slice for later generic placement/effect pass
 pub mod sum_placement_layout; // LLVM-side payload-lane choices for selected local sums
 pub mod sum_placement_selection; // selection pilot over sum-local placement facts

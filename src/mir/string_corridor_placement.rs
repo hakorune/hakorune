@@ -10,7 +10,13 @@ use super::{
     string_corridor::{
         StringCorridorFact, StringCorridorOp, StringCorridorRole, StringPlacementFact,
     },
-    BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirModule, ValueId,
+    string_corridor_recognizer::{
+        build_def_map, const_string_length, match_concat_triplet, match_len_call,
+        match_substring_call, match_substring_call_shape, match_substring_concat3_helper_call,
+        resolve_copy_chain_source, string_source_identity, ConcatTripletShape,
+        StringSourceIdentity,
+    },
+    BasicBlockId, MirFunction, MirModule, ValueId,
 };
 use std::collections::HashMap;
 
@@ -183,288 +189,6 @@ pub fn refresh_function_string_corridor_candidates(function: &mut MirFunction) {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct AddShape {
-    idx: usize,
-    dst: ValueId,
-    lhs: ValueId,
-    rhs: ValueId,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct SubstringCallProducerShape {
-    source: ValueId,
-    start: ValueId,
-    end: ValueId,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct ConcatTripletShape {
-    left: ValueId,
-    middle: ValueId,
-    right: ValueId,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-enum StringSourceIdentity {
-    Value(ValueId),
-    ConstString(String),
-}
-
-fn build_def_map(function: &MirFunction) -> HashMap<ValueId, (BasicBlockId, usize)> {
-    let mut defs: HashMap<ValueId, (BasicBlockId, usize)> = HashMap::new();
-    for (bbid, block) in &function.blocks {
-        for (idx, inst) in block.instructions.iter().enumerate() {
-            if let Some(dst) = inst.dst_value() {
-                defs.insert(dst, (*bbid, idx));
-            }
-        }
-    }
-    defs
-}
-
-fn resolve_copy_chain_source(
-    function: &MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    mut value: ValueId,
-) -> ValueId {
-    let mut visited = std::collections::BTreeSet::new();
-    while visited.insert(value) {
-        let Some((bbid, idx)) = def_map.get(&value).copied() else {
-            break;
-        };
-        let Some(block) = function.blocks.get(&bbid) else {
-            break;
-        };
-        let Some(inst) = block.instructions.get(idx) else {
-            break;
-        };
-        match inst {
-            MirInstruction::Copy { src, .. } => value = *src,
-            _ => break,
-        }
-    }
-    value
-}
-
-fn match_add_in_block(
-    function: &MirFunction,
-    bbid: BasicBlockId,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    value: ValueId,
-) -> Option<AddShape> {
-    let (inst_bbid, idx) = def_map.get(&value).copied()?;
-    if inst_bbid != bbid {
-        return None;
-    }
-    let block = function.blocks.get(&inst_bbid)?;
-    match block.instructions.get(idx)? {
-        MirInstruction::BinOp {
-            dst,
-            op: BinaryOp::Add,
-            lhs,
-            rhs,
-        } => Some(AddShape {
-            idx,
-            dst: *dst,
-            lhs: *lhs,
-            rhs: *rhs,
-        }),
-        _ => None,
-    }
-}
-
-fn match_len_call(inst: &MirInstruction) -> Option<(ValueId, ValueId)> {
-    match inst {
-        MirInstruction::Call {
-            dst: Some(dst),
-            callee:
-                Some(Callee::Method {
-                    method,
-                    receiver: Some(receiver),
-                    ..
-                }),
-            args,
-            ..
-        } if args.is_empty() && matches!(method.as_str(), "length" | "len") => {
-            Some((*dst, *receiver))
-        }
-        MirInstruction::Call {
-            dst: Some(dst),
-            callee: Some(Callee::Extern(name)),
-            args,
-            ..
-        } if args.len() == 1 && name == "nyash.string.len_h" => Some((*dst, args[0])),
-        MirInstruction::Call {
-            dst: Some(dst),
-            callee: Some(Callee::Global(name)),
-            args,
-            ..
-        } if args.len() == 1 && matches!(name.as_str(), "str.len" | "__str.len") => {
-            Some((*dst, args[0]))
-        }
-        _ => None,
-    }
-}
-
-fn match_substring_call(inst: &MirInstruction) -> Option<(ValueId, ValueId, ValueId, ValueId)> {
-    match inst {
-        MirInstruction::Call {
-            dst: Some(dst),
-            callee:
-                Some(Callee::Method {
-                    method,
-                    receiver: Some(receiver),
-                    ..
-                }),
-            args,
-            ..
-        } if args.len() == 2 && matches!(method.as_str(), "substring" | "slice") => {
-            Some((*dst, *receiver, args[0], args[1]))
-        }
-        MirInstruction::Call {
-            dst: Some(dst),
-            callee: Some(Callee::Extern(name)),
-            args,
-            ..
-        } if args.len() == 3 && name == "nyash.string.substring_hii" => {
-            Some((*dst, args[0], args[1], args[2]))
-        }
-        _ => None,
-    }
-}
-
-fn match_substring_concat3_call(
-    inst: &MirInstruction,
-) -> Option<(ValueId, ValueId, ValueId, ValueId, ValueId, ValueId)> {
-    match inst {
-        MirInstruction::Call {
-            dst: Some(dst),
-            callee: Some(Callee::Extern(name)),
-            args,
-            ..
-        } if args.len() == 5 && name == "nyash.string.substring_concat3_hhhii" => {
-            Some((*dst, args[0], args[1], args[2], args[3], args[4]))
-        }
-        _ => None,
-    }
-}
-
-fn match_substring_call_shape(
-    function: &MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    value: ValueId,
-) -> Option<SubstringCallProducerShape> {
-    let root = resolve_copy_chain_source(function, def_map, value);
-    let (bbid, idx) = def_map.get(&root).copied()?;
-    let block = function.blocks.get(&bbid)?;
-    let (_, receiver, start, end) = match_substring_call(block.instructions.get(idx)?)?;
-    Some(SubstringCallProducerShape {
-        source: resolve_copy_chain_source(function, def_map, receiver),
-        start: resolve_copy_chain_source(function, def_map, start),
-        end: resolve_copy_chain_source(function, def_map, end),
-    })
-}
-
-fn match_concat_triplet_from_extern(
-    function: &MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    value: ValueId,
-) -> Option<ConcatTripletShape> {
-    let root = resolve_copy_chain_source(function, def_map, value);
-    let (bbid, idx) = def_map.get(&root).copied()?;
-    let block = function.blocks.get(&bbid)?;
-    match block.instructions.get(idx)? {
-        MirInstruction::Call {
-            callee: Some(Callee::Extern(name)),
-            args,
-            ..
-        } if args.len() == 3 && name == "nyash.string.concat3_hhh" => Some(ConcatTripletShape {
-            left: resolve_copy_chain_source(function, def_map, args[0]),
-            middle: resolve_copy_chain_source(function, def_map, args[1]),
-            right: resolve_copy_chain_source(function, def_map, args[2]),
-        }),
-        _ => None,
-    }
-}
-
-fn match_concat_triplet_from_add_chain(
-    function: &MirFunction,
-    bbid: BasicBlockId,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    value: ValueId,
-) -> Option<ConcatTripletShape> {
-    let root = resolve_copy_chain_source(function, def_map, value);
-    let outer = match_add_in_block(function, bbid, def_map, root)?;
-    if outer.dst != root {
-        return None;
-    }
-
-    let lhs_root = resolve_copy_chain_source(function, def_map, outer.lhs);
-    let rhs_root = resolve_copy_chain_source(function, def_map, outer.rhs);
-
-    if let Some(inner) = match_add_in_block(function, bbid, def_map, lhs_root) {
-        if inner.idx < outer.idx && inner.dst == lhs_root {
-            return Some(ConcatTripletShape {
-                left: resolve_copy_chain_source(function, def_map, inner.lhs),
-                middle: resolve_copy_chain_source(function, def_map, inner.rhs),
-                right: rhs_root,
-            });
-        }
-    }
-
-    if let Some(inner) = match_add_in_block(function, bbid, def_map, rhs_root) {
-        if inner.idx < outer.idx && inner.dst == rhs_root {
-            return Some(ConcatTripletShape {
-                left: lhs_root,
-                middle: resolve_copy_chain_source(function, def_map, inner.lhs),
-                right: resolve_copy_chain_source(function, def_map, inner.rhs),
-            });
-        }
-    }
-
-    None
-}
-
-fn match_concat_triplet(
-    function: &MirFunction,
-    bbid: BasicBlockId,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    value: ValueId,
-) -> Option<ConcatTripletShape> {
-    match_concat_triplet_from_extern(function, def_map, value)
-        .or_else(|| match_concat_triplet_from_add_chain(function, bbid, def_map, value))
-}
-
-fn string_source_identity(
-    function: &MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    value: ValueId,
-) -> Option<StringSourceIdentity> {
-    let root = resolve_copy_chain_source(function, def_map, value);
-    let Some((bbid, idx)) = def_map.get(&root).copied() else {
-        return Some(StringSourceIdentity::Value(root));
-    };
-    let Some(block) = function.blocks.get(&bbid) else {
-        return Some(StringSourceIdentity::Value(root));
-    };
-    match block.instructions.get(idx) {
-        Some(MirInstruction::Const {
-            value: ConstValue::String(text),
-            ..
-        }) => Some(StringSourceIdentity::ConstString(text.clone())),
-        _ => Some(StringSourceIdentity::Value(root)),
-    }
-}
-
-fn const_string_length(text: &str) -> i64 {
-    if crate::config::env::string_codepoint_mode() {
-        text.chars().count() as i64
-    } else {
-        text.len() as i64
-    }
-}
-
 fn infer_borrowed_slice_plan(
     function: &MirFunction,
     value: ValueId,
@@ -473,7 +197,7 @@ fn infer_borrowed_slice_plan(
     let root = resolve_copy_chain_source(function, def_map, value);
     let (bbid, idx) = def_map.get(&root).copied()?;
     let block = function.blocks.get(&bbid)?;
-    let (_, receiver, start, end) = match_substring_call(block.instructions.get(idx)?)?;
+    let (_, receiver, start, end, _) = match_substring_call(block.instructions.get(idx)?)?;
     let source = resolve_copy_chain_source(function, def_map, receiver);
     let start = resolve_copy_chain_source(function, def_map, start);
     let end = resolve_copy_chain_source(function, def_map, end);
@@ -565,7 +289,9 @@ fn infer_concat_triplet_result_plan(
     let root = resolve_copy_chain_source(function, def_map, value);
     let (bbid, idx) = def_map.get(&root).copied()?;
     let block = function.blocks.get(&bbid)?;
-    let (_, left, middle, right, start, end) = match_substring_concat3_call(block.instructions.get(idx)?)?;
+    let helper = match_substring_concat3_helper_call(block.instructions.get(idx)?)?;
+    let (left, middle, right, start, end) =
+        (helper.left, helper.middle, helper.right, helper.start, helper.end);
     let Some(StringSourceIdentity::ConstString(text)) =
         string_source_identity(function, def_map, middle)
     else {
@@ -608,7 +334,7 @@ fn infer_plan(
 
     match fact.op {
         StringCorridorOp::StrSlice => {
-            if let Some((_, receiver, start, end)) = match_substring_call(inst) {
+            if let Some((_, receiver, start, end, _)) = match_substring_call(inst) {
                 infer_concat_triplet_plan(
                     function,
                     bbid,
@@ -624,7 +350,7 @@ fn infer_plan(
             }
         }
         StringCorridorOp::StrLen => {
-            let (_, receiver) = match_len_call(inst)?;
+            let (_, receiver, _) = match_len_call(inst)?;
             infer_concat_triplet_plan(function, bbid, receiver, None, None, def_map, false)
                 .or_else(|| infer_borrowed_slice_plan(function, receiver, def_map).map(|plan| {
                     StringCorridorCandidatePlan {
@@ -732,7 +458,10 @@ fn direct_kernel_reason(fact: &StringCorridorFact) -> &'static str {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirType, ValueId};
+    use crate::mir::{
+        BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, FunctionSignature,
+        MirInstruction, MirType, ValueId,
+    };
 
     #[test]
     fn slice_fact_emits_borrowed_corridor_and_sink_candidates() {
