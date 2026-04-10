@@ -215,6 +215,11 @@
              !strcmp(mname, "nyash.string.concat3_hhh"))) {
           return HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT;
         }
+        if (mname &&
+            (!strcmp(mname, "nyash.string.substring_concat_hhii") ||
+             !strcmp(mname, "nyash.string.substring_concat3_hhhii"))) {
+          return HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING;
+        }
         if (mname && !strcmp(mname, "nyash.string.substring_len_hii")) {
           return HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING_LEN;
         }

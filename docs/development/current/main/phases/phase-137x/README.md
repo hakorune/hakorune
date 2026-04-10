@@ -59,7 +59,7 @@
     - `kilo_micro_substring_views_only: instr=466,001 / cycles=841,958 / cache-miss=9,391 / AOT 3 ms`
     - `kilo_micro_len_substring_views: instr=1,672,096 / cycles=1,009,964 / cache-miss=8,902 / AOT 3 ms`
 - current broader-corridor reopen front:
-  - `kilo_micro_substring_concat: instr=5,565,734 / cycles=5,773,584 / cache-miss=8,319 / AOT 4 ms`
+  - `kilo_micro_substring_concat: instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`
   - `kilo_micro_array_string_store: c_ms=9 / ny_aot_ms=9`; this family is not the current blocker
 - target band for the next keeper:
   - mixed accept gate: hold `instr <= 1.8M`
@@ -116,6 +116,10 @@
     - compiler-visible `concat pair/triple -> substring(...)` now routes to `nyash.string.substring_concat_hhii` / `nyash.string.substring_concat3_hhhii`
     - dynamic route proof hits `string_substring_route -> substring_concat3_hhhii`
     - reading: this removes the intermediate concat handle birth for substring consumers; remaining concat backlog is `return` / `store` / host-boundary publication
+  - broader-corridor keeper repair is now landed:
+    - `string_corridor_sink` rewrites `concat(left_slice, const, right_slice).length()` into `substring_len_hii(left) + const_len + substring_len_hii(right)` and keeps `substring(concat3(...))` on `substring_concat3_hhhii`
+    - the exact `pure-first` `kilo_micro_substring_concat` seed now accepts both the pre-sink and post-sink body shapes, so this generic sink no longer ejects the exact lane into the slow fallback route
+    - latest exact reread on `kilo_micro_substring_concat`: `instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`
   - current `substring_len_hii` pilot uses `with_text_read_session_ready(...)` to avoid the hot `REG` ready probe; current helper perf is the mixed sink candidate above
   - split exact reread now puts the retained-view exact micro below `0.5M instr`, so `substring_hii` is no longer the active blocker on that split and `len_h` remains the control split
   - current keeper is on `len_h`: hoist one `handles::drop_epoch()` read in `string_len_fast_cache_lookup()` and reuse it for both cache slots

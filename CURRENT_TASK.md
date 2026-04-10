@@ -258,7 +258,8 @@ Scope: repo root から current lane / current front / restart read order に最
             - `kilo_micro_len_substring_views = instr=1,672,096 / cycles=1,009,964 / cache-miss=8,902`
         - next substep after the current parity-wave keeper:
           - move from the landed sibling exact micros into the broader string corridor placement/effect rewrite before widening any broader user-box local-body parity backlog
-          - fresh broader-corridor reread now points at `kilo_micro_substring_concat` (`instr=5,565,734 / cycles=5,773,584 / cache-miss=8,319 / AOT 4 ms`) as the next exact reopen front for `publication_sink` / `materialization_sink`
+          - keeper repair landed: the exact `pure-first` `kilo_micro_substring_concat` seed now re-accepts the post-sink body shape (`substring_len_hii` pair + `substring_concat3_hhhii`), so the generic concat-observer rewrite no longer ejects the exact lane into the slow fallback route
+          - fresh broader-corridor reread now points at `kilo_micro_substring_concat` (`instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`) as the next exact reopen front for `publication_sink` / `materialization_sink`
         - keep `phi_merge` and `call` / `boxcall` / `return` barrier relaxation out of this cut; those require a separate metadata-contract phase first
         - verified non-Variant optimization order after the current parity wave:
           1. broader string corridor placement/effect rewrite
@@ -324,12 +325,12 @@ Scope: repo root から current lane / current front / restart read order に最
       - `kilo_micro_substring_views_only: instr=466,001 / cycles=841,958 / cache-miss=9,391 / AOT 3 ms`
       - `kilo_micro_len_substring_views: instr=1,672,096 / cycles=1,009,964 / cache-miss=8,902 / AOT 3 ms`
     - broader-corridor reopen front:
-      - `kilo_micro_substring_concat: instr=5,565,734 / cycles=5,773,584 / cache-miss=8,319 / AOT 4 ms`
+      - `kilo_micro_substring_concat: instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`
       - `kilo_micro_array_string_store: c_ms=9 / ny_aot_ms=9`; this family is not the current blocker
-    - reading: the sibling exact micros are now closed at boundary `pure-first`, so the next string keeper target is the broader corridor publication/materialization family
+    - reading: the sibling exact micros are now closed at boundary `pure-first`, and the post-sink `substring_concat` exact seed is repaired too, so the next string keeper target stays the broader corridor publication/materialization family
 - current string broader-corridor reopen candidate:
   - loop-carried `text = out.substring(...)` inside `kilo_micro_substring_concat`
-  - latest reread: `instr=5,565,734 / cycles=5,773,584 / cache-miss=8,319 / AOT 4 ms`
+  - latest reread: `instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`
 - target band for the next string guardrail keeper:
   - mixed accept gate: hold `instr <= 1.8M`
   - local split `kilo_micro_substring_views_only`: hold `instr <= 0.6M`
@@ -392,7 +393,7 @@ Scope: repo root から current lane / current front / restart read order に最
     - post-consumer reread on `kilo_micro_substring_views_only`: `instr=34,364,317 / cycles=6,565,794 / cache-miss=9,276 / AOT 5 ms`
     - current reading: the consumer slice is a structural enabler, but the next visible keeper still has to come from retained-view `substring_hii` shapes rather than another runtime-local retry
   - concat/objectization reading is now fixed before the next cut:
-    - exact `kilo_micro_substring_concat` is already parity-locked through the existing pure-first exact seed, so it does not prove the generic concat consumer lane
+    - exact `kilo_micro_substring_concat` is parity-locked again after the pure-first seed repair for the post-sink `substring_len_hii` / `substring_concat3_hhhii` body shape, so it still does not prove the generic concat consumer lane by itself
     - the generic concat observer front is `kilo_micro_concat_hh_len`
     - landed first generic observer pilot:
       - defer concat pair/triple when the consumer stays in compiler-visible string observers

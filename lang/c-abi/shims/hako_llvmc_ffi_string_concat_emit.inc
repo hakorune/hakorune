@@ -338,6 +338,58 @@
           return 1;
         }
 
+        if (kind == HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_SUBSTRING_CONCAT_HHII) {
+          if (argc != 4) return -1;
+          append_i64_arg_ref(
+              ab, sizeof(ab), (long long)yyjson_get_sint(yyjson_arr_get(args, 0)), 1);
+          append_i64_arg_ref(
+              ab, sizeof(ab), (long long)yyjson_get_sint(yyjson_arr_get(args, 1)), 0);
+          append_i64_arg_ref(
+              ab, sizeof(ab), (long long)yyjson_get_sint(yyjson_arr_get(args, 2)), 0);
+          append_i64_arg_ref(
+              ab, sizeof(ab), (long long)yyjson_get_sint(yyjson_arr_get(args, 3)), 0);
+          if (dst) {
+            fprintf(
+                f,
+                "  %%r%lld = call i64 @\"nyash.string.substring_concat_hhii\"(%s)\n",
+                dst,
+                ab);
+            set_type(dst, T_I64);
+            set_origin(dst, ORG_STRING);
+            set_scan_origin(dst, ORG_STRING);
+          } else {
+            fprintf(f, "  call i64 @\"nyash.string.substring_concat_hhii\"(%s)\n", ab);
+          }
+          return 1;
+        }
+
+        if (kind == HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_SUBSTRING_CONCAT3_HHHII) {
+          if (argc != 5) return -1;
+          append_i64_arg_ref(
+              ab, sizeof(ab), (long long)yyjson_get_sint(yyjson_arr_get(args, 0)), 1);
+          append_i64_arg_ref(
+              ab, sizeof(ab), (long long)yyjson_get_sint(yyjson_arr_get(args, 1)), 0);
+          append_i64_arg_ref(
+              ab, sizeof(ab), (long long)yyjson_get_sint(yyjson_arr_get(args, 2)), 0);
+          append_i64_arg_ref(
+              ab, sizeof(ab), (long long)yyjson_get_sint(yyjson_arr_get(args, 3)), 0);
+          append_i64_arg_ref(
+              ab, sizeof(ab), (long long)yyjson_get_sint(yyjson_arr_get(args, 4)), 0);
+          if (dst) {
+            fprintf(
+                f,
+                "  %%r%lld = call i64 @\"nyash.string.substring_concat3_hhhii\"(%s)\n",
+                dst,
+                ab);
+            set_type(dst, T_I64);
+            set_origin(dst, ORG_STRING);
+            set_scan_origin(dst, ORG_STRING);
+          } else {
+            fprintf(f, "  call i64 @\"nyash.string.substring_concat3_hhhii\"(%s)\n", ab);
+          }
+          return 1;
+        }
+
         if (kind == HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_SUBSTRING_LEN_HII) {
           if (argc != 3) return -1;
           append_i64_arg_ref(

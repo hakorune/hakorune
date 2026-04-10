@@ -108,7 +108,8 @@ Related:
         - `kilo_micro_substring_views_only = instr=466,001 / cycles=841,958 / cache-miss=9,391`
         - `kilo_micro_len_substring_views = instr=1,672,096 / cycles=1,009,964 / cache-miss=8,902`
     - next substep after the current parity-wave keeper: broader string corridor placement/effect rewrite
-    - fresh broader-corridor reread now points at `kilo_micro_substring_concat` (`instr=5,565,734 / cycles=5,773,584 / cache-miss=8,319 / AOT 4 ms`) as the next exact reopen front for `publication_sink` / `materialization_sink`
+    - keeper repair landed: the exact `pure-first` `kilo_micro_substring_concat` seed now accepts the post-sink body shape (`substring_len_hii` pair + `substring_concat3_hhhii`), so the generic concat-observer rewrite keeps the exact lane instead of falling back
+    - fresh broader-corridor reread now points at `kilo_micro_substring_concat` (`instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`) as the next exact reopen front for `publication_sink` / `materialization_sink`
     - separate phase, not this cut: relax `phi_merge` or `call` / `boxcall` / `return` barriers only with a metadata-contract update first
     - sibling string follow-on after that: move from the landed exact micro to the broader corridor rewrite family on the mixed accept gate
     - restart handoff: cleanup queue is empty; continue `phase163x-optimization-resume` next; `phase137x-substring-retained-view-consumer` remains in progress as the sibling string lane
