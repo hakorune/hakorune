@@ -205,6 +205,24 @@ Fixed task order:
 4. retire remaining Rust builder residue one family at a time
 5. continue MIR/backend optimization in parallel because it survives builder cutover
 
+Immediate task pack (separate from active perf/optimizer lanes):
+1. inventory Rust builder growth surfaces
+   - classify `src/mir/mod.rs` re-exported `detect_*` helpers and `src/mir/builder/**` source-aware helpers as:
+     - `.hako authority target`
+     - `Rust oracle keep`
+     - `canonical MIR/backend asset`
+2. lock canonical MIR parity fixtures
+   - define the minimal `.hako builder == Rust oracle` structural compare pack for `Program(JSON v0) -> MIR(JSON)`
+   - keep compare on canonical MIR shape, not helper-name coincidence
+3. promote `.hako` builder as the default authority lane
+   - keep helper/script routing selfhost-first
+   - keep Rust route explicit as oracle / compat, not silent mainline
+4. stop new Rust builder widening while inventory is open
+   - new compiler work during this window must land either in `.hako` builder authority or in canonical MIR/backend layers
+5. retire Rust builder residue family-by-family
+   - move one builder-intelligence family at a time behind the `.hako` authority line
+   - after each family, shrink the Rust side back to oracle/fallback or delete-ready debt
+
 ### 4. Rust host / runtime minimal surface
 
 Primary owner:

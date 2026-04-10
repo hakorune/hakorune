@@ -21,6 +21,11 @@ Related:
       - stop adding new syntax/AST-close lowering, source-shape recognizers, or builder-local sugar to `src/mir/builder/**` unless it is required for current canonical MIR parity/cleanup
       - keep new optimization work on canonical MIR contracts, MIR-to-MIR passes, and backend lowering where `.hako` and Rust builders share the same asset
       - next selfhost structural move is `.hako` builder authority replacement; Rust builder should trend toward oracle/fallback, not renewed mainline growth
+      - fixed structural task order when that lane reopens:
+        1. inventory Rust builder growth surfaces (`src/mir/mod.rs` `detect_*`, `src/mir/builder/**`, `src/host_providers/mir_builder*.rs`)
+        2. lock `.hako builder` vs `Rust oracle` canonical MIR compare pack
+        3. keep helper routing selfhost-first and Rust route explicit oracle/compat only
+        4. retire builder-intelligence families one by one
   - parent design locked: `lifecycle-typed-value-language-ssot.md`
   - keep `field_decls` as authority
   - keep names-only `fields` as compatibility mirror

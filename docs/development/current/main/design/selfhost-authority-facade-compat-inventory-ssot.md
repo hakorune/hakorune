@@ -100,6 +100,36 @@ When a Stage1 cleanup choice is ambiguous, use this order:
    - explicit compat/bootstrap keep already named here or in parent SSOTs
 3. treat any wider Rust compiler residue as temporary bootstrap debt and inventory it explicitly instead of normalizing it as the steady-state Stage1 shape
 
+## Immediate MirBuilder Authority-Replacement Tasks
+
+Use this as the concrete task order when the selfhost/mirbuilder lane is active.
+
+1. Inventory current Rust builder intelligence
+   - target files:
+     - `src/mir/mod.rs` builder-side `detect_*` exports
+     - `src/mir/builder/**` source-aware lowering helpers
+     - `src/host_providers/mir_builder.rs`
+     - `src/host_providers/mir_builder/lowering.rs`
+   - classify each item as:
+     - `.hako authority target`
+     - `Rust oracle keep`
+     - `bootstrap compat keep`
+2. Freeze new Rust-builder growth
+   - while inventory remains open, do not add new syntax-close lowering or builder-side shape intelligence in Rust
+   - if new work is needed, land it either in `.hako` authority or in canonical MIR/backend layers
+3. Lock the structural compare pack
+   - keep one compare harness for `.hako builder` vs `Rust oracle`
+   - compare canonical MIR output shape, not textual helper accidents
+4. Promote `.hako` builder primary route
+   - helper/script default stays selfhost-first
+   - Rust builder route stays explicit oracle/compat only
+5. Retire one family at a time
+   - each family should end as:
+     - `.hako authority`
+     - Rust oracle/fallback only
+     - or explicit compat/bootstrap keep
+   - do not migrate multiple unrelated builder-intelligence families in one commit series
+
 ## Deferred On Purpose
 
 - forced file split of `stage1_cli_env.hako`
