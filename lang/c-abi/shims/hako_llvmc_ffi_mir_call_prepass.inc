@@ -99,7 +99,9 @@
           apply_mir_call_need_kind(needs, need_kind);
           if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_STRING_LEN &&
               hako_llvmc_string_corridor_has_candidate(
-                  recv, "direct_kernel_entry")) {
+                  recv, "direct_kernel_entry") &&
+              !hako_llvmc_string_corridor_read_plan_window(
+                  recv, "direct_kernel_entry", NULL, NULL)) {
             needs->string_substring_len = 1;
           }
           if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_ARRAY_PUSH &&

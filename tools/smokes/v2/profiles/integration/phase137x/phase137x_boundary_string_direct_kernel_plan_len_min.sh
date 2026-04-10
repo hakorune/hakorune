@@ -83,7 +83,7 @@ fi
 if grep -Fq 'nyash.string.substring_len_hii' "$LL_DUMP"; then
     echo "[INFO] lowered IR:"
     tail -n 120 "$LL_DUMP" || true
-    test_fail "phase137x_boundary_string_direct_kernel_plan_len_min: lowered IR used substring_len_hii instead of plan window"
+    test_fail "phase137x_boundary_string_direct_kernel_plan_len_min: lowered IR still mentions substring_len_hii instead of the plan window lane"
     exit 1
 fi
 
