@@ -172,12 +172,12 @@
       - proving slice is now landed:
         - product LLVM/Python lowering seeds `thin_entry_selections` into the resolver alongside the already-landed sum placement metadata
         - product LLVM/Python lowering now also keeps selected primitive user-box bodies boxless through `newbox` / `field_get` / `field_set` and materializes only at `call` / `boxcall` / `ret`
-        - metadata-bearing Point local-i64 and Flag local-bool user-box fixtures are now green on `tools/smokes/v2/profiles/integration/phase163x/phase163x_boundary_user_box_metadata_keep_min.sh` via boundary `pure-first` owner lane without compat replay, including the Point single-copy alias route
+        - metadata-bearing Point local-i64, Flag local-bool, and PointF local-f64 user-box fixtures are now green on `tools/smokes/v2/profiles/integration/phase163x/phase163x_boundary_user_box_metadata_keep_min.sh` via boundary `pure-first` owner lane without compat replay, including the Point single-copy alias route
         - metadata-bearing sum smoke is green on `phase163x_boundary_sum_metadata_keep_min.sh` via boundary `pure-first` owner lane without compat replay
         - thin-entry inventory now classifies boxed primitive field hints as `inline_scalar`, and the current Point/Flag native-driver keeper seeds require those selector rows before firing
       - generic native-driver / `ny-llvmc` parity for the broader user-box local-body route remains the next actual-consumer backlog, not the current blocker
       - immediate next parity box:
-        - widen the same metadata-bearing local user-box keep smoke into Float declared-field routes
+        - widen the same metadata-bearing local user-box keep smoke into the PointF single-copy alias route
       - verified non-Variant optimization order after this parity wave:
         1. sibling string retained-view consumer expansion
            - extend the landed boundary `pure-first` consumer family from `substring(...).length()` plus `concat -> substring(...)` into retained-view `substring_hii` local shapes

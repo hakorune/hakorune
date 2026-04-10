@@ -221,11 +221,12 @@ Scope: repo root から current lane / current front / restart read order に最
     8. next ready task: resume optimization lane
         - `phase163x-optimization-resume`
         - current parity-wave keeper now landed:
-          - metadata-bearing Point local-i64 and Flag local-bool user-box JSON fixtures now stay green on boundary `pure-first` owner lane without compat replay
+          - metadata-bearing Point local-i64, Flag local-bool, and PointF local-f64 user-box JSON fixtures now stay green on boundary `pure-first` owner lane without compat replay
           - `tools/smokes/v2/profiles/integration/phase163x/phase163x_boundary_user_box_metadata_keep_min.sh`
           - `apps/tests/mir_shape_guard/user_box_point_local_i64_min.prebuilt.mir.json`
           - `apps/tests/mir_shape_guard/user_box_point_copy_local_i64_min.prebuilt.mir.json`
           - `apps/tests/mir_shape_guard/user_box_flag_local_bool_min.prebuilt.mir.json`
+          - `apps/tests/mir_shape_guard/user_box_pointf_local_f64_min.prebuilt.mir.json`
         - landed Variant* proof for `phase163x-sum-thin-entry-cutover`:
           - `sum_result_ok_project_copy_local_i64_min.prebuilt.mir.json` now proves the same cutover when `variant_project` reads through a single local `copy` alias
           - `sum_result_ok_project_copy_local_f64_min.prebuilt.mir.json` now proves the same cutover when `variant_project` reads through a single local `copy` alias on the Float payload lane
@@ -237,7 +238,7 @@ Scope: repo root から current lane / current front / restart read order に最
           - `sum_result_ok_tag_local_handle_min.prebuilt.mir.json` now proves the same cutover for `variant_tag` on a handle payload lane
         - `phase163x-sum-thin-entry-cutover` is complete; next substep is `ny-llvmc` parity wave
         - next parity box inside that wave:
-          - widen the same metadata-bearing local user-box keep smoke into Float declared-field routes before moving on to string retained-view work
+          - widen the same metadata-bearing local user-box keep smoke into the PointF single-copy alias route before moving on to string retained-view work
         - keep `phi_merge` and `call` / `boxcall` / `return` barrier relaxation out of this cut; those require a separate metadata-contract phase first
         - verified non-Variant optimization order after the current parity wave:
           1. sibling string retained-view consumer expansion

@@ -6,6 +6,11 @@ typedef struct hako_llvmc_entry_rune_selection {
 static void hako_llvmc_select_entry_runes(
     yyjson_val* fn0,
     hako_llvmc_entry_rune_selection* out);
+static const char* hako_llvmc_entry_symbol_default(void);
+static const char* hako_llvmc_effective_entry_symbol(
+    const hako_llvmc_entry_rune_selection* selection);
+static const char* hako_llvmc_entry_callconv_prefix(
+    const hako_llvmc_entry_rune_selection* selection);
 static void hako_llvmc_emit_entry_header(
     FILE* f,
     const hako_llvmc_entry_rune_selection* selection);
