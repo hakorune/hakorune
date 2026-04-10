@@ -4,13 +4,19 @@
 # Contract:
 # 1) the trustworthy direct MIR probe (`emit_mir_route.sh --route direct`) emits strict JSON
 #    for `bench_kilo_micro_substring_concat.hako`.
-# 2) the loop still carries the string lane through `%21 = phi([4,0], [22,20])`.
-# 3) the backedge still hands `%36` into `%22 = phi([36,19])`.
-# 4) proof-bearing corridor metadata still lives on `%36`.
-# 5) the single-input backedge phi `%22` now preserves the proof-bearing plan
+# 2) the header still keeps the loop contract:
+#      - three `phi`s
+#      - positive loop bound
+#      - compare `<`
+#      - branch
+# 3) the loop still carries the string lane through `%21 = phi([4,0], [22,20])`.
+# 4) the backedge still hands `%36` into `%22 = phi([36,19])`.
+# 5) proof-bearing corridor metadata still lives on `%36`.
+# 6) the single-input backedge phi `%22` now preserves the proof-bearing plan
 #    window, while merged header phi `%21` keeps only non-window
 #    `publication_sink` / `materialization_sink` / `direct_kernel_entry`
 #    continuity.
+# 7) the latch still increments the trip counter with `const 1` and `+`.
 
 set -euo pipefail
 
@@ -58,6 +64,18 @@ blocks = main_fn.get("blocks", [])
 if len(blocks) != 5:
     raise SystemExit(f"unexpected block count: {len(blocks)}")
 
+header_ops = [ins for ins in blocks[1].get("instructions", []) if ins.get("op") != "copy"]
+if len(header_ops) != 6:
+    raise SystemExit(f"unexpected header interesting_n={len(header_ops)}")
+if [ins.get("op") for ins in header_ops[:3]] != ["phi", "phi", "phi"]:
+    raise SystemExit(f"unexpected header phi prefix: {[ins.get('op') for ins in header_ops[:3]]}")
+if header_ops[3].get("op") != "const" or header_ops[4].get("op") != "compare" or header_ops[5].get("op") != "branch":
+    raise SystemExit(f"unexpected header suffix ops: {[ins.get('op') for ins in header_ops[3:]]}")
+if header_ops[3].get("value", {}).get("value", 0) <= 0:
+    raise SystemExit(f"unexpected non-positive loop bound: {header_ops[3].get('value')}")
+if header_ops[4].get("operation") != "<":
+    raise SystemExit(f"unexpected header compare op: {header_ops[4].get('operation')}")
+
 def find_phi(block, dst):
     for ins in block.get("instructions", []):
         if ins.get("op") == "phi" and ins.get("dst") == dst:
@@ -75,6 +93,14 @@ if backedge_phi is None:
     raise SystemExit("missing backedge phi %22 in latch block")
 if backedge_phi.get("incoming") != [[36, 19]]:
     raise SystemExit(f"unexpected %22 incoming edges: {backedge_phi.get('incoming')}")
+
+latch_ops = [ins for ins in blocks[3].get("instructions", []) if ins.get("op") != "copy"]
+if len(latch_ops) != 5:
+    raise SystemExit(f"unexpected latch interesting_n={len(latch_ops)}")
+if latch_ops[2].get("op") != "const" or latch_ops[2].get("value", {}).get("value") != 1:
+    raise SystemExit(f"unexpected latch increment const: {latch_ops[2]}")
+if latch_ops[3].get("op") != "binop" or latch_ops[3].get("operation") != "+":
+    raise SystemExit(f"unexpected latch increment op: {latch_ops[3]}")
 
 def require_kinds(candidate_list, required, label):
     if not isinstance(candidate_list, list) or not candidate_list:
