@@ -5,8 +5,8 @@
 # 1) the narrow synthetic direct-set probe still lowers through
 #    `string_insert_mid_window` on the current direct-set path.
 # 2) the lowered LLVM IR still calls `nyash.string.insert_hsi`.
-# 3) this smoke pins the actual observed route on the current fixture set,
-#    not a speculative `plan_window_match` reason.
+# 3) this smoke pins the plan-window-backed direct-set route and keeps
+#    `plan_window_match` observable on the synthetic fixture.
 
 set -euo pipefail
 
@@ -75,10 +75,10 @@ if ! grep -Fq "stage=string_insert_mid_window result=hit" "$BUILD_LOG"; then
     exit 1
 fi
 
-if ! grep -Fq "reason=shape_match" "$BUILD_LOG"; then
+if ! grep -Fq "reason=plan_window_match" "$BUILD_LOG"; then
     echo "[INFO] route trace output:"
     tail -n 120 "$BUILD_LOG" || true
-    test_fail "$SMOKE_NAME: direct-set route no longer matches the observed shape contract"
+    test_fail "$SMOKE_NAME: direct-set route no longer matches the plan-window contract"
     exit 1
 fi
 
@@ -89,6 +89,13 @@ if ! grep -Fq "direct_set=1" "$BUILD_LOG"; then
     exit 1
 fi
 
+if ! grep -Fq "plan=1" "$BUILD_LOG"; then
+    echo "[INFO] route trace output:"
+    tail -n 120 "$BUILD_LOG" || true
+    test_fail "$SMOKE_NAME: direct-set route trace did not record plan=1"
+    exit 1
+fi
+
 if ! grep -Fq "nyash.string.insert_hsi" "$LL_DUMP"; then
     echo "[INFO] lowered IR:"
     tail -n 120 "$LL_DUMP" || true
@@ -96,4 +103,4 @@ if ! grep -Fq "nyash.string.insert_hsi" "$LL_DUMP"; then
     exit 1
 fi
 
-test_pass "$SMOKE_NAME: PASS (synthetic direct-set probe still lowers through string_insert_mid_window and nyash.string.insert_hsi)"
+test_pass "$SMOKE_NAME: PASS (synthetic direct-set probe still lowers through string_insert_mid_window with plan_window_match and nyash.string.insert_hsi)"
