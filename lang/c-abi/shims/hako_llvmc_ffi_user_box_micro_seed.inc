@@ -1,3 +1,5 @@
+static yyjson_val* hako_llvmc_find_entry_function(yyjson_val* fns);
+
 static int hako_llvmc_userbox_has_inline_scalar_selection(
     yyjson_val* fn,
     const char* surface,
@@ -52,6 +54,248 @@ static int hako_llvmc_userbox_flag_inline_scalar_selection_ok(yyjson_val* fn) {
              fn, "user_box_field_get", "Flag.enabled") &&
          hako_llvmc_userbox_has_inline_scalar_selection(
              fn, "user_box_field_set", "Flag.enabled");
+}
+
+static int hako_llvmc_userbox_point_decl_ok(yyjson_val* root) {
+  yyjson_val* decls;
+  size_t bi;
+
+  if (!(root && yyjson_is_obj(root))) {
+    return 0;
+  }
+
+  decls = yyjson_obj_get(root, "user_box_decls");
+  if (!(decls && yyjson_is_arr(decls))) {
+    return 0;
+  }
+
+  for (bi = 0; bi < yyjson_arr_size(decls); bi++) {
+    yyjson_val* decl = yyjson_arr_get(decls, bi);
+    const char* name = decl ? yyjson_get_str(yyjson_obj_get(decl, "name")) : NULL;
+    yyjson_val* field_decls = decl ? yyjson_obj_get(decl, "field_decls") : NULL;
+    int saw_x = 0;
+    int saw_y = 0;
+    size_t fi;
+    if (!(name && strcmp(name, "Point") == 0 && field_decls && yyjson_is_arr(field_decls))) {
+      continue;
+    }
+    for (fi = 0; fi < yyjson_arr_size(field_decls); fi++) {
+      yyjson_val* field_decl = yyjson_arr_get(field_decls, fi);
+      const char* field_name =
+          field_decl ? yyjson_get_str(yyjson_obj_get(field_decl, "name")) : NULL;
+      const char* declared_type =
+          field_decl ? yyjson_get_str(yyjson_obj_get(field_decl, "declared_type")) : NULL;
+      int is_weak = field_decl ? yyjson_get_bool(yyjson_obj_get(field_decl, "is_weak")) : 0;
+      if (!(field_name && declared_type && strcmp(declared_type, "IntegerBox") == 0 &&
+            !is_weak)) {
+        continue;
+      }
+      if (strcmp(field_name, "x") == 0) saw_x = 1;
+      if (strcmp(field_name, "y") == 0) saw_y = 1;
+    }
+    if (saw_x && saw_y) {
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
+static int hako_llvmc_userbox_declared_box_is(yyjson_val* ins, const char* expected_box_type) {
+  yyjson_val* declared_type;
+  const char* box_type;
+
+  if (!(ins && yyjson_is_obj(ins) && expected_box_type)) {
+    return 0;
+  }
+
+  declared_type = yyjson_obj_get(ins, "declared_type");
+  box_type = declared_type ? yyjson_get_str(yyjson_obj_get(declared_type, "box_type")) : NULL;
+  return box_type && strcmp(box_type, expected_box_type) == 0;
+}
+
+static int hako_llvmc_emit_userbox_point_local_i64_ir(
+    const char* obj_out,
+    const hako_llvmc_entry_rune_selection* selection) {
+  char llpath[1024];
+  FILE* f;
+  int rc;
+
+  if (!(obj_out && selection)) {
+    return -1;
+  }
+
+  snprintf(
+      llpath,
+      sizeof(llpath),
+      "%s/hako_pure_userbox_point_local_i64_%d.ll",
+      hako_llvmc_tmp_dir_fallback(),
+      (int)getpid());
+  f = fopen(llpath, "wb");
+  if (!f) return -1;
+
+  fprintf(f, "; nyash minimal pure IR (userbox point local i64 seed)\n");
+  fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
+
+  hako_llvmc_emit_entry_header(f, selection);
+  fprintf(f, "entry:\n");
+  fprintf(f, "  %%x = alloca i64, align 8\n");
+  fprintf(f, "  %%y = alloca i64, align 8\n");
+  fprintf(f, "  store i64 41, ptr %%x, align 8\n");
+  fprintf(f, "  store i64 2, ptr %%y, align 8\n");
+  fprintf(f, "  %%xv = load i64, ptr %%x, align 8\n");
+  fprintf(f, "  %%yv = load i64, ptr %%y, align 8\n");
+  fprintf(f, "  %%sum = add i64 %%xv, %%yv\n");
+  fprintf(f, "  ret i64 %%sum\n");
+  fprintf(f, "}\n");
+  hako_llvmc_emit_entry_alias_if_needed(f, selection);
+
+  fclose(f);
+  rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
+  remove(llpath);
+  return rc == 0 ? 0 : -1;
+}
+
+static int hako_llvmc_match_userbox_point_local_i64_seed(
+    const char* json_in,
+    const char* obj_out) {
+  yyjson_read_err rerr;
+  yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &rerr);
+  yyjson_val* root;
+  yyjson_val* fns;
+  yyjson_val* fn;
+  yyjson_val* blocks;
+  yyjson_val* block;
+  yyjson_val* insts;
+  yyjson_val* ins;
+  const char* op;
+  const char* box_type;
+  const char* field_name;
+  hako_llvmc_entry_rune_selection selection;
+
+  if (!doc) return -1;
+  root = yyjson_doc_get_root(doc);
+  fns = yyjson_obj_get(root, "functions");
+  fn = hako_llvmc_find_entry_function(fns);
+  if (!fn) {
+    yyjson_doc_free(doc);
+    return -1;
+  }
+
+  hako_llvmc_select_entry_runes(fn, &selection);
+  blocks = yyjson_obj_get(fn, "blocks");
+  if (!(blocks && yyjson_is_arr(blocks) && yyjson_arr_size(blocks) == 1)) {
+    yyjson_doc_free(doc);
+    return -1;
+  }
+  if (!(hako_llvmc_userbox_point_inline_scalar_selection_ok(fn) &&
+        hako_llvmc_userbox_point_decl_ok(root))) {
+    yyjson_doc_free(doc);
+    return -1;
+  }
+
+  block = yyjson_arr_get(blocks, 0);
+  insts = block ? yyjson_obj_get(block, "instructions") : NULL;
+  if (!(insts && yyjson_is_arr(insts) && yyjson_arr_size(insts) == 9)) {
+    yyjson_doc_free(doc);
+    return -1;
+  }
+
+  ins = yyjson_arr_get(insts, 0);
+  op = ins ? yyjson_get_str(yyjson_obj_get(ins, "op")) : NULL;
+  if (!(op && strcmp(op, "const") == 0 &&
+        (long long)yyjson_get_sint(yyjson_obj_get(ins, "dst")) == 1 &&
+        (long long)yyjson_get_sint(yyjson_obj_get(yyjson_obj_get(ins, "value"), "value")) == 41)) {
+    yyjson_doc_free(doc);
+    return -1;
+  }
+
+  ins = yyjson_arr_get(insts, 1);
+  op = ins ? yyjson_get_str(yyjson_obj_get(ins, "op")) : NULL;
+  if (!(op && strcmp(op, "const") == 0 &&
+        (long long)yyjson_get_sint(yyjson_obj_get(ins, "dst")) == 2 &&
+        (long long)yyjson_get_sint(yyjson_obj_get(yyjson_obj_get(ins, "value"), "value")) == 2)) {
+    yyjson_doc_free(doc);
+    return -1;
+  }
+
+  ins = yyjson_arr_get(insts, 2);
+  op = ins ? yyjson_get_str(yyjson_obj_get(ins, "op")) : NULL;
+  box_type = ins ? yyjson_get_str(yyjson_obj_get(ins, "type")) : NULL;
+  if (!(op && strcmp(op, "newbox") == 0 && box_type && strcmp(box_type, "Point") == 0 &&
+        (long long)yyjson_get_sint(yyjson_obj_get(ins, "dst")) == 3)) {
+    yyjson_doc_free(doc);
+    return -1;
+  }
+
+  ins = yyjson_arr_get(insts, 3);
+  op = ins ? yyjson_get_str(yyjson_obj_get(ins, "op")) : NULL;
+  field_name = ins ? yyjson_get_str(yyjson_obj_get(ins, "field")) : NULL;
+  if (!(op && strcmp(op, "field_set") == 0 && field_name && strcmp(field_name, "x") == 0 &&
+        hako_llvmc_userbox_declared_box_is(ins, "IntegerBox") &&
+        (long long)yyjson_get_sint(yyjson_obj_get(ins, "box")) == 3 &&
+        (long long)yyjson_get_sint(yyjson_obj_get(ins, "value")) == 1)) {
+    yyjson_doc_free(doc);
+    return -1;
+  }
+
+  ins = yyjson_arr_get(insts, 4);
+  op = ins ? yyjson_get_str(yyjson_obj_get(ins, "op")) : NULL;
+  field_name = ins ? yyjson_get_str(yyjson_obj_get(ins, "field")) : NULL;
+  if (!(op && strcmp(op, "field_set") == 0 && field_name && strcmp(field_name, "y") == 0 &&
+        hako_llvmc_userbox_declared_box_is(ins, "IntegerBox") &&
+        (long long)yyjson_get_sint(yyjson_obj_get(ins, "box")) == 3 &&
+        (long long)yyjson_get_sint(yyjson_obj_get(ins, "value")) == 2)) {
+    yyjson_doc_free(doc);
+    return -1;
+  }
+
+  ins = yyjson_arr_get(insts, 5);
+  op = ins ? yyjson_get_str(yyjson_obj_get(ins, "op")) : NULL;
+  field_name = ins ? yyjson_get_str(yyjson_obj_get(ins, "field")) : NULL;
+  if (!(op && strcmp(op, "field_get") == 0 && field_name && strcmp(field_name, "x") == 0 &&
+        hako_llvmc_userbox_declared_box_is(ins, "IntegerBox") &&
+        (long long)yyjson_get_sint(yyjson_obj_get(ins, "box")) == 3 &&
+        (long long)yyjson_get_sint(yyjson_obj_get(ins, "dst")) == 4)) {
+    yyjson_doc_free(doc);
+    return -1;
+  }
+
+  ins = yyjson_arr_get(insts, 6);
+  op = ins ? yyjson_get_str(yyjson_obj_get(ins, "op")) : NULL;
+  field_name = ins ? yyjson_get_str(yyjson_obj_get(ins, "field")) : NULL;
+  if (!(op && strcmp(op, "field_get") == 0 && field_name && strcmp(field_name, "y") == 0 &&
+        hako_llvmc_userbox_declared_box_is(ins, "IntegerBox") &&
+        (long long)yyjson_get_sint(yyjson_obj_get(ins, "box")) == 3 &&
+        (long long)yyjson_get_sint(yyjson_obj_get(ins, "dst")) == 5)) {
+    yyjson_doc_free(doc);
+    return -1;
+  }
+
+  ins = yyjson_arr_get(insts, 7);
+  op = ins ? yyjson_get_str(yyjson_obj_get(ins, "op")) : NULL;
+  if (!(op && strcmp(op, "binop") == 0 &&
+        strcmp(yyjson_get_str(yyjson_obj_get(ins, "operation")), "+") == 0 &&
+        (long long)yyjson_get_sint(yyjson_obj_get(ins, "dst")) == 6 &&
+        (long long)yyjson_get_sint(yyjson_obj_get(ins, "lhs")) == 4 &&
+        (long long)yyjson_get_sint(yyjson_obj_get(ins, "rhs")) == 5)) {
+    yyjson_doc_free(doc);
+    return -1;
+  }
+
+  ins = yyjson_arr_get(insts, 8);
+  op = ins ? yyjson_get_str(yyjson_obj_get(ins, "op")) : NULL;
+  if (!(op && strcmp(op, "ret") == 0 &&
+        (long long)yyjson_get_sint(yyjson_obj_get(ins, "value")) == 6)) {
+    yyjson_doc_free(doc);
+    return -1;
+  }
+
+  {
+    int rc = hako_llvmc_emit_userbox_point_local_i64_ir(obj_out, &selection);
+    yyjson_doc_free(doc);
+    return rc;
+  }
 }
 
 static int hako_llvmc_emit_userbox_point_add_micro_ir(
@@ -122,7 +366,6 @@ static int hako_llvmc_match_userbox_point_add_micro_seed(
   yyjson_val* fns;
   yyjson_val* fn = NULL;
   yyjson_val* blocks;
-  yyjson_val* decls;
   size_t bi;
   long long ops = 0;
   int saw_point_newbox = 0;
@@ -161,39 +404,7 @@ static int hako_llvmc_match_userbox_point_add_micro_seed(
     return -1;
   }
 
-  decls = yyjson_obj_get(root, "user_box_decls");
-  if (decls && yyjson_is_arr(decls)) {
-    for (bi = 0; bi < yyjson_arr_size(decls); bi++) {
-      yyjson_val* decl = yyjson_arr_get(decls, bi);
-      const char* name = decl ? yyjson_get_str(yyjson_obj_get(decl, "name")) : NULL;
-      yyjson_val* field_decls = decl ? yyjson_obj_get(decl, "field_decls") : NULL;
-      int saw_x = 0;
-      int saw_y = 0;
-      size_t fi;
-      if (!(name && strcmp(name, "Point") == 0 && field_decls && yyjson_is_arr(field_decls))) {
-        continue;
-      }
-      for (fi = 0; fi < yyjson_arr_size(field_decls); fi++) {
-        yyjson_val* field_decl = yyjson_arr_get(field_decls, fi);
-        const char* field_name =
-            field_decl ? yyjson_get_str(yyjson_obj_get(field_decl, "name")) : NULL;
-        const char* declared_type =
-            field_decl ? yyjson_get_str(yyjson_obj_get(field_decl, "declared_type")) : NULL;
-        int is_weak =
-            field_decl ? yyjson_get_bool(yyjson_obj_get(field_decl, "is_weak")) : 0;
-        if (!(field_name && declared_type && strcmp(declared_type, "IntegerBox") == 0 &&
-              !is_weak)) {
-          continue;
-        }
-        if (strcmp(field_name, "x") == 0) saw_x = 1;
-        if (strcmp(field_name, "y") == 0) saw_y = 1;
-      }
-      if (saw_x && saw_y) {
-        point_decl_ok = 1;
-        break;
-      }
-    }
-  }
+  point_decl_ok = hako_llvmc_userbox_point_decl_ok(root);
 
   for (bi = 0; bi < yyjson_arr_size(blocks); bi++) {
     yyjson_val* block = yyjson_arr_get(blocks, bi);

@@ -44,6 +44,9 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   if (hako_llvmc_match_array_getset_micro_seed(json_in, obj_out) == 0) {
     return 0;
   }
+  if (hako_llvmc_match_userbox_point_local_i64_seed(json_in, obj_out) == 0) {
+    return 0;
+  }
   if (hako_llvmc_match_userbox_point_add_micro_seed(json_in, obj_out) == 0) {
     return 0;
   }
