@@ -7,9 +7,10 @@
 # 2) the loop still carries the string lane through `%21 = phi([4,0], [22,20])`.
 # 3) the backedge still hands `%36` into `%22 = phi([36,19])`.
 # 4) proof-bearing corridor metadata still lives on `%36`.
-# 5) the carried `%21` / `%22` values now keep non-window `publication_sink` /
-#    `materialization_sink` / `direct_kernel_entry` candidates, but still do not
-#    widen the plan window across the phi route.
+# 5) the single-input backedge phi `%22` now preserves the proof-bearing plan
+#    window, while merged header phi `%21` keeps only non-window
+#    `publication_sink` / `materialization_sink` / `direct_kernel_entry`
+#    continuity.
 
 set -euo pipefail
 
@@ -94,13 +95,20 @@ if not any(cand.get("plan") for cand in helper_candidates):
     raise SystemExit("helper-result %36 lost proof-bearing plan metadata")
 
 required_phi_kinds = {"publication_sink", "materialization_sink", "direct_kernel_entry"}
-for phi_dst in ("21", "22"):
-    phi_candidates = candidates.get(phi_dst)
-    require_kinds(phi_candidates, required_phi_kinds, f"phi %{phi_dst}")
-    if any(cand.get("plan") is not None for cand in phi_candidates):
-        raise SystemExit(f"phi %{phi_dst} unexpectedly widened a plan window: {phi_candidates}")
-    if any(cand.get("kind") == "borrowed_corridor_fusion" for cand in phi_candidates):
-        raise SystemExit(f"phi %{phi_dst} unexpectedly gained borrow-producing fusion: {phi_candidates}")
+
+phi22_candidates = candidates.get("22")
+require_kinds(phi22_candidates, required_phi_kinds, "phi %22")
+if not any(cand.get("plan") is not None for cand in phi22_candidates):
+    raise SystemExit(f"phi %22 lost the single-input carried plan window: {phi22_candidates}")
+if any(cand.get("kind") == "borrowed_corridor_fusion" for cand in phi22_candidates):
+    raise SystemExit(f"phi %22 unexpectedly gained borrow-producing fusion: {phi22_candidates}")
+
+phi21_candidates = candidates.get("21")
+require_kinds(phi21_candidates, required_phi_kinds, "phi %21")
+if any(cand.get("plan") is not None for cand in phi21_candidates):
+    raise SystemExit(f"phi %21 unexpectedly widened a merged plan window: {phi21_candidates}")
+if any(cand.get("kind") == "borrowed_corridor_fusion" for cand in phi21_candidates):
+    raise SystemExit(f"phi %21 unexpectedly gained borrow-producing fusion: {phi21_candidates}")
 PY
 then
     echo "[INFO] emitted MIR:"

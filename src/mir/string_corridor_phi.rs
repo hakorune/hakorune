@@ -18,6 +18,7 @@ use std::collections::HashMap;
 pub(crate) struct StringCorridorPhiCarry {
     pub phi_value: ValueId,
     pub base_value: ValueId,
+    pub carries_plan_window: bool,
 }
 
 pub(crate) fn collect_string_corridor_phi_carries(
@@ -36,6 +37,7 @@ pub(crate) fn collect_string_corridor_phi_carries(
             Some(StringCorridorPhiCarry {
                 phi_value: relation.phi_value,
                 base_value,
+                carries_plan_window: relation.window_safe,
             })
         }
         _ => None,
@@ -187,10 +189,14 @@ mod tests {
 
         let carries = collect_string_corridor_phi_carries(&function, &def_map);
         assert!(carries.iter().any(|carry| {
-            carry.phi_value == ValueId(22) && carry.base_value == ValueId(36)
+            carry.phi_value == ValueId(22)
+                && carry.base_value == ValueId(36)
+                && carry.carries_plan_window
         }));
         assert!(carries.iter().any(|carry| {
-            carry.phi_value == ValueId(21) && carry.base_value == ValueId(36)
+            carry.phi_value == ValueId(21)
+                && carry.base_value == ValueId(36)
+                && !carry.carries_plan_window
         }));
     }
 }

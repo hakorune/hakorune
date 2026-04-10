@@ -207,9 +207,16 @@ fn refresh_function_string_corridor_phi_candidates(
             .map(|candidate| StringCorridorCandidate {
                 kind: candidate.kind,
                 state: candidate.state,
-                reason:
-                    "narrow phi continuity keeps the current string corridor lane without widening the plan window",
-                plan: None,
+                reason: if carry.carries_plan_window {
+                    "single-input phi continuity keeps the current string corridor lane and preserves the proof-bearing plan window"
+                } else {
+                    "narrow phi continuity keeps the current string corridor lane without widening the plan window"
+                },
+                plan: if carry.carries_plan_window {
+                    candidate.plan
+                } else {
+                    None
+                },
             })
             .collect();
         phi_updates.push((carry.phi_value, carried_candidates));
@@ -1044,25 +1051,44 @@ mod tests {
                 && candidate.plan.is_some()
         }));
 
-        for value in [ValueId(22), ValueId(21)] {
-            let candidates = function
-                .metadata
-                .string_corridor_candidates
-                .get(&value)
-                .expect("phi candidates");
-            assert!(candidates.iter().all(|candidate| candidate.plan.is_none()));
-            assert!(candidates.iter().any(|candidate| {
-                candidate.kind == StringCorridorCandidateKind::PublicationSink
-            }));
-            assert!(candidates.iter().any(|candidate| {
-                candidate.kind == StringCorridorCandidateKind::MaterializationSink
-            }));
-            assert!(candidates.iter().any(|candidate| {
-                candidate.kind == StringCorridorCandidateKind::DirectKernelEntry
-            }));
-            assert!(!candidates.iter().any(|candidate| {
-                candidate.kind == StringCorridorCandidateKind::BorrowCorridorFusion
-            }));
-        }
+        let latch_candidates = function
+            .metadata
+            .string_corridor_candidates
+            .get(&ValueId(22))
+            .expect("phi %22 candidates");
+        assert!(latch_candidates.iter().any(|candidate| {
+            candidate.kind == StringCorridorCandidateKind::DirectKernelEntry
+                && candidate.plan.is_some()
+        }));
+        assert!(latch_candidates.iter().any(|candidate| {
+            candidate.kind == StringCorridorCandidateKind::PublicationSink
+                && candidate.plan.is_some()
+        }));
+        assert!(latch_candidates.iter().any(|candidate| {
+            candidate.kind == StringCorridorCandidateKind::MaterializationSink
+                && candidate.plan.is_some()
+        }));
+        assert!(!latch_candidates.iter().any(|candidate| {
+            candidate.kind == StringCorridorCandidateKind::BorrowCorridorFusion
+        }));
+
+        let header_candidates = function
+            .metadata
+            .string_corridor_candidates
+            .get(&ValueId(21))
+            .expect("phi %21 candidates");
+        assert!(header_candidates.iter().all(|candidate| candidate.plan.is_none()));
+        assert!(header_candidates.iter().any(|candidate| {
+            candidate.kind == StringCorridorCandidateKind::PublicationSink
+        }));
+        assert!(header_candidates.iter().any(|candidate| {
+            candidate.kind == StringCorridorCandidateKind::MaterializationSink
+        }));
+        assert!(header_candidates.iter().any(|candidate| {
+            candidate.kind == StringCorridorCandidateKind::DirectKernelEntry
+        }));
+        assert!(!header_candidates.iter().any(|candidate| {
+            candidate.kind == StringCorridorCandidateKind::BorrowCorridorFusion
+        }));
     }
 }
