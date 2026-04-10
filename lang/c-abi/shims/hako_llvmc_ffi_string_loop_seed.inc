@@ -1508,7 +1508,6 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
   if (n != 6) { yyjson_doc_free(doc); return -1; }
   EXPECT_OP(0, "const");
   EXPECT_OP(1, "const");
-  EXPECT_OP(2, "mir_call");
   EXPECT_OP(3, "const");
   EXPECT_OP(4, "const");
   EXPECT_OP(5, "jump");
@@ -1635,7 +1634,6 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
   /* exit */
   BUILD_INTERESTING(yyjson_arr_get(blocks, 4));
   if (n != 3) { yyjson_doc_free(doc); return -1; }
-  EXPECT_OP(0, "mir_call");
   EXPECT_OP(1, "binop");
   EXPECT_OP(2, "ret");
   {
