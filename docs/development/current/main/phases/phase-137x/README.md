@@ -133,6 +133,7 @@
     - `string_corridor_sink` rewrites `concat(left_slice, const, right_slice).length()` into `substring_len_hii(left) + const_len + substring_len_hii(right)` and keeps `substring(concat3(...))` on `substring_concat3_hhhii`
     - the exact `pure-first` `kilo_micro_substring_concat` seed now accepts both the pre-sink and post-sink body shapes, so this generic sink no longer ejects the exact lane into the slow fallback route
     - current inventory says the live `--emit-mir-json` route emits the post-sink `interesting_n = 17` body, but `apps/tests/mir_shape_guard/substring_concat_loop_pure_min_v1.mir.json` still pins the pre-sink `n = 15` shape for the active phase29x backend-owner daily smoke, so exact-seed narrowing is blocked until that fixture contract migrates
+    - current live post-sink shape is now pinned separately by `phase137x_direct_emit_substring_concat_post_sink_shape.sh`, so the next narrowing step can migrate the phase29x pre-sink fixture instead of guessing the benchmark body
     - latest exact reread on `kilo_micro_substring_concat`: `instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`
   - first broader-corridor `publication_sink` inventory slice is now landed:
     - emitted MIR JSON on `kilo_micro_substring_concat` now keeps the direct `substring_concat3_hhhii` helper result on the same corridor lane with `borrowed_corridor_fusion` / `publication_sink` / `materialization_sink` / `direct_kernel_entry` candidates
