@@ -71,12 +71,13 @@ Related:
     - LLVM/Python local-enum escape barriers now share one helper instead of repeating the same materialization wrapper in `call` / `boxcall` / `ret`
     - runtime nullish checks now converge on `NullBox::check_null()` for the safe compat/tolerance paths touched in this slice
     - MIR reference docs are now split into instruction SSOT + metadata SSOT, while stale "all-in-one" references are reduced to thin pointers
-  - next ready follow-on is `phase163x-optimization-resume`
+    - next ready follow-on is `phase163x-optimization-resume`
     - immediate cut: `phase163x-sum-thin-entry-cutover`
+    - landed proof for this cut:
+      - `sum_result_ok_project_copy_local_i64_min.prebuilt.mir.json` now proves the same cutover when `variant_project` reads through a single local `copy` alias
     - fixed remaining Variant* inventory for this cut:
-      1. `variant_project` single-`copy` alias on `tag_i64_payload`
-      2. direct layout coverage for `variant_tag` / `variant_project` on `tag_only` / `tag_f64_payload` / `tag_handle_payload` (`variant_project` is not applicable to `tag_only`)
-      3. only after direct layout coverage is green, add non-`i64` single-`copy` alias parity
+      1. direct layout coverage for `variant_tag` / `variant_project` on `tag_only` / `tag_f64_payload` / `tag_handle_payload` (`variant_project` is not applicable to `tag_only`)
+      2. only after direct layout coverage is green, add non-`i64` single-`copy` alias parity
     - separate phase, not this cut: relax `phi_merge` or `call` / `boxcall` / `return` barriers only with a metadata-contract update first
     - sibling string follow-on after that: extend the landed boundary `pure-first` consumer family from `substring(...).length()` plus `concat -> substring(...)` into retained-view `substring_hii` local shapes
     - restart handoff: cleanup queue is empty; continue `phase163x-optimization-resume` next; `phase137x-substring-retained-view-consumer` remains in progress as the sibling string lane
