@@ -91,6 +91,48 @@ static void hako_llvmc_emit_route_trace(
           (extra && extra[0]) ? extra : "");
 }
 
+static int hako_llvmc_string_corridor_plan_matches(
+    yyjson_val* fn,
+    long long value,
+    const char* kind,
+    long long source_root,
+    long long start,
+    long long end) {
+  yyjson_val* metadata;
+  yyjson_val* candidates;
+  yyjson_val* arr;
+  size_t i;
+  char key[32];
+
+  if (!(fn && kind && value > 0 && source_root > 0 && start > 0 && end > 0)) {
+    return 0;
+  }
+
+  metadata = yyjson_obj_get(fn, "metadata");
+  candidates = metadata ? yyjson_obj_get(metadata, "string_corridor_candidates") : NULL;
+  if (!(candidates && yyjson_is_obj(candidates))) return 0;
+
+  snprintf(key, sizeof(key), "%lld", value);
+  arr = yyjson_obj_get(candidates, key);
+  if (!(arr && yyjson_is_arr(arr))) return 0;
+
+  for (i = 0; i < yyjson_arr_size(arr); i++) {
+    yyjson_val* candidate = yyjson_arr_get(arr, i);
+    yyjson_val* plan = candidate ? yyjson_obj_get(candidate, "plan") : NULL;
+    const char* candidate_kind =
+        candidate ? yyjson_get_str(yyjson_obj_get(candidate, "kind")) : NULL;
+    if (!(candidate_kind && strcmp(candidate_kind, kind) == 0)) continue;
+    if (!(plan && yyjson_is_obj(plan))) continue;
+    if ((long long)yyjson_get_sint(yyjson_obj_get(plan, "corridor_root")) != value) continue;
+    if ((long long)yyjson_get_sint(yyjson_obj_get(plan, "source_root")) != source_root) continue;
+    if ((long long)yyjson_get_sint(yyjson_obj_get(plan, "start")) != start) continue;
+    if ((long long)yyjson_get_sint(yyjson_obj_get(plan, "end")) != end) continue;
+    return 1;
+  }
+
+  return 0;
+}
+
 static int set_err_owned(char** err_out, const char* msg) {
   if (!err_out) return -1;
   if (!msg) { *err_out = NULL; return -1; }

@@ -13,7 +13,8 @@ This directory keeps C-side ABI shims thin and responsibility-partitioned.
 Current partitions:
 
 - `hako_llvmc_ffi_common.inc`
-  - env, route-trace, file, and string helpers
+  - env, route-trace, file, and shared string helpers
+  - shared string corridor plan matcher for plan-bearing synthetic/live probes
 - `hako_llvmc_ffi_string_loop_seed.inc`
   - pure-first seed emit/match helpers for loop/string hot paths
 - `hako_llvmc_ffi_array_string_store_seed.inc`
