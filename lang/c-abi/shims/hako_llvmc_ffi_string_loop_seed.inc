@@ -1587,19 +1587,6 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
   middle = READ_STR(yyjson_obj_get(interesting[5], "value"), "value");
   if (!middle || !hako_llvmc_ascii_strlen(middle, &middle_len)) { yyjson_doc_free(doc); return -1; }
   {
-    if (!(hako_llvmc_string_corridor_has_candidate(
-              fn,
-              READ_INT(interesting[6], "dst"),
-              "direct_kernel_entry") &&
-          hako_llvmc_string_corridor_has_candidate(
-              fn,
-              READ_INT(interesting[9], "dst"),
-              "direct_kernel_entry"))) {
-      yyjson_doc_free(doc);
-      return -1;
-    }
-  }
-  {
     const char* add0 = READ_STR(interesting[8], "operation");
     const char* add1 = READ_STR(interesting[10], "operation");
     const char* add2 = READ_STR(interesting[11], "operation");
@@ -1647,11 +1634,8 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
   /* latch */
   BUILD_INTERESTING(yyjson_arr_get(blocks, 3));
   if (n != 5) { yyjson_doc_free(doc); return -1; }
-  EXPECT_OP(0, "phi");
-  EXPECT_OP(1, "phi");
   EXPECT_OP(2, "const");
   EXPECT_OP(3, "binop");
-  EXPECT_OP(4, "jump");
   {
     const char* inc_op = READ_STR(interesting[3], "operation");
     if (READ_INT(yyjson_obj_get(interesting[2], "value"), "value") != 1 ||
