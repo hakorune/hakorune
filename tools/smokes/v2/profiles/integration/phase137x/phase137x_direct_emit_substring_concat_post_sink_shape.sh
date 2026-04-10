@@ -8,6 +8,9 @@
 #      - 17 interesting ops
 #      - `nyash.string.substring_len_hii` at positions 6 and 9
 #      - `nyash.string.substring_concat3_hhhii` at position 15
+# 3) the helper result keeps its live proof-bearing corridor metadata:
+#      - `%36` carries `publication_sink` and `direct_kernel_entry`
+#      - both plans keep `source_root=21` and outer window `%71..%72`
 
 set -euo pipefail
 
@@ -73,6 +76,28 @@ if interesting[9].get("op") != "mir_call" or callee_name(interesting[9]) != "nya
 
 if interesting[15].get("op") != "mir_call" or callee_name(interesting[15]) != "nyash.string.substring_concat3_hhhii":
     raise SystemExit("expected substring_concat3_hhhii at interesting[15]")
+
+candidates = main_fn.get("metadata", {}).get("string_corridor_candidates", {})
+helper_candidates = candidates.get("36")
+if not isinstance(helper_candidates, list) or not helper_candidates:
+    raise SystemExit("missing string_corridor_candidates for helper result %36")
+
+def find_candidate(kind):
+    for cand in helper_candidates:
+        if cand.get("kind") == kind:
+            return cand
+    return None
+
+for kind in ("publication_sink", "direct_kernel_entry"):
+    cand = find_candidate(kind)
+    if cand is None:
+        raise SystemExit(f"missing {kind} candidate on helper result %36")
+    plan = cand.get("plan", {})
+    if plan.get("source_root") != 21 or plan.get("start") != 71 or plan.get("end") != 72:
+        raise SystemExit(
+            f"unexpected {kind} plan window on helper result %36: "
+            f"source_root={plan.get('source_root')} start={plan.get('start')} end={plan.get('end')}"
+        )
 PY
 then
     echo "[INFO] emitted MIR:"
