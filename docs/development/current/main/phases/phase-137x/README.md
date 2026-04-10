@@ -54,7 +54,9 @@
   - landed: direct `substring_concat3_hhhii` helper results now stay on the same proof-bearing lane with concat-triplet-backed `publication_sink` plan metadata
   - landed: direct helper-result `length()` / `substring()` now consume that same `publication_sink` plan in `string_corridor_sink`
   - landed: first non-`phi` `materialization_sink` slice now sinks a direct `substring_concat3_hhhii` helper birth to a single local `ArrayBox.set` boundary when only copy aliases separate the helper from the store
-  - next: keep loop-carried `phi_merge` outside this cut, and reopen the practical materialization lane on `concat -> array.set -> trailing length()` facts instead of widening beyond the new store-only sink
+  - landed: first post-store observer slice now keeps `array.set` as the first `Store` boundary while rewriting one trailing helper-result `length()` observer to `end - start` and deleting the copy-only observer/store chains
+  - next: keep loop-carried `phi_merge` outside this cut, move the non-`phi` string lane to plan-selected `direct_kernel_entry`, and treat any further `array.set + trailing length()` widening as a separate metadata-contract phase only if fresh perf evidence appears
+  - migration-safe reading: this lane should keep landing in canonical MIR facts/candidates/sink plus kernel/backend substrate, not in Rust-builder-local shape logic
   - treat exact seed logic in `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc` as temporary bridge surface to shrink after generic plan-selected routes prove out
 - pure Rust reference compare lane:
   - `benchmarks/rust/bench_kilo_micro_substring_views_only.rs`
@@ -210,8 +212,8 @@
      - step 9: landed; `FunctionMetadata.string_corridor_candidates` now carries proof-bearing plan metadata on the broader-corridor reopen front `kilo_micro_substring_concat`, and MIR JSON exports the same plan surface
      - step 10: landed; direct `substring_concat3_hhhii` helper results now stay on the corridor metadata lane with concat-triplet-backed `publication_sink` proof
      - step 11: landed; direct helper-result `length()` / `substring()` now consume that same `publication_sink` proof in `string_corridor_sink`
-     - step 12: next broader generic transform is `materialization_sink`
-     - step 13: only then widen plan-selected `direct_kernel_entry` and shrink matching exact seed paths
+     - step 12: landed; `materialization_sink` now covers the non-`phi` local `ArrayBox.set` store boundary and the first trailing `length()` post-store observer window on the same canonical MIR lane
+     - step 13: next widen plan-selected `direct_kernel_entry` and shrink matching exact seed paths
      - step 14: separate phase, not this cut: any `phi_merge` relaxation for the loop-carried `text = out.substring(...)` route
      - step 15: only after that reopen new `substring_hii` runtime leaf cuts, and only with exact/asm proof
      - step 16: do not retry the same `len_h`-specific 4-box slice as-is; it did not clear exact or asm gates

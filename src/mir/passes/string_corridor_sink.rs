@@ -111,6 +111,7 @@ struct PublicationHelperLenPlan {
     outer_dst: ValueId,
     start: ValueId,
     end: ValueId,
+    copy_indices: Vec<usize>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -138,6 +139,7 @@ struct MaterializationStorePlan {
     end: ValueId,
     helper_effects: EffectMask,
     copy_indices: Vec<usize>,
+    observer_copy_indices: Vec<usize>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -161,6 +163,11 @@ struct ComplementarySubstringLenFusionPlan {
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct SingleUseCopyChain {
     root: ValueId,
+    copy_indices: Vec<usize>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct TrailingLenObserverWindow {
     copy_indices: Vec<usize>,
 }
 
@@ -271,7 +278,7 @@ fn collect_plans(
     plans_by_block
 }
 
-fn resolve_single_use_copy_chain_in_block(
+fn resolve_copy_chain_in_block(
     function: &MirFunction,
     bbid: BasicBlockId,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
@@ -282,9 +289,6 @@ fn resolve_single_use_copy_chain_in_block(
     let mut copy_indices = Vec::new();
 
     while visited.insert(value) {
-        if use_counts.get(&value).copied().unwrap_or(0) != 1 {
-            return None;
-        }
         let Some((inst_bbid, idx)) = def_map.get(&value).copied() else {
             break;
         };
@@ -299,6 +303,9 @@ fn resolve_single_use_copy_chain_in_block(
         };
         match inst {
             MirInstruction::Copy { src, .. } => {
+                if use_counts.get(&value).copied().unwrap_or(0) != 1 {
+                    return None;
+                }
                 copy_indices.push(idx);
                 value = *src;
             }
@@ -310,6 +317,50 @@ fn resolve_single_use_copy_chain_in_block(
         root: value,
         copy_indices,
     })
+}
+
+fn resolve_single_use_copy_chain_in_block(
+    function: &MirFunction,
+    bbid: BasicBlockId,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    use_counts: &HashMap<ValueId, usize>,
+    value: ValueId,
+) -> Option<SingleUseCopyChain> {
+    let chain = resolve_copy_chain_in_block(function, bbid, def_map, use_counts, value)?;
+    if use_counts.get(&chain.root).copied().unwrap_or(0) != 1 {
+        return None;
+    }
+    Some(chain)
+}
+
+fn find_trailing_len_observer_in_block(
+    function: &MirFunction,
+    bbid: BasicBlockId,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    use_counts: &HashMap<ValueId, usize>,
+    helper_root: ValueId,
+    after_idx: usize,
+) -> Option<TrailingLenObserverWindow> {
+    let block = function.blocks.get(&bbid)?;
+
+    for inst in block.instructions.iter().skip(after_idx + 1) {
+        let Some((_dst, receiver, _effects)) = match_len_call(inst) else {
+            continue;
+        };
+        let Some(receiver_chain) =
+            resolve_copy_chain_in_block(function, bbid, def_map, use_counts, receiver)
+        else {
+            continue;
+        };
+        if receiver_chain.root != helper_root {
+            continue;
+        }
+        return Some(TrailingLenObserverWindow {
+            copy_indices: receiver_chain.copy_indices,
+        });
+    }
+
+    None
 }
 
 fn match_substring_len_call_in_block(
@@ -877,12 +928,21 @@ fn collect_concat_corridor_plans(
                 }
 
                 if let Some(helper) = publication_helper_shape(function, def_map, receiver) {
+                    let Some(receiver_chain) =
+                        resolve_copy_chain_in_block(function, *bbid, def_map, use_counts, receiver)
+                    else {
+                        continue;
+                    };
+                    if receiver_chain.root != helper.dst {
+                        continue;
+                    }
                     plans.push(ConcatCorridorPlan::PublicationLen(
                         PublicationHelperLenPlan {
                             outer_idx,
                             outer_dst,
                             start: helper.start,
                             end: helper.end,
+                            copy_indices: receiver_chain.copy_indices,
                         },
                     ));
                     continue;
@@ -892,13 +952,9 @@ fn collect_concat_corridor_plans(
             }
 
             if let Some(store) = array_store_candidate(function, def_map, inst) {
-                let Some(value_chain) = resolve_single_use_copy_chain_in_block(
-                    function,
-                    *bbid,
-                    def_map,
-                    use_counts,
-                    store.value,
-                ) else {
+                let Some(value_chain) =
+                    resolve_copy_chain_in_block(function, *bbid, def_map, use_counts, store.value)
+                else {
                     continue;
                 };
                 let Some(helper) =
@@ -912,6 +968,24 @@ fn collect_concat_corridor_plans(
                 if helper_bbid != *bbid || helper_idx >= outer_idx {
                     continue;
                 }
+                let helper_uses = use_counts.get(&helper.dst).copied().unwrap_or(0);
+                let observer_window = match helper_uses {
+                    1 => None,
+                    2 => {
+                        let Some(window) = find_trailing_len_observer_in_block(
+                            function,
+                            *bbid,
+                            def_map,
+                            use_counts,
+                            helper.dst,
+                            outer_idx,
+                        ) else {
+                            continue;
+                        };
+                        Some(window)
+                    }
+                    _ => continue,
+                };
                 plans.push(ConcatCorridorPlan::MaterializationStore(
                     MaterializationStorePlan {
                         helper_idx,
@@ -924,6 +998,9 @@ fn collect_concat_corridor_plans(
                         end: helper.end,
                         helper_effects: helper.effects,
                         copy_indices: value_chain.copy_indices,
+                        observer_copy_indices: observer_window
+                            .map(|window| window.copy_indices)
+                            .unwrap_or_default(),
                     },
                 ));
                 continue;
@@ -1019,6 +1096,7 @@ enum ResolvedConcatCorridorPlan {
         outer_dst: ValueId,
         start: ValueId,
         end: ValueId,
+        copy_indices: Vec<usize>,
     },
     PublicationSubstring {
         outer_idx: usize,
@@ -1122,6 +1200,7 @@ fn apply_concat_corridor_plans(
                     );
                 }
                 ConcatCorridorPlan::PublicationLen(plan) => {
+                    remove_indices.extend(plan.copy_indices.iter().copied());
                     function
                         .metadata
                         .value_types
@@ -1137,6 +1216,7 @@ fn apply_concat_corridor_plans(
                             outer_dst: plan.outer_dst,
                             start: plan.start,
                             end: plan.end,
+                            copy_indices: plan.copy_indices,
                         },
                     );
                 }
@@ -1170,6 +1250,7 @@ fn apply_concat_corridor_plans(
                 ConcatCorridorPlan::MaterializationStore(plan) => {
                     remove_indices.insert(plan.helper_idx);
                     remove_indices.extend(plan.copy_indices.iter().copied());
+                    remove_indices.extend(plan.observer_copy_indices.iter().copied());
                     hints.push(format!(
                         "string_corridor_sink:materialization_store:%{}",
                         plan.helper_dst.0
@@ -2990,6 +3071,247 @@ mod tests {
     }
 
     #[test]
+    fn sinks_materialization_helper_with_trailing_length_observer() {
+        let mut module =
+            MirModule::new("substring_concat_materialization_store_len_observer".to_string());
+        let signature = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![
+                MirType::Box("ArrayBox".to_string()),
+                MirType::Box("RuntimeDataBox".to_string()),
+            ],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId(0));
+        let block = function.blocks.get_mut(&BasicBlockId(0)).expect("entry");
+
+        block.instructions.push(method_call(
+            ValueId(2),
+            ValueId(1),
+            "RuntimeDataBox",
+            "length",
+            vec![],
+            MirType::Integer,
+        ));
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId(3),
+            value: crate::mir::ConstValue::Integer(2),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::BinOp {
+            dst: ValueId(4),
+            op: crate::mir::BinaryOp::Div,
+            lhs: ValueId(2),
+            rhs: ValueId(3),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId(5),
+            value: crate::mir::ConstValue::Integer(0),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(method_call(
+            ValueId(6),
+            ValueId(1),
+            "RuntimeDataBox",
+            "substring",
+            vec![ValueId(5), ValueId(4)],
+            MirType::Box("RuntimeDataBox".to_string()),
+        ));
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(method_call(
+            ValueId(7),
+            ValueId(1),
+            "RuntimeDataBox",
+            "substring",
+            vec![ValueId(4), ValueId(2)],
+            MirType::Box("RuntimeDataBox".to_string()),
+        ));
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId(8),
+            value: crate::mir::ConstValue::String("xx".to_string()),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId(9),
+            value: crate::mir::ConstValue::Integer(1),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::BinOp {
+            dst: ValueId(10),
+            op: crate::mir::BinaryOp::Add,
+            lhs: ValueId(2),
+            rhs: ValueId(9),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(extern_call(
+            ValueId(11),
+            SUBSTRING_CONCAT3_EXTERN,
+            vec![ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)],
+        ));
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Copy {
+            dst: ValueId(12),
+            src: ValueId(11),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(method_call(
+            ValueId(13),
+            ValueId(0),
+            "ArrayBox",
+            "set",
+            vec![ValueId(5), ValueId(12)],
+            MirType::Integer,
+        ));
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Copy {
+            dst: ValueId(14),
+            src: ValueId(11),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(method_call(
+            ValueId(15),
+            ValueId(14),
+            "RuntimeDataBox",
+            "length",
+            vec![],
+            MirType::Integer,
+        ));
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::BinOp {
+            dst: ValueId(16),
+            op: crate::mir::BinaryOp::Add,
+            lhs: ValueId(13),
+            rhs: ValueId(15),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId(16)),
+        });
+
+        for (vid, ty) in [
+            (ValueId(0), MirType::Box("ArrayBox".to_string())),
+            (ValueId(2), MirType::Integer),
+            (ValueId(3), MirType::Integer),
+            (ValueId(4), MirType::Integer),
+            (ValueId(5), MirType::Integer),
+            (ValueId(6), MirType::Box("RuntimeDataBox".to_string())),
+            (ValueId(7), MirType::Box("RuntimeDataBox".to_string())),
+            (ValueId(8), MirType::Box("StringBox".to_string())),
+            (ValueId(9), MirType::Integer),
+            (ValueId(10), MirType::Integer),
+            (ValueId(11), MirType::Box("RuntimeDataBox".to_string())),
+            (ValueId(12), MirType::Box("RuntimeDataBox".to_string())),
+            (ValueId(13), MirType::Integer),
+            (ValueId(14), MirType::Box("RuntimeDataBox".to_string())),
+            (ValueId(15), MirType::Integer),
+            (ValueId(16), MirType::Integer),
+        ] {
+            function.metadata.value_types.insert(vid, ty);
+        }
+        module.add_function(function);
+
+        let rewritten = sink_borrowed_string_corridors(&mut module);
+        assert!(
+            rewritten >= 2,
+            "materialization store plus observer length should rewrite, got {rewritten}"
+        );
+
+        let function = module.get_function("main").expect("main");
+        let block = function.blocks.get(&BasicBlockId(0)).expect("entry");
+        assert!(
+            block.instructions.iter().all(|inst| {
+                !matches!(
+                    inst,
+                    MirInstruction::Copy { dst, .. } if *dst == ValueId(12) || *dst == ValueId(14)
+                )
+            }),
+            "copy-only store/observer chains should disappear: {:?}",
+            block.instructions
+        );
+        assert!(
+            block.instructions.iter().any(|inst| {
+                matches!(
+                    inst,
+                    MirInstruction::BinOp {
+                        dst,
+                        op: crate::mir::BinaryOp::Sub,
+                        lhs,
+                        rhs,
+                    } if *dst == ValueId(15) && *lhs == ValueId(10) && *rhs == ValueId(9)
+                )
+            }),
+            "trailing helper length should rewrite to end-start: {:?}",
+            block.instructions
+        );
+
+        let helper_idx = block
+            .instructions
+            .iter()
+            .position(|inst| {
+                matches!(
+                    inst,
+                    MirInstruction::Call {
+                        dst: Some(dst),
+                        callee: Some(Callee::Extern(name)),
+                        args,
+                        ..
+                    } if *dst == ValueId(11)
+                        && name == SUBSTRING_CONCAT3_EXTERN
+                        && args.as_slice()
+                            == [ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)]
+                )
+            })
+            .expect("materialization helper call");
+        let store_idx = block
+            .instructions
+            .iter()
+            .position(|inst| {
+                matches!(
+                    inst,
+                    MirInstruction::Call {
+                        dst: Some(dst),
+                        callee: Some(Callee::Method { method, receiver: Some(receiver), .. }),
+                        args,
+                        ..
+                    } if *dst == ValueId(13)
+                        && method == "set"
+                        && *receiver == ValueId(0)
+                        && args.as_slice() == [ValueId(5), ValueId(11)]
+                )
+            })
+            .expect("array store");
+        let len_idx = block
+            .instructions
+            .iter()
+            .position(|inst| {
+                matches!(
+                    inst,
+                    MirInstruction::BinOp {
+                        dst,
+                        op: crate::mir::BinaryOp::Sub,
+                        ..
+                    } if *dst == ValueId(15)
+                )
+            })
+            .expect("observer len rewrite");
+        assert_eq!(
+            helper_idx + 1,
+            store_idx,
+            "materialization helper should sit right before the store boundary: {:?}",
+            block.instructions
+        );
+        assert!(
+            len_idx > store_idx,
+            "trailing len observer should stay after the store boundary: {:?}",
+            block.instructions
+        );
+    }
+
+    #[test]
     fn benchmark_substring_only_compiles_without_substring_len_calls() {
         ensure_ring0_initialized();
         let path = concat!(
@@ -3174,6 +3496,54 @@ mod tests {
             leftover_concat_lengths.is_empty(),
             "substring_concat should sink concat length consumers, found {:?}",
             leftover_concat_lengths
+        );
+    }
+
+    #[test]
+    fn benchmark_substring_concat_array_set_compiles_without_helper_len_observers() {
+        ensure_ring0_initialized();
+        let path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/benchmarks/bench_kilo_meso_substring_concat_array_set.hako"
+        );
+        let source = std::fs::read_to_string(path).expect("benchmark source");
+        let prepared =
+            crate::runner::modes::common_util::source_hint::prepare_source_minimal(&source, path)
+                .expect("prepare benchmark source");
+        let ast = NyashParser::parse_from_string(&prepared).expect("parse benchmark");
+        let mut compiler = MirCompiler::with_options(true);
+        let result = compiler
+            .compile_with_source(ast, Some(path))
+            .expect("compile benchmark");
+
+        let mut leftover_helper_lengths = Vec::new();
+        for (name, function) in &result.module.functions {
+            let def_map = build_def_map(function);
+            let use_counts = build_use_counts(function);
+            for (bbid, block) in &function.blocks {
+                for inst in &block.instructions {
+                    let Some((_dst, receiver, _effects)) = match_len_call(inst) else {
+                        continue;
+                    };
+                    let Some(receiver_chain) =
+                        resolve_copy_chain_in_block(function, *bbid, &def_map, &use_counts, receiver)
+                    else {
+                        continue;
+                    };
+                    if publication_helper_shape(function, &def_map, receiver_chain.root).is_some() {
+                        leftover_helper_lengths.push(format!(
+                            "fn={name} bb={} helper-len inst={inst:?}",
+                            bbid.0
+                        ));
+                    }
+                }
+            }
+        }
+
+        assert!(
+            leftover_helper_lengths.is_empty(),
+            "substring_concat_array_set should rewrite helper len observers, found {:?}",
+            leftover_helper_lengths
         );
     }
 }

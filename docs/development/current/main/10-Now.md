@@ -75,8 +75,8 @@ Related:
        - landed: widen `string_corridor_candidates` into proof-bearing plan metadata
        - landed: keep direct `substring_concat3_hhhii` helper results on the same proof-bearing lane so `publication_sink` can read concat-triplet proof from the helper result itself
        - landed: helper-result `length()` / `substring()` now consume that same `publication_sink` plan in `string_corridor_sink` without crossing `phi_merge`
-       - next: `materialization_sink`
-       - plan-selected `direct_kernel_entry`
+       - next: plan-selected `direct_kernel_entry` on the landed non-`phi` corridor route
+       - separate follow-on: any further `materialization_sink` widening across `phi_merge` or broader post-store windows only with a metadata-contract update first
        - shrink the temporary exact-seed bridge in `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc`
     4. actual-consumer switch for selected thin-entry user-box method routes that are still metadata-only today (`user_box_method.known_receiver` first)
     5. `ArrayBox` typed-slot expansion beyond the landed `InlineI64` pilot
@@ -127,8 +127,10 @@ Related:
     - first `publication_sink` inventory slice is now landed too: emitted MIR JSON on `kilo_micro_substring_concat` keeps the direct `substring_concat3_hhhii` helper result on the corridor lane with concat-triplet-backed `publication_sink` plan metadata
     - first actual `publication_sink` transform is now landed too: `string_corridor_sink` rewrites direct helper-result `length()` to `end - start` and composes direct helper-result `substring()` back into `substring_concat3_hhhii` from the same plan metadata
     - first non-`phi` `materialization_sink` slice is now landed too: when a direct `substring_concat3_hhhii` helper result has a single local `ArrayBox.set` consumer through copy aliases, `string_corridor_sink` now sinks that birth to the store boundary instead of keeping the helper earlier in the block
-    - fresh broader-corridor reread keeps `kilo_micro_substring_concat` (`instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`) as the current micro reopen front, but the next practical `materialization_sink` hotspot is now the post-store observer window on exploratory `kilo_meso_substring_concat_array_set` (`instr=384,348,305 / cycles=185,411,844 / AOT 40 ms`)
+    - first post-store observer slice is now landed too: when that same direct helper result also has one trailing `length()` observer after the local `ArrayBox.set`, `string_corridor_sink` now keeps `array.set` as the first `Store` boundary, rewrites the observer to `end - start`, and removes copy-only store/observer chains
+    - fresh broader-corridor reread keeps `kilo_micro_substring_concat` (`instr=5,565,547 / cycles=5,907,473 / cache-miss=8,629 / AOT 4 ms`) as the current exact front, while exploratory `kilo_meso_substring_concat_array_set` stayed essentially flat (`instr=384,347,679 / cycles=185,582,276 / AOT 42 ms`), so this cut is a canonical-MIR/kernel asset landing rather than a meso perf keeper by itself
     - string genericization order is now fixed: keep canonical MIR as the only IR truth, land proof-bearing plan metadata first, then land helper-result `publication_sink` inventory, then helper-result actual `publication_sink`, then `materialization_sink`, then select `direct_kernel_entry` from that plan near lowering
+    - migration-safe reading: keep this lane in canonical MIR facts/candidates/sink and kernel/backend substrate only; do not reopen Rust-builder-local shape logic while `.hako` builder authority replacement is open
     - the exact `pure-first` seed in `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc` is temporary bridge surface and should shrink only after the generic plan-selected route proves out
     - separate phase, not this cut: relax `phi_merge` or `call` / `boxcall` / `return` barriers only with a metadata-contract update first; `kilo_micro_substring_concat` still owes its next exact move to that loop-carried `phi_merge` route, and the post-store observer lane still owes `array.set + trailing length()` facts before widening beyond the new store-only sink
     - sibling string follow-on after that: move from the landed exact micro to the broader corridor rewrite family on the mixed accept gate
