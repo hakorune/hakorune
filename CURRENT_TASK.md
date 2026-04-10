@@ -222,11 +222,12 @@ Scope: repo root から current lane / current front / restart read order に最
         - `phase163x-optimization-resume`
         - landed Variant* proof for `phase163x-sum-thin-entry-cutover`:
           - `sum_result_ok_project_copy_local_i64_min.prebuilt.mir.json` now proves the same cutover when `variant_project` reads through a single local `copy` alias
+          - `sum_result_ok_project_local_f64_min.prebuilt.mir.json` now proves the same cutover for `variant_project` on a Float payload lane
           - `sum_result_ok_tag_only_local_min.prebuilt.mir.json` now proves the same cutover for a payload-less `variant_tag` keep-lane proof
           - `sum_result_ok_tag_local_f64_min.prebuilt.mir.json` now proves the same cutover for `variant_tag` on a Float payload lane
           - `sum_result_ok_tag_local_handle_min.prebuilt.mir.json` now proves the same cutover for `variant_tag` on a handle payload lane
         - immediate fixed Variant* inventory for `phase163x-sum-thin-entry-cutover`:
-          1. direct layout coverage for `variant_project` on `tag_f64_payload` / `tag_handle_payload`
+          1. direct layout coverage for `variant_project` on `tag_handle_payload`
           2. only after direct layout coverage is green, add non-`i64` single-`copy` alias parity
           3. keep `phi_merge` and `call` / `boxcall` / `return` barrier relaxation out of this cut; those require a separate metadata-contract phase first
         - next reusable optimization family after that:

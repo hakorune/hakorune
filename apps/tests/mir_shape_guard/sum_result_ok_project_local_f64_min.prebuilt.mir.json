@@ -1,0 +1,142 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "enum_decls": [
+    {
+      "name": "ResultFloat",
+      "variants": [
+        { "name": "Ok" },
+        { "name": "Err" }
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "name": "ny_main",
+      "params": [],
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 1,
+              "value": { "type": "f64", "value": 1.5 }
+            },
+            {
+              "op": "variant_make",
+              "dst": 2,
+              "enum": "ResultFloat",
+              "variant": "Ok",
+              "tag": 0,
+              "payload": 1,
+              "payload_type": "Float"
+            },
+            {
+              "op": "variant_project",
+              "dst": 3,
+              "value": 2,
+              "enum": "ResultFloat",
+              "variant": "Ok",
+              "tag": 0,
+              "payload_type": "Float"
+            },
+            {
+              "op": "ret",
+              "value": 3
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "value_types": {
+          "1": "f64",
+          "3": "f64"
+        },
+        "thin_entry_selections": [
+          {
+            "block": 0,
+            "instruction_index": 1,
+            "value": 2,
+            "surface": "variant_make",
+            "subject": "ResultFloat::Ok",
+            "manifest_row": "variant_make.aggregate_local",
+            "selected_entry": "thin_internal_entry",
+            "state": "candidate",
+            "current_carrier": "compat_box",
+            "value_class": "agg_local",
+            "reason": "variant.make stays aggregate-first in the manifest plan and keeps compat boxing as fallback only"
+          },
+          {
+            "block": 0,
+            "instruction_index": 2,
+            "value": 3,
+            "surface": "variant_project",
+            "subject": "ResultFloat::Ok",
+            "manifest_row": "variant_project.payload_local",
+            "selected_entry": "thin_internal_entry",
+            "state": "candidate",
+            "current_carrier": "compat_box",
+            "value_class": "agg_local",
+            "reason": "variant.project keeps payload projection on the thin local route while compat carriers remain runtime fallback, even on the Float payload lane"
+          }
+        ],
+        "sum_placement_facts": [
+          {
+            "block": 0,
+            "instruction_index": 1,
+            "value": 2,
+            "surface": "variant_make",
+            "subject": "ResultFloat::Ok",
+            "source_sum": null,
+            "value_class": "agg_local",
+            "state": "local_agg_candidate",
+            "tag_reads": 0,
+            "project_reads": 1,
+            "barriers": [],
+            "reason": "sum value stays local through projection in this metadata-bearing keep-lane seed"
+          }
+        ],
+        "sum_placement_selections": [
+          {
+            "block": 0,
+            "instruction_index": 1,
+            "value": 2,
+            "surface": "variant_make",
+            "subject": "ResultFloat::Ok",
+            "source_sum": null,
+            "manifest_row": "variant_make.local_aggregate",
+            "selected_path": "local_aggregate",
+            "reason": "selected local aggregate sum construction"
+          },
+          {
+            "block": 0,
+            "instruction_index": 2,
+            "value": 3,
+            "surface": "variant_project",
+            "subject": "ResultFloat::Ok",
+            "source_sum": 2,
+            "manifest_row": "variant_project.local_aggregate",
+            "selected_path": "local_aggregate",
+            "reason": "selected local aggregate projection on the Float payload lane"
+          }
+        ],
+        "sum_placement_layouts": [
+          {
+            "block": 0,
+            "instruction_index": 1,
+            "value": 2,
+            "surface": "variant_make",
+            "subject": "ResultFloat::Ok",
+            "source_sum": null,
+            "layout": "tag_f64_payload",
+            "reason": "selected local aggregate uses f64 payload lane"
+          }
+        ]
+      }
+    }
+  ]
+}
