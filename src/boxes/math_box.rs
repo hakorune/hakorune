@@ -402,6 +402,10 @@ impl NyashBox for FloatBox {
             BoolBox::new(false)
         }
     }
+
+    fn as_f64_fast(&self) -> Option<f64> {
+        Some(self.value)
+    }
 }
 
 impl Display for FloatBox {

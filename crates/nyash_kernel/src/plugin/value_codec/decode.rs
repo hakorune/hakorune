@@ -1,6 +1,7 @@
 use super::borrowed_handle::maybe_borrow_string_handle;
 use nyash_rust::{
     box_trait::{BoolBox, IntegerBox, NyashBox, StringBox},
+    boxes::FloatBox,
     runtime::host_handles as handles,
 };
 
@@ -16,6 +17,7 @@ pub(crate) enum CodecProfile {
 pub(crate) enum ArrayFastDecodedValue {
     ImmediateI64(i64),
     ImmediateBool(bool),
+    ImmediateF64(f64),
     Boxed(Box<dyn NyashBox>),
 }
 
@@ -45,6 +47,9 @@ pub(crate) fn decode_array_fast_value(arg: i64) -> ArrayFastDecodedValue {
             }
             if let Some(bb) = obj.as_any().downcast_ref::<BoolBox>() {
                 return ArrayFastDecodedValue::ImmediateBool(bb.value);
+            }
+            if let Some(fb) = obj.as_any().downcast_ref::<FloatBox>() {
+                return ArrayFastDecodedValue::ImmediateF64(fb.value);
             }
             ArrayFastDecodedValue::ImmediateI64(arg)
         },
@@ -89,6 +94,9 @@ pub(crate) fn any_arg_to_box_with_profile(arg: i64, profile: CodecProfile) -> Bo
                     }
                     if let Some(bb) = obj.as_any().downcast_ref::<BoolBox>() {
                         return Box::new(BoolBox::new(bb.value));
+                    }
+                    if let Some(fb) = obj.as_any().downcast_ref::<FloatBox>() {
+                        return Box::new(FloatBox::new(fb.value));
                     }
                     if scalar_prefer {
                         if let Some(ib) = obj.as_any().downcast_ref::<IntegerBox>() {

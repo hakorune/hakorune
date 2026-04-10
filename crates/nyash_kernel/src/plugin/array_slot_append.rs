@@ -23,6 +23,13 @@ pub(super) fn array_slot_append_any(handle: i64, val_any: i64) -> i64 {
             } else {
                 0
             }
+        } else if let Some(f64_value) = value.as_f64_fast() {
+            let idx = arr.len() as i64;
+            if arr.slot_store_f64_raw(idx, f64_value) {
+                idx + 1
+            } else {
+                0
+            }
         } else {
             arr.slot_append_box_raw(value)
         }

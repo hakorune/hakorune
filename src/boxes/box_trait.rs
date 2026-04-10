@@ -183,6 +183,11 @@ pub trait NyashBox: BoxCore + Debug {
         None
     }
 
+    /// Fast scalar read hint for floating-point boxes.
+    fn as_f64_fast(&self) -> Option<f64> {
+        None
+    }
+
     /// Fast mutable i64 slot for in-place integer updates.
     /// Used by array/set hot paths to avoid dynamic downcast churn.
     fn i64_slot_mut(&mut self) -> Option<&mut i64> {

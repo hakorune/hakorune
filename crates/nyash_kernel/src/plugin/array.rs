@@ -208,6 +208,47 @@ mod tests {
     }
 
     #[test]
+    fn slot_store_any_float_handle_births_inline_f64_lane() {
+        let handle = new_array_handle();
+        let float_handle = nyash_rust::runtime::host_handles::to_handle_arc(
+            std::sync::Arc::new(nyash_rust::boxes::FloatBox::new(1.25))
+                as std::sync::Arc<dyn NyashBox>,
+        ) as i64;
+
+        assert_eq!(nyash_array_slot_store_hih_alias(handle, 0, float_handle), 1);
+        assert_eq!(nyash_array_slot_len_h_alias(handle), 1);
+        let got = nyash_array_slot_load_hi_alias(handle, 0);
+        assert!(got > 0, "expected encoded FloatBox handle, got {got}");
+        let got_text = nyash_rust::runtime::host_handles::with_handle(got as u64, |obj| {
+            obj.map(|obj| obj.to_string_box().value)
+        });
+        assert_eq!(got_text.as_deref(), Some("1.25"));
+        assert!(storage_tag(handle)
+            .as_deref()
+            .is_some_and(|text| text.contains("inline_f64")));
+    }
+
+    #[test]
+    fn slot_append_raw_alias_births_inline_f64_lane_for_float_values() {
+        let handle = new_array_handle();
+        let float_handle = nyash_rust::runtime::host_handles::to_handle_arc(
+            std::sync::Arc::new(nyash_rust::boxes::FloatBox::new(2.5))
+                as std::sync::Arc<dyn NyashBox>,
+        ) as i64;
+
+        assert_eq!(nyash_array_slot_append_hh_alias(handle, float_handle), 1);
+        let got = nyash_array_slot_load_hi_alias(handle, 0);
+        assert!(got > 0, "expected encoded FloatBox handle, got {got}");
+        let got_text = nyash_rust::runtime::host_handles::with_handle(got as u64, |obj| {
+            obj.map(|obj| obj.to_string_box().value)
+        });
+        assert_eq!(got_text.as_deref(), Some("2.5"));
+        assert!(storage_tag(handle)
+            .as_deref()
+            .is_some_and(|text| text.contains("inline_f64")));
+    }
+
+    #[test]
     fn slot_reserve_and_grow_raw_aliases_keep_length_and_expand_capacity() {
         let handle = new_array_handle();
         assert_eq!(nyash_array_push_h(handle, 1), 1);

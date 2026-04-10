@@ -1,5 +1,6 @@
 use super::*;
 use crate::box_trait::{BoolBox, IntegerBox, NyashBox, StringBox};
+use crate::boxes::FloatBox;
 use std::sync::Arc;
 
 fn collection_any_arg_to_box(arg: i64) -> Box<dyn NyashBox> {
@@ -22,8 +23,26 @@ fn collection_any_arg_to_box(arg: i64) -> Box<dyn NyashBox> {
         if let Some(bb) = obj.as_any().downcast_ref::<BoolBox>() {
             return Box::new(BoolBox::new(bb.value)) as Box<dyn NyashBox>;
         }
+        if let Some(fb) = obj.as_any().downcast_ref::<FloatBox>() {
+            return Box::new(FloatBox::new(fb.value)) as Box<dyn NyashBox>;
+        }
         Box::new(IntegerBox::new(arg)) as Box<dyn NyashBox>
     })
+}
+
+fn collection_box_to_runtime_i64(value: &dyn NyashBox) -> i64 {
+    if let Some(iv) = value.as_i64_fast() {
+        return iv;
+    }
+    if let Some(bv) = value.as_bool_fast() {
+        return if bv { 1 } else { 0 };
+    }
+    let cloned = if value.is_identity() {
+        value.share_box()
+    } else {
+        value.clone_box()
+    };
+    crate::runtime::host_handles::to_handle_arc(Arc::from(cloned)) as i64
 }
 
 impl MirInterpreter {
@@ -108,11 +127,14 @@ impl MirInterpreter {
                             obj.as_any()
                                 .downcast_ref::<crate::boxes::array::ArrayBox>()
                                 .map(|arr| {
-                                    arr.get_index_i64(idx)
-                                        .to_string_box()
-                                        .value
-                                        .parse::<i64>()
-                                        .unwrap_or(0)
+                                    if !arr.has_index_i64(idx) {
+                                        return 0;
+                                    }
+                                    if let Some(raw) = arr.slot_load_i64_raw(idx) {
+                                        return raw;
+                                    }
+                                    let value = arr.get_index_i64(idx);
+                                    collection_box_to_runtime_i64(value.as_ref())
                                 })
                         })
                         .unwrap_or(0)

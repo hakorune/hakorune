@@ -3,6 +3,7 @@
 // RwLockパターンで内部可変性を実現（Phase 9.75-B Arc<Mutex>削除）
 
 use crate::box_trait::{BoolBox, BoxBase, BoxCore, IntegerBox, NyashBox, StringBox};
+use crate::boxes::FloatBox;
 use crate::config::env;
 use parking_lot::RwLock;
 use std::any::Any;
@@ -13,6 +14,7 @@ enum ArrayStorage {
     Boxed(Vec<Box<dyn NyashBox>>),
     InlineI64(Vec<i64>),
     InlineBool(Vec<bool>),
+    InlineF64(Vec<f64>),
 }
 
 impl ArrayStorage {
@@ -21,6 +23,7 @@ impl ArrayStorage {
             Self::Boxed(items) => items.len(),
             Self::InlineI64(values) => values.len(),
             Self::InlineBool(values) => values.len(),
+            Self::InlineF64(values) => values.len(),
         }
     }
 
@@ -29,6 +32,7 @@ impl ArrayStorage {
             Self::Boxed(items) => items.capacity(),
             Self::InlineI64(values) => values.capacity(),
             Self::InlineBool(values) => values.capacity(),
+            Self::InlineF64(values) => values.capacity(),
         }
     }
 }
@@ -64,12 +68,23 @@ impl ArrayBox {
             .collect()
     }
 
+    fn boxed_from_inline_f64(values: &[f64]) -> Vec<Box<dyn NyashBox>> {
+        values
+            .iter()
+            .map(|value| Box::new(FloatBox::new(*value)) as Box<dyn NyashBox>)
+            .collect()
+    }
+
     fn try_inline_i64_values(items: &[Box<dyn NyashBox>]) -> Option<Vec<i64>> {
         items.iter().map(|item| item.as_i64_fast()).collect()
     }
 
     fn try_inline_bool_values(items: &[Box<dyn NyashBox>]) -> Option<Vec<bool>> {
         items.iter().map(|item| item.as_bool_fast()).collect()
+    }
+
+    fn try_inline_f64_values(items: &[Box<dyn NyashBox>]) -> Option<Vec<f64>> {
+        items.iter().map(|item| item.as_f64_fast()).collect()
     }
 
     fn ensure_boxed(storage: &mut ArrayStorage) -> &mut Vec<Box<dyn NyashBox>> {
@@ -79,9 +94,12 @@ impl ArrayBox {
         if let ArrayStorage::InlineBool(values) = storage {
             *storage = ArrayStorage::Boxed(Self::boxed_from_inline_bool(values));
         }
+        if let ArrayStorage::InlineF64(values) = storage {
+            *storage = ArrayStorage::Boxed(Self::boxed_from_inline_f64(values));
+        }
         match storage {
             ArrayStorage::Boxed(items) => items,
-            ArrayStorage::InlineI64(_) | ArrayStorage::InlineBool(_) => {
+            ArrayStorage::InlineI64(_) | ArrayStorage::InlineBool(_) | ArrayStorage::InlineF64(_) => {
                 unreachable!("inline storage promoted to boxed")
             }
         }
@@ -94,7 +112,7 @@ impl ArrayBox {
         }
         match storage {
             ArrayStorage::InlineI64(values) => Some(values),
-            ArrayStorage::Boxed(_) | ArrayStorage::InlineBool(_) => None,
+            ArrayStorage::Boxed(_) | ArrayStorage::InlineBool(_) | ArrayStorage::InlineF64(_) => None,
         }
     }
 
@@ -105,7 +123,18 @@ impl ArrayBox {
         }
         match storage {
             ArrayStorage::InlineBool(values) => Some(values),
-            ArrayStorage::Boxed(_) | ArrayStorage::InlineI64(_) => None,
+            ArrayStorage::Boxed(_) | ArrayStorage::InlineI64(_) | ArrayStorage::InlineF64(_) => None,
+        }
+    }
+
+    fn ensure_inline_f64(storage: &mut ArrayStorage) -> Option<&mut Vec<f64>> {
+        if let ArrayStorage::Boxed(items) = storage {
+            let values = Self::try_inline_f64_values(items)?;
+            *storage = ArrayStorage::InlineF64(values);
+        }
+        match storage {
+            ArrayStorage::InlineF64(values) => Some(values),
+            ArrayStorage::Boxed(_) | ArrayStorage::InlineI64(_) | ArrayStorage::InlineBool(_) => None,
         }
     }
 
@@ -143,6 +172,14 @@ impl ArrayBox {
             .join(", ")
     }
 
+    fn format_inline_f64_values(values: &[f64]) -> String {
+        values
+            .iter()
+            .map(|value| value.to_string())
+            .collect::<Vec<_>>()
+            .join(", ")
+    }
+
     /// 新しいArrayBoxを作成
     pub fn new() -> Self {
         Self::new_with_storage(ArrayStorage::Boxed(Vec::new()))
@@ -161,6 +198,10 @@ impl ArrayBox {
         Self::new_with_storage(ArrayStorage::InlineBool(values))
     }
 
+    fn new_with_inline_f64_elements(values: Vec<f64>) -> Self {
+        Self::new_with_storage(ArrayStorage::InlineF64(values))
+    }
+
     #[inline(always)]
     pub fn with_items_read<R>(&self, f: impl FnOnce(&Vec<Box<dyn NyashBox>>) -> R) -> R {
         let items = self.items.read();
@@ -172,6 +213,10 @@ impl ArrayBox {
             }
             ArrayStorage::InlineBool(values) => {
                 let materialized = Self::boxed_from_inline_bool(values);
+                f(&materialized)
+            }
+            ArrayStorage::InlineF64(values) => {
+                let materialized = Self::boxed_from_inline_f64(values);
                 f(&materialized)
             }
         }
@@ -212,6 +257,7 @@ impl ArrayBox {
             ArrayStorage::Boxed(items) => items.reserve(additional),
             ArrayStorage::InlineI64(values) => values.reserve(additional),
             ArrayStorage::InlineBool(values) => values.reserve(additional),
+            ArrayStorage::InlineF64(values) => values.reserve(additional),
         }
         true
     }
@@ -228,6 +274,7 @@ impl ArrayBox {
                     ArrayStorage::Boxed(items) => items.reserve(needed),
                     ArrayStorage::InlineI64(values) => values.reserve(needed),
                     ArrayStorage::InlineBool(values) => values.reserve(needed),
+                    ArrayStorage::InlineF64(values) => values.reserve(needed),
                 }
             }
         }
@@ -268,6 +315,16 @@ impl ArrayBox {
                     }
                 }
             },
+            ArrayStorage::InlineF64(values) => match values.pop() {
+                Some(value) => Box::new(FloatBox::new(value)),
+                None => {
+                    if Self::oob_strict_enabled() {
+                        Box::new(StringBox::new("[array/empty/pop] empty array"))
+                    } else {
+                        Box::new(crate::boxes::null_box::NullBox::new())
+                    }
+                }
+            },
         }
     }
 
@@ -299,6 +356,7 @@ impl ArrayBox {
             ArrayStorage::InlineBool(values) => {
                 values.get(idx).map(|value| if *value { 1 } else { 0 })
             }
+            ArrayStorage::InlineF64(_) => None,
         }
     }
 
@@ -347,6 +405,17 @@ impl ArrayBox {
                     }
                 }
             },
+            ArrayStorage::InlineF64(values) => match values.get(idx) {
+                Some(value) => Box::new(FloatBox::new(*value)),
+                None => {
+                    if Self::oob_strict_enabled() {
+                        crate::runtime::observe::mark_oob();
+                        Box::new(StringBox::new("[oob/array/get] index out of bounds"))
+                    } else {
+                        Box::new(crate::boxes::null_box::NullBox::new())
+                    }
+                }
+            },
         }
     }
 
@@ -373,6 +442,22 @@ impl ArrayBox {
                     return true;
                 } else if idx == values.len() {
                     values.push(bool_value);
+                    return true;
+                } else {
+                    if Self::oob_strict_enabled() {
+                        crate::runtime::observe::mark_oob();
+                    }
+                    return false;
+                }
+            }
+        }
+        if let Some(float_value) = value.as_f64_fast() {
+            if let Some(values) = Self::ensure_inline_f64(&mut items) {
+                if idx < values.len() {
+                    values[idx] = float_value;
+                    return true;
+                } else if idx == values.len() {
+                    values.push(float_value);
                     return true;
                 } else {
                     if Self::oob_strict_enabled() {
@@ -491,6 +576,47 @@ impl ArrayBox {
         }
     }
 
+    /// Raw float store helper for substrate/plugin routes.
+    #[inline(always)]
+    pub fn slot_store_f64_raw(&self, idx: i64, value: f64) -> bool {
+        if idx < 0 {
+            if Self::oob_strict_enabled() {
+                crate::runtime::observe::mark_oob();
+            }
+            return false;
+        }
+        let idx = idx as usize;
+        let mut items = self.items.write();
+        if let Some(values) = Self::ensure_inline_f64(&mut items) {
+            if idx < values.len() {
+                values[idx] = value;
+                true
+            } else if idx == values.len() {
+                values.push(value);
+                true
+            } else {
+                if Self::oob_strict_enabled() {
+                    crate::runtime::observe::mark_oob();
+                }
+                false
+            }
+        } else {
+            let boxed = Self::ensure_boxed(&mut items);
+            if idx < boxed.len() {
+                boxed[idx] = Box::new(FloatBox::new(value));
+                true
+            } else if idx == boxed.len() {
+                boxed.push(Box::new(FloatBox::new(value)));
+                true
+            } else {
+                if Self::oob_strict_enabled() {
+                    crate::runtime::observe::mark_oob();
+                }
+                false
+            }
+        }
+    }
+
     /// Raw integer read-modify-write helper for substrate/plugin routes.
     /// Returns the updated value when the slot exists and can be treated as `i64`.
     #[inline(always)]
@@ -583,6 +709,13 @@ impl ArrayBox {
                         Box::new(crate::boxes::null_box::NullBox::new())
                     }
                 }
+                ArrayStorage::InlineF64(values) => {
+                    if idx < values.len() {
+                        Box::new(FloatBox::new(values.remove(idx)))
+                    } else {
+                        Box::new(crate::boxes::null_box::NullBox::new())
+                    }
+                }
             }
         } else {
             Box::new(StringBox::new("Error: remove() requires integer index"))
@@ -614,6 +747,16 @@ impl ArrayBox {
                     }
                 }
             }
+            ArrayStorage::InlineF64(values) => {
+                if let Some(needle) = value.as_f64_fast() {
+                    if let Some(idx) = values
+                        .iter()
+                        .position(|item| (*item - needle).abs() < f64::EPSILON)
+                    {
+                        return Box::new(IntegerBox::new(idx as i64));
+                    }
+                }
+            }
         }
         Box::new(IntegerBox::new(-1))
     }
@@ -639,6 +782,15 @@ impl ArrayBox {
                     return Box::new(BoolBox::new(values.iter().any(|item| *item == needle)));
                 }
             }
+            ArrayStorage::InlineF64(values) => {
+                if let Some(needle) = value.as_f64_fast() {
+                    return Box::new(BoolBox::new(
+                        values
+                            .iter()
+                            .any(|item| (*item - needle).abs() < f64::EPSILON),
+                    ));
+                }
+            }
         }
         Box::new(BoolBox::new(false))
     }
@@ -650,6 +802,7 @@ impl ArrayBox {
             ArrayStorage::Boxed(items) => items.clear(),
             ArrayStorage::InlineI64(values) => values.clear(),
             ArrayStorage::InlineBool(values) => values.clear(),
+            ArrayStorage::InlineF64(values) => values.clear(),
         }
         Box::new(StringBox::new("ok"))
     }
@@ -676,6 +829,9 @@ impl ArrayBox {
                         }
                     })
                     .collect(),
+                ArrayStorage::InlineF64(values) => {
+                    values.iter().map(|value| value.to_string()).collect()
+                }
             };
             Box::new(StringBox::new(&parts.join(&sep_box.value)))
         } else {
@@ -689,6 +845,7 @@ impl ArrayBox {
         match &mut *items {
             ArrayStorage::InlineI64(values) => values.sort_unstable(),
             ArrayStorage::InlineBool(values) => values.sort_unstable(),
+            ArrayStorage::InlineF64(values) => values.sort_by(|lhs, rhs| lhs.total_cmp(rhs)),
             ArrayStorage::Boxed(items) => {
                 // Numeric values first, then string values
                 items.sort_by(|a, b| {
@@ -755,6 +912,7 @@ impl ArrayBox {
             ArrayStorage::Boxed(items) => items.reverse(),
             ArrayStorage::InlineI64(values) => values.reverse(),
             ArrayStorage::InlineBool(values) => values.reverse(),
+            ArrayStorage::InlineF64(values) => values.reverse(),
         }
         Box::new(StringBox::new("ok"))
     }
@@ -807,6 +965,9 @@ impl ArrayBox {
             ArrayStorage::InlineBool(values) => Box::new(ArrayBox::new_with_inline_bool_elements(
                 values[start_idx..end_idx].to_vec(),
             )),
+            ArrayStorage::InlineF64(values) => Box::new(ArrayBox::new_with_inline_f64_elements(
+                values[start_idx..end_idx].to_vec(),
+            )),
         }
     }
 }
@@ -824,6 +985,7 @@ impl Clone for ArrayBox {
             ),
             ArrayStorage::InlineI64(values) => ArrayStorage::InlineI64(values.clone()),
             ArrayStorage::InlineBool(values) => ArrayStorage::InlineBool(values.clone()),
+            ArrayStorage::InlineF64(values) => ArrayStorage::InlineF64(values.clone()),
         };
 
         ArrayBox {
@@ -857,6 +1019,9 @@ impl BoxCore for ArrayBox {
             }
             ArrayStorage::InlineBool(values) => {
                 write!(f, "[{}]", Self::format_inline_bool_values(values))
+            }
+            ArrayStorage::InlineF64(values) => {
+                write!(f, "[{}]", Self::format_inline_f64_values(values))
             }
         }
     }
@@ -909,6 +1074,9 @@ impl NyashBox for ArrayBox {
             ArrayStorage::InlineBool(values) => {
                 StringBox::new(format!("[{}]", Self::format_inline_bool_values(values)))
             }
+            ArrayStorage::InlineF64(values) => {
+                StringBox::new(format!("[{}]", Self::format_inline_f64_values(values)))
+            }
         }
     }
 
@@ -946,6 +1114,23 @@ impl NyashBox for ArrayBox {
                         }
                     }
                 }
+                (ArrayStorage::InlineF64(lhs), ArrayStorage::InlineF64(rhs)) => {
+                    for (a, b) in lhs.iter().zip(rhs.iter()) {
+                        if (*a - *b).abs() >= f64::EPSILON {
+                            return BoolBox::new(false);
+                        }
+                    }
+                }
+                (ArrayStorage::InlineF64(lhs), ArrayStorage::Boxed(rhs)) => {
+                    for (a, b) in lhs.iter().zip(rhs.iter()) {
+                        let Some(value) = b.as_f64_fast() else {
+                            return BoolBox::new(false);
+                        };
+                        if (*a - value).abs() >= f64::EPSILON {
+                            return BoolBox::new(false);
+                        }
+                    }
+                }
                 (ArrayStorage::Boxed(lhs), ArrayStorage::InlineI64(rhs)) => {
                     for (a, b) in lhs.iter().zip(rhs.iter()) {
                         if a.as_i64_fast() != Some(*b) {
@@ -960,6 +1145,16 @@ impl NyashBox for ArrayBox {
                         }
                     }
                 }
+                (ArrayStorage::Boxed(lhs), ArrayStorage::InlineF64(rhs)) => {
+                    for (a, b) in lhs.iter().zip(rhs.iter()) {
+                        let Some(value) = a.as_f64_fast() else {
+                            return BoolBox::new(false);
+                        };
+                        if (value - *b).abs() >= f64::EPSILON {
+                            return BoolBox::new(false);
+                        }
+                    }
+                }
                 (ArrayStorage::Boxed(lhs), ArrayStorage::Boxed(rhs)) => {
                     for (a, b) in lhs.iter().zip(rhs.iter()) {
                         if !a.equals(b.as_ref()).value {
@@ -968,7 +1163,11 @@ impl NyashBox for ArrayBox {
                     }
                 }
                 (ArrayStorage::InlineI64(_), ArrayStorage::InlineBool(_))
-                | (ArrayStorage::InlineBool(_), ArrayStorage::InlineI64(_)) => {
+                | (ArrayStorage::InlineBool(_), ArrayStorage::InlineI64(_))
+                | (ArrayStorage::InlineI64(_), ArrayStorage::InlineF64(_))
+                | (ArrayStorage::InlineF64(_), ArrayStorage::InlineI64(_))
+                | (ArrayStorage::InlineBool(_), ArrayStorage::InlineF64(_))
+                | (ArrayStorage::InlineF64(_), ArrayStorage::InlineBool(_)) => {
                     return BoolBox::new(false);
                 }
             }
@@ -988,6 +1187,7 @@ impl std::fmt::Debug for ArrayBox {
             ArrayStorage::Boxed(_) => "boxed",
             ArrayStorage::InlineI64(_) => "inline_i64",
             ArrayStorage::InlineBool(_) => "inline_bool",
+            ArrayStorage::InlineF64(_) => "inline_f64",
         };
         f.debug_struct("ArrayBox")
             .field("id", &self.base.id)
@@ -1005,6 +1205,10 @@ impl ArrayBox {
 
     pub fn uses_inline_bool_slots(&self) -> bool {
         matches!(&*self.items.read(), ArrayStorage::InlineBool(_))
+    }
+
+    pub fn uses_inline_f64_slots(&self) -> bool {
+        matches!(&*self.items.read(), ArrayStorage::InlineF64(_))
     }
 }
 
@@ -1051,5 +1255,25 @@ mod tests {
         assert!(array.slot_store_box_raw(0, Box::new(BoolBox::new(false))));
         assert!(array.uses_inline_bool_slots());
         assert_eq!(array.get_index_i64(0).to_string_box().value, "false");
+    }
+
+    #[test]
+    fn slot_store_f64_births_inline_f64_lane() {
+        let array = ArrayBox::new();
+        assert!(array.slot_store_f64_raw(0, 1.25));
+        assert!(array.uses_inline_f64_slots());
+        assert_eq!(array.slot_load_i64_raw(0), None);
+        assert_eq!(array.get_index_i64(0).to_string_box().value, "1.25");
+    }
+
+    #[test]
+    fn slot_store_box_preserves_inline_f64_lane_for_float_values() {
+        let array = ArrayBox::new();
+        assert!(array.slot_store_f64_raw(0, 1.25));
+        assert!(array.uses_inline_f64_slots());
+
+        assert!(array.slot_store_box_raw(0, Box::new(FloatBox::new(2.5))));
+        assert!(array.uses_inline_f64_slots());
+        assert_eq!(array.get_index_i64(0).to_string_box().value, "2.5");
     }
 }
