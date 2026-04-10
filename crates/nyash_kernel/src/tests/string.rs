@@ -267,6 +267,25 @@ fn string_substring_len_hii_matches_substring_handle_length() {
 }
 
 #[test]
+fn string_substring_len_hii_complementary_ranges_sum_to_source_length() {
+    with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
+        let source_h = string_handle("prefix-middle-suffix");
+        let total = nyash_string_len_h(source_h);
+
+        for split in [-5_i64, 0, 3, 7, 13, 99] {
+            let left = nyash_string_substring_len_hii_export(source_h, 0, split);
+            let right = nyash_string_substring_len_hii_export(source_h, split, total);
+            assert_eq!(
+                left + right,
+                total,
+                "split={} should partition the clamped source length",
+                split
+            );
+        }
+    });
+}
+
+#[test]
 fn string_exports_prefer_hako_forward_hook_when_registered() {
     extern "C" fn string_hook(op: i64, a0: i64, a1: i64, a2: i64) -> i64 {
         op * 1000 + a0 + a1 + a2

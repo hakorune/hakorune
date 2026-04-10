@@ -974,21 +974,20 @@
 
 1. keep canonical contract corridor landed and immutable
 2. treat `kilo_micro_substring_only` as the current exact front
-   - current AOT consumer: `substring_len_hii` / `substring_hii` / `len_h` / `trace_borrowed_substring_plan`
-   - current executor: landed borrowed-corridor sink plus len handle-backed cache
+   - current AOT consumer: the preloop `nyash.box.from_i8_string_const` setup plus one `nyash.string.len_h` read
+   - current executor: landed borrowed-corridor sink plus the DCE-triggered second corridor sweep
    - use `3 runs + perf` before judging any WSL delta
    - read this front through the substring/len boundary first
-    - latest exact reread after the borrowed-corridor sink stays `C 3 ms / AOT 8 ms`, and perf counters now read `instr 47,270,021`, `cycles 28,264,307`, `cache-miss 9,191`
-    - current sink candidate on the mixed gate is `nyash.string.substring_len_hii`
-    - split exact reread after the sink: `kilo_micro_substring_views_only: instr=34,372,839 / cycles=6,483,811 / cache-miss=8,932 / AOT 5 ms`, `kilo_micro_len_substring_views: instr=16,072,530 / cycles=4,296,034 / cache-miss=8,783 / AOT 4 ms`
+    - latest exact reread after the second corridor sweep is `C 3 ms / AOT 3 ms`, with perf counters `instr 1,669,909`, `cycles 1,061,204`, `cache-miss 8,516`
+    - emitted MIR on this front now contains no `substring_len_hii` / `substring_hii`
+    - current microasm keeps one preloop `len_h` read and the hot loop is scalar `add %rax,%rcx`
     - current validation blockers are cleared:
       1. quick gate is green again after retargeting the stale RawMap clear/delete guard grep from `map_substrate.rs` to `map_aliases.rs`
       2. whole-kilo strict accept is green again after the `concat_hs` deadlock fix plus the const/dynamic split
     - next backend trim order now that the sink is landed:
-      1. `nyash.string.substring_hii` remaining internal view/object overhead on the view-only front
-      2. `nyash.string.substring_len_hii` if the mixed gate needs one more narrow cut
-      3. `nyash.string.len_h` only if post-substring `3 runs + perf` says it re-opened
-      4. `nyash_kernel::exports::string::string_len_from_handle` remaining internal overhead
+      1. broader string corridor placement/effect rewrite on the mixed gate family
+      2. `nyash.string.len_h` only if a post-startup split says the preloop read reopened
+      3. `nyash.box.from_i8_string_const` startup duplication only if the exact front reopens after the corridor rewrite
 3. keep canonical `concat_birth` / fresh-box materialization as the secondary front
    - current AOT consumer: `nyash.string.concat_hh` plus the `materialize_owned_string(...)` backend seam
    - current executor: `string_concat_hh_export_impl(...)` + `materialize_owned_string(...)`

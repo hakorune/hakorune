@@ -105,6 +105,16 @@ impl MirOptimizer {
             stats.dead_code_eliminated += eliminated;
         }
 
+        // Step 5.1: rerun the narrow borrowed string corridor after DCE.
+        // The first sweep introduces `substring_len_hii`, but complementary
+        // length-pair fusion may only become single-use once dead substring
+        // temps are removed in the same optimization wave.
+        let corridor_resunk =
+            crate::mir::passes::string_corridor_sink::sink_borrowed_string_corridors(module);
+        if corridor_resunk > 0 {
+            stats.intrinsic_optimizations += corridor_resunk;
+        }
+
         // Pass 2: Pure instruction CSE (modularized)
         {
             let eliminated = crate::mir::passes::cse::eliminate_common_subexpressions(module);

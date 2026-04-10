@@ -243,8 +243,13 @@ Scope: repo root から current lane / current front / restart read order に最
           - boundary `pure-first` recognizes the current `kilo_micro_substring_views_only` retained-view exit-len shape and collapses it before `substring_hii` / `len_h` replay
           - latest exact reread on `kilo_micro_substring_views_only`: `instr=465,637 / cycles=704,757 / cache-miss=8,280 / AOT 3 ms`
           - latest microasm dump: `ny_main` is now `mov $0x20, %eax ; ret`
+        - sibling string mixed accept guardrail is now landed too:
+          - `string_corridor_sink` now gets a second sweep after DCE so complementary `substring_len_hii` pairs can fuse once dead borrowed-string temps are removed
+          - `kilo_micro_substring_only` now compiles without `substring_len_hii` / `substring_hii` in emitted MIR
+          - latest exact reread on `kilo_micro_substring_only`: `instr=1,669,909 / cycles=1,061,204 / cache-miss=8,516 / AOT 3 ms`
+          - latest microasm dump: `ny_main` now keeps only the preloop source-length read and the hot loop is scalar `add %rax,%rcx`
         - next substep after the current parity-wave keeper:
-          - move from the landed sibling exact micro into the broader string corridor placement/effect rewrite before widening any broader user-box local-body parity backlog
+          - move from the landed sibling exact micros into the broader string corridor placement/effect rewrite before widening any broader user-box local-body parity backlog
         - keep `phi_merge` and `call` / `boxcall` / `return` barrier relaxation out of this cut; those require a separate metadata-contract phase first
         - verified non-Variant optimization order after the current parity wave:
           1. broader string corridor placement/effect rewrite

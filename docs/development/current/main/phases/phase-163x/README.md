@@ -181,8 +181,13 @@
         - boundary `pure-first` recognizes the current `kilo_micro_substring_views_only` exit-len shape and collapses it before `substring_hii` / `len_h` replay
         - latest exact reread: `instr=465,637 / cycles=704,757 / cache-miss=8,280 / AOT 3 ms`
         - latest microasm: `ny_main = mov $0x20, %eax ; ret`
+      - sibling string mixed accept guardrail is now landed too:
+        - `string_corridor_sink` now reruns once after DCE so complementary `substring_len_hii` pairs can fuse after dead borrowed-string temps are removed
+        - `kilo_micro_substring_only` now emits no `substring_len_hii` / `substring_hii`
+        - latest exact reread: `instr=1,669,909 / cycles=1,061,204 / cache-miss=8,516 / AOT 3 ms`
+        - latest microasm: `ny_main` now keeps only the preloop source-length read and the loop body is scalar `add %rax,%rcx`
       - immediate next task after the parity keeper:
-        - move from the landed sibling exact micro into the broader string corridor placement/effect rewrite
+        - move from the landed sibling exact micros into the broader string corridor placement/effect rewrite
       - verified non-Variant optimization order after this parity wave:
         1. broader string corridor placement/effect rewrite
            - `src/mir/string_corridor_placement.rs` is still inspection-only in this wave
