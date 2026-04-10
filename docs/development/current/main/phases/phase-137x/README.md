@@ -59,14 +59,14 @@
   - `cycles: 28,264,307`
   - `cache-miss: 9,191`
   - split exact reread:
-    - `kilo_micro_substring_views_only: instr=34,372,839 / cycles=6,483,811 / cache-miss=8,932 / AOT 5 ms`
+    - `kilo_micro_substring_views_only: instr=465,637 / cycles=704,757 / cache-miss=8,280 / AOT 3 ms`
     - `kilo_micro_len_substring_views: instr=16,072,530 / cycles=4,296,034 / cache-miss=8,783 / AOT 4 ms`
 - current sink candidate on the mixed accept gate:
   - `nyash.string.substring_len_hii`
   - `instr=47,270,021 / cycles=28,264,307 / cache-miss=9,191 / AOT 8 ms`
 - target band for the next keeper:
   - mixed accept gate: `instr <= 47.1M`
-  - local split `kilo_micro_substring_views_only`: `instr <= 34.2M`
+  - local split `kilo_micro_substring_views_only`: hold `instr <= 0.6M`
   - control split `kilo_micro_len_substring_views`: roughly flat is acceptable
   - whole strict: keep `<= 709 ms`; ideal band is `690-705 ms`
 - ideal `len_h` steady-state asm shape:
@@ -80,6 +80,11 @@
   - `kilo_kernel_small_hk` strict accepted reread: `ny_aot_ms=709`
   - parity: `vm_result=1140576`, `aot_result=1140576`
 - current landed substring truth:
+  - boundary `pure-first` now lands the first retained-view `substring_hii` exact-micro consumer slice:
+    - `kilo_micro_substring_views_only` now matches a known-positive loop-bound exit-len shape and collapses before `substring_hii` / `len_h` replay
+    - exact reread on `2026-04-10`: `instr=465,637 / cycles=704,757 / cache-miss=8,280 / AOT 3 ms`
+    - current microasm dump now shows `ny_main` as `mov $0x20, %eax ; ret`
+    - reading: the sibling exact micro is no longer the blocker; the next string keeper must move back to the mixed accept gate and broader corridor rewrite family
   - `substring_hii` can reissue a fresh handle from a cached `StringViewBox` object when the transient result handle dropped but the source handle still points to the same live source object
   - `str.substring.route` observe read is now dominated by the steady-state handle-hit path: `view_arc_cache_handle_hit=599,998 / total=600,000`
   - current keeper removes redundant `view_enabled` state from `SubstringViewArcCache`; the cache only runs under `view_enabled`, so the extra key dimension was dead hot-path work
@@ -113,13 +118,13 @@
     - dynamic route proof hits `string_substring_route -> substring_concat3_hhhii`
     - reading: this removes the intermediate concat handle birth for substring consumers; remaining concat backlog is `return` / `store` / host-boundary publication
   - current `substring_len_hii` pilot uses `with_text_read_session_ready(...)` to avoid the hot `REG` ready probe; current helper perf is the mixed sink candidate above
-  - split exact reread now puts `substring_hii` retained-view path at `34.37M instr` while `len_h` becomes the smaller control split
+  - split exact reread now puts the retained-view exact micro below `0.5M instr`, so `substring_hii` is no longer the active blocker on that split and `len_h` remains the control split
   - current keeper is on `len_h`: hoist one `handles::drop_epoch()` read in `string_len_fast_cache_lookup()` and reuse it for both cache slots
   - current keeper also keeps `len_h` trace-off steady state thin by tail-calling a tiny fast-return helper instead of carrying `trace_len_fast_hit(...)` inline in the hot cache-hit block
   - current keeper removes the `STRING_DISPATCH_STATE` state machine from emitted `len_h` hot asm by probing `STRING_DISPATCH_FN` directly once
   - current keeper also splits trace state into raw-read + cold-init helpers, so the hot cache-hit path sees one `JIT_TRACE_LEN_ENABLED_CACHE` load
   - current keeper also lands the `drop_epoch()` global mirror: `nyash.string.len_h` now reads `host_handles::DROP_EPOCH` directly, and the `host_handles::REG` ready probe is gone from the hot block
-  - split exact reread now moves first priority back to `substring_hii`; `len_h` becomes the control split
+  - split exact reread now clears the sibling retained-view exact micro at boundary `pure-first`; next priority moves back to the mixed accept gate and corridor rewrite family
   - pure Rust reference is the current lower bound for this front; current AOT is about `6.06x instr / 4.10x cycles` over it
   - C-like Rust reference is the current contract-aligned comparison point; current AOT is about `2.73x instr / 1.91x cycles` over it
   - upstream corridor pilot is now structurally landed:

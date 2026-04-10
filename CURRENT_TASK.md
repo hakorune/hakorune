@@ -239,24 +239,25 @@ Scope: repo root から current lane / current front / restart read order に最
           - `sum_result_ok_tag_local_f64_min.prebuilt.mir.json` now proves the same cutover for `variant_tag` on a Float payload lane
           - `sum_result_ok_tag_local_handle_min.prebuilt.mir.json` now proves the same cutover for `variant_tag` on a handle payload lane
         - `phase163x-sum-thin-entry-cutover` is complete; the current `ny-llvmc` parity-wave keeper slice now covers Point / Flag / PointF direct+single-copy local keep routes
+        - sibling string retained-view exact-micro consumer expansion is now landed:
+          - boundary `pure-first` recognizes the current `kilo_micro_substring_views_only` retained-view exit-len shape and collapses it before `substring_hii` / `len_h` replay
+          - latest exact reread on `kilo_micro_substring_views_only`: `instr=465,637 / cycles=704,757 / cache-miss=8,280 / AOT 3 ms`
+          - latest microasm dump: `ny_main` is now `mov $0x20, %eax ; ret`
         - next substep after the current parity-wave keeper:
-          - move back to sibling string retained-view consumer expansion before widening any broader user-box local-body parity backlog
+          - move from the landed sibling exact micro into the broader string corridor placement/effect rewrite before widening any broader user-box local-body parity backlog
         - keep `phi_merge` and `call` / `boxcall` / `return` barrier relaxation out of this cut; those require a separate metadata-contract phase first
         - verified non-Variant optimization order after the current parity wave:
-          1. sibling string retained-view consumer expansion
-             - extend the landed boundary `pure-first` consumer family from `substring(...).length()` plus `concat -> substring(...)` into retained-view `substring_hii` local shapes
-             - keep `kilo_micro_substring_views_only` as the local exact front
-          2. broader string corridor placement/effect rewrite
+          1. broader string corridor placement/effect rewrite
              - current `string_corridor_placement.rs` is inspection-only and does not mutate MIR
              - fold the next real string work around the existing candidate vocabulary:
                - `borrowed_corridor_fusion`
                - `publication_sink`
                - `materialization_sink`
                - `direct_kernel_entry`
-          3. actual-consumer switch for selected user-box thin entries that are still metadata-only today
+          2. actual-consumer switch for selected user-box thin entries that are still metadata-only today
              - `thin_entry_selection` already inventories `user_box_method.known_receiver`
              - keep this as backend-private lowering work under canonical `Call`, not `.hako` syntax work and not a public MIR dialect fork
-          4. `ArrayBox` typed-slot expansion beyond the landed `InlineI64` pilot
+          3. `ArrayBox` typed-slot expansion beyond the landed `InlineI64` pilot
              - later candidates are `InlineBool` / `InlineF64`
              - do not widen this before the string and user-box consumer cuts above have evidence
         - restart handoff:
@@ -303,21 +304,21 @@ Scope: repo root から current lane / current front / restart read order に最
     - latest pure Rust reference: `instr=5,667,104 / cycles=1,572,750 / cache-miss=5,254 / ms=3`
     - latest C-like Rust reference: `instr=12,566,914 / cycles=3,404,383 / cache-miss=5,256 / ms=3`
   - rule: WSL は `3 runs + perf` でしか delta を採らない
-- current string guardrail baseline:
+  - current string guardrail baseline:
   - `kilo_micro_substring_only: C 3 ms / AOT 8 ms`
   - `instr: 47,270,021`
   - `cycles: 28,264,307`
   - `cache-miss: 9,191`
   - split exact reread:
-    - `kilo_micro_substring_views_only: instr=34,372,839 / cycles=6,483,811 / cache-miss=8,932 / AOT 5 ms`
+    - `kilo_micro_substring_views_only: instr=465,637 / cycles=704,757 / cache-miss=8,280 / AOT 3 ms`
     - `kilo_micro_len_substring_views: instr=16,072,530 / cycles=4,296,034 / cache-miss=8,783 / AOT 4 ms`
-  - reading: latest keeper came from `len_h`, and the split pair now says `substring_hii` is first target again
+  - reading: the sibling exact micro is now cut over at boundary `pure-first`, so the next string keeper target moves back to the mixed accept gate and corridor rewrite family
 - current string mixed sink candidate:
   - `nyash.string.substring_len_hii`
   - latest reread: `instr=47,270,021 / cycles=28,264,307 / cache-miss=9,191 / AOT 8 ms`
 - target band for the next string guardrail keeper:
   - mixed accept gate: `instr <= 47.1M`
-  - local split `kilo_micro_substring_views_only`: `instr <= 34.2M`
+  - local split `kilo_micro_substring_views_only`: hold `instr <= 0.6M`
   - control split `kilo_micro_len_substring_views`: roughly flat is acceptable
   - whole strict: hold `<= 709 ms`; ideal band is `690-705 ms`
 - ideal `len_h` steady-state asm shape:

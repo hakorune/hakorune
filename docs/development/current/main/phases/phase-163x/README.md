@@ -177,20 +177,21 @@
         - thin-entry inventory now classifies boxed primitive field hints as `inline_scalar`, and the current Point/Flag native-driver keeper seeds require those selector rows before firing
       - the current `ny-llvmc` parity-wave keeper slice now covers Point / Flag / PointF direct+single-copy local keep routes
       - generic native-driver / `ny-llvmc` parity for the broader user-box local-body route remains later actual-consumer backlog, not the current blocker
+      - sibling string retained-view exact-micro consumer expansion is now landed:
+        - boundary `pure-first` recognizes the current `kilo_micro_substring_views_only` exit-len shape and collapses it before `substring_hii` / `len_h` replay
+        - latest exact reread: `instr=465,637 / cycles=704,757 / cache-miss=8,280 / AOT 3 ms`
+        - latest microasm: `ny_main = mov $0x20, %eax ; ret`
       - immediate next task after the parity keeper:
-        - move back to sibling string retained-view `substring_hii` consumer expansion
+        - move from the landed sibling exact micro into the broader string corridor placement/effect rewrite
       - verified non-Variant optimization order after this parity wave:
-        1. sibling string retained-view consumer expansion
-           - extend the landed boundary `pure-first` consumer family from `substring(...).length()` plus `concat -> substring(...)` into retained-view `substring_hii` local shapes
-           - keep `kilo_micro_substring_views_only` as the local exact front
-        2. broader string corridor placement/effect rewrite
+        1. broader string corridor placement/effect rewrite
            - `src/mir/string_corridor_placement.rs` is still inspection-only in this wave
            - use the already-landed candidate vocabulary as the contract for the next real transform family:
              - `borrowed_corridor_fusion`
              - `publication_sink`
              - `materialization_sink`
              - `direct_kernel_entry`
-        3. actual-consumer switch for selected user-box thin entries that are still metadata-only today
+        2. actual-consumer switch for selected user-box thin entries that are still metadata-only today
            - `thin_entry_selection` already inventories `user_box_method.known_receiver`
            - keep this beneath canonical `Call`; do not widen surface syntax or add a public MIR dialect fork
         4. `ArrayBox` typed-slot expansion beyond the landed `InlineI64` pilot

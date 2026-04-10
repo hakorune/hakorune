@@ -90,9 +90,13 @@ Related:
       - `sum_result_ok_tag_local_f64_min.prebuilt.mir.json` now proves the same cutover for `variant_tag` on a Float payload lane
       - `sum_result_ok_tag_local_handle_min.prebuilt.mir.json` now proves the same cutover for `variant_tag` on a handle payload lane
     - Variant* inventory for this cut is now exhausted; the current `ny-llvmc` parity-wave keeper slice now covers Point / Flag / PointF direct+single-copy local keep routes
-    - next substep after the current parity-wave keeper: sibling string retained-view `substring_hii` consumer expansion
+    - sibling string retained-view exact-micro consumer expansion is now landed:
+      - boundary `pure-first` recognizes the current `kilo_micro_substring_views_only` exit-len shape and collapses it before `substring_hii` / `len_h` replay
+      - latest exact reread: `instr=465,637 / cycles=704,757 / cache-miss=8,280 / AOT 3 ms`
+      - latest microasm: `ny_main = mov $0x20, %eax ; ret`
+    - next substep after the current parity-wave keeper: broader string corridor placement/effect rewrite
     - separate phase, not this cut: relax `phi_merge` or `call` / `boxcall` / `return` barriers only with a metadata-contract update first
-    - sibling string follow-on after that: extend the landed boundary `pure-first` consumer family from `substring(...).length()` plus `concat -> substring(...)` into retained-view `substring_hii` local shapes
+    - sibling string follow-on after that: move from the landed exact micro to the broader corridor rewrite family on the mixed accept gate
     - restart handoff: cleanup queue is empty; continue `phase163x-optimization-resume` next; `phase137x-substring-retained-view-consumer` remains in progress as the sibling string lane
   - verified backlog-only follow-ons:
     - semantic/generic backlog: `where`, enum methods, full monomorphization
