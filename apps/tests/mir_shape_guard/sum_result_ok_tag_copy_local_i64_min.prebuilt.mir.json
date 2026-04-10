@@ -1,0 +1,158 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "enum_decls": [
+    {
+      "name": "Result",
+      "variants": [
+        { "name": "Ok" },
+        { "name": "Err" }
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "name": "ny_main",
+      "params": [],
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 1,
+              "value": { "type": "i64", "value": 41 }
+            },
+            {
+              "op": "variant_make",
+              "dst": 2,
+              "enum": "Result",
+              "variant": "Ok",
+              "tag": 0,
+              "payload": 1,
+              "payload_type": "Integer"
+            },
+            {
+              "op": "copy",
+              "dst": 3,
+              "src": 2
+            },
+            {
+              "op": "variant_tag",
+              "dst": 4,
+              "value": 3,
+              "enum": "Result"
+            },
+            {
+              "op": "ret",
+              "value": 4
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "value_types": {
+          "1": "i64",
+          "4": "i64"
+        },
+        "thin_entry_selections": [
+          {
+            "block": 0,
+            "instruction_index": 1,
+            "value": 2,
+            "surface": "variant_make",
+            "subject": "Result::Ok",
+            "manifest_row": "variant_make.aggregate_local",
+            "selected_entry": "thin_internal_entry",
+            "state": "candidate",
+            "current_carrier": "compat_box",
+            "value_class": "agg_local",
+            "reason": "variant.make stays aggregate-first in the manifest plan and keeps compat boxing as fallback only"
+          },
+          {
+            "block": 0,
+            "instruction_index": 3,
+            "value": 4,
+            "surface": "variant_tag",
+            "subject": "Result",
+            "manifest_row": "variant_tag.tag_local",
+            "selected_entry": "thin_internal_entry",
+            "state": "candidate",
+            "current_carrier": "compat_box",
+            "value_class": "inline_i64",
+            "reason": "variant.tag keeps discriminant reads on the thin local route while compat carriers remain runtime fallback"
+          }
+        ],
+        "sum_placement_facts": [
+          {
+            "block": 0,
+            "instruction_index": 1,
+            "value": 2,
+            "surface": "variant_make",
+            "subject": "Result::Ok",
+            "source_sum": null,
+            "value_class": "agg_local",
+            "state": "local_agg_candidate",
+            "tag_reads": 1,
+            "project_reads": 0,
+            "barriers": [],
+            "reason": "variant value stays local through a copied tag-read proving slice in this metadata-bearing keep lane"
+          },
+          {
+            "block": 0,
+            "instruction_index": 3,
+            "value": 4,
+            "surface": "variant_tag",
+            "subject": "Result",
+            "source_sum": 2,
+            "value_class": "inline_i64",
+            "state": "local_agg_candidate",
+            "tag_reads": 1,
+            "project_reads": 0,
+            "barriers": [],
+            "reason": "variant.tag reads from a copied but non-escaping local variant candidate and can stay on the future unboxed tag path in this proving slice"
+          }
+        ],
+        "sum_placement_selections": [
+          {
+            "block": 0,
+            "instruction_index": 1,
+            "value": 2,
+            "surface": "variant_make",
+            "subject": "Result::Ok",
+            "source_sum": null,
+            "manifest_row": "variant_make.local_aggregate",
+            "selected_path": "local_aggregate",
+            "reason": "selected local aggregate sum construction"
+          },
+          {
+            "block": 0,
+            "instruction_index": 3,
+            "value": 4,
+            "surface": "variant_tag",
+            "subject": "Result",
+            "source_sum": 2,
+            "manifest_row": "variant_tag.local_aggregate",
+            "selected_path": "local_aggregate",
+            "reason": "selected local aggregate tag read from a copy alias"
+          }
+        ],
+        "sum_placement_layouts": [
+          {
+            "block": 0,
+            "instruction_index": 1,
+            "value": 2,
+            "surface": "variant_make",
+            "subject": "Result::Ok",
+            "source_sum": null,
+            "layout": "tag_i64_payload",
+            "reason": "selected local aggregate uses i64 payload lane"
+          }
+        ]
+      }
+    }
+  ]
+}

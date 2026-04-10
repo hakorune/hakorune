@@ -152,7 +152,8 @@
         - `apps/tests/mir_shape_guard/sum_option_project_local_i64_min.prebuilt.mir.json` now stays green on the boundary `pure-first` owner lane without compat replay
         - `apps/tests/mir_shape_guard/sum_result_ok_local_i64_min.prebuilt.mir.json` now proves the same cutover without depending on `Option::Some` naming
         - `apps/tests/mir_shape_guard/sum_result_ok_tag_local_i64_min.prebuilt.mir.json` now proves the same cutover for `variant_tag` on a non-`Option` enum
-        - `tools/smokes/v2/profiles/integration/phase163x/phase163x_boundary_sum_metadata_keep_min.sh` now pins the same no-replay contract across the metadata-bearing `variant_project` and `variant_tag` fixtures
+        - `apps/tests/mir_shape_guard/sum_result_ok_tag_copy_local_i64_min.prebuilt.mir.json` now proves the same cutover when `variant_tag` reads through a single local `copy` alias
+        - `tools/smokes/v2/profiles/integration/phase163x/phase163x_boundary_sum_metadata_keep_min.sh` now pins the same no-replay contract across the metadata-bearing `variant_project`, direct `variant_tag`, and copied-`variant_tag` fixtures
       - next active substep: start the separate `ny-llvmc` parity wave
       - keep canonical `Variant*` unchanged and leave VM / JSON v0 compat fallback intact in this slice
       - keep the landed slice scoped, then fold it into the later generic placement/effect pass instead of growing a permanent enum-only branch family

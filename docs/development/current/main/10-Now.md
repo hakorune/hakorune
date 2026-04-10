@@ -38,7 +38,7 @@ Related:
     - product LLVM/Python lowering now seeds `thin_entry_selections` into the resolver alongside `sum_placement_selections` / `sum_placement_layouts`
     - product LLVM/Python lowering now also keeps selected primitive user-box bodies boxless through `newbox` / `field_get` / `field_set` when the birth block fully initializes the declared primitive fields
     - the same selected user-box route now materializes a compat runtime box only at `call` / `boxcall` / `ret`
-    - metadata-bearing enum smoke is now green on `phase163x_boundary_sum_metadata_keep_min.sh` via boundary `pure-first` owner lane without compat replay, and the keep fixture set now covers both `variant_project` and `variant_tag` without `Option::Some`-specific naming
+    - metadata-bearing enum smoke is now green on `phase163x_boundary_sum_metadata_keep_min.sh` via boundary `pure-first` owner lane without compat replay, and the keep fixture set now covers `variant_project`, direct `variant_tag`, and single-copy `variant_tag` aliases without `Option::Some`-specific naming
     - thin-entry inventory now normalizes boxed primitive `declared_type` hints back to inline scalar classes for user-box field routes
     - the current Point/Flag `ny-llvmc(boundary pure-first)` keeper seeds now require `user_box_field_{get,set}.inline_scalar` selector rows before firing
     - latest WSL `3 runs + asm` reread on the actual AOT route stays call-free:
