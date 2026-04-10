@@ -1587,12 +1587,6 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
   middle = READ_STR(yyjson_obj_get(interesting[5], "value"), "value");
   if (!middle || !hako_llvmc_ascii_strlen(middle, &middle_len)) { yyjson_doc_free(doc); return -1; }
   {
-    yyjson_val* mc0 = yyjson_obj_get(interesting[6], "mir_call");
-    yyjson_val* mc1 = yyjson_obj_get(interesting[9], "mir_call");
-    if (!(mc0 && mc1)) {
-      yyjson_doc_free(doc);
-      return -1;
-    }
     if (!(hako_llvmc_string_corridor_has_candidate(
               fn,
               READ_INT(interesting[6], "dst"),
@@ -1624,12 +1618,7 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
     return -1;
   }
   {
-    yyjson_val* mc = yyjson_obj_get(interesting[15], "mir_call");
     long long helper_result = READ_INT(interesting[15], "dst");
-    if (!mc) {
-      yyjson_doc_free(doc);
-      return -1;
-    }
     if (!(hako_llvmc_string_corridor_read_plan_source_window_fn(
               fn,
               helper_result,
@@ -1643,20 +1632,13 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
       yyjson_doc_free(doc);
       return -1;
     }
-    if (!(hako_llvmc_string_corridor_plan_matches(
-              fn,
-              helper_result,
-              "publication_sink",
-              source_root,
-              READ_INT(interesting[12], "dst"),
-              READ_INT(interesting[14], "dst")) &&
-          hako_llvmc_string_corridor_plan_matches(
+    if (!hako_llvmc_string_corridor_plan_matches(
               fn,
               helper_result,
               "direct_kernel_entry",
               source_root,
               READ_INT(interesting[12], "dst"),
-              READ_INT(interesting[14], "dst")))) {
+              READ_INT(interesting[14], "dst"))) {
       yyjson_doc_free(doc);
       return -1;
     }
