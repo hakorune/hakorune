@@ -1564,16 +1564,13 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
   EXPECT_OP(3, "mir_call");
   EXPECT_OP(4, "mir_call");
   EXPECT_OP(5, "const");
-  EXPECT_OP(6, "mir_call");
   EXPECT_OP(7, "const");
   EXPECT_OP(8, "binop");
-  EXPECT_OP(9, "mir_call");
   EXPECT_OP(10, "binop");
   EXPECT_OP(11, "binop");
   EXPECT_OP(12, "const");
   EXPECT_OP(13, "const");
   EXPECT_OP(14, "binop");
-  EXPECT_OP(15, "mir_call");
   EXPECT_OP(16, "jump");
   divisor = READ_INT(yyjson_obj_get(interesting[1], "value"), "value");
   {
@@ -1616,16 +1613,6 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
           source_root > 0 &&
           helper_start == READ_INT(interesting[12], "dst") &&
           helper_end == READ_INT(interesting[14], "dst"))) {
-      yyjson_doc_free(doc);
-      return -1;
-    }
-    if (!hako_llvmc_string_corridor_plan_matches(
-              fn,
-              helper_result,
-              "direct_kernel_entry",
-              source_root,
-              READ_INT(interesting[12], "dst"),
-              READ_INT(interesting[14], "dst"))) {
       yyjson_doc_free(doc);
       return -1;
     }
