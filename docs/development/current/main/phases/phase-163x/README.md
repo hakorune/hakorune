@@ -206,6 +206,10 @@
         2. actual-consumer switch for selected user-box thin entries that are still metadata-only today
            - `thin_entry_selection` already inventories `user_box_method.known_receiver`
            - keep this beneath canonical `Call`; do not widen surface syntax or add a public MIR dialect fork
+           - landed first LLVM/Python consumer slice:
+             - `mir_call.method_call` now checks `user_box_method.known_receiver` selector rows before the legacy direct known-box fallback
+             - when the selector says `thin_internal_entry`, lowering takes a dedicated thin-known-receiver direct route while keeping the old direct known-box call as compatibility fallback
+           - next follow-on is native-driver/shim parity for the same selector contract, unless a measured local-method keeper appears first
         4. `ArrayBox` typed-slot expansion beyond the landed `InlineI64` pilot
            - later candidates are `InlineBool` / `InlineF64`
         5. backlog-only after the above:

@@ -119,6 +119,10 @@ class TestFunctionLowerResolverSeed(unittest.TestCase):
         self.assertEqual(builder.resolver.thin_entry_selection_by_value[12][0]["subject"], "Option::Some")
         self.assertEqual(builder.resolver.thin_entry_selection_by_value[18][0]["manifest_row"], "user_box_method.known_receiver")
         self.assertEqual(
+            builder.resolver.thin_entry_selection_by_subject[("user_box_method", "Point.length")][0]["manifest_row"],
+            "user_box_method.known_receiver",
+        )
+        self.assertEqual(
             builder.resolver.thin_entry_selection_by_subject[("user_box_field_get", "Point.x")][0]["manifest_row"],
             "user_box_field_get.inline_scalar",
         )

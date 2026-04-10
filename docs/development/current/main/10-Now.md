@@ -67,6 +67,10 @@ Related:
       - `--emit-mir-json-minimal` skips using/prelude resolution and plugin init while keeping the small `.hako` parser normalizations used by the perf fixtures
       - use it for front-end startup checks; the existing three-lane AOT split stays the kernel/startup companion
     - generic native-driver / `ny-llvmc` parity for the broader user-box local-body route remains canary-only backlog, not the current blocker
+    - first thin-entry method actual-consumer slice is now landed too:
+      - LLVM/Python `mir_call.method_call` now consults `user_box_method.known_receiver` selector rows before the direct known-box fallback
+      - when the selector chooses `thin_internal_entry`, lowering now takes a dedicated thin-known-receiver direct method route beneath canonical `Call`
+      - the previous direct known-box call remains as compatibility fallback, so existing lowered user-box methods keep working while the selector becomes a real consumer
     - portability-ci on `public-main` succeeded for commit `6b91896c0` (run `24211665863`), covering Windows check and macOS build (release)
   - verified post-Variant optimization order is now locked:
     1. `ny-llvmc` parity wave for the already-landed local enum/user-box routes
@@ -80,6 +84,8 @@ Related:
        - separate follow-on: any further `materialization_sink` widening across `phi_merge` or broader post-store windows only with a metadata-contract update first
        - shrink the temporary exact-seed bridge in `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc`
     4. actual-consumer switch for selected thin-entry user-box method routes that are still metadata-only today (`user_box_method.known_receiver` first)
+       - landed first LLVM/Python consumer slice for `user_box_method.known_receiver`
+       - next follow-on is native-driver/shim parity or a measured local-method keeper, whichever gets evidence first
     5. `ArrayBox` typed-slot expansion beyond the landed `InlineI64` pilot
   - tuple multi-payload compat transport is now landed:
     - parser/AST accept `Variant(T, U, ...)` while keeping tuple payload truth above canonical MIR
