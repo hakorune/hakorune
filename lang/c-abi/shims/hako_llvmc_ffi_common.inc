@@ -133,6 +133,40 @@ static int hako_llvmc_string_corridor_plan_matches(
   return 0;
 }
 
+static int hako_llvmc_string_corridor_has_candidate(
+    yyjson_val* fn,
+    long long value,
+    const char* kind) {
+  yyjson_val* metadata;
+  yyjson_val* candidates;
+  yyjson_val* arr;
+  size_t i;
+  char key[32];
+
+  if (!(fn && kind && value > 0)) {
+    return 0;
+  }
+
+  metadata = yyjson_obj_get(fn, "metadata");
+  candidates = metadata ? yyjson_obj_get(metadata, "string_corridor_candidates") : NULL;
+  if (!(candidates && yyjson_is_obj(candidates))) return 0;
+
+  snprintf(key, sizeof(key), "%lld", value);
+  arr = yyjson_obj_get(candidates, key);
+  if (!(arr && yyjson_is_arr(arr))) return 0;
+
+  for (i = 0; i < yyjson_arr_size(arr); i++) {
+    yyjson_val* candidate = yyjson_arr_get(arr, i);
+    const char* candidate_kind =
+        candidate ? yyjson_get_str(yyjson_obj_get(candidate, "kind")) : NULL;
+    if (candidate_kind && strcmp(candidate_kind, kind) == 0) {
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
 static int set_err_owned(char** err_out, const char* msg) {
   if (!err_out) return -1;
   if (!msg) { *err_out = NULL; return -1; }

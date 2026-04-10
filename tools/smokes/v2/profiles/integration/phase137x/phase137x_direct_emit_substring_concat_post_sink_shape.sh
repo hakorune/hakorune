@@ -6,7 +6,7 @@
 #    for `bench_kilo_micro_substring_concat.hako`.
 # 2) the loop body keeps the current live post-sink non-copy shape:
 #      - 17 interesting ops
-#      - `nyash.string.substring_len_hii` at positions 6 and 9
+#      - direct-kernel scalar-consumer candidates at positions 6 and 9
 #      - `nyash.string.substring_concat3_hhhii` at position 15
 # 3) the helper result keeps its live proof-bearing corridor metadata:
 #      - `%36` carries `publication_sink` and `direct_kernel_entry`
@@ -68,16 +68,22 @@ def callee_name(ins):
     cal = mc.get("callee", {})
     return cal.get("method") or cal.get("name")
 
-if interesting[6].get("op") != "mir_call" or callee_name(interesting[6]) != "nyash.string.substring_len_hii":
-    raise SystemExit("expected substring_len_hii at interesting[6]")
-
-if interesting[9].get("op") != "mir_call" or callee_name(interesting[9]) != "nyash.string.substring_len_hii":
-    raise SystemExit("expected substring_len_hii at interesting[9]")
+def has_candidate(value, kind):
+    items = candidates.get(str(value))
+    if not isinstance(items, list):
+        return False
+    return any(cand.get("kind") == kind for cand in items)
 
 if interesting[15].get("op") != "mir_call" or callee_name(interesting[15]) != "nyash.string.substring_concat3_hhhii":
     raise SystemExit("expected substring_concat3_hhhii at interesting[15]")
 
 candidates = main_fn.get("metadata", {}).get("string_corridor_candidates", {})
+if interesting[6].get("op") != "mir_call" or not has_candidate(interesting[6].get("dst"), "direct_kernel_entry"):
+    raise SystemExit("expected direct_kernel_entry candidate at interesting[6]")
+
+if interesting[9].get("op") != "mir_call" or not has_candidate(interesting[9].get("dst"), "direct_kernel_entry"):
+    raise SystemExit("expected direct_kernel_entry candidate at interesting[9]")
+
 helper_candidates = candidates.get("36")
 if not isinstance(helper_candidates, list) or not helper_candidates:
     raise SystemExit("missing string_corridor_candidates for helper result %36")

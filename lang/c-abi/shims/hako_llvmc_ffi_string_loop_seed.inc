@@ -1446,6 +1446,7 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
   long long divisor = 0;
   long long split = 0;
   long long middle_len = 0;
+  long long source_root = 0;
   const char* seed = NULL;
   const char* middle = NULL;
   size_t i;
@@ -1617,6 +1618,7 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
     yyjson_val* cal1 = mc1 ? yyjson_obj_get(mc1, "callee") : NULL;
     const char* name1 = cal1 ? (READ_STR(cal1, "method") ? READ_STR(cal1, "method") : READ_STR(cal1, "name")) : NULL;
     yyjson_val* args1 = mc1 ? yyjson_obj_get(mc1, "args") : NULL;
+    long long len_source_root = 0;
     if (!(name0 && strcmp(name0, "nyash.string.substring_len_hii") == 0 &&
           args0 && yyjson_is_arr(args0) && yyjson_arr_size(args0) == 3 &&
           name1 && strcmp(name1, "nyash.string.substring_len_hii") == 0 &&
@@ -1624,6 +1626,13 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
       yyjson_doc_free(doc);
       return -1;
     }
+    len_source_root = (long long)yyjson_get_sint(yyjson_arr_get(args0, 0));
+    if (!(len_source_root > 0 &&
+          len_source_root == (long long)yyjson_get_sint(yyjson_arr_get(args1, 0)))) {
+      yyjson_doc_free(doc);
+      return -1;
+    }
+    source_root = len_source_root;
   }
   {
     const char* add0 = READ_STR(interesting[8], "operation");
@@ -1649,10 +1658,6 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
     const char* name = cal ? (READ_STR(cal, "method") ? READ_STR(cal, "method") : READ_STR(cal, "name")) : NULL;
     yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
     long long helper_result = READ_INT(interesting[15], "dst");
-    long long source_root = 0;
-    yyjson_val* left_mc = yyjson_obj_get(interesting[3], "mir_call");
-    yyjson_val* left_cal = left_mc ? yyjson_obj_get(left_mc, "callee") : NULL;
-    source_root = left_cal ? READ_INT(left_cal, "receiver") : 0;
     if (!(name && strcmp(name, "nyash.string.substring_concat3_hhhii") == 0 &&
           args && yyjson_is_arr(args) && yyjson_arr_size(args) == 5)) {
       yyjson_doc_free(doc);
