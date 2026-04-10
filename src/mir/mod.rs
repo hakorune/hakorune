@@ -113,7 +113,7 @@ pub use string_corridor_placement::{
 };
 pub use string_corridor_relation::{
     refresh_function_string_corridor_relations, refresh_module_string_corridor_relations,
-    StringCorridorRelation, StringCorridorRelationKind,
+    StringCorridorRelation, StringCorridorRelationKind, StringCorridorWindowContract,
 };
 pub use sum_placement::{
     refresh_function_sum_placement_facts, refresh_module_sum_placement_facts,

@@ -496,8 +496,8 @@ mod tests {
             vec![crate::mir::StringCorridorRelation {
                 kind: crate::mir::StringCorridorRelationKind::PhiCarryBase,
                 base_value: ValueId::new(1),
-                carries_plan_window: false,
-                reason: "narrow phi continuity keeps the current string corridor lane without widening the plan window",
+                window_contract: crate::mir::StringCorridorWindowContract::StopAtMerge,
+                reason: "merged phi continuity keeps the current string corridor lane but stops the proof-bearing plan window at the merge",
             }],
         );
         let printer = MirPrinter::verbose();
@@ -509,6 +509,7 @@ mod tests {
         assert!(output.contains("String Corridor Candidates"));
         assert!(output.contains("%1: str.len"));
         assert!(output.contains("%2: phi_carry_base"));
+        assert!(output.contains("window=stop_at_merge"));
         assert!(output.contains("direct_kernel_entry"));
     }
 

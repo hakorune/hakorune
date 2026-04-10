@@ -26,18 +26,39 @@ impl std::fmt::Display for StringCorridorRelationKind {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StringCorridorWindowContract {
+    PreservePlanWindow,
+    StopAtMerge,
+}
+
+impl StringCorridorWindowContract {
+    pub fn preserves_plan_window(self) -> bool {
+        matches!(self, Self::PreservePlanWindow)
+    }
+}
+
+impl std::fmt::Display for StringCorridorWindowContract {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::PreservePlanWindow => f.write_str("preserve_plan_window"),
+            Self::StopAtMerge => f.write_str("stop_at_merge"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct StringCorridorRelation {
     pub kind: StringCorridorRelationKind,
     pub base_value: ValueId,
-    pub carries_plan_window: bool,
+    pub window_contract: StringCorridorWindowContract,
     pub reason: &'static str,
 }
 
 impl StringCorridorRelation {
     pub fn summary(&self) -> String {
         format!(
-            "{} base=%{} window_safe={} {}",
-            self.kind, self.base_value.0, self.carries_plan_window, self.reason
+            "{} base=%{} window={} {}",
+            self.kind, self.base_value.0, self.window_contract, self.reason
         )
     }
 }
@@ -72,11 +93,15 @@ pub fn refresh_function_string_corridor_relations(function: &mut MirFunction) {
             .push(StringCorridorRelation {
                 kind: StringCorridorRelationKind::PhiCarryBase,
                 base_value,
-                carries_plan_window: relation.window_safe,
+                window_contract: if relation.window_safe {
+                    StringCorridorWindowContract::PreservePlanWindow
+                } else {
+                    StringCorridorWindowContract::StopAtMerge
+                },
                 reason: if relation.window_safe {
                     "single-input phi continuity keeps the current string corridor lane and preserves the proof-bearing plan window"
                 } else {
-                    "narrow phi continuity keeps the current string corridor lane without widening the plan window"
+                    "merged phi continuity keeps the current string corridor lane but stops the proof-bearing plan window at the merge"
                 },
             });
     }
@@ -244,7 +269,7 @@ mod tests {
         assert!(latch_relations.iter().any(|relation| {
             relation.kind == StringCorridorRelationKind::PhiCarryBase
                 && relation.base_value == ValueId(36)
-                && relation.carries_plan_window
+                && relation.window_contract == StringCorridorWindowContract::PreservePlanWindow
         }));
 
         let header_relations = function
@@ -255,7 +280,7 @@ mod tests {
         assert!(header_relations.iter().any(|relation| {
             relation.kind == StringCorridorRelationKind::PhiCarryBase
                 && relation.base_value == ValueId(36)
-                && !relation.carries_plan_window
+                && relation.window_contract == StringCorridorWindowContract::StopAtMerge
         }));
     }
 }

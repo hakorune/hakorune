@@ -240,7 +240,7 @@ fn carried_candidates_from_relations(
                     kind: candidate.kind,
                     state: candidate.state,
                     reason: relation.reason,
-                    plan: if relation.carries_plan_window {
+                    plan: if relation.window_contract.preserves_plan_window() {
                         candidate.plan
                     } else {
                         None

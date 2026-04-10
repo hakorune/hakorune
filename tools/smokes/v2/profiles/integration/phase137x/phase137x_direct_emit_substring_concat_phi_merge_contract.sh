@@ -12,10 +12,13 @@
 # 3) the loop still carries the string lane through `%21 = phi([4,0], [22,20])`.
 # 4) the backedge still hands `%36` into `%22 = phi([36,19])`.
 # 5) proof-bearing corridor metadata still lives on `%36`.
-# 6) the single-input backedge phi `%22` now preserves the proof-bearing plan
-#    window, while merged header phi `%21` keeps only non-window
-#    `publication_sink` / `materialization_sink` / `direct_kernel_entry`
-#    continuity.
+# 6) the relation metadata now makes the stop line explicit:
+#      - `%22` uses `preserve_plan_window`
+#      - `%21` uses `stop_at_merge`
+#    and the candidates still reflect that:
+#      - `%22` preserves the proof-bearing plan window
+#      - `%21` keeps only non-window `publication_sink` /
+#        `materialization_sink` / `direct_kernel_entry` continuity.
 # 7) the latch still increments the trip counter with `const 1` and `+`.
 
 set -euo pipefail
@@ -111,6 +114,7 @@ def require_kinds(candidate_list, required, label):
         raise SystemExit(f"{label} missing candidate kinds: {sorted(missing)}")
 
 candidates = main_fn.get("metadata", {}).get("string_corridor_candidates", {})
+relations = main_fn.get("metadata", {}).get("string_corridor_relations", {})
 helper_candidates = candidates.get("36")
 if not isinstance(helper_candidates, list) or not helper_candidates:
     raise SystemExit("missing helper-result candidates for %36")
@@ -122,12 +126,34 @@ if not any(cand.get("plan") for cand in helper_candidates):
 
 required_phi_kinds = {"publication_sink", "materialization_sink", "direct_kernel_entry"}
 
+phi22_relations = relations.get("22")
+if not isinstance(phi22_relations, list) or not phi22_relations:
+    raise SystemExit("missing phi %22 relations")
+if not any(
+    rel.get("kind") == "phi_carry_base"
+    and rel.get("base_value") == 36
+    and rel.get("window_contract") == "preserve_plan_window"
+    for rel in phi22_relations
+):
+    raise SystemExit(f"phi %22 lost preserve_plan_window relation: {phi22_relations}")
+
 phi22_candidates = candidates.get("22")
 require_kinds(phi22_candidates, required_phi_kinds, "phi %22")
 if not any(cand.get("plan") is not None for cand in phi22_candidates):
     raise SystemExit(f"phi %22 lost the single-input carried plan window: {phi22_candidates}")
 if any(cand.get("kind") == "borrowed_corridor_fusion" for cand in phi22_candidates):
     raise SystemExit(f"phi %22 unexpectedly gained borrow-producing fusion: {phi22_candidates}")
+
+phi21_relations = relations.get("21")
+if not isinstance(phi21_relations, list) or not phi21_relations:
+    raise SystemExit("missing phi %21 relations")
+if not any(
+    rel.get("kind") == "phi_carry_base"
+    and rel.get("base_value") == 36
+    and rel.get("window_contract") == "stop_at_merge"
+    for rel in phi21_relations
+):
+    raise SystemExit(f"phi %21 lost stop_at_merge relation: {phi21_relations}")
 
 phi21_candidates = candidates.get("21")
 require_kinds(phi21_candidates, required_phi_kinds, "phi %21")
