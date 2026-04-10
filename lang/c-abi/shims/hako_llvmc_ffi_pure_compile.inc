@@ -50,6 +50,9 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   if (hako_llvmc_match_userbox_flag_toggle_micro_seed(json_in, obj_out) == 0) {
     return 0;
   }
+  if (hako_llvmc_match_variant_tag_local_tag_only_seed(json_in, obj_out) == 0) {
+    return 0;
+  }
   if (hako_llvmc_match_variant_tag_copy_local_i64_seed(json_in, obj_out) == 0) {
     return 0;
   }

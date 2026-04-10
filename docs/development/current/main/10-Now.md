@@ -75,8 +75,9 @@ Related:
     - immediate cut: `phase163x-sum-thin-entry-cutover`
     - landed proof for this cut:
       - `sum_result_ok_project_copy_local_i64_min.prebuilt.mir.json` now proves the same cutover when `variant_project` reads through a single local `copy` alias
+      - `sum_result_ok_tag_only_local_min.prebuilt.mir.json` now proves the same cutover for a payload-less `variant_tag` keep-lane proof
     - fixed remaining Variant* inventory for this cut:
-      1. direct layout coverage for `variant_tag` / `variant_project` on `tag_only` / `tag_f64_payload` / `tag_handle_payload` (`variant_project` is not applicable to `tag_only`)
+      1. direct layout coverage for `variant_tag` / `variant_project` on `tag_f64_payload` / `tag_handle_payload`
       2. only after direct layout coverage is green, add non-`i64` single-`copy` alias parity
     - separate phase, not this cut: relax `phi_merge` or `call` / `boxcall` / `return` barriers only with a metadata-contract update first
     - sibling string follow-on after that: extend the landed boundary `pure-first` consumer family from `substring(...).length()` plus `concat -> substring(...)` into retained-view `substring_hii` local shapes

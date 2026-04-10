@@ -33,6 +33,7 @@ FIXTURES=(
     "$NYASH_ROOT/apps/tests/mir_shape_guard/sum_option_project_local_i64_min.prebuilt.mir.json"
     "$NYASH_ROOT/apps/tests/mir_shape_guard/sum_result_ok_local_i64_min.prebuilt.mir.json"
     "$NYASH_ROOT/apps/tests/mir_shape_guard/sum_result_ok_project_copy_local_i64_min.prebuilt.mir.json"
+    "$NYASH_ROOT/apps/tests/mir_shape_guard/sum_result_ok_tag_only_local_min.prebuilt.mir.json"
     "$NYASH_ROOT/apps/tests/mir_shape_guard/sum_result_ok_tag_local_i64_min.prebuilt.mir.json"
     "$NYASH_ROOT/apps/tests/mir_shape_guard/sum_result_ok_tag_copy_local_i64_min.prebuilt.mir.json"
 )
@@ -96,4 +97,4 @@ for FIXTURE in "${FIXTURES[@]}"; do
     fi
 done
 
-test_pass "phase163x_boundary_sum_metadata_keep_min: PASS (metadata-bearing sum JSON fixtures stay green on boundary pure-first owner lane, including copied variant_project and variant_tag aliases)"
+test_pass "phase163x_boundary_sum_metadata_keep_min: PASS (metadata-bearing sum JSON fixtures stay green on boundary pure-first owner lane, including tag-only, copied variant_project and variant_tag aliases)"
