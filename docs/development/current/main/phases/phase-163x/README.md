@@ -152,6 +152,8 @@
         - `apps/tests/mir_shape_guard/sum_option_project_local_i64_min.prebuilt.mir.json` now stays green on the boundary `pure-first` owner lane without compat replay
         - `apps/tests/mir_shape_guard/sum_result_ok_local_i64_min.prebuilt.mir.json` now proves the same cutover without depending on `Option::Some` naming
         - `apps/tests/mir_shape_guard/sum_result_ok_project_copy_local_i64_min.prebuilt.mir.json` now proves the same cutover when `variant_project` reads through a single local `copy` alias
+        - `apps/tests/mir_shape_guard/sum_result_ok_project_copy_local_f64_min.prebuilt.mir.json` now proves the same cutover when `variant_project` reads through a single local `copy` alias on the Float payload lane
+        - `apps/tests/mir_shape_guard/sum_result_ok_project_copy_local_handle_min.prebuilt.mir.json` now proves the same cutover when `variant_project` reads through a single local `copy` alias on the handle payload lane
         - `apps/tests/mir_shape_guard/sum_result_ok_project_local_f64_min.prebuilt.mir.json` now proves the same cutover for `variant_project` on a Float payload lane
         - `apps/tests/mir_shape_guard/sum_result_ok_project_local_handle_min.prebuilt.mir.json` now proves the same cutover for `variant_project` on a handle payload lane
         - `apps/tests/mir_shape_guard/sum_result_ok_tag_only_local_min.prebuilt.mir.json` now proves the same cutover for a payload-less `variant_tag` keep-lane proof
@@ -160,8 +162,7 @@
         - `apps/tests/mir_shape_guard/sum_result_ok_tag_local_i64_min.prebuilt.mir.json` now proves the same cutover for `variant_tag` on a non-`Option` enum
         - `apps/tests/mir_shape_guard/sum_result_ok_tag_copy_local_i64_min.prebuilt.mir.json` now proves the same cutover when `variant_tag` reads through a single local `copy` alias
         - `tools/smokes/v2/profiles/integration/phase163x/phase163x_boundary_sum_metadata_keep_min.sh` now pins the same no-replay contract across the metadata-bearing direct/copy `variant_project`, payload-less `variant_tag`, Float-lane `variant_tag`, handle-lane `variant_tag`, direct `variant_tag`, and copied-`variant_tag` fixtures
-      - next active substep stays `phase163x-sum-thin-entry-cutover`; the remaining Variant* optimization inventory is now fixed in this order:
-        1. add single-`copy` alias parity for the non-`i64` layouts
+      - next active substep is `ny-llvmc` parity wave; the Variant* inventory for this cut is now exhausted
       - separate-phase backlog, not part of `sum-thin-entry-cutover`:
         - `PhiMerge` / cross-block alias routes stay blocked by the current `sum_placement` `phi_merge` barrier and require a contract change before optimization
         - `call` / `boxcall` / `return` de-objectization stays blocked by the current escape-barrier contract and must not be mixed into this boundary pure-first cut

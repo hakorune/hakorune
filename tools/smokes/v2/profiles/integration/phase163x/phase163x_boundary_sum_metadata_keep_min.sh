@@ -33,6 +33,8 @@ FIXTURES=(
     "$NYASH_ROOT/apps/tests/mir_shape_guard/sum_option_project_local_i64_min.prebuilt.mir.json"
     "$NYASH_ROOT/apps/tests/mir_shape_guard/sum_result_ok_local_i64_min.prebuilt.mir.json"
     "$NYASH_ROOT/apps/tests/mir_shape_guard/sum_result_ok_project_copy_local_i64_min.prebuilt.mir.json"
+    "$NYASH_ROOT/apps/tests/mir_shape_guard/sum_result_ok_project_copy_local_f64_min.prebuilt.mir.json"
+    "$NYASH_ROOT/apps/tests/mir_shape_guard/sum_result_ok_project_copy_local_handle_min.prebuilt.mir.json"
     "$NYASH_ROOT/apps/tests/mir_shape_guard/sum_result_ok_project_local_f64_min.prebuilt.mir.json"
     "$NYASH_ROOT/apps/tests/mir_shape_guard/sum_result_ok_project_local_handle_min.prebuilt.mir.json"
     "$NYASH_ROOT/apps/tests/mir_shape_guard/sum_result_ok_tag_only_local_min.prebuilt.mir.json"
