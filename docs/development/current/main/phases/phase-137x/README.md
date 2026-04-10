@@ -111,8 +111,9 @@
     2. `substring_view_enabled` / fallback provider state reads
     3. only then `SubstringViewArcCache` steady-state compare
   - boundary `pure-first` now consumes MIR JSON `string_corridor_*` for `substring(...).length()`:
-    - direct route trace hits `string_len_corridor -> substring_len_direct_kernel_entry`
+    - direct route trace now hits `string_len_corridor -> substring_len_direct_kernel_plan_window`
     - retained-slice `length()` / `len()` consumers now also rewrite through the same direct entry even when the slice producer dominates from another block through local copy aliases
+    - the current bridge shrink also removes the `substring_len_hii` declaration need from this plan-window lane; metadata is now the only direct-kernel proof source here
     - latest exact reread on `kilo_micro_len_substring_views`: `instr=1,672,259 / cycles=1,022,005 / cache-miss=10,525 / AOT 3 ms`
     - latest split-pack reread on `kilo_micro_substring_views_only`: `instr=466,001 / cycles=841,958 / cache-miss=9,391 / AOT 3 ms`
     - reading: the split retained-view fronts are now closed; the next string keeper reopens on broader corridor publication/materialization work
@@ -209,13 +210,13 @@
      - step 4: landed; `src/mir/string_corridor_placement.rs` now reads `FunctionMetadata.string_corridor_facts`, emits no-op candidate decisions into `FunctionMetadata.string_corridor_candidates`, and exposes them in verbose MIR dumps plus MIR JSON
      - step 5: landed structurally; the first borrowed-corridor sinking pilot now rewrites single-use `substring(...).length()` chains to `nyash.string.substring_len_hii`
      - step 6: landed; `phase-162x vm fallback lane separation cleanup` is complete, so this front now reads through `ny-llvmc(boundary pure-first)` without mixing fallback owners
-     - step 7: landed; boundary `pure-first` now consumes MIR JSON `string_corridor_*` metadata for `substring(...).length()` and hits `string_len_corridor -> substring_len_direct_kernel_entry`
+     - step 7: landed; boundary `pure-first` now consumes MIR JSON `string_corridor_*` metadata for `substring(...).length()` and now reads the route as `string_len_corridor -> substring_len_direct_kernel_plan_window`
      - step 8: landed; boundary `pure-first` now also routes compiler-visible concat pair/triple `substring(...)` consumers to `nyash.string.substring_concat_hhii` / `nyash.string.substring_concat3_hhhii`
      - step 9: landed; `FunctionMetadata.string_corridor_candidates` now carries proof-bearing plan metadata on the broader-corridor reopen front `kilo_micro_substring_concat`, and MIR JSON exports the same plan surface
      - step 10: landed; direct `substring_concat3_hhhii` helper results now stay on the corridor metadata lane with concat-triplet-backed `publication_sink` proof
      - step 11: landed; direct helper-result `length()` / `substring()` now consume that same `publication_sink` proof in `string_corridor_sink`
      - step 12: landed; `materialization_sink` now covers the non-`phi` local `ArrayBox.set` store boundary and the first trailing `length()` post-store observer window on the same canonical MIR lane
-     - step 13: landed first plan-selected `direct_kernel_entry` slice; boundary `pure-first` now reads plan windows on direct helper-result receivers and lowers `length()` as window arithmetic
+     - step 13: landed first plan-selected `direct_kernel_entry` slice; boundary `pure-first` now reads plan windows on direct helper-result receivers, lowers `length()` as window arithmetic, and no longer keeps the `substring_len_hii` declaration bridge on that lane
      - step 14: next shrink the remaining dynamic/exact bridge paths that still bypass the plan
      - step 15: separate phase, not this cut: any `phi_merge` relaxation for the loop-carried `text = out.substring(...)` route
      - step 16: only after that reopen new `substring_hii` runtime leaf cuts, and only with exact/asm proof

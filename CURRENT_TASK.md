@@ -407,9 +407,10 @@ Scope: repo root から current lane / current front / restart read order に最
     - `functions[].metadata` emits `string_corridor_facts` and `string_corridor_candidates`
     - boundary `pure-first` can now consume the same corridor vocabulary that verbose MIR already exposed
   - boundary `pure-first` consumer is now landed for `substring(...).length()`:
-    - direct route trace on `kilo_micro_len_substring_views` shows `string_len_corridor -> substring_len_direct_kernel_entry`
+    - direct route trace on `kilo_micro_len_substring_views` now shows `string_len_corridor -> substring_len_direct_kernel_plan_window`
     - post-consumer reread on `kilo_micro_len_substring_views`: `instr=47,263,778 / cycles=28,345,762 / cache-miss=10,603 / AOT 9 ms`
     - post-consumer reread on `kilo_micro_substring_views_only`: `instr=34,364,317 / cycles=6,565,794 / cache-miss=9,276 / AOT 5 ms`
+    - latest bridge shrink drops the `substring_len_hii` declaration need on the same plan-window lane; direct-kernel len now consumes metadata rather than substring-call re-inference
     - current reading: the consumer slice is a structural enabler, but the next visible keeper still has to come from retained-view `substring_hii` shapes rather than another runtime-local retry
   - concat/objectization reading is now fixed before the next cut:
     - exact `kilo_micro_substring_concat` is parity-locked again after the pure-first seed repair for the post-sink `substring_len_hii` / `substring_concat3_hhhii` body shape, so it still does not prove the generic concat consumer lane by itself
