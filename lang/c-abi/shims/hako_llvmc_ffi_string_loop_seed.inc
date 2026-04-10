@@ -1594,21 +1594,6 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
       return -1;
     }
   }
-  {
-    int k;
-    for (k = 3; k <= 4; k++) {
-      yyjson_val* mc = yyjson_obj_get(interesting[k], "mir_call");
-      yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-      const char* box_name = cal ? (READ_STR(cal, "box_name") ? READ_STR(cal, "box_name") : READ_STR(cal, "box_type")) : NULL;
-      const char* name = cal ? (READ_STR(cal, "method") ? READ_STR(cal, "method") : READ_STR(cal, "name")) : NULL;
-      yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
-      if (!(REQUIRE_STRINGISH_BOX(box_name) && name && strcmp(name, "substring") == 0 &&
-            args && yyjson_is_arr(args) && yyjson_arr_size(args) == 2)) {
-        yyjson_doc_free(doc);
-        return -1;
-      }
-    }
-  }
   middle = READ_STR(yyjson_obj_get(interesting[5], "value"), "value");
   if (!middle || !hako_llvmc_ascii_strlen(middle, &middle_len)) { yyjson_doc_free(doc); return -1; }
   {
