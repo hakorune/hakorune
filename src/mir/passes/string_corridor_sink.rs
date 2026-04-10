@@ -12,6 +12,7 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use crate::mir::{
     refresh_function_string_corridor_candidates, refresh_function_string_corridor_facts,
+    refresh_function_string_corridor_relations,
     string_corridor_recognizer::{
         build_def_map, const_string_length, extract_substring_args, match_add_in_block,
         match_concat_triplet, match_len_call, match_method_set_call, match_substring_call,
@@ -37,6 +38,7 @@ pub fn sink_borrowed_string_corridors(module: &mut MirModule) -> usize {
 
 fn sink_borrowed_string_corridors_in_function(function: &mut MirFunction) -> usize {
     refresh_function_string_corridor_facts(function);
+    refresh_function_string_corridor_relations(function);
     refresh_function_string_corridor_candidates(function);
 
     let def_map = build_def_map(function);
@@ -775,6 +777,7 @@ fn apply_plans(
     if rewritten > 0 {
         function.update_cfg();
         refresh_function_string_corridor_facts(function);
+        refresh_function_string_corridor_relations(function);
         refresh_function_string_corridor_candidates(function);
     }
     rewritten
@@ -881,6 +884,7 @@ fn apply_retained_len_plans(
     if rewritten > 0 {
         function.update_cfg();
         refresh_function_string_corridor_facts(function);
+        refresh_function_string_corridor_relations(function);
         refresh_function_string_corridor_candidates(function);
     }
 
@@ -973,12 +977,7 @@ fn collect_concat_corridor_plans(
                     1 => None,
                     2 => {
                         let Some(window) = find_trailing_len_observer_in_block(
-                            function,
-                            *bbid,
-                            def_map,
-                            use_counts,
-                            helper.dst,
-                            outer_idx,
+                            function, *bbid, def_map, use_counts, helper.dst, outer_idx,
                         ) else {
                             continue;
                         };
@@ -1451,6 +1450,7 @@ fn apply_concat_corridor_plans(
     if rewritten > 0 {
         function.update_cfg();
         refresh_function_string_corridor_facts(function);
+        refresh_function_string_corridor_relations(function);
         refresh_function_string_corridor_candidates(function);
     }
 
@@ -1517,6 +1517,7 @@ fn apply_complementary_len_fusion_plans(
     if rewritten > 0 {
         function.update_cfg();
         refresh_function_string_corridor_facts(function);
+        refresh_function_string_corridor_relations(function);
         refresh_function_string_corridor_candidates(function);
     }
 
@@ -3525,16 +3526,18 @@ mod tests {
                     let Some((_dst, receiver, _effects)) = match_len_call(inst) else {
                         continue;
                     };
-                    let Some(receiver_chain) =
-                        resolve_copy_chain_in_block(function, *bbid, &def_map, &use_counts, receiver)
-                    else {
+                    let Some(receiver_chain) = resolve_copy_chain_in_block(
+                        function,
+                        *bbid,
+                        &def_map,
+                        &use_counts,
+                        receiver,
+                    ) else {
                         continue;
                     };
                     if publication_helper_shape(function, &def_map, receiver_chain.root).is_some() {
-                        leftover_helper_lengths.push(format!(
-                            "fn={name} bb={} helper-len inst={inst:?}",
-                            bbid.0
-                        ));
+                        leftover_helper_lengths
+                            .push(format!("fn={name} bb={} helper-len inst={inst:?}", bbid.0));
                     }
                 }
             }

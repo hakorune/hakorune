@@ -10,13 +10,13 @@ use super::{
     string_corridor::{
         StringCorridorFact, StringCorridorOp, StringCorridorRole, StringPlacementFact,
     },
-    string_corridor_phi::collect_string_corridor_phi_carries,
     string_corridor_recognizer::{
         build_def_map, const_string_length, match_concat_triplet, match_len_call,
         match_substring_call, match_substring_call_shape, match_substring_concat3_helper_call,
         resolve_copy_chain_source, string_source_identity, ConcatTripletShape,
         StringSourceIdentity,
     },
+    string_corridor_relation::{StringCorridorRelation, StringCorridorRelationKind},
     BasicBlockId, MirFunction, MirModule, ValueId,
 };
 use std::collections::HashMap;
@@ -161,7 +161,13 @@ pub struct StringCorridorCandidate {
 impl StringCorridorCandidate {
     pub fn summary(&self) -> String {
         match self.plan {
-            Some(plan) => format!("{} [{}] {} | {}", self.kind, self.state, self.reason, plan.summary()),
+            Some(plan) => format!(
+                "{} [{}] {} | {}",
+                self.kind,
+                self.state,
+                self.reason,
+                plan.summary()
+            ),
             None => format!("{} [{}] {}", self.kind, self.state, self.reason),
         }
     }
@@ -189,37 +195,20 @@ pub fn refresh_function_string_corridor_candidates(function: &mut MirFunction) {
         }
     }
 
-    refresh_function_string_corridor_phi_candidates(function, &def_map);
+    refresh_function_string_corridor_relation_candidates(function, &def_map);
 }
 
-fn refresh_function_string_corridor_phi_candidates(
+fn refresh_function_string_corridor_relation_candidates(
     function: &mut MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    _def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
 ) {
     let mut phi_updates: Vec<(ValueId, Vec<StringCorridorCandidate>)> = Vec::new();
 
-    for carry in collect_string_corridor_phi_carries(function, def_map) {
-        let Some(base_candidates) = base_phi_carry_candidates(function, carry.base_value) else {
-            continue;
-        };
-        let carried_candidates = base_candidates
-            .into_iter()
-            .map(|candidate| StringCorridorCandidate {
-                kind: candidate.kind,
-                state: candidate.state,
-                reason: if carry.carries_plan_window {
-                    "single-input phi continuity keeps the current string corridor lane and preserves the proof-bearing plan window"
-                } else {
-                    "narrow phi continuity keeps the current string corridor lane without widening the plan window"
-                },
-                plan: if carry.carries_plan_window {
-                    candidate.plan
-                } else {
-                    None
-                },
-            })
-            .collect();
-        phi_updates.push((carry.phi_value, carried_candidates));
+    for (value, relations) in &function.metadata.string_corridor_relations {
+        let carried_candidates = carried_candidates_from_relations(function, relations);
+        if !carried_candidates.is_empty() {
+            phi_updates.push((*value, carried_candidates));
+        }
     }
 
     for (value, candidates) in phi_updates {
@@ -230,6 +219,36 @@ fn refresh_function_string_corridor_phi_candidates(
             .or_default()
             .extend(candidates);
     }
+}
+
+fn carried_candidates_from_relations(
+    function: &MirFunction,
+    relations: &[StringCorridorRelation],
+) -> Vec<StringCorridorCandidate> {
+    let mut out = Vec::new();
+    for relation in relations {
+        if relation.kind != StringCorridorRelationKind::PhiCarryBase {
+            continue;
+        }
+        let Some(base_candidates) = base_phi_carry_candidates(function, relation.base_value) else {
+            continue;
+        };
+        out.extend(
+            base_candidates
+                .into_iter()
+                .map(|candidate| StringCorridorCandidate {
+                    kind: candidate.kind,
+                    state: candidate.state,
+                    reason: relation.reason,
+                    plan: if relation.carries_plan_window {
+                        candidate.plan
+                    } else {
+                        None
+                    },
+                }),
+        );
+    }
+    out
 }
 
 fn base_phi_carry_candidates(
@@ -295,11 +314,10 @@ fn shared_source_root(
         {
             (true, Some(lhs))
         }
-        (Some(StringSourceIdentity::ConstString(lhs)), Some(StringSourceIdentity::ConstString(rhs)))
-            if lhs == rhs =>
-        {
-            (true, None)
-        }
+        (
+            Some(StringSourceIdentity::ConstString(lhs)),
+            Some(StringSourceIdentity::ConstString(rhs)),
+        ) if lhs == rhs => (true, None),
         _ => (false, None),
     }
 }
@@ -360,8 +378,13 @@ fn infer_concat_triplet_result_plan(
     let (bbid, idx) = def_map.get(&root).copied()?;
     let block = function.blocks.get(&bbid)?;
     let helper = match_substring_concat3_helper_call(block.instructions.get(idx)?)?;
-    let (left, middle, right, start, end) =
-        (helper.left, helper.middle, helper.right, helper.start, helper.end);
+    let (left, middle, right, start, end) = (
+        helper.left,
+        helper.middle,
+        helper.right,
+        helper.start,
+        helper.end,
+    );
     let Some(StringSourceIdentity::ConstString(text)) =
         string_source_identity(function, def_map, middle)
     else {
@@ -421,17 +444,20 @@ fn infer_plan(
         }
         StringCorridorOp::StrLen => {
             let (_, receiver, _) = match_len_call(inst)?;
-            infer_concat_triplet_plan(function, bbid, receiver, None, None, def_map, false)
-                .or_else(|| infer_borrowed_slice_plan(function, receiver, def_map).map(|plan| {
-                    StringCorridorCandidatePlan {
-                        corridor_root: plan.corridor_root,
-                        source_root: plan.source_root,
-                        start: plan.start,
-                        end: plan.end,
-                        known_length: plan.known_length,
-                        proof: plan.proof,
-                    }
-                }))
+            infer_concat_triplet_plan(function, bbid, receiver, None, None, def_map, false).or_else(
+                || {
+                    infer_borrowed_slice_plan(function, receiver, def_map).map(|plan| {
+                        StringCorridorCandidatePlan {
+                            corridor_root: plan.corridor_root,
+                            source_root: plan.source_root,
+                            start: plan.start,
+                            end: plan.end,
+                            known_length: plan.known_length,
+                            proof: plan.proof,
+                        }
+                    })
+                },
+            )
         }
         StringCorridorOp::FreezeStr => None,
     }
@@ -593,6 +619,7 @@ mod tests {
             StringCorridorFact::str_len(crate::mir::StringCorridorCarrier::MethodCall),
         );
 
+        crate::mir::refresh_function_string_corridor_relations(&mut function);
         refresh_function_string_corridor_candidates(&mut function);
 
         let candidates = function
@@ -640,7 +667,13 @@ mod tests {
         let mut function = MirFunction::new(signature, BasicBlockId(0));
         let block = function.blocks.get_mut(&BasicBlockId(0)).expect("entry");
 
-        block.instructions.push(method_call(ValueId(1), ValueId(0), "StringBox", "length", vec![]));
+        block.instructions.push(method_call(
+            ValueId(1),
+            ValueId(0),
+            "StringBox",
+            "length",
+            vec![],
+        ));
         block.instruction_spans.push(Span::unknown());
         block.instructions.push(MirInstruction::Const {
             dst: ValueId(2),
@@ -694,7 +727,13 @@ mod tests {
             rhs: ValueId(6),
         });
         block.instruction_spans.push(Span::unknown());
-        block.instructions.push(method_call(ValueId(10), ValueId(9), "RuntimeDataBox", "length", vec![]));
+        block.instructions.push(method_call(
+            ValueId(10),
+            ValueId(9),
+            "RuntimeDataBox",
+            "length",
+            vec![],
+        ));
         block.instruction_spans.push(Span::unknown());
         block.instructions.push(MirInstruction::Const {
             dst: ValueId(11),
@@ -721,6 +760,7 @@ mod tests {
         });
 
         crate::mir::refresh_function_string_corridor_facts(&mut function);
+        crate::mir::refresh_function_string_corridor_relations(&mut function);
         refresh_function_string_corridor_candidates(&mut function);
 
         let len_candidates = function
@@ -761,7 +801,9 @@ mod tests {
             .iter()
             .find(|candidate| candidate.kind == StringCorridorCandidateKind::PublicationSink)
             .expect("publication candidate");
-        let substring_plan = publication.plan.expect("plan metadata on substring candidate");
+        let substring_plan = publication
+            .plan
+            .expect("plan metadata on substring candidate");
         assert_eq!(substring_plan.corridor_root, ValueId(9));
         assert_eq!(substring_plan.source_root, Some(ValueId(0)));
         assert_eq!(substring_plan.start, Some(ValueId(11)));
@@ -865,7 +907,9 @@ mod tests {
         block.instructions.push(MirInstruction::Call {
             dst: Some(ValueId(10)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Extern("nyash.string.substring_concat3_hhhii".to_string())),
+            callee: Some(Callee::Extern(
+                "nyash.string.substring_concat3_hhhii".to_string(),
+            )),
             args: vec![ValueId(5), ValueId(7), ValueId(6), ValueId(8), ValueId(9)],
             effects: EffectMask::PURE,
         });
@@ -875,6 +919,7 @@ mod tests {
         });
 
         crate::mir::refresh_function_string_corridor_facts(&mut function);
+        crate::mir::refresh_function_string_corridor_relations(&mut function);
         refresh_function_string_corridor_candidates(&mut function);
 
         let candidates = function
@@ -954,7 +999,10 @@ mod tests {
         let header = function.blocks.get_mut(&BasicBlockId(1)).expect("header");
         header.instructions.push(MirInstruction::Phi {
             dst: ValueId(21),
-            inputs: vec![(BasicBlockId(0), ValueId(0)), (BasicBlockId(3), ValueId(22))],
+            inputs: vec![
+                (BasicBlockId(0), ValueId(0)),
+                (BasicBlockId(3), ValueId(22)),
+            ],
             type_hint: Some(MirType::Box("RuntimeDataBox".to_string())),
         });
         header.instruction_spans.push(Span::unknown());
@@ -1013,8 +1061,16 @@ mod tests {
         body.instructions.push(MirInstruction::Call {
             dst: Some(ValueId(36)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Extern("nyash.string.substring_concat3_hhhii".to_string())),
-            args: vec![ValueId(26), ValueId(66), ValueId(27), ValueId(71), ValueId(72)],
+            callee: Some(Callee::Extern(
+                "nyash.string.substring_concat3_hhhii".to_string(),
+            )),
+            args: vec![
+                ValueId(26),
+                ValueId(66),
+                ValueId(27),
+                ValueId(71),
+                ValueId(72),
+            ],
             effects: EffectMask::PURE,
         });
         body.instruction_spans.push(Span::unknown());
@@ -1039,6 +1095,7 @@ mod tests {
         exit.set_terminator(MirInstruction::Return { value: None });
 
         crate::mir::refresh_function_string_corridor_facts(&mut function);
+        crate::mir::refresh_function_string_corridor_relations(&mut function);
         refresh_function_string_corridor_candidates(&mut function);
 
         let helper = function
@@ -1077,16 +1134,18 @@ mod tests {
             .string_corridor_candidates
             .get(&ValueId(21))
             .expect("phi %21 candidates");
-        assert!(header_candidates.iter().all(|candidate| candidate.plan.is_none()));
-        assert!(header_candidates.iter().any(|candidate| {
-            candidate.kind == StringCorridorCandidateKind::PublicationSink
-        }));
+        assert!(header_candidates
+            .iter()
+            .all(|candidate| candidate.plan.is_none()));
+        assert!(header_candidates
+            .iter()
+            .any(|candidate| { candidate.kind == StringCorridorCandidateKind::PublicationSink }));
         assert!(header_candidates.iter().any(|candidate| {
             candidate.kind == StringCorridorCandidateKind::MaterializationSink
         }));
-        assert!(header_candidates.iter().any(|candidate| {
-            candidate.kind == StringCorridorCandidateKind::DirectKernelEntry
-        }));
+        assert!(header_candidates
+            .iter()
+            .any(|candidate| { candidate.kind == StringCorridorCandidateKind::DirectKernelEntry }));
         assert!(!header_candidates.iter().any(|candidate| {
             candidate.kind == StringCorridorCandidateKind::BorrowCorridorFusion
         }));

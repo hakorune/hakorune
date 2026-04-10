@@ -262,6 +262,14 @@ impl MirPrinter {
                     writeln!(output, "  ;     %{}: {}", value.0, fact.summary()).unwrap();
                 }
             }
+            if !function.metadata.string_corridor_relations.is_empty() {
+                writeln!(output, "  ;   String Corridor Relations:").unwrap();
+                for (value, relations) in &function.metadata.string_corridor_relations {
+                    for relation in relations {
+                        writeln!(output, "  ;     %{}: {}", value.0, relation.summary()).unwrap();
+                    }
+                }
+            }
             if !function.metadata.string_corridor_candidates.is_empty() {
                 writeln!(output, "  ;   String Corridor Candidates:").unwrap();
                 for (value, candidates) in &function.metadata.string_corridor_candidates {
@@ -483,13 +491,24 @@ mod tests {
                 plan: None,
             }],
         );
+        function.metadata.string_corridor_relations.insert(
+            ValueId::new(2),
+            vec![crate::mir::StringCorridorRelation {
+                kind: crate::mir::StringCorridorRelationKind::PhiCarryBase,
+                base_value: ValueId::new(1),
+                carries_plan_window: false,
+                reason: "narrow phi continuity keeps the current string corridor lane without widening the plan window",
+            }],
+        );
         let printer = MirPrinter::verbose();
 
         let output = printer.print_function(&function);
 
         assert!(output.contains("String Corridor Facts"));
+        assert!(output.contains("String Corridor Relations"));
         assert!(output.contains("String Corridor Candidates"));
         assert!(output.contains("%1: str.len"));
+        assert!(output.contains("%2: phi_carry_base"));
         assert!(output.contains("direct_kernel_entry"));
     }
 

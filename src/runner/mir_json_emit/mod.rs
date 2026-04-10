@@ -95,6 +95,16 @@ fn build_mir_json_root(module: &crate::mir::MirModule) -> Result<serde_json::Val
                     "materialize": fact.materialize.to_string(),
                 }))
             }).collect::<serde_json::Map<String, serde_json::Value>>(),
+            "string_corridor_relations": f.metadata.string_corridor_relations.iter().map(|(k, relations)| {
+                (k.as_u32().to_string(), json!(relations.iter().map(|relation| {
+                    json!({
+                        "kind": relation.kind.to_string(),
+                        "base_value": relation.base_value.as_u32(),
+                        "carries_plan_window": relation.carries_plan_window,
+                        "reason": relation.reason,
+                    })
+                }).collect::<Vec<_>>()))
+            }).collect::<serde_json::Map<String, serde_json::Value>>(),
             "string_corridor_candidates": f.metadata.string_corridor_candidates.iter().map(|(k, candidates)| {
                 (k.as_u32().to_string(), json!(candidates.iter().map(|candidate| {
                     json!({
@@ -625,6 +635,15 @@ mod tests {
     fn build_mir_json_root_emits_string_corridor_candidates() {
         let mut module = MirModule::new("test".to_string());
         let mut function = make_function("main", true);
+        function.metadata.string_corridor_relations.insert(
+            crate::mir::ValueId::new(7),
+            vec![crate::mir::StringCorridorRelation {
+                kind: crate::mir::StringCorridorRelationKind::PhiCarryBase,
+                base_value: crate::mir::ValueId::new(6),
+                carries_plan_window: true,
+                reason: "single-input phi continuity keeps the current string corridor lane and preserves the proof-bearing plan window",
+            }],
+        );
         function.metadata.string_corridor_candidates.insert(
             crate::mir::ValueId::new(8),
             vec![crate::mir::StringCorridorCandidate {
@@ -674,9 +693,22 @@ mod tests {
         assert_eq!(value_candidates[0]["plan"]["start"], 2);
         assert_eq!(value_candidates[0]["plan"]["end"], 3);
         assert_eq!(value_candidates[0]["plan"]["known_length"], 2);
-        assert_eq!(value_candidates[0]["plan"]["proof"]["kind"], "concat_triplet");
+        assert_eq!(
+            value_candidates[0]["plan"]["proof"]["kind"],
+            "concat_triplet"
+        );
         assert_eq!(value_candidates[0]["plan"]["proof"]["middle"], 6);
         assert_eq!(value_candidates[0]["plan"]["proof"]["shared_source"], true);
+
+        let relations = root["functions"][0]["metadata"]["string_corridor_relations"]
+            .as_object()
+            .expect("string_corridor_relations object");
+        let value_relations = relations["7"]
+            .as_array()
+            .expect("string corridor relation array");
+        assert_eq!(value_relations[0]["kind"], "phi_carry_base");
+        assert_eq!(value_relations[0]["base_value"], 6);
+        assert_eq!(value_relations[0]["carries_plan_window"], true);
     }
 
     #[test]
@@ -777,7 +809,10 @@ mod tests {
             .expect("sum_placement_selections array");
 
         assert_eq!(selections.len(), 1);
-        assert_eq!(selections[0]["manifest_row"], "variant_project.local_aggregate");
+        assert_eq!(
+            selections[0]["manifest_row"],
+            "variant_project.local_aggregate"
+        );
         assert_eq!(selections[0]["selected_path"], "local_aggregate");
         assert_eq!(selections[0]["source_sum"], 9);
         assert_eq!(selections[0]["value"], 10);

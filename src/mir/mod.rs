@@ -43,8 +43,8 @@ pub mod loop_route_detection; // Active module surface for loop route-shape dete
 pub mod optimizer_passes; // optimizer passes (normalize/diagnostics)
 pub mod optimizer_stats; // extracted stats struct
 pub mod passes;
-pub(crate) mod phi_query; // generic PHI base-relation seam for later relation consumers
 pub mod phi_core; // Phase 1 scaffold: unified PHI entry (re-exports only)
+pub(crate) mod phi_query; // generic PHI base-relation seam for later relation consumers
 pub mod printer;
 mod printer_helpers; // internal helpers extracted from printer.rs
 pub mod query; // Phase 26-G: MIR read/write/CFGビュー (MirQuery)
@@ -53,9 +53,9 @@ pub mod slot_registry; // Phase 9.79b.1: method slot resolution (IDs)
 mod spanned_instruction;
 pub mod storage_class; // primitive / user-box storage-class inventory + refresh helper
 pub mod string_corridor; // string canonical corridor facts + refresh helper
-pub(crate) mod string_corridor_phi; // narrow PHI continuity helper for string corridor
 pub mod string_corridor_placement; // placement/effect scaffold over canonical string facts
 pub(crate) mod string_corridor_recognizer; // shared pure shape recognizers for string corridor
+pub mod string_corridor_relation; // string-corridor relation layer over generic PHI queries
 pub mod sum_placement; // sum-local proving slice for later generic placement/effect pass
 pub mod sum_placement_layout; // LLVM-side payload-lane choices for selected local sums
 pub mod sum_placement_selection; // selection pilot over sum-local placement facts
@@ -110,6 +110,10 @@ pub use string_corridor_placement::{
     refresh_function_string_corridor_candidates, refresh_module_string_corridor_candidates,
     StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidatePlan,
     StringCorridorCandidateProof, StringCorridorCandidateState,
+};
+pub use string_corridor_relation::{
+    refresh_function_string_corridor_relations, refresh_module_string_corridor_relations,
+    StringCorridorRelation, StringCorridorRelationKind,
 };
 pub use sum_placement::{
     refresh_function_sum_placement_facts, refresh_module_sum_placement_facts,
@@ -243,6 +247,7 @@ impl MirCompiler {
         // Runs after optimization and verification, before backend codegen
         let _rc_stats = insert_rc_instructions(&mut module);
         refresh_module_string_corridor_facts(&mut module);
+        refresh_module_string_corridor_relations(&mut module);
         refresh_module_string_corridor_candidates(&mut module);
         refresh_module_storage_class_facts(&mut module);
         refresh_module_thin_entry_candidates(&mut module);

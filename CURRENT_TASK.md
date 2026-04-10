@@ -273,7 +273,7 @@ Scope: repo root から current lane / current front / restart read order に最
         - keep `phi_merge` and `call` / `boxcall` / `return` barrier relaxation out of this cut; those require a separate metadata-contract phase first, and the post-store observer lane still needs `array.set + trailing length()` facts before widening beyond the new store-only sink
         - fixed return order from the current bridge shrink:
           1. keep shrinking the remaining exact-seed structural checks only where the live post-sink metadata contract already proves the route
-          2. lift loop-carried base/root interpretation out of string-specific placement ownership into a generic MIR phi query / relation seam
+          2. lift loop-carried base/root interpretation out of string-specific placement ownership into a generic MIR phi query / relation seam, then store the string-side continuity as relation metadata before candidate refresh
           3. landed first narrow `plan window across phi_merge` cut on the single-input backedge phi `%22`; keep merged `%21` non-window and only widen further in a separate metadata-contract phase
         - verified non-Variant optimization order after the current parity wave:
           1. broader string corridor genericization on the existing metadata path
@@ -422,7 +422,7 @@ Scope: repo root から current lane / current front / restart read order に最
     - the same post-sink probe now also pins the seed preheader/exit semantics (`StringBox.length()` on entry, then exit `length() + ... + ret`), so those truths are observable outside the exact seed even while the seed still owns the current guard
     - the first narrow `phi_merge` handoff is now pinned too by `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_substring_concat_phi_merge_contract.sh`; live direct MIR still carries `%21 = phi([4,0], [22,20])` and `%22 = phi([36,19])`, helper-result `%36` still owns the proof-bearing plan window, the single-input backedge phi `%22` now preserves that same plan window, and merged header phi `%21` still keeps only non-window `publication_sink` / `materialization_sink` / `direct_kernel_entry` continuity
     - the same phi smoke now also pins the header/latch loop semantics (`phi/phi/phi`, positive loop bound, compare `<`, branch, and the latch `const 1` increment), so the remaining exact-seed work moved to a semantic-boundary decision rather than more raw body-shape cleanup
-    - structure lock: loop-carried corridor continuity now consumes the generic MIR seam in `src/mir/phi_query.rs`; `src/mir/string_corridor_phi.rs` is now only the string-side relation consumer, and `string_corridor_placement` only maps that continuity to optimization candidates
+    - structure lock: loop-carried corridor continuity now consumes the generic MIR seam in `src/mir/phi_query.rs`; `src/mir/string_corridor_relation.rs` is now the string-side relation layer, and `string_corridor_placement` only maps stored `facts -> relations -> candidates` continuity to optimization candidates
     - decision now fixed: stop shrinking the exact seed at the semantic-guard boundary for this phase
       - keep preheader/exit `length` truth plus header/latch loop truth in the seed as the current miscompile-prevention owner
       - treat any future retirement of those semantic guards as a separate contract phase, not as more bridge cleanup in this wave

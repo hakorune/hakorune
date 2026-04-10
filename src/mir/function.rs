@@ -6,7 +6,8 @@
 
 use super::{
     storage_class::StorageClass, string_corridor::StringCorridorFact,
-    string_corridor_placement::StringCorridorCandidate, sum_placement::SumPlacementFact,
+    string_corridor_placement::StringCorridorCandidate,
+    string_corridor_relation::StringCorridorRelation, sum_placement::SumPlacementFact,
     sum_placement_layout::SumPlacementLayout, sum_placement_selection::SumPlacementSelection,
     thin_entry::ThinEntryCandidate, thin_entry_selection::ThinEntrySelection, BasicBlock,
     BasicBlockId, EffectMask, MirInstruction, MirType, ValueId,
@@ -96,6 +97,11 @@ pub struct FunctionMetadata {
     /// pass and must not change runtime behavior in this wave.
     pub string_corridor_candidates:
         std::collections::BTreeMap<ValueId, Vec<StringCorridorCandidate>>,
+
+    /// No-op relation metadata derived from canonical MIR plus generic PHI queries.
+    /// These relations are structural continuity facts for later string corridor
+    /// planning; they do not own PHI semantics and they must not mutate MIR.
+    pub string_corridor_relations: std::collections::BTreeMap<ValueId, Vec<StringCorridorRelation>>,
 
     /// No-op storage-class inventory derived from the current MIR value types.
     /// This is the first-step scaffold for primitive-family / user-box fast paths.

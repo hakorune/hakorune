@@ -1,48 +1,85 @@
 /*!
- * Narrow string corridor PHI continuity helpers.
+ * Narrow string corridor relation layer.
  *
- * This module consumes the generic MIR PHI base-relation seam for the current
- * string corridor lane. It maps generic PHI continuity onto string-corridor
- * carries only; it does not own PHI semantics and it does not widen plan
- * windows across PHI.
+ * This module consumes the generic MIR PHI base-relation seam and records
+ * string-corridor continuity as metadata. It does not own PHI semantics, and
+ * it does not emit placement/effect candidates itself.
  */
 
 use super::{
     phi_query::{collect_phi_carry_relations, PhiBaseRelation},
-    string_corridor_recognizer::resolve_copy_chain_source,
-    BasicBlockId, MirFunction, ValueId,
+    string_corridor_recognizer::{build_def_map, resolve_copy_chain_source},
+    MirFunction, MirModule, ValueId,
 };
-use std::collections::HashMap;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) struct StringCorridorPhiCarry {
-    pub phi_value: ValueId,
-    pub base_value: ValueId,
-    pub carries_plan_window: bool,
+pub enum StringCorridorRelationKind {
+    PhiCarryBase,
 }
 
-pub(crate) fn collect_string_corridor_phi_carries(
-    function: &MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-) -> Vec<StringCorridorPhiCarry> {
-    collect_phi_carry_relations(
+impl std::fmt::Display for StringCorridorRelationKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::PhiCarryBase => f.write_str("phi_carry_base"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct StringCorridorRelation {
+    pub kind: StringCorridorRelationKind,
+    pub base_value: ValueId,
+    pub carries_plan_window: bool,
+    pub reason: &'static str,
+}
+
+impl StringCorridorRelation {
+    pub fn summary(&self) -> String {
+        format!(
+            "{} base=%{} window_safe={} {}",
+            self.kind, self.base_value.0, self.carries_plan_window, self.reason
+        )
+    }
+}
+
+pub fn refresh_module_string_corridor_relations(module: &mut MirModule) {
+    for function in module.functions.values_mut() {
+        refresh_function_string_corridor_relations(function);
+    }
+}
+
+pub fn refresh_function_string_corridor_relations(function: &mut MirFunction) {
+    function.metadata.string_corridor_relations.clear();
+    let def_map = build_def_map(function);
+
+    for relation in collect_phi_carry_relations(
         function,
-        def_map,
-        |value| resolve_copy_chain_source(function, def_map, value),
+        &def_map,
+        |value| resolve_copy_chain_source(function, &def_map, value),
         |value| function.metadata.string_corridor_facts.contains_key(&value),
-    )
-    .into_iter()
-    .filter_map(|relation| match relation.relation {
-        PhiBaseRelation::SameBase(base_value) if base_value != relation.phi_value => {
-            Some(StringCorridorPhiCarry {
-                phi_value: relation.phi_value,
+    ) {
+        let PhiBaseRelation::SameBase(base_value) = relation.relation else {
+            continue;
+        };
+        if base_value == relation.phi_value {
+            continue;
+        }
+        function
+            .metadata
+            .string_corridor_relations
+            .entry(relation.phi_value)
+            .or_default()
+            .push(StringCorridorRelation {
+                kind: StringCorridorRelationKind::PhiCarryBase,
                 base_value,
                 carries_plan_window: relation.window_safe,
-            })
-        }
-        _ => None,
-    })
-    .collect()
+                reason: if relation.window_safe {
+                    "single-input phi continuity keeps the current string corridor lane and preserves the proof-bearing plan window"
+                } else {
+                    "narrow phi continuity keeps the current string corridor lane without widening the plan window"
+                },
+            });
+    }
 }
 
 #[cfg(test)]
@@ -50,8 +87,8 @@ mod tests {
     use super::*;
     use crate::ast::Span;
     use crate::mir::{
-        refresh_function_string_corridor_facts, BasicBlock, Callee, ConstValue, EffectMask,
-        FunctionSignature, MirInstruction, MirType,
+        refresh_function_string_corridor_facts, BasicBlock, BasicBlockId, Callee, ConstValue,
+        EffectMask, FunctionSignature, MirInstruction, MirType,
     };
 
     fn method_call(
@@ -97,7 +134,10 @@ mod tests {
         let header = function.blocks.get_mut(&BasicBlockId(1)).expect("header");
         header.instructions.push(MirInstruction::Phi {
             dst: ValueId(21),
-            inputs: vec![(BasicBlockId(0), ValueId(0)), (BasicBlockId(3), ValueId(22))],
+            inputs: vec![
+                (BasicBlockId(0), ValueId(0)),
+                (BasicBlockId(3), ValueId(22)),
+            ],
             type_hint: Some(MirType::Box("RuntimeDataBox".to_string())),
         });
         header.instruction_spans.push(Span::unknown());
@@ -156,8 +196,16 @@ mod tests {
         body.instructions.push(MirInstruction::Call {
             dst: Some(ValueId(36)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Extern("nyash.string.substring_concat3_hhhii".to_string())),
-            args: vec![ValueId(26), ValueId(66), ValueId(27), ValueId(71), ValueId(72)],
+            callee: Some(Callee::Extern(
+                "nyash.string.substring_concat3_hhhii".to_string(),
+            )),
+            args: vec![
+                ValueId(26),
+                ValueId(66),
+                ValueId(27),
+                ValueId(71),
+                ValueId(72),
+            ],
             effects: EffectMask::PURE,
         });
         body.instruction_spans.push(Span::unknown());
@@ -183,20 +231,31 @@ mod tests {
     }
 
     #[test]
-    fn collect_string_corridor_phi_carries_detects_narrow_loop_route() {
-        let function = build_narrow_phi_function();
-        let def_map = crate::mir::string_corridor_recognizer::build_def_map(&function);
+    fn refresh_function_records_string_corridor_phi_relations() {
+        let mut function = build_narrow_phi_function();
 
-        let carries = collect_string_corridor_phi_carries(&function, &def_map);
-        assert!(carries.iter().any(|carry| {
-            carry.phi_value == ValueId(22)
-                && carry.base_value == ValueId(36)
-                && carry.carries_plan_window
+        refresh_function_string_corridor_relations(&mut function);
+
+        let latch_relations = function
+            .metadata
+            .string_corridor_relations
+            .get(&ValueId(22))
+            .expect("phi %22 relations");
+        assert!(latch_relations.iter().any(|relation| {
+            relation.kind == StringCorridorRelationKind::PhiCarryBase
+                && relation.base_value == ValueId(36)
+                && relation.carries_plan_window
         }));
-        assert!(carries.iter().any(|carry| {
-            carry.phi_value == ValueId(21)
-                && carry.base_value == ValueId(36)
-                && !carry.carries_plan_window
+
+        let header_relations = function
+            .metadata
+            .string_corridor_relations
+            .get(&ValueId(21))
+            .expect("phi %21 relations");
+        assert!(header_relations.iter().any(|relation| {
+            relation.kind == StringCorridorRelationKind::PhiCarryBase
+                && relation.base_value == ValueId(36)
+                && !relation.carries_plan_window
         }));
     }
 }
