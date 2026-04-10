@@ -141,13 +141,12 @@
     - current live post-sink shape is now pinned separately by `phase137x_direct_emit_substring_concat_post_sink_shape.sh`, and that smoke requires the helper-result `%36` to keep `publication_sink` / `direct_kernel_entry` plans plus the scalar consumers `%88/%89` to keep `direct_kernel_entry` candidates on the live MIR; the exact seed now trusts those metadata-backed helper/scalar contracts instead of re-proving shared `source_root`, raw helper names/args, or the intermediate raw `substring` producers from emitted MIR, and the phase29x daily smoke uses the same post-sink contract as its daily owner proof
     - the same post-sink probe now also pins the seed preheader/exit semantics (`StringBox.length()` on entry, then exit `length() + ... + ret`), so those truths are visible outside the seed even though the exact seed still owns the current semantic guard
     - the first narrow `phi_merge` handoff is now pinned too by `phase137x_direct_emit_substring_concat_phi_merge_contract.sh`: live direct MIR still carries `%21 = phi([4,0], [22,20])` and `%22 = phi([36,19])`, helper-result `%36` still owns the proof-bearing plan window, the single-input backedge phi `%22` now preserves that same plan window, and merged header phi `%21` still keeps only non-window `publication_sink` / `materialization_sink` / `direct_kernel_entry` continuity
-    - the same phi smoke now also pins the header/latch loop semantics (`phi/phi/phi`, positive loop bound, compare `<`, branch, and the latch `const 1` increment), so the remaining exact-seed work is semantic-boundary close-out rather than more raw body-shape cleanup
+    - the same phi smoke now also pins the header/latch loop semantics (`phi/phi/phi`, positive loop bound, compare `<`, branch, and the latch `const 1` increment), so the remaining exact-seed work moved to a semantic-boundary decision rather than more raw body-shape cleanup
     - structure lock: loop-carried corridor continuity now consumes the generic MIR seam in `src/mir/phi_query.rs`; `src/mir/string_corridor_phi.rs` is now only the string-side relation consumer, and `string_corridor_placement` only maps that neutral continuity to string-lane optimization candidates
     - latest exact reread on `kilo_micro_substring_concat`: `instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`
-    - immediate close-out count before the next phase is three small boxes:
-      1. decide/retire preheader+exit semantic guard
-      2. decide/retire header+latch semantic guard
-      3. land the exact-seed closing cut
+    - decision now fixed: stop shrinking the exact seed at the semantic-guard boundary for this phase
+      - keep preheader/exit `length` truth plus header/latch loop truth in the seed as the current miscompile-prevention owner
+      - treat any future retirement of those semantic guards as a separate contract phase, not as more bridge cleanup in this wave
   - first broader-corridor `publication_sink` inventory slice is now landed:
     - emitted MIR JSON on `kilo_micro_substring_concat` now keeps the direct `substring_concat3_hhhii` helper result on the same corridor lane with `borrowed_corridor_fusion` / `publication_sink` / `materialization_sink` / `direct_kernel_entry` candidates
     - the helper-result plan is concat-triplet-backed and points at the shared source root plus outer `start/end`
