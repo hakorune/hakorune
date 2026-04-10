@@ -135,6 +135,7 @@
     - current inventory says the live `--emit-mir-json` route emits the post-sink `interesting_n = 17` body, and the active phase29x backend-owner daily smoke now points at `apps/tests/mir_shape_guard/substring_concat_loop_pure_min_v1_post_sink.mir.json`, so exact-seed narrowing can follow the aligned post-sink shape instead of guessing the benchmark body
     - the phase29x daily-owner blocker is now cleared too: plain `backend=mir` executes the compiled module again, and the `.hako ll emitter` runtime decl manifest now accepts `nyash.string.substring_len_hii` / `nyash.string.substring_concat3_hhhii`, so the daily smoke reaches the expected owner evidence on the same post-sink fixture
     - current live post-sink shape is now pinned separately by `phase137x_direct_emit_substring_concat_post_sink_shape.sh`, and that smoke now requires the helper-result `%36` to keep `publication_sink` / `direct_kernel_entry` plans plus the scalar consumers `%88/%89` to keep `direct_kernel_entry` candidates on the live MIR; this gives the next exact-seed shrink a metadata-backed scalar-consumer contract, and the phase29x daily smoke uses the same post-sink contract as its daily owner proof
+    - the separate `phi_merge` blocker is now pinned too by `phase137x_direct_emit_substring_concat_phi_merge_blocker.sh`: live direct MIR still carries `%21 = phi([4,0], [22,20])` and `%22 = phi([36,19])`, while the proof-bearing corridor metadata still stops at helper result `%36`
     - latest exact reread on `kilo_micro_substring_concat`: `instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`
   - first broader-corridor `publication_sink` inventory slice is now landed:
     - emitted MIR JSON on `kilo_micro_substring_concat` now keeps the direct `substring_concat3_hhhii` helper result on the same corridor lane with `borrowed_corridor_fusion` / `publication_sink` / `materialization_sink` / `direct_kernel_entry` candidates
@@ -223,7 +224,7 @@
      - step 12: landed; `materialization_sink` now covers the non-`phi` local `ArrayBox.set` store boundary and the first trailing `length()` post-store observer window on the same canonical MIR lane
      - step 13: landed first plan-selected `direct_kernel_entry` slice; boundary `pure-first` now reads plan windows on direct helper-result receivers, lowers `length()` as window arithmetic, and no longer keeps the `substring_len_hii` declaration bridge on that lane
      - step 14: next shrink the remaining dynamic/exact bridge paths that still bypass the plan
-     - step 15: separate phase, not this cut: any `phi_merge` relaxation for the loop-carried `text = out.substring(...)` route
+     - step 15: separate phase, not this cut: any `phi_merge` relaxation for the loop-carried `text = out.substring(...)` route; `phase137x_direct_emit_substring_concat_phi_merge_blocker.sh` is the live blocker guard for that contract
      - step 16: only after that reopen new `substring_hii` runtime leaf cuts, and only with exact/asm proof
      - step 17: do not retry the same `len_h`-specific 4-box slice as-is; it did not clear exact or asm gates
      - step 18: keep this lane specific; do not generalize into a reusable scalar framework until a second lane wins the same pattern
