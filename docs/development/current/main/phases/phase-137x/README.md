@@ -60,8 +60,8 @@
   - next: keep loop-carried `phi_merge` outside this cut, shrink the remaining dynamic/exact bridge paths that still do not read the plan directly, and treat any further `array.set + trailing length()` widening as a separate metadata-contract phase only if fresh perf evidence appears
   - fixed return order:
     1. continue shrinking exact-seed structural checks only where the live post-sink metadata contract already proves the route
-    2. lift loop-carried base/root interpretation out of string-specific placement ownership into a generic MIR phi query / relation seam
-    3. then reopen the `plan window across phi_merge` metadata-contract phase
+    2. landed: loop-carried base/root interpretation now sits behind the generic MIR seam `src/mir/phi_query.rs`
+    3. next: reopen the `plan window across phi_merge` metadata-contract phase
   - migration-safe reading: this lane should keep landing in canonical MIR facts/candidates/sink plus kernel/backend substrate, not in Rust-builder-local shape logic
   - treat exact seed logic in `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc` as temporary bridge surface to shrink after generic plan-selected routes prove out
 - pure Rust reference compare lane:
@@ -140,7 +140,7 @@
     - the phase29x daily-owner blocker is now cleared too: plain `backend=mir` executes the compiled module again, and the `.hako ll emitter` runtime decl manifest now accepts `nyash.string.substring_len_hii` / `nyash.string.substring_concat3_hhhii`, so the daily smoke reaches the expected owner evidence on the same post-sink fixture
     - current live post-sink shape is now pinned separately by `phase137x_direct_emit_substring_concat_post_sink_shape.sh`, and that smoke requires the helper-result `%36` to keep `publication_sink` / `direct_kernel_entry` plans plus the scalar consumers `%88/%89` to keep `direct_kernel_entry` candidates on the live MIR; the exact seed now trusts those metadata-backed helper/scalar contracts instead of re-proving shared `source_root` or raw helper names/args from the emitted `substring_len_hii` / `substring_concat3_hhhii` calls, and the phase29x daily smoke uses the same post-sink contract as its daily owner proof
     - the first narrow `phi_merge` handoff is now pinned too by `phase137x_direct_emit_substring_concat_phi_merge_contract.sh`: live direct MIR still carries `%21 = phi([4,0], [22,20])` and `%22 = phi([36,19])`, helper-result `%36` still owns the proof-bearing plan window, and carried `%21/%22` now keep non-window `publication_sink` / `materialization_sink` / `direct_kernel_entry` candidates without widening that window across the phi route
-    - structure lock: loop-carried corridor continuity now lives in `src/mir/string_corridor_phi.rs`; `string_corridor_placement` only maps that neutral continuity to string-lane optimization candidates, and the next structure step is to lift that seam into a generic MIR phi query / relation helper before widening the actual plan window across the loop-carried route
+    - structure lock: loop-carried corridor continuity now consumes the generic MIR seam in `src/mir/phi_query.rs`; `src/mir/string_corridor_phi.rs` is now only the string-side relation consumer, and `string_corridor_placement` only maps that neutral continuity to string-lane optimization candidates
     - latest exact reread on `kilo_micro_substring_concat`: `instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`
   - first broader-corridor `publication_sink` inventory slice is now landed:
     - emitted MIR JSON on `kilo_micro_substring_concat` now keeps the direct `substring_concat3_hhhii` helper result on the same corridor lane with `borrowed_corridor_fusion` / `publication_sink` / `materialization_sink` / `direct_kernel_entry` candidates

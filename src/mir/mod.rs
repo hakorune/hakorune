@@ -43,6 +43,7 @@ pub mod loop_route_detection; // Active module surface for loop route-shape dete
 pub mod optimizer_passes; // optimizer passes (normalize/diagnostics)
 pub mod optimizer_stats; // extracted stats struct
 pub mod passes;
+pub(crate) mod phi_query; // generic PHI base-relation seam for later relation consumers
 pub mod phi_core; // Phase 1 scaffold: unified PHI entry (re-exports only)
 pub mod printer;
 mod printer_helpers; // internal helpers extracted from printer.rs

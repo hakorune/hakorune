@@ -1,17 +1,18 @@
 /*!
  * Narrow string corridor PHI continuity helpers.
  *
- * This module is the PHI-side SSOT for the current string corridor lane.
- * It decides only whether a PHI continues an existing corridor value through
- * the current narrow loop-carried shapes. It does not emit optimization
- * candidates and it does not widen plan windows across PHI.
+ * This module consumes the generic MIR PHI base-relation seam for the current
+ * string corridor lane. It maps generic PHI continuity onto string-corridor
+ * carries only; it does not own PHI semantics and it does not widen plan
+ * windows across PHI.
  */
 
 use super::{
-    string_corridor_recognizer::resolve_copy_chain_source, BasicBlockId, MirFunction,
-    MirInstruction, ValueId,
+    phi_query::{collect_phi_carry_relations, PhiBaseRelation},
+    string_corridor_recognizer::resolve_copy_chain_source,
+    BasicBlockId, MirFunction, ValueId,
 };
-use std::collections::{BTreeSet, HashMap};
+use std::collections::HashMap;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct StringCorridorPhiCarry {
@@ -23,71 +24,23 @@ pub(crate) fn collect_string_corridor_phi_carries(
     function: &MirFunction,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
 ) -> Vec<StringCorridorPhiCarry> {
-    let mut out = Vec::new();
-    for block in function.blocks.values() {
-        for inst in &block.instructions {
-            let MirInstruction::Phi { dst, .. } = inst else {
-                continue;
-            };
-            let Some(base_value) = infer_string_corridor_phi_base(function, def_map, *dst) else {
-                continue;
-            };
-            if base_value == *dst {
-                continue;
-            }
-            out.push(StringCorridorPhiCarry {
-                phi_value: *dst,
+    collect_phi_carry_relations(
+        function,
+        def_map,
+        |value| resolve_copy_chain_source(function, def_map, value),
+        |value| function.metadata.string_corridor_facts.contains_key(&value),
+    )
+    .into_iter()
+    .filter_map(|relation| match relation.relation {
+        PhiBaseRelation::SameBase(base_value) if base_value != relation.phi_value => {
+            Some(StringCorridorPhiCarry {
+                phi_value: relation.phi_value,
                 base_value,
-            });
-        }
-    }
-    out
-}
-
-pub(crate) fn infer_string_corridor_phi_base(
-    function: &MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    value: ValueId,
-) -> Option<ValueId> {
-    let mut visited = BTreeSet::new();
-    infer_string_corridor_phi_base_inner(function, def_map, value, &mut visited)
-}
-
-fn infer_string_corridor_phi_base_inner(
-    function: &MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    value: ValueId,
-    visited: &mut BTreeSet<ValueId>,
-) -> Option<ValueId> {
-    let root = resolve_copy_chain_source(function, def_map, value);
-    if !visited.insert(root) {
-        return None;
-    }
-    if function.metadata.string_corridor_facts.contains_key(&root) {
-        return Some(root);
-    }
-
-    let (bbid, idx) = def_map.get(&root).copied()?;
-    let block = function.blocks.get(&bbid)?;
-    let MirInstruction::Phi { inputs, .. } = block.instructions.get(idx)? else {
-        return None;
-    };
-
-    match inputs.as_slice() {
-        [(_, carried)] => infer_string_corridor_phi_base_inner(function, def_map, *carried, visited),
-        [(_, lhs), (_, rhs)] => {
-            let lhs_base =
-                infer_string_corridor_phi_base_inner(function, def_map, *lhs, visited);
-            let rhs_base =
-                infer_string_corridor_phi_base_inner(function, def_map, *rhs, visited);
-            match (lhs_base, rhs_base) {
-                (Some(base), None) => Some(base),
-                (None, Some(base)) => Some(base),
-                _ => None,
-            }
+            })
         }
         _ => None,
-    }
+    })
+    .collect()
 }
 
 #[cfg(test)]
@@ -96,7 +49,7 @@ mod tests {
     use crate::ast::Span;
     use crate::mir::{
         refresh_function_string_corridor_facts, BasicBlock, Callee, ConstValue, EffectMask,
-        FunctionSignature, MirType,
+        FunctionSignature, MirInstruction, MirType,
     };
 
     fn method_call(
