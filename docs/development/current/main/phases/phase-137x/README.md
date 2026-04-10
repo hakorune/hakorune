@@ -52,7 +52,8 @@
   - do not add a new string-only MIR dialect
   - landed: `string_corridor_candidates` now carry proof-bearing plan metadata for borrowed-slice and concat-triplet routes
   - landed: direct `substring_concat3_hhhii` helper results now stay on the same proof-bearing lane with concat-triplet-backed `publication_sink` plan metadata
-  - next: use actual `publication_sink` MIR mutation as the first broader generic transform
+  - landed: direct helper-result `length()` / `substring()` now consume that same `publication_sink` plan in `string_corridor_sink`
+  - next: use `materialization_sink` as the next broader generic transform; keep loop-carried `phi_merge` outside this cut
   - treat exact seed logic in `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc` as temporary bridge surface to shrink after generic plan-selected routes prove out
 - pure Rust reference compare lane:
   - `benchmarks/rust/bench_kilo_micro_substring_views_only.rs`
@@ -129,7 +130,11 @@
   - first broader-corridor `publication_sink` inventory slice is now landed:
     - emitted MIR JSON on `kilo_micro_substring_concat` now keeps the direct `substring_concat3_hhhii` helper result on the same corridor lane with `borrowed_corridor_fusion` / `publication_sink` / `materialization_sink` / `direct_kernel_entry` candidates
     - the helper-result plan is concat-triplet-backed and points at the shared source root plus outer `start/end`
-    - reading: the remaining `publication_sink` gap is the loop-carried `text = out.substring(...)` actual transform, not missing helper-result inventory
+    - reading: helper-result inventory is no longer the gap
+  - first broader-corridor `publication_sink` actual transform is now landed too:
+    - `string_corridor_sink` rewrites direct helper-result `length()` to `end - start`
+    - `string_corridor_sink` composes direct helper-result `substring()` back into `substring_concat3_hhhii` by adding the inner window to the helper's outer window
+    - reading: the remaining exact-front gap is the loop-carried `text = out.substring(...)` `phi_merge` route, not missing helper-result inventory or direct helper-result consumers
   - current `substring_len_hii` pilot uses `with_text_read_session_ready(...)` to avoid the hot `REG` ready probe; current helper perf is the mixed sink candidate above
   - split exact reread now puts the retained-view exact micro below `0.5M instr`, so `substring_hii` is no longer the active blocker on that split and `len_h` remains the control split
   - current keeper is on `len_h`: hoist one `handles::drop_epoch()` read in `string_len_fast_cache_lookup()` and reuse it for both cache slots
@@ -203,19 +208,20 @@
      - step 8: landed; boundary `pure-first` now also routes compiler-visible concat pair/triple `substring(...)` consumers to `nyash.string.substring_concat_hhii` / `nyash.string.substring_concat3_hhhii`
      - step 9: landed; `FunctionMetadata.string_corridor_candidates` now carries proof-bearing plan metadata on the broader-corridor reopen front `kilo_micro_substring_concat`, and MIR JSON exports the same plan surface
      - step 10: landed; direct `substring_concat3_hhhii` helper results now stay on the corridor metadata lane with concat-triplet-backed `publication_sink` proof
-     - step 11: next broader generic transform is actual `publication_sink`
-     - step 12: second broader generic transform is `materialization_sink`
+     - step 11: landed; direct helper-result `length()` / `substring()` now consume that same `publication_sink` proof in `string_corridor_sink`
+     - step 12: next broader generic transform is `materialization_sink`
      - step 13: only then widen plan-selected `direct_kernel_entry` and shrink matching exact seed paths
-     - step 14: only after that reopen new `substring_hii` runtime leaf cuts, and only with exact/asm proof
-     - step 15: do not retry the same `len_h`-specific 4-box slice as-is; it did not clear exact or asm gates
-     - step 16: keep this lane specific; do not generalize into a reusable scalar framework until a second lane wins the same pattern
-     - step 17: do not swap the active `substring` providers to `raw read + cold init` as one slice; that provider-adoption cut regressed the local split
-     - step 18: do not duplicate the common-case `substring_hii` body again; the earlier `route_raw == 0b111` duplication regressed badly
-     - step 19: `substring_route_policy()` cold split alone is also blocked; even with the caller unchanged it regressed the local split
-     - step 20: any future `len_h` reopen must preserve direct dispatch probe + single trace-state load + direct `DROP_EPOCH` load
-     - step 21: do not retry the same `substring_hii` route/provider snapshot with eager `DROP_EPOCH` capture; it widened the caller prologue and regressed exact/whole together
-     - step 22: do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear in isolation; it regressed every split front and whole strict
-     - step 23: primitive/user-box follow-on work now lives in `phase-163x`; keep this README string-only
+     - step 14: separate phase, not this cut: any `phi_merge` relaxation for the loop-carried `text = out.substring(...)` route
+     - step 15: only after that reopen new `substring_hii` runtime leaf cuts, and only with exact/asm proof
+     - step 16: do not retry the same `len_h`-specific 4-box slice as-is; it did not clear exact or asm gates
+     - step 17: keep this lane specific; do not generalize into a reusable scalar framework until a second lane wins the same pattern
+     - step 18: do not swap the active `substring` providers to `raw read + cold init` as one slice; that provider-adoption cut regressed the local split
+     - step 19: do not duplicate the common-case `substring_hii` body again; the earlier `route_raw == 0b111` duplication regressed badly
+     - step 20: `substring_route_policy()` cold split alone is also blocked; even with the caller unchanged it regressed the local split
+     - step 21: any future `len_h` reopen must preserve direct dispatch probe + single trace-state load + direct `DROP_EPOCH` load
+     - step 22: do not retry the same `substring_hii` route/provider snapshot with eager `DROP_EPOCH` capture; it widened the caller prologue and regressed exact/whole together
+     - step 23: do not cold-split `SubstringViewArcCache::entry_hit` reissue/clear in isolation; it regressed every split front and whole strict
+     - step 24: primitive/user-box follow-on work now lives in `phase-163x`; keep this README string-only
   10. next local cut must show an exact-visible or asm-visible change on `substring_hii`, but only after the upstream corridor slices are in place
 - safe restart order:
   1. `git status -sb`
