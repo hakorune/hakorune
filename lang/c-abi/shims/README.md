@@ -48,6 +48,7 @@ Current partitions:
   - dedicated exact-micro pure-first seed for `kilo_micro_concat_hh_len`
 - `hako_llvmc_ffi_string_chain_terms.inc`
   - shared string-chain enum/name terms used by policy and producer-window seams
+  - plan-window source helpers for direct corridor reads live here too; keep route-term definitions out of the heavy producer-window helpers
 - `hako_llvmc_ffi_string_chain_policy.inc`
   - compiler-side mirror of `.hako` string-chain route / retained-form / post-store observer vocabulary used by pure-first concat lowering
 - `hako_llvmc_ffi_mir_call_route_policy.inc`

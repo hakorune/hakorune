@@ -187,6 +187,10 @@
         long long suffix_end = 0;
         long long len_src = 0;
         long long zero = 0;
+        long long recv = 0;
+        int used_plan_window = 0;
+        const char* reason = "shape_match";
+        char extra[256];
         const char* middle_const = NULL;
         char ab[224];
         if (!(dst && lhs && rhs)) return 0;
@@ -198,20 +202,46 @@
         middle = resolve_copy_chain_source_reg(insts, ii + 1, middle);
         middle_const = get_str_const(middle);
         if (!middle_const) return 0;
-        if (!find_string_substring_call(prefix, &src_prefix, &prefix_start, &prefix_end)) return 0;
-        if (!find_string_substring_call(rhs, &src_suffix, &suffix_start, &suffix_end)) return 0;
-        src_prefix = resolve_copy_chain_source_reg(insts, ii + 1, src_prefix);
-        src_suffix = resolve_copy_chain_source_reg(insts, ii + 1, src_suffix);
-        prefix_start = resolve_copy_chain_source_reg(insts, ii + 1, prefix_start);
-        prefix_end = resolve_copy_chain_source_reg(insts, ii + 1, prefix_end);
-        suffix_start = resolve_copy_chain_source_reg(insts, ii + 1, suffix_start);
-        suffix_end = resolve_copy_chain_source_reg(insts, ii + 1, suffix_end);
-        if (!(src_prefix && src_prefix == src_suffix)) return 0;
-        if (!(has_const(prefix_start, &zero) && zero == 0)) return 0;
-        if (!(prefix_end && prefix_end == suffix_start)) return 0;
-        if (!find_string_length_call(suffix_end, &len_src)) return 0;
-        len_src = resolve_copy_chain_source_reg(insts, ii + 1, len_src);
-        if (len_src != src_prefix) return 0;
+        if (hako_llvmc_string_corridor_read_any_plan_source_window(
+                prefix,
+                &src_prefix,
+                &prefix_start,
+                &prefix_end) &&
+            hako_llvmc_string_corridor_read_any_plan_source_window(
+                rhs,
+                &src_suffix,
+                &suffix_start,
+                &suffix_end) &&
+            src_prefix &&
+            src_prefix == src_suffix &&
+            has_const(prefix_start, &zero) &&
+            zero == 0 &&
+            prefix_end &&
+            prefix_end == suffix_start) {
+          recv = src_prefix;
+          used_plan_window = 1;
+          reason = "plan_window_match";
+        }
+
+        if (!used_plan_window) {
+          if (!find_string_substring_call(prefix, &src_prefix, &prefix_start, &prefix_end))
+            return 0;
+          if (!find_string_substring_call(rhs, &src_suffix, &suffix_start, &suffix_end))
+            return 0;
+          src_prefix = resolve_copy_chain_source_reg(insts, ii + 1, src_prefix);
+          src_suffix = resolve_copy_chain_source_reg(insts, ii + 1, src_suffix);
+          prefix_start = resolve_copy_chain_source_reg(insts, ii + 1, prefix_start);
+          prefix_end = resolve_copy_chain_source_reg(insts, ii + 1, prefix_end);
+          suffix_start = resolve_copy_chain_source_reg(insts, ii + 1, suffix_start);
+          suffix_end = resolve_copy_chain_source_reg(insts, ii + 1, suffix_end);
+          if (!(src_prefix && src_prefix == src_suffix)) return 0;
+          if (!(has_const(prefix_start, &zero) && zero == 0)) return 0;
+          if (!(prefix_end && prefix_end == suffix_start)) return 0;
+          if (!find_string_length_call(suffix_end, &len_src)) return 0;
+          len_src = resolve_copy_chain_source_reg(insts, ii + 1, len_src);
+          if (len_src != src_prefix) return 0;
+          recv = src_prefix;
+        }
 
         fprintf(f, "  %%r%lld = call i64 @\"nyash.string.insert_hsi\"(", dst);
         ab[0] = '\0';
@@ -231,6 +261,26 @@
         fprintf(f, "%s)\n", ab);
         finalize_string_concat_result(dst);
         remember_string_concat_triple(dst, prefix, middle, rhs);
+        if (hako_llvmc_route_trace_enabled()) {
+          snprintf(
+              extra,
+              sizeof(extra),
+              "ii=%zu dst=%lld lhs=%lld rhs=%lld recv=%lld prefix=%lld middle=%lld suffix=%lld plan=%d",
+              ii,
+              dst,
+              lhs,
+              rhs,
+              recv,
+              prefix,
+              middle,
+              rhs,
+              used_plan_window);
+          hako_llvmc_emit_route_trace(
+              "string_insert_mid_window",
+              "hit",
+              reason,
+              extra);
+        }
         return 1;
       }
 

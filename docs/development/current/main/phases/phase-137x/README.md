@@ -144,6 +144,8 @@
     - `string_corridor_sink` rewrites direct helper-result `length()` to `end - start`
     - `string_corridor_sink` composes direct helper-result `substring()` back into `substring_concat3_hhhii` by adding the inner window to the helper's outer window
     - reading: the remaining exact-front gap is the loop-carried `text = out.substring(...)` `phi_merge` route, not missing helper-result inventory or direct helper-result consumers
+  - first direct-set insert-mid smoke is now pinned too:
+    - `phase137x_boundary_string_insert_mid_direct_set_min.sh` uses the synthetic direct-set probe to observe `string_insert_mid_window` and keep `nyash.string.insert_hsi` in the lowered IR; the plan-window helper exists, but the current pinned contract is the direct-set shape route, not `plan_window_match`
   - current `substring_len_hii` pilot uses `with_text_read_session_ready(...)` to avoid the hot `REG` ready probe; current helper perf is the mixed sink candidate above
   - split exact reread now puts the retained-view exact micro below `0.5M instr`, so `substring_hii` is no longer the active blocker on that split and `len_h` remains the control split
   - current keeper is on `len_h`: hoist one `handles::drop_epoch()` read in `string_len_fast_cache_lookup()` and reuse it for both cache slots

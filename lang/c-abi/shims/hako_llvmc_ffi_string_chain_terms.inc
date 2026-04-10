@@ -140,4 +140,56 @@
         return 1;
       }
 
+      auto int hako_llvmc_string_corridor_read_plan_source_window(
+          long long value,
+          const char* kind,
+          long long* source_root,
+          long long* start,
+          long long* end) {
+        yyjson_val* plan =
+            hako_llvmc_string_corridor_candidate_plan_by_kind(value, kind);
+        yyjson_val* source_val = plan ? yyjson_obj_get(plan, "source_root") : NULL;
+        yyjson_val* start_val = plan ? yyjson_obj_get(plan, "start") : NULL;
+        yyjson_val* end_val = plan ? yyjson_obj_get(plan, "end") : NULL;
+        if (!(source_val && start_val && end_val && yyjson_is_num(source_val) &&
+              yyjson_is_num(start_val) && yyjson_is_num(end_val))) {
+          return 0;
+        }
+        if (source_root) *source_root = (long long)yyjson_get_sint(source_val);
+        if (start) *start = (long long)yyjson_get_sint(start_val);
+        if (end) *end = (long long)yyjson_get_sint(end_val);
+        return 1;
+      }
+
+      auto int hako_llvmc_string_corridor_read_any_plan_source_window(
+          long long value,
+          long long* source_root,
+          long long* start,
+          long long* end) {
+        return hako_llvmc_string_corridor_read_plan_source_window(
+                   value,
+                   "direct_kernel_entry",
+                   source_root,
+                   start,
+                   end) ||
+               hako_llvmc_string_corridor_read_plan_source_window(
+                   value,
+                   "publication_sink",
+                   source_root,
+                   start,
+                   end) ||
+               hako_llvmc_string_corridor_read_plan_source_window(
+                   value,
+                   "materialization_sink",
+                   source_root,
+                   start,
+                   end) ||
+               hako_llvmc_string_corridor_read_plan_source_window(
+                   value,
+                   "borrowed_corridor_fusion",
+                   source_root,
+                   start,
+                   end);
+      }
+
       #endif

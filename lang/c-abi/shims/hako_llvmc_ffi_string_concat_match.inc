@@ -454,8 +454,15 @@
         long long final_rhs = 0;
         long long result_reg = 0;
         long long middle_reg = 0;
+        long long plan_src_prefix = 0;
+        long long plan_src_suffix = 0;
+        long long plan_prefix_start = 0;
+        long long plan_prefix_end = 0;
+        long long plan_suffix_start = 0;
+        long long plan_suffix_end = 0;
         long long zero = 0;
         int direct_set = 0;
+        int used_plan_window = 0;
         const char* middle_const = NULL;
         const char* reason = "shape_match";
         char ab[224];
@@ -569,6 +576,40 @@
           reason = "set_consumer_missing";
           goto done;
         }
+        if (hako_llvmc_string_corridor_read_any_plan_source_window(
+                result_reg,
+                &plan_src_prefix,
+                &plan_prefix_start,
+                &plan_prefix_end) &&
+            plan_src_prefix &&
+            plan_src_prefix == recv &&
+            has_const(start, &zero) &&
+            zero == 0 &&
+            plan_prefix_start &&
+            plan_prefix_start == start &&
+            plan_prefix_end &&
+            plan_prefix_end == end) {
+          used_plan_window = 1;
+          reason = "plan_window_match";
+        } else if (hako_llvmc_string_corridor_read_any_plan_source_window(
+                       dst,
+                       &plan_src_prefix,
+                       &plan_prefix_start,
+                       &plan_prefix_end) &&
+                   hako_llvmc_string_corridor_read_any_plan_source_window(
+                       second_dst,
+                       &plan_src_suffix,
+                       &plan_suffix_start,
+                       &plan_suffix_end) &&
+                   plan_src_prefix &&
+                   plan_src_prefix == plan_src_suffix &&
+                   has_const(plan_prefix_start, &zero) &&
+                   zero == 0 &&
+                   plan_prefix_end &&
+                   plan_prefix_end == plan_suffix_start) {
+          used_plan_window = 1;
+          reason = "plan_window_match";
+        }
 
         fprintf(f, "  %%r%lld = call i64 @\"nyash.string.insert_hsi\"(", result_reg);
         ab[0] = '\0';
@@ -599,7 +640,7 @@
           snprintf(
               extra,
               sizeof(extra),
-              "ii=%zu recv=%lld dst=%lld start=%lld end=%lld second_dst=%lld result=%lld pair_use=%zu final_use=%zu prefix_final=%lld suffix_final=%lld direct_set=%d",
+              "ii=%zu recv=%lld dst=%lld start=%lld end=%lld second_dst=%lld result=%lld pair_use=%zu final_use=%zu prefix_final=%lld suffix_final=%lld direct_set=%d plan=%d",
               ii,
               recv,
               dst,
@@ -611,7 +652,8 @@
               final_use_ii,
               prefix_final,
               suffix_final,
-              direct_set);
+              direct_set,
+              used_plan_window);
           hako_llvmc_emit_route_trace(
               "string_insert_mid_window",
               matched ? "hit" : "miss",
