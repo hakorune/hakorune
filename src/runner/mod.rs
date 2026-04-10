@@ -123,6 +123,7 @@ impl NyashRunner {
             || groups.emit.hako_run;
         let skip_stage1_stub = !force_stage1_stub
             && (groups.emit.emit_cfg.is_some()
+                || groups.emit.emit_mir_json_minimal.is_some()
                 || groups.emit.emit_mir_json.is_some()
                 || groups.emit.emit_ast_json.is_some()
                 || program_json_entry::emit_program_json_v0_requested(&groups));

@@ -539,19 +539,19 @@ mod tests {
                 block: BasicBlockId::new(0),
                 instruction_index: 1,
                 value: Some(ValueId::new(3)),
-                surface: crate::mir::ThinEntrySurface::SumMake,
+                surface: crate::mir::ThinEntrySurface::VariantMake,
                 subject: "Option::Some".to_string(),
                 preferred_entry: crate::mir::ThinEntryPreferredEntry::ThinInternalEntry,
                 current_carrier: crate::mir::ThinEntryCurrentCarrier::CompatBox,
                 value_class: crate::mir::ThinEntryValueClass::AggLocal,
-                reason: "sum.make stays aggregate-first".to_string(),
+                reason: "variant.make stays aggregate-first".to_string(),
             });
         let printer = MirPrinter::verbose();
 
         let output = printer.print_function(&function);
 
         assert!(output.contains("Thin Entry Candidates"));
-        assert!(output.contains("sum_make Option::Some"));
+        assert!(output.contains("variant_make Option::Some"));
         assert!(output.contains("thin_internal_entry"));
     }
 
@@ -605,7 +605,7 @@ mod tests {
                 block: BasicBlockId::new(0),
                 instruction_index: 2,
                 value: Some(ValueId::new(5)),
-                surface: crate::mir::ThinEntrySurface::SumMake,
+                surface: crate::mir::ThinEntrySurface::VariantMake,
                 subject: "Option::Some".to_string(),
                 source_sum: None,
                 value_class: crate::mir::ThinEntryValueClass::AggLocal,
@@ -613,7 +613,7 @@ mod tests {
                 tag_reads: 1,
                 project_reads: 1,
                 barriers: Vec::new(),
-                reason: "sum value stays local to sum.tag/sum.project".to_string(),
+                reason: "variant value stays local to variant.tag/variant.project".to_string(),
             });
         function
             .metadata
@@ -622,7 +622,7 @@ mod tests {
                 block: BasicBlockId::new(0),
                 instruction_index: 3,
                 value: Some(ValueId::new(6)),
-                surface: crate::mir::ThinEntrySurface::SumProject,
+                surface: crate::mir::ThinEntrySurface::VariantProject,
                 subject: "Option::Some".to_string(),
                 source_sum: Some(ValueId::new(5)),
                 value_class: crate::mir::ThinEntryValueClass::InlineI64,
@@ -630,7 +630,7 @@ mod tests {
                 tag_reads: 0,
                 project_reads: 1,
                 barriers: vec![SumObjectizationBarrier::Return],
-                reason: "sum.project source still crosses return".to_string(),
+                reason: "variant.project source still crosses return".to_string(),
             });
         let printer = MirPrinter::verbose();
 
@@ -658,10 +658,10 @@ mod tests {
                 block: BasicBlockId::new(0),
                 instruction_index: 4,
                 value: Some(ValueId::new(7)),
-                surface: crate::mir::ThinEntrySurface::SumMake,
+                surface: crate::mir::ThinEntrySurface::VariantMake,
                 subject: "Option::Some".to_string(),
                 source_sum: None,
-                manifest_row: "sum_make.local_aggregate",
+                manifest_row: "variant_make.local_aggregate",
                 selected_path: SumPlacementPath::LocalAggregate,
                 reason: "selected local aggregate sum route".to_string(),
             });
@@ -672,10 +672,10 @@ mod tests {
                 block: BasicBlockId::new(0),
                 instruction_index: 5,
                 value: Some(ValueId::new(8)),
-                surface: crate::mir::ThinEntrySurface::SumProject,
+                surface: crate::mir::ThinEntrySurface::VariantProject,
                 subject: "Option::Some".to_string(),
                 source_sum: Some(ValueId::new(7)),
-                manifest_row: "sum_project.compat_fallback",
+                manifest_row: "variant_project.compat_fallback",
                 selected_path: SumPlacementPath::CompatRuntimeBox,
                 reason: "compat/runtime fallback remains".to_string(),
             });
@@ -684,7 +684,7 @@ mod tests {
         let output = printer.print_function(&function);
 
         assert!(output.contains("Sum Placement Selections"));
-        assert!(output.contains("sum_make.local_aggregate"));
+        assert!(output.contains("variant_make.local_aggregate"));
         assert!(output.contains("compat_runtime_box"));
         assert!(output.contains("source_sum=%7"));
     }
@@ -705,7 +705,7 @@ mod tests {
                 block: BasicBlockId::new(0),
                 instruction_index: 6,
                 value: Some(ValueId::new(9)),
-                surface: crate::mir::ThinEntrySurface::SumMake,
+                surface: crate::mir::ThinEntrySurface::VariantMake,
                 subject: "Option::Some".to_string(),
                 source_sum: None,
                 layout: SumLocalAggregateLayout::TagI64Payload,
@@ -718,7 +718,7 @@ mod tests {
                 block: BasicBlockId::new(0),
                 instruction_index: 7,
                 value: Some(ValueId::new(10)),
-                surface: crate::mir::ThinEntrySurface::SumProject,
+                surface: crate::mir::ThinEntrySurface::VariantProject,
                 subject: "Option::Some".to_string(),
                 source_sum: Some(ValueId::new(9)),
                 layout: SumLocalAggregateLayout::TagHandlePayload,

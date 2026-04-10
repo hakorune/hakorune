@@ -35,4 +35,5 @@
 #include "hako_llvmc_ffi_array_micro_seed.inc"
 #include "hako_llvmc_ffi_user_box_micro_seed.inc"
 #include "hako_llvmc_ffi_route.inc"
+#include "hako_llvmc_ffi_sum_local_seed.inc"
 #include "hako_llvmc_ffi_pure_compile.inc"

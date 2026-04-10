@@ -33,6 +33,7 @@ mod memory;
 mod misc;
 mod string_fastpath;
 mod string_method_helpers;
+mod sum_bridge;
 mod sum_ops;
 mod temp_dispatch;
 mod type_ops;
@@ -102,14 +103,14 @@ impl MirInterpreter {
                     )));
                 }
             }
-            MirInstruction::SumMake {
+            MirInstruction::VariantMake {
                 dst,
                 enum_name,
                 variant,
                 tag,
                 payload,
                 payload_type,
-            } => self.handle_sum_make(
+            } => self.handle_variant_make(
                 *dst,
                 enum_name,
                 variant,
@@ -117,19 +118,19 @@ impl MirInterpreter {
                 *payload,
                 payload_type.as_ref(),
             )?,
-            MirInstruction::SumTag {
+            MirInstruction::VariantTag {
                 dst,
                 value,
                 enum_name,
-            } => self.handle_sum_tag(*dst, *value, enum_name)?,
-            MirInstruction::SumProject {
+            } => self.handle_variant_tag(*dst, *value, enum_name)?,
+            MirInstruction::VariantProject {
                 dst,
                 value,
                 enum_name,
                 variant,
                 tag,
                 payload_type,
-            } => self.handle_sum_project(
+            } => self.handle_variant_project(
                 *dst,
                 *value,
                 enum_name,

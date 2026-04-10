@@ -65,8 +65,8 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             TypeOp { value, .. } => vec![*value],
             FieldGet { base, .. } => vec![*base],
             FieldSet { base, value, .. } => vec![*base, *value],
-            SumMake { payload, .. } => payload.iter().copied().collect(),
-            SumTag { value, .. } | SumProject { value, .. } => vec![*value],
+            VariantMake { payload, .. } => payload.iter().copied().collect(),
+            VariantTag { value, .. } | VariantProject { value, .. } => vec![*value],
             Load { ptr, .. } => vec![*ptr],
             Store { ptr, value } => vec![*ptr, *value],
             Call {
@@ -131,9 +131,9 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             | Compare { dst, .. }
             | TypeOp { dst, .. }
             | FieldGet { dst, .. }
-            | SumMake { dst, .. }
-            | SumTag { dst, .. }
-            | SumProject { dst, .. }
+            | VariantMake { dst, .. }
+            | VariantTag { dst, .. }
+            | VariantProject { dst, .. }
             | Load { dst, .. }
             | Call { dst: Some(dst), .. }
             | Phi { dst, .. }

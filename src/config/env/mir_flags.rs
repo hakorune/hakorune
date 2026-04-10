@@ -126,13 +126,6 @@ pub fn abi_strict() -> bool {
     std::env::var("NYASH_ABI_STRICT").ok().as_deref() == Some("1")
 }
 
-// ---- Legacy compatibility (dev-only) ----
-/// Enable legacy InstanceBox fields (SharedNyashBox map) for compatibility.
-/// Default: OFF. Set NYASH_LEGACY_FIELDS_ENABLE=1 to materialize and use legacy fields.
-pub fn legacy_fields_enable() -> bool {
-    env_bool("NYASH_LEGACY_FIELDS_ENABLE")
-}
-
 // ---- GC/Runtime tracing (execution-affecting visibility) ----
 pub fn gc_trace() -> bool {
     env_bool("NYASH_GC_TRACE")

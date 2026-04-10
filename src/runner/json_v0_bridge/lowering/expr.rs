@@ -182,7 +182,7 @@ pub(super) fn lower_expr_with_scope<S: VarScope>(
             variant,
             payload_type,
             args,
-        } => sum_ops::lower_enum_ctor_expr_with_scope(
+        } => sum_ops::lower_variant_ctor_expr_with_scope(
             env,
             f,
             cur_bb,
@@ -261,7 +261,7 @@ pub(super) fn lower_expr_with_vars(
         r#else,
     } = e
     {
-        return sum_ops::lower_enum_match_expr_with_vars(
+        return sum_ops::lower_variant_match_expr_with_vars(
             env,
             f,
             cur_bb,

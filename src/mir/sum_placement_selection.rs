@@ -76,32 +76,46 @@ struct SumPlacementManifestRow {
 
 const MANIFEST_ROWS: &[SumPlacementManifestRow] = &[
     SumPlacementManifestRow {
-        row: "sum_make.local_aggregate",
-        surface: ThinEntrySurface::SumMake,
+        row: "variant_make.local_aggregate",
+        surface: ThinEntrySurface::VariantMake,
         selected_path: SumPlacementPath::LocalAggregate,
         reason:
-            "sum.make stays on the selected local aggregate route in this proving slice; later passes should generalize this through placement/effect selection",
+            "variant.make stays on the selected local aggregate route in this proving slice; later passes should generalize this through placement/effect selection",
     },
     SumPlacementManifestRow {
-        row: "sum_make.compat_fallback",
-        surface: ThinEntrySurface::SumMake,
+        row: "variant_make.compat_fallback",
+        surface: ThinEntrySurface::VariantMake,
         selected_path: SumPlacementPath::CompatRuntimeBox,
         reason:
-            "sum.make still needs compat/runtime outer boxing in the current proving slice because the sum crosses an objectization barrier",
+            "variant.make still needs compat/runtime outer boxing in the current proving slice because the variant crosses an objectization barrier",
     },
     SumPlacementManifestRow {
-        row: "sum_project.local_aggregate",
-        surface: ThinEntrySurface::SumProject,
+        row: "variant_tag.local_aggregate",
+        surface: ThinEntrySurface::VariantTag,
         selected_path: SumPlacementPath::LocalAggregate,
         reason:
-            "sum.project reads from a selected local aggregate sum route in this proving slice; later passes should fold this into a generic placement/effect selection",
+            "variant.tag reads from a selected local aggregate variant route in this proving slice; later passes should fold this into a generic placement/effect selection",
     },
     SumPlacementManifestRow {
-        row: "sum_project.compat_fallback",
-        surface: ThinEntrySurface::SumProject,
+        row: "variant_tag.compat_fallback",
+        surface: ThinEntrySurface::VariantTag,
         selected_path: SumPlacementPath::CompatRuntimeBox,
         reason:
-            "sum.project still reads through the compat/runtime outer box because the current sum source crosses an objectization barrier",
+            "variant.tag still reads through the compat/runtime outer box because the current variant source crosses an objectization barrier",
+    },
+    SumPlacementManifestRow {
+        row: "variant_project.local_aggregate",
+        surface: ThinEntrySurface::VariantProject,
+        selected_path: SumPlacementPath::LocalAggregate,
+        reason:
+            "variant.project reads from a selected local aggregate variant route in this proving slice; later passes should fold this into a generic placement/effect selection",
+    },
+    SumPlacementManifestRow {
+        row: "variant_project.compat_fallback",
+        surface: ThinEntrySurface::VariantProject,
+        selected_path: SumPlacementPath::CompatRuntimeBox,
+        reason:
+            "variant.project still reads through the compat/runtime outer box because the current variant source crosses an objectization barrier",
     },
 ];
 
@@ -170,7 +184,7 @@ mod tests {
                 block: BasicBlockId::new(0),
                 instruction_index: 0,
                 value: Some(ValueId::new(1)),
-                surface: ThinEntrySurface::SumMake,
+                surface: ThinEntrySurface::VariantMake,
                 subject: "Option::Some".to_string(),
                 source_sum: None,
                 value_class: ThinEntryValueClass::AggLocal,
@@ -184,7 +198,21 @@ mod tests {
                 block: BasicBlockId::new(0),
                 instruction_index: 1,
                 value: Some(ValueId::new(2)),
-                surface: ThinEntrySurface::SumProject,
+                surface: ThinEntrySurface::VariantTag,
+                subject: "Option".to_string(),
+                source_sum: Some(ValueId::new(1)),
+                value_class: ThinEntryValueClass::InlineI64,
+                state: SumPlacementState::LocalAggregateCandidate,
+                tag_reads: 1,
+                project_reads: 1,
+                barriers: Vec::new(),
+                reason: "local".to_string(),
+            },
+            SumPlacementFact {
+                block: BasicBlockId::new(0),
+                instruction_index: 2,
+                value: Some(ValueId::new(3)),
+                surface: ThinEntrySurface::VariantProject,
                 subject: "Option::Some".to_string(),
                 source_sum: Some(ValueId::new(1)),
                 value_class: ThinEntryValueClass::InlineI64,
@@ -198,14 +226,14 @@ mod tests {
 
         refresh_function_sum_placement_selections(&mut function);
 
-        assert_eq!(function.metadata.sum_placement_selections.len(), 2);
+        assert_eq!(function.metadata.sum_placement_selections.len(), 3);
         assert!(function
             .metadata
             .sum_placement_selections
             .iter()
             .any(|selection| {
-                selection.surface == ThinEntrySurface::SumMake
-                    && selection.manifest_row == "sum_make.local_aggregate"
+                selection.surface == ThinEntrySurface::VariantMake
+                    && selection.manifest_row == "variant_make.local_aggregate"
                     && selection.selected_path == SumPlacementPath::LocalAggregate
             }));
         assert!(function
@@ -213,8 +241,18 @@ mod tests {
             .sum_placement_selections
             .iter()
             .any(|selection| {
-                selection.surface == ThinEntrySurface::SumProject
-                    && selection.manifest_row == "sum_project.compat_fallback"
+                selection.surface == ThinEntrySurface::VariantTag
+                    && selection.manifest_row == "variant_tag.local_aggregate"
+                    && selection.selected_path == SumPlacementPath::LocalAggregate
+                    && selection.source_sum == Some(ValueId::new(1))
+            }));
+        assert!(function
+            .metadata
+            .sum_placement_selections
+            .iter()
+            .any(|selection| {
+                selection.surface == ThinEntrySurface::VariantProject
+                    && selection.manifest_row == "variant_project.compat_fallback"
                     && selection.selected_path == SumPlacementPath::CompatRuntimeBox
                     && selection.source_sum == Some(ValueId::new(1))
             }));

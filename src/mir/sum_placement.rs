@@ -1,10 +1,10 @@
 /*!
- * Sum-local placement/objectization facts.
+ * Enum-local placement/objectization facts.
  *
- * This is the sum proving slice for the later generic placement/effect pass.
+ * This is the enum proving slice for the later generic placement/effect pass.
  * For now it stays inspection-only metadata over canonical MIR so the current
- * phase-163x lane can prove where local sums do or do not need an outer runtime
- * `__NySum_*` object.
+ * phase-163x lane can prove where local enums do or do not need an outer runtime
+ * `__NyVariant_*` object.
  */
 
 use std::collections::{BTreeMap, BTreeSet, HashMap};
@@ -133,10 +133,16 @@ pub fn refresh_module_sum_placement_facts(module: &mut MirModule) {
 pub fn refresh_function_sum_placement_facts(function: &mut MirFunction) {
     let selections = function.metadata.thin_entry_selections.clone();
     let def_map = build_def_map(function);
-    let sum_make_infos = collect_sum_make_infos(function, &selections);
-    let root_analyses = analyze_sum_roots(function, &def_map, &sum_make_infos);
-    let mut facts = collect_sum_make_facts(&sum_make_infos, &root_analyses);
-    facts.extend(collect_sum_project_facts(
+    let variant_make_infos = collect_variant_make_infos(function, &selections);
+    let root_analyses = analyze_sum_roots(function, &def_map, &variant_make_infos);
+    let mut facts = collect_variant_make_facts(&variant_make_infos, &root_analyses);
+    facts.extend(collect_variant_tag_facts(
+        function,
+        &selections,
+        &def_map,
+        &root_analyses,
+    ));
+    facts.extend(collect_variant_project_facts(
         function,
         &selections,
         &def_map,
@@ -146,11 +152,11 @@ pub fn refresh_function_sum_placement_facts(function: &mut MirFunction) {
     function.metadata.sum_placement_facts = facts;
 }
 
-fn collect_sum_make_infos(
+fn collect_variant_make_infos(
     function: &MirFunction,
     selections: &[ThinEntrySelection],
 ) -> BTreeMap<ValueId, SumMakeInfo> {
-    let selection_sites = build_sum_selection_site_map(selections, ThinEntrySurface::SumMake);
+    let selection_sites = build_sum_selection_site_map(selections, ThinEntrySurface::VariantMake);
     let mut infos = BTreeMap::new();
 
     for block_id in function.block_ids() {
@@ -158,7 +164,7 @@ fn collect_sum_make_infos(
             continue;
         };
         for (instruction_index, inst) in block.instructions.iter().enumerate() {
-            let MirInstruction::SumMake { dst, .. } = inst else {
+            let MirInstruction::VariantMake { dst, .. } = inst else {
                 continue;
             };
             let Some(selection) = selection_sites.get(&(block_id.as_u32(), instruction_index))
@@ -184,9 +190,9 @@ fn collect_sum_make_infos(
 fn analyze_sum_roots(
     function: &MirFunction,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    sum_make_infos: &BTreeMap<ValueId, SumMakeInfo>,
+    variant_make_infos: &BTreeMap<ValueId, SumMakeInfo>,
 ) -> BTreeMap<ValueId, SumRootAnalysis> {
-    let mut analyses: BTreeMap<ValueId, SumRootAnalysis> = sum_make_infos
+    let mut analyses: BTreeMap<ValueId, SumRootAnalysis> = variant_make_infos
         .keys()
         .copied()
         .map(|value| (value, SumRootAnalysis::default()))
@@ -197,10 +203,10 @@ fn analyze_sum_roots(
             continue;
         };
         for inst in &block.instructions {
-            observe_instruction(function, def_map, sum_make_infos, &mut analyses, inst);
+            observe_instruction(function, def_map, variant_make_infos, &mut analyses, inst);
         }
         if let Some(term) = &block.terminator {
-            observe_instruction(function, def_map, sum_make_infos, &mut analyses, term);
+            observe_instruction(function, def_map, variant_make_infos, &mut analyses, term);
         }
         if let Some(return_env) = &block.return_env {
             for value in return_env {
@@ -218,14 +224,14 @@ fn analyze_sum_roots(
 fn observe_instruction(
     function: &MirFunction,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    sum_make_infos: &BTreeMap<ValueId, SumMakeInfo>,
+    variant_make_infos: &BTreeMap<ValueId, SumMakeInfo>,
     analyses: &mut BTreeMap<ValueId, SumRootAnalysis>,
     inst: &MirInstruction,
 ) {
     let mut roots = BTreeSet::new();
     for value in inst.used_values() {
         let root = resolve_copy_root(function, def_map, value);
-        if sum_make_infos.contains_key(&root) {
+        if variant_make_infos.contains_key(&root) {
             roots.insert(root);
         }
     }
@@ -245,14 +251,14 @@ fn observe_instruction(
                     .insert(SumObjectizationBarrier::UnknownUse);
             }
         }
-        MirInstruction::SumTag { .. } => {
+        MirInstruction::VariantTag { .. } => {
             for root in roots {
                 if let Some(analysis) = analyses.get_mut(&root) {
                     analysis.tag_reads += 1;
                 }
             }
         }
-        MirInstruction::SumProject { .. } => {
+        MirInstruction::VariantProject { .. } => {
             for root in roots {
                 if let Some(analysis) = analyses.get_mut(&root) {
                     analysis.project_reads += 1;
@@ -291,20 +297,20 @@ fn add_barrier(
     }
 }
 
-fn collect_sum_make_facts(
-    sum_make_infos: &BTreeMap<ValueId, SumMakeInfo>,
+fn collect_variant_make_facts(
+    variant_make_infos: &BTreeMap<ValueId, SumMakeInfo>,
     root_analyses: &BTreeMap<ValueId, SumRootAnalysis>,
 ) -> Vec<SumPlacementFact> {
-    sum_make_infos
+    variant_make_infos
         .iter()
         .map(|(value, info)| {
-            let analysis = root_analyses.get(value).expect("sum root analysis");
+            let analysis = root_analyses.get(value).expect("enum root analysis");
             let barriers = analysis.barriers.iter().copied().collect::<Vec<_>>();
             SumPlacementFact {
                 block: info.block,
                 instruction_index: info.instruction_index,
                 value: Some(info.dst),
-                surface: ThinEntrySurface::SumMake,
+                surface: ThinEntrySurface::VariantMake,
                 subject: info.subject.clone(),
                 source_sum: None,
                 value_class: info.value_class,
@@ -312,19 +318,19 @@ fn collect_sum_make_facts(
                 tag_reads: analysis.tag_reads,
                 project_reads: analysis.project_reads,
                 barriers,
-                reason: reason_for_sum_make(analysis),
+                reason: reason_for_variant_make(analysis),
             }
         })
         .collect()
 }
 
-fn collect_sum_project_facts(
+fn collect_variant_project_facts(
     function: &MirFunction,
     selections: &[ThinEntrySelection],
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
     root_analyses: &BTreeMap<ValueId, SumRootAnalysis>,
 ) -> Vec<SumPlacementFact> {
-    let selection_sites = build_sum_selection_site_map(selections, ThinEntrySurface::SumProject);
+    let selection_sites = build_sum_selection_site_map(selections, ThinEntrySurface::VariantProject);
     let mut facts = Vec::new();
 
     for block_id in function.block_ids() {
@@ -332,7 +338,7 @@ fn collect_sum_project_facts(
             continue;
         };
         for (instruction_index, inst) in block.instructions.iter().enumerate() {
-            let MirInstruction::SumProject { dst, value, .. } = inst else {
+            let MirInstruction::VariantProject { dst, value, .. } = inst else {
                 continue;
             };
             let Some(selection) = selection_sites.get(&(block_id.as_u32(), instruction_index))
@@ -348,7 +354,7 @@ fn collect_sum_project_facts(
                     analysis.tag_reads,
                     analysis.project_reads,
                     analysis.barriers.iter().copied().collect::<Vec<_>>(),
-                    reason_for_sum_project(analysis),
+                    reason_for_variant_project(analysis),
                 )
             } else {
                 (
@@ -356,14 +362,75 @@ fn collect_sum_project_facts(
                         0,
                         0,
                         vec![SumObjectizationBarrier::UnknownUse],
-                        "sum.project source is not a local sum.make root in this function; keep compat/runtime objectization in the current pilot".to_string(),
+                        "variant.project source is not a local variant.make root in this function; keep compat/runtime objectization in the current pilot".to_string(),
                     )
             };
             facts.push(SumPlacementFact {
                 block: block_id,
                 instruction_index,
                 value: Some(*dst),
-                surface: ThinEntrySurface::SumProject,
+                surface: ThinEntrySurface::VariantProject,
+                subject: selection.subject.clone(),
+                source_sum: Some(source_sum),
+                value_class: selection.value_class,
+                state,
+                tag_reads,
+                project_reads,
+                barriers,
+                reason,
+            });
+        }
+    }
+
+    facts
+}
+
+fn collect_variant_tag_facts(
+    function: &MirFunction,
+    selections: &[ThinEntrySelection],
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    root_analyses: &BTreeMap<ValueId, SumRootAnalysis>,
+) -> Vec<SumPlacementFact> {
+    let selection_sites = build_sum_selection_site_map(selections, ThinEntrySurface::VariantTag);
+    let mut facts = Vec::new();
+
+    for block_id in function.block_ids() {
+        let Some(block) = function.blocks.get(&block_id) else {
+            continue;
+        };
+        for (instruction_index, inst) in block.instructions.iter().enumerate() {
+            let MirInstruction::VariantTag { dst, value, .. } = inst else {
+                continue;
+            };
+            let Some(selection) = selection_sites.get(&(block_id.as_u32(), instruction_index))
+            else {
+                continue;
+            };
+            let source_sum = resolve_copy_root(function, def_map, *value);
+            let (state, tag_reads, project_reads, barriers, reason) = if let Some(analysis) =
+                root_analyses.get(&source_sum)
+            {
+                (
+                    state_from_analysis(analysis),
+                    analysis.tag_reads,
+                    analysis.project_reads,
+                    analysis.barriers.iter().copied().collect::<Vec<_>>(),
+                    reason_for_variant_tag(analysis),
+                )
+            } else {
+                (
+                    SumPlacementState::NeedsObjectization,
+                    0,
+                    0,
+                    vec![SumObjectizationBarrier::UnknownUse],
+                    "variant.tag source is not a local variant.make root in this function; keep compat/runtime objectization in the current pilot".to_string(),
+                )
+            };
+            facts.push(SumPlacementFact {
+                block: block_id,
+                instruction_index,
+                value: Some(*dst),
+                surface: ThinEntrySurface::VariantTag,
                 subject: selection.subject.clone(),
                 source_sum: Some(source_sum),
                 value_class: selection.value_class,
@@ -387,26 +454,37 @@ fn state_from_analysis(analysis: &SumRootAnalysis) -> SumPlacementState {
     }
 }
 
-fn reason_for_sum_make(analysis: &SumRootAnalysis) -> String {
+fn reason_for_variant_make(analysis: &SumRootAnalysis) -> String {
     if analysis.barriers.is_empty() {
         format!(
-            "sum value stays on local sum.tag/sum.project routes (tag_reads={}, project_reads={}); this sum-specific proof should fold into a later generic placement/effect pass",
+            "variant value stays on local variant.tag/variant.project routes (tag_reads={}, project_reads={}); this variant-specific proof should fold into a later generic placement/effect pass",
             analysis.tag_reads, analysis.project_reads
         )
     } else {
         format!(
-            "sum value still crosses {} so the current pilot keeps outer objectization until an explicit barrier-aware placement/effect pass generalizes this route",
+            "variant value still crosses {} so the current pilot keeps outer objectization until an explicit barrier-aware placement/effect pass generalizes this route",
             join_barriers(&analysis.barriers)
         )
     }
 }
 
-fn reason_for_sum_project(analysis: &SumRootAnalysis) -> String {
+fn reason_for_variant_project(analysis: &SumRootAnalysis) -> String {
     if analysis.barriers.is_empty() {
-        "sum.project reads from a non-escaping local sum candidate and can stay on the future unboxed read path in this proving slice".to_string()
+        "variant.project reads from a non-escaping local variant candidate and can stay on the future unboxed read path in this proving slice".to_string()
     } else {
         format!(
-            "sum.project source still crosses {} so the current pilot keeps compat/runtime objectization",
+            "variant.project source still crosses {} so the current pilot keeps compat/runtime objectization",
+            join_barriers(&analysis.barriers)
+        )
+    }
+}
+
+fn reason_for_variant_tag(analysis: &SumRootAnalysis) -> String {
+    if analysis.barriers.is_empty() {
+        "variant.tag reads from a non-escaping local variant candidate and can stay on the future unboxed tag path in this proving slice".to_string()
+    } else {
+        format!(
+            "variant.tag source still crosses {} so the current pilot keeps compat/runtime objectization",
             join_barriers(&analysis.barriers)
         )
     }
@@ -504,7 +582,7 @@ mod tests {
         function
             .get_block_mut(BasicBlockId::new(0))
             .expect("entry block")
-            .add_instruction(MirInstruction::SumMake {
+            .add_instruction(MirInstruction::VariantMake {
                 dst: sum_value,
                 enum_name: "Option".to_string(),
                 variant: "Some".to_string(),
@@ -522,7 +600,7 @@ mod tests {
         function
             .get_block_mut(BasicBlockId::new(0))
             .expect("entry block")
-            .add_instruction(MirInstruction::SumTag {
+            .add_instruction(MirInstruction::VariantTag {
                 dst: tag_value,
                 value: alias_value,
                 enum_name: "Option".to_string(),
@@ -530,7 +608,7 @@ mod tests {
         function
             .get_block_mut(BasicBlockId::new(0))
             .expect("entry block")
-            .add_instruction(MirInstruction::SumProject {
+            .add_instruction(MirInstruction::VariantProject {
                 dst: project_value,
                 value: alias_value,
                 enum_name: "Option".to_string(),
@@ -550,9 +628,9 @@ mod tests {
                 block: BasicBlockId::new(0),
                 instruction_index: 0,
                 value: Some(sum_value),
-                surface: ThinEntrySurface::SumMake,
+                surface: ThinEntrySurface::VariantMake,
                 subject: "Option::Some".to_string(),
-                manifest_row: "sum_make.aggregate_local",
+                manifest_row: "variant_make.aggregate_local",
                 selected_entry: ThinEntryPreferredEntry::ThinInternalEntry,
                 state: ThinEntrySelectionState::Candidate,
                 current_carrier: super::super::thin_entry::ThinEntryCurrentCarrier::CompatBox,
@@ -561,11 +639,24 @@ mod tests {
             },
             ThinEntrySelection {
                 block: BasicBlockId::new(0),
+                instruction_index: 2,
+                value: Some(tag_value),
+                surface: ThinEntrySurface::VariantTag,
+                subject: "Option".to_string(),
+                manifest_row: "variant_tag.tag_local",
+                selected_entry: ThinEntryPreferredEntry::ThinInternalEntry,
+                state: ThinEntrySelectionState::Candidate,
+                current_carrier: super::super::thin_entry::ThinEntryCurrentCarrier::CompatBox,
+                value_class: ThinEntryValueClass::InlineI64,
+                reason: "inventory".to_string(),
+            },
+            ThinEntrySelection {
+                block: BasicBlockId::new(0),
                 instruction_index: 3,
                 value: Some(project_value),
-                surface: ThinEntrySurface::SumProject,
+                surface: ThinEntrySurface::VariantProject,
                 subject: "Option::Some".to_string(),
-                manifest_row: "sum_project.payload_local",
+                manifest_row: "variant_project.payload_local",
                 selected_entry: ThinEntryPreferredEntry::ThinInternalEntry,
                 state: ThinEntrySelectionState::Candidate,
                 current_carrier: super::super::thin_entry::ThinEntryCurrentCarrier::CompatBox,
@@ -577,7 +668,7 @@ mod tests {
         refresh_function_sum_placement_facts(&mut function);
 
         assert!(function.metadata.sum_placement_facts.iter().any(|fact| {
-            fact.surface == ThinEntrySurface::SumMake
+            fact.surface == ThinEntrySurface::VariantMake
                 && fact.subject == "Option::Some"
                 && fact.state == SumPlacementState::LocalAggregateCandidate
                 && fact.tag_reads == 1
@@ -585,7 +676,14 @@ mod tests {
                 && fact.barriers.is_empty()
         }));
         assert!(function.metadata.sum_placement_facts.iter().any(|fact| {
-            fact.surface == ThinEntrySurface::SumProject
+            fact.surface == ThinEntrySurface::VariantTag
+                && fact.subject == "Option"
+                && fact.source_sum == Some(sum_value)
+                && fact.state == SumPlacementState::LocalAggregateCandidate
+                && fact.value_class == ThinEntryValueClass::InlineI64
+        }));
+        assert!(function.metadata.sum_placement_facts.iter().any(|fact| {
+            fact.surface == ThinEntrySurface::VariantProject
                 && fact.subject == "Option::Some"
                 && fact.source_sum == Some(sum_value)
                 && fact.state == SumPlacementState::LocalAggregateCandidate
@@ -606,7 +704,7 @@ mod tests {
         function
             .get_block_mut(BasicBlockId::new(0))
             .expect("entry block")
-            .add_instruction(MirInstruction::SumMake {
+            .add_instruction(MirInstruction::VariantMake {
                 dst: sum_value,
                 enum_name: "Option".to_string(),
                 variant: "Some".to_string(),
@@ -625,9 +723,9 @@ mod tests {
             block: BasicBlockId::new(0),
             instruction_index: 0,
             value: Some(sum_value),
-            surface: ThinEntrySurface::SumMake,
+            surface: ThinEntrySurface::VariantMake,
             subject: "Option::Some".to_string(),
-            manifest_row: "sum_make.aggregate_local",
+            manifest_row: "variant_make.aggregate_local",
             selected_entry: ThinEntryPreferredEntry::ThinInternalEntry,
             state: ThinEntrySelectionState::Candidate,
             current_carrier: super::super::thin_entry::ThinEntryCurrentCarrier::CompatBox,
@@ -638,7 +736,7 @@ mod tests {
         refresh_function_sum_placement_facts(&mut function);
 
         assert!(function.metadata.sum_placement_facts.iter().any(|fact| {
-            fact.surface == ThinEntrySurface::SumMake
+            fact.surface == ThinEntrySurface::VariantMake
                 && fact.subject == "Option::Some"
                 && fact.state == SumPlacementState::NeedsObjectization
                 && fact.barriers == vec![SumObjectizationBarrier::Return]

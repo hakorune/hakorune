@@ -30,7 +30,7 @@ pub(super) fn enum_variant_payload_type_name(
 }
 
 pub(super) fn enum_record_payload_box_name(enum_name: &str, variant_name: &str) -> String {
-    format!("__NyEnumPayload_{}_{}", enum_name, variant_name)
+    format!("__NyVariantPayload_{}_{}", enum_name, variant_name)
 }
 
 fn enum_record_payload_box_decl(enum_name: &str, variant: &EnumVariantDecl) -> serde_json::Value {

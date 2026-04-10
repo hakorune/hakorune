@@ -12,7 +12,7 @@ if str(ROOT) not in sys.path:
 from instructions.boxcall import lower_boxcall
 from instructions.call import lower_call
 from instructions.ret import lower_return
-from instructions.sum_ops import lower_sum_make
+from instructions.sum_ops import lower_variant_make
 
 
 class _ResolverStub:
@@ -55,7 +55,7 @@ class TestSumEscapeBarriers(unittest.TestCase):
         resolver.value_types[100] = {"kind": "handle", "box_type": "ArrayBox"}
         resolver.sum_local_aggregate_paths[2] = "local_aggregate"
         resolver.sum_local_aggregate_layouts[2] = "tag_i64_payload"
-        lower_sum_make(
+        lower_variant_make(
             builder,
             mod,
             2,
@@ -92,7 +92,7 @@ class TestSumEscapeBarriers(unittest.TestCase):
         builder.ret(vmap[3])
 
         ir_txt = str(mod)
-        self.assertIn("__NySum_Option", ir_txt, msg=ir_txt)
+        self.assertIn("__NyVariant_Option", ir_txt, msg=ir_txt)
         self.assertIn('call i64 @"take_sum"', ir_txt, msg=ir_txt)
         self.assertIn('nyash.instance.set_i64_field_h', ir_txt, msg=ir_txt)
 
@@ -116,7 +116,7 @@ class TestSumEscapeBarriers(unittest.TestCase):
         builder.ret(vmap[3])
 
         ir_txt = str(mod)
-        self.assertIn("__NySum_Option", ir_txt, msg=ir_txt)
+        self.assertIn("__NyVariant_Option", ir_txt, msg=ir_txt)
         self.assertIn("nyash.env.box.new_i64x", ir_txt, msg=ir_txt)
         self.assertIn("nyash.array.slot_append_hh", ir_txt, msg=ir_txt)
 
@@ -136,7 +136,7 @@ class TestSumEscapeBarriers(unittest.TestCase):
         )
 
         ir_txt = str(mod)
-        self.assertIn("__NySum_Option", ir_txt, msg=ir_txt)
+        self.assertIn("__NyVariant_Option", ir_txt, msg=ir_txt)
         self.assertIn("ret i64", ir_txt, msg=ir_txt)
         self.assertIn('nyash.instance.set_i64_field_h', ir_txt, msg=ir_txt)
 

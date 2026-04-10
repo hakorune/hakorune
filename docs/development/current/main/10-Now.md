@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-04-09
+Date: 2026-04-10
 Scope: current lane / blocker / next pointer だけを置く薄い mirror。
 Related:
   - CURRENT_TASK.md
@@ -20,44 +20,61 @@ Related:
   - aggregate/objectization audits landed:
     - `phase163x-aggregate-truth-audit-2026-04-09.md`
     - `phase163x-early-objectization-audit-2026-04-09.md`
-  - thin-entry inventory + first manifest-driven selection pilot landed in MIR metadata / verbose MIR / MIR JSON for known user-box + enum/sum local routes
-  - the sum placement/effect pilot now also lands its inspection chain on top of that route:
+  - thin-entry inventory + first manifest-driven selection pilot landed in MIR metadata / verbose MIR / MIR JSON for known user-box + enum local routes
+  - the enum placement/effect pilot now also lands its inspection chain on top of that route:
     - `sum_placement_facts`
     - `sum_placement_selections`
     - `sum_placement_layouts`
   - `Program(JSON v0)` bridge now refreshes the same thin-entry + sum-placement metadata chain
-  - LLVM now keeps selected local sum aggregates boxless through `sum_make` / `sum_tag` / `sum_project` and only materializes runtime `__NySum_*` compat boxes at `return` / `call` / `boxcall` escape barriers
+  - LLVM now keeps selected local enum aggregates boxless through `variant_make` / `variant_tag` / `variant_project` and only materializes runtime `__NyVariant_*` compat boxes at `return` / `call` / `boxcall` escape barriers
+  - llvm_py entry no longer synthesizes enum-facing `__NyVariant_*` user box declarations; runtime fallback materialization still happens on demand in lowering/escape barriers
+  - VM enum runtime fallback no longer writes payloads through `InstanceBox::set_field_dynamic_legacy`; payload carriers now use the interpreter `obj_fields` compatibility store
+  - `InstanceBox` no longer gates box-valued fields behind `NYASH_LEGACY_FIELDS_ENABLE`; dedicated `box_fields` are always present for identity-carrying handles, and `InstanceBox.size` / debug field listing now read the unified field-name union (`fields_ng` + `box_fields`)
+  - dead unified/weak InstanceBox facades are gone; `host_box_ops` now uses the canonical `get_field_ng` / `set_field_ng` path directly
+  - sum fallback bridge is now isolated in `sum_bridge`; `__NyVariant_*`, `__variant_tag`, and `__variant_payload` helpers no longer leak across handlers
+  - interpreter object-field access is now wrapped by `object_field_store`; `get_object_field` / `set_object_field` / `object_field_root_count` are the only live entry points
+  - array/string source cleanup landed: `StringHandleSourceKind` is gone, `with_array_store_str_source` now returns only `ArrayStoreStrSource`, and `array_string_slot` derives source-kind from the enum directly
   - the `ny-llvmc` parity proving slice is also landed:
     - product LLVM/Python lowering now seeds `thin_entry_selections` into the resolver alongside `sum_placement_selections` / `sum_placement_layouts`
     - product LLVM/Python lowering now also keeps selected primitive user-box bodies boxless through `newbox` / `field_get` / `field_set` when the birth block fully initializes the declared primitive fields
     - the same selected user-box route now materializes a compat runtime box only at `call` / `boxcall` / `ret`
-    - metadata-bearing product smoke is green on `phase163x_boundary_sum_metadata_keep_min.sh` via boundary compat replay -> harness keep lane
+    - metadata-bearing enum smoke is now green on `phase163x_boundary_sum_metadata_keep_min.sh` via boundary `pure-first` owner lane without compat replay, and the keep fixture set now covers both `variant_project` and `variant_tag` without `Option::Some`-specific naming
     - thin-entry inventory now normalizes boxed primitive `declared_type` hints back to inline scalar classes for user-box field routes
     - the current Point/Flag `ny-llvmc(boundary pure-first)` keeper seeds now require `user_box_field_{get,set}.inline_scalar` selector rows before firing
     - latest WSL `3 runs + asm` reread on the actual AOT route stays call-free:
       - point-add keeper seed now carries only the loop-visible `sum` lane plus the volatile accumulator anchor, matching the C-style bottom-tested induction loop
       - `kilo_micro_userbox_point_add`: `ny_aot_instr=8,456,727 / ny_aot_cycles=2,756,274 / ny_aot_ms=3`
       - `kilo_micro_userbox_flag_toggle`: `ny_aot_instr=16,457,454 / ny_aot_cycles=3,369,293 / ny_aot_ms=4`
+    - three-lane measurement split is now landed:
+      - `tools/perf/bench_micro_c_vs_aot_lanes.sh` reports `total CLI` / `startup baseline (ret0)` / `kernel-only`
+      - point-add latest `1/3/10` reread: `ny_total_ms=3 / ny_startup_ms=3 / ny_kernel_ms=0.700`, with kernel cycles `c=2,025,422` vs `ny=2,046,604`
+      - flag-toggle latest `1/3/10` reread: `ny_total_ms=4 / ny_startup_ms=3 / ny_kernel_ms=0.800`, with kernel cycles `c=4,053,730` vs `ny=2,837,417`
+      - current read: keep codegen decisions on `kernel-only`; treat remaining total CLI delta as startup/runtime budget
+    - minimal startup route is now landed:
+      - `--emit-mir-json-minimal` skips using/prelude resolution and plugin init while keeping the small `.hako` parser normalizations used by the perf fixtures
+      - use it for front-end startup checks; the existing three-lane AOT split stays the kernel/startup companion
     - generic native-driver / `ny-llvmc` parity for the broader user-box local-body route remains canary-only backlog, not the current blocker
+    - portability-ci on `public-main` succeeded for commit `6b91896c0` (run `24211665863`), covering Windows check and macOS build (release)
   - recommended post-selection order is now locked:
-    1. `sum placement/effect pilot` (`sum outer-box sinking` first proving slice)
+    1. `enum placement/effect pilot` (`enum outer-box sinking` first proving slice)
     2. `ny-llvmc` parity wave
     3. `tuple multi-payload` compat transport
   - tuple multi-payload compat transport is now landed:
     - parser/AST accept `Variant(T, U, ...)` while keeping tuple payload truth above canonical MIR
-    - Stage1 lowers tuple ctors/matches through `__NyEnumPayload_<Enum>_<Variant>` with synthetic `_0`, `_1`, ... fields
-    - canonical `EnumCtor` / `EnumMatch` / `SumMake` / `SumProject` stay single-slot
+    - Stage1 lowers tuple ctors/matches through `__NyVariantPayload_<Enum>_<Variant>` with synthetic `_0`, `_1`, ... fields
+    - canonical `EnumCtor` / `EnumMatch` / `VariantMake` / `VariantProject` stay single-slot
   - void/null cleanup is now landed too:
     - executable surface now accepts both `null` and `void`
     - literal-match parsing accepts `void` arms
     - direct compat null checks treat `VoidBox` and `NullBox` as the same no-value family
   - pre-optimization cleanup/doc sync is now landed too:
-    - LLVM/Python local-sum escape barriers now share one helper instead of repeating the same materialization wrapper in `call` / `boxcall` / `ret`
+    - LLVM/Python local-enum escape barriers now share one helper instead of repeating the same materialization wrapper in `call` / `boxcall` / `ret`
     - runtime nullish checks now converge on `NullBox::check_null()` for the safe compat/tolerance paths touched in this slice
     - MIR reference docs are now split into instruction SSOT + metadata SSOT, while stale "all-in-one" references are reduced to thin pointers
   - next ready follow-on is `phase163x-optimization-resume`
     - immediate cut: `phase163x-sum-thin-entry-cutover`
     - sibling string follow-on after that: extend the landed boundary `pure-first` consumer family from `substring(...).length()` plus `concat -> substring(...)` into retained-view `substring_hii` local shapes
+    - restart handoff: cleanup queue is empty; continue `phase163x-optimization-resume` next; `phase137x-substring-retained-view-consumer` remains in progress as the sibling string lane
   - remaining semantic follow-ons stay backlog-only: `where`, enum methods, full monomorphization
 - sibling string guardrail:
   - `phase-137x main kilo reopen selection`

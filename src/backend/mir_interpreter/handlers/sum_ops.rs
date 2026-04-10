@@ -1,19 +1,12 @@
+use super::sum_bridge;
 use super::*;
-use crate::box_trait::SharedNyashBox;
 use crate::instance_v2::InstanceBox;
-use crate::mir::{MirEnumDecl, MirEnumVariantDecl, MirType};
+use crate::mir::{MirEnumVariantDecl, MirType};
 use std::collections::HashMap;
 use std::sync::Arc;
 
-const SUM_TAG_FIELD: &str = "__sum_tag";
-const SUM_PAYLOAD_FIELD: &str = "__sum_payload";
-
-fn runtime_sum_box_name(enum_name: &str) -> String {
-    format!("__NySum_{}", enum_name)
-}
-
 impl MirInterpreter {
-    pub(super) fn handle_sum_make(
+    pub(super) fn handle_variant_make(
         &mut self,
         dst: ValueId,
         enum_name: &str,
@@ -40,27 +33,30 @@ impl MirInterpreter {
             )));
         }
 
-        let mut instance = InstanceBox::from_declaration(
-            runtime_sum_box_name(enum_name),
-            vec![SUM_TAG_FIELD.to_string(), SUM_PAYLOAD_FIELD.to_string()],
+        let instance = InstanceBox::from_declaration(
+            sum_bridge::runtime_variant_box_name(enum_name),
+            vec![
+                sum_bridge::ENUM_TAG_FIELD.to_string(),
+                sum_bridge::ENUM_PAYLOAD_FIELD.to_string(),
+            ],
             HashMap::new(),
         );
         instance
             .set_field_ng(
-                SUM_TAG_FIELD.to_string(),
+                sum_bridge::ENUM_TAG_FIELD.to_string(),
                 crate::value::NyashValue::Integer(tag as i64),
             )
             .map_err(|e| self.err_invalid(format!("[freeze:contract][vm/sum:make] {}", e)))?;
+        let runtime_sum: Arc<dyn crate::box_trait::NyashBox> = Arc::new(instance);
         if let Some(payload_id) = payload {
             let payload_value = self.reg_load(payload_id)?;
-            let payload_box = vm_value_to_shared_box(payload_value);
-            instance.set_field_dynamic_legacy(SUM_PAYLOAD_FIELD.to_string(), payload_box);
+            sum_bridge::store_sum_payload(self, &runtime_sum, payload_value);
         }
-        self.write_reg(dst, VMValue::BoxRef(Arc::new(instance)));
+        self.write_reg(dst, VMValue::BoxRef(runtime_sum));
         Ok(())
     }
 
-    pub(super) fn handle_sum_tag(
+    pub(super) fn handle_variant_tag(
         &mut self,
         dst: ValueId,
         value: ValueId,
@@ -76,18 +72,19 @@ impl MirInterpreter {
                     enum_name
                 ))
             })?;
-        let tag = read_sum_tag(instance).ok_or_else(|| {
+        let tag = sum_bridge::read_variant_tag(instance).ok_or_else(|| {
             self.err_invalid(format!(
                 "[freeze:contract][vm/sum:tag] {} missing {}",
-                enum_name, SUM_TAG_FIELD
+                enum_name,
+                sum_bridge::ENUM_TAG_FIELD
             ))
         })?;
-        validate_sum_tag(self, enum_name, tag)?;
+        sum_bridge::validate_variant_tag(self, enum_name, tag)?;
         self.write_reg(dst, VMValue::Integer(i64::from(tag)));
         Ok(())
     }
 
-    pub(super) fn handle_sum_project(
+    pub(super) fn handle_variant_project(
         &mut self,
         dst: ValueId,
         value: ValueId,
@@ -120,26 +117,29 @@ impl MirInterpreter {
                     enum_name
                 ))
             })?;
-        let actual_tag = read_sum_tag(instance).ok_or_else(|| {
+        let actual_tag = sum_bridge::read_variant_tag(instance).ok_or_else(|| {
             self.err_invalid(format!(
                 "[freeze:contract][vm/sum:project] {} missing {}",
-                enum_name, SUM_TAG_FIELD
+                enum_name,
+                sum_bridge::ENUM_TAG_FIELD
             ))
         })?;
-        validate_sum_tag(self, enum_name, actual_tag)?;
+        sum_bridge::validate_variant_tag(self, enum_name, actual_tag)?;
         if actual_tag != tag {
             return Err(self.err_invalid(format!(
                 "[freeze:contract][vm/sum:project] {}::{} tag mismatch actual={} expected={}",
                 enum_name, variant, actual_tag, tag
             )));
         }
-        let payload = instance.get_field(SUM_PAYLOAD_FIELD).ok_or_else(|| {
+        let payload = sum_bridge::read_sum_payload(self, &box_ref, instance).ok_or_else(|| {
             self.err_invalid(format!(
                 "[freeze:contract][vm/sum:project] {}::{} missing {}",
-                enum_name, variant, SUM_PAYLOAD_FIELD
+                enum_name,
+                variant,
+                sum_bridge::ENUM_PAYLOAD_FIELD
             ))
         })?;
-        self.write_reg(dst, VMValue::from_nyash_box(payload.share_box()));
+        self.write_reg(dst, payload);
         Ok(())
     }
 
@@ -190,7 +190,7 @@ impl MirInterpreter {
                     enum_name
                 ))
             })?;
-        let expected_box_name = runtime_sum_box_name(enum_name);
+        let expected_box_name = sum_bridge::runtime_variant_box_name(enum_name);
         if instance.class_name != expected_box_name {
             return Err(self.err_invalid(format!(
                 "[freeze:contract][vm/sum:value] {} expected runtime box {} but got {}",
@@ -198,41 +198,5 @@ impl MirInterpreter {
             )));
         }
         Ok(box_ref)
-    }
-}
-
-fn validate_sum_tag(this: &MirInterpreter, enum_name: &str, tag: u32) -> Result<(), VMError> {
-    let decl: &MirEnumDecl = this.enum_decls.get(enum_name).ok_or_else(|| {
-        this.err_invalid(format!(
-            "[freeze:contract][vm/sum:meta] missing enum declaration for {}",
-            enum_name
-        ))
-    })?;
-    if usize::try_from(tag)
-        .ok()
-        .filter(|idx| *idx < decl.variants.len())
-        .is_none()
-    {
-        return Err(this.err_invalid(format!(
-            "[freeze:contract][vm/sum:tag] {} tag {} is out of range (variants={})",
-            enum_name,
-            tag,
-            decl.variants.len()
-        )));
-    }
-    Ok(())
-}
-
-fn read_sum_tag(instance: &InstanceBox) -> Option<u32> {
-    match instance.get_field_ng(SUM_TAG_FIELD) {
-        Some(crate::value::NyashValue::Integer(value)) => u32::try_from(value).ok(),
-        _ => None,
-    }
-}
-
-fn vm_value_to_shared_box(value: VMValue) -> SharedNyashBox {
-    match value {
-        VMValue::BoxRef(shared) => shared,
-        other => Arc::from(other.to_nyash_box()),
     }
 }

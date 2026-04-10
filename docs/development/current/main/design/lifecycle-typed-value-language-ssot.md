@@ -177,7 +177,7 @@ Canonical MIR should describe semantic intent first, not the fallback runtime ob
 
 This means:
 
-- enum/sum stays on `SumMake` / `SumTag` / `SumProject`
+- enum/sum stays on `VariantMake` / `VariantTag` / `VariantProject`
 - typed user-box access stays on `FieldGet` / `FieldSet`
 - future tuple / record / enum payload should become aggregate-shaped MIR truth
 - `Program(JSON v0)` and VM fallback may still materialize hidden payload boxes as compat carriers

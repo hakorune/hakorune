@@ -144,8 +144,8 @@ pub(super) fn try_handle_object_fields(
                                 fname, nv
                             ));
                         }
-                        // Treat complex Box-like values as "missing" for internal storage so that
-                        // legacy obj_fields (which stores BoxRef) is used instead.
+                        // Treat complex Box-like values as "missing" for internal scalar storage so
+                        // dedicated box/object storage is used instead.
                         // This avoids NV::Box/Array/Map being converted to Void by nv_to_vm.
                         let is_missing = matches!(
                             nv,
@@ -217,7 +217,8 @@ pub(super) fn try_handle_object_fields(
                             }
                         }
                     } else {
-                        // fields_ng missing entirely → try JsonScanner defaults next, otherwise fallback to legacy/opfields
+                        // fields_ng missing entirely → try JsonScanner defaults next, otherwise
+                        // fall back to interpreter object storage.
                         if inst.class_name == "JsonScanner" {
                             let def = match fname.as_str() {
                                 "position" | "length" => Some(VMValue::Integer(0)),
@@ -247,7 +248,7 @@ pub(super) fn try_handle_object_fields(
                             }
                         }
                     }
-                    // Finally: legacy fields (SharedNyashBox) for complex values
+                    // Finally: dedicated box fields for complex values
                     if let Some(shared) = inst.get_field(&fname) {
                         this.write_result(dst, VMValue::BoxRef(shared.clone()));
                         if MirInterpreter::box_trace_enabled() {
@@ -258,13 +259,8 @@ pub(super) fn try_handle_object_fields(
                 }
             }
             let key = this.object_key_for(actual_box_val);
-            let mut v = this
-                .obj_fields
-                .get(&key)
-                .and_then(|m| m.get(&fname))
-                .cloned()
-                .unwrap_or(VMValue::Void);
-            // Final safety (dev-only, narrow): if legacy path yields Void for well-known
+            let mut v = this.get_object_field(key, &fname).unwrap_or(VMValue::Void);
+            // Final safety (dev-only, narrow): if fallback storage yields Void for well-known
             // JsonScanner fields inside JsonScanner.{is_eof,current,advance}, provide
             // pragmatic defaults to avoid Void comparisons during bring-up.
             if let VMValue::Void = v {
@@ -332,14 +328,15 @@ pub(super) fn try_handle_object_fields(
             if std::env::var("NYASH_VM_TRACE").ok().as_deref() == Some("1") {
                 if let VMValue::BoxRef(b) = &v {
                     crate::runtime::get_global_ring0().log.debug(&format!(
-                        "[vm-trace] getField legacy {} -> BoxRef({})",
+                        "[vm-trace] getField fallback {} -> BoxRef({})",
                         fname,
                         b.type_name()
                     ));
                 } else {
-                    crate::runtime::get_global_ring0()
-                        .log
-                        .debug(&format!("[vm-trace] getField legacy {} -> {:?}", fname, v));
+                    crate::runtime::get_global_ring0().log.debug(&format!(
+                        "[vm-trace] getField fallback {} -> {:?}",
+                        fname, v
+                    ));
                 }
             }
             this.write_result(dst, v.clone());
@@ -518,24 +515,15 @@ pub(super) fn try_handle_object_fields(
                             );
                             return Ok(true);
                         }
-                        // For complex Box values (InstanceBox/MapBox/ArrayBox...), store into
-                        // legacy fields to preserve identity across clones/gets.
+                        // For complex Box values (InstanceBox/MapBox/ArrayBox...), store into the
+                        // dedicated box-field store to preserve identity across clones/gets.
                         let _ = inst.set_field(fname.as_str(), std::sync::Arc::clone(bx));
-                        // When legacy fields are disabled, keep a mirrored strong entry in
-                        // interpreter object_fields so identity-based get/set remains observable.
-                        if inst.fields.is_none() {
-                            let key = this.object_key_for(actual_box_val);
-                            this.obj_fields
-                                .entry(key)
-                                .or_default()
-                                .insert(fname.clone(), VMValue::BoxRef(std::sync::Arc::clone(bx)));
-                        }
                         return Ok(true);
                     }
                 }
             }
             let key = this.object_key_for(actual_box_val);
-            this.obj_fields.entry(key).or_default().insert(fname, valv);
+            this.set_object_field(key, fname, valv);
             Ok(true)
         }
         _ => Ok(false),

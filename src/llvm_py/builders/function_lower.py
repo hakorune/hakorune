@@ -620,7 +620,7 @@ def _load_sum_placement_metadata(builder, func_data: Dict[str, Any]) -> None:
         local_paths = {}
         for row in selections:
             try:
-                if row.get("surface") != "sum_make":
+                if row.get("surface") != "variant_make":
                     continue
                 if row.get("selected_path") != "local_aggregate":
                     continue
@@ -633,7 +633,7 @@ def _load_sum_placement_metadata(builder, func_data: Dict[str, Any]) -> None:
         local_layouts = {}
         for row in layouts:
             try:
-                if row.get("surface") != "sum_make":
+                if row.get("surface") != "variant_make":
                     continue
                 value = row.get("value")
                 layout = row.get("layout")

@@ -87,7 +87,7 @@ pub fn format_instruction(
             format!("field.set {}.{} = {}{}", base, field, value, type_suffix)
         }
 
-        MirInstruction::SumMake {
+        MirInstruction::VariantMake {
             dst,
             enum_name,
             variant,
@@ -103,7 +103,7 @@ pub fn format_instruction(
                 .map(|ty| format!(" : {}", format_type(ty)))
                 .unwrap_or_default();
             format!(
-                "{} sum.make {}::{} tag={}{}{}",
+                "{} variant.make {}::{} tag={}{}{}",
                 format_dst(dst, types),
                 enum_name,
                 variant,
@@ -113,18 +113,18 @@ pub fn format_instruction(
             )
         }
 
-        MirInstruction::SumTag {
+        MirInstruction::VariantTag {
             dst,
             value,
             enum_name,
         } => format!(
-            "{} sum.tag {} as {}",
+            "{} variant.tag {} as {}",
             format_dst(dst, types),
             value,
             enum_name
         ),
 
-        MirInstruction::SumProject {
+        MirInstruction::VariantProject {
             dst,
             value,
             enum_name,
@@ -137,7 +137,7 @@ pub fn format_instruction(
                 .map(|ty| format!(" : {}", format_type(ty)))
                 .unwrap_or_default();
             format!(
-                "{} sum.project {} as {}::{} tag={}{}",
+                "{} variant.project {} as {}::{} tag={}{}",
                 format_dst(dst, types),
                 value,
                 enum_name,

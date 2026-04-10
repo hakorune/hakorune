@@ -76,10 +76,10 @@ pub enum MirInstruction {
         declared_type: Option<MirType>,
     },
 
-    // === Sum Operations ===
-    /// Canonical sum construction.
-    /// `%dst = sum.make Enum::Variant(tag, payload?)`
-    SumMake {
+    // === Variant Operations ===
+    /// Canonical variant construction.
+    /// `%dst = variant.make Enum::Variant(tag, payload?)`
+    VariantMake {
         dst: ValueId,
         enum_name: String,
         variant: String,
@@ -88,17 +88,17 @@ pub enum MirInstruction {
         payload_type: Option<MirType>,
     },
 
-    /// Canonical sum tag read.
-    /// `%dst = sum.tag %value`
-    SumTag {
+    /// Canonical variant tag read.
+    /// `%dst = variant.tag %value`
+    VariantTag {
         dst: ValueId,
         value: ValueId,
         enum_name: String,
     },
 
-    /// Canonical sum payload projection for a matched variant.
-    /// `%dst = sum.project %value as Enum::Variant`
-    SumProject {
+    /// Canonical variant payload projection for a matched variant.
+    /// `%dst = variant.project %value as Enum::Variant`
+    VariantProject {
         dst: ValueId,
         value: ValueId,
         enum_name: String,

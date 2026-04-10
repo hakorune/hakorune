@@ -97,8 +97,8 @@ fn bind_layout(
     let inst = block.instructions.get(selection.instruction_index)?;
     let (layout, reason) = match (selection.surface, inst) {
         (
-            ThinEntrySurface::SumMake,
-            MirInstruction::SumMake {
+            ThinEntrySurface::VariantMake,
+            MirInstruction::VariantMake {
                 payload_type,
                 payload,
                 ..
@@ -108,7 +108,7 @@ fn bind_layout(
             let reason = reason_for_layout(layout, selection.surface, payload_type.as_ref());
             (layout, reason)
         }
-        (ThinEntrySurface::SumProject, MirInstruction::SumProject { payload_type, .. }) => {
+        (ThinEntrySurface::VariantProject, MirInstruction::VariantProject { payload_type, .. }) => {
             let layout = layout_from_payload_type(payload_type.as_ref(), true);
             let reason = reason_for_layout(layout, selection.surface, payload_type.as_ref());
             (layout, reason)
@@ -195,7 +195,7 @@ mod tests {
         let block = function
             .get_block_mut(BasicBlockId::new(0))
             .expect("entry block exists");
-        block.add_instruction(MirInstruction::SumMake {
+        block.add_instruction(MirInstruction::VariantMake {
             dst: ValueId::new(1),
             enum_name: "Option".to_string(),
             variant: "Some".to_string(),
@@ -203,7 +203,7 @@ mod tests {
             payload: Some(ValueId::new(10)),
             payload_type: Some(MirType::Integer),
         });
-        block.add_instruction(MirInstruction::SumProject {
+        block.add_instruction(MirInstruction::VariantProject {
             dst: ValueId::new(2),
             value: ValueId::new(1),
             enum_name: "FloatOption".to_string(),
@@ -216,10 +216,10 @@ mod tests {
                 block: BasicBlockId::new(0),
                 instruction_index: 0,
                 value: Some(ValueId::new(1)),
-                surface: ThinEntrySurface::SumMake,
+                surface: ThinEntrySurface::VariantMake,
                 subject: "Option::Some".to_string(),
                 source_sum: None,
-                manifest_row: "sum_make.local_aggregate",
+                manifest_row: "variant_make.local_aggregate",
                 selected_path: SumPlacementPath::LocalAggregate,
                 reason: "selected".to_string(),
             },
@@ -227,10 +227,10 @@ mod tests {
                 block: BasicBlockId::new(0),
                 instruction_index: 1,
                 value: Some(ValueId::new(2)),
-                surface: ThinEntrySurface::SumProject,
+                surface: ThinEntrySurface::VariantProject,
                 subject: "FloatOption::Some".to_string(),
                 source_sum: Some(ValueId::new(1)),
-                manifest_row: "sum_project.local_aggregate",
+                manifest_row: "variant_project.local_aggregate",
                 selected_path: SumPlacementPath::LocalAggregate,
                 reason: "selected".to_string(),
             },
@@ -243,7 +243,7 @@ mod tests {
             .sum_placement_layouts
             .iter()
             .any(|layout| {
-                layout.surface == ThinEntrySurface::SumMake
+                layout.surface == ThinEntrySurface::VariantMake
                     && layout.layout == SumLocalAggregateLayout::TagI64Payload
             }));
         assert!(function
@@ -251,7 +251,7 @@ mod tests {
             .sum_placement_layouts
             .iter()
             .any(|layout| {
-                layout.surface == ThinEntrySurface::SumProject
+                layout.surface == ThinEntrySurface::VariantProject
                     && layout.layout == SumLocalAggregateLayout::TagF64Payload
                     && layout.source_sum == Some(ValueId::new(1))
             }));
@@ -269,7 +269,7 @@ mod tests {
         function
             .get_block_mut(BasicBlockId::new(0))
             .expect("entry block exists")
-            .add_instruction(MirInstruction::SumMake {
+            .add_instruction(MirInstruction::VariantMake {
                 dst: ValueId::new(3),
                 enum_name: "Option".to_string(),
                 variant: "Some".to_string(),
@@ -281,10 +281,10 @@ mod tests {
             block: BasicBlockId::new(0),
             instruction_index: 0,
             value: Some(ValueId::new(3)),
-            surface: ThinEntrySurface::SumMake,
+            surface: ThinEntrySurface::VariantMake,
             subject: "Option::Some".to_string(),
             source_sum: None,
-            manifest_row: "sum_make.local_aggregate",
+            manifest_row: "variant_make.local_aggregate",
             selected_path: SumPlacementPath::LocalAggregate,
             reason: "selected".to_string(),
         }];

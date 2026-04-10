@@ -43,17 +43,17 @@ class TestFunctionLowerResolverSeed(unittest.TestCase):
             "metadata": {
                 "sum_placement_selections": [
                     {
-                        "surface": "sum_make",
+                        "surface": "variant_make",
                         "value": 12,
                         "selected_path": "local_aggregate",
                     },
                     {
-                        "surface": "sum_make",
+                        "surface": "variant_make",
                         "value": 13,
                         "selected_path": "compat_runtime_box",
                     },
                     {
-                        "surface": "sum_project",
+                        "surface": "variant_project",
                         "value": 21,
                         "source_sum": 12,
                         "selected_path": "local_aggregate",
@@ -61,12 +61,12 @@ class TestFunctionLowerResolverSeed(unittest.TestCase):
                 ],
                 "sum_placement_layouts": [
                     {
-                        "surface": "sum_make",
+                        "surface": "variant_make",
                         "value": 12,
                         "layout": "tag_i64_payload",
                     },
                     {
-                        "surface": "sum_project",
+                        "surface": "variant_project",
                         "value": 21,
                         "source_sum": 12,
                         "layout": "tag_i64_payload",
@@ -86,10 +86,10 @@ class TestFunctionLowerResolverSeed(unittest.TestCase):
             "metadata": {
                 "thin_entry_selections": [
                     {
-                        "surface": "sum_make",
+                        "surface": "variant_make",
                         "value": 12,
                         "subject": "Option::Some",
-                        "manifest_row": "sum_make.aggregate_local",
+                        "manifest_row": "variant_make.aggregate_local",
                         "selected_entry": "thin_internal_entry",
                         "state": "candidate",
                     },

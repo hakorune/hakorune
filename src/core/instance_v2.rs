@@ -37,8 +37,8 @@ pub struct InstanceBox {
     base: BoxBase,
     finalized: Arc<Mutex<bool>>,
 
-    /// 🔄 Phase 9.78e: レガシー互換フィールド（段階的移行用）
-    pub fields: Option<Arc<Mutex<HashMap<String, SharedNyashBox>>>>,
+    /// Shared box-valued fields kept outside `fields_ng` so object identity stays stable.
+    pub box_fields: Arc<Mutex<HashMap<String, SharedNyashBox>>>,
     init_field_order: Vec<String>,
     weak_fields_union: std::collections::HashSet<String>,
     in_finalization: Arc<Mutex<bool>>,
@@ -53,7 +53,7 @@ impl Clone for InstanceBox {
             inner_content: None,  // inner_content cannot be cloned (Box<dyn>)
             base: BoxBase::new(), // Fresh base for clone
             finalized: Arc::clone(&self.finalized),
-            fields: self.fields.as_ref().map(Arc::clone),
+            box_fields: Arc::clone(&self.box_fields),
             init_field_order: self.init_field_order.clone(),
             weak_fields_union: self.weak_fields_union.clone(),
             in_finalization: Arc::clone(&self.in_finalization),
@@ -71,8 +71,7 @@ impl InstanceBox {
             inner_content: Some(inner),        // 統一内包
             base: BoxBase::new(),
             finalized: Arc::new(Mutex::new(false)),
-            // レガシー互換フィールド
-            fields: None,
+            box_fields: Arc::new(Mutex::new(HashMap::new())),
             init_field_order: Vec::new(),
             weak_fields_union: std::collections::HashSet::new(),
             in_finalization: Arc::new(Mutex::new(false)),
@@ -88,18 +87,12 @@ impl InstanceBox {
         // Invalidate caches for this class since methods layout may change between runs
         crate::runtime::cache_versions::bump_version(&format!("BoxRef:{}", class_name));
         let mut field_map = HashMap::new();
-        let mut legacy_field_map = HashMap::new();
-
-        // 両方のフィールドマップを初期化
+        // Value fields are initialized in `fields_ng`; box-valued fields populate
+        // `box_fields` only when a real handle is assigned.
         for field in &fields {
             field_map.insert(field.clone(), NyashValue::Null);
-            legacy_field_map.insert(
-                field.clone(),
-                Arc::new(crate::box_trait::VoidBox::new()) as SharedNyashBox,
-            );
         }
 
-        let legacy_enabled = crate::config::env::legacy_fields_enable();
         Self {
             class_name,
             fields_ng: Arc::new(Mutex::new(field_map)),
@@ -107,12 +100,7 @@ impl InstanceBox {
             inner_content: None, // ユーザー定義は内包Boxなし
             base: BoxBase::new(),
             finalized: Arc::new(Mutex::new(false)),
-            // レガシー互換フィールド（既定OFF）
-            fields: if legacy_enabled {
-                Some(Arc::new(Mutex::new(legacy_field_map)))
-            } else {
-                None
-            },
+            box_fields: Arc::new(Mutex::new(HashMap::new())),
             init_field_order: fields,
             weak_fields_union: std::collections::HashSet::new(),
             in_finalization: Arc::new(Mutex::new(false)),
@@ -146,12 +134,14 @@ impl InstanceBox {
 
     /// 🎯 統一フィールド設定（NyashValue版）
     pub fn set_field_ng(&self, field_name: String, value: NyashValue) -> Result<(), String> {
+        self.box_fields.lock().unwrap().remove(&field_name);
         self.fields_ng.lock().unwrap().insert(field_name, value);
         Ok(())
     }
 
     /// 動的フィールド追加（GlobalBox用）
     pub fn set_field_dynamic(&self, field_name: String, value: NyashValue) {
+        self.box_fields.lock().unwrap().remove(&field_name);
         self.fields_ng.lock().unwrap().insert(field_name, value);
     }
 
@@ -211,149 +201,39 @@ impl InstanceBox {
         *self.finalized.lock().unwrap()
     }
 
-    // ========== レガシー互換メソッド (Phase 9.78e) ==========
-
-    /// レガシー互換：統一フィールドアクセス
-    pub fn get_field_unified(&self, field_name: &str) -> Option<NyashValue> {
-        self.get_field_ng(field_name)
+    pub fn field_names(&self) -> Vec<String> {
+        let mut name_set = std::collections::BTreeSet::new();
+        name_set.extend(self.fields_ng.lock().unwrap().keys().cloned());
+        name_set.extend(self.box_fields.lock().unwrap().keys().cloned());
+        let mut names: Vec<_> = name_set.into_iter().collect();
+        names.sort();
+        names
     }
 
-    /// レガシー互換：統一フィールド設定
-    pub fn set_field_unified(&self, field_name: String, value: NyashValue) -> Result<(), String> {
-        self.set_field_ng(field_name, value)
-    }
-
-    /// レガシー互換：weak field設定
-    pub fn set_weak_field(&self, field_name: String, value: NyashValue) -> Result<(), String> {
-        // 簡易実装：通常のフィールドとして保存
-        self.set_field_ng(field_name, value)
-    }
-
-    /// レガシー互換：weak field設定（Box<dyn NyashBox>から）
-    pub fn set_weak_field_from_legacy(
-        &self,
-        field_name: String,
-        legacy_box: Box<dyn NyashBox>,
-    ) -> Result<(), String> {
-        // 一時的にレガシーfieldsに保存する簡易実装
-        if let Some(ref fields) = self.fields {
-            let arc_box: SharedNyashBox = Arc::from(legacy_box);
-            fields.lock().unwrap().insert(field_name, arc_box);
-            Ok(())
-        } else {
-            // 既定OFFのため何もしない（互換不要）。必要なら NYASH_LEGACY_FIELDS_ENABLE=1 を設定。
-            Ok(())
-        }
-    }
-
-    /// レガシー互換：weak field取得
-    pub fn get_weak_field(&self, field_name: &str) -> Option<NyashValue> {
-        self.get_field_ng(field_name)
-    }
-
-    /// レガシー互換：レガシーフィールドアクセス
-    pub fn get_field_legacy(&self, field_name: &str) -> Option<SharedNyashBox> {
-        if let Some(fields) = &self.fields {
-            fields.lock().unwrap().get(field_name).cloned()
-        } else {
-            None
-        }
-    }
-
-    /// レガシー互換：レガシーフィールド設定
-    pub fn set_field_legacy(&self, field_name: &str, value: SharedNyashBox) -> Result<(), String> {
-        if let Some(fields) = &self.fields {
-            fields
-                .lock()
-                .unwrap()
-                .insert(field_name.to_string(), value.clone());
-
-            // fields_ngにも同期（暫定: Null で占位）
-            self.fields_ng
-                .lock()
-                .unwrap()
-                .insert(field_name.to_string(), NyashValue::Null);
-
-            Ok(())
-        } else {
-            // 既定OFF: fields_ng のみ更新（Null 占位）。整合を壊さないようにOK返す。
-            self.fields_ng
-                .lock()
-                .unwrap()
-                .insert(field_name.to_string(), NyashValue::Null);
-            Ok(())
-        }
-    }
-
-    /// レガシー互換：動的フィールド設定
-    pub fn set_field_dynamic_legacy(&mut self, field_name: String, value: SharedNyashBox) {
-        if self.fields.is_none() {
-            self.fields = Some(Arc::new(Mutex::new(HashMap::new())));
-        }
-
-        if let Some(fields) = &self.fields {
-            fields
-                .lock()
-                .unwrap()
-                .insert(field_name.clone(), value.clone());
-
-            // fields_ngにも同期
-            // 一時的にNullを設定（型変換が複雑なため）
-            // TODO: SharedNyashBox -> NyashValueの適切な変換を実装
-            self.fields_ng
-                .lock()
-                .unwrap()
-                .insert(field_name, NyashValue::Null);
-        }
-    }
-
-    /// レガシー互換：weakフィールドチェック
-    pub fn is_weak_field(&self, field_name: &str) -> bool {
-        self.weak_fields_union.contains(field_name)
-    }
-
-    /// レガシー互換：weak参照無効化（簡易実装）
-    pub fn invalidate_weak_references_to(&self, _target_info: &str) {
-        // 簡易実装：何もしない
-    }
-
-    /// レガシー互換：グローバルweak参照無効化（簡易実装）  
-    pub fn global_invalidate_weak_references(_target_info: &str) {
-        // 簡易実装：何もしない
-    }
-
-    /// レガシー互換：旧fields参照（直接参照用）
-    pub fn get_fields(&self) -> Arc<Mutex<HashMap<String, SharedNyashBox>>> {
-        if let Some(ref fields) = self.fields {
-            Arc::clone(fields)
-        } else {
-            // fieldsがNoneの場合は空のHashMapを返す
-            Arc::new(Mutex::new(HashMap::new()))
-        }
+    pub fn field_count(&self) -> usize {
+        self.field_names().len()
     }
 
     /// レガシー互換：get_field（SharedNyashBoxを返す）
     pub fn get_field(&self, field_name: &str) -> Option<SharedNyashBox> {
-        // まずレガシーfieldsをチェック
-        if let Some(ref fields) = self.fields {
-            if let Some(value) = fields.lock().unwrap().get(field_name) {
-                return Some(Arc::clone(value));
-            }
+        if let Some(value) = self.box_fields.lock().unwrap().get(field_name) {
+            return Some(Arc::clone(value));
         }
 
-        // fields_ngから取得して変換を試みる
-        if let Some(_nyash_value) = self.fields_ng.lock().unwrap().get(field_name) {
-            // NyashValue -> SharedNyashBox 変換（簡易実装）
-            // TODO: 適切な変換実装
-            None
-        } else {
-            None
-        }
+        let nyash_value = self.get_field_ng(field_name)?;
+        let boxed = nyash_value.to_box().ok()?;
+        let guard = boxed.lock().ok()?;
+        Some(Arc::from(guard.clone_box()))
     }
 
     /// レガシー互換：set_field（SharedNyashBoxを受け取る）
     pub fn set_field(&self, field_name: &str, value: SharedNyashBox) -> Result<(), String> {
-        self.set_field_legacy(field_name, value)
+        self.fields_ng.lock().unwrap().remove(field_name);
+        self.box_fields
+            .lock()
+            .unwrap()
+            .insert(field_name.to_string(), value);
+        Ok(())
     }
 }
 
@@ -391,8 +271,7 @@ impl NyashBox for InstanceBox {
             inner_content: self.inner_content.as_ref().map(|inner| inner.clone_box()),
             base: self.base.clone(),
             finalized: Arc::clone(&self.finalized),
-            // レガシーフィールドもクローン
-            fields: self.fields.as_ref().map(Arc::clone),
+            box_fields: Arc::clone(&self.box_fields),
             init_field_order: self.init_field_order.clone(),
             weak_fields_union: self.weak_fields_union.clone(),
             in_finalization: Arc::clone(&self.in_finalization),
@@ -452,9 +331,8 @@ mod tests {
         assert!(instance.methods.is_empty()); // ビルトインは空
     }
 
-    // Legacy InstanceBox creation test（vtable / runtime ラインの旧仕様用）.
+    // InstanceBox creation test（declared fields remain observable through the unified stores）.
     #[test]
-    #[ignore]
     fn test_from_declaration_creation() {
         let fields = vec!["x".to_string(), "y".to_string()];
         let methods = HashMap::new();
@@ -467,9 +345,8 @@ mod tests {
         assert!(instance.get_field("y").is_some());
     }
 
-    // Legacy InstanceBox field test（旧 VM ライン用）.
+    // Box-valued field test（identity-preserving path）.
     #[test]
-    #[ignore]
     fn test_field_operations() {
         let instance = InstanceBox::from_declaration(
             "TestBox".to_string(),
@@ -488,6 +365,27 @@ mod tests {
         } else {
             panic!("Expected IntegerBox");
         }
+    }
+
+    #[test]
+    fn test_box_field_names_join_declared_and_box_only_fields() {
+        let instance = InstanceBox::from_declaration(
+            "TestBox".to_string(),
+            vec!["declared".to_string()],
+            HashMap::new(),
+        );
+        let refcell: SharedNyashBox = Arc::from(
+            Box::new(crate::boxes::ref_cell_box::RefCellBox::new(Box::new(
+                IntegerBox::new(9),
+            ))) as Box<dyn NyashBox>,
+        );
+        instance.set_field("payload", refcell).expect("box field set");
+
+        assert_eq!(
+            instance.field_names(),
+            vec!["declared".to_string(), "payload".to_string()]
+        );
+        assert_eq!(instance.field_count(), 2);
     }
 
     #[test]

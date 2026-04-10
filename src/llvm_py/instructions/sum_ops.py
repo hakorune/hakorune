@@ -16,7 +16,7 @@ from instructions.field_access import (
 )
 from instructions.newbox import lower_newbox
 from instructions.primitive_handles import resolver_value_type, unbox_primitive_handle_if_needed
-from instructions.sum_runtime import SUM_PAYLOAD_FIELD, SUM_TAG_FIELD, runtime_box_name
+from instructions.sum_runtime import ENUM_PAYLOAD_FIELD, ENUM_TAG_FIELD, runtime_box_name
 from instructions.typeop import _emit_trap
 from type_facts import is_box_handle_fact, make_box_handle_fact
 from utils.resolver_helpers import mark_as_handle
@@ -138,7 +138,7 @@ def materialize_local_sum_aggregate(
         raise RuntimeError("[sum_ops] local sum aggregate is missing enum_name")
 
     recv_h = _new_runtime_sum_handle(builder, module, enum_name, name_hint=name_hint)
-    _set_i64_field(builder, module, recv_h, SUM_TAG_FIELD, local_sum["tag"])
+    _set_i64_field(builder, module, recv_h, ENUM_TAG_FIELD, local_sum["tag"])
 
     payload_value = local_sum.get("payload")
     if payload_value is None:
@@ -152,23 +152,23 @@ def materialize_local_sum_aggregate(
             resolver,
             name_hint=f"{name_hint}_nested",
         )
-        _set_handle_field(builder, module, recv_h, SUM_PAYLOAD_FIELD, payload_value)
+        _set_handle_field(builder, module, recv_h, ENUM_PAYLOAD_FIELD, payload_value)
         return recv_h
 
     payload_fact = local_sum.get("payload_fact")
     storage_kind = _storage_kind_from_fact(payload_fact)
     if storage_kind == "Integer":
-        _set_i64_field(builder, module, recv_h, SUM_PAYLOAD_FIELD, payload_value)
+        _set_i64_field(builder, module, recv_h, ENUM_PAYLOAD_FIELD, payload_value)
     elif storage_kind == "Bool":
-        _set_bool_field(builder, module, recv_h, SUM_PAYLOAD_FIELD, payload_value)
+        _set_bool_field(builder, module, recv_h, ENUM_PAYLOAD_FIELD, payload_value)
     elif storage_kind == "Float":
-        _set_float_field(builder, module, recv_h, SUM_PAYLOAD_FIELD, payload_value)
+        _set_float_field(builder, module, recv_h, ENUM_PAYLOAD_FIELD, payload_value)
     else:
-        _set_handle_field(builder, module, recv_h, SUM_PAYLOAD_FIELD, payload_value)
+        _set_handle_field(builder, module, recv_h, ENUM_PAYLOAD_FIELD, payload_value)
     return recv_h
 
 
-def lower_sum_make(
+def lower_variant_make(
     builder: ir.IRBuilder,
     module: ir.Module,
     dst_vid: Optional[int],
@@ -184,7 +184,7 @@ def lower_sum_make(
     bb_map,
 ) -> None:
     if dst_vid is None or not enum_name:
-        raise RuntimeError("[sum_ops] sum_make requires dst and enum name")
+        raise RuntimeError("[sum_ops] variant_make requires dst and variant name")
     local_sum = _try_build_local_sum_aggregate(
         builder,
         module,
@@ -201,7 +201,7 @@ def lower_sum_make(
         bb_map,
     )
     if local_sum is not None:
-        safe_vmap_write(vmap, int(dst_vid), local_sum, "sum_make_local", resolver=resolver)
+        safe_vmap_write(vmap, int(dst_vid), local_sum, "variant_make_local", resolver=resolver)
         payload_fact = local_sum.get("payload_fact")
         if payload_fact is not None:
             _record_sum_payload_fact(resolver, int(dst_vid), payload_fact)
@@ -212,7 +212,7 @@ def lower_sum_make(
         builder,
         module,
         recv_h,
-        SUM_TAG_FIELD,
+        ENUM_TAG_FIELD,
         ir.Constant(ir.IntType(64), int(tag or 0)),
     )
 
@@ -241,23 +241,23 @@ def lower_sum_make(
     if storage_kind == "Integer":
         stored = unbox_primitive_handle_if_needed(
             builder,
-            _canonical_i64(builder, payload_value, name_hint=f"sum_make_{variant}_payload"),
+            _canonical_i64(builder, payload_value, name_hint=f"variant_make_{variant}_payload"),
             payload_meta,
-            name_hint=f"sum_make_{variant}_{payload_vid}",
+            name_hint=f"variant_make_{variant}_{payload_vid}",
         )
-        stored = _canonical_i64(builder, stored, name_hint=f"sum_make_{variant}_i64")
-        _set_i64_field(builder, module, recv_h, SUM_PAYLOAD_FIELD, stored)
+        stored = _canonical_i64(builder, stored, name_hint=f"variant_make_{variant}_i64")
+        _set_i64_field(builder, module, recv_h, ENUM_PAYLOAD_FIELD, stored)
         _record_sum_payload_fact(resolver, int(dst_vid), payload_fact)
         return
     if storage_kind == "Bool":
         stored = unbox_primitive_handle_if_needed(
             builder,
-            _canonical_i64(builder, payload_value, name_hint=f"sum_make_{variant}_payload"),
+            _canonical_i64(builder, payload_value, name_hint=f"variant_make_{variant}_payload"),
             payload_meta,
-            name_hint=f"sum_make_{variant}_{payload_vid}",
+            name_hint=f"variant_make_{variant}_{payload_vid}",
         )
-        stored = _canonical_bool_i64(builder, stored, name_hint=f"sum_make_{variant}_bool")
-        _set_bool_field(builder, module, recv_h, SUM_PAYLOAD_FIELD, stored)
+        stored = _canonical_bool_i64(builder, stored, name_hint=f"variant_make_{variant}_bool")
+        _set_bool_field(builder, module, recv_h, ENUM_PAYLOAD_FIELD, stored)
         _record_sum_payload_fact(resolver, int(dst_vid), payload_fact)
         return
     if storage_kind == "Float":
@@ -265,9 +265,9 @@ def lower_sum_make(
             builder,
             payload_value,
             payload_meta,
-            name_hint=f"sum_make_{variant}_float",
+            name_hint=f"variant_make_{variant}_float",
         )
-        _set_float_field(builder, module, recv_h, SUM_PAYLOAD_FIELD, stored)
+        _set_float_field(builder, module, recv_h, ENUM_PAYLOAD_FIELD, stored)
         _record_sum_payload_fact(resolver, int(dst_vid), payload_fact)
         return
 
@@ -280,11 +280,11 @@ def lower_sum_make(
         payload_fact,
         payload_fallback_kind,
     )
-    _set_handle_field(builder, module, recv_h, SUM_PAYLOAD_FIELD, handle_value)
+    _set_handle_field(builder, module, recv_h, ENUM_PAYLOAD_FIELD, handle_value)
     _record_sum_payload_fact(resolver, int(dst_vid), payload_fact)
 
 
-def lower_sum_tag(
+def lower_variant_tag(
     builder: ir.IRBuilder,
     module: ir.Module,
     dst_vid: Optional[int],
@@ -297,14 +297,14 @@ def lower_sum_tag(
     bb_map,
 ) -> None:
     if dst_vid is None or value_vid is None or not enum_name:
-        raise RuntimeError("[sum_ops] sum_tag requires dst, value, and enum name")
+        raise RuntimeError("[sum_ops] variant_tag requires dst, value, and variant name")
     local_sum = _resolve_local_sum_aggregate(int(value_vid), vmap, resolver)
     if _is_local_sum_aggregate(local_sum):
         if local_sum.get("enum_name") != enum_name:
             raise RuntimeError(
                 f"[sum_ops] local sum aggregate enum mismatch: expected {enum_name}, got {local_sum.get('enum_name')}"
             )
-        safe_vmap_write(vmap, int(dst_vid), local_sum["tag"], "sum_tag_local", resolver=resolver)
+        safe_vmap_write(vmap, int(dst_vid), local_sum["tag"], "variant_tag_local", resolver=resolver)
         _mark_integer_immediate(resolver, int(dst_vid))
         return
     recv_val = _resolve_receiver(
@@ -317,12 +317,12 @@ def lower_sum_tag(
         bb_map,
     )
     recv_h = _ensure_handle(builder, module, recv_val)
-    result = _get_i64_field(builder, module, recv_h, SUM_TAG_FIELD, name_hint="sum_tag")
-    safe_vmap_write(vmap, int(dst_vid), result, "sum_tag")
+    result = _get_i64_field(builder, module, recv_h, ENUM_TAG_FIELD, name_hint="variant_tag")
+    safe_vmap_write(vmap, int(dst_vid), result, "variant_tag")
     _mark_integer_immediate(resolver, int(dst_vid))
 
 
-def lower_sum_project(
+def lower_variant_project(
     builder: ir.IRBuilder,
     module: ir.Module,
     dst_vid: Optional[int],
@@ -338,7 +338,7 @@ def lower_sum_project(
     bb_map,
 ) -> None:
     if dst_vid is None or value_vid is None or not enum_name:
-        raise RuntimeError("[sum_ops] sum_project requires dst, value, and enum name")
+        raise RuntimeError("[sum_ops] variant_project requires dst, value, and variant name")
     local_sum = _resolve_local_sum_aggregate(int(value_vid), vmap, resolver)
     if _is_local_sum_aggregate(local_sum):
         if local_sum.get("enum_name") != enum_name:
@@ -347,11 +347,11 @@ def lower_sum_project(
             )
         actual_tag = local_sum["tag"]
         expected_tag = ir.Constant(ir.IntType(64), int(tag or 0))
-        is_match = builder.icmp_unsigned("==", actual_tag, expected_tag, name=f"sum_tag_match_{dst_vid}")
+        is_match = builder.icmp_unsigned("==", actual_tag, expected_tag, name=f"variant_tag_match_{dst_vid}")
 
         fn = builder.function
-        trap_bb = fn.append_basic_block(name=f"sum_project_fail_{dst_vid}")
-        ok_bb = fn.append_basic_block(name=f"sum_project_ok_{dst_vid}")
+        trap_bb = fn.append_basic_block(name=f"variant_project_fail_{dst_vid}")
+        ok_bb = fn.append_basic_block(name=f"variant_project_ok_{dst_vid}")
         builder.cbranch(is_match, ok_bb, trap_bb)
 
         builder.position_at_end(trap_bb)
@@ -364,12 +364,12 @@ def lower_sum_project(
         if storage_kind in {"Integer", "Bool", "Float"}:
             if payload_value is None:
                 raise RuntimeError("[sum_ops] selected local sum payload is missing")
-            safe_vmap_write(vmap, int(dst_vid), payload_value, f"sum_project_local_{storage_kind.lower()}", resolver=resolver)
+            safe_vmap_write(vmap, int(dst_vid), payload_value, f"variant_project_local_{storage_kind.lower()}", resolver=resolver)
             _apply_payload_fact_to_result(resolver, int(dst_vid), payload_fact)
             return
         if payload_value is None:
             raise RuntimeError("[sum_ops] selected local sum handle payload is missing")
-        safe_vmap_write(vmap, int(dst_vid), payload_value, "sum_project_local_handle", resolver=resolver)
+        safe_vmap_write(vmap, int(dst_vid), payload_value, "variant_project_local_handle", resolver=resolver)
         _apply_payload_fact_to_result(resolver, int(dst_vid), payload_fact)
         return
     recv_val = _resolve_receiver(
@@ -382,13 +382,13 @@ def lower_sum_project(
         bb_map,
     )
     recv_h = _ensure_handle(builder, module, recv_val)
-    actual_tag = _get_i64_field(builder, module, recv_h, SUM_TAG_FIELD, name_hint="sum_project_tag")
+    actual_tag = _get_i64_field(builder, module, recv_h, ENUM_TAG_FIELD, name_hint="variant_project_tag")
     expected_tag = ir.Constant(ir.IntType(64), int(tag or 0))
-    is_match = builder.icmp_unsigned("==", actual_tag, expected_tag, name=f"sum_tag_match_{dst_vid}")
+    is_match = builder.icmp_unsigned("==", actual_tag, expected_tag, name=f"variant_tag_match_{dst_vid}")
 
     fn = builder.function
-    trap_bb = fn.append_basic_block(name=f"sum_project_fail_{dst_vid}")
-    ok_bb = fn.append_basic_block(name=f"sum_project_ok_{dst_vid}")
+    trap_bb = fn.append_basic_block(name=f"variant_project_fail_{dst_vid}")
+    ok_bb = fn.append_basic_block(name=f"variant_project_ok_{dst_vid}")
     builder.cbranch(is_match, ok_bb, trap_bb)
 
     builder.position_at_end(trap_bb)
@@ -398,23 +398,23 @@ def lower_sum_project(
     payload_fact = _project_payload_fact(resolver, int(value_vid), payload_type)
     storage_kind = _storage_kind_from_fact(payload_fact)
     if storage_kind == "Integer":
-        result = _get_i64_field(builder, module, recv_h, SUM_PAYLOAD_FIELD, name_hint="sum_project_i64")
-        safe_vmap_write(vmap, int(dst_vid), result, "sum_project_i64")
+        result = _get_i64_field(builder, module, recv_h, ENUM_PAYLOAD_FIELD, name_hint="variant_project_i64")
+        safe_vmap_write(vmap, int(dst_vid), result, "variant_project_i64")
         _apply_payload_fact_to_result(resolver, int(dst_vid), payload_fact)
         return
     if storage_kind == "Bool":
-        result = _get_bool_field(builder, module, recv_h, SUM_PAYLOAD_FIELD, name_hint="sum_project_bool")
-        safe_vmap_write(vmap, int(dst_vid), result, "sum_project_bool")
+        result = _get_bool_field(builder, module, recv_h, ENUM_PAYLOAD_FIELD, name_hint="variant_project_bool")
+        safe_vmap_write(vmap, int(dst_vid), result, "variant_project_bool")
         _apply_payload_fact_to_result(resolver, int(dst_vid), payload_fact)
         return
     if storage_kind == "Float":
-        result = _get_float_field(builder, module, recv_h, SUM_PAYLOAD_FIELD, name_hint="sum_project_float")
-        safe_vmap_write(vmap, int(dst_vid), result, "sum_project_float")
+        result = _get_float_field(builder, module, recv_h, ENUM_PAYLOAD_FIELD, name_hint="variant_project_float")
+        safe_vmap_write(vmap, int(dst_vid), result, "variant_project_float")
         _apply_payload_fact_to_result(resolver, int(dst_vid), payload_fact)
         return
 
-    result = _get_handle_field(builder, module, recv_h, SUM_PAYLOAD_FIELD, name_hint="sum_project_handle")
-    safe_vmap_write(vmap, int(dst_vid), result, "sum_project_handle")
+    result = _get_handle_field(builder, module, recv_h, ENUM_PAYLOAD_FIELD, name_hint="variant_project_handle")
+    safe_vmap_write(vmap, int(dst_vid), result, "variant_project_handle")
     _apply_payload_fact_to_result(resolver, int(dst_vid), payload_fact)
 
 
@@ -471,22 +471,22 @@ def _try_build_local_sum_aggregate(
             if storage_kind == "Integer":
                 payload_value = unbox_primitive_handle_if_needed(
                     builder,
-                    _canonical_i64(builder, raw_payload, name_hint=f"sum_make_{variant}_payload"),
+                    _canonical_i64(builder, raw_payload, name_hint=f"variant_make_{variant}_payload"),
                     payload_meta,
-                    name_hint=f"sum_make_{variant}_{payload_vid}",
+                    name_hint=f"variant_make_{variant}_{payload_vid}",
                 )
                 payload_value = _canonical_i64(
-                    builder, payload_value, name_hint=f"sum_make_{variant}_i64_local"
+                    builder, payload_value, name_hint=f"variant_make_{variant}_i64_local"
                 )
             elif storage_kind == "Bool":
                 payload_value = unbox_primitive_handle_if_needed(
                     builder,
-                    _canonical_i64(builder, raw_payload, name_hint=f"sum_make_{variant}_payload"),
+                    _canonical_i64(builder, raw_payload, name_hint=f"variant_make_{variant}_payload"),
                     payload_meta,
-                    name_hint=f"sum_make_{variant}_{payload_vid}",
+                    name_hint=f"variant_make_{variant}_{payload_vid}",
                 )
                 payload_value = _canonical_bool_i64(
-                    builder, payload_value, name_hint=f"sum_make_{variant}_bool_local"
+                    builder, payload_value, name_hint=f"variant_make_{variant}_bool_local"
                 )
             else:
                 return None
@@ -497,7 +497,7 @@ def _try_build_local_sum_aggregate(
                 builder,
                 raw_payload,
                 payload_meta,
-                name_hint=f"sum_make_{variant}_float_local",
+                name_hint=f"variant_make_{variant}_float_local",
             )
         elif layout == "tag_handle_payload":
             if _is_local_sum_aggregate(raw_payload):

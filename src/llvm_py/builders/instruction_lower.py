@@ -18,7 +18,7 @@ from instructions.field_access import lower_field_get, lower_field_set
 from instructions.externcall import lower_externcall
 from instructions.typeop import lower_typeop
 from instructions.newbox import lower_newbox
-from instructions.sum_ops import lower_sum_make, lower_sum_project, lower_sum_tag
+from instructions.sum_ops import lower_variant_make, lower_variant_project, lower_variant_tag
 from instructions.safepoint import lower_safepoint
 from instructions.barrier import lower_barrier
 from instructions.select import lower_select  # Phase 256 P1.5: Select instruction
@@ -45,9 +45,9 @@ SUPPORTED_OPS = {
     "boxcall",
     "externcall",
     "newbox",
-    "sum_make",
-    "sum_tag",
-    "sum_project",
+    "variant_make",
+    "variant_tag",
+    "variant_project",
     "typeop",
     "safepoint",
     "barrier",
@@ -232,8 +232,8 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
         lower_newbox(builder, ctx.module, box_type, args, dst,
                      vmap_ctx, ctx.resolver, ctx.lower_ctx)
 
-    elif op == "sum_make":
-        lower_sum_make(
+    elif op == "variant_make":
+        lower_variant_make(
             builder,
             ctx.module,
             inst.get("dst"),
@@ -249,8 +249,8 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
             ctx.bb_map,
         )
 
-    elif op == "sum_tag":
-        lower_sum_tag(
+    elif op == "variant_tag":
+        lower_variant_tag(
             builder,
             ctx.module,
             inst.get("dst"),
@@ -263,8 +263,8 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
             ctx.bb_map,
         )
 
-    elif op == "sum_project":
-        lower_sum_project(
+    elif op == "variant_project":
+        lower_variant_project(
             builder,
             ctx.module,
             inst.get("dst"),

@@ -533,12 +533,12 @@ mod tests {
                 block: BasicBlockId::new(0),
                 instruction_index: 2,
                 value: Some(crate::mir::ValueId::new(7)),
-                surface: crate::mir::ThinEntrySurface::SumMake,
+                surface: crate::mir::ThinEntrySurface::VariantMake,
                 subject: "Option::Some".to_string(),
                 preferred_entry: crate::mir::ThinEntryPreferredEntry::ThinInternalEntry,
                 current_carrier: crate::mir::ThinEntryCurrentCarrier::CompatBox,
                 value_class: crate::mir::ThinEntryValueClass::AggLocal,
-                reason: "sum.make stays aggregate-first".to_string(),
+                reason: "variant.make stays aggregate-first".to_string(),
             });
         module.functions.insert("main".to_string(), function);
 
@@ -548,7 +548,7 @@ mod tests {
             .expect("thin_entry_candidates array");
 
         assert_eq!(candidates.len(), 1);
-        assert_eq!(candidates[0]["surface"], "sum_make");
+        assert_eq!(candidates[0]["surface"], "variant_make");
         assert_eq!(candidates[0]["subject"], "Option::Some");
         assert_eq!(candidates[0]["preferred_entry"], "thin_internal_entry");
         assert_eq!(candidates[0]["current_carrier"], "compat_box");
@@ -662,7 +662,7 @@ mod tests {
                 block: BasicBlockId::new(0),
                 instruction_index: 4,
                 value: Some(crate::mir::ValueId::new(9)),
-                surface: crate::mir::ThinEntrySurface::SumMake,
+                surface: crate::mir::ThinEntrySurface::VariantMake,
                 subject: "Option::Some".to_string(),
                 source_sum: None,
                 value_class: crate::mir::ThinEntryValueClass::AggLocal,
@@ -670,7 +670,7 @@ mod tests {
                 tag_reads: 1,
                 project_reads: 1,
                 barriers: vec![crate::mir::SumObjectizationBarrier::Call],
-                reason: "sum value stays local until call boundary".to_string(),
+                reason: "variant value stays local until call boundary".to_string(),
             });
         module.functions.insert("main".to_string(), function);
 
@@ -680,7 +680,7 @@ mod tests {
             .expect("sum_placement_facts array");
 
         assert_eq!(facts.len(), 1);
-        assert_eq!(facts[0]["surface"], "sum_make");
+        assert_eq!(facts[0]["surface"], "variant_make");
         assert_eq!(facts[0]["state"], "local_agg_candidate");
         assert_eq!(facts[0]["barriers"][0], "call");
         assert_eq!(facts[0]["value"], 9);
@@ -697,10 +697,10 @@ mod tests {
                 block: BasicBlockId::new(0),
                 instruction_index: 5,
                 value: Some(crate::mir::ValueId::new(10)),
-                surface: crate::mir::ThinEntrySurface::SumProject,
+                surface: crate::mir::ThinEntrySurface::VariantProject,
                 subject: "Option::Some".to_string(),
                 source_sum: Some(crate::mir::ValueId::new(9)),
-                manifest_row: "sum_project.local_aggregate",
+                manifest_row: "variant_project.local_aggregate",
                 selected_path: crate::mir::SumPlacementPath::LocalAggregate,
                 reason: "selected local aggregate projection".to_string(),
             });
@@ -712,7 +712,7 @@ mod tests {
             .expect("sum_placement_selections array");
 
         assert_eq!(selections.len(), 1);
-        assert_eq!(selections[0]["manifest_row"], "sum_project.local_aggregate");
+        assert_eq!(selections[0]["manifest_row"], "variant_project.local_aggregate");
         assert_eq!(selections[0]["selected_path"], "local_aggregate");
         assert_eq!(selections[0]["source_sum"], 9);
         assert_eq!(selections[0]["value"], 10);
@@ -729,7 +729,7 @@ mod tests {
                 block: BasicBlockId::new(0),
                 instruction_index: 6,
                 value: Some(crate::mir::ValueId::new(11)),
-                surface: crate::mir::ThinEntrySurface::SumMake,
+                surface: crate::mir::ThinEntrySurface::VariantMake,
                 subject: "Option::Some".to_string(),
                 source_sum: None,
                 layout: crate::mir::SumLocalAggregateLayout::TagI64Payload,
@@ -744,7 +744,7 @@ mod tests {
 
         assert_eq!(layouts.len(), 1);
         assert_eq!(layouts[0]["layout"], "tag_i64_payload");
-        assert_eq!(layouts[0]["surface"], "sum_make");
+        assert_eq!(layouts[0]["surface"], "variant_make");
         assert_eq!(layouts[0]["value"], 11);
     }
 }

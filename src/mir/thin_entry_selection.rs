@@ -136,20 +136,28 @@ const MANIFEST_ROWS: &[ThinEntryManifestRow] = &[
             "known user-box methods stay eligible for a thin monomorphic internal entry beneath canonical Call",
     },
     ThinEntryManifestRow {
-        row: "sum_make.aggregate_local",
-        surface: ThinEntrySurface::SumMake,
+        row: "variant_make.aggregate_local",
+        surface: ThinEntrySurface::VariantMake,
         value_class: ThinEntryManifestValueClass::Any,
         selected_entry: ThinEntryPreferredEntry::ThinInternalEntry,
         reason:
-            "sum.make stays aggregate-first in the manifest plan and keeps compat boxing as fallback only",
+            "variant.make stays aggregate-first in the manifest plan and keeps compat boxing as fallback only",
     },
     ThinEntryManifestRow {
-        row: "sum_project.payload_local",
-        surface: ThinEntrySurface::SumProject,
+        row: "variant_tag.tag_local",
+        surface: ThinEntrySurface::VariantTag,
+        value_class: ThinEntryManifestValueClass::InlineScalar,
+        selected_entry: ThinEntryPreferredEntry::ThinInternalEntry,
+        reason:
+            "variant.tag keeps discriminant reads on the thin local route while compat carriers remain runtime fallback",
+    },
+    ThinEntryManifestRow {
+        row: "variant_project.payload_local",
+        surface: ThinEntrySurface::VariantProject,
         value_class: ThinEntryManifestValueClass::Any,
         selected_entry: ThinEntryPreferredEntry::ThinInternalEntry,
         reason:
-            "sum.project keeps payload projection on the thin local route while compat carriers remain runtime fallback",
+            "variant.project keeps payload projection on the thin local route while compat carriers remain runtime fallback",
     },
 ];
 
@@ -266,7 +274,7 @@ mod tests {
                 block: BasicBlockId::new(0),
                 instruction_index: 3,
                 value: Some(ValueId::new(5)),
-                surface: ThinEntrySurface::SumMake,
+                surface: ThinEntrySurface::VariantMake,
                 subject: "Option::Some".to_string(),
                 preferred_entry: ThinEntryPreferredEntry::ThinInternalEntry,
                 current_carrier: ThinEntryCurrentCarrier::CompatBox,
@@ -276,8 +284,19 @@ mod tests {
             ThinEntryCandidate {
                 block: BasicBlockId::new(0),
                 instruction_index: 4,
+                value: Some(ValueId::new(7)),
+                surface: ThinEntrySurface::VariantTag,
+                subject: "Option".to_string(),
+                preferred_entry: ThinEntryPreferredEntry::ThinInternalEntry,
+                current_carrier: ThinEntryCurrentCarrier::CompatBox,
+                value_class: ThinEntryValueClass::InlineI64,
+                reason: "inventory".to_string(),
+            },
+            ThinEntryCandidate {
+                block: BasicBlockId::new(0),
+                instruction_index: 5,
                 value: Some(ValueId::new(6)),
-                surface: ThinEntrySurface::SumProject,
+                surface: ThinEntrySurface::VariantProject,
                 subject: "Option::Some".to_string(),
                 preferred_entry: ThinEntryPreferredEntry::ThinInternalEntry,
                 current_carrier: ThinEntryCurrentCarrier::CompatBox,
@@ -289,7 +308,7 @@ mod tests {
         refresh_function_thin_entry_selections(&mut function);
 
         let selections = &function.metadata.thin_entry_selections;
-        assert_eq!(selections.len(), 5);
+        assert_eq!(selections.len(), 6);
         assert!(selections.iter().any(|selection| {
             selection.manifest_row == "user_box_field_get.inline_scalar"
                 && selection.selected_entry == ThinEntryPreferredEntry::ThinInternalEntry
@@ -309,12 +328,17 @@ mod tests {
                 && selection.subject == "Point.move"
         }));
         assert!(selections.iter().any(|selection| {
-            selection.manifest_row == "sum_make.aggregate_local"
+            selection.manifest_row == "variant_make.aggregate_local"
                 && selection.state == ThinEntrySelectionState::Candidate
                 && selection.subject == "Option::Some"
         }));
         assert!(selections.iter().any(|selection| {
-            selection.manifest_row == "sum_project.payload_local"
+            selection.manifest_row == "variant_tag.tag_local"
+                && selection.state == ThinEntrySelectionState::Candidate
+                && selection.subject == "Option"
+        }));
+        assert!(selections.iter().any(|selection| {
+            selection.manifest_row == "variant_project.payload_local"
                 && selection.state == ThinEntrySelectionState::Candidate
                 && selection.subject == "Option::Some"
         }));

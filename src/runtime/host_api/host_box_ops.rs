@@ -71,7 +71,7 @@ pub(super) fn dispatch_call_name(
         "getField" if !argv.is_empty() => {
             let field = field_name_from_arg(&argv[0]);
             let out = inst
-                .get_field_unified(&field)
+                .get_field_ng(&field)
                 .map(nyash_value_to_vmvalue)
                 .unwrap_or_else(|| VMValue::String(String::new()));
             let buf = tlv_encode_one(&out);
@@ -81,7 +81,7 @@ pub(super) fn dispatch_call_name(
             let field = field_name_from_arg(&argv[0]);
             crate::runtime::global_hooks::gc_barrier(crate::runtime::gc::BarrierKind::Write);
             if let Some(value) = vmvalue_to_setfield_value(argv[1].clone()) {
-                let _ = inst.set_field_unified(field, value);
+                let _ = inst.set_field_ng(field, value);
             }
             let buf = tlv_encode_one(&VMValue::Bool(true));
             encode_out(out_ptr, out_len, &buf)
@@ -107,7 +107,7 @@ pub(super) fn dispatch_call_slot(
             1 if !argv.is_empty() => {
                 let field = field_name_from_arg(&argv[0]);
                 let out = inst
-                    .get_field_unified(&field)
+                    .get_field_ng(&field)
                     .map(nyash_value_to_vmvalue)
                     .unwrap_or_else(|| VMValue::String(String::new()));
                 let buf = tlv_encode_one(&out);
@@ -116,14 +116,14 @@ pub(super) fn dispatch_call_slot(
             2 if argv.len() >= 2 => {
                 let field = field_name_from_arg(&argv[0]);
                 if let Some(value) = vmvalue_to_setfield_value(argv[1].clone()) {
-                    let _ = inst.set_field_unified(field, value);
+                    let _ = inst.set_field_ng(field, value);
                 }
                 let buf = tlv_encode_one(&VMValue::Bool(true));
                 encode_out(out_ptr, out_len, &buf)
             }
             3 if !argv.is_empty() => {
                 let field = field_name_from_arg(&argv[0]);
-                let has = inst.get_field_unified(&field).is_some();
+                let has = inst.get_field_ng(&field).is_some();
                 let buf = tlv_encode_one(&VMValue::Bool(has));
                 encode_out(out_ptr, out_len, &buf)
             }

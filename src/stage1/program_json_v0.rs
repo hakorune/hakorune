@@ -285,7 +285,7 @@ static box Main {
 
         let json = source_to_program_json_v0_strict(source).expect("program json");
         let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
-        let payload_box = "__NyEnumPayload_Token_Ident";
+        let payload_box = "__NyVariantPayload_Token_Ident";
 
         let enum_decls = value["enum_decls"].as_array().expect("enum decls");
         assert_eq!(enum_decls[0]["variants"][0]["payload_type"], payload_box);
@@ -342,7 +342,7 @@ static box Main {
 
         let json = source_to_program_json_v0_strict(source).expect("program json");
         let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
-        let payload_box = "__NyEnumPayload_Pair_Both";
+        let payload_box = "__NyVariantPayload_Pair_Both";
 
         let enum_decls = value["enum_decls"].as_array().expect("enum decls");
         assert_eq!(enum_decls[0]["variants"][0]["payload_type"], payload_box);

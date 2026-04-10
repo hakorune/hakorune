@@ -13,7 +13,7 @@ struct ResolvedEnumVariant {
     payload_type_name: Option<String>,
 }
 
-pub(super) fn lower_enum_ctor_expr_with_scope<S: VarScope>(
+pub(super) fn lower_variant_ctor_expr_with_scope<S: VarScope>(
     env: &BridgeEnv,
     f: &mut MirFunction,
     cur_bb: BasicBlockId,
@@ -50,7 +50,7 @@ pub(super) fn lower_enum_ctor_expr_with_scope<S: VarScope>(
     let dst = f.next_value_id();
     let payload_type = payload_type_hint(resolved.payload_type_name.as_deref());
     if let Some(bb) = f.get_block_mut(cur2) {
-        bb.add_instruction(MirInstruction::SumMake {
+        bb.add_instruction(MirInstruction::VariantMake {
             dst,
             enum_name: enum_name.to_string(),
             variant: variant_name.to_string(),
@@ -63,7 +63,7 @@ pub(super) fn lower_enum_ctor_expr_with_scope<S: VarScope>(
     Ok((dst, cur2))
 }
 
-pub(super) fn lower_enum_match_expr_with_vars(
+pub(super) fn lower_variant_match_expr_with_vars(
     env: &BridgeEnv,
     f: &mut MirFunction,
     cur_bb: BasicBlockId,
@@ -105,7 +105,7 @@ pub(super) fn lower_enum_match_expr_with_vars(
 
     let tag_val = f.next_value_id();
     if let Some(bb) = f.get_block_mut(dispatch_bb) {
-        bb.add_instruction(MirInstruction::SumTag {
+        bb.add_instruction(MirInstruction::VariantTag {
             dst: tag_val,
             value: scr_val,
             enum_name: enum_name.to_string(),
@@ -172,7 +172,7 @@ pub(super) fn lower_enum_match_expr_with_vars(
             let projected = f.next_value_id();
             let payload_type = payload_type_hint(Some(payload_type_name));
             if let Some(bb) = f.get_block_mut(then_bb) {
-                bb.add_instruction(MirInstruction::SumProject {
+                bb.add_instruction(MirInstruction::VariantProject {
                     dst: projected,
                     value: scr_val,
                     enum_name: enum_name.to_string(),

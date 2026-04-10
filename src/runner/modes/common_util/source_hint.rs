@@ -38,6 +38,33 @@ pub fn compile_with_source_hint_and_imports(
     compiler.compile_with_source_and_imports(ast, None, imports)
 }
 
+fn normalize_source_for_parser(code: &str, filename: &str) -> String {
+    let mut prepared = crate::runner::modes::common_util::resolve::preexpand_at_local(code);
+    if crate::runner::modes::common_util::hako::looks_like_hako_code(&prepared)
+        || filename.ends_with(".hako")
+    {
+        prepared = crate::runner::modes::common_util::hako::strip_local_decl(&prepared);
+    }
+    prepared
+}
+
+/// Prepare source text for perf-sensitive emit lanes.
+///
+/// This skips `using` prelude resolution entirely and keeps only the small
+/// text normalizations needed by current `.hako` benchmark fixtures.
+pub(crate) fn prepare_source_minimal(code: &str, filename: &str) -> Result<String, String> {
+    if code
+        .lines()
+        .any(|line| line.trim_start().starts_with("using "))
+    {
+        return Err(
+            "minimal MIR emit mode does not support using/prelude resolution; use --emit-mir-json for full route or remove using lines"
+                .to_string(),
+        );
+    }
+    Ok(normalize_source_for_parser(code, filename))
+}
+
 /// Prepare source text for direct source-based compile lanes.
 ///
 /// This is the SSOT for:
@@ -79,15 +106,28 @@ pub(crate) fn prepare_source_with_imports(
         code.to_string()
     };
 
-    prepared = crate::runner::modes::common_util::resolve::preexpand_at_local(&prepared);
-    if crate::runner::modes::common_util::hako::looks_like_hako_code(&prepared)
-        || filename.ends_with(".hako")
-    {
-        prepared = crate::runner::modes::common_util::hako::strip_local_decl(&prepared);
-    }
+    prepared = normalize_source_for_parser(&prepared, filename);
 
     Ok(PreparedSourceWithImports {
         code: prepared,
         imports,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::prepare_source_minimal;
+
+    #[test]
+    fn minimal_prepare_strips_top_level_local() {
+        let prepared = prepare_source_minimal("local foo = 1\n", "bench.hako").unwrap();
+        assert_eq!(prepared, "foo = 1\n");
+    }
+
+    #[test]
+    fn minimal_prepare_rejects_using_lines() {
+        let err =
+            prepare_source_minimal("using foo.bar\nlocal foo = 1\n", "bench.hako").unwrap_err();
+        assert!(err.contains("using/prelude resolution"));
+    }
 }

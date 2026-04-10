@@ -97,7 +97,7 @@ Current user-box / primitive cost reading:
       - Stage1 lowers that lane as `EnumMatch`
       - `_` does not satisfy known-enum exhaustiveness
     - canonical sum MIR lowering is now landed:
-      - `SumMake` / `SumTag` / `SumProject`
+      - `VariantMake` / `VariantTag` / `VariantProject`
       - JSON v0 bridge now lowers `EnumCtor` / `EnumMatch` into that lane
     - runtime/codegen semantics are still pending
     - design owner: `docs/development/current/main/design/enum-sum-and-generic-surface-ssot.md`

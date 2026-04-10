@@ -252,6 +252,7 @@ mod tests {
             emit: EmitConfig {
                 emit_cfg: None,
                 emit_mir_json: None,
+                emit_mir_json_minimal: None,
                 emit_wat: None,
                 emit_ast_json: None,
                 emit_program_json_v0: None,

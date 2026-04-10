@@ -97,14 +97,14 @@ fn emit_instruction(
             value,
             declared_type,
         } => Ok(fields::emit_field_set(base, field, value, declared_type)),
-        I::SumMake {
+        I::VariantMake {
             dst,
             enum_name,
             variant,
             tag,
             payload,
             payload_type,
-        } => Ok(sum::emit_sum_make(
+        } => Ok(sum::emit_variant_make(
             dst,
             enum_name,
             variant,
@@ -112,19 +112,19 @@ fn emit_instruction(
             payload.as_ref(),
             payload_type.as_ref(),
         )),
-        I::SumTag {
+        I::VariantTag {
             dst,
             value,
             enum_name,
-        } => Ok(sum::emit_sum_tag(dst, value, enum_name)),
-        I::SumProject {
+        } => Ok(sum::emit_variant_tag(dst, value, enum_name)),
+        I::VariantProject {
             dst,
             value,
             enum_name,
             variant,
             tag,
             payload_type,
-        } => Ok(sum::emit_sum_project(
+        } => Ok(sum::emit_variant_project(
             dst,
             value,
             enum_name,

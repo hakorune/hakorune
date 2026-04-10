@@ -68,6 +68,36 @@ pub fn build_command() -> Command {
         .arg(Arg::new("json-file").long("json-file").value_name("FILE").help("Read Ny JSON IR v0 from a file and execute via MIR Interpreter"))
         .arg(Arg::new("mir-json-file").long("mir-json-file").value_name("FILE").help("[Diagnostic] Read MIR JSON v0 from a file and perform minimal validation/inspection (experimental)") )
         .arg(Arg::new("emit-mir-json").long("emit-mir-json").value_name("FILE").help("Emit MIR JSON v0 to file and exit"))
+        .arg(
+            Arg::new("emit-mir-json-minimal")
+                .long("emit-mir-json-minimal")
+                .value_name("FILE")
+                .help("[Perf] Emit MIR JSON with minimal startup (skip using/plugin init)")
+                .conflicts_with_all([
+                    "emit-mir-json",
+                    "emit-ast-json",
+                    "emit-program-json-v0",
+                    "emit-program-json",
+                    "hako-emit-program-json",
+                    "hako-emit-mir-json",
+                    "hako-run",
+                    "macro-expand-child",
+                    "json-file",
+                    "mir-json-file",
+                    "ny-parser-pipe",
+                    "run-task",
+                    "repl",
+                    "benchmark",
+                    "program-json-to-mir",
+                    "emit-exe",
+                    "compile-native",
+                    "compile-wasm",
+                    "dump-expanded-ast-json",
+                    "dump-ast",
+                    "dump-mir",
+                    "verify",
+                ]),
+        )
         .arg(Arg::new("emit-ast-json").long("emit-ast-json").value_name("FILE").help("Emit AST JSON to file and exit (direct Rust parser route)"))
         .arg(Arg::new("emit-program-json").long("emit-program-json").value_name("FILE").help("[Deprecated] Alias of --emit-ast-json (was misnamed)"))
         .arg(Arg::new("emit-program-json-v0").long("emit-program-json-v0").value_name("FILE").help("[Compat-only, deprecated boundary] Emit Program(JSON v0) to file and exit (Stage-1 stub route)"))
@@ -270,6 +300,7 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
             .map(|v| v.cloned().collect())
             .unwrap_or_else(|| Vec::new()),
         emit_mir_json: matches.get_one::<String>("emit-mir-json").cloned(),
+        emit_mir_json_minimal: matches.get_one::<String>("emit-mir-json-minimal").cloned(),
         emit_ast_json: matches
             .get_one::<String>("emit-ast-json")
             .cloned()
@@ -505,6 +536,38 @@ mod tests {
             "/tmp/rust.json",
         ]);
         assert!(result.is_err(), "conflicting emit routes must be rejected");
+    }
+
+    #[test]
+    fn emit_mir_json_minimal_parses_and_sets_output_path() {
+        let matches = build_command()
+            .try_get_matches_from([
+                "hakorune",
+                "--emit-mir-json-minimal",
+                "/tmp/out.json",
+                "apps/min.hako",
+            ])
+            .expect("minimal emit args should parse");
+
+        let cfg = from_matches(&matches);
+        assert_eq!(cfg.emit_mir_json_minimal.as_deref(), Some("/tmp/out.json"));
+        assert_eq!(cfg.file.as_deref(), Some("apps/min.hako"));
+    }
+
+    #[test]
+    fn emit_mir_json_minimal_conflicts_with_emit_mir_json() {
+        let result = build_command().try_get_matches_from([
+            "hakorune",
+            "--emit-mir-json-minimal",
+            "/tmp/min.json",
+            "--emit-mir-json",
+            "/tmp/normal.json",
+            "apps/min.hako",
+        ]);
+        assert!(
+            result.is_err(),
+            "minimal emit route must conflict with normal MIR emit"
+        );
     }
 
     #[test]

@@ -61,6 +61,7 @@ pub struct CliConfig {
     pub build_target: Option<String>,
     pub cli_usings: Vec<String>,
     pub emit_mir_json: Option<String>,
+    pub emit_mir_json_minimal: Option<String>,
     pub hako_emit_program_json: bool,
     pub hako_emit_mir_json: bool,
     pub hako_run: bool,
@@ -134,6 +135,7 @@ impl CliConfig {
             emit: EmitConfig {
                 emit_cfg: self.emit_cfg.clone(),
                 emit_mir_json: self.emit_mir_json.clone(),
+                emit_mir_json_minimal: self.emit_mir_json_minimal.clone(),
                 emit_wat: self.emit_wat.clone(),
                 emit_ast_json: self.emit_ast_json.clone(),
                 emit_program_json_v0: self.emit_program_json_v0.clone(),
@@ -216,6 +218,7 @@ impl Default for CliConfig {
             build_target: None,
             cli_usings: Vec::new(),
             emit_mir_json: None,
+            emit_mir_json_minimal: None,
             hako_emit_program_json: false,
             hako_emit_mir_json: false,
             hako_run: false,

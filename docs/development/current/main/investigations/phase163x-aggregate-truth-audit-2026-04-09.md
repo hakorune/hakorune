@@ -53,7 +53,7 @@ Classification:
 
 - `src/stage1/program_json_v0/record_payload.rs`
   - `enum_variant_payload_type_name()` maps record variants to synthetic hidden payload box names
-    `__NyEnumPayload_<Enum>_<Variant>`.
+    `__NyVariantPayload_<Enum>_<Variant>`.
 - `src/stage1/program_json_v0/authority.rs`
   - enum inventory still publishes one `payload_type` slot per variant.
 - `src/stage1/program_json_v0/lowering.rs`
@@ -75,13 +75,13 @@ Classification:
 - `src/runner/json_v0_bridge/lowering/expr/sum_ops.rs`
   - ctor arity is `usize::from(payload_type_name.is_some())`
   - `multi-payload variants are outside MVP`
-  - `SumMake` is fed one `payload: Option<ValueId>`
-  - `SumProject` yields one projected payload value
+  - `VariantMake` is fed one `payload: Option<ValueId>`
+  - `VariantProject` yields one projected payload value
 - `src/mir/function.rs`
   - `MirEnumVariantDecl.payload_type_name: Option<String>`
 - `src/mir/instruction.rs`
-  - `SumMake.payload: Option<ValueId>`
-  - `SumProject` projects one payload value
+  - `VariantMake.payload: Option<ValueId>`
+  - `VariantProject` projects one payload value
 - `src/runner/mir_json_emit/mod.rs`
   - MIR JSON still re-emits enum inventory as one `payload_type` slot.
 
@@ -115,7 +115,7 @@ Classification:
   - Stage1 Program JSON v0
   - JSON v0 bridge AST/lowering
   - MIR metadata
-  - canonical `SumMake` / `SumProject`
+  - canonical `VariantMake` / `VariantProject`
 
 ## Decision Input
 

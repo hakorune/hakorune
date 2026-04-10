@@ -17,8 +17,9 @@ pub enum ThinEntrySurface {
     UserBoxMethod,
     UserBoxFieldGet,
     UserBoxFieldSet,
-    SumMake,
-    SumProject,
+    VariantMake,
+    VariantTag,
+    VariantProject,
 }
 
 impl std::fmt::Display for ThinEntrySurface {
@@ -27,8 +28,9 @@ impl std::fmt::Display for ThinEntrySurface {
             Self::UserBoxMethod => f.write_str("user_box_method"),
             Self::UserBoxFieldGet => f.write_str("user_box_field_get"),
             Self::UserBoxFieldSet => f.write_str("user_box_field_set"),
-            Self::SumMake => f.write_str("sum_make"),
-            Self::SumProject => f.write_str("sum_project"),
+            Self::VariantMake => f.write_str("variant_make"),
+            Self::VariantTag => f.write_str("variant_tag"),
+            Self::VariantProject => f.write_str("variant_project"),
         }
     }
 }
@@ -252,7 +254,7 @@ fn infer_candidate(
                 reason: "known user-defined receiver already has canonical Call; pass + manifest can bind a thin internal entry without adding a second semantic call dialect".to_string(),
             })
         }
-        MirInstruction::SumMake {
+        MirInstruction::VariantMake {
             dst,
             enum_name,
             variant,
@@ -261,14 +263,31 @@ fn infer_candidate(
             block,
             instruction_index,
             value: Some(*dst),
-            surface: ThinEntrySurface::SumMake,
+            surface: ThinEntrySurface::VariantMake,
             subject: format!("{}::{}", enum_name, variant),
             preferred_entry: ThinEntryPreferredEntry::ThinInternalEntry,
             current_carrier: ThinEntryCurrentCarrier::CompatBox,
             value_class: ThinEntryValueClass::AggLocal,
-            reason: "sum.make is semantically local aggregate-first; current __NySum_* boxing is compat/runtime fallback rather than the preferred physical entry".to_string(),
+            reason: "variant.make is semantically local aggregate-first; current __NyVariant_* boxing is compat/runtime fallback rather than the preferred physical entry".to_string(),
         }),
-        MirInstruction::SumProject {
+        MirInstruction::VariantTag {
+            dst,
+            enum_name,
+            ..
+        } if module_metadata.enum_decls.contains_key(enum_name) => {
+            Some(ThinEntryCandidate {
+                block,
+                instruction_index,
+                value: Some(*dst),
+                surface: ThinEntrySurface::VariantTag,
+                subject: enum_name.clone(),
+                preferred_entry: ThinEntryPreferredEntry::ThinInternalEntry,
+                current_carrier: ThinEntryCurrentCarrier::CompatBox,
+                value_class: ThinEntryValueClass::InlineI64,
+                reason: "variant.tag can stay on a thin internal tag lane; current __NyVariant_* carriers remain compat fallback for VM/runtime and current LLVM lowering".to_string(),
+            })
+        }
+        MirInstruction::VariantProject {
             dst,
             enum_name,
             variant,
@@ -278,12 +297,12 @@ fn infer_candidate(
             block,
             instruction_index,
             value: Some(*dst),
-            surface: ThinEntrySurface::SumProject,
+            surface: ThinEntrySurface::VariantProject,
             subject: format!("{}::{}", enum_name, variant),
             preferred_entry: ThinEntryPreferredEntry::ThinInternalEntry,
             current_carrier: ThinEntryCurrentCarrier::CompatBox,
             value_class: value_class_from_declared_type(payload_type.as_ref()),
-            reason: "sum.project can stay on a thin internal payload route; current __NySum_* carriers remain compat fallback for VM/runtime and current LLVM lowering".to_string(),
+            reason: "variant.project can stay on a thin internal payload route; current __NyVariant_* carriers remain compat fallback for VM/runtime and current LLVM lowering".to_string(),
         }),
         _ => None,
     }
@@ -385,11 +404,11 @@ fn looks_like_generic_type_param(raw: &str) -> bool {
 }
 
 fn is_synthetic_payload_box(name: &str) -> bool {
-    name.starts_with("__NyEnumPayload_")
+    name.starts_with("__NyVariantPayload_")
 }
 
 fn is_runtime_sum_box(name: &str) -> bool {
-    name.starts_with("__NySum_")
+    name.starts_with("__NyVariant_")
 }
 
 #[cfg(test)]
@@ -411,7 +430,8 @@ mod tests {
         let base = ValueId::new(1);
         let field_dst = ValueId::new(2);
         let sum_dst = ValueId::new(3);
-        let project_dst = ValueId::new(4);
+        let tag_dst = ValueId::new(4);
+        let project_dst = ValueId::new(5);
         function
             .metadata
             .value_types
@@ -425,7 +445,7 @@ mod tests {
             field: "x".to_string(),
             declared_type: Some(MirType::Integer),
         });
-        entry.add_instruction(MirInstruction::SumMake {
+        entry.add_instruction(MirInstruction::VariantMake {
             dst: sum_dst,
             enum_name: "Option".to_string(),
             variant: "Some".to_string(),
@@ -433,7 +453,12 @@ mod tests {
             payload: Some(field_dst),
             payload_type: Some(MirType::Integer),
         });
-        entry.add_instruction(MirInstruction::SumProject {
+        entry.add_instruction(MirInstruction::VariantTag {
+            dst: tag_dst,
+            value: sum_dst,
+            enum_name: "Option".to_string(),
+        });
+        entry.add_instruction(MirInstruction::VariantProject {
             dst: project_dst,
             value: sum_dst,
             enum_name: "Option".to_string(),
@@ -477,7 +502,7 @@ mod tests {
         let function = module.get_function("test").expect("function exists");
         let candidates = &function.metadata.thin_entry_candidates;
 
-        assert_eq!(candidates.len(), 3);
+        assert_eq!(candidates.len(), 4);
         assert!(candidates.iter().any(|candidate| {
             candidate.surface == ThinEntrySurface::UserBoxFieldGet
                 && candidate.preferred_entry == ThinEntryPreferredEntry::ThinInternalEntry
@@ -485,13 +510,19 @@ mod tests {
                 && candidate.subject == "Point.x"
         }));
         assert!(candidates.iter().any(|candidate| {
-            candidate.surface == ThinEntrySurface::SumMake
+            candidate.surface == ThinEntrySurface::VariantMake
                 && candidate.current_carrier == ThinEntryCurrentCarrier::CompatBox
                 && candidate.value_class == ThinEntryValueClass::AggLocal
                 && candidate.subject == "Option::Some"
         }));
         assert!(candidates.iter().any(|candidate| {
-            candidate.surface == ThinEntrySurface::SumProject
+            candidate.surface == ThinEntrySurface::VariantTag
+                && candidate.current_carrier == ThinEntryCurrentCarrier::CompatBox
+                && candidate.value_class == ThinEntryValueClass::InlineI64
+                && candidate.subject == "Option"
+        }));
+        assert!(candidates.iter().any(|candidate| {
+            candidate.surface == ThinEntrySurface::VariantProject
                 && candidate.value_class == ThinEntryValueClass::InlineI64
                 && candidate.subject == "Option::Some"
         }));
@@ -562,7 +593,7 @@ mod tests {
         let base = ValueId::new(1);
         function.metadata.value_types.insert(
             base,
-            MirType::Box("__NyEnumPayload_Token_Ident".to_string()),
+            MirType::Box("__NyVariantPayload_Token_Ident".to_string()),
         );
         function
             .get_block_mut(BasicBlockId::new(0))
@@ -577,11 +608,11 @@ mod tests {
         let mut module = MirModule::new("test".to_string());
         module.functions.insert("test".to_string(), function);
         module.metadata.user_box_decls.insert(
-            "__NyEnumPayload_Token_Ident".to_string(),
+            "__NyVariantPayload_Token_Ident".to_string(),
             vec!["name".to_string()],
         );
         module.metadata.user_box_field_decls.insert(
-            "__NyEnumPayload_Token_Ident".to_string(),
+            "__NyVariantPayload_Token_Ident".to_string(),
             vec![UserBoxFieldDecl {
                 name: "name".to_string(),
                 declared_type_name: Some("String".to_string()),

@@ -16,7 +16,7 @@ Related:
 
 ## Goal
 
-- add first-class closed sum values without collapsing them into `box` / object identity
+- add first-class closed variant values without collapsing them into `box` / object identity
 - keep the user-facing generic surface consistent with existing `TYPE_REF<...>` syntax
 - preserve the current compiler-first rule:
   - surface meaning first
@@ -36,7 +36,7 @@ Related:
 - `::` already exists in language docs as the long-term scope/type operator
   - however, current executable static method examples still largely use `Driver.main(...)`
   - therefore `Enum::Variant(...)` must be introduced as a narrow constructor surface, not bundled with a whole static-method migration
-- current MIR now has first-class sum/enum ops (`sum.make` / `sum.tag` / `sum.project`)
+- current MIR now has first-class variant ops (`VariantMake` / `VariantTag` / `VariantProject`)
 - current parser / AST / Stage1 inventory now lands the narrow enum surface:
   - `enum Name<T...> { ... }`
   - unit variants + single-payload tuple variants
@@ -130,14 +130,14 @@ Still not in this cut:
 - generic `where` bounds
 - partial specialization / template metaprogramming
 
-### 4.1 tuple multi-payload route stays boxed unless canonical sum changes
+### 4.1 tuple multi-payload route stays boxed unless canonical enum-op shape changes
 
 - multi-payload tuple variants are accepted on the current surface, but only through the compat hidden payload box route
-- AST now carries tuple payload type truth, while Stage1 / JSON v0 still keep the canonical sum lane at one payload slot
-- constructors lower through the same synthetic hidden payload box route already used by record variants (`__NyEnumPayload_<Enum>_<Variant>`)
+- AST now carries tuple payload type truth, while Stage1 / JSON v0 still keep the canonical enum-op lane at one payload slot
+- constructors lower through the same synthetic hidden payload box route already used by record variants (`__NyVariantPayload_<Enum>_<Variant>`)
 - tuple shorthand matches (`Both(left, right)`) rewrite through hidden payload binding plus `_0`, `_1`, ... field access on that compat box
-- this keeps `EnumCtor` / `EnumMatch` / `SumMake` / `SumProject` singular in the same cut
-- do not widen `EnumCtor` / `EnumMatch` / `SumMake` / `SumProject` in the same cut unless a separate canonical-sum decision explicitly approves it
+- this keeps `EnumCtor` / `EnumMatch` / `VariantMake` / `VariantProject` singular in the same cut
+- do not widen `EnumCtor` / `EnumMatch` / `VariantMake` / `VariantProject` in the same cut unless a separate canonical enum-op decision explicitly approves it
 
 ### 5. generic semantics start as declaration/type-fact support
 
@@ -149,31 +149,31 @@ Still not in this cut:
 
 - when the scrutinee is a known enum type, `match` must perform exhaustiveness checking
 - when the scrutinee is not known-enum, keep current dynamic `match` behavior
-- this keeps the new static win local to the closed-world enum lane
+- this keeps the new static win local to the closed-world variant lane
 
 ## Canonical MIR Direction
 
-The target shape is a dedicated sum lane, not “just another box”.
+The target shape is a dedicated variant op lane, not “just another box”.
 
 Preferred canonical vocabulary:
 
-- `sum.make`
-- `sum.tag`
-- `sum.project`
+- `VariantMake`
+- `VariantTag`
+- `VariantProject`
 
 Expected lowering shape:
 
-- `Type::Variant(payload)` lowers to `sum.make`
+- `Type::Variant(payload)` lowers to `VariantMake`
 - `match enum_value { ... }` lowers to:
-  - `sum.tag`
+  - `VariantTag`
   - `switch_tag`
-  - `sum.project` in matched payload arms
+  - `VariantProject` in matched payload arms
 
 Policy:
 
-- keep enum values unboxed as long as possible on the local/hot path
+- keep variant values unboxed as long as possible on the local/hot path
 - box/publication only at explicit runtime boundaries
-- do not force enum values into object layout as the first move
+- do not force variant values into object layout as the first move
 
 ## MVP Implementation Order
 
@@ -223,7 +223,7 @@ Status:
 
 Land:
 
-- canonical sum ops (or a strictly equivalent canonical representation)
+- canonical enum ops (or a strictly equivalent canonical representation)
 - match lowering via tag switch + payload project
 
 Acceptance:
@@ -234,16 +234,16 @@ Acceptance:
 Status:
 
 - landed on the narrow compiler-first lane:
-  - MIR now has `SumMake` / `SumTag` / `SumProject`
-  - JSON v0 bridge lowers Stage1 `EnumCtor` / `EnumMatch` into the dedicated sum lane
-  - MIR JSON emit/parse preserves the same sum ops for handoff/debug
+  - MIR now has `VariantMake` / `VariantTag` / `VariantProject`
+  - JSON v0 bridge lowers Stage1 `EnumCtor` / `EnumMatch` into the dedicated variant op lane
+  - MIR JSON emit/parse preserves the same enum ops for handoff/debug
 - landed on the MVP runtime/codegen lane too:
-  - VM interpreter executes `SumMake` / `SumTag` / `SumProject` through a synthetic `__NySum_<Enum>` fallback `InstanceBox`
-  - LLVM/Py builder registers the same synthetic runtime boxes before entry and lowers sum ops through `nyash.instance.*_field_h`
+  - VM interpreter executes `VariantMake` / `VariantTag` / `VariantProject` through a synthetic `__NyVariant_<Enum>` fallback `InstanceBox`
+  - LLVM/Py builder registers the same synthetic runtime boxes before entry and lowers enum ops through `nyash.instance.*_field_h`
   - malformed tag projections fail fast (`[vm/sum:*]` on VM, `unreachable` on LLVM)
 - still intentionally narrow in this step:
   - typed payload recovery on LLVM is only guaranteed when `payload_type` is concrete (`Integer` / `Bool` / `Float`)
-  - LLVM now also recovers erased/generic payloads back to typed `Integer` / `Bool` / `Float` when `sum_make` can observe the actual payload family locally
+  - LLVM now also recovers erased/generic payloads back to typed `Integer` / `Bool` / `Float` when `variant_make` can observe the actual payload family locally
   - unknown/genuinely dynamic payloads on LLVM still stay on boxed-handle fallback
   - product `ny-llvmc` ownership remains separate from this compat/harness slice
 
@@ -252,7 +252,7 @@ Status:
 Land:
 
 - boxed/public fallback representation where needed
-- VM / LLVM parity for MVP enum values and known-enum matches
+- VM / LLVM parity for MVP variant values and known-enum matches
 
 Acceptance:
 
@@ -263,9 +263,9 @@ Status:
 
 - landed for the MVP runtime path
 - backend/runtime truth stays implementation-only:
-  - hidden runtime fields `__sum_tag` / `__sum_payload`
-  - synthetic runtime box name `__NySum_<Enum>`
-- LLVM now recovers erased/generic payloads back to typed `Integer` / `Bool` / `Float` when `sum_make` can observe a local payload fact
+  - hidden runtime fields `__variant_tag` / `__variant_payload`
+  - synthetic runtime box name `__NyVariant_<Enum>`
+- LLVM now recovers erased/generic payloads back to typed `Integer` / `Bool` / `Float` when `variant_make` can observe a local payload fact
 - unknown/genuinely dynamic payloads still stay on boxed-handle fallback
 - product `ny-llvmc` ownership remains separate from this compat/harness slice
 
@@ -276,11 +276,11 @@ Land:
 - declaration surface `Ident { name: Type }`
 - qualified construction `Type::Variant { name: expr }`
 - known-enum shorthand record match `Ident { name } => ...`
-- synthetic hidden payload box `__NyEnumPayload_<Enum>_<Variant>` on the source / JSON v0 route
+- synthetic hidden payload box `__NyVariantPayload_<Enum>_<Variant>` on the source / JSON v0 route
 
 Acceptance:
 
-- enum values themselves stay on the existing sum lane (`SumMake` / `SumTag` / `SumProject`)
+- variant values themselves stay on the existing variant op lane (`VariantMake` / `VariantTag` / `VariantProject`)
 - Stage1 / JSON v0 root emits the hidden payload box metadata needed by VM / LLVM fallback routes
 - constructors / patterns mention the declared field set exactly
 
@@ -302,4 +302,4 @@ Status:
 
 ## One-Line Rule
 
-Use `enum` for closed tagged values, use `<T>` for generic surface syntax, keep `Type::Variant(...)` explicit at construction time, and delay runtime/template mechanics until after canonical sum meaning is fixed.
+Use `enum` for closed tagged values, use `<T>` for generic surface syntax, keep `Type::Variant(...)` explicit at construction time, and delay runtime/template mechanics until after canonical enum-op meaning is fixed.

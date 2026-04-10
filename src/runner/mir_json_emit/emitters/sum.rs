@@ -1,7 +1,7 @@
 use crate::mir::{MirType, ValueId};
 use serde_json::json;
 
-pub(crate) fn emit_sum_make(
+pub(crate) fn emit_variant_make(
     dst: &ValueId,
     enum_name: &str,
     variant: &str,
@@ -10,7 +10,7 @@ pub(crate) fn emit_sum_make(
     payload_type: Option<&MirType>,
 ) -> serde_json::Value {
     let mut obj = json!({
-        "op": "sum_make",
+        "op": "variant_make",
         "dst": dst.as_u32(),
         "enum": enum_name,
         "variant": variant,
@@ -25,16 +25,16 @@ pub(crate) fn emit_sum_make(
     obj
 }
 
-pub(crate) fn emit_sum_tag(dst: &ValueId, value: &ValueId, enum_name: &str) -> serde_json::Value {
+pub(crate) fn emit_variant_tag(dst: &ValueId, value: &ValueId, enum_name: &str) -> serde_json::Value {
     json!({
-        "op": "sum_tag",
+        "op": "variant_tag",
         "dst": dst.as_u32(),
         "value": value.as_u32(),
         "enum": enum_name,
     })
 }
 
-pub(crate) fn emit_sum_project(
+pub(crate) fn emit_variant_project(
     dst: &ValueId,
     value: &ValueId,
     enum_name: &str,
@@ -43,7 +43,7 @@ pub(crate) fn emit_sum_project(
     payload_type: Option<&MirType>,
 ) -> serde_json::Value {
     let mut obj = json!({
-        "op": "sum_project",
+        "op": "variant_project",
         "dst": dst.as_u32(),
         "value": value.as_u32(),
         "enum": enum_name,

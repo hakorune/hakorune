@@ -16,6 +16,14 @@ impl NyashRunner {
             std::process::exit(1);
         }
 
+        if let Some(path) = groups.emit.emit_mir_json_minimal.as_ref() {
+            let Some(file) = groups.input.file.as_ref() else {
+                eprintln!("❌ --emit-mir-json-minimal requires an input file");
+                std::process::exit(1);
+            };
+            self.execute_mir_json_minimal(file, path);
+        }
+
         // Emit Program(JSON v0) via Stage-1 bridge entry and exit (explicit SSOT flag).
         if program_json_entry::emit_program_json_v0_requested(groups) {
             crate::runtime::deprecations::warn_stage1_bridge_program_json_route_once();

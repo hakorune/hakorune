@@ -57,6 +57,7 @@ pub struct BuildConfig {
 pub struct EmitConfig {
     pub emit_cfg: Option<String>,
     pub emit_mir_json: Option<String>,
+    pub emit_mir_json_minimal: Option<String>,
     pub emit_wat: Option<String>,
     pub emit_ast_json: Option<String>,
     pub emit_program_json_v0: Option<String>,

@@ -9,9 +9,9 @@ pub fn instruction_tag(inst: &MirInstruction) -> &'static str {
         MirInstruction::Compare { .. } => "Compare",
         MirInstruction::FieldGet { .. } => "FieldGet",
         MirInstruction::FieldSet { .. } => "FieldSet",
-        MirInstruction::SumMake { .. } => "SumMake",
-        MirInstruction::SumTag { .. } => "SumTag",
-        MirInstruction::SumProject { .. } => "SumProject",
+        MirInstruction::VariantMake { .. } => "VariantMake",
+        MirInstruction::VariantTag { .. } => "VariantTag",
+        MirInstruction::VariantProject { .. } => "VariantProject",
         MirInstruction::Load { .. } => "Load",
         MirInstruction::Store { .. } => "Store",
         MirInstruction::Call { .. } => "Call",
@@ -61,9 +61,9 @@ pub const MIR_INSTRUCTION_KEPT_TAGS: &[&str] = &[
     "FutureSet",
     "FieldGet",
     "FieldSet",
-    "SumMake",
-    "SumTag",
-    "SumProject",
+    "VariantMake",
+    "VariantTag",
+    "VariantProject",
     "Jump",
     "KeepAlive",
     "Load",
@@ -123,9 +123,9 @@ pub fn instruction_diet_cohort(inst: &MirInstruction) -> InstructionDietCohort {
         | MirInstruction::FutureSet { .. }
         | MirInstruction::FieldGet { .. }
         | MirInstruction::FieldSet { .. }
-        | MirInstruction::SumMake { .. }
-        | MirInstruction::SumTag { .. }
-        | MirInstruction::SumProject { .. }
+        | MirInstruction::VariantMake { .. }
+        | MirInstruction::VariantTag { .. }
+        | MirInstruction::VariantProject { .. }
         | MirInstruction::Jump { .. }
         | MirInstruction::KeepAlive { .. }
         | MirInstruction::Load { .. }
@@ -193,9 +193,9 @@ pub fn is_supported_mir_json_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::Select { .. }
             | MirInstruction::FieldGet { .. }
             | MirInstruction::FieldSet { .. }
-            | MirInstruction::SumMake { .. }
-            | MirInstruction::SumTag { .. }
-            | MirInstruction::SumProject { .. }
+            | MirInstruction::VariantMake { .. }
+            | MirInstruction::VariantTag { .. }
+            | MirInstruction::VariantProject { .. }
             | MirInstruction::Call { .. }
             | MirInstruction::NewBox { .. }
             | MirInstruction::NewClosure { .. }
@@ -233,9 +233,9 @@ pub fn is_supported_vm_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::Copy { .. }
             | MirInstruction::FieldGet { .. }
             | MirInstruction::FieldSet { .. }
-            | MirInstruction::SumMake { .. }
-            | MirInstruction::SumTag { .. }
-            | MirInstruction::SumProject { .. }
+            | MirInstruction::VariantMake { .. }
+            | MirInstruction::VariantTag { .. }
+            | MirInstruction::VariantProject { .. }
             | MirInstruction::Load { .. }
             | MirInstruction::Store { .. }
             | MirInstruction::Call { .. }
@@ -269,9 +269,9 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
         MirInstruction::Compare { .. } => &["compare"],
         MirInstruction::FieldGet { .. } => &["field_get"],
         MirInstruction::FieldSet { .. } => &["field_set"],
-        MirInstruction::SumMake { .. } => &["sum_make"],
-        MirInstruction::SumTag { .. } => &["sum_tag"],
-        MirInstruction::SumProject { .. } => &["sum_project"],
+        MirInstruction::VariantMake { .. } => &["variant_make"],
+        MirInstruction::VariantTag { .. } => &["variant_tag"],
+        MirInstruction::VariantProject { .. } => &["variant_project"],
         MirInstruction::Call { .. } => &["mir_call", "call", "boxcall", "externcall"],
         MirInstruction::Branch { .. } => &["branch"],
         MirInstruction::Jump { .. } => &["jump"],
@@ -533,7 +533,7 @@ mod tests {
 
     #[test]
     fn mir_json_allowlist_accepts_sum_lane_ops() {
-        let make = MirInstruction::SumMake {
+        let make = MirInstruction::VariantMake {
             dst: ValueId::new(0),
             enum_name: "Option".to_string(),
             variant: "Some".to_string(),
@@ -541,12 +541,12 @@ mod tests {
             payload: Some(ValueId::new(1)),
             payload_type: Some(crate::mir::MirType::Integer),
         };
-        let tag = MirInstruction::SumTag {
+        let tag = MirInstruction::VariantTag {
             dst: ValueId::new(2),
             value: ValueId::new(0),
             enum_name: "Option".to_string(),
         };
-        let project = MirInstruction::SumProject {
+        let project = MirInstruction::VariantProject {
             dst: ValueId::new(3),
             value: ValueId::new(0),
             enum_name: "Option".to_string(),
@@ -560,7 +560,7 @@ mod tests {
         assert!(is_supported_vm_instruction(&make));
         assert!(is_supported_vm_instruction(&tag));
         assert!(is_supported_vm_instruction(&project));
-        assert_eq!(instruction_tag(&project), "SumProject");
+        assert_eq!(instruction_tag(&project), "VariantProject");
     }
 
     #[test]

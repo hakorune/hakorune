@@ -192,7 +192,7 @@ impl MirInterpreter {
                         .as_any()
                         .downcast_ref::<crate::instance_v2::InstanceBox>()
                     {
-                        let size = inst.get_fields().lock().unwrap().len() as i64;
+                        let size = inst.field_count() as i64;
                         return Ok(VMValue::Integer(size));
                     }
                 }

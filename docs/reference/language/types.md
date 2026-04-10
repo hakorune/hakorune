@@ -39,12 +39,12 @@ Coercion SSOT status:
   - Stage1 `EnumMatch`
   - exhaustiveness against the known enum inventory
   - exact field-set checking for record constructors / patterns
-- canonical sum MIR lowering is now landed too:
-  - `EnumCtor` lowers to `SumMake`
-  - `EnumMatch` lowers to `SumTag` + compare/branch + `SumProject`
+- canonical enum MIR lowering is now landed too:
+  - `EnumCtor` lowers to `VariantMake`
+  - `EnumMatch` lowers to `VariantTag` + compare/branch + `VariantProject`
 - VM/LLVM fallback runtime semantics are landed on the current route too:
-  - enum values use the existing synthetic sum runtime box `__NySum_<Enum>` where fallback representation is needed
-  - narrow record payloads use synthetic hidden payload boxes `__NyEnumPayload_<Enum>_<Variant>`
+  - variant values use the existing synthetic enum runtime box `__NyVariant_<Enum>` where fallback representation is needed
+  - narrow record payloads use synthetic hidden payload boxes `__NyVariantPayload_<Enum>_<Variant>`
   - LLVM recovers erased/generic payloads back to typed `Integer` / `Bool` / `Float` when local payload facts are known
 - Current guardrails:
   - unknown/genuinely dynamic payloads still stay on boxed-handle fallback

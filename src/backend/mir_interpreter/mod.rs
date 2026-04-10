@@ -24,6 +24,7 @@ mod exec;
 mod handlers;
 mod helpers;
 mod method_router;
+mod object_field_store;
 pub mod static_box_registry;
 mod utils;
 
@@ -208,11 +209,7 @@ impl MirInterpreter {
     ///
     /// This is used by runtime observability to report `heap_fields` category.
     pub fn strong_heap_field_root_count(&self) -> usize {
-        self.obj_fields
-            .values()
-            .flat_map(|fields| fields.values())
-            .filter(|v| Self::is_strong_root_value(v))
-            .count()
+        self.object_field_root_count()
     }
 
     /// Register static box declarations (called from vm.rs during setup)

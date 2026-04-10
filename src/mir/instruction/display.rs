@@ -36,7 +36,7 @@ impl fmt::Display for MirInstruction {
             } => {
                 write!(f, "field.set {} .{} = {}", base, field, value)
             }
-            MirInstruction::SumMake {
+            MirInstruction::VariantMake {
                 dst,
                 enum_name,
                 variant,
@@ -47,23 +47,23 @@ impl fmt::Display for MirInstruction {
                 if let Some(payload) = payload {
                     write!(
                         f,
-                        "{} = sum.make {}::{} tag={} payload={}",
+                        "{} = variant.make {}::{} tag={} payload={}",
                         dst, enum_name, variant, tag, payload
                     )
                 } else {
                     write!(
                         f,
-                        "{} = sum.make {}::{} tag={}",
+                        "{} = variant.make {}::{} tag={}",
                         dst, enum_name, variant, tag
                     )
                 }
             }
-            MirInstruction::SumTag {
+            MirInstruction::VariantTag {
                 dst,
                 value,
                 enum_name,
-            } => write!(f, "{} = sum.tag {} as {}", dst, value, enum_name),
-            MirInstruction::SumProject {
+            } => write!(f, "{} = variant.tag {} as {}", dst, value, enum_name),
+            MirInstruction::VariantProject {
                 dst,
                 value,
                 enum_name,
@@ -72,7 +72,7 @@ impl fmt::Display for MirInstruction {
                 ..
             } => write!(
                 f,
-                "{} = sum.project {} as {}::{} tag={}",
+                "{} = variant.project {} as {}::{} tag={}",
                 dst, value, enum_name, variant, tag
             ),
             MirInstruction::Call {

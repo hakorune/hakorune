@@ -193,11 +193,7 @@ impl DebugBox {
     fn get_box_fields(&self, box_value: &dyn NyashBox) -> String {
         // Try to downcast to InstanceBox to get fields
         if let Some(instance) = box_value.as_any().downcast_ref::<InstanceBox>() {
-            // instance_v2では get_fields()メソッドを使用
-            let fields = instance.get_fields();
-            let fields_locked = fields.lock().unwrap();
-            let field_names: Vec<String> = fields_locked.keys().cloned().collect();
-            field_names.join(", ")
+            instance.field_names().join(", ")
         } else {
             "N/A".to_string()
         }

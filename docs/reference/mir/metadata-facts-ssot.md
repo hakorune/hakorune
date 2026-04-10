@@ -140,7 +140,7 @@ Each candidate object has the following fields:
 | `block` | Basic block id |
 | `instruction_index` | Instruction index inside the block |
 | `value` | Optional MIR value id being produced |
-| `surface` | One of `user_box_method`, `user_box_field_get`, `user_box_field_set`, `sum_make`, `sum_project` |
+| `surface` | One of `user_box_method`, `user_box_field_get`, `user_box_field_set`, `variant_make`, `variant_project` |
 | `subject` | Human-readable subject (`Box.field`, `Enum::Variant`, etc.) |
 | `preferred_entry` | `public_entry` or `thin_internal_entry` |
 | `current_carrier` | `public_runtime`, `backend_typed`, or `compat_box` |
@@ -230,12 +230,12 @@ string metadata now uses the same vocabulary in both verbose MIR and MIR JSON:
         "block": 0,
         "instruction_index": 3,
         "value": 7,
-        "surface": "sum_make",
+        "surface": "variant_make",
         "subject": "Option::Some",
         "preferred_entry": "thin_internal_entry",
         "current_carrier": "compat_box",
         "value_class": "agg_local",
-        "reason": "sum.make can choose a thin internal aggregate-first route beneath canonical MIR"
+        "reason": "variant.make can choose a thin internal aggregate-first route beneath canonical MIR"
       }
     ],
     "sum_placement_selections": [
@@ -243,12 +243,12 @@ string metadata now uses the same vocabulary in both verbose MIR and MIR JSON:
         "block": 0,
         "instruction_index": 3,
         "value": 7,
-        "surface": "sum_make",
+        "surface": "variant_make",
         "subject": "Option::Some",
         "source_sum": 7,
-        "manifest_row": "sum_make.local_aggregate",
+        "manifest_row": "variant_make.local_aggregate",
         "selected_path": "local_aggregate",
-        "reason": "sum.make stays on the selected local aggregate route in this proving slice"
+        "reason": "variant.make stays on the selected local aggregate route in this proving slice"
       }
     ]
   }

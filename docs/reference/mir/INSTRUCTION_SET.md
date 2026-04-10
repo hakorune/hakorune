@@ -42,13 +42,13 @@ Transition Note
 - VM/JIT の代表的な Core-15 カバー手順は `docs/reference/mir/MIR15_COVERAGE_CHECKLIST.md` を参照。
 - Core-14 安定後に本ドキュメントの「Core Instructions」を14命令へ更新し、マッピング表を併記する。
 - Phase 285–287: lifecycle conformance のため `KeepAlive` / `ReleaseStrong` を追加（語彙の明確化）。
-- Phase 163x: canonical sum lane のため `SumMake` / `SumTag` / `SumProject` を追加（Core profile とは別の kept vocabulary）。
+- Phase 163x: canonical variant op lane のため `VariantMake` / `VariantTag` / `VariantProject` を追加（Core profile とは別の kept vocabulary）。
 
-## Canonical Sum Lane (kept vocabulary; Core profile out-of-count)
+## Canonical Enum Op Lane (kept vocabulary; Core profile out-of-count)
 
-- SumMake
-- SumTag
-- SumProject
+- VariantMake
+- VariantTag
+- VariantProject
 
 ## Current Kept Vocabulary（33）
 
@@ -89,11 +89,11 @@ allowlists are being updated.
 - KeepAlive
 - ReleaseStrong
 
-### Sum lane
+### Enum op lane
 
-- SumMake
-- SumTag
-- SumProject
+- VariantMake
+- VariantTag
+- VariantProject
 
 ### Exceptions / async / meta
 
@@ -105,24 +105,24 @@ allowlists are being updated.
 - Await
 - Debug
 
-## Canonical Sum JSON Ops
+## Canonical Enum JSON Ops
 
-`SumMake` / `SumTag` / `SumProject` are part of the kept vocabulary and are emitted
+`VariantMake` / `VariantTag` / `VariantProject` are part of the kept vocabulary and are emitted
 to MIR JSON as dedicated ops. The concrete JSON shape comes from
 `src/runner/mir_json_emit/emitters/sum.rs`.
 
 | MIR instruction | JSON op | Required fields | Optional fields |
 | --- | --- | --- | --- |
-| `SumMake` | `sum_make` | `dst`, `enum`, `variant`, `tag` | `payload`, `payload_type` |
-| `SumTag` | `sum_tag` | `dst`, `value`, `enum` | none |
-| `SumProject` | `sum_project` | `dst`, `value`, `enum`, `variant`, `tag` | `payload_type` |
+| `VariantMake` | `variant_make` | `dst`, `enum`, `variant`, `tag` | `payload`, `payload_type` |
+| `VariantTag` | `variant_tag` | `dst`, `value`, `enum` | none |
+| `VariantProject` | `variant_project` | `dst`, `value`, `enum`, `variant`, `tag` | `payload_type` |
 
 Notes:
 
 - `payload_type` is a lowering hint, not a second semantic dialect.
 - Canonical MIR still keeps singular payload shape; tuple multi-payload stays on
   compat transport above MIR.
-- `sum_make` / `sum_project` can be paired with the phase-163x metadata chain in
+- `variant_make` / `variant_project` can be paired with the phase-163x metadata chain in
   `functions[].metadata`; see `docs/reference/mir/metadata-facts-ssot.md`.
 
 ## Core Instructions（26）

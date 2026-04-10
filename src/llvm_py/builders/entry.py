@@ -38,10 +38,7 @@ def ensure_ny_main(builder) -> None:
     b = ir.IRBuilder(entry)
 
     # Phase 285LLVM-1.1: Register user box declarations before calling main
-    registered_box_decls = merge_user_box_decls(
-        getattr(builder, 'user_box_decls', []),
-        getattr(builder, 'enum_decls', []),
-    )
+    registered_box_decls = merge_user_box_decls(getattr(builder, 'user_box_decls', []))
     if registered_box_decls:
         _emit_user_box_registration(b, builder.module, registered_box_decls)
     def _build_main_args_handle():

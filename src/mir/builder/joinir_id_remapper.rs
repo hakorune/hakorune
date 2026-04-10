@@ -74,12 +74,12 @@ impl JoinIrIdRemapper {
             Store { value, ptr } => vec![*value, *ptr],
             FieldGet { dst, base, .. } => vec![*dst, *base],
             FieldSet { base, value, .. } => vec![*base, *value],
-            SumMake { dst, payload, .. } => {
+            VariantMake { dst, payload, .. } => {
                 let mut vals = vec![*dst];
                 vals.extend(payload.iter().copied());
                 vals
             }
-            SumTag { dst, value, .. } | SumProject { dst, value, .. } => vec![*dst, *value],
+            VariantTag { dst, value, .. } | VariantProject { dst, value, .. } => vec![*dst, *value],
             Call {
                 dst,
                 func,
@@ -269,14 +269,14 @@ impl JoinIrIdRemapper {
                 value: remap(*value),
                 declared_type: declared_type.clone(),
             },
-            SumMake {
+            VariantMake {
                 dst,
                 enum_name,
                 variant,
                 tag,
                 payload,
                 payload_type,
-            } => SumMake {
+            } => VariantMake {
                 dst: remap(*dst),
                 enum_name: enum_name.clone(),
                 variant: variant.clone(),
@@ -284,23 +284,23 @@ impl JoinIrIdRemapper {
                 payload: payload.map(remap),
                 payload_type: payload_type.clone(),
             },
-            SumTag {
+            VariantTag {
                 dst,
                 value,
                 enum_name,
-            } => SumTag {
+            } => VariantTag {
                 dst: remap(*dst),
                 value: remap(*value),
                 enum_name: enum_name.clone(),
             },
-            SumProject {
+            VariantProject {
                 dst,
                 value,
                 enum_name,
                 variant,
                 tag,
                 payload_type,
-            } => SumProject {
+            } => VariantProject {
                 dst: remap(*dst),
                 value: remap(*value),
                 enum_name: enum_name.clone(),

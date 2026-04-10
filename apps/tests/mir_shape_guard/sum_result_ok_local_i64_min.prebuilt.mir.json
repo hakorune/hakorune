@@ -6,10 +6,10 @@
   },
   "enum_decls": [
     {
-      "name": "Option",
+      "name": "ResultInt",
       "variants": [
-        { "name": "None" },
-        { "name": "Some" }
+        { "name": "Ok" },
+        { "name": "Err" }
       ]
     }
   ],
@@ -24,14 +24,14 @@
             {
               "op": "const",
               "dst": 1,
-              "value": { "type": "i64", "value": 41 }
+              "value": { "type": "i64", "value": 73 }
             },
             {
               "op": "variant_make",
               "dst": 2,
-              "enum": "Option",
-              "variant": "Some",
-              "tag": 1,
+              "enum": "ResultInt",
+              "variant": "Ok",
+              "tag": 0,
               "payload": 1,
               "payload_type": "Integer"
             },
@@ -39,9 +39,9 @@
               "op": "variant_project",
               "dst": 3,
               "value": 2,
-              "enum": "Option",
-              "variant": "Some",
-              "tag": 1,
+              "enum": "ResultInt",
+              "variant": "Ok",
+              "tag": 0,
               "payload_type": "Integer"
             },
             {
@@ -62,7 +62,7 @@
             "instruction_index": 1,
             "value": 2,
             "surface": "variant_make",
-            "subject": "Option::Some",
+            "subject": "ResultInt::Ok",
             "manifest_row": "variant_make.aggregate_local",
             "selected_entry": "thin_internal_entry",
             "state": "candidate",
@@ -75,7 +75,7 @@
             "instruction_index": 2,
             "value": 3,
             "surface": "variant_project",
-            "subject": "Option::Some",
+            "subject": "ResultInt::Ok",
             "manifest_row": "variant_project.payload_local",
             "selected_entry": "thin_internal_entry",
             "state": "candidate",
@@ -90,7 +90,7 @@
             "instruction_index": 1,
             "value": 2,
             "surface": "variant_make",
-            "subject": "Option::Some",
+            "subject": "ResultInt::Ok",
             "source_sum": null,
             "value_class": "agg_local",
             "state": "local_agg_candidate",
@@ -106,7 +106,7 @@
             "instruction_index": 1,
             "value": 2,
             "surface": "variant_make",
-            "subject": "Option::Some",
+            "subject": "ResultInt::Ok",
             "source_sum": null,
             "manifest_row": "variant_make.local_aggregate",
             "selected_path": "local_aggregate",
@@ -117,7 +117,7 @@
             "instruction_index": 2,
             "value": 3,
             "surface": "variant_project",
-            "subject": "Option::Some",
+            "subject": "ResultInt::Ok",
             "source_sum": 2,
             "manifest_row": "variant_project.local_aggregate",
             "selected_path": "local_aggregate",
@@ -130,7 +130,7 @@
             "instruction_index": 1,
             "value": 2,
             "surface": "variant_make",
-            "subject": "Option::Some",
+            "subject": "ResultInt::Ok",
             "source_sum": null,
             "layout": "tag_i64_payload",
             "reason": "selected local aggregate uses i64 payload lane"

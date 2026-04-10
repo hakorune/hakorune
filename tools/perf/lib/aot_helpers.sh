@@ -371,10 +371,11 @@ perf_emit_mir_json() {
   return 1
 }
 
-perf_build_aot_exe() {
+perf_build_aot_artifact() {
   local root_dir=$1
   local in_json=$2
-  local out_exe=$3
+  local emit_kind=$3
+  local out_path=$4
   local skip_build
   local build_log
 
@@ -404,8 +405,8 @@ perf_build_aot_exe() {
       NYASH_SCHED_POLL_IN_SAFEPOINT="${NYASH_SCHED_POLL_IN_SAFEPOINT:-0}" \
       bash "${root_dir}/tools/ny_mir_builder.sh" \
       --in "${in_json}" \
-      --emit exe \
-      -o "${out_exe}" \
+      --emit "${emit_kind}" \
+      -o "${out_path}" \
       --quiet >"${build_log}" 2>&1; then
     perf_aot_record_route_trace "${build_log}"
     if grep -Fq 'unsupported pure shape for current backend recipe' "${build_log}"; then
@@ -431,6 +432,20 @@ perf_build_aot_exe() {
     return 1
   fi
   return 0
+}
+
+perf_build_aot_exe() {
+  local root_dir=$1
+  local in_json=$2
+  local out_exe=$3
+  perf_build_aot_artifact "${root_dir}" "${in_json}" "exe" "${out_exe}"
+}
+
+perf_build_aot_obj() {
+  local root_dir=$1
+  local in_json=$2
+  local out_obj=$3
+  perf_build_aot_artifact "${root_dir}" "${in_json}" "obj" "${out_obj}"
 }
 
 perf_emit_and_build_aot_exe() {
@@ -465,6 +480,53 @@ perf_emit_and_build_aot_exe() {
         return 1
       fi
       if ! perf_build_aot_exe "${root_dir}" "${tmp_json}" "${out_exe}"; then
+        perf_aot_set_status "skip" "build_failed_after_helper_retry" "build_retry"
+        rm -f "${tmp_json}" || true
+        return 1
+      fi
+      rm -f "${tmp_json}" || true
+      perf_aot_set_status "ok" "ok_retry_helper" "done"
+      return 0
+    fi
+    rm -f "${tmp_json}" || true
+    return 1
+  fi
+  rm -f "${tmp_json}" || true
+  perf_aot_set_status "ok" "ok" "done"
+  return 0
+}
+
+perf_emit_and_build_aot_obj() {
+  local root_dir=$1
+  local hako_bin=$2
+  local hako_prog=$3
+  local out_obj=$4
+  local tmp_json
+
+  perf_aot_reset_status
+  if ! perf_aot_assert_default_release_alignment "${root_dir}" "${hako_bin}"; then
+    perf_aot_set_status "skip" "default_release_out_of_sync" "contract"
+    return 1
+  fi
+  if ! perf_aot_assert_observe_release_alignment "${root_dir}" "${hako_bin}"; then
+    perf_aot_set_status "skip" "observe_release_out_of_sync" "contract"
+    return 1
+  fi
+  tmp_json=$(mktemp --suffix .json)
+  if ! perf_emit_mir_json "${root_dir}" "${hako_bin}" "${hako_prog}" "${tmp_json}"; then
+    rm -f "${tmp_json}" || true
+    return 1
+  fi
+  if ! perf_build_aot_obj "${root_dir}" "${tmp_json}" "${out_obj}"; then
+    if [[ "${PERF_AOT_LAST_EMIT_ROUTE}" == "direct" ]] \
+      && [[ "${PERF_AOT_DIRECT_ONLY:-0}" != "1" ]] \
+      && perf_aot_should_retry_helper_after_build_fail "${root_dir}"; then
+      if ! perf_emit_mir_json_helper "${root_dir}" "${hako_prog}" "${tmp_json}"; then
+        perf_aot_set_status "skip" "emit_helper_retry_failed" "emit_retry"
+        rm -f "${tmp_json}" || true
+        return 1
+      fi
+      if ! perf_build_aot_obj "${root_dir}" "${tmp_json}" "${out_obj}"; then
         perf_aot_set_status "skip" "build_failed_after_helper_retry" "build_retry"
         rm -f "${tmp_json}" || true
         return 1

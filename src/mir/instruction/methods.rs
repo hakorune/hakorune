@@ -22,9 +22,9 @@ impl MirInstruction {
             | MirInstruction::BinOp { .. }
             | MirInstruction::UnaryOp { .. }
             | MirInstruction::Compare { .. }
-            | MirInstruction::SumMake { .. }
-            | MirInstruction::SumTag { .. }
-            | MirInstruction::SumProject { .. }
+            | MirInstruction::VariantMake { .. }
+            | MirInstruction::VariantTag { .. }
+            | MirInstruction::VariantProject { .. }
             | MirInstruction::TypeOp { .. }
             | MirInstruction::Copy { .. }
             | MirInstruction::Phi { .. }
@@ -91,9 +91,9 @@ impl MirInstruction {
             | MirInstruction::Compare { dst, .. }
             | MirInstruction::Load { dst, .. }
             | MirInstruction::FieldGet { dst, .. }
-            | MirInstruction::SumMake { dst, .. }
-            | MirInstruction::SumTag { dst, .. }
-            | MirInstruction::SumProject { dst, .. }
+            | MirInstruction::VariantMake { dst, .. }
+            | MirInstruction::VariantTag { dst, .. }
+            | MirInstruction::VariantProject { dst, .. }
             | MirInstruction::Phi { dst, .. }
             | MirInstruction::NewBox { dst, .. }
             | MirInstruction::TypeOp { dst, .. }
@@ -202,8 +202,8 @@ impl MirInstruction {
 
             MirInstruction::FieldGet { base, .. } => vec![*base],
             MirInstruction::FieldSet { base, value, .. } => vec![*base, *value],
-            MirInstruction::SumMake { payload, .. } => payload.iter().copied().collect(),
-            MirInstruction::SumTag { value, .. } | MirInstruction::SumProject { value, .. } => {
+            MirInstruction::VariantMake { payload, .. } => payload.iter().copied().collect(),
+            MirInstruction::VariantTag { value, .. } | MirInstruction::VariantProject { value, .. } => {
                 vec![*value]
             }
 

@@ -118,7 +118,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_json_v0_to_module_lowers_enum_ctor_to_sum_make() {
+    fn parse_json_v0_to_module_lowers_enum_ctor_to_variant_make() {
         let json = json!({
             "version": 0,
             "kind": "Program",
@@ -136,8 +136,8 @@ mod tests {
         let insts = main_instructions(&module);
 
         assert!(matches!(
-            insts.iter().find(|inst| matches!(inst, MirInstruction::SumMake { .. })),
-            Some(MirInstruction::SumMake {
+            insts.iter().find(|inst| matches!(inst, MirInstruction::VariantMake { .. })),
+            Some(MirInstruction::VariantMake {
                 enum_name,
                 variant,
                 tag,
@@ -162,7 +162,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_json_v0_to_module_lowers_enum_match_to_sum_tag_and_project() {
+    fn parse_json_v0_to_module_lowers_enum_match_to_variant_tag_and_project() {
         let json = json!({
             "version": 0,
             "kind": "Program",
@@ -203,14 +203,14 @@ mod tests {
         assert_eq!(
             insts
                 .iter()
-                .filter(|inst| matches!(inst, MirInstruction::SumTag { .. }))
+                .filter(|inst| matches!(inst, MirInstruction::VariantTag { .. }))
                 .count(),
             1,
             "enum match should read the tag exactly once"
         );
         assert!(matches!(
-            insts.iter().find(|inst| matches!(inst, MirInstruction::SumProject { .. })),
-            Some(MirInstruction::SumProject {
+            insts.iter().find(|inst| matches!(inst, MirInstruction::VariantProject { .. })),
+            Some(MirInstruction::VariantProject {
                 enum_name,
                 variant,
                 tag,
@@ -237,7 +237,7 @@ mod tests {
 
     #[test]
     fn parse_json_v0_to_module_lowers_record_enum_payload_through_hidden_box() {
-        let payload_box = "__NyEnumPayload_Token_Ident";
+        let payload_box = "__NyVariantPayload_Token_Ident";
         let json = json!({
             "version": 0,
             "kind": "Program",
@@ -350,13 +350,13 @@ mod tests {
         assert!(
             insts
                 .iter()
-                .any(|inst| matches!(inst, MirInstruction::SumMake { .. })),
+                .any(|inst| matches!(inst, MirInstruction::VariantMake { .. })),
             "record enum constructor must still stay on sum lane"
         );
         assert!(
             insts
                 .iter()
-                .any(|inst| matches!(inst, MirInstruction::SumProject { .. })),
+                .any(|inst| matches!(inst, MirInstruction::VariantProject { .. })),
             "record enum match must still project through sum lane"
         );
         assert!(
@@ -370,7 +370,7 @@ mod tests {
 
     #[test]
     fn parse_json_v0_to_module_lowers_tuple_enum_payload_through_hidden_box() {
-        let payload_box = "__NyEnumPayload_Pair_Both";
+        let payload_box = "__NyVariantPayload_Pair_Both";
         let json = json!({
             "version": 0,
             "kind": "Program",
@@ -491,13 +491,13 @@ mod tests {
         assert!(
             insts
                 .iter()
-                .any(|inst| matches!(inst, MirInstruction::SumMake { .. })),
+                .any(|inst| matches!(inst, MirInstruction::VariantMake { .. })),
             "tuple enum constructor must still stay on sum lane"
         );
         assert!(
             insts
                 .iter()
-                .any(|inst| matches!(inst, MirInstruction::SumProject { .. })),
+                .any(|inst| matches!(inst, MirInstruction::VariantProject { .. })),
             "tuple enum match must still project through sum lane"
         );
         assert!(
@@ -586,41 +586,59 @@ mod tests {
         let func = module.get_function("main").expect("main exists");
 
         assert!(func.metadata.thin_entry_candidates.iter().any(|candidate| {
-            candidate.surface == crate::mir::ThinEntrySurface::SumMake
+            candidate.surface == crate::mir::ThinEntrySurface::VariantMake
                 && candidate.subject == "Option::Some"
                 && candidate.preferred_entry
                     == crate::mir::ThinEntryPreferredEntry::ThinInternalEntry
                 && candidate.current_carrier == crate::mir::ThinEntryCurrentCarrier::CompatBox
         }));
         assert!(func.metadata.thin_entry_candidates.iter().any(|candidate| {
-            candidate.surface == crate::mir::ThinEntrySurface::SumProject
+            candidate.surface == crate::mir::ThinEntrySurface::VariantTag
+                && candidate.subject == "Option"
+                && candidate.value_class == crate::mir::ThinEntryValueClass::InlineI64
+        }));
+        assert!(func.metadata.thin_entry_candidates.iter().any(|candidate| {
+            candidate.surface == crate::mir::ThinEntrySurface::VariantProject
                 && candidate.subject == "Option::Some"
                 && candidate.value_class == crate::mir::ThinEntryValueClass::InlineI64
         }));
         assert!(func.metadata.thin_entry_selections.iter().any(|selection| {
-            selection.surface == crate::mir::ThinEntrySurface::SumMake
+            selection.surface == crate::mir::ThinEntrySurface::VariantMake
                 && selection.subject == "Option::Some"
-                && selection.manifest_row == "sum_make.aggregate_local"
+                && selection.manifest_row == "variant_make.aggregate_local"
                 && selection.selected_entry
                     == crate::mir::ThinEntryPreferredEntry::ThinInternalEntry
                 && selection.state == crate::mir::ThinEntrySelectionState::Candidate
         }));
         assert!(func.metadata.thin_entry_selections.iter().any(|selection| {
-            selection.surface == crate::mir::ThinEntrySurface::SumProject
+            selection.surface == crate::mir::ThinEntrySurface::VariantTag
+                && selection.subject == "Option"
+                && selection.manifest_row == "variant_tag.tag_local"
+                && selection.selected_entry
+                    == crate::mir::ThinEntryPreferredEntry::ThinInternalEntry
+        }));
+        assert!(func.metadata.thin_entry_selections.iter().any(|selection| {
+            selection.surface == crate::mir::ThinEntrySurface::VariantProject
                 && selection.subject == "Option::Some"
-                && selection.manifest_row == "sum_project.payload_local"
+                && selection.manifest_row == "variant_project.payload_local"
                 && selection.selected_entry
                     == crate::mir::ThinEntryPreferredEntry::ThinInternalEntry
         }));
         assert!(func.metadata.sum_placement_facts.iter().any(|fact| {
-            fact.surface == crate::mir::ThinEntrySurface::SumMake
+            fact.surface == crate::mir::ThinEntrySurface::VariantMake
                 && fact.subject == "Option::Some"
                 && fact.state == crate::mir::SumPlacementState::LocalAggregateCandidate
                 && fact.tag_reads >= 1
                 && fact.project_reads >= 1
         }));
         assert!(func.metadata.sum_placement_facts.iter().any(|fact| {
-            fact.surface == crate::mir::ThinEntrySurface::SumProject
+            fact.surface == crate::mir::ThinEntrySurface::VariantTag
+                && fact.subject == "Option"
+                && fact.source_sum.is_some()
+                && fact.state == crate::mir::SumPlacementState::LocalAggregateCandidate
+        }));
+        assert!(func.metadata.sum_placement_facts.iter().any(|fact| {
+            fact.surface == crate::mir::ThinEntrySurface::VariantProject
                 && fact.subject == "Option::Some"
                 && fact.source_sum.is_some()
                 && fact.state == crate::mir::SumPlacementState::LocalAggregateCandidate
@@ -630,9 +648,9 @@ mod tests {
             .sum_placement_selections
             .iter()
             .any(|selection| {
-                selection.surface == crate::mir::ThinEntrySurface::SumMake
+                selection.surface == crate::mir::ThinEntrySurface::VariantMake
                     && selection.subject == "Option::Some"
-                    && selection.manifest_row == "sum_make.local_aggregate"
+                    && selection.manifest_row == "variant_make.local_aggregate"
                     && selection.selected_path == crate::mir::SumPlacementPath::LocalAggregate
             }));
         assert!(func
@@ -640,19 +658,30 @@ mod tests {
             .sum_placement_selections
             .iter()
             .any(|selection| {
-                selection.surface == crate::mir::ThinEntrySurface::SumProject
+                selection.surface == crate::mir::ThinEntrySurface::VariantTag
+                    && selection.subject == "Option"
+                    && selection.manifest_row == "variant_tag.local_aggregate"
+                    && selection.selected_path == crate::mir::SumPlacementPath::LocalAggregate
+                    && selection.source_sum.is_some()
+            }));
+        assert!(func
+            .metadata
+            .sum_placement_selections
+            .iter()
+            .any(|selection| {
+                selection.surface == crate::mir::ThinEntrySurface::VariantProject
                     && selection.subject == "Option::Some"
-                    && selection.manifest_row == "sum_project.local_aggregate"
+                    && selection.manifest_row == "variant_project.local_aggregate"
                     && selection.selected_path == crate::mir::SumPlacementPath::LocalAggregate
                     && selection.source_sum.is_some()
             }));
         assert!(func.metadata.sum_placement_layouts.iter().any(|layout| {
-            layout.surface == crate::mir::ThinEntrySurface::SumMake
+            layout.surface == crate::mir::ThinEntrySurface::VariantMake
                 && layout.subject == "Option::Some"
                 && layout.layout == crate::mir::SumLocalAggregateLayout::TagI64Payload
         }));
         assert!(func.metadata.sum_placement_layouts.iter().any(|layout| {
-            layout.surface == crate::mir::ThinEntrySurface::SumProject
+            layout.surface == crate::mir::ThinEntrySurface::VariantProject
                 && layout.subject == "Option::Some"
                 && layout.layout == crate::mir::SumLocalAggregateLayout::TagI64Payload
                 && layout.source_sum.is_some()
@@ -709,20 +738,20 @@ mod tests {
         assert!(
             insts
                 .iter()
-                .any(|inst| matches!(inst, MirInstruction::SumMake { .. })),
-            "sum_make must survive MIR JSON roundtrip"
+                .any(|inst| matches!(inst, MirInstruction::VariantMake { .. })),
+            "variant_make must survive MIR JSON roundtrip"
         );
         assert!(
             insts
                 .iter()
-                .any(|inst| matches!(inst, MirInstruction::SumTag { .. })),
-            "sum_tag must survive MIR JSON roundtrip"
+                .any(|inst| matches!(inst, MirInstruction::VariantTag { .. })),
+            "variant_tag must survive MIR JSON roundtrip"
         );
         assert!(
             insts
                 .iter()
-                .any(|inst| matches!(inst, MirInstruction::SumProject { .. })),
-            "sum_project must survive MIR JSON roundtrip"
+                .any(|inst| matches!(inst, MirInstruction::VariantProject { .. })),
+            "variant_project must survive MIR JSON roundtrip"
         );
     }
 }

@@ -219,25 +219,25 @@ pub fn parse_mir_v0_to_module(json: &str) -> Result<MirModule, String> {
                         });
                         max_value_id = max_value_id.max(dst + 1);
                     }
-                    "sum_make" => {
-                        let dst = require_u64(inst, "dst", "sum_make dst")? as u32;
+                    "variant_make" => {
+                        let dst = require_u64(inst, "dst", "variant_make dst")? as u32;
                         let enum_name = inst
                             .get("enum")
                             .and_then(Value::as_str)
-                            .ok_or_else(|| "sum_make missing enum".to_string())?
+                            .ok_or_else(|| "variant_make missing enum".to_string())?
                             .to_string();
                         let variant = inst
                             .get("variant")
                             .and_then(Value::as_str)
-                            .ok_or_else(|| "sum_make missing variant".to_string())?
+                            .ok_or_else(|| "variant_make missing variant".to_string())?
                             .to_string();
-                        let tag = require_u64(inst, "tag", "sum_make tag")? as u32;
+                        let tag = require_u64(inst, "tag", "variant_make tag")? as u32;
                         let payload = inst
                             .get("payload")
                             .and_then(Value::as_u64)
                             .map(|value| ValueId::new(value as u32));
                         let payload_type = parse_optional_type_name(inst, "payload_type")?;
-                        block_ref.add_instruction(MirInstruction::SumMake {
+                        block_ref.add_instruction(MirInstruction::VariantMake {
                             dst: ValueId::new(dst),
                             enum_name,
                             variant,
@@ -247,37 +247,37 @@ pub fn parse_mir_v0_to_module(json: &str) -> Result<MirModule, String> {
                         });
                         max_value_id = max_value_id.max(dst + 1);
                     }
-                    "sum_tag" => {
-                        let dst = require_u64(inst, "dst", "sum_tag dst")? as u32;
-                        let value = require_u64(inst, "value", "sum_tag value")? as u32;
+                    "variant_tag" => {
+                        let dst = require_u64(inst, "dst", "variant_tag dst")? as u32;
+                        let value = require_u64(inst, "value", "variant_tag value")? as u32;
                         let enum_name = inst
                             .get("enum")
                             .and_then(Value::as_str)
-                            .ok_or_else(|| "sum_tag missing enum".to_string())?
+                            .ok_or_else(|| "variant_tag missing enum".to_string())?
                             .to_string();
-                        block_ref.add_instruction(MirInstruction::SumTag {
+                        block_ref.add_instruction(MirInstruction::VariantTag {
                             dst: ValueId::new(dst),
                             value: ValueId::new(value),
                             enum_name,
                         });
                         max_value_id = max_value_id.max(dst + 1);
                     }
-                    "sum_project" => {
-                        let dst = require_u64(inst, "dst", "sum_project dst")? as u32;
-                        let value = require_u64(inst, "value", "sum_project value")? as u32;
+                    "variant_project" => {
+                        let dst = require_u64(inst, "dst", "variant_project dst")? as u32;
+                        let value = require_u64(inst, "value", "variant_project value")? as u32;
                         let enum_name = inst
                             .get("enum")
                             .and_then(Value::as_str)
-                            .ok_or_else(|| "sum_project missing enum".to_string())?
+                            .ok_or_else(|| "variant_project missing enum".to_string())?
                             .to_string();
                         let variant = inst
                             .get("variant")
                             .and_then(Value::as_str)
-                            .ok_or_else(|| "sum_project missing variant".to_string())?
+                            .ok_or_else(|| "variant_project missing variant".to_string())?
                             .to_string();
-                        let tag = require_u64(inst, "tag", "sum_project tag")? as u32;
+                        let tag = require_u64(inst, "tag", "variant_project tag")? as u32;
                         let payload_type = parse_optional_type_name(inst, "payload_type")?;
-                        block_ref.add_instruction(MirInstruction::SumProject {
+                        block_ref.add_instruction(MirInstruction::VariantProject {
                             dst: ValueId::new(dst),
                             value: ValueId::new(value),
                             enum_name,

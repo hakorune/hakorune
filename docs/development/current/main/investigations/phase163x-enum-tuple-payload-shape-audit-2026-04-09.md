@@ -36,12 +36,12 @@ Related:
 - Stage1 Program JSON v0 keeps the canonical enum inventory singular on the sum lane.
   - `src/stage1/program_json_v0/authority.rs`
   - enum inventory emits `variants[].payload_type`
-  - record variants already boxify to `__NyEnumPayload_<Enum>_<Variant>` and reuse that single `payload_type`
+  - record variants already boxify to `__NyVariantPayload_<Enum>_<Variant>` and reuse that single `payload_type`
 - Stage1 expression lowering follows the same 0/1 payload assumption.
   - `src/stage1/program_json_v0/lowering.rs`
   - constructor arity is `0`, `1`, or record-field count
   - record constructors and record match arms lower through one hidden payload box value
-- Program JSON v0 schema is singular on the enum lane.
+- Program JSON v0 schema is singular on the variant lane.
   - `src/runner/json_v0_bridge/ast.rs`
   - `EnumVariantDeclV0.payload_type`
   - `EnumMatchArmV0.bind`
@@ -49,14 +49,14 @@ Related:
 - JSON v0 bridge lowering is explicit about the same contract.
   - `src/runner/json_v0_bridge/lowering/expr/sum_ops.rs`
   - resolved arity is `usize::from(payload_type_name.is_some())`
-  - `SumMake` receives `payload: Option<ValueId>`
-  - `SumProject` projects exactly one payload value when a bind exists
+  - `VariantMake` receives `payload: Option<ValueId>`
+  - `VariantProject` projects exactly one payload value when a bind exists
 - MIR metadata and canonical sum instructions are also singular today.
   - `src/mir/function.rs`
   - `MirEnumVariantDecl.payload_type_name: Option<String>`
   - `src/mir/instruction.rs`
-  - `SumMake.payload: Option<ValueId>`
-  - `SumProject` has one projected payload result
+  - `VariantMake.payload: Option<ValueId>`
+  - `VariantProject` has one projected payload result
 
 ## Test Coverage After This Audit
 
@@ -68,4 +68,4 @@ Related:
 
 - keep the canonical sum lane single-payload for the current wave
 - if tuple multi-payload work resumes, lower it through the existing synthetic hidden payload box route first
-- do not widen `EnumCtor` / `EnumMatch` / `SumMake` / `SumProject` in the same cut unless a separate canonical-sum design decision lands first
+- do not widen `EnumCtor` / `EnumMatch` / `VariantMake` / `VariantProject` in the same cut unless a separate canonical-sum design decision lands first

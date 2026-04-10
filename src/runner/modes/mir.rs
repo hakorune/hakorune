@@ -8,7 +8,6 @@ use std::{fs, process};
 impl NyashRunner {
     /// Execute MIR compilation and processing mode (split)
     pub(crate) fn execute_mir_mode(&self, filename: &str) {
-        // Read the file
         let code = match fs::read_to_string(filename) {
             Ok(content) => content,
             Err(e) => {
@@ -28,7 +27,6 @@ impl NyashRunner {
                 }
             };
 
-        // Parse to AST
         let ast = match NyashParser::parse_from_string(&prepared.code) {
             Ok(ast) => ast,
             Err(e) => {
@@ -40,10 +38,8 @@ impl NyashRunner {
                 process::exit(1);
             }
         };
-        // Macro expansion (env-gated)
         let ast = crate::r#macro::maybe_expand_and_dump(&ast, false);
 
-        // Compile to MIR (opt passes configurable)
         let mut mir_compiler = MirCompiler::with_options(!self.config.no_optimize);
         let compile_result =
             match crate::runner::modes::common_util::source_hint::compile_with_source_hint_and_imports(
@@ -60,7 +56,6 @@ impl NyashRunner {
             };
 
         let groups = self.config.as_groups();
-        // Verify MIR if requested
         if groups.debug.verify_mir {
             println!("🔍 Verifying MIR...");
             match &compile_result.verification_result {
@@ -75,7 +70,6 @@ impl NyashRunner {
             }
         }
 
-        // Dump MIR if requested
         if groups.debug.dump_mir {
             let mut printer = if groups.debug.mir_verbose {
                 MirPrinter::verbose()
@@ -89,7 +83,6 @@ impl NyashRunner {
             println!("{}", printer.print_module(&compile_result.module));
         }
 
-        // Emit MIR JSON if requested and exit
         crate::runner::modes::common_util::emit_direct::maybe_emit_mir_json_and_exit(
             groups.emit.emit_mir_json.as_deref(),
             &compile_result.verification_result,
@@ -103,7 +96,6 @@ impl NyashRunner {
             },
         );
 
-        // Emit native executable via ny-llvmc (crate) and exit
         crate::runner::modes::common_util::emit_direct::maybe_emit_exe_and_exit(
             groups.emit.emit_exe.as_deref(),
             &compile_result.verification_result,
@@ -118,5 +110,70 @@ impl NyashRunner {
                 )
             },
         );
+    }
+
+    /// Minimal MIR emit mode for perf-sensitive startup measurements.
+    ///
+    /// This path intentionally skips using/prelude resolution and plugin init.
+    /// It keeps the lightweight parser-side normalization needed by current
+    /// benchmark fixtures, then compiles and writes MIR JSON directly.
+    pub(crate) fn execute_mir_json_minimal(&self, filename: &str, out_path: &str) {
+        let code = match fs::read_to_string(filename) {
+            Ok(content) => content,
+            Err(e) => {
+                eprintln!("❌ Error reading file {}: {}", filename, e);
+                process::exit(1);
+            }
+        };
+
+        let prepared = match crate::runner::modes::common_util::source_hint::prepare_source_minimal(
+            &code, filename,
+        ) {
+            Ok(prepared) => prepared,
+            Err(e) => {
+                eprintln!("❌ {}", e);
+                process::exit(1);
+            }
+        };
+
+        let ast = match NyashParser::parse_from_string(&prepared) {
+            Ok(ast) => ast,
+            Err(e) => {
+                crate::runner::modes::common_util::diag::print_parse_error_with_context(
+                    filename, &prepared, &e,
+                );
+                process::exit(1);
+            }
+        };
+
+        let ast = if crate::r#macro::enabled() {
+            crate::r#macro::maybe_expand_and_dump(&ast, false)
+        } else {
+            ast
+        };
+
+        let mut mir_compiler = MirCompiler::with_options(!self.config.no_optimize);
+        let compile_result =
+            match crate::runner::modes::common_util::source_hint::compile_with_source_hint(
+                &mut mir_compiler,
+                ast,
+                Some(filename),
+            ) {
+                Ok(result) => result,
+                Err(e) => {
+                    eprintln!("❌ MIR compilation error: {}", e);
+                    process::exit(1);
+                }
+            };
+
+        let out = std::path::Path::new(out_path);
+        if let Err(e) =
+            crate::runner::mir_json_emit::emit_mir_json_for_harness_bin(&compile_result.module, out)
+        {
+            eprintln!("❌ MIR JSON emit error: {}", e);
+            process::exit(1);
+        }
+        println!("MIR JSON written: {}", out.display());
+        process::exit(0);
     }
 }
