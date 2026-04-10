@@ -1541,12 +1541,6 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
   /* header */
   BUILD_INTERESTING(yyjson_arr_get(blocks, 1));
   if (n != 6) { yyjson_doc_free(doc); return -1; }
-  EXPECT_OP(0, "phi");
-  EXPECT_OP(1, "phi");
-  EXPECT_OP(2, "phi");
-  EXPECT_OP(3, "const");
-  EXPECT_OP(4, "compare");
-  EXPECT_OP(5, "branch");
   loop_bound = READ_INT(yyjson_obj_get(interesting[3], "value"), "value");
   if (loop_bound <= 0) { yyjson_doc_free(doc); return -1; }
   {
@@ -1618,8 +1612,6 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
   /* latch */
   BUILD_INTERESTING(yyjson_arr_get(blocks, 3));
   if (n != 5) { yyjson_doc_free(doc); return -1; }
-  EXPECT_OP(2, "const");
-  EXPECT_OP(3, "binop");
   {
     const char* inc_op = READ_STR(interesting[3], "operation");
     if (READ_INT(yyjson_obj_get(interesting[2], "value"), "value") != 1 ||
@@ -1632,8 +1624,6 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
   /* exit */
   BUILD_INTERESTING(yyjson_arr_get(blocks, 4));
   if (n != 3) { yyjson_doc_free(doc); return -1; }
-  EXPECT_OP(1, "binop");
-  EXPECT_OP(2, "ret");
   {
     yyjson_val* mc = yyjson_obj_get(interesting[0], "mir_call");
     yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
