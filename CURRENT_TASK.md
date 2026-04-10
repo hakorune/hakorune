@@ -411,6 +411,8 @@ Scope: repo root から current lane / current front / restart read order に最
     - post-consumer reread on `kilo_micro_len_substring_views`: `instr=47,263,778 / cycles=28,345,762 / cache-miss=10,603 / AOT 9 ms`
     - post-consumer reread on `kilo_micro_substring_views_only`: `instr=34,364,317 / cycles=6,565,794 / cache-miss=9,276 / AOT 5 ms`
     - latest bridge shrink drops the `substring_len_hii` declaration need on the same plan-window lane; direct-kernel len now consumes metadata rather than substring-call re-inference
+    - current `--emit-mir-json` / `--emit-mir-json-minimal` probe on `bench_kilo_micro_substring_concat.hako` reads `interesting_n = 17`, but exact-seed narrowing is blocked because `apps/tests/mir_shape_guard/substring_concat_loop_pure_min_v1.mir.json` still pins the pre-sink `n = 15` shape for the active `phase29x_backend_owner_daily_substring_concat_loop_min` smoke
+    - use `tools/smokes/v2/lib/emit_mir_route.sh --route direct ...` as the trustworthy current-shape probe on this front; `tools/hakorune_emit_mir.sh` is helper-local and can persist a non-strict JSON payload from selfhost stdout capture
     - current reading: the consumer slice is a structural enabler, but the next visible keeper still has to come from retained-view `substring_hii` shapes rather than another runtime-local retry
   - concat/objectization reading is now fixed before the next cut:
     - exact `kilo_micro_substring_concat` is parity-locked again after the pure-first seed repair for the post-sink `substring_len_hii` / `substring_concat3_hhhii` body shape, so it still does not prove the generic concat consumer lane by itself
