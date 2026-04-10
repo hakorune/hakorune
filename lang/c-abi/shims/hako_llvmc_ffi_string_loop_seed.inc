@@ -1584,16 +1584,6 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
       return -1;
     }
   }
-  {
-    yyjson_val* mc = yyjson_obj_get(interesting[3], "mir_call");
-    yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
-    if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) == 2 &&
-          READ_INT(interesting[0], "value") == 0 &&
-          (long long)yyjson_get_sint(yyjson_arr_get(args, 0)) == READ_INT(interesting[0], "dst"))) {
-      yyjson_doc_free(doc);
-      return -1;
-    }
-  }
   middle = READ_STR(yyjson_obj_get(interesting[5], "value"), "value");
   if (!middle || !hako_llvmc_ascii_strlen(middle, &middle_len)) { yyjson_doc_free(doc); return -1; }
   {
