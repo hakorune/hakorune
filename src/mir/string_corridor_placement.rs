@@ -16,7 +16,7 @@ use super::{
         resolve_copy_chain_source, string_source_identity, ConcatTripletShape,
         StringSourceIdentity,
     },
-    BasicBlockId, MirFunction, MirModule, ValueId,
+    BasicBlockId, MirFunction, MirInstruction, MirModule, ValueId,
 };
 use std::collections::HashMap;
 
@@ -187,6 +187,160 @@ pub fn refresh_function_string_corridor_candidates(function: &mut MirFunction) {
                 .insert(*value, candidates);
         }
     }
+
+    refresh_function_string_corridor_phi_candidates(function, &def_map);
+}
+
+fn refresh_function_string_corridor_phi_candidates(
+    function: &mut MirFunction,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+) {
+    let mut phi_updates: Vec<(ValueId, Vec<StringCorridorCandidate>)> = Vec::new();
+
+    for block in function.blocks.values() {
+        for inst in &block.instructions {
+            let MirInstruction::Phi { dst, inputs, .. } = inst else {
+                continue;
+            };
+            let Some(candidates) = infer_phi_carry_candidates(function, *dst, inputs, def_map)
+            else {
+                continue;
+            };
+            phi_updates.push((*dst, candidates));
+        }
+    }
+
+    for (value, candidates) in phi_updates {
+        function
+            .metadata
+            .string_corridor_candidates
+            .entry(value)
+            .or_default()
+            .extend(candidates);
+    }
+}
+
+fn infer_phi_carry_candidates(
+    function: &MirFunction,
+    _dst: ValueId,
+    inputs: &[(BasicBlockId, ValueId)],
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+) -> Option<Vec<StringCorridorCandidate>> {
+    match inputs {
+        [(_, carried)] => {
+            let base_value = phi_single_input_base_value(function, def_map, *carried)?;
+            let candidates = base_phi_carry_candidates(function, base_value)?;
+            Some(
+                candidates
+                    .into_iter()
+                    .map(|candidate| StringCorridorCandidate {
+                        kind: candidate.kind,
+                        state: candidate.state,
+                        reason:
+                            "single-input phi preserves the current string corridor lane without widening the plan window",
+                        plan: None,
+                    })
+                    .collect(),
+            )
+        }
+        [(_, lhs), (_, rhs)] => {
+            let lhs_root = resolve_copy_chain_source(function, def_map, *lhs);
+            let rhs_root = resolve_copy_chain_source(function, def_map, *rhs);
+            let lhs_base = phi_two_input_carry_base_value(function, def_map, lhs_root);
+            let rhs_base = phi_two_input_carry_base_value(function, def_map, rhs_root);
+            let (base_value, seed_root) = match (lhs_base, rhs_base) {
+                (Some(base), None) => (base, rhs_root),
+                (None, Some(base)) => (base, lhs_root),
+                _ => return None,
+            };
+            if base_value == seed_root {
+                return None;
+            }
+            if base_value == seed_root || base_phi_carry_candidates(function, seed_root).is_some() {
+                return None;
+            }
+            let candidates = base_phi_carry_candidates(function, base_value)?;
+            Some(
+                candidates
+                    .into_iter()
+                    .map(|candidate| StringCorridorCandidate {
+                        kind: candidate.kind,
+                        state: candidate.state,
+                        reason:
+                            "two-input phi keeps the carried string corridor lane while leaving the entry seed outside the window contract",
+                        plan: None,
+                    })
+                    .collect(),
+            )
+        }
+        _ => None,
+    }
+}
+
+fn base_phi_carry_candidates(
+    function: &MirFunction,
+    value: ValueId,
+) -> Option<Vec<StringCorridorCandidate>> {
+    let candidates = function.metadata.string_corridor_candidates.get(&value)?;
+    let carried: Vec<_> = candidates
+        .iter()
+        .filter(|candidate| {
+            matches!(
+                candidate.kind,
+                StringCorridorCandidateKind::PublicationSink
+                    | StringCorridorCandidateKind::MaterializationSink
+                    | StringCorridorCandidateKind::DirectKernelEntry
+            ) && matches!(
+                candidate.plan.map(|plan| plan.proof),
+                Some(StringCorridorCandidateProof::ConcatTriplet { .. })
+            )
+        })
+        .copied()
+        .collect();
+    if carried.is_empty() {
+        None
+    } else {
+        Some(carried)
+    }
+}
+
+fn phi_single_input_base_value(
+    function: &MirFunction,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    value: ValueId,
+) -> Option<ValueId> {
+    let root = resolve_copy_chain_source(function, def_map, value);
+    if base_phi_carry_candidates(function, root).is_some() {
+        return Some(root);
+    }
+    let (bbid, idx) = def_map.get(&root).copied()?;
+    let block = function.blocks.get(&bbid)?;
+    let MirInstruction::Phi { inputs, .. } = block.instructions.get(idx)? else {
+        return None;
+    };
+    let [(_, carried)] = inputs.as_slice() else {
+        return None;
+    };
+    let carried_root = resolve_copy_chain_source(function, def_map, *carried);
+    base_phi_carry_candidates(function, carried_root)?;
+    Some(carried_root)
+}
+
+fn phi_two_input_carry_base_value(
+    function: &MirFunction,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    value: ValueId,
+) -> Option<ValueId> {
+    let root = resolve_copy_chain_source(function, def_map, value);
+    let (bbid, idx) = def_map.get(&root).copied()?;
+    let block = function.blocks.get(&bbid)?;
+    let MirInstruction::Phi { inputs, .. } = block.instructions.get(idx)? else {
+        return None;
+    };
+    let [(_, carried)] = inputs.as_slice() else {
+        return None;
+    };
+    phi_single_input_base_value(function, def_map, *carried)
 }
 
 fn infer_borrowed_slice_plan(
@@ -459,7 +613,7 @@ fn direct_kernel_reason(fact: &StringCorridorFact) -> &'static str {
 mod tests {
     use super::*;
     use crate::mir::{
-        BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, FunctionSignature,
+        BasicBlock, BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, FunctionSignature,
         MirInstruction, MirType, ValueId,
     };
 
@@ -835,5 +989,171 @@ mod tests {
                 shared_source: true,
             }
         ));
+    }
+
+    #[test]
+    fn refresh_function_carries_corridor_candidates_across_narrow_phi_route() {
+        use crate::ast::Span;
+
+        fn method_call(
+            dst: ValueId,
+            receiver: ValueId,
+            box_name: &str,
+            method: &str,
+            args: Vec<ValueId>,
+        ) -> MirInstruction {
+            MirInstruction::Call {
+                dst: Some(dst),
+                func: ValueId::INVALID,
+                callee: Some(Callee::Method {
+                    box_name: box_name.to_string(),
+                    method: method.to_string(),
+                    receiver: Some(receiver),
+                    certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
+                    box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+                }),
+                args,
+                effects: EffectMask::PURE,
+            }
+        }
+
+        let signature = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![MirType::Box("StringBox".to_string())],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId(0));
+        function.add_block(BasicBlock::new(BasicBlockId(1)));
+        function.add_block(BasicBlock::new(BasicBlockId(2)));
+        function.add_block(BasicBlock::new(BasicBlockId(3)));
+        function.add_block(BasicBlock::new(BasicBlockId(4)));
+
+        let entry = function.blocks.get_mut(&BasicBlockId(0)).expect("entry");
+        entry.set_terminator(MirInstruction::Jump {
+            target: BasicBlockId(1),
+            edge_args: None,
+        });
+
+        let header = function.blocks.get_mut(&BasicBlockId(1)).expect("header");
+        header.instructions.push(MirInstruction::Phi {
+            dst: ValueId(21),
+            inputs: vec![(BasicBlockId(0), ValueId(0)), (BasicBlockId(3), ValueId(22))],
+            type_hint: Some(MirType::Box("RuntimeDataBox".to_string())),
+        });
+        header.instruction_spans.push(Span::unknown());
+        header.set_terminator(MirInstruction::Jump {
+            target: BasicBlockId(2),
+            edge_args: None,
+        });
+
+        let body = function.blocks.get_mut(&BasicBlockId(2)).expect("body");
+        body.instructions.push(MirInstruction::Const {
+            dst: ValueId(46),
+            value: ConstValue::Integer(0),
+        });
+        body.instruction_spans.push(Span::unknown());
+        body.instructions.push(MirInstruction::Const {
+            dst: ValueId(47),
+            value: ConstValue::Integer(1),
+        });
+        body.instruction_spans.push(Span::unknown());
+        body.instructions.push(MirInstruction::Const {
+            dst: ValueId(48),
+            value: ConstValue::Integer(2),
+        });
+        body.instruction_spans.push(Span::unknown());
+        body.instructions.push(method_call(
+            ValueId(26),
+            ValueId(21),
+            "RuntimeDataBox",
+            "substring",
+            vec![ValueId(46), ValueId(47)],
+        ));
+        body.instruction_spans.push(Span::unknown());
+        body.instructions.push(method_call(
+            ValueId(27),
+            ValueId(21),
+            "RuntimeDataBox",
+            "substring",
+            vec![ValueId(47), ValueId(48)],
+        ));
+        body.instruction_spans.push(Span::unknown());
+        body.instructions.push(MirInstruction::Const {
+            dst: ValueId(66),
+            value: ConstValue::String("xx".to_string()),
+        });
+        body.instruction_spans.push(Span::unknown());
+        body.instructions.push(MirInstruction::Const {
+            dst: ValueId(71),
+            value: ConstValue::Integer(1),
+        });
+        body.instruction_spans.push(Span::unknown());
+        body.instructions.push(MirInstruction::Const {
+            dst: ValueId(72),
+            value: ConstValue::Integer(3),
+        });
+        body.instruction_spans.push(Span::unknown());
+        body.instructions.push(MirInstruction::Call {
+            dst: Some(ValueId(36)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Extern("nyash.string.substring_concat3_hhhii".to_string())),
+            args: vec![ValueId(26), ValueId(66), ValueId(27), ValueId(71), ValueId(72)],
+            effects: EffectMask::PURE,
+        });
+        body.instruction_spans.push(Span::unknown());
+        body.set_terminator(MirInstruction::Jump {
+            target: BasicBlockId(3),
+            edge_args: None,
+        });
+
+        let latch = function.blocks.get_mut(&BasicBlockId(3)).expect("latch");
+        latch.instructions.push(MirInstruction::Phi {
+            dst: ValueId(22),
+            inputs: vec![(BasicBlockId(2), ValueId(36))],
+            type_hint: Some(MirType::Box("RuntimeDataBox".to_string())),
+        });
+        latch.instruction_spans.push(Span::unknown());
+        latch.set_terminator(MirInstruction::Jump {
+            target: BasicBlockId(1),
+            edge_args: None,
+        });
+
+        let exit = function.blocks.get_mut(&BasicBlockId(4)).expect("exit");
+        exit.set_terminator(MirInstruction::Return { value: None });
+
+        crate::mir::refresh_function_string_corridor_facts(&mut function);
+        refresh_function_string_corridor_candidates(&mut function);
+
+        let helper = function
+            .metadata
+            .string_corridor_candidates
+            .get(&ValueId(36))
+            .expect("helper candidates");
+        assert!(helper.iter().any(|candidate| {
+            candidate.kind == StringCorridorCandidateKind::DirectKernelEntry
+                && candidate.plan.is_some()
+        }));
+
+        for value in [ValueId(22), ValueId(21)] {
+            let candidates = function
+                .metadata
+                .string_corridor_candidates
+                .get(&value)
+                .expect("phi candidates");
+            assert!(candidates.iter().all(|candidate| candidate.plan.is_none()));
+            assert!(candidates.iter().any(|candidate| {
+                candidate.kind == StringCorridorCandidateKind::PublicationSink
+            }));
+            assert!(candidates.iter().any(|candidate| {
+                candidate.kind == StringCorridorCandidateKind::MaterializationSink
+            }));
+            assert!(candidates.iter().any(|candidate| {
+                candidate.kind == StringCorridorCandidateKind::DirectKernelEntry
+            }));
+            assert!(!candidates.iter().any(|candidate| {
+                candidate.kind == StringCorridorCandidateKind::BorrowCorridorFusion
+            }));
+        }
     }
 }

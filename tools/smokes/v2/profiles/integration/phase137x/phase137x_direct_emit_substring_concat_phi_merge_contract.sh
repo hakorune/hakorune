@@ -1,20 +1,22 @@
 #!/bin/bash
-# phase-137x direct emit blocker smoke for the current substring-concat loop-carried phi route
+# phase-137x direct emit smoke for the current substring-concat loop-carried phi route
 #
 # Contract:
 # 1) the trustworthy direct MIR probe (`emit_mir_route.sh --route direct`) emits strict JSON
 #    for `bench_kilo_micro_substring_concat.hako`.
 # 2) the loop still carries the string lane through `%21 = phi([4,0], [22,20])`.
 # 3) the backedge still hands `%36` into `%22 = phi([36,19])`.
-# 4) proof-bearing corridor metadata still lives on `%36`, while the carried `%21` / `%22`
-#    values do not yet have `string_corridor_candidates`.
+# 4) proof-bearing corridor metadata still lives on `%36`.
+# 5) the carried `%21` / `%22` values now keep non-window `publication_sink` /
+#    `materialization_sink` / `direct_kernel_entry` candidates, but still do not
+#    widen the plan window across the phi route.
 
 set -euo pipefail
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 require_env || exit 2
 
-SMOKE_NAME="phase137x_direct_emit_substring_concat_phi_merge_blocker"
+SMOKE_NAME="phase137x_direct_emit_substring_concat_phi_merge_contract"
 EMIT_ROUTE="$NYASH_ROOT/tools/smokes/v2/lib/emit_mir_route.sh"
 INPUT="$NYASH_ROOT/benchmarks/bench_kilo_micro_substring_concat.hako"
 OUT_JSON="$(mktemp "/tmp/${SMOKE_NAME}.XXXXXX.json")"
@@ -73,27 +75,38 @@ if backedge_phi is None:
 if backedge_phi.get("incoming") != [[36, 19]]:
     raise SystemExit(f"unexpected %22 incoming edges: {backedge_phi.get('incoming')}")
 
+def require_kinds(candidate_list, required, label):
+    if not isinstance(candidate_list, list) or not candidate_list:
+        raise SystemExit(f"missing candidates for {label}")
+    kinds = {cand.get('kind') for cand in candidate_list}
+    missing = required - kinds
+    if missing:
+        raise SystemExit(f"{label} missing candidate kinds: {sorted(missing)}")
+
 candidates = main_fn.get("metadata", {}).get("string_corridor_candidates", {})
 helper_candidates = candidates.get("36")
 if not isinstance(helper_candidates, list) or not helper_candidates:
     raise SystemExit("missing helper-result candidates for %36")
 
-helper_kinds = {cand.get("kind") for cand in helper_candidates}
 required_helper_kinds = {"publication_sink", "materialization_sink", "direct_kernel_entry"}
-missing = required_helper_kinds - helper_kinds
-if missing:
-    raise SystemExit(f"helper-result %36 missing candidate kinds: {sorted(missing)}")
+require_kinds(helper_candidates, required_helper_kinds, "helper-result %36")
+if not any(cand.get("plan") for cand in helper_candidates):
+    raise SystemExit("helper-result %36 lost proof-bearing plan metadata")
 
-if "21" in candidates:
-    raise SystemExit(f"loop-carried phi %21 unexpectedly has corridor candidates: {candidates['21']}")
-if "22" in candidates:
-    raise SystemExit(f"backedge phi %22 unexpectedly has corridor candidates: {candidates['22']}")
+required_phi_kinds = {"publication_sink", "materialization_sink", "direct_kernel_entry"}
+for phi_dst in ("21", "22"):
+    phi_candidates = candidates.get(phi_dst)
+    require_kinds(phi_candidates, required_phi_kinds, f"phi %{phi_dst}")
+    if any(cand.get("plan") is not None for cand in phi_candidates):
+        raise SystemExit(f"phi %{phi_dst} unexpectedly widened a plan window: {phi_candidates}")
+    if any(cand.get("kind") == "borrowed_corridor_fusion" for cand in phi_candidates):
+        raise SystemExit(f"phi %{phi_dst} unexpectedly gained borrow-producing fusion: {phi_candidates}")
 PY
 then
     echo "[INFO] emitted MIR:"
     sed -n '1,220p' "$OUT_JSON" || true
-    test_fail "$SMOKE_NAME: direct MIR probe did not match the current phi-merge blocker contract"
+    test_fail "$SMOKE_NAME: direct MIR probe did not match the current phi-merge contract"
     exit 1
 fi
 
-test_pass "$SMOKE_NAME: PASS (direct emit route pins the current substring-concat phi-merge blocker contract)"
+test_pass "$SMOKE_NAME: PASS (direct emit route pins the current substring-concat phi-merge carry contract)"
