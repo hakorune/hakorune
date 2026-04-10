@@ -450,6 +450,118 @@ class TestSumOps(unittest.TestCase):
         self.assertNotIn("__NyVariant_Option", ir_txt, msg=ir_txt)
         self.assertEqual(resolver.value_types[5], "i64")
 
+    def test_copy_preserves_selected_local_sum_float_alias(self):
+        mod, builder, bb, _i64 = self._make_builder()
+        resolver = _ResolverStub()
+        vmap = {1: ir.Constant(ir.DoubleType(), 1.5)}
+        resolver.value_types[1] = "Float"
+        resolver.sum_local_aggregate_paths[2] = "local_aggregate"
+        resolver.sum_local_aggregate_layouts[2] = "tag_f64_payload"
+
+        lower_variant_make(
+            builder,
+            mod,
+            2,
+            "Option",
+            "Some",
+            1,
+            1,
+            None,
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+        lower_copy(
+            builder,
+            4,
+            2,
+            vmap,
+            resolver=resolver,
+            current_block=bb,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+        lower_variant_project(
+            builder,
+            mod,
+            5,
+            4,
+            "Option",
+            "Some",
+            1,
+            None,
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+
+        ir_txt = str(mod)
+        self.assertNotIn('call double @"nyash.instance.get_float_field_h"', ir_txt, msg=ir_txt)
+        self.assertNotIn("__NyVariant_Option", ir_txt, msg=ir_txt)
+        self.assertEqual(resolver.value_types[5], "Float")
+        self.assertEqual(vmap[5].type, ir.DoubleType())
+
+    def test_copy_preserves_selected_local_sum_handle_alias(self):
+        mod, builder, bb, i64 = self._make_builder()
+        resolver = _ResolverStub()
+        vmap = {1: ir.Constant(i64, 777)}
+        resolver.value_types[1] = make_box_handle_fact("StringBox")
+        resolver.sum_local_aggregate_paths[2] = "local_aggregate"
+        resolver.sum_local_aggregate_layouts[2] = "tag_handle_payload"
+
+        lower_variant_make(
+            builder,
+            mod,
+            2,
+            "Option",
+            "Some",
+            1,
+            1,
+            None,
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+        lower_copy(
+            builder,
+            4,
+            2,
+            vmap,
+            resolver=resolver,
+            current_block=bb,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+        lower_variant_project(
+            builder,
+            mod,
+            5,
+            4,
+            "Option",
+            "Some",
+            1,
+            None,
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+
+        ir_txt = str(mod)
+        self.assertNotIn('call i64 @"nyash.instance.get_field_h"', ir_txt, msg=ir_txt)
+        self.assertNotIn("__NyVariant_Option", ir_txt, msg=ir_txt)
+        self.assertEqual(resolver.value_types[5], make_box_handle_fact("StringBox"))
+        self.assertEqual(vmap[5].type.width, 64)
+
 
 if __name__ == "__main__":
     unittest.main()
