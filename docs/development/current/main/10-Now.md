@@ -38,7 +38,7 @@ Related:
     - product LLVM/Python lowering now seeds `thin_entry_selections` into the resolver alongside `sum_placement_selections` / `sum_placement_layouts`
     - product LLVM/Python lowering now also keeps selected primitive user-box bodies boxless through `newbox` / `field_get` / `field_set` when the birth block fully initializes the declared primitive fields
     - the same selected user-box route now materializes a compat runtime box only at `call` / `boxcall` / `ret`
-    - metadata-bearing Point local-i64, Flag local-bool, and PointF local-f64 user-box fixtures are now green on `phase163x_boundary_user_box_metadata_keep_min.sh` via boundary `pure-first` owner lane without compat replay, including the Point single-copy alias route
+    - metadata-bearing Point local-i64, Flag local-bool, and PointF local-f64 user-box fixtures are now green on `phase163x_boundary_user_box_metadata_keep_min.sh` via boundary `pure-first` owner lane without compat replay, including the Point and PointF single-copy alias routes
     - metadata-bearing enum smoke is now green on `phase163x_boundary_sum_metadata_keep_min.sh` via boundary `pure-first` owner lane without compat replay, and the keep fixture set now covers `variant_project`, direct `variant_tag`, and single-copy `variant_tag` aliases without `Option::Some`-specific naming
     - thin-entry inventory now normalizes boxed primitive `declared_type` hints back to inline scalar classes for user-box field routes
     - the current Point/Flag `ny-llvmc(boundary pure-first)` keeper seeds now require `user_box_field_{get,set}.inline_scalar` selector rows before firing
@@ -90,7 +90,7 @@ Related:
       - `sum_result_ok_tag_local_f64_min.prebuilt.mir.json` now proves the same cutover for `variant_tag` on a Float payload lane
       - `sum_result_ok_tag_local_handle_min.prebuilt.mir.json` now proves the same cutover for `variant_tag` on a handle payload lane
     - Variant* inventory for this cut is now exhausted; next substep is `ny-llvmc` parity wave
-    - next parity box in that wave: widen the same metadata-bearing local user-box keep smoke into the PointF single-copy alias route
+    - next parity box in that wave: widen the same metadata-bearing local user-box keep smoke into the Flag single-copy alias route
     - separate phase, not this cut: relax `phi_merge` or `call` / `boxcall` / `return` barriers only with a metadata-contract update first
     - sibling string follow-on after that: extend the landed boundary `pure-first` consumer family from `substring(...).length()` plus `concat -> substring(...)` into retained-view `substring_hii` local shapes
     - restart handoff: cleanup queue is empty; continue `phase163x-optimization-resume` next; `phase137x-substring-retained-view-consumer` remains in progress as the sibling string lane
