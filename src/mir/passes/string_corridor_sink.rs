@@ -12,6 +12,14 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use crate::mir::{
     refresh_function_string_corridor_candidates, refresh_function_string_corridor_facts,
+    string_corridor_recognizer::{
+        build_def_map, const_string_length, extract_substring_args, match_add_in_block,
+        match_concat_triplet, match_len_call, match_substring_call,
+        match_substring_call_shape, match_substring_concat3_helper_call,
+        match_substring_len_call, resolve_copy_chain_source, string_source_identity,
+        ConcatTripletShape, StringSourceIdentity, SubstringCallProducerShape,
+        SubstringConcat3HelperShape,
+    },
     BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, MirFunction, MirInstruction,
     MirModule, MirType, StringCorridorCandidateKind, StringCorridorCandidateProof,
     StringCorridorOp, ValueId,
@@ -127,24 +135,6 @@ enum ConcatCorridorPlan {
     PublicationSubstring(PublicationHelperSubstringPlan),
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct ConcatTripletShape {
-    left: ValueId,
-    middle: ValueId,
-    right: ValueId,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct SubstringConcat3HelperShape {
-    dst: ValueId,
-    left: ValueId,
-    middle: ValueId,
-    right: ValueId,
-    start: ValueId,
-    end: ValueId,
-    effects: EffectMask,
-}
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct ComplementarySubstringLenFusionPlan {
     remove_indices: Vec<usize>,
@@ -161,47 +151,12 @@ struct SingleUseCopyChain {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct AddShape {
-    idx: usize,
-    dst: ValueId,
-    lhs: ValueId,
-    rhs: ValueId,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct SubstringLenCallShape {
     idx: usize,
     dst: ValueId,
     source: ValueId,
     start: ValueId,
     end: ValueId,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct SubstringCallProducerShape {
-    idx: usize,
-    dst: ValueId,
-    source: ValueId,
-    start: ValueId,
-    end: ValueId,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-enum StringSourceIdentity {
-    Value(ValueId),
-    ConstString(String),
-}
-
-fn build_def_map(function: &MirFunction) -> HashMap<ValueId, (BasicBlockId, usize)> {
-    let mut defs: HashMap<ValueId, (BasicBlockId, usize)> = HashMap::new();
-    for (bbid, block) in &function.blocks {
-        for (idx, inst) in block.instructions.iter().enumerate() {
-            if let Some(dst) = inst.dst_value() {
-                defs.insert(dst, (*bbid, idx));
-            }
-        }
-    }
-    defs
 }
 
 fn build_use_counts(function: &MirFunction) -> HashMap<ValueId, usize> {
@@ -302,32 +257,6 @@ fn collect_plans(
     plans_by_block
 }
 
-fn resolve_copy_chain_source(
-    function: &MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    mut value: ValueId,
-) -> ValueId {
-    let mut visited: BTreeSet<ValueId> = BTreeSet::new();
-    while visited.insert(value) {
-        let Some((bbid, idx)) = def_map.get(&value).copied() else {
-            break;
-        };
-        let Some(block) = function.blocks.get(&bbid) else {
-            break;
-        };
-        let Some(inst) = block.instructions.get(idx) else {
-            break;
-        };
-        match inst {
-            MirInstruction::Copy { src, .. } => {
-                value = *src;
-            }
-            _ => break,
-        }
-    }
-    value
-}
-
 fn resolve_single_use_copy_chain_in_block(
     function: &MirFunction,
     bbid: BasicBlockId,
@@ -369,33 +298,6 @@ fn resolve_single_use_copy_chain_in_block(
     })
 }
 
-fn match_add_in_block(
-    function: &MirFunction,
-    bbid: BasicBlockId,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    value: ValueId,
-) -> Option<AddShape> {
-    let (inst_bbid, idx) = def_map.get(&value).copied()?;
-    if inst_bbid != bbid {
-        return None;
-    }
-    let block = function.blocks.get(&inst_bbid)?;
-    match block.instructions.get(idx)? {
-        MirInstruction::BinOp {
-            dst,
-            op: BinaryOp::Add,
-            lhs,
-            rhs,
-        } => Some(AddShape {
-            idx,
-            dst: *dst,
-            lhs: *lhs,
-            rhs: *rhs,
-        }),
-        _ => None,
-    }
-}
-
 fn match_substring_len_call_in_block(
     function: &MirFunction,
     bbid: BasicBlockId,
@@ -415,151 +317,6 @@ fn match_substring_len_call_in_block(
             start,
             end,
         }
-    })
-}
-
-fn match_len_call(inst: &MirInstruction) -> Option<(ValueId, ValueId, EffectMask)> {
-    match inst {
-        MirInstruction::Call {
-            dst: Some(dst),
-            callee:
-                Some(Callee::Method {
-                    method,
-                    receiver: Some(receiver),
-                    ..
-                }),
-            args,
-            effects,
-            ..
-        } if args.is_empty() && matches!(method.as_str(), "length" | "len") => {
-            Some((*dst, *receiver, *effects))
-        }
-        MirInstruction::Call {
-            dst: Some(dst),
-            callee: Some(Callee::Extern(name)),
-            args,
-            effects,
-            ..
-        } if args.len() == 1 && name == "nyash.string.len_h" => Some((*dst, args[0], *effects)),
-        MirInstruction::Call {
-            dst: Some(dst),
-            callee: Some(Callee::Global(name)),
-            args,
-            effects,
-            ..
-        } if args.len() == 1 && matches!(name.as_str(), "str.len" | "__str.len") => {
-            Some((*dst, args[0], *effects))
-        }
-        _ => None,
-    }
-}
-
-fn match_substring_len_call(inst: &MirInstruction) -> Option<(ValueId, ValueId, ValueId, ValueId)> {
-    match inst {
-        MirInstruction::Call {
-            dst: Some(dst),
-            callee: Some(Callee::Extern(name)),
-            args,
-            ..
-        } if args.len() == 3 && name == SUBSTRING_LEN_EXTERN => Some((*dst, args[0], args[1], args[2])),
-        _ => None,
-    }
-}
-
-fn match_substring_call(inst: &MirInstruction) -> Option<(ValueId, ValueId, ValueId, ValueId, EffectMask)> {
-    match inst {
-        MirInstruction::Call {
-            dst: Some(dst),
-            callee:
-                Some(Callee::Method {
-                    method,
-                    receiver: Some(receiver),
-                    ..
-                }),
-            args,
-            effects,
-            ..
-        } if args.len() == 2 && matches!(method.as_str(), "substring" | "slice") => {
-            Some((*dst, *receiver, args[0], args[1], *effects))
-        }
-        MirInstruction::Call {
-            dst: Some(dst),
-            callee: Some(Callee::Extern(name)),
-            args,
-            effects,
-            ..
-        } if args.len() == 3 && name == "nyash.string.substring_hii" => {
-            Some((*dst, args[0], args[1], args[2], *effects))
-        }
-        _ => None,
-    }
-}
-
-fn match_substring_concat3_helper_call(
-    inst: &MirInstruction,
-) -> Option<SubstringConcat3HelperShape> {
-    match inst {
-        MirInstruction::Call {
-            dst: Some(dst),
-            callee: Some(Callee::Extern(name)),
-            args,
-            effects,
-            ..
-        } if args.len() == 5 && name == SUBSTRING_CONCAT3_EXTERN => Some(
-            SubstringConcat3HelperShape {
-                dst: *dst,
-                left: args[0],
-                middle: args[1],
-                right: args[2],
-                start: args[3],
-                end: args[4],
-                effects: *effects,
-            },
-        ),
-        _ => None,
-    }
-}
-
-fn extract_substring_args(inst: &MirInstruction) -> Option<(ValueId, ValueId, ValueId)> {
-    match inst {
-        MirInstruction::Call {
-            callee:
-                Some(Callee::Method {
-                    method,
-                    receiver: Some(source),
-                    ..
-                }),
-            args,
-            ..
-        } if args.len() == 2 && matches!(method.as_str(), "substring" | "slice") => {
-            Some((*source, args[0], args[1]))
-        }
-        MirInstruction::Call {
-            callee: Some(Callee::Extern(name)),
-            args,
-            ..
-        } if args.len() == 3 && name == "nyash.string.substring_hii" => {
-            Some((args[0], args[1], args[2]))
-        }
-        _ => None,
-    }
-}
-
-fn match_substring_call_shape(
-    function: &MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    value: ValueId,
-) -> Option<SubstringCallProducerShape> {
-    let root = resolve_copy_chain_source(function, def_map, value);
-    let (bbid, idx) = def_map.get(&root).copied()?;
-    let block = function.blocks.get(&bbid)?;
-    let (dst, receiver, start, end, _) = match_substring_call(block.instructions.get(idx)?)?;
-    Some(SubstringCallProducerShape {
-        idx,
-        dst,
-        source: receiver,
-        start,
-        end,
     })
 }
 
@@ -591,76 +348,6 @@ fn publication_helper_shape(
     Some(helper)
 }
 
-fn match_concat_triplet_from_extern(
-    function: &MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    value: ValueId,
-) -> Option<ConcatTripletShape> {
-    let root = resolve_copy_chain_source(function, def_map, value);
-    let (bbid, idx) = def_map.get(&root).copied()?;
-    let block = function.blocks.get(&bbid)?;
-    match block.instructions.get(idx)? {
-        MirInstruction::Call {
-            callee: Some(Callee::Extern(name)),
-            args,
-            ..
-        } if args.len() == 3 && name == "nyash.string.concat3_hhh" => Some(ConcatTripletShape {
-            left: resolve_copy_chain_source(function, def_map, args[0]),
-            middle: resolve_copy_chain_source(function, def_map, args[1]),
-            right: resolve_copy_chain_source(function, def_map, args[2]),
-        }),
-        _ => None,
-    }
-}
-
-fn match_concat_triplet_from_add_chain(
-    function: &MirFunction,
-    bbid: BasicBlockId,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    value: ValueId,
-) -> Option<ConcatTripletShape> {
-    let root = resolve_copy_chain_source(function, def_map, value);
-    let outer = match_add_in_block(function, bbid, def_map, root)?;
-    if outer.dst != root {
-        return None;
-    }
-
-    let lhs_root = resolve_copy_chain_source(function, def_map, outer.lhs);
-    let rhs_root = resolve_copy_chain_source(function, def_map, outer.rhs);
-
-    if let Some(inner) = match_add_in_block(function, bbid, def_map, lhs_root) {
-        if inner.idx < outer.idx && inner.dst == lhs_root {
-            return Some(ConcatTripletShape {
-                left: resolve_copy_chain_source(function, def_map, inner.lhs),
-                middle: resolve_copy_chain_source(function, def_map, inner.rhs),
-                right: rhs_root,
-            });
-        }
-    }
-
-    if let Some(inner) = match_add_in_block(function, bbid, def_map, rhs_root) {
-        if inner.idx < outer.idx && inner.dst == rhs_root {
-            return Some(ConcatTripletShape {
-                left: lhs_root,
-                middle: resolve_copy_chain_source(function, def_map, inner.lhs),
-                right: resolve_copy_chain_source(function, def_map, inner.rhs),
-            });
-        }
-    }
-
-    None
-}
-
-fn match_concat_triplet(
-    function: &MirFunction,
-    bbid: BasicBlockId,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    value: ValueId,
-) -> Option<ConcatTripletShape> {
-    match_concat_triplet_from_extern(function, def_map, value)
-        .or_else(|| match_concat_triplet_from_add_chain(function, bbid, def_map, value))
-}
-
 fn value_is_const_i64(
     function: &MirFunction,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
@@ -681,35 +368,6 @@ fn value_is_const_i64(
             ..
         }) if *actual == expected
     )
-}
-
-fn string_source_identity(
-    function: &MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    value: ValueId,
-) -> Option<StringSourceIdentity> {
-    let root = resolve_copy_chain_source(function, def_map, value);
-    let Some((bbid, idx)) = def_map.get(&root).copied() else {
-        return Some(StringSourceIdentity::Value(root));
-    };
-    let Some(block) = function.blocks.get(&bbid) else {
-        return Some(StringSourceIdentity::Value(root));
-    };
-    match block.instructions.get(idx) {
-        Some(MirInstruction::Const {
-            value: ConstValue::String(text),
-            ..
-        }) => Some(StringSourceIdentity::ConstString(text.clone())),
-        _ => Some(StringSourceIdentity::Value(root)),
-    }
-}
-
-fn const_string_length(text: &str) -> i64 {
-    if crate::config::env::string_codepoint_mode() {
-        text.chars().count() as i64
-    } else {
-        text.len() as i64
-    }
 }
 
 fn match_source_length_value(
