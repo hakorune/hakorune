@@ -32,6 +32,7 @@ NY_LLVM_C="$NYASH_ROOT/target/release/ny-llvmc"
 RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-90}"
 FIXTURES=(
     "$NYASH_ROOT/apps/tests/mir_shape_guard/user_box_point_local_i64_min.prebuilt.mir.json"
+    "$NYASH_ROOT/apps/tests/mir_shape_guard/user_box_point_copy_local_i64_min.prebuilt.mir.json"
 )
 
 cleanup() {
@@ -93,4 +94,4 @@ for FIXTURE in "${FIXTURES[@]}"; do
     fi
 done
 
-test_pass "phase163x_boundary_user_box_metadata_keep_min: PASS (metadata-bearing Point local-i64 user-box JSON fixture stays green on boundary pure-first owner lane without compat replay)"
+test_pass "phase163x_boundary_user_box_metadata_keep_min: PASS (metadata-bearing Point local-i64 user-box JSON fixtures stay green on boundary pure-first owner lane without compat replay, including the single-copy alias route)"
