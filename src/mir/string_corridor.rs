@@ -279,6 +279,11 @@ fn infer_from_runtime_export(name: &str) -> Option<StringCorridorFact> {
         "nyash.string.substring_hii" => Some(StringCorridorFact::str_slice(
             StringCorridorCarrier::RuntimeExport,
         )),
+        "nyash.string.substring_concat_hhii" | "nyash.string.substring_concat3_hhhii" => {
+            Some(StringCorridorFact::str_slice(
+                StringCorridorCarrier::RuntimeExport,
+            ))
+        }
         "nyash.string.substring_len_hii" => Some(StringCorridorFact::str_len(
             StringCorridorCarrier::RuntimeExport,
         )),
@@ -330,6 +335,15 @@ mod tests {
     fn infer_runtime_export_substring_fact() {
         let fact = infer_from_runtime_export("nyash.string.substring_hii")
             .expect("substring runtime export fact");
+        assert_eq!(fact.op, StringCorridorOp::StrSlice);
+        assert_eq!(fact.carrier, StringCorridorCarrier::RuntimeExport);
+        assert_eq!(fact.role, StringCorridorRole::BorrowProducer);
+    }
+
+    #[test]
+    fn infer_runtime_export_substring_concat_fact() {
+        let fact = infer_from_runtime_export("nyash.string.substring_concat3_hhhii")
+            .expect("substring concat runtime export fact");
         assert_eq!(fact.op, StringCorridorOp::StrSlice);
         assert_eq!(fact.carrier, StringCorridorCarrier::RuntimeExport);
         assert_eq!(fact.role, StringCorridorRole::BorrowProducer);

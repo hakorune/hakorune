@@ -334,6 +334,22 @@ fn match_substring_call(inst: &MirInstruction) -> Option<(ValueId, ValueId, Valu
     }
 }
 
+fn match_substring_concat3_call(
+    inst: &MirInstruction,
+) -> Option<(ValueId, ValueId, ValueId, ValueId, ValueId, ValueId)> {
+    match inst {
+        MirInstruction::Call {
+            dst: Some(dst),
+            callee: Some(Callee::Extern(name)),
+            args,
+            ..
+        } if args.len() == 5 && name == "nyash.string.substring_concat3_hhhii" => {
+            Some((*dst, args[0], args[1], args[2], args[3], args[4]))
+        }
+        _ => None,
+    }
+}
+
 fn match_substring_call_shape(
     function: &MirFunction,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
@@ -541,6 +557,44 @@ fn infer_concat_triplet_plan(
     })
 }
 
+fn infer_concat_triplet_result_plan(
+    function: &MirFunction,
+    value: ValueId,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+) -> Option<StringCorridorCandidatePlan> {
+    let root = resolve_copy_chain_source(function, def_map, value);
+    let (bbid, idx) = def_map.get(&root).copied()?;
+    let block = function.blocks.get(&bbid)?;
+    let (_, left, middle, right, start, end) = match_substring_concat3_call(block.instructions.get(idx)?)?;
+    let Some(StringSourceIdentity::ConstString(text)) =
+        string_source_identity(function, def_map, middle)
+    else {
+        return None;
+    };
+    let left = match_substring_call_shape(function, def_map, left)?;
+    let right = match_substring_call_shape(function, def_map, right)?;
+    let (shared_source, source_root) =
+        shared_source_root(function, def_map, left.source, right.source);
+
+    Some(StringCorridorCandidatePlan {
+        corridor_root: root,
+        source_root,
+        start: Some(resolve_copy_chain_source(function, def_map, start)),
+        end: Some(resolve_copy_chain_source(function, def_map, end)),
+        known_length: Some(const_string_length(&text)),
+        proof: StringCorridorCandidateProof::ConcatTriplet {
+            left_source: left.source,
+            left_start: left.start,
+            left_end: left.end,
+            middle: resolve_copy_chain_source(function, def_map, middle),
+            right_source: right.source,
+            right_start: right.start,
+            right_end: right.end,
+            shared_source,
+        },
+    })
+}
+
 fn infer_plan(
     function: &MirFunction,
     value: ValueId,
@@ -554,17 +608,20 @@ fn infer_plan(
 
     match fact.op {
         StringCorridorOp::StrSlice => {
-            let (_, receiver, start, end) = match_substring_call(inst)?;
-            infer_concat_triplet_plan(
-                function,
-                bbid,
-                receiver,
-                Some(start),
-                Some(end),
-                def_map,
-                true,
-            )
-            .or_else(|| infer_borrowed_slice_plan(function, value, def_map))
+            if let Some((_, receiver, start, end)) = match_substring_call(inst) {
+                infer_concat_triplet_plan(
+                    function,
+                    bbid,
+                    receiver,
+                    Some(start),
+                    Some(end),
+                    def_map,
+                    true,
+                )
+                .or_else(|| infer_borrowed_slice_plan(function, value, def_map))
+            } else {
+                infer_concat_triplet_result_plan(function, value, def_map)
+            }
         }
         StringCorridorOp::StrLen => {
             let (_, receiver) = match_len_call(inst)?;
@@ -911,5 +968,143 @@ mod tests {
         assert_eq!(substring_plan.start, Some(ValueId(11)));
         assert_eq!(substring_plan.end, Some(ValueId(12)));
         assert_eq!(substring_plan.known_length, Some(2));
+    }
+
+    #[test]
+    fn runtime_export_substring_concat_keeps_publication_sink_candidate() {
+        use crate::ast::Span;
+
+        fn method_call(
+            dst: ValueId,
+            receiver: ValueId,
+            box_name: &str,
+            method: &str,
+            args: Vec<ValueId>,
+        ) -> MirInstruction {
+            MirInstruction::Call {
+                dst: Some(dst),
+                func: ValueId::INVALID,
+                callee: Some(Callee::Method {
+                    box_name: box_name.to_string(),
+                    method: method.to_string(),
+                    receiver: Some(receiver),
+                    certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
+                    box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+                }),
+                args,
+                effects: EffectMask::PURE,
+            }
+        }
+
+        let signature = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![MirType::Box("StringBox".to_string())],
+            return_type: MirType::Box("RuntimeDataBox".to_string()),
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId(0));
+        let block = function.blocks.get_mut(&BasicBlockId(0)).expect("entry");
+
+        block.instructions.push(method_call(
+            ValueId(1),
+            ValueId(0),
+            "RuntimeDataBox",
+            "length",
+            vec![],
+        ));
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId(2),
+            value: ConstValue::Integer(2),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::BinOp {
+            dst: ValueId(3),
+            op: BinaryOp::Div,
+            lhs: ValueId(1),
+            rhs: ValueId(2),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId(4),
+            value: ConstValue::Integer(0),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(method_call(
+            ValueId(5),
+            ValueId(0),
+            "RuntimeDataBox",
+            "substring",
+            vec![ValueId(4), ValueId(3)],
+        ));
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(method_call(
+            ValueId(6),
+            ValueId(0),
+            "RuntimeDataBox",
+            "substring",
+            vec![ValueId(3), ValueId(1)],
+        ));
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId(7),
+            value: ConstValue::String("xx".to_string()),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId(8),
+            value: ConstValue::Integer(1),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::BinOp {
+            dst: ValueId(9),
+            op: BinaryOp::Add,
+            lhs: ValueId(1),
+            rhs: ValueId(8),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Call {
+            dst: Some(ValueId(10)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Extern("nyash.string.substring_concat3_hhhii".to_string())),
+            args: vec![ValueId(5), ValueId(7), ValueId(6), ValueId(8), ValueId(9)],
+            effects: EffectMask::PURE,
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId(10)),
+        });
+
+        crate::mir::refresh_function_string_corridor_facts(&mut function);
+        refresh_function_string_corridor_candidates(&mut function);
+
+        let candidates = function
+            .metadata
+            .string_corridor_candidates
+            .get(&ValueId(10))
+            .expect("substring concat result candidates");
+        let publication = candidates
+            .iter()
+            .find(|candidate| candidate.kind == StringCorridorCandidateKind::PublicationSink)
+            .expect("publication sink candidate");
+        let plan = publication.plan.expect("plan metadata on helper result");
+        assert_eq!(plan.corridor_root, ValueId(10));
+        assert_eq!(plan.source_root, Some(ValueId(0)));
+        assert_eq!(plan.start, Some(ValueId(8)));
+        assert_eq!(plan.end, Some(ValueId(9)));
+        assert_eq!(plan.known_length, Some(2));
+        assert!(matches!(
+            plan.proof,
+            StringCorridorCandidateProof::ConcatTriplet {
+                left_source: ValueId(0),
+                left_start: ValueId(4),
+                left_end: ValueId(3),
+                middle: ValueId(7),
+                right_source: ValueId(0),
+                right_start: ValueId(3),
+                right_end: ValueId(1),
+                shared_source: true,
+            }
+        ));
     }
 }

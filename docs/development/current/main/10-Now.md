@@ -64,7 +64,8 @@ Related:
     2. sibling string retained-view `substring_hii` consumer expansion on the landed boundary `pure-first` corridor family
     3. broader string corridor genericization on the existing metadata path (do not add a new string-only MIR dialect):
        - landed: widen `string_corridor_candidates` into proof-bearing plan metadata
-       - next: `publication_sink`
+       - landed: keep direct `substring_concat3_hhhii` helper results on the same proof-bearing lane so `publication_sink` can read concat-triplet proof from the helper result itself
+       - next: actual `publication_sink`
        - `materialization_sink`
        - plan-selected `direct_kernel_entry`
        - shrink the temporary exact-seed bridge in `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc`
@@ -114,8 +115,9 @@ Related:
     - next substep after the current parity-wave keeper: broader string corridor genericization on the mixed gate family
     - keeper repair landed: the exact `pure-first` `kilo_micro_substring_concat` seed now accepts the post-sink body shape (`substring_len_hii` pair + `substring_concat3_hhhii`), so the generic concat-observer rewrite keeps the exact lane instead of falling back
     - proof-bearing plan metadata widening is now landed: `StringCorridorCandidate` carries `plan` metadata for borrowed-slice and concat-triplet proofs, and MIR JSON exposes it for downstream consumers
+    - first `publication_sink` inventory slice is now landed too: emitted MIR JSON on `kilo_micro_substring_concat` keeps the direct `substring_concat3_hhhii` helper result on the corridor lane with concat-triplet-backed `publication_sink` plan metadata
     - fresh broader-corridor reread still points at `kilo_micro_substring_concat` (`instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`) as the next exact reopen front, now for `publication_sink` first and `materialization_sink` next
-    - string genericization order is now fixed: keep canonical MIR as the only IR truth, land proof-bearing plan metadata first, then `publication_sink`, then `materialization_sink`, then select `direct_kernel_entry` from that plan near lowering
+    - string genericization order is now fixed: keep canonical MIR as the only IR truth, land proof-bearing plan metadata first, then land helper-result `publication_sink` inventory, then actual `publication_sink`, then `materialization_sink`, then select `direct_kernel_entry` from that plan near lowering
     - the exact `pure-first` seed in `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc` is temporary bridge surface and should shrink only after the generic plan-selected route proves out
     - separate phase, not this cut: relax `phi_merge` or `call` / `boxcall` / `return` barriers only with a metadata-contract update first
     - sibling string follow-on after that: move from the landed exact micro to the broader corridor rewrite family on the mixed accept gate

@@ -260,6 +260,7 @@ Scope: repo root から current lane / current front / restart read order に最
           - move from the landed sibling exact micros into the broader string corridor placement/effect rewrite before widening any broader user-box local-body parity backlog
           - keeper repair landed: the exact `pure-first` `kilo_micro_substring_concat` seed now re-accepts the post-sink body shape (`substring_len_hii` pair + `substring_concat3_hhhii`), so the generic concat-observer rewrite no longer ejects the exact lane into the slow fallback route
           - proof-bearing plan metadata widening is now landed: `StringCorridorCandidate` carries `plan` metadata for borrowed-slice and concat-triplet proofs, and MIR JSON exposes the same plan surface to downstream consumers
+          - first `publication_sink` inventory slice is now landed too: direct `substring_concat3_hhhii` helper results stay on the same corridor-candidate lane, so emitted MIR JSON on `kilo_micro_substring_concat` now carries a concat-triplet-backed `publication_sink` plan on the helper result itself (`%36`)
           - fresh broader-corridor reread still points at `kilo_micro_substring_concat` (`instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`) as the next exact reopen front, now for `publication_sink` first and `materialization_sink` next
           - fixed reading: do not add a new string-only MIR dialect; with plan metadata landed, select the next string work in this order: `publication_sink` -> `materialization_sink` -> plan-selected `direct_kernel_entry`
           - exact `pure-first` seed logic in `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc` is bridge-only and should shrink only after the generic plan-selected route proves out
@@ -269,8 +270,9 @@ Scope: repo root から current lane / current front / restart read order に最
              - current `string_corridor_placement.rs` is inspection-only and does not mutate MIR
              - do not introduce a second string MIR dialect; keep canonical MIR as the only truth
              - landed: `string_corridor_candidates` now carry proof-bearing plan metadata for borrowed-slice and concat-triplet routes
+             - landed: direct `substring_concat3_hhhii` helper results now stay on that same metadata lane with a concat-triplet-backed `publication_sink` plan
              - then land the next real string transforms in this order:
-               - `publication_sink`
+               - actual `publication_sink` MIR mutation on the loop-carried `text = out.substring(...)` route
                - `materialization_sink`
                - plan-selected `direct_kernel_entry`
              - retire exact seed paths in `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc` only after the generic route proves out
@@ -333,11 +335,12 @@ Scope: repo root から current lane / current front / restart read order に最
       - `kilo_micro_substring_concat: instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`
       - `kilo_micro_array_string_store: c_ms=9 / ny_aot_ms=9`; this family is not the current blocker
     - reading: the sibling exact micros are now closed at boundary `pure-first`, and the post-sink `substring_concat` exact seed is repaired too, so the next string keeper target stays the broader corridor genericization family
-    - fixed genericization order: landed proof-bearing plan metadata on `string_corridor_candidates` -> next `publication_sink` -> then `materialization_sink` -> then plan-selected `direct_kernel_entry`
+    - fixed genericization order: landed proof-bearing plan metadata on `string_corridor_candidates` -> landed helper-result `publication_sink` inventory slice -> next actual `publication_sink` -> then `materialization_sink` -> then plan-selected `direct_kernel_entry`
     - bridge rule: keep `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc` as temporary exact-seed surface only until the generic route can consume the same proof
 - current string broader-corridor reopen candidate:
   - loop-carried `text = out.substring(...)` inside `kilo_micro_substring_concat`
   - latest reread: `instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`
+  - emitted MIR JSON now also keeps the direct `substring_concat3_hhhii` helper result on the corridor lane with `publication_sink` / `materialization_sink` / `direct_kernel_entry` candidates; the remaining gap is the loop-carried actual transform, not helper-result inventory
 - target band for the next string guardrail keeper:
   - mixed accept gate: hold `instr <= 1.8M`
   - local split `kilo_micro_substring_views_only`: hold `instr <= 0.6M`
