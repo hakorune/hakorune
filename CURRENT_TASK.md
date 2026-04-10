@@ -226,6 +226,7 @@ Scope: repo root から current lane / current front / restart read order に最
           - `apps/tests/mir_shape_guard/user_box_point_local_i64_min.prebuilt.mir.json`
           - `apps/tests/mir_shape_guard/user_box_point_copy_local_i64_min.prebuilt.mir.json`
           - `apps/tests/mir_shape_guard/user_box_flag_local_bool_min.prebuilt.mir.json`
+          - `apps/tests/mir_shape_guard/user_box_flag_copy_local_bool_min.prebuilt.mir.json`
           - `apps/tests/mir_shape_guard/user_box_pointf_local_f64_min.prebuilt.mir.json`
           - `apps/tests/mir_shape_guard/user_box_pointf_copy_local_f64_min.prebuilt.mir.json`
         - landed Variant* proof for `phase163x-sum-thin-entry-cutover`:
@@ -237,9 +238,9 @@ Scope: repo root から current lane / current front / restart read order に最
           - `sum_result_ok_tag_only_local_min.prebuilt.mir.json` now proves the same cutover for a payload-less `variant_tag` keep-lane proof
           - `sum_result_ok_tag_local_f64_min.prebuilt.mir.json` now proves the same cutover for `variant_tag` on a Float payload lane
           - `sum_result_ok_tag_local_handle_min.prebuilt.mir.json` now proves the same cutover for `variant_tag` on a handle payload lane
-        - `phase163x-sum-thin-entry-cutover` is complete; next substep is `ny-llvmc` parity wave
-        - next parity box inside that wave:
-          - widen the same metadata-bearing local user-box keep smoke into the Flag single-copy alias route before moving on to string retained-view work
+        - `phase163x-sum-thin-entry-cutover` is complete; the current `ny-llvmc` parity-wave keeper slice now covers Point / Flag / PointF direct+single-copy local keep routes
+        - next substep after the current parity-wave keeper:
+          - move back to sibling string retained-view consumer expansion before widening any broader user-box local-body parity backlog
         - keep `phi_merge` and `call` / `boxcall` / `return` barrier relaxation out of this cut; those require a separate metadata-contract phase first
         - verified non-Variant optimization order after the current parity wave:
           1. sibling string retained-view consumer expansion

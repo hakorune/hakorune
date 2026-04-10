@@ -34,6 +34,7 @@ FIXTURES=(
     "$NYASH_ROOT/apps/tests/mir_shape_guard/user_box_point_local_i64_min.prebuilt.mir.json"
     "$NYASH_ROOT/apps/tests/mir_shape_guard/user_box_point_copy_local_i64_min.prebuilt.mir.json"
     "$NYASH_ROOT/apps/tests/mir_shape_guard/user_box_flag_local_bool_min.prebuilt.mir.json"
+    "$NYASH_ROOT/apps/tests/mir_shape_guard/user_box_flag_copy_local_bool_min.prebuilt.mir.json"
     "$NYASH_ROOT/apps/tests/mir_shape_guard/user_box_pointf_local_f64_min.prebuilt.mir.json"
     "$NYASH_ROOT/apps/tests/mir_shape_guard/user_box_pointf_copy_local_f64_min.prebuilt.mir.json"
 )
@@ -97,4 +98,4 @@ for FIXTURE in "${FIXTURES[@]}"; do
     fi
 done
 
-test_pass "phase163x_boundary_user_box_metadata_keep_min: PASS (metadata-bearing Point local-i64, Flag local-bool, and PointF local-f64 user-box JSON fixtures stay green on boundary pure-first owner lane without compat replay, including the Point and PointF single-copy alias routes)"
+test_pass "phase163x_boundary_user_box_metadata_keep_min: PASS (metadata-bearing Point local-i64, Flag local-bool, and PointF local-f64 user-box JSON fixtures stay green on boundary pure-first owner lane without compat replay, including the Point, Flag, and PointF single-copy alias routes)"
