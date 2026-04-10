@@ -73,6 +73,11 @@ Related:
     - MIR reference docs are now split into instruction SSOT + metadata SSOT, while stale "all-in-one" references are reduced to thin pointers
   - next ready follow-on is `phase163x-optimization-resume`
     - immediate cut: `phase163x-sum-thin-entry-cutover`
+    - fixed remaining Variant* inventory for this cut:
+      1. `variant_project` single-`copy` alias on `tag_i64_payload`
+      2. direct layout coverage for `variant_tag` / `variant_project` on `tag_only` / `tag_f64_payload` / `tag_handle_payload` (`variant_project` is not applicable to `tag_only`)
+      3. only after direct layout coverage is green, add non-`i64` single-`copy` alias parity
+    - separate phase, not this cut: relax `phi_merge` or `call` / `boxcall` / `return` barriers only with a metadata-contract update first
     - sibling string follow-on after that: extend the landed boundary `pure-first` consumer family from `substring(...).length()` plus `concat -> substring(...)` into retained-view `substring_hii` local shapes
     - restart handoff: cleanup queue is empty; continue `phase163x-optimization-resume` next; `phase137x-substring-retained-view-consumer` remains in progress as the sibling string lane
   - remaining semantic follow-ons stay backlog-only: `where`, enum methods, full monomorphization

@@ -36,6 +36,9 @@ Scope: repo root から current lane / current front / restart read order に最
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
 - current implementation phase:
   - `docs/development/current/main/phases/phase-163x/README.md`
+- portability-ci validation:
+  - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
+  - Windows check and macOS build (release) both passed in run `24211665863`
 - sibling string guardrail phase:
   - `docs/development/current/main/phases/phase-137x/README.md`
 - landed inventory scaffold:
@@ -156,9 +159,17 @@ Scope: repo root から current lane / current front / restart read order に最
       - fixed-cost audit result:
         - `_dl_fini` is a harness/process-exit artifact from repeated `posix_spawn`/child execution in `tools/perf/bench_micro_aot_asm.sh`, not a codegen win
         - `trim_matches` is startup parsing overhead from runner/config quote stripping (`src/runner/mod.rs`, `src/runtime/plugin_config.rs`, `src/runner/modes/common_util/resolve/*`), not perf-report overhead
-      - first product LLVM/Python proving slice is now landed for that reusable family:
-        - selected primitive user boxes stay boxless through `newbox` / `field_get` / `field_set` when the birth block initializes every declared primitive field before first read
-        - the selected local route is inferred from `field_decls` + `thin_entry_selections.inline_scalar` and materializes only at `call` / `boxcall` / `ret`
+      - three-lane measurement split is now landed:
+        - `tools/perf/bench_micro_c_vs_aot_lanes.sh` reports `total CLI` / `startup baseline (ret0)` / `kernel-only` for both C and `ny-llvmc`
+        - latest `1/3/10` point-add reread: `ny_total_ms=3 / ny_startup_ms=3 / ny_kernel_ms=0.700`, with kernel cycles `c=2,025,422` vs `ny=2,046,604`
+        - latest `1/3/10` flag-toggle reread: `ny_total_ms=4 / ny_startup_ms=3 / ny_kernel_ms=0.800`, with kernel cycles `c=4,053,730` vs `ny=2,837,417`
+       - current reading: the keeper pair is now effectively a startup-vs-kernel split decision; codegen work should read `kernel-only`, while total CLI regressions should be treated as startup/runtime budget
+       - minimal startup route is now landed:
+         - `--emit-mir-json-minimal` skips using/prelude resolution and plugin init while keeping the small `.hako` parser normalizations used by the perf fixtures
+         - use it for front-end startup checks; the existing three-lane AOT split stays the kernel/startup companion
+       - first product LLVM/Python proving slice is now landed for that reusable family:
+         - selected primitive user boxes stay boxless through `newbox` / `field_get` / `field_set` when the birth block initializes every declared primitive field before first read
+         - the selected local route is inferred from `field_decls` + `thin_entry_selections.inline_scalar` and materializes only at `call` / `boxcall` / `ret`
         - this keeps canonical MIR unchanged
   - post-primitive follow-on queue:
     1. keep `lifecycle-typed-value-language-ssot.md` as the architecture parent for boxless interior / boxed boundary work
@@ -174,10 +185,13 @@ Scope: repo root から current lane / current front / restart read order に最
           - `sum_placement_layouts`
         - LLVM now uses the landed selection/layout metadata to keep selected local non-escaping sums boxless through `sum_make` / `sum_tag` / `sum_project`
         - LLVM now materializes runtime `__NySum_*` compat boxes only at `return` / `call` / `boxcall` escape barriers for that selected local route
-        - next active substep: validate the proving slice with focused tests/docs before moving to the separate `ny-llvmc` parity wave
+        - focused `ny-llvmc` proving slice is now landed:
+          - `apps/tests/mir_shape_guard/sum_option_project_local_i64_min.prebuilt.mir.json` now stays green on the boundary `pure-first` owner lane without compat replay
+          - `tools/smokes/v2/profiles/integration/phase163x/phase163x_boundary_sum_metadata_keep_min.sh` now pins the same no-replay contract
+        - next active substep: start the separate `ny-llvmc` parity wave
         - keep canonical `SumMake` / `SumTag` / `SumProject` unchanged
         - keep VM / JSON v0 compat fallback unchanged in this slice
-        - after the slice is proven, fold the shape into a later generic placement/effect pass instead of growing a permanent sum-only framework
+        - keep the landed slice scoped, then fold the shape into a later generic placement/effect pass instead of growing a permanent sum-only framework
     4. after that:
         - `ny-llvmc` parity wave
         - proving slice is now landed:
@@ -186,7 +200,7 @@ Scope: repo root から current lane / current front / restart read order に最
           - selected `user_box_field_{get,set}.inline_scalar` rows can keep the typed primitive helpers without re-discovering `field_decls` on the backend side when the declared box family is already pinned
           - selected `user_box_field_{get,set}.public_default` rows still keep the generic fallback even if the compat mirror looks scalar-shaped
           - product LLVM/Python now also keeps selected primitive user-box bodies boxless through `newbox` / `field_get` / `field_set` and materializes only at `call` / `boxcall` / `ret`
-          - metadata-bearing product smoke is green on `phase163x_boundary_sum_metadata_keep_min.sh` via boundary compat replay -> harness keep lane
+          - metadata-bearing sum smoke is green on `phase163x_boundary_sum_metadata_keep_min.sh` via boundary `pure-first` owner lane without compat replay
         - narrow actual-consumer parity is now also landed for the current keeper pair:
           - `thin_entry_candidates` now classify boxed primitive `declared_type` hints (`IntegerBox` / `BoolBox` / `FloatBox`) as inline scalar value classes instead of leaving them on the generic handle lane
           - `lang/c-abi/shims/hako_llvmc_ffi_user_box_micro_seed.inc` now requires the same `user_box_field_{get,set}.inline_scalar` selector rows before the Point/Flag keeper seeds fire
@@ -206,14 +220,33 @@ Scope: repo root から current lane / current front / restart read order に最
         - MIR reference docs now split cleanly into instruction SSOT + metadata SSOT, and stale "all-in-one" references are reduced to thin pointers
     8. next ready task: resume optimization lane
         - `phase163x-optimization-resume`
+        - immediate fixed Variant* inventory for `phase163x-sum-thin-entry-cutover`:
+          1. `variant_project` single-`copy` alias on `tag_i64_payload`
+          2. direct layout coverage for `variant_tag` / `variant_project` on `tag_only` / `tag_f64_payload` / `tag_handle_payload` (`variant_project` is not applicable to `tag_only`)
+          3. only after direct layout coverage is green, add non-`i64` single-`copy` alias parity
+          4. keep `phi_merge` and `call` / `boxcall` / `return` barrier relaxation out of this cut; those require a separate metadata-contract phase first
         - next reusable optimization family after that:
           - selected local non-escaping known-layout user boxes should stay in `agg_local` / per-field SSA on the actual AOT consumer path instead of returning to handle world
           - treat this as backend-private metadata + lowering work on the actual consumer, not as `.hako` syntax work and not as a public MIR dialect fork
+        - restart handoff:
+          - cleanup queue is empty
+          - continue `phase163x-optimization-resume` next
+          - `phase137x-substring-retained-view-consumer` stays in progress as the sibling string lane
     9. deferred deep deletions (backlog only; do not mix into the current perf proof cut)
         - `phase163x-deep-delete-sum-compat-carriers`
           - retire the remaining `__NySum_*` / tuple-enum compat carriers after the current string guardrail keeper lands
+          - landed slice: llvm_py entry no longer synthesizes enum-facing `__NySum_*` user box declarations; runtime fallback materialization stays on demand in lowering/escape barriers
         - `phase163x-deep-delete-instance-legacy-field-store`
           - remove `InstanceBox` dual legacy field-storage paths only after the current optimization proof and follow-on parity remain green
+          - landed:
+            - VM sum runtime fallback no longer uses `InstanceBox::set_field_dynamic_legacy`; payloads now ride the interpreter `obj_fields` compatibility store
+            - `InstanceBox` no longer gates box-valued fields behind `NYASH_LEGACY_FIELDS_ENABLE`; dedicated `box_fields` are always present for identity-carrying handles
+            - legacy helper/toggle cleanup landed: `set_field_dynamic_legacy`, `get_field_legacy`, `set_field_legacy`, and the `NYASH_LEGACY_FIELDS_ENABLE` env toggle are gone
+            - `InstanceBox.size` / debug field listing now read the unified field-name union (`fields_ng` + `box_fields`)
+            - dead unified/weak InstanceBox facades are gone; `host_box_ops` now calls the canonical `get_field_ng` / `set_field_ng` field path directly
+            - sum fallback bridge is now isolated in `sum_bridge`; `__NySum_*`, `__sum_tag`, and `__sum_payload` helpers no longer leak across handlers
+            - interpreter object-field access is now wrapped by `object_field_store`; `get_object_field` / `set_object_field` / `object_field_root_count` are the only live entry points
+            - array/string source cleanup landed: `StringHandleSourceKind` is gone, `with_array_store_str_source` now returns only `ArrayStoreStrSource`, and `array_string_slot` derives source-kind from the enum directly
     10. keep `where` / enum methods / full monomorphization in backlog
   - sibling string guardrail accept gate:
     - `kilo_micro_substring_only`

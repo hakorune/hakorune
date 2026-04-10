@@ -154,7 +154,17 @@
         - `apps/tests/mir_shape_guard/sum_result_ok_tag_local_i64_min.prebuilt.mir.json` now proves the same cutover for `variant_tag` on a non-`Option` enum
         - `apps/tests/mir_shape_guard/sum_result_ok_tag_copy_local_i64_min.prebuilt.mir.json` now proves the same cutover when `variant_tag` reads through a single local `copy` alias
         - `tools/smokes/v2/profiles/integration/phase163x/phase163x_boundary_sum_metadata_keep_min.sh` now pins the same no-replay contract across the metadata-bearing `variant_project`, direct `variant_tag`, and copied-`variant_tag` fixtures
-      - next active substep: start the separate `ny-llvmc` parity wave
+      - next active substep stays `phase163x-sum-thin-entry-cutover`; the remaining Variant* optimization inventory is now fixed in this order:
+        1. land `variant_project` single-`copy` alias on `tag_i64_payload`
+        2. land direct `variant_tag` keep-lane proof on `tag_only`
+        3. land direct `variant_tag` keep-lane proof on `tag_f64_payload`
+        4. land direct `variant_project` keep-lane proof on `tag_f64_payload`
+        5. land direct `variant_tag` keep-lane proof on `tag_handle_payload`
+        6. land direct `variant_project` keep-lane proof on `tag_handle_payload`
+        7. only after the direct layout proofs are green, add single-`copy` alias parity for the non-`i64` layouts
+      - separate-phase backlog, not part of `sum-thin-entry-cutover`:
+        - `PhiMerge` / cross-block alias routes stay blocked by the current `sum_placement` `phi_merge` barrier and require a contract change before optimization
+        - `call` / `boxcall` / `return` de-objectization stays blocked by the current escape-barrier contract and must not be mixed into this boundary pure-first cut
       - keep canonical `Variant*` unchanged and leave VM / JSON v0 compat fallback intact in this slice
       - keep the landed slice scoped, then fold it into the later generic placement/effect pass instead of growing a permanent enum-only branch family
     4. after that, run a separate `ny-llvmc` parity wave
