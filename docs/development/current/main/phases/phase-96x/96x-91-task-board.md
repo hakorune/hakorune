@@ -24,7 +24,7 @@ Date: 2026-04-11
 | `96xC1` | completed | wave 1a: LLVM cutover pack for `env` + `file` after the narrow `args_vm` cut |
 | `96xC2` | completed | wave 1b: LLVM cutover pack for `compare` + `misc` + `atomic` + `tls` |
 | `96xC3` | completed | wave 2: seam shadow replacement for `select_emit` + `open_handle_phi` + `boxcall_args_gt1` |
-| `96xC4` | in_progress | parallel `mapbox -> collection-core` re-home track; live rows moved into `collection_core/`, non-live rows archived, final owner retirement deferred |
+| `96xC4` | in_progress | parallel `mapbox -> collection-core` re-home track; `clear/delete/keys` retired to non-vm_hako owners, `set/get/has/size` still bridged |
 | `96xD1` | completed | `app1` late demotion and proof / closeout |
 
 ### Wave 1a Substeps
@@ -55,7 +55,8 @@ Date: 2026-04-11
 | `96xC3d` | completed | replace `app1_summary_contract_ported_vm.sh` in `presubmit.txt` and demote the APP-1 rows |
 | `96xC3e` | completed | replace `select_emit` with a dedicated non-vm_hako emit+exec owner and retire the phase29y vm_hako gate to a compatibility stub |
 | `96xC4a` | completed | move the 7 live MapBox rows under `collection_core/` and archive the 6 non-live mirrors |
-| `96xC4b` | pending | add a non-vm_hako `MapBox.clear` owner to start shrinking the remaining `collection_core/mapbox_*` set |
+| `96xC4b` | completed | add non-vm_hako emit+exec owners for `MapBox.clear`, `MapBox.delete`, and `MapBox.keys`, then remove those rows from `collection-core.txt` |
+| `96xC4c` | pending | decide the final non-vm_hako owner pack for the remaining `collection_core/mapbox_set|get|has|size` bridge rows |
 
 ## Execution Anchor
 
@@ -67,8 +68,8 @@ Date: 2026-04-11
 | --- | --- |
 | Now | `96xC4b mapbox clear LLVM owner` |
 | Blocker | `none` |
-| Next | `vm-hako-core shadow closeout sync` |
-| After Next | `mapbox final owner retirement after LLVM collection/runtime-data coverage` |
+| Next | `96xC4c mapbox set/get/has/size owner decision` |
+| After Next | `vm-hako-core shadow closeout sync` |
 
 ## Acceptance Shape
 
@@ -95,7 +96,8 @@ Date: 2026-04-11
 - `mapbox` is a separate `collection-core` re-home track, not part of wave `1a`
 - current landed substeps:
   - `collection-core.txt` points at `collection_core/mapbox_*`
-  - the 7 live rows now execute from `collection_core/`
+  - `clear/delete/keys` are retired from `collection-core.txt` and now live in dedicated non-vm_hako emit+exec owners under `phase29y-hako-emit-mir.txt` and `selfhost-core.txt`
+  - the remaining 4 live rows execute from `collection_core/`
   - the 6 non-live `vm_hako_caps/mapbox/*` rows are copied into `tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/`
-  - final retirement now depends on LLVM collection/runtime-data coverage replacing the `collection_core/` owner rows
-  - current exact blocker: `delete` / `keys` / `clear` still have no non-vm_hako owner rows, and `MapBox.clear` is the smallest next owner to add
+  - the retired `collection_core/mapbox_clear|delete|keys_ported_vm.sh` bridge scripts are archived under `tools/smokes/v2/profiles/archive/collection_core/`
+  - final retirement now depends on LLVM collection/runtime-data coverage replacing the remaining `collection_core/` owner rows for `set/get/has/size`

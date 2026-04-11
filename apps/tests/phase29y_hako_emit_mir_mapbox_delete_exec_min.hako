@@ -1,0 +1,16 @@
+// phase29y emit+exec fixture for MapBox.delete()
+// Contract:
+// - selfhost emit preserves MapBox.delete(key) in MIR.
+// - emitted MIR preserves visible has/size parity on the non-vm_hako route.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    m.set("a", 1)
+    m.set("b", 2)
+    m.delete("a")
+    print(m.has("a"))
+    print(m.size())
+    return 0
+  }
+}

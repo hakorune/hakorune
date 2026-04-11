@@ -1,0 +1,15 @@
+// phase29y emit+exec fixture for MapBox.keys()
+// Contract:
+// - selfhost emit preserves MapBox.keys() in MIR.
+// - emitted MIR returns a key array whose visible size matches the map size.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    m.set("a", 1)
+    m.set("b", 2)
+    local ks = m.keys()
+    print(ks.size())
+    return 0
+  }
+}

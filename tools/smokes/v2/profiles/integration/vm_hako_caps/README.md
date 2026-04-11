@@ -63,10 +63,14 @@ via `tools/smokes/v2/suites/integration/phase29y-hako-emit-mir.txt` and
 `tools/smokes/v2/suites/integration/selfhost-core.txt`.
 
 `mapbox/` is not part of the phase29y vm-hako acceptance gate.
-`tools/smokes/v2/suites/integration/collection-core.txt` now points at
-`tools/smokes/v2/profiles/integration/collection_core/mapbox_*` wrappers, so
-the `collection-core` suite no longer depends on `vm_hako_caps/mapbox/*`
-directly.
+`MapBox.clear`, `MapBox.delete`, and `MapBox.keys` are no longer live
+`collection-core` owners; the active non-vm_hako owners are now the dedicated
+emit+exec smokes under
+`tools/smokes/v2/profiles/integration/phase29y/hako/emit_mir/`.
+`tools/smokes/v2/suites/integration/collection-core.txt` now points only at
+the remaining `collection_core/mapbox_set|get|has|size_ported_vm.sh` bridge
+rows, so the `collection-core` suite no longer depends on
+`vm_hako_caps/mapbox/*` directly.
 `app1/` and `args/boxcall_args_gt1_ported_vm.sh` are no longer suite-owned.
 The product owner for APP-1 summary behavior is now
 `tools/smokes/v2/profiles/integration/apps/gate_log_summarizer_vm.sh` via

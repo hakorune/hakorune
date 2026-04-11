@@ -73,11 +73,11 @@ Related:
 | `select_emit/` | compiler/backend emission seam | `0` | `0` | `phase29y_hako_emit_mir_select_exec_contract_vm.sh` via `phase29y-hako-emit-mir.txt` and `selfhost-core.txt` | retired | exact non-vm_hako emit+exec owner is active, so the vm_hako gate no longer owns this row |
 | `open_handle_phi/` | PHI/open-handle seam | `0` | `1` via `vm-hako-core.txt` | JoinIR/selfhost seam pack | shadow -> retire | LLVM/JoinIR seam pack covers the same propagation truth and replaces the vm-hako-core shadow |
 | `app1/` | product contract moved to non-vm_hako owner | `0` | `0` | `apps/gate_log_summarizer_vm.sh` via `presubmit.txt` | late demote -> retired | active suites no longer depend on vm_hako APP-1 rows |
-| `mapbox/` | collection/runtime-data bridge | `0` | `7` via `collection_core/mapbox_*` in `collection-core.txt` | `collection-core.txt` plus runtime-data LLVM pack | freeze -> re-home -> retire | collection-core runs the live rows from `collection_core/`; non-live rows are copied into `tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/`, and the old `vm_hako_caps/mapbox/*` tree remains only as a temporary mirror until final cleanup |
+| `mapbox/` | collection/runtime-data bridge | `0` | `4` via `collection_core/mapbox_*` in `collection-core.txt` plus `3` emit+exec owners in `phase29y-hako-emit-mir.txt` / `selfhost-core.txt` | `collection-core.txt`, `phase29y-hako-emit-mir.txt`, `selfhost-core.txt`, plus runtime-data LLVM pack | freeze -> re-home -> retire | `MapBox.clear`, `MapBox.delete`, and `MapBox.keys` now have non-vm_hako emit+exec owners; `collection_core/` only carries the remaining `set/get/has/size` bridge rows, non-live rows are copied into `tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/`, and the old `vm_hako_caps/mapbox/*` tree remains only as a temporary mirror until final cleanup |
 
 Current blocker detail for `mapbox/`:
-- runtime-data / backend owner coverage still does not own `delete`, `keys`, or `clear`
-- the smallest next non-vm_hako owner to add is `MapBox.clear`
+- `MapBox.clear`, `MapBox.delete`, and `MapBox.keys` are no longer blockers; they are owned by dedicated non-vm_hako emit+exec smokes
+- the remaining bridge rows are `set`, `get`, `has`, and `size`
 
 ### LLVM replacement anchors
 
@@ -101,7 +101,7 @@ Current blocker detail for `mapbox/`:
 | `select_emit/` + `open_handle_phi/` | compiler/backend seam sentinels | `phase29y-hako-emit-mir.txt`, `joinir-bq.txt`, `selfhost-core.txt` | `select_emit` is now owned by the non-vm_hako emit+exec contract; `open_handle_phi` remains shadow-only in `vm-hako-core.txt` and the phase29y gate is a retired compatibility stub |
 | `boxcall_args_gt1` | retired APP-1 seam evidence | no exact non-vm_hako seam owner yet | removed from active suites so it no longer blocks the gate |
 | `app1/` | wide end-to-end summary parity | `apps/gate_log_summarizer_vm.sh` via `presubmit.txt` | product owner moved out of vm_hako; vm_hako APP-1 rows are no longer suite-owned |
-| `mapbox/` | collection semantics / handle-presence pressure | `collection-core.txt` plus runtime-data LLVM pack | live rows are moved into `collection_core/`; non-live rows are archived and the remaining work is the eventual retirement of the collection-core owner rows |
+| `mapbox/` | collection semantics / handle-presence pressure | `collection-core.txt`, `phase29y-hako-emit-mir.txt`, `selfhost-core.txt`, plus runtime-data LLVM pack | `clear/delete/keys` are now owned by non-vm_hako emit+exec contracts; the remaining work is the eventual retirement of the `collection_core` owner rows for `set/get/has/size` |
 
 ## Gate Artifact Pairing
 

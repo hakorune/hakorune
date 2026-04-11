@@ -1,0 +1,18 @@
+// phase29y emit+exec fixture for MapBox.clear()
+// Contract:
+// - selfhost emit preserves MapBox.clear() in MIR.
+// - emitted MIR clears visible size/has/keys state on the non-vm_hako route.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    m.set("a", 1)
+    m.set("b", 2)
+    m.clear()
+    print(m.size())
+    print(m.has("a"))
+    local ks = m.keys()
+    print(ks.size())
+    return 0
+  }
+}

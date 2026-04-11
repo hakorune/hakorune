@@ -35,9 +35,9 @@ Related:
 - `RVP-C18 MapBox.size()` is now ported and pinned by `vm_hako_caps/mapbox/mapbox_size_ported_vm.sh`.
 - `RVP-C19 MapBox.get(key)` is now ported and pinned by `vm_hako_caps/mapbox/mapbox_get_ported_vm.sh`.
 - `RVP-C20 MapBox.has(key)` is now ported and pinned by `vm_hako_caps/mapbox/mapbox_has_ported_vm.sh` (`true/false` visible parity included).
-- `RVP-C21 MapBox.delete(key)` is now ported and pinned by `vm_hako_caps/mapbox/mapbox_delete_ported_vm.sh`.
-- `RVP-C22 MapBox.keys()` is now ported and pinned by `vm_hako_caps/mapbox/mapbox_keys_ported_vm.sh`.
-- `RVP-C23 MapBox.clear()` is now ported and pinned by `vm_hako_caps/mapbox/mapbox_clear_ported_vm.sh`.
+- `RVP-C21 MapBox.delete(key)` is now ported; active non-vm_hako owner is `phase29y/hako/emit_mir/phase29y_hako_emit_mir_mapbox_delete_exec_contract_vm.sh`.
+- `RVP-C22 MapBox.keys()` is now ported; active non-vm_hako owner is `phase29y/hako/emit_mir/phase29y_hako_emit_mir_mapbox_keys_exec_contract_vm.sh`.
+- `RVP-C23 MapBox.clear()` is now ported; active non-vm_hako owner is `phase29y/hako/emit_mir/phase29y_hako_emit_mir_mapbox_clear_exec_contract_vm.sh`.
 - `RVP-C28 MapBox.setField(non-string key, value)` is now ported and pinned by `vm_hako_caps/mapbox/mapbox_setfield_bad_key_ported_vm.sh`.
   - no current exact blocker remains; reopen lane C only when a new exact vm-hako blocker appears.
 - 2026-03-09 monitor refresh:

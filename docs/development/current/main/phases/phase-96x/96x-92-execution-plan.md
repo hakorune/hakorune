@@ -129,9 +129,6 @@ Live rows in `collection-core.txt`:
 - `mapbox_set_ported_vm.sh`
 - `mapbox_get_ported_vm.sh`
 - `mapbox_has_ported_vm.sh`
-- `mapbox_delete_ported_vm.sh`
-- `mapbox_keys_ported_vm.sh`
-- `mapbox_clear_ported_vm.sh`
 - `mapbox_size_ported_vm.sh`
 
 Fastest ownership move:
@@ -143,9 +140,10 @@ Current state:
 - landed: `collection_core/mapbox_*` owner rows now carry the live implementations
 - landed: `collection-core.txt` retarget to `collection_core/mapbox_*`
 - landed: archive mirror copies for the 6 non-live rows exist under `tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/`
-- next: leave the old `vm_hako_caps/mapbox/*` tree untouched until the eventual final cleanup, then retire the `collection_core/` owner rows after LLVM coverage exists
-- exact blocker: runtime-data / backend owner coverage still does not own `MapBox.delete`, `MapBox.keys`, or `MapBox.clear`
-- smallest next owner: `MapBox.clear` because one non-vm_hako smoke can pin `size==0`, `has==false`, and `keys().size()==0` together
+- landed: `MapBox.clear`, `MapBox.delete`, and `MapBox.keys` now have dedicated non-vm_hako emit+exec owners under `phase29y/hako/emit_mir/`
+- landed: the old `collection_core/mapbox_clear|delete|keys_ported_vm.sh` bridge scripts are archived under `tools/smokes/v2/profiles/archive/collection_core/`
+- next: leave the old `vm_hako_caps/mapbox/*` tree untouched until the eventual final cleanup, then retire the remaining `collection_core/` owner rows after LLVM coverage exists
+- current bridge residue: `MapBox.set`, `MapBox.get`, `MapBox.has`, and `MapBox.size`
 
 After the wrapper move:
 1. landed: archive the non-live `mapbox` rows (`*_bad_key*`, `*_missing*`, `*_getfield*`, `*_setfield*`, `mapbox_newbox_ported_vm.sh`)
@@ -153,7 +151,7 @@ After the wrapper move:
 3. retire the collection-core owner rows after LLVM collection/runtime-data coverage replaces them
 
 Risks:
-- the 7 live rows depend on `vm_hako_caps_common.sh`
+- the remaining 4 live rows depend on `vm_hako_caps_common.sh`
 - fixture paths still point at `apps/tests/vm_hako_caps/*`
 - the wrapper move is the low-risk first step because it cuts suite ownership before helper surgery
 - the current `vm_hako_caps/mapbox/*` live rows already carry active uncommitted edits, so the physical move must preserve that content rather than overwrite it with stale HEAD copies

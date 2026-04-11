@@ -6,7 +6,4 @@ apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh
 collection_core/mapbox_set_ported_vm.sh
 collection_core/mapbox_get_ported_vm.sh
 collection_core/mapbox_has_ported_vm.sh
-collection_core/mapbox_delete_ported_vm.sh
-collection_core/mapbox_keys_ported_vm.sh
-collection_core/mapbox_clear_ported_vm.sh
 collection_core/mapbox_size_ported_vm.sh
