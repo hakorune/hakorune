@@ -66,6 +66,10 @@
 - **Phase 94（LANDED）**: escape route P5b `ch` reassignment E2E（`tools/selfhost/test_pattern5b_escape_minimal.hako` を strict VM E2E で固定）
 - **Phase 93x（LANDED）**: archive-later engineering helper sweep
 
+## Parked Corridors
+
+- **Phase 96x（PARKED）**: vm_hako LLVM acceptance cutover
+
 ### Recent Landed
 
 - **Phase 141x（LANDED）**: string semantic boundary review

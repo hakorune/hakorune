@@ -129,7 +129,9 @@ Related:
 
 ## Parked After Optimization
 
-- `vm-hako` small reference interpreter recut
+- `phase-96x vm_hako LLVM acceptance cutover`
+  - keep the active vm_hako capability gate shrinking toward monitor-only
+  - move the first acceptance wave to LLVM-line replacement families
 
 ## Structural Stop Lines
 

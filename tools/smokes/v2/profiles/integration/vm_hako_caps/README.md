@@ -11,6 +11,10 @@ Reference-lane acceptance is the phase29y gate only:
 - `tools/smokes/v2/profiles/integration/vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh`
 - `tools/smokes/v2/suites/integration/vm-hako-caps.txt`
 
+The phase29y gate keeps per-wrapper timeouts explicit. Several vm-hako runtime
+smokes use a 60s budget because each run recompiles and executes the child
+driver, so a 30s default is too tight for the reference lane.
+
 Non-gating blocked/probe cases are archived under `tools/smokes/v2/profiles/archive/**`
 and do not reopen the lane by themselves.
 
@@ -22,6 +26,7 @@ prefix bucket.
 
 - `app1/`: APP-1 summary and active post-open contract pins
 - `args/`: `args` and `boxcall(args>1)` contract pins
+- `atomic/`: atomic fence contract pins
 - `compare/`: compare-op contract pins
 - `env/`: environment routing contract pins
 - `file/`: file/newbox/read/close/error contract pins
@@ -31,6 +36,7 @@ prefix bucket.
 - `misc/`: small one-off capability pins such as `const(void)`
 - `open_handle_phi/`: PHI/open-handle propagation pin
 - `select_emit/`: MIR select emission blocker pin
+- `tls/`: TLS last-error contract pins
 
 ## Suite
 
