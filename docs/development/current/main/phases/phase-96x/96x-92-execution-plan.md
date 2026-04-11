@@ -104,22 +104,22 @@ Required tasks:
 Goal: keep seam-sensitive rows out of wave 1 so product retirement does not stall on compiler/backend coupling.
 
 Rows:
-- `vm_hako_caps/open_handle_phi/open_handle_phi_ported_vm.sh`
 - `vm_hako_caps/select_emit/select_emit_block_vm.sh`
 
 Anchor direction:
 - `select_emit` -> `phase29y-hako-emit-mir.txt`
-- `open_handle_phi` -> `joinir-bq.txt` or `selfhost-core.txt`
+- `open_handle_phi` -> `phase29y-hako-emit-mir.txt` / `selfhost-core.txt`
 - `boxcall_args_gt1` -> retired from active ownership; no exact non-vm_hako seam replacement exists yet
 - `app1_summary_contract_ported_vm.sh` -> retired from active ownership after `presubmit.txt` moved to `apps/gate_log_summarizer_vm.sh`
 
 Required tasks:
-1. landed `96xC3a`: keep `select_emit` as shadow until an exact non-vm_hako emit+exec owner exists
-2. landed `96xC3b`: keep `open_handle_phi` as a non-blocking shadow because `joinir-bq.txt` / `selfhost-core.txt` do not yet pin the exact `FileBox.open` handle-propagation seam contract
+1. landed `96xC3a`: keep `select_emit` as a temporary shadow until `96xC3e` adds the exact non-vm_hako emit+exec owner
+2. landed `96xC3b`: keep `open_handle_phi` as a temporary non-blocking shadow until `96xC3f` adds the exact non-vm_hako emit+exec owner
 3. landed `96xC3c`: remove `boxcall_args_gt1_ported_vm.sh` from `vm-hako-caps.txt`, `phase29y_vm_hako_caps_gate_vm.sh`, and `vm-hako-core.txt`
 4. landed `96xC3d`: replace `app1_summary_contract_ported_vm.sh` in `presubmit.txt` with `apps/gate_log_summarizer_vm.sh`
 5. landed `96xD1`: demote the APP-1 vm_hako rows from the active vm_hako suite/gate pair
 6. landed `96xC3e`: add `phase29y_hako_emit_mir_select_exec_contract_vm.sh` as the exact non-vm_hako emit+exec owner in `phase29y-hako-emit-mir.txt` and `selfhost-core.txt`, then retire `select_emit` from `phase29y_vm_hako_caps_gate_vm.sh`
+7. landed `96xC3f`: add `phase29y_hako_emit_mir_open_handle_phi_exec_contract_vm.sh` as the exact non-vm_hako emit+exec owner in `phase29y-hako-emit-mir.txt` and `selfhost-core.txt`, then retire `open_handle_phi` from `vm-hako-core.txt`
 
 ### Parallel Track: mapbox re-home
 
@@ -157,6 +157,6 @@ Risks:
 
 ## Next Commit Candidates
 
-1. `monitor-only`: replace the remaining `vm-hako-core` shadow rows with explicit non-vm_hako owners or archive decisions
-2. `open_handle_phi`: replace the remaining vm_hako-core shadow with an explicit JoinIR/selfhost seam owner
-3. `mapbox`: clean up the old `vm_hako_caps/mapbox/*` mirrors once the dirty runtime worktree is safe to touch
+1. `monitor-only`: freeze the remaining `vm-hako-core` monitor bundle (`compare`, `env`, `file_read`, `file_close`) as the final reference pack
+2. `mapbox`: clean up the old `vm_hako_caps/mapbox/*` mirrors once the dirty runtime worktree is safe to touch
+3. `docs`: phase96x closeout sync once the monitor bundle wording is settled

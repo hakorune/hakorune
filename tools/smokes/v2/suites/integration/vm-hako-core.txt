@@ -5,4 +5,3 @@ vm_hako_caps/compare/compare_ported_vm.sh
 vm_hako_caps/env/env_get_ported_vm.sh
 vm_hako_caps/file/file_close_ported_vm.sh
 vm_hako_caps/file/file_read_ported_vm.sh
-vm_hako_caps/open_handle_phi/open_handle_phi_ported_vm.sh

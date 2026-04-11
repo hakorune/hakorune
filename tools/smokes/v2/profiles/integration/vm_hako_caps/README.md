@@ -51,10 +51,11 @@ monitor-only now; the product-facing anchors are the PLG-07 FileBox scripts,
 and `file_error_vm.sh` is no longer part of the phase29y vm-hako acceptance
 gate.
 
-`open_handle_phi/open_handle_phi_ported_vm.sh` is a non-blocking shadow only
-now. It remains in `tools/smokes/v2/suites/integration/vm-hako-core.txt`, but
-it is no longer part of `vm-hako-caps.txt` or
-`phase29y_vm_hako_caps_gate_vm.sh`.
+`open_handle_phi/open_handle_phi_ported_vm.sh` is no longer suite-owned.
+The non-vm_hako owner is now
+`tools/smokes/v2/profiles/integration/phase29y/hako/emit_mir/phase29y_hako_emit_mir_open_handle_phi_exec_contract_vm.sh`
+via `tools/smokes/v2/suites/integration/phase29y-hako-emit-mir.txt` and
+`tools/smokes/v2/suites/integration/selfhost-core.txt`.
 
 `select_emit/select_emit_block_vm.sh` is no longer suite-owned. The non-vm-hako
 owner is now

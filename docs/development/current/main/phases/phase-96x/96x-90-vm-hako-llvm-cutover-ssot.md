@@ -71,7 +71,7 @@ Related:
 | `atomic/` | atomic fence pin | `0` | `1` via `presubmit.txt` shared adapter fixture | `apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh` via `presubmit.txt` | freeze -> archive | the shared runtime-v0 adapter fixture is explicit and the vm_hako gate no longer owns `atomic_fence_ported_vm.sh` |
 | `tls/` | TLS last-error pin | `0` | `1` via `presubmit.txt` shared adapter fixture | `apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh` via `presubmit.txt` | freeze -> archive | the shared runtime-v0 adapter fixture is explicit and the vm_hako gate no longer owns `tls_last_error_ported_vm.sh` |
 | `select_emit/` | compiler/backend emission seam | `0` | `0` | `phase29y_hako_emit_mir_select_exec_contract_vm.sh` via `phase29y-hako-emit-mir.txt` and `selfhost-core.txt` | retired | exact non-vm_hako emit+exec owner is active, so the vm_hako gate no longer owns this row |
-| `open_handle_phi/` | PHI/open-handle seam | `0` | `1` via `vm-hako-core.txt` | JoinIR/selfhost seam pack | shadow -> retire | LLVM/JoinIR seam pack covers the same propagation truth and replaces the vm-hako-core shadow |
+| `open_handle_phi/` | PHI/open-handle seam | `0` | `0` | `phase29y_hako_emit_mir_open_handle_phi_exec_contract_vm.sh` via `phase29y-hako-emit-mir.txt` and `selfhost-core.txt` | retired | dedicated non-vm_hako emit+exec owner is active, so the vm-hako-core shadow is no longer needed |
 | `app1/` | product contract moved to non-vm_hako owner | `0` | `0` | `apps/gate_log_summarizer_vm.sh` via `presubmit.txt` | late demote -> retired | active suites no longer depend on vm_hako APP-1 rows |
 | `mapbox/` | collection/runtime-data bridge retired from live suites | `0` | `7` via `phase29y-hako-emit-mir.txt` / `selfhost-core.txt` | `phase29y-hako-emit-mir.txt`, `selfhost-core.txt`, plus runtime-data LLVM pack | retired | all 7 `MapBox.*` rows now have dedicated non-vm_hako emit+exec owners; `collection_core/` is archive-only, non-live rows are copied into `tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/`, and the old `vm_hako_caps/mapbox/*` tree remains only as a temporary mirror until final cleanup |
 
@@ -98,7 +98,7 @@ Current blocker detail for `mapbox/`:
 | `compare_ported_vm.sh` | generic compare proof witness | `proof/native-reference/native_backend_compare_eq_canary_vm.sh` + `proof/native-reference/native_backend_compare_lt_canary_vm.sh` | retired from the live vm_hako gate; kept only as a vm_hako-core monitor row |
 | `atomic_fence_ported_vm.sh` + `tls_last_error_ported_vm.sh` | runtime-v0 substrate witnesses | `apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh` via `presubmit.txt` | retired from the live vm_hako gate; the shared adapter fixture is now the explicit owner anchor |
 | `compare_ge_ported_vm.sh` + `const_void_ported_vm.sh` | narrow single-purpose residues | explicit archive-only evidence under `tools/smokes/v2/profiles/archive/vm_hako_caps/**` | wave `1b` is closed without inventing a fake live owner anchor |
-| `select_emit/` + `open_handle_phi/` | compiler/backend seam sentinels | `phase29y-hako-emit-mir.txt`, `joinir-bq.txt`, `selfhost-core.txt` | `select_emit` is now owned by the non-vm_hako emit+exec contract; `open_handle_phi` remains shadow-only in `vm-hako-core.txt` and the phase29y gate is a retired compatibility stub |
+| `select_emit/` + `open_handle_phi/` | compiler/backend seam sentinels | `phase29y-hako-emit-mir.txt`, `selfhost-core.txt`, `joinir-bq.txt` | `select_emit` and `open_handle_phi` are now owned by dedicated non-vm_hako emit+exec contracts; `joinir-bq.txt` remains a broader seam pack but no longer blocks phase96x closeout |
 | `boxcall_args_gt1` | retired APP-1 seam evidence | no exact non-vm_hako seam owner yet | removed from active suites so it no longer blocks the gate |
 | `app1/` | wide end-to-end summary parity | `apps/gate_log_summarizer_vm.sh` via `presubmit.txt` | product owner moved out of vm_hako; vm_hako APP-1 rows are no longer suite-owned |
 | `mapbox/` | collection semantics / handle-presence pressure | `phase29y-hako-emit-mir.txt`, `selfhost-core.txt`, plus runtime-data LLVM pack | all seven `MapBox.*` rows are owned by non-vm_hako emit+exec contracts; the remaining work is archive/mirror cleanup only |
@@ -117,11 +117,7 @@ Current blocker detail for `mapbox/`:
 - product-facing replacement owner:
   - `tools/smokes/v2/profiles/integration/core/phase2035/v1_extern_env_get_canary_vm.sh`
   - suite: `tools/smokes/v2/suites/integration/presubmit.txt`
-- non-blocking semantic shadow canary:
-  - `tools/smokes/v2/profiles/integration/vm_hako_caps/open_handle_phi/open_handle_phi_ported_vm.sh`
-  - purpose: PHI/open-handle seam drift detection during LLVM/JoinIR cutover
-  - location: `tools/smokes/v2/suites/integration/vm-hako-core.txt` only
-- retire the shadow canary only after the LLVM/JoinIR seam packs are explicit and green.
+- no non-blocking semantic shadow canary remains in `vm-hako-core.txt`; the last seam shadow was replaced by dedicated non-vm_hako emit+exec owners.
 
 ## Decision Rule
 
@@ -129,7 +125,6 @@ Current blocker detail for `mapbox/`:
 - keep exactly one monitor canary while the replacement matrix is still moving
   - recommended canary: `tools/smokes/v2/profiles/integration/vm_hako_caps/env/env_get_ported_vm.sh`
   - it stays small, stable, and still exercises extern routing
-- keep `open_handle_phi` as the non-blocking semantic shadow while compiler/backend seam replacement is still moving
 - freeze `mapbox`, `misc`, `atomic`, `tls`, and `compare` first so cutover work does not keep widening vm_hako ownership
 - do not solve the cutover by adding new vm_hako shims or by widening the gate
 

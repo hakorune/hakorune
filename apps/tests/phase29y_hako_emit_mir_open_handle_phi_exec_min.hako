@@ -1,0 +1,35 @@
+// phase29y emit+exec fixture for FileBox.open handle propagation across phi/copy
+// Contract:
+// - selfhost emit preserves phi + FileBox.open(path, mode) in MIR.
+// - emitted MIR keeps the chosen path alive through phi/copy so read/close succeeds.
+
+static box Main {
+  main() {
+    local primary = "./sample_mixed.log"
+    local fallback = "./missing.log"
+    local chosen = ""
+    if primary != "" {
+      chosen = primary
+    } else {
+      chosen = fallback
+    }
+
+    local filename = chosen
+    local f = new FileBox()
+    if f.open(filename, "r") != 1 {
+      print("OPEN_FAIL")
+      return 2
+    }
+
+    local content = f.read()
+    f.close()
+
+    if content.length() > 0 {
+      print("READ_OK")
+      return 0
+    }
+
+    print("READ_EMPTY")
+    return 3
+  }
+}

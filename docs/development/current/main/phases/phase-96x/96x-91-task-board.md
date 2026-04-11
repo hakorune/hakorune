@@ -20,7 +20,7 @@ Date: 2026-04-11
 | `96xA2` | completed | LLVM replacement inventory lock |
 | `96xB1` | completed | rank the runtime-data / args / collection wave |
 | `96xB2` | completed | rank the file / env / compare wave |
-| `96xB3` | completed | freeze `env/env_get_ported_vm.sh` as the blocking canary and `open_handle_phi` as the semantic shadow |
+| `96xB3` | completed | freeze `env/env_get_ported_vm.sh` as the blocking canary and use `open_handle_phi` as the temporary semantic shadow until `96xC3f` |
 | `96xC1` | completed | wave 1a: LLVM cutover pack for `env` + `file` after the narrow `args_vm` cut |
 | `96xC2` | completed | wave 1b: LLVM cutover pack for `compare` + `misc` + `atomic` + `tls` |
 | `96xC3` | completed | wave 2: seam shadow replacement for `select_emit` + `open_handle_phi` + `boxcall_args_gt1` |
@@ -49,11 +49,12 @@ Date: 2026-04-11
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `96xC3a` | completed | keep `select_emit` as a shadow row; no exact non-vm_hako replacement anchor exists yet |
-| `96xC3b` | completed | keep `open_handle_phi` as a non-blocking shadow row in `vm-hako-core.txt`; no exact non-vm_hako replacement anchor exists yet |
+| `96xC3a` | completed | keep `select_emit` as a temporary shadow row until `96xC3e` adds the exact non-vm_hako replacement owner |
+| `96xC3b` | completed | keep `open_handle_phi` as a temporary non-blocking shadow row in `vm-hako-core.txt` until `96xC3f` lands the exact non-vm_hako replacement owner |
 | `96xC3c` | completed | remove `boxcall_args_gt1_ported_vm.sh` from active vm_hako suite/gate ownership and treat it as retired APP-1 seam evidence |
 | `96xC3d` | completed | replace `app1_summary_contract_ported_vm.sh` in `presubmit.txt` and demote the APP-1 rows |
 | `96xC3e` | completed | replace `select_emit` with a dedicated non-vm_hako emit+exec owner and retire the phase29y vm_hako gate to a compatibility stub |
+| `96xC3f` | completed | replace `open_handle_phi` with a dedicated non-vm_hako emit+exec owner and remove it from `vm-hako-core.txt` |
 | `96xC4a` | completed | move the 7 live MapBox rows under `collection_core/` and archive the 6 non-live mirrors |
 | `96xC4b` | completed | add non-vm_hako emit+exec owners for `MapBox.clear`, `MapBox.delete`, and `MapBox.keys`, then remove those rows from `collection-core.txt` |
 | `96xC4c` | completed | retire the remaining `collection_core/mapbox_set|get|has|size` bridge rows to non-vm_hako emit+exec owners |
@@ -66,10 +67,10 @@ Date: 2026-04-11
 
 | Item | State |
 | --- | --- |
-| Now | `vm-hako-core shadow closeout sync` |
+| Now | `phase96x closeout sync` |
 | Blocker | `none` |
-| Next | `open_handle_phi shadow retirement or archive decision` |
-| After Next | `phase96x closeout sync` |
+| Next | `vm-hako-core monitor bundle freeze` |
+| After Next | `mapbox mirror cleanup when the dirty vm_hako tree is safe to touch` |
 
 ## Acceptance Shape
 
@@ -77,7 +78,6 @@ Date: 2026-04-11
 - the first LLVM replacement wave is split and documented
 - no new vm_hako capability rows are added while the cutover runs
 - the blocking canary is `tools/smokes/v2/profiles/integration/vm_hako_caps/env/env_get_ported_vm.sh`, and it now lives only in `vm-hako-core.txt`
-- the non-blocking semantic shadow is `tools/smokes/v2/profiles/integration/vm_hako_caps/open_handle_phi/open_handle_phi_ported_vm.sh`, and it now lives only in `vm-hako-core.txt`
 - `96xC1a` is landed: `args_vm.sh` is retired from `vm-hako-caps.txt`, `vm-hako-core.txt`, and `phase29y_vm_hako_caps_gate_vm.sh`
 - `96xC1b` is landed: `env_get_ported_vm.sh` is retired from `vm-hako-caps.txt` and `phase29y_vm_hako_caps_gate_vm.sh`, while `core/phase2035/v1_extern_env_get_canary_vm.sh` is added to `presubmit.txt`
 - `96xC1c` is landed: `filebox_newbox_vm.sh` is retired from `vm-hako-caps.txt` and `phase29y_vm_hako_caps_gate_vm.sh`
@@ -89,10 +89,11 @@ Date: 2026-04-11
 - `96xC2c` is landed: `const_void_ported_vm.sh` is retired from the live vm_hako gate/suite pair and from `vm-hako-core.txt`, and preserved only as archive evidence
 - wave `1b` is complete
 - `96xC3a` / `96xC3e` are landed: `select_emit` is retired from the active vm_hako gate after `phase29y_hako_emit_mir_select_exec_contract_vm.sh` was added as the exact non-vm_hako emit+exec owner in `phase29y-hako-emit-mir.txt` and `selfhost-core.txt`
-- `96xC3b` is landed: `open_handle_phi` stays shadow because the current `joinir-bq` / `selfhost-core` packs do not yet cover the exact `FileBox.open` handle-propagation seam contract; it no longer blocks the phase29y gate
+- `96xC3b` was the temporary shadow hold line for `open_handle_phi`
 - `96xC3c` is landed: `boxcall_args_gt1_ported_vm.sh` is removed from `vm-hako-caps.txt`, `phase29y_vm_hako_caps_gate_vm.sh`, and `vm-hako-core.txt`
 - `96xC3d` / `96xD1` are landed: `presubmit.txt` now owns `apps/gate_log_summarizer_vm.sh`, and the APP-1 vm_hako rows are removed from the active vm_hako suite/gate pair
-- wave `2` is complete; the phase29y gate is a compatibility stub, `select_emit` is owned by a non-vm_hako smoke, and the remaining vm_hako shadows live in `vm-hako-core.txt`
+- `96xC3f` is landed: `open_handle_phi` is retired from `vm-hako-core.txt` after `phase29y_hako_emit_mir_open_handle_phi_exec_contract_vm.sh` was added as the exact non-vm_hako emit+exec owner in `phase29y-hako-emit-mir.txt` and `selfhost-core.txt`
+- wave `2` is complete; the phase29y gate is a compatibility stub and no seam-shadow row remains in `vm-hako-core.txt`
 - `mapbox` is a separate `collection-core` re-home track, not part of wave `1a`
 - current landed substeps:
   - `collection-core.txt` no longer points at any `collection_core/mapbox_*` row
