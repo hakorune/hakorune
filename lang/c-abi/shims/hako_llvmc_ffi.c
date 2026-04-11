@@ -27,6 +27,7 @@
 #endif
 
 #include "hako_llvmc_ffi_common.inc"
+#include "hako_llvmc_ffi_string_metadata_fn_readers.inc"
 #include "hako_llvmc_ffi_string_loop_seed.inc"
 #include "hako_llvmc_ffi_concat_const_suffix_seed.inc"
 #include "hako_llvmc_ffi_array_string_store_seed.inc"

@@ -127,6 +127,12 @@ Current follow-on reading:
 - the remaining missing seam for exact-seed retirement is shrinking the old
   full-loop shape matcher itself when a generic plan-selected full-loop route exists,
   not raw metadata export itself
+- active structural follow-on:
+  - `phase-180x` is now the current cleanup lane
+  - next work is seam cleanup, not another exact proof:
+    - extract `StringKernelPlan` owner
+    - stop `relation -> candidate` reverse dependency
+    - split shim metadata readers away from generic owner files
 
 Do not encode:
 

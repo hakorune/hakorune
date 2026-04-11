@@ -54,7 +54,16 @@ Related:
     - landed: MIR-side `derive_string_kernel_plan(...)` now derives/export `metadata.string_kernel_plans` from current string corridor candidates
     - landed: `string_loop_seed` now reads that plan first for the stable-length `substring_concat` len route, keeping the old body matcher only as shape fallback for the remaining full-loop bridge
     - landed: exact keeper proof stays green at `ny_aot_instr=1,665,875 / ny_aot_ms=3`, and the old matcher no longer accepts the 14-op len-route fallback
-    - next cut returns to broader DCE cleanup
+  - active string seam cleanup follow-on: `phase180x string seam cleanup before broader DCE`
+    - current stop-line is structural, not perf:
+      - relation still reads downstream candidate-plan details
+      - exporter still assembles backend-facing plan payload locally
+      - shim readers are still split across generic owner files
+    - cleanup order is:
+      1. `StringKernelPlan` owner extraction
+      2. relation reverse-dependency stop-line
+      3. shim reader partition
+      4. exact matcher retirement only after plan-first parity
   - row status:
     - `3 User-Box Method Dispatch`: mostly done; narrow known-receiver consumer and the direct-route determinism repair are landed, broader generic parity backlog remains
     - `4 Array Typed Slots 拡大`: partial; narrow typed-slot pilots landed, read-side expansion backlog remains
@@ -63,7 +72,7 @@ Related:
     - `7 LLVM Escape Analysis`: partial; Copy + one-input-phi-carry aware local barrier elision and the `phase165x` operand-role escape barrier vocabulary cut are landed, broader generic escape analysis backlog remains
     - `8 Float 最適化`: partial; narrow FloatBox pilot landed, broader tuning backlog
     - `9 Closure/Lambda 最適化`: backlog
-  - next optimization resume after the active string bridge cut: `phase163x-optimization-resume`
+  - next optimization resume after the active string seam cleanup cut: `phase163x-optimization-resume`
   - fixed structure order before more domain widening:
     1. `phase166x` semantic refresh owner
     2. generic `value_origin` owner

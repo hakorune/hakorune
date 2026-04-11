@@ -59,6 +59,7 @@ pub(crate) mod string_corridor_compat; // compat semantic recovery quarantined f
 pub mod string_corridor_placement; // placement/effect scaffold over canonical string facts
 pub(crate) mod string_corridor_recognizer; // shared pure shape recognizers for string corridor
 pub mod string_corridor_relation; // string-corridor relation layer over generic PHI queries
+pub mod string_kernel_plan; // backend-consumable string plan seam derived from corridor candidates
 pub mod sum_placement; // sum-local proving slice for later generic placement/effect pass
 pub mod sum_placement_layout; // LLVM-side payload-lane choices for selected local sums
 pub mod sum_placement_selection; // selection pilot over sum-local placement facts
@@ -116,15 +117,17 @@ pub use string_corridor::{
     StringOutcomeFact, StringPlacementFact,
 };
 pub use string_corridor_placement::{
-    derive_string_kernel_plan, refresh_function_string_corridor_candidates,
-    refresh_module_string_corridor_candidates, StringCorridorCandidate,
-    StringCorridorCandidateKind, StringCorridorCandidatePlan, StringCorridorCandidateProof,
-    StringCorridorCandidateState, StringKernelPlan, StringKernelPlanConsumer,
-    StringKernelPlanFamily, StringKernelPlanRetainedForm,
+    refresh_function_string_corridor_candidates, refresh_module_string_corridor_candidates,
+    StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidatePlan,
+    StringCorridorCandidateProof, StringCorridorCandidateState,
 };
 pub use string_corridor_relation::{
     refresh_function_string_corridor_relations, refresh_module_string_corridor_relations,
     StringCorridorRelation, StringCorridorRelationKind, StringCorridorWindowContract,
+};
+pub use string_kernel_plan::{
+    derive_string_kernel_plan, StringKernelPlan, StringKernelPlanConsumer, StringKernelPlanFamily,
+    StringKernelPlanLegality, StringKernelPlanPart, StringKernelPlanRetainedForm,
 };
 pub use sum_placement::{
     refresh_function_sum_placement_facts, refresh_module_sum_placement_facts,

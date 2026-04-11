@@ -6,7 +6,8 @@
 
 - **Current (ACTIVE)**: Phase 163x primitive and user-box fast path
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
-- **Phase 179x（ACTIVE STRING BRIDGE）**: string kernel plan export and seed retirement
+- **Phase 180x（ACTIVE STRING CLEANUP）**: string seam cleanup before broader DCE
+- **Phase 179x（LANDED）**: string kernel plan export and seed retirement
 - **Phase 178x（LANDED）**: sum local seed split
 - **Phase 177x（LANDED）**: redundant KeepAlive pruning
 - **Phase 176x（LANDED）**: reachable-only DCE first cut

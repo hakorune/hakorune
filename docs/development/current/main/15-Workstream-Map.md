@@ -80,7 +80,8 @@ Related:
   - landed: one exported backend-consumable `StringKernelPlan` surface now exists as `metadata.string_kernel_plans`
   - landed: `string_loop_seed` now consumes that plan first for the stable-length len route while keeping shape fallback only for the remaining full-loop bridge
   - landed: exact keeper proof stays green and the old matcher no longer accepts the 14-op len-route fallback
-  - next cut returns to broader DCE cleanup
+- active string seam cleanup follow-on:
+  - `phase-180x` is now the active string seam cleanup lane before broader DCE cleanup resumes
 - `phase-133x` landed:
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`

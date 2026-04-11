@@ -97,7 +97,13 @@ Scope: repo root から current lane / current front / restart read order に最
   - landed: MIR-side `derive_string_kernel_plan(...)` now derives/export a minimal `metadata.string_kernel_plans` JSON surface from existing candidate metadata
   - landed: `string_loop_seed` now consumes `metadata.string_kernel_plans` first for the stable-length `substring_concat` len route and falls back to the old body matcher only for the remaining full-loop bridge
   - landed: exact keeper proof stays green with `ny_main = mov $0x10 ; ... ; add $0x12,%rax`, `ny_aot_instr=1,665,875`, and the old matcher no longer carries the 14-op len-route fallback
-  - next implementation cut returns to DCE widening after this bridge-retirement closeout
+- active string seam cleanup follow-on:
+  - `docs/development/current/main/phases/phase-180x/README.md`
+  - current stop-line is structural before broader DCE resumes:
+    - landed: `StringKernelPlan` owner is extracted out of placement/export sidecars
+    - next: stop `relation -> candidate` reverse dependency
+    - first shim cut landed: function-level string metadata readers are out of generic `common`
+    - next shim cut: split remaining candidate/plan readers out of `string_chain_terms`
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`

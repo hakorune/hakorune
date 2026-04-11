@@ -74,6 +74,7 @@
   - migration-safe reading: this lane should keep landing in canonical MIR facts/candidates/sink plus kernel/backend substrate, not in Rust-builder-local shape logic
   - treat exact seed logic in `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc` as temporary bridge surface to shrink after generic plan-selected routes prove out
   - current bridge-retirement reading is now landed in `phase-179x`: MIR JSON already exports corridor facts/relations/candidates, the backend now exports `metadata.string_kernel_plans`, `string_loop_seed` consumes that plan first for the stable-length len route, and the old loop matcher no longer carries the 14-op len-route fallback
+  - current structure-only follow-on is `phase-180x`: extract `StringKernelPlan` owner, stop `relation -> candidate` reverse dependency, then split shim readers before broader DCE resumes
 - pure Rust reference compare lane:
   - `benchmarks/rust/bench_kilo_micro_substring_views_only.rs`
   - `tools/perf/bench_rust_vs_hako_stat.sh kilo_micro_substring_views_only 1 3`

@@ -37,63 +37,46 @@ fn emit_mir_json(module: &crate::mir::MirModule, path: &std::path::Path) -> Resu
 }
 
 fn build_string_kernel_plan_parts_json(
-    proof: crate::mir::StringCorridorCandidateProof,
-    known_length: Option<i64>,
+    plan: &crate::mir::StringKernelPlan,
 ) -> Vec<serde_json::Value> {
-    match proof {
-        crate::mir::StringCorridorCandidateProof::BorrowedSlice { source, start, end } => {
-            vec![json!({
+    plan.parts()
+        .into_iter()
+        .map(|part| match part {
+            crate::mir::StringKernelPlanPart::Slice {
+                value,
+                source,
+                start,
+                end,
+            } => json!({
                 "kind": "slice",
+                "value": value.map(|value| value.as_u32()),
                 "source": source.as_u32(),
                 "start": start.as_u32(),
                 "end": end.as_u32(),
-            })]
-        }
-        crate::mir::StringCorridorCandidateProof::ConcatTriplet {
-            left_value,
-            left_source,
-            left_start,
-            left_end,
-            middle,
-            right_value,
-            right_source,
-            right_start,
-            right_end,
-            shared_source: _,
-        } => vec![
-            json!({
-                "kind": "slice",
-                "value": left_value.map(|value| value.as_u32()),
-                "source": left_source.as_u32(),
-                "start": left_start.as_u32(),
-                "end": left_end.as_u32(),
             }),
-            json!({
+            crate::mir::StringKernelPlanPart::Const {
+                value,
+                known_length,
+            } => json!({
                 "kind": "const",
-                "value": middle.as_u32(),
+                "value": value.as_u32(),
                 "known_length": known_length,
             }),
-            json!({
-                "kind": "slice",
-                "value": right_value.map(|value| value.as_u32()),
-                "source": right_source.as_u32(),
-                "start": right_start.as_u32(),
-                "end": right_end.as_u32(),
-            }),
-        ],
-    }
+        })
+        .collect()
 }
 
 fn build_string_kernel_plan_json(
     candidates: &[crate::mir::StringCorridorCandidate],
 ) -> Option<serde_json::Value> {
     let plan = crate::mir::derive_string_kernel_plan(candidates)?;
+    let legality = plan.legality();
     Some(json!({
         "version": plan.version,
         "family": plan.family.to_string(),
         "corridor_root": plan.corridor_root.as_u32(),
         "source_root": plan.source_root.map(|value| value.as_u32()),
-        "parts": build_string_kernel_plan_parts_json(plan.proof, plan.known_length),
+        "parts": build_string_kernel_plan_parts_json(&plan),
         "known_length": plan.known_length,
         "retained_form": plan.retained_form.to_string(),
         "barriers": {
@@ -105,8 +88,8 @@ fn build_string_kernel_plan_json(
             "state": state.to_string(),
         })),
         "legality": {
-            "byte_exact": true,
-            "no_publish_inside": plan.publication.is_some(),
+            "byte_exact": legality.byte_exact,
+            "no_publish_inside": legality.no_publish_inside,
         },
     }))
 }

@@ -1,0 +1,28 @@
+# Phase 180x Task Board
+
+- `180xA` docs/pointer lock
+  - `phase180x` as active string seam cleanup lane
+  - DCE stays next, not current
+- `180xB` MIR `StringKernelPlan` owner extraction
+  - split plan types/derive out of `string_corridor_placement.rs`
+  - exporter reads plan owner only
+- `180xB` status: landed
+- `180xC` relation reverse-dependency stop-line
+  - stop reading candidate-plan internals from relation
+  - move `stable_length_scalar` witness ownership to the right side of the seam
+- `180xD` shim reader partition
+  - move string metadata readers out of `hako_llvmc_ffi_common.inc`
+  - move metadata readers out of `hako_llvmc_ffi_string_chain_terms.inc`
+  - delete dead helper readers
+- `180xD` status:
+  - first cut landed: function-level readers moved out of `common`
+  - remaining cut: move candidate/plan readers out of `string_chain_terms`
+- `180xE` `string_loop_seed` family split
+  - emitters
+  - copy graph helpers
+  - views-only
+  - length-hot-loop
+  - substring-concat
+- `180xF` exact matcher retirement
+  - first len-route exact matcher
+  - later full-loop fallback
