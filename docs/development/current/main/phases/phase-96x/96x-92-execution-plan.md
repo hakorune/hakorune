@@ -117,9 +117,9 @@ Anchor direction:
 - `app1_summary_contract_ported_vm.sh` -> late demotion only after `presubmit.txt` stops depending on it
 
 Required tasks:
-1. split `boxcall_args_gt1` out of the generic args retirement narrative
-2. decide the exact non-vm_hako seam pack for `select_emit`
-3. decide the exact non-vm_hako seam pack for `open_handle_phi`
+1. landed `96xC3a`: keep `select_emit` as shadow because `phase29y-hako-emit-mir.txt` does not yet pin the exact `select` emit+exec contract
+2. landed `96xC3b`: keep `open_handle_phi` as shadow because `joinir-bq.txt` / `selfhost-core.txt` do not yet pin the exact `FileBox.open` handle-propagation seam contract
+3. split `boxcall_args_gt1` out of the generic args retirement narrative
 4. replace `app1_summary_contract_ported_vm.sh` in `presubmit.txt`
 5. only then demote the APP-1 rows
 
@@ -160,6 +160,6 @@ Risks:
 
 ## Next Commit Candidates
 
-1. `96xC3`: finish the seam-shadow lane
+1. `96xC3c`: close `boxcall_args_gt1_ported_vm.sh` through the APP-1/open-handle seam lane instead of treating it as a generic args row
 2. `96xD1`: resolve the late `app1` demotion blocker in `presubmit.txt`
 3. `mapbox`: retire the `collection_core/` owner rows after LLVM collection/runtime-data coverage replaces them

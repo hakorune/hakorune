@@ -82,6 +82,7 @@ Related:
   - landed: `96xC2c` archived `const_void_ported_vm.sh` as explicit retired evidence and removed it from `vm-hako-caps.txt`, `phase29y_vm_hako_caps_gate_vm.sh`, and `vm-hako-core.txt`
   - wave `1b`: complete
   - landed: `96xC4a` copied the 6 non-live `mapbox` rows into `tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/` as archive mirrors, while leaving the current dirty `vm_hako_caps/mapbox/*` worktree content untouched
+  - landed: `96xC3a/C3b` hold `select_emit` and `open_handle_phi` as shadow rows because the current `phase29y-hako-emit-mir` / `joinir-bq` / `selfhost-core` packs are not yet equivalent replacements for those exact seam contracts
   - wave `2`: `select_emit` + `open_handle_phi` + `boxcall_args_gt1` + `app1`
   - parallel track: `mapbox -> collection-core` ownership move
 - `app1_summary_contract_ported_vm.sh` is also still referenced by `tools/smokes/v2/suites/integration/presubmit.txt`, so `app1` remains a late demotion/retire family rather than an early cutover target
