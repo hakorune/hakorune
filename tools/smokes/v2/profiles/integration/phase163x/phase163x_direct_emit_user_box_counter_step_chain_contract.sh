@@ -140,13 +140,18 @@ if len(chain_fn.get("blocks", [])) != 1:
 chain_copies = [ins for ins in chain_insts if ins.get("op") == "copy"]
 chain_call = next((ins for ins in chain_insts if ins.get("op") == "mir_call"), None)
 chain_ret = next((ins for ins in chain_insts if ins.get("op") == "ret"), None)
-if len(chain_copies) != 2 or chain_call is None or chain_ret is None:
+if len(chain_copies) not in (1, 2) or chain_call is None or chain_ret is None:
     raise SystemExit(f"unexpected Counter.step_chain/0 forwarding shape: {chain_insts}")
 if chain_copies[0].get("src") != 0:
     raise SystemExit(f"unexpected Counter.step_chain/0 copy shape: {chain_copies[0]}")
-if chain_copies[1].get("src") != chain_copies[0].get("dst"):
-    raise SystemExit(f"unexpected Counter.step_chain/0 copy chain: {chain_copies}")
-check_forward_call(chain_call, chain_copies[1].get("dst"))
+receiver_alias = chain_copies[0].get("dst")
+if len(chain_copies) == 2:
+    if chain_copies[1].get("src") != receiver_alias:
+        raise SystemExit(f"unexpected Counter.step_chain/0 copy chain: {chain_copies}")
+    receiver_alias = chain_copies[1].get("dst")
+if len(chain_insts) != len(chain_copies) + 2:
+    raise SystemExit(f"unexpected Counter.step_chain/0 extra ops: {chain_insts}")
+check_forward_call(chain_call, receiver_alias)
 if chain_ret.get("value") != chain_call.get("dst"):
     raise SystemExit(f"unexpected Counter.step_chain/0 return value: {chain_ret}")
 

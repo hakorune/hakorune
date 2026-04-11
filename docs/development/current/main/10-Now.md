@@ -21,6 +21,8 @@ Related:
     - deterministic lexical member traversal is kept as supporting structure, but it is not the whole fix
     - repeated release direct emit for `Counter.step_chain` is green again (`6/6`)
     - separate pure-first/backend exact build+asm for `Counter.step_chain` is still a stop-line and remains outside `phase167x`
+  - active exact-route follow-on: `phase168x counter step_chain pure-first refresh`
+    - landed: the stale seed/smoke expectation for the old two-copy `Counter.step_chain/0` forwarding body is refreshed to the current narrow exact route
   - row status:
     - `3 User-Box Method Dispatch`: mostly done; narrow known-receiver consumer and the direct-route determinism repair are landed, broader generic parity backlog remains
     - `4 Array Typed Slots 拡大`: partial; narrow typed-slot pilots landed, read-side expansion backlog remains
@@ -123,7 +125,9 @@ Related:
         - `phase163x_direct_emit_user_box_counter_step_chain_contract.sh` pins the current direct-route `Counter.step_chain` contract
         - `phase163x_boundary_user_box_method_known_receiver_min.sh` now keeps `Counter.step_chain` green on boundary pure-first without compat replay
         - direct-route determinism is now repaired by `phase167x`: instance methods seal through the shared finalize owner, seed receiver `Box(Counter)` metadata, and stay on canonical known-receiver `Method` shape in repeated release direct probes (`6/6`)
-        - current pure-first exact build/asm for this bench is a separate backend seed stop-line and should not be inferred green from the direct-route repair
+        - `phase168x` refreshed the stale pure-first/direct exact contract to the current narrow forwarding body, so exact build/asm is green again
+        - latest exact reread: `kilo_micro_userbox_counter_step_chain` = `c_instr=127244 / c_cycles=220847 / c_cache_miss=3880 / c_ms=3` vs `ny_aot_instr=466555 / ny_aot_cycles=812475 / ny_aot_cache_miss=8825 / ny_aot_ms=4`
+        - current `ny_main` object snippet is `mov $0x2b, %eax ; ret`
     - portability-ci on `public-main` succeeded for commit `6b91896c0` (run `24211665863`), covering Windows check and macOS build (release)
   - verified post-Variant optimization order is now locked:
     1. `ny-llvmc` parity wave for the already-landed local enum/user-box routes

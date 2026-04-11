@@ -6,6 +6,7 @@
 
 - **Current (ACTIVE)**: Phase 163x primitive and user-box fast path
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
+- **Phase 168x（LANDED）**: counter step_chain pure-first exact route refresh
 - **Phase 167x（LANDED）**: method sealing determinism for user-box keepers
 - **Phase 166x（LANDED）**: semantic refresh and generic relation cleanup
 - **Phase 161x（LANDED）**: hot-path capability seam freeze
@@ -75,6 +76,7 @@
 
 ### Recent Landed
 
+- **Phase 168x（LANDED）**: counter step_chain pure-first exact route refresh
 - **Phase 167x（LANDED）**: method sealing determinism for user-box keepers
 - **Phase 165x（LANDED）**: escape barrier vocabulary widening
 - **Phase 164x（LANDED）**: repo-wide fmt drift cleanup

@@ -40,6 +40,9 @@ Related:
   - `phase-167x` repaired user-box method sealing/determinism inside the MIR builder
   - instance methods now go through the shared finalize owner and seed receiver `Box(...)` metadata before known-receiver canonicalization; deterministic lexical traversal is kept as supporting structure
   - repeated release direct emit for `Counter.step_chain` is green again (`6/6`), while the separate pure-first/backend exact build+asm stop-line remains open
+- active exact-route follow-on:
+  - `phase-168x` is landed
+  - the stale pure-first/direct exact contract for `Counter.step_chain` now matches the current narrow forwarding body again, and exact asm/perf evidence is green
 - `phase-133x` landed:
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`

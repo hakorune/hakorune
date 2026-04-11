@@ -235,7 +235,10 @@
            - direct-route determinism repair is now landed too:
              - `phase-167x` routes instance methods through the shared `finalize_function()` owner, seeds receiver `Box(...)` metadata at the parameter boundary, and keeps deterministic lexical member traversal as supporting structure
              - `Counter.step_chain` direct lowering now stays on canonical known-receiver `Method` shape in repeated release direct probes (`6/6`)
-             - separate pure-first/backend exact build+asm for `Counter.step_chain` remains an open stop-line outside `phase-167x`
+             - the separate pure-first/backend exact stop-line is now closed by `phase-168x`, which refreshed the stale seed/smoke forwarding expectation to the current narrow body
+           - exact-route refresh follow-on is now active:
+             - `phase-168x` refreshed the stale seed/smoke expectation that `Counter.step_chain/0` still forwarded through two receiver copies
+             - exact build/asm is green again and the current `ny_main` snippet stays `mov $0x2b, %eax ; ret`
            - first broader boundary parity widening is now landed:
              - `apps/tests/mir_shape_guard/user_box_point_sum_local_i64_min.prebuilt.mir.json` now proves the direct local-i64 `Point.sum` known-receiver shape without relying on the benchmark loop body
              - `phase163x_boundary_user_box_method_known_receiver_min.sh` now keeps both known-receiver fixtures green on boundary `pure-first` without compat replay

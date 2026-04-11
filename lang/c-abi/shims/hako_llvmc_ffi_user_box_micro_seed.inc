@@ -1264,13 +1264,14 @@ static int hako_llvmc_match_userbox_counter_step_chain_micro_seed(
       yyjson_val* block = yyjson_arr_get(chain_blocks, 0);
       yyjson_val* insts = block ? yyjson_obj_get(block, "instructions") : NULL;
       yyjson_val* params = yyjson_obj_get(chain_fn, "params");
-      long long chain_copy_src_reg = 0;
       long long chain_alias_reg = 0;
       long long chain_call_dst = 0;
+      long long chain_prev_reg = 0;
       int chain_copy_count = 0;
       if (!(params && yyjson_is_arr(params) && yyjson_arr_size(params) == 1 &&
             yyjson_get_sint(yyjson_arr_get(params, 0)) == 0 &&
-            insts && yyjson_is_arr(insts) && yyjson_arr_size(insts) == 4)) {
+            insts && yyjson_is_arr(insts) &&
+            (yyjson_arr_size(insts) == 3 || yyjson_arr_size(insts) == 4))) {
         yyjson_doc_free(doc);
         return -1;
       }
@@ -1282,9 +1283,11 @@ static int hako_llvmc_match_userbox_counter_step_chain_micro_seed(
           long long src = hako_llvmc_userbox_read_int(ins, "src");
           long long dst = hako_llvmc_userbox_read_int(ins, "dst");
           if (chain_copy_count == 0 && src == 0) {
-            chain_copy_src_reg = dst;
+            chain_prev_reg = dst;
+            chain_alias_reg = dst;
             chain_copy_count = 1;
-          } else if (chain_copy_count == 1 && src == chain_copy_src_reg) {
+          } else if (chain_copy_count == 1 && src == chain_prev_reg) {
+            chain_prev_reg = dst;
             chain_alias_reg = dst;
             chain_copy_count = 2;
           } else {
@@ -1325,7 +1328,9 @@ static int hako_llvmc_match_userbox_counter_step_chain_micro_seed(
           return -1;
         }
       }
-      if (!(chain_copy_count == 2 && chain_alias_reg > 0 && chain_call_dst > 0)) {
+      if (!((chain_copy_count == 1 || chain_copy_count == 2) &&
+            yyjson_arr_size(insts) == (size_t)(chain_copy_count + 2) &&
+            chain_alias_reg > 0 && chain_call_dst > 0)) {
         yyjson_doc_free(doc);
         return -1;
       }

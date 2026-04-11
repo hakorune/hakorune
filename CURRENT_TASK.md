@@ -49,6 +49,10 @@ Scope: repo root から current lane / current front / restart read order に最
   - phase-167x is landed; instance methods now seal through the shared finalize owner and seed receiver `Box(...)` metadata, so direct `Counter.step_chain` known-receiver shape no longer drifts on missing method-local facts
   - release direct emit repeat is green again (`Counter.step_chain` known-receiver shape `6/6`)
   - pure-first AOT build/asm still stops separately on backend seed matching and is not part of `phase-167x`
+- active exact-route follow-on:
+  - `docs/development/current/main/phases/phase-168x/README.md`
+  - `phase-168x` is landed; the stale pure-first/backend exact contract for `Counter.step_chain` now matches the current narrow forwarding body again
+  - direct contract smoke, boundary owner-lane smoke, exact asm, and exact perf are green again; `ny_main` is back to `mov $0x2b, %eax ; ret`
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`
