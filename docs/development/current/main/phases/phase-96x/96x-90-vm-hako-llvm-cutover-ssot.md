@@ -30,7 +30,8 @@ Related:
 
 - the active `vm_hako` gate is still `tools/smokes/v2/profiles/integration/vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh`
 - the `vm_hako_caps` family is now best read as a monitor bucket, not as a growth bucket
-- the runtime-data / args / collection slice is the first obvious migration target because it maps cleanly to the LLVM boundary runtime-data proof family
+- the runtime-data / collection slice is the first obvious migration target because it maps cleanly to the LLVM boundary/runtime-data proof family
+- the narrow `args_vm.sh` row is already cut over; the remaining `args/` owner row is the late seam-side `boxcall_args_gt1`
 - file / env / compare / app1 are still live contract slices, but they should follow after the first runtime-data replacement wave lands
 
 ## Current Inventory
@@ -64,7 +65,7 @@ Related:
 | --- | --- | --- | --- | --- | --- | --- |
 | `env/` | environment routing contract | `1` | `0` | product LLVM/runtime-data acceptance pack | live -> cutover | LLVM-line env route is pinned and `env_get` can demote to monitor-only |
 | `file/` | file handle lifecycle contract | `4` | `0` | product LLVM file/backend acceptance pack | live -> cutover | LLVM-line file open/read/close rows are green |
-| `args/` | entry/runtime-data pressure | `2` | `0` | `phase29ck_boundary/runtime_data/*` | live -> cutover | LLVM-line args/runtime-data rows replace the gate rows |
+| `args/` | mixed lane: narrow args row retired, seam row remains | `1` | `0` | `apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh` for the narrow row; APP/seam pack for `boxcall_args_gt1` | cutover -> seam keep | `args_vm.sh` is no longer gate-owned and the remaining seam row moves in wave `2` |
 | `compare/` | compare-op pin | `2` | `0` | product LLVM acceptance pack | freeze -> cutover | LLVM-line compare coverage is explicit and green |
 | `misc/` | one-off capability pin | `1` | `0` | product LLVM acceptance pack | freeze -> archive | replacement row exists and vm_hako no longer owns the witness |
 | `atomic/` | atomic fence pin | `1` | `0` | product LLVM acceptance pack | freeze -> archive | LLVM-line atomic witness exists or the row is intentionally dropped |
@@ -89,7 +90,7 @@ Related:
 
 | Current vm_hako family | Current role | LLVM replacement anchor | Notes |
 | --- | --- | --- | --- |
-| `env/` + `file/` + narrow `args_vm` | product-visible live rows | `phase29ck_boundary/runtime_data/*` plus product LLVM backend acceptance pack | first cutover wave because these are both live and narrow |
+| `env/` + `file/` | product-visible live rows | `v1_extern_env_get_canary_vm.sh` plus product LLVM backend acceptance pack | first cutover wave now that `args_vm.sh` is retired against `phase29x_runtime_data_dispatch_llvm_e2e_vm.sh` |
 | `compare/` + `misc/` + `atomic/` + `tls/` | narrow single-purpose witnesses | product LLVM acceptance pack | second wave after the product-visible wave is stable |
 | `select_emit/` + `open_handle_phi/` + `boxcall_args_gt1` | compiler/backend seam sentinels | `phase29y-hako-emit-mir.txt`, `joinir-bq.txt`, `selfhost-core.txt` | keep as seam shadow rows until LLVM/JoinIR proofs are explicit |
 | `app1/` | wide end-to-end summary parity | `presubmit.txt` plus product LLVM acceptance pack | late demotion only after leaf families stop owning the contract |

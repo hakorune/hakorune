@@ -54,7 +54,7 @@ Related:
 
 - the active reference gate is still `tools/smokes/v2/profiles/integration/vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh`
 - the live `vm_hako_caps` family still covers `app1`, `args`, `atomic`, `compare`, `env`, `file`, `mapbox`, `misc`, `open_handle_phi`, `select_emit`, `tls`
-- the current pressure point is the product-visible live row set: `env`, `file`, and `args`
+- the current pressure point is the remaining product-visible live row set: `env` and `file`
 - LLVM replacement anchors already exist in the current `phase29ck_boundary/runtime_data/*`, `phase29ck_llvm_backend_*`, and `phase163x_boundary_*` proof families
 - recommended single monitor canary while the replacement matrix is moving:
   - `tools/smokes/v2/profiles/integration/vm_hako_caps/env/env_get_ported_vm.sh`
@@ -71,7 +71,8 @@ Related:
   - these are either indirect-live (`mapbox`) or narrow single-purpose rows that should not grow during cutover
 - `mapbox/` is now bridged through `collection_core/mapbox_*` rather than referenced directly by `collection-core.txt`, so it belongs to a parallel re-home track instead of the first acceptance cutover wave
 - exact row-to-row mapping is locked by the inventory now; `96xC` is the execution wave for:
-  - wave `1a`: `env` + `file` + narrow `args_vm`
+  - landed: `96xC1a` retired `args_vm.sh` against `apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
+  - wave `1a`: `env` + `file`
   - wave `1b`: `compare` + `misc` + `atomic` + `tls`
   - wave `2`: `select_emit` + `open_handle_phi` + `boxcall_args_gt1` + `app1`
   - parallel track: `mapbox -> collection-core` ownership move

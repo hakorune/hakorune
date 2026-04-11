@@ -21,7 +21,7 @@ Date: 2026-04-11
 | `96xB1` | completed | rank the runtime-data / args / collection wave |
 | `96xB2` | completed | rank the file / env / compare wave |
 | `96xB3` | completed | freeze `env/env_get_ported_vm.sh` as the blocking canary and `open_handle_phi` as the semantic shadow |
-| `96xC1` | pending | wave 1a: LLVM cutover pack for `env` + `file` + narrow `args_vm` |
+| `96xC1` | in_progress | wave 1a: LLVM cutover pack for `env` + `file` after the narrow `args_vm` cut |
 | `96xC2` | pending | wave 1b: LLVM cutover pack for `compare` + `misc` + `atomic` + `tls` |
 | `96xC3` | pending | wave 2: seam shadow replacement for `select_emit` + `open_handle_phi` + `boxcall_args_gt1` |
 | `96xC4` | in_progress | parallel `mapbox -> collection-core` re-home track; wrapper bridge + suite retarget landed |
@@ -31,7 +31,7 @@ Date: 2026-04-11
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `96xC1a` | pending | retire `args_vm.sh` against `argv_multiline_roundtrip.sh` and remove its live vm_hako refs |
+| `96xC1a` | completed | retire `args_vm.sh` against `phase29x_runtime_data_dispatch_llvm_e2e_vm.sh` and remove its live vm_hako refs |
 | `96xC1b` | pending | split `env_get_ported_vm.sh` into canary-vs-product ownership |
 | `96xC1c` | pending | retire `filebox_newbox_vm.sh` against the PLG-04 FileBox pilot anchor |
 | `96xC1d` | pending | retire `file_read_ported_vm.sh` and `file_close_ported_vm.sh` against the PLG-07 FileBox anchors |
@@ -45,10 +45,10 @@ Date: 2026-04-11
 
 | Item | State |
 | --- | --- |
-| Now | `96xC4 mapbox re-home` |
+| Now | `96xC1b env split` |
 | Blocker | `none` |
-| Next | `96xC1 wave 1a` |
-| After Next | `96xC2 wave 1b` |
+| Next | `96xC1c file newbox` |
+| After Next | `96xC1d file read/close` |
 
 ## Acceptance Shape
 
@@ -57,7 +57,8 @@ Date: 2026-04-11
 - no new vm_hako capability rows are added while the cutover runs
 - the blocking canary is `tools/smokes/v2/profiles/integration/vm_hako_caps/env/env_get_ported_vm.sh`
 - the non-blocking semantic shadow is `tools/smokes/v2/profiles/integration/vm_hako_caps/open_handle_phi/open_handle_phi_ported_vm.sh`
-- wave `1a` is `env` + `file` + narrow `args_vm`
+- `96xC1a` is landed: `args_vm.sh` is retired from `vm-hako-caps.txt`, `vm-hako-core.txt`, and `phase29y_vm_hako_caps_gate_vm.sh`
+- wave `1a` is now `env` + `file`
 - wave `1b` is `compare` + `misc` + `atomic` + `tls`
 - wave `2` is `select_emit` + `open_handle_phi` + `boxcall_args_gt1`
 - `mapbox` is a separate `collection-core` re-home track, not part of wave `1a`
