@@ -154,6 +154,46 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
   }
 
   {
+    const char* plan_seed = NULL;
+    const char* plan_middle = NULL;
+    long long plan_source_root = 0;
+    long long plan_seed_len = 0;
+    long long plan_middle_len = 0;
+    long long plan_loop_bound = 0;
+    long long plan_split = 0;
+
+    if (merged_string_phi > 0 &&
+        hako_llvmc_string_kernel_plan_read_concat_triplet_loop_fn(
+            fn,
+            merged_string_phi,
+            &plan_source_root,
+            &plan_seed,
+            &plan_seed_len,
+            &plan_middle,
+            &plan_middle_len,
+            &plan_loop_bound,
+            &plan_split) &&
+        plan_source_root == merged_string_phi &&
+        plan_seed && plan_middle &&
+        plan_seed_len > 0 &&
+        plan_middle_len > 0 &&
+        plan_loop_bound > 0 &&
+        plan_split > 0) {
+      int rc = hako_llvmc_emit_substring_concat_loop_ir(
+          obj_out,
+          &selection,
+          plan_seed,
+          plan_seed_len,
+          plan_loop_bound,
+          plan_middle,
+          plan_middle_len,
+          plan_split);
+      yyjson_doc_free(doc);
+      return rc;
+    }
+  }
+
+  {
     int rc = hako_llvmc_match_substring_concat_loop_ascii_seed_legacy_fallback(
         fn,
         &selection,

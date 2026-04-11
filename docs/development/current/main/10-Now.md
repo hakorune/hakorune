@@ -61,11 +61,14 @@ Related:
       - landed: `string_loop_seed` is split into family includes behind a thin facade
       - landed: the dedicated `substring_concat_len_ascii_seed` ladder is retired into a thin wrapper, so the len-only exact route now comes from the metadata-first loop matcher seam
       - landed: `substring_concat_loop_ascii_seed` now splits a narrow metadata-first len preamble from the legacy full-loop fallback helper
-      - remaining structural stop-line is the full-loop legacy fallback on top of that family layout
+      - landed: `StringKernelPlan` now exports the remaining full-loop scalar payload (`seed_literal`, `seed_length`, `loop_bound`, `split_length`) and the full-loop route reads that metadata before touching the legacy helper
+      - latest exact reread after that cut is `ny_aot_instr=1,665,476 / ny_aot_cycles=1,074,624 / ny_aot_ms=4`
+      - remaining structural stop-line is only the final raw full-loop fallback on top of that metadata-first family layout
     - cleanup order is:
       1. `StringKernelPlan` owner extraction
       2. relation reverse-dependency stop-line
       3. shim reader partition
+      4. full-loop scalar payload export + metadata-first loop route
       4. exact matcher retirement only after plan-first parity
   - row status:
     - `3 User-Box Method Dispatch`: mostly done; narrow known-receiver consumer and the direct-route determinism repair are landed, broader generic parity backlog remains

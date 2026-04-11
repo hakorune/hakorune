@@ -204,7 +204,7 @@
         - fresh reread now keeps `kilo_micro_substring_concat` (`instr=1,666,187 / cycles=1,049,205 / cache-miss=8,799 / AOT 4 ms`) as the best exact front for broader corridor placement/effect work
         - landed structure-only follow-on: `phase-178x` split `lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed.inc` into a thin facade plus focused include slices before the next generic bridge-shrink follow-on
         - landed string bridge-retirement follow-on: `phase-179x` now has the first explicit backend-consumable `StringKernelPlan` export, a metadata-first len-route consumer in `string_loop_seed`, and no 14-op len-route fallback left in the old matcher
-        - active structure-only follow-on: `phase-180x` now cleans the remaining string seam before broader DCE work resumes
+        - active structure-only follow-on: `phase-180x` now cleans the remaining string seam before broader DCE work resumes; `StringKernelPlan` exports the remaining full-loop scalar payload and the substring-concat loop route now reads that metadata before the last raw fallback
         - `phase-173x` is now landed on that sibling lane: same-block direct-helper `return` publication sink now rides the existing `publication_sink` plan metadata under a focused unit guard
         - `phase-174x` is now landed on that sibling lane too: same-block canonical `Store { value, .. }` / `FieldSet { value, .. }` write boundaries now ride the same `publication_sink` plan metadata under a focused unit guard
         - `phase-175x` is now landed on that sibling lane too: same-block `RuntimeDataBox.set(...)` now rides the same `publication_sink` plan metadata as the first host-boundary publication slice under a focused unit guard

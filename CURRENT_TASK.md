@@ -107,7 +107,9 @@ Scope: repo root から current lane / current front / restart read order に最
     - landed: `string_loop_seed` is split into emitters / copy-graph / views-only / length-hot-loop / substring-concat families behind a thin facade
     - landed: the old dedicated `substring_concat_len_ascii_seed` ladder is now only a thin wrapper to the loop matcher, so the len-only exact route comes from the metadata-first seam alone
     - landed: `substring_concat_loop_ascii_seed` now splits a narrow metadata-first len preamble from the remaining legacy full-loop fallback helper
-    - next: retire the remaining full-loop fallback on top of the new family layout
+    - landed: `StringKernelPlan` now exports the remaining full-loop scalar payload (`seed_literal`, `seed_length`, `loop_bound`, `split_length`) and the `substring_concat` loop route reads that metadata before touching the legacy helper
+    - latest exact reread after the plan-payload cut: `ny_aot_instr=1,665,476 / ny_aot_cycles=1,074,624 / ny_aot_ms=4`
+    - next: retire the remaining full-loop fallback on top of the now metadata-first family layout
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`

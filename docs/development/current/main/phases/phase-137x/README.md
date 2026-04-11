@@ -74,7 +74,7 @@
   - migration-safe reading: this lane should keep landing in canonical MIR facts/candidates/sink plus kernel/backend substrate, not in Rust-builder-local shape logic
   - treat exact seed logic in `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc` as temporary bridge surface to shrink after generic plan-selected routes prove out
   - current bridge-retirement reading is now landed in `phase-179x`: MIR JSON already exports corridor facts/relations/candidates, the backend now exports `metadata.string_kernel_plans`, `string_loop_seed` consumes that plan first for the stable-length len route, and the old loop matcher no longer carries the 14-op len-route fallback
-  - current structure-only follow-on is `phase-180x`: extract `StringKernelPlan` owner, stop `relation -> candidate` reverse dependency, then split shim readers before broader DCE resumes
+  - current structure-only follow-on is `phase-180x`: extract `StringKernelPlan` owner, stop `relation -> candidate` reverse dependency, split shim readers, then move the remaining substring-concat full-loop route onto exported plan payload before broader DCE resumes
 - pure Rust reference compare lane:
   - `benchmarks/rust/bench_kilo_micro_substring_views_only.rs`
   - `tools/perf/bench_rust_vs_hako_stat.sh kilo_micro_substring_views_only 1 3`
@@ -86,7 +86,7 @@
     - `kilo_micro_substring_views_only: instr=466,001 / cycles=841,958 / cache-miss=9,391 / AOT 3 ms`
     - `kilo_micro_len_substring_views: instr=1,672,096 / cycles=1,009,964 / cache-miss=8,902 / AOT 3 ms`
 - current broader-corridor reopen front:
-  - `kilo_micro_substring_concat: instr=1,666,187 / cycles=1,049,205 / cache-miss=8,799 / AOT 4 ms`
+  - `kilo_micro_substring_concat: instr=1,665,476 / cycles=1,074,624 / cache-miss=8,710 / AOT 4 ms`
   - `kilo_micro_array_string_store: c_ms=9 / ny_aot_ms=9`; this family is not the current blocker
 - target band for the next keeper:
   - mixed accept gate: hold `instr <= 1.8M`

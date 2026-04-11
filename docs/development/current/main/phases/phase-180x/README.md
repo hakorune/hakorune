@@ -44,9 +44,10 @@
   - `180xF` first cut landed: the dedicated `substring_concat_len_ascii_seed` ladder is retired into a thin wrapper, so the len-only exact route now comes only from the same metadata-first `stable_length_scalar + StringKernelPlan` seam used by the loop matcher
   - `180xF` second cut landed: `substring_concat_loop_ascii_seed` now separates a narrow metadata-first len preamble from the remaining legacy full-loop fallback helper
   - `180xF` third cut landed: the legacy full-loop fallback no longer depends on duplicated preheader/header exact checks beyond the values it still truly needs (`seed_len`, `loop_bound`)
+  - `180xF` fourth cut landed: `StringKernelPlan` now exports the remaining exact-loop scalar payload (`seed_literal`, `seed_length`, `loop_bound`, `split_length`), and the substring-concat full-loop route reads that metadata before dropping to the raw fallback helper
   - still open:
     - exact matcher retirement on top of the new family layout
-    - specifically: the remaining full-loop fallback inside `substring_concat_loop_ascii_seed`
+    - specifically: the remaining full-loop fallback inside `substring_concat_loop_ascii_seed`, now kept only as the last raw-shape escape hatch after the metadata-first loop plan route
 
 ## Acceptance
 

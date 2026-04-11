@@ -182,10 +182,19 @@ if helper_kernel_plan.get("known_length") != 2:
     raise SystemExit(f"unexpected helper kernel plan known_length: {helper_kernel_plan}")
 if helper_kernel_plan.get("retained_form") != "borrowed_text":
     raise SystemExit(f"unexpected helper kernel plan retained_form: {helper_kernel_plan}")
+if parts[1].get("literal") != "xx":
+    raise SystemExit(f"unexpected helper kernel plan middle literal: {helper_kernel_plan}")
 if helper_kernel_plan.get("barriers", {}).get("publication") != "candidate":
     raise SystemExit(f"unexpected helper kernel plan publication barrier: {helper_kernel_plan}")
 if helper_kernel_plan.get("direct_kernel_entry", {}).get("state") != "candidate":
     raise SystemExit(f"unexpected helper kernel plan direct entry state: {helper_kernel_plan}")
+loop_payload = helper_kernel_plan.get("loop_payload", {})
+if loop_payload.get("seed_literal") != "line-seed-abcdef":
+    raise SystemExit(f"unexpected helper kernel plan seed literal: {helper_kernel_plan}")
+if loop_payload.get("seed_length") != 16 or loop_payload.get("split_length") != 8:
+    raise SystemExit(f"unexpected helper kernel plan seed/split payload: {helper_kernel_plan}")
+if loop_payload.get("loop_bound") != 300000:
+    raise SystemExit(f"unexpected helper kernel plan loop bound: {helper_kernel_plan}")
 
 exit_ops = interesting_ops(4)
 if len(exit_ops) != 3:

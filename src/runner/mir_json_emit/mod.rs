@@ -57,19 +57,22 @@ fn build_string_kernel_plan_parts_json(
             crate::mir::StringKernelPlanPart::Const {
                 value,
                 known_length,
+                literal,
             } => json!({
                 "kind": "const",
                 "value": value.as_u32(),
                 "known_length": known_length,
+                "literal": literal,
             }),
         })
         .collect()
 }
 
 fn build_string_kernel_plan_json(
+    function: &crate::mir::MirFunction,
     candidates: &[crate::mir::StringCorridorCandidate],
 ) -> Option<serde_json::Value> {
-    let plan = crate::mir::derive_string_kernel_plan(candidates)?;
+    let plan = crate::mir::derive_string_kernel_plan(function, candidates)?;
     let legality = plan.legality();
     Some(json!({
         "version": plan.version,
@@ -91,6 +94,13 @@ fn build_string_kernel_plan_json(
             "byte_exact": legality.byte_exact,
             "no_publish_inside": legality.no_publish_inside,
         },
+        "loop_payload": plan.loop_payload.as_ref().map(|payload| json!({
+            "seed_value": payload.seed_value.as_u32(),
+            "seed_literal": payload.seed_literal,
+            "seed_length": payload.seed_length,
+            "loop_bound": payload.loop_bound,
+            "split_length": payload.split_length,
+        })),
     }))
 }
 
@@ -217,7 +227,7 @@ fn build_mir_json_root(module: &crate::mir::MirModule) -> Result<serde_json::Val
                 }).collect::<Vec<_>>()))
             }).collect::<serde_json::Map<String, serde_json::Value>>(),
             "string_kernel_plans": f.metadata.string_corridor_candidates.iter().filter_map(|(k, candidates)| {
-                build_string_kernel_plan_json(candidates)
+                build_string_kernel_plan_json(f, candidates)
                     .map(|plan| (k.as_u32().to_string(), plan))
             }).collect::<serde_json::Map<String, serde_json::Value>>(),
             "thin_entry_candidates": f.metadata.thin_entry_candidates.iter().map(|candidate| {
@@ -452,7 +462,8 @@ mod tests {
     use super::*;
     use crate::ast::RuneAttr;
     use crate::mir::{
-        BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType,
+        BasicBlock, BasicBlockId, BinaryOp, CompareOp, ConstValue, EffectMask, FunctionSignature,
+        MirFunction, MirInstruction, MirModule, MirType, ValueId,
     };
 
     fn make_function(name: &str, is_entry_point: bool) -> MirFunction {
@@ -464,6 +475,91 @@ mod tests {
         };
         let mut function = MirFunction::new(signature, BasicBlockId::new(0));
         function.metadata.is_entry_point = is_entry_point;
+        function
+    }
+
+    fn make_string_loop_function() -> MirFunction {
+        let mut function = make_function("main", true);
+        let entry = BasicBlockId::new(0);
+        let header = BasicBlockId::new(18);
+        let body = BasicBlockId::new(19);
+        let exit = BasicBlockId::new(21);
+
+        function
+            .blocks
+            .get_mut(&entry)
+            .unwrap()
+            .instructions
+            .extend([
+                MirInstruction::Const {
+                    dst: ValueId::new(3),
+                    value: ConstValue::String("line-seed-abcdef".to_string()),
+                },
+                MirInstruction::Copy {
+                    dst: ValueId::new(4),
+                    src: ValueId::new(3),
+                },
+                MirInstruction::Const {
+                    dst: ValueId::new(5),
+                    value: ConstValue::Integer(16),
+                },
+            ]);
+
+        let mut header_block = BasicBlock::new(header);
+        header_block.instructions.extend([
+            MirInstruction::Phi {
+                dst: ValueId::new(15),
+                inputs: vec![(entry, ValueId::new(12)), (body, ValueId::new(16))],
+                type_hint: Some(MirType::Integer),
+            },
+            MirInstruction::Phi {
+                dst: ValueId::new(21),
+                inputs: vec![(entry, ValueId::new(4)), (body, ValueId::new(36))],
+                type_hint: Some(MirType::String),
+            },
+            MirInstruction::Const {
+                dst: ValueId::new(41),
+                value: ConstValue::Integer(300000),
+            },
+            MirInstruction::Compare {
+                dst: ValueId::new(37),
+                op: CompareOp::Lt,
+                lhs: ValueId::new(15),
+                rhs: ValueId::new(41),
+            },
+            MirInstruction::Branch {
+                condition: ValueId::new(37),
+                then_bb: body,
+                else_bb: exit,
+                then_edge_args: None,
+                else_edge_args: None,
+            },
+        ]);
+        function.blocks.insert(header, header_block);
+
+        let mut body_block = BasicBlock::new(body);
+        body_block.instructions.extend([
+            MirInstruction::Const {
+                dst: ValueId::new(50),
+                value: ConstValue::Integer(2),
+            },
+            MirInstruction::BinOp {
+                dst: ValueId::new(47),
+                op: BinaryOp::Div,
+                lhs: ValueId::new(5),
+                rhs: ValueId::new(50),
+            },
+            MirInstruction::Const {
+                dst: ValueId::new(66),
+                value: ConstValue::String("xx".to_string()),
+            },
+            MirInstruction::Copy {
+                dst: ValueId::new(36),
+                src: ValueId::new(21),
+            },
+        ]);
+        function.blocks.insert(body, body_block);
+        function.blocks.insert(exit, BasicBlock::new(exit));
         function
     }
 
@@ -852,6 +948,51 @@ mod tests {
         assert_eq!(plan["parts"][1]["kind"], "const");
         assert_eq!(plan["parts"][1]["known_length"], 2);
         assert_eq!(plan["parts"][2]["kind"], "slice");
+    }
+
+    #[test]
+    fn build_mir_json_root_emits_string_kernel_plan_loop_payload() {
+        let mut module = MirModule::new("test".to_string());
+        let mut function = make_string_loop_function();
+        function.metadata.string_corridor_candidates.insert(
+            ValueId::new(21),
+            vec![crate::mir::StringCorridorCandidate {
+                kind: crate::mir::StringCorridorCandidateKind::DirectKernelEntry,
+                state: crate::mir::StringCorridorCandidateState::Candidate,
+                reason: "substring concat loop can target a direct kernel entry",
+                plan: Some(crate::mir::string_corridor_placement::StringCorridorCandidatePlan {
+                    corridor_root: ValueId::new(21),
+                    source_root: Some(ValueId::new(21)),
+                    start: Some(ValueId::new(71)),
+                    end: Some(ValueId::new(72)),
+                    known_length: Some(2),
+                    proof:
+                        crate::mir::string_corridor_placement::StringCorridorCandidateProof::ConcatTriplet {
+                            left_value: Some(ValueId::new(26)),
+                            left_source: ValueId::new(21),
+                            left_start: ValueId::new(46),
+                            left_end: ValueId::new(47),
+                            middle: ValueId::new(66),
+                            right_value: Some(ValueId::new(27)),
+                            right_source: ValueId::new(21),
+                            right_start: ValueId::new(47),
+                            right_end: ValueId::new(42),
+                            shared_source: true,
+                        },
+                }),
+            }],
+        );
+        module.functions.insert("main".to_string(), function);
+
+        let root = build_mir_json_root(&module).expect("mir json root");
+        let plan = &root["functions"][0]["metadata"]["string_kernel_plans"]["21"];
+
+        assert_eq!(plan["parts"][1]["literal"], "xx");
+        assert_eq!(plan["loop_payload"]["seed_value"], 3);
+        assert_eq!(plan["loop_payload"]["seed_literal"], "line-seed-abcdef");
+        assert_eq!(plan["loop_payload"]["seed_length"], 16);
+        assert_eq!(plan["loop_payload"]["loop_bound"], 300000);
+        assert_eq!(plan["loop_payload"]["split_length"], 8);
     }
 
     #[test]

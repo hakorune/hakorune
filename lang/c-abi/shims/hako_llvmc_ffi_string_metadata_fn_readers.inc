@@ -187,3 +187,88 @@ static int hako_llvmc_string_kernel_plan_read_concat_triplet_len_fn(
   }
   return 1;
 }
+
+static int hako_llvmc_string_kernel_plan_read_concat_triplet_loop_fn(
+    yyjson_val* fn,
+    long long corridor_root,
+    long long* source_root,
+    const char** seed_literal,
+    long long* seed_length,
+    const char** middle_literal,
+    long long* middle_known_length,
+    long long* loop_bound,
+    long long* split_length) {
+  yyjson_val* plan = hako_llvmc_string_kernel_plan_by_corridor_root_fn(fn, corridor_root);
+  yyjson_val* parts = plan ? yyjson_obj_get(plan, "parts") : NULL;
+  yyjson_val* legality = plan ? yyjson_obj_get(plan, "legality") : NULL;
+  yyjson_val* loop_payload = plan ? yyjson_obj_get(plan, "loop_payload") : NULL;
+  yyjson_val* first_part = parts ? yyjson_arr_get(parts, 0) : NULL;
+  yyjson_val* middle_part = parts ? yyjson_arr_get(parts, 1) : NULL;
+  yyjson_val* last_part = parts ? yyjson_arr_get(parts, 2) : NULL;
+  yyjson_val* source_root_val = plan ? yyjson_obj_get(plan, "source_root") : NULL;
+  yyjson_val* family_val = plan ? yyjson_obj_get(plan, "family") : NULL;
+  yyjson_val* consumer_val = plan ? yyjson_obj_get(plan, "consumer") : NULL;
+  yyjson_val* retained_form_val = plan ? yyjson_obj_get(plan, "retained_form") : NULL;
+  yyjson_val* byte_exact_val = legality ? yyjson_obj_get(legality, "byte_exact") : NULL;
+  yyjson_val* first_kind = first_part ? yyjson_obj_get(first_part, "kind") : NULL;
+  yyjson_val* middle_kind = middle_part ? yyjson_obj_get(middle_part, "kind") : NULL;
+  yyjson_val* last_kind = last_part ? yyjson_obj_get(last_part, "kind") : NULL;
+  yyjson_val* first_source = first_part ? yyjson_obj_get(first_part, "source") : NULL;
+  yyjson_val* last_source = last_part ? yyjson_obj_get(last_part, "source") : NULL;
+  yyjson_val* middle_literal_val =
+      middle_part ? yyjson_obj_get(middle_part, "literal") : NULL;
+  yyjson_val* middle_len_val =
+      middle_part ? yyjson_obj_get(middle_part, "known_length") : NULL;
+  yyjson_val* seed_literal_val =
+      loop_payload ? yyjson_obj_get(loop_payload, "seed_literal") : NULL;
+  yyjson_val* seed_length_val =
+      loop_payload ? yyjson_obj_get(loop_payload, "seed_length") : NULL;
+  yyjson_val* loop_bound_val =
+      loop_payload ? yyjson_obj_get(loop_payload, "loop_bound") : NULL;
+  yyjson_val* split_length_val =
+      loop_payload ? yyjson_obj_get(loop_payload, "split_length") : NULL;
+
+  if (!(plan && parts && yyjson_is_arr(parts) && yyjson_arr_size(parts) == 3 &&
+        loop_payload && yyjson_is_obj(loop_payload) && source_root_val &&
+        yyjson_is_num(source_root_val) && family_val && yyjson_is_str(family_val) &&
+        consumer_val && yyjson_is_str(consumer_val) && retained_form_val &&
+        yyjson_is_str(retained_form_val) && byte_exact_val &&
+        yyjson_is_bool(byte_exact_val) && yyjson_get_bool(byte_exact_val) &&
+        first_kind && yyjson_is_str(first_kind) && middle_kind &&
+        yyjson_is_str(middle_kind) && last_kind && yyjson_is_str(last_kind) &&
+        !strcmp(yyjson_get_str(family_val), "concat_triplet_window") &&
+        !strcmp(yyjson_get_str(consumer_val), "direct_kernel_entry") &&
+        !strcmp(yyjson_get_str(retained_form_val), "borrowed_text") &&
+        !strcmp(yyjson_get_str(first_kind), "slice") &&
+        !strcmp(yyjson_get_str(middle_kind), "const") &&
+        !strcmp(yyjson_get_str(last_kind), "slice") && first_source &&
+        yyjson_is_num(first_source) && last_source && yyjson_is_num(last_source) &&
+        middle_literal_val && yyjson_is_str(middle_literal_val) && middle_len_val &&
+        yyjson_is_num(middle_len_val) && seed_literal_val &&
+        yyjson_is_str(seed_literal_val) && seed_length_val &&
+        yyjson_is_num(seed_length_val) && loop_bound_val &&
+        yyjson_is_num(loop_bound_val) && split_length_val &&
+        yyjson_is_num(split_length_val))) {
+    return 0;
+  }
+
+  if ((long long)yyjson_get_sint(first_source) !=
+      (long long)yyjson_get_sint(source_root_val)) {
+    return 0;
+  }
+  if ((long long)yyjson_get_sint(last_source) !=
+      (long long)yyjson_get_sint(source_root_val)) {
+    return 0;
+  }
+
+  if (source_root) *source_root = (long long)yyjson_get_sint(source_root_val);
+  if (seed_literal) *seed_literal = yyjson_get_str(seed_literal_val);
+  if (seed_length) *seed_length = (long long)yyjson_get_sint(seed_length_val);
+  if (middle_literal) *middle_literal = yyjson_get_str(middle_literal_val);
+  if (middle_known_length) {
+    *middle_known_length = (long long)yyjson_get_sint(middle_len_val);
+  }
+  if (loop_bound) *loop_bound = (long long)yyjson_get_sint(loop_bound_val);
+  if (split_length) *split_length = (long long)yyjson_get_sint(split_length_val);
+  return 1;
+}

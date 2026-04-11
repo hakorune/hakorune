@@ -7,11 +7,12 @@
  */
 
 use super::{
+    build_value_def_map, resolve_value_origin,
     string_corridor_placement::{
         StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateProof,
         StringCorridorCandidateState,
     },
-    ValueId,
+    CompareOp, ConstValue, MirFunction, MirInstruction, ValueDefMap, ValueId,
 };
 
 /// Backend-consumable family names derived from string corridor candidate plans.
@@ -59,7 +60,7 @@ impl std::fmt::Display for StringKernelPlanConsumer {
 }
 
 /// Backend-consumable string kernel plan part.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum StringKernelPlanPart {
     Slice {
         value: Option<ValueId>,
@@ -70,7 +71,18 @@ pub enum StringKernelPlanPart {
     Const {
         value: ValueId,
         known_length: Option<i64>,
+        literal: Option<String>,
     },
+}
+
+/// Narrow scalar payload for the current substring-concat exact loop route.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct StringKernelPlanLoopPayload {
+    pub seed_value: ValueId,
+    pub seed_literal: String,
+    pub seed_length: i64,
+    pub loop_bound: i64,
+    pub split_length: i64,
 }
 
 /// Thin legality facts that backend consumers may check before emit.
@@ -81,7 +93,7 @@ pub struct StringKernelPlanLegality {
 }
 
 /// Thin backend-consumable kernel plan derived from the current candidate set.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StringKernelPlan {
     pub version: u32,
     pub family: StringKernelPlanFamily,
@@ -94,6 +106,8 @@ pub struct StringKernelPlan {
     pub direct_kernel_entry: Option<StringCorridorCandidateState>,
     pub consumer: Option<StringKernelPlanConsumer>,
     pub proof: StringCorridorCandidateProof,
+    pub middle_literal: Option<String>,
+    pub loop_payload: Option<StringKernelPlanLoopPayload>,
 }
 
 impl StringKernelPlan {
@@ -128,6 +142,7 @@ impl StringKernelPlan {
                 StringKernelPlanPart::Const {
                     value: middle,
                     known_length: self.known_length,
+                    literal: self.middle_literal.clone(),
                 },
                 StringKernelPlanPart::Slice {
                     value: right_value,
@@ -156,8 +171,129 @@ fn candidate_priority(kind: StringCorridorCandidateKind) -> u8 {
     }
 }
 
+fn const_string_literal(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+) -> Option<(ValueId, String)> {
+    let root = resolve_value_origin(function, def_map, value);
+    let (bbid, idx) = def_map.get(&root).copied()?;
+    match function.blocks.get(&bbid)?.instructions.get(idx)? {
+        MirInstruction::Const {
+            value: ConstValue::String(text),
+            ..
+        } => Some((root, text.clone())),
+        _ => None,
+    }
+}
+
+fn const_integer_literal(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+) -> Option<i64> {
+    let root = resolve_value_origin(function, def_map, value);
+    let (bbid, idx) = def_map.get(&root).copied()?;
+    match function.blocks.get(&bbid)?.instructions.get(idx)? {
+        MirInstruction::Const {
+            value: ConstValue::Integer(actual),
+            ..
+        } => Some(*actual),
+        _ => None,
+    }
+}
+
+fn find_loop_bound_for_corridor(function: &MirFunction, corridor_root: ValueId) -> Option<i64> {
+    let def_map = build_value_def_map(function);
+    let root = resolve_value_origin(function, &def_map, corridor_root);
+    let (bbid, idx) = def_map.get(&root).copied()?;
+    let block = function.blocks.get(&bbid)?;
+    if !matches!(block.instructions.get(idx)?, MirInstruction::Phi { .. }) {
+        return None;
+    }
+    let branch_condition = match block.terminator.as_ref() {
+        Some(MirInstruction::Branch { condition, .. }) => Some(*condition),
+        _ => block
+            .instructions
+            .iter()
+            .find_map(|candidate| match candidate {
+                MirInstruction::Branch { condition, .. } => Some(*condition),
+                _ => None,
+            }),
+    };
+    block.instructions.iter().find_map(|inst| match inst {
+        MirInstruction::Compare {
+            dst,
+            op: CompareOp::Lt,
+            lhs,
+            rhs,
+        } if branch_condition == Some(*dst) => const_integer_literal(function, &def_map, *lhs)
+            .or_else(|| const_integer_literal(function, &def_map, *rhs)),
+        _ => None,
+    })
+}
+
+fn find_seed_input_for_corridor(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    corridor_root: ValueId,
+) -> Option<(ValueId, String)> {
+    let root = resolve_value_origin(function, def_map, corridor_root);
+    let (bbid, idx) = def_map.get(&root).copied()?;
+    let block = function.blocks.get(&bbid)?;
+    let inputs = match block.instructions.get(idx)? {
+        MirInstruction::Phi { inputs, .. } => inputs,
+        _ => return None,
+    };
+    inputs
+        .iter()
+        .find_map(|(_, value)| const_string_literal(function, def_map, *value))
+}
+
+fn derive_concat_triplet_loop_payload(
+    function: &MirFunction,
+    proof: &StringCorridorCandidateProof,
+    corridor_root: ValueId,
+) -> Option<StringKernelPlanLoopPayload> {
+    let def_map = build_value_def_map(function);
+    let (seed_value, seed_literal) =
+        find_seed_input_for_corridor(function, &def_map, corridor_root)?;
+    let seed_length = seed_literal.len() as i64;
+    let loop_bound = find_loop_bound_for_corridor(function, corridor_root)?;
+    let split_value = match proof {
+        StringCorridorCandidateProof::ConcatTriplet {
+            left_end,
+            right_start,
+            ..
+        } if left_end == right_start => *left_end,
+        _ => return None,
+    };
+    let split_root = resolve_value_origin(function, &def_map, split_value);
+    let (bbid, idx) = def_map.get(&split_root).copied()?;
+    let divisor = match function.blocks.get(&bbid)?.instructions.get(idx)? {
+        MirInstruction::BinOp { lhs, rhs, .. } => const_integer_literal(function, &def_map, *rhs)
+            .or_else(|| const_integer_literal(function, &def_map, *lhs)),
+        _ => None,
+    }?;
+    if divisor <= 0 {
+        return None;
+    }
+    let split_length = seed_length / divisor;
+    if split_length <= 0 {
+        return None;
+    }
+    Some(StringKernelPlanLoopPayload {
+        seed_value,
+        seed_literal,
+        seed_length,
+        loop_bound,
+        split_length,
+    })
+}
+
 /// Derive a backend-consumable string kernel plan from current candidate metadata.
 pub fn derive_string_kernel_plan(
+    function: &MirFunction,
     candidates: &[StringCorridorCandidate],
 ) -> Option<StringKernelPlan> {
     let mut representative: Option<StringCorridorCandidate> = None;
@@ -207,6 +343,22 @@ pub fn derive_string_kernel_plan(
         }
     };
 
+    let def_map = build_value_def_map(function);
+    let middle_literal = match plan.proof {
+        StringCorridorCandidateProof::ConcatTriplet { middle, .. } => {
+            const_string_literal(function, &def_map, middle).map(|(_, text)| text)
+        }
+        _ => None,
+    };
+    let loop_payload = match plan.proof {
+        StringCorridorCandidateProof::ConcatTriplet { .. } => derive_concat_triplet_loop_payload(
+            function,
+            &plan.proof,
+            plan.source_root.unwrap_or(plan.corridor_root),
+        ),
+        _ => None,
+    };
+
     Some(StringKernelPlan {
         version: 1,
         family,
@@ -219,15 +371,112 @@ pub fn derive_string_kernel_plan(
         direct_kernel_entry,
         consumer: direct_kernel_entry.map(|_| StringKernelPlanConsumer::DirectKernelEntry),
         proof: plan.proof,
+        middle_literal,
+        loop_payload,
     })
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::{BasicBlock, BasicBlockId, BinaryOp, EffectMask, FunctionSignature, MirType};
+
+    fn make_loop_function() -> MirFunction {
+        let entry = BasicBlockId::new(0);
+        let header = BasicBlockId::new(18);
+        let body = BasicBlockId::new(19);
+        let exit = BasicBlockId::new(21);
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: Vec::new(),
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            entry,
+        );
+
+        function
+            .blocks
+            .get_mut(&entry)
+            .unwrap()
+            .instructions
+            .extend([
+                MirInstruction::Const {
+                    dst: ValueId::new(3),
+                    value: ConstValue::String("line-seed-abcdef".to_string()),
+                },
+                MirInstruction::Copy {
+                    dst: ValueId::new(4),
+                    src: ValueId::new(3),
+                },
+                MirInstruction::Const {
+                    dst: ValueId::new(5),
+                    value: ConstValue::Integer(16),
+                },
+            ]);
+
+        let mut header_block = BasicBlock::new(header);
+        header_block.instructions.extend([
+            MirInstruction::Phi {
+                dst: ValueId::new(15),
+                inputs: vec![(entry, ValueId::new(12)), (body, ValueId::new(16))],
+                type_hint: Some(MirType::Integer),
+            },
+            MirInstruction::Phi {
+                dst: ValueId::new(21),
+                inputs: vec![(entry, ValueId::new(4)), (body, ValueId::new(36))],
+                type_hint: Some(MirType::String),
+            },
+            MirInstruction::Const {
+                dst: ValueId::new(41),
+                value: ConstValue::Integer(300000),
+            },
+            MirInstruction::Compare {
+                dst: ValueId::new(37),
+                op: CompareOp::Lt,
+                lhs: ValueId::new(15),
+                rhs: ValueId::new(41),
+            },
+            MirInstruction::Branch {
+                condition: ValueId::new(37),
+                then_bb: body,
+                else_bb: exit,
+                then_edge_args: None,
+                else_edge_args: None,
+            },
+        ]);
+        function.blocks.insert(header, header_block);
+
+        let mut body_block = BasicBlock::new(body);
+        body_block.instructions.extend([
+            MirInstruction::Const {
+                dst: ValueId::new(50),
+                value: ConstValue::Integer(2),
+            },
+            MirInstruction::BinOp {
+                dst: ValueId::new(47),
+                op: BinaryOp::Div,
+                lhs: ValueId::new(5),
+                rhs: ValueId::new(50),
+            },
+            MirInstruction::Const {
+                dst: ValueId::new(66),
+                value: ConstValue::String("xx".to_string()),
+            },
+            MirInstruction::Copy {
+                dst: ValueId::new(36),
+                src: ValueId::new(21),
+            },
+        ]);
+        function.blocks.insert(body, body_block);
+        function.blocks.insert(exit, BasicBlock::new(exit));
+        function
+    }
 
     #[test]
     fn derive_string_kernel_plan_prefers_direct_entry_and_collects_barriers() {
+        let function = make_loop_function();
         let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
             corridor_root: ValueId::new(7),
             source_root: Some(ValueId::new(1)),
@@ -269,7 +518,7 @@ mod tests {
             },
         ];
 
-        let kernel_plan = derive_string_kernel_plan(&candidates).expect("kernel plan");
+        let kernel_plan = derive_string_kernel_plan(&function, &candidates).expect("kernel plan");
 
         assert_eq!(kernel_plan.version, 1);
         assert_eq!(
@@ -308,5 +557,45 @@ mod tests {
                 no_publish_inside: true,
             }
         );
+    }
+
+    #[test]
+    fn derive_string_kernel_plan_collects_concat_loop_payload() {
+        let function = make_loop_function();
+        let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
+            corridor_root: ValueId::new(21),
+            source_root: Some(ValueId::new(21)),
+            start: Some(ValueId::new(71)),
+            end: Some(ValueId::new(72)),
+            known_length: Some(2),
+            proof: StringCorridorCandidateProof::ConcatTriplet {
+                left_value: Some(ValueId::new(26)),
+                left_source: ValueId::new(21),
+                left_start: ValueId::new(46),
+                left_end: ValueId::new(47),
+                middle: ValueId::new(66),
+                right_value: Some(ValueId::new(27)),
+                right_source: ValueId::new(21),
+                right_start: ValueId::new(47),
+                right_end: ValueId::new(42),
+                shared_source: true,
+            },
+        };
+        let candidates = vec![StringCorridorCandidate {
+            kind: StringCorridorCandidateKind::DirectKernelEntry,
+            state: StringCorridorCandidateState::Candidate,
+            reason: "direct kernel entry candidate",
+            plan: Some(plan),
+        }];
+
+        let kernel_plan = derive_string_kernel_plan(&function, &candidates).expect("kernel plan");
+        let payload = kernel_plan.loop_payload.expect("loop payload");
+
+        assert_eq!(payload.seed_value, ValueId::new(3));
+        assert_eq!(payload.seed_literal, "line-seed-abcdef");
+        assert_eq!(payload.seed_length, 16);
+        assert_eq!(payload.loop_bound, 300000);
+        assert_eq!(payload.split_length, 8);
+        assert_eq!(kernel_plan.middle_literal.as_deref(), Some("xx"));
     }
 }

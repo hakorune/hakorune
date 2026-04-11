@@ -32,4 +32,5 @@
   - first cut landed: `substring_concat_len_ascii_seed` is now a thin wrapper to the metadata-first loop matcher path
   - second cut landed: `substring_concat_loop_ascii_seed` now separates a narrow metadata-first len preamble from the legacy full-loop fallback helper
   - third cut landed: the legacy full-loop fallback keeps only the remaining preheader/header values it still needs
+  - fourth cut landed: `StringKernelPlan` exports the exact loop payload and the full-loop route reads that metadata before touching the legacy helper
   - next: retire the remaining full-loop fallback only after plan-first parity proves out
