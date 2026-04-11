@@ -18,7 +18,8 @@ use crate::exports::string_plan::{
 };
 use crate::exports::string_trace;
 use crate::exports::string_view::{
-    clamp_i64_range, resolve_string_span_pair_from_handles, resolve_string_span_triplet_from_handles,
+    clamp_i64_range, resolve_string_span_pair_from_handles,
+    resolve_string_span_triplet_from_handles,
 };
 use crate::observe;
 use crate::plugin::issue_fresh_handle_from_arc;

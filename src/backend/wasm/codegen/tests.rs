@@ -50,7 +50,10 @@ mod tests {
             })
             .expect("null const should lower");
 
-        assert_eq!(result, vec!["i32.const 0".to_string(), "local.set $0".to_string()]);
+        assert_eq!(
+            result,
+            vec!["i32.const 0".to_string(), "local.set $0".to_string()]
+        );
     }
 
     #[test]

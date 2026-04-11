@@ -169,7 +169,8 @@ fn string_substring_concat_hhii_contract() {
     with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
         let lhs_h = string_handle("line-seed");
         let rhs_h = string_handle("-abcdef");
-        let direct_h = nyash_string_substring_hii_export(nyash_string_concat_hh_export(lhs_h, rhs_h), 2, 12);
+        let direct_h =
+            nyash_string_substring_hii_export(nyash_string_concat_hh_export(lhs_h, rhs_h), 2, 12);
         let helper_h = nyash_string_substring_concat_hhii_export(lhs_h, rhs_h, 2, 12);
 
         assert!(helper_h > 0);
@@ -187,11 +188,8 @@ fn string_substring_concat3_hhhii_contract() {
         let a_h = string_handle("line");
         let b_h = string_handle("-xx-");
         let c_h = string_handle("seed");
-        let direct_h = nyash_string_substring_hii_export(
-            nyash_string_concat3_hhh_export(a_h, b_h, c_h),
-            1,
-            8,
-        );
+        let direct_h =
+            nyash_string_substring_hii_export(nyash_string_concat3_hhh_export(a_h, b_h, c_h), 1, 8);
         let helper_h = nyash_string_substring_concat3_hhhii_export(a_h, b_h, c_h, 1, 8);
 
         assert!(helper_h > 0);

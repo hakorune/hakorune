@@ -99,7 +99,9 @@ impl ArrayBox {
         }
         match storage {
             ArrayStorage::Boxed(items) => items,
-            ArrayStorage::InlineI64(_) | ArrayStorage::InlineBool(_) | ArrayStorage::InlineF64(_) => {
+            ArrayStorage::InlineI64(_)
+            | ArrayStorage::InlineBool(_)
+            | ArrayStorage::InlineF64(_) => {
                 unreachable!("inline storage promoted to boxed")
             }
         }
@@ -112,7 +114,9 @@ impl ArrayBox {
         }
         match storage {
             ArrayStorage::InlineI64(values) => Some(values),
-            ArrayStorage::Boxed(_) | ArrayStorage::InlineBool(_) | ArrayStorage::InlineF64(_) => None,
+            ArrayStorage::Boxed(_) | ArrayStorage::InlineBool(_) | ArrayStorage::InlineF64(_) => {
+                None
+            }
         }
     }
 
@@ -123,7 +127,9 @@ impl ArrayBox {
         }
         match storage {
             ArrayStorage::InlineBool(values) => Some(values),
-            ArrayStorage::Boxed(_) | ArrayStorage::InlineI64(_) | ArrayStorage::InlineF64(_) => None,
+            ArrayStorage::Boxed(_) | ArrayStorage::InlineI64(_) | ArrayStorage::InlineF64(_) => {
+                None
+            }
         }
     }
 
@@ -134,7 +140,9 @@ impl ArrayBox {
         }
         match storage {
             ArrayStorage::InlineF64(values) => Some(values),
-            ArrayStorage::Boxed(_) | ArrayStorage::InlineI64(_) | ArrayStorage::InlineBool(_) => None,
+            ArrayStorage::Boxed(_) | ArrayStorage::InlineI64(_) | ArrayStorage::InlineBool(_) => {
+                None
+            }
         }
     }
 

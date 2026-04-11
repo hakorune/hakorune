@@ -98,6 +98,9 @@ Related:
   - exact counter remains `perf-observe`
   - trace/debug-only lane is `perf-trace`
   - trace lane is parked placeholder and no longer blocks perf reopen
+- `phase-164x` landed:
+  - repo-wide `cargo fmt --check` drift cleanup is complete
+  - the cleanup corridor stayed separate from `phase-163x`
 - current exact front truth:
   - `kilo_micro_concat_birth = 3ms`
   - `kilo_micro_concat_const_suffix = 36ms` (WSL lane: recheck with 3 runs)
@@ -133,10 +136,6 @@ Related:
   - the active vm_hako capability gate is retired to a compatibility stub
   - `vm-hako-core.txt` is frozen as the 4-row monitor pack (`compare`, `env`, `file_close`, `file_read`)
   - `mapbox` mirror cleanup is complete; the remaining retirement work is runtime bridge separation
-- `phase-164x repo-wide fmt drift cleanup`
-  - repo-wide `cargo fmt --check` drift is separate from the optimization lane
-  - current confirmed inventory is 11 files; `src/mir/passes/escape.rs` is excluded
-
 ## Structural Stop Lines
 
 - `rust-vm`

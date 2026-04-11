@@ -374,12 +374,12 @@ mod tests {
             vec!["declared".to_string()],
             HashMap::new(),
         );
-        let refcell: SharedNyashBox = Arc::from(
-            Box::new(crate::boxes::ref_cell_box::RefCellBox::new(Box::new(
-                IntegerBox::new(9),
-            ))) as Box<dyn NyashBox>,
-        );
-        instance.set_field("payload", refcell).expect("box field set");
+        let refcell: SharedNyashBox = Arc::from(Box::new(
+            crate::boxes::ref_cell_box::RefCellBox::new(Box::new(IntegerBox::new(9))),
+        ) as Box<dyn NyashBox>);
+        instance
+            .set_field("payload", refcell)
+            .expect("box field set");
 
         assert_eq!(
             instance.field_names(),

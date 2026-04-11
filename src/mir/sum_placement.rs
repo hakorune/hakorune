@@ -330,7 +330,8 @@ fn collect_variant_project_facts(
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
     root_analyses: &BTreeMap<ValueId, SumRootAnalysis>,
 ) -> Vec<SumPlacementFact> {
-    let selection_sites = build_sum_selection_site_map(selections, ThinEntrySurface::VariantProject);
+    let selection_sites =
+        build_sum_selection_site_map(selections, ThinEntrySurface::VariantProject);
     let mut facts = Vec::new();
 
     for block_id in function.block_ids() {

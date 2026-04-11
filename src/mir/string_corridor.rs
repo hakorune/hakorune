@@ -226,9 +226,9 @@ fn infer_from_method(box_name: &str, method: &str, arity: usize) -> Option<Strin
     let is_stringish = is_stringish_box_name(box_name);
 
     match (method, arity) {
-        ("length", 0) | ("len", 0) if is_stringish || is_runtime_data_string_facade => Some(StringCorridorFact::str_len(
-            StringCorridorCarrier::MethodCall,
-        )),
+        ("length", 0) | ("len", 0) if is_stringish || is_runtime_data_string_facade => Some(
+            StringCorridorFact::str_len(StringCorridorCarrier::MethodCall),
+        ),
         ("substring", 2) | ("slice", 2) if is_stringish || is_runtime_data_string_facade => Some(
             StringCorridorFact::str_slice(StringCorridorCarrier::MethodCall),
         ),
@@ -279,11 +279,9 @@ fn infer_from_runtime_export(name: &str) -> Option<StringCorridorFact> {
         "nyash.string.substring_hii" => Some(StringCorridorFact::str_slice(
             StringCorridorCarrier::RuntimeExport,
         )),
-        "nyash.string.substring_concat_hhii" | "nyash.string.substring_concat3_hhhii" => {
-            Some(StringCorridorFact::str_slice(
-                StringCorridorCarrier::RuntimeExport,
-            ))
-        }
+        "nyash.string.substring_concat_hhii" | "nyash.string.substring_concat3_hhhii" => Some(
+            StringCorridorFact::str_slice(StringCorridorCarrier::RuntimeExport),
+        ),
         "nyash.string.substring_len_hii" => Some(StringCorridorFact::str_len(
             StringCorridorCarrier::RuntimeExport,
         )),

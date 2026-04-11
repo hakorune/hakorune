@@ -46,8 +46,7 @@ where
             let MirInstruction::Phi { dst, .. } = inst else {
                 continue;
             };
-            let query =
-                infer_phi_base_query(function, def_map, *dst, normalize_value, is_anchor);
+            let query = infer_phi_base_query(function, def_map, *dst, normalize_value, is_anchor);
             out.push(PhiCarryRelation {
                 phi_value: *dst,
                 relation: query.relation,
@@ -84,7 +83,14 @@ where
     Anchor: Fn(ValueId) -> bool + Copy,
 {
     let visited = BTreeSet::new();
-    infer_phi_base_relation_inner(function, def_map, value, normalize_value, is_anchor, visited)
+    infer_phi_base_relation_inner(
+        function,
+        def_map,
+        value,
+        normalize_value,
+        is_anchor,
+        visited,
+    )
 }
 
 fn infer_phi_base_relation_inner<Normalize, Anchor>(
@@ -263,13 +269,19 @@ mod tests {
         let header = function.blocks.get_mut(&BasicBlockId(1)).expect("header");
         header.instructions.push(MirInstruction::Phi {
             dst: ValueId(21),
-            inputs: vec![(BasicBlockId(0), ValueId(4)), (BasicBlockId(3), ValueId(22))],
+            inputs: vec![
+                (BasicBlockId(0), ValueId(4)),
+                (BasicBlockId(3), ValueId(22)),
+            ],
             type_hint: Some(MirType::Integer),
         });
         header.instruction_spans.push(Span::unknown());
         header.instructions.push(MirInstruction::Phi {
             dst: ValueId(31),
-            inputs: vec![(BasicBlockId(0), ValueId(10)), (BasicBlockId(3), ValueId(11))],
+            inputs: vec![
+                (BasicBlockId(0), ValueId(10)),
+                (BasicBlockId(3), ValueId(11)),
+            ],
             type_hint: Some(MirType::Integer),
         });
         header.instruction_spans.push(Span::unknown());

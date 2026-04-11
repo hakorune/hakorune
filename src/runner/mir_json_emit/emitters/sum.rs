@@ -25,7 +25,11 @@ pub(crate) fn emit_variant_make(
     obj
 }
 
-pub(crate) fn emit_variant_tag(dst: &ValueId, value: &ValueId, enum_name: &str) -> serde_json::Value {
+pub(crate) fn emit_variant_tag(
+    dst: &ValueId,
+    value: &ValueId,
+    enum_name: &str,
+) -> serde_json::Value {
     json!({
         "op": "variant_tag",
         "dst": dst.as_u32(),

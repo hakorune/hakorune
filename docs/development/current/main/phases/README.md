@@ -69,10 +69,10 @@
 ## Parked Corridors
 
 - **Phase 96x（PARKED）**: vm_hako LLVM acceptance cutover
-- **Phase 164x（PARKED）**: repo-wide fmt drift cleanup
 
 ### Recent Landed
 
+- **Phase 164x（LANDED）**: repo-wide fmt drift cleanup
 - **Phase 141x（LANDED）**: string semantic boundary review
 - **Phase 140x（LANDED）**: map owner pilot
 - **Phase 139x（LANDED）**: array owner pilot

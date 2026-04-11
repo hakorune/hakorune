@@ -6,7 +6,7 @@ Scope: formatting-only cleanup for the repo-wide `cargo fmt --check` drift. This
 
 ## Confirmed Inventory
 
-The worker investigation confirmed that these files are the current repo-wide fmt drift set:
+The worker investigation confirmed that these files were the current repo-wide fmt drift set before the cleanup pass:
 
 - `crates/nyash_kernel/src/exports/string_helpers/concat.rs`
 - `crates/nyash_kernel/src/plugin/array.rs`
@@ -19,6 +19,7 @@ The worker investigation confirmed that these files are the current repo-wide fm
 - `src/mir/string_corridor.rs`
 - `src/mir/sum_placement.rs`
 - `src/runner/mir_json_emit/emitters/sum.rs`
+- `src/mir/instruction/methods.rs`
 
 ## Exclusion
 
@@ -29,6 +30,7 @@ The worker investigation confirmed that these files are the current repo-wide fm
 - repo-wide `cargo fmt --check` passes
 - only formatting changes are included
 - no behavior changes, refactors, or optimization slices are mixed into this corridor
+- the cleanup pass formatted 12 files total
 
 ## Boundary Rule
 

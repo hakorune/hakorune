@@ -203,7 +203,8 @@ impl MirInstruction {
             MirInstruction::FieldGet { base, .. } => vec![*base],
             MirInstruction::FieldSet { base, value, .. } => vec![*base, *value],
             MirInstruction::VariantMake { payload, .. } => payload.iter().copied().collect(),
-            MirInstruction::VariantTag { value, .. } | MirInstruction::VariantProject { value, .. } => {
+            MirInstruction::VariantTag { value, .. }
+            | MirInstruction::VariantProject { value, .. } => {
                 vec![*value]
             }
 

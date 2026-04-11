@@ -49,7 +49,7 @@ Scope: repo root から current lane / current front / restart read order に最
   - the only remaining backlog item is `96xE5` monitor-policy decision for that frozen pack
 - repo-wide formatting maintenance corridor:
   - `docs/development/current/main/phases/phase-164x/README.md`
-  - repo-wide `cargo fmt --check` drift is separate from the `phase-163x` optimization lane
+  - phase-164x is landed; repo-wide `cargo fmt --check` drift is cleaned up and remains separate from the `phase-163x` optimization lane
 - landed inventory scaffold:
   - `src/mir/storage_class.rs`
   - `StorageClass` facts are now refreshed after corridor facts and surfaced in verbose MIR / JSON dumps
