@@ -1596,7 +1596,7 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
 
   /* body */
   BUILD_INTERESTING(yyjson_arr_get(blocks, 2));
-  if (!(n == 17 || n == 14)) { yyjson_doc_free(doc); return -1; }
+  if (n != 17) { yyjson_doc_free(doc); return -1; }
   EXPECT_OP(0, "const");
   EXPECT_OP(1, "const");
   EXPECT_OP(2, "binop");
@@ -1612,94 +1612,46 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
   }
   middle = READ_STR(yyjson_obj_get(interesting[5], "value"), "value");
   if (!middle || !hako_llvmc_ascii_strlen(middle, &middle_len)) { yyjson_doc_free(doc); return -1; }
-  if (n == 17) {
-    EXPECT_OP(7, "const");
-    EXPECT_OP(8, "binop");
-    EXPECT_OP(10, "binop");
-    EXPECT_OP(11, "binop");
-    EXPECT_OP(12, "const");
-    EXPECT_OP(13, "const");
-    EXPECT_OP(14, "binop");
-    EXPECT_OP(16, "jump");
-    {
-      const char* add0 = READ_STR(interesting[8], "operation");
-      const char* add1 = READ_STR(interesting[10], "operation");
-      const char* add2 = READ_STR(interesting[11], "operation");
-      const char* add3 = READ_STR(interesting[14], "operation");
-      if (!(hako_llvmc_str_eq(add0, "+") &&
-            hako_llvmc_str_eq(add1, "+") &&
-            hako_llvmc_str_eq(add2, "+") &&
-            hako_llvmc_str_eq(add3, "+"))) {
-        yyjson_doc_free(doc);
-        return -1;
-      }
-    }
-    if (READ_INT(yyjson_obj_get(interesting[12], "value"), "value") != 1 ||
-        READ_INT(yyjson_obj_get(interesting[13], "value"), "value") != 1) {
+  EXPECT_OP(7, "const");
+  EXPECT_OP(8, "binop");
+  EXPECT_OP(10, "binop");
+  EXPECT_OP(11, "binop");
+  EXPECT_OP(12, "const");
+  EXPECT_OP(13, "const");
+  EXPECT_OP(14, "binop");
+  EXPECT_OP(16, "jump");
+  {
+    const char* add0 = READ_STR(interesting[8], "operation");
+    const char* add1 = READ_STR(interesting[10], "operation");
+    const char* add2 = READ_STR(interesting[11], "operation");
+    const char* add3 = READ_STR(interesting[14], "operation");
+    if (!(hako_llvmc_str_eq(add0, "+") &&
+          hako_llvmc_str_eq(add1, "+") &&
+          hako_llvmc_str_eq(add2, "+") &&
+          hako_llvmc_str_eq(add3, "+"))) {
       yyjson_doc_free(doc);
       return -1;
     }
-    {
-      helper_result = READ_INT(interesting[15], "dst");
-      if (!(hako_llvmc_string_corridor_read_plan_source_window_fn(
-                fn,
-                helper_result,
-                "publication_sink",
-                &source_root,
-                &helper_start,
-                &helper_end) &&
-            source_root > 0 &&
-            helper_start == READ_INT(interesting[12], "dst") &&
-            helper_end == READ_INT(interesting[14], "dst"))) {
-        yyjson_doc_free(doc);
-        return -1;
-      }
-    }
-  } else {
-    EXPECT_OP(6, "const");
-    EXPECT_OP(7, "binop");
-    EXPECT_OP(8, "binop");
-    EXPECT_OP(9, "const");
-    EXPECT_OP(10, "const");
-    EXPECT_OP(11, "binop");
-    EXPECT_OP(13, "jump");
-    {
-      const char* add0 = READ_STR(interesting[7], "operation");
-      const char* add1 = READ_STR(interesting[8], "operation");
-      const char* add2 = READ_STR(interesting[11], "operation");
-      long long const_len_dst = READ_INT(interesting[6], "dst");
-      long long collapsed_lhs = READ_INT(interesting[7], "lhs");
-      long long collapsed_rhs = READ_INT(interesting[7], "rhs");
-      if (!(hako_llvmc_str_eq(add0, "+") &&
-            hako_llvmc_str_eq(add1, "+") &&
-            hako_llvmc_str_eq(add2, "+") &&
-            ((collapsed_lhs == const_len_dst && collapsed_rhs == source_len_value) ||
-             (collapsed_lhs == source_len_value && collapsed_rhs == const_len_dst)))) {
-        yyjson_doc_free(doc);
-        return -1;
-      }
-    }
-    if (READ_INT(yyjson_obj_get(interesting[6], "value"), "value") != middle_len ||
-        READ_INT(yyjson_obj_get(interesting[9], "value"), "value") != 1 ||
-        READ_INT(yyjson_obj_get(interesting[10], "value"), "value") != 1) {
+  }
+  if (READ_INT(yyjson_obj_get(interesting[12], "value"), "value") != 1 ||
+      READ_INT(yyjson_obj_get(interesting[13], "value"), "value") != 1) {
+    yyjson_doc_free(doc);
+    return -1;
+  }
+  {
+    helper_result = READ_INT(interesting[15], "dst");
+    if (!(hako_llvmc_string_corridor_read_plan_source_window_fn(
+              fn,
+              helper_result,
+              "publication_sink",
+              &source_root,
+              &helper_start,
+              &helper_end) &&
+          source_root > 0 &&
+          helper_start == READ_INT(interesting[12], "dst") &&
+          helper_end == READ_INT(interesting[14], "dst"))) {
       yyjson_doc_free(doc);
       return -1;
-    }
-    {
-      helper_result = READ_INT(interesting[12], "dst");
-      if (!(hako_llvmc_string_corridor_read_plan_source_window_fn(
-                fn,
-                helper_result,
-                "publication_sink",
-                &source_root,
-                &helper_start,
-                &helper_end) &&
-            source_root > 0 &&
-            helper_start == READ_INT(interesting[9], "dst") &&
-            helper_end == READ_INT(interesting[11], "dst"))) {
-        yyjson_doc_free(doc);
-        return -1;
-      }
     }
   }
 
@@ -1745,33 +1697,15 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
   }
 
   {
-    int rc;
-    if (helper_result > 0 &&
-        merged_string_phi > 0 &&
-        hako_llvmc_string_corridor_has_relation_fn(
-            fn,
-            merged_string_phi,
-            "stable_length_scalar",
-            helper_result,
-            source_len_value,
-            "stop_at_merge")) {
-      rc = hako_llvmc_emit_substring_concat_len_ir(
-          obj_out,
-          &selection,
-          loop_bound,
-          seed_len,
-          middle_len);
-    } else {
-      rc = hako_llvmc_emit_substring_concat_loop_ir(
-          obj_out,
-          &selection,
-          seed,
-          seed_len,
-          loop_bound,
-          middle,
-          middle_len,
-          split);
-    }
+    int rc = hako_llvmc_emit_substring_concat_loop_ir(
+        obj_out,
+        &selection,
+        seed,
+        seed_len,
+        loop_bound,
+        middle,
+        middle_len,
+        split);
     yyjson_doc_free(doc);
     return rc;
   }

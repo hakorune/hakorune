@@ -121,8 +121,12 @@ Current follow-on reading:
   - MIR JSON now exports `metadata.string_kernel_plans`
   - `hako_llvmc_ffi_string_loop_seed.inc` now consumes that plan first for the
     stable-length `substring_concat` len route
+- landed bridge shrink:
+  - the old loop matcher no longer accepts the 14-op len-route fallback once the
+    plan-first keeper parity was proven
 - the remaining missing seam for exact-seed retirement is shrinking the old
-  full-loop shape matcher after exact keeper proof, not raw metadata export itself
+  full-loop shape matcher itself when a generic plan-selected full-loop route exists,
+  not raw metadata export itself
 
 Do not encode:
 

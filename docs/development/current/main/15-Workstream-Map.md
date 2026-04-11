@@ -18,7 +18,7 @@ Related:
 | Front | `lifecycle value parent locked -> audits landed -> thin-entry inventory/selection landed -> sum placement pilot landed -> ny-llvmc parity proving slice landed -> tuple compat transport landed` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
 | Blocker | `canonical multi-slot sum remains deferred; current tuple route stays compat-boxed` |
-| Next | `phase-179x string kernel plan export` |
+| Next | `broader DCE no-dst/effect-sensitive cleanup` |
 | After Next | `where / enum methods / monomorphization stay backlog-only` |
 
 ## Current Read
@@ -74,12 +74,13 @@ Related:
   - `phase-178x` is landed
   - split `hako_llvmc_ffi_sum_local_seed.inc` into a facade plus helper/emit/matcher include slices
   - keep this as BoxShape only; no pure-compile dispatch reorder and no semantic change
-- active string bridge-retirement follow-on:
-  - `phase-179x` is active
+- landed string bridge-retirement follow-on:
+  - `phase-179x` is landed
   - accept the external reread direction, but correct the exporter reading: `mir_json_emit` already ships string corridor facts/relations/candidates
   - landed: one exported backend-consumable `StringKernelPlan` surface now exists as `metadata.string_kernel_plans`
   - landed: `string_loop_seed` now consumes that plan first for the stable-length len route while keeping shape fallback only for the remaining full-loop bridge
-  - next cut is exact keeper proof, then matcher shrink
+  - landed: exact keeper proof stays green and the old matcher no longer accepts the 14-op len-route fallback
+  - next cut returns to broader DCE cleanup
 - `phase-133x` landed:
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`

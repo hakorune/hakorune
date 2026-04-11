@@ -1,6 +1,6 @@
 # Phase 179x: string kernel plan export and seed retirement
 
-- Status: Active
+- Status: Landed
 - Purpose: recut the remaining string exact-seed bridge so `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc` can move from benchmark-shape reanalysis toward a metadata-first consumer of a dedicated `StringKernelPlan`.
 - Scope:
   - `CURRENT_TASK.md`
@@ -36,8 +36,13 @@
 - `179xC` is now landed:
   - `hako_llvmc_ffi_string_loop_seed.inc` now consumes exported `metadata.string_kernel_plans` first for the stable-length `substring_concat` len route
   - the old body matcher remains only as shape-fallback for the remaining full-loop bridge
-- next front is `179xD`:
-  - prove exact asm/perf keeper parity on `kilo_micro_substring_concat` before matcher shrink
+- `179xD` is now landed:
+  - exact asm/perf keeper parity on `kilo_micro_substring_concat` stays green:
+    - `ny_main = mov $0x10 ; xor %ecx,%ecx ; ... ; add $0x12,%rax ; ... ; ret`
+    - `ny_aot_instr=1,665,875 / ny_aot_cycles=1,027,222 / ny_aot_ms=3`
+- `179xE` is now landed:
+  - the old loop matcher no longer accepts the 14-op len-route fallback
+  - only the remaining full-loop bridge stays on shape fallback
 
 ## Acceptance
 
@@ -54,4 +59,5 @@
 ## Exit
 
 - the repo has one explicit `StringKernelPlan` schema to target
-- the next implementation cut can add metadata-first consumption without reopening ownership arguments
+- the first metadata-first consumer now proves the same keeper as the prior exact bridge
+- the next implementation cut can return to broader DCE widening without reopening string bridge ownership
