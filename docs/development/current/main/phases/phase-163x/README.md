@@ -217,8 +217,8 @@
              - `callsite_canonicalize` rewrites known user-box receiver calls from `RuntimeDataBox`/union and `Global <Box>.<method>/<arity>` into canonical known `Call(Method{box_name=<Box>, certainty=Known, box_kind=UserDefined})`
              - `phase163x_direct_emit_user_box_counter_step_contract.sh` now pins the current direct-route `Counter.step` contract on `bench_kilo_micro_userbox_counter_step.hako`
            - landed first native-driver/shim boundary pure-first consumer slice too:
-             - `phase163x_boundary_user_box_method_known_receiver_min.sh` pins a metadata-bearing `Counter.step` fixture on the owner lane without compat replay
-             - the current shim consumer stays seed-narrow and consumes `user_box_method.known_receiver` together with the already-landed scalar `Counter.value` field selections
+             - `phase163x_boundary_user_box_method_known_receiver_min.sh` now pins metadata-bearing `Counter.step` and `Point.sum` fixtures on the owner lane without compat replay
+             - the current shim consumer stays local-i64 + known-receiver narrow and consumes `user_box_method.known_receiver` together with the matching scalar field selections
            - first measured local-method keeper is now landed:
              - `bench_kilo_micro_userbox_counter_step.hako` + `benchmarks/c/bench_kilo_micro_userbox_counter_step.c`
              - the narrow `Counter.step` pure-first micro seed now collapses the exact bench to `ny_main = mov $0x52041ab, %eax ; ret`
@@ -228,7 +228,10 @@
              - `phase163x_direct_emit_user_box_point_sum_contract.sh` now pins the current direct-route `Point.sum` contract on the known-receiver lane
              - the narrow `Point.sum` pure-first micro seed now collapses the exact bench to `ny_main = mov $0x5b8d83, %eax ; ret`
              - latest exact reread: `kilo_micro_userbox_point_sum` = `c_instr=127,235 / c_cycles=216,542 / c_ms=3` vs `ny_aot_instr=465,837 / ny_aot_cycles=1,127,654 / ny_aot_ms=3`
-           - broader native-driver local-method parity is now unblocked by a second measured keeper; keep that widening separate from `ArrayBox` read-side observer evidence
+           - first broader boundary parity widening is now landed:
+             - `apps/tests/mir_shape_guard/user_box_point_sum_local_i64_min.prebuilt.mir.json` now proves the direct local-i64 `Point.sum` known-receiver shape without relying on the benchmark loop body
+             - `phase163x_boundary_user_box_method_known_receiver_min.sh` now keeps both known-receiver fixtures green on boundary `pure-first` without compat replay
+           - keep further local-method widening separate from `ArrayBox` read-side observer evidence
         4. `ArrayBox` typed-slot expansion beyond the landed `InlineI64` pilot
            - landed next narrow slices: `InlineBool` / `InlineF64` birth/preserve on existing `slot_store_hih` / `slot_append_hh` any routes
            - current stop-line: keep read-side on encoded-any `slot_load_hi`; do not add a new typed load row without measured observer evidence (`kilo_micro_array_getset` still does not justify it)
