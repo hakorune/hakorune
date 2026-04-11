@@ -1,3 +1,5 @@
+// Runtime bridge lane classification for extern dispatch.
+// Keep this separate from smoke-retirement ownership docs.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) enum ExternProviderLane {
     RuntimeDirect,

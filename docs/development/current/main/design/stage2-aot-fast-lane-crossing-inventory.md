@@ -37,6 +37,7 @@ Related:
   - `ny-llvm` / `ny-llvmc` = daily/mainline AOT lane
   - `llvmlite` = stage0/compat/probe keep
   - `native` = explicit replay/canary lane
+- runtime bridge ownership (`driver_spawn.rs`, `extern_provider/lane.rs`, `mir_call_v1_handler.hako`, `mir_vm_s0_call_exec.hako`) is tracked on a separate lane from smoke-retirement work.
 - implementation bucket は `ny-llvm first` で切り、`llvmlite` は shared contract keep としてだけ追従確認する。
 - bucket は次の 3 本に固定する。
   1. `collection op`
