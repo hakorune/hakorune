@@ -30,6 +30,9 @@ Related:
     2. generic `value_origin` / `phi_relation` owner
     3. compat semantic recovery quarantine
     4. only then generic boundary/lifecycle extraction decision
+  - current `phase166x` state:
+    - `semantic_refresh` owner is landed
+    - next front is generic `value_origin` / `phi_relation` ownership
 - lane: `phase-163x primitive and user-box fast path`
 - current implementation focus:
   - owner-target reminder:

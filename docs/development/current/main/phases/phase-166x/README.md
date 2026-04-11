@@ -37,12 +37,15 @@
 
 ## Current Cut
 
-- add a single semantic refresh owner for MIR metadata recomputation
-- define the fixed order:
-  - generic refresh owner first
-  - generic `value_origin` / `phi_relation` owner second
-  - compat semantic recovery quarantine third
-  - generic boundary/lifecycle extraction only after that
+- landed first cut:
+  - `src/mir/semantic_refresh.rs` now owns MIR semantic metadata refresh entry points
+  - `MirCompiler` now refreshes semantic metadata through that single module-level owner
+  - `string_corridor_sink` now refreshes its function-local fact/relation/candidate stack through the same owner seam
+- next:
+  - define the fixed order:
+    - generic `value_origin` / `phi_relation` owner next
+    - compat semantic recovery quarantine after that
+    - generic boundary/lifecycle extraction only after that
 - keep current domain `fact -> candidate -> transform` layering
 
 ## Stop Line

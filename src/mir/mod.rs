@@ -50,6 +50,7 @@ pub mod printer;
 mod printer_helpers; // internal helpers extracted from printer.rs
 pub mod query; // Phase 26-G: MIR read/write/CFGビュー (MirQuery)
 pub mod region; // Phase 25.1l: Region/GC観測レイヤ（LoopForm v2 × RefKind）
+pub mod semantic_refresh; // MIR semantic metadata refresh owner (SSOT)
 pub mod slot_registry; // Phase 9.79b.1: method slot resolution (IDs)
 mod spanned_instruction;
 pub mod storage_class; // primitive / user-box storage-class inventory + refresh helper
@@ -98,6 +99,10 @@ pub use join_ir_runner::{run_joinir_function, JoinRuntimeError, JoinValue};
 pub use optimizer::MirOptimizer;
 pub use printer::MirPrinter;
 pub use query::{MirQuery, MirQueryBox};
+pub use semantic_refresh::{
+    refresh_function_semantic_metadata, refresh_function_string_corridor_metadata,
+    refresh_module_semantic_metadata,
+};
 pub use slot_registry::{BoxTypeId, MethodSlot};
 pub use spanned_instruction::{SpannedInstRef, SpannedInstruction};
 pub use storage_class::{
@@ -248,15 +253,7 @@ impl MirCompiler {
         // Phase 29y.1: RC insertion pass (skeleton - no-op for now)
         // Runs after optimization and verification, before backend codegen
         let _rc_stats = insert_rc_instructions(&mut module);
-        refresh_module_string_corridor_facts(&mut module);
-        refresh_module_string_corridor_relations(&mut module);
-        refresh_module_string_corridor_candidates(&mut module);
-        refresh_module_storage_class_facts(&mut module);
-        refresh_module_thin_entry_candidates(&mut module);
-        refresh_module_thin_entry_selections(&mut module);
-        refresh_module_sum_placement_facts(&mut module);
-        refresh_module_sum_placement_selections(&mut module);
-        refresh_module_sum_placement_layouts(&mut module);
+        refresh_module_semantic_metadata(&mut module);
 
         Ok(MirCompileResult {
             module,

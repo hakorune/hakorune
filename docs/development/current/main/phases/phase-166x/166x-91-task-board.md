@@ -6,7 +6,7 @@
   - phase README
   - SSOT
   - root/current/workstream pointers
-- [ ] `166xB` semantic refresh owner
+- [x] `166xB` semantic refresh owner
   - add one MIR-side refresh entry point
   - move scattered refresh ordering behind that entry
   - keep first cut behavior-preserving
