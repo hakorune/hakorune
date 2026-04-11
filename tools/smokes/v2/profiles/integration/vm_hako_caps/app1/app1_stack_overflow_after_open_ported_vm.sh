@@ -2,7 +2,7 @@
 # RVP-C13: vm-hako capability smoke for APP-1 run completion after open-path handling (ported pin)
 #
 # Contract:
-# 1) MIR preflight must contain phi + boxcall(open) shape in APP-1.
+# 1) MIR preflight must contain phi + mir_call(open) shape in APP-1.
 # 2) stale C12 blocker boxcall-open-handle-missing must not appear.
 # 3) stale stack-overflow signature must not appear.
 # 4) vm-hako execution must complete with RC=0 (run completion pin).
@@ -34,8 +34,8 @@ vm_hako_caps_emit_mir_or_fail "$SMOKE_NAME" "$RUN_TIMEOUT_SECS" "$TMP_MIR" "$APP
 vm_hako_caps_assert_mir_jq \
   "$SMOKE_NAME" \
   "$TMP_MIR" \
-  '.functions[] | select(.name=="main") | .blocks[] | select(any(.instructions[]; .op=="phi") and any(.instructions[]; .op=="boxcall" and .method=="open" and ((.args|length)==2 or (.args|length)==3)))' \
-  "MIR missing phi + boxcall(open) shape" || exit 1
+  '.functions[] | select(.name=="main") | .blocks[] | select(any(.instructions[]; .op=="phi") and any(.instructions[]; .op=="mir_call" and .mir_call.callee.type=="Method" and .mir_call.callee.box_name=="FileBox" and .mir_call.callee.name=="open" and ((.mir_call.args|length)==2 or (.mir_call.args|length)==3)))' \
+  "MIR missing phi + mir_call(open) shape" || exit 1
 
 vm_hako_caps_run_vm_hako_with_fixture \
   "$SMOKE_NAME" \

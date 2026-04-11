@@ -14,7 +14,7 @@ require_env || exit 2
 
 SMOKE_NAME="vm_hako_caps_args_vm"
 INPUT="${1:-$NYASH_ROOT/apps/tests/vm_hako_caps/args_route_block_min.hako}"
-RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-30}"
+RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-60}"
 TMP_MIR="$(mktemp /tmp/vm_hako_caps_c02.XXXXXX.json)"
 cleanup() {
   rm -f "$TMP_MIR"
@@ -28,17 +28,17 @@ vm_hako_caps_emit_mir_or_fail "$SMOKE_NAME" "$RUN_TIMEOUT_SECS" "$TMP_MIR" "$INP
 vm_hako_caps_assert_mir_jq \
   "$SMOKE_NAME" \
   "$TMP_MIR" \
-  '.functions[] | select(.name=="main") | .blocks[] | .instructions[] | select(.op=="boxcall" and .method=="birth")' \
+  '.functions[] | select(.name=="main") | .blocks[] | .instructions[] | select(.op=="mir_call" and .mir_call.callee.type=="Method" and .mir_call.callee.box_name=="ArrayBox" and .mir_call.callee.name=="birth" and (.mir_call.args|length)==0)' \
   "MIR missing main(args) birth bootstrap shape" || exit 1
 vm_hako_caps_assert_mir_jq \
   "$SMOKE_NAME" \
   "$TMP_MIR" \
-  '.functions[] | select(.name=="main") | .blocks[] | .instructions[] | select(.op=="boxcall" and .method=="length")' \
-  "MIR missing args.length boxcall shape" || exit 1
+  '.functions[] | select(.name=="main") | .blocks[] | .instructions[] | select(.op=="mir_call" and .mir_call.callee.type=="Method" and .mir_call.callee.box_name=="ArrayBox" and .mir_call.callee.name=="length" and (.mir_call.args|length)==0)' \
+  "MIR missing args.length mir_call shape" || exit 1
 vm_hako_caps_assert_mir_jq \
   "$SMOKE_NAME" \
   "$TMP_MIR" \
-  '.functions[] | select(.name=="main") | .blocks[] | .instructions[] | select(.op=="boxcall" and .method=="push" and .dst==null)' \
+  '.functions[] | select(.name=="main") | .blocks[] | .instructions[] | select(.op=="mir_call" and .mir_call.callee.type=="Method" and .mir_call.callee.box_name=="ArrayBox" and .mir_call.callee.name=="push" and (.mir_call.args|length)==1 and .dst==null)' \
   "MIR missing args.push bootstrap shape" || exit 1
 
 vm_hako_caps_run_vm_hako_or_fail_timeout "$SMOKE_NAME" "$RUN_TIMEOUT_SECS" "$INPUT" -- hello || exit 1

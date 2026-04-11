@@ -2,8 +2,8 @@
 # RVP-C21: vm-hako capability smoke for MapBox.delete(key)
 #
 # Contract:
-# 1) MIR preflight must contain `boxcall(method=delete,args=1)`.
-# 2) vm-hako route must print `false` then `1`, and finish with RC=0.
+# 1) MIR preflight must contain `mir_call(MapBox.delete,args=1)`.
+# 2) vm-hako route must print `0` then `1`, and finish with RC=0.
 # 3) stale `op=boxcall1 method=delete` blocker must not reappear.
 # 4) timeout is forbidden.
 
@@ -28,8 +28,8 @@ vm_hako_caps_emit_mir_or_fail "$SMOKE_NAME" "$RUN_TIMEOUT_SECS" "$TMP_MIR" "$INP
 vm_hako_caps_assert_mir_jq \
   "$SMOKE_NAME" \
   "$TMP_MIR" \
-  '.functions[]?.blocks[]?.instructions[]? | select(.op=="boxcall" and .method=="delete" and (.args|length)==1)' \
-  "MIR missing boxcall(delete,args=1) shape" || exit 1
+  '.functions[]?.blocks[]?.instructions[]? | select(.op=="mir_call" and .mir_call.callee.type=="Method" and .mir_call.callee.box_name=="MapBox" and .mir_call.callee.name=="delete" and (.mir_call.args|length)==1)' \
+  "MIR missing mir_call(MapBox.delete,args=1) shape" || exit 1
 
 vm_hako_caps_run_vm_hako_or_fail_timeout "$SMOKE_NAME" "$RUN_TIMEOUT_SECS" "$INPUT" || exit 1
 
@@ -39,9 +39,9 @@ if printf '%s\n' "$OUTPUT_CLEAN" | rg -q '^\[vm-hako/unimplemented op=boxcall1 m
   test_fail "vm_hako_caps_mapbox_delete_ported_vm: stale runtime blocker op=boxcall1 method=delete remained"
   exit 1
 fi
-if ! printf '%s\n' "$OUTPUT_CLEAN" | rg -q '^false$'; then
+if ! printf '%s\n' "$OUTPUT_CLEAN" | rg -q '^0$'; then
   echo "$OUTPUT_CLEAN" | tail -n 120 || true
-  test_fail "vm_hako_caps_mapbox_delete_ported_vm: expected printed deleted-key result false"
+  test_fail "vm_hako_caps_mapbox_delete_ported_vm: expected printed deleted-key result 0"
   exit 1
 fi
 if ! printf '%s\n' "$OUTPUT_CLEAN" | rg -q '^1$'; then

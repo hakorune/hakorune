@@ -2,7 +2,7 @@
 # RVP-C23: vm-hako capability smoke for MapBox.clear()
 #
 # Contract:
-# 1) MIR preflight must contain `boxcall(method=clear,args=0)`.
+# 1) MIR preflight must contain `mir_call(MapBox.clear,args=0)`.
 # 2) vm-hako route must print `0`, `false`, `0` and finish with RC=0.
 # 3) stale `op=boxcall0 method=clear` blocker must not reappear.
 # 4) timeout is forbidden.
@@ -28,8 +28,8 @@ vm_hako_caps_emit_mir_or_fail "$SMOKE_NAME" "$RUN_TIMEOUT_SECS" "$TMP_MIR" "$INP
 vm_hako_caps_assert_mir_jq \
   "$SMOKE_NAME" \
   "$TMP_MIR" \
-  '.functions[]?.blocks[]?.instructions[]? | select(.op=="boxcall" and .method=="clear" and (.args|length)==0)' \
-  "MIR missing boxcall(clear,args=0) shape" || exit 1
+  '.functions[]?.blocks[]?.instructions[]? | select(.op=="mir_call" and .mir_call.callee.type=="Method" and .mir_call.callee.box_name=="MapBox" and .mir_call.callee.name=="clear" and (.mir_call.args|length)==0)' \
+  "MIR missing mir_call(MapBox.clear,args=0) shape" || exit 1
 
 vm_hako_caps_run_vm_hako_or_fail_timeout "$SMOKE_NAME" "$RUN_TIMEOUT_SECS" "$INPUT" || exit 1
 

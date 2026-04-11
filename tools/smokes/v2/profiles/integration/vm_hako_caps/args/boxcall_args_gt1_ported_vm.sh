@@ -2,7 +2,7 @@
 # RVP-C11: vm-hako capability smoke for non-open boxcall(args>1) route (ported pin)
 #
 # Contract:
-# 1) MIR preflight must contain non-open boxcall(args>1) shape in APP-1.
+# 1) MIR preflight must contain non-open method-call shape with args>1 in APP-1.
 # 2) vm-hako route must no longer fail at subset-check op=boxcall(args>1).
 # 3) timeout is forbidden.
 # 4) stale post-C11 blocker boxcall-open-handle-missing must not reappear.
@@ -31,8 +31,8 @@ vm_hako_caps_emit_mir_or_fail "$SMOKE_NAME" "$RUN_TIMEOUT_SECS" "$TMP_MIR" "$APP
 vm_hako_caps_assert_mir_jq \
   "$SMOKE_NAME" \
   "$TMP_MIR" \
-  '.functions[] | select(.name=="main") | .blocks[] | .instructions[] | select(.op=="boxcall" and .method != "open" and (.args|length) > 1)' \
-  "MIR missing non-open boxcall(args>1) shape" || exit 1
+  '.functions[] | select(.name=="main") | .blocks[] | .instructions[] | select(.op=="mir_call" and .mir_call.callee.type=="Method" and .mir_call.callee.name != "open" and (.mir_call.args|length) > 1)' \
+  "MIR missing non-open mir_call(args>1) shape" || exit 1
 
 vm_hako_caps_run_vm_hako_with_fixture_or_fail_timeout \
   "$SMOKE_NAME" \

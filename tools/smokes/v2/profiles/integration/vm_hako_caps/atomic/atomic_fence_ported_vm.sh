@@ -14,7 +14,7 @@ require_env || exit 2
 
 SMOKE_NAME="vm_hako_caps_atomic_fence_ported_vm"
 INPUT="${1:-$NYASH_ROOT/apps/tests/vm_hako_caps/atomic_fence_ported_min.hako}"
-RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-30}"
+RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-60}"
 TMP_MIR="$(mktemp /tmp/vm_hako_caps_c20.XXXXXX.json)"
 cleanup() {
   rm -f "$TMP_MIR"

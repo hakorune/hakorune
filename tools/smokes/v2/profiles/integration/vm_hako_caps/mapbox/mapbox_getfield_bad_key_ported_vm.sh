@@ -2,7 +2,7 @@
 # RVP-C27: vm-hako capability smoke for MapBox.getField(non-string key)
 #
 # Contract:
-# 1) MIR preflight must contain `boxcall(method=getField,args=1)`.
+# 1) MIR preflight must contain `mir_call(MapBox.getField,args=1)`.
 # 2) vm-hako route prints stable `[map/bad-key] field name must be string`.
 # 3) stale unimplemented route must not reappear.
 # 4) RC is 0.
@@ -29,8 +29,8 @@ vm_hako_caps_emit_mir_or_fail "$SMOKE_NAME" "$RUN_TIMEOUT_SECS" "$TMP_MIR" "$INP
 vm_hako_caps_assert_mir_jq \
   "$SMOKE_NAME" \
   "$TMP_MIR" \
-  '.functions[]?.blocks[]?.instructions[]? | select(.op=="boxcall" and .method=="getField" and (.args|length)==1)' \
-  "MIR missing boxcall(getField,args=1) shape" || exit 1
+  '.functions[]?.blocks[]?.instructions[]? | select(.op=="mir_call" and .mir_call.callee.type=="Method" and .mir_call.callee.box_name=="MapBox" and .mir_call.callee.name=="getField" and (.mir_call.args|length)==1)' \
+  "MIR missing mir_call(MapBox.getField,args=1) shape" || exit 1
 
 vm_hako_caps_run_vm_hako_or_fail_timeout "$SMOKE_NAME" "$RUN_TIMEOUT_SECS" "$INPUT" || exit 1
 

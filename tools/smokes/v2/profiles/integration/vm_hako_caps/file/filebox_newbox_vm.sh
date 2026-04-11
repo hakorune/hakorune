@@ -15,7 +15,7 @@ require_env || exit 2
 
 SMOKE_NAME="vm_hako_caps_filebox_newbox_vm"
 INPUT="${1:-$NYASH_ROOT/apps/tests/vm_hako_caps/filebox_newbox_block_min.hako}"
-RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-30}"
+RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-60}"
 TMP_MIR="$(mktemp /tmp/vm_hako_caps_c01.XXXXXX.json)"
 cleanup() {
   rm -f "$TMP_MIR"

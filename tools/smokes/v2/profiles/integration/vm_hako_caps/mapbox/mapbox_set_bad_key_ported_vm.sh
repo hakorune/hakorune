@@ -2,7 +2,7 @@
 # RVP-C26: vm-hako capability smoke for MapBox.set(non-string key, value)
 #
 # Contract:
-# 1) MIR preflight must contain `boxcall(method=set,args=2)`.
+# 1) MIR preflight must contain `mir_call(MapBox.set,args=2)`.
 # 2) vm-hako route prints stable `[map/bad-key] key must be string`.
 # 3) stale unimplemented route must not reappear.
 # 4) RC is 0.
@@ -29,8 +29,8 @@ vm_hako_caps_emit_mir_or_fail "$SMOKE_NAME" "$RUN_TIMEOUT_SECS" "$TMP_MIR" "$INP
 vm_hako_caps_assert_mir_jq \
   "$SMOKE_NAME" \
   "$TMP_MIR" \
-  '.functions[]?.blocks[]?.instructions[]? | select(.op=="boxcall" and .method=="set" and (.args|length)==2)' \
-  "MIR missing boxcall(set,args=2) shape" || exit 1
+  '.functions[]?.blocks[]?.instructions[]? | select(.op=="mir_call" and .mir_call.callee.type=="Method" and .mir_call.callee.box_name=="MapBox" and .mir_call.callee.name=="set" and (.mir_call.args|length)==2)' \
+  "MIR missing mir_call(MapBox.set,args=2) shape" || exit 1
 
 vm_hako_caps_run_vm_hako_or_fail_timeout "$SMOKE_NAME" "$RUN_TIMEOUT_SECS" "$INPUT" || exit 1
 

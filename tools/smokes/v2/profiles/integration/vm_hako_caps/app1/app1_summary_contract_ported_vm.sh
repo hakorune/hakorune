@@ -2,7 +2,7 @@
 # RVP-C15: vm-hako capability smoke for APP-1 full-fixture summary contract parity (ported pin)
 #
 # Contract:
-# 1) MIR preflight must contain phi + boxcall(open) shape in APP-1.
+# 1) MIR preflight must contain phi + mir_call(open) shape in APP-1.
 # 2) Rust VM baseline output must match APP-1 full fixture summary contract.
 # 3) vm-hako output must match Rust baseline exactly (SUMMARY / FAIL_LINES / FAIL order).
 # 4) timeout and stale vm-hako unimplemented/contract tags are forbidden.
@@ -30,8 +30,8 @@ vm_hako_caps_emit_mir_or_fail "$SMOKE_NAME" "$RUN_TIMEOUT_SECS" "$TMP_MIR" "$APP
 vm_hako_caps_assert_mir_jq \
   "$SMOKE_NAME" \
   "$TMP_MIR" \
-  '.functions[] | select(.name=="main") | .blocks[] | select(any(.instructions[]; .op=="phi") and any(.instructions[]; .op=="boxcall" and .method=="open" and ((.args|length)==2 or (.args|length)==3)))' \
-  "MIR missing phi + boxcall(open) shape" || exit 1
+  '.functions[] | select(.name=="main") | .blocks[] | select(any(.instructions[]; .op=="phi") and any(.instructions[]; .op=="mir_call" and .mir_call.callee.type=="Method" and .mir_call.callee.box_name=="FileBox" and .mir_call.callee.name=="open" and ((.mir_call.args|length)==2 or (.mir_call.args|length)==3)))' \
+  "MIR missing phi + mir_call(open) shape" || exit 1
 
 RUST_OUTPUT=$(NYASH_VM_HAKO_PREFER_STRICT_DEV=0 NYASH_VM_USE_FALLBACK=0 \
               NYASH_JOINIR_DEV=0 NYASH_JOINIR_STRICT=0 \

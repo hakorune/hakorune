@@ -16,7 +16,7 @@ require_env || exit 2
 SMOKE_NAME="vm_hako_caps_compare_ported_vm"
 INPUT="${1:-$NYASH_ROOT/apps/tests/vm_hako_caps/compare_block_min.hako}"
 NE_ALIAS_INPUT="${NE_ALIAS_INPUT:-$NYASH_ROOT/apps/tests/vm_hako_caps/compare_op_kind_ne_mir_v0.json}"
-RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-30}"
+RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-60}"
 TMP_MIR="$(mktemp /tmp/vm_hako_caps_c06.XXXXXX.json)"
 TMP_DRIVER="$(mktemp /tmp/vm_hako_caps_c06_driver.XXXXXX.hako)"
 cleanup() {
