@@ -38,6 +38,11 @@ prefix bucket.
 - `select_emit/`: MIR select emission blocker pin
 - `tls/`: TLS last-error contract pins
 
+`env/env_get_ported_vm.sh` is the explicit vm-hako monitor canary now. Product
+ownership moved to `tools/smokes/v2/profiles/integration/core/phase2035/`
+through `tools/smokes/v2/suites/integration/presubmit.txt`, while the vm-hako
+row remains in `tools/smokes/v2/suites/integration/vm-hako-core.txt`.
+
 `mapbox/` is not part of the phase29y vm-hako acceptance gate.
 `tools/smokes/v2/suites/integration/collection-core.txt` now points at
 `tools/smokes/v2/profiles/integration/collection_core/mapbox_*` wrappers, so

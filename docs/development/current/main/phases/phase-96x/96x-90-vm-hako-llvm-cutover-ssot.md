@@ -32,7 +32,7 @@ Related:
 - the `vm_hako_caps` family is now best read as a monitor bucket, not as a growth bucket
 - the runtime-data / collection slice is the first obvious migration target because it maps cleanly to the LLVM boundary/runtime-data proof family
 - the narrow `args_vm.sh` row is already cut over; the remaining `args/` owner row is the late seam-side `boxcall_args_gt1`
-- file / env / compare / app1 are still live contract slices, but they should follow after the first runtime-data replacement wave lands
+- file / compare / app1 are still live contract slices, but they should follow after the first runtime-data replacement wave lands
 
 ## Current Inventory
 
@@ -63,7 +63,7 @@ Related:
 
 | Family | Current role | phase29y-live count | other live count | LLVM replacement anchor | Status target | Retirement condition |
 | --- | --- | --- | --- | --- | --- | --- |
-| `env/` | environment routing contract | `1` | `0` | product LLVM/runtime-data acceptance pack | live -> cutover | LLVM-line env route is pinned and `env_get` can demote to monitor-only |
+| `env/` | environment routing monitor canary | `0` | `1` via `vm-hako-core.txt` | `core/phase2035/v1_extern_env_get_canary_vm.sh` via `presubmit.txt` | cutover -> monitor keep | product ownership is outside `vm-hako-caps`; `env_get` stays only as the explicit vm_hako monitor canary |
 | `file/` | file handle lifecycle contract | `4` | `0` | product LLVM file/backend acceptance pack | live -> cutover | LLVM-line file open/read/close rows are green |
 | `args/` | mixed lane: narrow args row retired, seam row remains | `1` | `0` | `apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh` for the narrow row; APP/seam pack for `boxcall_args_gt1` | cutover -> seam keep | `args_vm.sh` is no longer gate-owned and the remaining seam row moves in wave `2` |
 | `compare/` | compare-op pin | `2` | `0` | product LLVM acceptance pack | freeze -> cutover | LLVM-line compare coverage is explicit and green |
@@ -90,7 +90,7 @@ Related:
 
 | Current vm_hako family | Current role | LLVM replacement anchor | Notes |
 | --- | --- | --- | --- |
-| `env/` + `file/` | product-visible live rows | `v1_extern_env_get_canary_vm.sh` plus product LLVM backend acceptance pack | first cutover wave now that `args_vm.sh` is retired against `phase29x_runtime_data_dispatch_llvm_e2e_vm.sh` |
+| `file/` | product-visible live rows | product LLVM backend acceptance pack | first cutover wave now that `args_vm.sh` is retired and `env_get` product ownership is moved to `presubmit.txt` |
 | `compare/` + `misc/` + `atomic/` + `tls/` | narrow single-purpose witnesses | product LLVM acceptance pack | second wave after the product-visible wave is stable |
 | `select_emit/` + `open_handle_phi/` + `boxcall_args_gt1` | compiler/backend seam sentinels | `phase29y-hako-emit-mir.txt`, `joinir-bq.txt`, `selfhost-core.txt` | keep as seam shadow rows until LLVM/JoinIR proofs are explicit |
 | `app1/` | wide end-to-end summary parity | `presubmit.txt` plus product LLVM acceptance pack | late demotion only after leaf families stop owning the contract |
@@ -107,6 +107,9 @@ Related:
 - blocking daily health canary:
   - `tools/smokes/v2/profiles/integration/vm_hako_caps/env/env_get_ported_vm.sh`
   - purpose: cheap liveness plus extern-routing sanity
+- product-facing replacement owner:
+  - `tools/smokes/v2/profiles/integration/core/phase2035/v1_extern_env_get_canary_vm.sh`
+  - suite: `tools/smokes/v2/suites/integration/presubmit.txt`
 - non-blocking semantic shadow canary:
   - `tools/smokes/v2/profiles/integration/vm_hako_caps/open_handle_phi/open_handle_phi_ported_vm.sh`
   - purpose: PHI/open-handle seam drift detection during LLVM/JoinIR cutover

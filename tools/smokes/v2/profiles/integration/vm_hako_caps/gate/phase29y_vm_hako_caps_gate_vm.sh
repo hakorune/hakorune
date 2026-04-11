@@ -14,7 +14,6 @@ require_env || exit 2
 run_gate_step "phase29y_vm_hako_caps_gate_vm" "tools/smokes/v2/profiles/integration/vm_hako_caps/file/filebox_newbox_vm.sh"
 run_gate_step "phase29y_vm_hako_caps_gate_vm" "tools/smokes/v2/profiles/integration/vm_hako_caps/file/file_error_vm.sh"
 run_gate_step "phase29y_vm_hako_caps_gate_vm" "tools/smokes/v2/profiles/integration/vm_hako_caps/select_emit/select_emit_block_vm.sh"
-run_gate_step "phase29y_vm_hako_caps_gate_vm" "tools/smokes/v2/profiles/integration/vm_hako_caps/env/env_get_ported_vm.sh"
 run_gate_step "phase29y_vm_hako_caps_gate_vm" "tools/smokes/v2/profiles/integration/vm_hako_caps/tls/tls_last_error_ported_vm.sh"
 run_gate_step "phase29y_vm_hako_caps_gate_vm" "tools/smokes/v2/profiles/integration/vm_hako_caps/atomic/atomic_fence_ported_vm.sh"
 run_gate_step "phase29y_vm_hako_caps_gate_vm" "tools/smokes/v2/profiles/integration/vm_hako_caps/compare/compare_ported_vm.sh"
