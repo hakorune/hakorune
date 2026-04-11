@@ -51,12 +51,13 @@ Related:
   - `phase-170x` is landed
   - boundary `pure-first` `substring()` on helper-result receivers now reads concat-triplet piece carriers from `direct_kernel_entry.plan.proof`
   - the targeted substring proof, len proof, live direct-emit contracts, exact asm/perf, and `quick` gate are green
-- active string exact follow-on:
-  - `phase-171x` is active
+- landed string exact follow-on:
+  - `phase-171x` is landed as the bottom-tested loop-shape cut
+  - `phase-172x` is landed
   - current exact front remains `kilo_micro_substring_concat`
-  - the pure-first exact seed now uses the bottom-tested loop shape and `ny_main` no longer keeps the head compare
-  - latest reread after this cut: `ny_aot_instr=5,565,470 / ny_aot_cycles=5,893,313 / ny_aot_ms=5`
-  - next cut should stay exact-route-local because the `instr < 5.5M` keeper target remains open
+  - the exact seed now consumes the landed `stable_length_scalar` witness through the header string-lane phi and switches to the existing length-only route
+  - latest reread after that cut: `ny_aot_instr=1,666,187 / ny_aot_cycles=1,049,205 / ny_aot_ms=4`
+  - next string work should return to broader `return` / `store` / host-boundary publication
 - `phase-133x` landed:
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
@@ -133,7 +134,7 @@ Related:
   - `kilo_micro_concat_const_suffix = 36ms` (WSL lane: recheck with 3 runs)
   - `kilo_micro_concat_hh_len = 4ms` (landed `concat -> len` observer slice)
   - compiler-visible `concat pair/triple -> substring(...)` is now also landed on the same pure-first route; remaining concat backlog is `return` / `store` / host-boundary publication
-  - sibling exact keeper front: `kilo_micro_substring_concat = 5,565,470 instr / 5,893,313 cycles / 5 ms` after the current `phase-171x` loop-shape cut
+  - sibling exact keeper front: `kilo_micro_substring_concat = 1,666,187 instr / 1,049,205 cycles / 4 ms` after the landed `phase-172x` stable-length exact-route cut
 - landed capability lock before perf reopen:
   1. `phase-160x capability-family inventory`
   2. `phase-161x hot-path capability seam freeze`

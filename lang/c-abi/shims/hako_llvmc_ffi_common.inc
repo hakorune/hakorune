@@ -216,6 +216,64 @@ static int hako_llvmc_string_corridor_has_candidate(
   return 0;
 }
 
+static int hako_llvmc_string_corridor_has_relation_fn(
+    yyjson_val* fn,
+    long long value,
+    const char* kind,
+    long long base_value,
+    long long witness_value,
+    const char* window_contract) {
+  yyjson_val* metadata;
+  yyjson_val* relations;
+  yyjson_val* arr;
+  size_t i;
+  char key[32];
+
+  if (!(fn && kind && value > 0)) return 0;
+
+  metadata = yyjson_obj_get(fn, "metadata");
+  relations = metadata ? yyjson_obj_get(metadata, "string_corridor_relations") : NULL;
+  if (!(relations && yyjson_is_obj(relations))) return 0;
+
+  snprintf(key, sizeof(key), "%lld", value);
+  arr = yyjson_obj_get(relations, key);
+  if (!(arr && yyjson_is_arr(arr))) return 0;
+
+  for (i = 0; i < yyjson_arr_size(arr); i++) {
+    yyjson_val* relation = yyjson_arr_get(arr, i);
+    yyjson_val* kind_val = relation ? yyjson_obj_get(relation, "kind") : NULL;
+    yyjson_val* base_val = relation ? yyjson_obj_get(relation, "base_value") : NULL;
+    yyjson_val* witness_val = relation ? yyjson_obj_get(relation, "witness_value") : NULL;
+    yyjson_val* window_val = relation ? yyjson_obj_get(relation, "window_contract") : NULL;
+
+    if (!(kind_val && yyjson_is_str(kind_val) &&
+          strcmp(yyjson_get_str(kind_val), kind) == 0)) {
+      continue;
+    }
+    if (base_value > 0) {
+      if (!(base_val && yyjson_is_num(base_val) &&
+            (long long)yyjson_get_sint(base_val) == base_value)) {
+        continue;
+      }
+    }
+    if (witness_value > 0) {
+      if (!(witness_val && yyjson_is_num(witness_val) &&
+            (long long)yyjson_get_sint(witness_val) == witness_value)) {
+        continue;
+      }
+    }
+    if (window_contract) {
+      if (!(window_val && yyjson_is_str(window_val) &&
+            strcmp(yyjson_get_str(window_val), window_contract) == 0)) {
+        continue;
+      }
+    }
+    return 1;
+  }
+
+  return 0;
+}
+
 static int hako_llvmc_has_thin_entry_selection(
     yyjson_val* fn,
     const char* surface,

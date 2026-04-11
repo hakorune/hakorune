@@ -32,10 +32,13 @@ Related:
     - the targeted proof `string_direct_kernel_plan_substring_window_min_v1.mir.json` now lowers through `direct_kernel_plan_proof -> substring_concat3_hhhii` without consumer fallback to `substring_hii`
     - direct-kernel `length()` proof, live direct-emit contracts, exact asm/perf, and `quick` gate stay green
   - active string exact follow-on: `phase171x substring concat exact-seed loop-shape cut`
+    - landed as the bottom-tested loop-shape cut
+    - current reread after that cut is `ny_aot_instr=5,565,470 / ny_aot_cycles=5,893,313 / ny_aot_ms=5`
+  - landed string exact follow-on: `phase172x substring concat stable-length exact-route cut`
     - current exact front remains `kilo_micro_substring_concat`
-    - the pure-first exact seed now uses the bottom-tested loop shape and `ny_main` no longer keeps the head compare
-    - latest reread after the cut is `ny_aot_instr=5,565,470 / ny_aot_cycles=5,893,313 / ny_aot_ms=5`
-    - current reading: keep this exact-route-local win, but the `instr < 5.5M` keeper target remains open
+    - landed: the exact seed now consumes the landed `%21 stable_length_scalar -> %5` witness through the header string-lane phi and switches to the existing length-only route
+    - latest reread after that cut is `ny_aot_instr=1,666,187 / ny_aot_cycles=1,049,205 / ny_aot_ms=4`
+    - next string work should return to broader `return` / `store` / host-boundary publication
   - row status:
     - `3 User-Box Method Dispatch`: mostly done; narrow known-receiver consumer and the direct-route determinism repair are landed, broader generic parity backlog remains
     - `4 Array Typed Slots 拡大`: partial; narrow typed-slot pilots landed, read-side expansion backlog remains
@@ -225,7 +228,7 @@ Related:
     - decision now fixed: stop shrinking the exact seed at the semantic-guard boundary for this phase
       - keep preheader/exit `length` truth plus header/latch loop truth in the seed as the current miscompile-prevention owner
       - treat any future retirement of those semantic guards as a separate contract phase, not as more bridge cleanup in this wave
-    - fresh broader-corridor reread keeps `kilo_micro_substring_concat` (`instr=5,565,896 / cycles=5,958,406 / cache-miss=8,607 / AOT 4 ms`) as the current exact front, while exploratory `kilo_meso_substring_concat_array_set` stayed essentially flat (`instr=384,347,679 / cycles=185,582,276 / AOT 42 ms`), so this cut is a canonical-MIR/kernel asset landing rather than a meso perf keeper by itself
+    - fresh broader-corridor reread keeps `kilo_micro_substring_concat` (`instr=1,666,187 / cycles=1,049,205 / cache-miss=8,799 / AOT 4 ms`) as the current exact front, while exploratory `kilo_meso_substring_concat_array_set` stayed essentially flat (`instr=384,347,679 / cycles=185,582,276 / AOT 42 ms`), so the next work should move to broader publication semantics rather than more exact-seed trimming
     - first direct-set insert-mid smoke is now pinned too: `phase137x_boundary_string_insert_mid_direct_set_min.sh` uses the synthetic direct-set probe to observe `string_insert_mid_window`, keep `nyash.string.insert_hsi` in the lowered IR, and require the plan-backed `plan_window_match` route on the synthetic fixture
     - string genericization order is now fixed: keep canonical MIR as the only IR truth, land proof-bearing plan metadata first, then land helper-result `publication_sink` inventory, then helper-result actual `publication_sink`, then `materialization_sink`, then select `direct_kernel_entry` from that plan near lowering, then shrink the remaining bridge paths
     - migration-safe reading: keep this lane in canonical MIR facts/candidates/sink and kernel/backend substrate only; do not reopen Rust-builder-local shape logic while `.hako` builder authority replacement is open

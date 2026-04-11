@@ -1,6 +1,6 @@
 # Phase 171x: substring concat exact-seed loop-shape cut
 
-- Status: Active
+- Status: Landed
 - Purpose: trim the current `kilo_micro_substring_concat` exact front by recutting the pure-first exact seed from a top-tested loop to a bottom-tested loop while keeping the same string semantic contract.
 - Scope:
   - `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc`
@@ -54,7 +54,7 @@
 - do not reopen builder-local string shape logic
 - do not relax `phi_merge` stop-lines in the same commit series
 
-## Current Result
+## Landed Result
 
 - current direct emit contracts stay green
 - `tools/checks/dev_gate.sh quick` stays green
@@ -65,4 +65,4 @@
 - reading:
   - this cut is valid and worth keeping
   - it does not clear the `instr < 5.5M` keeper by itself
-  - the remaining work should move to body compaction or another exact-route-local cut, not back to metadata widening
+  - the remaining work moved to the next exact-route-local consumer cut in `phase-172x`

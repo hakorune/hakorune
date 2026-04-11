@@ -63,11 +63,12 @@ Scope: repo root から current lane / current front / restart read order に最
   - `phase-170x` is landed; boundary `pure-first` now reads concat-triplet piece carriers from `direct_kernel_entry.plan.proof` and lowers helper-result `substring()` without depending on remembered concat-chain state on that lane
   - the new proof fixture/smoke `string_direct_kernel_plan_substring_window_min_v1.mir.json` / `phase137x_boundary_string_direct_kernel_plan_substring_min.sh` are green
   - the existing len proof, live direct emit contracts, exact asm/perf, and `tools/checks/dev_gate.sh quick` stay green
-- active string exact follow-on:
-  - `docs/development/current/main/phases/phase-171x/README.md`
-  - `phase-171x` is active; the pure-first exact seed now uses the bottom-tested loop shape and `ny_main` no longer carries the head compare
-  - latest reread after that cut: `ny_aot_instr=5,565,470 / ny_aot_cycles=5,893,313 / ny_aot_ms=5`
-  - current reading: keep this loop-shape win, but the `instr < 5.5M` keeper target remains open for the next exact-route-local cut
+- landed string exact follow-on:
+  - `docs/development/current/main/phases/phase-172x/README.md`
+  - `phase-171x` is landed as the bottom-tested loop-shape cut
+  - `phase-172x` is landed; the pure-first exact route now consumes the header string-lane phi plus the landed `%21 stable_length_scalar -> %5` witness and switches the current benchmark from text rotation to the existing length-only seed IR
+  - latest reread after the route switch: `ny_aot_instr=1,666,187 / ny_aot_cycles=1,049,205 / ny_aot_ms=4`
+  - reading: the first exact keeper target is now well cleared, so the next string work should return to broader `return` / `store` / host-boundary publication rather than more exact-seed shrink
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`
@@ -435,7 +436,7 @@ Scope: repo root から current lane / current front / restart read order に最
   - mixed accept gate: hold `instr <= 1.8M`
   - local split `kilo_micro_substring_views_only`: hold `instr <= 0.6M`
   - control split `kilo_micro_len_substring_views`: hold `instr <= 1.8M`
-  - broader-corridor reopen `kilo_micro_substring_concat`: first keeper target `instr < 5.5M`
+  - broader-corridor reopen `kilo_micro_substring_concat`: hold `instr <= 1.8M` while broader `return` / `store` / host-boundary publication reopens
   - whole strict: hold `<= 709 ms`; ideal band is `690-705 ms`
 - ideal `len_h` steady-state asm shape:
   - direct `STRING_DISPATCH_FN` load once; do not carry the `STRING_DISPATCH_STATE` state machine in `nyash.string.len_h`

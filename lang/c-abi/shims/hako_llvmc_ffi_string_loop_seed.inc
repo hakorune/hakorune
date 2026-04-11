@@ -1448,6 +1448,8 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
   long long source_root = 0;
   long long helper_start = 0;
   long long helper_end = 0;
+  long long helper_result = 0;
+  long long merged_string_phi = 0;
   const char* seed = NULL;
   const char* middle = NULL;
   size_t i;
@@ -1541,6 +1543,10 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
   /* header */
   BUILD_INTERESTING(yyjson_arr_get(blocks, 1));
   if (n != 6) { yyjson_doc_free(doc); return -1; }
+  EXPECT_OP(0, "phi");
+  EXPECT_OP(1, "phi");
+  EXPECT_OP(2, "phi");
+  merged_string_phi = READ_INT(interesting[2], "dst");
   loop_bound = READ_INT(yyjson_obj_get(interesting[3], "value"), "value");
   if (loop_bound <= 0) { yyjson_doc_free(doc); return -1; }
   {
@@ -1594,7 +1600,7 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
       return -1;
     }
     {
-      long long helper_result = READ_INT(interesting[15], "dst");
+      helper_result = READ_INT(interesting[15], "dst");
       if (!(hako_llvmc_string_corridor_read_plan_source_window_fn(
                 fn,
                 helper_result,
@@ -1640,7 +1646,7 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
       return -1;
     }
     {
-      long long helper_result = READ_INT(interesting[12], "dst");
+      helper_result = READ_INT(interesting[12], "dst");
       if (!(hako_llvmc_string_corridor_read_plan_source_window_fn(
                 fn,
                 helper_result,
@@ -1699,15 +1705,33 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
   }
 
   {
-    int rc = hako_llvmc_emit_substring_concat_loop_ir(
-        obj_out,
-        &selection,
-        seed,
-        seed_len,
-        loop_bound,
-      middle,
-      middle_len,
-      split);
+    int rc;
+    if (helper_result > 0 &&
+        merged_string_phi > 0 &&
+        hako_llvmc_string_corridor_has_relation_fn(
+            fn,
+            merged_string_phi,
+            "stable_length_scalar",
+            helper_result,
+            source_len_value,
+            "stop_at_merge")) {
+      rc = hako_llvmc_emit_substring_concat_len_ir(
+          obj_out,
+          &selection,
+          loop_bound,
+          seed_len,
+          middle_len);
+    } else {
+      rc = hako_llvmc_emit_substring_concat_loop_ir(
+          obj_out,
+          &selection,
+          seed,
+          seed_len,
+          loop_bound,
+          middle,
+          middle_len,
+          split);
+    }
     yyjson_doc_free(doc);
     return rc;
   }
