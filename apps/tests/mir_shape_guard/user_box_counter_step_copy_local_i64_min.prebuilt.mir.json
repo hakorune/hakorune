@@ -1,0 +1,166 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "user_box_decls": [
+    {
+      "name": "Counter",
+      "fields": ["value"],
+      "field_decls": [
+        { "name": "value", "declared_type": "IntegerBox", "is_weak": false }
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "name": "ny_main",
+      "params": [],
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 1,
+              "value": { "type": "i64", "value": 41 }
+            },
+            {
+              "op": "newbox",
+              "dst": 2,
+              "type": "Counter",
+              "args": []
+            },
+            {
+              "op": "field_set",
+              "box": 2,
+              "field": "value",
+              "value": 1,
+              "declared_type": { "kind": "handle", "box_type": "IntegerBox" }
+            },
+            {
+              "op": "copy",
+              "dst": 3,
+              "src": 2
+            },
+            {
+              "op": "mir_call",
+              "dst": 4,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "name": "step",
+                  "box_name": "Counter",
+                  "certainty": "Known",
+                  "receiver": 3
+                },
+                "args": [],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "ret",
+              "value": 4
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "value_types": {
+          "1": "i64",
+          "2": { "kind": "handle", "box_type": "Counter" },
+          "3": { "kind": "handle", "box_type": "Counter" },
+          "4": "i64"
+        },
+        "thin_entry_selections": [
+          {
+            "block": 0,
+            "instruction_index": 2,
+            "value": null,
+            "surface": "user_box_field_set",
+            "subject": "Counter.value",
+            "manifest_row": "user_box_field_set.inline_scalar",
+            "selected_entry": "thin_internal_entry",
+            "state": "already_satisfied",
+            "current_carrier": "backend_typed",
+            "value_class": "inline_i64",
+            "reason": "known primitive field writes stay on a thin internal scalar lane below canonical field.set"
+          },
+          {
+            "block": 0,
+            "instruction_index": 4,
+            "value": 4,
+            "surface": "user_box_method",
+            "subject": "Counter.step",
+            "manifest_row": "user_box_method.known_receiver",
+            "selected_entry": "thin_internal_entry",
+            "state": "candidate",
+            "current_carrier": "public_runtime",
+            "value_class": "unknown",
+            "reason": "known receiver user-box methods can lower beneath canonical Call, even through a single local copy alias"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Counter.step/1",
+      "params": [0],
+      "blocks": [
+        {
+          "id": 1,
+          "instructions": [
+            {
+              "op": "field_get",
+              "dst": 1,
+              "box": 0,
+              "field": "value",
+              "declared_type": { "kind": "handle", "box_type": "IntegerBox" }
+            },
+            {
+              "op": "const",
+              "dst": 2,
+              "value": { "type": "i64", "value": 2 }
+            },
+            {
+              "op": "binop",
+              "dst": 3,
+              "dst_type": "i64",
+              "lhs": 1,
+              "rhs": 2,
+              "operation": "+"
+            },
+            {
+              "op": "ret",
+              "value": 3
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "value_types": {
+          "0": { "kind": "handle", "box_type": "Counter" },
+          "1": "i64",
+          "2": "i64",
+          "3": "i64"
+        },
+        "thin_entry_selections": [
+          {
+            "block": 1,
+            "instruction_index": 0,
+            "value": 1,
+            "surface": "user_box_field_get",
+            "subject": "Counter.value",
+            "manifest_row": "user_box_field_get.inline_scalar",
+            "selected_entry": "thin_internal_entry",
+            "state": "already_satisfied",
+            "current_carrier": "backend_typed",
+            "value_class": "inline_i64",
+            "reason": "known primitive field reads stay on a thin internal scalar lane below canonical field.get"
+          }
+        ]
+      }
+    }
+  ]
+}

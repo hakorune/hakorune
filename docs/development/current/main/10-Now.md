@@ -74,7 +74,7 @@ Related:
       - native-driver/shim now also has a first narrow boundary pure-first consumer slice for the same selector contract:
         - `tools/smokes/v2/profiles/integration/phase163x/phase163x_boundary_user_box_method_known_receiver_min.sh` now pins metadata-bearing `Counter.step` and `Point.sum` fixtures
         - `lang/c-abi/shims/hako_llvmc_ffi_user_box_micro_seed.inc` now consumes `user_box_method.known_receiver` together with the matching scalar field selections for `Counter.value` and `Point.{x,y}`
-        - the widened owner-lane slice still stays local-i64 + known-receiver only; broader generic local-method parity remains separate
+        - the widened owner-lane slice now also accepts one local receiver `copy`, while still staying local-i64 + known-receiver only; broader generic local-method parity remains separate
       - canonical known-receiver callsite rewrite is now landed:
         - `callsite_canonicalize` rewrites known user-box receiver calls from `RuntimeDataBox`/union and `Global <Box>.<method>/<arity>` into canonical `Call(Method{box_name=<Box>, certainty=Known, box_kind=UserDefined})`
         - `tools/smokes/v2/profiles/integration/phase163x/phase163x_direct_emit_user_box_counter_step_contract.sh` pins the current direct-route `Counter.step` contract on `bench_kilo_micro_userbox_counter_step.hako`
@@ -102,7 +102,7 @@ Related:
     4. actual-consumer switch for selected thin-entry user-box method routes that are still metadata-only today (`user_box_method.known_receiver` first)
       - landed:
         - first LLVM/Python consumer slice for `user_box_method.known_receiver`
-        - first broader native-driver/shim boundary pure-first consumer slice for the same selector contract (`Counter.step` + `Point.sum` local-i64 fixtures)
+        - first broader native-driver/shim boundary pure-first consumer slice for the same selector contract (`Counter.step` + `Point.sum` local-i64 fixtures, plus their single-copy receiver aliases)
         - first measured local-method keeper (`kilo_micro_userbox_counter_step`)
         - second measured local-method keeper (`kilo_micro_userbox_point_sum`)
       - next follow-on: continue widening from measured contracts only; keep `ArrayBox` read-side observer evidence separate

@@ -225,10 +225,14 @@ Scope: repo root から current lane / current front / restart read order に最
             - `phase163x_direct_emit_user_box_point_sum_contract.sh` pins the current direct-route `Point.sum` contract
             - latest exact reread: `kilo_micro_userbox_point_sum` = `c_instr=127,235 / c_cycles=216,542 / c_ms=3` vs `ny_aot_instr=465,837 / ny_aot_cycles=1,127,654 / ny_aot_ms=3`
             - current `ny_main` object snippet is now `mov $0x5b8d83, %eax ; ret`
-        - next thin-entry actual-consumer follow-on after this slice:
-          - first broader boundary parity widening is now landed too:
-            - `apps/tests/mir_shape_guard/user_box_point_sum_local_i64_min.prebuilt.mir.json` now proves the direct local-i64 `Point.sum` known-receiver shape without depending on the benchmark loop body
-            - `phase163x_boundary_user_box_method_known_receiver_min.sh` now keeps both `Counter.step` and `Point.sum` green on boundary `pure-first` without compat replay
+          - next thin-entry actual-consumer follow-on after this slice:
+            - first broader boundary parity widening is now landed too:
+              - `apps/tests/mir_shape_guard/user_box_point_sum_local_i64_min.prebuilt.mir.json` now proves the direct local-i64 `Point.sum` known-receiver shape without depending on the benchmark loop body
+              - `phase163x_boundary_user_box_method_known_receiver_min.sh` now keeps both `Counter.step` and `Point.sum` green on boundary `pure-first` without compat replay
+            - single-copy receiver alias widening is now landed too:
+              - `apps/tests/mir_shape_guard/user_box_counter_step_copy_local_i64_min.prebuilt.mir.json`
+              - `apps/tests/mir_shape_guard/user_box_point_sum_copy_local_i64_min.prebuilt.mir.json`
+              - `phase163x_boundary_user_box_method_known_receiver_min.sh` now also keeps the same known-receiver contract green when the receiver flows through one local `copy`
           - continue widening broader local-method parity from measured contracts instead of a single benchmark shape
           - keep `ArrayBox` typed-slot read-side observer evidence and any new typed-load ABI row separate from that local-method widening
     5. `tuple multi-payload` compat transport is now landed:

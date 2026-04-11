@@ -218,7 +218,7 @@
              - `phase163x_direct_emit_user_box_counter_step_contract.sh` now pins the current direct-route `Counter.step` contract on `bench_kilo_micro_userbox_counter_step.hako`
            - landed first native-driver/shim boundary pure-first consumer slice too:
              - `phase163x_boundary_user_box_method_known_receiver_min.sh` now pins metadata-bearing `Counter.step` and `Point.sum` fixtures on the owner lane without compat replay
-             - the current shim consumer stays local-i64 + known-receiver narrow and consumes `user_box_method.known_receiver` together with the matching scalar field selections
+             - the current shim consumer stays local-i64 + known-receiver narrow and consumes `user_box_method.known_receiver` together with the matching scalar field selections, including one local receiver-copy alias
            - first measured local-method keeper is now landed:
              - `bench_kilo_micro_userbox_counter_step.hako` + `benchmarks/c/bench_kilo_micro_userbox_counter_step.c`
              - the narrow `Counter.step` pure-first micro seed now collapses the exact bench to `ny_main = mov $0x52041ab, %eax ; ret`
@@ -231,6 +231,10 @@
            - first broader boundary parity widening is now landed:
              - `apps/tests/mir_shape_guard/user_box_point_sum_local_i64_min.prebuilt.mir.json` now proves the direct local-i64 `Point.sum` known-receiver shape without relying on the benchmark loop body
              - `phase163x_boundary_user_box_method_known_receiver_min.sh` now keeps both known-receiver fixtures green on boundary `pure-first` without compat replay
+           - single-copy receiver alias widening is now landed too:
+             - `apps/tests/mir_shape_guard/user_box_counter_step_copy_local_i64_min.prebuilt.mir.json`
+             - `apps/tests/mir_shape_guard/user_box_point_sum_copy_local_i64_min.prebuilt.mir.json`
+             - `phase163x_boundary_user_box_method_known_receiver_min.sh` now keeps the same known-receiver contract green when the receiver flows through one local `copy`
            - keep further local-method widening separate from `ArrayBox` read-side observer evidence
         4. `ArrayBox` typed-slot expansion beyond the landed `InlineI64` pilot
            - landed next narrow slices: `InlineBool` / `InlineF64` birth/preserve on existing `slot_store_hih` / `slot_append_hh` any routes

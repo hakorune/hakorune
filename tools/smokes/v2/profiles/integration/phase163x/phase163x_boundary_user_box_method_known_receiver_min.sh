@@ -7,7 +7,7 @@
 # 2) the current native-driver/shim consumer slice stays narrow: selected
 #    `Counter.step` and `Point.sum` rows are consumed beneath canonical `Call`
 #    without compat replay while relying on the already-landed scalar field
-#    selections.
+#    selections, including the single-copy receiver alias lane.
 
 set -euo pipefail
 
@@ -33,7 +33,9 @@ NY_LLVM_C="$NYASH_ROOT/target/release/ny-llvmc"
 RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-90}"
 FIXTURES=(
     "$NYASH_ROOT/apps/tests/mir_shape_guard/user_box_counter_step_local_i64_min.prebuilt.mir.json"
+    "$NYASH_ROOT/apps/tests/mir_shape_guard/user_box_counter_step_copy_local_i64_min.prebuilt.mir.json"
     "$NYASH_ROOT/apps/tests/mir_shape_guard/user_box_point_sum_local_i64_min.prebuilt.mir.json"
+    "$NYASH_ROOT/apps/tests/mir_shape_guard/user_box_point_sum_copy_local_i64_min.prebuilt.mir.json"
 )
 
 cleanup() {
@@ -95,4 +97,4 @@ for FIXTURE in "${FIXTURES[@]}"; do
     fi
 done
 
-test_pass "phase163x_boundary_user_box_method_known_receiver_min: PASS (selected Counter.step and Point.sum known_receiver metadata stay green on boundary pure-first owner lane without compat replay)"
+test_pass "phase163x_boundary_user_box_method_known_receiver_min: PASS (selected Counter.step and Point.sum known_receiver metadata stay green on boundary pure-first owner lane without compat replay, including the single-copy receiver alias lane)"
