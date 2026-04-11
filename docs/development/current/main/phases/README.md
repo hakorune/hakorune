@@ -6,6 +6,7 @@
 
 - **Current (ACTIVE)**: Phase 163x primitive and user-box fast path
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
+- **Phase 174x（LANDED）**: substring concat write-boundary publication sink
 - **Phase 173x（LANDED）**: substring concat return-boundary publication sink
 - **Phase 172x（LANDED）**: substring concat stable-length exact-route cut
 - **Phase 171x（LANDED）**: substring concat exact-seed loop-shape cut

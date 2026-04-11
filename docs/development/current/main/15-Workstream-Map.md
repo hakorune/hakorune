@@ -59,10 +59,11 @@ Related:
   - latest reread after that cut: `ny_aot_instr=1,666,187 / ny_aot_cycles=1,049,205 / ny_aot_ms=4`
   - next string work should return to broader `return` / `store` / host-boundary publication
 - active broader string follow-on:
-  - `phase-173x` is landed
+  - `phase-173x` and `phase-174x` are landed
   - same-block direct-helper `return` publication sink now consumes the landed `publication_sink` plan metadata
-  - the cut is explicitly a birth-sink move, not a `return` barrier relaxation phase
-  - remaining string backlog is `store` / host-boundary publication; final emitted-MIR return-carrier cleanup stays separate
+  - same-block canonical `Store { value, .. }` / `FieldSet { value, .. }` write boundaries now consume that same landed `publication_sink` plan metadata
+  - the cut is explicitly a birth-sink move, not a barrier-relaxation phase
+  - remaining string backlog is host-boundary publication; final emitted-MIR return-carrier cleanup stays separate
 - `phase-133x` landed:
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`

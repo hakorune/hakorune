@@ -70,10 +70,10 @@ Scope: repo root から current lane / current front / restart read order に最
   - latest reread after the route switch: `ny_aot_instr=1,666,187 / ny_aot_cycles=1,049,205 / ny_aot_ms=4`
   - reading: the first exact keeper target is now well cleared, so the next string work should return to broader `return` / `store` / host-boundary publication rather than more exact-seed shrink
 - active broader string follow-on:
-  - `docs/development/current/main/phases/phase-173x/README.md`
+  - `docs/development/current/main/phases/phase-174x/README.md`
   - `phase-173x` is landed; same-block direct-helper `return` publication sink now rides the existing `publication_sink` plan metadata under a focused unit guard
-  - this cut covers both terminator-form and trailing-instruction-form `Return` carriers inside `string_corridor_sink`
-  - remaining string backlog is now `store` / host-boundary publication; final emitted-MIR return-carrier cleanup stays separate
+  - `phase-174x` is landed too; same-block canonical `Store { value, .. }` / `FieldSet { value, .. }` write boundaries now consume that same `publication_sink` plan under a focused unit guard
+  - remaining string backlog is now host-boundary publication; final emitted-MIR return-carrier cleanup stays separate
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`
