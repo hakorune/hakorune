@@ -65,7 +65,7 @@ This is still too dense for casual human navigation, especially under `integrati
 - role-first reading is preferred when a semantic lane is already explicit:
   - `llvm/exe` = product
   - `rust-vm` = engineering/bootstrap
-  - `vm-hako` = reference/conformance
+  - `vm-hako` = reference/conformance keep
   - `wasm` = experimental
 
 Current seeded suites:
