@@ -28,8 +28,8 @@ pub(super) fn run_vm_hako_driver(filename: &str, payload_json: &str) -> Result<i
     cmd.arg("--backend")
         .arg("vm")
         .arg(&driver_path)
-        // VM route cutover default is vm-hako on strict/dev.
-        // Driver subprocess must run on the VM lane to execute MiniVmS0EntryBox without re-entering vm-hako subset checks.
+        // Keep the subprocess on the VM backend so the bridge path exercises
+        // MiniVmS0EntryBox without inheriting the parent's smoke strict/planner gate.
         .env("NYASH_VM_HAKO_PREFER_STRICT_DEV", "0")
         // Driver compilation is internal plumbing; do not inherit strict+planner gate from parent smoke env.
         .env("HAKO_JOINIR_STRICT", "0")

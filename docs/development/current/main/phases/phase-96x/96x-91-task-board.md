@@ -80,7 +80,7 @@ Date: 2026-04-11
 | `96xE1` | completed | rewrite stale `vm_hako_caps/README.md` wording so `mapbox/` and the compatibility stub are described as archive/mirror only, not as active reuse |
 | `96xE2` | completed | move the remaining offloaded mirror families (`app1/`, `args/`, `atomic/`, `tls/`, `select_emit/`, `open_handle_phi/`, `file_error`, `filebox_newbox`, `compare_ge`, `const_void`) out of `tools/smokes/v2/profiles/integration/vm_hako_caps/**` into archive or owner-local homes |
 | `96xE3` | completed | remove redundant `mapbox` mirrors from `tools/smokes/v2/profiles/integration/vm_hako_caps/mapbox/*` after confirming the archive copies and emit+exec owners remain green |
-| `96xE4` | pending | quarantine runtime bridge edits (`env.get`, `runtime_data`, `FileBox`, driver env/cwd`) into a non-phase96x lane so vm retirement docs stop mixing smoke cleanup with interpreter work |
+| `96xE4` | pending | quarantine runtime bridge edits (`src/runner/reference/vm_hako/driver_spawn.rs`, `src/backend/mir_interpreter/handlers/extern_provider/lane.rs`, `lang/src/vm/boxes/mir_call_v1_handler.hako`, `lang/src/vm/boxes/mir_vm_s0_call_exec.hako`) into a non-phase96x lane so vm retirement docs stop mixing smoke cleanup with interpreter work |
 | `96xE5` | pending | decide the long-term policy for the frozen `vm-hako-core` 4-row monitor pack: keep indefinitely, archive after a stable window, or replace with a smaller single-canary lane |
 
 ## Acceptance Shape

@@ -84,6 +84,7 @@ Related:
   - wave `2`: complete; the phase29y gate no longer owns any active vm_hako row
   - completed track: `mapbox -> collection-core` ownership move
 - remaining retirement work is runtime bridge separation; the monitor keep stays frozen as the 4-row `vm-hako-core` bundle
+  - runtime bridge lane: `src/runner/reference/vm_hako/driver_spawn.rs`, `src/backend/mir_interpreter/handlers/extern_provider/lane.rs`, `lang/src/vm/boxes/mir_call_v1_handler.hako`, `lang/src/vm/boxes/mir_vm_s0_call_exec.hako`
 - landed: `96xE1` cleaned the stale `vm_hako_caps/README.md` wording so the compatibility stub and the `mapbox/` tree are described as retired archive/mirror artifacts instead of active reuse
 - landed: `96xE2` moved the remaining offloaded mirror families (`app1/`, `args/`, `atomic/`, `tls/`, `select_emit/`, `open_handle_phi/`, `file_error`, `filebox_newbox`, `compare_ge`, `const_void`) out of `tools/smokes/v2/profiles/integration/vm_hako_caps/**` into archive or owner-local homes
 - detailed execution order is fixed in `96x-92-execution-plan.md`

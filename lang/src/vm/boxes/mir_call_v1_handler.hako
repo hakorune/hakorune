@@ -453,7 +453,7 @@ static box MirCallV1HandlerBox {
           }
         }
         // Collection visible-owner route stays available even when the adapter
-        // registry is disabled; the adapter lane is only for symbol projection.
+        // registry is disabled; the adapter lane is projection-only, not an owner lane.
         if btype == "ArrayBox" {
           if ArrayCoreBox.try_handle(seg, regs, kinds, mname) == 1 { return }
         }
