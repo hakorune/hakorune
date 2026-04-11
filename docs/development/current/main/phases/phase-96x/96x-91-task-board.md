@@ -35,7 +35,7 @@ Date: 2026-04-11
 | `96xC1b` | completed | split `env_get_ported_vm.sh` into canary-vs-product ownership |
 | `96xC1c` | completed | retire `filebox_newbox_vm.sh` against the PLG-04 FileBox pilot anchor |
 | `96xC1d` | completed | retire `file_read_ported_vm.sh` and `file_close_ported_vm.sh` against the PLG-07 FileBox anchors |
-| `96xC1e` | pending | resolve `file_error_vm.sh` with a dedicated non-vm_hako open-error witness or leave it as the last wave 1a survivor |
+| `96xC1e` | completed | resolve `file_error_vm.sh` with a dedicated non-vm_hako open-error witness |
 
 ## Execution Anchor
 
@@ -45,10 +45,10 @@ Date: 2026-04-11
 
 | Item | State |
 | --- | --- |
-| Now | `96xC1e file error gap` |
+| Now | `96xC4 mapbox physical move` |
 | Blocker | `none` |
-| Next | `96xC4 mapbox physical move` |
-| After Next | `96xC2 wave 1b` |
+| Next | `96xC2 wave 1b` |
+| After Next | `96xC3 seam shadow` |
 
 ## Acceptance Shape
 
@@ -61,7 +61,8 @@ Date: 2026-04-11
 - `96xC1b` is landed: `env_get_ported_vm.sh` is retired from `vm-hako-caps.txt` and `phase29y_vm_hako_caps_gate_vm.sh`, while `core/phase2035/v1_extern_env_get_canary_vm.sh` is added to `presubmit.txt`
 - `96xC1c` is landed: `filebox_newbox_vm.sh` is retired from `vm-hako-caps.txt` and `phase29y_vm_hako_caps_gate_vm.sh`
 - `96xC1d` is landed: `file_read_ported_vm.sh` and `file_close_ported_vm.sh` are retired from `vm-hako-caps.txt` and `phase29y_vm_hako_caps_gate_vm.sh`
-- wave `1a` is now `file`
+- `96xC1e` is landed: `file_error_vm.sh` is retired from `vm-hako-caps.txt` and `phase29y_vm_hako_caps_gate_vm.sh`
+- wave `1a` is complete
 - wave `1b` is `compare` + `misc` + `atomic` + `tls`
 - wave `2` is `select_emit` + `open_handle_phi` + `boxcall_args_gt1`
 - `mapbox` is a separate `collection-core` re-home track, not part of wave `1a`

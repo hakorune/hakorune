@@ -2,7 +2,6 @@
 # Reference/conformance acceptance cases only. Keep this file in exact sync
 # with `vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh`.
 # This suite is not a product-mainline pack and not an engineering default.
-vm_hako_caps/file/file_error_vm.sh
 vm_hako_caps/select_emit/select_emit_block_vm.sh
 vm_hako_caps/tls/tls_last_error_ported_vm.sh
 vm_hako_caps/atomic/atomic_fence_ported_vm.sh

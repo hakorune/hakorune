@@ -43,6 +43,11 @@ ownership moved to `tools/smokes/v2/profiles/integration/core/phase2035/`
 through `tools/smokes/v2/suites/integration/presubmit.txt`, while the vm-hako
 row remains in `tools/smokes/v2/suites/integration/vm-hako-core.txt`.
 
+`file/file_read_ported_vm.sh` and `file/file_close_ported_vm.sh` are also
+monitor-only now; the product-facing anchors are the PLG-07 FileBox scripts,
+and `file_error_vm.sh` is no longer part of the phase29y vm-hako acceptance
+gate.
+
 `mapbox/` is not part of the phase29y vm-hako acceptance gate.
 `tools/smokes/v2/suites/integration/collection-core.txt` now points at
 `tools/smokes/v2/profiles/integration/collection_core/mapbox_*` wrappers, so

@@ -1,0 +1,11 @@
+// Phase 96x C1e witness fixture
+// Contract:
+// - plugin-backed VM route must accept FileBox.open(path, mode) on a missing file
+// - execution must finish with rc=0
+
+static box Main {
+  main() {
+    local f = new FileBox()
+    return f.open("./missing_input.txt", "r")
+  }
+}
