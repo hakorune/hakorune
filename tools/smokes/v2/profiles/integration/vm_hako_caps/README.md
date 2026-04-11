@@ -38,8 +38,11 @@ prefix bucket.
 - `select_emit/`: MIR select emission blocker pin
 - `tls/`: TLS last-error contract pins
 
-`mapbox/` is not part of the phase29y vm-hako acceptance gate, but it is still
-live indirectly via `tools/smokes/v2/suites/integration/collection-core.txt`.
+`mapbox/` is not part of the phase29y vm-hako acceptance gate.
+`tools/smokes/v2/suites/integration/collection-core.txt` now points at
+`tools/smokes/v2/profiles/integration/collection_core/mapbox_*` wrappers, so
+the `collection-core` suite no longer depends on `vm_hako_caps/mapbox/*`
+directly.
 `app1/app1_summary_contract_ported_vm.sh` also remains referenced by
 `tools/smokes/v2/suites/integration/presubmit.txt`, so `app1/` is a late
 demotion family rather than an early archive target.

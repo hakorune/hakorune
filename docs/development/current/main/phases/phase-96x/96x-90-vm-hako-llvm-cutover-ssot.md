@@ -72,7 +72,7 @@ Related:
 | `select_emit/` | compiler/backend emission seam | `1` | `0` | `phase29y-hako-emit-mir.txt` or sibling selfhost seam pack | keep -> shadow -> retire | LLVM/JoinIR seam pack replaces vm_hako ownership |
 | `open_handle_phi/` | PHI/open-handle seam | `1` | `0` | JoinIR/selfhost seam pack | keep -> shadow -> retire | LLVM/JoinIR seam pack covers the same propagation truth |
 | `app1/` | broad summary contract | `2` | `1` via `presubmit.txt` | product LLVM acceptance pack | keep -> late demote | leaf families are retired and `presubmit` no longer needs the vm_hako witness |
-| `mapbox/` | collection/runtime-data bridge | `0` | `7` via `collection-core.txt` | `collection-core.txt` plus runtime-data LLVM pack | freeze -> re-home -> retire | collection-core no longer depends on `vm_hako_caps/mapbox/*` |
+| `mapbox/` | collection/runtime-data bridge | `0` | `7` via `collection_core/mapbox_*` wrappers in `collection-core.txt` | `collection-core.txt` plus runtime-data LLVM pack | freeze -> re-home -> retire | collection-core no longer depends on the wrapper bridge or `vm_hako_caps/mapbox/*` |
 
 ### LLVM replacement anchors
 
@@ -93,7 +93,7 @@ Related:
 | `compare/` + `misc/` + `atomic/` + `tls/` | narrow single-purpose witnesses | product LLVM acceptance pack | second wave after the product-visible wave is stable |
 | `select_emit/` + `open_handle_phi/` + `boxcall_args_gt1` | compiler/backend seam sentinels | `phase29y-hako-emit-mir.txt`, `joinir-bq.txt`, `selfhost-core.txt` | keep as seam shadow rows until LLVM/JoinIR proofs are explicit |
 | `app1/` | wide end-to-end summary parity | `presubmit.txt` plus product LLVM acceptance pack | late demotion only after leaf families stop owning the contract |
-| `mapbox/` | collection semantics / handle-presence pressure | `collection-core.txt` plus runtime-data LLVM pack | parallel re-home track, not part of the first acceptance cutover wave |
+| `mapbox/` | collection semantics / handle-presence pressure | `collection-core.txt` plus runtime-data LLVM pack | wrapper bridge is landed; physical move/archive remains a parallel re-home track |
 
 ## Gate Artifact Pairing
 
@@ -125,5 +125,5 @@ Related:
 
 - if a vm_hako smoke is moved to LLVM acceptance, update this file, the task board, and the current pointer docs in the same commit
 - if a vm_hako smoke remains as monitor-only keep, name it explicitly here so the reduction does not drift back into a hidden owner surface
-- keep `mapbox` on its own re-home track until `collection-core` no longer depends on `vm_hako_caps/mapbox/*`
+- keep `mapbox` on its own re-home track until `collection-core` no longer depends on the `collection_core/mapbox_*` bridge
 - do not touch rust-vm keep / fallback corridors in this lane

@@ -69,7 +69,7 @@ Related:
   - `tls/`
   - `compare/`
   - these are either indirect-live (`mapbox`) or narrow single-purpose rows that should not grow during cutover
-- `mapbox/` is live through `collection-core` rather than the phase29y gate rows, so it now belongs to a parallel re-home track instead of the first acceptance cutover wave
+- `mapbox/` is now bridged through `collection_core/mapbox_*` rather than referenced directly by `collection-core.txt`, so it belongs to a parallel re-home track instead of the first acceptance cutover wave
 - exact row-to-row mapping is locked by the inventory now; `96xC` is the execution wave for:
   - wave `1a`: `env` + `file` + narrow `args_vm`
   - wave `1b`: `compare` + `misc` + `atomic` + `tls`

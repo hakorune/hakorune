@@ -24,8 +24,18 @@ Date: 2026-04-11
 | `96xC1` | pending | wave 1a: LLVM cutover pack for `env` + `file` + narrow `args_vm` |
 | `96xC2` | pending | wave 1b: LLVM cutover pack for `compare` + `misc` + `atomic` + `tls` |
 | `96xC3` | pending | wave 2: seam shadow replacement for `select_emit` + `open_handle_phi` + `boxcall_args_gt1` |
-| `96xC4` | pending | parallel `mapbox -> collection-core` re-home track |
+| `96xC4` | in_progress | parallel `mapbox -> collection-core` re-home track; wrapper bridge + suite retarget landed |
 | `96xD1` | pending | `app1` late demotion and proof / closeout |
+
+### Wave 1a Substeps
+
+| Task | Status | Read as |
+| --- | --- | --- |
+| `96xC1a` | pending | retire `args_vm.sh` against `argv_multiline_roundtrip.sh` and remove its live vm_hako refs |
+| `96xC1b` | pending | split `env_get_ported_vm.sh` into canary-vs-product ownership |
+| `96xC1c` | pending | retire `filebox_newbox_vm.sh` against the PLG-04 FileBox pilot anchor |
+| `96xC1d` | pending | retire `file_read_ported_vm.sh` and `file_close_ported_vm.sh` against the PLG-07 FileBox anchors |
+| `96xC1e` | pending | resolve `file_error_vm.sh` with a dedicated non-vm_hako open-error witness or leave it as the last wave 1a survivor |
 
 ## Execution Anchor
 
@@ -35,7 +45,7 @@ Date: 2026-04-11
 
 | Item | State |
 | --- | --- |
-| Now | `96xC cutover` |
+| Now | `96xC4 mapbox re-home` |
 | Blocker | `none` |
 | Next | `96xC1 wave 1a` |
 | After Next | `96xC2 wave 1b` |
@@ -51,3 +61,4 @@ Date: 2026-04-11
 - wave `1b` is `compare` + `misc` + `atomic` + `tls`
 - wave `2` is `select_emit` + `open_handle_phi` + `boxcall_args_gt1`
 - `mapbox` is a separate `collection-core` re-home track, not part of wave `1a`
+- current landed substep: `collection-core.txt` now points at `collection_core/mapbox_*` wrappers instead of `vm_hako_caps/mapbox/*`

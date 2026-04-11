@@ -24,7 +24,7 @@ Related:
 
 - `args_vm.sh` is the narrow runtime-data row
 - `boxcall_args_gt1_ported_vm.sh` is not a pure args row; it executes APP-1 (`gate_log_summarizer/main.hako`) and belongs to the late APP/seam track
-- `mapbox/*` is not phase29y-live, but it is still live through `collection-core.txt`
+- `mapbox/*` is not phase29y-live; live suite ownership is now bridged through `collection_core/mapbox_*`
 - `app1_summary_contract_ported_vm.sh` is still referenced by `presubmit.txt`
 
 ## Fastest Order
@@ -49,16 +49,30 @@ Exact order:
 5. `file_read_ported_vm.sh`
 6. `file_close_ported_vm.sh`
 
-Current anchor read:
-- `args_vm.sh` is closest to `phase29ck_boundary/runtime_data/*`
-- `env_get_ported_vm.sh` does not yet have an obvious dedicated LLVM-line replacement row in-tree
-- the four FileBox rows do not yet have a dedicated LLVM file acceptance pack in-tree
+Current live refs:
+- `vm-hako-caps.txt` still owns all six rows
+- `vm-hako-core.txt` still owns `args_vm.sh`, `env_get_ported_vm.sh`, `file_read_ported_vm.sh`, and `file_close_ported_vm.sh`
+- `phase29y_vm_hako_caps_gate_vm.sh` still runs all six rows directly
+
+Exact replacement anchors:
+- `args_vm.sh` -> `tools/smokes/v2/profiles/integration/argv/argv_multiline_roundtrip.sh`
+- `env_get_ported_vm.sh` -> `tools/smokes/v2/profiles/integration/core/phase2035/v1_extern_env_get_canary_vm.sh`
+- `filebox_newbox_vm.sh` -> `tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg04_filebox_pilot_vm.sh`
+- `file_read_ported_vm.sh` -> `tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg07_filebox_binary_hako_route_vm.sh`
+- `file_close_ported_vm.sh` -> `tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg07_filebox_binary_retire_execution_lock_vm.sh`
+- `file_error_vm.sh` -> no dedicated non-vm_hako anchor yet; treat as the explicit gap row
+
+Cutover rule:
+- every wave 1a retirement commit must update `phase29y_vm_hako_caps_gate_vm.sh`, `vm-hako-caps.txt`, and `vm-hako-core.txt` together when the row is still present in those artifacts
+- do not retire `env_get_ported_vm.sh` until its canary role is split cleanly from the product-facing replacement anchor
+- do not batch `file_error_vm.sh` into the first FileBox cut unless a dedicated non-vm_hako open-error witness lands in the same commit
 
 Required tasks:
-1. lock a dedicated LLVM replacement row for `args_vm.sh`
-2. add a dedicated LLVM env-route row so `env_get` can stop being both product row and health canary
-3. add a dedicated LLVM FileBox pack covering `newbox`, `open(error)`, `read`, and `close`
-4. only after those rows are green, shrink the same rows out of the vm_hako gate/suite pair
+1. `96xC1a`: retire `args_vm.sh` against `argv_multiline_roundtrip.sh`, then drop the row from the gate/suite pair
+2. `96xC1b`: split `env_get_ported_vm.sh` into a blocking canary role and a product-facing replacement anchored by `v1_extern_env_get_canary_vm.sh`
+3. `96xC1c`: retire `filebox_newbox_vm.sh` against the PLG-04 FileBox pilot anchor
+4. `96xC1d`: retire `file_read_ported_vm.sh` and `file_close_ported_vm.sh` against the PLG-07 FileBox anchors
+5. `96xC1e`: either land a dedicated non-vm_hako open-error witness for `file_error_vm.sh` or mark it as the last wave 1a survivor until that witness exists
 
 ### Wave 1b: narrow single-purpose witnesses
 
@@ -125,6 +139,11 @@ Fastest ownership move:
 2. point `collection-core.txt` at those wrappers
 3. move the real implementations later
 
+Current state:
+- landed: `collection_core/mapbox_*` wrappers
+- landed: `collection-core.txt` retarget to the wrappers
+- next: physical move of the 7 live rows and archive of the non-live rows
+
 After the wrapper move:
 1. physically move the 7 live rows into a `collection_core/` owner home
 2. archive the non-live `mapbox` rows (`*_bad_key*`, `*_missing*`, `*_getfield*`, `*_setfield*`, `mapbox_newbox_ported_vm.sh`)
@@ -134,9 +153,10 @@ Risks:
 - the 7 live rows depend on `vm_hako_caps_common.sh`
 - fixture paths still point at `apps/tests/vm_hako_caps/*`
 - the wrapper move is the low-risk first step because it cuts suite ownership before helper surgery
+- the current `vm_hako_caps/mapbox/*` live rows already carry active uncommitted edits, so the physical move must preserve that content rather than overwrite it with stale HEAD copies
 
 ## Next Commit Candidates
 
-1. create the `collection_core/mapbox_*` wrappers and retarget `collection-core.txt`
-2. split `boxcall_args_gt1` out of wave 1a in all phase-96x docs
-3. add a dedicated phase-96x anchor gap list for `env` and FileBox so wave 1a has explicit unblockers
+1. `96xC1a`: cut `args_vm.sh` out of `phase29y_vm_hako_caps_gate_vm.sh`, `vm-hako-caps.txt`, and `vm-hako-core.txt` with `argv_multiline_roundtrip.sh` as the explicit replacement anchor
+2. `96xC1b`: split `env_get_ported_vm.sh` into canary-vs-product ownership so the blocking health probe does not block wave 1a retirement
+3. `96xC4`: physically move the 7 live mapbox rows into `collection_core/` only after preserving the current uncommitted row content
