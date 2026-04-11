@@ -43,6 +43,7 @@
   - local perf gate `kilo_micro_userbox_point_add` now exists in `benchmarks/` + the kilo micro ladder
   - local perf gate `kilo_micro_userbox_flag_toggle` now also exists in `benchmarks/` + the kilo micro ladder as the dedicated BoolBox proof
   - local perf gate `kilo_micro_userbox_counter_step` now also exists in `benchmarks/` + the kilo micro ladder as the measured known-receiver local-method proof
+  - local perf gate `kilo_micro_userbox_point_sum` now also exists in `benchmarks/` + the kilo micro ladder as the second measured known-receiver local-method proof
   - LLVM `field_get` / `field_set` now take a typed IntegerBox path for known user-box `field_decls`
   - LLVM `field_get` now also takes a typed BoolBox path for known user-box `field_decls`
   - LLVM `field_set` now takes a typed BoolBox path only when the source stays on the bool-safe boundary (`BoolBox` handle or bool immediate)
@@ -89,7 +90,7 @@
   - `fields` = names-only compatibility mirror for old payloads and old runtime consumers
 - primitive-family audit snapshot:
   - parser/current surface already accepts float/bool/null literals and typed field declarations; docs must stay aligned to that
-  - current keeper set is `kilo_micro_userbox_point_add` + `kilo_micro_userbox_flag_toggle` + `kilo_micro_userbox_counter_step`
+  - current keeper set is `kilo_micro_userbox_point_add` + `kilo_micro_userbox_flag_toggle` + `kilo_micro_userbox_counter_step` + `kilo_micro_userbox_point_sum`
   - `Float` surface-close is now landed on the current compiler route:
     - Stage1 Program JSON v0 now lowers float literals, including unary-minus float literals
     - recent value-lowering now accepts float literals and preserves `MirType::Float` on float arithmetic results
@@ -222,7 +223,12 @@
              - `bench_kilo_micro_userbox_counter_step.hako` + `benchmarks/c/bench_kilo_micro_userbox_counter_step.c`
              - the narrow `Counter.step` pure-first micro seed now collapses the exact bench to `ny_main = mov $0x52041ab, %eax ; ret`
              - latest exact reread: `kilo_micro_userbox_counter_step` = `c_instr=127,242 / c_cycles=208,224 / c_ms=3` vs `ny_aot_instr=465,881 / ny_aot_cycles=794,663 / ny_aot_ms=3`
-           - broader native-driver local-method parity remains backlog-only until a second measured keeper or stronger SSOT justifies widening
+           - second measured local-method keeper is now landed:
+             - `bench_kilo_micro_userbox_point_sum.hako` + `benchmarks/c/bench_kilo_micro_userbox_point_sum.c`
+             - `phase163x_direct_emit_user_box_point_sum_contract.sh` now pins the current direct-route `Point.sum` contract on the known-receiver lane
+             - the narrow `Point.sum` pure-first micro seed now collapses the exact bench to `ny_main = mov $0x5b8d83, %eax ; ret`
+             - latest exact reread: `kilo_micro_userbox_point_sum` = `c_instr=127,235 / c_cycles=216,542 / c_ms=3` vs `ny_aot_instr=465,837 / ny_aot_cycles=1,127,654 / ny_aot_ms=3`
+           - broader native-driver local-method parity is now unblocked by a second measured keeper; keep that widening separate from `ArrayBox` read-side observer evidence
         4. `ArrayBox` typed-slot expansion beyond the landed `InlineI64` pilot
            - landed next narrow slices: `InlineBool` / `InlineF64` birth/preserve on existing `slot_store_hih` / `slot_append_hh` any routes
            - current stop-line: keep read-side on encoded-any `slot_load_hi`; do not add a new typed load row without measured observer evidence (`kilo_micro_array_getset` still does not justify it)

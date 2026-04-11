@@ -138,6 +138,7 @@ Scope: repo root から current lane / current front / restart read order に最
     - `kilo_micro_userbox_point_add`
     - `kilo_micro_userbox_flag_toggle`
     - `kilo_micro_userbox_counter_step`
+    - `kilo_micro_userbox_point_sum`
     - latest `2026-04-09` WSL `3 runs + asm` reread:
       - pre-cleanup baseline:
         - `kilo_micro_userbox_point_add`: `c_instr=12,120,416 / c_cycles=2,187,984 / c_ms=3` vs `ny_aot_instr=22,457,049 / ny_aot_cycles=4,461,297 / ny_aot_ms=4`
@@ -218,10 +219,16 @@ Scope: repo root から current lane / current front / restart read order に最
             - `hako_llvmc_ffi_user_box_micro_seed.inc` now has a narrow `Counter.step` pure-first micro seed behind the same `user_box_method.known_receiver` + `Counter.value` scalar selections
             - latest exact reread: `kilo_micro_userbox_counter_step` = `c_instr=127,242 / c_cycles=208,224 / c_ms=3` vs `ny_aot_instr=465,881 / ny_aot_cycles=794,663 / ny_aot_ms=3`
             - current `ny_main` object snippet is now `mov $0x52041ab, %eax ; ret`, so the remaining gap reads as startup/process cost rather than loop/codegen churn
+          - second measured local-method keeper is now landed:
+            - `benchmarks/bench_kilo_micro_userbox_point_sum.hako` + `benchmarks/c/bench_kilo_micro_userbox_point_sum.c`
+            - `hako_llvmc_ffi_user_box_micro_seed.inc` now has a narrow `Point.sum` pure-first micro seed behind the same `user_box_method.known_receiver` + `Point.{x,y}` scalar field selections
+            - `phase163x_direct_emit_user_box_point_sum_contract.sh` pins the current direct-route `Point.sum` contract
+            - latest exact reread: `kilo_micro_userbox_point_sum` = `c_instr=127,235 / c_cycles=216,542 / c_ms=3` vs `ny_aot_instr=465,837 / ny_aot_cycles=1,127,654 / ny_aot_ms=3`
+            - current `ny_main` object snippet is now `mov $0x5b8d83, %eax ; ret`
         - generic native-driver / `ny-llvmc` parity for the broader local user-box body route remains canary-only backlog, not the current lane blocker
         - next thin-entry actual-consumer follow-on after this slice:
-          - do not widen broader local-method parity until a second measured keeper appears
-          - return to the next ordered lane (`ArrayBox` typed-slot read-side observer evidence) before inventing a new typed-load ABI row
+          - second measured keeper now exists, so broader local-method parity can widen from measured contracts instead of a single benchmark shape
+          - keep `ArrayBox` typed-slot read-side observer evidence and any new typed-load ABI row separate from that local-method widening
     5. `tuple multi-payload` compat transport is now landed:
         - parser/AST accept `Variant(T, U, ...)` and shorthand `Variant(a, b)` arms
         - Stage1 lowers tuple ctors/matches through `__NyEnumPayload_<Enum>_<Variant>` with `_0`, `_1`, ... synthetic field slots

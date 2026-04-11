@@ -82,6 +82,11 @@ Related:
         - `benchmarks/bench_kilo_micro_userbox_counter_step.hako` + `benchmarks/c/bench_kilo_micro_userbox_counter_step.c`
         - exact reread: `kilo_micro_userbox_counter_step` = `c_instr=127,242 / c_cycles=208,224 / c_ms=3` vs `ny_aot_instr=465,881 / ny_aot_cycles=794,663 / ny_aot_ms=3`
         - current `ny_main` object snippet is `mov $0x52041ab, %eax ; ret`, so the current stop-line reads as startup/process overhead rather than loop churn
+      - second measured local-method keeper is now landed:
+        - `benchmarks/bench_kilo_micro_userbox_point_sum.hako` + `benchmarks/c/bench_kilo_micro_userbox_point_sum.c`
+        - `tools/smokes/v2/profiles/integration/phase163x/phase163x_direct_emit_user_box_point_sum_contract.sh` pins the current direct-route `Point.sum` contract
+        - exact reread: `kilo_micro_userbox_point_sum` = `c_instr=127,235 / c_cycles=216,542 / c_ms=3` vs `ny_aot_instr=465,837 / ny_aot_cycles=1,127,654 / ny_aot_ms=3`
+        - current `ny_main` object snippet is `mov $0x5b8d83, %eax ; ret`
     - portability-ci on `public-main` succeeded for commit `6b91896c0` (run `24211665863`), covering Windows check and macOS build (release)
   - verified post-Variant optimization order is now locked:
     1. `ny-llvmc` parity wave for the already-landed local enum/user-box routes
@@ -99,6 +104,7 @@ Related:
          - first LLVM/Python consumer slice for `user_box_method.known_receiver`
          - first native-driver/shim boundary pure-first consumer slice for the same selector contract
          - first measured local-method keeper (`kilo_micro_userbox_counter_step`)
+         - second measured local-method keeper (`kilo_micro_userbox_point_sum`)
        - next follow-on: do not widen broader local-method parity until a second measured keeper appears; otherwise continue to the next ordered lane
     5. `ArrayBox` typed-slot expansion beyond the landed `InlineI64` pilot
        - landed next narrow slices: existing `slot_store_hih` / `slot_append_hh` any routes now birth/preserve `InlineBool` / `InlineF64` for `BoolBox` / `FloatBox` payloads without widening ABI rows

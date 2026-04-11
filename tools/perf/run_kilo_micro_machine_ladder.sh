@@ -30,6 +30,7 @@ cases=(
   kilo_micro_userbox_point_add
   kilo_micro_userbox_flag_toggle
   kilo_micro_userbox_counter_step
+  kilo_micro_userbox_point_sum
 )
 
 for key in "${cases[@]}"; do

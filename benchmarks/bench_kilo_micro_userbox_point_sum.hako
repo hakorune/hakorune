@@ -1,0 +1,28 @@
+// kilo/userbox known-receiver microbench:
+// Point.sum() stays on the known-receiver local-method lane and returns x + y.
+box Point {
+  x: IntegerBox
+  y: IntegerBox
+
+  sum() {
+    return me.x + me.y
+  }
+}
+
+static box Main {
+  main() {
+    local ops = 2000000
+    local p = new Point()
+    p.x = 1
+    p.y = 2
+
+    local acc = 0
+    local i = 0
+    loop (i < ops) {
+      acc = acc + p.sum()
+      i = i + 1
+    }
+
+    return acc + p.sum()
+  }
+}
