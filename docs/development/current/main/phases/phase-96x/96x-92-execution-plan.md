@@ -157,6 +157,6 @@ Risks:
 
 ## Next Commit Candidates
 
-1. `mirror families`: move the remaining offloaded `vm_hako_caps/**` families (`app1/`, `args/`, `atomic/`, `tls/`, `select_emit/`, `open_handle_phi/`, `file_error_vm.sh`, `filebox_newbox_vm.sh`) into archive or owner-local homes
+1. `runtime bridge`: quarantine the interpreter/driver edits (`env.get`, `runtime_data`, `FileBox`, driver env/cwd`) into a non-phase96x lane
 2. `docs`: phase96x parked closeout sync now that the monitor bundle wording is settled
 3. `hold`: keep the frozen `vm-hako-core` 4-row monitor bundle unchanged unless a replacement owner appears

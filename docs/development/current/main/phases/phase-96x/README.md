@@ -59,11 +59,9 @@ Related:
   - `tools/smokes/v2/profiles/integration/vm_hako_caps/env/env_get_ported_vm.sh`
   - it is the smallest stable signal that still exercises extern routing
 - freeze-first vm_hako families:
-  - `misc/`
-  - `atomic/`
-  - `tls/`
   - `compare/`
-  - these are narrow single-purpose rows that should not grow during cutover; `mapbox` is already archived and no longer on the live cutover path
+  - these are narrow single-purpose rows that should not grow during cutover; the offloaded families have already been moved to archive or owner-local homes
+- retired archive buckets now live under `tools/smokes/v2/profiles/archive/vm_hako_caps/**`
 - `mapbox/` live ownership no longer executes from `collection_core/`; the redundant `vm_hako_caps/mapbox/*` mirror tree has been removed and archive evidence remains under `tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/`
 - exact row-to-row mapping is locked by the inventory now; `96xC` is the execution wave for:
   - landed: `96xC1a` retired `args_vm.sh` against `apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
@@ -85,11 +83,9 @@ Related:
   - landed: `96xD2` froze `vm-hako-core.txt` as the final 4-row monitor bundle after `tools/smokes/v2/run.sh --profile integration --suite vm-hako-core` passed `4/4`
   - wave `2`: complete; the phase29y gate no longer owns any active vm_hako row
   - completed track: `mapbox -> collection-core` ownership move
-- remaining retirement work is now separated into three buckets:
-  - monitor keep: the frozen 4-row `vm-hako-core` bundle
-  - mirror cleanup: retired/offloaded files still living under `tools/smokes/v2/profiles/integration/vm_hako_caps/**`
-  - runtime bridge separation: pre-existing interpreter/driver edits that should move on a different lane than smoke ownership retirement
+- remaining retirement work is runtime bridge separation; the monitor keep stays frozen as the 4-row `vm-hako-core` bundle
 - landed: `96xE1` cleaned the stale `vm_hako_caps/README.md` wording so the compatibility stub and the `mapbox/` tree are described as retired archive/mirror artifacts instead of active reuse
+- landed: `96xE2` moved the remaining offloaded mirror families (`app1/`, `args/`, `atomic/`, `tls/`, `select_emit/`, `open_handle_phi/`, `file_error`, `filebox_newbox`, `compare_ge`, `const_void`) out of `tools/smokes/v2/profiles/integration/vm_hako_caps/**` into archive or owner-local homes
 - detailed execution order is fixed in `96x-92-execution-plan.md`
 
 ## Scope and Non-Goals

@@ -30,19 +30,13 @@ prefix bucket.
 
 ## Layout
 
-- `app1/`: retired APP-1 vm-hako parity witnesses; no longer suite-owned
-- `args/`: retired seam witnesses after the narrow `args_vm` retirement
-- `atomic/`: offloaded atomic fence witness
 - `compare/`: compare monitor row plus retired compare-op evidence
 - `env/`: environment routing monitor canary
 - `file/`: file monitor rows plus retired error/newbox witnesses
 - `gate/`: the phase29y vm-hako compatibility stub
 - `lib/`: shared helper layer for vm-hako capability smokes
-- `mapbox/`: retired MapBox family; archive evidence lives under `tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/`
-- `misc/`: archive-only one-off evidence such as `const(void)`
-- `open_handle_phi/`: retired PHI/open-handle seam mirror
-- `select_emit/`: retired MIR select seam mirror
-- `tls/`: offloaded TLS last-error witness
+
+Retired archive buckets live under `tools/smokes/v2/profiles/archive/vm_hako_caps/**`, including `app1`, `args`, `atomic`, `compare_ge`, `const_void`, `file_error`, `filebox_newbox`, `mapbox`, `misc`, `open_handle_phi`, `select_emit`, and `tls`.
 
 `env/env_get_ported_vm.sh` is the explicit vm-hako monitor canary now. Product
 ownership moved to `tools/smokes/v2/profiles/integration/core/phase2035/`
@@ -53,6 +47,12 @@ row remains in `tools/smokes/v2/suites/integration/vm-hako-core.txt`.
 monitor-only now; the product-facing anchors are the PLG-07 FileBox scripts,
 and `file_error_vm.sh` is no longer part of the phase29y vm-hako acceptance
 gate.
+
+`compare/compare_ge_ported_vm.sh` is archive-only evidence now; the live compare
+monitor row is `compare_ported_vm.sh` in `tools/smokes/v2/suites/integration/vm-hako-core.txt`.
+
+`misc/const_void_ported_vm.sh` is archive-only evidence under
+`tools/smokes/v2/profiles/archive/vm_hako_caps/misc/`.
 
 `open_handle_phi/open_handle_phi_ported_vm.sh` is no longer suite-owned.
 The non-vm_hako owner is now

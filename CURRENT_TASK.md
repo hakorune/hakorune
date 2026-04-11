@@ -45,7 +45,7 @@ Scope: repo root から current lane / current front / restart read order に最
 - parked vm retirement corridor:
   - `docs/development/current/main/phases/phase-96x/README.md`
   - `phase-96x` is no longer an active owner lane; it is parked after cutting `vm_hako` down to the frozen `vm-hako-core` 4-row monitor pack
-  - remaining retirement work there is limited to mirror cleanup and runtime-bridge separation
+  - remaining retirement work there is limited to runtime-bridge separation
 - landed inventory scaffold:
   - `src/mir/storage_class.rs`
   - `StorageClass` facts are now refreshed after corridor facts and surfaced in verbose MIR / JSON dumps
