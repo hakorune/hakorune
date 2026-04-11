@@ -19,7 +19,11 @@ pub(super) fn classify_extern_provider_lane(extern_name: &str) -> Option<ExternP
         | "nyash.console.error"
         | "env.get"
         | "env.now_ms"
-        | "env.set" => Some(ExternProviderLane::RuntimeDirect),
+        | "env.set"
+        | "nyash.runtime_data.get_hh"
+        | "nyash.runtime_data.set_hhh"
+        | "nyash.runtime_data.has_hh"
+        | "nyash.runtime_data.push_hh" => Some(ExternProviderLane::RuntimeDirect),
         "env.mirbuilder.emit"
         | "env.mirbuilder_emit"
         | "env.codegen.emit_object"

@@ -165,6 +165,25 @@ static box MirVmS0CallExecBox {
         if callee_type == "Global" {
           local callee_name = me._find_call_callee_name(seg)
           if callee_name == "" { return "[vm-hako/contract][call-global-missing-name]" }
+          if callee_name == "env.get" || callee_name == "env.get/1" {
+            if me._args_has_second(seg) { return "[vm-hako/unimplemented op=call(env.get) args>1]" }
+            local key_reg = me._args_first(seg)
+            if key_reg == null { return "[vm-hako/contract][call-env.get-arg0-missing]" }
+            local key_text = MirVmS0StateOpsBox.handle_get(handle_regs, key_reg)
+            if key_text == null { return "[vm-hako/contract][call-env.get-key-handle-missing]" }
+            local env_val = HostFacadeBox.call("runtime", "env.get", key_text)
+            if dst != null {
+              if env_val == null {
+                MirVmS0RegUtilsBox._reg_set(regs, dst, 0)
+                MirVmS0RegUtilsBox._reg_kind_set(kinds, dst, "scalar")
+              } else {
+                MirVmS0RegUtilsBox._reg_set(regs, dst, 0)
+                MirVmS0RegUtilsBox._reg_kind_set(kinds, dst, "handle")
+                MirVmS0StateOpsBox.handle_set(handle_regs, dst, env_val)
+              }
+            }
+            return "__NEXT__"
+          }
           if callee_name == "print" || callee_name == "println" {
             return me._exec_global_print_call(seg, regs, kinds, handle_regs)
           }

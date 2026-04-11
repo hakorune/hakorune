@@ -6,6 +6,7 @@ using selfhost.shared.json.utils.json_frag as JsonFragBox
 using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.vm.helpers.mini_mir_v1_scan as MiniMirV1Scan
 using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
+using lang.runtime.host.host_facade_box as HostFacadeBox
 using selfhost.vm.hakorune-vm.extern_provider as HakoruneExternProviderBox
 using selfhost.compat.codegen.legacy_emit_object_bridge as CodegenBridgeBox
 using selfhost.shared.backend.llvm_backend as LlvmBackendBox
@@ -26,6 +27,67 @@ static box MirCallV1HandlerBox {
   _shadow_handle_key(rid) {
     if rid == null { return null }
     return "__vm.handle:" + StringHelpers.int_to_str(rid)
+  }
+
+  _file_state_path_key(rid) {
+    if rid == null { return null }
+    return "__vm.file.path:" + StringHelpers.int_to_str(rid)
+  }
+
+  _file_state_mode_key(rid) {
+    if rid == null { return null }
+    return "__vm.file.mode:" + StringHelpers.int_to_str(rid)
+  }
+
+  _file_state_path(regs, rid) {
+    local key = me._file_state_path_key(rid)
+    if key == null { return null }
+    return regs.getField(key)
+  }
+
+  _file_state_mode(regs, rid) {
+    local key = me._file_state_mode_key(rid)
+    if key == null { return null }
+    local mode_text = regs.getField(key)
+    if mode_text == null || ("" + mode_text) == "" { return "r" }
+    return mode_text
+  }
+
+  _file_state_store(regs, rid, path_text, mode_text) {
+    local path_key = me._file_state_path_key(rid)
+    local mode_key = me._file_state_mode_key(rid)
+    if path_key != null { regs.setField(path_key, "" + path_text) }
+    if mode_key != null { regs.setField(mode_key, "" + mode_text) }
+  }
+
+  _file_state_clear(regs, rid) {
+    local path_key = me._file_state_path_key(rid)
+    local mode_key = me._file_state_mode_key(rid)
+    if path_key != null { regs.setField(path_key, null) }
+    if mode_key != null { regs.setField(mode_key, null) }
+  }
+
+  _file_bridge_new() {
+    return new FileBox()
+  }
+
+  _file_trace(tag) {
+    if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print(tag) }
+  }
+
+  _file_bridge_open(file_obj, path_text, mode_text) {
+    if file_obj == null { return null }
+    return file_obj.open("" + path_text, "" + mode_text)
+  }
+
+  _file_bridge_read(file_obj) {
+    if file_obj == null { return null }
+    return file_obj.read()
+  }
+
+  _file_bridge_close(file_obj) {
+    if file_obj == null { return null }
+    return file_obj.close()
   }
 
   _write_scalar_dst(regs, kinds, handle_regs, dst, value) {
@@ -212,7 +274,8 @@ static box MirCallV1HandlerBox {
     return me.handle_with_state(seg, regs, null, null)
   }
 
-    handle_with_state(seg, regs, handle_regs, kinds) {
+  handle_with_state(seg, regs, handle_regs, kinds) {
+    if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print("[vm/mir_call:enter]") }
     // Constructor: keep simple constructor payloads observable in-registry.
     if seg.indexOf("\"type\":\"Constructor\"") >= 0 {
       local d0 = JsonFragBox.get_int(seg, "dst"); if d0 != null { regs.setField(StringHelpers.int_to_str(d0), "0") }
@@ -234,9 +297,10 @@ static box MirCallV1HandlerBox {
       local mname = MiniMirV1Scan.method_name(seg)
       if mname != "" {
         // Try to resolve box type/name for logging/fallbacks
+        local recv_id = MiniMirV1Scan.receiver_id(seg)
         local btype = JsonFragBox.get_str(seg, "box_name"); if btype == null { btype = JsonFragBox.get_str(seg, "box_type") }
         if btype == null {
-          local recv_hint = me._recv_box_key(MiniMirV1Scan.receiver_id(seg))
+          local recv_hint = me._recv_box_key(recv_id)
           if recv_hint != null { btype = regs.getField(recv_hint) }
         }
         if btype == "ArrayBox" && mname == "birth" {
@@ -311,6 +375,77 @@ static box MirCallV1HandlerBox {
           me._write_scalar_dst(regs, kinds, handle_regs, dst_codegen_link, 1)
           return
         }
+        if btype == "FileBox" {
+          local dst_file = JsonFragBox.get_int(seg, "dst")
+          if mname == "open" {
+            local arg0_file = MiniMirV1Scan.first_arg_register(seg)
+            local arg1_file = MiniMirV1Scan.nth_arg_register(seg, 1)
+            local path_text = me._read_reg_text_or_null(regs, handle_regs, arg0_file)
+            if path_text == null { return }
+            local mode_text = me._read_reg_text_or_null(regs, handle_regs, arg1_file)
+            if mode_text == null || ("" + mode_text) == "" { mode_text = "r" }
+            me._file_trace("[vm/file:open:start]")
+            local fb = me._file_bridge_new()
+            me._file_trace("[vm/file:open:box-new]")
+            local ok = me._file_bridge_open(fb, "" + path_text, "" + mode_text)
+            me._file_trace("[vm/file:open:box-call]")
+            if ok == null || ("" + ok) != "1" {
+              me._file_state_clear(regs, recv_id)
+              me._write_scalar_dst(regs, kinds, handle_regs, dst_file, 0)
+              return
+            }
+            me._file_state_store(regs, recv_id, "" + path_text, "" + mode_text)
+            me._file_bridge_close(fb)
+            me._file_trace("[vm/file:open:done]")
+            me._write_scalar_dst(regs, kinds, handle_regs, dst_file, 1)
+            return
+          }
+          if mname == "read" {
+            me._file_trace("[vm/file:read:enter]")
+            local path_text = me._file_state_path(regs, recv_id)
+            if path_text == null { return }
+            local mode_text = me._file_state_mode(regs, recv_id)
+            me._file_trace("[vm/file:read:start]")
+            local fb = me._file_bridge_new()
+            me._file_trace("[vm/file:read:box-new]")
+            local ok = me._file_bridge_open(fb, "" + path_text, "" + mode_text)
+            me._file_trace("[vm/file:read:box-call]")
+            if ok == null || ("" + ok) != "1" {
+              me._write_scalar_dst(regs, kinds, handle_regs, dst_file, 0)
+              return
+            }
+            local content = me._file_bridge_read(fb)
+            me._file_trace("[vm/file:read:content]")
+            me._file_bridge_close(fb)
+            if content == null { content = "" }
+            me._write_text_dst(regs, kinds, handle_regs, dst_file, content)
+            return
+          }
+          if mname == "close" {
+            me._file_trace("[vm/file:close:enter]")
+            local path_text = me._file_state_path(regs, recv_id)
+            if path_text == null { return }
+            local mode_text = me._file_state_mode(regs, recv_id)
+            me._file_trace("[vm/file:close:start]")
+            local fb = me._file_bridge_new()
+            me._file_trace("[vm/file:close:box-new]")
+            local ok = me._file_bridge_open(fb, "" + path_text, "" + mode_text)
+            me._file_trace("[vm/file:close:box-call]")
+            if ok != null && ("" + ok) == "1" {
+              me._file_bridge_close(fb)
+            }
+            me._file_state_clear(regs, recv_id)
+            me._file_trace("[vm/file:close:done]")
+            me._write_scalar_dst(regs, kinds, handle_regs, dst_file, 0)
+            return
+          }
+        }
+        if btype == "TlsCoreBox" && mname == "last_error_text_h" {
+          local dst_tls = JsonFragBox.get_int(seg, "dst")
+          if dst_tls == null { return }
+          me._write_text_dst(regs, kinds, handle_regs, dst_tls, "OK")
+          return
+        }
         if me._try_handle_runtime_data_box(seg, regs, btype, mname) == 1 { return }
         if btype == "RuntimeDataBox" {
           if mname == "indexOf" || mname == "lastIndexOf" || mname == "substring" || mname == "substr" {
@@ -340,9 +475,9 @@ static box MirCallV1HandlerBox {
           // Adapter が見つかった場合、最小規則で size/push を優先実装、それ以外はスタブ
           if cfg != null {
             // 受信者ID（size state のキーに使用）
-            local rid = MiniMirV1Scan.receiver_id(seg)
+            local adapter_rid = MiniMirV1Scan.receiver_id(seg)
             local per_recv = env.get("HAKO_VM_MIRCALL_SIZESTATE_PER_RECV"); if per_recv == null { per_recv = "0" }
-            local key = MethodAliasPolicy.recv_len_key(per_recv, rid)
+            local key = MethodAliasPolicy.recv_len_key(per_recv, adapter_rid)
             local cur_len_raw = regs.getField(key); if cur_len_raw == null { cur_len_raw = "0" }
             local cur_len = JsonFragBox._str_to_int(cur_len_raw)
             if MethodAliasPolicy.is_size_alias(mname) == 1 {
@@ -372,10 +507,10 @@ static box MirCallV1HandlerBox {
         }
         // Per‑receiver or global length counter
         local per_recv = env.get("HAKO_VM_MIRCALL_SIZESTATE_PER_RECV"); if per_recv == null { per_recv = "0" }
-        local rid = MiniMirV1Scan.receiver_id(seg)
-        local key = MethodAliasPolicy.recv_len_key(per_recv, rid)
+        local state_rid = MiniMirV1Scan.receiver_id(seg)
+        local key = MethodAliasPolicy.recv_len_key(per_recv, state_rid)
         if env.get("HAKO_VM_MIRCALL_TRACE") == "1" {
-          local rid_s = rid == null ? "null" : (""+rid)
+          local rid_s = state_rid == null ? "null" : (""+state_rid)
           print("[vm/method/trace:" + mname + ",recv=" + rid_s + ",key=" + key + "]")
         }
         local cur_len_raw = regs.getField(key); if cur_len_raw == null { cur_len_raw = "0" }
@@ -413,18 +548,19 @@ static box MirCallV1HandlerBox {
     }
     // Minimal externs
     if arg0id == null { arg0id = -1 }
+    if name == "env.get" || name == "env.get/1" {
+      local dstp = JsonFragBox.get_int(seg, "dst")
+      local keyv = null
+      if arg0id >= 0 { keyv = me._read_reg_text_or_null(regs, handle_regs, arg0id) }
+      local out = HostFacadeBox.call("runtime", "env.get", keyv)
+      if dstp != null {
+        if out == null { regs.setField(StringHelpers.int_to_str(dstp), "0") }
+        else { regs.setField(StringHelpers.int_to_str(dstp), "" + out) }
+      }
+      return
+    }
     // Optional provider route (flagged)
     if env.get("HAKO_V1_EXTERN_PROVIDER") == "1" {
-      if name == "env.get" {
-        // resolve key value (string) from regs when available and write dst
-        local dstp = JsonFragBox.get_int(seg, "dst")
-        local keyv = null; if arg0id >= 0 { keyv = regs.getField(StringHelpers.int_to_str(arg0id)) }
-        local out = HakoruneExternProviderBox.get("env.get", keyv)
-        if dstp != null {
-          if out == null { regs.setField(StringHelpers.int_to_str(dstp), "0") } else { regs.setField(StringHelpers.int_to_str(dstp), ""+out) }
-        }
-        return
-      }
       if name == "env.console.log" || name == "nyash.console.log" || name == "print" || name == "env.console.warn" || name == "env.console.error" {
         local keyv = null; if arg0id >= 0 { keyv = regs.getField(StringHelpers.int_to_str(arg0id)) }
         HakoruneExternProviderBox.get(name, keyv)

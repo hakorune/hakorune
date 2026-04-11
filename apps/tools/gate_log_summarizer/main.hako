@@ -9,8 +9,14 @@
 
 static box Main {
   main(args) {
-    // 1. Get log file path (env or default)
-    local filename = env.get("GATE_LOG_FILE")
+    // 1. Get log file path (argv, env, or default)
+    local filename = null
+    if args != null && args.length() > 0 {
+      filename = args.get(0)
+    }
+    if filename == null || filename == "" {
+      filename = env.get("GATE_LOG_FILE")
+    }
     if filename == null || filename == "" {
       filename = "apps/tests/gate_log_summarizer/sample_mixed.log"
     }

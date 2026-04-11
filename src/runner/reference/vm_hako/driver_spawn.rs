@@ -21,6 +21,10 @@ pub(super) fn run_vm_hako_driver(filename: &str, payload_json: &str) -> Result<i
 
     let exe = std::env::current_exe().unwrap_or_else(|_| std::path::PathBuf::from("hakorune"));
     let mut cmd = Command::new(&exe);
+    if let Ok(cwd) = std::env::current_dir() {
+        cmd.current_dir(cwd);
+    }
+    cmd.envs(std::env::vars());
     cmd.arg("--backend")
         .arg("vm")
         .arg(&driver_path)
