@@ -144,11 +144,12 @@ Fastest ownership move:
 Current state:
 - landed: `collection_core/mapbox_*` owner rows now carry the live implementations
 - landed: `collection-core.txt` retarget to `collection_core/mapbox_*`
-- next: archive the 6 non-live rows from `vm_hako_caps/mapbox/*`
+- landed: archive mirror copies for the 6 non-live rows exist under `tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/`
+- next: leave the old `vm_hako_caps/mapbox/*` tree untouched until the eventual final cleanup, then retire the `collection_core/` owner rows after LLVM coverage exists
 
 After the wrapper move:
-1. archive the non-live `mapbox` rows (`*_bad_key*`, `*_missing*`, `*_getfield*`, `*_setfield*`, `mapbox_newbox_ported_vm.sh`)
-2. leave the old live `vm_hako_caps/mapbox/*` copy as temporary mirror only until the archive step is complete
+1. landed: archive the non-live `mapbox` rows (`*_bad_key*`, `*_missing*`, `*_getfield*`, `*_setfield*`, `mapbox_newbox_ported_vm.sh`)
+2. leave the old `vm_hako_caps/mapbox/*` tree untouched as temporary mirror/source until the eventual cleanup step
 3. retire the collection-core owner rows after LLVM collection/runtime-data coverage replaces them
 
 Risks:
@@ -159,6 +160,6 @@ Risks:
 
 ## Next Commit Candidates
 
-1. `96xC4`: archive the 6 non-live `vm_hako_caps/mapbox/*` rows without touching the current live mirror content
-2. `96xC3`: finish the seam-shadow lane
-3. `96xD1`: resolve the late `app1` demotion blocker in `presubmit.txt`
+1. `96xC3`: finish the seam-shadow lane
+2. `96xD1`: resolve the late `app1` demotion blocker in `presubmit.txt`
+3. `mapbox`: retire the `collection_core/` owner rows after LLVM collection/runtime-data coverage replaces them

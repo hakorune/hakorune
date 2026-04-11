@@ -73,7 +73,7 @@ Related:
 | `select_emit/` | compiler/backend emission seam | `1` | `0` | `phase29y-hako-emit-mir.txt` or sibling selfhost seam pack | keep -> shadow -> retire | LLVM/JoinIR seam pack replaces vm_hako ownership |
 | `open_handle_phi/` | PHI/open-handle seam | `1` | `0` | JoinIR/selfhost seam pack | keep -> shadow -> retire | LLVM/JoinIR seam pack covers the same propagation truth |
 | `app1/` | broad summary contract | `2` | `1` via `presubmit.txt` | product LLVM acceptance pack | keep -> late demote | leaf families are retired and `presubmit` no longer needs the vm_hako witness |
-| `mapbox/` | collection/runtime-data bridge | `0` | `7` via `collection_core/mapbox_*` in `collection-core.txt` | `collection-core.txt` plus runtime-data LLVM pack | freeze -> re-home -> retire | collection-core runs the live rows from `collection_core/` and the old `vm_hako_caps/mapbox/*` copy is reduced to archive source only |
+| `mapbox/` | collection/runtime-data bridge | `0` | `7` via `collection_core/mapbox_*` in `collection-core.txt` | `collection-core.txt` plus runtime-data LLVM pack | freeze -> re-home -> retire | collection-core runs the live rows from `collection_core/`; non-live rows are copied into `tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/`, and the old `vm_hako_caps/mapbox/*` tree remains only as a temporary mirror until final cleanup |
 
 ### LLVM replacement anchors
 
@@ -96,7 +96,7 @@ Related:
 | `compare_ge_ported_vm.sh` + `const_void_ported_vm.sh` | narrow single-purpose residues | explicit archive-only evidence under `tools/smokes/v2/profiles/archive/vm_hako_caps/**` | wave `1b` is closed without inventing a fake live owner anchor |
 | `select_emit/` + `open_handle_phi/` + `boxcall_args_gt1` | compiler/backend seam sentinels | `phase29y-hako-emit-mir.txt`, `joinir-bq.txt`, `selfhost-core.txt` | keep as seam shadow rows until LLVM/JoinIR proofs are explicit |
 | `app1/` | wide end-to-end summary parity | `presubmit.txt` plus product LLVM acceptance pack | late demotion only after leaf families stop owning the contract |
-| `mapbox/` | collection semantics / handle-presence pressure | `collection-core.txt` plus runtime-data LLVM pack | live rows are moved into `collection_core/`; non-live archive remains a parallel re-home substep |
+| `mapbox/` | collection semantics / handle-presence pressure | `collection-core.txt` plus runtime-data LLVM pack | live rows are moved into `collection_core/`; non-live rows are archived and the remaining work is the eventual retirement of the collection-core owner rows |
 
 ## Gate Artifact Pairing
 

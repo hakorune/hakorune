@@ -24,7 +24,7 @@ Date: 2026-04-11
 | `96xC1` | in_progress | wave 1a: LLVM cutover pack for `env` + `file` after the narrow `args_vm` cut |
 | `96xC2` | completed | wave 1b: LLVM cutover pack for `compare` + `misc` + `atomic` + `tls` |
 | `96xC3` | pending | wave 2: seam shadow replacement for `select_emit` + `open_handle_phi` + `boxcall_args_gt1` |
-| `96xC4` | in_progress | parallel `mapbox -> collection-core` re-home track; live rows moved into `collection_core/`, non-live archive pending |
+| `96xC4` | in_progress | parallel `mapbox -> collection-core` re-home track; live rows moved into `collection_core/`, non-live rows archived, final owner retirement deferred |
 | `96xD1` | pending | `app1` late demotion and proof / closeout |
 
 ### Wave 1a Substeps
@@ -53,10 +53,10 @@ Date: 2026-04-11
 
 | Item | State |
 | --- | --- |
-| Now | `96xC4 mapbox non-live archive` |
+| Now | `96xC3 seam shadow` |
 | Blocker | `none` |
-| Next | `96xC3 seam shadow` |
-| After Next | `96xD1 app1 late demotion` |
+| Next | `96xD1 app1 late demotion` |
+| After Next | `mapbox final owner retirement after LLVM collection/runtime-data coverage` |
 
 ## Acceptance Shape
 
@@ -80,4 +80,5 @@ Date: 2026-04-11
 - current landed substeps:
   - `collection-core.txt` points at `collection_core/mapbox_*`
   - the 7 live rows now execute from `collection_core/`
-  - next is archiving the 6 non-live `vm_hako_caps/mapbox/*` rows
+  - the 6 non-live `vm_hako_caps/mapbox/*` rows are copied into `tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/`
+  - final retirement now depends on LLVM collection/runtime-data coverage replacing the `collection_core/` owner rows
