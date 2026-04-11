@@ -30,4 +30,5 @@
   - later full-loop fallback
 - `180xF` status:
   - first cut landed: `substring_concat_len_ascii_seed` is now a thin wrapper to the metadata-first loop matcher path
+  - second cut landed: `substring_concat_loop_ascii_seed` now separates a narrow metadata-first len preamble from the legacy full-loop fallback helper
   - next: retire the remaining full-loop fallback only after plan-first parity proves out

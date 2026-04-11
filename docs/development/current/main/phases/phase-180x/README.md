@@ -42,6 +42,7 @@
   - `180xD` second cut landed: register-rooted candidate/plan readers now live in `hako_llvmc_ffi_string_candidate_plan_readers.inc`, and `string_chain_terms.inc` is back to term/classifier ownership
   - `180xE` landed: `string_loop_seed` is now physically split into emitters / copy-graph / views-only / length-hot-loop / substring-concat families behind a thin facade
   - `180xF` first cut landed: the dedicated `substring_concat_len_ascii_seed` ladder is retired into a thin wrapper, so the len-only exact route now comes only from the same metadata-first `stable_length_scalar + StringKernelPlan` seam used by the loop matcher
+  - `180xF` second cut landed: `substring_concat_loop_ascii_seed` now separates a narrow metadata-first len preamble from the remaining legacy full-loop fallback helper
   - still open:
     - exact matcher retirement on top of the new family layout
     - specifically: the remaining full-loop fallback inside `substring_concat_loop_ascii_seed`

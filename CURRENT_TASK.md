@@ -106,6 +106,7 @@ Scope: repo root から current lane / current front / restart read order に最
     - landed: register-rooted candidate/plan readers are out of `string_chain_terms`
     - landed: `string_loop_seed` is split into emitters / copy-graph / views-only / length-hot-loop / substring-concat families behind a thin facade
     - landed: the old dedicated `substring_concat_len_ascii_seed` ladder is now only a thin wrapper to the loop matcher, so the len-only exact route comes from the metadata-first seam alone
+    - landed: `substring_concat_loop_ascii_seed` now splits a narrow metadata-first len preamble from the remaining legacy full-loop fallback helper
     - next: retire the remaining full-loop fallback on top of the new family layout
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`

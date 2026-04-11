@@ -60,6 +60,7 @@ Related:
       - landed: shim readers are now split away from both generic `common` and `string_chain_terms`
       - landed: `string_loop_seed` is split into family includes behind a thin facade
       - landed: the dedicated `substring_concat_len_ascii_seed` ladder is retired into a thin wrapper, so the len-only exact route now comes from the metadata-first loop matcher seam
+      - landed: `substring_concat_loop_ascii_seed` now splits a narrow metadata-first len preamble from the legacy full-loop fallback helper
       - remaining structural stop-line is the full-loop legacy fallback on top of that family layout
     - cleanup order is:
       1. `StringKernelPlan` owner extraction
