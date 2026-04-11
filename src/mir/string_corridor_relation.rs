@@ -8,19 +8,23 @@
 
 use super::{
     phi_query::{collect_phi_carry_relations, PhiBaseRelation},
-    MirFunction, MirModule, ValueId,
+    resolve_value_origin,
+    string_corridor_recognizer::{match_add_in_block, match_len_call, string_source_identity},
+    MirFunction, MirInstruction, MirModule, ValueId,
 };
 use std::collections::BTreeSet;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum StringCorridorRelationKind {
     PhiCarryBase,
+    StableLengthScalar,
 }
 
 impl std::fmt::Display for StringCorridorRelationKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::PhiCarryBase => f.write_str("phi_carry_base"),
+            Self::StableLengthScalar => f.write_str("stable_length_scalar"),
         }
     }
 }
@@ -51,16 +55,171 @@ pub struct StringCorridorRelation {
     pub kind: StringCorridorRelationKind,
     pub base_value: ValueId,
     pub window_contract: StringCorridorWindowContract,
+    pub witness_value: Option<ValueId>,
     pub reason: &'static str,
 }
 
 impl StringCorridorRelation {
     pub fn summary(&self) -> String {
-        format!(
-            "{} base=%{} window={} {}",
-            self.kind, self.base_value.0, self.window_contract, self.reason
-        )
+        match self.witness_value {
+            Some(witness) => format!(
+                "{} base=%{} witness=%{} window={} {}",
+                self.kind, self.base_value.0, witness.0, self.window_contract, self.reason
+            ),
+            None => format!(
+                "{} base=%{} window={} {}",
+                self.kind, self.base_value.0, self.window_contract, self.reason
+            ),
+        }
     }
+}
+
+fn find_phi_inputs(
+    function: &MirFunction,
+    phi_value: ValueId,
+) -> Option<Vec<(super::BasicBlockId, ValueId)>> {
+    for block in function.blocks.values() {
+        for inst in &block.instructions {
+            if let MirInstruction::Phi { dst, inputs, .. } = inst {
+                if *dst == phi_value {
+                    return Some(inputs.clone());
+                }
+            }
+        }
+    }
+    None
+}
+
+fn value_is_const_i64(function: &MirFunction, value: ValueId, expected: i64) -> bool {
+    let def_map = super::build_value_def_map(function);
+    let root = resolve_value_origin(function, &def_map, value);
+    let Some((bbid, idx)) = def_map.get(&root).copied() else {
+        return false;
+    };
+    let Some(block) = function.blocks.get(&bbid) else {
+        return false;
+    };
+    matches!(
+        block.instructions.get(idx),
+        Some(MirInstruction::Const {
+            value: super::ConstValue::Integer(actual),
+            ..
+        }) if *actual == expected
+    )
+}
+
+fn same_or_same_const_i64(function: &MirFunction, lhs: ValueId, rhs: ValueId) -> bool {
+    if lhs == rhs {
+        return true;
+    }
+
+    let def_map = super::build_value_def_map(function);
+    let lhs_root = resolve_value_origin(function, &def_map, lhs);
+    let rhs_root = resolve_value_origin(function, &def_map, rhs);
+    if lhs_root == rhs_root {
+        return true;
+    }
+
+    let Some((lhs_bbid, lhs_idx)) = def_map.get(&lhs_root).copied() else {
+        return false;
+    };
+    let Some((rhs_bbid, rhs_idx)) = def_map.get(&rhs_root).copied() else {
+        return false;
+    };
+    let Some(lhs_block) = function.blocks.get(&lhs_bbid) else {
+        return false;
+    };
+    let Some(rhs_block) = function.blocks.get(&rhs_bbid) else {
+        return false;
+    };
+    matches!(
+        (lhs_block.instructions.get(lhs_idx), rhs_block.instructions.get(rhs_idx)),
+        (
+            Some(MirInstruction::Const {
+                value: super::ConstValue::Integer(lhs_val),
+                ..
+            }),
+            Some(MirInstruction::Const {
+                value: super::ConstValue::Integer(rhs_val),
+                ..
+            })
+        ) if lhs_val == rhs_val
+    )
+}
+
+fn entry_length_value_for_phi(function: &MirFunction, phi_value: ValueId) -> Option<ValueId> {
+    let def_map = super::build_value_def_map(function);
+    let inputs = find_phi_inputs(function, phi_value)?;
+    let (entry_bbid, entry_value) = inputs.iter().min_by_key(|(bbid, _)| bbid.0).copied()?;
+    let entry_identity = string_source_identity(function, &def_map, entry_value)?;
+    let block = function.blocks.get(&entry_bbid)?;
+
+    for inst in &block.instructions {
+        let Some((dst, receiver, _effects)) = match_len_call(inst) else {
+            continue;
+        };
+        let Some(receiver_identity) = string_source_identity(function, &def_map, receiver) else {
+            continue;
+        };
+        if receiver_identity == entry_identity {
+            return Some(resolve_value_origin(function, &def_map, dst));
+        }
+    }
+
+    None
+}
+
+fn plan_window_preserves_length_value(
+    function: &MirFunction,
+    start: ValueId,
+    end: ValueId,
+    length_value: ValueId,
+) -> bool {
+    let def_map = super::build_value_def_map(function);
+    let start_root = resolve_value_origin(function, &def_map, start);
+    let end_root = resolve_value_origin(function, &def_map, end);
+    let length_root = resolve_value_origin(function, &def_map, length_value);
+
+    if end_root == length_root {
+        return value_is_const_i64(function, start_root, 0);
+    }
+
+    let Some((end_bbid, _)) = def_map.get(&end_root).copied() else {
+        return false;
+    };
+    let Some(add_shape) = match_add_in_block(function, end_bbid, &def_map, end_root) else {
+        return false;
+    };
+    let lhs_root = resolve_value_origin(function, &def_map, add_shape.lhs);
+    let rhs_root = resolve_value_origin(function, &def_map, add_shape.rhs);
+    (same_or_same_const_i64(function, lhs_root, start_root) && rhs_root == length_root)
+        || (lhs_root == length_root && same_or_same_const_i64(function, rhs_root, start_root))
+}
+
+fn stable_length_relation_for_phi(
+    function: &MirFunction,
+    phi_value: ValueId,
+    base_value: ValueId,
+) -> Option<StringCorridorRelation> {
+    let length_value = entry_length_value_for_phi(function, phi_value)?;
+    let candidates = function
+        .metadata
+        .string_corridor_candidates
+        .get(&base_value)?;
+    let plan = candidates.iter().find_map(|candidate| candidate.plan)?;
+    let (start, end) = (plan.start?, plan.end?);
+    if !plan_window_preserves_length_value(function, start, end, length_value) {
+        return None;
+    }
+
+    Some(StringCorridorRelation {
+        kind: StringCorridorRelationKind::StableLengthScalar,
+        base_value,
+        witness_value: Some(length_value),
+        window_contract: StringCorridorWindowContract::StopAtMerge,
+        reason:
+            "merged phi route keeps the entry scalar source length stable even while the proof-bearing plan window stops at the merge",
+    })
 }
 
 pub fn refresh_module_string_corridor_relations(module: &mut MirModule) {
@@ -98,12 +257,26 @@ pub fn refresh_function_string_corridor_relations(function: &mut MirFunction) {
                 } else {
                     StringCorridorWindowContract::StopAtMerge
                 },
+                witness_value: None,
                 reason: if relation.window_safe {
                     "single-input phi continuity keeps the current string corridor lane and preserves the proof-bearing plan window"
                 } else {
                     "merged phi continuity keeps the current string corridor lane but stops the proof-bearing plan window at the merge"
                 },
             });
+
+        if !relation.window_safe {
+            if let Some(stable_length) =
+                stable_length_relation_for_phi(function, relation.phi_value, base_value)
+            {
+                function
+                    .metadata
+                    .string_corridor_relations
+                    .entry(relation.phi_value)
+                    .or_default()
+                    .push(stable_length);
+            }
+        }
     }
 }
 
@@ -113,8 +286,17 @@ mod tests {
     use crate::ast::Span;
     use crate::mir::{
         refresh_function_string_corridor_facts, BasicBlock, BasicBlockId, Callee, ConstValue,
-        EffectMask, FunctionSignature, MirInstruction, MirType,
+        EffectMask, FunctionSignature, MirCompiler, MirInstruction, MirType,
     };
+    use crate::runner::modes::common_util::source_hint::prepare_source_minimal;
+    use crate::NyashParser;
+
+    fn ensure_ring0_initialized() {
+        use crate::runtime::ring0::{default_ring0, init_global_ring0};
+        let _ = std::panic::catch_unwind(|| {
+            init_global_ring0(default_ring0());
+        });
+    }
 
     fn method_call(
         dst: ValueId,
@@ -280,6 +462,35 @@ mod tests {
         assert!(header_relations.iter().any(|relation| {
             relation.kind == StringCorridorRelationKind::PhiCarryBase
                 && relation.base_value == ValueId(36)
+                && relation.window_contract == StringCorridorWindowContract::StopAtMerge
+        }));
+    }
+
+    #[test]
+    fn refresh_function_records_stable_length_scalar_on_substring_concat_loop() {
+        ensure_ring0_initialized();
+        let path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/benchmarks/bench_kilo_micro_substring_concat.hako"
+        );
+        let source = std::fs::read_to_string(path).expect("benchmark source");
+        let prepared = prepare_source_minimal(&source, path).expect("prepare benchmark source");
+        let ast = NyashParser::parse_from_string(&prepared).expect("parse benchmark");
+        let mut compiler = MirCompiler::with_options(true);
+        let result = compiler
+            .compile_with_source(ast, Some(path))
+            .expect("compile benchmark");
+        let main = result.module.functions.get("main").expect("main");
+        let header_relations = main
+            .metadata
+            .string_corridor_relations
+            .get(&ValueId(21))
+            .expect("phi %21 relations");
+
+        assert!(header_relations.iter().any(|relation| {
+            relation.kind == StringCorridorRelationKind::StableLengthScalar
+                && relation.base_value == ValueId(36)
+                && relation.witness_value == Some(ValueId(5))
                 && relation.window_contract == StringCorridorWindowContract::StopAtMerge
         }));
     }

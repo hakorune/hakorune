@@ -537,6 +537,19 @@ fn match_source_length_value(
     }
 }
 
+fn stable_length_value_for_source(function: &MirFunction, source: ValueId) -> Option<ValueId> {
+    function
+        .metadata
+        .string_corridor_relations
+        .get(&source)?
+        .iter()
+        .find_map(|relation| {
+            (relation.kind == crate::mir::StringCorridorRelationKind::StableLengthScalar)
+                .then_some(relation.witness_value)
+                .flatten()
+        })
+}
+
 fn complementary_pair_source_len(
     function: &MirFunction,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
@@ -548,6 +561,7 @@ fn complementary_pair_source_len(
     if lhs_source != rhs_source {
         return None;
     }
+    let shared_source_root = resolve_value_origin(function, def_map, lhs.source);
 
     if value_is_const_i64(function, def_map, lhs.start, 0) {
         let mid = resolve_value_origin(function, def_map, lhs.end);
@@ -555,7 +569,16 @@ fn complementary_pair_source_len(
         if rhs_start != mid {
             return None;
         }
-        return match_source_length_value(function, def_map, &lhs_source, rhs.end);
+        if let Some(source_len) = match_source_length_value(function, def_map, &lhs_source, rhs.end)
+        {
+            return Some(source_len);
+        }
+        let stable_len = stable_length_value_for_source(function, shared_source_root)?;
+        let rhs_end = resolve_value_origin(function, def_map, rhs.end);
+        if rhs_end == stable_len {
+            return Some(stable_len);
+        }
+        return None;
     }
 
     if value_is_const_i64(function, def_map, rhs.start, 0) {
@@ -564,7 +587,16 @@ fn complementary_pair_source_len(
         if lhs_start != mid {
             return None;
         }
-        return match_source_length_value(function, def_map, &lhs_source, lhs.end);
+        if let Some(source_len) = match_source_length_value(function, def_map, &lhs_source, lhs.end)
+        {
+            return Some(source_len);
+        }
+        let stable_len = stable_length_value_for_source(function, shared_source_root)?;
+        let lhs_end = resolve_value_origin(function, def_map, lhs.end);
+        if lhs_end == stable_len {
+            return Some(stable_len);
+        }
+        return None;
     }
 
     None
@@ -3426,6 +3458,7 @@ mod tests {
         let mut saw_helper = false;
         let mut leftover_concat_consumers = Vec::new();
         let mut leftover_concat_lengths = Vec::new();
+        let mut leftover_substring_len = Vec::new();
         for (name, function) in &result.module.functions {
             let def_map = build_value_def_map(function);
             for (bbid, block) in &function.blocks {
@@ -3475,6 +3508,15 @@ mod tests {
                                 bbid.0
                             ));
                         }
+                        MirInstruction::Call {
+                            callee: Some(Callee::Extern(callee)),
+                            ..
+                        } if callee == SUBSTRING_LEN_EXTERN => {
+                            leftover_substring_len.push(format!(
+                                "fn={name} bb={} substring_len inst={inst:?}",
+                                bbid.0
+                            ));
+                        }
                         _ => {}
                     }
                 }
@@ -3491,6 +3533,11 @@ mod tests {
             leftover_concat_lengths.is_empty(),
             "substring_concat should sink concat length consumers, found {:?}",
             leftover_concat_lengths
+        );
+        assert!(
+            leftover_substring_len.is_empty(),
+            "substring_concat should fuse loop substring_len_hii away, found {:?}",
+            leftover_substring_len
         );
     }
 

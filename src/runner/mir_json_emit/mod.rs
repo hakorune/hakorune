@@ -100,6 +100,7 @@ fn build_mir_json_root(module: &crate::mir::MirModule) -> Result<serde_json::Val
                     json!({
                         "kind": relation.kind.to_string(),
                         "base_value": relation.base_value.as_u32(),
+                        "witness_value": relation.witness_value.map(|value| value.as_u32()),
                         "window_contract": relation.window_contract.to_string(),
                         "reason": relation.reason,
                     })
@@ -642,6 +643,7 @@ mod tests {
                 base_value: crate::mir::ValueId::new(6),
                 window_contract:
                     crate::mir::StringCorridorWindowContract::PreservePlanWindow,
+                witness_value: None,
                 reason: "single-input phi continuity keeps the current string corridor lane and preserves the proof-bearing plan window",
             }],
         );
@@ -709,6 +711,7 @@ mod tests {
             .expect("string corridor relation array");
         assert_eq!(value_relations[0]["kind"], "phi_carry_base");
         assert_eq!(value_relations[0]["base_value"], 6);
+        assert_eq!(value_relations[0]["witness_value"], serde_json::Value::Null);
         assert_eq!(
             value_relations[0]["window_contract"],
             "preserve_plan_window"

@@ -197,8 +197,8 @@
         - latest split-pack reread now keeps `kilo_micro_substring_only`, `kilo_micro_substring_views_only`, and `kilo_micro_len_substring_views` in the same 3 ms band
       - immediate next task after the parity keeper:
         - move from the landed sibling exact micros into the broader string corridor placement/effect rewrite
-        - keeper repair landed: the exact `pure-first` `kilo_micro_substring_concat` seed now re-accepts the post-sink `substring_len_hii` / `substring_concat3_hhhii` body shape, so the generic sink keeps the exact lane
-        - fresh reread now reopens `kilo_micro_substring_concat` (`instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`) as the best exact front for `publication_sink` / `materialization_sink`
+        - `phase-169x` landed the merged-header `stable_length_scalar` witness on the same exact front, so the live post-sink loop body no longer keeps `substring_len_hii` on `kilo_micro_substring_concat`
+        - fresh reread now keeps `kilo_micro_substring_concat` (`instr=5,565,773 / cycles=6,143,112 / cache-miss=9,610 / AOT 5 ms`) as the best exact front for broader corridor placement/effect work
       - verified non-Variant optimization order after this parity wave:
         1. broader string corridor placement/effect rewrite
            - `src/mir/string_corridor_placement.rs` is still inspection-only in this wave

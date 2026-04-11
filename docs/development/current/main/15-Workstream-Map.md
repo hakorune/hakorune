@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-09
+Date: 2026-04-12
 Scope: current mainline / next lane / parked corridor の one-screen map。
 Related:
   - CURRENT_TASK.md
@@ -43,6 +43,10 @@ Related:
 - active exact-route follow-on:
   - `phase-168x` is landed
   - the stale pure-first/direct exact contract for `Counter.step_chain` now matches the current narrow forwarding body again, and exact asm/perf evidence is green
+- landed string metadata-contract follow-on:
+  - `phase-169x` is landed
+  - merged header `%21` on `kilo_micro_substring_concat` now carries a narrow `stable_length_scalar` witness while keeping the `stop_at_merge` plan-window contract
+  - the live post-sink loop body now collapses to `source_len + const` on the exact front, and direct/pure-first contracts were refreshed together
 - `phase-133x` landed:
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`

@@ -75,7 +75,7 @@
     - `kilo_micro_substring_views_only: instr=466,001 / cycles=841,958 / cache-miss=9,391 / AOT 3 ms`
     - `kilo_micro_len_substring_views: instr=1,672,096 / cycles=1,009,964 / cache-miss=8,902 / AOT 3 ms`
 - current broader-corridor reopen front:
-  - `kilo_micro_substring_concat: instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`
+  - `kilo_micro_substring_concat: instr=5,565,773 / cycles=6,143,112 / cache-miss=9,610 / AOT 5 ms`
   - `kilo_micro_array_string_store: c_ms=9 / ny_aot_ms=9`; this family is not the current blocker
 - target band for the next keeper:
   - mixed accept gate: hold `instr <= 1.8M`
@@ -136,14 +136,14 @@
   - broader-corridor keeper repair is now landed:
     - `string_corridor_sink` rewrites `concat(left_slice, const, right_slice).length()` into `substring_len_hii(left) + const_len + substring_len_hii(right)` and keeps `substring(concat3(...))` on `substring_concat3_hhhii`
     - the exact `pure-first` `kilo_micro_substring_concat` seed now accepts both the pre-sink and post-sink body shapes, so this generic sink no longer ejects the exact lane into the slow fallback route
-    - current inventory says the live `--emit-mir-json` route emits the post-sink `interesting_n = 17` body, and the active phase29x backend-owner daily smoke now points at `apps/tests/mir_shape_guard/substring_concat_loop_pure_min_v1_post_sink.mir.json`, so exact-seed narrowing can follow the aligned post-sink shape instead of guessing the benchmark body
+    - landed follow-on `phase-169x` now adds a narrow `stable_length_scalar` relation on merged header `%21` while keeping `%21 = stop_at_merge` for plan windows, so the live `--emit-mir-json` route now emits the collapsed post-sink `interesting_n = 14` body instead of the older complementary-length loop shape
     - the phase29x daily-owner blocker is now cleared too: plain `backend=mir` executes the compiled module again, and the `.hako ll emitter` runtime decl manifest now accepts `nyash.string.substring_len_hii` / `nyash.string.substring_concat3_hhhii`, so the daily smoke reaches the expected owner evidence on the same post-sink fixture
-    - current live post-sink shape is now pinned separately by `phase137x_direct_emit_substring_concat_post_sink_shape.sh`, and that smoke requires the helper-result `%36` to keep `publication_sink` / `direct_kernel_entry` plans plus the scalar consumers `%88/%89` to keep `direct_kernel_entry` candidates on the live MIR; the exact seed now trusts those metadata-backed helper/scalar contracts instead of re-proving shared `source_root`, raw helper names/args, or the intermediate raw `substring` producers from emitted MIR, and the phase29x daily smoke uses the same post-sink contract as its daily owner proof
+    - current live post-sink shape is now pinned separately by `phase137x_direct_emit_substring_concat_post_sink_shape.sh`, and that smoke now requires the collapsed `source_len + const_len` loop body with no loop `substring_len_hii`; helper-result `%36` still keeps `publication_sink` / `direct_kernel_entry` plans on the live MIR, and the phase29x daily smoke uses the same post-sink contract as its daily owner proof
     - the same post-sink probe now also pins the seed preheader/exit semantics (`StringBox.length()` on entry, then exit `length() + ... + ret`), so those truths are visible outside the seed even though the exact seed still owns the current semantic guard
-    - the first narrow `phi_merge` handoff is now pinned too by `phase137x_direct_emit_substring_concat_phi_merge_contract.sh`: live direct MIR still carries `%21 = phi([4,0], [22,20])` and `%22 = phi([36,19])`, helper-result `%36` still owns the proof-bearing plan window, relation metadata now makes the stop line explicit (`%22 = preserve_plan_window`, `%21 = stop_at_merge`), and merged header phi `%21` still keeps only non-window `publication_sink` / `materialization_sink` / `direct_kernel_entry` continuity
+    - `phase137x_direct_emit_substring_concat_phi_merge_contract.sh` now pins the landed metadata-contract follow-on too: live direct MIR still carries `%21 = phi([4,0], [22,20])` and `%22 = phi([36,19])`, helper-result `%36` still owns the proof-bearing plan window, relation metadata keeps `%22 = preserve_plan_window` and `%21 = stop_at_merge`, and merged header `%21` now also carries `stable_length_scalar` with the entry-length witness
     - the same phi smoke now also pins the header/latch loop semantics (`phi/phi/phi`, positive loop bound, compare `<`, branch, and the latch `const 1` increment), so the remaining exact-seed work moved to a semantic-boundary decision rather than more raw body-shape cleanup
     - structure lock: loop-carried corridor continuity now consumes the generic MIR seam in `src/mir/phi_query.rs`; `src/mir/string_corridor_relation.rs` is now the string-side relation layer, and `string_corridor_placement` only maps stored `facts -> relations -> candidates` continuity to string-lane optimization candidates
-    - latest exact reread on `kilo_micro_substring_concat`: `instr=5,565,655 / cycles=5,816,743 / cache-miss=9,424 / AOT 4 ms`
+    - latest exact reread on `kilo_micro_substring_concat`: `instr=5,565,773 / cycles=6,143,112 / cache-miss=9,610 / AOT 5 ms`
     - decision now fixed: stop shrinking the exact seed at the semantic-guard boundary for this phase
       - keep preheader/exit `length` truth plus header/latch loop truth in the seed as the current miscompile-prevention owner
       - treat any future retirement of those semantic guards as a separate contract phase, not as more bridge cleanup in this wave
@@ -235,10 +235,11 @@
      - step 13: landed first plan-selected `direct_kernel_entry` slice; boundary `pure-first` now reads plan windows on direct helper-result receivers, lowers `length()` as window arithmetic, and no longer keeps the `substring_len_hii` declaration bridge on that lane
      - step 14: next shrink the remaining dynamic/exact bridge paths that still bypass the plan
      - step 15: landed first narrow `phi_merge` handoff; the single-input backedge phi `%22` now keeps the proof-bearing plan window, while merged header phi `%21` is explicitly `stop_at_merge` and keeps only non-window corridor continuity
-     - step 16: separate follow-on phase, not this cut: widen the actual plan window across the merged loop-carried `text = out.substring(...)` header route or relax `call` / `boxcall` / `return` barriers only with another metadata-contract update first; `phase137x_direct_emit_substring_concat_phi_merge_contract.sh` is the live guard for that contract
-     - step 17: only after that reopen new `substring_hii` runtime leaf cuts, and only with exact/asm proof
-     - step 18: do not retry the same `len_h`-specific 4-box slice as-is; it did not clear exact or asm gates
-     - step 19: keep this lane specific; do not generalize into a reusable scalar framework until a second lane wins the same pattern
+     - step 16: landed narrow metadata-contract follow-on in `phase-169x`; merged header `%21` still keeps `stop_at_merge` for plan windows, but now also carries `stable_length_scalar` so the exact front can collapse the loop body to `source_len + const`
+     - step 17: any broader plan-window carry across merged `%21`, or `call` / `boxcall` / `return` barrier relaxation, still requires another metadata-contract update first; `phase137x_direct_emit_substring_concat_phi_merge_contract.sh` remains the live guard for that stop line
+     - step 18: only after that reopen new `substring_hii` runtime leaf cuts, and only with exact/asm proof
+     - step 19: do not retry the same `len_h`-specific 4-box slice as-is; it did not clear exact or asm gates
+     - step 20: keep this lane specific; do not generalize into a reusable scalar framework until a second lane wins the same pattern
      - step 20: do not swap the active `substring` providers to `raw read + cold init` as one slice; that provider-adoption cut regressed the local split
      - step 21: do not duplicate the common-case `substring_hii` body again; the earlier `route_raw == 0b111` duplication regressed badly
      - step 20: `substring_route_policy()` cold split alone is also blocked; even with the caller unchanged it regressed the local split

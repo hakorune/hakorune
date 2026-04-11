@@ -497,6 +497,7 @@ mod tests {
                 kind: crate::mir::StringCorridorRelationKind::PhiCarryBase,
                 base_value: ValueId::new(1),
                 window_contract: crate::mir::StringCorridorWindowContract::StopAtMerge,
+                witness_value: None,
                 reason: "merged phi continuity keeps the current string corridor lane but stops the proof-bearing plan window at the merge",
             }],
         );

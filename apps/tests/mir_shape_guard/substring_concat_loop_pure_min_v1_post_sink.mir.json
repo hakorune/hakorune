@@ -10,6 +10,18 @@
       {
         "blocks": [
           {
+            "id": 13,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          }
+        ],
+        "entry_block": 13,
+        "name": "AddOperator.apply/2"
+      },
+      {
+        "blocks": [
+          {
             "id": 14,
             "reachable": false,
             "successors": [],
@@ -17,7 +29,7 @@
           }
         ],
         "entry_block": 14,
-        "name": "AddOperator.apply/2"
+        "name": "AddOperator.equals/1"
       },
       {
         "blocks": [
@@ -29,43 +41,7 @@
           }
         ],
         "entry_block": 15,
-        "name": "AddOperator.equals/1"
-      },
-      {
-        "blocks": [
-          {
-            "id": 13,
-            "reachable": false,
-            "successors": [],
-            "terminator": "Return"
-          }
-        ],
-        "entry_block": 13,
         "name": "AddOperator.toString/0"
-      },
-      {
-        "blocks": [
-          {
-            "id": 11,
-            "reachable": false,
-            "successors": [],
-            "terminator": "Return"
-          }
-        ],
-        "entry_block": 11,
-        "name": "CompareOperator.apply/3"
-      },
-      {
-        "blocks": [
-          {
-            "id": 12,
-            "reachable": false,
-            "successors": [],
-            "terminator": "Return"
-          }
-        ],
-        "entry_block": 12,
-        "name": "CompareOperator.equals/1"
       },
       {
         "blocks": [
@@ -77,19 +53,31 @@
           }
         ],
         "entry_block": 10,
-        "name": "CompareOperator.toString/0"
+        "name": "CompareOperator.apply/3"
       },
       {
         "blocks": [
           {
-            "id": 17,
+            "id": 11,
             "reachable": false,
             "successors": [],
             "terminator": "Return"
           }
         ],
-        "entry_block": 17,
-        "name": "Main.equals/1"
+        "entry_block": 11,
+        "name": "CompareOperator.equals/1"
+      },
+      {
+        "blocks": [
+          {
+            "id": 12,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          }
+        ],
+        "entry_block": 12,
+        "name": "CompareOperator.toString/0"
       },
       {
         "blocks": [
@@ -101,6 +89,18 @@
           }
         ],
         "entry_block": 16,
+        "name": "Main.equals/1"
+      },
+      {
+        "blocks": [
+          {
+            "id": 17,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          }
+        ],
+        "entry_block": 17,
         "name": "Main.toString/0"
       },
       {
@@ -527,25 +527,6 @@
               }
             },
             {
-              "dst": 88,
-              "mir_call": {
-                "args": [
-                  21,
-                  46,
-                  47
-                ],
-                "callee": {
-                  "name": "nyash.string.substring_len_hii",
-                  "type": "Extern"
-                },
-                "effects": [
-                  "IO"
-                ],
-                "flags": {}
-              },
-              "op": "mir_call"
-            },
-            {
               "dst": 90,
               "op": "const",
               "value": {
@@ -554,39 +535,12 @@
               }
             },
             {
-              "dst": 91,
-              "dst_type": "i64",
-              "lhs": 88,
-              "op": "binop",
-              "operation": "+",
-              "rhs": 90
-            },
-            {
-              "dst": 89,
-              "mir_call": {
-                "args": [
-                  21,
-                  47,
-                  5
-                ],
-                "callee": {
-                  "name": "nyash.string.substring_len_hii",
-                  "type": "Extern"
-                },
-                "effects": [
-                  "IO"
-                ],
-                "flags": {}
-              },
-              "op": "mir_call"
-            },
-            {
               "dst": 31,
               "dst_type": "i64",
-              "lhs": 91,
+              "lhs": 90,
               "op": "binop",
               "operation": "+",
-              "rhs": 89
+              "rhs": 5
             },
             {
               "dst": 68,
@@ -858,6 +812,97 @@
           "91": "inline_i64"
         },
         "string_corridor_candidates": {
+          "21": [
+            {
+              "kind": "publication_sink",
+              "plan": null,
+              "reason": "merged phi continuity keeps the current string corridor lane but stops the proof-bearing plan window at the merge",
+              "state": "candidate"
+            },
+            {
+              "kind": "materialization_sink",
+              "plan": null,
+              "reason": "merged phi continuity keeps the current string corridor lane but stops the proof-bearing plan window at the merge",
+              "state": "candidate"
+            },
+            {
+              "kind": "direct_kernel_entry",
+              "plan": null,
+              "reason": "merged phi continuity keeps the current string corridor lane but stops the proof-bearing plan window at the merge",
+              "state": "candidate"
+            }
+          ],
+          "22": [
+            {
+              "kind": "publication_sink",
+              "plan": {
+                "corridor_root": 36,
+                "end": 72,
+                "known_length": 2,
+                "proof": {
+                  "kind": "concat_triplet",
+                  "left_end": 47,
+                  "left_source": 21,
+                  "left_start": 46,
+                  "middle": 66,
+                  "right_end": 5,
+                  "right_source": 21,
+                  "right_start": 47,
+                  "shared_source": true
+                },
+                "source_root": 21,
+                "start": 71
+              },
+              "reason": "single-input phi continuity keeps the current string corridor lane and preserves the proof-bearing plan window",
+              "state": "candidate"
+            },
+            {
+              "kind": "materialization_sink",
+              "plan": {
+                "corridor_root": 36,
+                "end": 72,
+                "known_length": 2,
+                "proof": {
+                  "kind": "concat_triplet",
+                  "left_end": 47,
+                  "left_source": 21,
+                  "left_start": 46,
+                  "middle": 66,
+                  "right_end": 5,
+                  "right_source": 21,
+                  "right_start": 47,
+                  "shared_source": true
+                },
+                "source_root": 21,
+                "start": 71
+              },
+              "reason": "single-input phi continuity keeps the current string corridor lane and preserves the proof-bearing plan window",
+              "state": "candidate"
+            },
+            {
+              "kind": "direct_kernel_entry",
+              "plan": {
+                "corridor_root": 36,
+                "end": 72,
+                "known_length": 2,
+                "proof": {
+                  "kind": "concat_triplet",
+                  "left_end": 47,
+                  "left_source": 21,
+                  "left_start": 46,
+                  "middle": 66,
+                  "right_end": 5,
+                  "right_source": 21,
+                  "right_start": 47,
+                  "shared_source": true
+                },
+                "source_root": 21,
+                "start": 71
+              },
+              "reason": "single-input phi continuity keeps the current string corridor lane and preserves the proof-bearing plan window",
+              "state": "candidate"
+            }
+          ],
           "26": [
             {
               "kind": "borrowed_corridor_fusion",
@@ -1115,22 +1160,6 @@
               "reason": "scalar string consumer can bypass ABI facade on the AOT-internal path",
               "state": "candidate"
             }
-          ],
-          "88": [
-            {
-              "kind": "direct_kernel_entry",
-              "plan": null,
-              "reason": "scalar string consumer can bypass ABI facade on the AOT-internal path",
-              "state": "candidate"
-            }
-          ],
-          "89": [
-            {
-              "kind": "direct_kernel_entry",
-              "plan": null,
-              "reason": "scalar string consumer can bypass ABI facade on the AOT-internal path",
-              "state": "candidate"
-            }
           ]
         },
         "string_corridor_facts": {
@@ -1178,25 +1207,34 @@
             "outcome": null,
             "publish": "none",
             "role": "scalar_consumer"
-          },
-          "88": {
-            "carrier": "runtime_export",
-            "materialize": "none",
-            "objectize": "none",
-            "op": "str.len",
-            "outcome": null,
-            "publish": "none",
-            "role": "scalar_consumer"
-          },
-          "89": {
-            "carrier": "runtime_export",
-            "materialize": "none",
-            "objectize": "none",
-            "op": "str.len",
-            "outcome": null,
-            "publish": "none",
-            "role": "scalar_consumer"
           }
+        },
+        "string_corridor_relations": {
+          "21": [
+            {
+              "base_value": 36,
+              "kind": "phi_carry_base",
+              "reason": "merged phi continuity keeps the current string corridor lane but stops the proof-bearing plan window at the merge",
+              "window_contract": "stop_at_merge",
+              "witness_value": null
+            },
+            {
+              "base_value": 36,
+              "kind": "stable_length_scalar",
+              "reason": "merged phi route keeps the entry scalar source length stable even while the proof-bearing plan window stops at the merge",
+              "window_contract": "stop_at_merge",
+              "witness_value": 5
+            }
+          ],
+          "22": [
+            {
+              "base_value": 36,
+              "kind": "phi_carry_base",
+              "reason": "single-input phi continuity keeps the current string corridor lane and preserves the proof-bearing plan window",
+              "window_contract": "preserve_plan_window",
+              "witness_value": null
+            }
+          ]
         },
         "sum_placement_facts": [],
         "sum_placement_layouts": [],
@@ -1362,7 +1400,7 @@
       },
       "blocks": [
         {
-          "id": 14,
+          "id": 13,
           "instructions": [
             {
               "dst": 2,
@@ -1376,6 +1414,7 @@
             },
             {
               "dst": 4,
+              "dst_type": "i64",
               "lhs": 2,
               "op": "binop",
               "operation": "+",
@@ -1389,15 +1428,20 @@
         }
       ],
       "metadata": {
-        "storage_classes": {},
+        "storage_classes": {
+          "4": "inline_i64"
+        },
         "string_corridor_candidates": {},
         "string_corridor_facts": {},
+        "string_corridor_relations": {},
         "sum_placement_facts": [],
         "sum_placement_layouts": [],
         "sum_placement_selections": [],
         "thin_entry_candidates": [],
         "thin_entry_selections": [],
-        "value_types": {}
+        "value_types": {
+          "4": "i64"
+        }
       },
       "name": "AddOperator.apply/2",
       "params": [
@@ -1411,7 +1455,7 @@
       },
       "blocks": [
         {
-          "id": 15,
+          "id": 14,
           "instructions": [
             {
               "dst": 1,
@@ -1429,15 +1473,20 @@
         }
       ],
       "metadata": {
-        "storage_classes": {},
+        "storage_classes": {
+          "1": "inline_bool"
+        },
         "string_corridor_candidates": {},
         "string_corridor_facts": {},
+        "string_corridor_relations": {},
         "sum_placement_facts": [],
         "sum_placement_layouts": [],
         "sum_placement_selections": [],
         "thin_entry_candidates": [],
         "thin_entry_selections": [],
-        "value_types": {}
+        "value_types": {
+          "1": "i1"
+        }
       },
       "name": "AddOperator.equals/1",
       "params": [
@@ -1450,7 +1499,7 @@
       },
       "blocks": [
         {
-          "id": 13,
+          "id": 15,
           "instructions": [
             {
               "dst": 3,
@@ -1476,6 +1525,10 @@
             },
             {
               "dst": 5,
+              "dst_type": {
+                "box_type": "StringBox",
+                "kind": "handle"
+              },
               "lhs": 3,
               "op": "binop",
               "operation": "+",
@@ -1489,15 +1542,39 @@
         }
       ],
       "metadata": {
-        "storage_classes": {},
+        "storage_classes": {
+          "1": "borrowed_text",
+          "2": "borrowed_text",
+          "3": "borrowed_text",
+          "4": "borrowed_text",
+          "5": "borrowed_text"
+        },
         "string_corridor_candidates": {},
         "string_corridor_facts": {},
+        "string_corridor_relations": {},
         "sum_placement_facts": [],
         "sum_placement_layouts": [],
         "sum_placement_selections": [],
         "thin_entry_candidates": [],
         "thin_entry_selections": [],
-        "value_types": {}
+        "value_types": {
+          "1": {
+            "kind": "string"
+          },
+          "2": {
+            "kind": "string"
+          },
+          "3": {
+            "kind": "string"
+          },
+          "4": {
+            "kind": "string"
+          },
+          "5": {
+            "box_type": "StringBox",
+            "kind": "handle"
+          }
+        }
       },
       "name": "AddOperator.toString/0",
       "params": []
@@ -1508,7 +1585,7 @@
       },
       "blocks": [
         {
-          "id": 11,
+          "id": 10,
           "instructions": [
             {
               "dst": 3,
@@ -1526,15 +1603,20 @@
         }
       ],
       "metadata": {
-        "storage_classes": {},
+        "storage_classes": {
+          "3": "opaque"
+        },
         "string_corridor_candidates": {},
         "string_corridor_facts": {},
+        "string_corridor_relations": {},
         "sum_placement_facts": [],
         "sum_placement_layouts": [],
         "sum_placement_selections": [],
         "thin_entry_candidates": [],
         "thin_entry_selections": [],
-        "value_types": {}
+        "value_types": {
+          "3": "void"
+        }
       },
       "name": "CompareOperator.apply/3",
       "params": [
@@ -1549,7 +1631,7 @@
       },
       "blocks": [
         {
-          "id": 12,
+          "id": 11,
           "instructions": [
             {
               "dst": 1,
@@ -1567,15 +1649,20 @@
         }
       ],
       "metadata": {
-        "storage_classes": {},
+        "storage_classes": {
+          "1": "inline_bool"
+        },
         "string_corridor_candidates": {},
         "string_corridor_facts": {},
+        "string_corridor_relations": {},
         "sum_placement_facts": [],
         "sum_placement_layouts": [],
         "sum_placement_selections": [],
         "thin_entry_candidates": [],
         "thin_entry_selections": [],
-        "value_types": {}
+        "value_types": {
+          "1": "i1"
+        }
       },
       "name": "CompareOperator.equals/1",
       "params": [
@@ -1588,7 +1675,7 @@
       },
       "blocks": [
         {
-          "id": 10,
+          "id": 12,
           "instructions": [
             {
               "dst": 3,
@@ -1614,6 +1701,10 @@
             },
             {
               "dst": 5,
+              "dst_type": {
+                "box_type": "StringBox",
+                "kind": "handle"
+              },
               "lhs": 3,
               "op": "binop",
               "operation": "+",
@@ -1627,15 +1718,39 @@
         }
       ],
       "metadata": {
-        "storage_classes": {},
+        "storage_classes": {
+          "1": "borrowed_text",
+          "2": "borrowed_text",
+          "3": "borrowed_text",
+          "4": "borrowed_text",
+          "5": "borrowed_text"
+        },
         "string_corridor_candidates": {},
         "string_corridor_facts": {},
+        "string_corridor_relations": {},
         "sum_placement_facts": [],
         "sum_placement_layouts": [],
         "sum_placement_selections": [],
         "thin_entry_candidates": [],
         "thin_entry_selections": [],
-        "value_types": {}
+        "value_types": {
+          "1": {
+            "kind": "string"
+          },
+          "2": {
+            "kind": "string"
+          },
+          "3": {
+            "kind": "string"
+          },
+          "4": {
+            "kind": "string"
+          },
+          "5": {
+            "box_type": "StringBox",
+            "kind": "handle"
+          }
+        }
       },
       "name": "CompareOperator.toString/0",
       "params": []
@@ -1646,7 +1761,7 @@
       },
       "blocks": [
         {
-          "id": 17,
+          "id": 16,
           "instructions": [
             {
               "dst": 1,
@@ -1664,15 +1779,20 @@
         }
       ],
       "metadata": {
-        "storage_classes": {},
+        "storage_classes": {
+          "1": "inline_bool"
+        },
         "string_corridor_candidates": {},
         "string_corridor_facts": {},
+        "string_corridor_relations": {},
         "sum_placement_facts": [],
         "sum_placement_layouts": [],
         "sum_placement_selections": [],
         "thin_entry_candidates": [],
         "thin_entry_selections": [],
-        "value_types": {}
+        "value_types": {
+          "1": "i1"
+        }
       },
       "name": "Main.equals/1",
       "params": [
@@ -1685,7 +1805,7 @@
       },
       "blocks": [
         {
-          "id": 16,
+          "id": 17,
           "instructions": [
             {
               "dst": 3,
@@ -1711,6 +1831,10 @@
             },
             {
               "dst": 5,
+              "dst_type": {
+                "box_type": "StringBox",
+                "kind": "handle"
+              },
               "lhs": 3,
               "op": "binop",
               "operation": "+",
@@ -1724,15 +1848,39 @@
         }
       ],
       "metadata": {
-        "storage_classes": {},
+        "storage_classes": {
+          "1": "borrowed_text",
+          "2": "borrowed_text",
+          "3": "borrowed_text",
+          "4": "borrowed_text",
+          "5": "borrowed_text"
+        },
         "string_corridor_candidates": {},
         "string_corridor_facts": {},
+        "string_corridor_relations": {},
         "sum_placement_facts": [],
         "sum_placement_layouts": [],
         "sum_placement_selections": [],
         "thin_entry_candidates": [],
         "thin_entry_selections": [],
-        "value_types": {}
+        "value_types": {
+          "1": {
+            "kind": "string"
+          },
+          "2": {
+            "kind": "string"
+          },
+          "3": {
+            "kind": "string"
+          },
+          "4": {
+            "kind": "string"
+          },
+          "5": {
+            "box_type": "StringBox",
+            "kind": "handle"
+          }
+        }
       },
       "name": "Main.toString/0",
       "params": []
@@ -1972,15 +2120,71 @@
         }
       ],
       "metadata": {
-        "storage_classes": {},
+        "storage_classes": {
+          "1": "opaque",
+          "10": "opaque",
+          "12": "borrowed_text",
+          "14": "opaque",
+          "16": "opaque",
+          "2": "inline_bool",
+          "20": "opaque",
+          "21": "inline_bool",
+          "23": "opaque",
+          "24": "inline_bool",
+          "26": "opaque",
+          "27": "inline_bool",
+          "29": "opaque",
+          "32": "borrowed_text",
+          "36": "opaque",
+          "38": "opaque",
+          "39": "borrowed_text",
+          "4": "opaque",
+          "40": "borrowed_text",
+          "5": "inline_bool",
+          "7": "opaque",
+          "8": "inline_bool"
+        },
         "string_corridor_candidates": {},
         "string_corridor_facts": {},
+        "string_corridor_relations": {},
         "sum_placement_facts": [],
         "sum_placement_layouts": [],
         "sum_placement_selections": [],
         "thin_entry_candidates": [],
         "thin_entry_selections": [],
-        "value_types": {}
+        "value_types": {
+          "1": "void",
+          "10": "void",
+          "12": {
+            "kind": "string"
+          },
+          "14": "void",
+          "16": "void",
+          "2": "i1",
+          "20": "void",
+          "21": "i1",
+          "23": "void",
+          "24": "i1",
+          "26": "void",
+          "27": "i1",
+          "29": "void",
+          "32": {
+            "box_type": "StringBox",
+            "kind": "handle"
+          },
+          "36": "void",
+          "38": "void",
+          "39": {
+            "kind": "string"
+          },
+          "4": "void",
+          "40": {
+            "kind": "string"
+          },
+          "5": "i1",
+          "7": "void",
+          "8": "i1"
+        }
       },
       "name": "StringifyOperator.apply/1",
       "params": [
@@ -2011,15 +2215,20 @@
         }
       ],
       "metadata": {
-        "storage_classes": {},
+        "storage_classes": {
+          "1": "inline_bool"
+        },
         "string_corridor_candidates": {},
         "string_corridor_facts": {},
+        "string_corridor_relations": {},
         "sum_placement_facts": [],
         "sum_placement_layouts": [],
         "sum_placement_selections": [],
         "thin_entry_candidates": [],
         "thin_entry_selections": [],
-        "value_types": {}
+        "value_types": {
+          "1": "i1"
+        }
       },
       "name": "StringifyOperator.equals/1",
       "params": [
@@ -2058,6 +2267,10 @@
             },
             {
               "dst": 5,
+              "dst_type": {
+                "box_type": "StringBox",
+                "kind": "handle"
+              },
               "lhs": 3,
               "op": "binop",
               "operation": "+",
@@ -2071,15 +2284,39 @@
         }
       ],
       "metadata": {
-        "storage_classes": {},
+        "storage_classes": {
+          "1": "borrowed_text",
+          "2": "borrowed_text",
+          "3": "borrowed_text",
+          "4": "borrowed_text",
+          "5": "borrowed_text"
+        },
         "string_corridor_candidates": {},
         "string_corridor_facts": {},
+        "string_corridor_relations": {},
         "sum_placement_facts": [],
         "sum_placement_layouts": [],
         "sum_placement_selections": [],
         "thin_entry_candidates": [],
         "thin_entry_selections": [],
-        "value_types": {}
+        "value_types": {
+          "1": {
+            "kind": "string"
+          },
+          "2": {
+            "kind": "string"
+          },
+          "3": {
+            "kind": "string"
+          },
+          "4": {
+            "kind": "string"
+          },
+          "5": {
+            "box_type": "StringBox",
+            "kind": "handle"
+          }
+        }
       },
       "name": "StringifyOperator.toString/0",
       "params": []
@@ -2111,6 +2348,7 @@
         "storage_classes": {},
         "string_corridor_candidates": {},
         "string_corridor_facts": {},
+        "string_corridor_relations": {},
         "sum_placement_facts": [],
         "sum_placement_layouts": [],
         "sum_placement_selections": [],

@@ -7,10 +7,11 @@
 # 2) the preheader still computes the seed length via `StringBox.length()`,
 #    and the exit still returns `length() + ...`.
 # 3) the loop body keeps the current live post-sink non-copy shape:
-#      - 17 interesting ops
+#      - 14 interesting ops
 #      - shared-source substring producers at positions 3 and 4
-#      - direct-kernel scalar-consumer candidates at positions 6 and 9
-#      - `nyash.string.substring_concat3_hhhii` at position 15
+#      - collapsed `source_len + const_len` at position 7
+#      - `nyash.string.substring_concat3_hhhii` at position 12
+#      - no loop `nyash.string.substring_len_hii`
 # 4) the helper result keeps its live proof-bearing corridor metadata:
 #      - `%36` carries `publication_sink` and `direct_kernel_entry`
 #      - both plans keep `source_root=21` and outer window `%71..%72`
@@ -81,7 +82,7 @@ if preheader_box != "StringBox" or preheader_name != "length" or not isinstance(
     )
 
 interesting = interesting_ops(2)
-if len(interesting) != 17:
+if len(interesting) != 14:
     raise SystemExit(f"unexpected interesting_n={len(interesting)}")
 
 def callee_name(ins):
@@ -123,14 +124,21 @@ def require_slice(idx, start, end):
 require_slice(3, 46, 47)
 require_slice(4, 47, 5)
 
-if interesting[15].get("op") != "mir_call" or callee_name(interesting[15]) != "nyash.string.substring_concat3_hhhii":
-    raise SystemExit("expected substring_concat3_hhhii at interesting[15]")
+for inst in interesting:
+    if callee_name(inst) == "nyash.string.substring_len_hii":
+        raise SystemExit(f"unexpected substring_len_hii in post-sink body: {inst}")
 
-if interesting[6].get("op") != "mir_call" or not has_candidate(interesting[6].get("dst"), "direct_kernel_entry"):
-    raise SystemExit("expected direct_kernel_entry candidate at interesting[6]")
+if interesting[6].get("op") != "const" or interesting[6].get("value", {}).get("value") != 2:
+    raise SystemExit(f"expected const_len at interesting[6], got {interesting[6]}")
 
-if interesting[9].get("op") != "mir_call" or not has_candidate(interesting[9].get("dst"), "direct_kernel_entry"):
-    raise SystemExit("expected direct_kernel_entry candidate at interesting[9]")
+if interesting[7].get("op") != "binop" or interesting[7].get("operation") != "+":
+    raise SystemExit(f"expected collapsed source_len + const_len at interesting[7], got {interesting[7]}")
+operands = {interesting[7].get("lhs"), interesting[7].get("rhs")}
+if 5 not in operands or interesting[6].get("dst") not in operands:
+    raise SystemExit(f"collapsed len add should use source_len %5 and const_len %{interesting[6].get('dst')}: {interesting[7]}")
+
+if interesting[12].get("op") != "mir_call" or callee_name(interesting[12]) != "nyash.string.substring_concat3_hhhii":
+    raise SystemExit("expected substring_concat3_hhhii at interesting[12]")
 
 helper_candidates = candidates.get("36")
 if not isinstance(helper_candidates, list) or not helper_candidates:

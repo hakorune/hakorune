@@ -15,6 +15,7 @@
 # 6) the relation metadata now makes the stop line explicit:
 #      - `%22` uses `preserve_plan_window`
 #      - `%21` uses `stop_at_merge`
+#      - `%21` also carries `stable_length_scalar` with witness `%5`
 #    and the candidates still reflect that:
 #      - `%22` preserves the proof-bearing plan window
 #      - `%21` keeps only non-window `publication_sink` /
@@ -154,6 +155,15 @@ if not any(
     for rel in phi21_relations
 ):
     raise SystemExit(f"phi %21 lost stop_at_merge relation: {phi21_relations}")
+
+if not any(
+    rel.get("kind") == "stable_length_scalar"
+    and rel.get("base_value") == 36
+    and rel.get("witness_value") == 5
+    and rel.get("window_contract") == "stop_at_merge"
+    for rel in phi21_relations
+):
+    raise SystemExit(f"phi %21 lost stable_length_scalar witness: {phi21_relations}")
 
 phi21_candidates = candidates.get("21")
 require_kinds(phi21_candidates, required_phi_kinds, "phi %21")

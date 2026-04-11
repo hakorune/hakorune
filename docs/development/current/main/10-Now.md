@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-04-10
+Date: 2026-04-12
 Scope: current lane / blocker / next pointer だけを置く薄い mirror。
 Related:
   - CURRENT_TASK.md
@@ -21,8 +21,12 @@ Related:
     - deterministic lexical member traversal is kept as supporting structure, but it is not the whole fix
     - repeated release direct emit for `Counter.step_chain` is green again (`6/6`)
     - separate pure-first/backend exact build+asm for `Counter.step_chain` is still a stop-line and remains outside `phase167x`
-  - active exact-route follow-on: `phase168x counter step_chain pure-first refresh`
+  - landed exact-route follow-on: `phase168x counter step_chain pure-first refresh`
     - landed: the stale seed/smoke expectation for the old two-copy `Counter.step_chain/0` forwarding body is refreshed to the current narrow exact route
+  - landed string exact-front follow-on: `phase169x substring concat stable-length phi contract`
+    - merged header `%21` on `kilo_micro_substring_concat` still keeps `stop_at_merge` for plan windows and now also carries `stable_length_scalar`
+    - the live post-sink loop body collapses `substring_len_hii + const + substring_len_hii` into `source_len + const` and the direct route now reads `interesting_n = 14`
+    - direct/post-sink smoke, phi-merge contract smoke, daily owner smoke, exact asm, exact perf, and `quick` gate are green
   - row status:
     - `3 User-Box Method Dispatch`: mostly done; narrow known-receiver consumer and the direct-route determinism repair are landed, broader generic parity backlog remains
     - `4 Array Typed Slots 拡大`: partial; narrow typed-slot pilots landed, read-side expansion backlog remains
@@ -201,18 +205,18 @@ Related:
     - first plan-selected `direct_kernel_entry` slice is now landed too: boundary `pure-first` reads `string_corridor_candidates[*].plan.start/end` for direct helper-result receivers and lowers `length()` as the same window arithmetic (`end - start`) instead of rediscovering the route from legacy remembered substring calls
     - targeted boundary proof is now pinned on `string_direct_kernel_plan_len_window_min_v1.mir.json`; the smoke `phase137x_boundary_string_direct_kernel_plan_len_min.sh` must hit `substring_len_direct_kernel_plan_window` and keep `nyash.string.len_h` / `nyash.string.substring_len_hii` out of the lowered IR
     - latest bridge shrink removes the old `STRING_LEN -> string_substring_len` declaration path on this lane; direct-kernel len now trusts corridor plan metadata rather than substring-call re-inference
-    - current `./target/release/hakorune --emit-mir-json{,-minimal}` probe on `bench_kilo_micro_substring_concat.hako` reads `interesting_n = 17`, and the active `phase29x_backend_owner_daily_substring_concat_loop_min` smoke now points at `apps/tests/mir_shape_guard/substring_concat_loop_pure_min_v1_post_sink.mir.json`, so exact-seed narrowing can follow the aligned post-sink body shape
+    - current `./target/release/hakorune --emit-mir-json{,-minimal}` probe on `bench_kilo_micro_substring_concat.hako` reads `interesting_n = 14`, and the active `phase29x_backend_owner_daily_substring_concat_loop_min` smoke now points at the refreshed `apps/tests/mir_shape_guard/substring_concat_loop_pure_min_v1_post_sink.mir.json`
     - the daily-owner route blocker is now cleared too: default `backend=mir` executes the compiled module again, and the `.hako ll emitter` runtime decl manifest now includes `nyash.string.substring_len_hii` / `nyash.string.substring_concat3_hhhii`, so the phase29x daily smoke reaches `[hako-ll/daily] ... acceptance_case=substring-concat-loop-v1`
     - trustworthy current-shape probe for this front is `tools/smokes/v2/lib/emit_mir_route.sh --route direct ...`; do not use `tools/hakorune_emit_mir.sh` as the shape oracle here because the helper can persist a non-strict JSON payload from selfhost stdout capture
-    - current live post-sink benchmark body is now pinned separately by `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_substring_concat_post_sink_shape.sh`; that smoke requires the helper-result `%36` to keep `publication_sink` / `direct_kernel_entry` plans and the scalar consumers `%88/%89` to keep `direct_kernel_entry` candidates on the live MIR, and the exact seed now trusts those metadata-backed helper/scalar contracts instead of re-proving shared `source_root`, raw helper names/args, or the intermediate raw `substring` producers from emitted MIR
+    - current live post-sink benchmark body is now pinned separately by `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_substring_concat_post_sink_shape.sh`; that smoke now requires the collapsed `source_len + const_len` loop body with no loop `substring_len_hii`, while helper-result `%36` keeps the proof-bearing helper plans on the live MIR
     - the same post-sink probe now also pins the exact-seed preheader/exit semantics (`StringBox.length()` on the seed input, then trailing `length() + ... + ret` on exit), so those truths are visible outside the seed even though the seed still owns the current guard
-    - the first narrow `phi_merge` handoff is now pinned too by `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_substring_concat_phi_merge_contract.sh`; live direct MIR still carries `%21 = phi([4,0], [22,20])` and `%22 = phi([36,19])`, helper-result `%36` still owns the proof-bearing plan window, relation metadata now makes the stop line explicit (`%22 = preserve_plan_window`, `%21 = stop_at_merge`), and merged header phi `%21` still keeps only non-window `publication_sink` / `materialization_sink` / `direct_kernel_entry` continuity
+    - `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_substring_concat_phi_merge_contract.sh` now also pins the landed `stable_length_scalar` witness on merged header `%21` while keeping `%22 = preserve_plan_window` and `%21 = stop_at_merge` for plan-window truth
     - the same phi smoke now also pins the exact-seed loop semantics (`phi/phi/phi`, positive loop bound, compare `<`, branch, and the latch `const 1` increment), so the remaining exact-seed work moved to a semantic-boundary decision rather than more raw body-shape cleanup
     - structure lock: loop-carried corridor continuity now consumes the generic MIR seam in `src/mir/phi_query.rs`; `src/mir/string_corridor_relation.rs` is now the string-side relation layer, and `string_corridor_placement` only maps stored `facts -> relations -> candidates` continuity to optimization candidates
     - decision now fixed: stop shrinking the exact seed at the semantic-guard boundary for this phase
       - keep preheader/exit `length` truth plus header/latch loop truth in the seed as the current miscompile-prevention owner
       - treat any future retirement of those semantic guards as a separate contract phase, not as more bridge cleanup in this wave
-    - fresh broader-corridor reread keeps `kilo_micro_substring_concat` (`instr=5,565,547 / cycles=5,907,473 / cache-miss=8,629 / AOT 4 ms`) as the current exact front, while exploratory `kilo_meso_substring_concat_array_set` stayed essentially flat (`instr=384,347,679 / cycles=185,582,276 / AOT 42 ms`), so this cut is a canonical-MIR/kernel asset landing rather than a meso perf keeper by itself
+    - fresh broader-corridor reread keeps `kilo_micro_substring_concat` (`instr=5,565,773 / cycles=6,143,112 / cache-miss=9,610 / AOT 5 ms`) as the current exact front, while exploratory `kilo_meso_substring_concat_array_set` stayed essentially flat (`instr=384,347,679 / cycles=185,582,276 / AOT 42 ms`), so this cut is a canonical-MIR/kernel asset landing rather than a meso perf keeper by itself
     - first direct-set insert-mid smoke is now pinned too: `phase137x_boundary_string_insert_mid_direct_set_min.sh` uses the synthetic direct-set probe to observe `string_insert_mid_window`, keep `nyash.string.insert_hsi` in the lowered IR, and require the plan-backed `plan_window_match` route on the synthetic fixture
     - string genericization order is now fixed: keep canonical MIR as the only IR truth, land proof-bearing plan metadata first, then land helper-result `publication_sink` inventory, then helper-result actual `publication_sink`, then `materialization_sink`, then select `direct_kernel_entry` from that plan near lowering, then shrink the remaining bridge paths
     - migration-safe reading: keep this lane in canonical MIR facts/candidates/sink and kernel/backend substrate only; do not reopen Rust-builder-local shape logic while `.hako` builder authority replacement is open
