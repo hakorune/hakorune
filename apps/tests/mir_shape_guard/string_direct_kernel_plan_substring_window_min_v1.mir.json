@@ -1,0 +1,200 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "params": [],
+      "metadata": {
+        "string_corridor_candidates": {
+          "11": [
+            {
+              "kind": "direct_kernel_entry",
+              "state": "candidate",
+              "reason": "borrowed slice corridor can target a direct kernel entry before publication",
+              "plan": {
+                "corridor_root": 11,
+                "source_root": 2,
+                "start": 9,
+                "end": 10,
+                "known_length": 2,
+                "proof": {
+                  "kind": "concat_triplet",
+                  "left_value": 7,
+                  "left_source": 2,
+                  "left_start": 4,
+                  "left_end": 5,
+                  "middle": 3,
+                  "right_value": 8,
+                  "right_source": 2,
+                  "right_start": 5,
+                  "right_end": 6,
+                  "shared_source": true
+                }
+              }
+            }
+          ]
+        }
+      },
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 1,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "abcde"
+              }
+            },
+            {
+              "op": "newbox",
+              "dst": 2,
+              "type": "StringBox",
+              "args": [1]
+            },
+            {
+              "op": "const",
+              "dst": 3,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "xx"
+              }
+            },
+            {
+              "op": "const",
+              "dst": 4,
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "op": "const",
+              "dst": 5,
+              "value": {
+                "type": "i64",
+                "value": 2
+              }
+            },
+            {
+              "op": "const",
+              "dst": 6,
+              "value": {
+                "type": "i64",
+                "value": 5
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 7,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "substring",
+                  "receiver": 2,
+                  "certainty": "Union"
+                },
+                "args": [4, 5],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 8,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "substring",
+                  "receiver": 2,
+                  "certainty": "Union"
+                },
+                "args": [5, 6],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "const",
+              "dst": 9,
+              "value": {
+                "type": "i64",
+                "value": 1
+              }
+            },
+            {
+              "op": "const",
+              "dst": 10,
+              "value": {
+                "type": "i64",
+                "value": 4
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 11,
+              "mir_call": {
+                "callee": {
+                  "type": "Extern",
+                  "name": "nyash.string.substring_concat3_hhhii"
+                },
+                "args": [7, 3, 8, 9, 10],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "const",
+              "dst": 12,
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "op": "const",
+              "dst": 13,
+              "value": {
+                "type": "i64",
+                "value": 3
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 14,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "substring",
+                  "receiver": 11,
+                  "certainty": "Union"
+                },
+                "args": [12, 13],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "ret",
+              "value": 14
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

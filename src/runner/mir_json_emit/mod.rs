@@ -130,20 +130,24 @@ fn build_mir_json_root(module: &crate::mir::MirModule) -> Result<serde_json::Val
                                     "end": end.as_u32(),
                                 }),
                                 crate::mir::string_corridor_placement::StringCorridorCandidateProof::ConcatTriplet {
+                                    left_value,
                                     left_source,
                                     left_start,
                                     left_end,
                                     middle,
+                                    right_value,
                                     right_source,
                                     right_start,
                                     right_end,
                                     shared_source,
                                 } => json!({
                                     "kind": "concat_triplet",
+                                    "left_value": left_value.map(|value| value.as_u32()),
                                     "left_source": left_source.as_u32(),
                                     "left_start": left_start.as_u32(),
                                     "left_end": left_end.as_u32(),
                                     "middle": middle.as_u32(),
+                                    "right_value": right_value.map(|value| value.as_u32()),
                                     "right_source": right_source.as_u32(),
                                     "right_start": right_start.as_u32(),
                                     "right_end": right_end.as_u32(),
@@ -662,10 +666,12 @@ mod tests {
                     known_length: Some(2),
                     proof:
                         crate::mir::string_corridor_placement::StringCorridorCandidateProof::ConcatTriplet {
+                            left_value: Some(crate::mir::ValueId::new(4)),
                             left_source: crate::mir::ValueId::new(1),
                             left_start: crate::mir::ValueId::new(4),
                             left_end: crate::mir::ValueId::new(5),
                             middle: crate::mir::ValueId::new(6),
+                            right_value: Some(crate::mir::ValueId::new(8)),
                             right_source: crate::mir::ValueId::new(1),
                             right_start: crate::mir::ValueId::new(5),
                             right_end: crate::mir::ValueId::new(9),
@@ -700,7 +706,9 @@ mod tests {
             value_candidates[0]["plan"]["proof"]["kind"],
             "concat_triplet"
         );
+        assert_eq!(value_candidates[0]["plan"]["proof"]["left_value"], 4);
         assert_eq!(value_candidates[0]["plan"]["proof"]["middle"], 6);
+        assert_eq!(value_candidates[0]["plan"]["proof"]["right_value"], 8);
         assert_eq!(value_candidates[0]["plan"]["proof"]["shared_source"], true);
 
         let relations = root["functions"][0]["metadata"]["string_corridor_relations"]

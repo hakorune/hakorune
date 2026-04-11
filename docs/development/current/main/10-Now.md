@@ -27,6 +27,10 @@ Related:
     - merged header `%21` on `kilo_micro_substring_concat` still keeps `stop_at_merge` for plan windows and now also carries `stable_length_scalar`
     - the live post-sink loop body collapses `substring_len_hii + const + substring_len_hii` into `source_len + const` and the direct route now reads `interesting_n = 14`
     - direct/post-sink smoke, phi-merge contract smoke, daily owner smoke, exact asm, exact perf, and `quick` gate are green
+  - landed string bridge-shrink follow-on: `phase170x direct-kernel substring plan proof`
+    - boundary `pure-first` `substring()` on helper-result receivers now reads concat-triplet piece carriers from `string_corridor_candidates[*].plan.proof`
+    - the targeted proof `string_direct_kernel_plan_substring_window_min_v1.mir.json` now lowers through `direct_kernel_plan_proof -> substring_concat3_hhhii` without consumer fallback to `substring_hii`
+    - direct-kernel `length()` proof, live direct-emit contracts, exact asm/perf, and `quick` gate stay green
   - row status:
     - `3 User-Box Method Dispatch`: mostly done; narrow known-receiver consumer and the direct-route determinism repair are landed, broader generic parity backlog remains
     - `4 Array Typed Slots 拡大`: partial; narrow typed-slot pilots landed, read-side expansion backlog remains
@@ -216,7 +220,7 @@ Related:
     - decision now fixed: stop shrinking the exact seed at the semantic-guard boundary for this phase
       - keep preheader/exit `length` truth plus header/latch loop truth in the seed as the current miscompile-prevention owner
       - treat any future retirement of those semantic guards as a separate contract phase, not as more bridge cleanup in this wave
-    - fresh broader-corridor reread keeps `kilo_micro_substring_concat` (`instr=5,565,773 / cycles=6,143,112 / cache-miss=9,610 / AOT 5 ms`) as the current exact front, while exploratory `kilo_meso_substring_concat_array_set` stayed essentially flat (`instr=384,347,679 / cycles=185,582,276 / AOT 42 ms`), so this cut is a canonical-MIR/kernel asset landing rather than a meso perf keeper by itself
+    - fresh broader-corridor reread keeps `kilo_micro_substring_concat` (`instr=5,565,896 / cycles=5,958,406 / cache-miss=8,607 / AOT 4 ms`) as the current exact front, while exploratory `kilo_meso_substring_concat_array_set` stayed essentially flat (`instr=384,347,679 / cycles=185,582,276 / AOT 42 ms`), so this cut is a canonical-MIR/kernel asset landing rather than a meso perf keeper by itself
     - first direct-set insert-mid smoke is now pinned too: `phase137x_boundary_string_insert_mid_direct_set_min.sh` uses the synthetic direct-set probe to observe `string_insert_mid_window`, keep `nyash.string.insert_hsi` in the lowered IR, and require the plan-backed `plan_window_match` route on the synthetic fixture
     - string genericization order is now fixed: keep canonical MIR as the only IR truth, land proof-bearing plan metadata first, then land helper-result `publication_sink` inventory, then helper-result actual `publication_sink`, then `materialization_sink`, then select `direct_kernel_entry` from that plan near lowering, then shrink the remaining bridge paths
     - migration-safe reading: keep this lane in canonical MIR facts/candidates/sink and kernel/backend substrate only; do not reopen Rust-builder-local shape logic while `.hako` builder authority replacement is open

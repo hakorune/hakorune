@@ -107,10 +107,12 @@ pub enum StringCorridorCandidateProof {
         end: ValueId,
     },
     ConcatTriplet {
+        left_value: Option<ValueId>,
         left_source: ValueId,
         left_start: ValueId,
         left_end: ValueId,
         middle: ValueId,
+        right_value: Option<ValueId>,
         right_source: ValueId,
         right_start: ValueId,
         right_end: ValueId,
@@ -126,21 +128,29 @@ impl StringCorridorCandidateProof {
                 source.0, start.0, end.0
             ),
             Self::ConcatTriplet {
+                left_value,
                 left_source,
                 left_start,
                 left_end,
                 middle,
+                right_value,
                 right_source,
                 right_start,
                 right_end,
                 shared_source,
             } => format!(
-                "concat_triplet(shared_source={} left=%{}[%{},%{}] middle=%{} right=%{}[%{},%{}])",
+                "concat_triplet(shared_source={} left_value={} left=%{}[%{},%{}] middle=%{} right_value={} right=%{}[%{},%{}])",
                 shared_source,
+                left_value
+                    .map(|value| format!("%{}", value.0))
+                    .unwrap_or_else(|| "-".to_string()),
                 left_source.0,
                 left_start.0,
                 left_end.0,
                 middle.0,
+                right_value
+                    .map(|value| format!("%{}", value.0))
+                    .unwrap_or_else(|| "-".to_string()),
                 right_source.0,
                 right_start.0,
                 right_end.0
@@ -333,17 +343,17 @@ fn infer_concat_triplet_plan(
 ) -> Option<StringCorridorCandidatePlan> {
     let receiver_root = resolve_value_origin(function, def_map, receiver);
     let ConcatTripletShape {
-        left,
+        left: left_value,
         middle,
-        right,
+        right: right_value,
     } = match_concat_triplet(function, bbid, def_map, receiver_root)?;
     let Some(StringSourceIdentity::ConstString(text)) =
         string_source_identity(function, def_map, middle)
     else {
         return None;
     };
-    let left = match_substring_call_shape(function, def_map, left)?;
-    let right = match_substring_call_shape(function, def_map, right)?;
+    let left = match_substring_call_shape(function, def_map, left_value)?;
+    let right = match_substring_call_shape(function, def_map, right_value)?;
     let (shared_source, source_root) =
         shared_source_root(function, def_map, left.source, right.source);
     if require_shared_source && !shared_source {
@@ -357,10 +367,12 @@ fn infer_concat_triplet_plan(
         end: outer_end.map(|value| resolve_value_origin(function, def_map, value)),
         known_length: Some(const_string_length(&text)),
         proof: StringCorridorCandidateProof::ConcatTriplet {
+            left_value: Some(resolve_value_origin(function, def_map, left_value)),
             left_source: left.source,
             left_start: left.start,
             left_end: left.end,
             middle,
+            right_value: Some(resolve_value_origin(function, def_map, right_value)),
             right_source: right.source,
             right_start: right.start,
             right_end: right.end,
@@ -402,10 +414,12 @@ fn infer_concat_triplet_result_plan(
         end: Some(resolve_value_origin(function, def_map, end)),
         known_length: Some(const_string_length(&text)),
         proof: StringCorridorCandidateProof::ConcatTriplet {
+            left_value: Some(resolve_value_origin(function, def_map, helper.left)),
             left_source: left.source,
             left_start: left.start,
             left_end: left.end,
             middle: resolve_value_origin(function, def_map, middle),
+            right_value: Some(resolve_value_origin(function, def_map, helper.right)),
             right_source: right.source,
             right_start: right.start,
             right_end: right.end,
@@ -781,10 +795,12 @@ mod tests {
         assert!(matches!(
             len_plan.proof,
             StringCorridorCandidateProof::ConcatTriplet {
+                left_value: Some(ValueId(5)),
                 left_source: ValueId(0),
                 left_start: ValueId(4),
                 left_end: ValueId(3),
                 middle: ValueId(7),
+                right_value: Some(ValueId(6)),
                 right_source: ValueId(0),
                 right_start: ValueId(3),
                 right_end: ValueId(1),
@@ -940,10 +956,12 @@ mod tests {
         assert!(matches!(
             plan.proof,
             StringCorridorCandidateProof::ConcatTriplet {
+                left_value: Some(ValueId(5)),
                 left_source: ValueId(0),
                 left_start: ValueId(4),
                 left_end: ValueId(3),
                 middle: ValueId(7),
+                right_value: Some(ValueId(6)),
                 right_source: ValueId(0),
                 right_start: ValueId(3),
                 right_end: ValueId(1),

@@ -58,6 +58,11 @@ Scope: repo root から current lane / current front / restart read order に最
   - `phase-169x` is landed; merged header `%21` on `kilo_micro_substring_concat` keeps the `stop_at_merge` plan-window contract and now also carries a narrow `stable_length_scalar` witness
   - the live post-sink loop body now collapses the complementary `substring_len_hii + const + substring_len_hii` path into `source_len + const`, with `interesting_n = 14`
   - direct/post-sink smoke, phi-merge contract smoke, daily owner smoke, exact asm, exact perf, and `tools/checks/dev_gate.sh quick` are green
+- landed string bridge-shrink follow-on:
+  - `docs/development/current/main/phases/phase-170x/README.md`
+  - `phase-170x` is landed; boundary `pure-first` now reads concat-triplet piece carriers from `direct_kernel_entry.plan.proof` and lowers helper-result `substring()` without depending on remembered concat-chain state on that lane
+  - the new proof fixture/smoke `string_direct_kernel_plan_substring_window_min_v1.mir.json` / `phase137x_boundary_string_direct_kernel_plan_substring_min.sh` are green
+  - the existing len proof, live direct emit contracts, exact asm/perf, and `tools/checks/dev_gate.sh quick` stay green
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`

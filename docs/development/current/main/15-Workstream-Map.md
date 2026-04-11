@@ -47,6 +47,10 @@ Related:
   - `phase-169x` is landed
   - merged header `%21` on `kilo_micro_substring_concat` now carries a narrow `stable_length_scalar` witness while keeping the `stop_at_merge` plan-window contract
   - the live post-sink loop body now collapses to `source_len + const` on the exact front, and direct/pure-first contracts were refreshed together
+- landed string bridge-shrink follow-on:
+  - `phase-170x` is landed
+  - boundary `pure-first` `substring()` on helper-result receivers now reads concat-triplet piece carriers from `direct_kernel_entry.plan.proof`
+  - the targeted substring proof, len proof, live direct-emit contracts, exact asm/perf, and `quick` gate are green
 - `phase-133x` landed:
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`

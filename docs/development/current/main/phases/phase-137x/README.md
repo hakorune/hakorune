@@ -57,7 +57,9 @@
   - landed: first post-store observer slice now keeps `array.set` as the first `Store` boundary while rewriting one trailing helper-result `length()` observer to `end - start` and deleting the copy-only observer/store chains
   - landed: first plan-selected `direct_kernel_entry` slice now reads `string_corridor_candidates[*].plan.start/end` on direct helper-result receivers and lowers `length()` as window arithmetic in boundary `pure-first`
   - targeted proof: `apps/tests/mir_shape_guard/string_direct_kernel_plan_len_window_min_v1.mir.json` + `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_string_direct_kernel_plan_len_min.sh`
-  - next: keep loop-carried `phi_merge` outside this cut, shrink the remaining dynamic/exact bridge paths that still do not read the plan directly, and treat any further `array.set + trailing length()` widening as a separate metadata-contract phase only if fresh perf evidence appears
+  - landed: second plan-selected `direct_kernel_entry` slice now reads concat-triplet piece carriers from `string_corridor_candidates[*].plan.proof` on helper-result receivers and lowers `substring()` through `substring_concat3_hhhii` without relying on remembered concat-chain state on that lane
+  - targeted proof: `apps/tests/mir_shape_guard/string_direct_kernel_plan_substring_window_min_v1.mir.json` + `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_string_direct_kernel_plan_substring_min.sh`
+  - next: keep loop-carried `phi_merge` outside this cut, and treat the remaining concat backlog as `return` / `store` / host-boundary publication rather than more exact-bridge rediscovery
   - fixed return order:
     1. continue shrinking exact-seed structural checks only where the live post-sink metadata contract already proves the route
     2. landed: loop-carried base/root interpretation now sits behind the generic MIR seam `src/mir/phi_query.rs`
@@ -75,7 +77,7 @@
     - `kilo_micro_substring_views_only: instr=466,001 / cycles=841,958 / cache-miss=9,391 / AOT 3 ms`
     - `kilo_micro_len_substring_views: instr=1,672,096 / cycles=1,009,964 / cache-miss=8,902 / AOT 3 ms`
 - current broader-corridor reopen front:
-  - `kilo_micro_substring_concat: instr=5,565,773 / cycles=6,143,112 / cache-miss=9,610 / AOT 5 ms`
+  - `kilo_micro_substring_concat: instr=5,565,896 / cycles=5,958,406 / cache-miss=8,607 / AOT 4 ms`
   - `kilo_micro_array_string_store: c_ms=9 / ny_aot_ms=9`; this family is not the current blocker
 - target band for the next keeper:
   - mixed accept gate: hold `instr <= 1.8M`
@@ -143,7 +145,7 @@
     - `phase137x_direct_emit_substring_concat_phi_merge_contract.sh` now pins the landed metadata-contract follow-on too: live direct MIR still carries `%21 = phi([4,0], [22,20])` and `%22 = phi([36,19])`, helper-result `%36` still owns the proof-bearing plan window, relation metadata keeps `%22 = preserve_plan_window` and `%21 = stop_at_merge`, and merged header `%21` now also carries `stable_length_scalar` with the entry-length witness
     - the same phi smoke now also pins the header/latch loop semantics (`phi/phi/phi`, positive loop bound, compare `<`, branch, and the latch `const 1` increment), so the remaining exact-seed work moved to a semantic-boundary decision rather than more raw body-shape cleanup
     - structure lock: loop-carried corridor continuity now consumes the generic MIR seam in `src/mir/phi_query.rs`; `src/mir/string_corridor_relation.rs` is now the string-side relation layer, and `string_corridor_placement` only maps stored `facts -> relations -> candidates` continuity to string-lane optimization candidates
-    - latest exact reread on `kilo_micro_substring_concat`: `instr=5,565,773 / cycles=6,143,112 / cache-miss=9,610 / AOT 5 ms`
+    - latest exact reread on `kilo_micro_substring_concat`: `instr=5,565,896 / cycles=5,958,406 / cache-miss=8,607 / AOT 4 ms`
     - decision now fixed: stop shrinking the exact seed at the semantic-guard boundary for this phase
       - keep preheader/exit `length` truth plus header/latch loop truth in the seed as the current miscompile-prevention owner
       - treat any future retirement of those semantic guards as a separate contract phase, not as more bridge cleanup in this wave

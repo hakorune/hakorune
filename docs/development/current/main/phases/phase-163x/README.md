@@ -198,7 +198,8 @@
       - immediate next task after the parity keeper:
         - move from the landed sibling exact micros into the broader string corridor placement/effect rewrite
         - `phase-169x` landed the merged-header `stable_length_scalar` witness on the same exact front, so the live post-sink loop body no longer keeps `substring_len_hii` on `kilo_micro_substring_concat`
-        - fresh reread now keeps `kilo_micro_substring_concat` (`instr=5,565,773 / cycles=6,143,112 / cache-miss=9,610 / AOT 5 ms`) as the best exact front for broader corridor placement/effect work
+        - `phase-170x` landed the next bridge shrink on the same lane too: boundary `pure-first` helper-result `substring()` now reads concat-triplet piece carriers from `direct_kernel_entry.plan.proof` instead of remembered concat-chain state
+        - fresh reread now keeps `kilo_micro_substring_concat` (`instr=5,565,896 / cycles=5,958,406 / cache-miss=8,607 / AOT 4 ms`) as the best exact front for broader corridor placement/effect work
       - verified non-Variant optimization order after this parity wave:
         1. broader string corridor placement/effect rewrite
            - `src/mir/string_corridor_placement.rs` is still inspection-only in this wave
