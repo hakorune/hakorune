@@ -55,6 +55,12 @@ fn sink_borrowed_string_corridors_in_function(function: &mut MirFunction) -> usi
 
     let def_map = build_value_def_map(function);
     let use_counts = build_use_counts(function);
+    let publication_return_plans =
+        collect_publication_return_plans(function, &def_map, &use_counts);
+    rewritten += apply_publication_return_plans(function, publication_return_plans);
+
+    let def_map = build_value_def_map(function);
+    let use_counts = build_use_counts(function);
     let fusion_plans = collect_complementary_len_fusion_plans(function, &def_map, &use_counts);
     rewritten += apply_complementary_len_fusion_plans(function, fusion_plans);
 
@@ -140,6 +146,26 @@ struct MaterializationStorePlan {
     helper_effects: EffectMask,
     copy_indices: Vec<usize>,
     observer_copy_indices: Vec<usize>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct PublicationReturnPlan {
+    helper_idx: usize,
+    helper_dst: ValueId,
+    return_idx: Option<usize>,
+    left: ValueId,
+    middle: ValueId,
+    right: ValueId,
+    start: ValueId,
+    end: ValueId,
+    effects: EffectMask,
+    copy_indices: Vec<usize>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ReturnSite {
+    Instruction(usize),
+    Terminator,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -1092,6 +1118,77 @@ fn collect_concat_corridor_plans(
     plans_by_block
 }
 
+fn collect_publication_return_plans(
+    function: &MirFunction,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    use_counts: &HashMap<ValueId, usize>,
+) -> BTreeMap<BasicBlockId, PublicationReturnPlan> {
+    let mut plans_by_block: BTreeMap<BasicBlockId, PublicationReturnPlan> = BTreeMap::new();
+
+    for (bbid, block) in &function.blocks {
+        let Some((return_site, return_value)) = publication_return_site(block) else {
+            continue;
+        };
+        let Some(return_chain) = resolve_single_use_copy_chain_in_block(
+            function,
+            *bbid,
+            def_map,
+            use_counts,
+            return_value,
+        ) else {
+            continue;
+        };
+        let Some(helper) = publication_helper_shape(function, def_map, return_chain.root) else {
+            continue;
+        };
+        let Some((helper_bbid, helper_idx)) = def_map.get(&helper.dst).copied() else {
+            continue;
+        };
+        if helper_bbid != *bbid {
+            continue;
+        }
+
+        plans_by_block.insert(
+            *bbid,
+            PublicationReturnPlan {
+                helper_idx,
+                helper_dst: helper.dst,
+                return_idx: match return_site {
+                    ReturnSite::Instruction(idx) => Some(idx),
+                    ReturnSite::Terminator => None,
+                },
+                left: helper.left,
+                middle: helper.middle,
+                right: helper.right,
+                start: helper.start,
+                end: helper.end,
+                effects: helper.effects,
+                copy_indices: return_chain.copy_indices,
+            },
+        );
+    }
+
+    plans_by_block
+}
+
+fn publication_return_site(block: &crate::mir::BasicBlock) -> Option<(ReturnSite, ValueId)> {
+    if let Some(MirInstruction::Return { value: Some(value) }) = block.terminator.as_ref() {
+        return Some((ReturnSite::Terminator, *value));
+    }
+
+    block
+        .instructions
+        .iter()
+        .enumerate()
+        .rev()
+        .find_map(|(idx, inst)| match inst {
+            MirInstruction::Return { value: Some(value) } => {
+                Some((ReturnSite::Instruction(idx), *value))
+            }
+            _ => None,
+        })
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum ResolvedConcatCorridorPlan {
     Len {
@@ -1475,6 +1572,89 @@ fn apply_concat_corridor_plans(
         block.instructions = new_insts;
         block.instruction_spans = new_spans;
         function.metadata.optimization_hints.extend(hints);
+    }
+
+    if rewritten > 0 {
+        function.update_cfg();
+        refresh_function_string_corridor_metadata(function);
+    }
+
+    rewritten
+}
+
+fn apply_publication_return_plans(
+    function: &mut MirFunction,
+    plans_by_block: BTreeMap<BasicBlockId, PublicationReturnPlan>,
+) -> usize {
+    let mut rewritten = 0usize;
+
+    for (bbid, plan) in plans_by_block {
+        let Some(block) = function.blocks.get_mut(&bbid) else {
+            continue;
+        };
+
+        let insts = std::mem::take(&mut block.instructions);
+        let spans = std::mem::take(&mut block.instruction_spans);
+        let mut new_insts = Vec::with_capacity(insts.len().saturating_sub(plan.copy_indices.len()));
+        let mut new_spans = Vec::with_capacity(spans.len().saturating_sub(plan.copy_indices.len()));
+        let mut helper_span = None;
+
+        for (idx, (inst, span)) in insts.into_iter().zip(spans.into_iter()).enumerate() {
+            if idx == plan.helper_idx {
+                helper_span = Some(span);
+                continue;
+            }
+            if plan.copy_indices.contains(&idx) {
+                continue;
+            }
+            if plan.return_idx == Some(idx) {
+                new_insts.push(MirInstruction::Call {
+                    dst: Some(plan.helper_dst),
+                    func: ValueId::INVALID,
+                    callee: Some(Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string())),
+                    args: vec![plan.left, plan.middle, plan.right, plan.start, plan.end],
+                    effects: plan.effects,
+                });
+                new_spans.push(helper_span.clone().unwrap_or_else(|| span.clone()));
+                new_insts.push(MirInstruction::Return {
+                    value: Some(plan.helper_dst),
+                });
+                new_spans.push(span);
+                continue;
+            }
+            new_insts.push(inst);
+            new_spans.push(span);
+        }
+
+        let Some(helper_span) = helper_span else {
+            block.instructions = new_insts;
+            block.instruction_spans = new_spans;
+            continue;
+        };
+
+        if plan.return_idx.is_none() {
+            let Some(MirInstruction::Return { value }) = block.terminator.as_mut() else {
+                block.instructions = new_insts;
+                block.instruction_spans = new_spans;
+                continue;
+            };
+            new_insts.push(MirInstruction::Call {
+                dst: Some(plan.helper_dst),
+                func: ValueId::INVALID,
+                callee: Some(Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string())),
+                args: vec![plan.left, plan.middle, plan.right, plan.start, plan.end],
+                effects: plan.effects,
+            });
+            new_spans.push(helper_span);
+            *value = Some(plan.helper_dst);
+        }
+        block.instructions = new_insts;
+        block.instruction_spans = new_spans;
+        function.metadata.optimization_hints.push(format!(
+            "string_corridor_sink:publication_return:%{}",
+            plan.helper_dst.0
+        ));
+        rewritten += 1;
     }
 
     if rewritten > 0 {
@@ -2892,6 +3072,202 @@ mod tests {
             add_roots.get(&composed_end),
             Some(&(ValueId(8), ValueId(13)))
         );
+    }
+
+    #[test]
+    fn sinks_publication_helper_to_same_block_return_boundary() {
+        let mut module = MirModule::new("substring_concat_publication_return".to_string());
+        let signature = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![MirType::Box("RuntimeDataBox".to_string())],
+            return_type: MirType::Box("RuntimeDataBox".to_string()),
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId(0));
+        let block = function.blocks.get_mut(&BasicBlockId(0)).expect("entry");
+
+        block.instructions.push(method_call(
+            ValueId(1),
+            ValueId(0),
+            "RuntimeDataBox",
+            "length",
+            vec![],
+            MirType::Integer,
+        ));
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId(2),
+            value: crate::mir::ConstValue::Integer(2),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::BinOp {
+            dst: ValueId(3),
+            op: crate::mir::BinaryOp::Div,
+            lhs: ValueId(1),
+            rhs: ValueId(2),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId(4),
+            value: crate::mir::ConstValue::Integer(0),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(method_call(
+            ValueId(5),
+            ValueId(0),
+            "RuntimeDataBox",
+            "substring",
+            vec![ValueId(4), ValueId(3)],
+            MirType::Box("RuntimeDataBox".to_string()),
+        ));
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(method_call(
+            ValueId(6),
+            ValueId(0),
+            "RuntimeDataBox",
+            "substring",
+            vec![ValueId(3), ValueId(1)],
+            MirType::Box("RuntimeDataBox".to_string()),
+        ));
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId(7),
+            value: crate::mir::ConstValue::String("xx".to_string()),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId(8),
+            value: crate::mir::ConstValue::Integer(1),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::BinOp {
+            dst: ValueId(9),
+            op: crate::mir::BinaryOp::Add,
+            lhs: ValueId(1),
+            rhs: ValueId(8),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(extern_call(
+            ValueId(10),
+            SUBSTRING_CONCAT3_EXTERN,
+            vec![ValueId(5), ValueId(7), ValueId(6), ValueId(8), ValueId(9)],
+        ));
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Copy {
+            dst: ValueId(11),
+            src: ValueId(10),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId(12),
+            value: crate::mir::ConstValue::Integer(7),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::BinOp {
+            dst: ValueId(13),
+            op: crate::mir::BinaryOp::Add,
+            lhs: ValueId(1),
+            rhs: ValueId(12),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.instructions.push(MirInstruction::Copy {
+            dst: ValueId(14),
+            src: ValueId(11),
+        });
+        block.instruction_spans.push(Span::unknown());
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId(14)),
+        });
+
+        for (vid, ty) in [
+            (ValueId(1), MirType::Integer),
+            (ValueId(2), MirType::Integer),
+            (ValueId(3), MirType::Integer),
+            (ValueId(4), MirType::Integer),
+            (ValueId(5), MirType::Box("RuntimeDataBox".to_string())),
+            (ValueId(6), MirType::Box("RuntimeDataBox".to_string())),
+            (ValueId(7), MirType::Box("StringBox".to_string())),
+            (ValueId(8), MirType::Integer),
+            (ValueId(9), MirType::Integer),
+            (ValueId(10), MirType::Box("RuntimeDataBox".to_string())),
+            (ValueId(11), MirType::Box("RuntimeDataBox".to_string())),
+            (ValueId(12), MirType::Integer),
+            (ValueId(13), MirType::Integer),
+            (ValueId(14), MirType::Box("RuntimeDataBox".to_string())),
+        ] {
+            function.metadata.value_types.insert(vid, ty);
+        }
+        module.add_function(function);
+
+        let rewritten = sink_borrowed_string_corridors(&mut module);
+        assert!(
+            rewritten >= 1,
+            "publication helper return sink should rewrite, got {rewritten}"
+        );
+
+        let function = module.get_function("main").expect("main");
+        let block = function.blocks.get(&BasicBlockId(0)).expect("entry");
+        assert!(
+            block.instructions.iter().all(|inst| {
+                !matches!(
+                    inst,
+                    MirInstruction::Copy { dst, .. } if *dst == ValueId(11) || *dst == ValueId(14)
+                )
+            }),
+            "copy-only return chain should disappear: {:?}",
+            block.instructions
+        );
+
+        let add_idx = block
+            .instructions
+            .iter()
+            .position(|inst| {
+                matches!(
+                    inst,
+                    MirInstruction::BinOp {
+                        dst,
+                        op: crate::mir::BinaryOp::Add,
+                        lhs,
+                        rhs,
+                    } if *dst == ValueId(13) && *lhs == ValueId(1) && *rhs == ValueId(12)
+                )
+            })
+            .expect("unrelated pure add");
+        let helper_idx = block
+            .instructions
+            .iter()
+            .position(|inst| {
+                matches!(
+                    inst,
+                    MirInstruction::Call {
+                        dst: Some(dst),
+                        callee: Some(Callee::Extern(name)),
+                        args,
+                        ..
+                    } if *dst == ValueId(10)
+                        && name == SUBSTRING_CONCAT3_EXTERN
+                        && args.as_slice()
+                            == [ValueId(5), ValueId(7), ValueId(6), ValueId(8), ValueId(9)]
+                )
+            })
+            .expect("sunk helper call");
+        assert!(
+            helper_idx > add_idx,
+            "helper should sink below unrelated pure work: {:?}",
+            block.instructions
+        );
+        assert_eq!(
+            helper_idx + 1,
+            block.instructions.len(),
+            "helper should end immediately before return: {:?}",
+            block.instructions
+        );
+        assert!(matches!(
+            block.terminator,
+            Some(MirInstruction::Return {
+                value: Some(ValueId(10))
+            })
+        ));
     }
 
     #[test]

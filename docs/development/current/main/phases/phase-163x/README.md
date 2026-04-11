@@ -202,6 +202,8 @@
         - `phase-171x` is landed as the pure-first exact seed bottom-tested loop-shape cut
         - `phase-172x` is now landed on that sibling lane: it consumes the landed `%21 stable_length_scalar -> %5` witness through the header string-lane phi and switches the current benchmark to the existing length-only exact seed route
         - fresh reread now keeps `kilo_micro_substring_concat` (`instr=1,666,187 / cycles=1,049,205 / cache-miss=8,799 / AOT 4 ms`) as the best exact front for broader corridor placement/effect work
+        - `phase-173x` is now landed on that sibling lane: same-block direct-helper `return` publication sink now rides the existing `publication_sink` plan metadata under a focused unit guard
+        - remaining sibling string backlog is now narrower: broader `store` / host-boundary publication, while final emitted-MIR return-carrier cleanup stays separate
       - verified non-Variant optimization order after this parity wave:
         1. broader string corridor placement/effect rewrite
            - `src/mir/string_corridor_placement.rs` is still inspection-only in this wave

@@ -63,6 +63,8 @@
   - landed exact-front follow-on: `phase-171x` now keeps the pure-first exact seed loop-shape cut on `kilo_micro_substring_concat`; latest reread after that cut is `ny_aot_instr=5,565,470 / ny_aot_cycles=5,893,313 / ny_aot_ms=5`, and current `ny_main` now keeps only the latch compare
   - landed exact-front follow-on: `phase-172x` now consumes the landed `%21 stable_length_scalar -> %5` witness through the header string-lane phi, so the exact seed switches from text rotation to the existing length-only route
   - latest reread after that cut is `ny_aot_instr=1,666,187 / ny_aot_cycles=1,049,205 / ny_aot_ms=4`; the first `instr < 5.5M` keeper target is cleared and the next work returns to broader `return` / `store` / host-boundary publication
+  - landed `phase-173x`: same-block direct-helper `return` publication sink now consumes the same `publication_sink` plan metadata under a focused unit guard
+  - keep broader backlog separate: final emitted-MIR return-carrier cleanup, broader `store`, and host-boundary publication still stay outside that cut
   - fixed return order:
     1. continue shrinking exact-seed structural checks only where the live post-sink metadata contract already proves the route
     2. landed: loop-carried base/root interpretation now sits behind the generic MIR seam `src/mir/phi_query.rs`
