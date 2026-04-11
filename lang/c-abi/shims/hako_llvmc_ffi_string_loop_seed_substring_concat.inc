@@ -263,39 +263,14 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed_legacy_fallback(
 
   /* preheader */
   BUILD_INTERESTING(yyjson_arr_get(blocks, 0));
-  if (n != 6) { return -1; }
+  if (n < 1) { return -1; }
   EXPECT_OP(0, "const");
-  EXPECT_OP(1, "const");
-  EXPECT_OP(3, "const");
-  EXPECT_OP(4, "const");
-  EXPECT_OP(5, "jump");
   seed = READ_STR(yyjson_obj_get(interesting[0], "value"), "value");
   if (!seed || !hako_llvmc_ascii_strlen(seed, &seed_len)) { return -1; }
-  if (!hako_llvmc_str_eq(seed, READ_STR(yyjson_obj_get(interesting[1], "value"), "value"))) {
-    return -1;
-  }
-  {
-    yyjson_val* mc = yyjson_obj_get(interesting[2], "mir_call");
-    yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-    const char* box_name = cal ? (READ_STR(cal, "box_name") ? READ_STR(cal, "box_name") : READ_STR(cal, "box_type")) : NULL;
-    const char* name = cal ? (READ_STR(cal, "method") ? READ_STR(cal, "method") : READ_STR(cal, "name")) : NULL;
-    yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
-    if (!(box_name && strcmp(box_name, "StringBox") == 0 &&
-          name && strcmp(name, "length") == 0 &&
-          args && yyjson_is_arr(args) && yyjson_arr_size(args) == 0)) {
-      return -1;
-    }
-  }
-  if (READ_INT(yyjson_obj_get(interesting[3], "value"), "value") != 0 ||
-      READ_INT(yyjson_obj_get(interesting[4], "value"), "value") != 0) {
-    return -1;
-  }
 
   /* header */
   BUILD_INTERESTING(yyjson_arr_get(blocks, 1));
-  if (n != 6) { return -1; }
-  EXPECT_OP(0, "phi");
-  EXPECT_OP(1, "phi");
+  if (n < 5) { return -1; }
   EXPECT_OP(2, "phi");
   loop_bound = READ_INT(yyjson_obj_get(interesting[3], "value"), "value");
   if (loop_bound <= 0 || !hako_llvmc_str_eq(READ_STR(interesting[4], "operation"), "<")) {
