@@ -84,7 +84,7 @@ Core contracts gate（fixed order）:
   - `tools/checks/phase29y_direct_v0_retirement_guard.sh`
 - Ring1 pre-gate:
   - `tools/smokes/v2/profiles/integration/apps/phase29y_ring1_gate_vm.sh`
-  - (`tools/checks/ring1_core_scope_guard.sh` / `tools/checks/ring1_array_provider_guard.sh` / `tools/smokes/v2/profiles/integration/apps/ring1_array_provider_vm.sh` / `tools/checks/ring1_map_provider_guard.sh` / `tools/smokes/v2/profiles/integration/apps/ring1_map_provider_vm.sh` / `tools/checks/ring1_path_provider_guard.sh` / `tools/smokes/v2/profiles/integration/apps/ring1_path_provider_vm.sh` / `tools/checks/ring1_console_provider_guard.sh` / `tools/smokes/v2/profiles/integration/apps/ring1_console_provider_vm.sh`)
+  - (`tools/checks/ring1_core_scope_guard.sh` / `tools/checks/ring1_array_provider_guard.sh` / `tools/smokes/v2/profiles/integration/ring1_providers/ring1_array_provider_vm.sh` / `tools/checks/ring1_map_provider_guard.sh` / `tools/smokes/v2/profiles/integration/ring1_providers/ring1_map_provider_vm.sh` / `tools/checks/ring1_path_provider_guard.sh` / `tools/smokes/v2/profiles/integration/ring1_providers/ring1_path_provider_vm.sh` / `tools/checks/ring1_console_provider_guard.sh` / `tools/smokes/v2/profiles/integration/ring1_providers/ring1_console_provider_vm.sh`)
 - Gate:
   - `tools/smokes/v2/profiles/integration/apps/phase29y_lane_gate_vm.sh`
 - Quick gate:

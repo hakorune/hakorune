@@ -1,7 +1,7 @@
 # Integration collection-core suite
 # Collection owner / runtime-data coverage.
-apps/ring1_array_provider_vm.sh
-apps/ring1_map_provider_vm.sh
+ring1_providers/ring1_array_provider_vm.sh
+ring1_providers/ring1_map_provider_vm.sh
 apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh
 vm_hako_caps/mapbox/mapbox_set_ported_vm.sh
 vm_hako_caps/mapbox/mapbox_get_ported_vm.sh

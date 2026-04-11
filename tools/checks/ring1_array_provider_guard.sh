@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 FIXTURE="$ROOT_DIR/apps/tests/ring1_array_provider/array_size_push_min.hako"
-SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/integration/apps/ring1_array_provider_vm.sh"
+SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/integration/ring1_providers/ring1_array_provider_vm.sh"
 RING1_MOD="$ROOT_DIR/src/providers/ring1/mod.rs"
 PROVIDER_LOCK="$ROOT_DIR/src/runtime/provider_lock/mod.rs"
 PLUGIN_HOST="$ROOT_DIR/src/runtime/plugin_host.rs"

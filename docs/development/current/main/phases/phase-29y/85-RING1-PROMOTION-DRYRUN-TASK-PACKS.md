@@ -41,7 +41,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_lane_gate_vm.sh
   - `src/runtime/provider_lock/mod.rs`（array dispatch wiring）
 - `min2` planned scope:
   - `apps/tests/ring1_array_provider/array_size_push_min.hako`
-  - `tools/smokes/v2/profiles/integration/apps/ring1_array_provider_vm.sh`
+  - `tools/smokes/v2/profiles/integration/ring1_providers/ring1_array_provider_vm.sh`
   - `tools/checks/ring1_array_provider_guard.sh`
 - `min3` planned scope:
   - `docs/development/current/main/design/ring1-core-provider-scope-ssot.md`（array row: `provisional -> accepted`）
@@ -57,7 +57,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_lane_gate_vm.sh
   - `src/runtime/provider_lock/mod.rs`（map dispatch wiring）
 - `min2` planned scope:
   - `apps/tests/ring1_map_provider/map_get_set_min.hako`
-  - `tools/smokes/v2/profiles/integration/apps/ring1_map_provider_vm.sh`
+  - `tools/smokes/v2/profiles/integration/ring1_providers/ring1_map_provider_vm.sh`
   - `tools/checks/ring1_map_provider_guard.sh`
 - `min3` planned scope:
   - `docs/development/current/main/design/ring1-core-provider-scope-ssot.md`（map row 更新）
@@ -73,7 +73,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_lane_gate_vm.sh
   - `src/runtime/provider_lock/mod.rs`（path dispatch wiring）
 - `min2` planned scope:
   - `apps/tests/ring1_path_provider/path_join_exists_min.hako`
-  - `tools/smokes/v2/profiles/integration/apps/ring1_path_provider_vm.sh`
+  - `tools/smokes/v2/profiles/integration/ring1_providers/ring1_path_provider_vm.sh`
   - `tools/checks/ring1_path_provider_guard.sh`
 - `min3` planned scope:
   - `docs/development/current/main/design/ring1-core-provider-scope-ssot.md`（path row 更新）
@@ -89,7 +89,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_lane_gate_vm.sh
   - `src/runtime/provider_lock/mod.rs`（console dispatch wiring）
 - `min2` planned scope:
   - `apps/tests/ring1_console_provider/console_warn_error_min.hako`
-  - `tools/smokes/v2/profiles/integration/apps/ring1_console_provider_vm.sh`
+  - `tools/smokes/v2/profiles/integration/ring1_providers/ring1_console_provider_vm.sh`
   - `tools/checks/ring1_console_provider_guard.sh`
 - `min3` planned scope:
   - `docs/development/current/main/design/ring1-core-provider-scope-ssot.md`（console row 更新）

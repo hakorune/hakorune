@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 FIXTURE="$ROOT_DIR/apps/tests/ring1_path_provider/path_join_exists_min.hako"
-SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/integration/apps/ring1_path_provider_vm.sh"
+SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/integration/ring1_providers/ring1_path_provider_vm.sh"
 RING1_MOD="$ROOT_DIR/src/providers/ring1/mod.rs"
 PROVIDER_LOCK="$ROOT_DIR/src/runtime/provider_lock/mod.rs"
 PROVIDER_LOCK_PATH="$ROOT_DIR/src/runtime/provider_lock/path.rs"
