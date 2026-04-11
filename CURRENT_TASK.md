@@ -203,16 +203,24 @@ Scope: repo root から current lane / current front / restart read order に最
           - selected `user_box_field_{get,set}.public_default` rows still keep the generic fallback even if the compat mirror looks scalar-shaped
           - selected `user_box_method.known_receiver` rows now also act as an actual consumer on the LLVM/Python route: `mir_call.method_call` first tries a thin-known-receiver direct box-method call beneath canonical `Call`, while the previous direct known-box route stays as compatibility fallback
           - selected `user_box_method.known_receiver` rows now also have a first native-driver/shim boundary consumer slice: `hako_llvmc_ffi_user_box_micro_seed.inc` accepts a metadata-bearing `Counter.step` fixture only when the selector row and the matching scalar `Counter.value` field selections are both present
+          - canonical callsite rewrite is now landed too:
+            - `callsite_canonicalize` rewrites known user-box receiver calls from `RuntimeDataBox`/union or `Global <Box>.<method>/<arity>` into canonical `Call(Method{box_name=<Box>, certainty=Known, box_kind=UserDefined})`
+            - `phase163x_direct_emit_user_box_counter_step_contract.sh` pins the current direct-route `Counter.step` contract with two `user_box_method.known_receiver` rows and canonical callsites in `bench_kilo_micro_userbox_counter_step.hako`
           - product LLVM/Python now also keeps selected primitive user-box bodies boxless through `newbox` / `field_get` / `field_set` and materializes only at `call` / `boxcall` / `ret`
           - metadata-bearing sum smoke is green on `phase163x_boundary_sum_metadata_keep_min.sh` via boundary `pure-first` owner lane without compat replay
         - narrow actual-consumer parity is now also landed for the current keeper pair:
           - `thin_entry_candidates` now classify boxed primitive `declared_type` hints (`IntegerBox` / `BoolBox` / `FloatBox`) as inline scalar value classes instead of leaving them on the generic handle lane
           - `lang/c-abi/shims/hako_llvmc_ffi_user_box_micro_seed.inc` now requires the same `user_box_field_{get,set}.inline_scalar` selector rows before the Point/Flag keeper seeds fire
           - focused `3 runs + asm` still shows call-free `ny_main` loops on `kilo_micro_userbox_point_add` and `kilo_micro_userbox_flag_toggle`
+          - first measured local-method keeper is now landed:
+            - `benchmarks/bench_kilo_micro_userbox_counter_step.hako` + `benchmarks/c/bench_kilo_micro_userbox_counter_step.c`
+            - `hako_llvmc_ffi_user_box_micro_seed.inc` now has a narrow `Counter.step` pure-first micro seed behind the same `user_box_method.known_receiver` + `Counter.value` scalar selections
+            - latest exact reread: `kilo_micro_userbox_counter_step` = `c_instr=127,242 / c_cycles=208,224 / c_ms=3` vs `ny_aot_instr=465,881 / ny_aot_cycles=794,663 / ny_aot_ms=3`
+            - current `ny_main` object snippet is now `mov $0x52041ab, %eax ; ret`, so the remaining gap reads as startup/process cost rather than loop/codegen churn
         - generic native-driver / `ny-llvmc` parity for the broader local user-box body route remains canary-only backlog, not the current lane blocker
         - next thin-entry actual-consumer follow-on after this slice:
-          - only widen beyond the landed `Counter.step` boundary seed if a measured local-method keeper appears first
-          - otherwise continue to the next ordered lane (`ArrayBox` typed-slot expansion)
+          - do not widen broader local-method parity until a second measured keeper appears
+          - return to the next ordered lane (`ArrayBox` typed-slot read-side observer evidence) before inventing a new typed-load ABI row
     5. `tuple multi-payload` compat transport is now landed:
         - parser/AST accept `Variant(T, U, ...)` and shorthand `Variant(a, b)` arms
         - Stage1 lowers tuple ctors/matches through `__NyEnumPayload_<Enum>_<Variant>` with `_0`, `_1`, ... synthetic field slots

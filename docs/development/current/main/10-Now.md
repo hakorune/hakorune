@@ -75,6 +75,13 @@ Related:
         - `tools/smokes/v2/profiles/integration/phase163x/phase163x_boundary_user_box_method_known_receiver_min.sh` pins a metadata-bearing `Counter.step` fixture
         - `lang/c-abi/shims/hako_llvmc_ffi_user_box_micro_seed.inc` consumes `user_box_method.known_receiver` together with the already-landed `Counter.value` scalar field selections
         - keep this slice seed-narrow; broader native-driver local-method parity stays backlog until there is measured evidence
+      - canonical known-receiver callsite rewrite is now landed:
+        - `callsite_canonicalize` rewrites known user-box receiver calls from `RuntimeDataBox`/union and `Global <Box>.<method>/<arity>` into canonical `Call(Method{box_name=<Box>, certainty=Known, box_kind=UserDefined})`
+        - `tools/smokes/v2/profiles/integration/phase163x/phase163x_direct_emit_user_box_counter_step_contract.sh` pins the current direct-route `Counter.step` contract on `bench_kilo_micro_userbox_counter_step.hako`
+      - first measured local-method keeper is now landed:
+        - `benchmarks/bench_kilo_micro_userbox_counter_step.hako` + `benchmarks/c/bench_kilo_micro_userbox_counter_step.c`
+        - exact reread: `kilo_micro_userbox_counter_step` = `c_instr=127,242 / c_cycles=208,224 / c_ms=3` vs `ny_aot_instr=465,881 / ny_aot_cycles=794,663 / ny_aot_ms=3`
+        - current `ny_main` object snippet is `mov $0x52041ab, %eax ; ret`, so the current stop-line reads as startup/process overhead rather than loop churn
     - portability-ci on `public-main` succeeded for commit `6b91896c0` (run `24211665863`), covering Windows check and macOS build (release)
   - verified post-Variant optimization order is now locked:
     1. `ny-llvmc` parity wave for the already-landed local enum/user-box routes
@@ -91,10 +98,11 @@ Related:
        - landed:
          - first LLVM/Python consumer slice for `user_box_method.known_receiver`
          - first native-driver/shim boundary pure-first consumer slice for the same selector contract
-       - next follow-on is a measured broader local-method keeper only if evidence appears first; otherwise continue to the next ordered lane
+         - first measured local-method keeper (`kilo_micro_userbox_counter_step`)
+       - next follow-on: do not widen broader local-method parity until a second measured keeper appears; otherwise continue to the next ordered lane
     5. `ArrayBox` typed-slot expansion beyond the landed `InlineI64` pilot
        - landed next narrow slices: existing `slot_store_hih` / `slot_append_hh` any routes now birth/preserve `InlineBool` / `InlineF64` for `BoolBox` / `FloatBox` payloads without widening ABI rows
-       - current stop-line: keep reads on the existing encoded-any `slot_load_hi` contract; do not add a new typed load row without evidence first
+       - current stop-line: keep reads on the existing encoded-any `slot_load_hi` contract; do not add a new typed load row without observer evidence first (`kilo_micro_array_getset` still does not justify it)
   - tuple multi-payload compat transport is now landed:
     - parser/AST accept `Variant(T, U, ...)` while keeping tuple payload truth above canonical MIR
     - Stage1 lowers tuple ctors/matches through `__NyVariantPayload_<Enum>_<Variant>` with synthetic `_0`, `_1`, ... fields

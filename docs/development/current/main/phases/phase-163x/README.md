@@ -211,13 +211,20 @@
            - landed first LLVM/Python consumer slice:
              - `mir_call.method_call` now checks `user_box_method.known_receiver` selector rows before the legacy direct known-box fallback
              - when the selector says `thin_internal_entry`, lowering takes a dedicated thin-known-receiver direct route while keeping the old direct known-box call as compatibility fallback
+           - landed canonical callsite rewrite too:
+             - `callsite_canonicalize` rewrites known user-box receiver calls from `RuntimeDataBox`/union and `Global <Box>.<method>/<arity>` into canonical known `Call(Method{box_name=<Box>, certainty=Known, box_kind=UserDefined})`
+             - `phase163x_direct_emit_user_box_counter_step_contract.sh` now pins the current direct-route `Counter.step` contract on `bench_kilo_micro_userbox_counter_step.hako`
            - landed first native-driver/shim boundary pure-first consumer slice too:
              - `phase163x_boundary_user_box_method_known_receiver_min.sh` pins a metadata-bearing `Counter.step` fixture on the owner lane without compat replay
              - the current shim consumer stays seed-narrow and consumes `user_box_method.known_receiver` together with the already-landed scalar `Counter.value` field selections
-           - broader native-driver local-method parity remains backlog-only until a measured keeper or stronger SSOT justifies widening
+           - first measured local-method keeper is now landed:
+             - `bench_kilo_micro_userbox_counter_step.hako` + `benchmarks/c/bench_kilo_micro_userbox_counter_step.c`
+             - the narrow `Counter.step` pure-first micro seed now collapses the exact bench to `ny_main = mov $0x52041ab, %eax ; ret`
+             - latest exact reread: `kilo_micro_userbox_counter_step` = `c_instr=127,242 / c_cycles=208,224 / c_ms=3` vs `ny_aot_instr=465,881 / ny_aot_cycles=794,663 / ny_aot_ms=3`
+           - broader native-driver local-method parity remains backlog-only until a second measured keeper or stronger SSOT justifies widening
         4. `ArrayBox` typed-slot expansion beyond the landed `InlineI64` pilot
            - landed next narrow slices: `InlineBool` / `InlineF64` birth/preserve on existing `slot_store_hih` / `slot_append_hh` any routes
-           - current stop-line: keep read-side on encoded-any `slot_load_hi`; do not add a new typed load row without measured observer evidence
+           - current stop-line: keep read-side on encoded-any `slot_load_hi`; do not add a new typed load row without measured observer evidence (`kilo_micro_array_getset` still does not justify it)
         5. backlog-only after the above:
            - stronger cross-block / partial DCE beyond current pure-instruction DCE
            - generic LLVM-side escape pass beyond the already-landed narrow local objectization-at-boundary route

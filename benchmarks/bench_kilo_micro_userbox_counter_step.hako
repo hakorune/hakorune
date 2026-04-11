@@ -1,0 +1,26 @@
+// kilo/userbox known-receiver microbench:
+// Counter.step() stays on the known-receiver local-method lane and returns value + 2.
+box Counter {
+  value: IntegerBox
+
+  step() {
+    return me.value + 2
+  }
+}
+
+static box Main {
+  main() {
+    local ops = 2000000
+    local c = new Counter()
+    c.value = 41
+
+    local acc = 0
+    local i = 0
+    loop (i < ops) {
+      acc = acc + c.step()
+      i = i + 1
+    }
+
+    return acc + c.step()
+  }
+}
