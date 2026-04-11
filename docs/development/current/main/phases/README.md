@@ -69,6 +69,7 @@
 ## Parked Corridors
 
 - **Phase 96x（PARKED）**: vm_hako LLVM acceptance cutover
+- **Phase 164x（PARKED）**: repo-wide fmt drift cleanup
 
 ### Recent Landed
 

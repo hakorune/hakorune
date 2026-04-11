@@ -47,6 +47,9 @@ Scope: repo root から current lane / current front / restart read order に最
   - `docs/development/current/main/phases/phase-96x/README.md`
   - `phase-96x` is no longer an active owner lane; it is parked after cutting `vm_hako` down to the frozen `vm-hako-core` 4-row monitor pack
   - the only remaining backlog item is `96xE5` monitor-policy decision for that frozen pack
+- repo-wide formatting maintenance corridor:
+  - `docs/development/current/main/phases/phase-164x/README.md`
+  - repo-wide `cargo fmt --check` drift is separate from the `phase-163x` optimization lane
 - landed inventory scaffold:
   - `src/mir/storage_class.rs`
   - `StorageClass` facts are now refreshed after corridor facts and surfaced in verbose MIR / JSON dumps
