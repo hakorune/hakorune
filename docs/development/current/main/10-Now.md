@@ -38,7 +38,7 @@ Related:
     - current exact front remains `kilo_micro_substring_concat`
     - landed: the exact seed now consumes the landed `%21 stable_length_scalar -> %5` witness through the header string-lane phi and switches to the existing length-only route
     - latest reread after that cut is `ny_aot_instr=1,666,187 / ny_aot_cycles=1,049,205 / ny_aot_ms=4`
-    - next string work should return to broader `return` / `store` / host-boundary publication
+    - next string work should finish the final emitted-MIR return-carrier cleanup if that route needs a dedicated guard
   - row status:
     - `3 User-Box Method Dispatch`: mostly done; narrow known-receiver consumer and the direct-route determinism repair are landed, broader generic parity backlog remains
     - `4 Array Typed Slots 拡大`: partial; narrow typed-slot pilots landed, read-side expansion backlog remains
@@ -231,7 +231,8 @@ Related:
     - fresh broader-corridor reread keeps `kilo_micro_substring_concat` (`instr=1,666,187 / cycles=1,049,205 / cache-miss=8,799 / AOT 4 ms`) as the current exact front, while exploratory `kilo_meso_substring_concat_array_set` stayed essentially flat (`instr=384,347,679 / cycles=185,582,276 / AOT 42 ms`), so the next work should move to broader publication semantics rather than more exact-seed trimming
     - landed `phase-173x`: same-block direct-helper `return` publication sink now consumes the same `publication_sink` plan metadata under a focused unit guard, and the route accepts both terminator-form and trailing-instruction-form `Return`
     - landed `phase-174x`: same-block canonical `Store { value, .. }` / `FieldSet { value, .. }` write boundaries now consume that same `publication_sink` plan metadata under a focused unit guard
-    - remaining string publication backlog is now narrower: host-boundary publication, plus final emitted-MIR return-carrier cleanup only if that later needs a direct guard
+    - landed `phase-175x`: same-block `RuntimeDataBox.set(...)` now consumes that same `publication_sink` plan metadata as the first host-boundary publication slice under a focused unit guard
+    - remaining string publication backlog is now only the final emitted-MIR return-carrier cleanup, unless a broader method/boxcall boundary later needs its own dedicated cut
     - first direct-set insert-mid smoke is now pinned too: `phase137x_boundary_string_insert_mid_direct_set_min.sh` uses the synthetic direct-set probe to observe `string_insert_mid_window`, keep `nyash.string.insert_hsi` in the lowered IR, and require the plan-backed `plan_window_match` route on the synthetic fixture
     - string genericization order is now fixed: keep canonical MIR as the only IR truth, land proof-bearing plan metadata first, then land helper-result `publication_sink` inventory, then helper-result actual `publication_sink`, then `materialization_sink`, then select `direct_kernel_entry` from that plan near lowering, then shrink the remaining bridge paths
     - migration-safe reading: keep this lane in canonical MIR facts/candidates/sink and kernel/backend substrate only; do not reopen Rust-builder-local shape logic while `.hako` builder authority replacement is open

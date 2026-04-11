@@ -68,12 +68,14 @@ Scope: repo root から current lane / current front / restart read order に最
   - `phase-171x` is landed as the bottom-tested loop-shape cut
   - `phase-172x` is landed; the pure-first exact route now consumes the header string-lane phi plus the landed `%21 stable_length_scalar -> %5` witness and switches the current benchmark from text rotation to the existing length-only seed IR
   - latest reread after the route switch: `ny_aot_instr=1,666,187 / ny_aot_cycles=1,049,205 / ny_aot_ms=4`
-  - reading: the first exact keeper target is now well cleared, so the next string work should return to broader `return` / `store` / host-boundary publication rather than more exact-seed shrink
+  - reading: the first exact keeper target is now well cleared, and the broader string publication reopen has now reached the first host-boundary slice too
 - active broader string follow-on:
   - `docs/development/current/main/phases/phase-174x/README.md`
+  - `docs/development/current/main/phases/phase-175x/README.md`
   - `phase-173x` is landed; same-block direct-helper `return` publication sink now rides the existing `publication_sink` plan metadata under a focused unit guard
   - `phase-174x` is landed too; same-block canonical `Store { value, .. }` / `FieldSet { value, .. }` write boundaries now consume that same `publication_sink` plan under a focused unit guard
-  - remaining string backlog is now host-boundary publication; final emitted-MIR return-carrier cleanup stays separate
+  - `phase-175x` is landed too; same-block `RuntimeDataBox.set(...)` now consumes that same `publication_sink` plan as the first host-boundary publication slice under a focused unit guard
+  - remaining string backlog is now only the final emitted-MIR return-carrier cleanup; any broader method/boxcall boundary widening stays outside this cut
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`
@@ -441,7 +443,7 @@ Scope: repo root から current lane / current front / restart read order に最
   - mixed accept gate: hold `instr <= 1.8M`
   - local split `kilo_micro_substring_views_only`: hold `instr <= 0.6M`
   - control split `kilo_micro_len_substring_views`: hold `instr <= 1.8M`
-  - broader-corridor reopen `kilo_micro_substring_concat`: hold `instr <= 1.8M` while broader `return` / `store` / host-boundary publication reopens
+  - broader-corridor reopen `kilo_micro_substring_concat`: hold `instr <= 1.8M` while the final emitted-MIR return-carrier cleanup stays separated from the landed publication slices
   - whole strict: hold `<= 709 ms`; ideal band is `690-705 ms`
 - ideal `len_h` steady-state asm shape:
   - direct `STRING_DISPATCH_FN` load once; do not carry the `STRING_DISPATCH_STATE` state machine in `nyash.string.len_h`

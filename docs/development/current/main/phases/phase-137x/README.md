@@ -59,13 +59,14 @@
   - targeted proof: `apps/tests/mir_shape_guard/string_direct_kernel_plan_len_window_min_v1.mir.json` + `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_string_direct_kernel_plan_len_min.sh`
   - landed: second plan-selected `direct_kernel_entry` slice now reads concat-triplet piece carriers from `string_corridor_candidates[*].plan.proof` on helper-result receivers and lowers `substring()` through `substring_concat3_hhhii` without relying on remembered concat-chain state on that lane
   - targeted proof: `apps/tests/mir_shape_guard/string_direct_kernel_plan_substring_window_min_v1.mir.json` + `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_string_direct_kernel_plan_substring_min.sh`
-  - next: keep loop-carried `phi_merge` outside this cut, and treat the remaining concat backlog as `return` / `store` / host-boundary publication rather than more exact-bridge rediscovery
+  - next: keep loop-carried `phi_merge` outside this cut, and treat the remaining concat backlog as the final emitted-MIR return-carrier cleanup rather than more exact-bridge rediscovery
   - landed exact-front follow-on: `phase-171x` now keeps the pure-first exact seed loop-shape cut on `kilo_micro_substring_concat`; latest reread after that cut is `ny_aot_instr=5,565,470 / ny_aot_cycles=5,893,313 / ny_aot_ms=5`, and current `ny_main` now keeps only the latch compare
   - landed exact-front follow-on: `phase-172x` now consumes the landed `%21 stable_length_scalar -> %5` witness through the header string-lane phi, so the exact seed switches from text rotation to the existing length-only route
-  - latest reread after that cut is `ny_aot_instr=1,666,187 / ny_aot_cycles=1,049,205 / ny_aot_ms=4`; the first `instr < 5.5M` keeper target is cleared and the next work returns to broader `return` / `store` / host-boundary publication
+  - latest reread after that cut is `ny_aot_instr=1,666,187 / ny_aot_cycles=1,049,205 / ny_aot_ms=4`; the first `instr < 5.5M` keeper target is cleared and the broader publication reopen is now down to the final emitted-MIR return-carrier cleanup
   - landed `phase-173x`: same-block direct-helper `return` publication sink now consumes the same `publication_sink` plan metadata under a focused unit guard
   - landed `phase-174x`: same-block canonical `Store { value, .. }` / `FieldSet { value, .. }` write boundaries now consume that same `publication_sink` plan metadata under a focused unit guard
-  - keep broader backlog separate: final emitted-MIR return-carrier cleanup and host-boundary publication still stay outside that cut
+  - landed `phase-175x`: same-block `RuntimeDataBox.set(...)` now consumes that same `publication_sink` plan metadata as the first host-boundary publication slice under a focused unit guard
+  - keep the remaining broader backlog separate: final emitted-MIR return-carrier cleanup stays outside these cuts
   - fixed return order:
     1. continue shrinking exact-seed structural checks only where the live post-sink metadata contract already proves the route
     2. landed: loop-carried base/root interpretation now sits behind the generic MIR seam `src/mir/phi_query.rs`
@@ -89,7 +90,7 @@
   - mixed accept gate: hold `instr <= 1.8M`
   - local split `kilo_micro_substring_views_only`: hold `instr <= 0.6M`
   - control split `kilo_micro_len_substring_views`: hold `instr <= 1.8M`
-  - broader-corridor reopen `kilo_micro_substring_concat`: hold `instr <= 1.8M` while broader `return` / `store` / host-boundary publication reopens
+  - broader-corridor reopen `kilo_micro_substring_concat`: hold `instr <= 1.8M` while the final emitted-MIR return-carrier cleanup stays separated from the landed publication slices
   - whole strict: keep `<= 709 ms`; ideal band is `690-705 ms`
 - ideal `len_h` steady-state asm shape:
   - direct `STRING_DISPATCH_FN` load once; no `STRING_DISPATCH_STATE` state machine in `nyash.string.len_h`
@@ -140,7 +141,7 @@
   - boundary `pure-first` now also lands the first generic non-`len` concat consumer slice:
     - compiler-visible `concat pair/triple -> substring(...)` now routes to `nyash.string.substring_concat_hhii` / `nyash.string.substring_concat3_hhhii`
     - dynamic route proof hits `string_substring_route -> substring_concat3_hhhii`
-    - reading: this removes the intermediate concat handle birth for substring consumers; remaining concat backlog is `return` / `store` / host-boundary publication
+    - reading: this removes the intermediate concat handle birth for substring consumers; remaining concat backlog is the final emitted-MIR return-carrier cleanup
   - broader-corridor keeper repair is now landed:
     - `string_corridor_sink` rewrites `concat(left_slice, const, right_slice).length()` into `substring_len_hii(left) + const_len + substring_len_hii(right)` and keeps `substring(concat3(...))` on `substring_concat3_hhhii`
     - the exact `pure-first` `kilo_micro_substring_concat` seed now accepts both the pre-sink and post-sink body shapes, so this generic sink no longer ejects the exact lane into the slow fallback route

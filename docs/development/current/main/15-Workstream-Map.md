@@ -57,13 +57,14 @@ Related:
   - current exact front remains `kilo_micro_substring_concat`
   - the exact seed now consumes the landed `stable_length_scalar` witness through the header string-lane phi and switches to the existing length-only route
   - latest reread after that cut: `ny_aot_instr=1,666,187 / ny_aot_cycles=1,049,205 / ny_aot_ms=4`
-  - next string work should return to broader `return` / `store` / host-boundary publication
+  - next string work should finish the final emitted-MIR return-carrier cleanup if that route needs a dedicated guard
 - active broader string follow-on:
-  - `phase-173x` and `phase-174x` are landed
+  - `phase-173x`, `phase-174x`, and `phase-175x` are landed
   - same-block direct-helper `return` publication sink now consumes the landed `publication_sink` plan metadata
   - same-block canonical `Store { value, .. }` / `FieldSet { value, .. }` write boundaries now consume that same landed `publication_sink` plan metadata
+  - same-block `RuntimeDataBox.set(...)` now consumes that same landed `publication_sink` plan as the first host-boundary publication slice
   - the cut is explicitly a birth-sink move, not a barrier-relaxation phase
-  - remaining string backlog is host-boundary publication; final emitted-MIR return-carrier cleanup stays separate
+  - remaining string backlog is the final emitted-MIR return-carrier cleanup only
 - `phase-133x` landed:
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`
@@ -139,7 +140,7 @@ Related:
   - `kilo_micro_concat_birth = 3ms`
   - `kilo_micro_concat_const_suffix = 36ms` (WSL lane: recheck with 3 runs)
   - `kilo_micro_concat_hh_len = 4ms` (landed `concat -> len` observer slice)
-  - compiler-visible `concat pair/triple -> substring(...)` is now also landed on the same pure-first route; remaining concat backlog is `return` / `store` / host-boundary publication
+  - compiler-visible `concat pair/triple -> substring(...)` is now also landed on the same pure-first route; remaining concat backlog is the final emitted-MIR return-carrier cleanup only
   - sibling exact keeper front: `kilo_micro_substring_concat = 1,666,187 instr / 1,049,205 cycles / 4 ms` after the landed `phase-172x` stable-length exact-route cut
 - landed capability lock before perf reopen:
   1. `phase-160x capability-family inventory`
