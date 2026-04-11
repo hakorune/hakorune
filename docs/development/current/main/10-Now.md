@@ -51,7 +51,8 @@ Related:
   - active string bridge-retirement follow-on: `phase179x string kernel plan export and seed retirement`
     - external reread is accepted in direction: `hako_llvmc_ffi_string_loop_seed.inc` is still too shape-driven
     - corrected reading: MIR JSON already exports string corridor facts/relations/candidates; the next missing seam is a backend-consumable `StringKernelPlan`
-    - next cut is schema/export first, then metadata-first consumer, then old matcher shrink
+    - landed: MIR-side `derive_string_kernel_plan(...)` now derives/export `metadata.string_kernel_plans` from current string corridor candidates
+    - next cut is metadata-first consumer, then old matcher shrink
   - row status:
     - `3 User-Box Method Dispatch`: mostly done; narrow known-receiver consumer and the direct-route determinism repair are landed, broader generic parity backlog remains
     - `4 Array Typed Slots 拡大`: partial; narrow typed-slot pilots landed, read-side expansion backlog remains

@@ -116,9 +116,11 @@ pub use string_corridor::{
     StringOutcomeFact, StringPlacementFact,
 };
 pub use string_corridor_placement::{
-    refresh_function_string_corridor_candidates, refresh_module_string_corridor_candidates,
-    StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidatePlan,
-    StringCorridorCandidateProof, StringCorridorCandidateState,
+    derive_string_kernel_plan, refresh_function_string_corridor_candidates,
+    refresh_module_string_corridor_candidates, StringCorridorCandidate,
+    StringCorridorCandidateKind, StringCorridorCandidatePlan, StringCorridorCandidateProof,
+    StringCorridorCandidateState, StringKernelPlan, StringKernelPlanConsumer,
+    StringKernelPlanFamily, StringKernelPlanRetainedForm,
 };
 pub use string_corridor_relation::{
     refresh_function_string_corridor_relations, refresh_module_string_corridor_relations,

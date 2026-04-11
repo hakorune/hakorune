@@ -94,7 +94,8 @@ Scope: repo root から current lane / current front / restart read order に最
   - `docs/development/current/main/phases/phase-179x/README.md`
   - external reread is adopted with one correction: MIR JSON already exports `string_corridor_facts` / `relations` / `candidates`
   - the missing seam is an explicit backend-consumable `StringKernelPlan`, not raw metadata export itself
-  - next implementation cut should lock/export that plan before any more DCE widening
+  - landed: MIR-side `derive_string_kernel_plan(...)` now derives/export a minimal `metadata.string_kernel_plans` JSON surface from existing candidate metadata
+  - next implementation cut is `string_loop_seed` metadata-first / shape-fallback consumption before any more DCE widening
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`

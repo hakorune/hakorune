@@ -28,6 +28,13 @@
   - MIR JSON already exports `string_corridor_facts`, `string_corridor_relations`, and `string_corridor_candidates`
   - the next missing seam is an explicit backend-consumable `StringKernelPlan`, not raw metadata export itself
 - therefore this phase starts with schema/export ownership cleanup, not another exact matcher proof
+- `179xA` is now landed:
+  - docs/schema ownership is fixed
+- `179xB` is now landed:
+  - MIR-side `derive_string_kernel_plan(...)` now derives a backend-consumable plan from existing string corridor candidates
+  - MIR JSON now exports `metadata.string_kernel_plans`
+- next front is `179xC`:
+  - make `hako_llvmc_ffi_string_loop_seed.inc` consume exported plan JSON first, with shape-fallback kept only as a bridge
 
 ## Acceptance
 
