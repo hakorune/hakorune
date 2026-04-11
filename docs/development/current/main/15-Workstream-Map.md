@@ -78,7 +78,8 @@ Related:
   - `phase-179x` is active
   - accept the external reread direction, but correct the exporter reading: `mir_json_emit` already ships string corridor facts/relations/candidates
   - landed: one exported backend-consumable `StringKernelPlan` surface now exists as `metadata.string_kernel_plans`
-  - next cut is metadata-first consumer, then matcher shrink
+  - landed: `string_loop_seed` now consumes that plan first for the stable-length len route while keeping shape fallback only for the remaining full-loop bridge
+  - next cut is exact keeper proof, then matcher shrink
 - `phase-133x` landed:
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`

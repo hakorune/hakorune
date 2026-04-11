@@ -33,8 +33,11 @@
 - `179xB` is now landed:
   - MIR-side `derive_string_kernel_plan(...)` now derives a backend-consumable plan from existing string corridor candidates
   - MIR JSON now exports `metadata.string_kernel_plans`
-- next front is `179xC`:
-  - make `hako_llvmc_ffi_string_loop_seed.inc` consume exported plan JSON first, with shape-fallback kept only as a bridge
+- `179xC` is now landed:
+  - `hako_llvmc_ffi_string_loop_seed.inc` now consumes exported `metadata.string_kernel_plans` first for the stable-length `substring_concat` len route
+  - the old body matcher remains only as shape-fallback for the remaining full-loop bridge
+- next front is `179xD`:
+  - prove exact asm/perf keeper parity on `kilo_micro_substring_concat` before matcher shrink
 
 ## Acceptance
 

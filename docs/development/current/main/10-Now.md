@@ -52,7 +52,8 @@ Related:
     - external reread is accepted in direction: `hako_llvmc_ffi_string_loop_seed.inc` is still too shape-driven
     - corrected reading: MIR JSON already exports string corridor facts/relations/candidates; the next missing seam is a backend-consumable `StringKernelPlan`
     - landed: MIR-side `derive_string_kernel_plan(...)` now derives/export `metadata.string_kernel_plans` from current string corridor candidates
-    - next cut is metadata-first consumer, then old matcher shrink
+    - landed: `string_loop_seed` now reads that plan first for the stable-length `substring_concat` len route, keeping the old body matcher only as shape fallback for the remaining full-loop bridge
+    - next cut is exact asm/perf keeper proof, then old matcher shrink
   - row status:
     - `3 User-Box Method Dispatch`: mostly done; narrow known-receiver consumer and the direct-route determinism repair are landed, broader generic parity backlog remains
     - `4 Array Typed Slots 拡大`: partial; narrow typed-slot pilots landed, read-side expansion backlog remains

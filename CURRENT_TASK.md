@@ -95,7 +95,8 @@ Scope: repo root から current lane / current front / restart read order に最
   - external reread is adopted with one correction: MIR JSON already exports `string_corridor_facts` / `relations` / `candidates`
   - the missing seam is an explicit backend-consumable `StringKernelPlan`, not raw metadata export itself
   - landed: MIR-side `derive_string_kernel_plan(...)` now derives/export a minimal `metadata.string_kernel_plans` JSON surface from existing candidate metadata
-  - next implementation cut is `string_loop_seed` metadata-first / shape-fallback consumption before any more DCE widening
+  - landed: `string_loop_seed` now consumes `metadata.string_kernel_plans` first for the stable-length `substring_concat` len route and falls back to the old body matcher only for the remaining full-loop bridge
+  - next implementation cut is `179xD` exact asm/perf keeper proof before matcher shrink or any more DCE widening
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`

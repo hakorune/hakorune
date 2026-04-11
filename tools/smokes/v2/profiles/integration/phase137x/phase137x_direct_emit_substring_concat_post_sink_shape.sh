@@ -15,6 +15,10 @@
 # 4) the helper result keeps its live proof-bearing corridor metadata:
 #      - `%36` carries `publication_sink` and `direct_kernel_entry`
 #      - both plans keep `source_root=21` and outer window `%71..%72`
+# 5) exported `string_kernel_plans` also keeps the backend-consumable concat-triplet plan:
+#      - `%36` exports `family=concat_triplet_window`
+#      - consumer stays `direct_kernel_entry`
+#      - parts stay `[slice, const, slice]`
 
 set -euo pipefail
 
@@ -91,6 +95,7 @@ def callee_name(ins):
     return cal.get("method") or cal.get("name")
 
 candidates = main_fn.get("metadata", {}).get("string_corridor_candidates", {})
+kernel_plans = main_fn.get("metadata", {}).get("string_kernel_plans", {})
 
 def has_candidate(value, kind):
     items = candidates.get(str(value))
@@ -160,6 +165,27 @@ for kind in ("publication_sink", "direct_kernel_entry"):
             f"unexpected {kind} plan window on helper result %36: "
             f"source_root={plan.get('source_root')} start={plan.get('start')} end={plan.get('end')}"
         )
+
+helper_kernel_plan = kernel_plans.get("36")
+if not isinstance(helper_kernel_plan, dict):
+    raise SystemExit("missing string_kernel_plans export for helper result %36")
+if helper_kernel_plan.get("family") != "concat_triplet_window":
+    raise SystemExit(f"unexpected helper kernel plan family: {helper_kernel_plan}")
+if helper_kernel_plan.get("consumer") != "direct_kernel_entry":
+    raise SystemExit(f"unexpected helper kernel plan consumer: {helper_kernel_plan}")
+if helper_kernel_plan.get("source_root") != 21:
+    raise SystemExit(f"unexpected helper kernel plan source_root: {helper_kernel_plan}")
+parts = helper_kernel_plan.get("parts")
+if not isinstance(parts, list) or [part.get("kind") for part in parts] != ["slice", "const", "slice"]:
+    raise SystemExit(f"unexpected helper kernel plan parts: {helper_kernel_plan}")
+if helper_kernel_plan.get("known_length") != 2:
+    raise SystemExit(f"unexpected helper kernel plan known_length: {helper_kernel_plan}")
+if helper_kernel_plan.get("retained_form") != "borrowed_text":
+    raise SystemExit(f"unexpected helper kernel plan retained_form: {helper_kernel_plan}")
+if helper_kernel_plan.get("barriers", {}).get("publication") != "candidate":
+    raise SystemExit(f"unexpected helper kernel plan publication barrier: {helper_kernel_plan}")
+if helper_kernel_plan.get("direct_kernel_entry", {}).get("state") != "candidate":
+    raise SystemExit(f"unexpected helper kernel plan direct entry state: {helper_kernel_plan}")
 
 exit_ops = interesting_ops(4)
 if len(exit_ops) != 3:

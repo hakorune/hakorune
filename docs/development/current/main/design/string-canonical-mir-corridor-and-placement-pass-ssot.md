@@ -117,8 +117,12 @@ Current follow-on reading:
 
 - `src/runner/mir_json_emit/mod.rs` already exports `string_corridor_facts`,
   `string_corridor_relations`, and `string_corridor_candidates`
-- the next missing seam for exact-seed retirement is a backend-consumable
-  explicit `StringKernelPlan` schema, not raw metadata export itself
+- landed follow-on:
+  - MIR JSON now exports `metadata.string_kernel_plans`
+  - `hako_llvmc_ffi_string_loop_seed.inc` now consumes that plan first for the
+    stable-length `substring_concat` len route
+- the remaining missing seam for exact-seed retirement is shrinking the old
+  full-loop shape matcher after exact keeper proof, not raw metadata export itself
 
 Do not encode:
 

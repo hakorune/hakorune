@@ -1554,6 +1554,46 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
     if (!hako_llvmc_str_eq(cmp_op, "<")) { yyjson_doc_free(doc); return -1; }
   }
 
+  /* metadata-first length-only route */
+  {
+    long long stable_base = 0;
+    long long stable_witness = 0;
+    long long plan_source_root = 0;
+    long long plan_middle_value = 0;
+    long long plan_middle_len = 0;
+    const char* stable_window = NULL;
+
+    if (merged_string_phi > 0 &&
+        hako_llvmc_string_corridor_read_relation_details_fn(
+            fn,
+            merged_string_phi,
+            "stable_length_scalar",
+            &stable_base,
+            &stable_witness,
+            &stable_window) &&
+        stable_base > 0 &&
+        stable_witness == source_len_value &&
+        hako_llvmc_str_eq(stable_window, "stop_at_merge") &&
+        hako_llvmc_string_kernel_plan_read_concat_triplet_len_fn(
+            fn,
+            stable_base,
+            &plan_source_root,
+            &plan_middle_value,
+            &plan_middle_len) &&
+        plan_source_root == merged_string_phi &&
+        plan_middle_value > 0 &&
+        plan_middle_len > 0) {
+      int rc = hako_llvmc_emit_substring_concat_len_ir(
+          obj_out,
+          &selection,
+          loop_bound,
+          seed_len,
+          plan_middle_len);
+      yyjson_doc_free(doc);
+      return rc;
+    }
+  }
+
   /* body */
   BUILD_INTERESTING(yyjson_arr_get(blocks, 2));
   if (!(n == 17 || n == 14)) { yyjson_doc_free(doc); return -1; }
