@@ -27,12 +27,14 @@ Related:
   - next optimization resume: `phase163x-optimization-resume`
   - fixed structure order before more domain widening:
     1. `phase166x` semantic refresh owner
-    2. generic `value_origin` / `phi_relation` owner
-    3. compat semantic recovery quarantine
-    4. only then generic boundary/lifecycle extraction decision
+    2. generic `value_origin` owner
+    3. generic `phi_relation` owner
+    4. compat semantic recovery quarantine
+    5. only then generic boundary/lifecycle extraction decision
   - current `phase166x` state:
     - `semantic_refresh` owner is landed
-    - next front is generic `value_origin` / `phi_relation` ownership
+    - generic `value_origin` owner is landed
+    - next front is generic `phi_relation` ownership
 - lane: `phase-163x primitive and user-box fast path`
 - current implementation focus:
   - owner-target reminder:

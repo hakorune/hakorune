@@ -66,6 +66,7 @@ pub mod thin_entry_selection; // manifest-driven thin-entry selection pilot
 pub mod type_propagation; // Phase 279 P0: SSOT type propagation pipeline
 pub mod value_id;
 pub mod value_kind; // Phase 26-A: ValueId型安全化
+pub mod value_origin; // generic copy-root / alias-root owner (SSOT)
 pub mod verification;
 pub mod verification_types; // extracted error types // Optimization subpasses (e.g., type_hints) // Phase 25.1f: Loop/If 共通ビュー（ControlForm）
 
@@ -148,6 +149,10 @@ pub use types::{
 };
 pub use value_id::{LocalId, ValueId, ValueIdGenerator};
 pub use value_kind::{MirValueKind, TypedValueId}; // Phase 26-A: ValueId型安全化
+pub use value_origin::{
+    build_value_def_map, resolve_value_origin, resolve_value_origin_from_copy_parents,
+    CopyParentMap, ValueDefMap,
+};
 pub use verification::MirVerifier;
 pub use verification_types::VerificationError;
 // Phase 29y.1: RC insertion pass (skeleton)

@@ -11,13 +11,13 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use crate::mir::{
-    refresh_function_string_corridor_metadata,
+    build_value_def_map, refresh_function_string_corridor_metadata, resolve_value_origin,
     string_corridor_recognizer::{
-        build_def_map, const_string_length, extract_substring_args, match_add_in_block,
-        match_concat_triplet, match_len_call, match_method_set_call, match_substring_call,
-        match_substring_call_shape, match_substring_concat3_helper_call, match_substring_len_call,
-        resolve_copy_chain_source, string_source_identity, ConcatTripletShape, MethodSetCallShape,
-        StringSourceIdentity, SubstringCallProducerShape, SubstringConcat3HelperShape,
+        const_string_length, extract_substring_args, match_add_in_block, match_concat_triplet,
+        match_len_call, match_method_set_call, match_substring_call, match_substring_call_shape,
+        match_substring_concat3_helper_call, match_substring_len_call, string_source_identity,
+        ConcatTripletShape, MethodSetCallShape, StringSourceIdentity, SubstringCallProducerShape,
+        SubstringConcat3HelperShape,
     },
     BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, MirFunction, MirInstruction, MirModule,
     MirType, StringCorridorCandidateKind, StringCorridorCandidatePlan,
@@ -38,22 +38,22 @@ pub fn sink_borrowed_string_corridors(module: &mut MirModule) -> usize {
 fn sink_borrowed_string_corridors_in_function(function: &mut MirFunction) -> usize {
     refresh_function_string_corridor_metadata(function);
 
-    let def_map = build_def_map(function);
+    let def_map = build_value_def_map(function);
     let use_counts = build_use_counts(function);
     let plans_by_block = collect_plans(function, &def_map, &use_counts);
     let mut rewritten = apply_plans(function, plans_by_block);
 
-    let def_map = build_def_map(function);
+    let def_map = build_value_def_map(function);
     let use_counts = build_use_counts(function);
     let retained_len_plans = collect_retained_len_plans(function, &def_map, &use_counts);
     rewritten += apply_retained_len_plans(function, retained_len_plans);
 
-    let def_map = build_def_map(function);
+    let def_map = build_value_def_map(function);
     let use_counts = build_use_counts(function);
     let concat_corridor_plans = collect_concat_corridor_plans(function, &def_map, &use_counts);
     rewritten += apply_concat_corridor_plans(function, concat_corridor_plans);
 
-    let def_map = build_def_map(function);
+    let def_map = build_value_def_map(function);
     let use_counts = build_use_counts(function);
     let fusion_plans = collect_complementary_len_fusion_plans(function, &def_map, &use_counts);
     rewritten += apply_complementary_len_fusion_plans(function, fusion_plans);
@@ -233,7 +233,7 @@ fn collect_plans(
                 continue;
             };
 
-            let receiver_root = resolve_copy_chain_source(function, def_map, receiver);
+            let receiver_root = resolve_value_origin(function, def_map, receiver);
             if use_counts.get(&receiver_root).copied().unwrap_or(0) != 1 {
                 continue;
             }
@@ -411,7 +411,7 @@ fn corridor_helper_shape(
     value: ValueId,
     kind: StringCorridorCandidateKind,
 ) -> Option<SubstringConcat3HelperShape> {
-    let root = resolve_copy_chain_source(function, def_map, value);
+    let root = resolve_value_origin(function, def_map, value);
     let plan = helper_plan_for_kind(function, root, kind)?;
     let (bbid, idx) = def_map.get(&root).copied()?;
     let block = function.blocks.get(&bbid)?;
@@ -457,12 +457,12 @@ fn array_store_candidate(
     if !matches!(store.box_name.as_str(), "ArrayBox" | "RuntimeDataBox") {
         return None;
     }
-    let receiver_root = resolve_copy_chain_source(function, def_map, store.receiver);
+    let receiver_root = resolve_value_origin(function, def_map, store.receiver);
     match function.metadata.value_types.get(&receiver_root) {
         Some(MirType::Box(name)) if name == "ArrayBox" => Some(MethodSetCallShape {
             box_name: store.box_name,
             receiver: receiver_root,
-            key: resolve_copy_chain_source(function, def_map, store.key),
+            key: resolve_value_origin(function, def_map, store.key),
             value: store.value,
         }),
         _ => None,
@@ -503,7 +503,7 @@ fn value_is_const_i64(
     value: ValueId,
     expected: i64,
 ) -> bool {
-    let root = resolve_copy_chain_source(function, def_map, value);
+    let root = resolve_value_origin(function, def_map, value);
     let Some((bbid, idx)) = def_map.get(&root).copied() else {
         return false;
     };
@@ -525,7 +525,7 @@ fn match_source_length_value(
     source_identity: &StringSourceIdentity,
     candidate: ValueId,
 ) -> Option<ValueId> {
-    let length_root = resolve_copy_chain_source(function, def_map, candidate);
+    let length_root = resolve_value_origin(function, def_map, candidate);
     let (bbid, idx) = def_map.get(&length_root).copied()?;
     let block = function.blocks.get(&bbid)?;
     let (_, receiver, _) = match_len_call(block.instructions.get(idx)?)?;
@@ -550,8 +550,8 @@ fn complementary_pair_source_len(
     }
 
     if value_is_const_i64(function, def_map, lhs.start, 0) {
-        let mid = resolve_copy_chain_source(function, def_map, lhs.end);
-        let rhs_start = resolve_copy_chain_source(function, def_map, rhs.start);
+        let mid = resolve_value_origin(function, def_map, lhs.end);
+        let rhs_start = resolve_value_origin(function, def_map, rhs.start);
         if rhs_start != mid {
             return None;
         }
@@ -559,8 +559,8 @@ fn complementary_pair_source_len(
     }
 
     if value_is_const_i64(function, def_map, rhs.start, 0) {
-        let mid = resolve_copy_chain_source(function, def_map, rhs.end);
-        let lhs_start = resolve_copy_chain_source(function, def_map, lhs.start);
+        let mid = resolve_value_origin(function, def_map, rhs.end);
+        let lhs_start = resolve_value_origin(function, def_map, lhs.start);
         if lhs_start != mid {
             return None;
         }
@@ -631,7 +631,7 @@ fn try_match_complementary_len_fusion_plan(
             continue;
         };
 
-        let acc = resolve_copy_chain_source(function, def_map, acc_leaf);
+        let acc = resolve_value_origin(function, def_map, acc_leaf);
         let mut remove_indices: BTreeSet<usize> = BTreeSet::new();
         remove_indices.insert(first_call.idx);
         remove_indices.insert(second_call.idx);
@@ -793,7 +793,7 @@ fn collect_retained_len_plans(
             let Some((outer_dst, receiver, effects)) = match_len_call(inst) else {
                 continue;
             };
-            let receiver_root = resolve_copy_chain_source(function, def_map, receiver);
+            let receiver_root = resolve_value_origin(function, def_map, receiver);
             let Some(inner_fact) = function.metadata.string_corridor_facts.get(&receiver_root)
             else {
                 continue;
@@ -1027,8 +1027,8 @@ fn collect_concat_corridor_plans(
                     left,
                     middle,
                     right,
-                    start: resolve_copy_chain_source(function, def_map, start),
-                    end: resolve_copy_chain_source(function, def_map, end),
+                    start: resolve_value_origin(function, def_map, start),
+                    end: resolve_value_origin(function, def_map, end),
                     effects,
                 }));
                 continue;
@@ -1043,8 +1043,8 @@ fn collect_concat_corridor_plans(
                         middle: helper.middle,
                         right: helper.right,
                         outer_start: helper.start,
-                        inner_start: resolve_copy_chain_source(function, def_map, start),
-                        inner_end: resolve_copy_chain_source(function, def_map, end),
+                        inner_start: resolve_value_origin(function, def_map, start),
+                        inner_end: resolve_value_origin(function, def_map, end),
                         effects,
                     },
                 ));
@@ -2198,7 +2198,7 @@ mod tests {
         module.add_function(function);
 
         let function = module.get_function("main").expect("main");
-        let def_map = build_def_map(function);
+        let def_map = build_value_def_map(function);
         let use_counts = build_use_counts(function);
         let first_call =
             match_substring_len_call_in_block(function, BasicBlockId(19), &def_map, ValueId(30))
@@ -3427,7 +3427,7 @@ mod tests {
         let mut leftover_concat_consumers = Vec::new();
         let mut leftover_concat_lengths = Vec::new();
         for (name, function) in &result.module.functions {
-            let def_map = build_def_map(function);
+            let def_map = build_value_def_map(function);
             for (bbid, block) in &function.blocks {
                 for inst in &block.instructions {
                     match inst {
@@ -3513,7 +3513,7 @@ mod tests {
 
         let mut leftover_helper_lengths = Vec::new();
         for (name, function) in &result.module.functions {
-            let def_map = build_def_map(function);
+            let def_map = build_value_def_map(function);
             let use_counts = build_use_counts(function);
             for (bbid, block) in &function.blocks {
                 for inst in &block.instructions {

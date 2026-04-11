@@ -41,9 +41,12 @@
   - `src/mir/semantic_refresh.rs` now owns MIR semantic metadata refresh entry points
   - `MirCompiler` now refreshes semantic metadata through that single module-level owner
   - `string_corridor_sink` now refreshes its function-local fact/relation/candidate stack through the same owner seam
+- landed second cut:
+  - `src/mir/value_origin.rs` now owns generic copy-root / alias-root normalization
+  - string corridor, sum placement, and escape analysis now consume that MIR seam instead of keeping domain-local `resolve_copy_*` helpers
 - next:
   - define the fixed order:
-    - generic `value_origin` / `phi_relation` owner next
+    - generic `phi_relation` owner next
     - compat semantic recovery quarantine after that
     - generic boundary/lifecycle extraction only after that
 - keep current domain `fact -> candidate -> transform` layering

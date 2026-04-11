@@ -3,17 +3,19 @@
  *
  * This module is the shape SSOT for the current string corridor lane.
  * It contains pure helper logic only:
- * - copy-root/def-map tracking
  * - substring/concat/helper shape recognition
  * - source identity and const-length observation
+ *
+ * It consumes generic value-origin queries rather than owning alias-root
+ * normalization itself.
  *
  * It does not emit plans and it does not mutate MIR.
  */
 
 use super::{
-    BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, MirFunction, MirInstruction, ValueId,
+    resolve_value_origin, BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, MirFunction,
+    MirInstruction, ValueDefMap, ValueId,
 };
-use std::collections::HashMap;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct AddShape {
@@ -62,48 +64,10 @@ pub(crate) enum StringSourceIdentity {
     ConstString(String),
 }
 
-pub(crate) fn build_def_map(function: &MirFunction) -> HashMap<ValueId, (BasicBlockId, usize)> {
-    let mut defs: HashMap<ValueId, (BasicBlockId, usize)> = HashMap::new();
-    for (bbid, block) in &function.blocks {
-        for (idx, inst) in block.instructions.iter().enumerate() {
-            if let Some(dst) = inst.dst_value() {
-                defs.insert(dst, (*bbid, idx));
-            }
-        }
-    }
-    defs
-}
-
-pub(crate) fn resolve_copy_chain_source(
-    function: &MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    mut value: ValueId,
-) -> ValueId {
-    let mut visited = std::collections::BTreeSet::new();
-    while visited.insert(value) {
-        let Some((bbid, idx)) = def_map.get(&value).copied() else {
-            break;
-        };
-        let Some(block) = function.blocks.get(&bbid) else {
-            break;
-        };
-        let Some(inst) = block.instructions.get(idx) else {
-            break;
-        };
-        match inst {
-            MirInstruction::Copy { src, .. } => {
-                value = *src;
-            }
-            _ => break,
-        }
-    }
-    value
-}
-
 pub(crate) fn match_add_in_block(
     function: &MirFunction,
     bbid: BasicBlockId,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    def_map: &ValueDefMap,
     value: ValueId,
 ) -> Option<AddShape> {
     let (inst_bbid, idx) = def_map.get(&value).copied()?;
@@ -284,26 +248,26 @@ pub(crate) fn extract_substring_args(inst: &MirInstruction) -> Option<(ValueId, 
 
 pub(crate) fn match_substring_call_shape(
     function: &MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    def_map: &ValueDefMap,
     value: ValueId,
 ) -> Option<SubstringCallProducerShape> {
-    let root = resolve_copy_chain_source(function, def_map, value);
+    let root = resolve_value_origin(function, def_map, value);
     let (bbid, idx) = def_map.get(&root).copied()?;
     let block = function.blocks.get(&bbid)?;
     let (_, receiver, start, end, _) = match_substring_call(block.instructions.get(idx)?)?;
     Some(SubstringCallProducerShape {
-        source: resolve_copy_chain_source(function, def_map, receiver),
-        start: resolve_copy_chain_source(function, def_map, start),
-        end: resolve_copy_chain_source(function, def_map, end),
+        source: resolve_value_origin(function, def_map, receiver),
+        start: resolve_value_origin(function, def_map, start),
+        end: resolve_value_origin(function, def_map, end),
     })
 }
 
 pub(crate) fn match_concat_triplet_from_extern(
     function: &MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    def_map: &ValueDefMap,
     value: ValueId,
 ) -> Option<ConcatTripletShape> {
-    let root = resolve_copy_chain_source(function, def_map, value);
+    let root = resolve_value_origin(function, def_map, value);
     let (bbid, idx) = def_map.get(&root).copied()?;
     let block = function.blocks.get(&bbid)?;
     match block.instructions.get(idx)? {
@@ -312,9 +276,9 @@ pub(crate) fn match_concat_triplet_from_extern(
             args,
             ..
         } if args.len() == 3 && name == "nyash.string.concat3_hhh" => Some(ConcatTripletShape {
-            left: resolve_copy_chain_source(function, def_map, args[0]),
-            middle: resolve_copy_chain_source(function, def_map, args[1]),
-            right: resolve_copy_chain_source(function, def_map, args[2]),
+            left: resolve_value_origin(function, def_map, args[0]),
+            middle: resolve_value_origin(function, def_map, args[1]),
+            right: resolve_value_origin(function, def_map, args[2]),
         }),
         _ => None,
     }
@@ -323,23 +287,23 @@ pub(crate) fn match_concat_triplet_from_extern(
 pub(crate) fn match_concat_triplet_from_add_chain(
     function: &MirFunction,
     bbid: BasicBlockId,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    def_map: &ValueDefMap,
     value: ValueId,
 ) -> Option<ConcatTripletShape> {
-    let root = resolve_copy_chain_source(function, def_map, value);
+    let root = resolve_value_origin(function, def_map, value);
     let outer = match_add_in_block(function, bbid, def_map, root)?;
     if outer.dst != root {
         return None;
     }
 
-    let lhs_root = resolve_copy_chain_source(function, def_map, outer.lhs);
-    let rhs_root = resolve_copy_chain_source(function, def_map, outer.rhs);
+    let lhs_root = resolve_value_origin(function, def_map, outer.lhs);
+    let rhs_root = resolve_value_origin(function, def_map, outer.rhs);
 
     if let Some(inner) = match_add_in_block(function, bbid, def_map, lhs_root) {
         if inner.idx < outer.idx && inner.dst == lhs_root {
             return Some(ConcatTripletShape {
-                left: resolve_copy_chain_source(function, def_map, inner.lhs),
-                middle: resolve_copy_chain_source(function, def_map, inner.rhs),
+                left: resolve_value_origin(function, def_map, inner.lhs),
+                middle: resolve_value_origin(function, def_map, inner.rhs),
                 right: rhs_root,
             });
         }
@@ -349,8 +313,8 @@ pub(crate) fn match_concat_triplet_from_add_chain(
         if inner.idx < outer.idx && inner.dst == rhs_root {
             return Some(ConcatTripletShape {
                 left: lhs_root,
-                middle: resolve_copy_chain_source(function, def_map, inner.lhs),
-                right: resolve_copy_chain_source(function, def_map, inner.rhs),
+                middle: resolve_value_origin(function, def_map, inner.lhs),
+                right: resolve_value_origin(function, def_map, inner.rhs),
             });
         }
     }
@@ -361,7 +325,7 @@ pub(crate) fn match_concat_triplet_from_add_chain(
 pub(crate) fn match_concat_triplet(
     function: &MirFunction,
     bbid: BasicBlockId,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    def_map: &ValueDefMap,
     value: ValueId,
 ) -> Option<ConcatTripletShape> {
     match_concat_triplet_from_extern(function, def_map, value)
@@ -370,10 +334,10 @@ pub(crate) fn match_concat_triplet(
 
 pub(crate) fn string_source_identity(
     function: &MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    def_map: &ValueDefMap,
     value: ValueId,
 ) -> Option<StringSourceIdentity> {
-    let root = resolve_copy_chain_source(function, def_map, value);
+    let root = resolve_value_origin(function, def_map, value);
     let Some((bbid, idx)) = def_map.get(&root).copied() else {
         return Some(StringSourceIdentity::Value(root));
     };

@@ -7,9 +7,9 @@
  */
 
 use super::{
+    build_value_def_map,
     phi_query::{collect_phi_carry_relations, PhiBaseRelation},
-    string_corridor_recognizer::{build_def_map, resolve_copy_chain_source},
-    MirFunction, MirModule, ValueId,
+    resolve_value_origin, MirFunction, MirModule, ValueId,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -71,12 +71,12 @@ pub fn refresh_module_string_corridor_relations(module: &mut MirModule) {
 
 pub fn refresh_function_string_corridor_relations(function: &mut MirFunction) {
     function.metadata.string_corridor_relations.clear();
-    let def_map = build_def_map(function);
+    let def_map = build_value_def_map(function);
 
     for relation in collect_phi_carry_relations(
         function,
         &def_map,
-        |value| resolve_copy_chain_source(function, &def_map, value),
+        |value| resolve_value_origin(function, &def_map, value),
         |value| function.metadata.string_corridor_facts.contains_key(&value),
     ) {
         let PhiBaseRelation::SameBase(base_value) = relation.relation else {

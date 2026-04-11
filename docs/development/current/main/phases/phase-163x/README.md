@@ -252,7 +252,8 @@
            - `phase-165x` landed the operand-role escape barrier vocabulary cut so escape widening no longer reuses the coarse `used_values()` surface
            - `phase-166x` is now the active structural follow-on:
              - first unify MIR semantic refresh ownership
-             - then move generic `value_origin` / `phi_relation` ownership out of domain passes
+             - generic `value_origin` ownership is now landed in `src/mir/value_origin.rs`
+             - next move generic `phi_relation` ownership out of domain passes
              - then quarantine helper/runtime-name semantic recovery into compat layers
              - only after that decide whether `boundary_fact` / lifecycle vocabulary should move out of string-local storage
            - `where` / enum methods / full monomorphization

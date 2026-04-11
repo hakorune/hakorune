@@ -7,14 +7,14 @@
  */
 
 use super::{
+    build_value_def_map, resolve_value_origin,
     string_corridor::{
         StringCorridorFact, StringCorridorOp, StringCorridorRole, StringPlacementFact,
     },
     string_corridor_recognizer::{
-        build_def_map, const_string_length, match_concat_triplet, match_len_call,
-        match_substring_call, match_substring_call_shape, match_substring_concat3_helper_call,
-        resolve_copy_chain_source, string_source_identity, ConcatTripletShape,
-        StringSourceIdentity,
+        const_string_length, match_concat_triplet, match_len_call, match_substring_call,
+        match_substring_call_shape, match_substring_concat3_helper_call, string_source_identity,
+        ConcatTripletShape, StringSourceIdentity,
     },
     string_corridor_relation::{StringCorridorRelation, StringCorridorRelationKind},
     BasicBlockId, MirFunction, MirModule, ValueId,
@@ -183,7 +183,7 @@ pub fn refresh_module_string_corridor_candidates(module: &mut MirModule) {
 /// Refresh a single function's placement/effect candidates from existing facts.
 pub fn refresh_function_string_corridor_candidates(function: &mut MirFunction) {
     function.metadata.string_corridor_candidates.clear();
-    let def_map = build_def_map(function);
+    let def_map = build_value_def_map(function);
 
     for (value, fact) in &function.metadata.string_corridor_facts {
         let candidates = infer_candidates(function, *value, fact, &def_map);
@@ -283,13 +283,13 @@ fn infer_borrowed_slice_plan(
     value: ValueId,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
 ) -> Option<StringCorridorCandidatePlan> {
-    let root = resolve_copy_chain_source(function, def_map, value);
+    let root = resolve_value_origin(function, def_map, value);
     let (bbid, idx) = def_map.get(&root).copied()?;
     let block = function.blocks.get(&bbid)?;
     let (_, receiver, start, end, _) = match_substring_call(block.instructions.get(idx)?)?;
-    let source = resolve_copy_chain_source(function, def_map, receiver);
-    let start = resolve_copy_chain_source(function, def_map, start);
-    let end = resolve_copy_chain_source(function, def_map, end);
+    let source = resolve_value_origin(function, def_map, receiver);
+    let start = resolve_value_origin(function, def_map, start);
+    let end = resolve_value_origin(function, def_map, end);
     Some(StringCorridorCandidatePlan {
         corridor_root: root,
         source_root: Some(source),
@@ -331,7 +331,7 @@ fn infer_concat_triplet_plan(
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
     require_shared_source: bool,
 ) -> Option<StringCorridorCandidatePlan> {
-    let receiver_root = resolve_copy_chain_source(function, def_map, receiver);
+    let receiver_root = resolve_value_origin(function, def_map, receiver);
     let ConcatTripletShape {
         left,
         middle,
@@ -353,8 +353,8 @@ fn infer_concat_triplet_plan(
     Some(StringCorridorCandidatePlan {
         corridor_root: receiver_root,
         source_root,
-        start: outer_start.map(|value| resolve_copy_chain_source(function, def_map, value)),
-        end: outer_end.map(|value| resolve_copy_chain_source(function, def_map, value)),
+        start: outer_start.map(|value| resolve_value_origin(function, def_map, value)),
+        end: outer_end.map(|value| resolve_value_origin(function, def_map, value)),
         known_length: Some(const_string_length(&text)),
         proof: StringCorridorCandidateProof::ConcatTriplet {
             left_source: left.source,
@@ -374,7 +374,7 @@ fn infer_concat_triplet_result_plan(
     value: ValueId,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
 ) -> Option<StringCorridorCandidatePlan> {
-    let root = resolve_copy_chain_source(function, def_map, value);
+    let root = resolve_value_origin(function, def_map, value);
     let (bbid, idx) = def_map.get(&root).copied()?;
     let block = function.blocks.get(&bbid)?;
     let helper = match_substring_concat3_helper_call(block.instructions.get(idx)?)?;
@@ -398,14 +398,14 @@ fn infer_concat_triplet_result_plan(
     Some(StringCorridorCandidatePlan {
         corridor_root: root,
         source_root,
-        start: Some(resolve_copy_chain_source(function, def_map, start)),
-        end: Some(resolve_copy_chain_source(function, def_map, end)),
+        start: Some(resolve_value_origin(function, def_map, start)),
+        end: Some(resolve_value_origin(function, def_map, end)),
         known_length: Some(const_string_length(&text)),
         proof: StringCorridorCandidateProof::ConcatTriplet {
             left_source: left.source,
             left_start: left.start,
             left_end: left.end,
-            middle: resolve_copy_chain_source(function, def_map, middle),
+            middle: resolve_value_origin(function, def_map, middle),
             right_source: right.source,
             right_start: right.start,
             right_end: right.end,
@@ -420,7 +420,7 @@ fn infer_plan(
     fact: &StringCorridorFact,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
 ) -> Option<StringCorridorCandidatePlan> {
-    let root = resolve_copy_chain_source(function, def_map, value);
+    let root = resolve_value_origin(function, def_map, value);
     let (bbid, idx) = def_map.get(&root).copied()?;
     let block = function.blocks.get(&bbid)?;
     let inst = block.instructions.get(idx)?;
@@ -569,7 +569,7 @@ mod tests {
             effects: EffectMask::PURE,
         };
         let function = MirFunction::new(signature, BasicBlockId::new(0));
-        let def_map = build_def_map(&function);
+        let def_map = build_value_def_map(&function);
         let candidates = infer_candidates(&function, ValueId::new(1), &fact, &def_map);
 
         assert!(candidates.iter().any(|candidate| {
@@ -596,7 +596,7 @@ mod tests {
             effects: EffectMask::PURE,
         };
         let function = MirFunction::new(signature, BasicBlockId::new(0));
-        let def_map = build_def_map(&function);
+        let def_map = build_value_def_map(&function);
         let candidates = infer_candidates(&function, ValueId::new(1), &fact, &def_map);
 
         assert!(candidates.iter().any(|candidate| {

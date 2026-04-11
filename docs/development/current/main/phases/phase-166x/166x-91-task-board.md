@@ -10,7 +10,7 @@
   - add one MIR-side refresh entry point
   - move scattered refresh ordering behind that entry
   - keep first cut behavior-preserving
-- [ ] `166xC` generic `value_origin` owner
+- [x] `166xC` generic `value_origin` owner
   - stop letting domain modules own `copy root` normalization
   - prepare a shared MIR seam for alias-root queries
 - [ ] `166xD` generic `phi_relation` owner

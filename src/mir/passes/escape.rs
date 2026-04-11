@@ -3,7 +3,10 @@
 //! and their Copy aliases.
 //! Enabled for VM backend as a staging step before LLVM.
 
-use crate::mir::{classify_escape_uses, MirFunction, MirInstruction, MirModule, ValueId};
+use crate::mir::{
+    classify_escape_uses, resolve_value_origin_from_copy_parents, MirFunction, MirInstruction,
+    MirModule, ValueId,
+};
 use std::collections::{HashMap, HashSet};
 
 /// Run a conservative escape analysis and remove Barrier(Read/Write) for non-escaping boxes.
@@ -35,7 +38,7 @@ struct EscapeInfo {
 
 impl EscapeInfo {
     fn is_non_escaping(&self, v: &ValueId) -> bool {
-        let root = resolve_copy_root(*v, &self.copy_parents);
+        let root = resolve_value_origin_from_copy_parents(*v, &self.copy_parents);
         self.local_boxes.contains(&root) && !self.escaping.contains(&root)
     }
 }
@@ -74,7 +77,8 @@ fn analyze_function(func: &MirFunction) -> EscapeInfo {
     for block in func.blocks.values() {
         for sp in block.all_spanned_instructions() {
             for use_site in classify_escape_uses(sp.inst) {
-                let root = resolve_copy_root(use_site.value, &info.copy_parents);
+                let root =
+                    resolve_value_origin_from_copy_parents(use_site.value, &info.copy_parents);
                 if info.local_boxes.contains(&root) {
                     info.escaping.insert(root);
                 }
@@ -107,17 +111,6 @@ fn elide_barriers_in_function(func: &mut MirFunction, info: &EscapeInfo) -> usiz
         func.update_cfg();
     }
     removed
-}
-
-fn resolve_copy_root(mut value: ValueId, copy_parents: &HashMap<ValueId, ValueId>) -> ValueId {
-    let mut seen = HashSet::new();
-    while let Some(parent) = copy_parents.get(&value) {
-        if !seen.insert(value) {
-            break;
-        }
-        value = *parent;
-    }
-    value
 }
 
 #[cfg(test)]

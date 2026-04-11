@@ -10,6 +10,7 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use super::{
+    build_value_def_map, resolve_value_origin,
     thin_entry::{ThinEntryPreferredEntry, ThinEntrySurface, ThinEntryValueClass},
     thin_entry_selection::{ThinEntrySelection, ThinEntrySelectionState},
     BasicBlockId, MirFunction, MirInstruction, MirModule, ValueId,
@@ -132,7 +133,7 @@ pub fn refresh_module_sum_placement_facts(module: &mut MirModule) {
 
 pub fn refresh_function_sum_placement_facts(function: &mut MirFunction) {
     let selections = function.metadata.thin_entry_selections.clone();
-    let def_map = build_def_map(function);
+    let def_map = build_value_def_map(function);
     let variant_make_infos = collect_variant_make_infos(function, &selections);
     let root_analyses = analyze_sum_roots(function, &def_map, &variant_make_infos);
     let mut facts = collect_variant_make_facts(&variant_make_infos, &root_analyses);
@@ -210,7 +211,7 @@ fn analyze_sum_roots(
         }
         if let Some(return_env) = &block.return_env {
             for value in return_env {
-                let root = resolve_copy_root(function, def_map, *value);
+                let root = resolve_value_origin(function, def_map, *value);
                 if let Some(analysis) = analyses.get_mut(&root) {
                     analysis.barriers.insert(SumObjectizationBarrier::Return);
                 }
@@ -230,7 +231,7 @@ fn observe_instruction(
 ) {
     let mut roots = BTreeSet::new();
     for value in inst.used_values() {
-        let root = resolve_copy_root(function, def_map, value);
+        let root = resolve_value_origin(function, def_map, value);
         if variant_make_infos.contains_key(&root) {
             roots.insert(root);
         }
@@ -244,7 +245,7 @@ fn observe_instruction(
         | MirInstruction::KeepAlive { .. }
         | MirInstruction::Jump { .. } => {}
         MirInstruction::Branch { condition, .. } => {
-            let condition_root = resolve_copy_root(function, def_map, *condition);
+            let condition_root = resolve_value_origin(function, def_map, *condition);
             if let Some(analysis) = analyses.get_mut(&condition_root) {
                 analysis
                     .barriers
@@ -346,7 +347,7 @@ fn collect_variant_project_facts(
             else {
                 continue;
             };
-            let source_sum = resolve_copy_root(function, def_map, *value);
+            let source_sum = resolve_value_origin(function, def_map, *value);
             let (state, tag_reads, project_reads, barriers, reason) = if let Some(analysis) =
                 root_analyses.get(&source_sum)
             {
@@ -407,7 +408,7 @@ fn collect_variant_tag_facts(
             else {
                 continue;
             };
-            let source_sum = resolve_copy_root(function, def_map, *value);
+            let source_sum = resolve_value_origin(function, def_map, *value);
             let (state, tag_reads, project_reads, barriers, reason) = if let Some(analysis) =
                 root_analyses.get(&source_sum)
             {
@@ -520,45 +521,6 @@ fn build_sum_selection_site_map(
             )
         })
         .collect()
-}
-
-fn build_def_map(function: &MirFunction) -> HashMap<ValueId, (BasicBlockId, usize)> {
-    let mut defs = HashMap::new();
-    for block_id in function.block_ids() {
-        let Some(block) = function.blocks.get(&block_id) else {
-            continue;
-        };
-        for (instruction_index, inst) in block.instructions.iter().enumerate() {
-            if let Some(dst) = inst.dst_value() {
-                defs.insert(dst, (block_id, instruction_index));
-            }
-        }
-    }
-    defs
-}
-
-fn resolve_copy_root(
-    function: &MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    mut value: ValueId,
-) -> ValueId {
-    let mut visited = BTreeSet::new();
-    while visited.insert(value) {
-        let Some((block_id, instruction_index)) = def_map.get(&value).copied() else {
-            break;
-        };
-        let Some(block) = function.blocks.get(&block_id) else {
-            break;
-        };
-        let Some(inst) = block.instructions.get(instruction_index) else {
-            break;
-        };
-        match inst {
-            MirInstruction::Copy { src, .. } => value = *src,
-            _ => break,
-        }
-    }
-    value
 }
 
 #[cfg(test)]
