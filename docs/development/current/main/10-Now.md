@@ -12,6 +12,18 @@ Related:
 
 ## Current
 
+- optimization snapshot:
+  - current implementation lane: `phase163x primitive and user-box fast path`
+  - sibling guardrail lane: `phase137x main kilo reopen selection`; string remains active and is not complete yet
+  - row status:
+    - `3 User-Box Method Dispatch`: mostly done; narrow known-receiver consumer landed, broader generic parity backlog remains
+    - `4 Array Typed Slots 拡大`: partial; narrow typed-slot pilots landed, read-side expansion backlog remains
+    - `5 MapBox Typed Value Slots`: backlog
+    - `6 DCE 強化`: backlog
+    - `7 LLVM Escape Analysis`: backlog
+    - `8 Float 最適化`: partial; narrow FloatBox pilot landed, broader tuning backlog
+    - `9 Closure/Lambda 最適化`: backlog
+  - next optimization resume: `phase163x-optimization-resume`
 - lane: `phase-163x primitive and user-box fast path`
 - current implementation focus:
   - owner-target reminder:
