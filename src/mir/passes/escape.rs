@@ -3,7 +3,7 @@
 //! and their Copy aliases.
 //! Enabled for VM backend as a staging step before LLVM.
 
-use crate::mir::{MirFunction, MirInstruction, MirModule, ValueId};
+use crate::mir::{classify_escape_uses, MirFunction, MirInstruction, MirModule, ValueId};
 use std::collections::{HashMap, HashSet};
 
 /// Run a conservative escape analysis and remove Barrier(Read/Write) for non-escaping boxes.
@@ -70,31 +70,14 @@ fn analyze_function(func: &MirFunction) -> EscapeInfo {
             }
         }
     }
-    // Conservative escape marking
+    // Conservative escape marking through operand-role barriers
     for block in func.blocks.values() {
         for sp in block.all_spanned_instructions() {
-            match sp.inst {
-                MirInstruction::Return { value: Some(v) } => {
-                    let root = resolve_copy_root(*v, &info.copy_parents);
-                    if info.local_boxes.contains(&root) {
-                        info.escaping.insert(root);
-                    }
+            for use_site in classify_escape_uses(sp.inst) {
+                let root = resolve_copy_root(use_site.value, &info.copy_parents);
+                if info.local_boxes.contains(&root) {
+                    info.escaping.insert(root);
                 }
-                MirInstruction::Call { args, .. } => {
-                    for a in args {
-                        let root = resolve_copy_root(*a, &info.copy_parents);
-                        if info.local_boxes.contains(&root) {
-                            info.escaping.insert(root);
-                        }
-                    }
-                }
-                MirInstruction::Store { value, .. } => {
-                    let root = resolve_copy_root(*value, &info.copy_parents);
-                    if info.local_boxes.contains(&root) {
-                        info.escaping.insert(root);
-                    }
-                }
-                _ => {}
             }
         }
     }
@@ -140,7 +123,8 @@ fn resolve_copy_root(mut value: ValueId, copy_parents: &HashMap<ValueId, ValueId
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::{BasicBlock, BasicBlockId, EffectMask, FunctionSignature, MirType};
+    use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
+    use crate::mir::{BasicBlock, BasicBlockId, Callee, EffectMask, FunctionSignature, MirType};
 
     fn build_alias_escape_module(return_alias: bool) -> MirModule {
         let mut module = MirModule::new("escape_alias_test".to_string());
@@ -183,6 +167,100 @@ mod tests {
         module
     }
 
+    fn build_method_receiver_escape_module() -> MirModule {
+        let mut module = MirModule::new("escape_call_receiver_test".to_string());
+        let sig = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let entry = BasicBlockId::new(0);
+        let mut func = MirFunction::new(sig, entry);
+        let mut block = BasicBlock::new(entry);
+
+        let local_box = ValueId::new(1);
+        let alias = ValueId::new(2);
+
+        block.add_instruction(MirInstruction::NewBox {
+            dst: local_box,
+            box_type: "Point".to_string(),
+            args: vec![],
+        });
+        block.add_instruction(MirInstruction::Copy {
+            dst: alias,
+            src: local_box,
+        });
+        block.add_instruction(MirInstruction::Barrier {
+            op: crate::mir::BarrierOp::Write,
+            ptr: alias,
+        });
+        block.add_instruction(MirInstruction::Call {
+            dst: None,
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "Point".to_string(),
+                method: "sum".to_string(),
+                receiver: Some(alias),
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::UserDefined,
+            }),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
+        block.set_terminator(MirInstruction::Return { value: None });
+
+        func.add_block(block);
+        module.add_function(func);
+        module
+    }
+
+    fn build_fieldset_base_only_module() -> MirModule {
+        let mut module = MirModule::new("escape_fieldset_base_only_test".to_string());
+        let sig = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let entry = BasicBlockId::new(0);
+        let mut func = MirFunction::new(sig, entry);
+        let mut block = BasicBlock::new(entry);
+
+        let local_box = ValueId::new(1);
+        let alias = ValueId::new(2);
+        let value = ValueId::new(3);
+
+        block.add_instruction(MirInstruction::NewBox {
+            dst: local_box,
+            box_type: "Point".to_string(),
+            args: vec![],
+        });
+        block.add_instruction(MirInstruction::Copy {
+            dst: alias,
+            src: local_box,
+        });
+        block.add_instruction(MirInstruction::Const {
+            dst: value,
+            value: crate::mir::ConstValue::Integer(7),
+        });
+        block.add_instruction(MirInstruction::Barrier {
+            op: crate::mir::BarrierOp::Write,
+            ptr: alias,
+        });
+        block.add_instruction(MirInstruction::FieldSet {
+            base: alias,
+            field: "child".to_string(),
+            value,
+            declared_type: Some(MirType::Integer),
+        });
+        block.set_terminator(MirInstruction::Return { value: None });
+
+        func.add_block(block);
+        module.add_function(func);
+        module
+    }
+
     #[test]
     fn test_escape_elides_barrier_through_copy_alias() {
         let mut module = build_alias_escape_module(false);
@@ -208,6 +286,36 @@ mod tests {
         let func = module.get_function("main").unwrap();
         let block = func.blocks.get(&BasicBlockId::new(0)).unwrap();
         assert!(block
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Barrier { .. })));
+    }
+
+    #[test]
+    fn test_escape_keeps_barrier_when_copy_alias_is_method_receiver() {
+        let mut module = build_method_receiver_escape_module();
+
+        let removed = escape_elide_barriers_vm(&mut module);
+        assert_eq!(removed, 0);
+
+        let func = module.get_function("main").unwrap();
+        let block = func.blocks.get(&BasicBlockId::new(0)).unwrap();
+        assert!(block
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Barrier { .. })));
+    }
+
+    #[test]
+    fn test_escape_elides_barrier_when_alias_only_appears_as_fieldset_base() {
+        let mut module = build_fieldset_base_only_module();
+
+        let removed = escape_elide_barriers_vm(&mut module);
+        assert_eq!(removed, 1);
+
+        let func = module.get_function("main").unwrap();
+        let block = func.blocks.get(&BasicBlockId::new(0)).unwrap();
+        assert!(!block
             .instructions
             .iter()
             .any(|inst| matches!(inst, MirInstruction::Barrier { .. })));

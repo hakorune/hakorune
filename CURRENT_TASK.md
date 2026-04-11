@@ -38,6 +38,9 @@ Scope: repo root から current lane / current front / restart read order に最
 - current implementation phase:
   - `docs/development/current/main/phases/phase-163x/README.md`
   - optimization snapshot: see `docs/development/current/main/10-Now.md` for the row-by-row done / partial / backlog split; `phase137x` stays active as the sibling guardrail lane and `phase163x-optimization-resume` is the next ready follow-on
+- active escape barrier sub-corridor:
+  - `docs/development/current/main/phases/phase-165x/README.md`
+  - phase-165x is landed; operand-role escape classification now stays in MIR authority and remains separate from both `used_values()` and backend/runtime helper logic
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`

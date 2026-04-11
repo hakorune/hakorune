@@ -18,7 +18,7 @@ Related:
 | Front | `lifecycle value parent locked -> audits landed -> thin-entry inventory/selection landed -> sum placement pilot landed -> ny-llvmc parity proving slice landed -> tuple compat transport landed` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
 | Blocker | `canonical multi-slot sum remains deferred; current tuple route stays compat-boxed` |
-| Next | `phase163x-optimization-resume` after the landed void/null cleanup |
+| Next | `phase163x-optimization-resume` after the landed `phase-165x` escape-barrier cut |
 | After Next | `where / enum methods / monomorphization stay backlog-only` |
 
 ## Current Read
@@ -30,6 +30,9 @@ Related:
   - separate `vm-compat-fallback`
   - separate kernel-side Rust fallback policy
   - keep `vm-hako` as reference/conformance only
+- landed optimization sub-corridor:
+  - `phase-165x` landed the MIR-side operand-role escape barrier vocabulary cut
+  - runtime/helper policy and generic cross-block escape work stay outside that slice
 - `phase-133x` landed:
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`

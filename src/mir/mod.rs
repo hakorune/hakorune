@@ -14,6 +14,7 @@ pub mod contracts; // backend-core instruction contracts (SSOT)
 pub mod definitions; // Unified MIR definitions (MirCall, Callee, etc.)
 pub mod diagnostics; // freeze diagnostics helpers (SSOT)
 pub mod effect;
+pub mod escape_barrier; // escape operand-role vocabulary (SSOT)
 pub mod function;
 pub mod if_in_loop_phi; // Phase 187-2: Minimal if-in-loop PHI emitter (extracted from loop_builder)
 pub mod instruction;
@@ -87,6 +88,7 @@ pub(crate) use builder::detect_escape_skip_shape;
 pub use cfg_extractor::extract_cfg_info; // Phase 154: CFG extraction
 pub use definitions::{CallFlags, Callee, MirCall}; // Unified call definitions
 pub use effect::{Effect, EffectMask};
+pub use escape_barrier::{classify_escape_uses, EscapeBarrier, EscapeUse};
 pub use function::{
     ClosureBodyId, FunctionSignature, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule,
     UserBoxFieldDecl,

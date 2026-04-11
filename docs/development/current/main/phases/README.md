@@ -72,6 +72,7 @@
 
 ### Recent Landed
 
+- **Phase 165x（LANDED）**: escape barrier vocabulary widening
 - **Phase 164x（LANDED）**: repo-wide fmt drift cleanup
 - **Phase 141x（LANDED）**: string semantic boundary review
 - **Phase 140x（LANDED）**: map owner pilot

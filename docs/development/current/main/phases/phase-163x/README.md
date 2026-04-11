@@ -249,6 +249,7 @@
            - stronger cross-block / partial DCE beyond current pure-instruction DCE
            - generic LLVM-side escape pass beyond the already-landed narrow local objectization-at-boundary route
            - current escape narrow slice is now alias-aware too: barrier elision follows `Copy` chains for non-escaping local boxes, while broader generic escape analysis remains backlog
+           - `phase-165x` landed the operand-role escape barrier vocabulary cut so escape widening no longer reuses the coarse `used_values()` surface
            - `where` / enum methods / full monomorphization
         6. do not promote these into the current phase task order without a measured hotspot + SSOT first:
            - `MapBox` typed value slots
