@@ -2,13 +2,15 @@
  * Generic PHI base-relation queries.
  *
  * This module is the MIR-side SSOT for answering a narrow question:
- * whether a PHI continues the same normalized base value under a caller-
- * supplied anchor predicate. It does not know about string corridors or
- * any placement/effect policy.
+ * whether a PHI continues the same normalized base value under a generic
+ * anchor set. It does not know about string corridors or any
+ * placement/effect policy.
  */
 
-use super::{BasicBlockId, MirFunction, MirInstruction, ValueId};
-use std::collections::{BTreeSet, HashMap};
+use super::{
+    build_value_def_map, resolve_value_origin, MirFunction, MirInstruction, ValueDefMap, ValueId,
+};
+use std::collections::BTreeSet;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum PhiBaseRelation {
@@ -30,23 +32,17 @@ pub(crate) struct PhiBaseQueryResult {
     pub window_safe: bool,
 }
 
-pub(crate) fn collect_phi_carry_relations<Normalize, Anchor>(
+pub(crate) fn collect_phi_carry_relations(
     function: &MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    normalize_value: Normalize,
-    is_anchor: Anchor,
-) -> Vec<PhiCarryRelation>
-where
-    Normalize: Fn(ValueId) -> ValueId + Copy,
-    Anchor: Fn(ValueId) -> bool + Copy,
-{
+    anchors: &BTreeSet<ValueId>,
+) -> Vec<PhiCarryRelation> {
     let mut out = Vec::new();
     for block in function.blocks.values() {
         for inst in &block.instructions {
             let MirInstruction::Phi { dst, .. } = inst else {
                 continue;
             };
-            let query = infer_phi_base_query(function, def_map, *dst, normalize_value, is_anchor);
+            let query = infer_phi_base_query(function, *dst, anchors);
             out.push(PhiCarryRelation {
                 phi_value: *dst,
                 relation: query.relation,
@@ -57,62 +53,48 @@ where
     out
 }
 
-pub(crate) fn infer_phi_base_relation<Normalize, Anchor>(
+pub(crate) fn infer_phi_base_relation(
     function: &MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
     value: ValueId,
-    normalize_value: Normalize,
-    is_anchor: Anchor,
-) -> PhiBaseRelation
-where
-    Normalize: Fn(ValueId) -> ValueId + Copy,
-    Anchor: Fn(ValueId) -> bool + Copy,
-{
-    infer_phi_base_query(function, def_map, value, normalize_value, is_anchor).relation
+    anchors: &BTreeSet<ValueId>,
+) -> PhiBaseRelation {
+    infer_phi_base_query(function, value, anchors).relation
 }
 
-pub(crate) fn infer_phi_base_query<Normalize, Anchor>(
+pub(crate) fn infer_phi_base_query(
     function: &MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
     value: ValueId,
-    normalize_value: Normalize,
-    is_anchor: Anchor,
-) -> PhiBaseQueryResult
-where
-    Normalize: Fn(ValueId) -> ValueId + Copy,
-    Anchor: Fn(ValueId) -> bool + Copy,
-{
+    anchors: &BTreeSet<ValueId>,
+) -> PhiBaseQueryResult {
+    let def_map = build_value_def_map(function);
+    infer_phi_base_query_with_anchors(function, &def_map, value, anchors)
+}
+
+fn infer_phi_base_query_with_anchors(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+    anchors: &BTreeSet<ValueId>,
+) -> PhiBaseQueryResult {
     let visited = BTreeSet::new();
-    infer_phi_base_relation_inner(
-        function,
-        def_map,
-        value,
-        normalize_value,
-        is_anchor,
-        visited,
-    )
+    infer_phi_base_relation_inner(function, def_map, value, anchors, visited)
 }
 
-fn infer_phi_base_relation_inner<Normalize, Anchor>(
+fn infer_phi_base_relation_inner(
     function: &MirFunction,
-    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    def_map: &ValueDefMap,
     value: ValueId,
-    normalize_value: Normalize,
-    is_anchor: Anchor,
+    anchors: &BTreeSet<ValueId>,
     mut visited: BTreeSet<ValueId>,
-) -> PhiBaseQueryResult
-where
-    Normalize: Fn(ValueId) -> ValueId + Copy,
-    Anchor: Fn(ValueId) -> bool + Copy,
-{
-    let root = normalize_value(value);
+) -> PhiBaseQueryResult {
+    let root = resolve_value_origin(function, def_map, value);
     if !visited.insert(root) {
         return PhiBaseQueryResult {
             relation: PhiBaseRelation::Unknown,
             window_safe: false,
         };
     }
-    if is_anchor(root) {
+    if anchors.contains(&root) {
         return PhiBaseQueryResult {
             relation: PhiBaseRelation::SameBase(root),
             window_safe: true,
@@ -140,14 +122,8 @@ where
 
     match inputs.as_slice() {
         [(_, carried)] => {
-            let child = infer_phi_base_relation_inner(
-                function,
-                def_map,
-                *carried,
-                normalize_value,
-                is_anchor,
-                visited,
-            );
+            let child =
+                infer_phi_base_relation_inner(function, def_map, *carried, anchors, visited);
             PhiBaseQueryResult {
                 relation: child.relation,
                 window_safe: matches!(child.relation, PhiBaseRelation::SameBase(_))
@@ -155,22 +131,10 @@ where
             }
         }
         [(_, lhs), (_, rhs)] => {
-            let lhs_relation = infer_phi_base_relation_inner(
-                function,
-                def_map,
-                *lhs,
-                normalize_value,
-                is_anchor,
-                visited.clone(),
-            );
-            let rhs_relation = infer_phi_base_relation_inner(
-                function,
-                def_map,
-                *rhs,
-                normalize_value,
-                is_anchor,
-                visited,
-            );
+            let lhs_relation =
+                infer_phi_base_relation_inner(function, def_map, *lhs, anchors, visited.clone());
+            let rhs_relation =
+                infer_phi_base_relation_inner(function, def_map, *rhs, anchors, visited);
             let relation = merge_phi_base_relations(lhs_relation.relation, rhs_relation.relation);
             PhiBaseQueryResult {
                 relation,
@@ -200,43 +164,9 @@ fn merge_phi_base_relations(lhs: PhiBaseRelation, rhs: PhiBaseRelation) -> PhiBa
 mod tests {
     use super::*;
     use crate::ast::Span;
-    use crate::mir::{BasicBlock, ConstValue, EffectMask, FunctionSignature, MirType};
-
-    fn build_def_map(function: &MirFunction) -> HashMap<ValueId, (BasicBlockId, usize)> {
-        let mut out = HashMap::new();
-        for (bbid, block) in &function.blocks {
-            for (idx, inst) in block.instructions.iter().enumerate() {
-                match inst {
-                    MirInstruction::Const { dst, .. }
-                    | MirInstruction::Copy { dst, .. }
-                    | MirInstruction::UnaryOp { dst, .. }
-                    | MirInstruction::BinOp { dst, .. }
-                    | MirInstruction::Compare { dst, .. }
-                    | MirInstruction::TypeOp { dst, .. }
-                    | MirInstruction::FieldGet { dst, .. }
-                    | MirInstruction::VariantMake { dst, .. }
-                    | MirInstruction::VariantTag { dst, .. }
-                    | MirInstruction::VariantProject { dst, .. }
-                    | MirInstruction::Load { dst, .. }
-                    | MirInstruction::Phi { dst, .. }
-                    | MirInstruction::NewBox { dst, .. }
-                    | MirInstruction::RefNew { dst, .. }
-                    | MirInstruction::WeakRef { dst, .. }
-                    | MirInstruction::FutureNew { dst, .. }
-                    | MirInstruction::NewClosure { dst, .. }
-                    | MirInstruction::Await { dst, .. }
-                    | MirInstruction::Select { dst, .. } => {
-                        out.insert(*dst, (*bbid, idx));
-                    }
-                    MirInstruction::Call { dst: Some(dst), .. } => {
-                        out.insert(*dst, (*bbid, idx));
-                    }
-                    _ => {}
-                }
-            }
-        }
-        out
-    }
+    use crate::mir::{
+        BasicBlock, BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirType,
+    };
 
     fn build_phi_function() -> MirFunction {
         let signature = FunctionSignature {
@@ -319,21 +249,9 @@ mod tests {
     #[test]
     fn infer_phi_base_relation_detects_same_base_through_single_input_phi() {
         let function = build_phi_function();
-        let def_map = build_def_map(&function);
+        let anchors = BTreeSet::from([ValueId(10)]);
 
-        let relation = infer_phi_base_query(
-            &function,
-            &def_map,
-            ValueId(21),
-            |value| {
-                if value == ValueId(36) {
-                    ValueId(10)
-                } else {
-                    value
-                }
-            },
-            |value| value == ValueId(10),
-        );
+        let relation = infer_phi_base_query(&function, ValueId(21), &anchors);
 
         assert_eq!(relation.relation, PhiBaseRelation::SameBase(ValueId(10)));
         assert!(!relation.window_safe);
@@ -342,15 +260,9 @@ mod tests {
     #[test]
     fn infer_phi_base_relation_reports_mixed_for_different_anchor_bases() {
         let function = build_phi_function();
-        let def_map = build_def_map(&function);
+        let anchors = BTreeSet::from([ValueId(10), ValueId(11)]);
 
-        let relation = infer_phi_base_query(
-            &function,
-            &def_map,
-            ValueId(31),
-            |value| value,
-            |value| value == ValueId(10) || value == ValueId(11),
-        );
+        let relation = infer_phi_base_query(&function, ValueId(31), &anchors);
 
         assert_eq!(relation.relation, PhiBaseRelation::Mixed);
         assert!(!relation.window_safe);
@@ -359,21 +271,9 @@ mod tests {
     #[test]
     fn infer_phi_base_relation_marks_single_input_chain_as_window_safe() {
         let function = build_phi_function();
-        let def_map = build_def_map(&function);
+        let anchors = BTreeSet::from([ValueId(10)]);
 
-        let relation = infer_phi_base_query(
-            &function,
-            &def_map,
-            ValueId(22),
-            |value| {
-                if value == ValueId(36) {
-                    ValueId(10)
-                } else {
-                    value
-                }
-            },
-            |value| value == ValueId(10),
-        );
+        let relation = infer_phi_base_query(&function, ValueId(22), &anchors);
 
         assert_eq!(relation.relation, PhiBaseRelation::SameBase(ValueId(10)));
         assert!(relation.window_safe);

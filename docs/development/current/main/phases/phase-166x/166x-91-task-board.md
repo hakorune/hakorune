@@ -13,7 +13,7 @@
 - [x] `166xC` generic `value_origin` owner
   - stop letting domain modules own `copy root` normalization
   - prepare a shared MIR seam for alias-root queries
-- [ ] `166xD` generic `phi_relation` owner
+- [x] `166xD` generic `phi_relation` owner
   - keep PHI carry/base traversal in one generic seam
   - let domain layers consume the result, not own the traversal
 - [ ] `166xE` compat semantic recovery quarantine

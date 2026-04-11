@@ -34,7 +34,8 @@ Related:
   - current `phase166x` state:
     - `semantic_refresh` owner is landed
     - generic `value_origin` owner is landed
-    - next front is generic `phi_relation` ownership
+    - generic `phi_relation` owner is landed
+    - next front is compat semantic recovery quarantine
 - lane: `phase-163x primitive and user-box fast path`
 - current implementation focus:
   - owner-target reminder:

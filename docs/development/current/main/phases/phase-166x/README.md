@@ -44,10 +44,12 @@
 - landed second cut:
   - `src/mir/value_origin.rs` now owns generic copy-root / alias-root normalization
   - string corridor, sum placement, and escape analysis now consume that MIR seam instead of keeping domain-local `resolve_copy_*` helpers
+- landed third cut:
+  - `src/mir/phi_query.rs` now owns PHI carry/base traversal over generic anchor sets and uses generic `value_origin` normalization internally
+  - domain relation builders no longer pass normalize closures or def-map ownership into PHI traversal
 - next:
   - define the fixed order:
-    - generic `phi_relation` owner next
-    - compat semantic recovery quarantine after that
+    - compat semantic recovery quarantine next
     - generic boundary/lifecycle extraction only after that
 - keep current domain `fact -> candidate -> transform` layering
 
