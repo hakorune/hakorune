@@ -141,22 +141,22 @@ Current state:
 - landed: `MapBox.clear`, `MapBox.delete`, and `MapBox.keys` now have dedicated non-vm_hako emit+exec owners under `phase29y/hako/emit_mir/`
 - landed: `MapBox.set`, `MapBox.get`, `MapBox.has`, and `MapBox.size` now also have dedicated non-vm_hako emit+exec owners under `phase29y/hako/emit_mir/`
 - landed: the old `collection_core/mapbox_*_ported_vm.sh` bridge scripts are archived under `tools/smokes/v2/profiles/archive/collection_core/`
-- next: leave the old `vm_hako_caps/mapbox/*` tree untouched until the eventual final cleanup; no live `collection_core/` owner row remains
+- landed: the live `vm_hako_caps/mapbox/*` mirror tree has been removed; archive evidence remains under `tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/`
 - current bridge residue: none
 
 After the wrapper move:
 1. landed: archive the non-live `mapbox` rows (`*_bad_key*`, `*_missing*`, `*_getfield*`, `*_setfield*`, `mapbox_newbox_ported_vm.sh`)
-2. leave the old `vm_hako_caps/mapbox/*` tree untouched as temporary mirror/source until the eventual cleanup step
+2. keep the archive copies only; the live `vm_hako_caps/mapbox/*` tree has already been removed
 3. retire the collection-core owner rows after LLVM collection/runtime-data coverage replaces them
 
 Risks:
 - no live `collection_core` bridge row remains; all active owners now sit in `phase29y/hako/emit_mir/`
 - fixture paths still point at `apps/tests/vm_hako_caps/*`
 - the wrapper move is the low-risk first step because it cuts suite ownership before helper surgery
-- the current `vm_hako_caps/mapbox/*` live rows already carry active uncommitted edits, so the physical move must preserve that content rather than overwrite it with stale HEAD copies
+- the mapbox archive copies are the only remaining source of truth for retired rows
 
 ## Next Commit Candidates
 
-1. `mapbox`: clean up the old `vm_hako_caps/mapbox/*` mirrors once the dirty runtime worktree is safe to touch
+1. `mirror families`: move the remaining offloaded `vm_hako_caps/**` families (`app1/`, `args/`, `atomic/`, `tls/`, `select_emit/`, `open_handle_phi/`, `file_error_vm.sh`, `filebox_newbox_vm.sh`) into archive or owner-local homes
 2. `docs`: phase96x parked closeout sync now that the monitor bundle wording is settled
 3. `hold`: keep the frozen `vm-hako-core` 4-row monitor bundle unchanged unless a replacement owner appears

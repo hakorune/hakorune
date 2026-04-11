@@ -38,7 +38,7 @@ prefix bucket.
 - `file/`: file monitor rows plus retired error/newbox witnesses
 - `gate/`: the phase29y vm-hako compatibility stub
 - `lib/`: shared helper layer for vm-hako capability smokes
-- `mapbox/`: retired MapBox mirror/archive source; no suite-owned rows remain
+- `mapbox/`: retired MapBox family; archive evidence lives under `tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/`
 - `misc/`: archive-only one-off evidence such as `const(void)`
 - `open_handle_phi/`: retired PHI/open-handle seam mirror
 - `select_emit/`: retired MIR select seam mirror
@@ -71,7 +71,8 @@ All 7 live `MapBox.*` owner rows now live in the dedicated non-vm_hako
 emit+exec smokes under
 `tools/smokes/v2/profiles/integration/phase29y/hako/emit_mir/`.
 `tools/smokes/v2/suites/integration/collection-core.txt` no longer depends on
-`collection_core/mapbox_*` or `vm_hako_caps/mapbox/*` directly.
+`collection_core/mapbox_*` directly; archive evidence remains under
+`tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/`.
 `app1/` and `args/boxcall_args_gt1_ported_vm.sh` are no longer suite-owned.
 The product owner for APP-1 summary behavior is now
 `tools/smokes/v2/profiles/integration/apps/gate_log_summarizer_vm.sh` via

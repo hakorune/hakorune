@@ -70,7 +70,7 @@ Date: 2026-04-11
 | --- | --- |
 | Now | `remaining vm_hako retirement inventory locked` |
 | Blocker | `none` |
-| Next | `mirror cleanup wait` |
+| Next | `offloaded mirror family cleanup` |
 | After Next | `separate runtime bridge work from smoke retirement` |
 
 ## Post-Cutover Backlog
@@ -79,7 +79,7 @@ Date: 2026-04-11
 | --- | --- | --- |
 | `96xE1` | completed | rewrite stale `vm_hako_caps/README.md` wording so `mapbox/` and the compatibility stub are described as archive/mirror only, not as active reuse |
 | `96xE2` | pending | when the dirty tree is safe, move offloaded mirror families (`app1/`, `args/`, `atomic/`, `tls/`, `select_emit/`, `open_handle_phi/`, `file_error`, `filebox_newbox`) out of `tools/smokes/v2/profiles/integration/vm_hako_caps/**` into archive or owner-local homes |
-| `96xE3` | pending | when the dirty tree is safe, remove redundant `mapbox` mirrors from `tools/smokes/v2/profiles/integration/vm_hako_caps/mapbox/*` after confirming the archive copies and emit+exec owners remain green |
+| `96xE3` | completed | remove redundant `mapbox` mirrors from `tools/smokes/v2/profiles/integration/vm_hako_caps/mapbox/*` after confirming the archive copies and emit+exec owners remain green |
 | `96xE4` | pending | quarantine runtime bridge edits (`env.get`, `runtime_data`, `FileBox`, driver env/cwd`) into a non-phase96x lane so vm retirement docs stop mixing smoke cleanup with interpreter work |
 | `96xE5` | pending | decide the long-term policy for the frozen `vm-hako-core` 4-row monitor pack: keep indefinitely, archive after a stable window, or replace with a smaller single-canary lane |
 
@@ -111,10 +111,11 @@ Date: 2026-04-11
   - monitor keep: the frozen `vm-hako-core` 4-row pack
   - mirror cleanup: retired/offloaded files still sitting under `tools/smokes/v2/profiles/integration/vm_hako_caps/**`
   - runtime bridge separation: pre-existing interpreter/driver changes that support vm_hako execution but are not smoke ownership work
-- `96xE1` is landed: `tools/smokes/v2/profiles/integration/vm_hako_caps/README.md` now describes the compatibility stub and `mapbox/` tree as retired archive/mirror artifacts instead of active reuse
+- `96xE1` is landed: `tools/smokes/v2/profiles/integration/vm_hako_caps/README.md` now describes the compatibility stub and `mapbox/` tree as retired archive evidence instead of active reuse
+- `96xE3` is landed: the redundant live `vm_hako_caps/mapbox/*` mirror tree has been removed and the archive copies remain as evidence
 - current landed substeps:
   - `collection-core.txt` no longer points at any `collection_core/mapbox_*` row
   - all 7 `MapBox.*` rows now live in dedicated non-vm_hako emit+exec owners under `phase29y-hako-emit-mir.txt` and `selfhost-core.txt`
   - the 6 non-live `vm_hako_caps/mapbox/*` rows are copied into `tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/`
   - the 7 retired `collection_core/mapbox_*_ported_vm.sh` bridge scripts are archived under `tools/smokes/v2/profiles/archive/collection_core/`
-  - `96xC4` is complete; only archive/mirror cleanup remains for `mapbox`
+  - `96xC4` is complete; mapbox mirror cleanup is complete and the remaining cleanup is the offloaded mirror families plus runtime bridge separation
