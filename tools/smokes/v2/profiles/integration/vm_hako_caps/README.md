@@ -11,8 +11,9 @@ Reference-lane acceptance is the phase29y gate only:
 - `tools/smokes/v2/profiles/integration/vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh`
 - `tools/smokes/v2/suites/integration/vm-hako-caps.txt`
 
-The phase29y gate is now a compatibility stub only. Active vm-hako shadow and
-monitor rows live in `tools/smokes/v2/suites/integration/vm-hako-core.txt`.
+The phase29y gate is now a compatibility stub only. Active vm-hako monitor
+rows live in `tools/smokes/v2/suites/integration/vm-hako-core.txt`, which is
+frozen as the final 4-row reference pack.
 
 The phase29y gate keeps per-wrapper timeouts explicit. Several vm-hako runtime
 smokes use a 60s budget because each run recompiles and executes the child
@@ -78,6 +79,7 @@ The product owner for APP-1 summary behavior is now
 
 - `tools/smokes/v2/suites/integration/vm-hako-caps.txt`
 - `tools/smokes/v2/suites/integration/vm-hako-core.txt`
+  - fixed rows: `compare_ported_vm.sh`, `env_get_ported_vm.sh`, `file_close_ported_vm.sh`, `file_read_ported_vm.sh`
 - archive monitor buckets:
   - `tools/smokes/v2/profiles/archive/vm_hako_caps/**`
   - `tools/smokes/v2/profiles/archive/core/phase2160/registry_optin_method_arraymap_direct_canary_vm.sh`

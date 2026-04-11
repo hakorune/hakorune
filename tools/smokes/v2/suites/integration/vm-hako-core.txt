@@ -1,6 +1,7 @@
 # Integration vm-hako-core suite
 # Core reference-lane vm-hako capability and contract fixtures.
-# Keep this suite as a small reference/conformance pack.
+# Keep this suite as the frozen 4-row reference/conformance pack.
+# Rows: compare, env, file_close, file_read.
 vm_hako_caps/compare/compare_ported_vm.sh
 vm_hako_caps/env/env_get_ported_vm.sh
 vm_hako_caps/file/file_close_ported_vm.sh

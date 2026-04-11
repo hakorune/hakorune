@@ -52,7 +52,7 @@ Related:
 
 ## Current Read
 
-- the phase29y vm_hako gate is now a retired compatibility stub; `select_emit`, `open_handle_phi`, and all `mapbox` rows moved to non-vm_hako owners, and the remaining vm_hako references live only in the small monitor pack `tools/smokes/v2/suites/integration/vm-hako-core.txt`
+- the phase29y vm_hako gate is now a retired compatibility stub; `select_emit`, `open_handle_phi`, and all `mapbox` rows moved to non-vm_hako owners, and the remaining vm_hako references are frozen as the 4-row monitor pack `tools/smokes/v2/suites/integration/vm-hako-core.txt` (`compare`, `env`, `file_close`, `file_read`)
 - the `mapbox` bridge is fully retired from `collection-core.txt`; all 7 `MapBox.*` owner rows now live in dedicated non-vm_hako emit+exec smokes under `phase29y/hako/emit_mir/`
 - LLVM replacement anchors already exist in the current `phase29ck_boundary/runtime_data/*`, `phase29ck_llvm_backend_*`, and `phase163x_boundary_*` proof families
 - recommended single monitor canary while the replacement matrix is moving:
@@ -83,6 +83,7 @@ Related:
   - landed: `96xC3c` retired `boxcall_args_gt1_ported_vm.sh` from `vm-hako-caps.txt`, `phase29y_vm_hako_caps_gate_vm.sh`, and `vm-hako-core.txt`
   - landed: `96xC3d` / `96xD1` moved APP-1 product ownership to `apps/gate_log_summarizer_vm.sh` via `presubmit.txt` and removed the APP-1 vm_hako rows from the active vm_hako suite/gate pair
   - landed: `96xC3e` moved `select_emit` from the phase29y vm_hako gate to `phase29y_hako_emit_mir_select_exec_contract_vm.sh` via `phase29y-hako-emit-mir.txt` and `selfhost-core.txt`; the phase29y gate is now a retired compatibility stub
+  - landed: `96xD2` froze `vm-hako-core.txt` as the final 4-row monitor bundle after `tools/smokes/v2/run.sh --profile integration --suite vm-hako-core` passed `4/4`
   - wave `2`: complete; the phase29y gate no longer owns any active vm_hako row
   - parallel track: `mapbox -> collection-core` ownership move
 - detailed execution order is fixed in `96x-92-execution-plan.md`

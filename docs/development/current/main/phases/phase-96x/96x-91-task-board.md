@@ -26,6 +26,7 @@ Date: 2026-04-11
 | `96xC3` | completed | wave 2: seam shadow replacement for `select_emit` + `open_handle_phi` + `boxcall_args_gt1` |
 | `96xC4` | completed | parallel `mapbox -> collection-core` re-home track; all 7 `MapBox.*` rows are retired to non-vm_hako owners and the bridge is archive-only |
 | `96xD1` | completed | `app1` late demotion and proof / closeout |
+| `96xD2` | completed | freeze `vm-hako-core.txt` as the final 4-row monitor bundle and verify suite pass |
 
 ### Wave 1a Substeps
 
@@ -67,10 +68,10 @@ Date: 2026-04-11
 
 | Item | State |
 | --- | --- |
-| Now | `phase96x closeout sync` |
+| Now | `mapbox mirror cleanup wait` |
 | Blocker | `none` |
-| Next | `vm-hako-core monitor bundle freeze` |
-| After Next | `mapbox mirror cleanup when the dirty vm_hako tree is safe to touch` |
+| Next | `phase96x parked closeout sync` |
+| After Next | `hold the 4-row vm-hako-core monitor pack steady` |
 
 ## Acceptance Shape
 
@@ -94,6 +95,7 @@ Date: 2026-04-11
 - `96xC3d` / `96xD1` are landed: `presubmit.txt` now owns `apps/gate_log_summarizer_vm.sh`, and the APP-1 vm_hako rows are removed from the active vm_hako suite/gate pair
 - `96xC3f` is landed: `open_handle_phi` is retired from `vm-hako-core.txt` after `phase29y_hako_emit_mir_open_handle_phi_exec_contract_vm.sh` was added as the exact non-vm_hako emit+exec owner in `phase29y-hako-emit-mir.txt` and `selfhost-core.txt`
 - wave `2` is complete; the phase29y gate is a compatibility stub and no seam-shadow row remains in `vm-hako-core.txt`
+- `96xD2` is landed: `vm-hako-core.txt` is frozen as the final 4-row monitor bundle (`compare`, `env`, `file_close`, `file_read`) and the suite passes `4/4`
 - `mapbox` is a separate `collection-core` re-home track, not part of wave `1a`
 - current landed substeps:
   - `collection-core.txt` no longer points at any `collection_core/mapbox_*` row

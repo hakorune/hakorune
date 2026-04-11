@@ -111,6 +111,10 @@ Current blocker detail for `mapbox/`:
 
 ## Monitor-Only Policy
 
+- frozen reference pack:
+  - `tools/smokes/v2/suites/integration/vm-hako-core.txt`
+  - rows: `compare_ported_vm.sh`, `env_get_ported_vm.sh`, `file_close_ported_vm.sh`, `file_read_ported_vm.sh`
+  - verification: `tools/smokes/v2/run.sh --profile integration --suite vm-hako-core` passes `4/4`
 - blocking daily health canary:
   - `tools/smokes/v2/profiles/integration/vm_hako_caps/env/env_get_ported_vm.sh`
   - purpose: cheap liveness plus extern-routing sanity

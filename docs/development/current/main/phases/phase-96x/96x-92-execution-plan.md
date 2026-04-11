@@ -157,6 +157,6 @@ Risks:
 
 ## Next Commit Candidates
 
-1. `monitor-only`: freeze the remaining `vm-hako-core` monitor bundle (`compare`, `env`, `file_read`, `file_close`) as the final reference pack
-2. `mapbox`: clean up the old `vm_hako_caps/mapbox/*` mirrors once the dirty runtime worktree is safe to touch
-3. `docs`: phase96x closeout sync once the monitor bundle wording is settled
+1. `mapbox`: clean up the old `vm_hako_caps/mapbox/*` mirrors once the dirty runtime worktree is safe to touch
+2. `docs`: phase96x parked closeout sync now that the monitor bundle wording is settled
+3. `hold`: keep the frozen `vm-hako-core` 4-row monitor bundle unchanged unless a replacement owner appears
