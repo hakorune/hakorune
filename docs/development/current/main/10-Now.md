@@ -45,6 +45,9 @@ Related:
   - landed DCE follow-on: `phase177x redundant KeepAlive pruning`
     - landed the first effect-sensitive DCE slice: redundant reachable `KeepAlive { values }` now disappear
     - keep later work separate from generic no-dst pure cleanup
+  - landed shim-structure follow-on: `phase178x sum local seed split`
+    - split `lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed.inc` into a facade plus helper/emit/matcher includes before reopening more generic bridge-shrink work
+    - keep this cut structure-only: preserve current pure-compile match order and current variant/local route semantics
   - row status:
     - `3 User-Box Method Dispatch`: mostly done; narrow known-receiver consumer and the direct-route determinism repair are landed, broader generic parity backlog remains
     - `4 Array Typed Slots 拡大`: partial; narrow typed-slot pilots landed, read-side expansion backlog remains
@@ -53,7 +56,7 @@ Related:
     - `7 LLVM Escape Analysis`: partial; Copy + one-input-phi-carry aware local barrier elision and the `phase165x` operand-role escape barrier vocabulary cut are landed, broader generic escape analysis backlog remains
     - `8 Float 最適化`: partial; narrow FloatBox pilot landed, broader tuning backlog
     - `9 Closure/Lambda 最適化`: backlog
-  - next optimization resume: `phase163x-optimization-resume`
+  - next optimization resume after the active structure cut: `phase163x-optimization-resume`
   - fixed structure order before more domain widening:
     1. `phase166x` semantic refresh owner
     2. generic `value_origin` owner

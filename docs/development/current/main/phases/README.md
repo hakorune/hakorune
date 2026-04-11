@@ -6,6 +6,7 @@
 
 - **Current (ACTIVE)**: Phase 163x primitive and user-box fast path
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
+- **Phase 178x（LANDED）**: sum local seed split
 - **Phase 177x（LANDED）**: redundant KeepAlive pruning
 - **Phase 176x（LANDED）**: reachable-only DCE first cut
 - **Phase 177x（LANDED）**: redundant KeepAlive pruning

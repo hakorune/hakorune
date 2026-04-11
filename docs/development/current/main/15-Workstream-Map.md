@@ -18,7 +18,7 @@ Related:
 | Front | `lifecycle value parent locked -> audits landed -> thin-entry inventory/selection landed -> sum placement pilot landed -> ny-llvmc parity proving slice landed -> tuple compat transport landed` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
 | Blocker | `canonical multi-slot sum remains deferred; current tuple route stays compat-boxed` |
-| Next | `broader effect-sensitive / no-dst DCE` |
+| Next | `string exact-seed retirement design read` |
 | After Next | `where / enum methods / monomorphization stay backlog-only` |
 
 ## Current Read
@@ -70,6 +70,10 @@ Related:
   - `phase-177x` is landed as the first effect-sensitive DCE cut
   - next target is broader effect-sensitive / no-dst cleanup
   - do not mix that with unreachable-block deletion
+- landed shim-structure follow-on:
+  - `phase-178x` is landed
+  - split `hako_llvmc_ffi_sum_local_seed.inc` into a facade plus helper/emit/matcher include slices
+  - keep this as BoxShape only; no pure-compile dispatch reorder and no semantic change
 - `phase-133x` landed:
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`

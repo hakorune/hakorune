@@ -25,6 +25,18 @@ Current partitions:
   - pure-first seed emit/match helpers for array get/set micro paths
 - `hako_llvmc_ffi_user_box_micro_seed.inc`
   - pure-first seed emit/match helpers for the narrow typed user-box point-add / flag-toggle micro paths
+- `hako_llvmc_ffi_sum_local_seed.inc`
+  - thin facade include for local variant/sum pure-first seeds
+- `hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc`
+  - shared metadata readers for thin-entry and sum-placement local aggregate checks
+- `hako_llvmc_ffi_sum_local_seed_emitters.inc`
+  - exact local variant tag/project pure IR emitters
+- `hako_llvmc_ffi_sum_local_seed_matchers_tag.inc`
+  - local/tag matcher family
+- `hako_llvmc_ffi_sum_local_seed_matchers_project_copy.inc`
+  - project-through-copy matcher family
+- `hako_llvmc_ffi_sum_local_seed_matchers_project_local.inc`
+  - direct local project matcher family
 - `hako_llvmc_ffi_concat_const_suffix_seed.inc`
   - dedicated exact-micro pure-first seed for `kilo_micro_concat_const_suffix`
 - `hako_llvmc_ffi_indexof_observer_state.inc`

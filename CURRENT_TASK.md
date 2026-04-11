@@ -86,6 +86,11 @@ Scope: repo root から current lane / current front / restart read order に最
   - `phase-177x` is landed as the first effect-sensitive DCE cut
   - redundant reachable `KeepAlive` instructions whose values were already live for other reachable reasons now disappear
   - next DCE work should stay separate from generic pure no-dst cleanup
+- landed shim-structure follow-on:
+  - `docs/development/current/main/phases/phase-178x/README.md`
+  - split `lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed.inc` into a facade plus focused include units before reopening more generic bridge shrink work
+  - keep this as structure-only cleanup: no pure-compile match-order change, no new variant routes, no semantic widening
+  - next decision stays separate: string exact-seed retirement / generic plan-consumer corridor after external design reread
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`
