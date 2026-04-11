@@ -24,8 +24,8 @@ prefix bucket.
 
 ## Layout
 
-- `app1/`: APP-1 summary and active post-open contract pins
-- `args/`: `args` and `boxcall(args>1)` contract pins
+- `app1/`: retained APP-1 vm-hako parity witnesses; no longer suite-owned
+- `args/`: retained seam witnesses after the narrow `args_vm` retirement
 - `atomic/`: atomic fence contract pins
 - `compare/`: compare-op contract pins
 - `env/`: environment routing contract pins
@@ -48,14 +48,20 @@ monitor-only now; the product-facing anchors are the PLG-07 FileBox scripts,
 and `file_error_vm.sh` is no longer part of the phase29y vm-hako acceptance
 gate.
 
+`open_handle_phi/open_handle_phi_ported_vm.sh` is a non-blocking shadow only
+now. It remains in `tools/smokes/v2/suites/integration/vm-hako-core.txt`, but
+it is no longer part of `vm-hako-caps.txt` or
+`phase29y_vm_hako_caps_gate_vm.sh`.
+
 `mapbox/` is not part of the phase29y vm-hako acceptance gate.
 `tools/smokes/v2/suites/integration/collection-core.txt` now points at
 `tools/smokes/v2/profiles/integration/collection_core/mapbox_*` wrappers, so
 the `collection-core` suite no longer depends on `vm_hako_caps/mapbox/*`
 directly.
-`app1/app1_summary_contract_ported_vm.sh` also remains referenced by
-`tools/smokes/v2/suites/integration/presubmit.txt`, so `app1/` is a late
-demotion family rather than an early archive target.
+`app1/` and `args/boxcall_args_gt1_ported_vm.sh` are no longer suite-owned.
+The product owner for APP-1 summary behavior is now
+`tools/smokes/v2/profiles/integration/apps/gate_log_summarizer_vm.sh` via
+`tools/smokes/v2/suites/integration/presubmit.txt`.
 
 ## Suite
 

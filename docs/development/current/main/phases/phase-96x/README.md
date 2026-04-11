@@ -53,8 +53,8 @@ Related:
 ## Current Read
 
 - the active reference gate is still `tools/smokes/v2/profiles/integration/vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh`
-- the live `vm_hako_caps` family still covers `app1`, `args`, `atomic`, `compare`, `env`, `file`, `mapbox`, `misc`, `open_handle_phi`, `select_emit`, `tls`
-- the current pressure point is no longer wave `1a`, wave `1b`, or the first `mapbox` bridge move; the next active cut is the seam-shadow lane after the non-live `mapbox` archive lands
+- the active phase29y vm_hako gate is now `select_emit` only
+- the current pressure point is no longer wave `1a`, wave `1b`, or APP-1 seam retirement; the next active cut is the final `mapbox` owner retirement and monitor-only closeout sync
 - LLVM replacement anchors already exist in the current `phase29ck_boundary/runtime_data/*`, `phase29ck_llvm_backend_*`, and `phase163x_boundary_*` proof families
 - recommended single monitor canary while the replacement matrix is moving:
   - `tools/smokes/v2/profiles/integration/vm_hako_caps/env/env_get_ported_vm.sh`
@@ -83,9 +83,10 @@ Related:
   - wave `1b`: complete
   - landed: `96xC4a` copied the 6 non-live `mapbox` rows into `tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/` as archive mirrors, while leaving the current dirty `vm_hako_caps/mapbox/*` worktree content untouched
   - landed: `96xC3a/C3b` hold `select_emit` and `open_handle_phi` as shadow rows because the current `phase29y-hako-emit-mir` / `joinir-bq` / `selfhost-core` packs are not yet equivalent replacements for those exact seam contracts
-  - wave `2`: `select_emit` + `open_handle_phi` + `boxcall_args_gt1` + `app1`
+  - landed: `96xC3c` retired `boxcall_args_gt1_ported_vm.sh` from `vm-hako-caps.txt`, `phase29y_vm_hako_caps_gate_vm.sh`, and `vm-hako-core.txt`
+  - landed: `96xC3d` / `96xD1` moved APP-1 product ownership to `apps/gate_log_summarizer_vm.sh` via `presubmit.txt` and removed the APP-1 vm_hako rows from the active vm_hako suite/gate pair
+  - wave `2`: complete; the remaining active phase29y vm_hako gate row is `select_emit`
   - parallel track: `mapbox -> collection-core` ownership move
-- `app1_summary_contract_ported_vm.sh` is also still referenced by `tools/smokes/v2/suites/integration/presubmit.txt`, so `app1` remains a late demotion/retire family rather than an early cutover target
 - detailed execution order is fixed in `96x-92-execution-plan.md`
 
 ## Scope and Non-Goals

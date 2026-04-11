@@ -23,9 +23,9 @@ Related:
 ## Immediate Read
 
 - `args_vm.sh` is retired from the live vm_hako suite/gate pair; `phase29x_runtime_data_dispatch_llvm_e2e_vm.sh` is the explicit green replacement anchor
-- `boxcall_args_gt1_ported_vm.sh` is not a pure args row; it executes APP-1 (`gate_log_summarizer/main.hako`) and belongs to the late APP/seam track
+- `boxcall_args_gt1_ported_vm.sh` was not a pure args row; it executed APP-1 (`gate_log_summarizer/main.hako`) and is now retired from active suite/gate ownership
 - `mapbox/*` is not phase29y-live; live suite ownership is now bridged through `collection_core/mapbox_*`
-- `app1_summary_contract_ported_vm.sh` is still referenced by `presubmit.txt`
+- `apps/gate_log_summarizer_vm.sh` is now the product owner in `presubmit.txt`
 - `argv_multiline_roundtrip.sh` remains a narrow future candidate, but it is not the current keeper because it is red in this tree
 
 ## Fastest Order
@@ -104,24 +104,21 @@ Required tasks:
 Goal: keep seam-sensitive rows out of wave 1 so product retirement does not stall on compiler/backend coupling.
 
 Rows:
-- `vm_hako_caps/select_emit/select_emit_block_vm.sh`
 - `vm_hako_caps/open_handle_phi/open_handle_phi_ported_vm.sh`
-- `vm_hako_caps/args/boxcall_args_gt1_ported_vm.sh`
-- `vm_hako_caps/app1/app1_stack_overflow_after_open_ported_vm.sh`
-- `vm_hako_caps/app1/app1_summary_contract_ported_vm.sh`
+- `vm_hako_caps/select_emit/select_emit_block_vm.sh`
 
 Anchor direction:
 - `select_emit` -> `phase29y-hako-emit-mir.txt`
 - `open_handle_phi` -> `joinir-bq.txt` or `selfhost-core.txt`
-- `boxcall_args_gt1` -> APP-1/open-handle seam lane, not runtime-data wave 1a
-- `app1_summary_contract_ported_vm.sh` -> late demotion only after `presubmit.txt` stops depending on it
+- `boxcall_args_gt1` -> retired from active ownership; no exact non-vm_hako seam replacement exists yet
+- `app1_summary_contract_ported_vm.sh` -> retired from active ownership after `presubmit.txt` moved to `apps/gate_log_summarizer_vm.sh`
 
 Required tasks:
 1. landed `96xC3a`: keep `select_emit` as shadow because `phase29y-hako-emit-mir.txt` does not yet pin the exact `select` emit+exec contract
-2. landed `96xC3b`: keep `open_handle_phi` as shadow because `joinir-bq.txt` / `selfhost-core.txt` do not yet pin the exact `FileBox.open` handle-propagation seam contract
-3. split `boxcall_args_gt1` out of the generic args retirement narrative
-4. replace `app1_summary_contract_ported_vm.sh` in `presubmit.txt`
-5. only then demote the APP-1 rows
+2. landed `96xC3b`: keep `open_handle_phi` as a non-blocking shadow because `joinir-bq.txt` / `selfhost-core.txt` do not yet pin the exact `FileBox.open` handle-propagation seam contract
+3. landed `96xC3c`: remove `boxcall_args_gt1_ported_vm.sh` from `vm-hako-caps.txt`, `phase29y_vm_hako_caps_gate_vm.sh`, and `vm-hako-core.txt`
+4. landed `96xC3d`: replace `app1_summary_contract_ported_vm.sh` in `presubmit.txt` with `apps/gate_log_summarizer_vm.sh`
+5. landed `96xD1`: demote the APP-1 vm_hako rows from the active vm_hako suite/gate pair
 
 ### Parallel Track: mapbox re-home
 
@@ -160,6 +157,6 @@ Risks:
 
 ## Next Commit Candidates
 
-1. `96xC3c`: close `boxcall_args_gt1_ported_vm.sh` through the APP-1/open-handle seam lane instead of treating it as a generic args row
-2. `96xD1`: resolve the late `app1` demotion blocker in `presubmit.txt`
-3. `mapbox`: retire the `collection_core/` owner rows after LLVM collection/runtime-data coverage replaces them
+1. `mapbox`: retire the `collection_core/` owner rows after LLVM collection/runtime-data coverage replaces them
+2. `monitor-only`: decide whether `select_emit` remains the last phase29y gate row or moves to a pure shadow bucket
+3. `open_handle_phi`: replace the remaining vm_hako-core shadow with an explicit JoinIR/selfhost seam owner

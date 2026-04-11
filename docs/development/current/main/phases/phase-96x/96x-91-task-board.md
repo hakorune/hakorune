@@ -9,8 +9,8 @@ Date: 2026-04-11
 | --- | --- | --- | --- |
 | 1 | `96xA inventory` | completed | lock the current vm_hako gate, the LLVM replacement set, and the monitor canary candidate |
 | 2 | `96xB ranking` | completed | choose the smallest LLVM replacement wave and freeze `env/env_get_ported_vm.sh` as the canary |
-| 3 | `96xC cutover` | pending | execute the split cutover waves and the separate mapbox re-home track |
-| 4 | `96xD closeout` | pending | prove the new gate shape and hand off cleanly |
+| 3 | `96xC cutover` | in_progress | execute the split cutover waves and the separate mapbox re-home track |
+| 4 | `96xD closeout` | in_progress | prove the new gate shape and hand off cleanly |
 
 ## Exact Micro Tasks
 
@@ -21,11 +21,11 @@ Date: 2026-04-11
 | `96xB1` | completed | rank the runtime-data / args / collection wave |
 | `96xB2` | completed | rank the file / env / compare wave |
 | `96xB3` | completed | freeze `env/env_get_ported_vm.sh` as the blocking canary and `open_handle_phi` as the semantic shadow |
-| `96xC1` | in_progress | wave 1a: LLVM cutover pack for `env` + `file` after the narrow `args_vm` cut |
+| `96xC1` | completed | wave 1a: LLVM cutover pack for `env` + `file` after the narrow `args_vm` cut |
 | `96xC2` | completed | wave 1b: LLVM cutover pack for `compare` + `misc` + `atomic` + `tls` |
-| `96xC3` | in_progress | wave 2: seam shadow replacement for `select_emit` + `open_handle_phi` + `boxcall_args_gt1` |
+| `96xC3` | completed | wave 2: seam shadow replacement for `select_emit` + `open_handle_phi` + `boxcall_args_gt1` |
 | `96xC4` | in_progress | parallel `mapbox -> collection-core` re-home track; live rows moved into `collection_core/`, non-live rows archived, final owner retirement deferred |
-| `96xD1` | pending | `app1` late demotion and proof / closeout |
+| `96xD1` | completed | `app1` late demotion and proof / closeout |
 
 ### Wave 1a Substeps
 
@@ -50,9 +50,9 @@ Date: 2026-04-11
 | Task | Status | Read as |
 | --- | --- | --- |
 | `96xC3a` | completed | keep `select_emit` as a shadow row; no exact non-vm_hako replacement anchor exists yet |
-| `96xC3b` | completed | keep `open_handle_phi` as a shadow row; no exact non-vm_hako replacement anchor exists yet |
-| `96xC3c` | pending | resolve `boxcall_args_gt1_ported_vm.sh` inside the APP-1/open-handle seam lane |
-| `96xC3d` | pending | replace `app1_summary_contract_ported_vm.sh` in `presubmit.txt` and then demote the APP-1 rows |
+| `96xC3b` | completed | keep `open_handle_phi` as a non-blocking shadow row in `vm-hako-core.txt`; no exact non-vm_hako replacement anchor exists yet |
+| `96xC3c` | completed | remove `boxcall_args_gt1_ported_vm.sh` from active vm_hako suite/gate ownership and treat it as retired APP-1 seam evidence |
+| `96xC3d` | completed | replace `app1_summary_contract_ported_vm.sh` in `presubmit.txt` and demote the APP-1 rows |
 
 ## Execution Anchor
 
@@ -62,9 +62,9 @@ Date: 2026-04-11
 
 | Item | State |
 | --- | --- |
-| Now | `96xC3c boxcall_args_gt1 / APP-1 seam closure` |
+| Now | `96xC4 mapbox final owner retirement prep` |
 | Blocker | `none` |
-| Next | `96xD1 app1 late demotion` |
+| Next | `monitor-only closeout sync` |
 | After Next | `mapbox final owner retirement after LLVM collection/runtime-data coverage` |
 
 ## Acceptance Shape
@@ -73,7 +73,7 @@ Date: 2026-04-11
 - the first LLVM replacement wave is split and documented
 - no new vm_hako capability rows are added while the cutover runs
 - the blocking canary is `tools/smokes/v2/profiles/integration/vm_hako_caps/env/env_get_ported_vm.sh`, and it now lives only in `vm-hako-core.txt`
-- the non-blocking semantic shadow is `tools/smokes/v2/profiles/integration/vm_hako_caps/open_handle_phi/open_handle_phi_ported_vm.sh`
+- the non-blocking semantic shadow is `tools/smokes/v2/profiles/integration/vm_hako_caps/open_handle_phi/open_handle_phi_ported_vm.sh`, and it now lives only in `vm-hako-core.txt`
 - `96xC1a` is landed: `args_vm.sh` is retired from `vm-hako-caps.txt`, `vm-hako-core.txt`, and `phase29y_vm_hako_caps_gate_vm.sh`
 - `96xC1b` is landed: `env_get_ported_vm.sh` is retired from `vm-hako-caps.txt` and `phase29y_vm_hako_caps_gate_vm.sh`, while `core/phase2035/v1_extern_env_get_canary_vm.sh` is added to `presubmit.txt`
 - `96xC1c` is landed: `filebox_newbox_vm.sh` is retired from `vm-hako-caps.txt` and `phase29y_vm_hako_caps_gate_vm.sh`
@@ -85,8 +85,10 @@ Date: 2026-04-11
 - `96xC2c` is landed: `const_void_ported_vm.sh` is retired from the live vm_hako gate/suite pair and from `vm-hako-core.txt`, and preserved only as archive evidence
 - wave `1b` is complete
 - `96xC3a` is landed: `select_emit` stays shadow because the current `phase29y-hako-emit-mir` pack is not yet an exact replacement for the `select` emit+exec seam contract
-- `96xC3b` is landed: `open_handle_phi` stays shadow because the current `joinir-bq` / `selfhost-core` packs do not yet cover the exact `FileBox.open` handle-propagation seam contract
-- wave `2` is `select_emit` + `open_handle_phi` + `boxcall_args_gt1`
+- `96xC3b` is landed: `open_handle_phi` stays shadow because the current `joinir-bq` / `selfhost-core` packs do not yet cover the exact `FileBox.open` handle-propagation seam contract; it no longer blocks the phase29y gate
+- `96xC3c` is landed: `boxcall_args_gt1_ported_vm.sh` is removed from `vm-hako-caps.txt`, `phase29y_vm_hako_caps_gate_vm.sh`, and `vm-hako-core.txt`
+- `96xC3d` / `96xD1` are landed: `presubmit.txt` now owns `apps/gate_log_summarizer_vm.sh`, and the APP-1 vm_hako rows are removed from the active vm_hako suite/gate pair
+- wave `2` is complete; the active phase29y vm_hako gate is now `select_emit` only
 - `mapbox` is a separate `collection-core` re-home track, not part of wave `1a`
 - current landed substeps:
   - `collection-core.txt` points at `collection_core/mapbox_*`
