@@ -1,6 +1,6 @@
 # Phase 166x: semantic refresh and generic relation cleanup
 
-- Status: Active
+- Status: Landed
 - Purpose: fix the owner seams around semantic metadata so later optimization widening does not reintroduce helper-name, alias-root, or PHI-base reanalysis in domain passes.
 - Scope:
   - MIR authority only
@@ -34,6 +34,7 @@
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
 - SSOT:
   - `docs/development/current/main/phases/phase-166x/166x-90-semantic-refresh-and-generic-relation-ssot.md`
+  - `docs/development/current/main/phases/phase-166x/166x-92-boundary-lifecycle-decision.md`
 
 ## Current Cut
 
@@ -50,14 +51,18 @@
 - landed fourth cut:
   - `src/mir/string_corridor_compat.rs` now owns helper/runtime-name semantic recovery for the string lane
   - `src/mir/string_corridor.rs` now stays canonical-first and only falls back to the quarantined compat seam
-- next:
-  - define the fixed order:
-    - generic boundary/lifecycle extraction decision next
+- landed fifth cut:
+  - `166x-92-boundary-lifecycle-decision.md` now fixes the stop line: do not extract a generic `boundary_fact` / `lifecycle_outcome` seam yet
+  - `StringOutcomeFact` / `StringPlacementFact` stay string-local lifecycle vocabulary
+  - `EscapeBarrier` / `SumObjectizationBarrier` stay barrier-cause vocabulary
+- result:
+  - `phase-166x` is complete as a structural cleanup corridor
+  - return to `phase163x-optimization-resume` for further optimization widening
 - keep current domain `fact -> candidate -> transform` layering
 
 ## Stop Line
 
 - do not push policy into runtime helpers or LLVM
 - do not make domain passes own copy-root or PHI semantics
-- do not extract new generic lifecycle vocabulary before refresh ownership is fixed
+- do not extract a mixed generic boundary/lifecycle vocabulary before there is a second real lifecycle consumer
 - do not mix this structural cleanup with new optimization acceptance shapes

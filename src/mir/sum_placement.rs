@@ -31,6 +31,10 @@ impl std::fmt::Display for SumPlacementState {
     }
 }
 
+/// Objectization blockers for the current enum-local proving slice.
+///
+/// This is a barrier-cause vocabulary for sum/local-aggregate objectization,
+/// not a generic lifecycle/outcome seam.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum SumObjectizationBarrier {
     Return,

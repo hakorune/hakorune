@@ -107,8 +107,17 @@ The following stays out of the first structural cut:
 5. `166xE`: compat semantic recovery quarantine
 6. `166xF`: boundary/lifecycle extraction decision
 
+## Landed Decision
+
+`166xF` is now closed with an explicit defer:
+
+- keep `StringOutcomeFact` / `StringPlacementFact` local to the string lane
+- keep `EscapeBarrier` / `SumObjectizationBarrier` as barrier-cause vocabularies
+- do not create one mixed generic seam until another real lifecycle/outcome consumer exists
+- if generic extraction reopens later, split it by question instead of collapsing lifecycle and barrier causes together
+
 ## Acceptance
 
 - phase docs point to one ordered task stack
-- root/current/workstream docs all point to `phase-166x` as the active structural follow-on after `phase-165x`
-- `boundary_fact` extraction is explicitly documented as later than refresh/relation ownership
+- root/current/workstream docs point to `phase-166x` as the landed structural cleanup follow-on after `phase-165x`
+- `boundary_fact` extraction is explicitly documented as deferred until after refresh/relation ownership stabilizes and another lifecycle consumer exists

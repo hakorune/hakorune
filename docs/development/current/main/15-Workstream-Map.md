@@ -18,7 +18,7 @@ Related:
 | Front | `lifecycle value parent locked -> audits landed -> thin-entry inventory/selection landed -> sum placement pilot landed -> ny-llvmc parity proving slice landed -> tuple compat transport landed` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
 | Blocker | `canonical multi-slot sum remains deferred; current tuple route stays compat-boxed` |
-| Next | `phase163x-optimization-resume` via active `phase-166x` semantic refresh and generic relation cleanup |
+| Next | `phase163x-optimization-resume` |
 | After Next | `where / enum methods / monomorphization stay backlog-only` |
 
 ## Current Read
@@ -33,9 +33,9 @@ Related:
 - landed optimization sub-corridor:
   - `phase-165x` landed the MIR-side operand-role escape barrier vocabulary cut
   - runtime/helper policy and generic cross-block escape work stay outside that slice
-- active optimization structure follow-on:
-  - `phase-166x` is the current structural cleanup corridor
-  - fixed order is `semantic refresh owner -> generic value_origin / phi_relation owner -> compat semantic recovery quarantine -> boundary/lifecycle extraction decision`
+- landed optimization structure follow-on:
+  - `phase-166x` completed the structural cleanup corridor
+  - landed order is `semantic refresh owner -> generic value_origin / phi_relation owner -> compat semantic recovery quarantine -> boundary/lifecycle extraction decision`
 - `phase-133x` landed:
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`

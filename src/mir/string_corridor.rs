@@ -47,7 +47,11 @@ impl std::fmt::Display for StringCorridorRole {
     }
 }
 
-/// Birth / placement outcomes carried by the current SSOT.
+/// Birth / placement outcomes carried by the current string-lane SSOT.
+///
+/// Keep this local until a second real lifecycle/outcome consumer appears
+/// outside the string lane. Barrier-cause vocabularies such as
+/// `EscapeBarrier` and `SumObjectizationBarrier` answer a different question.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum StringOutcomeFact {
     ReturnHandle,
@@ -72,6 +76,9 @@ impl std::fmt::Display for StringOutcomeFact {
 }
 
 /// Boundary-placement fact for objectization / publication / materialization.
+///
+/// This remains string-local for now. `phase-166x` explicitly defers a generic
+/// extraction until lifecycle/outcome consumers exist beyond this lane.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum StringPlacementFact {
     Unknown,

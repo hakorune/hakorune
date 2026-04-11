@@ -5,7 +5,7 @@
 ## 現在の Phase
 
 - **Current (ACTIVE)**: Phase 137x main kilo reopen selection
-- **Phase 166x（ACTIVE sub-corridor）**: semantic refresh and generic relation cleanup
+- **Phase 166x（LANDED）**: semantic refresh and generic relation cleanup
 - **Phase 161x（LANDED）**: hot-path capability seam freeze
 - **Phase 159x（LANDED）**: observe trace split
 - **Phase 160x（LANDED）**: capability-family inventory

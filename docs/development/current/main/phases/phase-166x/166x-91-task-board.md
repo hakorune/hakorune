@@ -19,10 +19,10 @@
 - [x] `166xE` compat semantic recovery quarantine
   - move helper/runtime-name semantic recovery out of domain fact builders
   - keep canonical-op reading as the domain-pass direction
-- [ ] `166xF` generic boundary/lifecycle extraction decision
+- [x] `166xF` generic boundary/lifecycle extraction decision
   - only after `166xB` through `166xE`
   - do not start this before refresh and relation ownership are stable
-- [ ] `166xG` verification + doc sync
+- [x] `166xG` verification + doc sync
   - pointer docs
   - targeted tests / `git diff --check`
 
@@ -31,3 +31,4 @@
 - this is structural cleanup, not a new optimization acceptance wave
 - do not mix fact-owner cleanup with runtime/LLVM policy moves
 - if `166xB` is not landed first, later vocabulary extraction will create another owner seam instead of removing one
+- `166xF` decision: keep lifecycle/outcome and barrier-cause vocabularies split until a second real lifecycle consumer exists

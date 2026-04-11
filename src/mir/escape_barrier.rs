@@ -5,6 +5,10 @@
  * `MirInstruction::used_values()`. This module defines only the MIR-side
  * authority for which operand roles count as publication/capture barriers for
  * the current narrow escape-analysis slice.
+ *
+ * These barriers are cause-side facts, not lifecycle/outcome facts. Keep that
+ * split explicit so later generic extraction does not collapse both questions
+ * into one vocabulary.
  */
 
 use crate::mir::definitions::call_unified::Callee;

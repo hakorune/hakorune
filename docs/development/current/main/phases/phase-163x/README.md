@@ -250,12 +250,12 @@
            - generic LLVM-side escape pass beyond the already-landed narrow local objectization-at-boundary route
            - current escape narrow slice is now alias-aware too: barrier elision follows `Copy` chains for non-escaping local boxes, while broader generic escape analysis remains backlog
            - `phase-165x` landed the operand-role escape barrier vocabulary cut so escape widening no longer reuses the coarse `used_values()` surface
-           - `phase-166x` is now the active structural follow-on:
+           - `phase-166x` is now landed as the structural follow-on:
              - first unify MIR semantic refresh ownership
              - generic `value_origin` ownership is now landed in `src/mir/value_origin.rs`
              - generic `phi_relation` ownership is now also landed in `src/mir/phi_query.rs`
              - helper/runtime-name semantic recovery is now quarantined in `src/mir/string_corridor_compat.rs`
-             - only after that decide whether `boundary_fact` / lifecycle vocabulary should move out of string-local storage
+             - the `boundary_fact` / lifecycle extraction decision is now explicit too: keep string-local lifecycle vocabulary separate from barrier-cause vocabularies until another real lifecycle consumer appears
            - `where` / enum methods / full monomorphization
         6. do not promote these into the current phase task order without a measured hotspot + SSOT first:
            - `MapBox` typed value slots

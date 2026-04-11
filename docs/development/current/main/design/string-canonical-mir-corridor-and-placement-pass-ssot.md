@@ -193,6 +193,7 @@ Current migration note:
 
 - canonical fact inventory lives in `src/mir/string_corridor.rs`
 - legacy/helper/runtime-name semantic recovery is quarantined in `src/mir/string_corridor_compat.rs`
+- `StringOutcomeFact` / `StringPlacementFact` stay string-local for now; `phase-166x` explicitly deferred a generic lifecycle/boundary extraction until another real lifecycle consumer exists
 - later string-domain passes may still recognize helper shapes as compat consumers, but fact ownership should stay canonical-first
 
 ## Placement/Effect Pass Rule

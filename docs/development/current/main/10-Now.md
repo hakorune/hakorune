@@ -15,7 +15,7 @@ Related:
 - optimization snapshot:
   - current implementation lane: `phase163x primitive and user-box fast path`
   - sibling guardrail lane: `phase137x main kilo reopen selection`; string remains active and is not complete yet
-  - active structural follow-on: `phase166x semantic refresh and generic relation cleanup`
+  - landed structural follow-on: `phase166x semantic refresh and generic relation cleanup`
   - row status:
     - `3 User-Box Method Dispatch`: mostly done; narrow known-receiver consumer landed, broader generic parity backlog remains
     - `4 Array Typed Slots 拡大`: partial; narrow typed-slot pilots landed, read-side expansion backlog remains
@@ -36,7 +36,8 @@ Related:
     - generic `value_origin` owner is landed
     - generic `phi_relation` owner is landed
     - compat semantic recovery quarantine is landed
-    - next front is the generic boundary/lifecycle extraction decision
+    - generic boundary/lifecycle extraction decision is landed as a defer: keep lifecycle/outcome and barrier-cause vocabularies split for now
+    - current result: `phase166x` is complete; return to `phase163x-optimization-resume`
 - lane: `phase-163x primitive and user-box fast path`
 - current implementation focus:
   - owner-target reminder:
