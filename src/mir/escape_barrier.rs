@@ -79,6 +79,7 @@ pub fn classify_escape_uses(inst: &MirInstruction) -> Vec<EscapeUse> {
         MirInstruction::Store { value, .. } | MirInstruction::FieldSet { value, .. } => {
             vec![EscapeUse::new(*value, EscapeBarrier::StoreLike)]
         }
+        MirInstruction::Phi { inputs, .. } if inputs.len() == 1 => Vec::new(),
         MirInstruction::Phi { inputs, .. } => inputs
             .iter()
             .map(|(_, value)| EscapeUse::new(*value, EscapeBarrier::PhiMerge))
@@ -160,5 +161,44 @@ mod tests {
             }]
         );
         assert!(!uses.iter().any(|use_site| use_site.value == base));
+    }
+
+    #[test]
+    fn single_input_phi_is_passthrough_not_merge_barrier() {
+        let uses = classify_escape_uses(&MirInstruction::Phi {
+            dst: ValueId::new(30),
+            inputs: vec![(crate::mir::BasicBlockId::new(0), ValueId::new(31))],
+            type_hint: None,
+        });
+
+        assert!(uses.is_empty());
+    }
+
+    #[test]
+    fn multi_input_phi_stays_merge_barrier() {
+        let lhs = ValueId::new(40);
+        let rhs = ValueId::new(41);
+        let uses = classify_escape_uses(&MirInstruction::Phi {
+            dst: ValueId::new(42),
+            inputs: vec![
+                (crate::mir::BasicBlockId::new(0), lhs),
+                (crate::mir::BasicBlockId::new(1), rhs),
+            ],
+            type_hint: None,
+        });
+
+        assert_eq!(
+            uses,
+            vec![
+                EscapeUse {
+                    value: lhs,
+                    barrier: EscapeBarrier::PhiMerge,
+                },
+                EscapeUse {
+                    value: rhs,
+                    barrier: EscapeBarrier::PhiMerge,
+                },
+            ]
+        );
     }
 }

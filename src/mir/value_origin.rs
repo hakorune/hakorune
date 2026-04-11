@@ -9,7 +9,8 @@ use super::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 use std::collections::{BTreeSet, HashMap};
 
 pub type ValueDefMap = HashMap<ValueId, (BasicBlockId, usize)>;
-pub type CopyParentMap = HashMap<ValueId, ValueId>;
+pub type ParentMap = HashMap<ValueId, ValueId>;
+pub type CopyParentMap = ParentMap;
 
 pub fn build_value_def_map(function: &MirFunction) -> ValueDefMap {
     let mut defs = ValueDefMap::new();
@@ -47,18 +48,22 @@ pub fn resolve_value_origin(
     value
 }
 
-pub fn resolve_value_origin_from_copy_parents(
-    mut value: ValueId,
-    copy_parents: &CopyParentMap,
-) -> ValueId {
+pub fn resolve_value_origin_from_parent_map(mut value: ValueId, parents: &ParentMap) -> ValueId {
     let mut seen = BTreeSet::new();
-    while let Some(parent) = copy_parents.get(&value) {
+    while let Some(parent) = parents.get(&value) {
         if !seen.insert(value) {
             break;
         }
         value = *parent;
     }
     value
+}
+
+pub fn resolve_value_origin_from_copy_parents(
+    value: ValueId,
+    copy_parents: &CopyParentMap,
+) -> ValueId {
+    resolve_value_origin_from_parent_map(value, copy_parents)
 }
 
 #[cfg(test)]
@@ -106,6 +111,18 @@ mod tests {
 
         let resolved = resolve_value_origin_from_copy_parents(ValueId::new(2), &copy_parents);
         assert!(matches!(resolved, ValueId(1) | ValueId(2)));
+    }
+
+    #[test]
+    fn resolve_value_origin_from_parent_map_follows_generic_parent_chain() {
+        let mut parents = ParentMap::new();
+        parents.insert(ValueId::new(3), ValueId::new(2));
+        parents.insert(ValueId::new(2), ValueId::new(1));
+
+        assert_eq!(
+            resolve_value_origin_from_parent_map(ValueId::new(3), &parents),
+            ValueId::new(1)
+        );
     }
 
     #[test]

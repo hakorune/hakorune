@@ -21,7 +21,7 @@ Related:
     - `4 Array Typed Slots 拡大`: partial; narrow typed-slot pilots landed, read-side expansion backlog remains
     - `5 MapBox Typed Value Slots`: backlog
     - `6 DCE 強化`: backlog
-    - `7 LLVM Escape Analysis`: partial; Copy-aware local barrier elision and the `phase165x` operand-role escape barrier vocabulary cut are landed, broader generic escape analysis backlog remains
+    - `7 LLVM Escape Analysis`: partial; Copy + one-input-phi-carry aware local barrier elision and the `phase165x` operand-role escape barrier vocabulary cut are landed, broader generic escape analysis backlog remains
     - `8 Float 最適化`: partial; narrow FloatBox pilot landed, broader tuning backlog
     - `9 Closure/Lambda 最適化`: backlog
   - next optimization resume: `phase163x-optimization-resume`

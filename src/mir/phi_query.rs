@@ -8,9 +8,10 @@
  */
 
 use super::{
-    build_value_def_map, resolve_value_origin, MirFunction, MirInstruction, ValueDefMap, ValueId,
+    build_value_def_map, resolve_value_origin, MirFunction, MirInstruction, ParentMap, ValueDefMap,
+    ValueId,
 };
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashMap};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum PhiBaseRelation {
@@ -68,6 +69,21 @@ pub(crate) fn infer_phi_base_query(
 ) -> PhiBaseQueryResult {
     let def_map = build_value_def_map(function);
     infer_phi_base_query_with_anchors(function, &def_map, value, anchors)
+}
+
+pub(crate) fn collect_passthrough_phi_parents(function: &MirFunction) -> ParentMap {
+    let mut parents: ParentMap = HashMap::new();
+    for block in function.blocks.values() {
+        for inst in &block.instructions {
+            let MirInstruction::Phi { dst, inputs, .. } = inst else {
+                continue;
+            };
+            if let [(_, carried)] = inputs.as_slice() {
+                parents.insert(*dst, *carried);
+            }
+        }
+    }
+    parents
 }
 
 fn infer_phi_base_query_with_anchors(
@@ -255,6 +271,17 @@ mod tests {
 
         assert_eq!(relation.relation, PhiBaseRelation::SameBase(ValueId(10)));
         assert!(!relation.window_safe);
+    }
+
+    #[test]
+    fn collect_passthrough_phi_parents_records_single_input_phi_only() {
+        let function = build_phi_function();
+
+        let parents = collect_passthrough_phi_parents(&function);
+
+        assert_eq!(parents.get(&ValueId(22)), Some(&ValueId(36)));
+        assert!(!parents.contains_key(&ValueId(21)));
+        assert!(!parents.contains_key(&ValueId(31)));
     }
 
     #[test]

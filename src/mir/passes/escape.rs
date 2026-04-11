@@ -3,9 +3,10 @@
 //! and their Copy aliases.
 //! Enabled for VM backend as a staging step before LLVM.
 
+use crate::mir::phi_query::collect_passthrough_phi_parents;
 use crate::mir::{
-    classify_escape_uses, resolve_value_origin_from_copy_parents, MirFunction, MirInstruction,
-    MirModule, ValueId,
+    classify_escape_uses, resolve_value_origin_from_parent_map, MirFunction, MirInstruction,
+    MirModule, ParentMap, ValueId,
 };
 use std::collections::{HashMap, HashSet};
 
@@ -33,12 +34,12 @@ pub fn escape_elide_barriers_vm(module: &mut MirModule) -> usize {
 struct EscapeInfo {
     local_boxes: HashSet<ValueId>,
     escaping: HashSet<ValueId>,
-    copy_parents: HashMap<ValueId, ValueId>,
+    alias_parents: ParentMap,
 }
 
 impl EscapeInfo {
     fn is_non_escaping(&self, v: &ValueId) -> bool {
-        let root = resolve_value_origin_from_copy_parents(*v, &self.copy_parents);
+        let root = resolve_value_origin_from_parent_map(*v, &self.alias_parents);
         self.local_boxes.contains(&root) && !self.escaping.contains(&root)
     }
 }
@@ -58,27 +59,29 @@ fn analyze_function(func: &MirFunction) -> EscapeInfo {
             }
         }
     }
-    // Collect alias chains for Copy results. Barrier elimination should follow
-    // local-box aliases so a `Copy`-fed barrier can still disappear when the
-    // underlying box stays local.
+    // Collect alias chains for Copy results and one-input passthrough PHIs.
+    // Barrier elimination should follow local-box aliases so a `Copy`/carry-PHI
+    // fed barrier can still disappear when the underlying box stays local.
     for block in func.blocks.values() {
         for sp in block.iter_spanned() {
             if let MirInstruction::Copy { dst, src } = sp.inst {
-                info.copy_parents.insert(*dst, *src);
+                info.alias_parents.insert(*dst, *src);
             }
         }
         if let Some(term) = &block.terminator {
             if let MirInstruction::Copy { dst, src } = term {
-                info.copy_parents.insert(*dst, *src);
+                info.alias_parents.insert(*dst, *src);
             }
         }
     }
+    info.alias_parents
+        .extend(collect_passthrough_phi_parents(func));
     // Conservative escape marking through operand-role barriers
     for block in func.blocks.values() {
         for sp in block.all_spanned_instructions() {
             for use_site in classify_escape_uses(sp.inst) {
                 let root =
-                    resolve_value_origin_from_copy_parents(use_site.value, &info.copy_parents);
+                    resolve_value_origin_from_parent_map(use_site.value, &info.alias_parents);
                 if info.local_boxes.contains(&root) {
                     info.escaping.insert(root);
                 }
@@ -254,6 +257,116 @@ mod tests {
         module
     }
 
+    fn build_single_input_phi_alias_module(return_phi: bool) -> MirModule {
+        let mut module = MirModule::new("escape_single_input_phi_alias_test".to_string());
+        let sig = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![],
+            return_type: if return_phi {
+                MirType::Box("Point".to_string())
+            } else {
+                MirType::Void
+            },
+            effects: EffectMask::PURE,
+        };
+        let entry = BasicBlockId::new(0);
+        let carry = BasicBlockId::new(1);
+        let mut func = MirFunction::new(sig, entry);
+        func.add_block(BasicBlock::new(carry));
+
+        let local_box = ValueId::new(1);
+        let alias = ValueId::new(2);
+        let phi_alias = ValueId::new(3);
+
+        let entry_block = func.blocks.get_mut(&entry).expect("entry");
+        entry_block.add_instruction(MirInstruction::NewBox {
+            dst: local_box,
+            box_type: "Point".to_string(),
+            args: vec![],
+        });
+        entry_block.add_instruction(MirInstruction::Copy {
+            dst: alias,
+            src: local_box,
+        });
+        entry_block.set_terminator(MirInstruction::Jump {
+            target: carry,
+            edge_args: None,
+        });
+
+        let carry_block = func.blocks.get_mut(&carry).expect("carry");
+        carry_block.add_instruction(MirInstruction::Phi {
+            dst: phi_alias,
+            inputs: vec![(entry, alias)],
+            type_hint: Some(MirType::Box("Point".to_string())),
+        });
+        carry_block.add_instruction(MirInstruction::Barrier {
+            op: crate::mir::BarrierOp::Write,
+            ptr: phi_alias,
+        });
+        carry_block.set_terminator(MirInstruction::Return {
+            value: return_phi.then_some(phi_alias),
+        });
+
+        module.add_function(func);
+        module
+    }
+
+    fn build_multi_input_phi_merge_module() -> MirModule {
+        let mut module = MirModule::new("escape_multi_input_phi_merge_test".to_string());
+        let sig = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let entry = BasicBlockId::new(0);
+        let alt = BasicBlockId::new(1);
+        let merge = BasicBlockId::new(2);
+        let mut func = MirFunction::new(sig, entry);
+        func.add_block(BasicBlock::new(alt));
+        func.add_block(BasicBlock::new(merge));
+
+        let local_box = ValueId::new(1);
+        let alias = ValueId::new(2);
+        let phi_alias = ValueId::new(3);
+
+        let entry_block = func.blocks.get_mut(&entry).expect("entry");
+        entry_block.add_instruction(MirInstruction::NewBox {
+            dst: local_box,
+            box_type: "Point".to_string(),
+            args: vec![],
+        });
+        entry_block.set_terminator(MirInstruction::Jump {
+            target: merge,
+            edge_args: None,
+        });
+
+        let alt_block = func.blocks.get_mut(&alt).expect("alt");
+        alt_block.add_instruction(MirInstruction::Copy {
+            dst: alias,
+            src: local_box,
+        });
+        alt_block.set_terminator(MirInstruction::Jump {
+            target: merge,
+            edge_args: None,
+        });
+
+        let merge_block = func.blocks.get_mut(&merge).expect("merge");
+        merge_block.add_instruction(MirInstruction::Phi {
+            dst: phi_alias,
+            inputs: vec![(entry, local_box), (alt, alias)],
+            type_hint: Some(MirType::Box("Point".to_string())),
+        });
+        merge_block.add_instruction(MirInstruction::Barrier {
+            op: crate::mir::BarrierOp::Write,
+            ptr: phi_alias,
+        });
+        merge_block.set_terminator(MirInstruction::Return { value: None });
+
+        module.add_function(func);
+        module
+    }
+
     #[test]
     fn test_escape_elides_barrier_through_copy_alias() {
         let mut module = build_alias_escape_module(false);
@@ -309,6 +422,51 @@ mod tests {
         let func = module.get_function("main").unwrap();
         let block = func.blocks.get(&BasicBlockId::new(0)).unwrap();
         assert!(!block
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Barrier { .. })));
+    }
+
+    #[test]
+    fn test_escape_elides_barrier_through_single_input_phi_alias() {
+        let mut module = build_single_input_phi_alias_module(false);
+
+        let removed = escape_elide_barriers_vm(&mut module);
+        assert_eq!(removed, 1);
+
+        let func = module.get_function("main").unwrap();
+        let block = func.blocks.get(&BasicBlockId::new(1)).unwrap();
+        assert!(!block
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Barrier { .. })));
+    }
+
+    #[test]
+    fn test_escape_keeps_barrier_when_single_input_phi_alias_returns() {
+        let mut module = build_single_input_phi_alias_module(true);
+
+        let removed = escape_elide_barriers_vm(&mut module);
+        assert_eq!(removed, 0);
+
+        let func = module.get_function("main").unwrap();
+        let block = func.blocks.get(&BasicBlockId::new(1)).unwrap();
+        assert!(block
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Barrier { .. })));
+    }
+
+    #[test]
+    fn test_escape_keeps_barrier_across_multi_input_phi_merge() {
+        let mut module = build_multi_input_phi_merge_module();
+
+        let removed = escape_elide_barriers_vm(&mut module);
+        assert_eq!(removed, 0);
+
+        let func = module.get_function("main").unwrap();
+        let block = func.blocks.get(&BasicBlockId::new(2)).unwrap();
+        assert!(block
             .instructions
             .iter()
             .any(|inst| matches!(inst, MirInstruction::Barrier { .. })));
