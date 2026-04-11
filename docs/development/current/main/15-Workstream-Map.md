@@ -18,7 +18,7 @@ Related:
 | Front | `lifecycle value parent locked -> audits landed -> thin-entry inventory/selection landed -> sum placement pilot landed -> ny-llvmc parity proving slice landed -> tuple compat transport landed` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
 | Blocker | `canonical multi-slot sum remains deferred; current tuple route stays compat-boxed` |
-| Next | `phase163x-optimization-resume` |
+| Next | `broader partial/effect-sensitive DCE` |
 | After Next | `where / enum methods / monomorphization stay backlog-only` |
 
 ## Current Read
@@ -65,6 +65,10 @@ Related:
   - same-block `RuntimeDataBox.set(...)` now consumes that same landed `publication_sink` plan as the first host-boundary publication slice
   - the cut is explicitly a birth-sink move, not a barrier-relaxation phase
   - remaining string backlog is the final emitted-MIR return-carrier cleanup only
+- active generic optimizer follow-on:
+  - `phase-176x` is landed as the first reachability-aware DCE cut
+  - next target is broader partial/effect-sensitive DCE
+  - do not mix that with unreachable-block deletion
 - `phase-133x` landed:
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`

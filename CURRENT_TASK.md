@@ -76,6 +76,11 @@ Scope: repo root から current lane / current front / restart read order に最
   - `phase-174x` is landed too; same-block canonical `Store { value, .. }` / `FieldSet { value, .. }` write boundaries now consume that same `publication_sink` plan under a focused unit guard
   - `phase-175x` is landed too; same-block `RuntimeDataBox.set(...)` now consumes that same `publication_sink` plan as the first host-boundary publication slice under a focused unit guard
   - remaining string backlog is now only the final emitted-MIR return-carrier cleanup; any broader method/boxcall boundary widening stays outside this cut
+- landed DCE follow-on:
+  - `docs/development/current/main/phases/phase-176x/README.md`
+  - `phase-176x` is landed as the first `phase163x-optimization-resume` DCE cut
+  - uses that occur only in blocks unreachable from `entry` no longer keep pure defs alive
+  - next DCE work should stay separate from full unreachable-block cleanup and from broader effect-sensitive partial DCE
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`

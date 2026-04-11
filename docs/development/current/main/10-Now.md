@@ -14,7 +14,7 @@ Related:
 
 - optimization snapshot:
   - current implementation lane: `phase163x primitive and user-box fast path`
-  - sibling guardrail lane: `phase137x main kilo reopen selection`; string remains active and is not complete yet
+  - sibling guardrail lane: `phase137x main kilo reopen selection`; string guardrail remains active, while the planned publication slice is now closed and only the final emitted-MIR return-carrier cleanup stays parked
   - landed structural follow-on: `phase166x semantic refresh and generic relation cleanup`
   - landed direct-route determinism repair: `phase167x method lowering determinism for user-box keepers`
     - instance methods now seal through the shared `finalize_function()` owner and seed receiver `Box(...)` metadata before known-receiver canonicalization runs
@@ -39,11 +39,14 @@ Related:
     - landed: the exact seed now consumes the landed `%21 stable_length_scalar -> %5` witness through the header string-lane phi and switches to the existing length-only route
     - latest reread after that cut is `ny_aot_instr=1,666,187 / ny_aot_cycles=1,049,205 / ny_aot_ms=4`
     - next string work should finish the final emitted-MIR return-carrier cleanup if that route needs a dedicated guard
+  - landed DCE follow-on: `phase176x reachable-only DCE first cut`
+    - landed the first `cross-block` widening: uses that occur only in blocks unreachable from `entry` no longer keep pure defs alive
+    - keep later work separate from full unreachable-block deletion and from broader effect-sensitive partial DCE
   - row status:
     - `3 User-Box Method Dispatch`: mostly done; narrow known-receiver consumer and the direct-route determinism repair are landed, broader generic parity backlog remains
     - `4 Array Typed Slots 拡大`: partial; narrow typed-slot pilots landed, read-side expansion backlog remains
     - `5 MapBox Typed Value Slots`: backlog
-    - `6 DCE 強化`: backlog
+    - `6 DCE 強化`: partial; first reachable-only cross-block cut is landed in `phase176x`, broader partial/effect-sensitive backlog remains
     - `7 LLVM Escape Analysis`: partial; Copy + one-input-phi-carry aware local barrier elision and the `phase165x` operand-role escape barrier vocabulary cut are landed, broader generic escape analysis backlog remains
     - `8 Float 最適化`: partial; narrow FloatBox pilot landed, broader tuning backlog
     - `9 Closure/Lambda 最適化`: backlog
@@ -233,6 +236,7 @@ Related:
     - landed `phase-174x`: same-block canonical `Store { value, .. }` / `FieldSet { value, .. }` write boundaries now consume that same `publication_sink` plan metadata under a focused unit guard
     - landed `phase-175x`: same-block `RuntimeDataBox.set(...)` now consumes that same `publication_sink` plan metadata as the first host-boundary publication slice under a focused unit guard
     - remaining string publication backlog is now only the final emitted-MIR return-carrier cleanup, unless a broader method/boxcall boundary later needs its own dedicated cut
+    - next optimization resume moves back to DCE through `phase-176x` reachable-only liveness marking
     - first direct-set insert-mid smoke is now pinned too: `phase137x_boundary_string_insert_mid_direct_set_min.sh` uses the synthetic direct-set probe to observe `string_insert_mid_window`, keep `nyash.string.insert_hsi` in the lowered IR, and require the plan-backed `plan_window_match` route on the synthetic fixture
     - string genericization order is now fixed: keep canonical MIR as the only IR truth, land proof-bearing plan metadata first, then land helper-result `publication_sink` inventory, then helper-result actual `publication_sink`, then `materialization_sink`, then select `direct_kernel_entry` from that plan near lowering, then shrink the remaining bridge paths
     - migration-safe reading: keep this lane in canonical MIR facts/candidates/sink and kernel/backend substrate only; do not reopen Rust-builder-local shape logic while `.hako` builder authority replacement is open

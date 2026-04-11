@@ -6,11 +6,13 @@
 
 - **Current (ACTIVE)**: Phase 163x primitive and user-box fast path
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
+- **Phase 176x（LANDED）**: reachable-only DCE first cut
 - **Phase 175x（LANDED）**: substring concat host-boundary publication sink
 - **Phase 174x（LANDED）**: substring concat write-boundary publication sink
 - **Phase 173x（LANDED）**: substring concat return-boundary publication sink
 - **Phase 172x（LANDED）**: substring concat stable-length exact-route cut
 - **Phase 171x（LANDED）**: substring concat exact-seed loop-shape cut
+- **Phase 176x（LANDED）**: reachable-only DCE first cut
 - **Phase 170x（LANDED）**: direct-kernel substring plan proof
 - **Phase 169x（LANDED）**: substring concat stable-length phi contract
 - **Phase 168x（LANDED）**: counter step_chain pure-first exact route refresh

@@ -206,6 +206,7 @@
         - `phase-174x` is now landed on that sibling lane too: same-block canonical `Store { value, .. }` / `FieldSet { value, .. }` write boundaries now ride the same `publication_sink` plan metadata under a focused unit guard
         - `phase-175x` is now landed on that sibling lane too: same-block `RuntimeDataBox.set(...)` now rides the same `publication_sink` plan metadata as the first host-boundary publication slice under a focused unit guard
         - remaining sibling string backlog is now only the final emitted-MIR return-carrier cleanup
+        - `phase-176x` is now landed too: uses that occur only in blocks unreachable from `entry` no longer keep pure defs alive on the current pure-instruction DCE lane
       - verified non-Variant optimization order after this parity wave:
         1. broader string corridor placement/effect rewrite
            - `src/mir/string_corridor_placement.rs` is still inspection-only in this wave
@@ -214,6 +215,9 @@
              - `publication_sink`
              - `materialization_sink`
              - `direct_kernel_entry`
+        1. broader partial/effect-sensitive DCE after the landed `phase-176x` reachability cut
+           - keep it separate from block pruning
+           - do not mix it with unreachable-block deletion
         2. actual-consumer switch for selected user-box thin entries that are still metadata-only today
            - `thin_entry_selection` already inventories `user_box_method.known_receiver`
            - keep this beneath canonical `Call`; do not widen surface syntax or add a public MIR dialect fork
