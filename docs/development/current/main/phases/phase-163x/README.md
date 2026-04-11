@@ -213,6 +213,7 @@
         - remaining sibling string backlog is now only the final emitted-MIR return-carrier cleanup
         - `phase-176x` is now landed too: uses that occur only in blocks unreachable from `entry` no longer keep pure defs alive on the current pure-instruction DCE lane
         - `phase-177x` is now landed too: redundant reachable `KeepAlive { values }` now disappear without widening into generic no-dst cleanup
+        - `phase-181x` is now landed too: reachable `Safepoint` no-op instructions disappear as the first generic no-dst pure cleanup slice, while `Debug` and terminators stay outside this cut
       - verified non-Variant optimization order after this parity wave:
         1. broader string corridor placement/effect rewrite
            - `src/mir/string_corridor_placement.rs` is still inspection-only in this wave
@@ -223,6 +224,7 @@
              - `direct_kernel_entry`
         1. broader partial/effect-sensitive DCE after the landed `phase-176x` reachability cut
            - `phase-177x` first target = redundant reachable `KeepAlive` pruning (now landed)
+           - `phase-181x` first target = `Safepoint` no-op pruning (now landed)
            - keep it separate from block pruning
            - do not mix it with unreachable-block deletion; generic no-dst cleanup remains later
         2. actual-consumer switch for selected user-box thin entries that are still metadata-only today

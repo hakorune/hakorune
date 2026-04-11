@@ -111,9 +111,9 @@ Scope: repo root から current lane / current front / restart read order に最
     - landed: the remaining raw full-loop fallback inside `substring_concat_loop_ascii_seed` is retired, so the substring-concat loop route is now plan-first only
     - latest exact reread after the fallback retirement: `ny_aot_instr=1,665,135 / ny_aot_cycles=1,127,472 / ny_aot_ms=4`
     - next: broader DCE can resume now that the string seam cleanup lane is closed
-- active DCE cleanup follow-on:
+- landed DCE cleanup follow-on:
   - `docs/development/current/main/phases/phase-181x/README.md`
-  - `phase-181x` is active; `Safepoint` no-op instructions are the first generic no-dst pure cleanup slice
+  - `phase-181x` is landed; `Safepoint` no-op instructions were the first generic no-dst pure cleanup slice
   - `Debug` stays outside this cut, and terminators / broader effect-sensitive DCE stay separate
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`

@@ -1,6 +1,6 @@
 # Phase 181x: safepoint no-op DCE
 
-- Status: Active
+- Status: Landed
 - Purpose: land the first generic no-dst pure cleanup slice by removing `Safepoint` no-op instructions while keeping `Debug`, terminators, and broader partial DCE separate.
 - Scope:
   - `CURRENT_TASK.md`
@@ -19,8 +19,8 @@
 ## Decision Now
 
 - `phase177x` is landed, and the next DCE slice is the first no-dst pure cleanup
+- `phase181x` is landed; `Safepoint` no-op instructions were the first generic no-dst pure cleanup slice
 - `Debug` stays outside this cut because it still carries debug effect in MIR metadata
-- `Safepoint` is the only current no-dst pure instruction treated as removable because it is an explicit no-op today
 - terminators / `Return` / `Branch` / `Jump` stay outside this cut
 
 ## Acceptance

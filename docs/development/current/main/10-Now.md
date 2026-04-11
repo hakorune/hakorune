@@ -71,14 +71,14 @@ Related:
       3. shim reader partition
       4. full-loop scalar payload export + metadata-first loop route
       5. exact matcher retirement only after plan-first parity
-  - active DCE cleanup follow-on: `phase181x safepoint no-op DCE`
-    - `Safepoint` is the first generic no-dst pure cleanup slice
+  - landed DCE cleanup follow-on: `phase181x safepoint no-op DCE`
+    - `Safepoint` no-op instructions were the first generic no-dst pure cleanup slice
     - `Debug` stays outside this cut, and terminators / broader effect-sensitive DCE stay separate
   - row status:
     - `3 User-Box Method Dispatch`: mostly done; narrow known-receiver consumer and the direct-route determinism repair are landed, broader generic parity backlog remains
     - `4 Array Typed Slots 拡大`: partial; narrow typed-slot pilots landed, read-side expansion backlog remains
     - `5 MapBox Typed Value Slots`: backlog
-    - `6 DCE 強化`: partial; first reachable-only cross-block cut is landed in `phase176x`, first effect-sensitive `KeepAlive` pruning is landed in `phase177x`, and the first generic no-dst pure cleanup slice is active in `phase181x`
+    - `6 DCE 強化`: partial; first reachable-only cross-block cut is landed in `phase176x`, first effect-sensitive `KeepAlive` pruning is landed in `phase177x`, and the first generic no-dst pure cleanup slice is landed in `phase181x`
     - `7 LLVM Escape Analysis`: partial; Copy + one-input-phi-carry aware local barrier elision and the `phase165x` operand-role escape barrier vocabulary cut are landed, broader generic escape analysis backlog remains
     - `8 Float 最適化`: partial; narrow FloatBox pilot landed, broader tuning backlog
     - `9 Closure/Lambda 最適化`: backlog
