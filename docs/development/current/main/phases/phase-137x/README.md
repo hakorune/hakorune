@@ -116,11 +116,11 @@
     3. only then `SubstringViewArcCache` steady-state compare
   - boundary `pure-first` now consumes MIR JSON `string_corridor_*` for `substring(...).length()`:
     - direct route trace now hits `string_len_corridor -> substring_len_direct_kernel_plan_window`
-    - retained-slice `length()` / `len()` consumers now also rewrite through the same direct entry even when the slice producer dominates from another block through local copy aliases
+    - single-use retained-slice `length()` / `len()` consumers now also rewrite through the same direct entry even when the slice producer dominates from another block through local copy aliases
     - the current bridge shrink also removes the `substring_len_hii` declaration need from this plan-window lane; metadata is now the only direct-kernel proof source here
     - latest exact reread on `kilo_micro_len_substring_views`: `instr=1,672,259 / cycles=1,022,005 / cache-miss=10,525 / AOT 3 ms`
     - latest split-pack reread on `kilo_micro_substring_views_only`: `instr=466,001 / cycles=841,958 / cache-miss=9,391 / AOT 3 ms`
-    - reading: the split retained-view fronts are now closed; the next string keeper reopens on broader corridor publication/materialization work
+    - reading: the split single-use retained-view fronts are now closed; multiple-use retained-slice length stays backlog and the next string keeper reopens on broader corridor publication/materialization work
   - boundary `pure-first` now also lands the first generic concat observer pilot:
     - single-use `concat pair/triple -> len()` now defers the concat producer and reads known chain length without forcing handle birth
     - observe direct probe on `kilo_micro_concat_hh_len` now shows:

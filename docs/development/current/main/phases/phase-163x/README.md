@@ -190,7 +190,7 @@
         - `kilo_micro_substring_only` now emits no `substring_len_hii` / `substring_hii`
         - latest exact reread: `instr=1,669,909 / cycles=1,061,204 / cache-miss=8,516 / AOT 3 ms`
         - latest microasm: `ny_main` now keeps only the preloop source-length read and the loop body is scalar `add %rax,%rcx`
-      - sibling string retained-slice length consumer expansion is now landed too:
+      - sibling string single-use retained-slice length consumer expansion is now landed too:
         - `string_corridor_sink` now rewrites retained-slice `length()` / `len()` consumers into `substring_len_hii` even when the slice producer lives in a dominating block and is reached only through local copy aliases
         - `kilo_micro_len_substring_views` now compiles without loop `RuntimeDataBox.length` / `substring_len_hii` consumers
         - latest exact reread: `instr=1,672,259 / cycles=1,022,005 / cache-miss=10,525 / AOT 3 ms`

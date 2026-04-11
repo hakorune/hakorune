@@ -44,7 +44,8 @@ fn sink_borrowed_string_corridors_in_function(function: &mut MirFunction) -> usi
     let mut rewritten = apply_plans(function, plans_by_block);
 
     let def_map = build_def_map(function);
-    let retained_len_plans = collect_retained_len_plans(function, &def_map);
+    let use_counts = build_use_counts(function);
+    let retained_len_plans = collect_retained_len_plans(function, &def_map, &use_counts);
     rewritten += apply_retained_len_plans(function, retained_len_plans);
 
     let def_map = build_def_map(function);
@@ -781,6 +782,7 @@ fn apply_plans(
 fn collect_retained_len_plans(
     function: &MirFunction,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    use_counts: &HashMap<ValueId, usize>,
 ) -> BTreeMap<BasicBlockId, Vec<RetainedSubstringLenPlan>> {
     let mut plans_by_block: BTreeMap<BasicBlockId, Vec<RetainedSubstringLenPlan>> = BTreeMap::new();
 
@@ -797,6 +799,9 @@ fn collect_retained_len_plans(
                 continue;
             };
             if inner_fact.op != StringCorridorOp::StrSlice {
+                continue;
+            }
+            if use_counts.get(&receiver_root).copied().unwrap_or(0) != 1 {
                 continue;
             }
 
