@@ -86,6 +86,10 @@ Related:
   - landed: `96xD2` froze `vm-hako-core.txt` as the final 4-row monitor bundle after `tools/smokes/v2/run.sh --profile integration --suite vm-hako-core` passed `4/4`
   - wave `2`: complete; the phase29y gate no longer owns any active vm_hako row
   - parallel track: `mapbox -> collection-core` ownership move
+- remaining retirement work is now separated into three buckets:
+  - monitor keep: the frozen 4-row `vm-hako-core` bundle
+  - mirror cleanup: retired/offloaded files still living under `tools/smokes/v2/profiles/integration/vm_hako_caps/**`
+  - runtime bridge separation: pre-existing interpreter/driver edits that should move on a different lane than smoke ownership retirement
 - detailed execution order is fixed in `96x-92-execution-plan.md`
 
 ## Scope and Non-Goals

@@ -123,6 +123,19 @@ Current blocker detail for `mapbox/`:
   - suite: `tools/smokes/v2/suites/integration/presubmit.txt`
 - no non-blocking semantic shadow canary remains in `vm-hako-core.txt`; the last seam shadow was replaced by dedicated non-vm_hako emit+exec owners.
 
+## Remaining Retirement Buckets
+
+1. Monitor keep
+   - `tools/smokes/v2/suites/integration/vm-hako-core.txt`
+   - keep stable; do not widen it while phase96x is parked
+2. Mirror cleanup
+   - retired/offloaded files still sitting under `tools/smokes/v2/profiles/integration/vm_hako_caps/**`
+   - especially `mapbox/*`, `app1/*`, `args/*`, `atomic/*`, `tls/*`, `select_emit/*`, `open_handle_phi/*`, `file_error_vm.sh`, and `filebox_newbox_vm.sh`
+   - execute only after the pre-existing dirty vm_hako tree is safe to touch
+3. Runtime bridge separation
+   - interpreter/driver changes such as `env.get`, `runtime_data`, `FileBox`, and driver env/cwd propagation
+   - track these outside phase96x so smoke retirement stays structural and does not mix with runtime implementation work
+
 ## Decision Rule
 
 - rank the first cutover wave by leverage and by direct semantic replacement coverage
