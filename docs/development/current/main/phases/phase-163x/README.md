@@ -42,6 +42,7 @@
   - LLVM lowering now has the first typed primitive pilot for `IntegerBox` / `BoolBox` via `nyash.integer.get_h` / `nyash.bool.get_h`
   - local perf gate `kilo_micro_userbox_point_add` now exists in `benchmarks/` + the kilo micro ladder
   - local perf gate `kilo_micro_userbox_flag_toggle` now also exists in `benchmarks/` + the kilo micro ladder as the dedicated BoolBox proof
+  - local perf gate `kilo_micro_userbox_counter_step` now also exists in `benchmarks/` + the kilo micro ladder as the measured known-receiver local-method proof
   - LLVM `field_get` / `field_set` now take a typed IntegerBox path for known user-box `field_decls`
   - LLVM `field_get` now also takes a typed BoolBox path for known user-box `field_decls`
   - LLVM `field_set` now takes a typed BoolBox path only when the source stays on the bool-safe boundary (`BoolBox` handle or bool immediate)
@@ -88,7 +89,7 @@
   - `fields` = names-only compatibility mirror for old payloads and old runtime consumers
 - primitive-family audit snapshot:
   - parser/current surface already accepts float/bool/null literals and typed field declarations; docs must stay aligned to that
-  - current keeper pair is `kilo_micro_userbox_point_add` + `kilo_micro_userbox_flag_toggle`
+  - current keeper set is `kilo_micro_userbox_point_add` + `kilo_micro_userbox_flag_toggle` + `kilo_micro_userbox_counter_step`
   - `Float` surface-close is now landed on the current compiler route:
     - Stage1 Program JSON v0 now lowers float literals, including unary-minus float literals
     - recent value-lowering now accepts float literals and preserves `MirType::Float` on float arithmetic results

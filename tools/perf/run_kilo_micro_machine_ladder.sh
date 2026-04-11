@@ -29,6 +29,7 @@ cases=(
   kilo_micro_array_getset
   kilo_micro_userbox_point_add
   kilo_micro_userbox_flag_toggle
+  kilo_micro_userbox_counter_step
 )
 
 for key in "${cases[@]}"; do

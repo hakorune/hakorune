@@ -137,6 +137,7 @@ Scope: repo root から current lane / current front / restart read order に最
   - local gates:
     - `kilo_micro_userbox_point_add`
     - `kilo_micro_userbox_flag_toggle`
+    - `kilo_micro_userbox_counter_step`
     - latest `2026-04-09` WSL `3 runs + asm` reread:
       - pre-cleanup baseline:
         - `kilo_micro_userbox_point_add`: `c_instr=12,120,416 / c_cycles=2,187,984 / c_ms=3` vs `ny_aot_instr=22,457,049 / ny_aot_cycles=4,461,297 / ny_aot_ms=4`
