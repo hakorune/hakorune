@@ -45,6 +45,7 @@
 //!
 //! - `builder_build.rs::build_module()` - Main entry point
 
+use super::declaration_order::{sorted_constructor_entries, sorted_method_entries};
 use super::{
     BasicBlockId, EffectMask, FunctionSignature, MirInstruction, MirModule, MirType, ValueId,
 };
@@ -156,7 +157,7 @@ impl super::MirBuilder {
                                         self.comp_ctx.compilation_context = Some(ctx);
 
                                         // Lower all static methods into standalone functions: BoxName.method/Arity
-                                        for (mname, mast) in methods.iter() {
+                                        for (mname, mast) in sorted_method_entries(methods) {
                                             if let N::FunctionDeclaration {
                                                 params,
                                                 body,
@@ -178,7 +179,7 @@ impl super::MirBuilder {
                                                 )?;
                                                 self.comp_ctx
                                                     .static_method_index
-                                                    .entry(mname.clone())
+                                                    .entry(mname.to_string())
                                                     .or_insert_with(Vec::new)
                                                     .push((name.clone(), params.len()));
                                             }
@@ -208,7 +209,7 @@ impl super::MirBuilder {
                                 fields.clone(),
                                 weak_fields.clone(),
                             )?;
-                            for (ctor_key, ctor_ast) in constructors.iter() {
+                            for (ctor_key, ctor_ast) in sorted_constructor_entries(constructors) {
                                 if let N::FunctionDeclaration {
                                     params,
                                     body,
@@ -228,7 +229,7 @@ impl super::MirBuilder {
                                     )?;
                                 }
                             }
-                            for (mname, mast) in methods.iter() {
+                            for (mname, mast) in sorted_method_entries(methods) {
                                 if let N::FunctionDeclaration {
                                     params,
                                     body,

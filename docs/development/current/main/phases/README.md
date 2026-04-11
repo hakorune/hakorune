@@ -4,7 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 137x main kilo reopen selection
+- **Current (ACTIVE)**: Phase 163x primitive and user-box fast path
+- **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
+- **Phase 167x（LANDED）**: method sealing determinism for user-box keepers
 - **Phase 166x（LANDED）**: semantic refresh and generic relation cleanup
 - **Phase 161x（LANDED）**: hot-path capability seam freeze
 - **Phase 159x（LANDED）**: observe trace split
@@ -73,6 +75,7 @@
 
 ### Recent Landed
 
+- **Phase 167x（LANDED）**: method sealing determinism for user-box keepers
 - **Phase 165x（LANDED）**: escape barrier vocabulary widening
 - **Phase 164x（LANDED）**: repo-wide fmt drift cleanup
 - **Phase 141x（LANDED）**: string semantic boundary review

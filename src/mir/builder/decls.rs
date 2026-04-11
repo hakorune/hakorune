@@ -1,5 +1,5 @@
 // Declarations lowering: static boxes and box declarations
-use super::{MirInstruction, ValueId};
+use super::{declaration_order::sorted_method_entries, MirInstruction, ValueId};
 use crate::ast::ASTNode;
 use crate::mir::slot_registry::{get_or_assign_type_id, reserve_method_slot};
 use serde_json;
@@ -14,7 +14,7 @@ impl super::MirBuilder {
         methods: std::collections::HashMap<String, ASTNode>,
     ) -> Result<ValueId, String> {
         // Lower other static methods (except main) to standalone MIR functions so JIT can see them
-        for (mname, mast) in methods.iter() {
+        for (mname, mast) in sorted_method_entries(&methods) {
             if mname == "main" {
                 continue;
             }
@@ -209,14 +209,13 @@ impl super::MirBuilder {
 
         // Reserve method slots for user-defined instance methods (deterministic, starts at 4)
         let mut instance_methods: Vec<String> = Vec::new();
-        for (mname, mast) in &methods {
+        for (mname, mast) in sorted_method_entries(&methods) {
             if let ASTNode::FunctionDeclaration { is_static, .. } = mast {
                 if !*is_static {
-                    instance_methods.push(mname.clone());
+                    instance_methods.push(mname.to_string());
                 }
             }
         }
-        instance_methods.sort();
         if !instance_methods.is_empty() {
             let tyid = get_or_assign_type_id(&name);
             for (i, m) in instance_methods.iter().enumerate() {
@@ -226,7 +225,7 @@ impl super::MirBuilder {
         }
 
         // Emit markers for declared methods (kept as metadata hints)
-        for (method_name, method_ast) in methods {
+        for (method_name, method_ast) in sorted_method_entries(&methods) {
             if let ASTNode::FunctionDeclaration { .. } = method_ast {
                 let _method_id = crate::mir::builder::emission::constant::emit_string(
                     self,

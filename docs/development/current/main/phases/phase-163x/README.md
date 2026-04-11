@@ -231,9 +231,11 @@
            - recursive one-hop delegate keeper is now landed:
              - `benchmarks/bench_kilo_micro_userbox_counter_step_chain.hako` + `benchmarks/c/bench_kilo_micro_userbox_counter_step_chain.c`
              - `phase163x_direct_emit_user_box_counter_step_chain_contract.sh` now pins the current direct-route `Counter.step_chain` contract on the known-receiver lane
-             - the narrow `Counter.step_chain` pure-first micro seed now keeps the recursive `Counter.step_chain` / `Counter.step` known-receiver rows on the direct path and still collapses the exact bench to `ny_main = mov $0x2b, %eax ; ret`
-             - latest exact reread: `kilo_micro_userbox_counter_step_chain` = `c_instr=127,245 / c_cycles=230,857 / c_cache_miss=3,693 / c_ms=3` vs `ny_aot_instr=466,852 / ny_aot_cycles=836,012 / ny_aot_cache_miss=8,495 / ny_aot_ms=4`
-             - current `ny_main` object snippet is now `mov $0x2b, %eax ; ret`
+             - the narrow `Counter.step_chain` pure-first micro seed remains the intended exact route, but current exact build/asm has a separate backend-seed stop-line and must not be treated as proven by the direct-route repair alone
+           - direct-route determinism repair is now landed too:
+             - `phase-167x` routes instance methods through the shared `finalize_function()` owner, seeds receiver `Box(...)` metadata at the parameter boundary, and keeps deterministic lexical member traversal as supporting structure
+             - `Counter.step_chain` direct lowering now stays on canonical known-receiver `Method` shape in repeated release direct probes (`6/6`)
+             - separate pure-first/backend exact build+asm for `Counter.step_chain` remains an open stop-line outside `phase-167x`
            - first broader boundary parity widening is now landed:
              - `apps/tests/mir_shape_guard/user_box_point_sum_local_i64_min.prebuilt.mir.json` now proves the direct local-i64 `Point.sum` known-receiver shape without relying on the benchmark loop body
              - `phase163x_boundary_user_box_method_known_receiver_min.sh` now keeps both known-receiver fixtures green on boundary `pure-first` without compat replay

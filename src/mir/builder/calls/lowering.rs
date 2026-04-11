@@ -151,6 +151,20 @@ impl MirBuilder {
             }
         }
 
+        if let Some(ref mut f) = self.scope_ctx.current_function {
+            use crate::mir::type_propagation::TypePropagationPipeline;
+            TypePropagationPipeline::run(f, &mut self.type_ctx.value_types)?;
+        }
+
+        if let (Some(function), Some(module)) = (
+            self.scope_ctx.current_function.as_ref().cloned(),
+            self.current_module.as_ref().cloned(),
+        ) {
+            crate::mir::builder::type_hint_providers::annotate_missing_result_types_from_calls_and_await(
+                self, &function, &module,
+            );
+        }
+
         // 型推論
         if let Some(ref mut f) = self.scope_ctx.current_function {
             if returns_value && matches!(f.signature.return_type, MirType::Void | MirType::Unknown)
@@ -176,6 +190,16 @@ impl MirBuilder {
                     f.signature.return_type = mt;
                 }
             }
+
+            // Keep per-function metadata complete before the function enters the
+            // module so later canonicalization sees the same receiver facts on
+            // direct-lowered instance methods as it does on main.
+            f.metadata.value_types = self.type_ctx.value_types.clone();
+            let mut origin_callers = f.metadata.value_origin_callers.clone();
+            for (k, v) in self.metadata_ctx.value_origin_callers().iter() {
+                origin_callers.insert(*k, v.clone());
+            }
+            f.metadata.value_origin_callers = origin_callers;
         }
 
         // Moduleに追加
@@ -400,51 +424,7 @@ impl MirBuilder {
         } else {
             false
         };
-
-        // Void return追加（必要な場合）
-        if !returns_value && !self.is_current_block_terminated() {
-            let void_val = crate::mir::builder::emission::constant::emit_void(self)?;
-            self.emit_instruction(MirInstruction::Return {
-                value: Some(void_val),
-            })?;
-        }
-
-        // 型推論（Step 5の一部として）
-        if let Some(ref mut f) = self.scope_ctx.current_function {
-            if returns_value && matches!(f.signature.return_type, MirType::Void | MirType::Unknown)
-            {
-                let mut inferred: Option<MirType> = None;
-                'search: for (_bid, bb) in f.blocks.iter() {
-                    for inst in bb.instructions.iter() {
-                        if let MirInstruction::Return { value: Some(v) } = inst {
-                            if let Some(mt) = self.type_ctx.value_types.get(v).cloned() {
-                                inferred = Some(mt);
-                                break 'search;
-                            }
-                        }
-                    }
-                    if let Some(MirInstruction::Return { value: Some(v) }) = &bb.terminator {
-                        if let Some(mt) = self.type_ctx.value_types.get(v).cloned() {
-                            inferred = Some(mt);
-                            break;
-                        }
-                    }
-                }
-                if let Some(mt) = inferred {
-                    f.signature.return_type = mt;
-                }
-            }
-        }
-
-        // Moduleに追加
-        crate::mir::builder::emission::value_lifecycle::verify_typed_values_are_defined(
-            self,
-            "lower_method_as_function",
-        )?;
-        let finalized_function = self.scope_ctx.current_function.take().unwrap();
-        if let Some(ref mut module) = self.current_module {
-            module.add_function(finalized_function);
-        }
+        self.finalize_function(returns_value)?;
 
         // FunctionRegion を 1 段ポップして元の関数コンテキストに戻るよ。
         crate::mir::region::observer::pop_function_region(self);

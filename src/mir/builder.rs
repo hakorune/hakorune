@@ -76,6 +76,7 @@ mod weak_field_validator; // Phase 285A1: Weak field contract validator
                           // Phase 29bq+: sealing 層中立化
 use control_flow::edgecfg::api::FragEmitSession;
 mod declaration_indexer; // Phase 29bq+: Declaration indexing (user boxes, static methods)
+mod declaration_order; // Deterministic box-member traversal owner
 pub mod joinir_id_remapper; // Phase 189: JoinIR ID remapping (ValueId/BlockId translation) - Public for tests
 mod joinir_inline_boundary_injector; // Phase 189: JoinInlineBoundary Copy instruction injector
 mod loop_api_impl; // CLEAN-D: LoopBuilderApi wiring kept inside builder layer

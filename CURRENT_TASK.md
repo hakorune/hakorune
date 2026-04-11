@@ -44,6 +44,11 @@ Scope: repo root から current lane / current front / restart read order に最
 - landed semantic-structure follow-on:
   - `docs/development/current/main/phases/phase-166x/README.md`
   - phase-166x is landed; semantic refresh ownership, generic `value_origin` / `phi_relation`, compat semantic recovery quarantine, and the `boundary/lifecycle extraction` defer decision are now fixed
+- landed direct-route determinism repair:
+  - `docs/development/current/main/phases/phase-167x/README.md`
+  - phase-167x is landed; instance methods now seal through the shared finalize owner and seed receiver `Box(...)` metadata, so direct `Counter.step_chain` known-receiver shape no longer drifts on missing method-local facts
+  - release direct emit repeat is green again (`Counter.step_chain` known-receiver shape `6/6`)
+  - pure-first AOT build/asm still stops separately on backend seed matching and is not part of `phase-167x`
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`

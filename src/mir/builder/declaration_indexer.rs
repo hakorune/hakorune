@@ -9,6 +9,7 @@
 //!
 //! Called by: `lower_root()` in module_lifecycle.rs
 
+use super::declaration_order::sorted_method_entries;
 use super::MirBuilder;
 use crate::ast::ASTNode;
 
@@ -79,12 +80,12 @@ pub(super) fn index_declarations(builder: &mut MirBuilder, node: &ASTNode) {
             } else {
                 // Static box: no fields
                 builder.comp_ctx.register_user_box(name.clone());
-                for (mname, mast) in methods {
+                for (mname, mast) in sorted_method_entries(methods) {
                     if let ASTNode::FunctionDeclaration { params, .. } = mast {
                         builder
                             .comp_ctx
                             .static_method_index
-                            .entry(mname.clone())
+                            .entry(mname.to_string())
                             .or_insert_with(Vec::new)
                             .push((name.clone(), params.len()));
                     }

@@ -1,4 +1,5 @@
 // Expression lowering split from builder.rs to keep files lean
+use super::declaration_order::{sorted_constructor_entries, sorted_method_entries};
 use super::{MirInstruction, ValueId};
 use crate::ast::{
     ASTNode, AssignStmt, BinaryExpr, CallExpr, FieldAccessExpr, MethodCallExpr, ReturnStmt,
@@ -251,7 +252,7 @@ impl super::MirBuilder {
                         let saved_slot_registry = self.comp_ctx.current_slot_registry.take();
                         let saved_comp_ctx = self.comp_ctx.compilation_context.take();
                         self.comp_ctx.compilation_context = Some(BoxCompilationContext::new());
-                        for (method_name, method_ast) in methods.clone() {
+                        for (method_name, method_ast) in sorted_method_entries(&methods) {
                             if let ASTNode::FunctionDeclaration {
                                 params,
                                 body,
@@ -274,7 +275,7 @@ impl super::MirBuilder {
                                 // Index static method for fallback resolution of bare calls
                                 self.comp_ctx
                                     .static_method_index
-                                    .entry(method_name.clone())
+                                    .entry(method_name.to_string())
                                     .or_insert_with(Vec::new)
                                     .push((name.clone(), params.len()));
                             }
@@ -302,7 +303,7 @@ impl super::MirBuilder {
                         fields.clone(),
                         weak_fields.clone(),
                     )?;
-                    for (ctor_key, ctor_ast) in constructors.clone() {
+                    for (ctor_key, ctor_ast) in sorted_constructor_entries(&constructors) {
                         if let ASTNode::FunctionDeclaration {
                             params,
                             body,
@@ -320,7 +321,7 @@ impl super::MirBuilder {
                             )?;
                         }
                     }
-                    for (method_name, method_ast) in methods.clone() {
+                    for (method_name, method_ast) in sorted_method_entries(&methods) {
                         if let ASTNode::FunctionDeclaration {
                             params,
                             body,

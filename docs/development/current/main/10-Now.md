@@ -16,8 +16,13 @@ Related:
   - current implementation lane: `phase163x primitive and user-box fast path`
   - sibling guardrail lane: `phase137x main kilo reopen selection`; string remains active and is not complete yet
   - landed structural follow-on: `phase166x semantic refresh and generic relation cleanup`
+  - landed direct-route determinism repair: `phase167x method lowering determinism for user-box keepers`
+    - instance methods now seal through the shared `finalize_function()` owner and seed receiver `Box(...)` metadata before known-receiver canonicalization runs
+    - deterministic lexical member traversal is kept as supporting structure, but it is not the whole fix
+    - repeated release direct emit for `Counter.step_chain` is green again (`6/6`)
+    - separate pure-first/backend exact build+asm for `Counter.step_chain` is still a stop-line and remains outside `phase167x`
   - row status:
-    - `3 User-Box Method Dispatch`: mostly done; narrow known-receiver consumer landed, broader generic parity backlog remains
+    - `3 User-Box Method Dispatch`: mostly done; narrow known-receiver consumer and the direct-route determinism repair are landed, broader generic parity backlog remains
     - `4 Array Typed Slots 拡大`: partial; narrow typed-slot pilots landed, read-side expansion backlog remains
     - `5 MapBox Typed Value Slots`: backlog
     - `6 DCE 強化`: backlog
@@ -117,8 +122,8 @@ Related:
         - `benchmarks/bench_kilo_micro_userbox_counter_step_chain.hako` + `benchmarks/c/bench_kilo_micro_userbox_counter_step_chain.c`
         - `phase163x_direct_emit_user_box_counter_step_chain_contract.sh` pins the current direct-route `Counter.step_chain` contract
         - `phase163x_boundary_user_box_method_known_receiver_min.sh` now keeps `Counter.step_chain` green on boundary pure-first without compat replay
-        - exact reread: `kilo_micro_userbox_counter_step_chain` = `c_instr=127,245 / c_cycles=230,857 / c_cache_miss=3,693 / c_ms=3` vs `ny_aot_instr=466,852 / ny_aot_cycles=836,012 / ny_aot_cache_miss=8,495 / ny_aot_ms=4`
-        - current `ny_main` object snippet is `mov $0x2b, %eax ; ret`
+        - direct-route determinism is now repaired by `phase167x`: instance methods seal through the shared finalize owner, seed receiver `Box(Counter)` metadata, and stay on canonical known-receiver `Method` shape in repeated release direct probes (`6/6`)
+        - current pure-first exact build/asm for this bench is a separate backend seed stop-line and should not be inferred green from the direct-route repair
     - portability-ci on `public-main` succeeded for commit `6b91896c0` (run `24211665863`), covering Windows check and macOS build (release)
   - verified post-Variant optimization order is now locked:
     1. `ny-llvmc` parity wave for the already-landed local enum/user-box routes

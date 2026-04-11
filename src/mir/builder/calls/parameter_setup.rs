@@ -78,6 +78,8 @@ impl MirBuilder {
     pub(super) fn setup_method_params(&mut self, box_name: &str, params: &[String]) {
         // SlotRegistry 更新はローカルバッファに集約してから反映するよ。
         let mut slot_regs: Vec<(String, Option<MirType>)> = Vec::new();
+        let mut param_kinds: Vec<(ValueId, u32)> = Vec::new();
+        let me_type = MirType::Box(box_name.to_string());
 
         if let Some(ref mut f) = self.scope_ctx.current_function {
             // 📦 Hotfix 6 改訂版:
@@ -101,10 +103,12 @@ impl MirBuilder {
             self.variable_ctx
                 .variable_map
                 .insert("me".to_string(), me_id);
+            param_kinds.push((me_id, 0));
+            self.type_ctx.value_types.insert(me_id, me_type.clone());
             self.type_ctx
                 .value_origin_newbox
                 .insert(me_id, box_name.to_string());
-            slot_regs.push(("me".to_string(), None));
+            slot_regs.push(("me".to_string(), Some(me_type.clone())));
 
             // 通常パラメータ
             for (idx, p) in params.iter().enumerate() {
@@ -112,15 +116,21 @@ impl MirBuilder {
                 if param_idx < f.params.len() {
                     let pid = f.params[param_idx];
                     self.variable_ctx.variable_map.insert(p.clone(), pid);
+                    param_kinds.push((pid, param_idx as u32));
                     slot_regs.push((p.clone(), None));
                 } else {
                     // 念のため足りない場合は新規に確保（互換用）
                     let pid = f.next_value_id();
                     f.params.push(pid);
                     self.variable_ctx.variable_map.insert(p.clone(), pid);
+                    param_kinds.push((pid, param_idx as u32));
                     slot_regs.push((p.clone(), None));
                 }
             }
+        }
+
+        for (pid, param_idx) in param_kinds {
+            self.register_value_kind(pid, MirValueKind::Parameter(param_idx));
         }
 
         if let Some(reg) = self.comp_ctx.current_slot_registry.as_mut() {
