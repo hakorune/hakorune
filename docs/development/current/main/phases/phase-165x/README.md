@@ -32,6 +32,9 @@
 - move escape operand classification out of `src/mir/passes/escape.rs`
 - make `escape.rs` a consumer of the new classifier API
 - pin method-receiver and `FieldSet.value` operand-role proofs
+- structural follow-on after this landed slice:
+  - `docs/development/current/main/phases/phase-166x/README.md`
+  - keep `boundary_fact` / lifecycle extraction after refresh-owner and generic-relation ownership, not before
 
 ## Stop Line
 

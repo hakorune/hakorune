@@ -15,6 +15,7 @@ Related:
 - optimization snapshot:
   - current implementation lane: `phase163x primitive and user-box fast path`
   - sibling guardrail lane: `phase137x main kilo reopen selection`; string remains active and is not complete yet
+  - active structural follow-on: `phase166x semantic refresh and generic relation cleanup`
   - row status:
     - `3 User-Box Method Dispatch`: mostly done; narrow known-receiver consumer landed, broader generic parity backlog remains
     - `4 Array Typed Slots 拡大`: partial; narrow typed-slot pilots landed, read-side expansion backlog remains
@@ -24,6 +25,11 @@ Related:
     - `8 Float 最適化`: partial; narrow FloatBox pilot landed, broader tuning backlog
     - `9 Closure/Lambda 最適化`: backlog
   - next optimization resume: `phase163x-optimization-resume`
+  - fixed structure order before more domain widening:
+    1. `phase166x` semantic refresh owner
+    2. generic `value_origin` / `phi_relation` owner
+    3. compat semantic recovery quarantine
+    4. only then generic boundary/lifecycle extraction decision
 - lane: `phase-163x primitive and user-box fast path`
 - current implementation focus:
   - owner-target reminder:
