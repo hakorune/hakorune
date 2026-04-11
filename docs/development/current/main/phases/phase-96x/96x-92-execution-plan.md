@@ -157,6 +157,6 @@ Risks:
 
 ## Next Commit Candidates
 
-1. `runtime bridge`: quarantine the interpreter/driver edits (`env.get`, `runtime_data`, `FileBox`, driver env/cwd`) into a non-phase96x lane
-2. `docs`: phase96x parked closeout sync now that the monitor bundle wording is settled
+1. `monitor policy`: decide the long-term treatment for the frozen `vm-hako-core` 4-row monitor bundle
+2. `docs`: keep the parked closeout wording synced to the monitor-policy backlog only
 3. `hold`: keep the frozen `vm-hako-core` 4-row monitor bundle unchanged unless a replacement owner appears

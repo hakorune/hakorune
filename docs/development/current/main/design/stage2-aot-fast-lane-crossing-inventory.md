@@ -152,7 +152,7 @@ Related:
 ### Current exact truths
 
 - [`lang/src/runtime/host/host_facade_box.hako`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/host/host_facade_box.hako) is the `.hako` single entry for host calls.
-- [`src/backend/mir_interpreter/handlers/extern_provider.rs`](/home/tomoaki/git/hakorune-selfhost/src/backend/mir_interpreter/handlers/extern_provider.rs) is the Rust generic extern dispatcher.
+- [`src/backend/mir_interpreter/handlers/extern_provider/mod.rs`](/home/tomoaki/git/hakorune-selfhost/src/backend/mir_interpreter/handlers/extern_provider/mod.rs) is the Rust generic extern dispatcher.
 - [`src/runtime/plugin_loader_unified.rs`](/home/tomoaki/git/hakorune-selfhost/src/runtime/plugin_loader_unified.rs) and [`src/runtime/plugin_loader_v2/enabled/route_resolver.rs`](/home/tomoaki/git/hakorune-selfhost/src/runtime/plugin_loader_v2/enabled/route_resolver.rs) now treat compat fallback as an explicit cold-lane policy, not as the default manifest route.
 - [`src/runtime/extern_registry.rs`](/home/tomoaki/git/hakorune-selfhost/src/runtime/extern_registry.rs) already behaves like a manifest-backed registry for extern rows.
 - [`src/runner/modes/llvm/method_id_injector.rs`](/home/tomoaki/git/hakorune-selfhost/src/runner/modes/llvm/method_id_injector.rs) shows that AOT/backend lowering already has a method-id injection seam.
