@@ -9,7 +9,10 @@
 use super::{
     phi_query::{collect_phi_carry_relations, PhiBaseRelation},
     resolve_value_origin,
-    string_corridor_recognizer::{match_add_in_block, match_len_call, string_source_identity},
+    string_corridor_recognizer::{
+        match_add_in_block, match_len_call, match_substring_call,
+        match_substring_concat3_helper_call, string_source_identity,
+    },
     MirFunction, MirInstruction, MirModule, ValueId,
 };
 use std::collections::BTreeSet;
@@ -202,12 +205,18 @@ fn stable_length_relation_for_phi(
     base_value: ValueId,
 ) -> Option<StringCorridorRelation> {
     let length_value = entry_length_value_for_phi(function, phi_value)?;
-    let candidates = function
-        .metadata
-        .string_corridor_candidates
-        .get(&base_value)?;
-    let plan = candidates.iter().find_map(|candidate| candidate.plan)?;
-    let (start, end) = (plan.start?, plan.end?);
+    let def_map = super::build_value_def_map(function);
+    let base_root = resolve_value_origin(function, &def_map, base_value);
+    let (bbid, idx) = def_map.get(&base_root).copied()?;
+    let block = function.blocks.get(&bbid)?;
+    let inst = block.instructions.get(idx)?;
+    let (start, end) = if let Some(shape) = match_substring_concat3_helper_call(inst) {
+        (shape.start, shape.end)
+    } else if let Some((_dst, _receiver, start, end, _effects)) = match_substring_call(inst) {
+        (start, end)
+    } else {
+        return None;
+    };
     if !plan_window_preserves_length_value(function, start, end, length_value) {
         return None;
     }

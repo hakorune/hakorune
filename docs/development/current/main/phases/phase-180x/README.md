@@ -37,10 +37,10 @@
 - current state:
   - `180xA` landed: phase/docs/pointer lock is in place
   - `180xB` landed: `StringKernelPlan` owner now lives in `src/mir/string_kernel_plan.rs`
+  - `180xC` landed: `stable_length_scalar` no longer reads downstream candidate-plan windows; relation now derives its narrow witness from the carried base definition itself
   - `180xD` first cut landed: function-level string metadata readers moved out of `hako_llvmc_ffi_common.inc`
+  - `180xD` second cut landed: register-rooted candidate/plan readers now live in `hako_llvmc_ffi_string_candidate_plan_readers.inc`, and `string_chain_terms.inc` is back to term/classifier ownership
   - still open:
-    - `relation -> candidate` reverse dependency
-    - `string_chain_terms` reader split
     - `string_loop_seed` family split
 
 ## Acceptance

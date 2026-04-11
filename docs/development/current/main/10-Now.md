@@ -56,9 +56,9 @@ Related:
     - landed: exact keeper proof stays green at `ny_aot_instr=1,665,875 / ny_aot_ms=3`, and the old matcher no longer accepts the 14-op len-route fallback
   - active string seam cleanup follow-on: `phase180x string seam cleanup before broader DCE`
     - current stop-line is structural, not perf:
-      - relation still reads downstream candidate-plan details
-      - exporter still assembles backend-facing plan payload locally
-      - shim readers are still split across generic owner files
+      - landed: relation no longer reads downstream candidate-plan details
+      - landed: shim readers are now split away from both generic `common` and `string_chain_terms`
+      - remaining structural stop-line is `string_loop_seed` family split before legacy matcher retirement
     - cleanup order is:
       1. `StringKernelPlan` owner extraction
       2. relation reverse-dependency stop-line
