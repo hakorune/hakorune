@@ -18,7 +18,7 @@ Related:
 | Front | `lifecycle value parent locked -> audits landed -> thin-entry inventory/selection landed -> sum placement pilot landed -> ny-llvmc parity proving slice landed -> tuple compat transport landed` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
 | Blocker | `canonical multi-slot sum remains deferred; current tuple route stays compat-boxed` |
-| Next | `string exact-seed retirement design read` |
+| Next | `phase-179x string kernel plan export` |
 | After Next | `where / enum methods / monomorphization stay backlog-only` |
 
 ## Current Read
@@ -74,6 +74,11 @@ Related:
   - `phase-178x` is landed
   - split `hako_llvmc_ffi_sum_local_seed.inc` into a facade plus helper/emit/matcher include slices
   - keep this as BoxShape only; no pure-compile dispatch reorder and no semantic change
+- active string bridge-retirement follow-on:
+  - `phase-179x` is active
+  - accept the external reread direction, but correct the exporter reading: `mir_json_emit` already ships string corridor facts/relations/candidates
+  - the next missing seam is one exported backend-consumable `StringKernelPlan`
+  - do schema/export first, then metadata-first consumer, then matcher shrink
 - `phase-133x` landed:
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`

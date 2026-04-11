@@ -113,6 +113,13 @@ Plan fields that are allowed to grow here:
 - materialization demand
 - direct-kernel-entry legality
 
+Current follow-on reading:
+
+- `src/runner/mir_json_emit/mod.rs` already exports `string_corridor_facts`,
+  `string_corridor_relations`, and `string_corridor_candidates`
+- the next missing seam for exact-seed retirement is a backend-consumable
+  explicit `StringKernelPlan` schema, not raw metadata export itself
+
 Do not encode:
 
 - runtime cache layout

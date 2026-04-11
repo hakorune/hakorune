@@ -90,7 +90,11 @@ Scope: repo root から current lane / current front / restart read order に最
   - `docs/development/current/main/phases/phase-178x/README.md`
   - split `lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed.inc` into a facade plus focused include units before reopening more generic bridge shrink work
   - keep this as structure-only cleanup: no pure-compile match-order change, no new variant routes, no semantic widening
-  - next decision stays separate: string exact-seed retirement / generic plan-consumer corridor after external design reread
+- active string bridge-retirement follow-on:
+  - `docs/development/current/main/phases/phase-179x/README.md`
+  - external reread is adopted with one correction: MIR JSON already exports `string_corridor_facts` / `relations` / `candidates`
+  - the missing seam is an explicit backend-consumable `StringKernelPlan`, not raw metadata export itself
+  - next implementation cut should lock/export that plan before any more DCE widening
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`

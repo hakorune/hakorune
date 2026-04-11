@@ -73,6 +73,7 @@
     3. landed first narrow `plan window across phi_merge` cut on the single-input backedge phi `%22`; merged `%21` is now explicitly `stop_at_merge` and any broader widening stays in a separate metadata-contract phase
   - migration-safe reading: this lane should keep landing in canonical MIR facts/candidates/sink plus kernel/backend substrate, not in Rust-builder-local shape logic
   - treat exact seed logic in `lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed.inc` as temporary bridge surface to shrink after generic plan-selected routes prove out
+  - current bridge-retirement reading is now locked in `phase-179x`: MIR JSON already exports corridor facts/relations/candidates, so the next missing seam is an explicit backend-consumable `StringKernelPlan`, not another raw-shape exact matcher
 - pure Rust reference compare lane:
   - `benchmarks/rust/bench_kilo_micro_substring_views_only.rs`
   - `tools/perf/bench_rust_vs_hako_stat.sh kilo_micro_substring_views_only 1 3`
