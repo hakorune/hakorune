@@ -254,7 +254,7 @@
              - first unify MIR semantic refresh ownership
              - generic `value_origin` ownership is now landed in `src/mir/value_origin.rs`
              - generic `phi_relation` ownership is now also landed in `src/mir/phi_query.rs`
-             - then quarantine helper/runtime-name semantic recovery into compat layers
+             - helper/runtime-name semantic recovery is now quarantined in `src/mir/string_corridor_compat.rs`
              - only after that decide whether `boundary_fact` / lifecycle vocabulary should move out of string-local storage
            - `where` / enum methods / full monomorphization
         6. do not promote these into the current phase task order without a measured hotspot + SSOT first:

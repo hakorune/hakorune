@@ -35,7 +35,8 @@ Related:
     - `semantic_refresh` owner is landed
     - generic `value_origin` owner is landed
     - generic `phi_relation` owner is landed
-    - next front is compat semantic recovery quarantine
+    - compat semantic recovery quarantine is landed
+    - next front is the generic boundary/lifecycle extraction decision
 - lane: `phase-163x primitive and user-box fast path`
 - current implementation focus:
   - owner-target reminder:

@@ -3,8 +3,9 @@
  *
  * This module keeps no-behavior-change semantic facts about current string
  * lowering carriers. It does not introduce a second MIR dialect; it annotates
- * existing MIR with inventory-friendly facts so later placement/effect passes
- * can make decisions without guessing from helper names.
+ * existing MIR with inventory-friendly facts over canonical string ops.
+ * Legacy/helper/runtime-name recovery is quarantined in
+ * `string_corridor_compat`.
  */
 
 use super::{MirFunction, MirInstruction, MirModule, ValueId};
@@ -201,101 +202,26 @@ fn infer_fact_from_instruction(inst: &MirInstruction) -> Option<(ValueId, String
     match inst {
         MirInstruction::Call {
             dst: Some(dst),
-            callee: Some(Callee::Method {
-                box_name, method, ..
-            }),
-            args,
-            ..
-        } => infer_from_method(box_name, method, args.len()).map(|fact| (*dst, fact)),
-        MirInstruction::Call {
-            dst: Some(dst),
             callee: Some(Callee::Global(name)),
             ..
-        } => infer_from_global(name).map(|fact| (*dst, fact)),
-        MirInstruction::Call {
-            dst: Some(dst),
-            callee: Some(Callee::Extern(name)),
-            ..
-        } => infer_from_runtime_export(name).map(|fact| (*dst, fact)),
-        _ => None,
+        } => infer_from_canonical_global(name).map(|fact| (*dst, fact)),
+        _ => super::string_corridor_compat::infer_compat_fact_from_instruction(inst),
     }
 }
 
-fn infer_from_method(box_name: &str, method: &str, arity: usize) -> Option<StringCorridorFact> {
-    let is_runtime_data_string_facade = box_name == "RuntimeDataBox";
-    let is_stringish = is_stringish_box_name(box_name);
-
-    match (method, arity) {
-        ("length", 0) | ("len", 0) if is_stringish || is_runtime_data_string_facade => Some(
-            StringCorridorFact::str_len(StringCorridorCarrier::MethodCall),
-        ),
-        ("substring", 2) | ("slice", 2) if is_stringish || is_runtime_data_string_facade => Some(
-            StringCorridorFact::str_slice(StringCorridorCarrier::MethodCall),
-        ),
-        _ => None,
-    }
-}
-
-fn infer_from_global(name: &str) -> Option<StringCorridorFact> {
-    if matches!(name, "str.len" | "__str.len") {
-        return Some(StringCorridorFact::str_len(
-            StringCorridorCarrier::CanonicalIntrinsic,
-        ));
-    }
-    if matches!(name, "str.slice" | "__str.slice") {
-        return Some(StringCorridorFact::str_slice(
-            StringCorridorCarrier::CanonicalIntrinsic,
-        ));
-    }
-    if name == "freeze.str" {
-        return Some(StringCorridorFact::freeze_str(
-            StringCorridorCarrier::CanonicalIntrinsic,
-        ));
-    }
-    if let Some(fact) = infer_from_runtime_export(name) {
-        return Some(fact);
-    }
-
-    let (box_name, rest) = name.split_once('.')?;
-    if !is_stringish_box_name(box_name) {
-        return None;
-    }
-    let (method, arity) = rest.split_once('/').unwrap_or((rest, ""));
-    let arity = arity.parse::<usize>().ok()?;
-
-    match (method, arity) {
-        ("length", 0) | ("len", 0) => Some(StringCorridorFact::str_len(
-            StringCorridorCarrier::GlobalLoweredFunction,
-        )),
-        ("substring", 2) | ("slice", 2) => Some(StringCorridorFact::str_slice(
-            StringCorridorCarrier::GlobalLoweredFunction,
-        )),
-        _ => None,
-    }
-}
-
-fn infer_from_runtime_export(name: &str) -> Option<StringCorridorFact> {
+fn infer_from_canonical_global(name: &str) -> Option<StringCorridorFact> {
     match name {
-        "nyash.string.substring_hii" => Some(StringCorridorFact::str_slice(
-            StringCorridorCarrier::RuntimeExport,
+        "str.len" | "__str.len" => Some(StringCorridorFact::str_len(
+            StringCorridorCarrier::CanonicalIntrinsic,
         )),
-        "nyash.string.substring_concat_hhii" | "nyash.string.substring_concat3_hhhii" => Some(
-            StringCorridorFact::str_slice(StringCorridorCarrier::RuntimeExport),
-        ),
-        "nyash.string.substring_len_hii" => Some(StringCorridorFact::str_len(
-            StringCorridorCarrier::RuntimeExport,
+        "str.slice" | "__str.slice" => Some(StringCorridorFact::str_slice(
+            StringCorridorCarrier::CanonicalIntrinsic,
         )),
-        "nyash.string.length_si" | "nyrt_string_length" | "nyrt.string.length" => Some(
-            StringCorridorFact::str_len(StringCorridorCarrier::RuntimeExport),
-        ),
+        "freeze.str" => Some(StringCorridorFact::freeze_str(
+            StringCorridorCarrier::CanonicalIntrinsic,
+        )),
         _ => None,
     }
-}
-
-fn is_stringish_box_name(box_name: &str) -> bool {
-    matches!(box_name, "StringBox" | "String" | "__str")
-        || box_name.ends_with("StringBox")
-        || box_name.ends_with("String")
 }
 
 #[cfg(test)]
@@ -305,46 +231,28 @@ mod tests {
     use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirType};
 
     #[test]
-    fn infer_string_method_length_fact() {
-        let fact = infer_from_method("StringBox", "length", 0).expect("length fact");
+    fn infer_canonical_global_length_fact() {
+        let fact = infer_from_canonical_global("str.len").expect("length fact");
         assert_eq!(fact.op, StringCorridorOp::StrLen);
         assert_eq!(fact.role, StringCorridorRole::ScalarConsumer);
-        assert_eq!(fact.carrier, StringCorridorCarrier::MethodCall);
+        assert_eq!(fact.carrier, StringCorridorCarrier::CanonicalIntrinsic);
         assert_eq!(fact.objectize, StringPlacementFact::None);
     }
 
     #[test]
-    fn infer_runtime_data_substring_fact() {
-        let fact = infer_from_method("RuntimeDataBox", "substring", 2).expect("substring fact");
+    fn infer_canonical_global_slice_fact() {
+        let fact = infer_from_canonical_global("str.slice").expect("slice fact");
         assert_eq!(fact.op, StringCorridorOp::StrSlice);
         assert_eq!(fact.role, StringCorridorRole::BorrowProducer);
-        assert_eq!(fact.carrier, StringCorridorCarrier::MethodCall);
+        assert_eq!(fact.carrier, StringCorridorCarrier::CanonicalIntrinsic);
     }
 
     #[test]
-    fn infer_runtime_data_length_fact() {
-        let fact = infer_from_method("RuntimeDataBox", "length", 0).expect("length fact");
-        assert_eq!(fact.op, StringCorridorOp::StrLen);
-        assert_eq!(fact.role, StringCorridorRole::ScalarConsumer);
-        assert_eq!(fact.carrier, StringCorridorCarrier::MethodCall);
-    }
-
-    #[test]
-    fn infer_runtime_export_substring_fact() {
-        let fact = infer_from_runtime_export("nyash.string.substring_hii")
-            .expect("substring runtime export fact");
-        assert_eq!(fact.op, StringCorridorOp::StrSlice);
-        assert_eq!(fact.carrier, StringCorridorCarrier::RuntimeExport);
-        assert_eq!(fact.role, StringCorridorRole::BorrowProducer);
-    }
-
-    #[test]
-    fn infer_runtime_export_substring_concat_fact() {
-        let fact = infer_from_runtime_export("nyash.string.substring_concat3_hhhii")
-            .expect("substring concat runtime export fact");
-        assert_eq!(fact.op, StringCorridorOp::StrSlice);
-        assert_eq!(fact.carrier, StringCorridorCarrier::RuntimeExport);
-        assert_eq!(fact.role, StringCorridorRole::BorrowProducer);
+    fn infer_canonical_global_freeze_fact() {
+        let fact = infer_from_canonical_global("freeze.str").expect("freeze fact");
+        assert_eq!(fact.op, StringCorridorOp::FreezeStr);
+        assert_eq!(fact.role, StringCorridorRole::BirthSink);
+        assert_eq!(fact.carrier, StringCorridorCarrier::CanonicalIntrinsic);
     }
 
     #[test]

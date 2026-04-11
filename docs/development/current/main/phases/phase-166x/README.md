@@ -47,10 +47,12 @@
 - landed third cut:
   - `src/mir/phi_query.rs` now owns PHI carry/base traversal over generic anchor sets and uses generic `value_origin` normalization internally
   - domain relation builders no longer pass normalize closures or def-map ownership into PHI traversal
+- landed fourth cut:
+  - `src/mir/string_corridor_compat.rs` now owns helper/runtime-name semantic recovery for the string lane
+  - `src/mir/string_corridor.rs` now stays canonical-first and only falls back to the quarantined compat seam
 - next:
   - define the fixed order:
-    - compat semantic recovery quarantine next
-    - generic boundary/lifecycle extraction only after that
+    - generic boundary/lifecycle extraction decision next
 - keep current domain `fact -> candidate -> transform` layering
 
 ## Stop Line

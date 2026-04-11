@@ -189,6 +189,12 @@ It should model:
 - whether the result stays inside a borrowed corridor
 - whether direct kernel entry is legal for the current consumer path
 
+Current migration note:
+
+- canonical fact inventory lives in `src/mir/string_corridor.rs`
+- legacy/helper/runtime-name semantic recovery is quarantined in `src/mir/string_corridor_compat.rs`
+- later string-domain passes may still recognize helper shapes as compat consumers, but fact ownership should stay canonical-first
+
 ## Placement/Effect Pass Rule
 
 The new pass is an optimizer pass over canonical MIR facts, not a new public IR.

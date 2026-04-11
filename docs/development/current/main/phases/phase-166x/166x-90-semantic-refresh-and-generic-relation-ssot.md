@@ -84,6 +84,11 @@ Legacy/helper/runtime-export name recovery may still exist during migration, but
 
 Canonical-domain passes should trend toward reading canonical ops first.
 
+Current landed cut:
+
+- `src/mir/string_corridor_compat.rs` owns string-lane helper/runtime-name recovery
+- `src/mir/string_corridor.rs` stays canonical-first and falls back to the compat seam only after canonical-op detection
+
 ## Deferred
 
 The following stays out of the first structural cut:

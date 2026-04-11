@@ -16,7 +16,7 @@
 - [x] `166xD` generic `phi_relation` owner
   - keep PHI carry/base traversal in one generic seam
   - let domain layers consume the result, not own the traversal
-- [ ] `166xE` compat semantic recovery quarantine
+- [x] `166xE` compat semantic recovery quarantine
   - move helper/runtime-name semantic recovery out of domain fact builders
   - keep canonical-op reading as the domain-pass direction
 - [ ] `166xF` generic boundary/lifecycle extraction decision

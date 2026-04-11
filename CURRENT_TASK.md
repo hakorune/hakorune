@@ -43,7 +43,7 @@ Scope: repo root から current lane / current front / restart read order に最
   - phase-165x is landed; operand-role escape classification now stays in MIR authority and remains separate from both `used_values()` and backend/runtime helper logic
 - active semantic-structure follow-on:
   - `docs/development/current/main/phases/phase-166x/README.md`
-  - phase-166x is active; the semantic refresh owner cut plus generic `value_origin` / `phi_relation` ownership are landed, and the next order is `compat semantic recovery quarantine -> only then boundary/lifecycle extraction decision`
+  - phase-166x is active; the semantic refresh owner cut plus generic `value_origin` / `phi_relation` ownership and compat semantic recovery quarantine are landed, and the next order is `boundary/lifecycle extraction decision`
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`
