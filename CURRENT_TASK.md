@@ -97,7 +97,7 @@ Scope: repo root から current lane / current front / restart read order に最
   - landed: MIR-side `derive_string_kernel_plan(...)` now derives/export a minimal `metadata.string_kernel_plans` JSON surface from existing candidate metadata
   - landed: `string_loop_seed` now consumes `metadata.string_kernel_plans` first for the stable-length `substring_concat` len route and falls back to the old body matcher only for the remaining full-loop bridge
   - landed: exact keeper proof stays green with `ny_main = mov $0x10 ; ... ; add $0x12,%rax`, `ny_aot_instr=1,665,875`, and the old matcher no longer carries the 14-op len-route fallback
-- active string seam cleanup follow-on:
+- landed string seam cleanup follow-on:
   - `docs/development/current/main/phases/phase-180x/README.md`
   - current stop-line is structural before broader DCE resumes:
     - landed: `StringKernelPlan` owner is extracted out of placement/export sidecars
@@ -108,8 +108,9 @@ Scope: repo root から current lane / current front / restart read order に最
     - landed: the old dedicated `substring_concat_len_ascii_seed` ladder is now only a thin wrapper to the loop matcher, so the len-only exact route comes from the metadata-first seam alone
     - landed: `substring_concat_loop_ascii_seed` now splits a narrow metadata-first len preamble from the remaining legacy full-loop fallback helper
     - landed: `StringKernelPlan` now exports the remaining full-loop scalar payload (`seed_literal`, `seed_length`, `loop_bound`, `split_length`) and the `substring_concat` loop route reads that metadata before touching the legacy helper
-    - latest exact reread after the plan-payload cut: `ny_aot_instr=1,665,476 / ny_aot_cycles=1,074,624 / ny_aot_ms=4`
-    - next: retire the remaining full-loop fallback on top of the now metadata-first family layout
+    - landed: the remaining raw full-loop fallback inside `substring_concat_loop_ascii_seed` is retired, so the substring-concat loop route is now plan-first only
+    - latest exact reread after the fallback retirement: `ny_aot_instr=1,665,135 / ny_aot_cycles=1,127,472 / ny_aot_ms=4`
+    - next: broader DCE can resume now that the string seam cleanup lane is closed
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`

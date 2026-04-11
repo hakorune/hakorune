@@ -54,7 +54,7 @@ Related:
     - landed: MIR-side `derive_string_kernel_plan(...)` now derives/export `metadata.string_kernel_plans` from current string corridor candidates
     - landed: `string_loop_seed` now reads that plan first for the stable-length `substring_concat` len route, keeping the old body matcher only as shape fallback for the remaining full-loop bridge
     - landed: exact keeper proof stays green at `ny_aot_instr=1,665,875 / ny_aot_ms=3`, and the old matcher no longer accepts the 14-op len-route fallback
-  - active string seam cleanup follow-on: `phase180x string seam cleanup before broader DCE`
+  - landed string seam cleanup follow-on: `phase180x string seam cleanup before broader DCE`
     - current stop-line is structural, not perf:
       - landed: relation no longer reads downstream candidate-plan details
       - landed: shim readers are now split away from both generic `common` and `string_chain_terms`
@@ -62,8 +62,9 @@ Related:
       - landed: the dedicated `substring_concat_len_ascii_seed` ladder is retired into a thin wrapper, so the len-only exact route now comes from the metadata-first loop matcher seam
       - landed: `substring_concat_loop_ascii_seed` now splits a narrow metadata-first len preamble from the legacy full-loop fallback helper
       - landed: `StringKernelPlan` now exports the remaining full-loop scalar payload (`seed_literal`, `seed_length`, `loop_bound`, `split_length`) and the full-loop route reads that metadata before touching the legacy helper
-      - latest exact reread after that cut is `ny_aot_instr=1,665,476 / ny_aot_cycles=1,074,624 / ny_aot_ms=4`
-      - remaining structural stop-line is only the final raw full-loop fallback on top of that metadata-first family layout
+      - landed: the remaining raw full-loop fallback inside `substring_concat_loop_ascii_seed` is retired, so the full route is now plan-first only
+      - latest exact reread after the fallback retirement is `ny_aot_instr=1,665,135 / ny_aot_cycles=1,127,472 / ny_aot_ms=4`
+      - broader DCE can resume now that the string seam cleanup lane is closed
     - cleanup order is:
       1. `StringKernelPlan` owner extraction
       2. relation reverse-dependency stop-line

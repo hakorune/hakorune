@@ -85,8 +85,8 @@
   - split exact reread:
     - `kilo_micro_substring_views_only: instr=466,001 / cycles=841,958 / cache-miss=9,391 / AOT 3 ms`
     - `kilo_micro_len_substring_views: instr=1,672,096 / cycles=1,009,964 / cache-miss=8,902 / AOT 3 ms`
-- current broader-corridor reopen front:
-  - `kilo_micro_substring_concat: instr=1,665,476 / cycles=1,074,624 / cache-miss=8,710 / AOT 4 ms`
+  - current broader-corridor reopen front:
+  - `kilo_micro_substring_concat: instr=1,665,135 / cycles=1,127,472 / cache-miss=9,899 / AOT 4 ms`
   - `kilo_micro_array_string_store: c_ms=9 / ny_aot_ms=9`; this family is not the current blocker
 - target band for the next keeper:
   - mixed accept gate: hold `instr <= 1.8M`

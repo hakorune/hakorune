@@ -1,8 +1,8 @@
 # Phase 180x Task Board
 
 - `180xA` docs/pointer lock
-  - `phase180x` as active string seam cleanup lane
-  - DCE stays next, not current
+  - `phase180x` as landed string seam cleanup lane
+  - DCE stays next, now that the raw fallback is retired
 - `180xB` MIR `StringKernelPlan` owner extraction
   - split plan types/derive out of `string_corridor_placement.rs`
   - exporter reads plan owner only
@@ -33,4 +33,5 @@
   - second cut landed: `substring_concat_loop_ascii_seed` now separates a narrow metadata-first len preamble from the legacy full-loop fallback helper
   - third cut landed: the legacy full-loop fallback keeps only the remaining preheader/header values it still needs
   - fourth cut landed: `StringKernelPlan` exports the exact loop payload and the full-loop route reads that metadata before touching the legacy helper
-  - next: retire the remaining full-loop fallback only after plan-first parity proves out
+  - fifth cut landed: the remaining raw full-loop fallback is retired and the loop route is plan-first only
+  - next: broader DCE can resume
