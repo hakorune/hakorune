@@ -141,14 +141,14 @@ Fastest ownership move:
 3. move the real implementations later
 
 Current state:
-- landed: `collection_core/mapbox_*` wrappers
-- landed: `collection-core.txt` retarget to the wrappers
-- next: physical move of the 7 live rows and archive of the non-live rows
+- landed: `collection_core/mapbox_*` owner rows now carry the live implementations
+- landed: `collection-core.txt` retarget to `collection_core/mapbox_*`
+- next: archive the 6 non-live rows from `vm_hako_caps/mapbox/*`
 
 After the wrapper move:
-1. physically move the 7 live rows into a `collection_core/` owner home
-2. archive the non-live `mapbox` rows (`*_bad_key*`, `*_missing*`, `*_getfield*`, `*_setfield*`, `mapbox_newbox_ported_vm.sh`)
-3. retire the bridge after LLVM collection/runtime-data coverage replaces it
+1. archive the non-live `mapbox` rows (`*_bad_key*`, `*_missing*`, `*_getfield*`, `*_setfield*`, `mapbox_newbox_ported_vm.sh`)
+2. leave the old live `vm_hako_caps/mapbox/*` copy as temporary mirror only until the archive step is complete
+3. retire the collection-core owner rows after LLVM collection/runtime-data coverage replaces them
 
 Risks:
 - the 7 live rows depend on `vm_hako_caps_common.sh`
@@ -158,6 +158,6 @@ Risks:
 
 ## Next Commit Candidates
 
-1. `96xC4`: physically move the 7 live mapbox rows into `collection_core/` only after preserving the current uncommitted row content
+1. `96xC4`: archive the 6 non-live `vm_hako_caps/mapbox/*` rows without touching the current live mirror content
 2. `96xC2`: retire the narrow single-purpose witnesses in wave 1b
 3. `96xC3`: finish the seam-shadow lane

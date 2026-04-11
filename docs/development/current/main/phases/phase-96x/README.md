@@ -69,7 +69,7 @@ Related:
   - `tls/`
   - `compare/`
   - these are either indirect-live (`mapbox`) or narrow single-purpose rows that should not grow during cutover
-- `mapbox/` is now bridged through `collection_core/mapbox_*` rather than referenced directly by `collection-core.txt`, so it belongs to a parallel re-home track instead of the first acceptance cutover wave
+- `mapbox/` live ownership now executes directly from `collection_core/mapbox_*`, while `vm_hako_caps/mapbox/*` remains as the temporary mirror/archive source; it stays on the parallel re-home track instead of the first acceptance cutover wave
 - exact row-to-row mapping is locked by the inventory now; `96xC` is the execution wave for:
   - landed: `96xC1a` retired `args_vm.sh` against `apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
   - landed: `96xC1b` moved env product ownership to `presubmit.txt` via `core/phase2035/v1_extern_env_get_canary_vm.sh` and kept `vm_hako_caps/env/env_get_ported_vm.sh` as monitor-only in `vm-hako-core.txt`

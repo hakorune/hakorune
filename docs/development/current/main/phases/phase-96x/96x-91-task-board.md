@@ -24,7 +24,7 @@ Date: 2026-04-11
 | `96xC1` | in_progress | wave 1a: LLVM cutover pack for `env` + `file` after the narrow `args_vm` cut |
 | `96xC2` | pending | wave 1b: LLVM cutover pack for `compare` + `misc` + `atomic` + `tls` |
 | `96xC3` | pending | wave 2: seam shadow replacement for `select_emit` + `open_handle_phi` + `boxcall_args_gt1` |
-| `96xC4` | in_progress | parallel `mapbox -> collection-core` re-home track; wrapper bridge + suite retarget landed |
+| `96xC4` | in_progress | parallel `mapbox -> collection-core` re-home track; live rows moved into `collection_core/`, non-live archive pending |
 | `96xD1` | pending | `app1` late demotion and proof / closeout |
 
 ### Wave 1a Substeps
@@ -66,4 +66,7 @@ Date: 2026-04-11
 - wave `1b` is `compare` + `misc` + `atomic` + `tls`
 - wave `2` is `select_emit` + `open_handle_phi` + `boxcall_args_gt1`
 - `mapbox` is a separate `collection-core` re-home track, not part of wave `1a`
-- current landed substep: `collection-core.txt` now points at `collection_core/mapbox_*` wrappers instead of `vm_hako_caps/mapbox/*`
+- current landed substeps:
+  - `collection-core.txt` points at `collection_core/mapbox_*`
+  - the 7 live rows now execute from `collection_core/`
+  - next is archiving the 6 non-live `vm_hako_caps/mapbox/*` rows
