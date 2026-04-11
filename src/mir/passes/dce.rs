@@ -43,6 +43,10 @@ fn propagate_used_values(
     }
 }
 
+fn is_removable_no_dst_pure_instruction(inst: &crate::mir::MirInstruction) -> bool {
+    matches!(inst, crate::mir::MirInstruction::Safepoint)
+}
+
 fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
     let reachable_blocks = crate::mir::verification::utils::compute_reachable_blocks(function);
 
@@ -127,6 +131,17 @@ fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
                             keep = false;
                         }
                     }
+                }
+                if keep && inst.dst_value().is_none() && is_removable_no_dst_pure_instruction(&inst)
+                {
+                    if dce_trace {
+                        get_global_ring0().log.debug(&format!(
+                            "[dce] Eliminating removable no-dst pure instruction in bb{}: {:?}",
+                            bbid.0, inst
+                        ));
+                    }
+                    eliminated += 1;
+                    keep = false;
                 }
                 if let Some(dst) = inst.dst_value() {
                     if !used_values.contains(&dst) {
@@ -460,5 +475,48 @@ mod tests {
         assert!(bb0.instructions.iter().any(
             |inst| matches!(inst, MirInstruction::KeepAlive { values } if values == &vec![v1])
         ));
+    }
+
+    #[test]
+    fn test_dce_prunes_safepoint_noop_when_it_has_no_other_effects() {
+        let mut module = MirModule::new("dce_test".to_string());
+
+        let sig = FunctionSignature {
+            name: "test/0".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        let mut func = MirFunction::new(sig, BasicBlockId(0));
+
+        let v1 = ValueId(1);
+
+        {
+            let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
+            bb0.instructions.push(MirInstruction::Const {
+                dst: v1,
+                value: ConstValue::Integer(123),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Safepoint);
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.set_terminator(MirInstruction::Return { value: Some(v1) });
+        }
+
+        module.add_function(func);
+
+        let eliminated = eliminate_dead_code(&mut module);
+        assert_eq!(eliminated, 1);
+
+        let func = module.get_function("test/0").unwrap();
+        let bb0 = func.blocks.get(&BasicBlockId(0)).unwrap();
+        assert!(bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Const { dst, .. } if *dst == v1)));
+        assert!(!bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Safepoint)));
     }
 }
