@@ -64,7 +64,7 @@ Related:
 | Family | Current role | phase29y-live count | other live count | LLVM replacement anchor | Status target | Retirement condition |
 | --- | --- | --- | --- | --- | --- | --- |
 | `env/` | environment routing monitor canary | `0` | `1` via `vm-hako-core.txt` | `core/phase2035/v1_extern_env_get_canary_vm.sh` via `presubmit.txt` | cutover -> monitor keep | product ownership is outside `vm-hako-caps`; `env_get` stays only as the explicit vm_hako monitor canary |
-| `file/` | file handle lifecycle contract | `4` | `0` | product LLVM file/backend acceptance pack | live -> cutover | LLVM-line file open/read/close rows are green |
+| `file/` | file handle lifecycle contract | `3` | `0` | `apps/archive/phase29cc_plg04_filebox_pilot_vm.sh` for `newbox`, plus product LLVM file/backend acceptance pack for the rest | live -> cutover | `filebox_newbox_vm.sh` is no longer gate-owned and the remaining file rows move in wave 1 |
 | `args/` | mixed lane: narrow args row retired, seam row remains | `1` | `0` | `apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh` for the narrow row; APP/seam pack for `boxcall_args_gt1` | cutover -> seam keep | `args_vm.sh` is no longer gate-owned and the remaining seam row moves in wave `2` |
 | `compare/` | compare-op pin | `2` | `0` | product LLVM acceptance pack | freeze -> cutover | LLVM-line compare coverage is explicit and green |
 | `misc/` | one-off capability pin | `1` | `0` | product LLVM acceptance pack | freeze -> archive | replacement row exists and vm_hako no longer owns the witness |
@@ -90,7 +90,7 @@ Related:
 
 | Current vm_hako family | Current role | LLVM replacement anchor | Notes |
 | --- | --- | --- | --- |
-| `file/` | product-visible live rows | product LLVM backend acceptance pack | first cutover wave now that `args_vm.sh` is retired and `env_get` product ownership is moved to `presubmit.txt` |
+| `file/` | product-visible live rows | `apps/archive/phase29cc_plg04_filebox_pilot_vm.sh` plus product LLVM backend acceptance pack | first cutover wave now that `args_vm.sh` is retired, `env_get` product ownership is moved to `presubmit.txt`, and `filebox_newbox_vm.sh` is cut from the vm-hako gate |
 | `compare/` + `misc/` + `atomic/` + `tls/` | narrow single-purpose witnesses | product LLVM acceptance pack | second wave after the product-visible wave is stable |
 | `select_emit/` + `open_handle_phi/` + `boxcall_args_gt1` | compiler/backend seam sentinels | `phase29y-hako-emit-mir.txt`, `joinir-bq.txt`, `selfhost-core.txt` | keep as seam shadow rows until LLVM/JoinIR proofs are explicit |
 | `app1/` | wide end-to-end summary parity | `presubmit.txt` plus product LLVM acceptance pack | late demotion only after leaf families stop owning the contract |

@@ -40,27 +40,26 @@ Landed:
 - `96xC1b`: `env_get_ported_vm.sh` retired from `vm-hako-caps.txt` and `phase29y_vm_hako_caps_gate_vm.sh`
 - product owner: `tools/smokes/v2/profiles/integration/core/phase2035/v1_extern_env_get_canary_vm.sh` via `tools/smokes/v2/suites/integration/presubmit.txt`
 - monitor keep: `tools/smokes/v2/profiles/integration/vm_hako_caps/env/env_get_ported_vm.sh` remains only in `tools/smokes/v2/suites/integration/vm-hako-core.txt`
+- `96xC1c`: `filebox_newbox_vm.sh` retired from `vm-hako-caps.txt` and `phase29y_vm_hako_caps_gate_vm.sh`
+- replacement anchor: `tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg04_filebox_pilot_vm.sh` (green standalone anchor; suite promotion can stay separate)
 
 Rows:
-- `vm_hako_caps/file/filebox_newbox_vm.sh`
 - `vm_hako_caps/file/file_error_vm.sh`
 - `vm_hako_caps/file/file_read_ported_vm.sh`
 - `vm_hako_caps/file/file_close_ported_vm.sh`
 
 Exact order:
-1. `filebox_newbox_vm.sh`
-2. `file_error_vm.sh`
-3. `file_read_ported_vm.sh`
-4. `file_close_ported_vm.sh`
+1. `file_error_vm.sh`
+2. `file_read_ported_vm.sh`
+3. `file_close_ported_vm.sh`
 
 Current live refs:
-- `vm-hako-caps.txt` still owns the four remaining wave 1a file rows
+- `vm-hako-caps.txt` still owns the three remaining wave 1a file rows
 - `vm-hako-core.txt` still owns the monitor canary `env_get_ported_vm.sh` plus `file_read_ported_vm.sh` and `file_close_ported_vm.sh`
-- `phase29y_vm_hako_caps_gate_vm.sh` still runs the four remaining wave 1a file rows directly
+- `phase29y_vm_hako_caps_gate_vm.sh` still runs the three remaining wave 1a file rows directly
 - `presubmit.txt` now owns `core/phase2035/v1_extern_env_get_canary_vm.sh`
 
 Exact replacement anchors:
-- `filebox_newbox_vm.sh` -> `tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg04_filebox_pilot_vm.sh`
 - `file_read_ported_vm.sh` -> `tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg07_filebox_binary_hako_route_vm.sh`
 - `file_close_ported_vm.sh` -> `tools/smokes/v2/profiles/integration/apps/archive/phase29cc_plg07_filebox_binary_retire_execution_lock_vm.sh`
 - `file_error_vm.sh` -> no dedicated non-vm_hako anchor yet; treat as the explicit gap row
@@ -70,9 +69,8 @@ Cutover rule:
 - do not batch `file_error_vm.sh` into the first FileBox cut unless a dedicated non-vm_hako open-error witness lands in the same commit
 
 Required tasks:
-1. `96xC1c`: retire `filebox_newbox_vm.sh` against the PLG-04 FileBox pilot anchor
-2. `96xC1d`: retire `file_read_ported_vm.sh` and `file_close_ported_vm.sh` against the PLG-07 FileBox anchors
-3. `96xC1e`: either land a dedicated non-vm_hako open-error witness for `file_error_vm.sh` or mark it as the last wave 1a survivor until that witness exists
+1. `96xC1d`: retire `file_read_ported_vm.sh` and `file_close_ported_vm.sh` against the PLG-07 FileBox anchors
+2. `96xC1e`: either land a dedicated non-vm_hako open-error witness for `file_error_vm.sh` or mark it as the last wave 1a survivor until that witness exists
 
 ### Wave 1b: narrow single-purpose witnesses
 
@@ -157,6 +155,6 @@ Risks:
 
 ## Next Commit Candidates
 
-1. `96xC1c`: retire `filebox_newbox_vm.sh` against the PLG-04 FileBox pilot anchor
-2. `96xC1d`: retire `file_read_ported_vm.sh` and `file_close_ported_vm.sh` against the PLG-07 FileBox anchors
+1. `96xC1d`: retire `file_read_ported_vm.sh` and `file_close_ported_vm.sh` against the PLG-07 FileBox anchors
+2. `96xC1e`: decide whether `file_error_vm.sh` gets a dedicated open-error anchor or remains the last wave 1a survivor
 3. `96xC4`: physically move the 7 live mapbox rows into `collection_core/` only after preserving the current uncommitted row content

@@ -54,7 +54,7 @@ Related:
 
 - the active reference gate is still `tools/smokes/v2/profiles/integration/vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh`
 - the live `vm_hako_caps` family still covers `app1`, `args`, `atomic`, `compare`, `env`, `file`, `mapbox`, `misc`, `open_handle_phi`, `select_emit`, `tls`
-- the current pressure point is the remaining product-visible live row set: `file`
+- the current pressure point is the remaining product-visible live row set: `file_error`, `file_read`, and `file_close`
 - LLVM replacement anchors already exist in the current `phase29ck_boundary/runtime_data/*`, `phase29ck_llvm_backend_*`, and `phase163x_boundary_*` proof families
 - recommended single monitor canary while the replacement matrix is moving:
   - `tools/smokes/v2/profiles/integration/vm_hako_caps/env/env_get_ported_vm.sh`
@@ -73,6 +73,7 @@ Related:
 - exact row-to-row mapping is locked by the inventory now; `96xC` is the execution wave for:
   - landed: `96xC1a` retired `args_vm.sh` against `apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
   - landed: `96xC1b` moved env product ownership to `presubmit.txt` via `core/phase2035/v1_extern_env_get_canary_vm.sh` and kept `vm_hako_caps/env/env_get_ported_vm.sh` as monitor-only in `vm-hako-core.txt`
+  - landed: `96xC1c` retired `filebox_newbox_vm.sh` from `vm-hako-caps.txt` and `phase29y_vm_hako_caps_gate_vm.sh` with `apps/archive/phase29cc_plg04_filebox_pilot_vm.sh` as the explicit green anchor
   - wave `1a`: `file`
   - wave `1b`: `compare` + `misc` + `atomic` + `tls`
   - wave `2`: `select_emit` + `open_handle_phi` + `boxcall_args_gt1` + `app1`
