@@ -28,3 +28,6 @@
 - `180xF` exact matcher retirement
   - first len-route exact matcher
   - later full-loop fallback
+- `180xF` status:
+  - first cut landed: `substring_concat_len_ascii_seed` is now a thin wrapper to the metadata-first loop matcher path
+  - next: retire the remaining full-loop fallback only after plan-first parity proves out

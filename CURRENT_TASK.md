@@ -105,7 +105,8 @@ Scope: repo root から current lane / current front / restart read order に最
     - landed: function-level string metadata readers are out of generic `common`
     - landed: register-rooted candidate/plan readers are out of `string_chain_terms`
     - landed: `string_loop_seed` is split into emitters / copy-graph / views-only / length-hot-loop / substring-concat families behind a thin facade
-    - next: old matcher retirement on top of the new family layout
+    - landed: the old dedicated `substring_concat_len_ascii_seed` ladder is now only a thin wrapper to the loop matcher, so the len-only exact route comes from the metadata-first seam alone
+    - next: retire the remaining full-loop fallback on top of the new family layout
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`
