@@ -1,0 +1,30 @@
+// kilo/userbox known-receiver recursive microbench:
+// Counter.step_chain() forwards the known-receiver lane to Counter.step().
+box Counter {
+  value: IntegerBox
+
+  step() {
+    return me.value + 2
+  }
+
+  step_chain() {
+    return me.step()
+  }
+}
+
+static box Main {
+  main() {
+    local ops = 2000000
+    local c = new Counter()
+    c.value = 41
+
+    local acc = 0
+    local i = 0
+    loop (i < ops) {
+      acc = acc + c.step_chain()
+      i = i + 1
+    }
+
+    return acc + c.step_chain()
+  }
+}

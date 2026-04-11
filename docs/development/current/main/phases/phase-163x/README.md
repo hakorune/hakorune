@@ -217,8 +217,8 @@
              - `callsite_canonicalize` rewrites known user-box receiver calls from `RuntimeDataBox`/union and `Global <Box>.<method>/<arity>` into canonical known `Call(Method{box_name=<Box>, certainty=Known, box_kind=UserDefined})`
              - `phase163x_direct_emit_user_box_counter_step_contract.sh` now pins the current direct-route `Counter.step` contract on `bench_kilo_micro_userbox_counter_step.hako`
            - landed first native-driver/shim boundary pure-first consumer slice too:
-             - `phase163x_boundary_user_box_method_known_receiver_min.sh` now pins metadata-bearing `Counter.step` and `Point.sum` fixtures on the owner lane without compat replay
-             - the current shim consumer stays local-i64 + known-receiver narrow and consumes `user_box_method.known_receiver` together with the matching scalar field selections, including one local receiver-copy alias
+             - `phase163x_boundary_user_box_method_known_receiver_min.sh` now pins metadata-bearing `Counter.step`, `Counter.step_chain`, and `Point.sum` fixtures on the owner lane without compat replay
+             - the current shim consumer stays local-i64 + known-receiver narrow and consumes `user_box_method.known_receiver` together with the matching scalar field selections, including one local receiver-copy alias and the one-hop recursive delegate
            - first measured local-method keeper is now landed:
              - `bench_kilo_micro_userbox_counter_step.hako` + `benchmarks/c/bench_kilo_micro_userbox_counter_step.c`
              - the narrow `Counter.step` pure-first micro seed now collapses the exact bench to `ny_main = mov $0x52041ab, %eax ; ret`
@@ -228,6 +228,12 @@
              - `phase163x_direct_emit_user_box_point_sum_contract.sh` now pins the current direct-route `Point.sum` contract on the known-receiver lane
              - the narrow `Point.sum` pure-first micro seed now collapses the exact bench to `ny_main = mov $0x5b8d83, %eax ; ret`
              - latest exact reread: `kilo_micro_userbox_point_sum` = `c_instr=127,235 / c_cycles=216,542 / c_ms=3` vs `ny_aot_instr=465,837 / ny_aot_cycles=1,127,654 / ny_aot_ms=3`
+           - recursive one-hop delegate keeper is now landed:
+             - `benchmarks/bench_kilo_micro_userbox_counter_step_chain.hako` + `benchmarks/c/bench_kilo_micro_userbox_counter_step_chain.c`
+             - `phase163x_direct_emit_user_box_counter_step_chain_contract.sh` now pins the current direct-route `Counter.step_chain` contract on the known-receiver lane
+             - the narrow `Counter.step_chain` pure-first micro seed now keeps the recursive `Counter.step_chain` / `Counter.step` known-receiver rows on the direct path and still collapses the exact bench to `ny_main = mov $0x2b, %eax ; ret`
+             - latest exact reread: `kilo_micro_userbox_counter_step_chain` = `c_instr=127,245 / c_cycles=230,857 / c_cache_miss=3,693 / c_ms=3` vs `ny_aot_instr=466,852 / ny_aot_cycles=836,012 / ny_aot_cache_miss=8,495 / ny_aot_ms=4`
+             - current `ny_main` object snippet is now `mov $0x2b, %eax ; ret`
            - first broader boundary parity widening is now landed:
              - `apps/tests/mir_shape_guard/user_box_point_sum_local_i64_min.prebuilt.mir.json` now proves the direct local-i64 `Point.sum` known-receiver shape without relying on the benchmark loop body
              - `phase163x_boundary_user_box_method_known_receiver_min.sh` now keeps both known-receiver fixtures green on boundary `pure-first` without compat replay

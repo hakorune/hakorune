@@ -72,9 +72,9 @@ Related:
       - when the selector chooses `thin_internal_entry`, lowering now takes a dedicated thin-known-receiver direct method route beneath canonical `Call`
       - the previous direct known-box call remains as compatibility fallback, so existing lowered user-box methods keep working while the selector becomes a real consumer
       - native-driver/shim now also has a first narrow boundary pure-first consumer slice for the same selector contract:
-        - `tools/smokes/v2/profiles/integration/phase163x/phase163x_boundary_user_box_method_known_receiver_min.sh` now pins metadata-bearing `Counter.step` and `Point.sum` fixtures
+        - `tools/smokes/v2/profiles/integration/phase163x/phase163x_boundary_user_box_method_known_receiver_min.sh` now pins metadata-bearing `Counter.step`, `Counter.step_chain`, and `Point.sum` fixtures
         - `lang/c-abi/shims/hako_llvmc_ffi_user_box_micro_seed.inc` now consumes `user_box_method.known_receiver` together with the matching scalar field selections for `Counter.value` and `Point.{x,y}`
-        - the widened owner-lane slice now also accepts one local receiver `copy`, while still staying local-i64 + known-receiver only; broader generic local-method parity remains separate
+        - the widened owner-lane slice now also accepts one local receiver `copy` and the one-hop recursive delegate, while still staying local-i64 + known-receiver only; broader generic local-method parity remains separate
       - canonical known-receiver callsite rewrite is now landed:
         - `callsite_canonicalize` rewrites known user-box receiver calls from `RuntimeDataBox`/union and `Global <Box>.<method>/<arity>` into canonical `Call(Method{box_name=<Box>, certainty=Known, box_kind=UserDefined})`
         - `tools/smokes/v2/profiles/integration/phase163x/phase163x_direct_emit_user_box_counter_step_contract.sh` pins the current direct-route `Counter.step` contract on `bench_kilo_micro_userbox_counter_step.hako`
@@ -87,6 +87,12 @@ Related:
         - `tools/smokes/v2/profiles/integration/phase163x/phase163x_direct_emit_user_box_point_sum_contract.sh` pins the current direct-route `Point.sum` contract
         - exact reread: `kilo_micro_userbox_point_sum` = `c_instr=127,235 / c_cycles=216,542 / c_ms=3` vs `ny_aot_instr=465,837 / ny_aot_cycles=1,127,654 / ny_aot_ms=3`
         - current `ny_main` object snippet is `mov $0x5b8d83, %eax ; ret`
+      - recursive one-hop delegate keeper is now landed:
+        - `benchmarks/bench_kilo_micro_userbox_counter_step_chain.hako` + `benchmarks/c/bench_kilo_micro_userbox_counter_step_chain.c`
+        - `phase163x_direct_emit_user_box_counter_step_chain_contract.sh` pins the current direct-route `Counter.step_chain` contract
+        - `phase163x_boundary_user_box_method_known_receiver_min.sh` now keeps `Counter.step_chain` green on boundary pure-first without compat replay
+        - exact reread: `kilo_micro_userbox_counter_step_chain` = `c_instr=127,245 / c_cycles=230,857 / c_cache_miss=3,693 / c_ms=3` vs `ny_aot_instr=466,852 / ny_aot_cycles=836,012 / ny_aot_cache_miss=8,495 / ny_aot_ms=4`
+        - current `ny_main` object snippet is `mov $0x2b, %eax ; ret`
     - portability-ci on `public-main` succeeded for commit `6b91896c0` (run `24211665863`), covering Windows check and macOS build (release)
   - verified post-Variant optimization order is now locked:
     1. `ny-llvmc` parity wave for the already-landed local enum/user-box routes

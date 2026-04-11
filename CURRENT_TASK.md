@@ -204,7 +204,7 @@ Scope: repo root から current lane / current front / restart read order に最
           - selected `user_box_field_{get,set}.inline_scalar` rows can keep the typed primitive helpers without re-discovering `field_decls` on the backend side when the declared box family is already pinned
           - selected `user_box_field_{get,set}.public_default` rows still keep the generic fallback even if the compat mirror looks scalar-shaped
           - selected `user_box_method.known_receiver` rows now also act as an actual consumer on the LLVM/Python route: `mir_call.method_call` first tries a thin-known-receiver direct box-method call beneath canonical `Call`, while the previous direct known-box route stays as compatibility fallback
-          - selected `user_box_method.known_receiver` rows now also have a broader native-driver/shim boundary consumer slice: `hako_llvmc_ffi_user_box_micro_seed.inc` accepts metadata-bearing `Counter.step` and `Point.sum` fixtures only when the selector row and the matching scalar field selections are present
+          - selected `user_box_method.known_receiver` rows now also have a broader native-driver/shim boundary consumer slice: `hako_llvmc_ffi_user_box_micro_seed.inc` accepts metadata-bearing `Counter.step`, `Counter.step_chain`, and `Point.sum` fixtures only when the selector row and the matching scalar field selections are present
           - canonical callsite rewrite is now landed too:
             - `callsite_canonicalize` rewrites known user-box receiver calls from `RuntimeDataBox`/union or `Global <Box>.<method>/<arity>` into canonical `Call(Method{box_name=<Box>, certainty=Known, box_kind=UserDefined})`
             - `phase163x_direct_emit_user_box_counter_step_contract.sh` pins the current direct-route `Counter.step` contract with two `user_box_method.known_receiver` rows and canonical callsites in `bench_kilo_micro_userbox_counter_step.hako`
@@ -225,6 +225,14 @@ Scope: repo root から current lane / current front / restart read order に最
             - `phase163x_direct_emit_user_box_point_sum_contract.sh` pins the current direct-route `Point.sum` contract
             - latest exact reread: `kilo_micro_userbox_point_sum` = `c_instr=127,235 / c_cycles=216,542 / c_ms=3` vs `ny_aot_instr=465,837 / ny_aot_cycles=1,127,654 / ny_aot_ms=3`
             - current `ny_main` object snippet is now `mov $0x5b8d83, %eax ; ret`
+          - recursive one-hop delegate keeper is now landed:
+            - `benchmarks/bench_kilo_micro_userbox_counter_step_chain.hako` + `benchmarks/c/bench_kilo_micro_userbox_counter_step_chain.c`
+            - `hako_llvmc_ffi_user_box_micro_seed.inc` now has a narrow `Counter.step_chain` pure-first micro seed behind the same `Counter.value` scalar write and the recursive `Counter.step_chain` / `Counter.step` known-receiver rows
+            - `apps/tests/mir_shape_guard/user_box_counter_step_chain_local_i64_min.prebuilt.mir.json` now proves the direct local-i64 `Counter.step_chain` shape without depending on the benchmark loop body
+            - `phase163x_direct_emit_user_box_counter_step_chain_contract.sh` pins the current direct-route `Counter.step_chain` contract
+            - `phase163x_boundary_user_box_method_known_receiver_min.sh` now keeps `Counter.step_chain` green on boundary pure-first without compat replay
+            - latest exact reread: `kilo_micro_userbox_counter_step_chain` = `c_instr=127,245 / c_cycles=230,857 / c_cache_miss=3,693 / c_ms=3` vs `ny_aot_instr=466,852 / ny_aot_cycles=836,012 / ny_aot_cache_miss=8,495 / ny_aot_ms=4`
+            - current `ny_main` object snippet is now `mov $0x2b, %eax ; ret`
           - next thin-entry actual-consumer follow-on after this slice:
             - first broader boundary parity widening is now landed too:
               - `apps/tests/mir_shape_guard/user_box_point_sum_local_i64_min.prebuilt.mir.json` now proves the direct local-i64 `Point.sum` known-receiver shape without depending on the benchmark loop body
