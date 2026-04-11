@@ -16,43 +16,11 @@ pub fn eliminate_dead_code(module: &mut MirModule) -> usize {
     eliminated_total
 }
 
-fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
-    let reachable_blocks = crate::mir::verification::utils::compute_reachable_blocks(function);
-
-    // Collect values that must be kept (used results + effects)
-    let mut used_values: HashSet<ValueId> = HashSet::new();
-
-    // Mark values used by side-effecting instructions and terminators
-    for (bid, block) in &function.blocks {
-        if !reachable_blocks.contains(bid) {
-            continue;
-        }
-        for instruction in &block.instructions {
-            let has_dst = instruction.dst_value().is_some();
-            if !instruction.effects().is_pure() || !has_dst {
-                if let Some(dst) = instruction.dst_value() {
-                    used_values.insert(dst);
-                }
-                for u in instruction.used_values() {
-                    used_values.insert(u);
-                }
-            }
-        }
-        if let Some(term) = &block.terminator {
-            for u in term.used_values() {
-                used_values.insert(u);
-            }
-        }
-        for edge in block.out_edges() {
-            if let Some(args) = edge.args {
-                for u in args.values {
-                    used_values.insert(u);
-                }
-            }
-        }
-    }
-
-    // Backward propagation: if a value is used, mark its operands as used
+fn propagate_used_values(
+    function: &MirFunction,
+    reachable_blocks: &HashSet<crate::mir::BasicBlockId>,
+    used_values: &mut HashSet<ValueId>,
+) {
     let mut changed = true;
     while changed {
         changed = false;
@@ -73,6 +41,67 @@ fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
             }
         }
     }
+}
+
+fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
+    let reachable_blocks = crate::mir::verification::utils::compute_reachable_blocks(function);
+
+    // Collect values that must be kept for reasons other than KeepAlive.
+    let mut base_used_values: HashSet<ValueId> = HashSet::new();
+
+    // Mark values used by side-effecting instructions and terminators
+    for (bid, block) in &function.blocks {
+        if !reachable_blocks.contains(bid) {
+            continue;
+        }
+        for instruction in &block.instructions {
+            let has_dst = instruction.dst_value().is_some();
+            if matches!(instruction, crate::mir::MirInstruction::KeepAlive { .. }) {
+                continue;
+            }
+            if !instruction.effects().is_pure() || !has_dst {
+                if let Some(dst) = instruction.dst_value() {
+                    base_used_values.insert(dst);
+                }
+                for u in instruction.used_values() {
+                    base_used_values.insert(u);
+                }
+            }
+        }
+        if let Some(term) = &block.terminator {
+            for u in term.used_values() {
+                base_used_values.insert(u);
+            }
+        }
+        for edge in block.out_edges() {
+            if let Some(args) = edge.args {
+                for u in args.values {
+                    base_used_values.insert(u);
+                }
+            }
+        }
+    }
+
+    // First propagate liveness without KeepAlive so we can tell which KeepAlive
+    // instructions are redundant for other reachable reasons.
+    propagate_used_values(function, &reachable_blocks, &mut base_used_values);
+
+    let mut used_values = base_used_values.clone();
+    for (bid, block) in &function.blocks {
+        if !reachable_blocks.contains(bid) {
+            continue;
+        }
+        for instruction in &block.instructions {
+            if let crate::mir::MirInstruction::KeepAlive { values } = instruction {
+                if values.iter().any(|value| !base_used_values.contains(value)) {
+                    used_values.extend(values.iter().copied());
+                }
+            }
+        }
+    }
+
+    // Backward propagation: if a value is used, mark its operands as used
+    propagate_used_values(function, &reachable_blocks, &mut used_values);
 
     // Remove unused pure instructions
     let mut eliminated = 0usize;
@@ -85,6 +114,20 @@ fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
         for (inst, span) in insts.into_iter().zip(spans.into_iter()) {
             let mut keep = true;
             if inst.effects().is_pure() {
+                if reachable_blocks.contains(&bbid) {
+                    if let crate::mir::MirInstruction::KeepAlive { values } = &inst {
+                        if values.iter().all(|value| base_used_values.contains(value)) {
+                            if dce_trace {
+                                get_global_ring0().log.debug(&format!(
+                                    "[dce] Eliminating redundant KeepAlive in bb{}: {:?}",
+                                    bbid.0, inst
+                                ));
+                            }
+                            eliminated += 1;
+                            keep = false;
+                        }
+                    }
+                }
                 if let Some(dst) = inst.dst_value() {
                     if !used_values.contains(&dst) {
                         if dce_trace {
@@ -331,5 +374,91 @@ mod tests {
             .instructions
             .iter()
             .any(|inst| matches!(inst, MirInstruction::Store { value, ptr } if *value == v_entry && *ptr == v_dead_ptr)));
+    }
+
+    #[test]
+    fn test_dce_prunes_redundant_keepalive_when_return_already_keeps_value_live() {
+        let mut module = MirModule::new("dce_test".to_string());
+
+        let sig = FunctionSignature {
+            name: "test/0".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        let mut func = MirFunction::new(sig, BasicBlockId(0));
+
+        let v1 = ValueId(1);
+
+        {
+            let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
+            bb0.instructions.push(MirInstruction::Const {
+                dst: v1,
+                value: ConstValue::Integer(123),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions
+                .push(MirInstruction::KeepAlive { values: vec![v1] });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.set_terminator(MirInstruction::Return { value: Some(v1) });
+        }
+
+        module.add_function(func);
+
+        let eliminated = eliminate_dead_code(&mut module);
+        assert_eq!(eliminated, 1);
+
+        let func = module.get_function("test/0").unwrap();
+        let bb0 = func.blocks.get(&BasicBlockId(0)).unwrap();
+        assert!(bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Const { dst, .. } if *dst == v1)));
+        assert!(!bb0.instructions.iter().any(
+            |inst| matches!(inst, MirInstruction::KeepAlive { values } if values == &vec![v1])
+        ));
+    }
+
+    #[test]
+    fn test_dce_keeps_nonredundant_keepalive_when_it_is_the_only_live_reason() {
+        let mut module = MirModule::new("dce_test".to_string());
+
+        let sig = FunctionSignature {
+            name: "test/0".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut func = MirFunction::new(sig, BasicBlockId(0));
+
+        let v1 = ValueId(1);
+
+        {
+            let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
+            bb0.instructions.push(MirInstruction::Const {
+                dst: v1,
+                value: ConstValue::Integer(123),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions
+                .push(MirInstruction::KeepAlive { values: vec![v1] });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.set_terminator(MirInstruction::Return { value: None });
+        }
+
+        module.add_function(func);
+
+        let eliminated = eliminate_dead_code(&mut module);
+        assert_eq!(eliminated, 0);
+
+        let func = module.get_function("test/0").unwrap();
+        let bb0 = func.blocks.get(&BasicBlockId(0)).unwrap();
+        assert!(bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Const { dst, .. } if *dst == v1)));
+        assert!(bb0.instructions.iter().any(
+            |inst| matches!(inst, MirInstruction::KeepAlive { values } if values == &vec![v1])
+        ));
     }
 }

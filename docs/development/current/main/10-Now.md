@@ -42,11 +42,14 @@ Related:
   - landed DCE follow-on: `phase176x reachable-only DCE first cut`
     - landed the first `cross-block` widening: uses that occur only in blocks unreachable from `entry` no longer keep pure defs alive
     - keep later work separate from full unreachable-block deletion and from broader effect-sensitive partial DCE
+  - landed DCE follow-on: `phase177x redundant KeepAlive pruning`
+    - landed the first effect-sensitive DCE slice: redundant reachable `KeepAlive { values }` now disappear
+    - keep later work separate from generic no-dst pure cleanup
   - row status:
     - `3 User-Box Method Dispatch`: mostly done; narrow known-receiver consumer and the direct-route determinism repair are landed, broader generic parity backlog remains
     - `4 Array Typed Slots 拡大`: partial; narrow typed-slot pilots landed, read-side expansion backlog remains
     - `5 MapBox Typed Value Slots`: backlog
-    - `6 DCE 強化`: partial; first reachable-only cross-block cut is landed in `phase176x`, broader partial/effect-sensitive backlog remains
+    - `6 DCE 強化`: partial; first reachable-only cross-block cut is landed in `phase176x`, and first effect-sensitive `KeepAlive` pruning is landed in `phase177x`
     - `7 LLVM Escape Analysis`: partial; Copy + one-input-phi-carry aware local barrier elision and the `phase165x` operand-role escape barrier vocabulary cut are landed, broader generic escape analysis backlog remains
     - `8 Float 最適化`: partial; narrow FloatBox pilot landed, broader tuning backlog
     - `9 Closure/Lambda 最適化`: backlog

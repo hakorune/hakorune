@@ -18,7 +18,7 @@ Related:
 | Front | `lifecycle value parent locked -> audits landed -> thin-entry inventory/selection landed -> sum placement pilot landed -> ny-llvmc parity proving slice landed -> tuple compat transport landed` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
 | Blocker | `canonical multi-slot sum remains deferred; current tuple route stays compat-boxed` |
-| Next | `broader partial/effect-sensitive DCE` |
+| Next | `broader effect-sensitive / no-dst DCE` |
 | After Next | `where / enum methods / monomorphization stay backlog-only` |
 
 ## Current Read
@@ -67,7 +67,8 @@ Related:
   - remaining string backlog is the final emitted-MIR return-carrier cleanup only
 - active generic optimizer follow-on:
   - `phase-176x` is landed as the first reachability-aware DCE cut
-  - next target is broader partial/effect-sensitive DCE
+  - `phase-177x` is landed as the first effect-sensitive DCE cut
+  - next target is broader effect-sensitive / no-dst cleanup
   - do not mix that with unreachable-block deletion
 - `phase-133x` landed:
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`

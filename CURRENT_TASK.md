@@ -81,6 +81,11 @@ Scope: repo root から current lane / current front / restart read order に最
   - `phase-176x` is landed as the first `phase163x-optimization-resume` DCE cut
   - uses that occur only in blocks unreachable from `entry` no longer keep pure defs alive
   - next DCE work should stay separate from full unreachable-block cleanup and from broader effect-sensitive partial DCE
+- active DCE follow-on:
+  - `docs/development/current/main/phases/phase-177x/README.md`
+  - `phase-177x` is landed as the first effect-sensitive DCE cut
+  - redundant reachable `KeepAlive` instructions whose values were already live for other reachable reasons now disappear
+  - next DCE work should stay separate from generic pure no-dst cleanup
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`
