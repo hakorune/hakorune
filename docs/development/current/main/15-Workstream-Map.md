@@ -130,8 +130,9 @@ Related:
 ## Parked After Optimization
 
 - `phase-96x vm_hako LLVM acceptance cutover`
-  - keep the active vm_hako capability gate shrinking toward monitor-only
-  - move the first acceptance wave to LLVM-line replacement families
+  - the active vm_hako capability gate is retired to a compatibility stub
+  - `vm-hako-core.txt` is frozen as the 4-row monitor pack (`compare`, `env`, `file_close`, `file_read`)
+  - only `mapbox` mirror cleanup remains, and it waits for the pre-existing dirty vm_hako tree to become safe to touch
 
 ## Structural Stop Lines
 
