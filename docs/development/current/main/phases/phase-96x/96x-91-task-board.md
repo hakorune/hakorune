@@ -9,7 +9,7 @@ Date: 2026-04-11
 | --- | --- | --- | --- |
 | 1 | `96xA inventory` | completed | lock the current vm_hako gate, the LLVM replacement set, and the monitor canary candidate |
 | 2 | `96xB ranking` | completed | choose the smallest LLVM replacement wave and freeze `env/env_get_ported_vm.sh` as the canary |
-| 3 | `96xC cutover` | in_progress | execute the split cutover waves and the separate mapbox re-home track |
+| 3 | `96xC cutover` | completed | execute the split cutover waves and the separate mapbox re-home track |
 | 4 | `96xD closeout` | in_progress | prove the new gate shape and hand off cleanly |
 
 ## Exact Micro Tasks
@@ -24,7 +24,7 @@ Date: 2026-04-11
 | `96xC1` | completed | wave 1a: LLVM cutover pack for `env` + `file` after the narrow `args_vm` cut |
 | `96xC2` | completed | wave 1b: LLVM cutover pack for `compare` + `misc` + `atomic` + `tls` |
 | `96xC3` | completed | wave 2: seam shadow replacement for `select_emit` + `open_handle_phi` + `boxcall_args_gt1` |
-| `96xC4` | in_progress | parallel `mapbox -> collection-core` re-home track; `clear/delete/keys` retired to non-vm_hako owners, `set/get/has/size` still bridged |
+| `96xC4` | completed | parallel `mapbox -> collection-core` re-home track; all 7 `MapBox.*` rows are retired to non-vm_hako owners and the bridge is archive-only |
 | `96xD1` | completed | `app1` late demotion and proof / closeout |
 
 ### Wave 1a Substeps
@@ -56,7 +56,7 @@ Date: 2026-04-11
 | `96xC3e` | completed | replace `select_emit` with a dedicated non-vm_hako emit+exec owner and retire the phase29y vm_hako gate to a compatibility stub |
 | `96xC4a` | completed | move the 7 live MapBox rows under `collection_core/` and archive the 6 non-live mirrors |
 | `96xC4b` | completed | add non-vm_hako emit+exec owners for `MapBox.clear`, `MapBox.delete`, and `MapBox.keys`, then remove those rows from `collection-core.txt` |
-| `96xC4c` | pending | decide the final non-vm_hako owner pack for the remaining `collection_core/mapbox_set|get|has|size` bridge rows |
+| `96xC4c` | completed | retire the remaining `collection_core/mapbox_set|get|has|size` bridge rows to non-vm_hako emit+exec owners |
 
 ## Execution Anchor
 
@@ -66,10 +66,10 @@ Date: 2026-04-11
 
 | Item | State |
 | --- | --- |
-| Now | `96xC4b mapbox clear LLVM owner` |
+| Now | `vm-hako-core shadow closeout sync` |
 | Blocker | `none` |
-| Next | `96xC4c mapbox set/get/has/size owner decision` |
-| After Next | `vm-hako-core shadow closeout sync` |
+| Next | `open_handle_phi shadow retirement or archive decision` |
+| After Next | `phase96x closeout sync` |
 
 ## Acceptance Shape
 
@@ -95,9 +95,8 @@ Date: 2026-04-11
 - wave `2` is complete; the phase29y gate is a compatibility stub, `select_emit` is owned by a non-vm_hako smoke, and the remaining vm_hako shadows live in `vm-hako-core.txt`
 - `mapbox` is a separate `collection-core` re-home track, not part of wave `1a`
 - current landed substeps:
-  - `collection-core.txt` points at `collection_core/mapbox_*`
-  - `clear/delete/keys` are retired from `collection-core.txt` and now live in dedicated non-vm_hako emit+exec owners under `phase29y-hako-emit-mir.txt` and `selfhost-core.txt`
-  - the remaining 4 live rows execute from `collection_core/`
+  - `collection-core.txt` no longer points at any `collection_core/mapbox_*` row
+  - all 7 `MapBox.*` rows now live in dedicated non-vm_hako emit+exec owners under `phase29y-hako-emit-mir.txt` and `selfhost-core.txt`
   - the 6 non-live `vm_hako_caps/mapbox/*` rows are copied into `tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/`
-  - the retired `collection_core/mapbox_clear|delete|keys_ported_vm.sh` bridge scripts are archived under `tools/smokes/v2/profiles/archive/collection_core/`
-  - final retirement now depends on LLVM collection/runtime-data coverage replacing the remaining `collection_core/` owner rows for `set/get/has/size`
+  - the 7 retired `collection_core/mapbox_*_ported_vm.sh` bridge scripts are archived under `tools/smokes/v2/profiles/archive/collection_core/`
+  - `96xC4` is complete; only archive/mirror cleanup remains for `mapbox`

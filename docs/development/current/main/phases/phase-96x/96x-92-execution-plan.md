@@ -24,7 +24,7 @@ Related:
 
 - `args_vm.sh` is retired from the live vm_hako suite/gate pair; `phase29x_runtime_data_dispatch_llvm_e2e_vm.sh` is the explicit green replacement anchor
 - `boxcall_args_gt1_ported_vm.sh` was not a pure args row; it executed APP-1 (`gate_log_summarizer/main.hako`) and is now retired from active suite/gate ownership
-- `mapbox/*` is not phase29y-live; live suite ownership is now bridged through `collection_core/mapbox_*`
+- `mapbox/*` is not phase29y-live; live suite ownership is no longer bridged through `collection_core/`
 - `apps/gate_log_summarizer_vm.sh` is now the product owner in `presubmit.txt`
 - `argv_multiline_roundtrip.sh` remains a narrow future candidate, but it is not the current keeper because it is red in this tree
 
@@ -126,24 +126,23 @@ Required tasks:
 Goal: remove `mapbox` from `vm_hako_caps` ownership without waiting for the product-live waves.
 
 Live rows in `collection-core.txt`:
-- `mapbox_set_ported_vm.sh`
-- `mapbox_get_ported_vm.sh`
-- `mapbox_has_ported_vm.sh`
-- `mapbox_size_ported_vm.sh`
+- none
 
 Fastest ownership move:
 1. add `collection_core/mapbox_*` wrapper rows
 2. point `collection-core.txt` at those wrappers
 3. move the real implementations later
+4. replace those bridge rows with dedicated non-vm_hako emit+exec owners
 
 Current state:
-- landed: `collection_core/mapbox_*` owner rows now carry the live implementations
-- landed: `collection-core.txt` retarget to `collection_core/mapbox_*`
+- landed: `collection_core/mapbox_*` owner rows carried the live implementations during the bridge step
+- landed: `collection-core.txt` was retargeted to `collection_core/mapbox_*` during the bridge step
 - landed: archive mirror copies for the 6 non-live rows exist under `tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/`
 - landed: `MapBox.clear`, `MapBox.delete`, and `MapBox.keys` now have dedicated non-vm_hako emit+exec owners under `phase29y/hako/emit_mir/`
-- landed: the old `collection_core/mapbox_clear|delete|keys_ported_vm.sh` bridge scripts are archived under `tools/smokes/v2/profiles/archive/collection_core/`
-- next: leave the old `vm_hako_caps/mapbox/*` tree untouched until the eventual final cleanup, then retire the remaining `collection_core/` owner rows after LLVM coverage exists
-- current bridge residue: `MapBox.set`, `MapBox.get`, `MapBox.has`, and `MapBox.size`
+- landed: `MapBox.set`, `MapBox.get`, `MapBox.has`, and `MapBox.size` now also have dedicated non-vm_hako emit+exec owners under `phase29y/hako/emit_mir/`
+- landed: the old `collection_core/mapbox_*_ported_vm.sh` bridge scripts are archived under `tools/smokes/v2/profiles/archive/collection_core/`
+- next: leave the old `vm_hako_caps/mapbox/*` tree untouched until the eventual final cleanup; no live `collection_core/` owner row remains
+- current bridge residue: none
 
 After the wrapper move:
 1. landed: archive the non-live `mapbox` rows (`*_bad_key*`, `*_missing*`, `*_getfield*`, `*_setfield*`, `mapbox_newbox_ported_vm.sh`)
@@ -151,13 +150,13 @@ After the wrapper move:
 3. retire the collection-core owner rows after LLVM collection/runtime-data coverage replaces them
 
 Risks:
-- the remaining 4 live rows depend on `vm_hako_caps_common.sh`
+- no live `collection_core` bridge row remains; all active owners now sit in `phase29y/hako/emit_mir/`
 - fixture paths still point at `apps/tests/vm_hako_caps/*`
 - the wrapper move is the low-risk first step because it cuts suite ownership before helper surgery
 - the current `vm_hako_caps/mapbox/*` live rows already carry active uncommitted edits, so the physical move must preserve that content rather than overwrite it with stale HEAD copies
 
 ## Next Commit Candidates
 
-1. `mapbox`: retire the `collection_core/` owner rows after LLVM collection/runtime-data coverage replaces them
-2. `monitor-only`: replace the remaining `vm-hako-core` shadow rows with explicit non-vm_hako owners or archive decisions
-3. `open_handle_phi`: replace the remaining vm_hako-core shadow with an explicit JoinIR/selfhost seam owner
+1. `monitor-only`: replace the remaining `vm-hako-core` shadow rows with explicit non-vm_hako owners or archive decisions
+2. `open_handle_phi`: replace the remaining vm_hako-core shadow with an explicit JoinIR/selfhost seam owner
+3. `mapbox`: clean up the old `vm_hako_caps/mapbox/*` mirrors once the dirty runtime worktree is safe to touch

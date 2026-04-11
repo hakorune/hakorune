@@ -1,0 +1,14 @@
+// phase29y emit+exec fixture for MapBox.size()
+// Contract:
+// - selfhost emit preserves MapBox.size() in MIR.
+// - emitted MIR returns the visible map size on the non-vm_hako route.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    m.set("a", 1)
+    m.set("b", 2)
+    print(m.size())
+    return 0
+  }
+}

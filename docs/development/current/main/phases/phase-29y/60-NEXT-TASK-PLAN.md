@@ -31,10 +31,10 @@ Related:
 - 2026-03-21 reopen:
   - quick map smokes (`map_basic_get_set_vm.sh` / `map_len_size_vm.sh`) are not Rust VM failures; they route through `.hako VM` (`vm-hako`) under strict/dev prefer and stop at subset-check.
 - `RVP-C16 newbox(MapBox)` is now ported and pinned by `vm_hako_caps/mapbox/mapbox_newbox_ported_vm.sh`.
-- `RVP-C17 MapBox.set(key, value)` is now ported and pinned by `vm_hako_caps/mapbox/mapbox_set_ported_vm.sh`.
-- `RVP-C18 MapBox.size()` is now ported and pinned by `vm_hako_caps/mapbox/mapbox_size_ported_vm.sh`.
-- `RVP-C19 MapBox.get(key)` is now ported and pinned by `vm_hako_caps/mapbox/mapbox_get_ported_vm.sh`.
-- `RVP-C20 MapBox.has(key)` is now ported and pinned by `vm_hako_caps/mapbox/mapbox_has_ported_vm.sh` (`true/false` visible parity included).
+- `RVP-C17 MapBox.set(key, value)` is now ported; active non-vm_hako owner is `phase29y/hako/emit_mir/phase29y_hako_emit_mir_mapbox_set_exec_contract_vm.sh`.
+- `RVP-C18 MapBox.size()` is now ported; active non-vm_hako owner is `phase29y/hako/emit_mir/phase29y_hako_emit_mir_mapbox_size_exec_contract_vm.sh`.
+- `RVP-C19 MapBox.get(key)` is now ported; active non-vm_hako owner is `phase29y/hako/emit_mir/phase29y_hako_emit_mir_mapbox_get_exec_contract_vm.sh`.
+- `RVP-C20 MapBox.has(key)` is now ported; active non-vm_hako owner is `phase29y/hako/emit_mir/phase29y_hako_emit_mir_mapbox_has_exec_contract_vm.sh` (`true/false` visible parity included).
 - `RVP-C21 MapBox.delete(key)` is now ported; active non-vm_hako owner is `phase29y/hako/emit_mir/phase29y_hako_emit_mir_mapbox_delete_exec_contract_vm.sh`.
 - `RVP-C22 MapBox.keys()` is now ported; active non-vm_hako owner is `phase29y/hako/emit_mir/phase29y_hako_emit_mir_mapbox_keys_exec_contract_vm.sh`.
 - `RVP-C23 MapBox.clear()` is now ported; active non-vm_hako owner is `phase29y/hako/emit_mir/phase29y_hako_emit_mir_mapbox_clear_exec_contract_vm.sh`.

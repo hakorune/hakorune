@@ -1,0 +1,13 @@
+// phase29y emit+exec fixture for MapBox.get()
+// Contract:
+// - selfhost emit preserves MapBox.get(key) in MIR.
+// - emitted MIR returns the stored scalar value on the non-vm_hako route.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    m.set("a", 42)
+    print(m.get("a"))
+    return 0
+  }
+}

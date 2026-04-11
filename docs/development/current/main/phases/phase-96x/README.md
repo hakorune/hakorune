@@ -53,7 +53,7 @@ Related:
 ## Current Read
 
 - the phase29y vm_hako gate is now a retired compatibility stub; `select_emit` moved to a non-vm_hako owner and the remaining vm_hako monitor/shadow rows live in `tools/smokes/v2/suites/integration/vm-hako-core.txt`
-- the current pressure point is now the final `mapbox` bridge shrink; `MapBox.clear`, `MapBox.delete`, and `MapBox.keys` moved to non-vm_hako emit+exec owners, so the remaining `collection_core` bridge is `set/get/has/size`
+- the `mapbox` bridge is fully retired from `collection-core.txt`; all 7 `MapBox.*` owner rows now live in dedicated non-vm_hako emit+exec smokes under `phase29y/hako/emit_mir/`
 - LLVM replacement anchors already exist in the current `phase29ck_boundary/runtime_data/*`, `phase29ck_llvm_backend_*`, and `phase163x_boundary_*` proof families
 - recommended single monitor canary while the replacement matrix is moving:
   - `tools/smokes/v2/profiles/integration/vm_hako_caps/env/env_get_ported_vm.sh`
@@ -68,7 +68,7 @@ Related:
   - `tls/`
   - `compare/`
   - these are either indirect-live (`mapbox`) or narrow single-purpose rows that should not grow during cutover
-- `mapbox/` live ownership now executes directly from `collection_core/mapbox_*`, while `vm_hako_caps/mapbox/*` remains as the temporary mirror/archive source; it stays on the parallel re-home track instead of the first acceptance cutover wave
+- `mapbox/` live ownership no longer executes from `collection_core/`; all 7 rows now live in dedicated non-vm_hako emit+exec owners, while `vm_hako_caps/mapbox/*` remains as the temporary mirror/archive source
 - exact row-to-row mapping is locked by the inventory now; `96xC` is the execution wave for:
   - landed: `96xC1a` retired `args_vm.sh` against `apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
   - landed: `96xC1b` moved env product ownership to `presubmit.txt` via `core/phase2035/v1_extern_env_get_canary_vm.sh` and kept `vm_hako_caps/env/env_get_ported_vm.sh` as monitor-only in `vm-hako-core.txt`
@@ -81,7 +81,7 @@ Related:
   - landed: `96xC2c` archived `const_void_ported_vm.sh` as explicit retired evidence and removed it from `vm-hako-caps.txt`, `phase29y_vm_hako_caps_gate_vm.sh`, and `vm-hako-core.txt`
   - wave `1b`: complete
   - landed: `96xC4a` copied the 6 non-live `mapbox` rows into `tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/` as archive mirrors, while leaving the current dirty `vm_hako_caps/mapbox/*` worktree content untouched
-  - landed: `96xC4b` moved `MapBox.clear`, `MapBox.delete`, and `MapBox.keys` to dedicated non-vm_hako emit+exec owners under `phase29y/hako/emit_mir/`, removed those rows from `collection-core.txt`, and archived the old `collection_core` bridge scripts
+  - landed: `96xC4b/C4c` moved all 7 `MapBox.*` rows to dedicated non-vm_hako emit+exec owners under `phase29y/hako/emit_mir/`, removed every `collection_core/mapbox_*` row from `collection-core.txt`, and archived the bridge scripts under `tools/smokes/v2/profiles/archive/collection_core/`
   - landed: `96xC3a/C3b` hold `select_emit` and `open_handle_phi` as shadow rows because the current `phase29y-hako-emit-mir` / `joinir-bq` / `selfhost-core` packs are not yet equivalent replacements for those exact seam contracts
   - landed: `96xC3c` retired `boxcall_args_gt1_ported_vm.sh` from `vm-hako-caps.txt`, `phase29y_vm_hako_caps_gate_vm.sh`, and `vm-hako-core.txt`
   - landed: `96xC3d` / `96xD1` moved APP-1 product ownership to `apps/gate_log_summarizer_vm.sh` via `presubmit.txt` and removed the APP-1 vm_hako rows from the active vm_hako suite/gate pair

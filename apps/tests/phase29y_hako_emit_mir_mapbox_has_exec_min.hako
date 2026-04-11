@@ -1,0 +1,14 @@
+// phase29y emit+exec fixture for MapBox.has()
+// Contract:
+// - selfhost emit preserves MapBox.has(key) in MIR.
+// - emitted MIR returns visible `true/false` parity on the non-vm_hako route.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    m.set("a", 42)
+    print(m.has("a"))
+    print(m.has("z"))
+    return 0
+  }
+}

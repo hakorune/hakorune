@@ -1,0 +1,12 @@
+// phase29y emit+exec fixture for MapBox.set()
+// Contract:
+// - selfhost emit preserves MapBox.set(key, value) in MIR.
+// - emitted MIR accepts the two-arg call and exits with rc=0 on the non-vm_hako route.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    m.set("a", 42)
+    return 0
+  }
+}
