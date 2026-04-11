@@ -114,11 +114,12 @@ Anchor direction:
 - `app1_summary_contract_ported_vm.sh` -> retired from active ownership after `presubmit.txt` moved to `apps/gate_log_summarizer_vm.sh`
 
 Required tasks:
-1. landed `96xC3a`: keep `select_emit` as shadow because `phase29y-hako-emit-mir.txt` does not yet pin the exact `select` emit+exec contract
+1. landed `96xC3a`: keep `select_emit` as shadow until an exact non-vm_hako emit+exec owner exists
 2. landed `96xC3b`: keep `open_handle_phi` as a non-blocking shadow because `joinir-bq.txt` / `selfhost-core.txt` do not yet pin the exact `FileBox.open` handle-propagation seam contract
 3. landed `96xC3c`: remove `boxcall_args_gt1_ported_vm.sh` from `vm-hako-caps.txt`, `phase29y_vm_hako_caps_gate_vm.sh`, and `vm-hako-core.txt`
 4. landed `96xC3d`: replace `app1_summary_contract_ported_vm.sh` in `presubmit.txt` with `apps/gate_log_summarizer_vm.sh`
 5. landed `96xD1`: demote the APP-1 vm_hako rows from the active vm_hako suite/gate pair
+6. landed `96xC3e`: add `phase29y_hako_emit_mir_select_exec_contract_vm.sh` as the exact non-vm_hako emit+exec owner in `phase29y-hako-emit-mir.txt` and `selfhost-core.txt`, then retire `select_emit` from `phase29y_vm_hako_caps_gate_vm.sh`
 
 ### Parallel Track: mapbox re-home
 
@@ -143,6 +144,8 @@ Current state:
 - landed: `collection-core.txt` retarget to `collection_core/mapbox_*`
 - landed: archive mirror copies for the 6 non-live rows exist under `tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/`
 - next: leave the old `vm_hako_caps/mapbox/*` tree untouched until the eventual final cleanup, then retire the `collection_core/` owner rows after LLVM coverage exists
+- exact blocker: runtime-data / backend owner coverage still does not own `MapBox.delete`, `MapBox.keys`, or `MapBox.clear`
+- smallest next owner: `MapBox.clear` because one non-vm_hako smoke can pin `size==0`, `has==false`, and `keys().size()==0` together
 
 After the wrapper move:
 1. landed: archive the non-live `mapbox` rows (`*_bad_key*`, `*_missing*`, `*_getfield*`, `*_setfield*`, `mapbox_newbox_ported_vm.sh`)
@@ -158,5 +161,5 @@ Risks:
 ## Next Commit Candidates
 
 1. `mapbox`: retire the `collection_core/` owner rows after LLVM collection/runtime-data coverage replaces them
-2. `monitor-only`: decide whether `select_emit` remains the last phase29y gate row or moves to a pure shadow bucket
+2. `monitor-only`: replace the remaining `vm-hako-core` shadow rows with explicit non-vm_hako owners or archive decisions
 3. `open_handle_phi`: replace the remaining vm_hako-core shadow with an explicit JoinIR/selfhost seam owner

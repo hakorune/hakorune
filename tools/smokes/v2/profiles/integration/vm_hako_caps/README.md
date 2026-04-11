@@ -11,6 +11,9 @@ Reference-lane acceptance is the phase29y gate only:
 - `tools/smokes/v2/profiles/integration/vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh`
 - `tools/smokes/v2/suites/integration/vm-hako-caps.txt`
 
+The phase29y gate is now a compatibility stub only. Active vm-hako shadow and
+monitor rows live in `tools/smokes/v2/suites/integration/vm-hako-core.txt`.
+
 The phase29y gate keeps per-wrapper timeouts explicit. Several vm-hako runtime
 smokes use a 60s budget because each run recompiles and executes the child
 driver, so a 30s default is too tight for the reference lane.
@@ -52,6 +55,12 @@ gate.
 now. It remains in `tools/smokes/v2/suites/integration/vm-hako-core.txt`, but
 it is no longer part of `vm-hako-caps.txt` or
 `phase29y_vm_hako_caps_gate_vm.sh`.
+
+`select_emit/select_emit_block_vm.sh` is no longer suite-owned. The non-vm-hako
+owner is now
+`tools/smokes/v2/profiles/integration/phase29y/hako/emit_mir/phase29y_hako_emit_mir_select_exec_contract_vm.sh`
+via `tools/smokes/v2/suites/integration/phase29y-hako-emit-mir.txt` and
+`tools/smokes/v2/suites/integration/selfhost-core.txt`.
 
 `mapbox/` is not part of the phase29y vm-hako acceptance gate.
 `tools/smokes/v2/suites/integration/collection-core.txt` now points at

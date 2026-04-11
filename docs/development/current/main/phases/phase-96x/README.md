@@ -52,9 +52,8 @@ Related:
 
 ## Current Read
 
-- the active reference gate is still `tools/smokes/v2/profiles/integration/vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh`
-- the active phase29y vm_hako gate is now `select_emit` only
-- the current pressure point is no longer wave `1a`, wave `1b`, or APP-1 seam retirement; the next active cut is the final `mapbox` owner retirement and monitor-only closeout sync
+- the phase29y vm_hako gate is now a retired compatibility stub; `select_emit` moved to a non-vm_hako owner and the remaining vm_hako monitor/shadow rows live in `tools/smokes/v2/suites/integration/vm-hako-core.txt`
+- the current pressure point is now the final `mapbox` owner retirement; the smallest next owner to add is `MapBox.clear`
 - LLVM replacement anchors already exist in the current `phase29ck_boundary/runtime_data/*`, `phase29ck_llvm_backend_*`, and `phase163x_boundary_*` proof families
 - recommended single monitor canary while the replacement matrix is moving:
   - `tools/smokes/v2/profiles/integration/vm_hako_caps/env/env_get_ported_vm.sh`
@@ -85,7 +84,8 @@ Related:
   - landed: `96xC3a/C3b` hold `select_emit` and `open_handle_phi` as shadow rows because the current `phase29y-hako-emit-mir` / `joinir-bq` / `selfhost-core` packs are not yet equivalent replacements for those exact seam contracts
   - landed: `96xC3c` retired `boxcall_args_gt1_ported_vm.sh` from `vm-hako-caps.txt`, `phase29y_vm_hako_caps_gate_vm.sh`, and `vm-hako-core.txt`
   - landed: `96xC3d` / `96xD1` moved APP-1 product ownership to `apps/gate_log_summarizer_vm.sh` via `presubmit.txt` and removed the APP-1 vm_hako rows from the active vm_hako suite/gate pair
-  - wave `2`: complete; the remaining active phase29y vm_hako gate row is `select_emit`
+  - landed: `96xC3e` moved `select_emit` from the phase29y vm_hako gate to `phase29y_hako_emit_mir_select_exec_contract_vm.sh` via `phase29y-hako-emit-mir.txt` and `selfhost-core.txt`; the phase29y gate is now a retired compatibility stub
+  - wave `2`: complete; the phase29y gate no longer owns any active vm_hako row
   - parallel track: `mapbox -> collection-core` ownership move
 - detailed execution order is fixed in `96x-92-execution-plan.md`
 

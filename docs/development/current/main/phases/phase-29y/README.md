@@ -74,8 +74,8 @@ Scope: self-host 後に "脱Rustランタイム（NyRT/.hako）" を進める前
 
 - phase-29y の日常運用は `LLVM-first` を固定する（runtime 実行系の主検証は LLVM）。
 - execution-lane parent vocabulary では、operational default は `llvm-exe`、`vm-hako` は reference/debug/bootstrap-proof lane、`rust-vm` は bootstrap/recovery/compat lane と読む。
-- `vm-hako` は monitor-only lane とし、`vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh` fail など blocker 発生時のみ failure-driven で修正する。
-- active vm-hako acceptance は上の gate だけに固定し、non-gating blocked/probe smokes は `tools/smokes/v2/profiles/archive/**` へ退避する。
+- `vm-hako` は monitor-only lane とし、feature matrix row の exact reopen か explicit vm-hako monitor replay で blocker が再現した時だけ failure-driven で修正する。
+- `phase29y_vm_hako_caps_gate_vm.sh` は retired compatibility stub とし、active vm-hako monitor/shadow rows は `tools/smokes/v2/suites/integration/vm-hako-core.txt` と manual replay で読む。non-gating blocked/probe smokes は `tools/smokes/v2/profiles/archive/**` へ退避する。
 - `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh` は historical/manual monitor として残し、runtime daily/mainline acceptance には昇格しない。
 - `rust-vm` は recovery/compat keep として読み、runtime daily feature lane へ戻さない。
 - policy の単一正本は `docs/development/current/main/design/de-rust-lane-map-ssot.md` の `Runtime Operation Policy` とする。

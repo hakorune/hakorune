@@ -26,7 +26,7 @@ Related:
 - APP-2（Controlflow Probe）acceptance は PASS。
 - APP-3（MIR Shape Guard）acceptance は PASS。
 - Current blocker（脱Rust selfhost runtime lane）は none（parked）。
-- active lane-C acceptance is now only `tools/smokes/v2/profiles/integration/vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh`; non-gating blocked/probe vm-hako smokes live under archive buckets and do not reopen the lane by themselves.
+- `tools/smokes/v2/profiles/integration/vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh` is now a retired compatibility stub; active lane-C monitor/shadow rows live in `tools/smokes/v2/suites/integration/vm-hako-core.txt`, and blocked/probe vm-hako smokes live under archive buckets.
 - regression note: `RVP-C02 args.length()` was re-repaired on 2026-03-21 by making vm-hako runtime state maps (`handle_regs` / `file_boxes`) use presence-aware storage reads instead of raw `MapBox.get()` fallback text.
 - 2026-03-21 reopen:
   - quick map smokes (`map_basic_get_set_vm.sh` / `map_len_size_vm.sh`) are not Rust VM failures; they route through `.hako VM` (`vm-hako`) under strict/dev prefer and stop at subset-check.

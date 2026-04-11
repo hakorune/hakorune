@@ -53,6 +53,9 @@ Date: 2026-04-11
 | `96xC3b` | completed | keep `open_handle_phi` as a non-blocking shadow row in `vm-hako-core.txt`; no exact non-vm_hako replacement anchor exists yet |
 | `96xC3c` | completed | remove `boxcall_args_gt1_ported_vm.sh` from active vm_hako suite/gate ownership and treat it as retired APP-1 seam evidence |
 | `96xC3d` | completed | replace `app1_summary_contract_ported_vm.sh` in `presubmit.txt` and demote the APP-1 rows |
+| `96xC3e` | completed | replace `select_emit` with a dedicated non-vm_hako emit+exec owner and retire the phase29y vm_hako gate to a compatibility stub |
+| `96xC4a` | completed | move the 7 live MapBox rows under `collection_core/` and archive the 6 non-live mirrors |
+| `96xC4b` | pending | add a non-vm_hako `MapBox.clear` owner to start shrinking the remaining `collection_core/mapbox_*` set |
 
 ## Execution Anchor
 
@@ -62,14 +65,14 @@ Date: 2026-04-11
 
 | Item | State |
 | --- | --- |
-| Now | `96xC4 mapbox final owner retirement prep` |
+| Now | `96xC4b mapbox clear LLVM owner` |
 | Blocker | `none` |
-| Next | `monitor-only closeout sync` |
+| Next | `vm-hako-core shadow closeout sync` |
 | After Next | `mapbox final owner retirement after LLVM collection/runtime-data coverage` |
 
 ## Acceptance Shape
 
-- the active vm_hako gate is narrowed to monitor-only or a single explicit canary
+- the active vm_hako gate is retired to a compatibility stub
 - the first LLVM replacement wave is split and documented
 - no new vm_hako capability rows are added while the cutover runs
 - the blocking canary is `tools/smokes/v2/profiles/integration/vm_hako_caps/env/env_get_ported_vm.sh`, and it now lives only in `vm-hako-core.txt`
@@ -84,14 +87,15 @@ Date: 2026-04-11
 - `96xC2b` is landed: `compare_ge_ported_vm.sh` is retired from the live vm_hako gate/suite pair and preserved only as archive evidence
 - `96xC2c` is landed: `const_void_ported_vm.sh` is retired from the live vm_hako gate/suite pair and from `vm-hako-core.txt`, and preserved only as archive evidence
 - wave `1b` is complete
-- `96xC3a` is landed: `select_emit` stays shadow because the current `phase29y-hako-emit-mir` pack is not yet an exact replacement for the `select` emit+exec seam contract
+- `96xC3a` / `96xC3e` are landed: `select_emit` is retired from the active vm_hako gate after `phase29y_hako_emit_mir_select_exec_contract_vm.sh` was added as the exact non-vm_hako emit+exec owner in `phase29y-hako-emit-mir.txt` and `selfhost-core.txt`
 - `96xC3b` is landed: `open_handle_phi` stays shadow because the current `joinir-bq` / `selfhost-core` packs do not yet cover the exact `FileBox.open` handle-propagation seam contract; it no longer blocks the phase29y gate
 - `96xC3c` is landed: `boxcall_args_gt1_ported_vm.sh` is removed from `vm-hako-caps.txt`, `phase29y_vm_hako_caps_gate_vm.sh`, and `vm-hako-core.txt`
 - `96xC3d` / `96xD1` are landed: `presubmit.txt` now owns `apps/gate_log_summarizer_vm.sh`, and the APP-1 vm_hako rows are removed from the active vm_hako suite/gate pair
-- wave `2` is complete; the active phase29y vm_hako gate is now `select_emit` only
+- wave `2` is complete; the phase29y gate is a compatibility stub, `select_emit` is owned by a non-vm_hako smoke, and the remaining vm_hako shadows live in `vm-hako-core.txt`
 - `mapbox` is a separate `collection-core` re-home track, not part of wave `1a`
 - current landed substeps:
   - `collection-core.txt` points at `collection_core/mapbox_*`
   - the 7 live rows now execute from `collection_core/`
   - the 6 non-live `vm_hako_caps/mapbox/*` rows are copied into `tools/smokes/v2/profiles/archive/vm_hako_caps/mapbox/`
   - final retirement now depends on LLVM collection/runtime-data coverage replacing the `collection_core/` owner rows
+  - current exact blocker: `delete` / `keys` / `clear` still have no non-vm_hako owner rows, and `MapBox.clear` is the smallest next owner to add
