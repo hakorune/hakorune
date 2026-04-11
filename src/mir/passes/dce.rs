@@ -6,7 +6,9 @@ use crate::mir::{MirFunction, MirModule, ValueId};
 use crate::runtime::get_global_ring0;
 use std::collections::HashSet;
 
-/// Eliminate dead code (unused results of pure instructions) across the module.
+/// Eliminate dead code (unused results of pure instructions) across the module
+/// and prune unreachable blocks as structural CFG cleanup.
+///
 /// Returns the number of eliminated instructions.
 pub fn eliminate_dead_code(module: &mut MirModule) -> usize {
     let mut eliminated_total = 0usize;
@@ -164,9 +166,15 @@ fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
         block.instructions = kept_insts;
         block.instruction_spans = kept_spans;
     }
-    if eliminated > 0 {
-        function.update_cfg();
+
+    let pruned_blocks = function.prune_unreachable_blocks();
+    if dce_trace && pruned_blocks > 0 {
+        get_global_ring0().log.debug(&format!(
+            "[dce] Pruned {} unreachable block(s) after liveness elimination",
+            pruned_blocks
+        ));
     }
+
     eliminated
 }
 
@@ -263,7 +271,7 @@ mod tests {
     }
 
     #[test]
-    fn test_dce_ignores_unreachable_pure_uses() {
+    fn test_dce_prunes_unreachable_pure_block() {
         let mut module = MirModule::new("dce_test".to_string());
 
         let sig = FunctionSignature {
@@ -311,20 +319,20 @@ mod tests {
 
         let func = module.get_function("test/0").unwrap();
         let bb0 = func.blocks.get(&BasicBlockId(0)).unwrap();
-        let dead_block = func.blocks.get(&unreachable_bb).unwrap();
 
         assert!(!bb0
             .instructions
             .iter()
             .any(|inst| matches!(inst, MirInstruction::Const { dst, .. } if *dst == v_entry)));
-        assert!(!dead_block
+        assert!(!bb0
             .instructions
             .iter()
             .any(|inst| matches!(inst, MirInstruction::Copy { dst, .. } if *dst == v_dead_copy)));
+        assert!(!func.blocks.contains_key(&unreachable_bb));
     }
 
     #[test]
-    fn test_dce_ignores_unreachable_effectful_uses() {
+    fn test_dce_prunes_unreachable_effectful_block() {
         let mut module = MirModule::new("dce_test".to_string());
 
         let sig = FunctionSignature {
@@ -375,20 +383,16 @@ mod tests {
 
         let func = module.get_function("test/0").unwrap();
         let bb0 = func.blocks.get(&BasicBlockId(0)).unwrap();
-        let dead_block = func.blocks.get(&unreachable_bb).unwrap();
 
         assert!(!bb0
             .instructions
             .iter()
             .any(|inst| matches!(inst, MirInstruction::Const { dst, .. } if *dst == v_entry)));
-        assert!(!dead_block
+        assert!(!bb0
             .instructions
             .iter()
             .any(|inst| matches!(inst, MirInstruction::Const { dst, .. } if *dst == v_dead_ptr)));
-        assert!(dead_block
-            .instructions
-            .iter()
-            .any(|inst| matches!(inst, MirInstruction::Store { value, ptr } if *value == v_entry && *ptr == v_dead_ptr)));
+        assert!(!func.blocks.contains_key(&unreachable_bb));
     }
 
     #[test]

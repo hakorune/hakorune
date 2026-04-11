@@ -341,6 +341,27 @@ impl MirFunction {
         }
     }
 
+    /// Prune blocks that are unreachable from the entry block.
+    ///
+    /// This is a structural CFG cleanup helper. Callers remain responsible for
+    /// any module-level semantic refresh after block removal.
+    pub fn prune_unreachable_blocks(&mut self) -> usize {
+        let reachable = self.compute_reachable_blocks();
+        let before = self.blocks.len();
+
+        self.blocks.retain(|id, block| {
+            let keep = reachable.contains(id);
+            block.reachable = keep;
+            keep
+        });
+
+        if self.blocks.len() != before {
+            self.update_cfg();
+        }
+
+        before - self.blocks.len()
+    }
+
     /// Get function statistics
     pub fn stats(&self) -> FunctionStats {
         let instruction_count = self

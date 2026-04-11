@@ -214,6 +214,7 @@
         - `phase-176x` is now landed too: uses that occur only in blocks unreachable from `entry` no longer keep pure defs alive on the current pure-instruction DCE lane
         - `phase-177x` is now landed too: redundant reachable `KeepAlive { values }` now disappear without widening into generic no-dst cleanup
         - `phase-181x` is now landed too: reachable `Safepoint` no-op instructions disappear as the first generic no-dst pure cleanup slice, while `Debug` and terminators stay outside this cut
+        - `phase-182x` is now landed too: unreachable blocks are pruned after DCE liveness stabilizes, so dead CFG fragments no longer hang around in the live function map
       - verified non-Variant optimization order after this parity wave:
         1. broader string corridor placement/effect rewrite
            - `src/mir/string_corridor_placement.rs` is still inspection-only in this wave
@@ -272,6 +273,7 @@
            - current stop-line: keep read-side on encoded-any `slot_load_hi`; do not add a new typed load row without measured observer evidence (`kilo_micro_array_getset` still does not justify it)
         5. backlog-only after the above:
            - stronger cross-block / partial DCE beyond current pure-instruction DCE
+           - `phase-182x` is now landed as separate CFG pruning, so the remaining DCE backlog is the effect-sensitive / no-dst widening after that structural cleanup
            - generic LLVM-side escape pass beyond the already-landed narrow local objectization-at-boundary route
            - current escape narrow slice is now alias-aware too: barrier elision follows `Copy` chains and one-input carry `phi` aliases for non-escaping local boxes, while multi-input `phi_merge` and broader generic escape analysis remain backlog
            - `phase-165x` landed the operand-role escape barrier vocabulary cut so escape widening no longer reuses the coarse `used_values()` surface

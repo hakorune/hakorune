@@ -76,19 +76,22 @@ Scope: repo root から current lane / current front / restart read order に最
   - `phase-174x` is landed too; same-block canonical `Store { value, .. }` / `FieldSet { value, .. }` write boundaries now consume that same `publication_sink` plan under a focused unit guard
   - `phase-175x` is landed too; same-block `RuntimeDataBox.set(...)` now consumes that same `publication_sink` plan as the first host-boundary publication slice under a focused unit guard
   - remaining string backlog is now only the final emitted-MIR return-carrier cleanup; any broader method/boxcall boundary widening stays outside this cut
-- landed DCE follow-on:
-  - `docs/development/current/main/phases/phase-176x/README.md`
-  - `phase-176x` is landed as the first `phase163x-optimization-resume` DCE cut
-  - uses that occur only in blocks unreachable from `entry` no longer keep pure defs alive
-  - next DCE work should stay separate from full unreachable-block cleanup and from broader effect-sensitive partial DCE
-- active DCE follow-on:
-  - `docs/development/current/main/phases/phase-177x/README.md`
-  - `phase-177x` is landed as the first effect-sensitive DCE cut
-  - redundant reachable `KeepAlive` instructions whose values were already live for other reachable reasons now disappear
-  - next DCE work should stay separate from generic pure no-dst cleanup
-- landed shim-structure follow-on:
-  - `docs/development/current/main/phases/phase-178x/README.md`
-  - split `lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed.inc` into a facade plus focused include units before reopening more generic bridge shrink work
+  - landed DCE follow-on:
+    - `docs/development/current/main/phases/phase-176x/README.md`
+    - `phase-176x` is landed as the first `phase163x-optimization-resume` DCE cut
+    - uses that occur only in blocks unreachable from `entry` no longer keep pure defs alive
+    - next DCE work should stay separate from full unreachable-block cleanup and from broader effect-sensitive partial DCE
+  - active DCE follow-on:
+    - `docs/development/current/main/phases/phase-177x/README.md`
+    - `phase-177x` is landed as the first effect-sensitive DCE cut
+    - redundant reachable `KeepAlive` instructions whose values were already live for other reachable reasons now disappear
+    - next DCE work should stay separate from generic pure no-dst cleanup
+  - landed CFG cleanup follow-on:
+    - `docs/development/current/main/phases/phase-182x/README.md`
+    - `phase-182x` is landed as the unreachable-block pruning slice; dead blocks are removed from the live function map after DCE liveness stabilizes
+  - landed shim-structure follow-on:
+    - `docs/development/current/main/phases/phase-178x/README.md`
+    - split `lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed.inc` into a facade plus focused include units before reopening more generic bridge shrink work
   - keep this as structure-only cleanup: no pure-compile match-order change, no new variant routes, no semantic widening
 - landed string bridge-retirement follow-on:
   - `docs/development/current/main/phases/phase-179x/README.md`
