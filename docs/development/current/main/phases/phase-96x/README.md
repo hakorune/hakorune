@@ -7,6 +7,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/15-Workstream-Map.md
+  - docs/development/current/main/phases/phase-96x/96x-92-execution-plan.md
   - docs/development/current/main/phases/phase-29y/README.md
   - docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md
   - docs/development/current/main/phases/phase-29y/81-RUST-VM-TO-HAKO-VM-FEATURE-MATRIX.md
@@ -43,25 +44,39 @@ Related:
 1. `96xA1` vm_hako acceptance inventory lock
 2. `96xA2` LLVM replacement inventory lock
 3. `96xB1` replacement ranking and canary freeze
-4. `96xB2` first cutover wave
-5. `96xC1` current/doc pointer sync
-6. `96xD1` proof / closeout
+4. `96xB2` first cutover wave split
+5. `96xC1` first product-visible LLVM cutover wave
+6. `96xC2` vm_hako semantic seam shadow policy
+7. `96xC3` mapbox re-home track
+8. `96xD1` proof / closeout
 
 ## Current Read
 
 - the active reference gate is still `tools/smokes/v2/profiles/integration/vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh`
 - the live `vm_hako_caps` family still covers `app1`, `args`, `atomic`, `compare`, `env`, `file`, `mapbox`, `misc`, `open_handle_phi`, `select_emit`, `tls`
-- the current pressure point is the runtime-data / args / collection family, which is the most obvious LLVM migration first wave
+- the current pressure point is the product-visible live row set: `env`, `file`, and `args`
 - LLVM replacement anchors already exist in the current `phase29ck_boundary/runtime_data/*`, `phase29ck_llvm_backend_*`, and `phase163x_boundary_*` proof families
 - recommended single monitor canary while the replacement matrix is moving:
   - `tools/smokes/v2/profiles/integration/vm_hako_caps/env/env_get_ported_vm.sh`
   - it is the smallest stable signal that still exercises extern routing
+- recommended non-blocking semantic shadow canary while compiler/backend seam cutover is still moving:
+  - `tools/smokes/v2/profiles/integration/vm_hako_caps/open_handle_phi/open_handle_phi_ported_vm.sh`
+  - it is the narrowest live seam probe for PHI/open-handle drift
 - freeze-first vm_hako families:
-  - `args/`
   - `mapbox/`
-  - these overlap the first LLVM replacement wave most directly
-- `mapbox/` is live through `collection-core` as well as the vm_hako reference tree, so it stays frozen even though it is not part of the phase29y gate rows
-- exact row-to-row mapping is locked by the inventory now; `96xC` is the cutover execution wave for the first LLVM replacement rows
+  - `misc/`
+  - `atomic/`
+  - `tls/`
+  - `compare/`
+  - these are either indirect-live (`mapbox`) or narrow single-purpose rows that should not grow during cutover
+- `mapbox/` is live through `collection-core` rather than the phase29y gate rows, so it now belongs to a parallel re-home track instead of the first acceptance cutover wave
+- exact row-to-row mapping is locked by the inventory now; `96xC` is the execution wave for:
+  - wave `1a`: `env` + `file` + narrow `args_vm`
+  - wave `1b`: `compare` + `misc` + `atomic` + `tls`
+  - wave `2`: `select_emit` + `open_handle_phi` + `boxcall_args_gt1` + `app1`
+  - parallel track: `mapbox -> collection-core` ownership move
+- `app1_summary_contract_ported_vm.sh` is also still referenced by `tools/smokes/v2/suites/integration/presubmit.txt`, so `app1` remains a late demotion/retire family rather than an early cutover target
+- detailed execution order is fixed in `96x-92-execution-plan.md`
 
 ## Scope and Non-Goals
 

@@ -1,0 +1,142 @@
+---
+Status: Active
+Date: 2026-04-11
+Scope: turn phase-96x into an execution-order document with explicit cutover waves, anchor gaps, and late-demotion rules.
+Related:
+  - docs/development/current/main/phases/phase-96x/README.md
+  - docs/development/current/main/phases/phase-96x/96x-90-vm-hako-llvm-cutover-ssot.md
+  - docs/development/current/main/phases/phase-96x/96x-91-task-board.md
+  - tools/smokes/v2/suites/integration/vm-hako-caps.txt
+  - tools/smokes/v2/profiles/integration/vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh
+  - tools/smokes/v2/suites/integration/collection-core.txt
+  - tools/smokes/v2/suites/integration/presubmit.txt
+---
+
+# 96x-92 Execution Plan
+
+## Rule
+
+- cut faster by separating product-visible rows, seam sentinels, and indirect-live bridge rows
+- do not let `mapbox` or APP-1 seam rows slow the first LLVM product cutover wave
+- keep `vm-hako-caps.txt` and `phase29y_vm_hako_caps_gate_vm.sh` as one retirement object
+
+## Immediate Read
+
+- `args_vm.sh` is the narrow runtime-data row
+- `boxcall_args_gt1_ported_vm.sh` is not a pure args row; it executes APP-1 (`gate_log_summarizer/main.hako`) and belongs to the late APP/seam track
+- `mapbox/*` is not phase29y-live, but it is still live through `collection-core.txt`
+- `app1_summary_contract_ported_vm.sh` is still referenced by `presubmit.txt`
+
+## Fastest Order
+
+### Wave 1a: product-visible live rows
+
+Goal: remove the narrowest daily product-facing vm_hako rows first.
+
+Rows:
+- `vm_hako_caps/args/args_vm.sh`
+- `vm_hako_caps/env/env_get_ported_vm.sh`
+- `vm_hako_caps/file/filebox_newbox_vm.sh`
+- `vm_hako_caps/file/file_error_vm.sh`
+- `vm_hako_caps/file/file_read_ported_vm.sh`
+- `vm_hako_caps/file/file_close_ported_vm.sh`
+
+Exact order:
+1. `args_vm.sh`
+2. `env_get_ported_vm.sh`
+3. `filebox_newbox_vm.sh`
+4. `file_error_vm.sh`
+5. `file_read_ported_vm.sh`
+6. `file_close_ported_vm.sh`
+
+Current anchor read:
+- `args_vm.sh` is closest to `phase29ck_boundary/runtime_data/*`
+- `env_get_ported_vm.sh` does not yet have an obvious dedicated LLVM-line replacement row in-tree
+- the four FileBox rows do not yet have a dedicated LLVM file acceptance pack in-tree
+
+Required tasks:
+1. lock a dedicated LLVM replacement row for `args_vm.sh`
+2. add a dedicated LLVM env-route row so `env_get` can stop being both product row and health canary
+3. add a dedicated LLVM FileBox pack covering `newbox`, `open(error)`, `read`, and `close`
+4. only after those rows are green, shrink the same rows out of the vm_hako gate/suite pair
+
+### Wave 1b: narrow single-purpose witnesses
+
+Goal: remove the narrow rows that are not the product face, but still consume gate budget.
+
+Rows:
+- `vm_hako_caps/compare/compare_ported_vm.sh`
+- `vm_hako_caps/compare/compare_ge_ported_vm.sh`
+- `vm_hako_caps/misc/const_void_ported_vm.sh`
+- `vm_hako_caps/atomic/atomic_fence_ported_vm.sh`
+- `vm_hako_caps/tls/tls_last_error_ported_vm.sh`
+
+Exact order:
+1. `compare_ported_vm.sh`
+2. `compare_ge_ported_vm.sh`
+3. `const_void_ported_vm.sh`
+4. `atomic_fence_ported_vm.sh`
+5. `tls_last_error_ported_vm.sh`
+
+Required tasks:
+1. decide whether each row gets a real LLVM replacement or an explicit archive decision
+2. land the replacement/archive decisions in one batch so these rows do not linger as “temporary”
+3. remove them from the gate/suite pair only after the replacement list is explicit
+
+### Wave 2: seam shadow and APP-1 late lane
+
+Goal: keep seam-sensitive rows out of wave 1 so product retirement does not stall on compiler/backend coupling.
+
+Rows:
+- `vm_hako_caps/select_emit/select_emit_block_vm.sh`
+- `vm_hako_caps/open_handle_phi/open_handle_phi_ported_vm.sh`
+- `vm_hako_caps/args/boxcall_args_gt1_ported_vm.sh`
+- `vm_hako_caps/app1/app1_stack_overflow_after_open_ported_vm.sh`
+- `vm_hako_caps/app1/app1_summary_contract_ported_vm.sh`
+
+Anchor direction:
+- `select_emit` -> `phase29y-hako-emit-mir.txt`
+- `open_handle_phi` -> `joinir-bq.txt` or `selfhost-core.txt`
+- `boxcall_args_gt1` -> APP-1/open-handle seam lane, not runtime-data wave 1a
+- `app1_summary_contract_ported_vm.sh` -> late demotion only after `presubmit.txt` stops depending on it
+
+Required tasks:
+1. split `boxcall_args_gt1` out of the generic args retirement narrative
+2. decide the exact non-vm_hako seam pack for `select_emit`
+3. decide the exact non-vm_hako seam pack for `open_handle_phi`
+4. replace `app1_summary_contract_ported_vm.sh` in `presubmit.txt`
+5. only then demote the APP-1 rows
+
+### Parallel Track: mapbox re-home
+
+Goal: remove `mapbox` from `vm_hako_caps` ownership without waiting for the product-live waves.
+
+Live rows in `collection-core.txt`:
+- `mapbox_set_ported_vm.sh`
+- `mapbox_get_ported_vm.sh`
+- `mapbox_has_ported_vm.sh`
+- `mapbox_delete_ported_vm.sh`
+- `mapbox_keys_ported_vm.sh`
+- `mapbox_clear_ported_vm.sh`
+- `mapbox_size_ported_vm.sh`
+
+Fastest ownership move:
+1. add `collection_core/mapbox_*` wrapper rows
+2. point `collection-core.txt` at those wrappers
+3. move the real implementations later
+
+After the wrapper move:
+1. physically move the 7 live rows into a `collection_core/` owner home
+2. archive the non-live `mapbox` rows (`*_bad_key*`, `*_missing*`, `*_getfield*`, `*_setfield*`, `mapbox_newbox_ported_vm.sh`)
+3. retire the bridge after LLVM collection/runtime-data coverage replaces it
+
+Risks:
+- the 7 live rows depend on `vm_hako_caps_common.sh`
+- fixture paths still point at `apps/tests/vm_hako_caps/*`
+- the wrapper move is the low-risk first step because it cuts suite ownership before helper surgery
+
+## Next Commit Candidates
+
+1. create the `collection_core/mapbox_*` wrappers and retarget `collection-core.txt`
+2. split `boxcall_args_gt1` out of wave 1a in all phase-96x docs
+3. add a dedicated phase-96x anchor gap list for `env` and FileBox so wave 1a has explicit unblockers
