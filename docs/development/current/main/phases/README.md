@@ -6,6 +6,7 @@
 
 - **Current (ACTIVE)**: Phase 163x primitive and user-box fast path
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
+- **Phase 171x（ACTIVE）**: substring concat exact-seed loop-shape cut
 - **Phase 170x（LANDED）**: direct-kernel substring plan proof
 - **Phase 169x（LANDED）**: substring concat stable-length phi contract
 - **Phase 168x（LANDED）**: counter step_chain pure-first exact route refresh
@@ -78,6 +79,7 @@
 
 ### Recent Landed
 
+- **Phase 171x（ACTIVE）**: substring concat exact-seed loop-shape cut
 - **Phase 170x（LANDED）**: direct-kernel substring plan proof
 - **Phase 169x（LANDED）**: substring concat stable-length phi contract
 - **Phase 168x（LANDED）**: counter step_chain pure-first exact route refresh

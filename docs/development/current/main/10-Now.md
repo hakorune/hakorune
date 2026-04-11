@@ -31,6 +31,11 @@ Related:
     - boundary `pure-first` `substring()` on helper-result receivers now reads concat-triplet piece carriers from `string_corridor_candidates[*].plan.proof`
     - the targeted proof `string_direct_kernel_plan_substring_window_min_v1.mir.json` now lowers through `direct_kernel_plan_proof -> substring_concat3_hhhii` without consumer fallback to `substring_hii`
     - direct-kernel `length()` proof, live direct-emit contracts, exact asm/perf, and `quick` gate stay green
+  - active string exact follow-on: `phase171x substring concat exact-seed loop-shape cut`
+    - current exact front remains `kilo_micro_substring_concat`
+    - the pure-first exact seed now uses the bottom-tested loop shape and `ny_main` no longer keeps the head compare
+    - latest reread after the cut is `ny_aot_instr=5,565,470 / ny_aot_cycles=5,893,313 / ny_aot_ms=5`
+    - current reading: keep this exact-route-local win, but the `instr < 5.5M` keeper target remains open
   - row status:
     - `3 User-Box Method Dispatch`: mostly done; narrow known-receiver consumer and the direct-route determinism repair are landed, broader generic parity backlog remains
     - `4 Array Typed Slots 拡大`: partial; narrow typed-slot pilots landed, read-side expansion backlog remains

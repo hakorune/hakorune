@@ -63,6 +63,11 @@ Scope: repo root から current lane / current front / restart read order に最
   - `phase-170x` is landed; boundary `pure-first` now reads concat-triplet piece carriers from `direct_kernel_entry.plan.proof` and lowers helper-result `substring()` without depending on remembered concat-chain state on that lane
   - the new proof fixture/smoke `string_direct_kernel_plan_substring_window_min_v1.mir.json` / `phase137x_boundary_string_direct_kernel_plan_substring_min.sh` are green
   - the existing len proof, live direct emit contracts, exact asm/perf, and `tools/checks/dev_gate.sh quick` stay green
+- active string exact follow-on:
+  - `docs/development/current/main/phases/phase-171x/README.md`
+  - `phase-171x` is active; the pure-first exact seed now uses the bottom-tested loop shape and `ny_main` no longer carries the head compare
+  - latest reread after that cut: `ny_aot_instr=5,565,470 / ny_aot_cycles=5,893,313 / ny_aot_ms=5`
+  - current reading: keep this loop-shape win, but the `instr < 5.5M` keeper target remains open for the next exact-route-local cut
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`

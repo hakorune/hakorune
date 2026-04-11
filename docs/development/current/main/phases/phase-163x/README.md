@@ -199,6 +199,7 @@
         - move from the landed sibling exact micros into the broader string corridor placement/effect rewrite
         - `phase-169x` landed the merged-header `stable_length_scalar` witness on the same exact front, so the live post-sink loop body no longer keeps `substring_len_hii` on `kilo_micro_substring_concat`
         - `phase-170x` landed the next bridge shrink on the same lane too: boundary `pure-first` helper-result `substring()` now reads concat-triplet piece carriers from `direct_kernel_entry.plan.proof` instead of remembered concat-chain state
+        - `phase-171x` is now the active exact-front follow-on on that sibling lane: the pure-first exact seed now uses the bottom-tested loop shape, current reread is `ny_aot_instr=5,565,470 / ny_aot_cycles=5,893,313 / ny_aot_ms=5`, and the next cut should stay exact-route-local because the first keeper target is still open
         - fresh reread now keeps `kilo_micro_substring_concat` (`instr=5,565,896 / cycles=5,958,406 / cache-miss=8,607 / AOT 4 ms`) as the best exact front for broader corridor placement/effect work
       - verified non-Variant optimization order after this parity wave:
         1. broader string corridor placement/effect rewrite

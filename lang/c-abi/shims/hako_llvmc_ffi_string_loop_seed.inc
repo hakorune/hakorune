@@ -14,7 +14,8 @@ static int hako_llvmc_emit_substring_concat_loop_ir(
   long long tail_len;
   long long insert_offset;
 
-  if (!seed || !middle || seed_len <= 1 || middle_len <= 0 || split <= 0) {
+  if (!seed || !middle || seed_len <= 1 || middle_len <= 0 || split <= 0 ||
+      loop_bound <= 0) {
     return -1;
   }
 
@@ -63,12 +64,7 @@ static int hako_llvmc_emit_substring_concat_loop_ir(
       seed_len);
   fprintf(f, "  store i64 0, ptr %%i, align 8\n");
   fprintf(f, "  store i64 0, ptr %%acc, align 8\n");
-  fprintf(f, "  br label %%loop\n\n");
-
-  fprintf(f, "loop:\n");
-  fprintf(f, "  %%i.cur = load i64, ptr %%i, align 8\n");
-  fprintf(f, "  %%cond = icmp slt i64 %%i.cur, %lld\n", loop_bound);
-  fprintf(f, "  br i1 %%cond, label %%body, label %%exit\n\n");
+  fprintf(f, "  br label %%body\n\n");
 
   fprintf(f, "body:\n");
   if (tail_len > 0) {
@@ -95,9 +91,11 @@ static int hako_llvmc_emit_substring_concat_loop_ir(
   fprintf(f, "  %%acc.cur = load i64, ptr %%acc, align 8\n");
   fprintf(f, "  %%acc.next = add i64 %%acc.cur, %lld\n", seed_len + middle_len);
   fprintf(f, "  store i64 %%acc.next, ptr %%acc, align 8\n");
+  fprintf(f, "  %%i.cur = load i64, ptr %%i, align 8\n");
   fprintf(f, "  %%i.next = add i64 %%i.cur, 1\n");
   fprintf(f, "  store i64 %%i.next, ptr %%i, align 8\n");
-  fprintf(f, "  br label %%loop\n\n");
+  fprintf(f, "  %%loop.cond = icmp slt i64 %%i.next, %lld\n", loop_bound);
+  fprintf(f, "  br i1 %%loop.cond, label %%body, label %%exit\n\n");
 
   fprintf(f, "exit:\n");
   fprintf(f, "  %%acc.fin = load i64, ptr %%acc, align 8\n");
