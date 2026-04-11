@@ -22,7 +22,7 @@ Date: 2026-04-11
 | `96xB2` | completed | rank the file / env / compare wave |
 | `96xB3` | completed | freeze `env/env_get_ported_vm.sh` as the blocking canary and `open_handle_phi` as the semantic shadow |
 | `96xC1` | in_progress | wave 1a: LLVM cutover pack for `env` + `file` after the narrow `args_vm` cut |
-| `96xC2` | pending | wave 1b: LLVM cutover pack for `compare` + `misc` + `atomic` + `tls` |
+| `96xC2` | in_progress | wave 1b: LLVM cutover pack for `compare` + `misc` + `atomic` + `tls` |
 | `96xC3` | pending | wave 2: seam shadow replacement for `select_emit` + `open_handle_phi` + `boxcall_args_gt1` |
 | `96xC4` | in_progress | parallel `mapbox -> collection-core` re-home track; live rows moved into `collection_core/`, non-live archive pending |
 | `96xD1` | pending | `app1` late demotion and proof / closeout |
@@ -37,6 +37,14 @@ Date: 2026-04-11
 | `96xC1d` | completed | retire `file_read_ported_vm.sh` and `file_close_ported_vm.sh` against the PLG-07 FileBox anchors |
 | `96xC1e` | completed | resolve `file_error_vm.sh` with a dedicated non-vm_hako open-error witness |
 
+### Wave 1b Substeps
+
+| Task | Status | Read as |
+| --- | --- | --- |
+| `96xC2a` | completed | retire `compare_ported_vm.sh`, `atomic_fence_ported_vm.sh`, and `tls_last_error_ported_vm.sh` from the live vm_hako gate/suite pair |
+| `96xC2b` | pending | resolve `compare_ge_ported_vm.sh` against a final non-vm_hako anchor or explicit archive decision |
+| `96xC2c` | pending | resolve `const_void_ported_vm.sh` against a final non-vm_hako anchor or explicit archive decision |
+
 ## Execution Anchor
 
 - exact step order is fixed in `96x-92-execution-plan.md`
@@ -45,9 +53,9 @@ Date: 2026-04-11
 
 | Item | State |
 | --- | --- |
-| Now | `96xC4 mapbox physical move` |
+| Now | `96xC2b compare_ge + const_void closure` |
 | Blocker | `none` |
-| Next | `96xC2 wave 1b` |
+| Next | `96xC4 mapbox non-live archive` |
 | After Next | `96xC3 seam shadow` |
 
 ## Acceptance Shape
@@ -63,7 +71,8 @@ Date: 2026-04-11
 - `96xC1d` is landed: `file_read_ported_vm.sh` and `file_close_ported_vm.sh` are retired from `vm-hako-caps.txt` and `phase29y_vm_hako_caps_gate_vm.sh`
 - `96xC1e` is landed: `file_error_vm.sh` is retired from `vm-hako-caps.txt` and `phase29y_vm_hako_caps_gate_vm.sh`
 - wave `1a` is complete
-- wave `1b` is `compare` + `misc` + `atomic` + `tls`
+- `96xC2a` is landed: `compare_ported_vm.sh`, `atomic_fence_ported_vm.sh`, and `tls_last_error_ported_vm.sh` are retired from `vm-hako-caps.txt` and `phase29y_vm_hako_caps_gate_vm.sh`
+- wave `1b` remaining rows are `compare_ge` + `const_void`
 - wave `2` is `select_emit` + `open_handle_phi` + `boxcall_args_gt1`
 - `mapbox` is a separate `collection-core` re-home track, not part of wave `1a`
 - current landed substeps:
