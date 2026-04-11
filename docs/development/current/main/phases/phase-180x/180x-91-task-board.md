@@ -24,6 +24,7 @@
   - views-only
   - length-hot-loop
   - substring-concat
+- `180xE` status: landed
 - `180xF` exact matcher retirement
   - first len-route exact matcher
   - later full-loop fallback

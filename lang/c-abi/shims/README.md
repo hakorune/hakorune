@@ -21,7 +21,17 @@ Current partitions:
   - register-rooted string candidate/plan readers used by legacy bridge and concat-policy consumers
   - keeps candidate-plan JSON access out of `string_chain_terms.inc`
 - `hako_llvmc_ffi_string_loop_seed.inc`
-  - pure-first seed emit/match helpers for loop/string hot paths
+  - thin facade include for loop/string hot-path seed families
+- `hako_llvmc_ffi_string_loop_seed_emitters.inc`
+  - exact LLVM IR emitters shared by the loop/string pure-first seed families
+- `hako_llvmc_ffi_string_loop_seed_copy_graph.inc`
+  - copy-chain/copy-graph helper layer shared by the exact string seed matchers
+- `hako_llvmc_ffi_string_loop_seed_views_only.inc`
+  - views-only exact matcher family
+- `hako_llvmc_ffi_string_loop_seed_length_hot_loop.inc`
+  - string-length hot-loop exact matcher family
+- `hako_llvmc_ffi_string_loop_seed_substring_concat.inc`
+  - substring-concat exact matcher family, including the remaining metadata-first + shape-fallback bridge
 - `hako_llvmc_ffi_array_string_store_seed.inc`
   - pure-first seed emit/match helpers for the exact array/string-store micro path
 - `hako_llvmc_ffi_string_search_seed.inc`
@@ -125,6 +135,7 @@ Rules:
 - String concat emit helpers now live in `hako_llvmc_ffi_string_concat_emit.inc`; keep concat routing thin and avoid re-growing the wrapper body.
 - `hako_llvmc_ffi_string_chain_terms.inc` is the shared term layer for string-chain policy/window seams; keep route-term definitions out of the heavy producer-window helpers.
 - `hako_llvmc_ffi_string_candidate_plan_readers.inc` owns register-rooted candidate/plan JSON readers; keep metadata access out of `string_chain_terms.inc`.
+- `hako_llvmc_ffi_string_loop_seed.inc` is now only a family facade; keep matcher/copy/emit details inside the dedicated seed-family includes and preserve dispatch order there.
 - `hako_llvmc_ffi_string_chain_policy.inc` is the compiler-side bridge to `lang/src/runtime/kernel/string/chain_policy.hako`; keep route / retained-form / post-store observer names aligned and avoid reopening the `pure_compile` ladder.
 - `hako_llvmc_ffi_mir_call_route_policy.inc`, `hako_llvmc_ffi_mir_call_need_policy.inc`, and `hako_llvmc_ffi_mir_call_surface_policy.inc` bridge to `lang/src/runtime/meta/`; keep compiler semantic tables out of `pure_compile.inc`.
 - `hako_llvmc_ffi_mir_call_dispatch.inc` is the only `mir_call` dispatcher seam that `pure_compile.inc` should call directly.

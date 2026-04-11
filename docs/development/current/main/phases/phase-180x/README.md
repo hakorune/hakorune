@@ -40,8 +40,9 @@
   - `180xC` landed: `stable_length_scalar` no longer reads downstream candidate-plan windows; relation now derives its narrow witness from the carried base definition itself
   - `180xD` first cut landed: function-level string metadata readers moved out of `hako_llvmc_ffi_common.inc`
   - `180xD` second cut landed: register-rooted candidate/plan readers now live in `hako_llvmc_ffi_string_candidate_plan_readers.inc`, and `string_chain_terms.inc` is back to term/classifier ownership
+  - `180xE` landed: `string_loop_seed` is now physically split into emitters / copy-graph / views-only / length-hot-loop / substring-concat families behind a thin facade
   - still open:
-    - `string_loop_seed` family split
+    - exact matcher retirement on top of the new family layout
 
 ## Acceptance
 
@@ -49,6 +50,7 @@
 - relation no longer depends on candidate plan internals
 - MIR JSON exporter serializes plan data without inventing legality/policy locally
 - string metadata readers in C shims are responsibility-partitioned away from generic `common` and `terms`
+- `string_loop_seed` is responsibility-partitioned by family without changing the matcher surface seen by `pure_compile`
 - exact perf/asm keepers for `kilo_micro_substring_concat` stay green while structure is cleaned
 
 ## Exit

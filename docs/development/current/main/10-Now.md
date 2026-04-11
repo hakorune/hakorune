@@ -58,7 +58,8 @@ Related:
     - current stop-line is structural, not perf:
       - landed: relation no longer reads downstream candidate-plan details
       - landed: shim readers are now split away from both generic `common` and `string_chain_terms`
-      - remaining structural stop-line is `string_loop_seed` family split before legacy matcher retirement
+      - landed: `string_loop_seed` is split into family includes behind a thin facade
+      - remaining structural stop-line is legacy exact matcher retirement on top of that family layout
     - cleanup order is:
       1. `StringKernelPlan` owner extraction
       2. relation reverse-dependency stop-line

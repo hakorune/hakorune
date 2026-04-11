@@ -104,7 +104,8 @@ Scope: repo root から current lane / current front / restart read order に最
     - landed: `stable_length_scalar` relation no longer reads downstream candidate-plan windows
     - landed: function-level string metadata readers are out of generic `common`
     - landed: register-rooted candidate/plan readers are out of `string_chain_terms`
-    - next: `string_loop_seed` family split before old matcher retirement
+    - landed: `string_loop_seed` is split into emitters / copy-graph / views-only / length-hot-loop / substring-concat families behind a thin facade
+    - next: old matcher retirement on top of the new family layout
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`
