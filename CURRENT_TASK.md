@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-04-10
+Date: 2026-04-11
 Scope: repo root から current lane / current front / restart read order に最短で戻るための薄い pointer。
 
 ## Purpose
@@ -21,7 +21,8 @@ Scope: repo root から current lane / current front / restart read order に最
 ## Restart Handoff
 
 - current expected worktree on reopen:
-  - clean after the latest keeper commit
+  - dirty because of pre-existing `vm_hako` / runtime bridge work
+  - do not mix the parked `phase-96x` smoke-retirement cleanup with those runtime edits
 - runtime-wide pattern anchor:
   - `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
 - current implementation lane:
@@ -41,6 +42,10 @@ Scope: repo root から current lane / current front / restart read order に最
   - Windows check and macOS build (release) both passed in run `24211665863`
 - sibling string guardrail phase:
   - `docs/development/current/main/phases/phase-137x/README.md`
+- parked vm retirement corridor:
+  - `docs/development/current/main/phases/phase-96x/README.md`
+  - `phase-96x` is no longer an active owner lane; it is parked after cutting `vm_hako` down to the frozen `vm-hako-core` 4-row monitor pack
+  - remaining retirement work there is limited to mirror cleanup and runtime-bridge separation
 - landed inventory scaffold:
   - `src/mir/storage_class.rs`
   - `StorageClass` facts are now refreshed after corridor facts and surfaced in verbose MIR / JSON dumps

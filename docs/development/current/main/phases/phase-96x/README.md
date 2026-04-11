@@ -90,6 +90,7 @@ Related:
   - monitor keep: the frozen 4-row `vm-hako-core` bundle
   - mirror cleanup: retired/offloaded files still living under `tools/smokes/v2/profiles/integration/vm_hako_caps/**`
   - runtime bridge separation: pre-existing interpreter/driver edits that should move on a different lane than smoke ownership retirement
+- landed: `96xE1` cleaned the stale `vm_hako_caps/README.md` wording so the compatibility stub and the `mapbox/` tree are described as retired archive/mirror artifacts instead of active reuse
 - detailed execution order is fixed in `96x-92-execution-plan.md`
 
 ## Scope and Non-Goals

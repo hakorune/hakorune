@@ -6,18 +6,20 @@ This family is not a product-mainline lane and not an engineering/bootstrap
 default. Read it as the explicit reference bucket that keeps semantic witness
 and conformance coverage visible.
 
-Reference-lane acceptance is the phase29y gate only:
+Reference-lane artifacts are:
 
-- `tools/smokes/v2/profiles/integration/vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh`
-- `tools/smokes/v2/suites/integration/vm-hako-caps.txt`
+- `tools/smokes/v2/profiles/integration/vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh` as the retired compatibility stub
+- `tools/smokes/v2/suites/integration/vm-hako-caps.txt` as the paired empty compatibility suite
+- `tools/smokes/v2/suites/integration/vm-hako-core.txt` as the frozen 4-row reference pack
 
 The phase29y gate is now a compatibility stub only. Active vm-hako monitor
 rows live in `tools/smokes/v2/suites/integration/vm-hako-core.txt`, which is
 frozen as the final 4-row reference pack.
 
-The phase29y gate keeps per-wrapper timeouts explicit. Several vm-hako runtime
-smokes use a 60s budget because each run recompiles and executes the child
-driver, so a 30s default is too tight for the reference lane.
+The retired wrappers and the remaining vm-hako runtime monitor rows still keep
+per-wrapper timeouts explicit. Several vm-hako runtime smokes use a 60s budget
+because each run recompiles and executes the child driver, so a 30s default is
+too tight for this reference lane.
 
 Non-gating blocked/probe cases are archived under `tools/smokes/v2/profiles/archive/**`
 and do not reopen the lane by themselves.
@@ -28,19 +30,19 @@ prefix bucket.
 
 ## Layout
 
-- `app1/`: retained APP-1 vm-hako parity witnesses; no longer suite-owned
-- `args/`: retained seam witnesses after the narrow `args_vm` retirement
-- `atomic/`: atomic fence contract pins
-- `compare/`: compare-op contract pins
-- `env/`: environment routing contract pins
-- `file/`: file/newbox/read/close/error contract pins
-- `gate/`: the phase29y vm-hako capability gate
+- `app1/`: retired APP-1 vm-hako parity witnesses; no longer suite-owned
+- `args/`: retired seam witnesses after the narrow `args_vm` retirement
+- `atomic/`: offloaded atomic fence witness
+- `compare/`: compare monitor row plus retired compare-op evidence
+- `env/`: environment routing monitor canary
+- `file/`: file monitor rows plus retired error/newbox witnesses
+- `gate/`: the phase29y vm-hako compatibility stub
 - `lib/`: shared helper layer for vm-hako capability smokes
-- `mapbox/`: MapBox ported proofs still reused by collection-core suites; blocked pins were moved to archive
-- `misc/`: small one-off capability pins such as `const(void)`
-- `open_handle_phi/`: PHI/open-handle propagation pin
-- `select_emit/`: MIR select emission blocker pin
-- `tls/`: TLS last-error contract pins
+- `mapbox/`: retired MapBox mirror/archive source; no suite-owned rows remain
+- `misc/`: archive-only one-off evidence such as `const(void)`
+- `open_handle_phi/`: retired PHI/open-handle seam mirror
+- `select_emit/`: retired MIR select seam mirror
+- `tls/`: offloaded TLS last-error witness
 
 `env/env_get_ported_vm.sh` is the explicit vm-hako monitor canary now. Product
 ownership moved to `tools/smokes/v2/profiles/integration/core/phase2035/`

@@ -70,14 +70,14 @@ Date: 2026-04-11
 | --- | --- |
 | Now | `remaining vm_hako retirement inventory locked` |
 | Blocker | `none` |
-| Next | `separate mirror cleanup from runtime bridge work` |
-| After Next | `hold the 4-row vm-hako-core monitor pack steady` |
+| Next | `mirror cleanup wait` |
+| After Next | `separate runtime bridge work from smoke retirement` |
 
 ## Post-Cutover Backlog
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `96xE1` | pending | rewrite stale `vm_hako_caps/README.md` wording so `mapbox/` and the compatibility stub are described as archive/mirror only, not as active reuse |
+| `96xE1` | completed | rewrite stale `vm_hako_caps/README.md` wording so `mapbox/` and the compatibility stub are described as archive/mirror only, not as active reuse |
 | `96xE2` | pending | when the dirty tree is safe, move offloaded mirror families (`app1/`, `args/`, `atomic/`, `tls/`, `select_emit/`, `open_handle_phi/`, `file_error`, `filebox_newbox`) out of `tools/smokes/v2/profiles/integration/vm_hako_caps/**` into archive or owner-local homes |
 | `96xE3` | pending | when the dirty tree is safe, remove redundant `mapbox` mirrors from `tools/smokes/v2/profiles/integration/vm_hako_caps/mapbox/*` after confirming the archive copies and emit+exec owners remain green |
 | `96xE4` | pending | quarantine runtime bridge edits (`env.get`, `runtime_data`, `FileBox`, driver env/cwd`) into a non-phase96x lane so vm retirement docs stop mixing smoke cleanup with interpreter work |
@@ -111,6 +111,7 @@ Date: 2026-04-11
   - monitor keep: the frozen `vm-hako-core` 4-row pack
   - mirror cleanup: retired/offloaded files still sitting under `tools/smokes/v2/profiles/integration/vm_hako_caps/**`
   - runtime bridge separation: pre-existing interpreter/driver changes that support vm_hako execution but are not smoke ownership work
+- `96xE1` is landed: `tools/smokes/v2/profiles/integration/vm_hako_caps/README.md` now describes the compatibility stub and `mapbox/` tree as retired archive/mirror artifacts instead of active reuse
 - current landed substeps:
   - `collection-core.txt` no longer points at any `collection_core/mapbox_*` row
   - all 7 `MapBox.*` rows now live in dedicated non-vm_hako emit+exec owners under `phase29y-hako-emit-mir.txt` and `selfhost-core.txt`
