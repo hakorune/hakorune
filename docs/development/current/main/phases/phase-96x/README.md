@@ -54,7 +54,7 @@ Related:
 
 - the active reference gate is still `tools/smokes/v2/profiles/integration/vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh`
 - the live `vm_hako_caps` family still covers `app1`, `args`, `atomic`, `compare`, `env`, `file`, `mapbox`, `misc`, `open_handle_phi`, `select_emit`, `tls`
-- the current pressure point is no longer wave `1a`; the next active cuts are `mapbox` physical move and wave `1b`
+- the current pressure point is no longer wave `1a` or wave `1b`; the next active cuts are `mapbox` non-live archive and the seam-shadow lane
 - LLVM replacement anchors already exist in the current `phase29ck_boundary/runtime_data/*`, `phase29ck_llvm_backend_*`, and `phase163x_boundary_*` proof families
 - recommended single monitor canary while the replacement matrix is moving:
   - `tools/smokes/v2/profiles/integration/vm_hako_caps/env/env_get_ported_vm.sh`
@@ -78,7 +78,9 @@ Related:
   - landed: `96xC1e` retired `file_error_vm.sh` from `vm-hako-caps.txt` and `phase29y_vm_hako_caps_gate_vm.sh` with `apps/phase96x_filebox_missing_open_vm.sh` as the dedicated green witness
   - wave `1a`: complete
   - landed: `96xC2a` retired `compare_ported_vm.sh`, `atomic_fence_ported_vm.sh`, and `tls_last_error_ported_vm.sh` from the live vm_hako gate/suite pair; `compare_ported_vm.sh` stays only in `vm-hako-core.txt`, `proof/native-reference/native_backend_compare_eq_canary_vm.sh` + `native_backend_compare_lt_canary_vm.sh` are the explicit compare proof anchors, and `apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh` via `presubmit.txt` is the shared atomic/tls owner anchor
-  - wave `1b`: remaining rows are `compare_ge` + `const_void`
+  - landed: `96xC2b` archived `compare_ge_ported_vm.sh` as explicit retired evidence and removed it from the live vm_hako gate/suite pair because no concrete non-vm_hako live owner exists yet
+  - landed: `96xC2c` archived `const_void_ported_vm.sh` as explicit retired evidence and removed it from `vm-hako-caps.txt`, `phase29y_vm_hako_caps_gate_vm.sh`, and `vm-hako-core.txt`
+  - wave `1b`: complete
   - wave `2`: `select_emit` + `open_handle_phi` + `boxcall_args_gt1` + `app1`
   - parallel track: `mapbox -> collection-core` ownership move
 - `app1_summary_contract_ported_vm.sh` is also still referenced by `tools/smokes/v2/suites/integration/presubmit.txt`, so `app1` remains a late demotion/retire family rather than an early cutover target

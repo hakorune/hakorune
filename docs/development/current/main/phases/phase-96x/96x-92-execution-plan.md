@@ -80,22 +80,24 @@ Required tasks:
 Goal: remove the narrow rows that are not the product face, but still consume gate budget.
 
 Rows:
-- `vm_hako_caps/compare/compare_ge_ported_vm.sh`
-- `vm_hako_caps/misc/const_void_ported_vm.sh`
+- none; wave `1b` owner rows are complete
 - landed `96xC2a`:
   - `vm_hako_caps/compare/compare_ported_vm.sh` -> live owner retired from `vm-hako-caps.txt` and `phase29y_vm_hako_caps_gate_vm.sh`; monitor keep remains in `vm-hako-core.txt`
   - `vm_hako_caps/atomic/atomic_fence_ported_vm.sh` -> owner anchor is `tools/smokes/v2/profiles/integration/apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh` via `tools/smokes/v2/suites/integration/presubmit.txt`
   - `vm_hako_caps/tls/tls_last_error_ported_vm.sh` -> owner anchor is `tools/smokes/v2/profiles/integration/apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh` via `tools/smokes/v2/suites/integration/presubmit.txt`
+- landed `96xC2b`:
+  - `vm_hako_caps/compare/compare_ge_ported_vm.sh` -> explicit archive-only evidence at `tools/smokes/v2/profiles/archive/vm_hako_caps/compare/compare_ge_ported_vm.sh`
+- landed `96xC2c`:
+  - `vm_hako_caps/misc/const_void_ported_vm.sh` -> explicit archive-only evidence at `tools/smokes/v2/profiles/archive/vm_hako_caps/misc/const_void_ported_vm.sh`
 
 Exact order:
-1. `compare_ge_ported_vm.sh`
-2. `const_void_ported_vm.sh`
+1. complete
 
 Required tasks:
 1. landed `96xC2a`: retire the rows with explicit non-vm_hako anchors already present
-2. decide whether `compare_ge_ported_vm.sh` gets a real non-vm_hako replacement or an explicit archive decision
-3. decide whether `const_void_ported_vm.sh` gets a real non-vm_hako replacement or an explicit archive decision
-4. remove the remaining rows from the gate/suite pair only after the replacement list is explicit
+2. landed `96xC2b`: archive-only closure for `compare_ge_ported_vm.sh` because no concrete non-vm_hako live owner exists
+3. landed `96xC2c`: archive-only closure for `const_void_ported_vm.sh` because no concrete non-vm_hako live owner exists
+4. wave `1b` complete
 
 ### Wave 2: seam shadow and APP-1 late lane
 
@@ -157,6 +159,6 @@ Risks:
 
 ## Next Commit Candidates
 
-1. `96xC2b`: close `compare_ge_ported_vm.sh` with a final non-vm_hako anchor or explicit archive decision
-2. `96xC2c`: close `const_void_ported_vm.sh` with a final non-vm_hako anchor or explicit archive decision
-3. `96xC4`: archive the 6 non-live `vm_hako_caps/mapbox/*` rows without touching the current live mirror content
+1. `96xC4`: archive the 6 non-live `vm_hako_caps/mapbox/*` rows without touching the current live mirror content
+2. `96xC3`: finish the seam-shadow lane
+3. `96xD1`: resolve the late `app1` demotion blocker in `presubmit.txt`

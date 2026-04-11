@@ -4,7 +4,6 @@
 vm_hako_caps/app1/app1_summary_contract_ported_vm.sh
 vm_hako_caps/args/boxcall_args_gt1_ported_vm.sh
 vm_hako_caps/compare/compare_ported_vm.sh
-vm_hako_caps/misc/const_void_ported_vm.sh
 vm_hako_caps/env/env_get_ported_vm.sh
 vm_hako_caps/file/file_close_ported_vm.sh
 vm_hako_caps/file/file_read_ported_vm.sh
