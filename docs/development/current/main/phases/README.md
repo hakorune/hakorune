@@ -6,6 +6,7 @@
 
 - **Current (ACTIVE)**: Phase 163x primitive and user-box fast path
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
+- **Phase 202x（LANDED）**: observer/control docs inventory
 - **Phase 201x（LANDED）**: overwritten Store pruning on private carriers
 - **Phase 200x（LANDED）**: dead Load pruning on private carriers
 - **Phase 199x（LANDED）**: generic memory DCE docs-facts phase
@@ -109,6 +110,7 @@
 
 ### Recent Landed
 
+- **Phase 202x（LANDED）**: observer/control docs inventory
 - **Phase 201x（LANDED）**: overwritten Store pruning on private carriers
 - **Phase 200x（LANDED）**: dead Load pruning on private carriers
 - **Phase 199x（LANDED）**: generic memory DCE docs-facts phase

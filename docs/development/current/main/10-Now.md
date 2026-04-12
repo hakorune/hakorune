@@ -117,12 +117,16 @@ Related:
     - immediate next is now B1 dead `Load` pruning
   - landed generic-memory code follow-on: `phase200x dead Load pruning on private carriers`
     - dead `Load { dst, ptr }` now disappears when `ptr` is a definitely private `RefNew` carrier rooted on a non-escaping local box with copy-only alias propagation
-    - first cut is intentionally narrow: same-carrier `Store`, `Call` escape, `Debug`, terminator/control cleanup, and non-copy carrier merges stay outside this cut
+    - first cut is intentionally narrow: same-carrier `Store`, `Call` escape, `Debug`, terminator-adjacent cleanup, and non-copy carrier merges stay outside this cut
     - immediate next is now B2 overwritten `Store` pruning
   - landed generic-memory code follow-on: `phase201x overwritten Store pruning on private carriers`
     - earlier `Store { value, ptr }` now disappears when a later same-block `Store` targets the same definitely private carrier root through direct or copy alias access
     - first cut is intentionally narrow: intervening `Load`, carrier escape, cross-block store reasoning, forwarding, `Debug`, and control cleanup stay outside this cut
-    - immediate next is now C0 observer/control docs inventory
+    - follow-on landed next as `phase202x observer/control docs inventory`
+  - landed observer/control docs follow-on: `phase202x observer/control docs inventory`
+    - lane C is now fixed as `C0 inventory -> C1 Debug policy -> C2 terminator-adjacent operand/control liveness cleanup`
+    - `Debug` stays current-owner observer and `Branch` / `Jump` / `Return` stay current-owner control anchors until the next decision cuts
+    - immediate next is now `C1 Debug` policy decision
   - landed DCE structure follow-on: `phase192x DCE pass module split`
     - `src/mir/passes/dce.rs` is now a thin facade over focused implementation modules and topic tests
     - this cut was structure-only; later lane-B docs/facts and code widening happen in `phase199x` / `phase200x`
@@ -130,7 +134,7 @@ Related:
     - `1 generic placement / effect`: partial; string corridor candidates, sum placement chains, and thin-entry inventory/selection are landed as pilot scaffolds, but the top-level generic transform layer is still backlog
     - `2 agg_local scalarization`: partial; selected sum local layouts, selected user-box local bodies, and ArrayBox typed-slot pilots are landed, while broader aggregate scalarization remains backlog
     - `3 thin-entry actual consumer switch`: partial; known-receiver user-box method routes are the first landed actual-consumer slice, while broader thin-entry consumer switching remains backlog
-    - `4 semantic simplification bundle`: partial; current DCE work is landed through `phase176x` / `phase177x` / `phase181x` / `phase182x` / `phase183x` / `phase184x` / `phase185x` / `phase186x` / `phase187x` / `phase188x` / `phase189x` / `phase190x` / `phase191x` / `phase192x` / `phase196x` / `phase199x` / `phase200x` / `phase201x`, but `SCCP`, `SimplifyCFG`, and jump-threading remain backlog; keep `DSE` out of this row
+    - `4 semantic simplification bundle`: partial; current DCE work is landed through `phase176x` / `phase177x` / `phase181x` / `phase182x` / `phase183x` / `phase184x` / `phase185x` / `phase186x` / `phase187x` / `phase188x` / `phase189x` / `phase190x` / `phase191x` / `phase192x` / `phase196x` / `phase199x` / `phase200x` / `phase201x` / `phase202x`, but `SCCP`, `SimplifyCFG`, and jump-threading remain backlog; keep `DSE` out of this row
     - `5 memory-effect layer`: partial; lane-B0 generic memory observer/owner contract plus lane-B1 dead `Load` pruning and lane-B2 overwritten `Store` pruning are now landed, while dead-store elimination, store-to-load forwarding, redundant load elimination, hoist/sink legality, and broader generic `Store` / `Load` code cuts remain backlog
     - `6 escape / barrier -> LLVM attrs`: partial; Copy + one-input-phi-carry aware local barrier elision and the `phase165x` operand-role escape barrier vocabulary cut are landed, but attribute feed (`nocapture` / `readonly` / `readnone` / `noalias`) remains backlog
     - `7 numeric loop / SIMD`: partial; narrow FloatBox groundwork is landed, while induction/reduction/vectorization and fast-math tuning remain backlog

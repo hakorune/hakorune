@@ -27,11 +27,11 @@ Scope: repo root から current lane / current front / restart read order に最
 - sibling guardrail:
   - `phase-137x` string corridor / exact-keeper guardrail
 - immediate next:
-  - `observer/control lane C0`
-  - docs-only inventory for `Debug` / terminator cleanup
+  - `observer/control lane C1`
+  - `Debug` policy decision
 - immediate follow-on:
-  - lane C1 `Debug` policy decision
-  - lane C2 terminator/control cleanup
+  - lane C2 terminator-adjacent operand/control liveness cleanup
+  - then return to the layer roadmap after lane C classification is fixed
 - current stop-lines:
   - do not mix lane B with lane C (`Debug` / terminator observer cleanup)
   - do not mix lane B with `generic placement / effect`
@@ -50,6 +50,8 @@ Scope: repo root から current lane / current front / restart read order に最
   - `docs/development/current/main/phases/phase-190x/190x-90-remaining-dce-boundary-inventory-ssot.md`
 - generic memory lane-B contract owner:
   - `docs/development/current/main/design/generic-memory-dce-observer-owner-contract-ssot.md`
+- observer/control lane-C contract owner:
+  - `docs/development/current/main/design/observer-control-dce-owner-contract-ssot.md`
 - primitive / user-box fast-path owner:
   - `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
 - lifecycle / value parent:
@@ -82,6 +84,9 @@ Scope: repo root から current lane / current front / restart read order に最
 - `phase-201x`
   - overwritten `Store` pruning is now landed for definitely private carrier roots on the same block with copy-only alias propagation
   - first cut keeps cross-block store reasoning, forwarding, `Debug`, and control cleanup out of scope
+- `phase-202x`
+  - observer/control ownership is now inventoried as a docs-only cut
+  - immediate next is `C1 Debug` policy decision
 
 ## Current Checks
 

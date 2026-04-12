@@ -231,7 +231,8 @@
            - keep `DSE` out of this layer; it belongs to the memory-effect layer
            - lane B1 is now landed: dead `Load` pruning on definitely private carrier roots
            - lane B2 is now landed too: overwritten `Store` pruning on the same private carriers
-           - immediate code next is lane C0: observer/control docs inventory
+           - lane C0 is now landed too: observer/control docs inventory
+           - immediate code next is lane C1: `Debug` policy decision
         5. `memory-effect layer`
            - partial: lane-B0 generic memory observer/owner contract, lane-B1 dead `Load` pruning, and lane-B2 overwritten `Store` pruning are landed
            - backlog: generic `Store` / `Load` code widening, dead-store elimination, store-to-load forwarding, redundant load elimination, and hoist/sink legality

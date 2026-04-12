@@ -15,11 +15,11 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-163x primitive and user-box fast path` |
-| Front | `root pointers compressed -> lane-B0 docs/facts landed -> lane-B1 dead Load pruning landed -> lane-B2 overwritten Store pruning landed -> next docs slice is lane C0 observer/control inventory` |
+| Front | `lane-B generic memory cuts are landed through B2 -> lane-C docs inventory is landed -> next narrow decision is C1 Debug policy` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `generic memory lane B is now landed through private-carrier overwritten Store pruning, but observer/control policy is still unclassified` |
-| Next | `observer/control lane C0 (Debug / terminator docs-only inventory)` |
-| After Next | `lane C1 Debug policy decision -> lane C2 terminator/control cleanup` |
+| Blocker | `observer/control ownership is inventoried, but Debug policy is still undecided` |
+| Next | `observer/control lane C1 (Debug policy decision)` |
+| After Next | `lane C2 terminator-adjacent operand/control liveness cleanup -> then next layer step` |
 
 ## Current Read
 
@@ -42,11 +42,13 @@ Related:
   - dead `Load` pruning now exists for definitely private carrier roots with copy-only alias propagation
   - `phase-201x` is now landed too
   - overwritten `Store` pruning now exists for definitely private carrier roots on the same block with copy-only alias propagation
-  - next target is now C0 observer/control docs inventory
+  - `phase-202x` is now landed too
+  - observer/control ownership is fixed as a docs-only inventory cut
+  - next target is now C1 `Debug` policy decision
 - immediate sequence:
-  - lane C0 observer/control docs inventory
   - lane C1 `Debug` policy decision
-  - lane C2 terminator/control cleanup
+  - lane C2 terminator-adjacent operand/control liveness cleanup
+  - then return to the next layer step
 - stop-lines:
   - keep lane B separate from `Debug` / terminator observer cleanup
   - keep lane B separate from `generic placement / effect`

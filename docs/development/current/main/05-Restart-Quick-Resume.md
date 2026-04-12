@@ -25,11 +25,11 @@ tools/checks/dev_gate.sh quick
 - sibling guardrail:
   - `phase-137x main kilo reopen selection`
 - immediate next:
-  - `observer/control lane C0`
-  - docs-only inventory for `Debug` / terminator cleanup
+  - `observer/control lane C1`
+  - `Debug` policy decision
 - immediate follow-on:
-  - lane C1 `Debug` policy decision
-  - lane C2 terminator/control cleanup
+  - lane C2 terminator-adjacent operand/control liveness cleanup
+  - then return to the next layer step after lane C is classified
 - stop-lines:
   - keep lane B separate from lane C (`Debug` / terminator cleanup)
   - keep lane B separate from `generic placement / effect`
@@ -62,10 +62,12 @@ tools/checks/dev_gate.sh quick
   - `phase-199x`
   - `phase-200x`
   - `phase-201x`
+  - `phase-202x`
 
 ## First Design Slices
 
 - `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
+- `docs/development/current/main/design/observer-control-dce-owner-contract-ssot.md`
 - `docs/development/current/main/phases/phase-190x/190x-90-remaining-dce-boundary-inventory-ssot.md`
 - `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
 - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
