@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-04-12
+Date: 2026-04-13
 Scope: current lane / blocker / next pointer だけを置く薄い mirror。
 Related:
   - CURRENT_TASK.md
@@ -19,16 +19,16 @@ Related:
 
 ## Landing Snapshot
 
-- `phase223x` is landed:
-  - same-block `substring(...).length()` sinking reads folded `placement_effect_routes` window metadata first
-  - legacy string-corridor fact matching stays as a compatibility fallback
-  - retained route-window sinking from `phase222x` remains intact
+- `phase224x` is landed:
+  - publication/materialization helper proof lookup reads folded `placement_effect_routes` string proof first
+  - legacy `string_corridor_candidates` stay as a compatibility fallback
+  - retained and same-block route-window sinks from `phase222x` / `phase223x` remain intact
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-223x/README.md`
+3. `docs/development/current/main/phases/phase-224x/README.md`
 4. `docs/development/current/main/phases/phase-163x/README.md`
 5. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 

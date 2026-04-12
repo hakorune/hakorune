@@ -79,6 +79,66 @@ impl std::fmt::Display for PlacementEffectState {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PlacementEffectStringProof {
+    BorrowedSlice {
+        source: ValueId,
+        start: ValueId,
+        end: ValueId,
+    },
+    ConcatTriplet {
+        left_value: Option<ValueId>,
+        left_source: ValueId,
+        left_start: ValueId,
+        left_end: ValueId,
+        middle: ValueId,
+        right_value: Option<ValueId>,
+        right_source: ValueId,
+        right_start: ValueId,
+        right_end: ValueId,
+        shared_source: bool,
+    },
+}
+
+impl PlacementEffectStringProof {
+    pub fn summary(&self) -> String {
+        match self {
+            Self::BorrowedSlice { source, start, end } => format!(
+                "borrowed_slice(src=%{} start=%{} end=%{})",
+                source.0, start.0, end.0
+            ),
+            Self::ConcatTriplet {
+                left_value,
+                left_source,
+                left_start,
+                left_end,
+                middle,
+                right_value,
+                right_source,
+                right_start,
+                right_end,
+                shared_source,
+            } => format!(
+                "concat_triplet(shared_source={} left_value={} left=%{}[%{},%{}] middle=%{} right_value={} right=%{}[%{},%{}])",
+                shared_source,
+                left_value
+                    .map(|value| format!("%{}", value.0))
+                    .unwrap_or_else(|| "-".to_string()),
+                left_source.0,
+                left_start.0,
+                left_end.0,
+                middle.0,
+                right_value
+                    .map(|value| format!("%{}", value.0))
+                    .unwrap_or_else(|| "-".to_string()),
+                right_source.0,
+                right_start.0,
+                right_end.0
+            ),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PlacementEffectRoute {
     pub block: Option<BasicBlockId>,
@@ -87,6 +147,7 @@ pub struct PlacementEffectRoute {
     pub source_value: Option<ValueId>,
     pub window_start: Option<ValueId>,
     pub window_end: Option<ValueId>,
+    pub string_proof: Option<PlacementEffectStringProof>,
     pub source: PlacementEffectSource,
     pub subject: String,
     pub decision: PlacementEffectDecision,
@@ -119,13 +180,18 @@ impl PlacementEffectRoute {
             }
             _ => String::new(),
         };
+        let string_proof_suffix = self
+            .string_proof
+            .as_ref()
+            .map(|proof| format!(" string_proof={}", proof.summary()))
+            .unwrap_or_default();
         let detail_suffix = self
             .detail
             .as_ref()
             .map(|detail| format!(" detail={detail}"))
             .unwrap_or_default();
         format!(
-            "{}{} {} {} {} [{}]{}{}{}{} reason={}",
+            "{}{} {} {} {} [{}]{}{}{}{}{} reason={}",
             block_suffix,
             instruction_suffix,
             self.source,
@@ -135,6 +201,7 @@ impl PlacementEffectRoute {
             value_suffix,
             source_value_suffix,
             window_suffix,
+            string_proof_suffix,
             detail_suffix,
             self.reason
         )
@@ -170,6 +237,9 @@ fn collect_string_routes(function: &MirFunction, routes: &mut Vec<PlacementEffec
                 source_value: None,
                 window_start: candidate.plan.and_then(|plan| plan.start),
                 window_end: candidate.plan.and_then(|plan| plan.end),
+                string_proof: candidate
+                    .plan
+                    .map(|plan| placement_effect_string_proof(plan.proof)),
                 source: PlacementEffectSource::StringCorridor,
                 subject: format!("string.value%{}", value.as_u32()),
                 decision: string_decision(candidate.kind),
@@ -178,6 +248,39 @@ fn collect_string_routes(function: &MirFunction, routes: &mut Vec<PlacementEffec
                 reason: candidate.reason.to_string(),
             });
         }
+    }
+}
+
+fn placement_effect_string_proof(
+    proof: crate::mir::StringCorridorCandidateProof,
+) -> PlacementEffectStringProof {
+    match proof {
+        crate::mir::StringCorridorCandidateProof::BorrowedSlice { source, start, end } => {
+            PlacementEffectStringProof::BorrowedSlice { source, start, end }
+        }
+        crate::mir::StringCorridorCandidateProof::ConcatTriplet {
+            left_value,
+            left_source,
+            left_start,
+            left_end,
+            middle,
+            right_value,
+            right_source,
+            right_start,
+            right_end,
+            shared_source,
+        } => PlacementEffectStringProof::ConcatTriplet {
+            left_value,
+            left_source,
+            left_start,
+            left_end,
+            middle,
+            right_value,
+            right_source,
+            right_start,
+            right_end,
+            shared_source,
+        },
     }
 }
 
@@ -239,6 +342,7 @@ fn sum_route(selection: &SumPlacementSelection) -> PlacementEffectRoute {
         source_value: selection.source_sum,
         window_start: None,
         window_end: None,
+        string_proof: None,
         source: PlacementEffectSource::SumPlacement,
         subject: selection.subject.clone(),
         decision: match selection.selected_path {
@@ -259,6 +363,7 @@ fn thin_entry_route(selection: &ThinEntrySelection) -> PlacementEffectRoute {
         source_value: None,
         window_start: None,
         window_end: None,
+        string_proof: None,
         source: PlacementEffectSource::ThinEntry,
         subject: selection.subject.clone(),
         decision: match selection.selected_entry {
@@ -287,6 +392,7 @@ fn agg_local_route(route: &crate::mir::AggLocalScalarizationRoute) -> Option<Pla
             source_value: None,
             window_start: None,
             window_end: None,
+            string_proof: None,
             source: PlacementEffectSource::AggLocalScalarization,
             subject: route.subject.clone(),
             decision: PlacementEffectDecision::LocalAggregate,
@@ -329,8 +435,9 @@ mod tests {
     use crate::mir::{
         AggLocalScalarizationKind, AggLocalScalarizationRoute, BasicBlockId, EffectMask,
         FunctionSignature, MirInstruction, MirType, StorageClass, StringCorridorCandidate,
-        StringCorridorCandidateKind, StringCorridorCandidateState, SumLocalAggregateLayout,
-        SumPlacementPath, SumPlacementSelection, ThinEntryCurrentCarrier, ThinEntryPreferredEntry,
+        StringCorridorCandidateKind, StringCorridorCandidatePlan, StringCorridorCandidateProof,
+        StringCorridorCandidateState, SumLocalAggregateLayout, SumPlacementPath,
+        SumPlacementSelection, ThinEntryCurrentCarrier, ThinEntryPreferredEntry,
         ThinEntrySelection, ThinEntrySelectionState, ThinEntrySurface, ThinEntryValueClass,
         ValueId,
     };
@@ -457,5 +564,71 @@ mod tests {
             function.metadata.placement_effect_routes[4].decision,
             PlacementEffectDecision::ThinInternalEntry
         ));
+    }
+
+    #[test]
+    fn refresh_function_collects_folded_string_concat_triplet_proof() {
+        let signature = FunctionSignature {
+            name: "test_func".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        let entry = function.get_block_mut(BasicBlockId::new(0)).expect("entry");
+        entry.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(21),
+            src: ValueId::new(20),
+        });
+        function.metadata.string_corridor_candidates.insert(
+            ValueId::new(21),
+            vec![StringCorridorCandidate {
+                kind: StringCorridorCandidateKind::PublicationSink,
+                state: StringCorridorCandidateState::Candidate,
+                reason: "publish boundary can sink to the corridor exit",
+                plan: Some(StringCorridorCandidatePlan {
+                    corridor_root: ValueId::new(21),
+                    source_root: Some(ValueId::new(1)),
+                    start: Some(ValueId::new(8)),
+                    end: Some(ValueId::new(9)),
+                    known_length: Some(2),
+                    proof: StringCorridorCandidateProof::ConcatTriplet {
+                        left_value: Some(ValueId::new(3)),
+                        left_source: ValueId::new(1),
+                        left_start: ValueId::new(4),
+                        left_end: ValueId::new(5),
+                        middle: ValueId::new(6),
+                        right_value: Some(ValueId::new(7)),
+                        right_source: ValueId::new(1),
+                        right_start: ValueId::new(8),
+                        right_end: ValueId::new(9),
+                        shared_source: true,
+                    },
+                }),
+            }],
+        );
+
+        refresh_function_placement_effect_routes(&mut function);
+
+        let route = function
+            .metadata
+            .placement_effect_routes
+            .first()
+            .expect("string route");
+        assert_eq!(
+            route.string_proof,
+            Some(PlacementEffectStringProof::ConcatTriplet {
+                left_value: Some(ValueId::new(3)),
+                left_source: ValueId::new(1),
+                left_start: ValueId::new(4),
+                left_end: ValueId::new(5),
+                middle: ValueId::new(6),
+                right_value: Some(ValueId::new(7)),
+                right_source: ValueId::new(1),
+                right_start: ValueId::new(8),
+                right_end: ValueId::new(9),
+                shared_source: true,
+            })
+        );
     }
 }

@@ -239,6 +239,10 @@ pub(super) fn helper_plan_for_kind(
     root: ValueId,
     kind: StringCorridorCandidateKind,
 ) -> Option<StringCorridorCandidatePlan> {
+    if let Some(plan) = placement_effect_helper_plan_for_kind(function, root, kind) {
+        return Some(plan);
+    }
+
     function
         .metadata
         .string_corridor_candidates
@@ -252,6 +256,75 @@ pub(super) fn helper_plan_for_kind(
                 )
         })?
         .plan
+}
+
+fn placement_effect_helper_plan_for_kind(
+    function: &MirFunction,
+    root: ValueId,
+    kind: StringCorridorCandidateKind,
+) -> Option<StringCorridorCandidatePlan> {
+    let decision = match kind {
+        StringCorridorCandidateKind::BorrowCorridorFusion => {
+            crate::mir::PlacementEffectDecision::StayBorrowed
+        }
+        StringCorridorCandidateKind::PublicationSink => {
+            crate::mir::PlacementEffectDecision::PublishHandle
+        }
+        StringCorridorCandidateKind::MaterializationSink => {
+            crate::mir::PlacementEffectDecision::MaterializeOwned
+        }
+        StringCorridorCandidateKind::DirectKernelEntry => {
+            crate::mir::PlacementEffectDecision::DirectKernelEntry
+        }
+    };
+    let route = function
+        .metadata
+        .placement_effect_routes
+        .iter()
+        .find(|route| {
+            route.source == crate::mir::PlacementEffectSource::StringCorridor
+                && route.value == Some(root)
+                && route.decision == decision
+        })?;
+    let proof = match route.string_proof? {
+        crate::mir::PlacementEffectStringProof::BorrowedSlice { source, start, end } => {
+            StringCorridorCandidateProof::BorrowedSlice { source, start, end }
+        }
+        crate::mir::PlacementEffectStringProof::ConcatTriplet {
+            left_value,
+            left_source,
+            left_start,
+            left_end,
+            middle,
+            right_value,
+            right_source,
+            right_start,
+            right_end,
+            shared_source,
+        } => StringCorridorCandidateProof::ConcatTriplet {
+            left_value,
+            left_source,
+            left_start,
+            left_end,
+            middle,
+            right_value,
+            right_source,
+            right_start,
+            right_end,
+            shared_source,
+        },
+    };
+    if !matches!(proof, StringCorridorCandidateProof::ConcatTriplet { .. }) {
+        return None;
+    }
+    Some(StringCorridorCandidatePlan {
+        corridor_root: route.value.unwrap_or(root),
+        source_root: route.source_value,
+        start: route.window_start,
+        end: route.window_end,
+        known_length: None,
+        proof,
+    })
 }
 
 pub(super) fn corridor_helper_shape(

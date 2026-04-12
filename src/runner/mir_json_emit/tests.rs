@@ -743,6 +743,11 @@ fn build_mir_json_root_emits_placement_effect_routes() {
             source_value: None,
             window_start: Some(crate::mir::ValueId::new(2)),
             window_end: Some(crate::mir::ValueId::new(3)),
+            string_proof: Some(crate::mir::PlacementEffectStringProof::BorrowedSlice {
+                source: crate::mir::ValueId::new(1),
+                start: crate::mir::ValueId::new(2),
+                end: crate::mir::ValueId::new(3),
+            }),
             source: crate::mir::PlacementEffectSource::StringCorridor,
             subject: "string.value%11".to_string(),
             decision: crate::mir::PlacementEffectDecision::PublishHandle,
@@ -760,6 +765,7 @@ fn build_mir_json_root_emits_placement_effect_routes() {
             source_value: Some(crate::mir::ValueId::new(9)),
             window_start: None,
             window_end: None,
+            string_proof: None,
             source: crate::mir::PlacementEffectSource::SumPlacement,
             subject: "Option::Some".to_string(),
             decision: crate::mir::PlacementEffectDecision::LocalAggregate,
@@ -777,6 +783,7 @@ fn build_mir_json_root_emits_placement_effect_routes() {
             source_value: None,
             window_start: None,
             window_end: None,
+            string_proof: None,
             source: crate::mir::PlacementEffectSource::AggLocalScalarization,
             subject: "Point.x".to_string(),
             decision: crate::mir::PlacementEffectDecision::LocalAggregate,
@@ -794,6 +801,7 @@ fn build_mir_json_root_emits_placement_effect_routes() {
             source_value: None,
             window_start: None,
             window_end: None,
+            string_proof: None,
             source: crate::mir::PlacementEffectSource::ThinEntry,
             subject: "Point.x".to_string(),
             decision: crate::mir::PlacementEffectDecision::ThinInternalEntry,
@@ -813,11 +821,14 @@ fn build_mir_json_root_emits_placement_effect_routes() {
     assert_eq!(routes[0]["decision"], "publish_handle");
     assert_eq!(routes[0]["window_start"], 2);
     assert_eq!(routes[0]["window_end"], 3);
+    assert_eq!(routes[0]["string_proof"]["kind"], "borrowed_slice");
+    assert_eq!(routes[0]["string_proof"]["source"], 1);
     assert_eq!(routes[1]["source"], "sum_placement");
     assert_eq!(routes[1]["state"], "selected");
     assert_eq!(routes[1]["source_value"], 9);
     assert!(routes[1]["window_start"].is_null());
     assert!(routes[1]["window_end"].is_null());
+    assert!(routes[1]["string_proof"].is_null());
     assert_eq!(routes[2]["source"], "agg_local_scalarization");
     assert_eq!(routes[2]["decision"], "local_aggregate");
     assert_eq!(routes[3]["source"], "thin_entry");
