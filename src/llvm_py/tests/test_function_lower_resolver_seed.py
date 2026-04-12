@@ -18,7 +18,9 @@ class _ResolverStub:
         self.integerish_ids = None
         self.array_ids = None
         self.string_ids = None
+        self.thin_entry_selection_by_value = {}
         self.thin_entry_selection_by_subject = {}
+        self.thin_entry_selections = []
         self.user_box_local_aggregate_layouts = {}
 
 
@@ -159,6 +161,90 @@ class TestFunctionLowerResolverSeed(unittest.TestCase):
             "user_box_field_get.inline_scalar",
         )
         self.assertNotIn(None, builder.resolver.thin_entry_selection_by_value)
+
+    def test_load_thin_entry_selection_metadata_reads_placement_effect_routes_first(self):
+        builder = _BuilderStub()
+        func_data = {
+            "metadata": {
+                "placement_effect_routes": [
+                    {
+                        "source": "thin_entry",
+                        "value": 18,
+                        "subject": "Point.length",
+                        "decision": "thin_internal_entry",
+                        "state": "candidate",
+                        "detail": "user_box_method.known_receiver",
+                    },
+                    {
+                        "source": "thin_entry",
+                        "value": None,
+                        "subject": "Point.x",
+                        "decision": "thin_internal_entry",
+                        "state": "already_satisfied",
+                        "detail": "user_box_field_get.inline_scalar",
+                    },
+                    {
+                        "source": "agg_local_scalarization",
+                        "value": 99,
+                        "subject": "Point.x",
+                        "decision": "local_aggregate",
+                        "detail": "user_box_local_body(inline_i64)",
+                    },
+                ]
+            }
+        }
+
+        function_lower._load_thin_entry_selection_metadata(builder, func_data)
+
+        self.assertEqual(len(builder.resolver.thin_entry_selections), 2)
+        self.assertEqual(builder.resolver.thin_entry_selection_by_value[18][0]["surface"], "user_box_method")
+        self.assertEqual(
+            builder.resolver.thin_entry_selection_by_subject[("user_box_method", "Point.length")][0]["manifest_row"],
+            "user_box_method.known_receiver",
+        )
+        self.assertEqual(
+            builder.resolver.thin_entry_selection_by_subject[("user_box_field_get", "Point.x")][0]["selected_entry"],
+            "thin_internal_entry",
+        )
+
+    def test_load_thin_entry_selection_metadata_keeps_legacy_rows_as_fallback(self):
+        builder = _BuilderStub()
+        func_data = {
+            "metadata": {
+                "placement_effect_routes": [
+                    {
+                        "source": "thin_entry",
+                        "value": 18,
+                        "subject": "Point.length",
+                        "decision": "thin_internal_entry",
+                        "state": "candidate",
+                        "detail": "user_box_method.known_receiver",
+                    }
+                ],
+                "thin_entry_selections": [
+                    {
+                        "surface": "user_box_field_get",
+                        "value": None,
+                        "subject": "Point.x",
+                        "manifest_row": "user_box_field_get.inline_scalar",
+                        "selected_entry": "thin_internal_entry",
+                        "state": "already_satisfied",
+                    }
+                ],
+            }
+        }
+
+        function_lower._load_thin_entry_selection_metadata(builder, func_data)
+
+        self.assertEqual(len(builder.resolver.thin_entry_selections), 2)
+        self.assertEqual(
+            builder.resolver.thin_entry_selection_by_subject[("user_box_method", "Point.length")][0]["manifest_row"],
+            "user_box_method.known_receiver",
+        )
+        self.assertEqual(
+            builder.resolver.thin_entry_selection_by_subject[("user_box_field_get", "Point.x")][0]["manifest_row"],
+            "user_box_field_get.inline_scalar",
+        )
 
     def test_seed_resolver_fact_sets_syncs_context_and_resolver(self):
         builder = _BuilderStub()

@@ -19,6 +19,7 @@ Owner: `phase-163x optimization-resume`
    - landed fold-up follow-on: placement-relevant `agg_local` proof also reads through `placement_effect_routes` (`phase212x`)
    - landed first consumer proving slice: current sum outer-box sinking now seeds from `placement_effect_routes` first (`phase213x`)
    - landed second consumer proving slice: current user-box local aggregate seed now reads folded `placement_effect_routes` first, with thin-entry subject lookup kept as fallback (`phase214x`)
+   - landed third consumer proving slice: current thin-entry consumer seed now reads folded `placement_effect_routes` first, with `thin_entry_selections` kept as fallback (`phase215x`)
 2. `agg_local scalarization`
    - `imm / borrow / agg_local / handle` の primary value classes を前提に、aggregate を scalar SSA に崩す
    - user-box local body / enum payload / tuple / record / closure env を同じ軸で扱う

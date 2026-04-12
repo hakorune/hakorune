@@ -6,6 +6,7 @@
 
 - **Current (ACTIVE)**: Phase 163x primitive and user-box fast path
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
+- **Phase 215x（LANDED）**: thin-entry consumer seed
 - **Phase 214x（LANDED）**: user-box local body consumer seed
 - **Phase 213x（LANDED）**: sum outer-box sinking consumer seed
 - **Phase 212x（LANDED）**: placement/effect agg-local fold-up
@@ -122,6 +123,7 @@
 
 ### Recent Landed
 
+- **Phase 215x（LANDED）**: thin-entry consumer seed
 - **Phase 214x（LANDED）**: user-box local body consumer seed
 - **Phase 213x（LANDED）**: sum outer-box sinking consumer seed
 - **Phase 212x（LANDED）**: placement/effect agg-local fold-up

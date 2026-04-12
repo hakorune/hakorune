@@ -39,6 +39,7 @@ Related:
   - `phase-212x`: the folded placement/effect inventory now also reads placement-relevant `agg_local` proof, while storage-only routes stay agg-local-only
   - `phase-213x`: the first generic placement/effect consumer proving slice is landed; current sum lowering now seeds local aggregate routes from the folded inventory first
   - `phase-214x`: the second generic placement/effect consumer proving slice is landed; current user-box local aggregate seeding now reads the folded inventory first
+  - `phase-215x`: the third generic placement/effect consumer proving slice is landed; current thin-entry consumer seeding now reads the folded inventory first
   - landed generic-memory facts follow-on:
   - `phase-199x` is landed
   - lane-B observer/owner contract is fixed before any generic `Load` / `Store` pruning
