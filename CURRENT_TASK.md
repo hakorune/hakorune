@@ -46,7 +46,7 @@ Scope: current lane / next lane / restart order only.
 - implementation lane:
   - `docs/development/current/main/phases/phase-163x/README.md`
 - next layer landing:
-  - `docs/development/current/main/phases/phase-229x/README.md`
+  - `docs/development/current/main/phases/phase-230x/README.md`
 - roadmap SSOT:
   - `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 - string guardrail owner:
@@ -58,7 +58,7 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Notes
 
-- `phase-229x` is landed: the semantic simplification bundle now widens bridge merge to accept dead jump edge-args when the middle block has no PHIs
+- `phase-230x` is landed: the semantic simplification bundle now absorbs bridge blocks that only carry trivial single-input PHIs from the sole predecessor
 - the next code lane is now `semantic simplification bundle`
 - `CURRENT_TASK.md` is the only live status pointer; `05/10/15` are thin mirrors only
 - if this file grows again, move the detail back into the phase docs
