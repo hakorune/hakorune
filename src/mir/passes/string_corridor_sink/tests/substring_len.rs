@@ -645,7 +645,7 @@ fn fuses_complementary_substring_len_pair_with_entry_len_and_duplicated_const_so
     assert_eq!(plans.get(&BasicBlockId(19)).map(Vec::len), Some(1));
 
     let function = module.get_function_mut("main").expect("main");
-    let rewritten = sink_borrowed_string_corridors_in_function(function);
+    let rewritten = apply_string_corridor_pre_dce_transforms(function);
     assert_eq!(rewritten, 1);
 
     let function = module.get_function("main").expect("main");

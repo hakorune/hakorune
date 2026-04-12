@@ -25,10 +25,11 @@ Related:
 
 - design owners:
   - implementation lane: `docs/development/current/main/phases/phase-163x/README.md`
-  - next layer landing: `docs/development/current/main/phases/phase-225x/README.md`
+  - next layer landing: `docs/development/current/main/phases/phase-226x/README.md`
   - roadmap SSOT: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
 - landed anchors:
+  - `phase-226x`: the top-level placement/effect owner seam now owns optimizer-visible string transform scheduling, while `string_corridor_sink` stays function-local
   - `phase-225x`: optimizer pre/post-DCE placement/effect hooks now run through one generic transform owner seam, delegating to the landed string corridor sink
   - `phase-224x`: publication/materialization helper proof lookup now reads folded `placement_effect_routes` string proof first, with legacy candidates kept as fallback
   - `phase-223x`: same-block substring-len MIR sink now reads folded route windows first, with legacy facts kept as fallback

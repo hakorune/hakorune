@@ -46,12 +46,20 @@ use shared::*;
 pub fn sink_borrowed_string_corridors(module: &mut MirModule) -> usize {
     let mut rewritten = 0usize;
     for (_name, function) in &mut module.functions {
-        rewritten += sink_borrowed_string_corridors_in_function(function);
+        rewritten += apply_string_corridor_pre_dce_transforms(function);
     }
     rewritten
 }
 
-fn sink_borrowed_string_corridors_in_function(function: &mut MirFunction) -> usize {
+pub(crate) fn apply_string_corridor_pre_dce_transforms(function: &mut MirFunction) -> usize {
+    apply_string_corridor_transforms(function)
+}
+
+pub(crate) fn apply_string_corridor_post_dce_transforms(function: &mut MirFunction) -> usize {
+    apply_string_corridor_transforms(function)
+}
+
+fn apply_string_corridor_transforms(function: &mut MirFunction) -> usize {
     refresh_function_string_corridor_folded_metadata(function);
 
     let def_map = build_value_def_map(function);
@@ -95,7 +103,7 @@ fn sink_borrowed_string_corridors_in_function(function: &mut MirFunction) -> usi
     rewritten
 }
 
-fn refresh_function_string_corridor_folded_metadata(function: &mut MirFunction) {
+pub(crate) fn refresh_function_string_corridor_folded_metadata(function: &mut MirFunction) {
     refresh_function_string_corridor_metadata(function);
     refresh_function_placement_effect_routes(function);
     refresh_function_string_kernel_plans(function);

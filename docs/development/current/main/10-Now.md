@@ -23,12 +23,15 @@ Related:
   - optimizer pre/post-DCE placement/effect hooks now run through one generic transform owner seam
   - `phase224x` string helper proof fold stays the first delegated transform under that seam
   - retained and same-block route-window sinks from `phase222x` / `phase223x` remain intact
+- `phase226x` is landed:
+  - `placement_effect_transform` now owns optimizer-visible string transform scheduling
+  - `string_corridor_sink` stays the function-local family owner
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-225x/README.md`
+3. `docs/development/current/main/phases/phase-226x/README.md`
 4. `docs/development/current/main/phases/phase-163x/README.md`
 5. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 

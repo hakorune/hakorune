@@ -7,6 +7,7 @@
 - **Current (ACTIVE)**: Phase 163x primitive and user-box fast path
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
 - **Phase 225x（LANDED）**: generic placement-effect transform owner seam
+- **Phase 226x（LANDED）**: placement-effect string scheduling owner cut
 - **Phase 224x（LANDED）**: placement-effect string proof helper fold
 - **Phase 223x（LANDED）**: same-block substring len route-window sink
 - **Phase 222x（LANDED）**: retained substring len route-window sink

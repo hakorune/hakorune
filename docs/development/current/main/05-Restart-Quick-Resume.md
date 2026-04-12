@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-12
+Date: 2026-04-13
 Scope: 再起動直後に 2〜5 分で current lane に戻るための最短手順。
 Related:
   - CURRENT_TASK.md
@@ -28,6 +28,7 @@ tools/checks/dev_gate.sh quick
   - `phase-220x placement-effect route-window len helper cleanup`
   - `phase-224x placement-effect string proof helper fold`
   - `phase-225x generic placement-effect transform owner seam`
+  - `phase-226x placement-effect string scheduling owner cut`
 - immediate next:
   - `generic placement / effect`
 - immediate follow-on:
@@ -47,10 +48,11 @@ tools/checks/dev_gate.sh quick
 6. `docs/development/current/main/phases/phase-223x/README.md`
 7. `docs/development/current/main/phases/phase-224x/README.md`
 8. `docs/development/current/main/phases/phase-225x/README.md`
-9. `docs/development/current/main/phases/phase-163x/README.md`
-10. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
-11. `docs/development/current/main/phases/phase-137x/README.md`
-12. `docs/development/current/main/phases/phase-210x/README.md`
+9. `docs/development/current/main/phases/phase-226x/README.md`
+10. `docs/development/current/main/phases/phase-163x/README.md`
+11. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
+12. `docs/development/current/main/phases/phase-137x/README.md`
+13. `docs/development/current/main/phases/phase-210x/README.md`
 
 ## Current Evidence
 
@@ -69,6 +71,8 @@ tools/checks/dev_gate.sh quick
     - publication/materialization helper proof lookup now reads folded `placement_effect_routes` string proof first
   - `phase-225x`
     - optimizer pre/post-DCE placement/effect hooks now run through one generic transform owner seam
+  - `phase-226x`
+    - top-level placement/effect owner seam now owns optimizer-visible string transform scheduling while string family logic stays function-local
 - semantic simplification bundle is landed through DCE lane A2:
   - `phase-176x`
   - `phase-177x`
