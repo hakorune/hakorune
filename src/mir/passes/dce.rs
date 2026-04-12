@@ -201,13 +201,99 @@ fn collect_overwritten_local_field_sets(
     local_reads: &LocalReadInfo,
 ) -> HashSet<(crate::mir::BasicBlockId, usize)> {
     let mut removable = HashSet::new();
+    let predecessors = crate::mir::verification::utils::compute_predecessors(function);
+    let dominators = crate::mir::verification::utils::compute_dominators(function);
+    let mut linear_successors: HashMap<crate::mir::BasicBlockId, crate::mir::BasicBlockId> =
+        HashMap::new();
+
+    for (bid, block) in &function.blocks {
+        if !reachable_blocks.contains(bid) {
+            continue;
+        }
+        let reachable_successors: Vec<_> = block
+            .successors
+            .iter()
+            .copied()
+            .filter(|succ| reachable_blocks.contains(succ))
+            .collect();
+        if reachable_successors.len() != 1 {
+            continue;
+        }
+        let succ = reachable_successors[0];
+        let reachable_predecessors = predecessors
+            .get(&succ)
+            .map(|preds| {
+                preds
+                    .iter()
+                    .copied()
+                    .filter(|pred| reachable_blocks.contains(pred))
+                    .collect::<Vec<_>>()
+            })
+            .unwrap_or_default();
+        if reachable_predecessors.len() != 1 || reachable_predecessors[0] != *bid {
+            continue;
+        }
+        if dominators.dominates(succ, *bid) {
+            continue;
+        }
+        linear_successors.insert(*bid, succ);
+    }
+
+    let mut pending_entry_writes: HashMap<crate::mir::BasicBlockId, HashSet<(ValueId, String)>> =
+        HashMap::new();
+    let mut changed = true;
+    while changed {
+        changed = false;
+        for (bid, block) in &function.blocks {
+            if !reachable_blocks.contains(bid) {
+                continue;
+            }
+
+            let mut pending_writes = linear_successors
+                .get(bid)
+                .and_then(|succ| pending_entry_writes.get(succ).cloned())
+                .unwrap_or_default();
+
+            for instruction in block.instructions.iter().rev() {
+                match instruction {
+                    crate::mir::MirInstruction::FieldSet { base, field, .. } => {
+                        let Some(root) = local_reads.resolve_local_root(*base) else {
+                            continue;
+                        };
+                        pending_writes.insert((root, field.clone()));
+                    }
+                    crate::mir::MirInstruction::FieldGet { base, field, .. } => {
+                        if let Some(root) = local_reads.resolve_local_root(*base) {
+                            pending_writes.remove(&(root, field.clone()));
+                        }
+                    }
+                    _ => {}
+                }
+
+                for use_site in classify_escape_uses(instruction) {
+                    if let Some(root) = local_reads.resolve_local_root(use_site.value) {
+                        pending_writes.retain(|(pending_root, _)| *pending_root != root);
+                    }
+                }
+            }
+
+            let entry = pending_entry_writes.entry(*bid).or_default();
+            if *entry != pending_writes {
+                *entry = pending_writes;
+                changed = true;
+            }
+        }
+    }
 
     for (bid, block) in &function.blocks {
         if !reachable_blocks.contains(bid) {
             continue;
         }
 
-        let mut pending_writes: HashSet<(ValueId, String)> = HashSet::new();
+        let mut pending_writes = linear_successors
+            .get(bid)
+            .and_then(|succ| pending_entry_writes.get(succ).cloned())
+            .unwrap_or_default();
         for (idx, instruction) in block.instructions.iter().enumerate().rev() {
             match instruction {
                 crate::mir::MirInstruction::FieldSet { base, field, .. } => {
@@ -1306,6 +1392,189 @@ mod tests {
             .filter(|inst| matches!(inst, MirInstruction::FieldSet { .. }))
             .count();
         assert_eq!(field_sets, 2);
+    }
+
+    #[test]
+    fn test_dce_prunes_overwritten_local_field_set_across_linear_edge() {
+        let mut module = MirModule::new("dce_test".to_string());
+
+        let sig = FunctionSignature {
+            name: "test/0".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        let mut func = MirFunction::new(sig, BasicBlockId(0));
+        func.blocks
+            .insert(BasicBlockId(1), BasicBlock::new(BasicBlockId(1)));
+
+        let v_box = ValueId(1);
+        let v_old = ValueId(2);
+        let v_new = ValueId(3);
+        let v_read = ValueId(4);
+
+        {
+            let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
+            bb0.instructions.push(MirInstruction::NewBox {
+                dst: v_box,
+                box_type: "Point".to_string(),
+                args: vec![],
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Const {
+                dst: v_old,
+                value: ConstValue::Integer(1),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::FieldSet {
+                base: v_box,
+                field: "child".to_string(),
+                value: v_old,
+                declared_type: Some(MirType::Integer),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.set_terminator(MirInstruction::Jump {
+                target: BasicBlockId(1),
+                edge_args: None,
+            });
+            bb0.successors.insert(BasicBlockId(1));
+        }
+
+        {
+            let bb1 = func.blocks.get_mut(&BasicBlockId(1)).unwrap();
+            bb1.predecessors.insert(BasicBlockId(0));
+            bb1.instructions.push(MirInstruction::Const {
+                dst: v_new,
+                value: ConstValue::Integer(2),
+            });
+            bb1.instruction_spans.push(Span::unknown());
+            bb1.instructions.push(MirInstruction::FieldSet {
+                base: v_box,
+                field: "child".to_string(),
+                value: v_new,
+                declared_type: Some(MirType::Integer),
+            });
+            bb1.instruction_spans.push(Span::unknown());
+            bb1.instructions.push(MirInstruction::FieldGet {
+                dst: v_read,
+                base: v_box,
+                field: "child".to_string(),
+                declared_type: Some(MirType::Integer),
+            });
+            bb1.instruction_spans.push(Span::unknown());
+            bb1.set_terminator(MirInstruction::Return {
+                value: Some(v_read),
+            });
+        }
+
+        module.add_function(func);
+
+        eliminate_dead_code(&mut module);
+
+        let func = module.get_function("test/0").unwrap();
+        let bb0 = func.blocks.get(&BasicBlockId(0)).unwrap();
+        assert!(!bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::FieldSet { .. })));
+        let bb1 = func.blocks.get(&BasicBlockId(1)).unwrap();
+        assert!(bb1.instructions.iter().any(|inst| {
+            matches!(
+                inst,
+                MirInstruction::FieldSet { value, .. } if *value == v_new
+            )
+        }));
+        assert!(bb1.instructions.iter().any(|inst| {
+            matches!(
+                inst,
+                MirInstruction::FieldGet { dst, .. } if *dst == v_read
+            )
+        }));
+    }
+
+    #[test]
+    fn test_dce_keeps_cross_block_local_field_set_when_successor_reads_before_overwrite() {
+        let mut module = MirModule::new("dce_test".to_string());
+
+        let sig = FunctionSignature {
+            name: "test/0".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        let mut func = MirFunction::new(sig, BasicBlockId(0));
+        func.blocks
+            .insert(BasicBlockId(1), BasicBlock::new(BasicBlockId(1)));
+
+        let v_box = ValueId(1);
+        let v_old = ValueId(2);
+        let v_new = ValueId(3);
+        let v_read = ValueId(4);
+
+        {
+            let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
+            bb0.instructions.push(MirInstruction::NewBox {
+                dst: v_box,
+                box_type: "Point".to_string(),
+                args: vec![],
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Const {
+                dst: v_old,
+                value: ConstValue::Integer(1),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::FieldSet {
+                base: v_box,
+                field: "child".to_string(),
+                value: v_old,
+                declared_type: Some(MirType::Integer),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.set_terminator(MirInstruction::Jump {
+                target: BasicBlockId(1),
+                edge_args: None,
+            });
+            bb0.successors.insert(BasicBlockId(1));
+        }
+
+        {
+            let bb1 = func.blocks.get_mut(&BasicBlockId(1)).unwrap();
+            bb1.predecessors.insert(BasicBlockId(0));
+            bb1.instructions.push(MirInstruction::FieldGet {
+                dst: v_read,
+                base: v_box,
+                field: "child".to_string(),
+                declared_type: Some(MirType::Integer),
+            });
+            bb1.instruction_spans.push(Span::unknown());
+            bb1.instructions.push(MirInstruction::Const {
+                dst: v_new,
+                value: ConstValue::Integer(2),
+            });
+            bb1.instruction_spans.push(Span::unknown());
+            bb1.instructions.push(MirInstruction::FieldSet {
+                base: v_box,
+                field: "child".to_string(),
+                value: v_new,
+                declared_type: Some(MirType::Integer),
+            });
+            bb1.instruction_spans.push(Span::unknown());
+            bb1.set_terminator(MirInstruction::Return {
+                value: Some(v_read),
+            });
+        }
+
+        module.add_function(func);
+
+        eliminate_dead_code(&mut module);
+
+        let func = module.get_function("test/0").unwrap();
+        let bb0 = func.blocks.get(&BasicBlockId(0)).unwrap();
+        assert!(bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::FieldSet { .. })));
     }
 
     #[test]
