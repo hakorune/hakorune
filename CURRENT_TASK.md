@@ -37,7 +37,9 @@ Scope: repo root から current lane / current front / restart read order に最
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
 - current implementation phase:
   - `docs/development/current/main/phases/phase-163x/README.md`
-  - optimization snapshot: see `docs/development/current/main/10-Now.md` for the row-by-row done / partial / backlog split; `phase137x` stays active as the sibling guardrail lane, and `phase165x` / `phase166x` are landed structural cuts inside `phase163x-optimization-resume`
+  - optimization snapshot: see `docs/development/current/main/10-Now.md` for the layer-based done / partial / backlog split; `phase137x` stays active as the sibling guardrail lane, `phase165x` / `phase166x` are landed structural cuts inside `phase163x-optimization-resume`, and `phase195x` fixes the new roadmap wording
+- optimization roadmap design owner:
+  - `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 - active escape barrier sub-corridor:
   - `docs/development/current/main/phases/phase-165x/README.md`
   - phase-165x is landed; operand-role escape classification now stays in MIR authority and remains separate from both `used_values()` and backend/runtime helper logic

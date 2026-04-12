@@ -106,14 +106,16 @@ Related:
   - landed DCE structure follow-on: `phase192x DCE pass module split`
     - `src/mir/passes/dce.rs` is now a thin facade over focused implementation modules and topic tests
     - next semantic work stays lane-A2; this cut does not widen DCE behavior
-  - row status:
-    - `3 User-Box Method Dispatch`: mostly done; narrow known-receiver consumer and the direct-route determinism repair are landed, broader generic parity backlog remains
-    - `4 Array Typed Slots 拡大`: partial; narrow typed-slot pilots landed, read-side expansion backlog remains
-    - `5 MapBox Typed Value Slots`: backlog
-    - `6 DCE 強化`: partial; first reachable-only cross-block cut is landed in `phase176x`, first effect-sensitive `KeepAlive` pruning is landed in `phase177x`, the first generic no-dst pure cleanup slice is landed in `phase181x`, unreachable block pruning is landed in `phase182x`, pure no-dst `Call` pruning is landed in `phase183x`, dead local `FieldGet` read pruning is landed in `phase184x`, dead local `FieldSet` write pruning is landed in `phase185x`, same-root phi local field pruning is landed in `phase186x`, same-block overwritten local field-set pruning is landed in `phase187x`, cross-block linear-edge overwritten local field-set pruning is landed in `phase188x`, merge-entry overwritten local field-set pruning is landed in `phase189x`, `phase190x` now freezes the remaining backlog into local-loop, generic-memory, and observer/control lanes, `phase191x` lands lane-A1 as the loop-carried same-root local field prune contract, and `phase192x` lands the BoxShape split of `src/mir/passes/dce.rs`; adjacent string structure cleanup is also landed in `phase193x` as the split of `src/mir/passes/string_corridor_sink.rs`
-    - `7 LLVM Escape Analysis`: partial; Copy + one-input-phi-carry aware local barrier elision and the `phase165x` operand-role escape barrier vocabulary cut are landed, broader generic escape analysis backlog remains
-    - `8 Float 最適化`: partial; narrow FloatBox pilot landed, broader tuning backlog
-    - `9 Closure/Lambda 最適化`: backlog
+  - layer roadmap status:
+    - `1 generic placement / effect`: partial; string corridor candidates, sum placement chains, and thin-entry inventory/selection are landed as pilot scaffolds, but the top-level generic transform layer is still backlog
+    - `2 agg_local scalarization`: partial; selected sum local layouts, selected user-box local bodies, and ArrayBox typed-slot pilots are landed, while broader aggregate scalarization remains backlog
+    - `3 thin-entry actual consumer switch`: partial; known-receiver user-box method routes are the first landed actual-consumer slice, while broader thin-entry consumer switching remains backlog
+    - `4 semantic simplification bundle`: partial; current DCE work is landed through `phase176x` / `phase177x` / `phase181x` / `phase182x` / `phase183x` / `phase184x` / `phase185x` / `phase186x` / `phase187x` / `phase188x` / `phase189x` / `phase190x` / `phase191x` / `phase192x`, but `SCCP`, `SimplifyCFG`, and jump-threading remain backlog; keep `DSE` out of this row
+    - `5 memory-effect layer`: backlog; generic `Store` / `Load`, dead-store elimination, store-to-load forwarding, redundant load elimination, and hoist/sink legality have not started as a dedicated layer yet
+    - `6 escape / barrier -> LLVM attrs`: partial; Copy + one-input-phi-carry aware local barrier elision and the `phase165x` operand-role escape barrier vocabulary cut are landed, but attribute feed (`nocapture` / `readonly` / `readnone` / `noalias`) remains backlog
+    - `7 numeric loop / SIMD`: partial; narrow FloatBox groundwork is landed, while induction/reduction/vectorization and fast-math tuning remain backlog
+    - `8 closure split`: backlog; `capture classification`, `closure env scalarization`, and `closure thin-entry specialization` are still unscheduled
+    - `9 IPO / build-time optimization`: backlog; `PGO` / `ThinLTO` stay last after the MIR-side semantic layers are stronger
   - next optimization resume after the active string seam cleanup cut: `phase163x-optimization-resume`
   - fixed structure order before more domain widening:
     1. `phase166x` semantic refresh owner

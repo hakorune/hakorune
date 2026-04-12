@@ -18,8 +18,8 @@ Related:
 | Front | `lifecycle value parent locked -> audits landed -> thin-entry inventory/selection landed -> sum placement pilot landed -> ny-llvmc parity proving slice landed -> tuple compat transport landed` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
 | Blocker | `canonical multi-slot sum remains deferred; current tuple route stays compat-boxed` |
-| Next | `broader DCE no-dst/effect-sensitive cleanup` |
-| After Next | `where / enum methods / monomorphization stay backlog-only` |
+| Next | `semantic simplification bundle lane A2 (loop/backedge overwritten local field-set widening)` |
+| After Next | `generic placement/effect -> agg_local scalarization` |
 
 ## Current Read
 
@@ -36,6 +36,10 @@ Related:
 - landed optimization structure follow-on:
   - `phase-166x` completed the structural cleanup corridor
   - landed order is `semantic refresh owner -> generic value_origin / phi_relation owner -> compat semantic recovery quarantine -> boundary/lifecycle extraction decision`
+- landed roadmap regroup follow-on:
+  - `phase-195x` is landed
+  - top-level optimization order is now read as design layers, not mixed pilot rows
+  - design owner: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 - landed optimization stability follow-on:
   - `phase-167x` repaired user-box method sealing/determinism inside the MIR builder
   - instance methods now go through the shared finalize owner and seed receiver `Box(...)` metadata before known-receiver canonicalization; deterministic lexical traversal is kept as supporting structure

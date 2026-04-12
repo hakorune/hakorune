@@ -215,92 +215,34 @@
         - `phase-177x` is now landed too: redundant reachable `KeepAlive { values }` now disappear without widening into generic no-dst cleanup
         - `phase-181x` is now landed too: reachable `Safepoint` no-op instructions disappear as the first generic no-dst pure cleanup slice, while `Debug` and terminators stay outside this cut
         - `phase-182x` is now landed too: unreachable blocks are pruned after DCE liveness stabilizes, so dead CFG fragments no longer hang around in the live function map
-      - verified non-Variant optimization order after this parity wave:
-        1. broader string corridor placement/effect rewrite
-           - `src/mir/string_corridor_placement.rs` is still inspection-only in this wave
-           - use the already-landed candidate vocabulary as the contract for the next real transform family:
-             - `borrowed_corridor_fusion`
-             - `publication_sink`
-             - `materialization_sink`
-             - `direct_kernel_entry`
-        1. broader partial/effect-sensitive DCE after the landed `phase-176x` reachability cut
-           - `phase-177x` first target = redundant reachable `KeepAlive` pruning (now landed)
-           - `phase-181x` first target = `Safepoint` no-op pruning (now landed)
-           - keep it separate from block pruning
-           - do not mix it with unreachable-block deletion; generic no-dst cleanup remains later
-        2. actual-consumer switch for selected user-box thin entries that are still metadata-only today
-           - `thin_entry_selection` already inventories `user_box_method.known_receiver`
-           - keep this beneath canonical `Call`; do not widen surface syntax or add a public MIR dialect fork
-           - landed first LLVM/Python consumer slice:
-             - `mir_call.method_call` now checks `user_box_method.known_receiver` selector rows before the legacy direct known-box fallback
-             - when the selector says `thin_internal_entry`, lowering takes a dedicated thin-known-receiver direct route while keeping the old direct known-box call as compatibility fallback
-           - landed canonical callsite rewrite too:
-             - `callsite_canonicalize` rewrites known user-box receiver calls from `RuntimeDataBox`/union and `Global <Box>.<method>/<arity>` into canonical known `Call(Method{box_name=<Box>, certainty=Known, box_kind=UserDefined})`
-             - `phase163x_direct_emit_user_box_counter_step_contract.sh` now pins the current direct-route `Counter.step` contract on `bench_kilo_micro_userbox_counter_step.hako`
-           - landed first native-driver/shim boundary pure-first consumer slice too:
-             - `phase163x_boundary_user_box_method_known_receiver_min.sh` now pins metadata-bearing `Counter.step`, `Counter.step_chain`, and `Point.sum` fixtures on the owner lane without compat replay
-             - the current shim consumer stays local-i64 + known-receiver narrow and consumes `user_box_method.known_receiver` together with the matching scalar field selections, including one local receiver-copy alias and the one-hop recursive delegate
-           - first measured local-method keeper is now landed:
-             - `bench_kilo_micro_userbox_counter_step.hako` + `benchmarks/c/bench_kilo_micro_userbox_counter_step.c`
-             - the narrow `Counter.step` pure-first micro seed now collapses the exact bench to `ny_main = mov $0x52041ab, %eax ; ret`
-             - latest exact reread: `kilo_micro_userbox_counter_step` = `c_instr=127,242 / c_cycles=208,224 / c_ms=3` vs `ny_aot_instr=465,881 / ny_aot_cycles=794,663 / ny_aot_ms=3`
-           - second measured local-method keeper is now landed:
-             - `bench_kilo_micro_userbox_point_sum.hako` + `benchmarks/c/bench_kilo_micro_userbox_point_sum.c`
-             - `phase163x_direct_emit_user_box_point_sum_contract.sh` now pins the current direct-route `Point.sum` contract on the known-receiver lane
-             - the narrow `Point.sum` pure-first micro seed now collapses the exact bench to `ny_main = mov $0x5b8d83, %eax ; ret`
-             - latest exact reread: `kilo_micro_userbox_point_sum` = `c_instr=127,235 / c_cycles=216,542 / c_ms=3` vs `ny_aot_instr=465,837 / ny_aot_cycles=1,127,654 / ny_aot_ms=3`
-           - recursive one-hop delegate keeper is now landed:
-             - `benchmarks/bench_kilo_micro_userbox_counter_step_chain.hako` + `benchmarks/c/bench_kilo_micro_userbox_counter_step_chain.c`
-             - `phase163x_direct_emit_user_box_counter_step_chain_contract.sh` now pins the current direct-route `Counter.step_chain` contract on the known-receiver lane
-             - the narrow `Counter.step_chain` pure-first micro seed remains the intended exact route, but current exact build/asm has a separate backend-seed stop-line and must not be treated as proven by the direct-route repair alone
-           - direct-route determinism repair is now landed too:
-             - `phase-167x` routes instance methods through the shared `finalize_function()` owner, seeds receiver `Box(...)` metadata at the parameter boundary, and keeps deterministic lexical member traversal as supporting structure
-             - `Counter.step_chain` direct lowering now stays on canonical known-receiver `Method` shape in repeated release direct probes (`6/6`)
-             - the separate pure-first/backend exact stop-line is now closed by `phase-168x`, which refreshed the stale seed/smoke forwarding expectation to the current narrow body
-           - exact-route refresh follow-on is now active:
-             - `phase-168x` refreshed the stale seed/smoke expectation that `Counter.step_chain/0` still forwarded through two receiver copies
-             - exact build/asm is green again and the current `ny_main` snippet stays `mov $0x2b, %eax ; ret`
-           - first broader boundary parity widening is now landed:
-             - `apps/tests/mir_shape_guard/user_box_point_sum_local_i64_min.prebuilt.mir.json` now proves the direct local-i64 `Point.sum` known-receiver shape without relying on the benchmark loop body
-             - `phase163x_boundary_user_box_method_known_receiver_min.sh` now keeps both known-receiver fixtures green on boundary `pure-first` without compat replay
-           - single-copy receiver alias widening is now landed too:
-             - `apps/tests/mir_shape_guard/user_box_counter_step_copy_local_i64_min.prebuilt.mir.json`
-             - `apps/tests/mir_shape_guard/user_box_point_sum_copy_local_i64_min.prebuilt.mir.json`
-             - `phase163x_boundary_user_box_method_known_receiver_min.sh` now keeps the same known-receiver contract green when the receiver flows through one local `copy`
-           - keep further local-method widening separate from `ArrayBox` read-side observer evidence
-        4. `ArrayBox` typed-slot expansion beyond the landed `InlineI64` pilot
-           - landed next narrow slices: `InlineBool` / `InlineF64` birth/preserve on existing `slot_store_hih` / `slot_append_hh` any routes
-           - current stop-line: keep read-side on encoded-any `slot_load_hi`; do not add a new typed load row without measured observer evidence (`kilo_micro_array_getset` still does not justify it)
-        5. backlog-only after the above:
-           - stronger cross-block / partial DCE beyond current pure-instruction DCE
-           - `phase-182x` is now landed as separate CFG pruning, so the remaining DCE backlog is the effect-sensitive / no-dst widening after that structural cleanup
-           - `phase-183x` is now landed as the pure no-dst call pruning slice, so the remaining DCE backlog is the effect-sensitive widening after that generic no-dst cleanup
-           - `phase-184x` is now landed as the local dead `FieldGet` read pruning slice on definitely non-escaping local boxes
-           - `phase-185x` is now landed as the local dead `FieldSet` write pruning slice on definitely non-escaping local boxes
-           - `phase-186x` is now landed as the same-root phi local field pruning slice across cross-block local carriers
-           - `phase-187x` is now landed as the same-block overwritten local field-set pruning slice
-           - `phase-188x` is now landed as the cross-block linear-edge overwritten local field-set pruning slice
-           - `phase-189x` is now landed as the merge-entry overwritten local field-set pruning slice
-           - `phase-190x` is now landed as the remaining DCE boundary inventory cut
-           - `phase-191x` is now landed as lane-A1, so loop-carried same-root local field gets/sets are contract-locked before any overwrite/backedge widening
-           - `phase-192x` is now landed as the BoxShape split of `src/mir/passes/dce.rs`, so further DCE widening can continue on focused modules instead of a 2000+ line pass file
-           - `phase-193x` is now landed as the BoxShape split of `src/mir/passes/string_corridor_sink.rs`, so later string follow-ons can continue on focused modules instead of a 5000+ line sink file
-           - `phase-194x` is now landed as the remaining oversized module split series, so `ArrayBox`, MIR JSON emit, and string corridor placement no longer block further BoxShape work on oversized files
-           - the next code work should choose one lane from remaining loop/backedge overwritten-write widening, generic memory `Store`/`Load`, or observer/control cleanup instead of mixing them
-           - generic LLVM-side escape pass beyond the already-landed narrow local objectization-at-boundary route
-           - current escape narrow slice is now alias-aware too: barrier elision follows `Copy` chains and one-input carry `phi` aliases for non-escaping local boxes, while multi-input `phi_merge` and broader generic escape analysis remain backlog
-           - `phase-165x` landed the operand-role escape barrier vocabulary cut so escape widening no longer reuses the coarse `used_values()` surface
-           - `phase-166x` is now landed as the structural follow-on:
-             - first unify MIR semantic refresh ownership
-             - generic `value_origin` ownership is now landed in `src/mir/value_origin.rs`
-             - generic `phi_relation` ownership is now also landed in `src/mir/phi_query.rs`
-             - helper/runtime-name semantic recovery is now quarantined in `src/mir/string_corridor_compat.rs`
-             - the `boundary_fact` / lifecycle extraction decision is now explicit too: keep string-local lifecycle vocabulary separate from barrier-cause vocabularies until another real lifecycle consumer appears
-           - `where` / enum methods / full monomorphization
-        6. do not promote these into the current phase task order without a measured hotspot + SSOT first:
-           - `MapBox` typed value slots
-           - float niche tuning (`fast-math` / `FMA` / SIMD-style follow-ons)
-           - closure/lambda optimization
+      - verified non-Variant optimization roadmap is now layer-based:
+        1. `generic placement / effect`
+           - partial: string corridor candidates, sum placement chains, and thin-entry inventory/selection are already landed as pilot scaffolds
+           - next major genericization should fold those pilots into one generic placement/effect layer instead of growing more family-specific rows
+        2. `agg_local scalarization`
+           - partial: selected sum local layouts, selected user-box local bodies, and ArrayBox typed-slot pilots are already landed
+           - old `ArrayBox typed-slot` and `MapBox typed value slot` items now read as pilot surfaces under this layer
+        3. `thin-entry actual consumer switch`
+           - partial: known-receiver user-box method routes are the first landed actual-consumer slice
+           - broader thin-entry consumer switching remains backlog beneath canonical `Call`
+        4. `semantic simplification bundle`
+           - partial: the current DCE lane is landed through `phase176x` / `phase177x` / `phase181x` / `phase182x` / `phase183x` / `phase184x` / `phase185x` / `phase186x` / `phase187x` / `phase188x` / `phase189x` / `phase190x` / `phase191x` / `phase192x`
+           - keep `SCCP`, `SimplifyCFG`, `DCE`, and jump-threading together as one layer
+           - keep `DSE` out of this layer; it belongs to the memory-effect layer
+           - immediate code next remains lane A2: loop/backedge overwritten local field-set widening
+        5. `memory-effect layer`
+           - backlog: generic `Store` / `Load`, dead-store elimination, store-to-load forwarding, redundant load elimination, and hoist/sink legality
+           - canonical `store.array.str` / `store.map.value` stay pilot vocabulary here, not standalone roadmap rows
+        6. `escape / barrier -> LLVM attrs`
+           - partial: MIR-side escape barrier vocabulary and alias-aware local elision are landed
+           - next broadening should feed `nocapture` / `readonly` / `readnone` / `noalias`, not re-invent escape in LLVM
+        7. `numeric loop / SIMD`
+           - partial: FloatBox / typed numeric groundwork is landed
+           - induction/reduction/vectorization and fast-math tuning remain backlog
+        8. `closure split`
+           - backlog: `capture classification`, `closure env scalarization`, and `closure thin-entry specialization`
+        9. `IPO / build-time optimization`
+           - backlog: `PGO` / `ThinLTO` stay last after the MIR-side semantic layers are stronger
     5. `tuple multi-payload` compat transport is now landed
       - parser/AST now accept tuple payload declarations while preserving tuple payload truth above canonical MIR
       - Stage1 lowers tuple ctors/matches through `__NyVariantPayload_<Enum>_<Variant>` hidden payload boxes with `_0`, `_1`, ... field slots
