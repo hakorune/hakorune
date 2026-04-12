@@ -97,6 +97,10 @@ Related:
   - `phase-193x` is landed as the BoxShape split of `src/mir/passes/string_corridor_sink.rs`
   - `src/mir/passes/string_corridor_sink/` is now a thin facade over focused rewrite families and topic tests
   - this cut is structure-only and keeps current string semantics unchanged
+- active structure follow-on:
+  - `phase-194x` is landed; the remaining oversized Rust files are now split into focused module seams
+  - current order is `array/mod.rs` -> `mir_json_emit/mod.rs` -> `string_corridor_placement.rs`
+  - keep this as BoxShape-only before more DCE or string widening
 - `phase-133x` landed:
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`

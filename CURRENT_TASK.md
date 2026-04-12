@@ -174,6 +174,11 @@ Scope: repo root から current lane / current front / restart read order に最
     - next cut C0: docs-only inventory for `Debug`, terminators, and control anchors
     - next cut C1: decide whether `Debug` is permanent observer-semantic or removable under explicit dev-off contract
     - next cut C2: terminator cleanup only after C1 is fixed and separate from any DCE memory widening
+- landed structure-only follow-on:
+  - `docs/development/current/main/phases/phase-194x/README.md`
+  - remaining oversized files are now split before more semantic work resumes
+  - `src/boxes/array/mod.rs`, `src/runner/mir_json_emit/mod.rs`, and `src/mir/string_corridor_placement.rs` now read through focused module seams
+  - this lane stayed BoxShape-only and did not widen ArrayBox, MIR JSON, string corridor placement, or DCE behavior
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`

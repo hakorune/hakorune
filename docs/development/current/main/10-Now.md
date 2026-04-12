@@ -69,12 +69,9 @@ Related:
     - `src/mir/passes/string_corridor_sink.rs` is retired in favor of `src/mir/passes/string_corridor_sink/`
     - the sink now reads as a thin facade over focused implementation and topic-test modules
     - this cut is BoxShape-only and does not widen string behavior
-    - cleanup order is:
-      1. `StringKernelPlan` owner extraction
-      2. relation reverse-dependency stop-line
-      3. shim reader partition
-      4. full-loop scalar payload export + metadata-first loop route
-      5. exact matcher retirement only after plan-first parity
+  - landed structure follow-on: `phase194x remaining oversized module split series`
+    - `src/boxes/array/mod.rs`, `src/runner/mir_json_emit/mod.rs`, and `src/mir/string_corridor_placement.rs` are now split into focused module seams
+    - this series stayed BoxShape-only: no schema, ArrayBox, or string placement behavior widening
   - landed DCE cleanup follow-on: `phase181x safepoint no-op DCE`
     - `Safepoint` no-op instructions were the first generic no-dst pure cleanup slice
     - `Debug` stays outside this cut, and terminators / broader effect-sensitive DCE stay separate

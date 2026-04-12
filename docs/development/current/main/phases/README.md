@@ -6,6 +6,7 @@
 
 - **Current (ACTIVE)**: Phase 163x primitive and user-box fast path
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
+- **Phase 194x（LANDED）**: remaining oversized module split series
 - **Phase 180x（LANDED STRING CLEANUP）**: string seam cleanup before broader DCE
 - **Phase 193x（LANDED）**: string corridor sink module split
 - **Phase 192x（LANDED）**: DCE pass module split

@@ -285,6 +285,7 @@
            - `phase-191x` is now landed as lane-A1, so loop-carried same-root local field gets/sets are contract-locked before any overwrite/backedge widening
            - `phase-192x` is now landed as the BoxShape split of `src/mir/passes/dce.rs`, so further DCE widening can continue on focused modules instead of a 2000+ line pass file
            - `phase-193x` is now landed as the BoxShape split of `src/mir/passes/string_corridor_sink.rs`, so later string follow-ons can continue on focused modules instead of a 5000+ line sink file
+           - `phase-194x` is now landed as the remaining oversized module split series, so `ArrayBox`, MIR JSON emit, and string corridor placement no longer block further BoxShape work on oversized files
            - the next code work should choose one lane from remaining loop/backedge overwritten-write widening, generic memory `Store`/`Load`, or observer/control cleanup instead of mixing them
            - generic LLVM-side escape pass beyond the already-landed narrow local objectization-at-boundary route
            - current escape narrow slice is now alias-aware too: barrier elision follows `Copy` chains and one-input carry `phi` aliases for non-escaping local boxes, while multi-input `phi_merge` and broader generic escape analysis remain backlog
