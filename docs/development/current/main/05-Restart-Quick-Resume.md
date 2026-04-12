@@ -27,6 +27,7 @@ tools/checks/dev_gate.sh quick
   - `phase-219x placement-effect route-window len fold`
   - `phase-220x placement-effect route-window len helper cleanup`
   - `phase-224x placement-effect string proof helper fold`
+  - `phase-225x generic placement-effect transform owner seam`
 - immediate next:
   - `generic placement / effect`
 - immediate follow-on:
@@ -45,10 +46,11 @@ tools/checks/dev_gate.sh quick
 5. `docs/development/current/main/phases/phase-220x/README.md`
 6. `docs/development/current/main/phases/phase-223x/README.md`
 7. `docs/development/current/main/phases/phase-224x/README.md`
-8. `docs/development/current/main/phases/phase-163x/README.md`
-9. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
-10. `docs/development/current/main/phases/phase-137x/README.md`
-11. `docs/development/current/main/phases/phase-210x/README.md`
+8. `docs/development/current/main/phases/phase-225x/README.md`
+9. `docs/development/current/main/phases/phase-163x/README.md`
+10. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
+11. `docs/development/current/main/phases/phase-137x/README.md`
+12. `docs/development/current/main/phases/phase-210x/README.md`
 
 ## Current Evidence
 
@@ -65,6 +67,8 @@ tools/checks/dev_gate.sh quick
     - same-block `substring(...).length()` now reads folded route windows first
   - `phase-224x`
     - publication/materialization helper proof lookup now reads folded `placement_effect_routes` string proof first
+  - `phase-225x`
+    - optimizer pre/post-DCE placement/effect hooks now run through one generic transform owner seam
 - semantic simplification bundle is landed through DCE lane A2:
   - `phase-176x`
   - `phase-177x`

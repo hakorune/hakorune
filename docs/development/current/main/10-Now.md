@@ -19,16 +19,16 @@ Related:
 
 ## Landing Snapshot
 
-- `phase224x` is landed:
-  - publication/materialization helper proof lookup reads folded `placement_effect_routes` string proof first
-  - legacy `string_corridor_candidates` stay as a compatibility fallback
+- `phase225x` is landed:
+  - optimizer pre/post-DCE placement/effect hooks now run through one generic transform owner seam
+  - `phase224x` string helper proof fold stays the first delegated transform under that seam
   - retained and same-block route-window sinks from `phase222x` / `phase223x` remain intact
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-224x/README.md`
+3. `docs/development/current/main/phases/phase-225x/README.md`
 4. `docs/development/current/main/phases/phase-163x/README.md`
 5. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 

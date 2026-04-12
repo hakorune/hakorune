@@ -16,10 +16,11 @@ Scope: current lane / next lane / restart order only.
 2. `docs/development/current/main/15-Workstream-Map.md`
 3. `docs/development/current/main/phases/phase-223x/README.md`
 4. `docs/development/current/main/phases/phase-224x/README.md`
-5. `docs/development/current/main/phases/phase-163x/README.md`
-6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
-7. `git status -sb`
-8. `tools/checks/dev_gate.sh quick`
+5. `docs/development/current/main/phases/phase-225x/README.md`
+6. `docs/development/current/main/phases/phase-163x/README.md`
+7. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
+8. `git status -sb`
+9. `tools/checks/dev_gate.sh quick`
 
 ## Restart Handoff
 
@@ -28,7 +29,7 @@ Scope: current lane / next lane / restart order only.
 - active lane:
   - `phase-163x primitive and user-box fast path`
 - sibling guardrail:
-  - `phase-137x` string corridor / exact-keeper guardrail; `phase-219x` / `phase-220x` / `phase-221x` / `phase-222x` / `phase-223x` / `phase-224x` are landed
+  - `phase-137x` string corridor / exact-keeper guardrail; `phase-219x` / `phase-220x` / `phase-221x` / `phase-222x` / `phase-223x` / `phase-224x` / `phase-225x` are landed
 - immediate next:
   - `generic placement / effect`
 - immediate follow-on:
@@ -46,7 +47,7 @@ Scope: current lane / next lane / restart order only.
 - implementation lane:
   - `docs/development/current/main/phases/phase-163x/README.md`
 - next layer landing:
-  - `docs/development/current/main/phases/phase-224x/README.md`
+  - `docs/development/current/main/phases/phase-225x/README.md`
 - roadmap SSOT:
   - `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 - string guardrail owner:
@@ -58,6 +59,6 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Notes
 
-- `phase-224x` is landed: publication/materialization helper proof lookup now reads folded `placement_effect_routes` string proof first, with legacy candidates kept as fallback
+- `phase-225x` is landed: optimizer pre/post-DCE placement/effect hooks now run through one generic transform owner seam, with the landed string corridor sink delegated underneath
 - the next code lane remains `generic placement / effect`
 - if this file grows again, move the detail back into the phase docs

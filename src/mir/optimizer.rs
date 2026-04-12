@@ -91,12 +91,13 @@ impl MirOptimizer {
             crate::mir::optimizer_passes::normalize::normalize_python_helper_calls(self, module),
         );
 
-        // Step 5 pilot: sink the narrowest borrowed string corridor before DCE so
-        // dead intermediate substring values can be removed in the same optimize wave.
-        let corridor_sunk =
-            crate::mir::passes::string_corridor_sink::sink_borrowed_string_corridors(module);
-        if corridor_sunk > 0 {
-            stats.intrinsic_optimizations += corridor_sunk;
+        // Step 5: run the first generic placement/effect transform owner seam
+        // before DCE so dead intermediate borrowed-string values can be removed
+        // in the same optimize wave.
+        let placement_effect_rewrites =
+            crate::mir::passes::placement_effect_transform::apply_pre_dce_transforms(module);
+        if placement_effect_rewrites > 0 {
+            stats.intrinsic_optimizations += placement_effect_rewrites;
         }
 
         // Pass 1: Dead code elimination (modularized pass)
@@ -105,14 +106,14 @@ impl MirOptimizer {
             stats.dead_code_eliminated += eliminated;
         }
 
-        // Step 5.1: rerun the narrow borrowed string corridor after DCE.
-        // The first sweep introduces `substring_len_hii`, but complementary
-        // length-pair fusion may only become single-use once dead substring
-        // temps are removed in the same optimization wave.
-        let corridor_resunk =
-            crate::mir::passes::string_corridor_sink::sink_borrowed_string_corridors(module);
-        if corridor_resunk > 0 {
-            stats.intrinsic_optimizations += corridor_resunk;
+        // Step 5.1: rerun the generic placement/effect transform owner seam
+        // after DCE. The first sweep introduces `substring_len_hii`, but
+        // complementary length-pair fusion may only become single-use once
+        // dead substring temps are removed in the same optimization wave.
+        let placement_effect_reruns =
+            crate::mir::passes::placement_effect_transform::apply_post_dce_transforms(module);
+        if placement_effect_reruns > 0 {
+            stats.intrinsic_optimizations += placement_effect_reruns;
         }
 
         // Pass 2: Pure instruction CSE (modularized)
