@@ -100,11 +100,10 @@ impl MirOptimizer {
             stats.intrinsic_optimizations += placement_effect_rewrites;
         }
 
-        // Pass 1: Dead code elimination (modularized pass)
-        {
-            let eliminated = crate::mir::passes::dce::eliminate_dead_code(module);
-            stats.dead_code_eliminated += eliminated;
-        }
+        // Pass 1: semantic simplification bundle owner seam
+        // Current cut keeps behavior identical by bundling the landed DCE and
+        // CSE passes under one top-level owner.
+        stats.merge(crate::mir::passes::semantic_simplification::apply(module));
 
         // Step 5.1: rerun the generic placement/effect transform owner seam
         // after DCE. The first sweep introduces `substring_len_hii`, but
@@ -116,28 +115,22 @@ impl MirOptimizer {
             stats.intrinsic_optimizations += placement_effect_reruns;
         }
 
-        // Pass 2: Pure instruction CSE (modularized)
-        {
-            let eliminated = crate::mir::passes::cse::eliminate_common_subexpressions(module);
-            stats.cse_eliminated += eliminated;
-        }
-
-        // Pass 3: Pure instruction reordering for better locality
+        // Pass 2: Pure instruction reordering for better locality
         stats.merge(crate::mir::optimizer_passes::reorder::reorder_pure_instructions(self, module));
 
-        // Pass 4: Intrinsic function optimization
+        // Pass 3: Intrinsic function optimization
         stats.merge(
             crate::mir::optimizer_passes::intrinsics::optimize_intrinsic_calls(self, module),
         );
 
         // Safety-net passesは削除（Phase 2: 変換の一本化）。診断のみ後段で実施。
 
-        // Pass 5: BoxField dependency optimization
+        // Pass 4: BoxField dependency optimization
         stats.merge(
             crate::mir::optimizer_passes::boxfield::optimize_boxfield_operations(self, module),
         );
 
-        // Pass 6: 受け手型ヒントの伝搬（callsite→callee）
+        // Pass 5: 受け手型ヒントの伝搬（callsite→callee）
         // 目的: helper(arr){ return arr.length() } のようなケースで、
         //       呼び出し元の引数型（String/Integer/Bool/Float）を callee の params に反映し、
         //       Lowererがより正確にBox種別を選べるようにする。
@@ -146,14 +139,14 @@ impl MirOptimizer {
             stats.intrinsic_optimizations += updates as usize;
         }
 
-        // Pass 6.5: Call-site canonicalization lane entry (MCL-0 scaffold)
+        // Pass 5.5: Call-site canonicalization lane entry (MCL-0 scaffold)
         let canonicalized =
             crate::mir::passes::callsite_canonicalize::canonicalize_callsites(module);
         if canonicalized > 0 {
             stats.intrinsic_optimizations += canonicalized;
         }
 
-        // Pass 6.6 (opt-in): String concat chain canonicalization
+        // Pass 5.6 (opt-in): String concat chain canonicalization
         //   (a + b) + c / a + (b + c) -> call extern nyash.string.concat3_hhh(a, b, c)
         // NOTE: kept behind env gate while tuning perf parity with backend-local concat folding.
         if std::env::var("NYASH_MIR_CONCAT3_CANON").ok().as_deref() == Some("1") {
@@ -164,7 +157,7 @@ impl MirOptimizer {
             }
         }
 
-        // Pass 7 (optional): Core-13 pure normalization
+        // Pass 6 (optional): Core-13 pure normalization
         if crate::config::env::mir_core13_pure() {
             stats.merge(
                 crate::mir::optimizer_passes::normalize_core13_pure::normalize_pure_core13(

@@ -242,7 +242,7 @@
            - lane C2a is now landed too: control-anchor operand liveness is fixed for `Return.value`, `Branch.cond`, and reachable edge args
            - lane C2b is now landed too: legacy instruction-list control-anchor seeding is removed from mainline DCE
            - lane C2c is now landed too: the DCE / SimplifyCFG handoff boundary is explicit
-           - immediate code next is `generic placement / effect`
+           - immediate code next is `semantic simplification bundle`
         5. `memory-effect layer`
            - partial: lane-B0 generic memory observer/owner contract, lane-B1 dead `Load` pruning, and lane-B2 overwritten `Store` pruning are landed
            - backlog: generic `Store` / `Load` code widening, dead-store elimination, store-to-load forwarding, redundant load elimination, and hoist/sink legality
@@ -272,7 +272,7 @@
       - LLVM/Python local-enum escape barriers now share one helper instead of repeating materialization wrappers in `call` / `boxcall` / `ret`
       - safe runtime nullish checks touched in this lane now converge on `NullBox::check_null()`
       - MIR reference docs now split into instruction SSOT + metadata SSOT, while stale all-in-one references are reduced to thin pointers
-    8. next ready task: `generic placement / effect`
+    8. next ready task: `semantic simplification bundle`
     9. keep `where` / enum methods / full monomorphization in backlog
 
 ## Fixed Task Order

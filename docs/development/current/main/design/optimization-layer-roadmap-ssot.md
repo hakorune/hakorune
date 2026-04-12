@@ -88,9 +88,9 @@ Owner: `phase-163x optimization-resume`
 ## Immediate Read
 
 - immediate code next:
-  - `generic placement / effect`
-  - fold the current pilot scaffolds into one generic transform layer
-- immediate follow-on after that:
   - `semantic simplification bundle`
+  - start widening from the landed bundle owner seam instead of wiring more direct optimizer pass calls
+- immediate follow-on after that:
+  - `memory-effect layer`
 - next major design lane after the current DCE slice:
-  - `generic placement / effect`
+  - `semantic simplification bundle`

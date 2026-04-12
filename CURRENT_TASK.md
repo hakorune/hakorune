@@ -18,10 +18,11 @@ Scope: current lane / next lane / restart order only.
 4. `docs/development/current/main/phases/phase-224x/README.md`
 5. `docs/development/current/main/phases/phase-225x/README.md`
 6. `docs/development/current/main/phases/phase-226x/README.md`
-7. `docs/development/current/main/phases/phase-163x/README.md`
-8. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
-9. `git status -sb`
-10. `tools/checks/dev_gate.sh quick`
+7. `docs/development/current/main/phases/phase-227x/README.md`
+8. `docs/development/current/main/phases/phase-163x/README.md`
+9. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
+10. `git status -sb`
+11. `tools/checks/dev_gate.sh quick`
 
 ## Restart Handoff
 
@@ -30,11 +31,11 @@ Scope: current lane / next lane / restart order only.
 - active lane:
   - `phase-163x primitive and user-box fast path`
 - sibling guardrail:
-  - `phase-137x` string corridor / exact-keeper guardrail; `phase-219x` / `phase-220x` / `phase-221x` / `phase-222x` / `phase-223x` / `phase-224x` / `phase-225x` / `phase-226x` are landed
+  - `phase-137x` string corridor / exact-keeper guardrail; `phase-219x` / `phase-220x` / `phase-221x` / `phase-222x` / `phase-223x` / `phase-224x` / `phase-225x` / `phase-226x` / `phase-227x` are landed
 - immediate next:
-  - `generic placement / effect`
-- immediate follow-on:
   - `semantic simplification bundle`
+- immediate follow-on:
+  - `memory-effect layer`
 - current stop-lines:
   - do not mix lane B with lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
   - do not mix lane B with `generic placement / effect`
@@ -48,7 +49,7 @@ Scope: current lane / next lane / restart order only.
 - implementation lane:
   - `docs/development/current/main/phases/phase-163x/README.md`
 - next layer landing:
-  - `docs/development/current/main/phases/phase-226x/README.md`
+  - `docs/development/current/main/phases/phase-227x/README.md`
 - roadmap SSOT:
   - `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 - string guardrail owner:
@@ -60,6 +61,6 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Notes
 
-- `phase-226x` is landed: `placement_effect_transform` now owns optimizer-visible string transform scheduling, while `string_corridor_sink` stays function-local
-- the next code lane remains `generic placement / effect`
+- `phase-227x` is landed: optimizer-visible DCE/CSE scheduling now runs through one semantic simplification bundle owner seam
+- the next code lane is now `semantic simplification bundle`
 - if this file grows again, move the detail back into the phase docs

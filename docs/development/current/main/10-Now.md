@@ -14,8 +14,8 @@ Related:
 
 - current implementation lane: `phase163x primitive and user-box fast path`
 - sibling guardrail lane: `phase137x main kilo reopen selection`
-- immediate next: `generic placement / effect`
-- immediate follow-on: `semantic simplification bundle`
+- immediate next: `semantic simplification bundle`
+- immediate follow-on: `memory-effect layer`
 
 ## Landing Snapshot
 
@@ -26,12 +26,14 @@ Related:
 - `phase226x` is landed:
   - `placement_effect_transform` now owns optimizer-visible string transform scheduling
   - `string_corridor_sink` stays the function-local family owner
+- `phase227x` is landed:
+  - optimizer-visible DCE/CSE scheduling now runs through one semantic simplification bundle owner seam
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-226x/README.md`
+3. `docs/development/current/main/phases/phase-227x/README.md`
 4. `docs/development/current/main/phases/phase-163x/README.md`
 5. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 

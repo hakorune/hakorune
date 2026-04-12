@@ -15,20 +15,21 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-163x primitive and user-box fast path` |
-| Front | `lane-B landed through B2 -> lane-C landed through C2c -> next design lane is generic placement / effect` |
+| Front | `generic placement / effect landed through the first owner-transform cut -> next design lane is semantic simplification bundle` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `lane C is closed; next design lane is generic placement / effect` |
-| Next | `generic placement / effect` |
-| After Next | `semantic simplification bundle` |
+| Blocker | `generic placement / effect owner seam is landed; next design lane is semantic simplification bundle` |
+| Next | `semantic simplification bundle` |
+| After Next | `memory-effect layer` |
 
 ## Current Read
 
 - design owners:
   - implementation lane: `docs/development/current/main/phases/phase-163x/README.md`
-  - next layer landing: `docs/development/current/main/phases/phase-226x/README.md`
+  - next layer landing: `docs/development/current/main/phases/phase-227x/README.md`
   - roadmap SSOT: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
 - landed anchors:
+  - `phase-227x`: optimizer-visible DCE/CSE scheduling now runs through one semantic simplification bundle owner seam
   - `phase-226x`: the top-level placement/effect owner seam now owns optimizer-visible string transform scheduling, while `string_corridor_sink` stays function-local
   - `phase-225x`: optimizer pre/post-DCE placement/effect hooks now run through one generic transform owner seam, delegating to the landed string corridor sink
   - `phase-224x`: publication/materialization helper proof lookup now reads folded `placement_effect_routes` string proof first, with legacy candidates kept as fallback
@@ -41,9 +42,9 @@ Related:
 
 ## Immediate Sequence
 
-1. `generic placement / effect`
-2. `semantic simplification bundle`
-3. `memory-effect layer`
+1. `semantic simplification bundle`
+2. `memory-effect layer`
+3. `escape / barrier -> LLVM attrs`
 
 ## Parked Corridor
 

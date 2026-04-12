@@ -29,10 +29,11 @@ tools/checks/dev_gate.sh quick
   - `phase-224x placement-effect string proof helper fold`
   - `phase-225x generic placement-effect transform owner seam`
   - `phase-226x placement-effect string scheduling owner cut`
+  - `phase-227x semantic simplification owner seam`
 - immediate next:
-  - `generic placement / effect`
-- immediate follow-on:
   - `semantic simplification bundle`
+- immediate follow-on:
+  - `memory-effect layer`
 - stop-lines:
   - keep lane B separate from lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
   - keep lane B separate from `generic placement / effect`
@@ -49,10 +50,11 @@ tools/checks/dev_gate.sh quick
 7. `docs/development/current/main/phases/phase-224x/README.md`
 8. `docs/development/current/main/phases/phase-225x/README.md`
 9. `docs/development/current/main/phases/phase-226x/README.md`
-10. `docs/development/current/main/phases/phase-163x/README.md`
-11. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
-12. `docs/development/current/main/phases/phase-137x/README.md`
-13. `docs/development/current/main/phases/phase-210x/README.md`
+10. `docs/development/current/main/phases/phase-227x/README.md`
+11. `docs/development/current/main/phases/phase-163x/README.md`
+12. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
+13. `docs/development/current/main/phases/phase-137x/README.md`
+14. `docs/development/current/main/phases/phase-210x/README.md`
 
 ## Current Evidence
 
@@ -73,6 +75,8 @@ tools/checks/dev_gate.sh quick
     - optimizer pre/post-DCE placement/effect hooks now run through one generic transform owner seam
   - `phase-226x`
     - top-level placement/effect owner seam now owns optimizer-visible string transform scheduling while string family logic stays function-local
+  - `phase-227x`
+    - optimizer-visible DCE/CSE scheduling now runs through one semantic simplification bundle owner seam
 - semantic simplification bundle is landed through DCE lane A2:
   - `phase-176x`
   - `phase-177x`

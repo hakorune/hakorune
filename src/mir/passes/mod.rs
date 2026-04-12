@@ -10,6 +10,7 @@ pub mod method_id_inject;
 pub mod placement_effect_transform;
 pub mod rc_insertion;
 pub mod rc_insertion_helpers;
+pub mod semantic_simplification;
 pub mod string_corridor_sink;
 pub mod type_hints;
 
