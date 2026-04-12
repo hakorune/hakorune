@@ -19,13 +19,6 @@ Related:
 
 ## Landing Snapshot
 
-- `phase225x` is landed:
-  - optimizer pre/post-DCE placement/effect hooks now run through one generic transform owner seam
-  - `phase224x` string helper proof fold stays the first delegated transform under that seam
-  - retained and same-block route-window sinks from `phase222x` / `phase223x` remain intact
-- `phase226x` is landed:
-  - `placement_effect_transform` now owns optimizer-visible string transform scheduling
-  - `string_corridor_sink` stays the function-local family owner
 - `phase227x` is landed:
   - optimizer-visible DCE/CSE scheduling now runs through one semantic simplification bundle owner seam
 

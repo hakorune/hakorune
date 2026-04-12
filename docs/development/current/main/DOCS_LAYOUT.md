@@ -13,12 +13,13 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 
 - `CURRENT_TASK.md`
   - root restart anchor
+  - the only live status pointer
   - current order / current next / canonical owner links only
 - `10-Now.md`
   - docs-side thin mirror/dashboard
-  - summary + links only
+  - one-screen summary + links only
 - `15-Workstream-Map.md`
-  - one-screen operational work-order mirror
+  - one-screen lane order mirror
 - `05-Restart-Quick-Resume.md`
   - fastest reboot path only
 - `design/kernel-implementation-phase-plan-ssot.md`
@@ -35,7 +36,13 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 Rule:
 
 - do not let `CURRENT_TASK.md` or `10-Now.md` regrow into landed-history ledgers.
+- do not let `05-Restart-Quick-Resume.md` or `15-Workstream-Map.md` regrow into landed-history ledgers either.
 - if a block already has a better owner, replace it with a short summary plus a link.
+- phase closeout should normally touch:
+  - the active phase docs
+  - `CURRENT_TASK.md`
+  - optionally `10-Now.md` only when `Now/Next/After Next` changes
+- `phases/README.md` is an index, not a full chronology.
 - archive historical docs per area:
   - `docs/development/current/main/design/archive/`
   - `docs/development/current/main/phases/archive/`
@@ -145,6 +152,8 @@ Moved to: docs/development/current/main/phases/phase-131/131-03-llvm-lowering-in
 - 設計図（SSOT）は `main/design/` に寄せる（Phase の完了サマリと混ぜない）。
 - `10-Now.md` は「現状の要約＋正本リンク」に徹し、詳細ログの本文は抱え込まない。
 - `CURRENT_TASK.md` は root anchor なので、重要な blocker / current priority はまずそこへ置く。
+- `05-Restart-Quick-Resume.md` は restart 手順と読む順だけに徹し、landed chronicle は抱え込まない。
 - `15-Workstream-Map.md` は rough order の one-screen mirror に徹し、phase detail は抱え込まない。
+- `phases/README.md` は current / guardrail / recent landed の index に徹し、repo-wide landed ledger を再掲しない。
 - historical phase fronts are archived under `docs/development/current/main/phases/archive/`.
 - current active phase fronts are linked from `CURRENT_TASK.md` and `15-Workstream-Map.md`.

@@ -13,16 +13,13 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
-2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-223x/README.md`
-4. `docs/development/current/main/phases/phase-224x/README.md`
-5. `docs/development/current/main/phases/phase-225x/README.md`
-6. `docs/development/current/main/phases/phase-226x/README.md`
-7. `docs/development/current/main/phases/phase-227x/README.md`
-8. `docs/development/current/main/phases/phase-163x/README.md`
-9. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
-10. `git status -sb`
-11. `tools/checks/dev_gate.sh quick`
+2. `docs/development/current/main/10-Now.md`
+3. `docs/development/current/main/15-Workstream-Map.md`
+4. `docs/development/current/main/phases/phase-227x/README.md`
+5. `docs/development/current/main/phases/phase-163x/README.md`
+6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
+7. `git status -sb`
+8. `tools/checks/dev_gate.sh quick`
 
 ## Restart Handoff
 
@@ -31,7 +28,7 @@ Scope: current lane / next lane / restart order only.
 - active lane:
   - `phase-163x primitive and user-box fast path`
 - sibling guardrail:
-  - `phase-137x` string corridor / exact-keeper guardrail; `phase-219x` / `phase-220x` / `phase-221x` / `phase-222x` / `phase-223x` / `phase-224x` / `phase-225x` / `phase-226x` / `phase-227x` are landed
+  - `phase-137x` string corridor / exact-keeper guardrail
 - immediate next:
   - `semantic simplification bundle`
 - immediate follow-on:
@@ -63,4 +60,5 @@ Scope: current lane / next lane / restart order only.
 
 - `phase-227x` is landed: optimizer-visible DCE/CSE scheduling now runs through one semantic simplification bundle owner seam
 - the next code lane is now `semantic simplification bundle`
+- `CURRENT_TASK.md` is the only live status pointer; `05/10/15` are thin mirrors only
 - if this file grows again, move the detail back into the phase docs

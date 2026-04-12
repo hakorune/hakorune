@@ -20,97 +20,20 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane:
-  - `phase-163x primitive and user-box fast path`
-- sibling guardrail:
-  - `phase-137x main kilo reopen selection`
-  - `phase-219x placement-effect route-window len fold`
-  - `phase-220x placement-effect route-window len helper cleanup`
-  - `phase-224x placement-effect string proof helper fold`
-  - `phase-225x generic placement-effect transform owner seam`
-  - `phase-226x placement-effect string scheduling owner cut`
-  - `phase-227x semantic simplification owner seam`
-- immediate next:
-  - `semantic simplification bundle`
-- immediate follow-on:
-  - `memory-effect layer`
-- stop-lines:
-  - keep lane B separate from lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
-  - keep lane B separate from `generic placement / effect`
-  - do not mix parked `phase-96x` backlog into the current lane
+- lane: `phase-163x primitive and user-box fast path`
+- guardrail: `phase-137x main kilo reopen selection`
+- immediate next: `semantic simplification bundle`
+- immediate follow-on: `memory-effect layer`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-218x/README.md`
-4. `docs/development/current/main/phases/phase-219x/README.md`
-5. `docs/development/current/main/phases/phase-220x/README.md`
-6. `docs/development/current/main/phases/phase-223x/README.md`
-7. `docs/development/current/main/phases/phase-224x/README.md`
-8. `docs/development/current/main/phases/phase-225x/README.md`
-9. `docs/development/current/main/phases/phase-226x/README.md`
-10. `docs/development/current/main/phases/phase-227x/README.md`
-11. `docs/development/current/main/phases/phase-163x/README.md`
-12. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
-13. `docs/development/current/main/phases/phase-137x/README.md`
-14. `docs/development/current/main/phases/phase-210x/README.md`
-
-## Current Evidence
-
-- semantic refresh / generic relation ownership is landed:
-  - `phase-165x`
-  - `phase-166x`
-- string guardrail / seam cleanup is landed through:
-  - `phase-169x` to `phase-180x`
-  - `phase-219x`
-    - boundary `pure-first` now reads `placement_effect_routes` window first for `substring(...).length()`
-  - `phase-220x`
-    - boundary len route-window branch is now shared behind one helper with identical behavior
-  - `phase-223x`
-    - same-block `substring(...).length()` now reads folded route windows first
-  - `phase-224x`
-    - publication/materialization helper proof lookup now reads folded `placement_effect_routes` string proof first
-  - `phase-225x`
-    - optimizer pre/post-DCE placement/effect hooks now run through one generic transform owner seam
-  - `phase-226x`
-    - top-level placement/effect owner seam now owns optimizer-visible string transform scheduling while string family logic stays function-local
-  - `phase-227x`
-    - optimizer-visible DCE/CSE scheduling now runs through one semantic simplification bundle owner seam
-- semantic simplification bundle is landed through DCE lane A2:
-  - `phase-176x`
-  - `phase-177x`
-  - `phase-181x` to `phase-192x`
-  - `phase-196x`
-- roadmap regroup / pointer sync is landed:
-  - `phase-195x`
-  - `phase-197x`
-  - `phase-198x`
-  - `phase-199x`
-  - `phase-200x`
-  - `phase-201x`
-  - `phase-202x`
-  - `phase-203x`
-  - `phase-204x`
-  - `phase-205x`
-  - `phase-206x`
-  - `phase-211x`
-  - `phase-212x`
-  - `phase-213x`
-  - `phase-214x`
-  - `phase-215x`
-  - `phase-216x`
-  - `phase-217x`
-  - `phase-218x`
-
-## First Design Slices
-
-- `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
-- `docs/development/current/main/design/observer-control-dce-owner-contract-ssot.md`
-- `docs/development/current/main/phases/phase-190x/190x-90-remaining-dce-boundary-inventory-ssot.md`
-- `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
-- `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
-- `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+2. `docs/development/current/main/10-Now.md`
+3. `docs/development/current/main/15-Workstream-Map.md`
+4. `docs/development/current/main/phases/phase-227x/README.md`
+5. `docs/development/current/main/phases/phase-163x/README.md`
+6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
+7. `docs/development/current/main/phases/phase-137x/README.md`
 
 ## Current Proof Bundle
 
