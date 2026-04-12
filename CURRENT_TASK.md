@@ -134,6 +134,10 @@ Scope: repo root から current lane / current front / restart read order に最
     - `docs/development/current/main/phases/phase-186x/README.md`
     - `phase-186x` is landed as the same-root phi local field pruning slice
     - dead local `FieldGet` / `FieldSet` operations now also disappear when the local box flows through a same-root multi-input phi carrier, while mixed-root phi merges, `Store`, `Load`, `Debug`, and terminators stay separate
+  - landed DCE cleanup follow-on:
+    - `docs/development/current/main/phases/phase-187x/README.md`
+    - `phase-187x` is landed as the same-block overwritten local field-set pruning slice
+    - an earlier local `FieldSet` now disappears when a later same-root/same-field write overwrites it before any reachable read or escape use, while generic `Store`, `Load`, `Debug`, and terminators stay separate
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`

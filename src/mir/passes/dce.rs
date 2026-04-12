@@ -195,9 +195,55 @@ fn is_removable_effect_sensitive_write_instruction(
     )
 }
 
+fn collect_overwritten_local_field_sets(
+    function: &MirFunction,
+    reachable_blocks: &HashSet<crate::mir::BasicBlockId>,
+    local_reads: &LocalReadInfo,
+) -> HashSet<(crate::mir::BasicBlockId, usize)> {
+    let mut removable = HashSet::new();
+
+    for (bid, block) in &function.blocks {
+        if !reachable_blocks.contains(bid) {
+            continue;
+        }
+
+        let mut pending_writes: HashSet<(ValueId, String)> = HashSet::new();
+        for (idx, instruction) in block.instructions.iter().enumerate().rev() {
+            match instruction {
+                crate::mir::MirInstruction::FieldSet { base, field, .. } => {
+                    let Some(root) = local_reads.resolve_local_root(*base) else {
+                        continue;
+                    };
+                    let key = (root, field.clone());
+                    if pending_writes.contains(&key) {
+                        removable.insert((*bid, idx));
+                    }
+                    pending_writes.insert(key);
+                }
+                crate::mir::MirInstruction::FieldGet { base, field, .. } => {
+                    if let Some(root) = local_reads.resolve_local_root(*base) {
+                        pending_writes.remove(&(root, field.clone()));
+                    }
+                }
+                _ => {}
+            }
+
+            for use_site in classify_escape_uses(instruction) {
+                if let Some(root) = local_reads.resolve_local_root(use_site.value) {
+                    pending_writes.retain(|(pending_root, _)| *pending_root != root);
+                }
+            }
+        }
+    }
+
+    removable
+}
+
 fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
     let reachable_blocks = crate::mir::verification::utils::compute_reachable_blocks(function);
     let local_reads = analyze_local_reads(function, &reachable_blocks);
+    let overwritten_local_writes =
+        collect_overwritten_local_field_sets(function, &reachable_blocks, &local_reads);
 
     // Collect values that must be kept for reasons other than KeepAlive.
     let mut base_used_values: HashSet<ValueId> = HashSet::new();
@@ -275,7 +321,7 @@ fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
         let spans = std::mem::take(&mut block.instruction_spans);
         let mut kept_insts = Vec::with_capacity(insts.len());
         let mut kept_spans = Vec::with_capacity(spans.len());
-        for (inst, span) in insts.into_iter().zip(spans.into_iter()) {
+        for (idx, (inst, span)) in insts.into_iter().zip(spans.into_iter()).enumerate() {
             let mut keep = true;
             let removable_local_read = reachable_blocks.contains(&bbid)
                 && is_removable_effect_sensitive_read_instruction(&inst, &local_reads);
@@ -299,6 +345,18 @@ fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
                 if dce_trace {
                     get_global_ring0().log.debug(&format!(
                         "[dce] Eliminating removable local write in bb{}: {:?}",
+                        bbid.0, inst
+                    ));
+                }
+                eliminated += 1;
+                keep = false;
+            }
+            let removable_overwritten_local_write = reachable_blocks.contains(&bbid)
+                && overwritten_local_writes.contains(&(*bbid, idx));
+            if keep && removable_overwritten_local_write {
+                if dce_trace {
+                    get_global_ring0().log.debug(&format!(
+                        "[dce] Eliminating overwritten local write in bb{}: {:?}",
                         bbid.0, inst
                     ));
                 }
@@ -1078,6 +1136,176 @@ mod tests {
             .instructions
             .iter()
             .any(|inst| matches!(inst, MirInstruction::FieldSet { .. })));
+    }
+
+    #[test]
+    fn test_dce_prunes_overwritten_local_field_set_in_same_block() {
+        let mut module = MirModule::new("dce_test".to_string());
+
+        let sig = FunctionSignature {
+            name: "test/0".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        let mut func = MirFunction::new(sig, BasicBlockId(0));
+
+        let v_box = ValueId(1);
+        let v_old = ValueId(2);
+        let v_new = ValueId(3);
+        let v_read = ValueId(4);
+
+        {
+            let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
+            bb0.instructions.push(MirInstruction::NewBox {
+                dst: v_box,
+                box_type: "Point".to_string(),
+                args: vec![],
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Const {
+                dst: v_old,
+                value: ConstValue::Integer(1),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Const {
+                dst: v_new,
+                value: ConstValue::Integer(2),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::FieldSet {
+                base: v_box,
+                field: "child".to_string(),
+                value: v_old,
+                declared_type: Some(MirType::Integer),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::FieldSet {
+                base: v_box,
+                field: "child".to_string(),
+                value: v_new,
+                declared_type: Some(MirType::Integer),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::FieldGet {
+                dst: v_read,
+                base: v_box,
+                field: "child".to_string(),
+                declared_type: Some(MirType::Integer),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.set_terminator(MirInstruction::Return {
+                value: Some(v_read),
+            });
+        }
+
+        module.add_function(func);
+
+        eliminate_dead_code(&mut module);
+
+        let func = module.get_function("test/0").unwrap();
+        let bb0 = func.blocks.get(&BasicBlockId(0)).unwrap();
+        let field_sets = bb0
+            .instructions
+            .iter()
+            .filter(|inst| matches!(inst, MirInstruction::FieldSet { .. }))
+            .count();
+        assert_eq!(field_sets, 1);
+        assert!(bb0.instructions.iter().any(|inst| {
+            matches!(
+                inst,
+                MirInstruction::Const { dst, .. } if *dst == v_old
+            )
+        }));
+        assert!(bb0.instructions.iter().any(|inst| {
+            matches!(
+                inst,
+                MirInstruction::FieldSet { value, .. } if *value == v_new
+            )
+        }));
+        assert!(bb0.instructions.iter().any(|inst| {
+            matches!(
+                inst,
+                MirInstruction::FieldGet { dst, base, field, .. }
+                    if *dst == v_read && *base == v_box && field == "child"
+            )
+        }));
+    }
+
+    #[test]
+    fn test_dce_keeps_local_field_set_when_same_field_is_read_before_overwrite() {
+        let mut module = MirModule::new("dce_test".to_string());
+
+        let sig = FunctionSignature {
+            name: "test/0".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        let mut func = MirFunction::new(sig, BasicBlockId(0));
+
+        let v_box = ValueId(1);
+        let v_old = ValueId(2);
+        let v_new = ValueId(3);
+        let v_read = ValueId(4);
+
+        {
+            let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
+            bb0.instructions.push(MirInstruction::NewBox {
+                dst: v_box,
+                box_type: "Point".to_string(),
+                args: vec![],
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Const {
+                dst: v_old,
+                value: ConstValue::Integer(1),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Const {
+                dst: v_new,
+                value: ConstValue::Integer(2),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::FieldSet {
+                base: v_box,
+                field: "child".to_string(),
+                value: v_old,
+                declared_type: Some(MirType::Integer),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::FieldGet {
+                dst: v_read,
+                base: v_box,
+                field: "child".to_string(),
+                declared_type: Some(MirType::Integer),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::FieldSet {
+                base: v_box,
+                field: "child".to_string(),
+                value: v_new,
+                declared_type: Some(MirType::Integer),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.set_terminator(MirInstruction::Return {
+                value: Some(v_read),
+            });
+        }
+
+        module.add_function(func);
+
+        let eliminated = eliminate_dead_code(&mut module);
+        assert_eq!(eliminated, 0);
+
+        let func = module.get_function("test/0").unwrap();
+        let bb0 = func.blocks.get(&BasicBlockId(0)).unwrap();
+        let field_sets = bb0
+            .instructions
+            .iter()
+            .filter(|inst| matches!(inst, MirInstruction::FieldSet { .. }))
+            .count();
+        assert_eq!(field_sets, 2);
     }
 
     #[test]
