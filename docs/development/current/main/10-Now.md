@@ -141,8 +141,8 @@ Related:
     - this cut was structure-only; later lane-B docs/facts and code widening happen in `phase199x` / `phase200x`
   - layer roadmap status:
   - `1 generic placement / effect`: partial; string corridor candidates, sum placement chains, and thin-entry inventory/selection are landed as pilot scaffolds, but the top-level generic transform layer is still backlog
-  - `phase208x`: docs/facts phase for this row, now landed
-    - `2 agg_local scalarization`: partial; selected sum local layouts, selected user-box local bodies, and ArrayBox typed-slot pilots are landed, while broader aggregate scalarization remains backlog
+  - `phase209x`: actual owner-seam phase for this row, now active
+    - `2 agg_local scalarization`: partial; selected sum local layouts, selected user-box local bodies, and ArrayBox typed-slot pilots are landed, while broader aggregate scalarization owner seam is now the active next layer
     - `3 thin-entry actual consumer switch`: partial; known-receiver user-box method routes are the first landed actual-consumer slice, while broader thin-entry consumer switching remains backlog
     - `4 semantic simplification bundle`: partial; current DCE work is landed through `phase176x` / `phase177x` / `phase181x` / `phase182x` / `phase183x` / `phase184x` / `phase185x` / `phase186x` / `phase187x` / `phase188x` / `phase189x` / `phase190x` / `phase191x` / `phase192x` / `phase196x` / `phase199x` / `phase200x` / `phase201x` / `phase202x`, but `SCCP`, `SimplifyCFG`, and jump-threading remain backlog; keep `DSE` out of this row
     - `5 memory-effect layer`: partial; lane-B0 generic memory observer/owner contract plus lane-B1 dead `Load` pruning and lane-B2 overwritten `Store` pruning are now landed, while dead-store elimination, store-to-load forwarding, redundant load elimination, hoist/sink legality, and broader generic `Store` / `Load` code cuts remain backlog
@@ -150,7 +150,7 @@ Related:
     - `7 numeric loop / SIMD`: partial; narrow FloatBox groundwork is landed, while induction/reduction/vectorization and fast-math tuning remain backlog
     - `8 closure split`: backlog; `capture classification`, `closure env scalarization`, and `closure thin-entry specialization` are still unscheduled
     - `9 IPO / build-time optimization`: backlog; `PGO` / `ThinLTO` stay last after the MIR-side semantic layers are stronger
-  - next optimization resume after the active string seam cleanup cut: `agg_local scalarization`
+  - next optimization resume after the active string seam cleanup cut: `agg_local scalarization` (`phase209x`)
   - fixed structure order before more domain widening:
     1. `phase166x` semantic refresh owner
     2. generic `value_origin` owner

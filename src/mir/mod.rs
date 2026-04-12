@@ -5,6 +5,7 @@
  * Based on SSA form with effect tracking and Box-aware optimizations
  */
 
+pub mod agg_local_scalarization; // generic agg_local scalarization owner seam folded from landed pilots
 pub mod analysis; // analysis-only views (no AST rewrite)
 #[cfg(feature = "aot-plan-import")]
 pub mod aot_plan_import;
@@ -88,6 +89,10 @@ pub(crate) use builder::detect_parse_number_shape;
 // Phase 143-P1:
 pub(crate) use builder::detect_parse_string_shape;
 // Phase 91 P5b: Re-export escape skip pattern detection for loop_canonicalizer
+pub use agg_local_scalarization::{
+    refresh_function_agg_local_scalarization_routes, refresh_module_agg_local_scalarization_routes,
+    AggLocalScalarizationKind, AggLocalScalarizationRoute,
+};
 pub(crate) use builder::detect_escape_skip_shape;
 pub use cfg_extractor::extract_cfg_info; // Phase 154: CFG extraction
 pub use definitions::{CallFlags, Callee, MirCall}; // Unified call definitions

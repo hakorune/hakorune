@@ -196,7 +196,10 @@ pub(super) fn build_mir_json_root(
                     "layout": layout.layout.to_string(),
                     "reason": layout.reason,
                 })
-            }).collect::<Vec<_>>()
+            }).collect::<Vec<_>>(),
+            "agg_local_scalarization_routes": build_agg_local_scalarization_routes_json(
+                &f.metadata.agg_local_scalarization_routes,
+            ),
         });
         let attrs_json = json!({
             "runes": f

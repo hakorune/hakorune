@@ -7,6 +7,7 @@
  */
 
 use super::{
+    agg_local_scalarization::refresh_function_agg_local_scalarization_routes,
     function::ModuleMetadata, refresh_function_storage_class_facts,
     refresh_function_string_corridor_candidates, refresh_function_string_corridor_facts,
     refresh_function_string_corridor_relations, refresh_function_sum_placement_facts,
@@ -41,6 +42,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_sum_placement_facts(function);
     refresh_function_sum_placement_selections(function);
     refresh_function_sum_placement_layouts(function);
+    refresh_function_agg_local_scalarization_routes(function);
 }
 
 /// Refresh MIR semantic metadata for the whole module.

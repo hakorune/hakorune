@@ -5,8 +5,8 @@
  */
 
 use super::{
-    storage_class::StorageClass, string_corridor::StringCorridorFact,
-    string_corridor_placement::StringCorridorCandidate,
+    agg_local_scalarization::AggLocalScalarizationRoute, storage_class::StorageClass,
+    string_corridor::StringCorridorFact, string_corridor_placement::StringCorridorCandidate,
     string_corridor_relation::StringCorridorRelation, sum_placement::SumPlacementFact,
     sum_placement_layout::SumPlacementLayout, sum_placement_selection::SumPlacementSelection,
     thin_entry::ThinEntryCandidate, thin_entry_selection::ThinEntrySelection, BasicBlock,
@@ -134,6 +134,12 @@ pub struct FunctionMetadata {
     /// This remains metadata-only in the current slice so lowering can consume a
     /// single layout SSOT in the next step.
     pub sum_placement_layouts: Vec<SumPlacementLayout>,
+
+    /// Folded agg_local scalarization routes derived from the landed pilot
+    /// scaffolds. This is the first generic owner seam that reads the sum,
+    /// thin-entry, and storage-class pilots together without changing runtime
+    /// behavior.
+    pub agg_local_scalarization_routes: Vec<AggLocalScalarizationRoute>,
 }
 
 impl MirFunction {

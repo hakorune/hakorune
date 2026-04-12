@@ -667,3 +667,62 @@ fn build_mir_json_root_emits_sum_placement_layouts() {
     assert_eq!(layouts[0]["surface"], "variant_make");
     assert_eq!(layouts[0]["value"], 11);
 }
+
+#[test]
+fn build_mir_json_root_emits_agg_local_scalarization_routes() {
+    let mut module = MirModule::new("test".to_string());
+    let mut function = make_function("main", true);
+    function
+        .metadata
+        .agg_local_scalarization_routes
+        .push(crate::mir::AggLocalScalarizationRoute {
+            block: Some(BasicBlockId::new(0)),
+            instruction_index: Some(2),
+            value: Some(crate::mir::ValueId::new(11)),
+            subject: "Option::Some".to_string(),
+            kind: crate::mir::AggLocalScalarizationKind::SumLocalLayout(
+                crate::mir::SumLocalAggregateLayout::TagI64Payload,
+            ),
+            reason: "selected local aggregate uses i64 payload lane".to_string(),
+        });
+    function
+        .metadata
+        .agg_local_scalarization_routes
+        .push(crate::mir::AggLocalScalarizationRoute {
+            block: Some(BasicBlockId::new(0)),
+            instruction_index: Some(3),
+            value: Some(crate::mir::ValueId::new(12)),
+            subject: "Point.x".to_string(),
+            kind: crate::mir::AggLocalScalarizationKind::UserBoxLocalBody(
+                crate::mir::ThinEntryValueClass::InlineI64,
+            ),
+            reason: "typed field read stays on thin internal scalar lane".to_string(),
+        });
+    function
+        .metadata
+        .agg_local_scalarization_routes
+        .push(crate::mir::AggLocalScalarizationRoute {
+            block: Some(BasicBlockId::new(0)),
+            instruction_index: Some(4),
+            value: Some(crate::mir::ValueId::new(13)),
+            subject: "Point.flag".to_string(),
+            kind: crate::mir::AggLocalScalarizationKind::TypedSlotStorage(
+                crate::mir::StorageClass::InlineBool,
+            ),
+            reason: "typed slot stays inline on the scalar lane".to_string(),
+        });
+    module.functions.insert("main".to_string(), function);
+
+    let root = build_mir_json_root(&module).expect("mir json root");
+    let routes = root["functions"][0]["metadata"]["agg_local_scalarization_routes"]
+        .as_array()
+        .expect("agg_local_scalarization_routes array");
+
+    assert_eq!(routes.len(), 3);
+    assert_eq!(routes[0]["kind"], "sum_local_layout");
+    assert_eq!(routes[0]["layout"], "tag_i64_payload");
+    assert_eq!(routes[1]["kind"], "user_box_local_body");
+    assert_eq!(routes[1]["value_class"], "inline_i64");
+    assert_eq!(routes[2]["kind"], "typed_slot_storage");
+    assert_eq!(routes[2]["storage_class"], "inline_bool");
+}

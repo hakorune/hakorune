@@ -80,9 +80,9 @@ Owner: `phase-163x optimization-resume`
 ## Immediate Read
 
 - immediate code next:
-  - `agg_local scalarization`
+  - `agg_local scalarization` (`phase209x`)
   - first layer-cut docs/facts phase
 - immediate follow-on after that:
   - `thin-entry actual consumer switch`
 - next major design lane after the current DCE slice:
-  - `agg_local scalarization`
+  - `agg_local scalarization` (`phase209x`)
