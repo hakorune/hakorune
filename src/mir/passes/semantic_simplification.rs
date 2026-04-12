@@ -4,8 +4,8 @@
  * This module is the top-level MIR transform owner for the semantic
  * simplification lane. The first cut only bundled landed DCE/CSE behavior.
  * The current cut adds the first narrow structural `SimplifyCFG` slice,
- * including copied-constant branch folding and constant compare folding
- * before CFG merge, while keeping jump-threading out of scope.
+ * including copied-constant branch folding, constant compare folding, and
+ * empty trampoline jump-threading before CFG merge.
  */
 
 use crate::mir::{optimizer_stats::OptimizationStats, MirModule};

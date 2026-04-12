@@ -22,7 +22,7 @@ Related:
 - `phase230x` is landed:
   - semantic simplification now rewrites trivial single-input bridge PHIs and merges that middle block into the predecessor
 - latest semantic simplification cut:
-  - copied-constant `Branch` terminators and constant `Compare` instructions now fold before CFG merge
+  - copied-constant `Branch` terminators, constant `Compare` instructions, and empty trampoline jump-threading now fold before CFG merge
 
 ## Read Next
 

@@ -5,6 +5,8 @@
  * - fold copied-constant `Branch` terminators to `Jump`
  * - fold constant `Compare` instructions to `Const Bool`, then let branch
  *   folding consume the resulting value
+ * - thread a branch arm through an empty jump trampoline when the final target
+ *   has no PHIs
  * - merge `pred -> middle` only for a direct `Jump`
  * - `middle` must be reachable, non-entry, have exactly one predecessor, and
  *   carry only trivial single-input PHIs from that predecessor
@@ -16,6 +18,12 @@ use crate::mir::{
     build_value_def_map, definitions::call_unified::Callee, resolve_value_origin, BasicBlock,
     BasicBlockId, ConstValue, EffectMask, MirFunction, MirInstruction, MirModule, ValueId,
 };
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ThreadArm {
+    Then,
+    Else,
+}
 
 pub fn simplify(module: &mut MirModule) -> usize {
     let mut simplified = 0usize;
@@ -37,6 +45,11 @@ fn simplify_function(function: &mut MirFunction) -> usize {
         }
         if let Some((block_id, target, edge_args)) = find_constant_branch_fold(function) {
             fold_constant_branch(function, block_id, target, edge_args);
+            simplified += 1;
+            continue;
+        }
+        if let Some((block_id, arm, target)) = find_threadable_branch_jump(function) {
+            thread_branch_arm(function, block_id, arm, target);
             simplified += 1;
             continue;
         }
@@ -220,6 +233,130 @@ fn fold_constant_branch(
         .get_mut(&block_id)
         .expect("constant-branch block must exist");
     block.set_terminator(MirInstruction::Jump { target, edge_args });
+    function.update_cfg();
+}
+
+fn find_threadable_branch_jump(
+    function: &MirFunction,
+) -> Option<(BasicBlockId, ThreadArm, BasicBlockId)> {
+    let reachable_blocks = crate::mir::verification::utils::compute_reachable_blocks(function);
+
+    for block_id in function.block_ids() {
+        if !reachable_blocks.contains(&block_id) {
+            continue;
+        }
+
+        let block = function.blocks.get(&block_id)?;
+        let MirInstruction::Branch {
+            then_bb,
+            else_bb,
+            then_edge_args,
+            else_edge_args,
+            ..
+        } = block.terminator.as_ref()?
+        else {
+            continue;
+        };
+
+        if let Some(target) = threadable_jump_target(function, *then_bb, then_edge_args.as_ref()) {
+            if target != *else_bb {
+                return Some((block_id, ThreadArm::Then, target));
+            }
+            if *else_edge_args == None {
+                return Some((block_id, ThreadArm::Then, target));
+            }
+        }
+
+        if let Some(target) = threadable_jump_target(function, *else_bb, else_edge_args.as_ref()) {
+            if target != *then_bb {
+                return Some((block_id, ThreadArm::Else, target));
+            }
+            if *then_edge_args == None {
+                return Some((block_id, ThreadArm::Else, target));
+            }
+        }
+    }
+
+    None
+}
+
+fn threadable_jump_target(
+    function: &MirFunction,
+    middle_id: BasicBlockId,
+    edge_args: Option<&crate::mir::EdgeArgs>,
+) -> Option<BasicBlockId> {
+    if edge_args.is_some() {
+        return None;
+    }
+
+    let middle_block = function.blocks.get(&middle_id)?;
+    if !middle_block.instructions.is_empty() {
+        return None;
+    }
+    if middle_block.phi_instructions().next().is_some() {
+        return None;
+    }
+
+    let MirInstruction::Jump {
+        target,
+        edge_args: None,
+    } = middle_block.terminator.as_ref()?
+    else {
+        return None;
+    };
+    if *target == middle_id || *target == function.entry_block {
+        return None;
+    }
+
+    let final_block = function.blocks.get(target)?;
+    if final_block.phi_instructions().next().is_some() {
+        return None;
+    }
+
+    Some(*target)
+}
+
+fn thread_branch_arm(
+    function: &mut MirFunction,
+    block_id: BasicBlockId,
+    arm: ThreadArm,
+    target: BasicBlockId,
+) {
+    let block = function
+        .blocks
+        .get_mut(&block_id)
+        .expect("threading block must exist");
+    let MirInstruction::Branch {
+        then_bb,
+        else_bb,
+        then_edge_args,
+        else_edge_args,
+        ..
+    } = block
+        .terminator
+        .as_mut()
+        .expect("threading block must terminate")
+    else {
+        return;
+    };
+
+    match arm {
+        ThreadArm::Then => {
+            *then_bb = target;
+        }
+        ThreadArm::Else => {
+            *else_bb = target;
+        }
+    }
+
+    if *then_bb == *else_bb && then_edge_args == else_edge_args {
+        let target = *then_bb;
+        let edge_args = then_edge_args.clone();
+        block.set_terminator(MirInstruction::Jump { target, edge_args });
+    } else {
+        block.successors = block.successors_from_terminator();
+    }
+
     function.update_cfg();
 }
 
