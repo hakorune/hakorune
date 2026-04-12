@@ -35,7 +35,9 @@ fn loop_facts_require_skeleton_and_features_when_present() {
         span: Span::unknown(),
     }];
 
-    let facts = try_build_loop_facts(&condition, &body).expect("Ok").expect("Some");
+    let facts = try_build_loop_facts(&condition, &body)
+        .expect("Ok")
+        .expect("Some");
     assert_eq!(facts.skeleton.kind, SkeletonKind::Loop);
     assert!(!facts.features.exit_usage.has_break);
     assert!(!facts.features.exit_usage.has_continue);

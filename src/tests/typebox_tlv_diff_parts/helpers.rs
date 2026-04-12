@@ -61,7 +61,13 @@ pub(super) fn inv_some(
         .unwrap_or_else(|| panic!("{}::{} returned None", box_ty, method))
 }
 
-pub(super) fn inv_void(h: &PluginHost, box_ty: &str, method: &str, id: u32, args: &[Box<dyn NyashBox>]) {
+pub(super) fn inv_void(
+    h: &PluginHost,
+    box_ty: &str,
+    method: &str,
+    id: u32,
+    args: &[Box<dyn NyashBox>],
+) {
     let _ = h
         .invoke_instance_method(box_ty, method, id, args)
         .expect(&format!("invoke {}::{}", box_ty, method));

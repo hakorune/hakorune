@@ -1,6 +1,5 @@
 use super::helpers::{
-    create_if_merge_multiple_pattern_mir, create_if_merge_simple_pattern_mir,
-    strict_if_env_guard,
+    create_if_merge_multiple_pattern_mir, create_if_merge_simple_pattern_mir, strict_if_env_guard,
 };
 use crate::mir::join_ir::lowering::try_lower_if_to_joinir;
 use crate::tests::helpers::joinir_env;

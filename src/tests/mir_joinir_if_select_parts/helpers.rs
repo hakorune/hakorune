@@ -134,11 +134,8 @@ pub(super) fn create_select_joinir() -> crate::mir::join_ir::JoinFunction {
     use crate::mir::join_ir::{ConstValue, JoinFuncId, JoinFunction, JoinInst, MirLikeInst};
 
     let func_id = JoinFuncId::new(0);
-    let mut join_func = JoinFunction::new(
-        func_id,
-        "IfSelectTest.test/1".to_string(),
-        vec![ValueId(0)],
-    );
+    let mut join_func =
+        JoinFunction::new(func_id, "IfSelectTest.test/1".to_string(), vec![ValueId(0)]);
 
     join_func.body.push(JoinInst::Compute(MirLikeInst::Const {
         dst: ValueId(1),
