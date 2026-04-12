@@ -2,8 +2,9 @@
 # phase-163x boundary pure-first smoke for selected user-box method thin-entry metadata
 #
 # Contract pin:
-# 1) MIR JSON fixtures carrying `user_box_method.known_receiver` selections stay
-#    accepted by the product `ny-llvmc` boundary pure-first route.
+# 1) MIR JSON fixtures carrying folded `placement_effect_routes` for
+#    `user_box_method.known_receiver` stay accepted by the product `ny-llvmc`
+#    boundary pure-first route, with `thin_entry_selections` kept as fallback.
 # 2) the current native-driver/shim consumer slice stays narrow: selected
 #    `Counter.step_chain`, `Counter.step`, and `Point.sum` rows are consumed
 #    beneath canonical `Call` without compat replay while relying on the

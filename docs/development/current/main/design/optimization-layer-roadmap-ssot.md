@@ -21,6 +21,7 @@ Owner: `phase-163x optimization-resume`
    - landed second consumer proving slice: current user-box local aggregate seed now reads folded `placement_effect_routes` first, with thin-entry subject lookup kept as fallback (`phase214x`)
    - landed third consumer proving slice: current thin-entry consumer seed now reads folded `placement_effect_routes` first, with `thin_entry_selections` kept as fallback (`phase215x`)
    - landed fourth consumer proving slice: current sum local seed metadata helper now reads folded `placement_effect_routes` first on the boundary pure-first path, with legacy thin-entry/sum/agg-local metadata kept as fallback (`phase216x`)
+   - landed fifth consumer proving slice: current boundary pure-first user-box micro seed helper now reads folded `placement_effect_routes` first, with legacy `thin_entry_selections` kept as fallback (`phase217x`)
 2. `agg_local scalarization`
    - `imm / borrow / agg_local / handle` の primary value classes を前提に、aggregate を scalar SSA に崩す
    - user-box local body / enum payload / tuple / record / closure env を同じ軸で扱う

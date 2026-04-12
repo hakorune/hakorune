@@ -154,11 +154,14 @@ Related:
   - landed generic placement/effect proving follow-on: `phase216x sum seed metadata helper consumer fold`
     - current sum local seed metadata helper now reads folded `placement_effect_routes` first on the boundary pure-first path
     - legacy `thin_entry_selections` / `sum_placement_*` / `agg_local` metadata remain compatibility fallback
+  - landed generic placement/effect proving follow-on: `phase217x user-box micro seed thin-entry fold`
+    - current boundary pure-first user-box micro seed helper now reads folded `placement_effect_routes` first
+    - legacy `thin_entry_selections` remains compatibility fallback
   - landed DCE structure follow-on: `phase192x DCE pass module split`
     - `src/mir/passes/dce.rs` is now a thin facade over focused implementation modules and topic tests
     - this cut was structure-only; later lane-B docs/facts and code widening happen in `phase199x` / `phase200x`
   - layer roadmap status:
-  - `1 generic placement / effect`: partial; string corridor candidates, sum placement chains, thin-entry inventory/selection, the first folded `placement_effect_routes` owner seam, the placement-relevant `agg_local` fold-up, and the first sum/user-box/thin-entry/boundary-sum-helper consumer proving slices are landed, but the top-level generic transform layer is still backlog
+  - `1 generic placement / effect`: partial; string corridor candidates, sum placement chains, thin-entry inventory/selection, the first folded `placement_effect_routes` owner seam, the placement-relevant `agg_local` fold-up, and the first sum/user-box/thin-entry/boundary-sum-helper/boundary-user-box-helper consumer proving slices are landed, but the top-level generic transform layer is still backlog
   - `phase209x`: agg_local owner seam is landed
     - `2 agg_local scalarization`: landed; selected sum local layouts, selected user-box local bodies, and ArrayBox typed-slot pilots are folded into the generic route seam
     - `3 thin-entry actual consumer switch`: landed; the shared thin-entry consumer helper seam is in place, and the remaining generic placement/effect fold-up is the next broader layer

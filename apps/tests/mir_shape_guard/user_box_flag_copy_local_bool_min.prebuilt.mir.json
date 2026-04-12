@@ -7,9 +7,15 @@
   "user_box_decls": [
     {
       "name": "Flag",
-      "fields": ["enabled"],
+      "fields": [
+        "enabled"
+      ],
       "field_decls": [
-        { "name": "enabled", "declared_type": "BoolBox", "is_weak": false }
+        {
+          "name": "enabled",
+          "declared_type": "BoolBox",
+          "is_weak": false
+        }
       ]
     }
   ],
@@ -24,7 +30,10 @@
             {
               "op": "const",
               "dst": 1,
-              "value": { "type": "i64", "value": 1 }
+              "value": {
+                "type": "i64",
+                "value": 1
+              }
             },
             {
               "op": "newbox",
@@ -37,7 +46,10 @@
               "box": 2,
               "field": "enabled",
               "value": 1,
-              "declared_type": { "kind": "handle", "box_type": "BoolBox" }
+              "declared_type": {
+                "kind": "handle",
+                "box_type": "BoolBox"
+              }
             },
             {
               "op": "copy",
@@ -49,7 +61,10 @@
               "dst": 4,
               "box": 3,
               "field": "enabled",
-              "declared_type": { "kind": "handle", "box_type": "BoolBox" }
+              "declared_type": {
+                "kind": "handle",
+                "box_type": "BoolBox"
+              }
             },
             {
               "op": "ret",
@@ -61,8 +76,14 @@
       "metadata": {
         "value_types": {
           "1": "i1",
-          "2": { "kind": "handle", "box_type": "Flag" },
-          "3": { "kind": "handle", "box_type": "Flag" },
+          "2": {
+            "kind": "handle",
+            "box_type": "Flag"
+          },
+          "3": {
+            "kind": "handle",
+            "box_type": "Flag"
+          },
           "4": "i1"
         },
         "thin_entry_selections": [
@@ -90,6 +111,32 @@
             "state": "already_satisfied",
             "current_carrier": "backend_typed",
             "value_class": "inline_bool",
+            "reason": "known primitive field reads stay on a thin internal scalar lane below canonical field.get"
+          }
+        ],
+        "placement_effect_routes": [
+          {
+            "block": 0,
+            "instruction_index": 2,
+            "value": null,
+            "source_value": null,
+            "source": "thin_entry",
+            "subject": "Flag.enabled",
+            "decision": "thin_internal_entry",
+            "state": "already_satisfied",
+            "detail": "user_box_field_set.inline_scalar",
+            "reason": "known primitive field writes stay on a thin internal scalar lane below canonical field.set"
+          },
+          {
+            "block": 0,
+            "instruction_index": 4,
+            "value": 4,
+            "source_value": null,
+            "source": "thin_entry",
+            "subject": "Flag.enabled",
+            "decision": "thin_internal_entry",
+            "state": "already_satisfied",
+            "detail": "user_box_field_get.inline_scalar",
             "reason": "known primitive field reads stay on a thin internal scalar lane below canonical field.get"
           }
         ]

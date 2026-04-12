@@ -7,9 +7,15 @@
   "user_box_decls": [
     {
       "name": "Counter",
-      "fields": ["value"],
+      "fields": [
+        "value"
+      ],
       "field_decls": [
-        { "name": "value", "declared_type": "IntegerBox", "is_weak": false }
+        {
+          "name": "value",
+          "declared_type": "IntegerBox",
+          "is_weak": false
+        }
       ]
     }
   ],
@@ -24,7 +30,10 @@
             {
               "op": "const",
               "dst": 1,
-              "value": { "type": "i64", "value": 41 }
+              "value": {
+                "type": "i64",
+                "value": 41
+              }
             },
             {
               "op": "newbox",
@@ -37,7 +46,10 @@
               "box": 2,
               "field": "value",
               "value": 1,
-              "declared_type": { "kind": "handle", "box_type": "IntegerBox" }
+              "declared_type": {
+                "kind": "handle",
+                "box_type": "IntegerBox"
+              }
             },
             {
               "op": "copy",
@@ -70,8 +82,14 @@
       "metadata": {
         "value_types": {
           "1": "i64",
-          "2": { "kind": "handle", "box_type": "Counter" },
-          "3": { "kind": "handle", "box_type": "Counter" },
+          "2": {
+            "kind": "handle",
+            "box_type": "Counter"
+          },
+          "3": {
+            "kind": "handle",
+            "box_type": "Counter"
+          },
           "4": "i64"
         },
         "thin_entry_selections": [
@@ -101,12 +119,40 @@
             "value_class": "unknown",
             "reason": "known receiver user-box methods can lower beneath canonical Call, even through a single local copy alias"
           }
+        ],
+        "placement_effect_routes": [
+          {
+            "block": 0,
+            "instruction_index": 2,
+            "value": null,
+            "source_value": null,
+            "source": "thin_entry",
+            "subject": "Counter.value",
+            "decision": "thin_internal_entry",
+            "state": "already_satisfied",
+            "detail": "user_box_field_set.inline_scalar",
+            "reason": "known primitive field writes stay on a thin internal scalar lane below canonical field.set"
+          },
+          {
+            "block": 0,
+            "instruction_index": 4,
+            "value": 4,
+            "source_value": null,
+            "source": "thin_entry",
+            "subject": "Counter.step_chain",
+            "decision": "thin_internal_entry",
+            "state": "candidate",
+            "detail": "user_box_method.known_receiver",
+            "reason": "known receiver user-box methods can lower beneath canonical Call, even through a single local copy alias"
+          }
         ]
       }
     },
     {
       "name": "Counter.step_chain/1",
-      "params": [0],
+      "params": [
+        0
+      ],
       "blocks": [
         {
           "id": 2,
@@ -141,7 +187,10 @@
       ],
       "metadata": {
         "value_types": {
-          "0": { "kind": "handle", "box_type": "Counter" },
+          "0": {
+            "kind": "handle",
+            "box_type": "Counter"
+          },
           "1": "i64",
           "2": "i64"
         }
@@ -149,7 +198,9 @@
     },
     {
       "name": "Counter.step/1",
-      "params": [0],
+      "params": [
+        0
+      ],
       "blocks": [
         {
           "id": 1,
@@ -159,12 +210,18 @@
               "dst": 1,
               "box": 0,
               "field": "value",
-              "declared_type": { "kind": "handle", "box_type": "IntegerBox" }
+              "declared_type": {
+                "kind": "handle",
+                "box_type": "IntegerBox"
+              }
             },
             {
               "op": "const",
               "dst": 2,
-              "value": { "type": "i64", "value": 2 }
+              "value": {
+                "type": "i64",
+                "value": 2
+              }
             },
             {
               "op": "binop",
@@ -183,7 +240,10 @@
       ],
       "metadata": {
         "value_types": {
-          "0": { "kind": "handle", "box_type": "Counter" },
+          "0": {
+            "kind": "handle",
+            "box_type": "Counter"
+          },
           "1": "i64",
           "2": "i64",
           "3": "i64"

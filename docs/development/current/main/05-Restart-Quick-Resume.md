@@ -37,7 +37,7 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-216x/README.md`
+3. `docs/development/current/main/phases/phase-217x/README.md`
 4. `docs/development/current/main/phases/phase-163x/README.md`
 5. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 6. `docs/development/current/main/phases/phase-137x/README.md`
@@ -73,6 +73,7 @@ tools/checks/dev_gate.sh quick
   - `phase-214x`
   - `phase-215x`
   - `phase-216x`
+  - `phase-217x`
   - `phase-216x`
 
 ## First Design Slices

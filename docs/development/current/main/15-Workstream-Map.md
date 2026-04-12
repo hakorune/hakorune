@@ -41,6 +41,7 @@ Related:
   - `phase-214x`: the second generic placement/effect consumer proving slice is landed; current user-box local aggregate seeding now reads the folded inventory first
   - `phase-215x`: the third generic placement/effect consumer proving slice is landed; current thin-entry consumer seeding now reads the folded inventory first
   - `phase-216x`: the current sum local seed metadata helper now reads folded `placement_effect_routes` first on the boundary pure-first path
+  - `phase-217x`: the current boundary pure-first user-box micro seed helper now reads folded `placement_effect_routes` first
   - landed generic-memory facts follow-on:
   - `phase-199x` is landed
   - lane-B observer/owner contract is fixed before any generic `Load` / `Store` pruning

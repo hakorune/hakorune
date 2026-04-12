@@ -2,9 +2,9 @@
 # phase-163x boundary pure-first smoke for metadata-bearing user-box JSON
 #
 # Contract pin:
-# 1) MIR JSON fixtures carrying `thin_entry_selections` for selected primitive
-#    user-box field routes stay accepted by the product `ny-llvmc` boundary
-#    pure-first route.
+# 1) MIR JSON fixtures carrying folded `placement_effect_routes` for selected
+#    primitive user-box field routes stay accepted by the product `ny-llvmc`
+#    boundary pure-first route, with `thin_entry_selections` kept as fallback.
 # 2) explicit `pure-first + compat_replay=harness` does not replay harness for
 #    this selected local user-box proving slice.
 

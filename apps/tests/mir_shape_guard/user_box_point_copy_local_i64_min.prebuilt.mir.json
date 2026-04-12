@@ -7,10 +7,21 @@
   "user_box_decls": [
     {
       "name": "Point",
-      "fields": ["x", "y"],
+      "fields": [
+        "x",
+        "y"
+      ],
       "field_decls": [
-        { "name": "x", "declared_type": "IntegerBox", "is_weak": false },
-        { "name": "y", "declared_type": "IntegerBox", "is_weak": false }
+        {
+          "name": "x",
+          "declared_type": "IntegerBox",
+          "is_weak": false
+        },
+        {
+          "name": "y",
+          "declared_type": "IntegerBox",
+          "is_weak": false
+        }
       ]
     }
   ],
@@ -25,12 +36,18 @@
             {
               "op": "const",
               "dst": 1,
-              "value": { "type": "i64", "value": 41 }
+              "value": {
+                "type": "i64",
+                "value": 41
+              }
             },
             {
               "op": "const",
               "dst": 2,
-              "value": { "type": "i64", "value": 2 }
+              "value": {
+                "type": "i64",
+                "value": 2
+              }
             },
             {
               "op": "newbox",
@@ -43,14 +60,20 @@
               "box": 3,
               "field": "x",
               "value": 1,
-              "declared_type": { "kind": "handle", "box_type": "IntegerBox" }
+              "declared_type": {
+                "kind": "handle",
+                "box_type": "IntegerBox"
+              }
             },
             {
               "op": "field_set",
               "box": 3,
               "field": "y",
               "value": 2,
-              "declared_type": { "kind": "handle", "box_type": "IntegerBox" }
+              "declared_type": {
+                "kind": "handle",
+                "box_type": "IntegerBox"
+              }
             },
             {
               "op": "copy",
@@ -62,14 +85,20 @@
               "dst": 7,
               "box": 6,
               "field": "x",
-              "declared_type": { "kind": "handle", "box_type": "IntegerBox" }
+              "declared_type": {
+                "kind": "handle",
+                "box_type": "IntegerBox"
+              }
             },
             {
               "op": "field_get",
               "dst": 8,
               "box": 6,
               "field": "y",
-              "declared_type": { "kind": "handle", "box_type": "IntegerBox" }
+              "declared_type": {
+                "kind": "handle",
+                "box_type": "IntegerBox"
+              }
             },
             {
               "op": "binop",
@@ -90,8 +119,14 @@
         "value_types": {
           "1": "i64",
           "2": "i64",
-          "3": { "kind": "handle", "box_type": "Point" },
-          "6": { "kind": "handle", "box_type": "Point" },
+          "3": {
+            "kind": "handle",
+            "box_type": "Point"
+          },
+          "6": {
+            "kind": "handle",
+            "box_type": "Point"
+          },
           "7": "i64",
           "8": "i64",
           "9": "i64"
@@ -147,6 +182,56 @@
             "state": "already_satisfied",
             "current_carrier": "backend_typed",
             "value_class": "inline_i64",
+            "reason": "known primitive field reads stay on a thin internal scalar lane below canonical field.get, even through a copy alias"
+          }
+        ],
+        "placement_effect_routes": [
+          {
+            "block": 0,
+            "instruction_index": 3,
+            "value": null,
+            "source_value": null,
+            "source": "thin_entry",
+            "subject": "Point.x",
+            "decision": "thin_internal_entry",
+            "state": "already_satisfied",
+            "detail": "user_box_field_set.inline_scalar",
+            "reason": "known primitive field writes stay on a thin internal scalar lane below canonical field.set"
+          },
+          {
+            "block": 0,
+            "instruction_index": 4,
+            "value": null,
+            "source_value": null,
+            "source": "thin_entry",
+            "subject": "Point.y",
+            "decision": "thin_internal_entry",
+            "state": "already_satisfied",
+            "detail": "user_box_field_set.inline_scalar",
+            "reason": "known primitive field writes stay on a thin internal scalar lane below canonical field.set"
+          },
+          {
+            "block": 0,
+            "instruction_index": 6,
+            "value": 7,
+            "source_value": null,
+            "source": "thin_entry",
+            "subject": "Point.x",
+            "decision": "thin_internal_entry",
+            "state": "already_satisfied",
+            "detail": "user_box_field_get.inline_scalar",
+            "reason": "known primitive field reads stay on a thin internal scalar lane below canonical field.get, even through a copy alias"
+          },
+          {
+            "block": 0,
+            "instruction_index": 7,
+            "value": 8,
+            "source_value": null,
+            "source": "thin_entry",
+            "subject": "Point.y",
+            "decision": "thin_internal_entry",
+            "state": "already_satisfied",
+            "detail": "user_box_field_get.inline_scalar",
             "reason": "known primitive field reads stay on a thin internal scalar lane below canonical field.get, even through a copy alias"
           }
         ]

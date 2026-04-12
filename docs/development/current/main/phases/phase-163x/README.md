@@ -170,6 +170,7 @@
       - landed follow-on: current user-box local aggregate seeding now reads folded `placement_effect_routes` first, with thin-entry subject lookup kept as fallback
       - landed follow-on: current thin-entry consumer seeding now reads folded `placement_effect_routes` first, with `thin_entry_selections` kept as fallback
       - landed follow-on: current sum local seed metadata helper now reads folded `placement_effect_routes` first on the boundary pure-first path, with legacy thin-entry/sum/agg-local metadata kept as fallback
+      - landed follow-on: current boundary pure-first user-box micro seed helper now reads folded `placement_effect_routes` first, with legacy `thin_entry_selections` kept as fallback
       - next active substep is the next broader generic placement/effect proving slice; the first sum, user-box, and thin-entry consumer seed cuts are now landed
       - separate-phase backlog, not part of `sum-thin-entry-cutover`:
         - `PhiMerge` / cross-block alias routes stay blocked by the current `sum_placement` `phi_merge` barrier and require a contract change before optimization

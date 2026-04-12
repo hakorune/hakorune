@@ -98,6 +98,7 @@ static int hako_llvmc_has_thin_entry_selection(
     const char* manifest_row,
     const char* selected_entry) {
   yyjson_val* metadata;
+  yyjson_val* routes;
   yyjson_val* selections;
   size_t i;
 
@@ -107,6 +108,30 @@ static int hako_llvmc_has_thin_entry_selection(
   }
 
   metadata = yyjson_obj_get(fn, "metadata");
+  routes = metadata ? yyjson_obj_get(metadata, "placement_effect_routes") : NULL;
+  if (routes && yyjson_is_arr(routes)) {
+    for (i = 0; i < yyjson_arr_size(routes); i++) {
+      yyjson_val* row = yyjson_arr_get(routes, i);
+      const char* row_source = row ? yyjson_get_str(yyjson_obj_get(row, "source")) : NULL;
+      const char* row_subject = row ? yyjson_get_str(yyjson_obj_get(row, "subject")) : NULL;
+      const char* row_manifest = row ? yyjson_get_str(yyjson_obj_get(row, "detail")) : NULL;
+      const char* row_selected = row ? yyjson_get_str(yyjson_obj_get(row, "decision")) : NULL;
+      size_t manifest_prefix_len;
+      if (!(row_source && row_subject && row_manifest && row_selected)) {
+        continue;
+      }
+      manifest_prefix_len = strlen(surface);
+      if (strcmp(row_source, "thin_entry") == 0 &&
+          strcmp(row_subject, subject) == 0 &&
+          strncmp(row_manifest, surface, manifest_prefix_len) == 0 &&
+          row_manifest[manifest_prefix_len] == '.' &&
+          strcmp(row_manifest, manifest_row) == 0 &&
+          strcmp(row_selected, selected_entry) == 0) {
+        return 1;
+      }
+    }
+  }
+
   selections = metadata ? yyjson_obj_get(metadata, "thin_entry_selections") : NULL;
   if (!(selections && yyjson_is_arr(selections))) {
     return 0;
