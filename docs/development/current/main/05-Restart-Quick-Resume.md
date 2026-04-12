@@ -25,9 +25,9 @@ tools/checks/dev_gate.sh quick
 - sibling guardrail:
   - `phase-137x main kilo reopen selection`
 - immediate next:
-  - `thin-entry actual consumer switch`
-- immediate follow-on:
   - `generic placement / effect`
+- immediate follow-on:
+  - `semantic simplification bundle`
 - stop-lines:
   - keep lane B separate from lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
   - keep lane B separate from `generic placement / effect`

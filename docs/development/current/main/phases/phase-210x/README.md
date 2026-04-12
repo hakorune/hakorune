@@ -1,6 +1,6 @@
 # Phase 210x: thin-entry actual consumer switch
 
-- Status: Active
+- Status: Landed
 - Purpose: make thin-entry selection a shared actual-consumer seam in the LLVM/Python lowering path, so the current call-site decisions stop living as scattered metadata lookups.
 - Target:
   - `CURRENT_TASK.md`
@@ -17,6 +17,10 @@
 - centralize thin-entry lookup / decision helpers for user-box method and field routes
 - keep the current thin-entry metadata shape intact
 - keep the lowering behavior-preserving while making the consumer seam explicit
+
+## Follow-on
+
+- `generic placement / effect`
 
 ## Non-goals
 

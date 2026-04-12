@@ -1,13 +1,13 @@
 # 210x-91 Task Board
 
-Status: Active
+Status: Landed
 
 ## Tasks
 
-- [ ] A0: add a shared thin-entry decision helper for lowering consumers
-- [ ] A1: wire `method_call`, `field_access`, and `user_box_local` to the shared helper
-- [ ] A2: add focused tests or update existing tests for the shared consumer seam
-- [ ] A3: sync current pointers to the new code phase
+- [x] A0: add a shared thin-entry decision helper for lowering consumers
+- [x] A1: wire `method_call`, `field_access`, and `user_box_local` to the shared helper
+- [x] A2: add focused tests or update existing tests for the shared consumer seam
+- [x] A3: sync current pointers to the new code phase
 
 ## Exit
 

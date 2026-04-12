@@ -15,11 +15,11 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-163x primitive and user-box fast path` |
-| Front | `lane-B generic memory cuts are landed through B2 -> lane-C docs inventory, Debug policy, C2a operand liveness, C2b seed cleanup, and C2c handoff are landed -> next design lane is thin-entry actual consumer switch (phase210x)` |
+| Front | `lane-B generic memory cuts are landed through B2 -> lane-C docs inventory, Debug policy, C2a operand liveness, C2b seed cleanup, and C2c handoff are landed -> next design lane is generic placement / effect` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `lane C is closed; next design lane is thin-entry actual consumer switch (phase210x)` |
-| Next | `thin-entry actual consumer switch` |
-| After Next | `generic placement / effect` |
+| Blocker | `lane C is closed; next design lane is generic placement / effect` |
+| Next | `generic placement / effect` |
+| After Next | `semantic simplification bundle` |
 
 ## Current Read
 
@@ -33,7 +33,7 @@ Related:
   - `phase-169x` through `phase-180x`: string guardrail, `StringKernelPlan`, publication slices, and seam cleanup are landed; only the final emitted-MIR return-carrier cleanup stays parked on `phase-137x`
   - `phase-176x` / `phase-177x` / `phase-181x` / `phase-182x` / `phase-183x` / `phase-184x` / `phase-185x` / `phase-186x` / `phase-187x` / `phase-188x` / `phase-189x` / `phase-190x` / `phase-191x` / `phase-192x` / `phase-196x`: semantic simplification bundle is landed through DCE lane A2
   - `phase-178x` / `phase-193x` / `phase-194x`: BoxShape splits are landed and stay behavior-preserving
-  - `phase-195x` / `phase-197x`: roadmap regroup and pointer hygiene are landed; current docs now point to `phase210x thin-entry actual consumer switch` as the next layer work
+  - `phase-195x` / `phase-197x`: roadmap regroup and pointer hygiene are landed; current docs now point to `generic placement / effect` as the next layer work
   - `phase-198x`: root restart docs are compressed back to pointer-only form
   - landed generic-memory facts follow-on:
   - `phase-199x` is landed
@@ -52,10 +52,10 @@ Related:
   - legacy instruction-list control-anchor seeding is removed; control-anchor operand liveness is now owned only by `block.terminator` plus reachable edge args
   - `phase-206x` is now landed too
   - the DCE / SimplifyCFG handoff boundary is now explicit in docs and code
-  - next target is now `thin-entry actual consumer switch` (`phase210x`)
+  - next target is now `generic placement / effect`
 - immediate sequence:
   - `generic placement / effect`
-  - then `thin-entry actual consumer switch` (`phase210x`)
+  - then `semantic simplification bundle`
 - stop-lines:
   - keep lane B separate from `Debug` / simplification-handoff control cleanup
   - keep lane B separate from `generic placement / effect`

@@ -135,7 +135,7 @@ Related:
     - legacy instruction-list `Branch` / `Jump` / `Return` seeding is removed; mainline DCE now seeds control-anchor operands only from `block.terminator` plus reachable edge args
   - landed observer/control handoff follow-on: `phase206x simplification-handoff wording lock`
     - the DCE / SimplifyCFG handoff boundary is now explicit in docs and code
-    - immediate next is now `thin-entry actual consumer switch`
+    - immediate next is now `generic placement / effect`
   - landed DCE structure follow-on: `phase192x DCE pass module split`
     - `src/mir/passes/dce.rs` is now a thin facade over focused implementation modules and topic tests
     - this cut was structure-only; later lane-B docs/facts and code widening happen in `phase199x` / `phase200x`
@@ -143,14 +143,14 @@ Related:
   - `1 generic placement / effect`: partial; string corridor candidates, sum placement chains, and thin-entry inventory/selection are landed as pilot scaffolds, but the top-level generic transform layer is still backlog
   - `phase209x`: agg_local owner seam is landed
     - `2 agg_local scalarization`: landed; selected sum local layouts, selected user-box local bodies, and ArrayBox typed-slot pilots are folded into the generic route seam
-    - `3 thin-entry actual consumer switch`: partial; known-receiver user-box method routes are the first landed actual-consumer slice, while broader thin-entry consumer switching remains backlog
+    - `3 thin-entry actual consumer switch`: landed; the shared thin-entry consumer helper seam is in place, and the remaining generic placement/effect fold-up is the next broader layer
     - `4 semantic simplification bundle`: partial; current DCE work is landed through `phase176x` / `phase177x` / `phase181x` / `phase182x` / `phase183x` / `phase184x` / `phase185x` / `phase186x` / `phase187x` / `phase188x` / `phase189x` / `phase190x` / `phase191x` / `phase192x` / `phase196x` / `phase199x` / `phase200x` / `phase201x` / `phase202x`, but `SCCP`, `SimplifyCFG`, and jump-threading remain backlog; keep `DSE` out of this row
     - `5 memory-effect layer`: partial; lane-B0 generic memory observer/owner contract plus lane-B1 dead `Load` pruning and lane-B2 overwritten `Store` pruning are now landed, while dead-store elimination, store-to-load forwarding, redundant load elimination, hoist/sink legality, and broader generic `Store` / `Load` code cuts remain backlog
     - `6 escape / barrier -> LLVM attrs`: partial; Copy + one-input-phi-carry aware local barrier elision and the `phase165x` operand-role escape barrier vocabulary cut are landed, but attribute feed (`nocapture` / `readonly` / `readnone` / `noalias`) remains backlog
     - `7 numeric loop / SIMD`: partial; narrow FloatBox groundwork is landed, while induction/reduction/vectorization and fast-math tuning remain backlog
     - `8 closure split`: backlog; `capture classification`, `closure env scalarization`, and `closure thin-entry specialization` are still unscheduled
     - `9 IPO / build-time optimization`: backlog; `PGO` / `ThinLTO` stay last after the MIR-side semantic layers are stronger
-  - next optimization resume after the active string seam cleanup cut: `thin-entry actual consumer switch` (`phase210x`)
+    - next optimization resume after the active string seam cleanup cut: `generic placement / effect`
   - fixed structure order before more domain widening:
     1. `phase166x` semantic refresh owner
     2. generic `value_origin` owner

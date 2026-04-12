@@ -80,9 +80,9 @@ Owner: `phase-163x optimization-resume`
 ## Immediate Read
 
 - immediate code next:
-  - `thin-entry actual consumer switch` (`phase210x`)
-  - first consumer-switch docs/facts phase
-- immediate follow-on after that:
   - `generic placement / effect`
+  - fold the current pilot scaffolds into one generic transform layer
+- immediate follow-on after that:
+  - `semantic simplification bundle`
 - next major design lane after the current DCE slice:
-  - `thin-entry actual consumer switch` (`phase210x`)
+  - `generic placement / effect`

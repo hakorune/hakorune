@@ -28,9 +28,9 @@ Scope: repo root から current lane / current front / restart read order に最
 - sibling guardrail:
   - `phase-137x` string corridor / exact-keeper guardrail
 - immediate next:
-  - `thin-entry actual consumer switch`
-- immediate follow-on:
   - `generic placement / effect`
+- immediate follow-on:
+  - `semantic simplification bundle`
 - current stop-lines:
   - do not mix lane B with lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
   - do not mix lane B with `generic placement / effect`
@@ -100,7 +100,7 @@ Scope: repo root から current lane / current front / restart read order に最
   - legacy instruction-list control-anchor seeding is removed; mainline DCE now keeps control-anchor operands only through `block.terminator` and reachable edge args
 - `phase-206x`
   - DCE / SimplifyCFG handoff boundary is now explicit in docs and code
-  - immediate next is the next layer step, starting with `thin-entry actual consumer switch` (`phase210x`)
+  - immediate next is the next layer step, starting with `generic placement / effect`
 
 ## Current Checks
 
