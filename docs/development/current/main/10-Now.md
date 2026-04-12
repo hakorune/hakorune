@@ -51,7 +51,7 @@ Related:
   - landed string bridge-retirement follow-on: `phase179x string kernel plan export and seed retirement`
     - external reread is accepted in direction: `hako_llvmc_ffi_string_loop_seed.inc` is still too shape-driven
     - corrected reading: MIR JSON already exports string corridor facts/relations/candidates; the next missing seam is a backend-consumable `StringKernelPlan`
-    - landed: MIR-side `derive_string_kernel_plan(...)` now derives/export `metadata.string_kernel_plans` from current string corridor candidates
+    - landed: MIR refresh now materializes `metadata.string_kernel_plans` from current string corridor candidates and the JSON emitter serializes that first-class metadata only
     - landed: `string_loop_seed` now reads that plan first for the stable-length `substring_concat` len route, keeping the old body matcher only as shape fallback for the remaining full-loop bridge
     - landed: exact keeper proof stays green at `ny_aot_instr=1,665,875 / ny_aot_ms=3`, and the old matcher no longer accepts the 14-op len-route fallback
   - landed string seam cleanup follow-on: `phase180x string seam cleanup before broader DCE`

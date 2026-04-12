@@ -8,10 +8,11 @@ use super::{
     agg_local_scalarization::AggLocalScalarizationRoute, placement_effect::PlacementEffectRoute,
     storage_class::StorageClass, string_corridor::StringCorridorFact,
     string_corridor_placement::StringCorridorCandidate,
-    string_corridor_relation::StringCorridorRelation, sum_placement::SumPlacementFact,
-    sum_placement_layout::SumPlacementLayout, sum_placement_selection::SumPlacementSelection,
-    thin_entry::ThinEntryCandidate, thin_entry_selection::ThinEntrySelection, BasicBlock,
-    BasicBlockId, EffectMask, MirInstruction, MirType, ValueId,
+    string_corridor_relation::StringCorridorRelation, string_kernel_plan::StringKernelPlan,
+    sum_placement::SumPlacementFact, sum_placement_layout::SumPlacementLayout,
+    sum_placement_selection::SumPlacementSelection, thin_entry::ThinEntryCandidate,
+    thin_entry_selection::ThinEntrySelection, BasicBlock, BasicBlockId, EffectMask, MirInstruction,
+    MirType, ValueId,
 };
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fmt;
@@ -146,6 +147,12 @@ pub struct FunctionMetadata {
     /// sum, and thin-entry pilots. This keeps the first cross-family route
     /// inventory in one owner seam without mutating MIR or lowering behavior.
     pub placement_effect_routes: Vec<PlacementEffectRoute>,
+
+    /// Backend-consumable string kernel plans derived during MIR refresh.
+    /// This is the first MIR-side generic placement/effect transform slice and
+    /// stays a derived view over corridor candidates, not a new canonical
+    /// semantic owner.
+    pub string_kernel_plans: std::collections::BTreeMap<ValueId, StringKernelPlan>,
 }
 
 impl MirFunction {

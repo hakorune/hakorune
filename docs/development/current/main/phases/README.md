@@ -10,7 +10,7 @@
 - **Phase 218x（LANDED）**: shared placement/effect route reader seam
 - **Phase 219x（LANDED）**: placement-effect route window len fold
 - **Phase 220x（LANDED）**: placement-effect route window len helper cleanup
-- **Phase 221x（PLANNED）**: generic placement / effect first MIR-side transform cut
+- **Phase 221x（LANDED）**: generic placement / effect first MIR-side transform cut
 - **Phase 216x（LANDED）**: sum seed metadata helper consumer fold
 - **Phase 215x（LANDED）**: thin-entry consumer seed
 - **Phase 214x（LANDED）**: user-box local body consumer seed

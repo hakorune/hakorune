@@ -33,12 +33,10 @@ pub(super) fn build_string_kernel_plan_parts_json(
 }
 
 pub(super) fn build_string_kernel_plan_json(
-    function: &crate::mir::MirFunction,
-    candidates: &[crate::mir::StringCorridorCandidate],
-) -> Option<serde_json::Value> {
-    let plan = crate::mir::derive_string_kernel_plan(function, candidates)?;
+    plan: &crate::mir::StringKernelPlan,
+) -> serde_json::Value {
     let legality = plan.legality();
-    Some(json!({
+    json!({
         "version": plan.version,
         "family": plan.family.to_string(),
         "corridor_root": plan.corridor_root.as_u32(),
@@ -65,5 +63,5 @@ pub(super) fn build_string_kernel_plan_json(
             "loop_bound": payload.loop_bound,
             "split_length": payload.split_length,
         })),
-    }))
+    })
 }

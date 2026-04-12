@@ -463,6 +463,7 @@ fn build_mir_json_root_emits_string_kernel_plans() {
         ],
     );
     module.functions.insert("main".to_string(), function);
+    crate::mir::refresh_module_string_kernel_plans(&mut module);
 
     let root = build_mir_json_root(&module).expect("mir json root");
     let plans = root["functions"][0]["metadata"]["string_kernel_plans"]
@@ -519,6 +520,7 @@ fn build_mir_json_root_emits_string_kernel_plan_loop_payload() {
             }],
         );
     module.functions.insert("main".to_string(), function);
+    crate::mir::refresh_module_string_kernel_plans(&mut module);
 
     let root = build_mir_json_root(&module).expect("mir json root");
     let plan = &root["functions"][0]["metadata"]["string_kernel_plans"]["21"];

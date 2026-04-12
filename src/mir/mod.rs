@@ -136,8 +136,10 @@ pub use string_corridor_relation::{
     StringCorridorRelation, StringCorridorRelationKind, StringCorridorWindowContract,
 };
 pub use string_kernel_plan::{
-    derive_string_kernel_plan, StringKernelPlan, StringKernelPlanConsumer, StringKernelPlanFamily,
-    StringKernelPlanLegality, StringKernelPlanPart, StringKernelPlanRetainedForm,
+    derive_string_kernel_plan, refresh_function_string_kernel_plans,
+    refresh_module_string_kernel_plans, StringKernelPlan, StringKernelPlanConsumer,
+    StringKernelPlanFamily, StringKernelPlanLegality, StringKernelPlanPart,
+    StringKernelPlanRetainedForm,
 };
 pub use sum_placement::{
     refresh_function_sum_placement_facts, refresh_module_sum_placement_facts,

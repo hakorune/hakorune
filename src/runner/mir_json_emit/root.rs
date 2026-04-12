@@ -124,9 +124,8 @@ pub(super) fn build_mir_json_root(
                     })
                 }).collect::<Vec<_>>()))
             }).collect::<serde_json::Map<String, serde_json::Value>>(),
-            "string_kernel_plans": f.metadata.string_corridor_candidates.iter().filter_map(|(k, candidates)| {
-                build_string_kernel_plan_json(f, candidates)
-                    .map(|plan| (k.as_u32().to_string(), plan))
+            "string_kernel_plans": f.metadata.string_kernel_plans.iter().map(|(k, plan)| {
+                (k.as_u32().to_string(), build_string_kernel_plan_json(plan))
             }).collect::<serde_json::Map<String, serde_json::Value>>(),
             "thin_entry_candidates": f.metadata.thin_entry_candidates.iter().map(|candidate| {
                 json!({

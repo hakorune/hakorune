@@ -1,10 +1,13 @@
 /*!
  * Backend-consumable string kernel plan seam.
  *
- * This module owns the thin derived view that backend/export consumers read.
- * It is downstream of string corridor candidates and upstream of JSON/shim
- * transport. Placement remains the owner of candidate metadata itself.
+ * This module owns the thin derived view that MIR refresh now materializes
+ * first-class. It is downstream of string corridor candidates and upstream of
+ * JSON/shim transport. Placement remains the owner of candidate metadata
+ * itself.
  */
+
+use std::collections::BTreeMap;
 
 use super::{
     build_value_def_map, resolve_value_origin,
@@ -12,7 +15,7 @@ use super::{
         StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateProof,
         StringCorridorCandidateState,
     },
-    CompareOp, ConstValue, MirFunction, MirInstruction, ValueDefMap, ValueId,
+    CompareOp, ConstValue, MirFunction, MirInstruction, MirModule, ValueDefMap, ValueId,
 };
 
 /// Backend-consumable family names derived from string corridor candidate plans.
@@ -376,6 +379,22 @@ pub fn derive_string_kernel_plan(
     })
 }
 
+pub fn refresh_module_string_kernel_plans(module: &mut MirModule) {
+    for function in module.functions.values_mut() {
+        refresh_function_string_kernel_plans(function);
+    }
+}
+
+pub fn refresh_function_string_kernel_plans(function: &mut MirFunction) {
+    let mut plans = BTreeMap::new();
+    for (corridor_root, candidates) in &function.metadata.string_corridor_candidates {
+        if let Some(plan) = derive_string_kernel_plan(function, candidates) {
+            plans.insert(*corridor_root, plan);
+        }
+    }
+    function.metadata.string_kernel_plans = plans;
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -597,5 +616,53 @@ mod tests {
         assert_eq!(payload.loop_bound, 300000);
         assert_eq!(payload.split_length, 8);
         assert_eq!(kernel_plan.middle_literal.as_deref(), Some("xx"));
+    }
+
+    #[test]
+    fn refresh_function_collects_string_kernel_plans() {
+        let mut function = make_loop_function();
+        let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
+            corridor_root: ValueId::new(7),
+            source_root: Some(ValueId::new(1)),
+            start: Some(ValueId::new(2)),
+            end: Some(ValueId::new(3)),
+            known_length: Some(2),
+            proof: StringCorridorCandidateProof::ConcatTriplet {
+                left_value: Some(ValueId::new(4)),
+                left_source: ValueId::new(1),
+                left_start: ValueId::new(4),
+                left_end: ValueId::new(5),
+                middle: ValueId::new(6),
+                right_value: Some(ValueId::new(8)),
+                right_source: ValueId::new(1),
+                right_start: ValueId::new(5),
+                right_end: ValueId::new(9),
+                shared_source: true,
+            },
+        };
+        function.metadata.string_corridor_candidates.insert(
+            ValueId::new(8),
+            vec![StringCorridorCandidate {
+                kind: StringCorridorCandidateKind::DirectKernelEntry,
+                state: StringCorridorCandidateState::Candidate,
+                reason:
+                    "borrowed slice corridor can target a direct kernel entry before publication",
+                plan: Some(plan),
+            }],
+        );
+
+        refresh_function_string_kernel_plans(&mut function);
+
+        let kernel_plans = &function.metadata.string_kernel_plans;
+        let kernel_plan = kernel_plans.get(&ValueId::new(8)).expect("kernel plan");
+        assert_eq!(kernel_plan.version, 1);
+        assert_eq!(
+            kernel_plan.family,
+            StringKernelPlanFamily::ConcatTripletWindow
+        );
+        assert_eq!(
+            kernel_plan.consumer,
+            Some(StringKernelPlanConsumer::DirectKernelEntry)
+        );
     }
 }
