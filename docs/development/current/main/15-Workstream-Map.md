@@ -74,6 +74,7 @@ Related:
   - `phase-186x` is landed as the same-root phi local field pruning cut across cross-block local carriers
   - `phase-187x` is landed as the same-block overwritten local field-set pruning cut
   - `phase-188x` is landed as the cross-block linear-edge overwritten local field-set pruning cut
+  - `phase-189x` is landed as the merge-entry overwritten local field-set pruning cut
   - next target is broader effect-sensitive cleanup after the local read/write + same-root-phi + overwritten-write slices
   - do not mix that with unreachable-block deletion
 - landed shim-structure follow-on:

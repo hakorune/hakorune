@@ -279,7 +279,8 @@
            - `phase-185x` is now landed as the local dead `FieldSet` write pruning slice on definitely non-escaping local boxes
            - `phase-186x` is now landed as the same-root phi local field pruning slice across cross-block local carriers
            - `phase-187x` is now landed as the same-block overwritten local field-set pruning slice
-           - `phase-188x` is now landed as the cross-block linear-edge overwritten local field-set pruning slice, so the remaining DCE backlog is the broader effect-sensitive widening after the local read/write + same-root-phi + overwritten-write cleanup
+           - `phase-188x` is now landed as the cross-block linear-edge overwritten local field-set pruning slice
+           - `phase-189x` is now landed as the merge-entry overwritten local field-set pruning slice, so the remaining DCE backlog is the broader effect-sensitive widening after the local read/write + same-root-phi + overwritten-write cleanup
            - generic LLVM-side escape pass beyond the already-landed narrow local objectization-at-boundary route
            - current escape narrow slice is now alias-aware too: barrier elision follows `Copy` chains and one-input carry `phi` aliases for non-escaping local boxes, while multi-input `phi_merge` and broader generic escape analysis remain backlog
            - `phase-165x` landed the operand-role escape barrier vocabulary cut so escape widening no longer reuses the coarse `used_values()` surface

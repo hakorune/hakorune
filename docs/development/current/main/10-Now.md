@@ -93,11 +93,14 @@ Related:
   - landed DCE cleanup follow-on: `phase188x cross-block overwritten local field-set pruning`
     - an earlier local `FieldSet` now also disappears across one reachable linear edge when the successor block overwrites the same root/field before any reachable read or escape use
     - loops, merges, generic `Store`, `Load`, `Debug`, and terminators stay outside this cut
+  - landed DCE cleanup follow-on: `phase189x merge-entry overwritten local field-set pruning`
+    - predecessor-local `FieldSet` writes now also disappear when a reachable merge block overwrites the same local root/field before any reachable read or escape use, as long as the predecessor has a single reachable successor into that merge
+    - loop backedges, mixed-root merges, generic `Store`, `Load`, `Debug`, and terminators stay outside this cut
   - row status:
     - `3 User-Box Method Dispatch`: mostly done; narrow known-receiver consumer and the direct-route determinism repair are landed, broader generic parity backlog remains
     - `4 Array Typed Slots 拡大`: partial; narrow typed-slot pilots landed, read-side expansion backlog remains
     - `5 MapBox Typed Value Slots`: backlog
-    - `6 DCE 強化`: partial; first reachable-only cross-block cut is landed in `phase176x`, first effect-sensitive `KeepAlive` pruning is landed in `phase177x`, the first generic no-dst pure cleanup slice is landed in `phase181x`, unreachable block pruning is landed in `phase182x`, pure no-dst `Call` pruning is landed in `phase183x`, dead local `FieldGet` read pruning is landed in `phase184x`, dead local `FieldSet` write pruning is landed in `phase185x`, same-root phi local field pruning is landed in `phase186x`, same-block overwritten local field-set pruning is landed in `phase187x`, and cross-block linear-edge overwritten local field-set pruning is landed in `phase188x`
+    - `6 DCE 強化`: partial; first reachable-only cross-block cut is landed in `phase176x`, first effect-sensitive `KeepAlive` pruning is landed in `phase177x`, the first generic no-dst pure cleanup slice is landed in `phase181x`, unreachable block pruning is landed in `phase182x`, pure no-dst `Call` pruning is landed in `phase183x`, dead local `FieldGet` read pruning is landed in `phase184x`, dead local `FieldSet` write pruning is landed in `phase185x`, same-root phi local field pruning is landed in `phase186x`, same-block overwritten local field-set pruning is landed in `phase187x`, cross-block linear-edge overwritten local field-set pruning is landed in `phase188x`, and merge-entry overwritten local field-set pruning is landed in `phase189x`
     - `7 LLVM Escape Analysis`: partial; Copy + one-input-phi-carry aware local barrier elision and the `phase165x` operand-role escape barrier vocabulary cut are landed, broader generic escape analysis backlog remains
     - `8 Float 最適化`: partial; narrow FloatBox pilot landed, broader tuning backlog
     - `9 Closure/Lambda 最適化`: backlog
