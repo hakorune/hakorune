@@ -242,6 +242,28 @@ fn subset_rejects_await_missing_future() {
 }
 
 #[test]
+fn subset_rejects_await_missing_dst() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    { "op": "await", "future": 3 }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(
+        out,
+        Err(("main".to_string(), 0, "await(missing-dst)".to_string()))
+    );
+}
+
+#[test]
 fn subset_rejects_weak_new_missing_box_val() {
     let mir_json = json!({
         "functions": [{

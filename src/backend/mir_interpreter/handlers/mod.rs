@@ -39,6 +39,9 @@ mod temp_dispatch;
 mod type_ops;
 mod weak; // Phase 285A0: WeakRef handlers
 
+#[cfg(test)]
+mod async_contract_tests;
+
 impl MirInterpreter {
     pub(super) fn execute_instruction(&mut self, inst: &MirInstruction) -> Result<(), VMError> {
         match inst {

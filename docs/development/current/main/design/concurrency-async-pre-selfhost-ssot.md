@@ -75,6 +75,21 @@ Repro (LLVM harness):
 - `await fut` は fut が完了していれば値を返す。未完了なら Phase‑0 では待つ（実装は即完了のみでもよい）。
 - strict/dev では `await` の前後に `Safepoint` があることを verifier で要求する（既存方針に従う）。
 
+Current VM contract to pin:
+- subset/schema gate:
+  - `await` requires both `dst` and `future`
+  - malformed shapes fail-fast as `await(missing-dst)` / `await(missing-future)`
+- runtime gate:
+  - `await` requires the `future` operand to hold a `Future`
+  - non-`Future` operands fail-fast as `TypeError("Await expects Future in \`future\` operand")`
+- completion rule:
+  - current VM path blocks until the future is ready, then returns the stored value
+  - current Phase‑0 `FutureNew` creates an already-resolved future on the VM path
+- current non-goals:
+  - no timeout result shape
+  - no cancellation result shape
+  - `task_scope.cancelAll()` does not yet interrupt `await`
+
 ### 2.3 Method-call `nowait`
 最短の selfhost 安定化として、以下のどちらかを SSOT として選ぶ（決め打ちが必要）。
 

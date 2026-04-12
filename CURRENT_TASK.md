@@ -15,7 +15,7 @@ Scope: current lane / next lane / restart order only.
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/10-Now.md`
 3. `docs/development/current/main/15-Workstream-Map.md`
-4. `docs/development/current/main/phases/phase-242x/README.md`
+4. `docs/development/current/main/phases/phase-244x/README.md`
 5. `docs/development/current/main/phases/phase-163x/README.md`
 6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 7. `git status -sb`
@@ -58,7 +58,7 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Notes
 
-- `phase-242x` is landed: structured concurrency vocabulary is now pinned to `task_scope` surface + `TaskGroupBox` runtime scaffold; `RoutineScopeBox` is historical wording only
+- `phase-244x` is landed: VM-side `await` contract is now pinned to shape-fail-fast + non-Future TypeError + no timeout/cancel result shape
 - current semantic simplification cut now includes empty-trampoline jump threading after copied-constant `Branch` and constant `Compare` folds
 - the next code lane is now `semantic simplification bundle`
 - `CURRENT_TASK.md` is the only live status pointer; `05/10/15` are thin mirrors only

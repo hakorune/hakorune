@@ -39,6 +39,15 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
 - `fini()`, detached tasks, sibling-failure aggregation, and root-scope policy remain later-phase work.
 - Cancellation should eventually unblock channel waits promptly; Phase-0 only guarantees best-effort scope-owned future cleanup.
 
+### Future `await` (current VM contract)
+- This document is not the canonical owner for `await fut` failure/cancel semantics.
+- The current `await fut` contract is pinned by `docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md`.
+- Current VM `await` is narrow:
+  - `await` requires a `Future` operand
+  - a non-`Future` operand is a fail-fast type error
+  - there is no timeout or cancellation result shape yet
+- `task_scope.cancelAll()` does not yet define a user-visible `await` interruption contract.
+
 ### Types & Safety
 - Phase‑0: runtime tag checks on `ChannelBox` send/receive are optional; document expected element type.
 - Future: `TypedChannelBox<T>` with static verification; falls back to runtime tags when needed.

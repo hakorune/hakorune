@@ -97,6 +97,10 @@ MIR で `Throw` を増やさずに済む形:
 - `Continue`
 - `Cancel`（async の drop/cancel 用に予約）
 
+Note:
+- `ExitTag::Cancel` is reserved only in the current tree.
+- pre-selfhost VM futures do not yet expose a runtime cancel/timeout path for `await`.
+
 ### verify（Fail-Fast）
 
 - S の内部ブロックから “S の外” への edge が存在したら落とす（例外: cleanup_dispatch のみ）
