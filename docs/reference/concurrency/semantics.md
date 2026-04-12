@@ -36,7 +36,11 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
 - `task_scope` is the user-facing structured-concurrency boundary.
 - `TaskGroupBox` is the current runtime-side owner for child futures registered under that scope.
 - Current lifecycle vocabulary is `cancelAll()` and `joinAll(timeout_ms)`, plus best-effort bounded join on scope exit.
-- `fini()`, detached tasks, sibling-failure aggregation, and root-scope policy remain later-phase work.
+- `fini()` and sibling-failure aggregation remain later-phase work.
+- bare `nowait` is not detached.
+- `nowait` inside explicit `task_scope` belongs to that scope.
+- `nowait` outside explicit `task_scope` falls back to an implicit root scope owned by the runtime hooks registry.
+- detached work is still reserved for a later explicit surface; do not treat the current implicit root scope as detached-task semantics.
 - Cancellation should eventually unblock channel waits promptly; Phase-0 only guarantees best-effort scope-owned future cleanup.
 
 ### Future `await` (current VM contract)
@@ -55,6 +59,11 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
 - `task_scope.cancelAll()` is currently a narrow future-owner cut:
   - it cancels owned pending futures with reason `scope-cancelled`
   - it does not yet define interruption for arbitrary blocking APIs
+
+### Root-scope note
+- The current implicit root scope is best-effort ownership only.
+- It exists so top-level `nowait` / `FutureNew` paths have an owner even when no explicit `task_scope` is open.
+- It does not currently promise lexical join, sibling-failure cancellation, or a detached-task shutdown contract.
 
 ### Types & Safety
 - Phase‑0: runtime tag checks on `ChannelBox` send/receive are optional; document expected element type.

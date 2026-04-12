@@ -12,6 +12,7 @@ pub(crate) struct TaskGroupInner {
 /// Current responsibility is intentionally narrow:
 /// - own child futures registered under the active task scope
 /// - expose best-effort `cancelAll()` / `joinAll(timeout_ms)` hooks
+/// - stay separate from the implicit root scope used outside explicit `task_scope`
 /// - avoid defining detached/failure-aggregation semantics yet
 #[derive(Debug, Clone)]
 pub struct TaskGroupBox {

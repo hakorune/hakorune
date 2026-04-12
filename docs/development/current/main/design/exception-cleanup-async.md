@@ -102,6 +102,7 @@ Note:
 - pre-selfhost VM futures do not yet expose a runtime cancel/timeout path for `await`.
 - pre-selfhost VM futures may now expose `TaskFailed(error)` as a failed terminal state, but that is distinct from `Cancel`.
 - current pre-selfhost cancellation only covers scope-owned futures and surfaces as `Cancelled(reason)`; it is not yet cleanup/state-machine `Cancel`.
+- detached-task policy and the implicit root-scope policy are pinned in the pre-selfhost async SSOT, not in this long-term lowering document.
 
 ### verify（Fail-Fast）
 

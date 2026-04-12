@@ -28,7 +28,16 @@ Non-goals (この文書で今すぐやらない):
 - current runtime scaffold behind that boundary is `TaskGroupBox` plus `push_task_scope()` / `pop_task_scope()`
 - `RoutineScopeBox` is historical wording only; do not treat it as the current code name
 - this vocabulary alignment does **not** change Phase-0 `nowait` / `await` lowering
-- detached tasks, sibling-failure policy, and the final `await` failure/cancel contract remain later-phase work
+- detached tasks and sibling-failure policy remain later-phase work
+
+### Detached / root-scope policy (Phase 247x)
+
+- bare `nowait` is **not** detached
+- `nowait` inside explicit `task_scope` belongs to that structured scope
+- `nowait` outside explicit `task_scope` falls back to the implicit runtime root scope
+- current root scope is the `global_hooks` fallback registry used by `register_future_to_current_group(...)`
+- `env.task.cancelCurrent` cancels the active explicit scope if present, otherwise the implicit root scope
+- detached work remains a future explicit surface; do not read the current root-scope fallback as detached-task semantics
 
 ---
 
@@ -87,7 +96,7 @@ Current VM contract to pin:
   - current Phase‑0 `FutureNew` creates an already-resolved future on the VM path
 - current non-goals:
   - no timeout result shape
-  - no cancellation result shape
+  - no general cancellation result shape beyond the current scope-owned `Cancelled(reason)` path
   - `task_scope.cancelAll()` does not yet interrupt `await`
 
 Current failure taxonomy to pin:
@@ -128,6 +137,7 @@ Option B (later / full runtime route):
 - `local`: call activation / lexical scope。スレッド/ワーカーとは無関係。
 - `lock<T>`: 共有 mutable の唯一入口（`lock {}` は構文案。実装は後段でも良い）。
 - `scoped`: 文脈（trace/request/config）。**nowait の wrapper ではない**。structured child に継承する（detached は別物）。
+- current root-scope fallback does not pin detached/task-local propagation semantics yet; only structured child inheritance is stable
 - `worker_local`: cache 専用。意味論に使わない。
 
 ---

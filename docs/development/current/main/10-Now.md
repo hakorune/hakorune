@@ -19,6 +19,8 @@ Related:
 
 ## Landing Snapshot
 
+- `phase247x` is landed:
+  - bare `nowait` is not detached; outside explicit `task_scope` it belongs to the implicit root scope
 - `phase246x` is landed:
   - `Cancelled(reason)` now exists as a narrow scope-owned future path with stable `scope-cancelled` reason
 - latest semantic simplification cut:
@@ -28,7 +30,7 @@ Related:
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-246x/README.md`
+3. `docs/development/current/main/phases/phase-247x/README.md`
 4. `docs/development/current/main/phases/phase-163x/README.md`
 5. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 

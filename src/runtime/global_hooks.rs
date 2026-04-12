@@ -124,6 +124,9 @@ pub fn current_group_token() -> CancellationToken {
 }
 
 /// Cancel the current structured task scope and mark owned pending futures as cancelled.
+///
+/// If no explicit `task_scope` is active, this falls back to the implicit root
+/// scope that owns top-level futures registered through `register_future_to_current_group`.
 pub fn cancel_current_group_with_reason(reason: &str) {
     if let Ok(st) = state().write() {
         if let Some(tok) = st.cur_token.as_ref() {
@@ -147,7 +150,12 @@ pub fn cancel_current_group_with_reason(reason: &str) {
     }
 }
 
-/// Register a Future into the current group's registry (best-effort; clones share state)
+/// Register a Future into the current scope registry.
+///
+/// Policy:
+/// - if an explicit `task_scope` is active, the future belongs to that scope
+/// - otherwise it falls back to the implicit root scope
+/// - this path does not imply detached-task semantics
 pub fn register_future_to_current_group(fut: &crate::boxes::future::FutureBox) {
     if let Ok(mut st) = state().write() {
         // Prefer explicit current TaskGroup at top of stack
@@ -365,6 +373,19 @@ mod tests {
             "Future(cancelled: Cancelled: scope-cancelled)"
         );
         pop_task_scope();
+    }
+
+    #[test]
+    fn cancel_current_group_marks_implicit_root_future_cancelled() {
+        let fut = crate::boxes::future::FutureBox::new();
+        register_future_to_current_group(&fut);
+
+        cancel_current_group_with_reason("scope-cancelled");
+
+        assert_eq!(
+            fut.to_string_box().value,
+            "Future(cancelled: Cancelled: scope-cancelled)"
+        );
     }
 }
 

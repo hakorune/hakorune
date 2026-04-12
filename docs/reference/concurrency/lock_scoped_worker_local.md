@@ -111,6 +111,7 @@ Rule of thumb:
 SSOT rule (provisional):
 - A child task started inside `task_scope` inherits the parent’s active `scoped` bindings.
 - Current runtime scaffolding names that boundary with `TaskGroupBox` plus task-scope hooks; full child-scheduling wiring is a later phase.
+- The implicit root-scope fallback outside explicit `task_scope` is not a detached/task-local propagation contract.
 
 Note:
 - This doc uses “spawn” as a generic term for “starting a concurrent task”, but the current Nyash surface syntax is `nowait`.
