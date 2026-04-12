@@ -16,6 +16,6 @@ Non-goals
 - no roadmap layer reorder beyond pointer sync
 
 Result
-- current docs agree that the immediate next cut is `semantic simplification bundle lane B0`
+- current docs agree that the immediate next cut is `phase207x generic placement / effect docs/facts phase`
 - the one-screen work map now uses layer/lane wording for `Front` and `Blocker`
 - phase index duplicates and stale timestamps are cleaned up
