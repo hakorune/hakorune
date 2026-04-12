@@ -11,7 +11,9 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use crate::mir::{
-    build_value_def_map, refresh_function_string_corridor_metadata, resolve_value_origin,
+    build_value_def_map, refresh_function_placement_effect_routes,
+    refresh_function_string_corridor_metadata, refresh_function_string_kernel_plans,
+    resolve_value_origin,
     string_corridor_recognizer::{
         const_string_length, extract_substring_args, match_add_in_block, match_concat_triplet,
         match_len_call, match_method_set_call, match_substring_call, match_substring_call_shape,
@@ -50,7 +52,7 @@ pub fn sink_borrowed_string_corridors(module: &mut MirModule) -> usize {
 }
 
 fn sink_borrowed_string_corridors_in_function(function: &mut MirFunction) -> usize {
-    refresh_function_string_corridor_metadata(function);
+    refresh_function_string_corridor_folded_metadata(function);
 
     let def_map = build_value_def_map(function);
     let use_counts = build_use_counts(function);
@@ -91,6 +93,12 @@ fn sink_borrowed_string_corridors_in_function(function: &mut MirFunction) -> usi
     rewritten += apply_complementary_len_fusion_plans(function, fusion_plans);
 
     rewritten
+}
+
+fn refresh_function_string_corridor_folded_metadata(function: &mut MirFunction) {
+    refresh_function_string_corridor_metadata(function);
+    refresh_function_placement_effect_routes(function);
+    refresh_function_string_kernel_plans(function);
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

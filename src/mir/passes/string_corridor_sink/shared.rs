@@ -24,6 +24,25 @@ pub(super) fn build_use_counts(function: &MirFunction) -> HashMap<ValueId, usize
     uses
 }
 
+pub(super) fn placement_effect_string_window_for_value(
+    function: &MirFunction,
+    value: ValueId,
+) -> Option<(ValueId, ValueId)> {
+    function
+        .metadata
+        .placement_effect_routes
+        .iter()
+        .find_map(|route| {
+            if route.source == crate::mir::PlacementEffectSource::StringCorridor
+                && route.value == Some(value)
+            {
+                route.window_start.zip(route.window_end)
+            } else {
+                None
+            }
+        })
+}
+
 pub(super) fn sync_function_next_value_id(function: &mut MirFunction) {
     let max_used = function
         .blocks
@@ -464,7 +483,7 @@ pub(super) fn apply_plans(
 
     if rewritten > 0 {
         function.update_cfg();
-        refresh_function_string_corridor_metadata(function);
+        refresh_function_string_corridor_folded_metadata(function);
     }
     rewritten
 }

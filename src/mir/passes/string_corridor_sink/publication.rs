@@ -348,7 +348,7 @@ pub(super) fn apply_publication_return_plans(
 
     if rewritten > 0 {
         function.update_cfg();
-        refresh_function_string_corridor_metadata(function);
+        refresh_function_string_corridor_folded_metadata(function);
     }
 
     rewritten
@@ -433,7 +433,7 @@ pub(super) fn apply_publication_write_boundary_plans(
 
     if rewritten > 0 {
         function.update_cfg();
-        refresh_function_string_corridor_metadata(function);
+        refresh_function_string_corridor_folded_metadata(function);
     }
 
     rewritten
@@ -518,7 +518,7 @@ pub(super) fn apply_publication_host_boundary_plans(
 
     if rewritten > 0 {
         function.update_cfg();
-        refresh_function_string_corridor_metadata(function);
+        refresh_function_string_corridor_folded_metadata(function);
     }
 
     rewritten

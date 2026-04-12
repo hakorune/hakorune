@@ -25,12 +25,13 @@ Related:
 
 - design owners:
   - implementation lane: `docs/development/current/main/phases/phase-163x/README.md`
-  - next layer landing: `docs/development/current/main/phases/phase-221x/README.md`
+  - next layer landing: `docs/development/current/main/phases/phase-222x/README.md`
   - roadmap SSOT: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
 - landed anchors:
+  - `phase-222x`: retained substring-len MIR sink now reads folded route windows first and refreshes folded route/kernel-plan metadata after rewrites
   - `phase-211x` / `phase-212x`: generic placement/effect owner seam and agg-local fold-up
-  - `phase-213x` / `phase-214x` / `phase-215x` / `phase-216x` / `phase-217x` / `phase-218x` / `phase-219x` / `phase-220x` / `phase-221x`: consumer seeds, shared route reader seam, route-window cleanup, and the first MIR-side generic transform cut
+  - `phase-213x` / `phase-214x` / `phase-215x` / `phase-216x` / `phase-217x` / `phase-218x` / `phase-219x` / `phase-220x` / `phase-221x` / `phase-222x`: consumer seeds, shared route reader seam, route-window cleanup, the first MIR-side generic transform cut, and the retained substring-len route-window sink
   - `phase-176x` / `phase-177x` / `phase-181x` / `phase-182x` / `phase-183x` / `phase-184x` / `phase-185x` / `phase-186x` / `phase-187x` / `phase-188x` / `phase-189x` / `phase-190x` / `phase-191x` / `phase-192x` / `phase-196x`: DCE bundle through A2
   - `phase-199x` / `phase-200x` / `phase-201x` / `phase-202x` / `phase-203x` / `phase-204x` / `phase-205x` / `phase-206x`: lane-B/C docs, memory, observer, control-anchor, and handoff boundaries
 

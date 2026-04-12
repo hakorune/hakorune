@@ -15,13 +15,6 @@ pub(super) fn collect_retained_len_plans(
                 continue;
             };
             let receiver_root = resolve_value_origin(function, def_map, receiver);
-            let Some(inner_fact) = function.metadata.string_corridor_facts.get(&receiver_root)
-            else {
-                continue;
-            };
-            if inner_fact.op != StringCorridorOp::StrSlice {
-                continue;
-            }
             if use_counts.get(&receiver_root).copied().unwrap_or(0) != 1 {
                 continue;
             }
@@ -42,6 +35,24 @@ pub(super) fn collect_retained_len_plans(
             else {
                 continue;
             };
+            let start_root = resolve_value_origin(function, def_map, start);
+            let end_root = resolve_value_origin(function, def_map, end);
+
+            match placement_effect_string_window_for_value(function, receiver_root) {
+                Some((window_start, window_end))
+                    if window_start == start_root && window_end == end_root => {}
+                Some(_) => continue,
+                None => {
+                    let Some(inner_fact) =
+                        function.metadata.string_corridor_facts.get(&receiver_root)
+                    else {
+                        continue;
+                    };
+                    if inner_fact.op != StringCorridorOp::StrSlice {
+                        continue;
+                    }
+                }
+            }
 
             plans.push(RetainedSubstringLenPlan {
                 outer_idx,
@@ -104,7 +115,7 @@ pub(super) fn apply_retained_len_plans(
 
     if rewritten > 0 {
         function.update_cfg();
-        refresh_function_string_corridor_metadata(function);
+        refresh_function_string_corridor_folded_metadata(function);
     }
 
     rewritten

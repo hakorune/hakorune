@@ -19,16 +19,16 @@ Related:
 
 ## Landing Snapshot
 
-- `phase221x` is landed:
-  - MIR refresh now materializes `metadata.string_kernel_plans`
-  - the JSON emitter reads that metadata only
-  - family-specific fallbacks remain as compatibility paths
+- `phase222x` is landed:
+  - retained `substring(...).length()` sinking reads folded `placement_effect_routes` window metadata first
+  - legacy string-corridor fact matching stays as a compatibility fallback
+  - `string_corridor_sink` refreshes folded route and string kernel plan metadata after rewrites
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-221x/README.md`
+3. `docs/development/current/main/phases/phase-222x/README.md`
 4. `docs/development/current/main/phases/phase-163x/README.md`
 5. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 

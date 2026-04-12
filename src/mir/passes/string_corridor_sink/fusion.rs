@@ -248,7 +248,7 @@ pub(super) fn apply_complementary_len_fusion_plans(
 
     if rewritten > 0 {
         function.update_cfg();
-        refresh_function_string_corridor_metadata(function);
+        refresh_function_string_corridor_folded_metadata(function);
     }
 
     rewritten

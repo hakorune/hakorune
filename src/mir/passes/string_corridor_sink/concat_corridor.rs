@@ -558,7 +558,7 @@ pub(super) fn apply_concat_corridor_plans(
 
     if rewritten > 0 {
         function.update_cfg();
-        refresh_function_string_corridor_metadata(function);
+        refresh_function_string_corridor_folded_metadata(function);
     }
 
     rewritten

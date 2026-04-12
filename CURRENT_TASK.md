@@ -14,7 +14,7 @@ Scope: current lane / next lane / restart order only.
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-221x/README.md`
+3. `docs/development/current/main/phases/phase-222x/README.md`
 4. `docs/development/current/main/phases/phase-163x/README.md`
 5. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 6. `git status -sb`
@@ -27,7 +27,7 @@ Scope: current lane / next lane / restart order only.
 - active lane:
   - `phase-163x primitive and user-box fast path`
 - sibling guardrail:
-  - `phase-137x` string corridor / exact-keeper guardrail; `phase-219x` / `phase-220x` / `phase-221x` are landed
+  - `phase-137x` string corridor / exact-keeper guardrail; `phase-219x` / `phase-220x` / `phase-221x` / `phase-222x` are landed
 - immediate next:
   - `generic placement / effect`
 - immediate follow-on:
@@ -45,7 +45,7 @@ Scope: current lane / next lane / restart order only.
 - implementation lane:
   - `docs/development/current/main/phases/phase-163x/README.md`
 - next layer landing:
-  - `docs/development/current/main/phases/phase-221x/README.md`
+  - `docs/development/current/main/phases/phase-222x/README.md`
 - roadmap SSOT:
   - `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 - string guardrail owner:
@@ -57,6 +57,6 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Notes
 
-- `phase-221x` is landed: MIR refresh now materializes `metadata.string_kernel_plans`, and the JSON emitter serializes that first-class metadata only
+ - `phase-222x` is landed: retained substring-len sinking now reads folded `placement_effect_routes` windows first, and `string_corridor_sink` refreshes folded route plus string kernel plan metadata after rewrites
 - the next code lane remains `generic placement / effect`
 - if this file grows again, move the detail back into the phase docs
