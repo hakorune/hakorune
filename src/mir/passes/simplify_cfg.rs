@@ -2,9 +2,9 @@
  * SimplifyCFG - first structural simplification slice for the semantic bundle.
  *
  * This cut intentionally stays narrow:
- * - only merge `pred -> middle` when `pred` ends in `Jump { edge_args: None }`
+ * - merge `pred -> middle` only for a direct `Jump`
  * - `middle` must be reachable, non-entry, have exactly one predecessor, and no PHIs
- * - loop-carried/self-edge cases stay out of scope
+ * - loop-carried/self-edge cases and branch edge-args stay out of scope
  */
 
 use crate::mir::{BasicBlock, BasicBlockId, EffectMask, MirFunction, MirInstruction, MirModule};
@@ -45,7 +45,7 @@ fn find_single_predecessor_jump_merge(
         let pred_block = function.blocks.get(&pred_id)?;
         let MirInstruction::Jump {
             target: middle_id,
-            edge_args: None,
+            edge_args: _,
         } = pred_block.terminator.as_ref()?
         else {
             continue;
@@ -328,8 +328,8 @@ mod tests {
     }
 
     #[test]
-    fn keeps_jump_block_when_predecessor_edge_args_are_present() {
-        let mut module = MirModule::new("simplify_cfg_edge_args_guard".to_string());
+    fn simplifies_jump_block_when_predecessor_edge_args_are_dead_for_middle() {
+        let mut module = MirModule::new("simplify_cfg_edge_args_merge".to_string());
         let mut function = MirFunction::new(test_signature("main", MirType::Void), BasicBlockId(0));
 
         {
@@ -349,6 +349,65 @@ mod tests {
         let mut middle = BasicBlock::new(BasicBlockId(1));
         middle.set_terminator(MirInstruction::Return { value: None });
         function.add_block(middle);
+        function.update_cfg();
+        module.add_function(function);
+
+        let simplified = simplify(&mut module);
+        assert_eq!(simplified, 1);
+
+        let function = module.functions.get("main").expect("main function");
+        assert_eq!(function.blocks.len(), 1);
+        let entry = function.blocks.get(&BasicBlockId(0)).expect("entry");
+        assert!(matches!(
+            entry.terminator,
+            Some(MirInstruction::Return { value: None })
+        ));
+    }
+
+    #[test]
+    fn keeps_jump_block_when_middle_has_phi_inputs_for_edge_args() {
+        let mut module = MirModule::new("simplify_cfg_edge_args_phi_guard".to_string());
+        let mut function =
+            MirFunction::new(test_signature("main", MirType::Integer), BasicBlockId(0));
+
+        {
+            let entry = function
+                .blocks
+                .get_mut(&BasicBlockId(0))
+                .expect("entry block");
+            entry.instructions.push(MirInstruction::Const {
+                dst: ValueId(1),
+                value: ConstValue::Integer(7),
+            });
+            entry.instruction_spans.push(Span::unknown());
+            entry.set_jump_with_edge_args(
+                BasicBlockId(1),
+                Some(EdgeArgs {
+                    layout: JumpArgsLayout::CarriersOnly,
+                    values: vec![ValueId(1)],
+                }),
+            );
+        }
+
+        let mut middle = BasicBlock::new(BasicBlockId(1));
+        middle.instructions.push(MirInstruction::Phi {
+            dst: ValueId(2),
+            inputs: vec![(BasicBlockId(0), ValueId(1))],
+            type_hint: Some(MirType::Integer),
+        });
+        middle.instruction_spans.push(Span::unknown());
+        middle.set_terminator(MirInstruction::Return {
+            value: Some(ValueId(2)),
+        });
+        function.add_block(middle);
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(1), MirType::Integer);
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(2), MirType::Integer);
         function.update_cfg();
         module.add_function(function);
 

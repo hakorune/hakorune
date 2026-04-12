@@ -19,14 +19,14 @@ Related:
 
 ## Landing Snapshot
 
-- `phase228x` is landed:
-  - semantic simplification now owns the first narrow `SimplifyCFG` block-merge cut
+- `phase229x` is landed:
+  - semantic simplification now widens bridge merge to accept dead jump edge-args when the middle block has no PHIs
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-228x/README.md`
+3. `docs/development/current/main/phases/phase-229x/README.md`
 4. `docs/development/current/main/phases/phase-163x/README.md`
 5. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 
