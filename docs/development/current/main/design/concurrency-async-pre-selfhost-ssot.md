@@ -46,7 +46,7 @@ Non-goals (この文書で今すぐやらない):
 - pending sibling futures owned by the same explicit scope are cancelled with reason `sibling-failed`
 - already-ready sibling futures are not rewritten
 - implicit root scope does not participate in sibling-failure cancellation in this cut
-- aggregate failure reporting and scope-exit rethrow policy remain later-phase work
+- aggregate failure reporting and `joinAll()` failure surface remain later-phase work
 
 ### Runtime hygiene follow-up (Phase 250x)
 
@@ -76,6 +76,18 @@ Non-goals (この文書で今すぐやらない):
   - outer explicit scopes keep their own owner/token state after an inner scope exits
 - current `joinAll(timeout_ms)` / scope-exit still do **not** surface first failure or aggregate failure
 - current return shape therefore remains `void` / no rethrow in this cut
+
+### Scope-exit first-failure surface (Phase 252x)
+
+- explicit `task_scope` exit now surfaces the popped scope's latched `first_failure`
+- current Phase-0 order is:
+  - cancel still-pending child futures owned by the popped explicit scope with `scope-exit-cancelled`
+  - bounded-join that same explicit scope
+  - if `first_failure` is latched, return/rethrow that first failure for the scope-exit path
+- this cut is still explicit-scope-only:
+  - implicit root scope does not gain scope-exit failure surfacing here
+  - `joinAll(timeout_ms)` still does not surface failure in this cut
+  - aggregate/multi-failure reporting remains later work
 
 ---
 

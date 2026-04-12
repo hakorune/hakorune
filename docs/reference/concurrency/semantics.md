@@ -39,6 +39,7 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
 - current scope exit is structured shutdown for the popped explicit scope:
   - cancel pending child futures as `scope-exit-cancelled`
   - then bounded-join that same scope
+- current explicit scope-exit path now also surfaces that scope's latched `first_failure`
 - `fini()` and sibling-failure aggregation remain later-phase work.
 - bare `nowait` is not detached.
 - `nowait` inside explicit `task_scope` belongs to that scope.
@@ -68,12 +69,13 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
 - scope exit is a separate narrow future-owner cut:
   - explicit-scope exit cancels still-pending owned futures with reason `scope-exit-cancelled`
   - nested explicit scopes clean up when they exit; they are not deferred to the outermost scope
-  - `joinAll()` and scope exit still return/rethrow nothing in the current cut
+  - explicit scope exit now returns/rethrows the popped scope's latched `first_failure`
+  - `joinAll()` still returns/rethrows nothing in the current cut
 - current sibling-failure cut is also narrow:
   - only explicit `task_scope` ownership participates
   - first failed child future cancels pending siblings with reason `sibling-failed`
   - late child futures registered after that first failure are immediately cancelled with the same reason
-  - it does not yet define aggregate failure reporting or scope-exit rethrow
+  - it does not yet define aggregate failure reporting or `joinAll()` failure surfacing
 - `FutureBox` success is single-assignment in the current contract:
   - once a future is `Ready`, later `set_result` / failed / cancelled writes are ignored
 - plugin/runtime timeout is not part of the VM-side `await` contract:

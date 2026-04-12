@@ -89,6 +89,19 @@ impl TaskGroupInner {
         }
     }
 
+    pub(crate) fn first_failure(&self) -> Option<String> {
+        self.first_failure.lock().ok().and_then(|slot| slot.clone())
+    }
+
+    pub(crate) fn scope_exit_shutdown(&self, timeout_ms: u64) -> Result<(), String> {
+        self.cancel_pending_with_reason("scope-exit-cancelled");
+        self.join_pending_with_timeout(timeout_ms);
+        if let Some(failure) = self.first_failure() {
+            return Err(failure);
+        }
+        Ok(())
+    }
+
     pub(crate) fn note_failure_and_cancel_siblings(&self, message: &str) {
         if self.sibling_failure_seen.swap(true, Ordering::SeqCst) {
             return;

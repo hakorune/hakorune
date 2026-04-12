@@ -15,7 +15,7 @@ Scope: current lane / next lane / restart order only.
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/10-Now.md`
 3. `docs/development/current/main/15-Workstream-Map.md`
-4. `docs/development/current/main/phases/phase-251x/README.md`
+4. `docs/development/current/main/phases/phase-252x/README.md`
 5. `docs/development/current/main/phases/phase-163x/README.md`
 6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 7. `git status -sb`
@@ -58,6 +58,7 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Notes
 
+- `phase-252x` is landed: explicit `task_scope` exit now surfaces the popped scope's latched `first_failure` after bounded join
 - `phase-251x` is landed: explicit `task_scope` exit now cancels and bounded-joins each popped explicit scope, with nested lexical ownership restored
 - `phase-250x` is landed: late registration now cancels immediately on closed explicit/root scopes, and `FutureBox` success is single-assignment
 - `phase-249x` is landed: explicit-scope first failure now cancels pending siblings with stable reason `sibling-failed`

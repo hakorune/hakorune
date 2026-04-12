@@ -243,9 +243,11 @@ pub(crate) fn reset_for_tests() {
 
 /// Pop the current structured `task_scope` scaffold.
 ///
-/// When depth reaches 0, perform a best-effort bounded join for the futures
-/// that were registered under this scope.
-pub fn pop_task_scope() {
+/// Current Phase-0 contract:
+/// - cancel pending futures owned by the popped explicit scope
+/// - bounded-join that same scope
+/// - surface the popped scope's latched `first_failure` as `Err(String)`
+pub fn pop_task_scope() -> Result<(), String> {
     let mut popped: Option<std::sync::Arc<crate::boxes::task_group_box::TaskGroupInner>> = None;
     if let Ok(mut st) = state().write() {
         if st.scope_depth > 0 {
@@ -260,9 +262,9 @@ pub fn pop_task_scope() {
         .and_then(|s| s.parse().ok())
         .unwrap_or(1000);
     if let Some(inner) = popped {
-        inner.cancel_pending_with_reason("scope-exit-cancelled");
-        inner.join_pending_with_timeout(ms);
+        return inner.scope_exit_shutdown(ms);
     }
+    Ok(())
 }
 
 /// Perform a runtime safepoint and poll the scheduler if available.
@@ -368,7 +370,7 @@ mod tests {
             fut.to_string_box().value,
             "Future(cancelled: Cancelled: scope-cancelled)"
         );
-        pop_task_scope();
+        pop_task_scope().expect("scope exit must succeed");
         reset_for_tests();
     }
 
@@ -386,7 +388,7 @@ mod tests {
             late.to_string_box().value,
             "Future(cancelled: Cancelled: scope-cancelled)"
         );
-        pop_task_scope();
+        pop_task_scope().expect("scope exit must succeed");
         reset_for_tests();
     }
 
@@ -406,7 +408,8 @@ mod tests {
             late.to_string_box().value,
             "Future(cancelled: Cancelled: sibling-failed)"
         );
-        pop_task_scope();
+        let err = pop_task_scope().expect_err("scope exit must surface first failure");
+        assert_eq!(err, "TaskError: boom");
         reset_for_tests();
     }
 
@@ -418,7 +421,7 @@ mod tests {
         let fut = crate::boxes::future::FutureBox::new();
         register_future_to_current_group(&fut);
 
-        pop_task_scope();
+        pop_task_scope().expect("scope exit must succeed");
 
         assert_eq!(
             fut.to_string_box().value,
@@ -440,7 +443,7 @@ mod tests {
         let inner = crate::boxes::future::FutureBox::new();
         register_future_to_current_group(&inner);
 
-        pop_task_scope();
+        pop_task_scope().expect("inner scope exit must succeed");
 
         assert_eq!(
             inner.to_string_box().value,
@@ -456,7 +459,28 @@ mod tests {
             outer.to_string_box().value,
             "Future(cancelled: Cancelled: scope-cancelled)"
         );
-        pop_task_scope();
+        pop_task_scope().expect("outer scope exit must succeed");
+        reset_for_tests();
+    }
+
+    #[test]
+    fn pop_task_scope_returns_first_failure_after_bounded_join() {
+        let _guard = TEST_GUARD.lock().unwrap();
+        reset_for_tests();
+        push_task_scope();
+        let failed = crate::boxes::future::FutureBox::new();
+        let sibling = crate::boxes::future::FutureBox::new();
+        register_future_to_current_group(&failed);
+        register_future_to_current_group(&sibling);
+        failed.set_failed(Box::new(ErrorBox::new("TaskError", "boom")));
+
+        let err = pop_task_scope().expect_err("scope exit must surface first failure");
+
+        assert_eq!(err, "TaskError: boom");
+        assert_eq!(
+            sibling.to_string_box().value,
+            "Future(cancelled: Cancelled: sibling-failed)"
+        );
         reset_for_tests();
     }
 
