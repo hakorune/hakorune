@@ -8,8 +8,17 @@ Purpose
 
 Scope
 - align current pointers with the roadmap SSOT
-- inventory the current pilot surfaces: string corridor candidates, sum placement chains, and thin-entry selection
+- inventory the current pilot surfaces:
+  - `string_corridor_facts`
+  - `string_corridor_candidates`
+  - `metadata.string_kernel_plans`
+  - `sum_placement_facts`
+  - `sum_placement_selections`
+  - `sum_placement_layouts`
+  - `thin_entry_candidates`
+  - `thin_entry_selections`
 - define the first owner boundary for the generic placement / effect layer
+- keep family-specific pilot scaffolds as pilot scaffolds, not new top-level rows
 
 Non-goals
 - no code changes

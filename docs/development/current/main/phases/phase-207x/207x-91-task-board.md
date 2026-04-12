@@ -4,12 +4,19 @@ Status: Open
 
 ## Docs / Facts
 
-- [ ] inventory the generic placement / effect pilot surfaces
-  - string corridor candidates
-  - sum placement chains
-  - thin-entry inventory / selection
+- [ ] inventory the string corridor pilot surface
+  - `string_corridor_facts`
+  - `string_corridor_candidates`
+  - `metadata.string_kernel_plans`
+- [ ] inventory the sum placement pilot surface
+  - `sum_placement_facts`
+  - `sum_placement_selections`
+  - `sum_placement_layouts`
+- [ ] inventory the thin-entry pilot surface
+  - `thin_entry_candidates`
+  - `thin_entry_selections`
 - [ ] write the owner boundary notes for what belongs in the generic layer vs domain-specific pilots
-- [ ] sync current pointers to `phase207x`
+- [x] sync current pointers to `phase207x`
 - [ ] record the follow-on handoff to `agg_local scalarization`
 
 ## Non-Goals
