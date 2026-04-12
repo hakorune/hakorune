@@ -16,8 +16,9 @@ Scope: repo root から current lane / current front / restart read order に最
 2. `docs/development/current/main/15-Workstream-Map.md`
 3. `docs/development/current/main/phases/phase-218x/README.md`
 4. `docs/development/current/main/phases/phase-163x/README.md`
-5. `git status -sb`
-6. `tools/checks/dev_gate.sh quick`
+5. `docs/development/current/main/phases/phase-221x/README.md`
+6. `git status -sb`
+7. `tools/checks/dev_gate.sh quick`
 
 ## Restart Handoff
 
@@ -70,6 +71,8 @@ Scope: repo root から current lane / current front / restart read order に最
   - `docs/development/current/main/phases/phase-219x/219x-90-placement-effect-route-window-len-fold-ssot.md`
   - `docs/development/current/main/phases/phase-220x/README.md`
   - `docs/development/current/main/phases/phase-220x/220x-90-route-window-len-helper-cleanup-ssot.md`
+  - `docs/development/current/main/phases/phase-221x/README.md`
+  - `docs/development/current/main/phases/phase-221x/221x-90-generic-placement-effect-first-mir-side-transform-cut-ssot.md`
 - thin-entry actual consumer switch owner:
   - `docs/development/current/main/phases/phase-210x/README.md`
 - DCE lane split owner:
@@ -126,6 +129,8 @@ Scope: repo root から current lane / current front / restart read order に最
   - boundary `pure-first` now reads `placement_effect_routes` window first for `substring(...).length()` and the smoke expects `placement_effect_route_window`
 - `phase-220x`
   - boundary len route-window branch is now shared behind one helper with identical behavior
+- `phase-221x`
+  - planned first MIR-side generic placement/effect transform cut after the BoxShape-only route-window polish
 - `phase-200x`
   - dead `Load` pruning is now landed for definitely private carrier roots with copy-only alias propagation
   - first cut keeps `Store`, `Debug`, terminator, and generic placement/effect widening out of scope

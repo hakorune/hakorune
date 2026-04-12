@@ -22,4 +22,4 @@ Acceptance
 - no behavior change in emitted IR
 
 Follow-on
-- generic placement/effect returns to the actual next lane after this BoxShape-only polish
+- `phase-221x` starts the first MIR-side generic placement/effect transform cut after this BoxShape-only polish

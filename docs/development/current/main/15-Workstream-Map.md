@@ -45,6 +45,7 @@ Related:
   - `phase-218x`: boundary sum and user-box helpers now share one folded `placement_effect_routes` reader/matcher seam
   - `phase-219x`: boundary pure-first len routing now reads `placement_effect_routes` window first for `substring(...).length()`
   - `phase-220x`: boundary len route-window branch is now shared behind one helper with identical behavior
+  - `phase-221x`: planned first MIR-side generic placement/effect transform cut
   - landed generic-memory facts follow-on:
   - `phase-199x` is landed
   - lane-B observer/owner contract is fixed before any generic `Load` / `Store` pruning

@@ -347,6 +347,7 @@ Related:
       - boundary `pure-first` now reads `placement_effect_routes` window first for `substring(...).length()` and the smoke expects `placement_effect_route_window`
     - landed BoxShape-only follow-on: `phase-220x placement-effect route-window len helper cleanup`
       - boundary len route-window branch is now shared behind one helper with identical behavior
+    - next planned slice: `phase-221x first MIR-side generic placement/effect transform cut`
     - latest bridge shrink removes the old `STRING_LEN -> string_substring_len` declaration path on this lane; direct-kernel len now trusts corridor plan metadata rather than substring-call re-inference
     - current `./target/release/hakorune --emit-mir-json{,-minimal}` probe on `bench_kilo_micro_substring_concat.hako` reads `interesting_n = 14`, and the active `phase29x_backend_owner_daily_substring_concat_loop_min` smoke now points at the refreshed `apps/tests/mir_shape_guard/substring_concat_loop_pure_min_v1_post_sink.mir.json`
     - the daily-owner route blocker is now cleared too: default `backend=mir` executes the compiled module again, and the `.hako ll emitter` runtime decl manifest now includes `nyash.string.substring_len_hii` / `nyash.string.substring_concat3_hhhii`, so the phase29x daily smoke reaches `[hako-ll/daily] ... acceptance_case=substring-concat-loop-v1`
