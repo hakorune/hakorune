@@ -9,7 +9,7 @@ Purpose
 Scope
 - add one optimization-layer SSOT
 - update `CURRENT_TASK.md`, `10-Now.md`, `15-Workstream-Map.md`, and `phase-163x`
-- keep current code next as DCE lane A2 while changing the long-range roadmap wording
+- keep the then-current code next as DCE lane A2 while changing the long-range roadmap wording
 
 Non-goals
 - no code change

@@ -80,8 +80,11 @@ Owner: `phase-163x optimization-resume`
 ## Immediate Read
 
 - immediate code next:
-  - `semantic simplification bundle` lane A2
-  - loop/backedge overwritten local field-set widening
+  - `semantic simplification bundle` lane B0
+  - generic memory `Store` / `Load` docs-facts phase
+- immediate follow-on after that:
+  - lane B1 dead `Load` pruning
+  - lane B2 overwritten `Store` pruning
 - next major design lane after the current DCE slice:
   - `generic placement / effect`
   - then `agg_local scalarization`

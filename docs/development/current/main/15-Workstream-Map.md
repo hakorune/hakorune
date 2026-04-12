@@ -15,97 +15,33 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-163x primitive and user-box fast path` |
-| Front | `lifecycle value parent locked -> audits landed -> thin-entry inventory/selection landed -> sum placement pilot landed -> ny-llvmc parity proving slice landed -> tuple compat transport landed` |
+| Front | `layer roadmap regroup landed -> semantic simplification bundle partial through phase196x -> next narrow slice is lane B0 generic memory Store/Load docs-facts` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `canonical multi-slot sum remains deferred; current tuple route stays compat-boxed` |
+| Blocker | `generic memory Store/Load observer-owner contract is not fixed yet, so lane B cannot widen safely` |
 | Next | `semantic simplification bundle lane B0 (generic memory Store/Load docs-facts phase)` |
 | After Next | `lane B1 dead Load pruning -> lane B2 overwritten Store pruning` |
 
 ## Current Read
 
-- `phase-132x` landed:
-  - `--backend` default is now `mir`
-  - explicit `vm` / `vm-hako` proof-debug lanes stay frozen keep
-- current pre-optimization cleanup:
-  - separate `vm-compat-fallback`
-  - separate kernel-side Rust fallback policy
-  - keep `vm-hako` as reference/conformance only
-- landed optimization sub-corridor:
-  - `phase-165x` landed the MIR-side operand-role escape barrier vocabulary cut
-  - runtime/helper policy and generic cross-block escape work stay outside that slice
-- landed optimization structure follow-on:
-  - `phase-166x` completed the structural cleanup corridor
-  - landed order is `semantic refresh owner -> generic value_origin / phi_relation owner -> compat semantic recovery quarantine -> boundary/lifecycle extraction decision`
-- landed roadmap regroup follow-on:
-  - `phase-195x` is landed
-  - top-level optimization order is now read as design layers, not mixed pilot rows
-  - design owner: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
-- landed optimization stability follow-on:
-  - `phase-167x` repaired user-box method sealing/determinism inside the MIR builder
-  - instance methods now go through the shared finalize owner and seed receiver `Box(...)` metadata before known-receiver canonicalization; deterministic lexical traversal is kept as supporting structure
-  - repeated release direct emit for `Counter.step_chain` is green again (`6/6`), while the separate pure-first/backend exact build+asm stop-line remains open
-- active exact-route follow-on:
-  - `phase-168x` is landed
-  - the stale pure-first/direct exact contract for `Counter.step_chain` now matches the current narrow forwarding body again, and exact asm/perf evidence is green
-- landed string metadata-contract follow-on:
-  - `phase-169x` is landed
-  - merged header `%21` on `kilo_micro_substring_concat` now carries a narrow `stable_length_scalar` witness while keeping the `stop_at_merge` plan-window contract
-  - the live post-sink loop body now collapses to `source_len + const` on the exact front, and direct/pure-first contracts were refreshed together
-- landed string bridge-shrink follow-on:
-  - `phase-170x` is landed
-  - boundary `pure-first` `substring()` on helper-result receivers now reads concat-triplet piece carriers from `direct_kernel_entry.plan.proof`
-  - the targeted substring proof, len proof, live direct-emit contracts, exact asm/perf, and `quick` gate are green
-- landed string exact follow-on:
-  - `phase-171x` is landed as the bottom-tested loop-shape cut
-  - `phase-172x` is landed
-  - current exact front remains `kilo_micro_substring_concat`
-  - the exact seed now consumes the landed `stable_length_scalar` witness through the header string-lane phi and switches to the existing length-only route
-  - latest reread after that cut: `ny_aot_instr=1,666,187 / ny_aot_cycles=1,049,205 / ny_aot_ms=4`
-  - next string work should finish the final emitted-MIR return-carrier cleanup if that route needs a dedicated guard
-- active broader string follow-on:
-  - `phase-173x`, `phase-174x`, and `phase-175x` are landed
-  - same-block direct-helper `return` publication sink now consumes the landed `publication_sink` plan metadata
-  - same-block canonical `Store { value, .. }` / `FieldSet { value, .. }` write boundaries now consume that same landed `publication_sink` plan metadata
-  - same-block `RuntimeDataBox.set(...)` now consumes that same landed `publication_sink` plan as the first host-boundary publication slice
-  - the cut is explicitly a birth-sink move, not a barrier-relaxation phase
-  - remaining string backlog is the final emitted-MIR return-carrier cleanup only
-- active generic optimizer follow-on:
-  - `phase-176x` is landed as the first reachability-aware DCE cut
-  - `phase-177x` is landed as the first effect-sensitive DCE cut
-  - `phase-183x` is landed as the first pure no-dst call pruning cut
-  - `phase-184x` is landed as the first effect-sensitive dead local field-get read pruning cut
-  - `phase-185x` is landed as the first effect-sensitive dead local field-set write pruning cut
-  - `phase-186x` is landed as the same-root phi local field pruning cut across cross-block local carriers
-  - `phase-187x` is landed as the same-block overwritten local field-set pruning cut
-  - `phase-188x` is landed as the cross-block linear-edge overwritten local field-set pruning cut
-  - `phase-189x` is landed as the merge-entry overwritten local field-set pruning cut
-  - `phase-190x` is landed as the remaining DCE boundary inventory cut before generic-memory widening
-  - `phase-191x` is landed as the loop-carried same-root local field prune contract cut
-  - `phase-192x` is landed as the BoxShape split of `src/mir/passes/dce.rs` before more lane-A widening
-  - `phase-196x` is landed as the one-roundtrip loop-header overwritten local field-set widening cut
-  - next target is lane-B0 generic-memory facts phase
-  - do not mix that with unreachable-block deletion
-- landed shim-structure follow-on:
-  - `phase-178x` is landed
-  - split `hako_llvmc_ffi_sum_local_seed.inc` into a facade plus helper/emit/matcher include slices
-  - keep this as BoxShape only; no pure-compile dispatch reorder and no semantic change
-- landed string bridge-retirement follow-on:
-  - `phase-179x` is landed
-  - accept the external reread direction, but correct the exporter reading: `mir_json_emit` already ships string corridor facts/relations/candidates
-  - landed: one exported backend-consumable `StringKernelPlan` surface now exists as `metadata.string_kernel_plans`
-  - landed: `string_loop_seed` now consumes that plan first for the stable-length len route while keeping shape fallback only for the remaining full-loop bridge
-  - landed: exact keeper proof stays green and the old matcher no longer accepts the 14-op len-route fallback
-- landed string seam cleanup follow-on:
-  - `phase-180x` is landed as the structural string seam cleanup lane before broader DCE resumed
-  - `phase-182x` is landed as the CFG cleanup slice that prunes unreachable blocks after DCE liveness has stabilized
-- landed string structure follow-on:
-  - `phase-193x` is landed as the BoxShape split of `src/mir/passes/string_corridor_sink.rs`
-  - `src/mir/passes/string_corridor_sink/` is now a thin facade over focused rewrite families and topic tests
-  - this cut is structure-only and keeps current string semantics unchanged
-- active structure follow-on:
-  - `phase-194x` is landed; the remaining oversized Rust files are now split into focused module seams
-  - current order is `array/mod.rs` -> `mir_json_emit/mod.rs` -> `string_corridor_placement.rs`
-  - keep this as BoxShape-only before more DCE or string widening
+- design owners:
+  - implementation lane: `docs/development/current/main/phases/phase-163x/README.md`
+  - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
+  - roadmap SSOT: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
+- landed structure anchors:
+  - `phase-165x` / `phase-166x`: semantic refresh and generic relation ownership are fixed
+  - `phase-167x` / `phase-168x`: user-box method determinism and exact-route refresh are fixed
+  - `phase-169x` through `phase-180x`: string guardrail, `StringKernelPlan`, publication slices, and seam cleanup are landed; only the final emitted-MIR return-carrier cleanup stays parked on `phase-137x`
+  - `phase-176x` / `phase-177x` / `phase-181x` / `phase-182x` / `phase-183x` / `phase-184x` / `phase-185x` / `phase-186x` / `phase-187x` / `phase-188x` / `phase-189x` / `phase-190x` / `phase-191x` / `phase-192x` / `phase-196x`: semantic simplification bundle is landed through DCE lane A2
+  - `phase-178x` / `phase-193x` / `phase-194x`: BoxShape splits are landed and stay behavior-preserving
+  - `phase-195x` / `phase-197x`: roadmap regroup and pointer hygiene are landed; current docs agree on lane B0
+- immediate sequence:
+  - lane B0 generic memory `Store` / `Load` docs-facts phase
+  - lane B1 dead `Load` pruning
+  - lane B2 overwritten `Store` pruning
+- stop-lines:
+  - keep lane B separate from `Debug` / terminator observer cleanup
+  - keep lane B separate from `generic placement / effect`
+  - keep parked `phase-96x` out of the active optimization lane
 - `phase-133x` landed:
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`

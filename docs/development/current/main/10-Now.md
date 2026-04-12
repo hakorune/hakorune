@@ -31,7 +31,7 @@ Related:
     - boundary `pure-first` `substring()` on helper-result receivers now reads concat-triplet piece carriers from `string_corridor_candidates[*].plan.proof`
     - the targeted proof `string_direct_kernel_plan_substring_window_min_v1.mir.json` now lowers through `direct_kernel_plan_proof -> substring_concat3_hhhii` without consumer fallback to `substring_hii`
     - direct-kernel `length()` proof, live direct-emit contracts, exact asm/perf, and `quick` gate stay green
-  - active string exact follow-on: `phase171x substring concat exact-seed loop-shape cut`
+  - landed string exact follow-on: `phase171x substring concat exact-seed loop-shape cut`
     - landed as the bottom-tested loop-shape cut
     - current reread after that cut is `ny_aot_instr=5,565,470 / ny_aot_cycles=5,893,313 / ny_aot_ms=5`
   - landed string exact follow-on: `phase172x substring concat stable-length exact-route cut`
@@ -106,6 +106,9 @@ Related:
   - landed DCE cleanup follow-on: `phase196x loop-roundtrip overwritten local field-set pruning`
     - predecessor-local loop-body `FieldSet` writes now also disappear when the next loop-header entry overwrites the same root/field before any same-field read or escape use
     - mixed-root phi merges, multi-round loop dataflow, generic `Store`, `Load`, `Debug`, and terminators stay outside this cut
+  - landed docs hygiene follow-on: `phase197x optimization pointer inventory sync`
+    - `CURRENT_TASK`, `10-Now`, `Workstream Map`, phase index, and the optimization roadmap immediate-read pointer now agree on lane-B0 as the current next step
+    - feature-era `Front` / `Blocker` wording is reduced in favor of layer/lane wording
   - landed DCE structure follow-on: `phase192x DCE pass module split`
     - `src/mir/passes/dce.rs` is now a thin facade over focused implementation modules and topic tests
     - next semantic work is lane-B0 docs/facts; this cut did not widen DCE behavior by itself

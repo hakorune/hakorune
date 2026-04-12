@@ -243,6 +243,9 @@
            - backlog: `capture classification`, `closure env scalarization`, and `closure thin-entry specialization`
         9. `IPO / build-time optimization`
            - backlog: `PGO` / `ThinLTO` stay last after the MIR-side semantic layers are stronger
+      - active ordering note:
+        - the layer list above is the only current next-step order
+        - older pilot queues below are retained as landed history / evidence, not as competing next-task pointers
     5. `tuple multi-payload` compat transport is now landed
       - parser/AST now accept tuple payload declarations while preserving tuple payload truth above canonical MIR
       - Stage1 lowers tuple ctors/matches through `__NyVariantPayload_<Enum>_<Variant>` hidden payload boxes with `_0`, `_1`, ... field slots
