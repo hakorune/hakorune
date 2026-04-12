@@ -6,6 +6,7 @@
 
 - **Current (ACTIVE)**: Phase 163x primitive and user-box fast path
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
+- **Phase 198x（LANDED）**: root pointer compression
 - **Phase 197x（LANDED）**: optimization pointer inventory sync
 - **Phase 196x（LANDED）**: loop-roundtrip overwritten local field-set pruning
 - **Phase 195x（LANDED）**: optimization roadmap layer regroup
@@ -105,6 +106,7 @@
 
 ### Recent Landed
 
+- **Phase 198x（LANDED）**: root pointer compression
 - **Phase 197x（LANDED）**: optimization pointer inventory sync
 - **Phase 196x（LANDED）**: loop-roundtrip overwritten local field-set pruning
 - **Phase 189x（LANDED）**: merge-entry overwritten local field-set pruning

@@ -109,6 +109,8 @@ Related:
   - landed docs hygiene follow-on: `phase197x optimization pointer inventory sync`
     - `CURRENT_TASK`, `10-Now`, `Workstream Map`, phase index, and the optimization roadmap immediate-read pointer now agree on lane-B0 as the current next step
     - feature-era `Front` / `Blocker` wording is reduced in favor of layer/lane wording
+  - landed docs hygiene follow-on: `phase198x root pointer compression`
+    - `CURRENT_TASK` and `Restart Quick Resume` now stay pointer-only and no longer duplicate long landed chronologies
   - landed DCE structure follow-on: `phase192x DCE pass module split`
     - `src/mir/passes/dce.rs` is now a thin facade over focused implementation modules and topic tests
     - next semantic work is lane-B0 docs/facts; this cut did not widen DCE behavior by itself

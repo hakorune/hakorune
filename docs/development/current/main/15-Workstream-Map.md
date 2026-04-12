@@ -34,6 +34,7 @@ Related:
   - `phase-176x` / `phase-177x` / `phase-181x` / `phase-182x` / `phase-183x` / `phase-184x` / `phase-185x` / `phase-186x` / `phase-187x` / `phase-188x` / `phase-189x` / `phase-190x` / `phase-191x` / `phase-192x` / `phase-196x`: semantic simplification bundle is landed through DCE lane A2
   - `phase-178x` / `phase-193x` / `phase-194x`: BoxShape splits are landed and stay behavior-preserving
   - `phase-195x` / `phase-197x`: roadmap regroup and pointer hygiene are landed; current docs agree on lane B0
+  - `phase-198x`: root restart docs are compressed back to pointer-only form
 - immediate sequence:
   - lane B0 generic memory `Store` / `Load` docs-facts phase
   - lane B1 dead `Load` pruning
