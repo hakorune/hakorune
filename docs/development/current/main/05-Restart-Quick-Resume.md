@@ -24,6 +24,7 @@ tools/checks/dev_gate.sh quick
   - `phase-163x primitive and user-box fast path`
 - sibling guardrail:
   - `phase-137x main kilo reopen selection`
+  - `phase-219x placement-effect route-window len fold`
 - immediate next:
   - `generic placement / effect`
 - immediate follow-on:
@@ -38,10 +39,11 @@ tools/checks/dev_gate.sh quick
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
 3. `docs/development/current/main/phases/phase-218x/README.md`
-4. `docs/development/current/main/phases/phase-163x/README.md`
-5. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
-6. `docs/development/current/main/phases/phase-137x/README.md`
-7. `docs/development/current/main/phases/phase-210x/README.md`
+4. `docs/development/current/main/phases/phase-219x/README.md`
+5. `docs/development/current/main/phases/phase-163x/README.md`
+6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
+7. `docs/development/current/main/phases/phase-137x/README.md`
+8. `docs/development/current/main/phases/phase-210x/README.md`
 
 ## Current Evidence
 
@@ -50,6 +52,8 @@ tools/checks/dev_gate.sh quick
   - `phase-166x`
 - string guardrail / seam cleanup is landed through:
   - `phase-169x` to `phase-180x`
+  - `phase-219x`
+    - boundary `pure-first` now reads `placement_effect_routes` window first for `substring(...).length()`
 - semantic simplification bundle is landed through DCE lane A2:
   - `phase-176x`
   - `phase-177x`

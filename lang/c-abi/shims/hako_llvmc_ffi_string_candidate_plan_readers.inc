@@ -72,6 +72,50 @@
         return 1;
       }
 
+      auto int hako_llvmc_string_corridor_read_route_window_from_placement_effect_routes(
+          long long value,
+          long long* start,
+          long long* end) {
+        yyjson_val* routes;
+        size_t i;
+        long long resolved_value = resolve_copy_source_reg(value);
+
+        if (!(fn_metadata && resolved_value)) return 0;
+        routes = yyjson_obj_get(fn_metadata, "placement_effect_routes");
+        if (!(routes && yyjson_is_arr(routes))) return 0;
+
+        for (i = 0; i < yyjson_arr_size(routes); i++) {
+          yyjson_val* row = yyjson_arr_get(routes, i);
+          yyjson_val* source = row ? yyjson_obj_get(row, "source") : NULL;
+          yyjson_val* decision = row ? yyjson_obj_get(row, "decision") : NULL;
+          yyjson_val* route_value = row ? yyjson_obj_get(row, "value") : NULL;
+          yyjson_val* route_start = row ? yyjson_obj_get(row, "window_start") : NULL;
+          yyjson_val* route_end = row ? yyjson_obj_get(row, "window_end") : NULL;
+
+          if (!(source && decision && route_value && route_start && route_end &&
+                yyjson_is_str(source) && yyjson_is_str(decision) &&
+                yyjson_is_num(route_value) && yyjson_is_num(route_start) &&
+                yyjson_is_num(route_end))) {
+            continue;
+          }
+          if (strcmp(yyjson_get_str(source), "string_corridor") != 0) {
+            continue;
+          }
+          if (strcmp(yyjson_get_str(decision), "direct_kernel_entry") != 0) {
+            continue;
+          }
+          if (resolve_copy_source_reg((long long)yyjson_get_sint(route_value)) != resolved_value) {
+            continue;
+          }
+
+          if (start) *start = (long long)yyjson_get_sint(route_start);
+          if (end) *end = (long long)yyjson_get_sint(route_end);
+          return 1;
+        }
+
+        return 0;
+      }
+
       auto int hako_llvmc_string_corridor_read_concat_triplet_plan_values(
           long long value,
           const char* kind,

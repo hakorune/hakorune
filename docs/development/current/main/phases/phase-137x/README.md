@@ -126,9 +126,11 @@
     2. `substring_view_enabled` / fallback provider state reads
     3. only then `SubstringViewArcCache` steady-state compare
   - boundary `pure-first` now consumes MIR JSON `string_corridor_*` for `substring(...).length()`:
-    - direct route trace now hits `string_len_corridor -> substring_len_direct_kernel_plan_window`
+    - direct route trace now hits `string_len_corridor -> placement_effect_route_window`
     - single-use retained-slice `length()` / `len()` consumers now also rewrite through the same direct entry even when the slice producer dominates from another block through local copy aliases
     - the current bridge shrink also removes the `substring_len_hii` declaration need from this plan-window lane; metadata is now the only direct-kernel proof source here
+    - landed sibling string follow-on: `phase-219x placement-effect route-window len fold`
+      - boundary `pure-first` now reads `placement_effect_routes` window first for `substring(...).length()` and the smoke expects `placement_effect_route_window`
     - latest exact reread on `kilo_micro_len_substring_views`: `instr=1,672,259 / cycles=1,022,005 / cache-miss=10,525 / AOT 3 ms`
     - latest split-pack reread on `kilo_micro_substring_views_only`: `instr=466,001 / cycles=841,958 / cache-miss=9,391 / AOT 3 ms`
     - reading: the split single-use retained-view fronts are now closed; multiple-use retained-slice length stays backlog and the next string keeper reopens on broader corridor publication/materialization work
@@ -240,7 +242,7 @@
      - step 4: landed; `src/mir/string_corridor_placement.rs` now reads `FunctionMetadata.string_corridor_facts`, emits no-op candidate decisions into `FunctionMetadata.string_corridor_candidates`, and exposes them in verbose MIR dumps plus MIR JSON
      - step 5: landed structurally; the first borrowed-corridor sinking pilot now rewrites single-use `substring(...).length()` chains to `nyash.string.substring_len_hii`
      - step 6: landed; `phase-162x vm fallback lane separation cleanup` is complete, so this front now reads through `ny-llvmc(boundary pure-first)` without mixing fallback owners
-     - step 7: landed; boundary `pure-first` now consumes MIR JSON `string_corridor_*` metadata for `substring(...).length()` and now reads the route as `string_len_corridor -> substring_len_direct_kernel_plan_window`
+     - step 7: landed; boundary `pure-first` now consumes MIR JSON `string_corridor_*` metadata for `substring(...).length()` and now reads the route as `string_len_corridor -> placement_effect_route_window`; the route-window fold is landed in `phase-219x`
      - step 8: landed; boundary `pure-first` now also routes compiler-visible concat pair/triple `substring(...)` consumers to `nyash.string.substring_concat_hhii` / `nyash.string.substring_concat3_hhhii`
      - step 9: landed; `FunctionMetadata.string_corridor_candidates` now carries proof-bearing plan metadata on the broader-corridor reopen front `kilo_micro_substring_concat`, and MIR JSON exports the same plan surface
      - step 10: landed; direct `substring_concat3_hhhii` helper results now stay on the corridor metadata lane with concat-triplet-backed `publication_sink` proof

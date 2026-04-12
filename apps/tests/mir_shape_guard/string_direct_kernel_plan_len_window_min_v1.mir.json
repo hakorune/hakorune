@@ -35,7 +35,23 @@
               }
             }
           ]
-        }
+        },
+        "placement_effect_routes": [
+          {
+            "block": 0,
+            "instruction_index": 10,
+            "value": 11,
+            "source_value": null,
+            "window_start": 9,
+            "window_end": 10,
+            "source": "string_corridor",
+            "subject": "string.value%11",
+            "decision": "direct_kernel_entry",
+            "state": "candidate",
+            "detail": "plan(root=%11 source=%2 outer=[%9, %10] known_len=2 proof=concat_triplet)",
+            "reason": "placement-effect route exports the same direct-kernel window that the boundary smoke should consume first"
+          }
+        ]
       },
       "blocks": [
         {

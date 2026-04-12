@@ -43,6 +43,7 @@ Related:
   - `phase-216x`: the current sum local seed metadata helper now reads folded `placement_effect_routes` first on the boundary pure-first path
   - `phase-217x`: the current boundary pure-first user-box micro seed helper now reads folded `placement_effect_routes` first
   - `phase-218x`: boundary sum and user-box helpers now share one folded `placement_effect_routes` reader/matcher seam
+  - `phase-219x`: boundary pure-first len routing now reads `placement_effect_routes` window first for `substring(...).length()`
   - landed generic-memory facts follow-on:
   - `phase-199x` is landed
   - lane-B observer/owner contract is fixed before any generic `Load` / `Store` pruning

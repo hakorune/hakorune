@@ -66,10 +66,10 @@ fi
 require_smoke_path "phase137x_boundary_string_direct_kernel_plan_len_min" "object" "$OUT_OBJ" || exit 1
 require_smoke_path "phase137x_boundary_string_direct_kernel_plan_len_min" "LLVM IR dump" "$LL_DUMP" || exit 1
 
-if ! grep -Fq "substring_len_direct_kernel_plan_window" "$BUILD_LOG"; then
+if ! grep -Fq "placement_effect_route_window" "$BUILD_LOG"; then
     echo "[INFO] route trace output:"
     tail -n 120 "$BUILD_LOG" || true
-    test_fail "phase137x_boundary_string_direct_kernel_plan_len_min: missing plan-selected direct-kernel route trace"
+    test_fail "phase137x_boundary_string_direct_kernel_plan_len_min: missing placement_effect_route_window trace"
     exit 1
 fi
 

@@ -26,7 +26,7 @@ Scope: repo root から current lane / current front / restart read order に最
 - active lane:
   - `phase-163x primitive and user-box fast path`
 - sibling guardrail:
-  - `phase-137x` string corridor / exact-keeper guardrail
+  - `phase-137x` string corridor / exact-keeper guardrail; `phase-219x` placement-effect route-window len fold follow-on is landed
 - immediate next:
   - `generic placement / effect`
 - immediate follow-on:
@@ -66,6 +66,8 @@ Scope: repo root から current lane / current front / restart read order に最
   - `docs/development/current/main/phases/phase-217x/217x-90-user-box-micro-seed-thin-entry-fold-ssot.md`
   - `docs/development/current/main/phases/phase-218x/README.md`
   - `docs/development/current/main/phases/phase-218x/218x-90-shared-placement-effect-route-reader-ssot.md`
+  - `docs/development/current/main/phases/phase-219x/README.md`
+  - `docs/development/current/main/phases/phase-219x/219x-90-placement-effect-route-window-len-fold-ssot.md`
 - thin-entry actual consumer switch owner:
   - `docs/development/current/main/phases/phase-210x/README.md`
 - DCE lane split owner:
@@ -118,6 +120,8 @@ Scope: repo root から current lane / current front / restart read order に最
   - current boundary pure-first user-box micro seed helper now reads folded `placement_effect_routes` first, with legacy `thin_entry_selections` kept as fallback
 - `phase-218x`
   - current boundary sum and user-box helpers now share one folded `placement_effect_routes` reader/matcher seam, with legacy metadata fallbacks kept intact
+- `phase-219x`
+  - boundary `pure-first` now reads `placement_effect_routes` window first for `substring(...).length()` and the smoke expects `placement_effect_route_window`
 - `phase-200x`
   - dead `Load` pruning is now landed for definitely private carrier roots with copy-only alias propagation
   - first cut keeps `Store`, `Debug`, terminator, and generic placement/effect widening out of scope
