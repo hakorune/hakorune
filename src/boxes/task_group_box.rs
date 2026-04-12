@@ -29,12 +29,16 @@ impl TaskGroupInner {
         self.closed_reason.lock().ok().and_then(|slot| slot.clone())
     }
 
-    fn latch_closed_reason(&self, reason: &str) {
+    fn effective_closed_reason(&self, reason: &str) -> String {
         if let Ok(mut slot) = self.closed_reason.lock() {
-            if slot.is_none() {
-                *slot = Some(reason.to_string());
-            }
+            let effective = slot.clone().unwrap_or_else(|| {
+                let reason = reason.to_string();
+                *slot = Some(reason.clone());
+                reason
+            });
+            return effective;
         }
+        reason.to_string()
     }
 
     pub(crate) fn bind_future(&self, fut: &crate::boxes::future::FutureBox, owner: &Arc<Self>) {
@@ -53,13 +57,35 @@ impl TaskGroupInner {
     }
 
     pub(crate) fn cancel_pending_with_reason(&self, reason: &str) {
-        self.latch_closed_reason(reason);
+        let effective_reason = self.effective_closed_reason(reason);
         if let Ok(list) = self.strong.lock() {
             for fut in list.iter() {
                 if !fut.ready() {
-                    fut.cancel_with_reason(reason);
+                    fut.cancel_with_reason(effective_reason.clone());
                 }
             }
+        }
+    }
+
+    pub(crate) fn join_pending_with_timeout(&self, timeout_ms: u64) {
+        use std::time::{Duration, Instant};
+        let deadline = Instant::now() + Duration::from_millis(timeout_ms);
+        loop {
+            let mut all_ready = true;
+            if let Ok(mut list) = self.strong.lock() {
+                list.retain(|f| !f.ready());
+                if !list.is_empty() {
+                    all_ready = false;
+                }
+            }
+            if all_ready {
+                break;
+            }
+            if Instant::now() >= deadline {
+                break;
+            }
+            crate::runtime::global_hooks::safepoint_and_poll();
+            std::thread::yield_now();
         }
     }
 
@@ -123,25 +149,7 @@ impl TaskGroupBox {
     }
 
     fn join_all_inner(&self, timeout_ms: u64) {
-        use std::time::{Duration, Instant};
-        let deadline = Instant::now() + Duration::from_millis(timeout_ms);
-        loop {
-            let mut all_ready = true;
-            if let Ok(mut list) = self.inner.strong.lock() {
-                list.retain(|f| !f.ready());
-                if !list.is_empty() {
-                    all_ready = false;
-                }
-            }
-            if all_ready {
-                break;
-            }
-            if Instant::now() >= deadline {
-                break;
-            }
-            crate::runtime::global_hooks::safepoint_and_poll();
-            std::thread::yield_now();
-        }
+        self.inner.join_pending_with_timeout(timeout_ms);
     }
 }
 

@@ -22,6 +22,7 @@ struct GlobalHooksState {
     // Controlled by explicit env policy (NYASH_SCHED_POLL_IN_SAFEPOINT).
     poll_in_safepoint: bool,
     cur_token: Option<CancellationToken>,
+    token_stack: Vec<CancellationToken>,
     futures: Vec<crate::boxes::future::FutureWeak>,
     strong: Vec<crate::boxes::future::FutureBox>,
     root_cancel_reason: Option<String>,
@@ -36,6 +37,7 @@ impl GlobalHooksState {
             sched: None,
             poll_in_safepoint: true,
             cur_token: None,
+            token_stack: Vec::new(),
             futures: Vec::new(),
             strong: Vec::new(),
             root_cancel_reason: None,
@@ -92,6 +94,7 @@ pub fn set_from_runtime(rt: &crate::runtime::nyash_runtime::NyashRuntime) {
         st.strong.clear();
         st.root_cancel_reason = None;
         st.scope_depth = 0;
+        st.token_stack.clear();
         st.group_stack.clear();
         publish_runtime_fast_flags(&st);
     }
@@ -112,13 +115,20 @@ pub fn set_scheduler(s: Arc<dyn Scheduler>) {
 /// Set the current task group's cancellation token (scaffold).
 pub fn set_current_group_token(tok: CancellationToken) {
     if let Ok(mut st) = state().write() {
-        st.cur_token = Some(tok);
+        if let Some(current) = st.token_stack.last_mut() {
+            *current = tok;
+        } else {
+            st.cur_token = Some(tok);
+        }
     }
 }
 
 /// Get the current task group's cancellation token (no-op default).
 pub fn current_group_token() -> CancellationToken {
     if let Ok(st) = state().read() {
+        if let Some(t) = st.token_stack.last() {
+            return t.clone();
+        }
         if let Some(t) = st.cur_token.as_ref() {
             return t.clone();
         }
@@ -132,7 +142,7 @@ pub fn current_group_token() -> CancellationToken {
 /// scope that owns top-level futures registered through `register_future_to_current_group`.
 pub fn cancel_current_group_with_reason(reason: &str) {
     if let Ok(mut st) = state().write() {
-        if let Some(tok) = st.cur_token.as_ref() {
+        if let Some(tok) = st.token_stack.last().or(st.cur_token.as_ref()) {
             tok.cancel();
         }
         if let Some(inner) = st.group_stack.last() {
@@ -215,13 +225,12 @@ pub fn join_all_registered_futures(timeout_ms: u64) {
 pub fn push_task_scope() {
     if let Ok(mut st) = state().write() {
         st.scope_depth += 1;
+        st.token_stack.push(CancellationToken::new());
         // Push a new explicit TaskGroup for this scope
         st.group_stack.push(std::sync::Arc::new(
             crate::boxes::task_group_box::TaskGroupInner::default(),
         ));
     }
-    // Set a fresh cancellation token for this scope (best-effort)
-    set_current_group_token(CancellationToken::new());
 }
 
 #[cfg(test)]
@@ -237,50 +246,23 @@ pub(crate) fn reset_for_tests() {
 /// When depth reaches 0, perform a best-effort bounded join for the futures
 /// that were registered under this scope.
 pub fn pop_task_scope() {
-    let mut do_join = false;
     let mut popped: Option<std::sync::Arc<crate::boxes::task_group_box::TaskGroupInner>> = None;
     if let Ok(mut st) = state().write() {
         if st.scope_depth > 0 {
             st.scope_depth -= 1;
         }
-        if st.scope_depth == 0 {
-            do_join = true;
-        }
+        st.token_stack.pop();
         // Pop explicit group for this scope
         popped = st.group_stack.pop();
     }
-    if do_join {
-        let ms: u64 = std::env::var("NYASH_TASK_SCOPE_JOIN_MS")
-            .ok()
-            .and_then(|s| s.parse().ok())
-            .unwrap_or(1000);
-        if let Some(inner) = popped {
-            // Join this group's outstanding futures
-            let deadline = std::time::Instant::now() + std::time::Duration::from_millis(ms);
-            loop {
-                let mut all_ready = true;
-                if let Ok(mut list) = inner.strong.lock() {
-                    list.retain(|f| !f.ready());
-                    if !list.is_empty() {
-                        all_ready = false;
-                    }
-                }
-                if all_ready {
-                    break;
-                }
-                if std::time::Instant::now() >= deadline {
-                    break;
-                }
-                safepoint_and_poll();
-                std::thread::yield_now();
-            }
-        } else {
-            // Fallback to implicit global group
-            join_all_registered_futures(ms);
-        }
+    let ms: u64 = std::env::var("NYASH_TASK_SCOPE_JOIN_MS")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(1000);
+    if let Some(inner) = popped {
+        inner.cancel_pending_with_reason("scope-exit-cancelled");
+        inner.join_pending_with_timeout(ms);
     }
-    // Reset token (best-effort)
-    set_current_group_token(CancellationToken::new());
 }
 
 /// Perform a runtime safepoint and poll the scheduler if available.
@@ -423,6 +405,56 @@ mod tests {
         assert_eq!(
             late.to_string_box().value,
             "Future(cancelled: Cancelled: sibling-failed)"
+        );
+        pop_task_scope();
+        reset_for_tests();
+    }
+
+    #[test]
+    fn pop_task_scope_cancels_pending_future_with_scope_exit_reason() {
+        let _guard = TEST_GUARD.lock().unwrap();
+        reset_for_tests();
+        push_task_scope();
+        let fut = crate::boxes::future::FutureBox::new();
+        register_future_to_current_group(&fut);
+
+        pop_task_scope();
+
+        assert_eq!(
+            fut.to_string_box().value,
+            "Future(cancelled: Cancelled: scope-exit-cancelled)"
+        );
+        reset_for_tests();
+    }
+
+    #[test]
+    fn nested_scope_exit_is_lexical_and_preserves_outer_scope() {
+        let _guard = TEST_GUARD.lock().unwrap();
+        reset_for_tests();
+        push_task_scope();
+        let outer_token = current_group_token();
+        let outer = crate::boxes::future::FutureBox::new();
+        register_future_to_current_group(&outer);
+
+        push_task_scope();
+        let inner = crate::boxes::future::FutureBox::new();
+        register_future_to_current_group(&inner);
+
+        pop_task_scope();
+
+        assert_eq!(
+            inner.to_string_box().value,
+            "Future(cancelled: Cancelled: scope-exit-cancelled)"
+        );
+        assert_eq!(outer.to_string_box().value, "Future(pending)");
+
+        outer_token.cancel();
+        assert!(current_group_token().is_cancelled());
+
+        cancel_current_group_with_reason("scope-cancelled");
+        assert_eq!(
+            outer.to_string_box().value,
+            "Future(cancelled: Cancelled: scope-cancelled)"
         );
         pop_task_scope();
         reset_for_tests();

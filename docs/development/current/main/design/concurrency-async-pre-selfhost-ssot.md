@@ -65,6 +65,18 @@ Non-goals (この文書で今すぐやらない):
   - that timeout shape is not part of the MIR `Await` contract
   - do not describe it as VM-side `await` semantics
 
+### Scope-exit structured shutdown (Phase 251x)
+
+- each explicit `task_scope` closes independently on scope exit
+- current Phase-0 scope-exit rule is:
+  - cancel pending futures owned by the popped explicit scope with reason `scope-exit-cancelled`
+  - then perform best-effort bounded join for that same explicit scope
+- this applies to nested scopes too:
+  - popping an inner explicit scope must not defer its cleanup to the outermost scope
+  - outer explicit scopes keep their own owner/token state after an inner scope exits
+- current `joinAll(timeout_ms)` / scope-exit still do **not** surface first failure or aggregate failure
+- current return shape therefore remains `void` / no rethrow in this cut
+
 ---
 
 ## 1. Current reality (2026-02-04 snapshot)
@@ -136,6 +148,7 @@ Current failure taxonomy to pin:
 - `Cancelled(reason)`
   - current cuts are explicit scope-owned cancellation only
   - `task_scope.cancelAll()` / current-scope cancellation mark owned pending futures as `Cancelled: scope-cancelled`
+  - explicit scope exit marks still-pending owned futures as `Cancelled: scope-exit-cancelled`
   - explicit-scope sibling-failure cancellation marks owned pending sibling futures as `Cancelled: sibling-failed`
   - current VM `await` surfaces that state as `VMError::TaskCancelled(<stringified reason payload>)`
   - current `env.future.await` plugin/runtime route surfaces that state as `ResultBox::Err(reason)`

@@ -19,6 +19,9 @@ Related:
 
 ## Landing Snapshot
 
+- `phase251x` is landed:
+  - explicit `task_scope` exit now does `cancel -> bounded join` per popped explicit scope
+  - nested explicit scopes now clean up lexically instead of waiting for the outermost scope
 - `phase250x` is landed:
   - closed explicit/root scopes now immediately cancel late registrations
   - `FutureBox` success is now single-assignment
@@ -37,7 +40,7 @@ Related:
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-250x/README.md`
+3. `docs/development/current/main/phases/phase-251x/README.md`
 4. `docs/development/current/main/phases/phase-163x/README.md`
 5. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 

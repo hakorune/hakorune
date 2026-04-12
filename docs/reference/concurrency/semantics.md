@@ -36,6 +36,9 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
 - `task_scope` is the user-facing structured-concurrency boundary.
 - `TaskGroupBox` is the current runtime-side owner for child futures registered under that scope.
 - Current lifecycle vocabulary is `cancelAll()` and `joinAll(timeout_ms)`, plus best-effort bounded join on scope exit.
+- current scope exit is structured shutdown for the popped explicit scope:
+  - cancel pending child futures as `scope-exit-cancelled`
+  - then bounded-join that same scope
 - `fini()` and sibling-failure aggregation remain later-phase work.
 - bare `nowait` is not detached.
 - `nowait` inside explicit `task_scope` belongs to that scope.
@@ -62,6 +65,10 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
   - it cancels owned pending futures with reason `scope-cancelled`
   - late child futures registered after that cancellation are immediately cancelled with the same reason
   - it does not yet define interruption for arbitrary blocking APIs
+- scope exit is a separate narrow future-owner cut:
+  - explicit-scope exit cancels still-pending owned futures with reason `scope-exit-cancelled`
+  - nested explicit scopes clean up when they exit; they are not deferred to the outermost scope
+  - `joinAll()` and scope exit still return/rethrow nothing in the current cut
 - current sibling-failure cut is also narrow:
   - only explicit `task_scope` ownership participates
   - first failed child future cancels pending siblings with reason `sibling-failed`
