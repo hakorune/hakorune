@@ -12,6 +12,43 @@ use crate::mir::{MirFunction, ValueId};
 use crate::runtime::get_global_ring0;
 use std::collections::HashSet;
 
+fn seed_control_anchor_values(
+    function: &MirFunction,
+    reachable_blocks: &HashSet<crate::mir::BasicBlockId>,
+    base_used_values: &mut HashSet<ValueId>,
+) {
+    for (bid, block) in &function.blocks {
+        if !reachable_blocks.contains(bid) {
+            continue;
+        }
+        for instruction in &block.instructions {
+            let anchors_liveness = matches!(
+                instruction,
+                crate::mir::MirInstruction::Branch { .. }
+                    | crate::mir::MirInstruction::Jump { .. }
+                    | crate::mir::MirInstruction::Return { .. }
+            );
+            if anchors_liveness {
+                for u in instruction.used_values() {
+                    base_used_values.insert(u);
+                }
+            }
+        }
+        if let Some(term) = &block.terminator {
+            for u in term.used_values() {
+                base_used_values.insert(u);
+            }
+        }
+        for edge in block.out_edges() {
+            if let Some(args) = edge.args {
+                for u in args.values {
+                    base_used_values.insert(u);
+                }
+            }
+        }
+    }
+}
+
 pub(super) fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
     let reachable_blocks = crate::mir::verification::utils::compute_reachable_blocks(function);
     let local_reads = analyze_local_reads(function, &reachable_blocks);
@@ -44,13 +81,7 @@ pub(super) fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usi
             if is_removable_effect_sensitive_write_instruction(instruction, &local_reads) {
                 continue;
             }
-            let anchors_liveness = matches!(
-                instruction,
-                crate::mir::MirInstruction::Branch { .. }
-                    | crate::mir::MirInstruction::Jump { .. }
-                    | crate::mir::MirInstruction::Return { .. }
-            );
-            if !instruction.effects().is_pure() || anchors_liveness {
+            if !instruction.effects().is_pure() {
                 if let Some(dst) = instruction.dst_value() {
                     base_used_values.insert(dst);
                 }
@@ -59,19 +90,9 @@ pub(super) fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usi
                 }
             }
         }
-        if let Some(term) = &block.terminator {
-            for u in term.used_values() {
-                base_used_values.insert(u);
-            }
-        }
-        for edge in block.out_edges() {
-            if let Some(args) = edge.args {
-                for u in args.values {
-                    base_used_values.insert(u);
-                }
-            }
-        }
     }
+
+    seed_control_anchor_values(function, &reachable_blocks, &mut base_used_values);
 
     propagate_used_values(function, &reachable_blocks, &mut base_used_values);
 

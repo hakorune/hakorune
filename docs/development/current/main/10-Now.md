@@ -129,7 +129,9 @@ Related:
   - landed observer/control policy follow-on: `phase203x Debug observer policy decision`
     - `Debug` is now locked as a permanent observer anchor in mainline DCE
     - any future debug stripping is explicitly a separate diagnostic-off lane, not an implicit DCE widening
-    - immediate next is now lane C2 terminator-adjacent operand/control liveness cleanup
+  - landed observer/control control-anchor follow-on: `phase204x control-anchor operand liveness contracts`
+    - lane `C2a` is now fixed: mainline DCE explicitly keeps `Return.value`, `Branch.cond`, and reachable edge args live
+    - immediate next is now lane `C2b` legacy in-instruction-list control-anchor seed cleanup
   - landed DCE structure follow-on: `phase192x DCE pass module split`
     - `src/mir/passes/dce.rs` is now a thin facade over focused implementation modules and topic tests
     - this cut was structure-only; later lane-B docs/facts and code widening happen in `phase199x` / `phase200x`

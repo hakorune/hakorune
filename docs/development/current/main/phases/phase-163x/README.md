@@ -233,7 +233,8 @@
            - lane B2 is now landed too: overwritten `Store` pruning on the same private carriers
            - lane C0 is now landed too: observer/control docs inventory
            - lane C1 is now landed too: `Debug` is locked as a permanent observer anchor in mainline DCE
-           - immediate code next is lane C2: terminator-adjacent operand/control liveness cleanup
+           - lane C2a is now landed too: control-anchor operand liveness is fixed for `Return.value`, `Branch.cond`, and reachable edge args
+           - immediate code next is lane C2b: legacy in-instruction-list control-anchor seed cleanup
         5. `memory-effect layer`
            - partial: lane-B0 generic memory observer/owner contract, lane-B1 dead `Load` pruning, and lane-B2 overwritten `Store` pruning are landed
            - backlog: generic `Store` / `Load` code widening, dead-store elimination, store-to-load forwarding, redundant load elimination, and hoist/sink legality

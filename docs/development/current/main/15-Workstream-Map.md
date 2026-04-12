@@ -15,11 +15,11 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-163x primitive and user-box fast path` |
-| Front | `lane-B generic memory cuts are landed through B2 -> lane-C docs inventory and Debug policy are landed -> next narrow decision is C2 terminator-adjacent operand/control liveness cleanup` |
+| Front | `lane-B generic memory cuts are landed through B2 -> lane-C docs inventory, Debug policy, and C2a control-anchor operand liveness are landed -> next narrow decision is C2b legacy control-anchor seed cleanup` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `observer/control ownership is fixed through Debug; terminator-adjacent operand/control liveness cleanup is still unclassified` |
-| Next | `observer/control lane C2 (terminator-adjacent operand/control liveness cleanup)` |
-| After Next | `return to the next layer step` |
+| Blocker | `control-anchor operand liveness is fixed, but legacy in-instruction-list seed cleanup and simplification handoff are still open` |
+| Next | `observer/control lane C2b (legacy in-instruction-list control-anchor seed cleanup)` |
+| After Next | `observer/control lane C2c -> then return to the next layer step` |
 
 ## Current Read
 
@@ -46,12 +46,15 @@ Related:
   - observer/control ownership is fixed as a docs-only inventory cut
   - `phase-203x` is now landed too
   - `Debug` is fixed as a permanent observer anchor in mainline DCE
-  - next target is now lane C2 terminator-adjacent operand/control liveness cleanup
+  - `phase-204x` is now landed too
+  - lane `C2a` is fixed as control-anchor operand liveness for `Return.value`, `Branch.cond`, and reachable edge args
+  - next target is now lane `C2b` legacy in-instruction-list control-anchor seed cleanup
 - immediate sequence:
-  - lane C2 terminator-adjacent operand/control liveness cleanup
+  - lane C2b legacy in-instruction-list control-anchor seed cleanup
+  - lane C2c simplification-handoff wording lock
   - then return to the next layer step
 - stop-lines:
-  - keep lane B separate from `Debug` / terminator observer cleanup
+  - keep lane B separate from `Debug` / terminator-adjacent operand/control liveness cleanup
   - keep lane B separate from `generic placement / effect`
   - keep parked `phase-96x` out of the active optimization lane
 - `phase-133x` landed:

@@ -44,6 +44,15 @@ Decision to make in C2:
 - or whether all structural control cleanup should stay under the later simplification bundle (`SimplifyCFG` / jump-threading)
 - `Branch` / `Jump` / `Return` deletion itself is not the target of C2
 
+Planned C2 split:
+
+- `C2a` control-anchor operand liveness contracts
+  - keep values used by `Return.value`, `Branch.cond`, and reachable edge args live
+- `C2b` legacy in-instruction-list control-anchor seed cleanup
+  - keep any cleanup to seed ownership only; no control-instruction deletion
+- `C2c` simplification handoff boundary
+  - explicitly defer terminator deletion, block merge, and branch/jump reshaping to the later simplification bundle
+
 ## Explicit Non-goals
 
 - lane C does not own `Load` / `Store`
@@ -68,4 +77,5 @@ Decision to make in C2:
 
 - `C0` is landed
 - `C1` is landed
-- immediate next is `C2`
+- `C2a` is landed
+- immediate next is `C2b`
