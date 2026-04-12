@@ -1,6 +1,6 @@
 # Phase 207x: generic placement / effect docs-facts phase
 
-Status: Active
+Status: Landed
 
 Purpose
 - inventory the current pilot scaffolds under the generic placement / effect layer
@@ -20,6 +20,12 @@ Scope
 - define the first owner boundary for the generic placement / effect layer
 - keep family-specific pilot scaffolds as pilot scaffolds, not new top-level rows
 
+Inventory Summary
+- string corridor: facts -> candidates -> plan metadata
+- sum placement: facts -> selections -> layouts
+- thin-entry: candidates -> selections
+- generic placement / effect: placement, publish, materialize, and direct-kernel legality
+
 Non-goals
 - no code changes
 - no semantic widening
@@ -33,4 +39,4 @@ Acceptance
 
 Result
 - `generic placement / effect` now has a dedicated docs/facts entry phase
-- the next follow-on after this docs cut is `agg_local scalarization`
+- the next follow-on after this docs cut is `phase208x agg_local scalarization docs/facts phase`

@@ -17,7 +17,7 @@ Status: SSOT
 
 ## Fixed Decisions
 
-- immediate next remains `phase207x generic placement / effect docs/facts phase`
+- immediate next remains `agg_local scalarization`
 - `Front` / `Blocker` wording should describe the active layer/lane, not old feature-pilot backlog
 - historical phase docs may preserve old sequencing, but if they mention a former "current next" it must be clearly past-tense
 

@@ -22,6 +22,14 @@ Status: SSOT
 - string / sum / thin-entry own family-specific pilot facts and candidate generation
 - backend consumers stay backend consumers; they do not become semantic owners
 
+## Inventory Matrix
+
+| Family | Current exported surface | Owner boundary |
+| --- | --- | --- |
+| string corridor | `string_corridor_facts`, `string_corridor_candidates`, `metadata.string_kernel_plans` | canonical MIR facts and plan metadata stay under the generic layer, while string remains the family-specific proof source |
+| sum placement | `sum_placement_facts`, `sum_placement_selections`, `sum_placement_layouts` | sum keeps its pilot facts/layouts, but the generic layer owns the cross-family placement/effect reading |
+| thin-entry | `thin_entry_candidates`, `thin_entry_selections` | thin-entry inventory stays metadata-only until a later actual-consumer switch |
+
 ## Fixed Decisions
 
 - the layer-order SSOT remains `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`

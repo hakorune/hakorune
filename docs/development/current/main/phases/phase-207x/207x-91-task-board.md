@@ -1,23 +1,23 @@
 # 207x-91 Task Board
 
-Status: Open
+Status: Closed
 
 ## Docs / Facts
 
-- [ ] inventory the string corridor pilot surface
+- [x] inventory the string corridor pilot surface
   - `string_corridor_facts`
   - `string_corridor_candidates`
   - `metadata.string_kernel_plans`
-- [ ] inventory the sum placement pilot surface
+- [x] inventory the sum placement pilot surface
   - `sum_placement_facts`
   - `sum_placement_selections`
   - `sum_placement_layouts`
-- [ ] inventory the thin-entry pilot surface
+- [x] inventory the thin-entry pilot surface
   - `thin_entry_candidates`
   - `thin_entry_selections`
-- [ ] write the owner boundary notes for what belongs in the generic layer vs domain-specific pilots
+- [x] write the owner boundary notes for what belongs in the generic layer vs domain-specific pilots
 - [x] sync current pointers to `phase207x`
-- [ ] record the follow-on handoff to `agg_local scalarization`
+- [x] record the follow-on handoff to `agg_local scalarization`
 
 ## Non-Goals
 

@@ -14,7 +14,7 @@ Scope: repo root から current lane / current front / restart read order に最
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-207x/README.md`
+3. `docs/development/current/main/phases/phase-208x/README.md`
 4. `docs/development/current/main/phases/phase-163x/README.md`
 5. `git status -sb`
 6. `tools/checks/dev_gate.sh quick`
@@ -28,9 +28,9 @@ Scope: repo root から current lane / current front / restart read order に最
 - sibling guardrail:
   - `phase-137x` string corridor / exact-keeper guardrail
 - immediate next:
-  - `phase207x generic placement / effect docs/facts phase`
-- immediate follow-on:
   - `agg_local scalarization`
+- immediate follow-on:
+  - `thin-entry actual consumer switch`
 - current stop-lines:
   - do not mix lane B with lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
   - do not mix lane B with `generic placement / effect`
@@ -46,8 +46,8 @@ Scope: repo root から current lane / current front / restart read order に最
 - roadmap SSOT:
   - `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 - generic placement / effect docs-facts owner:
-  - `docs/development/current/main/phases/phase-207x/README.md`
-  - `docs/development/current/main/phases/phase-207x/207x-90-generic-placement-effect-docs-facts-ssot.md`
+  - `docs/development/current/main/phases/phase-208x/README.md`
+  - `docs/development/current/main/phases/phase-208x/208x-90-agg-local-scalarization-docs-facts-ssot.md`
 - DCE lane split owner:
   - `docs/development/current/main/phases/phase-190x/190x-90-remaining-dce-boundary-inventory-ssot.md`
 - generic memory lane-B contract owner:
@@ -96,7 +96,7 @@ Scope: repo root から current lane / current front / restart read order に最
   - legacy instruction-list control-anchor seeding is removed; mainline DCE now keeps control-anchor operands only through `block.terminator` and reachable edge args
 - `phase-206x`
   - DCE / SimplifyCFG handoff boundary is now explicit in docs and code
-  - immediate next is the next layer step, starting with `phase207x generic placement / effect docs/facts phase`
+  - immediate next is the next layer step, starting with `agg_local scalarization`
 
 ## Current Checks
 

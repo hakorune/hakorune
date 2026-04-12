@@ -16,6 +16,6 @@ Non-goals
 - no roadmap layer reorder beyond pointer sync
 
 Result
-- current docs agree that the immediate next cut is `phase207x generic placement / effect docs/facts phase`
+- current docs agree that the immediate next cut is `agg_local scalarization`
 - the one-screen work map now uses layer/lane wording for `Front` and `Blocker`
 - phase index duplicates and stale timestamps are cleaned up
