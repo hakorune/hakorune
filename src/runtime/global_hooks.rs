@@ -174,7 +174,10 @@ pub fn join_all_registered_futures(timeout_ms: u64) {
     }
 }
 
-/// Push a task scope (footing). On pop of the outermost scope, perform a best-effort join.
+/// Push the current structured `task_scope` scaffold.
+///
+/// This is the Phase-0 ownership boundary for child futures only; it does not
+/// imply detached-task semantics or a finalized failure contract.
 pub fn push_task_scope() {
     if let Ok(mut st) = state().write() {
         st.scope_depth += 1;
@@ -189,7 +192,10 @@ pub fn push_task_scope() {
     set_current_group_token(CancellationToken::new());
 }
 
-/// Pop a task scope. When depth reaches 0, join outstanding futures.
+/// Pop the current structured `task_scope` scaffold.
+///
+/// When depth reaches 0, perform a best-effort bounded join for the futures
+/// that were registered under this scope.
 pub fn pop_task_scope() {
     let mut do_join = false;
     let mut popped: Option<std::sync::Arc<crate::boxes::task_group_box::TaskGroupInner>> = None;

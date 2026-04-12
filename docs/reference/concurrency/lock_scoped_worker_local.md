@@ -12,7 +12,7 @@ It is designed to be:
 
 Related SSOT:
 - `docs/reference/language/variables-and-scope.md` (locals / lexical scope)
-- `docs/reference/concurrency/semantics.md` (channels / RoutineScopeBox / structured concurrency)
+- `docs/reference/concurrency/semantics.md` (channels / `task_scope` / structured concurrency)
 - Pre-selfhost execution plan (VM+LLVM): `docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md`
 
 ---
@@ -109,7 +109,8 @@ Rule of thumb:
 `scoped` values are intended to be inherited by **structured** child tasks.
 
 SSOT rule (provisional):
-- A child task started inside a structured task scope inherits the parent’s active `scoped` bindings.
+- A child task started inside `task_scope` inherits the parent’s active `scoped` bindings.
+- Current runtime scaffolding names that boundary with `TaskGroupBox` plus task-scope hooks; full child-scheduling wiring is a later phase.
 
 Note:
 - This doc uses “spawn” as a generic term for “starting a concurrent task”, but the current Nyash surface syntax is `nowait`.
@@ -117,7 +118,7 @@ Note:
 Rules:
 1. Scope entry binds a key/value; scope exit restores the previous binding.
 2. A `scoped` value must not be persisted as “state”; it is context only.
-3. Structured child tasks inherit the active bindings (e.g., under `RoutineScopeBox` / TaskGroup-style scopes).
+3. Structured child tasks inherit the active bindings under `task_scope` (current runtime scaffold: `TaskGroupBox`).
 
 Notes:
 - `scoped` is intended to replace ThreadLocal-style “request context” without leakage.

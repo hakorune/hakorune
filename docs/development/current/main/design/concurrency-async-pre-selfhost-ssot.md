@@ -22,6 +22,14 @@ Non-goals (この文書で今すぐやらない):
 - “真の並列性” の保証（スレッド/ワーカープールの意味論化）
 - 例外 + cleanup + async を統合した state-machine lowering（Phase 260 以降に委譲）
 
+### Structured task-scope vocabulary (Phase 242x)
+
+- user-facing structured concurrency should be read as `task_scope`
+- current runtime scaffold behind that boundary is `TaskGroupBox` plus `push_task_scope()` / `pop_task_scope()`
+- `RoutineScopeBox` is historical wording only; do not treat it as the current code name
+- this vocabulary alignment does **not** change Phase-0 `nowait` / `await` lowering
+- detached tasks, sibling-failure policy, and the final `await` failure/cancel contract remain later-phase work
+
 ---
 
 ## 1. Current reality (2026-02-04 snapshot)

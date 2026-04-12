@@ -7,6 +7,12 @@ pub(crate) struct TaskGroupInner {
     pub strong: Mutex<Vec<crate::boxes::future::FutureBox>>,
 }
 
+/// Phase-0 runtime scaffold behind structured `task_scope` ownership.
+///
+/// Current responsibility is intentionally narrow:
+/// - own child futures registered under the active task scope
+/// - expose best-effort `cancelAll()` / `joinAll(timeout_ms)` hooks
+/// - avoid defining detached/failure-aggregation semantics yet
 #[derive(Debug, Clone)]
 pub struct TaskGroupBox {
     base: BoxBase,
@@ -28,12 +34,12 @@ impl TaskGroupBox {
     pub fn cancel_all(&mut self) {
         self.cancelled = true;
     }
-    /// Cancel all child tasks (scaffold) and return void
+    /// Cancel all child tasks owned by this task-scope scaffold and return void.
     pub fn cancelAll(&mut self) -> Box<dyn NyashBox> {
         self.cancel_all();
         Box::new(VoidBox::new())
     }
-    /// Join all child tasks with optional timeout (ms); returns void
+    /// Best-effort bounded join for child futures owned by this task-scope scaffold.
     pub fn joinAll(&self, timeout_ms: Option<i64>) -> Box<dyn NyashBox> {
         let ms = timeout_ms.unwrap_or(2000).max(0) as u64;
         self.join_all_inner(ms);
@@ -107,5 +113,30 @@ impl NyashBox for TaskGroupBox {
     }
     fn share_box(&self) -> Box<dyn NyashBox> {
         self.clone_box()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn cancel_all_marks_group_cancelled() {
+        let mut group = TaskGroupBox::new();
+        assert!(!group.is_cancelled());
+
+        let out = group.cancelAll();
+
+        assert!(group.is_cancelled());
+        assert_eq!(out.to_string_box().value, "void");
+    }
+
+    #[test]
+    fn join_all_on_empty_group_returns_void() {
+        let group = TaskGroupBox::new();
+
+        let out = group.joinAll(Some(0));
+
+        assert_eq!(out.to_string_box().value, "void");
     }
 }

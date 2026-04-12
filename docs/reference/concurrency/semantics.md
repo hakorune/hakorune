@@ -7,6 +7,9 @@ See also:
 
 Terminology note:
 - This doc uses “spawn” as a generic term for “starting a concurrent task”. The current Nyash surface syntax for async start is `nowait`.
+- The structured-concurrency surface should be read as `task_scope`.
+- The current runtime scaffold behind that scope is `TaskGroupBox` plus `push_task_scope()` / `pop_task_scope()`.
+- `RoutineScopeBox` is historical wording only; do not use it as the current code name.
 
 ### Blocking & Non-Blocking
 - `send(v)` blocks when the buffer is full (capacity reached). Unblocks when a receiver takes an item.
@@ -29,10 +32,12 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
   - If none ready: Phase‑0 may block via a multi-wait helper or return false if non-blocking policy requested.
 - Fairness: no starvation requirement; Phase‑0 uses simple fairness; Phase‑2 integrates runtime help.
 
-### Structured Concurrency
-- `RoutineScopeBox` owns spawned routines.
-- On `fini()`: cancel pending children, bounded join, and ensure resource release.
-- Cancellation should unblock channel waits promptly.
+### Structured Concurrency (`task_scope`, Phase-0 scaffold)
+- `task_scope` is the user-facing structured-concurrency boundary.
+- `TaskGroupBox` is the current runtime-side owner for child futures registered under that scope.
+- Current lifecycle vocabulary is `cancelAll()` and `joinAll(timeout_ms)`, plus best-effort bounded join on scope exit.
+- `fini()`, detached tasks, sibling-failure aggregation, and root-scope policy remain later-phase work.
+- Cancellation should eventually unblock channel waits promptly; Phase-0 only guarantees best-effort scope-owned future cleanup.
 
 ### Types & Safety
 - Phase‑0: runtime tag checks on `ChannelBox` send/receive are optional; document expected element type.
@@ -54,7 +59,7 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
 - bounded_pc.hako: producer/consumer with capacity=1..N; ensure no busy-wait and correct totals.
 - select_two.hako: two channels; verify first-ready choice and distribution.
 - close_semantics.hako: send after close -> error; drain -> End; double close -> error.
-- scope_cancel.hako: RoutineScopeBox cancels children; parked receivers unblocked.
+- scope_cancel.hako: `task_scope` / `TaskGroupBox` cancels children; parked receivers unblocked.
 
 ### Migration Path
 - Phase‑0 userland boxes are kept while Phase‑2 runtime grows; API stable.

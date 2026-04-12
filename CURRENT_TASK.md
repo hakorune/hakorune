@@ -15,7 +15,7 @@ Scope: current lane / next lane / restart order only.
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/10-Now.md`
 3. `docs/development/current/main/15-Workstream-Map.md`
-4. `docs/development/current/main/phases/phase-229x/README.md`
+4. `docs/development/current/main/phases/phase-242x/README.md`
 5. `docs/development/current/main/phases/phase-163x/README.md`
 6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 7. `git status -sb`
@@ -58,8 +58,8 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Notes
 
-- `phase-230x` is landed: the semantic simplification bundle now absorbs bridge blocks that only carry trivial single-input PHIs from the sole predecessor
-- current semantic simplification cut now folds copied-constant `Branch` terminators and constant `Compare` instructions before CFG merge
+- `phase-242x` is landed: structured concurrency vocabulary is now pinned to `task_scope` surface + `TaskGroupBox` runtime scaffold; `RoutineScopeBox` is historical wording only
+- current semantic simplification cut now includes empty-trampoline jump threading after copied-constant `Branch` and constant `Compare` folds
 - the next code lane is now `semantic simplification bundle`
 - `CURRENT_TASK.md` is the only live status pointer; `05/10/15` are thin mirrors only
 - if this file grows again, move the detail back into the phase docs

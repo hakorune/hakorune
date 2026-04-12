@@ -19,8 +19,8 @@ Related:
 
 ## Landing Snapshot
 
-- `phase230x` is landed:
-  - semantic simplification now rewrites trivial single-input bridge PHIs and merges that middle block into the predecessor
+- `phase242x` is landed:
+  - structured concurrency vocabulary is now pinned to `task_scope` surface + `TaskGroupBox` runtime scaffold
 - latest semantic simplification cut:
   - copied-constant `Branch` terminators, constant `Compare` instructions, and empty trampoline jump-threading now fold before CFG merge
 
@@ -28,7 +28,7 @@ Related:
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-230x/README.md`
+3. `docs/development/current/main/phases/phase-242x/README.md`
 4. `docs/development/current/main/phases/phase-163x/README.md`
 5. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 
