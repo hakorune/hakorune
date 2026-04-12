@@ -14,7 +14,7 @@ Scope: repo root から current lane / current front / restart read order に最
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-210x/README.md`
+3. `docs/development/current/main/phases/phase-211x/README.md`
 4. `docs/development/current/main/phases/phase-163x/README.md`
 5. `git status -sb`
 6. `tools/checks/dev_gate.sh quick`
@@ -46,8 +46,9 @@ Scope: repo root から current lane / current front / restart read order に最
 - roadmap SSOT:
   - `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 - generic placement / effect docs-facts owner:
-  - `docs/development/current/main/phases/phase-209x/README.md`
-  - `docs/development/current/main/phases/phase-209x/209x-90-agg-local-scalarization-owner-seam-ssot.md`
+  - `docs/development/current/main/phases/phase-207x/README.md`
+  - `docs/development/current/main/phases/phase-211x/README.md`
+  - `docs/development/current/main/phases/phase-211x/211x-90-generic-placement-effect-owner-seam-ssot.md`
 - thin-entry actual consumer switch owner:
   - `docs/development/current/main/phases/phase-210x/README.md`
 - DCE lane split owner:
@@ -84,6 +85,8 @@ Scope: repo root から current lane / current front / restart read order に最
   - root restart surfaces are compressed and lane-B docs/facts are fixed
 - `phase-209x`
   - `agg_local scalarization` owner seam is landed; folded routes are exported as MIR metadata only
+- `phase-211x`
+  - `generic placement / effect` owner seam is landed; folded string / sum / thin-entry routes are exported as MIR metadata only
 - `phase-200x`
   - dead `Load` pruning is now landed for definitely private carrier roots with copy-only alias propagation
   - first cut keeps `Store`, `Debug`, terminator, and generic placement/effect widening out of scope

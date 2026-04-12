@@ -6,6 +6,7 @@
 
 - **Current (ACTIVE)**: Phase 163x primitive and user-box fast path
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
+- **Phase 211x（LANDED）**: generic placement / effect owner seam
 - **Phase 209x（LANDED）**: agg_local scalarization owner seam
 - **Phase 210x（LANDED）**: thin-entry actual consumer switch
 - **Phase 208x（LANDED DOCS/FACTS）**: agg_local scalarization docs/facts phase

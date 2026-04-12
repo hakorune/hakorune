@@ -15,6 +15,7 @@ Owner: `phase-163x optimization-resume`
 1. `generic placement / effect`
    - string corridor / sum placement / thin-entry inventory-selection を pilot として fold する上位層
    - placement / publish / materialize / direct-kernel legality を generic に扱う
+   - first landed owner seam: folded `placement_effect_routes` inventory (`phase211x`)
 2. `agg_local scalarization`
    - `imm / borrow / agg_local / handle` の primary value classes を前提に、aggregate を scalar SSA に崩す
    - user-box local body / enum payload / tuple / record / closure env を同じ軸で扱う

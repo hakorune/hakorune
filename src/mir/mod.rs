@@ -47,6 +47,7 @@ pub mod optimizer_stats; // extracted stats struct
 pub mod passes;
 pub mod phi_core; // Phase 1 scaffold: unified PHI entry (re-exports only)
 pub(crate) mod phi_query; // generic PHI base-relation seam for later relation consumers
+pub mod placement_effect; // generic placement/effect owner seam folded from landed pilots
 pub mod printer;
 mod printer_helpers; // internal helpers extracted from printer.rs
 pub mod query; // Phase 26-G: MIR read/write/CFGビュー (MirQuery)
@@ -105,6 +106,10 @@ pub use function::{
 pub use instruction::MirInstruction;
 pub use join_ir_runner::{run_joinir_function, JoinRuntimeError, JoinValue};
 pub use optimizer::MirOptimizer;
+pub use placement_effect::{
+    refresh_function_placement_effect_routes, refresh_module_placement_effect_routes,
+    PlacementEffectDecision, PlacementEffectRoute, PlacementEffectSource, PlacementEffectState,
+};
 pub use printer::MirPrinter;
 pub use query::{MirQuery, MirQueryBox};
 pub use semantic_refresh::{

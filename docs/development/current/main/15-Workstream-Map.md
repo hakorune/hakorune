@@ -35,6 +35,7 @@ Related:
   - `phase-178x` / `phase-193x` / `phase-194x`: BoxShape splits are landed and stay behavior-preserving
   - `phase-195x` / `phase-197x`: roadmap regroup and pointer hygiene are landed; current docs now point to `generic placement / effect` as the next layer work
   - `phase-198x`: root restart docs are compressed back to pointer-only form
+  - `phase-211x`: generic placement/effect owner seam is landed; folded string / sum / thin-entry routes are readable through one generic metadata inventory
   - landed generic-memory facts follow-on:
   - `phase-199x` is landed
   - lane-B observer/owner contract is fixed before any generic `Load` / `Store` pruning

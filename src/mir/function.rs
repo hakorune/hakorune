@@ -5,8 +5,9 @@
  */
 
 use super::{
-    agg_local_scalarization::AggLocalScalarizationRoute, storage_class::StorageClass,
-    string_corridor::StringCorridorFact, string_corridor_placement::StringCorridorCandidate,
+    agg_local_scalarization::AggLocalScalarizationRoute, placement_effect::PlacementEffectRoute,
+    storage_class::StorageClass, string_corridor::StringCorridorFact,
+    string_corridor_placement::StringCorridorCandidate,
     string_corridor_relation::StringCorridorRelation, sum_placement::SumPlacementFact,
     sum_placement_layout::SumPlacementLayout, sum_placement_selection::SumPlacementSelection,
     thin_entry::ThinEntryCandidate, thin_entry_selection::ThinEntrySelection, BasicBlock,
@@ -140,6 +141,11 @@ pub struct FunctionMetadata {
     /// thin-entry, and storage-class pilots together without changing runtime
     /// behavior.
     pub agg_local_scalarization_routes: Vec<AggLocalScalarizationRoute>,
+
+    /// Folded generic placement/effect routes derived from the landed string,
+    /// sum, and thin-entry pilots. This keeps the first cross-family route
+    /// inventory in one owner seam without mutating MIR or lowering behavior.
+    pub placement_effect_routes: Vec<PlacementEffectRoute>,
 }
 
 impl MirFunction {

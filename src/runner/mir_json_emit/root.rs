@@ -200,6 +200,9 @@ pub(super) fn build_mir_json_root(
             "agg_local_scalarization_routes": build_agg_local_scalarization_routes_json(
                 &f.metadata.agg_local_scalarization_routes,
             ),
+            "placement_effect_routes": build_placement_effect_routes_json(
+                &f.metadata.placement_effect_routes,
+            ),
         });
         let attrs_json = json!({
             "runes": f

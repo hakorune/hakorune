@@ -8,12 +8,12 @@
 
 use super::{
     agg_local_scalarization::refresh_function_agg_local_scalarization_routes,
-    function::ModuleMetadata, refresh_function_storage_class_facts,
-    refresh_function_string_corridor_candidates, refresh_function_string_corridor_facts,
-    refresh_function_string_corridor_relations, refresh_function_sum_placement_facts,
-    refresh_function_sum_placement_layouts, refresh_function_sum_placement_selections,
-    refresh_function_thin_entry_candidates, refresh_function_thin_entry_selections, MirFunction,
-    MirModule,
+    function::ModuleMetadata, placement_effect::refresh_function_placement_effect_routes,
+    refresh_function_storage_class_facts, refresh_function_string_corridor_candidates,
+    refresh_function_string_corridor_facts, refresh_function_string_corridor_relations,
+    refresh_function_sum_placement_facts, refresh_function_sum_placement_layouts,
+    refresh_function_sum_placement_selections, refresh_function_thin_entry_candidates,
+    refresh_function_thin_entry_selections, MirFunction, MirModule,
 };
 
 /// Refresh the current string-corridor metadata stack for one function.
@@ -43,6 +43,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_sum_placement_selections(function);
     refresh_function_sum_placement_layouts(function);
     refresh_function_agg_local_scalarization_routes(function);
+    refresh_function_placement_effect_routes(function);
 }
 
 /// Refresh MIR semantic metadata for the whole module.

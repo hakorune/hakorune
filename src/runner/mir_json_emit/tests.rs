@@ -726,3 +726,65 @@ fn build_mir_json_root_emits_agg_local_scalarization_routes() {
     assert_eq!(routes[2]["kind"], "typed_slot_storage");
     assert_eq!(routes[2]["storage_class"], "inline_bool");
 }
+
+#[test]
+fn build_mir_json_root_emits_placement_effect_routes() {
+    let mut module = MirModule::new("test".to_string());
+    let mut function = make_function("main", true);
+    function
+        .metadata
+        .placement_effect_routes
+        .push(crate::mir::PlacementEffectRoute {
+            block: Some(BasicBlockId::new(0)),
+            instruction_index: Some(2),
+            value: Some(crate::mir::ValueId::new(11)),
+            source: crate::mir::PlacementEffectSource::StringCorridor,
+            subject: "string.value%11".to_string(),
+            decision: crate::mir::PlacementEffectDecision::PublishHandle,
+            state: crate::mir::PlacementEffectState::Candidate,
+            detail: Some("plan(root=%11 source=- outer=- known_len=- proof=borrowed_slice(src=%1 start=%2 end=%3))".to_string()),
+            reason: "publish boundary can sink to the corridor exit".to_string(),
+        });
+    function
+        .metadata
+        .placement_effect_routes
+        .push(crate::mir::PlacementEffectRoute {
+            block: Some(BasicBlockId::new(0)),
+            instruction_index: Some(3),
+            value: Some(crate::mir::ValueId::new(12)),
+            source: crate::mir::PlacementEffectSource::SumPlacement,
+            subject: "Option::Some".to_string(),
+            decision: crate::mir::PlacementEffectDecision::LocalAggregate,
+            state: crate::mir::PlacementEffectState::Selected,
+            detail: Some("variant_make.local_aggregate".to_string()),
+            reason: "selected local aggregate route".to_string(),
+        });
+    function
+        .metadata
+        .placement_effect_routes
+        .push(crate::mir::PlacementEffectRoute {
+            block: Some(BasicBlockId::new(0)),
+            instruction_index: Some(4),
+            value: Some(crate::mir::ValueId::new(13)),
+            source: crate::mir::PlacementEffectSource::ThinEntry,
+            subject: "Point.x".to_string(),
+            decision: crate::mir::PlacementEffectDecision::ThinInternalEntry,
+            state: crate::mir::PlacementEffectState::AlreadySatisfied,
+            detail: Some("user_box_field_get.inline_scalar".to_string()),
+            reason: "typed field read stays on thin internal scalar lane".to_string(),
+        });
+    module.functions.insert("main".to_string(), function);
+
+    let root = build_mir_json_root(&module).expect("mir json root");
+    let routes = root["functions"][0]["metadata"]["placement_effect_routes"]
+        .as_array()
+        .expect("placement_effect_routes array");
+
+    assert_eq!(routes.len(), 3);
+    assert_eq!(routes[0]["source"], "string_corridor");
+    assert_eq!(routes[0]["decision"], "publish_handle");
+    assert_eq!(routes[1]["source"], "sum_placement");
+    assert_eq!(routes[1]["state"], "selected");
+    assert_eq!(routes[2]["source"], "thin_entry");
+    assert_eq!(routes[2]["decision"], "thin_internal_entry");
+}
