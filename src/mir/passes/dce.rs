@@ -2,11 +2,13 @@
 //!
 //! Extracted from the monolithic optimizer to enable modular pass composition.
 
-use crate::mir::phi_query::collect_passthrough_phi_parents;
+use crate::mir::phi_query::{
+    collect_passthrough_phi_parents, infer_phi_base_query, PhiBaseRelation,
+};
 use crate::mir::{classify_escape_uses, resolve_value_origin_from_parent_map, ParentMap};
 use crate::mir::{MirFunction, MirModule, ValueId};
 use crate::runtime::get_global_ring0;
-use std::collections::HashSet;
+use std::collections::{BTreeSet, HashMap, HashSet};
 
 /// Eliminate dead code (unused results of pure instructions) across the module
 /// and prune unreachable blocks as structural CFG cleanup.
@@ -63,19 +65,27 @@ struct LocalReadInfo {
     escaping: HashSet<ValueId>,
     field_read_roots: HashSet<ValueId>,
     alias_parents: ParentMap,
+    local_root_overrides: HashMap<ValueId, ValueId>,
 }
 
 impl LocalReadInfo {
-    fn is_non_escaping_local(&self, value: ValueId) -> bool {
+    fn resolve_local_root(&self, value: ValueId) -> Option<ValueId> {
         let root = resolve_value_origin_from_parent_map(value, &self.alias_parents);
-        self.local_boxes.contains(&root) && !self.escaping.contains(&root)
+        if self.local_boxes.contains(&root) {
+            return Some(root);
+        }
+        self.local_root_overrides.get(&root).copied()
+    }
+
+    fn is_non_escaping_local(&self, value: ValueId) -> bool {
+        self.resolve_local_root(value)
+            .is_some_and(|root| !self.escaping.contains(&root))
     }
 
     fn is_unobserved_local(&self, value: ValueId) -> bool {
-        let root = resolve_value_origin_from_parent_map(value, &self.alias_parents);
-        self.local_boxes.contains(&root)
-            && !self.escaping.contains(&root)
-            && !self.field_read_roots.contains(&root)
+        self.resolve_local_root(value).is_some_and(|root| {
+            !self.escaping.contains(&root) && !self.field_read_roots.contains(&root)
+        })
     }
 }
 
@@ -104,6 +114,29 @@ fn analyze_local_reads(
     info.alias_parents
         .extend(collect_passthrough_phi_parents(function));
 
+    let anchors: BTreeSet<ValueId> = info.local_boxes.iter().copied().collect();
+    for (bid, block) in &function.blocks {
+        if !reachable_blocks.contains(bid) {
+            continue;
+        }
+
+        for instruction in &block.instructions {
+            let Some(dst) = instruction.dst_value() else {
+                continue;
+            };
+            let root = resolve_value_origin_from_parent_map(dst, &info.alias_parents);
+            if info.local_boxes.contains(&root) || info.local_root_overrides.contains_key(&root) {
+                continue;
+            }
+            let query = infer_phi_base_query(function, root, &anchors);
+            if let PhiBaseRelation::SameBase(base) = query.relation {
+                if info.local_boxes.contains(&base) {
+                    info.local_root_overrides.insert(root, base);
+                }
+            }
+        }
+    }
+
     // Then classify escape-bearing uses against the completed alias graph.
     for (bid, block) in &function.blocks {
         if !reachable_blocks.contains(bid) {
@@ -111,16 +144,20 @@ fn analyze_local_reads(
         }
 
         for instruction in &block.instructions {
-            for use_site in classify_escape_uses(instruction) {
-                let root =
-                    resolve_value_origin_from_parent_map(use_site.value, &info.alias_parents);
-                if info.local_boxes.contains(&root) {
-                    info.escaping.insert(root);
+            let allow_same_root_phi_merge = matches!(
+                instruction,
+                crate::mir::MirInstruction::Phi { dst, inputs, .. }
+                    if inputs.len() > 1 && info.resolve_local_root(*dst).is_some()
+            );
+            if !allow_same_root_phi_merge {
+                for use_site in classify_escape_uses(instruction) {
+                    if let Some(root) = info.resolve_local_root(use_site.value) {
+                        info.escaping.insert(root);
+                    }
                 }
             }
             if let crate::mir::MirInstruction::FieldGet { base, .. } = instruction {
-                let root = resolve_value_origin_from_parent_map(*base, &info.alias_parents);
-                if info.local_boxes.contains(&root) {
+                if let Some(root) = info.resolve_local_root(*base) {
                     info.field_read_roots.insert(root);
                 }
             }
@@ -128,9 +165,7 @@ fn analyze_local_reads(
 
         if let Some(term) = &block.terminator {
             for use_site in classify_escape_uses(term) {
-                let root =
-                    resolve_value_origin_from_parent_map(use_site.value, &info.alias_parents);
-                if info.local_boxes.contains(&root) {
+                if let Some(root) = info.resolve_local_root(use_site.value) {
                     info.escaping.insert(root);
                 }
             }
@@ -797,6 +832,249 @@ mod tests {
             .iter()
             .any(|inst| matches!(inst, MirInstruction::Copy { dst, .. } if *dst == v_copy)));
         assert!(!bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::FieldSet { .. })));
+    }
+
+    #[test]
+    fn test_dce_prunes_dead_field_get_through_same_root_phi() {
+        let mut module = MirModule::new("dce_test".to_string());
+
+        let sig = FunctionSignature {
+            name: "test/0".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut func = MirFunction::new(sig, BasicBlockId(0));
+        func.add_block(BasicBlock::new(BasicBlockId(1)));
+        func.add_block(BasicBlock::new(BasicBlockId(2)));
+        func.add_block(BasicBlock::new(BasicBlockId(3)));
+
+        let v_box = ValueId(1);
+        let v_cond = ValueId(2);
+        let v_left = ValueId(3);
+        let v_right = ValueId(4);
+        let v_phi = ValueId(5);
+        let v_field = ValueId(6);
+
+        {
+            let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
+            bb0.instructions.push(MirInstruction::NewBox {
+                dst: v_box,
+                box_type: "Point".to_string(),
+                args: vec![],
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Const {
+                dst: v_cond,
+                value: ConstValue::Bool(true),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.set_terminator(MirInstruction::Branch {
+                condition: v_cond,
+                then_bb: BasicBlockId(1),
+                else_bb: BasicBlockId(2),
+                then_edge_args: None,
+                else_edge_args: None,
+            });
+        }
+        {
+            let bb1 = func.blocks.get_mut(&BasicBlockId(1)).unwrap();
+            bb1.instructions.push(MirInstruction::Copy {
+                dst: v_left,
+                src: v_box,
+            });
+            bb1.instruction_spans.push(Span::unknown());
+            bb1.set_terminator(MirInstruction::Jump {
+                target: BasicBlockId(3),
+                edge_args: None,
+            });
+        }
+        {
+            let bb2 = func.blocks.get_mut(&BasicBlockId(2)).unwrap();
+            bb2.instructions.push(MirInstruction::Copy {
+                dst: v_right,
+                src: v_box,
+            });
+            bb2.instruction_spans.push(Span::unknown());
+            bb2.set_terminator(MirInstruction::Jump {
+                target: BasicBlockId(3),
+                edge_args: None,
+            });
+        }
+        {
+            let bb3 = func.blocks.get_mut(&BasicBlockId(3)).unwrap();
+            bb3.instructions.push(MirInstruction::Phi {
+                dst: v_phi,
+                inputs: vec![(BasicBlockId(1), v_left), (BasicBlockId(2), v_right)],
+                type_hint: Some(MirType::Box("Point".to_string())),
+            });
+            bb3.instruction_spans.push(Span::unknown());
+            bb3.instructions.push(MirInstruction::FieldGet {
+                dst: v_field,
+                base: v_phi,
+                field: "child".to_string(),
+                declared_type: Some(MirType::Integer),
+            });
+            bb3.instruction_spans.push(Span::unknown());
+            bb3.set_terminator(MirInstruction::Return { value: None });
+        }
+
+        module.add_function(func);
+
+        let eliminated = eliminate_dead_code(&mut module);
+        assert_eq!(eliminated, 4);
+
+        let func = module.get_function("test/0").unwrap();
+        let bb0 = func.blocks.get(&BasicBlockId(0)).unwrap();
+        let bb1 = func.blocks.get(&BasicBlockId(1)).unwrap();
+        let bb2 = func.blocks.get(&BasicBlockId(2)).unwrap();
+        let bb3 = func.blocks.get(&BasicBlockId(3)).unwrap();
+
+        assert!(bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::NewBox { dst, .. } if *dst == v_box)));
+        assert!(bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Const { dst, .. } if *dst == v_cond)));
+        assert!(bb1.instructions.is_empty());
+        assert!(bb2.instructions.is_empty());
+        assert!(!bb3
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Phi { dst, .. } if *dst == v_phi)));
+        assert!(!bb3
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::FieldGet { dst, .. } if *dst == v_field)));
+    }
+
+    #[test]
+    fn test_dce_prunes_dead_field_set_through_same_root_phi() {
+        let mut module = MirModule::new("dce_test".to_string());
+
+        let sig = FunctionSignature {
+            name: "test/0".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        let mut func = MirFunction::new(sig, BasicBlockId(0));
+        func.add_block(BasicBlock::new(BasicBlockId(1)));
+        func.add_block(BasicBlock::new(BasicBlockId(2)));
+        func.add_block(BasicBlock::new(BasicBlockId(3)));
+
+        let v_box = ValueId(1);
+        let v_cond = ValueId(2);
+        let v_left = ValueId(3);
+        let v_right = ValueId(4);
+        let v_phi = ValueId(5);
+        let v_keep = ValueId(6);
+
+        {
+            let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
+            bb0.instructions.push(MirInstruction::NewBox {
+                dst: v_box,
+                box_type: "Point".to_string(),
+                args: vec![],
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Const {
+                dst: v_cond,
+                value: ConstValue::Bool(true),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Const {
+                dst: v_keep,
+                value: ConstValue::Integer(7),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.set_terminator(MirInstruction::Branch {
+                condition: v_cond,
+                then_bb: BasicBlockId(1),
+                else_bb: BasicBlockId(2),
+                then_edge_args: None,
+                else_edge_args: None,
+            });
+        }
+        {
+            let bb1 = func.blocks.get_mut(&BasicBlockId(1)).unwrap();
+            bb1.instructions.push(MirInstruction::Copy {
+                dst: v_left,
+                src: v_box,
+            });
+            bb1.instruction_spans.push(Span::unknown());
+            bb1.set_terminator(MirInstruction::Jump {
+                target: BasicBlockId(3),
+                edge_args: None,
+            });
+        }
+        {
+            let bb2 = func.blocks.get_mut(&BasicBlockId(2)).unwrap();
+            bb2.instructions.push(MirInstruction::Copy {
+                dst: v_right,
+                src: v_box,
+            });
+            bb2.instruction_spans.push(Span::unknown());
+            bb2.set_terminator(MirInstruction::Jump {
+                target: BasicBlockId(3),
+                edge_args: None,
+            });
+        }
+        {
+            let bb3 = func.blocks.get_mut(&BasicBlockId(3)).unwrap();
+            bb3.instructions.push(MirInstruction::Phi {
+                dst: v_phi,
+                inputs: vec![(BasicBlockId(1), v_left), (BasicBlockId(2), v_right)],
+                type_hint: Some(MirType::Box("Point".to_string())),
+            });
+            bb3.instruction_spans.push(Span::unknown());
+            bb3.instructions.push(MirInstruction::FieldSet {
+                base: v_phi,
+                field: "child".to_string(),
+                value: v_keep,
+                declared_type: Some(MirType::Integer),
+            });
+            bb3.instruction_spans.push(Span::unknown());
+            bb3.set_terminator(MirInstruction::Return {
+                value: Some(v_keep),
+            });
+        }
+
+        module.add_function(func);
+
+        let eliminated = eliminate_dead_code(&mut module);
+        assert_eq!(eliminated, 4);
+
+        let func = module.get_function("test/0").unwrap();
+        let bb0 = func.blocks.get(&BasicBlockId(0)).unwrap();
+        let bb1 = func.blocks.get(&BasicBlockId(1)).unwrap();
+        let bb2 = func.blocks.get(&BasicBlockId(2)).unwrap();
+        let bb3 = func.blocks.get(&BasicBlockId(3)).unwrap();
+
+        assert!(bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Const { dst, .. } if *dst == v_cond)));
+        assert!(bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Const { dst, .. } if *dst == v_keep)));
+        assert!(bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::NewBox { dst, .. } if *dst == v_box)));
+        assert!(bb1.instructions.is_empty());
+        assert!(bb2.instructions.is_empty());
+        assert!(!bb3
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Phi { dst, .. } if *dst == v_phi)));
+        assert!(!bb3
             .instructions
             .iter()
             .any(|inst| matches!(inst, MirInstruction::FieldSet { .. })));
