@@ -1,6 +1,6 @@
 # Phase 250x — concurrency runtime hygiene cleanup
 
-Status: ACTIVE
+Status: LANDED
 Date: 2026-04-13
 Scope: review follow-up for current task-scope/future runtime cleanliness
 
@@ -16,11 +16,11 @@ Scope: review follow-up for current task-scope/future runtime cleanliness
 - `FutureBox` success must be terminal (single-assignment)
 - plugin/runtime timeout wording must be separated from MIR `Await` semantics
 
-## Planned slices
-
-1. late-registration immediate cancel
-2. future single-assignment
-3. owner-seam wording cleanup (`TaskGroupBox` / `global_hooks`) without full runtime redesign
+## Landed
+- closed explicit/root scopes now immediately cancel late-registered futures with the latched reason
+- `FutureBox` success is now single-assignment just like failed/cancelled terminals
+- `TaskGroupInner` is now the shared registration/cancellation helper used by both `TaskGroupBox` and `global_hooks`
+- plugin/runtime timeout wording is explicitly separated from MIR `Await` semantics in the docs
 
 ## Still out
 

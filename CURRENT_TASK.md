@@ -58,7 +58,7 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Notes
 
-- `phase-250x` is active: concurrency runtime hygiene review is now split into late-registration, single-assignment, and owner-seam wording slices
+- `phase-250x` is landed: late registration now cancels immediately on closed explicit/root scopes, and `FutureBox` success is single-assignment
 - `phase-249x` is landed: explicit-scope first failure now cancels pending siblings with stable reason `sibling-failed`
 - `phase-247x` is landed: bare `nowait` is not detached; outside explicit `task_scope` it falls back to the implicit root scope
 - `phase-246x` is landed: `Cancelled(reason)` now exists as a narrow scope-owned future path with stable `scope-cancelled` reason

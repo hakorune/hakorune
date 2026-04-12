@@ -123,6 +123,16 @@ mod tests {
     }
 
     #[test]
+    fn test_future_box_ready_is_single_assignment() {
+        let future = NyashFutureBox::new();
+        future.set_result(Box::new(StringBox::new("first")));
+        future.set_result(Box::new(StringBox::new("second")));
+
+        assert!(future.ready());
+        assert_eq!(future.get().to_string_box().value, "first");
+    }
+
+    #[test]
     fn test_stream_box_nyash_trait() {
         let stream = NyashStreamBox::from_data(vec![72, 101, 108, 108, 111]); // "Hello"
 

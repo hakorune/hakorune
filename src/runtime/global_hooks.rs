@@ -24,6 +24,7 @@ struct GlobalHooksState {
     cur_token: Option<CancellationToken>,
     futures: Vec<crate::boxes::future::FutureWeak>,
     strong: Vec<crate::boxes::future::FutureBox>,
+    root_cancel_reason: Option<String>,
     scope_depth: usize,
     group_stack: Vec<std::sync::Arc<crate::boxes::task_group_box::TaskGroupInner>>,
 }
@@ -37,6 +38,7 @@ impl GlobalHooksState {
             cur_token: None,
             futures: Vec::new(),
             strong: Vec::new(),
+            root_cancel_reason: None,
             scope_depth: 0,
             group_stack: Vec::new(),
         }
@@ -88,6 +90,7 @@ pub fn set_from_runtime(rt: &crate::runtime::nyash_runtime::NyashRuntime) {
         }
         st.futures.clear();
         st.strong.clear();
+        st.root_cancel_reason = None;
         st.scope_depth = 0;
         st.group_stack.clear();
         publish_runtime_fast_flags(&st);
@@ -128,19 +131,16 @@ pub fn current_group_token() -> CancellationToken {
 /// If no explicit `task_scope` is active, this falls back to the implicit root
 /// scope that owns top-level futures registered through `register_future_to_current_group`.
 pub fn cancel_current_group_with_reason(reason: &str) {
-    if let Ok(st) = state().write() {
+    if let Ok(mut st) = state().write() {
         if let Some(tok) = st.cur_token.as_ref() {
             tok.cancel();
         }
         if let Some(inner) = st.group_stack.last() {
-            if let Ok(list) = inner.strong.lock() {
-                for fut in list.iter() {
-                    if !fut.ready() {
-                        fut.cancel_with_reason(reason);
-                    }
-                }
-            }
+            inner.cancel_pending_with_reason(reason);
             return;
+        }
+        if st.root_cancel_reason.is_none() {
+            st.root_cancel_reason = Some(reason.to_string());
         }
         for fut in st.strong.iter() {
             if !fut.ready() {
@@ -160,10 +160,11 @@ pub fn register_future_to_current_group(fut: &crate::boxes::future::FutureBox) {
     if let Ok(mut st) = state().write() {
         // Prefer explicit current TaskGroup at top of stack
         if let Some(inner) = st.group_stack.last() {
-            if let Ok(mut v) = inner.strong.lock() {
-                v.push(fut.clone());
-            }
-            fut.bind_sibling_failure_scope(inner);
+            inner.register_future(fut, inner);
+            return;
+        }
+        if let Some(reason) = st.root_cancel_reason.clone() {
+            fut.cancel_with_reason(reason);
             return;
         }
         // Fallback to implicit global group
@@ -216,15 +217,19 @@ pub fn push_task_scope() {
         st.scope_depth += 1;
         // Push a new explicit TaskGroup for this scope
         st.group_stack.push(std::sync::Arc::new(
-            crate::boxes::task_group_box::TaskGroupInner {
-                strong: std::sync::Mutex::new(Vec::new()),
-                first_failure: std::sync::Mutex::new(None),
-                sibling_failure_seen: std::sync::atomic::AtomicBool::new(false),
-            },
+            crate::boxes::task_group_box::TaskGroupInner::default(),
         ));
     }
     // Set a fresh cancellation token for this scope (best-effort)
     set_current_group_token(CancellationToken::new());
+}
+
+#[cfg(test)]
+pub(crate) fn reset_for_tests() {
+    if let Ok(mut st) = state().write() {
+        *st = GlobalHooksState::new();
+        publish_runtime_fast_flags(&st);
+    }
 }
 
 /// Pop the current structured `task_scope` scaffold.
@@ -362,9 +367,15 @@ pub fn gc_barrier(kind: BarrierKind) {
 mod tests {
     use super::*;
     use crate::box_trait::NyashBox;
+    use crate::boxes::basic::ErrorBox;
+    use std::sync::Mutex as TestMutex;
+
+    static TEST_GUARD: TestMutex<()> = TestMutex::new(());
 
     #[test]
     fn cancel_current_group_marks_registered_future_cancelled() {
+        let _guard = TEST_GUARD.lock().unwrap();
+        reset_for_tests();
         push_task_scope();
         let fut = crate::boxes::future::FutureBox::new();
         register_future_to_current_group(&fut);
@@ -376,10 +387,51 @@ mod tests {
             "Future(cancelled: Cancelled: scope-cancelled)"
         );
         pop_task_scope();
+        reset_for_tests();
+    }
+
+    #[test]
+    fn late_registration_into_cancelled_explicit_scope_is_immediately_cancelled() {
+        let _guard = TEST_GUARD.lock().unwrap();
+        reset_for_tests();
+        push_task_scope();
+
+        cancel_current_group_with_reason("scope-cancelled");
+        let late = crate::boxes::future::FutureBox::new();
+        register_future_to_current_group(&late);
+
+        assert_eq!(
+            late.to_string_box().value,
+            "Future(cancelled: Cancelled: scope-cancelled)"
+        );
+        pop_task_scope();
+        reset_for_tests();
+    }
+
+    #[test]
+    fn late_registration_after_explicit_sibling_failure_is_immediately_cancelled() {
+        let _guard = TEST_GUARD.lock().unwrap();
+        reset_for_tests();
+        push_task_scope();
+        let failed = crate::boxes::future::FutureBox::new();
+        register_future_to_current_group(&failed);
+        failed.set_failed(Box::new(ErrorBox::new("TaskError", "boom")));
+        let late = crate::boxes::future::FutureBox::new();
+
+        register_future_to_current_group(&late);
+
+        assert_eq!(
+            late.to_string_box().value,
+            "Future(cancelled: Cancelled: sibling-failed)"
+        );
+        pop_task_scope();
+        reset_for_tests();
     }
 
     #[test]
     fn cancel_current_group_marks_implicit_root_future_cancelled() {
+        let _guard = TEST_GUARD.lock().unwrap();
+        reset_for_tests();
         let fut = crate::boxes::future::FutureBox::new();
         register_future_to_current_group(&fut);
 
@@ -389,6 +441,23 @@ mod tests {
             fut.to_string_box().value,
             "Future(cancelled: Cancelled: scope-cancelled)"
         );
+        reset_for_tests();
+    }
+
+    #[test]
+    fn late_registration_into_cancelled_implicit_root_is_immediately_cancelled() {
+        let _guard = TEST_GUARD.lock().unwrap();
+        reset_for_tests();
+        cancel_current_group_with_reason("scope-cancelled");
+        let late = crate::boxes::future::FutureBox::new();
+
+        register_future_to_current_group(&late);
+
+        assert_eq!(
+            late.to_string_box().value,
+            "Future(cancelled: Cancelled: scope-cancelled)"
+        );
+        reset_for_tests();
     }
 }
 /// Report an allocation to the current GC hooks (best-effort)

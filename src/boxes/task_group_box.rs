@@ -9,15 +9,51 @@ use std::sync::{
 pub(crate) struct TaskGroupInner {
     pub strong: Mutex<Vec<crate::boxes::future::FutureBox>>,
     pub first_failure: Mutex<Option<String>>,
+    pub closed_reason: Mutex<Option<String>>,
     pub sibling_failure_seen: AtomicBool,
 }
 
+impl Default for TaskGroupInner {
+    fn default() -> Self {
+        Self {
+            strong: Mutex::new(Vec::new()),
+            first_failure: Mutex::new(None),
+            closed_reason: Mutex::new(None),
+            sibling_failure_seen: AtomicBool::new(false),
+        }
+    }
+}
+
 impl TaskGroupInner {
+    pub(crate) fn closed_reason(&self) -> Option<String> {
+        self.closed_reason.lock().ok().and_then(|slot| slot.clone())
+    }
+
+    fn latch_closed_reason(&self, reason: &str) {
+        if let Ok(mut slot) = self.closed_reason.lock() {
+            if slot.is_none() {
+                *slot = Some(reason.to_string());
+            }
+        }
+    }
+
     pub(crate) fn bind_future(&self, fut: &crate::boxes::future::FutureBox, owner: &Arc<Self>) {
         fut.bind_sibling_failure_scope(owner);
     }
 
+    pub(crate) fn register_future(&self, fut: &crate::boxes::future::FutureBox, owner: &Arc<Self>) {
+        if let Some(reason) = self.closed_reason() {
+            fut.cancel_with_reason(reason);
+            return;
+        }
+        if let Ok(mut v) = self.strong.lock() {
+            v.push(fut.clone());
+        }
+        self.bind_future(fut, owner);
+    }
+
     pub(crate) fn cancel_pending_with_reason(&self, reason: &str) {
+        self.latch_closed_reason(reason);
         if let Ok(list) = self.strong.lock() {
             for fut in list.iter() {
                 if !fut.ready() {
@@ -49,8 +85,6 @@ impl TaskGroupInner {
 #[derive(Debug, Clone)]
 pub struct TaskGroupBox {
     base: BoxBase,
-    // Skeleton: cancellation token owned by this group (future wiring)
-    cancelled: bool,
     pub(crate) inner: Arc<TaskGroupInner>,
 }
 
@@ -58,16 +92,10 @@ impl TaskGroupBox {
     pub fn new() -> Self {
         Self {
             base: BoxBase::new(),
-            cancelled: false,
-            inner: Arc::new(TaskGroupInner {
-                strong: Mutex::new(Vec::new()),
-                first_failure: Mutex::new(None),
-                sibling_failure_seen: AtomicBool::new(false),
-            }),
+            inner: Arc::new(TaskGroupInner::default()),
         }
     }
     pub fn cancel_all(&mut self) {
-        self.cancelled = true;
         self.cancel_owned_futures("scope-cancelled");
     }
     /// Cancel all child tasks owned by this task-scope scaffold and return void.
@@ -82,15 +110,12 @@ impl TaskGroupBox {
         Box::new(VoidBox::new())
     }
     pub fn is_cancelled(&self) -> bool {
-        self.cancelled
+        self.inner.closed_reason().is_some()
     }
 
     /// Register a Future into this group's ownership
     pub fn add_future(&self, fut: &crate::boxes::future::FutureBox) {
-        if let Ok(mut v) = self.inner.strong.lock() {
-            v.push(fut.clone());
-        }
-        self.inner.bind_future(fut, &self.inner);
+        self.inner.register_future(fut, &self.inner);
     }
 
     fn cancel_owned_futures(&self, reason: &str) {
@@ -128,7 +153,7 @@ impl BoxCore for TaskGroupBox {
         None
     }
     fn fmt_box(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "TaskGroup(cancelled={})", self.cancelled)
+        write!(f, "TaskGroup(cancelled={})", self.is_cancelled())
     }
     fn as_any(&self) -> &dyn Any {
         self
@@ -140,7 +165,7 @@ impl BoxCore for TaskGroupBox {
 
 impl NyashBox for TaskGroupBox {
     fn to_string_box(&self) -> StringBox {
-        StringBox::new(format!("TaskGroup(cancelled={})", self.cancelled))
+        StringBox::new(format!("TaskGroup(cancelled={})", self.is_cancelled()))
     }
     fn equals(&self, other: &dyn NyashBox) -> BoolBox {
         if let Some(g) = other.as_any().downcast_ref::<TaskGroupBox>() {
@@ -212,6 +237,36 @@ mod tests {
         assert_eq!(
             group.inner.first_failure.lock().unwrap().as_deref(),
             Some("boom")
+        );
+    }
+
+    #[test]
+    fn add_future_after_cancel_all_is_immediately_cancelled() {
+        let mut group = TaskGroupBox::new();
+        group.cancelAll();
+        let late = crate::boxes::future::FutureBox::new();
+
+        group.add_future(&late);
+
+        assert_eq!(
+            late.to_string_box().value,
+            "Future(cancelled: Cancelled: scope-cancelled)"
+        );
+    }
+
+    #[test]
+    fn add_future_after_first_failure_is_immediately_cancelled() {
+        let group = TaskGroupBox::new();
+        let first = crate::boxes::future::FutureBox::new();
+        group.add_future(&first);
+        first.set_failed(Box::new(StringBox::new("boom")));
+        let late = crate::boxes::future::FutureBox::new();
+
+        group.add_future(&late);
+
+        assert_eq!(
+            late.to_string_box().value,
+            "Future(cancelled: Cancelled: sibling-failed)"
         );
     }
 }

@@ -73,10 +73,7 @@ impl NyashFutureBox {
     /// Set the result of the future
     pub fn set_result(&self, value: Box<dyn NyashBox>) {
         let mut st = self.inner.state.lock().unwrap();
-        if matches!(
-            st.outcome.as_ref(),
-            Some(FutureOutcome::Failed(_) | FutureOutcome::Cancelled(_))
-        ) {
+        if st.ready {
             return;
         }
         st.outcome = Some(FutureOutcome::Ready(value));

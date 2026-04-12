@@ -19,8 +19,9 @@ Related:
 
 ## Landing Snapshot
 
-- `phase250x` is active:
-  - runtime hygiene cleanup is split into late-registration, future single-assignment, and owner-seam wording slices
+- `phase250x` is landed:
+  - closed explicit/root scopes now immediately cancel late registrations
+  - `FutureBox` success is now single-assignment
 - `phase249x` is landed:
   - explicit-scope first failure now cancels pending siblings with stable reason `sibling-failed`
 - `phase248x` is landed:
