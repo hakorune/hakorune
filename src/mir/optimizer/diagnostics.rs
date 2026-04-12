@@ -1,5 +1,6 @@
-use super::{MirFunction, MirInstruction, MirModule, MirOptimizer, MirType, ValueId};
+use super::MirOptimizer;
 use crate::mir::optimizer_stats::OptimizationStats;
+use crate::mir::{MirFunction, MirInstruction, MirModule, MirType, ValueId};
 use crate::runtime::get_global_ring0;
 
 /// Map string type name to MIR type (optimizer-level helper)
