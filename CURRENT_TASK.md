@@ -146,6 +146,10 @@ Scope: repo root から current lane / current front / restart read order に最
     - `docs/development/current/main/phases/phase-189x/README.md`
     - `phase-189x` is landed as the merge-entry overwritten local field-set pruning slice
     - predecessor-local `FieldSet` writes now also disappear when a reachable merge block overwrites the same local root/field before any reachable read or escape use, as long as the predecessor has a single reachable successor into that merge, while loop backedges, mixed-root merges, generic `Store`, `Load`, `Debug`, and terminators stay separate
+  - landed DCE boundary inventory:
+    - `docs/development/current/main/phases/phase-190x/README.md`
+    - remaining DCE work is now split into three lanes: loop/backedge local-field partial DCE, generic memory `Store`/`Load` DCE, and observer/control cleanup for `Debug` plus terminators
+    - next code phase should not mix these lanes
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`
