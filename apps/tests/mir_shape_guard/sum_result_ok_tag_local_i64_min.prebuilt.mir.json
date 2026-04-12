@@ -53,6 +53,68 @@
           "1": "i64",
           "3": "i64"
         },
+        "placement_effect_routes": [
+          {
+            "block": 0,
+            "instruction_index": 1,
+            "value": 2,
+            "source_value": null,
+            "source": "thin_entry",
+            "subject": "Result::Ok",
+            "decision": "thin_internal_entry",
+            "state": "candidate",
+            "detail": "variant_make.aggregate_local",
+            "reason": "variant.make stays aggregate-first in the manifest plan and keeps compat boxing as fallback only"
+          },
+          {
+            "block": 0,
+            "instruction_index": 2,
+            "value": 3,
+            "source_value": null,
+            "source": "thin_entry",
+            "subject": "Result",
+            "decision": "thin_internal_entry",
+            "state": "candidate",
+            "detail": "variant_tag.tag_local",
+            "reason": "variant.tag keeps discriminant reads on the thin local route while compat carriers remain runtime fallback"
+          },
+          {
+            "block": 0,
+            "instruction_index": 1,
+            "value": 2,
+            "source_value": null,
+            "source": "sum_placement",
+            "subject": "Result::Ok",
+            "decision": "local_aggregate",
+            "state": "selected",
+            "detail": "variant_make.local_aggregate",
+            "reason": "selected local aggregate sum construction"
+          },
+          {
+            "block": 0,
+            "instruction_index": 2,
+            "value": 3,
+            "source_value": 2,
+            "source": "sum_placement",
+            "subject": "Result",
+            "decision": "local_aggregate",
+            "state": "selected",
+            "detail": "variant_tag.local_aggregate",
+            "reason": "selected local aggregate tag read"
+          },
+          {
+            "block": 0,
+            "instruction_index": 1,
+            "value": 2,
+            "source_value": null,
+            "source": "agg_local_scalarization",
+            "subject": "Result::Ok",
+            "decision": "local_aggregate",
+            "state": "already_satisfied",
+            "detail": "sum_local_layout(tag_i64_payload)",
+            "reason": "selected local aggregate uses i64 payload lane"
+          }
+        ],
         "thin_entry_selections": [
           {
             "block": 0,

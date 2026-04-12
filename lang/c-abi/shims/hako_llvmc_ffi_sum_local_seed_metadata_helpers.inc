@@ -1,9 +1,105 @@
+static yyjson_val* hako_llvmc_sum_placement_effect_routes(yyjson_val* fn) {
+  yyjson_val* metadata;
+  yyjson_val* routes;
+
+  if (!(fn && yyjson_is_obj(fn))) {
+    return NULL;
+  }
+
+  metadata = yyjson_obj_get(fn, "metadata");
+  routes = metadata ? yyjson_obj_get(metadata, "placement_effect_routes") : NULL;
+  if (!(routes && yyjson_is_arr(routes))) {
+    return NULL;
+  }
+
+  return routes;
+}
+
+static const char* hako_llvmc_sum_local_aggregate_manifest_row_for_surface(
+    const char* surface) {
+  if (!surface) {
+    return NULL;
+  }
+  if (strcmp(surface, "variant_make") == 0) {
+    return "variant_make.local_aggregate";
+  }
+  if (strcmp(surface, "variant_tag") == 0) {
+    return "variant_tag.local_aggregate";
+  }
+  if (strcmp(surface, "variant_project") == 0) {
+    return "variant_project.local_aggregate";
+  }
+  return NULL;
+}
+
+static int hako_llvmc_sum_route_matches(
+    yyjson_val* row,
+    const char* source_expected,
+    const char* decision_expected,
+    const char* subject_expected,
+    long long value_expected,
+    int require_value,
+    const char* detail_expected,
+    long long source_value_expected,
+    int require_source_value) {
+  yyjson_val* value_val;
+  yyjson_val* source_value_val;
+  const char* source;
+  const char* decision;
+  const char* subject;
+  const char* detail;
+  long long value;
+  long long source_value;
+
+  if (!(row && yyjson_is_obj(row) && source_expected && decision_expected && subject_expected &&
+        detail_expected)) {
+    return 0;
+  }
+
+  source = yyjson_get_str(yyjson_obj_get(row, "source"));
+  decision = yyjson_get_str(yyjson_obj_get(row, "decision"));
+  subject = yyjson_get_str(yyjson_obj_get(row, "subject"));
+  detail = yyjson_get_str(yyjson_obj_get(row, "detail"));
+  value_val = yyjson_obj_get(row, "value");
+  if (!(source && decision && subject && detail)) {
+    return 0;
+  }
+  if (strcmp(source, source_expected) != 0 ||
+      strcmp(decision, decision_expected) != 0 ||
+      strcmp(subject, subject_expected) != 0 ||
+      strcmp(detail, detail_expected) != 0) {
+    return 0;
+  }
+
+  if (require_value) {
+    if (!(value_val && !yyjson_is_null(value_val))) {
+      return 0;
+    }
+    value = (long long)yyjson_get_sint(value_val);
+    if (value != value_expected) {
+      return 0;
+    }
+  }
+
+  if (!require_source_value) {
+    return 1;
+  }
+
+  source_value_val = yyjson_obj_get(row, "source_value");
+  if (!(source_value_val && !yyjson_is_null(source_value_val))) {
+    return 0;
+  }
+  source_value = (long long)yyjson_get_sint(source_value_val);
+  return source_value == source_value_expected;
+}
+
 static int hako_llvmc_sum_has_thin_internal_selection(
     yyjson_val* fn,
     const char* surface,
     const char* subject,
     const char* manifest_row_expected) {
   yyjson_val* metadata;
+  yyjson_val* routes;
   yyjson_val* selections;
   size_t i;
 
@@ -12,6 +108,25 @@ static int hako_llvmc_sum_has_thin_internal_selection(
   }
 
   metadata = yyjson_obj_get(fn, "metadata");
+  routes = hako_llvmc_sum_placement_effect_routes(fn);
+  if (routes) {
+    for (i = 0; i < yyjson_arr_size(routes); i++) {
+      yyjson_val* row = yyjson_arr_get(routes, i);
+      if (hako_llvmc_sum_route_matches(
+              row,
+              "thin_entry",
+              "thin_internal_entry",
+              subject,
+              0,
+              0,
+              manifest_row_expected,
+              0,
+              0)) {
+        return 1;
+      }
+    }
+  }
+
   selections = metadata ? yyjson_obj_get(metadata, "thin_entry_selections") : NULL;
   if (!(selections && yyjson_is_arr(selections))) {
     return 0;
@@ -44,7 +159,9 @@ static int hako_llvmc_sum_has_local_aggregate_fact(
     const char* subject,
     long long value) {
   yyjson_val* metadata;
+  yyjson_val* routes;
   yyjson_val* facts;
+  const char* manifest_row_expected;
   size_t i;
 
   if (!(fn && yyjson_is_obj(fn) && surface && subject)) {
@@ -52,6 +169,26 @@ static int hako_llvmc_sum_has_local_aggregate_fact(
   }
 
   metadata = yyjson_obj_get(fn, "metadata");
+  routes = hako_llvmc_sum_placement_effect_routes(fn);
+  manifest_row_expected = hako_llvmc_sum_local_aggregate_manifest_row_for_surface(surface);
+  if (routes && manifest_row_expected) {
+    for (i = 0; i < yyjson_arr_size(routes); i++) {
+      yyjson_val* row = yyjson_arr_get(routes, i);
+      if (hako_llvmc_sum_route_matches(
+              row,
+              "sum_placement",
+              "local_aggregate",
+              subject,
+              value,
+              1,
+              manifest_row_expected,
+              0,
+              0)) {
+        return 1;
+      }
+    }
+  }
+
   facts = metadata ? yyjson_obj_get(metadata, "sum_placement_facts") : NULL;
   if (!(facts && yyjson_is_arr(facts))) {
     return 0;
@@ -87,7 +224,9 @@ static int hako_llvmc_sum_has_local_aggregate_selection(
     long long source_sum,
     int require_source_sum) {
   yyjson_val* metadata;
+  yyjson_val* routes;
   yyjson_val* selections;
+  const char* manifest_row_expected;
   size_t i;
 
   if (!(fn && yyjson_is_obj(fn) && surface && subject)) {
@@ -95,6 +234,26 @@ static int hako_llvmc_sum_has_local_aggregate_selection(
   }
 
   metadata = yyjson_obj_get(fn, "metadata");
+  routes = hako_llvmc_sum_placement_effect_routes(fn);
+  manifest_row_expected = hako_llvmc_sum_local_aggregate_manifest_row_for_surface(surface);
+  if (routes && manifest_row_expected) {
+    for (i = 0; i < yyjson_arr_size(routes); i++) {
+      yyjson_val* row = yyjson_arr_get(routes, i);
+      if (hako_llvmc_sum_route_matches(
+              row,
+              "sum_placement",
+              "local_aggregate",
+              subject,
+              value,
+              1,
+              manifest_row_expected,
+              source_sum,
+              require_source_sum)) {
+        return 1;
+      }
+    }
+  }
+
   selections = metadata ? yyjson_obj_get(metadata, "sum_placement_selections") : NULL;
   if (!(selections && yyjson_is_arr(selections))) {
     return 0;
@@ -138,7 +297,9 @@ static int hako_llvmc_sum_has_layout(
     long long value,
     const char* layout_expected) {
   yyjson_val* metadata;
+  yyjson_val* routes;
   yyjson_val* layouts;
+  char detail_expected[128];
   size_t i;
 
   if (!(fn && yyjson_is_obj(fn) && surface && subject && layout_expected)) {
@@ -146,6 +307,29 @@ static int hako_llvmc_sum_has_layout(
   }
 
   metadata = yyjson_obj_get(fn, "metadata");
+  routes = hako_llvmc_sum_placement_effect_routes(fn);
+  if (routes) {
+    int detail_len = snprintf(
+        detail_expected, (int)sizeof(detail_expected), "sum_local_layout(%s)", layout_expected);
+    if (detail_len > 0 && detail_len < (int)sizeof(detail_expected)) {
+      for (i = 0; i < yyjson_arr_size(routes); i++) {
+        yyjson_val* row = yyjson_arr_get(routes, i);
+        if (hako_llvmc_sum_route_matches(
+                row,
+                "agg_local_scalarization",
+                "local_aggregate",
+                subject,
+                value,
+                1,
+                detail_expected,
+                0,
+                0)) {
+          return 1;
+        }
+      }
+    }
+  }
+
   layouts = metadata ? yyjson_obj_get(metadata, "sum_placement_layouts") : NULL;
   if (!(layouts && yyjson_is_arr(layouts))) {
     return 0;

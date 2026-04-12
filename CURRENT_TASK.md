@@ -14,7 +14,7 @@ Scope: repo root から current lane / current front / restart read order に最
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-215x/README.md`
+3. `docs/development/current/main/phases/phase-216x/README.md`
 4. `docs/development/current/main/phases/phase-163x/README.md`
 5. `git status -sb`
 6. `tools/checks/dev_gate.sh quick`
@@ -60,6 +60,8 @@ Scope: repo root から current lane / current front / restart read order に最
   - `docs/development/current/main/phases/phase-214x/214x-90-user-box-local-body-consumer-seed-ssot.md`
   - `docs/development/current/main/phases/phase-215x/README.md`
   - `docs/development/current/main/phases/phase-215x/215x-90-thin-entry-consumer-seed-ssot.md`
+  - `docs/development/current/main/phases/phase-216x/README.md`
+  - `docs/development/current/main/phases/phase-216x/216x-90-sum-seed-metadata-helper-consumer-fold-ssot.md`
 - thin-entry actual consumer switch owner:
   - `docs/development/current/main/phases/phase-210x/README.md`
 - DCE lane split owner:
@@ -106,6 +108,8 @@ Scope: repo root から current lane / current front / restart read order に最
   - current user-box local aggregate seeding now reads folded `placement_effect_routes` first, with thin-entry subject lookup kept as fallback
 - `phase-215x`
   - current thin-entry consumer seeding now reads folded `placement_effect_routes` first, with `thin_entry_selections` kept as fallback
+- `phase-216x`
+  - current sum local seed metadata helper now reads folded `placement_effect_routes` first, with legacy thin-entry/sum/agg-local metadata kept as fallback
 - `phase-200x`
   - dead `Load` pruning is now landed for definitely private carrier roots with copy-only alias propagation
   - first cut keeps `Store`, `Debug`, terminator, and generic placement/effect widening out of scope

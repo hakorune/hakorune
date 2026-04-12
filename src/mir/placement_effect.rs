@@ -84,6 +84,7 @@ pub struct PlacementEffectRoute {
     pub block: Option<BasicBlockId>,
     pub instruction_index: Option<usize>,
     pub value: Option<ValueId>,
+    pub source_value: Option<ValueId>,
     pub source: PlacementEffectSource,
     pub subject: String,
     pub decision: PlacementEffectDecision,
@@ -106,13 +107,17 @@ impl PlacementEffectRoute {
             .value
             .map(|value| format!(" value=%{}", value.as_u32()))
             .unwrap_or_default();
+        let source_value_suffix = self
+            .source_value
+            .map(|value| format!(" source_value=%{}", value.as_u32()))
+            .unwrap_or_default();
         let detail_suffix = self
             .detail
             .as_ref()
             .map(|detail| format!(" detail={detail}"))
             .unwrap_or_default();
         format!(
-            "{}{} {} {} {} [{}]{}{} reason={}",
+            "{}{} {} {} {} [{}]{}{}{} reason={}",
             block_suffix,
             instruction_suffix,
             self.source,
@@ -120,6 +125,7 @@ impl PlacementEffectRoute {
             self.decision,
             self.state,
             value_suffix,
+            source_value_suffix,
             detail_suffix,
             self.reason
         )
@@ -152,6 +158,7 @@ fn collect_string_routes(function: &MirFunction, routes: &mut Vec<PlacementEffec
                 block: location.map(|(block, _)| block),
                 instruction_index: location.map(|(_, index)| index),
                 value: Some(*value),
+                source_value: None,
                 source: PlacementEffectSource::StringCorridor,
                 subject: format!("string.value%{}", value.as_u32()),
                 decision: string_decision(candidate.kind),
@@ -218,6 +225,7 @@ fn sum_route(selection: &SumPlacementSelection) -> PlacementEffectRoute {
         block: Some(selection.block),
         instruction_index: Some(selection.instruction_index),
         value: selection.value,
+        source_value: selection.source_sum,
         source: PlacementEffectSource::SumPlacement,
         subject: selection.subject.clone(),
         decision: match selection.selected_path {
@@ -235,6 +243,7 @@ fn thin_entry_route(selection: &ThinEntrySelection) -> PlacementEffectRoute {
         block: Some(selection.block),
         instruction_index: Some(selection.instruction_index),
         value: selection.value,
+        source_value: None,
         source: PlacementEffectSource::ThinEntry,
         subject: selection.subject.clone(),
         decision: match selection.selected_entry {
@@ -260,6 +269,7 @@ fn agg_local_route(route: &crate::mir::AggLocalScalarizationRoute) -> Option<Pla
             block: route.block,
             instruction_index: route.instruction_index,
             value: route.value,
+            source_value: None,
             source: PlacementEffectSource::AggLocalScalarization,
             subject: route.subject.clone(),
             decision: PlacementEffectDecision::LocalAggregate,
@@ -340,7 +350,7 @@ mod tests {
                 value: Some(ValueId::new(2)),
                 surface: ThinEntrySurface::VariantMake,
                 subject: "Option::Some".to_string(),
-                source_sum: None,
+                source_sum: Some(ValueId::new(9)),
                 manifest_row: "variant_make.local_aggregate",
                 selected_path: SumPlacementPath::LocalAggregate,
                 reason: "selected local aggregate route".to_string(),
@@ -410,6 +420,10 @@ mod tests {
             function.metadata.placement_effect_routes[1].decision,
             PlacementEffectDecision::LocalAggregate
         ));
+        assert_eq!(
+            function.metadata.placement_effect_routes[1].source_value,
+            Some(ValueId::new(9))
+        );
         assert!(matches!(
             function.metadata.placement_effect_routes[2].source,
             PlacementEffectSource::AggLocalScalarization
