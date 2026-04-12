@@ -1,13 +1,13 @@
 # 209x-91 Task Board
 
-Status: Active
+Status: Landed
 
 ## Tasks
 
-- [ ] A0: add the MIR-side agg_local scalarization owner seam
-- [ ] A1: wire the owner seam into semantic refresh and MIR JSON export
-- [ ] A2: add focused tests for sum / thin-entry / typed-slot folding
-- [ ] A3: sync current pointers to the new code phase
+- [x] A0: add the MIR-side agg_local scalarization owner seam
+- [x] A1: wire the owner seam into semantic refresh and MIR JSON export
+- [x] A2: add focused tests for sum / thin-entry / typed-slot folding
+- [x] A3: sync current pointers to the new code phase
 
 ## Exit
 

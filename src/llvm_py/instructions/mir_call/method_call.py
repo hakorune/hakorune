@@ -15,6 +15,9 @@ from instructions.string_fast import (
     llvm_fast_enabled,
     string_ptr_for_value,
 )
+from instructions.thin_entry_selection import (
+    thin_entry_prefers_known_receiver_method,
+)
 from .arg_resolver import make_call_arg_resolver
 from .auto_specialize import (
     prefer_array_len_h_route,
@@ -33,65 +36,6 @@ from .string_console_method_call import (
     lower_string_search_or_slice_method_call,
 )
 from instructions.string_result_policy import mark_string_result_if_needed
-
-
-def _lookup_thin_entry_method_selection(
-    *,
-    resolver,
-    box_name: Optional[str],
-    method_name: Optional[str],
-    selection_value_id: Optional[int] = None,
-) -> Optional[Dict[str, Any]]:
-    if not isinstance(box_name, str) or not isinstance(method_name, str):
-        return None
-    subject = f"{box_name}.{method_name}"
-
-    by_value = getattr(resolver, "thin_entry_selection_by_value", None)
-    if isinstance(selection_value_id, int) and isinstance(by_value, dict):
-        for row in by_value.get(int(selection_value_id), []) or []:
-            if (
-                isinstance(row, dict)
-                and row.get("surface") == "user_box_method"
-                and row.get("subject") == subject
-            ):
-                return row
-
-    by_subject = getattr(resolver, "thin_entry_selection_by_subject", None)
-    if isinstance(by_subject, dict):
-        for row in by_subject.get(("user_box_method", subject), []) or []:
-            if isinstance(row, dict):
-                return row
-
-    rows = getattr(resolver, "thin_entry_selections", None)
-    if isinstance(rows, list):
-        for row in rows:
-            if (
-                isinstance(row, dict)
-                and row.get("surface") == "user_box_method"
-                and row.get("subject") == subject
-            ):
-                return row
-    return None
-
-
-def _thin_entry_prefers_known_receiver_method(
-    *,
-    resolver,
-    box_name: Optional[str],
-    method_name: Optional[str],
-    selection_value_id: Optional[int] = None,
-) -> Optional[bool]:
-    row = _lookup_thin_entry_method_selection(
-        resolver=resolver,
-        box_name=box_name,
-        method_name=method_name,
-        selection_value_id=selection_value_id,
-    )
-    if not isinstance(row, dict):
-        return None
-    if row.get("selected_entry") != "thin_internal_entry":
-        return False
-    return row.get("manifest_row") == "user_box_method.known_receiver"
 
 
 def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid, vmap, resolver, owner):
@@ -406,7 +350,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
                 store_result_string_ptr=_store_result_string_ptr,
             )
         if result is None:
-            selector_pref = _thin_entry_prefers_known_receiver_method(
+            selector_pref = thin_entry_prefers_known_receiver_method(
                 resolver=resolver,
                 box_name=box_name,
                 method_name=method,

@@ -5,6 +5,7 @@ import llvmlite.ir as ir
 
 from instructions.mir_call.runtime_data_dispatch import lower_runtime_data_field_call
 from instructions.primitive_handles import resolver_value_type, unbox_primitive_handle_if_needed
+from instructions.thin_entry_selection import thin_entry_prefers_inline_scalar_field
 from instructions.user_box_local import (
     lower_local_user_box_field_get,
     lower_local_user_box_field_set,
@@ -138,80 +139,6 @@ def _declared_type_matches_box_type(declared_type: Any, expected_box_type: str) 
     return is_box_handle_fact(declared_type, expected_box_type) or declared_type == expected_box_type
 
 
-def _thin_entry_field_subject(
-    resolver,
-    box_vid: Optional[int],
-    field_name: str,
-) -> Optional[str]:
-    receiver_box_type = _receiver_box_type(resolver, box_vid)
-    if not isinstance(receiver_box_type, str):
-        return None
-    return f"{receiver_box_type}.{field_name}"
-
-
-def _lookup_thin_entry_field_selection(
-    *,
-    resolver,
-    surface: str,
-    box_vid: Optional[int],
-    field_name: str,
-    selection_value_id: Optional[int] = None,
-) -> Optional[Dict[str, Any]]:
-    subject = _thin_entry_field_subject(resolver, box_vid, field_name)
-    if not isinstance(subject, str):
-        return None
-
-    by_value = getattr(resolver, "thin_entry_selection_by_value", None)
-    if isinstance(selection_value_id, int) and isinstance(by_value, dict):
-        for row in by_value.get(int(selection_value_id), []) or []:
-            if (
-                isinstance(row, dict)
-                and row.get("surface") == surface
-                and row.get("subject") == subject
-            ):
-                return row
-
-    by_subject = getattr(resolver, "thin_entry_selection_by_subject", None)
-    if isinstance(by_subject, dict):
-        rows = by_subject.get((surface, subject), [])
-        for row in rows or []:
-            if isinstance(row, dict):
-                return row
-
-    rows = getattr(resolver, "thin_entry_selections", None)
-    if isinstance(rows, list):
-        for row in rows:
-            if (
-                isinstance(row, dict)
-                and row.get("surface") == surface
-                and row.get("subject") == subject
-            ):
-                return row
-    return None
-
-
-def _thin_entry_prefers_inline_scalar_field(
-    *,
-    resolver,
-    surface: str,
-    box_vid: Optional[int],
-    field_name: str,
-    selection_value_id: Optional[int] = None,
-) -> Optional[bool]:
-    row = _lookup_thin_entry_field_selection(
-        resolver=resolver,
-        surface=surface,
-        box_vid=box_vid,
-        field_name=field_name,
-        selection_value_id=selection_value_id,
-    )
-    if not isinstance(row, dict):
-        return None
-    if row.get("selected_entry") != "thin_internal_entry":
-        return False
-    return row.get("manifest_row") == f"{surface}.inline_scalar"
-
-
 def _lookup_user_box_field_decl(
     user_box_decls: Any,
     receiver_box_type: Optional[str],
@@ -240,7 +167,7 @@ def _typed_user_box_field_enabled(
     thin_entry_surface: str,
     selection_value_id: Optional[int] = None,
 ) -> bool:
-    selector_pref = _thin_entry_prefers_inline_scalar_field(
+    selector_pref = thin_entry_prefers_inline_scalar_field(
         resolver=resolver,
         surface=thin_entry_surface,
         box_vid=box_vid,

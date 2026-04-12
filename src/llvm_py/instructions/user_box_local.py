@@ -4,6 +4,9 @@ import hashlib
 import llvmlite.ir as ir
 
 from instructions.primitive_handles import resolver_value_type, unbox_primitive_handle_if_needed
+from instructions.thin_entry_selection import (
+    thin_entry_prefers_inline_scalar_subject,
+)
 from utils.values import resolve_i64_strict
 
 
@@ -248,18 +251,13 @@ def _declared_type_to_local_layout(raw: Any) -> Optional[str]:
 
 
 def _inline_scalar_selected(resolver, surface: str, subject: str) -> bool:
-    by_subject = getattr(resolver, "thin_entry_selection_by_subject", None)
-    if not isinstance(by_subject, dict):
-        return False
-    rows = by_subject.get((surface, subject), [])
-    for row in rows or []:
-        if not isinstance(row, dict):
-            continue
-        if row.get("selected_entry") != "thin_internal_entry":
-            continue
-        if row.get("manifest_row") == f"{surface}.inline_scalar":
-            return True
-    return False
+    return bool(
+        thin_entry_prefers_inline_scalar_subject(
+            resolver=resolver,
+            surface=surface,
+            subject=subject,
+        )
+    )
 
 
 def _resolve_root_alias(value_id: Any, aliases: Dict[int, int]) -> Optional[int]:

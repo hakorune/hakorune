@@ -25,9 +25,9 @@ tools/checks/dev_gate.sh quick
 - sibling guardrail:
   - `phase-137x main kilo reopen selection`
 - immediate next:
-  - `agg_local scalarization`
-- immediate follow-on:
   - `thin-entry actual consumer switch`
+- immediate follow-on:
+  - `generic placement / effect`
 - stop-lines:
   - keep lane B separate from lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
   - keep lane B separate from `generic placement / effect`
@@ -41,6 +41,7 @@ tools/checks/dev_gate.sh quick
 4. `docs/development/current/main/phases/phase-163x/README.md`
 5. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 6. `docs/development/current/main/phases/phase-137x/README.md`
+7. `docs/development/current/main/phases/phase-210x/README.md`
 
 ## Current Evidence
 

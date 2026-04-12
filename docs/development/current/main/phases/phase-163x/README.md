@@ -220,9 +220,9 @@
            - partial: string corridor candidates, sum placement chains, and thin-entry inventory/selection are already landed as pilot scaffolds
            - next major genericization should fold those pilots into one generic placement/effect layer instead of growing more family-specific rows
         2. `agg_local scalarization` (`phase209x`)
-           - partial: selected sum local layouts, selected user-box local bodies, and ArrayBox typed-slot pilots are already landed
+           - landed: selected sum local layouts, selected user-box local bodies, and ArrayBox typed-slot pilots are folded into the generic route seam
            - old `ArrayBox typed-slot` and `MapBox typed value slot` items now read as pilot surfaces under this layer
-        3. `thin-entry actual consumer switch`
+        3. `thin-entry actual consumer switch` (`phase210x`)
            - partial: known-receiver user-box method routes are the first landed actual-consumer slice
            - broader thin-entry consumer switching remains backlog beneath canonical `Call`
         4. `semantic simplification bundle`
@@ -236,7 +236,7 @@
            - lane C2a is now landed too: control-anchor operand liveness is fixed for `Return.value`, `Branch.cond`, and reachable edge args
            - lane C2b is now landed too: legacy instruction-list control-anchor seeding is removed from mainline DCE
            - lane C2c is now landed too: the DCE / SimplifyCFG handoff boundary is explicit
-           - immediate code next is `agg_local scalarization` (`phase209x`)
+           - immediate code next is `thin-entry actual consumer switch` (`phase210x`)
         5. `memory-effect layer`
            - partial: lane-B0 generic memory observer/owner contract, lane-B1 dead `Load` pruning, and lane-B2 overwritten `Store` pruning are landed
            - backlog: generic `Store` / `Load` code widening, dead-store elimination, store-to-load forwarding, redundant load elimination, and hoist/sink legality
@@ -266,7 +266,7 @@
       - LLVM/Python local-enum escape barriers now share one helper instead of repeating materialization wrappers in `call` / `boxcall` / `ret`
       - safe runtime nullish checks touched in this lane now converge on `NullBox::check_null()`
       - MIR reference docs now split into instruction SSOT + metadata SSOT, while stale all-in-one references are reduced to thin pointers
-    8. next ready task: `agg_local scalarization` (`phase209x`)
+    8. next ready task: `thin-entry actual consumer switch` (`phase210x`)
     9. keep `where` / enum methods / full monomorphization in backlog
 
 ## Fixed Task Order
