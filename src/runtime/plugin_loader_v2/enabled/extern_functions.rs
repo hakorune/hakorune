@@ -406,10 +406,7 @@ fn handle_future_await(args: &[Box<dyn NyashBox>]) -> BidResult<Option<Box<dyn N
 
             return match fut.wait_and_get() {
                 Ok(v) => Ok(Some(Box::new(NyashResultBox::new_ok(v)))),
-                Err(e) => {
-                    let err = StringBox::new(format!("Error: {}", e));
-                    Ok(Some(Box::new(NyashResultBox::new_err(Box::new(err)))))
-                }
+                Err(error) => Ok(Some(Box::new(NyashResultBox::new_err(error)))),
             };
         } else {
             return Ok(Some(Box::new(NyashResultBox::new_ok(arg.clone_box()))));
@@ -461,5 +458,26 @@ mod tests {
         let args = vec![];
         let result = extern_call("env.console", "unknown_method", &args);
         assert!(matches!(result, Err(BidError::PluginError)));
+    }
+
+    #[test]
+    fn test_future_await_failed_returns_result_err() {
+        let fut = crate::boxes::future::FutureBox::new();
+        fut.set_failed(Box::new(crate::boxes::basic::ErrorBox::new(
+            "TaskError",
+            "boom",
+        )));
+
+        let args = vec![Box::new(fut) as Box<dyn NyashBox>];
+        let out = handle_future_await(&args)
+            .expect("future await bridge must succeed")
+            .expect("future await bridge must return a result box");
+
+        let result = out
+            .as_any()
+            .downcast_ref::<crate::boxes::result::NyashResultBox>()
+            .expect("await bridge must return ResultBox");
+        assert!(result.is_err());
+        assert_eq!(result.get_error().to_string_box().value, "TaskError: boom");
     }
 }

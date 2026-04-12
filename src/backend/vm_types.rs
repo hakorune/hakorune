@@ -20,6 +20,7 @@ pub enum VMError {
     DivisionByZero,
     StackUnderflow,
     TypeError(String),
+    TaskFailed(String),
     StepBudgetExceeded {
         max_steps: u64,
         steps: u64,
@@ -46,6 +47,7 @@ impl std::fmt::Display for VMError {
             VMError::DivisionByZero => write!(f, "Division by zero"),
             VMError::StackUnderflow => write!(f, "Stack underflow"),
             VMError::TypeError(msg) => write!(f, "Type error: {}", msg),
+            VMError::TaskFailed(msg) => write!(f, "Task failed: {}", msg),
             VMError::StepBudgetExceeded {
                 max_steps,
                 steps,

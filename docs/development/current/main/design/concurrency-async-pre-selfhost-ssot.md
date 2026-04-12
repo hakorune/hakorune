@@ -90,6 +90,19 @@ Current VM contract to pin:
   - no cancellation result shape
   - `task_scope.cancelAll()` does not yet interrupt `await`
 
+Current failure taxonomy to pin:
+- `ContractError`
+  - malformed `await` shape
+  - non-`Future` operand
+- `TaskFailed(error)`
+  - a future may now complete in a failed terminal state
+  - current VM `await` surfaces that state as `VMError::TaskFailed(<stringified error payload>)`
+  - current `env.future.await` plugin/runtime route surfaces that state as `ResultBox::Err(error)`
+- `Cancelled(reason)`
+  - reserved only in the current tree
+  - no current runtime path sets a future to cancelled
+  - deadline/timeout remains outside the current VM-side `await` contract
+
 ### 2.3 Method-call `nowait`
 最短の selfhost 安定化として、以下のどちらかを SSOT として選ぶ（決め打ちが必要）。
 

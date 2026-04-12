@@ -86,6 +86,26 @@ mod tests {
     }
 
     #[test]
+    fn test_future_box_failed_terminal_state() {
+        let future = NyashFutureBox::new();
+        future.set_failed(Box::new(crate::boxes::basic::ErrorBox::new(
+            "TaskError",
+            "boom",
+        )));
+
+        assert!(future.ready());
+        assert_eq!(
+            future.to_string_box().value,
+            "Future(failed: TaskError: boom)"
+        );
+
+        let err = future
+            .wait_and_get()
+            .expect_err("failed future must return error payload");
+        assert_eq!(err.to_string_box().value, "TaskError: boom");
+    }
+
+    #[test]
     fn test_stream_box_nyash_trait() {
         let stream = NyashStreamBox::from_data(vec![72, 101, 108, 108, 111]); // "Hello"
 

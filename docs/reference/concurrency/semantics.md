@@ -45,7 +45,12 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
 - Current VM `await` is narrow:
   - `await` requires a `Future` operand
   - a non-`Future` operand is a fail-fast type error
+  - a failed future surfaces as `TaskFailed(error)`
   - there is no timeout or cancellation result shape yet
+- Current taxonomy is intentionally small:
+  - `ContractError`
+  - `TaskFailed(error)`
+  - `Cancelled(reason)` is reserved for a later phase
 - `task_scope.cancelAll()` does not yet define a user-visible `await` interruption contract.
 
 ### Types & Safety

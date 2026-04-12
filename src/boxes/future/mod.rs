@@ -14,8 +14,14 @@ pub struct NyashFutureBox {
 
 #[derive(Debug)]
 struct FutureState {
-    result: Option<Box<dyn NyashBox>>,
+    outcome: Option<FutureOutcome>,
     ready: bool,
+}
+
+#[derive(Debug)]
+enum FutureOutcome {
+    Ready(Box<dyn NyashBox>),
+    Failed(Box<dyn NyashBox>),
 }
 
 #[derive(Debug)]
@@ -45,7 +51,7 @@ impl NyashFutureBox {
         Self {
             inner: Arc::new(Inner {
                 state: Mutex::new(FutureState {
-                    result: None,
+                    outcome: None,
                     ready: false,
                 }),
                 cv: Condvar::new(),
@@ -57,18 +63,46 @@ impl NyashFutureBox {
     /// Set the result of the future
     pub fn set_result(&self, value: Box<dyn NyashBox>) {
         let mut st = self.inner.state.lock().unwrap();
-        st.result = Some(value);
+        st.outcome = Some(FutureOutcome::Ready(value));
+        st.ready = true;
+        self.inner.cv.notify_all();
+    }
+
+    /// Set a failed terminal state for the future
+    pub fn set_failed(&self, error: Box<dyn NyashBox>) {
+        let mut st = self.inner.state.lock().unwrap();
+        st.outcome = Some(FutureOutcome::Failed(error));
         st.ready = true;
         self.inner.cv.notify_all();
     }
 
     /// Get the result (blocks until ready)
     pub fn get(&self) -> Box<dyn NyashBox> {
+        match self.wait_and_get() {
+            Ok(value) => value,
+            Err(error) => {
+                panic!(
+                    "called FutureBox::get() on failed future: {}",
+                    error.to_string_box().value
+                );
+            }
+        }
+    }
+
+    /// Wait until ready and return either the ready value or the failure payload
+    pub fn wait_and_get(&self) -> Result<Box<dyn NyashBox>, Box<dyn NyashBox>> {
         let mut st = self.inner.state.lock().unwrap();
         while !st.ready {
             st = self.inner.cv.wait(st).unwrap();
         }
-        st.result.as_ref().unwrap().clone_box()
+        match st
+            .outcome
+            .as_ref()
+            .expect("ready future must have terminal outcome")
+        {
+            FutureOutcome::Ready(value) => Ok(value.clone_box()),
+            FutureOutcome::Failed(error) => Err(error.clone_box()),
+        }
     }
 
     /// Check if the future is ready
@@ -98,10 +132,14 @@ impl NyashBox for NyashFutureBox {
         let ready = self.inner.state.lock().unwrap().ready;
         if ready {
             let st = self.inner.state.lock().unwrap();
-            if let Some(value) = st.result.as_ref() {
-                StringBox::new(format!("Future(ready: {})", value.to_string_box().value))
-            } else {
-                StringBox::new("Future(ready: void)".to_string())
+            match st.outcome.as_ref() {
+                Some(FutureOutcome::Ready(value)) => {
+                    StringBox::new(format!("Future(ready: {})", value.to_string_box().value))
+                }
+                Some(FutureOutcome::Failed(error)) => {
+                    StringBox::new(format!("Future(failed: {})", error.to_string_box().value))
+                }
+                None => StringBox::new("Future(ready: void)".to_string()),
             }
         } else {
             StringBox::new("Future(pending)".to_string())
@@ -134,10 +172,14 @@ impl BoxCore for NyashFutureBox {
         let ready = self.inner.state.lock().unwrap().ready;
         if ready {
             let st = self.inner.state.lock().unwrap();
-            if let Some(value) = st.result.as_ref() {
-                write!(f, "Future(ready: {})", value.to_string_box().value)
-            } else {
-                write!(f, "Future(ready: void)")
+            match st.outcome.as_ref() {
+                Some(FutureOutcome::Ready(value)) => {
+                    write!(f, "Future(ready: {})", value.to_string_box().value)
+                }
+                Some(FutureOutcome::Failed(error)) => {
+                    write!(f, "Future(failed: {})", error.to_string_box().value)
+                }
+                None => write!(f, "Future(ready: void)"),
             }
         } else {
             write!(f, "Future(pending)")
@@ -161,13 +203,6 @@ impl std::fmt::Display for NyashFutureBox {
 
 // Export NyashFutureBox as FutureBox for consistency
 pub type FutureBox = NyashFutureBox;
-
-impl FutureBox {
-    /// wait_and_get()の実装 - await演算子で使用
-    pub fn wait_and_get(&self) -> Result<Box<dyn NyashBox>, String> {
-        Ok(self.get())
-    }
-}
 
 impl FutureWeak {
     /// Try to upgrade and check readiness

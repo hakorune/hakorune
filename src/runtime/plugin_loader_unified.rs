@@ -352,8 +352,11 @@ impl PluginHost {
                             return Ok(Some(Box::new(NyashResultBox::new_err(Box::new(err)))));
                         }
                     }
-                    return Ok(fut.wait_and_get().ok().map(|v| {
-                        Box::new(NyashResultBox::new_ok(v)) as Box<dyn crate::box_trait::NyashBox>
+                    return Ok(Some(match fut.wait_and_get() {
+                        Ok(v) => Box::new(NyashResultBox::new_ok(v))
+                            as Box<dyn crate::box_trait::NyashBox>,
+                        Err(error) => Box::new(NyashResultBox::new_err(error))
+                            as Box<dyn crate::box_trait::NyashBox>,
                     }));
                 } else {
                     return Ok(Some(Box::new(NyashResultBox::new_ok(arg0.clone_box()))));

@@ -199,10 +199,14 @@ impl MirInterpreter {
             MirInstruction::Await { dst, future } => {
                 let f = self.reg_load(*future)?;
                 match f {
-                    VMValue::Future(fut) => {
-                        let v = fut.get();
-                        self.write_result(Some(*dst), VMValue::from_nyash_box(v));
-                    }
+                    VMValue::Future(fut) => match fut.wait_and_get() {
+                        Ok(v) => {
+                            self.write_result(Some(*dst), VMValue::from_nyash_box(v));
+                        }
+                        Err(error) => {
+                            return Err(VMError::TaskFailed(error.to_string_box().value));
+                        }
+                    },
                     _ => {
                         return Err(VMError::TypeError(
                             "Await expects Future in `future` operand".into(),

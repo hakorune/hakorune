@@ -9,6 +9,7 @@
 
 ## Recent Landed
 
+- **Phase 245x（LANDED）**: await failure first cut
 - **Phase 244x（LANDED）**: VM await contract pin
 - **Phase 242x（LANDED）**: task-scope structured-concurrency vocabulary alignment
 - **Phase 227x（LANDED）**: semantic simplification owner seam
