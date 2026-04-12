@@ -77,6 +77,7 @@ Related:
   - `phase-189x` is landed as the merge-entry overwritten local field-set pruning cut
   - `phase-190x` is landed as the remaining DCE boundary inventory cut before generic-memory widening
   - `phase-191x` is landed as the loop-carried same-root local field prune contract cut
+  - `phase-192x` is landed as the BoxShape split of `src/mir/passes/dce.rs` before more lane-A widening
   - next target is lane-A2 overwritten-write widening, or a separate lane-B generic-memory facts phase
   - do not mix that with unreachable-block deletion
 - landed shim-structure follow-on:
