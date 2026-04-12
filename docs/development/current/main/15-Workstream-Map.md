@@ -15,11 +15,11 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-163x primitive and user-box fast path` |
-| Front | `layer roadmap regroup landed -> semantic simplification bundle partial through phase196x -> next narrow slice is lane B0 generic memory Store/Load docs-facts` |
+| Front | `root pointers compressed -> lane-B0 docs/facts landed -> next narrow slice is lane B1 dead Load pruning on private carriers` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `generic memory Store/Load observer-owner contract is not fixed yet, so lane B cannot widen safely` |
-| Next | `semantic simplification bundle lane B0 (generic memory Store/Load docs-facts phase)` |
-| After Next | `lane B1 dead Load pruning -> lane B2 overwritten Store pruning` |
+| Blocker | `private-carrier dead Load facts are fixed in docs, but no lane-B code exists yet` |
+| Next | `semantic simplification bundle lane B1 (dead Load pruning on private carriers)` |
+| After Next | `lane B2 overwritten Store pruning -> lane C0 observer/control docs inventory` |
 
 ## Current Read
 
@@ -35,6 +35,10 @@ Related:
   - `phase-178x` / `phase-193x` / `phase-194x`: BoxShape splits are landed and stay behavior-preserving
   - `phase-195x` / `phase-197x`: roadmap regroup and pointer hygiene are landed; current docs agree on lane B0
   - `phase-198x`: root restart docs are compressed back to pointer-only form
+- landed generic-memory facts follow-on:
+  - `phase-199x` is landed
+  - lane-B observer/owner contract is fixed before any generic `Load` / `Store` pruning
+  - next target is now B1 dead `Load` pruning on private carriers
 - immediate sequence:
   - lane B0 generic memory `Store` / `Load` docs-facts phase
   - lane B1 dead `Load` pruning

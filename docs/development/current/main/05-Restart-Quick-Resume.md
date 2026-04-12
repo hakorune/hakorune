@@ -25,11 +25,11 @@ tools/checks/dev_gate.sh quick
 - sibling guardrail:
   - `phase-137x main kilo reopen selection`
 - immediate next:
-  - `semantic simplification bundle lane B0`
-  - generic memory `Store` / `Load` docs-facts phase
+  - `semantic simplification bundle lane B1`
+  - dead `Load` pruning for definitely private carrier roots
 - immediate follow-on:
-  - lane B1 dead `Load` pruning
   - lane B2 overwritten `Store` pruning
+  - lane C0 observer/control docs-only inventory
 - stop-lines:
   - keep lane B separate from lane C (`Debug` / terminator cleanup)
   - keep lane B separate from `generic placement / effect`
@@ -58,6 +58,8 @@ tools/checks/dev_gate.sh quick
 - roadmap regroup / pointer sync is landed:
   - `phase-195x`
   - `phase-197x`
+  - `phase-198x`
+  - `phase-199x`
 
 ## First Design Slices
 

@@ -27,11 +27,11 @@ Scope: repo root から current lane / current front / restart read order に最
 - sibling guardrail:
   - `phase-137x` string corridor / exact-keeper guardrail
 - immediate next:
-  - `semantic simplification bundle lane B0`
-  - generic memory `Store` / `Load` docs-facts phase
+  - `semantic simplification bundle lane B1`
+  - dead `Load` pruning for definitely private carrier roots
 - immediate follow-on:
-  - lane B1 dead `Load` pruning
   - lane B2 overwritten `Store` pruning
+  - lane C0 observer/control docs-only inventory
 - current stop-lines:
   - do not mix lane B with lane C (`Debug` / terminator observer cleanup)
   - do not mix lane B with `generic placement / effect`
@@ -48,6 +48,8 @@ Scope: repo root から current lane / current front / restart read order に最
   - `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 - DCE lane split owner:
   - `docs/development/current/main/phases/phase-190x/190x-90-remaining-dce-boundary-inventory-ssot.md`
+- generic memory lane-B contract owner:
+  - `docs/development/current/main/design/generic-memory-dce-observer-owner-contract-ssot.md`
 - primitive / user-box fast-path owner:
   - `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
 - lifecycle / value parent:
@@ -72,6 +74,8 @@ Scope: repo root から current lane / current front / restart read order に最
   - BoxShape-only structure cuts are landed
 - `phase-195x` / `phase-197x`
   - roadmap regroup and pointer hygiene are landed
+- `phase-198x` / `phase-199x`
+  - root restart surfaces are compressed and lane-B docs/facts are fixed
 
 ## Current Checks
 
