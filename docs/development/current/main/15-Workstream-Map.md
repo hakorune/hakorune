@@ -15,11 +15,11 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-163x primitive and user-box fast path` |
-| Front | `lane-B generic memory cuts are landed through B2 -> lane-C docs inventory, Debug policy, and C2a control-anchor operand liveness are landed -> next narrow decision is C2b legacy control-anchor seed cleanup` |
+| Front | `lane-B generic memory cuts are landed through B2 -> lane-C docs inventory, Debug policy, C2a operand liveness, and C2b seed cleanup are landed -> next narrow decision is C2c simplification handoff` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `control-anchor operand liveness is fixed, but legacy in-instruction-list seed cleanup and simplification handoff are still open` |
-| Next | `observer/control lane C2b (legacy in-instruction-list control-anchor seed cleanup)` |
-| After Next | `observer/control lane C2c -> then return to the next layer step` |
+| Blocker | `control-anchor seed ownership is now fixed, but the simplification handoff boundary is still not frozen` |
+| Next | `observer/control lane C2c (simplification-handoff wording lock)` |
+| After Next | `return to the next layer step` |
 
 ## Current Read
 
@@ -48,9 +48,10 @@ Related:
   - `Debug` is fixed as a permanent observer anchor in mainline DCE
   - `phase-204x` is now landed too
   - lane `C2a` is fixed as control-anchor operand liveness for `Return.value`, `Branch.cond`, and reachable edge args
-  - next target is now lane `C2b` legacy in-instruction-list control-anchor seed cleanup
+  - `phase-205x` is now landed too
+  - legacy instruction-list control-anchor seeding is removed; control-anchor operand liveness is now owned only by `block.terminator` plus reachable edge args
+  - next target is now lane `C2c` simplification-handoff wording lock
 - immediate sequence:
-  - lane C2b legacy in-instruction-list control-anchor seed cleanup
   - lane C2c simplification-handoff wording lock
   - then return to the next layer step
 - stop-lines:

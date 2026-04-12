@@ -80,11 +80,10 @@ Owner: `phase-163x optimization-resume`
 ## Immediate Read
 
 - immediate code next:
-  - `observer/control lane C2b`
-  - legacy in-instruction-list control-anchor seed cleanup
-- immediate follow-on after that:
   - `observer/control lane C2c`
-  - simplification-handoff wording lock, then return to the next layer step after lane C closes
+  - simplification-handoff wording lock
+- immediate follow-on after that:
+  - return to the next layer step after lane C closes
 - next major design lane after the current DCE slice:
   - `generic placement / effect`
   - then `agg_local scalarization`

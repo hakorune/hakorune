@@ -27,11 +27,11 @@ Scope: repo root から current lane / current front / restart read order に最
 - sibling guardrail:
   - `phase-137x` string corridor / exact-keeper guardrail
 - immediate next:
-  - `observer/control lane C2b`
-  - legacy in-instruction-list control-anchor seed cleanup
-- immediate follow-on:
   - `observer/control lane C2c`
-  - simplification-handoff wording lock, then return to the layer roadmap
+  - simplification-handoff wording lock
+- immediate follow-on:
+  - return to the layer roadmap
+  - next big design lane stays `generic placement / effect`
 - current stop-lines:
   - do not mix lane B with lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
   - do not mix lane B with `generic placement / effect`
@@ -90,7 +90,9 @@ Scope: repo root から current lane / current front / restart read order に最
   - `Debug` is now explicitly locked as a permanent observer anchor in mainline DCE
 - `phase-204x`
   - lane `C2a` is now landed: mainline DCE explicitly keeps `Return.value`, `Branch.cond`, and reachable edge args live as control-anchor operands
-  - immediate next is lane `C2b` legacy in-instruction-list control-anchor seed cleanup
+- `phase-205x`
+  - legacy instruction-list control-anchor seeding is removed; mainline DCE now keeps control-anchor operands only through `block.terminator` and reachable edge args
+  - immediate next is lane `C2c` simplification-handoff wording lock
 
 ## Current Checks
 
