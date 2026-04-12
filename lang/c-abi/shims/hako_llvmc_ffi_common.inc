@@ -91,6 +91,84 @@ static void hako_llvmc_emit_route_trace(
           (extra && extra[0]) ? extra : "");
 }
 
+static yyjson_val* hako_llvmc_placement_effect_routes(yyjson_val* fn) {
+  yyjson_val* metadata;
+  yyjson_val* routes;
+
+  if (!(fn && yyjson_is_obj(fn))) {
+    return NULL;
+  }
+
+  metadata = yyjson_obj_get(fn, "metadata");
+  routes = metadata ? yyjson_obj_get(metadata, "placement_effect_routes") : NULL;
+  if (!(routes && yyjson_is_arr(routes))) {
+    return NULL;
+  }
+
+  return routes;
+}
+
+static int hako_llvmc_placement_effect_route_matches(
+    yyjson_val* row,
+    const char* source_expected,
+    const char* decision_expected,
+    const char* subject_expected,
+    long long value_expected,
+    int require_value,
+    const char* detail_expected,
+    long long source_value_expected,
+    int require_source_value) {
+  yyjson_val* value_val;
+  yyjson_val* source_value_val;
+  const char* source;
+  const char* decision;
+  const char* subject;
+  const char* detail;
+  long long value;
+  long long source_value;
+
+  if (!(row && yyjson_is_obj(row) && source_expected && decision_expected && subject_expected &&
+        detail_expected)) {
+    return 0;
+  }
+
+  source = yyjson_get_str(yyjson_obj_get(row, "source"));
+  decision = yyjson_get_str(yyjson_obj_get(row, "decision"));
+  subject = yyjson_get_str(yyjson_obj_get(row, "subject"));
+  detail = yyjson_get_str(yyjson_obj_get(row, "detail"));
+  value_val = yyjson_obj_get(row, "value");
+  if (!(source && decision && subject && detail)) {
+    return 0;
+  }
+  if (strcmp(source, source_expected) != 0 ||
+      strcmp(decision, decision_expected) != 0 ||
+      strcmp(subject, subject_expected) != 0 ||
+      strcmp(detail, detail_expected) != 0) {
+    return 0;
+  }
+
+  if (require_value) {
+    if (!(value_val && !yyjson_is_null(value_val))) {
+      return 0;
+    }
+    value = (long long)yyjson_get_sint(value_val);
+    if (value != value_expected) {
+      return 0;
+    }
+  }
+
+  if (!require_source_value) {
+    return 1;
+  }
+
+  source_value_val = yyjson_obj_get(row, "source_value");
+  if (!(source_value_val && !yyjson_is_null(source_value_val))) {
+    return 0;
+  }
+  source_value = (long long)yyjson_get_sint(source_value_val);
+  return source_value == source_value_expected;
+}
+
 static int hako_llvmc_has_thin_entry_selection(
     yyjson_val* fn,
     const char* surface,
@@ -108,25 +186,20 @@ static int hako_llvmc_has_thin_entry_selection(
   }
 
   metadata = yyjson_obj_get(fn, "metadata");
-  routes = metadata ? yyjson_obj_get(metadata, "placement_effect_routes") : NULL;
-  if (routes && yyjson_is_arr(routes)) {
+  routes = hako_llvmc_placement_effect_routes(fn);
+  if (routes) {
     for (i = 0; i < yyjson_arr_size(routes); i++) {
       yyjson_val* row = yyjson_arr_get(routes, i);
-      const char* row_source = row ? yyjson_get_str(yyjson_obj_get(row, "source")) : NULL;
-      const char* row_subject = row ? yyjson_get_str(yyjson_obj_get(row, "subject")) : NULL;
-      const char* row_manifest = row ? yyjson_get_str(yyjson_obj_get(row, "detail")) : NULL;
-      const char* row_selected = row ? yyjson_get_str(yyjson_obj_get(row, "decision")) : NULL;
-      size_t manifest_prefix_len;
-      if (!(row_source && row_subject && row_manifest && row_selected)) {
-        continue;
-      }
-      manifest_prefix_len = strlen(surface);
-      if (strcmp(row_source, "thin_entry") == 0 &&
-          strcmp(row_subject, subject) == 0 &&
-          strncmp(row_manifest, surface, manifest_prefix_len) == 0 &&
-          row_manifest[manifest_prefix_len] == '.' &&
-          strcmp(row_manifest, manifest_row) == 0 &&
-          strcmp(row_selected, selected_entry) == 0) {
+      if (hako_llvmc_placement_effect_route_matches(
+              row,
+              "thin_entry",
+              selected_entry,
+              subject,
+              0,
+              0,
+              manifest_row,
+              0,
+              0)) {
         return 1;
       }
     }
