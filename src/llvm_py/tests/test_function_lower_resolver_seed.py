@@ -267,6 +267,141 @@ class TestFunctionLowerResolverSeed(unittest.TestCase):
             },
         )
 
+    def test_load_user_box_local_aggregate_metadata_reads_placement_effect_routes_first(self):
+        builder = _BuilderStub()
+        builder.user_box_decls = [
+            {
+                "name": "Point",
+                "field_decls": [
+                    {"name": "x", "declared_type": "IntegerBox", "is_weak": False},
+                    {"name": "y", "declared_type": "IntegerBox", "is_weak": False},
+                ],
+            }
+        ]
+        func_data = {
+            "metadata": {
+                "placement_effect_routes": [
+                    {
+                        "source": "agg_local_scalarization",
+                        "subject": "Point.x",
+                        "decision": "local_aggregate",
+                        "detail": "user_box_local_body(inline_i64)",
+                        "value": None,
+                    },
+                    {
+                        "source": "agg_local_scalarization",
+                        "subject": "Point.y",
+                        "decision": "local_aggregate",
+                        "detail": "user_box_local_body(inline_i64)",
+                        "value": None,
+                    },
+                    {
+                        "source": "agg_local_scalarization",
+                        "subject": "Point.x",
+                        "decision": "local_aggregate",
+                        "detail": "user_box_local_body(inline_i64)",
+                        "value": 11,
+                    },
+                    {
+                        "source": "agg_local_scalarization",
+                        "subject": "Point.y",
+                        "decision": "local_aggregate",
+                        "detail": "user_box_local_body(inline_i64)",
+                        "value": 12,
+                    },
+                ]
+            },
+            "blocks": [
+                {
+                    "id": 0,
+                    "instructions": [
+                        {"op": "newbox", "dst": 10, "type": "Point", "args": []},
+                        {"op": "field_set", "box": 10, "field": "x", "value": 1},
+                        {"op": "field_set", "box": 10, "field": "y", "value": 2},
+                    ],
+                },
+                {
+                    "id": 1,
+                    "instructions": [
+                        {"op": "field_get", "box": 10, "field": "x", "dst": 11},
+                        {"op": "field_get", "box": 10, "field": "y", "dst": 12},
+                        {"op": "ret", "value": 10},
+                    ],
+                },
+            ],
+        }
+
+        function_lower._load_user_box_local_aggregate_metadata(builder, func_data)
+
+        self.assertEqual(
+            builder.resolver.user_box_local_aggregate_layouts,
+            {
+                10: {
+                    "box_name": "Point",
+                    "field_order": ["x", "y"],
+                    "field_layouts": {
+                        "x": "inline_i64",
+                        "y": "inline_i64",
+                    },
+                    "reason": "primitive user-box fields initialize in the birth block and only leave the local route through explicit call/ret boundaries",
+                }
+            },
+        )
+
+    def test_load_user_box_local_aggregate_metadata_requires_folded_field_set_rows(self):
+        builder = _BuilderStub()
+        builder.user_box_decls = [
+            {
+                "name": "Point",
+                "field_decls": [
+                    {"name": "x", "declared_type": "IntegerBox", "is_weak": False},
+                    {"name": "y", "declared_type": "IntegerBox", "is_weak": False},
+                ],
+            }
+        ]
+        func_data = {
+            "metadata": {
+                "placement_effect_routes": [
+                    {
+                        "source": "agg_local_scalarization",
+                        "subject": "Point.x",
+                        "decision": "local_aggregate",
+                        "detail": "user_box_local_body(inline_i64)",
+                        "value": 11,
+                    },
+                    {
+                        "source": "agg_local_scalarization",
+                        "subject": "Point.y",
+                        "decision": "local_aggregate",
+                        "detail": "user_box_local_body(inline_i64)",
+                        "value": 12,
+                    },
+                ]
+            },
+            "blocks": [
+                {
+                    "id": 0,
+                    "instructions": [
+                        {"op": "newbox", "dst": 10, "type": "Point", "args": []},
+                        {"op": "field_set", "box": 10, "field": "x", "value": 1},
+                        {"op": "field_set", "box": 10, "field": "y", "value": 2},
+                    ],
+                },
+                {
+                    "id": 1,
+                    "instructions": [
+                        {"op": "field_get", "box": 10, "field": "x", "dst": 11},
+                        {"op": "field_get", "box": 10, "field": "y", "dst": 12},
+                        {"op": "ret", "value": 10},
+                    ],
+                },
+            ],
+        }
+
+        function_lower._load_user_box_local_aggregate_metadata(builder, func_data)
+
+        self.assertEqual(builder.resolver.user_box_local_aggregate_layouts, {})
+
     def test_load_user_box_local_aggregate_metadata_rejects_read_before_init(self):
         builder = _BuilderStub()
         builder.user_box_decls = [

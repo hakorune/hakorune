@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Set, Tuple
 import hashlib
 
 import llvmlite.ir as ir
@@ -260,6 +260,47 @@ def _inline_scalar_selected(resolver, surface: str, subject: str) -> bool:
     )
 
 
+def _placement_effect_local_user_box_subjects(
+    func_data: Dict[str, Any],
+) -> Tuple[Set[str], Set[str]]:
+    metadata = func_data.get("metadata", {})
+    routes = metadata.get("placement_effect_routes", [])
+    get_subjects: Set[str] = set()
+    set_subjects: Set[str] = set()
+
+    for row in routes:
+        if not isinstance(row, dict):
+            continue
+        if row.get("source") != "agg_local_scalarization":
+            continue
+        if row.get("decision") != "local_aggregate":
+            continue
+        detail = row.get("detail")
+        if not isinstance(detail, str) or not detail.startswith("user_box_local_body("):
+            continue
+        subject = row.get("subject")
+        if not isinstance(subject, str) or not subject:
+            continue
+        value = row.get("value")
+        if isinstance(value, int):
+            get_subjects.add(subject)
+        else:
+            set_subjects.add(subject)
+
+    return get_subjects, set_subjects
+
+
+def _local_user_box_subject_selected(
+    resolver,
+    folded_subjects: Set[str],
+    surface: str,
+    subject: str,
+) -> bool:
+    if subject in folded_subjects:
+        return True
+    return _inline_scalar_selected(resolver, surface, subject)
+
+
 def _resolve_root_alias(value_id: Any, aliases: Dict[int, int]) -> Optional[int]:
     if not isinstance(value_id, int):
         return None
@@ -316,6 +357,7 @@ def seed_local_user_box_layouts_from_function_data(builder, func_data: Dict[str,
     blocks = func_data.get("blocks", [])
     aliases: Dict[int, int] = {}
     candidates: Dict[int, Dict[str, Any]] = {}
+    folded_get_subjects, folded_set_subjects = _placement_effect_local_user_box_subjects(func_data)
 
     def disallow(root: int, reason: str) -> None:
         if root in candidates and not candidates[root].get("disallowed_reason"):
@@ -378,7 +420,12 @@ def seed_local_user_box_layouts_from_function_data(builder, func_data: Dict[str,
                     disallow(base_root, "field.set touched a field that is outside the selected primitive layout")
                     continue
                 subject = f"{candidate['box_name']}.{field_name}"
-                if not _inline_scalar_selected(resolver, "user_box_field_set", subject):
+                if not _local_user_box_subject_selected(
+                    resolver,
+                    folded_set_subjects,
+                    "user_box_field_set",
+                    subject,
+                ):
                     disallow(base_root, "field.set lacks an inline-scalar thin-entry selection for this primitive route")
                     continue
                 if (
@@ -403,7 +450,12 @@ def seed_local_user_box_layouts_from_function_data(builder, func_data: Dict[str,
                     disallow(base_root, "field.get touched a field that is outside the selected primitive layout")
                     continue
                 subject = f"{candidate['box_name']}.{field_name}"
-                if not _inline_scalar_selected(resolver, "user_box_field_get", subject):
+                if not _local_user_box_subject_selected(
+                    resolver,
+                    folded_get_subjects,
+                    "user_box_field_get",
+                    subject,
+                ):
                     disallow(base_root, "field.get lacks an inline-scalar thin-entry selection for this primitive route")
                     continue
                 if field_name not in candidate["initialized_fields"]:
