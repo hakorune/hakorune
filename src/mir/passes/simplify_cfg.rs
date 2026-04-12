@@ -9,8 +9,8 @@
  */
 
 use crate::mir::{
-    definitions::call_unified::Callee, BasicBlock, BasicBlockId, EffectMask, MirFunction,
-    MirInstruction, MirModule, ValueId,
+    build_value_def_map, definitions::call_unified::Callee, resolve_value_origin, BasicBlock,
+    BasicBlockId, ConstValue, EffectMask, MirFunction, MirInstruction, MirModule, ValueId,
 };
 
 pub fn simplify(module: &mut MirModule) -> usize {
@@ -26,6 +26,11 @@ fn simplify_function(function: &mut MirFunction) -> usize {
 
     loop {
         function.update_cfg();
+        if let Some((block_id, target, edge_args)) = find_constant_branch_fold(function) {
+            fold_constant_branch(function, block_id, target, edge_args);
+            simplified += 1;
+            continue;
+        }
         let Some((pred_id, middle_id)) = find_single_predecessor_jump_merge(function) else {
             break;
         };
@@ -34,6 +39,79 @@ fn simplify_function(function: &mut MirFunction) -> usize {
     }
 
     simplified
+}
+
+fn find_constant_branch_fold(
+    function: &MirFunction,
+) -> Option<(BasicBlockId, BasicBlockId, Option<crate::mir::EdgeArgs>)> {
+    let reachable_blocks = crate::mir::verification::utils::compute_reachable_blocks(function);
+    let def_map = build_value_def_map(function);
+
+    for block_id in function.block_ids() {
+        if !reachable_blocks.contains(&block_id) {
+            continue;
+        }
+
+        let block = function.blocks.get(&block_id)?;
+        let MirInstruction::Branch {
+            condition,
+            then_bb,
+            else_bb,
+            then_edge_args,
+            else_edge_args,
+        } = block.terminator.as_ref()?
+        else {
+            continue;
+        };
+
+        let Some(condition_value) = const_bool_value(function, &def_map, *condition) else {
+            continue;
+        };
+
+        let (target, edge_args) = if condition_value {
+            (*then_bb, then_edge_args.clone())
+        } else {
+            (*else_bb, else_edge_args.clone())
+        };
+        if target == block_id {
+            continue;
+        }
+        return Some((block_id, target, edge_args));
+    }
+
+    None
+}
+
+fn const_bool_value(
+    function: &MirFunction,
+    def_map: &crate::mir::ValueDefMap,
+    value: ValueId,
+) -> Option<bool> {
+    let origin = resolve_value_origin(function, def_map, value);
+    let (block_id, inst_idx) = def_map.get(&origin).copied()?;
+    let block = function.blocks.get(&block_id)?;
+    let MirInstruction::Const {
+        value: ConstValue::Bool(b),
+        ..
+    } = block.instructions.get(inst_idx)?
+    else {
+        return None;
+    };
+    Some(*b)
+}
+
+fn fold_constant_branch(
+    function: &mut MirFunction,
+    block_id: BasicBlockId,
+    target: BasicBlockId,
+    edge_args: Option<crate::mir::EdgeArgs>,
+) {
+    let block = function
+        .blocks
+        .get_mut(&block_id)
+        .expect("constant-branch block must exist");
+    block.set_terminator(MirInstruction::Jump { target, edge_args });
+    function.update_cfg();
 }
 
 fn find_single_predecessor_jump_merge(
