@@ -1,10 +1,41 @@
 use crate::box_trait::{BoolBox, BoxBase, BoxCore, NyashBox, StringBox, VoidBox};
 use std::any::Any;
-use std::sync::{Arc, Mutex};
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc, Mutex,
+};
 
 #[derive(Debug)]
 pub(crate) struct TaskGroupInner {
     pub strong: Mutex<Vec<crate::boxes::future::FutureBox>>,
+    pub first_failure: Mutex<Option<String>>,
+    pub sibling_failure_seen: AtomicBool,
+}
+
+impl TaskGroupInner {
+    pub(crate) fn bind_future(&self, fut: &crate::boxes::future::FutureBox, owner: &Arc<Self>) {
+        fut.bind_sibling_failure_scope(owner);
+    }
+
+    pub(crate) fn cancel_pending_with_reason(&self, reason: &str) {
+        if let Ok(list) = self.strong.lock() {
+            for fut in list.iter() {
+                if !fut.ready() {
+                    fut.cancel_with_reason(reason);
+                }
+            }
+        }
+    }
+
+    pub(crate) fn note_failure_and_cancel_siblings(&self, message: &str) {
+        if self.sibling_failure_seen.swap(true, Ordering::SeqCst) {
+            return;
+        }
+        if let Ok(mut slot) = self.first_failure.lock() {
+            *slot = Some(message.to_string());
+        }
+        self.cancel_pending_with_reason("sibling-failed");
+    }
 }
 
 /// Phase-0 runtime scaffold behind structured `task_scope` ownership.
@@ -12,6 +43,7 @@ pub(crate) struct TaskGroupInner {
 /// Current responsibility is intentionally narrow:
 /// - own child futures registered under the active task scope
 /// - expose best-effort `cancelAll()` / `joinAll(timeout_ms)` hooks
+/// - apply the current `first failure cancels siblings` rule inside explicit scope ownership
 /// - stay separate from the implicit root scope used outside explicit `task_scope`
 /// - avoid defining detached/failure-aggregation semantics yet
 #[derive(Debug, Clone)]
@@ -29,6 +61,8 @@ impl TaskGroupBox {
             cancelled: false,
             inner: Arc::new(TaskGroupInner {
                 strong: Mutex::new(Vec::new()),
+                first_failure: Mutex::new(None),
+                sibling_failure_seen: AtomicBool::new(false),
             }),
         }
     }
@@ -56,16 +90,11 @@ impl TaskGroupBox {
         if let Ok(mut v) = self.inner.strong.lock() {
             v.push(fut.clone());
         }
+        self.inner.bind_future(fut, &self.inner);
     }
 
     fn cancel_owned_futures(&self, reason: &str) {
-        if let Ok(list) = self.inner.strong.lock() {
-            for fut in list.iter() {
-                if !fut.ready() {
-                    fut.cancel_with_reason(reason);
-                }
-            }
-        }
+        self.inner.cancel_pending_with_reason(reason);
     }
 
     fn join_all_inner(&self, timeout_ms: u64) {
@@ -163,6 +192,26 @@ mod tests {
         assert_eq!(
             fut.to_string_box().value,
             "Future(cancelled: Cancelled: scope-cancelled)"
+        );
+    }
+
+    #[test]
+    fn first_failed_future_cancels_pending_siblings() {
+        let group = TaskGroupBox::new();
+        let first = crate::boxes::future::FutureBox::new();
+        let sibling = crate::boxes::future::FutureBox::new();
+        group.add_future(&first);
+        group.add_future(&sibling);
+
+        first.set_failed(Box::new(StringBox::new("boom")));
+
+        assert_eq!(
+            sibling.to_string_box().value,
+            "Future(cancelled: Cancelled: sibling-failed)"
+        );
+        assert_eq!(
+            group.inner.first_failure.lock().unwrap().as_deref(),
+            Some("boom")
         );
     }
 }

@@ -36,6 +36,7 @@ pub enum FutureTerminal {
 struct Inner {
     state: Mutex<FutureState>,
     cv: Condvar,
+    failure_scope: Mutex<Option<Weak<crate::boxes::task_group_box::TaskGroupInner>>>,
 }
 
 /// A weak handle to a Future's inner state.
@@ -63,6 +64,7 @@ impl NyashFutureBox {
                     ready: false,
                 }),
                 cv: Condvar::new(),
+                failure_scope: Mutex::new(None),
             }),
             base: BoxBase::new(),
         }
@@ -84,6 +86,7 @@ impl NyashFutureBox {
 
     /// Set a failed terminal state for the future
     pub fn set_failed(&self, error: Box<dyn NyashBox>) {
+        let failure_text = error.to_string_box().value;
         let mut st = self.inner.state.lock().unwrap();
         if st.ready {
             return;
@@ -91,6 +94,8 @@ impl NyashFutureBox {
         st.outcome = Some(FutureOutcome::Failed(error));
         st.ready = true;
         self.inner.cv.notify_all();
+        drop(st);
+        self.notify_sibling_failure_scope(&failure_text);
     }
 
     /// Set a cancelled terminal state for the future
@@ -107,6 +112,16 @@ impl NyashFutureBox {
     /// Best-effort structured cancellation with a stable error payload.
     pub fn cancel_with_reason(&self, reason: impl Into<String>) {
         self.set_cancelled(Box::new(ErrorBox::new("Cancelled", reason.into())));
+    }
+
+    /// Bind this future to an explicit sibling-failure scope.
+    pub(crate) fn bind_sibling_failure_scope(
+        &self,
+        owner: &Arc<crate::boxes::task_group_box::TaskGroupInner>,
+    ) {
+        if let Ok(mut slot) = self.inner.failure_scope.lock() {
+            *slot = Some(Arc::downgrade(owner));
+        }
     }
 
     /// Get the result (blocks until ready)
@@ -162,6 +177,18 @@ impl NyashFutureBox {
     pub fn downgrade(&self) -> FutureWeak {
         FutureWeak {
             inner: Arc::downgrade(&self.inner),
+        }
+    }
+
+    fn notify_sibling_failure_scope(&self, failure_text: &str) {
+        let owner = self
+            .inner
+            .failure_scope
+            .lock()
+            .ok()
+            .and_then(|slot| slot.as_ref().and_then(Weak::upgrade));
+        if let Some(owner) = owner {
+            owner.note_failure_and_cancel_siblings(failure_text);
         }
     }
 }

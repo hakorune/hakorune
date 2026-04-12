@@ -19,6 +19,10 @@ Related:
 
 ## Landing Snapshot
 
+- `phase249x` is landed:
+  - explicit-scope first failure now cancels pending siblings with stable reason `sibling-failed`
+- `phase248x` is landed:
+  - explicit `task_scope` policy is pinned as `first failure cancels siblings`
 - `phase247x` is landed:
   - bare `nowait` is not detached; outside explicit `task_scope` it belongs to the implicit root scope
 - `phase246x` is landed:
@@ -30,7 +34,7 @@ Related:
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-247x/README.md`
+3. `docs/development/current/main/phases/phase-249x/README.md`
 4. `docs/development/current/main/phases/phase-163x/README.md`
 5. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 

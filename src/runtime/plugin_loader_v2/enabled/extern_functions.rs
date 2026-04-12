@@ -506,4 +506,32 @@ mod tests {
             "Cancelled: scope-cancelled"
         );
     }
+
+    #[test]
+    fn test_future_await_sibling_failed_returns_result_err() {
+        let group = crate::boxes::task_group_box::TaskGroupBox::new();
+        let failed = crate::boxes::future::FutureBox::new();
+        let sibling = crate::boxes::future::FutureBox::new();
+        group.add_future(&failed);
+        group.add_future(&sibling);
+        failed.set_failed(Box::new(crate::boxes::basic::ErrorBox::new(
+            "TaskError",
+            "boom",
+        )));
+
+        let args = vec![Box::new(sibling) as Box<dyn NyashBox>];
+        let out = handle_future_await(&args)
+            .expect("future await bridge must succeed")
+            .expect("future await bridge must return a result box");
+
+        let result = out
+            .as_any()
+            .downcast_ref::<crate::boxes::result::NyashResultBox>()
+            .expect("await bridge must return ResultBox");
+        assert!(result.is_err());
+        assert_eq!(
+            result.get_error().to_string_box().value,
+            "Cancelled: sibling-failed"
+        );
+    }
 }

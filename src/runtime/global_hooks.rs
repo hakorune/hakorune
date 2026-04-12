@@ -162,8 +162,9 @@ pub fn register_future_to_current_group(fut: &crate::boxes::future::FutureBox) {
         if let Some(inner) = st.group_stack.last() {
             if let Ok(mut v) = inner.strong.lock() {
                 v.push(fut.clone());
-                return;
             }
+            fut.bind_sibling_failure_scope(inner);
+            return;
         }
         // Fallback to implicit global group
         st.futures.push(fut.downgrade());
@@ -217,6 +218,8 @@ pub fn push_task_scope() {
         st.group_stack.push(std::sync::Arc::new(
             crate::boxes::task_group_box::TaskGroupInner {
                 strong: std::sync::Mutex::new(Vec::new()),
+                first_failure: std::sync::Mutex::new(None),
+                sibling_failure_seen: std::sync::atomic::AtomicBool::new(false),
             },
         ));
     }
@@ -388,7 +391,6 @@ mod tests {
         );
     }
 }
-
 /// Report an allocation to the current GC hooks (best-effort)
 pub fn gc_alloc(bytes: u64) {
     if !GC_ALLOC_FAST_ENABLED.load(Ordering::Relaxed) {

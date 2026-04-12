@@ -92,3 +92,34 @@ fn await_surfaces_cancelled_future_as_task_cancelled() {
         other => panic!("unexpected error kind: {}", other),
     }
 }
+
+#[test]
+fn await_surfaces_sibling_failed_cancellation_as_task_cancelled() {
+    let mut interp = MirInterpreter::new();
+    let failed_reg = ValueId::new(1);
+    let sibling_reg = ValueId::new(2);
+    let dst = ValueId::new(3);
+    let group = crate::boxes::task_group_box::TaskGroupBox::new();
+    let failed = crate::boxes::future::FutureBox::new();
+    let sibling = crate::boxes::future::FutureBox::new();
+    group.add_future(&failed);
+    group.add_future(&sibling);
+    failed.set_failed(Box::new(ErrorBox::new("TaskError", "boom")));
+
+    interp.regs.insert(failed_reg, VMValue::Future(failed));
+    interp.regs.insert(sibling_reg, VMValue::Future(sibling));
+
+    let err = interp
+        .execute_instruction(&MirInstruction::Await {
+            dst,
+            future: sibling_reg,
+        })
+        .expect_err("sibling-failed cancellation must surface task cancellation");
+
+    match err {
+        VMError::TaskCancelled(msg) => {
+            assert_eq!(msg, "Cancelled: sibling-failed");
+        }
+        other => panic!("unexpected error kind: {}", other),
+    }
+}
