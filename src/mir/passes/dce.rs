@@ -2,6 +2,8 @@
 //!
 //! Extracted from the monolithic optimizer to enable modular pass composition.
 
+use crate::mir::phi_query::collect_passthrough_phi_parents;
+use crate::mir::{classify_escape_uses, resolve_value_origin_from_parent_map, ParentMap};
 use crate::mir::{MirFunction, MirModule, ValueId};
 use crate::runtime::get_global_ring0;
 use std::collections::HashSet;
@@ -9,7 +11,8 @@ use std::collections::HashSet;
 /// Eliminate dead code (unused results of pure instructions) across the module
 /// and prune unreachable blocks as structural CFG cleanup.
 ///
-/// This pass also removes pure no-dst calls when they are otherwise unused.
+/// This pass also removes pure no-dst calls and dead field reads on definitely
+/// non-escaping local boxes when they are otherwise unused.
 ///
 /// Returns the number of eliminated instructions.
 pub fn eliminate_dead_code(module: &mut MirModule) -> usize {
@@ -54,8 +57,88 @@ fn is_removable_no_dst_pure_instruction(inst: &crate::mir::MirInstruction) -> bo
     )
 }
 
+#[derive(Default)]
+struct LocalReadInfo {
+    local_boxes: HashSet<ValueId>,
+    escaping: HashSet<ValueId>,
+    alias_parents: ParentMap,
+}
+
+impl LocalReadInfo {
+    fn is_non_escaping_local(&self, value: ValueId) -> bool {
+        let root = resolve_value_origin_from_parent_map(value, &self.alias_parents);
+        self.local_boxes.contains(&root) && !self.escaping.contains(&root)
+    }
+}
+
+fn analyze_local_reads(
+    function: &MirFunction,
+    reachable_blocks: &HashSet<crate::mir::BasicBlockId>,
+) -> LocalReadInfo {
+    let mut info = LocalReadInfo::default();
+
+    // First collect local-box roots and direct alias parents.
+    for (bid, block) in &function.blocks {
+        if !reachable_blocks.contains(bid) {
+            continue;
+        }
+
+        for instruction in &block.instructions {
+            if let crate::mir::MirInstruction::NewBox { dst, .. } = instruction {
+                info.local_boxes.insert(*dst);
+            }
+            if let crate::mir::MirInstruction::Copy { dst, src } = instruction {
+                info.alias_parents.insert(*dst, *src);
+            }
+        }
+    }
+
+    info.alias_parents
+        .extend(collect_passthrough_phi_parents(function));
+
+    // Then classify escape-bearing uses against the completed alias graph.
+    for (bid, block) in &function.blocks {
+        if !reachable_blocks.contains(bid) {
+            continue;
+        }
+
+        for instruction in &block.instructions {
+            for use_site in classify_escape_uses(instruction) {
+                let root =
+                    resolve_value_origin_from_parent_map(use_site.value, &info.alias_parents);
+                if info.local_boxes.contains(&root) {
+                    info.escaping.insert(root);
+                }
+            }
+        }
+
+        if let Some(term) = &block.terminator {
+            for use_site in classify_escape_uses(term) {
+                let root =
+                    resolve_value_origin_from_parent_map(use_site.value, &info.alias_parents);
+                if info.local_boxes.contains(&root) {
+                    info.escaping.insert(root);
+                }
+            }
+        }
+    }
+
+    info
+}
+
+fn is_removable_effect_sensitive_read_instruction(
+    inst: &crate::mir::MirInstruction,
+    local_reads: &LocalReadInfo,
+) -> bool {
+    matches!(
+        inst,
+        crate::mir::MirInstruction::FieldGet { base, .. } if local_reads.is_non_escaping_local(*base)
+    )
+}
+
 fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
     let reachable_blocks = crate::mir::verification::utils::compute_reachable_blocks(function);
+    let local_reads = analyze_local_reads(function, &reachable_blocks);
 
     // Collect values that must be kept for reasons other than KeepAlive.
     let mut base_used_values: HashSet<ValueId> = HashSet::new();
@@ -67,6 +150,9 @@ fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
         }
         for instruction in &block.instructions {
             if matches!(instruction, crate::mir::MirInstruction::KeepAlive { .. }) {
+                continue;
+            }
+            if is_removable_effect_sensitive_read_instruction(instruction, &local_reads) {
                 continue;
             }
             let anchors_liveness = matches!(
@@ -129,7 +215,23 @@ fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
         let mut kept_spans = Vec::with_capacity(spans.len());
         for (inst, span) in insts.into_iter().zip(spans.into_iter()) {
             let mut keep = true;
-            if inst.effects().is_pure() {
+            let removable_local_read = reachable_blocks.contains(&bbid)
+                && is_removable_effect_sensitive_read_instruction(&inst, &local_reads);
+            if keep && removable_local_read {
+                if let Some(dst) = inst.dst_value() {
+                    if !used_values.contains(&dst) {
+                        if dce_trace {
+                            get_global_ring0().log.debug(&format!(
+                                "[dce] Eliminating removable local read in bb{}: {:?}",
+                                bbid.0, inst
+                            ));
+                        }
+                        eliminated += 1;
+                        keep = false;
+                    }
+                }
+            }
+            if keep && inst.effects().is_pure() {
                 if reachable_blocks.contains(&bbid) {
                     if let crate::mir::MirInstruction::KeepAlive { values } = &inst {
                         if values.iter().all(|value| base_used_values.contains(value)) {
@@ -532,6 +634,66 @@ mod tests {
             .instructions
             .iter()
             .any(|inst| matches!(inst, MirInstruction::Safepoint)));
+    }
+
+    #[test]
+    fn test_dce_prunes_dead_field_get_from_non_escaping_local_box() {
+        let mut module = MirModule::new("dce_test".to_string());
+
+        let sig = FunctionSignature {
+            name: "test/0".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut func = MirFunction::new(sig, BasicBlockId(0));
+
+        let v_box = ValueId(1);
+        let v_copy = ValueId(2);
+        let v_field = ValueId(3);
+
+        {
+            let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
+            bb0.instructions.push(MirInstruction::NewBox {
+                dst: v_box,
+                box_type: "Point".to_string(),
+                args: vec![],
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Copy {
+                dst: v_copy,
+                src: v_box,
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::FieldGet {
+                dst: v_field,
+                base: v_copy,
+                field: "child".to_string(),
+                declared_type: Some(MirType::Integer),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.set_terminator(MirInstruction::Return { value: None });
+        }
+
+        module.add_function(func);
+
+        let eliminated = eliminate_dead_code(&mut module);
+        assert_eq!(eliminated, 2);
+
+        let func = module.get_function("test/0").unwrap();
+        let bb0 = func.blocks.get(&BasicBlockId(0)).unwrap();
+        assert!(bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::NewBox { dst, .. } if *dst == v_box)));
+        assert!(!bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Copy { dst, .. } if *dst == v_copy)));
+        assert!(!bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::FieldGet { dst, .. } if *dst == v_field)));
     }
 
     #[test]

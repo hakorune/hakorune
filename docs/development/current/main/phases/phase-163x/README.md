@@ -275,6 +275,7 @@
            - stronger cross-block / partial DCE beyond current pure-instruction DCE
            - `phase-182x` is now landed as separate CFG pruning, so the remaining DCE backlog is the effect-sensitive / no-dst widening after that structural cleanup
            - `phase-183x` is now landed as the pure no-dst call pruning slice, so the remaining DCE backlog is the effect-sensitive widening after that generic no-dst cleanup
+           - `phase-184x` is now landed as the local dead `FieldGet` read pruning slice on definitely non-escaping local boxes, so the remaining DCE backlog is the broader effect-sensitive widening after that local read cleanup
            - generic LLVM-side escape pass beyond the already-landed narrow local objectization-at-boundary route
            - current escape narrow slice is now alias-aware too: barrier elision follows `Copy` chains and one-input carry `phi` aliases for non-escaping local boxes, while multi-input `phi_merge` and broader generic escape analysis remain backlog
            - `phase-165x` landed the operand-role escape barrier vocabulary cut so escape widening no longer reuses the coarse `used_values()` surface

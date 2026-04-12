@@ -122,6 +122,10 @@ Scope: repo root から current lane / current front / restart read order に最
     - `docs/development/current/main/phases/phase-183x/README.md`
     - `phase-183x` is landed as the pure no-dst call cleanup slice
     - pure no-dst `Call` instructions with pure effects now disappear when otherwise unused, while `Debug` and terminators stay separate
+  - landed DCE cleanup follow-on:
+    - `docs/development/current/main/phases/phase-184x/README.md`
+    - `phase-184x` is landed as the first effect-sensitive local field-get read pruning slice
+    - dead `FieldGet` reads on definitely non-escaping local boxes now disappear when otherwise unused, while `Load`, `Debug`, and terminators stay separate
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`

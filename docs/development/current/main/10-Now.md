@@ -79,11 +79,14 @@ Related:
   - landed DCE cleanup follow-on: `phase183x pure no-dst call pruning`
     - pure no-dst `Call` instructions now disappear when they are otherwise unused
     - `Debug` stays outside this cut, and terminators / broader effect-sensitive DCE stay separate
+  - landed DCE cleanup follow-on: `phase184x dead local field-get pruning`
+    - dead `FieldGet` reads on definitely non-escaping local boxes now disappear when otherwise unused
+    - `Load`, `Debug`, and terminators stay outside this cut
   - row status:
     - `3 User-Box Method Dispatch`: mostly done; narrow known-receiver consumer and the direct-route determinism repair are landed, broader generic parity backlog remains
     - `4 Array Typed Slots 拡大`: partial; narrow typed-slot pilots landed, read-side expansion backlog remains
     - `5 MapBox Typed Value Slots`: backlog
-    - `6 DCE 強化`: partial; first reachable-only cross-block cut is landed in `phase176x`, first effect-sensitive `KeepAlive` pruning is landed in `phase177x`, the first generic no-dst pure cleanup slice is landed in `phase181x`, unreachable block pruning is landed in `phase182x`, and pure no-dst `Call` pruning is landed in `phase183x`
+    - `6 DCE 強化`: partial; first reachable-only cross-block cut is landed in `phase176x`, first effect-sensitive `KeepAlive` pruning is landed in `phase177x`, the first generic no-dst pure cleanup slice is landed in `phase181x`, unreachable block pruning is landed in `phase182x`, pure no-dst `Call` pruning is landed in `phase183x`, and dead local `FieldGet` read pruning is landed in `phase184x`
     - `7 LLVM Escape Analysis`: partial; Copy + one-input-phi-carry aware local barrier elision and the `phase165x` operand-role escape barrier vocabulary cut are landed, broader generic escape analysis backlog remains
     - `8 Float 最適化`: partial; narrow FloatBox pilot landed, broader tuning backlog
     - `9 Closure/Lambda 最適化`: backlog

@@ -69,6 +69,7 @@ Related:
   - `phase-176x` is landed as the first reachability-aware DCE cut
   - `phase-177x` is landed as the first effect-sensitive DCE cut
   - `phase-183x` is landed as the first pure no-dst call pruning cut
+  - `phase-184x` is landed as the first effect-sensitive dead local field-get read pruning cut
   - next target is broader effect-sensitive / no-dst cleanup
   - do not mix that with unreachable-block deletion
 - landed shim-structure follow-on:
