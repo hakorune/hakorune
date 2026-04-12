@@ -42,7 +42,7 @@ tools/checks/dev_gate.sh quick
 3. `docs/development/current/main/phases/phase-218x/README.md`
 4. `docs/development/current/main/phases/phase-219x/README.md`
 5. `docs/development/current/main/phases/phase-220x/README.md`
-6. `docs/development/current/main/phases/phase-222x/README.md`
+6. `docs/development/current/main/phases/phase-223x/README.md`
 7. `docs/development/current/main/phases/phase-163x/README.md`
 8. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 9. `docs/development/current/main/phases/phase-137x/README.md`
@@ -59,8 +59,8 @@ tools/checks/dev_gate.sh quick
     - boundary `pure-first` now reads `placement_effect_routes` window first for `substring(...).length()`
   - `phase-220x`
     - boundary len route-window branch is now shared behind one helper with identical behavior
-  - `phase-222x`
-    - next planned cut is the first MIR-side generic placement/effect transform slice
+  - `phase-223x`
+    - same-block `substring(...).length()` now reads folded route windows first
 - semantic simplification bundle is landed through DCE lane A2:
   - `phase-176x`
   - `phase-177x`

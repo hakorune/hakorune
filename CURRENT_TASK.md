@@ -14,7 +14,7 @@ Scope: current lane / next lane / restart order only.
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-222x/README.md`
+3. `docs/development/current/main/phases/phase-223x/README.md`
 4. `docs/development/current/main/phases/phase-163x/README.md`
 5. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 6. `git status -sb`
@@ -45,7 +45,7 @@ Scope: current lane / next lane / restart order only.
 - implementation lane:
   - `docs/development/current/main/phases/phase-163x/README.md`
 - next layer landing:
-  - `docs/development/current/main/phases/phase-222x/README.md`
+  - `docs/development/current/main/phases/phase-223x/README.md`
 - roadmap SSOT:
   - `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 - string guardrail owner:
@@ -57,6 +57,6 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Notes
 
- - `phase-222x` is landed: retained substring-len sinking now reads folded `placement_effect_routes` windows first, and `string_corridor_sink` refreshes folded route plus string kernel plan metadata after rewrites
+- `phase-223x` is landed: same-block substring-len sinking now reads folded `placement_effect_routes` windows first, with legacy facts kept as fallback
 - the next code lane remains `generic placement / effect`
 - if this file grows again, move the detail back into the phase docs

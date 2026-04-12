@@ -84,18 +84,28 @@ pub(super) fn collect_plans(
                 continue;
             }
 
-            let Some(inner_fact) = function.metadata.string_corridor_facts.get(&receiver_root)
-            else {
-                continue;
-            };
-            if inner_fact.op != StringCorridorOp::StrSlice {
-                continue;
-            }
-
             let Some((source, start, end)) = extract_substring_args(&block.instructions[inner_idx])
             else {
                 continue;
             };
+            let start_root = resolve_value_origin(function, def_map, start);
+            let end_root = resolve_value_origin(function, def_map, end);
+
+            match placement_effect_string_window_for_value(function, receiver_root) {
+                Some((window_start, window_end))
+                    if window_start == start_root && window_end == end_root => {}
+                Some(_) => continue,
+                None => {
+                    let Some(inner_fact) =
+                        function.metadata.string_corridor_facts.get(&receiver_root)
+                    else {
+                        continue;
+                    };
+                    if inner_fact.op != StringCorridorOp::StrSlice {
+                        continue;
+                    }
+                }
+            }
 
             plans.push(SubstringLenPlan {
                 inner_idx,

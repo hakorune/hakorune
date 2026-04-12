@@ -6,6 +6,7 @@
 
 - **Current (ACTIVE)**: Phase 163x primitive and user-box fast path
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
+- **Phase 223x（LANDED）**: same-block substring len route-window sink
 - **Phase 222x（LANDED）**: retained substring len route-window sink
 - **Phase 217x（LANDED）**: user-box micro seed thin-entry fold
 - **Phase 218x（LANDED）**: shared placement/effect route reader seam
@@ -130,6 +131,7 @@
 
 ### Recent Landed
 
+- **Phase 223x（LANDED）**: same-block substring len route-window sink
 - **Phase 222x（LANDED）**: retained substring len route-window sink
 - **Phase 220x（LANDED）**: placement-effect route window len helper cleanup
 - **Phase 219x（LANDED）**: placement-effect route window len fold

@@ -223,7 +223,7 @@
         - `phase-182x` is now landed too: unreachable blocks are pruned after DCE liveness stabilizes, so dead CFG fragments no longer hang around in the live function map
       - verified non-Variant optimization roadmap is now layer-based:
         1. `generic placement / effect`
-           - partial: string corridor candidates, sum placement chains, thin-entry inventory/selection, the first folded `placement_effect_routes` owner seam, the placement-relevant `agg_local` fold-up, the first sum/user-box/thin-entry consumer proving slices, and the first MIR-side retained substring-len route-window sink are already landed as pilot scaffolds
+           - partial: string corridor candidates, sum placement chains, thin-entry inventory/selection, the first folded `placement_effect_routes` owner seam, the placement-relevant `agg_local` fold-up, the first sum/user-box/thin-entry consumer proving slices, and the first MIR-side retained/same-block substring-len route-window sinks are already landed as pilot scaffolds
            - next major genericization should fold those pilots into one generic placement/effect layer instead of growing more family-specific rows
         2. `agg_local scalarization` (`phase209x`)
            - landed: selected sum local layouts, selected user-box local bodies, and ArrayBox typed-slot pilots are folded into the generic route seam
