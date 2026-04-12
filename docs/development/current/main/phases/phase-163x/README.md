@@ -235,7 +235,8 @@
            - lane C1 is now landed too: `Debug` is locked as a permanent observer anchor in mainline DCE
            - lane C2a is now landed too: control-anchor operand liveness is fixed for `Return.value`, `Branch.cond`, and reachable edge args
            - lane C2b is now landed too: legacy instruction-list control-anchor seeding is removed from mainline DCE
-           - immediate code next is lane C2c: simplification-handoff wording lock
+           - lane C2c is now landed too: the DCE / SimplifyCFG handoff boundary is explicit
+           - immediate code next is the `generic placement / effect` layer
         5. `memory-effect layer`
            - partial: lane-B0 generic memory observer/owner contract, lane-B1 dead `Load` pruning, and lane-B2 overwritten `Store` pruning are landed
            - backlog: generic `Store` / `Load` code widening, dead-store elimination, store-to-load forwarding, redundant load elimination, and hoist/sink legality

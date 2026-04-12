@@ -25,10 +25,10 @@ tools/checks/dev_gate.sh quick
 - sibling guardrail:
   - `phase-137x main kilo reopen selection`
 - immediate next:
-  - `observer/control lane C2c`
-  - simplification-handoff wording lock
+  - `generic placement / effect`
+  - first layer-cut docs/facts phase
 - immediate follow-on:
-  - then return to the next layer step
+  - then return to the next layer step after lane C is fully closed
 - stop-lines:
   - keep lane B separate from lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
   - keep lane B separate from `generic placement / effect`
@@ -65,6 +65,7 @@ tools/checks/dev_gate.sh quick
   - `phase-203x`
   - `phase-204x`
   - `phase-205x`
+  - `phase-206x`
 
 ## First Design Slices
 

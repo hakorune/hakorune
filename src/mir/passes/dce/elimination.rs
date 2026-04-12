@@ -1,3 +1,4 @@
+use super::control_anchor::seed_control_anchor_values;
 use super::local_fields::{
     analyze_local_reads, collect_overwritten_local_field_sets,
     is_removable_effect_sensitive_read_instruction,
@@ -11,32 +12,6 @@ use super::{is_removable_no_dst_pure_instruction, propagate_used_values};
 use crate::mir::{MirFunction, ValueId};
 use crate::runtime::get_global_ring0;
 use std::collections::HashSet;
-
-fn seed_control_anchor_values(
-    function: &MirFunction,
-    reachable_blocks: &HashSet<crate::mir::BasicBlockId>,
-    base_used_values: &mut HashSet<ValueId>,
-) {
-    for (bid, block) in &function.blocks {
-        if !reachable_blocks.contains(bid) {
-            continue;
-        }
-        // Branch/Jump/Return are routed into `block.terminator` by BasicBlock and
-        // should not rely on legacy instruction-list seeding here.
-        if let Some(term) = &block.terminator {
-            for u in term.used_values() {
-                base_used_values.insert(u);
-            }
-        }
-        for edge in block.out_edges() {
-            if let Some(args) = edge.args {
-                for u in args.values {
-                    base_used_values.insert(u);
-                }
-            }
-        }
-    }
-}
 
 pub(super) fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
     let reachable_blocks = crate::mir::verification::utils::compute_reachable_blocks(function);

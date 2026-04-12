@@ -2,7 +2,7 @@
 
 Status: SSOT
 Date: 2026-04-12
-Owner: `phase-205x`
+Owner: `phase-206x`
 
 ## Purpose
 
@@ -79,4 +79,5 @@ Planned C2 split:
 - `C1` is landed
 - `C2a` is landed
 - `C2b` is landed
-- immediate next is `C2c`
+- `C2c` is landed
+- immediate next is the next layer step

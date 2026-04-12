@@ -2,6 +2,8 @@
 //!
 //! Extracted from the monolithic optimizer to enable modular pass composition.
 
+#[path = "dce/control_anchor.rs"]
+mod control_anchor;
 #[path = "dce/elimination.rs"]
 mod elimination;
 #[path = "dce/local_fields.rs"]

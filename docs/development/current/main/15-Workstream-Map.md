@@ -15,11 +15,11 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-163x primitive and user-box fast path` |
-| Front | `lane-B generic memory cuts are landed through B2 -> lane-C docs inventory, Debug policy, C2a operand liveness, and C2b seed cleanup are landed -> next narrow decision is C2c simplification handoff` |
+| Front | `lane-B generic memory cuts are landed through B2 -> lane-C docs inventory, Debug policy, C2a operand liveness, C2b seed cleanup, and C2c handoff are landed -> next design lane is generic placement / effect` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `control-anchor seed ownership is now fixed, but the simplification handoff boundary is still not frozen` |
-| Next | `observer/control lane C2c (simplification-handoff wording lock)` |
-| After Next | `return to the next layer step` |
+| Blocker | `lane C is closed; next design lane is generic placement / effect` |
+| Next | `generic placement / effect` |
+| After Next | `agg_local scalarization` |
 
 ## Current Read
 
@@ -50,12 +50,14 @@ Related:
   - lane `C2a` is fixed as control-anchor operand liveness for `Return.value`, `Branch.cond`, and reachable edge args
   - `phase-205x` is now landed too
   - legacy instruction-list control-anchor seeding is removed; control-anchor operand liveness is now owned only by `block.terminator` plus reachable edge args
-  - next target is now lane `C2c` simplification-handoff wording lock
+  - `phase-206x` is now landed too
+  - the DCE / SimplifyCFG handoff boundary is now explicit in docs and code
+  - next target is now the `generic placement / effect` layer
 - immediate sequence:
-  - lane C2c simplification-handoff wording lock
-  - then return to the next layer step
+  - `generic placement / effect`
+  - then `agg_local scalarization`
 - stop-lines:
-  - keep lane B separate from `Debug` / terminator-adjacent operand/control liveness cleanup
+  - keep lane B separate from `Debug` / simplification-handoff control cleanup
   - keep lane B separate from `generic placement / effect`
   - keep parked `phase-96x` out of the active optimization lane
 - `phase-133x` landed:

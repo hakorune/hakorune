@@ -80,10 +80,10 @@ Owner: `phase-163x optimization-resume`
 ## Immediate Read
 
 - immediate code next:
-  - `observer/control lane C2c`
-  - simplification-handoff wording lock
+  - `generic placement / effect`
+  - first layer-cut docs/facts phase
 - immediate follow-on after that:
-  - return to the next layer step after lane C closes
+  - `agg_local scalarization`
 - next major design lane after the current DCE slice:
   - `generic placement / effect`
   - then `agg_local scalarization`

@@ -133,7 +133,9 @@ Related:
     - lane `C2a` is now fixed: mainline DCE explicitly keeps `Return.value`, `Branch.cond`, and reachable edge args live
   - landed observer/control seed follow-on: `phase205x legacy control-anchor seed cleanup`
     - legacy instruction-list `Branch` / `Jump` / `Return` seeding is removed; mainline DCE now seeds control-anchor operands only from `block.terminator` plus reachable edge args
-    - immediate next is now lane `C2c` simplification-handoff wording lock
+  - landed observer/control handoff follow-on: `phase206x simplification-handoff wording lock`
+    - the DCE / SimplifyCFG handoff boundary is now explicit in docs and code
+    - immediate next is now the `generic placement / effect` layer
   - landed DCE structure follow-on: `phase192x DCE pass module split`
     - `src/mir/passes/dce.rs` is now a thin facade over focused implementation modules and topic tests
     - this cut was structure-only; later lane-B docs/facts and code widening happen in `phase199x` / `phase200x`
