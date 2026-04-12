@@ -139,11 +139,14 @@ Related:
   - landed generic placement/effect owner seam follow-on: `phase211x generic placement/effect owner seam`
     - folded string / sum / thin-entry route inventory now exists as `placement_effect_routes`
     - the cut is inspection-only and export-visible through MIR JSON
+  - landed generic placement/effect fold-up follow-on: `phase212x placement/effect agg-local fold`
+    - `placement_effect_routes` now also reads placement-relevant `agg_local` proof (`sum_local_layout`, `user_box_local_body`)
+    - storage-only `typed_slot_storage` remains under `agg_local_scalarization_routes`
   - landed DCE structure follow-on: `phase192x DCE pass module split`
     - `src/mir/passes/dce.rs` is now a thin facade over focused implementation modules and topic tests
     - this cut was structure-only; later lane-B docs/facts and code widening happen in `phase199x` / `phase200x`
   - layer roadmap status:
-  - `1 generic placement / effect`: partial; string corridor candidates, sum placement chains, thin-entry inventory/selection, and the first folded `placement_effect_routes` owner seam are landed, but the top-level generic transform layer is still backlog
+  - `1 generic placement / effect`: partial; string corridor candidates, sum placement chains, thin-entry inventory/selection, the first folded `placement_effect_routes` owner seam, and the placement-relevant `agg_local` fold-up are landed, but the top-level generic transform layer is still backlog
   - `phase209x`: agg_local owner seam is landed
     - `2 agg_local scalarization`: landed; selected sum local layouts, selected user-box local bodies, and ArrayBox typed-slot pilots are folded into the generic route seam
     - `3 thin-entry actual consumer switch`: landed; the shared thin-entry consumer helper seam is in place, and the remaining generic placement/effect fold-up is the next broader layer

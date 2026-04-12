@@ -36,6 +36,7 @@ Related:
   - `phase-195x` / `phase-197x`: roadmap regroup and pointer hygiene are landed; current docs now point to `generic placement / effect` as the next layer work
   - `phase-198x`: root restart docs are compressed back to pointer-only form
   - `phase-211x`: generic placement/effect owner seam is landed; folded string / sum / thin-entry routes are readable through one generic metadata inventory
+  - `phase-212x`: the folded placement/effect inventory now also reads placement-relevant `agg_local` proof, while storage-only routes stay agg-local-only
   - landed generic-memory facts follow-on:
   - `phase-199x` is landed
   - lane-B observer/owner contract is fixed before any generic `Load` / `Store` pruning

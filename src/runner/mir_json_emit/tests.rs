@@ -766,6 +766,20 @@ fn build_mir_json_root_emits_placement_effect_routes() {
             block: Some(BasicBlockId::new(0)),
             instruction_index: Some(4),
             value: Some(crate::mir::ValueId::new(13)),
+            source: crate::mir::PlacementEffectSource::AggLocalScalarization,
+            subject: "Point.x".to_string(),
+            decision: crate::mir::PlacementEffectDecision::LocalAggregate,
+            state: crate::mir::PlacementEffectState::AlreadySatisfied,
+            detail: Some("user_box_local_body(inline_i64)".to_string()),
+            reason: "typed field body stays aggregate-local".to_string(),
+        });
+    function
+        .metadata
+        .placement_effect_routes
+        .push(crate::mir::PlacementEffectRoute {
+            block: Some(BasicBlockId::new(0)),
+            instruction_index: Some(5),
+            value: Some(crate::mir::ValueId::new(14)),
             source: crate::mir::PlacementEffectSource::ThinEntry,
             subject: "Point.x".to_string(),
             decision: crate::mir::PlacementEffectDecision::ThinInternalEntry,
@@ -780,11 +794,13 @@ fn build_mir_json_root_emits_placement_effect_routes() {
         .as_array()
         .expect("placement_effect_routes array");
 
-    assert_eq!(routes.len(), 3);
+    assert_eq!(routes.len(), 4);
     assert_eq!(routes[0]["source"], "string_corridor");
     assert_eq!(routes[0]["decision"], "publish_handle");
     assert_eq!(routes[1]["source"], "sum_placement");
     assert_eq!(routes[1]["state"], "selected");
-    assert_eq!(routes[2]["source"], "thin_entry");
-    assert_eq!(routes[2]["decision"], "thin_internal_entry");
+    assert_eq!(routes[2]["source"], "agg_local_scalarization");
+    assert_eq!(routes[2]["decision"], "local_aggregate");
+    assert_eq!(routes[3]["source"], "thin_entry");
+    assert_eq!(routes[3]["decision"], "thin_internal_entry");
 }

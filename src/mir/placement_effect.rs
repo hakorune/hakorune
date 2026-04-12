@@ -7,6 +7,7 @@
  */
 
 use super::{
+    agg_local_scalarization::AggLocalScalarizationKind,
     build_value_def_map,
     string_corridor_placement::{StringCorridorCandidateKind, StringCorridorCandidateState},
     sum_placement_selection::{SumPlacementPath, SumPlacementSelection},
@@ -19,6 +20,7 @@ use super::{
 pub enum PlacementEffectSource {
     StringCorridor,
     SumPlacement,
+    AggLocalScalarization,
     ThinEntry,
 }
 
@@ -27,6 +29,7 @@ impl std::fmt::Display for PlacementEffectSource {
         match self {
             Self::StringCorridor => f.write_str("string_corridor"),
             Self::SumPlacement => f.write_str("sum_placement"),
+            Self::AggLocalScalarization => f.write_str("agg_local_scalarization"),
             Self::ThinEntry => f.write_str("thin_entry"),
         }
     }
@@ -133,6 +136,7 @@ pub fn refresh_function_placement_effect_routes(function: &mut MirFunction) {
     let mut routes = Vec::new();
     collect_string_routes(function, &mut routes);
     collect_sum_routes(function, &mut routes);
+    collect_agg_local_routes(function, &mut routes);
     collect_thin_entry_routes(function, &mut routes);
     routes.sort_by_key(route_sort_key);
     function.metadata.placement_effect_routes = routes;
@@ -176,6 +180,16 @@ fn collect_thin_entry_routes(function: &MirFunction, routes: &mut Vec<PlacementE
             .thin_entry_selections
             .iter()
             .map(thin_entry_route),
+    );
+}
+
+fn collect_agg_local_routes(function: &MirFunction, routes: &mut Vec<PlacementEffectRoute>) {
+    routes.extend(
+        function
+            .metadata
+            .agg_local_scalarization_routes
+            .iter()
+            .filter_map(agg_local_route),
     );
 }
 
@@ -238,11 +252,31 @@ fn thin_entry_route(selection: &ThinEntrySelection) -> PlacementEffectRoute {
     }
 }
 
+fn agg_local_route(route: &crate::mir::AggLocalScalarizationRoute) -> Option<PlacementEffectRoute> {
+    let detail = route.kind.to_string();
+    match route.kind {
+        AggLocalScalarizationKind::SumLocalLayout(_)
+        | AggLocalScalarizationKind::UserBoxLocalBody(_) => Some(PlacementEffectRoute {
+            block: route.block,
+            instruction_index: route.instruction_index,
+            value: route.value,
+            source: PlacementEffectSource::AggLocalScalarization,
+            subject: route.subject.clone(),
+            decision: PlacementEffectDecision::LocalAggregate,
+            state: PlacementEffectState::AlreadySatisfied,
+            detail: Some(detail),
+            reason: route.reason.clone(),
+        }),
+        AggLocalScalarizationKind::TypedSlotStorage(_) => None,
+    }
+}
+
 fn source_rank(source: PlacementEffectSource) -> u8 {
     match source {
         PlacementEffectSource::StringCorridor => 0,
         PlacementEffectSource::SumPlacement => 1,
-        PlacementEffectSource::ThinEntry => 2,
+        PlacementEffectSource::AggLocalScalarization => 2,
+        PlacementEffectSource::ThinEntry => 3,
     }
 }
 
@@ -266,8 +300,9 @@ fn route_sort_key(route: &PlacementEffectRoute) -> (u8, u32, u32, u32, String) {
 mod tests {
     use super::*;
     use crate::mir::{
-        BasicBlockId, EffectMask, FunctionSignature, MirInstruction, MirType,
-        StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateState,
+        AggLocalScalarizationKind, AggLocalScalarizationRoute, BasicBlockId, EffectMask,
+        FunctionSignature, MirInstruction, MirType, StorageClass, StringCorridorCandidate,
+        StringCorridorCandidateKind, StringCorridorCandidateState, SumLocalAggregateLayout,
         SumPlacementPath, SumPlacementSelection, ThinEntryCurrentCarrier, ThinEntryPreferredEntry,
         ThinEntrySelection, ThinEntrySelectionState, ThinEntrySurface, ThinEntryValueClass,
         ValueId,
@@ -326,10 +361,47 @@ mod tests {
                 value_class: ThinEntryValueClass::InlineI64,
                 reason: "typed field read stays on thin internal scalar lane".to_string(),
             });
+        function
+            .metadata
+            .agg_local_scalarization_routes
+            .push(AggLocalScalarizationRoute {
+                block: Some(BasicBlockId::new(0)),
+                instruction_index: Some(3),
+                value: Some(ValueId::new(4)),
+                subject: "Option::Some layout".to_string(),
+                kind: AggLocalScalarizationKind::SumLocalLayout(
+                    SumLocalAggregateLayout::TagI64Payload,
+                ),
+                reason: "selected sum local layout stays aggregate-local".to_string(),
+            });
+        function
+            .metadata
+            .agg_local_scalarization_routes
+            .push(AggLocalScalarizationRoute {
+                block: Some(BasicBlockId::new(0)),
+                instruction_index: Some(4),
+                value: Some(ValueId::new(5)),
+                subject: "Point.x".to_string(),
+                kind: AggLocalScalarizationKind::UserBoxLocalBody(ThinEntryValueClass::InlineI64),
+                reason: "typed field body stays aggregate-local".to_string(),
+            });
+        function
+            .metadata
+            .agg_local_scalarization_routes
+            .push(AggLocalScalarizationRoute {
+            block: None,
+            instruction_index: None,
+            value: Some(ValueId::new(6)),
+            subject: "value%6".to_string(),
+            kind: AggLocalScalarizationKind::TypedSlotStorage(StorageClass::InlineBool),
+            reason:
+                "typed slot storage stays agg_local-only and should not fold into placement/effect"
+                    .to_string(),
+        });
 
         refresh_function_placement_effect_routes(&mut function);
 
-        assert_eq!(function.metadata.placement_effect_routes.len(), 3);
+        assert_eq!(function.metadata.placement_effect_routes.len(), 5);
         assert!(matches!(
             function.metadata.placement_effect_routes[0].decision,
             PlacementEffectDecision::PublishHandle
@@ -339,7 +411,19 @@ mod tests {
             PlacementEffectDecision::LocalAggregate
         ));
         assert!(matches!(
+            function.metadata.placement_effect_routes[2].source,
+            PlacementEffectSource::AggLocalScalarization
+        ));
+        assert!(matches!(
             function.metadata.placement_effect_routes[2].decision,
+            PlacementEffectDecision::LocalAggregate
+        ));
+        assert!(matches!(
+            function.metadata.placement_effect_routes[3].source,
+            PlacementEffectSource::AggLocalScalarization
+        ));
+        assert!(matches!(
+            function.metadata.placement_effect_routes[4].decision,
             PlacementEffectDecision::ThinInternalEntry
         ));
     }
