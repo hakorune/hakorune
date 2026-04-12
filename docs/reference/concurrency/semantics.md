@@ -41,6 +41,8 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
 - `nowait` inside explicit `task_scope` belongs to that scope.
 - `nowait` outside explicit `task_scope` falls back to an implicit root scope owned by the runtime hooks registry.
 - detached work is still reserved for a later explicit surface; do not treat the current implicit root scope as detached-task semantics.
+- first failure in an explicit `task_scope` cancels pending siblings with reason `sibling-failed`.
+- implicit root scope does not participate in sibling-failure cancellation in the current cut.
 - Cancellation should eventually unblock channel waits promptly; Phase-0 only guarantees best-effort scope-owned future cleanup.
 
 ### Future `await` (current VM contract)
@@ -59,6 +61,10 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
 - `task_scope.cancelAll()` is currently a narrow future-owner cut:
   - it cancels owned pending futures with reason `scope-cancelled`
   - it does not yet define interruption for arbitrary blocking APIs
+- current sibling-failure cut is also narrow:
+  - only explicit `task_scope` ownership participates
+  - first failed child future cancels pending siblings with reason `sibling-failed`
+  - it does not yet define aggregate failure reporting or scope-exit rethrow
 
 ### Root-scope note
 - The current implicit root scope is best-effort ownership only.

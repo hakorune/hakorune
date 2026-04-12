@@ -39,6 +39,15 @@ Non-goals (この文書で今すぐやらない):
 - `env.task.cancelCurrent` cancels the active explicit scope if present, otherwise the implicit root scope
 - detached work remains a future explicit surface; do not read the current root-scope fallback as detached-task semantics
 
+### Sibling-failure policy (Phase 248x)
+
+- current sibling-failure policy is scoped to explicit `task_scope` only
+- the first child future that reaches `TaskFailed(error)` becomes the current main failure for that scope
+- pending sibling futures owned by the same explicit scope are cancelled with reason `sibling-failed`
+- already-ready sibling futures are not rewritten
+- implicit root scope does not participate in sibling-failure cancellation in this cut
+- aggregate failure reporting and scope-exit rethrow policy remain later-phase work
+
 ---
 
 ## 1. Current reality (2026-02-04 snapshot)
@@ -108,8 +117,9 @@ Current failure taxonomy to pin:
   - current VM `await` surfaces that state as `VMError::TaskFailed(<stringified error payload>)`
   - current `env.future.await` plugin/runtime route surfaces that state as `ResultBox::Err(error)`
 - `Cancelled(reason)`
-  - current first cut is explicit scope-owned cancellation only
+  - current cuts are explicit scope-owned cancellation only
   - `task_scope.cancelAll()` / current-scope cancellation mark owned pending futures as `Cancelled: scope-cancelled`
+  - explicit-scope sibling-failure cancellation marks owned pending sibling futures as `Cancelled: sibling-failed`
   - current VM `await` surfaces that state as `VMError::TaskCancelled(<stringified reason payload>)`
   - current `env.future.await` plugin/runtime route surfaces that state as `ResultBox::Err(reason)`
   - deadline/timeout remains outside the current VM-side `await` contract

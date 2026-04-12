@@ -9,6 +9,7 @@
 
 ## Recent Landed
 
+- **Phase 248x（LANDED）**: sibling-failure policy pin
 - **Phase 247x（LANDED）**: detached / root-scope policy pin
 - **Phase 246x（LANDED）**: await cancelled first cut
 - **Phase 245x（LANDED）**: await failure first cut
@@ -16,7 +17,6 @@
 - **Phase 242x（LANDED）**: task-scope structured-concurrency vocabulary alignment
 - **Phase 227x（LANDED）**: semantic simplification owner seam
 - **Phase 226x（LANDED）**: placement-effect string scheduling owner cut
-- **Phase 225x（LANDED）**: generic placement-effect transform owner seam
 
 ## Parked Corridors
 
