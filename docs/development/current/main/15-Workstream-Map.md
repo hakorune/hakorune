@@ -15,11 +15,11 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-163x primitive and user-box fast path` |
-| Front | `lane-B generic memory cuts are landed through B2 -> lane-C docs inventory is landed -> next narrow decision is C1 Debug policy` |
+| Front | `lane-B generic memory cuts are landed through B2 -> lane-C docs inventory and Debug policy are landed -> next narrow decision is C2 terminator-adjacent operand/control liveness cleanup` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `observer/control ownership is inventoried, but Debug policy is still undecided` |
-| Next | `observer/control lane C1 (Debug policy decision)` |
-| After Next | `lane C2 terminator-adjacent operand/control liveness cleanup -> then next layer step` |
+| Blocker | `observer/control ownership is fixed through Debug; terminator-adjacent operand/control liveness cleanup is still unclassified` |
+| Next | `observer/control lane C2 (terminator-adjacent operand/control liveness cleanup)` |
+| After Next | `return to the next layer step` |
 
 ## Current Read
 
@@ -44,9 +44,10 @@ Related:
   - overwritten `Store` pruning now exists for definitely private carrier roots on the same block with copy-only alias propagation
   - `phase-202x` is now landed too
   - observer/control ownership is fixed as a docs-only inventory cut
-  - next target is now C1 `Debug` policy decision
+  - `phase-203x` is now landed too
+  - `Debug` is fixed as a permanent observer anchor in mainline DCE
+  - next target is now lane C2 terminator-adjacent operand/control liveness cleanup
 - immediate sequence:
-  - lane C1 `Debug` policy decision
   - lane C2 terminator-adjacent operand/control liveness cleanup
   - then return to the next layer step
 - stop-lines:

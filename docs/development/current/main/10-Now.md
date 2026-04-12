@@ -98,7 +98,7 @@ Related:
     - predecessor-local `FieldSet` writes now also disappear when a reachable merge block overwrites the same local root/field before any reachable read or escape use, as long as the predecessor has a single reachable successor into that merge
     - loop backedges, mixed-root merges, generic `Store`, `Load`, `Debug`, and terminators stay outside this cut
   - landed DCE boundary inventory: `phase190x remaining DCE boundary inventory`
-    - the remaining DCE backlog is now split into loop/backedge local-field partial DCE, generic memory `Store`/`Load` DCE, and observer/control cleanup for `Debug` plus terminators
+    - the remaining DCE backlog is now split into loop/backedge local-field partial DCE, generic memory `Store`/`Load` DCE, and observer/control work for `Debug` plus terminator-adjacent operand/control liveness
     - the next code phase should not mix these lanes
   - landed DCE cleanup follow-on: `phase191x loop-carried same-root local field pruning`
     - dead local `FieldGet` / `FieldSet` operations are now contract-locked through a one-round backedge-carried same-root local phi carrier too
@@ -121,12 +121,15 @@ Related:
     - immediate next is now B2 overwritten `Store` pruning
   - landed generic-memory code follow-on: `phase201x overwritten Store pruning on private carriers`
     - earlier `Store { value, ptr }` now disappears when a later same-block `Store` targets the same definitely private carrier root through direct or copy alias access
-    - first cut is intentionally narrow: intervening `Load`, carrier escape, cross-block store reasoning, forwarding, `Debug`, and control cleanup stay outside this cut
+    - first cut is intentionally narrow: intervening `Load`, carrier escape, cross-block store reasoning, forwarding, `Debug`, and terminator-adjacent operand/control liveness cleanup stay outside this cut
     - follow-on landed next as `phase202x observer/control docs inventory`
   - landed observer/control docs follow-on: `phase202x observer/control docs inventory`
     - lane C is now fixed as `C0 inventory -> C1 Debug policy -> C2 terminator-adjacent operand/control liveness cleanup`
     - `Debug` stays current-owner observer and `Branch` / `Jump` / `Return` stay current-owner control anchors until the next decision cuts
-    - immediate next is now `C1 Debug` policy decision
+  - landed observer/control policy follow-on: `phase203x Debug observer policy decision`
+    - `Debug` is now locked as a permanent observer anchor in mainline DCE
+    - any future debug stripping is explicitly a separate diagnostic-off lane, not an implicit DCE widening
+    - immediate next is now lane C2 terminator-adjacent operand/control liveness cleanup
   - landed DCE structure follow-on: `phase192x DCE pass module split`
     - `src/mir/passes/dce.rs` is now a thin facade over focused implementation modules and topic tests
     - this cut was structure-only; later lane-B docs/facts and code widening happen in `phase199x` / `phase200x`

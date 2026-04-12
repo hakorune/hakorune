@@ -2,7 +2,7 @@
 
 Status: SSOT
 Date: 2026-04-12
-Owner: `phase-202x`
+Owner: `phase-203x`
 
 ## Purpose
 
@@ -21,10 +21,11 @@ Current rule:
 - `Debug` is not part of lane A or lane B
 - `Debug` is not a generic no-dst pure cleanup target
 
-Decision to make in C1:
+Decision locked in C1:
 
-- keep `Debug` as a permanent observer anchor
-- or allow removal only under a separately documented diagnostic-off policy
+- keep `Debug` as a permanent observer anchor in mainline DCE
+- do not treat `Debug` as a generic no-dst pure cleanup target
+- if diagnostic-off stripping is ever added, document it as a separate lane outside the mainline DCE owner
 
 ### C2 Terminator / Control Policy
 
@@ -62,3 +63,9 @@ Decision to make in C2:
 1. `C0` docs-only inventory
 2. `C1` `Debug` policy decision
 3. `C2` terminator-adjacent operand/control liveness cleanup decision
+
+## Current Outcome
+
+- `C0` is landed
+- `C1` is landed
+- immediate next is `C2`

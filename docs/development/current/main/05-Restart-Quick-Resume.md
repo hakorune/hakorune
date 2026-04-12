@@ -25,13 +25,12 @@ tools/checks/dev_gate.sh quick
 - sibling guardrail:
   - `phase-137x main kilo reopen selection`
 - immediate next:
-  - `observer/control lane C1`
-  - `Debug` policy decision
+  - `observer/control lane C2`
+  - terminator-adjacent operand/control liveness cleanup
 - immediate follow-on:
-  - lane C2 terminator-adjacent operand/control liveness cleanup
   - then return to the next layer step after lane C is classified
 - stop-lines:
-  - keep lane B separate from lane C (`Debug` / terminator cleanup)
+  - keep lane B separate from lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
   - keep lane B separate from `generic placement / effect`
   - do not mix parked `phase-96x` backlog into the current lane
 
@@ -63,6 +62,7 @@ tools/checks/dev_gate.sh quick
   - `phase-200x`
   - `phase-201x`
   - `phase-202x`
+  - `phase-203x`
 
 ## First Design Slices
 

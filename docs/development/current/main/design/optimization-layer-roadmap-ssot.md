@@ -80,11 +80,10 @@ Owner: `phase-163x optimization-resume`
 ## Immediate Read
 
 - immediate code next:
-  - `observer/control lane C1`
-  - `Debug` policy decision
+  - `observer/control lane C2`
+  - terminator-adjacent operand/control liveness cleanup
 - immediate follow-on after that:
-  - lane C2 terminator-adjacent operand/control liveness cleanup
-  - then return to the next layer step after lane C closes
+  - return to the next layer step after lane C closes
 - next major design lane after the current DCE slice:
   - `generic placement / effect`
   - then `agg_local scalarization`

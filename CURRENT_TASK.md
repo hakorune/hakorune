@@ -27,13 +27,13 @@ Scope: repo root から current lane / current front / restart read order に最
 - sibling guardrail:
   - `phase-137x` string corridor / exact-keeper guardrail
 - immediate next:
-  - `observer/control lane C1`
-  - `Debug` policy decision
+  - `observer/control lane C2`
+  - terminator-adjacent operand/control liveness cleanup
 - immediate follow-on:
-  - lane C2 terminator-adjacent operand/control liveness cleanup
-  - then return to the layer roadmap after lane C classification is fixed
+  - return to the layer roadmap after lane C classification is fixed
+  - next big design lane stays `generic placement / effect`
 - current stop-lines:
-  - do not mix lane B with lane C (`Debug` / terminator observer cleanup)
+  - do not mix lane B with lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
   - do not mix lane B with `generic placement / effect`
   - do not mix parked `phase-96x` backlog into the active optimization lane
 - parked corridor:
@@ -83,10 +83,12 @@ Scope: repo root から current lane / current front / restart read order に最
   - first cut keeps `Store`, `Debug`, terminator, and generic placement/effect widening out of scope
 - `phase-201x`
   - overwritten `Store` pruning is now landed for definitely private carrier roots on the same block with copy-only alias propagation
-  - first cut keeps cross-block store reasoning, forwarding, `Debug`, and control cleanup out of scope
+  - first cut keeps cross-block store reasoning, forwarding, `Debug`, and terminator-adjacent operand/control liveness cleanup out of scope
 - `phase-202x`
   - observer/control ownership is now inventoried as a docs-only cut
-  - immediate next is `C1 Debug` policy decision
+- `phase-203x`
+  - `Debug` is now explicitly locked as a permanent observer anchor in mainline DCE
+  - immediate next is lane C2 terminator-adjacent operand/control liveness cleanup
 
 ## Current Checks
 
