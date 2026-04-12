@@ -7,6 +7,7 @@
 - **Current (ACTIVE)**: Phase 163x primitive and user-box fast path
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
 - **Phase 180x（LANDED STRING CLEANUP）**: string seam cleanup before broader DCE
+- **Phase 185x（LANDED）**: dead local field-set write pruning
 - **Phase 183x（LANDED）**: pure no-dst call pruning
 - **Phase 184x（LANDED）**: dead local field-get read pruning
 - **Phase 182x（LANDED）**: unreachable block pruning
@@ -94,6 +95,7 @@
 
 ### Recent Landed
 
+- **Phase 185x（LANDED）**: dead local field-set write pruning
 - **Phase 184x（LANDED）**: dead local field-get read pruning
 - **Phase 183x（LANDED）**: pure no-dst call pruning
 - **Phase 182x（LANDED）**: unreachable block pruning

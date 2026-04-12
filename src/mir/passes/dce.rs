@@ -11,8 +11,8 @@ use std::collections::HashSet;
 /// Eliminate dead code (unused results of pure instructions) across the module
 /// and prune unreachable blocks as structural CFG cleanup.
 ///
-/// This pass also removes pure no-dst calls and dead field reads on definitely
-/// non-escaping local boxes when they are otherwise unused.
+/// This pass also removes pure no-dst calls plus dead field reads and writes on
+/// definitely non-escaping local boxes when they are otherwise unused.
 ///
 /// Returns the number of eliminated instructions.
 pub fn eliminate_dead_code(module: &mut MirModule) -> usize {
@@ -61,6 +61,7 @@ fn is_removable_no_dst_pure_instruction(inst: &crate::mir::MirInstruction) -> bo
 struct LocalReadInfo {
     local_boxes: HashSet<ValueId>,
     escaping: HashSet<ValueId>,
+    field_read_roots: HashSet<ValueId>,
     alias_parents: ParentMap,
 }
 
@@ -68,6 +69,13 @@ impl LocalReadInfo {
     fn is_non_escaping_local(&self, value: ValueId) -> bool {
         let root = resolve_value_origin_from_parent_map(value, &self.alias_parents);
         self.local_boxes.contains(&root) && !self.escaping.contains(&root)
+    }
+
+    fn is_unobserved_local(&self, value: ValueId) -> bool {
+        let root = resolve_value_origin_from_parent_map(value, &self.alias_parents);
+        self.local_boxes.contains(&root)
+            && !self.escaping.contains(&root)
+            && !self.field_read_roots.contains(&root)
     }
 }
 
@@ -110,6 +118,12 @@ fn analyze_local_reads(
                     info.escaping.insert(root);
                 }
             }
+            if let crate::mir::MirInstruction::FieldGet { base, .. } = instruction {
+                let root = resolve_value_origin_from_parent_map(*base, &info.alias_parents);
+                if info.local_boxes.contains(&root) {
+                    info.field_read_roots.insert(root);
+                }
+            }
         }
 
         if let Some(term) = &block.terminator {
@@ -136,6 +150,16 @@ fn is_removable_effect_sensitive_read_instruction(
     )
 }
 
+fn is_removable_effect_sensitive_write_instruction(
+    inst: &crate::mir::MirInstruction,
+    local_reads: &LocalReadInfo,
+) -> bool {
+    matches!(
+        inst,
+        crate::mir::MirInstruction::FieldSet { base, .. } if local_reads.is_unobserved_local(*base)
+    )
+}
+
 fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
     let reachable_blocks = crate::mir::verification::utils::compute_reachable_blocks(function);
     let local_reads = analyze_local_reads(function, &reachable_blocks);
@@ -153,6 +177,9 @@ fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
                 continue;
             }
             if is_removable_effect_sensitive_read_instruction(instruction, &local_reads) {
+                continue;
+            }
+            if is_removable_effect_sensitive_write_instruction(instruction, &local_reads) {
                 continue;
             }
             let anchors_liveness = matches!(
@@ -230,6 +257,18 @@ fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
                         keep = false;
                     }
                 }
+            }
+            let removable_local_write = reachable_blocks.contains(&bbid)
+                && is_removable_effect_sensitive_write_instruction(&inst, &local_reads);
+            if keep && removable_local_write {
+                if dce_trace {
+                    get_global_ring0().log.debug(&format!(
+                        "[dce] Eliminating removable local write in bb{}: {:?}",
+                        bbid.0, inst
+                    ));
+                }
+                eliminated += 1;
+                keep = false;
             }
             if keep && inst.effects().is_pure() {
                 if reachable_blocks.contains(&bbid) {
@@ -694,6 +733,73 @@ mod tests {
             .instructions
             .iter()
             .any(|inst| matches!(inst, MirInstruction::FieldGet { dst, .. } if *dst == v_field)));
+    }
+
+    #[test]
+    fn test_dce_prunes_dead_field_set_on_non_escaping_local_box() {
+        let mut module = MirModule::new("dce_test".to_string());
+
+        let sig = FunctionSignature {
+            name: "test/0".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        let mut func = MirFunction::new(sig, BasicBlockId(0));
+
+        let v_box = ValueId(1);
+        let v_copy = ValueId(2);
+        let v_value = ValueId(3);
+
+        {
+            let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
+            bb0.instructions.push(MirInstruction::NewBox {
+                dst: v_box,
+                box_type: "Point".to_string(),
+                args: vec![],
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Copy {
+                dst: v_copy,
+                src: v_box,
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Const {
+                dst: v_value,
+                value: ConstValue::Integer(77),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::FieldSet {
+                base: v_copy,
+                field: "child".to_string(),
+                value: v_value,
+                declared_type: Some(MirType::Integer),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.set_terminator(MirInstruction::Return {
+                value: Some(v_value),
+            });
+        }
+
+        module.add_function(func);
+
+        let eliminated = eliminate_dead_code(&mut module);
+        assert_eq!(eliminated, 2);
+
+        let func = module.get_function("test/0").unwrap();
+        let bb0 = func.blocks.get(&BasicBlockId(0)).unwrap();
+        assert!(bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::NewBox { dst, .. } if *dst == v_box)));
+        assert!(!bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Copy { dst, .. } if *dst == v_copy)));
+        assert!(!bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::FieldSet { .. })));
     }
 
     #[test]

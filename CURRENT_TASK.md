@@ -126,6 +126,10 @@ Scope: repo root から current lane / current front / restart read order に最
     - `docs/development/current/main/phases/phase-184x/README.md`
     - `phase-184x` is landed as the first effect-sensitive local field-get read pruning slice
     - dead `FieldGet` reads on definitely non-escaping local boxes now disappear when otherwise unused, while `Load`, `Debug`, and terminators stay separate
+  - landed DCE cleanup follow-on:
+    - `docs/development/current/main/phases/phase-185x/README.md`
+    - `phase-185x` is landed as the first effect-sensitive local field-set write pruning slice
+    - dead `FieldSet` writes on definitely non-escaping local boxes now disappear when otherwise unobserved, while `Store`, `Load`, `Debug`, and terminators stay separate
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`
