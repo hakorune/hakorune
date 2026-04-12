@@ -157,6 +157,19 @@ fn simplifies_constant_branch_to_jump_from_copied_bool() {
     let function = module.functions.get("main").expect("main function");
     let entry = function.blocks.get(&BasicBlockId(0)).expect("entry block");
     assert!(matches!(
+        entry.instructions.as_slice(),
+        [
+            MirInstruction::Const {
+                dst: const_dst,
+                value: ConstValue::Bool(true)
+            },
+            MirInstruction::Copy {
+                dst: copy_dst,
+                src: ValueId(1)
+            }
+        ] if *const_dst == ValueId(1) && *copy_dst == ValueId(2)
+    ));
+    assert!(matches!(
         &entry.terminator,
         Some(MirInstruction::Jump {
             target,

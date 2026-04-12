@@ -17,7 +17,7 @@ Related:
 | Now | `phase-163x primitive and user-box fast path` |
 | Front | `generic placement / effect landed through the first owner-transform cut -> next design lane is semantic simplification bundle` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `semantic simplification bundle is active; latest cut folds copied-constant Branch terminators before CFG merge` |
+| Blocker | `semantic simplification bundle is active; latest cut folds copied-constant Branch terminators and constant Compare instructions before CFG merge` |
 | Next | `semantic simplification bundle` |
 | After Next | `memory-effect layer` |
 
@@ -29,7 +29,7 @@ Related:
   - roadmap SSOT: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
 - recent landed:
-  - `semantic simplification bundle`: copied-constant Branch fold before CFG merge
+  - `semantic simplification bundle`: copied-constant Branch fold and constant Compare fold before CFG merge
   - `phase-227x`: semantic simplification owner seam
   - `phase-226x`: placement-effect string scheduling owner cut
   - `phase-225x`: placement-effect transform owner seam

@@ -2,7 +2,9 @@
  * SimplifyCFG - first structural simplification slice for the semantic bundle.
  *
  * This cut intentionally stays narrow:
- * - fold copied-constant / constant-compare `Branch` terminators to `Jump`
+ * - fold copied-constant `Branch` terminators to `Jump`
+ * - fold constant `Compare` instructions to `Const Bool`, then let branch
+ *   folding consume the resulting value
  * - merge `pred -> middle` only for a direct `Jump`
  * - `middle` must be reachable, non-entry, have exactly one predecessor, and
  *   carry only trivial single-input PHIs from that predecessor
@@ -28,6 +30,11 @@ fn simplify_function(function: &mut MirFunction) -> usize {
 
     loop {
         function.update_cfg();
+        if let Some((block_id, inst_idx, value)) = find_constant_compare_fold(function) {
+            fold_constant_compare(function, block_id, inst_idx, value);
+            simplified += 1;
+            continue;
+        }
         if let Some((block_id, target, edge_args)) = find_constant_branch_fold(function) {
             fold_constant_branch(function, block_id, target, edge_args);
             simplified += 1;
@@ -82,6 +89,41 @@ fn find_constant_branch_fold(
     }
 
     None
+}
+
+fn find_constant_compare_fold(function: &MirFunction) -> Option<(BasicBlockId, usize, bool)> {
+    let def_map = build_value_def_map(function);
+
+    for block_id in function.block_ids() {
+        let block = function.blocks.get(&block_id)?;
+        for (inst_idx, instruction) in block.instructions.iter().enumerate() {
+            let MirInstruction::Compare { op, lhs, rhs, .. } = instruction else {
+                continue;
+            };
+            let Some(value) = compare_to_bool_const(function, &def_map, *op, *lhs, *rhs) else {
+                continue;
+            };
+            return Some((block_id, inst_idx, value));
+        }
+    }
+
+    None
+}
+
+fn compare_to_bool_const(
+    function: &MirFunction,
+    def_map: &crate::mir::ValueDefMap,
+    op: crate::mir::CompareOp,
+    lhs: ValueId,
+    rhs: ValueId,
+) -> Option<bool> {
+    let lhs = const_to_join_value(function, def_map, lhs)?;
+    let rhs = const_to_join_value(function, def_map, rhs)?;
+    let result = eval_compare(to_join_compare_op(op), &lhs, &rhs).ok()?;
+    match result {
+        JoinValue::Bool(b) => Some(b),
+        _ => None,
+    }
 }
 
 fn const_bool_value(
@@ -141,6 +183,30 @@ fn to_join_compare_op(op: crate::mir::CompareOp) -> crate::mir::join_ir::Compare
         crate::mir::CompareOp::Eq => crate::mir::join_ir::CompareOp::Eq,
         crate::mir::CompareOp::Ne => crate::mir::join_ir::CompareOp::Ne,
     }
+}
+
+fn fold_constant_compare(
+    function: &mut MirFunction,
+    block_id: BasicBlockId,
+    inst_idx: usize,
+    value: bool,
+) {
+    let block = function
+        .blocks
+        .get_mut(&block_id)
+        .expect("constant-compare block must exist");
+    let instruction = block
+        .instructions
+        .get_mut(inst_idx)
+        .expect("constant-compare instruction must exist");
+    let MirInstruction::Compare { dst, .. } = instruction else {
+        return;
+    };
+    let dst = *dst;
+    *instruction = MirInstruction::Const {
+        dst,
+        value: ConstValue::Bool(value),
+    };
 }
 
 fn fold_constant_branch(
