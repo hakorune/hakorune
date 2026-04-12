@@ -14,7 +14,7 @@ Scope: repo root から current lane / current front / restart read order に最
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-212x/README.md`
+3. `docs/development/current/main/phases/phase-213x/README.md`
 4. `docs/development/current/main/phases/phase-163x/README.md`
 5. `git status -sb`
 6. `tools/checks/dev_gate.sh quick`
@@ -54,6 +54,8 @@ Scope: repo root から current lane / current front / restart read order に最
   - `docs/development/current/main/phases/phase-211x/211x-90-generic-placement-effect-owner-seam-ssot.md`
   - `docs/development/current/main/phases/phase-212x/README.md`
   - `docs/development/current/main/phases/phase-212x/212x-90-placement-effect-agg-local-fold-ssot.md`
+  - `docs/development/current/main/phases/phase-213x/README.md`
+  - `docs/development/current/main/phases/phase-213x/213x-90-sum-outer-box-sinking-consumer-seed-ssot.md`
 - thin-entry actual consumer switch owner:
   - `docs/development/current/main/phases/phase-210x/README.md`
 - DCE lane split owner:
@@ -94,6 +96,8 @@ Scope: repo root から current lane / current front / restart read order に最
   - `generic placement / effect` owner seam is landed; folded string / sum / thin-entry routes are exported as MIR metadata only
 - `phase-212x`
   - `placement_effect_routes` now also folds placement-relevant `agg_local` routes while storage-only typed-slot routes remain agg-local-only
+- `phase-213x`
+  - current sum lowering now seeds the local aggregate route from `placement_effect_routes` first, with sum-specific metadata kept as fallback
 - `phase-200x`
   - dead `Load` pruning is now landed for definitely private carrier roots with copy-only alias propagation
   - first cut keeps `Store`, `Debug`, terminator, and generic placement/effect widening out of scope

@@ -80,6 +80,38 @@ class TestFunctionLowerResolverSeed(unittest.TestCase):
         self.assertEqual(builder.resolver.sum_local_aggregate_paths, {12: "local_aggregate"})
         self.assertEqual(builder.resolver.sum_local_aggregate_layouts, {12: "tag_i64_payload"})
 
+    def test_load_sum_placement_metadata_reads_generic_placement_effect_routes_first(self):
+        builder = _BuilderStub()
+        func_data = {
+            "metadata": {
+                "placement_effect_routes": [
+                    {
+                        "source": "sum_placement",
+                        "value": 12,
+                        "decision": "local_aggregate",
+                        "detail": "variant_make.local_aggregate",
+                    },
+                    {
+                        "source": "agg_local_scalarization",
+                        "value": 12,
+                        "decision": "local_aggregate",
+                        "detail": "sum_local_layout(tag_i64_payload)",
+                    },
+                    {
+                        "source": "agg_local_scalarization",
+                        "value": 99,
+                        "decision": "local_aggregate",
+                        "detail": "user_box_local_body(inline_i64)",
+                    },
+                ]
+            }
+        }
+
+        function_lower._load_sum_placement_metadata(builder, func_data)
+
+        self.assertEqual(builder.resolver.sum_local_aggregate_paths, {12: "local_aggregate"})
+        self.assertEqual(builder.resolver.sum_local_aggregate_layouts, {12: "tag_i64_payload"})
+
     def test_load_thin_entry_selection_metadata_indexes_rows_by_value(self):
         builder = _BuilderStub()
         func_data = {

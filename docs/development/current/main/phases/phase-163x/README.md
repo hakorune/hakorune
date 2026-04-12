@@ -166,7 +166,8 @@
         - `apps/tests/mir_shape_guard/sum_result_ok_tag_local_i64_min.prebuilt.mir.json` now proves the same cutover for `variant_tag` on a non-`Option` enum
         - `apps/tests/mir_shape_guard/sum_result_ok_tag_copy_local_i64_min.prebuilt.mir.json` now proves the same cutover when `variant_tag` reads through a single local `copy` alias
         - `tools/smokes/v2/profiles/integration/phase163x/phase163x_boundary_sum_metadata_keep_min.sh` now pins the same no-replay contract across the metadata-bearing direct/copy `variant_project`, payload-less `variant_tag`, Float-lane `variant_tag`, handle-lane `variant_tag`, direct `variant_tag`, and copied-`variant_tag` fixtures
-      - next active substep is `ny-llvmc` parity wave; the Variant* inventory for this cut is now exhausted
+      - landed follow-on: current sum lowering now seeds the selected local aggregate route from `placement_effect_routes` first, with `sum_placement_*` kept as fallback
+      - next active substep is the next broader generic placement/effect proving slice; the first sum consumer seed cut is now landed
       - separate-phase backlog, not part of `sum-thin-entry-cutover`:
         - `PhiMerge` / cross-block alias routes stay blocked by the current `sum_placement` `phi_merge` barrier and require a contract change before optimization
         - `call` / `boxcall` / `return` de-objectization stays blocked by the current escape-barrier contract and must not be mixed into this boundary pure-first cut
@@ -217,7 +218,7 @@
         - `phase-182x` is now landed too: unreachable blocks are pruned after DCE liveness stabilizes, so dead CFG fragments no longer hang around in the live function map
       - verified non-Variant optimization roadmap is now layer-based:
         1. `generic placement / effect`
-           - partial: string corridor candidates, sum placement chains, thin-entry inventory/selection, the first folded `placement_effect_routes` owner seam, and the placement-relevant `agg_local` fold-up are already landed as pilot scaffolds
+           - partial: string corridor candidates, sum placement chains, thin-entry inventory/selection, the first folded `placement_effect_routes` owner seam, the placement-relevant `agg_local` fold-up, and the first sum consumer proving slice are already landed as pilot scaffolds
            - next major genericization should fold those pilots into one generic placement/effect layer instead of growing more family-specific rows
         2. `agg_local scalarization` (`phase209x`)
            - landed: selected sum local layouts, selected user-box local bodies, and ArrayBox typed-slot pilots are folded into the generic route seam

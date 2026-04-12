@@ -6,6 +6,7 @@
 
 - **Current (ACTIVE)**: Phase 163x primitive and user-box fast path
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
+- **Phase 213x（LANDED）**: sum outer-box sinking consumer seed
 - **Phase 212x（LANDED）**: placement/effect agg-local fold-up
 - **Phase 211x（LANDED）**: generic placement / effect owner seam
 - **Phase 209x（LANDED）**: agg_local scalarization owner seam
@@ -120,6 +121,7 @@
 
 ### Recent Landed
 
+- **Phase 213x（LANDED）**: sum outer-box sinking consumer seed
 - **Phase 212x（LANDED）**: placement/effect agg-local fold-up
 - **Phase 206x（LANDED）**: simplification-handoff wording lock
 - **Phase 205x（LANDED）**: legacy control-anchor seed cleanup

@@ -614,15 +614,20 @@ def _load_thin_entry_selection_metadata(builder, func_data: Dict[str, Any]) -> N
 def _load_sum_placement_metadata(builder, func_data: Dict[str, Any]) -> None:
     try:
         metadata = func_data.get("metadata", {})
+        placement_effect_routes = metadata.get("placement_effect_routes", [])
         selections = metadata.get("sum_placement_selections", [])
         layouts = metadata.get("sum_placement_layouts", [])
 
         local_paths = {}
-        for row in selections:
+        for row in placement_effect_routes:
             try:
-                if row.get("surface") != "variant_make":
+                if not isinstance(row, dict):
                     continue
-                if row.get("selected_path") != "local_aggregate":
+                if row.get("source") != "sum_placement":
+                    continue
+                if row.get("decision") != "local_aggregate":
+                    continue
+                if row.get("detail") != "variant_make.local_aggregate":
                     continue
                 value = row.get("value")
                 if isinstance(value, int):
@@ -630,14 +635,46 @@ def _load_sum_placement_metadata(builder, func_data: Dict[str, Any]) -> None:
             except Exception:
                 pass
 
+        for row in selections:
+            try:
+                if row.get("surface") != "variant_make":
+                    continue
+                if row.get("selected_path") != "local_aggregate":
+                    continue
+                value = row.get("value")
+                if isinstance(value, int) and int(value) not in local_paths:
+                    local_paths[int(value)] = "local_aggregate"
+            except Exception:
+                pass
+
         local_layouts = {}
+        for row in placement_effect_routes:
+            try:
+                if not isinstance(row, dict):
+                    continue
+                if row.get("source") != "agg_local_scalarization":
+                    continue
+                if row.get("decision") != "local_aggregate":
+                    continue
+                detail = row.get("detail")
+                layout = _sum_layout_from_placement_effect_detail(detail)
+                value = row.get("value")
+                if isinstance(value, int) and isinstance(layout, str):
+                    local_layouts[int(value)] = layout
+            except Exception:
+                pass
+
         for row in layouts:
             try:
                 if row.get("surface") != "variant_make":
                     continue
                 value = row.get("value")
                 layout = row.get("layout")
-                if isinstance(value, int) and isinstance(layout, str):
+                if (
+                    isinstance(value, int)
+                    and isinstance(layout, str)
+                    and int(value) not in local_layouts
+                ):
                     local_layouts[int(value)] = layout
             except Exception:
                 pass
@@ -647,6 +684,17 @@ def _load_sum_placement_metadata(builder, func_data: Dict[str, Any]) -> None:
     except Exception:
         builder.resolver.sum_local_aggregate_paths = {}
         builder.resolver.sum_local_aggregate_layouts = {}
+
+
+def _sum_layout_from_placement_effect_detail(detail: Any) -> Any:
+    if not isinstance(detail, str):
+        return None
+    prefix = "sum_local_layout("
+    suffix = ")"
+    if not detail.startswith(prefix) or not detail.endswith(suffix):
+        return None
+    layout = detail[len(prefix) : -len(suffix)]
+    return layout if layout else None
 
 
 def _load_user_box_local_aggregate_metadata(builder, func_data: Dict[str, Any]) -> None:

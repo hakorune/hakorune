@@ -37,6 +37,7 @@ Related:
   - `phase-198x`: root restart docs are compressed back to pointer-only form
   - `phase-211x`: generic placement/effect owner seam is landed; folded string / sum / thin-entry routes are readable through one generic metadata inventory
   - `phase-212x`: the folded placement/effect inventory now also reads placement-relevant `agg_local` proof, while storage-only routes stay agg-local-only
+  - `phase-213x`: the first generic placement/effect consumer proving slice is landed; current sum lowering now seeds local aggregate routes from the folded inventory first
   - landed generic-memory facts follow-on:
   - `phase-199x` is landed
   - lane-B observer/owner contract is fixed before any generic `Load` / `Store` pruning
