@@ -25,6 +25,7 @@ tools/checks/dev_gate.sh quick
 - sibling guardrail:
   - `phase-137x main kilo reopen selection`
   - `phase-219x placement-effect route-window len fold`
+  - `phase-220x placement-effect route-window len helper cleanup`
 - immediate next:
   - `generic placement / effect`
 - immediate follow-on:
@@ -40,10 +41,11 @@ tools/checks/dev_gate.sh quick
 2. `docs/development/current/main/15-Workstream-Map.md`
 3. `docs/development/current/main/phases/phase-218x/README.md`
 4. `docs/development/current/main/phases/phase-219x/README.md`
-5. `docs/development/current/main/phases/phase-163x/README.md`
-6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
-7. `docs/development/current/main/phases/phase-137x/README.md`
-8. `docs/development/current/main/phases/phase-210x/README.md`
+5. `docs/development/current/main/phases/phase-220x/README.md`
+6. `docs/development/current/main/phases/phase-163x/README.md`
+7. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
+8. `docs/development/current/main/phases/phase-137x/README.md`
+9. `docs/development/current/main/phases/phase-210x/README.md`
 
 ## Current Evidence
 
@@ -54,6 +56,8 @@ tools/checks/dev_gate.sh quick
   - `phase-169x` to `phase-180x`
   - `phase-219x`
     - boundary `pure-first` now reads `placement_effect_routes` window first for `substring(...).length()`
+  - `phase-220x`
+    - boundary len route-window branch is now shared behind one helper with identical behavior
 - semantic simplification bundle is landed through DCE lane A2:
   - `phase-176x`
   - `phase-177x`

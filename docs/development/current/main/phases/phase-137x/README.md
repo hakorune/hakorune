@@ -131,6 +131,8 @@
     - the current bridge shrink also removes the `substring_len_hii` declaration need from this plan-window lane; metadata is now the only direct-kernel proof source here
     - landed sibling string follow-on: `phase-219x placement-effect route-window len fold`
       - boundary `pure-first` now reads `placement_effect_routes` window first for `substring(...).length()` and the smoke expects `placement_effect_route_window`
+    - landed BoxShape-only sibling follow-on: `phase-220x placement-effect route-window len helper cleanup`
+      - the route-window branch is now shared behind one helper with identical behavior
     - latest exact reread on `kilo_micro_len_substring_views`: `instr=1,672,259 / cycles=1,022,005 / cache-miss=10,525 / AOT 3 ms`
     - latest split-pack reread on `kilo_micro_substring_views_only`: `instr=466,001 / cycles=841,958 / cache-miss=9,391 / AOT 3 ms`
     - reading: the split single-use retained-view fronts are now closed; multiple-use retained-slice length stays backlog and the next string keeper reopens on broader corridor publication/materialization work

@@ -67,6 +67,42 @@
         return 1;
       }
 
+      auto int emit_string_len_window_from_placement_effect_routes(
+          FILE* f,
+          long long dst,
+          long long resolved_recv) {
+        long long substring_start = 0;
+        long long substring_end = 0;
+        if (!hako_llvmc_string_corridor_read_route_window_from_placement_effect_routes(
+                resolved_recv,
+                &substring_start,
+                &substring_end)) {
+          return 0;
+        }
+        emit_string_len_window_from_plan(
+            f,
+            dst,
+            resolved_recv,
+            substring_start,
+            substring_end);
+        if (hako_llvmc_route_trace_enabled()) {
+          char extra[160];
+          snprintf(
+              extra,
+              sizeof(extra),
+              "recv=%lld start=%lld end=%lld",
+              resolved_recv,
+              substring_start,
+              substring_end);
+          hako_llvmc_emit_route_trace(
+              "string_len_corridor",
+              "hit",
+              "placement_effect_route_window",
+              extra);
+        }
+        return 1;
+      }
+
       auto int emit_generic_method_len_by_policy(
           FILE* f,
           const char* bname,
@@ -96,31 +132,8 @@
             }
             return 1;
           case HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_STRING_LEN:
-            if (hako_llvmc_string_corridor_read_route_window_from_placement_effect_routes(
-                    resolved_recv,
-                    &substring_start,
-                    &substring_end)) {
-              emit_string_len_window_from_plan(
-                  f,
-                  dst,
-                  resolved_recv,
-                  substring_start,
-                  substring_end);
-              if (hako_llvmc_route_trace_enabled()) {
-                char extra[160];
-                snprintf(
-                    extra,
-                    sizeof(extra),
-                    "recv=%lld start=%lld end=%lld",
-                    resolved_recv,
-                    substring_start,
-                    substring_end);
-                hako_llvmc_emit_route_trace(
-                    "string_len_corridor",
-                    "hit",
-                    "placement_effect_route_window",
-                    extra);
-              }
+            if (emit_string_len_window_from_placement_effect_routes(
+                    f, dst, resolved_recv)) {
               return 1;
             }
             if (known_string_concat_chain_len(resolved_recv, &concat_known_len)) {

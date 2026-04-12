@@ -9,6 +9,7 @@
 - **Phase 217x（LANDED）**: user-box micro seed thin-entry fold
 - **Phase 218x（LANDED）**: shared placement/effect route reader seam
 - **Phase 219x（LANDED）**: placement-effect route window len fold
+- **Phase 220x（LANDED）**: placement-effect route window len helper cleanup
 - **Phase 216x（LANDED）**: sum seed metadata helper consumer fold
 - **Phase 215x（LANDED）**: thin-entry consumer seed
 - **Phase 214x（LANDED）**: user-box local body consumer seed
@@ -127,6 +128,7 @@
 
 ### Recent Landed
 
+- **Phase 220x（LANDED）**: placement-effect route window len helper cleanup
 - **Phase 219x（LANDED）**: placement-effect route window len fold
 - **Phase 215x（LANDED）**: thin-entry consumer seed
 - **Phase 214x（LANDED）**: user-box local body consumer seed
