@@ -6,6 +6,8 @@
 mod elimination;
 #[path = "dce/local_fields.rs"]
 mod local_fields;
+#[path = "dce/memory.rs"]
+mod memory;
 #[cfg(test)]
 #[path = "dce/tests/mod.rs"]
 mod tests;

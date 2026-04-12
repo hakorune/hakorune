@@ -107,7 +107,7 @@ Related:
     - predecessor-local loop-body `FieldSet` writes now also disappear when the next loop-header entry overwrites the same root/field before any same-field read or escape use
     - mixed-root phi merges, multi-round loop dataflow, generic `Store`, `Load`, `Debug`, and terminators stay outside this cut
   - landed docs hygiene follow-on: `phase197x optimization pointer inventory sync`
-    - `CURRENT_TASK`, `10-Now`, `Workstream Map`, phase index, and the optimization roadmap immediate-read pointer now agree on lane-B0 as the current next step
+    - `CURRENT_TASK`, `10-Now`, `Workstream Map`, phase index, and the optimization roadmap immediate-read pointer were first synced to the lane-B sequence from this cut
     - feature-era `Front` / `Blocker` wording is reduced in favor of layer/lane wording
   - landed docs hygiene follow-on: `phase198x root pointer compression`
     - `CURRENT_TASK` and `Restart Quick Resume` now stay pointer-only and no longer duplicate long landed chronologies
@@ -115,15 +115,19 @@ Related:
     - lane-B vocabulary is now fixed to `Load` / `Store`
     - first private-carrier roots are fixed as `RefNew`-rooted definitely local carriers with copy-only alias propagation
     - immediate next is now B1 dead `Load` pruning
+  - landed generic-memory code follow-on: `phase200x dead Load pruning on private carriers`
+    - dead `Load { dst, ptr }` now disappears when `ptr` is a definitely private `RefNew` carrier rooted on a non-escaping local box with copy-only alias propagation
+    - first cut is intentionally narrow: same-carrier `Store`, `Call` escape, `Debug`, terminator/control cleanup, and non-copy carrier merges stay outside this cut
+    - immediate next is now B2 overwritten `Store` pruning
   - landed DCE structure follow-on: `phase192x DCE pass module split`
     - `src/mir/passes/dce.rs` is now a thin facade over focused implementation modules and topic tests
-    - next semantic work is lane-B0 docs/facts; this cut did not widen DCE behavior by itself
+    - this cut was structure-only; later lane-B docs/facts and code widening happen in `phase199x` / `phase200x`
   - layer roadmap status:
     - `1 generic placement / effect`: partial; string corridor candidates, sum placement chains, and thin-entry inventory/selection are landed as pilot scaffolds, but the top-level generic transform layer is still backlog
     - `2 agg_local scalarization`: partial; selected sum local layouts, selected user-box local bodies, and ArrayBox typed-slot pilots are landed, while broader aggregate scalarization remains backlog
     - `3 thin-entry actual consumer switch`: partial; known-receiver user-box method routes are the first landed actual-consumer slice, while broader thin-entry consumer switching remains backlog
-    - `4 semantic simplification bundle`: partial; current DCE work is landed through `phase176x` / `phase177x` / `phase181x` / `phase182x` / `phase183x` / `phase184x` / `phase185x` / `phase186x` / `phase187x` / `phase188x` / `phase189x` / `phase190x` / `phase191x` / `phase192x` / `phase196x` / `phase199x`, but `SCCP`, `SimplifyCFG`, and jump-threading remain backlog; keep `DSE` out of this row
-    - `5 memory-effect layer`: partial; lane-B0 generic memory observer/owner contract is now landed, while dead-store elimination, store-to-load forwarding, redundant load elimination, hoist/sink legality, and broader generic `Store` / `Load` code cuts remain backlog
+    - `4 semantic simplification bundle`: partial; current DCE work is landed through `phase176x` / `phase177x` / `phase181x` / `phase182x` / `phase183x` / `phase184x` / `phase185x` / `phase186x` / `phase187x` / `phase188x` / `phase189x` / `phase190x` / `phase191x` / `phase192x` / `phase196x` / `phase199x` / `phase200x`, but `SCCP`, `SimplifyCFG`, and jump-threading remain backlog; keep `DSE` out of this row
+    - `5 memory-effect layer`: partial; lane-B0 generic memory observer/owner contract plus lane-B1 dead `Load` pruning are now landed, while overwritten `Store` pruning, dead-store elimination, store-to-load forwarding, redundant load elimination, hoist/sink legality, and broader generic `Store` / `Load` code cuts remain backlog
     - `6 escape / barrier -> LLVM attrs`: partial; Copy + one-input-phi-carry aware local barrier elision and the `phase165x` operand-role escape barrier vocabulary cut are landed, but attribute feed (`nocapture` / `readonly` / `readnone` / `noalias`) remains backlog
     - `7 numeric loop / SIMD`: partial; narrow FloatBox groundwork is landed, while induction/reduction/vectorization and fast-math tuning remain backlog
     - `8 closure split`: backlog; `capture classification`, `closure env scalarization`, and `closure thin-entry specialization` are still unscheduled

@@ -6,6 +6,7 @@
 
 - **Current (ACTIVE)**: Phase 163x primitive and user-box fast path
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
+- **Phase 200x（LANDED）**: dead Load pruning on private carriers
 - **Phase 199x（LANDED）**: generic memory DCE docs-facts phase
 - **Phase 198x（LANDED）**: root pointer compression
 - **Phase 197x（LANDED）**: optimization pointer inventory sync
@@ -107,6 +108,7 @@
 
 ### Recent Landed
 
+- **Phase 200x（LANDED）**: dead Load pruning on private carriers
 - **Phase 199x（LANDED）**: generic memory DCE docs-facts phase
 - **Phase 198x（LANDED）**: root pointer compression
 - **Phase 197x（LANDED）**: optimization pointer inventory sync

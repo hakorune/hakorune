@@ -15,11 +15,11 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-163x primitive and user-box fast path` |
-| Front | `root pointers compressed -> lane-B0 docs/facts landed -> next narrow slice is lane B1 dead Load pruning on private carriers` |
+| Front | `root pointers compressed -> lane-B0 docs/facts landed -> lane-B1 dead Load pruning landed -> next narrow slice is lane B2 overwritten Store pruning` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `private-carrier dead Load facts are fixed in docs, but no lane-B code exists yet` |
-| Next | `semantic simplification bundle lane B1 (dead Load pruning on private carriers)` |
-| After Next | `lane B2 overwritten Store pruning -> lane C0 observer/control docs inventory` |
+| Blocker | `generic memory lane B now has private-carrier dead Load pruning, but overwritten Store pruning is still docs-only` |
+| Next | `semantic simplification bundle lane B2 (overwritten Store pruning on definitely private carrier roots)` |
+| After Next | `lane C0 observer/control docs inventory -> lane C1 Debug policy decision` |
 
 ## Current Read
 
@@ -38,11 +38,13 @@ Related:
 - landed generic-memory facts follow-on:
   - `phase-199x` is landed
   - lane-B observer/owner contract is fixed before any generic `Load` / `Store` pruning
-  - next target is now B1 dead `Load` pruning on private carriers
+  - `phase-200x` is now landed too
+  - dead `Load` pruning now exists for definitely private carrier roots with copy-only alias propagation
+  - next target is now B2 overwritten `Store` pruning on the same private carriers
 - immediate sequence:
-  - lane B0 generic memory `Store` / `Load` docs-facts phase
   - lane B1 dead `Load` pruning
   - lane B2 overwritten `Store` pruning
+  - lane C0 observer/control docs inventory
 - stop-lines:
   - keep lane B separate from `Debug` / terminator observer cleanup
   - keep lane B separate from `generic placement / effect`

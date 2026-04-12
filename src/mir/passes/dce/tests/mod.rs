@@ -8,4 +8,5 @@ pub(super) use crate::mir::{
 
 mod liveness;
 mod local_fields;
+mod memory;
 mod overwrite;

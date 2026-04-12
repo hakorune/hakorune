@@ -27,11 +27,11 @@ Scope: repo root から current lane / current front / restart read order に最
 - sibling guardrail:
   - `phase-137x` string corridor / exact-keeper guardrail
 - immediate next:
-  - `semantic simplification bundle lane B1`
-  - dead `Load` pruning for definitely private carrier roots
+  - `semantic simplification bundle lane B2`
+  - overwritten `Store` pruning for definitely private carrier roots
 - immediate follow-on:
-  - lane B2 overwritten `Store` pruning
   - lane C0 observer/control docs-only inventory
+  - lane C1 `Debug` policy decision
 - current stop-lines:
   - do not mix lane B with lane C (`Debug` / terminator observer cleanup)
   - do not mix lane B with `generic placement / effect`
@@ -76,6 +76,9 @@ Scope: repo root から current lane / current front / restart read order に最
   - roadmap regroup and pointer hygiene are landed
 - `phase-198x` / `phase-199x`
   - root restart surfaces are compressed and lane-B docs/facts are fixed
+- `phase-200x`
+  - dead `Load` pruning is now landed for definitely private carrier roots with copy-only alias propagation
+  - first cut keeps `Store`, `Debug`, terminator, and generic placement/effect widening out of scope
 
 ## Current Checks
 
