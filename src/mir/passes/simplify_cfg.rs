@@ -2,12 +2,14 @@
  * SimplifyCFG - first structural simplification slice for the semantic bundle.
  *
  * This cut intentionally stays narrow:
+ * - fold copied-constant / constant-compare `Branch` terminators to `Jump`
  * - merge `pred -> middle` only for a direct `Jump`
  * - `middle` must be reachable, non-entry, have exactly one predecessor, and
  *   carry only trivial single-input PHIs from that predecessor
- * - loop-carried/self-edge cases and branch edge-args stay out of scope
+ * - loop-carried/self-edge cases stay out of scope
  */
 
+use crate::mir::join_ir_ops::{eval_compare, JoinValue};
 use crate::mir::{
     build_value_def_map, definitions::call_unified::Callee, resolve_value_origin, BasicBlock,
     BasicBlockId, ConstValue, EffectMask, MirFunction, MirInstruction, MirModule, ValueId,
@@ -87,17 +89,58 @@ fn const_bool_value(
     def_map: &crate::mir::ValueDefMap,
     value: ValueId,
 ) -> Option<bool> {
+    match const_value(function, def_map, value) {
+        Some(ConstValue::Bool(b)) => Some(b),
+        _ => None,
+    }
+}
+
+fn const_value(
+    function: &MirFunction,
+    def_map: &crate::mir::ValueDefMap,
+    value: ValueId,
+) -> Option<ConstValue> {
     let origin = resolve_value_origin(function, def_map, value);
     let (block_id, inst_idx) = def_map.get(&origin).copied()?;
     let block = function.blocks.get(&block_id)?;
-    let MirInstruction::Const {
-        value: ConstValue::Bool(b),
-        ..
-    } = block.instructions.get(inst_idx)?
-    else {
-        return None;
-    };
-    Some(*b)
+    match block.instructions.get(inst_idx)? {
+        MirInstruction::Const { value, .. } => Some(value.clone()),
+        MirInstruction::Compare { op, lhs, rhs, .. } => {
+            let lhs = const_to_join_value(function, def_map, *lhs)?;
+            let rhs = const_to_join_value(function, def_map, *rhs)?;
+            let result = eval_compare(to_join_compare_op(*op), &lhs, &rhs).ok()?;
+            match result {
+                JoinValue::Bool(b) => Some(ConstValue::Bool(b)),
+                _ => None,
+            }
+        }
+        _ => None,
+    }
+}
+
+fn const_to_join_value(
+    function: &MirFunction,
+    def_map: &crate::mir::ValueDefMap,
+    value: ValueId,
+) -> Option<JoinValue> {
+    match const_value(function, def_map, value)? {
+        ConstValue::Integer(n) => Some(JoinValue::Int(n)),
+        ConstValue::Float(_) => None,
+        ConstValue::Bool(b) => Some(JoinValue::Bool(b)),
+        ConstValue::String(s) => Some(JoinValue::Str(s)),
+        ConstValue::Null | ConstValue::Void => None,
+    }
+}
+
+fn to_join_compare_op(op: crate::mir::CompareOp) -> crate::mir::join_ir::CompareOp {
+    match op {
+        crate::mir::CompareOp::Lt => crate::mir::join_ir::CompareOp::Lt,
+        crate::mir::CompareOp::Le => crate::mir::join_ir::CompareOp::Le,
+        crate::mir::CompareOp::Gt => crate::mir::join_ir::CompareOp::Gt,
+        crate::mir::CompareOp::Ge => crate::mir::join_ir::CompareOp::Ge,
+        crate::mir::CompareOp::Eq => crate::mir::join_ir::CompareOp::Eq,
+        crate::mir::CompareOp::Ne => crate::mir::join_ir::CompareOp::Ne,
+    }
 }
 
 fn fold_constant_branch(

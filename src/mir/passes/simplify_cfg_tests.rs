@@ -169,8 +169,8 @@ fn simplifies_constant_branch_to_jump_from_copied_bool() {
 }
 
 #[test]
-fn simplifies_jump_block_and_rewrites_successor_phi_inputs() {
-    let mut module = MirModule::new("simplify_cfg_phi_rewrite".to_string());
+fn simplifies_constant_branch_to_jump_from_constant_compare() {
+    let mut module = MirModule::new("simplify_cfg_const_compare_branch".to_string());
     let mut function = MirFunction::new(test_signature("main", MirType::Integer), BasicBlockId(0));
 
     {
@@ -193,6 +193,97 @@ fn simplifies_jump_block_and_rewrites_successor_phi_inputs() {
             op: crate::mir::CompareOp::Eq,
             lhs: ValueId(1),
             rhs: ValueId(2),
+        });
+        entry.instruction_spans.push(Span::unknown());
+        entry.set_terminator(MirInstruction::Branch {
+            condition: ValueId(3),
+            then_bb: BasicBlockId(1),
+            else_bb: BasicBlockId(2),
+            then_edge_args: Some(EdgeArgs {
+                layout: JumpArgsLayout::CarriersOnly,
+                values: vec![ValueId(1)],
+            }),
+            else_edge_args: None,
+        });
+    }
+
+    let mut then_block = BasicBlock::new(BasicBlockId(1));
+    then_block.instructions.push(MirInstruction::Phi {
+        dst: ValueId(4),
+        inputs: vec![(BasicBlockId(2), ValueId(4))],
+        type_hint: Some(MirType::Integer),
+    });
+    then_block.instruction_spans.push(Span::unknown());
+    then_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId(1)),
+    });
+    function.add_block(then_block);
+
+    let mut else_block = BasicBlock::new(BasicBlockId(2));
+    else_block.set_terminator(MirInstruction::Return { value: None });
+    function.add_block(else_block);
+
+    function
+        .metadata
+        .value_types
+        .insert(ValueId(1), MirType::Integer);
+    function
+        .metadata
+        .value_types
+        .insert(ValueId(2), MirType::Integer);
+    function
+        .metadata
+        .value_types
+        .insert(ValueId(3), MirType::Bool);
+    function
+        .metadata
+        .value_types
+        .insert(ValueId(4), MirType::Integer);
+    function.update_cfg();
+    module.add_function(function);
+
+    let simplified = simplify(&mut module);
+    assert!(simplified >= 1);
+
+    let function = module.functions.get("main").expect("main function");
+    let entry = function.blocks.get(&BasicBlockId(0)).expect("entry block");
+    assert!(matches!(
+        &entry.terminator,
+        Some(MirInstruction::Jump {
+            target,
+            edge_args: Some(EdgeArgs {
+                layout: JumpArgsLayout::CarriersOnly,
+                values
+            })
+        }) if *target == BasicBlockId(1) && values.as_slice() == [ValueId(1)]
+    ));
+}
+
+#[test]
+fn simplifies_jump_block_and_rewrites_successor_phi_inputs() {
+    let mut module = MirModule::new("simplify_cfg_phi_rewrite".to_string());
+    let mut function = MirFunction::new(test_signature("main", MirType::Integer), BasicBlockId(0));
+
+    {
+        let entry = function
+            .blocks
+            .get_mut(&BasicBlockId(0))
+            .expect("entry block");
+        entry.instructions.push(MirInstruction::Const {
+            dst: ValueId(10),
+            value: ConstValue::Bool(true),
+        });
+        entry.instruction_spans.push(Span::unknown());
+        entry.instructions.push(MirInstruction::Const {
+            dst: ValueId(11),
+            value: ConstValue::Bool(false),
+        });
+        entry.instruction_spans.push(Span::unknown());
+        entry.instructions.push(MirInstruction::Compare {
+            dst: ValueId(3),
+            op: crate::mir::CompareOp::Lt,
+            lhs: ValueId(10),
+            rhs: ValueId(11),
         });
         entry.instruction_spans.push(Span::unknown());
         entry.set_terminator(MirInstruction::Branch {
@@ -250,19 +341,19 @@ fn simplifies_jump_block_and_rewrites_successor_phi_inputs() {
     function
         .metadata
         .value_types
-        .insert(ValueId(2), MirType::Integer);
-    function
-        .metadata
-        .value_types
         .insert(ValueId(4), MirType::Integer);
     function
         .metadata
         .value_types
-        .insert(ValueId(1), MirType::Integer);
+        .insert(ValueId(3), MirType::Bool);
     function
         .metadata
         .value_types
-        .insert(ValueId(3), MirType::Bool);
+        .insert(ValueId(10), MirType::Bool);
+    function
+        .metadata
+        .value_types
+        .insert(ValueId(11), MirType::Bool);
 
     function.update_cfg();
     module.add_function(function);
@@ -405,20 +496,20 @@ fn simplifies_jump_block_and_rewrites_successor_phi_values_for_trivial_middle_ph
             .get_mut(&BasicBlockId(0))
             .expect("entry block");
         entry.instructions.push(MirInstruction::Const {
-            dst: ValueId(1),
-            value: ConstValue::Integer(7),
+            dst: ValueId(10),
+            value: ConstValue::Bool(true),
         });
         entry.instruction_spans.push(Span::unknown());
         entry.instructions.push(MirInstruction::Const {
-            dst: ValueId(2),
-            value: ConstValue::Integer(9),
+            dst: ValueId(11),
+            value: ConstValue::Bool(false),
         });
         entry.instruction_spans.push(Span::unknown());
         entry.instructions.push(MirInstruction::Compare {
             dst: ValueId(6),
-            op: crate::mir::CompareOp::Eq,
-            lhs: ValueId(1),
-            rhs: ValueId(2),
+            op: crate::mir::CompareOp::Lt,
+            lhs: ValueId(10),
+            rhs: ValueId(11),
         });
         entry.instruction_spans.push(Span::unknown());
         entry.set_terminator(MirInstruction::Branch {
@@ -501,7 +592,11 @@ fn simplifies_jump_block_and_rewrites_successor_phi_values_for_trivial_middle_ph
     function
         .metadata
         .value_types
-        .insert(ValueId(1), MirType::Integer);
+        .insert(ValueId(10), MirType::Bool);
+    function
+        .metadata
+        .value_types
+        .insert(ValueId(11), MirType::Bool);
     function
         .metadata
         .value_types
