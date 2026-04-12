@@ -46,7 +46,7 @@ Non-goals (この文書で今すぐやらない):
 - pending sibling futures owned by the same explicit scope are cancelled with reason `sibling-failed`
 - already-ready sibling futures are not rewritten
 - implicit root scope does not participate in sibling-failure cancellation in this cut
-- aggregate failure reporting and `joinAll()` failure surface remain later-phase work
+- aggregate failure reporting remains later-phase work
 
 ### Runtime hygiene follow-up (Phase 250x)
 
@@ -88,6 +88,20 @@ Non-goals (この文書で今すぐやらない):
   - implicit root scope does not gain scope-exit failure surfacing here
   - `joinAll(timeout_ms)` still does not surface failure in this cut
   - aggregate/multi-failure reporting remains later work
+
+### `joinAll()` first-failure surface (Phase 253x)
+
+- `TaskGroupBox.joinAll(timeout_ms)` now surfaces the same first failure latch used by explicit scope exit
+- current Phase-0 public shape is:
+  - `ResultBox::Ok(void)` when no first failure is latched after the bounded join
+  - `ResultBox::Err(first_failure_payload)` when a first failure is latched
+- current timeout behavior is intentionally unchanged:
+  - timeout does not yet have a dedicated public error payload
+  - a timeout with no latched failure still returns `Ok(void)` in this cut
+- current failure payload preservation is now box-based:
+  - explicit-scope owner state stores the first failure as a box payload, not only a rendered string
+  - scope exit and `joinAll()` now read the same preserved first-failure payload
+- aggregate/multi-failure reporting remains a separate later cut
 
 ---
 

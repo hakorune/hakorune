@@ -19,6 +19,8 @@ Related:
 
 ## Landing Snapshot
 
+- `phase253x` is landed:
+  - `joinAll()` now returns `ResultBox::Err(first_failure_payload)` from the same first-failure latch as explicit scope exit
 - `phase252x` is landed:
   - explicit `task_scope` exit now surfaces the popped scope's latched `first_failure` after bounded join
 - `phase251x` is landed:
@@ -42,7 +44,7 @@ Related:
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-252x/README.md`
+3. `docs/development/current/main/phases/phase-253x/README.md`
 4. `docs/development/current/main/phases/phase-163x/README.md`
 5. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 

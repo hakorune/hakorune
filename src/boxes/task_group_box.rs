@@ -1,4 +1,5 @@
 use crate::box_trait::{BoolBox, BoxBase, BoxCore, NyashBox, StringBox, VoidBox};
+use crate::boxes::result::ResultBox;
 use std::any::Any;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
@@ -8,7 +9,7 @@ use std::sync::{
 #[derive(Debug)]
 pub(crate) struct TaskGroupInner {
     pub strong: Mutex<Vec<crate::boxes::future::FutureBox>>,
-    pub first_failure: Mutex<Option<String>>,
+    pub first_failure: Mutex<Option<Box<dyn NyashBox>>>,
     pub closed_reason: Mutex<Option<String>>,
     pub sibling_failure_seen: AtomicBool,
 }
@@ -89,12 +90,14 @@ impl TaskGroupInner {
         }
     }
 
-    pub(crate) fn first_failure(&self) -> Option<String> {
-        self.first_failure.lock().ok().and_then(|slot| slot.clone())
+    pub(crate) fn first_failure(&self) -> Option<Box<dyn NyashBox>> {
+        self.first_failure
+            .lock()
+            .ok()
+            .and_then(|slot| slot.as_ref().map(|failure| failure.clone_or_share()))
     }
 
-    pub(crate) fn scope_exit_shutdown(&self, timeout_ms: u64) -> Result<(), String> {
-        self.cancel_pending_with_reason("scope-exit-cancelled");
+    pub(crate) fn join_outcome(&self, timeout_ms: u64) -> Result<(), Box<dyn NyashBox>> {
         self.join_pending_with_timeout(timeout_ms);
         if let Some(failure) = self.first_failure() {
             return Err(failure);
@@ -102,12 +105,17 @@ impl TaskGroupInner {
         Ok(())
     }
 
-    pub(crate) fn note_failure_and_cancel_siblings(&self, message: &str) {
+    pub(crate) fn scope_exit_shutdown(&self, timeout_ms: u64) -> Result<(), Box<dyn NyashBox>> {
+        self.cancel_pending_with_reason("scope-exit-cancelled");
+        self.join_outcome(timeout_ms)
+    }
+
+    pub(crate) fn note_failure_and_cancel_siblings(&self, failure: Box<dyn NyashBox>) {
         if self.sibling_failure_seen.swap(true, Ordering::SeqCst) {
             return;
         }
         if let Ok(mut slot) = self.first_failure.lock() {
-            *slot = Some(message.to_string());
+            *slot = Some(failure);
         }
         self.cancel_pending_with_reason("sibling-failed");
     }
@@ -143,10 +151,17 @@ impl TaskGroupBox {
         Box::new(VoidBox::new())
     }
     /// Best-effort bounded join for child futures owned by this task-scope scaffold.
+    ///
+    /// Current Phase-0 surface:
+    /// - `Ok(void)` when no first failure is latched
+    /// - `Err(first_failure)` when explicit child failure was latched
+    /// - timeout does not yet have its own public error shape
     pub fn joinAll(&self, timeout_ms: Option<i64>) -> Box<dyn NyashBox> {
         let ms = timeout_ms.unwrap_or(2000).max(0) as u64;
-        self.join_all_inner(ms);
-        Box::new(VoidBox::new())
+        match self.inner.join_outcome(ms) {
+            Ok(()) => Box::new(ResultBox::new_ok(Box::new(VoidBox::new()))),
+            Err(error) => Box::new(ResultBox::new_err(error)),
+        }
     }
     pub fn is_cancelled(&self) -> bool {
         self.inner.closed_reason().is_some()
@@ -159,10 +174,6 @@ impl TaskGroupBox {
 
     fn cancel_owned_futures(&self, reason: &str) {
         self.inner.cancel_pending_with_reason(reason);
-    }
-
-    fn join_all_inner(&self, timeout_ms: u64) {
-        self.inner.join_pending_with_timeout(timeout_ms);
     }
 }
 
@@ -206,6 +217,8 @@ impl NyashBox for TaskGroupBox {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::boxes::basic::ErrorBox;
+    use crate::boxes::result::ResultBox;
 
     #[test]
     fn cancel_all_marks_group_cancelled() {
@@ -223,8 +236,12 @@ mod tests {
         let group = TaskGroupBox::new();
 
         let out = group.joinAll(Some(0));
-
-        assert_eq!(out.to_string_box().value, "void");
+        let result = out
+            .as_any()
+            .downcast_ref::<ResultBox>()
+            .expect("joinAll must return ResultBox");
+        assert!(result.is_ok_bool());
+        assert_eq!(result.get_value().to_string_box().value, "void");
     }
 
     #[test]
@@ -256,9 +273,31 @@ mod tests {
             "Future(cancelled: Cancelled: sibling-failed)"
         );
         assert_eq!(
-            group.inner.first_failure.lock().unwrap().as_deref(),
-            Some("boom")
+            group
+                .inner
+                .first_failure()
+                .expect("first failure must be stored")
+                .to_string_box()
+                .value,
+            "boom"
         );
+    }
+
+    #[test]
+    fn join_all_returns_err_first_failure_payload() {
+        let group = TaskGroupBox::new();
+        let failed = crate::boxes::future::FutureBox::new();
+        group.add_future(&failed);
+        failed.set_failed(Box::new(ErrorBox::new("TaskError", "boom")));
+
+        let out = group.joinAll(Some(0));
+        let result = out
+            .as_any()
+            .downcast_ref::<ResultBox>()
+            .expect("joinAll must return ResultBox");
+
+        assert!(result.is_err());
+        assert_eq!(result.get_error().to_string_box().value, "TaskError: boom");
     }
 
     #[test]

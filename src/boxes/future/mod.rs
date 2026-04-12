@@ -83,7 +83,7 @@ impl NyashFutureBox {
 
     /// Set a failed terminal state for the future
     pub fn set_failed(&self, error: Box<dyn NyashBox>) {
-        let failure_text = error.to_string_box().value;
+        let failure_payload = error.clone_or_share();
         let mut st = self.inner.state.lock().unwrap();
         if st.ready {
             return;
@@ -92,7 +92,7 @@ impl NyashFutureBox {
         st.ready = true;
         self.inner.cv.notify_all();
         drop(st);
-        self.notify_sibling_failure_scope(&failure_text);
+        self.notify_sibling_failure_scope(failure_payload);
     }
 
     /// Set a cancelled terminal state for the future
@@ -177,7 +177,7 @@ impl NyashFutureBox {
         }
     }
 
-    fn notify_sibling_failure_scope(&self, failure_text: &str) {
+    fn notify_sibling_failure_scope(&self, failure: Box<dyn NyashBox>) {
         let owner = self
             .inner
             .failure_scope
@@ -185,7 +185,7 @@ impl NyashFutureBox {
             .ok()
             .and_then(|slot| slot.as_ref().and_then(Weak::upgrade));
         if let Some(owner) = owner {
-            owner.note_failure_and_cancel_siblings(failure_text);
+            owner.note_failure_and_cancel_siblings(failure);
         }
     }
 }

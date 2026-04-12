@@ -372,7 +372,7 @@ impl P2PBox {
                                     let _ = interp.execute_statement(st);
                                 }
                                 if let Err(err) = crate::runtime::global_hooks::pop_task_scope() {
-                                    panic!("task_scope exit failed: {}", err);
+                                    panic!("task_scope exit failed: {}", err.to_string_box().value);
                                 }
                             }
                             #[cfg(not(feature = "interpreter-legacy"))]

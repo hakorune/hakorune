@@ -246,8 +246,8 @@ pub(crate) fn reset_for_tests() {
 /// Current Phase-0 contract:
 /// - cancel pending futures owned by the popped explicit scope
 /// - bounded-join that same scope
-/// - surface the popped scope's latched `first_failure` as `Err(String)`
-pub fn pop_task_scope() -> Result<(), String> {
+/// - surface the popped scope's latched `first_failure` as `Err(failure_payload)`
+pub fn pop_task_scope() -> Result<(), Box<dyn crate::box_trait::NyashBox>> {
     let mut popped: Option<std::sync::Arc<crate::boxes::task_group_box::TaskGroupInner>> = None;
     if let Ok(mut st) = state().write() {
         if st.scope_depth > 0 {
@@ -409,7 +409,7 @@ mod tests {
             "Future(cancelled: Cancelled: sibling-failed)"
         );
         let err = pop_task_scope().expect_err("scope exit must surface first failure");
-        assert_eq!(err, "TaskError: boom");
+        assert_eq!(err.to_string_box().value, "TaskError: boom");
         reset_for_tests();
     }
 
@@ -476,7 +476,7 @@ mod tests {
 
         let err = pop_task_scope().expect_err("scope exit must surface first failure");
 
-        assert_eq!(err, "TaskError: boom");
+        assert_eq!(err.to_string_box().value, "TaskError: boom");
         assert_eq!(
             sibling.to_string_box().value,
             "Future(cancelled: Cancelled: sibling-failed)"
