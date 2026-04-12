@@ -19,8 +19,8 @@ Related:
 
 ## Landing Snapshot
 
-- `phase245x` is landed:
-  - `await` failure taxonomy is now pinned to `ContractError` + `TaskFailed(error)` while `Cancelled(reason)` remains reserved
+- `phase246x` is landed:
+  - `Cancelled(reason)` now exists as a narrow scope-owned future path with stable `scope-cancelled` reason
 - latest semantic simplification cut:
   - copied-constant `Branch` terminators, constant `Compare` instructions, and empty trampoline jump-threading now fold before CFG merge
 
@@ -28,7 +28,7 @@ Related:
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-245x/README.md`
+3. `docs/development/current/main/phases/phase-246x/README.md`
 4. `docs/development/current/main/phases/phase-163x/README.md`
 5. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 

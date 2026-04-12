@@ -46,12 +46,15 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
   - `await` requires a `Future` operand
   - a non-`Future` operand is a fail-fast type error
   - a failed future surfaces as `TaskFailed(error)`
-  - there is no timeout or cancellation result shape yet
+  - a scope-cancelled future surfaces as `Cancelled(reason)`
+  - there is no timeout result shape in the VM-side contract yet
 - Current taxonomy is intentionally small:
   - `ContractError`
   - `TaskFailed(error)`
-  - `Cancelled(reason)` is reserved for a later phase
-- `task_scope.cancelAll()` does not yet define a user-visible `await` interruption contract.
+  - `Cancelled(reason)` for scope-owned pending futures only
+- `task_scope.cancelAll()` is currently a narrow future-owner cut:
+  - it cancels owned pending futures with reason `scope-cancelled`
+  - it does not yet define interruption for arbitrary blocking APIs
 
 ### Types & Safety
 - Phase‑0: runtime tag checks on `ChannelBox` send/receive are optional; document expected element type.

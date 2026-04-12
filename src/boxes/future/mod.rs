@@ -3,6 +3,7 @@
 // 参考: 既存Boxの設計思想
 
 use crate::box_trait::{BoolBox, BoxBase, BoxCore, NyashBox, StringBox};
+use crate::boxes::basic::ErrorBox;
 use std::any::Any;
 use std::sync::{Arc, Condvar, Mutex, Weak};
 
@@ -22,6 +23,13 @@ struct FutureState {
 enum FutureOutcome {
     Ready(Box<dyn NyashBox>),
     Failed(Box<dyn NyashBox>),
+    Cancelled(Box<dyn NyashBox>),
+}
+
+pub enum FutureTerminal {
+    Ready(Box<dyn NyashBox>),
+    Failed(Box<dyn NyashBox>),
+    Cancelled(Box<dyn NyashBox>),
 }
 
 #[derive(Debug)]
@@ -63,6 +71,12 @@ impl NyashFutureBox {
     /// Set the result of the future
     pub fn set_result(&self, value: Box<dyn NyashBox>) {
         let mut st = self.inner.state.lock().unwrap();
+        if matches!(
+            st.outcome.as_ref(),
+            Some(FutureOutcome::Failed(_) | FutureOutcome::Cancelled(_))
+        ) {
+            return;
+        }
         st.outcome = Some(FutureOutcome::Ready(value));
         st.ready = true;
         self.inner.cv.notify_all();
@@ -71,26 +85,51 @@ impl NyashFutureBox {
     /// Set a failed terminal state for the future
     pub fn set_failed(&self, error: Box<dyn NyashBox>) {
         let mut st = self.inner.state.lock().unwrap();
+        if st.ready {
+            return;
+        }
         st.outcome = Some(FutureOutcome::Failed(error));
         st.ready = true;
         self.inner.cv.notify_all();
     }
 
+    /// Set a cancelled terminal state for the future
+    pub fn set_cancelled(&self, reason: Box<dyn NyashBox>) {
+        let mut st = self.inner.state.lock().unwrap();
+        if st.ready {
+            return;
+        }
+        st.outcome = Some(FutureOutcome::Cancelled(reason));
+        st.ready = true;
+        self.inner.cv.notify_all();
+    }
+
+    /// Best-effort structured cancellation with a stable error payload.
+    pub fn cancel_with_reason(&self, reason: impl Into<String>) {
+        self.set_cancelled(Box::new(ErrorBox::new("Cancelled", reason.into())));
+    }
+
     /// Get the result (blocks until ready)
     pub fn get(&self) -> Box<dyn NyashBox> {
-        match self.wait_and_get() {
-            Ok(value) => value,
-            Err(error) => {
+        match self.wait_terminal() {
+            FutureTerminal::Ready(value) => value,
+            FutureTerminal::Failed(error) => {
                 panic!(
                     "called FutureBox::get() on failed future: {}",
                     error.to_string_box().value
                 );
             }
+            FutureTerminal::Cancelled(reason) => {
+                panic!(
+                    "called FutureBox::get() on cancelled future: {}",
+                    reason.to_string_box().value
+                );
+            }
         }
     }
 
-    /// Wait until ready and return either the ready value or the failure payload
-    pub fn wait_and_get(&self) -> Result<Box<dyn NyashBox>, Box<dyn NyashBox>> {
+    /// Wait until ready and return the terminal state.
+    pub fn wait_terminal(&self) -> FutureTerminal {
         let mut st = self.inner.state.lock().unwrap();
         while !st.ready {
             st = self.inner.cv.wait(st).unwrap();
@@ -100,8 +139,17 @@ impl NyashFutureBox {
             .as_ref()
             .expect("ready future must have terminal outcome")
         {
-            FutureOutcome::Ready(value) => Ok(value.clone_box()),
-            FutureOutcome::Failed(error) => Err(error.clone_box()),
+            FutureOutcome::Ready(value) => FutureTerminal::Ready(value.clone_box()),
+            FutureOutcome::Failed(error) => FutureTerminal::Failed(error.clone_box()),
+            FutureOutcome::Cancelled(reason) => FutureTerminal::Cancelled(reason.clone_box()),
+        }
+    }
+
+    /// Wait until ready and return either the ready value or the non-success payload.
+    pub fn wait_and_get(&self) -> Result<Box<dyn NyashBox>, Box<dyn NyashBox>> {
+        match self.wait_terminal() {
+            FutureTerminal::Ready(value) => Ok(value),
+            FutureTerminal::Failed(error) | FutureTerminal::Cancelled(error) => Err(error),
         }
     }
 
@@ -139,6 +187,10 @@ impl NyashBox for NyashFutureBox {
                 Some(FutureOutcome::Failed(error)) => {
                     StringBox::new(format!("Future(failed: {})", error.to_string_box().value))
                 }
+                Some(FutureOutcome::Cancelled(reason)) => StringBox::new(format!(
+                    "Future(cancelled: {})",
+                    reason.to_string_box().value
+                )),
                 None => StringBox::new("Future(ready: void)".to_string()),
             }
         } else {
@@ -178,6 +230,9 @@ impl BoxCore for NyashFutureBox {
                 }
                 Some(FutureOutcome::Failed(error)) => {
                     write!(f, "Future(failed: {})", error.to_string_box().value)
+                }
+                Some(FutureOutcome::Cancelled(reason)) => {
+                    write!(f, "Future(cancelled: {})", reason.to_string_box().value)
                 }
                 None => write!(f, "Future(ready: void)"),
             }

@@ -153,8 +153,7 @@ fn handle_task(
 ) -> BidResult<Option<Box<dyn NyashBox>>> {
     match method_name {
         "cancelCurrent" => {
-            let tok = global_hooks::current_group_token();
-            tok.cancel();
+            global_hooks::cancel_current_group_with_reason("scope-cancelled");
             Ok(None)
         }
         "currentToken" => {
@@ -235,6 +234,7 @@ fn handle_future(
             if let Some(v) = args.get(0) {
                 fut.set_result(v.clone_box());
             }
+            global_hooks::register_future_to_current_group(&fut);
             Ok(Some(Box::new(fut)))
         }
         "set" => {
@@ -404,9 +404,14 @@ fn handle_future_await(args: &[Box<dyn NyashBox>]) -> BidResult<Option<Box<dyn N
                 }
             }
 
-            return match fut.wait_and_get() {
-                Ok(v) => Ok(Some(Box::new(NyashResultBox::new_ok(v)))),
-                Err(error) => Ok(Some(Box::new(NyashResultBox::new_err(error)))),
+            return match fut.wait_terminal() {
+                crate::boxes::future::FutureTerminal::Ready(v) => {
+                    Ok(Some(Box::new(NyashResultBox::new_ok(v))))
+                }
+                crate::boxes::future::FutureTerminal::Failed(error)
+                | crate::boxes::future::FutureTerminal::Cancelled(error) => {
+                    Ok(Some(Box::new(NyashResultBox::new_err(error))))
+                }
             };
         } else {
             return Ok(Some(Box::new(NyashResultBox::new_ok(arg.clone_box()))));
@@ -479,5 +484,26 @@ mod tests {
             .expect("await bridge must return ResultBox");
         assert!(result.is_err());
         assert_eq!(result.get_error().to_string_box().value, "TaskError: boom");
+    }
+
+    #[test]
+    fn test_future_await_cancelled_returns_result_err() {
+        let fut = crate::boxes::future::FutureBox::new();
+        fut.cancel_with_reason("scope-cancelled");
+
+        let args = vec![Box::new(fut) as Box<dyn NyashBox>];
+        let out = handle_future_await(&args)
+            .expect("future await bridge must succeed")
+            .expect("future await bridge must return a result box");
+
+        let result = out
+            .as_any()
+            .downcast_ref::<crate::boxes::result::NyashResultBox>()
+            .expect("await bridge must return ResultBox");
+        assert!(result.is_err());
+        assert_eq!(
+            result.get_error().to_string_box().value,
+            "Cancelled: scope-cancelled"
+        );
     }
 }

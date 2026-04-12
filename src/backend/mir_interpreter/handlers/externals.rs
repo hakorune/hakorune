@@ -125,6 +125,7 @@ impl MirInterpreter {
                     let v = self.load_as_box(*a0)?;
                     fut.set_result(v);
                 }
+                crate::runtime::global_hooks::register_future_to_current_group(&fut);
                 self.write_result(dst, VMValue::Future(fut));
                 Ok(())
             }
@@ -145,12 +146,15 @@ impl MirInterpreter {
                 if let Some(a0) = args.get(0) {
                     let f = self.reg_load(*a0)?;
                     match f {
-                        VMValue::Future(fut) => match fut.wait_and_get() {
-                            Ok(v) => {
+                        VMValue::Future(fut) => match fut.wait_terminal() {
+                            crate::boxes::future::FutureTerminal::Ready(v) => {
                                 self.write_result(dst, VMValue::from_nyash_box(v));
                             }
-                            Err(error) => {
+                            crate::boxes::future::FutureTerminal::Failed(error) => {
                                 return Err(VMError::TaskFailed(error.to_string_box().value));
+                            }
+                            crate::boxes::future::FutureTerminal::Cancelled(reason) => {
+                                return Err(VMError::TaskCancelled(reason.to_string_box().value));
                             }
                         },
                         _ => {

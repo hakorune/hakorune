@@ -33,6 +33,7 @@ impl TaskGroupBox {
     }
     pub fn cancel_all(&mut self) {
         self.cancelled = true;
+        self.cancel_owned_futures("scope-cancelled");
     }
     /// Cancel all child tasks owned by this task-scope scaffold and return void.
     pub fn cancelAll(&mut self) -> Box<dyn NyashBox> {
@@ -53,6 +54,16 @@ impl TaskGroupBox {
     pub fn add_future(&self, fut: &crate::boxes::future::FutureBox) {
         if let Ok(mut v) = self.inner.strong.lock() {
             v.push(fut.clone());
+        }
+    }
+
+    fn cancel_owned_futures(&self, reason: &str) {
+        if let Ok(list) = self.inner.strong.lock() {
+            for fut in list.iter() {
+                if !fut.ready() {
+                    fut.cancel_with_reason(reason);
+                }
+            }
         }
     }
 
@@ -138,5 +149,19 @@ mod tests {
         let out = group.joinAll(Some(0));
 
         assert_eq!(out.to_string_box().value, "void");
+    }
+
+    #[test]
+    fn cancel_all_cancels_owned_pending_future() {
+        let mut group = TaskGroupBox::new();
+        let fut = crate::boxes::future::FutureBox::new();
+        group.add_future(&fut);
+
+        group.cancelAll();
+
+        assert_eq!(
+            fut.to_string_box().value,
+            "Future(cancelled: Cancelled: scope-cancelled)"
+        );
     }
 }

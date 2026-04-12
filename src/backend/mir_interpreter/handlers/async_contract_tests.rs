@@ -67,3 +67,28 @@ fn await_surfaces_failed_future_as_task_failed() {
         other => panic!("unexpected error kind: {}", other),
     }
 }
+
+#[test]
+fn await_surfaces_cancelled_future_as_task_cancelled() {
+    let mut interp = MirInterpreter::new();
+    let future_reg = ValueId::new(1);
+    let dst = ValueId::new(2);
+    let fut = crate::boxes::future::FutureBox::new();
+    fut.cancel_with_reason("scope-cancelled");
+
+    interp.regs.insert(future_reg, VMValue::Future(fut));
+
+    let err = interp
+        .execute_instruction(&MirInstruction::Await {
+            dst,
+            future: future_reg,
+        })
+        .expect_err("cancelled future await must surface task cancellation");
+
+    match err {
+        VMError::TaskCancelled(msg) => {
+            assert_eq!(msg, "Cancelled: scope-cancelled");
+        }
+        other => panic!("unexpected error kind: {}", other),
+    }
+}

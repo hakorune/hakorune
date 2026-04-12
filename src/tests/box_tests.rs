@@ -106,6 +106,23 @@ mod tests {
     }
 
     #[test]
+    fn test_future_box_cancelled_terminal_state() {
+        let future = NyashFutureBox::new();
+        future.cancel_with_reason("scope-cancelled");
+
+        assert!(future.ready());
+        assert_eq!(
+            future.to_string_box().value,
+            "Future(cancelled: Cancelled: scope-cancelled)"
+        );
+
+        let err = future
+            .wait_and_get()
+            .expect_err("cancelled future must return reason payload");
+        assert_eq!(err.to_string_box().value, "Cancelled: scope-cancelled");
+    }
+
+    #[test]
     fn test_stream_box_nyash_trait() {
         let stream = NyashStreamBox::from_data(vec![72, 101, 108, 108, 111]); // "Hello"
 

@@ -21,6 +21,7 @@ pub enum VMError {
     StackUnderflow,
     TypeError(String),
     TaskFailed(String),
+    TaskCancelled(String),
     StepBudgetExceeded {
         max_steps: u64,
         steps: u64,
@@ -48,6 +49,7 @@ impl std::fmt::Display for VMError {
             VMError::StackUnderflow => write!(f, "Stack underflow"),
             VMError::TypeError(msg) => write!(f, "Type error: {}", msg),
             VMError::TaskFailed(msg) => write!(f, "Task failed: {}", msg),
+            VMError::TaskCancelled(msg) => write!(f, "Task cancelled: {}", msg),
             VMError::StepBudgetExceeded {
                 max_steps,
                 steps,

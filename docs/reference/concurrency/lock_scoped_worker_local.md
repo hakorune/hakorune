@@ -119,6 +119,7 @@ Rules:
 1. Scope entry binds a key/value; scope exit restores the previous binding.
 2. A `scoped` value must not be persisted as “state”; it is context only.
 3. Structured child tasks inherit the active bindings under `task_scope` (current runtime scaffold: `TaskGroupBox`).
+4. Current `task_scope.cancelAll()` is narrow: it marks owned pending futures as cancelled, but it does not define general blocking-call interruption yet.
 
 Notes:
 - `scoped` is intended to replace ThreadLocal-style “request context” without leakage.

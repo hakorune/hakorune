@@ -99,8 +99,10 @@ Current failure taxonomy to pin:
   - current VM `await` surfaces that state as `VMError::TaskFailed(<stringified error payload>)`
   - current `env.future.await` plugin/runtime route surfaces that state as `ResultBox::Err(error)`
 - `Cancelled(reason)`
-  - reserved only in the current tree
-  - no current runtime path sets a future to cancelled
+  - current first cut is explicit scope-owned cancellation only
+  - `task_scope.cancelAll()` / current-scope cancellation mark owned pending futures as `Cancelled: scope-cancelled`
+  - current VM `await` surfaces that state as `VMError::TaskCancelled(<stringified reason payload>)`
+  - current `env.future.await` plugin/runtime route surfaces that state as `ResultBox::Err(reason)`
   - deadline/timeout remains outside the current VM-side `await` contract
 
 ### 2.3 Method-call `nowait`

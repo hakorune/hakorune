@@ -123,6 +123,30 @@ pub fn current_group_token() -> CancellationToken {
     CancellationToken::new()
 }
 
+/// Cancel the current structured task scope and mark owned pending futures as cancelled.
+pub fn cancel_current_group_with_reason(reason: &str) {
+    if let Ok(st) = state().write() {
+        if let Some(tok) = st.cur_token.as_ref() {
+            tok.cancel();
+        }
+        if let Some(inner) = st.group_stack.last() {
+            if let Ok(list) = inner.strong.lock() {
+                for fut in list.iter() {
+                    if !fut.ready() {
+                        fut.cancel_with_reason(reason);
+                    }
+                }
+            }
+            return;
+        }
+        for fut in st.strong.iter() {
+            if !fut.ready() {
+                fut.cancel_with_reason(reason);
+            }
+        }
+    }
+}
+
 /// Register a Future into the current group's registry (best-effort; clones share state)
 pub fn register_future_to_current_group(fut: &crate::boxes::future::FutureBox) {
     if let Ok(mut st) = state().write() {
@@ -320,6 +344,27 @@ pub fn gc_barrier(kind: BarrierKind) {
         if let Some(gc) = st.gc.as_ref() {
             gc.barrier(kind);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::box_trait::NyashBox;
+
+    #[test]
+    fn cancel_current_group_marks_registered_future_cancelled() {
+        push_task_scope();
+        let fut = crate::boxes::future::FutureBox::new();
+        register_future_to_current_group(&fut);
+
+        cancel_current_group_with_reason("scope-cancelled");
+
+        assert_eq!(
+            fut.to_string_box().value,
+            "Future(cancelled: Cancelled: scope-cancelled)"
+        );
+        pop_task_scope();
     }
 }
 
