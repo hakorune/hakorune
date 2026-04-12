@@ -150,6 +150,20 @@ Scope: repo root から current lane / current front / restart read order に最
     - `docs/development/current/main/phases/phase-190x/README.md`
     - remaining DCE work is now split into three lanes: loop/backedge local-field partial DCE, generic memory `Store`/`Load` DCE, and observer/control cleanup for `Debug` plus terminators
     - next code phase should not mix these lanes
+  - DCE next granular cuts:
+    - lane A `loop/backedge local-field partial DCE`
+    - next cut A1: same-root local `FieldGet` / `FieldSet` pruning across one backedge-carried local root only
+    - next cut A2: overwritten local `FieldSet` pruning when the later overwrite is seen after exactly one loop-header roundtrip on the same carried root
+    - stop-line for lane A: no mixed-root phi merges, no multi-round dataflow, no generic `Store` / `Load`
+    - lane B `generic memory Store/Load`
+    - next cut B0: docs/facts phase first; define observer/owner contract before touching code
+    - next cut B1: dead `Load` pruning only for definitely local/private pointer carriers with no escaping observer
+    - next cut B2: overwritten `Store` pruning only for the same private carrier after B1 is green
+    - stop-line for lane B: no alias-heavy memory SSA, no mixed public/private pointers, no `FieldGet` / `FieldSet` conflation
+    - lane C `observer/control cleanup`
+    - next cut C0: docs-only inventory for `Debug`, terminators, and control anchors
+    - next cut C1: decide whether `Debug` is permanent observer-semantic or removable under explicit dev-off contract
+    - next cut C2: terminator cleanup only after C1 is fixed and separate from any DCE memory widening
 - portability-ci validation:
   - workflow `portability-ci` on `public-main` completed success for commit `6b91896c0`
   - Windows check and macOS build (release) both passed in run `24211665863`
