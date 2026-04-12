@@ -15,11 +15,11 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-163x primitive and user-box fast path` |
-| Front | `root pointers compressed -> lane-B0 docs/facts landed -> lane-B1 dead Load pruning landed -> next narrow slice is lane B2 overwritten Store pruning` |
+| Front | `root pointers compressed -> lane-B0 docs/facts landed -> lane-B1 dead Load pruning landed -> lane-B2 overwritten Store pruning landed -> next docs slice is lane C0 observer/control inventory` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `generic memory lane B now has private-carrier dead Load pruning, but overwritten Store pruning is still docs-only` |
-| Next | `semantic simplification bundle lane B2 (overwritten Store pruning on definitely private carrier roots)` |
-| After Next | `lane C0 observer/control docs inventory -> lane C1 Debug policy decision` |
+| Blocker | `generic memory lane B is now landed through private-carrier overwritten Store pruning, but observer/control policy is still unclassified` |
+| Next | `observer/control lane C0 (Debug / terminator docs-only inventory)` |
+| After Next | `lane C1 Debug policy decision -> lane C2 terminator/control cleanup` |
 
 ## Current Read
 
@@ -35,16 +35,18 @@ Related:
   - `phase-178x` / `phase-193x` / `phase-194x`: BoxShape splits are landed and stay behavior-preserving
   - `phase-195x` / `phase-197x`: roadmap regroup and pointer hygiene are landed; current docs agree on lane B0
   - `phase-198x`: root restart docs are compressed back to pointer-only form
-- landed generic-memory facts follow-on:
+  - landed generic-memory facts follow-on:
   - `phase-199x` is landed
   - lane-B observer/owner contract is fixed before any generic `Load` / `Store` pruning
   - `phase-200x` is now landed too
   - dead `Load` pruning now exists for definitely private carrier roots with copy-only alias propagation
-  - next target is now B2 overwritten `Store` pruning on the same private carriers
+  - `phase-201x` is now landed too
+  - overwritten `Store` pruning now exists for definitely private carrier roots on the same block with copy-only alias propagation
+  - next target is now C0 observer/control docs inventory
 - immediate sequence:
-  - lane B1 dead `Load` pruning
-  - lane B2 overwritten `Store` pruning
   - lane C0 observer/control docs inventory
+  - lane C1 `Debug` policy decision
+  - lane C2 terminator/control cleanup
 - stop-lines:
   - keep lane B separate from `Debug` / terminator observer cleanup
   - keep lane B separate from `generic placement / effect`

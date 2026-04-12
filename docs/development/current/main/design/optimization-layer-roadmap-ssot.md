@@ -80,11 +80,11 @@ Owner: `phase-163x optimization-resume`
 ## Immediate Read
 
 - immediate code next:
-  - `semantic simplification bundle` lane B2
-  - overwritten `Store` pruning on definitely private carrier roots
+  - `observer/control lane C0`
+  - docs-only inventory for `Debug` / terminators
 - immediate follow-on after that:
-  - lane C0 observer/control docs inventory
   - lane C1 `Debug` policy decision
+  - lane C2 terminator/control cleanup
 - next major design lane after the current DCE slice:
   - `generic placement / effect`
   - then `agg_local scalarization`

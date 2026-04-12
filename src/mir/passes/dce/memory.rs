@@ -16,6 +16,11 @@ impl PrivateCarrierInfo {
         self.private_roots.contains(&root).then_some(root)
     }
 
+    fn resolve_private_store_root(&self, value: ValueId) -> Option<ValueId> {
+        self.resolve_private_root(value)
+            .filter(|root| !self.escaping_roots.contains(root))
+    }
+
     pub(super) fn is_private_carrier(&self, value: ValueId) -> bool {
         self.resolve_private_root(value).is_some_and(|root| {
             !self.escaping_roots.contains(&root) && !self.load_blocked_roots.contains(&root)
@@ -112,4 +117,54 @@ pub(super) fn is_removable_effect_sensitive_memory_read_instruction(
         inst,
         crate::mir::MirInstruction::Load { ptr, .. } if private_carriers.is_private_carrier(*ptr)
     )
+}
+
+pub(super) fn collect_overwritten_private_stores(
+    function: &MirFunction,
+    reachable_blocks: &HashSet<crate::mir::BasicBlockId>,
+    private_carriers: &PrivateCarrierInfo,
+) -> HashSet<(crate::mir::BasicBlockId, usize)> {
+    let mut removable = HashSet::new();
+
+    for (bid, block) in &function.blocks {
+        if !reachable_blocks.contains(bid) {
+            continue;
+        }
+
+        let mut pending_store_roots = HashSet::new();
+        for (idx, instruction) in block.instructions.iter().enumerate().rev() {
+            match instruction {
+                crate::mir::MirInstruction::Store { ptr, .. } => {
+                    let Some(root) = private_carriers.resolve_private_store_root(*ptr) else {
+                        continue;
+                    };
+                    if pending_store_roots.contains(&root) {
+                        removable.insert((*bid, idx));
+                    }
+                    pending_store_roots.insert(root);
+                }
+                crate::mir::MirInstruction::Load { ptr, .. } => {
+                    if let Some(root) = private_carriers.resolve_private_store_root(*ptr) {
+                        pending_store_roots.remove(&root);
+                    }
+                }
+                crate::mir::MirInstruction::Copy { src, .. } => {
+                    if let Some(root) = private_carriers.resolve_private_store_root(*src) {
+                        if pending_store_roots.contains(&root) {
+                            continue;
+                        }
+                    }
+                }
+                _ => {
+                    for value in instruction.used_values() {
+                        if let Some(root) = private_carriers.resolve_private_store_root(value) {
+                            pending_store_roots.remove(&root);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    removable
 }

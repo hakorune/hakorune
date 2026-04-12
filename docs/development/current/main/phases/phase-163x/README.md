@@ -230,9 +230,10 @@
            - keep `SCCP`, `SimplifyCFG`, `DCE`, and jump-threading together as one layer
            - keep `DSE` out of this layer; it belongs to the memory-effect layer
            - lane B1 is now landed: dead `Load` pruning on definitely private carrier roots
-           - immediate code next is lane B2: overwritten `Store` pruning on the same private carriers
+           - lane B2 is now landed too: overwritten `Store` pruning on the same private carriers
+           - immediate code next is lane C0: observer/control docs inventory
         5. `memory-effect layer`
-           - partial: lane-B0 generic memory observer/owner contract and lane-B1 dead `Load` pruning are landed
+           - partial: lane-B0 generic memory observer/owner contract, lane-B1 dead `Load` pruning, and lane-B2 overwritten `Store` pruning are landed
            - backlog: generic `Store` / `Load` code widening, dead-store elimination, store-to-load forwarding, redundant load elimination, and hoist/sink legality
            - canonical `store.array.str` / `store.map.value` stay pilot vocabulary here, not standalone roadmap rows
         6. `escape / barrier -> LLVM attrs`

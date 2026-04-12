@@ -4,7 +4,8 @@ use super::local_fields::{
     is_removable_effect_sensitive_write_instruction,
 };
 use super::memory::{
-    analyze_private_carriers, is_removable_effect_sensitive_memory_read_instruction,
+    analyze_private_carriers, collect_overwritten_private_stores,
+    is_removable_effect_sensitive_memory_read_instruction,
 };
 use super::{is_removable_no_dst_pure_instruction, propagate_used_values};
 use crate::mir::{MirFunction, ValueId};
@@ -17,6 +18,8 @@ pub(super) fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usi
     let private_carriers = analyze_private_carriers(function, &reachable_blocks, &local_reads);
     let overwritten_local_writes =
         collect_overwritten_local_field_sets(function, &reachable_blocks, &local_reads);
+    let overwritten_private_stores =
+        collect_overwritten_private_stores(function, &reachable_blocks, &private_carriers);
 
     let mut base_used_values: HashSet<ValueId> = HashSet::new();
 
@@ -24,8 +27,11 @@ pub(super) fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usi
         if !reachable_blocks.contains(bid) {
             continue;
         }
-        for instruction in &block.instructions {
+        for (idx, instruction) in block.instructions.iter().enumerate() {
             if matches!(instruction, crate::mir::MirInstruction::KeepAlive { .. }) {
+                continue;
+            }
+            if overwritten_private_stores.contains(&(*bid, idx)) {
                 continue;
             }
             if is_removable_effect_sensitive_read_instruction(instruction, &local_reads) {
@@ -144,6 +150,18 @@ pub(super) fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usi
                 if dce_trace {
                     get_global_ring0().log.debug(&format!(
                         "[dce] Eliminating overwritten local write in bb{}: {:?}",
+                        bbid.0, inst
+                    ));
+                }
+                eliminated += 1;
+                keep = false;
+            }
+            let removable_overwritten_private_store = reachable_blocks.contains(&bbid)
+                && overwritten_private_stores.contains(&(*bbid, idx));
+            if keep && removable_overwritten_private_store {
+                if dce_trace {
+                    get_global_ring0().log.debug(&format!(
+                        "[dce] Eliminating overwritten private-carrier store in bb{}: {:?}",
                         bbid.0, inst
                     ));
                 }

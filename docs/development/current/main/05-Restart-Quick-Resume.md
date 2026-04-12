@@ -25,11 +25,11 @@ tools/checks/dev_gate.sh quick
 - sibling guardrail:
   - `phase-137x main kilo reopen selection`
 - immediate next:
-  - `semantic simplification bundle lane B2`
-  - overwritten `Store` pruning for definitely private carrier roots
+  - `observer/control lane C0`
+  - docs-only inventory for `Debug` / terminator cleanup
 - immediate follow-on:
-  - lane C0 observer/control docs-only inventory
   - lane C1 `Debug` policy decision
+  - lane C2 terminator/control cleanup
 - stop-lines:
   - keep lane B separate from lane C (`Debug` / terminator cleanup)
   - keep lane B separate from `generic placement / effect`
@@ -61,6 +61,7 @@ tools/checks/dev_gate.sh quick
   - `phase-198x`
   - `phase-199x`
   - `phase-200x`
+  - `phase-201x`
 
 ## First Design Slices
 
