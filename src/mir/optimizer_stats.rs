@@ -7,6 +7,7 @@
 pub struct OptimizationStats {
     pub dead_code_eliminated: usize,
     pub cse_eliminated: usize,
+    pub cfg_simplified: usize,
     pub reorderings: usize,
     pub intrinsic_optimizations: usize,
     pub boxfield_optimizations: usize,
@@ -21,6 +22,7 @@ impl OptimizationStats {
     pub fn merge(&mut self, other: OptimizationStats) {
         self.dead_code_eliminated += other.dead_code_eliminated;
         self.cse_eliminated += other.cse_eliminated;
+        self.cfg_simplified += other.cfg_simplified;
         self.reorderings += other.reorderings;
         self.intrinsic_optimizations += other.intrinsic_optimizations;
         self.boxfield_optimizations += other.boxfield_optimizations;
@@ -30,6 +32,7 @@ impl OptimizationStats {
     pub fn total_optimizations(&self) -> usize {
         self.dead_code_eliminated
             + self.cse_eliminated
+            + self.cfg_simplified
             + self.reorderings
             + self.intrinsic_optimizations
             + self.boxfield_optimizations
@@ -40,9 +43,10 @@ impl std::fmt::Display for OptimizationStats {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "dead_code: {}, cse: {}, reorder: {}, intrinsic: {}, boxfield: {} (total: {})",
+            "dead_code: {}, cse: {}, cfg: {}, reorder: {}, intrinsic: {}, boxfield: {} (total: {})",
             self.dead_code_eliminated,
             self.cse_eliminated,
+            self.cfg_simplified,
             self.reorderings,
             self.intrinsic_optimizations,
             self.boxfield_optimizations,

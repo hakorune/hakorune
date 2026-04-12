@@ -1,11 +1,10 @@
 /*!
  * Semantic simplification bundle owner seam.
  *
- * This module is the first top-level MIR transform owner for the semantic
- * simplification lane. In this cut it owns the already-landed DCE and CSE
- * passes without changing their behavior. Future `SimplifyCFG`, `SCCP`, and
- * jump-threading slices should enter through this seam instead of extending the
- * optimizer pipeline with more direct pass wiring.
+ * This module is the top-level MIR transform owner for the semantic
+ * simplification lane. The first cut only bundled landed DCE/CSE behavior.
+ * The current cut adds the first narrow structural `SimplifyCFG` slice while
+ * keeping `SCCP` and jump-threading out of scope.
  */
 
 use crate::mir::{optimizer_stats::OptimizationStats, MirModule};
@@ -13,6 +12,7 @@ use crate::mir::{optimizer_stats::OptimizationStats, MirModule};
 pub fn apply(module: &mut MirModule) -> OptimizationStats {
     let mut stats = OptimizationStats::new();
 
+    stats.cfg_simplified += crate::mir::passes::simplify_cfg::simplify(module);
     stats.dead_code_eliminated += crate::mir::passes::dce::eliminate_dead_code(module);
     stats.cse_eliminated += crate::mir::passes::cse::eliminate_common_subexpressions(module);
 
@@ -135,5 +135,54 @@ mod tests {
 
         let stats = apply(&mut module);
         assert_eq!(stats.cse_eliminated, 1);
+    }
+
+    #[test]
+    fn bundle_runs_first_simplify_cfg_cut() {
+        let mut module = MirModule::new("semantic_simplification_cfg".to_string());
+        let signature = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId(0));
+        {
+            let block = function.blocks.get_mut(&BasicBlockId(0)).expect("entry");
+            block.set_terminator(MirInstruction::Jump {
+                target: BasicBlockId(1),
+                edge_args: None,
+            });
+        }
+
+        let mut middle = crate::mir::BasicBlock::new(BasicBlockId(1));
+        middle.instructions.push(MirInstruction::Const {
+            dst: ValueId(1),
+            value: ConstValue::Integer(9),
+        });
+        middle.instruction_spans.push(Span::unknown());
+        middle.set_terminator(MirInstruction::Return {
+            value: Some(ValueId(1)),
+        });
+        function.add_block(middle);
+        function
+            .metadata
+            .value_types
+            .insert(ValueId(1), MirType::Integer);
+        function.update_cfg();
+        module.add_function(function);
+
+        let stats = apply(&mut module);
+        assert_eq!(stats.cfg_simplified, 1);
+
+        let function = module.functions.get("main").expect("main");
+        assert_eq!(function.blocks.len(), 1);
+        let entry = function.blocks.get(&BasicBlockId(0)).expect("entry");
+        assert!(matches!(
+            entry.terminator,
+            Some(MirInstruction::Return {
+                value: Some(value)
+            }) if value == ValueId(1)
+        ));
     }
 }

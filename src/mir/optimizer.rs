@@ -302,18 +302,21 @@ mod tests {
 
         stats.dead_code_eliminated = 5;
         stats.cse_eliminated = 3;
-        assert_eq!(stats.total_optimizations(), 8);
+        stats.cfg_simplified = 2;
+        assert_eq!(stats.total_optimizations(), 10);
 
         let other_stats = OptimizationStats {
             dead_code_eliminated: 2,
             cse_eliminated: 1,
+            cfg_simplified: 4,
             ..Default::default()
         };
 
         stats.merge(other_stats);
         assert_eq!(stats.dead_code_eliminated, 7);
         assert_eq!(stats.cse_eliminated, 4);
-        assert_eq!(stats.total_optimizations(), 11);
+        assert_eq!(stats.cfg_simplified, 6);
+        assert_eq!(stats.total_optimizations(), 17);
     }
 
     #[test]

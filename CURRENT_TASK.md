@@ -15,7 +15,7 @@ Scope: current lane / next lane / restart order only.
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/10-Now.md`
 3. `docs/development/current/main/15-Workstream-Map.md`
-4. `docs/development/current/main/phases/phase-227x/README.md`
+4. `docs/development/current/main/phases/phase-228x/README.md`
 5. `docs/development/current/main/phases/phase-163x/README.md`
 6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 7. `git status -sb`
@@ -46,7 +46,7 @@ Scope: current lane / next lane / restart order only.
 - implementation lane:
   - `docs/development/current/main/phases/phase-163x/README.md`
 - next layer landing:
-  - `docs/development/current/main/phases/phase-227x/README.md`
+  - `docs/development/current/main/phases/phase-228x/README.md`
 - roadmap SSOT:
   - `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 - string guardrail owner:
@@ -58,7 +58,7 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Notes
 
-- `phase-227x` is landed: optimizer-visible DCE/CSE scheduling now runs through one semantic simplification bundle owner seam
+- `phase-228x` is landed: the semantic simplification bundle now owns the first narrow `SimplifyCFG` block-merge cut
 - the next code lane is now `semantic simplification bundle`
 - `CURRENT_TASK.md` is the only live status pointer; `05/10/15` are thin mirrors only
 - if this file grows again, move the detail back into the phase docs
