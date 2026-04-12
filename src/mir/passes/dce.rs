@@ -9,6 +9,8 @@ use std::collections::HashSet;
 /// Eliminate dead code (unused results of pure instructions) across the module
 /// and prune unreachable blocks as structural CFG cleanup.
 ///
+/// This pass also removes pure no-dst calls when they are otherwise unused.
+///
 /// Returns the number of eliminated instructions.
 pub fn eliminate_dead_code(module: &mut MirModule) -> usize {
     let mut eliminated_total = 0usize;
@@ -46,7 +48,10 @@ fn propagate_used_values(
 }
 
 fn is_removable_no_dst_pure_instruction(inst: &crate::mir::MirInstruction) -> bool {
-    matches!(inst, crate::mir::MirInstruction::Safepoint)
+    matches!(
+        inst,
+        crate::mir::MirInstruction::Safepoint | crate::mir::MirInstruction::Call { dst: None, .. }
+    )
 }
 
 fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
@@ -55,17 +60,22 @@ fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
     // Collect values that must be kept for reasons other than KeepAlive.
     let mut base_used_values: HashSet<ValueId> = HashSet::new();
 
-    // Mark values used by side-effecting instructions and terminators
+    // Mark values used by side-effecting instructions and control-flow terminators.
     for (bid, block) in &function.blocks {
         if !reachable_blocks.contains(bid) {
             continue;
         }
         for instruction in &block.instructions {
-            let has_dst = instruction.dst_value().is_some();
             if matches!(instruction, crate::mir::MirInstruction::KeepAlive { .. }) {
                 continue;
             }
-            if !instruction.effects().is_pure() || !has_dst {
+            let anchors_liveness = matches!(
+                instruction,
+                crate::mir::MirInstruction::Branch { .. }
+                    | crate::mir::MirInstruction::Jump { .. }
+                    | crate::mir::MirInstruction::Return { .. }
+            );
+            if !instruction.effects().is_pure() || anchors_liveness {
                 if let Some(dst) = instruction.dst_value() {
                     base_used_values.insert(dst);
                 }
@@ -184,8 +194,8 @@ mod tests {
     use crate::ast::Span;
     use crate::mir::builder::copy_emitter::{self, CopyEmitReason};
     use crate::mir::{
-        BasicBlock, BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirInstruction,
-        MirType,
+        BasicBlock, BasicBlockId, Callee, ConstValue, EffectMask, FunctionSignature,
+        MirInstruction, MirType,
     };
 
     #[test]
@@ -522,5 +532,54 @@ mod tests {
             .instructions
             .iter()
             .any(|inst| matches!(inst, MirInstruction::Safepoint)));
+    }
+
+    #[test]
+    fn test_dce_prunes_pure_no_dst_call_and_its_dead_operand_chain() {
+        let mut module = MirModule::new("dce_test".to_string());
+
+        let sig = FunctionSignature {
+            name: "test/0".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut func = MirFunction::new(sig, BasicBlockId(0));
+
+        let v1 = ValueId(1);
+
+        {
+            let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
+            bb0.instructions.push(MirInstruction::Const {
+                dst: v1,
+                value: ConstValue::Integer(123),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Call {
+                dst: None,
+                func: ValueId(999),
+                callee: Some(Callee::Global("noop".to_string())),
+                args: vec![v1],
+                effects: EffectMask::PURE,
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.set_terminator(MirInstruction::Return { value: None });
+        }
+
+        module.add_function(func);
+
+        let eliminated = eliminate_dead_code(&mut module);
+        assert_eq!(eliminated, 2);
+
+        let func = module.get_function("test/0").unwrap();
+        let bb0 = func.blocks.get(&BasicBlockId(0)).unwrap();
+        assert!(!bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Const { dst, .. } if *dst == v1)));
+        assert!(!bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Call { dst: None, .. })));
     }
 }

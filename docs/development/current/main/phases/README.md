@@ -7,6 +7,7 @@
 - **Current (ACTIVE)**: Phase 163x primitive and user-box fast path
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
 - **Phase 180x（LANDED STRING CLEANUP）**: string seam cleanup before broader DCE
+- **Phase 183x（LANDED）**: pure no-dst call pruning
 - **Phase 182x（LANDED）**: unreachable block pruning
 - **Phase 181x（LANDED）**: safepoint no-op DCE
 - **Phase 179x（LANDED）**: string kernel plan export and seed retirement
@@ -92,6 +93,7 @@
 
 ### Recent Landed
 
+- **Phase 183x（LANDED）**: pure no-dst call pruning
 - **Phase 182x（LANDED）**: unreachable block pruning
 - **Phase 181x（LANDED）**: safepoint no-op DCE
 - **Phase 171x（LANDED）**: substring concat exact-seed loop-shape cut
