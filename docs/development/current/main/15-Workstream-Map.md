@@ -90,9 +90,13 @@ Related:
   - landed: one exported backend-consumable `StringKernelPlan` surface now exists as `metadata.string_kernel_plans`
   - landed: `string_loop_seed` now consumes that plan first for the stable-length len route while keeping shape fallback only for the remaining full-loop bridge
   - landed: exact keeper proof stays green and the old matcher no longer accepts the 14-op len-route fallback
-- active string seam cleanup follow-on:
-  - `phase-180x` is now the active string seam cleanup lane before broader DCE cleanup resumes
+- landed string seam cleanup follow-on:
+  - `phase-180x` is landed as the structural string seam cleanup lane before broader DCE resumed
   - `phase-182x` is landed as the CFG cleanup slice that prunes unreachable blocks after DCE liveness has stabilized
+- landed string structure follow-on:
+  - `phase-193x` is landed as the BoxShape split of `src/mir/passes/string_corridor_sink.rs`
+  - `src/mir/passes/string_corridor_sink/` is now a thin facade over focused rewrite families and topic tests
+  - this cut is structure-only and keeps current string semantics unchanged
 - `phase-133x` landed:
   - `kilo_micro_substring_concat`: `c_ms=3 / ny_aot_ms=3`
   - `kilo_micro_array_getset`: `c_ms=4 / ny_aot_ms=4`

@@ -65,6 +65,10 @@ Related:
       - landed: the remaining raw full-loop fallback inside `substring_concat_loop_ascii_seed` is retired, so the full route is now plan-first only
       - latest exact reread after the fallback retirement is `ny_aot_instr=1,665,135 / ny_aot_cycles=1,127,472 / ny_aot_ms=4`
       - broader DCE can resume now that the string seam cleanup lane is closed
+  - landed string structure follow-on: `phase193x string corridor sink module split`
+    - `src/mir/passes/string_corridor_sink.rs` is retired in favor of `src/mir/passes/string_corridor_sink/`
+    - the sink now reads as a thin facade over focused implementation and topic-test modules
+    - this cut is BoxShape-only and does not widen string behavior
     - cleanup order is:
       1. `StringKernelPlan` owner extraction
       2. relation reverse-dependency stop-line
@@ -109,7 +113,7 @@ Related:
     - `3 User-Box Method Dispatch`: mostly done; narrow known-receiver consumer and the direct-route determinism repair are landed, broader generic parity backlog remains
     - `4 Array Typed Slots 拡大`: partial; narrow typed-slot pilots landed, read-side expansion backlog remains
     - `5 MapBox Typed Value Slots`: backlog
-    - `6 DCE 強化`: partial; first reachable-only cross-block cut is landed in `phase176x`, first effect-sensitive `KeepAlive` pruning is landed in `phase177x`, the first generic no-dst pure cleanup slice is landed in `phase181x`, unreachable block pruning is landed in `phase182x`, pure no-dst `Call` pruning is landed in `phase183x`, dead local `FieldGet` read pruning is landed in `phase184x`, dead local `FieldSet` write pruning is landed in `phase185x`, same-root phi local field pruning is landed in `phase186x`, same-block overwritten local field-set pruning is landed in `phase187x`, cross-block linear-edge overwritten local field-set pruning is landed in `phase188x`, merge-entry overwritten local field-set pruning is landed in `phase189x`, `phase190x` now freezes the remaining backlog into local-loop, generic-memory, and observer/control lanes, `phase191x` lands lane-A1 as the loop-carried same-root local field prune contract, and `phase192x` lands the BoxShape split of `src/mir/passes/dce.rs`
+    - `6 DCE 強化`: partial; first reachable-only cross-block cut is landed in `phase176x`, first effect-sensitive `KeepAlive` pruning is landed in `phase177x`, the first generic no-dst pure cleanup slice is landed in `phase181x`, unreachable block pruning is landed in `phase182x`, pure no-dst `Call` pruning is landed in `phase183x`, dead local `FieldGet` read pruning is landed in `phase184x`, dead local `FieldSet` write pruning is landed in `phase185x`, same-root phi local field pruning is landed in `phase186x`, same-block overwritten local field-set pruning is landed in `phase187x`, cross-block linear-edge overwritten local field-set pruning is landed in `phase188x`, merge-entry overwritten local field-set pruning is landed in `phase189x`, `phase190x` now freezes the remaining backlog into local-loop, generic-memory, and observer/control lanes, `phase191x` lands lane-A1 as the loop-carried same-root local field prune contract, and `phase192x` lands the BoxShape split of `src/mir/passes/dce.rs`; adjacent string structure cleanup is also landed in `phase193x` as the split of `src/mir/passes/string_corridor_sink.rs`
     - `7 LLVM Escape Analysis`: partial; Copy + one-input-phi-carry aware local barrier elision and the `phase165x` operand-role escape barrier vocabulary cut are landed, broader generic escape analysis backlog remains
     - `8 Float 最適化`: partial; narrow FloatBox pilot landed, broader tuning backlog
     - `9 Closure/Lambda 最適化`: backlog

@@ -114,6 +114,11 @@ Scope: repo root から current lane / current front / restart read order に最
     - landed: the remaining raw full-loop fallback inside `substring_concat_loop_ascii_seed` is retired, so the substring-concat loop route is now plan-first only
     - latest exact reread after the fallback retirement: `ny_aot_instr=1,665,135 / ny_aot_cycles=1,127,472 / ny_aot_ms=4`
     - next: broader DCE can resume now that the string seam cleanup lane is closed
+- landed string structure follow-on:
+  - `docs/development/current/main/phases/phase-193x/README.md`
+  - `phase-193x` is landed as the BoxShape split of `src/mir/passes/string_corridor_sink.rs`
+  - `src/mir/passes/string_corridor_sink/` is now a thin facade plus focused implementation and test modules
+  - this cut does not widen string corridor behavior
 - landed DCE cleanup follow-on:
   - `docs/development/current/main/phases/phase-181x/README.md`
   - `phase-181x` is landed; `Safepoint` no-op instructions were the first generic no-dst pure cleanup slice
@@ -682,7 +687,7 @@ Scope: repo root から current lane / current front / restart read order に最
   - `docs/development/current/main/phases/phase-137x/README.md`
   - `src/mir/string_corridor.rs`
   - `src/mir/string_corridor_placement.rs`
-  - `src/mir/passes/string_corridor_sink.rs`
+  - `src/mir/passes/string_corridor_sink/`
   - `src/config/env/vm_backend_flags.rs`
   - `src/runner/route_orchestrator.rs`
   - `src/runner/keep/vm_fallback.rs`

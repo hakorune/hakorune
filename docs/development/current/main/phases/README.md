@@ -7,6 +7,7 @@
 - **Current (ACTIVE)**: Phase 163x primitive and user-box fast path
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
 - **Phase 180x（LANDED STRING CLEANUP）**: string seam cleanup before broader DCE
+- **Phase 193x（LANDED）**: string corridor sink module split
 - **Phase 192x（LANDED）**: DCE pass module split
 - **Phase 191x（LANDED）**: loop-carried same-root local field pruning
 - **Phase 189x（LANDED）**: merge-entry overwritten local field-set pruning
@@ -106,6 +107,7 @@
 - **Phase 190x（LANDED）**: remaining DCE boundary inventory
 - **Phase 191x（LANDED）**: loop-carried same-root local field pruning
 - **Phase 192x（LANDED）**: DCE pass module split
+- **Phase 193x（LANDED）**: string corridor sink module split
 - **Phase 188x（LANDED）**: cross-block overwritten local field-set pruning
 - **Phase 187x（LANDED）**: overwritten local field-set pruning
 - **Phase 185x（LANDED）**: dead local field-set write pruning
