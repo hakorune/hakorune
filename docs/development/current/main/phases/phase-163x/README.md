@@ -226,10 +226,10 @@
            - partial: known-receiver user-box method routes are the first landed actual-consumer slice
            - broader thin-entry consumer switching remains backlog beneath canonical `Call`
         4. `semantic simplification bundle`
-           - partial: the current DCE lane is landed through `phase176x` / `phase177x` / `phase181x` / `phase182x` / `phase183x` / `phase184x` / `phase185x` / `phase186x` / `phase187x` / `phase188x` / `phase189x` / `phase190x` / `phase191x` / `phase192x`
+           - partial: the current DCE lane is landed through `phase176x` / `phase177x` / `phase181x` / `phase182x` / `phase183x` / `phase184x` / `phase185x` / `phase186x` / `phase187x` / `phase188x` / `phase189x` / `phase190x` / `phase191x` / `phase192x` / `phase196x`
            - keep `SCCP`, `SimplifyCFG`, `DCE`, and jump-threading together as one layer
            - keep `DSE` out of this layer; it belongs to the memory-effect layer
-           - immediate code next remains lane A2: loop/backedge overwritten local field-set widening
+           - immediate code next is lane B0: generic memory `Store` / `Load` docs-facts phase
         5. `memory-effect layer`
            - backlog: generic `Store` / `Load`, dead-store elimination, store-to-load forwarding, redundant load elimination, and hoist/sink legality
            - canonical `store.array.str` / `store.map.value` stay pilot vocabulary here, not standalone roadmap rows

@@ -252,5 +252,136 @@ pub(super) fn collect_overwritten_local_field_sets(
         }
     }
 
+    removable.extend(collect_loop_roundtrip_overwritten_local_field_sets(
+        function,
+        reachable_blocks,
+        local_reads,
+        &dominators,
+    ));
+
+    removable
+}
+
+fn collect_loop_header_entry_overwrites(
+    header: &crate::mir::BasicBlock,
+    local_reads: &LocalReadInfo,
+) -> HashSet<(ValueId, String)> {
+    let mut confirmed = HashSet::new();
+    let mut blocked_roots = HashSet::new();
+    let mut blocked_keys = HashSet::new();
+
+    for instruction in &header.instructions {
+        match instruction {
+            crate::mir::MirInstruction::FieldGet { base, field, .. } => {
+                if let Some(root) = local_reads.resolve_local_root(*base) {
+                    blocked_keys.insert((root, field.clone()));
+                }
+            }
+            crate::mir::MirInstruction::FieldSet { base, field, .. } => {
+                let Some(root) = local_reads.resolve_local_root(*base) else {
+                    continue;
+                };
+                let key = (root, field.clone());
+                if !blocked_roots.contains(&root) && !blocked_keys.contains(&key) {
+                    confirmed.insert(key);
+                }
+            }
+            _ => {}
+        }
+
+        let allow_same_root_phi_merge = matches!(
+            instruction,
+            crate::mir::MirInstruction::Phi { dst, inputs, .. }
+                if inputs.len() > 1 && local_reads.resolve_local_root(*dst).is_some()
+        );
+        if !allow_same_root_phi_merge {
+            for use_site in classify_escape_uses(instruction) {
+                if let Some(root) = local_reads.resolve_local_root(use_site.value) {
+                    blocked_roots.insert(root);
+                }
+            }
+        }
+    }
+
+    confirmed
+}
+
+fn collect_loop_roundtrip_overwritten_local_field_sets(
+    function: &MirFunction,
+    reachable_blocks: &HashSet<crate::mir::BasicBlockId>,
+    local_reads: &LocalReadInfo,
+    dominators: &crate::mir::verification::utils::DominatorTree,
+) -> HashSet<(crate::mir::BasicBlockId, usize)> {
+    let mut removable = HashSet::new();
+
+    for (header_id, header) in &function.blocks {
+        if !reachable_blocks.contains(header_id) {
+            continue;
+        }
+
+        let header_entry_overwrites = collect_loop_header_entry_overwrites(header, local_reads);
+        if header_entry_overwrites.is_empty() {
+            continue;
+        }
+
+        for predecessor in &header.predecessors {
+            if !reachable_blocks.contains(predecessor) {
+                continue;
+            }
+            if !dominators.dominates(*header_id, *predecessor) {
+                continue;
+            }
+
+            let Some(pred_block) = function.blocks.get(predecessor) else {
+                continue;
+            };
+            let reachable_successors: Vec<_> = pred_block
+                .successors
+                .iter()
+                .copied()
+                .filter(|succ| reachable_blocks.contains(succ))
+                .collect();
+            if reachable_successors.len() != 1 || reachable_successors[0] != *header_id {
+                continue;
+            }
+
+            let mut pending_writes = header_entry_overwrites.clone();
+            if let Some(term) = &pred_block.terminator {
+                for use_site in classify_escape_uses(term) {
+                    if let Some(root) = local_reads.resolve_local_root(use_site.value) {
+                        pending_writes.retain(|(pending_root, _)| *pending_root != root);
+                    }
+                }
+            }
+
+            for (idx, instruction) in pred_block.instructions.iter().enumerate().rev() {
+                match instruction {
+                    crate::mir::MirInstruction::FieldSet { base, field, .. } => {
+                        let Some(root) = local_reads.resolve_local_root(*base) else {
+                            continue;
+                        };
+                        let key = (root, field.clone());
+                        if pending_writes.contains(&key) {
+                            removable.insert((*predecessor, idx));
+                        }
+                        pending_writes.insert(key);
+                    }
+                    crate::mir::MirInstruction::FieldGet { base, field, .. } => {
+                        if let Some(root) = local_reads.resolve_local_root(*base) {
+                            pending_writes.remove(&(root, field.clone()));
+                        }
+                    }
+                    _ => {}
+                }
+
+                for use_site in classify_escape_uses(instruction) {
+                    if let Some(root) = local_reads.resolve_local_root(use_site.value) {
+                        pending_writes.retain(|(pending_root, _)| *pending_root != root);
+                    }
+                }
+            }
+        }
+    }
+
     removable
 }

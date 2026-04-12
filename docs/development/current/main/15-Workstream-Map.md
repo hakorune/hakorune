@@ -18,8 +18,8 @@ Related:
 | Front | `lifecycle value parent locked -> audits landed -> thin-entry inventory/selection landed -> sum placement pilot landed -> ny-llvmc parity proving slice landed -> tuple compat transport landed` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
 | Blocker | `canonical multi-slot sum remains deferred; current tuple route stays compat-boxed` |
-| Next | `semantic simplification bundle lane A2 (loop/backedge overwritten local field-set widening)` |
-| After Next | `generic placement/effect -> agg_local scalarization` |
+| Next | `semantic simplification bundle lane B0 (generic memory Store/Load docs-facts phase)` |
+| After Next | `lane B1 dead Load pruning -> lane B2 overwritten Store pruning` |
 
 ## Current Read
 
@@ -82,7 +82,8 @@ Related:
   - `phase-190x` is landed as the remaining DCE boundary inventory cut before generic-memory widening
   - `phase-191x` is landed as the loop-carried same-root local field prune contract cut
   - `phase-192x` is landed as the BoxShape split of `src/mir/passes/dce.rs` before more lane-A widening
-  - next target is lane-A2 overwritten-write widening, or a separate lane-B generic-memory facts phase
+  - `phase-196x` is landed as the one-roundtrip loop-header overwritten local field-set widening cut
+  - next target is lane-B0 generic-memory facts phase
   - do not mix that with unreachable-block deletion
 - landed shim-structure follow-on:
   - `phase-178x` is landed

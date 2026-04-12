@@ -162,10 +162,12 @@ Scope: repo root から current lane / current front / restart read order に最
     - landed cut A1:
       - `docs/development/current/main/phases/phase-191x/README.md`
       - same-root local `FieldGet` / `FieldSet` pruning across one backedge-carried local root is now contract-locked
+    - landed cut A2:
+      - `docs/development/current/main/phases/phase-196x/README.md`
+      - predecessor-local loop-body `FieldSet` writes now also disappear when the next loop-header entry overwrites the same root/field before any same-field read or escape use
     - landed structure cut:
       - `docs/development/current/main/phases/phase-192x/README.md`
       - `src/mir/passes/dce.rs` is now split into a thin facade plus `dce/elimination.rs`, `dce/local_fields.rs`, and topic tests before more widening
-    - next cut A2: overwritten local `FieldSet` pruning when the later overwrite is seen after exactly one loop-header roundtrip on the same carried root
     - stop-line for lane A: no mixed-root phi merges, no multi-round dataflow, no generic `Store` / `Load`
     - lane B `generic memory Store/Load`
     - next cut B0: docs/facts phase first; define observer/owner contract before touching code

@@ -103,14 +103,17 @@ Related:
   - landed DCE cleanup follow-on: `phase191x loop-carried same-root local field pruning`
     - dead local `FieldGet` / `FieldSet` operations are now contract-locked through a one-round backedge-carried same-root local phi carrier too
     - overwritten loop-round writes, generic `Store`, `Load`, `Debug`, and terminators stay outside this cut
+  - landed DCE cleanup follow-on: `phase196x loop-roundtrip overwritten local field-set pruning`
+    - predecessor-local loop-body `FieldSet` writes now also disappear when the next loop-header entry overwrites the same root/field before any same-field read or escape use
+    - mixed-root phi merges, multi-round loop dataflow, generic `Store`, `Load`, `Debug`, and terminators stay outside this cut
   - landed DCE structure follow-on: `phase192x DCE pass module split`
     - `src/mir/passes/dce.rs` is now a thin facade over focused implementation modules and topic tests
-    - next semantic work stays lane-A2; this cut does not widen DCE behavior
+    - next semantic work is lane-B0 docs/facts; this cut did not widen DCE behavior by itself
   - layer roadmap status:
     - `1 generic placement / effect`: partial; string corridor candidates, sum placement chains, and thin-entry inventory/selection are landed as pilot scaffolds, but the top-level generic transform layer is still backlog
     - `2 agg_local scalarization`: partial; selected sum local layouts, selected user-box local bodies, and ArrayBox typed-slot pilots are landed, while broader aggregate scalarization remains backlog
     - `3 thin-entry actual consumer switch`: partial; known-receiver user-box method routes are the first landed actual-consumer slice, while broader thin-entry consumer switching remains backlog
-    - `4 semantic simplification bundle`: partial; current DCE work is landed through `phase176x` / `phase177x` / `phase181x` / `phase182x` / `phase183x` / `phase184x` / `phase185x` / `phase186x` / `phase187x` / `phase188x` / `phase189x` / `phase190x` / `phase191x` / `phase192x`, but `SCCP`, `SimplifyCFG`, and jump-threading remain backlog; keep `DSE` out of this row
+    - `4 semantic simplification bundle`: partial; current DCE work is landed through `phase176x` / `phase177x` / `phase181x` / `phase182x` / `phase183x` / `phase184x` / `phase185x` / `phase186x` / `phase187x` / `phase188x` / `phase189x` / `phase190x` / `phase191x` / `phase192x` / `phase196x`, but `SCCP`, `SimplifyCFG`, and jump-threading remain backlog; keep `DSE` out of this row
     - `5 memory-effect layer`: backlog; generic `Store` / `Load`, dead-store elimination, store-to-load forwarding, redundant load elimination, and hoist/sink legality have not started as a dedicated layer yet
     - `6 escape / barrier -> LLVM attrs`: partial; Copy + one-input-phi-carry aware local barrier elision and the `phase165x` operand-role escape barrier vocabulary cut are landed, but attribute feed (`nocapture` / `readonly` / `readnone` / `noalias`) remains backlog
     - `7 numeric loop / SIMD`: partial; narrow FloatBox groundwork is landed, while induction/reduction/vectorization and fast-math tuning remain backlog
