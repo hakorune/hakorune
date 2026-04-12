@@ -48,6 +48,23 @@ Non-goals (この文書で今すぐやらない):
 - implicit root scope does not participate in sibling-failure cancellation in this cut
 - aggregate failure reporting and scope-exit rethrow policy remain later-phase work
 
+### Runtime hygiene follow-up (Phase 250x)
+
+- closed scope ownership is now read as a one-way latch:
+  - explicit `task_scope` that has been cancelled or has already latched first failure must not accept a late child future as pending work
+  - implicit root scope that has been cancelled must not accept a late root-owned future as pending work
+- current Phase-0 behavior for such late registrations is immediate `Cancelled(reason)` using the already-latched scope reason
+- `FutureBox` success is also terminal:
+  - `set_result(...)` is single-assignment just like `set_failed(...)` and `set_cancelled(...)`
+  - later writes to a ready future are ignored
+- owner-seam cleanup is still in progress:
+  - `TaskGroupBox` / `TaskGroupInner` remains the policy box
+  - `runtime::global_hooks` may register/push/pop current scope state, but should not define a parallel failure contract
+- current plugin/runtime `env.future.await` timeout remains a plugin-only escape hatch:
+  - it may still return `ResultBox::Err("Timeout")`
+  - that timeout shape is not part of the MIR `Await` contract
+  - do not describe it as VM-side `await` semantics
+
 ---
 
 ## 1. Current reality (2026-02-04 snapshot)
@@ -123,6 +140,7 @@ Current failure taxonomy to pin:
   - current VM `await` surfaces that state as `VMError::TaskCancelled(<stringified reason payload>)`
   - current `env.future.await` plugin/runtime route surfaces that state as `ResultBox::Err(reason)`
   - deadline/timeout remains outside the current VM-side `await` contract
+  - current plugin/runtime `env.future.await` timeout remains a plugin-only `ResultBox::Err("Timeout")` escape hatch
 
 ### 2.3 Method-call `nowait`
 最短の selfhost 安定化として、以下のどちらかを SSOT として選ぶ（決め打ちが必要）。

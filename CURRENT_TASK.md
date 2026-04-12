@@ -15,7 +15,7 @@ Scope: current lane / next lane / restart order only.
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/10-Now.md`
 3. `docs/development/current/main/15-Workstream-Map.md`
-4. `docs/development/current/main/phases/phase-249x/README.md`
+4. `docs/development/current/main/phases/phase-250x/README.md`
 5. `docs/development/current/main/phases/phase-163x/README.md`
 6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 7. `git status -sb`
@@ -58,6 +58,7 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Notes
 
+- `phase-250x` is active: concurrency runtime hygiene review is now split into late-registration, single-assignment, and owner-seam wording slices
 - `phase-249x` is landed: explicit-scope first failure now cancels pending siblings with stable reason `sibling-failed`
 - `phase-247x` is landed: bare `nowait` is not detached; outside explicit `task_scope` it falls back to the implicit root scope
 - `phase-246x` is landed: `Cancelled(reason)` now exists as a narrow scope-owned future path with stable `scope-cancelled` reason

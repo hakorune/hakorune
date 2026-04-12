@@ -60,11 +60,18 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
   - `Cancelled(reason)` for scope-owned pending futures only
 - `task_scope.cancelAll()` is currently a narrow future-owner cut:
   - it cancels owned pending futures with reason `scope-cancelled`
+  - late child futures registered after that cancellation are immediately cancelled with the same reason
   - it does not yet define interruption for arbitrary blocking APIs
 - current sibling-failure cut is also narrow:
   - only explicit `task_scope` ownership participates
   - first failed child future cancels pending siblings with reason `sibling-failed`
+  - late child futures registered after that first failure are immediately cancelled with the same reason
   - it does not yet define aggregate failure reporting or scope-exit rethrow
+- `FutureBox` success is single-assignment in the current contract:
+  - once a future is `Ready`, later `set_result` / failed / cancelled writes are ignored
+- plugin/runtime timeout is not part of the VM-side `await` contract:
+  - `env.future.await` may still surface `ResultBox::Err("Timeout")`
+  - MIR `Await` does not currently expose a timeout result shape
 
 ### Root-scope note
 - The current implicit root scope is best-effort ownership only.

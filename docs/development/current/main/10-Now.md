@@ -19,6 +19,8 @@ Related:
 
 ## Landing Snapshot
 
+- `phase250x` is active:
+  - runtime hygiene cleanup is split into late-registration, future single-assignment, and owner-seam wording slices
 - `phase249x` is landed:
   - explicit-scope first failure now cancels pending siblings with stable reason `sibling-failed`
 - `phase248x` is landed:
@@ -34,7 +36,7 @@ Related:
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-249x/README.md`
+3. `docs/development/current/main/phases/phase-250x/README.md`
 4. `docs/development/current/main/phases/phase-163x/README.md`
 5. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 
