@@ -76,7 +76,8 @@ Related:
   - `phase-188x` is landed as the cross-block linear-edge overwritten local field-set pruning cut
   - `phase-189x` is landed as the merge-entry overwritten local field-set pruning cut
   - `phase-190x` is landed as the remaining DCE boundary inventory cut before generic-memory widening
-  - next target is broader effect-sensitive cleanup after the local read/write + same-root-phi + overwritten-write slices
+  - `phase-191x` is landed as the loop-carried same-root local field prune contract cut
+  - next target is lane-A2 overwritten-write widening, or a separate lane-B generic-memory facts phase
   - do not mix that with unreachable-block deletion
 - landed shim-structure follow-on:
   - `phase-178x` is landed

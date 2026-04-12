@@ -152,7 +152,9 @@ Scope: repo root から current lane / current front / restart read order に最
     - next code phase should not mix these lanes
   - DCE next granular cuts:
     - lane A `loop/backedge local-field partial DCE`
-    - next cut A1: same-root local `FieldGet` / `FieldSet` pruning across one backedge-carried local root only
+    - landed cut A1:
+      - `docs/development/current/main/phases/phase-191x/README.md`
+      - same-root local `FieldGet` / `FieldSet` pruning across one backedge-carried local root is now contract-locked
     - next cut A2: overwritten local `FieldSet` pruning when the later overwrite is seen after exactly one loop-header roundtrip on the same carried root
     - stop-line for lane A: no mixed-root phi merges, no multi-round dataflow, no generic `Store` / `Load`
     - lane B `generic memory Store/Load`

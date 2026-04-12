@@ -1847,6 +1847,223 @@ mod tests {
     }
 
     #[test]
+    fn test_dce_prunes_dead_loop_carried_same_root_field_get() {
+        let mut module = MirModule::new("dce_test".to_string());
+
+        let sig = FunctionSignature {
+            name: "test/0".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut func = MirFunction::new(sig, BasicBlockId(0));
+        func.blocks
+            .insert(BasicBlockId(1), BasicBlock::new(BasicBlockId(1)));
+        func.blocks
+            .insert(BasicBlockId(2), BasicBlock::new(BasicBlockId(2)));
+        func.blocks
+            .insert(BasicBlockId(3), BasicBlock::new(BasicBlockId(3)));
+
+        let v_box = ValueId(1);
+        let v_cond = ValueId(2);
+        let v_phi = ValueId(3);
+        let v_read = ValueId(4);
+        let v_back = ValueId(5);
+
+        {
+            let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
+            bb0.instructions.push(MirInstruction::NewBox {
+                dst: v_box,
+                box_type: "Point".to_string(),
+                args: vec![],
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.set_terminator(MirInstruction::Jump {
+                target: BasicBlockId(1),
+                edge_args: None,
+            });
+            bb0.successors.insert(BasicBlockId(1));
+        }
+
+        {
+            let bb1 = func.blocks.get_mut(&BasicBlockId(1)).unwrap();
+            bb1.predecessors.insert(BasicBlockId(0));
+            bb1.predecessors.insert(BasicBlockId(2));
+            bb1.instructions.push(MirInstruction::Phi {
+                dst: v_phi,
+                inputs: vec![(BasicBlockId(0), v_box), (BasicBlockId(2), v_back)],
+                type_hint: Some(MirType::Box("Point".to_string())),
+            });
+            bb1.instruction_spans.push(Span::unknown());
+            bb1.instructions.push(MirInstruction::Const {
+                dst: v_cond,
+                value: ConstValue::Bool(true),
+            });
+            bb1.instruction_spans.push(Span::unknown());
+            bb1.set_terminator(MirInstruction::Branch {
+                condition: v_cond,
+                then_bb: BasicBlockId(2),
+                else_bb: BasicBlockId(3),
+                then_edge_args: None,
+                else_edge_args: None,
+            });
+            bb1.successors.insert(BasicBlockId(2));
+            bb1.successors.insert(BasicBlockId(3));
+        }
+
+        {
+            let bb2 = func.blocks.get_mut(&BasicBlockId(2)).unwrap();
+            bb2.predecessors.insert(BasicBlockId(1));
+            bb2.instructions.push(MirInstruction::FieldGet {
+                dst: v_read,
+                base: v_phi,
+                field: "child".to_string(),
+                declared_type: Some(MirType::Integer),
+            });
+            bb2.instruction_spans.push(Span::unknown());
+            bb2.instructions.push(MirInstruction::Copy {
+                dst: v_back,
+                src: v_phi,
+            });
+            bb2.instruction_spans.push(Span::unknown());
+            bb2.set_terminator(MirInstruction::Jump {
+                target: BasicBlockId(1),
+                edge_args: None,
+            });
+            bb2.successors.insert(BasicBlockId(1));
+        }
+
+        {
+            let bb3 = func.blocks.get_mut(&BasicBlockId(3)).unwrap();
+            bb3.predecessors.insert(BasicBlockId(1));
+            bb3.set_terminator(MirInstruction::Return { value: None });
+        }
+
+        module.add_function(func);
+
+        eliminate_dead_code(&mut module);
+
+        let func = module.get_function("test/0").unwrap();
+        let bb2 = func.blocks.get(&BasicBlockId(2)).unwrap();
+        assert!(!bb2.instructions.iter().any(|inst| {
+            matches!(
+                inst,
+                MirInstruction::FieldGet { dst, .. } if *dst == v_read
+            )
+        }));
+    }
+
+    #[test]
+    fn test_dce_prunes_dead_loop_carried_same_root_field_set() {
+        let mut module = MirModule::new("dce_test".to_string());
+
+        let sig = FunctionSignature {
+            name: "test/0".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut func = MirFunction::new(sig, BasicBlockId(0));
+        func.blocks
+            .insert(BasicBlockId(1), BasicBlock::new(BasicBlockId(1)));
+        func.blocks
+            .insert(BasicBlockId(2), BasicBlock::new(BasicBlockId(2)));
+        func.blocks
+            .insert(BasicBlockId(3), BasicBlock::new(BasicBlockId(3)));
+
+        let v_box = ValueId(1);
+        let v_cond = ValueId(2);
+        let v_phi = ValueId(3);
+        let v_value = ValueId(4);
+        let v_back = ValueId(5);
+
+        {
+            let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
+            bb0.instructions.push(MirInstruction::NewBox {
+                dst: v_box,
+                box_type: "Point".to_string(),
+                args: vec![],
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.set_terminator(MirInstruction::Jump {
+                target: BasicBlockId(1),
+                edge_args: None,
+            });
+            bb0.successors.insert(BasicBlockId(1));
+        }
+
+        {
+            let bb1 = func.blocks.get_mut(&BasicBlockId(1)).unwrap();
+            bb1.predecessors.insert(BasicBlockId(0));
+            bb1.predecessors.insert(BasicBlockId(2));
+            bb1.instructions.push(MirInstruction::Phi {
+                dst: v_phi,
+                inputs: vec![(BasicBlockId(0), v_box), (BasicBlockId(2), v_back)],
+                type_hint: Some(MirType::Box("Point".to_string())),
+            });
+            bb1.instruction_spans.push(Span::unknown());
+            bb1.instructions.push(MirInstruction::Const {
+                dst: v_cond,
+                value: ConstValue::Bool(true),
+            });
+            bb1.instruction_spans.push(Span::unknown());
+            bb1.set_terminator(MirInstruction::Branch {
+                condition: v_cond,
+                then_bb: BasicBlockId(2),
+                else_bb: BasicBlockId(3),
+                then_edge_args: None,
+                else_edge_args: None,
+            });
+            bb1.successors.insert(BasicBlockId(2));
+            bb1.successors.insert(BasicBlockId(3));
+        }
+
+        {
+            let bb2 = func.blocks.get_mut(&BasicBlockId(2)).unwrap();
+            bb2.predecessors.insert(BasicBlockId(1));
+            bb2.instructions.push(MirInstruction::Const {
+                dst: v_value,
+                value: ConstValue::Integer(1),
+            });
+            bb2.instruction_spans.push(Span::unknown());
+            bb2.instructions.push(MirInstruction::FieldSet {
+                base: v_phi,
+                field: "child".to_string(),
+                value: v_value,
+                declared_type: Some(MirType::Integer),
+            });
+            bb2.instruction_spans.push(Span::unknown());
+            bb2.instructions.push(MirInstruction::Copy {
+                dst: v_back,
+                src: v_phi,
+            });
+            bb2.instruction_spans.push(Span::unknown());
+            bb2.set_terminator(MirInstruction::Jump {
+                target: BasicBlockId(1),
+                edge_args: None,
+            });
+            bb2.successors.insert(BasicBlockId(1));
+        }
+
+        {
+            let bb3 = func.blocks.get_mut(&BasicBlockId(3)).unwrap();
+            bb3.predecessors.insert(BasicBlockId(1));
+            bb3.set_terminator(MirInstruction::Return { value: None });
+        }
+
+        module.add_function(func);
+
+        eliminate_dead_code(&mut module);
+
+        let func = module.get_function("test/0").unwrap();
+        let bb2 = func.blocks.get(&BasicBlockId(2)).unwrap();
+        assert!(!bb2
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::FieldSet { .. })));
+    }
+
+    #[test]
     fn test_dce_prunes_pure_no_dst_call_and_its_dead_operand_chain() {
         let mut module = MirModule::new("dce_test".to_string());
 
