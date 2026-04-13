@@ -14,17 +14,17 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-270x closure split env scalarization owner seam` |
-| Front | `closure split -> env scalarization owner seam` |
+| Now | `phase-271x closure split thin-entry specialization owner seam` |
+| Front | `closure split -> thin-entry specialization owner seam` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `numeric loop / SIMD is closed out; the next queue is closure split env scalarization work` |
+| Blocker | `numeric loop / SIMD is closed out; the next queue is closure split thin-entry specialization work` |
 | Next | `closure split` |
 | After Next | `IPO / build-time optimization` |
 
 ## Current Read
 
   - design owners:
-  - implementation lane: `docs/development/current/main/phases/phase-270x/README.md`
+  - implementation lane: `docs/development/current/main/phases/phase-271x/README.md`
   - next layer landing: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - roadmap SSOT: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`

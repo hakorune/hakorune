@@ -259,8 +259,9 @@
            - vectorization/fast-math tuning remain backlog
         8. `closure split`
            - landed: `capture classification`
-           - current cut: `closure env scalarization`
-           - backlog after current cut: `closure thin-entry specialization`
+           - landed: `closure env scalarization`
+           - current cut: `closure thin-entry specialization`
+           - backlog after current cut: lane closeout -> `IPO / build-time optimization`
         9. `IPO / build-time optimization`
            - backlog: `PGO` / `ThinLTO` stay last after the MIR-side semantic layers are stronger
       - active ordering note:
@@ -278,7 +279,7 @@
       - LLVM/Python local-enum escape barriers now share one helper instead of repeating materialization wrappers in `call` / `boxcall` / `ret`
       - safe runtime nullish checks touched in this lane now converge on `NullBox::check_null()`
       - MIR reference docs now split into instruction SSOT + metadata SSOT, while stale all-in-one references are reduced to thin pointers
-    8. next ready task: `phase-270x closure split env scalarization owner seam`
+    8. next ready task: `phase-271x closure split thin-entry specialization owner seam`
     9. keep `where` / enum methods / full monomorphization in backlog
 
 ## Fixed Task Order

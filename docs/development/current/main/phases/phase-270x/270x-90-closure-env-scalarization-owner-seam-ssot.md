@@ -1,4 +1,4 @@
-Status: ACTIVE
+Status: LANDED
 Phase: 270x
 
 # 270x-90 Closure Env Scalarization Owner Seam SSOT

@@ -1,4 +1,4 @@
-Status: ACTIVE
+Status: LANDED
 Owner: Codex
 Phase: 270x
 
@@ -20,7 +20,7 @@ Phase: 270x
   - `nyash.closure.new` for empty env
   - `nyash.closure.new_with_captures` for non-empty env
 
-## Next
+## Closeout
 
-- closure thin-entry specialization
-- IPO / build-time optimization
+- closure thin-entry specialization is the next cut
+- IPO / build-time optimization stays after closure split

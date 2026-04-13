@@ -1,10 +1,10 @@
 """
 Closure split contract owner seam.
 
-Phase270x keeps closure split conservative:
+Phase271x keeps closure split conservative:
 - capture classification stays shared
 - env scalarization now owns single-capture eligibility only
-- thin-entry specialization stays deferred
+- thin-entry specialization now owns eligibility only
 """
 
 from typing import Any, Dict, Iterable, List, Optional
@@ -67,6 +67,13 @@ def build_closure_split_contract(
         env_scalarization = "aggregate_multi"
         scalarizable_capture_id = None
 
+    if env_capture_count <= 1:
+        thin_entry_specialization = "thin_entry_candidate"
+        thin_entry_subject = f"closure.env.{accepted_class}"
+    else:
+        thin_entry_specialization = "public_entry_only"
+        thin_entry_subject = None
+
     ctor_name = "nyash.closure.new_with_captures" if env_capture_count > 0 else "nyash.closure.new"
 
     return {
@@ -80,13 +87,15 @@ def build_closure_split_contract(
         "policy": {
             "env_shape": accepted_class,
             "env_scalarization": env_scalarization,
-            "thin_entry_specialization": "defer",
+            "thin_entry_specialization": thin_entry_specialization,
         },
         "lowering": {
             "ctor_name": ctor_name,
             "use_capture_ctor": env_capture_count > 0,
             "scalarizable_capture_id": scalarizable_capture_id,
             "env_scalarizable": env_capture_count <= 1,
+            "thin_entry_eligible": env_capture_count <= 1,
+            "thin_entry_subject": thin_entry_subject,
         },
         "diag": {
             "accepted_class": accepted_class,

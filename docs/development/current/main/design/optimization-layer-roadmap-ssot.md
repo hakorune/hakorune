@@ -61,7 +61,8 @@ Owner: `phase-163x optimization-resume`
    - landed widening seam: compare/select candidates now emit the next conservative `llvm.loop` vectorization hint under LoopSimdContract (`phase268x`)
 8. `closure split`
    - landed owner seam: closure creation now reads a shared capture classification contract before env scalarization / thin-entry specialization (`phase269x`)
-   - current owner seam: single-capture envs are now classified as scalarizable while aggregate env lowering remains unchanged (`phase270x`)
+   - landed owner seam: single-capture envs are now classified as scalarizable while aggregate env lowering remains unchanged (`phase270x`)
+   - current owner seam: empty/single envs are now classified as thin-entry candidates while ctor lowering remains unchanged (`phase271x`)
    - `capture classification`
    - `closure env scalarization`
    - `closure thin-entry specialization`

@@ -48,6 +48,9 @@ class TestClosureSplitContract(unittest.TestCase):
         self.assertEqual(contract["lowering"]["ctor_name"], "nyash.closure.new")
         self.assertEqual(contract["policy"]["env_scalarization"], "scalar_none")
         self.assertTrue(contract["lowering"]["env_scalarizable"])
+        self.assertEqual(contract["policy"]["thin_entry_specialization"], "thin_entry_candidate")
+        self.assertTrue(contract["lowering"]["thin_entry_eligible"])
+        self.assertEqual(contract["lowering"]["thin_entry_subject"], "closure.env.empty_env")
 
     def test_builds_me_only_env_contract(self):
         contract = build_closure_split_contract(params=[], captures=[], me_capture=44)
@@ -57,6 +60,9 @@ class TestClosureSplitContract(unittest.TestCase):
         self.assertTrue(contract["lowering"]["use_capture_ctor"])
         self.assertEqual(contract["policy"]["env_scalarization"], "scalar_single")
         self.assertEqual(contract["lowering"]["scalarizable_capture_id"], 44)
+        self.assertEqual(contract["policy"]["thin_entry_specialization"], "thin_entry_candidate")
+        self.assertTrue(contract["lowering"]["thin_entry_eligible"])
+        self.assertEqual(contract["lowering"]["thin_entry_subject"], "closure.env.me_only_env")
 
     def test_builds_single_capture_env_scalarization_contract(self):
         contract = build_closure_split_contract(params=[{"id": 1}], captures=[{"id": 40}], me_capture=None)
@@ -65,6 +71,9 @@ class TestClosureSplitContract(unittest.TestCase):
         self.assertEqual(contract["policy"]["env_scalarization"], "scalar_single")
         self.assertEqual(contract["lowering"]["scalarizable_capture_id"], 40)
         self.assertTrue(contract["lowering"]["env_scalarizable"])
+        self.assertEqual(contract["policy"]["thin_entry_specialization"], "thin_entry_candidate")
+        self.assertTrue(contract["lowering"]["thin_entry_eligible"])
+        self.assertEqual(contract["lowering"]["thin_entry_subject"], "closure.env.capture_env_only")
 
     def test_builds_capture_env_with_me_contract(self):
         contract = build_closure_split_contract(
@@ -79,7 +88,9 @@ class TestClosureSplitContract(unittest.TestCase):
         self.assertEqual(contract["policy"]["env_scalarization"], "aggregate_multi")
         self.assertIsNone(contract["lowering"]["scalarizable_capture_id"])
         self.assertFalse(contract["lowering"]["env_scalarizable"])
-        self.assertEqual(contract["policy"]["thin_entry_specialization"], "defer")
+        self.assertEqual(contract["policy"]["thin_entry_specialization"], "public_entry_only")
+        self.assertFalse(contract["lowering"]["thin_entry_eligible"])
+        self.assertIsNone(contract["lowering"]["thin_entry_subject"])
 
     def test_lower_closure_creation_uses_simple_ctor_for_empty_env(self):
         i64, module, builder, bb = _new_builder()

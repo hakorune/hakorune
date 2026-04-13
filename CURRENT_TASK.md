@@ -15,7 +15,7 @@ Scope: current lane / next lane / restart order only.
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/10-Now.md`
 3. `docs/development/current/main/15-Workstream-Map.md`
-4. `docs/development/current/main/phases/phase-270x/README.md`
+4. `docs/development/current/main/phases/phase-271x/README.md`
 5. `docs/development/current/main/phases/phase-163x/README.md`
 6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 7. `git status -sb`
@@ -26,7 +26,7 @@ Scope: current lane / next lane / restart order only.
 - expected worktree:
   - clean
 - active lane:
-  - `phase-270x closure split env scalarization owner seam`
+  - `phase-271x closure split thin-entry specialization owner seam`
 - sibling guardrail:
   - `phase-137x` string corridor / exact-keeper guardrail
 - immediate next:
@@ -44,7 +44,7 @@ Scope: current lane / next lane / restart order only.
 ## Design Owners
 
 - implementation lane:
-  - `docs/development/current/main/phases/phase-270x/README.md`
+  - `docs/development/current/main/phases/phase-271x/README.md`
 - next layer landing:
   - `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 - roadmap SSOT:
@@ -78,7 +78,8 @@ Scope: current lane / next lane / restart order only.
 - `phase-267x` is landed: integer sum reduction widening is the next actual widening cut
 - `phase-268x` is landed: compare/select widening is the numeric lane closeout cut
 - `phase-269x` is landed: closure split now starts with a shared capture classification owner seam
-- `phase-270x` is active: closure split now classifies single-capture envs as scalarizable while keeping lowering behavior unchanged
+- `phase-270x` is landed: closure split now classifies single-capture envs as scalarizable while keeping lowering behavior unchanged
+- `phase-271x` is active: closure split now classifies empty/single envs as thin-entry candidates while keeping ctor lowering unchanged
 - explicit scope-exit timeout surfacing is parked while the optimization lane hands off to `numeric loop / SIMD`
 - the next code lane is now `closure split`
 - `CURRENT_TASK.md` is the only live status pointer; `05/10/15` are thin mirrors only
@@ -87,7 +88,7 @@ Scope: current lane / next lane / restart order only.
 ## Execution Queue
 
 1. `closure split`
-   - current cut: shared env scalarization owner seam
-   - single-capture envs are now marked scalarizable without changing ctor lowering
-   - next follow-on: closure thin-entry specialization
+   - current cut: shared thin-entry specialization owner seam
+   - empty/single envs are now marked thin-entry eligible without changing ctor lowering
+   - next follow-on: closure lane closeout before `IPO / build-time optimization`
 2. `IPO / build-time optimization`
