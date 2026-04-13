@@ -5,6 +5,8 @@
  * - fold copied-constant `Branch` terminators to `Jump`
  * - fold constant `Compare` instructions to `Const Bool`, then let branch
  *   folding consume the resulting value
+ * - follow copied / passthrough single-input PHIs when they carry a constant
+ *   value into compare or branch conditions
  * - thread a branch arm through an empty jump trampoline when the final target
  *   has no PHIs, or only PHIs that can be trivially rewritten from the
  *   trampoline predecessor to the branching block
@@ -168,7 +170,20 @@ fn const_value(
     def_map: &crate::mir::ValueDefMap,
     value: ValueId,
 ) -> Option<ConstValue> {
+    let mut visited = std::collections::BTreeSet::new();
+    const_value_from_origin(function, def_map, value, &mut visited)
+}
+
+fn const_value_from_origin(
+    function: &MirFunction,
+    def_map: &crate::mir::ValueDefMap,
+    value: ValueId,
+    visited: &mut std::collections::BTreeSet<ValueId>,
+) -> Option<ConstValue> {
     let origin = resolve_value_origin(function, def_map, value);
+    if !visited.insert(origin) {
+        return None;
+    }
     let (block_id, inst_idx) = def_map.get(&origin).copied()?;
     let block = function.blocks.get(&block_id)?;
     match block.instructions.get(inst_idx)? {
@@ -181,6 +196,12 @@ fn const_value(
                 JoinValue::Bool(b) => Some(ConstValue::Bool(b)),
                 _ => None,
             }
+        }
+        MirInstruction::Phi { inputs, .. } => {
+            let [(.., incoming)] = inputs.as_slice() else {
+                return None;
+            };
+            const_value_from_origin(function, def_map, *incoming, visited)
         }
         _ => None,
     }

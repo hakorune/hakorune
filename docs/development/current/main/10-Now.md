@@ -16,7 +16,7 @@ Related:
 - sibling guardrail lane: `phase137x main kilo reopen selection`
 - immediate next: `semantic simplification bundle`
 - immediate follow-on: `memory-effect layer`
-- top queued cut: `S2 first SCCP propagation widening beyond direct Compare`
+- top queued cut: `S3 jump-threading / SimplifyCFG closeout judgment`
 
 ## Landing Snapshot
 
@@ -30,6 +30,7 @@ Related:
   - copied-constant `Branch` terminators, constant `Compare` instructions, and empty trampoline jump-threading now fold before CFG merge
   - branch arms may now thread through an empty trampoline into a final block when the final PHIs can be trivially rewritten to the branching predecessor
   - branch arms may also drop dead edge-args while threading through an empty trampoline into a PHI-free final target
+  - constant compare / branch folding may also follow single-input PHIs
 
 ## Read Next
 
