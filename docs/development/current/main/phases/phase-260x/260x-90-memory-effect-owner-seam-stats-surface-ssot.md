@@ -27,9 +27,9 @@ Owner: `phase-260x`
 
 - in scope:
   - dead private-carrier `Load` pruning
+  - same-block private-carrier store-to-load forwarding
   - overwritten private-carrier `Store` pruning
 - out of scope for this phase:
-  - same-block store-to-load forwarding
   - redundant load elimination widening
   - cross-block DSE widening
   - hoist / sink legality
@@ -39,7 +39,8 @@ Owner: `phase-260x`
 - optimizer schedule has a dedicated memory-effect stage after semantic simplification
 - the stats bucket is observable in optimizer totals and display output
 - direct pass tests cover at least one `Load` pruning and one overwritten `Store` pruning case
+- direct pass tests cover a same-block store-to-load forwarding case
 
 ## Next Cut
 
-- `M1` same-block private-carrier store-to-load forwarding
+- `M2` same-block private-carrier redundant load elimination

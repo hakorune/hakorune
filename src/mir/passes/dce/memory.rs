@@ -18,7 +18,7 @@ impl PrivateCarrierInfo {
         self.private_roots.contains(&root).then_some(root)
     }
 
-    fn resolve_private_store_root(&self, value: ValueId) -> Option<ValueId> {
+    pub(crate) fn resolve_private_store_root(&self, value: ValueId) -> Option<ValueId> {
         self.resolve_private_root(value)
             .filter(|root| !self.escaping_roots.contains(root))
     }

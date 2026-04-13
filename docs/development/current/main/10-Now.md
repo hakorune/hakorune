@@ -16,7 +16,7 @@ Related:
 - sibling guardrail lane: `phase137x main kilo reopen selection`
 - immediate next: `memory-effect layer`
 - immediate follow-on: `escape / barrier -> LLVM attrs`
-- top queued cut: `M1 same-block private-carrier store-to-load forwarding`
+- top queued cut: `M2 same-block private-carrier redundant load elimination`
 
 ## Landing Snapshot
 
