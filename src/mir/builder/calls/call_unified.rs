@@ -38,7 +38,7 @@ pub fn classify_box_kind(box_name: &str) -> crate::mir::definitions::call_unifie
         "FuncScannerBox" | "MirBuilderBox" |
         // Selfhost builder helper boxes
         "JsonFragBox" | "JsonCursorBox" | "JsonScanBox" |
-        "LowerReturnMethodArrayMapBox" | "PatternUtilBox" | "MethodAliasPolicy" |
+        "PatternUtilBox" | "MethodAliasPolicy" |
         "StringHelpers" | "StringOps" | "StringScanBox" | "StringifyOperator" |
         "AddOperator" | "CompareOperator"
         => CalleeBoxKind::StaticCompiler,

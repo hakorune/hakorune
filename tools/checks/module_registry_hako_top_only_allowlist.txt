@@ -45,8 +45,6 @@ hako.mir.builder.internal.lower_return_binop_varvar
 hako.mir.builder.internal.lower_return_bool
 hako.mir.builder.internal.lower_return_float
 hako.mir.builder.internal.lower_return_int
-hako.mir.builder.internal.lower_return_loop_strlen_sum
-hako.mir.builder.internal.lower_return_method_array_map
 hako.mir.builder.internal.lower_return_method_string_length
 hako.mir.builder.internal.lower_return_string
 hako.mir.builder.internal.lower_return_var_local
