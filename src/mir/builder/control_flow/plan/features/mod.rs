@@ -23,6 +23,7 @@ pub(in crate::mir::builder) mod generic_loop_pipeline;
 pub(in crate::mir::builder) mod generic_loop_step;
 pub(in crate::mir::builder) mod loop_cond_continue_with_return_pipeline;
 pub(in crate::mir::builder) mod loop_cond_return_in_body_join;
+pub(in crate::mir::builder) mod loop_cond_return_in_body_phi_materializer;
 pub(in crate::mir::builder) mod loop_cond_return_in_body_pipeline;
 pub(in crate::mir::builder) mod loop_true_break_continue_pipeline;
 pub(in crate::mir::builder) mod nested_loop_depth1;

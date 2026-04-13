@@ -95,11 +95,15 @@ Scope: current lane / next lane / restart order only.
      - `cleanup`
    - landed first family seam:
      - `LoopCondReturnInBody` join-sig extraction
+   - current inventory:
+      - `facts` / `route` / `recipe` are already separate owners
+      - `LoopCondReturnInBody` still mixes route-local PHI allocation, temporary rebinding, and continue-exit closure in the pipeline
+      - next cut is one-family `phi materializer` extraction for `LoopCondReturnInBody`
 4. `phase-29bq legacy lowerer removal`
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
    - next:
-     - move one exact family's PHI closure behind a dedicated materializer seam
+     - move `LoopCondReturnInBody` PHI closure behind a dedicated materializer seam
 
 ## Legacy Compatibility Block
 

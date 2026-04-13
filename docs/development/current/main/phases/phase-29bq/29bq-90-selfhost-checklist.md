@@ -47,6 +47,19 @@ Related:
   - move one exact loop family at a time
   - do not combine acceptance-row widening with broader PHI hardening in the same commit
   - first landed family seam is `LoopCondReturnInBody` join-sig extraction; next move is `phi materializer` for one family only
+- current one-family inventory (`LoopCondReturnInBody`):
+  - already separate:
+    - `facts`
+    - `route`
+    - `recipe`
+    - `join sig`
+  - still mixed in pipeline:
+    - typed header/step PHI allocation
+    - temporary `variable_map` rebinding
+    - continue-exit closure
+    - `CoreLoopPlan.phis/final_values` assembly
+  - next cut:
+    - extract a dedicated `phi materializer` seam for `LoopCondReturnInBody` only
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

@@ -12,7 +12,7 @@ use crate::mir::builder::control_flow::plan::features::carrier_merge::{
 use crate::mir::builder::control_flow::plan::features::carriers;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::if_branch_lowering;
-use crate::mir::builder::control_flow::plan::features::loop_cond_return_in_body_join;
+use crate::mir::builder::control_flow::plan::features::loop_cond_return_in_body_phi_materializer::LoopCondReturnInBodyPhiMaterializer;
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::loop_cond::return_in_body_facts::LoopCondReturnInBodyFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::return_in_body_recipe::{
@@ -30,7 +30,7 @@ use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreLoopPlan, CorePlan, LoweredRecipe,
 };
 use crate::mir::builder::MirBuilder;
-use crate::mir::{Effect, EffectMask, MirType};
+use crate::mir::{Effect, EffectMask};
 use std::collections::{BTreeMap, BTreeSet};
 
 const LOOP_COND_RETURN_IN_BODY_ERR: &str = "[normalizer] loop_cond_return_in_body";
@@ -65,44 +65,20 @@ pub(in crate::mir::builder) fn lower_loop_cond_return_in_body(
     let use_header_continue_target =
         planner_required && crate::config::env::joinir_dev::strict_enabled();
 
-    let mut carrier_inits = BTreeMap::new();
-    let mut carrier_phis = BTreeMap::new();
-    let mut carrier_step_phis = BTreeMap::new();
-    for var in &carrier_vars {
-        let Some(&init_val) = builder.variable_ctx.variable_map.get(var) else {
-            return Err(format!(
-                "{LOOP_COND_RETURN_IN_BODY_ERR}: carrier {} missing init",
-                var
-            ));
-        };
-        let ty = builder
-            .type_ctx
-            .get_type(init_val)
-            .cloned()
-            .unwrap_or(MirType::Unknown);
-        let phi_dst = builder.alloc_typed(ty.clone());
-        let step_phi_dst = if use_header_continue_target {
-            phi_dst
-        } else {
-            builder.alloc_typed(ty)
-        };
-        carrier_inits.insert(var.clone(), init_val);
-        carrier_phis.insert(var.clone(), phi_dst);
-        carrier_step_phis.insert(var.clone(), step_phi_dst);
-    }
-    let mut current_bindings = carrier_phis.clone();
-    for (name, value_id) in &current_bindings {
-        builder
-            .variable_ctx
-            .variable_map
-            .insert(name.clone(), *value_id);
-    }
+    let mut phi_materializer = LoopCondReturnInBodyPhiMaterializer::prepare(
+        builder,
+        &carrier_vars,
+        use_header_continue_target,
+        header_bb,
+        step_bb,
+        LOOP_COND_RETURN_IN_BODY_ERR,
+    )?;
 
     // Phase 2b-3: Short-circuit evaluation for loop header condition
     let cond_view = CondBlockView::from_expr(&facts.condition);
     let header_result = lower_loop_header_cond(
         builder,
-        &current_bindings,
+        phi_materializer.current_bindings(),
         &cond_view,
         header_bb,
         body_bb,
@@ -125,10 +101,12 @@ pub(in crate::mir::builder) fn lower_loop_cond_return_in_body(
         branches: header_result.branches,
     };
 
+    let carrier_phis = phi_materializer.carrier_phis().clone();
+    let carrier_step_phis = phi_materializer.carrier_step_phis().clone();
     let mut carrier_updates = BTreeMap::new();
     let mut body_plans = lower_return_in_body_block(
         builder,
-        &mut current_bindings,
+        phi_materializer.current_bindings_mut(),
         &carrier_phis,
         &carrier_step_phis,
         &mut carrier_updates,
@@ -136,19 +114,15 @@ pub(in crate::mir::builder) fn lower_loop_cond_return_in_body(
     )?;
 
     let body_exits_all_paths = body_plans_exit_on_all_paths(&body_plans);
-    let join_sig = loop_cond_return_in_body_join::build_loop_cond_return_in_body_join_sig(
+    let phi_closure = phi_materializer.close(
         header_bb,
         preheader_bb,
         step_bb,
         use_header_continue_target,
         body_exits_all_paths,
-        &carrier_inits,
-        &carrier_phis,
-        &carrier_step_phis,
-        &current_bindings,
         LOOP_COND_RETURN_IN_BODY_ERR,
     )?;
-    if let Some(continue_exit) = join_sig.continue_exit() {
+    if let Some(continue_exit) = phi_closure.continue_exit() {
         body_plans.push(CorePlan::Exit(continue_exit));
     }
 
@@ -161,12 +135,6 @@ pub(in crate::mir::builder) fn lower_loop_cond_return_in_body(
     block_effects.push((body_bb, vec![]));
     block_effects.push((step_bb, vec![]));
 
-    let continue_target = if use_header_continue_target {
-        header_bb
-    } else {
-        step_bb
-    };
-
     let (step_mode, has_explicit_step) = step_mode::inline_in_body_no_explicit_step();
 
     Ok(CorePlan::Loop(CoreLoopPlan {
@@ -175,16 +143,16 @@ pub(in crate::mir::builder) fn lower_loop_cond_return_in_body(
         header_bb,
         body_bb,
         step_bb,
-        continue_target,
+        continue_target: phi_closure.continue_target(),
         after_bb,
         found_bb: after_bb,
         body: body_plans,
         cond_loop: header_result.first_cond,
         cond_match: header_result.first_cond,
         block_effects,
-        phis: join_sig.phis().to_vec(),
+        phis: phi_closure.phis().to_vec(),
         frag,
-        final_values: join_sig.final_values().to_vec(),
+        final_values: phi_closure.final_values().to_vec(),
         step_mode,
         has_explicit_step,
     }))
