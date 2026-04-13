@@ -6,6 +6,7 @@ use crate::mir::builder::control_flow::plan::facts::stmt_view::try_build_stmt_on
 use crate::mir::builder::control_flow::plan::features::carriers::collect_outer_from_body;
 use crate::mir::builder::control_flow::plan::features::exit_if_map;
 use crate::mir::builder::control_flow::plan::features::loop_true_break_continue_phi_materializer::LoopTrueBreakContinuePhiMaterializer;
+use crate::mir::builder::control_flow::plan::features::loop_true_break_continue_verifier::verify_loop_true_break_continue_phi_closure;
 use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower_nested_loop_depth1_any;
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::loop_cond::true_break_continue::LoopTrueBreakContinueFacts;
@@ -410,9 +411,9 @@ pub(in crate::mir::builder) fn lower_loop_true_break_continue_inner(
 
     // Normal fallthrough should also supply per-carrier phi args.
     // This avoids "single next_val" assumptions when continue edges update carriers.
-    if !matches!(recipe.items.last(), Some(LoopTrueItem::TailReturn(_)))
-        && !matches!(body_plans.last(), Some(CorePlan::Exit(_)))
-    {
+    let requires_fallthrough_continue = !matches!(recipe.items.last(), Some(LoopTrueItem::TailReturn(_)))
+        && !matches!(body_plans.last(), Some(CorePlan::Exit(_)));
+    if requires_fallthrough_continue {
         let exit = parts::exit::build_continue_with_phi_args(
             builder,
             &carrier_step_phis,
@@ -422,12 +423,22 @@ pub(in crate::mir::builder) fn lower_loop_true_break_continue_inner(
         body_plans.push(CorePlan::Exit(exit));
     }
 
+    let body_after_phi_count = body_after_phis.len();
     let phi_closure = phi_materializer.close(
         preheader_bb,
         header_bb,
         step_bb,
         body_break_phi_dsts.as_ref(),
         body_after_phis,
+        LOOP_TRUE_ERR,
+    )?;
+    verify_loop_true_break_continue_phi_closure(
+        &phi_closure,
+        &body_plans,
+        body_break_phi_dsts.as_ref(),
+        body_after_phi_count,
+        carrier_phis.len(),
+        requires_fallthrough_continue,
         LOOP_TRUE_ERR,
     )?;
 

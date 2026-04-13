@@ -16,6 +16,13 @@ pub(in crate::mir::builder) struct LoopTrueBreakContinuePhiClosure {
 }
 
 impl LoopTrueBreakContinuePhiClosure {
+    pub(in crate::mir::builder) fn new(
+        phis: Vec<CorePhiInfo>,
+        final_values: Vec<(String, ValueId)>,
+    ) -> Self {
+        Self { phis, final_values }
+    }
+
     pub(in crate::mir::builder) fn phis(&self) -> &[CorePhiInfo] {
         &self.phis
     }
@@ -147,7 +154,7 @@ impl LoopTrueBreakContinuePhiMaterializer {
             final_values.push((var.clone(), final_value));
         }
         phis.extend(body_after_phis);
-        Ok(LoopTrueBreakContinuePhiClosure { phis, final_values })
+        Ok(LoopTrueBreakContinuePhiClosure::new(phis, final_values))
     }
 }
 
