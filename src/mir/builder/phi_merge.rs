@@ -180,6 +180,16 @@ impl<'a> PhiMergeHelper<'a> {
         else_map_end_opt: &Option<BTreeMap<String, ValueId>>, // Phase 25.1: BTreeMap化
         skip_var: Option<&str>,
     ) -> Result<HashSet<String>, String> {
+        let (def_blocks, dominators) = if let Some(func) = self.builder.scope_ctx.current_function.as_ref()
+        {
+            (
+                Some(crate::mir::verification::utils::compute_def_blocks(func)),
+                Some(crate::mir::verification::utils::compute_dominators(func)),
+            )
+        } else {
+            (None, None)
+        };
+
         // ========================================
         // Phase 58: ConservativeMerge::analyze インライン化
         // ========================================
@@ -233,11 +243,42 @@ impl<'a> PhiMergeHelper<'a> {
             }
 
             let pre_val_opt = pre_if_snapshot.get(name.as_str()).copied();
-            let then_v_opt = then_map_end.get(name.as_str()).copied().or(pre_val_opt);
-            let else_v_opt = else_map_end_opt
+            let raw_then_v_opt = then_map_end.get(name.as_str()).copied().or(pre_val_opt);
+            let raw_else_v_opt = else_map_end_opt
                 .as_ref()
                 .and_then(|m| m.get(name.as_str()).copied())
                 .or(pre_val_opt);
+
+            let sanitize_for_pred =
+                |candidate: Option<ValueId>, pred: Option<BasicBlockId>| -> Option<ValueId> {
+                    let (Some(candidate), Some(pred), Some(def_blocks), Some(dominators)) =
+                        (candidate, pred, def_blocks.as_ref(), dominators.as_ref())
+                    else {
+                        return candidate;
+                    };
+
+                    let candidate_ok = def_blocks
+                        .get(&candidate)
+                        .copied()
+                        .map(|def_bb| dominators.dominates(def_bb, pred))
+                        .unwrap_or(false);
+                    if candidate_ok {
+                        return Some(candidate);
+                    }
+
+                    let Some(pre_val) = pre_val_opt else {
+                        return None;
+                    };
+                    let pre_ok = def_blocks
+                        .get(&pre_val)
+                        .copied()
+                        .map(|def_bb| dominators.dominates(def_bb, pred))
+                        .unwrap_or(false);
+                    if pre_ok { Some(pre_val) } else { None }
+                };
+
+            let then_v_opt = sanitize_for_pred(raw_then_v_opt, self.then_exit);
+            let else_v_opt = sanitize_for_pred(raw_else_v_opt, self.else_exit);
 
             let (then_v, else_v) = match (then_v_opt, else_v_opt) {
                 (Some(tv), Some(ev)) => {
@@ -249,25 +290,14 @@ impl<'a> PhiMergeHelper<'a> {
                     }
                     (tv, ev)
                 }
-                (Some(tv), None) => {
-                    let undef = crate::mir::builder::emission::constant::emit_void(self.builder)?;
+                (Some(_), None) | (None, Some(_)) => {
                     if trace_conservative {
                         crate::runtime::get_global_ring0().log.debug(&format!(
-                            "[Conservative PHI] One-branch variable {}: then={:?} else=void({:?})",
-                            name, tv, undef
+                            "[Conservative PHI] Skipping {}: branch-local without dominating outer value",
+                            name
                         ));
                     }
-                    (tv, undef)
-                }
-                (None, Some(ev)) => {
-                    let undef = crate::mir::builder::emission::constant::emit_void(self.builder)?;
-                    if trace_conservative {
-                        crate::runtime::get_global_ring0().log.debug(&format!(
-                            "[Conservative PHI] One-branch variable {}: then=void({:?}) else={:?}",
-                            name, undef, ev
-                        ));
-                    }
-                    (undef, ev)
+                    continue;
                 }
                 (None, None) => {
                     if trace_conservative {

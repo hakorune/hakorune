@@ -28,8 +28,26 @@ pub(in crate::mir::builder) fn materialize_vars_single_pred_at_entry(
     pre_if_var_map: &std::collections::BTreeMap<String, ValueId>,
     _context: &str,
 ) -> Result<(), String> {
-    builder.variable_ctx.variable_map = pre_if_var_map.clone();
-    for (name, &pre_v) in pre_if_var_map.iter() {
+    let sanitized_map = if let Some(func) = builder.scope_ctx.current_function.as_ref() {
+        let def_blocks = crate::mir::verification::utils::compute_def_blocks(func);
+        let dominators = crate::mir::verification::utils::compute_dominators(func);
+        pre_if_var_map
+            .iter()
+            .filter_map(|(name, &pre_v)| {
+                let dominates = def_blocks
+                    .get(&pre_v)
+                    .copied()
+                    .map(|def_bb| dominators.dominates(def_bb, pre_branch_bb))
+                    .unwrap_or(false);
+                dominates.then_some((name.clone(), pre_v))
+            })
+            .collect::<std::collections::BTreeMap<_, _>>()
+    } else {
+        pre_if_var_map.clone()
+    };
+
+    builder.variable_ctx.variable_map = sanitized_map.clone();
+    for (name, &pre_v) in sanitized_map.iter() {
         let phi_val = builder.insert_phi_single(pre_branch_bb, pre_v)?;
         builder
             .variable_ctx

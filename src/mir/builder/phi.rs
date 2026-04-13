@@ -120,6 +120,16 @@ impl MirBuilder {
         pre_if_snapshot: &BTreeMap<String, ValueId>,
         skip_var: Option<&str>,
     ) -> Result<(), String> {
+        let (def_blocks, dominators) = if let Some(func) = self.scope_ctx.current_function.as_ref()
+        {
+            (
+                Some(crate::mir::verification::utils::compute_def_blocks(func)),
+                Some(crate::mir::verification::utils::compute_dominators(func)),
+            )
+        } else {
+            (None, None)
+        };
+
         // 全変数を収集（決定的順序）
         let all_vars: BTreeSet<String> = exits
             .values()
@@ -133,16 +143,48 @@ impl MirBuilder {
             }
             // 各 exit から1本ずつ inputs を構築（pred数を減らさない）
             let mut inputs: Vec<(BasicBlockId, ValueId)> = Vec::new();
+            let pre_val = pre_if_snapshot.get(&var).copied();
+            let mut missing_outer_value = false;
             for (exit_bb, var_map) in &exits {
-                let val = if let Some(&v) = var_map.get(&var) {
-                    v
-                } else if let Some(&pre_v) = pre_if_snapshot.get(&var) {
-                    pre_v
-                } else {
-                    // 既存 merge_modified_vars と整合：void で埋める
-                    crate::mir::builder::emission::constant::emit_void(self)?
+                let candidate = var_map.get(&var).copied().or(pre_val);
+                let val = match (candidate, def_blocks.as_ref(), dominators.as_ref()) {
+                    (Some(candidate), Some(def_blocks), Some(dominators)) => {
+                        let candidate_ok = def_blocks
+                            .get(&candidate)
+                            .copied()
+                            .map(|def_bb| dominators.dominates(def_bb, *exit_bb))
+                            .unwrap_or(false);
+                        if candidate_ok {
+                            candidate
+                        } else if let Some(pre_v) = pre_val {
+                            let pre_ok = def_blocks
+                                .get(&pre_v)
+                                .copied()
+                                .map(|def_bb| dominators.dominates(def_bb, *exit_bb))
+                                .unwrap_or(false);
+                            if pre_ok {
+                                pre_v
+                            } else {
+                                missing_outer_value = true;
+                                break;
+                            }
+                        } else {
+                            missing_outer_value = true;
+                            break;
+                        }
+                    }
+                    (Some(candidate), _, _) => candidate,
+                    (None, _, _) => {
+                        missing_outer_value = true;
+                        break;
+                    }
                 };
                 inputs.push((*exit_bb, val));
+            }
+            if missing_outer_value {
+                // Branch-local values that are absent from the pre-merge snapshot must not
+                // escape via a synthetic merge PHI. Outer scope has no stable binding for them.
+                continue;
             }
             match inputs.len() {
                 0 => {}

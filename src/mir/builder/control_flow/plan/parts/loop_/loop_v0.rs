@@ -54,6 +54,7 @@ pub(in crate::mir::builder) fn lower_loop_v0(
     let body_recipe = arena
         .get(body_block.body_id)
         .ok_or_else(|| format!("{LOOP_V0_ERR} invalid_body_id: ctx={error_prefix}"))?;
+    let pre_loop_map = builder.variable_ctx.variable_map.clone();
 
     let mut carrier_vars = BTreeSet::from_iter(carriers::collect_from_body(&body_recipe.body).vars);
     let mut assigned_vars = BTreeSet::new();
@@ -351,6 +352,9 @@ pub(in crate::mir::builder) fn lower_loop_v0(
     };
 
     // Final values: after-phi dsts for carrier vars.
+    // Restore the outer lexical map first so loop-body locals do not leak past
+    // the loop boundary. Only carrier final values are allowed to escape.
+    builder.variable_ctx.variable_map = pre_loop_map;
     let mut final_values = Vec::new();
     for (name, after_phi_dst) in &break_phi_dsts {
         final_values.push((name.clone(), *after_phi_dst));
