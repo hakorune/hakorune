@@ -41,3 +41,9 @@ Related:
 - `phase29bq_fast_gate_vm.sh` が green
 - disabled legacy lowerer が mainline owner から参照されない
 - remaining references are limited to deliberate archive/history only
+
+## Progress
+
+- mainline owner removal: landed
+- live `phase2160` arraymap canaries: retired
+- legacy `tools/dev/phase29ci_test_runner_*` exact-proof wrappers: retired

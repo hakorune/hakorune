@@ -96,22 +96,22 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
   - `tools/smokes/v2/lib/test_runner.sh` now keeps the verify-tail policy behind `coerce_verify_builder_emit_result_kind()` + `run_verify_builder_emit_{failure,success}_policy()`
   - the exact W8 proof stays on the phase2044 verify canaries
   - `tools/smokes/v2/lib/test_runner.sh` now also keeps the tagged-stdout contract behind `coerce_phase2160_tagged_stdout_result_kind()` + `run_phase2160_tagged_stdout_repair_policy()`
-  - the exact W9 proof is `tools/dev/phase29ci_test_runner_tagged_stdout_probe.sh`
+  - the old exact W9 probe wrapper was retired in `phase29bq` legacy cleanup; the helper-local tagged-stdout contract remains in `tools/smokes/v2/lib/test_runner.sh`
   - heavy `phase2160/builder_min_*` wrappers stay monitor-only for that seam
   - `tools/smokes/v2/lib/test_runner.sh` now also keeps the builder-module env/render seam behind `prepare_builder_module_program_json_runner_context()` + `run_rendered_builder_module_program_json_runner()`
-  - the exact W10 proof is `tools/dev/phase29ci_test_runner_builder_envrender_probe.sh`
+  - the old exact W10 probe wrapper was retired in `phase29bq` legacy cleanup; the rendered runner env/apply contract remains in `tools/smokes/v2/lib/test_runner.sh`
   - `tools/smokes/v2/lib/test_runner.sh` now also keeps the stdout-file wrapper seam behind `capture_runner_stdout_to_file()` + `select_registry_builder_module_runner()`
-  - the exact W11 proof is `tools/dev/phase29ci_test_runner_stdout_file_probe.sh`
+  - the old exact W11 probe wrapper was retired in `phase29bq` legacy cleanup; stdout-file wrapper ownership remains in `tools/smokes/v2/lib/test_runner.sh`
   - the phase2160 module-load dehang interrupt is landed behind `IfMirEmitBox`, `CompatMirEmitBox`, and bounded-loop fixes in `lower_return_loop_strlen_sum_box.hako` plus `ParserStmtBox.parse_opt_annotation(...)`
   - the exact dehang proof is `tools/dev/phase2160_mirbuilder_module_load_probe.sh`
   - `phase2160/builder_min_if_compare_intint_canary_vm.sh`, `phase2160/registry_optin_compare_varint_canary_vm.sh`, and `phase2160/registry_optin_canary_vm.sh` are bounded again, but they remain monitor-only and are not the helper-local acceptance line
   - `tools/smokes/v2/lib/test_runner.sh` now also keeps the tagged-stdout caller layer behind `run_stdout_tag_canary_exec_and_repair()`
-  - the exact W12 proof is `tools/dev/phase29ci_test_runner_tagged_stdout_caller_probe.sh`
+  - the old exact W12 probe wrapper was retired in `phase29bq` legacy cleanup; tagged-stdout caller repair stays owned by `tools/smokes/v2/lib/test_runner.sh`
   - `tools/smokes/v2/lib/test_runner.sh` now also keeps the registry-specialized tagged-stdout layer behind `capture_registry_tagged_stdout_snapshot()` + `run_registry_builder_diag_exec_and_contract()`
-  - the exact W13 proof is `tools/dev/phase29ci_test_runner_registry_tagged_stdout_probe.sh`
+  - the old exact W13 probe wrapper was retired in `phase29bq` legacy cleanup; registry-specialized tagged-stdout ownership remains in `tools/smokes/v2/lib/test_runner.sh`
   - `phase2160/registry_optin_method_arraymap_get_diag_canary_vm.sh` stays as the thin diag wrapper check for that layer
   - `tools/smokes/v2/lib/test_runner.sh` now also keeps the method-arraymap fallback synth + token-check layer behind `prepare_registry_method_arraymap_stdout_snapshot()` + `run_registry_method_arraymap_token_policy()`
-  - the exact W14 proof is `tools/dev/phase29ci_test_runner_method_arraymap_probe.sh`
+  - the old exact W14 probe wrapper was retired in `phase29bq` legacy cleanup; method-arraymap fallback/token policy ownership remains in `tools/smokes/v2/lib/test_runner.sh`
   - the W15 reinventory stop-line is landed: `tools/smokes/v2/lib/test_runner.sh` is now treated as near-thin-floor by default, and helper-local work should only reopen on a newly discovered exact seam
   - the W16 first smoke-tail bucket is landed too: uniform raw `verify_program_via_builder_to_core` callers now collapse onto named runner helpers instead of repeating env stacks and rc handling inline
   - the special raw verify keep bucket is landed too: `phase2039/parser_embedded_json_canary.sh` now uses the generic rc wrapper directly, and `phase2043/mirbuilder_internal_new_array_core_exec_canary_vm.sh` now routes through `run_verify_program_via_internal_builder_no_methods_to_core()`
