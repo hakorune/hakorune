@@ -119,6 +119,20 @@ impl MirInterpreter {
                     None => VMValue::Void,
                 })
             }
+            "env.file.read" => {
+                if args.is_empty() {
+                    return Err(ErrorBuilder::arg_count_mismatch(
+                        "env.file.read",
+                        1,
+                        args.len(),
+                    ));
+                }
+                let path = self.reg_load(args[0])?.to_string();
+                Ok(match std::fs::read_to_string(&path) {
+                    Ok(text) => VMValue::String(text),
+                    Err(_) => VMValue::Void,
+                })
+            }
             "env.now_ms" => {
                 if !args.is_empty() {
                     return Err(ErrorBuilder::arg_count_mismatch(

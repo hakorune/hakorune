@@ -51,6 +51,13 @@ impl MirInterpreter {
                 }
                 Ok(())
             }
+            ("env.file", "read") => {
+                let ret = self
+                    .extern_provider_dispatch("env.file.read", args)
+                    .unwrap_or(Ok(VMValue::Void))?;
+                self.write_result(dst, ret);
+                Ok(())
+            }
             ("env", "mirbuilder_emit") => {
                 if let Some(provider_res) =
                     self.extern_provider_dispatch("env.mirbuilder.emit", args)

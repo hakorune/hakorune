@@ -92,5 +92,39 @@ pub fn apply_selfhost_compiler_env(cmd: &mut std::process::Command) {
          lang.compiler.entry.compiler=lang/src/compiler/entry/compiler.hako",
     );
 
+    // Program(JSON v0) compat pin:
+    // selfhost mirbuilder entry prefers HAKO_PROGRAM_JSON when present.
+    // Populate it from HAKO_PROGRAM_JSON_FILE for child compiler processes so
+    // planner-required lanes do not depend on FileBox host-method routing.
+    if std::env::var("HAKO_PROGRAM_JSON").ok().as_deref().unwrap_or("").is_empty() {
+        if let Ok(path) = std::env::var("HAKO_PROGRAM_JSON_FILE") {
+            if !path.is_empty() {
+                if let Ok(program_json) = std::fs::read_to_string(&path) {
+                    if !program_json.is_empty() {
+                        cmd.env("HAKO_PROGRAM_JSON", program_json);
+                    }
+                }
+            }
+        }
+    }
+    if std::env::var("HAKO_PROGRAM_JSON")
+        .ok()
+        .as_deref()
+        .map(|s| !s.is_empty())
+        .unwrap_or(false)
+        || std::env::var("HAKO_PROGRAM_JSON_FILE")
+            .ok()
+            .as_deref()
+            .map(|s| !s.is_empty())
+            .unwrap_or(false)
+    {
+        // Match the Rust-owned Phase-0 Program(JSON)->MIR contract:
+        // compiler static-box calls stay on the non-methodized surface.
+        cmd.env("HAKO_MIR_BUILDER_METHODIZE", "0");
+        // Keep compiler/build-bridge pins on rust-vm-keep even under strict/dev.
+        // vm-hako reference does not own compiler static-box Global calls yet.
+        cmd.env("NYASH_VM_HAKO_PREFER_STRICT_DEV", "0");
+    }
+
     // Note: NYASH_USING_AST stays 0 (AST-based using not needed for basic module resolution)
 }

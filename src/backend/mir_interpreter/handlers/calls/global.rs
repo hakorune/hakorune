@@ -152,6 +152,9 @@ impl MirInterpreter {
                 // Route env.get global to extern handler
                 return self.execute_extern_function("env.get", args);
             }
+            "env.file.read" => {
+                return self.execute_extern_function("env.file.read", args);
+            }
             "env.now_ms" => {
                 // Route env.now_ms global to extern handler
                 return self.execute_extern_function("env.now_ms", args);

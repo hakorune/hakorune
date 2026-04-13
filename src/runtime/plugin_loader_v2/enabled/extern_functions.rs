@@ -33,6 +33,7 @@ pub fn extern_call(
     }
     match iface_name {
         "env.console" => handle_console(method_name, args),
+        "env.file" => handle_file(method_name, args),
         "env.result" => handle_result(method_name, args),
         "env.modules" => handle_modules(method_name, args),
         "env.task" => handle_task(method_name, args),
@@ -66,6 +67,22 @@ fn should_trace_call_extern(target: &str, method: &str) -> bool {
         return false;
     }
     true
+}
+
+fn handle_file(
+    method_name: &str,
+    args: &[Box<dyn NyashBox>],
+) -> BidResult<Option<Box<dyn NyashBox>>> {
+    match method_name {
+        "read" => {
+            let path = args.get(0).ok_or(BidError::PluginError)?.to_string_box().value;
+            match std::fs::read_to_string(&path) {
+                Ok(text) => Ok(Some(Box::new(StringBox::new(&text)))),
+                Err(_) => Ok(Some(Box::new(VoidBox::new()))),
+            }
+        }
+        _ => Err(BidError::PluginError),
+    }
 }
 
 /// Handle env.console.* methods

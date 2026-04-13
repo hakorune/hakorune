@@ -87,6 +87,9 @@ static box MirVmS0BoxcallBuiltinBox {
       file_obj = new FileBox()
       MirVmS0StateOpsBox.file_box_set(file_boxes, file_key, file_obj)
     }
+    local args = new ArrayBox()
+    args.push(path_text)
+    args.push(mode_text)
     local rc_open = file_obj.open(path_text, mode_text)
     regs.set("" + dst_open, "" + rc_open)
     kinds.set("" + dst_open, "scalar")

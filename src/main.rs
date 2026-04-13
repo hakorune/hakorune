@@ -15,6 +15,47 @@ fn maybe_enable_stack_overflow_backtrace() {
     }
 }
 
+fn maybe_pin_program_json_from_file_env() {
+    let current = std::env::var("HAKO_PROGRAM_JSON").unwrap_or_default();
+    if !current.is_empty() {
+        return;
+    }
+    let Ok(path) = std::env::var("HAKO_PROGRAM_JSON_FILE") else {
+        return;
+    };
+    if path.is_empty() {
+        return;
+    }
+    if let Ok(program_json) = std::fs::read_to_string(&path) {
+        if !program_json.is_empty() {
+            std::env::set_var("HAKO_PROGRAM_JSON", program_json);
+        }
+    }
+}
+
+fn maybe_pin_phase0_program_json_builder_env() {
+    let has_program_json = std::env::var("HAKO_PROGRAM_JSON")
+        .ok()
+        .as_deref()
+        .map(|s| !s.is_empty())
+        .unwrap_or(false);
+    let has_program_json_file = std::env::var("HAKO_PROGRAM_JSON_FILE")
+        .ok()
+        .as_deref()
+        .map(|s| !s.is_empty())
+        .unwrap_or(false);
+    if has_program_json || has_program_json_file {
+        // Keep Phase-0 Program(JSON)->MIR on the legacy/static-box call surface.
+        // Rust host-providers already pin this route to methodize=0.
+        std::env::set_var("HAKO_MIR_BUILDER_METHODIZE", "0");
+        // Program(JSON) contract pins are compiler/build-bridge checks.
+        // Under strict/dev, `backend=vm` normally prefers vm-hako reference,
+        // but that lane does not own compiler static-box Global calls yet.
+        // Keep this narrow bridge on rust-vm-keep until vm-hako grows the same surface.
+        std::env::set_var("NYASH_VM_HAKO_PREFER_STRICT_DEV", "0");
+    }
+}
+
 /// Thin entry point - delegates to CLI parsing and runner execution
 fn main() {
     // Optional: enable backtrace on stack overflow for deep debug runs.
@@ -50,6 +91,8 @@ fn main() {
 
     // Bootstrap env overrides from nyash.toml [env] early (管理棟)
     env_config::bootstrap_from_toml_env();
+    maybe_pin_program_json_from_file_env();
+    maybe_pin_phase0_program_json_builder_env();
     // Parse command-line arguments
     let config = CliConfig::parse();
     // Ensure Ring0 before any deprecation logging path that may call get_global_ring0().

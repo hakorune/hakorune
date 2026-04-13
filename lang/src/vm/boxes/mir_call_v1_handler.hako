@@ -554,8 +554,11 @@ static box MirCallV1HandlerBox {
       if arg0id >= 0 { keyv = me._read_reg_text_or_null(regs, handle_regs, arg0id) }
       local out = HostFacadeBox.call("runtime", "env.get", keyv)
       if dstp != null {
-        if out == null { regs.setField(StringHelpers.int_to_str(dstp), "0") }
-        else { regs.setField(StringHelpers.int_to_str(dstp), "" + out) }
+        if out == null {
+          me._write_scalar_dst(regs, kinds, handle_regs, dstp, 0)
+        } else {
+          me._write_text_dst(regs, kinds, handle_regs, dstp, out)
+        }
       }
       return
     }

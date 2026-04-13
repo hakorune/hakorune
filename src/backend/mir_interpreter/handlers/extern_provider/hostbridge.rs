@@ -53,6 +53,16 @@ impl MirInterpreter {
                     Err(self.err_invalid("extern_invoke env.mirbuilder.emit expects 1 arg"))
                 }
             }
+            ("env.file", "read") => {
+                if let Some(path) = first_arg_str {
+                    match std::fs::read_to_string(&path) {
+                        Ok(text) => Ok(VMValue::String(text)),
+                        Err(_) => Ok(VMValue::Void),
+                    }
+                } else {
+                    Err(self.err_invalid("extern_invoke env.file.read expects 1 arg"))
+                }
+            }
             ("env.codegen", "emit_object" | "compile_ll_text" | "link_object") => {
                 return self.dispatch_loader_hostbridge_codegen_invoke(args);
             }

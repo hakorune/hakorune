@@ -162,6 +162,13 @@ static EXTERNS: Lazy<Vec<ExternSpec>> = Lazy::new(|| {
             max_arity: 1,
             slot: Some(60),
         },
+        ExternSpec {
+            iface: "env.file",
+            method: "read",
+            min_arity: 1,
+            max_arity: 1,
+            slot: Some(61),
+        },
         // host providers (delegate path)
         ExternSpec {
             iface: "env.mirbuilder",

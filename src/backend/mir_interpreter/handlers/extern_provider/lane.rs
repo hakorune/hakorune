@@ -20,6 +20,7 @@ pub(super) fn classify_extern_provider_lane(extern_name: &str) -> Option<ExternP
         | "env.console.error/1"
         | "nyash.console.error"
         | "env.get"
+        | "env.file.read"
         | "env.now_ms"
         | "env.set"
         | "nyash.runtime_data.get_hh"
