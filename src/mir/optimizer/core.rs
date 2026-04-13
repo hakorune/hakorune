@@ -35,16 +35,23 @@ impl MirOptimizer {
     pub fn optimize_module(&mut self, module: &mut MirModule) -> OptimizationStats {
         let mut stats = OptimizationStats::new();
 
-        // Dev/diagnostic: allow disabling optimizer entirely via env gate
-        // Default OFF (no behavior change). When ON, return immediately with empty stats.
-        // Accepted keys: NYASH_MIR_DISABLE_OPT=1 or HAKO_MIR_DISABLE_OPT=1
+        // Compiler-lane contract: strict+planner_required gates validate
+        // planning/lowering acceptance, not optimizer behavior. Keep the
+        // optimizer out of that lane so selfhost failure-driven work does not
+        // get blocked by unrelated optimizer cost or drift.
+        let planner_required_lane =
+            crate::config::env::joinir_dev::strict_planner_required_enabled();
+
+        // Dev/diagnostic: allow disabling optimizer entirely via env gate.
+        // Accepted keys: NYASH_MIR_DISABLE_OPT=1 or HAKO_MIR_DISABLE_OPT=1.
         let disable_opt = std::env::var("NYASH_MIR_DISABLE_OPT").ok().as_deref() == Some("1")
-            || std::env::var("HAKO_MIR_DISABLE_OPT").ok().as_deref() == Some("1");
+            || std::env::var("HAKO_MIR_DISABLE_OPT").ok().as_deref() == Some("1")
+            || planner_required_lane;
         if disable_opt {
             if self.debug {
                 get_global_ring0()
                     .log
-                    .debug("[mir-opt] disabled by env (returning without passes)");
+                    .debug("[mir-opt] disabled for planner-required/env gate (returning without passes)");
             }
             return stats;
         }
