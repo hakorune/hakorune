@@ -15,7 +15,7 @@ Scope: current lane / next lane / restart order only.
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/10-Now.md`
 3. `docs/development/current/main/15-Workstream-Map.md`
-4. `docs/development/current/main/phases/phase-268x/README.md`
+4. `docs/development/current/main/phases/phase-269x/README.md`
 5. `docs/development/current/main/phases/phase-163x/README.md`
 6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 7. `git status -sb`
@@ -26,13 +26,13 @@ Scope: current lane / next lane / restart order only.
 - expected worktree:
   - clean
 - active lane:
-  - `phase-268x numeric loop / SIMD compare-select widening`
+  - `phase-269x closure split capture classification owner seam`
 - sibling guardrail:
   - `phase-137x` string corridor / exact-keeper guardrail
 - immediate next:
-  - `numeric loop / SIMD`
-- immediate follow-on:
   - `closure split`
+- immediate follow-on:
+  - `IPO / build-time optimization`
 - current stop-lines:
   - do not mix lane B with lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
   - do not mix lane B with `generic placement / effect`
@@ -44,7 +44,7 @@ Scope: current lane / next lane / restart order only.
 ## Design Owners
 
 - implementation lane:
-  - `docs/development/current/main/phases/phase-268x/README.md`
+  - `docs/development/current/main/phases/phase-269x/README.md`
 - next layer landing:
   - `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 - roadmap SSOT:
@@ -76,16 +76,17 @@ Scope: current lane / next lane / restart order only.
 - `phase-265x` is landed: the LoopSimdContract owner seam now exists in code
 - `phase-266x` is landed: integer map loop widening is the first actual widening cut
 - `phase-267x` is landed: integer sum reduction widening is the next actual widening cut
-- `phase-268x` is active: compare/select widening is the current actual widening cut
+- `phase-268x` is landed: compare/select widening is the numeric lane closeout cut
+- `phase-269x` is active: closure split now starts with a shared capture classification owner seam
 - explicit scope-exit timeout surfacing is parked while the optimization lane hands off to `numeric loop / SIMD`
-- the next code lane is now `numeric loop / SIMD`
+- the next code lane is now `closure split`
 - `CURRENT_TASK.md` is the only live status pointer; `05/10/15` are thin mirrors only
 - if this file grows again, move the detail back into the phase docs
 
 ## Execution Queue
 
-1. `numeric loop / SIMD`
-   - current cut: compare/select widening under LoopSimdContract
-   - keep floating-point / fast-math / FMA out of this seam
-   - next follow-on: numeric lane closeout judgment before `closure split`
-2. `closure split`
+1. `closure split`
+   - current cut: shared capture classification owner seam
+   - keep env scalarization and thin-entry specialization out of this seam
+   - next follow-on: closure env scalarization
+2. `IPO / build-time optimization`

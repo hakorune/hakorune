@@ -34,6 +34,12 @@ This directory is the modular lowering route for `mir_call` in LLVM Python backe
   - direct miss now fail-fasts; this directory no longer keeps a Python-side
     `by_name` compat emitter.
 
+- `builders/closure_split_contract.py`
+  - owns closure capture classification only.
+  - route-local closure lowering reads this contract so empty-env vs capture-env
+    classification does not drift while env scalarization and thin-entry
+    specialization stay deferred.
+
 This keeps call hot-trace counters (`resolve_*_call`) consistent across routes.
 
 ## Print marshalling utility

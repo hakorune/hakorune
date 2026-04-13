@@ -1,6 +1,6 @@
 # Phase 268x Task Board
 
-Status: ACTIVE
+Status: LANDED
 
 ## Done
 
@@ -9,7 +9,7 @@ Status: ACTIVE
 - [x] lower `int_compare_select_candidate` contracts into conservative `llvm.loop` metadata
 - [x] cover the compare/select metadata lowering seam with focused tests
 
-## Next
+## Closeout
 
-- [ ] decide numeric lane closeout after this cut
-- [ ] keep floating-point widening outside the current lane
+- [x] numeric loop / SIMD is closed out after this cut
+- [x] floating-point widening remains outside the current lane

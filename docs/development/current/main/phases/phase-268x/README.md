@@ -1,4 +1,4 @@
-Status: ACTIVE
+Status: LANDED
 Owner: Codex
 Phase: 268x
 
@@ -20,7 +20,7 @@ Phase: 268x
   - integer-only
 - floating-point, fast-math, reassociation, and FMA remain out of scope
 
-## Next
+## Closeout
 
-- decide numeric lane closeout after this cut
-- keep floating-point reduction outside the current lane
+- numeric loop / SIMD is closed out after this cut
+- next lane is `closure split`

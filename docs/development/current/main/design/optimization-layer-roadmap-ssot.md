@@ -58,8 +58,9 @@ Owner: `phase-163x optimization-resume`
    - landed contract seam: LoopSimdContract proof / policy / lowering owner split (`phase265x`)
    - landed widening seam: integer map loops now emit the first conservative `llvm.loop` vectorization hint under LoopSimdContract (`phase266x`)
    - landed widening seam: integer sum reductions now emit the next conservative `llvm.loop` vectorization hint under LoopSimdContract (`phase267x`)
-   - current widening seam: compare/select candidates now emit the next conservative `llvm.loop` vectorization hint under LoopSimdContract (`phase268x`)
+   - landed widening seam: compare/select candidates now emit the next conservative `llvm.loop` vectorization hint under LoopSimdContract (`phase268x`)
 8. `closure split`
+   - current owner seam: closure creation now reads a shared capture classification contract before env scalarization / thin-entry specialization (`phase269x`)
    - `capture classification`
    - `closure env scalarization`
    - `closure thin-entry specialization`

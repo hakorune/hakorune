@@ -258,7 +258,8 @@
            - phase264x now carries the reduction-recognition seam over simple while plans
            - vectorization/fast-math tuning remain backlog
         8. `closure split`
-           - backlog: `capture classification`, `closure env scalarization`, and `closure thin-entry specialization`
+           - current cut: `capture classification`
+           - backlog after current cut: `closure env scalarization`, and `closure thin-entry specialization`
         9. `IPO / build-time optimization`
            - backlog: `PGO` / `ThinLTO` stay last after the MIR-side semantic layers are stronger
       - active ordering note:
@@ -276,7 +277,7 @@
       - LLVM/Python local-enum escape barriers now share one helper instead of repeating materialization wrappers in `call` / `boxcall` / `ret`
       - safe runtime nullish checks touched in this lane now converge on `NullBox::check_null()`
       - MIR reference docs now split into instruction SSOT + metadata SSOT, while stale all-in-one references are reduced to thin pointers
-    8. next ready task: `phase-268x numeric loop / SIMD compare-select widening`
+    8. next ready task: `phase-269x closure split capture classification owner seam`
     9. keep `where` / enum methods / full monomorphization in backlog
 
 ## Fixed Task Order

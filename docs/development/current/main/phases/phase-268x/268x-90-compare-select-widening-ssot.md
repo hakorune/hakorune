@@ -1,8 +1,8 @@
 # Phase 268x SSOT — compare/select widening
 
-Status: ACTIVE
+Status: LANDED
 Date: 2026-04-13
-Scope: next actual SIMD widening cut under LoopSimdContract.
+Scope: landed compare/select widening cut under LoopSimdContract.
 
 ## Decision
 

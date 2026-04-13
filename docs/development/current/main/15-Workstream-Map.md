@@ -14,17 +14,17 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-268x numeric loop / SIMD compare-select widening` |
-| Front | `numeric loop / SIMD -> compare/select actual widening` |
+| Now | `phase-269x closure split capture classification owner seam` |
+| Front | `closure split -> capture classification owner seam` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `memory-effect layer is complete; the next queue is numeric loop / SIMD compare/select widening work` |
-| Next | `numeric loop / SIMD` |
-| After Next | `closure split` |
+| Blocker | `numeric loop / SIMD is closed out; the next queue is closure split capture classification work` |
+| Next | `closure split` |
+| After Next | `IPO / build-time optimization` |
 
 ## Current Read
 
   - design owners:
-  - implementation lane: `docs/development/current/main/phases/phase-268x/README.md`
+  - implementation lane: `docs/development/current/main/phases/phase-269x/README.md`
   - next layer landing: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - roadmap SSOT: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
@@ -33,8 +33,8 @@ Related:
 
 ## Immediate Sequence
 
-1. `numeric loop / SIMD`
-2. `closure split`
+1. `closure split`
+2. `IPO / build-time optimization`
 
 ## Parked Corridor
 
