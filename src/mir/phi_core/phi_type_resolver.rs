@@ -32,12 +32,17 @@ use std::collections::{BTreeMap, BTreeSet};
 pub struct PhiTypeResolver<'f> {
     func: &'f MirFunction,
     value_types: &'f BTreeMap<ValueId, MirType>,
+    definitions: BTreeMap<ValueId, DefKind>,
 }
 
 impl<'f> PhiTypeResolver<'f> {
     /// 新しい PhiTypeResolver を作成
     pub fn new(func: &'f MirFunction, value_types: &'f BTreeMap<ValueId, MirType>) -> Self {
-        Self { func, value_types }
+        Self {
+            func,
+            value_types,
+            definitions: Self::build_definitions(func),
+        }
     }
 
     /// root (ret_val など) の型を、PHI + Copy グラフから安全に推論できれば返す
@@ -81,7 +86,7 @@ impl<'f> PhiTypeResolver<'f> {
                             .log
                             .debug(&format!("[phi_resolver] {:?} -> Copy from {:?}", v, src));
                     }
-                    stack.push(src);
+                    stack.push(*src);
                 }
                 Some(DefKind::Phi { inputs }) => {
                     // Phi → 各 incoming ValueId へ進む
@@ -93,7 +98,7 @@ impl<'f> PhiTypeResolver<'f> {
                         ));
                     }
                     for (_, incoming) in inputs {
-                        stack.push(incoming);
+                        stack.push(*incoming);
                     }
                 }
                 Some(DefKind::Base) | None => {
@@ -145,48 +150,47 @@ impl<'f> PhiTypeResolver<'f> {
         None
     }
 
-    /// ValueId の定義元命令を探す
-    fn find_definition(&self, v: ValueId) -> Option<DefKind> {
-        for (_bid, bb) in self.func.blocks.iter() {
-            for inst in bb.instructions.iter() {
-                match inst {
-                    MirInstruction::Copy { dst, src } if *dst == v => {
-                        return Some(DefKind::Copy { src: *src });
-                    }
-                    MirInstruction::Phi { dst, inputs, .. } if *dst == v => {
-                        return Some(DefKind::Phi {
-                            inputs: inputs.clone(),
-                        });
-                    }
-                    // 他の dst を持つ命令は base 定義
-                    _ => {
-                        if Self::instruction_defines(inst, v) {
-                            return Some(DefKind::Base);
-                        }
-                    }
+    fn build_definitions(func: &MirFunction) -> BTreeMap<ValueId, DefKind> {
+        let mut definitions = BTreeMap::new();
+        for bb in func.blocks.values() {
+            for inst in &bb.instructions {
+                if let Some((dst, kind)) = Self::definition_from_instruction(inst) {
+                    definitions.entry(dst).or_insert(kind);
                 }
             }
         }
-        None
+        definitions
     }
 
-    /// 命令が ValueId を定義しているか
-    fn instruction_defines(inst: &MirInstruction, v: ValueId) -> bool {
+    fn definition_from_instruction(inst: &MirInstruction) -> Option<(ValueId, DefKind)> {
         match inst {
-            MirInstruction::Const { dst, .. } => *dst == v,
-            MirInstruction::UnaryOp { dst, .. } => *dst == v,
-            MirInstruction::BinOp { dst, .. } => *dst == v,
-            MirInstruction::Compare { dst, .. } => *dst == v,
-            MirInstruction::TypeOp { dst, .. } => *dst == v,
-            MirInstruction::Load { dst, .. } => *dst == v,
-            MirInstruction::NewBox { dst, .. } => *dst == v,
-            MirInstruction::Call { dst: Some(dst), .. } => *dst == v,
-            _ => false,
+            MirInstruction::Copy { dst, src } => Some((*dst, DefKind::Copy { src: *src })),
+            MirInstruction::Phi { dst, inputs, .. } => Some((
+                *dst,
+                DefKind::Phi {
+                    inputs: inputs.clone(),
+                },
+            )),
+            MirInstruction::Const { dst, .. }
+            | MirInstruction::UnaryOp { dst, .. }
+            | MirInstruction::BinOp { dst, .. }
+            | MirInstruction::Compare { dst, .. }
+            | MirInstruction::TypeOp { dst, .. }
+            | MirInstruction::Load { dst, .. }
+            | MirInstruction::NewBox { dst, .. } => Some((*dst, DefKind::Base)),
+            MirInstruction::Call { dst: Some(dst), .. } => Some((*dst, DefKind::Base)),
+            _ => None,
         }
+    }
+
+    /// ValueId の定義元命令を探す
+    fn find_definition(&self, v: ValueId) -> Option<&DefKind> {
+        self.definitions.get(&v)
     }
 }
 
 /// 定義元の種類
+#[derive(Clone)]
 enum DefKind {
     /// Copy { dst, src } → src へ進む
     Copy { src: ValueId },

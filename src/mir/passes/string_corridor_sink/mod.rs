@@ -60,47 +60,87 @@ pub(crate) fn apply_string_corridor_post_dce_transforms(function: &mut MirFuncti
 }
 
 fn apply_string_corridor_transforms(function: &mut MirFunction) -> usize {
+    if !has_string_corridor_transform_sites(function) {
+        return 0;
+    }
+
     refresh_function_string_corridor_folded_metadata(function);
 
-    let def_map = build_value_def_map(function);
-    let use_counts = build_use_counts(function);
+    let mut def_map = build_value_def_map(function);
+    let mut use_counts = build_use_counts(function);
     let plans_by_block = collect_plans(function, &def_map, &use_counts);
     let mut rewritten = apply_plans(function, plans_by_block);
+    if rewritten > 0 {
+        def_map = build_value_def_map(function);
+        use_counts = build_use_counts(function);
+    }
 
-    let def_map = build_value_def_map(function);
-    let use_counts = build_use_counts(function);
     let retained_len_plans = collect_retained_len_plans(function, &def_map, &use_counts);
-    rewritten += apply_retained_len_plans(function, retained_len_plans);
+    let retained_len_rewritten = apply_retained_len_plans(function, retained_len_plans);
+    rewritten += retained_len_rewritten;
+    if retained_len_rewritten > 0 {
+        def_map = build_value_def_map(function);
+        use_counts = build_use_counts(function);
+    }
 
-    let def_map = build_value_def_map(function);
-    let use_counts = build_use_counts(function);
     let concat_corridor_plans = collect_concat_corridor_plans(function, &def_map, &use_counts);
-    rewritten += apply_concat_corridor_plans(function, concat_corridor_plans);
+    let concat_corridor_rewritten = apply_concat_corridor_plans(function, concat_corridor_plans);
+    rewritten += concat_corridor_rewritten;
+    if concat_corridor_rewritten > 0 {
+        def_map = build_value_def_map(function);
+        use_counts = build_use_counts(function);
+    }
 
-    let def_map = build_value_def_map(function);
-    let use_counts = build_use_counts(function);
     let publication_return_plans =
         collect_publication_return_plans(function, &def_map, &use_counts);
-    rewritten += apply_publication_return_plans(function, publication_return_plans);
+    let publication_return_rewritten =
+        apply_publication_return_plans(function, publication_return_plans);
+    rewritten += publication_return_rewritten;
+    if publication_return_rewritten > 0 {
+        def_map = build_value_def_map(function);
+        use_counts = build_use_counts(function);
+    }
 
-    let def_map = build_value_def_map(function);
-    let use_counts = build_use_counts(function);
     let publication_write_boundary_plans =
         collect_publication_write_boundary_plans(function, &def_map, &use_counts);
-    rewritten += apply_publication_write_boundary_plans(function, publication_write_boundary_plans);
+    let publication_write_boundary_rewritten =
+        apply_publication_write_boundary_plans(function, publication_write_boundary_plans);
+    rewritten += publication_write_boundary_rewritten;
+    if publication_write_boundary_rewritten > 0 {
+        def_map = build_value_def_map(function);
+        use_counts = build_use_counts(function);
+    }
 
-    let def_map = build_value_def_map(function);
-    let use_counts = build_use_counts(function);
     let publication_host_boundary_plans =
         collect_publication_host_boundary_plans(function, &def_map, &use_counts);
-    rewritten += apply_publication_host_boundary_plans(function, publication_host_boundary_plans);
+    let publication_host_boundary_rewritten =
+        apply_publication_host_boundary_plans(function, publication_host_boundary_plans);
+    rewritten += publication_host_boundary_rewritten;
+    if publication_host_boundary_rewritten > 0 {
+        def_map = build_value_def_map(function);
+        use_counts = build_use_counts(function);
+    }
 
-    let def_map = build_value_def_map(function);
-    let use_counts = build_use_counts(function);
     let fusion_plans = collect_complementary_len_fusion_plans(function, &def_map, &use_counts);
     rewritten += apply_complementary_len_fusion_plans(function, fusion_plans);
 
     rewritten
+}
+
+fn has_string_corridor_transform_sites(function: &MirFunction) -> bool {
+    function.blocks.values().any(|block| {
+        block.instructions.iter().any(|inst| {
+            match_len_call(inst).is_some()
+                || match_substring_call(inst).is_some()
+                || match_substring_concat3_helper_call(inst).is_some()
+                || match_substring_len_call(inst).is_some()
+        }) || block.terminator.iter().any(|term| {
+            match_len_call(term).is_some()
+                || match_substring_call(term).is_some()
+                || match_substring_concat3_helper_call(term).is_some()
+                || match_substring_len_call(term).is_some()
+        })
+    })
 }
 
 pub(crate) fn refresh_function_string_corridor_folded_metadata(function: &mut MirFunction) {

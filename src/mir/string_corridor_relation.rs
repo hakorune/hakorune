@@ -8,7 +8,7 @@
 
 use super::{
     phi_query::{collect_phi_carry_relations, PhiBaseRelation},
-    resolve_value_origin,
+    resolve_value_origin, build_value_def_map, ValueDefMap,
     string_corridor_recognizer::{
         match_add_in_block, match_len_call, match_substring_call,
         match_substring_concat3_helper_call, string_source_identity,
@@ -93,8 +93,12 @@ fn find_phi_inputs(
     None
 }
 
-fn value_is_const_i64(function: &MirFunction, value: ValueId, expected: i64) -> bool {
-    let def_map = super::build_value_def_map(function);
+fn value_is_const_i64(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+    expected: i64,
+) -> bool {
     let root = resolve_value_origin(function, &def_map, value);
     let Some((bbid, idx)) = def_map.get(&root).copied() else {
         return false;
@@ -111,12 +115,16 @@ fn value_is_const_i64(function: &MirFunction, value: ValueId, expected: i64) -> 
     )
 }
 
-fn same_or_same_const_i64(function: &MirFunction, lhs: ValueId, rhs: ValueId) -> bool {
+fn same_or_same_const_i64(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    lhs: ValueId,
+    rhs: ValueId,
+) -> bool {
     if lhs == rhs {
         return true;
     }
 
-    let def_map = super::build_value_def_map(function);
     let lhs_root = resolve_value_origin(function, &def_map, lhs);
     let rhs_root = resolve_value_origin(function, &def_map, rhs);
     if lhs_root == rhs_root {
@@ -150,8 +158,11 @@ fn same_or_same_const_i64(function: &MirFunction, lhs: ValueId, rhs: ValueId) ->
     )
 }
 
-fn entry_length_value_for_phi(function: &MirFunction, phi_value: ValueId) -> Option<ValueId> {
-    let def_map = super::build_value_def_map(function);
+fn entry_length_value_for_phi(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    phi_value: ValueId,
+) -> Option<ValueId> {
     let inputs = find_phi_inputs(function, phi_value)?;
     let (entry_bbid, entry_value) = inputs.iter().min_by_key(|(bbid, _)| bbid.0).copied()?;
     let entry_identity = string_source_identity(function, &def_map, entry_value)?;
@@ -174,17 +185,17 @@ fn entry_length_value_for_phi(function: &MirFunction, phi_value: ValueId) -> Opt
 
 fn plan_window_preserves_length_value(
     function: &MirFunction,
+    def_map: &ValueDefMap,
     start: ValueId,
     end: ValueId,
     length_value: ValueId,
 ) -> bool {
-    let def_map = super::build_value_def_map(function);
     let start_root = resolve_value_origin(function, &def_map, start);
     let end_root = resolve_value_origin(function, &def_map, end);
     let length_root = resolve_value_origin(function, &def_map, length_value);
 
     if end_root == length_root {
-        return value_is_const_i64(function, start_root, 0);
+        return value_is_const_i64(function, def_map, start_root, 0);
     }
 
     let Some((end_bbid, _)) = def_map.get(&end_root).copied() else {
@@ -195,17 +206,18 @@ fn plan_window_preserves_length_value(
     };
     let lhs_root = resolve_value_origin(function, &def_map, add_shape.lhs);
     let rhs_root = resolve_value_origin(function, &def_map, add_shape.rhs);
-    (same_or_same_const_i64(function, lhs_root, start_root) && rhs_root == length_root)
-        || (lhs_root == length_root && same_or_same_const_i64(function, rhs_root, start_root))
+    (same_or_same_const_i64(function, def_map, lhs_root, start_root) && rhs_root == length_root)
+        || (lhs_root == length_root
+            && same_or_same_const_i64(function, def_map, rhs_root, start_root))
 }
 
 fn stable_length_relation_for_phi(
     function: &MirFunction,
+    def_map: &ValueDefMap,
     phi_value: ValueId,
     base_value: ValueId,
 ) -> Option<StringCorridorRelation> {
-    let length_value = entry_length_value_for_phi(function, phi_value)?;
-    let def_map = super::build_value_def_map(function);
+    let length_value = entry_length_value_for_phi(function, def_map, phi_value)?;
     let base_root = resolve_value_origin(function, &def_map, base_value);
     let (bbid, idx) = def_map.get(&base_root).copied()?;
     let block = function.blocks.get(&bbid)?;
@@ -217,7 +229,7 @@ fn stable_length_relation_for_phi(
     } else {
         return None;
     };
-    if !plan_window_preserves_length_value(function, start, end, length_value) {
+    if !plan_window_preserves_length_value(function, def_map, start, end, length_value) {
         return None;
     }
 
@@ -245,6 +257,10 @@ pub fn refresh_function_string_corridor_relations(function: &mut MirFunction) {
         .keys()
         .copied()
         .collect::<BTreeSet<_>>();
+    if anchors.is_empty() {
+        return;
+    }
+    let def_map = build_value_def_map(function);
 
     for relation in collect_phi_carry_relations(function, &anchors) {
         let PhiBaseRelation::SameBase(base_value) = relation.relation else {
@@ -276,7 +292,7 @@ pub fn refresh_function_string_corridor_relations(function: &mut MirFunction) {
 
         if !relation.window_safe {
             if let Some(stable_length) =
-                stable_length_relation_for_phi(function, relation.phi_value, base_value)
+                stable_length_relation_for_phi(function, &def_map, relation.phi_value, base_value)
             {
                 function
                     .metadata
@@ -473,6 +489,30 @@ mod tests {
                 && relation.base_value == ValueId(36)
                 && relation.window_contract == StringCorridorWindowContract::StopAtMerge
         }));
+    }
+
+    #[test]
+    fn refresh_function_skips_phi_scan_when_no_string_corridor_anchors_exist() {
+        let signature = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId(0));
+        function
+            .get_block_mut(BasicBlockId(0))
+            .expect("entry")
+            .instructions
+            .push(MirInstruction::Phi {
+                dst: ValueId(1),
+                inputs: vec![(BasicBlockId(0), ValueId(2))],
+                type_hint: Some(MirType::Integer),
+            });
+
+        refresh_function_string_corridor_relations(&mut function);
+
+        assert!(function.metadata.string_corridor_relations.is_empty());
     }
 
     #[test]

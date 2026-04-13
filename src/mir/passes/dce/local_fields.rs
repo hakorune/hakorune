@@ -1,7 +1,9 @@
 use crate::mir::phi_query::{
-    collect_passthrough_phi_parents, infer_phi_base_query, PhiBaseRelation,
+    collect_passthrough_phi_parents, infer_phi_base_query_with_anchors, PhiBaseRelation,
 };
-use crate::mir::{classify_escape_uses, resolve_value_origin_from_parent_map, ParentMap};
+use crate::mir::{
+    build_value_def_map, classify_escape_uses, resolve_value_origin_from_parent_map, ParentMap,
+};
 use crate::mir::{MirFunction, ValueId};
 use std::collections::{BTreeSet, HashMap, HashSet};
 
@@ -60,6 +62,7 @@ pub(crate) fn analyze_local_reads(
         .extend(collect_passthrough_phi_parents(function));
 
     let anchors: BTreeSet<ValueId> = info.local_boxes.iter().copied().collect();
+    let def_map = build_value_def_map(function);
     for (bid, block) in &function.blocks {
         if !reachable_blocks.contains(bid) {
             continue;
@@ -73,7 +76,7 @@ pub(crate) fn analyze_local_reads(
             if info.local_boxes.contains(&root) || info.local_root_overrides.contains_key(&root) {
                 continue;
             }
-            let query = infer_phi_base_query(function, root, &anchors);
+            let query = infer_phi_base_query_with_anchors(function, &def_map, root, &anchors);
             if let PhiBaseRelation::SameBase(base) = query.relation {
                 if info.local_boxes.contains(&base) {
                     info.local_root_overrides.insert(root, base);

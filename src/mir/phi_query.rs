@@ -37,13 +37,17 @@ pub(crate) fn collect_phi_carry_relations(
     function: &MirFunction,
     anchors: &BTreeSet<ValueId>,
 ) -> Vec<PhiCarryRelation> {
+    if anchors.is_empty() {
+        return Vec::new();
+    }
+    let def_map = build_value_def_map(function);
     let mut out = Vec::new();
     for block in function.blocks.values() {
         for inst in &block.instructions {
             let MirInstruction::Phi { dst, .. } = inst else {
                 continue;
             };
-            let query = infer_phi_base_query(function, *dst, anchors);
+            let query = infer_phi_base_query_with_anchors(function, &def_map, *dst, anchors);
             out.push(PhiCarryRelation {
                 phi_value: *dst,
                 relation: query.relation,
@@ -86,7 +90,7 @@ pub(crate) fn collect_passthrough_phi_parents(function: &MirFunction) -> ParentM
     parents
 }
 
-fn infer_phi_base_query_with_anchors(
+pub(crate) fn infer_phi_base_query_with_anchors(
     function: &MirFunction,
     def_map: &ValueDefMap,
     value: ValueId,
