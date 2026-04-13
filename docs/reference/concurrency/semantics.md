@@ -48,6 +48,10 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
 - detached work is still reserved for a later explicit surface; do not treat the current implicit root scope as detached-task semantics.
 - first failure in an explicit `task_scope` cancels pending siblings with reason `sibling-failed`.
 - implicit root scope does not participate in sibling-failure cancellation in the current cut.
+- aggregate/multi-failure reporting is now a separate owner-side diagnostic surface:
+  - `TaskGroupBox.failureReport()` returns `ArrayBox`
+  - report order is `[first_failure, additional_failures...]`
+  - `joinAll()` and scope exit still surface only the first failure
 - Cancellation should eventually unblock channel waits promptly; Phase-0 only guarantees best-effort scope-owned future cleanup.
 
 ### Future `await` (current VM contract)

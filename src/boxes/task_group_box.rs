@@ -1,4 +1,6 @@
 use crate::box_trait::{BoolBox, BoxBase, BoxCore, NyashBox, StringBox, VoidBox};
+use crate::boxes::array::ArrayBox;
+use crate::boxes::future::FutureTerminal;
 use crate::boxes::result::ResultBox;
 use std::any::Any;
 use std::sync::{
@@ -10,6 +12,7 @@ use std::sync::{
 pub(crate) struct TaskGroupInner {
     pub strong: Mutex<Vec<crate::boxes::future::FutureBox>>,
     pub first_failure: Mutex<Option<Box<dyn NyashBox>>>,
+    pub additional_failures: Mutex<Vec<Box<dyn NyashBox>>>,
     pub closed_reason: Mutex<Option<String>>,
     pub sibling_failure_seen: AtomicBool,
 }
@@ -19,6 +22,7 @@ impl Default for TaskGroupInner {
         Self {
             strong: Mutex::new(Vec::new()),
             first_failure: Mutex::new(None),
+            additional_failures: Mutex::new(Vec::new()),
             closed_reason: Mutex::new(None),
             sibling_failure_seen: AtomicBool::new(false),
         }
@@ -48,7 +52,17 @@ impl TaskGroupInner {
 
     pub(crate) fn register_future(&self, fut: &crate::boxes::future::FutureBox, owner: &Arc<Self>) {
         if let Some(reason) = self.closed_reason() {
+            if reason == "sibling-failed" {
+                if let Some(FutureTerminal::Failed(error)) = fut.terminal_snapshot() {
+                    self.note_failure_and_cancel_siblings(error);
+                    return;
+                }
+            }
             fut.cancel_with_reason(reason);
+            return;
+        }
+        if let Some(FutureTerminal::Failed(error)) = fut.terminal_snapshot() {
+            self.note_failure_and_cancel_siblings(error);
             return;
         }
         if let Ok(mut v) = self.strong.lock() {
@@ -105,6 +119,19 @@ impl TaskGroupInner {
         Ok(())
     }
 
+    pub(crate) fn failure_report(&self) -> ArrayBox {
+        let report = ArrayBox::new();
+        if let Some(failure) = self.first_failure() {
+            let _ = report.push(failure);
+        }
+        if let Ok(failures) = self.additional_failures.lock() {
+            for failure in failures.iter() {
+                let _ = report.push(failure.clone_or_share());
+            }
+        }
+        report
+    }
+
     pub(crate) fn scope_exit_shutdown(&self, timeout_ms: u64) -> Result<(), Box<dyn NyashBox>> {
         self.cancel_pending_with_reason("scope-exit-cancelled");
         self.join_outcome(timeout_ms)
@@ -112,6 +139,9 @@ impl TaskGroupInner {
 
     pub(crate) fn note_failure_and_cancel_siblings(&self, failure: Box<dyn NyashBox>) {
         if self.sibling_failure_seen.swap(true, Ordering::SeqCst) {
+            if let Ok(mut failures) = self.additional_failures.lock() {
+                failures.push(failure);
+            }
             return;
         }
         if let Ok(mut slot) = self.first_failure.lock() {
@@ -162,6 +192,15 @@ impl TaskGroupBox {
             Ok(()) => Box::new(ResultBox::new_ok(Box::new(VoidBox::new()))),
             Err(error) => Box::new(ResultBox::new_err(error)),
         }
+    }
+    /// Return the currently latched failure report for this structured task-scope owner.
+    ///
+    /// Current Phase-0 shape:
+    /// - `[]` when no child failure has been observed
+    /// - `[first_failure, additional_failures...]` in observation order
+    /// - sibling cancellations are not appended as aggregate failures
+    pub fn failureReport(&self) -> Box<dyn NyashBox> {
+        Box::new(self.inner.failure_report())
     }
     pub fn is_cancelled(&self) -> bool {
         self.inner.closed_reason().is_some()
@@ -298,6 +337,47 @@ mod tests {
 
         assert!(result.is_err());
         assert_eq!(result.get_error().to_string_box().value, "TaskError: boom");
+    }
+
+    #[test]
+    fn failure_report_is_empty_without_failed_children() {
+        let group = TaskGroupBox::new();
+
+        let out = group.failureReport();
+        let report = out
+            .as_any()
+            .downcast_ref::<ArrayBox>()
+            .expect("failureReport must return ArrayBox");
+
+        assert_eq!(report.len(), 0);
+    }
+
+    #[test]
+    fn failure_report_keeps_first_and_additional_failures_in_order() {
+        let group = TaskGroupBox::new();
+        let first = crate::boxes::future::FutureBox::new();
+        group.add_future(&first);
+        first.set_failed(Box::new(ErrorBox::new("TaskError", "boom-1")));
+
+        let second = crate::boxes::future::FutureBox::new();
+        second.set_failed(Box::new(ErrorBox::new("TaskError", "boom-2")));
+        group.add_future(&second);
+
+        let out = group.failureReport();
+        let report = out
+            .as_any()
+            .downcast_ref::<ArrayBox>()
+            .expect("failureReport must return ArrayBox");
+
+        assert_eq!(report.len(), 2);
+        assert_eq!(
+            report.get_index_i64(0).to_string_box().value,
+            "TaskError: boom-1"
+        );
+        assert_eq!(
+            report.get_index_i64(1).to_string_box().value,
+            "TaskError: boom-2"
+        );
     }
 
     #[test]

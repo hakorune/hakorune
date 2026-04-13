@@ -15,7 +15,7 @@ Scope: current lane / next lane / restart order only.
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/10-Now.md`
 3. `docs/development/current/main/15-Workstream-Map.md`
-4. `docs/development/current/main/phases/phase-253x/README.md`
+4. `docs/development/current/main/phases/phase-254x/README.md`
 5. `docs/development/current/main/phases/phase-163x/README.md`
 6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 7. `git status -sb`
@@ -58,6 +58,7 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Notes
 
+- `phase-254x` is landed: explicit-scope aggregate / multi-failure reporting now lives on `TaskGroupBox.failureReport()` as `[first_failure, additional_failures...]`
 - `phase-253x` is landed: `joinAll()` now surfaces `ResultBox::Err(first_failure_payload)` from the same first-failure latch as explicit scope exit
 - `phase-252x` is landed: explicit `task_scope` exit now surfaces the popped scope's latched `first_failure` after bounded join
 - `phase-251x` is landed: explicit `task_scope` exit now cancels and bounded-joins each popped explicit scope, with nested lexical ownership restored
@@ -65,7 +66,7 @@ Scope: current lane / next lane / restart order only.
 - `phase-249x` is landed: explicit-scope first failure now cancels pending siblings with stable reason `sibling-failed`
 - `phase-247x` is landed: bare `nowait` is not detached; outside explicit `task_scope` it falls back to the implicit root scope
 - `phase-246x` is landed: `Cancelled(reason)` now exists as a narrow scope-owned future path with stable `scope-cancelled` reason
-- next concurrency follow-on is aggregate / multi-failure reporting on explicit `task_scope`
+- next concurrency follow-on is a dedicated timeout payload for `joinAll()` / scope-exit
 - current semantic simplification cut now includes empty-trampoline jump threading after copied-constant `Branch` and constant `Compare` folds
 - the next code lane is now `semantic simplification bundle`
 - `CURRENT_TASK.md` is the only live status pointer; `05/10/15` are thin mirrors only

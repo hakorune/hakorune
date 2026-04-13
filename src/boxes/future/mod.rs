@@ -157,6 +157,23 @@ impl NyashFutureBox {
         }
     }
 
+    /// Return the current terminal state without blocking.
+    pub fn terminal_snapshot(&self) -> Option<FutureTerminal> {
+        let st = self.inner.state.lock().unwrap();
+        if !st.ready {
+            return None;
+        }
+        match st
+            .outcome
+            .as_ref()
+            .expect("ready future must have terminal outcome")
+        {
+            FutureOutcome::Ready(value) => Some(FutureTerminal::Ready(value.clone_box())),
+            FutureOutcome::Failed(error) => Some(FutureTerminal::Failed(error.clone_box())),
+            FutureOutcome::Cancelled(reason) => Some(FutureTerminal::Cancelled(reason.clone_box())),
+        }
+    }
+
     /// Wait until ready and return either the ready value or the non-success payload.
     pub fn wait_and_get(&self) -> Result<Box<dyn NyashBox>, Box<dyn NyashBox>> {
         match self.wait_terminal() {

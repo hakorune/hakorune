@@ -103,6 +103,23 @@ Non-goals (この文書で今すぐやらない):
   - scope exit and `joinAll()` now read the same preserved first-failure payload
 - aggregate/multi-failure reporting remains a separate later cut
 
+### Aggregate / multi-failure reporting (Phase 254x)
+
+- explicit `task_scope` owner state may now preserve failures beyond the first one
+- current aggregation is diagnostic-only:
+  - `joinAll(timeout_ms)` still returns only `ResultBox::Ok(void)` / `ResultBox::Err(first_failure_payload)`
+  - explicit scope exit still returns/rethrows only the latched first failure
+- current aggregate report surface is `TaskGroupBox.failureReport()`
+  - returns `ArrayBox`
+  - empty when no failed child future has been observed
+  - otherwise ordered as `[first_failure, additional_failures...]`
+- current aggregate report stores only failed child outcomes:
+  - sibling cancellations with reason `sibling-failed` are not appended as extra failures
+  - pending siblings cancelled by the first failure remain cancellation side-effects, not aggregate causes
+- current aggregate report is explicit-scope-owner only:
+  - implicit root scope does not expose aggregate reporting in this cut
+  - `pop_task_scope()` does not yet return aggregate failure payloads
+
 ---
 
 ## 1. Current reality (2026-02-04 snapshot)
