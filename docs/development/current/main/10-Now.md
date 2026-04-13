@@ -16,7 +16,7 @@ Related:
 - sibling guardrail lane: `phase137x main kilo reopen selection`
 - immediate next: `memory-effect layer`
 - immediate follow-on: `escape / barrier -> LLVM attrs`
-- top queued cut: `M0 owner seam and stats surface`
+- top queued cut: `M1 same-block private-carrier store-to-load forwarding`
 
 ## Landing Snapshot
 
@@ -26,6 +26,8 @@ Related:
   - `joinAll()` now returns `Err(TaskJoinTimeout: timed out after Nms)` when bounded join hits deadline without a latched first failure
 - `phase254x` is landed:
   - explicit-scope aggregate failures now live on `TaskGroupBox.failureReport()` as `[first_failure, additional_failures...]`
+- `phase260x` is landed:
+  - the memory-effect owner seam and stats surface now sit on their own top-level pass
 - latest semantic simplification cut:
   - copied-constant `Branch` terminators, constant `Compare` instructions, and empty trampoline jump-threading now fold before CFG merge
   - branch arms may now thread through an empty trampoline into a final block when the final PHIs can be trivially rewritten to the branching predecessor

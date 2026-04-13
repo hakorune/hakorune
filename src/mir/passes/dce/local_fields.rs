@@ -6,7 +6,7 @@ use crate::mir::{MirFunction, ValueId};
 use std::collections::{BTreeSet, HashMap, HashSet};
 
 #[derive(Default)]
-pub(super) struct LocalReadInfo {
+pub(crate) struct LocalReadInfo {
     local_boxes: HashSet<ValueId>,
     escaping: HashSet<ValueId>,
     field_read_roots: HashSet<ValueId>,
@@ -15,7 +15,7 @@ pub(super) struct LocalReadInfo {
 }
 
 impl LocalReadInfo {
-    pub(super) fn resolve_local_root(&self, value: ValueId) -> Option<ValueId> {
+    pub(crate) fn resolve_local_root(&self, value: ValueId) -> Option<ValueId> {
         let root = resolve_value_origin_from_parent_map(value, &self.alias_parents);
         if self.local_boxes.contains(&root) {
             return Some(root);
@@ -23,19 +23,19 @@ impl LocalReadInfo {
         self.local_root_overrides.get(&root).copied()
     }
 
-    pub(super) fn is_non_escaping_local(&self, value: ValueId) -> bool {
+    pub(crate) fn is_non_escaping_local(&self, value: ValueId) -> bool {
         self.resolve_local_root(value)
             .is_some_and(|root| !self.escaping.contains(&root))
     }
 
-    pub(super) fn is_unobserved_local(&self, value: ValueId) -> bool {
+    pub(crate) fn is_unobserved_local(&self, value: ValueId) -> bool {
         self.resolve_local_root(value).is_some_and(|root| {
             !self.escaping.contains(&root) && !self.field_read_roots.contains(&root)
         })
     }
 }
 
-pub(super) fn analyze_local_reads(
+pub(crate) fn analyze_local_reads(
     function: &MirFunction,
     reachable_blocks: &HashSet<crate::mir::BasicBlockId>,
 ) -> LocalReadInfo {

@@ -8,6 +8,7 @@ pub struct OptimizationStats {
     pub dead_code_eliminated: usize,
     pub cse_eliminated: usize,
     pub cfg_simplified: usize,
+    pub memory_effect_optimizations: usize,
     pub reorderings: usize,
     pub intrinsic_optimizations: usize,
     pub boxfield_optimizations: usize,
@@ -23,6 +24,7 @@ impl OptimizationStats {
         self.dead_code_eliminated += other.dead_code_eliminated;
         self.cse_eliminated += other.cse_eliminated;
         self.cfg_simplified += other.cfg_simplified;
+        self.memory_effect_optimizations += other.memory_effect_optimizations;
         self.reorderings += other.reorderings;
         self.intrinsic_optimizations += other.intrinsic_optimizations;
         self.boxfield_optimizations += other.boxfield_optimizations;
@@ -33,6 +35,7 @@ impl OptimizationStats {
         self.dead_code_eliminated
             + self.cse_eliminated
             + self.cfg_simplified
+            + self.memory_effect_optimizations
             + self.reorderings
             + self.intrinsic_optimizations
             + self.boxfield_optimizations
@@ -43,10 +46,11 @@ impl std::fmt::Display for OptimizationStats {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "dead_code: {}, cse: {}, cfg: {}, reorder: {}, intrinsic: {}, boxfield: {} (total: {})",
+            "dead_code: {}, cse: {}, cfg: {}, memory_effect: {}, reorder: {}, intrinsic: {}, boxfield: {} (total: {})",
             self.dead_code_eliminated,
             self.cse_eliminated,
             self.cfg_simplified,
+            self.memory_effect_optimizations,
             self.reorderings,
             self.intrinsic_optimizations,
             self.boxfield_optimizations,

@@ -7,9 +7,9 @@ mod control_anchor;
 #[path = "dce/elimination.rs"]
 mod elimination;
 #[path = "dce/local_fields.rs"]
-mod local_fields;
+pub(crate) mod local_fields;
 #[path = "dce/memory.rs"]
-mod memory;
+pub(crate) mod memory;
 #[cfg(test)]
 #[path = "dce/tests/mod.rs"]
 mod tests;

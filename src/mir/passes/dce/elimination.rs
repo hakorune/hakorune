@@ -4,10 +4,6 @@ use super::local_fields::{
     is_removable_effect_sensitive_read_instruction,
     is_removable_effect_sensitive_write_instruction,
 };
-use super::memory::{
-    analyze_private_carriers, collect_overwritten_private_stores,
-    is_removable_effect_sensitive_memory_read_instruction,
-};
 use super::{is_removable_no_dst_pure_instruction, propagate_used_values};
 use crate::mir::{MirFunction, ValueId};
 use crate::runtime::get_global_ring0;
@@ -16,11 +12,8 @@ use std::collections::HashSet;
 pub(super) fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
     let reachable_blocks = crate::mir::verification::utils::compute_reachable_blocks(function);
     let local_reads = analyze_local_reads(function, &reachable_blocks);
-    let private_carriers = analyze_private_carriers(function, &reachable_blocks, &local_reads);
     let overwritten_local_writes =
         collect_overwritten_local_field_sets(function, &reachable_blocks, &local_reads);
-    let overwritten_private_stores =
-        collect_overwritten_private_stores(function, &reachable_blocks, &private_carriers);
 
     let mut base_used_values: HashSet<ValueId> = HashSet::new();
 
@@ -28,18 +21,11 @@ pub(super) fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usi
         if !reachable_blocks.contains(bid) {
             continue;
         }
-        for (idx, instruction) in block.instructions.iter().enumerate() {
+        for (_idx, instruction) in block.instructions.iter().enumerate() {
             if matches!(instruction, crate::mir::MirInstruction::KeepAlive { .. }) {
                 continue;
             }
-            if overwritten_private_stores.contains(&(*bid, idx)) {
-                continue;
-            }
             if is_removable_effect_sensitive_read_instruction(instruction, &local_reads) {
-                continue;
-            }
-            if is_removable_effect_sensitive_memory_read_instruction(instruction, &private_carriers)
-            {
                 continue;
             }
             if is_removable_effect_sensitive_write_instruction(instruction, &local_reads) {
@@ -101,22 +87,6 @@ pub(super) fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usi
                     }
                 }
             }
-            let removable_memory_read = reachable_blocks.contains(&bbid)
-                && is_removable_effect_sensitive_memory_read_instruction(&inst, &private_carriers);
-            if keep && removable_memory_read {
-                if let Some(dst) = inst.dst_value() {
-                    if !used_values.contains(&dst) {
-                        if dce_trace {
-                            get_global_ring0().log.debug(&format!(
-                                "[dce] Eliminating removable private-carrier read in bb{}: {:?}",
-                                bbid.0, inst
-                            ));
-                        }
-                        eliminated += 1;
-                        keep = false;
-                    }
-                }
-            }
             let removable_local_write = reachable_blocks.contains(&bbid)
                 && is_removable_effect_sensitive_write_instruction(&inst, &local_reads);
             if keep && removable_local_write {
@@ -135,18 +105,6 @@ pub(super) fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usi
                 if dce_trace {
                     get_global_ring0().log.debug(&format!(
                         "[dce] Eliminating overwritten local write in bb{}: {:?}",
-                        bbid.0, inst
-                    ));
-                }
-                eliminated += 1;
-                keep = false;
-            }
-            let removable_overwritten_private_store = reachable_blocks.contains(&bbid)
-                && overwritten_private_stores.contains(&(*bbid, idx));
-            if keep && removable_overwritten_private_store {
-                if dce_trace {
-                    get_global_ring0().log.debug(&format!(
-                        "[dce] Eliminating overwritten private-carrier store in bb{}: {:?}",
                         bbid.0, inst
                     ));
                 }

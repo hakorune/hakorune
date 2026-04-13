@@ -6,6 +6,7 @@ pub mod concat3_canonicalize;
 pub mod cse;
 pub mod dce;
 pub mod escape;
+pub mod memory_effect;
 pub mod method_id_inject;
 pub mod placement_effect_transform;
 pub mod rc_insertion;

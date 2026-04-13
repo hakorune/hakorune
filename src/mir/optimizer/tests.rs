@@ -55,12 +55,14 @@ fn test_optimization_stats() {
     stats.dead_code_eliminated = 5;
     stats.cse_eliminated = 3;
     stats.cfg_simplified = 2;
-    assert_eq!(stats.total_optimizations(), 10);
+    stats.memory_effect_optimizations = 4;
+    assert_eq!(stats.total_optimizations(), 14);
 
     let other_stats = OptimizationStats {
         dead_code_eliminated: 2,
         cse_eliminated: 1,
         cfg_simplified: 4,
+        memory_effect_optimizations: 1,
         ..Default::default()
     };
 
@@ -68,7 +70,8 @@ fn test_optimization_stats() {
     assert_eq!(stats.dead_code_eliminated, 7);
     assert_eq!(stats.cse_eliminated, 4);
     assert_eq!(stats.cfg_simplified, 6);
-    assert_eq!(stats.total_optimizations(), 17);
+    assert_eq!(stats.memory_effect_optimizations, 5);
+    assert_eq!(stats.total_optimizations(), 22);
 }
 
 #[test]

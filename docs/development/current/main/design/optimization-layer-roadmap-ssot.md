@@ -89,7 +89,7 @@ Owner: `phase-163x optimization-resume`
 
 - immediate code next:
   - `memory-effect layer`
-  - start widening from the landed DCE-based cleanup slices instead of keeping memory work buried inside `dce/memory.rs`
+  - `phase260x` is landed: the owner seam and stats surface are now top-level, and the next queue starts at `M1`
 - immediate follow-on after that:
   - `escape / barrier -> LLVM attrs`
 - next major design lane after the current DCE slice:

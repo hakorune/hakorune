@@ -1,9 +1,11 @@
+//! Memory-effect analysis helpers shared with the top-level memory-effect owner seam.
+
 use super::local_fields::LocalReadInfo;
 use crate::mir::{resolve_value_origin_from_parent_map, MirFunction, ParentMap, ValueId};
 use std::collections::HashSet;
 
 #[derive(Default)]
-pub(super) struct PrivateCarrierInfo {
+pub(crate) struct PrivateCarrierInfo {
     private_roots: HashSet<ValueId>,
     escaping_roots: HashSet<ValueId>,
     load_blocked_roots: HashSet<ValueId>,
@@ -28,7 +30,7 @@ impl PrivateCarrierInfo {
     }
 }
 
-pub(super) fn analyze_private_carriers(
+pub(crate) fn analyze_private_carriers(
     function: &MirFunction,
     reachable_blocks: &HashSet<crate::mir::BasicBlockId>,
     local_reads: &LocalReadInfo,
@@ -109,7 +111,7 @@ pub(super) fn analyze_private_carriers(
     info
 }
 
-pub(super) fn is_removable_effect_sensitive_memory_read_instruction(
+pub(crate) fn is_removable_effect_sensitive_memory_read_instruction(
     inst: &crate::mir::MirInstruction,
     private_carriers: &PrivateCarrierInfo,
 ) -> bool {
@@ -119,7 +121,7 @@ pub(super) fn is_removable_effect_sensitive_memory_read_instruction(
     )
 }
 
-pub(super) fn collect_overwritten_private_stores(
+pub(crate) fn collect_overwritten_private_stores(
     function: &MirFunction,
     reachable_blocks: &HashSet<crate::mir::BasicBlockId>,
     private_carriers: &PrivateCarrierInfo,

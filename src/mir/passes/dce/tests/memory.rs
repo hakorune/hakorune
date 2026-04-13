@@ -1,5 +1,12 @@
 use super::*;
 
+fn run_dead_code_and_memory_effect(module: &mut MirModule) -> usize {
+    let mut eliminated = eliminate_dead_code(module);
+    eliminated += crate::mir::passes::memory_effect::apply(module).memory_effect_optimizations;
+    eliminated += eliminate_dead_code(module);
+    eliminated
+}
+
 #[test]
 fn test_dce_prunes_dead_load_from_private_carrier_root() {
     let mut module = MirModule::new("dce_test".to_string());
@@ -39,7 +46,7 @@ fn test_dce_prunes_dead_load_from_private_carrier_root() {
 
     module.add_function(func);
 
-    let eliminated = eliminate_dead_code(&mut module);
+    let eliminated = run_dead_code_and_memory_effect(&mut module);
     assert_eq!(eliminated, 2);
 
     let func = module.get_function("test/0").unwrap();
@@ -99,7 +106,7 @@ fn test_dce_keeps_live_load_from_private_carrier_root() {
 
     module.add_function(func);
 
-    let eliminated = eliminate_dead_code(&mut module);
+    let eliminated = run_dead_code_and_memory_effect(&mut module);
     assert_eq!(eliminated, 0);
 
     let func = module.get_function("test/0").unwrap();
@@ -167,7 +174,7 @@ fn test_dce_keeps_load_when_private_carrier_escapes_via_call() {
 
     module.add_function(func);
 
-    let eliminated = eliminate_dead_code(&mut module);
+    let eliminated = run_dead_code_and_memory_effect(&mut module);
     assert_eq!(eliminated, 1);
 
     let func = module.get_function("test/0").unwrap();
@@ -236,7 +243,7 @@ fn test_dce_keeps_dead_load_when_same_private_carrier_has_store() {
 
     module.add_function(func);
 
-    let eliminated = eliminate_dead_code(&mut module);
+    let eliminated = run_dead_code_and_memory_effect(&mut module);
     assert_eq!(eliminated, 0);
 
     let func = module.get_function("test/0").unwrap();
@@ -296,7 +303,7 @@ fn test_dce_prunes_dead_load_through_copy_alias_private_carrier() {
 
     module.add_function(func);
 
-    let eliminated = eliminate_dead_code(&mut module);
+    let eliminated = run_dead_code_and_memory_effect(&mut module);
     assert_eq!(eliminated, 3);
 
     let func = module.get_function("test/0").unwrap();
@@ -374,7 +381,7 @@ fn test_dce_prunes_overwritten_store_on_private_carrier_root() {
 
     module.add_function(func);
 
-    let eliminated = eliminate_dead_code(&mut module);
+    let eliminated = run_dead_code_and_memory_effect(&mut module);
     assert_eq!(eliminated, 2);
 
     let func = module.get_function("test/0").unwrap();
@@ -451,7 +458,7 @@ fn test_dce_keeps_overwritten_store_when_load_intervenes_on_private_carrier() {
 
     module.add_function(func);
 
-    let eliminated = eliminate_dead_code(&mut module);
+    let eliminated = run_dead_code_and_memory_effect(&mut module);
     assert_eq!(eliminated, 0);
 
     let func = module.get_function("test/0").unwrap();
@@ -529,7 +536,7 @@ fn test_dce_prunes_overwritten_store_through_copy_alias_private_carrier() {
 
     module.add_function(func);
 
-    let eliminated = eliminate_dead_code(&mut module);
+    let eliminated = run_dead_code_and_memory_effect(&mut module);
     assert_eq!(eliminated, 2);
 
     let func = module.get_function("test/0").unwrap();

@@ -15,17 +15,17 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-163x primitive and user-box fast path` |
-| Front | `generic placement / effect landed through the first owner-transform cut -> next design lane is semantic simplification bundle` |
+| Front | `semantic simplification bundle closed out -> next design lane is memory-effect layer` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `semantic simplification bundle is active; latest cut folds copied-constant Branch, constant Compare, and empty trampoline jumps before CFG merge` |
-| Next | `semantic simplification bundle` |
-| After Next | `memory-effect layer` |
+| Blocker | `memory-effect layer is active; M0 owner seam and stats surface are landed, and the next queue starts at M1` |
+| Next | `memory-effect layer` |
+| After Next | `escape / barrier -> LLVM attrs` |
 
 ## Current Read
 
 - design owners:
   - implementation lane: `docs/development/current/main/phases/phase-163x/README.md`
-  - next layer landing: `docs/development/current/main/phases/phase-227x/README.md`
+  - next layer landing: `docs/development/current/main/phases/phase-260x/README.md`
   - roadmap SSOT: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
   - concurrency manual owner: `docs/reference/concurrency/semantics.md`
@@ -33,9 +33,9 @@ Related:
 
 ## Immediate Sequence
 
-1. `semantic simplification bundle`
-2. `memory-effect layer`
-3. `escape / barrier -> LLVM attrs`
+1. `memory-effect layer`
+2. `escape / barrier -> LLVM attrs`
+3. `numeric loop / SIMD`
 
 ## Parked Corridor
 

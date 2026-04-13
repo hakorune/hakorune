@@ -22,8 +22,8 @@ tools/checks/dev_gate.sh quick
 
 - lane: `phase-163x primitive and user-box fast path`
 - guardrail: `phase-137x main kilo reopen selection`
-- immediate next: `semantic simplification bundle`
-- immediate follow-on: `memory-effect layer`
+- immediate next: `memory-effect layer`
+- immediate follow-on: `escape / barrier -> LLVM attrs`
 
 ## Read Next
 
@@ -31,9 +31,10 @@ tools/checks/dev_gate.sh quick
 2. `docs/development/current/main/10-Now.md`
 3. `docs/development/current/main/15-Workstream-Map.md`
 4. `docs/reference/concurrency/semantics.md`
-5. `docs/development/current/main/phases/phase-163x/README.md`
-6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
-7. `docs/development/current/main/phases/phase-137x/README.md`
+5. `docs/development/current/main/phases/phase-260x/README.md`
+6. `docs/development/current/main/phases/phase-163x/README.md`
+7. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
+8. `docs/development/current/main/phases/phase-137x/README.md`
 
 ## Current Proof Bundle
 

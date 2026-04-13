@@ -93,10 +93,23 @@ impl MirOptimizer {
         // CSE passes under one top-level owner.
         stats.merge(crate::mir::passes::semantic_simplification::apply(module));
 
+        // Pass 1.1: memory-effect layer owner seam
+        // Current cut keeps the landed private-carrier Load/Store cleanup as a
+        // separate owner so future store/load widening can grow without
+        // re-burying the logic inside DCE.
+        stats.merge(crate::mir::passes::memory_effect::apply(module));
+
+        // Pass 1.2: rerun the landed pure DCE cleanup after memory effects.
+        // The memory-effect lane can expose newly dead pure defs, so we keep
+        // the pure DCE sweep available as a cleanup pass without re-owning the
+        // memory-sensitive Load/Store logic.
+        stats.dead_code_eliminated += crate::mir::passes::dce::eliminate_dead_code(module);
+
         // Step 5.1: rerun the generic placement/effect transform owner seam
-        // after DCE. The first sweep introduces `substring_len_hii`, but
-        // complementary length-pair fusion may only become single-use once
-        // dead substring temps are removed in the same optimization wave.
+        // after the cleanup wave. The first sweep introduces `substring_len_hii`,
+        // but complementary length-pair fusion may only become single-use once
+        // dead substring temps and memory cleanup have both run in the same
+        // optimization wave.
         let placement_effect_reruns =
             crate::mir::passes::placement_effect_transform::apply_post_dce_transforms(module);
         if placement_effect_reruns > 0 {
