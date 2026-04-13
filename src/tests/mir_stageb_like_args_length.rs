@@ -169,6 +169,113 @@ static box TestNested {
     }
 }
 
+/// Stage-B line-map debug に近いパターン:
+/// outer loop が nested loop を含む no-exit body を持ち、
+/// fallthrough continue edge を carrier PHI に反映する必要がある。
+#[test]
+fn mir_stageb_like_nested_loop_fallthrough_continue_verifies() {
+    ensure_stage3_env();
+    let src = r#"
+static box StageBLineMapBox {
+  method build_map_lines(bundles) {
+    if bundles == null { return 0 }
+    local total = 0
+    local n = bundles.length()
+    local i = 0
+    loop (i < n) {
+      local seg = "" + bundles.get(i)
+      local ln = 0
+      {
+        local s2 = seg
+        if s2 == null {
+          ln = 0
+        } else {
+          local ii = 0
+          local nn = ("" + s2).length()
+          local cc = 1
+          loop (ii < nn) {
+            if ("" + s2).substring(ii, ii + 1) == "\n" { cc = cc + 1 }
+            ii = ii + 1
+          }
+          ln = cc
+        }
+      }
+      total = total + ln
+      i = i + 1
+    }
+    return total
+  }
+}
+"#;
+
+    let ast: ASTNode = NyashParser::parse_from_string(src).expect("parse ok");
+
+    let mut mc = MirCompiler::with_options(false);
+    let cr = mc.compile(ast).expect("compile");
+
+    let mut verifier = MirVerifier::new();
+    if let Err(errors) = verifier.verify_module(&cr.module) {
+        if std::env::var("NYASH_MIR_TEST_DUMP").ok().as_deref() == Some("1") {
+            let dump = MirPrinter::new().print_module(&cr.module);
+            eprintln!(
+                "----- MIR DUMP (StageBLineMapBox.build_map_lines nested fallthrough continue) -----\n{}",
+                dump
+            );
+        }
+        for e in &errors {
+            eprintln!("[rust-mir-verify] {}", e);
+        }
+        panic!("MIR verification failed for StageB-like nested loop fallthrough continue pattern");
+    }
+}
+
+/// Stage-B duplicate bundle check に近いパターン:
+/// inner `loop(cond)` が `if return` + step だけを持つ。
+/// これは loop_cond_return_in_body が優先される必要がある。
+#[test]
+fn mir_stageb_like_nested_loop_return_only_inner_verifies() {
+    ensure_stage3_env();
+    let src = r#"
+static box StageBDupeBox {
+  method find_duplicate(bundle_names) {
+    if bundle_names == null { return 0 }
+    local n = bundle_names.length()
+    local i = 0
+    loop (i < n) {
+      local name_i = "" + bundle_names.get(i)
+      local j = i + 1
+      loop (j < n) {
+        if ("" + bundle_names.get(j)) == name_i { return 1 }
+        j = j + 1
+      }
+      i = i + 1
+    }
+    return 0
+  }
+}
+"#;
+
+    let ast: ASTNode = NyashParser::parse_from_string(src).expect("parse ok");
+
+    let mut mc = MirCompiler::with_options(false);
+    let cr = mc.compile(ast).expect("compile");
+
+    let mut verifier = MirVerifier::new();
+    if let Err(errors) = verifier.verify_module(&cr.module) {
+        if std::env::var("NYASH_MIR_TEST_DUMP").ok().as_deref() == Some("1") {
+            let dump = MirPrinter::new().print_module(&cr.module);
+            eprintln!(
+                "----- MIR DUMP (StageBDupeBox.find_duplicate nested return-only inner loop) -----\n{}",
+                dump
+            );
+        }
+        for e in &errors {
+            eprintln!("[rust-mir-verify] {}", e);
+        }
+        panic!("MIR verification failed for StageB-like nested loop return-only inner pattern");
+    }
+}
+
 /// Stage-B で出がちな「length を条件に直接使う」パターン:
 /// if args != null {
 ///   local i = 0;

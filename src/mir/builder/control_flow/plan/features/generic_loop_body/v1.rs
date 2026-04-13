@@ -32,7 +32,6 @@ pub(in crate::mir::builder) fn lower_generic_loop_v1_body(
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
     ctx: &LoopRouteContext,
 ) -> Result<Vec<LoweredRecipe>, String> {
-    let mut body_plans: Vec<LoweredRecipe> = Vec::new();
     let mut current_bindings = phi_bindings.clone();
     for (name, value_id) in phi_bindings {
         builder
@@ -41,14 +40,14 @@ pub(in crate::mir::builder) fn lower_generic_loop_v1_body(
             .insert(name.clone(), *value_id);
     }
 
-    // ExitAllowed facts already carry a verified whole-body recipe. Prefer that
-    // path even for nested-loop bodies so we do not synthesize a phantom latch
-    // after an always-exiting body and then emit step/header PHIs for it.
-    if matches!(
+    let has_nested_loop_stmt =
+        detect_nested_loop(&facts.body.body) || body_has_blockexpr_prelude_loop(&facts.body.body);
+
+    let mut body_plans = if matches!(
         facts.body_lowering_policy,
         BodyLoweringPolicy::ExitAllowed { .. }
     ) {
-        return lower_body_block_v1(
+        lower_body_block_v1(
             builder,
             &mut current_bindings,
             facts,
@@ -57,16 +56,10 @@ pub(in crate::mir::builder) fn lower_generic_loop_v1_body(
             &facts.loop_increment,
             carrier_step_phis,
             ctx,
-        );
-    }
-
-    // M28: Under planner_required, lower via Facts-provided RecipeBlock (NoExit).
-    // This avoids re-checking in lower and keeps acceptance Recipe-first.
-    let has_nested_loop_stmt =
-        detect_nested_loop(&facts.body.body) || body_has_blockexpr_prelude_loop(&facts.body.body);
-    if crate::config::env::joinir_dev::planner_required_enabled() && !has_nested_loop_stmt {
+        )?
+    } else if crate::config::env::joinir_dev::planner_required_enabled() && !has_nested_loop_stmt {
         if let Some(body_no_exit) = facts.body_no_exit.as_ref() {
-            return parts::entry::lower_loop_with_body_block(
+            parts::entry::lower_loop_with_body_block(
                 builder,
                 &mut current_bindings,
                 carrier_step_phis,
@@ -74,26 +67,47 @@ pub(in crate::mir::builder) fn lower_generic_loop_v1_body(
                 &body_no_exit.block,
                 parts::LoopBodyContractKind::NoExit,
                 GENERIC_LOOP_ERR,
-            );
+            )?
+        } else {
+            let mut body_plans = Vec::new();
+            for stmt in &facts.body.body {
+                if matches_loop_increment(stmt, &facts.loop_var, &facts.loop_increment) {
+                    continue;
+                }
+                let plans = lower_body_stmt_v1(
+                    builder,
+                    &mut current_bindings,
+                    stmt,
+                    facts,
+                    &facts.loop_var,
+                    &facts.loop_increment,
+                    carrier_step_phis,
+                    ctx,
+                )?;
+                body_plans.extend(plans);
+            }
+            body_plans
         }
-    }
-
-    for stmt in &facts.body.body {
-        if matches_loop_increment(stmt, &facts.loop_var, &facts.loop_increment) {
-            continue;
+    } else {
+        let mut body_plans = Vec::new();
+        for stmt in &facts.body.body {
+            if matches_loop_increment(stmt, &facts.loop_var, &facts.loop_increment) {
+                continue;
+            }
+            let plans = lower_body_stmt_v1(
+                builder,
+                &mut current_bindings,
+                stmt,
+                facts,
+                &facts.loop_var,
+                &facts.loop_increment,
+                carrier_step_phis,
+                ctx,
+            )?;
+            body_plans.extend(plans);
         }
-        let plans = lower_body_stmt_v1(
-            builder,
-            &mut current_bindings,
-            stmt,
-            facts,
-            &facts.loop_var,
-            &facts.loop_increment,
-            carrier_step_phis,
-            ctx,
-        )?;
-        body_plans.extend(plans);
-    }
+        body_plans
+    };
 
     if !matches!(body_plans.last(), Some(CorePlan::Exit(_))) {
         body_plans.push(CorePlan::Exit(parts::exit::build_continue_with_phi_args(

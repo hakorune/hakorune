@@ -1,3 +1,4 @@
+use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakAcceptKind;
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
 
 macro_rules! pred_accessor {
@@ -90,9 +91,14 @@ pub(crate) fn pred_loop_true_break_continue(facts: &CanonicalLoopFacts) -> bool 
 }
 pub(crate) fn pred_loop_cond_break_continue(facts: &CanonicalLoopFacts) -> bool {
     let scan = ScanFamilyPresence::from_facts(facts);
-    facts.facts.loop_cond_break_continue().is_some()
-        && !pred_loop_break_recipe(facts)
-        && !scan.blocks_loop_cond_break()
+    let Some(loop_cond_break_continue) = facts.facts.loop_cond_break_continue() else {
+        return false;
+    };
+    let prefer_return_in_body = matches!(
+        loop_cond_break_continue.accept_kind,
+        LoopCondBreakAcceptKind::ReturnOnlyBody
+    ) && facts.facts.loop_cond_return_in_body().is_some();
+    !prefer_return_in_body && !pred_loop_break_recipe(facts) && !scan.blocks_loop_cond_break()
 }
 pub(crate) fn pred_loop_cond_continue_only(facts: &CanonicalLoopFacts) -> bool {
     facts.facts.loop_cond_continue_only().is_some() && !pred_loop_continue_only(facts)
@@ -105,10 +111,16 @@ pub(crate) fn pred_loop_cond_return_in_body(facts: &CanonicalLoopFacts) -> bool 
     if facts.facts.loop_cond_return_in_body().is_none() {
         return false;
     }
-    // Keep planner-first contract stable: when break/continue shape is available,
-    // route through LoopCondBreak and treat return_in_body as observational only.
-    if facts.facts.loop_cond_break_continue().is_some() {
-        return false;
+    // Keep planner-first contract stable: when real break/continue shape is available,
+    // route through LoopCondBreak. Pure return-only bodies are owned by
+    // loop_cond_return_in_body because they need direct fallthrough-to-return wiring.
+    if let Some(loop_cond_break_continue) = facts.facts.loop_cond_break_continue() {
+        if !matches!(
+            loop_cond_break_continue.accept_kind,
+            LoopCondBreakAcceptKind::ReturnOnlyBody
+        ) {
+            return false;
+        }
     }
     let scan = ScanFamilyPresence::from_facts(facts);
     !scan.blocks_return_or_generic()

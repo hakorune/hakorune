@@ -143,7 +143,14 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
     // The loop header condition can short-circuit through intermediate blocks (AND/OR).
     // Any block that branches directly to `after_bb` is a predecessor of `after_bb`, and
     // after_bb PHIs must include an input for every reachable predecessor.
-    let after_cond_preds = header_result.preds_to(after_bb);
+    let mut after_cond_preds = header_result.preds_to(after_bb);
+    if after_cond_preds.is_empty() {
+        // Simple header conditions can still exit directly from the header block
+        // even when the branch stub set does not carry an explicit after-edge.
+        // Seed the header false-edge conservatively; Step 4 filters any non-CFG
+        // predecessor before patching the PHI.
+        after_cond_preds.insert(header_bb);
+    }
 
     let wires = vec![
         edgecfg_stubs::build_loop_back_edge(body_bb, step_bb),
