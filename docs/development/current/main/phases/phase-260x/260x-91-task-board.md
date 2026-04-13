@@ -4,10 +4,10 @@
 
 - [x] `M0` owner seam and stats surface
 - [x] `M1` same-block private-carrier store-to-load forwarding
+- [x] `M2` same-block private-carrier redundant load elimination
 
 ## Next
 
-- [ ] `M2` same-block private-carrier redundant load elimination
 - [ ] `M3` overwritten-store / DSE widening beyond the landed private same-block cut
 
 ## Notes

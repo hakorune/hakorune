@@ -17,7 +17,7 @@ Related:
 | Now | `phase-163x primitive and user-box fast path` |
 | Front | `semantic simplification bundle closed out -> next design lane is memory-effect layer` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `memory-effect layer is active; M0 owner seam and stats surface are landed, and the next queue starts at M2` |
+| Blocker | `memory-effect layer is active; M0/M1/M2 are landed, and the next queue starts at M3` |
 | Next | `memory-effect layer` |
 | After Next | `escape / barrier -> LLVM attrs` |
 

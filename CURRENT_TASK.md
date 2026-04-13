@@ -77,7 +77,5 @@ Scope: current lane / next lane / restart order only.
 ## Execution Queue
 
 1. `memory-effect layer`
-   - `M2` same-block private-carrier redundant load elimination
-   - do not bury the next memory slices inside `dce/memory.rs` without a top-level owner
-2. `memory-effect layer`
    - `M3` overwritten-store / DSE widening beyond the landed private same-block cut
+   - do not bury the next memory slices inside `dce/memory.rs` without a top-level owner

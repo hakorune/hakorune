@@ -8,8 +8,9 @@ Phase: 260x
 
 - land the first `memory-effect layer` owner seam and its stats surface
 - land same-block private-carrier store-to-load forwarding under the new owner
+- land same-block private-carrier redundant load elimination under the new owner
 - keep the current private-carrier `Load` / `Store` cleanup outside `semantic simplification bundle`
-- make the next queue start at `M2` same-block private-carrier redundant load elimination
+- make the next queue start at `M3` overwritten-store / DSE widening beyond the landed same-block cut
 
 ## Landed Contract
 
@@ -19,10 +20,10 @@ Phase: 260x
 - the following memory work is now outside the simplification bundle:
   - dead private-carrier `Load` pruning
   - same-block private-carrier store-to-load forwarding
+  - same-block private-carrier redundant load elimination
   - overwritten private-carrier `Store` pruning
 - the next memory cuts stay narrow:
-  - same-block private-carrier redundant load elimination
-  - overwritten-store widening beyond the same-block cut
+  - overwritten-store / DSE widening beyond the same-block cut
 
 ## Proof
 
@@ -36,4 +37,4 @@ Phase: 260x
 ## Next
 
 - continue the `memory-effect layer`
-- next queued cut is `M2` same-block private-carrier redundant load elimination
+- next queued cut is `M3` overwritten-store / DSE widening beyond the landed same-block cut

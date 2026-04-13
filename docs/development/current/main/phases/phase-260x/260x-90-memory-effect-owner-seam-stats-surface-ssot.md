@@ -28,10 +28,10 @@ Owner: `phase-260x`
 - in scope:
   - dead private-carrier `Load` pruning
   - same-block private-carrier store-to-load forwarding
+  - same-block private-carrier redundant load elimination
   - overwritten private-carrier `Store` pruning
 - out of scope for this phase:
-  - redundant load elimination widening
-  - cross-block DSE widening
+  - broader cross-block DSE widening
   - hoist / sink legality
 
 ## Acceptance
@@ -40,7 +40,9 @@ Owner: `phase-260x`
 - the stats bucket is observable in optimizer totals and display output
 - direct pass tests cover at least one `Load` pruning and one overwritten `Store` pruning case
 - direct pass tests cover a same-block store-to-load forwarding case
+- direct pass tests cover a same-block redundant load elimination case
+- direct pass tests cover the immediate-successor overwritten-store widening case
 
 ## Next Cut
 
-- `M2` same-block private-carrier redundant load elimination
+- `M3` overwritten-store / DSE widening beyond the landed same-block cut

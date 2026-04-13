@@ -4,8 +4,9 @@
  * This pass owns the current memory-sensitive cleanup slices that were
  * previously buried inside the DCE lane. The landed cuts keep the
  * private-carrier load/store pruning behavior and add same-block
- * store-to-load forwarding plus redundant load elimination behind a
- * dedicated owner and stats surface so the optimizer can schedule it
+ * store-to-load forwarding, same-block redundant load elimination, and
+ * immediate-successor overwritten-store pruning behind a dedicated
+ * owner and stats surface so the optimizer can schedule it
  * independently.
  */
 
@@ -32,6 +33,11 @@ fn eliminate_memory_effect_in_function(function: &mut MirFunction) -> usize {
     let private_carriers = analyze_private_carriers(function, &reachable_blocks, &local_reads);
     let overwritten_private_stores =
         collect_overwritten_private_stores(function, &reachable_blocks, &private_carriers);
+    let cross_block_overwritten_private_stores = collect_cross_block_overwritten_private_stores(
+        function,
+        &reachable_blocks,
+        &private_carriers,
+    );
     let forwarded_same_block_loads =
         forward_same_block_private_carrier_loads(function, &reachable_blocks, &private_carriers);
 
@@ -105,6 +111,12 @@ fn eliminate_memory_effect_in_function(function: &mut MirFunction) -> usize {
                 eliminated += 1;
                 keep = false;
             }
+            let removable_cross_block_overwritten_private_store = reachable_blocks.contains(&bbid)
+                && cross_block_overwritten_private_stores.contains(&(*bbid, idx));
+            if keep && removable_cross_block_overwritten_private_store {
+                eliminated += 1;
+                keep = false;
+            }
             if keep {
                 kept_insts.push(inst);
                 kept_spans.push(span);
@@ -155,6 +167,82 @@ fn forward_same_block_private_carrier_loads(
     }
 
     forwarded
+}
+
+fn collect_cross_block_overwritten_private_stores(
+    function: &MirFunction,
+    reachable_blocks: &HashSet<crate::mir::BasicBlockId>,
+    private_carriers: &crate::mir::passes::dce::memory::PrivateCarrierInfo,
+) -> HashSet<(crate::mir::BasicBlockId, usize)> {
+    let mut removable = HashSet::new();
+
+    for (bid, block) in &function.blocks {
+        if !reachable_blocks.contains(bid) {
+            continue;
+        }
+
+        let Some(crate::mir::MirInstruction::Jump { target, edge_args }) =
+            block.terminator.as_ref()
+        else {
+            continue;
+        };
+        if edge_args.is_some() {
+            continue;
+        }
+
+        let Some(target_block) = function.blocks.get(target) else {
+            continue;
+        };
+        if !reachable_blocks.contains(target) {
+            continue;
+        }
+
+        let Some(crate::mir::MirInstruction::Store { ptr, .. }) = target_block.instructions.first()
+        else {
+            continue;
+        };
+        let Some(target_root) = private_carriers.resolve_private_store_root(*ptr) else {
+            continue;
+        };
+
+        let mut candidate = None;
+        for (idx, instruction) in block.instructions.iter().enumerate().rev() {
+            match instruction {
+                crate::mir::MirInstruction::Store { ptr, .. } => {
+                    let Some(root) = private_carriers.resolve_private_store_root(*ptr) else {
+                        break;
+                    };
+                    if root == target_root {
+                        candidate = Some((*bid, idx));
+                    }
+                    break;
+                }
+                crate::mir::MirInstruction::Load { ptr, .. } => {
+                    if private_carriers.resolve_private_store_root(*ptr) == Some(target_root) {
+                        break;
+                    }
+                }
+                crate::mir::MirInstruction::Copy { src, .. } => {
+                    if private_carriers.resolve_private_store_root(*src) == Some(target_root) {
+                        continue;
+                    }
+                }
+                _ => {
+                    if instruction.used_values().into_iter().any(|value| {
+                        private_carriers.resolve_private_store_root(value) == Some(target_root)
+                    }) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        if let Some(entry) = candidate {
+            removable.insert(entry);
+        }
+    }
+
+    removable
 }
 
 fn seed_control_anchor_values(
@@ -554,5 +642,85 @@ mod tests {
             inst,
             MirInstruction::Copy { dst, src } if *dst == v_seen && *src == v_old
         )));
+    }
+
+    #[test]
+    fn memory_effect_prunes_private_carrier_store_overwritten_by_successor_store() {
+        let mut module = MirModule::new("memory_effect_test".to_string());
+
+        let sig = FunctionSignature {
+            name: "test/0".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut func = MirFunction::new(sig, BasicBlockId(0));
+
+        let v_box = ValueId(1);
+        let v_ptr = ValueId(2);
+        let v_old = ValueId(3);
+        let v_new = ValueId(4);
+        let bb1_id = BasicBlockId(1);
+        func.add_block(crate::mir::BasicBlock::new(bb1_id));
+
+        {
+            let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
+            bb0.instructions.push(MirInstruction::NewBox {
+                dst: v_box,
+                box_type: "Point".to_string(),
+                args: vec![],
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::RefNew {
+                dst: v_ptr,
+                box_val: v_box,
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Const {
+                dst: v_old,
+                value: ConstValue::Integer(1),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Const {
+                dst: v_new,
+                value: ConstValue::Integer(2),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Store {
+                value: v_old,
+                ptr: v_ptr,
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.set_terminator(MirInstruction::Jump {
+                target: bb1_id,
+                edge_args: None,
+            });
+        }
+        {
+            let bb1 = func.blocks.get_mut(&bb1_id).unwrap();
+            bb1.instructions.push(MirInstruction::Store {
+                value: v_new,
+                ptr: v_ptr,
+            });
+            bb1.instruction_spans.push(Span::unknown());
+            bb1.set_terminator(MirInstruction::Return { value: None });
+        }
+
+        module.add_function(func);
+
+        let stats = apply(&mut module);
+        assert_eq!(stats.memory_effect_optimizations, 1);
+
+        let func = module.get_function("test/0").unwrap();
+        let bb0 = func.blocks.get(&BasicBlockId(0)).unwrap();
+        let bb1 = func.blocks.get(&bb1_id).unwrap();
+        assert!(!bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Store { value, .. } if *value == v_old)));
+        assert!(bb1
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Store { value, .. } if *value == v_new)));
     }
 }
