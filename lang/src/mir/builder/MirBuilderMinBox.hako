@@ -4,7 +4,6 @@
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 using "hako.mir.builder.internal.jsonfrag_normalizer" as NormBox
-using "hako.mir.builder.internal.lower_return_method_array_map" as LowerReturnMethodArrayMapBox
 using "hako.mir.builder.internal.lower_return_int" as LowerReturnIntBox
 using "hako.mir.builder.internal.lower_return_binop" as LowerReturnBinOpBox
 using "hako.mir.builder.internal.lower_return_binop_varint" as LowerReturnBinOpVarIntBox
@@ -28,7 +27,6 @@ static box MirBuilderBox {
     local s = "" + program_json
     if !(s.contains("\"version\"")) || !(s.contains("\"kind\"")) { print("[mirbuilder/min/input:invalid]"); return null }
     // Try minimal patterns (lightweight only)
-    { local out = LowerReturnMethodArrayMapBox.try_lower(s); if out != null { print("[mirbuilder/min:return.method.arraymap]"); return me._norm_json_if_needed(out) } }
     { local out_v = LowerReturnBinOpVarIntBox.try_lower(s); if out_v != null { print("[mirbuilder/min:return.binop.varint]"); return me._norm_json_if_needed(out_v) } }
     { local out_b = LowerReturnBinOpBox.try_lower(s); if out_b != null { print("[mirbuilder/min:return.binop.intint]"); return me._norm_json_if_needed(out_b) } }
     { local out_bvv = LowerReturnBinOpVarVarBox.try_lower(s); if out_bvv != null { print("[mirbuilder/min:return.binop.varvar]"); return me._norm_json_if_needed(out_bvv) } }

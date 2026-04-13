@@ -10,7 +10,6 @@ using "hako.mir.builder.internal.lower_return_int" as LowerReturnIntBox
 using "hako.mir.builder.internal.lower_return_binop" as LowerReturnBinOpBox
 using "hako.mir.builder.internal.lower_return_binop_varint" as LowerReturnBinOpVarIntBox
 using "hako.mir.builder.internal.lower_return_binop_varvar" as LowerReturnBinOpVarVarBox
-using "hako.mir.builder.internal.lower_return_method_array_map" as LowerReturnMethodArrayMapBox
 using "hako.mir.builder.internal.if_mir_emit" as IfMirEmitBox
 using "hako.mir.builder.internal.lower_if_compare" as LowerIfCompareBox
 using "hako.mir.builder.internal.lower_if_compare_fold_binints" as LowerIfCompareFoldBinIntsBox
@@ -56,14 +55,6 @@ static box FuncBodyBasicLowerBox {
     s = me._inline_local_ints(s)
 
     // Try minimal lowers (same order as MirBuilderMinBox, restricted set)
-    {
-      print("[builder/funcs] trying LowerReturnMethodArrayMapBox (LEGACY, const 0 receiver)")
-      local out = LowerReturnMethodArrayMapBox.try_lower(s)
-      if out != null {
-        print("[builder/funcs] SUCCESS via LowerReturnMethodArrayMapBox (WARNING: uses const 0 receiver!)")
-        return me._rebind(out, func_name, box_name, params_arr, "[funcs/basic:return.method.arraymap]")
-      }
-    }
     { local out = LowerReturnBinOpVarIntBox.try_lower(s); if out != null { return me._rebind(out, func_name, box_name, params_arr, "[funcs/basic:return.binop.varint]") } }
     { local out = LowerReturnBinOpVarVarBox.try_lower(s); if out != null { return me._rebind(out, func_name, box_name, params_arr, "[funcs/basic:return.binop.varvar]") } }
     { local out = LowerReturnBinOpBox.try_lower(s); if out != null { return me._rebind(out, func_name, box_name, params_arr, "[funcs/basic:return.binop.intint]") } }

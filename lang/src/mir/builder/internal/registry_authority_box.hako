@@ -2,9 +2,7 @@
 // Scope: the normal mainline registry-first lowers inside MirBuilderBox.
 // Non-goals: source-entry shim, delegate/provider compat tail, non-registry fallback chain.
 
-using selfhost.shared.json.utils.json_frag as JsonFragBox
 using "hako.mir.builder.internal.builder_config" as BuilderConfigBox
-using "hako.mir.builder.internal.compat_mir_emit" as CompatMirEmitBox
 using "hako.mir.builder.pattern_registry" as PatternRegistryBox
 using "hako.mir.builder.internal.lower_if_compare" as LowerIfCompareBox
 using "hako.mir.builder.internal.lower_if_compare_fold_binints" as LowerIfCompareFoldBinIntsBox
@@ -13,7 +11,6 @@ using "hako.mir.builder.internal.lower_if_compare_varint" as LowerIfCompareVarIn
 using "hako.mir.builder.internal.lower_if_compare_varvar" as LowerIfCompareVarVarBox
 using "lang.mir.builder.internal.lower_if_merge_local_return_var_box" as LowerIfMergeLocalReturnVarBox
 using "lang.mir.builder.internal.lower_loop_local_return_var_box" as LowerLoopLocalReturnVarBox
-using "hako.mir.builder.internal.lower_return_method_array_map" as LowerReturnMethodArrayMapBox
 using "hako.mir.builder.internal.lower_return_method_string_length" as LowerReturnMethodStringLengthBox
 using "hako.mir.builder.internal.lower_return_var_local" as LowerReturnVarLocalBox
 using "hako.mir.builder.internal.lower_return_string" as LowerReturnStringBox
@@ -24,24 +21,12 @@ using "hako.mir.builder.internal.lower_return_binop_varint" as LowerReturnBinOpV
 using "hako.mir.builder.internal.lower_return_binop_varvar" as LowerReturnBinOpVarVarBox
 using "hako.mir.builder.internal.lower_return_binop" as LowerReturnBinOpBox
 using "hako.mir.builder.internal.lower_return_int" as LowerReturnIntBox
-using "hako.mir.builder.internal.lower_return_loop_strlen_sum" as LowerReturnLoopStrlenSumBox
 
 static box BuilderRegistryAuthorityBox {
   method try_lower(program_json) {
     if BuilderConfigBox.registry_on() != 1 { return null }
     local s = me._coerce_text_compat(program_json)
     local only = BuilderConfigBox.registry_only()
-
-    // Keep the explicit direct probe lane stable while moving the normal
-    // registry-first mainline into a dedicated owner.
-    if only != null && me._coerce_text_compat(only) == "return.method.arraymap" {
-      local raw = me._try_lower_registry_only_arraymap(s)
-      if raw != null {
-        print("[mirbuilder/registry:return.method.arraymap]")
-        return raw
-      }
-      return null
-    }
 
     local names = PatternRegistryBox.candidates()
     if only != null {
@@ -61,9 +46,7 @@ static box BuilderRegistryAuthorityBox {
       if nm == "if.compare.varvar" { local out = LowerIfCompareVarVarBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
       if nm == "if.merge.local.return.var" { local out = LowerIfMergeLocalReturnVarBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
       if nm == "loop.local.return.var" { local out = LowerLoopLocalReturnVarBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
-      if nm == "return.method.arraymap" { local out = LowerReturnMethodArrayMapBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
       if nm == "return.method.string.length" { local out = LowerReturnMethodStringLengthBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
-      if nm == "return.loop.strlen.sum" { local out = LowerReturnLoopStrlenSumBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
       if nm == "return.var.local" { local out = LowerReturnVarLocalBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
       if nm == "return.string" { local out = LowerReturnStringBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
       if nm == "return.float" { local out = LowerReturnFloatBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
@@ -83,37 +66,6 @@ static box BuilderRegistryAuthorityBox {
     if BuilderConfigBox.debug_enabled() == 1 {
       print("[mirbuilder/registry:" + name + "]")
     }
-  }
-
-  method _try_lower_registry_only_arraymap(s) {
-    local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0); if k_ret < 0 { return null }
-    local k_m = JsonFragBox.index_of_from(s, "\"type\":\"Method\"", k_ret); if k_m < 0 { return null }
-    local k_recv = JsonFragBox.index_of_from(s, "\"recv\":{\"type\":\"Var\"", k_m); if k_recv < 0 { return null }
-    local k_mm = JsonFragBox.index_of_from(s, "\"method\":\"", k_m); if k_mm < 0 { return null }
-    local method = JsonFragBox.read_string_after(s, k_mm + 9); if method == null { return null }
-    if method == "len" { method = "length" }
-
-    local arg_values = new ArrayBox()
-    local k_args = JsonFragBox.index_of_from(s, "\"args\":", k_m)
-    if k_args >= 0 {
-      local k_i1 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_args)
-      if k_i1 >= 0 {
-        local kv1 = JsonFragBox.index_of_from(s, "\"value\":", k_i1); if kv1 >= 0 {
-          local v1 = JsonFragBox.read_int_after(s, kv1 + 8)
-          if v1 != null { arg_values.push(v1) }
-        }
-      }
-      local k_i2b = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_args + 1)
-      if k_i2b >= 0 {
-        local kv2b = JsonFragBox.index_of_from(s, "\"value\":", k_i2b)
-        if kv2b >= 0 {
-          local v2 = JsonFragBox.read_int_after(s, kv2b + 8)
-          if v2 != null { arg_values.push(v2) }
-        }
-      }
-    }
-
-    return CompatMirEmitBox.emit_registry_only_arraymap(method, arg_values)
   }
   method _coerce_text_compat(value) {
     return "" + value

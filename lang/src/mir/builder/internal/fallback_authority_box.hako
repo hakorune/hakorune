@@ -15,7 +15,6 @@ using "hako.mir.builder.internal.lower_if_compare_varint" as LowerIfCompareVarIn
 using "hako.mir.builder.internal.lower_if_compare_varvar" as LowerIfCompareVarVarBox
 using "lang.mir.builder.internal.lower_if_merge_local_return_var_box" as LowerIfMergeLocalReturnVarBox
 using "lang.mir.builder.internal.lower_loop_local_return_var_box" as LowerLoopLocalReturnVarBox
-using "hako.mir.builder.internal.lower_return_method_array_map" as LowerReturnMethodArrayMapBox
 using "hako.mir.builder.internal.lower_return_method_string_length" as LowerReturnMethodStringLengthBox
 using "hako.mir.builder.internal.lower_return_var_local" as LowerReturnVarLocalBox
 using "hako.mir.builder.internal.lower_return_string" as LowerReturnStringBox
@@ -26,7 +25,6 @@ using "hako.mir.builder.internal.lower_return_binop_varint" as LowerReturnBinOpV
 using "hako.mir.builder.internal.lower_return_binop_varvar" as LowerReturnBinOpVarVarBox
 using "hako.mir.builder.internal.lower_return_binop" as LowerReturnBinOpBox
 using "hako.mir.builder.internal.lower_return_int" as LowerReturnIntBox
-using "hako.mir.builder.internal.lower_return_loop_strlen_sum" as LowerReturnLoopStrlenSumBox
 using "hako.mir.builder.internal.lower_if_then_else_following_return" as LowerIfThenElseFollowingReturnBox
 using "hako.mir.builder.internal.lower_if_nested" as LowerIfNestedBox
 using "hako.mir.builder.internal.lower_loop_sum_bc" as LowerLoopSumBcBox
@@ -84,9 +82,7 @@ static box BuilderFallbackAuthorityBox {
     { local out_str = LowerReturnStringBox.try_lower(s); if out_str != null { return out_str } }
     { local out_f = LowerReturnFloatBox.try_lower(s); if out_f != null { return out_f } }
     { local out_log = LowerReturnLogicalBox.try_lower(s); if out_log != null { return out_log } }
-    { local out_meth = LowerReturnMethodArrayMapBox.try_lower(s); if out_meth != null { return out_meth } }
     { local out_meth_s = LowerReturnMethodStringLengthBox.try_lower(s); if out_meth_s != null { return out_meth_s } }
-    { local out_sum = LowerReturnLoopStrlenSumBox.try_lower(s); if out_sum != null { return out_sum } }
     { local out_bool = LowerReturnBoolBox.try_lower(s); if out_bool != null { return out_bool } }
     { local out_bvi = LowerReturnBinOpVarIntBox.try_lower(s); if out_bvi != null { return out_bvi } }
     { local out_bvv = LowerReturnBinOpVarVarBox.try_lower(s); if out_bvv != null { return out_bvv } }
