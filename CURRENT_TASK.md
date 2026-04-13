@@ -15,7 +15,7 @@ Scope: current lane / next lane / restart order only.
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/10-Now.md`
 3. `docs/development/current/main/15-Workstream-Map.md`
-4. `docs/development/current/main/phases/phase-256x/README.md`
+4. `docs/development/current/main/phases/phase-257x/README.md`
 5. `docs/development/current/main/phases/phase-163x/README.md`
 6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 7. `git status -sb`
@@ -65,7 +65,26 @@ Scope: current lane / next lane / restart order only.
 - concurrency manuals are now re-pointed to the current `task_scope` / `joinAll()` / `failureReport()` owners
 - `phase-255x` is landed: `joinAll()` now returns `Err(TaskJoinTimeout: timed out after Nms)` when its bounded join hits deadline without a latched first failure
 - `phase-256x` is landed: `SimplifyCFG` now threads a branch arm through an empty jump trampoline into a final block when its PHIs can be trivially rewritten from the trampoline predecessor to the branching block
+- `phase-257x` is landed: `SimplifyCFG` now threads a branch arm through an empty jump trampoline even when the threaded arm carried edge-args, but only when those edge-args are dead for a PHI-free final target
 - explicit scope-exit timeout surfacing is parked while the active code lane stays on `semantic simplification bundle`
 - the next code lane is now `semantic simplification bundle`
 - `CURRENT_TASK.md` is the only live status pointer; `05/10/15` are thin mirrors only
 - if this file grows again, move the detail back into the phase docs
+
+## Execution Queue
+
+1. `semantic simplification bundle`
+   - `S2` first SCCP propagation widening beyond direct `Compare`
+   - prefer one conservative source, such as trivial-phi/copy-fed bool propagation, over a broad lattice cut
+2. `semantic simplification bundle`
+   - `S3` jump-threading / SimplifyCFG closeout judgment
+   - either one more structural cut or handoff once the remaining widening would stop being narrow
+3. `memory-effect layer`
+   - `M0` owner seam and stats surface
+   - do not bury the next memory slices inside `dce/memory.rs` without a top-level owner
+4. `memory-effect layer`
+   - `M1` same-block private-carrier store-to-load forwarding
+5. `memory-effect layer`
+   - `M2` same-block private-carrier redundant load elimination
+6. `memory-effect layer`
+   - `M3` overwritten-store / DSE widening beyond the landed private same-block cut

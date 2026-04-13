@@ -8,6 +8,8 @@
  * - thread a branch arm through an empty jump trampoline when the final target
  *   has no PHIs, or only PHIs that can be trivially rewritten from the
  *   trampoline predecessor to the branching block
+ * - branch-arm edge-args may be dropped only when they are dead for a
+ *   PHI-free final target after threading
  * - merge `pred -> middle` only for a direct `Jump`
  * - `middle` must be reachable, non-entry, have exactly one predecessor, and
  *   carry only trivial single-input PHIs from that predecessor
@@ -49,10 +51,18 @@ fn simplify_function(function: &mut MirFunction) -> usize {
             simplified += 1;
             continue;
         }
-        if let Some((block_id, arm, middle_id, target, rewrite_phi)) =
+        if let Some((block_id, arm, middle_id, target, rewrite_phi, clear_edge_args)) =
             find_threadable_branch_jump(function)
         {
-            thread_branch_arm(function, block_id, arm, middle_id, target, rewrite_phi);
+            thread_branch_arm(
+                function,
+                block_id,
+                arm,
+                middle_id,
+                target,
+                rewrite_phi,
+                clear_edge_args,
+            );
             simplified += 1;
             continue;
         }
@@ -241,7 +251,14 @@ fn fold_constant_branch(
 
 fn find_threadable_branch_jump(
     function: &MirFunction,
-) -> Option<(BasicBlockId, ThreadArm, BasicBlockId, BasicBlockId, bool)> {
+) -> Option<(
+    BasicBlockId,
+    ThreadArm,
+    BasicBlockId,
+    BasicBlockId,
+    bool,
+    bool,
+)> {
     let reachable_blocks = crate::mir::verification::utils::compute_reachable_blocks(function);
 
     for block_id in function.block_ids() {
@@ -261,25 +278,63 @@ fn find_threadable_branch_jump(
             continue;
         };
 
-        if let Some((target, rewrite_phi)) =
+        if let Some((target, rewrite_phi, clear_edge_args)) =
             threadable_jump_target(function, block_id, *then_bb, then_edge_args.as_ref())
         {
             if target != *else_bb {
-                return Some((block_id, ThreadArm::Then, *then_bb, target, rewrite_phi));
+                return Some((
+                    block_id,
+                    ThreadArm::Then,
+                    *then_bb,
+                    target,
+                    rewrite_phi,
+                    clear_edge_args,
+                ));
             }
-            if !rewrite_phi && *else_edge_args == None {
-                return Some((block_id, ThreadArm::Then, *then_bb, target, rewrite_phi));
+            let effective_then_edge_args = if clear_edge_args {
+                None
+            } else {
+                then_edge_args.clone()
+            };
+            if !rewrite_phi && effective_then_edge_args == *else_edge_args {
+                return Some((
+                    block_id,
+                    ThreadArm::Then,
+                    *then_bb,
+                    target,
+                    rewrite_phi,
+                    clear_edge_args,
+                ));
             }
         }
 
-        if let Some((target, rewrite_phi)) =
+        if let Some((target, rewrite_phi, clear_edge_args)) =
             threadable_jump_target(function, block_id, *else_bb, else_edge_args.as_ref())
         {
             if target != *then_bb {
-                return Some((block_id, ThreadArm::Else, *else_bb, target, rewrite_phi));
+                return Some((
+                    block_id,
+                    ThreadArm::Else,
+                    *else_bb,
+                    target,
+                    rewrite_phi,
+                    clear_edge_args,
+                ));
             }
-            if !rewrite_phi && *then_edge_args == None {
-                return Some((block_id, ThreadArm::Else, *else_bb, target, rewrite_phi));
+            let effective_else_edge_args = if clear_edge_args {
+                None
+            } else {
+                else_edge_args.clone()
+            };
+            if !rewrite_phi && *then_edge_args == effective_else_edge_args {
+                return Some((
+                    block_id,
+                    ThreadArm::Else,
+                    *else_bb,
+                    target,
+                    rewrite_phi,
+                    clear_edge_args,
+                ));
             }
         }
     }
@@ -292,11 +347,7 @@ fn threadable_jump_target(
     pred_id: BasicBlockId,
     middle_id: BasicBlockId,
     edge_args: Option<&crate::mir::EdgeArgs>,
-) -> Option<(BasicBlockId, bool)> {
-    if edge_args.is_some() {
-        return None;
-    }
-
+) -> Option<(BasicBlockId, bool, bool)> {
     let middle_block = function.blocks.get(&middle_id)?;
     if !middle_block.instructions.is_empty() {
         return None;
@@ -318,16 +369,19 @@ fn threadable_jump_target(
 
     let final_block = function.blocks.get(target)?;
     if final_block.phi_instructions().next().is_some() {
+        if edge_args.is_some() {
+            return None;
+        }
         if middle_block.predecessors.len() != 1 || !middle_block.predecessors.contains(&pred_id) {
             return None;
         }
         if !can_rewrite_threaded_phi_predecessor(final_block, middle_id, pred_id) {
             return None;
         }
-        return Some((*target, true));
+        return Some((*target, true, false));
     }
 
-    Some((*target, false))
+    Some((*target, false, edge_args.is_some()))
 }
 
 fn thread_branch_arm(
@@ -337,6 +391,7 @@ fn thread_branch_arm(
     middle_id: BasicBlockId,
     target: BasicBlockId,
     rewrite_phi: bool,
+    clear_edge_args: bool,
 ) {
     {
         let block = function
@@ -360,9 +415,15 @@ fn thread_branch_arm(
         match arm {
             ThreadArm::Then => {
                 *then_bb = target;
+                if clear_edge_args {
+                    *then_edge_args = None;
+                }
             }
             ThreadArm::Else => {
                 *else_bb = target;
+                if clear_edge_args {
+                    *else_edge_args = None;
+                }
             }
         }
 

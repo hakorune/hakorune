@@ -9,6 +9,7 @@
 
 ## Recent Landed
 
+- **Phase 257x（LANDED）**: SimplifyCFG edge-arg trampoline threading
 - **Phase 256x（LANDED）**: SimplifyCFG trivial-PHI-target jump threading
 - **Phase 249x（LANDED）**: sibling failure runtime wiring
 - **Phase 248x（LANDED）**: sibling-failure policy pin
