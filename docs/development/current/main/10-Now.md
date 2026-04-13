@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-04-13
+Date: 2026-04-14
 Scope: current lane / blocker / next pointer だけを置く薄い mirror。
 Related:
   - CURRENT_TASK.md
@@ -17,8 +17,10 @@ Related:
 - immediate next: `compiler expressivity first`
 - immediate follow-on: `phase29bq failure-driven blocker capture`
 - top queued cut: `phase29bq selfhost mirbuilder failure-driven`
-- Compiler lane: `phase-29bq`（JIR-PORT-00..08 done / active blocker=`none` / next=`none`）
+- Compiler lane: `phase-29bq`（JIR-PORT-00..08 done / active blocker=\`program_json_contract_pin\` / next=\`loop owner seam cleanup\`）
 - JoinIR port mode（lane A）: monitor-only（failure-driven）
+- loop owner direction:
+  - `facts -> route -> recipe -> cfg skeleton -> join sig -> phi materializer -> verifier -> cleanup`
 
 ## Landing Snapshot
 

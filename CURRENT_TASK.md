@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-04-13
+Date: 2026-04-14
 Scope: current lane / next lane / restart order only.
 
 ## Purpose
@@ -34,6 +34,8 @@ Scope: current lane / next lane / restart order only.
   - `compiler expressivity first`
 - immediate follow-on:
   - `phase-29bq failure-driven blocker capture`
+- current blocker:
+  - broad gate currently exposes `program_json_contract_pin` (`loop_node: emit route failed`)
 - current stop-lines:
   - do not mix lane B with lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
   - do not mix lane B with `generic placement / effect`
@@ -67,6 +69,10 @@ Scope: current lane / next lane / restart order only.
   - `phase-277x`: optimization lane closeout judgment froze the landed optimization roadmap and handed the mainline back to compiler expressivity / selfhost entry
 - active focus:
   - `phase-29bq`: failure-driven selfhost mirbuilder lane under compiler-expressivity-first policy
+- architecture direction:
+  - loop/selfhost cleanup now targets `facts -> route -> recipe -> cfg skeleton -> join sig -> phi materializer -> verifier -> cleanup`
+  - keep `facts` descriptive-only and `recipe` normative
+  - move PHI/dominance repair out of semantic lowering over time
 - pointer rule:
   - `CURRENT_TASK.md` is the only live status pointer
   - `05/10/15` stay thin mirrors only
@@ -78,6 +84,15 @@ Scope: current lane / next lane / restart order only.
    - landed and closed
 2. `phase-29bq selfhost mirbuilder failure-driven`
    - use quick-entry SSOTs and failure-driven blocker capture only
+3. `phase-29bq loop owner seam cleanup`
+   - docs-first owner split:
+     - `facts`
+     - `route`
+     - `recipe`
+     - `phi materializer`
+     - `verifier`
+     - `cleanup`
+   - first migration target should be one exact loop family only
 
 ## Legacy Compatibility Block
 

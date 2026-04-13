@@ -137,6 +137,44 @@ Removal order decision (accepted, docs-only):
 2. Tier-20+ fixture 追加は failure-driven のみ（green維持中の先回り追加は禁止）。
 3. no-try/no-throw 方針を維持し、Facts->Recipe->Verifier->Lower の導線を先に固定する。
 
+## Loop owner split (current compiler cleanliness direction)
+
+loop 系の current cleanup target は、semantic lowering から PHI/dominance repair を剥がして owner を分離すること。
+
+### Intended flow
+
+1. `StructuralFacts`
+   - loop shape / control sites / live-outs を記述するだけ
+2. `RoutePolicy`
+   - accept/reject と route kind を決めるだけ
+3. `LoopRecipeContract`
+   - header/latch/after/joins の obligation を宣言する
+4. `CfgSkeletonLowering`
+   - blocks / edges / terminators を置く
+   - raw PHI repair は持たない
+5. `JoinSig`
+   - continue / break / return / after に何を渡して飛ぶかを宣言する
+6. `PhiMaterializer`
+   - JoinSig から SSA closure を作る
+7. `StructuralVerifier`
+   - dominance / predecessor-count / PHI placement を fail-fast で止める
+8. `CfgCleanup`
+   - unreachable prune / trivial merge / redundant PHI prune
+
+### Commit granularity rule
+
+- `accept(row)`:
+  - 1 blocker = 1 acceptance row only
+- `harden(service)`:
+  - accepted set を変えない service hardening
+- `cleanup(nonsemantic)`:
+  - logs / macros / mirrors / tests-only hygiene
+
+### Current migration hint
+
+- first code-side owner extraction should introduce `JoinSig` / `PhiMaterializer` for one loop family only
+- do not migrate all loop families in one phase
+
 ### 4) Stage1/Stage2 identity (milestone)
 
 1. `tools/selfhost_identity_check.sh --mode full` の一致を確認する。

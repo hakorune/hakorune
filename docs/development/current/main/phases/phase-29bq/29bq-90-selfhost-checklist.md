@@ -19,16 +19,33 @@ Related:
 
 目的: “やることが多い” 状態でも、**順序・記録・ゲート緑維持**をチェックリストで守り、迷走を避ける。
 
-## 0.25) Current blocker (2026-03-25)
+## 0.25) Current blocker (2026-04-14)
 
 - active blocker:
-  - `none`
-- latest landed blocker:
-  - `apps/tests/phase29bq_selfhost_blocker_parse_program2_nested_loop_if_else_fallthrough_join_else_return_blockexpr_min.hako`
-  - fixed by planner-required BlockExpr value-prelude parity in normalizer
+  - broad gate currently stops at `program_json_contract_pin`
+  - current symptom: `loop_node: emit route failed`
+- latest landed blocker family:
+  - nested loop / if-return / PHI-dominance regressions
+  - route-selection / loop-body-exit / PHI-dominance fixes have been split into dedicated commits already
 - current lane mode:
   - failure-driven
   - capture the next exact blocker before promoting broader lane work
+
+## 0.3) Loop owner split (current design direction)
+
+- target flow:
+  - `facts -> route -> recipe -> cfg skeleton -> join sig -> phi materializer -> verifier -> cleanup`
+- owner rules:
+  - `facts` are descriptive-only
+  - `route` chooses only
+  - `recipe` is normative and owns structural obligations
+  - `cfg skeleton` emits blocks/edges/terminators only
+  - `phi materializer` owns PHI/block-param closure only
+  - `verifier` fail-fast only
+  - `cleanup` canonicalizes only
+- migration rule:
+  - move one exact loop family at a time
+  - do not combine acceptance-row widening with broader PHI hardening in the same commit
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
