@@ -62,31 +62,14 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Notes
 
-- concurrency manuals are now re-pointed to the current `task_scope` / `joinAll()` / `failureReport()` owners
-- `phase-255x` is landed: `joinAll()` now returns `Err(TaskJoinTimeout: timed out after Nms)` when its bounded join hits deadline without a latched first failure
-- `phase-256x` is landed: `SimplifyCFG` now threads a branch arm through an empty jump trampoline into a final block when its PHIs can be trivially rewritten from the trampoline predecessor to the branching block
-- `phase-257x` is landed: `SimplifyCFG` now threads a branch arm through an empty jump trampoline even when the threaded arm carried edge-args, but only when those edge-args are dead for a PHI-free final target
-- `phase-258x` is landed: `SimplifyCFG` now propagates constant conditions through single-input PHIs before folding compare / branch conditions
-- `phase-259x` is landed: SimplifyCFG closeout judgment hands the remaining optimization lane to memory-effect work
-- `phase-260x` is landed: the memory-effect owner seam and stats surface now sit on their own top-level pass, and the same-block private-carrier slices are fully landed
-- `phase-261x` is landed: the first runtime helper LLVM attrs policy seam is done and closed out
-- `phase-262x` is landed: the first numeric-loop / SIMD policy seam is closed out
-- `phase-263x` is landed: the first numeric-loop induction proof seam is closed out
-- `phase-264x` is landed: the first numeric-loop reduction recognition proof seam is closed out
-- `phase-265x` is landed: the LoopSimdContract owner seam now exists in code
-- `phase-266x` is landed: integer map loop widening is the first actual widening cut
-- `phase-267x` is landed: integer sum reduction widening is the next actual widening cut
-- `phase-268x` is landed: compare/select widening is the numeric lane closeout cut
-- `phase-269x` is landed: closure split now starts with a shared capture classification owner seam
-- `phase-270x` is landed: closure split now classifies single-capture envs as scalarizable while keeping lowering behavior unchanged
-- `phase-271x` is landed: closure split now classifies empty/single envs as thin-entry candidates while keeping ctor lowering unchanged
-- `phase-272x` is landed: IPO / build-time optimization now starts with a shared build-policy owner seam
-- `phase-273x` is landed: IPO now fixes callable/edge contract ownership before any `ThinLTO` wiring
-- `phase-274x` is active: ThinLTO first cut now consumes the landed callable/edge contract seam
-- explicit scope-exit timeout surfacing is parked while the optimization lane hands off to `numeric loop / SIMD`
-- the next code lane is now `IPO / build-time optimization`
-- `CURRENT_TASK.md` is the only live status pointer; `05/10/15` are thin mirrors only
-- if this file grows again, move the detail back into the phase docs
+- latest landed phase:
+  - `phase-273x`: IPO now owns callable-node facts and call-edge facts before any `ThinLTO` wiring
+- active focus:
+  - `phase-274x`: first narrow `ThinLTO` cut over the landed build-policy + callable/edge seams
+- pointer rule:
+  - `CURRENT_TASK.md` is the only live status pointer
+  - `05/10/15` stay thin mirrors only
+  - landed detail lives in phase docs, not here
 
 ## Execution Queue
 

@@ -20,48 +20,12 @@ Related:
 
 ## Landing Snapshot
 
-- concurrency manual sync:
-  - `docs/reference/concurrency/semantics.md` / `lock_scoped_worker_local.md` / pre-selfhost SSOT now point to the current `task_scope` / `joinAll()` / `failureReport()` contract
-- `phase255x` is landed:
-  - `joinAll()` now returns `Err(TaskJoinTimeout: timed out after Nms)` when bounded join hits deadline without a latched first failure
-- `phase254x` is landed:
-  - explicit-scope aggregate failures now live on `TaskGroupBox.failureReport()` as `[first_failure, additional_failures...]`
-- `phase260x` is landed:
-  - the memory-effect owner seam and stats surface now sit on their own top-level pass, and the same-block private-carrier slices are fully landed
-- `phase261x` is landed:
-  - the first LLVM attrs policy seam for runtime helper declarations is closed out
-- `phase262x` is landed:
-  - the first numeric-loop / SIMD policy seam is closed out
-- `phase263x` is landed:
-  - the first numeric-loop induction proof seam is closed out
-- `phase264x` is landed:
-  - the first numeric-loop reduction recognition proof seam is closed out
-- `phase265x` is landed:
-  - the LoopSimdContract owner seam now exists in code and is closed out
-- `phase266x` is landed:
-  - integer map loop widening is the first actual widening cut
-- `phase267x` is landed:
-  - integer sum reduction widening is the next actual widening cut
-- `phase268x` is landed:
-  - compare/select widening is the numeric lane closeout cut
-- `phase269x` is landed:
-  - closure split now starts with a shared capture classification owner seam
-- `phase270x` is landed:
-  - closure split now classifies single-capture envs as scalarizable while preserving current ctor lowering
-- `phase271x` is landed:
-  - closure split now classifies empty/single envs as thin-entry candidates while preserving current ctor lowering
-- `phase272x` is landed:
-  - IPO / build-time optimization now starts with a shared build-policy owner seam
-- `phase273x` is landed:
-  - IPO now owns callable-node facts and call-edge facts before any ThinLTO wiring
-- `phase274x` is active:
-  - ThinLTO first cut now sits on top of the landed build-policy and callable/edge contract seams
-- latest semantic simplification cut:
-  - copied-constant `Branch` terminators, constant `Compare` instructions, and empty trampoline jump-threading now fold before CFG merge
-  - branch arms may now thread through an empty trampoline into a final block when the final PHIs can be trivially rewritten to the branching predecessor
-  - branch arms may also drop dead edge-args while threading through an empty trampoline into a PHI-free final target
-  - constant compare / branch folding may also follow single-input PHIs
-  - semantic simplification closeout is now handed off to the memory-effect layer
+- latest landed:
+  - `phase273x`: IPO now owns callable-node facts and call-edge facts before any ThinLTO wiring
+- active:
+  - `phase274x`: ThinLTO first cut now sits on top of the landed build-policy and callable/edge contract seams
+- detail owner:
+  - landed history stays in phase docs and roadmap SSOT
 
 ## Read Next
 
