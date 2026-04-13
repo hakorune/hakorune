@@ -49,9 +49,9 @@ impl MirOptimizer {
             || planner_required_lane;
         if disable_opt {
             if self.debug {
-                get_global_ring0()
-                    .log
-                    .debug("[mir-opt] disabled for planner-required/env gate (returning without passes)");
+                get_global_ring0().log.debug(
+                    "[mir-opt] disabled for planner-required/env gate (returning without passes)",
+                );
             }
             return stats;
         }

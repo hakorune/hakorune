@@ -180,15 +180,15 @@ impl<'a> PhiMergeHelper<'a> {
         else_map_end_opt: &Option<BTreeMap<String, ValueId>>, // Phase 25.1: BTreeMap化
         skip_var: Option<&str>,
     ) -> Result<HashSet<String>, String> {
-        let (def_blocks, dominators) = if let Some(func) = self.builder.scope_ctx.current_function.as_ref()
-        {
-            (
-                Some(crate::mir::verification::utils::compute_def_blocks(func)),
-                Some(crate::mir::verification::utils::compute_dominators(func)),
-            )
-        } else {
-            (None, None)
-        };
+        let (def_blocks, dominators) =
+            if let Some(func) = self.builder.scope_ctx.current_function.as_ref() {
+                (
+                    Some(crate::mir::verification::utils::compute_def_blocks(func)),
+                    Some(crate::mir::verification::utils::compute_dominators(func)),
+                )
+            } else {
+                (None, None)
+            };
 
         // ========================================
         // Phase 58: ConservativeMerge::analyze インライン化
@@ -274,7 +274,11 @@ impl<'a> PhiMergeHelper<'a> {
                         .copied()
                         .map(|def_bb| dominators.dominates(def_bb, pred))
                         .unwrap_or(false);
-                    if pre_ok { Some(pre_val) } else { None }
+                    if pre_ok {
+                        Some(pre_val)
+                    } else {
+                        None
+                    }
                 };
 
             let then_v_opt = sanitize_for_pred(raw_then_v_opt, self.then_exit);

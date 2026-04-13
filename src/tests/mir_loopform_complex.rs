@@ -92,7 +92,10 @@ fn mir_loopform_nested_loop_if_else_return_verify() {
     let mut verifier = MirVerifier::new();
     if let Err(errors) = verifier.verify_module(&compiled.module) {
         let dump = MirPrinter::verbose().print_module(&compiled.module);
-        eprintln!("----- MIR DUMP (nested_loop_if_else_return) -----\n{}", dump);
+        eprintln!(
+            "----- MIR DUMP (nested_loop_if_else_return) -----\n{}",
+            dump
+        );
         for e in &errors {
             eprintln!("[mir-verify] {}", e);
         }
@@ -106,8 +109,7 @@ fn mir_loopform_nested_loop_if_else_return_verify() {
 fn mir_loopform_loop_true_multi_break_parserish_verify() {
     // phase29bq blocker: loop(true) keeps the structural header->after predecessor
     // while also merging multiple concrete break exits.
-    let src =
-        include_str!("../../apps/tests/phase29bq_loop_true_multi_break_parserish_min.hako");
+    let src = include_str!("../../apps/tests/phase29bq_loop_true_multi_break_parserish_min.hako");
     let compiled = compile_module(src);
 
     let mut verifier = MirVerifier::new();

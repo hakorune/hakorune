@@ -7,13 +7,14 @@
  */
 
 use super::{
+    build_value_def_map,
     phi_query::{collect_phi_carry_relations, PhiBaseRelation},
-    resolve_value_origin, build_value_def_map, ValueDefMap,
+    resolve_value_origin,
     string_corridor_recognizer::{
         match_add_in_block, match_len_call, match_substring_call,
         match_substring_concat3_helper_call, string_source_identity,
     },
-    MirFunction, MirInstruction, MirModule, ValueId,
+    MirFunction, MirInstruction, MirModule, ValueDefMap, ValueId,
 };
 use std::collections::BTreeSet;
 

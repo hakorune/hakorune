@@ -232,7 +232,10 @@ fn test_dce_prunes_phi_inputs_from_removed_unreachable_predecessors() {
     let mut header = BasicBlock::new(header_bb);
     header.instructions.push(MirInstruction::Phi {
         dst: phi_dst,
-        inputs: vec![(BasicBlockId(0), entry_value), (dead_backedge_bb, dead_value)],
+        inputs: vec![
+            (BasicBlockId(0), entry_value),
+            (dead_backedge_bb, dead_value),
+        ],
         type_hint: Some(MirType::Integer),
     });
     header.instruction_spans.push(Span::unknown());

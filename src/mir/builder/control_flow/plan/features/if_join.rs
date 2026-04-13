@@ -90,34 +90,35 @@ pub(in crate::mir::builder) fn apply_if_joins(
         if let (Some(def_blocks), Some(dominators)) =
             (release_def_blocks.as_ref(), release_dominators.as_ref())
         {
-            let mut fallback_incoming = |incoming: &mut ValueId,
-                                         branch_reaches_merge: &mut bool,
-                                         pred: Option<BasicBlockId>| {
-                let Some(pred) = pred else {
-                    *branch_reaches_merge = false;
-                    return;
-                };
-                let incoming_ok = def_blocks
-                    .get(incoming)
-                    .copied()
-                    .map(|def_bb| dominators.dominates(def_bb, pred))
-                    .unwrap_or(false);
-                if incoming_ok {
-                    return;
-                }
-                if let Some(pre_val) = join.pre_val {
-                    let pre_ok = def_blocks
-                        .get(&pre_val)
+            let mut fallback_incoming =
+                |incoming: &mut ValueId,
+                 branch_reaches_merge: &mut bool,
+                 pred: Option<BasicBlockId>| {
+                    let Some(pred) = pred else {
+                        *branch_reaches_merge = false;
+                        return;
+                    };
+                    let incoming_ok = def_blocks
+                        .get(incoming)
                         .copied()
                         .map(|def_bb| dominators.dominates(def_bb, pred))
                         .unwrap_or(false);
-                    if pre_ok {
-                        *incoming = pre_val;
+                    if incoming_ok {
                         return;
                     }
-                }
-                *branch_reaches_merge = false;
-            };
+                    if let Some(pre_val) = join.pre_val {
+                        let pre_ok = def_blocks
+                            .get(&pre_val)
+                            .copied()
+                            .map(|def_bb| dominators.dominates(def_bb, pred))
+                            .unwrap_or(false);
+                        if pre_ok {
+                            *incoming = pre_val;
+                            return;
+                        }
+                    }
+                    *branch_reaches_merge = false;
+                };
 
             if then_reaches_merge_local {
                 fallback_incoming(&mut then_in, &mut then_reaches_merge_local, then_end_bb);

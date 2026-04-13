@@ -24,9 +24,8 @@ impl MacroEngine {
             .map(|v| v as usize)
             .unwrap_or(8);
         let trace = crate::config::env::macro_trace();
-        let measure_ast_bytes = trace
-            || crate::config::env::macro_trace_jsonl()
-                .is_some_and(|path| !path.is_empty());
+        let measure_ast_bytes =
+            trace || crate::config::env::macro_trace_jsonl().is_some_and(|path| !path.is_empty());
         Self {
             max_passes,
             cycle_window,
