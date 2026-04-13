@@ -107,7 +107,7 @@ fn test_dce_keeps_live_load_from_private_carrier_root() {
     module.add_function(func);
 
     let eliminated = eliminate_dead_code(&mut module);
-    assert_eq!(eliminated, 2);
+    assert_eq!(eliminated, 0);
 
     let func = module.get_function("test/0").unwrap();
     let bb0 = func.blocks.get(&BasicBlockId(0)).unwrap();
@@ -459,7 +459,7 @@ fn test_dce_keeps_overwritten_store_when_load_intervenes_on_private_carrier() {
     module.add_function(func);
 
     let eliminated = eliminate_dead_code(&mut module);
-    assert_eq!(eliminated, 2);
+    assert_eq!(eliminated, 0);
 
     let func = module.get_function("test/0").unwrap();
     let bb0 = func.blocks.get(&BasicBlockId(0)).unwrap();

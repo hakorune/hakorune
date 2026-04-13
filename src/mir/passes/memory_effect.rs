@@ -4,8 +4,9 @@
  * This pass owns the current memory-sensitive cleanup slices that were
  * previously buried inside the DCE lane. The landed cuts keep the
  * private-carrier load/store pruning behavior and add same-block
- * store-to-load forwarding behind a dedicated owner and stats surface so
- * the optimizer can schedule it independently.
+ * store-to-load forwarding plus redundant load elimination behind a
+ * dedicated owner and stats surface so the optimizer can schedule it
+ * independently.
  */
 
 use crate::mir::optimizer_stats::OptimizationStats;
@@ -29,10 +30,10 @@ fn eliminate_memory_effect_in_function(function: &mut MirFunction) -> usize {
     let reachable_blocks = crate::mir::verification::utils::compute_reachable_blocks(function);
     let local_reads = analyze_local_reads(function, &reachable_blocks);
     let private_carriers = analyze_private_carriers(function, &reachable_blocks, &local_reads);
-    let forwarded_same_block_loads =
-        forward_same_block_private_carrier_loads(function, &reachable_blocks, &private_carriers);
     let overwritten_private_stores =
         collect_overwritten_private_stores(function, &reachable_blocks, &private_carriers);
+    let forwarded_same_block_loads =
+        forward_same_block_private_carrier_loads(function, &reachable_blocks, &private_carriers);
 
     let mut base_used_values: HashSet<ValueId> = HashSet::new();
     for (bid, block) in &function.blocks {
@@ -128,24 +129,25 @@ fn forward_same_block_private_carrier_loads(
             continue;
         }
 
-        let mut last_store_by_root: HashMap<ValueId, ValueId> = HashMap::new();
+        let mut available_value_by_root: HashMap<ValueId, ValueId> = HashMap::new();
         for instruction in &mut block.instructions {
             match instruction {
                 crate::mir::MirInstruction::Store { value, ptr } => {
                     if let Some(root) = private_carriers.resolve_private_store_root(*ptr) {
-                        last_store_by_root.insert(root, *value);
+                        available_value_by_root.insert(root, *value);
                     }
                 }
                 crate::mir::MirInstruction::Load { dst, ptr } => {
                     let Some(root) = private_carriers.resolve_private_store_root(*ptr) else {
                         continue;
                     };
-                    let Some(value) = last_store_by_root.get(&root).copied() else {
-                        continue;
-                    };
-                    let dst = *dst;
-                    *instruction = crate::mir::MirInstruction::Copy { dst, src: value };
-                    forwarded += 1;
+                    if let Some(value) = available_value_by_root.get(&root).copied() {
+                        let dst = *dst;
+                        *instruction = crate::mir::MirInstruction::Copy { dst, src: value };
+                        forwarded += 1;
+                    } else {
+                        available_value_by_root.insert(root, *dst);
+                    }
                 }
                 _ => {}
             }
@@ -404,5 +406,153 @@ mod tests {
             .instructions
             .iter()
             .any(|inst| matches!(inst, MirInstruction::Load { dst, .. } if *dst == v_loaded)));
+    }
+
+    #[test]
+    fn memory_effect_eliminates_same_block_redundant_load_on_private_carrier_root() {
+        let mut module = MirModule::new("memory_effect_test".to_string());
+
+        let sig = FunctionSignature {
+            name: "test/0".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut func = MirFunction::new(sig, BasicBlockId(0));
+
+        let v_box = ValueId(1);
+        let v_ptr = ValueId(2);
+        let v_loaded1 = ValueId(3);
+        let v_loaded2 = ValueId(4);
+
+        {
+            let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
+            bb0.instructions.push(MirInstruction::NewBox {
+                dst: v_box,
+                box_type: "Point".to_string(),
+                args: vec![],
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::RefNew {
+                dst: v_ptr,
+                box_val: v_box,
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Load {
+                dst: v_loaded1,
+                ptr: v_ptr,
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Load {
+                dst: v_loaded2,
+                ptr: v_ptr,
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.set_terminator(MirInstruction::Return {
+                value: Some(v_loaded2),
+            });
+        }
+
+        module.add_function(func);
+
+        let stats = apply(&mut module);
+        assert_eq!(stats.memory_effect_optimizations, 1);
+
+        let func = module.get_function("test/0").unwrap();
+        let bb0 = func.blocks.get(&BasicBlockId(0)).unwrap();
+        assert!(bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Load { dst, .. } if *dst == v_loaded1)));
+        assert!(bb0.instructions.iter().any(|inst| matches!(
+            inst,
+            MirInstruction::Copy { dst, src } if *dst == v_loaded2 && *src == v_loaded1
+        )));
+        assert!(!bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Load { dst, .. } if *dst == v_loaded2)));
+    }
+
+    #[test]
+    fn memory_effect_keeps_store_when_load_intervenes_on_private_carrier_root() {
+        let mut module = MirModule::new("memory_effect_test".to_string());
+
+        let sig = FunctionSignature {
+            name: "test/0".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut func = MirFunction::new(sig, BasicBlockId(0));
+
+        let v_box = ValueId(1);
+        let v_ptr = ValueId(2);
+        let v_old = ValueId(3);
+        let v_new = ValueId(4);
+        let v_seen = ValueId(5);
+
+        {
+            let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
+            bb0.instructions.push(MirInstruction::NewBox {
+                dst: v_box,
+                box_type: "Point".to_string(),
+                args: vec![],
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::RefNew {
+                dst: v_ptr,
+                box_val: v_box,
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Const {
+                dst: v_old,
+                value: ConstValue::Integer(1),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Const {
+                dst: v_new,
+                value: ConstValue::Integer(2),
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Store {
+                value: v_old,
+                ptr: v_ptr,
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Load {
+                dst: v_seen,
+                ptr: v_ptr,
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.instructions.push(MirInstruction::Store {
+                value: v_new,
+                ptr: v_ptr,
+            });
+            bb0.instruction_spans.push(Span::unknown());
+            bb0.set_terminator(MirInstruction::Return {
+                value: Some(v_seen),
+            });
+        }
+
+        module.add_function(func);
+
+        let stats = apply(&mut module);
+        assert_eq!(stats.memory_effect_optimizations, 1);
+
+        let func = module.get_function("test/0").unwrap();
+        let bb0 = func.blocks.get(&BasicBlockId(0)).unwrap();
+        assert!(bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Store { value, .. } if *value == v_old)));
+        assert!(bb0
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Store { value, .. } if *value == v_new)));
+        assert!(bb0.instructions.iter().any(|inst| matches!(
+            inst,
+            MirInstruction::Copy { dst, src } if *dst == v_seen && *src == v_old
+        )));
     }
 }
