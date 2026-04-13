@@ -4,11 +4,12 @@
 
 ## Current
 
-- **Current (ACTIVE)**: Phase 263x numeric loop / SIMD induction proof seam
+- **Current (ACTIVE)**: Phase 264x numeric loop / SIMD reduction recognition proof seam
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
 
 ## Recent Landed
 
+- **Phase 263x（LANDED）**: numeric loop / SIMD induction proof seam
 - **Phase 262x（LANDED）**: numeric loop / SIMD policy owner seam
 - **Phase 261x（LANDED）**: escape / barrier -> LLVM attrs first seam
 - **Phase 260x（LANDED）**: memory-effect owner seam and stats surface

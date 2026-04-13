@@ -14,17 +14,17 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-263x numeric loop / SIMD induction proof seam` |
-| Front | `numeric loop / SIMD -> simple while induction proof seam` |
+| Now | `phase-264x numeric loop / SIMD reduction recognition proof seam` |
+| Front | `numeric loop / SIMD -> simple while reduction recognition proof seam` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `memory-effect layer is complete; the next queue is numeric loop / SIMD proof seam work` |
+| Blocker | `memory-effect layer is complete; the next queue is numeric loop / SIMD reduction-proof work` |
 | Next | `numeric loop / SIMD` |
 | After Next | `closure split` |
 
 ## Current Read
 
-- design owners:
-  - implementation lane: `docs/development/current/main/phases/phase-263x/README.md`
+  - design owners:
+  - implementation lane: `docs/development/current/main/phases/phase-264x/README.md`
   - next layer landing: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - roadmap SSOT: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`

@@ -115,6 +115,74 @@ class TestFunctionLowerLoopPrepass(unittest.TestCase):
         self.assertNotIn("numeric_kind", plan)
         self.assertEqual(context.numeric_loop_plans, {})
 
+    def test_run_loop_prepass_annotates_numeric_reduction_when_body_updates_non_compare_phi(self):
+        prev_env = os.environ.get("NYASH_LLVM_PREPASS_LOOP")
+        prev_detect = function_lower.detect_simple_while
+        os.environ["NYASH_LLVM_PREPASS_LOOP"] = "1"
+        context = _ContextStub()
+        context.integerish_value_ids = {7, 20, 22, 30, 32, 40}
+        context.non_negative_value_ids = {20, 22, 30, 32, 40}
+
+        try:
+            function_lower.detect_simple_while = lambda _blocks: {
+                "header": 1,
+                "then": 2,
+                "latch": 3,
+                "exit": 4,
+                "cond": 7,
+                "body_insts": [
+                    {"op": "copy", "dst": 32, "src": 30},
+                    {"op": "binop", "dst": 40, "operation": "+", "lhs": 32, "rhs": 22},
+                ],
+                "header_phi_value_ids": [20, 30],
+                "header_compare_operand_value_ids": [20, 31],
+                "skip_blocks": [1, 2, 3],
+            }
+            plan = function_lower._run_loop_prepass({1: {"id": 1, "instructions": []}}, context)
+        finally:
+            function_lower.detect_simple_while = prev_detect
+            if prev_env is None:
+                os.environ.pop("NYASH_LLVM_PREPASS_LOOP", None)
+            else:
+                os.environ["NYASH_LLVM_PREPASS_LOOP"] = prev_env
+
+        self.assertEqual(plan["numeric_kind"], "induction")
+        self.assertEqual(plan["numeric_reduction_value_ids"], [40])
+        self.assertEqual(context.numeric_loop_plans[1]["numeric_reduction_value_ids"], [40])
+
+    def test_run_loop_prepass_skips_numeric_reduction_for_compare_carrier(self):
+        prev_env = os.environ.get("NYASH_LLVM_PREPASS_LOOP")
+        prev_detect = function_lower.detect_simple_while
+        os.environ["NYASH_LLVM_PREPASS_LOOP"] = "1"
+        context = _ContextStub()
+        context.integerish_value_ids = {7, 20, 22, 40}
+
+        try:
+            function_lower.detect_simple_while = lambda _blocks: {
+                "header": 1,
+                "then": 2,
+                "latch": 3,
+                "exit": 4,
+                "cond": 7,
+                "body_insts": [
+                    {"op": "binop", "dst": 40, "operation": "+", "lhs": 20, "rhs": 22},
+                ],
+                "header_phi_value_ids": [20],
+                "header_compare_operand_value_ids": [20, 31],
+                "skip_blocks": [1, 2, 3],
+            }
+            plan = function_lower._run_loop_prepass({1: {"id": 1, "instructions": []}}, context)
+        finally:
+            function_lower.detect_simple_while = prev_detect
+            if prev_env is None:
+                os.environ.pop("NYASH_LLVM_PREPASS_LOOP", None)
+            else:
+                os.environ["NYASH_LLVM_PREPASS_LOOP"] = prev_env
+
+        self.assertEqual(plan["numeric_kind"], "induction")
+        self.assertNotIn("numeric_reduction_value_ids", plan)
+        self.assertEqual(context.numeric_loop_plans[1].get("numeric_reduction_value_ids"), None)
+
 
 if __name__ == "__main__":
     unittest.main()

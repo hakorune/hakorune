@@ -15,6 +15,107 @@ _NUMERIC_LOOP_ALLOWED_OPS = {
     "select",
 }
 
+_NUMERIC_REDUCTION_BINOPS = {
+    "+",
+    "add",
+    "plus",
+}
+
+
+def _extract_header_compare_operand_ids(
+    block_by_id: Dict[int, Dict[str, Any]],
+    header_bid: int,
+    cond_vid: Optional[int],
+) -> List[int]:
+    if not isinstance(cond_vid, int):
+        return []
+    header_blk = block_by_id.get(int(header_bid))
+    if not isinstance(header_blk, dict):
+        return []
+    for inst in (header_blk.get("instructions") or []):
+        if not isinstance(inst, dict):
+            continue
+        if inst.get("op") != "compare":
+            continue
+        if inst.get("dst") != int(cond_vid):
+            continue
+        ops: List[int] = []
+        for key in ("lhs", "rhs"):
+            value = inst.get(key)
+            if isinstance(value, int):
+                ops.append(int(value))
+        return ops
+    return []
+
+
+def _collect_numeric_reduction_value_ids(
+    body_insts: List[Dict[str, Any]],
+    header_phi_value_ids: List[int],
+    header_compare_operand_value_ids: List[int],
+    integerish_ids: Set[int],
+) -> List[int]:
+    carrier_ids: Set[int] = {int(v) for v in header_phi_value_ids if isinstance(v, int)}
+    compare_operand_ids: Set[int] = {int(v) for v in header_compare_operand_value_ids if isinstance(v, int)}
+
+    # Compare operands are more likely to be loop index / bound inputs than
+    # accumulator-style reductions. Keep this proof seam narrow by excluding
+    # those carriers from reduction candidacy for now.
+    carrier_ids.difference_update(compare_operand_ids)
+
+    if not carrier_ids:
+        return []
+
+    # Follow trivial copy/phi carrier chains through the body so that a
+    # conservative accumulator can be recognized even when the arithmetic
+    # update uses a renamed temporary.
+    changed = True
+    while changed:
+        changed = False
+        for inst in body_insts:
+            if not isinstance(inst, dict):
+                continue
+            op = str(inst.get("op") or "")
+            dst = inst.get("dst")
+            if not isinstance(dst, int):
+                continue
+            dst = int(dst)
+            if dst in carrier_ids:
+                continue
+            if op == "copy":
+                src = inst.get("src")
+                if isinstance(src, int) and int(src) in carrier_ids:
+                    carrier_ids.add(dst)
+                    changed = True
+            elif op == "phi":
+                incoming = inst.get("incoming") or []
+                for inc in incoming:
+                    if isinstance(inc, (list, tuple)) and len(inc) >= 1 and isinstance(inc[0], int):
+                        if int(inc[0]) in carrier_ids:
+                            carrier_ids.add(dst)
+                            changed = True
+                            break
+
+    reduction_value_ids: Set[int] = set()
+    for inst in body_insts:
+        if not isinstance(inst, dict):
+            continue
+        if str(inst.get("op") or "") != "binop":
+            continue
+        bop = str(inst.get("operation") or "").lower()
+        if bop not in _NUMERIC_REDUCTION_BINOPS:
+            continue
+        dst = inst.get("dst")
+        if not isinstance(dst, int) or int(dst) not in integerish_ids:
+            continue
+        lhs = inst.get("lhs")
+        rhs = inst.get("rhs")
+        if (isinstance(lhs, int) and int(lhs) in carrier_ids) or (
+            isinstance(rhs, int) and int(rhs) in carrier_ids
+        ):
+            reduction_value_ids.add(int(dst))
+
+    return sorted(reduction_value_ids)
+
 
 def annotate_numeric_loop_plan(
     block_by_id: Dict[int, Dict[str, Any]],
@@ -72,11 +173,21 @@ def annotate_numeric_loop_plan(
     # Optional non-negative hint: if the loop already carries a non-negative
     # arithmetic value, keep it as an additional proof breadcrumb.
     non_negative = {int(v) for v in (non_negative_ids or set()) if isinstance(v, int)}
+    header_phi_value_ids = loop_plan.get("header_phi_value_ids") or []
+    header_compare_operand_value_ids = loop_plan.get("header_compare_operand_value_ids") or []
+    reduction_value_ids = _collect_numeric_reduction_value_ids(
+        body_insts,
+        header_phi_value_ids,
+        header_compare_operand_value_ids,
+        integerish,
+    )
 
     annotated = dict(loop_plan)
     annotated["numeric_kind"] = "induction"
     annotated["numeric_induction_value_ids"] = sorted(induction_value_ids)
     annotated["numeric_non_negative_value_ids"] = sorted(induction_value_ids & non_negative) if non_negative else []
+    if reduction_value_ids:
+        annotated["numeric_reduction_value_ids"] = reduction_value_ids
     annotated["numeric_proof_source"] = "simple_while_arithmetic_only"
     return annotated
 
@@ -165,6 +276,23 @@ def detect_simple_while(block_by_id: Dict[int, Dict[str, Any]]) -> Optional[Dict
                 if inst.get('op') == 'jump' and int(inst.get('target', -1)) == bid:
                     continue
                 body_insts.append(inst)
+        header_phi_value_ids: List[int] = []
+        header_compare_operand_value_ids: List[int] = []
+        header_blk = block_by_id.get(bid)
+        if isinstance(header_blk, dict):
+            for inst in header_blk.get('instructions', []) or []:
+                if not isinstance(inst, dict):
+                    continue
+                if inst.get('op') == 'phi':
+                    dst = inst.get('dst')
+                    if isinstance(dst, int):
+                        header_phi_value_ids.append(int(dst))
+                dst = inst.get("dst")
+                if inst.get('op') == 'compare' and isinstance(dst, int) and int(dst) == int(cond_vid):
+                    for key in ("lhs", "rhs"):
+                        value = inst.get(key)
+                        if isinstance(value, int):
+                            header_compare_operand_value_ids.append(int(value))
         skip_blocks = set(collect_order)
         skip_blocks.add(bid)
         return {
@@ -175,6 +303,8 @@ def detect_simple_while(block_by_id: Dict[int, Dict[str, Any]]) -> Optional[Dict
             'exit': else_bid,
             'cond': cond_vid,
             'body_insts': body_insts,
+            'header_phi_value_ids': header_phi_value_ids,
+            'header_compare_operand_value_ids': header_compare_operand_value_ids,
             'skip_blocks': list(skip_blocks),
         }
     return None

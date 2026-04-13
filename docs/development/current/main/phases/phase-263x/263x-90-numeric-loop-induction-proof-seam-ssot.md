@@ -1,6 +1,6 @@
 # Phase 263x SSOT — numeric loop induction proof seam
 
-Status: ACTIVE
+Status: LANDED
 Date: 2026-04-13
 Scope: conservative numeric induction proof for simple while plans.
 
@@ -21,5 +21,5 @@ Scope: conservative numeric induction proof for simple while plans.
 
 ## Next
 
-- widen only when a concrete numeric-loop or SIMD proof justifies it.
+- the next proof seam now lives in `phase-264x`.
 - keep reduction recognition as the next follow-on slice.

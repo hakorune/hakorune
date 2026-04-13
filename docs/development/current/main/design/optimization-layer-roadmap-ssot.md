@@ -54,6 +54,7 @@ Owner: `phase-163x optimization-resume`
    - old `Float optimization` はこの layer の subtheme として読む
    - landed first seam: centralized LLVM vectorization policy (`loop_vectorize` / `slp_vectorize`)
    - landed proof seam: conservative numeric induction annotation over simple while plans (`phase263x`)
+   - current proof seam: conservative reduction recognition over simple while plans (`phase264x`)
 8. `closure split`
    - `capture classification`
    - `closure env scalarization`
@@ -91,9 +92,8 @@ Owner: `phase-163x optimization-resume`
 ## Immediate Read
 
 - immediate code next:
-  - `memory-effect layer`
-   - `phase260x` is landed: the owner seam and stats surface are now top-level, and the memory-effect queue is complete
+  - `numeric loop / SIMD`
+   - `phase263x` is landed: the induction proof seam over simple while plans is closed out
+   - `phase264x` is active: the next proof seam is conservative reduction recognition over simple while plans
 - immediate follow-on after that:
-  - `escape / barrier -> LLVM attrs`
-- next major design lane after the current DCE slice:
   - `escape / barrier -> LLVM attrs`

@@ -1,4 +1,4 @@
-Status: ACTIVE
+Status: LANDED
 Owner: Codex
 Phase: 263x
 
@@ -12,14 +12,14 @@ Phase: 263x
 
 ## Current Cut
 
-- simple while prepass now annotates numeric induction candidates
+- closeout: simple while prepass now annotates numeric induction candidates
 - current coverage:
   - arithmetic-only loop bodies
   - integerish loop conditions
   - conservative induction value IDs for later widening
 - fast-math / FMA / reduction recognition are still out of scope for this cut
 
-## Next
+## Closeout
 
-- only widen when a concrete numeric-loop or SIMD proof justifies a new knob
+- the follow-on proof seam now lives in `phase-264x`
 - keep reduction recognition and SIMD widening as follow-on cuts
