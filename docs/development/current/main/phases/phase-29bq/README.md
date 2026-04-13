@@ -72,7 +72,7 @@ Related:
 - latest landed blocker:
   - `program_json_contract_pin` / `joinir_port04` / `joinir_port07`
   - fixed by program-json compat bridge, parser/helper simplification, and removal of disabled legacy lowers from mainline owners
-- while blocker=`none`, the next cleanup cut is dedicated `legacy lowerer removal`
+- while blocker=`none`, the next cleanup cut is dedicated `loop owner seam cleanup`
 
 ## Read Order
 

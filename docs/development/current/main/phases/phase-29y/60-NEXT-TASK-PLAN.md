@@ -193,7 +193,7 @@ Related:
   - current route: `.hako VM` / `vm-hako` runtime
 - archived monitor probes:
   - `tools/smokes/v2/profiles/archive/vm_hako_caps/**`
-  - `tools/smokes/v2/profiles/archive/core/phase2160/registry_optin_method_arraymap_direct_canary_vm.sh`
+  - `tools/smokes/v2/profiles/archive/core/phase2160/registry_optin_method_arraymap_direct_canary_vm.sh` (tombstone)
 - latest completed pin:
     - `tools/smokes/v2/profiles/integration/vm_hako_caps/mapbox/mapbox_setfield_bad_key_ported_vm.sh`
 - already returned after `RVP-C19`:

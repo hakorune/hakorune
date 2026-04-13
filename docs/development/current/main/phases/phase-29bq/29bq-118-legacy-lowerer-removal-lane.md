@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Closed
 Scope: disabled legacy mirbuilder lowerers を mainline / probes / docs から段階撤去する narrow cleanup lane。
 Related:
   - CURRENT_TASK.md
@@ -49,3 +49,4 @@ Related:
 - legacy `tools/dev/phase29ci_test_runner_*` exact-proof wrappers: retired
 - vm_hako historical name/payload pins: retired
 - disabled legacy lowerer files: retired from live tree
+- remaining references are limited to deliberate archive/history only

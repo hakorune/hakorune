@@ -29,7 +29,7 @@ Related:
 - current lane mode:
   - failure-driven
   - while blocker=`none`, use this lane for narrow cleanup only
-  - next cleanup cut is `29bq-118 legacy lowerer removal`
+  - next cleanup cut is `loop owner seam cleanup`
 
 ## 0.3) Loop owner split (current design direction)
 

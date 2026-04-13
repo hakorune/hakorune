@@ -33,7 +33,7 @@ Scope: current lane / next lane / restart order only.
 - immediate next:
   - `compiler expressivity first`
 - immediate follow-on:
-  - `phase-29bq legacy lowerer removal`
+  - `phase-29bq loop owner seam cleanup`
 - current blocker:
   - `none`
 - current stop-lines:
@@ -96,8 +96,7 @@ Scope: current lane / next lane / restart order only.
    - landed first family seam:
      - `LoopCondReturnInBody` join-sig extraction
 4. `phase-29bq legacy lowerer removal`
-   - remove disabled `return.method.arraymap` / `return.loop.strlen.sum` from mainline owners first
-   - then decide whether to tombstone or delete the legacy files and stale probes
+   - landed and closed
 5. `phase-29bq loop owner seam cleanup`
    - next:
      - move one exact family's PHI closure behind a dedicated materializer seam
