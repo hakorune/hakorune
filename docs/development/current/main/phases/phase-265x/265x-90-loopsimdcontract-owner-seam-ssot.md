@@ -1,6 +1,6 @@
 # Phase 265x SSOT — LoopSimdContract owner seam
 
-Status: ACTIVE
+Status: LANDED
 Date: 2026-04-13
 Scope: docs-first owner split for numeric-loop / SIMD widening.
 

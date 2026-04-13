@@ -1,6 +1,6 @@
 # Phase 265x Task Board
 
-Status: ACTIVE
+Status: LANDED
 
 ## Done
 
@@ -11,6 +11,6 @@ Status: ACTIVE
 
 ## Next
 
-- [ ] decide the first actual widening slice under LoopSimdContract
-- [ ] prefer integer map loop widening before reduction widening
-- [ ] keep LLVM metadata in the lowering layer only
+- [x] decide the first actual widening slice under LoopSimdContract
+- [x] prefer integer map loop widening before reduction widening
+- [x] keep LLVM metadata in the lowering layer only

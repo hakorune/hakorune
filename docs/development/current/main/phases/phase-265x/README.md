@@ -1,4 +1,4 @@
-Status: ACTIVE
+Status: LANDED
 Owner: Codex
 Phase: 265x
 
@@ -17,6 +17,12 @@ Phase: 265x
 - `FunctionLowerContext.loop_simd_contracts` caches the contract by loop header id
 - keep LLVM loop metadata as lowering hints, not the semantic source of truth
 - keep actual widening, fast-math, reassociation, and FMA out of scope
+
+## Closeout
+
+- the LoopSimdContract owner seam is now landed in code
+- proof / policy / lowering / diag are split before actual widening
+- the next cut is integer map loop widening under this contract
 
 ## Next
 

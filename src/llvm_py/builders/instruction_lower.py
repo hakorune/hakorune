@@ -345,7 +345,7 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
         if not lower_while_loopform(builder, func, cond, body,
                                     owner.loop_count, ctx.vmap, ctx.bb_map,
                                     ctx.resolver, ctx.preds, ctx.block_end_values,
-                                    ctx.lower_ctx):
+                                    ctx.lower_ctx, None):
             # Fallback to regular while (structured)
             try:
                 owner.resolver._owner_lower_instruction = owner.lower_instruction
@@ -353,7 +353,7 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
                 pass
             lower_while_regular(builder, func, cond, body,
                                 owner.loop_count, ctx.vmap, ctx.bb_map,
-                                ctx.resolver, ctx.preds, ctx.block_end_values)
+                                ctx.resolver, ctx.preds, ctx.block_end_values, None)
     else:
         # Defensive path (should be unreachable due to pre-check)
         msg = f"[llvm/lower:unsupported_op] unknown instruction: {op}"

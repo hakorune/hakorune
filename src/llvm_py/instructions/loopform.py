@@ -9,6 +9,7 @@ from phi_wiring import phi_at_block_head
 from dataclasses import dataclass
 from typing import Dict, Tuple, List, Optional, Any
 from instructions.safepoint import insert_automatic_safepoint
+from builders.loop_simd_contract import apply_loop_simd_metadata
 
 @dataclass
 class LoopFormContext:
@@ -57,6 +58,7 @@ def lower_while_loopform(
     preds=None,
     block_end_values=None,
     ctx=None,
+    loop_simd_contract=None,
 ) -> bool:
     """
     Lower a while loop using LoopForm structure
@@ -127,7 +129,11 @@ def lower_while_loopform(
     # Latch: Back to header (if enabled)
     builder.position_at_end(lf.latch)
     if os.environ.get('NYASH_LOOPFORM_LATCH2HEADER') == '1':
-        builder.branch(lf.header)
+        backedge = builder.branch(lf.header)
+        try:
+            apply_loop_simd_metadata(func.module, backedge, loop_simd_contract)
+        except Exception:
+            pass
     else:
         builder.unreachable()
     

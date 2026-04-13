@@ -234,6 +234,14 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
             builder.loop_count += 1
             body_insts = loop_plan.get('body_insts', [])
             cond_vid = loop_plan.get('cond')
+            loop_simd_contract = None
+            try:
+                header_bid = int(loop_plan.get("header"))
+                ctx = getattr(builder, "ctx", None)
+                if ctx is not None:
+                    loop_simd_contract = getattr(ctx, "loop_simd_contracts", {}).get(header_bid)
+            except Exception:
+                loop_simd_contract = None
             from instructions.loopform import lower_while_loopform
             ok = False
             try:
@@ -250,6 +258,7 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
                     builder.preds,
                     builder.block_end_values,
                     getattr(builder, 'ctx', None),
+                    loop_simd_contract,
                 )
             except Exception:
                 ok = False
@@ -261,7 +270,8 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
                 from instructions.controlflow.while_ import lower_while_regular
                 lower_while_regular(ib, func, cond_vid, body_insts,
                                     builder.loop_count, builder.vmap, builder.bb_map,
-                                    builder.resolver, builder.preds, builder.block_end_values)
+                                    builder.resolver, builder.preds, builder.block_end_values,
+                                    loop_simd_contract)
             try:
                 delattr(builder, '_current_vmap')
             except Exception:

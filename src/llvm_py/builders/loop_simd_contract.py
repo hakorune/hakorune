@@ -7,6 +7,8 @@ proof, policy, lowering, and diagnostics.
 
 from typing import Any, Dict, List, Optional
 
+from llvmlite import ir
+
 
 def _sorted_int_list(values: Any) -> List[int]:
     out: List[int] = []
@@ -42,6 +44,14 @@ def build_loop_simd_contract(loop_plan: Optional[Dict[str, Any]]) -> Optional[Di
 
     accepted_class = "int_reduction_candidate" if reduction_value_ids else "int_map_candidate"
 
+    lowering_md: Dict[str, Any]
+    if accepted_class == "int_map_candidate":
+        lowering_md = {
+            "vectorize.enable": True,
+        }
+    else:
+        lowering_md = {}
+
     return {
         "header": int(header_bid),
         "proof": {
@@ -62,7 +72,7 @@ def build_loop_simd_contract(loop_plan: Optional[Dict[str, Any]]) -> Optional[Di
             "tail_policy": "scalar_epilogue",
         },
         "lowering": {
-            "llvm_loop_md": "defer",
+            "llvm_loop_md": lowering_md if lowering_md else "defer",
             "access_groups": [],
             "alias_scopes": [],
             "call_attrs": [],
@@ -72,3 +82,48 @@ def build_loop_simd_contract(loop_plan: Optional[Dict[str, Any]]) -> Optional[Di
             "reject_reason": None,
         },
     }
+
+
+def apply_loop_simd_metadata(module: ir.Module, terminator: Any, contract: Optional[Dict[str, Any]]) -> bool:
+    """Attach a conservative llvm.loop hint for the current actual widening cut.
+
+    Phase266x only emits metadata for integer map candidates. Reduction
+    candidates and all broader widening shapes stay deferred.
+    """
+
+    if terminator is None or contract is None:
+        return False
+
+    lowering = contract.get("lowering") if isinstance(contract, dict) else None
+    if not isinstance(lowering, dict):
+        return False
+    llvm_loop_md = lowering.get("llvm_loop_md")
+    if not isinstance(llvm_loop_md, dict):
+        return False
+
+    operands: List[Any] = []
+    if llvm_loop_md.get("vectorize.enable") is True:
+        operands.append(
+            module.add_metadata(
+                [
+                    ir.MetaDataString(module, "llvm.loop.vectorize.enable"),
+                    ir.Constant(ir.IntType(1), 1),
+                ]
+            )
+        )
+    width = llvm_loop_md.get("vectorize.width")
+    if isinstance(width, int):
+        operands.append(
+            module.add_metadata(
+                [
+                    ir.MetaDataString(module, "llvm.loop.vectorize.width"),
+                    ir.Constant(ir.IntType(32), int(width)),
+                ]
+            )
+        )
+
+    if not operands:
+        return False
+
+    terminator.set_metadata("llvm.loop", module.add_metadata(operands))
+    return True

@@ -14,17 +14,17 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-265x numeric loop / SIMD LoopSimdContract owner seam` |
-| Front | `numeric loop / SIMD -> LoopSimdContract proof/policy/lowering seam` |
+| Now | `phase-266x numeric loop / SIMD integer map widening` |
+| Front | `numeric loop / SIMD -> first integer-map actual widening` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `memory-effect layer is complete; the next queue is numeric loop / SIMD contract work` |
+| Blocker | `memory-effect layer is complete; the next queue is numeric loop / SIMD widening work` |
 | Next | `numeric loop / SIMD` |
 | After Next | `closure split` |
 
 ## Current Read
 
   - design owners:
-  - implementation lane: `docs/development/current/main/phases/phase-265x/README.md`
+  - implementation lane: `docs/development/current/main/phases/phase-266x/README.md`
   - next layer landing: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - roadmap SSOT: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`

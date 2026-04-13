@@ -2,9 +2,10 @@
 Lowering helpers for while-control flow (regular structured)
 """
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import llvmlite.ir as ir
 from instructions.safepoint import insert_automatic_safepoint
+from builders.loop_simd_contract import apply_loop_simd_metadata
 
 def lower_while_regular(
     builder: ir.IRBuilder,
@@ -17,6 +18,7 @@ def lower_while_regular(
     resolver,
     preds,
     block_end_values,
+    loop_simd_contract: Optional[Dict[str, Any]] = None,
 ):
     """Create a minimal while in IR: cond -> body -> cond, with exit.
     The body instructions are lowered using the caller's dispatcher.
@@ -81,7 +83,11 @@ def lower_while_regular(
         lower_instruction(bbuild, sub, func)
     # Ensure terminator: if not terminated, branch back to cond
     if bbuild.block.terminator is None:
-        bbuild.branch(cond_bb)
+        backedge = bbuild.branch(cond_bb)
+        try:
+            apply_loop_simd_metadata(func.module, backedge, loop_simd_contract)
+        except Exception:
+            pass
 
     # Continue at exit
     builder.position_at_end(exit_bb)
