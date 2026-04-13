@@ -1,4 +1,4 @@
-Status: ACTIVE
+Status: LANDED
 Phase: 274x
 
 # 274x-90 ThinLTO First Cut SSOT

@@ -23,7 +23,11 @@ from mir_analysis import scan_call_arities
 from builders.numeric_loop_policy import (
     apply_numeric_loop_pass_policy as _apply_numeric_loop_pass_policy,
 )
-from builders.ipo_build_policy import resolve_ipo_build_policy as _resolve_ipo_build_policy
+from builders.ipo_build_policy import (
+    resolve_ipo_build_policy as _resolve_ipo_build_policy,
+    summarize_ipo_contracts as _summarize_ipo_contracts,
+    thinlto_companion_path as _thinlto_companion_path,
+)
 
 from resolver import Resolver
 from mir_reader import build_builder_input
@@ -172,6 +176,8 @@ class NyashLLVMBuilder:
         self.user_box_decls: List[Dict[str, Any]] = []
         self.enum_decls: List[Dict[str, Any]] = []
         self.call_arities: Dict[str, int] = {}
+        self.ipo_callable_contracts_by_function: Dict[str, Dict[int, Dict[str, Any]]] = {}
+        self.ipo_call_edge_contracts_by_function: Dict[str, Dict[int, Dict[str, Any]]] = {}
 
         # Statistics
         self.loop_count = 0
@@ -343,7 +349,11 @@ class NyashLLVMBuilder:
     def compile_to_object(self, output_path: str):
         """Compile module to object file"""
         build_opts = resolve_build_options()
-        ipo_policy = _resolve_ipo_build_policy()
+        ipo_summary = _summarize_ipo_contracts(
+            self.ipo_callable_contracts_by_function,
+            self.ipo_call_edge_contracts_by_function,
+        )
+        ipo_policy = _resolve_ipo_build_policy(ipo_summary)
         # Create target machine
         target = llvm.Target.from_default_triple()
         target_machine = create_target_machine_for_target(
@@ -353,7 +363,8 @@ class NyashLLVMBuilder:
         try:
             trace_debug(
                 f"[Python LLVM] opt-level={build_opts.opt_level} "
-                f"lto_mode={ipo_policy.lto_mode} pgo_mode={ipo_policy.pgo_mode}"
+                f"lto_mode={ipo_policy.lto_mode} pgo_mode={ipo_policy.pgo_mode} "
+                f"thin_candidates={ipo_policy.thinlto_import_candidate_count}"
             )
         except Exception:
             pass
@@ -417,6 +428,11 @@ class NyashLLVMBuilder:
                     trace_debug(f"[Python LLVM] fast IR passes skipped: {_e}")
                 except Exception:
                     pass
+
+        companion_path = _thinlto_companion_path(output_path, ipo_policy)
+        if companion_path is not None:
+            with open(companion_path, 'wb') as f:
+                f.write(mod.as_bitcode())
         
         # Generate object code
         obj = target_machine.emit_object(mod)

@@ -4,11 +4,13 @@
 
 ## Current
 
-- **Current (ACTIVE)**: Phase 274x IPO ThinLTO first cut
+- **Current (ACTIVE)**: Phase 276x IPO PGO generate/use first cut
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
 
 ## Recent Landed
 
+- **Phase 275x（LANDED）**: IPO PGO scaffold
+- **Phase 274x（LANDED）**: IPO ThinLTO first cut
 - **Phase 273x（LANDED）**: IPO callable-edge contract owner seam
 - **Phase 272x（LANDED）**: IPO build-policy owner seam
 - **Phase 271x（LANDED）**: closure split thin-entry specialization owner seam

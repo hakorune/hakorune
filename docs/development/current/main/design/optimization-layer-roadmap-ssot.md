@@ -69,7 +69,9 @@ Owner: `phase-163x optimization-resume`
 9. `IPO / build-time optimization`
    - landed owner seam: LLVM/Python build options now have one shared policy owner before `ThinLTO` / `PGO` widening (`phase272x`)
    - landed owner seam: IPO now owns callable-node facts and call-edge facts before `ThinLTO` or `PGO` consume closure-thin facts (`phase273x`)
-   - current cut: `ThinLTO` first cut consumes the landed build-policy + callable/edge seams (`phase274x`)
+   - landed cut: `ThinLTO` first cut now emits a companion `.thinlto.bc` when thin mode is requested and landed callable/edge seams prove direct-thin import candidates (`phase274x`)
+   - landed owner seam: `PGO` scaffold now has one dedicated owner while generate/use behavior remains disabled (`phase275x`)
+   - current cut: `PGO` generate/use first cut (`phase276x`)
    - `PGO`
    - `ThinLTO`
    - MIR-side semantic layersが先。ここは最後尾
@@ -103,6 +105,6 @@ Owner: `phase-163x optimization-resume`
 
 - immediate code next:
   - `IPO / build-time optimization`
-   - first cut is `ThinLTO` over the landed callable/edge contract seam
+   - first cut is `PGO` generate/use after the landed ThinLTO artifact + PGO scaffold cuts
 - immediate follow-on after that:
-  - `PGO` scaffold
+  - optimization lane closeout judgment

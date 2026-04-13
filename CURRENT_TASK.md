@@ -15,7 +15,7 @@ Scope: current lane / next lane / restart order only.
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/10-Now.md`
 3. `docs/development/current/main/15-Workstream-Map.md`
-4. `docs/development/current/main/phases/phase-274x/README.md`
+4. `docs/development/current/main/phases/phase-276x/README.md`
 5. `docs/development/current/main/phases/phase-163x/README.md`
 6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 7. `git status -sb`
@@ -26,13 +26,13 @@ Scope: current lane / next lane / restart order only.
 - expected worktree:
   - clean
 - active lane:
-  - `phase-274x IPO ThinLTO first cut`
+  - `phase-276x IPO PGO generate/use first cut`
 - sibling guardrail:
   - `phase-137x` string corridor / exact-keeper guardrail
 - immediate next:
   - `IPO / build-time optimization`
 - immediate follow-on:
-  - `PGO scaffold`
+  - `optimization lane closeout judgment`
 - current stop-lines:
   - do not mix lane B with lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
   - do not mix lane B with `generic placement / effect`
@@ -44,7 +44,7 @@ Scope: current lane / next lane / restart order only.
 ## Design Owners
 
 - implementation lane:
-  - `docs/development/current/main/phases/phase-274x/README.md`
+  - `docs/development/current/main/phases/phase-276x/README.md`
 - next layer landing:
   - `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 - roadmap SSOT:
@@ -63,9 +63,9 @@ Scope: current lane / next lane / restart order only.
 ## Current Notes
 
 - latest landed phase:
-  - `phase-273x`: IPO now owns callable-node facts and call-edge facts before any `ThinLTO` wiring
+  - `phase-275x`: PGO scaffold now has a dedicated owner seam while generate/use behavior stays disabled
 - active focus:
-  - `phase-274x`: first narrow `ThinLTO` cut over the landed build-policy + callable/edge seams
+  - `phase-276x`: first PGO generate/use cut after the landed ThinLTO and PGO owner seams
 - pointer rule:
   - `CURRENT_TASK.md` is the only live status pointer
   - `05/10/15` stay thin mirrors only
@@ -74,6 +74,6 @@ Scope: current lane / next lane / restart order only.
 ## Execution Queue
 
 1. `IPO / build-time optimization`
-   - current cut: `ThinLTO` first cut over the landed build-policy + callable/edge contract seams
-   - keep `PGO` artifact generation / use out of this cut
-2. `PGO scaffold`
+   - current cut: `PGO` generate/use first cut over the landed build-policy + callable/edge + ThinLTO + PGO seams
+   - optimization lane closeout judgment comes after this cut
+2. `optimization lane closeout judgment`

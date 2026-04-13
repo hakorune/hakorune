@@ -595,6 +595,21 @@ def _create_function_context(builder, name: str) -> FunctionLowerContext:
     return context
 
 
+def _merge_ipo_contracts_into_builder(builder, context: FunctionLowerContext) -> None:
+    try:
+        builder.ipo_callable_contracts_by_function[context.func_name] = dict(
+            getattr(context, "ipo_callable_contracts", {}) or {}
+        )
+    except Exception:
+        pass
+    try:
+        builder.ipo_call_edge_contracts_by_function[context.func_name] = dict(
+            getattr(context, "ipo_call_edge_contracts", {}) or {}
+        )
+    except Exception:
+        pass
+
+
 def _load_value_types_metadata(builder, func_data: Dict[str, Any]) -> None:
     try:
         metadata = func_data.get("metadata", {})
@@ -968,6 +983,7 @@ def lower_function(builder, func_data: Dict[str, Any]):
     # Finalize PHIs, lower deferred terminators, verify PHI ordering,
     # then synthesize missing terminators / hot summary as non-fatal tail work.
     _run_finalize_tail(builder, func, block_by_id, context)
+    _merge_ipo_contracts_into_builder(builder, context)
 
 
 def _enforce_terminators(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, Any]]):

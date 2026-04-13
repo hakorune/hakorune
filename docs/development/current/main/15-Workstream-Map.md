@@ -14,17 +14,17 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-274x IPO ThinLTO first cut` |
-| Front | `IPO / build-time optimization -> ThinLTO first cut` |
+| Now | `phase-276x IPO PGO generate/use first cut` |
+| Front | `IPO / build-time optimization -> PGO generate/use first cut` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `closure split and IPO callable/edge seams are closed out; the next queue is ThinLTO first cut` |
+| Blocker | `ThinLTO and PGO scaffold are closed out; the next queue is PGO generate/use first cut` |
 | Next | `IPO / build-time optimization` |
-| After Next | `PGO scaffold` |
+| After Next | `optimization lane closeout judgment` |
 
 ## Current Read
 
   - design owners:
-  - implementation lane: `docs/development/current/main/phases/phase-274x/README.md`
+  - implementation lane: `docs/development/current/main/phases/phase-276x/README.md`
   - next layer landing: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - roadmap SSOT: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
@@ -34,7 +34,7 @@ Related:
 ## Immediate Sequence
 
 1. `IPO / build-time optimization`
-2. `PGO scaffold`
+2. `optimization lane closeout judgment`
 
 ## Parked Corridor
 
