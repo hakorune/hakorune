@@ -135,12 +135,15 @@ pub(in crate::mir::builder) fn lower_loop_cond_return_in_body(
         &facts.recipe,
     )?;
 
-    body_plans.push(CorePlan::Exit(parts::exit::build_continue_with_phi_args(
-        builder,
-        &carrier_step_phis,
-        &current_bindings,
-        LOOP_COND_RETURN_IN_BODY_ERR,
-    )?));
+    let body_exits_all_paths = body_plans_exit_on_all_paths(&body_plans);
+    if !body_exits_all_paths {
+        body_plans.push(CorePlan::Exit(parts::exit::build_continue_with_phi_args(
+            builder,
+            &carrier_step_phis,
+            &current_bindings,
+            LOOP_COND_RETURN_IN_BODY_ERR,
+        )?));
+    }
 
     let mut phis = Vec::new();
     let mut final_values = Vec::new();
@@ -149,7 +152,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_return_in_body(
             Some(value) => *value,
             None => continue,
         };
-        if use_header_continue_target {
+        if use_header_continue_target || body_exits_all_paths {
             phis.push(loop_carriers::build_preheader_only_phi_info(
                 header_bb,
                 preheader_bb,
@@ -215,6 +218,35 @@ pub(in crate::mir::builder) fn lower_loop_cond_return_in_body(
         step_mode,
         has_explicit_step,
     }))
+}
+
+fn body_plans_exit_on_all_paths(plans: &[LoweredRecipe]) -> bool {
+    plans.last().is_some_and(plan_exits_on_all_paths)
+}
+
+fn plan_exits_on_all_paths(plan: &LoweredRecipe) -> bool {
+    match plan {
+        CorePlan::Exit(_) => true,
+        CorePlan::If(if_plan) => {
+            body_plans_exit_on_all_paths(&if_plan.then_plans)
+                && if_plan
+                    .else_plans
+                    .as_ref()
+                    .is_some_and(|plans| body_plans_exit_on_all_paths(plans))
+        }
+        CorePlan::BranchN(branch) => {
+            branch
+                .arms
+                .iter()
+                .all(|arm| body_plans_exit_on_all_paths(&arm.plans))
+                && branch
+                    .else_plans
+                    .as_ref()
+                    .is_some_and(|plans| body_plans_exit_on_all_paths(plans))
+        }
+        CorePlan::Seq(inner) => body_plans_exit_on_all_paths(inner),
+        CorePlan::Effect(_) | CorePlan::Loop(_) => false,
+    }
 }
 
 fn collect_carrier_vars_from_condition(builder: &MirBuilder, condition: &ASTNode) -> Vec<String> {

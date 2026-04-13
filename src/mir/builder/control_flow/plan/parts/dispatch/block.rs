@@ -136,6 +136,9 @@ pub(super) fn lower_block_internal<'a>(
                     stmt,
                     error_prefix,
                 )?);
+                if plans_exit_on_all_paths(&plans) {
+                    break;
+                }
             }
 
             Ok(plans)
@@ -226,6 +229,9 @@ pub(super) fn lower_block_internal<'a>(
                             error_prefix
                         ));
                     }
+                }
+                if plans_exit_on_all_paths(&plans) {
+                    break;
                 }
             }
 
@@ -378,6 +384,9 @@ pub(super) fn lower_exit_allowed_block(
             item,
             error_prefix,
         )?);
+        if plans_exit_on_all_paths(&plans) {
+            break;
+        }
     }
 
     Ok(plans)

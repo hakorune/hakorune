@@ -5,6 +5,7 @@ use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     extract_loop_increment_plan, has_break_statement, has_continue_statement,
     has_if_else_statement, has_return_statement,
 };
+use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::policies::loop_simple_while_subset_policy::is_loop_simple_while_step_only_body;
 
@@ -28,6 +29,12 @@ pub(in crate::mir::builder) fn try_extract_loop_simple_while_facts(
     }
 
     if has_if_else_statement(body) {
+        return Ok(None);
+    }
+
+    // loop_simple_while recipe rebuilds the body from the increment stmt only.
+    // Nested loops must stay on nested/generic routes so inner control flow is preserved.
+    if detect_nested_loop(body) {
         return Ok(None);
     }
 
@@ -101,4 +108,65 @@ fn is_increment_step_one(loop_increment: &ASTNode, loop_var: &str) -> bool {
             ..
         }
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::try_extract_loop_simple_while_facts;
+    use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
+
+    fn lit_int(value: i64) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            span: Span::unknown(),
+        }
+    }
+
+    fn var(name: &str) -> ASTNode {
+        ASTNode::Variable {
+            name: name.to_string(),
+            span: Span::unknown(),
+        }
+    }
+
+    fn cond_lt(name: &str, rhs: i64) -> ASTNode {
+        ASTNode::BinaryOp {
+            operator: BinaryOperator::Less,
+            left: Box::new(var(name)),
+            right: Box::new(lit_int(rhs)),
+            span: Span::unknown(),
+        }
+    }
+
+    fn inc_stmt(name: &str) -> ASTNode {
+        ASTNode::Assignment {
+            target: Box::new(var(name)),
+            value: Box::new(ASTNode::BinaryOp {
+                operator: BinaryOperator::Add,
+                left: Box::new(var(name)),
+                right: Box::new(lit_int(1)),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        }
+    }
+
+    #[test]
+    fn loop_simple_while_facts_reject_nested_loop_even_when_step_exists() {
+        let condition = cond_lt("i", 3);
+        let body = vec![
+            ASTNode::Loop {
+                condition: Box::new(cond_lt("j", 2)),
+                body: vec![ASTNode::Return {
+                    value: Some(Box::new(lit_int(0))),
+                    span: Span::unknown(),
+                }],
+                span: Span::unknown(),
+            },
+            inc_stmt("i"),
+        ];
+
+        let facts = try_extract_loop_simple_while_facts(&condition, &body).expect("ok");
+        assert!(facts.is_none());
+    }
 }

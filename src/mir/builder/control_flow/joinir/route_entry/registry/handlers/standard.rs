@@ -1,4 +1,5 @@
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
+use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::plan::observability::flowbox_tags::FlowboxVia;
 use crate::mir::builder::control_flow::plan::planner::PlanBuildOutcome;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
@@ -37,6 +38,9 @@ pub(crate) fn route_loop_simple_while(
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
+    if detect_nested_loop(ctx.body) {
+        return Ok(None);
+    }
     const ENTRY: StandardEntry = StandardEntry {
         route_label: planner_rule_route_label(PlanRuleId::LoopSimpleWhile),
         missing_contract_msg: "LoopSimpleWhile requires recipe_contract in planner_required mode",
@@ -275,4 +279,3 @@ pub(crate) fn route_loop_bundle_resolver_v0(
     };
     route_standard(builder, ctx, outcome, env, &ENTRY)
 }
-

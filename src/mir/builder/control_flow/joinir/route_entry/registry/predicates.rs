@@ -17,6 +17,9 @@ pub(crate) fn pred_loop_simple_while(facts: &CanonicalLoopFacts) -> bool {
     if facts.facts.loop_simple_while().is_none() {
         return false;
     }
+    if facts.nested_loop {
+        return false;
+    }
     // Keep scan-methods families on their dedicated routes.
     // Otherwise loop_simple_while can over-capture nested scan loops and produce
     // unstable step wiring (seen in selfhost scan_methods nested fixtures).

@@ -96,6 +96,7 @@ impl super::PlanLowerer {
 
         let trace_logger = trace::trace();
         let debug = ctx.debug;
+        let pre_loop_map = builder.variable_ctx.variable_map.clone();
 
         // Phase 6: Prepare loop entry (preheader, body flattening, jump to entry)
         // SSOT: Delegated to loop_preparation::prepare_loop_entry()
@@ -195,6 +196,10 @@ impl super::PlanLowerer {
         loop_completion::emit_loop_frag(builder, &mut session, &frag, &loop_plan, ctx)?;
 
         // Steps 6-8: Finalize variables and return Void
+        // Restore the outer lexical map before reapplying loop final_values.
+        // Loop-body locals must not leak past after_bb just because their defs
+        // were materialized while lowering the loop body.
+        builder.variable_ctx.variable_map = pre_loop_map;
         // SSOT: Delegated to loop_completion::finalize_loop_variables()
         let out = loop_completion::finalize_loop_variables(
             builder,

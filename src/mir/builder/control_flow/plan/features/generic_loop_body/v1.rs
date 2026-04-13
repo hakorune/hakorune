@@ -85,6 +85,9 @@ pub(in crate::mir::builder) fn lower_generic_loop_v1_body(
                     ctx,
                 )?;
                 body_plans.extend(plans);
+                if body_plans_exit_on_all_paths(&body_plans) {
+                    break;
+                }
             }
             body_plans
         }
@@ -105,11 +108,14 @@ pub(in crate::mir::builder) fn lower_generic_loop_v1_body(
                 ctx,
             )?;
             body_plans.extend(plans);
+            if body_plans_exit_on_all_paths(&body_plans) {
+                break;
+            }
         }
         body_plans
     };
 
-    if !matches!(body_plans.last(), Some(CorePlan::Exit(_))) {
+    if !body_plans_exit_on_all_paths(&body_plans) {
         body_plans.push(CorePlan::Exit(parts::exit::build_continue_with_phi_args(
             builder,
             carrier_step_phis,
@@ -260,6 +266,9 @@ fn lower_body_stmt_v1(
                     ctx,
                 )?;
                 body_plans.extend(plans);
+                if body_plans_exit_on_all_paths(&body_plans) {
+                    break;
+                }
             }
             Ok(body_plans)
         }
@@ -348,6 +357,9 @@ fn try_lower_blockexpr_loop_prelude_value(
             ctx,
         )?;
         plans.append(&mut stmt_plans);
+        if body_plans_exit_on_all_paths(&plans) {
+            break;
+        }
     }
 
     let (tail_id, tail_effects) =
@@ -723,8 +735,40 @@ fn lower_body_block_v1(
             ctx,
         )?;
         body_plans.extend(plans);
+        if body_plans_exit_on_all_paths(&body_plans) {
+            break;
+        }
     }
     Ok(body_plans)
+}
+
+fn body_plans_exit_on_all_paths(plans: &[LoweredRecipe]) -> bool {
+    plans.last().is_some_and(plan_exits_on_all_paths)
+}
+
+fn plan_exits_on_all_paths(plan: &LoweredRecipe) -> bool {
+    match plan {
+        CorePlan::Exit(_) => true,
+        CorePlan::If(if_plan) => {
+            body_plans_exit_on_all_paths(&if_plan.then_plans)
+                && if_plan
+                    .else_plans
+                    .as_ref()
+                    .is_some_and(|plans| body_plans_exit_on_all_paths(plans))
+        }
+        CorePlan::BranchN(branch) => {
+            branch
+                .arms
+                .iter()
+                .all(|arm| body_plans_exit_on_all_paths(&arm.plans))
+                && branch
+                    .else_plans
+                    .as_ref()
+                    .is_some_and(|plans| body_plans_exit_on_all_paths(plans))
+        }
+        CorePlan::Seq(inner) => body_plans_exit_on_all_paths(inner),
+        CorePlan::Effect(_) | CorePlan::Loop(_) => false,
+    }
 }
 
 fn lower_exit_stmt_v1(

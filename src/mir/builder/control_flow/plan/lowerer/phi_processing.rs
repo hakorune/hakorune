@@ -136,19 +136,10 @@ pub fn merge_deferred_phi_inputs(
                     continue;
                 };
 
-                // LoopTrueBreak routes seed after-merge PHIs with a placeholder
-                // predecessor before concrete break exits are known. When every
-                // real break exit comes from different predecessors, drop the
-                // placeholder input before merging to avoid non-predecessor PHIs.
-                if phi.tag.starts_with("loop_true_after_")
-                    && !inputs_by_pred.is_empty()
-                    && !phi
-                        .inputs
-                        .iter()
-                        .any(|(pred, _)| inputs_by_pred.contains_key(pred))
-                {
-                    phi.inputs.clear();
-                }
+                // LoopTrueBreak routes seed after-merge PHIs with the structural
+                // header->after edge. Keep that seed: even for `loop(true)` the
+                // false branch remains a real CFG predecessor of after_bb.
+                // Concrete break exits are appended below.
 
                 for (pred, val) in inputs_by_pred {
                     if !phi.inputs.iter().any(|(p, _)| p == pred) {

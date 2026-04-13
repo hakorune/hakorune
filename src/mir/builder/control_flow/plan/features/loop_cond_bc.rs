@@ -248,36 +248,39 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
         body_entry_bindings.values().copied().collect();
     let mut body_defined_values = BTreeSet::new();
     collect_defined_values_from_plans(&body_plans, &mut body_defined_values);
+    let body_exits_all_paths = body_plans_exit_on_all_paths(&body_plans);
 
     // Fallthrough at end-of-body: explicit backedge with carrier values.
     // Use a pred-local snapshot so step-join inputs come from the current block.
-    let mut fallthrough_bindings = current_bindings.clone();
-    for (name, _) in &carrier_step_phis {
-        let selected = builder
-            .variable_ctx
-            .variable_map
-            .get(name)
-            .copied()
-            .and_then(|candidate| {
-                if body_defined_values.contains(&candidate)
-                    || body_entry_values.contains(&candidate)
-                {
-                    Some(candidate)
-                } else {
-                    body_entry_bindings.get(name).copied()
-                }
-            })
-            .or_else(|| body_entry_bindings.get(name).copied());
-        if let Some(value_id) = selected {
-            fallthrough_bindings.insert(name.clone(), value_id);
+    if !body_exits_all_paths {
+        let mut fallthrough_bindings = current_bindings.clone();
+        for (name, _) in &carrier_step_phis {
+            let selected = builder
+                .variable_ctx
+                .variable_map
+                .get(name)
+                .copied()
+                .and_then(|candidate| {
+                    if body_defined_values.contains(&candidate)
+                        || body_entry_values.contains(&candidate)
+                    {
+                        Some(candidate)
+                    } else {
+                        body_entry_bindings.get(name).copied()
+                    }
+                })
+                .or_else(|| body_entry_bindings.get(name).copied());
+            if let Some(value_id) = selected {
+                fallthrough_bindings.insert(name.clone(), value_id);
+            }
         }
+        body_plans.push(CorePlan::Exit(parts::exit::build_continue_with_phi_args(
+            builder,
+            &carrier_step_phis,
+            &fallthrough_bindings,
+            LOOP_COND_ERR,
+        )?));
     }
-    body_plans.push(CorePlan::Exit(parts::exit::build_continue_with_phi_args(
-        builder,
-        &carrier_step_phis,
-        &fallthrough_bindings,
-        LOOP_COND_ERR,
-    )?));
 
     let mut phis = Vec::new();
     let mut final_values = Vec::new();
@@ -289,7 +292,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
         let Some(after_phi_dst) = break_phi_dsts.get(var).copied() else {
             continue;
         };
-        if use_header_continue_target {
+        if use_header_continue_target || body_exits_all_paths {
             // Header PHI: init + per-edge continue inputs (filled later by ContinueWithPhiArgs).
             phis.push(loop_carriers::build_preheader_only_phi_info(
                 header_bb,
@@ -402,6 +405,35 @@ pub(super) fn sync_carrier_bindings(
         if let Some(value_id) = builder.variable_ctx.variable_map.get(name) {
             current_bindings.insert(name.clone(), *value_id);
         }
+    }
+}
+
+fn body_plans_exit_on_all_paths(plans: &[LoweredRecipe]) -> bool {
+    plans.last().is_some_and(plan_exits_on_all_paths)
+}
+
+fn plan_exits_on_all_paths(plan: &LoweredRecipe) -> bool {
+    match plan {
+        CorePlan::Exit(_) => true,
+        CorePlan::If(if_plan) => {
+            body_plans_exit_on_all_paths(&if_plan.then_plans)
+                && if_plan
+                    .else_plans
+                    .as_ref()
+                    .is_some_and(|plans| body_plans_exit_on_all_paths(plans))
+        }
+        CorePlan::BranchN(branch) => {
+            branch
+                .arms
+                .iter()
+                .all(|arm| body_plans_exit_on_all_paths(&arm.plans))
+                && branch
+                    .else_plans
+                    .as_ref()
+                    .is_some_and(|plans| body_plans_exit_on_all_paths(plans))
+        }
+        CorePlan::Seq(inner) => body_plans_exit_on_all_paths(inner),
+        CorePlan::Effect(_) | CorePlan::Loop(_) => false,
     }
 }
 

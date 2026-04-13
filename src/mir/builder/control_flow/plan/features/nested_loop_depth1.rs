@@ -31,7 +31,8 @@ pub(in crate::mir::builder) fn lower_nested_loop_depth1_any(
     detector.count_returns = true;
     let counts = count_control_flow(body, detector);
     let no_break_or_continue = counts.break_count == 0 && counts.continue_count == 0;
-    if no_break_or_continue {
+    let return_only_nested = no_break_or_continue && counts.return_count > 0;
+    if no_break_or_continue && !return_only_nested {
         if let Ok(Some(facts)) = try_extract_generic_loop_v1_facts(condition, body) {
             let ctx = LoopRouteContext::new(condition, body, "<nested>", false, false);
             let plan = normalize_generic_loop_v1(builder, &facts, &ctx)?;
@@ -69,10 +70,12 @@ pub(in crate::mir::builder) fn lower_nested_loop_depth1_any(
     } {
         Ok(Some(facts)) => facts,
         Ok(None) => {
-            if let Ok(Some(facts)) = try_extract_generic_loop_v1_facts(condition, body) {
-                let ctx = LoopRouteContext::new(condition, body, "<nested>", false, false);
-                let plan = normalize_generic_loop_v1(builder, &facts, &ctx)?;
-                return Ok(mark_nested_loop_preheader_fresh(builder, plan));
+            if !return_only_nested {
+                if let Ok(Some(facts)) = try_extract_generic_loop_v1_facts(condition, body) {
+                    let ctx = LoopRouteContext::new(condition, body, "<nested>", false, false);
+                    let plan = normalize_generic_loop_v1(builder, &facts, &ctx)?;
+                    return Ok(mark_nested_loop_preheader_fresh(builder, plan));
+                }
             }
             if !nested_loop_allows_single_planner(condition, body) {
                 if debug_enabled {

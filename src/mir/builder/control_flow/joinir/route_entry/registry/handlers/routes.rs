@@ -3,6 +3,7 @@ use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
 use crate::mir::builder::control_flow::plan::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::plan::planner::PlanBuildOutcome;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
+use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::plan::single_planner::{
     planner_rule_route_label, PlanRuleId,
 };
@@ -196,6 +197,9 @@ pub(crate) fn route_loop_simple_while(
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
+    if detect_nested_loop(ctx.body) {
+        return Ok(None);
+    }
     const ENTRY: StandardEntry = StandardEntry {
         route_label: planner_rule_route_label(PlanRuleId::LoopSimpleWhile),
         missing_contract_msg: "LoopSimpleWhile requires recipe_contract in planner_required mode",
