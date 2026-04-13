@@ -1,6 +1,6 @@
 # Phase 264x SSOT — numeric loop reduction recognition proof seam
 
-Status: ACTIVE
+Status: LANDED
 Date: 2026-04-13
 Scope: conservative reduction candidate recognition for simple while plans.
 
@@ -23,4 +23,4 @@ Scope: conservative reduction candidate recognition for simple while plans.
 ## Next
 
 - widen only when a concrete numeric-loop or SIMD proof justifies it.
-- keep SIMD widening as the next follow-on slice after this proof seam.
+- keep actual SIMD widening as the next follow-on slice after the LoopSimdContract owner seam.

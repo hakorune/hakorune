@@ -1,4 +1,4 @@
-Status: ACTIVE
+Status: LANDED
 Owner: Codex
 Phase: 264x
 
@@ -19,7 +19,13 @@ Phase: 264x
   - header-carried accumulator candidates that are not part of the compare operands
 - SIMD widening / fast-math / FMA remain out of scope for this cut
 
+## Closeout
+
+- reduction-recognition proof seam is closed out at this boundary
+- next follow-on is the LoopSimdContract owner seam
+- actual SIMD widening remains a separate cut
+
 ## Next
 
 - only widen when a concrete numeric-loop or SIMD proof justifies a new knob
-- keep SIMD widening as the next follow-on slice after this reduction proof seam
+- keep actual SIMD widening under the next LoopSimdContract-owned slice

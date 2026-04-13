@@ -1,6 +1,6 @@
 # Phase 264x Task Board
 
-Status: ACTIVE
+Status: LANDED
 
 ## Done
 
@@ -11,5 +11,5 @@ Status: ACTIVE
 
 ## Next
 
-- [ ] keep SIMD widening out of this proof seam
-- [ ] widen only when a concrete numeric-loop or SIMD proof justifies it
+- [x] keep SIMD widening out of this proof seam
+- [x] widen only when a concrete numeric-loop or SIMD proof justifies it

@@ -15,7 +15,7 @@ Scope: current lane / next lane / restart order only.
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/10-Now.md`
 3. `docs/development/current/main/15-Workstream-Map.md`
-4. `docs/development/current/main/phases/phase-264x/README.md`
+4. `docs/development/current/main/phases/phase-265x/README.md`
 5. `docs/development/current/main/phases/phase-163x/README.md`
 6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 7. `git status -sb`
@@ -26,7 +26,7 @@ Scope: current lane / next lane / restart order only.
 - expected worktree:
   - clean
 - active lane:
-  - `phase-264x numeric loop / SIMD reduction recognition proof seam`
+  - `phase-265x numeric loop / SIMD LoopSimdContract owner seam`
 - sibling guardrail:
   - `phase-137x` string corridor / exact-keeper guardrail
 - immediate next:
@@ -44,7 +44,7 @@ Scope: current lane / next lane / restart order only.
 ## Design Owners
 
 - implementation lane:
-  - `docs/development/current/main/phases/phase-263x/README.md`
+  - `docs/development/current/main/phases/phase-265x/README.md`
 - next layer landing:
   - `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 - roadmap SSOT:
@@ -72,7 +72,8 @@ Scope: current lane / next lane / restart order only.
 - `phase-261x` is landed: the first runtime helper LLVM attrs policy seam is done and closed out
 - `phase-262x` is landed: the first numeric-loop / SIMD policy seam is closed out
 - `phase-263x` is landed: the first numeric-loop induction proof seam is closed out
-- `phase-264x` is active: the first numeric-loop reduction recognition proof seam is the current cut
+- `phase-264x` is landed: the first numeric-loop reduction recognition proof seam is closed out
+- `phase-265x` is active: the next cut is the LoopSimdContract owner seam and docs-only contract pin
 - explicit scope-exit timeout surfacing is parked while the optimization lane hands off to `numeric loop / SIMD`
 - the next code lane is now `numeric loop / SIMD`
 - `CURRENT_TASK.md` is the only live status pointer; `05/10/15` are thin mirrors only
@@ -81,6 +82,6 @@ Scope: current lane / next lane / restart order only.
 ## Execution Queue
 
 1. `numeric loop / SIMD`
-   - current cut: simple-while numeric reduction recognition proof seam over loop prepass plans
-   - keep SIMD widening / fast-math / FMA out of this proof seam
+   - current cut: LoopSimdContract owner seam over numeric loop proof / policy / lowering boundaries
+   - keep actual widening / fast-math / FMA out of this seam
 2. `closure split`
