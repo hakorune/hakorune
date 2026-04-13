@@ -12,18 +12,18 @@ Related:
 
 ## Current
 
-- current implementation lane: `phase276x IPO PGO generate/use first cut`
+- current implementation lane: `phase277x optimization lane closeout judgment`
 - sibling guardrail lane: `phase137x main kilo reopen selection`
-- immediate next: `IPO / build-time optimization`
-- immediate follow-on: `optimization lane closeout judgment`
-- top queued cut: `IPO / build-time optimization`
+- immediate next: `optimization lane closeout judgment`
+- immediate follow-on: `post-optimization roadmap refresh`
+- top queued cut: `optimization lane closeout judgment`
 
 ## Landing Snapshot
 
 - latest landed:
-  - `phase275x`: PGO scaffold now has a dedicated owner seam while generate/use behavior stays disabled
+  - `phase276x`: PGO now resolves first generate/use artifacts and emits a `.pgo.json` sidecar while keeping LLVM-side instrumentation/use out of scope
 - active:
-  - `phase276x`: first PGO generate/use cut now sits on top of the landed build-policy, callable/edge, ThinLTO, and PGO seams
+  - `phase277x`: optimization lane closeout judgment after the landed IPO cuts
 - detail owner:
   - landed history stays in phase docs and roadmap SSOT
 
@@ -32,7 +32,7 @@ Related:
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
 3. `docs/reference/concurrency/semantics.md`
-4. `docs/development/current/main/phases/phase-276x/README.md`
+4. `docs/development/current/main/phases/phase-277x/README.md`
 5. `docs/development/current/main/phases/phase-163x/README.md`
 6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 

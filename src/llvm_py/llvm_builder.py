@@ -28,6 +28,10 @@ from builders.ipo_build_policy import (
     summarize_ipo_contracts as _summarize_ipo_contracts,
     thinlto_companion_path as _thinlto_companion_path,
 )
+from builders.pgo_build_policy import (
+    resolve_pgo_build_policy as _resolve_pgo_build_policy,
+    pgo_sidecar_path as _pgo_sidecar_path,
+)
 
 from resolver import Resolver
 from mir_reader import build_builder_input
@@ -353,7 +357,8 @@ class NyashLLVMBuilder:
             self.ipo_callable_contracts_by_function,
             self.ipo_call_edge_contracts_by_function,
         )
-        ipo_policy = _resolve_ipo_build_policy(ipo_summary)
+        ipo_policy = _resolve_ipo_build_policy(ipo_summary, output_path=output_path)
+        pgo_policy = _resolve_pgo_build_policy(output_path=output_path)
         # Create target machine
         target = llvm.Target.from_default_triple()
         target_machine = create_target_machine_for_target(
@@ -433,6 +438,21 @@ class NyashLLVMBuilder:
         if companion_path is not None:
             with open(companion_path, 'wb') as f:
                 f.write(mod.as_bitcode())
+        pgo_manifest_path = _pgo_sidecar_path(output_path, pgo_policy)
+        if pgo_manifest_path is not None:
+            with open(pgo_manifest_path, 'w', encoding='utf-8') as f:
+                json.dump(
+                    {
+                        "phase": pgo_policy.phase,
+                        "producer": pgo_policy.producer,
+                        "artifact": pgo_policy.artifact,
+                        "exclusion": pgo_policy.exclusion,
+                        "hotness_feed": pgo_policy.hotness_feed,
+                    },
+                    f,
+                    sort_keys=True,
+                    indent=2,
+                )
         
         # Generate object code
         obj = target_machine.emit_object(mod)

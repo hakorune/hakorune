@@ -1,4 +1,4 @@
-Status: ACTIVE
+Status: LANDED
 Owner: Codex
 Phase: 276x
 
@@ -6,9 +6,9 @@ Phase: 276x
 
 ## Summary
 
-- continue `IPO / build-time optimization` with the first `PGO` generate/use cut
-- keep the cut narrow and default-safe
-- keep optimization lane closeout after this cut
+- landed the first `PGO` generate/use cut
+- kept the cut narrow and default-safe
+- kept LLVM-side instrumentation/use out of scope
 
 ## Current Cut
 
@@ -16,7 +16,10 @@ Phase: 276x
 - `phase273x` landed `IpoCallableContract` / `IpoCallEdgeContract`
 - `phase274x` landed the first narrow `ThinLTO` artifact cut
 - `phase275x` landed the shared `PGO` scaffold owner seam
-- this phase should add the first generate/use cut without widening beyond the current IPO lane
+- this phase landed the first generate/use cut without widening beyond the current IPO lane
+- `generate` now resolves a `.profraw` artifact path
+- `use` now accepts an existing indexed profile path
+- compile now emits a `.pgo.json` sidecar describing the current generate/use artifact decision
 
 ## Next
 

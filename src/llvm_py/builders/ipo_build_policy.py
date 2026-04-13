@@ -70,7 +70,10 @@ def _requested_lto_mode() -> str:
     return "off"
 
 
-def resolve_ipo_build_policy(module_summary: Optional[Mapping[str, int]] = None) -> IpoBuildPolicy:
+def resolve_ipo_build_policy(
+    module_summary: Optional[Mapping[str, int]] = None,
+    output_path: Optional[str] = None,
+) -> IpoBuildPolicy:
     """Return the current IPO build policy.
 
     Phase274x keeps default behavior unchanged. `ThinLTO` only becomes active
@@ -87,7 +90,7 @@ def resolve_ipo_build_policy(module_summary: Optional[Mapping[str, int]] = None)
 
     return IpoBuildPolicy(
         lto_mode=lto_mode,
-        pgo_mode=resolve_pgo_build_policy().phase,
+        pgo_mode=resolve_pgo_build_policy(output_path=output_path).phase,
         thinlto_import_candidate_count=thin_candidate_count,
     )
 
