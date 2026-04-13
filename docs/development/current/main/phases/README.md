@@ -9,6 +9,7 @@
 
 ## Recent Landed
 
+- **Phase 256x（LANDED）**: SimplifyCFG trivial-PHI-target jump threading
 - **Phase 249x（LANDED）**: sibling failure runtime wiring
 - **Phase 248x（LANDED）**: sibling-failure policy pin
 - **Phase 247x（LANDED）**: detached / root-scope policy pin

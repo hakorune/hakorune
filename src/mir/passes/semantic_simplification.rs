@@ -5,7 +5,8 @@
  * simplification lane. The first cut only bundled landed DCE/CSE behavior.
  * The current cut adds the first narrow structural `SimplifyCFG` slice,
  * including copied-constant branch folding, constant compare folding, and
- * empty trampoline jump-threading before CFG merge.
+ * empty trampoline jump-threading, including the trivial-PHI target rewrite
+ * cut, before CFG merge.
  */
 
 use crate::mir::{optimizer_stats::OptimizationStats, MirModule};

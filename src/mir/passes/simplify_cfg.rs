@@ -6,7 +6,8 @@
  * - fold constant `Compare` instructions to `Const Bool`, then let branch
  *   folding consume the resulting value
  * - thread a branch arm through an empty jump trampoline when the final target
- *   has no PHIs
+ *   has no PHIs, or only PHIs that can be trivially rewritten from the
+ *   trampoline predecessor to the branching block
  * - merge `pred -> middle` only for a direct `Jump`
  * - `middle` must be reachable, non-entry, have exactly one predecessor, and
  *   carry only trivial single-input PHIs from that predecessor
@@ -48,8 +49,10 @@ fn simplify_function(function: &mut MirFunction) -> usize {
             simplified += 1;
             continue;
         }
-        if let Some((block_id, arm, target)) = find_threadable_branch_jump(function) {
-            thread_branch_arm(function, block_id, arm, target);
+        if let Some((block_id, arm, middle_id, target, rewrite_phi)) =
+            find_threadable_branch_jump(function)
+        {
+            thread_branch_arm(function, block_id, arm, middle_id, target, rewrite_phi);
             simplified += 1;
             continue;
         }
@@ -238,7 +241,7 @@ fn fold_constant_branch(
 
 fn find_threadable_branch_jump(
     function: &MirFunction,
-) -> Option<(BasicBlockId, ThreadArm, BasicBlockId)> {
+) -> Option<(BasicBlockId, ThreadArm, BasicBlockId, BasicBlockId, bool)> {
     let reachable_blocks = crate::mir::verification::utils::compute_reachable_blocks(function);
 
     for block_id in function.block_ids() {
@@ -258,21 +261,25 @@ fn find_threadable_branch_jump(
             continue;
         };
 
-        if let Some(target) = threadable_jump_target(function, *then_bb, then_edge_args.as_ref()) {
+        if let Some((target, rewrite_phi)) =
+            threadable_jump_target(function, block_id, *then_bb, then_edge_args.as_ref())
+        {
             if target != *else_bb {
-                return Some((block_id, ThreadArm::Then, target));
+                return Some((block_id, ThreadArm::Then, *then_bb, target, rewrite_phi));
             }
-            if *else_edge_args == None {
-                return Some((block_id, ThreadArm::Then, target));
+            if !rewrite_phi && *else_edge_args == None {
+                return Some((block_id, ThreadArm::Then, *then_bb, target, rewrite_phi));
             }
         }
 
-        if let Some(target) = threadable_jump_target(function, *else_bb, else_edge_args.as_ref()) {
+        if let Some((target, rewrite_phi)) =
+            threadable_jump_target(function, block_id, *else_bb, else_edge_args.as_ref())
+        {
             if target != *then_bb {
-                return Some((block_id, ThreadArm::Else, target));
+                return Some((block_id, ThreadArm::Else, *else_bb, target, rewrite_phi));
             }
-            if *then_edge_args == None {
-                return Some((block_id, ThreadArm::Else, target));
+            if !rewrite_phi && *then_edge_args == None {
+                return Some((block_id, ThreadArm::Else, *else_bb, target, rewrite_phi));
             }
         }
     }
@@ -282,9 +289,10 @@ fn find_threadable_branch_jump(
 
 fn threadable_jump_target(
     function: &MirFunction,
+    pred_id: BasicBlockId,
     middle_id: BasicBlockId,
     edge_args: Option<&crate::mir::EdgeArgs>,
-) -> Option<BasicBlockId> {
+) -> Option<(BasicBlockId, bool)> {
     if edge_args.is_some() {
         return None;
     }
@@ -310,54 +318,98 @@ fn threadable_jump_target(
 
     let final_block = function.blocks.get(target)?;
     if final_block.phi_instructions().next().is_some() {
-        return None;
+        if middle_block.predecessors.len() != 1 || !middle_block.predecessors.contains(&pred_id) {
+            return None;
+        }
+        if !can_rewrite_threaded_phi_predecessor(final_block, middle_id, pred_id) {
+            return None;
+        }
+        return Some((*target, true));
     }
 
-    Some(*target)
+    Some((*target, false))
 }
 
 fn thread_branch_arm(
     function: &mut MirFunction,
     block_id: BasicBlockId,
     arm: ThreadArm,
+    middle_id: BasicBlockId,
     target: BasicBlockId,
+    rewrite_phi: bool,
 ) {
-    let block = function
-        .blocks
-        .get_mut(&block_id)
-        .expect("threading block must exist");
-    let MirInstruction::Branch {
-        then_bb,
-        else_bb,
-        then_edge_args,
-        else_edge_args,
-        ..
-    } = block
-        .terminator
-        .as_mut()
-        .expect("threading block must terminate")
-    else {
-        return;
-    };
+    {
+        let block = function
+            .blocks
+            .get_mut(&block_id)
+            .expect("threading block must exist");
+        let MirInstruction::Branch {
+            then_bb,
+            else_bb,
+            then_edge_args,
+            else_edge_args,
+            ..
+        } = block
+            .terminator
+            .as_mut()
+            .expect("threading block must terminate")
+        else {
+            return;
+        };
 
-    match arm {
-        ThreadArm::Then => {
-            *then_bb = target;
+        match arm {
+            ThreadArm::Then => {
+                *then_bb = target;
+            }
+            ThreadArm::Else => {
+                *else_bb = target;
+            }
         }
-        ThreadArm::Else => {
-            *else_bb = target;
+
+        if *then_bb == *else_bb && then_edge_args == else_edge_args {
+            let target = *then_bb;
+            let edge_args = then_edge_args.clone();
+            block.set_terminator(MirInstruction::Jump { target, edge_args });
+        } else {
+            block.successors = block.successors_from_terminator();
         }
     }
 
-    if *then_bb == *else_bb && then_edge_args == else_edge_args {
-        let target = *then_bb;
-        let edge_args = then_edge_args.clone();
-        block.set_terminator(MirInstruction::Jump { target, edge_args });
-    } else {
-        block.successors = block.successors_from_terminator();
+    if rewrite_phi {
+        rewrite_phi_predecessor(function, middle_id, block_id);
     }
 
     function.update_cfg();
+}
+
+fn can_rewrite_threaded_phi_predecessor(
+    final_block: &BasicBlock,
+    old_predecessor: BasicBlockId,
+    new_predecessor: BasicBlockId,
+) -> bool {
+    let mut saw_phi = false;
+    for instruction in final_block.phi_instructions() {
+        let MirInstruction::Phi { inputs, .. } = instruction else {
+            unreachable!("phi_instructions() must yield only PHI instructions");
+        };
+        let mut saw_old = false;
+        for (incoming_block, _) in inputs {
+            if *incoming_block == new_predecessor {
+                return false;
+            }
+            if *incoming_block == old_predecessor {
+                if saw_old {
+                    return false;
+                }
+                saw_old = true;
+            }
+        }
+        if !saw_old {
+            return false;
+        }
+        saw_phi = true;
+    }
+    saw_phi
 }
 
 fn find_single_predecessor_jump_merge(

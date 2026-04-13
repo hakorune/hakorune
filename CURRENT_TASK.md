@@ -15,7 +15,7 @@ Scope: current lane / next lane / restart order only.
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/10-Now.md`
 3. `docs/development/current/main/15-Workstream-Map.md`
-4. `docs/development/current/main/phases/phase-255x/README.md`
+4. `docs/development/current/main/phases/phase-256x/README.md`
 5. `docs/development/current/main/phases/phase-163x/README.md`
 6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 7. `git status -sb`
@@ -64,8 +64,8 @@ Scope: current lane / next lane / restart order only.
 
 - concurrency manuals are now re-pointed to the current `task_scope` / `joinAll()` / `failureReport()` owners
 - `phase-255x` is landed: `joinAll()` now returns `Err(TaskJoinTimeout: timed out after Nms)` when its bounded join hits deadline without a latched first failure
-- next concurrency follow-on is explicit scope-exit timeout surfacing; aggregate-on-exit remains later
-- current semantic simplification cut now includes empty-trampoline jump threading after copied-constant `Branch` and constant `Compare` folds
+- `phase-256x` is landed: `SimplifyCFG` now threads a branch arm through an empty jump trampoline into a final block when its PHIs can be trivially rewritten from the trampoline predecessor to the branching block
+- explicit scope-exit timeout surfacing is parked while the active code lane stays on `semantic simplification bundle`
 - the next code lane is now `semantic simplification bundle`
 - `CURRENT_TASK.md` is the only live status pointer; `05/10/15` are thin mirrors only
 - if this file grows again, move the detail back into the phase docs

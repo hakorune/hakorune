@@ -300,6 +300,11 @@ fn simplifies_jump_block_and_rewrites_successor_phi_inputs() {
     }
 
     let mut then_bridge = BasicBlock::new(BasicBlockId(1));
+    then_bridge.instructions.push(MirInstruction::Debug {
+        value: ValueId(0),
+        message: "keep bridge merge-focused".to_string(),
+    });
+    then_bridge.instruction_spans.push(Span::unknown());
     then_bridge.set_terminator(MirInstruction::Jump {
         target: BasicBlockId(2),
         edge_args: None,
@@ -377,10 +382,16 @@ fn simplifies_jump_block_and_rewrites_successor_phi_inputs() {
     let then_block = function.blocks.get(&BasicBlockId(1)).expect("then block");
     assert!(matches!(
         then_block.instructions.as_slice(),
-        [MirInstruction::Const {
-            dst,
-            value: ConstValue::Integer(11)
-        }] if *dst == ValueId(2)
+        [
+            MirInstruction::Debug {
+                value: ValueId(0),
+                message
+            },
+            MirInstruction::Const {
+                dst,
+                value: ConstValue::Integer(11)
+            }
+        ] if message == "keep bridge merge-focused" && *dst == ValueId(2)
     ));
 
     let merge = function.blocks.get(&BasicBlockId(4)).expect("merge block");
@@ -729,4 +740,110 @@ fn threads_branch_through_empty_jump_trampoline() {
     assert!(function.blocks.contains_key(&BasicBlockId(1)));
     assert!(function.blocks.contains_key(&BasicBlockId(2)));
     assert!(function.blocks.contains_key(&BasicBlockId(4)));
+}
+
+#[test]
+fn threads_branch_through_empty_jump_trampoline_and_rewrites_final_phi_predecessor() {
+    let mut module = MirModule::new("simplify_cfg_jump_thread_phi_target".to_string());
+    let signature = FunctionSignature {
+        name: "main".to_string(),
+        params: vec![MirType::Bool],
+        return_type: MirType::Integer,
+        effects: EffectMask::PURE,
+    };
+    let mut function = MirFunction::new(signature, BasicBlockId(0));
+
+    {
+        let entry = function
+            .blocks
+            .get_mut(&BasicBlockId(0))
+            .expect("entry block");
+        entry.instructions.push(MirInstruction::Const {
+            dst: ValueId(1),
+            value: ConstValue::Integer(11),
+        });
+        entry.instruction_spans.push(Span::unknown());
+        entry.set_terminator(MirInstruction::Branch {
+            condition: ValueId(0),
+            then_bb: BasicBlockId(1),
+            else_bb: BasicBlockId(2),
+            then_edge_args: None,
+            else_edge_args: None,
+        });
+    }
+
+    let mut trampoline = BasicBlock::new(BasicBlockId(1));
+    trampoline.set_terminator(MirInstruction::Jump {
+        target: BasicBlockId(3),
+        edge_args: None,
+    });
+    function.add_block(trampoline);
+
+    let mut else_block = BasicBlock::new(BasicBlockId(2));
+    else_block.instructions.push(MirInstruction::Const {
+        dst: ValueId(2),
+        value: ConstValue::Integer(22),
+    });
+    else_block.instruction_spans.push(Span::unknown());
+    else_block.set_terminator(MirInstruction::Jump {
+        target: BasicBlockId(3),
+        edge_args: None,
+    });
+    function.add_block(else_block);
+
+    let mut final_block = BasicBlock::new(BasicBlockId(3));
+    final_block.instructions.push(MirInstruction::Phi {
+        dst: ValueId(3),
+        inputs: vec![(BasicBlockId(1), ValueId(1)), (BasicBlockId(2), ValueId(2))],
+        type_hint: Some(MirType::Integer),
+    });
+    final_block.instruction_spans.push(Span::unknown());
+    final_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId(3)),
+    });
+    function.add_block(final_block);
+
+    function
+        .metadata
+        .value_types
+        .insert(ValueId(0), MirType::Bool);
+    function
+        .metadata
+        .value_types
+        .insert(ValueId(1), MirType::Integer);
+    function
+        .metadata
+        .value_types
+        .insert(ValueId(2), MirType::Integer);
+    function
+        .metadata
+        .value_types
+        .insert(ValueId(3), MirType::Integer);
+    function.update_cfg();
+    module.add_function(function);
+
+    let simplified = simplify(&mut module);
+    assert!(simplified >= 1);
+
+    let function = module.functions.get("main").expect("main function");
+    let entry = function.blocks.get(&BasicBlockId(0)).expect("entry block");
+    assert!(matches!(
+        entry.terminator,
+        Some(MirInstruction::Branch {
+            then_bb,
+            else_bb,
+            then_edge_args: None,
+            else_edge_args: None,
+            ..
+        }) if then_bb == BasicBlockId(3) && else_bb == BasicBlockId(2)
+    ));
+
+    let final_block = function.blocks.get(&BasicBlockId(3)).expect("final block");
+    let MirInstruction::Phi { inputs, .. } = &final_block.instructions[0] else {
+        panic!("expected phi");
+    };
+    assert_eq!(
+        inputs,
+        &vec![(BasicBlockId(0), ValueId(1)), (BasicBlockId(2), ValueId(2))]
+    );
 }
