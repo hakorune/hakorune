@@ -42,7 +42,8 @@ Owner: `phase-260x`
 - direct pass tests cover a same-block store-to-load forwarding case
 - direct pass tests cover a same-block redundant load elimination case
 - direct pass tests cover the immediate-successor overwritten-store widening case
+- the memory-effect owner seam is complete enough to hand off to `escape / barrier -> LLVM attrs`
 
 ## Next Cut
 
-- `M3` overwritten-store / DSE widening beyond the landed same-block cut
+- `escape / barrier -> LLVM attrs`

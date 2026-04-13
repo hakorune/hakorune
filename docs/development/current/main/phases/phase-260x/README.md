@@ -10,7 +10,7 @@ Phase: 260x
 - land same-block private-carrier store-to-load forwarding under the new owner
 - land same-block private-carrier redundant load elimination under the new owner
 - keep the current private-carrier `Load` / `Store` cleanup outside `semantic simplification bundle`
-- make the next queue start at `M3` overwritten-store / DSE widening beyond the landed same-block cut
+- hand off the next queue to `escape / barrier -> LLVM attrs`
 
 ## Landed Contract
 
@@ -22,8 +22,7 @@ Phase: 260x
   - same-block private-carrier store-to-load forwarding
   - same-block private-carrier redundant load elimination
   - overwritten private-carrier `Store` pruning
-- the next memory cuts stay narrow:
-  - overwritten-store / DSE widening beyond the same-block cut
+- the memory-effect layer queue is complete
 
 ## Proof
 
@@ -36,5 +35,4 @@ Phase: 260x
 
 ## Next
 
-- continue the `memory-effect layer`
-- next queued cut is `M3` overwritten-store / DSE widening beyond the landed same-block cut
+- hand off to `escape / barrier -> LLVM attrs`

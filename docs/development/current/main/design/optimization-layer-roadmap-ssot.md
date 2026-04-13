@@ -89,8 +89,8 @@ Owner: `phase-163x optimization-resume`
 
 - immediate code next:
   - `memory-effect layer`
-   - `phase260x` is landed: the owner seam and stats surface are now top-level, and the next queue starts at `M3`
+   - `phase260x` is landed: the owner seam and stats surface are now top-level, and the memory-effect queue is complete
 - immediate follow-on after that:
   - `escape / barrier -> LLVM attrs`
 - next major design lane after the current DCE slice:
-  - `memory-effect layer`
+  - `escape / barrier -> LLVM attrs`

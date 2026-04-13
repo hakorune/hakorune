@@ -30,9 +30,9 @@ Scope: current lane / next lane / restart order only.
 - sibling guardrail:
   - `phase-137x` string corridor / exact-keeper guardrail
 - immediate next:
-  - `memory-effect layer`
-- immediate follow-on:
   - `escape / barrier -> LLVM attrs`
+- immediate follow-on:
+  - `numeric loop / SIMD`
 - current stop-lines:
   - do not mix lane B with lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
   - do not mix lane B with `generic placement / effect`
@@ -68,7 +68,7 @@ Scope: current lane / next lane / restart order only.
 - `phase-257x` is landed: `SimplifyCFG` now threads a branch arm through an empty jump trampoline even when the threaded arm carried edge-args, but only when those edge-args are dead for a PHI-free final target
 - `phase-258x` is landed: `SimplifyCFG` now propagates constant conditions through single-input PHIs before folding compare / branch conditions
 - `phase-259x` is landed: SimplifyCFG closeout judgment hands the remaining optimization lane to memory-effect work
-- `phase-260x` is landed: the memory-effect owner seam and stats surface now sit on their own top-level pass, and the queue starts at `M2`
+- `phase-260x` is landed: the memory-effect owner seam and stats surface now sit on their own top-level pass, and the same-block private-carrier slices are fully landed
 - explicit scope-exit timeout surfacing is parked while the optimization lane hands off to `memory-effect layer`
 - the next code lane is now `memory-effect layer`
 - `CURRENT_TASK.md` is the only live status pointer; `05/10/15` are thin mirrors only
@@ -77,5 +77,5 @@ Scope: current lane / next lane / restart order only.
 ## Execution Queue
 
 1. `memory-effect layer`
-   - `M3` overwritten-store / DSE widening beyond the landed private same-block cut
+   - hand off to `escape / barrier -> LLVM attrs`
    - do not bury the next memory slices inside `dce/memory.rs` without a top-level owner
