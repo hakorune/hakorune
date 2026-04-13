@@ -1,6 +1,6 @@
 # Phase 267x SSOT — integer sum reduction widening
 
-Status: ACTIVE
+Status: LANDED
 Date: 2026-04-13
 Scope: next actual SIMD widening cut under LoopSimdContract.
 

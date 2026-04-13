@@ -53,6 +53,23 @@ class TestLoopSimdContract(unittest.TestCase):
         self.assertEqual(contract["proof"]["reduction_value_ids"], [40])
         self.assertEqual(contract["lowering"]["llvm_loop_md"]["reduction.kind"], "int_add")
 
+    def test_builds_int_compare_select_candidate_contract(self):
+        contract = build_loop_simd_contract(
+            {
+                "header": 1,
+                "numeric_kind": "induction",
+                "numeric_proof_source": "simple_while_arithmetic_only",
+                "numeric_induction_value_ids": [10, 11],
+                "numeric_select_value_ids": [50],
+                "header_phi_value_ids": [10],
+                "header_compare_operand_value_ids": [12],
+            }
+        )
+
+        self.assertEqual(contract["diag"]["accepted_class"], "int_compare_select_candidate")
+        self.assertEqual(contract["proof"]["select_value_ids"], [50])
+        self.assertEqual(contract["lowering"]["llvm_loop_md"]["compare_select.kind"], "select")
+
     def test_rejects_non_numeric_loop_plan(self):
         self.assertIsNone(build_loop_simd_contract({"header": 1}))
 
@@ -107,6 +124,33 @@ class TestLoopSimdContract(unittest.TestCase):
                 "numeric_proof_source": "simple_while_arithmetic_only",
                 "numeric_induction_value_ids": [10],
                 "numeric_reduction_value_ids": [40],
+                "header_phi_value_ids": [10],
+                "header_compare_operand_value_ids": [12],
+            }
+        )
+
+        self.assertTrue(apply_loop_simd_metadata(module, branch, contract))
+
+    def test_apply_loop_simd_metadata_sets_llvm_loop_hint_for_compare_select_candidate(self):
+        module = ir.Module(name="m")
+        fnty = ir.FunctionType(ir.VoidType(), [])
+        func = ir.Function(module, fnty, name="f")
+        entry = func.append_basic_block("entry")
+        loop = func.append_basic_block("loop")
+        exitb = func.append_basic_block("exit")
+
+        builder = ir.IRBuilder(entry)
+        builder.branch(loop)
+        builder.position_at_end(loop)
+        branch = builder.cbranch(ir.Constant(ir.IntType(1), 1), loop, exitb)
+
+        contract = build_loop_simd_contract(
+            {
+                "header": 1,
+                "numeric_kind": "induction",
+                "numeric_proof_source": "simple_while_arithmetic_only",
+                "numeric_induction_value_ids": [10],
+                "numeric_select_value_ids": [50],
                 "header_phi_value_ids": [10],
                 "header_compare_operand_value_ids": [12],
             }

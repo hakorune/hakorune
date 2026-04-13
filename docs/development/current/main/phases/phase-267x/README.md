@@ -1,4 +1,4 @@
-Status: ACTIVE
+Status: LANDED
 Owner: Codex
 Phase: 267x
 
@@ -19,6 +19,12 @@ Phase: 267x
   - integer reduction candidate
   - integer-only
 - compare/select widening, fast-math, reassociation, and FMA remain out of scope
+
+## Closeout
+
+- integer sum reduction widening is landed at this boundary
+- the next widening cut is compare/select under the same LoopSimdContract
+- floating-point reduction remains separate
 
 ## Next
 

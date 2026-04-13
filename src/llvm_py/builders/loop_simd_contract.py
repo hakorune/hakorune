@@ -38,11 +38,17 @@ def build_loop_simd_contract(loop_plan: Optional[Dict[str, Any]]) -> Optional[Di
 
     induction_value_ids = _sorted_int_list(loop_plan.get("numeric_induction_value_ids"))
     reduction_value_ids = _sorted_int_list(loop_plan.get("numeric_reduction_value_ids"))
+    select_value_ids = _sorted_int_list(loop_plan.get("numeric_select_value_ids"))
     non_negative_value_ids = _sorted_int_list(loop_plan.get("numeric_non_negative_value_ids"))
     header_phi_value_ids = _sorted_int_list(loop_plan.get("header_phi_value_ids"))
     header_compare_operand_value_ids = _sorted_int_list(loop_plan.get("header_compare_operand_value_ids"))
 
-    accepted_class = "int_reduction_candidate" if reduction_value_ids else "int_map_candidate"
+    if reduction_value_ids:
+        accepted_class = "int_reduction_candidate"
+    elif select_value_ids:
+        accepted_class = "int_compare_select_candidate"
+    else:
+        accepted_class = "int_map_candidate"
 
     lowering_md: Dict[str, Any]
     if accepted_class == "int_map_candidate":
@@ -53,6 +59,11 @@ def build_loop_simd_contract(loop_plan: Optional[Dict[str, Any]]) -> Optional[Di
         lowering_md = {
             "vectorize.enable": True,
             "reduction.kind": "int_add",
+        }
+    elif accepted_class == "int_compare_select_candidate":
+        lowering_md = {
+            "vectorize.enable": True,
+            "compare_select.kind": "select",
         }
     else:
         lowering_md = {}
@@ -66,6 +77,7 @@ def build_loop_simd_contract(loop_plan: Optional[Dict[str, Any]]) -> Optional[Di
             "proof_source": str(loop_plan.get("numeric_proof_source") or ""),
             "induction_value_ids": induction_value_ids,
             "reduction_value_ids": reduction_value_ids,
+            "select_value_ids": select_value_ids,
             "non_negative_value_ids": non_negative_value_ids,
             "header_phi_value_ids": header_phi_value_ids,
             "header_compare_operand_value_ids": header_compare_operand_value_ids,

@@ -14,17 +14,17 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-267x numeric loop / SIMD integer sum reduction widening` |
-| Front | `numeric loop / SIMD -> integer-sum actual widening` |
+| Now | `phase-268x numeric loop / SIMD compare-select widening` |
+| Front | `numeric loop / SIMD -> compare/select actual widening` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `memory-effect layer is complete; the next queue is numeric loop / SIMD reduction widening work` |
+| Blocker | `memory-effect layer is complete; the next queue is numeric loop / SIMD compare/select widening work` |
 | Next | `numeric loop / SIMD` |
 | After Next | `closure split` |
 
 ## Current Read
 
   - design owners:
-  - implementation lane: `docs/development/current/main/phases/phase-267x/README.md`
+  - implementation lane: `docs/development/current/main/phases/phase-268x/README.md`
   - next layer landing: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - roadmap SSOT: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`

@@ -4,11 +4,12 @@
 
 ## Current
 
-- **Current (ACTIVE)**: Phase 267x numeric loop / SIMD integer sum reduction widening
+- **Current (ACTIVE)**: Phase 268x numeric loop / SIMD compare-select widening
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
 
 ## Recent Landed
 
+- **Phase 267x（LANDED）**: numeric loop / SIMD integer sum reduction widening
 - **Phase 266x（LANDED）**: numeric loop / SIMD integer map widening
 - **Phase 265x（LANDED）**: numeric loop / SIMD LoopSimdContract owner seam
 - **Phase 264x（LANDED）**: numeric loop / SIMD reduction recognition proof seam

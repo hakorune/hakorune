@@ -192,6 +192,43 @@ class TestFunctionLowerLoopPrepass(unittest.TestCase):
         self.assertEqual(context.numeric_loop_plans[1].get("numeric_reduction_value_ids"), None)
         self.assertEqual(context.loop_simd_contracts[1]["diag"]["accepted_class"], "int_map_candidate")
 
+    def test_run_loop_prepass_annotates_numeric_select_candidate(self):
+        prev_env = os.environ.get("NYASH_LLVM_PREPASS_LOOP")
+        prev_detect = function_lower.detect_simple_while
+        os.environ["NYASH_LLVM_PREPASS_LOOP"] = "1"
+        context = _ContextStub()
+        context.integerish_value_ids = {7, 20, 21, 30, 31, 40}
+
+        try:
+            function_lower.detect_simple_while = lambda _blocks: {
+                "header": 1,
+                "then": 2,
+                "latch": 3,
+                "exit": 4,
+                "cond": 7,
+                "body_insts": [
+                    {"op": "compare", "dst": 30, "lhs": 20, "rhs": 21, "operation": "<"},
+                    {"op": "select", "dst": 40, "cond": 30, "then_val": 20, "else_val": 21},
+                    {"op": "binop", "dst": 31, "operation": "+", "lhs": 20, "rhs": 21},
+                ],
+                "header_phi_value_ids": [20],
+                "header_compare_operand_value_ids": [20, 21],
+                "skip_blocks": [1, 2, 3],
+            }
+            plan = function_lower._run_loop_prepass({1: {"id": 1, "instructions": []}}, context)
+        finally:
+            function_lower.detect_simple_while = prev_detect
+            if prev_env is None:
+                os.environ.pop("NYASH_LLVM_PREPASS_LOOP", None)
+            else:
+                os.environ["NYASH_LLVM_PREPASS_LOOP"] = prev_env
+
+        self.assertEqual(plan["numeric_select_value_ids"], [40])
+        self.assertEqual(
+            context.loop_simd_contracts[1]["diag"]["accepted_class"],
+            "int_compare_select_candidate",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

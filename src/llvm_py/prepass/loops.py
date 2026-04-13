@@ -150,6 +150,7 @@ def annotate_numeric_loop_plan(
     induction_value_ids: Set[int] = set()
     saw_binop = False
     saw_numeric_body = False
+    saw_select = False
 
     for inst in body_insts:
         if not isinstance(inst, dict):
@@ -160,6 +161,8 @@ def annotate_numeric_loop_plan(
             return None
         if op == "binop":
             saw_binop = True
+        elif op == "select":
+            saw_select = True
 
         dst = inst.get("dst")
         if isinstance(dst, int) and int(dst) in integerish:
@@ -188,6 +191,15 @@ def annotate_numeric_loop_plan(
     annotated["numeric_non_negative_value_ids"] = sorted(induction_value_ids & non_negative) if non_negative else []
     if reduction_value_ids:
         annotated["numeric_reduction_value_ids"] = reduction_value_ids
+    if saw_select:
+        annotated["numeric_select_value_ids"] = sorted(
+            int(inst.get("dst"))
+            for inst in body_insts
+            if isinstance(inst, dict)
+            and str(inst.get("op") or "") == "select"
+            and isinstance(inst.get("dst"), int)
+            and int(inst.get("dst")) in integerish
+        )
     annotated["numeric_proof_source"] = "simple_while_arithmetic_only"
     return annotated
 
