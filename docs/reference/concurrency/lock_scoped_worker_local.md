@@ -1,6 +1,6 @@
 # Lock / Scoped / WorkerLocal (Concurrency SSOT)
 
-Status: Draft (docs-only; no runtime changes during the feature‑pause)
+Status: SSOT for state model; runtime surface is phased
 Decision: provisional
 
 This document defines the **minimum** concurrency-related state model for Nyash/Hakorune.
@@ -112,6 +112,10 @@ SSOT rule (provisional):
 - A child task started inside `task_scope` inherits the parent’s active `scoped` bindings.
 - Current runtime scaffolding names that boundary with `TaskGroupBox` plus task-scope hooks; full child-scheduling wiring is a later phase.
 - The implicit root-scope fallback outside explicit `task_scope` is not a detached/task-local propagation contract.
+- Current owner-side observation surface lives on `TaskGroupBox`:
+  - `joinAll(timeout_ms)` is the bounded-join API
+  - `failureReport()` is the aggregate-failure report API
+  - timeout / failure details are pinned by `docs/reference/concurrency/semantics.md`
 
 Note:
 - This doc uses “spawn” as a generic term for “starting a concurrent task”, but the current Nyash surface syntax is `nowait`.
@@ -119,7 +123,7 @@ Note:
 Rules:
 1. Scope entry binds a key/value; scope exit restores the previous binding.
 2. A `scoped` value must not be persisted as “state”; it is context only.
-3. Structured child tasks inherit the active bindings under `task_scope` (current runtime scaffold: `TaskGroupBox`).
+3. Structured child tasks are intended to inherit the active bindings under `task_scope`, but the concrete runtime propagation wiring is not yet pinned by phases 242x-255x.
 4. Current `task_scope.cancelAll()` is narrow: it marks owned pending futures as cancelled, but it does not define general blocking-call interruption yet.
 
 Notes:

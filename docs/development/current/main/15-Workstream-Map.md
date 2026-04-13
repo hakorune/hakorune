@@ -28,11 +28,8 @@ Related:
   - next layer landing: `docs/development/current/main/phases/phase-227x/README.md`
   - roadmap SSOT: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
-- recent landed:
-  - `phase-242x`: `task_scope` / `TaskGroupBox` structured-concurrency vocabulary alignment
-  - `semantic simplification bundle`: copied-constant Branch fold and constant Compare fold before CFG merge
-  - `phase-227x`: semantic simplification owner seam
-  - `phase-226x`: placement-effect string scheduling owner cut
+  - concurrency manual owner: `docs/reference/concurrency/semantics.md`
+  - concurrency runtime-plan owner: `docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md`
 
 ## Immediate Sequence
 

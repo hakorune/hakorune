@@ -19,28 +19,12 @@ Related:
 
 ## Landing Snapshot
 
+- concurrency manual sync:
+  - `docs/reference/concurrency/semantics.md` / `lock_scoped_worker_local.md` / pre-selfhost SSOT now point to the current `task_scope` / `joinAll()` / `failureReport()` contract
 - `phase255x` is landed:
   - `joinAll()` now returns `Err(TaskJoinTimeout: timed out after Nms)` when bounded join hits deadline without a latched first failure
 - `phase254x` is landed:
   - explicit-scope aggregate failures now live on `TaskGroupBox.failureReport()` as `[first_failure, additional_failures...]`
-- `phase253x` is landed:
-  - `joinAll()` now returns `ResultBox::Err(first_failure_payload)` from the same first-failure latch as explicit scope exit
-- `phase252x` is landed:
-  - explicit `task_scope` exit now surfaces the popped scope's latched `first_failure` after bounded join
-- `phase251x` is landed:
-  - explicit `task_scope` exit now does `cancel -> bounded join` per popped explicit scope
-  - nested explicit scopes now clean up lexically instead of waiting for the outermost scope
-- `phase250x` is landed:
-  - closed explicit/root scopes now immediately cancel late registrations
-  - `FutureBox` success is now single-assignment
-- `phase249x` is landed:
-  - explicit-scope first failure now cancels pending siblings with stable reason `sibling-failed`
-- `phase248x` is landed:
-  - explicit `task_scope` policy is pinned as `first failure cancels siblings`
-- `phase247x` is landed:
-  - bare `nowait` is not detached; outside explicit `task_scope` it belongs to the implicit root scope
-- `phase246x` is landed:
-  - `Cancelled(reason)` now exists as a narrow scope-owned future path with stable `scope-cancelled` reason
 - latest semantic simplification cut:
   - copied-constant `Branch` terminators, constant `Compare` instructions, and empty trampoline jump-threading now fold before CFG merge
 
@@ -48,7 +32,7 @@ Related:
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-255x/README.md`
+3. `docs/reference/concurrency/semantics.md`
 4. `docs/development/current/main/phases/phase-163x/README.md`
 5. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 

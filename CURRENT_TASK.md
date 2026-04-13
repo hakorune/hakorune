@@ -55,11 +55,15 @@ Scope: current lane / next lane / restart order only.
   - `docs/development/current/main/design/generic-memory-dce-observer-owner-contract-ssot.md`
 - observer/control lane-C contract owner:
   - `docs/development/current/main/design/observer-control-dce-owner-contract-ssot.md`
+- concurrency manual owner:
+  - `docs/reference/concurrency/semantics.md`
+- concurrency runtime-plan owner:
+  - `docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md`
 
 ## Current Notes
 
+- concurrency manuals are now re-pointed to the current `task_scope` / `joinAll()` / `failureReport()` owners
 - `phase-255x` is landed: `joinAll()` now returns `Err(TaskJoinTimeout: timed out after Nms)` when its bounded join hits deadline without a latched first failure
-- `phase-254x` is landed: explicit-scope aggregate / multi-failure reporting now lives on `TaskGroupBox.failureReport()` as `[first_failure, additional_failures...]`
 - next concurrency follow-on is explicit scope-exit timeout surfacing; aggregate-on-exit remains later
 - current semantic simplification cut now includes empty-trampoline jump threading after copied-constant `Branch` and constant `Compare` folds
 - the next code lane is now `semantic simplification bundle`

@@ -41,7 +41,7 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
   - then bounded-join that same scope
 - current explicit scope-exit path now also surfaces that scope's latched `first_failure`
 - current `joinAll(timeout_ms)` path now surfaces that same latched first failure as `ResultBox::Err(first_failure_payload)`
-- `fini()` and sibling-failure aggregation remain later-phase work.
+- `fini()` and scope-exit aggregate surfacing remain later-phase work.
 - bare `nowait` is not detached.
 - `nowait` inside explicit `task_scope` belongs to that scope.
 - `nowait` outside explicit `task_scope` falls back to an implicit root scope owned by the runtime hooks registry.
@@ -85,7 +85,7 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
   - only explicit `task_scope` ownership participates
   - first failed child future cancels pending siblings with reason `sibling-failed`
   - late child futures registered after that first failure are immediately cancelled with the same reason
-  - it does not yet define aggregate failure reporting
+  - it does not yet define aggregate rethrow / scope-exit aggregate surfacing
 - `FutureBox` success is single-assignment in the current contract:
   - once a future is `Ready`, later `set_result` / failed / cancelled writes are ignored
 - plugin/runtime timeout is not part of the VM-side `await` contract:
@@ -117,7 +117,7 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
 - bounded_pc.hako: producer/consumer with capacity=1..N; ensure no busy-wait and correct totals.
 - select_two.hako: two channels; verify first-ready choice and distribution.
 - close_semantics.hako: send after close -> error; drain -> End; double close -> error.
-- scope_cancel.hako: `task_scope` / `TaskGroupBox` cancels children; parked receivers unblocked.
+- scope_cancel.hako: `task_scope` / `TaskGroupBox` cancels owned child futures with stable reasons; blocking-API interruption remains a later runtime wait contract.
 
 ### Migration Path
 - Phase‑0 userland boxes are kept while Phase‑2 runtime grows; API stable.

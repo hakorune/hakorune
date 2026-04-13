@@ -99,7 +99,8 @@ MIR で `Throw` を増やさずに済む形:
 
 Note:
 - `ExitTag::Cancel` is reserved only in the current tree.
-- pre-selfhost VM futures do not yet expose a runtime cancel/timeout path for `await`.
+- pre-selfhost VM `await` now exposes a runtime cancellation path as `Cancelled(reason)` for scope-owned futures.
+- pre-selfhost VM `await` still does not expose a timeout payload.
 - pre-selfhost VM futures may now expose `TaskFailed(error)` as a failed terminal state, but that is distinct from `Cancel`.
 - current pre-selfhost cancellation only covers scope-owned futures and surfaces as `Cancelled(reason)`; it is not yet cleanup/state-machine `Cancel`.
 - detached-task policy and the implicit root-scope policy are pinned in the pre-selfhost async SSOT, not in this long-term lowering document.

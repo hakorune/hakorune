@@ -74,8 +74,8 @@ Non-goals (この文書で今すぐやらない):
 - this applies to nested scopes too:
   - popping an inner explicit scope must not defer its cleanup to the outermost scope
   - outer explicit scopes keep their own owner/token state after an inner scope exits
-- current `joinAll(timeout_ms)` / scope-exit still do **not** surface first failure or aggregate failure
-- current return shape therefore remains `void` / no rethrow in this cut
+- this section only pins shutdown order
+- current failure / timeout surface is defined by the later Phase 252x-255x sections below
 
 ### Scope-exit first-failure surface (Phase 252x)
 
@@ -235,7 +235,10 @@ Option B (later / full runtime route):
 - `local`: call activation / lexical scope。スレッド/ワーカーとは無関係。
 - `lock<T>`: 共有 mutable の唯一入口（`lock {}` は構文案。実装は後段でも良い）。
 - `scoped`: 文脈（trace/request/config）。**nowait の wrapper ではない**。structured child に継承する（detached は別物）。
-- current root-scope fallback does not pin detached/task-local propagation semantics yet; only structured child inheritance is stable
+- `scoped` inheritance is still design intent in the current tree:
+  - phases 242x-255x pin future ownership / cancellation / timeout surfaces
+  - they do not yet pin a concrete runtime propagation mechanism for `scoped`
+- current root-scope fallback does not pin detached/task-local propagation semantics yet
 - `worker_local`: cache 専用。意味論に使わない。
 
 ---

@@ -13,6 +13,10 @@
 - 実行バックエンド仕様
 - 内部設計ドキュメント
 
+### concurrency/
+- `task_scope` / `nowait` / `await` / `lock` / `scoped` / `worker_local` の reference
+- current structured-concurrency Phase-0 manual
+
 ### api/
 - ビルトインBoxのAPI仕様
 - 標準ライブラリリファレンス
@@ -25,3 +29,7 @@
 
 ## 📝 注意事項
 このディレクトリのドキュメントは安定版です。開発中の仕様は`development/`を参照してください。
+
+Concurrency note:
+- current user-facing concurrency manual owner は `docs/reference/concurrency/semantics.md`
+- `lock` / `scoped` / `worker_local` の state-model SSOT は `docs/reference/concurrency/lock_scoped_worker_local.md`
