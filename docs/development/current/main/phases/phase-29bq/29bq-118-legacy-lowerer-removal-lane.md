@@ -47,3 +47,4 @@ Related:
 - mainline owner removal: landed
 - live `phase2160` arraymap canaries: retired
 - legacy `tools/dev/phase29ci_test_runner_*` exact-proof wrappers: retired
+- vm_hako historical name/payload pins: retired
