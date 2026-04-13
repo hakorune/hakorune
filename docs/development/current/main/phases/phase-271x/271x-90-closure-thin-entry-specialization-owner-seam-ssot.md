@@ -1,4 +1,4 @@
-Status: ACTIVE
+Status: LANDED
 Phase: 271x
 
 # 271x-90 Closure Thin-Entry Specialization Owner Seam SSOT

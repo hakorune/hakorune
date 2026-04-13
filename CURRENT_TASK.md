@@ -15,7 +15,7 @@ Scope: current lane / next lane / restart order only.
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/10-Now.md`
 3. `docs/development/current/main/15-Workstream-Map.md`
-4. `docs/development/current/main/phases/phase-271x/README.md`
+4. `docs/development/current/main/phases/phase-272x/README.md`
 5. `docs/development/current/main/phases/phase-163x/README.md`
 6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 7. `git status -sb`
@@ -26,13 +26,13 @@ Scope: current lane / next lane / restart order only.
 - expected worktree:
   - clean
 - active lane:
-  - `phase-271x closure split thin-entry specialization owner seam`
+  - `phase-272x IPO build-policy owner seam`
 - sibling guardrail:
   - `phase-137x` string corridor / exact-keeper guardrail
 - immediate next:
-  - `closure split`
-- immediate follow-on:
   - `IPO / build-time optimization`
+- immediate follow-on:
+  - `PGO / ThinLTO first cut`
 - current stop-lines:
   - do not mix lane B with lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
   - do not mix lane B with `generic placement / effect`
@@ -44,7 +44,7 @@ Scope: current lane / next lane / restart order only.
 ## Design Owners
 
 - implementation lane:
-  - `docs/development/current/main/phases/phase-271x/README.md`
+  - `docs/development/current/main/phases/phase-272x/README.md`
 - next layer landing:
   - `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 - roadmap SSOT:
@@ -79,16 +79,17 @@ Scope: current lane / next lane / restart order only.
 - `phase-268x` is landed: compare/select widening is the numeric lane closeout cut
 - `phase-269x` is landed: closure split now starts with a shared capture classification owner seam
 - `phase-270x` is landed: closure split now classifies single-capture envs as scalarizable while keeping lowering behavior unchanged
-- `phase-271x` is active: closure split now classifies empty/single envs as thin-entry candidates while keeping ctor lowering unchanged
+- `phase-271x` is landed: closure split now classifies empty/single envs as thin-entry candidates while keeping ctor lowering unchanged
+- `phase-272x` is active: IPO / build-time optimization now starts with a shared build-policy owner seam
 - explicit scope-exit timeout surfacing is parked while the optimization lane hands off to `numeric loop / SIMD`
-- the next code lane is now `closure split`
+- the next code lane is now `IPO / build-time optimization`
 - `CURRENT_TASK.md` is the only live status pointer; `05/10/15` are thin mirrors only
 - if this file grows again, move the detail back into the phase docs
 
 ## Execution Queue
 
-1. `closure split`
-   - current cut: shared thin-entry specialization owner seam
-   - empty/single envs are now marked thin-entry eligible without changing ctor lowering
-   - next follow-on: closure lane closeout before `IPO / build-time optimization`
-2. `IPO / build-time optimization`
+1. `IPO / build-time optimization`
+   - current cut: shared build-policy owner seam
+   - keep `ThinLTO` / `PGO` behavior disabled in this planning cut
+   - next follow-on: `ThinLTO` first cut before any `PGO` artifact work
+2. `PGO / ThinLTO first cut`

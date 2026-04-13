@@ -62,11 +62,12 @@ Owner: `phase-163x optimization-resume`
 8. `closure split`
    - landed owner seam: closure creation now reads a shared capture classification contract before env scalarization / thin-entry specialization (`phase269x`)
    - landed owner seam: single-capture envs are now classified as scalarizable while aggregate env lowering remains unchanged (`phase270x`)
-   - current owner seam: empty/single envs are now classified as thin-entry candidates while ctor lowering remains unchanged (`phase271x`)
+   - landed owner seam: empty/single envs are now classified as thin-entry candidates while ctor lowering remains unchanged (`phase271x`)
    - `capture classification`
    - `closure env scalarization`
    - `closure thin-entry specialization`
 9. `IPO / build-time optimization`
+   - current owner seam: LLVM/Python build options now need one shared policy owner before `ThinLTO` / `PGO` widening (`phase272x`)
    - `PGO`
    - `ThinLTO`
    - MIR-side semantic layersが先。ここは最後尾
@@ -99,12 +100,8 @@ Owner: `phase-163x optimization-resume`
 ## Immediate Read
 
 - immediate code next:
-  - `numeric loop / SIMD`
-   - `phase263x` is landed: the induction proof seam over simple while plans is closed out
-   - `phase264x` is landed: the reduction-recognition proof seam over simple while plans is closed out
-   - `phase265x` is landed: the contract seam is LoopSimdContract proof / policy / lowering ownership
-   - `phase266x` is landed: the first actual widening cut is integer map loops under LoopSimdContract
-   - `phase267x` is landed: the next actual widening cut is integer sum reductions under LoopSimdContract
-   - `phase268x` is active: the current actual widening cut is compare/select candidates under LoopSimdContract
+  - `IPO / build-time optimization`
+   - first cut is a shared build-policy owner seam for LLVM/Python compile settings
+   - `ThinLTO` should come before any `PGO` profile artifact work
 - immediate follow-on after that:
-  - `escape / barrier -> LLVM attrs`
+  - `PGO / ThinLTO` actual widening

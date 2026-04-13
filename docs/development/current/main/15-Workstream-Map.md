@@ -14,17 +14,17 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-271x closure split thin-entry specialization owner seam` |
-| Front | `closure split -> thin-entry specialization owner seam` |
+| Now | `phase-272x IPO build-policy owner seam` |
+| Front | `IPO / build-time optimization -> build-policy owner seam` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `numeric loop / SIMD is closed out; the next queue is closure split thin-entry specialization work` |
-| Next | `closure split` |
-| After Next | `IPO / build-time optimization` |
+| Blocker | `closure split is closed out; the next queue is IPO / build-time optimization build-policy work` |
+| Next | `IPO / build-time optimization` |
+| After Next | `PGO / ThinLTO first cut` |
 
 ## Current Read
 
   - design owners:
-  - implementation lane: `docs/development/current/main/phases/phase-271x/README.md`
+  - implementation lane: `docs/development/current/main/phases/phase-272x/README.md`
   - next layer landing: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - roadmap SSOT: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
@@ -33,8 +33,8 @@ Related:
 
 ## Immediate Sequence
 
-1. `closure split`
-2. `IPO / build-time optimization`
+1. `IPO / build-time optimization`
+2. `PGO / ThinLTO first cut`
 
 ## Parked Corridor
 

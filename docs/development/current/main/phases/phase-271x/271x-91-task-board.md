@@ -1,4 +1,4 @@
-Status: ACTIVE
+Status: LANDED
 Phase: 271x
 
 # 271x-91 Task Board
@@ -9,7 +9,7 @@ Phase: 271x
 - fix focused tests for empty/single vs aggregate env layouts
 - keep current closure ctor lowering stable
 
-## Next
+## Closeout
 
-1. closure split closeout judgment
-2. IPO / build-time optimization
+1. closure split is closed out
+2. IPO / build-time optimization is the next lane

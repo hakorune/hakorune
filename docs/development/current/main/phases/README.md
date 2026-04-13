@@ -4,11 +4,12 @@
 
 ## Current
 
-- **Current (ACTIVE)**: Phase 271x closure split thin-entry specialization owner seam
+- **Current (ACTIVE)**: Phase 272x IPO build-policy owner seam
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
 
 ## Recent Landed
 
+- **Phase 271x（LANDED）**: closure split thin-entry specialization owner seam
 - **Phase 270x（LANDED）**: closure split env scalarization owner seam
 - **Phase 269x（LANDED）**: closure split capture classification owner seam
 - **Phase 268x（LANDED）**: numeric loop / SIMD compare-select widening
