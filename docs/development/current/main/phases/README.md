@@ -4,11 +4,12 @@
 
 ## Current
 
-- **Current (ACTIVE)**: Phase 163x primitive and user-box fast path
+- **Current (ACTIVE)**: Phase 263x numeric loop / SIMD induction proof seam
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
 
 ## Recent Landed
 
+- **Phase 262x（LANDED）**: numeric loop / SIMD policy owner seam
 - **Phase 261x（LANDED）**: escape / barrier -> LLVM attrs first seam
 - **Phase 260x（LANDED）**: memory-effect owner seam and stats surface
 - **Phase 259x（LANDED）**: SimplifyCFG closeout judgment and handoff

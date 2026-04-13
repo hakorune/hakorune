@@ -98,6 +98,9 @@ class FunctionLowerContext:
         self.block_dominators: Dict[int, Set[int]] = {}
         self.non_negative_value_ids: Set[int] = set()
         self.integerish_value_ids: Set[int] = set()
+        # Loop prepass metadata (function-local)
+        # Maps: loop_header_block_id -> annotated loop plan dict
+        self.numeric_loop_plans: Dict[int, Dict[str, Any]] = {}
         self.resolver_hoisted_string_handles: Dict[str, ir.Value] = {}
         self.resolver_hoisted_string_ptrs: Dict[str, ir.Value] = {}
 
@@ -195,5 +198,6 @@ class FunctionLowerContext:
             f"FunctionLowerContext(func_name={self.func_name!r}, "
             f"blocks={len(self.block_end_values)}, "
             f"jump_only={len(self.jump_only_blocks)}, "
-            f"defs={len(self.def_blocks)})"
+            f"defs={len(self.def_blocks)}, "
+            f"numeric_loops={len(self.numeric_loop_plans)})"
         )

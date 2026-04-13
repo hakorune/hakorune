@@ -1,6 +1,6 @@
 # Phase 262x SSOT — numeric loop / SIMD policy owner seam
 
-Status: ACTIVE
+Status: LANDED
 Date: 2026-04-13
 Scope: centralize the first LLVM vectorization knob seam for numeric-loop codegen.
 
@@ -18,5 +18,5 @@ Scope: centralize the first LLVM vectorization knob seam for numeric-loop codege
 
 ## Next
 
-- only widen if a concrete numeric-loop or SIMD proof justifies a new knob.
+- the follow-on proof seam now lives in `phase-263x`.
 - keep induction normalization / reduction recognition as follow-on slices.

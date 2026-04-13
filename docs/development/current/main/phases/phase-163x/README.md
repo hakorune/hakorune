@@ -253,8 +253,9 @@
            - next broadening should feed `nocapture` / `readonly` / `readnone` / `noalias`, not re-invent escape in LLVM
         7. `numeric loop / SIMD`
            - partial: FloatBox / typed numeric groundwork is landed
-           - first policy seam centralizes `loop_vectorize` / `slp_vectorize`
-           - induction/reduction/vectorization and fast-math tuning remain backlog
+           - first policy seam centralized `loop_vectorize` / `slp_vectorize`
+           - phase263x now carries the induction-proof seam over simple while plans
+           - reduction/vectorization/fast-math tuning remain backlog
         8. `closure split`
            - backlog: `capture classification`, `closure env scalarization`, and `closure thin-entry specialization`
         9. `IPO / build-time optimization`
@@ -274,7 +275,7 @@
       - LLVM/Python local-enum escape barriers now share one helper instead of repeating materialization wrappers in `call` / `boxcall` / `ret`
       - safe runtime nullish checks touched in this lane now converge on `NullBox::check_null()`
       - MIR reference docs now split into instruction SSOT + metadata SSOT, while stale all-in-one references are reduced to thin pointers
-    8. next ready task: `numeric loop / SIMD`
+    8. next ready task: `phase-263x numeric loop / SIMD induction proof seam`
     9. keep `where` / enum methods / full monomorphization in backlog
 
 ## Fixed Task Order

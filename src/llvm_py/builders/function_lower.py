@@ -6,7 +6,7 @@ from trace import hot as trace_hot
 from trace import hot_enabled as trace_hot_enabled
 from trace import format_hot_summary as trace_format_hot_summary
 from prepass.if_merge import plan_ret_phi_predeclare
-from prepass.loops import detect_simple_while
+from prepass.loops import annotate_numeric_loop_plan, detect_simple_while
 from cfg.utils import (
     collect_arrayish_value_ids,
     collect_integerish_value_ids,
@@ -289,7 +289,7 @@ def _run_if_merge_prepass(builder, block_by_id: Dict[int, Dict[str, Any]]) -> No
         _seed_if_merge_ret_phi_incomings(builder, plan)
 
 
-def _run_loop_prepass(block_by_id: Dict[int, Dict[str, Any]]):
+def _run_loop_prepass(block_by_id: Dict[int, Dict[str, Any]], context: FunctionLowerContext | None = None):
     import os
 
     if os.environ.get("NYASH_LLVM_PREPASS_LOOP") != "1":
@@ -300,6 +300,30 @@ def _run_loop_prepass(block_by_id: Dict[int, Dict[str, Any]]):
             f"[prepass] detect loop header=bb{loop_plan['header']} then=bb{loop_plan['then']} "
             f"latch=bb{loop_plan['latch']} exit=bb{loop_plan['exit']}"
         )
+        if context is not None:
+            try:
+                annotated = annotate_numeric_loop_plan(
+                    block_by_id,
+                    loop_plan,
+                    integerish_ids=getattr(context, "integerish_value_ids", None),
+                    non_negative_ids=getattr(context, "non_negative_value_ids", None),
+                )
+            except Exception:
+                annotated = None
+            if annotated is not None:
+                loop_plan = annotated
+                try:
+                    header_bid = int(loop_plan.get("header"))
+                    context.numeric_loop_plans[header_bid] = loop_plan
+                except Exception:
+                    pass
+                try:
+                    trace_debug(
+                        "[prepass] numeric-loop induction "
+                        f"header=bb{loop_plan['header']} candidates={loop_plan.get('numeric_induction_value_ids', [])}"
+                    )
+                except Exception:
+                    pass
     return loop_plan
 
 
@@ -914,7 +938,7 @@ def lower_function(builder, func_data: Dict[str, Any]):
 
     # Optional: simple loop prepass
     try:
-        loop_plan = _run_loop_prepass(block_by_id)
+        loop_plan = _run_loop_prepass(block_by_id, context)
     except Exception:
         loop_plan = None
 

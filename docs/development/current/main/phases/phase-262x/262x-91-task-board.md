@@ -1,6 +1,6 @@
 # Phase 262x Task Board
 
-Status: ACTIVE
+Status: LANDED
 
 ## Done
 
@@ -10,5 +10,5 @@ Status: ACTIVE
 
 ## Next
 
-- [ ] keep fast-math / FMA widening out of the first seam
-- [ ] widen only when a concrete numeric-loop or SIMD proof justifies it
+- [x] keep fast-math / FMA widening out of the first seam
+- [x] widen only when a concrete numeric-loop or SIMD proof justifies it

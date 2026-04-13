@@ -15,7 +15,7 @@ Scope: current lane / next lane / restart order only.
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/10-Now.md`
 3. `docs/development/current/main/15-Workstream-Map.md`
-4. `docs/development/current/main/phases/phase-262x/README.md`
+4. `docs/development/current/main/phases/phase-263x/README.md`
 5. `docs/development/current/main/phases/phase-163x/README.md`
 6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 7. `git status -sb`
@@ -26,7 +26,7 @@ Scope: current lane / next lane / restart order only.
 - expected worktree:
   - clean
 - active lane:
-  - `phase-163x primitive and user-box fast path`
+  - `phase-263x numeric loop / SIMD induction proof seam`
 - sibling guardrail:
   - `phase-137x` string corridor / exact-keeper guardrail
 - immediate next:
@@ -44,9 +44,9 @@ Scope: current lane / next lane / restart order only.
 ## Design Owners
 
 - implementation lane:
-  - `docs/development/current/main/phases/phase-163x/README.md`
+  - `docs/development/current/main/phases/phase-263x/README.md`
 - next layer landing:
-  - `docs/development/current/main/phases/phase-261x/README.md`
+  - `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 - roadmap SSOT:
   - `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 - string guardrail owner:
@@ -70,7 +70,8 @@ Scope: current lane / next lane / restart order only.
 - `phase-259x` is landed: SimplifyCFG closeout judgment hands the remaining optimization lane to memory-effect work
 - `phase-260x` is landed: the memory-effect owner seam and stats surface now sit on their own top-level pass, and the same-block private-carrier slices are fully landed
 - `phase-261x` is landed: the first runtime helper LLVM attrs policy seam is done and closed out
-- `phase-262x` is active: the first numeric-loop / SIMD policy seam is the current cut
+- `phase-262x` is landed: the first numeric-loop / SIMD policy seam is closed out
+- `phase-263x` is active: the first numeric-loop induction proof seam is the current cut
 - explicit scope-exit timeout surfacing is parked while the optimization lane hands off to `numeric loop / SIMD`
 - the next code lane is now `numeric loop / SIMD`
 - `CURRENT_TASK.md` is the only live status pointer; `05/10/15` are thin mirrors only
@@ -79,6 +80,6 @@ Scope: current lane / next lane / restart order only.
 ## Execution Queue
 
 1. `numeric loop / SIMD`
-   - first cut: centralized LLVM vectorization policy seam (`loop_vectorize` / `slp_vectorize`)
-   - keep induction / reduction / fast-math widening out of the first seam
+   - current cut: simple-while numeric induction proof seam over loop prepass plans
+   - keep reduction recognition / SIMD widening / fast-math / FMA out of this proof seam
 2. `closure split`

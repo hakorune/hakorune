@@ -52,7 +52,8 @@ Owner: `phase-163x optimization-resume`
    - vectorization
    - fast-math / FMA
    - old `Float optimization` はこの layer の subtheme として読む
-   - current first seam: centralized LLVM vectorization policy (`loop_vectorize` / `slp_vectorize`)
+   - landed first seam: centralized LLVM vectorization policy (`loop_vectorize` / `slp_vectorize`)
+   - landed proof seam: conservative numeric induction annotation over simple while plans (`phase263x`)
 8. `closure split`
    - `capture classification`
    - `closure env scalarization`
