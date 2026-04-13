@@ -12,10 +12,10 @@ Related:
 
 ## Current
 
-- current implementation lane: `phase273x IPO callable-edge contract owner seam`
+- current implementation lane: `phase274x IPO ThinLTO first cut`
 - sibling guardrail lane: `phase137x main kilo reopen selection`
 - immediate next: `IPO / build-time optimization`
-- immediate follow-on: `PGO / ThinLTO first cut`
+- immediate follow-on: `PGO scaffold`
 - top queued cut: `IPO / build-time optimization`
 
 ## Landing Snapshot
@@ -52,8 +52,10 @@ Related:
   - closure split now classifies empty/single envs as thin-entry candidates while preserving current ctor lowering
 - `phase272x` is landed:
   - IPO / build-time optimization now starts with a shared build-policy owner seam
-- `phase273x` is active:
-  - IPO now fixes callable/edge contract ownership before any ThinLTO wiring
+- `phase273x` is landed:
+  - IPO now owns callable-node facts and call-edge facts before any ThinLTO wiring
+- `phase274x` is active:
+  - ThinLTO first cut now sits on top of the landed build-policy and callable/edge contract seams
 - latest semantic simplification cut:
   - copied-constant `Branch` terminators, constant `Compare` instructions, and empty trampoline jump-threading now fold before CFG merge
   - branch arms may now thread through an empty trampoline into a final block when the final PHIs can be trivially rewritten to the branching predecessor
@@ -66,7 +68,7 @@ Related:
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
 3. `docs/reference/concurrency/semantics.md`
-4. `docs/development/current/main/phases/phase-273x/README.md`
+4. `docs/development/current/main/phases/phase-274x/README.md`
 5. `docs/development/current/main/phases/phase-163x/README.md`
 6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 

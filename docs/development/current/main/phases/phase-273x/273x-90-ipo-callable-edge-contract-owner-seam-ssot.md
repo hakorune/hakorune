@@ -1,4 +1,4 @@
-Status: ACTIVE
+Status: LANDED
 Phase: 273x
 
 # 273x-90 IPO Callable / Edge Contract Owner Seam SSOT

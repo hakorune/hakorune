@@ -1,4 +1,4 @@
-Status: ACTIVE
+Status: LANDED
 Owner: Codex
 Phase: 273x
 
@@ -6,14 +6,14 @@ Phase: 273x
 
 ## Summary
 
-- continue `IPO / build-time optimization` with a shared callable/edge contract owner seam
-- keep the cut narrow: static IPO facts only
-- keep `ThinLTO` wiring and `PGO` work out of this phase
+- landed one shared callable/edge contract owner seam for IPO
+- kept the cut narrow: static IPO facts only
+- kept `ThinLTO` wiring and `PGO` work out of this phase
 
 ## Current Cut
 
 - the shared IPO build-policy owner seam is already landed
-- this phase should fix
+- this phase landed
   - `IpoCallableContract`
   - `IpoCallEdgeContract`
   ownership before any `ThinLTO` choice is wired

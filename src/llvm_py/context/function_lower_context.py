@@ -104,6 +104,10 @@ class FunctionLowerContext:
         # LoopSimdContract metadata (function-local)
         # Maps: loop_header_block_id -> proof/policy/lowering/diag contract dict
         self.loop_simd_contracts: Dict[int, Dict[str, Any]] = {}
+        # IPO callable/edge contracts (function-local)
+        # Maps: closure-handle dst_vid -> conservative IPO-facing contract dict
+        self.ipo_callable_contracts: Dict[int, Dict[str, Any]] = {}
+        self.ipo_call_edge_contracts: Dict[int, Dict[str, Any]] = {}
         self.resolver_hoisted_string_handles: Dict[str, ir.Value] = {}
         self.resolver_hoisted_string_ptrs: Dict[str, ir.Value] = {}
 
@@ -203,5 +207,7 @@ class FunctionLowerContext:
             f"jump_only={len(self.jump_only_blocks)}, "
             f"defs={len(self.def_blocks)}, "
             f"numeric_loops={len(self.numeric_loop_plans)}, "
-            f"simd_contracts={len(self.loop_simd_contracts)})"
+            f"simd_contracts={len(self.loop_simd_contracts)}, "
+            f"ipo_callables={len(self.ipo_callable_contracts)}, "
+            f"ipo_edges={len(self.ipo_call_edge_contracts)})"
         )

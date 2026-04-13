@@ -8,6 +8,24 @@ from typing import Dict, Any, Optional
 from llvmlite import ir
 from .arg_resolver import make_call_arg_resolver
 from builders.closure_split_contract import build_closure_split_contract
+from builders.ipo_callable_contract import build_ipo_callable_contract
+from builders.ipo_call_edge_contract import build_ipo_call_edge_contract
+
+
+def _record_ipo_contracts(resolver, dst_vid, callable_contract, edge_contract):
+    if dst_vid is None:
+        return
+    context = getattr(resolver, "context", None)
+    if context is None:
+        return
+    if not hasattr(context, "ipo_callable_contracts"):
+        context.ipo_callable_contracts = {}
+    if not hasattr(context, "ipo_call_edge_contracts"):
+        context.ipo_call_edge_contracts = {}
+    if callable_contract is not None:
+        context.ipo_callable_contracts[int(dst_vid)] = callable_contract
+    if edge_contract is not None:
+        context.ipo_call_edge_contracts[int(dst_vid)] = edge_contract
 
 
 def lower_closure_creation(builder, module, params, captures, me_capture, dst_vid, vmap, resolver, owner):
@@ -45,6 +63,9 @@ def lower_closure_creation(builder, module, params, captures, me_capture, dst_vi
         return ir.Function(module, fnty, name=name)
 
     contract = build_closure_split_contract(params, captures, me_capture)
+    ipo_callable_contract = build_ipo_callable_contract(contract)
+    ipo_call_edge_contract = build_ipo_call_edge_contract(ipo_callable_contract)
+    _record_ipo_contracts(resolver, dst_vid, ipo_callable_contract, ipo_call_edge_contract)
     num_params = int(contract["proof"]["param_count"])
     capture_ids = contract["proof"]["env_capture_value_ids"]
     num_captures = int(contract["proof"]["env_capture_count"])

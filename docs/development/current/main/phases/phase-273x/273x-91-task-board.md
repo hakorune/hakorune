@@ -1,4 +1,4 @@
-Status: ACTIVE
+Status: LANDED
 Phase: 273x
 
 # 273x-91 Task Board
@@ -10,6 +10,6 @@ Phase: 273x
 
 ## Next
 
-1. add `ipo_callable_contract` owner seam in code
-2. add `ipo_call_edge_contract` owner seam in code
+1. landed `ipo_callable_contract` owner seam in code
+2. landed `ipo_call_edge_contract` owner seam in code
 3. hand off to `ThinLTO` first cut

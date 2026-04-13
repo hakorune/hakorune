@@ -4,11 +4,12 @@
 
 ## Current
 
-- **Current (ACTIVE)**: Phase 273x IPO callable-edge contract owner seam
+- **Current (ACTIVE)**: Phase 274x IPO ThinLTO first cut
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
 
 ## Recent Landed
 
+- **Phase 273x（LANDED）**: IPO callable-edge contract owner seam
 - **Phase 272x（LANDED）**: IPO build-policy owner seam
 - **Phase 271x（LANDED）**: closure split thin-entry specialization owner seam
 - **Phase 270x（LANDED）**: closure split env scalarization owner seam
