@@ -23,6 +23,7 @@ from mir_analysis import scan_call_arities
 from builders.numeric_loop_policy import (
     apply_numeric_loop_pass_policy as _apply_numeric_loop_pass_policy,
 )
+from builders.ipo_build_policy import resolve_ipo_build_policy as _resolve_ipo_build_policy
 
 from resolver import Resolver
 from mir_reader import build_builder_input
@@ -342,6 +343,7 @@ class NyashLLVMBuilder:
     def compile_to_object(self, output_path: str):
         """Compile module to object file"""
         build_opts = resolve_build_options()
+        ipo_policy = _resolve_ipo_build_policy()
         # Create target machine
         target = llvm.Target.from_default_triple()
         target_machine = create_target_machine_for_target(
@@ -349,7 +351,10 @@ class NyashLLVMBuilder:
             opt_level=build_opts.opt_level,
         )
         try:
-            trace_debug(f"[Python LLVM] opt-level={build_opts.opt_level}")
+            trace_debug(
+                f"[Python LLVM] opt-level={build_opts.opt_level} "
+                f"lto_mode={ipo_policy.lto_mode} pgo_mode={ipo_policy.pgo_mode}"
+            )
         except Exception:
             pass
         

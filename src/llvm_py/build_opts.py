@@ -1,6 +1,7 @@
 import os
 from dataclasses import dataclass
 import llvmlite.binding as llvm
+from builders.ipo_build_policy import apply_ipo_build_policy, resolve_ipo_build_policy
 
 _OPT_ENV_KEYS = ("HAKO_LLVM_OPT_LEVEL", "NYASH_LLVM_OPT_LEVEL")
 _FAST_NATIVE_ENV_KEYS = ("NYASH_LLVM_FAST_NATIVE", "HAKO_LLVM_FAST_NATIVE")
@@ -124,7 +125,7 @@ def resolve_target_machine_kwargs(opt_level: int | None = None):
     except Exception:
         pass
 
-    return kwargs
+    return apply_ipo_build_policy(kwargs, resolve_ipo_build_policy())
 
 
 def create_target_machine_for_target(target, *, opt_level: int | None = None):

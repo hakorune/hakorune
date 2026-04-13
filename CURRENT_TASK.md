@@ -15,7 +15,7 @@ Scope: current lane / next lane / restart order only.
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/10-Now.md`
 3. `docs/development/current/main/15-Workstream-Map.md`
-4. `docs/development/current/main/phases/phase-272x/README.md`
+4. `docs/development/current/main/phases/phase-273x/README.md`
 5. `docs/development/current/main/phases/phase-163x/README.md`
 6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 7. `git status -sb`
@@ -26,7 +26,7 @@ Scope: current lane / next lane / restart order only.
 - expected worktree:
   - clean
 - active lane:
-  - `phase-272x IPO build-policy owner seam`
+  - `phase-273x IPO ThinLTO first cut`
 - sibling guardrail:
   - `phase-137x` string corridor / exact-keeper guardrail
 - immediate next:
@@ -44,7 +44,7 @@ Scope: current lane / next lane / restart order only.
 ## Design Owners
 
 - implementation lane:
-  - `docs/development/current/main/phases/phase-272x/README.md`
+  - `docs/development/current/main/phases/phase-273x/README.md`
 - next layer landing:
   - `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 - roadmap SSOT:
@@ -80,7 +80,7 @@ Scope: current lane / next lane / restart order only.
 - `phase-269x` is landed: closure split now starts with a shared capture classification owner seam
 - `phase-270x` is landed: closure split now classifies single-capture envs as scalarizable while keeping lowering behavior unchanged
 - `phase-271x` is landed: closure split now classifies empty/single envs as thin-entry candidates while keeping ctor lowering unchanged
-- `phase-272x` is active: IPO / build-time optimization now starts with a shared build-policy owner seam
+- `phase-272x` is landed: IPO / build-time optimization now starts with a shared build-policy owner seam
 - explicit scope-exit timeout surfacing is parked while the optimization lane hands off to `numeric loop / SIMD`
 - the next code lane is now `IPO / build-time optimization`
 - `CURRENT_TASK.md` is the only live status pointer; `05/10/15` are thin mirrors only
@@ -89,7 +89,7 @@ Scope: current lane / next lane / restart order only.
 ## Execution Queue
 
 1. `IPO / build-time optimization`
-   - current cut: shared build-policy owner seam
-   - keep `ThinLTO` / `PGO` behavior disabled in this planning cut
-   - next follow-on: `ThinLTO` first cut before any `PGO` artifact work
+   - current cut: `ThinLTO` first cut
+   - shared build-policy owner seam is landed
+   - keep `PGO` artifact work out until after the first `ThinLTO` cut
 2. `PGO / ThinLTO first cut`

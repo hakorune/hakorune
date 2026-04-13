@@ -67,7 +67,8 @@ Owner: `phase-163x optimization-resume`
    - `closure env scalarization`
    - `closure thin-entry specialization`
 9. `IPO / build-time optimization`
-   - current owner seam: LLVM/Python build options now need one shared policy owner before `ThinLTO` / `PGO` widening (`phase272x`)
+   - landed owner seam: LLVM/Python build options now have one shared policy owner before `ThinLTO` / `PGO` widening (`phase272x`)
+   - current cut: `ThinLTO` first cut should land before any `PGO` profile artifact work (`phase273x`)
    - `PGO`
    - `ThinLTO`
    - MIR-side semantic layersが先。ここは最後尾
@@ -101,7 +102,7 @@ Owner: `phase-163x optimization-resume`
 
 - immediate code next:
   - `IPO / build-time optimization`
-   - first cut is a shared build-policy owner seam for LLVM/Python compile settings
-   - `ThinLTO` should come before any `PGO` profile artifact work
+   - first actual cut is `ThinLTO`
+   - `PGO` should stay after the first `ThinLTO` cut
 - immediate follow-on after that:
   - `PGO / ThinLTO` actual widening

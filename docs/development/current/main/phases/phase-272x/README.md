@@ -1,4 +1,4 @@
-Status: ACTIVE
+Status: LANDED
 Owner: Codex
 Phase: 272x
 
@@ -19,7 +19,7 @@ Phase: 272x
   - object compilation vs future link-time policy
   belong in one seam
 
-## Next
+## Closeout
 
-- `ThinLTO` first cut
-- `PGO` scaffold after that
+- the shared IPO build-policy owner seam is now landed
+- next cut is `ThinLTO`

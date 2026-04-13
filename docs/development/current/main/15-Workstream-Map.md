@@ -14,17 +14,17 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-272x IPO build-policy owner seam` |
-| Front | `IPO / build-time optimization -> build-policy owner seam` |
+| Now | `phase-273x IPO ThinLTO first cut` |
+| Front | `IPO / build-time optimization -> ThinLTO first cut` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `closure split is closed out; the next queue is IPO / build-time optimization build-policy work` |
+| Blocker | `closure split is closed out; the next queue is IPO / build-time optimization ThinLTO work` |
 | Next | `IPO / build-time optimization` |
 | After Next | `PGO / ThinLTO first cut` |
 
 ## Current Read
 
   - design owners:
-  - implementation lane: `docs/development/current/main/phases/phase-272x/README.md`
+  - implementation lane: `docs/development/current/main/phases/phase-273x/README.md`
   - next layer landing: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - roadmap SSOT: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
