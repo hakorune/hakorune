@@ -1,4 +1,4 @@
-Status: ACTIVE
+Status: LANDED
 Owner: Codex
 Phase: 266x
 
@@ -19,6 +19,12 @@ Phase: 266x
   - no reduction
   - integer-only
 - reduction widening, fast-math, reassociation, and FMA remain out of scope
+
+## Closeout
+
+- integer map loop widening is landed at this boundary
+- the next widening cut is integer sum reduction under the same LoopSimdContract
+- compare/select expansion remains separate
 
 ## Next
 

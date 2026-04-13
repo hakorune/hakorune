@@ -56,7 +56,8 @@ Owner: `phase-163x optimization-resume`
    - landed proof seam: conservative numeric induction annotation over simple while plans (`phase263x`)
    - landed proof seam: conservative reduction recognition over simple while plans (`phase264x`)
    - landed contract seam: LoopSimdContract proof / policy / lowering owner split (`phase265x`)
-   - current widening seam: integer map loops now emit the first conservative `llvm.loop` vectorization hint under LoopSimdContract (`phase266x`)
+   - landed widening seam: integer map loops now emit the first conservative `llvm.loop` vectorization hint under LoopSimdContract (`phase266x`)
+   - current widening seam: integer sum reductions now emit the next conservative `llvm.loop` vectorization hint under LoopSimdContract (`phase267x`)
 8. `closure split`
    - `capture classification`
    - `closure env scalarization`
@@ -98,6 +99,7 @@ Owner: `phase-163x optimization-resume`
    - `phase263x` is landed: the induction proof seam over simple while plans is closed out
    - `phase264x` is landed: the reduction-recognition proof seam over simple while plans is closed out
    - `phase265x` is landed: the contract seam is LoopSimdContract proof / policy / lowering ownership
-   - `phase266x` is active: the first actual widening cut is integer map loops under LoopSimdContract
+   - `phase266x` is landed: the first actual widening cut is integer map loops under LoopSimdContract
+   - `phase267x` is active: the next actual widening cut is integer sum reductions under LoopSimdContract
 - immediate follow-on after that:
   - `escape / barrier -> LLVM attrs`

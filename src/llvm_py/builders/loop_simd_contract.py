@@ -49,6 +49,11 @@ def build_loop_simd_contract(loop_plan: Optional[Dict[str, Any]]) -> Optional[Di
         lowering_md = {
             "vectorize.enable": True,
         }
+    elif accepted_class == "int_reduction_candidate":
+        lowering_md = {
+            "vectorize.enable": True,
+            "reduction.kind": "int_add",
+        }
     else:
         lowering_md = {}
 
@@ -87,8 +92,8 @@ def build_loop_simd_contract(loop_plan: Optional[Dict[str, Any]]) -> Optional[Di
 def apply_loop_simd_metadata(module: ir.Module, terminator: Any, contract: Optional[Dict[str, Any]]) -> bool:
     """Attach a conservative llvm.loop hint for the current actual widening cut.
 
-    Phase266x only emits metadata for integer map candidates. Reduction
-    candidates and all broader widening shapes stay deferred.
+    Phase267x emits metadata for integer map and integer reduction candidates.
+    Broader widening shapes still stay deferred.
     """
 
     if terminator is None or contract is None:

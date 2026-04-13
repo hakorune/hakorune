@@ -1,6 +1,6 @@
 # Phase 266x SSOT — integer map widening
 
-Status: ACTIVE
+Status: LANDED
 Date: 2026-04-13
 Scope: first actual SIMD widening cut under LoopSimdContract.
 

@@ -276,7 +276,7 @@
       - LLVM/Python local-enum escape barriers now share one helper instead of repeating materialization wrappers in `call` / `boxcall` / `ret`
       - safe runtime nullish checks touched in this lane now converge on `NullBox::check_null()`
       - MIR reference docs now split into instruction SSOT + metadata SSOT, while stale all-in-one references are reduced to thin pointers
-    8. next ready task: `phase-266x numeric loop / SIMD integer map widening`
+    8. next ready task: `phase-267x numeric loop / SIMD integer sum reduction widening`
     9. keep `where` / enum methods / full monomorphization in backlog
 
 ## Fixed Task Order

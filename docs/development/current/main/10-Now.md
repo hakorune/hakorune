@@ -12,7 +12,7 @@ Related:
 
 ## Current
 
-- current implementation lane: `phase266x numeric loop / SIMD integer map widening`
+- current implementation lane: `phase267x numeric loop / SIMD integer sum reduction widening`
 - sibling guardrail lane: `phase137x main kilo reopen selection`
 - immediate next: `numeric loop / SIMD`
 - immediate follow-on: `closure split`
@@ -38,8 +38,10 @@ Related:
   - the first numeric-loop reduction recognition proof seam is closed out
 - `phase265x` is landed:
   - the LoopSimdContract owner seam now exists in code and is closed out
-- `phase266x` is active:
+- `phase266x` is landed:
   - integer map loop widening is the first actual widening cut
+- `phase267x` is active:
+  - integer sum reduction widening is the next actual widening cut
 - latest semantic simplification cut:
   - copied-constant `Branch` terminators, constant `Compare` instructions, and empty trampoline jump-threading now fold before CFG merge
   - branch arms may now thread through an empty trampoline into a final block when the final PHIs can be trivially rewritten to the branching predecessor
@@ -52,7 +54,7 @@ Related:
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
 3. `docs/reference/concurrency/semantics.md`
-4. `docs/development/current/main/phases/phase-266x/README.md`
+4. `docs/development/current/main/phases/phase-267x/README.md`
 5. `docs/development/current/main/phases/phase-163x/README.md`
 6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 

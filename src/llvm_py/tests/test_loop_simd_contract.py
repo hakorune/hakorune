@@ -51,6 +51,7 @@ class TestLoopSimdContract(unittest.TestCase):
 
         self.assertEqual(contract["diag"]["accepted_class"], "int_reduction_candidate")
         self.assertEqual(contract["proof"]["reduction_value_ids"], [40])
+        self.assertEqual(contract["lowering"]["llvm_loop_md"]["reduction.kind"], "int_add")
 
     def test_rejects_non_numeric_loop_plan(self):
         self.assertIsNone(build_loop_simd_contract({"header": 1}))
@@ -86,7 +87,7 @@ class TestLoopSimdContract(unittest.TestCase):
         llvm.parse_assembly(str(module))
         self.assertIn("llvm.loop", str(module))
 
-    def test_apply_loop_simd_metadata_skips_reduction_candidate(self):
+    def test_apply_loop_simd_metadata_sets_llvm_loop_hint_for_reduction_candidate(self):
         module = ir.Module(name="m")
         fnty = ir.FunctionType(ir.VoidType(), [])
         func = ir.Function(module, fnty, name="f")
@@ -111,7 +112,7 @@ class TestLoopSimdContract(unittest.TestCase):
             }
         )
 
-        self.assertFalse(apply_loop_simd_metadata(module, branch, contract))
+        self.assertTrue(apply_loop_simd_metadata(module, branch, contract))
 
 
 if __name__ == "__main__":

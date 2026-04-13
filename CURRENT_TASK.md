@@ -15,7 +15,7 @@ Scope: current lane / next lane / restart order only.
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/10-Now.md`
 3. `docs/development/current/main/15-Workstream-Map.md`
-4. `docs/development/current/main/phases/phase-266x/README.md`
+4. `docs/development/current/main/phases/phase-267x/README.md`
 5. `docs/development/current/main/phases/phase-163x/README.md`
 6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 7. `git status -sb`
@@ -26,7 +26,7 @@ Scope: current lane / next lane / restart order only.
 - expected worktree:
   - clean
 - active lane:
-  - `phase-266x numeric loop / SIMD integer map widening`
+  - `phase-267x numeric loop / SIMD integer sum reduction widening`
 - sibling guardrail:
   - `phase-137x` string corridor / exact-keeper guardrail
 - immediate next:
@@ -44,7 +44,7 @@ Scope: current lane / next lane / restart order only.
 ## Design Owners
 
 - implementation lane:
-  - `docs/development/current/main/phases/phase-266x/README.md`
+  - `docs/development/current/main/phases/phase-267x/README.md`
 - next layer landing:
   - `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 - roadmap SSOT:
@@ -74,7 +74,8 @@ Scope: current lane / next lane / restart order only.
 - `phase-263x` is landed: the first numeric-loop induction proof seam is closed out
 - `phase-264x` is landed: the first numeric-loop reduction recognition proof seam is closed out
 - `phase-265x` is landed: the LoopSimdContract owner seam now exists in code
-- `phase-266x` is active: integer map loop widening is the first actual widening cut
+- `phase-266x` is landed: integer map loop widening is the first actual widening cut
+- `phase-267x` is active: integer sum reduction widening is the next actual widening cut
 - explicit scope-exit timeout surfacing is parked while the optimization lane hands off to `numeric loop / SIMD`
 - the next code lane is now `numeric loop / SIMD`
 - `CURRENT_TASK.md` is the only live status pointer; `05/10/15` are thin mirrors only
@@ -83,7 +84,7 @@ Scope: current lane / next lane / restart order only.
 ## Execution Queue
 
 1. `numeric loop / SIMD`
-   - current cut: integer map loop widening under LoopSimdContract
-   - keep reduction widening / fast-math / FMA out of this seam
-   - next follow-on: integer sum reduction widening under the current contract
+   - current cut: integer sum reduction widening under LoopSimdContract
+   - keep compare/select widening / fast-math / FMA out of this seam
+   - next follow-on: compare/select widening under the current contract
 2. `closure split`
