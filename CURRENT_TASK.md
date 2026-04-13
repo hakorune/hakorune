@@ -15,7 +15,7 @@ Scope: current lane / next lane / restart order only.
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/10-Now.md`
 3. `docs/development/current/main/15-Workstream-Map.md`
-4. `docs/development/current/main/phases/phase-260x/README.md`
+4. `docs/development/current/main/phases/phase-261x/README.md`
 5. `docs/development/current/main/phases/phase-163x/README.md`
 6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 7. `git status -sb`
@@ -46,7 +46,7 @@ Scope: current lane / next lane / restart order only.
 - implementation lane:
   - `docs/development/current/main/phases/phase-163x/README.md`
 - next layer landing:
-  - `docs/development/current/main/phases/phase-260x/README.md`
+  - `docs/development/current/main/phases/phase-261x/README.md`
 - roadmap SSOT:
   - `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 - string guardrail owner:
@@ -69,13 +69,15 @@ Scope: current lane / next lane / restart order only.
 - `phase-258x` is landed: `SimplifyCFG` now propagates constant conditions through single-input PHIs before folding compare / branch conditions
 - `phase-259x` is landed: SimplifyCFG closeout judgment hands the remaining optimization lane to memory-effect work
 - `phase-260x` is landed: the memory-effect owner seam and stats surface now sit on their own top-level pass, and the same-block private-carrier slices are fully landed
-- explicit scope-exit timeout surfacing is parked while the optimization lane hands off to `memory-effect layer`
-- the next code lane is now `memory-effect layer`
+- `phase-261x` is active: the first runtime helper LLVM attrs policy seam is the current `escape / barrier -> LLVM attrs` cut
+- explicit scope-exit timeout surfacing is parked while the optimization lane hands off to `escape / barrier -> LLVM attrs`
+- the next code lane is now `escape / barrier -> LLVM attrs`
 - `CURRENT_TASK.md` is the only live status pointer; `05/10/15` are thin mirrors only
 - if this file grows again, move the detail back into the phase docs
 
 ## Execution Queue
 
-1. `memory-effect layer`
-   - hand off to `escape / barrier -> LLVM attrs`
-   - do not bury the next memory slices inside `dce/memory.rs` without a top-level owner
+1. `escape / barrier -> LLVM attrs`
+   - first cut: runtime helper LLVM attrs policy seam (`readonly` / `nocapture`)
+   - do not bury future attrs feed inside ad-hoc declaration sites without a top-level owner
+2. `numeric loop / SIMD`

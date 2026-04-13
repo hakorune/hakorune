@@ -45,6 +45,7 @@ Owner: `phase-163x optimization-resume`
    - `readnone`
    - `noalias`
    - MIR-side barrier vocabulary を LLVM attrs feed に繋ぐ
+   - landed first attrs seam: compat/probe keep builder now applies conservative `readonly` / `nocapture` runtime helper attrs at finalization
 7. `numeric loop / SIMD`
    - induction normalization
    - reduction recognition

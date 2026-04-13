@@ -15,7 +15,7 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-163x primitive and user-box fast path` |
-| Front | `semantic simplification bundle closed out -> next design lane is memory-effect layer` |
+| Front | `memory-effect layer complete -> next design lane is escape / barrier -> LLVM attrs` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
 | Blocker | `memory-effect layer is complete; M0/M1/M2/M3 are landed, and the next queue starts at escape / barrier -> LLVM attrs` |
 | Next | `escape / barrier -> LLVM attrs` |
@@ -25,7 +25,7 @@ Related:
 
 - design owners:
   - implementation lane: `docs/development/current/main/phases/phase-163x/README.md`
-  - next layer landing: `docs/development/current/main/phases/phase-260x/README.md`
+  - next layer landing: `docs/development/current/main/phases/phase-261x/README.md`
   - roadmap SSOT: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
   - concurrency manual owner: `docs/reference/concurrency/semantics.md`

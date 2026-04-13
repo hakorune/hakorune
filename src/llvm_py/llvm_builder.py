@@ -23,6 +23,7 @@ from mir_analysis import scan_call_arities
 
 from resolver import Resolver
 from mir_reader import build_builder_input
+from instructions.llvm_attrs import apply_runtime_llvm_attrs as _apply_runtime_llvm_attrs
 
 _FUNC_DECL_RE = re.compile(r"^define\b.*@([^(]+)\(")
 _BLOCK_LABEL_RE = re.compile(r"^([A-Za-z$._][\w$.-]*):")
@@ -178,6 +179,16 @@ class NyashLLVMBuilder:
         self.phi_manager = PhiManager()
         # Legacy support for code that still uses predeclared_ret_phis
         self.predeclared_ret_phis: Dict[Tuple[int, int], ir.Instruction] = {}
+
+    def apply_runtime_llvm_attrs(self) -> None:
+        """Annotate known runtime helper declarations with conservative LLVM attrs."""
+        try:
+            _apply_runtime_llvm_attrs(self.module)
+        except Exception as _e:
+            try:
+                trace_debug(f"[Python LLVM] runtime attr policy skipped: {_e}")
+            except Exception:
+                pass
         
     def build_from_mir(self, mir_json: Dict[str, Any]) -> str:
         """Build LLVM IR from MIR JSON"""
@@ -235,6 +246,10 @@ class NyashLLVMBuilder:
                 trace_debug(f"[Python LLVM] ensure_ny_main failed: {_e}")
             except Exception:
                 pass
+
+        # Apply a narrow runtime LLVM attribute policy after all helper
+        # declarations are in place but before textual emission / parsing.
+        self.apply_runtime_llvm_attrs()
         
         ir_text = str(self.module)
         # Optional IR dump to file for debugging
@@ -336,6 +351,7 @@ class NyashLLVMBuilder:
             pass
         
         # Compile
+        self.apply_runtime_llvm_attrs()
         ir_text = str(self.module)
         # Optional IR dump for debugging (Phase 131-7)
         if os.environ.get('NYASH_LLVM_DUMP_IR') == '1':
