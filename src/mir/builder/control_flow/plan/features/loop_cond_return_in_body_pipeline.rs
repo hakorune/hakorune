@@ -13,6 +13,7 @@ use crate::mir::builder::control_flow::plan::features::carriers;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::if_branch_lowering;
 use crate::mir::builder::control_flow::plan::features::loop_cond_return_in_body_phi_materializer::LoopCondReturnInBodyPhiMaterializer;
+use crate::mir::builder::control_flow::plan::features::loop_cond_return_in_body_verifier::verify_loop_cond_return_in_body_phi_closure;
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::loop_cond::return_in_body_facts::LoopCondReturnInBodyFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::return_in_body_recipe::{
@@ -114,12 +115,25 @@ pub(in crate::mir::builder) fn lower_loop_cond_return_in_body(
     )?;
 
     let body_exits_all_paths = body_plans_exit_on_all_paths(&body_plans);
+    let continue_target = if use_header_continue_target {
+        header_bb
+    } else {
+        step_bb
+    };
     let phi_closure = phi_materializer.close(
         header_bb,
         preheader_bb,
         step_bb,
         use_header_continue_target,
         body_exits_all_paths,
+        LOOP_COND_RETURN_IN_BODY_ERR,
+    )?;
+    verify_loop_cond_return_in_body_phi_closure(
+        &phi_closure,
+        continue_target,
+        use_header_continue_target,
+        body_exits_all_paths,
+        carrier_vars.len(),
         LOOP_COND_RETURN_IN_BODY_ERR,
     )?;
     if let Some(continue_exit) = phi_closure.continue_exit() {
@@ -143,7 +157,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_return_in_body(
         header_bb,
         body_bb,
         step_bb,
-        continue_target: phi_closure.continue_target(),
+        continue_target,
         after_bb,
         found_bb: after_bb,
         body: body_plans,

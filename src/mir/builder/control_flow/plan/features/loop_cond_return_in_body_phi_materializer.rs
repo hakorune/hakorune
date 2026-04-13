@@ -27,6 +27,20 @@ pub(in crate::mir::builder) struct LoopCondReturnInBodyPhiClosure {
 }
 
 impl LoopCondReturnInBodyPhiClosure {
+    pub(in crate::mir::builder) fn new(
+        continue_exit: Option<CoreExitPlan>,
+        phis: Vec<CorePhiInfo>,
+        final_values: Vec<(String, ValueId)>,
+        continue_target: BasicBlockId,
+    ) -> Self {
+        Self {
+            continue_exit,
+            phis,
+            final_values,
+            continue_target,
+        }
+    }
+
     pub(in crate::mir::builder) fn continue_exit(&self) -> Option<CoreExitPlan> {
         self.continue_exit.clone()
     }
@@ -139,12 +153,12 @@ impl LoopCondReturnInBodyPhiMaterializer {
             error_prefix,
         )?;
 
-        Ok(LoopCondReturnInBodyPhiClosure {
-            continue_exit: join_sig.continue_exit(),
-            phis: join_sig.phis().to_vec(),
-            final_values: join_sig.final_values().to_vec(),
-            continue_target: self.continue_target,
-        })
+        Ok(LoopCondReturnInBodyPhiClosure::new(
+            join_sig.continue_exit(),
+            join_sig.phis().to_vec(),
+            join_sig.final_values().to_vec(),
+            self.continue_target,
+        ))
     }
 }
 

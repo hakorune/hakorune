@@ -53,13 +53,12 @@ Related:
     - `route`
     - `recipe`
     - `join sig`
+    - `phi materializer`
   - still mixed in pipeline:
-    - typed header/step PHI allocation
-    - temporary `variable_map` rebinding
-    - continue-exit closure
-    - `CoreLoopPlan.phis/final_values` assembly
+    - route-specific invariant checks after PHI closure
+    - verifier ownership is still split between generic loop validation and local tests
   - next cut:
-    - extract a dedicated `phi materializer` seam for `LoopCondReturnInBody` only
+    - extract a dedicated `verifier` seam for `LoopCondReturnInBody` only
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

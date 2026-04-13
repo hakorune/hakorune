@@ -96,14 +96,14 @@ Scope: current lane / next lane / restart order only.
    - landed first family seam:
      - `LoopCondReturnInBody` join-sig extraction
    - current inventory:
-      - `facts` / `route` / `recipe` are already separate owners
-      - `LoopCondReturnInBody` still mixes route-local PHI allocation, temporary rebinding, and continue-exit closure in the pipeline
-      - next cut is one-family `phi materializer` extraction for `LoopCondReturnInBody`
+      - `facts` / `route` / `recipe` / `join sig` / `phi materializer` are separate owners for `LoopCondReturnInBody`
+      - route-specific invariant checks are still split between generic verifier and local tests
+      - next cut is one-family `verifier` extraction for `LoopCondReturnInBody`
 4. `phase-29bq legacy lowerer removal`
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
    - next:
-     - move `LoopCondReturnInBody` PHI closure behind a dedicated materializer seam
+     - move `LoopCondReturnInBody` route-local invariant checks behind a dedicated verifier seam
 
 ## Legacy Compatibility Block
 
