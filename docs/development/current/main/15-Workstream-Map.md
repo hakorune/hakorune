@@ -14,10 +14,10 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-273x IPO ThinLTO first cut` |
-| Front | `IPO / build-time optimization -> ThinLTO first cut` |
+| Now | `phase-273x IPO callable-edge contract owner seam` |
+| Front | `IPO / build-time optimization -> callable/edge contract owner seam` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `closure split is closed out; the next queue is IPO / build-time optimization ThinLTO work` |
+| Blocker | `closure split is closed out; the next queue is IPO / build-time optimization callable/edge contract work` |
 | Next | `IPO / build-time optimization` |
 | After Next | `PGO / ThinLTO first cut` |
 

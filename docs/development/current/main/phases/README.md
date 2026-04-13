@@ -4,7 +4,7 @@
 
 ## Current
 
-- **Current (ACTIVE)**: Phase 273x IPO ThinLTO first cut
+- **Current (ACTIVE)**: Phase 273x IPO callable-edge contract owner seam
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
 
 ## Recent Landed

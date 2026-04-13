@@ -12,7 +12,7 @@ Related:
 
 ## Current
 
-- current implementation lane: `phase273x IPO ThinLTO first cut`
+- current implementation lane: `phase273x IPO callable-edge contract owner seam`
 - sibling guardrail lane: `phase137x main kilo reopen selection`
 - immediate next: `IPO / build-time optimization`
 - immediate follow-on: `PGO / ThinLTO first cut`
@@ -52,6 +52,8 @@ Related:
   - closure split now classifies empty/single envs as thin-entry candidates while preserving current ctor lowering
 - `phase272x` is landed:
   - IPO / build-time optimization now starts with a shared build-policy owner seam
+- `phase273x` is active:
+  - IPO now fixes callable/edge contract ownership before any ThinLTO wiring
 - latest semantic simplification cut:
   - copied-constant `Branch` terminators, constant `Compare` instructions, and empty trampoline jump-threading now fold before CFG merge
   - branch arms may now thread through an empty trampoline into a final block when the final PHIs can be trivially rewritten to the branching predecessor

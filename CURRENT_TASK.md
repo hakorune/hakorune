@@ -26,7 +26,7 @@ Scope: current lane / next lane / restart order only.
 - expected worktree:
   - clean
 - active lane:
-  - `phase-273x IPO ThinLTO first cut`
+  - `phase-273x IPO callable-edge contract owner seam`
 - sibling guardrail:
   - `phase-137x` string corridor / exact-keeper guardrail
 - immediate next:
@@ -81,6 +81,7 @@ Scope: current lane / next lane / restart order only.
 - `phase-270x` is landed: closure split now classifies single-capture envs as scalarizable while keeping lowering behavior unchanged
 - `phase-271x` is landed: closure split now classifies empty/single envs as thin-entry candidates while keeping ctor lowering unchanged
 - `phase-272x` is landed: IPO / build-time optimization now starts with a shared build-policy owner seam
+- `phase-273x` is active: IPO now fixes callable/edge contract ownership before any `ThinLTO` wiring
 - explicit scope-exit timeout surfacing is parked while the optimization lane hands off to `numeric loop / SIMD`
 - the next code lane is now `IPO / build-time optimization`
 - `CURRENT_TASK.md` is the only live status pointer; `05/10/15` are thin mirrors only
@@ -89,7 +90,7 @@ Scope: current lane / next lane / restart order only.
 ## Execution Queue
 
 1. `IPO / build-time optimization`
-   - current cut: `ThinLTO` first cut
+   - current cut: shared callable/edge contract owner seam
    - shared build-policy owner seam is landed
-   - keep `PGO` artifact work out until after the first `ThinLTO` cut
+   - keep `ThinLTO` wiring and `PGO` artifact work out until after the contract seam lands
 2. `PGO / ThinLTO first cut`
