@@ -7,6 +7,7 @@ from trace import hot_enabled as trace_hot_enabled
 from trace import format_hot_summary as trace_format_hot_summary
 from prepass.if_merge import plan_ret_phi_predeclare
 from prepass.loops import annotate_numeric_loop_plan, detect_simple_while
+from builders.loop_simd_contract import build_loop_simd_contract
 from cfg.utils import (
     collect_arrayish_value_ids,
     collect_integerish_value_ids,
@@ -324,6 +325,15 @@ def _run_loop_prepass(block_by_id: Dict[int, Dict[str, Any]], context: FunctionL
                     )
                 except Exception:
                     pass
+                try:
+                    contract = build_loop_simd_contract(loop_plan)
+                except Exception:
+                    contract = None
+                if contract is not None:
+                    try:
+                        context.loop_simd_contracts[header_bid] = contract
+                    except Exception:
+                        pass
     return loop_plan
 
 

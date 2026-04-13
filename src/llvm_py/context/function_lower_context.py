@@ -101,6 +101,9 @@ class FunctionLowerContext:
         # Loop prepass metadata (function-local)
         # Maps: loop_header_block_id -> annotated loop plan dict
         self.numeric_loop_plans: Dict[int, Dict[str, Any]] = {}
+        # LoopSimdContract metadata (function-local)
+        # Maps: loop_header_block_id -> proof/policy/lowering/diag contract dict
+        self.loop_simd_contracts: Dict[int, Dict[str, Any]] = {}
         self.resolver_hoisted_string_handles: Dict[str, ir.Value] = {}
         self.resolver_hoisted_string_ptrs: Dict[str, ir.Value] = {}
 
@@ -199,5 +202,6 @@ class FunctionLowerContext:
             f"blocks={len(self.block_end_values)}, "
             f"jump_only={len(self.jump_only_blocks)}, "
             f"defs={len(self.def_blocks)}, "
-            f"numeric_loops={len(self.numeric_loop_plans)})"
+            f"numeric_loops={len(self.numeric_loop_plans)}, "
+            f"simd_contracts={len(self.loop_simd_contracts)})"
         )

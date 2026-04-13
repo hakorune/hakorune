@@ -13,6 +13,8 @@ Phase: 265x
 ## Current Cut
 
 - introduce one owner vocabulary for numeric-loop SIMD eligibility
+- `builders.loop_simd_contract.build_loop_simd_contract(...)` now owns the contract shape
+- `FunctionLowerContext.loop_simd_contracts` caches the contract by loop header id
 - keep LLVM loop metadata as lowering hints, not the semantic source of truth
 - keep actual widening, fast-math, reassociation, and FMA out of scope
 

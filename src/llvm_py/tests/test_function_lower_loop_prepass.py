@@ -16,6 +16,7 @@ class _ContextStub:
         self.integerish_value_ids = set()
         self.non_negative_value_ids = set()
         self.numeric_loop_plans = {}
+        self.loop_simd_contracts = {}
 
 
 class TestFunctionLowerLoopPrepass(unittest.TestCase):
@@ -84,6 +85,7 @@ class TestFunctionLowerLoopPrepass(unittest.TestCase):
         self.assertEqual(plan["numeric_kind"], "induction")
         self.assertEqual(plan["numeric_induction_value_ids"], [10, 11])
         self.assertEqual(context.numeric_loop_plans[1]["numeric_kind"], "induction")
+        self.assertEqual(context.loop_simd_contracts[1]["diag"]["accepted_class"], "int_map_candidate")
 
     def test_run_loop_prepass_skips_numeric_annotation_for_mixed_body(self):
         prev_env = os.environ.get("NYASH_LLVM_PREPASS_LOOP")
@@ -114,6 +116,7 @@ class TestFunctionLowerLoopPrepass(unittest.TestCase):
 
         self.assertNotIn("numeric_kind", plan)
         self.assertEqual(context.numeric_loop_plans, {})
+        self.assertEqual(context.loop_simd_contracts, {})
 
     def test_run_loop_prepass_annotates_numeric_reduction_when_body_updates_non_compare_phi(self):
         prev_env = os.environ.get("NYASH_LLVM_PREPASS_LOOP")
@@ -149,6 +152,11 @@ class TestFunctionLowerLoopPrepass(unittest.TestCase):
         self.assertEqual(plan["numeric_kind"], "induction")
         self.assertEqual(plan["numeric_reduction_value_ids"], [40])
         self.assertEqual(context.numeric_loop_plans[1]["numeric_reduction_value_ids"], [40])
+        self.assertEqual(context.loop_simd_contracts[1]["diag"]["accepted_class"], "int_reduction_candidate")
+        self.assertEqual(
+            context.loop_simd_contracts[1]["proof"]["reduction_value_ids"],
+            [40],
+        )
 
     def test_run_loop_prepass_skips_numeric_reduction_for_compare_carrier(self):
         prev_env = os.environ.get("NYASH_LLVM_PREPASS_LOOP")
@@ -182,6 +190,7 @@ class TestFunctionLowerLoopPrepass(unittest.TestCase):
         self.assertEqual(plan["numeric_kind"], "induction")
         self.assertNotIn("numeric_reduction_value_ids", plan)
         self.assertEqual(context.numeric_loop_plans[1].get("numeric_reduction_value_ids"), None)
+        self.assertEqual(context.loop_simd_contracts[1]["diag"]["accepted_class"], "int_map_candidate")
 
 
 if __name__ == "__main__":

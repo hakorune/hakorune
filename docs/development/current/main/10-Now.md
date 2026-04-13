@@ -37,7 +37,7 @@ Related:
 - `phase264x` is landed:
   - the first numeric-loop reduction recognition proof seam is closed out
 - `phase265x` is active:
-  - the next numeric-loop / SIMD cut is the LoopSimdContract owner seam
+  - the LoopSimdContract owner seam now exists in code and is the current bridge to actual widening
 - latest semantic simplification cut:
   - copied-constant `Branch` terminators, constant `Compare` instructions, and empty trampoline jump-threading now fold before CFG merge
   - branch arms may now thread through an empty trampoline into a final block when the final PHIs can be trivially rewritten to the branching predecessor

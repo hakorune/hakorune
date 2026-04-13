@@ -7,6 +7,7 @@ Status: ACTIVE
 - [x] decide that the next numeric-loop / SIMD slice is the LoopSimdContract owner seam
 - [x] pin proof / policy / lowering / diag as separate responsibilities
 - [x] keep actual widening and fast-math out of this seam
+- [x] materialize the first code-side LoopSimdContract seam and cache it by loop header id
 
 ## Next
 

@@ -73,7 +73,7 @@ Scope: current lane / next lane / restart order only.
 - `phase-262x` is landed: the first numeric-loop / SIMD policy seam is closed out
 - `phase-263x` is landed: the first numeric-loop induction proof seam is closed out
 - `phase-264x` is landed: the first numeric-loop reduction recognition proof seam is closed out
-- `phase-265x` is active: the next cut is the LoopSimdContract owner seam and docs-only contract pin
+- `phase-265x` is active: the LoopSimdContract owner seam now exists in code and is the current bridge to actual widening
 - explicit scope-exit timeout surfacing is parked while the optimization lane hands off to `numeric loop / SIMD`
 - the next code lane is now `numeric loop / SIMD`
 - `CURRENT_TASK.md` is the only live status pointer; `05/10/15` are thin mirrors only
@@ -84,4 +84,5 @@ Scope: current lane / next lane / restart order only.
 1. `numeric loop / SIMD`
    - current cut: LoopSimdContract owner seam over numeric loop proof / policy / lowering boundaries
    - keep actual widening / fast-math / FMA out of this seam
+   - next follow-on: integer map loop widening under the current contract
 2. `closure split`

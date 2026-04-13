@@ -21,6 +21,9 @@ Scope: docs-first owner split for numeric-loop / SIMD widening.
 - `policy` owns `off | auto_eligible | user_prefer` style mode plus future width/predication knobs.
 - `lowering` owns LLVM-facing hints and attrs only after proof and policy are fixed.
 - `diag` owns `accepted_class` / `reject_reason` without changing runtime behavior.
+- current code seam:
+  - `builders.loop_simd_contract.build_loop_simd_contract(...)` materializes the contract from the landed numeric loop proof
+  - `FunctionLowerContext.loop_simd_contracts` stores that contract by loop header id
 
 ## Phase-1 Target
 
