@@ -75,8 +75,12 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
   - explicit-scope exit cancels still-pending owned futures with reason `scope-exit-cancelled`
   - nested explicit scopes clean up when they exit; they are not deferred to the outermost scope
   - explicit scope exit now returns/rethrows the popped scope's latched `first_failure`
-  - `joinAll()` now returns `ResultBox::Ok(void)` / `ResultBox::Err(first_failure_payload)`
-  - timeout still has no dedicated public payload in the current cut
+  - explicit scope-exit timeout still has no dedicated public payload in the current cut
+- `joinAll()` is now a slightly wider owner-side surface:
+  - `ResultBox::Ok(void)` when the bounded join finishes in time and no first failure is latched
+  - `ResultBox::Err(first_failure_payload)` when a first failure is latched
+  - `ResultBox::Err(TaskJoinTimeout: timed out after Nms)` when the bounded join deadline is hit without a latched first failure
+  - first failure wins over timeout
 - current sibling-failure cut is also narrow:
   - only explicit `task_scope` ownership participates
   - first failed child future cancels pending siblings with reason `sibling-failed`

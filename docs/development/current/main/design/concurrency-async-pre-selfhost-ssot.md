@@ -120,6 +120,20 @@ Non-goals (この文書で今すぐやらない):
   - implicit root scope does not expose aggregate reporting in this cut
   - `pop_task_scope()` does not yet return aggregate failure payloads
 
+### `joinAll()` timeout payload (Phase 255x)
+
+- `TaskGroupBox.joinAll(timeout_ms)` now exposes a dedicated timeout payload
+- current Phase-0 public shape is:
+  - `ResultBox::Ok(void)` when the bounded join finishes in time and no first failure is latched
+  - `ResultBox::Err(first_failure_payload)` when a first failure is latched
+  - `ResultBox::Err(ErrorBox("TaskJoinTimeout", "timed out after <ms>ms"))` when the bounded join hits its deadline without a latched first failure
+- precedence is fixed:
+  - first failure wins over timeout
+  - timeout wins over plain `Ok(void)`
+- scope-exit remains narrower in this cut:
+  - explicit scope exit still only surfaces the latched first failure
+  - explicit scope-exit timeout payload remains later work
+
 ---
 
 ## 1. Current reality (2026-02-04 snapshot)

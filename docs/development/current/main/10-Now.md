@@ -19,6 +19,8 @@ Related:
 
 ## Landing Snapshot
 
+- `phase255x` is landed:
+  - `joinAll()` now returns `Err(TaskJoinTimeout: timed out after Nms)` when bounded join hits deadline without a latched first failure
 - `phase254x` is landed:
   - explicit-scope aggregate failures now live on `TaskGroupBox.failureReport()` as `[first_failure, additional_failures...]`
 - `phase253x` is landed:
@@ -46,7 +48,7 @@ Related:
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-254x/README.md`
+3. `docs/development/current/main/phases/phase-255x/README.md`
 4. `docs/development/current/main/phases/phase-163x/README.md`
 5. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 

@@ -1,5 +1,6 @@
 use crate::box_trait::{BoolBox, BoxBase, BoxCore, NyashBox, StringBox, VoidBox};
 use crate::boxes::array::ArrayBox;
+use crate::boxes::basic::ErrorBox;
 use crate::boxes::future::FutureTerminal;
 use crate::boxes::result::ResultBox;
 use std::any::Any;
@@ -82,7 +83,7 @@ impl TaskGroupInner {
         }
     }
 
-    pub(crate) fn join_pending_with_timeout(&self, timeout_ms: u64) {
+    pub(crate) fn join_pending_with_timeout(&self, timeout_ms: u64) -> bool {
         use std::time::{Duration, Instant};
         let deadline = Instant::now() + Duration::from_millis(timeout_ms);
         loop {
@@ -94,10 +95,10 @@ impl TaskGroupInner {
                 }
             }
             if all_ready {
-                break;
+                return false;
             }
             if Instant::now() >= deadline {
-                break;
+                return true;
             }
             crate::runtime::global_hooks::safepoint_and_poll();
             std::thread::yield_now();
@@ -111,10 +112,16 @@ impl TaskGroupInner {
             .and_then(|slot| slot.as_ref().map(|failure| failure.clone_or_share()))
     }
 
-    pub(crate) fn join_outcome(&self, timeout_ms: u64) -> Result<(), Box<dyn NyashBox>> {
-        self.join_pending_with_timeout(timeout_ms);
+    pub(crate) fn join_all_outcome(&self, timeout_ms: u64) -> Result<(), Box<dyn NyashBox>> {
+        let timed_out = self.join_pending_with_timeout(timeout_ms);
         if let Some(failure) = self.first_failure() {
             return Err(failure);
+        }
+        if timed_out {
+            return Err(Box::new(ErrorBox::new(
+                "TaskJoinTimeout",
+                format!("timed out after {}ms", timeout_ms),
+            )));
         }
         Ok(())
     }
@@ -134,7 +141,11 @@ impl TaskGroupInner {
 
     pub(crate) fn scope_exit_shutdown(&self, timeout_ms: u64) -> Result<(), Box<dyn NyashBox>> {
         self.cancel_pending_with_reason("scope-exit-cancelled");
-        self.join_outcome(timeout_ms)
+        self.join_pending_with_timeout(timeout_ms);
+        if let Some(failure) = self.first_failure() {
+            return Err(failure);
+        }
+        Ok(())
     }
 
     pub(crate) fn note_failure_and_cancel_siblings(&self, failure: Box<dyn NyashBox>) {
@@ -183,12 +194,13 @@ impl TaskGroupBox {
     /// Best-effort bounded join for child futures owned by this task-scope scaffold.
     ///
     /// Current Phase-0 surface:
-    /// - `Ok(void)` when no first failure is latched
+    /// - `Ok(void)` when no first failure is latched and the bounded join finishes in time
     /// - `Err(first_failure)` when explicit child failure was latched
-    /// - timeout does not yet have its own public error shape
+    /// - `Err(TaskJoinTimeout: timed out after Nms)` when the bounded join hits its deadline
+    /// - first failure wins over timeout if both are present
     pub fn joinAll(&self, timeout_ms: Option<i64>) -> Box<dyn NyashBox> {
         let ms = timeout_ms.unwrap_or(2000).max(0) as u64;
-        match self.inner.join_outcome(ms) {
+        match self.inner.join_all_outcome(ms) {
             Ok(()) => Box::new(ResultBox::new_ok(Box::new(VoidBox::new()))),
             Err(error) => Box::new(ResultBox::new_err(error)),
         }
@@ -337,6 +349,49 @@ mod tests {
 
         assert!(result.is_err());
         assert_eq!(result.get_error().to_string_box().value, "TaskError: boom");
+    }
+
+    #[test]
+    fn join_all_returns_err_timeout_payload_when_pending_child_misses_deadline() {
+        let group = TaskGroupBox::new();
+        let pending = crate::boxes::future::FutureBox::new();
+        group.add_future(&pending);
+
+        let out = group.joinAll(Some(0));
+        let result = out
+            .as_any()
+            .downcast_ref::<ResultBox>()
+            .expect("joinAll must return ResultBox");
+
+        assert!(result.is_err());
+        assert_eq!(
+            result.get_error().to_string_box().value,
+            "TaskJoinTimeout: timed out after 0ms"
+        );
+        assert_eq!(pending.to_string_box().value, "Future(pending)");
+    }
+
+    #[test]
+    fn join_all_prefers_first_failure_over_timeout() {
+        let group = TaskGroupBox::new();
+        let failed = crate::boxes::future::FutureBox::new();
+        let sibling = crate::boxes::future::FutureBox::new();
+        group.add_future(&failed);
+        group.add_future(&sibling);
+        failed.set_failed(Box::new(ErrorBox::new("TaskError", "boom")));
+
+        let out = group.joinAll(Some(0));
+        let result = out
+            .as_any()
+            .downcast_ref::<ResultBox>()
+            .expect("joinAll must return ResultBox");
+
+        assert!(result.is_err());
+        assert_eq!(result.get_error().to_string_box().value, "TaskError: boom");
+        assert_eq!(
+            sibling.to_string_box().value,
+            "Future(cancelled: Cancelled: sibling-failed)"
+        );
     }
 
     #[test]
