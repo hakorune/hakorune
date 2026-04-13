@@ -85,6 +85,7 @@ fn emit_instruction(
             rhs,
             &func.metadata.value_types,
         )),
+        I::Debug { value, message } => Ok(basic::emit_debug(value, message)),
         I::FieldGet {
             dst,
             base,

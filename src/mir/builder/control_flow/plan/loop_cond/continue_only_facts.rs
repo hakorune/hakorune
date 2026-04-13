@@ -334,6 +334,14 @@ fn continue_prelude_is_allowed(body: &[ASTNode]) -> bool {
         && counts.break_count == 0
         && counts.continue_count == 0
         && counts.return_count == 0
+        && !prelude_requires_group_recipe(body)
+}
+
+fn prelude_requires_group_recipe(body: &[ASTNode]) -> bool {
+    body.iter().any(|stmt| match stmt {
+        ASTNode::If { .. } | ASTNode::ScopeBox { .. } => true,
+        _ => false,
+    })
 }
 
 fn prelude_has_illegal_return(body: &[ASTNode]) -> bool {

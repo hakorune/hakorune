@@ -4,6 +4,7 @@ use crate::mir::{
 };
 
 mod decl_values;
+mod debug;
 mod function_attrs;
 mod ordering;
 mod placement;

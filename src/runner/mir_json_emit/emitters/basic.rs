@@ -164,3 +164,11 @@ pub(crate) fn emit_select(
         "else_val": else_val.as_u32()
     })
 }
+
+pub(crate) fn emit_debug(value: &ValueId, message: &str) -> serde_json::Value {
+    json!({
+        "op":"debug",
+        "value": value.as_u32(),
+        "message": message
+    })
+}

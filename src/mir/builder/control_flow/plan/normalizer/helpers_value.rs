@@ -221,7 +221,14 @@ impl super::PlanNormalizer {
                 }
 
                 let result_id = builder.next_value_id();
-                builder.type_ctx.set_type(result_id, MirType::Integer);
+                let result_type = match object.as_ref() {
+                    ASTNode::Variable { name, .. } if name == "env" => {
+                        extern_calls::get_env_method_return_type("env", method)
+                            .unwrap_or(MirType::Unknown)
+                    }
+                    _ => MirType::Unknown,
+                };
+                builder.type_ctx.set_type(result_id, result_type);
 
                 match object.as_ref() {
                     ASTNode::Variable { name, .. } if name == "env" => {

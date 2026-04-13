@@ -190,6 +190,7 @@ pub fn is_supported_mir_json_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::TypeOp { .. }
             | MirInstruction::BinOp { .. }
             | MirInstruction::Compare { .. }
+            | MirInstruction::Debug { .. }
             | MirInstruction::Select { .. }
             | MirInstruction::FieldGet { .. }
             | MirInstruction::FieldSet { .. }
