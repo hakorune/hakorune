@@ -88,9 +88,9 @@ Owner: `phase-163x optimization-resume`
 ## Immediate Read
 
 - immediate code next:
-  - `semantic simplification bundle`
-  - start widening from the landed bundle owner seam instead of wiring more direct optimizer pass calls
-- immediate follow-on after that:
   - `memory-effect layer`
+  - start widening from the landed DCE-based cleanup slices instead of keeping memory work buried inside `dce/memory.rs`
+- immediate follow-on after that:
+  - `escape / barrier -> LLVM attrs`
 - next major design lane after the current DCE slice:
-  - `semantic simplification bundle`
+  - `memory-effect layer`

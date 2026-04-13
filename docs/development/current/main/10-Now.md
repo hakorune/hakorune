@@ -14,9 +14,9 @@ Related:
 
 - current implementation lane: `phase163x primitive and user-box fast path`
 - sibling guardrail lane: `phase137x main kilo reopen selection`
-- immediate next: `semantic simplification bundle`
-- immediate follow-on: `memory-effect layer`
-- top queued cut: `S3 jump-threading / SimplifyCFG closeout judgment`
+- immediate next: `memory-effect layer`
+- immediate follow-on: `escape / barrier -> LLVM attrs`
+- top queued cut: `M0 owner seam and stats surface`
 
 ## Landing Snapshot
 
@@ -31,6 +31,7 @@ Related:
   - branch arms may now thread through an empty trampoline into a final block when the final PHIs can be trivially rewritten to the branching predecessor
   - branch arms may also drop dead edge-args while threading through an empty trampoline into a PHI-free final target
   - constant compare / branch folding may also follow single-input PHIs
+  - semantic simplification closeout is now handed off to the memory-effect layer
 
 ## Read Next
 
