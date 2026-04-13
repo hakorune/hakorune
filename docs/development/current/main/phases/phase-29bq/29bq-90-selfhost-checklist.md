@@ -46,6 +46,7 @@ Related:
 - migration rule:
   - move one exact loop family at a time
   - do not combine acceptance-row widening with broader PHI hardening in the same commit
+  - first landed family seam is `LoopCondReturnInBody` join-sig extraction; next move is `phi materializer` for one family only
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

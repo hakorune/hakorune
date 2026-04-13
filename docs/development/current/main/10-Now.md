@@ -21,6 +21,7 @@ Related:
 - JoinIR port mode（lane A）: monitor-only（failure-driven）
 - loop owner direction:
   - `facts -> route -> recipe -> cfg skeleton -> join sig -> phi materializer -> verifier -> cleanup`
+  - first migrated family seam: `LoopCondReturnInBody` join-sig extraction
 
 ## Landing Snapshot
 

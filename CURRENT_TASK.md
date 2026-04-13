@@ -89,10 +89,14 @@ Scope: current lane / next lane / restart order only.
      - `facts`
      - `route`
      - `recipe`
+     - `join sig`
      - `phi materializer`
      - `verifier`
      - `cleanup`
-   - first migration target should be one exact loop family only
+   - landed first family seam:
+     - `LoopCondReturnInBody` join-sig extraction
+   - next:
+     - move one exact family's PHI closure behind a dedicated materializer seam
 
 ## Legacy Compatibility Block
 

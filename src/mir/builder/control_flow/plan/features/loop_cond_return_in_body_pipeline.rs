@@ -12,7 +12,7 @@ use crate::mir::builder::control_flow::plan::features::carrier_merge::{
 use crate::mir::builder::control_flow::plan::features::carriers;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::if_branch_lowering;
-use crate::mir::builder::control_flow::plan::features::loop_carriers;
+use crate::mir::builder::control_flow::plan::features::loop_cond_return_in_body_join;
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::loop_cond::return_in_body_facts::LoopCondReturnInBodyFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::return_in_body_recipe::{
@@ -136,50 +136,20 @@ pub(in crate::mir::builder) fn lower_loop_cond_return_in_body(
     )?;
 
     let body_exits_all_paths = body_plans_exit_on_all_paths(&body_plans);
-    if !body_exits_all_paths {
-        body_plans.push(CorePlan::Exit(parts::exit::build_continue_with_phi_args(
-            builder,
-            &carrier_step_phis,
-            &current_bindings,
-            LOOP_COND_RETURN_IN_BODY_ERR,
-        )?));
-    }
-
-    let mut phis = Vec::new();
-    let mut final_values = Vec::new();
-    for (var, header_phi_dst) in &carrier_phis {
-        let init_val = match carrier_inits.get(var) {
-            Some(value) => *value,
-            None => continue,
-        };
-        if use_header_continue_target || body_exits_all_paths {
-            phis.push(loop_carriers::build_preheader_only_phi_info(
-                header_bb,
-                preheader_bb,
-                *header_phi_dst,
-                init_val,
-                format!("loop_cond_return_in_body_carrier_{}", var),
-            ));
-        } else {
-            let Some(step_phi_dst) = carrier_step_phis.get(var).copied() else {
-                continue;
-            };
-            phis.push(loop_carriers::build_step_join_phi_info(
-                step_bb,
-                step_phi_dst,
-                format!("loop_cond_return_in_body_step_join_{}", var),
-            ));
-            phis.push(loop_carriers::build_loop_phi_info(
-                header_bb,
-                preheader_bb,
-                step_bb,
-                *header_phi_dst,
-                init_val,
-                step_phi_dst,
-                format!("loop_cond_return_in_body_carrier_{}", var),
-            ));
-        }
-        final_values.push((var.clone(), *header_phi_dst));
+    let join_sig = loop_cond_return_in_body_join::build_loop_cond_return_in_body_join_sig(
+        header_bb,
+        preheader_bb,
+        step_bb,
+        use_header_continue_target,
+        body_exits_all_paths,
+        &carrier_inits,
+        &carrier_phis,
+        &carrier_step_phis,
+        &current_bindings,
+        LOOP_COND_RETURN_IN_BODY_ERR,
+    )?;
+    if let Some(continue_exit) = join_sig.continue_exit() {
+        body_plans.push(CorePlan::Exit(continue_exit));
     }
 
     // Build block_effects: merge header_result.block_effects + static entries
@@ -212,9 +182,9 @@ pub(in crate::mir::builder) fn lower_loop_cond_return_in_body(
         cond_loop: header_result.first_cond,
         cond_match: header_result.first_cond,
         block_effects,
-        phis,
+        phis: join_sig.phis().to_vec(),
         frag,
-        final_values,
+        final_values: join_sig.final_values().to_vec(),
         step_mode,
         has_explicit_step,
     }))
