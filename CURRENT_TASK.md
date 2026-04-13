@@ -78,3 +78,9 @@ Scope: current lane / next lane / restart order only.
    - landed and closed
 2. `phase-29bq selfhost mirbuilder failure-driven`
    - use quick-entry SSOTs and failure-driven blocker capture only
+
+## Legacy Compatibility Block
+
+- compiler lane: `phase-29bq / none`（active: monitor-only）
+  - done: `JIR-PORT-08`
+  - next: `none`

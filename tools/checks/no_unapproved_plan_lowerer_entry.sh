@@ -10,6 +10,7 @@ cd "$ROOT"
 ALLOW_GLOBS=(
   '!src/mir/builder/control_flow/joinir/route_entry/router.rs'
   '!src/mir/builder/control_flow/joinir/route_entry/registry/handlers.rs'
+  '!src/mir/builder/control_flow/joinir/route_entry/registry/handlers/*.rs'
   '!src/mir/builder/stmts/return_stmt.rs'
   '!src/mir/builder/control_flow/plan/lowerer/mod.rs'
   '!tests/**'

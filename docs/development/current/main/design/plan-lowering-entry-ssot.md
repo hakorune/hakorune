@@ -24,6 +24,7 @@ Related:
   - legacy physical path lane は `docs/development/current/main/design/archive/route-physical-path-legacy-lane-ssot.md` を参照
 - active module surface: `crate::mir::builder::control_flow::joinir::route_entry::registry::handlers`
   - legacy physical path lane は `docs/development/current/main/design/archive/route-physical-path-legacy-lane-ssot.md` を参照
+  - physical split may live in `registry/handlers.rs` plus `registry/handlers/*.rs`; drift check allowlist must cover both
 - `src/mir/builder/stmts/return_stmt.rs`
 
 例外理由:
