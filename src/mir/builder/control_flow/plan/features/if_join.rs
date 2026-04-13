@@ -70,14 +70,15 @@ pub(in crate::mir::builder) fn apply_if_joins(
         caller = Some(format!("{}:{}:{}", loc.file(), loc.line(), loc.column()));
     }
 
-    let release_def_blocks = if strict_planner_required_debug {
-        None
+    let (release_def_blocks, release_dominators) = if strict_planner_required_debug {
+        (None, None)
+    } else if let Some(func) = builder.scope_ctx.current_function.as_ref() {
+        (
+            Some(crate::mir::verification::utils::compute_def_blocks(func)),
+            Some(crate::mir::verification::utils::compute_dominators(func)),
+        )
     } else {
-        builder
-            .scope_ctx
-            .current_function
-            .as_ref()
-            .map(crate::mir::verification::utils::compute_def_blocks)
+        (None, None)
     };
 
     for join in joins {
@@ -86,28 +87,43 @@ pub(in crate::mir::builder) fn apply_if_joins(
         let mut then_reaches_merge_local = then_reaches_merge;
         let mut else_reaches_merge_local = else_reaches_merge;
 
-        if let Some(def_blocks) = release_def_blocks.as_ref() {
-            if then_reaches_merge_local && !def_blocks.contains_key(&then_in) {
-                if let Some(pre_val) = join.pre_val {
-                    if def_blocks.contains_key(&pre_val) {
-                        then_in = pre_val;
-                    } else {
-                        then_reaches_merge_local = false;
-                    }
-                } else {
-                    then_reaches_merge_local = false;
+        if let (Some(def_blocks), Some(dominators)) =
+            (release_def_blocks.as_ref(), release_dominators.as_ref())
+        {
+            let mut fallback_incoming = |incoming: &mut ValueId,
+                                         branch_reaches_merge: &mut bool,
+                                         pred: Option<BasicBlockId>| {
+                let Some(pred) = pred else {
+                    *branch_reaches_merge = false;
+                    return;
+                };
+                let incoming_ok = def_blocks
+                    .get(incoming)
+                    .copied()
+                    .map(|def_bb| dominators.dominates(def_bb, pred))
+                    .unwrap_or(false);
+                if incoming_ok {
+                    return;
                 }
+                if let Some(pre_val) = join.pre_val {
+                    let pre_ok = def_blocks
+                        .get(&pre_val)
+                        .copied()
+                        .map(|def_bb| dominators.dominates(def_bb, pred))
+                        .unwrap_or(false);
+                    if pre_ok {
+                        *incoming = pre_val;
+                        return;
+                    }
+                }
+                *branch_reaches_merge = false;
+            };
+
+            if then_reaches_merge_local {
+                fallback_incoming(&mut then_in, &mut then_reaches_merge_local, then_end_bb);
             }
-            if else_reaches_merge_local && !def_blocks.contains_key(&else_in) {
-                if let Some(pre_val) = join.pre_val {
-                    if def_blocks.contains_key(&pre_val) {
-                        else_in = pre_val;
-                    } else {
-                        else_reaches_merge_local = false;
-                    }
-                } else {
-                    else_reaches_merge_local = false;
-                }
+            if else_reaches_merge_local {
+                fallback_incoming(&mut else_in, &mut else_reaches_merge_local, else_end_bb);
             }
         }
 

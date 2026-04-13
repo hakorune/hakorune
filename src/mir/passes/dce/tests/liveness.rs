@@ -202,6 +202,69 @@ fn test_dce_prunes_unreachable_effectful_block() {
 }
 
 #[test]
+fn test_dce_prunes_phi_inputs_from_removed_unreachable_predecessors() {
+    let mut module = MirModule::new("dce_test".to_string());
+
+    let sig = FunctionSignature {
+        name: "test/0".to_string(),
+        params: vec![],
+        return_type: MirType::Integer,
+        effects: EffectMask::PURE,
+    };
+    let mut func = MirFunction::new(sig, BasicBlockId(0));
+
+    let entry_value = ValueId(1);
+    let dead_value = ValueId(2);
+    let phi_dst = ValueId(3);
+    let header_bb = BasicBlockId(1);
+    let dead_backedge_bb = BasicBlockId(2);
+
+    {
+        let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
+        bb0.instructions.push(MirInstruction::Const {
+            dst: entry_value,
+            value: ConstValue::Integer(1),
+        });
+        bb0.instruction_spans.push(Span::unknown());
+        bb0.set_jump_with_edge_args(header_bb, None);
+    }
+
+    let mut header = BasicBlock::new(header_bb);
+    header.instructions.push(MirInstruction::Phi {
+        dst: phi_dst,
+        inputs: vec![(BasicBlockId(0), entry_value), (dead_backedge_bb, dead_value)],
+        type_hint: Some(MirType::Integer),
+    });
+    header.instruction_spans.push(Span::unknown());
+    header.set_terminator(MirInstruction::Return {
+        value: Some(phi_dst),
+    });
+    func.add_block(header);
+
+    let mut dead_backedge = BasicBlock::new(dead_backedge_bb);
+    dead_backedge.instructions.push(MirInstruction::Const {
+        dst: dead_value,
+        value: ConstValue::Integer(9),
+    });
+    dead_backedge.instruction_spans.push(Span::unknown());
+    dead_backedge.set_jump_with_edge_args(header_bb, None);
+    func.add_block(dead_backedge);
+
+    module.add_function(func);
+
+    let _ = eliminate_dead_code(&mut module);
+
+    let func = module.get_function("test/0").unwrap();
+    assert!(!func.blocks.contains_key(&dead_backedge_bb));
+
+    let header = func.blocks.get(&header_bb).unwrap();
+    let MirInstruction::Phi { inputs, .. } = &header.instructions[0] else {
+        panic!("expected phi");
+    };
+    assert_eq!(inputs, &vec![(BasicBlockId(0), entry_value)]);
+}
+
+#[test]
 fn test_dce_prunes_redundant_keepalive_when_return_already_keeps_value_live() {
     let mut module = MirModule::new("dce_test".to_string());
 

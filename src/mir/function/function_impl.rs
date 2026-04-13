@@ -228,9 +228,24 @@ impl MirFunction {
 
         if self.blocks.len() != before {
             self.update_cfg();
+            self.prune_phi_inputs_to_current_predecessors();
         }
 
         before - self.blocks.len()
+    }
+
+    fn prune_phi_inputs_to_current_predecessors(&mut self) {
+        for block in self.blocks.values_mut() {
+            if block.predecessors.is_empty() {
+                continue;
+            }
+            for inst in &mut block.instructions {
+                let MirInstruction::Phi { inputs, .. } = inst else {
+                    break;
+                };
+                inputs.retain(|(pred, _)| block.predecessors.contains(pred));
+            }
+        }
     }
 
     /// Get function statistics
