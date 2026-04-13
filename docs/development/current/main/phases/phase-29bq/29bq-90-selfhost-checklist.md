@@ -54,11 +54,12 @@ Related:
     - `recipe`
     - `join sig`
     - `phi materializer`
+    - `verifier`
   - still mixed in pipeline:
-    - route-specific invariant checks after PHI closure
-    - verifier ownership is still split between generic loop validation and local tests
+    - body exit analysis
+    - fallthrough continue-exit closure
   - next cut:
-    - extract a dedicated `verifier` seam for `LoopCondReturnInBody` only
+    - extract a dedicated `cleanup` seam for `LoopCondReturnInBody` only
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

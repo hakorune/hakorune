@@ -12,6 +12,9 @@ use crate::mir::builder::control_flow::plan::features::carrier_merge::{
 use crate::mir::builder::control_flow::plan::features::carriers;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::if_branch_lowering;
+use crate::mir::builder::control_flow::plan::features::loop_cond_return_in_body_cleanup::{
+    apply_fallthrough_continue_exit, body_exits_all_paths,
+};
 use crate::mir::builder::control_flow::plan::features::loop_cond_return_in_body_phi_materializer::LoopCondReturnInBodyPhiMaterializer;
 use crate::mir::builder::control_flow::plan::features::loop_cond_return_in_body_verifier::verify_loop_cond_return_in_body_phi_closure;
 use crate::mir::builder::control_flow::plan::features::step_mode;
@@ -114,7 +117,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_return_in_body(
         &facts.recipe,
     )?;
 
-    let body_exits_all_paths = body_plans_exit_on_all_paths(&body_plans);
+    let body_exits_all_paths = body_exits_all_paths(&body_plans);
     let continue_target = if use_header_continue_target {
         header_bb
     } else {
@@ -136,9 +139,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_return_in_body(
         carrier_vars.len(),
         LOOP_COND_RETURN_IN_BODY_ERR,
     )?;
-    if let Some(continue_exit) = phi_closure.continue_exit() {
-        body_plans.push(CorePlan::Exit(continue_exit));
-    }
+    apply_fallthrough_continue_exit(&mut body_plans, &phi_closure);
 
     // Build block_effects: merge header_result.block_effects + static entries
     let mut block_effects: Vec<(crate::mir::BasicBlockId, Vec<CoreEffectPlan>)> =
@@ -170,35 +171,6 @@ pub(in crate::mir::builder) fn lower_loop_cond_return_in_body(
         step_mode,
         has_explicit_step,
     }))
-}
-
-fn body_plans_exit_on_all_paths(plans: &[LoweredRecipe]) -> bool {
-    plans.last().is_some_and(plan_exits_on_all_paths)
-}
-
-fn plan_exits_on_all_paths(plan: &LoweredRecipe) -> bool {
-    match plan {
-        CorePlan::Exit(_) => true,
-        CorePlan::If(if_plan) => {
-            body_plans_exit_on_all_paths(&if_plan.then_plans)
-                && if_plan
-                    .else_plans
-                    .as_ref()
-                    .is_some_and(|plans| body_plans_exit_on_all_paths(plans))
-        }
-        CorePlan::BranchN(branch) => {
-            branch
-                .arms
-                .iter()
-                .all(|arm| body_plans_exit_on_all_paths(&arm.plans))
-                && branch
-                    .else_plans
-                    .as_ref()
-                    .is_some_and(|plans| body_plans_exit_on_all_paths(plans))
-        }
-        CorePlan::Seq(inner) => body_plans_exit_on_all_paths(inner),
-        CorePlan::Effect(_) | CorePlan::Loop(_) => false,
-    }
 }
 
 fn collect_carrier_vars_from_condition(builder: &MirBuilder, condition: &ASTNode) -> Vec<String> {
