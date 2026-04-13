@@ -5,7 +5,7 @@ use crate::mir::builder::control_flow::plan::facts::no_exit_block::try_build_no_
 use crate::mir::builder::control_flow::plan::facts::stmt_view::try_build_stmt_only_block_recipe;
 use crate::mir::builder::control_flow::plan::features::carriers::collect_outer_from_body;
 use crate::mir::builder::control_flow::plan::features::exit_if_map;
-use crate::mir::builder::control_flow::plan::features::loop_carriers;
+use crate::mir::builder::control_flow::plan::features::loop_true_break_continue_phi_materializer::LoopTrueBreakContinuePhiMaterializer;
 use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower_nested_loop_depth1_any;
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::loop_cond::true_break_continue::LoopTrueBreakContinueFacts;
@@ -24,7 +24,6 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::effect::Effect;
 use crate::mir::policies::BodyLoweringPolicy;
 use crate::mir::EffectMask;
-use crate::mir::MirType;
 use std::collections::BTreeMap;
 
 // Feature-only: keep logic in skeletons/features to avoid mixed rule drift.
@@ -53,31 +52,11 @@ pub(in crate::mir::builder) fn lower_loop_true_break_continue_inner(
     let frag = skeleton.frag;
 
     let carrier_vars = collect_outer_from_body(builder, &facts.recipe.body.body).vars;
-    let mut carrier_inits = BTreeMap::new();
-    let mut carrier_phis = BTreeMap::new();
-    let mut carrier_step_phis = BTreeMap::new();
-    for var in &carrier_vars {
-        let Some(&init_val) = builder.variable_ctx.variable_map.get(var) else {
-            continue;
-        };
-        let ty = builder
-            .type_ctx
-            .get_type(init_val)
-            .cloned()
-            .unwrap_or(MirType::Unknown);
-        let phi_dst = builder.alloc_typed(ty.clone());
-        let step_phi_dst = builder.alloc_typed(ty);
-        carrier_inits.insert(var.clone(), init_val);
-        carrier_phis.insert(var.clone(), phi_dst);
-        carrier_step_phis.insert(var.clone(), step_phi_dst);
-    }
-
-    if carrier_phis.is_empty() {
-        return Err(format!("{LOOP_TRUE_ERR}: no loop carriers"));
-    }
-
-    let phi_bindings = carrier_phis.clone();
-    let mut current_bindings = phi_bindings.clone();
+    let phi_materializer =
+        LoopTrueBreakContinuePhiMaterializer::prepare(builder, &carrier_vars, LOOP_TRUE_ERR)?;
+    let carrier_phis = phi_materializer.carrier_phis().clone();
+    let carrier_step_phis = phi_materializer.carrier_step_phis().clone();
+    let mut current_bindings = phi_materializer.phi_bindings();
 
     let recipe = &facts.recipe;
 
@@ -94,31 +73,13 @@ pub(in crate::mir::builder) fn lower_loop_true_break_continue_inner(
             let body = &recipe.body.body;
             let has_break = body.iter().any(body_has_break_stmt);
             let break_phi_dsts = if has_break {
-                let mut out = BTreeMap::new();
-                for var in &carrier_vars {
-                    let Some(&init_val) = carrier_inits.get(var) else {
-                        continue;
-                    };
-                    let Some(&carrier_phi_dst) = carrier_phis.get(var) else {
-                        continue;
-                    };
-                    let ty = builder
-                        .type_ctx
-                        .get_type(init_val)
-                        .cloned()
-                        .unwrap_or(MirType::Unknown);
-                    let after_phi_dst = builder.alloc_typed(ty);
-                    out.insert(var.clone(), after_phi_dst);
-                    // Always include the header→after edge to keep PHI complete in CFG terms
-                    // (even for loop(true), the branch edge exists structurally).
-                    body_after_phis.push(loop_carriers::build_after_merge_phi_info(
-                        after_bb,
-                        after_phi_dst,
-                        [header_bb],
-                        carrier_phi_dst,
-                        format!("loop_true_after_{}", var),
-                    ));
-                }
+                let (out, after_phis) = phi_materializer.plan_break_after_phis(
+                    builder,
+                    &carrier_vars,
+                    header_bb,
+                    after_bb,
+                );
+                body_after_phis = after_phis;
                 out
             } else {
                 BTreeMap::new()
@@ -461,40 +422,14 @@ pub(in crate::mir::builder) fn lower_loop_true_break_continue_inner(
         body_plans.push(CorePlan::Exit(exit));
     }
 
-    let mut phis = Vec::new();
-    let mut final_values = Vec::new();
-    for (var, phi_dst) in &carrier_phis {
-        let init_val = match carrier_inits.get(var) {
-            Some(value) => *value,
-            None => continue,
-        };
-        let Some(&step_phi_dst) = carrier_step_phis.get(var) else {
-            return Err(format!(
-                "{LOOP_TRUE_ERR}: step phi missing for carrier {}",
-                var
-            ));
-        };
-        phis.push(loop_carriers::build_step_join_phi_info(
-            step_bb,
-            step_phi_dst,
-            format!("loop_true_step_join_{}", var),
-        ));
-        phis.push(loop_carriers::build_loop_phi_info(
-            header_bb,
-            preheader_bb,
-            step_bb,
-            *phi_dst,
-            init_val,
-            step_phi_dst,
-            format!("loop_true_carrier_{}", var),
-        ));
-        let final_value = body_break_phi_dsts
-            .as_ref()
-            .and_then(|m| m.get(var).copied())
-            .unwrap_or(*phi_dst);
-        final_values.push((var.clone(), final_value));
-    }
-    phis.extend(body_after_phis);
+    let phi_closure = phi_materializer.close(
+        preheader_bb,
+        header_bb,
+        step_bb,
+        body_break_phi_dsts.as_ref(),
+        body_after_phis,
+        LOOP_TRUE_ERR,
+    )?;
 
     let (step_mode, has_explicit_step) = step_mode::inline_in_body_no_explicit_step();
 
@@ -511,9 +446,9 @@ pub(in crate::mir::builder) fn lower_loop_true_break_continue_inner(
         cond_loop,
         cond_match: cond_loop,
         block_effects,
-        phis,
+        phis: phi_closure.phis().to_vec(),
         frag,
-        final_values,
+        final_values: phi_closure.final_values().to_vec(),
         step_mode,
         has_explicit_step,
     }))
