@@ -1,4 +1,4 @@
-Status: ACTIVE
+Status: LANDED
 Owner: Codex
 Phase: 269x
 
@@ -22,7 +22,7 @@ Phase: 269x
   - non-empty env uses `nyash.closure.new_with_captures`
 - both modern and legacy closure lowering routes read the same owner seam
 
-## Next
+## Closeout
 
-- closure env scalarization
-- closure thin-entry specialization
+- closure env scalarization is the next cut
+- closure thin-entry specialization stays after env scalarization

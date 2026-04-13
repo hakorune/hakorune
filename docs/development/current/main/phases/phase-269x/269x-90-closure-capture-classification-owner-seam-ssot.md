@@ -1,4 +1,4 @@
-Status: ACTIVE
+Status: LANDED
 Phase: 269x
 
 # 269x-90 Closure Capture Classification Owner Seam SSOT

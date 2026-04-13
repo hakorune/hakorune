@@ -46,6 +46,8 @@ class TestClosureSplitContract(unittest.TestCase):
         self.assertEqual(contract["diag"]["accepted_class"], "empty_env")
         self.assertEqual(contract["proof"]["env_capture_count"], 0)
         self.assertEqual(contract["lowering"]["ctor_name"], "nyash.closure.new")
+        self.assertEqual(contract["policy"]["env_scalarization"], "scalar_none")
+        self.assertTrue(contract["lowering"]["env_scalarizable"])
 
     def test_builds_me_only_env_contract(self):
         contract = build_closure_split_contract(params=[], captures=[], me_capture=44)
@@ -53,6 +55,16 @@ class TestClosureSplitContract(unittest.TestCase):
         self.assertEqual(contract["diag"]["accepted_class"], "me_only_env")
         self.assertEqual(contract["proof"]["env_capture_value_ids"], [44])
         self.assertTrue(contract["lowering"]["use_capture_ctor"])
+        self.assertEqual(contract["policy"]["env_scalarization"], "scalar_single")
+        self.assertEqual(contract["lowering"]["scalarizable_capture_id"], 44)
+
+    def test_builds_single_capture_env_scalarization_contract(self):
+        contract = build_closure_split_contract(params=[{"id": 1}], captures=[{"id": 40}], me_capture=None)
+
+        self.assertEqual(contract["diag"]["accepted_class"], "capture_env_only")
+        self.assertEqual(contract["policy"]["env_scalarization"], "scalar_single")
+        self.assertEqual(contract["lowering"]["scalarizable_capture_id"], 40)
+        self.assertTrue(contract["lowering"]["env_scalarizable"])
 
     def test_builds_capture_env_with_me_contract(self):
         contract = build_closure_split_contract(
@@ -64,7 +76,9 @@ class TestClosureSplitContract(unittest.TestCase):
         self.assertEqual(contract["diag"]["accepted_class"], "capture_env_with_me")
         self.assertEqual(contract["proof"]["capture_value_ids"], [40, 41])
         self.assertEqual(contract["proof"]["env_capture_value_ids"], [40, 41, 42])
-        self.assertEqual(contract["policy"]["env_scalarization"], "defer")
+        self.assertEqual(contract["policy"]["env_scalarization"], "aggregate_multi")
+        self.assertIsNone(contract["lowering"]["scalarizable_capture_id"])
+        self.assertFalse(contract["lowering"]["env_scalarizable"])
         self.assertEqual(contract["policy"]["thin_entry_specialization"], "defer")
 
     def test_lower_closure_creation_uses_simple_ctor_for_empty_env(self):

@@ -12,7 +12,7 @@ Related:
 
 ## Current
 
-- current implementation lane: `phase269x closure split capture classification owner seam`
+- current implementation lane: `phase270x closure split env scalarization owner seam`
 - sibling guardrail lane: `phase137x main kilo reopen selection`
 - immediate next: `closure split`
 - immediate follow-on: `IPO / build-time optimization`
@@ -44,8 +44,10 @@ Related:
   - integer sum reduction widening is the next actual widening cut
 - `phase268x` is landed:
   - compare/select widening is the numeric lane closeout cut
-- `phase269x` is active:
+- `phase269x` is landed:
   - closure split now starts with a shared capture classification owner seam
+- `phase270x` is active:
+  - closure split now classifies single-capture envs as scalarizable while preserving current ctor lowering
 - latest semantic simplification cut:
   - copied-constant `Branch` terminators, constant `Compare` instructions, and empty trampoline jump-threading now fold before CFG merge
   - branch arms may now thread through an empty trampoline into a final block when the final PHIs can be trivially rewritten to the branching predecessor
@@ -58,7 +60,7 @@ Related:
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
 3. `docs/reference/concurrency/semantics.md`
-4. `docs/development/current/main/phases/phase-269x/README.md`
+4. `docs/development/current/main/phases/phase-270x/README.md`
 5. `docs/development/current/main/phases/phase-163x/README.md`
 6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 

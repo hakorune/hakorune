@@ -1,4 +1,4 @@
-Status: ACTIVE
+Status: LANDED
 Phase: 269x
 
 # 269x-91 Task Board
@@ -10,7 +10,7 @@ Phase: 269x
 - switch legacy closure lowering to the same route
 - add focused contract and IR-shape tests
 
-## Next
+## Closeout
 
 1. closure env scalarization
 2. closure thin-entry specialization

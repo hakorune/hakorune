@@ -4,11 +4,12 @@
 
 ## Current
 
-- **Current (ACTIVE)**: Phase 269x closure split capture classification owner seam
+- **Current (ACTIVE)**: Phase 270x closure split env scalarization owner seam
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
 
 ## Recent Landed
 
+- **Phase 269x（LANDED）**: closure split capture classification owner seam
 - **Phase 268x（LANDED）**: numeric loop / SIMD compare-select widening
 - **Phase 267x（LANDED）**: numeric loop / SIMD integer sum reduction widening
 - **Phase 266x（LANDED）**: numeric loop / SIMD integer map widening
