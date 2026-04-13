@@ -146,18 +146,18 @@ static box JsonFragBox {
   read_int_from(text, pos) {
     if text == null { return null }
     local s = "" + text
-    local i = pos
-    local n = s.length()
-    loop(i < n) { if s.substring(i,i+1) != " " { break } i = i + 1 }
-    local j = i
-    if j < n && (s.substring(j,j+1) == "-" || s.substring(j,j+1) == "+") { j = j + 1 }
-    local had = 0
-    loop(j < n) {
-      local ch = s.substring(j,j+1)
-      if ch >= "0" && ch <= "9" { had = 1 j = j + 1 } else { break }
+    local i = StringHelpers.skip_ws(s, pos)
+    local sign = ""
+    if i < s.length() {
+      local ch = s.substring(i, i+1)
+      if ch == "+" || ch == "-" {
+        sign = ch
+        i = i + 1
+      }
     }
-    if had == 0 { return null }
-    return s.substring(i, j)
+    local digits = JsonCursorBox.digits_from(s, i)
+    if digits == null || digits == "" { return null }
+    return sign + digits
   }
   read_bool_from(text, pos) {
     if text == null { return null }

@@ -62,7 +62,7 @@ static box ReturnStmtHandler {
 
     local expr_type = "" + BoxHelpers.map_get(expr_info, "type")
 
-    if expr_type == "Int" {
+    if expr_type == "Int" || expr_type == "Var" {
       return ReturnStmtHandlerSimpleBox.handle(program_json, next_idx, tag, state, expr_start, expr_type)
     }
 

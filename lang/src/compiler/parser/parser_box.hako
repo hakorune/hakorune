@@ -412,24 +412,7 @@ box ParserBox {
       print("[parser/trace:program2] start len=" + ("" + n) + " stage3=" + ("" + me.stage3))
     }
     if i < n {
-      // Fail-fast版: PHI依存を避け、条件付きbreakだけで先頭空白を飛ばす。
-      local ws_loop_count = 0
-      loop(i < n) {
-        ws_loop_count = ws_loop_count + 1
-        if ws_loop_count < 10 || (ws_loop_count % 1000) == 0 {
-          print("[parse_program2:ws_init] loop=" + ("" + ws_loop_count) + " i=" + ("" + i) + " n=" + ("" + n))
-        }
-        local ch = src.substring(i, i + 1)
-        if ws_loop_count < 10 {
-          print("[parse_program2:ws_init] ch='" + ch + "' at i=" + ("" + i))
-        }
-        if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" {
-          i = i + 1
-          continue
-        }
-        break
-      }
-      print("[parse_program2:ws_init] DONE loop_count=" + ("" + ws_loop_count) + " final_i=" + ("" + i))
+      i = ParserStringUtilsBox.skip_ws(src, i)
     }
 
     // Dev-only: marker before main loop
@@ -452,34 +435,14 @@ box ParserBox {
     {
       local m = env.get("HAKO_PARSER_PROG_MAX")
       if m != null {
-        // Safely parse to int; invalid values are treated as 0 (disabled)
-        local mv = 0
-        local ok = 0
-        // Minimal numeric parse: allow decimal digits only
-        local ms = "" + m
-        local mi = 0
-        local ml = ms.length()
-        loop(mi < ml) {
-          local chm = ms.substring(mi, mi + 1)
-          if chm < "0" || chm > "9" { ok = 0  break }
-          if ok == 0 { ok = 1 }
-          mv = mv * 10 + ParserStringUtilsBox.to_int(chm)
-          mi = mi + 1
-        }
-        if ok == 1 && mv > 0 { max_prog = mv }
+        local mv = ParserStringUtilsBox.to_int(m)
+        if mv > 0 { max_prog = mv }
       }
     }
 
     loop(cont_prog == 1) {
       // ===== 1) WS SKIP (inline, simple structure) =====
-      loop(i < n) {
-        local ch_ws = src.substring(i, i + 1)
-        if ch_ws == " " || ch_ws == "\n" || ch_ws == "\r" || ch_ws == "\t" {
-          i = i + 1
-          continue
-        }
-        break
-      }
+      i = ParserStringUtilsBox.skip_ws(src, i)
 
       // ===== 2) EOF/GUARD CHECK (early exit) =====
       if i >= n {
@@ -525,17 +488,7 @@ box ParserBox {
 
       // ===== 6) CONSUME OPTIONAL SEMICOLONS - MirBuilder-friendly =====
       loop(true) {
-        local before_semi = i
-
-        // Inline ws skip
-        loop(i < n) {
-          local ch_semi = src.substring(i, i + 1)
-          if ch_semi == " " || ch_semi == "\n" || ch_semi == "\r" || ch_semi == "\t" {
-            i = i + 1
-            continue
-          }
-          break
-        }
+        i = ParserStringUtilsBox.skip_ws(src, i)
 
         if i < n && src.substring(i, i+1) == ";" {
           i = i + 1

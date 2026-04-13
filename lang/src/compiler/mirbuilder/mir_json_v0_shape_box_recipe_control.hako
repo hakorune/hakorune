@@ -501,22 +501,22 @@ static box MirJsonV0ShapeRecipeControl {
 
     local body_item = BoxHelpers.map_get(loop_item, "body_item")
     if body_item == null || BoxHelpers.is_map(body_item) != 1 || RecipeItemBox.kind_of(body_item) != "Seq" {
-      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop body_item must be Seq")
+      return MirJsonV0ShapeHelpers._loop_shape_no_match()
     }
     local body_items = BoxHelpers.map_get(body_item, "items")
     if body_items == null || BoxHelpers.is_array(body_items) != 1 || BoxHelpers.array_len(body_items) != 2 {
-      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop If body_item must contain two stmts")
+      return MirJsonV0ShapeHelpers._loop_shape_no_match()
     }
     local if_stmt = BoxHelpers.array_get(body_items, 0)
     local assign_stmt = BoxHelpers.array_get(body_items, 1)
     if if_stmt == null || BoxHelpers.is_map(if_stmt) != 1 || RecipeItemBox.kind_of(if_stmt) != "If" {
-      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop If first stmt must be If")
+      return MirJsonV0ShapeHelpers._loop_shape_no_match()
     }
     if assign_stmt == null || BoxHelpers.is_map(assign_stmt) != 1 || RecipeItemBox.kind_of(assign_stmt) != "Seq" {
-      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop If second stmt must be Seq(Assignment)")
+      return MirJsonV0ShapeHelpers._loop_shape_no_match()
     }
     if ("" + BoxHelpers.map_get(assign_stmt, "leaf_kind")) != "Stmt" || ("" + BoxHelpers.map_get(assign_stmt, "stmt_kind")) != "Assignment" {
-      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop If second stmt must be Assignment")
+      return MirJsonV0ShapeHelpers._loop_shape_no_match()
     }
 
     local if_cond_facts = BoxHelpers.map_get(if_stmt, "cond_facts")
