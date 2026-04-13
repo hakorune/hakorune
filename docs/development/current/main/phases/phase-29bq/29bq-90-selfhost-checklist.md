@@ -22,14 +22,14 @@ Related:
 ## 0.25) Current blocker (2026-04-14)
 
 - active blocker:
-  - broad gate currently stops at `program_json_contract_pin`
-  - current symptom: `loop_node: emit route failed`
+  - `none`
 - latest landed blocker family:
-  - nested loop / if-return / PHI-dominance regressions
-  - route-selection / loop-body-exit / PHI-dominance fixes have been split into dedicated commits already
+  - `program_json_contract_pin` / `joinir_port04_phi_exit_invariant_lock` / `joinir_port07_expr_parity_seed`
+  - compat bridge, parser/helper simplification, and disabled legacy-lowerer removal from mainline owners are landed
 - current lane mode:
   - failure-driven
-  - capture the next exact blocker before promoting broader lane work
+  - while blocker=`none`, use this lane for narrow cleanup only
+  - next cleanup cut is `29bq-118 legacy lowerer removal`
 
 ## 0.3) Loop owner split (current design direction)
 

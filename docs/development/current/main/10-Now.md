@@ -15,9 +15,9 @@ Related:
 - current implementation lane: `phase29bq selfhost mirbuilder failure-driven`
 - sibling guardrail lane: `phase137x main kilo reopen selection`
 - immediate next: `compiler expressivity first`
-- immediate follow-on: `phase29bq failure-driven blocker capture`
+- immediate follow-on: `phase29bq legacy lowerer removal`
 - top queued cut: `phase29bq selfhost mirbuilder failure-driven`
-- Compiler lane: `phase-29bq`（JIR-PORT-00..08 done / active blocker=\`program_json_contract_pin\` / next=\`loop owner seam cleanup\`）
+- Compiler lane: `phase-29bq`（JIR-PORT-00..08 done / active blocker=\`none\` / next=\`legacy lowerer removal\`）
 - JoinIR port mode（lane A）: monitor-only（failure-driven）
 - loop owner direction:
   - `facts -> route -> recipe -> cfg skeleton -> join sig -> phi materializer -> verifier -> cleanup`

@@ -33,9 +33,9 @@ Scope: current lane / next lane / restart order only.
 - immediate next:
   - `compiler expressivity first`
 - immediate follow-on:
-  - `phase-29bq failure-driven blocker capture`
+  - `phase-29bq legacy lowerer removal`
 - current blocker:
-  - broad gate currently exposes `program_json_contract_pin` (`loop_node: emit route failed`)
+  - `none`
 - current stop-lines:
   - do not mix lane B with lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
   - do not mix lane B with `generic placement / effect`
@@ -83,7 +83,7 @@ Scope: current lane / next lane / restart order only.
 1. `optimization lane closeout judgment`
    - landed and closed
 2. `phase-29bq selfhost mirbuilder failure-driven`
-   - use quick-entry SSOTs and failure-driven blocker capture only
+   - broad gate is green; keep exact blocker capture mode as the default operating rule
 3. `phase-29bq loop owner seam cleanup`
    - docs-first owner split:
      - `facts`
@@ -95,6 +95,10 @@ Scope: current lane / next lane / restart order only.
      - `cleanup`
    - landed first family seam:
      - `LoopCondReturnInBody` join-sig extraction
+4. `phase-29bq legacy lowerer removal`
+   - remove disabled `return.method.arraymap` / `return.loop.strlen.sum` from mainline owners first
+   - then decide whether to tombstone or delete the legacy files and stale probes
+5. `phase-29bq loop owner seam cleanup`
    - next:
      - move one exact family's PHI closure behind a dedicated materializer seam
 

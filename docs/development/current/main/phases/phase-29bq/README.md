@@ -70,9 +70,9 @@ Related:
 - operation mode: `failure-driven`
 - current exact implementation leaf: `none while blocker=none`
 - latest landed blocker:
-  - `apps/tests/phase29bq_selfhost_blocker_parse_program2_nested_loop_if_else_fallthrough_join_else_return_blockexpr_min.hako`
-  - fixed by planner-required BlockExpr value-prelude parity in normalizer
-- keep this lane in blocker=`none` steady-state until the next exact freeze/reject is captured
+  - `program_json_contract_pin` / `joinir_port04` / `joinir_port07`
+  - fixed by program-json compat bridge, parser/helper simplification, and removal of disabled legacy lowers from mainline owners
+- while blocker=`none`, the next cleanup cut is dedicated `legacy lowerer removal`
 
 ## Read Order
 
@@ -120,6 +120,8 @@ Fast gate case ownership:
 
 - keep selfhost canary failure-driven
 - do not widen `29bq` while blocker=`none`
+- next cleanup cut:
+  - `29bq-118-legacy-lowerer-removal-lane.md`
 - next work stays compiler-first:
   - `cleanupwrap-cleanup-region-boundary-ssot.md`
   - `condblockview-desugar-consult.md`
