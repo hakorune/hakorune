@@ -41,6 +41,25 @@ pub(in crate::mir::builder) fn lower_generic_loop_v1_body(
             .insert(name.clone(), *value_id);
     }
 
+    // ExitAllowed facts already carry a verified whole-body recipe. Prefer that
+    // path even for nested-loop bodies so we do not synthesize a phantom latch
+    // after an always-exiting body and then emit step/header PHIs for it.
+    if matches!(
+        facts.body_lowering_policy,
+        BodyLoweringPolicy::ExitAllowed { .. }
+    ) {
+        return lower_body_block_v1(
+            builder,
+            &mut current_bindings,
+            facts,
+            &facts.body.body,
+            &facts.loop_var,
+            &facts.loop_increment,
+            carrier_step_phis,
+            ctx,
+        );
+    }
+
     // M28: Under planner_required, lower via Facts-provided RecipeBlock (NoExit).
     // This avoids re-checking in lower and keeps acceptance Recipe-first.
     let has_nested_loop_stmt =

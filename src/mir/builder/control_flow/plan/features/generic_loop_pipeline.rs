@@ -6,6 +6,7 @@ use crate::mir::builder::control_flow::plan::generic_loop::facts_types::{
     GenericLoopV0Facts, GenericLoopV1Facts,
 };
 use crate::mir::builder::control_flow::plan::skeletons::generic_loop::GenericLoopSkeleton;
+use crate::mir::builder::control_flow::plan::{CoreExitPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 
 const GENERIC_LOOP_ERR: &str = "[normalizer] generic loop v0";
@@ -78,6 +79,7 @@ pub(in crate::mir::builder) fn apply_generic_loop_v1_pipeline(
         "generic_loop_v1_post_body",
         &builder.variable_ctx.variable_map,
     );
+    let body_has_continue_edge = plans_require_continue_edge(&body_plans);
     skeleton.plan.body = body_plans;
 
     let post_body_map = builder.variable_ctx.variable_map.clone();
@@ -102,26 +104,61 @@ pub(in crate::mir::builder) fn apply_generic_loop_v1_pipeline(
         .variable_ctx
         .variable_map
         .insert(facts.loop_var.clone(), loop_var_step_src);
-    generic_loop_step::apply_generic_loop_step(
-        builder,
-        skeleton,
-        &facts.loop_increment,
-        &facts.loop_var,
-        GENERIC_LOOP_ERR,
-    )?;
-    crate::mir::builder::control_flow::joinir::trace::trace().varmap(
-        "generic_loop_v1_post_step",
-        &builder.variable_ctx.variable_map,
-    );
+    if body_has_continue_edge {
+        generic_loop_step::apply_generic_loop_step(
+            builder,
+            skeleton,
+            &facts.loop_increment,
+            &facts.loop_var,
+            GENERIC_LOOP_ERR,
+        )?;
+        crate::mir::builder::control_flow::joinir::trace::trace().varmap(
+            "generic_loop_v1_post_step",
+            &builder.variable_ctx.variable_map,
+        );
+    }
 
     generic_loop_body::finalize_generic_loop_v1_carriers(
         builder,
         &mut skeleton.plan,
         carrier_state,
         &facts.loop_var,
+        skeleton.loop_var_init,
         skeleton.loop_var_current,
         &post_body_map,
+        body_has_continue_edge,
     );
 
     Ok(())
+}
+
+fn plans_require_continue_edge(plans: &[LoweredRecipe]) -> bool {
+    plans.iter().any(plan_requires_continue_edge)
+}
+
+fn plan_requires_continue_edge(plan: &LoweredRecipe) -> bool {
+    match plan {
+        CorePlan::Exit(CoreExitPlan::ContinueWithPhiArgs { .. } | CoreExitPlan::Continue(_)) => {
+            true
+        }
+        CorePlan::If(if_plan) => {
+            plans_require_continue_edge(&if_plan.then_plans)
+                || if_plan
+                    .else_plans
+                    .as_ref()
+                    .is_some_and(|plans| plans_require_continue_edge(plans))
+        }
+        CorePlan::BranchN(branch) => {
+            branch
+                .arms
+                .iter()
+                .any(|arm| plans_require_continue_edge(&arm.plans))
+                || branch
+                    .else_plans
+                    .as_ref()
+                    .is_some_and(|plans| plans_require_continue_edge(plans))
+        }
+        CorePlan::Seq(plans) => plans_require_continue_edge(plans),
+        _ => false,
+    }
 }

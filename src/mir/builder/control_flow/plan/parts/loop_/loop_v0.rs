@@ -14,7 +14,7 @@ use crate::mir::builder::control_flow::plan::recipe_tree::{
 };
 use crate::mir::builder::control_flow::plan::steps::empty_carriers_args;
 use crate::mir::builder::control_flow::plan::{
-    CoreEffectPlan, CoreLoopPlan, CorePhiInfo, CorePlan, LoweredRecipe,
+    CoreEffectPlan, CoreExitPlan, CoreLoopPlan, CorePhiInfo, CorePlan, LoweredRecipe,
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::{ConstValue, MirType, ValueId};
@@ -312,8 +312,29 @@ pub(in crate::mir::builder) fn lower_loop_v0(
     block_effects.push((frame.step_bb, vec![]));
     block_effects.push((frame.after_bb, vec![]));
 
-    // PHIs: step/header + after merge.
-    let mut phis = build_header_step_phis(&frame, "loop_v0")?;
+    // PHIs: only allocate step-join PHIs when a continue edge can actually populate them.
+    let body_has_continue_edge = plans_require_continue_phi_args(&body_plans);
+    let mut phis = if body_has_continue_edge {
+        build_header_step_phis(&frame, "loop_v0")?
+    } else {
+        let mut phis = Vec::new();
+        for (var, header_phi_dst) in &frame.carrier_header_phis {
+            let Some(&init_val) = frame.carrier_inits.get(var) else {
+                return Err(format!(
+                    "[coreloop_skeleton] loop_v0: carrier_inits missing '{}' during PHI build",
+                    var
+                ));
+            };
+            phis.push(loop_carriers::build_preheader_only_phi_info(
+                frame.header_bb,
+                frame.preheader_bb,
+                *header_phi_dst,
+                init_val,
+                format!("loop_v0_carrier_{}", var),
+            ));
+        }
+        phis
+    };
     phis.append(&mut after_phis);
 
     // Frag: short-circuit branches + standard5 internal wires.
@@ -363,4 +384,35 @@ pub(in crate::mir::builder) fn lower_loop_v0(
         step_mode,
         has_explicit_step,
     }))
+}
+
+fn plans_require_continue_phi_args(plans: &[LoweredRecipe]) -> bool {
+    plans.iter().any(plan_requires_continue_phi_args)
+}
+
+fn plan_requires_continue_phi_args(plan: &LoweredRecipe) -> bool {
+    match plan {
+        CorePlan::Exit(CoreExitPlan::ContinueWithPhiArgs { .. } | CoreExitPlan::Continue(_)) => {
+            true
+        }
+        CorePlan::If(if_plan) => {
+            plans_require_continue_phi_args(&if_plan.then_plans)
+                || if_plan
+                    .else_plans
+                    .as_ref()
+                    .is_some_and(|plans| plans_require_continue_phi_args(plans))
+        }
+        CorePlan::BranchN(branch) => {
+            branch
+                .arms
+                .iter()
+                .any(|arm| plans_require_continue_phi_args(&arm.plans))
+                || branch
+                    .else_plans
+                    .as_ref()
+                    .is_some_and(|plans| plans_require_continue_phi_args(plans))
+        }
+        CorePlan::Seq(plans) => plans_require_continue_phi_args(plans),
+        _ => false,
+    }
 }

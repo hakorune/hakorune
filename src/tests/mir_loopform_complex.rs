@@ -80,3 +80,22 @@ fn mir_loopform_nested_region_verify() {
     }
     teardown_stage3_env();
 }
+
+#[test]
+fn mir_loopform_nested_loop_if_else_return_verify() {
+    // phase29bq blocker: nested loop body exits through if/else return only.
+    let src = include_str!(
+        "../../apps/tests/phase29bq_selfhost_blocker_parse_program2_nested_loop_if_else_return_min.hako"
+    );
+    let compiled = compile_module(src);
+
+    let mut verifier = MirVerifier::new();
+    if let Err(errors) = verifier.verify_module(&compiled.module) {
+        for e in &errors {
+            eprintln!("[mir-verify] {}", e);
+        }
+        teardown_stage3_env();
+        panic!("mir_loopform_nested_loop_if_else_return_verify: MIR verification failed");
+    }
+    teardown_stage3_env();
+}

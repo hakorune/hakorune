@@ -66,38 +66,60 @@ pub(in crate::mir::builder) fn finalize_generic_loop_v1_carriers(
     loop_plan: &mut CoreLoopPlan,
     carrier_state: GenericLoopV1CarrierState,
     loop_var: &str,
+    loop_var_init: crate::mir::ValueId,
     loop_var_current: crate::mir::ValueId,
     post_body_map: &BTreeMap<String, crate::mir::ValueId>,
+    body_has_continue_edge: bool,
 ) {
     let mut phis = loop_plan.phis.clone();
     let mut final_values = loop_plan.final_values.clone();
-    let loop_var_step_input = post_body_map
-        .get(loop_var)
-        .copied()
-        .unwrap_or(loop_var_current);
-    phis.push(CorePhiInfo {
-        block: loop_plan.step_bb,
-        dst: carrier_state.loop_var_step_phi,
-        inputs: vec![(loop_plan.body_bb, loop_var_step_input)],
-        tag: format!("loop_step_in_{}", loop_var),
-    });
-    for (var, init_val, phi_dst, step_phi_dst) in carrier_state.carrier_infos {
-        let step_input = post_body_map.get(&var).copied().unwrap_or(phi_dst);
+    if body_has_continue_edge {
+        let loop_var_step_input = post_body_map
+            .get(loop_var)
+            .copied()
+            .unwrap_or(loop_var_current);
         phis.push(CorePhiInfo {
             block: loop_plan.step_bb,
-            dst: step_phi_dst,
-            inputs: vec![(loop_plan.body_bb, step_input)],
-            tag: format!("loop_step_in_{}", var),
+            dst: carrier_state.loop_var_step_phi,
+            inputs: vec![(loop_plan.body_bb, loop_var_step_input)],
+            tag: format!("loop_step_in_{}", loop_var),
         });
-        phis.push(loop_carriers::build_loop_phi_info(
+    } else {
+        phis.push(loop_carriers::build_preheader_only_phi_info(
             loop_plan.header_bb,
             loop_plan.preheader_bb,
-            loop_plan.step_bb,
-            phi_dst,
-            init_val,
-            step_phi_dst,
-            format!("loop_carrier_{}", var),
+            loop_var_current,
+            loop_var_init,
+            format!("loop_var_{}", loop_var),
         ));
+    }
+    for (var, init_val, phi_dst, step_phi_dst) in carrier_state.carrier_infos {
+        if body_has_continue_edge {
+            let step_input = post_body_map.get(&var).copied().unwrap_or(phi_dst);
+            phis.push(CorePhiInfo {
+                block: loop_plan.step_bb,
+                dst: step_phi_dst,
+                inputs: vec![(loop_plan.body_bb, step_input)],
+                tag: format!("loop_step_in_{}", var),
+            });
+            phis.push(loop_carriers::build_loop_phi_info(
+                loop_plan.header_bb,
+                loop_plan.preheader_bb,
+                loop_plan.step_bb,
+                phi_dst,
+                init_val,
+                step_phi_dst,
+                format!("loop_carrier_{}", var),
+            ));
+        } else {
+            phis.push(loop_carriers::build_preheader_only_phi_info(
+                loop_plan.header_bb,
+                loop_plan.preheader_bb,
+                phi_dst,
+                init_val,
+                format!("loop_carrier_{}", var),
+            ));
+        }
         final_values.push((var.clone(), phi_dst));
         builder.variable_ctx.variable_map.insert(var, phi_dst);
     }
