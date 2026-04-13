@@ -14,27 +14,27 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-277x optimization lane closeout judgment` |
-| Front | `optimization lane closeout judgment` |
+| Now | `phase-29bq selfhost mirbuilder failure-driven` |
+| Front | `compiler expressivity first -> selfhost mirbuilder failure-driven` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `IPO lane is functionally landed; the next queue is closeout judgment` |
-| Next | `optimization lane closeout judgment` |
-| After Next | `post-optimization roadmap refresh` |
+| Blocker | `active blocker = none; stay failure-driven and capture the next exact blocker before widening` |
+| Next | `compiler expressivity first` |
+| After Next | `phase-29bq failure-driven blocker capture` |
 
 ## Current Read
 
   - design owners:
-  - implementation lane: `docs/development/current/main/phases/phase-277x/README.md`
-  - next layer landing: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
-  - roadmap SSOT: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
+  - implementation lane: `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md`
+  - next layer landing: `docs/development/current/main/design/compiler-expressivity-first-policy.md`
+  - roadmap SSOT: `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
   - concurrency manual owner: `docs/reference/concurrency/semantics.md`
   - concurrency runtime-plan owner: `docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md`
 
 ## Immediate Sequence
 
-1. `optimization lane closeout judgment`
-2. `post-optimization roadmap refresh`
+1. `compiler expressivity first`
+2. `phase-29bq selfhost mirbuilder failure-driven`
 
 ## Parked Corridor
 

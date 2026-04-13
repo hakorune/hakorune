@@ -1,4 +1,4 @@
-Status: ACTIVE
+Status: LANDED
 Owner: Codex
 Phase: 277x
 
@@ -6,16 +6,16 @@ Phase: 277x
 
 ## Summary
 
-- close out the optimization roadmap cleanly after the landed IPO cuts
-- keep this phase docs-only unless a concrete blocker appears
-- prepare the post-optimization roadmap refresh
+- closed out the optimization roadmap cleanly after the landed IPO cuts
+- kept the phase docs-only
+- handed the mainline back to compiler expressivity / selfhost entry
 
 ## Current Cut
 
 - all planned optimization layers now have landed owner seams or narrow actual cuts
-- this phase should confirm the optimization lane is structurally complete
-- follow-on work should move to roadmap refresh, not reopen old seams implicitly
+- this phase confirmed the optimization lane is structurally complete
+- follow-on work moves back to compiler expressivity / selfhost failure-driven operation
 
 ## Next
 
-- post-optimization roadmap refresh
+- `phase-29bq selfhost mirbuilder failure-driven`

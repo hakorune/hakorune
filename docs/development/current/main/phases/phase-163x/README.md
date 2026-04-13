@@ -263,8 +263,8 @@
            - landed: `closure thin-entry specialization`
            - next lane: `IPO / build-time optimization`
         9. `IPO / build-time optimization`
-           - current cut: closeout judgment
-           - backlog after current cut: roadmap refresh / post-optimization handoff
+           - status: closed out
+           - follow-on work moved back to compiler expressivity / selfhost mainline
       - active ordering note:
         - the layer list above is the only current next-step order
         - older pilot queues below are retained as landed history / evidence, not as competing next-task pointers
@@ -280,7 +280,7 @@
       - LLVM/Python local-enum escape barriers now share one helper instead of repeating materialization wrappers in `call` / `boxcall` / `ret`
       - safe runtime nullish checks touched in this lane now converge on `NullBox::check_null()`
       - MIR reference docs now split into instruction SSOT + metadata SSOT, while stale all-in-one references are reduced to thin pointers
-    8. next ready task: `phase-277x optimization lane closeout judgment`
+    8. next ready task: `phase-29bq selfhost mirbuilder failure-driven`
     9. keep `where` / enum methods / full monomorphization in backlog
 
 ## Fixed Task Order

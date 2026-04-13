@@ -76,6 +76,12 @@ Owner: `phase-163x optimization-resume`
    - `ThinLTO`
    - MIR-side semantic layersが先。ここは最後尾
 
+## Closeout
+
+- optimization roadmap closeout accepted (`phase277x`)
+- all planned optimization rows now have landed owner seams or narrow actual cuts
+- next mainline work returns to compiler expressivity / selfhost mirbuilder under the existing selfhost migration SSOTs
+
 ## Pilot Mapping
 
 - old `User-Box Method Dispatch`
@@ -104,6 +110,6 @@ Owner: `phase-163x optimization-resume`
 ## Immediate Read
 
 - immediate code next:
-  - `optimization lane closeout judgment`
+  - `compiler expressivity first`
 - immediate follow-on after that:
-  - post-optimization roadmap refresh
+  - `phase-29bq` failure-driven blocker capture

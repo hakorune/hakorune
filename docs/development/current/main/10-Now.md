@@ -12,18 +12,18 @@ Related:
 
 ## Current
 
-- current implementation lane: `phase277x optimization lane closeout judgment`
+- current implementation lane: `phase29bq selfhost mirbuilder failure-driven`
 - sibling guardrail lane: `phase137x main kilo reopen selection`
-- immediate next: `optimization lane closeout judgment`
-- immediate follow-on: `post-optimization roadmap refresh`
-- top queued cut: `optimization lane closeout judgment`
+- immediate next: `compiler expressivity first`
+- immediate follow-on: `phase29bq failure-driven blocker capture`
+- top queued cut: `phase29bq selfhost mirbuilder failure-driven`
 
 ## Landing Snapshot
 
 - latest landed:
-  - `phase276x`: PGO now resolves first generate/use artifacts and emits a `.pgo.json` sidecar while keeping LLVM-side instrumentation/use out of scope
+  - `phase277x`: optimization lane closeout judgment froze the landed optimization roadmap and handed the mainline back to compiler expressivity / selfhost entry
 - active:
-  - `phase277x`: optimization lane closeout judgment after the landed IPO cuts
+  - `phase29bq`: failure-driven selfhost mirbuilder lane under compiler-expressivity-first policy
 - detail owner:
   - landed history stays in phase docs and roadmap SSOT
 
@@ -32,9 +32,9 @@ Related:
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
 3. `docs/reference/concurrency/semantics.md`
-4. `docs/development/current/main/phases/phase-277x/README.md`
-5. `docs/development/current/main/phases/phase-163x/README.md`
-6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
+4. `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
+5. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md`
+6. `docs/development/current/main/phases/phase-29bq/29bq-91-mirbuilder-migration-progress-checklist.md`
 
 ## Proof Bundle
 

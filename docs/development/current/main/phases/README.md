@@ -4,11 +4,12 @@
 
 ## Current
 
-- **Current (ACTIVE)**: Phase 277x optimization lane closeout judgment
+- **Current (ACTIVE)**: Phase 29bq selfhost mirbuilder failure-driven
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
 
 ## Recent Landed
 
+- **Phase 277x（LANDED）**: optimization lane closeout judgment
 - **Phase 276x（LANDED）**: IPO PGO generate/use first cut
 - **Phase 275x（LANDED）**: IPO PGO scaffold
 - **Phase 274x（LANDED）**: IPO ThinLTO first cut

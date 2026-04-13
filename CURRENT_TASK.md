@@ -15,9 +15,10 @@ Scope: current lane / next lane / restart order only.
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/10-Now.md`
 3. `docs/development/current/main/15-Workstream-Map.md`
-4. `docs/development/current/main/phases/phase-277x/README.md`
-5. `docs/development/current/main/phases/phase-163x/README.md`
-6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
+4. `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
+5. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md`
+6. `docs/development/current/main/phases/phase-29bq/29bq-91-mirbuilder-migration-progress-checklist.md`
+7. `docs/development/current/main/phases/phase-29bq/29bq-92-parser-handoff-checklist.md`
 7. `git status -sb`
 8. `tools/checks/dev_gate.sh quick`
 
@@ -26,13 +27,13 @@ Scope: current lane / next lane / restart order only.
 - expected worktree:
   - clean
 - active lane:
-  - `phase-277x optimization lane closeout judgment`
+  - `phase-29bq selfhost mirbuilder failure-driven`
 - sibling guardrail:
   - `phase-137x` string corridor / exact-keeper guardrail
 - immediate next:
-  - `optimization lane closeout judgment`
+  - `compiler expressivity first`
 - immediate follow-on:
-  - `post-optimization roadmap refresh`
+  - `phase-29bq failure-driven blocker capture`
 - current stop-lines:
   - do not mix lane B with lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
   - do not mix lane B with `generic placement / effect`
@@ -44,11 +45,11 @@ Scope: current lane / next lane / restart order only.
 ## Design Owners
 
 - implementation lane:
-  - `docs/development/current/main/phases/phase-277x/README.md`
+  - `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md`
 - next layer landing:
-  - `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
+  - `docs/development/current/main/design/compiler-expressivity-first-policy.md`
 - roadmap SSOT:
-  - `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
+  - `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
 - string guardrail owner:
   - `docs/development/current/main/phases/phase-137x/README.md`
 - generic memory lane-B contract owner:
@@ -63,9 +64,9 @@ Scope: current lane / next lane / restart order only.
 ## Current Notes
 
 - latest landed phase:
-  - `phase-276x`: PGO now resolves first generate/use artifacts and emits a `.pgo.json` sidecar while keeping LLVM-side instrumentation/use out of scope
+  - `phase-277x`: optimization lane closeout judgment froze the landed optimization roadmap and handed the mainline back to compiler expressivity / selfhost entry
 - active focus:
-  - `phase-277x`: optimization lane closeout judgment after the landed IPO cuts
+  - `phase-29bq`: failure-driven selfhost mirbuilder lane under compiler-expressivity-first policy
 - pointer rule:
   - `CURRENT_TASK.md` is the only live status pointer
   - `05/10/15` stay thin mirrors only
@@ -74,6 +75,6 @@ Scope: current lane / next lane / restart order only.
 ## Execution Queue
 
 1. `optimization lane closeout judgment`
-   - IPO lane now has landed build-policy, callable/edge, ThinLTO, and PGO cuts
-   - next work is closing the optimization roadmap cleanly
-2. `post-optimization roadmap refresh`
+   - landed and closed
+2. `phase-29bq selfhost mirbuilder failure-driven`
+   - use quick-entry SSOTs and failure-driven blocker capture only
