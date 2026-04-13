@@ -32,7 +32,7 @@ fn mir_lowering_of_peek_expr() {
         span: Span::unknown(),
     };
 
-    let mut compiler = MirCompiler::new();
+    let mut compiler = MirCompiler::with_options(false);
     let res = compiler.compile(ast).expect("compile ok");
     let dump = MirPrinter::new().print_module(&res.module);
     assert!(dump.contains("br "), "expected branches in MIR:\n{}", dump);

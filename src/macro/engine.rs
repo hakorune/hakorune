@@ -12,6 +12,7 @@ pub struct MacroEngine {
     max_passes: usize,
     cycle_window: usize,
     trace: bool,
+    measure_ast_bytes: bool,
 }
 
 impl MacroEngine {
@@ -23,10 +24,14 @@ impl MacroEngine {
             .map(|v| v as usize)
             .unwrap_or(8);
         let trace = crate::config::env::macro_trace();
+        let measure_ast_bytes = trace
+            || crate::config::env::macro_trace_jsonl()
+                .is_some_and(|path| !path.is_empty());
         Self {
             max_passes,
             cycle_window,
             trace,
+            measure_ast_bytes,
         }
     }
 
@@ -37,15 +42,23 @@ impl MacroEngine {
         let mut history: std::collections::VecDeque<ASTNode> = std::collections::VecDeque::new();
         for pass in 0..self.max_passes {
             let t0 = Instant::now();
-            let before_len = crate::r#macro::ast_json::ast_to_json(&cur)
-                .to_string()
-                .len();
+            let before_len = if self.measure_ast_bytes {
+                crate::r#macro::ast_json::ast_to_json(&cur)
+                    .to_string()
+                    .len()
+            } else {
+                0
+            };
             let next0 = self.expand_node(&cur);
             // Apply user MacroBoxes once per pass (if enabled)
             let next = crate::r#macro::macro_box::expand_all_once(&next0);
-            let after_len = crate::r#macro::ast_json::ast_to_json(&next)
-                .to_string()
-                .len();
+            let after_len = if self.measure_ast_bytes {
+                crate::r#macro::ast_json::ast_to_json(&next)
+                    .to_string()
+                    .len()
+            } else {
+                0
+            };
             let dt = t0.elapsed();
             if self.trace {
                 crate::macro_log!(
