@@ -253,6 +253,7 @@
            - next broadening should feed `nocapture` / `readonly` / `readnone` / `noalias`, not re-invent escape in LLVM
         7. `numeric loop / SIMD`
            - partial: FloatBox / typed numeric groundwork is landed
+           - first policy seam centralizes `loop_vectorize` / `slp_vectorize`
            - induction/reduction/vectorization and fast-math tuning remain backlog
         8. `closure split`
            - backlog: `capture classification`, `closure env scalarization`, and `closure thin-entry specialization`
@@ -273,7 +274,7 @@
       - LLVM/Python local-enum escape barriers now share one helper instead of repeating materialization wrappers in `call` / `boxcall` / `ret`
       - safe runtime nullish checks touched in this lane now converge on `NullBox::check_null()`
       - MIR reference docs now split into instruction SSOT + metadata SSOT, while stale all-in-one references are reduced to thin pointers
-    8. next ready task: `escape / barrier -> LLVM attrs`
+    8. next ready task: `numeric loop / SIMD`
     9. keep `where` / enum methods / full monomorphization in backlog
 
 ## Fixed Task Order

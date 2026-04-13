@@ -15,7 +15,7 @@ Scope: current lane / next lane / restart order only.
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/10-Now.md`
 3. `docs/development/current/main/15-Workstream-Map.md`
-4. `docs/development/current/main/phases/phase-261x/README.md`
+4. `docs/development/current/main/phases/phase-262x/README.md`
 5. `docs/development/current/main/phases/phase-163x/README.md`
 6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 7. `git status -sb`
@@ -30,9 +30,9 @@ Scope: current lane / next lane / restart order only.
 - sibling guardrail:
   - `phase-137x` string corridor / exact-keeper guardrail
 - immediate next:
-  - `escape / barrier -> LLVM attrs`
-- immediate follow-on:
   - `numeric loop / SIMD`
+- immediate follow-on:
+  - `closure split`
 - current stop-lines:
   - do not mix lane B with lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
   - do not mix lane B with `generic placement / effect`
@@ -69,15 +69,16 @@ Scope: current lane / next lane / restart order only.
 - `phase-258x` is landed: `SimplifyCFG` now propagates constant conditions through single-input PHIs before folding compare / branch conditions
 - `phase-259x` is landed: SimplifyCFG closeout judgment hands the remaining optimization lane to memory-effect work
 - `phase-260x` is landed: the memory-effect owner seam and stats surface now sit on their own top-level pass, and the same-block private-carrier slices are fully landed
-- `phase-261x` is active: the first runtime helper LLVM attrs policy seam is the current `escape / barrier -> LLVM attrs` cut
-- explicit scope-exit timeout surfacing is parked while the optimization lane hands off to `escape / barrier -> LLVM attrs`
-- the next code lane is now `escape / barrier -> LLVM attrs`
+- `phase-261x` is landed: the first runtime helper LLVM attrs policy seam is done and closed out
+- `phase-262x` is active: the first numeric-loop / SIMD policy seam is the current cut
+- explicit scope-exit timeout surfacing is parked while the optimization lane hands off to `numeric loop / SIMD`
+- the next code lane is now `numeric loop / SIMD`
 - `CURRENT_TASK.md` is the only live status pointer; `05/10/15` are thin mirrors only
 - if this file grows again, move the detail back into the phase docs
 
 ## Execution Queue
 
-1. `escape / barrier -> LLVM attrs`
-   - first cut: runtime helper LLVM attrs policy seam (`readonly` / `nocapture`)
-   - do not bury future attrs feed inside ad-hoc declaration sites without a top-level owner
-2. `numeric loop / SIMD`
+1. `numeric loop / SIMD`
+   - first cut: centralized LLVM vectorization policy seam (`loop_vectorize` / `slp_vectorize`)
+   - keep induction / reduction / fast-math widening out of the first seam
+2. `closure split`

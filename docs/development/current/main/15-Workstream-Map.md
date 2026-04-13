@@ -15,17 +15,17 @@ Related:
 | Item | State |
 | --- | --- |
 | Now | `phase-163x primitive and user-box fast path` |
-| Front | `memory-effect layer complete -> next design lane is escape / barrier -> LLVM attrs` |
+| Front | `memory-effect layer complete -> next design lane is numeric loop / SIMD` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `memory-effect layer is complete; M0/M1/M2/M3 are landed, and the next queue starts at escape / barrier -> LLVM attrs` |
-| Next | `escape / barrier -> LLVM attrs` |
-| After Next | `numeric loop / SIMD` |
+| Blocker | `memory-effect layer is complete; M0/M1/M2/M3 are landed, and the next queue starts at numeric loop / SIMD` |
+| Next | `numeric loop / SIMD` |
+| After Next | `closure split` |
 
 ## Current Read
 
 - design owners:
   - implementation lane: `docs/development/current/main/phases/phase-163x/README.md`
-  - next layer landing: `docs/development/current/main/phases/phase-261x/README.md`
+  - next layer landing: `docs/development/current/main/phases/phase-262x/README.md`
   - roadmap SSOT: `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
   - sibling string guardrail: `docs/development/current/main/phases/phase-137x/README.md`
   - concurrency manual owner: `docs/reference/concurrency/semantics.md`
@@ -34,8 +34,8 @@ Related:
 ## Immediate Sequence
 
 1. `memory-effect layer`
-2. `escape / barrier -> LLVM attrs`
-3. `numeric loop / SIMD`
+2. `numeric loop / SIMD`
+3. `closure split`
 
 ## Parked Corridor
 

@@ -14,9 +14,9 @@ Related:
 
 - current implementation lane: `phase163x primitive and user-box fast path`
 - sibling guardrail lane: `phase137x main kilo reopen selection`
-- immediate next: `escape / barrier -> LLVM attrs`
-- immediate follow-on: `numeric loop / SIMD`
-- top queued cut: `escape / barrier -> LLVM attrs`
+- immediate next: `numeric loop / SIMD`
+- immediate follow-on: `closure split`
+- top queued cut: `numeric loop / SIMD`
 
 ## Landing Snapshot
 
@@ -28,8 +28,10 @@ Related:
   - explicit-scope aggregate failures now live on `TaskGroupBox.failureReport()` as `[first_failure, additional_failures...]`
 - `phase260x` is landed:
   - the memory-effect owner seam and stats surface now sit on their own top-level pass, and the same-block private-carrier slices are fully landed
-- `phase261x` is active:
-  - the first LLVM attrs policy seam for runtime helper declarations is the next narrow escape/barrier cut
+- `phase261x` is landed:
+  - the first LLVM attrs policy seam for runtime helper declarations is closed out
+- `phase262x` is active:
+  - the first numeric-loop / SIMD policy seam is the next narrow cut
 - latest semantic simplification cut:
   - copied-constant `Branch` terminators, constant `Compare` instructions, and empty trampoline jump-threading now fold before CFG merge
   - branch arms may now thread through an empty trampoline into a final block when the final PHIs can be trivially rewritten to the branching predecessor
@@ -42,7 +44,7 @@ Related:
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
 3. `docs/reference/concurrency/semantics.md`
-4. `docs/development/current/main/phases/phase-261x/README.md`
+4. `docs/development/current/main/phases/phase-262x/README.md`
 5. `docs/development/current/main/phases/phase-163x/README.md`
 6. `docs/development/current/main/design/optimization-layer-roadmap-ssot.md`
 

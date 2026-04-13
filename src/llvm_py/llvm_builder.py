@@ -20,6 +20,9 @@ from builders.legacy_block_lower import (
 from trace import debug as trace_debug
 from build_opts import create_target_machine_for_target, resolve_build_options
 from mir_analysis import scan_call_arities
+from builders.numeric_loop_policy import (
+    apply_numeric_loop_pass_policy as _apply_numeric_loop_pass_policy,
+)
 
 from resolver import Resolver
 from mir_reader import build_builder_input
@@ -400,8 +403,7 @@ class NyashLLVMBuilder:
                 pmb = llvm.create_pass_manager_builder()
                 pmb.opt_level = int(build_opts.opt_level)
                 pmb.size_level = 0
-                pmb.loop_vectorize = pmb.opt_level >= 2
-                pmb.slp_vectorize = pmb.opt_level >= 2
+                _apply_numeric_loop_pass_policy(pmb, build_opts.opt_level)
                 mpm = llvm.create_module_pass_manager()
                 pmb.populate(mpm)
                 mpm.run(mod)

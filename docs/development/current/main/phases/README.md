@@ -9,6 +9,7 @@
 
 ## Recent Landed
 
+- **Phase 261x（LANDED）**: escape / barrier -> LLVM attrs first seam
 - **Phase 260x（LANDED）**: memory-effect owner seam and stats surface
 - **Phase 259x（LANDED）**: SimplifyCFG closeout judgment and handoff
 - **Phase 258x（LANDED）**: SimplifyCFG single-input-PHI constant propagation

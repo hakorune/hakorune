@@ -1,4 +1,4 @@
-Status: ACTIVE
+Status: LANDED
 Owner: Codex
 Phase: 261x
 
@@ -18,8 +18,7 @@ Phase: 261x
   - `readonly` on pure read-only query helpers
   - `nocapture` on pointer arguments for known non-capturing runtime bridges
 
-## Next
+## Closeout
 
 - widen the attrs feed only when there is a concrete helper or barrier contract to justify it
 - keep the later `numeric loop / SIMD` lane separate
-
