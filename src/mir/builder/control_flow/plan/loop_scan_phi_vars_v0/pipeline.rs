@@ -23,7 +23,7 @@ use crate::mir::MirType;
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::facts::LoopScanPhiVarsV0Facts;
-use super::nested_loop_handoff::try_lower_loop_scan_phi_vars_nested_loop_fastpath;
+use super::nested_loop_recipe_handoff::lower_loop_scan_phi_vars_nested_loop_recipe;
 use super::recipe::{LoopScanPhiSegment, NestedLoopRecipe};
 
 const LOOP_SCAN_PHI_VARS_ERR: &str = "[normalizer] loop_scan_phi_vars_v0";
@@ -70,72 +70,25 @@ fn collect_assigned_vars_in_stmt(stmt: &ASTNode, out: &mut BTreeSet<String>) {
     }
 }
 
-fn apply_loop_final_values_to_bindings(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    plan: &LoweredRecipe,
-) {
-    let CorePlan::Loop(loop_plan) = plan else {
-        return;
-    };
-    for (name, value_id) in &loop_plan.final_values {
-        builder
-            .variable_ctx
-            .variable_map
-            .insert(name.clone(), *value_id);
-        if current_bindings.contains_key(name) {
-            current_bindings.insert(name.clone(), *value_id);
-        }
-    }
-}
-
-fn lower_nested_loop_plan(
-    builder: &mut MirBuilder,
-    condition: &ASTNode,
-    body: &[ASTNode],
-    _ctx: &LoopRouteContext,
-) -> Result<LoweredRecipe, String> {
-    try_lower_loop_scan_phi_vars_nested_loop_fastpath(builder, condition, body).ok_or_else(|| {
-        format!("{LOOP_SCAN_PHI_VARS_ERR}: nested loop fastpath rejected")
-    })
-}
-
 fn lower_nested_loop_recipe(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    ctx: &LoopRouteContext,
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
     break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
     nested: &NestedLoopRecipe,
 ) -> Result<Vec<LoweredRecipe>, String> {
-    if let Some(plans) = parts::entry::lower_nested_loop_recipe_stmt_only(
+    lower_loop_scan_phi_vars_nested_loop_recipe(
         builder,
         current_bindings,
         carrier_step_phis,
         break_phi_dsts,
         nested,
-        LOOP_SCAN_PHI_VARS_ERR,
-    )? {
-        for plan in &plans {
-            apply_loop_final_values_to_bindings(builder, current_bindings, plan);
-        }
-        Ok(plans)
-    } else {
-        let plan = lower_nested_loop_plan(
-            builder,
-            &nested.cond_view.tail_expr,
-            nested.body.as_ref(),
-            ctx,
-        )?;
-        apply_loop_final_values_to_bindings(builder, current_bindings, &plan);
-        Ok(vec![plan])
-    }
+    )
 }
 
 fn lower_segment(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    ctx: &LoopRouteContext,
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
     break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
     segment: &LoopScanPhiSegment,
@@ -160,7 +113,6 @@ fn lower_segment(
         LoopScanPhiSegment::NestedLoop(nested) => lower_nested_loop_recipe(
             builder,
             current_bindings,
-            ctx,
             carrier_step_phis,
             break_phi_dsts,
             nested,
@@ -174,7 +126,6 @@ fn lower_found_if_stmt(
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
     break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
     if_stmt: &ASTNode,
-    ctx: &LoopRouteContext,
 ) -> Result<Vec<LoweredRecipe>, String> {
     let ASTNode::If {
         condition,
@@ -199,7 +150,6 @@ fn lower_found_if_stmt(
                 carrier_step_phis,
                 break_phi_dsts,
                 then_body,
-                ctx,
             )
         };
 
@@ -214,7 +164,6 @@ fn lower_found_if_stmt(
                 carrier_step_phis,
                 break_phi_dsts,
                 body,
-                ctx,
             )
         };
 
@@ -243,7 +192,6 @@ fn lower_found_if_branch_body(
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
     break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
     stmts: &[ASTNode],
-    ctx: &LoopRouteContext,
 ) -> Result<Vec<LoweredRecipe>, String> {
     const ALLOW_EXTENDED: bool = true;
     let mut plans = Vec::new();
@@ -268,7 +216,6 @@ fn lower_found_if_branch_body(
             plans.extend(lower_nested_loop_recipe(
                 builder,
                 current_bindings,
-                ctx,
                 carrier_step_phis,
                 break_phi_dsts,
                 &nested,
@@ -315,7 +262,7 @@ fn lower_found_if_branch_body(
 pub(in crate::mir::builder) fn lower_loop_scan_phi_vars_v0(
     builder: &mut MirBuilder,
     facts: LoopScanPhiVarsV0Facts,
-    ctx: &LoopRouteContext,
+    _ctx: &LoopRouteContext,
 ) -> Result<LoweredRecipe, String> {
     let blocks = LoopBlocksStandard5::allocate(builder)?;
     let LoopBlocksStandard5 {
@@ -443,7 +390,6 @@ pub(in crate::mir::builder) fn lower_loop_scan_phi_vars_v0(
     body_plans.extend(lower_segment(
         builder,
         &mut current_bindings,
-        ctx,
         &carrier_step_phis,
         &break_phi_dsts,
         &segments[0],
@@ -451,7 +397,6 @@ pub(in crate::mir::builder) fn lower_loop_scan_phi_vars_v0(
     body_plans.extend(lower_segment(
         builder,
         &mut current_bindings,
-        ctx,
         &carrier_step_phis,
         &break_phi_dsts,
         &segments[1],
@@ -463,13 +408,11 @@ pub(in crate::mir::builder) fn lower_loop_scan_phi_vars_v0(
             &carrier_step_phis,
             &break_phi_dsts,
             found_if_stmt,
-            ctx,
         )?);
     }
     body_plans.extend(lower_segment(
         builder,
         &mut current_bindings,
-        ctx,
         &carrier_step_phis,
         &break_phi_dsts,
         &segments[2],

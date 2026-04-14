@@ -173,9 +173,12 @@ Scope: current lane / next lane / restart order only.
       - next family inventory:
         - `loop_scan_phi_vars_v0`
           - nested-loop depth1 fastpath handoff
+          - nested-loop recipe handoff
           - segment / if-branch lowering orchestration
       - landed first `loop_scan_phi_vars_v0` seam:
         - nested-loop fastpath handoff now lives under `loop_scan_phi_vars_v0/nested_loop_handoff`
+      - landed second `loop_scan_phi_vars_v0` seam:
+        - nested-loop recipe stmt-only / fastpath handoff now lives under `loop_scan_phi_vars_v0/nested_loop_recipe_handoff`
       - prior family closeout:
         - `GenericLoopV1`
           - `facts`
@@ -210,7 +213,7 @@ Scope: current lane / next lane / restart order only.
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
    - next:
-     - re-inventory the next exact seam under `loop_scan_phi_vars_v0`
+     - re-inventory the next exact seam under `loop_scan_phi_vars_v0` segment / if-branch lowering orchestration
 
 ## Legacy Compatibility Block
 

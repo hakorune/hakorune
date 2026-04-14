@@ -131,10 +131,11 @@ Related:
 - next one-family inventory (`loop_scan_phi_vars_v0`):
   - already separate:
     - nested-loop depth1 fastpath handoff
+    - nested-loop recipe stmt-only / fastpath handoff
   - still mixed:
     - segment / if-branch lowering orchestration
   - next step:
-    - re-inventory the next exact seam under `loop_scan_phi_vars_v0`
+    - re-inventory the next exact seam under `loop_scan_phi_vars_v0` segment / if-branch lowering orchestration
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
