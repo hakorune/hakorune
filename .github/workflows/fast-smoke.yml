@@ -19,7 +19,7 @@ jobs:
       NYASH_NY_LLVM_LLC_TOOL: llc-18
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Rust (stable)
         uses: dtolnay/rust-toolchain@stable
@@ -64,6 +64,7 @@ jobs:
 
       - name: EXE smoke (peek_expr_block -> 1)
         run: |
+          export HAKO_BACKEND_COMPAT_REPLAY=harness
           NYASH_LLVM_ROUTE_TRACE=1 ./target/release/hakorune --emit-mir-json tmp/pb.json --backend mir apps/tests/peek_expr_block.hako
           NYASH_LLVM_ROUTE_TRACE=1 ./target/release/ny-llvmc --in tmp/pb.json --emit exe --nyrt target/release --out tmp/pb
           set +e; ./tmp/pb >/dev/null 2>&1; CODE=$?; set -e
