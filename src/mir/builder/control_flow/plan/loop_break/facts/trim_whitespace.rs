@@ -1,15 +1,15 @@
-use super::loop_break_trim_whitespace_helpers::{
+use super::trim_whitespace_helpers::{
     build_not_whitespace_condition, extract_trim_break_condition, extract_trim_loop_increment,
     extract_trim_loop_var, match_trim_header_condition,
 };
-use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     count_control_flow, ControlFlowDetector,
 };
 use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 
-pub(super) fn try_extract_loop_break_trim_whitespace_subset(
+pub(in crate::mir::builder::control_flow::plan) fn try_extract_loop_break_trim_whitespace_subset(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Option<LoopBreakFacts> {

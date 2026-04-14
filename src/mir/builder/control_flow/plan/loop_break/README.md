@@ -11,6 +11,7 @@
 - Facts namespace entry: `loop_break::facts`
 - Foundation type source: `loop_break::facts::types::LoopBreakFacts`
 - Foundation helpers: `loop_break::facts::helpers_{common,break_if}`
+- Trim cluster: `loop_break::facts::trim_whitespace{,_helpers}`
 - Supported: A-3 Trim / A-4 DigitPos (promote LoopBodyLocal to carrier)
 - ConditionOnly carriers are recalculated per iteration (no host binding)
 

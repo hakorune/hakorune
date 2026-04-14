@@ -159,12 +159,12 @@ Related:
     - nested fallback route-local consolidation
     - helper-family closeout check
   - likely first seam:
-    - `loop_break_trim_whitespace` cluster move
+    - `loop_break_step_before_break` subset move
   - likely follow-on seams:
     - next `loop_break` subset cluster
     - `loop_break_core` dispatcher move
   - next step:
-    - record the helper foundation move and move the `loop_break_trim_whitespace` cluster under `loop_break::facts/`
+    - record the `trim_whitespace` cluster move and move `loop_break_step_before_break` under `loop_break::facts/`
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
