@@ -99,12 +99,13 @@ Scope: current lane / next lane / restart order only.
 3. `phase-29bq loop owner seam cleanup`
    - target owner flow:
      - `facts -> route -> recipe -> join sig -> phi materializer -> verifier -> cleanup`
-    - closeout-ready / closed families:
+    - inventory queue / recent closeouts:
       - `LoopCondReturnInBody`
       - `LoopTrueBreakContinue`
       - `LoopCondContinueOnly`
       - `LoopCondBreakContinue`
       - `LoopCondContinueWithReturn`
+      - `GenericLoopV1`
       - `nested_loop_depth1`
       - `nested_loop_plan`
       - `generic_loop_body::nested_loop_plan`
@@ -118,7 +119,7 @@ Scope: current lane / next lane / restart order only.
         - current handoff snapshot:
           - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
           - `loop_scan_v0` closeout is landed
-          - current helper-family inventory is `body_local_policy`
+          - final helper-family inventory was `body_local_policy`
           - `gather_facts_step_box` is landed
           - `apply_policy_step_box` is landed
           - `normalize_body_step_box` is landed
@@ -149,33 +150,25 @@ Scope: current lane / next lane / restart order only.
         - likely follow-on seams:
           - `none confirmed`
         - next:
-          - re-inventory the next owner-local family under `loop_break`
-      - `GenericLoopV1`
+          - inventory `nested_loop_depth1`
+      - `nested_loop_depth1`
         - current handoff snapshot:
           - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
           - `facts` is separated
-          - `route` is separated
-          - `recipe` is separated
-          - `cfg skeleton` is separated
-          - body lowering lives under `generic_loop_body/`
-          - body terminality / continue-edge detection are separated
-          - route-local carrier prepare/body/finalize orchestration is landed
-          - route-local condition/step handoff is landed
-          - body-local fallthrough continue suppression is landed
-          - `body_check::validation_v0` is landed
-          - `body_check::validation_v1` is landed
-          - `body_check::shape_detection` is landed
+          - route-local acceptance / fallback dispatch is separated
+          - preheader freshness rewrite is separated
+          - stmt-only fastpath ownership is separated
           - likely first seam:
-            - `body_check::shape_resolution` closeout
+            - `none confirmed`
         - likely follow-on seams:
-          - `nested_loop_depth1`
+          - `nested_loop_plan`
         - next:
-          - close out `body_check::shape_resolution`, then close out `GenericLoopV1`
+          - close out `nested_loop_depth1`, then inventory `nested_loop_plan`
 4. `phase-29bq legacy lowerer removal`
     - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - close out `GenericLoopV1 body_check` and then inventory `nested_loop_depth1`
+      - close out `nested_loop_depth1` and then inventory `nested_loop_plan`
 
 ## Legacy Compatibility Block
 

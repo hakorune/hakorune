@@ -99,10 +99,13 @@ Related:
     - `body_check::validation_v0`
     - `body_check::validation_v1`
     - `body_check::shape_detection`
-  - still mixed:
     - `body_check::shape_resolution` closeout
+  - status:
+    - landed and closed
+  - still mixed:
+    - none confirmed
   - next step:
-    - close out `body_check::shape_resolution`, then close out `GenericLoopV1` and inventory `nested_loop_depth1`
+    - close out `nested_loop_depth1` and inventory `nested_loop_plan`
 - next one-family inventory (`nested_loop_depth1`):
   - already separate:
     - `facts`
@@ -228,7 +231,7 @@ Related:
   - likely follow-on seams:
     - `none confirmed`
   - next step:
-    - re-inventory the next owner-local family under `loop_break`
+    - inventory `nested_loop_depth1`
 
 - next one-family inventory (`loop_break/facts/body_local_facts`):
   - already separate:
@@ -243,7 +246,7 @@ Related:
   - still mixed:
     - `none confirmed`
   - next step:
-    - inventory `GenericLoopV1`
+    - inventory `nested_loop_depth1`
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
