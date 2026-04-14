@@ -17,30 +17,11 @@ use crate::mir::MirType;
 use std::collections::BTreeMap;
 
 use super::facts::LoopScanMethodsV0Facts;
-use super::nested_loop_handoff::lower_loop_scan_methods_nested_loop_fallback;
 use super::recipe::LoopScanSegment;
 use super::segment_linear::lower_loop_scan_methods_linear_segment;
+use super::segment_nested_loop::lower_loop_scan_methods_nested_segment;
 
 const LOOP_SCAN_METHODS_ERR: &str = "[normalizer] loop_scan_methods_v0";
-
-fn apply_loop_final_values_to_bindings(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    plan: &LoweredRecipe,
-) {
-    let CorePlan::Loop(loop_plan) = plan else {
-        return;
-    };
-    for (name, value_id) in &loop_plan.final_values {
-        builder
-            .variable_ctx
-            .variable_map
-            .insert(name.clone(), *value_id);
-        if current_bindings.contains_key(name) {
-            current_bindings.insert(name.clone(), *value_id);
-        }
-    }
-}
 
 pub(in crate::mir::builder) fn lower_loop_scan_methods_v0(
     builder: &mut MirBuilder,
@@ -150,31 +131,16 @@ pub(in crate::mir::builder) fn lower_loop_scan_methods_v0(
                     no_exit,
                 )?);
             }
-            LoopScanSegment::NestedLoop(nested) => {
-                if let Some(plans) = parts::entry::lower_nested_loop_recipe_stmt_only(
+            LoopScanSegment::NestedLoop(nested) => body_plans.extend(
+                lower_loop_scan_methods_nested_segment(
                     builder,
                     &mut current_bindings,
                     &carrier_step_phis,
                     &break_phi_dsts,
                     nested,
-                    LOOP_SCAN_METHODS_ERR,
-                )? {
-                    for plan in &plans {
-                        apply_loop_final_values_to_bindings(builder, &mut current_bindings, plan);
-                    }
-                    body_plans.extend(plans);
-                } else {
-                    let plan = lower_loop_scan_methods_nested_loop_fallback(
-                        builder,
-                        &nested.cond_view.tail_expr,
-                        &nested.body.body,
-                        ctx,
-                        LOOP_SCAN_METHODS_ERR,
-                    )?;
-                    apply_loop_final_values_to_bindings(builder, &mut current_bindings, &plan);
-                    body_plans.push(plan);
-                }
-            }
+                    ctx,
+                )?,
+            ),
         }
     }
 
