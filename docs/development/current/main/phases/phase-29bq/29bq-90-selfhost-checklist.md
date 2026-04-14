@@ -218,19 +218,20 @@ Related:
   - likely first seam:
     - `body_local_policy`
   - likely follow-on seams:
-    - `loop_break/facts/body_local_facts`
+    - `loop_break/facts/body_local_facts_shape_matchers`
   - next step:
-    - continue `loop_break/facts/body_local_facts` from the helper split
+    - continue `loop_break/facts/body_local_facts_shape_matchers` from the shape matcher split
 
 - next one-family inventory (`loop_break/facts/body_local_facts`):
   - already separate:
     - `body_local_facts_helpers`
+    - `body_local_facts`
   - still mixed:
-    - `body_local_facts`
+    - `body_local_facts_shape_matchers`
   - likely first seam:
-    - `body_local_facts`
+    - `body_local_facts_shape_matchers`
   - next step:
-    - continue `body_local_facts` from the trim/digit extractor split
+    - continue `body_local_facts_shape_matchers` from the trim/digit extractor split
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

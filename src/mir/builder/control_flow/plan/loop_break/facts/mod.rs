@@ -13,6 +13,7 @@
 //! - `loop_break/facts/helpers_realworld.rs`
 //! - `loop_break/facts/body_local_facts.rs`
 //! - `loop_break/facts/body_local_facts_helpers.rs`
+//! - `loop_break/facts/body_local_facts_shape_matchers.rs`
 //! - `loop_break/facts/body_local_subset.rs`
 //! - `loop_break/facts/core.rs`
 //! - `loop_break/facts/parse_integer.rs`
@@ -27,6 +28,7 @@ use crate::mir::builder::control_flow::plan::planner::Freeze;
 mod types;
 pub(in crate::mir::builder::control_flow::plan) mod body_local_facts;
 pub(in crate::mir::builder::control_flow::plan) mod body_local_facts_helpers;
+pub(in crate::mir::builder::control_flow::plan) mod body_local_facts_shape_matchers;
 pub(in crate::mir::builder::control_flow::plan) mod body_local_subset;
 pub(in crate::mir::builder::control_flow::plan) mod core;
 pub(in crate::mir::builder::control_flow::plan) mod helpers_break_if;
