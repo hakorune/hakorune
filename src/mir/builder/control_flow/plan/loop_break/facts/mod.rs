@@ -11,6 +11,7 @@
 //! - `loop_break/facts/helpers_loop.rs`
 //! - `loop_break/facts/helpers_local.rs`
 //! - `loop_break/facts/helpers_realworld.rs`
+//! - `loop_break/facts/body_local_facts.rs`
 //! - `loop_break/facts/body_local_subset.rs`
 //! - `loop_break/facts/parse_integer.rs`
 //! - `loop_break/facts/read_digits.rs`
@@ -18,13 +19,13 @@
 //! - `loop_break/facts/step_before_break.rs`
 //! - `loop_break/facts/trim_whitespace*.rs`
 //! - `plan/facts/loop_break_core.rs`
-//! - `plan/facts/loop_break_body_local_facts.rs`
 //! - `plan/facts/loop_break_helpers*.rs`
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 mod types;
+pub(in crate::mir::builder::control_flow::plan) mod body_local_facts;
 pub(in crate::mir::builder::control_flow::plan) mod body_local_subset;
 pub(in crate::mir::builder::control_flow::plan) mod helpers_break_if;
 pub(in crate::mir::builder::control_flow::plan) mod helpers_condition;
@@ -40,10 +41,7 @@ pub(in crate::mir::builder::control_flow::plan) mod trim_whitespace;
 pub(in crate::mir::builder::control_flow::plan) mod trim_whitespace_helpers;
 
 pub(in crate::mir::builder) use types::LoopBreakFacts;
-pub(in crate::mir::builder) type LoopBodyLocalShape =
-    crate::mir::builder::control_flow::plan::facts::loop_break_body_local_facts::LoopBodyLocalShape;
-pub(in crate::mir::builder) type LoopBreakBodyLocalFacts =
-    crate::mir::builder::control_flow::plan::facts::loop_break_body_local_facts::LoopBreakBodyLocalFacts;
+pub(in crate::mir::builder) use body_local_facts::{LoopBodyLocalShape, LoopBreakBodyLocalFacts};
 
 pub(in crate::mir::builder) fn try_extract_loop_break_facts(
     condition: &ASTNode,
@@ -59,7 +57,7 @@ pub(in crate::mir::builder) fn try_extract_loop_break_body_local_facts(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Result<Option<LoopBreakBodyLocalFacts>, Freeze> {
-    crate::mir::builder::control_flow::plan::facts::loop_break_body_local_facts::try_extract_loop_break_body_local_facts(
+    body_local_facts::try_extract_loop_break_body_local_facts(
         condition,
         body,
     )

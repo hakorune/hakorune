@@ -38,7 +38,6 @@ pub(in crate::mir::builder) mod feature_facts;
 pub(in crate::mir::builder) mod if_phi_join_facts;
 pub(in crate::mir::builder) mod int_to_str_facts;
 pub(in crate::mir::builder) mod loop_array_join_facts;
-pub(in crate::mir::builder) mod loop_break_body_local_facts;
 pub(in crate::mir::builder) mod loop_char_map_facts;
 pub(in crate::mir::builder) mod loop_continue_only_facts;
 pub(in crate::mir::builder) mod loop_simple_while_facts;

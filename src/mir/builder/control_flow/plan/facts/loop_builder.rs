@@ -9,7 +9,6 @@ use super::escape_map_facts::try_extract_escape_map_facts;
 use super::feature_facts::try_extract_loop_feature_facts;
 use super::int_to_str_facts::try_extract_int_to_str_facts;
 use super::loop_array_join_facts::try_extract_loop_array_join_facts;
-use super::loop_break_body_local_facts::try_extract_loop_break_body_local_facts;
 use super::loop_break_core::try_extract_loop_break_facts;
 use super::loop_char_map_facts::try_extract_loop_char_map_facts;
 use super::loop_simple_while_facts::try_extract_loop_simple_while_facts;
@@ -41,6 +40,7 @@ use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::{
 use crate::mir::builder::control_flow::plan::loop_cond::continue_only_facts::try_extract_loop_cond_continue_only_facts;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_facts::try_extract_loop_cond_continue_with_return_facts;
 use crate::mir::builder::control_flow::plan::loop_cond::return_in_body_facts::try_extract_loop_cond_return_in_body_facts;
+use crate::mir::builder::control_flow::plan::loop_break::facts::try_extract_loop_break_body_local_facts;
 use crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts;
 use crate::mir::builder::control_flow::plan::loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts;
 use crate::mir::builder::control_flow::plan::loop_scan_phi_vars_v0::try_extract_loop_scan_phi_vars_v0_facts;
