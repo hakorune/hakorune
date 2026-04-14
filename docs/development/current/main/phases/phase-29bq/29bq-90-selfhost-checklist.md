@@ -150,13 +150,16 @@ Related:
   - next step:
     - close out `loop_scan_methods_block_v0` and inventory `loop_scan_methods_v0`
 - next one-family inventory (`loop_scan_methods_v0`):
-  - likely first seam:
+  - already separate:
     - nested-loop recipe-first fallback handoff
-  - likely follow-on seams:
     - linear segment verification / lowering
+  - likely first seam:
     - nested segment dispatch
+  - likely follow-on seams:
+    - nested stmt-only recipe handoff
+    - linear segment route-local consolidation
   - next step:
-    - extract the nested handoff seam from `loop_scan_methods_v0`
+    - extract the nested segment dispatch seam from `loop_scan_methods_v0`
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

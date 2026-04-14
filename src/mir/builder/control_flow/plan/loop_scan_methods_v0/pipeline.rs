@@ -1,11 +1,9 @@
-use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_carriers;
 use crate::mir::builder::control_flow::plan::features::step_mode;
-use crate::mir::builder::control_flow::plan::nested_loop_plan;
 use crate::mir::builder::control_flow::plan::normalizer::{
     helpers::LoopBlocksStandard5, lower_loop_header_cond,
 };
@@ -19,7 +17,9 @@ use crate::mir::MirType;
 use std::collections::BTreeMap;
 
 use super::facts::LoopScanMethodsV0Facts;
+use super::nested_loop_handoff::lower_loop_scan_methods_nested_loop_fallback;
 use super::recipe::LoopScanSegment;
+use super::segment_linear::lower_loop_scan_methods_linear_segment;
 
 const LOOP_SCAN_METHODS_ERR: &str = "[normalizer] loop_scan_methods_v0";
 
@@ -40,22 +40,6 @@ fn apply_loop_final_values_to_bindings(
             current_bindings.insert(name.clone(), *value_id);
         }
     }
-}
-
-fn lower_nested_loop_plan(
-    builder: &mut MirBuilder,
-    condition: &ASTNode,
-    body: &[ASTNode],
-    ctx: &LoopRouteContext,
-) -> Result<LoweredRecipe, String> {
-    nested_loop_plan::lower_nested_loop_plan_with_recipe_first(
-        builder,
-        condition,
-        body,
-        ctx,
-        LOOP_SCAN_METHODS_ERR,
-        "loop_scan_methods_v0",
-    )
 }
 
 pub(in crate::mir::builder) fn lower_loop_scan_methods_v0(
@@ -158,19 +142,12 @@ pub(in crate::mir::builder) fn lower_loop_scan_methods_v0(
     for segment in &facts.recipe.segments {
         match segment {
             LoopScanSegment::Linear(no_exit) => {
-                let verified = parts::entry::verify_no_exit_block_with_pre(
-                    &no_exit.arena,
-                    &no_exit.block,
-                    LOOP_SCAN_METHODS_ERR,
-                    Some(&current_bindings),
-                )?;
-                body_plans.extend(parts::entry::lower_no_exit_block_verified(
+                body_plans.extend(lower_loop_scan_methods_linear_segment(
                     builder,
                     &mut current_bindings,
                     &carrier_step_phis,
-                    Some(&break_phi_dsts),
-                    verified,
-                    LOOP_SCAN_METHODS_ERR,
+                    &break_phi_dsts,
+                    no_exit,
                 )?);
             }
             LoopScanSegment::NestedLoop(nested) => {
@@ -187,11 +164,12 @@ pub(in crate::mir::builder) fn lower_loop_scan_methods_v0(
                     }
                     body_plans.extend(plans);
                 } else {
-                    let plan = lower_nested_loop_plan(
+                    let plan = lower_loop_scan_methods_nested_loop_fallback(
                         builder,
                         &nested.cond_view.tail_expr,
                         &nested.body.body,
                         ctx,
+                        LOOP_SCAN_METHODS_ERR,
                     )?;
                     apply_loop_final_values_to_bindings(builder, &mut current_bindings, &plan);
                     body_plans.push(plan);

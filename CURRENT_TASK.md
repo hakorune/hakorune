@@ -111,14 +111,14 @@ Scope: current lane / next lane / restart order only.
      - `generic_loop_body::nested_loop_plan`
      - `loop_scan_phi_vars_v0`
      - `loop_scan_methods_block_v0`
-   - current handoff snapshot:
-     - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
-     - current helper-family inventory is `loop_scan_methods_v0`
-     - likely first seam:
-       - nested-loop recipe-first fallback handoff
-     - likely follow-on seams:
-       - linear segment verification / lowering
-       - nested segment dispatch
+    - current handoff snapshot:
+      - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
+      - current helper-family inventory is `loop_scan_methods_v0`
+      - likely first seam:
+        - nested segment dispatch
+      - likely follow-on seams:
+        - nested stmt-only recipe handoff
+        - linear segment route-local consolidation
 4. `phase-29bq legacy lowerer removal`
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
