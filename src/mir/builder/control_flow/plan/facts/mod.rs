@@ -7,9 +7,6 @@
 //! SSOT: docs/development/current/main/design/plan-dir-shallowing-ssot.md
 //! shallowing: moved from legacy break-on-condition subdirs plus loop_facts/expr/.
 
-// Flattened from the legacy break-on-condition facts cluster.
-pub(in crate::mir::builder) mod loop_break_core;
-pub(in crate::mir::builder) mod loop_break_helpers;
 #[cfg(test)]
 pub(in crate::mir::builder) mod loop_break_tests;
 

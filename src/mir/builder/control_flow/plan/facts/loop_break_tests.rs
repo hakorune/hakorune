@@ -1,8 +1,7 @@
 //! Phase 29ai P11: Tests for loop_break facts extraction.
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-
-use super::loop_break_core::try_extract_loop_break_facts;
+use crate::mir::builder::control_flow::plan::loop_break::facts::try_extract_loop_break_facts;
 
 fn v(name: &str) -> ASTNode {
     ASTNode::Variable {

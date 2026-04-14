@@ -6,22 +6,25 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     count_control_flow, extract_loop_increment_plan, ControlFlowDetector,
 };
+use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_break_if::extract_break_if_parts;
+use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_common::{
+    has_continue_statement, has_return_statement,
+};
+use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_loop::{
+    extract_loop_var_for_len_condition, extract_loop_var_for_plan_subset,
+};
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 
-use super::loop_break_helpers::{
-    extract_break_if_parts, extract_loop_var_for_len_condition, extract_loop_var_for_plan_subset,
-    has_continue_statement, has_return_statement,
-};
 use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 
 // Import subset extractors
-use crate::mir::builder::control_flow::plan::loop_break::facts::read_digits::try_extract_loop_break_read_digits_subset;
-use crate::mir::builder::control_flow::plan::loop_break::facts::body_local_subset::try_extract_loop_break_body_local_subset;
-use crate::mir::builder::control_flow::plan::loop_break::facts::parse_integer::try_extract_loop_break_parse_integer_subset;
-use crate::mir::builder::control_flow::plan::loop_break::facts::realworld::try_extract_loop_break_realworld_subset;
-use crate::mir::builder::control_flow::plan::loop_break::facts::step_before_break::try_extract_loop_break_step_before_break_subset;
-use crate::mir::builder::control_flow::plan::loop_break::facts::trim_whitespace::try_extract_loop_break_trim_whitespace_subset;
+use super::body_local_subset::try_extract_loop_break_body_local_subset;
+use super::parse_integer::try_extract_loop_break_parse_integer_subset;
+use super::read_digits::try_extract_loop_break_read_digits_subset;
+use super::realworld::try_extract_loop_break_realworld_subset;
+use super::step_before_break::try_extract_loop_break_step_before_break_subset;
+use super::trim_whitespace::try_extract_loop_break_trim_whitespace_subset;
 
 /// Main entry point for loop_break facts extraction.
 ///

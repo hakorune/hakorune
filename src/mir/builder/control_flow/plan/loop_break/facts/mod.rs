@@ -13,13 +13,12 @@
 //! - `loop_break/facts/helpers_realworld.rs`
 //! - `loop_break/facts/body_local_facts.rs`
 //! - `loop_break/facts/body_local_subset.rs`
+//! - `loop_break/facts/core.rs`
 //! - `loop_break/facts/parse_integer.rs`
 //! - `loop_break/facts/read_digits.rs`
 //! - `loop_break/facts/realworld.rs`
 //! - `loop_break/facts/step_before_break.rs`
 //! - `loop_break/facts/trim_whitespace*.rs`
-//! - `plan/facts/loop_break_core.rs`
-//! - `plan/facts/loop_break_helpers*.rs`
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
@@ -27,6 +26,7 @@ use crate::mir::builder::control_flow::plan::planner::Freeze;
 mod types;
 pub(in crate::mir::builder::control_flow::plan) mod body_local_facts;
 pub(in crate::mir::builder::control_flow::plan) mod body_local_subset;
+pub(in crate::mir::builder::control_flow::plan) mod core;
 pub(in crate::mir::builder::control_flow::plan) mod helpers_break_if;
 pub(in crate::mir::builder::control_flow::plan) mod helpers_condition;
 pub(in crate::mir::builder::control_flow::plan) mod helpers_common;
@@ -47,10 +47,7 @@ pub(in crate::mir::builder) fn try_extract_loop_break_facts(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Result<Option<LoopBreakFacts>, Freeze> {
-    crate::mir::builder::control_flow::plan::facts::loop_break_core::try_extract_loop_break_facts(
-        condition,
-        body,
-    )
+    core::try_extract_loop_break_facts(condition, body)
 }
 
 pub(in crate::mir::builder) fn try_extract_loop_break_body_local_facts(

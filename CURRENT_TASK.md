@@ -115,19 +115,20 @@ Scope: current lane / next lane / restart order only.
       - `loop_scan_methods_v0`
       - `loop_bundle_resolver_v0`
       - `loop_collect_using_entries_v0`
+      - `loop_break`
       - current handoff snapshot:
         - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
-        - current helper-family inventory is `loop_break`
+        - current helper-family inventory is `loop_scan_methods_v0`
         - likely first seam:
-          - `loop_break_core` dispatcher closeout
+          - nested-loop recipe-first fallback handoff
         - likely follow-on seams:
-          - remove bridge-only re-export shell
-          - prune last shared `plan/facts/loop_break_*` glue
+          - linear segment verification / lowering
+          - nested segment dispatch
 4. `phase-29bq legacy lowerer removal`
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - close out `loop_break_core`, then remove the last bridge-only `plan/facts/loop_break_*` glue
+      - return to `loop_scan_methods_v0` and start with nested-loop recipe-first fallback handoff
 
 ## Legacy Compatibility Block
 

@@ -16,6 +16,7 @@
 - Local helpers: `loop_break::facts::helpers_local`
 - Realworld helpers: `loop_break::facts::helpers_realworld`
 - Body-local facts: `loop_break::facts::body_local_facts`
+- Core dispatcher: `loop_break::facts::core`
 - Parse-integer subset: `loop_break::facts::parse_integer`
 - Read-digits subset: `loop_break::facts::read_digits`
 - Realworld subset: `loop_break::facts::realworld`

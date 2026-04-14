@@ -159,12 +159,12 @@ Related:
     - nested fallback route-local consolidation
     - helper-family closeout check
   - likely first seam:
-    - `loop_break_core` dispatcher closeout
+    - nested-loop recipe-first fallback handoff
   - likely follow-on seams:
-    - remove bridge-only re-export shell
-    - prune last shared `plan/facts/loop_break_*` glue
+    - linear segment verification / lowering
+    - nested segment dispatch
   - next step:
-    - record the `body_local_facts` move and close out `loop_break_core`
+    - record the `loop_break` closeout and start the nested-loop recipe-first fallback handoff
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
