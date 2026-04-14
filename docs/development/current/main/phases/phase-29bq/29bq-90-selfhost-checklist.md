@@ -166,6 +166,26 @@ Related:
     - pin next exact seam after inventory
   - next step:
     - record the loop_scan_methods_v0 closeout and inventory the next smallest family
+- next one-family inventory (`loop_scan_v0`):
+  - already separate:
+    - `facts`
+    - `recipe`
+    - route finalize
+  - still mixed:
+    - helper-family closeout (`apply_loop_final_values_to_bindings`)
+    - nested-loop recipe-first fallback handoff
+    - linear segment verification / lowering
+    - nested stmt-only recipe handoff
+    - nested segment dispatch
+  - likely first seam:
+    - helper-family closeout (`apply_loop_final_values_to_bindings`)
+  - likely follow-on seams:
+    - nested loop fallback bridge wrapper
+    - linear segment verification / lowering
+    - nested stmt-only recipe handoff
+    - nested segment dispatch
+  - next step:
+    - pin `loop_scan_v0` as the active family and land the helper closeout first
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

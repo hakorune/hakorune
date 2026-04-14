@@ -111,7 +111,6 @@ Scope: current lane / next lane / restart order only.
       - `generic_loop_body::nested_loop_plan`
       - `loop_scan_phi_vars_v0`
       - `loop_scan_methods_block_v0`
-      - `loop_scan_v0`
       - `loop_scan_methods_v0`
       - `loop_bundle_resolver_v0`
       - `loop_collect_using_entries_v0`
@@ -119,16 +118,19 @@ Scope: current lane / next lane / restart order only.
         - current handoff snapshot:
           - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
           - `loop_scan_methods_v0` closeout is landed
-          - current helper-family inventory is pending next-family re-inventory
+          - current helper-family inventory is `loop_scan_v0`
           - likely first seam:
-          - inventory next owner-local family
+          - helper-family closeout (`apply_loop_final_values_to_bindings`)
         - likely follow-on seams:
-          - pin next exact seam after inventory
+          - nested loop fallback bridge wrapper
+          - linear segment verification / lowering
+          - nested stmt-only recipe handoff
+          - nested segment dispatch
 4. `phase-29bq legacy lowerer removal`
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - inventory the next smallest owner-local family and pin the next exact seam before coding
+      - continue `loop_scan_v0` with the helper-family closeout, then peel off the nested fallback / segment wrappers in order
 
 ## Legacy Compatibility Block
 
