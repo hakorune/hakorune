@@ -3,7 +3,6 @@ use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockVi
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::facts::stmt_view::try_build_stmt_only_block_recipe;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
-use crate::mir::builder::control_flow::plan::features::loop_carriers;
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::nested_loop_plan;
 use crate::mir::builder::control_flow::plan::normalizer::{
@@ -21,6 +20,7 @@ use std::collections::BTreeMap;
 
 use super::facts::LoopScanV0Facts;
 use super::recipe::LoopScanSegment;
+use super::route_finalize::finalize_loop_scan_v0_route;
 
 const LOOP_SCAN_ERR: &str = "[normalizer] loop_scan_v0";
 
@@ -325,50 +325,19 @@ pub(in crate::mir::builder) fn lower_loop_scan_v0(
         }
     }
 
-    // Fallthrough at end-of-body: explicit backedge with carrier values.
-    body_plans.push(CorePlan::Exit(parts::exit::build_continue_with_phi_args(
+    let finalized = finalize_loop_scan_v0_route(
         builder,
+        &mut body_plans,
+        &carrier_inits,
+        &carrier_phis,
         &carrier_step_phis,
+        &break_phi_dsts,
         &current_bindings,
-        LOOP_SCAN_ERR,
-    )?));
-
-    let mut phis = Vec::new();
-    let mut final_values = Vec::new();
-    for (var, header_phi_dst) in &carrier_phis {
-        let init_val = *carrier_inits
-            .get(var)
-            .ok_or_else(|| format!("[freeze:contract][loop_scan_v0] missing init for {var}"))?;
-        let step_phi_dst = *carrier_step_phis
-            .get(var)
-            .ok_or_else(|| format!("[freeze:contract][loop_scan_v0] missing step phi for {var}"))?;
-        let after_phi_dst = *break_phi_dsts.get(var).ok_or_else(|| {
-            format!("[freeze:contract][loop_scan_v0] missing after phi for {var}")
-        })?;
-
-        phis.push(loop_carriers::build_step_join_phi_info(
-            step_bb,
-            step_phi_dst,
-            format!("loop_scan_v0_step_join_{}", var),
-        ));
-        phis.push(loop_carriers::build_loop_phi_info(
-            header_bb,
-            preheader_bb,
-            step_bb,
-            *header_phi_dst,
-            init_val,
-            step_phi_dst,
-            format!("loop_scan_v0_carrier_{}", var),
-        ));
-        phis.push(loop_carriers::build_after_merge_phi_info(
-            after_bb,
-            after_phi_dst,
-            [header_bb],
-            *header_phi_dst,
-            format!("loop_scan_v0_after_{}", var),
-        ));
-        final_values.push((var.clone(), after_phi_dst));
-    }
+        preheader_bb,
+        header_bb,
+        step_bb,
+        after_bb,
+    )?;
 
     // Build block_effects: merge header_result.block_effects + static entries
     let mut block_effects: Vec<(crate::mir::BasicBlockId, Vec<CoreEffectPlan>)> =
@@ -395,9 +364,9 @@ pub(in crate::mir::builder) fn lower_loop_scan_v0(
         cond_loop: header_result.first_cond,
         cond_match: header_result.first_cond,
         block_effects,
-        phis,
+        phis: finalized.phis,
         frag,
-        final_values,
+        final_values: finalized.final_values,
         step_mode,
         has_explicit_step,
     }))

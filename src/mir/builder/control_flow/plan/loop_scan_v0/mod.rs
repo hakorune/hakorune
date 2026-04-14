@@ -6,5 +6,6 @@
 pub(in crate::mir::builder) mod facts;
 pub(in crate::mir::builder) mod pipeline;
 pub(in crate::mir::builder) mod recipe;
+pub(in crate::mir::builder) mod route_finalize;
 
 pub(in crate::mir::builder) use facts::{try_extract_loop_scan_v0_facts, LoopScanV0Facts};

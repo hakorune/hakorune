@@ -159,12 +159,11 @@ Related:
     - nested fallback route-local consolidation
     - helper-family closeout check
   - likely first seam:
-    - sibling family parity sweep
-  - likely follow-on seams:
-    - block_v0 / scan_v0 tail alignment
     - helper-family closeout docs sync
+  - likely follow-on seams:
+    - next sibling-family inventory refresh
   - next step:
-    - run sibling family parity sweep from `loop_scan_methods_v0` baseline
+    - promote `loop_scan_v0` into the closeout-ready handoff snapshot and pick the next sibling inventory
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

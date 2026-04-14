@@ -111,15 +111,15 @@ Scope: current lane / next lane / restart order only.
       - `generic_loop_body::nested_loop_plan`
       - `loop_scan_phi_vars_v0`
       - `loop_scan_methods_block_v0`
+      - `loop_scan_v0`
       - `loop_scan_methods_v0`
      - current handoff snapshot:
-       - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
-       - current helper-family inventory is `sibling family parity sweep`
-       - likely first seam:
-         - sibling family parity sweep
-       - likely follow-on seams:
-         - block_v0 / scan_v0 tail alignment
-         - helper-family closeout docs sync
+        - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
+        - current helper-family inventory is `loop scan sibling closeout`
+        - likely first seam:
+          - helper-family closeout docs sync
+        - likely follow-on seams:
+          - next sibling-family inventory refresh
 4. `phase-29bq legacy lowerer removal`
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
