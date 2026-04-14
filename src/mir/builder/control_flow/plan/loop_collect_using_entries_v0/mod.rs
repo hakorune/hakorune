@@ -10,6 +10,8 @@
 
 mod facts;
 mod facts_helpers;
+mod facts_recipe_builder;
+mod facts_shape_routes;
 mod facts_types;
 mod pipeline;
 mod recipe;

@@ -1,14 +1,12 @@
 //! Facts for loop_collect_using_entries_v0 (one-shape, planner-required only).
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::facts::no_exit_block::try_build_no_exit_block_recipe;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
-use super::facts_helpers::{
-    declares_single_local, extract_step_var_from_tail, is_loop_cond_var_lt_var, release_enabled,
-};
+use super::facts_helpers::{is_loop_cond_var_lt_var, release_enabled};
+use super::facts_recipe_builder::try_build_loop_collect_using_entries_v0_recipe;
+use super::facts_shape_routes::try_match_loop_collect_using_entries_v0_shape;
 use super::facts_types::LoopCollectUsingEntriesV0Facts;
-use super::recipe::LoopCollectUsingEntriesV0Recipe;
 
 pub(in crate::mir::builder) fn try_extract_loop_collect_using_entries_v0_facts(
     condition: &ASTNode,
@@ -35,60 +33,27 @@ pub(in crate::mir::builder) fn try_extract_loop_collect_using_entries_v0_facts(
         return Ok(None);
     };
 
-    if body.len() < 4 {
-        debug_reject("body_too_short");
-        return Ok(None);
-    }
-
-    if body.iter().any(ASTNode::contains_non_local_exit) {
-        debug_reject("contains_exit");
-        return Ok(None);
-    }
-
-    let Some(step_var) = extract_step_var_from_tail(body.last().unwrap(), &loop_var) else {
-        debug_reject("tail_not_loopvar_eq_stepvar");
-        return Ok(None);
-    };
-
-    let Some(first_local) = declares_single_local(&body[0]) else {
-        debug_reject("first_stmt_not_single_local");
-        return Ok(None);
-    };
-    if first_local != step_var {
-        debug_reject("step_var_not_first_local");
-        return Ok(None);
-    }
-
-    let Some(second_local) = declares_single_local(&body[1]) else {
-        debug_reject("second_stmt_not_single_local");
-        return Ok(None);
-    };
-    if second_local == loop_var || second_local == step_var {
-        debug_reject("second_local_conflict");
-        return Ok(None);
-    }
-
-    if !matches!(
-        body[2],
-        ASTNode::If {
-            else_body: Some(_),
-            ..
+    match try_match_loop_collect_using_entries_v0_shape(body, &loop_var) {
+        Ok(()) => {}
+        Err(reason) => {
+            debug_reject(&reason);
+            return Ok(None);
         }
-    ) {
-        debug_reject("missing_top_level_if_else");
-        return Ok(None);
-    }
+    };
 
-    let Some(body_no_exit) = try_build_no_exit_block_recipe(body, true) else {
-        debug_reject("no_exit_recipe_failed");
-        return Ok(None);
+    let recipe = match try_build_loop_collect_using_entries_v0_recipe(body) {
+        Some(recipe) => recipe,
+        None => {
+            debug_reject("no_exit_recipe_failed");
+            return Ok(None);
+        }
     };
 
     Ok(Some(LoopCollectUsingEntriesV0Facts {
         loop_var,
         limit_var,
         condition: condition.clone(),
-        recipe: LoopCollectUsingEntriesV0Recipe { body_no_exit },
+        recipe,
     }))
 }
 

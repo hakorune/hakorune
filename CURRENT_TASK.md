@@ -269,17 +269,21 @@ Scope: current lane / next lane / restart order only.
           - `pipeline` / `recipe` are already separate
           - `facts_helpers` is landed
           - `facts_types` is landed
+          - `facts_shape_routes` is landed
+          - `facts_recipe_builder` is landed
           - likely first seam:
-            - `facts`
+            - `none confirmed`
+          - closeout:
+            - landed
         - likely follow-on seams:
-          - `none confirmed`
+          - `plan/` destination mapping
         - next:
-          - split `loop_collect_using_entries_v0::facts`
+          - pin `plan/` destination mapping for shared infra
 4. `phase-29bq legacy lowerer removal`
     - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - split `loop_collect_using_entries_v0::facts`
+      - pin `plan/` destination mapping for shared infra
 
 ## Legacy Compatibility Block
 
