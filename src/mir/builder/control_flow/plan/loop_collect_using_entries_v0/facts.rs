@@ -141,3 +141,99 @@ pub(in crate::mir::builder) fn try_extract_loop_collect_using_entries_v0_facts(
         recipe: LoopCollectUsingEntriesV0Recipe { body_no_exit },
     }))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::try_extract_loop_collect_using_entries_v0_facts;
+    use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
+
+    fn var(name: &str) -> ASTNode {
+        ASTNode::Variable {
+            name: name.to_string(),
+            span: Span::unknown(),
+        }
+    }
+
+    fn int(value: i64) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            span: Span::unknown(),
+        }
+    }
+
+    fn binop(operator: BinaryOperator, left: ASTNode, right: ASTNode) -> ASTNode {
+        ASTNode::BinaryOp {
+            operator,
+            left: Box::new(left),
+            right: Box::new(right),
+            span: Span::unknown(),
+        }
+    }
+
+    fn assign(target: ASTNode, value: ASTNode) -> ASTNode {
+        ASTNode::Assignment {
+            target: Box::new(target),
+            value: Box::new(value),
+            span: Span::unknown(),
+        }
+    }
+
+    fn local(name: &str, init: Option<ASTNode>) -> ASTNode {
+        ASTNode::Local {
+            variables: vec![name.to_string()],
+            initial_values: vec![init.map(Box::new)],
+            span: Span::unknown(),
+        }
+    }
+
+    #[test]
+    fn accepts_loop_collect_using_entries_v0_shape() {
+        std::env::set_var("NYASH_JOINIR_DEV", "1");
+        std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
+
+        let condition = binop(BinaryOperator::Less, var("pos"), var("n"));
+        let body = vec![
+            local("next_pos", Some(int(0))),
+            local("entry", Some(int(0))),
+            ASTNode::If {
+                condition: Box::new(binop(BinaryOperator::Less, var("pos"), int(1))),
+                then_body: vec![
+                    assign(var("entry"), int(1)),
+                    assign(var("next_pos"), var("pos")),
+                ],
+                else_body: Some(vec![
+                    assign(var("entry"), int(2)),
+                    assign(var("next_pos"), var("pos")),
+                ]),
+                span: Span::unknown(),
+            },
+            assign(var("pos"), var("next_pos")),
+        ];
+
+        let facts = try_extract_loop_collect_using_entries_v0_facts(&condition, &body)
+            .expect("extract ok")
+            .expect("facts");
+
+        assert_eq!(facts.loop_var, "pos");
+        assert_eq!(facts.limit_var, "n");
+    }
+
+    #[test]
+    fn rejects_loop_collect_using_entries_v0_without_top_level_if_else() {
+        std::env::set_var("NYASH_JOINIR_DEV", "1");
+        std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
+
+        let condition = binop(BinaryOperator::Less, var("pos"), var("n"));
+        let body = vec![
+            local("next_pos", Some(int(0))),
+            local("entry", Some(int(0))),
+            assign(var("entry"), int(1)),
+            assign(var("pos"), var("next_pos")),
+        ];
+
+        let facts = try_extract_loop_collect_using_entries_v0_facts(&condition, &body)
+            .expect("extract ok");
+
+        assert!(facts.is_none());
+    }
+}

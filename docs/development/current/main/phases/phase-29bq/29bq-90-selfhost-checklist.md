@@ -159,12 +159,11 @@ Related:
     - nested fallback route-local consolidation
     - helper-family closeout check
   - likely first seam:
-    - facts acceptance test pin (`loop_collect_using_entries_v0`)
-  - likely follow-on seams:
-    - helper-family closeout docs sync
     - next sibling-family inventory refresh
+  - likely follow-on seams:
+    - exact family handoff sync
   - next step:
-    - promote `loop_bundle_resolver_v0` into the closeout-ready handoff snapshot and pin `loop_collect_using_entries_v0` facts coverage
+    - promote `loop_collect_using_entries_v0` into the closeout-ready handoff snapshot and pick the next remaining loop-owner family
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
