@@ -22,6 +22,7 @@ use super::helpers::apply_loop_final_values_to_bindings;
 use super::nested_fallback_bridge::lower_loop_scan_v0_nested_loop_fallback;
 use super::recipe::LoopScanSegment;
 use super::route_finalize::finalize_loop_scan_v0_route;
+use super::segment_linear::lower_loop_scan_v0_linear_segment;
 
 const LOOP_SCAN_ERR: &str = "[normalizer] loop_scan_v0";
 
@@ -124,19 +125,12 @@ pub(in crate::mir::builder) fn lower_loop_scan_v0(
             for segment in &facts.segments {
                 match segment {
                     LoopScanSegment::Linear(exit_allowed) => {
-                        let verified = parts::entry::verify_exit_allowed_block_with_pre(
-                            &exit_allowed.arena,
-                            &exit_allowed.block,
-                            LOOP_SCAN_ERR,
-                            Some(&current_bindings),
-                        )?;
-                        body_plans.extend(parts::entry::lower_exit_allowed_block_verified(
+                        body_plans.extend(lower_loop_scan_v0_linear_segment(
                             builder,
                             &mut current_bindings,
                             &carrier_step_phis,
                             &break_phi_dsts,
-                            verified,
-                            LOOP_SCAN_ERR,
+                            exit_allowed,
                         )?);
                     }
                     LoopScanSegment::NestedLoop(nested) => {
