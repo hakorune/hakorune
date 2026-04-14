@@ -43,6 +43,7 @@ Related:
   - `phi materializer` owns PHI/block-param closure only
   - `verifier` fail-fast only
   - `cleanup` canonicalizes only
+  - do not absorb all of `plan/` into `recipe`; shrink `plan/` into a temporary lowering namespace and remove the name only after owner split is complete
 - migration rule:
   - move one exact loop family at a time
   - do not combine acceptance-row widening with broader PHI hardening in the same commit
@@ -80,11 +81,11 @@ Related:
     - `recipe`
     - `cfg skeleton`
     - `phi materializer`
+    - `verifier`
   - still mixed in pipeline:
-    - route-local PHI/body contract checks
     - final continue closure
   - next cut:
-    - extract a dedicated route-local `verifier` seam for `LoopCondContinueWithReturn` only
+    - extract a dedicated route-local `cleanup` seam for `LoopCondContinueWithReturn` only
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

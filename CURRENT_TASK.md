@@ -73,6 +73,18 @@ Scope: current lane / next lane / restart order only.
   - loop/selfhost cleanup now targets `facts -> route -> recipe -> cfg skeleton -> join sig -> phi materializer -> verifier -> cleanup`
   - keep `facts` descriptive-only and `recipe` normative
   - move PHI/dominance repair out of semantic lowering over time
+  - do not absorb all of `plan/` into `recipe`
+  - instead, shrink `plan/` into a temporary lowering namespace and later rename by owner
+- control-flow end-state directory proposal:
+  - `src/mir/builder/control_flow/facts/`
+  - `src/mir/builder/control_flow/recipes/`
+  - `src/mir/builder/control_flow/verify/`
+  - `src/mir/builder/control_flow/lower/`
+  - `src/mir/builder/control_flow/ssa/`
+  - `src/mir/builder/control_flow/cleanup/`
+  - migration rule:
+    - keep `src/mir/builder/control_flow/plan/` while owner split is in flight
+    - remove the `plan/` name only after route families no longer mix recipe/lower/ssa/cleanup responsibilities
 - pointer rule:
   - `CURRENT_TASK.md` is the only live status pointer
   - `05/10/15` stay thin mirrors only
@@ -102,17 +114,7 @@ Scope: current lane / next lane / restart order only.
       - `LoopCondBreakContinue` now has separate owners through `cleanup`
       - next family is `LoopCondContinueWithReturn`
       - next mixed owner there:
-        - route-local PHI/body contract checks
         - final continue closure remains in pipeline
-      - current inventory at closeout:
-        - `LoopCondBreakContinue`
-          - `facts`
-          - `route`
-          - `recipe`
-          - `cfg skeleton`
-          - `phi materializer`
-          - `verifier`
-          - `cleanup`
       - landed families so far:
         - `LoopCondReturnInBody`
         - `LoopTrueBreakContinue`
@@ -125,11 +127,12 @@ Scope: current lane / next lane / restart order only.
           - `recipe`
           - `cfg skeleton`
           - `phi materializer`
+          - `verifier`
 4. `phase-29bq legacy lowerer removal`
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
    - next:
-     - extract a dedicated route-local `verifier` seam for `LoopCondContinueWithReturn`
+     - extract a dedicated route-local `cleanup` seam for `LoopCondContinueWithReturn`
 
 ## Legacy Compatibility Block
 
