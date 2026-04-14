@@ -119,7 +119,7 @@ Scope: current lane / next lane / restart order only.
         - current handoff snapshot:
           - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
           - `loop_scan_v0` closeout is landed
-          - current helper-family inventory is `loop_break_steps`
+          - current helper-family inventory is `body_local_policy`
           - `gather_facts_step_box` is landed
           - `apply_policy_step_box` is landed
           - `normalize_body_step_box` is landed
