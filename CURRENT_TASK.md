@@ -120,10 +120,10 @@ Scope: current lane / next lane / restart order only.
           - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
           - `loop_scan_v0` closeout is landed
           - current helper-family inventory is `loop_break_steps`
+          - `gather_facts_step_box` is landed
           - likely first seam:
-          - `gather_facts_step_box`
-        - likely follow-on seams:
           - `apply_policy_step_box`
+        - likely follow-on seams:
           - `normalize_body_step_box`
           - `body_local_derived_step_box`
           - `carrier_updates_step_box`
@@ -134,7 +134,7 @@ Scope: current lane / next lane / restart order only.
     - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - pin the `loop_break_steps` order in docs, then start from `gather_facts_step_box`
+      - continue `loop_break_steps` from `apply_policy_step_box`, then peel off the remaining step boxes in order
 
 ## Legacy Compatibility Block
 

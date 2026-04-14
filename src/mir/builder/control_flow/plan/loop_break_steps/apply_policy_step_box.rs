@@ -5,7 +5,8 @@
 use crate::ast::ASTNode;
 
 use super::super::loop_break_policy_router::LoopBreakPolicyRouterBox;
-use super::super::loop_break_prep_box::{LoopBreakPrepFacts, LoopBreakPrepInputs};
+use super::super::loop_break_prep_box::LoopBreakPrepInputs;
+use super::gather_facts_step_box::LoopBreakPrepFacts;
 
 pub(crate) struct ApplyPolicyStepBox;
 

@@ -193,10 +193,6 @@ Related:
     - `emit_joinir_step_box`
     - `merge_step_box`
   - still mixed:
-    - orchestration ownership / family closeout order is not yet pinned in docs
-  - likely first seam:
-    - `gather_facts_step_box`
-  - likely follow-on seams:
     - `apply_policy_step_box`
     - `normalize_body_step_box`
     - `body_local_derived_step_box`
@@ -204,8 +200,17 @@ Related:
     - `post_loop_early_return_step_box`
     - `emit_joinir_step_box`
     - `merge_step_box`
+  - likely first seam:
+    - `apply_policy_step_box`
+  - likely follow-on seams:
+    - `normalize_body_step_box`
+    - `body_local_derived_step_box`
+    - `carrier_updates_step_box`
+    - `post_loop_early_return_step_box`
+    - `emit_joinir_step_box`
+    - `merge_step_box`
   - next step:
-    - pin the loop_break_steps order and start from `gather_facts_step_box`
+    - record the `gather_facts_step_box` split and land `apply_policy_step_box` next
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
