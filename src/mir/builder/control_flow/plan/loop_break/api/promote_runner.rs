@@ -13,6 +13,7 @@ use super::super::super::loop_break_prep_box::LoopBreakPrepInputs;
 use crate::mir::builder::control_flow::plan::policies::PolicyDecision;
 
 use super::promote_decision::{PromoteDecision, PromoteStepResult};
+use super::promote_finalize_helpers::finalize_promoted_inputs;
 
 /// Phase 263 P0.2: Try to promote LoopBodyLocal variables for loop_break route
 ///
@@ -114,49 +115,7 @@ pub(in crate::mir::builder) fn try_promote(
         }
     }
 
-    // Allocate join_ids for carriers and register bindings.
-    for carrier in &mut inputs.carrier_info.carriers {
-        let carrier_join_id = inputs.join_value_space.alloc_param();
-        carrier.join_id = Some(carrier_join_id);
-    }
-
-    for (promoted_var, promoted_carrier_name) in promoted_pairs {
-        let join_id = inputs
-            .carrier_info
-            .find_carrier(&promoted_carrier_name)
-            .and_then(|c| c.join_id)
-            .ok_or_else(|| {
-                format!(
-                    "[phase229] promoted carrier '{}' has no join_id",
-                    promoted_carrier_name
-                )
-            })?;
-        inputs.env.insert(promoted_var, join_id);
-    }
-
-    // ExprLowerer validation (best-effort; unchanged behavior)
-    {
-        use crate::mir::join_ir::lowering::expr_lowerer::{
-            ExprContext, ExprLowerer, ExprLoweringError,
-        };
-        use crate::mir::join_ir::lowering::scope_manager::LoopBreakScopeManager;
-
-        let scope_manager = LoopBreakScopeManager {
-            condition_env: &inputs.env,
-            loop_body_local_env: Some(&inputs.body_local_env),
-            captured_env: Some(&inputs.captured_env),
-            carrier_info: &inputs.carrier_info,
-        };
-
-        match ExprLowerer::new(&scope_manager, ExprContext::Condition, builder)
-            .with_debug(debug)
-            .lower(&inputs.break_condition_node)
-        {
-            Ok(_) => {}
-            Err(ExprLoweringError::UnsupportedNode(_)) => {}
-            Err(_) => {}
-        }
-    }
+    finalize_promoted_inputs(builder, &mut inputs, promoted_pairs, debug)?;
 
     if has_body_locals_in_conditions {
         Ok(PromoteDecision::Promoted(PromoteStepResult { inputs }))

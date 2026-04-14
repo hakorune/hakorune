@@ -197,7 +197,19 @@ Related:
   - still mixed:
     - `none confirmed`
   - next step:
-    - record the `loop_break_steps` closeout and inventory the next owner-local family
+    - record the `loop_break_steps` closeout and inventory `loop_break::api`
+- next one-family inventory (`loop_break::api`):
+  - already separate:
+    - `promote_decision`
+    - `promote_finalize_helpers`
+  - still mixed:
+    - `promote_runner`
+  - likely first seam:
+    - `promote_runner`
+  - likely follow-on seams:
+    - `body_local_policy`
+  - next step:
+    - continue `loop_break::api` from `promote_runner`
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
