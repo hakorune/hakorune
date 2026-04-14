@@ -4,7 +4,6 @@ use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::facts::stmt_view::try_build_stmt_only_block_recipe;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::step_mode;
-use crate::mir::builder::control_flow::plan::nested_loop_plan;
 use crate::mir::builder::control_flow::plan::normalizer::{
     helpers::LoopBlocksStandard5, lower_loop_header_cond, PlanNormalizer,
 };
@@ -20,26 +19,11 @@ use std::collections::BTreeMap;
 
 use super::facts::LoopScanV0Facts;
 use super::helpers::apply_loop_final_values_to_bindings;
+use super::nested_fallback_bridge::lower_loop_scan_v0_nested_loop_fallback;
 use super::recipe::LoopScanSegment;
 use super::route_finalize::finalize_loop_scan_v0_route;
 
 const LOOP_SCAN_ERR: &str = "[normalizer] loop_scan_v0";
-
-fn lower_nested_loop_plan(
-    builder: &mut MirBuilder,
-    condition: &crate::ast::ASTNode,
-    body: &[crate::ast::ASTNode],
-    ctx: &LoopRouteContext,
-) -> Result<LoweredRecipe, String> {
-    nested_loop_plan::lower_nested_loop_plan_with_recipe_first(
-        builder,
-        condition,
-        body,
-        ctx,
-        LOOP_SCAN_ERR,
-        "loop_scan_v0",
-    )
-}
 
 pub(in crate::mir::builder) fn lower_loop_scan_v0(
     builder: &mut MirBuilder,
@@ -173,11 +157,12 @@ pub(in crate::mir::builder) fn lower_loop_scan_v0(
                             }
                             body_plans.extend(plans);
                         } else {
-                            let plan = lower_nested_loop_plan(
+                            let plan = lower_loop_scan_v0_nested_loop_fallback(
                                 builder,
                                 &nested.cond_view.tail_expr,
                                 &nested.body.body,
                                 ctx,
+                                LOOP_SCAN_ERR,
                             )?;
                             apply_loop_final_values_to_bindings(
                                 builder,

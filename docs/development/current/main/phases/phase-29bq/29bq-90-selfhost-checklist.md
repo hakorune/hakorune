@@ -172,19 +172,18 @@ Related:
     - `recipe`
     - route finalize
     - helper-family closeout (`apply_loop_final_values_to_bindings`)
-  - still mixed:
     - nested-loop recipe-first fallback handoff
+  - still mixed:
     - linear segment verification / lowering
     - nested stmt-only recipe handoff
     - nested segment dispatch
   - likely first seam:
-    - nested-loop recipe-first fallback handoff
-  - likely follow-on seams:
     - linear segment verification / lowering
+  - likely follow-on seams:
     - nested stmt-only recipe handoff
     - nested segment dispatch
   - next step:
-    - record the helper closeout and land the nested fallback bridge wrapper next
+    - record the nested fallback bridge wrapper and land the linear segment split next
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

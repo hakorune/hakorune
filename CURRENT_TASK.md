@@ -120,17 +120,17 @@ Scope: current lane / next lane / restart order only.
           - `loop_scan_methods_v0` closeout is landed
           - current helper-family inventory is `loop_scan_v0`
           - helper-family closeout is landed
+          - nested loop fallback bridge wrapper is landed
           - likely first seam:
-          - nested loop fallback bridge wrapper
-        - likely follow-on seams:
           - linear segment verification / lowering
+        - likely follow-on seams:
           - nested stmt-only recipe handoff
           - nested segment dispatch
 4. `phase-29bq legacy lowerer removal`
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - continue `loop_scan_v0` with the nested loop fallback bridge wrapper, then peel off the remaining segment wrappers in order
+      - continue `loop_scan_v0` with the linear segment split, then peel off the remaining nested segment wrappers in order
 
 ## Legacy Compatibility Block
 
