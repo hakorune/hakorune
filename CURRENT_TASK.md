@@ -116,18 +116,19 @@ Scope: current lane / next lane / restart order only.
       - `loop_bundle_resolver_v0`
       - `loop_collect_using_entries_v0`
       - `loop_break`
-      - current handoff snapshot:
-        - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
-        - current helper-family inventory is `loop_scan_methods_v0`
-        - likely first seam:
-          - nested fallback segment wrapper
+        - current handoff snapshot:
+          - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
+          - `loop_scan_methods_v0` closeout is landed
+          - current helper-family inventory is pending next-family re-inventory
+          - likely first seam:
+          - inventory next owner-local family
         - likely follow-on seams:
-          - helper-family closeout check after wrapper fold
+          - pin next exact seam after inventory
 4. `phase-29bq legacy lowerer removal`
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - continue `loop_scan_methods_v0` with the nested fallback segment wrapper, then do the family closeout check
+      - inventory the next smallest owner-local family and pin the next exact seam before coding
 
 ## Legacy Compatibility Block
 

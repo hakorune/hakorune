@@ -158,12 +158,14 @@ Related:
     - nested loop fallback bridge wrapper
     - nested segment dispatch
     - nested fallback segment wrapper
+  - status:
+    - landed and closed
   - likely first seam:
-    - nested fallback segment wrapper
+    - inventory next owner-local family
   - likely follow-on seams:
-    - helper-family closeout check after wrapper fold
+    - pin next exact seam after inventory
   - next step:
-    - record the nested segment dispatch and start the nested fallback segment wrapper
+    - record the loop_scan_methods_v0 closeout and inventory the next smallest family
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
