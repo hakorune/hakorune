@@ -17,4 +17,5 @@
 
 mod promote_decision;
 mod promote_finalize_helpers;
+mod promote_prepare_helpers;
 mod promote_runner;

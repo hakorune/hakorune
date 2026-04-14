@@ -201,15 +201,26 @@ Related:
 - next one-family inventory (`loop_break::api`):
   - already separate:
     - `promote_decision`
+    - `promote_prepare_helpers`
     - `promote_finalize_helpers`
+    - `promote_runner`
+  - status:
+    - landed and closed
   - still mixed:
-    - `promote_runner`
-  - likely first seam:
-    - `promote_runner`
-  - likely follow-on seams:
-    - `body_local_policy`
+    - `none confirmed`
   - next step:
-    - continue `loop_break::api` from `promote_runner`
+    - inventory `body_local_policy`
+- next one-family inventory (`body_local_policy`):
+  - already separate:
+    - `none confirmed`
+  - still mixed:
+    - `body_local_policy`
+  - likely first seam:
+    - `body_local_policy`
+  - likely follow-on seams:
+    - `loop_break/facts/body_local_facts`
+  - next step:
+    - continue `body_local_policy` from the promotion/readonly/derived routing split
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
