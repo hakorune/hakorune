@@ -116,7 +116,7 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn match_local_this_index
     Some((digits_var.clone(), d_var))
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn match_indexof_local(
+pub(in crate::mir::builder::control_flow::plan) fn match_indexof_local(
     stmt: &ASTNode,
 ) -> Option<(String, String, String, String)> {
     let ASTNode::Local {
@@ -171,7 +171,7 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn match_indexof_local(
     ))
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn match_local_empty_string(
+pub(in crate::mir::builder::control_flow::plan) fn match_local_empty_string(
     stmt: &ASTNode,
 ) -> Option<String> {
     let ASTNode::Local {

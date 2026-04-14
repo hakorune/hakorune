@@ -17,7 +17,6 @@ pub(in crate::mir::builder) mod loop_break_helpers_loop;
 pub(in crate::mir::builder) mod loop_break_helpers_realworld;
 pub(in crate::mir::builder) mod loop_break_parse_integer;
 pub(in crate::mir::builder) mod loop_break_read_digits;
-pub(in crate::mir::builder) mod loop_break_realworld;
 #[cfg(test)]
 pub(in crate::mir::builder) mod loop_break_tests;
 

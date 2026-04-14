@@ -3,7 +3,7 @@
 use super::loop_break_helpers_condition::{matches_eq_empty_string, matches_ge_zero};
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn match_seg_if_else(
+pub(in crate::mir::builder::control_flow::plan) fn match_seg_if_else(
     stmt: &ASTNode,
     j_var: &str,
     seg_var: &str,
@@ -118,7 +118,7 @@ fn matches_substring_args(
     }
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn match_break_if(
+pub(in crate::mir::builder::control_flow::plan) fn match_break_if(
     stmt: &ASTNode,
     seg_var: &str,
 ) -> Option<bool> {
@@ -143,7 +143,7 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn match_break_if(
     Some(true)
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn match_loop_increment(
+pub(in crate::mir::builder::control_flow::plan) fn match_loop_increment(
     stmt: &ASTNode,
     loop_var: &str,
     j_var: &str,

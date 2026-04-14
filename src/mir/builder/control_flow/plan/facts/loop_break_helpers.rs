@@ -8,8 +8,8 @@
 //! `pub(in crate::mir::builder::control_flow::plan)`.
 
 pub(in crate::mir::builder::control_flow::plan::facts) use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_common::{
-    add, has_continue_statement, has_return_statement, index_of_call, index_of_call_expr,
-    length_call, lit_int, lit_str, substring_call, var,
+    add, has_continue_statement, has_return_statement, index_of_call_expr, lit_int, lit_str,
+    substring_call, var,
 };
 
 pub(in crate::mir::builder::control_flow::plan::facts) use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_break_if::{
@@ -18,8 +18,4 @@ pub(in crate::mir::builder::control_flow::plan::facts) use crate::mir::builder::
 pub(in crate::mir::builder::control_flow::plan::facts) use super::loop_break_helpers_loop::{
     extract_loop_increment_at_end, extract_loop_var_for_len_condition,
     extract_loop_var_for_plan_subset, has_assignment_after,
-};
-
-pub(in crate::mir::builder::control_flow::plan::facts) use super::loop_break_helpers_realworld::{
-    match_break_if, match_loop_increment, match_seg_if_else,
 };
