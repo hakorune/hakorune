@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-04-14
+Date: 2026-04-15
 Scope: current lane / next lane / restart order only.
 
 ## Purpose
@@ -126,15 +126,18 @@ Scope: current lane / next lane / restart order only.
           - `body_local_derived_step_box` is landed
           - `carrier_updates_step_box` is landed
           - `post_loop_early_return_step_box` is landed
+          - `emit_joinir_step_box` is landed
           - likely first seam:
-            - `emit_joinir_step_box`
+            - `merge_step_box`
         - likely follow-on seams:
+          - `none confirmed`
+        - next:
           - `merge_step_box`
 4. `phase-29bq legacy lowerer removal`
     - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - continue `loop_break_steps` from `emit_joinir_step_box`, then peel off the remaining step boxes in order
+      - continue `loop_break_steps` from `merge_step_box`, then peel off the remaining step boxes in order
 
 ## Legacy Compatibility Block
 
