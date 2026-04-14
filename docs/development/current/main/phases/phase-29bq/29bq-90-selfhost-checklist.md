@@ -105,9 +105,16 @@ Related:
     - `preheader freshness rewrite`
     - `stmt-only fastpath ownership`
   - still mixed:
-    - none confirmed; closeout judgment pending
+    - none confirmed
   - next step:
-    - close out `nested_loop_depth1` and inventory the next family
+    - close out `nested_loop_depth1` and inventory `nested_loop_plan`
+- next one-family inventory (`nested_loop_plan`):
+  - already separate:
+    - shared recipe-first fallback bridge
+  - still mixed:
+    - closeout judgment pending
+  - next step:
+    - re-inventory the next exact seam after bridge extraction
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

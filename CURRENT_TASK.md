@@ -142,8 +142,15 @@ Scope: current lane / next lane / restart order only.
         - preheader freshness rewrite now lives under `nested_loop_depth1_preheader`
       - landed third `nested_loop_depth1` seam:
         - stmt-only fastpath ownership now lives under `parts/loop_/nested_depth1`
+      - `nested_loop_depth1` is closeout-ready as a route family
+      - next family inventory:
+        - `nested_loop_plan`
+          - shared recipe-first fallback bridge
+          - downstream `loop_cond_continue_with_return` / `loop_cond_break_continue` handoff
+      - landed first `nested_loop_plan` seam:
+        - recipe-first fallback bridge now lives under `nested_loop_plan_bridge`
       - next mixed owner there:
-        - closeout judgment and next family inventory
+        - re-inventory whether `nested_loop_plan` needs further split after bridge extraction
       - prior family closeout:
         - `GenericLoopV1`
           - `facts`
@@ -163,11 +170,16 @@ Scope: current lane / next lane / restart order only.
           - `phi materializer`
           - `verifier`
           - `cleanup`
+        - `nested_loop_depth1`
+          - `facts`
+          - `route-local acceptance / fallback dispatch`
+          - `preheader freshness rewrite`
+          - `stmt-only fastpath ownership`
 4. `phase-29bq legacy lowerer removal`
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
    - next:
-     - close out `nested_loop_depth1` and inventory the next exact family seam
+     - re-inventory the next `nested_loop_plan` exact seam
 
 ## Legacy Compatibility Block
 
