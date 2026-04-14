@@ -13,9 +13,10 @@ use crate::mir::builder::control_flow::plan::features::carrier_merge::{
 };
 use crate::mir::builder::control_flow::plan::features::carriers;
 use crate::mir::builder::control_flow::plan::features::coreloop_frame::{
-    build_coreloop_frame, build_header_step_phis,
+    build_coreloop_frame,
 };
 use crate::mir::builder::control_flow::plan::features::if_branch_lowering;
+use crate::mir::builder::control_flow::plan::features::loop_cond_continue_with_return_phi_materializer::LoopCondContinueWithReturnPhiMaterializer;
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_facts::LoopCondContinueWithReturnFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_recipe::ContinueWithReturnItem;
@@ -93,7 +94,8 @@ fn lower_loop_cond_continue_with_return_stepbb(
     let body_bb = frame.body_bb;
     let step_bb = frame.step_bb;
     let after_bb = frame.after_bb;
-    let continue_target = frame.continue_target; // Always step_bb in StepBb mode
+    let phi_materializer = LoopCondContinueWithReturnPhiMaterializer::prepare(builder, &frame);
+    let continue_target = phi_materializer.continue_target();
 
     // Check for empty carriers (fail-fast)
     if frame.carrier_header_phis.is_empty() && !carrier_vars.is_empty() {
@@ -103,14 +105,8 @@ fn lower_loop_cond_continue_with_return_stepbb(
     }
 
     // Set up current_bindings with header PHI destinations
-    let mut current_bindings = frame.carrier_header_phis.clone();
+    let mut current_bindings = phi_materializer.current_bindings().clone();
     trace_collection_len("init_current_bindings", current_bindings.len());
-    for (name, value_id) in &current_bindings {
-        builder
-            .variable_ctx
-            .variable_map
-            .insert(name.clone(), *value_id);
-    }
 
     // Phase 2b-1: Short-circuit evaluation for loop header condition
     let cond_view = CondBlockView::from_expr(&facts.condition);
@@ -164,14 +160,7 @@ fn lower_loop_cond_continue_with_return_stepbb(
     )?));
 
     // Generate PHIs using template (StepBb mode: step + header PHIs)
-    let phis = build_header_step_phis(&frame, "loop_cond_continue_with_return")?;
-
-    // Build final_values from header PHIs
-    let final_values: Vec<(String, crate::mir::ValueId)> = frame
-        .carrier_header_phis
-        .iter()
-        .map(|(var, phi_dst)| (var.clone(), *phi_dst))
-        .collect();
+    let phi_closure = phi_materializer.close(&frame)?;
 
     // Build block_effects: merge header_result.block_effects + static entries
     let mut block_effects: Vec<(crate::mir::BasicBlockId, Vec<CoreEffectPlan>)> =
@@ -197,9 +186,9 @@ fn lower_loop_cond_continue_with_return_stepbb(
         cond_loop: header_result.first_cond,
         cond_match: header_result.first_cond,
         block_effects,
-        phis,
+        phis: phi_closure.phis().to_vec(),
         frag,
-        final_values,
+        final_values: phi_closure.final_values().to_vec(),
         step_mode,
         has_explicit_step,
     }))
