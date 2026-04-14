@@ -6,6 +6,7 @@
 
 mod facts;
 mod nested_loop_handoff;
+mod segment_nested_loop;
 mod nested_loop_stmt_only;
 mod pipeline;
 mod recipe;

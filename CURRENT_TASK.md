@@ -197,6 +197,8 @@ Scope: current lane / next lane / restart order only.
         - linear block recipe arm split now lives under `loop_scan_methods_block_v0/segment_linear`
       - landed third `loop_scan_methods_block_v0` seam:
         - nested-loop stmt-only fastpath ownership now lives under `loop_scan_methods_block_v0/nested_loop_stmt_only`
+      - landed fourth `loop_scan_methods_block_v0` seam:
+        - segment-level nested dispatch now lives under `loop_scan_methods_block_v0/segment_nested_loop`
       - prior family closeout:
         - `GenericLoopV1`
           - `facts`
@@ -231,7 +233,7 @@ Scope: current lane / next lane / restart order only.
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
    - next:
-     - re-inventory the next exact seam under `loop_scan_methods_block_v0` (`segment-level nested dispatch`)
+     - judge `loop_scan_methods_block_v0` closeout and pick the next helper family
 
 ## Legacy Compatibility Block
 
