@@ -1,11 +1,12 @@
-use super::loop_break_helpers::{extract_break_if_parts, lit_str, var};
-use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 use crate::ast::ASTNode;
 use crate::ast::{BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::is_true_literal;
+use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_break_if::extract_break_if_parts;
+use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_common::{lit_str, var};
+use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 
-pub(super) fn try_extract_loop_break_read_digits_subset(
+pub(in crate::mir::builder::control_flow::plan) fn try_extract_loop_break_read_digits_subset(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Option<LoopBreakFacts> {

@@ -78,6 +78,64 @@ fn binop(operator: BinaryOperator, left: ASTNode, right: ASTNode) -> ASTNode {
 }
 
 #[test]
+fn extract_loop_break_read_digits_subset() {
+    let condition = lit_bool(true);
+    let body = vec![
+        local(
+            "ch",
+            method_call(
+                "s",
+                "substring",
+                vec![v("i"), binop(BinaryOperator::Add, v("i"), lit_int(1))],
+            ),
+        ),
+        ASTNode::If {
+            condition: Box::new(binop(BinaryOperator::Equal, v("ch"), lit_str(""))),
+            then_body: vec![ASTNode::Break {
+                span: Span::unknown(),
+            }],
+            else_body: None,
+            span: Span::unknown(),
+        },
+        ASTNode::If {
+            condition: Box::new(binop(
+                BinaryOperator::And,
+                binop(BinaryOperator::GreaterEqual, v("ch"), lit_str("0")),
+                binop(BinaryOperator::LessEqual, v("ch"), lit_str("9")),
+            )),
+            then_body: vec![
+                assign("acc", binop(BinaryOperator::Add, v("acc"), v("ch"))),
+                assign("i", binop(BinaryOperator::Add, v("i"), lit_int(1))),
+            ],
+            else_body: Some(vec![ASTNode::Break {
+                span: Span::unknown(),
+            }]),
+            span: Span::unknown(),
+        },
+    ];
+
+    let facts = try_extract_loop_break_facts(&condition, &body)
+        .expect("Ok")
+        .expect("Some facts");
+    assert_eq!(facts.loop_var, "i");
+    assert_eq!(facts.carrier_var, "acc");
+    assert!(matches!(
+        facts.break_condition,
+        ASTNode::BinaryOp {
+            operator: BinaryOperator::Or,
+            ..
+        }
+    ));
+    assert!(matches!(
+        facts.loop_increment,
+        ASTNode::BinaryOp {
+            operator: BinaryOperator::Add,
+            ..
+        }
+    ));
+}
+
+#[test]
 fn extract_loop_break_parse_integer_subset() {
     let condition = binop(
         BinaryOperator::Less,
