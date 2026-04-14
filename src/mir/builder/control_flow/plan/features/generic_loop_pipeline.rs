@@ -1,14 +1,12 @@
 //! GenericLoop pipeline (ordered feature application).
 
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::features::{generic_loop_body, generic_loop_step};
+use crate::mir::builder::control_flow::plan::features::{generic_loop_body, generic_loop_handoff};
 use crate::mir::builder::control_flow::plan::generic_loop::facts_types::{
     GenericLoopV0Facts, GenericLoopV1Facts,
 };
 use crate::mir::builder::control_flow::plan::skeletons::generic_loop::GenericLoopSkeleton;
 use crate::mir::builder::MirBuilder;
-
-const GENERIC_LOOP_ERR: &str = "[normalizer] generic loop v0";
 
 pub(in crate::mir::builder) fn apply_generic_loop_v0_pipeline(
     builder: &mut MirBuilder,
@@ -30,21 +28,12 @@ pub(in crate::mir::builder) fn apply_generic_loop_v0_pipeline(
     skeleton.plan.body = body_plans;
 
     let post_body_map = builder.variable_ctx.variable_map.clone();
-    builder.variable_ctx.variable_map = pre_body_map;
-    generic_loop_step::apply_generic_loop_condition(
+    generic_loop_handoff::apply_generic_loop_v0_condition_step_handoff(
         builder,
+        facts,
         skeleton,
-        &facts.condition,
-        &facts.loop_var,
-        GENERIC_LOOP_ERR,
-    )?;
-    builder.variable_ctx.variable_map = post_body_map.clone();
-    generic_loop_step::apply_generic_loop_step(
-        builder,
-        skeleton,
-        &facts.loop_increment,
-        &facts.loop_var,
-        GENERIC_LOOP_ERR,
+        pre_body_map,
+        post_body_map,
     )?;
 
     Ok(())
@@ -68,39 +57,13 @@ pub(in crate::mir::builder) fn apply_generic_loop_v1_pipeline(
     )?;
     skeleton.plan.body = carrier_orchestration.take_body_plans();
 
-    builder.variable_ctx.variable_map = pre_body_map;
-    generic_loop_step::apply_generic_loop_condition(
+    generic_loop_handoff::apply_generic_loop_v1_condition_step_handoff(
         builder,
+        facts,
         skeleton,
-        &facts.condition,
-        &facts.loop_var,
-        GENERIC_LOOP_ERR,
+        pre_body_map,
+        &carrier_orchestration,
     )?;
-    // Restore post-body bindings before the optional step lowering.
-    builder.variable_ctx.variable_map = carrier_orchestration.post_body_map().clone();
-    // Step evaluation must read a value that is already materialized on the
-    // body->step path. Using the provisional step-in PHI directly can become
-    // non-dominating depending on block layout, which may collapse to const
-    // fallback (e.g. i=i+1 turning into 0+1).
-    let loop_var_step_src =
-        carrier_orchestration.loop_var_step_src(&facts.loop_var, skeleton.loop_var_current);
-    builder
-        .variable_ctx
-        .variable_map
-        .insert(facts.loop_var.clone(), loop_var_step_src);
-    if carrier_orchestration.body_has_continue_edge() {
-        generic_loop_step::apply_generic_loop_step(
-            builder,
-            skeleton,
-            &facts.loop_increment,
-            &facts.loop_var,
-            GENERIC_LOOP_ERR,
-        )?;
-        crate::mir::builder::control_flow::joinir::trace::trace().varmap(
-            "generic_loop_v1_post_step",
-            &builder.variable_ctx.variable_map,
-        );
-    }
 
     carrier_orchestration.finalize(
         builder,

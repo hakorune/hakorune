@@ -58,6 +58,24 @@ impl GenericLoopV1CarrierOrchestration {
             self.body_has_continue_edge,
         );
     }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn new_for_tests(
+        post_body_map: BTreeMap<String, ValueId>,
+        body_has_continue_edge: bool,
+    ) -> Self {
+        Self {
+            body_plans: Vec::new(),
+            carrier_state: GenericLoopV1CarrierState {
+                phi_bindings: BTreeMap::new(),
+                carrier_step_phis: BTreeMap::new(),
+                loop_var_step_phi: ValueId::new(0),
+                carrier_infos: Vec::new(),
+            },
+            post_body_map,
+            body_has_continue_edge,
+        }
+    }
 }
 
 pub(in crate::mir::builder) fn orchestrate_generic_loop_v1_carriers(
@@ -97,34 +115,20 @@ mod tests {
 
     #[test]
     fn generic_loop_v1_carrier_orchestration_uses_post_body_step_src() {
-        let orchestration = GenericLoopV1CarrierOrchestration {
-            body_plans: Vec::new(),
-            carrier_state: GenericLoopV1CarrierState {
-                phi_bindings: BTreeMap::new(),
-                carrier_step_phis: BTreeMap::new(),
-                loop_var_step_phi: ValueId::new(0),
-                carrier_infos: Vec::new(),
-            },
-            post_body_map: BTreeMap::from([("i".to_string(), ValueId::new(7))]),
-            body_has_continue_edge: true,
-        };
+        let orchestration = GenericLoopV1CarrierOrchestration::new_for_tests(
+            BTreeMap::from([("i".to_string(), ValueId::new(7))]),
+            true,
+        );
 
         assert_eq!(orchestration.loop_var_step_src("i", ValueId::new(3)), ValueId::new(7));
     }
 
     #[test]
     fn generic_loop_v1_carrier_orchestration_falls_back_to_current_value() {
-        let orchestration = GenericLoopV1CarrierOrchestration {
-            body_plans: Vec::new(),
-            carrier_state: GenericLoopV1CarrierState {
-                phi_bindings: BTreeMap::new(),
-                carrier_step_phis: BTreeMap::new(),
-                loop_var_step_phi: ValueId::new(0),
-                carrier_infos: Vec::new(),
-            },
-            post_body_map: BTreeMap::new(),
-            body_has_continue_edge: false,
-        };
+        let orchestration = GenericLoopV1CarrierOrchestration::new_for_tests(
+            BTreeMap::new(),
+            false,
+        );
 
         assert_eq!(orchestration.loop_var_step_src("i", ValueId::new(3)), ValueId::new(3));
         assert!(!orchestration.body_has_continue_edge());

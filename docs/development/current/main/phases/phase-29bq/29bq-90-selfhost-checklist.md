@@ -92,12 +92,13 @@ Related:
     - `cfg skeleton`
     - body lowering lives under `generic_loop_body/`
     - body terminality / continue-edge detection
-  - still mixed in pipeline:
-    - condition/step handoff around the carrier-owned post-body map
   - landed:
     - route-local carrier prepare/body/finalize orchestration
+    - route-local condition/step handoff
+  - still mixed:
+    - body-local fallthrough continue suppression in `generic_loop_body/v1.rs`
   - next step:
-    - re-inventory the condition/step handoff seam
+    - extract the remaining body-local fallthrough cleanup seam
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
