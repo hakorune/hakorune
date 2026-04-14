@@ -185,6 +185,12 @@ Scope: current lane / next lane / restart order only.
         - nested-loop segment arm now lives under `loop_scan_phi_vars_v0/segment_nested_loop`
       - landed fifth `loop_scan_phi_vars_v0` seam:
         - linear segment verification/lowering now lives under `loop_scan_phi_vars_v0/segment_linear`
+      - `loop_scan_phi_vars_v0` is closeout-ready as a helper family
+      - next family inventory:
+        - `loop_scan_methods_block_v0`
+          - nested-loop recipe-first fallback handoff
+          - segment-level nested dispatch
+          - linear block recipe arm split
       - prior family closeout:
         - `GenericLoopV1`
           - `facts`
@@ -219,7 +225,7 @@ Scope: current lane / next lane / restart order only.
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
    - next:
-     - re-inventory `loop_scan_phi_vars_v0` for closeout judgment and next family selection
+     - inventory `loop_scan_methods_block_v0` and cut the smallest nested-loop fallback seam
 
 ## Legacy Compatibility Block
 
