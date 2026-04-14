@@ -46,6 +46,7 @@ pub(in crate::mir::builder) mod loop_cond_bc_util;
 // Flattened from loop_cond_continue_only_pipeline/
 pub(in crate::mir::builder) mod loop_cond_co_block;
 pub(in crate::mir::builder) mod loop_cond_co_continue_if;
+pub(in crate::mir::builder) mod loop_cond_co_cleanup;
 pub(in crate::mir::builder) mod loop_cond_co_group_if;
 pub(in crate::mir::builder) mod loop_cond_co_helpers;
 pub(in crate::mir::builder) mod loop_cond_co_pipeline;

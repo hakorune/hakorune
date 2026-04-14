@@ -97,19 +97,17 @@ Scope: current lane / next lane / restart order only.
      - `LoopCondReturnInBody` join-sig extraction
    - current inventory:
       - `LoopCondReturnInBody` now has separate owners through `cleanup`
-      - next family is `LoopTrueBreakContinue`
+      - `LoopTrueBreakContinue` now has separate owners through `cleanup`
+      - next family is `LoopCondContinueOnly`
       - landed there:
         - `facts`
         - `route`
         - `recipe`
-        - `cfg skeleton`
-        - `phi materializer`
-        - `verifier`
 4. `phase-29bq legacy lowerer removal`
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
    - next:
-     - extract a dedicated route-local cleanup seam for `LoopTrueBreakContinue`
+     - extract a dedicated route-local cleanup seam for `LoopCondContinueOnly`
 
 ## Legacy Compatibility Block
 

@@ -5,13 +5,13 @@ use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockVi
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::body_view::BodyView;
 use crate::mir::builder::control_flow::plan::features::carriers;
+use crate::mir::builder::control_flow::plan::features::loop_cond_co_cleanup::apply_fallthrough_continue_exit;
 use crate::mir::builder::control_flow::plan::features::coreloop_frame::{
     build_coreloop_frame, build_header_step_phis,
 };
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_only_facts::LoopCondContinueOnlyFacts;
 use crate::mir::builder::control_flow::plan::normalizer::lower_loop_header_cond;
-use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::steps::{
     build_standard5_internal_wires, collect_carrier_inits, empty_carriers_args,
 };
@@ -122,13 +122,14 @@ fn lower_loop_cond_continue_only_stepbb(
         &facts.recipe.items,
     )?;
 
-    // Add final continue exit using template helper
-    body_plans.push(CorePlan::Exit(parts::exit::build_continue_with_phi_args(
+    // Add final continue exit using route-local cleanup helper
+    apply_fallthrough_continue_exit(
         builder,
+        &mut body_plans,
         &frame.carrier_step_phis,
         &current_bindings,
         LOOP_COND_CONTINUE_ONLY_ERR,
-    )?));
+    )?;
 
     // Generate PHIs using template (StepBb mode: step + header PHIs)
     let phis = build_header_step_phis(&frame, "loop_cond_continue_only")?;
