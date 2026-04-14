@@ -34,5 +34,13 @@ pub(in crate::mir::builder) fn lower_nested_loop_plan_with_recipe_first(
     error_prefix: &str,
     tag: &str,
 ) -> Result<LoweredRecipe, String> {
-    lower_nested_loop_plan_with_recipe_first_bridge(builder, condition, body, ctx, error_prefix, tag)
+    lower_nested_loop_plan_with_recipe_first_bridge(
+        builder,
+        condition,
+        body,
+        ctx,
+        error_prefix,
+        "nested_loop_plan_with_recipe_first",
+        tag,
+    )
 }

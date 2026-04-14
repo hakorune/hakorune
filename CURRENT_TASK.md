@@ -120,15 +120,15 @@ Scope: current lane / next lane / restart order only.
         - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
         - current helper-family inventory is `loop_scan_methods_v0`
         - likely first seam:
-          - nested-loop recipe-first fallback handoff
-        - likely follow-on seams:
           - linear segment verification / lowering
+        - likely follow-on seams:
           - nested segment dispatch
+          - nested stmt-only recipe handoff
 4. `phase-29bq legacy lowerer removal`
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - return to `loop_scan_methods_v0` and start with nested-loop recipe-first fallback handoff
+      - continue `loop_scan_methods_v0` with linear segment verification / lowering
 
 ## Legacy Compatibility Block
 
