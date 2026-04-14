@@ -16,6 +16,8 @@
 //! | NoBreakOrContinue      | true        | true         | false       | false          | false             |
 
 pub(in crate::mir::builder) mod facts;
+pub(in crate::mir::builder) mod facts_helpers;
+pub(in crate::mir::builder) mod facts_types;
 pub(in crate::mir::builder) mod normalizer;
 
 // Re-export the unified entry point

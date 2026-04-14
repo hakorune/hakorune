@@ -6,8 +6,9 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::features::nested_loop_depth1_preheader::apply_nested_loop_preheader_freshness;
-use crate::mir::builder::control_flow::plan::nested_loop_depth1::facts::{
-    try_extract_nested_loop_depth1_facts, NestedLoopDepth1Facts, NestedLoopDepth1Kind,
+use crate::mir::builder::control_flow::plan::nested_loop_depth1::facts::try_extract_nested_loop_depth1_facts;
+use crate::mir::builder::control_flow::plan::nested_loop_depth1::facts_types::{
+    NestedLoopDepth1Facts, NestedLoopDepth1Kind,
 };
 use crate::mir::builder::control_flow::plan::nested_loop_plan::lower_nested_loop_plan_with_recipe_first;
 use crate::mir::builder::control_flow::plan::parts;

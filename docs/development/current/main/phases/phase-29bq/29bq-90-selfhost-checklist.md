@@ -112,10 +112,15 @@ Related:
     - `route-local acceptance / fallback dispatch`
     - `preheader freshness rewrite`
     - `stmt-only fastpath ownership`
+  - landed:
+    - `facts_helpers`
+    - `facts_types`
+  - status:
+    - landed and closed
   - still mixed:
     - none confirmed
   - next step:
-    - close out `nested_loop_depth1` and inventory `nested_loop_plan`
+    - close out `nested_loop_plan` and inventory `generic_loop_body::nested_loop_plan`
 - next one-family inventory (`nested_loop_plan`):
   - already separate:
     - shared recipe-first fallback bridge

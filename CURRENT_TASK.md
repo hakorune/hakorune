@@ -155,20 +155,38 @@ Scope: current lane / next lane / restart order only.
         - current handoff snapshot:
           - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
           - `facts` is separated
+          - `facts_helpers` is landed
+          - `facts_types` is landed
           - route-local acceptance / fallback dispatch is separated
           - preheader freshness rewrite is separated
           - stmt-only fastpath ownership is separated
           - likely first seam:
             - `none confirmed`
+          - closeout:
+            - landed
         - likely follow-on seams:
           - `nested_loop_plan`
         - next:
-          - close out `nested_loop_depth1`, then inventory `nested_loop_plan`
+          - inventory `nested_loop_plan`
+      - `nested_loop_plan`
+        - current handoff snapshot:
+          - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
+          - shared recipe-first fallback bridge is separated
+          - `loop_cond_continue_with_return` bridge is separated
+          - `loop_cond_break_continue` bridge is separated
+          - shared recipe fallback orchestration is separated
+          - recipe fallback selection policy is separated
+          - likely first seam:
+            - `none confirmed`
+        - likely follow-on seams:
+          - `generic_loop_body::nested_loop_plan`
+        - next:
+          - close out `nested_loop_plan`, then inventory `generic_loop_body::nested_loop_plan`
 4. `phase-29bq legacy lowerer removal`
     - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - close out `nested_loop_depth1` and then inventory `nested_loop_plan`
+      - close out `nested_loop_plan` and then inventory `generic_loop_body::nested_loop_plan`
 
 ## Legacy Compatibility Block
 
