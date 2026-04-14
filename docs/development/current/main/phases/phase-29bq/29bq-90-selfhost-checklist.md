@@ -95,10 +95,9 @@ Related:
   - landed:
     - route-local carrier prepare/body/finalize orchestration
     - route-local condition/step handoff
-  - still mixed:
-    - body-local fallthrough continue suppression in `generic_loop_body/v1.rs`
+    - body-local fallthrough continue suppression
   - next step:
-    - extract the remaining body-local fallthrough cleanup seam
+    - close out `GenericLoopV1` and inventory `nested_loop_depth1`
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

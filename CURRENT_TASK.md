@@ -113,29 +113,40 @@ Scope: current lane / next lane / restart order only.
       - `LoopCondContinueOnly` now has separate owners through `verifier`
       - `LoopCondBreakContinue` now has separate owners through `cleanup`
       - `LoopCondContinueWithReturn` now has separate owners through route-local body helpers
-      - next family is `GenericLoopV1`
+      - next family is `nested_loop_depth1`
       - landed first GenericLoopV1 seam:
         - route-local terminality / continue-edge detection now lives under `generic_loop_body/`
       - landed GenericLoopV1 carrier seam:
         - carrier prepare/body/finalize orchestration now lives under `generic_loop_body/`
       - landed GenericLoopV1 handoff seam:
         - condition/step handoff now lives under `generic_loop_handoff`
-      - next mixed owner there:
-        - body-local fallthrough continue suppression still lives in `generic_loop_body/v1.rs`
+      - landed GenericLoopV1 cleanup seam:
+        - body-local fallthrough continue suppression now lives under `generic_loop_body/cleanup`
+      - `GenericLoopV1` is closeout-ready as a route family
       - landed families so far:
         - `LoopCondReturnInBody`
         - `LoopTrueBreakContinue`
         - `LoopCondContinueOnly`
         - `LoopCondBreakContinue`
         - `LoopCondContinueWithReturn`
+        - `GenericLoopV1`
       - next family inventory:
+        - `nested_loop_depth1`
+          - `facts`
+          - `route`
+          - acceptance / fallback boundary
+          - generic-loop handoff influence
+      - prior family closeout:
         - `GenericLoopV1`
           - `facts`
           - `route`
           - `recipe`
           - `cfg skeleton`
-          - `body terminality / continue-edge`
-      - prior family closeout:
+          - body lowering
+          - body terminality / continue-edge
+          - carrier orchestration
+          - condition/step handoff
+          - `cleanup`
         - `LoopCondContinueWithReturn`
           - `facts`
           - `route`
@@ -148,7 +159,7 @@ Scope: current lane / next lane / restart order only.
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
    - next:
-     - extract the remaining `GenericLoopV1` body-local fallthrough cleanup seam
+     - inventory `nested_loop_depth1` route-local acceptance seam
 
 ## Legacy Compatibility Block
 

@@ -23,7 +23,7 @@ use super::helpers::{
     apply_loop_final_values_to_bindings, lower_effect_only_stmt, lower_nested_loop_plan,
     matches_loop_increment,
 };
-use super::{body_plans_exit_on_all_paths, GENERIC_LOOP_ERR};
+use super::{apply_generic_loop_v1_fallthrough_cleanup, body_plans_exit_on_all_paths, GENERIC_LOOP_ERR};
 
 pub(in crate::mir::builder) fn lower_generic_loop_v1_body(
     builder: &mut MirBuilder,
@@ -115,14 +115,13 @@ pub(in crate::mir::builder) fn lower_generic_loop_v1_body(
         body_plans
     };
 
-    if !body_plans_exit_on_all_paths(&body_plans) {
-        body_plans.push(CorePlan::Exit(parts::exit::build_continue_with_phi_args(
-            builder,
-            carrier_step_phis,
-            &current_bindings,
-            GENERIC_LOOP_ERR,
-        )?));
-    }
+    apply_generic_loop_v1_fallthrough_cleanup(
+        builder,
+        &mut body_plans,
+        carrier_step_phis,
+        &current_bindings,
+        GENERIC_LOOP_ERR,
+    )?;
 
     Ok(body_plans)
 }

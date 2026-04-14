@@ -2,6 +2,7 @@
 
 mod carrier_orchestration;
 mod carriers;
+mod cleanup;
 mod helpers;
 mod terminality;
 mod v0;
@@ -10,6 +11,7 @@ mod v1;
 pub(in crate::mir::builder) use carrier_orchestration::{
     orchestrate_generic_loop_v1_carriers, GenericLoopV1CarrierOrchestration,
 };
+pub(in crate::mir::builder) use cleanup::apply_generic_loop_v1_fallthrough_cleanup;
 pub(in crate::mir::builder) use terminality::{
     body_plans_exit_on_all_paths, plans_require_continue_edge,
 };
