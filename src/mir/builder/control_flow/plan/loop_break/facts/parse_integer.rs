@@ -8,7 +8,7 @@ use crate::mir::builder::control_flow::plan::facts::loop_break_helpers_condition
 use crate::mir::builder::control_flow::plan::facts::loop_break_helpers_local::{
     match_local_substring_char, match_local_this_index_of,
 };
-use crate::mir::builder::control_flow::plan::facts::loop_break_helpers_loop::{
+use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_loop::{
     extract_loop_increment_at_end, extract_loop_var_for_len_condition,
 };
 use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_break_if::extract_break_if_parts;

@@ -13,7 +13,6 @@ pub(in crate::mir::builder) mod loop_break_core;
 pub(in crate::mir::builder) mod loop_break_helpers;
 pub(in crate::mir::builder) mod loop_break_helpers_condition;
 pub(in crate::mir::builder) mod loop_break_helpers_local;
-pub(in crate::mir::builder) mod loop_break_helpers_loop;
 pub(in crate::mir::builder) mod loop_break_helpers_realworld;
 #[cfg(test)]
 pub(in crate::mir::builder) mod loop_break_tests;

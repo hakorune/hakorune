@@ -96,7 +96,7 @@ pub(in crate::mir::builder::control_flow::plan) fn extract_loop_increment_at_end
     Some(value.as_ref().clone())
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn has_assignment_after(
+pub(in crate::mir::builder::control_flow::plan) fn has_assignment_after(
     body: &[ASTNode],
     start_idx: usize,
     var_name: &str,

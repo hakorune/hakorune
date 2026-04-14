@@ -15,7 +15,7 @@ pub(in crate::mir::builder::control_flow::plan::facts) use crate::mir::builder::
 pub(in crate::mir::builder::control_flow::plan::facts) use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_break_if::{
     extract_break_if_parts, find_break_if_parts,
 };
-pub(in crate::mir::builder::control_flow::plan::facts) use super::loop_break_helpers_loop::{
+pub(in crate::mir::builder::control_flow::plan::facts) use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_loop::{
     extract_loop_increment_at_end, extract_loop_var_for_len_condition,
     extract_loop_var_for_plan_subset, has_assignment_after,
 };
