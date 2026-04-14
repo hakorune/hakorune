@@ -12,6 +12,7 @@ use crate::mir::{CompareOp, ConstValue, MirType};
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::super::exit_branch;
+use super::nested_loop_depth1_handoff::try_lower_generic_nested_loop_depth1_fastpath;
 use super::nested_loop_recipe_fallback::try_compose_generic_nested_loop_recipe_fallback;
 use super::nested_loop_reject_tail::finish_generic_nested_loop_reject_tail;
 use super::GENERIC_LOOP_ERR;
@@ -61,13 +62,8 @@ pub(super) fn lower_nested_loop_plan(
     body: &[ASTNode],
     ctx: &LoopRouteContext,
 ) -> Result<LoweredRecipe, String> {
-    if let Ok(plan) =
-        crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower_nested_loop_depth1_any(
-            builder,
-            condition,
-            body,
-            GENERIC_LOOP_ERR,
-        )
+    if let Some(plan) =
+        try_lower_generic_nested_loop_depth1_fastpath(builder, condition, body, GENERIC_LOOP_ERR)
     {
         return Ok(plan);
     }

@@ -167,6 +167,9 @@ Scope: current lane / next lane / restart order only.
         - local recipe-fallback ordering now lives under `generic_loop_body/nested_loop_recipe_fallback`
       - landed second `generic_loop_body::nested_loop_plan` seam:
         - reject tail now lives under `generic_loop_body/nested_loop_reject_tail`
+      - landed third `generic_loop_body::nested_loop_plan` seam:
+        - depth1 fastpath handoff now lives under `generic_loop_body/nested_loop_depth1_handoff`
+      - `generic_loop_body::nested_loop_plan` is closeout-ready as a helper family
       - prior family closeout:
         - `GenericLoopV1`
           - `facts`
@@ -201,7 +204,7 @@ Scope: current lane / next lane / restart order only.
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
    - next:
-     - re-inventory the remaining `generic_loop_body::nested_loop_plan` exact seam
+     - close out `generic_loop_body::nested_loop_plan` and inventory the next helper family
 
 ## Legacy Compatibility Block
 

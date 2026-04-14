@@ -123,10 +123,11 @@ Related:
   - already separate:
     - local recipe-fallback ordering
     - `strict_nested_loop_guard` / `freeze_no_plan`
-  - still mixed:
     - depth1 fastpath handoff
+  - still mixed:
+    - none confirmed
   - next step:
-    - re-inventory the next exact seam under `generic_loop_body::nested_loop_plan`
+    - close out `generic_loop_body::nested_loop_plan` and inventory the next helper family
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
