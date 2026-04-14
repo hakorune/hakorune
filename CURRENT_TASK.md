@@ -97,144 +97,28 @@ Scope: current lane / next lane / restart order only.
 2. `phase-29bq selfhost mirbuilder failure-driven`
    - broad gate is green; keep exact blocker capture mode as the default operating rule
 3. `phase-29bq loop owner seam cleanup`
-   - docs-first owner split:
-     - `facts`
-     - `route`
-     - `recipe`
-     - `join sig`
-     - `phi materializer`
-     - `verifier`
-     - `cleanup`
-   - landed first family seam:
-     - `LoopCondReturnInBody` join-sig extraction
-   - current inventory:
-      - `LoopCondReturnInBody` now has separate owners through `cleanup`
-      - `LoopTrueBreakContinue` now has separate owners through `cleanup`
-      - `LoopCondContinueOnly` now has separate owners through `verifier`
-      - `LoopCondBreakContinue` now has separate owners through `cleanup`
-      - `LoopCondContinueWithReturn` now has separate owners through route-local body helpers
-      - next family is `nested_loop_depth1`
-      - landed first GenericLoopV1 seam:
-        - route-local terminality / continue-edge detection now lives under `generic_loop_body/`
-      - landed GenericLoopV1 carrier seam:
-        - carrier prepare/body/finalize orchestration now lives under `generic_loop_body/`
-      - landed GenericLoopV1 handoff seam:
-        - condition/step handoff now lives under `generic_loop_handoff`
-      - landed GenericLoopV1 cleanup seam:
-        - body-local fallthrough continue suppression now lives under `generic_loop_body/cleanup`
-      - `GenericLoopV1` is closeout-ready as a route family
-      - landed families so far:
-        - `LoopCondReturnInBody`
-        - `LoopTrueBreakContinue`
-        - `LoopCondContinueOnly`
-        - `LoopCondBreakContinue`
-        - `LoopCondContinueWithReturn`
-        - `GenericLoopV1`
-      - next family inventory:
-        - `nested_loop_depth1`
-          - `facts`
-          - `route`
-          - acceptance / fallback boundary
-          - generic-loop handoff influence
-      - landed first `nested_loop_depth1` seam:
-        - route-local acceptance / fallback dispatch now lives under `nested_loop_depth1_route`
-      - landed second `nested_loop_depth1` seam:
-        - preheader freshness rewrite now lives under `nested_loop_depth1_preheader`
-      - landed third `nested_loop_depth1` seam:
-        - stmt-only fastpath ownership now lives under `parts/loop_/nested_depth1`
-      - `nested_loop_depth1` is closeout-ready as a route family
-      - next family inventory:
-        - `nested_loop_plan`
-          - shared recipe-first fallback bridge
-          - downstream `loop_cond_continue_with_return` / `loop_cond_break_continue` handoff
-      - landed first `nested_loop_plan` seam:
-        - recipe-first fallback bridge now lives under `nested_loop_plan_bridge`
-      - landed second `nested_loop_plan` seam:
-        - `loop_cond_continue_with_return` bridge now lives under `nested_loop_plan_continue_with_return`
-      - landed third `nested_loop_plan` seam:
-        - `loop_cond_break_continue` bridge now lives under `nested_loop_plan_break_continue`
-      - landed fourth `nested_loop_plan` seam:
-        - shared recipe fallback orchestration now lives under `nested_loop_plan_recipe_fallback`
-      - landed fifth `nested_loop_plan` seam:
-        - recipe fallback selection policy now lives under `nested_loop_plan_recipe_fallback_policy`
-      - `nested_loop_plan` is closed out as a route family
-      - next family inventory:
-        - `generic_loop_body::nested_loop_plan`
-          - depth1 fastpath handoff
-          - recipe-fallback route selection
-          - generic/nested minimal fallback order
-      - landed first `generic_loop_body::nested_loop_plan` seam:
-        - local recipe-fallback ordering now lives under `generic_loop_body/nested_loop_recipe_fallback`
-      - landed second `generic_loop_body::nested_loop_plan` seam:
-        - reject tail now lives under `generic_loop_body/nested_loop_reject_tail`
-      - landed third `generic_loop_body::nested_loop_plan` seam:
-        - depth1 fastpath handoff now lives under `generic_loop_body/nested_loop_depth1_handoff`
-      - `generic_loop_body::nested_loop_plan` is closed out as a helper family
-      - next family inventory:
-        - `loop_scan_phi_vars_v0`
-          - nested-loop depth1 fastpath handoff
-          - nested-loop recipe handoff
-          - segment / if-branch lowering orchestration
-      - landed first `loop_scan_phi_vars_v0` seam:
-        - nested-loop fastpath handoff now lives under `loop_scan_phi_vars_v0/nested_loop_handoff`
-      - landed second `loop_scan_phi_vars_v0` seam:
-        - nested-loop recipe stmt-only / fastpath handoff now lives under `loop_scan_phi_vars_v0/nested_loop_recipe_handoff`
-      - landed third `loop_scan_phi_vars_v0` seam:
-        - found-if branch stmt partition / nested dispatch now lives under `loop_scan_phi_vars_v0/if_branch_scan`
-      - landed fourth `loop_scan_phi_vars_v0` seam:
-        - nested-loop segment arm now lives under `loop_scan_phi_vars_v0/segment_nested_loop`
-      - landed fifth `loop_scan_phi_vars_v0` seam:
-        - linear segment verification/lowering now lives under `loop_scan_phi_vars_v0/segment_linear`
-      - `loop_scan_phi_vars_v0` is closeout-ready as a helper family
-      - next family inventory:
-        - `loop_scan_methods_block_v0`
-          - nested-loop recipe-first fallback handoff
-          - segment-level nested dispatch
-          - linear block recipe arm split
-      - landed first `loop_scan_methods_block_v0` seam:
-        - nested-loop recipe-first fallback handoff now lives under `loop_scan_methods_block_v0/nested_loop_handoff`
-      - landed second `loop_scan_methods_block_v0` seam:
-        - linear block recipe arm split now lives under `loop_scan_methods_block_v0/segment_linear`
-      - landed third `loop_scan_methods_block_v0` seam:
-        - nested-loop stmt-only fastpath ownership now lives under `loop_scan_methods_block_v0/nested_loop_stmt_only`
-      - landed fourth `loop_scan_methods_block_v0` seam:
-        - segment-level nested dispatch now lives under `loop_scan_methods_block_v0/segment_nested_loop`
-      - `loop_scan_methods_block_v0` is closeout-ready as a helper family
-      - next family inventory:
-        - `loop_scan_methods_v0`
-          - nested-loop recipe-first fallback handoff
-          - linear segment verification / lowering
-          - nested segment dispatch
-      - prior family closeout:
-        - `GenericLoopV1`
-          - `facts`
-          - `route`
-          - `recipe`
-          - `cfg skeleton`
-          - body lowering
-          - body terminality / continue-edge
-          - carrier orchestration
-          - condition/step handoff
-          - `cleanup`
-        - `LoopCondContinueWithReturn`
-          - `facts`
-          - `route`
-          - `recipe`
-          - `cfg skeleton`
-          - `phi materializer`
-          - `verifier`
-          - `cleanup`
-        - `nested_loop_depth1`
-          - `facts`
-          - `route-local acceptance / fallback dispatch`
-          - `preheader freshness rewrite`
-          - `stmt-only fastpath ownership`
-        - `nested_loop_plan`
-          - shared recipe-first fallback bridge
-          - `loop_cond_continue_with_return` bridge
-          - `loop_cond_break_continue` bridge
-          - shared recipe fallback orchestration
-          - recipe fallback selection policy
+   - target owner flow:
+     - `facts -> route -> recipe -> join sig -> phi materializer -> verifier -> cleanup`
+   - closeout-ready / closed families:
+     - `LoopCondReturnInBody`
+     - `LoopTrueBreakContinue`
+     - `LoopCondContinueOnly`
+     - `LoopCondBreakContinue`
+     - `LoopCondContinueWithReturn`
+     - `GenericLoopV1`
+     - `nested_loop_depth1`
+     - `nested_loop_plan`
+     - `generic_loop_body::nested_loop_plan`
+     - `loop_scan_phi_vars_v0`
+     - `loop_scan_methods_block_v0`
+   - current handoff snapshot:
+     - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
+     - current helper-family inventory is `loop_scan_methods_v0`
+     - likely first seam:
+       - nested-loop recipe-first fallback handoff
+     - likely follow-on seams:
+       - linear segment verification / lowering
+       - nested segment dispatch
 4. `phase-29bq legacy lowerer removal`
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
