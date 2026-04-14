@@ -4,6 +4,7 @@
 //! lower it via the existing loop skeleton + Parts.
 
 pub(in crate::mir::builder) mod facts;
+pub(in crate::mir::builder) mod helpers;
 pub(in crate::mir::builder) mod pipeline;
 pub(in crate::mir::builder) mod recipe;
 pub(in crate::mir::builder) mod route_finalize;

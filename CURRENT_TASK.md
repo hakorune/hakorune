@@ -119,10 +119,10 @@ Scope: current lane / next lane / restart order only.
           - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
           - `loop_scan_methods_v0` closeout is landed
           - current helper-family inventory is `loop_scan_v0`
+          - helper-family closeout is landed
           - likely first seam:
-          - helper-family closeout (`apply_loop_final_values_to_bindings`)
-        - likely follow-on seams:
           - nested loop fallback bridge wrapper
+        - likely follow-on seams:
           - linear segment verification / lowering
           - nested stmt-only recipe handoff
           - nested segment dispatch
@@ -130,7 +130,7 @@ Scope: current lane / next lane / restart order only.
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - continue `loop_scan_v0` with the helper-family closeout, then peel off the nested fallback / segment wrappers in order
+      - continue `loop_scan_v0` with the nested loop fallback bridge wrapper, then peel off the remaining segment wrappers in order
 
 ## Legacy Compatibility Block
 

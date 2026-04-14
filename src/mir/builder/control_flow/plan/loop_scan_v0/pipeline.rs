@@ -19,29 +19,11 @@ use crate::mir::MirType;
 use std::collections::BTreeMap;
 
 use super::facts::LoopScanV0Facts;
+use super::helpers::apply_loop_final_values_to_bindings;
 use super::recipe::LoopScanSegment;
 use super::route_finalize::finalize_loop_scan_v0_route;
 
 const LOOP_SCAN_ERR: &str = "[normalizer] loop_scan_v0";
-
-fn apply_loop_final_values_to_bindings(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    plan: &LoweredRecipe,
-) {
-    let CorePlan::Loop(loop_plan) = plan else {
-        return;
-    };
-    for (name, value_id) in &loop_plan.final_values {
-        builder
-            .variable_ctx
-            .variable_map
-            .insert(name.clone(), *value_id);
-        if current_bindings.contains_key(name) {
-            current_bindings.insert(name.clone(), *value_id);
-        }
-    }
-}
 
 fn lower_nested_loop_plan(
     builder: &mut MirBuilder,
