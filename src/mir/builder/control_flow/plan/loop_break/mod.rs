@@ -2,6 +2,9 @@
 //!
 //! This module organizes loop_break route logic with a clear SSOT structure:
 //! - `api/` - Public entry point for promotion logic (SSOT)
+//! - `facts/` - Entry namespace for scattered loop_break fact extractors/types
+//! - `contracts/` - Shared loop_break-specific structural contracts
 
 pub(in crate::mir::builder) mod api;
+pub(in crate::mir::builder) mod facts;
 pub(in crate::mir::builder) mod contracts;

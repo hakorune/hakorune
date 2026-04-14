@@ -8,6 +8,7 @@
 
 ## LoopBodyLocal promotion
 - SSOT entry: `loop_break::api::try_promote`
+- Facts namespace entry: `loop_break::facts`
 - Supported: A-3 Trim / A-4 DigitPos (promote LoopBodyLocal to carrier)
 - ConditionOnly carriers are recalculated per iteration (no host binding)
 
