@@ -6,7 +6,7 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::mark_nested_loop_preheader_fresh;
+use crate::mir::builder::control_flow::plan::features::nested_loop_depth1_preheader::apply_nested_loop_preheader_freshness;
 use crate::mir::builder::control_flow::plan::nested_loop_depth1::facts::{
     try_extract_nested_loop_depth1_facts, NestedLoopDepth1Facts, NestedLoopDepth1Kind,
 };
@@ -77,7 +77,7 @@ pub(in crate::mir::builder) fn try_lower_nested_loop_depth1(
     }
 
     let plan = lower_nested_loop_depth1_from_facts(builder, facts, error_prefix)?;
-    Ok(Some(mark_nested_loop_preheader_fresh(builder, plan)))
+    Ok(Some(apply_nested_loop_preheader_freshness(builder, plan)))
 }
 
 fn lower_nested_loop_depth1_from_facts(

@@ -102,11 +102,11 @@ Related:
   - already separate:
     - `facts`
     - `route-local acceptance / fallback dispatch`
+    - `preheader freshness rewrite`
   - still mixed:
-    - preheader freshness rewrite
     - stmt-only fastpath ownership
   - next step:
-    - re-inventory the next exact seam after route dispatch
+    - re-inventory the stmt-only fastpath seam after preheader freshness
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

@@ -138,8 +138,10 @@ Scope: current lane / next lane / restart order only.
           - generic-loop handoff influence
       - landed first `nested_loop_depth1` seam:
         - route-local acceptance / fallback dispatch now lives under `nested_loop_depth1_route`
+      - landed second `nested_loop_depth1` seam:
+        - preheader freshness rewrite now lives under `nested_loop_depth1_preheader`
       - next mixed owner there:
-        - re-inventory whether nested preheader freshness or stmt-only fastpath is the next exact seam
+        - stmt-only fastpath ownership
       - prior family closeout:
         - `GenericLoopV1`
           - `facts`
@@ -163,7 +165,7 @@ Scope: current lane / next lane / restart order only.
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
    - next:
-     - re-inventory the next `nested_loop_depth1` exact seam
+     - re-inventory the `nested_loop_depth1` stmt-only fastpath seam
 
 ## Legacy Compatibility Block
 

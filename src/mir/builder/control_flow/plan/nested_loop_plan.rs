@@ -4,6 +4,7 @@ use crate::ast::ASTNode;
 use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::features::nested_loop_depth1;
+use crate::mir::builder::control_flow::plan::features::nested_loop_depth1_preheader::apply_nested_loop_preheader_freshness;
 use crate::mir::builder::control_flow::plan::planner::PlanBuildOutcome;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
 use crate::mir::builder::control_flow::plan::single_planner;
@@ -52,9 +53,7 @@ pub(in crate::mir::builder) fn lower_nested_loop_plan_with_recipe_first(
     if let Ok(plan) =
         nested_loop_depth1::lower_nested_loop_depth1_any(builder, condition, body, error_prefix)
     {
-        return Ok(nested_loop_depth1::mark_nested_loop_preheader_fresh(
-            builder, plan,
-        ));
+        return Ok(apply_nested_loop_preheader_freshness(builder, plan));
     }
 
     let nested_ctx =
