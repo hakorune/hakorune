@@ -122,15 +122,16 @@ Scope: current lane / next lane / restart order only.
           - helper-family closeout is landed
           - nested loop fallback bridge wrapper is landed
           - linear segment verification / lowering is landed
+          - nested stmt-only recipe handoff is landed
           - likely first seam:
-          - nested stmt-only recipe handoff
-        - likely follow-on seams:
           - nested segment dispatch
+        - likely follow-on seams:
+          - family closeout check
 4. `phase-29bq legacy lowerer removal`
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - continue `loop_scan_v0` with the nested stmt-only handoff, then close the family with the nested dispatch split
+      - continue `loop_scan_v0` with the nested dispatch split, then close the family and inventory the next owner-local module
 
 ## Legacy Compatibility Block
 

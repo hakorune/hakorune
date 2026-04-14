@@ -174,15 +174,15 @@ Related:
     - helper-family closeout (`apply_loop_final_values_to_bindings`)
     - nested-loop recipe-first fallback handoff
     - linear segment verification / lowering
-  - still mixed:
     - nested stmt-only recipe handoff
+  - still mixed:
     - nested segment dispatch
   - likely first seam:
-    - nested stmt-only recipe handoff
-  - likely follow-on seams:
     - nested segment dispatch
+  - likely follow-on seams:
+    - family closeout check
   - next step:
-    - record the linear segment split and land the nested stmt-only handoff next
+    - record the nested stmt-only handoff and land the nested dispatch split next
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

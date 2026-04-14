@@ -20,6 +20,7 @@ use std::collections::BTreeMap;
 use super::facts::LoopScanV0Facts;
 use super::helpers::apply_loop_final_values_to_bindings;
 use super::nested_fallback_bridge::lower_loop_scan_v0_nested_loop_fallback;
+use super::nested_loop_stmt_only::try_lower_loop_scan_v0_nested_stmt_only;
 use super::recipe::LoopScanSegment;
 use super::route_finalize::finalize_loop_scan_v0_route;
 use super::segment_linear::lower_loop_scan_v0_linear_segment;
@@ -134,21 +135,13 @@ pub(in crate::mir::builder) fn lower_loop_scan_v0(
                         )?);
                     }
                     LoopScanSegment::NestedLoop(nested) => {
-                        if let Some(plans) = parts::entry::lower_nested_loop_recipe_stmt_only(
+                        if let Some(plans) = try_lower_loop_scan_v0_nested_stmt_only(
                             builder,
                             &mut current_bindings,
                             &carrier_step_phis,
                             &break_phi_dsts,
                             nested,
-                            LOOP_SCAN_ERR,
                         )? {
-                            for plan in &plans {
-                                apply_loop_final_values_to_bindings(
-                                    builder,
-                                    &mut current_bindings,
-                                    plan,
-                                );
-                            }
                             body_plans.extend(plans);
                         } else {
                             let plan = lower_loop_scan_v0_nested_loop_fallback(
