@@ -14,11 +14,11 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::MirType;
 use std::collections::BTreeMap;
 
-use super::facts::LoopScanMethodsBlockV0Facts;
 use super::recipe::ScanSegment;
 use super::route_finalize::finalize_loop_scan_methods_block_route;
 use super::segment_linear::lower_loop_scan_methods_block_linear_segment;
 use super::segment_nested_loop::lower_loop_scan_methods_block_nested_segment;
+use super::LoopScanMethodsBlockV0Facts;
 
 const LOOP_SCAN_METHODS_BLOCK_ERR: &str = "[normalizer] loop_scan_methods_block_v0";
 
@@ -117,15 +117,15 @@ pub(in crate::mir::builder) fn lower_loop_scan_methods_block_v0(
         .expect_exit_allowed("[loop_scan_methods_block_v0]", LOOP_SCAN_METHODS_BLOCK_ERR)?;
     for segment in &facts.recipe.segments {
         match segment {
-            ScanSegment::Linear(linear) => body_plans.extend(
-                lower_loop_scan_methods_block_linear_segment(
+            ScanSegment::Linear(linear) => {
+                body_plans.extend(lower_loop_scan_methods_block_linear_segment(
                     builder,
                     &mut current_bindings,
                     &carrier_step_phis,
                     &break_phi_dsts,
                     linear,
-                )?,
-            ),
+                )?)
+            }
             ScanSegment::NestedLoop(nested) => {
                 body_plans.extend(lower_loop_scan_methods_block_nested_segment(
                     builder,

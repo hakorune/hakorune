@@ -156,20 +156,25 @@ Related:
     - `facts_helpers`
     - `facts_types`
     - `facts_shape_routes`
+  - status:
+    - landed and closed
   - still mixed:
-    - `facts` closeout
+    - none confirmed
   - next step:
-    - close out `loop_scan_phi_vars_v0::facts`, then inventory `loop_scan_methods_block_v0`
+    - close out `loop_scan_methods_block_v0::facts`, then inventory `loop_scan_methods_v0`
 - next one-family inventory (`loop_scan_methods_block_v0`):
   - already separate:
     - nested-loop recipe-first fallback handoff (`lower_nested_loop_plan`)
     - linear block recipe arm split
     - nested-loop stmt-only fastpath ownership
     - segment-level nested dispatch
+  - landed:
+    - `facts_helpers`
+    - `facts_types`
   - still mixed:
-    - none confirmed
+    - `facts` closeout
   - next step:
-    - close out `loop_scan_methods_block_v0` and inventory `loop_scan_methods_v0`
+    - close out `loop_scan_methods_block_v0::facts`, then inventory `loop_scan_methods_v0`
 - next one-family inventory (`loop_scan_methods_v0`):
   - already separate:
     - nested-loop recipe-first fallback handoff
