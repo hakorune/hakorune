@@ -103,10 +103,11 @@ Related:
     - `facts`
     - `route-local acceptance / fallback dispatch`
     - `preheader freshness rewrite`
+    - `stmt-only fastpath ownership`
   - still mixed:
-    - stmt-only fastpath ownership
+    - none confirmed; closeout judgment pending
   - next step:
-    - re-inventory the stmt-only fastpath seam after preheader freshness
+    - close out `nested_loop_depth1` and inventory the next family
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

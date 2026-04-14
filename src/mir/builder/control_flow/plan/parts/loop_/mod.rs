@@ -27,4 +27,5 @@ pub(in crate::mir::builder) use loop_v0::lower_loop_v0;
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use nested_depth1::{
     lower_nested_loop_depth1_stmt_only, lower_nested_loop_recipe_stmt_only,
+    try_lower_nested_loop_depth1_stmt_only_fastpath,
 };

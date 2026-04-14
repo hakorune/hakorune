@@ -5,9 +5,38 @@ use crate::mir::builder::control_flow::plan::nested_loop_depth1::try_lower_neste
 use crate::mir::builder::control_flow::plan::scan_loop_segments::NestedLoopRecipe;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
+use crate::ast::ASTNode;
 use std::collections::BTreeMap;
+use std::cell::Cell;
 
 use super::super::verify;
+
+thread_local! {
+    static STMT_ONLY_FASTPATH_DEPTH: Cell<u32> = Cell::new(0);
+}
+
+struct StmtOnlyFastpathGuard {
+    prev: u32,
+}
+
+impl StmtOnlyFastpathGuard {
+    fn enter_if_outermost() -> Option<Self> {
+        STMT_ONLY_FASTPATH_DEPTH.with(|depth| {
+            let prev = depth.get();
+            if prev != 0 {
+                return None;
+            }
+            depth.set(prev + 1);
+            Some(Self { prev })
+        })
+    }
+}
+
+impl Drop for StmtOnlyFastpathGuard {
+    fn drop(&mut self) {
+        STMT_ONLY_FASTPATH_DEPTH.with(|depth| depth.set(self.prev));
+    }
+}
 
 /// Lower a nested `loop(cond) { ... }` statement when the body is already represented
 /// as a stmt-only `RecipeBlock` (Facts-provided payload).
@@ -57,6 +86,17 @@ pub(in crate::mir::builder) fn lower_nested_loop_depth1_stmt_only(
     }
 }
 
+pub(in crate::mir::builder) fn try_lower_nested_loop_depth1_stmt_only_fastpath(
+    builder: &mut MirBuilder,
+    condition: &ASTNode,
+    body_recipe: &StmtOnlyBlockRecipe,
+    error_prefix: &str,
+) -> Option<LoweredRecipe> {
+    let _guard = StmtOnlyFastpathGuard::enter_if_outermost()?;
+    let cond_view = CondBlockView::from_expr(condition);
+    lower_nested_loop_depth1_stmt_only(builder, &cond_view, body_recipe, error_prefix).ok()
+}
+
 /// Lower a nested loop represented as `scan_loop_segments::NestedLoopRecipe` when the nested body
 /// is available as a stmt-only recipe payload.
 ///
@@ -88,4 +128,16 @@ pub(in crate::mir::builder) fn lower_nested_loop_recipe_stmt_only(
         error_prefix,
     )?;
     Ok(Some(vec![plan]))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::StmtOnlyFastpathGuard;
+
+    #[test]
+    fn nested_loop_depth1_stmt_only_fastpath_guard_blocks_reentry() {
+        let _guard =
+            StmtOnlyFastpathGuard::enter_if_outermost().expect("first stmt-only fastpath entry");
+        assert!(StmtOnlyFastpathGuard::enter_if_outermost().is_none());
+    }
 }

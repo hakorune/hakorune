@@ -28,7 +28,7 @@ pub(in crate::mir::builder) use super::dispatch::{
 };
 pub(in crate::mir::builder) use super::loop_::{
     lower_loop_v0, lower_loop_with_body_block, lower_nested_loop_depth1_stmt_only,
-    lower_nested_loop_recipe_stmt_only,
+    lower_nested_loop_recipe_stmt_only, try_lower_nested_loop_depth1_stmt_only_fastpath,
 };
 
 pub(in crate::mir::builder) fn lower_cond_prelude_stmt_as_plan(

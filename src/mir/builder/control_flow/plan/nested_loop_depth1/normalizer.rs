@@ -5,7 +5,6 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::features::nested_loop_depth1_preheader::apply_nested_loop_preheader_freshness;
 use crate::mir::builder::control_flow::plan::nested_loop_depth1::facts::{
     try_extract_nested_loop_depth1_facts, NestedLoopDepth1Facts, NestedLoopDepth1Kind,
@@ -14,34 +13,6 @@ use crate::mir::builder::control_flow::plan::nested_loop_plan::lower_nested_loop
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
-use std::cell::Cell;
-
-thread_local! {
-    static STMT_ONLY_FASTPATH_DEPTH: Cell<u32> = Cell::new(0);
-}
-
-struct StmtOnlyFastpathGuard {
-    prev: u32,
-}
-
-impl StmtOnlyFastpathGuard {
-    fn enter_if_outermost() -> Option<Self> {
-        STMT_ONLY_FASTPATH_DEPTH.with(|depth| {
-            let prev = depth.get();
-            if prev != 0 {
-                return None;
-            }
-            depth.set(prev + 1);
-            Some(Self { prev })
-        })
-    }
-}
-
-impl Drop for StmtOnlyFastpathGuard {
-    fn drop(&mut self) {
-        STMT_ONLY_FASTPATH_DEPTH.with(|depth| depth.set(self.prev));
-    }
-}
 
 /// Try to lower a nested loop using the unified nested_loop_depth1 pattern.
 ///
@@ -63,16 +34,13 @@ pub(in crate::mir::builder) fn try_lower_nested_loop_depth1(
     }
 
     if let Some(body_recipe) = facts.body_stmt_only.as_ref() {
-        if let Some(_guard) = StmtOnlyFastpathGuard::enter_if_outermost() {
-            let cond_view = CondBlockView::from_expr(&facts.condition);
-            if let Ok(plan) = parts::entry::lower_nested_loop_depth1_stmt_only(
-                builder,
-                &cond_view,
-                body_recipe,
-                error_prefix,
-            ) {
-                return Ok(Some(plan));
-            }
+        if let Some(plan) = parts::entry::try_lower_nested_loop_depth1_stmt_only_fastpath(
+            builder,
+            &facts.condition,
+            body_recipe,
+            error_prefix,
+        ) {
+            return Ok(Some(plan));
         }
     }
 
