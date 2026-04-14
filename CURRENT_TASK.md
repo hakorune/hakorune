@@ -149,8 +149,10 @@ Scope: current lane / next lane / restart order only.
           - downstream `loop_cond_continue_with_return` / `loop_cond_break_continue` handoff
       - landed first `nested_loop_plan` seam:
         - recipe-first fallback bridge now lives under `nested_loop_plan_bridge`
+      - landed second `nested_loop_plan` seam:
+        - `loop_cond_continue_with_return` bridge now lives under `nested_loop_plan_continue_with_return`
       - next mixed owner there:
-        - re-inventory whether `nested_loop_plan` needs further split after bridge extraction
+        - re-inventory whether `nested_loop_plan_bridge` still needs a fallback-policy split
       - prior family closeout:
         - `GenericLoopV1`
           - `facts`
@@ -179,7 +181,7 @@ Scope: current lane / next lane / restart order only.
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
    - next:
-     - re-inventory the next `nested_loop_plan` exact seam
+     - re-inventory the next `nested_loop_plan_bridge` exact seam
 
 ## Legacy Compatibility Block
 

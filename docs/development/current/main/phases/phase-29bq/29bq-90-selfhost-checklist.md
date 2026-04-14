@@ -111,10 +111,11 @@ Related:
 - next one-family inventory (`nested_loop_plan`):
   - already separate:
     - shared recipe-first fallback bridge
+    - `loop_cond_continue_with_return` bridge
   - still mixed:
-    - closeout judgment pending
+    - fallback-policy split in `nested_loop_plan_bridge`
   - next step:
-    - re-inventory the next exact seam after bridge extraction
+    - re-inventory whether `nested_loop_plan_bridge` still needs one more split
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
