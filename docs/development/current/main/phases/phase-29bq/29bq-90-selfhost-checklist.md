@@ -220,6 +220,7 @@ Related:
     - `facts`
   - next step:
     - close out `loop_collect_using_entries_v0::facts`
+    - after owner-local queue reaches `none confirmed`, pin `plan/` destination mapping for `facts / recipes / verify / lower / ssa / cleanup`
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`

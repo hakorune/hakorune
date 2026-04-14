@@ -85,6 +85,19 @@ Scope: current lane / next lane / restart order only.
   - migration rule:
     - keep `src/mir/builder/control_flow/plan/` while owner split is in flight
     - remove the `plan/` name only after route families no longer mix recipe/lower/ssa/cleanup responsibilities
+- folderization backlog snapshot:
+  - owner-local closeout remaining:
+    - close out `loop_collect_using_entries_v0::facts`
+    - confirm the current owner-local inventory reaches `none confirmed`
+  - end-state folderization epics after the owner-local queue is empty:
+    - pin destination buckets for current `plan/` directories under `facts / recipes / verify / lower / ssa / cleanup`
+    - move shared descriptive infra first (`facts`, `canon`, `extractors`, `route_shape_recognizers`)
+    - move recipe/CorePlan infra next (`recipes`, `recipe_tree`, `parts`, `steps`, `features`, `skeletons`)
+    - move lowering/orchestration infra (`lowerer`, `emit`, `planner`, `single_planner`, `composer`)
+    - move verification/diagnostic infra (`verifier`, `diagnostics`, `observability`)
+    - move cleanup/policy infra (`normalizer`, `normalize`, `policies`, `common`)
+    - relocate owner-local route families only after their internals no longer mix responsibilities
+    - remove the `plan/` name last, after imports/docs/registry point at the end-state owners
 - pointer rule:
   - `CURRENT_TASK.md` is the only live status pointer
   - `05/10/15` stay thin mirrors only
