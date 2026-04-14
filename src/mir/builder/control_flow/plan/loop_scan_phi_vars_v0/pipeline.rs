@@ -21,8 +21,8 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use super::facts::LoopScanPhiVarsV0Facts;
 use super::if_branch_scan::lower_loop_scan_phi_vars_found_if_branch_body;
-use super::nested_loop_recipe_handoff::lower_loop_scan_phi_vars_nested_loop_recipe;
 use super::recipe::LoopScanPhiSegment;
+use super::segment_nested_loop::lower_loop_scan_phi_vars_nested_segment;
 
 const LOOP_SCAN_PHI_VARS_ERR: &str = "[normalizer] loop_scan_phi_vars_v0";
 
@@ -92,7 +92,7 @@ fn lower_segment(
                 LOOP_SCAN_PHI_VARS_ERR,
             )
         }
-        LoopScanPhiSegment::NestedLoop(nested) => lower_loop_scan_phi_vars_nested_loop_recipe(
+        LoopScanPhiSegment::NestedLoop(nested) => lower_loop_scan_phi_vars_nested_segment(
             builder,
             current_bindings,
             carrier_step_phis,

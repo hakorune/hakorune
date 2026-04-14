@@ -9,6 +9,7 @@ pub(in crate::mir::builder) mod nested_loop_handoff;
 pub(in crate::mir::builder) mod nested_loop_recipe_handoff;
 pub(in crate::mir::builder) mod pipeline;
 pub(in crate::mir::builder) mod recipe;
+pub(in crate::mir::builder) mod segment_nested_loop;
 
 pub(in crate::mir::builder) use facts::{
     try_extract_loop_scan_phi_vars_v0_facts, LoopScanPhiVarsV0Facts,
