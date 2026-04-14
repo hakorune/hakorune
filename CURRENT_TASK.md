@@ -100,15 +100,19 @@ Scope: current lane / next lane / restart order only.
       - `LoopTrueBreakContinue` now has separate owners through `cleanup`
       - `LoopCondContinueOnly` now has separate owners through `verifier`
       - next family is `LoopCondBreakContinue`
+      - landed there:
+        - `facts`
+        - `route`
+        - `recipe`
+        - `cfg skeleton`
+        - `phi materializer`
       - next mixed owner there:
-        - carrier/header-step PHI allocation
-        - break-after PHI planning
-        - route-local `phis` / `final_values` closure
+        - route-local PHI/body contract checks
 4. `phase-29bq legacy lowerer removal`
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
    - next:
-     - extract a dedicated route-local `phi materializer` seam for `LoopCondBreakContinue`
+     - extract a dedicated route-local `verifier` seam for `LoopCondBreakContinue`
 
 ## Legacy Compatibility Block
 

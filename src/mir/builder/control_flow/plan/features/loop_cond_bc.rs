@@ -11,6 +11,7 @@ use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_e
 use crate::mir::builder::control_flow::plan::features::carriers;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_cond_bc_phi_materializer::LoopCondBreakContinuePhiMaterializer;
+use crate::mir::builder::control_flow::plan::features::loop_cond_bc_verifier::verify_loop_cond_break_continue_phi_closure;
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakAcceptKind;
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakContinueFacts;
@@ -270,6 +271,18 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
         after_bb,
         &after_cond_preds,
         body_exits_all_paths,
+    )?;
+    verify_loop_cond_break_continue_phi_closure(
+        &phi_closure,
+        &body_plans,
+        &break_phi_dsts,
+        phi_materializer.continue_target(),
+        header_bb,
+        step_bb,
+        use_header_continue_target,
+        body_exits_all_paths,
+        carrier_phis.len(),
+        LOOP_COND_ERR,
     )?;
     if crate::config::env::joinir_trace_enabled() {
         let after_phi_count = phi_closure

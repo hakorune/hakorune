@@ -70,12 +70,11 @@ Related:
     - `route`
     - `recipe`
     - `cfg skeleton`
+    - `phi materializer`
   - still mixed in pipeline:
-    - carrier/header-step PHI allocation
-    - break-after PHI planning
-    - route-local `phis` / `final_values` closure
+    - route-local PHI/body contract checks
   - next cut:
-    - extract a dedicated route-local `phi materializer` seam for `LoopCondBreakContinue` only
+    - extract a dedicated route-local `verifier` seam for `LoopCondBreakContinue` only
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
