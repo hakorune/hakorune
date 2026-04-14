@@ -5,14 +5,14 @@
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn var(name: &str) -> ASTNode {
+pub(in crate::mir::builder::control_flow::plan) fn var(name: &str) -> ASTNode {
     ASTNode::Variable {
         name: name.to_string(),
         span: Span::unknown(),
     }
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn add(
+pub(in crate::mir::builder::control_flow::plan) fn add(
     left: ASTNode,
     right: ASTNode,
 ) -> ASTNode {
@@ -24,28 +24,28 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn add(
     }
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn lit_int(value: i64) -> ASTNode {
+pub(in crate::mir::builder::control_flow::plan) fn lit_int(value: i64) -> ASTNode {
     ASTNode::Literal {
         value: LiteralValue::Integer(value),
         span: Span::unknown(),
     }
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn lit_bool(value: bool) -> ASTNode {
+pub(in crate::mir::builder::control_flow::plan) fn lit_bool(value: bool) -> ASTNode {
     ASTNode::Literal {
         value: LiteralValue::Bool(value),
         span: Span::unknown(),
     }
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn lit_str(value: &str) -> ASTNode {
+pub(in crate::mir::builder::control_flow::plan) fn lit_str(value: &str) -> ASTNode {
     ASTNode::Literal {
         value: LiteralValue::String(value.to_string()),
         span: Span::unknown(),
     }
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn length_call(obj: &str) -> ASTNode {
+pub(in crate::mir::builder::control_flow::plan) fn length_call(obj: &str) -> ASTNode {
     ASTNode::MethodCall {
         object: Box::new(var(obj)),
         method: "length".to_string(),
@@ -54,7 +54,7 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn length_call(obj: &str)
     }
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn index_of_call(
+pub(in crate::mir::builder::control_flow::plan) fn index_of_call(
     haystack: &str,
     sep: &str,
     loop_var: &str,
@@ -67,7 +67,7 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn index_of_call(
     }
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn index_of_call_expr(
+pub(in crate::mir::builder::control_flow::plan) fn index_of_call_expr(
     haystack: &str,
     needle: ASTNode,
 ) -> ASTNode {
@@ -79,7 +79,7 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn index_of_call_expr(
     }
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn substring_call(
+pub(in crate::mir::builder::control_flow::plan) fn substring_call(
     haystack: &str,
     start: ASTNode,
     end: ASTNode,
@@ -92,14 +92,14 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn substring_call(
     }
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn has_continue_statement(
+pub(in crate::mir::builder::control_flow::plan) fn has_continue_statement(
     body: &[ASTNode],
 ) -> bool {
     use crate::mir::builder::control_flow::plan::extractors::common_helpers::has_continue_statement as common_has_continue;
     common_has_continue(body)
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn has_return_statement(
+pub(in crate::mir::builder::control_flow::plan) fn has_return_statement(
     body: &[ASTNode],
 ) -> bool {
     use crate::mir::builder::control_flow::plan::extractors::common_helpers::has_return_statement as common_has_return;

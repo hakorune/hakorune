@@ -2,7 +2,7 @@
 
 use crate::ast::ASTNode;
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn extract_break_if_parts(
+pub(in crate::mir::builder::control_flow::plan) fn extract_break_if_parts(
     stmt: &ASTNode,
 ) -> Option<(ASTNode, Option<ASTNode>)> {
     let ASTNode::If {
@@ -40,7 +40,7 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn extract_break_if_parts
     Some((condition.as_ref().clone(), carrier_update_in_break))
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn find_break_if_parts(
+pub(in crate::mir::builder::control_flow::plan) fn find_break_if_parts(
     body: &[ASTNode],
 ) -> Option<(usize, ASTNode, Option<ASTNode>)> {
     for (idx, stmt) in body.iter().enumerate() {

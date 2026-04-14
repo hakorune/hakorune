@@ -5,7 +5,8 @@ use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 pub(in crate::mir::builder::control_flow::plan::facts) fn match_break_if_less_than_zero(
     stmt: &ASTNode,
 ) -> Option<String> {
-    let (cond, update_opt) = super::loop_break_helpers_break_if::extract_break_if_parts(stmt)?;
+    let (cond, update_opt) =
+        crate::mir::builder::control_flow::plan::loop_break::facts::helpers_break_if::extract_break_if_parts(stmt)?;
     if update_opt.is_some() {
         return None;
     }
