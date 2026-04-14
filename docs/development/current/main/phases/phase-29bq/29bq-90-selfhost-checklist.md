@@ -193,7 +193,6 @@ Related:
     - `emit_joinir_step_box`
     - `merge_step_box`
   - still mixed:
-    - `apply_policy_step_box`
     - `normalize_body_step_box`
     - `body_local_derived_step_box`
     - `carrier_updates_step_box`
@@ -201,16 +200,15 @@ Related:
     - `emit_joinir_step_box`
     - `merge_step_box`
   - likely first seam:
-    - `apply_policy_step_box`
-  - likely follow-on seams:
     - `normalize_body_step_box`
+  - likely follow-on seams:
     - `body_local_derived_step_box`
     - `carrier_updates_step_box`
     - `post_loop_early_return_step_box`
     - `emit_joinir_step_box`
     - `merge_step_box`
   - next step:
-    - record the `gather_facts_step_box` split and land `apply_policy_step_box` next
+    - record the `apply_policy_step_box` split and land `normalize_body_step_box` next
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

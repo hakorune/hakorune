@@ -6,6 +6,7 @@
 //! Each step should have a single responsibility and fail-fast with a clear tag
 //! at the step boundary.
 
+mod apply_policy_inputs;
 pub(crate) mod apply_policy_step_box;
 pub(crate) mod body_local_derived_step_box;
 pub(crate) mod carrier_updates_step_box;
