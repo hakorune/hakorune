@@ -16,6 +16,13 @@ pub(in crate::mir::builder) struct LoopCondContinueOnlyPhiClosure {
 }
 
 impl LoopCondContinueOnlyPhiClosure {
+    pub(in crate::mir::builder) fn new(
+        phis: Vec<CorePhiInfo>,
+        final_values: Vec<(String, ValueId)>,
+    ) -> Self {
+        Self { phis, final_values }
+    }
+
     pub(in crate::mir::builder) fn phis(&self) -> &[CorePhiInfo] {
         &self.phis
     }
@@ -35,7 +42,7 @@ pub(in crate::mir::builder) fn materialize_loop_cond_continue_only_phi_closure(
         .map(|(var, phi_dst)| (var.clone(), *phi_dst))
         .collect();
 
-    Ok(LoopCondContinueOnlyPhiClosure { phis, final_values })
+    Ok(LoopCondContinueOnlyPhiClosure::new(phis, final_values))
 }
 
 #[cfg(test)]

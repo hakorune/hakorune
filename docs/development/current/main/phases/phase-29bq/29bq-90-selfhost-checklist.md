@@ -62,10 +62,11 @@ Related:
     - `route`
     - `recipe`
     - `cleanup`
+    - `phi materializer`
   - still mixed in pipeline:
-    - route-local final_values / PHI closure assembly
+    - route-local PHI/body contract checks
   - next cut:
-    - extract a dedicated route-local `phi materializer` seam for `LoopCondContinueOnly` only
+    - extract a dedicated route-local `verifier` seam for `LoopCondContinueOnly` only
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

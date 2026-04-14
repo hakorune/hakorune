@@ -10,6 +10,7 @@ use crate::mir::builder::control_flow::plan::features::coreloop_frame::build_cor
 use crate::mir::builder::control_flow::plan::features::loop_cond_co_phi_materializer::{
     materialize_loop_cond_continue_only_phi_closure,
 };
+use crate::mir::builder::control_flow::plan::features::loop_cond_co_verifier::verify_loop_cond_continue_only_phi_closure;
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_only_facts::LoopCondContinueOnlyFacts;
 use crate::mir::builder::control_flow::plan::normalizer::lower_loop_header_cond;
@@ -133,6 +134,14 @@ fn lower_loop_cond_continue_only_stepbb(
     )?;
 
     let phi_closure = materialize_loop_cond_continue_only_phi_closure(&frame)?;
+    verify_loop_cond_continue_only_phi_closure(
+        &phi_closure,
+        &body_plans,
+        continue_target,
+        step_bb,
+        frame.carrier_header_phis.len(),
+        LOOP_COND_CONTINUE_ONLY_ERR,
+    )?;
 
     // Build block_effects: merge header_result.block_effects + static entries
     let mut block_effects: Vec<(crate::mir::BasicBlockId, Vec<CoreEffectPlan>)> =
