@@ -15,13 +15,17 @@ use crate::mir::builder::control_flow::plan::loop_true_break_continue::recipe::{
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::recipes::refs::{StmtPair, StmtRef};
 use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
-use crate::mir::policies::BodyLoweringPolicy;
+
+#[derive(Debug, Clone)]
+pub(in crate::mir::builder) enum LoopTrueBreakContinueLowering {
+    ExitAllowed(ExitAllowedBlockRecipe),
+    RecipeOnly,
+}
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct LoopTrueBreakContinueFacts {
     pub recipe: LoopTrueBreakContinueRecipe,
-    pub body_lowering_policy: BodyLoweringPolicy,
-    pub body_exit_allowed: Option<ExitAllowedBlockRecipe>,
+    pub lowering: LoopTrueBreakContinueLowering,
 }
 
 pub(in crate::mir::builder) fn try_extract_loop_true_break_continue_facts(
@@ -50,13 +54,10 @@ pub(in crate::mir::builder) fn try_extract_loop_true_break_continue_facts(
     } else {
         None
     };
-    if body_exit_allowed.is_some() {
+    if let Some(body_exit_allowed) = body_exit_allowed {
         return Ok(Some(LoopTrueBreakContinueFacts {
             recipe: LoopCondRecipe::new(body.to_vec(), Vec::new()),
-            body_lowering_policy: BodyLoweringPolicy::ExitAllowed {
-                allow_join_if: false,
-            },
-            body_exit_allowed,
+            lowering: LoopTrueBreakContinueLowering::ExitAllowed(body_exit_allowed),
         }));
     }
 
@@ -74,8 +75,7 @@ pub(in crate::mir::builder) fn try_extract_loop_true_break_continue_facts(
 
     Ok(Some(LoopTrueBreakContinueFacts {
         recipe: LoopCondRecipe::new(body.to_vec(), items),
-        body_lowering_policy: BodyLoweringPolicy::RecipeOnly,
-        body_exit_allowed: None,
+        lowering: LoopTrueBreakContinueLowering::RecipeOnly,
     }))
 }
 
@@ -153,7 +153,7 @@ fn classify_stmt(
         } => {
             if !allow_nested
                 || *nested_seen >= 1
-                || !super::loop_cond_unified_helpers::is_supported_nested_loop_condition(condition)
+                || !super::true_break_continue_helpers::is_supported_nested_loop_condition(condition)
             {
                 return None;
             }
@@ -402,9 +402,8 @@ fn build_else_exit_mixed_recipe(else_body: &[ASTNode]) -> Option<ElseExitMixedRe
 
 #[cfg(test)]
 mod tests {
-    use super::try_extract_loop_true_break_continue_facts;
+    use super::{try_extract_loop_true_break_continue_facts, LoopTrueBreakContinueLowering};
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-    use crate::mir::policies::BodyLoweringPolicy;
 
     fn bool_lit(value: bool) -> ASTNode {
         ASTNode::Literal {
@@ -431,6 +430,7 @@ mod tests {
 
     #[test]
     fn policy_exit_allowed_when_extended() {
+        std::env::set_var("NYASH_JOINIR_DEV", "1");
         std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
 
         let condition = bool_lit(true);
@@ -444,14 +444,14 @@ mod tests {
             .expect("facts");
 
         assert!(matches!(
-            facts.body_lowering_policy,
-            BodyLoweringPolicy::ExitAllowed { .. }
+            facts.lowering,
+            LoopTrueBreakContinueLowering::ExitAllowed(_)
         ));
-        assert!(facts.body_exit_allowed.is_some());
     }
 
     #[test]
     fn policy_recipe_only_without_extended() {
+        std::env::remove_var("NYASH_JOINIR_DEV");
         std::env::remove_var("HAKO_JOINIR_PLANNER_REQUIRED");
 
         let condition = bool_lit(true);
@@ -469,9 +469,8 @@ mod tests {
             .expect("facts");
 
         assert!(matches!(
-            facts.body_lowering_policy,
-            BodyLoweringPolicy::RecipeOnly
+            facts.lowering,
+            LoopTrueBreakContinueLowering::RecipeOnly
         ));
-        assert!(facts.body_exit_allowed.is_none());
     }
 }

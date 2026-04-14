@@ -159,11 +159,11 @@ Related:
     - nested fallback route-local consolidation
     - helper-family closeout check
   - likely first seam:
-    - helper-family closure snapshot (`loop_cond_shared + loop_cond_unified_helpers`)
+    - `loop_true_break_continue` closeout docs sync
   - likely follow-on seams:
-    - `loop_true_break_continue` inventory refresh
+    - remaining loop-owner family scout
   - next step:
-    - close out the v0 helper families, snapshot `loop_cond_*` shared helpers, and refresh the next `loop_true_break_continue` seam
+    - record the `loop_true_break_continue` lowering-contract cleanup and pick the next remaining loop-owner seam
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

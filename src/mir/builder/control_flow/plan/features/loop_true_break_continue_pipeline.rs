@@ -12,7 +12,9 @@ use crate::mir::builder::control_flow::plan::features::loop_true_break_continue_
 use crate::mir::builder::control_flow::plan::features::loop_true_break_continue_verifier::verify_loop_true_break_continue_phi_closure;
 use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower_nested_loop_depth1_any;
 use crate::mir::builder::control_flow::plan::features::step_mode;
-use crate::mir::builder::control_flow::plan::loop_cond::true_break_continue::LoopTrueBreakContinueFacts;
+use crate::mir::builder::control_flow::plan::loop_cond::true_break_continue::{
+    LoopTrueBreakContinueFacts, LoopTrueBreakContinueLowering,
+};
 use crate::mir::builder::control_flow::plan::loop_true_break_continue::recipe::{
     ElseItem, LoopTrueItem,
 };
@@ -26,7 +28,6 @@ use crate::mir::builder::control_flow::plan::{
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::effect::Effect;
-use crate::mir::policies::BodyLoweringPolicy;
 use crate::mir::EffectMask;
 use std::collections::BTreeMap;
 
@@ -67,13 +68,8 @@ pub(in crate::mir::builder) fn lower_loop_true_break_continue_inner(
     let mut body_break_phi_dsts: Option<BTreeMap<String, crate::mir::ValueId>> = None;
     let mut body_after_phis: Vec<CorePhiInfo> = Vec::new();
 
-    let mut body_plans: Vec<LoweredRecipe> = match facts.body_lowering_policy {
-        BodyLoweringPolicy::ExitAllowed { .. } => {
-            let Some(body_exit_allowed) = facts.body_exit_allowed.as_ref() else {
-                return Err(format!(
-                    "[freeze:contract][loop_true_break_continue] body_lowering_policy=ExitAllowed but body_exit_allowed=None: ctx={LOOP_TRUE_ERR}"
-                ));
-            };
+    let mut body_plans: Vec<LoweredRecipe> = match &facts.lowering {
+        LoopTrueBreakContinueLowering::ExitAllowed(body_exit_allowed) => {
             let body = &recipe.body.body;
             let has_break = body.iter().any(body_has_break_stmt);
             let break_phi_dsts = if has_break {
@@ -107,7 +103,7 @@ pub(in crate::mir::builder) fn lower_loop_true_break_continue_inner(
                 LOOP_TRUE_ERR,
             )?
         }
-        BodyLoweringPolicy::RecipeOnly => Vec::new(),
+        LoopTrueBreakContinueLowering::RecipeOnly => Vec::new(),
     };
 
     if body_plans.is_empty() {

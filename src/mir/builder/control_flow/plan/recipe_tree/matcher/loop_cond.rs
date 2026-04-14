@@ -42,24 +42,19 @@ pub fn verify_loop_bundle_resolver_v0_recipe(
 pub fn verify_loop_true_break_continue_recipe(
     loop_true: &crate::mir::builder::control_flow::plan::loop_true_break_continue::facts::LoopTrueBreakContinueFacts,
 ) -> Result<(), Freeze> {
+    use crate::mir::builder::control_flow::plan::loop_cond::true_break_continue::LoopTrueBreakContinueLowering;
     use crate::mir::builder::control_flow::plan::loop_true_break_continue::recipe::{
         ElseItem, LoopTrueItem,
     };
-    use crate::mir::policies::BodyLoweringPolicy;
 
-    match loop_true.body_lowering_policy {
-        BodyLoweringPolicy::ExitAllowed { .. } => {
-            let Some(body_exit_allowed) = loop_true.body_exit_allowed.as_ref() else {
-                return Err(Freeze::contract(
-                    "loop_true_break_continue: body_exit_allowed missing (planner_required)",
-                ));
-            };
+    match &loop_true.lowering {
+        LoopTrueBreakContinueLowering::ExitAllowed(body_exit_allowed) => {
             verify_exit_allowed_block_recipe(
                 body_exit_allowed,
                 "loop_true_break_continue_body_exit_allowed",
             )?;
         }
-        BodyLoweringPolicy::RecipeOnly => {
+        LoopTrueBreakContinueLowering::RecipeOnly => {
             let body_len = loop_true.recipe.body.len();
             for item in &loop_true.recipe.items {
                 match item {
