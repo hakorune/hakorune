@@ -178,7 +178,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - inventory the next owner-local family after the loop-scan cluster
+    - inventory `loop_bundle_resolver_v0`
 - next one-family inventory (`loop_scan_methods_v0`):
   - already separate:
     - nested-loop recipe-first fallback handoff
@@ -195,7 +195,18 @@ Related:
   - likely follow-on seams:
     - pin next exact seam after inventory
   - next step:
-    - inventory the next owner-local family after the loop-scan cluster
+    - inventory `loop_bundle_resolver_v0`
+- next one-family inventory (`loop_bundle_resolver_v0`):
+  - already separate:
+    - `pipeline`
+    - `recipe`
+  - landed:
+    - `facts_helpers`
+    - `facts_types`
+  - still mixed:
+    - `facts`
+  - next step:
+    - close out `loop_bundle_resolver_v0::facts`, then inventory `loop_collect_using_entries_v0`
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`

@@ -1,61 +1,14 @@
 //! Facts for loop_bundle_resolver_v0 (one-shape, planner-required only).
 
-use crate::ast::{ASTNode, BinaryOperator};
+use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
+use super::facts_helpers::{
+    declares_local_var, extract_step_var_from_tail, is_loop_cond_var_lt_var, release_enabled,
+};
+use super::facts_types::LoopBundleResolverV0Facts;
 use super::recipe::LoopBundleResolverV0Recipe;
-
-#[derive(Debug, Clone)]
-pub(in crate::mir::builder) struct LoopBundleResolverV0Facts {
-    pub loop_var: String,
-    pub limit_var: String,
-    pub condition: ASTNode,
-    pub recipe: LoopBundleResolverV0Recipe,
-}
-
-fn release_enabled() -> bool {
-    true
-}
-
-fn as_var_name(ast: &ASTNode) -> Option<&str> {
-    match ast {
-        ASTNode::Variable { name, .. } => Some(name),
-        _ => None,
-    }
-}
-
-fn is_loop_cond_var_lt_var(ast: &ASTNode) -> Option<(String, String)> {
-    match ast {
-        ASTNode::BinaryOp {
-            operator: BinaryOperator::Less,
-            left,
-            right,
-            ..
-        } => Some((
-            as_var_name(left.as_ref())?.to_string(),
-            as_var_name(right.as_ref())?.to_string(),
-        )),
-        _ => None,
-    }
-}
-
-fn declares_local_var(stmt: &ASTNode, name: &str) -> bool {
-    let ASTNode::Local { variables, .. } = stmt else {
-        return false;
-    };
-    variables.iter().any(|v| v == name)
-}
-
-fn extract_step_var_from_tail(stmt: &ASTNode, loop_var: &str) -> Option<String> {
-    let ASTNode::Assignment { target, value, .. } = stmt else {
-        return None;
-    };
-    if as_var_name(target.as_ref()) != Some(loop_var) {
-        return None;
-    }
-    Some(as_var_name(value.as_ref())?.to_string())
-}
 
 pub(in crate::mir::builder) fn try_extract_loop_bundle_resolver_v0_facts(
     condition: &ASTNode,

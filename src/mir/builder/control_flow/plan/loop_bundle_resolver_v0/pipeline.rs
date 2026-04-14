@@ -5,7 +5,7 @@ use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 
-use super::facts::LoopBundleResolverV0Facts;
+use super::LoopBundleResolverV0Facts;
 
 const LOOP_BUNDLE_RESOLVER_ERR: &str = "[loop_bundle_resolver_v0]";
 
