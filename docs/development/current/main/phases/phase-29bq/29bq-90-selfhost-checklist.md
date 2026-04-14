@@ -156,16 +156,15 @@ Related:
     - nested stmt-only recipe handoff
     - helper-family closeout check
     - nested loop fallback bridge wrapper
-    - nested fallback segment wrapper
     - nested segment dispatch
+    - nested fallback segment wrapper
   - likely first seam:
-    - nested loop fallback bridge wrapper
+    - nested segment dispatch
   - likely follow-on seams:
     - nested fallback segment wrapper
-    - nested segment dispatch
     - helper-family closeout check after wrapper fold
   - next step:
-    - record the helper-family closeout check and start the nested loop fallback bridge wrapper
+    - record the nested loop fallback bridge wrapper and start nested segment dispatch
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
