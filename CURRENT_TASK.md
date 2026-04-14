@@ -105,7 +105,6 @@ Scope: current lane / next lane / restart order only.
       - `LoopCondContinueOnly`
       - `LoopCondBreakContinue`
       - `LoopCondContinueWithReturn`
-      - `GenericLoopV1`
       - `nested_loop_depth1`
       - `nested_loop_plan`
       - `generic_loop_body::nested_loop_plan`
@@ -151,11 +150,32 @@ Scope: current lane / next lane / restart order only.
           - `none confirmed`
         - next:
           - re-inventory the next owner-local family under `loop_break`
+      - `GenericLoopV1`
+        - current handoff snapshot:
+          - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
+          - `facts` is separated
+          - `route` is separated
+          - `recipe` is separated
+          - `cfg skeleton` is separated
+          - body lowering lives under `generic_loop_body/`
+          - body terminality / continue-edge detection are separated
+          - route-local carrier prepare/body/finalize orchestration is landed
+          - route-local condition/step handoff is landed
+          - body-local fallthrough continue suppression is landed
+          - `body_check::validation_v0` is landed
+          - `body_check::validation_v1` is landed
+          - `body_check::shape_detection` is landed
+          - likely first seam:
+            - `body_check::shape_resolution` closeout
+        - likely follow-on seams:
+          - `nested_loop_depth1`
+        - next:
+          - close out `body_check::shape_resolution`, then close out `GenericLoopV1`
 4. `phase-29bq legacy lowerer removal`
     - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - re-inventory the next owner-local family under `loop_break`
+      - close out `GenericLoopV1 body_check` and then inventory `nested_loop_depth1`
 
 ## Legacy Compatibility Block
 

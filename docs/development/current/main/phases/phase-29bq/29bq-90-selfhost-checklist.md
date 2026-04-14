@@ -96,8 +96,13 @@ Related:
     - route-local carrier prepare/body/finalize orchestration
     - route-local condition/step handoff
     - body-local fallthrough continue suppression
+    - `body_check::validation_v0`
+    - `body_check::validation_v1`
+    - `body_check::shape_detection`
+  - still mixed:
+    - `body_check::shape_resolution` closeout
   - next step:
-    - close out `GenericLoopV1` and inventory `nested_loop_depth1`
+    - close out `body_check::shape_resolution`, then close out `GenericLoopV1` and inventory `nested_loop_depth1`
 - next one-family inventory (`nested_loop_depth1`):
   - already separate:
     - `facts`
@@ -238,7 +243,7 @@ Related:
   - still mixed:
     - `none confirmed`
   - next step:
-    - continue `body_local_policy`
+    - inventory `GenericLoopV1`
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
