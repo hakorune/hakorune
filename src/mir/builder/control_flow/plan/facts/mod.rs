@@ -8,7 +8,6 @@
 //! shallowing: moved from legacy break-on-condition subdirs plus loop_facts/expr/.
 
 // Flattened from the legacy break-on-condition facts cluster.
-pub(in crate::mir::builder) mod loop_break_body_local_subset;
 pub(in crate::mir::builder) mod loop_break_core;
 pub(in crate::mir::builder) mod loop_break_helpers;
 pub(in crate::mir::builder) mod loop_break_helpers_condition;

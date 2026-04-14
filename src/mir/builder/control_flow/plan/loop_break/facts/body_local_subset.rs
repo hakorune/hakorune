@@ -1,17 +1,22 @@
-use super::loop_break_body_local_facts::{
-    try_extract_loop_break_body_local_facts, LoopBodyLocalShape,
-};
-use super::loop_break_helpers::*;
-use super::loop_break_helpers_local::find_local_init_expr;
-use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 use crate::ast::{ASTNode, BinaryOperator, Span};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     count_control_flow, ControlFlowDetector,
 };
+use crate::mir::builder::control_flow::plan::facts::loop_break_helpers_local::find_local_init_expr;
+use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_break_if::find_break_if_parts;
+use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_common::{
+    add, index_of_call_expr, lit_int, lit_str, substring_call, var,
+};
+use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_loop::{
+    extract_loop_increment_at_end, extract_loop_var_for_len_condition, has_assignment_after,
+};
+use crate::mir::builder::control_flow::plan::loop_break::facts::{
+    try_extract_loop_break_body_local_facts, LoopBodyLocalShape, LoopBreakFacts,
+};
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 
-pub(super) fn try_extract_loop_break_body_local_subset(
+pub(in crate::mir::builder::control_flow::plan) fn try_extract_loop_break_body_local_subset(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Result<Option<LoopBreakFacts>, Freeze> {

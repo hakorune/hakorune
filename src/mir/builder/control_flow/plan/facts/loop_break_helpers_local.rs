@@ -202,7 +202,7 @@ pub(in crate::mir::builder::control_flow::plan) fn match_local_empty_string(
     Some(seg_var)
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn find_local_init_expr(
+pub(in crate::mir::builder::control_flow::plan) fn find_local_init_expr(
     body: &[ASTNode],
     name: &str,
 ) -> Option<ASTNode> {
