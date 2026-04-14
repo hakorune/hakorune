@@ -112,15 +112,24 @@ Scope: current lane / next lane / restart order only.
       - `LoopTrueBreakContinue` now has separate owners through `cleanup`
       - `LoopCondContinueOnly` now has separate owners through `verifier`
       - `LoopCondBreakContinue` now has separate owners through `cleanup`
-      - next family is `LoopCondContinueWithReturn`
+      - `LoopCondContinueWithReturn` now has separate owners through route-local body helpers
+      - next family is `GenericLoopV1`
       - next mixed owner there:
-        - body helper ownership around `continue_if` / `hetero_return_if`
+        - carrier prepare/finalize still straddles pipeline and body modules
+        - continue-edge detection still lives in pipeline orchestration
       - landed families so far:
         - `LoopCondReturnInBody`
         - `LoopTrueBreakContinue`
         - `LoopCondContinueOnly`
         - `LoopCondBreakContinue`
-      - landed partial next family:
+        - `LoopCondContinueWithReturn`
+      - next family inventory:
+        - `GenericLoopV1`
+          - `facts`
+          - `route`
+          - `recipe`
+          - `cfg skeleton`
+      - prior family closeout:
         - `LoopCondContinueWithReturn`
           - `facts`
           - `route`
@@ -133,7 +142,7 @@ Scope: current lane / next lane / restart order only.
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
    - next:
-     - re-inventory `LoopCondContinueWithReturn` for closeout vs helper-owner split
+     - inventory `GenericLoopV1` and choose the first owner seam
 
 ## Legacy Compatibility Block
 

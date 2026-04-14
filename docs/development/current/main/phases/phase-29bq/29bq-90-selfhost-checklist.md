@@ -74,8 +74,8 @@ Related:
     - `phi materializer`
     - `verifier`
     - `cleanup`
-- next one-family inventory (`LoopCondContinueWithReturn`):
-  - already separate:
+- landed one-family completion:
+  - `LoopCondContinueWithReturn`
     - `facts`
     - `route`
     - `recipe`
@@ -83,12 +83,19 @@ Related:
     - `phi materializer`
     - `verifier`
     - `cleanup`
-  - still mixed in route-local helpers:
-    - `continue_if`
-    - `hetero_return_if`
-    - nested body helper ownership
+    - route-local body helpers
+- next one-family inventory (`GenericLoopV1`):
+  - already separate:
+    - `facts`
+    - `route`
+    - `recipe`
+    - `cfg skeleton`
+    - body lowering lives under `generic_loop_body/`
+  - still mixed in pipeline:
+    - carrier prepare/finalize orchestration
+    - continue-edge detection
   - next step:
-    - re-inventory `LoopCondContinueWithReturn` and decide closeout vs helper-owner split
+    - inventory `GenericLoopV1` and choose the first owner seam
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
