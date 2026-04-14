@@ -4,8 +4,6 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
-use crate::mir::builder::control_flow::plan::facts::no_exit_block::try_build_no_exit_block_recipe;
-use crate::mir::builder::control_flow::plan::facts::stmt_view::try_build_stmt_only_block_recipe;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_carriers;
 use crate::mir::builder::control_flow::plan::features::step_mode;
@@ -13,7 +11,6 @@ use crate::mir::builder::control_flow::plan::normalizer::{
     helpers::LoopBlocksStandard5, lower_loop_header_cond,
 };
 use crate::mir::builder::control_flow::plan::parts;
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
 use crate::mir::builder::control_flow::plan::steps::empty_carriers_args;
 use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreLoopPlan, CorePlan, LoweredRecipe,
@@ -23,8 +20,9 @@ use crate::mir::MirType;
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::facts::LoopScanPhiVarsV0Facts;
+use super::if_branch_scan::lower_loop_scan_phi_vars_found_if_branch_body;
 use super::nested_loop_recipe_handoff::lower_loop_scan_phi_vars_nested_loop_recipe;
-use super::recipe::{LoopScanPhiSegment, NestedLoopRecipe};
+use super::recipe::LoopScanPhiSegment;
 
 const LOOP_SCAN_PHI_VARS_ERR: &str = "[normalizer] loop_scan_phi_vars_v0";
 
@@ -70,22 +68,6 @@ fn collect_assigned_vars_in_stmt(stmt: &ASTNode, out: &mut BTreeSet<String>) {
     }
 }
 
-fn lower_nested_loop_recipe(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
-    nested: &NestedLoopRecipe,
-) -> Result<Vec<LoweredRecipe>, String> {
-    lower_loop_scan_phi_vars_nested_loop_recipe(
-        builder,
-        current_bindings,
-        carrier_step_phis,
-        break_phi_dsts,
-        nested,
-    )
-}
-
 fn lower_segment(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
@@ -110,7 +92,7 @@ fn lower_segment(
                 LOOP_SCAN_PHI_VARS_ERR,
             )
         }
-        LoopScanPhiSegment::NestedLoop(nested) => lower_nested_loop_recipe(
+        LoopScanPhiSegment::NestedLoop(nested) => lower_loop_scan_phi_vars_nested_loop_recipe(
             builder,
             current_bindings,
             carrier_step_phis,
@@ -144,7 +126,7 @@ fn lower_found_if_stmt(
 
     let mut lower_then =
         |builder: &mut MirBuilder, bindings: &mut BTreeMap<String, crate::mir::ValueId>| {
-            lower_found_if_branch_body(
+            lower_loop_scan_phi_vars_found_if_branch_body(
                 builder,
                 bindings,
                 carrier_step_phis,
@@ -158,7 +140,7 @@ fn lower_found_if_stmt(
             let Some(body) = else_body.as_ref() else {
                 return Ok(Vec::new());
             };
-            lower_found_if_branch_body(
+            lower_loop_scan_phi_vars_found_if_branch_body(
                 builder,
                 bindings,
                 carrier_step_phis,
@@ -184,79 +166,6 @@ fn lower_found_if_stmt(
         lower_else,
         &|_name, _bindings| true,
     )
-}
-
-fn lower_found_if_branch_body(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
-    stmts: &[ASTNode],
-) -> Result<Vec<LoweredRecipe>, String> {
-    const ALLOW_EXTENDED: bool = true;
-    let mut plans = Vec::new();
-
-    let mut idx = 0;
-    while idx < stmts.len() {
-        if matches!(stmts[idx], ASTNode::Loop { .. } | ASTNode::While { .. }) {
-            let nested = match &stmts[idx] {
-                ASTNode::Loop {
-                    condition, body, ..
-                }
-                | ASTNode::While {
-                    condition, body, ..
-                } => NestedLoopRecipe {
-                    cond_view: CondBlockView::from_expr(condition),
-                    loop_stmt: stmts[idx].clone(),
-                    body: RecipeBody::new(body.to_vec()),
-                    body_stmt_only: try_build_stmt_only_block_recipe(body),
-                },
-                _ => unreachable!(),
-            };
-            plans.extend(lower_nested_loop_recipe(
-                builder,
-                current_bindings,
-                carrier_step_phis,
-                break_phi_dsts,
-                &nested,
-            )?);
-            idx += 1;
-            continue;
-        }
-
-        let start = idx;
-        idx += 1;
-        while idx < stmts.len() {
-            if matches!(stmts[idx], ASTNode::Loop { .. } | ASTNode::While { .. }) {
-                break;
-            }
-            idx += 1;
-        }
-
-        let slice = &stmts[start..idx];
-        let Some(no_exit) = try_build_no_exit_block_recipe(slice, ALLOW_EXTENDED) else {
-            return Err(format!(
-                "[freeze:contract][loop_scan_phi_vars_v0] found_if_branch_linear_not_no_exit: ctx={}",
-                LOOP_SCAN_PHI_VARS_ERR
-            ));
-        };
-        let verified = parts::entry::verify_no_exit_block_with_pre(
-            &no_exit.arena,
-            &no_exit.block,
-            LOOP_SCAN_PHI_VARS_ERR,
-            Some(current_bindings),
-        )?;
-        plans.extend(parts::entry::lower_no_exit_block_verified(
-            builder,
-            current_bindings,
-            carrier_step_phis,
-            Some(break_phi_dsts),
-            verified,
-            LOOP_SCAN_PHI_VARS_ERR,
-        )?);
-    }
-
-    Ok(plans)
 }
 
 pub(in crate::mir::builder) fn lower_loop_scan_phi_vars_v0(

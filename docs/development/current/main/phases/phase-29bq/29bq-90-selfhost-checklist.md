@@ -132,10 +132,11 @@ Related:
   - already separate:
     - nested-loop depth1 fastpath handoff
     - nested-loop recipe stmt-only / fastpath handoff
+    - found-if branch stmt partition / nested dispatch
   - still mixed:
-    - segment / if-branch lowering orchestration
+    - segment lowering orchestration
   - next step:
-    - re-inventory the next exact seam under `loop_scan_phi_vars_v0` segment / if-branch lowering orchestration
+    - re-inventory the next exact seam under `loop_scan_phi_vars_v0` segment lowering orchestration
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
