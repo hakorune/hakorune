@@ -1,32 +1,11 @@
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
-use super::nested_loop_handoff::lower_loop_scan_methods_nested_loop_fallback;
+use super::nested_loop_handoff::lower_loop_scan_methods_nested_fallback_segment;
 use super::nested_loop_stmt_only::try_lower_loop_scan_methods_nested_stmt_only;
 use super::recipe::NestedLoopRecipe;
-
-const LOOP_SCAN_METHODS_ERR: &str = "[normalizer] loop_scan_methods_v0";
-
-fn apply_loop_final_values_to_bindings(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    plan: &LoweredRecipe,
-) {
-    let CorePlan::Loop(loop_plan) = plan else {
-        return;
-    };
-    for (name, value_id) in &loop_plan.final_values {
-        builder
-            .variable_ctx
-            .variable_map
-            .insert(name.clone(), *value_id);
-        if current_bindings.contains_key(name) {
-            current_bindings.insert(name.clone(), *value_id);
-        }
-    }
-}
 
 pub(in crate::mir::builder) fn lower_loop_scan_methods_nested_segment(
     builder: &mut MirBuilder,
@@ -46,15 +25,13 @@ pub(in crate::mir::builder) fn lower_loop_scan_methods_nested_segment(
         return Ok(plans);
     }
 
-    let plan = lower_loop_scan_methods_nested_loop_fallback(
+    lower_loop_scan_methods_nested_fallback_segment(
         builder,
-        &nested.cond_view.tail_expr,
-        &nested.body.body,
+        current_bindings,
+        nested,
         ctx,
-        LOOP_SCAN_METHODS_ERR,
-    )?;
-    apply_loop_final_values_to_bindings(builder, current_bindings, &plan);
-    Ok(vec![plan])
+        "[normalizer] loop_scan_methods_v0",
+    )
 }
 
 #[cfg(test)]

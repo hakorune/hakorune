@@ -156,13 +156,14 @@ Related:
     - nested segment dispatch
     - nested stmt-only recipe handoff
     - linear segment route-local consolidation
-  - likely first seam:
     - nested fallback route-local consolidation
-  - likely follow-on seams:
+  - likely first seam:
     - helper-family closeout check
+  - likely follow-on seams:
     - sibling family parity sweep
+    - block_v0 / scan_v0 tail alignment
   - next step:
-    - extract the nested fallback route-local consolidation seam from `loop_scan_methods_v0`
+    - run the helper-family closeout check for `loop_scan_methods_v0`
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
