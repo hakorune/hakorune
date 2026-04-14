@@ -123,10 +123,10 @@ Scope: current lane / next lane / restart order only.
           - `gather_facts_step_box` is landed
           - `apply_policy_step_box` is landed
           - `normalize_body_step_box` is landed
+          - `body_local_derived_step_box` is landed
           - likely first seam:
-            - `body_local_derived_step_box`
+            - `carrier_updates_step_box`
         - likely follow-on seams:
-          - `carrier_updates_step_box`
           - `post_loop_early_return_step_box`
           - `emit_joinir_step_box`
           - `merge_step_box`
@@ -134,7 +134,7 @@ Scope: current lane / next lane / restart order only.
     - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - continue `loop_break_steps` from `body_local_derived_step_box`, then peel off the remaining step boxes in order
+      - continue `loop_break_steps` from `carrier_updates_step_box`, then peel off the remaining step boxes in order
 
 ## Legacy Compatibility Block
 
