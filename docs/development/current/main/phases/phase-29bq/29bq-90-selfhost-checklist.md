@@ -192,14 +192,12 @@ Related:
     - `post_loop_early_return_step_box`
     - `emit_joinir_step_box`
     - `merge_step_box`
+  - status:
+    - landed and closed
   - still mixed:
-    - `merge_step_box`
-  - likely first seam:
-    - `merge_step_box`
-  - likely follow-on seams:
     - `none confirmed`
   - next step:
-    - record the `emit_joinir_step_box` status and land `merge_step_box` next
+    - record the `loop_break_steps` closeout and inventory the next owner-local family
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

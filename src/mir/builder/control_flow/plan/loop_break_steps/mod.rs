@@ -15,6 +15,7 @@ mod emit_joinir_helpers;
 pub(crate) mod emit_joinir_step_box;
 pub(crate) mod gather_facts_step_box;
 pub(crate) mod merge_step_box;
+mod merge_step_helpers;
 mod normalize_body_complex_addends;
 pub(crate) mod normalize_body_step_box;
 pub(crate) mod post_loop_early_return_step_box;

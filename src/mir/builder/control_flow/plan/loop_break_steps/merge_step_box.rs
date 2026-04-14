@@ -6,6 +6,8 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary;
 use crate::mir::ValueId;
 
+use super::merge_step_helpers::emit_loop_break_completion_void;
+
 pub(crate) struct MergeStepBox;
 
 impl MergeStepBox {
@@ -16,7 +18,6 @@ impl MergeStepBox {
         debug: bool,
     ) -> Result<Option<ValueId>, String> {
         use crate::mir::builder::control_flow::plan::conversion_pipeline::JoinIRConversionPipeline;
-        use crate::mir::builder::emission::constant::emit_void;
 
         let _ = JoinIRConversionPipeline::execute(
             builder,
@@ -26,11 +27,6 @@ impl MergeStepBox {
             debug,
         )?;
 
-        let void_val = emit_void(builder)?;
-        crate::mir::builder::control_flow::joinir::trace::trace().debug(
-            "loop_break",
-            &format!("Loop complete, returning Void {:?}", void_val),
-        );
-        Ok(Some(void_val))
+        emit_loop_break_completion_void(builder)
     }
 }

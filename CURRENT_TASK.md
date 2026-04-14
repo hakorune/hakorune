@@ -127,17 +127,19 @@ Scope: current lane / next lane / restart order only.
           - `carrier_updates_step_box` is landed
           - `post_loop_early_return_step_box` is landed
           - `emit_joinir_step_box` is landed
+          - `merge_step_box` is landed
+          - `loop_break_steps` closeout is landed
           - likely first seam:
-            - `merge_step_box`
+            - `none confirmed`
         - likely follow-on seams:
           - `none confirmed`
         - next:
-          - `merge_step_box`
+          - inventory the next owner-local family under `loop_break`
 4. `phase-29bq legacy lowerer removal`
     - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - continue `loop_break_steps` from `merge_step_box`, then peel off the remaining step boxes in order
+      - record the `loop_break_steps` closeout and inventory the next owner-local family under `loop_break`
 
 ## Legacy Compatibility Block
 
