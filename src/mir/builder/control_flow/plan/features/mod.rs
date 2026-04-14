@@ -39,6 +39,7 @@ pub(in crate::mir::builder) mod loop_cond_bc;
 pub(in crate::mir::builder) mod loop_cond_bc_continue_if;
 pub(in crate::mir::builder) mod loop_cond_bc_else_patterns;
 pub(in crate::mir::builder) mod loop_cond_bc_item;
+pub(in crate::mir::builder) mod loop_cond_bc_phi_materializer;
 pub(in crate::mir::builder) mod loop_cond_bc_item_stmt;
 pub(in crate::mir::builder) mod loop_cond_bc_nested_carriers;
 pub(in crate::mir::builder) mod loop_cond_bc_util;

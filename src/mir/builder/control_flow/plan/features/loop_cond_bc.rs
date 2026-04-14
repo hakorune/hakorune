@@ -10,7 +10,7 @@ use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
 use crate::mir::builder::control_flow::plan::features::carriers;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
-use crate::mir::builder::control_flow::plan::features::loop_carriers;
+use crate::mir::builder::control_flow::plan::features::loop_cond_bc_phi_materializer::LoopCondBreakContinuePhiMaterializer;
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakAcceptKind;
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakContinueFacts;
@@ -24,7 +24,6 @@ use crate::mir::builder::control_flow::plan::{
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::policies::BodyLoweringPolicy;
-use crate::mir::MirType;
 use std::collections::{BTreeMap, BTreeSet};
 
 pub(super) const LOOP_COND_ERR: &str = "[normalizer] loop_cond_break_continue";
@@ -89,39 +88,21 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
             ));
         }
     }
-    let mut carrier_inits = BTreeMap::new();
-    let mut carrier_phis = BTreeMap::new();
-    let mut carrier_step_phis = BTreeMap::new();
-    let mut break_phi_dsts = BTreeMap::new();
-    for var in &carrier_vars {
-        let Some(&init_val) = builder.variable_ctx.variable_map.get(var) else {
-            return Err(format!("{LOOP_COND_ERR}: carrier {} missing init", var));
-        };
-        let ty = builder
-            .type_ctx
-            .get_type(init_val)
-            .cloned()
-            .unwrap_or(MirType::Unknown);
-        let phi_dst = builder.alloc_typed(ty.clone());
-        let step_phi_dst = if use_header_continue_target {
-            phi_dst
-        } else {
-            builder.alloc_typed(ty.clone())
-        };
-        let after_phi_dst = builder.alloc_typed(ty);
-        carrier_inits.insert(var.clone(), init_val);
-        carrier_phis.insert(var.clone(), phi_dst);
-        carrier_step_phis.insert(var.clone(), step_phi_dst);
-        break_phi_dsts.insert(var.clone(), after_phi_dst);
-    }
-
-    if carrier_phis.is_empty() {
-        return Err(format!("{LOOP_COND_ERR}: no loop carriers"));
-    }
+    let phi_materializer = LoopCondBreakContinuePhiMaterializer::prepare(
+        builder,
+        &carrier_vars,
+        use_header_continue_target,
+        header_bb,
+        step_bb,
+        LOOP_COND_ERR,
+    )?;
+    let carrier_phis = phi_materializer.carrier_phis().clone();
+    let carrier_step_phis = phi_materializer.carrier_step_phis().clone();
+    let break_phi_dsts = phi_materializer.break_phi_dsts().clone();
 
     let mut current_bindings = builder.variable_ctx.variable_map.clone();
-    for (name, value_id) in &carrier_phis {
-        current_bindings.insert(name.clone(), *value_id);
+    for (name, value_id) in phi_materializer.phi_bindings() {
+        current_bindings.insert(name.clone(), value_id);
         // NOTE: Do NOT insert into builder.variable_ctx.variable_map here.
         // PHI dst (value_id) is not yet defined at this point.
         // It will be defined by provisional PHI insertion in loop_lowering.rs Step 1.5.
@@ -282,59 +263,20 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
         )?));
     }
 
-    let mut phis = Vec::new();
-    let mut final_values = Vec::new();
-    for (var, header_phi_dst) in &carrier_phis {
-        let init_val = match carrier_inits.get(var) {
-            Some(value) => *value,
-            None => continue,
-        };
-        let Some(after_phi_dst) = break_phi_dsts.get(var).copied() else {
-            continue;
-        };
-        if use_header_continue_target || body_exits_all_paths {
-            // Header PHI: init + per-edge continue inputs (filled later by ContinueWithPhiArgs).
-            phis.push(loop_carriers::build_preheader_only_phi_info(
-                header_bb,
-                preheader_bb,
-                *header_phi_dst,
-                init_val,
-                format!("loop_cond_carrier_{}", var),
-            ));
-        } else {
-            let Some(step_phi_dst) = carrier_step_phis.get(var).copied() else {
-                continue;
-            };
-
-            // Step join PHI: inputs are populated during lowering from per-edge ContinueWithPhiArgs.
-            phis.push(loop_carriers::build_step_join_phi_info(
-                step_bb,
-                step_phi_dst,
-                format!("loop_cond_step_join_{}", var),
-            ));
-
-            // Header PHI: chooses init vs the step-join value.
-            phis.push(loop_carriers::build_loop_phi_info(
-                header_bb,
-                preheader_bb,
-                step_bb,
-                *header_phi_dst,
-                init_val,
-                step_phi_dst,
-                format!("loop_cond_carrier_{}", var),
-            ));
-        }
-        phis.push(loop_carriers::build_after_merge_phi_info(
-            after_bb,
-            after_phi_dst,
-            after_cond_preds.iter().copied(),
-            *header_phi_dst,
-            format!("loop_cond_after_{}", var),
-        ));
-        final_values.push((var.clone(), after_phi_dst));
-    }
+    let phi_closure = phi_materializer.close(
+        preheader_bb,
+        header_bb,
+        step_bb,
+        after_bb,
+        &after_cond_preds,
+        body_exits_all_paths,
+    )?;
     if crate::config::env::joinir_trace_enabled() {
-        let after_phi_count = phis.iter().filter(|phi| phi.block == after_bb).count();
+        let after_phi_count = phi_closure
+            .phis()
+            .iter()
+            .filter(|phi| phi.block == after_bb)
+            .count();
         let ring0 = crate::runtime::get_global_ring0();
         ring0.log.debug(&format!(
             "[joinir/loop_cond_break_continue] blocks preheader={:?} header={:?} body={:?} step={:?} after={:?} phis_total={} phis_after_bb={} final_values={}",
@@ -343,9 +285,9 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
             body_bb,
             step_bb,
             after_bb,
-            phis.len(),
+            phi_closure.phis().len(),
             after_phi_count,
-            final_values.len()
+            phi_closure.final_values().len()
         ));
     }
 
@@ -359,11 +301,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
     block_effects.push((step_bb, vec![]));
     block_effects.push((after_bb, vec![]));
 
-    let continue_target = if use_header_continue_target {
-        header_bb
-    } else {
-        step_bb
-    };
+    let continue_target = phi_materializer.continue_target();
 
     let (step_mode, has_explicit_step) = step_mode::inline_in_body_no_explicit_step();
 
@@ -380,9 +318,9 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
         cond_loop: header_result.first_cond,
         cond_match: header_result.first_cond,
         block_effects,
-        phis,
+        phis: phi_closure.phis().to_vec(),
         frag,
-        final_values,
+        final_values: phi_closure.final_values().to_vec(),
         step_mode,
         has_explicit_step,
     }))

@@ -56,17 +56,26 @@ Related:
     - `phi materializer`
     - `verifier`
     - `cleanup`
-- next one-family inventory (`LoopCondContinueOnly`):
-  - already separate:
+- landed one-family completion:
+  - `LoopCondContinueOnly`
     - `facts`
     - `route`
     - `recipe`
     - `cleanup`
     - `phi materializer`
+    - `verifier`
+- next one-family inventory (`LoopCondBreakContinue`):
+  - already separate:
+    - `facts`
+    - `route`
+    - `recipe`
+    - `cfg skeleton`
   - still mixed in pipeline:
-    - route-local PHI/body contract checks
+    - carrier/header-step PHI allocation
+    - break-after PHI planning
+    - route-local `phis` / `final_values` closure
   - next cut:
-    - extract a dedicated route-local `verifier` seam for `LoopCondContinueOnly` only
+    - extract a dedicated route-local `phi materializer` seam for `LoopCondBreakContinue` only
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
