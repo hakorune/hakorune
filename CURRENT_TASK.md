@@ -243,16 +243,30 @@ Scope: current lane / next lane / restart order only.
           - `facts_helpers` is landed
           - `facts_types` is landed
           - likely first seam:
-            - `facts`
+            - `none confirmed`
+          - closeout:
+            - landed
         - likely follow-on seams:
           - `loop_collect_using_entries_v0`
         - next:
-          - split `loop_bundle_resolver_v0::facts`
+          - split `loop_collect_using_entries_v0::facts`
+      - `loop_collect_using_entries_v0`
+        - current handoff snapshot:
+          - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
+          - `pipeline` / `recipe` are already separate
+          - `facts_helpers` is landed
+          - `facts_types` is landed
+          - likely first seam:
+            - `facts`
+        - likely follow-on seams:
+          - `none confirmed`
+        - next:
+          - split `loop_collect_using_entries_v0::facts`
 4. `phase-29bq legacy lowerer removal`
     - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - split `loop_bundle_resolver_v0::facts`
+      - split `loop_collect_using_entries_v0::facts`
 
 ## Legacy Compatibility Block
 

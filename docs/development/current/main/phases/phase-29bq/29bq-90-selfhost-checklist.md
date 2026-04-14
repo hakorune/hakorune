@@ -203,10 +203,23 @@ Related:
   - landed:
     - `facts_helpers`
     - `facts_types`
+  - status:
+    - landed and closed
+  - still mixed:
+    - none confirmed
+  - next step:
+    - inventory `loop_collect_using_entries_v0`
+- next one-family inventory (`loop_collect_using_entries_v0`):
+  - already separate:
+    - `pipeline`
+    - `recipe`
+  - landed:
+    - `facts_helpers`
+    - `facts_types`
   - still mixed:
     - `facts`
   - next step:
-    - close out `loop_bundle_resolver_v0::facts`, then inventory `loop_collect_using_entries_v0`
+    - close out `loop_collect_using_entries_v0::facts`
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`

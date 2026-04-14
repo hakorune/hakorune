@@ -9,10 +9,11 @@
 //! Intended for strict/dev + planner_required only.
 
 mod facts;
+mod facts_helpers;
+mod facts_types;
 mod pipeline;
 mod recipe;
 
-pub(in crate::mir::builder) use facts::{
-    try_extract_loop_collect_using_entries_v0_facts, LoopCollectUsingEntriesV0Facts,
-};
+pub(in crate::mir::builder) use facts::try_extract_loop_collect_using_entries_v0_facts;
+pub(in crate::mir::builder) use facts_types::LoopCollectUsingEntriesV0Facts;
 pub(in crate::mir::builder) use pipeline::lower_loop_collect_using_entries_v0;

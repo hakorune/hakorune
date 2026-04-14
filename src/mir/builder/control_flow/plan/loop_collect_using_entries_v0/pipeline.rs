@@ -5,7 +5,7 @@ use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 
-use super::facts::LoopCollectUsingEntriesV0Facts;
+use super::LoopCollectUsingEntriesV0Facts;
 
 const LOOP_COLLECT_USING_ENTRIES_ERR: &str = "[loop_collect_using_entries_v0]";
 

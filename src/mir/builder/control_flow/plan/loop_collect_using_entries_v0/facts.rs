@@ -1,64 +1,14 @@
 //! Facts for loop_collect_using_entries_v0 (one-shape, planner-required only).
 
-use crate::ast::{ASTNode, BinaryOperator};
+use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::facts::no_exit_block::try_build_no_exit_block_recipe;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
+use super::facts_helpers::{
+    declares_single_local, extract_step_var_from_tail, is_loop_cond_var_lt_var, release_enabled,
+};
+use super::facts_types::LoopCollectUsingEntriesV0Facts;
 use super::recipe::LoopCollectUsingEntriesV0Recipe;
-
-#[derive(Debug, Clone)]
-pub(in crate::mir::builder) struct LoopCollectUsingEntriesV0Facts {
-    pub loop_var: String,
-    pub limit_var: String,
-    pub condition: ASTNode,
-    pub recipe: LoopCollectUsingEntriesV0Recipe,
-}
-
-fn release_enabled() -> bool {
-    true
-}
-
-fn as_var_name(ast: &ASTNode) -> Option<&str> {
-    match ast {
-        ASTNode::Variable { name, .. } => Some(name),
-        _ => None,
-    }
-}
-
-fn is_loop_cond_var_lt_var(ast: &ASTNode) -> Option<(String, String)> {
-    match ast {
-        ASTNode::BinaryOp {
-            operator: BinaryOperator::Less,
-            left,
-            right,
-            ..
-        } => Some((
-            as_var_name(left.as_ref())?.to_string(),
-            as_var_name(right.as_ref())?.to_string(),
-        )),
-        _ => None,
-    }
-}
-
-fn declares_single_local(stmt: &ASTNode) -> Option<String> {
-    let ASTNode::Local { variables, .. } = stmt else {
-        return None;
-    };
-    if variables.len() != 1 {
-        return None;
-    }
-    Some(variables[0].clone())
-}
-
-fn extract_step_var_from_tail(stmt: &ASTNode, loop_var: &str) -> Option<String> {
-    let ASTNode::Assignment { target, value, .. } = stmt else {
-        return None;
-    };
-    if as_var_name(target.as_ref()) != Some(loop_var) {
-        return None;
-    }
-    Some(as_var_name(value.as_ref())?.to_string())
-}
 
 pub(in crate::mir::builder) fn try_extract_loop_collect_using_entries_v0_facts(
     condition: &ASTNode,
@@ -231,8 +181,8 @@ mod tests {
             assign(var("pos"), var("next_pos")),
         ];
 
-        let facts = try_extract_loop_collect_using_entries_v0_facts(&condition, &body)
-            .expect("extract ok");
+        let facts =
+            try_extract_loop_collect_using_entries_v0_facts(&condition, &body).expect("extract ok");
 
         assert!(facts.is_none());
     }
