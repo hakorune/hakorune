@@ -8,6 +8,7 @@ use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;
 
 use super::super::loop_break_prep_box::{LoopBreakDebugLog, LoopBreakPrepInputs};
+use super::normalize_body_complex_addends::normalize_loop_break_body_complex_addends;
 
 pub(crate) struct NormalizedBodyResult {
     pub effective_break_condition: ASTNode,
@@ -55,34 +56,9 @@ impl NormalizeBodyStepBox {
             inputs.break_condition_node.clone()
         };
 
-        use crate::mir::join_ir::lowering::complex_addend_normalizer::{
-            ComplexAddendNormalizer, NormalizationResult,
-        };
-        let mut normalized_body = Vec::new();
-        let mut has_normalization = false;
-
-        for node in body {
-            match ComplexAddendNormalizer::normalize_assign(node) {
-                NormalizationResult::Normalized {
-                    temp_def,
-                    new_assign,
-                    ..
-                } => {
-                    normalized_body.push(temp_def);
-                    normalized_body.push(new_assign);
-                    has_normalization = true;
-                }
-                NormalizationResult::Unchanged => normalized_body.push(node.clone()),
-            }
-        }
-
         Ok(NormalizedBodyResult {
             effective_break_condition,
-            normalized_body: if has_normalization {
-                Some(normalized_body)
-            } else {
-                None
-            },
+            normalized_body: normalize_loop_break_body_complex_addends(body),
         })
     }
 }
