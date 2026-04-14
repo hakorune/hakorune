@@ -2,12 +2,10 @@ use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteCon
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
-use crate::mir::builder::control_flow::plan::features::loop_carriers;
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::normalizer::{
     helpers::LoopBlocksStandard5, lower_loop_header_cond,
 };
-use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::steps::empty_carriers_args;
 use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreLoopPlan, CorePlan, LoweredRecipe,
@@ -18,10 +16,38 @@ use std::collections::BTreeMap;
 
 use super::facts::LoopScanMethodsV0Facts;
 use super::recipe::LoopScanSegment;
+use super::route_finalize::finalize_loop_scan_methods_route;
 use super::segment_linear::lower_loop_scan_methods_linear_segment;
 use super::segment_nested_loop::lower_loop_scan_methods_nested_segment;
 
 const LOOP_SCAN_METHODS_ERR: &str = "[normalizer] loop_scan_methods_v0";
+
+fn lower_segment(
+    builder: &mut MirBuilder,
+    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
+    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
+    break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
+    segment: &LoopScanSegment,
+    ctx: &LoopRouteContext,
+) -> Result<Vec<LoweredRecipe>, String> {
+    match segment {
+        LoopScanSegment::Linear(no_exit) => lower_loop_scan_methods_linear_segment(
+            builder,
+            current_bindings,
+            carrier_step_phis,
+            break_phi_dsts,
+            no_exit,
+        ),
+        LoopScanSegment::NestedLoop(nested) => lower_loop_scan_methods_nested_segment(
+            builder,
+            current_bindings,
+            carrier_step_phis,
+            break_phi_dsts,
+            nested,
+            ctx,
+        ),
+    }
+}
 
 pub(in crate::mir::builder) fn lower_loop_scan_methods_v0(
     builder: &mut MirBuilder,
@@ -121,73 +147,29 @@ pub(in crate::mir::builder) fn lower_loop_scan_methods_v0(
 
     let mut body_plans: Vec<LoweredRecipe> = Vec::new();
     for segment in &facts.recipe.segments {
-        match segment {
-            LoopScanSegment::Linear(no_exit) => {
-                body_plans.extend(lower_loop_scan_methods_linear_segment(
-                    builder,
-                    &mut current_bindings,
-                    &carrier_step_phis,
-                    &break_phi_dsts,
-                    no_exit,
-                )?);
-            }
-            LoopScanSegment::NestedLoop(nested) => body_plans.extend(
-                lower_loop_scan_methods_nested_segment(
-                    builder,
-                    &mut current_bindings,
-                    &carrier_step_phis,
-                    &break_phi_dsts,
-                    nested,
-                    ctx,
-                )?,
-            ),
-        }
+        body_plans.extend(lower_segment(
+            builder,
+            &mut current_bindings,
+            &carrier_step_phis,
+            &break_phi_dsts,
+            segment,
+            ctx,
+        )?);
     }
 
-    // Fallthrough at end-of-body: explicit backedge with carrier values.
-    body_plans.push(CorePlan::Exit(parts::exit::build_continue_with_phi_args(
+    let finalized = finalize_loop_scan_methods_route(
         builder,
+        &mut body_plans,
+        &carrier_inits,
+        &carrier_phis,
         &carrier_step_phis,
+        &break_phi_dsts,
         &current_bindings,
-        LOOP_SCAN_METHODS_ERR,
-    )?));
-
-    let mut phis = Vec::new();
-    let mut final_values = Vec::new();
-    for (var, header_phi_dst) in &carrier_phis {
-        let init_val = *carrier_inits.get(var).ok_or_else(|| {
-            format!("[freeze:contract][loop_scan_methods_v0] missing init for {var}")
-        })?;
-        let step_phi_dst = *carrier_step_phis.get(var).ok_or_else(|| {
-            format!("[freeze:contract][loop_scan_methods_v0] missing step phi for {var}")
-        })?;
-        let after_phi_dst = *break_phi_dsts.get(var).ok_or_else(|| {
-            format!("[freeze:contract][loop_scan_methods_v0] missing after phi for {var}")
-        })?;
-
-        phis.push(loop_carriers::build_step_join_phi_info(
-            step_bb,
-            step_phi_dst,
-            format!("loop_scan_methods_v0_step_join_{}", var),
-        ));
-        phis.push(loop_carriers::build_loop_phi_info(
-            header_bb,
-            preheader_bb,
-            step_bb,
-            *header_phi_dst,
-            init_val,
-            step_phi_dst,
-            format!("loop_scan_methods_v0_carrier_{}", var),
-        ));
-        phis.push(loop_carriers::build_after_merge_phi_info(
-            after_bb,
-            after_phi_dst,
-            [header_bb],
-            *header_phi_dst,
-            format!("loop_scan_methods_v0_after_{}", var),
-        ));
-        final_values.push((var.clone(), after_phi_dst));
-    }
+        preheader_bb,
+        header_bb,
+        step_bb,
+        after_bb,
+    )?;
 
     let mut block_effects: Vec<(crate::mir::BasicBlockId, Vec<CoreEffectPlan>)> =
         vec![(preheader_bb, vec![])];
@@ -213,9 +195,9 @@ pub(in crate::mir::builder) fn lower_loop_scan_methods_v0(
         cond_loop: header_result.first_cond,
         cond_match: header_result.first_cond,
         block_effects,
-        phis,
+        phis: finalized.phis,
         frag,
-        final_values,
+        final_values: finalized.final_values,
         step_mode,
         has_explicit_step,
     }))
