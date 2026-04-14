@@ -171,10 +171,14 @@ Related:
   - landed:
     - `facts_helpers`
     - `facts_types`
+    - `facts_shape_routes`
+    - `facts_recipe_builder`
+  - status:
+    - landed and closed
   - still mixed:
-    - `facts` closeout
+    - none confirmed
   - next step:
-    - close out `loop_scan_methods_block_v0::facts`, then inventory `loop_scan_methods_v0`
+    - inventory the next owner-local family after the loop-scan cluster
 - next one-family inventory (`loop_scan_methods_v0`):
   - already separate:
     - nested-loop recipe-first fallback handoff
@@ -191,7 +195,7 @@ Related:
   - likely follow-on seams:
     - pin next exact seam after inventory
   - next step:
-    - record the loop_scan_methods_v0 closeout and inventory the next smallest family
+    - inventory the next owner-local family after the loop-scan cluster
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`

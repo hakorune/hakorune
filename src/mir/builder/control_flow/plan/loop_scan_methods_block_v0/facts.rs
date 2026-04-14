@@ -2,16 +2,11 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
-use crate::mir::policies::BodyLoweringPolicy;
 
-use super::facts_helpers::{
-    declares_local_var, extract_next_i_from_tail, flatten_stmt_list, is_loop_cond_i_lt_n,
-    match_next_i_guard, match_scan_window_block, release_enabled, scan_window_substring_receiver,
-    try_segmentize_stmt_list,
-};
+use super::facts_helpers::{is_loop_cond_i_lt_n, release_enabled};
+use super::facts_recipe_builder::try_build_loop_scan_methods_block_recipe;
+use super::facts_shape_routes::try_match_loop_scan_methods_block_shape;
 use super::facts_types::LoopScanMethodsBlockV0Facts;
-use super::recipe::LoopScanMethodsBlockV0Recipe;
 
 pub(in crate::mir::builder) fn try_extract_loop_scan_methods_block_v0_facts(
     condition: &ASTNode,
@@ -38,66 +33,29 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_methods_block_v0_facts(
         return Ok(None);
     };
 
-    if body.len() < 6 {
-        debug_reject("body_too_short");
-        return Ok(None);
-    }
-
-    if !declares_local_var(&body[0], "next_i")
-        || !declares_local_var(&body[1], "k")
-        || !declares_local_var(&body[2], "name_start")
-    {
-        debug_reject("missing_required_locals");
-        return Ok(None);
-    }
-
-    let Some(last) = body.last() else {
-        debug_reject("body_last_missing");
-        return Ok(None);
-    };
-    let Some(next_i_var) = extract_next_i_from_tail(last, &loop_var) else {
-        debug_reject("tail_not_i_eq_next_i");
-        return Ok(None);
-    };
-
-    let Some(prev) = body.get(body.len().saturating_sub(2)) else {
-        debug_reject("body_too_short_for_tail_guard");
-        return Ok(None);
-    };
-    if !match_next_i_guard(prev, &next_i_var, &loop_var) {
-        debug_reject("tail_guard_shape");
-        return Ok(None);
-    }
-
-    if match_scan_window_block(&body[3], &limit_var).is_none() {
-        if let Some(recv) = scan_window_substring_receiver(&body[3]) {
-            debug_reject(&format!("scan_window_block_shape receiver={recv}"));
-        } else {
-            debug_reject("scan_window_block_shape");
+    let shape_match = match try_match_loop_scan_methods_block_shape(body, &loop_var, &limit_var) {
+        Ok(shape_match) => shape_match,
+        Err(reason) => {
+            debug_reject(&reason);
+            return Ok(None);
         }
-        return Ok(None);
-    }
+    };
 
-    const ALLOW_EXTENDED: bool = true;
-    let mut flat = Vec::new();
-    flatten_stmt_list(body, &mut flat);
-    let Some(segments) = try_segmentize_stmt_list(&flat, ALLOW_EXTENDED) else {
-        debug_reject("segmentize_failed");
-        return Ok(None);
+    let recipe_build = match try_build_loop_scan_methods_block_recipe(body, shape_match.next_i_var)
+    {
+        Some(recipe_build) => recipe_build,
+        None => {
+            debug_reject("segmentize_failed");
+            return Ok(None);
+        }
     };
 
     Ok(Some(LoopScanMethodsBlockV0Facts {
         loop_var,
         limit_var,
         condition: condition.clone(),
-        body_lowering_policy: BodyLoweringPolicy::ExitAllowed {
-            allow_join_if: false,
-        },
-        recipe: LoopScanMethodsBlockV0Recipe {
-            next_i_var,
-            body: RecipeBody::new(body.to_vec()),
-            segments,
-        },
+        body_lowering_policy: recipe_build.body_lowering_policy,
+        recipe: recipe_build.recipe,
     }))
 }
 

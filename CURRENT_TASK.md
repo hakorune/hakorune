@@ -226,17 +226,21 @@ Scope: current lane / next lane / restart order only.
           - segment-level nested dispatch is separated
           - `facts_helpers` is landed
           - `facts_types` is landed
+          - `facts_shape_routes` is landed
+          - `facts_recipe_builder` is landed
           - likely first seam:
-            - `facts` closeout
+            - `none confirmed`
+          - closeout:
+            - landed
         - likely follow-on seams:
-          - `loop_scan_methods_v0`
+          - `none confirmed`
         - next:
-          - close out `loop_scan_methods_block_v0::facts`
+          - inventory the next owner-local family after the loop-scan cluster
 4. `phase-29bq legacy lowerer removal`
     - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - close out `loop_scan_methods_block_v0::facts`
+      - inventory the next owner-local family after the loop-scan cluster
 
 ## Legacy Compatibility Block
 

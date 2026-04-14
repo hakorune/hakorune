@@ -6,6 +6,8 @@
 
 mod facts;
 mod facts_helpers;
+mod facts_recipe_builder;
+mod facts_shape_routes;
 mod facts_types;
 mod nested_loop_handoff;
 mod nested_loop_stmt_only;
