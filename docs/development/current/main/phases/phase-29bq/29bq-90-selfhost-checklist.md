@@ -112,10 +112,11 @@ Related:
   - already separate:
     - shared recipe-first fallback bridge
     - `loop_cond_continue_with_return` bridge
+    - `loop_cond_break_continue` bridge
   - still mixed:
-    - fallback-policy split in `nested_loop_plan_bridge`
+    - none confirmed
   - next step:
-    - re-inventory whether `nested_loop_plan_bridge` still needs one more split
+    - close out `nested_loop_plan` and inventory the next post-nested fallback family
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

@@ -120,6 +120,7 @@ pub(in crate::mir::builder) mod loop_true_counter_extractor;
 pub(in crate::mir::builder) mod nested_loop_depth1;
 // Phase 29bq+: Shared nested loop plan lowering helper
 pub(in crate::mir::builder) mod nested_loop_plan;
+pub(in crate::mir::builder) mod nested_loop_plan_break_continue;
 pub(in crate::mir::builder) mod nested_loop_plan_bridge;
 pub(in crate::mir::builder) mod nested_loop_plan_continue_with_return;
 // Phase 29bq+: read_digits break condition box moved to plan side

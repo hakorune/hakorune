@@ -151,8 +151,9 @@ Scope: current lane / next lane / restart order only.
         - recipe-first fallback bridge now lives under `nested_loop_plan_bridge`
       - landed second `nested_loop_plan` seam:
         - `loop_cond_continue_with_return` bridge now lives under `nested_loop_plan_continue_with_return`
-      - next mixed owner there:
-        - re-inventory whether `nested_loop_plan_bridge` still needs a fallback-policy split
+      - landed third `nested_loop_plan` seam:
+        - `loop_cond_break_continue` bridge now lives under `nested_loop_plan_break_continue`
+      - `nested_loop_plan` is closeout-ready as a route family
       - prior family closeout:
         - `GenericLoopV1`
           - `facts`
@@ -177,11 +178,15 @@ Scope: current lane / next lane / restart order only.
           - `route-local acceptance / fallback dispatch`
           - `preheader freshness rewrite`
           - `stmt-only fastpath ownership`
+        - `nested_loop_plan`
+          - shared recipe-first fallback bridge
+          - `loop_cond_continue_with_return` bridge
+          - `loop_cond_break_continue` bridge
 4. `phase-29bq legacy lowerer removal`
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
    - next:
-     - re-inventory the next `nested_loop_plan_bridge` exact seam
+     - inventory the next post-nested fallback family
 
 ## Legacy Compatibility Block
 

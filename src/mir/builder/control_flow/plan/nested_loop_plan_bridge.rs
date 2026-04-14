@@ -5,8 +5,8 @@ use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::features::nested_loop_depth1;
 use crate::mir::builder::control_flow::plan::features::nested_loop_depth1_preheader::apply_nested_loop_preheader_freshness;
+use crate::mir::builder::control_flow::plan::nested_loop_plan_break_continue::try_compose_loop_cond_break_continue_recipe_bridge;
 use crate::mir::builder::control_flow::plan::nested_loop_plan_continue_with_return::try_compose_loop_cond_continue_with_return_recipe_bridge;
-use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
 use crate::mir::builder::control_flow::plan::single_planner;
 use crate::mir::builder::control_flow::plan::trace as plan_trace;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
@@ -48,21 +48,14 @@ pub(in crate::mir::builder) fn lower_nested_loop_plan_with_recipe_first_bridge(
         return Ok(recipe);
     }
 
-    if planner_required {
-        if let Some(facts) = outcome.facts.as_ref() {
-            if facts.facts.loop_cond_break_continue.is_some() && outcome.recipe_contract.is_some() {
-                plan_trace::trace_outcome_path(
-                    "nested_loop_plan_with_recipe_first",
-                    "recipe_loop_cond_break_continue",
-                );
-                return RecipeComposer::compose_loop_cond_break_continue_recipe(
-                    builder,
-                    facts,
-                    &nested_ctx,
-                )
-                .map_err(|e| e.to_string());
-            }
-        }
+    if let Some(recipe) = try_compose_loop_cond_break_continue_recipe_bridge(
+        builder,
+        &outcome,
+        &nested_ctx,
+        "nested_loop_plan_with_recipe_first",
+        planner_required,
+    )? {
+        return Ok(recipe);
     }
 
     plan_trace::trace_outcome_path("nested_loop_plan_with_recipe_first", "freeze_no_plan");
