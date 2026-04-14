@@ -3,7 +3,6 @@
 use crate::ast::{ASTNode, BinaryOperator};
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use crate::mir::policies::BodyLoweringPolicy;
 
 use super::recipe::LoopBundleResolverV0Recipe;
 
@@ -12,7 +11,6 @@ pub(in crate::mir::builder) struct LoopBundleResolverV0Facts {
     pub loop_var: String,
     pub limit_var: String,
     pub condition: ASTNode,
-    pub body_lowering_policy: BodyLoweringPolicy,
     pub recipe: LoopBundleResolverV0Recipe,
 }
 
@@ -123,9 +121,6 @@ pub(in crate::mir::builder) fn try_extract_loop_bundle_resolver_v0_facts(
         loop_var,
         limit_var,
         condition: condition.clone(),
-        body_lowering_policy: BodyLoweringPolicy::ExitAllowed {
-            allow_join_if: false,
-        },
         recipe: LoopBundleResolverV0Recipe {
             step_var,
             body_exit_allowed,
@@ -137,7 +132,6 @@ pub(in crate::mir::builder) fn try_extract_loop_bundle_resolver_v0_facts(
 mod tests {
     use super::try_extract_loop_bundle_resolver_v0_facts;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-    use crate::mir::policies::BodyLoweringPolicy;
 
     fn var(name: &str) -> ASTNode {
         ASTNode::Variable {
@@ -179,7 +173,7 @@ mod tests {
     }
 
     #[test]
-    fn policy_exit_allowed_for_loop_bundle_resolver_v0() {
+    fn extracts_exit_allowed_recipe_for_loop_bundle_resolver_v0() {
         std::env::set_var("NYASH_JOINIR_DEV", "1");
         std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
 
@@ -202,9 +196,6 @@ mod tests {
             .expect("extract ok")
             .expect("facts");
 
-        assert!(matches!(
-            facts.body_lowering_policy,
-            BodyLoweringPolicy::ExitAllowed { .. }
-        ));
+        assert_eq!(facts.recipe.step_var, "next_i");
     }
 }

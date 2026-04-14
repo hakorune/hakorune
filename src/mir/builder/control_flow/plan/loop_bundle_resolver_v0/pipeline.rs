@@ -36,12 +36,9 @@ pub(in crate::mir::builder) fn lower_loop_bundle_resolver_v0(
     }
 
     // Delegate loop skeleton + carriers + verified body lowering to LoopV0 Parts.
-    // This keeps acceptance aligned with RecipeBlock + Verifier SSOT.
+    // Facts already pinned this family to the exit-allowed recipe shape.
     let cond_view = CondBlockView::from_expr(&facts.condition);
     let mut current_bindings = builder.variable_ctx.variable_map.clone();
-    facts
-        .body_lowering_policy
-        .expect_exit_allowed("[loop_bundle_resolver_v0]", LOOP_BUNDLE_RESOLVER_ERR)?;
     parts::entry::lower_loop_v0(
         builder,
         &mut current_bindings,
