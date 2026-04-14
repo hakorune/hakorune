@@ -22,6 +22,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use super::facts::LoopScanPhiVarsV0Facts;
 use super::if_branch_scan::lower_loop_scan_phi_vars_found_if_branch_body;
 use super::recipe::LoopScanPhiSegment;
+use super::segment_linear::lower_loop_scan_phi_vars_linear_segment;
 use super::segment_nested_loop::lower_loop_scan_phi_vars_nested_segment;
 
 const LOOP_SCAN_PHI_VARS_ERR: &str = "[normalizer] loop_scan_phi_vars_v0";
@@ -76,22 +77,13 @@ fn lower_segment(
     segment: &LoopScanPhiSegment,
 ) -> Result<Vec<LoweredRecipe>, String> {
     match segment {
-        LoopScanPhiSegment::Linear(no_exit) => {
-            let verified = parts::entry::verify_no_exit_block_with_pre(
-                &no_exit.arena,
-                &no_exit.block,
-                LOOP_SCAN_PHI_VARS_ERR,
-                Some(current_bindings),
-            )?;
-            parts::entry::lower_no_exit_block_verified(
-                builder,
-                current_bindings,
-                carrier_step_phis,
-                Some(break_phi_dsts),
-                verified,
-                LOOP_SCAN_PHI_VARS_ERR,
-            )
-        }
+        LoopScanPhiSegment::Linear(no_exit) => lower_loop_scan_phi_vars_linear_segment(
+            builder,
+            current_bindings,
+            carrier_step_phis,
+            break_phi_dsts,
+            no_exit,
+        ),
         LoopScanPhiSegment::NestedLoop(nested) => lower_loop_scan_phi_vars_nested_segment(
             builder,
             current_bindings,

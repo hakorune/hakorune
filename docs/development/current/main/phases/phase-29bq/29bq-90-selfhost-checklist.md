@@ -134,10 +134,11 @@ Related:
     - nested-loop recipe stmt-only / fastpath handoff
     - found-if branch stmt partition / nested dispatch
     - nested-loop segment arm
+    - linear segment verification / lowering
   - still mixed:
-    - linear segment lowering orchestration
+    - none confirmed
   - next step:
-    - re-inventory the next exact seam under `loop_scan_phi_vars_v0` linear segment lowering orchestration
+    - re-inventory `loop_scan_phi_vars_v0` for closeout judgment and next family selection
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
