@@ -1,5 +1,5 @@
 use crate::ast::{ASTNode, BinaryOperator, Span};
-use crate::mir::builder::control_flow::plan::facts::loop_break_helpers_local::{
+use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_local::{
     match_indexof_local, match_local_empty_string,
 };
 use crate::mir::builder::control_flow::plan::facts::loop_break_helpers_realworld::{

@@ -9,6 +9,7 @@
 //! - `loop_break/facts/helpers_break_if.rs`
 //! - `loop_break/facts/helpers_condition.rs`
 //! - `loop_break/facts/helpers_loop.rs`
+//! - `loop_break/facts/helpers_local.rs`
 //! - `loop_break/facts/body_local_subset.rs`
 //! - `loop_break/facts/parse_integer.rs`
 //! - `loop_break/facts/read_digits.rs`
@@ -27,6 +28,7 @@ pub(in crate::mir::builder::control_flow::plan) mod body_local_subset;
 pub(in crate::mir::builder::control_flow::plan) mod helpers_break_if;
 pub(in crate::mir::builder::control_flow::plan) mod helpers_condition;
 pub(in crate::mir::builder::control_flow::plan) mod helpers_common;
+pub(in crate::mir::builder::control_flow::plan) mod helpers_local;
 pub(in crate::mir::builder::control_flow::plan) mod helpers_loop;
 pub(in crate::mir::builder::control_flow::plan) mod parse_integer;
 pub(in crate::mir::builder::control_flow::plan) mod read_digits;

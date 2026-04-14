@@ -5,7 +5,7 @@ use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
 use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_condition::{
     match_acc_update_mul10_plus_d, match_break_if_less_than_zero,
 };
-use crate::mir::builder::control_flow::plan::facts::loop_break_helpers_local::{
+use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_local::{
     match_local_substring_char, match_local_this_index_of,
 };
 use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_loop::{
