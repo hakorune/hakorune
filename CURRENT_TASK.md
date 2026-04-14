@@ -126,11 +126,15 @@ Scope: current lane / next lane / restart order only.
           - `apply_policy_step_box`
           - `normalize_body_step_box`
           - `body_local_derived_step_box`
+          - `carrier_updates_step_box`
+          - `post_loop_early_return_step_box`
+          - `emit_joinir_step_box`
+          - `merge_step_box`
 4. `phase-29bq legacy lowerer removal`
-   - landed and closed
+    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - inventory `loop_break_steps` in docs as the next helper family, then start from `gather_facts_step_box`
+      - pin the `loop_break_steps` order in docs, then start from `gather_facts_step_box`
 
 ## Legacy Compatibility Block
 
