@@ -9,7 +9,7 @@ use super::feature_facts::LoopFeatureFacts;
 use super::int_to_str_facts::IntToStrFacts;
 use super::loop_array_join_facts::LoopArrayJoinFacts;
 use super::loop_break_body_local_facts::LoopBreakBodyLocalFacts;
-use super::loop_break_types::LoopBreakFacts;
+use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 use super::loop_char_map_facts::LoopCharMapFacts;
 use super::loop_simple_while_facts::LoopSimpleWhileFacts;
 use super::loop_true_early_exit_facts::LoopTrueEarlyExitFacts;

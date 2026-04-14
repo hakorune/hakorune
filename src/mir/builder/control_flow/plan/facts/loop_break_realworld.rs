@@ -3,7 +3,7 @@ use super::loop_break_helpers::{
     match_seg_if_else, substring_call, var,
 };
 use super::loop_break_helpers_local::{match_indexof_local, match_local_empty_string};
-use super::loop_break_types::LoopBreakFacts;
+use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 use crate::ast::{ASTNode, BinaryOperator, Span};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     count_control_flow, is_true_literal, ControlFlowDetector,

@@ -25,7 +25,6 @@ pub(in crate::mir::builder) mod loop_break_step_before_break;
 pub(in crate::mir::builder) mod loop_break_tests;
 pub(in crate::mir::builder) mod loop_break_trim_whitespace;
 pub(in crate::mir::builder) mod loop_break_trim_whitespace_helpers;
-pub(in crate::mir::builder) mod loop_break_types;
 
 // Flattened from loop_facts/
 pub(in crate::mir::builder) mod loop_builder;
@@ -72,7 +71,7 @@ pub(in crate::mir::builder) mod stmt_view;
 pub(in crate::mir::builder) mod string_is_integer_facts;
 
 pub(in crate::mir::builder) use if_phi_join_facts::try_extract_if_phi_join_facts;
-pub(in crate::mir::builder) use loop_break_types::LoopBreakFacts;
+pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 pub(in crate::mir::builder) use loop_builder::{
     try_build_loop_facts, try_build_loop_facts_with_ctx,
 };

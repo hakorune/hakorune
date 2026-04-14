@@ -13,7 +13,7 @@ use super::loop_break_helpers::{
     extract_break_if_parts, extract_loop_var_for_len_condition, extract_loop_var_for_plan_subset,
     has_continue_statement, has_return_statement,
 };
-use super::loop_break_types::LoopBreakFacts;
+use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 
 // Import subset extractors
 use super::loop_break_body_local_subset::try_extract_loop_break_body_local_subset;

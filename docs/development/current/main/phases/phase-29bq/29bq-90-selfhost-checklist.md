@@ -159,11 +159,11 @@ Related:
     - nested fallback route-local consolidation
     - helper-family closeout check
   - likely first seam:
-    - `loop_break` facts namespace entry
+    - `loop_break` helper foundation move
   - likely follow-on seams:
     - `loop_break` facts family consolidation inventory
   - next step:
-    - record the `loop_true_break_continue` closeout, add `loop_break::facts` as the owner-facing entry, and inventory the remaining loop_break facts consolidation seam
+    - record the `LoopBreakFacts` owner move, then move the shared helper foundations under `loop_break::facts/`
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

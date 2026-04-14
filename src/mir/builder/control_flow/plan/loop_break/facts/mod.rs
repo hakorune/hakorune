@@ -4,6 +4,7 @@
 //! `plan/facts/` until the larger loop_break facts migration is scheduled.
 //!
 //! Current source modules:
+//! - `loop_break/facts/types.rs`
 //! - `plan/facts/loop_break_core.rs`
 //! - `plan/facts/loop_break_body_local_facts.rs`
 //! - `plan/facts/loop_break_{parse_integer,read_digits,realworld,step_before_break}.rs`
@@ -13,8 +14,9 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
-pub(in crate::mir::builder) type LoopBreakFacts =
-    crate::mir::builder::control_flow::plan::facts::LoopBreakFacts;
+mod types;
+
+pub(in crate::mir::builder) use types::LoopBreakFacts;
 pub(in crate::mir::builder) type LoopBodyLocalShape =
     crate::mir::builder::control_flow::plan::facts::loop_break_body_local_facts::LoopBodyLocalShape;
 pub(in crate::mir::builder) type LoopBreakBodyLocalFacts =

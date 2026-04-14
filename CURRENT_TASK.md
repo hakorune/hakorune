@@ -119,14 +119,14 @@ Scope: current lane / next lane / restart order only.
         - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
         - current helper-family inventory is `loop_break`
         - likely first seam:
-          - facts namespace entry
+          - helper foundation move
         - likely follow-on seams:
           - facts family consolidation inventory
 4. `phase-29bq legacy lowerer removal`
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - add `loop_break::facts` namespace entry and inventory the remaining facts-family consolidation seam
+      - move the shared `loop_break` helper foundations under `loop_break::facts/` and inventory the remaining consolidation seam
 
 ## Legacy Compatibility Block
 

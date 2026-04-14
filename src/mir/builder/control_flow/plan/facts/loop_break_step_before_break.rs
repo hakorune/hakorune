@@ -1,5 +1,5 @@
 use super::loop_break_helpers::{extract_break_if_parts, extract_loop_var_for_plan_subset};
-use super::loop_break_types::LoopBreakFacts;
+use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     count_control_flow, ControlFlowDetector,
