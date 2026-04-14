@@ -5,8 +5,7 @@ use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::features::nested_loop_depth1;
 use crate::mir::builder::control_flow::plan::features::nested_loop_depth1_preheader::apply_nested_loop_preheader_freshness;
-use crate::mir::builder::control_flow::plan::nested_loop_plan_break_continue::try_compose_loop_cond_break_continue_recipe_bridge;
-use crate::mir::builder::control_flow::plan::nested_loop_plan_continue_with_return::try_compose_loop_cond_continue_with_return_recipe_bridge;
+use crate::mir::builder::control_flow::plan::nested_loop_plan_recipe_fallback::try_compose_nested_loop_recipe_fallback;
 use crate::mir::builder::control_flow::plan::single_planner;
 use crate::mir::builder::control_flow::plan::trace as plan_trace;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
@@ -38,17 +37,7 @@ pub(in crate::mir::builder) fn lower_nested_loop_plan_with_recipe_first_bridge(
 
     let strict_or_dev = joinir_dev::strict_enabled() || crate::config::env::joinir_dev_enabled();
     let planner_required = strict_or_dev && joinir_dev::planner_required_enabled();
-    if let Some(recipe) = try_compose_loop_cond_continue_with_return_recipe_bridge(
-        builder,
-        &outcome,
-        &nested_ctx,
-        "nested_loop_plan_with_recipe_first",
-        planner_required,
-    )? {
-        return Ok(recipe);
-    }
-
-    if let Some(recipe) = try_compose_loop_cond_break_continue_recipe_bridge(
+    if let Some(recipe) = try_compose_nested_loop_recipe_fallback(
         builder,
         &outcome,
         &nested_ctx,
