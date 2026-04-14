@@ -193,6 +193,8 @@ Scope: current lane / next lane / restart order only.
           - linear block recipe arm split
       - landed first `loop_scan_methods_block_v0` seam:
         - nested-loop recipe-first fallback handoff now lives under `loop_scan_methods_block_v0/nested_loop_handoff`
+      - landed second `loop_scan_methods_block_v0` seam:
+        - linear block recipe arm split now lives under `loop_scan_methods_block_v0/segment_linear`
       - prior family closeout:
         - `GenericLoopV1`
           - `facts`

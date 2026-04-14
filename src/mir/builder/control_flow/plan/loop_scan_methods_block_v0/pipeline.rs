@@ -18,7 +18,8 @@ use std::collections::BTreeMap;
 
 use super::facts::LoopScanMethodsBlockV0Facts;
 use super::nested_loop_handoff::lower_loop_scan_methods_block_nested_loop_fallback;
-use super::recipe::{LinearBlockRecipe, ScanSegment};
+use super::recipe::ScanSegment;
+use super::segment_linear::lower_loop_scan_methods_block_linear_segment;
 
 const LOOP_SCAN_METHODS_BLOCK_ERR: &str = "[normalizer] loop_scan_methods_block_v0";
 
@@ -136,40 +137,15 @@ pub(in crate::mir::builder) fn lower_loop_scan_methods_block_v0(
         .expect_exit_allowed("[loop_scan_methods_block_v0]", LOOP_SCAN_METHODS_BLOCK_ERR)?;
     for segment in &facts.recipe.segments {
         match segment {
-            ScanSegment::Linear(linear) => match linear {
-                LinearBlockRecipe::NoExit(recipe) => {
-                    let verified = parts::entry::verify_no_exit_block_with_pre(
-                        &recipe.arena,
-                        &recipe.block,
-                        LOOP_SCAN_METHODS_BLOCK_ERR,
-                        Some(&current_bindings),
-                    )?;
-                    body_plans.extend(parts::entry::lower_no_exit_block_verified(
-                        builder,
-                        &mut current_bindings,
-                        &carrier_step_phis,
-                        Some(&break_phi_dsts),
-                        verified,
-                        LOOP_SCAN_METHODS_BLOCK_ERR,
-                    )?);
-                }
-                LinearBlockRecipe::ExitAllowed(recipe) => {
-                    let verified = parts::entry::verify_exit_allowed_block_with_pre(
-                        &recipe.arena,
-                        &recipe.block,
-                        LOOP_SCAN_METHODS_BLOCK_ERR,
-                        Some(&current_bindings),
-                    )?;
-                    body_plans.extend(parts::entry::lower_exit_allowed_block_verified(
-                        builder,
-                        &mut current_bindings,
-                        &carrier_step_phis,
-                        &break_phi_dsts,
-                        verified,
-                        LOOP_SCAN_METHODS_BLOCK_ERR,
-                    )?);
-                }
-            },
+            ScanSegment::Linear(linear) => body_plans.extend(
+                lower_loop_scan_methods_block_linear_segment(
+                    builder,
+                    &mut current_bindings,
+                    &carrier_step_phis,
+                    &break_phi_dsts,
+                    linear,
+                )?,
+            ),
             ScanSegment::NestedLoop(nested) => {
                 if let Some(plans) = parts::entry::lower_nested_loop_recipe_stmt_only(
                     builder,

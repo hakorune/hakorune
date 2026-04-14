@@ -142,9 +142,9 @@ Related:
 - next one-family inventory (`loop_scan_methods_block_v0`):
   - already separate:
     - nested-loop recipe-first fallback handoff (`lower_nested_loop_plan`)
+    - linear block recipe arm split
   - likely follow-on seams:
     - segment-level nested dispatch
-    - linear block recipe arm split
   - next step:
     - re-inventory the next exact seam under `loop_scan_methods_block_v0`
 

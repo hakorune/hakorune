@@ -8,6 +8,7 @@ mod facts;
 mod nested_loop_handoff;
 mod pipeline;
 mod recipe;
+mod segment_linear;
 
 pub(in crate::mir::builder) use facts::{
     try_extract_loop_scan_methods_block_v0_facts, LoopScanMethodsBlockV0Facts,
