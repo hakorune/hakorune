@@ -169,7 +169,13 @@ Scope: current lane / next lane / restart order only.
         - reject tail now lives under `generic_loop_body/nested_loop_reject_tail`
       - landed third `generic_loop_body::nested_loop_plan` seam:
         - depth1 fastpath handoff now lives under `generic_loop_body/nested_loop_depth1_handoff`
-      - `generic_loop_body::nested_loop_plan` is closeout-ready as a helper family
+      - `generic_loop_body::nested_loop_plan` is closed out as a helper family
+      - next family inventory:
+        - `loop_scan_phi_vars_v0`
+          - nested-loop depth1 fastpath handoff
+          - segment / if-branch lowering orchestration
+      - landed first `loop_scan_phi_vars_v0` seam:
+        - nested-loop fastpath handoff now lives under `loop_scan_phi_vars_v0/nested_loop_handoff`
       - prior family closeout:
         - `GenericLoopV1`
           - `facts`
@@ -204,7 +210,7 @@ Scope: current lane / next lane / restart order only.
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
    - next:
-     - close out `generic_loop_body::nested_loop_plan` and inventory the next helper family
+     - re-inventory the next exact seam under `loop_scan_phi_vars_v0`
 
 ## Legacy Compatibility Block
 

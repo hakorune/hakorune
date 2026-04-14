@@ -8,7 +8,6 @@ use crate::mir::builder::control_flow::plan::facts::no_exit_block::try_build_no_
 use crate::mir::builder::control_flow::plan::facts::stmt_view::try_build_stmt_only_block_recipe;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_carriers;
-use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower_nested_loop_depth1_any;
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::normalizer::{
     helpers::LoopBlocksStandard5, lower_loop_header_cond,
@@ -24,6 +23,7 @@ use crate::mir::MirType;
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::facts::LoopScanPhiVarsV0Facts;
+use super::nested_loop_handoff::try_lower_loop_scan_phi_vars_nested_loop_fastpath;
 use super::recipe::{LoopScanPhiSegment, NestedLoopRecipe};
 
 const LOOP_SCAN_PHI_VARS_ERR: &str = "[normalizer] loop_scan_phi_vars_v0";
@@ -95,7 +95,9 @@ fn lower_nested_loop_plan(
     body: &[ASTNode],
     _ctx: &LoopRouteContext,
 ) -> Result<LoweredRecipe, String> {
-    lower_nested_loop_depth1_any(builder, condition, body, LOOP_SCAN_PHI_VARS_ERR)
+    try_lower_loop_scan_phi_vars_nested_loop_fastpath(builder, condition, body).ok_or_else(|| {
+        format!("{LOOP_SCAN_PHI_VARS_ERR}: nested loop fastpath rejected")
+    })
 }
 
 fn lower_nested_loop_recipe(

@@ -127,7 +127,14 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - close out `generic_loop_body::nested_loop_plan` and inventory the next helper family
+    - close out `generic_loop_body::nested_loop_plan` and inventory `loop_scan_phi_vars_v0`
+- next one-family inventory (`loop_scan_phi_vars_v0`):
+  - already separate:
+    - nested-loop depth1 fastpath handoff
+  - still mixed:
+    - segment / if-branch lowering orchestration
+  - next step:
+    - re-inventory the next exact seam under `loop_scan_phi_vars_v0`
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

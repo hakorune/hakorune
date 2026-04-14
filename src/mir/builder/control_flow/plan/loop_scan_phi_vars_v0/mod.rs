@@ -4,6 +4,7 @@
 //! which contains nested loops with break and conditional nested loops.
 
 pub(in crate::mir::builder) mod facts;
+pub(in crate::mir::builder) mod nested_loop_handoff;
 pub(in crate::mir::builder) mod pipeline;
 pub(in crate::mir::builder) mod recipe;
 
