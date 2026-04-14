@@ -1,6 +1,6 @@
 use crate::ast::{ASTNode, BinaryOperator};
 
-use super::{extract_eq_whitespace, extract_substring_loop_slice};
+use super::body_local_common::{extract_eq_whitespace, extract_substring_loop_slice};
 use crate::mir::builder::control_flow::plan::loop_break::facts::body_local_facts::LoopBodyLocalShape;
 use crate::mir::builder::control_flow::plan::loop_break::facts::body_local_facts_helpers::find_local_init_expr;
 
