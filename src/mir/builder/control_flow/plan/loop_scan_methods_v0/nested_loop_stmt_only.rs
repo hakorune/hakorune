@@ -1,10 +1,8 @@
-use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
+use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
-use super::nested_loop_handoff::lower_loop_scan_methods_nested_loop_fallback;
-use super::nested_loop_stmt_only::try_lower_loop_scan_methods_nested_stmt_only;
 use super::recipe::NestedLoopRecipe;
 
 const LOOP_SCAN_METHODS_ERR: &str = "[normalizer] loop_scan_methods_v0";
@@ -28,33 +26,28 @@ fn apply_loop_final_values_to_bindings(
     }
 }
 
-pub(in crate::mir::builder) fn lower_loop_scan_methods_nested_segment(
+pub(in crate::mir::builder) fn try_lower_loop_scan_methods_nested_stmt_only(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
     break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
     nested: &NestedLoopRecipe,
-    ctx: &LoopRouteContext,
-) -> Result<Vec<LoweredRecipe>, String> {
-    if let Some(plans) = try_lower_loop_scan_methods_nested_stmt_only(
+) -> Result<Option<Vec<LoweredRecipe>>, String> {
+    let Some(plans) = parts::entry::lower_nested_loop_recipe_stmt_only(
         builder,
         current_bindings,
         carrier_step_phis,
         break_phi_dsts,
         nested,
-    )? {
-        return Ok(plans);
-    }
-
-    let plan = lower_loop_scan_methods_nested_loop_fallback(
-        builder,
-        &nested.cond_view.tail_expr,
-        &nested.body.body,
-        ctx,
         LOOP_SCAN_METHODS_ERR,
-    )?;
-    apply_loop_final_values_to_bindings(builder, current_bindings, &plan);
-    Ok(vec![plan])
+    )?
+    else {
+        return Ok(None);
+    };
+    for plan in &plans {
+        apply_loop_final_values_to_bindings(builder, current_bindings, plan);
+    }
+    Ok(Some(plans))
 }
 
 #[cfg(test)]
@@ -92,7 +85,7 @@ mod tests {
     }
 
     #[test]
-    fn loop_scan_methods_nested_segment_rejects_when_stmt_only_and_fallback_miss() {
+    fn loop_scan_methods_nested_stmt_only_returns_none_without_stmt_only_recipe() {
         let mut builder = MirBuilder::new();
         let mut current_bindings = BTreeMap::new();
         let carrier_step_phis = BTreeMap::new();
@@ -110,21 +103,19 @@ mod tests {
                 body: body.clone(),
                 span: span(),
             },
-            body: RecipeBody::new(body.clone()),
+            body: RecipeBody::new(body),
             body_stmt_only: None,
         };
-        let ctx = LoopRouteContext::new(&condition, &body, "test", false, false);
 
-        let err = lower_loop_scan_methods_nested_segment(
+        let result = try_lower_loop_scan_methods_nested_stmt_only(
             &mut builder,
             &mut current_bindings,
             &carrier_step_phis,
             &break_phi_dsts,
             &nested,
-            &ctx,
         )
-        .expect_err("unsupported nested segment should reject");
+        .expect("missing stmt-only payload should not fail");
 
-        assert!(!err.is_empty());
+        assert!(result.is_none());
     }
 }
