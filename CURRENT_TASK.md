@@ -104,11 +104,12 @@ Scope: current lane / next lane / restart order only.
         - `recipe`
         - `cfg skeleton`
         - `phi materializer`
+        - `verifier`
 4. `phase-29bq legacy lowerer removal`
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
    - next:
-     - extract a dedicated route-local verifier seam for `LoopTrueBreakContinue`
+     - extract a dedicated route-local cleanup seam for `LoopTrueBreakContinue`
 
 ## Legacy Compatibility Block
 

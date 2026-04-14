@@ -63,11 +63,11 @@ Related:
     - `recipe`
     - `cfg skeleton`
     - `phi materializer`
+    - `verifier`
   - still mixed in pipeline:
-    - route-local break/fallthrough contract checks
-    - final `phi_closure` shape assumptions
+    - fallthrough continue insertion / closure
   - next cut:
-    - extract a dedicated route-local `verifier` seam for `LoopTrueBreakContinue` only
+    - extract a dedicated route-local `cleanup` seam for `LoopTrueBreakContinue` only
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

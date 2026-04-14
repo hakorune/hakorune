@@ -5,6 +5,9 @@ use crate::mir::builder::control_flow::plan::facts::no_exit_block::try_build_no_
 use crate::mir::builder::control_flow::plan::facts::stmt_view::try_build_stmt_only_block_recipe;
 use crate::mir::builder::control_flow::plan::features::carriers::collect_outer_from_body;
 use crate::mir::builder::control_flow::plan::features::exit_if_map;
+use crate::mir::builder::control_flow::plan::features::loop_true_break_continue_cleanup::{
+    apply_fallthrough_continue_exit, requires_fallthrough_continue,
+};
 use crate::mir::builder::control_flow::plan::features::loop_true_break_continue_phi_materializer::LoopTrueBreakContinuePhiMaterializer;
 use crate::mir::builder::control_flow::plan::features::loop_true_break_continue_verifier::verify_loop_true_break_continue_phi_closure;
 use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower_nested_loop_depth1_any;
@@ -411,16 +414,18 @@ pub(in crate::mir::builder) fn lower_loop_true_break_continue_inner(
 
     // Normal fallthrough should also supply per-carrier phi args.
     // This avoids "single next_val" assumptions when continue edges update carriers.
-    let requires_fallthrough_continue = !matches!(recipe.items.last(), Some(LoopTrueItem::TailReturn(_)))
-        && !matches!(body_plans.last(), Some(CorePlan::Exit(_)));
+    let requires_fallthrough_continue = requires_fallthrough_continue(
+        &body_plans,
+        matches!(recipe.items.last(), Some(LoopTrueItem::TailReturn(_))),
+    );
     if requires_fallthrough_continue {
-        let exit = parts::exit::build_continue_with_phi_args(
+        apply_fallthrough_continue_exit(
             builder,
+            &mut body_plans,
             &carrier_step_phis,
             &current_bindings,
             LOOP_TRUE_ERR,
         )?;
-        body_plans.push(CorePlan::Exit(exit));
     }
 
     let body_after_phi_count = body_after_phis.len();
