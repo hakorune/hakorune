@@ -99,26 +99,27 @@ Scope: current lane / next lane / restart order only.
 3. `phase-29bq loop owner seam cleanup`
    - target owner flow:
      - `facts -> route -> recipe -> join sig -> phi materializer -> verifier -> cleanup`
-   - closeout-ready / closed families:
-     - `LoopCondReturnInBody`
-     - `LoopTrueBreakContinue`
-     - `LoopCondContinueOnly`
-     - `LoopCondBreakContinue`
-     - `LoopCondContinueWithReturn`
-     - `GenericLoopV1`
-     - `nested_loop_depth1`
-     - `nested_loop_plan`
-     - `generic_loop_body::nested_loop_plan`
-     - `loop_scan_phi_vars_v0`
-     - `loop_scan_methods_block_v0`
-    - current handoff snapshot:
-      - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
-      - current helper-family inventory is `loop_scan_methods_v0`
-      - likely first seam:
-        - helper-family closeout check
-      - likely follow-on seams:
-        - sibling family parity sweep
-        - block_v0 / scan_v0 tail alignment
+    - closeout-ready / closed families:
+      - `LoopCondReturnInBody`
+      - `LoopTrueBreakContinue`
+      - `LoopCondContinueOnly`
+      - `LoopCondBreakContinue`
+      - `LoopCondContinueWithReturn`
+      - `GenericLoopV1`
+      - `nested_loop_depth1`
+      - `nested_loop_plan`
+      - `generic_loop_body::nested_loop_plan`
+      - `loop_scan_phi_vars_v0`
+      - `loop_scan_methods_block_v0`
+      - `loop_scan_methods_v0`
+     - current handoff snapshot:
+       - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
+       - current helper-family inventory is `sibling family parity sweep`
+       - likely first seam:
+         - sibling family parity sweep
+       - likely follow-on seams:
+         - block_v0 / scan_v0 tail alignment
+         - helper-family closeout docs sync
 4. `phase-29bq legacy lowerer removal`
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
