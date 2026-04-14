@@ -2,7 +2,7 @@
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn match_break_if_less_than_zero(
+pub(in crate::mir::builder::control_flow::plan) fn match_break_if_less_than_zero(
     stmt: &ASTNode,
 ) -> Option<String> {
     let (cond, update_opt) =
@@ -34,7 +34,7 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn match_break_if_less_th
     Some(name.clone())
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn match_acc_update_mul10_plus_d(
+pub(in crate::mir::builder::control_flow::plan) fn match_acc_update_mul10_plus_d(
     stmt: &ASTNode,
     d_var: &str,
 ) -> Option<String> {

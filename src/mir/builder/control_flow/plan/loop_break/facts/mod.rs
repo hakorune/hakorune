@@ -7,13 +7,13 @@
 //! - `loop_break/facts/types.rs`
 //! - `loop_break/facts/helpers_common.rs`
 //! - `loop_break/facts/helpers_break_if.rs`
+//! - `loop_break/facts/parse_integer.rs`
 //! - `loop_break/facts/read_digits.rs`
 //! - `loop_break/facts/realworld.rs`
 //! - `loop_break/facts/step_before_break.rs`
 //! - `loop_break/facts/trim_whitespace*.rs`
 //! - `plan/facts/loop_break_core.rs`
 //! - `plan/facts/loop_break_body_local_facts.rs`
-//! - `plan/facts/loop_break_parse_integer.rs`
 //! - `plan/facts/loop_break_helpers*.rs`
 
 use crate::ast::ASTNode;
@@ -22,6 +22,7 @@ use crate::mir::builder::control_flow::plan::planner::Freeze;
 mod types;
 pub(in crate::mir::builder::control_flow::plan) mod helpers_break_if;
 pub(in crate::mir::builder::control_flow::plan) mod helpers_common;
+pub(in crate::mir::builder::control_flow::plan) mod parse_integer;
 pub(in crate::mir::builder::control_flow::plan) mod read_digits;
 pub(in crate::mir::builder::control_flow::plan) mod realworld;
 pub(in crate::mir::builder::control_flow::plan) mod step_before_break;

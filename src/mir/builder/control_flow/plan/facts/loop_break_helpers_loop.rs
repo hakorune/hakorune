@@ -2,7 +2,7 @@
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn extract_loop_var_for_len_condition(
+pub(in crate::mir::builder::control_flow::plan) fn extract_loop_var_for_len_condition(
     condition: &ASTNode,
 ) -> Option<String> {
     let ASTNode::BinaryOp {
@@ -58,7 +58,7 @@ pub(in crate::mir::builder::control_flow::plan) fn extract_loop_var_for_plan_sub
     Some(name.clone())
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn extract_loop_increment_at_end(
+pub(in crate::mir::builder::control_flow::plan) fn extract_loop_increment_at_end(
     body: &[ASTNode],
     loop_var: &str,
 ) -> Option<ASTNode> {

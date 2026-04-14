@@ -11,6 +11,7 @@
 - Facts namespace entry: `loop_break::facts`
 - Foundation type source: `loop_break::facts::types::LoopBreakFacts`
 - Foundation helpers: `loop_break::facts::helpers_{common,break_if}`
+- Parse-integer subset: `loop_break::facts::parse_integer`
 - Read-digits subset: `loop_break::facts::read_digits`
 - Realworld subset: `loop_break::facts::realworld`
 - Step-first subset: `loop_break::facts::step_before_break`

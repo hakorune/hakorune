@@ -2,7 +2,7 @@
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn match_local_substring_char(
+pub(in crate::mir::builder::control_flow::plan) fn match_local_substring_char(
     stmt: &ASTNode,
     loop_var: &str,
 ) -> Option<(String, String, ASTNode)> {
@@ -69,7 +69,7 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn match_local_substring_
     Some((ch_var, haystack_var.clone(), expr.as_ref().clone()))
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn match_local_this_index_of(
+pub(in crate::mir::builder::control_flow::plan) fn match_local_this_index_of(
     stmt: &ASTNode,
     ch_var: &str,
 ) -> Option<(String, String)> {

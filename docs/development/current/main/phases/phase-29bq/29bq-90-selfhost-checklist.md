@@ -159,12 +159,12 @@ Related:
     - nested fallback route-local consolidation
     - helper-family closeout check
   - likely first seam:
-    - `loop_break_parse_integer` subset move
+    - `loop_break_helpers_loop` foundation move
   - likely follow-on seams:
     - `loop_break_body_local_subset` move
-    - `loop_break_core` dispatcher move
+    - `loop_break_helpers_condition` foundation move
   - next step:
-    - record the `read_digits` subset move and move `loop_break_parse_integer` under `loop_break::facts/`
+    - record the `parse_integer` subset move and move `loop_break_helpers_loop` under `loop_break::facts/`
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
