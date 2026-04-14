@@ -10,6 +10,7 @@ mod segment_nested_loop;
 mod nested_loop_stmt_only;
 mod pipeline;
 mod recipe;
+mod route_finalize;
 mod segment_linear;
 
 pub(in crate::mir::builder) use facts::{
