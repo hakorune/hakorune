@@ -212,7 +212,7 @@ Related:
     - inventory `body_local_policy`
 - next one-family inventory (`body_local_policy`):
   - already separate:
-    - `none confirmed`
+    - `body_local_policy_helpers`
   - still mixed:
     - `body_local_policy`
   - likely first seam:
