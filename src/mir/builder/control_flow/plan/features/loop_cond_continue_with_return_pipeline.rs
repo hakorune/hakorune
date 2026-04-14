@@ -17,6 +17,7 @@ use crate::mir::builder::control_flow::plan::features::coreloop_frame::{
 };
 use crate::mir::builder::control_flow::plan::features::if_branch_lowering;
 use crate::mir::builder::control_flow::plan::features::loop_cond_continue_with_return_phi_materializer::LoopCondContinueWithReturnPhiMaterializer;
+use crate::mir::builder::control_flow::plan::features::loop_cond_continue_with_return_verifier::verify_loop_cond_continue_with_return_phi_closure;
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_facts::LoopCondContinueWithReturnFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_recipe::ContinueWithReturnItem;
@@ -161,6 +162,14 @@ fn lower_loop_cond_continue_with_return_stepbb(
 
     // Generate PHIs using template (StepBb mode: step + header PHIs)
     let phi_closure = phi_materializer.close(&frame)?;
+    verify_loop_cond_continue_with_return_phi_closure(
+        &phi_closure,
+        &body_plans,
+        continue_target,
+        step_bb,
+        frame.carrier_header_phis.len(),
+        LOOP_COND_CONTINUE_WITH_RETURN_ERR,
+    )?;
 
     // Build block_effects: merge header_result.block_effects + static entries
     let mut block_effects: Vec<(crate::mir::BasicBlockId, Vec<CoreEffectPlan>)> =

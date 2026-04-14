@@ -79,12 +79,12 @@ Related:
     - `route`
     - `recipe`
     - `cfg skeleton`
+    - `phi materializer`
   - still mixed in pipeline:
-    - route-local header/step PHI closure
-    - final_values assembly
-    - initial PHI rebinding into current bindings
+    - route-local PHI/body contract checks
+    - final continue closure
   - next cut:
-    - extract a dedicated route-local `phi materializer` seam for `LoopCondContinueWithReturn` only
+    - extract a dedicated route-local `verifier` seam for `LoopCondContinueWithReturn` only
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
