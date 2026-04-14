@@ -3,7 +3,7 @@ use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
-use super::nested_loop_handoff::lower_loop_scan_methods_nested_fallback_segment;
+use super::nested_fallback_segment::lower_loop_scan_methods_nested_fallback_segment;
 use super::nested_loop_stmt_only::try_lower_loop_scan_methods_nested_stmt_only;
 use super::recipe::NestedLoopRecipe;
 
