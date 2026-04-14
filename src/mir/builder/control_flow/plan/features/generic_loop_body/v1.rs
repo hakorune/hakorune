@@ -23,7 +23,7 @@ use super::helpers::{
     apply_loop_final_values_to_bindings, lower_effect_only_stmt, lower_nested_loop_plan,
     matches_loop_increment,
 };
-use super::GENERIC_LOOP_ERR;
+use super::{body_plans_exit_on_all_paths, GENERIC_LOOP_ERR};
 
 pub(in crate::mir::builder) fn lower_generic_loop_v1_body(
     builder: &mut MirBuilder,
@@ -740,35 +740,6 @@ fn lower_body_block_v1(
         }
     }
     Ok(body_plans)
-}
-
-fn body_plans_exit_on_all_paths(plans: &[LoweredRecipe]) -> bool {
-    plans.last().is_some_and(plan_exits_on_all_paths)
-}
-
-fn plan_exits_on_all_paths(plan: &LoweredRecipe) -> bool {
-    match plan {
-        CorePlan::Exit(_) => true,
-        CorePlan::If(if_plan) => {
-            body_plans_exit_on_all_paths(&if_plan.then_plans)
-                && if_plan
-                    .else_plans
-                    .as_ref()
-                    .is_some_and(|plans| body_plans_exit_on_all_paths(plans))
-        }
-        CorePlan::BranchN(branch) => {
-            branch
-                .arms
-                .iter()
-                .all(|arm| body_plans_exit_on_all_paths(&arm.plans))
-                && branch
-                    .else_plans
-                    .as_ref()
-                    .is_some_and(|plans| body_plans_exit_on_all_paths(plans))
-        }
-        CorePlan::Seq(inner) => body_plans_exit_on_all_paths(inner),
-        CorePlan::Effect(_) | CorePlan::Loop(_) => false,
-    }
 }
 
 fn lower_exit_stmt_v1(

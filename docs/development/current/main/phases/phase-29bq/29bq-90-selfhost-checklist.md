@@ -91,11 +91,11 @@ Related:
     - `recipe`
     - `cfg skeleton`
     - body lowering lives under `generic_loop_body/`
+    - body terminality / continue-edge detection
   - still mixed in pipeline:
     - carrier prepare/finalize orchestration
-    - continue-edge detection
   - next step:
-    - inventory `GenericLoopV1` and choose the first owner seam
+    - extract the carrier prepare/finalize orchestration seam
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
