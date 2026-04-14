@@ -61,11 +61,11 @@ Related:
     - `facts`
     - `route`
     - `recipe`
+    - `cleanup`
   - still mixed in pipeline:
-    - final fallthrough continue insertion
     - route-local final_values / PHI closure assembly
   - next cut:
-    - extract a dedicated route-local `cleanup` seam for `LoopCondContinueOnly` only
+    - extract a dedicated route-local `phi materializer` seam for `LoopCondContinueOnly` only
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

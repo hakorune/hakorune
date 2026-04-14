@@ -103,11 +103,12 @@ Scope: current lane / next lane / restart order only.
         - `facts`
         - `route`
         - `recipe`
+        - `cleanup`
 4. `phase-29bq legacy lowerer removal`
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
    - next:
-     - extract a dedicated route-local cleanup seam for `LoopCondContinueOnly`
+     - extract a dedicated route-local phi/materialization seam for `LoopCondContinueOnly`
 
 ## Legacy Compatibility Block
 

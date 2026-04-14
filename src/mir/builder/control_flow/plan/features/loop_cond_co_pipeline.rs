@@ -6,8 +6,9 @@ use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::body_view::BodyView;
 use crate::mir::builder::control_flow::plan::features::carriers;
 use crate::mir::builder::control_flow::plan::features::loop_cond_co_cleanup::apply_fallthrough_continue_exit;
-use crate::mir::builder::control_flow::plan::features::coreloop_frame::{
-    build_coreloop_frame, build_header_step_phis,
+use crate::mir::builder::control_flow::plan::features::coreloop_frame::build_coreloop_frame;
+use crate::mir::builder::control_flow::plan::features::loop_cond_co_phi_materializer::{
+    materialize_loop_cond_continue_only_phi_closure,
 };
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_only_facts::LoopCondContinueOnlyFacts;
@@ -131,15 +132,7 @@ fn lower_loop_cond_continue_only_stepbb(
         LOOP_COND_CONTINUE_ONLY_ERR,
     )?;
 
-    // Generate PHIs using template (StepBb mode: step + header PHIs)
-    let phis = build_header_step_phis(&frame, "loop_cond_continue_only")?;
-
-    // Build final_values from header PHIs
-    let final_values: Vec<(String, crate::mir::ValueId)> = frame
-        .carrier_header_phis
-        .iter()
-        .map(|(var, phi_dst)| (var.clone(), *phi_dst))
-        .collect();
+    let phi_closure = materialize_loop_cond_continue_only_phi_closure(&frame)?;
 
     // Build block_effects: merge header_result.block_effects + static entries
     let mut block_effects: Vec<(crate::mir::BasicBlockId, Vec<CoreEffectPlan>)> =
@@ -165,9 +158,9 @@ fn lower_loop_cond_continue_only_stepbb(
         cond_loop: header_result.first_cond,
         cond_match: header_result.first_cond,
         block_effects,
-        phis,
+        phis: phi_closure.phis().to_vec(),
         frag,
-        final_values,
+        final_values: phi_closure.final_values().to_vec(),
         step_mode,
         has_explicit_step,
     }))

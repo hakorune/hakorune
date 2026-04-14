@@ -49,6 +49,7 @@ pub(in crate::mir::builder) mod loop_cond_co_continue_if;
 pub(in crate::mir::builder) mod loop_cond_co_cleanup;
 pub(in crate::mir::builder) mod loop_cond_co_group_if;
 pub(in crate::mir::builder) mod loop_cond_co_helpers;
+pub(in crate::mir::builder) mod loop_cond_co_phi_materializer;
 pub(in crate::mir::builder) mod loop_cond_co_pipeline;
 pub(in crate::mir::builder) mod loop_cond_co_stmt;
 
