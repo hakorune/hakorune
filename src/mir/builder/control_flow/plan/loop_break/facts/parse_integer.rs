@@ -2,7 +2,7 @@ use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     count_control_flow, ControlFlowDetector,
 };
-use crate::mir::builder::control_flow::plan::facts::loop_break_helpers_condition::{
+use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_condition::{
     match_acc_update_mul10_plus_d, match_break_if_less_than_zero,
 };
 use crate::mir::builder::control_flow::plan::facts::loop_break_helpers_local::{

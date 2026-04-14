@@ -7,6 +7,7 @@
 //! - `loop_break/facts/types.rs`
 //! - `loop_break/facts/helpers_common.rs`
 //! - `loop_break/facts/helpers_break_if.rs`
+//! - `loop_break/facts/helpers_condition.rs`
 //! - `loop_break/facts/helpers_loop.rs`
 //! - `loop_break/facts/body_local_subset.rs`
 //! - `loop_break/facts/parse_integer.rs`
@@ -24,6 +25,7 @@ use crate::mir::builder::control_flow::plan::planner::Freeze;
 mod types;
 pub(in crate::mir::builder::control_flow::plan) mod body_local_subset;
 pub(in crate::mir::builder::control_flow::plan) mod helpers_break_if;
+pub(in crate::mir::builder::control_flow::plan) mod helpers_condition;
 pub(in crate::mir::builder::control_flow::plan) mod helpers_common;
 pub(in crate::mir::builder::control_flow::plan) mod helpers_loop;
 pub(in crate::mir::builder::control_flow::plan) mod parse_integer;

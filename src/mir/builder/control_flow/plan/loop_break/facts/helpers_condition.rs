@@ -87,7 +87,7 @@ pub(in crate::mir::builder::control_flow::plan) fn match_acc_update_mul10_plus_d
     Some(carrier_var.clone())
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn matches_ge_zero(
+pub(in crate::mir::builder::control_flow::plan) fn matches_ge_zero(
     node: &ASTNode,
     var_name: &str,
 ) -> bool {
@@ -110,7 +110,7 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn matches_ge_zero(
         )
 }
 
-pub(in crate::mir::builder::control_flow::plan::facts) fn matches_eq_empty_string(
+pub(in crate::mir::builder::control_flow::plan) fn matches_eq_empty_string(
     node: &ASTNode,
     var_name: &str,
 ) -> bool {

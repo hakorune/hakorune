@@ -159,12 +159,12 @@ Related:
     - nested fallback route-local consolidation
     - helper-family closeout check
   - likely first seam:
-    - `loop_break_helpers_condition` foundation move
+    - `loop_break_helpers_local` foundation move
   - likely follow-on seams:
-    - `loop_break_core` dispatcher move
-    - body-local bridge review
+    - `loop_break_helpers_realworld` foundation move
+    - `loop_break_body_local_facts` move before dispatcher closeout
   - next step:
-    - record the `body_local_subset` move and move `loop_break_helpers_condition` under `loop_break::facts/`
+    - record the `helpers_condition` move and move `loop_break_helpers_local` under `loop_break::facts/`
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
