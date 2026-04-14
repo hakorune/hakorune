@@ -114,10 +114,11 @@ Related:
     - `loop_cond_continue_with_return` bridge
     - `loop_cond_break_continue` bridge
     - shared recipe fallback orchestration
+    - recipe fallback selection policy
   - still mixed:
     - none confirmed
   - next step:
-    - close out `nested_loop_plan` and inventory the next post-nested fallback family
+    - close out `nested_loop_plan` and inventory `generic_loop_body::nested_loop_plan`
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

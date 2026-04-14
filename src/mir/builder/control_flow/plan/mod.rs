@@ -124,6 +124,7 @@ pub(in crate::mir::builder) mod nested_loop_plan_break_continue;
 pub(in crate::mir::builder) mod nested_loop_plan_bridge;
 pub(in crate::mir::builder) mod nested_loop_plan_continue_with_return;
 pub(in crate::mir::builder) mod nested_loop_plan_recipe_fallback;
+pub(in crate::mir::builder) mod nested_loop_plan_recipe_fallback_policy;
 // Phase 29bq+: read_digits break condition box moved to plan side
 pub(in crate::mir::builder) mod read_digits_break_condition_box;
 // Phase W6: shared scan loop segment vocabulary (SSOT)

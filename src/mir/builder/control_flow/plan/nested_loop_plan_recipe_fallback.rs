@@ -3,6 +3,9 @@
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::nested_loop_plan_break_continue::try_compose_loop_cond_break_continue_recipe_bridge;
 use crate::mir::builder::control_flow::plan::nested_loop_plan_continue_with_return::try_compose_loop_cond_continue_with_return_recipe_bridge;
+use crate::mir::builder::control_flow::plan::nested_loop_plan_recipe_fallback_policy::{
+    select_nested_loop_recipe_fallback, NestedLoopRecipeFallbackKind,
+};
 use crate::mir::builder::control_flow::plan::planner::PlanBuildOutcome;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
@@ -14,23 +17,27 @@ pub(in crate::mir::builder) fn try_compose_nested_loop_recipe_fallback(
     stage: &str,
     planner_required: bool,
 ) -> Result<Option<LoweredRecipe>, String> {
-    if let Some(recipe) = try_compose_loop_cond_continue_with_return_recipe_bridge(
-        builder,
-        outcome,
-        nested_ctx,
-        stage,
-        planner_required,
-    )? {
-        return Ok(Some(recipe));
+    match select_nested_loop_recipe_fallback(outcome, planner_required) {
+        Some(NestedLoopRecipeFallbackKind::ContinueWithReturn) => {
+            try_compose_loop_cond_continue_with_return_recipe_bridge(
+                builder,
+                outcome,
+                nested_ctx,
+                stage,
+                planner_required,
+            )
+        }
+        Some(NestedLoopRecipeFallbackKind::BreakContinue) => {
+            try_compose_loop_cond_break_continue_recipe_bridge(
+                builder,
+                outcome,
+                nested_ctx,
+                stage,
+                planner_required,
+            )
+        }
+        None => Ok(None),
     }
-
-    try_compose_loop_cond_break_continue_recipe_bridge(
-        builder,
-        outcome,
-        nested_ctx,
-        stage,
-        planner_required,
-    )
 }
 
 #[cfg(test)]
