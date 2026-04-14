@@ -138,6 +138,8 @@ Scope: current lane / next lane / restart order only.
           - `body_local_facts_helpers` is landed
           - `body_local_facts` is landed
           - current helper-family inventory is `loop_break/facts/body_local_facts_shape_matchers`
+          - `body_local_trim_matcher` is landed
+          - `body_local_digit_matcher` is landed
           - likely first seam:
             - `body_local_facts_shape_matchers`
         - likely follow-on seams:

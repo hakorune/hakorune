@@ -233,6 +233,19 @@ Related:
   - next step:
     - continue `body_local_facts_shape_matchers` from the trim/digit extractor split
 
+- next one-family inventory (`loop_break/facts/body_local_facts_shape_matchers`):
+  - already separate:
+    - `body_local_trim_matcher`
+    - `body_local_digit_matcher`
+  - still mixed:
+    - `body_local_facts_shape_matchers`
+  - likely first seam:
+    - `body_local_facts_shape_matchers`
+  - likely follow-on seams:
+    - `body_local_policy`
+  - next step:
+    - continue `body_local_facts_shape_matchers` from the shared helper split
+
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
 次の3コマンドは節目チェック（push前/週次終端/回帰疑い時）として実行する。
