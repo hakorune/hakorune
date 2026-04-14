@@ -3,8 +3,9 @@
 //!
 //! These helpers are used by multiple subset detectors.
 //!
-//! Note: All functions use `pub(in crate::mir::builder::control_flow::plan::facts)`
-//! visibility to allow re-export via `pub(in crate::mir::builder::control_flow::plan::facts) use helpers::*;` in mod.rs.
+//! Note: most helpers stay `pub(in crate::mir::builder::control_flow::plan::facts)`;
+//! loop-owner subsets moved under `loop_break::facts` may require selected helpers to widen to
+//! `pub(in crate::mir::builder::control_flow::plan)`.
 
 pub(in crate::mir::builder::control_flow::plan::facts) use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_common::{
     add, has_continue_statement, has_return_statement, index_of_call, index_of_call_expr,

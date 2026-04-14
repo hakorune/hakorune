@@ -30,7 +30,7 @@ pub(in crate::mir::builder::control_flow::plan::facts) fn extract_loop_var_for_l
 }
 
 /// Extract loop variable from `i < N` condition where N is an integer literal.
-pub(in crate::mir::builder::control_flow::plan::facts) fn extract_loop_var_for_plan_subset(
+pub(in crate::mir::builder::control_flow::plan) fn extract_loop_var_for_plan_subset(
     condition: &ASTNode,
 ) -> Option<String> {
     let ASTNode::BinaryOp {

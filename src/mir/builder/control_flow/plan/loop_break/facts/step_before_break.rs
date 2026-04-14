@@ -1,9 +1,10 @@
-use super::loop_break_helpers::{extract_break_if_parts, extract_loop_var_for_plan_subset};
-use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
+use crate::mir::builder::control_flow::plan::facts::loop_break_helpers_loop::extract_loop_var_for_plan_subset;
+use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     count_control_flow, ControlFlowDetector,
 };
+use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_break_if::extract_break_if_parts;
 use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 
 /// Phase 29bq: loop_break step-before-break subset
@@ -21,7 +22,7 @@ use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 /// Rationale:
 /// - The step happens before the break check; moving it to a separate step_bb changes semantics.
 /// - We keep this subset dev-only to avoid changing release routing/semantics.
-pub(super) fn try_extract_loop_break_step_before_break_subset(
+pub(in crate::mir::builder::control_flow::plan) fn try_extract_loop_break_step_before_break_subset(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Option<LoopBreakFacts> {

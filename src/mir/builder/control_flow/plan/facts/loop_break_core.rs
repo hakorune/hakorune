@@ -20,7 +20,7 @@ use super::loop_break_body_local_subset::try_extract_loop_break_body_local_subse
 use super::loop_break_parse_integer::try_extract_loop_break_parse_integer_subset;
 use super::loop_break_read_digits::try_extract_loop_break_read_digits_subset;
 use super::loop_break_realworld::try_extract_loop_break_realworld_subset;
-use super::loop_break_step_before_break::try_extract_loop_break_step_before_break_subset;
+use crate::mir::builder::control_flow::plan::loop_break::facts::step_before_break::try_extract_loop_break_step_before_break_subset;
 use crate::mir::builder::control_flow::plan::loop_break::facts::trim_whitespace::try_extract_loop_break_trim_whitespace_subset;
 
 /// Main entry point for loop_break facts extraction.
