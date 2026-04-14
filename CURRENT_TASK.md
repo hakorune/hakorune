@@ -129,23 +129,25 @@ Scope: current lane / next lane / restart order only.
           - `emit_joinir_step_box` is landed
           - `merge_step_box` is landed
           - `loop_break_steps` closeout is landed
-          - current helper-family inventory is `loop_break::api`
+          - current helper-family inventory is `loop_break/facts/body_local_facts`
           - `promote_decision` is landed
           - `promote_prepare_helpers` is landed
           - `promote_finalize_helpers` is landed
           - `promote_runner` is landed
           - `loop_break::api` closeout is landed
+          - `body_local_policy_helpers` is landed
+          - `body_local_facts_helpers` is landed
           - likely first seam:
-            - `body_local_policy`
+            - `body_local_facts`
         - likely follow-on seams:
           - `loop_break/facts/body_local_facts`
         - next:
-          - continue `loop_break` from `body_local_policy`
+          - continue `loop_break` from `body_local_facts`
 4. `phase-29bq legacy lowerer removal`
     - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - continue `loop_break` from `body_local_policy`, then re-inventory the next owner-local family under `loop_break`
+      - continue `loop_break` from `body_local_facts`, then re-inventory the next owner-local family under `loop_break`
 
 ## Legacy Compatibility Block
 

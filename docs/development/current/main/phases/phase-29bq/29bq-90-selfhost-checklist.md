@@ -220,7 +220,17 @@ Related:
   - likely follow-on seams:
     - `loop_break/facts/body_local_facts`
   - next step:
-    - continue `body_local_policy` from the promotion/readonly/derived routing split
+    - continue `loop_break/facts/body_local_facts` from the helper split
+
+- next one-family inventory (`loop_break/facts/body_local_facts`):
+  - already separate:
+    - `body_local_facts_helpers`
+  - still mixed:
+    - `body_local_facts`
+  - likely first seam:
+    - `body_local_facts`
+  - next step:
+    - continue `body_local_facts` from the trim/digit extractor split
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
