@@ -159,12 +159,11 @@ Related:
     - nested segment dispatch
     - nested fallback segment wrapper
   - likely first seam:
-    - nested segment dispatch
-  - likely follow-on seams:
     - nested fallback segment wrapper
+  - likely follow-on seams:
     - helper-family closeout check after wrapper fold
   - next step:
-    - record the nested loop fallback bridge wrapper and start nested segment dispatch
+    - record the nested segment dispatch and start the nested fallback segment wrapper
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
