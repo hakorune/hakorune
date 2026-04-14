@@ -116,8 +116,10 @@ Scope: current lane / next lane / restart order only.
       - next family is `GenericLoopV1`
       - landed first GenericLoopV1 seam:
         - route-local terminality / continue-edge detection now lives under `generic_loop_body/`
+      - landed GenericLoopV1 carrier seam:
+        - carrier prepare/body/finalize orchestration now lives under `generic_loop_body/`
       - next mixed owner there:
-        - carrier prepare/finalize still straddles pipeline and body modules
+        - condition/step handoff still lives in `generic_loop_pipeline`
       - landed families so far:
         - `LoopCondReturnInBody`
         - `LoopTrueBreakContinue`
@@ -144,7 +146,7 @@ Scope: current lane / next lane / restart order only.
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
    - next:
-     - extract `GenericLoopV1` carrier prepare/finalize orchestration seam
+     - re-inventory `GenericLoopV1` condition/step handoff seam
 
 ## Legacy Compatibility Block
 

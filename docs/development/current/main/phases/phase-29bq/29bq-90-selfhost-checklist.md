@@ -93,9 +93,11 @@ Related:
     - body lowering lives under `generic_loop_body/`
     - body terminality / continue-edge detection
   - still mixed in pipeline:
-    - carrier prepare/finalize orchestration
+    - condition/step handoff around the carrier-owned post-body map
+  - landed:
+    - route-local carrier prepare/body/finalize orchestration
   - next step:
-    - extract the carrier prepare/finalize orchestration seam
+    - re-inventory the condition/step handoff seam
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

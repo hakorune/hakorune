@@ -60,28 +60,14 @@ pub(in crate::mir::builder) fn apply_generic_loop_v1_pipeline(
         .varmap("generic_loop_v1_pre", &builder.variable_ctx.variable_map);
     let pre_body_map = builder.variable_ctx.variable_map.clone();
 
-    let carrier_state = generic_loop_body::prepare_generic_loop_v1_carriers(
+    let mut carrier_orchestration = generic_loop_body::orchestrate_generic_loop_v1_carriers(
         builder,
         facts,
         skeleton.loop_var_current,
-    );
-    crate::mir::builder::control_flow::joinir::trace::trace()
-        .varmap("generic_loop_v1_phi_bindings", &carrier_state.phi_bindings);
-    let body_plans = generic_loop_body::lower_generic_loop_v1_body(
-        builder,
-        facts,
-        &carrier_state.phi_bindings,
-        &carrier_state.carrier_step_phis,
         ctx,
     )?;
-    crate::mir::builder::control_flow::joinir::trace::trace().varmap(
-        "generic_loop_v1_post_body",
-        &builder.variable_ctx.variable_map,
-    );
-    let body_has_continue_edge = generic_loop_body::plans_require_continue_edge(&body_plans);
-    skeleton.plan.body = body_plans;
+    skeleton.plan.body = carrier_orchestration.take_body_plans();
 
-    let post_body_map = builder.variable_ctx.variable_map.clone();
     builder.variable_ctx.variable_map = pre_body_map;
     generic_loop_step::apply_generic_loop_condition(
         builder,
@@ -90,20 +76,19 @@ pub(in crate::mir::builder) fn apply_generic_loop_v1_pipeline(
         &facts.loop_var,
         GENERIC_LOOP_ERR,
     )?;
-    builder.variable_ctx.variable_map = post_body_map.clone();
+    // Restore post-body bindings before the optional step lowering.
+    builder.variable_ctx.variable_map = carrier_orchestration.post_body_map().clone();
     // Step evaluation must read a value that is already materialized on the
     // body->step path. Using the provisional step-in PHI directly can become
     // non-dominating depending on block layout, which may collapse to const
     // fallback (e.g. i=i+1 turning into 0+1).
-    let loop_var_step_src = post_body_map
-        .get(&facts.loop_var)
-        .copied()
-        .unwrap_or(skeleton.loop_var_current);
+    let loop_var_step_src =
+        carrier_orchestration.loop_var_step_src(&facts.loop_var, skeleton.loop_var_current);
     builder
         .variable_ctx
         .variable_map
         .insert(facts.loop_var.clone(), loop_var_step_src);
-    if body_has_continue_edge {
+    if carrier_orchestration.body_has_continue_edge() {
         generic_loop_step::apply_generic_loop_step(
             builder,
             skeleton,
@@ -117,15 +102,12 @@ pub(in crate::mir::builder) fn apply_generic_loop_v1_pipeline(
         );
     }
 
-    generic_loop_body::finalize_generic_loop_v1_carriers(
+    carrier_orchestration.finalize(
         builder,
         &mut skeleton.plan,
-        carrier_state,
         &facts.loop_var,
         skeleton.loop_var_init,
         skeleton.loop_var_current,
-        &post_body_map,
-        body_has_continue_edge,
     );
 
     Ok(())

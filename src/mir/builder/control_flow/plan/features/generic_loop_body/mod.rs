@@ -1,14 +1,13 @@
 //! GenericLoop body lowering helpers (apply-only).
 
+mod carrier_orchestration;
 mod carriers;
 mod helpers;
 mod terminality;
 mod v0;
 mod v1;
 
-pub(in crate::mir::builder) use carriers::{
-    finalize_generic_loop_v1_carriers, prepare_generic_loop_v1_carriers,
-};
+pub(in crate::mir::builder) use carrier_orchestration::orchestrate_generic_loop_v1_carriers;
 pub(in crate::mir::builder) use terminality::{
     body_plans_exit_on_all_paths, plans_require_continue_edge,
 };
