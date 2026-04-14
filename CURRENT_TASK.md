@@ -117,16 +117,16 @@ Scope: current lane / next lane / restart order only.
       - `loop_collect_using_entries_v0`
      - current handoff snapshot:
         - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
-        - current helper-family inventory is `next sibling-family inventory refresh`
+        - current helper-family inventory is `loop_cond_shared + loop_cond_unified_helpers`
         - likely first seam:
-          - remaining loop-owner family scout
+          - helper-family closure snapshot
         - likely follow-on seams:
-          - exact family handoff sync
+          - `loop_true_break_continue` inventory refresh
 4. `phase-29bq legacy lowerer removal`
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
-   - next:
-     - inventory `loop_scan_methods_v0` and cut the first nested handoff seam
+    - next:
+      - inventory `loop_cond_shared + loop_cond_unified_helpers` and refresh the next `loop_true_break_continue` seam
 
 ## Legacy Compatibility Block
 
