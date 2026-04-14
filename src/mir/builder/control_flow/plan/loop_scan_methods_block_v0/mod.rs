@@ -5,6 +5,7 @@
 //! `loop_scan_methods_v0` does not segmentize.
 
 mod facts;
+mod nested_loop_handoff;
 mod pipeline;
 mod recipe;
 

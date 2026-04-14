@@ -1,11 +1,9 @@
-use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_carriers;
 use crate::mir::builder::control_flow::plan::features::step_mode;
-use crate::mir::builder::control_flow::plan::nested_loop_plan;
 use crate::mir::builder::control_flow::plan::normalizer::{
     helpers::LoopBlocksStandard5, lower_loop_header_cond,
 };
@@ -19,6 +17,7 @@ use crate::mir::MirType;
 use std::collections::BTreeMap;
 
 use super::facts::LoopScanMethodsBlockV0Facts;
+use super::nested_loop_handoff::lower_loop_scan_methods_block_nested_loop_fallback;
 use super::recipe::{LinearBlockRecipe, ScanSegment};
 
 const LOOP_SCAN_METHODS_BLOCK_ERR: &str = "[normalizer] loop_scan_methods_block_v0";
@@ -40,23 +39,6 @@ fn apply_loop_final_values_to_bindings(
             current_bindings.insert(name.clone(), *value_id);
         }
     }
-}
-
-fn lower_nested_loop_plan(
-    builder: &mut MirBuilder,
-    condition: &ASTNode,
-    body: &[ASTNode],
-    ctx: &LoopRouteContext,
-    error_prefix: &str,
-) -> Result<LoweredRecipe, String> {
-    nested_loop_plan::lower_nested_loop_plan_with_recipe_first(
-        builder,
-        condition,
-        body,
-        ctx,
-        error_prefix,
-        "loop_scan_methods_block_v0",
-    )
 }
 
 pub(in crate::mir::builder) fn lower_loop_scan_methods_block_v0(
@@ -202,7 +184,7 @@ pub(in crate::mir::builder) fn lower_loop_scan_methods_block_v0(
                     }
                     body_plans.extend(plans);
                 } else {
-                    let plan = lower_nested_loop_plan(
+                    let plan = lower_loop_scan_methods_block_nested_loop_fallback(
                         builder,
                         &nested.cond_view.tail_expr,
                         &nested.body.body,

@@ -140,13 +140,13 @@ Related:
   - next step:
     - close out `loop_scan_phi_vars_v0` and inventory `loop_scan_methods_block_v0`
 - next one-family inventory (`loop_scan_methods_block_v0`):
-  - likely smallest first seam:
+  - already separate:
     - nested-loop recipe-first fallback handoff (`lower_nested_loop_plan`)
   - likely follow-on seams:
     - segment-level nested dispatch
     - linear block recipe arm split
   - next step:
-    - pin the first `loop_scan_methods_block_v0` nested-loop fallback seam and move one owner only
+    - re-inventory the next exact seam under `loop_scan_methods_block_v0`
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

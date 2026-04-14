@@ -191,6 +191,8 @@ Scope: current lane / next lane / restart order only.
           - nested-loop recipe-first fallback handoff
           - segment-level nested dispatch
           - linear block recipe arm split
+      - landed first `loop_scan_methods_block_v0` seam:
+        - nested-loop recipe-first fallback handoff now lives under `loop_scan_methods_block_v0/nested_loop_handoff`
       - prior family closeout:
         - `GenericLoopV1`
           - `facts`
@@ -225,7 +227,7 @@ Scope: current lane / next lane / restart order only.
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
    - next:
-     - inventory `loop_scan_methods_block_v0` and cut the smallest nested-loop fallback seam
+     - re-inventory the next exact seam under `loop_scan_methods_block_v0`
 
 ## Legacy Compatibility Block
 
