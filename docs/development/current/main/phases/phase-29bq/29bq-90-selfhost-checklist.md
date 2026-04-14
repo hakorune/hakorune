@@ -143,10 +143,11 @@ Related:
   - already separate:
     - nested-loop recipe-first fallback handoff (`lower_nested_loop_plan`)
     - linear block recipe arm split
+    - nested-loop stmt-only fastpath ownership
   - likely follow-on seams:
     - segment-level nested dispatch
   - next step:
-    - re-inventory the next exact seam under `loop_scan_methods_block_v0`
+    - re-inventory the next exact seam under `loop_scan_methods_block_v0` (`segment-level nested dispatch`)
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
