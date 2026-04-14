@@ -193,16 +193,14 @@ Related:
     - `emit_joinir_step_box`
     - `merge_step_box`
   - still mixed:
-    - `post_loop_early_return_step_box`
     - `emit_joinir_step_box`
     - `merge_step_box`
   - likely first seam:
-    - `post_loop_early_return_step_box`
-  - likely follow-on seams:
     - `emit_joinir_step_box`
+  - likely follow-on seams:
     - `merge_step_box`
   - next step:
-    - record the `carrier_updates_step_box` split and land `post_loop_early_return_step_box` next
+    - record the `post_loop_early_return_step_box` status and land `emit_joinir_step_box` next
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
