@@ -175,14 +175,37 @@ Related:
     - nested-loop recipe-first fallback handoff
     - linear segment verification / lowering
     - nested stmt-only recipe handoff
+    - nested segment dispatch
+  - status:
+    - landed and closed
   - still mixed:
-    - nested segment dispatch
-  - likely first seam:
-    - nested segment dispatch
-  - likely follow-on seams:
-    - family closeout check
+    - none confirmed
   - next step:
-    - record the nested stmt-only handoff and land the nested dispatch split next
+    - record the `loop_scan_v0` closeout and inventory `loop_break_steps`
+- next one-family inventory (`loop_break_steps`):
+  - already separate:
+    - `gather_facts_step_box`
+    - `apply_policy_step_box`
+    - `normalize_body_step_box`
+    - `body_local_derived_step_box`
+    - `carrier_updates_step_box`
+    - `post_loop_early_return_step_box`
+    - `emit_joinir_step_box`
+    - `merge_step_box`
+  - still mixed:
+    - orchestration ownership / family closeout order is not yet pinned in docs
+  - likely first seam:
+    - `gather_facts_step_box`
+  - likely follow-on seams:
+    - `apply_policy_step_box`
+    - `normalize_body_step_box`
+    - `body_local_derived_step_box`
+    - `carrier_updates_step_box`
+    - `post_loop_early_return_step_box`
+    - `emit_joinir_step_box`
+    - `merge_step_box`
+  - next step:
+    - pin the loop_break_steps order and start from `gather_facts_step_box`
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

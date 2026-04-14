@@ -18,12 +18,10 @@ use crate::mir::MirType;
 use std::collections::BTreeMap;
 
 use super::facts::LoopScanV0Facts;
-use super::helpers::apply_loop_final_values_to_bindings;
-use super::nested_fallback_bridge::lower_loop_scan_v0_nested_loop_fallback;
-use super::nested_loop_stmt_only::try_lower_loop_scan_v0_nested_stmt_only;
 use super::recipe::LoopScanSegment;
 use super::route_finalize::finalize_loop_scan_v0_route;
 use super::segment_linear::lower_loop_scan_v0_linear_segment;
+use super::segment_nested_loop::lower_loop_scan_v0_nested_segment;
 
 const LOOP_SCAN_ERR: &str = "[normalizer] loop_scan_v0";
 
@@ -134,31 +132,16 @@ pub(in crate::mir::builder) fn lower_loop_scan_v0(
                             exit_allowed,
                         )?);
                     }
-                    LoopScanSegment::NestedLoop(nested) => {
-                        if let Some(plans) = try_lower_loop_scan_v0_nested_stmt_only(
+                    LoopScanSegment::NestedLoop(nested) => body_plans.extend(
+                        lower_loop_scan_v0_nested_segment(
                             builder,
                             &mut current_bindings,
                             &carrier_step_phis,
                             &break_phi_dsts,
                             nested,
-                        )? {
-                            body_plans.extend(plans);
-                        } else {
-                            let plan = lower_loop_scan_v0_nested_loop_fallback(
-                                builder,
-                                &nested.cond_view.tail_expr,
-                                &nested.body.body,
-                                ctx,
-                                LOOP_SCAN_ERR,
-                            )?;
-                            apply_loop_final_values_to_bindings(
-                                builder,
-                                &mut current_bindings,
-                                &plan,
-                            );
-                            body_plans.push(plan);
-                        }
-                    }
+                            ctx,
+                        )?,
+                    ),
                 }
             }
         }

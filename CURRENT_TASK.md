@@ -111,27 +111,26 @@ Scope: current lane / next lane / restart order only.
       - `generic_loop_body::nested_loop_plan`
       - `loop_scan_phi_vars_v0`
       - `loop_scan_methods_block_v0`
+      - `loop_scan_v0`
       - `loop_scan_methods_v0`
       - `loop_bundle_resolver_v0`
       - `loop_collect_using_entries_v0`
       - `loop_break`
         - current handoff snapshot:
           - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
-          - `loop_scan_methods_v0` closeout is landed
-          - current helper-family inventory is `loop_scan_v0`
-          - helper-family closeout is landed
-          - nested loop fallback bridge wrapper is landed
-          - linear segment verification / lowering is landed
-          - nested stmt-only recipe handoff is landed
+          - `loop_scan_v0` closeout is landed
+          - current helper-family inventory is `loop_break_steps`
           - likely first seam:
-          - nested segment dispatch
+          - `gather_facts_step_box`
         - likely follow-on seams:
-          - family closeout check
+          - `apply_policy_step_box`
+          - `normalize_body_step_box`
+          - `body_local_derived_step_box`
 4. `phase-29bq legacy lowerer removal`
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - continue `loop_scan_v0` with the nested dispatch split, then close the family and inventory the next owner-local module
+      - inventory `loop_break_steps` in docs as the next helper family, then start from `gather_facts_step_box`
 
 ## Legacy Compatibility Block
 
