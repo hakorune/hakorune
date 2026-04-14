@@ -82,10 +82,13 @@ Related:
     - `cfg skeleton`
     - `phi materializer`
     - `verifier`
-  - still mixed in pipeline:
-    - final continue closure
-  - next cut:
-    - extract a dedicated route-local `cleanup` seam for `LoopCondContinueWithReturn` only
+    - `cleanup`
+  - still mixed in route-local helpers:
+    - `continue_if`
+    - `hetero_return_if`
+    - nested body helper ownership
+  - next step:
+    - re-inventory `LoopCondContinueWithReturn` and decide closeout vs helper-owner split
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

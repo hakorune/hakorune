@@ -16,6 +16,7 @@ use crate::mir::builder::control_flow::plan::features::coreloop_frame::{
     build_coreloop_frame,
 };
 use crate::mir::builder::control_flow::plan::features::if_branch_lowering;
+use crate::mir::builder::control_flow::plan::features::loop_cond_continue_with_return_cleanup::apply_fallthrough_continue_exit;
 use crate::mir::builder::control_flow::plan::features::loop_cond_continue_with_return_phi_materializer::LoopCondContinueWithReturnPhiMaterializer;
 use crate::mir::builder::control_flow::plan::features::loop_cond_continue_with_return_verifier::verify_loop_cond_continue_with_return_phi_closure;
 use crate::mir::builder::control_flow::plan::features::step_mode;
@@ -152,13 +153,13 @@ fn lower_loop_cond_continue_with_return_stepbb(
     trace_collection_len("current_bindings", current_bindings.len());
     trace_collection_len("carrier_step_phis", frame.carrier_step_phis.len());
 
-    // Add final continue exit using template helper
-    body_plans.push(CorePlan::Exit(parts::exit::build_continue_with_phi_args(
+    apply_fallthrough_continue_exit(
         builder,
+        &mut body_plans,
         &frame.carrier_step_phis,
         &current_bindings,
         LOOP_COND_CONTINUE_WITH_RETURN_ERR,
-    )?));
+    )?;
 
     // Generate PHIs using template (StepBb mode: step + header PHIs)
     let phi_closure = phi_materializer.close(&frame)?;

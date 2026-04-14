@@ -56,6 +56,7 @@ pub(in crate::mir::builder) mod loop_cond_co_phi_materializer;
 pub(in crate::mir::builder) mod loop_cond_co_pipeline;
 pub(in crate::mir::builder) mod loop_cond_co_stmt;
 pub(in crate::mir::builder) mod loop_cond_co_verifier;
+pub(in crate::mir::builder) mod loop_cond_continue_with_return_cleanup;
 pub(in crate::mir::builder) mod loop_cond_continue_with_return_phi_materializer;
 pub(in crate::mir::builder) mod loop_cond_continue_with_return_verifier;
 
