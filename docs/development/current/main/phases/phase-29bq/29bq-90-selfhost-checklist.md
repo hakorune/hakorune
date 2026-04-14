@@ -214,14 +214,16 @@ Related:
   - already separate:
     - `body_local_policy_helpers`
     - `body_local_policy_inputs`
+    - `body_local_policy_types`
+    - `body_local_policy_runner`
+  - status:
+    - landed and closed
   - still mixed:
-    - `body_local_policy`
-  - likely first seam:
-    - `body_local_policy`
+    - `none confirmed`
   - likely follow-on seams:
     - `none confirmed`
   - next step:
-    - continue `body_local_policy`
+    - re-inventory the next owner-local family under `loop_break`
 
 - next one-family inventory (`loop_break/facts/body_local_facts`):
   - already separate:

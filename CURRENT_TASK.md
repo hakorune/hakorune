@@ -136,23 +136,26 @@ Scope: current lane / next lane / restart order only.
           - `loop_break::api` closeout is landed
           - `body_local_policy_helpers` is landed
           - `body_local_policy_inputs` is landed
+          - `body_local_policy_types` is landed
+          - `body_local_policy_runner` is landed
           - `body_local_facts_helpers` is landed
           - `body_local_facts` is landed
           - `body_local_trim_matcher` is landed
           - `body_local_digit_matcher` is landed
           - `body_local_common` is landed
           - `body_local_facts_shape_matchers` closeout is landed
+          - `body_local_policy` closeout is landed
           - likely first seam:
-            - `body_local_policy`
+            - `none confirmed`
         - likely follow-on seams:
           - `none confirmed`
         - next:
-          - continue `loop_break` from `body_local_policy`
+          - re-inventory the next owner-local family under `loop_break`
 4. `phase-29bq legacy lowerer removal`
     - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - continue `loop_break` from `body_local_policy`, then re-inventory the next owner-local family under `loop_break`
+      - re-inventory the next owner-local family under `loop_break`
 
 ## Legacy Compatibility Block
 
