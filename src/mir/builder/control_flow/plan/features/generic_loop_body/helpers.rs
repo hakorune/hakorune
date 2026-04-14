@@ -1,7 +1,6 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::composer;
 use crate::mir::builder::control_flow::plan::coreloop_body_contract::is_effect_only_stmt;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, lower_cond_value};
@@ -14,6 +13,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use super::super::exit_branch;
 use super::nested_loop_recipe_fallback::try_compose_generic_nested_loop_recipe_fallback;
+use super::nested_loop_reject_tail::finish_generic_nested_loop_reject_tail;
 use super::GENERIC_LOOP_ERR;
 
 pub(super) fn collect_loop_carriers(
@@ -98,15 +98,7 @@ pub(super) fn lower_nested_loop_plan(
     )? {
         return Ok(recipe);
     }
-    if let Some(err) = composer::strict_nested_loop_guard(&outcome, &nested_ctx) {
-        plan_trace::trace_outcome_path(
-            "generic_loop_body::nested_loop_plan",
-            "nested_loop_guard_error",
-        );
-        return Err(err);
-    }
-    plan_trace::trace_outcome_path("generic_loop_body::nested_loop_plan", "freeze_no_plan");
-    Err("[normalizer] generic nested loop: nested loop has no plan".to_string())
+    finish_generic_nested_loop_reject_tail(&outcome, &nested_ctx)
 }
 
 pub(super) fn apply_loop_final_values_to_bindings(

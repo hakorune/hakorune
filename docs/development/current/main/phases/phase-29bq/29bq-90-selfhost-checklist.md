@@ -122,9 +122,9 @@ Related:
 - next one-family inventory (`generic_loop_body::nested_loop_plan`):
   - already separate:
     - local recipe-fallback ordering
+    - `strict_nested_loop_guard` / `freeze_no_plan`
   - still mixed:
     - depth1 fastpath handoff
-    - `strict_nested_loop_guard` / `freeze_no_plan`
   - next step:
     - re-inventory the next exact seam under `generic_loop_body::nested_loop_plan`
 

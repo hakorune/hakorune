@@ -5,6 +5,7 @@ mod carriers;
 mod cleanup;
 mod helpers;
 mod nested_loop_recipe_fallback;
+mod nested_loop_reject_tail;
 mod terminality;
 mod v0;
 mod v1;
