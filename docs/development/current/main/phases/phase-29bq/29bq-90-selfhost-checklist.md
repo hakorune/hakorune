@@ -128,19 +128,23 @@ Related:
     - `loop_cond_break_continue` bridge
     - shared recipe fallback orchestration
     - recipe fallback selection policy
+  - status:
+    - landed and closed
   - still mixed:
     - none confirmed
   - next step:
-    - close out `nested_loop_plan` and inventory `generic_loop_body::nested_loop_plan`
+    - close out `generic_loop_body::nested_loop_plan` and inventory `loop_scan_phi_vars_v0`
 - next one-family inventory (`generic_loop_body::nested_loop_plan`):
   - already separate:
     - local recipe-fallback ordering
     - `strict_nested_loop_guard` / `freeze_no_plan`
     - depth1 fastpath handoff
+  - status:
+    - landed and closed
   - still mixed:
     - none confirmed
   - next step:
-    - close out `generic_loop_body::nested_loop_plan` and inventory `loop_scan_phi_vars_v0`
+    - inventory `loop_scan_phi_vars_v0`
 - next one-family inventory (`loop_scan_phi_vars_v0`):
   - already separate:
     - nested-loop depth1 fastpath handoff
@@ -148,10 +152,13 @@ Related:
     - found-if branch stmt partition / nested dispatch
     - nested-loop segment arm
     - linear segment verification / lowering
+  - landed:
+    - `facts_helpers`
+    - `facts_types`
   - still mixed:
-    - none confirmed
+    - `facts` closeout
   - next step:
-    - close out `loop_scan_phi_vars_v0` and inventory `loop_scan_methods_block_v0`
+    - close out `loop_scan_phi_vars_v0::facts`, then inventory `loop_scan_methods_block_v0`
 - next one-family inventory (`loop_scan_methods_block_v0`):
   - already separate:
     - nested-loop recipe-first fallback handoff (`lower_nested_loop_plan`)

@@ -19,11 +19,11 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::MirType;
 use std::collections::{BTreeMap, BTreeSet};
 
-use super::facts::LoopScanPhiVarsV0Facts;
 use super::if_branch_scan::lower_loop_scan_phi_vars_found_if_branch_body;
 use super::recipe::LoopScanPhiSegment;
 use super::segment_linear::lower_loop_scan_phi_vars_linear_segment;
 use super::segment_nested_loop::lower_loop_scan_phi_vars_nested_segment;
+use super::LoopScanPhiVarsV0Facts;
 
 const LOOP_SCAN_PHI_VARS_ERR: &str = "[normalizer] loop_scan_phi_vars_v0";
 
