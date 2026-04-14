@@ -4,6 +4,7 @@
 //! lower it via a standard loop skeleton + recursive statement lowering.
 
 pub(in crate::mir::builder) mod facts;
+pub(in crate::mir::builder) mod helpers;
 pub(in crate::mir::builder) mod nested_loop_handoff;
 pub(in crate::mir::builder) mod nested_loop_stmt_only;
 pub(in crate::mir::builder) mod pipeline;

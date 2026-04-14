@@ -124,7 +124,7 @@ Scope: current lane / next lane / restart order only.
         - likely follow-on seams:
           - nested fallback segment wrapper
           - nested segment dispatch
-          - helper-family closeout check
+          - helper-family closeout check after wrapper fold
 4. `phase-29bq legacy lowerer removal`
    - landed and closed
 5. `phase-29bq loop owner seam cleanup`
