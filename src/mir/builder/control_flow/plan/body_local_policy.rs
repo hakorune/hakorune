@@ -11,10 +11,13 @@ use crate::mir::join_ir::lowering::common::body_local_derived_slot_emitter::Body
 use crate::mir::join_ir::lowering::common::body_local_slot::ReadOnlyBodyLocalSlot;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
 use crate::mir::loop_route_detection::loop_body_cond_promoter::{
-    ConditionPromotionRequest, ConditionPromotionResult, LoopBodyCondPromoter,
+    ConditionPromotionResult, LoopBodyCondPromoter,
 };
-use crate::mir::loop_route_detection::loop_condition_scope::{CondVarScope, LoopConditionScope};
+use crate::mir::loop_route_detection::loop_condition_scope::LoopConditionScope;
 
+use super::body_local_policy_inputs::{
+    build_condition_promotion_request, collect_body_local_condition_vars,
+};
 use super::body_local_policy_helpers::{route_promoted_body_local, route_unpromoted_body_local};
 
 /// Explicit routing policy for LoopBodyLocal variables used in loop-break conditions.
@@ -39,21 +42,9 @@ pub fn classify_loop_break_body_local_route(
     cond_scope: &LoopConditionScope,
     body: &[ASTNode],
 ) -> PolicyDecision<BodyLocalRoute> {
-    let vars: Vec<String> = cond_scope
-        .vars
-        .iter()
-        .filter(|v| v.scope == CondVarScope::LoopBodyLocal)
-        .map(|v| v.name.clone())
-        .collect();
-
-    let promotion_req = ConditionPromotionRequest {
-        loop_param_name: loop_var_name,
-        cond_scope,
-        scope_shape: Some(scope),
-        break_cond: Some(break_condition_node),
-        continue_cond: None,
-        loop_body: body,
-    };
+    let vars = collect_body_local_condition_vars(cond_scope);
+    let promotion_req =
+        build_condition_promotion_request(loop_var_name, scope, break_condition_node, cond_scope, body);
 
     match LoopBodyCondPromoter::try_promote_for_condition(promotion_req) {
         ConditionPromotionResult::Promoted {

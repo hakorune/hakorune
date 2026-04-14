@@ -213,6 +213,7 @@ Related:
 - next one-family inventory (`body_local_policy`):
   - already separate:
     - `body_local_policy_helpers`
+    - `body_local_policy_inputs`
   - still mixed:
     - `body_local_policy`
   - likely first seam:
