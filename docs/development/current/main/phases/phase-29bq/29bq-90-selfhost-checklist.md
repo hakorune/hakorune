@@ -119,6 +119,14 @@ Related:
     - none confirmed
   - next step:
     - close out `nested_loop_plan` and inventory `generic_loop_body::nested_loop_plan`
+- next one-family inventory (`generic_loop_body::nested_loop_plan`):
+  - already separate:
+    - local recipe-fallback ordering
+  - still mixed:
+    - depth1 fastpath handoff
+    - `strict_nested_loop_guard` / `freeze_no_plan`
+  - next step:
+    - re-inventory the next exact seam under `generic_loop_body::nested_loop_plan`
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

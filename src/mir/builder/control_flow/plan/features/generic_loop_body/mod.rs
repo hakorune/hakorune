@@ -4,6 +4,7 @@ mod carrier_orchestration;
 mod carriers;
 mod cleanup;
 mod helpers;
+mod nested_loop_recipe_fallback;
 mod terminality;
 mod v0;
 mod v1;
