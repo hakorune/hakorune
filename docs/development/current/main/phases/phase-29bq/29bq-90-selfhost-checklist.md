@@ -98,6 +98,15 @@ Related:
     - body-local fallthrough continue suppression
   - next step:
     - close out `GenericLoopV1` and inventory `nested_loop_depth1`
+- next one-family inventory (`nested_loop_depth1`):
+  - already separate:
+    - `facts`
+    - `route-local acceptance / fallback dispatch`
+  - still mixed:
+    - preheader freshness rewrite
+    - stmt-only fastpath ownership
+  - next step:
+    - re-inventory the next exact seam after route dispatch
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 
