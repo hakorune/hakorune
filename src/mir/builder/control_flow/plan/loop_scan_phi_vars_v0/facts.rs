@@ -9,12 +9,14 @@ use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::policies::BodyLoweringPolicy;
 
 use super::facts_helpers::{
-    build_nested_loop_recipe, contains_exit_outside_nested_loops, is_if_stmt, is_inc_stmt,
-    is_local_decl, is_local_init_zero, is_loop_cond_var_lt_var, is_loop_with_break,
-    is_loop_without_exit, is_var_step_stmt_nonconst, release_enabled,
+    build_nested_loop_recipe, contains_exit_outside_nested_loops, is_loop_cond_var_lt_var,
+    release_enabled,
+};
+use super::facts_shape_routes::{
+    try_match_loop_scan_phi_vars_ext_shape01, try_match_loop_scan_phi_vars_len7_shape,
 };
 use super::facts_types::LoopScanPhiVarsV0Facts;
-use super::recipe::{LoopScanPhiSegment, LoopScanPhiVarsV0Recipe};
+use super::recipe::LoopScanPhiSegment;
 
 pub(in crate::mir::builder) fn try_extract_loop_scan_phi_vars_v0_facts(
     condition: &ASTNode,
@@ -43,103 +45,21 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_phi_vars_v0_facts(
         return Ok(None);
     };
 
-    let (prefix_end, nested_idx, step_start, recipe) = match body.len() {
-        7 => {
-            // Stmt 0: local var_name = ... (any local with init)
-            if !is_local_decl(&body[0]) {
-                debug_reject("stmt0_not_local");
+    let shape_match = match body.len() {
+        7 => match try_match_loop_scan_phi_vars_len7_shape(body, &loop_var) {
+            Ok(shape_match) => shape_match,
+            Err(reason) => {
+                debug_reject(reason);
                 return Ok(None);
             }
-
-            // Stmt 1: local j = 0
-            if !is_local_init_zero(&body[1]) {
-                debug_reject("stmt1_not_local_init_zero");
+        },
+        4 => match try_match_loop_scan_phi_vars_ext_shape01(body, &loop_var) {
+            Ok(shape_match) => shape_match,
+            Err(reason) => {
+                debug_reject(reason);
                 return Ok(None);
             }
-
-            // Stmt 2: local m = ...
-            if !is_local_decl(&body[2]) {
-                debug_reject("stmt2_not_local_m");
-                return Ok(None);
-            }
-
-            // Stmt 3: local found = 0
-            if !is_local_init_zero(&body[3]) {
-                debug_reject("stmt3_not_local_found_init_zero");
-                return Ok(None);
-            }
-
-            // Stmt 4: loop(...) with break
-            if !is_loop_with_break(&body[4]) {
-                debug_reject("stmt4_not_loop_with_break");
-                return Ok(None);
-            }
-
-            // Stmt 5: if ... { ... }
-            if !is_if_stmt(&body[5]) {
-                debug_reject("stmt5_not_if");
-                return Ok(None);
-            }
-
-            // Stmt 6: i = i + 1
-            if !is_inc_stmt(&body[6], &loop_var) {
-                debug_reject("stmt6_not_inc");
-                return Ok(None);
-            }
-
-            (
-                4usize,
-                4usize,
-                6usize,
-                LoopScanPhiVarsV0Recipe {
-                    local_var_name_stmt: Some(body[0].clone()),
-                    local_j_stmt: body[1].clone(),
-                    local_m_stmt: body[2].clone(),
-                    local_found_stmt: Some(body[3].clone()),
-                    inner_loop_search: body[4].clone(),
-                    found_if_stmt: Some(body[5].clone()),
-                    step_inc_stmt: body[6].clone(),
-                },
-            )
-        }
-        4 => {
-            // EXT-SHAPE-01:
-            //   local j = 0
-            //   local m = ...
-            //   loop(j < m) { ... no exit ... }
-            //   i = i + <non-const expr>
-            if !is_local_init_zero(&body[0]) {
-                debug_reject("stmt0_not_local_j_init_zero_ext_shape01");
-                return Ok(None);
-            }
-            if !is_local_decl(&body[1]) {
-                debug_reject("stmt1_not_local_m_ext_shape01");
-                return Ok(None);
-            }
-            if !is_loop_without_exit(&body[2]) {
-                debug_reject("stmt2_not_loop_no_exit_ext_shape01");
-                return Ok(None);
-            }
-            if !is_var_step_stmt_nonconst(&body[3], &loop_var) {
-                debug_reject("stmt3_not_nonconst_var_step_ext_shape01");
-                return Ok(None);
-            }
-
-            (
-                2usize,
-                2usize,
-                3usize,
-                LoopScanPhiVarsV0Recipe {
-                    local_var_name_stmt: None,
-                    local_j_stmt: body[0].clone(),
-                    local_m_stmt: body[1].clone(),
-                    local_found_stmt: None,
-                    inner_loop_search: body[2].clone(),
-                    found_if_stmt: None,
-                    step_inc_stmt: body[3].clone(),
-                },
-            )
-        }
+        },
         _ => {
             debug_reject(&format!("body_len={} expected=7_or_4", body.len()));
             return Ok(None);
@@ -154,18 +74,20 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_phi_vars_v0_facts(
 
     const ALLOW_EXTENDED: bool = true;
 
-    let Some(prefix_linear) = try_build_no_exit_block_recipe(&body[..prefix_end], ALLOW_EXTENDED)
+    let Some(prefix_linear) =
+        try_build_no_exit_block_recipe(&body[..shape_match.prefix_end], ALLOW_EXTENDED)
     else {
         debug_reject("segments_prefix_not_no_exit");
         return Ok(None);
     };
 
-    let Some(nested_loop_search) = build_nested_loop_recipe(&body[nested_idx]) else {
+    let Some(nested_loop_search) = build_nested_loop_recipe(&body[shape_match.nested_idx]) else {
         debug_reject("segments_inner_loop_not_loop");
         return Ok(None);
     };
 
-    let Some(step_linear) = try_build_no_exit_block_recipe(&body[step_start..], ALLOW_EXTENDED)
+    let Some(step_linear) =
+        try_build_no_exit_block_recipe(&body[shape_match.step_start..], ALLOW_EXTENDED)
     else {
         debug_reject("segments_step_not_no_exit");
         return Ok(None);
@@ -176,7 +98,7 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_phi_vars_v0_facts(
         limit_var,
         condition: condition.clone(),
         body_lowering_policy: BodyLoweringPolicy::RecipeOnly,
-        recipe,
+        recipe: shape_match.recipe,
         segments: vec![
             LoopScanPhiSegment::Linear(prefix_linear),
             LoopScanPhiSegment::NestedLoop(nested_loop_search),

@@ -198,11 +198,28 @@ Scope: current lane / next lane / restart order only.
           - `loop_scan_phi_vars_v0`
         - next:
           - split `loop_scan_phi_vars_v0::facts`
+      - `loop_scan_phi_vars_v0`
+        - current handoff snapshot:
+          - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
+          - nested-loop depth1 fastpath handoff is separated
+          - nested-loop recipe stmt-only / fastpath handoff is separated
+          - found-if branch stmt partition / nested dispatch is separated
+          - nested-loop segment arm is separated
+          - linear segment verification / lowering is separated
+          - `facts_helpers` is landed
+          - `facts_types` is landed
+          - `facts_shape_routes` is landed
+          - likely first seam:
+            - `facts` closeout
+        - likely follow-on seams:
+          - `loop_scan_methods_block_v0`
+        - next:
+          - close out `loop_scan_phi_vars_v0::facts`
 4. `phase-29bq legacy lowerer removal`
     - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - split `loop_scan_phi_vars_v0::facts`
+      - close out `loop_scan_phi_vars_v0::facts`
 
 ## Legacy Compatibility Block
 

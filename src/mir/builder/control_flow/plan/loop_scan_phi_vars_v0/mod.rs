@@ -5,6 +5,7 @@
 
 pub(in crate::mir::builder) mod facts;
 pub(in crate::mir::builder) mod facts_helpers;
+pub(in crate::mir::builder) mod facts_shape_routes;
 pub(in crate::mir::builder) mod facts_types;
 pub(in crate::mir::builder) mod if_branch_scan;
 pub(in crate::mir::builder) mod nested_loop_handoff;
