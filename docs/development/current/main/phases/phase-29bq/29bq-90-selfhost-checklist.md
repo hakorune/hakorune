@@ -258,7 +258,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - actualize `facts::extractors`
+    - actualize `facts::canon` support for `generic_loop_update`
 
 - shared infra actual move (`lower expectations`):
   - landed:
@@ -267,7 +267,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - actualize `facts::extractors`
+    - actualize `facts::canon` support for `generic_loop_update`
 
 - shared infra actual move (`ssa exit binding`):
   - landed:
@@ -278,7 +278,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - actualize `facts::extractors`
+    - actualize `facts::canon` support for `generic_loop_update`
 
 - shared infra actual move (`cleanup common`):
   - landed:
@@ -286,7 +286,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - actualize `facts::extractors`
+    - actualize `facts::canon` support for `generic_loop_update`
 
 - shared infra actual move (`cleanup policies support`):
   - landed:
@@ -302,7 +302,7 @@ Related:
       - `p5b_escape_derived_policy`
       - `trim_policy`
   - next step:
-    - actualize `facts::extractors`
+    - actualize `facts::canon` support for `generic_loop_update`
 
 - shared infra actual move (`facts support`):
   - landed:
@@ -310,10 +310,16 @@ Related:
     - `facts::route_shape_recognizers`
     - `facts::escape_shape_recognizer`
     - `facts::stmt_walk`
+    - `facts::extractors::common_helpers::condition`
+    - `facts::extractors::common_helpers::control_flow`
+    - `facts::extractors::common_helpers::loop_true_early_exit`
+    - `facts::extractors::loop_simple_while`
   - still mixed:
-    - none confirmed
+    - keep-plan-for-now residue:
+      - `if_phi_join`
+      - `common_helpers::increment`
   - next step:
-    - actualize `facts::extractors`
+    - actualize `facts::canon` support for `generic_loop_update`
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`

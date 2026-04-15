@@ -26,8 +26,15 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
   - `facts::route_shape_recognizers`
   - `facts::escape_shape_recognizer`
   - `facts::stmt_walk`
+  - `facts::extractors::common_helpers::condition`
+  - `facts::extractors::common_helpers::control_flow`
+  - `facts::extractors::common_helpers::loop_true_early_exit`
+  - `facts::extractors::loop_simple_while`
+- keep-plan-for-now residue inside `plan/extractors`:
+  - `if_phi_join`
+  - `common_helpers::increment`
 - next actual move:
-  - `facts::extractors`
+  - `facts::canon` support for `generic_loop_update`
 
 ### `recipes/`
 

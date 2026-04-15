@@ -104,6 +104,11 @@ Scope: current lane / next lane / restart order only.
     - `facts::route_shape_recognizers` is landed at the top-level owner
     - `facts::escape_shape_recognizer` is landed at the top-level owner
     - `facts::stmt_walk` is landed at the top-level owner
+    - `facts::extractors` support is landed at the top-level owner for:
+      - `common_helpers::condition`
+      - `common_helpers::control_flow`
+      - `common_helpers::loop_true_early_exit`
+      - `loop_simple_while`
     - `verify/diagnostics::span_format` is landed at the top-level owner
     - `verify/observability::flowbox_tags` is landed at the top-level owner
     - `verify::verifier` is landed at the top-level owner
@@ -123,8 +128,11 @@ Scope: current lane / next lane / restart order only.
       - `loop_true_read_digits_policy`
       - `p5b_escape_derived_policy`
       - `trim_policy`
+    - `plan::extractors` keep-plan-for-now residue remains for:
+      - `if_phi_join`
+      - `common_helpers::increment`
     - next actual move:
-      - `facts::extractors`
+      - `facts::canon` support for `generic_loop_update`
   - end-state folderization epics after the owner-local queue is empty:
     - pin destination buckets for current `plan/` directories under `facts / recipes / verify / lower / ssa / cleanup`
     - move shared descriptive infra first (`facts`, `canon`, `extractors`, `route_shape_recognizers`)
