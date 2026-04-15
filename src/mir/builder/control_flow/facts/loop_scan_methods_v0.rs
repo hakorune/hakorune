@@ -4,10 +4,10 @@ use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_block_recipe;
 use crate::mir::builder::control_flow::facts::stmt_view::try_build_stmt_only_block_recipe;
-use crate::mir::builder::control_flow::plan::loop_scan_methods_v0::recipe::{
+use crate::mir::builder::control_flow::plan::planner::Freeze;
+use crate::mir::builder::control_flow::recipes::loop_scan_methods_v0::{
     LoopScanMethodsV0Recipe, LoopScanSegment, NestedLoopRecipe,
 };
-use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
 use crate::mir::policies::BodyLoweringPolicy;
 

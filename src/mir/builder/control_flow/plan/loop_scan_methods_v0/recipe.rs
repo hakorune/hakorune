@@ -1,14 +1,13 @@
-use crate::mir::builder::control_flow::plan::facts::no_exit_block::NoExitBlockRecipe;
-use crate::mir::builder::control_flow::recipes::RecipeBody;
+//! Compat wrapper/re-export for plan-local callers.
+//!
+//! Purpose:
+//! - Keep existing plan-local imports working during phase-29bq cleanup.
+//! - The recipe definition is now recipes-owned (see `recipes/loop_scan_methods_v0.rs`).
+//! - Non-plan callers should depend on the recipes-owned module first.
 
-pub(in crate::mir::builder) type NestedLoopRecipe =
-    crate::mir::builder::control_flow::recipes::scan_loop_segments::NestedLoopRecipe;
+pub(in crate::mir::builder) type LoopScanMethodsV0Recipe =
+    crate::mir::builder::control_flow::recipes::loop_scan_methods_v0::LoopScanMethodsV0Recipe;
 pub(in crate::mir::builder) type LoopScanSegment =
-    crate::mir::builder::control_flow::recipes::scan_loop_segments::LoopScanSegment<NoExitBlockRecipe>;
-
-#[derive(Debug, Clone)]
-pub(in crate::mir::builder) struct LoopScanMethodsV0Recipe {
-    pub next_i_var: String,
-    pub body: RecipeBody,
-    pub segments: Vec<LoopScanSegment>,
-}
+    crate::mir::builder::control_flow::recipes::loop_scan_methods_v0::LoopScanSegment;
+pub(in crate::mir::builder) type NestedLoopRecipe =
+    crate::mir::builder::control_flow::recipes::loop_scan_methods_v0::NestedLoopRecipe;

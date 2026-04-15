@@ -1,12 +1,12 @@
 use super::utils::*;
 use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
+use crate::mir::builder::control_flow::recipes::loop_scan_methods_v0::LoopScanSegment;
 
 /// Recipe-first verification for loop_scan_methods_v0.
 pub fn verify_loop_scan_methods_v0_recipe(
     scan_methods: &crate::mir::builder::control_flow::facts::loop_scan_methods_v0::LoopScanMethodsV0Facts,
 ) -> Result<(), Freeze> {
-    use crate::mir::builder::control_flow::plan::loop_scan_methods_v0::recipe::LoopScanSegment;
 
     for (idx, segment) in scan_methods.recipe.segments.iter().enumerate() {
         match segment {
