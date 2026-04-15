@@ -39,16 +39,14 @@
 //!
 //! # Related
 //! - CorePlan system: `src/mir/builder/control_flow/plan/`
-//! - Match-return facts: `control_flow/plan/facts/match_return.rs`
+//! - Match-return facts: `control_flow/facts/`
 //! - Match-return composer: `control_flow/plan/composer/match_return_branchn.rs`
 
 use crate::ast::{ASTNode, LiteralValue, Span};
+use crate::mir::builder::control_flow::facts::{try_extract_match_return_facts, MatchReturnFacts};
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::composer::{
     compose_match_return_branchn, MatchReturnPlan,
-};
-use crate::mir::builder::control_flow::plan::facts::{
-    try_extract_match_return_facts, MatchReturnFacts,
 };
 use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
 use crate::mir::builder::control_flow::plan::observability::flowbox_tags::{self, FlowboxVia};

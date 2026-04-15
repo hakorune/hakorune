@@ -349,7 +349,7 @@ impl MirBuilder {
             };
 
             if !is_target {
-                crate::mir::builder::control_flow::plan::facts::reject_reason::set_last_plan_reject_detail_if_absent(
+                crate::mir::builder::control_flow::facts::reject_reason::set_last_plan_reject_detail_if_absent(
                     format!(
                         "whitelist_miss func={} structure_only=false (set NYASH_JOINIR_STRUCTURE_ONLY=1 to use structure routing)",
                         func_name

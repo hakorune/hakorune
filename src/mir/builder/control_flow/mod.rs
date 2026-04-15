@@ -60,6 +60,9 @@ pub(in crate::mir::builder) mod normalization;
 // Phase 264: EdgeCFG Fragment API (入口SSOT)
 pub(in crate::mir::builder) mod edgecfg;
 
+// Phase 29ca P1: top-level descriptive owner surface (folderization first cut)
+pub(in crate::mir::builder) mod facts;
+
 // Phase 273 P0: Plan Extractor (Pure) + PlanLowerer SSOT
 pub(in crate::mir::builder) mod plan;
 
@@ -123,7 +126,7 @@ impl super::MirBuilder {
         condition: ASTNode,
         body: Vec<ASTNode>,
     ) -> Result<ValueId, String> {
-        crate::mir::builder::control_flow::plan::facts::reject_reason::clear_last_plan_reject_detail();
+        crate::mir::builder::control_flow::facts::reject_reason::clear_last_plan_reject_detail();
 
         // Phase 49/80: Try JoinIR Frontend route for mainline targets
         if let Some(result) = self.try_cf_loop_joinir(&condition, &body)? {
@@ -140,7 +143,7 @@ impl super::MirBuilder {
         // Phase 187-2: LoopBuilder module removed - all loops must use JoinIR
         use crate::mir::join_ir::lowering::error_tags;
         let reject_detail =
-            crate::mir::builder::control_flow::plan::facts::reject_reason::take_last_plan_reject_detail();
+            crate::mir::builder::control_flow::facts::reject_reason::take_last_plan_reject_detail();
         let detail_suffix = reject_detail
             .map(|detail| format!("\nDetail: [joinir/reject_detail] {}", detail))
             .unwrap_or_default();

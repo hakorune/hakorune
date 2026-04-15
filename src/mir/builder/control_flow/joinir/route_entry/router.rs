@@ -23,10 +23,10 @@ use crate::mir::loop_route_detection::LoopRouteKind;
 
 // Phase 273 P1: Import Plan components (facts/recipe outcome -> verifier -> lowerer)
 use super::registry;
+use crate::mir::builder::control_flow::facts::feature_facts::detect_nested_loop;
+use crate::mir::builder::control_flow::facts::reject_reason;
 use crate::mir::builder::control_flow::plan::composer;
 use crate::mir::builder::control_flow::plan::expectations;
-use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
-use crate::mir::builder::control_flow::plan::facts::reject_reason;
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakAcceptKind;
 use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
@@ -362,12 +362,10 @@ pub(crate) fn route_loop(
 mod tests {
     use super::release_allows_nested_recipe_first;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-    use crate::mir::builder::control_flow::plan::facts::feature_facts::LoopFeatureFacts;
-    use crate::mir::builder::control_flow::plan::facts::loop_types::LoopFacts;
-    use crate::mir::builder::control_flow::plan::facts::scan_shapes::{ConditionShape, StepShape};
-    use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{
-        SkeletonFacts, SkeletonKind,
-    };
+    use crate::mir::builder::control_flow::facts::feature_facts::LoopFeatureFacts;
+    use crate::mir::builder::control_flow::facts::loop_types::LoopFacts;
+    use crate::mir::builder::control_flow::facts::scan_shapes::{ConditionShape, StepShape};
+    use crate::mir::builder::control_flow::facts::skeleton_facts::{SkeletonFacts, SkeletonKind};
     use crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts;
     use crate::mir::builder::control_flow::plan::loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts;
     use crate::mir::builder::control_flow::plan::normalize::canonicalize_loop_facts;

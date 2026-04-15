@@ -1,7 +1,7 @@
+use crate::mir::builder::control_flow::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::joinir::route_entry::router::{
     lower_verified_core_plan, LoopRouteContext,
 };
-use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakAcceptKind;
 use crate::mir::builder::control_flow::plan::observability::flowbox_tags::FlowboxVia;
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlanBuildOutcome};

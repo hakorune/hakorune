@@ -1,5 +1,5 @@
+use crate::mir::builder::control_flow::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::plan::observability::flowbox_tags::FlowboxVia;
 use crate::mir::builder::control_flow::plan::planner::PlanBuildOutcome;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
@@ -9,8 +9,8 @@ use crate::mir::builder::control_flow::plan::single_planner::{
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
-use super::common::route_standard;
 use super::super::types::{route_labels, PlannerFirstMode, RouterEnv, StandardEntry};
+use super::common::route_standard;
 
 pub(crate) fn route_loop_true_early_exit(
     builder: &mut MirBuilder,
