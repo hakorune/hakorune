@@ -1,10 +1,10 @@
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::recipes::RecipeComposer;
-use crate::mir::builder::control_flow::plan::observability::flowbox_tags::FlowboxVia;
 use crate::mir::builder::control_flow::plan::planner::PlanBuildOutcome;
 use crate::mir::builder::control_flow::plan::single_planner::{
     planner_rule_route_label, PlanRuleId,
 };
+use crate::mir::builder::control_flow::verify::observability::flowbox_tags::FlowboxVia;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 

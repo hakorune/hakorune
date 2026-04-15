@@ -49,8 +49,8 @@ use crate::mir::builder::control_flow::plan::composer::{
     compose_match_return_branchn, MatchReturnPlan,
 };
 use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
-use crate::mir::builder::control_flow::plan::observability::flowbox_tags::{self, FlowboxVia};
-use crate::mir::builder::control_flow::plan::verifier::PlanVerifier;
+use crate::mir::builder::control_flow::verify::observability::flowbox_tags::{self, FlowboxVia};
+use crate::mir::builder::control_flow::verify::PlanVerifier;
 use crate::mir::{MirBuilder, MirInstruction, ValueId};
 
 /// Adopt match-return CorePlan optimization

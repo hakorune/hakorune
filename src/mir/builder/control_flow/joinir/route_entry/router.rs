@@ -30,10 +30,10 @@ use crate::mir::builder::control_flow::plan::expectations;
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakAcceptKind;
 use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
 use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
-use crate::mir::builder::control_flow::plan::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlanBuildOutcome};
 use crate::mir::builder::control_flow::plan::single_planner;
-use crate::mir::builder::control_flow::plan::verifier::PlanVerifier;
+use crate::mir::builder::control_flow::verify::observability::flowbox_tags::{self, FlowboxVia};
+use crate::mir::builder::control_flow::verify::PlanVerifier;
 use crate::mir::builder::control_flow::plan::CorePlan;
 
 /// Phase 92 P0-2: Import LoopSkeleton for Option A
