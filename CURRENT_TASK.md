@@ -280,12 +280,12 @@ Scope: current lane / next lane / restart order only.
         - likely follow-on seams:
           - `plan/` destination mapping
         - next:
-          - land top-level `control_flow/ssa/` owner surface
+          - land top-level `control_flow/cleanup/` owner surface
 4. `phase-29bq legacy lowerer removal`
     - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - land top-level `control_flow/ssa/` owner surface
+      - land top-level `control_flow/cleanup/` owner surface
 
 ## Legacy Compatibility Block
 
