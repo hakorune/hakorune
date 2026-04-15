@@ -18,8 +18,8 @@ use crate::mir::builder::control_flow::plan::recipe_tree::{
     BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies,
     RecipeItem,
 };
-use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
+use crate::mir::builder::control_flow::recipes::refs::StmtRef;
+use crate::mir::builder::control_flow::recipes::RecipeBody;
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct NoExitBlockRecipe {

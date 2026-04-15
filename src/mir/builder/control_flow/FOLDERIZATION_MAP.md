@@ -39,7 +39,7 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
 - facts-local residue still forwarded through `facts::plan_residue`:
   - `if_phi_join_facts`
 - next actual move:
-  - compat wrapper inventory behind `recipes / lower` owner surfaces
+  - thin the remaining family-local residue under `loop_scan_methods_*` or `if_phi_join`
 
 ### `recipes/`
 
@@ -53,8 +53,11 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
 - rationale:
   - recipe/CorePlan vocabulary
   - route-local recipe composition without MIR-side repair
+- actual owner surface already landed:
+  - `recipes::RecipeBody`
+  - `recipes::refs`
 - next actual move:
-  - convert `recipes/` wrapper surfaces into direct owner modules after the `facts/` residue cut
+  - keep shrinking compat imports and wait for the next movable `recipe_tree / parts` seam
 
 ### `verify/`
 
@@ -152,7 +155,7 @@ These stay in `plan/` until each family is thin enough that the remaining code b
 ### Compatibility wrappers (expected while migration is in flight)
 
 - `control_flow/facts::plan_residue`
-- `control_flow/recipes/**`
+- `control_flow/recipes/composer_compat.rs`
 - `control_flow/lower/**`
 - `control_flow/joinir/route_entry::owner_local_compat`
 

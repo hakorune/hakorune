@@ -8,4 +8,3 @@ pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::compose
     try_compose_core_loop_v2_nested_minimal, MatchReturnPlan,
 };
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
-pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::recipes::RecipeBody;

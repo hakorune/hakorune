@@ -145,6 +145,7 @@ Scope: current lane / next lane / restart order only.
     - `verify::coreloop_body_contract` is landed at the top-level owner
     - `lower::expectations` is landed at the top-level owner
     - `lower::normalize` is landed at the top-level owner
+    - `recipes::RecipeBody` and `recipes::refs` are landed at the top-level owner
     - `ssa::exit_binding` is landed at the top-level owner
     - `cleanup::common` is landed at the top-level owner
     - `cleanup::policies` support is landed at the top-level owner for:
@@ -168,7 +169,7 @@ Scope: current lane / next lane / restart order only.
       - `match_return_facts`, `LoopBreakFacts`
       - cond-profile support: `accum_const_loop_facts`, `bool_predicate_scan_facts`, `loop_array_join_facts`, `loop_char_map_facts`
     - next actual move:
-      - compat wrapper inventory behind `recipes / lower` owner surfaces
+      - compat residue after `recipes::RecipeBody / refs` actualization
   - end-state folderization epics after the owner-local queue is empty:
     - pin destination buckets for current `plan/` directories under `facts / recipes / verify / lower / ssa / cleanup`
     - move shared descriptive infra first (`facts`, `canon`, `extractors`, `route_shape_recognizers`)

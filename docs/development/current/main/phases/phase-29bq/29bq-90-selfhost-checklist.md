@@ -320,11 +320,13 @@ Related:
     - `facts::extractors::loop_simple_while`
     - `facts::canon::cond_block_view`
     - `facts::canon::generic_loop::update`
+    - `recipes::RecipeBody`
+    - `recipes::refs`
   - still mixed:
     - keep-plan-for-now residue:
       - `if_phi_join`
   - next step:
-    - re-inventory compat wrappers behind `facts / recipes / lower`
+    - pick the next actual seam from `loop_scan_methods_*`, `if_phi_join`, or `recipe_tree / parts`
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`
