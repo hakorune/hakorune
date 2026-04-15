@@ -20,8 +20,8 @@ mod tests {
         CoreBranchArmPlan, CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfJoin, CoreIfPlan,
         CoreLoopPlan, CorePlan, Frag,
     };
-    use crate::mir::builder::control_flow::recipes::features::edgecfg_stubs;
-    use crate::mir::builder::control_flow::recipes::features::loop_carriers::build_loop_phi_info;
+    use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
+    use crate::mir::builder::control_flow::plan::features::loop_carriers::build_loop_phi_info;
     use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
     use crate::mir::EdgeArgs;
     use crate::mir::{BasicBlockId, ConstValue, ValueId};
