@@ -128,6 +128,7 @@ Scope: current lane / next lane / restart order only.
     - `facts::loop_scan_methods_v0` facts/type extraction is landed at the top-level owner
     - `facts::loop_scan_methods_block_v0` facts/type extraction is landed at the top-level owner
     - `facts::canon` support is landed at the top-level owner for:
+      - `cond_block_view`
       - `generic_loop::update`
     - `verify/diagnostics::span_format` is landed at the top-level owner
     - `verify/observability::flowbox_tags` is landed at the top-level owner

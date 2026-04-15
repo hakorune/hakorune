@@ -48,7 +48,7 @@ This is **analysis-only** (no rewrite, no semantic change).
 - Note: D20 applies incomplete-freeze to bool-predicate-scan / accum-const-loop (legacy numbered labels are traceability-only).
 
 ### C. CondBlockView (lowering view)
-- Location: `src/mir/builder/control_flow/plan/canon/cond_block_view.rs`
+- Location: `src/mir/builder/control_flow/facts/canon/cond_block_view.rs`
 - Role: evaluation/lowering view (effects/prelude) used by parts/normalizer.
 - Rule: lowering must consume CondBlockView; no ad-hoc condition parsing in parts/normalizer.
 

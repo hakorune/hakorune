@@ -6,7 +6,7 @@ This is a **design SSOT** (no behavior change by itself).
 
 ## Current State (SSOT)
 
-- `CondBlockView` exists as an analysis-only view: `src/mir/builder/control_flow/plan/canon/cond_block_view.rs`
+- `CondBlockView` exists as an analysis-only view: `src/mir/builder/control_flow/facts/canon/cond_block_view.rs`
   - Phase B2: `CondBlockView::from_expr(...)` extracts `ASTNode::BlockExpr { prelude_stmts, tail_expr }` directly.
   - Therefore, Rust AST **can now represent** condition prelude *structurally* via BlockExpr.
 - Current JoinIR/plan contract (dev/strict only, fail-fast):
@@ -80,7 +80,7 @@ If BlockExpr proves insufficient, supporting explicit condition prelude would re
 ## Drift Checks (SSOT)
 
 - CondBlockView extracts BlockExpr prelude:
-  - `rg -n "ASTNode::BlockExpr" src/mir/builder/control_flow/plan/canon/cond_block_view.rs` → 1件以上
+  - `rg -n "ASTNode::BlockExpr" src/mir/builder/control_flow/facts/canon/cond_block_view.rs` → 1件以上
 - Plan-side prelude rejects are removed (Phase B4 completed):
   - `rg -n "CondBlockView prelude is not supported yet" src/mir/builder/control_flow/plan/normalizer/cond_lowering.rs` → 0件
   - `rg -n "cond_prelude_unsupported" src/mir/builder/control_flow/plan/parts/verify.rs` → 0件
