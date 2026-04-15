@@ -4,13 +4,9 @@
 //! Non-`plan/` consumers should depend on this module first.
 
 pub(in crate::mir::builder) mod features;
-pub(in crate::mir::builder) mod parts;
-pub(in crate::mir::builder) mod recipe_tree;
-pub(in crate::mir::builder) mod skeletons;
-pub(in crate::mir::builder) mod steps;
 
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::recipes::{
     refs, RecipeBody, StmtIdx, StmtRange,
 };
-pub(in crate::mir::builder) use recipe_tree::RecipeComposer;
+pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
