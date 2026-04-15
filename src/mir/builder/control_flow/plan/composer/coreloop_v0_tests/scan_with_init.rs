@@ -9,7 +9,7 @@ use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
     ConditionShape, LengthMethod, StepShape,
 };
 use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{SkeletonFacts, SkeletonKind};
-use crate::mir::builder::control_flow::plan::normalize::canonicalize_loop_facts;
+use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
 use crate::mir::builder::control_flow::plan::CorePlan;
 use crate::mir::builder::MirBuilder;
 use crate::mir::MirType;

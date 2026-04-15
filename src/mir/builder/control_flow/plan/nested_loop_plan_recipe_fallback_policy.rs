@@ -41,7 +41,7 @@ mod tests {
     };
     use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_facts::LoopCondContinueWithReturnFacts;
     use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_recipe::ContinueWithReturnRecipe;
-    use crate::mir::builder::control_flow::plan::normalize::canonicalize_loop_facts;
+    use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
     use crate::mir::builder::control_flow::plan::planner::PlanBuildOutcome;
     use crate::mir::policies::BodyLoweringPolicy;
 

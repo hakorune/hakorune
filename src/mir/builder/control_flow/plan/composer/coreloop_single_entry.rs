@@ -13,7 +13,7 @@ use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteCon
 use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
     cond_profile_from_scan_shapes, match_scan_with_init_shape, ConditionShape, SplitScanShape,
 };
-use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
+use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
 use crate::mir::builder::control_flow::plan::{scan_direction_from_step_lit, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
@@ -180,7 +180,7 @@ mod tests {
         SkeletonFacts, SkeletonKind,
     };
     use crate::mir::builder::control_flow::plan::facts::LoopFacts;
-    use crate::mir::builder::control_flow::plan::normalize::canonicalize_loop_facts;
+    use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
     use crate::mir::builder::MirBuilder;
     use crate::mir::MirType;
 

@@ -149,7 +149,6 @@ pub(in crate::mir::builder) mod steps;
 // Phase 29ao P0: CorePlan composer scaffold (unused)
 pub(in crate::mir::builder) mod composer;
 pub(in crate::mir::builder) mod emit;
-pub(in crate::mir::builder) mod normalize;
 pub(in crate::mir::builder) mod planner;
 // Phase 29ai P5: JoinIR router → single plan extraction entrypoint
 pub(in crate::mir::builder) mod single_planner;

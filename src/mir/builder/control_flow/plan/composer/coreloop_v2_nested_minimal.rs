@@ -7,7 +7,7 @@ use crate::mir::builder::control_flow::plan::composer::coreloop_gates::{
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_carriers::build_loop_phi_info;
-use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
+use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::step_mode::extract_to_step_bb_explicit_step;
 use crate::mir::builder::control_flow::plan::{
@@ -291,7 +291,7 @@ mod tests {
         SkeletonFacts, SkeletonKind,
     };
     use crate::mir::builder::control_flow::plan::facts::LoopFacts;
-    use crate::mir::builder::control_flow::plan::normalize::canonicalize_loop_facts;
+    use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
     use crate::mir::builder::control_flow::plan::CorePlan;
     use crate::mir::builder::MirBuilder;
     use crate::mir::MirType;
