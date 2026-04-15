@@ -41,7 +41,6 @@ pub(in crate::mir::builder) mod exit;
 // MIR lowering の中核インフラ
 pub(in crate::mir::builder) mod branchn;
 // Phase 29ai P0: Facts SSOT + Single Planner skeleton (parallel footing, unused in P0)
-pub(in crate::mir::builder) mod diagnostics;
 pub(in crate::mir::builder) mod edgecfg_facade;
 pub(in crate::mir::builder) mod facts;
 pub(in crate::mir::builder) mod lowerer;
@@ -161,7 +160,6 @@ pub(in crate::mir::builder) mod common_init;
 // Phase 29ai P6: Extractors moved into plan layer
 pub(in crate::mir::builder) mod extractors;
 // Phase 29av P1: FlowBox observability tags (strict/dev only)
-pub(in crate::mir::builder) mod observability;
 // Phase 29bq+: Route recognizers moved to plan side
 pub(in crate::mir::builder) mod route_shape_recognizers;
 // Phase 29ao P21: loop_simple_while subset policy (SSOT gate)
