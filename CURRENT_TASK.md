@@ -36,6 +36,9 @@ Scope: current lane / next lane / restart order only.
   - `phase-29bq loop owner seam cleanup`
 - current blocker:
   - `none`
+- latest proof bundle:
+  - `cargo check --bin hakorune`
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
 - current stop-lines:
   - do not mix lane B with lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
   - do not mix lane B with `generic placement / effect`
@@ -97,6 +100,9 @@ Scope: current lane / next lane / restart order only.
       - `loop_cond::break_continue_types::LoopCondBreakAcceptKind`
       - test-only `loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts`
       - test-only `loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts`
+    - exact remaining shape:
+      - compat wrapper self-references under `facts / recipes / lower`
+      - owner-local keep-plan bridge under `joinir/route_entry::owner_local_compat`
     - movable next:
       - `none confirmed`
   - shared infra actualization snapshot:
