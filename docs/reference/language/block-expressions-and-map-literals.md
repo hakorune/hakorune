@@ -57,7 +57,7 @@ This avoids potential ambiguity with `if {cond}{then}` patterns.
 Block expressions used in condition position (e.g. `if ({ ... }) { ... }`, `loop(({ ... })) { ... }`) execute their `prelude` statements before evaluating `tail_expr`, including under planner-required (strict/dev) compilation paths (Phase B4).
 
 v1 constraint: the prelude statement vocabulary is restricted (and enforced) by SSOT:
-- `src/mir/builder/control_flow/plan/policies/cond_prelude_vocab.rs`
+- `src/mir/builder/control_flow/cleanup/policies/cond_prelude_vocab.rs`
 
 ### Examples
 

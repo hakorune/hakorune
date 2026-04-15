@@ -79,7 +79,7 @@ v1 とは、次を “互換破壊しない” と約束する範囲:
 - Condition entry view: `CondBlockView { prelude_stmts, tail_expr }`
 - planner-required（CorePlan/Parts）でも prelude を lower してから `tail_expr` を評価できる
 - Prelude statement vocabulary SSOT:
-  - `src/mir/builder/control_flow/plan/policies/cond_prelude_vocab.rs`
+  - `src/mir/builder/control_flow/cleanup/policies/cond_prelude_vocab.rs`
   - fail-fast tag: `[freeze:contract][cond_prelude]`（語彙外/exit混入）
 
 ### MapLiteral `%{ ... }` (B1)

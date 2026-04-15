@@ -87,7 +87,7 @@ If BlockExpr proves insufficient, supporting explicit condition prelude would re
   - `rg -n "CondBlockView prelude is not supported yet" src/mir/builder/control_flow/plan/normalizer/cond_lowering.rs src/mir/builder/control_flow/plan/parts/verify.rs` → 0件
 
 - Cond prelude vocabulary is SSOT-backed (no duplication):
-  - `rg -n "mod cond_prelude_vocab" src/mir/builder/control_flow/plan/policies/mod.rs` → 1件
+  - `rg -n "mod cond_prelude_vocab" src/mir/builder/control_flow/cleanup/policies/mod.rs` → 1件
   - `rg -n "classify_cond_prelude_stmt" src/mir/builder/control_flow/plan/facts/expr/bool_expr.rs src/mir/builder/control_flow/plan/normalizer/cond_lowering.rs` → 2件
 
 - Bool-condition lowering entry is explicit (SSOT helper):
