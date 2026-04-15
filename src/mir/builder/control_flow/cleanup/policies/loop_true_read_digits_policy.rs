@@ -23,7 +23,7 @@ pub(crate) fn classify_loop_true_read_digits(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> PolicyDecision<LoopTrueReadDigitsPolicyResult> {
-    use crate::mir::builder::control_flow::plan::ast_feature_extractor::detect_read_digits_loop_true_shape;
+    use crate::mir::builder::control_flow::facts::ast_feature_extractor::detect_read_digits_loop_true_shape;
     use crate::mir::builder::control_flow::plan::loop_true_counter_extractor::LoopTrueCounterExtractorBox;
     use crate::mir::builder::control_flow::plan::read_digits_break_condition_box::ReadDigitsBreakConditionBox;
 
