@@ -47,8 +47,9 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
   - `verify/diagnostics::span_format`
   - `verify/observability::flowbox_tags`
   - `verify::verifier`
+  - `verify::coreloop_body_contract`
 - next actual move:
-  - `ssa::exit_binding`
+  - `none confirmed`
 
 ### `lower/`
 
@@ -62,6 +63,11 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
   - `plan/normalizer`
 - rationale:
   - route orchestration, adoption, and MIR emission surface
+- actual owner surface already landed:
+  - `lower::expectations`
+  - `lower::normalize`
+- next actual move:
+  - `none confirmed`
 
 ### `ssa/`
 

@@ -103,6 +103,9 @@ Scope: current lane / next lane / restart order only.
     - `verify/diagnostics::span_format` is landed at the top-level owner
     - `verify/observability::flowbox_tags` is landed at the top-level owner
     - `verify::verifier` is landed at the top-level owner
+    - `verify::coreloop_body_contract` is landed at the top-level owner
+    - `lower::expectations` is landed at the top-level owner
+    - `lower::normalize` is landed at the top-level owner
     - `ssa::exit_binding` is landed at the top-level owner
     - `cleanup::common` is landed at the top-level owner
     - `cleanup::policies` support is landed at the top-level owner for:

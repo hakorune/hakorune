@@ -1,14 +1,4 @@
-//! Expectation checks for plan/composer routing (SSOT).
+//! Compatibility wrapper for top-level lowering expectation helpers.
 
-use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::planner::PlanBuildOutcome;
-
-pub(in crate::mir::builder) fn should_expect_plan(
-    outcome: &PlanBuildOutcome,
-    _ctx: &LoopRouteContext,
-) -> bool {
-    let Some(facts) = outcome.facts.as_ref() else {
-        return false;
-    };
-    facts.facts.string_is_integer().is_some()
-}
+#[allow(unused_imports)]
+pub(in crate::mir::builder) use crate::mir::builder::control_flow::lower::expectations::*;

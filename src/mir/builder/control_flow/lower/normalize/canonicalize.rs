@@ -1,10 +1,10 @@
 //! Phase 29ai P0: Canonicalize Facts (pure transform) — skeleton
 
-use crate::mir::builder::control_flow::plan::facts::feature_facts::{
+use crate::mir::builder::control_flow::facts::feature_facts::{
     CleanupKindFacts, ExitKindFacts, ExitUsageFacts,
 };
-use crate::mir::builder::control_flow::plan::facts::skeleton_facts::SkeletonKind;
-use crate::mir::builder::control_flow::plan::facts::LoopFacts;
+use crate::mir::builder::control_flow::facts::skeleton_facts::SkeletonKind;
+use crate::mir::builder::control_flow::facts::LoopFacts;
 use std::collections::BTreeSet;
 
 #[derive(Debug, Clone)]
@@ -44,13 +44,13 @@ pub(in crate::mir::builder) fn canonicalize_loop_facts(facts: LoopFacts) -> Cano
 mod tests {
     use super::canonicalize_loop_facts;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-    use crate::mir::builder::control_flow::plan::facts::feature_facts::{
+    use crate::mir::builder::control_flow::facts::feature_facts::{
         CleanupFacts, CleanupKindFacts, ExitKindFacts, ExitMapFacts, ExitUsageFacts,
         LoopFeatureFacts,
     };
-    use crate::mir::builder::control_flow::plan::facts::scan_shapes::{ConditionShape, StepShape};
-    use crate::mir::builder::control_flow::plan::facts::skeleton_facts::SkeletonKind;
-    use crate::mir::builder::control_flow::plan::facts::LoopFacts;
+    use crate::mir::builder::control_flow::facts::scan_shapes::{ConditionShape, StepShape};
+    use crate::mir::builder::control_flow::facts::skeleton_facts::SkeletonKind;
+    use crate::mir::builder::control_flow::facts::LoopFacts;
     use std::collections::BTreeSet;
 
     fn v(name: &str) -> ASTNode {
@@ -79,7 +79,7 @@ mod tests {
             condition_shape: ConditionShape::Unknown,
             step_shape: StepShape::Unknown,
             skeleton:
-                crate::mir::builder::control_flow::plan::facts::skeleton_facts::SkeletonFacts {
+                crate::mir::builder::control_flow::facts::skeleton_facts::SkeletonFacts {
                     kind: SkeletonKind::Loop,
                     ..Default::default()
                 },
@@ -162,7 +162,7 @@ mod tests {
             condition_shape: ConditionShape::Unknown,
             step_shape: StepShape::Unknown,
             skeleton:
-                crate::mir::builder::control_flow::plan::facts::skeleton_facts::SkeletonFacts {
+                crate::mir::builder::control_flow::facts::skeleton_facts::SkeletonFacts {
                     kind: SkeletonKind::Loop,
                     ..Default::default()
                 },
@@ -216,7 +216,7 @@ mod tests {
         let facts = LoopFacts {
             condition_shape: ConditionShape::Unknown,
             step_shape: StepShape::Unknown,
-            skeleton: crate::mir::builder::control_flow::plan::facts::skeleton_facts::SkeletonFacts {
+            skeleton: crate::mir::builder::control_flow::facts::skeleton_facts::SkeletonFacts {
                 kind: SkeletonKind::Loop,
                 ..Default::default()
             },
@@ -224,7 +224,7 @@ mod tests {
             scan_with_init: None,
             split_scan: None,
             loop_simple_while: Some(
-                crate::mir::builder::control_flow::plan::facts::loop_simple_while_facts::LoopSimpleWhileFacts {
+                crate::mir::builder::control_flow::facts::loop_simple_while_facts::LoopSimpleWhileFacts {
                     loop_var: "i".to_string(),
                     condition: ASTNode::BinaryOp {
                         operator: BinaryOperator::Less,

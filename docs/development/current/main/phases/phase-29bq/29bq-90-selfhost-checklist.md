@@ -254,10 +254,20 @@ Related:
     - `verify/observability::flowbox_tags`
     - `plan/composer/shadow_adopt.rs` now depends on top-level `verify/*`
     - `verify::verifier`
+    - `verify::coreloop_body_contract`
   - still mixed:
     - none confirmed
   - next step:
-    - inventory next shared actual move outside cleanup-policy residue
+    - inventory `facts` support actual-move candidates
+
+- shared infra actual move (`lower expectations`):
+  - landed:
+    - `lower::expectations`
+    - `lower::normalize`
+  - still mixed:
+    - none confirmed
+  - next step:
+    - inventory `facts` support actual-move candidates
 
 - shared infra actual move (`ssa exit binding`):
   - landed:
@@ -268,7 +278,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - inventory next shared actual move outside cleanup-policy residue
+    - inventory `facts` support actual-move candidates
 
 - shared infra actual move (`cleanup common`):
   - landed:
@@ -276,7 +286,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - actualize `cleanup::policies` support
+    - inventory `facts` support actual-move candidates
 
 - shared infra actual move (`cleanup policies support`):
   - landed:
@@ -292,7 +302,7 @@ Related:
       - `p5b_escape_derived_policy`
       - `trim_policy`
   - next step:
-    - inventory next shared actual move outside cleanup-policy residue
+    - inventory `facts` support actual-move candidates
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`
