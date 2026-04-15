@@ -366,10 +366,10 @@ mod tests {
     use crate::mir::builder::control_flow::facts::loop_types::LoopFacts;
     use crate::mir::builder::control_flow::facts::scan_shapes::{ConditionShape, StepShape};
     use crate::mir::builder::control_flow::facts::skeleton_facts::{SkeletonFacts, SkeletonKind};
+    use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
+    use crate::mir::builder::control_flow::lower::planner::PlanBuildOutcome;
     use crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts;
     use crate::mir::builder::control_flow::plan::loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts;
-    use crate::mir::builder::control_flow::plan::normalize::canonicalize_loop_facts;
-    use crate::mir::builder::control_flow::plan::planner::PlanBuildOutcome;
 
     fn var(name: &str) -> ASTNode {
         ASTNode::Variable {
