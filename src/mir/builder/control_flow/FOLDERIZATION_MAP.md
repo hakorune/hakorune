@@ -48,7 +48,7 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
 - facts-local residue still forwarded through `facts::plan_residue`:
   - `none confirmed`
 - next actual move:
-  - advance `recipe_tree / parts` as the remaining shared-infra movable seam
+  - split mixed-owner helpers out of `plan/parts/join_scope.rs`
 
 ### `recipes/`
 
@@ -66,8 +66,9 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
   - `recipes::RecipeBody`
   - `recipes::refs`
   - `recipes::scan_loop_segments`
+  - `plan/recipe_tree` now imports `recipes::{RecipeBody, refs}` directly
 - next actual move:
-  - keep shrinking compat imports and wait for the next movable `recipe_tree / parts` seam
+  - split mixed-owner helpers out of `plan/parts/join_scope.rs`
 
 ### `verify/`
 

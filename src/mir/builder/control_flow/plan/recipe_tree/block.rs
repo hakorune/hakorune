@@ -6,8 +6,8 @@
 
 use super::common::{ExitKind, IfMode};
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
+use crate::mir::builder::control_flow::recipes::refs::StmtRef;
+use crate::mir::builder::control_flow::recipes::RecipeBody;
 
 /// Contract kind for `RecipeItem` if-vocabulary unification (M19).
 ///

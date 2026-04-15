@@ -137,7 +137,7 @@ pub(crate) fn verify_nested_loop_stmt_only_if_available(
 }
 
 pub(crate) fn verify_stmt_ref_in_bounds(
-    stmt: crate::mir::builder::control_flow::plan::recipes::refs::StmtRef,
+    stmt: crate::mir::builder::control_flow::recipes::refs::StmtRef,
     len: usize,
     context: &str,
 ) -> Result<(), Freeze> {
@@ -151,7 +151,7 @@ pub(crate) fn verify_stmt_ref_in_bounds(
 }
 
 pub(crate) fn verify_stmt_pair_in_bounds(
-    pair: crate::mir::builder::control_flow::plan::recipes::refs::StmtPair,
+    pair: crate::mir::builder::control_flow::recipes::refs::StmtPair,
     len: usize,
     context: &str,
 ) -> Result<(), Freeze> {
@@ -166,7 +166,7 @@ pub(crate) fn verify_stmt_pair_in_bounds(
 }
 
 pub(crate) fn verify_stmt_span_len(
-    span: crate::mir::builder::control_flow::plan::recipes::refs::StmtSpan,
+    span: crate::mir::builder::control_flow::recipes::refs::StmtSpan,
     context: &str,
 ) -> Result<usize, Freeze> {
     let (start, end) = span.indices();
@@ -348,10 +348,10 @@ pub(crate) fn verify_loop_cond_break_continue_recipe_items(
 }
 
 pub(crate) fn verify_if_branch_ref(
-    body: &crate::mir::builder::control_flow::plan::recipes::RecipeBody,
-    if_stmt: crate::mir::builder::control_flow::plan::recipes::refs::StmtRef,
+    body: &crate::mir::builder::control_flow::recipes::RecipeBody,
+    if_stmt: crate::mir::builder::control_flow::recipes::refs::StmtRef,
     branch: &str,
-    stmt: crate::mir::builder::control_flow::plan::recipes::refs::StmtRef,
+    stmt: crate::mir::builder::control_flow::recipes::refs::StmtRef,
     context: &str,
 ) -> Result<(), Freeze> {
     use crate::ast::ASTNode;

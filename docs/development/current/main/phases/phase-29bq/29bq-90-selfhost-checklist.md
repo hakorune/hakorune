@@ -338,10 +338,11 @@ Related:
     - `recipes::RecipeBody`
     - `recipes::refs`
     - `recipes::scan_loop_segments`
+    - `plan/recipe_tree` imports now target top-level `recipes::{RecipeBody, refs}`
   - still mixed:
     - none confirmed
   - next step:
-    - advance `recipe_tree / parts` as the remaining shared-infra movable seam
+    - split mixed-owner helpers out of `plan/parts/join_scope.rs`
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`

@@ -23,8 +23,8 @@ use crate::mir::builder::control_flow::plan::facts::LoopCharMapFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     BlockContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies, RecipeItem,
 };
-use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
+use crate::mir::builder::control_flow::recipes::refs::StmtRef;
+use crate::mir::builder::control_flow::recipes::RecipeBody;
 
 /// CharMap recipe (arena + root block).
 #[derive(Debug)]

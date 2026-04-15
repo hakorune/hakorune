@@ -40,8 +40,8 @@ Scope: current lane / next lane / restart order only.
   - `cargo check --bin hakorune` PASS
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
 - next exact handoff:
-  - safe tiny wrapper cleanup is exhausted for owner-preserving seams
-  - next shared-infra pointer is `recipe_tree / parts`
+  - `plan/recipe_tree` now depends on top-level `recipes::{RecipeBody, refs}` owner surfaces
+  - next shared-infra pointer is the mixed-owner `parts/join_scope.rs` split
   - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
   - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
   - keep `loop_cond` keep-plan residue internal to the family; route-entry should not need a dedicated bridge
@@ -173,7 +173,7 @@ Scope: current lane / next lane / restart order only.
       - `match_return_facts`, `LoopBreakFacts`
       - cond-profile support: `accum_const_loop_facts`, `bool_predicate_scan_facts`, `loop_array_join_facts`, `loop_char_map_facts`
     - next actual move:
-      - advance `recipe_tree / parts` as the remaining shared-infra movable seam
+      - split mixed-owner helpers out of `plan/parts/join_scope.rs`
   - end-state folderization epics after the owner-local queue is empty:
     - pin destination buckets for current `plan/` directories under `facts / recipes / verify / lower / ssa / cleanup`
     - move shared descriptive infra first (`facts`, `canon`, `extractors`, `route_shape_recognizers`)
