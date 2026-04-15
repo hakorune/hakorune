@@ -4,8 +4,9 @@ use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
-use crate::mir::builder::control_flow::plan::observability::flowbox_tags;
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlanBuildOutcome};
+use crate::mir::builder::control_flow::verify::diagnostics::span_format::normalize_span_line_col;
+use crate::mir::builder::control_flow::verify::observability::flowbox_tags;
 use crate::mir::loop_route_detection::LoopRouteKind;
 
 pub(in crate::mir::builder) fn strict_nested_loop_guard(
@@ -88,10 +89,7 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
             })
         })
         .unwrap_or_else(|| "None".to_string());
-    let plan_repr =
-        crate::mir::builder::control_flow::plan::diagnostics::span_format::normalize_span_line_col(
-            &plan_repr_raw,
-        );
+    let plan_repr = normalize_span_line_col(&plan_repr_raw);
     let freeze = Freeze::unstructured(&format!(
         "nested loop requires plan/composer support: {} not in strict_nested_loop_guard allowlist",
         plan_repr

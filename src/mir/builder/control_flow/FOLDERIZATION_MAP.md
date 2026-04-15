@@ -43,6 +43,11 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
   - `plan/observability`
 - rationale:
   - fail-fast validation and debug-contract surface
+- actual owner surface already landed:
+  - `verify/diagnostics::span_format`
+  - `verify/observability::flowbox_tags`
+- next actual move:
+  - `verify::verifier`
 
 ### `lower/`
 

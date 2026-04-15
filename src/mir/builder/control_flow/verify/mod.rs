@@ -1,6 +1,6 @@
 //! Top-level owner surface for control-flow verification and observability.
 //!
-//! During folderization, implementations still live under `plan/`.
+//! During folderization, support modules can move here before the verifier core.
 //! Non-`plan/` consumers should depend on this module first.
 
 pub(in crate::mir::builder) mod diagnostics;

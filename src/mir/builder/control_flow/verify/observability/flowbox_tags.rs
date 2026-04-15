@@ -1,8 +1,8 @@
 //! FlowBox observability tags (strict/dev only).
 
-use crate::mir::builder::control_flow::plan::facts::skeleton_facts::SkeletonKind;
-use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
-use crate::mir::builder::control_flow::plan::planner::Freeze;
+use crate::mir::builder::control_flow::facts::skeleton_facts::SkeletonKind;
+use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
+use crate::mir::builder::control_flow::lower::planner::Freeze;
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
 
 #[derive(Clone, Copy)]
@@ -145,8 +145,6 @@ pub(in crate::mir::builder) fn emit_flowbox_adopt_tag(
         features_csv,
         via.as_str()
     );
-    // Gate sentinel: emit a stable, prefix-free tag line (stderr) so
-    // smokes can `grep -qF` without depending on ring0 log level/prefix.
     let _ = ring0.io.stderr_write(format!("{}\n", msg).as_bytes());
 }
 
@@ -187,6 +185,5 @@ pub(in crate::mir::builder) fn emit_flowbox_freeze_tag(
         box_kind.as_str(),
         features_csv
     );
-    // Same policy as adopt tags: stable, prefix-free, stderr.
     let _ = ring0.io.stderr_write(format!("{}\n", msg).as_bytes());
 }

@@ -1,3 +1,4 @@
-//! Observability helpers (strict/dev only).
+//! Compatibility wrapper for verification-side observability helpers.
 
-pub(in crate::mir::builder) mod flowbox_tags;
+#[allow(unused_imports)]
+pub(in crate::mir::builder) use crate::mir::builder::control_flow::verify::observability::*;

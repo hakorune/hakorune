@@ -247,6 +247,16 @@ Related:
     - none confirmed
   - next step:
     - move symbols out of `plan/` only after `loop_cond` or `loop_scan_methods_*` becomes single-owner
+
+- shared infra actual move (`verify support`):
+  - landed:
+    - `verify/diagnostics::span_format`
+    - `verify/observability::flowbox_tags`
+    - `plan/composer/shadow_adopt.rs` now depends on top-level `verify/*`
+  - still mixed:
+    - `verify::verifier`
+  - next step:
+    - actualize `verify::verifier`
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`
