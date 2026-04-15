@@ -2,7 +2,7 @@ use crate::mir::builder::control_flow::facts::{
     accum_const_loop_facts::AccumConstLoopFacts, bool_predicate_scan_facts::BoolPredicateScanFacts,
     loop_array_join_facts::LoopArrayJoinFacts, loop_char_map_facts::LoopCharMapFacts,
 };
-use crate::mir::builder::control_flow::lower::planner::Freeze;
+use crate::mir::builder::control_flow::lower::Freeze;
 
 pub(in crate::mir::builder) fn accept_via_cond_profile_loop_char_map(
     facts: &LoopCharMapFacts,

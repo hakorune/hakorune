@@ -2,7 +2,7 @@ use crate::mir::builder::control_flow::joinir::route_entry::router::{
     lower_verified_core_plan, LoopRouteContext,
 };
 use crate::mir::builder::control_flow::lower::composer;
-use crate::mir::builder::control_flow::lower::planner::{Freeze, PlanBuildOutcome};
+use crate::mir::builder::control_flow::lower::{Freeze, PlanBuildOutcome};
 use crate::mir::builder::control_flow::lower::single_planner::{
     planner_rule_route_label, PlanRuleId,
 };

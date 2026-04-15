@@ -1,6 +1,6 @@
 //! Expectation checks for lower/composer routing.
 
-use super::planner::PlanBuildOutcome;
+use super::PlanBuildOutcome;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 
 pub(in crate::mir::builder) fn should_expect_plan(

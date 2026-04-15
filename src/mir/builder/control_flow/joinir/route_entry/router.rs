@@ -29,10 +29,8 @@ use crate::mir::builder::control_flow::facts::reject_reason;
 use crate::mir::builder::control_flow::lower::composer;
 use crate::mir::builder::control_flow::lower::expectations;
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
-use crate::mir::builder::control_flow::lower::planner::{Freeze, PlanBuildOutcome};
 use crate::mir::builder::control_flow::lower::single_planner;
-use crate::mir::builder::control_flow::lower::CorePlan;
-use crate::mir::builder::control_flow::lower::PlanLowerer;
+use crate::mir::builder::control_flow::lower::{CorePlan, Freeze, PlanBuildOutcome, PlanLowerer};
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::verify::PlanVerifier;
 
@@ -366,7 +364,7 @@ mod tests {
     use crate::mir::builder::control_flow::facts::scan_shapes::{ConditionShape, StepShape};
     use crate::mir::builder::control_flow::facts::skeleton_facts::{SkeletonFacts, SkeletonKind};
     use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
-    use crate::mir::builder::control_flow::lower::planner::PlanBuildOutcome;
+    use crate::mir::builder::control_flow::lower::PlanBuildOutcome;
 
     fn var(name: &str) -> ASTNode {
         ASTNode::Variable {

@@ -2,7 +2,7 @@
 
 use crate::mir::builder::control_flow::facts::skeleton_facts::SkeletonKind;
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
-use crate::mir::builder::control_flow::lower::planner::Freeze;
+use crate::mir::builder::control_flow::lower::Freeze;
 use crate::mir::builder::control_flow::lower::{CorePlan, LoweredRecipe};
 
 #[derive(Clone, Copy)]
