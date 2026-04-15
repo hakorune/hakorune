@@ -159,8 +159,6 @@ pub(in crate::mir::builder) mod common_init;
 // Phase 29ai P6: Extractors moved into plan layer
 pub(in crate::mir::builder) mod extractors;
 // Phase 29av P1: FlowBox observability tags (strict/dev only)
-// Phase 29bq+: Route recognizers moved to plan side
-pub(in crate::mir::builder) mod route_shape_recognizers;
 // Phase 29ao P21: loop_simple_while subset policy (SSOT gate)
 // Phase 29bq+: Route policies moved to plan side
 pub(in crate::mir::builder) mod policies;
