@@ -18,6 +18,6 @@ pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::single_
 };
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::{
-    CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfJoin, CoreIfPlan, CoreLoopPlan, CorePlan,
-    LoopStepMode, LoweredRecipe,
+    CoreBranchArmPlan, CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfJoin, CoreIfPlan,
+    CoreLoopPlan, CorePlan, Frag, LoopStepMode, LoweredRecipe,
 };

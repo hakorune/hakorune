@@ -199,7 +199,7 @@ pub(in crate::mir::builder) use planner::{
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::verify::PlanVerifier;
 
-pub(in crate::mir::builder) use branchn::CoreBranchNPlan;
+pub(in crate::mir::builder) use branchn::{CoreBranchArmPlan, CoreBranchNPlan};
 pub(in crate::mir::builder) use plan_build_session::PlanBuildSession;
 
 // ============================================================================
@@ -212,6 +212,7 @@ pub(in crate::mir::builder) use self::core::{
 };
 pub(in crate::mir::builder) use self::effect::CoreEffectPlan;
 pub(in crate::mir::builder) use self::exit::CoreExitPlan;
+pub(in crate::mir::builder) use self::edgecfg_facade::Frag;
 
 // Domain types
 #[cfg(test)]

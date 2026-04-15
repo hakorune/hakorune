@@ -6,7 +6,7 @@ pub(in crate::mir::builder) use crate::mir::builder::control_flow::cleanup::poli
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{BinaryOperator, Span};
+    use crate::ast::{ASTNode, BinaryOperator, Span};
     use crate::tests::helpers::joinir_env::with_joinir_env_lock;
 
     fn var(name: &str) -> ASTNode {

@@ -37,6 +37,7 @@ Scope: current lane / next lane / restart order only.
 - current blocker:
   - `none`
 - latest proof bundle:
+  - `cargo test --lib --no-run` PASS
   - `cargo check --bin hakorune` PASS
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
 - next exact handoff:
@@ -111,7 +112,8 @@ Scope: current lane / next lane / restart order only.
       - `plan/policies` is now compat-only
       - route-entry no longer depends on a dedicated keep-plan bridge
     - fixed next handoff:
-      - safe tiny wrapper cleanup is exhausted for owner-preserving seams
+      - `plan/recipe_tree` now depends on top-level `recipes::{RecipeBody, refs}` owner surfaces
+      - next shared-infra pointer is the mixed-owner `parts/join_scope.rs` split
       - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
       - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
       - keep `loop_cond` keep-plan residue internal to the family

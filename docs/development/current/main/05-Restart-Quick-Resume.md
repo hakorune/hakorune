@@ -15,6 +15,7 @@ Related:
 ```bash
 cd /home/tomoaki/git/hakorune-selfhost
 git status -sb
+cargo test --lib --no-run
 cargo check --bin hakorune
 bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq
 ```
@@ -35,7 +36,8 @@ bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --onl
   - `plan/policies` is compat-only for already-moved cleanup policies
   - route-entry no longer needs a dedicated keep-plan bridge
 - next exact handoff:
-  - safe tiny wrapper cleanup is exhausted for owner-preserving seams
+  - `plan/recipe_tree` now depends on top-level `recipes::{RecipeBody, refs}` owner surfaces
+  - next shared-infra pointer is the mixed-owner `parts/join_scope.rs` split
   - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
   - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
   - keep `loop_cond` keep-plan residue internal to the family
@@ -56,6 +58,7 @@ bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --onl
 
 ```bash
 git status -sb
+cargo test --lib --no-run
 cargo check --bin hakorune
 bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq
 ```

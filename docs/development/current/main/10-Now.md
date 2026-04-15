@@ -16,7 +16,7 @@ Related:
 - sibling guardrail lane: `phase137x string corridor / exact-keeper guardrail`
 - immediate next: `compiler expressivity first`
 - immediate follow-on: `phase29bq loop owner seam cleanup`
-- top queued cut: `phase29bq selfhost mirbuilder failure-driven`
+- top queued cut: `plan/parts/join_scope.rs` mixed-owner split
 - Compiler lane: `phase-29bq`（JIR-PORT-00..08 done / active blocker=`none` / next=`none`）
 - JoinIR port mode（lane A）: monitor-only（failure-driven）
 - loop owner direction:
@@ -45,6 +45,7 @@ Related:
 
 ```bash
 git status -sb
+cargo test --lib --no-run
 cargo check --bin hakorune
 bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq
 ```
