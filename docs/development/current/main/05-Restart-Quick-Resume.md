@@ -37,7 +37,8 @@ bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --onl
   - route-entry no longer needs a dedicated keep-plan bridge
 - next exact handoff:
   - `plan/recipe_tree` now depends on top-level `recipes::{RecipeBody, refs}` owner surfaces
-  - next shared-infra pointer is the mixed-owner `parts/join_scope.rs` split
+  - `plan/parts/join_scope.rs` split is landed
+  - next shared-infra pointer is the `loop_cond` / `loop_scan_methods_*` inventory
   - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
   - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
   - keep `loop_cond` keep-plan residue internal to the family

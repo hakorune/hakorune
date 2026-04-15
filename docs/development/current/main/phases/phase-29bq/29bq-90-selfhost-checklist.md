@@ -29,7 +29,7 @@ Related:
 - current lane mode:
   - failure-driven
   - while blocker=`none`, use this lane for narrow cleanup only
-  - next cleanup cut is `loop owner seam cleanup`
+  - next cleanup cut is `loop_cond` / `loop_scan_methods_*` inventory
 
 ## 0.3) Loop owner split (current design direction)
 
@@ -342,7 +342,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - split mixed-owner helpers out of `plan/parts/join_scope.rs`
+    - inventory `loop_cond` / `loop_scan_methods_*` for the next exact seam
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`

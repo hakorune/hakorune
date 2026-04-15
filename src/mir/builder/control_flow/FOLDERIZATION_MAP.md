@@ -48,7 +48,7 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
 - facts-local residue still forwarded through `facts::plan_residue`:
   - `none confirmed`
 - next actual move:
-  - split mixed-owner helpers out of `plan/parts/join_scope.rs`
+  - `none confirmed`
 
 ### `recipes/`
 
@@ -68,7 +68,7 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
   - `recipes::scan_loop_segments`
   - `plan/recipe_tree` now imports `recipes::{RecipeBody, refs}` directly
 - next actual move:
-  - split mixed-owner helpers out of `plan/parts/join_scope.rs`
+  - `none confirmed`
 
 ### `verify/`
 
