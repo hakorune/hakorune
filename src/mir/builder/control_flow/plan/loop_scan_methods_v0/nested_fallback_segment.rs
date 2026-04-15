@@ -5,7 +5,7 @@ use std::collections::BTreeMap;
 
 use super::helpers::apply_loop_final_values_to_bindings;
 use super::nested_fallback_bridge::lower_loop_scan_methods_nested_loop_fallback;
-use super::recipe::NestedLoopRecipe;
+use crate::mir::builder::control_flow::recipes::loop_scan_methods_v0::NestedLoopRecipe;
 
 pub(in crate::mir::builder) fn lower_loop_scan_methods_nested_fallback_segment(
     builder: &mut MirBuilder,

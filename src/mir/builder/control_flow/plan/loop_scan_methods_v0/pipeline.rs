@@ -15,7 +15,7 @@ use crate::mir::MirType;
 use std::collections::BTreeMap;
 
 use super::facts::LoopScanMethodsV0Facts;
-use super::recipe::LoopScanSegment;
+use crate::mir::builder::control_flow::recipes::loop_scan_methods_v0::LoopScanSegment;
 use super::route_finalize::finalize_loop_scan_methods_route;
 use super::segment_linear::lower_loop_scan_methods_linear_segment;
 use super::segment_nested_loop::lower_loop_scan_methods_nested_segment;

@@ -4,7 +4,7 @@ use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
 use super::helpers::apply_loop_final_values_to_bindings;
-use super::recipe::NestedLoopRecipe;
+use crate::mir::builder::control_flow::recipes::loop_scan_methods_v0::NestedLoopRecipe;
 
 const LOOP_SCAN_METHODS_ERR: &str = "[normalizer] loop_scan_methods_v0";
 

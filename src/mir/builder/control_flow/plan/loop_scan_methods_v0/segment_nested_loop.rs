@@ -5,7 +5,7 @@ use std::collections::BTreeMap;
 
 use super::nested_fallback_segment::lower_loop_scan_methods_nested_fallback_segment;
 use super::nested_loop_stmt_only::try_lower_loop_scan_methods_nested_stmt_only;
-use super::recipe::NestedLoopRecipe;
+use crate::mir::builder::control_flow::recipes::loop_scan_methods_v0::NestedLoopRecipe;
 
 fn try_lower_loop_scan_methods_nested_segment_plans(
     builder: &mut MirBuilder,
