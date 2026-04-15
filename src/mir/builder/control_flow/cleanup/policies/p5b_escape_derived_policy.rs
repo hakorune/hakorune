@@ -11,7 +11,8 @@
 use super::PolicyDecision;
 use crate::ast::ASTNode;
 use crate::config::env::joinir_dev;
-use crate::mir::builder::control_flow::plan::escape_shape_recognizer::EscapeSkipShapeInfo;
+use crate::mir::builder::control_flow::facts::ast_feature_extractor::detect_escape_skip_shape;
+use crate::mir::builder::control_flow::facts::escape_shape_recognizer::EscapeSkipShapeInfo;
 use crate::mir::join_ir::lowering::common::body_local_derived_emitter::BodyLocalDerivedRecipe;
 use crate::mir::join_ir::lowering::error_tags;
 
@@ -33,11 +34,7 @@ pub fn classify_p5b_escape_derived(
     let has_ch_init = find_local_init_expr(body, "ch").is_some();
     let has_ch_reassign = has_assignment_to_var(body, "ch");
 
-    let Some(info) =
-        crate::mir::builder::control_flow::plan::ast_feature_extractor::detect_escape_skip_shape(
-            body,
-        )
-    else {
+    let Some(info) = detect_escape_skip_shape(body) else {
         if strict && has_ch_init && has_ch_reassign {
             return P5bEscapeDerivedDecision::Reject(error_tags::freeze(
                 "[phase94/body_local_derived/contract/unhandled_reassign] Body-local reassignment to 'ch' detected but escape shape is not recognized",
