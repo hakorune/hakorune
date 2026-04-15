@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-04-15
+Date: 2026-04-16
 Scope: current lane / next lane / restart order only.
 
 ## Purpose

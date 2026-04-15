@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-04-15
+Date: 2026-04-16
 Scope: current lane / blocker / next pointer だけを置く薄い mirror。
 Related:
   - CURRENT_TASK.md

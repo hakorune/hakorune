@@ -19,7 +19,7 @@ Related:
 
 目的: “やることが多い” 状態でも、**順序・記録・ゲート緑維持**をチェックリストで守り、迷走を避ける。
 
-## 0.25) Current blocker (2026-04-14)
+## 0.25) Current blocker (2026-04-16)
 
 - active blocker:
   - `none`
@@ -319,6 +319,13 @@ Related:
     - `facts::extractors::common_helpers::loop_true_early_exit`
     - `facts::extractors::if_phi_join`
     - `facts::extractors::loop_simple_while`
+    - `facts::loop_scan_methods_v0`
+    - `facts::loop_scan_methods_block_v0`
+    - `facts::expr_value`
+    - `facts::expr_bool`
+    - `facts::no_exit_block`
+    - `facts::stmt_view`
+    - `facts::if_phi_join_facts`
     - `facts::canon::cond_block_view`
     - `facts::canon::generic_loop::update`
     - `recipes::RecipeBody`

@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-15
+Date: 2026-04-16
 Scope: 再起動直後に 2〜5 分で current lane に戻るための最短手順。
 Related:
   - CURRENT_TASK.md
@@ -33,12 +33,12 @@ bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --onl
   - explicit facts-local `plan_residue` under `facts/`
   - intentional top-level owner surfaces remain under `recipes / lower / verify / ssa / cleanup / facts`
   - `plan/policies` is compat-only for already-moved cleanup policies
-  - isolated owner-local keep-plan bridge under `joinir/route_entry::owner_local_compat`
+  - route-entry no longer needs a dedicated keep-plan bridge
 - next exact handoff:
   - safe tiny wrapper cleanup is exhausted for owner-preserving seams
   - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
   - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
-  - keep the isolated owner-local keep-plan bridge minimal in `joinir/route_entry::owner_local_compat` (now only loop_cond break predicates)
+  - keep `loop_cond` keep-plan residue internal to the family
 
 ## Read Next
 

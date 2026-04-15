@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-13
+Date: 2026-04-16
 Scope: current mainline / next lane / parked corridor の one-screen map。
 Related:
   - CURRENT_TASK.md
