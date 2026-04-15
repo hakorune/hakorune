@@ -2,30 +2,25 @@
 mod tests {
     use super::super::core::PlanVerifier;
     use super::super::primitives::debug_assert_value_join_invariants;
-    use crate::mir::builder::control_flow::plan::branchn::CoreBranchArmPlan;
-    use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
+    use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
+    use crate::mir::builder::control_flow::lower::{
+        CoreBranchArmPlan, CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfJoin, CoreIfPlan,
+        CoreLoopPlan, CorePlan, Frag,
+    };
     #[cfg(debug_assertions)]
-    use crate::mir::builder::control_flow::plan::facts::feature_facts::{
+    use crate::mir::builder::control_flow::facts::feature_facts::{
         LoopFeatureFacts, ValueJoinFacts,
     };
     #[cfg(debug_assertions)]
-    use crate::mir::builder::control_flow::plan::facts::scan_shapes::{ConditionShape, StepShape};
+    use crate::mir::builder::control_flow::facts::scan_shapes::{ConditionShape, StepShape};
     #[cfg(debug_assertions)]
-    use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{
-        SkeletonFacts, SkeletonKind,
-    };
+    use crate::mir::builder::control_flow::facts::skeleton_facts::{SkeletonFacts, SkeletonKind};
     #[cfg(debug_assertions)]
-    use crate::mir::builder::control_flow::plan::facts::LoopFacts;
-    use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
-    use crate::mir::builder::control_flow::plan::features::loop_carriers::build_loop_phi_info;
-    #[cfg(debug_assertions)]
-    use crate::mir::builder::control_flow::plan::normalize::canonicalize_loop_facts;
-    use crate::mir::builder::control_flow::plan::step_mode::{
+    use crate::mir::builder::control_flow::facts::LoopFacts;
+    use crate::mir::builder::control_flow::recipes::features::edgecfg_stubs;
+    use crate::mir::builder::control_flow::recipes::features::loop_carriers::build_loop_phi_info;
+    use crate::mir::builder::control_flow::lower::step_mode::{
         extract_to_step_bb_explicit_step, inline_in_body_explicit_step,
-    };
-    use crate::mir::builder::control_flow::plan::CoreIfJoin;
-    use crate::mir::builder::control_flow::plan::{
-        CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfPlan, CoreLoopPlan, CorePlan,
     };
     use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
     use crate::mir::EdgeArgs;
