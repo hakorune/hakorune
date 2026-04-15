@@ -1,9 +1,9 @@
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::facts::no_exit_block::try_build_no_exit_block_recipe;
-use crate::mir::builder::control_flow::plan::facts::stmt_view::try_build_stmt_only_block_recipe;
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_block_recipe;
+use crate::mir::builder::control_flow::facts::stmt_view::try_build_stmt_only_block_recipe;
 use crate::mir::builder::control_flow::plan::parts;
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
+use crate::mir::builder::control_flow::recipes::RecipeBody;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;

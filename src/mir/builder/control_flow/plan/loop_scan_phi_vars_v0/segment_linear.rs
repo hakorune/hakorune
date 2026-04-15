@@ -1,4 +1,4 @@
-use crate::mir::builder::control_flow::plan::facts::no_exit_block::NoExitBlockRecipe;
+use crate::mir::builder::control_flow::facts::no_exit_block::NoExitBlockRecipe;
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
@@ -32,7 +32,7 @@ pub(in crate::mir::builder) fn lower_loop_scan_phi_vars_linear_segment(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::builder::control_flow::plan::facts::no_exit_block::try_build_no_exit_block_recipe;
+    use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_block_recipe;
 
     #[test]
     fn loop_scan_phi_vars_linear_segment_lowers_simple_no_exit_slice() {

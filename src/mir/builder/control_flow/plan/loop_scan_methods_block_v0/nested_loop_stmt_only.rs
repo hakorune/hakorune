@@ -54,8 +54,8 @@ pub(in crate::mir::builder) fn try_lower_loop_scan_methods_block_nested_stmt_onl
 mod tests {
     use super::*;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-    use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-    use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
+    use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
+    use crate::mir::builder::control_flow::recipes::RecipeBody;
 
     fn span() -> Span {
         Span::unknown()

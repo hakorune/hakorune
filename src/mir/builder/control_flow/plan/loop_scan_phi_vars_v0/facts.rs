@@ -4,7 +4,7 @@
 //! loop(i < n) with nested break-search-loop + found-if + collect-loop.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::facts::no_exit_block::try_build_no_exit_block_recipe;
+use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_block_recipe;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::policies::BodyLoweringPolicy;
 

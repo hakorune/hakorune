@@ -1,5 +1,5 @@
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::ExitAllowedBlockRecipe;
-use crate::mir::builder::control_flow::plan::facts::no_exit_block::NoExitBlockRecipe;
+use crate::mir::builder::control_flow::facts::no_exit_block::NoExitBlockRecipe;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
 
 pub(in crate::mir::builder) type NestedLoopRecipe =

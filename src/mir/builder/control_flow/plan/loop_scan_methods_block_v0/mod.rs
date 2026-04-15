@@ -4,11 +4,6 @@
 //! by a statement block `{ ... }` (ASTNode::Program / ScopeBox), which
 //! `loop_scan_methods_v0` does not segmentize.
 
-mod facts;
-pub(in crate::mir::builder) mod facts_helpers;
-pub(in crate::mir::builder) mod facts_recipe_builder;
-pub(in crate::mir::builder) mod facts_shape_routes;
-mod facts_types;
 mod nested_loop_handoff;
 mod nested_loop_stmt_only;
 mod pipeline;
@@ -18,7 +13,8 @@ mod segment_linear;
 mod segment_nested_loop;
 
 #[allow(unused_imports)]
-pub(in crate::mir::builder) use facts::try_extract_loop_scan_methods_block_v0_facts;
-pub(in crate::mir::builder) use facts_types::LoopScanMethodsBlockV0Facts;
+pub(in crate::mir::builder) use crate::mir::builder::control_flow::facts::loop_scan_methods_block_v0::{
+    try_extract_loop_scan_methods_block_v0_facts, LoopScanMethodsBlockV0Facts,
+};
 pub(in crate::mir::builder) use pipeline::lower_loop_scan_methods_block_v0;
 pub(in crate::mir::builder) use recipe::{LinearBlockRecipe, ScanSegment};

@@ -1,4 +1,4 @@
-use crate::mir::builder::control_flow::plan::facts::no_exit_block::NoExitBlockRecipe;
+use crate::mir::builder::control_flow::facts::no_exit_block::NoExitBlockRecipe;
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::recipe_tree::verified::VerifiedRecipeBlock;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
@@ -57,7 +57,7 @@ pub(in crate::mir::builder) fn lower_loop_scan_methods_linear_segment(
 mod tests {
     use super::*;
     use crate::ast::{ASTNode, LiteralValue, Span};
-    use crate::mir::builder::control_flow::plan::facts::no_exit_block::try_build_no_exit_block_recipe;
+    use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_block_recipe;
     use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
 
     #[test]
