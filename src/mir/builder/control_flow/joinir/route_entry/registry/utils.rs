@@ -1,5 +1,5 @@
 use super::types::{PlannerFirstMode, RouterEnv};
-use crate::mir::builder::control_flow::plan::single_planner::PlanRuleId;
+use crate::mir::builder::control_flow::lower::single_planner::PlanRuleId;
 
 pub(crate) fn emit_planner_first(mode: PlannerFirstMode, env: &RouterEnv, rule: PlanRuleId) {
     let emit = match mode {
@@ -9,7 +9,7 @@ pub(crate) fn emit_planner_first(mode: PlannerFirstMode, env: &RouterEnv, rule: 
     };
     if emit {
         let msg =
-            crate::mir::builder::control_flow::plan::planner::tags::planner_first_tag_with_label(
+            crate::mir::builder::control_flow::lower::planner::tags::planner_first_tag_with_label(
                 rule,
             );
         // Gate sentinel: in strict+planner_required mode, emit stable, prefix-free tags (stderr)

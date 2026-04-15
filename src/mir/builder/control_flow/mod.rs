@@ -69,6 +69,9 @@ pub(in crate::mir::builder) mod recipes;
 // Phase 29ca P1: top-level verifier/observability owner surface (folderization first cut)
 pub(in crate::mir::builder) mod verify;
 
+// Phase 29ca P1: top-level lowering/orchestration owner surface (folderization first cut)
+pub(in crate::mir::builder) mod lower;
+
 // Phase 273 P0: Plan Extractor (Pure) + PlanLowerer SSOT
 pub(in crate::mir::builder) mod plan;
 

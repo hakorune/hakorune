@@ -1,13 +1,13 @@
 use crate::mir::builder::control_flow::facts::feature_facts::detect_nested_loop;
+use crate::mir::builder::control_flow::lower::composer;
+use crate::mir::builder::control_flow::lower::planner::PlanBuildOutcome;
+use crate::mir::builder::control_flow::lower::single_planner::{
+    planner_rule_route_label, PlanRuleId,
+};
+use crate::mir::builder::control_flow::lower::PlanLowerer;
 use crate::mir::builder::control_flow::recipes::RecipeComposer;
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::verify::PlanVerifier;
-use crate::mir::builder::control_flow::plan::composer;
-use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
-use crate::mir::builder::control_flow::plan::planner::PlanBuildOutcome;
-use crate::mir::builder::control_flow::plan::single_planner::{
-    planner_rule_route_label, PlanRuleId,
-};
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
@@ -28,7 +28,7 @@ pub(crate) fn route_loop_break_recipe(
 ) -> Result<Option<ValueId>, String> {
     if env.planner_required && outcome.recipe_contract.is_none() {
         return Err(
-            crate::mir::builder::control_flow::plan::planner::Freeze::contract(
+            crate::mir::builder::control_flow::lower::planner::Freeze::contract(
                 "LoopBreakRecipe requires recipe_contract in planner_required mode",
             )
             .to_string(),
@@ -89,7 +89,7 @@ pub(crate) fn route_if_phi_join(
 ) -> Result<Option<ValueId>, String> {
     if env.planner_required && outcome.recipe_contract.is_none() {
         return Err(
-            crate::mir::builder::control_flow::plan::planner::Freeze::contract(
+            crate::mir::builder::control_flow::lower::planner::Freeze::contract(
                 "IfPhiJoin requires recipe_contract in planner_required mode",
             )
             .to_string(),
@@ -125,7 +125,7 @@ pub(crate) fn route_loop_continue_only(
 ) -> Result<Option<ValueId>, String> {
     if env.planner_required && outcome.recipe_contract.is_none() {
         return Err(
-            crate::mir::builder::control_flow::plan::planner::Freeze::contract(
+            crate::mir::builder::control_flow::lower::planner::Freeze::contract(
                 "LoopContinueOnly requires recipe_contract in planner_required mode",
             )
             .to_string(),
@@ -322,7 +322,7 @@ pub(crate) fn route_accum_const_loop(
 ) -> Result<Option<ValueId>, String> {
     if env.planner_required && outcome.recipe_contract.is_none() {
         return Err(
-            crate::mir::builder::control_flow::plan::planner::Freeze::contract(
+            crate::mir::builder::control_flow::lower::planner::Freeze::contract(
                 "AccumConstLoop requires recipe_contract in planner_required mode",
             )
             .to_string(),

@@ -1,8 +1,8 @@
 use super::super::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
+use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
+use crate::mir::builder::control_flow::lower::planner::{Freeze, PlanBuildOutcome};
+use crate::mir::builder::control_flow::lower::single_planner::PlanRuleId;
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::FlowboxVia;
-use crate::mir::builder::control_flow::plan::planner::{Freeze, PlanBuildOutcome};
-use crate::mir::builder::control_flow::plan::single_planner::PlanRuleId;
 use crate::mir::builder::control_flow::plan::CorePlan;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;

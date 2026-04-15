@@ -1,6 +1,6 @@
 use crate::mir::builder::control_flow::facts::feature_facts::detect_nested_loop;
+use crate::mir::builder::control_flow::lower::planner::{Freeze, PlanBuildOutcome};
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakAcceptKind;
-use crate::mir::builder::control_flow::plan::planner::{Freeze, PlanBuildOutcome};
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 

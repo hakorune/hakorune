@@ -1,5 +1,5 @@
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakAcceptKind;
-use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
+use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 
 macro_rules! pred_accessor {
     ($name:ident, $accessor:ident) => {

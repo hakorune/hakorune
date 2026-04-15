@@ -1,8 +1,8 @@
 //! Phase 1: Registry-ize recipe-first routing (router becomes thin).
 //! This module defines the ordered recipe-first entries and their handlers.
 
-use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
-use crate::mir::builder::control_flow::plan::planner::PlanBuildOutcome;
+use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
+use crate::mir::builder::control_flow::lower::planner::PlanBuildOutcome;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
