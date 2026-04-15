@@ -102,8 +102,9 @@ Scope: current lane / next lane / restart order only.
   - shared infra actualization snapshot:
     - `verify/diagnostics::span_format` is landed at the top-level owner
     - `verify/observability::flowbox_tags` is landed at the top-level owner
+    - `verify::verifier` is landed at the top-level owner
     - next actual move:
-      - `verify::verifier`
+      - `ssa::exit_binding`
   - end-state folderization epics after the owner-local queue is empty:
     - pin destination buckets for current `plan/` directories under `facts / recipes / verify / lower / ssa / cleanup`
     - move shared descriptive infra first (`facts`, `canon`, `extractors`, `route_shape_recognizers`)
@@ -312,7 +313,7 @@ Scope: current lane / next lane / restart order only.
 5. `phase-29bq loop owner seam cleanup`
     - next:
       - keep owner-local residue behind `joinir/route_entry::owner_local_compat`
-      - actualize `verify::verifier`
+      - actualize `ssa::exit_binding`
       - wait for the next movable symbol to emerge from `loop_cond` or `loop_scan_methods_*`
 
 ## Legacy Compatibility Block

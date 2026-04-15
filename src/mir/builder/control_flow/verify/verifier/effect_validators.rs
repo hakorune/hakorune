@@ -11,9 +11,9 @@
 //! - V6: Effect ValueId validity (all ValueIds pre-generated)
 //! - V12: Loop body effect-only (IfEffect/ExitIf allowed with restrictions)
 
-use super::super::coreloop_body_contract::is_leaf_effect_plan;
-use super::super::{CoreEffectPlan, CoreExitPlan};
 use super::{position_validators, primitives};
+use crate::mir::builder::control_flow::lower::{CoreEffectPlan, CoreExitPlan};
+use crate::mir::builder::control_flow::verify::is_leaf_effect_plan;
 
 /// V6: Effect ValueId validity
 pub(super) fn verify_effect(

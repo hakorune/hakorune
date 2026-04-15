@@ -46,8 +46,9 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
 - actual owner surface already landed:
   - `verify/diagnostics::span_format`
   - `verify/observability::flowbox_tags`
-- next actual move:
   - `verify::verifier`
+- next actual move:
+  - `ssa::exit_binding`
 
 ### `lower/`
 

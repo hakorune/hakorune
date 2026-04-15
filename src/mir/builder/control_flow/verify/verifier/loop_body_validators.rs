@@ -11,8 +11,8 @@
 //!   - Forbidden: If, BranchN, Exit (control flow exits)
 //!   - Exception: ExitIf within IfEffect is allowed (leaf-level exit)
 
-use super::super::{CorePlan, LoweredRecipe};
 use super::{effect_validators, plan_validators, position_validators, primitives};
+use crate::mir::builder::control_flow::lower::{CorePlan, LoweredRecipe};
 
 pub(super) fn verify_loop_body_tree(
     plans: &[LoweredRecipe],

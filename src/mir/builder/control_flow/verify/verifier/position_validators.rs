@@ -24,8 +24,8 @@
 //! - Phase 273 P3: PlanVerifier infrastructure
 //! - Phase 29bq+: Cleanliness campaign - verifier.rs modularization (Step 2/7)
 
-use super::super::{CorePlan, LoweredRecipe};
 use super::primitives;
+use crate::mir::builder::control_flow::lower::{CorePlan, LoweredRecipe};
 
 /// V11: Verify that Exit (if present) is last in sequence
 ///

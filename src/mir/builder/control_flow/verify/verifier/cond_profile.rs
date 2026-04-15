@@ -1,25 +1,31 @@
-use crate::mir::builder::control_flow::plan::planner::Freeze;
+use crate::mir::builder::control_flow::facts::{
+    accum_const_loop_facts::AccumConstLoopFacts,
+    bool_predicate_scan_facts::BoolPredicateScanFacts,
+    loop_array_join_facts::LoopArrayJoinFacts,
+    loop_char_map_facts::LoopCharMapFacts,
+};
+use crate::mir::builder::control_flow::lower::planner::Freeze;
 
 pub(in crate::mir::builder) fn accept_via_cond_profile_loop_char_map(
-    facts: &crate::mir::builder::control_flow::plan::facts::loop_char_map_facts::LoopCharMapFacts,
+    facts: &LoopCharMapFacts,
 ) -> Result<bool, Freeze> {
     accept_via_cond_profile_freeze_on_incomplete(&facts.cond_profile, "loop_char_map")
 }
 
 pub(in crate::mir::builder) fn accept_via_cond_profile_loop_array_join(
-    facts: &crate::mir::builder::control_flow::plan::facts::loop_array_join_facts::LoopArrayJoinFacts,
+    facts: &LoopArrayJoinFacts,
 ) -> Result<bool, Freeze> {
     accept_via_cond_profile_freeze_on_incomplete(&facts.cond_profile, "loop_array_join")
 }
 
 pub(in crate::mir::builder) fn accept_via_cond_profile_bool_predicate_scan(
-    facts: &crate::mir::builder::control_flow::plan::facts::bool_predicate_scan_facts::BoolPredicateScanFacts,
+    facts: &BoolPredicateScanFacts,
 ) -> Result<bool, Freeze> {
     accept_via_cond_profile_freeze_on_incomplete(&facts.cond_profile, "bool_predicate_scan")
 }
 
 pub(in crate::mir::builder) fn accept_via_cond_profile_accum_const_loop(
-    facts: &crate::mir::builder::control_flow::plan::facts::accum_const_loop_facts::AccumConstLoopFacts,
+    facts: &AccumConstLoopFacts,
 ) -> Result<bool, Freeze> {
     accept_via_cond_profile_freeze_on_incomplete(&facts.cond_profile, "accum_const_loop")
 }

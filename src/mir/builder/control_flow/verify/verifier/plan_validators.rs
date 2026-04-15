@@ -12,8 +12,10 @@
 //! - V4: Seq may be empty (no-op)
 //! - V5: If/BranchN completeness (then_plans non-empty)
 
-use super::super::{CoreBranchNPlan, CoreExitPlan, CoreIfPlan, LoweredRecipe};
 use super::{position_validators, primitives};
+use crate::mir::builder::control_flow::lower::{
+    CoreBranchNPlan, CoreExitPlan, CoreIfPlan, LoweredRecipe,
+};
 
 /// V4: Seq may be empty (no-op)
 pub(super) fn verify_seq(

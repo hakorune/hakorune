@@ -1,9 +1,10 @@
-use crate::mir::builder::control_flow::plan::normalize::CanonicalLoopFacts;
+use crate::mir::builder::control_flow::facts::scan_shapes::{
+    cond_profile_from_scan_shapes, StepShape,
+};
+use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 
 #[cfg(debug_assertions)]
 pub(in crate::mir::builder) fn debug_observe_cond_profile(facts: &CanonicalLoopFacts) {
-    use crate::mir::builder::control_flow::plan::facts::scan_shapes::cond_profile_from_scan_shapes;
-
     let cond_profile =
         cond_profile_from_scan_shapes(&facts.facts.condition_shape, &facts.facts.step_shape);
     debug_observe_cond_profile_value(&cond_profile);
@@ -36,17 +37,14 @@ pub(in crate::mir::builder) fn debug_observe_cond_profile_value(
 
 #[cfg(debug_assertions)]
 pub(in crate::mir::builder) fn debug_observe_cond_profile_step_mismatch(
-    step_shape: &crate::mir::builder::control_flow::plan::facts::scan_shapes::StepShape,
+    step_shape: &StepShape,
     cond_profile: &crate::mir::policies::CondProfile,
 ) {
     use crate::config::env::joinir_dev;
     use crate::mir::policies::{CondParam, StepExpr};
 
     let step_k = match step_shape {
-        crate::mir::builder::control_flow::plan::facts::scan_shapes::StepShape::AssignAddConst {
-            k,
-            ..
-        } => *k,
+        StepShape::AssignAddConst { k, .. } => *k,
         _ => return,
     };
 
@@ -73,7 +71,7 @@ pub(in crate::mir::builder) fn debug_observe_cond_profile_step_mismatch(
 
 #[cfg(not(debug_assertions))]
 pub(in crate::mir::builder) fn debug_observe_cond_profile_step_mismatch(
-    _step_shape: &crate::mir::builder::control_flow::plan::facts::scan_shapes::StepShape,
+    _step_shape: &StepShape,
     _cond_profile: &crate::mir::policies::CondProfile,
 ) {
 }

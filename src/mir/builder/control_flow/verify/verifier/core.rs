@@ -15,7 +15,7 @@
 //! - `effect_validators::verify_effect()` for Effect
 //! - `plan_validators::verify_exit()` for Exit
 
-use super::super::{CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::lower::{CorePlan, LoweredRecipe};
 
 /// Phase 273 P1: PlanVerifier - CorePlan 不変条件検証 (fail-fast)
 pub(in crate::mir::builder) struct PlanVerifier;

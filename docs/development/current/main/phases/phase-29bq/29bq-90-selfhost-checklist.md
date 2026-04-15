@@ -253,10 +253,11 @@ Related:
     - `verify/diagnostics::span_format`
     - `verify/observability::flowbox_tags`
     - `plan/composer/shadow_adopt.rs` now depends on top-level `verify/*`
-  - still mixed:
     - `verify::verifier`
+  - still mixed:
+    - none confirmed
   - next step:
-    - actualize `verify::verifier`
+    - actualize `ssa::exit_binding`
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`

@@ -1,10 +1,15 @@
 //! Top-level owner surface for control-flow verification and observability.
 //!
-//! During folderization, support modules can move here before the verifier core.
+//! During folderization, migrated verification modules live here first.
 //! Non-`plan/` consumers should depend on this module first.
 
 pub(in crate::mir::builder) mod diagnostics;
 pub(in crate::mir::builder) mod observability;
+pub(in crate::mir::builder) mod verifier;
 
 #[allow(unused_imports)]
-pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::verifier::*;
+pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::coreloop_body_contract::{
+    is_leaf_effect_plan,
+};
+#[allow(unused_imports)]
+pub(in crate::mir::builder) use verifier::*;

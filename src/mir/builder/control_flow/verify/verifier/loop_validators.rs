@@ -14,11 +14,11 @@
 //! - V10b: InlineInBody requires empty step_bb effects
 //! - V14: Continue target must be in frag wiring (pipeline invariant)
 
-use super::super::{
-    CoreEffectPlan, CoreExitPlan, CoreLoopPlan, CorePlan, LoopStepMode, LoweredRecipe,
-};
 use super::{effect_validators, primitives};
-use crate::mir::builder::control_flow::plan::edgecfg_facade::ExitKind;
+use crate::mir::builder::control_flow::lower::{
+    CoreEffectPlan, CoreExitPlan, CoreLoopPlan, CorePlan, LoopStepMode, LoweredRecipe,
+    ExitKind,
+};
 
 /// Phase 273 P3: Verify loop with generalized fields
 ///
