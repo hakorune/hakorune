@@ -47,7 +47,7 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
 - facts-local residue still forwarded through `facts::plan_residue`:
   - `none confirmed`
 - next actual move:
-  - thin the remaining family-local residue under `loop_scan_methods_v0` or `recipe_tree / parts`
+  - inventory `loop_collect_using_entries_v0` and keep `recipe_tree / parts` as the remaining shared-infra movable seam
 
 ### `recipes/`
 

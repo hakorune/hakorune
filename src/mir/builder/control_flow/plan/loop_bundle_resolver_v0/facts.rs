@@ -1,14 +1,12 @@
 //! Facts for loop_bundle_resolver_v0 (one-shape, planner-required only).
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
-use super::facts_helpers::{
-    declares_local_var, extract_step_var_from_tail, is_loop_cond_var_lt_var, release_enabled,
-};
+use super::facts_helpers::release_enabled;
+use super::facts_recipe_builder::try_build_loop_bundle_resolver_v0_facts;
+use super::facts_shape_routes::try_match_loop_bundle_resolver_v0_shape_pins;
 use super::facts_types::LoopBundleResolverV0Facts;
-use super::recipe::LoopBundleResolverV0Recipe;
 
 pub(in crate::mir::builder) fn try_extract_loop_bundle_resolver_v0_facts(
     condition: &ASTNode,
@@ -30,55 +28,18 @@ pub(in crate::mir::builder) fn try_extract_loop_bundle_resolver_v0_facts(
         return Ok(None);
     }
 
-    let Some((loop_var, limit_var)) = is_loop_cond_var_lt_var(condition) else {
-        debug_reject("cond_not_var_lt_var");
+    let Some(shape_pins) =
+        try_match_loop_bundle_resolver_v0_shape_pins(condition, body, &debug_reject)
+    else {
         return Ok(None);
     };
 
-    if body.len() < 2 {
-        debug_reject("body_too_short");
-        return Ok(None);
-    }
-
-    let Some(last) = body.last() else {
-        debug_reject("body_last_missing");
-        return Ok(None);
-    };
-    let Some(step_var) = extract_step_var_from_tail(last, &loop_var) else {
-        debug_reject("tail_not_loopvar_eq_stepvar");
-        return Ok(None);
-    };
-
-    // One-shape pin: step var must be introduced as a loop-local (typically the first stmt).
-    let Some(first) = body.first() else {
-        debug_reject("body_first_missing");
-        return Ok(None);
-    };
-    if !declares_local_var(first, &step_var) {
-        debug_reject("step_var_not_declared_as_first_local");
-        return Ok(None);
-    }
-
-    // Distinguish from scan loops: this shape is exit-bearing (nested return).
-    if !body.iter().any(ASTNode::contains_return_stmt) {
-        debug_reject("no_return_in_body");
-        return Ok(None);
-    }
-
-    let Some(body_exit_allowed) = try_build_exit_allowed_block_recipe(body, true) else {
-        debug_reject("exit_allowed_recipe_failed");
-        return Ok(None);
-    };
-
-    Ok(Some(LoopBundleResolverV0Facts {
-        loop_var,
-        limit_var,
-        condition: condition.clone(),
-        recipe: LoopBundleResolverV0Recipe {
-            step_var,
-            body_exit_allowed,
-        },
-    }))
+    Ok(try_build_loop_bundle_resolver_v0_facts(
+        condition,
+        body,
+        shape_pins,
+        &debug_reject,
+    ))
 }
 
 #[cfg(test)]

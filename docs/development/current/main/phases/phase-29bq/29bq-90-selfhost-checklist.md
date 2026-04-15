@@ -161,7 +161,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - close out `loop_scan_methods_block_v0::facts`, then inventory `loop_scan_methods_v0`
+    - close out `loop_scan_methods_block_v0::facts`, then inventory `loop_bundle_resolver_v0`
 - next one-family inventory (`loop_scan_methods_block_v0`):
   - already separate:
     - nested-loop recipe-first fallback handoff (`lower_nested_loop_plan`)
@@ -188,14 +188,18 @@ Related:
     - nested loop fallback bridge wrapper
     - nested segment dispatch
     - nested fallback segment wrapper
+  - landed:
+    - recipe owner move
+    - recipe wrapper removal
+    - facts wrapper removal
   - status:
     - landed and closed
   - likely first seam:
-    - inventory next owner-local family
+    - `none confirmed`
   - likely follow-on seams:
-    - pin next exact seam after inventory
+    - `none confirmed`
   - next step:
-    - inventory `loop_bundle_resolver_v0`
+    - inventory `loop_collect_using_entries_v0`
 - next one-family inventory (`loop_bundle_resolver_v0`):
   - already separate:
     - `pipeline`
@@ -203,6 +207,8 @@ Related:
   - landed:
     - `facts_helpers`
     - `facts_types`
+    - `facts_shape_routes`
+    - `facts_recipe_builder`
   - status:
     - landed and closed
   - still mixed:
@@ -334,7 +340,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - pick the next actual seam from `loop_scan_methods_v0` or `recipe_tree / parts`
+    - inventory `loop_collect_using_entries_v0` and keep `recipe_tree / parts` as the remaining shared-infra movable seam
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`
