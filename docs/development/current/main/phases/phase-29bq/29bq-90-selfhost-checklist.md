@@ -229,7 +229,8 @@ Related:
     - land top-level `control_flow/verify/` owner surface and move non-`plan/` consumers first
     - land top-level `control_flow/lower/` owner surface and move non-`plan/` consumers first
     - land top-level `control_flow/ssa/` owner surface
-    - next after that is `control_flow/cleanup/` owner surface
+    - land top-level `control_flow/cleanup/` owner surface
+    - next after that is direct `plan/` import inventory and removal
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`

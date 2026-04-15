@@ -56,7 +56,7 @@ pub(crate) mod ast_feature_extractor {
     pub(crate) use crate::mir::builder::control_flow::plan::ast_feature_extractor::*;
 }
 pub(in crate::mir::builder) mod policies {
-    pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::policies::*;
+    pub(in crate::mir::builder) use crate::mir::builder::control_flow::cleanup::policies::*;
 }
 
 // Re-export router for convenience

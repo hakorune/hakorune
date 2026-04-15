@@ -38,8 +38,8 @@ pub(in crate::mir::builder) fn choose_route_kind(
     body: &[ASTNode],
 ) -> crate::mir::loop_route_detection::LoopRouteKind {
     use crate::mir::builder::control_flow::plan::ast_feature_extractor as ast_features;
-    use crate::mir::builder::control_flow::plan::policies::balanced_depth_scan_policy_box::BalancedDepthScanPolicyBox;
-    use crate::mir::builder::control_flow::plan::policies::PolicyDecision;
+    use crate::mir::builder::control_flow::cleanup::policies::balanced_depth_scan_policy_box::BalancedDepthScanPolicyBox;
+    use crate::mir::builder::control_flow::cleanup::policies::PolicyDecision;
     use crate::mir::loop_route_detection;
 
     clear_step_tree_parity_error();

@@ -75,6 +75,9 @@ pub(in crate::mir::builder) mod lower;
 // Phase 29ca P1: top-level SSA/exit-binding owner surface (folderization first cut)
 pub(in crate::mir::builder) mod ssa;
 
+// Phase 29ca P1: top-level cleanup/policy owner surface (folderization first cut)
+pub(in crate::mir::builder) mod cleanup;
+
 // Phase 273 P0: Plan Extractor (Pure) + PlanLowerer SSOT
 pub(in crate::mir::builder) mod plan;
 
