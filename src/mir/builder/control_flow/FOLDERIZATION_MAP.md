@@ -86,8 +86,10 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
   - `plan/observability` (only if debug-contract cleanup ownership wins over verify ownership)
 - rationale:
   - policy and post-lowering cleanup surface
-- next actual move:
+- actual owner surface already landed:
   - `cleanup::common`
+- next actual move:
+  - `cleanup::policies`
 
 ## Owner-Local Families (keep under temporary `plan/` namespace)
 

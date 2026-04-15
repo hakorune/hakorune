@@ -257,7 +257,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - actualize `cleanup::common`
+    - actualize `cleanup::policies`
 
 - shared infra actual move (`ssa exit binding`):
   - landed:
@@ -268,7 +268,15 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - actualize `cleanup::common`
+    - actualize `cleanup::policies`
+
+- shared infra actual move (`cleanup common`):
+  - landed:
+    - `cleanup::common`
+  - still mixed:
+    - none confirmed
+  - next step:
+    - actualize `cleanup::policies`
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`
