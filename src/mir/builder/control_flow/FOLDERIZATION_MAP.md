@@ -31,15 +31,16 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
   - `facts::extractors::common_helpers::control_flow`
   - `facts::extractors::common_helpers::increment`
   - `facts::extractors::common_helpers::loop_true_early_exit`
+  - `facts::extractors::if_phi_join`
   - `facts::extractors::loop_simple_while`
   - `facts::canon::cond_block_view`
   - `facts::canon::generic_loop::update`
 - keep-plan-for-now residue inside `plan/extractors`:
   - `none confirmed`
 - facts-local residue still forwarded through `facts::plan_residue`:
-  - `if_phi_join_facts`
+  - `none confirmed`
 - next actual move:
-  - thin the remaining family-local residue under `loop_scan_methods_*` or `if_phi_join`
+  - thin the remaining family-local residue under `loop_scan_methods_*` or `recipe_tree / parts`
 
 ### `recipes/`
 

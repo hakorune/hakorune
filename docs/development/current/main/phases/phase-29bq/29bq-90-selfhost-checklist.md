@@ -317,16 +317,16 @@ Related:
     - `facts::extractors::common_helpers::control_flow`
     - `facts::extractors::common_helpers::increment`
     - `facts::extractors::common_helpers::loop_true_early_exit`
+    - `facts::extractors::if_phi_join`
     - `facts::extractors::loop_simple_while`
     - `facts::canon::cond_block_view`
     - `facts::canon::generic_loop::update`
     - `recipes::RecipeBody`
     - `recipes::refs`
   - still mixed:
-    - keep-plan-for-now residue:
-      - `if_phi_join`
+    - none confirmed
   - next step:
-    - pick the next actual seam from `loop_scan_methods_*`, `if_phi_join`, or `recipe_tree / parts`
+    - pick the next actual seam from `loop_scan_methods_*` or `recipe_tree / parts`
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`

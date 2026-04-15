@@ -11,6 +11,7 @@ pub(in crate::mir::builder) mod escape_shape_recognizer;
 pub(in crate::mir::builder) mod extractors;
 pub(in crate::mir::builder) mod expr_bool;
 pub(in crate::mir::builder) mod expr_value;
+pub(in crate::mir::builder) mod if_phi_join_facts;
 pub(in crate::mir::builder) mod loop_scan_methods_block_v0;
 pub(in crate::mir::builder) mod loop_scan_methods_v0;
 pub(in crate::mir::builder) mod no_exit_block;
@@ -19,5 +20,9 @@ pub(in crate::mir::builder) mod route_shape_recognizers;
 pub(in crate::mir::builder) mod stmt_view;
 pub(in crate::mir::builder) mod stmt_walk;
 
+#[allow(unused_imports)]
+pub(in crate::mir::builder) use if_phi_join_facts::{
+    try_extract_if_phi_join_facts, IfPhiJoinFacts,
+};
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use plan_residue::*;

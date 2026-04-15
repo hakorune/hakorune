@@ -124,6 +124,7 @@ Scope: current lane / next lane / restart order only.
       - `common_helpers::control_flow`
       - `common_helpers::increment`
       - `common_helpers::loop_true_early_exit`
+      - `if_phi_join`
       - `loop_simple_while`
     - `facts::loop_scan_methods_v0` facts/type extraction is landed at the top-level owner and now uses facts-owned `no_exit_block` / `stmt_view` helpers
     - `facts::loop_scan_methods_block_v0` facts/type extraction is landed at the top-level owner
@@ -131,6 +132,7 @@ Scope: current lane / next lane / restart order only.
     - `facts::expr_bool` owner surface is landed at the top-level owner
     - `facts::no_exit_block` owner surface is landed at the top-level owner
     - `facts::stmt_view` owner surface is landed at the top-level owner
+    - `facts::if_phi_join_facts` owner surface is landed at the top-level owner
     - `facts::canon` support is landed at the top-level owner for:
       - `cond`
       - `cond_block_view`
@@ -168,7 +170,7 @@ Scope: current lane / next lane / restart order only.
       - `match_return_facts`, `LoopBreakFacts`
       - cond-profile support: `accum_const_loop_facts`, `bool_predicate_scan_facts`, `loop_array_join_facts`, `loop_char_map_facts`
     - next actual move:
-      - compat residue after `recipes::RecipeBody / refs` actualization
+      - family-local residue after `if_phi_join` actualization (`loop_scan_methods_*`, `recipe_tree / parts`)
   - end-state folderization epics after the owner-local queue is empty:
     - pin destination buckets for current `plan/` directories under `facts / recipes / verify / lower / ssa / cleanup`
     - move shared descriptive infra first (`facts`, `canon`, `extractors`, `route_shape_recognizers`)
