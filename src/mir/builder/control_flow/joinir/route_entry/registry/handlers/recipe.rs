@@ -4,16 +4,17 @@ use crate::mir::builder::control_flow::joinir::route_entry::router::{
 use crate::mir::builder::control_flow::lower::{
     planner_rule_route_label, Freeze, PlanBuildOutcome, PlanLowerer, PlanRuleId,
 };
-use crate::mir::builder::control_flow::plan::composer;
-use crate::mir::builder::control_flow::recipes::RecipeComposer;
+use crate::mir::builder::control_flow::recipes::{self, RecipeComposer};
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::verify::PlanVerifier;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
-use super::common::debug_log_recipe_entry;
 use super::super::types::{PlannerFirstMode, RouterEnv};
-use super::super::utils::{emit_planner_first, loop_break_recipe_needs_flowbox_adopt_tag_in_strict};
+use super::super::utils::{
+    emit_planner_first, loop_break_recipe_needs_flowbox_adopt_tag_in_strict,
+};
+use super::common::debug_log_recipe_entry;
 
 pub(crate) fn route_loop_break_recipe(
     builder: &mut MirBuilder,
@@ -127,7 +128,7 @@ pub(crate) fn route_loop_continue_only(
     );
     debug_log_recipe_entry(planner_rule_route_label(PlanRuleId::LoopContinueOnly), env);
     if env.planner_required {
-        if let Some(err) = composer::strict_nested_loop_guard(outcome, ctx) {
+        if let Some(err) = recipes::strict_nested_loop_guard(outcome, ctx) {
             flowbox_tags::emit_flowbox_freeze_tag_from_facts(
                 env.strict_or_dev,
                 "unstructured",

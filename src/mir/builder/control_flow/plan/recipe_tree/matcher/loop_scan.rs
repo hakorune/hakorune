@@ -4,7 +4,7 @@ use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 /// Recipe-first verification for loop_scan_methods_v0.
 pub fn verify_loop_scan_methods_v0_recipe(
-    scan_methods: &crate::mir::builder::control_flow::plan::loop_scan_methods_v0::LoopScanMethodsV0Facts,
+    scan_methods: &crate::mir::builder::control_flow::facts::loop_scan_methods_v0::LoopScanMethodsV0Facts,
 ) -> Result<(), Freeze> {
     use crate::mir::builder::control_flow::plan::loop_scan_methods_v0::recipe::LoopScanSegment;
 
@@ -32,7 +32,7 @@ pub fn verify_loop_scan_methods_v0_recipe(
 
 /// Recipe-first verification for loop_scan_methods_block_v0.
 pub fn verify_loop_scan_methods_block_v0_recipe(
-    scan_methods_block: &crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::LoopScanMethodsBlockV0Facts,
+    scan_methods_block: &crate::mir::builder::control_flow::facts::loop_scan_methods_block_v0::LoopScanMethodsBlockV0Facts,
 ) -> Result<(), Freeze> {
     use crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::{
         LinearBlockRecipe, ScanSegment,
@@ -43,16 +43,16 @@ pub fn verify_loop_scan_methods_block_v0_recipe(
             ScanSegment::Linear(recipe) => match recipe {
                 LinearBlockRecipe::NoExit(block) => {
                     let ctx = format!("loop_scan_methods_block_v0_linear_no_exit_{idx}");
-                    verify_no_exit_block_recipe(block, &ctx)?;
+                    verify_no_exit_block_recipe(&block, &ctx)?;
                 }
                 LinearBlockRecipe::ExitAllowed(block) => {
                     let ctx = format!("loop_scan_methods_block_v0_linear_exit_allowed_{idx}");
-                    verify_exit_allowed_block_recipe(block, &ctx)?;
+                    verify_exit_allowed_block_recipe(&block, &ctx)?;
                 }
             },
             ScanSegment::NestedLoop(nested) => {
                 let ctx = format!("loop_scan_methods_block_v0_nested_{idx}");
-                verify_nested_loop_stmt_only_if_available(nested, &ctx)?;
+                verify_nested_loop_stmt_only_if_available(&nested, &ctx)?;
             }
         }
     }

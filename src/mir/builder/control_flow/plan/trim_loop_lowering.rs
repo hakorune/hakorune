@@ -36,9 +36,11 @@
 //! - Break condition replaced: `break on !is_ch_match`
 //! - ConditionEnv binding: `ch` → JoinIR ValueId
 
-use super::policies::trim_policy::{classify_trim_like_loop, TrimPolicyResult};
 use super::policies::PolicyDecision;
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::cleanup::policies::trim_policy::{
+    classify_trim_like_loop, TrimPolicyResult,
+};
 use crate::mir::builder::MirBuilder;
 use crate::mir::join_ir::lowering::carrier_info::CarrierInfo;
 use crate::mir::join_ir::lowering::common::condition_only_emitter::BreakSemantics;

@@ -45,10 +45,8 @@
 use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::mir::builder::control_flow::facts::{try_extract_match_return_facts, MatchReturnFacts};
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::composer::{
-    compose_match_return_branchn, MatchReturnPlan,
-};
 use crate::mir::builder::control_flow::lower::PlanLowerer;
+use crate::mir::builder::control_flow::recipes::{compose_match_return_branchn, MatchReturnPlan};
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::verify::PlanVerifier;
 use crate::mir::{MirBuilder, MirInstruction, ValueId};

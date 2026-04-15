@@ -30,13 +30,15 @@
 - `TrimLoweringResult` - condition, carrier_info, condition_only_recipe
 
 **将来的な整理**:
-- Trim route 判断ロジックを policies/ へ寄せる方針は完了済み
+- Trim route 判断ロジックは `cleanup/policies/trim_policy.rs` へ移設済み
 - current location は `plan/trim_loop_lowering.rs`（old `patterns/*` path は historical token のみ）
 
 ---
 
 ### p5b_escape_derived_policy.rs (Phase 94)
-**現在の場所**: `plan/policies/keep_plan/p5b_escape_derived_policy.rs`
+**現在の場所**: compat at `plan/policies/keep_plan/p5b_escape_derived_policy.rs`
+
+**owner surface**: `cleanup/policies/p5b_escape_derived_policy.rs`
 
 **責務**: P5b escapeパターン認識とBodyLocalDerivedルーティング
 
@@ -51,12 +53,15 @@
 - `P5bEscapeDerivedDecision::None` - 該当なし
 
 **将来的な整理**:
-- policies/配下でpolicy箱として統一済み（Phase 96）
+- `cleanup/policies/p5b_escape_derived_policy.rs` に移設済み
+- keep-plan 側は compat re-export のみ
 
 ---
 
 ### loop_true_read_digits_policy.rs (Phase 104/105)
-**現在の場所**: `plan/policies/keep_plan/loop_true_read_digits_policy.rs`
+**現在の場所**: compat at `plan/policies/keep_plan/loop_true_read_digits_policy.rs`
+
+**owner surface**: `cleanup/policies/loop_true_read_digits_policy.rs`
 
 **責務**: `loop(true)` + break-only digits（`read_digits_from` family）の認識とルーティング
 
@@ -69,6 +74,10 @@
 - `PolicyDecision::Use(LoopTrueReadDigitsPolicyResult)` - `break_when_true := (ch == \"\") || !(digit_cond)` と `ch` allow-list
 - `PolicyDecision::Reject(String)` - 検出失敗理由（Fail-Fast）
 - `PolicyDecision::None` - 該当なし
+
+**将来的な整理**:
+- `cleanup/policies/loop_true_read_digits_policy.rs` に移設済み
+- keep-plan 側は compat re-export のみ
 
 ---
 
@@ -190,7 +199,6 @@ pub enum Decision {
 ## 将来の拡張
 
 ### Phase 95以降の候補
-- `trim_policy.rs` - Trimパターン判断をpolicies/へ移動
 - `escape_policy.rs` - P5b escapeを統一インターフェースに
 - `array_loop_policy.rs` - 配列ループパターン判断
 - `map_loop_policy.rs` - Mapループパターン判断
@@ -204,9 +212,10 @@ pub enum Decision {
 - mod.rs作成 ✅
 
 #### Phase 2: 既存policy箱の移動（将来）
-- `p5b_escape_derived_policy.rs` → `policies/escape_policy.rs`
+- `loop_true_read_digits_policy.rs` → landed at `cleanup/policies/loop_true_read_digits_policy.rs`
+- `p5b_escape_derived_policy.rs` → landed at `cleanup/policies/p5b_escape_derived_policy.rs`
 - `body_local_policy.rs` → `policies/body_local_policy.rs`
-- trim関連ロジック抽出 → `policies/trim_policy.rs`
+- `trim_policy.rs` → landed at `cleanup/policies/trim_policy.rs`
 
 #### Phase 3: インターフェース統一（将来）
 - `PatternPolicy` trait定義

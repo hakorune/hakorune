@@ -291,16 +291,17 @@ Related:
 - shared infra actual move (`cleanup policies support`):
   - landed:
     - `cleanup::policies::cond_prelude_vocab`
+    - `cleanup::policies::loop_true_read_digits_policy`
     - `cleanup::policies::loop_simple_while_subset_policy`
     - `cleanup::policies::balanced_depth_scan_policy`
     - `cleanup::policies::balanced_depth_scan_policy_box`
     - `cleanup::policies::normalized_shadow_suffix_router_box`
     - `cleanup::policies::post_loop_early_return_plan`
+    - `cleanup::policies::p5b_escape_derived_policy`
+    - `cleanup::policies::trim_policy`
   - still mixed:
     - keep-plan-for-now route-local residue:
-      - `loop_true_read_digits_policy`
-      - `p5b_escape_derived_policy`
-      - `trim_policy`
+      - `none confirmed`
   - next step:
     - re-inventory compat wrappers behind `facts / recipes / lower`
 
@@ -312,13 +313,13 @@ Related:
     - `facts::stmt_walk`
     - `facts::extractors::common_helpers::condition`
     - `facts::extractors::common_helpers::control_flow`
+    - `facts::extractors::common_helpers::increment`
     - `facts::extractors::common_helpers::loop_true_early_exit`
     - `facts::extractors::loop_simple_while`
     - `facts::canon::generic_loop::update`
   - still mixed:
     - keep-plan-for-now residue:
       - `if_phi_join`
-      - `common_helpers::increment`
   - next step:
     - re-inventory compat wrappers behind `facts / recipes / lower`
 - next one-family inventory (`loop_scan_v0`):

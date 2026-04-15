@@ -2,7 +2,7 @@
 //!
 //! Phase 282 P9a: Extracted from loop route extractors
 //! to eliminate common duplication.
-//! Phase 29ai P10: Moved to plan-layer SSOT (JoinIR keeps a wrapper path).
+//! During folderization, this module stays as a compat wrapper over facts-side helpers.
 //!
 //! # Design Principles
 //!

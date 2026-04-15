@@ -14,6 +14,7 @@ pub(in crate::mir::builder) mod route_finalize;
 pub(in crate::mir::builder) mod segment_linear;
 pub(in crate::mir::builder) mod segment_nested_loop;
 
+#[allow(unused_imports)]
 pub(in crate::mir::builder) use facts::{
     try_extract_loop_scan_methods_v0_facts, LoopScanMethodsV0Facts,
 };

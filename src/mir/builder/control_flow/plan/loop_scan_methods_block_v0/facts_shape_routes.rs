@@ -5,11 +5,11 @@ use super::facts_helpers::{
     scan_window_substring_receiver,
 };
 
-pub(super) struct LoopScanMethodsBlockShapeMatch {
+pub(in crate::mir::builder) struct LoopScanMethodsBlockShapeMatch {
     pub next_i_var: String,
 }
 
-pub(super) fn try_match_loop_scan_methods_block_shape(
+pub(in crate::mir::builder) fn try_match_loop_scan_methods_block_shape(
     body: &[ASTNode],
     loop_var: &str,
     limit_var: &str,

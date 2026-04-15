@@ -5,12 +5,12 @@ use crate::mir::policies::BodyLoweringPolicy;
 use super::facts_helpers::{flatten_stmt_list, try_segmentize_stmt_list};
 use super::recipe::LoopScanMethodsBlockV0Recipe;
 
-pub(super) struct LoopScanMethodsBlockRecipeBuild {
+pub(in crate::mir::builder) struct LoopScanMethodsBlockRecipeBuild {
     pub body_lowering_policy: BodyLoweringPolicy,
     pub recipe: LoopScanMethodsBlockV0Recipe,
 }
 
-pub(super) fn try_build_loop_scan_methods_block_recipe(
+pub(in crate::mir::builder) fn try_build_loop_scan_methods_block_recipe(
     body: &[ASTNode],
     next_i_var: String,
 ) -> Option<LoopScanMethodsBlockRecipeBuild> {

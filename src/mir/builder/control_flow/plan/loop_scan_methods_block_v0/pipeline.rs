@@ -123,7 +123,7 @@ pub(in crate::mir::builder) fn lower_loop_scan_methods_block_v0(
                     &mut current_bindings,
                     &carrier_step_phis,
                     &break_phi_dsts,
-                    linear,
+                    &linear,
                 )?)
             }
             ScanSegment::NestedLoop(nested) => {
@@ -132,7 +132,7 @@ pub(in crate::mir::builder) fn lower_loop_scan_methods_block_v0(
                     &mut current_bindings,
                     &carrier_step_phis,
                     &break_phi_dsts,
-                    nested,
+                    &nested,
                     ctx,
                 )?);
             }

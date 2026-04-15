@@ -5,18 +5,19 @@
 //! `loop_scan_methods_v0` does not segmentize.
 
 mod facts;
-mod facts_helpers;
-mod facts_recipe_builder;
-mod facts_shape_routes;
+pub(in crate::mir::builder) mod facts_helpers;
+pub(in crate::mir::builder) mod facts_recipe_builder;
+pub(in crate::mir::builder) mod facts_shape_routes;
 mod facts_types;
 mod nested_loop_handoff;
 mod nested_loop_stmt_only;
 mod pipeline;
-mod recipe;
+pub(in crate::mir::builder) mod recipe;
 mod route_finalize;
 mod segment_linear;
 mod segment_nested_loop;
 
+#[allow(unused_imports)]
 pub(in crate::mir::builder) use facts::try_extract_loop_scan_methods_block_v0_facts;
 pub(in crate::mir::builder) use facts_types::LoopScanMethodsBlockV0Facts;
 pub(in crate::mir::builder) use pipeline::lower_loop_scan_methods_block_v0;

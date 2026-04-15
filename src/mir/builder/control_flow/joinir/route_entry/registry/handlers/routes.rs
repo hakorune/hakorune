@@ -1,10 +1,9 @@
 use crate::mir::builder::control_flow::facts::feature_facts::detect_nested_loop;
+use crate::mir::builder::control_flow::lower::PlanLowerer;
 use crate::mir::builder::control_flow::lower::{
     planner_rule_route_label, PlanBuildOutcome, PlanRuleId,
 };
-use crate::mir::builder::control_flow::plan::composer;
-use crate::mir::builder::control_flow::lower::PlanLowerer;
-use crate::mir::builder::control_flow::recipes::RecipeComposer;
+use crate::mir::builder::control_flow::recipes::{self, RecipeComposer};
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::verify::PlanVerifier;
 use crate::mir::builder::MirBuilder;
@@ -26,12 +25,10 @@ pub(crate) fn route_loop_break_recipe(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     if env.planner_required && outcome.recipe_contract.is_none() {
-        return Err(
-            crate::mir::builder::control_flow::lower::Freeze::contract(
-                "LoopBreakRecipe requires recipe_contract in planner_required mode",
-            )
-            .to_string(),
-        );
+        return Err(crate::mir::builder::control_flow::lower::Freeze::contract(
+            "LoopBreakRecipe requires recipe_contract in planner_required mode",
+        )
+        .to_string());
     }
     emit_planner_first(
         PlannerFirstMode::StrictOrDev,
@@ -87,12 +84,10 @@ pub(crate) fn route_if_phi_join(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     if env.planner_required && outcome.recipe_contract.is_none() {
-        return Err(
-            crate::mir::builder::control_flow::lower::Freeze::contract(
-                "IfPhiJoin requires recipe_contract in planner_required mode",
-            )
-            .to_string(),
-        );
+        return Err(crate::mir::builder::control_flow::lower::Freeze::contract(
+            "IfPhiJoin requires recipe_contract in planner_required mode",
+        )
+        .to_string());
     }
     emit_planner_first(PlannerFirstMode::StrictOrDev, env, PlanRuleId::IfPhiJoin);
     debug_log_recipe_entry(planner_rule_route_label(PlanRuleId::IfPhiJoin), env);
@@ -123,12 +118,10 @@ pub(crate) fn route_loop_continue_only(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     if env.planner_required && outcome.recipe_contract.is_none() {
-        return Err(
-            crate::mir::builder::control_flow::lower::Freeze::contract(
-                "LoopContinueOnly requires recipe_contract in planner_required mode",
-            )
-            .to_string(),
-        );
+        return Err(crate::mir::builder::control_flow::lower::Freeze::contract(
+            "LoopContinueOnly requires recipe_contract in planner_required mode",
+        )
+        .to_string());
     }
     emit_planner_first(
         PlannerFirstMode::StrictOrDev,
@@ -137,7 +130,7 @@ pub(crate) fn route_loop_continue_only(
     );
     debug_log_recipe_entry(planner_rule_route_label(PlanRuleId::LoopContinueOnly), env);
     if env.planner_required {
-        if let Some(err) = composer::strict_nested_loop_guard(outcome, ctx) {
+        if let Some(err) = recipes::strict_nested_loop_guard(outcome, ctx) {
             flowbox_tags::emit_flowbox_freeze_tag_from_facts(
                 env.strict_or_dev,
                 "unstructured",
@@ -320,12 +313,10 @@ pub(crate) fn route_accum_const_loop(
     env: &RouterEnv,
 ) -> Result<Option<ValueId>, String> {
     if env.planner_required && outcome.recipe_contract.is_none() {
-        return Err(
-            crate::mir::builder::control_flow::lower::Freeze::contract(
-                "AccumConstLoop requires recipe_contract in planner_required mode",
-            )
-            .to_string(),
-        );
+        return Err(crate::mir::builder::control_flow::lower::Freeze::contract(
+            "AccumConstLoop requires recipe_contract in planner_required mode",
+        )
+        .to_string());
     }
     emit_planner_first(
         PlannerFirstMode::StrictOrDev,
@@ -474,7 +465,7 @@ pub(crate) fn route_nested_loop_minimal(
         return Ok(None);
     }
 
-    let Some(core_plan) = composer::try_compose_core_loop_v2_nested_minimal(builder, facts, ctx)?
+    let Some(core_plan) = recipes::try_compose_core_loop_v2_nested_minimal(builder, facts, ctx)?
     else {
         if env.strict_or_dev {
             return Err(

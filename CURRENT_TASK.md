@@ -42,7 +42,6 @@ Scope: current lane / next lane / restart order only.
 - next exact handoff:
   - safe tiny wrapper cleanup is exhausted for owner-preserving seams
   - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
-  - treat `plan/policies` as the keep-plan owner surface for `loop_true_read_digits_policy`, `p5b_escape_derived_policy`, and `trim_policy`
   - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
   - keep the isolated owner-local keep-plan bridge minimal in `joinir/route_entry::owner_local_compat`
 - current stop-lines:
@@ -108,12 +107,11 @@ Scope: current lane / next lane / restart order only.
     - exact remaining residue shape:
       - explicit facts-local `plan_residue` under `facts/`
       - intentional top-level owner surfaces remain under `recipes / lower / verify / ssa / cleanup / facts`
-      - keep-plan policy residue remains under `plan/policies`
+      - `plan/policies` is now compat-only
       - isolated owner-local keep-plan bridge under `joinir/route_entry::owner_local_compat`
     - fixed next handoff:
       - safe tiny wrapper cleanup is exhausted for owner-preserving seams
       - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
-      - treat `plan/policies` as the keep-plan owner surface until `loop_true_read_digits_policy`, `p5b_escape_derived_policy`, and `trim_policy` get single-owner homes
       - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
       - keep the isolated owner-local keep-plan bridge minimal in `joinir/route_entry::owner_local_compat`
   - shared infra actualization snapshot:
@@ -124,8 +122,11 @@ Scope: current lane / next lane / restart order only.
     - `facts::extractors` support is landed at the top-level owner for:
       - `common_helpers::condition`
       - `common_helpers::control_flow`
+      - `common_helpers::increment`
       - `common_helpers::loop_true_early_exit`
       - `loop_simple_while`
+    - `facts::loop_scan_methods_v0` facts/type extraction is landed at the top-level owner
+    - `facts::loop_scan_methods_block_v0` facts/type extraction is landed at the top-level owner
     - `facts::canon` support is landed at the top-level owner for:
       - `generic_loop::update`
     - `verify/diagnostics::span_format` is landed at the top-level owner
@@ -138,19 +139,22 @@ Scope: current lane / next lane / restart order only.
     - `cleanup::common` is landed at the top-level owner
     - `cleanup::policies` support is landed at the top-level owner for:
       - `cond_prelude_vocab`
+      - `loop_true_read_digits_policy`
       - `loop_simple_while_subset_policy`
       - `balanced_depth_scan_policy`
       - `balanced_depth_scan_policy_box`
       - `normalized_shadow_suffix_router_box`
       - `post_loop_early_return_plan`
-    - `plan::policies` keep-plan-for-now residue remains for:
-      - `loop_true_read_digits_policy`
       - `p5b_escape_derived_policy`
       - `trim_policy`
+    - `plan::policies` keep-plan-for-now residue remains for:
+      - `none confirmed`
     - `plan::extractors` keep-plan-for-now residue remains for:
-      - `common_helpers::increment`
-    - `facts::plan_residue` still forwards:
-      - `if_phi_join_facts`
+      - `none confirmed`
+    - `facts::plan_residue` now forwards only live non-`plan/` callers:
+      - `feature_facts`, `skeleton_facts`, `scan_shapes`, `loop_types`, `loop_simple_while_facts`
+      - `match_return_facts`, `LoopBreakFacts`
+      - cond-profile support: `accum_const_loop_facts`, `bool_predicate_scan_facts`, `loop_array_join_facts`, `loop_char_map_facts`
     - next actual move:
       - compat wrapper inventory behind `recipes / lower` owner surfaces
   - end-state folderization epics after the owner-local queue is empty:

@@ -7,7 +7,7 @@ use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
 
 use super::recipe::{LinearBlockRecipe, NestedLoopRecipe, ScanSegment};
 
-pub(super) fn release_enabled() -> bool {
+pub(in crate::mir::builder) fn release_enabled() -> bool {
     true
 }
 
@@ -34,7 +34,7 @@ fn is_var_plus_one(ast: &ASTNode, var: &str) -> bool {
     )
 }
 
-pub(super) fn is_loop_cond_i_lt_n(ast: &ASTNode) -> Option<(String, String)> {
+pub(in crate::mir::builder) fn is_loop_cond_i_lt_n(ast: &ASTNode) -> Option<(String, String)> {
     match ast {
         ASTNode::BinaryOp {
             operator: BinaryOperator::Less,

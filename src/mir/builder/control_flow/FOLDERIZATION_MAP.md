@@ -29,11 +29,12 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
   - `facts::plan_residue`
   - `facts::extractors::common_helpers::condition`
   - `facts::extractors::common_helpers::control_flow`
+  - `facts::extractors::common_helpers::increment`
   - `facts::extractors::common_helpers::loop_true_early_exit`
   - `facts::extractors::loop_simple_while`
   - `facts::canon::generic_loop::update`
 - keep-plan-for-now residue inside `plan/extractors`:
-  - `common_helpers::increment`
+  - `none confirmed`
 - facts-local residue still forwarded through `facts::plan_residue`:
   - `if_phi_join_facts`
 - next actual move:
@@ -114,16 +115,17 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
 - actual owner surface already landed:
   - `cleanup::common`
   - `cleanup::policies::cond_prelude_vocab`
+  - `cleanup::policies::loop_true_read_digits_policy`
   - `cleanup::policies::loop_simple_while_subset_policy`
   - `cleanup::policies::balanced_depth_scan_policy_box`
   - `cleanup::policies::normalized_shadow_suffix_router_box`
+  - `cleanup::policies::p5b_escape_derived_policy`
+  - `cleanup::policies::trim_policy`
 - keep-plan-for-now residue inside `plan/policies`:
-  - `loop_true_read_digits_policy`
-  - `p5b_escape_derived_policy`
-  - `trim_policy`
+  - `none confirmed`
 - next actual move:
   - `none confirmed`
-  - `plan/policies` is no longer a mixed cleanup compat wrapper; keep it as the owner surface for the remaining keep-plan policy modules
+  - `plan/policies` is compat-only for already-moved cleanup policies
 
 ## Owner-Local Families (keep under temporary `plan/` namespace)
 
@@ -162,7 +164,7 @@ These wrappers are allowed to point at `plan/` until the implementation moves to
 
 - safe tiny wrapper cleanup is exhausted for owner-preserving seams
 - keep `recipes/`, `lower/`, `verify/`, `ssa/`, `cleanup/`, and `facts/` as the active top-level owner surfaces
-- next movable symbols only appear after `loop_cond` or `loop_scan_methods_*` stops mixing owner responsibilities, or after `plan/policies` residue gets single-owner homes
+- next movable symbols only appear after `loop_cond` or `loop_scan_methods_*` stops mixing owner responsibilities
 
 ## First Cut
 

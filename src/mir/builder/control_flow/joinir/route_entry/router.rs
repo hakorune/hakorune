@@ -31,7 +31,7 @@ use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::lower::{
     try_build_outcome, CorePlan, Freeze, PlanBuildOutcome, PlanLowerer,
 };
-use crate::mir::builder::control_flow::plan::composer;
+use crate::mir::builder::control_flow::recipes;
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::verify::PlanVerifier;
 
@@ -159,7 +159,7 @@ fn enforce_shadow_adopt_pre_plan_guard(
     strict_or_dev: bool,
     outcome: &PlanBuildOutcome,
 ) -> Result<(), String> {
-    let Some(err) = composer::shadow_pre_plan_guard_error(ctx, outcome) else {
+    let Some(err) = recipes::shadow_pre_plan_guard_error(ctx, outcome) else {
         return Ok(());
     };
     flowbox_tags::emit_flowbox_freeze_tag_from_facts(
@@ -359,13 +359,13 @@ mod tests {
     use super::release_allows_nested_recipe_first;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
     use crate::mir::builder::control_flow::facts::feature_facts::LoopFeatureFacts;
+    use crate::mir::builder::control_flow::facts::loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts;
+    use crate::mir::builder::control_flow::facts::loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts;
     use crate::mir::builder::control_flow::facts::loop_types::LoopFacts;
     use crate::mir::builder::control_flow::facts::scan_shapes::{ConditionShape, StepShape};
     use crate::mir::builder::control_flow::facts::skeleton_facts::{SkeletonFacts, SkeletonKind};
     use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
     use crate::mir::builder::control_flow::lower::PlanBuildOutcome;
-    use crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts;
-    use crate::mir::builder::control_flow::plan::loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts;
 
     fn var(name: &str) -> ASTNode {
         ASTNode::Variable {

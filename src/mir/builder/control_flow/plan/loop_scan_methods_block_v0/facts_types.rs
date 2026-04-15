@@ -1,13 +1,3 @@
-use crate::ast::ASTNode;
-use crate::mir::policies::BodyLoweringPolicy;
+//! Compatibility re-export while loop_scan_methods_block_v0 facts live under `facts/`.
 
-use super::recipe::LoopScanMethodsBlockV0Recipe;
-
-#[derive(Debug, Clone)]
-pub(in crate::mir::builder) struct LoopScanMethodsBlockV0Facts {
-    pub loop_var: String,
-    pub limit_var: String,
-    pub condition: ASTNode,
-    pub body_lowering_policy: BodyLoweringPolicy,
-    pub recipe: LoopScanMethodsBlockV0Recipe,
-}
+pub(in crate::mir::builder) use crate::mir::builder::control_flow::facts::loop_scan_methods_block_v0::LoopScanMethodsBlockV0Facts;

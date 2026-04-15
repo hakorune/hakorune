@@ -8,6 +8,8 @@ pub(crate) mod ast_feature_extractor;
 pub(in crate::mir::builder) mod canon;
 pub(in crate::mir::builder) mod escape_shape_recognizer;
 pub(in crate::mir::builder) mod extractors;
+pub(in crate::mir::builder) mod loop_scan_methods_block_v0;
+pub(in crate::mir::builder) mod loop_scan_methods_v0;
 mod plan_residue;
 pub(in crate::mir::builder) mod route_shape_recognizers;
 pub(in crate::mir::builder) mod stmt_walk;
