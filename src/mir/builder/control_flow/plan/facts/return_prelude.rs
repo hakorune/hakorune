@@ -20,8 +20,8 @@ use crate::mir::builder::control_flow::facts::no_exit_block::{
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     BlockContractKind, ExitKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies, RecipeItem,
 };
-use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
+use crate::mir::builder::control_flow::recipes::refs::StmtRef;
+use crate::mir::builder::control_flow::recipes::RecipeBody;
 use crate::mir::policies::return_prelude_policy::return_prelude_stmt_is_allowed;
 
 /// Flatten `Program` and `ScopeBox` wrappers into a single sequential statement list.
