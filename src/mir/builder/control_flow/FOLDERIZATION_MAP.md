@@ -40,7 +40,7 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
 - facts-local residue still forwarded through `facts::plan_residue`:
   - `none confirmed`
 - next actual move:
-  - thin the remaining family-local residue under `loop_scan_methods_*` or `recipe_tree / parts`
+  - thin the remaining family-local residue under `loop_scan_methods_v0` or `recipe_tree / parts`
 
 ### `recipes/`
 

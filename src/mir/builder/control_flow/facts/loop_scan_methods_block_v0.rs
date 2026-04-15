@@ -1,15 +1,14 @@
 //! Facts for loop_scan_methods_block_v0 (one-shape, planner-required only).
 
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::facts::loop_scan_methods_block_v0_helpers::{
+    is_loop_cond_i_lt_n, release_enabled,
+};
+use crate::mir::builder::control_flow::facts::loop_scan_methods_block_v0_recipe_builder::try_build_loop_scan_methods_block_recipe;
+use crate::mir::builder::control_flow::facts::loop_scan_methods_block_v0_shape_routes::try_match_loop_scan_methods_block_shape;
 use crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::recipe::LoopScanMethodsBlockV0Recipe;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::policies::BodyLoweringPolicy;
-
-use crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::facts_helpers::{
-    is_loop_cond_i_lt_n, release_enabled,
-};
-use crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::facts_recipe_builder::try_build_loop_scan_methods_block_recipe;
-use crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::facts_shape_routes::try_match_loop_scan_methods_block_shape;
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct LoopScanMethodsBlockV0Facts {

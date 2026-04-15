@@ -326,7 +326,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - pick the next actual seam from `loop_scan_methods_*` or `recipe_tree / parts`
+    - pick the next actual seam from `loop_scan_methods_v0` or `recipe_tree / parts`
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`
