@@ -1,5 +1,5 @@
 use super::types::{PlannerFirstMode, RouterEnv};
-use crate::mir::builder::control_flow::lower::single_planner::PlanRuleId;
+use crate::mir::builder::control_flow::lower::PlanRuleId;
 
 pub(crate) fn emit_planner_first(mode: PlannerFirstMode, env: &RouterEnv, rule: PlanRuleId) {
     let emit = match mode {

@@ -28,8 +28,9 @@ use crate::mir::builder::control_flow::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::facts::reject_reason;
 use crate::mir::builder::control_flow::lower::expectations;
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
-use crate::mir::builder::control_flow::lower::single_planner;
-use crate::mir::builder::control_flow::lower::{CorePlan, Freeze, PlanBuildOutcome, PlanLowerer};
+use crate::mir::builder::control_flow::lower::{
+    try_build_outcome, CorePlan, Freeze, PlanBuildOutcome, PlanLowerer,
+};
 use crate::mir::builder::control_flow::plan::composer;
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::verify::PlanVerifier;
@@ -133,7 +134,7 @@ impl<'a> LoopRouteContext<'a> {
 /// operational SSOT for loop routing (Phase 273+).
 ///
 /// Plan-based architecture (Phase 273 P1-P3):
-/// - single_planner::try_build_outcome() → facts/recipe outcome (pure extraction, no builder)
+/// - try_build_outcome() → facts/recipe outcome (pure extraction, no builder)
 /// - PlanVerifier::verify() → fail-fast validation
 /// - PlanLowerer::lower() → MIR emission (route-agnostic, emit_frag SSOT)
 ///
@@ -227,7 +228,7 @@ pub(crate) fn route_loop(
     use super::super::trace;
 
     // Phase 29ai P5: Single entrypoint for plan extraction (router has no rule table).
-    let outcome = single_planner::try_build_outcome(ctx)?;
+    let outcome = try_build_outcome(ctx)?;
     let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
         || crate::config::env::joinir_dev_enabled();
     let planner_required =
