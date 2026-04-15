@@ -157,14 +157,13 @@ These stay in `plan/` until each family is thin enough that the remaining code b
 - `control_flow/facts::plan_residue`
 - `control_flow/recipes/composer_compat.rs`
 - `control_flow/lower/**`
-- `control_flow/joinir/route_entry::owner_local_compat`
 
 These wrappers are allowed to point at `plan/` until the implementation moves to its final owner folder.
 
 ### Owner-Local Keep-Plan-For-Now Symbols
 
 - `plan/loop_cond/break_continue_types::LoopCondBreakAcceptKind`
-  - consumed through `joinir/route_entry::owner_local_compat`
+  - kept internal to the `loop_cond` family
 
 ### Movable Next
 

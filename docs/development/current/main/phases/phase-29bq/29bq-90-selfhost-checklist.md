@@ -235,12 +235,12 @@ Related:
 - folderization residue inventory (`direct plan import residue`):
   - landed:
     - top-level owner surfaces for `facts / recipes / verify / lower / ssa / cleanup`
-    - route-entry owner-local compat window (`joinir/route_entry::owner_local_compat`)
+    - route-entry owner-local compat window removed
   - current residue classes:
     - compat-wrapper self-reference
     - owner-local keep-plan-for-now
   - keep-plan-for-now symbols:
-    - `loop_cond::break_continue_types::LoopCondBreakAcceptKind`
+    - `loop_cond::break_continue_types::LoopCondBreakAcceptKind` (family-internal only)
     - test-only `loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts`
     - test-only `loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts`
   - still mixed:

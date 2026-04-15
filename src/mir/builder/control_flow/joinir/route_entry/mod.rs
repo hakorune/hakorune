@@ -49,7 +49,6 @@
 //! Phase 255 P2: Common Utilities
 //! - common/: Shared helper functions (moved to plan/, thin wrapper)
 
-mod owner_local_compat;
 pub(in crate::mir::builder) mod registry;
 pub(in crate::mir::builder) mod router;
 

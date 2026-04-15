@@ -22,7 +22,6 @@ use crate::mir::ValueId;
 use crate::mir::loop_route_detection::LoopRouteKind;
 
 // Phase 273 P1: Import Plan components (facts/recipe outcome -> verifier -> lowerer)
-use super::owner_local_compat::loop_cond_break_release_allowed;
 use super::registry;
 use crate::mir::builder::control_flow::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::facts::reject_reason;
@@ -218,7 +217,7 @@ fn release_allows_nested_recipe_first(outcome: &PlanBuildOutcome) -> bool {
     let Some(loop_cond) = facts.facts.loop_cond_break_continue() else {
         return false;
     };
-    loop_cond_break_release_allowed(loop_cond)
+    loop_cond.release_allowed()
 }
 
 pub(crate) fn route_loop(

@@ -7,7 +7,6 @@ use crate::mir::builder::control_flow::verify::observability::flowbox_tags::Flow
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
-use super::super::super::owner_local_compat::loop_cond_break_release_allowed;
 use super::super::types::{RouterEnv, StandardEntry};
 use super::super::utils::emit_planner_first;
 
@@ -104,5 +103,5 @@ pub(super) fn release_allows_loop_cond_break_continue(
     };
     // Release route allows nested-loop shapes only when loop_cond_break_continue
     // found an explicit exit-driven form. Keep passive cluster forms blocked.
-    loop_cond_break_release_allowed(facts)
+    facts.release_allowed()
 }

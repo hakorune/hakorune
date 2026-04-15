@@ -1,4 +1,3 @@
-use super::super::owner_local_compat::loop_cond_break_is_return_only_body;
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 
 macro_rules! pred_accessor {
@@ -97,7 +96,7 @@ pub(crate) fn pred_loop_cond_break_continue(facts: &CanonicalLoopFacts) -> bool 
     let Some(loop_cond_break_continue) = facts.facts.loop_cond_break_continue() else {
         return false;
     };
-    let prefer_return_in_body = loop_cond_break_is_return_only_body(loop_cond_break_continue)
+    let prefer_return_in_body = loop_cond_break_continue.is_return_only_body()
         && facts.facts.loop_cond_return_in_body().is_some();
     !prefer_return_in_body && !pred_loop_break_recipe(facts) && !scan.blocks_loop_cond_break()
 }
@@ -116,7 +115,7 @@ pub(crate) fn pred_loop_cond_return_in_body(facts: &CanonicalLoopFacts) -> bool 
     // route through LoopCondBreak. Pure return-only bodies are owned by
     // loop_cond_return_in_body because they need direct fallthrough-to-return wiring.
     if let Some(loop_cond_break_continue) = facts.facts.loop_cond_break_continue() {
-        if !loop_cond_break_is_return_only_body(loop_cond_break_continue) {
+        if !loop_cond_break_continue.is_return_only_body() {
             return false;
         }
     }

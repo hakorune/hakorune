@@ -43,7 +43,7 @@ Scope: current lane / next lane / restart order only.
   - safe tiny wrapper cleanup is exhausted for owner-preserving seams
   - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
   - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
-  - keep the isolated owner-local keep-plan bridge minimal in `joinir/route_entry::owner_local_compat`
+  - keep `loop_cond` keep-plan residue internal to the family; route-entry should not need a dedicated bridge
 - current stop-lines:
   - do not mix lane B with lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
   - do not mix lane B with `generic placement / effect`
@@ -102,19 +102,18 @@ Scope: current lane / next lane / restart order only.
     - compat re-export / wrapper residue remains under top-level owner surfaces
     - `facts/` now isolates `plan/facts` residue behind `facts::plan_residue`
     - current cleanup wave keeps `plan::canon::cond`, `plan::canon::generic_loop::{ConditionCanon, UpdateCanon, StepPlacement, StepPlacementDecision}`, and `plan::facts::{expr_value, expr_bool, no_exit_block, stmt_view}` as compat-only forwards into `facts/`
-    - owner-local keep-plan-for-now residue is isolated in `joinir/route_entry::owner_local_compat`
     - current keep-plan-for-now symbols:
-      - `loop_cond::break_continue_types::LoopCondBreakAcceptKind` via minimal helper predicates
+      - `loop_cond::break_continue_types::LoopCondBreakAcceptKind` is family-internal only
     - exact remaining residue shape:
       - explicit facts-local `plan_residue` under `facts/`
       - intentional top-level owner surfaces remain under `recipes / lower / verify / ssa / cleanup / facts`
       - `plan/policies` is now compat-only
-      - isolated owner-local keep-plan bridge under `joinir/route_entry::owner_local_compat`
+      - route-entry no longer depends on a dedicated keep-plan bridge
     - fixed next handoff:
       - safe tiny wrapper cleanup is exhausted for owner-preserving seams
       - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
       - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
-      - keep the isolated owner-local keep-plan bridge minimal in `joinir/route_entry::owner_local_compat`
+      - keep `loop_cond` keep-plan residue internal to the family
   - shared infra actualization snapshot:
     - `facts::ast_feature_extractor` is landed at the top-level owner
     - `facts::route_shape_recognizers` is landed at the top-level owner
@@ -359,12 +358,12 @@ Scope: current lane / next lane / restart order only.
         - likely follow-on seams:
           - `direct plan import residue`
         - next:
-          - keep owner-local residue behind `joinir/route_entry::owner_local_compat`
+          - keep owner-local residue inside `loop_cond`
       - `direct plan import residue`
         - current handoff snapshot:
           - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
           - top-level owner surfaces for `facts / recipes / verify / lower / ssa / cleanup` are landed
-          - route-entry owner-local compat window is landed
+          - route-entry owner-local compat window is removed
           - remaining direct `plan/` imports are either wrapper self-references or keep-plan-for-now owner-local symbols
           - likely first seam:
             - `none confirmed`
@@ -374,7 +373,7 @@ Scope: current lane / next lane / restart order only.
         - next:
           - inventory remaining compat re-export / wrapper residue behind `recipes / lower`
           - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
-          - keep the isolated owner-local keep-plan bridge minimal in `joinir/route_entry::owner_local_compat`
+          - keep `loop_cond` keep-plan residue internal to the family
           - move symbols out of `plan/` only after the owning family is single-owner
 4. `phase-29bq legacy lowerer removal`
     - landed and closed
@@ -382,7 +381,7 @@ Scope: current lane / next lane / restart order only.
     - next:
       - inventory remaining compat re-export / wrapper residue behind `recipes / lower`
       - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
-      - keep the isolated owner-local keep-plan bridge minimal in `joinir/route_entry::owner_local_compat`
+      - keep `loop_cond` keep-plan residue internal to the family
       - wait for the next movable symbol to emerge from `loop_cond` or `loop_scan_methods_*`
 
 ## Legacy Compatibility Block

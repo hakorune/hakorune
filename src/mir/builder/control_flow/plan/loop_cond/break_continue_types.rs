@@ -44,6 +44,19 @@ pub(in crate::mir::builder) struct LoopCondBreakContinueFacts {
     pub body_exit_allowed: Option<ExitAllowedBlockRecipe>,
 }
 
+impl LoopCondBreakContinueFacts {
+    pub(in crate::mir::builder) fn release_allowed(&self) -> bool {
+        !matches!(
+            self.accept_kind,
+            LoopCondBreakAcceptKind::NestedLoopOnly | LoopCondBreakAcceptKind::ProgramBlockNoExit
+        )
+    }
+
+    pub(in crate::mir::builder) fn is_return_only_body(&self) -> bool {
+        matches!(self.accept_kind, LoopCondBreakAcceptKind::ReturnOnlyBody)
+    }
+}
+
 /// Signature for a continue branch (used for analysis).
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct ContinueBranchSig {
