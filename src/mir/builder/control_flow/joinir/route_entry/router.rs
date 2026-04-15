@@ -25,16 +25,16 @@ use crate::mir::loop_route_detection::LoopRouteKind;
 use super::registry;
 use crate::mir::builder::control_flow::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::facts::reject_reason;
-use crate::mir::builder::control_flow::plan::expectations;
 use crate::mir::builder::control_flow::lower::composer;
+use crate::mir::builder::control_flow::lower::expectations;
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::lower::planner::{Freeze, PlanBuildOutcome};
 use crate::mir::builder::control_flow::lower::single_planner;
+use crate::mir::builder::control_flow::lower::CorePlan;
 use crate::mir::builder::control_flow::lower::PlanLowerer;
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakAcceptKind;
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::verify::PlanVerifier;
-use crate::mir::builder::control_flow::plan::CorePlan;
 
 /// Phase 92 P0-2: Import LoopSkeleton for Option A
 use crate::mir::loop_canonicalizer::LoopSkeleton;

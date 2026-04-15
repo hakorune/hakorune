@@ -163,7 +163,7 @@ mod tests {
 
     #[test]
     fn test_parity_check_skip_whitespace_match() {
-        use crate::mir::builder::control_flow::plan::ast_feature_extractor as ast_features;
+        use crate::mir::builder::control_flow::facts::ast_feature_extractor as ast_features;
         use crate::mir::loop_canonicalizer::canonicalize_loop_expr;
 
         let loop_ast = build_skip_whitespace_loop();
@@ -201,7 +201,7 @@ mod tests {
 
     #[test]
     fn test_parity_check_match_simple_while() {
-        use crate::mir::builder::control_flow::plan::ast_feature_extractor as ast_features;
+        use crate::mir::builder::control_flow::facts::ast_feature_extractor as ast_features;
         use crate::mir::loop_canonicalizer::canonicalize_loop_expr;
 
         // Simple while loop: no break, no continue, no if
