@@ -3,7 +3,6 @@
 //! Goal: accept exactly one "FuncScannerBox._scan_methods outer loop" shape and
 //! lower it via a standard loop skeleton + recursive statement lowering.
 
-pub(in crate::mir::builder) mod facts;
 pub(in crate::mir::builder) mod helpers;
 pub(in crate::mir::builder) mod nested_fallback_bridge;
 pub(in crate::mir::builder) mod nested_fallback_segment;
@@ -12,8 +11,3 @@ pub(in crate::mir::builder) mod pipeline;
 pub(in crate::mir::builder) mod route_finalize;
 pub(in crate::mir::builder) mod segment_linear;
 pub(in crate::mir::builder) mod segment_nested_loop;
-
-#[allow(unused_imports)]
-pub(in crate::mir::builder) use facts::{
-    try_extract_loop_scan_methods_v0_facts, LoopScanMethodsV0Facts,
-};
