@@ -29,7 +29,7 @@ Related:
 - current lane mode:
   - failure-driven
   - while blocker=`none`, use this lane for narrow cleanup only
-  - next cleanup cut is `loop_cond` / `loop_bundle_resolver_v0` inventory
+  - next cleanup cut is `loop_cond` facts trio / `loop_scan_methods_block_v0` recipe owner move
 
 ## 0.3) Loop owner split (current design direction)
 
@@ -203,40 +203,35 @@ Related:
 - next one-family inventory (`loop_bundle_resolver_v0`):
   - already separate:
     - `pipeline`
-    - `recipe`
   - landed:
     - `facts_helpers`
     - `facts_types`
     - `facts_shape_routes`
     - `facts_recipe_builder`
+    - facts owner actualization
+    - recipe owner actualization
   - status:
     - landed and closed
   - still mixed:
     - none confirmed
   - next step:
-    - inventory `loop_collect_using_entries_v0`
+    - inventory `loop_cond` facts trio / `loop_scan_methods_block_v0` recipe owner move
 - next one-family inventory (`loop_collect_using_entries_v0`):
   - already separate:
     - `pipeline`
-    - `recipe`
   - landed:
     - `facts_helpers`
     - `facts_types`
     - `facts_shape_routes`
     - `facts_recipe_builder`
+    - facts owner actualization
+    - recipe owner actualization
   - status:
     - landed and closed
   - still mixed:
     - none confirmed
   - next step:
-    - pin `plan/` destination mapping for `facts / recipes / verify / lower / ssa / cleanup`
-    - land top-level `control_flow/facts/` owner surface and move non-`plan/` consumers first
-    - land top-level `control_flow/recipes/` owner surface and move non-`plan/` consumers first
-    - land top-level `control_flow/verify/` owner surface and move non-`plan/` consumers first
-    - land top-level `control_flow/lower/` owner surface and move non-`plan/` consumers first
-    - land top-level `control_flow/ssa/` owner surface
-    - land top-level `control_flow/cleanup/` owner surface
-    - next after that is direct `plan/` import inventory and removal
+    - inventory `loop_cond` facts trio / `loop_scan_methods_block_v0` recipe owner move
 
 - folderization residue inventory (`direct plan import residue`):
   - landed:
@@ -327,6 +322,7 @@ Related:
     - `facts::extractors::loop_simple_while`
     - `facts::loop_scan_methods_v0`
     - `facts::loop_scan_methods_block_v0`
+    - `facts::loop_bundle_resolver_v0`
     - `facts::loop_collect_using_entries_v0`
     - `facts::expr_value`
     - `facts::expr_bool`
@@ -338,11 +334,13 @@ Related:
     - `recipes::RecipeBody`
     - `recipes::refs`
     - `recipes::scan_loop_segments`
+    - `recipes::loop_bundle_resolver_v0`
+    - `recipes::loop_collect_using_entries_v0`
     - `plan/recipe_tree` imports now target top-level `recipes::{RecipeBody, refs}`
   - still mixed:
     - none confirmed
   - next step:
-    - inventory `loop_cond` / `loop_scan_methods_*` for the next exact seam
+    - inventory `loop_cond` facts trio / `loop_scan_methods_block_v0` recipe owner move
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`

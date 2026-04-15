@@ -35,6 +35,7 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
   - `facts::extractors::loop_simple_while`
   - `facts::loop_scan_methods_v0`
   - `facts::loop_scan_methods_block_v0`
+  - `facts::loop_bundle_resolver_v0`
   - `facts::loop_collect_using_entries_v0`
   - `facts::expr_value`
   - `facts::expr_bool`
@@ -66,9 +67,11 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
   - `recipes::RecipeBody`
   - `recipes::refs`
   - `recipes::scan_loop_segments`
+  - `recipes::loop_bundle_resolver_v0`
+  - `recipes::loop_collect_using_entries_v0`
   - `plan/recipe_tree` now imports `recipes::{RecipeBody, refs}` directly
 - next actual move:
-  - `none confirmed`
+  - `loop_scan_methods_block_v0` recipe owner surface
 
 ### `verify/`
 
