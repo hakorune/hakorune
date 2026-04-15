@@ -29,7 +29,7 @@ Related:
 - current lane mode:
   - failure-driven
   - while blocker=`none`, use this lane for narrow cleanup only
-  - next cleanup cut is `loop_cond` / `loop_scan_methods_*` inventory
+  - next cleanup cut is `loop_cond` / `loop_bundle_resolver_v0` inventory
 
 ## 0.3) Loop owner split (current design direction)
 
@@ -161,7 +161,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - close out `loop_scan_methods_block_v0::facts`, then inventory `loop_bundle_resolver_v0`
+    - inventory `loop_bundle_resolver_v0`
 - next one-family inventory (`loop_scan_methods_block_v0`):
   - already separate:
     - nested-loop recipe-first fallback handoff (`lower_nested_loop_plan`)

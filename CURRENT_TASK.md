@@ -43,7 +43,7 @@ Scope: current lane / next lane / restart order only.
 - next exact handoff:
   - `plan/recipe_tree` now depends on top-level `recipes::{RecipeBody, refs}` owner surfaces
   - `plan/parts/join_scope.rs` split is landed
-  - next shared-infra pointer is the `loop_cond` / `loop_scan_methods_*` inventory
+  - next shared-infra pointer is the `loop_cond` / `loop_bundle_resolver_v0` inventory
   - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
   - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
   - keep `loop_cond` keep-plan residue internal to the family; route-entry should not need a dedicated bridge
@@ -115,7 +115,7 @@ Scope: current lane / next lane / restart order only.
     - fixed next handoff:
       - `plan/recipe_tree` now depends on top-level `recipes::{RecipeBody, refs}` owner surfaces
       - `plan/parts/join_scope.rs` split is landed
-      - next shared-infra pointer is the `loop_cond` / `loop_scan_methods_*` inventory
+      - next shared-infra pointer is the `loop_cond` / `loop_bundle_resolver_v0` inventory
       - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
       - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
       - keep `loop_cond` keep-plan residue internal to the family
@@ -133,6 +133,7 @@ Scope: current lane / next lane / restart order only.
       - `loop_simple_while`
     - `facts::loop_scan_methods_v0` facts/type extraction is landed at the top-level owner and now uses facts-owned `no_exit_block` / `stmt_view` helpers
     - `facts::loop_scan_methods_block_v0` facts/type extraction is landed at the top-level owner and now uses facts-owned helper trio
+    - scan-family plan-side lowering now imports top-level `facts::canon::cond_block_view`, `facts::no_exit_block`, `facts::stmt_view`, and `recipes::RecipeBody` directly
     - `facts::loop_collect_using_entries_v0` owner surface is landed at the top-level owner
     - `facts::expr_value` owner surface is landed at the top-level owner
     - `facts::expr_bool` owner surface is landed at the top-level owner
@@ -318,7 +319,7 @@ Scope: current lane / next lane / restart order only.
         - likely follow-on seams:
           - `loop_scan_methods_block_v0`
         - next:
-          - split `loop_scan_methods_block_v0::facts`
+          - inventory `loop_bundle_resolver_v0`
       - `loop_scan_methods_block_v0`
         - current handoff snapshot:
           - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
