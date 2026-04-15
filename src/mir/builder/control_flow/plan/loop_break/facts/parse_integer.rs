@@ -2,6 +2,10 @@ use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     count_control_flow, ControlFlowDetector,
 };
+use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_break_if::extract_break_if_parts;
+use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_common::{
+    lit_int, lit_str, var,
+};
 use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_condition::{
     match_acc_update_mul10_plus_d, match_break_if_less_than_zero,
 };
@@ -11,8 +15,6 @@ use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_local::{
 use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_loop::{
     extract_loop_increment_at_end, extract_loop_var_for_len_condition,
 };
-use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_break_if::extract_break_if_parts;
-use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_common::{lit_int, lit_str, var};
 use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 

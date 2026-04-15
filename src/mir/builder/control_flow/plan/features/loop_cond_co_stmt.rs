@@ -5,9 +5,7 @@ use crate::mir::builder::control_flow::plan::features::body_view::BodyView;
 use crate::mir::builder::control_flow::plan::features::carrier_merge::{
     lower_assignment_stmt, lower_local_init_stmt,
 };
-use crate::mir::builder::control_flow::plan::features::conditional_update_join::{
-    try_lower_general_if_recipe_authority,
-};
+use crate::mir::builder::control_flow::plan::features::conditional_update_join::try_lower_general_if_recipe_authority;
 use crate::mir::builder::control_flow::plan::features::exit_if_map::lower_if_exit_stmt;
 use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower_nested_loop_depth1_any;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_only_recipe::ContinueOnlyStmtRecipe;

@@ -4,10 +4,10 @@ use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteCon
 use crate::mir::builder::control_flow::plan::facts::feature_facts::{
     CleanupFacts, CleanupKindFacts, LoopFeatureFacts, ValueJoinFacts,
 };
-use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 use crate::mir::builder::control_flow::plan::facts::loop_types::LoopFacts;
 use crate::mir::builder::control_flow::plan::facts::scan_shapes::{ConditionShape, StepShape};
 use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{SkeletonFacts, SkeletonKind};
+use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 use crate::mir::builder::control_flow::plan::normalize::canonicalize_loop_facts;
 use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 use crate::mir::builder::MirBuilder;

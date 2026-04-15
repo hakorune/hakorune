@@ -117,8 +117,10 @@ mod tests {
 
     #[test]
     fn loop_cond_continue_only_verifier_rejects_wrong_phi_count() {
-        let closure =
-            LoopCondContinueOnlyPhiClosure::new(vec![dummy_phi(2)], vec![("i".to_string(), ValueId(2))]);
+        let closure = LoopCondContinueOnlyPhiClosure::new(
+            vec![dummy_phi(2)],
+            vec![("i".to_string(), ValueId(2))],
+        );
         let body_plans = vec![CorePlan::Exit(CoreExitPlan::ContinueWithPhiArgs {
             depth: 1,
             phi_args: vec![(ValueId(3), ValueId(4))],

@@ -6,5 +6,5 @@
 //! - `contracts/` - Shared loop_break-specific structural contracts
 
 pub(in crate::mir::builder) mod api;
-pub(in crate::mir::builder) mod facts;
 pub(in crate::mir::builder) mod contracts;
+pub(in crate::mir::builder) mod facts;

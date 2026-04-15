@@ -87,6 +87,6 @@ mod debug_helpers;
 #[cfg(test)]
 mod tests;
 
-pub(in crate::mir::builder) use core::PlanVerifier;
 pub(in crate::mir::builder) use cond_profile::*;
+pub(in crate::mir::builder) use core::PlanVerifier;
 pub(in crate::mir::builder) use debug_helpers::*;

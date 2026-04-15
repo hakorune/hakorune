@@ -7,7 +7,7 @@ mod control_flow;
 mod loop_true_early_exit;
 
 #[allow(unused_imports)]
-pub(crate) use crate::mir::builder::control_flow::facts::stmt_walk::{
+pub(crate) use super::super::stmt_walk::{
     flatten_stmt_list, strip_trailing_continue_view, walk_stmt_list,
 };
 #[allow(unused_imports)]

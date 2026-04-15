@@ -1,8 +1,8 @@
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::composer;
 use crate::mir::builder::control_flow::plan::trace as plan_trace;
-use crate::mir::builder::control_flow::plan::PlanBuildOutcome;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
+use crate::mir::builder::control_flow::plan::PlanBuildOutcome;
 
 const STAGE: &str = "generic_loop_body::nested_loop_plan";
 

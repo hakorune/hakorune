@@ -104,8 +104,8 @@ impl LoopCondContinueWithReturnPhiMaterializer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::builder::MirBuilder;
     use crate::mir::builder::control_flow::plan::features::coreloop_frame::CoreLoopFrame;
+    use crate::mir::builder::MirBuilder;
     use crate::mir::MirType;
     use std::collections::BTreeMap;
 
@@ -120,8 +120,14 @@ mod tests {
             step_bb: BasicBlockId(13),
             after_bb: BasicBlockId(14),
             carrier_inits: BTreeMap::from([("i".to_string(), init)]),
-            carrier_header_phis: BTreeMap::from([("i".to_string(), builder.alloc_typed(MirType::Integer))]),
-            carrier_step_phis: BTreeMap::from([("i".to_string(), builder.alloc_typed(MirType::Integer))]),
+            carrier_header_phis: BTreeMap::from([(
+                "i".to_string(),
+                builder.alloc_typed(MirType::Integer),
+            )]),
+            carrier_step_phis: BTreeMap::from([(
+                "i".to_string(),
+                builder.alloc_typed(MirType::Integer),
+            )]),
             continue_target: BasicBlockId(13),
         };
 

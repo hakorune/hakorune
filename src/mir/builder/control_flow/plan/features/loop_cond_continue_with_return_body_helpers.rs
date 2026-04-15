@@ -13,9 +13,7 @@ use crate::mir::builder::control_flow::plan::features::carrier_merge::{
 };
 use crate::mir::builder::control_flow::plan::features::if_branch_lowering;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_recipe::ContinueWithReturnItem;
-use crate::mir::builder::control_flow::plan::normalizer::{
-    loop_body_lowering, PlanNormalizer,
-};
+use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, PlanNormalizer};
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::plan::steps::{effects_to_plans, lower_stmt_block};
@@ -65,9 +63,8 @@ fn get_body_stmt<'a>(
     stmt_ref: StmtRef,
     error_prefix: &str,
 ) -> Result<&'a ASTNode, String> {
-    body.get_stmt(stmt_ref).ok_or_else(|| {
-        format!("{error_prefix}: missing stmt idx={}", stmt_ref.index())
-    })
+    body.get_stmt(stmt_ref)
+        .ok_or_else(|| format!("{error_prefix}: missing stmt idx={}", stmt_ref.index()))
 }
 
 fn lower_continue_with_return_item(
@@ -138,11 +135,13 @@ fn lower_continue_with_return_item(
             else {
                 return Err(format!("{error_prefix}: hetero_return_if is not if"));
             };
-            let then_assignment = then_body.first().ok_or_else(|| {
-                format!("{error_prefix}: hetero_return_if empty then_body")
-            })?;
+            let then_assignment = then_body
+                .first()
+                .ok_or_else(|| format!("{error_prefix}: hetero_return_if empty then_body"))?;
             let Some(else_body) = else_body.as_ref() else {
-                return Err(format!("{error_prefix}: hetero_return_if missing else_body"));
+                return Err(format!(
+                    "{error_prefix}: hetero_return_if missing else_body"
+                ));
             };
             lower_hetero_return_if(
                 builder,
@@ -218,9 +217,7 @@ fn lower_continue_with_return_item(
                 |_builder: &mut MirBuilder,
                  _bindings: &mut BTreeMap<String, crate::mir::ValueId>| {
                     Ok(else_plans_once.take().ok_or_else(|| {
-                        format!(
-                            "{error_prefix}: internal error: else_plans consumed twice"
-                        )
+                        format!("{error_prefix}: internal error: else_plans consumed twice")
                     })?)
                 };
             let lower_else: Option<
@@ -228,7 +225,11 @@ fn lower_continue_with_return_item(
                     &mut MirBuilder,
                     &mut BTreeMap<String, crate::mir::ValueId>,
                 ) -> Result<Vec<LoweredRecipe>, String>,
-            > = if has_else { Some(&mut lower_else) } else { None };
+            > = if has_else {
+                Some(&mut lower_else)
+            } else {
+                None
+            };
 
             let should_update_binding =
                 |name: &str, bindings: &BTreeMap<String, crate::mir::ValueId>| {
@@ -241,9 +242,7 @@ fn lower_continue_with_return_item(
                 error_prefix,
                 &mut |_builder, _bindings| {
                     Ok(then_plans_once.take().ok_or_else(|| {
-                        format!(
-                            "{error_prefix}: internal error: then_plans consumed twice"
-                        )
+                        format!("{error_prefix}: internal error: then_plans consumed twice")
                     })?)
                 },
                 lower_else,
@@ -403,12 +402,8 @@ fn lower_hetero_return_if(
     let pre_bindings = current_bindings.clone();
 
     let then_body = std::slice::from_ref(then_assignment);
-    let then_branch = collect_conditional_update_branch(
-        builder,
-        current_bindings,
-        then_body,
-        error_prefix,
-    )?;
+    let then_branch =
+        collect_conditional_update_branch(builder, current_bindings, then_body, error_prefix)?;
 
     let mut then_plans = Vec::new();
     then_plans.extend(effects_to_plans(then_branch.effects));
@@ -466,10 +461,9 @@ fn lower_hetero_return_if(
 
     let carrier_vars_for_join: Vec<&String> = carrier_phis.keys().collect();
     let cond_view = CondBlockView::from_expr(condition);
-    let should_update_binding =
-        |name: &str, bindings: &BTreeMap<String, crate::mir::ValueId>| {
-            carrier_phis.contains_key(name) || bindings.contains_key(name)
-        };
+    let should_update_binding = |name: &str, bindings: &BTreeMap<String, crate::mir::ValueId>| {
+        carrier_phis.contains_key(name) || bindings.contains_key(name)
+    };
     let plans = parts::entry::lower_value_cond_if_with_filtered_joins(
         builder,
         current_bindings,

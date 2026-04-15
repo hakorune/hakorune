@@ -1,5 +1,5 @@
+use super::super::super::stmt_walk::walk_stmt_list;
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::facts::stmt_walk::walk_stmt_list;
 
 /// ============================================================
 /// Group 1: Control Flow Counting (汎用カウンター)

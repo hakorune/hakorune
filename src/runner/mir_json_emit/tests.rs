@@ -3,8 +3,8 @@ use crate::mir::{
     MirFunction, MirInstruction, MirType, ValueId,
 };
 
-mod decl_values;
 mod debug;
+mod decl_values;
 mod function_attrs;
 mod ordering;
 mod placement;

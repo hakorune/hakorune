@@ -6,8 +6,7 @@ use crate::mir::ValueId;
 use std::collections::BTreeMap;
 
 use super::carriers::{
-    finalize_generic_loop_v1_carriers, prepare_generic_loop_v1_carriers,
-    GenericLoopV1CarrierState,
+    finalize_generic_loop_v1_carriers, prepare_generic_loop_v1_carriers, GenericLoopV1CarrierState,
 };
 use super::{lower_generic_loop_v1_body, plans_require_continue_edge};
 
@@ -36,7 +35,10 @@ impl GenericLoopV1CarrierOrchestration {
         loop_var: &str,
         fallback: ValueId,
     ) -> ValueId {
-        self.post_body_map.get(loop_var).copied().unwrap_or(fallback)
+        self.post_body_map
+            .get(loop_var)
+            .copied()
+            .unwrap_or(fallback)
     }
 
     pub(in crate::mir::builder) fn finalize(
@@ -120,17 +122,21 @@ mod tests {
             true,
         );
 
-        assert_eq!(orchestration.loop_var_step_src("i", ValueId::new(3)), ValueId::new(7));
+        assert_eq!(
+            orchestration.loop_var_step_src("i", ValueId::new(3)),
+            ValueId::new(7)
+        );
     }
 
     #[test]
     fn generic_loop_v1_carrier_orchestration_falls_back_to_current_value() {
-        let orchestration = GenericLoopV1CarrierOrchestration::new_for_tests(
-            BTreeMap::new(),
-            false,
-        );
+        let orchestration =
+            GenericLoopV1CarrierOrchestration::new_for_tests(BTreeMap::new(), false);
 
-        assert_eq!(orchestration.loop_var_step_src("i", ValueId::new(3)), ValueId::new(3));
+        assert_eq!(
+            orchestration.loop_var_step_src("i", ValueId::new(3)),
+            ValueId::new(3)
+        );
         assert!(!orchestration.body_has_continue_edge());
     }
 }

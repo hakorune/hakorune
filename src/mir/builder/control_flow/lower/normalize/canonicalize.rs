@@ -78,11 +78,10 @@ mod tests {
         let facts = LoopFacts {
             condition_shape: ConditionShape::Unknown,
             step_shape: StepShape::Unknown,
-            skeleton:
-                crate::mir::builder::control_flow::facts::skeleton_facts::SkeletonFacts {
-                    kind: SkeletonKind::Loop,
-                    ..Default::default()
-                },
+            skeleton: crate::mir::builder::control_flow::facts::skeleton_facts::SkeletonFacts {
+                kind: SkeletonKind::Loop,
+                ..Default::default()
+            },
             features: LoopFeatureFacts {
                 nested_loop: false,
                 exit_usage: ExitUsageFacts {
@@ -161,11 +160,10 @@ mod tests {
         let facts = LoopFacts {
             condition_shape: ConditionShape::Unknown,
             step_shape: StepShape::Unknown,
-            skeleton:
-                crate::mir::builder::control_flow::facts::skeleton_facts::SkeletonFacts {
-                    kind: SkeletonKind::Loop,
-                    ..Default::default()
-                },
+            skeleton: crate::mir::builder::control_flow::facts::skeleton_facts::SkeletonFacts {
+                kind: SkeletonKind::Loop,
+                ..Default::default()
+            },
             features: LoopFeatureFacts::default(),
             scan_with_init: None,
             split_scan: None,

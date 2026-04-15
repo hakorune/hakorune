@@ -29,7 +29,12 @@ pub(in crate::mir::builder) fn lower_nested_loop_plan_with_recipe_first_bridge(
     let nested_ctx =
         LoopRouteContext::new(condition, body, ctx.func_name, ctx.debug, ctx.in_static_box);
     let outcome = single_planner::try_build_outcome(&nested_ctx)?;
-    plan_trace::trace_outcome_snapshot(stage, false, outcome.facts.is_some(), outcome.recipe_contract.is_some());
+    plan_trace::trace_outcome_snapshot(
+        stage,
+        false,
+        outcome.facts.is_some(),
+        outcome.recipe_contract.is_some(),
+    );
 
     let strict_or_dev = joinir_dev::strict_enabled() || crate::config::env::joinir_dev_enabled();
     let planner_required = strict_or_dev && joinir_dev::planner_required_enabled();

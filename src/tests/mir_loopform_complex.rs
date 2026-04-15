@@ -230,9 +230,8 @@ static box ProgramJsonV0RuneAttrsBox {
 fn mir_loopform_continue_only_group_if_prelude_strict_planner_verify() {
     // phase29bq blocker: planner-required mode must classify nested if/else-if
     // prelude as group-prelude instead of plain ContinueIf.
-    let src = include_str!(
-        "../../lang/src/compiler/mirbuilder/program_json_v0_rune_attrs_box.hako"
-    );
+    let src =
+        include_str!("../../lang/src/compiler/mirbuilder/program_json_v0_rune_attrs_box.hako");
     let compiled = compile_module_strict_planner(src);
 
     let mut verifier = MirVerifier::new();
@@ -267,10 +266,14 @@ static box Main {
 }
 "#;
     let compiled = compile_module_strict_planner(src);
-    let result = with_env_var("HAKO_PROGRAM_JSON_FILE", "/tmp/test_program_json.json", || {
-        let mut vm = crate::backend::VM::new();
-        vm.execute_module(&compiled.module).expect("vm exec failed")
-    });
+    let result = with_env_var(
+        "HAKO_PROGRAM_JSON_FILE",
+        "/tmp/test_program_json.json",
+        || {
+            let mut vm = crate::backend::VM::new();
+            vm.execute_module(&compiled.module).expect("vm exec failed")
+        },
+    );
     assert_eq!(result.to_string_box().value, "1");
     teardown_stage3_env();
 }

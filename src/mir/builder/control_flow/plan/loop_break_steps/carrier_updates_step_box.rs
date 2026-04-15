@@ -8,10 +8,10 @@
 use crate::ast::ASTNode;
 use crate::mir::join_ir::lowering::loop_update_analyzer::UpdateExpr;
 
+use super::super::loop_break_prep_box::LoopBreakPrepInputs;
 use super::carrier_updates_helpers::{
     bind_loop_break_update_only_carriers, resolve_loop_break_carrier_updates,
 };
-use super::super::loop_break_prep_box::LoopBreakPrepInputs;
 
 use std::collections::BTreeMap;
 

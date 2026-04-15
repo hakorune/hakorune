@@ -154,7 +154,8 @@ mod tests {
             joins: vec![],
         });
 
-        let CorePlan::If(if_plan) = apply_nested_loop_preheader_freshness(&mut builder, plan) else {
+        let CorePlan::If(if_plan) = apply_nested_loop_preheader_freshness(&mut builder, plan)
+        else {
             panic!("expected if plan");
         };
         let CorePlan::Loop(loop_plan) = &if_plan.then_plans[0] else {

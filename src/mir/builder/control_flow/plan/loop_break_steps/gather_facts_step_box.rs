@@ -10,8 +10,8 @@ use crate::mir::join_ir::lowering::condition_env::{ConditionBinding, ConditionEn
 use crate::mir::join_ir::lowering::join_value_space::JoinValueSpace;
 use crate::mir::join_ir::lowering::loop_body_local_env::LoopBodyLocalEnv;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
-use crate::mir::ValueId;
 use crate::mir::loop_route_detection::function_scope_capture::CapturedEnv;
+use crate::mir::ValueId;
 
 use super::super::loop_break_prep_box::LoopBreakDebugLog;
 
@@ -61,10 +61,16 @@ impl GatherFactsStepBox {
 
         log.log(
             "phase200c",
-            format!("fn_body is {}", if fn_body.is_some() { "SOME" } else { "NONE" }),
+            format!(
+                "fn_body is {}",
+                if fn_body.is_some() { "SOME" } else { "NONE" }
+            ),
         );
         let captured_env = if let Some(fn_body_ref) = fn_body {
-            log.log("phase200c", format!("fn_body has {} nodes", fn_body_ref.len()));
+            log.log(
+                "phase200c",
+                format!("fn_body has {} nodes", fn_body_ref.len()),
+            );
             analyze_captured_vars_v2(fn_body_ref, condition, body, &scope)
         } else {
             log.log("phase200c", "fn_body is None, using empty CapturedEnv");
@@ -73,7 +79,10 @@ impl GatherFactsStepBox {
         if verbose {
             log.log(
                 "capture",
-                format!("Phase 200-C: Captured {} variables", captured_env.vars.len()),
+                format!(
+                    "Phase 200-C: Captured {} variables",
+                    captured_env.vars.len()
+                ),
             );
             for var in &captured_env.vars {
                 log.log(

@@ -1,9 +1,9 @@
 //! Helper functions for trim-whitespace loop break extraction.
 
+use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_common::{
     add, lit_bool, lit_int, lit_str, var,
 };
-use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::builder::control_flow::plan) enum SubstringDirection {

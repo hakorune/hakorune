@@ -153,7 +153,9 @@ fn classify_stmt(
         } => {
             if !allow_nested
                 || *nested_seen >= 1
-                || !super::true_break_continue_helpers::is_supported_nested_loop_condition(condition)
+                || !super::true_break_continue_helpers::is_supported_nested_loop_condition(
+                    condition,
+                )
             {
                 return None;
             }

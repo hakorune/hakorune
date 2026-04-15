@@ -22,8 +22,13 @@ pub(super) fn classify_body_local_policy_route(
     body: &[ASTNode],
 ) -> PolicyDecision<BodyLocalRoute> {
     let vars = collect_body_local_condition_vars(cond_scope);
-    let promotion_req =
-        build_condition_promotion_request(loop_var_name, scope, break_condition_node, cond_scope, body);
+    let promotion_req = build_condition_promotion_request(
+        loop_var_name,
+        scope,
+        break_condition_node,
+        cond_scope,
+        body,
+    );
 
     match LoopBodyCondPromoter::try_promote_for_condition(promotion_req) {
         ConditionPromotionResult::Promoted {

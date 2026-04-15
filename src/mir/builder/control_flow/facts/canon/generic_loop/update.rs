@@ -1,5 +1,5 @@
+use super::UpdateCanon;
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
-use crate::mir::builder::control_flow::facts::canon::generic_loop::UpdateCanon;
 
 mod literal_match;
 mod literal_step;

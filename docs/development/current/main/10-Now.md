@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-04-14
+Date: 2026-04-15
 Scope: current lane / blocker / next pointer だけを置く薄い mirror。
 Related:
   - CURRENT_TASK.md
@@ -13,7 +13,7 @@ Related:
 ## Current
 
 - current implementation lane: `phase29bq selfhost mirbuilder failure-driven`
-- sibling guardrail lane: `phase137x main kilo reopen selection`
+- sibling guardrail lane: `phase137x string corridor / exact-keeper guardrail`
 - immediate next: `compiler expressivity first`
 - immediate follow-on: `phase29bq loop owner seam cleanup`
 - top queued cut: `phase29bq selfhost mirbuilder failure-driven`
@@ -35,16 +35,16 @@ Related:
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/reference/concurrency/semantics.md`
-4. `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
-5. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md`
+2. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md`
+3. `docs/development/current/main/15-Workstream-Map.md`
+4. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
+5. `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
 6. `docs/development/current/main/phases/phase-29bq/29bq-91-mirbuilder-migration-progress-checklist.md`
 
 ## Proof Bundle
 
 ```bash
 git status -sb
-tools/checks/dev_gate.sh quick
-git diff --check
+cargo check --bin hakorune
+bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq
 ```

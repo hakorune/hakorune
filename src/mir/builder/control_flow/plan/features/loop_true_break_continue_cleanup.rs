@@ -36,7 +36,7 @@ pub(in crate::mir::builder) fn apply_fallthrough_continue_exit(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::builder::control_flow::plan::{CoreExitPlan, CoreEffectPlan};
+    use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CoreExitPlan};
 
     #[test]
     fn cleanup_requires_fallthrough_when_tail_is_not_exit() {

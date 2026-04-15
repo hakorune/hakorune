@@ -10,6 +10,7 @@ pub(in crate::mir::builder) mod skeletons;
 pub(in crate::mir::builder) mod steps;
 
 #[allow(unused_imports)]
-pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::recipes::*;
-#[allow(unused_imports)]
-pub(in crate::mir::builder) use recipe_tree::*;
+pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::recipes::{
+    refs, RecipeBody, StmtIdx, StmtRange,
+};
+pub(in crate::mir::builder) use recipe_tree::RecipeComposer;

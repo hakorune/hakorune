@@ -42,9 +42,9 @@ pub(in crate::mir::builder) fn finalize_loop_scan_v0_route(
         let step_phi_dst = *carrier_step_phis
             .get(var)
             .ok_or_else(|| format!("[freeze:contract][loop_scan_v0] missing step phi for {var}"))?;
-        let after_phi_dst = *break_phi_dsts
-            .get(var)
-            .ok_or_else(|| format!("[freeze:contract][loop_scan_v0] missing after phi for {var}"))?;
+        let after_phi_dst = *break_phi_dsts.get(var).ok_or_else(|| {
+            format!("[freeze:contract][loop_scan_v0] missing after phi for {var}")
+        })?;
 
         phis.push(loop_carriers::build_step_join_phi_info(
             step_bb,

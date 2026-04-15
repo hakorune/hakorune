@@ -1,17 +1,17 @@
 use crate::ast::{ASTNode, BinaryOperator, Span};
+use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
+    count_control_flow, is_true_literal, ControlFlowDetector,
+};
+use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_common::{
+    index_of_call, length_call, lit_int, lit_str, substring_call, var,
+};
 use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_local::{
     match_indexof_local, match_local_empty_string,
 };
 use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_realworld::{
     match_break_if, match_loop_increment, match_seg_if_else,
 };
-use crate::mir::builder::control_flow::plan::loop_break::facts::helpers_common::{
-    index_of_call, length_call, lit_int, lit_str, substring_call, var,
-};
 use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
-    count_control_flow, is_true_literal, ControlFlowDetector,
-};
 use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 
 pub(in crate::mir::builder::control_flow::plan) fn try_extract_loop_break_realworld_subset(

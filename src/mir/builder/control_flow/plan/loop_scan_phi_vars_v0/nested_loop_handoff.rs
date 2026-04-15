@@ -55,11 +55,8 @@ mod tests {
             span: span(),
         }];
 
-        let result = try_lower_loop_scan_phi_vars_nested_loop_fastpath(
-            &mut builder,
-            &condition,
-            &body,
-        );
+        let result =
+            try_lower_loop_scan_phi_vars_nested_loop_fastpath(&mut builder, &condition, &body);
 
         assert!(result.is_none());
     }

@@ -38,8 +38,7 @@ pub(in crate::mir::builder) fn verify_loop_true_break_continue_phi_closure(
             if body_after_phi_count != carrier_count {
                 return Err(format!(
                     "{error_prefix}: after_phi_count {} != carrier_count {}",
-                    body_after_phi_count,
-                    carrier_count
+                    body_after_phi_count, carrier_count
                 ));
             }
             for (name, final_value) in phi_closure.final_values() {
@@ -52,9 +51,7 @@ pub(in crate::mir::builder) fn verify_loop_true_break_continue_phi_closure(
                 if expected != final_value {
                     return Err(format!(
                         "{error_prefix}: final_value for carrier {:?} {:?} != break-after phi {:?}",
-                        name,
-                        final_value,
-                        expected
+                        name, final_value, expected
                     ));
                 }
             }

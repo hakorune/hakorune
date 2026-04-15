@@ -31,16 +31,18 @@ mod tests {
     use crate::ast::{ASTNode, LiteralValue, Span};
     use crate::mir::builder::control_flow::plan::facts::feature_facts::LoopFeatureFacts;
     use crate::mir::builder::control_flow::plan::facts::scan_shapes::{ConditionShape, StepShape};
-    use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{SkeletonFacts, SkeletonKind};
+    use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{
+        SkeletonFacts, SkeletonKind,
+    };
     use crate::mir::builder::control_flow::plan::facts::LoopFacts;
-    use crate::mir::builder::control_flow::plan::normalize::canonicalize_loop_facts;
-    use crate::mir::builder::control_flow::plan::planner::PlanBuildOutcome;
-    use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_facts::LoopCondContinueWithReturnFacts;
-    use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_recipe::ContinueWithReturnRecipe;
+    use crate::mir::builder::control_flow::plan::loop_cond::break_continue_recipe::LoopCondBreakContinueRecipe;
     use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::{
         LoopCondBreakAcceptKind, LoopCondBreakContinueFacts,
     };
-    use crate::mir::builder::control_flow::plan::loop_cond::break_continue_recipe::LoopCondBreakContinueRecipe;
+    use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_facts::LoopCondContinueWithReturnFacts;
+    use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_recipe::ContinueWithReturnRecipe;
+    use crate::mir::builder::control_flow::plan::normalize::canonicalize_loop_facts;
+    use crate::mir::builder::control_flow::plan::planner::PlanBuildOutcome;
     use crate::mir::policies::BodyLoweringPolicy;
 
     fn span() -> Span {

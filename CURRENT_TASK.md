@@ -37,8 +37,11 @@ Scope: current lane / next lane / restart order only.
 - current blocker:
   - `none`
 - latest proof bundle:
-  - `cargo check --bin hakorune`
-  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
+  - `cargo check --bin hakorune` PASS
+  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
+- next exact handoff:
+  - inventory remaining compat re-export / wrapper residue behind `facts / recipes / lower`
+  - keep the isolated owner-local keep-plan bridge minimal in `joinir/route_entry::owner_local_compat`
 - current stop-lines:
   - do not mix lane B with lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
   - do not mix lane B with `generic placement / effect`
@@ -94,17 +97,18 @@ Scope: current lane / next lane / restart order only.
   - owner-local closeout remaining:
     - `none confirmed`
   - direct `plan/` import residue snapshot:
-    - compat wrapper self-references remain under top-level owner surfaces
-    - owner-local keep-plan-for-now residue is routed through `joinir/route_entry::owner_local_compat`
+    - compat re-export / wrapper residue remains under top-level owner surfaces
+    - owner-local keep-plan-for-now residue is isolated in `joinir/route_entry::owner_local_compat`
     - current keep-plan-for-now symbols:
-      - `loop_cond::break_continue_types::LoopCondBreakAcceptKind`
+      - `loop_cond::break_continue_types::LoopCondBreakAcceptKind` via minimal helper predicates
       - test-only `loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts`
       - test-only `loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts`
-    - exact remaining shape:
-      - compat wrapper self-references under `facts / recipes / lower`
-      - owner-local keep-plan bridge under `joinir/route_entry::owner_local_compat`
-    - movable next:
-      - `none confirmed`
+    - exact remaining residue shape:
+      - compat re-export / wrapper residue under `facts / recipes / lower`
+      - isolated owner-local keep-plan bridge under `joinir/route_entry::owner_local_compat`
+    - fixed next handoff:
+      - inventory remaining compat re-export / wrapper residue behind `facts / recipes / lower`
+      - keep the isolated owner-local keep-plan bridge minimal in `joinir/route_entry::owner_local_compat`
   - shared infra actualization snapshot:
     - `facts::ast_feature_extractor` is landed at the top-level owner
     - `facts::route_shape_recognizers` is landed at the top-level owner
@@ -343,13 +347,15 @@ Scope: current lane / next lane / restart order only.
           - `loop_cond`
           - `loop_scan_methods_*`
         - next:
+          - inventory remaining compat re-export / wrapper residue behind `facts / recipes / lower`
+          - keep the isolated owner-local keep-plan bridge minimal in `joinir/route_entry::owner_local_compat`
           - move symbols out of `plan/` only after the owning family is single-owner
 4. `phase-29bq legacy lowerer removal`
     - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - keep owner-local residue behind `joinir/route_entry::owner_local_compat`
-      - actualize `cleanup::policies`
+      - inventory remaining compat re-export / wrapper residue behind `facts / recipes / lower`
+      - keep the isolated owner-local keep-plan bridge minimal in `joinir/route_entry::owner_local_compat`
       - wait for the next movable symbol to emerge from `loop_cond` or `loop_scan_methods_*`
 
 ## Legacy Compatibility Block

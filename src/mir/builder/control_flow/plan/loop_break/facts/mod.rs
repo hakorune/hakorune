@@ -25,15 +25,14 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
-mod types;
 pub(in crate::mir::builder::control_flow::plan) mod body_local_facts;
 pub(in crate::mir::builder::control_flow::plan) mod body_local_facts_helpers;
 pub(in crate::mir::builder::control_flow::plan) mod body_local_facts_shape_matchers;
 pub(in crate::mir::builder::control_flow::plan) mod body_local_subset;
 pub(in crate::mir::builder::control_flow::plan) mod core;
 pub(in crate::mir::builder::control_flow::plan) mod helpers_break_if;
-pub(in crate::mir::builder::control_flow::plan) mod helpers_condition;
 pub(in crate::mir::builder::control_flow::plan) mod helpers_common;
+pub(in crate::mir::builder::control_flow::plan) mod helpers_condition;
 pub(in crate::mir::builder::control_flow::plan) mod helpers_local;
 pub(in crate::mir::builder::control_flow::plan) mod helpers_loop;
 pub(in crate::mir::builder::control_flow::plan) mod helpers_realworld;
@@ -43,9 +42,10 @@ pub(in crate::mir::builder::control_flow::plan) mod realworld;
 pub(in crate::mir::builder::control_flow::plan) mod step_before_break;
 pub(in crate::mir::builder::control_flow::plan) mod trim_whitespace;
 pub(in crate::mir::builder::control_flow::plan) mod trim_whitespace_helpers;
+mod types;
 
-pub(in crate::mir::builder) use types::LoopBreakFacts;
 pub(in crate::mir::builder) use body_local_facts::{LoopBodyLocalShape, LoopBreakBodyLocalFacts};
+pub(in crate::mir::builder) use types::LoopBreakFacts;
 
 pub(in crate::mir::builder) fn try_extract_loop_break_facts(
     condition: &ASTNode,
@@ -58,8 +58,5 @@ pub(in crate::mir::builder) fn try_extract_loop_break_body_local_facts(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Result<Option<LoopBreakBodyLocalFacts>, Freeze> {
-    body_local_facts::try_extract_loop_break_body_local_facts(
-        condition,
-        body,
-    )
+    body_local_facts::try_extract_loop_break_body_local_facts(condition, body)
 }

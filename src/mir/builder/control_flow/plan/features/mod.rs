@@ -43,16 +43,16 @@ pub(in crate::mir::builder) mod loop_cond_bc_cleanup;
 pub(in crate::mir::builder) mod loop_cond_bc_continue_if;
 pub(in crate::mir::builder) mod loop_cond_bc_else_patterns;
 pub(in crate::mir::builder) mod loop_cond_bc_item;
-pub(in crate::mir::builder) mod loop_cond_bc_phi_materializer;
 pub(in crate::mir::builder) mod loop_cond_bc_item_stmt;
 pub(in crate::mir::builder) mod loop_cond_bc_nested_carriers;
+pub(in crate::mir::builder) mod loop_cond_bc_phi_materializer;
 pub(in crate::mir::builder) mod loop_cond_bc_util;
 pub(in crate::mir::builder) mod loop_cond_bc_verifier;
 
 // Flattened from loop_cond_continue_only_pipeline/
 pub(in crate::mir::builder) mod loop_cond_co_block;
-pub(in crate::mir::builder) mod loop_cond_co_continue_if;
 pub(in crate::mir::builder) mod loop_cond_co_cleanup;
+pub(in crate::mir::builder) mod loop_cond_co_continue_if;
 pub(in crate::mir::builder) mod loop_cond_co_group_if;
 pub(in crate::mir::builder) mod loop_cond_co_helpers;
 pub(in crate::mir::builder) mod loop_cond_co_phi_materializer;

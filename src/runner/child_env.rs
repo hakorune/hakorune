@@ -96,7 +96,12 @@ pub fn apply_selfhost_compiler_env(cmd: &mut std::process::Command) {
     // selfhost mirbuilder entry prefers HAKO_PROGRAM_JSON when present.
     // Populate it from HAKO_PROGRAM_JSON_FILE for child compiler processes so
     // planner-required lanes do not depend on FileBox host-method routing.
-    if std::env::var("HAKO_PROGRAM_JSON").ok().as_deref().unwrap_or("").is_empty() {
+    if std::env::var("HAKO_PROGRAM_JSON")
+        .ok()
+        .as_deref()
+        .unwrap_or("")
+        .is_empty()
+    {
         if let Ok(path) = std::env::var("HAKO_PROGRAM_JSON_FILE") {
             if !path.is_empty() {
                 if let Ok(program_json) = std::fs::read_to_string(&path) {

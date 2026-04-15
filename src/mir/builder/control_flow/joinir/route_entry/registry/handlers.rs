@@ -3,8 +3,8 @@ use crate::mir::builder::control_flow::lower::planner::{Freeze, PlanBuildOutcome
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
+use super::super::owner_local_compat::loop_cond_break_release_allowed;
 use super::super::router::{lower_verified_core_plan, LoopRouteContext};
-use super::super::owner_local_compat::LoopCondBreakAcceptKind;
 use super::types::{RouterEnv, StandardEntry};
 use super::utils::emit_planner_first;
 
@@ -106,8 +106,5 @@ fn release_allows_loop_cond_break_continue(
     };
     // Release route allows nested-loop shapes only when loop_cond_break_continue
     // found an explicit exit-driven form. Keep passive cluster forms blocked.
-    !matches!(
-        facts.accept_kind,
-        LoopCondBreakAcceptKind::NestedLoopOnly | LoopCondBreakAcceptKind::ProgramBlockNoExit
-    )
+    loop_cond_break_release_allowed(facts)
 }

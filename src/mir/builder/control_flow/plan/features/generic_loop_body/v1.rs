@@ -23,7 +23,9 @@ use super::helpers::{
     apply_loop_final_values_to_bindings, lower_effect_only_stmt, lower_nested_loop_plan,
     matches_loop_increment,
 };
-use super::{apply_generic_loop_v1_fallthrough_cleanup, body_plans_exit_on_all_paths, GENERIC_LOOP_ERR};
+use super::{
+    apply_generic_loop_v1_fallthrough_cleanup, body_plans_exit_on_all_paths, GENERIC_LOOP_ERR,
+};
 
 pub(in crate::mir::builder) fn lower_generic_loop_v1_body(
     builder: &mut MirBuilder,

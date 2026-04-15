@@ -16,8 +16,7 @@
 
 use super::{effect_validators, primitives};
 use crate::mir::builder::control_flow::lower::{
-    CoreEffectPlan, CoreExitPlan, CoreLoopPlan, CorePlan, LoopStepMode, LoweredRecipe,
-    ExitKind,
+    CoreEffectPlan, CoreExitPlan, CoreLoopPlan, CorePlan, ExitKind, LoopStepMode, LoweredRecipe,
 };
 
 /// Phase 273 P3: Verify loop with generalized fields

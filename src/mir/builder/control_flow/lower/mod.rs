@@ -11,15 +11,14 @@ pub(in crate::mir::builder) mod single_planner;
 pub(in crate::mir::builder) mod step_mode;
 
 #[allow(unused_imports)]
-pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::lowerer::*;
-#[allow(unused_imports)]
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::branchn::CoreBranchArmPlan;
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::edgecfg_facade::{
     ExitKind, Frag,
 };
+pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::PlanLowerer;
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::{
-    CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfJoin, CoreIfPlan, CoreLoopPlan,
-    CorePlan, LoopStepMode, LoweredRecipe,
+    CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfJoin, CoreIfPlan, CoreLoopPlan, CorePlan,
+    LoopStepMode, LoweredRecipe,
 };

@@ -4,9 +4,7 @@ use crate::ast::{ASTNode, BinaryOperator};
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 use super::body_local_facts::LoopBreakBodyLocalFacts;
-use super::body_local_facts_shape_matchers::{
-    try_match_digit_pos, try_match_trim_seg,
-};
+use super::body_local_facts_shape_matchers::{try_match_digit_pos, try_match_trim_seg};
 
 pub(super) fn try_extract_loop_break_body_local_facts_inner(
     condition: &ASTNode,

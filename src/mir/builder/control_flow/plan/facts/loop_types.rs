@@ -8,8 +8,6 @@ use super::escape_map_facts::EscapeMapFacts;
 use super::feature_facts::LoopFeatureFacts;
 use super::int_to_str_facts::IntToStrFacts;
 use super::loop_array_join_facts::LoopArrayJoinFacts;
-use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
-use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakBodyLocalFacts;
 use super::loop_char_map_facts::LoopCharMapFacts;
 use super::loop_simple_while_facts::LoopSimpleWhileFacts;
 use super::loop_true_early_exit_facts::LoopTrueEarlyExitFacts;
@@ -24,6 +22,8 @@ use super::{IfPhiJoinFacts, LoopContinueOnlyFacts};
 use crate::mir::builder::control_flow::plan::generic_loop::facts_types::{
     GenericLoopV0Facts, GenericLoopV1Facts,
 };
+use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakBodyLocalFacts;
+use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 use crate::mir::builder::control_flow::plan::loop_bundle_resolver_v0::LoopBundleResolverV0Facts;
 use crate::mir::builder::control_flow::plan::loop_collect_using_entries_v0::LoopCollectUsingEntriesV0Facts;
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakContinueFacts;

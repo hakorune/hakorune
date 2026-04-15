@@ -65,7 +65,9 @@ pub(in crate::mir::builder) fn apply_loop_cond_break_continue_cleanup(
         body_plans.push(CorePlan::Exit(exit));
     }
 
-    Ok(LoopCondBreakContinueCleanupResult { body_exits_all_paths })
+    Ok(LoopCondBreakContinueCleanupResult {
+        body_exits_all_paths,
+    })
 }
 
 fn body_plans_exit_on_all_paths(plans: &[LoweredRecipe]) -> bool {
@@ -97,10 +99,7 @@ fn plan_exits_on_all_paths(plan: &LoweredRecipe) -> bool {
     }
 }
 
-fn collect_defined_values_from_plans(
-    plans: &[LoweredRecipe],
-    out: &mut BTreeSet<ValueId>,
-) {
+fn collect_defined_values_from_plans(plans: &[LoweredRecipe], out: &mut BTreeSet<ValueId>) {
     for plan in plans {
         match plan {
             CorePlan::Effect(effect) => collect_defined_values_from_effect(effect, out),
@@ -135,10 +134,7 @@ fn collect_defined_values_from_plans(
     }
 }
 
-fn collect_defined_values_from_effect(
-    effect: &CoreEffectPlan,
-    out: &mut BTreeSet<ValueId>,
-) {
+fn collect_defined_values_from_effect(effect: &CoreEffectPlan, out: &mut BTreeSet<ValueId>) {
     match effect {
         CoreEffectPlan::MethodCall { dst, .. }
         | CoreEffectPlan::GlobalCall { dst, .. }
@@ -249,7 +245,10 @@ mod tests {
         .expect("cleanup result");
 
         assert!(result.body_exits_all_paths());
-        assert!(matches!(body_plans.last(), Some(CorePlan::Exit(CoreExitPlan::Break(_)))));
+        assert!(matches!(
+            body_plans.last(),
+            Some(CorePlan::Exit(CoreExitPlan::Break(_)))
+        ));
     }
 
     #[test]

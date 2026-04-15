@@ -12,10 +12,7 @@ pub(in crate::mir::builder::control_flow::plan) fn var(name: &str) -> ASTNode {
     }
 }
 
-pub(in crate::mir::builder::control_flow::plan) fn add(
-    left: ASTNode,
-    right: ASTNode,
-) -> ASTNode {
+pub(in crate::mir::builder::control_flow::plan) fn add(left: ASTNode, right: ASTNode) -> ASTNode {
     ASTNode::BinaryOp {
         operator: BinaryOperator::Add,
         left: Box::new(left),
@@ -99,9 +96,7 @@ pub(in crate::mir::builder::control_flow::plan) fn has_continue_statement(
     common_has_continue(body)
 }
 
-pub(in crate::mir::builder::control_flow::plan) fn has_return_statement(
-    body: &[ASTNode],
-) -> bool {
+pub(in crate::mir::builder::control_flow::plan) fn has_return_statement(body: &[ASTNode]) -> bool {
     use crate::mir::builder::control_flow::plan::extractors::common_helpers::has_return_statement as common_has_return;
     common_has_return(body)
 }

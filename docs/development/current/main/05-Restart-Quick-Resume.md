@@ -15,7 +15,8 @@ Related:
 ```bash
 cd /home/tomoaki/git/hakorune-selfhost
 git status -sb
-tools/checks/dev_gate.sh quick
+cargo check --bin hakorune
+bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq
 ```
 
 ## Current
@@ -25,21 +26,32 @@ tools/checks/dev_gate.sh quick
 - immediate next: `compiler expressivity first`
 - immediate follow-on: `phase-29bq loop owner seam cleanup`
 
+## Current Handoff
+
+- blocker: `none`
+- residue exact shape:
+  - compat re-export / wrapper residue under `facts / recipes / lower`
+  - isolated owner-local keep-plan bridge under `joinir/route_entry::owner_local_compat`
+- next exact handoff:
+  - inventory remaining compat re-export / wrapper residue behind `facts / recipes / lower`
+  - keep the isolated owner-local keep-plan bridge minimal in `joinir/route_entry::owner_local_compat`
+
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/10-Now.md`
-3. `docs/development/current/main/15-Workstream-Map.md`
-4. `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
-5. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md`
-6. `docs/development/current/main/phases/phase-29bq/29bq-91-mirbuilder-migration-progress-checklist.md`
-7. `docs/development/current/main/phases/phase-29bq/29bq-92-parser-handoff-checklist.md`
-8. `docs/development/current/main/phases/phase-137x/README.md`
+2. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md`
+3. `docs/development/current/main/10-Now.md`
+4. `docs/development/current/main/15-Workstream-Map.md`
+5. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
+6. `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
+7. `docs/development/current/main/phases/phase-29bq/29bq-91-mirbuilder-migration-progress-checklist.md`
+8. `docs/development/current/main/phases/phase-29bq/29bq-92-parser-handoff-checklist.md`
+9. `docs/development/current/main/phases/phase-137x/README.md`
 
 ## Current Proof Bundle
 
 ```bash
 git status -sb
-tools/checks/dev_gate.sh quick
-git diff --check
+cargo check --bin hakorune
+bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq
 ```

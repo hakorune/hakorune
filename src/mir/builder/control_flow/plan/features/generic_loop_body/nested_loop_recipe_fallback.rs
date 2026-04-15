@@ -6,8 +6,8 @@ use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
 use crate::mir::builder::control_flow::plan::single_planner::PlanRuleId;
 use crate::mir::builder::control_flow::plan::trace as plan_trace;
-use crate::mir::builder::control_flow::plan::PlanBuildOutcome;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
+use crate::mir::builder::control_flow::plan::PlanBuildOutcome;
 use crate::mir::builder::MirBuilder;
 
 const STAGE: &str = "generic_loop_body::nested_loop_plan";
@@ -32,31 +32,35 @@ pub(super) fn try_compose_generic_nested_loop_recipe_fallback(
     if let Some(facts) = outcome.facts.as_ref() {
         if planner_required && facts.facts.loop_true_break_continue.is_some() {
             if outcome.recipe_contract.is_none() {
-                return Err(
-                    Freeze::contract(
-                        "loop_true_break_continue requires recipe_contract in planner_required mode",
-                    )
-                    .to_string(),
-                );
+                return Err(Freeze::contract(
+                    "loop_true_break_continue requires recipe_contract in planner_required mode",
+                )
+                .to_string());
             }
             plan_trace::trace_outcome_path(STAGE, "recipe_loop_true_break_continue");
-            return RecipeComposer::compose_loop_true_break_continue_recipe(builder, facts, nested_ctx)
-                .map(Some)
-                .map_err(|e| e.to_string());
+            return RecipeComposer::compose_loop_true_break_continue_recipe(
+                builder, facts, nested_ctx,
+            )
+            .map(Some)
+            .map_err(|e| e.to_string());
         }
         if facts.facts.loop_cond_return_in_body.is_some() {
             plan_trace::trace_outcome_path(STAGE, "recipe_loop_cond_return_in_body");
             maybe_emit_planner_first_tag(strict_or_dev, PlanRuleId::LoopCondReturnInBody);
-            return RecipeComposer::compose_loop_cond_return_in_body_recipe(builder, facts, nested_ctx)
-                .map(Some)
-                .map_err(|e| e.to_string());
+            return RecipeComposer::compose_loop_cond_return_in_body_recipe(
+                builder, facts, nested_ctx,
+            )
+            .map(Some)
+            .map_err(|e| e.to_string());
         }
         if facts.facts.loop_cond_break_continue.is_some() {
             plan_trace::trace_outcome_path(STAGE, "recipe_loop_cond_break_continue");
             maybe_emit_planner_first_tag(strict_or_dev, PlanRuleId::LoopCondBreak);
-            return RecipeComposer::compose_loop_cond_break_continue_recipe(builder, facts, nested_ctx)
-                .map(Some)
-                .map_err(|e| e.to_string());
+            return RecipeComposer::compose_loop_cond_break_continue_recipe(
+                builder, facts, nested_ctx,
+            )
+            .map(Some)
+            .map_err(|e| e.to_string());
         }
         if facts.facts.generic_loop_v0.is_some() {
             plan_trace::trace_outcome_path(STAGE, "recipe_generic_loop_v0");
@@ -75,10 +79,11 @@ pub(super) fn try_compose_generic_nested_loop_recipe_fallback(
     if let Some(facts) = outcome.facts.as_ref() {
         if facts.facts.nested_loop_minimal().is_some() {
             plan_trace::trace_outcome_path(STAGE, "recipe_nested_loop_minimal");
-            let core_plan = composer::try_compose_core_loop_v2_nested_minimal(
-                builder, facts, nested_ctx,
-            )?
-            .ok_or_else(|| "nested_loop_minimal strict/dev adopt failed: compose rejected".to_string())?;
+            let core_plan =
+                composer::try_compose_core_loop_v2_nested_minimal(builder, facts, nested_ctx)?
+                    .ok_or_else(|| {
+                        "nested_loop_minimal strict/dev adopt failed: compose rejected".to_string()
+                    })?;
             return Ok(Some(core_plan));
         }
     }

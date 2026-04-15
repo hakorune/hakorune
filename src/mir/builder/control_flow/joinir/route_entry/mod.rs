@@ -49,18 +49,12 @@
 //! Phase 255 P2: Common Utilities
 //! - common/: Shared helper functions (moved to plan/, thin wrapper)
 
+mod owner_local_compat;
 pub(in crate::mir::builder) mod registry;
 pub(in crate::mir::builder) mod router;
 
 pub(crate) mod ast_feature_extractor {
     pub(crate) use crate::mir::builder::control_flow::facts::ast_feature_extractor::*;
-}
-mod owner_local_compat {
-    pub(super) use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakAcceptKind;
-    #[cfg(test)]
-    pub(super) use crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts;
-    #[cfg(test)]
-    pub(super) use crate::mir::builder::control_flow::plan::loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts;
 }
 pub(in crate::mir::builder) mod policies {
     pub(in crate::mir::builder) use crate::mir::builder::control_flow::cleanup::policies::*;

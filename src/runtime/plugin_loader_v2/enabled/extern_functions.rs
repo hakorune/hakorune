@@ -75,7 +75,11 @@ fn handle_file(
 ) -> BidResult<Option<Box<dyn NyashBox>>> {
     match method_name {
         "read" => {
-            let path = args.get(0).ok_or(BidError::PluginError)?.to_string_box().value;
+            let path = args
+                .get(0)
+                .ok_or(BidError::PluginError)?
+                .to_string_box()
+                .value;
             match std::fs::read_to_string(&path) {
                 Ok(text) => Ok(Some(Box::new(StringBox::new(&text)))),
                 Err(_) => Ok(Some(Box::new(VoidBox::new()))),

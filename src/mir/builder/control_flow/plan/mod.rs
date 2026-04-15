@@ -83,8 +83,8 @@ pub(in crate::mir::builder) mod loop_break_steps;
 // 各ループタイプの固有処理
 // Phase 29bq+: body local policy moved to plan side
 pub(in crate::mir::builder) mod body_local_policy;
-mod body_local_policy_inputs;
 mod body_local_policy_helpers;
+mod body_local_policy_inputs;
 mod body_local_policy_runner;
 mod body_local_policy_types;
 // Phase 29bq+: expectations moved to plan side

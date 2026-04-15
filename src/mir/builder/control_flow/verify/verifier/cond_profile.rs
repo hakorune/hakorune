@@ -1,8 +1,6 @@
 use crate::mir::builder::control_flow::facts::{
-    accum_const_loop_facts::AccumConstLoopFacts,
-    bool_predicate_scan_facts::BoolPredicateScanFacts,
-    loop_array_join_facts::LoopArrayJoinFacts,
-    loop_char_map_facts::LoopCharMapFacts,
+    accum_const_loop_facts::AccumConstLoopFacts, bool_predicate_scan_facts::BoolPredicateScanFacts,
+    loop_array_join_facts::LoopArrayJoinFacts, loop_char_map_facts::LoopCharMapFacts,
 };
 use crate::mir::builder::control_flow::lower::planner::Freeze;
 

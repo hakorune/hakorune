@@ -22,6 +22,7 @@ use crate::mir::ValueId;
 use crate::mir::loop_route_detection::LoopRouteKind;
 
 // Phase 273 P1: Import Plan components (facts/recipe outcome -> verifier -> lowerer)
+use super::owner_local_compat::loop_cond_break_release_allowed;
 use super::registry;
 use crate::mir::builder::control_flow::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::facts::reject_reason;
@@ -34,7 +35,6 @@ use crate::mir::builder::control_flow::lower::CorePlan;
 use crate::mir::builder::control_flow::lower::PlanLowerer;
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::verify::PlanVerifier;
-use super::owner_local_compat::LoopCondBreakAcceptKind;
 
 /// Phase 92 P0-2: Import LoopSkeleton for Option A
 use crate::mir::loop_canonicalizer::LoopSkeleton;
@@ -219,10 +219,7 @@ fn release_allows_nested_recipe_first(outcome: &PlanBuildOutcome) -> bool {
     let Some(loop_cond) = facts.facts.loop_cond_break_continue() else {
         return false;
     };
-    !matches!(
-        loop_cond.accept_kind,
-        LoopCondBreakAcceptKind::NestedLoopOnly | LoopCondBreakAcceptKind::ProgramBlockNoExit
-    )
+    loop_cond_break_release_allowed(loop_cond)
 }
 
 pub(crate) fn route_loop(
@@ -360,6 +357,8 @@ pub(crate) fn route_loop(
 
 #[cfg(test)]
 mod tests {
+    use super::super::owner_local_compat::try_extract_loop_scan_methods_block_v0_facts;
+    use super::super::owner_local_compat::try_extract_loop_scan_methods_v0_facts;
     use super::release_allows_nested_recipe_first;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
     use crate::mir::builder::control_flow::facts::feature_facts::LoopFeatureFacts;
@@ -368,8 +367,6 @@ mod tests {
     use crate::mir::builder::control_flow::facts::skeleton_facts::{SkeletonFacts, SkeletonKind};
     use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
     use crate::mir::builder::control_flow::lower::planner::PlanBuildOutcome;
-    use super::super::owner_local_compat::try_extract_loop_scan_methods_block_v0_facts;
-    use super::super::owner_local_compat::try_extract_loop_scan_methods_v0_facts;
 
     fn var(name: &str) -> ASTNode {
         ASTNode::Variable {

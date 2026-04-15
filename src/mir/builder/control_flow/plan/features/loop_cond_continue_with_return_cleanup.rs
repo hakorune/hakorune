@@ -28,7 +28,7 @@ pub(in crate::mir::builder) fn apply_fallthrough_continue_exit(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::builder::control_flow::plan::{CoreExitPlan, CoreEffectPlan};
+    use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CoreExitPlan};
     use crate::mir::MirType;
 
     #[test]

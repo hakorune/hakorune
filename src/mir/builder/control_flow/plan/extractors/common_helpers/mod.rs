@@ -33,8 +33,8 @@ mod walk;
 pub(crate) use crate::mir::builder::control_flow::facts::extractors::common_helpers::{
     count_control_flow, extract_loop_variable, find_if_else_statement, has_break_statement,
     has_continue_statement, has_control_flow_statement, has_if_else_statement, has_if_statement,
-    has_return_statement, is_true_literal, validate_break_in_simple_if,
-    validate_continue_at_end, ControlFlowCounts, ControlFlowDetector,
+    has_return_statement, is_true_literal, validate_break_in_simple_if, validate_continue_at_end,
+    ControlFlowCounts, ControlFlowDetector,
 };
 #[allow(unused_imports)]
 pub(crate) use increment::extract_loop_increment_plan;

@@ -5,11 +5,9 @@ use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockVi
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::body_view::BodyView;
 use crate::mir::builder::control_flow::plan::features::carriers;
-use crate::mir::builder::control_flow::plan::features::loop_cond_co_cleanup::apply_fallthrough_continue_exit;
 use crate::mir::builder::control_flow::plan::features::coreloop_frame::build_coreloop_frame;
-use crate::mir::builder::control_flow::plan::features::loop_cond_co_phi_materializer::{
-    materialize_loop_cond_continue_only_phi_closure,
-};
+use crate::mir::builder::control_flow::plan::features::loop_cond_co_cleanup::apply_fallthrough_continue_exit;
+use crate::mir::builder::control_flow::plan::features::loop_cond_co_phi_materializer::materialize_loop_cond_continue_only_phi_closure;
 use crate::mir::builder::control_flow::plan::features::loop_cond_co_verifier::verify_loop_cond_continue_only_phi_closure;
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_only_facts::LoopCondContinueOnlyFacts;
