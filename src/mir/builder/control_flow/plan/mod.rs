@@ -87,8 +87,6 @@ mod body_local_policy_helpers;
 mod body_local_policy_inputs;
 mod body_local_policy_runner;
 mod body_local_policy_types;
-// Phase 29bq+: expectations moved to plan side
-pub(in crate::mir::builder) mod expectations;
 // Phase 29bq+: Exit binding utilities moved to plan side
 pub(in crate::mir::builder) mod exit_binding;
 pub(in crate::mir::builder) mod exit_binding_applicator;
