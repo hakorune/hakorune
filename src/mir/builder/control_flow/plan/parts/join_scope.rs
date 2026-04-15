@@ -4,7 +4,6 @@
 //! treat branch-scoped locals consistently across parts.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::recipe_tree::{RecipeBlock, RecipeBodies, RecipeItem};
 use std::collections::{BTreeMap, BTreeSet};
 
 pub(super) fn filter_branch_locals_from_maps(
@@ -57,48 +56,6 @@ pub(super) fn collect_branch_local_vars_from_body(
     collect_local_vars_from_body(then_body, &mut locals);
     if let Some(body) = else_body {
         collect_local_vars_from_body(body, &mut locals);
-    }
-    locals
-}
-
-pub(super) fn collect_branch_local_vars_from_block_recursive(
-    arena: &RecipeBodies,
-    block: &RecipeBlock,
-) -> BTreeSet<String> {
-    let mut locals = BTreeSet::new();
-    let Some(body) = arena.get(block.body_id) else {
-        return locals;
-    };
-    for item in &block.items {
-        match item {
-            RecipeItem::Stmt(stmt_ref) => {
-                if let Some(ASTNode::Local { variables, .. }) = body.get_ref(*stmt_ref) {
-                    for name in variables {
-                        locals.insert(name.clone());
-                    }
-                }
-            }
-            RecipeItem::IfV2 {
-                then_block,
-                else_block,
-                ..
-            } => {
-                locals.extend(collect_branch_local_vars_from_block_recursive(
-                    arena, then_block,
-                ));
-                if let Some(else_block) = else_block.as_deref() {
-                    locals.extend(collect_branch_local_vars_from_block_recursive(
-                        arena, else_block,
-                    ));
-                }
-            }
-            RecipeItem::LoopV0 { body_block, .. } => {
-                locals.extend(collect_branch_local_vars_from_block_recursive(
-                    arena, body_block,
-                ));
-            }
-            _ => {}
-        }
     }
     locals
 }

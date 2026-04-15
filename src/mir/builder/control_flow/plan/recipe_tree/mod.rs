@@ -12,6 +12,7 @@ use crate::mir::builder::control_flow::recipes::RecipeBody;
 
 pub(in crate::mir::builder) mod block;
 pub(in crate::mir::builder) mod common;
+pub(in crate::mir::builder) mod join_scope;
 // Re-export block types explicitly (use block::* doesn't work with visibility)
 pub(in crate::mir::builder) use block::{
     BlockContractKind, BodyId, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock,
