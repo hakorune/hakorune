@@ -225,6 +225,8 @@ Related:
   - next step:
     - pin `plan/` destination mapping for `facts / recipes / verify / lower / ssa / cleanup`
     - land top-level `control_flow/facts/` owner surface and move non-`plan/` consumers first
+    - land top-level `control_flow/recipes/` owner surface and move non-`plan/` consumers first
+    - next after that is `control_flow/verify/` owner surface
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`

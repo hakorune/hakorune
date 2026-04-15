@@ -1,11 +1,11 @@
 use crate::mir::builder::control_flow::joinir::route_entry::router::{
     lower_verified_core_plan, LoopRouteContext,
 };
+use crate::mir::builder::control_flow::recipes::RecipeComposer;
 use crate::mir::builder::control_flow::plan::composer;
 use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
 use crate::mir::builder::control_flow::plan::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlanBuildOutcome};
-use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
 use crate::mir::builder::control_flow::plan::single_planner::{
     planner_rule_route_label, PlanRuleId,
 };
@@ -202,4 +202,3 @@ pub(crate) fn route_accum_const_loop(
         FlowboxVia::Release,
     )
 }
-

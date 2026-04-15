@@ -63,6 +63,9 @@ pub(in crate::mir::builder) mod edgecfg;
 // Phase 29ca P1: top-level descriptive owner surface (folderization first cut)
 pub(in crate::mir::builder) mod facts;
 
+// Phase 29ca P1: top-level recipe/CorePlan owner surface (folderization first cut)
+pub(in crate::mir::builder) mod recipes;
+
 // Phase 273 P0: Plan Extractor (Pure) + PlanLowerer SSOT
 pub(in crate::mir::builder) mod plan;
 
