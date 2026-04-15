@@ -105,8 +105,6 @@ Scope: current lane / next lane / restart order only.
     - owner-local keep-plan-for-now residue is isolated in `joinir/route_entry::owner_local_compat`
     - current keep-plan-for-now symbols:
       - `loop_cond::break_continue_types::LoopCondBreakAcceptKind` via minimal helper predicates
-      - test-only `loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts`
-      - test-only `loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts`
     - exact remaining residue shape:
       - explicit facts-local `plan_residue` under `facts/`
       - intentional top-level owner surfaces remain under `recipes / lower / verify / ssa / cleanup / facts`

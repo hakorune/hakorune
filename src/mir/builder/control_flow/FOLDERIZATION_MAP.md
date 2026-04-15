@@ -159,10 +159,6 @@ These wrappers are allowed to point at `plan/` until the implementation moves to
 
 - `plan/loop_cond/break_continue_types::LoopCondBreakAcceptKind`
   - consumed through `joinir/route_entry::owner_local_compat`
-- test-only:
-  - `plan/loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts`
-  - `plan/loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts`
-  - consumed through `joinir/route_entry::owner_local_compat`
 
 ### Movable Next
 

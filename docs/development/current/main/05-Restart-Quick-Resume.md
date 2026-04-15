@@ -39,7 +39,7 @@ bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --onl
   - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
   - treat `plan/policies` as composite residue until its keep-plan policies get single-owner homes
   - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
-  - keep the isolated owner-local keep-plan bridge minimal in `joinir/route_entry::owner_local_compat`
+  - keep the isolated owner-local keep-plan bridge minimal in `joinir/route_entry::owner_local_compat` (now only loop_cond break predicates)
 
 ## Read Next
 

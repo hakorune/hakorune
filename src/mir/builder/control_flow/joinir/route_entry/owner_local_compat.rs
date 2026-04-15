@@ -21,8 +21,3 @@ pub(in crate::mir::builder::control_flow::joinir::route_entry) fn loop_cond_brea
 ) -> bool {
     matches!(facts.accept_kind, LoopCondBreakAcceptKind::ReturnOnlyBody)
 }
-
-#[cfg(test)]
-pub(in crate::mir::builder::control_flow::joinir::route_entry) use crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts;
-#[cfg(test)]
-pub(in crate::mir::builder::control_flow::joinir::route_entry) use crate::mir::builder::control_flow::plan::loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts;

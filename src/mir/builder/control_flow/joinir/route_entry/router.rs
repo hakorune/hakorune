@@ -356,8 +356,6 @@ pub(crate) fn route_loop(
 
 #[cfg(test)]
 mod tests {
-    use super::super::owner_local_compat::try_extract_loop_scan_methods_block_v0_facts;
-    use super::super::owner_local_compat::try_extract_loop_scan_methods_v0_facts;
     use super::release_allows_nested_recipe_first;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
     use crate::mir::builder::control_flow::facts::feature_facts::LoopFeatureFacts;
@@ -366,6 +364,8 @@ mod tests {
     use crate::mir::builder::control_flow::facts::skeleton_facts::{SkeletonFacts, SkeletonKind};
     use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
     use crate::mir::builder::control_flow::lower::PlanBuildOutcome;
+    use crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts;
+    use crate::mir::builder::control_flow::plan::loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts;
 
     fn var(name: &str) -> ASTNode {
         ASTNode::Variable {
