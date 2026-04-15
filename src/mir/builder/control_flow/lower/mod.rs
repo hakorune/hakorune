@@ -7,11 +7,7 @@ pub(in crate::mir::builder) mod expectations;
 pub(in crate::mir::builder) mod normalize;
 
 #[allow(unused_imports)]
-pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::branchn::CoreBranchArmPlan;
-#[allow(unused_imports)]
-pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::edgecfg_facade::{
-    ExitKind, Frag,
-};
+pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::edgecfg_facade::ExitKind;
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::PlanLowerer;
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::planner::{
