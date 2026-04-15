@@ -3,7 +3,7 @@ use crate::ast::{ASTNode, BinaryOperator};
 use super::super::body_check::expr_matchers::matches_trim_cond_with_methodcall;
 use super::super::body_check_extractors::extract_next_i_var;
 use super::super::facts::stmt_classifier::{is_local_decl, is_local_init};
-use crate::mir::builder::control_flow::plan::canon::generic_loop::matches_loop_increment;
+use crate::mir::builder::control_flow::facts::canon::generic_loop::matches_loop_increment;
 use crate::mir::builder::control_flow::plan::facts::expr_generic_loop::is_pure_value_expr_for_generic_loop;
 
 use super::utils::*;

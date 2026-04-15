@@ -1,5 +1,5 @@
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::canon::generic_loop::matches_loop_increment;
+use crate::mir::builder::control_flow::facts::canon::generic_loop::matches_loop_increment;
 use crate::mir::builder::control_flow::plan::coreloop_body_contract::is_effect_only_stmt;
 use crate::mir::builder::control_flow::plan::facts::expr_generic_loop::{
     is_pure_value_expr_for_generic_loop, is_supported_bool_expr_for_generic_loop,

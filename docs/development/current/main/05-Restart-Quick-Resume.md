@@ -30,10 +30,12 @@ bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --onl
 
 - blocker: `none`
 - residue exact shape:
-  - compat re-export / wrapper residue under `facts / recipes / lower`
+  - explicit facts-local `plan_residue` under `facts/`
+  - compat re-export / wrapper residue under `recipes / lower`
   - isolated owner-local keep-plan bridge under `joinir/route_entry::owner_local_compat`
 - next exact handoff:
-  - inventory remaining compat re-export / wrapper residue behind `facts / recipes / lower`
+  - inventory remaining compat re-export / wrapper residue behind `recipes / lower`
+  - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
   - keep the isolated owner-local keep-plan bridge minimal in `joinir/route_entry::owner_local_compat`
 
 ## Read Next

@@ -1,5 +1,5 @@
 use crate::ast::{ASTNode, BinaryOperator, Span};
-use crate::mir::builder::control_flow::plan::canon::generic_loop::{
+use crate::mir::builder::control_flow::facts::canon::generic_loop::{
     canon_condition_for_generic_loop_v0, canon_loop_increment_for_var, classify_step_placement,
     matches_loop_increment, StepPlacement,
 };

@@ -40,7 +40,8 @@ Scope: current lane / next lane / restart order only.
   - `cargo check --bin hakorune` PASS
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
 - next exact handoff:
-  - inventory remaining compat re-export / wrapper residue behind `facts / recipes / lower`
+  - inventory remaining compat re-export / wrapper residue behind `recipes / lower`
+  - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
   - keep the isolated owner-local keep-plan bridge minimal in `joinir/route_entry::owner_local_compat`
 - current stop-lines:
   - do not mix lane B with lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
@@ -98,16 +99,19 @@ Scope: current lane / next lane / restart order only.
     - `none confirmed`
   - direct `plan/` import residue snapshot:
     - compat re-export / wrapper residue remains under top-level owner surfaces
+    - `facts/` now isolates `plan/facts` residue behind `facts::plan_residue`
     - owner-local keep-plan-for-now residue is isolated in `joinir/route_entry::owner_local_compat`
     - current keep-plan-for-now symbols:
       - `loop_cond::break_continue_types::LoopCondBreakAcceptKind` via minimal helper predicates
       - test-only `loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts`
       - test-only `loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts`
     - exact remaining residue shape:
-      - compat re-export / wrapper residue under `facts / recipes / lower`
+      - explicit facts-local `plan_residue` under `facts/`
+      - compat re-export / wrapper residue under `recipes / lower`
       - isolated owner-local keep-plan bridge under `joinir/route_entry::owner_local_compat`
     - fixed next handoff:
-      - inventory remaining compat re-export / wrapper residue behind `facts / recipes / lower`
+      - inventory remaining compat re-export / wrapper residue behind `recipes / lower`
+      - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
       - keep the isolated owner-local keep-plan bridge minimal in `joinir/route_entry::owner_local_compat`
   - shared infra actualization snapshot:
     - `facts::ast_feature_extractor` is landed at the top-level owner
@@ -141,10 +145,11 @@ Scope: current lane / next lane / restart order only.
       - `p5b_escape_derived_policy`
       - `trim_policy`
     - `plan::extractors` keep-plan-for-now residue remains for:
-      - `if_phi_join`
       - `common_helpers::increment`
+    - `facts::plan_residue` still forwards:
+      - `if_phi_join_facts`
     - next actual move:
-      - compat wrapper inventory behind `facts / recipes / lower` owner surfaces
+      - compat wrapper inventory behind `recipes / lower` owner surfaces
   - end-state folderization epics after the owner-local queue is empty:
     - pin destination buckets for current `plan/` directories under `facts / recipes / verify / lower / ssa / cleanup`
     - move shared descriptive infra first (`facts`, `canon`, `extractors`, `route_shape_recognizers`)
@@ -347,14 +352,16 @@ Scope: current lane / next lane / restart order only.
           - `loop_cond`
           - `loop_scan_methods_*`
         - next:
-          - inventory remaining compat re-export / wrapper residue behind `facts / recipes / lower`
+          - inventory remaining compat re-export / wrapper residue behind `recipes / lower`
+          - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
           - keep the isolated owner-local keep-plan bridge minimal in `joinir/route_entry::owner_local_compat`
           - move symbols out of `plan/` only after the owning family is single-owner
 4. `phase-29bq legacy lowerer removal`
     - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - inventory remaining compat re-export / wrapper residue behind `facts / recipes / lower`
+      - inventory remaining compat re-export / wrapper residue behind `recipes / lower`
+      - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
       - keep the isolated owner-local keep-plan bridge minimal in `joinir/route_entry::owner_local_compat`
       - wait for the next movable symbol to emerge from `loop_cond` or `loop_scan_methods_*`
 

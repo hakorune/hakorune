@@ -1,6 +1,6 @@
 //! Facts-side owner surface for analysis-only canon helpers.
 //!
-//! `generic_loop` already owns its facts-side update helper here. The remaining
+//! `generic_loop` is the preferred facts-side import surface. The remaining
 //! condition-oriented canon modules still forward from `plan::canon` until they
 //! get their own move.
 

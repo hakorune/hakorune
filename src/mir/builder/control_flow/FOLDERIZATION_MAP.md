@@ -26,16 +26,18 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
   - `facts::route_shape_recognizers`
   - `facts::escape_shape_recognizer`
   - `facts::stmt_walk`
+  - `facts::plan_residue`
   - `facts::extractors::common_helpers::condition`
   - `facts::extractors::common_helpers::control_flow`
   - `facts::extractors::common_helpers::loop_true_early_exit`
   - `facts::extractors::loop_simple_while`
   - `facts::canon::generic_loop::update`
 - keep-plan-for-now residue inside `plan/extractors`:
-  - `if_phi_join`
   - `common_helpers::increment`
+- facts-local residue still forwarded through `facts::plan_residue`:
+  - `if_phi_join_facts`
 - next actual move:
-  - compat wrapper inventory behind `facts / recipes / lower` owner surfaces
+  - compat wrapper inventory behind `recipes / lower` owner surfaces
 
 ### `recipes/`
 
@@ -49,6 +51,8 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
 - rationale:
   - recipe/CorePlan vocabulary
   - route-local recipe composition without MIR-side repair
+- next actual move:
+  - convert `recipes/` wrapper surfaces into direct owner modules after the `facts/` residue cut
 
 ### `verify/`
 
@@ -143,7 +147,9 @@ These stay in `plan/` until each family is thin enough that the remaining code b
 
 ### Compatibility wrappers (expected while migration is in flight)
 
-- `control_flow/{facts,recipes,verify,lower,ssa,cleanup}/**`
+- `control_flow/facts::plan_residue`
+- `control_flow/recipes/**`
+- `control_flow/lower/**`
 - `control_flow/joinir/route_entry::owner_local_compat`
 
 These wrappers are allowed to point at `plan/` until the implementation moves to its final owner folder.
@@ -159,7 +165,7 @@ These wrappers are allowed to point at `plan/` until the implementation moves to
 
 ### Movable Next
 
-- `none confirmed`
+- `recipes/` wrapper surface after the `facts::plan_residue` cut
 - next movable symbols only appear after `loop_cond` or `loop_scan_methods_*` stops mixing owner responsibilities
 
 ## First Cut

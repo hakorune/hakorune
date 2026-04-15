@@ -2,7 +2,7 @@ use super::super::facts::stmt_classifier::{
     is_exit_if, is_general_if_full, is_local_decl, is_simple_assignment,
 };
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::canon::generic_loop::matches_loop_increment;
+use crate::mir::builder::control_flow::facts::canon::generic_loop::matches_loop_increment;
 
 /// Matches the peek parse pattern.
 ///

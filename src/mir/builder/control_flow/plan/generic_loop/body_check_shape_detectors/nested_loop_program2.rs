@@ -5,7 +5,7 @@ use super::super::body_check::expr_matchers::{
 };
 use super::inner_loop::*;
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::canon::generic_loop::matches_loop_increment;
+use crate::mir::builder::control_flow::facts::canon::generic_loop::matches_loop_increment;
 
 /// Matches parse program2 nested loop if-return pattern.
 pub fn matches_parse_program2_nested_loop_if_return_shape(

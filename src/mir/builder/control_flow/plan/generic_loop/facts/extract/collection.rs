@@ -1,5 +1,5 @@
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::canon::generic_loop::matches_loop_increment;
+use crate::mir::builder::control_flow::facts::canon::generic_loop::matches_loop_increment;
 
 /// Returns true when the loop body writes to variables other than the loop var.
 pub(in crate::mir::builder) fn body_writes_non_loop_vars(
