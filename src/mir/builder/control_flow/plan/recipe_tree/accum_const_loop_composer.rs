@@ -42,7 +42,7 @@ impl RecipeComposer {
             span: dummy_span,
         };
         let loop_cond_view = CondBlockView::from_expr(&accum_facts.condition);
-        crate::mir::builder::control_flow::plan::verifier::debug_observe_cond_profile_value(
+        crate::mir::builder::control_flow::verify::verifier::debug_observe_cond_profile_value(
             &accum_facts.cond_profile,
         );
 

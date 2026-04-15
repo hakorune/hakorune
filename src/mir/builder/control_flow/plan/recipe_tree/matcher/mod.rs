@@ -36,21 +36,21 @@ macro_rules! verify_cond_profile_route {
         // The accept function name
         $accept_func:ident
     ) => {{
-        crate::mir::builder::control_flow::plan::verifier::debug_observe_cond_profile_idx_var(
+        crate::mir::builder::control_flow::verify::verifier::debug_observe_cond_profile_idx_var(
             &$route_facts.loop_var,
             &$route_facts.cond_profile,
         );
-        crate::mir::builder::control_flow::plan::verifier::debug_observe_cond_profile_step_mismatch(
+        crate::mir::builder::control_flow::verify::verifier::debug_observe_cond_profile_step_mismatch(
             &$facts.facts.step_shape,
             &$route_facts.cond_profile,
         );
-        crate::mir::builder::control_flow::plan::verifier::debug_observe_cond_profile_completeness(
+        crate::mir::builder::control_flow::verify::verifier::debug_observe_cond_profile_completeness(
             &$route_facts.cond_profile,
         );
-        crate::mir::builder::control_flow::plan::verifier::debug_observe_cond_profile_priority(
+        crate::mir::builder::control_flow::verify::verifier::debug_observe_cond_profile_priority(
             &$route_facts.cond_profile,
         );
-        crate::mir::builder::control_flow::plan::verifier::$accept_func($route_facts)?;
+        crate::mir::builder::control_flow::verify::verifier::$accept_func($route_facts)?;
         $verifier($route_facts)?;
     }};
 }

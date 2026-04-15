@@ -293,7 +293,7 @@ pub fn verify_loop_char_map_recipe(
     };
 
     let cond_view = CondBlockView::from_expr(&char_map_facts.condition);
-    crate::mir::builder::control_flow::plan::verifier::debug_observe_cond_profile_value(
+    crate::mir::builder::control_flow::verify::verifier::debug_observe_cond_profile_value(
         &char_map_facts.cond_profile,
     );
 
@@ -341,7 +341,7 @@ pub fn verify_loop_array_join_recipe(
     };
 
     let loop_cond_view = CondBlockView::from_expr(&array_join_facts.condition);
-    crate::mir::builder::control_flow::plan::verifier::debug_observe_cond_profile_value(
+    crate::mir::builder::control_flow::verify::verifier::debug_observe_cond_profile_value(
         &array_join_facts.cond_profile,
     );
     let if_cond_view = CondBlockView::from_expr(&array_join_facts.if_condition);
@@ -475,7 +475,7 @@ pub fn verify_bool_predicate_scan_recipe(
     };
 
     let loop_cond_view = CondBlockView::from_expr(&bool_scan_facts.condition);
-    crate::mir::builder::control_flow::plan::verifier::debug_observe_cond_profile_value(
+    crate::mir::builder::control_flow::verify::verifier::debug_observe_cond_profile_value(
         &bool_scan_facts.cond_profile,
     );
     let recipe = build_bool_predicate_scan_recipe(&loop_stmt, loop_cond_view, bool_scan_facts);
@@ -520,7 +520,7 @@ pub fn verify_accum_const_loop_recipe(
     };
 
     let loop_cond_view = CondBlockView::from_expr(&accum_const_facts.condition);
-    crate::mir::builder::control_flow::plan::verifier::debug_observe_cond_profile_value(
+    crate::mir::builder::control_flow::verify::verifier::debug_observe_cond_profile_value(
         &accum_const_facts.cond_profile,
     );
     let recipe = build_accum_const_loop_recipe(&loop_stmt, loop_cond_view, accum_const_facts);

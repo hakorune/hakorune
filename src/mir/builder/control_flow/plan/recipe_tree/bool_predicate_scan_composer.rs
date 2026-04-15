@@ -44,7 +44,7 @@ impl RecipeComposer {
             span: dummy_span,
         };
         let loop_cond_view = CondBlockView::from_expr(&bool_scan_facts.condition);
-        crate::mir::builder::control_flow::plan::verifier::debug_observe_cond_profile_value(
+        crate::mir::builder::control_flow::verify::verifier::debug_observe_cond_profile_value(
             &bool_scan_facts.cond_profile,
         );
 

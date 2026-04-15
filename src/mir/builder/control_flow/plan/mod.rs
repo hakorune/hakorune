@@ -50,7 +50,6 @@ pub(in crate::mir::builder) mod step_mode;
 // Phase 29bq+: Recipe-first base types (Facts→Lower contract)
 pub(in crate::mir::builder) mod recipes;
 pub(in crate::mir::builder) mod trace;
-pub(in crate::mir::builder) mod verifier;
 
 // Layer 2: Analysis Layer (観測)
 // AST分析のみ、変更なし
@@ -203,7 +202,7 @@ pub(in crate::mir::builder) use planner::{
     build_plan_with_facts, build_plan_with_facts_ctx, PlanBuildOutcome,
 };
 #[allow(unused_imports)]
-pub(in crate::mir::builder) use verifier::PlanVerifier;
+pub(in crate::mir::builder) use crate::mir::builder::control_flow::verify::PlanVerifier;
 
 pub(in crate::mir::builder) use branchn::CoreBranchNPlan;
 pub(in crate::mir::builder) use plan_build_session::PlanBuildSession;
