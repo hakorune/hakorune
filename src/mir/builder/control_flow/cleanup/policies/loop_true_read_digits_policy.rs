@@ -11,7 +11,7 @@
 //! - It provides the single allowed body-local variable name (`ch`) for condition lowering.
 
 use super::PolicyDecision;
-use crate::ast::{ASTNode, BinaryOperator, Span, UnaryOperator};
+use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
 
 #[derive(Debug, Clone)]
 pub(crate) struct LoopTrueReadDigitsPolicyResult {
@@ -23,11 +23,16 @@ pub(crate) fn classify_loop_true_read_digits(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> PolicyDecision<LoopTrueReadDigitsPolicyResult> {
+    use crate::mir::builder::control_flow::cleanup::policies::read_digits_break_condition_box::ReadDigitsBreakConditionBox;
     use crate::mir::builder::control_flow::facts::ast_feature_extractor::detect_read_digits_loop_true_shape;
-    use crate::mir::builder::control_flow::plan::loop_true_counter_extractor::LoopTrueCounterExtractorBox;
-    use crate::mir::builder::control_flow::plan::read_digits_break_condition_box::ReadDigitsBreakConditionBox;
 
-    if !LoopTrueCounterExtractorBox::is_loop_true(condition) {
+    if !matches!(
+        condition,
+        ASTNode::Literal {
+            value: LiteralValue::Bool(true),
+            ..
+        }
+    ) {
         return PolicyDecision::None;
     }
     if detect_read_digits_loop_true_shape(body).is_none() {

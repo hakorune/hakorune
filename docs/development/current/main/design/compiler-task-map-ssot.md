@@ -189,7 +189,7 @@ RecipeBlock/IfV2/LoopV0 を **直接組み立てる** 形へ収束する（Recip
   - Phase‑2/Step16: route_shape_recognizers を plan 側へ移設。
   - Phase‑2/Step17: policies/ を plan 側へ移設。
   - Phase‑2/Step18: common_init + common/ を plan 側へ移設。
-  - Phase‑2/Step19: read_digits_break_condition_box を plan 側へ移設。
+  - Phase‑2/Step19: read_digits_break_condition_box は historical traceability label として残しつつ、current live owner を `cleanup/policies/` へ寄せた（plan 側は compat surface）。
   - Phase‑2/Step20: body_local_policy を plan 側へ移設。
   - Phase‑2/Step21: expectations を plan 側へ移設。
   - Phase‑2/Step22: simple-while/if-phi extractors（legacy file labels only）を plan 側へ移設。

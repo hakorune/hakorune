@@ -117,6 +117,7 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
   - `cleanup::policies::body_local_derived_slot`
   - `cleanup::policies::cond_prelude_vocab`
   - `cleanup::policies::loop_true_read_digits_policy`
+  - `cleanup::policies::read_digits_break_condition_box`
   - `cleanup::policies::loop_simple_while_subset_policy`
   - `cleanup::policies::balanced_depth_scan_policy_box`
   - `cleanup::policies::normalized_shadow_suffix_router_box`

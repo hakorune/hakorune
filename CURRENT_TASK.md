@@ -141,6 +141,7 @@ Scope: current lane / next lane / restart order only.
       - `body_local_derived_slot`
       - `cond_prelude_vocab`
       - `loop_true_read_digits_policy`
+      - `read_digits_break_condition_box`
       - `loop_simple_while_subset_policy`
       - `balanced_depth_scan_policy`
       - `balanced_depth_scan_policy_box`

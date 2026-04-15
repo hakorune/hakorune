@@ -6,7 +6,7 @@ Smokes: `tools/smokes/v2/profiles/integration/apps/archive/phase104_read_digits_
 
 DONE:
 - loop(true) counter 抽出（契約SSOT+Fail-Fast）: `LoopTrueCounterExtractorBox`
-- break 条件（break when true）正規化 + digit set 固定: `ReadDigitsBreakConditionBox`
+- break 条件（break when true）正規化 + digit set 固定: `cleanup/policies/read_digits_break_condition_box.rs` の `ReadDigitsBreakConditionBox`（plan 側は compat surface）
 
 P2（実ループ由来の回帰面増強）:
 - Fixture: `apps/tests/phase104_read_digits_json_cur_min.hako`（json_cur.hako 由来, expected: `2`, `1`）
