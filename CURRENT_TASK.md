@@ -40,7 +40,9 @@ Scope: current lane / next lane / restart order only.
   - `cargo check --bin hakorune` PASS
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
 - next exact handoff:
-  - inventory remaining compat re-export / wrapper residue behind `recipes / lower`
+  - safe tiny wrapper cleanup is exhausted for owner-preserving seams
+  - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
+  - treat `plan/policies` as composite residue (cleanup re-exports + keep-plan policies), not a pure wrapper target
   - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
   - keep the isolated owner-local keep-plan bridge minimal in `joinir/route_entry::owner_local_compat`
 - current stop-lines:
@@ -107,10 +109,13 @@ Scope: current lane / next lane / restart order only.
       - test-only `loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts`
     - exact remaining residue shape:
       - explicit facts-local `plan_residue` under `facts/`
-      - compat re-export / wrapper residue under `recipes / lower`
+      - intentional top-level owner surfaces remain under `recipes / lower / verify / ssa / cleanup / facts`
+      - composite keep-plan residue remains in `plan/policies`
       - isolated owner-local keep-plan bridge under `joinir/route_entry::owner_local_compat`
     - fixed next handoff:
-      - inventory remaining compat re-export / wrapper residue behind `recipes / lower`
+      - safe tiny wrapper cleanup is exhausted for owner-preserving seams
+      - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
+      - treat `plan/policies` as composite residue until `loop_true_read_digits_policy`, `p5b_escape_derived_policy`, and `trim_policy` get single-owner homes
       - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
       - keep the isolated owner-local keep-plan bridge minimal in `joinir/route_entry::owner_local_compat`
   - shared infra actualization snapshot:
