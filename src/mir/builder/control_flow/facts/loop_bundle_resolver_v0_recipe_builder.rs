@@ -1,10 +1,10 @@
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::facts::loop_bundle_resolver_v0::LoopBundleResolverV0Facts;
+use crate::mir::builder::control_flow::facts::loop_bundle_resolver_v0_shape_routes::LoopBundleResolverV0ShapePins;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
+use crate::mir::builder::control_flow::recipes::loop_bundle_resolver_v0::LoopBundleResolverV0Recipe;
 
-use super::facts_types::{LoopBundleResolverV0Facts, LoopBundleResolverV0ShapePins};
-use super::recipe::LoopBundleResolverV0Recipe;
-
-pub(super) fn try_build_loop_bundle_resolver_v0_facts(
+pub(in crate::mir::builder) fn try_build_loop_bundle_resolver_v0_facts(
     condition: &ASTNode,
     body: &[ASTNode],
     shape_pins: LoopBundleResolverV0ShapePins,

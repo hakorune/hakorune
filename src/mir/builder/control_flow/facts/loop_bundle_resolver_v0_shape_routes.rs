@@ -1,11 +1,16 @@
 use crate::ast::ASTNode;
-
-use super::facts_helpers::{
+use crate::mir::builder::control_flow::facts::loop_bundle_resolver_v0_helpers::{
     declares_local_var, extract_step_var_from_tail, is_loop_cond_var_lt_var,
 };
-use super::facts_types::LoopBundleResolverV0ShapePins;
 
-pub(super) fn try_match_loop_bundle_resolver_v0_shape_pins(
+#[derive(Debug, Clone)]
+pub(in crate::mir::builder) struct LoopBundleResolverV0ShapePins {
+    pub loop_var: String,
+    pub limit_var: String,
+    pub step_var: String,
+}
+
+pub(in crate::mir::builder) fn try_match_loop_bundle_resolver_v0_shape_pins(
     condition: &ASTNode,
     body: &[ASTNode],
     debug_reject: &dyn Fn(&str),

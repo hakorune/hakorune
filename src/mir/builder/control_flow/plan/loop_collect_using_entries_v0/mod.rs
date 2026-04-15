@@ -8,18 +8,12 @@
 //!
 //! Intended for strict/dev + planner_required only.
 
-mod facts;
-mod facts_helpers;
-mod facts_recipe_builder;
-mod facts_shape_routes;
-mod facts_types;
 mod pipeline;
-mod recipe;
 
 #[allow(unused_imports)]
-pub(in crate::mir::builder) use facts::try_extract_loop_collect_using_entries_v0_facts;
-#[allow(unused_imports)]
-pub(in crate::mir::builder) use facts_types::LoopCollectUsingEntriesV0Facts;
+pub(in crate::mir::builder) use crate::mir::builder::control_flow::facts::loop_collect_using_entries_v0::{
+    try_extract_loop_collect_using_entries_v0_facts, LoopCollectUsingEntriesV0Facts,
+};
 pub(in crate::mir::builder) use pipeline::lower_loop_collect_using_entries_v0;
 #[allow(unused_imports)]
-pub(in crate::mir::builder) use recipe::LoopCollectUsingEntriesV0Recipe;
+pub(in crate::mir::builder) use crate::mir::builder::control_flow::recipes::loop_collect_using_entries_v0::LoopCollectUsingEntriesV0Recipe;

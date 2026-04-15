@@ -1,6 +1,6 @@
 use crate::ast::{ASTNode, BinaryOperator};
 
-pub(super) fn release_enabled() -> bool {
+pub(in crate::mir::builder) fn release_enabled() -> bool {
     true
 }
 
@@ -11,7 +11,7 @@ fn as_var_name(ast: &ASTNode) -> Option<&str> {
     }
 }
 
-pub(super) fn is_loop_cond_var_lt_var(ast: &ASTNode) -> Option<(String, String)> {
+pub(in crate::mir::builder) fn is_loop_cond_var_lt_var(ast: &ASTNode) -> Option<(String, String)> {
     match ast {
         ASTNode::BinaryOp {
             operator: BinaryOperator::Less,
@@ -26,14 +26,17 @@ pub(super) fn is_loop_cond_var_lt_var(ast: &ASTNode) -> Option<(String, String)>
     }
 }
 
-pub(super) fn declares_local_var(stmt: &ASTNode, name: &str) -> bool {
+pub(in crate::mir::builder) fn declares_local_var(stmt: &ASTNode, name: &str) -> bool {
     let ASTNode::Local { variables, .. } = stmt else {
         return false;
     };
     variables.iter().any(|v| v == name)
 }
 
-pub(super) fn extract_step_var_from_tail(stmt: &ASTNode, loop_var: &str) -> Option<String> {
+pub(in crate::mir::builder) fn extract_step_var_from_tail(
+    stmt: &ASTNode,
+    loop_var: &str,
+) -> Option<String> {
     let ASTNode::Assignment { target, value, .. } = stmt else {
         return None;
     };

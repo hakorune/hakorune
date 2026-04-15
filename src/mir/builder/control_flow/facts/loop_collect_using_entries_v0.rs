@@ -6,8 +6,8 @@ use crate::mir::builder::control_flow::facts::loop_collect_using_entries_v0_help
 };
 use crate::mir::builder::control_flow::facts::loop_collect_using_entries_v0_recipe_builder::try_build_loop_collect_using_entries_v0_recipe;
 use crate::mir::builder::control_flow::facts::loop_collect_using_entries_v0_shape_routes::try_match_loop_collect_using_entries_v0_shape;
-use crate::mir::builder::control_flow::plan::loop_collect_using_entries_v0::LoopCollectUsingEntriesV0Recipe;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
+use crate::mir::builder::control_flow::recipes::loop_collect_using_entries_v0::LoopCollectUsingEntriesV0Recipe;
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct LoopCollectUsingEntriesV0Facts {

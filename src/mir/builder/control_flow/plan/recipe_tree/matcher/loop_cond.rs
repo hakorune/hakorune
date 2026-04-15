@@ -22,7 +22,7 @@ pub fn verify_loop_collect_using_entries_v0_recipe(
 
 /// Recipe-first verification for loop_bundle_resolver_v0.
 pub fn verify_loop_bundle_resolver_v0_recipe(
-    bundle_resolver: &crate::mir::builder::control_flow::plan::loop_bundle_resolver_v0::LoopBundleResolverV0Facts,
+    bundle_resolver: &crate::mir::builder::control_flow::facts::loop_bundle_resolver_v0::LoopBundleResolverV0Facts,
 ) -> Result<(), Freeze> {
     verify_exit_allowed_block_recipe(
         &bundle_resolver.recipe.body_exit_allowed,

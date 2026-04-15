@@ -1,12 +1,19 @@
 //! Facts for loop_bundle_resolver_v0 (one-shape, planner-required only).
 
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::facts::loop_bundle_resolver_v0_helpers::release_enabled;
+use crate::mir::builder::control_flow::facts::loop_bundle_resolver_v0_recipe_builder::try_build_loop_bundle_resolver_v0_facts;
+use crate::mir::builder::control_flow::facts::loop_bundle_resolver_v0_shape_routes::try_match_loop_bundle_resolver_v0_shape_pins;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
+use crate::mir::builder::control_flow::recipes::loop_bundle_resolver_v0::LoopBundleResolverV0Recipe;
 
-use super::facts_helpers::release_enabled;
-use super::facts_recipe_builder::try_build_loop_bundle_resolver_v0_facts;
-use super::facts_shape_routes::try_match_loop_bundle_resolver_v0_shape_pins;
-use super::facts_types::LoopBundleResolverV0Facts;
+#[derive(Debug, Clone)]
+pub(in crate::mir::builder) struct LoopBundleResolverV0Facts {
+    pub loop_var: String,
+    pub limit_var: String,
+    pub condition: ASTNode,
+    pub recipe: LoopBundleResolverV0Recipe,
+}
 
 pub(in crate::mir::builder) fn try_extract_loop_bundle_resolver_v0_facts(
     condition: &ASTNode,

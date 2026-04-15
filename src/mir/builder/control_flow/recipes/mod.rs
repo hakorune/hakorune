@@ -6,6 +6,8 @@
 
 mod body;
 mod composer_compat;
+pub(in crate::mir::builder) mod loop_bundle_resolver_v0;
+pub(in crate::mir::builder) mod loop_collect_using_entries_v0;
 pub(in crate::mir::builder) mod loop_scan_methods_v0;
 pub(in crate::mir::builder) mod refs;
 pub(in crate::mir::builder) mod scan_loop_segments;
