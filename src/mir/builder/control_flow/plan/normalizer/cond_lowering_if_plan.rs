@@ -6,7 +6,7 @@ use super::cond_lowering_value_expr::lower_cond_value_expr;
 use crate::ast::{ASTNode, BinaryOperator, UnaryOperator};
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::parts::entry as parts_entry;
-use crate::mir::builder::control_flow::plan::policies::cond_prelude_vocab::prelude_has_loop_like_stmt;
+use crate::mir::builder::control_flow::cleanup::policies::cond_prelude_vocab::prelude_has_loop_like_stmt;
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
 use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreIfJoin, CoreIfPlan, CorePlan, LoweredRecipe,

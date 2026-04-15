@@ -115,17 +115,15 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
   - `cleanup::common`
   - `cleanup::policies::cond_prelude_vocab`
   - `cleanup::policies::loop_simple_while_subset_policy`
-  - `cleanup::policies::balanced_depth_scan_policy`
   - `cleanup::policies::balanced_depth_scan_policy_box`
   - `cleanup::policies::normalized_shadow_suffix_router_box`
-  - `cleanup::policies::post_loop_early_return_plan`
 - keep-plan-for-now residue inside `plan/policies`:
   - `loop_true_read_digits_policy`
   - `p5b_escape_derived_policy`
   - `trim_policy`
 - next actual move:
   - `none confirmed`
-  - do not treat `plan/policies` as a pure wrapper while those keep-plan policies still share the module
+  - `plan/policies` is no longer a mixed cleanup compat wrapper; keep it as the owner surface for the remaining keep-plan policy modules
 
 ## Owner-Local Families (keep under temporary `plan/` namespace)
 

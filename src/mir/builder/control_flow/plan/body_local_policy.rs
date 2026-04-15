@@ -4,7 +4,7 @@
 //! so loop-break routing code does not look like it "falls back" after failure.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::policies::PolicyDecision;
+use crate::mir::builder::control_flow::cleanup::policies::PolicyDecision;
 use crate::mir::builder::MirBuilder;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
 use crate::mir::loop_route_detection::loop_condition_scope::LoopConditionScope;

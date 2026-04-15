@@ -11,7 +11,7 @@ use crate::mir::builder::control_flow::plan::facts::expr_generic_loop::is_pure_v
 use crate::mir::builder::control_flow::plan::facts::no_exit_block::{
     try_build_no_exit_block_recipe, NoExitBlockRecipe,
 };
-use crate::mir::builder::control_flow::plan::policies::cond_prelude_vocab::prelude_has_loop_like_stmt;
+use crate::mir::builder::control_flow::cleanup::policies::cond_prelude_vocab::prelude_has_loop_like_stmt;
 use crate::mir::builder::control_flow::plan::recipe_tree::common::ExitKind;
 
 /// Check if an if statement is a conditional update pattern.

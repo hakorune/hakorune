@@ -3,7 +3,7 @@
 use super::expr_value::{is_supported_value_expr, value_expr_requires_canon};
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, UnaryOperator};
 use crate::mir::builder::control_flow::plan::canon::cond::canon_bool_or_condition;
-use crate::mir::builder::control_flow::plan::policies::cond_prelude_vocab::classify_cond_prelude_stmt;
+use crate::mir::builder::control_flow::cleanup::policies::cond_prelude_vocab::classify_cond_prelude_stmt;
 
 pub(in crate::mir::builder) fn is_supported_bool_expr_with_canon(
     ast: &ASTNode,

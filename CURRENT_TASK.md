@@ -42,7 +42,7 @@ Scope: current lane / next lane / restart order only.
 - next exact handoff:
   - safe tiny wrapper cleanup is exhausted for owner-preserving seams
   - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
-  - treat `plan/policies` as composite residue (cleanup re-exports + keep-plan policies), not a pure wrapper target
+  - treat `plan/policies` as the keep-plan owner surface for `loop_true_read_digits_policy`, `p5b_escape_derived_policy`, and `trim_policy`
   - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
   - keep the isolated owner-local keep-plan bridge minimal in `joinir/route_entry::owner_local_compat`
 - current stop-lines:
@@ -108,12 +108,12 @@ Scope: current lane / next lane / restart order only.
     - exact remaining residue shape:
       - explicit facts-local `plan_residue` under `facts/`
       - intentional top-level owner surfaces remain under `recipes / lower / verify / ssa / cleanup / facts`
-      - composite keep-plan residue remains in `plan/policies`
+      - keep-plan policy residue remains under `plan/policies`
       - isolated owner-local keep-plan bridge under `joinir/route_entry::owner_local_compat`
     - fixed next handoff:
       - safe tiny wrapper cleanup is exhausted for owner-preserving seams
       - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
-      - treat `plan/policies` as composite residue until `loop_true_read_digits_policy`, `p5b_escape_derived_policy`, and `trim_policy` get single-owner homes
+      - treat `plan/policies` as the keep-plan owner surface until `loop_true_read_digits_policy`, `p5b_escape_derived_policy`, and `trim_policy` get single-owner homes
       - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
       - keep the isolated owner-local keep-plan bridge minimal in `joinir/route_entry::owner_local_compat`
   - shared infra actualization snapshot:

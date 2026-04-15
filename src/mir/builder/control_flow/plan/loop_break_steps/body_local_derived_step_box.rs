@@ -7,8 +7,8 @@
 use crate::ast::ASTNode;
 
 use super::super::loop_break_prep_box::{LoopBreakDebugLog, LoopBreakPrepInputs};
+use crate::mir::builder::control_flow::cleanup::policies::PolicyDecision;
 use crate::mir::builder::control_flow::plan::policies::p5b_escape_derived_policy::classify_p5b_escape_derived;
-use crate::mir::builder::control_flow::plan::policies::PolicyDecision;
 
 pub(crate) struct BodyLocalDerivedStepBox;
 

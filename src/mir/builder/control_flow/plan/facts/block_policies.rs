@@ -5,7 +5,7 @@
 //! - Keep "allow_extended" gates centralized for small vocabulary decisions.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::policies::cond_prelude_vocab::{
+use crate::mir::builder::control_flow::cleanup::policies::cond_prelude_vocab::{
     classify_cond_prelude_stmt, CondPreludeStmtKind,
 };
 

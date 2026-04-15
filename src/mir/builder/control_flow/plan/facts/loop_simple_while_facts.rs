@@ -7,7 +7,7 @@ use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
 };
 use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use crate::mir::builder::control_flow::plan::policies::loop_simple_while_subset_policy::is_loop_simple_while_step_only_body;
+use crate::mir::builder::control_flow::cleanup::policies::loop_simple_while_subset_policy::is_loop_simple_while_step_only_body;
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct LoopSimpleWhileFacts {

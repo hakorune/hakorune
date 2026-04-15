@@ -1,7 +1,7 @@
 //! Analysis-only statement views for Facts (no AST rewrite).
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::policies::cond_prelude_vocab::classify_cond_prelude_stmt;
+use crate::mir::builder::control_flow::cleanup::policies::cond_prelude_vocab::classify_cond_prelude_stmt;
 use crate::mir::builder::control_flow::plan::recipe_tree::build_stmt_only_block;
 use crate::mir::builder::control_flow::plan::recipe_tree::{RecipeBlock, RecipeBodies};
 use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
