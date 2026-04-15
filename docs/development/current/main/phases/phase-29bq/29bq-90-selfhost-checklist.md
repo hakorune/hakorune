@@ -231,6 +231,22 @@ Related:
     - land top-level `control_flow/ssa/` owner surface
     - land top-level `control_flow/cleanup/` owner surface
     - next after that is direct `plan/` import inventory and removal
+
+- folderization residue inventory (`direct plan import residue`):
+  - landed:
+    - top-level owner surfaces for `facts / recipes / verify / lower / ssa / cleanup`
+    - route-entry owner-local compat window (`joinir/route_entry::owner_local_compat`)
+  - current residue classes:
+    - compat-wrapper self-reference
+    - owner-local keep-plan-for-now
+  - keep-plan-for-now symbols:
+    - `loop_cond::break_continue_types::LoopCondBreakAcceptKind`
+    - test-only `loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts`
+    - test-only `loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts`
+  - still mixed:
+    - none confirmed
+  - next step:
+    - move symbols out of `plan/` only after `loop_cond` or `loop_scan_methods_*` becomes single-owner
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`

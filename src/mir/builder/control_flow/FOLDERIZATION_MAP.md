@@ -93,6 +93,29 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
 
 These stay in `plan/` until each family is thin enough that the remaining code belongs clearly to one owner bucket.
 
+## Direct `plan/` Import Residue Ledger
+
+### Compatibility wrappers (expected while migration is in flight)
+
+- `control_flow/{facts,recipes,verify,lower,ssa,cleanup}/**`
+- `control_flow/joinir/route_entry::owner_local_compat`
+
+These wrappers are allowed to point at `plan/` until the implementation moves to its final owner folder.
+
+### Owner-Local Keep-Plan-For-Now Symbols
+
+- `plan/loop_cond/break_continue_types::LoopCondBreakAcceptKind`
+  - consumed through `joinir/route_entry::owner_local_compat`
+- test-only:
+  - `plan/loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts`
+  - `plan/loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts`
+  - consumed through `joinir/route_entry::owner_local_compat`
+
+### Movable Next
+
+- `none confirmed`
+- next movable symbols only appear after `loop_cond` or `loop_scan_methods_*` stops mixing owner responsibilities
+
 ## First Cut
 
 - establish top-level `control_flow/facts/` as the descriptive owner surface

@@ -89,8 +89,16 @@ Scope: current lane / next lane / restart order only.
     - remove the `plan/` name only after route families no longer mix recipe/lower/ssa/cleanup responsibilities
 - folderization backlog snapshot:
   - owner-local closeout remaining:
-    - close out `loop_collect_using_entries_v0::facts`
-    - confirm the current owner-local inventory reaches `none confirmed`
+    - `none confirmed`
+  - direct `plan/` import residue snapshot:
+    - compat wrapper self-references remain under top-level owner surfaces
+    - owner-local keep-plan-for-now residue is routed through `joinir/route_entry::owner_local_compat`
+    - current keep-plan-for-now symbols:
+      - `loop_cond::break_continue_types::LoopCondBreakAcceptKind`
+      - test-only `loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts`
+      - test-only `loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts`
+    - movable next:
+      - `none confirmed`
   - end-state folderization epics after the owner-local queue is empty:
     - pin destination buckets for current `plan/` directories under `facts / recipes / verify / lower / ssa / cleanup`
     - move shared descriptive infra first (`facts`, `canon`, `extractors`, `route_shape_recognizers`)
@@ -278,14 +286,28 @@ Scope: current lane / next lane / restart order only.
           - closeout:
             - landed
         - likely follow-on seams:
-          - `plan/` destination mapping
+          - `direct plan import residue`
         - next:
-          - inventory remaining direct `plan/` imports and start removing compatibility-only callsites
+          - keep owner-local residue behind `joinir/route_entry::owner_local_compat`
+      - `direct plan import residue`
+        - current handoff snapshot:
+          - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
+          - top-level owner surfaces for `facts / recipes / verify / lower / ssa / cleanup` are landed
+          - route-entry owner-local compat window is landed
+          - remaining direct `plan/` imports are either wrapper self-references or keep-plan-for-now owner-local symbols
+          - likely first seam:
+            - `none confirmed`
+        - likely follow-on seams:
+          - `loop_cond`
+          - `loop_scan_methods_*`
+        - next:
+          - move symbols out of `plan/` only after the owning family is single-owner
 4. `phase-29bq legacy lowerer removal`
     - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - inventory remaining direct `plan/` imports and start removing compatibility-only callsites
+      - keep owner-local residue behind `joinir/route_entry::owner_local_compat`
+      - wait for the next movable symbol to emerge from `loop_cond` or `loop_scan_methods_*`
 
 ## Legacy Compatibility Block
 

@@ -1,10 +1,10 @@
 use crate::mir::builder::control_flow::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::lower::planner::{Freeze, PlanBuildOutcome};
-use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakAcceptKind;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
 use super::super::router::{lower_verified_core_plan, LoopRouteContext};
+use super::super::owner_local_compat::LoopCondBreakAcceptKind;
 use super::types::{RouterEnv, StandardEntry};
 use super::utils::emit_planner_first;
 
