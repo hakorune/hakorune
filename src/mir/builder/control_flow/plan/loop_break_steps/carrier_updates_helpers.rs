@@ -6,7 +6,7 @@ use crate::mir::join_ir::lowering::condition_env::ConditionBinding;
 use crate::mir::join_ir::lowering::loop_update_analyzer::{LoopUpdateAnalyzer, UpdateExpr};
 
 use super::super::loop_break_prep_box::{LoopBreakDebugLog, LoopBreakPrepInputs};
-use crate::mir::builder::control_flow::plan::common::{
+use crate::mir::builder::control_flow::cleanup::common::{
     decide_carrier_binding_policy, CarrierBindingPolicy,
 };
 

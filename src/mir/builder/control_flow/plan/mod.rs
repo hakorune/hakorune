@@ -154,7 +154,6 @@ pub(in crate::mir::builder) mod single_planner;
 // Layer 8: Utilities (ユーティリティ)
 // 共通機能・ポリシー
 // Phase 29bq+: Common route helpers moved to plan side
-pub(in crate::mir::builder) mod common;
 // Phase 29bq+: Common route initializer moved to plan side
 pub(in crate::mir::builder) mod common_init;
 // Phase 29ai P6: Extractors moved into plan layer

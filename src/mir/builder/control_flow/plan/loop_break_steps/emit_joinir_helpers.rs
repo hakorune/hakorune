@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::common::{
+use crate::mir::builder::control_flow::cleanup::common::{
     decide_carrier_binding_policy, get_entry_function, CarrierBindingPolicy,
 };
 use crate::mir::builder::control_flow::plan::loop_break_prep_box::LoopBreakPrepInputs;
