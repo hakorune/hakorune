@@ -258,7 +258,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - actualize `facts::canon` support for `generic_loop_update`
+    - re-inventory compat wrappers behind `facts / recipes / lower`
 
 - shared infra actual move (`lower expectations`):
   - landed:
@@ -267,7 +267,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - actualize `facts::canon` support for `generic_loop_update`
+    - re-inventory compat wrappers behind `facts / recipes / lower`
 
 - shared infra actual move (`ssa exit binding`):
   - landed:
@@ -278,7 +278,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - actualize `facts::canon` support for `generic_loop_update`
+    - re-inventory compat wrappers behind `facts / recipes / lower`
 
 - shared infra actual move (`cleanup common`):
   - landed:
@@ -286,7 +286,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - actualize `facts::canon` support for `generic_loop_update`
+    - re-inventory compat wrappers behind `facts / recipes / lower`
 
 - shared infra actual move (`cleanup policies support`):
   - landed:
@@ -302,7 +302,7 @@ Related:
       - `p5b_escape_derived_policy`
       - `trim_policy`
   - next step:
-    - actualize `facts::canon` support for `generic_loop_update`
+    - re-inventory compat wrappers behind `facts / recipes / lower`
 
 - shared infra actual move (`facts support`):
   - landed:
@@ -314,12 +314,13 @@ Related:
     - `facts::extractors::common_helpers::control_flow`
     - `facts::extractors::common_helpers::loop_true_early_exit`
     - `facts::extractors::loop_simple_while`
+    - `facts::canon::generic_loop::update`
   - still mixed:
     - keep-plan-for-now residue:
       - `if_phi_join`
       - `common_helpers::increment`
   - next step:
-    - actualize `facts::canon` support for `generic_loop_update`
+    - re-inventory compat wrappers behind `facts / recipes / lower`
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`

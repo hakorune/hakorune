@@ -30,11 +30,12 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
   - `facts::extractors::common_helpers::control_flow`
   - `facts::extractors::common_helpers::loop_true_early_exit`
   - `facts::extractors::loop_simple_while`
+  - `facts::canon::generic_loop::update`
 - keep-plan-for-now residue inside `plan/extractors`:
   - `if_phi_join`
   - `common_helpers::increment`
 - next actual move:
-  - `facts::canon` support for `generic_loop_update`
+  - compat wrapper inventory behind `facts / recipes / lower` owner surfaces
 
 ### `recipes/`
 

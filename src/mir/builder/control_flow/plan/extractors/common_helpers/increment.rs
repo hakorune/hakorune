@@ -1,5 +1,5 @@
 use crate::ast::{ASTNode, BinaryOperator};
-use crate::mir::builder::control_flow::plan::canon::generic_loop::canon_update_for_loop_var;
+use crate::mir::builder::control_flow::facts::canon::generic_loop::canon_update_for_loop_var;
 
 /// ============================================================
 /// Group 4: Loop Increment Extraction (Common for Plan line)

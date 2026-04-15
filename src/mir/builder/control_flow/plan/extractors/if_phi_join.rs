@@ -1,7 +1,7 @@
 //! Phase 282 P5: if_phi_join extraction
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::canon::generic_loop::canon_update_for_loop_var;
+use crate::mir::builder::control_flow::facts::canon::generic_loop::canon_update_for_loop_var;
 
 #[derive(Debug, Clone)]
 pub(crate) struct IfPhiJoinParts {

@@ -1,18 +1,4 @@
-use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
+//! Compatibility wrapper for top-level generic-loop update canon.
 
-use super::UpdateCanon;
-
-mod literal_match;
-mod literal_step;
-
-#[derive(Debug, Clone, PartialEq)]
-pub(super) struct UpdateLiteralMatch {
-    pub op: BinaryOperator,
-    pub literal: LiteralValue,
-    pub commuted: bool,
-}
-
-pub(crate) fn canon_update_for_loop_var(stmt: &ASTNode, loop_var: &str) -> Option<UpdateCanon> {
-    let matched = literal_match::match_update_literal(stmt, loop_var)?;
-    literal_step::build_update_canon(matched)
-}
+#[allow(unused_imports)]
+pub(crate) use crate::mir::builder::control_flow::facts::canon::generic_loop::canon_update_for_loop_var;
