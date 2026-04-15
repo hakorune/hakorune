@@ -327,6 +327,7 @@ Related:
     - `facts::extractors::loop_simple_while`
     - `facts::loop_scan_methods_v0`
     - `facts::loop_scan_methods_block_v0`
+    - `facts::loop_collect_using_entries_v0`
     - `facts::expr_value`
     - `facts::expr_bool`
     - `facts::no_exit_block`
@@ -340,7 +341,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - inventory `loop_collect_using_entries_v0` and keep `recipe_tree / parts` as the remaining shared-infra movable seam
+    - advance `recipe_tree / parts` as the remaining shared-infra movable seam
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`

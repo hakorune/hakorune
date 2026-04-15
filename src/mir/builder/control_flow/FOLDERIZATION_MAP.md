@@ -35,6 +35,7 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
   - `facts::extractors::loop_simple_while`
   - `facts::loop_scan_methods_v0`
   - `facts::loop_scan_methods_block_v0`
+  - `facts::loop_collect_using_entries_v0`
   - `facts::expr_value`
   - `facts::expr_bool`
   - `facts::no_exit_block`
@@ -47,7 +48,7 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
 - facts-local residue still forwarded through `facts::plan_residue`:
   - `none confirmed`
 - next actual move:
-  - inventory `loop_collect_using_entries_v0` and keep `recipe_tree / parts` as the remaining shared-infra movable seam
+  - advance `recipe_tree / parts` as the remaining shared-infra movable seam
 
 ### `recipes/`
 

@@ -41,7 +41,7 @@ Scope: current lane / next lane / restart order only.
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
 - next exact handoff:
   - safe tiny wrapper cleanup is exhausted for owner-preserving seams
-  - next family inventory target is `loop_collect_using_entries_v0`
+  - next shared-infra pointer is `recipe_tree / parts`
   - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
   - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
   - keep `loop_cond` keep-plan residue internal to the family; route-entry should not need a dedicated bridge
@@ -129,6 +129,7 @@ Scope: current lane / next lane / restart order only.
       - `loop_simple_while`
     - `facts::loop_scan_methods_v0` facts/type extraction is landed at the top-level owner and now uses facts-owned `no_exit_block` / `stmt_view` helpers
     - `facts::loop_scan_methods_block_v0` facts/type extraction is landed at the top-level owner and now uses facts-owned helper trio
+    - `facts::loop_collect_using_entries_v0` owner surface is landed at the top-level owner
     - `facts::expr_value` owner surface is landed at the top-level owner
     - `facts::expr_bool` owner surface is landed at the top-level owner
     - `facts::no_exit_block` owner surface is landed at the top-level owner
@@ -172,7 +173,7 @@ Scope: current lane / next lane / restart order only.
       - `match_return_facts`, `LoopBreakFacts`
       - cond-profile support: `accum_const_loop_facts`, `bool_predicate_scan_facts`, `loop_array_join_facts`, `loop_char_map_facts`
     - next actual move:
-      - inventory `loop_collect_using_entries_v0`; keep `recipe_tree / parts` as the remaining shared-infra movable seam
+      - advance `recipe_tree / parts` as the remaining shared-infra movable seam
   - end-state folderization epics after the owner-local queue is empty:
     - pin destination buckets for current `plan/` directories under `facts / recipes / verify / lower / ssa / cleanup`
     - move shared descriptive infra first (`facts`, `canon`, `extractors`, `route_shape_recognizers`)

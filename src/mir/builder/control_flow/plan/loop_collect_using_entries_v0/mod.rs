@@ -16,6 +16,10 @@ mod facts_types;
 mod pipeline;
 mod recipe;
 
+#[allow(unused_imports)]
 pub(in crate::mir::builder) use facts::try_extract_loop_collect_using_entries_v0_facts;
+#[allow(unused_imports)]
 pub(in crate::mir::builder) use facts_types::LoopCollectUsingEntriesV0Facts;
 pub(in crate::mir::builder) use pipeline::lower_loop_collect_using_entries_v0;
+#[allow(unused_imports)]
+pub(in crate::mir::builder) use recipe::LoopCollectUsingEntriesV0Recipe;

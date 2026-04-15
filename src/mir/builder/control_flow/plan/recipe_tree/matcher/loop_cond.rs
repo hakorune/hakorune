@@ -4,7 +4,7 @@ use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 /// Recipe-first verification for loop_collect_using_entries_v0.
 pub fn verify_loop_collect_using_entries_v0_recipe(
-    collect_using: &crate::mir::builder::control_flow::plan::loop_collect_using_entries_v0::LoopCollectUsingEntriesV0Facts,
+    collect_using: &crate::mir::builder::control_flow::facts::loop_collect_using_entries_v0::LoopCollectUsingEntriesV0Facts,
 ) -> Result<(), Freeze> {
     verify_no_exit_block_recipe(
         &collect_using.recipe.body_no_exit,

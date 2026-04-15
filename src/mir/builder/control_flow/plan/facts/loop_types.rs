@@ -19,6 +19,7 @@ use super::split_lines_facts::SplitLinesFacts;
 use super::starts_with_facts::StartsWithFacts;
 use super::string_is_integer_facts::StringIsIntegerFacts;
 use super::{IfPhiJoinFacts, LoopContinueOnlyFacts};
+use crate::mir::builder::control_flow::facts::loop_collect_using_entries_v0::LoopCollectUsingEntriesV0Facts;
 use crate::mir::builder::control_flow::facts::loop_scan_methods_block_v0::LoopScanMethodsBlockV0Facts;
 use crate::mir::builder::control_flow::facts::loop_scan_methods_v0::LoopScanMethodsV0Facts;
 use crate::mir::builder::control_flow::plan::generic_loop::facts_types::{
@@ -27,7 +28,6 @@ use crate::mir::builder::control_flow::plan::generic_loop::facts_types::{
 use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakBodyLocalFacts;
 use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 use crate::mir::builder::control_flow::plan::loop_bundle_resolver_v0::LoopBundleResolverV0Facts;
-use crate::mir::builder::control_flow::plan::loop_collect_using_entries_v0::LoopCollectUsingEntriesV0Facts;
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakContinueFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_only_facts::LoopCondContinueOnlyFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_facts::LoopCondContinueWithReturnFacts;
