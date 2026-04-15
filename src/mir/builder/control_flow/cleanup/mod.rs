@@ -9,4 +9,4 @@ pub(in crate::mir::builder) mod policies;
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use common::*;
 #[allow(unused_imports)]
-pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::policies::*;
+pub(in crate::mir::builder) use policies::*;

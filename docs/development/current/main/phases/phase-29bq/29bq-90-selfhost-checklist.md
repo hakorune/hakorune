@@ -257,7 +257,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - actualize `cleanup::policies`
+    - inventory next shared actual move outside cleanup-policy residue
 
 - shared infra actual move (`ssa exit binding`):
   - landed:
@@ -268,7 +268,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - actualize `cleanup::policies`
+    - inventory next shared actual move outside cleanup-policy residue
 
 - shared infra actual move (`cleanup common`):
   - landed:
@@ -276,7 +276,23 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - actualize `cleanup::policies`
+    - actualize `cleanup::policies` support
+
+- shared infra actual move (`cleanup policies support`):
+  - landed:
+    - `cleanup::policies::cond_prelude_vocab`
+    - `cleanup::policies::loop_simple_while_subset_policy`
+    - `cleanup::policies::balanced_depth_scan_policy`
+    - `cleanup::policies::balanced_depth_scan_policy_box`
+    - `cleanup::policies::normalized_shadow_suffix_router_box`
+    - `cleanup::policies::post_loop_early_return_plan`
+  - still mixed:
+    - keep-plan-for-now route-local residue:
+      - `loop_true_read_digits_policy`
+      - `p5b_escape_derived_policy`
+      - `trim_policy`
+  - next step:
+    - inventory next shared actual move outside cleanup-policy residue
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`

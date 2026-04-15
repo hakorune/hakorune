@@ -26,10 +26,6 @@
 
 pub use crate::mir::policies::PolicyDecision;
 
-pub(in crate::mir::builder) mod balanced_depth_scan_policy;
-pub(in crate::mir::builder) mod balanced_depth_scan_policy_box;
 pub(in crate::mir::builder) mod loop_true_read_digits_policy;
-pub(in crate::mir::builder) mod normalized_shadow_suffix_router_box;
 pub(in crate::mir::builder) mod p5b_escape_derived_policy;
-pub(in crate::mir::builder) mod post_loop_early_return_plan;
 pub(in crate::mir::builder) mod trim_policy; // Phase 132 P0.5

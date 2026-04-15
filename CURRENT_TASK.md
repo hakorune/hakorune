@@ -105,8 +105,19 @@ Scope: current lane / next lane / restart order only.
     - `verify::verifier` is landed at the top-level owner
     - `ssa::exit_binding` is landed at the top-level owner
     - `cleanup::common` is landed at the top-level owner
+    - `cleanup::policies` support is landed at the top-level owner for:
+      - `cond_prelude_vocab`
+      - `loop_simple_while_subset_policy`
+      - `balanced_depth_scan_policy`
+      - `balanced_depth_scan_policy_box`
+      - `normalized_shadow_suffix_router_box`
+      - `post_loop_early_return_plan`
+    - `plan::policies` keep-plan-for-now residue remains for:
+      - `loop_true_read_digits_policy`
+      - `p5b_escape_derived_policy`
+      - `trim_policy`
     - next actual move:
-      - `cleanup::policies`
+      - `none confirmed`
   - end-state folderization epics after the owner-local queue is empty:
     - pin destination buckets for current `plan/` directories under `facts / recipes / verify / lower / ssa / cleanup`
     - move shared descriptive infra first (`facts`, `canon`, `extractors`, `route_shape_recognizers`)

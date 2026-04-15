@@ -1,6 +1,12 @@
-//! Phase 29ao P21: loop_simple_while subset policy SSOT
+//! Compatibility wrapper for top-level cleanup policy helpers.
 
-pub(in crate::mir::builder) mod cond_prelude_vocab;
-pub(in crate::mir::builder) mod loop_simple_while_subset_policy;
+#[allow(unused_imports)]
+pub(in crate::mir::builder) use crate::mir::builder::control_flow::cleanup::policies::{
+    balanced_depth_scan_policy, balanced_depth_scan_policy_box, cond_prelude_vocab,
+    loop_simple_while_subset_policy, normalized_shadow_suffix_router_box,
+    post_loop_early_return_plan, PolicyDecision,
+};
+
 pub(in crate::mir::builder) mod policies;
+#[allow(unused_imports)]
 pub(in crate::mir::builder) use policies::*;
