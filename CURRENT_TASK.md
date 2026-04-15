@@ -133,6 +133,7 @@ Scope: current lane / next lane / restart order only.
     - `facts::no_exit_block` owner surface is landed at the top-level owner
     - `facts::stmt_view` owner surface is landed at the top-level owner
     - `facts::if_phi_join_facts` owner surface is landed at the top-level owner
+    - `recipes::scan_loop_segments` shared vocabulary is landed at the top-level owner
     - `facts::canon` support is landed at the top-level owner for:
       - `cond`
       - `cond_block_view`

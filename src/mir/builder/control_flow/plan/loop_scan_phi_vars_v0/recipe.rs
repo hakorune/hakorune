@@ -2,10 +2,10 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::facts::no_exit_block::NoExitBlockRecipe;
 
 pub(in crate::mir::builder) type NestedLoopRecipe =
-    crate::mir::builder::control_flow::plan::scan_loop_segments::NestedLoopRecipe;
+    crate::mir::builder::control_flow::recipes::scan_loop_segments::NestedLoopRecipe;
 
 pub(in crate::mir::builder) type LoopScanPhiSegment =
-    crate::mir::builder::control_flow::plan::scan_loop_segments::LoopScanSegment<NoExitBlockRecipe>;
+    crate::mir::builder::control_flow::recipes::scan_loop_segments::LoopScanSegment<NoExitBlockRecipe>;
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct LoopScanPhiVarsV0Segments {

@@ -127,7 +127,7 @@ pub(crate) fn verify_stmt_only_block_recipe(
 }
 
 pub(crate) fn verify_nested_loop_stmt_only_if_available(
-    nested: &crate::mir::builder::control_flow::plan::scan_loop_segments::NestedLoopRecipe,
+    nested: &crate::mir::builder::control_flow::recipes::scan_loop_segments::NestedLoopRecipe,
     context: &str,
 ) -> Result<(), Freeze> {
     let Some(body_stmt_only) = nested.body_stmt_only.as_ref() else {

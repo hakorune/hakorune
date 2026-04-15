@@ -7,6 +7,7 @@
 mod body;
 mod composer_compat;
 pub(in crate::mir::builder) mod refs;
+pub(in crate::mir::builder) mod scan_loop_segments;
 
 pub(in crate::mir::builder) use self::body::{RecipeBody, StmtIdx, StmtRange};
 pub(in crate::mir::builder) use self::composer_compat::{

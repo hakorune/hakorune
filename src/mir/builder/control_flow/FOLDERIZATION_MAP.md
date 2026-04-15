@@ -57,6 +57,7 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
 - actual owner surface already landed:
   - `recipes::RecipeBody`
   - `recipes::refs`
+  - `recipes::scan_loop_segments`
 - next actual move:
   - keep shrinking compat imports and wait for the next movable `recipe_tree / parts` seam
 

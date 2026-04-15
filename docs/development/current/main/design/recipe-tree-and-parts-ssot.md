@@ -300,7 +300,7 @@ Drift check:
 - pipeline 側での直 lower（手走査/手 lowering）を戻さない。
 
 scan系 segment vocabulary SSOT:
-- `src/mir/builder/control_flow/plan/scan_loop_segments.rs`
+- `src/mir/builder/control_flow/recipes/scan_loop_segments.rs`
 
 Drift check:
 - `rg -n "lower_stmt_list\\b|lower_stmt\\b" src/mir/builder/control_flow/plan/loop_scan_methods_v0 --glob '!*.md'` → 0件

@@ -11,10 +11,10 @@ pub(in crate::mir::builder) struct LoopScanV0Recipe {
 }
 
 pub(in crate::mir::builder) type NestedLoopRecipe =
-    crate::mir::builder::control_flow::plan::scan_loop_segments::NestedLoopRecipe;
+    crate::mir::builder::control_flow::recipes::scan_loop_segments::NestedLoopRecipe;
 
 pub(in crate::mir::builder) type LoopScanSegment =
-    crate::mir::builder::control_flow::plan::scan_loop_segments::LoopScanSegment<
+    crate::mir::builder::control_flow::recipes::scan_loop_segments::LoopScanSegment<
         ExitAllowedBlockRecipe,
     >;
 

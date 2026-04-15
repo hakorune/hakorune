@@ -323,6 +323,7 @@ Related:
     - `facts::canon::generic_loop::update`
     - `recipes::RecipeBody`
     - `recipes::refs`
+    - `recipes::scan_loop_segments`
   - still mixed:
     - none confirmed
   - next step:
