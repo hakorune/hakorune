@@ -72,6 +72,11 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
   - `plan/exit_binding_validator`
 - rationale:
   - PHI / binding repair must converge on a dedicated owner
+- actual owner surface already landed:
+  - `ssa::exit_binding`
+  - `ssa::exit_binding_constructor`
+  - `ssa::exit_binding_applicator`
+  - `ssa::exit_binding_validator`
 
 ### `cleanup/`
 
@@ -81,6 +86,8 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
   - `plan/observability` (only if debug-contract cleanup ownership wins over verify ownership)
 - rationale:
   - policy and post-lowering cleanup surface
+- next actual move:
+  - `cleanup::common`
 
 ## Owner-Local Families (keep under temporary `plan/` namespace)
 

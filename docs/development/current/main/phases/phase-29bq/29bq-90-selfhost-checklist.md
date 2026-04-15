@@ -257,7 +257,18 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - actualize `ssa::exit_binding`
+    - actualize `cleanup::common`
+
+- shared infra actual move (`ssa exit binding`):
+  - landed:
+    - `ssa::exit_binding`
+    - `ssa::exit_binding_constructor`
+    - `ssa::exit_binding_applicator`
+    - `ssa::exit_binding_validator`
+  - still mixed:
+    - none confirmed
+  - next step:
+    - actualize `cleanup::common`
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`
