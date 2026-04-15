@@ -4,7 +4,7 @@
 //! 生成（lowering）は従来通り `TrimLoopLowerer` 側が担当する。
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::loop_break::contracts::derived_slot::extract_body_local_derived_slot;
+use crate::mir::builder::control_flow::cleanup::policies::body_local_derived_slot::extract_body_local_derived_slot;
 use crate::mir::join_ir::lowering::loop_scope_shape::LoopScopeShape;
 use crate::mir::loop_route_detection::loop_condition_scope::{
     CondVarInfo, CondVarScope, LoopConditionScope, LoopConditionScopeBox,

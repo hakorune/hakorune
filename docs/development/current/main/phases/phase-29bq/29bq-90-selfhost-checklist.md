@@ -290,6 +290,7 @@ Related:
 
 - shared infra actual move (`cleanup policies support`):
   - landed:
+    - `cleanup::policies::body_local_derived_slot`
     - `cleanup::policies::cond_prelude_vocab`
     - `cleanup::policies::loop_true_read_digits_policy`
     - `cleanup::policies::loop_simple_while_subset_policy`

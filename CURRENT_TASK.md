@@ -138,6 +138,7 @@ Scope: current lane / next lane / restart order only.
     - `ssa::exit_binding` is landed at the top-level owner
     - `cleanup::common` is landed at the top-level owner
     - `cleanup::policies` support is landed at the top-level owner for:
+      - `body_local_derived_slot`
       - `cond_prelude_vocab`
       - `loop_true_read_digits_policy`
       - `loop_simple_while_subset_policy`

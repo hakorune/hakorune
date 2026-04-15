@@ -34,7 +34,8 @@
 - Example shape (Derived): `local seg = ""` then `if cond { seg = expr1 } else { seg = expr2 }`
 - Break guard: `if seg == "" { break }` (seg used in break condition)
 - seg is recomputed per-iteration (Select), no promotion
-- Contract SSOT: `loop_break/contracts/derived_slot.rs`
+- Contract SSOT: `cleanup/policies/body_local_derived_slot.rs`
+- compat path: `plan/loop_break/contracts/derived_slot.rs`
 
 ## Carrier binding rules (LoopBreak)
 - `CarrierInit::FromHost` -> host binding required
