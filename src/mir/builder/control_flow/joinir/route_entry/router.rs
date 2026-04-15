@@ -26,11 +26,11 @@ use super::owner_local_compat::loop_cond_break_release_allowed;
 use super::registry;
 use crate::mir::builder::control_flow::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::facts::reject_reason;
-use crate::mir::builder::control_flow::lower::composer;
 use crate::mir::builder::control_flow::lower::expectations;
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::lower::single_planner;
 use crate::mir::builder::control_flow::lower::{CorePlan, Freeze, PlanBuildOutcome, PlanLowerer};
+use crate::mir::builder::control_flow::plan::composer;
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::verify::PlanVerifier;
 

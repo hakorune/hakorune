@@ -1,6 +1,6 @@
 use crate::mir::builder::control_flow::facts::feature_facts::detect_nested_loop;
-use crate::mir::builder::control_flow::lower::composer;
 use crate::mir::builder::control_flow::lower::PlanBuildOutcome;
+use crate::mir::builder::control_flow::plan::composer;
 use crate::mir::builder::control_flow::lower::single_planner::{
     planner_rule_route_label, PlanRuleId,
 };

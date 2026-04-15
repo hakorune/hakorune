@@ -3,7 +3,6 @@
 //! During folderization, implementations still live under `plan/`.
 //! Non-`plan/` consumers should depend on this module first.
 
-pub(in crate::mir::builder) mod composer;
 pub(in crate::mir::builder) mod expectations;
 pub(in crate::mir::builder) mod normalize;
 pub(in crate::mir::builder) mod single_planner;

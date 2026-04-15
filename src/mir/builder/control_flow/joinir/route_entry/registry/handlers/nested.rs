@@ -1,7 +1,7 @@
 use crate::mir::builder::control_flow::joinir::route_entry::router::{
     lower_verified_core_plan, LoopRouteContext,
 };
-use crate::mir::builder::control_flow::lower::composer;
+use crate::mir::builder::control_flow::plan::composer;
 use crate::mir::builder::control_flow::lower::PlanBuildOutcome;
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::FlowboxVia;
 use crate::mir::builder::MirBuilder;

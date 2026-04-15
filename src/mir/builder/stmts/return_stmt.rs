@@ -45,7 +45,7 @@
 use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::mir::builder::control_flow::facts::{try_extract_match_return_facts, MatchReturnFacts};
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::lower::composer::{
+use crate::mir::builder::control_flow::plan::composer::{
     compose_match_return_branchn, MatchReturnPlan,
 };
 use crate::mir::builder::control_flow::lower::PlanLowerer;

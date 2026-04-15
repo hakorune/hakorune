@@ -1,12 +1,12 @@
 use crate::mir::builder::control_flow::joinir::route_entry::router::{
     lower_verified_core_plan, LoopRouteContext,
 };
-use crate::mir::builder::control_flow::lower::composer;
 use crate::mir::builder::control_flow::lower::{Freeze, PlanBuildOutcome};
 use crate::mir::builder::control_flow::lower::single_planner::{
     planner_rule_route_label, PlanRuleId,
 };
 use crate::mir::builder::control_flow::lower::PlanLowerer;
+use crate::mir::builder::control_flow::plan::composer;
 use crate::mir::builder::control_flow::recipes::RecipeComposer;
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::verify::PlanVerifier;
