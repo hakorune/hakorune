@@ -1,7 +1,7 @@
 //! Phase 29aj P3: if_phi_join facts
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
+use crate::mir::builder::control_flow::facts::extractors::common_helpers::{
     extract_loop_increment_plan, find_if_else_statement,
 };
 use crate::mir::builder::control_flow::plan::extractors::if_phi_join::extract_loop_with_if_phi_parts;

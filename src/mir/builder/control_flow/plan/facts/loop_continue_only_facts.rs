@@ -1,7 +1,7 @@
 //! Phase 29aj P4: loop_continue_only facts
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
+use crate::mir::builder::control_flow::facts::extractors::common_helpers::{
     count_control_flow, extract_loop_increment_plan, has_break_statement, ControlFlowDetector,
 };
 use crate::mir::builder::control_flow::plan::planner::Freeze;

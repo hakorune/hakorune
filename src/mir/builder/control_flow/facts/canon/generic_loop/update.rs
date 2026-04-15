@@ -1,5 +1,6 @@
-use super::UpdateCanon;
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
+
+use super::types::UpdateCanon;
 
 mod literal_match;
 mod literal_step;

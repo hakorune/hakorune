@@ -1,7 +1,7 @@
 //! Phase 29bg P1: EscapeMapFacts (Facts SSOT)
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
+use crate::mir::builder::control_flow::facts::extractors::common_helpers::{
     has_break_statement, has_continue_statement, has_return_statement,
 };
 use crate::mir::builder::control_flow::plan::planner::Freeze;

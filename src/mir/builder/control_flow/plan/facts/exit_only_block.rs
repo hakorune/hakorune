@@ -10,9 +10,9 @@
 //!   "ends with exit on all paths" unless it is `ExitAll`.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::facts::block_policies::is_allowed_effect_stmt;
-use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool_expr_with_canon;
+use crate::mir::builder::control_flow::facts::block_policies::is_allowed_effect_stmt;
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::expr_bool::is_supported_bool_expr_with_canon;
 use crate::mir::builder::control_flow::plan::parts::exit_kind_depth_view::ExitKindDepthView;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     BlockContractKind, ExitKind, IfContractKind, IfMode, LoopKindV0, LoopV0Features, RecipeBlock,

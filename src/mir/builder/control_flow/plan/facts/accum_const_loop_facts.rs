@@ -1,7 +1,7 @@
 //! Phase 29aj P8: accum_const_loop facts (SSOT)
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
+use crate::mir::builder::control_flow::facts::extractors::common_helpers::{
     extract_loop_increment_plan, has_break_statement, has_continue_statement, has_if_else_statement,
 };
 use crate::mir::builder::control_flow::plan::facts::scan_shapes::{

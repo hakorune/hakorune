@@ -2,7 +2,7 @@
 
 use crate::ast::{ASTNode, BinaryOperator};
 use crate::mir::builder::control_flow::plan::domain::LoopTrueEarlyExitKind;
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
+use crate::mir::builder::control_flow::facts::extractors::common_helpers::{
     count_control_flow, extract_loop_increment_plan, is_true_literal, ControlFlowDetector,
 };
 use crate::mir::builder::control_flow::plan::planner::Freeze;

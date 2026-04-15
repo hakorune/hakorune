@@ -1,7 +1,7 @@
 //! Phase 29ap P2: loop_char_map facts (stdlib to_lower subset)
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
+use crate::mir::builder::control_flow::facts::extractors::common_helpers::{
     extract_loop_increment_plan, has_break_statement, has_continue_statement,
     has_if_else_statement, has_return_statement,
 };

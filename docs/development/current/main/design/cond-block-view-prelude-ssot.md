@@ -14,7 +14,7 @@ This is a **design SSOT** (no behavior change by itself).
     - Lowering SSOT: `src/mir/builder/control_flow/plan/normalizer/cond_lowering.rs`
       - `lower_cond_branch(...)` / `lower_cond_value(...)` / `lower_loop_header_cond(...)`
       - Prelude statements are lowered to `CoreEffectPlan` in source order and inserted before tail condition lowering.
-    - Facts SSOT: `src/mir/builder/control_flow/plan/facts/expr/bool_expr.rs`
+    - Facts SSOT: `src/mir/builder/control_flow/facts/expr_bool.rs`
       - BlockExpr-in-condition is treated as "tail bool expr" gated by prelude vocabulary + exit-free contract.
 
 ## Why This Contract Exists
@@ -88,7 +88,7 @@ If BlockExpr proves insufficient, supporting explicit condition prelude would re
 
 - Cond prelude vocabulary is SSOT-backed (no duplication):
   - `rg -n "mod cond_prelude_vocab" src/mir/builder/control_flow/cleanup/policies/mod.rs` → 1件
-  - `rg -n "classify_cond_prelude_stmt" src/mir/builder/control_flow/plan/facts/expr/bool_expr.rs src/mir/builder/control_flow/plan/normalizer/cond_lowering.rs` → 2件
+  - `rg -n "classify_cond_prelude_stmt" src/mir/builder/control_flow/facts/expr_bool.rs src/mir/builder/control_flow/plan/normalizer/cond_lowering.rs` → 2件
 
 - Bool-condition lowering entry is explicit (SSOT helper):
   - `rg -n "pub fn lower_bool_expr_value_id" src/mir/builder/control_flow/plan/normalizer/cond_lowering.rs` → 1件

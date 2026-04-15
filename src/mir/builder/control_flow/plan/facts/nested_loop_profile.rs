@@ -44,7 +44,7 @@ pub(in crate::mir::builder) const BASE_RULE: &str = "loop/loop_cond_break_contin
 // ============================================================================
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::strip_trailing_continue_view;
+use crate::mir::builder::control_flow::facts::extractors::common_helpers::strip_trailing_continue_view;
 use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool_expr_with_canon;
 
 #[derive(Debug, Clone, Copy)]

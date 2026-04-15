@@ -32,7 +32,7 @@ See also: `src/mir/builder/control_flow/plan/LEGACY_V0_BOUNDARY.md`
 | `loop_cond_continue_only` | strict/dev + planner_required | loop(cond) continue-only (nested if/continue) | `src/mir/builder/control_flow/plan/loop_cond_unified/variants/continue_only/` |
 | `loop_cond_continue_with_return` | strict/dev + planner_required | loop(cond) continue-only with nested return | `src/mir/builder/control_flow/plan/loop_cond_unified/variants/continue_with_return/` |
 | `loop_cond_return_in_body` | strict/dev + planner_required | loop(cond) with nested return and no break/continue (fixture-derived) | `src/mir/builder/control_flow/plan/loop_cond_unified/variants/return_in_body/` |
-| `scopebox_seq_flatten` | analysis-only (ScopeBox opt-in) | treat nested `ScopeBox` Block chains as Seq(n-ary) for planner facts | `src/mir/builder/control_flow/plan/facts/stmt_view.rs` |
+| `scopebox_seq_flatten` | analysis-only (ScopeBox opt-in) | treat nested `ScopeBox` Block chains as Seq(n-ary) for planner facts | `src/mir/builder/control_flow/facts/stmt_view.rs` |
 
 ## loop_*_v0 audit snapshot (CLEAN-PLAN-V0-AUDIT-1, 2026-02-08)
 

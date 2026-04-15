@@ -101,6 +101,7 @@ Scope: current lane / next lane / restart order only.
   - direct `plan/` import residue snapshot:
     - compat re-export / wrapper residue remains under top-level owner surfaces
     - `facts/` now isolates `plan/facts` residue behind `facts::plan_residue`
+    - current cleanup wave keeps `plan::canon::cond`, `plan::canon::generic_loop::{ConditionCanon, UpdateCanon, StepPlacement, StepPlacementDecision}`, and `plan::facts::{expr_value, expr_bool, no_exit_block, stmt_view}` as compat-only forwards into `facts/`
     - owner-local keep-plan-for-now residue is isolated in `joinir/route_entry::owner_local_compat`
     - current keep-plan-for-now symbols:
       - `loop_cond::break_continue_types::LoopCondBreakAcceptKind` via minimal helper predicates
@@ -125,11 +126,19 @@ Scope: current lane / next lane / restart order only.
       - `common_helpers::increment`
       - `common_helpers::loop_true_early_exit`
       - `loop_simple_while`
-    - `facts::loop_scan_methods_v0` facts/type extraction is landed at the top-level owner
+    - `facts::loop_scan_methods_v0` facts/type extraction is landed at the top-level owner and now uses facts-owned `no_exit_block` / `stmt_view` helpers
     - `facts::loop_scan_methods_block_v0` facts/type extraction is landed at the top-level owner
+    - `facts::expr_value` owner surface is landed at the top-level owner
+    - `facts::expr_bool` owner surface is landed at the top-level owner
+    - `facts::no_exit_block` owner surface is landed at the top-level owner
+    - `facts::stmt_view` owner surface is landed at the top-level owner
     - `facts::canon` support is landed at the top-level owner for:
+      - `cond`
       - `cond_block_view`
+      - `generic_loop::condition`
       - `generic_loop::update`
+      - `generic_loop::step::extract`
+      - shared generic-loop canon helpers are facts-owned, but their canon view types still forward from `plan::canon::generic_loop::types`
     - `verify/diagnostics::span_format` is landed at the top-level owner
     - `verify/observability::flowbox_tags` is landed at the top-level owner
     - `verify::verifier` is landed at the top-level owner
