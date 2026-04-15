@@ -100,6 +100,10 @@ Scope: current lane / next lane / restart order only.
     - movable next:
       - `none confirmed`
   - shared infra actualization snapshot:
+    - `facts::ast_feature_extractor` is landed at the top-level owner
+    - `facts::route_shape_recognizers` is landed at the top-level owner
+    - `facts::escape_shape_recognizer` is landed at the top-level owner
+    - `facts::stmt_walk` is landed at the top-level owner
     - `verify/diagnostics::span_format` is landed at the top-level owner
     - `verify/observability::flowbox_tags` is landed at the top-level owner
     - `verify::verifier` is landed at the top-level owner
@@ -120,7 +124,7 @@ Scope: current lane / next lane / restart order only.
       - `p5b_escape_derived_policy`
       - `trim_policy`
     - next actual move:
-      - `none confirmed`
+      - `facts::extractors`
   - end-state folderization epics after the owner-local queue is empty:
     - pin destination buckets for current `plan/` directories under `facts / recipes / verify / lower / ssa / cleanup`
     - move shared descriptive infra first (`facts`, `canon`, `extractors`, `route_shape_recognizers`)

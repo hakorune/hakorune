@@ -6,7 +6,7 @@
 //! within loop bodies and nested structures.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::walk_stmt_list;
+use crate::mir::builder::control_flow::facts::stmt_walk::walk_stmt_list;
 
 /// Detect if a loop body contains continue statements
 ///

@@ -6,8 +6,10 @@
 
 pub(in crate::mir::builder) mod canon;
 pub(crate) mod ast_feature_extractor;
+pub(in crate::mir::builder) mod escape_shape_recognizer;
 pub(in crate::mir::builder) mod extractors;
 pub(in crate::mir::builder) mod route_shape_recognizers;
+pub(in crate::mir::builder) mod stmt_walk;
 
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::facts::*;

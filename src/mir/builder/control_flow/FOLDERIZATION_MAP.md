@@ -21,6 +21,13 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
   - descriptive-only analysis surface
   - conservative observation helpers
   - route-shape questions that must stay separate from recipe/lowering
+- actual owner surface already landed:
+  - `facts::ast_feature_extractor`
+  - `facts::route_shape_recognizers`
+  - `facts::escape_shape_recognizer`
+  - `facts::stmt_walk`
+- next actual move:
+  - `facts::extractors`
 
 ### `recipes/`
 
