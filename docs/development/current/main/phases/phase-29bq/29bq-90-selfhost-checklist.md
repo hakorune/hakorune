@@ -224,6 +224,7 @@ Related:
     - none confirmed
   - next step:
     - pin `plan/` destination mapping for `facts / recipes / verify / lower / ssa / cleanup`
+    - land top-level `control_flow/facts/` owner surface and move non-`plan/` consumers first
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`

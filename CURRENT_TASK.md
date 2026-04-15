@@ -50,6 +50,8 @@ Scope: current lane / next lane / restart order only.
   - `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md`
 - next layer landing:
   - `docs/development/current/main/design/compiler-expressivity-first-policy.md`
+- folderization map owner:
+  - `src/mir/builder/control_flow/FOLDERIZATION_MAP.md`
 - roadmap SSOT:
   - `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
 - string guardrail owner:
@@ -278,12 +280,12 @@ Scope: current lane / next lane / restart order only.
         - likely follow-on seams:
           - `plan/` destination mapping
         - next:
-          - pin `plan/` destination mapping for shared infra
+          - land top-level `control_flow/facts/` owner surface
 4. `phase-29bq legacy lowerer removal`
     - landed and closed
 5. `phase-29bq loop owner seam cleanup`
     - next:
-      - pin `plan/` destination mapping for shared infra
+      - land top-level `control_flow/facts/` owner surface
 
 ## Legacy Compatibility Block
 
