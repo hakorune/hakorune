@@ -26,9 +26,8 @@ pub(crate) struct LoopBreakPolicyRouting {
     pub carrier_updates_override: Option<
         std::collections::BTreeMap<String, crate::mir::join_ir::lowering::loop_update_analyzer::UpdateExpr>,
     >,
-    pub post_loop_early_return: Option<
-        crate::mir::builder::control_flow::plan::policies::post_loop_early_return_plan::PostLoopEarlyReturnPlan,
-    >,
+    pub post_loop_early_return:
+        Option<crate::mir::policies::post_loop_early_return_plan::PostLoopEarlyReturnPlan>,
 }
 
 pub(crate) struct LoopBreakPolicyRouterBox;

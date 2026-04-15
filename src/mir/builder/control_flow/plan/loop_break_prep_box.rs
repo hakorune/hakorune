@@ -78,9 +78,8 @@ pub(in crate::mir::builder) struct LoopBreakPrepInputs {
     /// Phase 107: Carrier updates override (policy SSOT).
     pub carrier_updates_override: Option<std::collections::BTreeMap<String, UpdateExpr>>,
     /// Phase 107: Post-loop early return plan for return-in-loop normalization.
-    pub post_loop_early_return: Option<
-        crate::mir::builder::control_flow::plan::policies::post_loop_early_return_plan::PostLoopEarlyReturnPlan,
-    >,
+    pub post_loop_early_return:
+        Option<crate::mir::policies::post_loop_early_return_plan::PostLoopEarlyReturnPlan>,
     /// Phase 252: Name of the static box being lowered (for this.method(...) in break conditions).
     pub current_static_box_name: Option<String>,
 }

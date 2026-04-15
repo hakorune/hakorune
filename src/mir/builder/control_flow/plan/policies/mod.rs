@@ -2,9 +2,8 @@
 
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::cleanup::policies::{
-    balanced_depth_scan_policy, balanced_depth_scan_policy_box, cond_prelude_vocab,
-    loop_simple_while_subset_policy, normalized_shadow_suffix_router_box,
-    post_loop_early_return_plan, PolicyDecision,
+    balanced_depth_scan_policy_box, cond_prelude_vocab, loop_simple_while_subset_policy,
+    normalized_shadow_suffix_router_box, PolicyDecision,
 };
 
 pub(in crate::mir::builder) mod policies;

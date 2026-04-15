@@ -12,9 +12,7 @@ pub(crate) struct PostLoopEarlyReturnStepBox;
 impl PostLoopEarlyReturnStepBox {
     pub(crate) fn maybe_emit(
         builder: &mut MirBuilder,
-        plan: Option<
-            &crate::mir::builder::control_flow::plan::policies::post_loop_early_return_plan::PostLoopEarlyReturnPlan,
-        >,
+        plan: Option<&crate::mir::policies::post_loop_early_return_plan::PostLoopEarlyReturnPlan>,
     ) -> Result<(), String> {
         let Some(plan) = plan else {
             return Ok(());

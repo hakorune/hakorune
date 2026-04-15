@@ -6,8 +6,8 @@
 
 use crate::ast::ASTNode;
 
-use super::balanced_depth_scan_policy::BalancedDepthScanPolicyResult;
 use crate::mir::policies::balanced_depth_scan::decide as decide_balanced;
+use crate::mir::policies::balanced_depth_scan::BalancedDepthScanPolicyResult;
 use crate::mir::policies::PolicyDecision;
 
 pub(crate) struct BalancedDepthScanPolicyBox;
