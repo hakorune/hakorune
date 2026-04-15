@@ -13,7 +13,7 @@ mod tests {
     #[cfg(debug_assertions)]
     use crate::mir::builder::control_flow::facts::LoopFacts;
     use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
-    use crate::mir::builder::control_flow::lower::step_mode::{
+    use crate::mir::builder::control_flow::plan::step_mode::{
         extract_to_step_bb_explicit_step, inline_in_body_explicit_step,
     };
     use crate::mir::builder::control_flow::lower::{
