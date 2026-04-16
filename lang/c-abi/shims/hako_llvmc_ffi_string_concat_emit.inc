@@ -74,6 +74,45 @@
         }
       }
 
+      auto void remember_deferred_piecewise_subrange(
+          long long dst,
+          long long source,
+          long long middle,
+          long long split) {
+        if (!dst || !source || !middle) return;
+        for (size_t i = 0; i < deferred_piecewise_subranges_n; i++) {
+          if (deferred_piecewise_subranges[i].dst != dst) continue;
+          deferred_piecewise_subranges[i].source = source;
+          deferred_piecewise_subranges[i].middle = middle;
+          deferred_piecewise_subranges[i].split = split;
+          return;
+        }
+        if (deferred_piecewise_subranges_n < ARR_LEN(deferred_piecewise_subranges)) {
+          deferred_piecewise_subranges[deferred_piecewise_subranges_n].dst = dst;
+          deferred_piecewise_subranges[deferred_piecewise_subranges_n].source = source;
+          deferred_piecewise_subranges[deferred_piecewise_subranges_n].middle = middle;
+          deferred_piecewise_subranges[deferred_piecewise_subranges_n].split = split;
+          deferred_piecewise_subranges_n++;
+        }
+      }
+
+      auto int find_deferred_piecewise_subrange(
+          long long reg,
+          long long* source,
+          long long* middle,
+          long long* split) {
+        reg = resolve_copy_source_reg(reg);
+        if (!reg) return 0;
+        for (size_t i = 0; i < deferred_piecewise_subranges_n; i++) {
+          if (deferred_piecewise_subranges[i].dst != reg) continue;
+          if (source) *source = deferred_piecewise_subranges[i].source;
+          if (middle) *middle = deferred_piecewise_subranges[i].middle;
+          if (split) *split = deferred_piecewise_subranges[i].split;
+          return 1;
+        }
+        return 0;
+      }
+
       auto void append_string_concat_arg_ref(
           char* out,
           size_t out_cap,
@@ -338,6 +377,9 @@
 
       auto int emit_supported_string_extern_mir_call(
           FILE* f,
+          size_t ii,
+          size_t ilen,
+          yyjson_val* insts,
           enum MirCallStringExternSurfaceKind kind,
           long long dst,
           yyjson_val* args) {
@@ -389,6 +431,21 @@
         }
 
         if (kind == HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_INSERT_HSI) {
+          yyjson_val* use_ins = NULL;
+          yyjson_val* use_mc = NULL;
+          yyjson_val* use_cal = NULL;
+          yyjson_val* use_args = NULL;
+          yyjson_val* use_start_val = NULL;
+          yyjson_val* use_end_val = NULL;
+          const char* use_op = NULL;
+          const char* use_ctype = NULL;
+          const char* use_mname = NULL;
+          const char* reason = "emit_insert_hsi";
+          size_t use_ii = 0;
+          long long plan_source = 0;
+          long long plan_start = 0;
+          long long plan_end = 0;
+          long long final_reg = 0;
           long long source = 0;
           long long middle = 0;
           long long split = 0;
@@ -397,8 +454,67 @@
           source = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
           middle = (long long)yyjson_get_sint(yyjson_arr_get(args, 1));
           split = (long long)yyjson_get_sint(yyjson_arr_get(args, 2));
+          source = resolve_copy_chain_source_reg(insts, ii + 1, source);
+          middle = resolve_copy_chain_source_reg(insts, ii + 1, middle);
+          split = resolve_copy_chain_source_reg(insts, ii + 1, split);
           middle_const = get_str_const(middle);
           if (!middle_const) return -1;
+          if (dst &&
+              follow_single_use_copy_chain_to_use(
+                  ii + 1, ilen, insts, dst, &use_ii, &final_reg, NULL, NULL)) {
+            use_ins = yyjson_arr_get(insts, use_ii);
+            use_op = use_ins ? read_str(use_ins, "op") : NULL;
+            use_mc = use_ins ? yyjson_obj_get(use_ins, "mir_call") : NULL;
+            use_cal = use_mc ? yyjson_obj_get(use_mc, "callee") : NULL;
+            use_args = use_mc ? yyjson_obj_get(use_mc, "args") : NULL;
+            use_start_val = use_args ? yyjson_arr_get(use_args, 1) : NULL;
+            use_end_val = use_args ? yyjson_arr_get(use_args, 2) : NULL;
+            use_ctype = use_cal ? read_str(use_cal, "type") : NULL;
+            use_mname = use_cal ? (read_str(use_cal, "method") ? read_str(use_cal, "method")
+                                                                : read_str(use_cal, "name"))
+                                : NULL;
+            if (use_op && !strcmp(use_op, "mir_call") && use_ctype &&
+                !strcmp(use_ctype, "Extern") && use_mname &&
+                !strcmp(use_mname, "nyash.string.substring_hii") && use_args &&
+                yyjson_is_arr(use_args) && yyjson_arr_size(use_args) == 3 &&
+                (long long)yyjson_get_sint(yyjson_arr_get(use_args, 0)) == final_reg &&
+                use_start_val && yyjson_is_num(use_start_val) && use_end_val &&
+                yyjson_is_num(use_end_val) &&
+                hako_llvmc_string_corridor_read_plan_source_window(
+                    read_int(use_ins, "dst"),
+                    "direct_kernel_entry",
+                    &plan_source,
+                    &plan_start,
+                    &plan_end) &&
+                plan_source == dst &&
+                plan_start == (long long)yyjson_get_sint(use_start_val) &&
+                plan_end == (long long)yyjson_get_sint(use_end_val)) {
+              remember_deferred_piecewise_subrange(dst, source, middle, split);
+              fprintf(f, "  %%r%lld = add i64 0, 0\n", dst);
+              finalize_string_concat_result(dst);
+              reason = "publication_boundary_deferred_piecewise";
+              if (hako_llvmc_route_trace_enabled()) {
+                char extra[224];
+                snprintf(
+                    extra,
+                    sizeof(extra),
+                    "ii=%zu dst=%lld source=%lld middle=%lld split=%lld use_ii=%zu final_reg=%lld",
+                    ii,
+                    dst,
+                    source,
+                    middle,
+                    split,
+                    use_ii,
+                    final_reg);
+                hako_llvmc_emit_route_trace(
+                    "mir_call_string_extern",
+                    "hit",
+                    reason,
+                    extra);
+              }
+              return 1;
+            }
+          }
           append_i64_arg_ref(ab, sizeof(ab), source, 1);
           strncat(ab, ", ptr getelementptr inbounds (", sizeof(ab) - strlen(ab) - 1);
           {
@@ -431,20 +547,81 @@
             hako_llvmc_emit_route_trace(
                 "mir_call_string_extern",
                 "hit",
-                "insert_hsi",
+                reason,
                 extra);
           }
           return 1;
         }
 
         if (kind == HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_SUBSTRING_HII) {
+          long long recv_reg = 0;
+          long long start_reg = 0;
+          long long end_reg = 0;
+          long long piecewise_source = 0;
+          long long piecewise_middle = 0;
+          long long piecewise_split = 0;
+          const char* middle_const = NULL;
           if (argc != 3) return -1;
+          recv_reg = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
+          start_reg = (long long)yyjson_get_sint(yyjson_arr_get(args, 1));
+          end_reg = (long long)yyjson_get_sint(yyjson_arr_get(args, 2));
+          if (find_deferred_piecewise_subrange(
+                  recv_reg, &piecewise_source, &piecewise_middle, &piecewise_split)) {
+            middle_const = get_str_const(piecewise_middle);
+            if (middle_const) {
+              ab[0] = '\0';
+              append_i64_arg_ref(ab, sizeof(ab), piecewise_source, 1);
+              strncat(ab, ", ptr getelementptr inbounds (", sizeof(ab) - strlen(ab) - 1);
+              {
+                char tail[128];
+                snprintf(
+                    tail,
+                    sizeof(tail),
+                    "[%zu x i8], ptr @.str_reg_%lld, i64 0, i64 0)",
+                    strlen(middle_const) + 1,
+                    piecewise_middle);
+                strncat(ab, tail, sizeof(ab) - strlen(ab) - 1);
+              }
+              append_i64_arg_ref(ab, sizeof(ab), piecewise_split, 0);
+              append_i64_arg_ref(ab, sizeof(ab), start_reg, 0);
+              append_i64_arg_ref(ab, sizeof(ab), end_reg, 0);
+              if (dst) {
+                fprintf(
+                    f,
+                    "  %%r%lld = call i64 @\"nyash.string.piecewise_subrange_hsiii\"(%s)\n",
+                    dst,
+                    ab);
+                set_type(dst, T_I64);
+                set_origin(dst, ORG_STRING);
+                set_scan_origin(dst, ORG_STRING);
+              } else {
+                fprintf(f, "  call i64 @\"nyash.string.piecewise_subrange_hsiii\"(%s)\n", ab);
+              }
+              if (hako_llvmc_route_trace_enabled()) {
+                char extra[224];
+                snprintf(
+                    extra,
+                    sizeof(extra),
+                    "recv=%lld source=%lld middle=%lld split=%lld start=%lld end=%lld",
+                    recv_reg,
+                    piecewise_source,
+                    piecewise_middle,
+                    piecewise_split,
+                    start_reg,
+                    end_reg);
+                hako_llvmc_emit_route_trace(
+                    "mir_call_string_extern",
+                    "hit",
+                    "piecewise_subrange_hsiii",
+                    extra);
+              }
+              return 1;
+            }
+          }
           append_i64_arg_ref(
-              ab, sizeof(ab), (long long)yyjson_get_sint(yyjson_arr_get(args, 0)), 1);
-          append_i64_arg_ref(
-              ab, sizeof(ab), (long long)yyjson_get_sint(yyjson_arr_get(args, 1)), 0);
-          append_i64_arg_ref(
-              ab, sizeof(ab), (long long)yyjson_get_sint(yyjson_arr_get(args, 2)), 0);
+              ab, sizeof(ab), recv_reg, 1);
+          append_i64_arg_ref(ab, sizeof(ab), start_reg, 0);
+          append_i64_arg_ref(ab, sizeof(ab), end_reg, 0);
           if (dst) {
             fprintf(f, "  %%r%lld = call i64 @\"nyash.string.substring_hii\"(%s)\n", dst, ab);
             set_type(dst, T_I64);

@@ -130,8 +130,13 @@ thread_local! {
 }
 
 #[inline(always)]
+pub(super) fn with_insert_middle_text<R>(middle_ptr: *const i8, f: impl FnOnce(&str) -> R) -> R {
+    with_cached_const_text(&CONST_INSERT_TEXT_CACHE, middle_ptr, f)
+}
+
+#[inline(always)]
 pub(super) fn insert_const_mid_fallback(source_h: i64, middle_ptr: *const i8, split: i64) -> i64 {
-    with_cached_const_text(&CONST_INSERT_TEXT_CACHE, middle_ptr, |middle| {
+    with_insert_middle_text(middle_ptr, |middle| {
         let source_is_empty = string_is_empty_from_handle(source_h) == Some(true);
         match insert_middle_retention_class(source_is_empty, middle.is_empty()) {
             RetainedForm::ReturnHandle => source_h,

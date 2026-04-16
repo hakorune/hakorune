@@ -30,6 +30,28 @@ Related:
 - `.hako -> canonical MIR -> rewrite target -> Rust thin executor -> LLVM` の owner split を固定する
 - public IR dialect や public syntax を増やしすぎずに pure Rust lower bound へ近づける
 
+## Scope Terms
+
+- `.hako scope`
+  - lexical scope, value meaning, control-flow, and user-visible contract
+  - this remains the only language-meaning scope
+- `proof_region`
+  - MIR-side region where an already-legal borrowed corridor fact is proven to hold
+  - examples:
+    - borrowedのまま流してよい
+    - escapeしない
+    - final consumerまでhandle化しなくてよい
+- `publication_boundary`
+  - MIR-side non-widening contract that says where a specialized executor may be published
+  - this is not lexical scope
+  - this is not runtime route re-recognition
+
+Reading lock:
+
+- do not use `scope_lock` as the architecture term in this lane
+- use `proof_region` plus `publication_boundary`
+- if a cut cannot state both cleanly, it is still research and not ready for code
+
 ## Current Perf Reading
 
 Current active broader-corridor front is `kilo_micro_substring_concat`.
@@ -37,22 +59,21 @@ Current accept gate is `kilo_micro_substring_only`.
 
 - live reread on 2026-04-17:
   - `kilo_micro_substring_only`
-    - `C: instr=1,622,877 / cycles=484,658 / ms=2`
-    - `Ny AOT: instr=1,669,729 / cycles=1,000,442 / ms=2`
+    - `C: instr=1,622,875 / cycles=484,287 / ms=3`
+    - `Ny AOT: instr=1,668,892 / cycles=1,012,862 / ms=3`
   - `kilo_micro_substring_concat`
-    - `C: instr=1,622,875 / cycles=483,822 / ms=3`
-    - `Ny AOT: instr=629,360,804 / cycles=253,790,310 / ms=60`
+    - `C: instr=1,622,874 / cycles=485,494 / ms=3`
+    - `Ny AOT: instr=260,619,140 / cycles=70,100,232 / ms=21`
 - current top symbols on the same artifact family:
-  - `insert_const_mid_fallback`
-  - `nyash.string.substring_hii`
-  - `string_span_cache_put`
-  - `std::thread::local::LocalKey<T>::with`
-  - `borrowed_substring_plan_from_handle`
-  - `resolve_string_span_from_view`
+  - `piecewise_subrange_hsiii_fallback closure`
+  - `__memmove_avx512_unaligned_erms`
+  - `malloc`
+  - `_int_malloc`
+  - `std::sync::once_lock::OnceLock<T>::initialize`
 - current top symbols on the same artifact family:
   - delete-oriented `mir-rewrite` is already landed
-  - hot producer-substring re-entry is no longer the primary gap
-  - the new dominant owner is the runtime fallback executor itself
+  - `publication_boundary` is now landed too: active `insert_hsi -> substring_hii` lowers to runtime-private `piecewise_subrange_hsiii`
+  - the new dominant owner is the runtime executor body itself, not route selection or generic fallback re-entry
 
 Reading:
 
@@ -62,12 +83,11 @@ Reading:
   executor
 - `BorrowView` already exists as classification, and the delete-oriented
   `mir-rewrite` already removed producer-substring churn from the active front
-- the next win should come from preserving `borrowed-view ->
-  materialize-on-escape` continuity through a single-session piecewise executor,
-  not from adding another cache/helper layer
-- the next end-state should delete the hot `insert_const_mid_fallback` body and
-  the remaining `substring_hii` re-entry on that front, not merely shave more
-  lookup cost inside it
+- the next win should come from thinning the landed single-session piecewise
+  executor, not from widening generic helper bodies or reopening MIR routing
+- the current end-state already deletes hot `substring_hii` re-entry from the
+  active front; the remaining gap is allocator/memmove pressure inside the
+  executor-local copy/materialize path
 
 ## Adopted Reading
 
@@ -75,6 +95,11 @@ Reading:
 - do not add a new string-specific public MIR dialect
 - keep MIR as the owner of the corridor contract, Rust as the mechanical
   executor, and LLVM as the consumer of truthful exported facts
+- keep the translation single-pass:
+  - `.hako` chooses semantics once
+  - MIR proves the corridor and selects the rewrite target
+  - runtime executes the selected runtime-private executor only
+  - LLVM consumes the result
 - treat handle/TLS/cache lookup as the cold adapter path, not as the steady-state
   hot lane
 - the landed arm split says `ViewSpan` is the only live slow-plan arm on the
@@ -83,12 +108,14 @@ Reading:
 - the next primary owner is therefore `runtime-executor`, not another
   recognizer/rewrite cut
 - the current target is delete-oriented:
-  - remove the hot `insert_const_mid_fallback` corridor
   - keep generic borrowed-view plan truth in MIR
-  - add a runtime-private `piecewise_subrange_exec(...)`-class executor under
-    the existing public ABI surface
-  - keep that executor single-session and executor-local; do not mint transient
-    box/handle carriers on the hot lane
+  - keep the landed runtime-private `piecewise_subrange_hsiii` publication
+    narrow:
+    - active corridor only
+    - generic helper body unchanged
+    - broad callers untouched
+  - thin the executor-local copy/materialize path only; do not mint transient
+    box/handle carriers, reopen route logic, or widen `insert_hsi`
 
 ## Generic Minimum
 
@@ -117,6 +144,8 @@ This means:
 - `BorrowedViewPlan` is generic substrate
 - `piecewise_subrange_exec(...)` is the next runtime-private consumer/executor
 - string-specific executor names must stay below the MIR contract seam
+- `publication_boundary` is the line that keeps this executor from becoming a
+  generic helper replacement
 - rejected runtime-private carrier probe:
   - do not model the next cut as a transient piecewise box/handle carrier
   - exact front evidence showed `clone` / `TextPlan::from_pieces` /
@@ -236,11 +265,21 @@ Rust keeps only stateful mechanics:
 
 Rust should not keep semantic ambiguity that the compiler can decide earlier.
 
+Rust does not own:
+
+- corridor legality
+- publication boundary
+- route re-recognition for specialized executors
+
+That ownership stays in MIR.
+
 Delete-oriented reading:
 
 - `substring_hii` generic handle corridor stays as legacy/cold adapter
 - hot `substring -> concat` should move to a plan-native executor path
 - runtime must not own the decision of when that path is legal
+- generic helper bodies stay semantically broad; active-corridor specialization
+  must arrive through publication boundary, not by silently widening the helper
 
 ### 5. AOT internal path must not replay ABI facade
 

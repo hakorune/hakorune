@@ -94,20 +94,39 @@ current restart pointer after the active selfhost landing is this one:
 - route contract: `.hako -> ny-llvmc(boundary pure-first) -> C ABI`
 - primary owner: `runtime-executor`
 - proof delta:
-  - `piecewise_subrange_single_session_no_transient_handle_carrier`
+  - `piecewise_subrange_executor_inner_loop_thin`
+- proof region:
+  - established facts:
+    - borrowed corridor may stay unmaterialized until the final consumer
+    - the active corridor is non-escaping
+    - the active corridor does not cross a public boundary
+  - region limits:
+    - active `kilo_micro_substring_concat` corridor only
+- publication boundary:
+  - applies only to:
+    - the active corridor selected by the landed MIR rewrite
+  - publish as:
+    - runtime-private executor only
+  - must not touch:
+    - generic `insert_hsi` / `insert_const_mid_fallback` helper body semantics
+    - public ABI
+    - broad callers outside the active corridor
+  - must not become:
+    - a generic helper rewrite
 - rewrite target:
-  - from: `insert_hsi` fallback corridor plus final `substring_hii` helper chain
-  - to: `runtime-private single-session piecewise_subrange executor under the same public ABI surface`
+  - from: landed `piecewise_subrange_hsiii` closure plus per-call owned subrange build
+  - to: thinner executor-local copy/materialize path under the same runtime-private helper and public ABI surface
 - runtime executor:
-  - add a narrow `piecewise_subrange_exec(...)`-class hot lane only
-  - forbid transient box/handle carriers, transient piecewise object clones, allocation-backed helper detours, or generic non-empty `insert_const_mid_fallback` direct-build widening on the hot lane
-  - demote `insert_const_mid_fallback` / handle-TLS span reconstruction to cold adapter
-- owner scope: follow `Owner Scope Lock` below; start from `string_helpers/concat` / `string_view` / `host_handles` only if asm top still points there
+  - keep the landed `piecewise_subrange_hsiii` publication boundary fixed
+  - add a narrow executor-local thin path only inside that helper
+  - forbid transient box/handle carriers, transient piecewise object clones, allocation-backed helper detours, new route logic, or generic non-empty `insert_const_mid_fallback` direct-build widening on the hot lane
+  - demote any remaining generic helper fallback on the active corridor to cold adapter
+- owner scope: follow `Owner Scope / Publication Boundary` below; start from `string_helpers/concat` / `string_view` / `host_handles` only if asm top still points there
 - first commands:
   - `tools/checks/dev_gate.sh quick`
   - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_concat 1 3`
   - `bash tools/perf/report_mir_hotops.sh kilo_micro_substring_concat`
-  - `bash tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_concat 'nyash.string.substring_hii' 3`
+  - `bash tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_concat 'piecewise_subrange_hsiii' 3`
 - pre-probe rule:
   - if compiler sources changed, refresh release artifacts before exact/asm probes
 - done condition:
@@ -115,12 +134,13 @@ current restart pointer after the active selfhost landing is this one:
   - `kilo_micro_substring_only` stays inside accept band
   - `kilo_kernel_small_hk` stays inside strict/health band
   - asm/mir evidence explains the next edit owner on the same artifact
-  - new hot owners shift away from `insert_const_mid_fallback` / `LocalKey::with` / `borrowed_substring_plan_from_handle`
+  - new hot owners shift away from `piecewise_subrange_hsiii_fallback` / allocator / memmove
 - reject condition:
   - only a 1-run win exists
   - whole-kilo regresses even if the isolated micro improves
   - the slice needs a new MIR rewrite, public ABI, or string-only MIR dialect
   - the slice broadens into keep-lane owners without route-contract evidence
+  - the slice escapes its publication boundary and becomes a generic helper rewrite
   - the slice grows cache/helper traffic or route hinting without borrowed-lane continuity proof
   - the slice widens public ABI / VMValue surface instead of staying backend-private
   - the slice grows front-specific helper names instead of a runtime-private generic executor
@@ -181,7 +201,7 @@ current restart pointer after the active selfhost landing is this one:
   - allow `aot_status=skip`
   - do not treat that smoke as proof that perf lane is open
 
-## Owner Scope Lock
+## Owner Scope / Publication Boundary
 
 この wave で触る owner と、keep lane として読むだけに留める owner を最初に固定する。
 
@@ -202,6 +222,7 @@ current restart pointer after the active selfhost landing is this one:
   - explicit keep-lane selectors and their docs/tests
 - operational rule:
   - start from `bench_micro_aot_asm.sh` top symbols and follow the symbol owner
+  - publication boundary stays MIR-owned; runtime edits may only publish specialized executors on the active corridor
   - do not pivot into `llvm_py` just because keyword grep finds matching names
   - only reopen keep-lane owners when the route contract itself is broken
 

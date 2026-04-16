@@ -1,5 +1,7 @@
 #[path = "concat/const_adapter.rs"]
 mod const_adapter;
+#[path = "concat/piecewise.rs"]
+mod piecewise;
 #[path = "concat/substring.rs"]
 mod substring;
 
@@ -140,6 +142,17 @@ pub(super) fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i
 #[inline(always)]
 pub(super) fn insert_const_mid_fallback(source_h: i64, middle_ptr: *const i8, split: i64) -> i64 {
     const_adapter::insert_const_mid_fallback(source_h, middle_ptr, split)
+}
+
+#[inline(always)]
+pub(super) fn piecewise_subrange_hsiii_fallback(
+    source_h: i64,
+    middle_ptr: *const i8,
+    split: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    piecewise::piecewise_subrange_hsiii_fallback(source_h, middle_ptr, split, start, end)
 }
 
 #[inline(always)]

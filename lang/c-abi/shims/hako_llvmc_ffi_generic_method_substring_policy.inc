@@ -79,6 +79,75 @@
         return 1;
       }
 
+      auto int emit_piecewise_subrange_call(
+          FILE* f,
+          size_t ii,
+          long long recv,
+          long long dst,
+          long long source_h,
+          long long middle_reg,
+          long long split,
+          long long start,
+          long long end,
+          const char* route_reason) {
+        const char* middle_const = get_str_const(middle_reg);
+        char ab[256];
+        char route_extra[256];
+
+        if (!middle_const) {
+          return 0;
+        }
+        ab[0] = '\0';
+        append_i64_arg_ref(ab, sizeof(ab), source_h, 1);
+        strncat(ab, ", ptr getelementptr inbounds (", sizeof(ab) - strlen(ab) - 1);
+        {
+          char tail[128];
+          snprintf(
+              tail,
+              sizeof(tail),
+              "[%zu x i8], ptr @.str_reg_%lld, i64 0, i64 0)",
+              strlen(middle_const) + 1,
+              middle_reg);
+          strncat(ab, tail, sizeof(ab) - strlen(ab) - 1);
+        }
+        append_i64_arg_ref(ab, sizeof(ab), split, 0);
+        if (start) append_i64_arg_ref(ab, sizeof(ab), start, 0);
+        if (end) append_i64_arg_ref(ab, sizeof(ab), end, 0);
+        if (dst) {
+          fprintf(
+              f,
+              "  %%r%lld = call i64 @\"nyash.string.piecewise_subrange_hsiii\"(%s)\n",
+              dst,
+              ab);
+          set_type(dst, T_I64);
+          set_origin(dst, ORG_STRING);
+          set_scan_origin(dst, ORG_STRING);
+          remember_string_substring_call(dst, recv, start, end);
+        } else {
+          fprintf(f, "  call i64 @\"nyash.string.piecewise_subrange_hsiii\"(%s)\n", ab);
+        }
+        if (hako_llvmc_route_trace_enabled()) {
+          snprintf(
+              route_extra,
+              sizeof(route_extra),
+              "ii=%zu recv=%lld dst=%lld source=%lld middle=%lld split=%lld start=%lld end=%lld",
+              ii,
+              recv,
+              dst,
+              source_h,
+              middle_reg,
+              split,
+              start,
+              end);
+          hako_llvmc_emit_route_trace(
+              "string_substring_route",
+              "piecewise_subrange_hsiii",
+              route_reason,
+              route_extra);
+        }
+        return 1;
+      }
+
       auto int emit_generic_method_substring_by_policy(
           FILE* f,
           size_t ii,
@@ -92,6 +161,9 @@
           char* ab,
           size_t ab_cap) {
         long long resolved_recv = resolve_copy_source_reg(recv);
+        long long piecewise_source = 0;
+        long long piecewise_middle = 0;
+        long long piecewise_split = 0;
         long long concat_first = 0;
         long long concat_second = 0;
         long long concat_third = 0;
@@ -103,6 +175,23 @@
                 0) ==
             HAKO_LLVMC_GENERIC_METHOD_SUBSTRING_ROUTE_INSERT_MID_WINDOW) {
           return 1;
+        }
+        if (resolved_recv &&
+            find_deferred_piecewise_subrange(
+                resolved_recv, &piecewise_source, &piecewise_middle, &piecewise_split)) {
+          if (emit_piecewise_subrange_call(
+                  f,
+                  ii,
+                  resolved_recv,
+                  dst,
+                  piecewise_source,
+                  piecewise_middle,
+                  piecewise_split,
+                  a0,
+                  a1,
+                  "publication_boundary")) {
+            return 1;
+          }
         }
         if (resolved_recv &&
             hako_llvmc_string_corridor_read_concat_triplet_plan_values(

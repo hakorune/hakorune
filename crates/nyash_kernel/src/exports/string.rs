@@ -74,6 +74,20 @@ pub extern "C" fn nyash_string_substring_concat3_hhhii_export(
     string_substring_concat3_hhhii_export_impl(a_h, b_h, c_h, start, end)
 }
 
+// Runtime-private piecewise subrange helper for publication-boundary corridors.
+// This is not a public MIR surface; pure-first injects it only under a
+// proof-bearing rewrite target.
+#[export_name = "nyash.string.piecewise_subrange_hsiii"]
+pub extern "C" fn nyash_string_piecewise_subrange_hsiii_export(
+    source_h: i64,
+    middle_ptr: *const i8,
+    split: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    string_piecewise_subrange_hsiii_export_impl(source_h, middle_ptr, split, start, end)
+}
+
 // String.concat3_hhh(a_h, b_h, c_h) -> handle
 #[export_name = "nyash.string.concat3_hhh"]
 pub extern "C" fn nyash_string_concat3_hhh_export(a_h: i64, b_h: i64, c_h: i64) -> i64 {

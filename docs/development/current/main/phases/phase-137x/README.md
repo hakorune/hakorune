@@ -48,26 +48,25 @@
   - `kilo_micro_substring_views_only`
   - `kilo_micro_len_substring_views`
 - current broader-corridor reopen front is `kilo_micro_substring_concat`
-- current live reread after the 2026-04-17 delete-oriented mir-rewrite keeper:
+- current live reread after the 2026-04-17 publication-boundary keeper:
   - `kilo_micro_substring_only`
-    - `C: instr=1,622,877 / cycles=484,658 / ms=2`
-    - `Ny AOT: instr=1,669,729 / cycles=1,000,442 / ms=2`
+    - `C: instr=1,622,875 / cycles=484,287 / ms=3`
+    - `Ny AOT: instr=1,668,892 / cycles=1,012,862 / ms=3`
   - `kilo_micro_substring_concat`
-    - `C: instr=1,622,875 / cycles=483,822 / ms=3`
-    - `Ny AOT: instr=629,360,804 / cycles=253,790,310 / ms=60`
+    - `C: instr=1,622,874 / cycles=485,494 / ms=3`
+    - `Ny AOT: instr=260,619,140 / cycles=70,100,232 / ms=21`
   - `kilo_kernel_small_hk`
-    - `Ny AOT: ms=708`
+    - `Ny AOT: ms=704`
   - current keeper diff:
-    - rewrite ordered complementary `substring + const + substring` fronts to `nyash.string.insert_hsi` plus one final `nyash.string.substring_hii`
-    - delete hot producer-substring corridors on that front when the single-use chain is provably removable
-    - boundary `pure-first` now accepts `nyash.string.insert_hsi` and plain `nyash.string.substring_hii` on the supported string extern surface
+    - keep the landed `substring + const + substring -> insert_hsi + final substring_hii` MIR rewrite fixed
+    - pure-first now defers publication on the active `insert_hsi -> substring_hii` corridor and emits runtime-private `nyash.string.piecewise_subrange_hsiii`
+    - runtime helper stays single-session and materializes once after the text-read session closes; the deadlock-inducing in-session handle issue path is removed
   - current asm/top reread:
-    - `insert_const_mid_fallback: 50.23%`
-    - `nyash.string.substring_hii: 20.47%`
-    - `string_span_cache_put: 8.83%`
-    - `LocalKey::with: 7.43%`
-    - `borrowed_substring_plan_from_handle: 5.12%`
-    - `resolve_string_span_from_view: 4.99%`
+    - `piecewise_subrange_hsiii_fallback closure: 86.89%`
+    - `__memmove_avx512_unaligned_erms: 2.76%`
+    - `malloc: 1.93%`
+    - `_int_malloc: 1.89%`
+    - `OnceLock::initialize: 0.25%`
   - rejected runtime-private piecewise carrier probe:
     - attempted to issue a transient piecewise box/handle from `insert_const_mid_fallback` and then fast-path `substring_hii` through that carrier
     - exact front reread:
@@ -132,7 +131,7 @@
   - `string_view.rs` now keeps `substring_plan` / `span_resolve` behind submodule seams
   - `runtime/host_handles.rs` now keeps `perf_observe` / `text_read` behind submodule seams
 - current restart order after those cleanup commits:
-  1. keep the new exact-front keeper (`629,360,804 instr / 60 ms`) as the only reopen baseline
+  1. keep the new exact-front keeper (`260,619,140 instr / 21 ms`) as the only reopen baseline
   2. lock the generic borrowed-view substrate and delete-oriented task order in the SSOT docs
   3. keep the landed `mir-rewrite` fixed and choose the next `runtime-executor` cut from the refreshed asm/top bundle, not from pre-cleanup numbers
   4. only after that executor cut lands, reopen the matching `llvm-export` follow-on
@@ -144,10 +143,11 @@
   - landed measurement: the slow-plan arm split is now frozen evidence and the live hot arm is `ViewSpan` only
   - the required BoxShape cleanup is already landed; do not reopen more structure work before refreshing the measurement bundle unless tests or asm point at a new mixed-responsibility seam
   - the delete-oriented `mir-rewrite` is now landed on the active front
-  - the next card is `runtime-executor`, not another recognizer/rewrite pass
+  - the next card is still `runtime-executor`, not another recognizer/rewrite pass
   - the next executor target is:
-    - delete the hot `insert_const_mid_fallback` corridor
-    - keep the new `insert_hsi + final substring_hii` shape while replacing the fallback body with a runtime-private `piecewise_subrange_exec(...)`-class executor
+    - keep the landed `piecewise_subrange_hsiii` publication boundary fixed
+    - thin the hot `piecewise_subrange_hsiii_fallback` closure body itself
+    - reduce allocator / memmove pressure without widening generic helper bodies or reintroducing route logic into runtime
     - keep that executor single-session and executor-local; do not mint transient box/handle carriers or add raw handle-keyed sticky memo shortcuts
   - the follow-on `llvm-export` card only starts after that executor card lands:
     - consume the stabilized corridor with truthful facts
@@ -155,6 +155,10 @@
   - string is the first consumer, not the MIR truth itself; keep the substrate generic enough for later `len` / `compare` / `store` consumers
   - keep handle/TLS/cache lookup isolated as the cold adapter path; reject cache/helper accretion without lane-continuity proof
   - do not treat helper names as MIR truth; keep `root/provenance/start/len/materialize_policy/consumer_capability` as the generic minimum
+  - split the MIR-side contract in two:
+    - `proof_region`: where the borrowed corridor fact is valid
+    - `publication_boundary`: where the runtime-private executor may be published
+  - do not call that split `scope_lock`; it conflicts with `.hako` lexical/semantic scope
   - the executor itself should be generic enough to serve future piecewise consumers; do not mint another front-specific helper family if `piecewise_subrange_exec(...)` can carry the same load
   - the rejected runtime-executor probes now show both failure modes:
     - transient box/handle carriers lose on this front

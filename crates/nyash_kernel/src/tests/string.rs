@@ -202,6 +202,25 @@ fn string_substring_concat3_hhhii_contract() {
 }
 
 #[test]
+fn string_piecewise_subrange_hsiii_contract() {
+    with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
+        let source_h = string_handle("prefix-suffix");
+        let middle = CString::new("::mid::").expect("CString");
+        let inserted_h = nyash_string_insert_hsi_export(source_h, middle.as_ptr(), 6);
+        let direct_h = nyash_string_substring_hii_export(inserted_h, 3, 16);
+        let helper_h =
+            nyash_string_piecewise_subrange_hsiii_export(source_h, middle.as_ptr(), 6, 3, 16);
+
+        assert!(helper_h > 0);
+        assert_eq!(
+            decode_string_like_handle(helper_h),
+            decode_string_like_handle(direct_h)
+        );
+        assert_eq!(nyash_string_len_h(helper_h), nyash_string_len_h(direct_h));
+    });
+}
+
+#[test]
 fn string_compare_hh_contract_roundtrip() {
     let a: Arc<dyn NyashBox> = Arc::new(StringBox::new("abc".to_string()));
     let b: Arc<dyn NyashBox> = Arc::new(StringBox::new("abc".to_string()));

@@ -31,7 +31,8 @@ Optimization の authority order は次で固定する。
    - policy
    - user-visible contract
 2. `MIR`
-   - proof
+   - proof region
+   - publication boundary
    - rewrite eligibility
    - rewrite target
 3. `runtime/kernel`
@@ -67,6 +68,23 @@ Optimization の authority order は次で固定する。
 
 1 card で持ってよい `primary owner` は 1 個だけだよ。
 
+## Core Terms
+
+- `.hako scope`
+  - lexical/user-visible meaning scope
+  - values/control-flow/contracts live here
+- `proof_region`
+  - MIR-side region where one already-legal optimization fact is proven to hold
+  - this is not new language meaning
+- `publication_boundary`
+  - MIR-side non-widening contract that says where a specialized executor may be published
+  - this is not lexical scope and not a runtime re-recognition hook
+
+Reading lock:
+
+- use `publication_boundary` or `non_widening_contract` in docs
+- do not use `scope_lock` as the architecture term; it is too easy to confuse with `.hako` scope
+
 ## Required Card Schema
 
 すべての optimization card は最低限この項目を持つ。
@@ -94,6 +112,16 @@ frozen_evidence:
 proof_delta:
   adds_exactly_one_truth: []
   does_not_add: []
+
+proof_region:
+  established_facts: []
+  region_limits: []
+
+publication_boundary:
+  applies_only_to: []
+  publish_as: <runtime-private executor or none>
+  must_not_touch: []
+  must_not_become: []
 
 rewrite_target:
   from: <old corridor>
@@ -137,6 +165,13 @@ rollback:
 
 - 新しく真にしてよい truth は 1 個だけ
 - 2 個目が必要なら、その card はまだ research 段階
+
+### 2.5. Proof Region And Publication Boundary Stay Separate
+
+- `proof_region` is where the MIR fact holds
+- `publication_boundary` is where the specialized executor may be published
+- do not merge them into one vague scope term
+- do not let runtime rediscover either of them
 
 ### 3. Frozen Evidence First
 
@@ -182,6 +217,8 @@ delete-oriented card として扱う。
 delete-oriented card の原則:
 
 - `proof_delta` は generic substrate truth に置く
+- `proof_region` でその truth が成立する corridor を限定する
+- `publication_boundary` で specialized executor の publish 範囲を限定する
 - `rewrite_target` は hot helper call を cold adapter へ退かせる形で書く
 - `delete_target` は必須
 - runtime は executor だけを持ち、eligibility を再判定しない
@@ -226,6 +263,24 @@ current post-selfhost optimization reopen now uses this sequence:
 - next primary owner: `mir-rewrite`
 - proof delta:
   - `borrow_view_continuity_to_final_concat`
+- proof region:
+  - established facts:
+    - borrowed lane may stay unmaterialized until the final consumer
+    - the active corridor does not escape
+    - the active corridor does not cross a public boundary
+  - region limits:
+    - active `substring + const + substring -> final substring` corridor only
+- publication boundary:
+  - applies only to:
+    - the active `kilo_micro_substring_concat` corridor selected by MIR rewrite
+  - publish as:
+    - runtime-private executor only
+  - must not touch:
+    - generic helper body semantics
+    - public ABI
+    - broad callers outside the active corridor
+  - must not become:
+    - a generic helper rewrite
 - rewrite target:
   - from: `substring_concat3_hhhii` handle corridor
   - to: `plan-native final-consumer corridor`

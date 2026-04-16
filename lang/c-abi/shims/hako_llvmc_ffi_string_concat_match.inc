@@ -19,6 +19,12 @@
         long long start;
         long long end;
       };
+      struct DeferredPiecewiseSubrangeRec {
+        long long dst;
+        long long source;
+        long long middle;
+        long long split;
+      };
       struct StringConcatPairRec string_concat_pairs[512];
       size_t string_concat_pairs_n = 0;
       struct StringConcatTripleRec string_concat_triples[256];
@@ -27,6 +33,8 @@
       size_t string_len_calls_n = 0;
       struct StringSubstringCallRec string_substring_calls[256];
       size_t string_substring_calls_n = 0;
+      struct DeferredPiecewiseSubrangeRec deferred_piecewise_subranges[128];
+      size_t deferred_piecewise_subranges_n = 0;
 
       auto void remember_string_concat_triple(
           long long dst,
