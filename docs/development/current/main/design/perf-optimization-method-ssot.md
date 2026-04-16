@@ -100,7 +100,7 @@ current restart pointer after the active selfhost landing is this one:
   - to: `runtime-private single-session piecewise_subrange executor under the same public ABI surface`
 - runtime executor:
   - add a narrow `piecewise_subrange_exec(...)`-class hot lane only
-  - forbid transient box/handle carriers, transient piecewise object clones, or allocation-backed helper detours on the hot lane
+  - forbid transient box/handle carriers, transient piecewise object clones, allocation-backed helper detours, or generic non-empty `insert_const_mid_fallback` direct-build widening on the hot lane
   - demote `insert_const_mid_fallback` / handle-TLS span reconstruction to cold adapter
 - owner scope: follow `Owner Scope Lock` below; start from `string_helpers/concat` / `string_view` / `host_handles` only if asm top still points there
 - first commands:
@@ -124,7 +124,7 @@ current restart pointer after the active selfhost landing is this one:
   - the slice grows cache/helper traffic or route hinting without borrowed-lane continuity proof
   - the slice widens public ABI / VMValue surface instead of staying backend-private
   - the slice grows front-specific helper names instead of a runtime-private generic executor
-  - the slice makes transient box/handle carriers, `clone`, or `TextPlan::from_pieces` allocation show up as new hot owners
+  - the slice makes transient box/handle carriers, `clone`, generic direct-build widening, or `TextPlan::from_pieces` allocation show up as new hot owners
 
 ## Current Scheduling Status
 

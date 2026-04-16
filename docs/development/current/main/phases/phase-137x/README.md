@@ -106,6 +106,27 @@
     - reading:
       - a raw handle-keyed sticky memo does not delete the hot executor body; it only adds another shortcut in front of it
       - do not reopen memo-based substring shortcuts on this front; the next cut must stay executor-local and non-sticky
+  - rejected generic direct-build widening:
+    - attempted to read the non-empty `insert_hsi` source in-session and materialize the inserted string directly before the old `TextPlan` fallback
+    - exact front reread:
+      - `kilo_micro_substring_concat`
+        - `C: instr=1,622,920 / cycles=526,196 / ms=3`
+        - `Ny AOT: instr=474,559,696 / cycles=165,012,319 / ms=45`
+    - accept gate stayed healthy:
+      - `kilo_micro_substring_only`
+        - `C: instr=1,622,875 / cycles=491,060 / ms=3`
+        - `Ny AOT: instr=1,669,350 / cycles=1,050,465 / ms=3`
+    - whole-kilo guard regressed:
+      - `kilo_kernel_small_hk: 789 ms`
+    - asm/top reread:
+      - `nyash.string.substring_hii: 30.29%`
+      - `insert_const_mid_fallback closure: 28.59%`
+      - `borrowed_substring_plan_from_handle: 17.38%`
+      - `LocalKey::with: 15.34%`
+      - `__memmove_avx512_unaligned_erms: 2.45%`
+    - reading:
+      - the generic `insert_hsi` direct-build is too wide for this card: it wins the exact front but loses whole-kilo
+      - keep generic `insert_const_mid_fallback` materialization unchanged; the next executor cut must stay corridor-local to the active front
 - landed BoxShape cleanup before reopen:
   - `string_helpers/concat.rs` hot/cold split is landed
   - `string_view.rs` now keeps `substring_plan` / `span_resolve` behind submodule seams
@@ -138,6 +159,7 @@
   - the rejected runtime-executor probes now show both failure modes:
     - transient box/handle carriers lose on this front
     - raw handle-keyed sticky memo shortcuts also lose on this front
+    - generic non-empty `insert_hsi` direct-build widening also loses once whole-kilo is checked
   - the next attempt must keep pieces executor-local and non-sticky
 - current broader-corridor genericization rule:
   - do not add a new string-only MIR dialect

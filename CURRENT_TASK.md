@@ -109,6 +109,28 @@ Scope: current lane / next lane / restart order only.
       - a raw handle-keyed sticky memo did not delete the corridor; it only added another post-hoc shortcut in front of the same hot helper body
       - even the one-shot variant risks false reuse pressure and does not remove `insert_const_mid_fallback` itself from the front
       - do not reopen memo-based substring shortcuts on this front; the next executor cut must stay executor-local and non-sticky
+  - rejected runtime-executor widening:
+    - attempted a direct one-allocation owned build on the generic non-empty `insert_const_mid_fallback` path by reading the source string in-session and materializing the inserted result before the old `TextPlan` fallback
+    - exact front reread:
+      - `kilo_micro_substring_concat`
+        - `C: instr=1,622,920 / cycles=526,196 / ms=3`
+        - `Ny AOT: instr=474,559,696 / cycles=165,012,319 / ms=45`
+    - accept gate stayed healthy:
+      - `kilo_micro_substring_only`
+        - `C: instr=1,622,875 / cycles=491,060 / ms=3`
+        - `Ny AOT: instr=1,669,350 / cycles=1,050,465 / ms=3`
+    - whole-kilo guard regressed:
+      - `kilo_kernel_small_hk: 789 ms`
+    - asm/top reread on the rejected widening:
+      - `nyash.string.substring_hii: 30.29%`
+      - `insert_const_mid_fallback closure: 28.59%`
+      - `borrowed_substring_plan_from_handle: 17.38%`
+      - `LocalKey::with: 15.34%`
+      - `__memmove_avx512_unaligned_erms: 2.45%`
+    - reading:
+      - a generic `insert_hsi` direct-build wins the exact front but widens too far and regresses whole-kilo
+      - do not replace the generic non-empty `insert_const_mid_fallback` body with owned direct materialization on this card
+      - the next executor cut must stay corridor-local to the active front, not broaden `insert_hsi` for all consumers
 - optimization re-entry card:
   - this remains the active next-cut template on top of the current keeper baseline
   - front: `kilo_micro_substring_concat`
@@ -122,7 +144,7 @@ Scope: current lane / next lane / restart order only.
     - to: `runtime-private single-session piecewise_subrange executor under the same public ABI surface`
   - executor delta:
     - add: `piecewise_subrange_exec(...)`-class thin executor only
-    - forbid: transient box/handle carriers, raw handle-keyed sticky memo shortcuts, transient piecewise object cloning, or allocation-backed helper indirection on the hot lane
+    - forbid: transient box/handle carriers, raw handle-keyed sticky memo shortcuts, transient piecewise object cloning, allocation-backed helper indirection on the hot lane, or generic non-empty `insert_const_mid_fallback` direct-build widening
     - demote: hot `insert_const_mid_fallback` / handle-TLS span reconstruction on this front to cold-adapter candidates
   - delete target:
     - hot `insert_const_mid_fallback`
@@ -144,6 +166,7 @@ Scope: current lane / next lane / restart order only.
     - treat `piecewise_subrange_exec(...)` as runtime-private generic executor; do not encode helper names into MIR truth
     - do not materialize the corridor through a transient piecewise box/handle carrier; keep the next attempt single-session and executor-local
     - do not add a sticky shortcut keyed only by produced handles; any executor-local reuse must die with the executor call frame
+    - do not widen the generic `insert_hsi` non-empty path just because the exact front wins; whole-kilo makes that variant reject
     - string is the first consumer, not the MIR dialect
   - first commands:
     - `tools/checks/dev_gate.sh quick`
@@ -159,7 +182,7 @@ Scope: current lane / next lane / restart order only.
     - no exact-front win
     - accept gate or whole-kilo regresses
     - cache/helper traffic becomes the new dominant owner
-    - transient box/handle carriers, raw handle-keyed sticky memo traffic, clone traffic, or `TextPlan::from_pieces` allocation become hot owners
+    - transient box/handle carriers, raw handle-keyed sticky memo traffic, clone traffic, generic direct-build widening, or `TextPlan::from_pieces` allocation become hot owners
     - the cut requires a new MIR rewrite, public ABI, or string-only MIR dialect
   - do not start edits from `kilo / micro-kilo` wording alone; use this explicit card plus `phase-137x` target bands
 - fixed task order:
