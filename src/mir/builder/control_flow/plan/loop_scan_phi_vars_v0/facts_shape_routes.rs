@@ -1,10 +1,10 @@
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::recipes::loop_scan_phi_vars_v0::LoopScanPhiVarsV0Recipe;
 
 use super::facts_helpers::{
     is_if_stmt, is_inc_stmt, is_local_decl, is_local_init_zero, is_loop_with_break,
     is_loop_without_exit, is_var_step_stmt_nonconst,
 };
-use super::recipe::LoopScanPhiVarsV0Recipe;
 
 pub(in crate::mir::builder) struct LoopScanPhiVarsShapeMatch {
     pub prefix_end: usize,

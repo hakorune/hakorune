@@ -6,15 +6,15 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_block_recipe;
+use crate::mir::builder::control_flow::recipes::loop_scan_phi_vars_v0::{
+    LoopScanPhiSegment, LoopScanPhiVarsV0Recipe,
+};
 use crate::mir::builder::control_flow::plan::loop_scan_phi_vars_v0::facts_helpers::{
     build_nested_loop_recipe, contains_exit_outside_nested_loops, is_loop_cond_var_lt_var,
     release_enabled,
 };
 use crate::mir::builder::control_flow::plan::loop_scan_phi_vars_v0::facts_shape_routes::{
     try_match_loop_scan_phi_vars_ext_shape01, try_match_loop_scan_phi_vars_len7_shape,
-};
-use crate::mir::builder::control_flow::plan::loop_scan_phi_vars_v0::recipe::{
-    LoopScanPhiSegment, LoopScanPhiVarsV0Recipe,
 };
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::policies::BodyLoweringPolicy;

@@ -70,7 +70,7 @@ pub fn verify_loop_scan_methods_block_v0_recipe(
 pub fn verify_loop_scan_phi_vars_v0_recipe(
     scan_phi_vars: &crate::mir::builder::control_flow::facts::loop_scan_phi_vars_v0::LoopScanPhiVarsV0Facts,
 ) -> Result<(), Freeze> {
-    use crate::mir::builder::control_flow::plan::loop_scan_phi_vars_v0::recipe::LoopScanPhiSegment;
+    use crate::mir::builder::control_flow::recipes::loop_scan_phi_vars_v0::LoopScanPhiSegment;
 
     for (idx, segment) in scan_phi_vars.segments.iter().enumerate() {
         match segment {

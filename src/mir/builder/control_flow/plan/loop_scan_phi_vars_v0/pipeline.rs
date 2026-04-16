@@ -15,12 +15,12 @@ use crate::mir::builder::control_flow::plan::steps::empty_carriers_args;
 use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreLoopPlan, CorePlan, LoweredRecipe,
 };
+use crate::mir::builder::control_flow::recipes::loop_scan_phi_vars_v0::LoopScanPhiSegment;
 use crate::mir::builder::MirBuilder;
 use crate::mir::MirType;
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::if_branch_scan::lower_loop_scan_phi_vars_found_if_branch_body;
-use super::recipe::LoopScanPhiSegment;
 use super::segment_linear::lower_loop_scan_phi_vars_linear_segment;
 use super::segment_nested_loop::lower_loop_scan_phi_vars_nested_segment;
 use super::LoopScanPhiVarsV0Facts;
