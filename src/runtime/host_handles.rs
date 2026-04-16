@@ -8,6 +8,8 @@
 
 #[path = "host_handles/perf_observe.rs"]
 mod perf_observe;
+#[path = "host_handles/text_read.rs"]
+mod text_read;
 
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
@@ -20,6 +22,7 @@ use super::host_handles_policy;
 use crate::box_trait::NyashBox;
 use crate::config::env::HostHandleAllocPolicyMode;
 pub use perf_observe::ObjectWithHandleCaller as PerfObserveObjectWithHandleCaller;
+pub use text_read::TextReadSession;
 
 enum HandlePayload {
     StableBox(Arc<dyn NyashBox>),
@@ -41,42 +44,6 @@ impl HandlePayload {
     #[inline(always)]
     fn as_str_fast(&self) -> Option<&str> {
         self.stable_box_ref().as_ref().as_str_fast()
-    }
-}
-
-pub struct TextReadSession<'a> {
-    table: &'a SlotTable,
-}
-
-impl<'a> TextReadSession<'a> {
-    #[inline(always)]
-    pub fn str_handle<R>(&self, h: u64, f: impl FnOnce(&str) -> R) -> Option<R> {
-        let text = slot_str_ref(self.table, h)?;
-        perf_observe::text_read_handle(h);
-        Some(f(text))
-    }
-
-    #[inline(always)]
-    pub fn str_pair<R>(&self, a: u64, b: u64, f: impl FnOnce(&str, &str) -> R) -> Option<R> {
-        perf_observe::text_read_pair(a, b);
-        let a = slot_str_ref(self.table, a)?;
-        let b = slot_str_ref(self.table, b)?;
-        Some(f(a, b))
-    }
-
-    #[inline(always)]
-    pub fn str3<R>(
-        &self,
-        a: u64,
-        b: u64,
-        c: u64,
-        f: impl FnOnce(&str, &str, &str) -> R,
-    ) -> Option<R> {
-        perf_observe::text_read_triple(a, b, c);
-        let a = slot_str_ref(self.table, a)?;
-        let b = slot_str_ref(self.table, b)?;
-        let c = slot_str_ref(self.table, c)?;
-        Some(f(a, b, c))
     }
 }
 
@@ -105,11 +72,6 @@ struct Registry {
 fn slot_ref(table: &SlotTable, h: u64) -> Option<&HandlePayload> {
     let idx = usize::try_from(h).ok()?;
     table.slots.get(idx).and_then(|slot| slot.as_ref())
-}
-
-#[inline(always)]
-fn slot_str_ref<'a>(table: &'a SlotTable, h: u64) -> Option<&'a str> {
-    slot_ref(table, h).and_then(HandlePayload::as_str_fast)
 }
 
 #[cold]
@@ -284,7 +246,7 @@ impl Registry {
     #[inline(always)]
     fn with_text_read_session<R>(&self, f: impl FnOnce(TextReadSession<'_>) -> R) -> R {
         let table = self.table.read();
-        f(TextReadSession { table: &table })
+        f(TextReadSession::new(&table))
     }
 
     #[inline(always)]
