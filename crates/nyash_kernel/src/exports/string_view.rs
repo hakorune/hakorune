@@ -205,7 +205,10 @@ pub(crate) enum BorrowedSubstringPlan {
     ReturnHandle,
     ReturnEmpty,
     FreezeSpan(StringSpan),
-    ViewSpan(StringSpan),
+    ViewSpan {
+        span: StringSpan,
+        source_box_id: u64,
+    },
 }
 
 pub(crate) fn borrowed_substring_plan_from_handle(

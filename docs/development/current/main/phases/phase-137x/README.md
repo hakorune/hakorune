@@ -48,13 +48,15 @@
   - `kilo_micro_substring_views_only`
   - `kilo_micro_len_substring_views`
 - current broader-corridor reopen front is `kilo_micro_substring_concat`
-- current live reread after the 2026-04-16 reject/revert cleanup:
+- current live reread after the 2026-04-17 runtime-only keeper:
   - `kilo_micro_substring_only`
-    - `C: instr=1,621,628 / cycles=483,969 / ms=2`
-    - `Ny AOT: instr=1,665,429 / cycles=986,500 / ms=3`
+    - `C: instr=1,622,876 / cycles=485,222 / ms=4`
+    - `Ny AOT: instr=1,669,804 / cycles=999,553 / ms=3`
   - `kilo_micro_substring_concat`
-    - `C: instr=1,621,627 / cycles=487,745 / ms=3`
-    - `Ny AOT: instr=779,095,086 / cycles=289,761,186 / ms=68`
+    - `C: instr=1,622,875 / cycles=483,822 / ms=3`
+    - `Ny AOT: instr=746,997,552 / cycles=267,440,316 / ms=66`
+  - `kilo_kernel_small_hk`
+    - `Ny AOT: ms=701`
   - current route counters on the same front:
     - `view_arc_cache_miss=600000`
     - `slow_plan=600000`
@@ -64,21 +66,29 @@
     - `slow_plan_return_empty=0`
     - `slow_plan_freeze_span=0`
     - `slow_plan_view_span=600000`
+  - current keeper diff:
+    - carry source carrier `box_id` through `BorrowedSubstringPlan::ViewSpan`
+    - remove the extra `handles::with_handle(...)` on the `substring_hii` `ViewSpan` birth path
+  - current asm/top reread:
+    - `nyash.string.substring_hii: 33.58%`
+    - `LocalKey::with: 21.91%`
+    - `borrowed_substring_plan_from_handle: 17.37%`
+    - `string_substring_concat3_hhhii_export_impl: 14.94%`
 - landed BoxShape cleanup before reopen:
   - `string_helpers/concat.rs` hot/cold split is landed
   - `string_view.rs` now keeps `substring_plan` / `span_resolve` behind submodule seams
   - `runtime/host_handles.rs` now keeps `perf_observe` / `text_read` behind submodule seams
 - current restart order after those cleanup commits:
-  1. rerun exact front / hotops / asm on the same artifact
-  2. re-fix the live hot owner from that bundle
-  3. only then reopen the next `runtime-executor` cut
+  1. keep the new exact-front keeper (`746,997,552 instr / 66 ms`) as the only reopen baseline
+  2. choose the next `runtime-executor` cut from the refreshed asm/top bundle, not from pre-cleanup numbers
+  3. do not reopen more BoxShape cleanup unless the next keeper attempt points at a new mixed-responsibility seam
 - adopted reading for the next local cut:
   - this front is a borrowed-view lane continuity problem, not a cache-first or leaf-semantics problem
   - keep `borrowed-view -> materialize-on-escape` as the generic substrate
   - do not add a new string-only MIR dialect
   - landed measurement: the slow-plan arm split is now frozen evidence and the live hot arm is `ViewSpan` only
   - the required BoxShape cleanup is already landed; do not reopen more structure work before refreshing the measurement bundle unless tests or asm point at a new mixed-responsibility seam
-  - the next runtime cut after that measurement refresh is still a narrow `runtime-executor` card on `substring -> concat` continuity, targeting a `concat3_plan_executor`-class hot lane and keeping the handle helper path cold
+  - the next runtime cut after this keeper is still a narrow `runtime-executor` card on `substring -> concat` continuity, but it must target a different branch than the now-landed carried-source lookup removal
   - keep handle/TLS/cache lookup isolated as the cold adapter path; reject cache/helper accretion without lane-continuity proof
 - current broader-corridor genericization rule:
   - do not add a new string-only MIR dialect

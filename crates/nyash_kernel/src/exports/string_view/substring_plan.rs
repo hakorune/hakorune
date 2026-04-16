@@ -85,7 +85,7 @@ fn finalize_borrowed_substring_plan(
                 span_len,
             );
         }
-        BorrowedSubstringPlan::ViewSpan(_) => {
+        BorrowedSubstringPlan::ViewSpan { .. } => {
             observe::record_str_substring_route_slow_plan_view_span();
             emit_borrowed_substring_plan_trace(
                 handle,
@@ -162,7 +162,10 @@ fn substring_plan_from_string_box(
             end,
             view_enabled,
             "StringBox",
-            BorrowedSubstringPlan::ViewSpan(span),
+            BorrowedSubstringPlan::ViewSpan {
+                span,
+                source_box_id: obj.box_id(),
+            },
             "retain_view",
             span_len,
         ),
@@ -197,6 +200,7 @@ fn substring_plan_from_view_box(
     start: i64,
     end: i64,
     view_enabled: bool,
+    obj: &Arc<dyn NyashBox>,
     view: &StringViewBox,
 ) -> Option<BorrowedSubstringPlan> {
     let base_sb = view.base_obj.as_any().downcast_ref::<StringBox>()?;
@@ -255,7 +259,10 @@ fn substring_plan_from_view_box(
             end,
             view_enabled,
             "StringViewBox",
-            BorrowedSubstringPlan::ViewSpan(span),
+            BorrowedSubstringPlan::ViewSpan {
+                span,
+                source_box_id: obj.box_id(),
+            },
             "retain_view",
             span_len,
         ),
@@ -296,7 +303,7 @@ pub(super) fn borrowed_substring_plan_from_live_object(
         return substring_plan_from_string_box(handle, start, end, view_enabled, obj, sb);
     }
     if let Some(view) = obj.as_any().downcast_ref::<StringViewBox>() {
-        return substring_plan_from_view_box(handle, start, end, view_enabled, view);
+        return substring_plan_from_view_box(handle, start, end, view_enabled, obj, view);
     }
     None
 }

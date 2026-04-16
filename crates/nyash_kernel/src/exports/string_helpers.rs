@@ -345,26 +345,25 @@ pub(super) fn string_substring_hii_export_impl(h: i64, start: i64, end: i64) -> 
             }
             result
         }
-        BorrowedSubstringPlan::ViewSpan(span) => {
+        BorrowedSubstringPlan::ViewSpan {
+            span,
+            source_box_id,
+        } => {
             observe::record_birth_placement_borrow_view();
             let len = span.len() as i64;
             let result_obj: Arc<dyn NyashBox> = Arc::new(span.into_view_box());
             let handle = issue_fresh_handle_from_arc(result_obj.clone());
             if handle > 0 {
                 string_len_fast_cache_store(handle, len);
-                if let Some(source_box_id) =
-                    handles::with_handle(h as u64, |obj| obj.map(|current| current.box_id()))
-                {
-                    substring_view_arc_cache_store(
-                        h,
-                        source_box_id,
-                        start,
-                        end,
-                        len,
-                        result_obj,
-                        handle,
-                    );
-                }
+                substring_view_arc_cache_store(
+                    h,
+                    source_box_id,
+                    start,
+                    end,
+                    len,
+                    result_obj,
+                    handle,
+                );
             }
             handle
         }

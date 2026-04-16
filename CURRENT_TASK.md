@@ -27,13 +27,13 @@ Scope: current lane / next lane / restart order only.
 - expected worktree:
   - clean
 - active lane:
-  - `phase-137x post-cleanup optimization reopen`
+  - `phase-137x runtime-executor reopen after BoxShape cleanup`
 - sibling guardrail:
   - `phase-29bq loop owner seam cleanup landing`
 - immediate next:
-  - `phase-137x measurement-first reopen: rerun exact/asm/hotops on 'kilo_micro_substring_concat' after the landed BoxShape cleanup`
+  - `phase-137x next runtime-executor cut only after rereading from the current 746,997,552-instr / 66-ms exact-front keeper`
 - immediate follow-on:
-  - `phase-137x runtime-executor cut only if the post-cleanup measurement bundle still points at the same borrowed-view continuity seam`
+  - `phase-137x keep runtime-only continuity cuts narrow; do not reopen structure work or MIR/public-ABI changes without a new explicit card`
 - current blocker:
   - `none`
 - latest proof bundle:
@@ -48,37 +48,33 @@ Scope: current lane / next lane / restart order only.
     - `d3bc92973 refactor: split string view span resolution`
     - `063d06fdc refactor: split host handle perf observe`
     - `f8bb548a3 refactor: split host handle text read session`
-- optimization measurement kickoff card:
-  - this is the active card before any new optimization edit
-  - front: `kilo_micro_substring_concat`
-  - accept gate: `kilo_micro_substring_only`
-  - whole-kilo guard: `kilo_kernel_small_hk`
-  - primary owner: `measurement`
-  - one-sentence problem:
-    - `BoxShape cleanup is landed; rerun the exact front on the same artifact and re-fix the hot owner before reopening runtime-executor edits`
-  - frozen evidence:
-    - pre-cleanup live route counters stayed:
-      - `view_arc_cache_miss=600000`
-      - `slow_plan=600000`
-      - `slow_plan_view_span=600000`
-    - pre-cleanup live gap stayed concentrated on:
-      - `kilo_micro_substring_concat`
-  - first commands:
-    - `git status -sb`
-    - `tools/checks/dev_gate.sh quick`
-    - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_concat 1 3`
-    - `bash tools/perf/report_mir_hotops.sh kilo_micro_substring_concat`
-    - `bash tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_concat 'nyash.string.substring_hii' 3`
-  - done condition:
-    - same-artifact exact front numbers are refreshed after the cleanup commits
-    - current hot owner is explicit from `asm + mir + counters`
-    - next edit owner is chosen without reopening broad source reading
-  - reject condition:
-    - compile/test proof is red
-    - the cleanup changed semantics on the exact front
-    - the artifact bundle is incomplete (`bench` / `hotops` / `asm` missing)
+- latest optimization keeper:
+  - landed runtime-only cut:
+    - carry source carrier `box_id` through `BorrowedSubstringPlan::ViewSpan`
+    - remove the extra `handles::with_handle(...)` on the `substring_hii` `ViewSpan` birth path
+  - same-artifact exact front:
+    - `kilo_micro_substring_concat`
+      - `C: instr=1,622,875 / cycles=483,822 / ms=3`
+      - `Ny AOT: instr=746,997,552 / cycles=267,440,316 / ms=66`
+  - accept gate:
+    - `kilo_micro_substring_only`
+      - `C: instr=1,622,876 / cycles=485,222 / ms=4`
+      - `Ny AOT: instr=1,669,804 / cycles=999,553 / ms=3`
+  - whole-kilo guard:
+    - `kilo_kernel_small_hk: 701 ms`
+  - asm/top reread:
+    - `nyash.string.substring_hii: 33.58%`
+    - `LocalKey::with: 21.91%`
+    - `borrowed_substring_plan_from_handle: 17.37%`
+    - `string_substring_concat3_hhhii_export_impl: 14.94%`
+  - live route counters stayed:
+    - `view_arc_cache_miss=600000`
+    - `slow_plan=600000`
+    - `slow_plan_view_span=600000`
+    - `birth.placement borrow_view=600000`
+    - `birth.backend issue_fresh_handle_total=900000`
 - optimization re-entry card:
-  - activate only after the measurement kickoff card above re-fixes the hot owner on the same artifact
+  - this remains the active next-cut template on top of the current keeper baseline
   - front: `kilo_micro_substring_concat`
   - accept gate: `kilo_micro_substring_only`
   - whole-kilo guard: `kilo_kernel_small_hk`
@@ -99,6 +95,7 @@ Scope: current lane / next lane / restart order only.
     - keep runtime as executor-only; do not re-recognize eligibility in the helper path
     - do not add a string-only MIR dialect
     - keep `slow_plan_view_span=600000` as frozen evidence; do not reopen arm-split reading unless new measurements disagree
+    - the current keeper already removed one extra `with_handle` from the `ViewSpan` birth path, so the next cut must target a different hot branch than that carried-source lookup
   - first commands:
     - `tools/checks/dev_gate.sh quick`
     - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_concat 1 3`
@@ -174,9 +171,9 @@ Scope: current lane / next lane / restart order only.
 - latest landed phase:
   - `phase-277x`: optimization lane closeout judgment froze the landed optimization roadmap and handed the mainline back to compiler expressivity / selfhost entry
 - active focus:
-  - `phase-137x`: post-cleanup measurement-first reopen under the optimization task-card OS
+  - `phase-137x`: runtime-executor reopen on top of the 746,997,552-instr / 66-ms exact-front keeper
   - `phase-29bq`: sibling cleanup / structure-reform landing under compiler-expressivity-first policy
-  - with blocker=`none`, the next pointer is measurement kickoff first, then the runtime-executor re-entry card
+  - with blocker=`none`, the next pointer is the next runtime-executor card from the refreshed keeper baseline
 - architecture direction:
   - loop/selfhost cleanup now targets `facts -> route -> recipe -> cfg skeleton -> join sig -> phi materializer -> verifier -> cleanup`
   - keep `facts` descriptive-only and `recipe` normative
