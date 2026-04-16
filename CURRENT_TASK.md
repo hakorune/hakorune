@@ -43,7 +43,9 @@ Scope: current lane / next lane / restart order only.
 - next exact handoff:
   - `plan/recipe_tree` now depends on top-level `recipes::{RecipeBody, refs}` owner surfaces
   - `plan/parts/join_scope.rs` split is landed
-  - next shared-infra pointer is the `loop_scan_phi_vars_v0::nested_loop_recipe_handoff` cleanup / `loop_cond` remaining recipe-surface inventory (`continue-only` + `continue-with-return`)
+  - `loop_scan_phi_vars_v0::nested_loop_recipe_handoff` now delegates stmt-only lowering through family-local helpers
+  - `loop_cond::{continue-only, continue-with-return}` recipe surfaces now live under top-level `recipes/`
+  - next shared-infra pointer is the `loop_scan_phi_vars_v0::nested_loop_handoff` cleanup / `loop_cond_shared` owner-surface inventory
   - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
   - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
   - keep `loop_cond` keep-plan residue internal to the family; route-entry should not need a dedicated bridge
@@ -191,7 +193,7 @@ Scope: current lane / next lane / restart order only.
       - `match_return_facts`, `LoopBreakFacts`
       - cond-profile support: `accum_const_loop_facts`, `bool_predicate_scan_facts`, `loop_array_join_facts`, `loop_char_map_facts`
     - next actual move:
-      - inventory `loop_scan_phi_vars_v0::nested_loop_recipe_handoff` seam / `loop_cond` remaining recipe surfaces for the next exact cut
+      - inventory `loop_scan_phi_vars_v0::nested_loop_handoff` seam / `loop_cond_shared` owner surface for the next exact cut
   - end-state folderization epics after the owner-local queue is empty:
     - pin destination buckets for current `plan/` directories under `facts / recipes / verify / lower / ssa / cleanup`
     - move shared descriptive infra first (`facts`, `canon`, `extractors`, `route_shape_recognizers`)
