@@ -14,12 +14,12 @@ Related:
 
 | Item | State |
 | --- | --- |
-| Now | `phase-29bq selfhost mirbuilder failure-driven` |
-| Front | `compiler expressivity first -> selfhost mirbuilder failure-driven` |
+| Now | `phase-29bq loop owner seam cleanup landing` |
+| Front | `cleanup landing -> optimization (kilo / micro-kilo)` |
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
-| Blocker | `active blocker = none; stay failure-driven and capture the next exact blocker before widening` |
-| Next | `compiler expressivity first` |
-| After Next | `folderization residue inventory` (`direct plan import residue`) |
+| Blocker | `active blocker = none; finish the narrow cleanup landing, then stay failure-driven only for the next exact blocker` |
+| Next | `return to optimization (kilo / micro-kilo)` |
+| After Next | `phase-29bq failure-driven only if a new exact blocker appears` |
 
 ## Current Read
 
@@ -33,8 +33,8 @@ Related:
 
 ## Immediate Sequence
 
-1. `compiler expressivity first`
-2. `phase-29bq selfhost mirbuilder failure-driven`
+1. `phase-29bq loop owner seam cleanup landing`
+2. `return to optimization (kilo / micro-kilo)`
 
 ## Parked Corridor
 

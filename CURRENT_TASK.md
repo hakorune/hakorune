@@ -27,13 +27,13 @@ Scope: current lane / next lane / restart order only.
 - expected worktree:
   - clean
 - active lane:
-  - `phase-29bq selfhost mirbuilder failure-driven`
+  - `phase-29bq loop owner seam cleanup landing`
 - sibling guardrail:
   - `phase-137x` string corridor / exact-keeper guardrail
 - immediate next:
-  - `compiler expressivity first`
+  - `return to optimization (kilo / micro-kilo)`
 - immediate follow-on:
-  - `phase-29bq loop owner seam cleanup`
+  - `phase-29bq failure-driven only if a new exact blocker appears`
 - current blocker:
   - `none`
 - latest proof bundle:
@@ -41,6 +41,7 @@ Scope: current lane / next lane / restart order only.
   - `cargo check --bin hakorune` PASS
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
 - next exact handoff:
+  - cleanup / structure reform is in landing-closeout mode; current exact closeout is `folderization residue inventory` (`direct plan import residue`)
   - `plan/recipe_tree` now depends on top-level `recipes::{RecipeBody, refs}` owner surfaces
   - `plan/parts/join_scope.rs` split is landed
   - `loop_scan_phi_vars_v0::nested_loop_handoff` now owns nested fastpath binding application and no longer spills it back through recipe handoff
@@ -88,7 +89,8 @@ Scope: current lane / next lane / restart order only.
 - latest landed phase:
   - `phase-277x`: optimization lane closeout judgment froze the landed optimization roadmap and handed the mainline back to compiler expressivity / selfhost entry
 - active focus:
-  - `phase-29bq`: failure-driven selfhost mirbuilder lane under compiler-expressivity-first policy
+  - `phase-29bq`: narrow cleanup / structure-reform landing under compiler-expressivity-first policy
+  - with blocker=`none`, the next pointer after the closeout cut returns to optimization (`kilo / micro-kilo`)
 - architecture direction:
   - loop/selfhost cleanup now targets `facts -> route -> recipe -> cfg skeleton -> join sig -> phi materializer -> verifier -> cleanup`
   - keep `facts` descriptive-only and `recipe` normative
@@ -219,6 +221,7 @@ Scope: current lane / next lane / restart order only.
 
 1. `optimization lane closeout judgment`
    - landed and closed
+   - re-entry pointer after the current cleanup landing is `kilo / micro-kilo`
 2. `phase-29bq selfhost mirbuilder failure-driven`
    - broad gate is green; keep exact blocker capture mode as the default operating rule
 3. `phase-29bq loop owner seam cleanup`
@@ -423,6 +426,7 @@ Scope: current lane / next lane / restart order only.
       - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
       - keep `loop_cond` keep-plan residue internal to the family
       - wait for the next movable symbol to emerge from `loop_cond` or `loop_scan_methods_*`
+      - after this landing closeout, return the next pointer to `optimization (kilo / micro-kilo)`
 
 ## Legacy Compatibility Block
 

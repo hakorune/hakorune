@@ -12,12 +12,12 @@ Related:
 
 ## Current
 
-- current implementation lane: `phase29bq selfhost mirbuilder failure-driven`
+- current implementation lane: `phase29bq loop owner seam cleanup landing`
 - sibling guardrail lane: `phase137x string corridor / exact-keeper guardrail`
-- immediate next: `compiler expressivity first`
-- immediate follow-on: `phase29bq loop owner seam cleanup`
+- immediate next: `return to optimization (kilo / micro-kilo)`
+- immediate follow-on: `phase29bq failure-driven only if a new exact blocker appears`
 - top queued cut: `folderization residue inventory` (`direct plan import residue`)
-- Compiler lane: `phase-29bq`（JIR-PORT-00..08 done / active blocker=`none` / next=`none`）
+- Compiler lane: `phase-29bq`（JIR-PORT-00..08 done / active blocker=`none` / cleanup landing / next=`optimization (kilo / micro-kilo)`）
 - JoinIR port mode（lane A）: monitor-only（failure-driven）
 - loop owner direction:
   - `facts -> route -> recipe -> cfg skeleton -> join sig -> phi materializer -> verifier -> cleanup`
@@ -28,7 +28,8 @@ Related:
 - latest landed:
   - `phase277x`: optimization lane closeout judgment froze the landed optimization roadmap and handed the mainline back to compiler expressivity / selfhost entry
 - active:
-  - `phase29bq`: failure-driven selfhost mirbuilder lane under compiler-expressivity-first policy
+  - `phase29bq`: cleanup / structure-reform landing under compiler-expressivity-first policy
+  - blocker=`none`; after the narrow closeout cut, the next pointer returns to optimization (`kilo / micro-kilo`)
 - detail owner:
   - landed history stays in phase docs and roadmap SSOT
 

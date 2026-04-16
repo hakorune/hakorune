@@ -22,14 +22,15 @@ bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --onl
 
 ## Current
 
-- lane: `phase-29bq selfhost mirbuilder failure-driven`
+- lane: `phase-29bq loop owner seam cleanup landing`
 - guardrail: `phase-137x string corridor / exact-keeper guardrail`
-- immediate next: `compiler expressivity first`
-- immediate follow-on: `phase-29bq loop owner seam cleanup`
+- immediate next: `return to optimization (kilo / micro-kilo)`
+- immediate follow-on: `phase-29bq failure-driven only if a new exact blocker appears`
 
 ## Current Handoff
 
 - blocker: `none`
+- cleanup / structure reform is in landing-closeout mode; current exact closeout is `folderization residue inventory` (`direct plan import residue`)
 - residue exact shape:
   - explicit facts-local `plan_residue` under `facts/`
   - intentional top-level owner surfaces remain under `recipes / lower / verify / ssa / cleanup / facts`
