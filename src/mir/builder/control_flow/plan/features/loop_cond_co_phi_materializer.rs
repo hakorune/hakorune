@@ -55,6 +55,7 @@ mod tests {
     #[test]
     fn closure_uses_header_phis_as_final_values() {
         let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("loop_cond_continue_only_phi_closure".to_string());
         let init = builder.alloc_typed(MirType::Integer);
         let frame = crate::mir::builder::control_flow::plan::features::coreloop_frame::build_coreloop_frame(
             &mut builder,

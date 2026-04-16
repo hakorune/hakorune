@@ -510,7 +510,7 @@ mod tests {
     }
 
     #[test]
-    fn accepts_nested_guard_break_if_via_exit_allowed_fallback() {
+    fn accepts_nested_guard_break_if_as_program_block_recipe_only() {
         let condition = cond_lt("scan", 10);
         let body = vec![
             local_int("t_idx", 1),
@@ -547,13 +547,20 @@ mod tests {
         .expect("facts");
 
         assert!(matches!(
+            facts.body_lowering_policy,
+            BodyLoweringPolicy::RecipeOnly
+        ));
+        assert!(matches!(
             facts.recipe.items[4],
-            LoopCondBreakContinueItem::ExitIf { .. }
+            LoopCondBreakContinueItem::ProgramBlock {
+                stmt_only: None,
+                ..
+            }
         ));
     }
 
     #[test]
-    fn accepts_stmt_if_with_nested_loop_exits_in_recipe_only_mode() {
+    fn accepts_nested_loop_if_as_program_block_recipe_only() {
         let condition = cond_lt("pos", 10);
         let nested_loop = ASTNode::Loop {
             condition: Box::new(cond_lt("j", 3)),
@@ -586,8 +593,15 @@ mod tests {
         .expect("facts");
 
         assert!(matches!(
+            facts.body_lowering_policy,
+            BodyLoweringPolicy::RecipeOnly
+        ));
+        assert!(matches!(
             facts.recipe.items[3],
-            LoopCondBreakContinueItem::Stmt(_)
+            LoopCondBreakContinueItem::ProgramBlock {
+                stmt_only: None,
+                ..
+            }
         ));
     }
 
