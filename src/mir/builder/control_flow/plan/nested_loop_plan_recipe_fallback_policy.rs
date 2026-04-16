@@ -40,9 +40,9 @@ mod tests {
         LoopCondBreakAcceptKind, LoopCondBreakContinueFacts,
     };
     use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_facts::LoopCondContinueWithReturnFacts;
-    use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_recipe::ContinueWithReturnRecipe;
     use crate::mir::builder::control_flow::plan::planner::PlanBuildOutcome;
     use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueRecipe;
+    use crate::mir::builder::control_flow::recipes::loop_cond_continue_with_return::ContinueWithReturnRecipe;
     use crate::mir::policies::BodyLoweringPolicy;
 
     fn span() -> Span {

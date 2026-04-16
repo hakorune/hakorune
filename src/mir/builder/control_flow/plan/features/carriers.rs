@@ -2,10 +2,10 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::features::body_view::BodyView;
-use crate::mir::builder::control_flow::plan::loop_cond::continue_only_recipe::{
+use crate::mir::builder::control_flow::recipes::loop_cond_continue_only::{
     ContinueOnlyRecipe, ContinueOnlyStmtRecipe,
 };
-use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_recipe::{
+use crate::mir::builder::control_flow::recipes::loop_cond_continue_with_return::{
     ContinueWithReturnItem, ContinueWithReturnRecipe,
 };
 use crate::mir::builder::MirBuilder;

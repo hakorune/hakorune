@@ -389,7 +389,7 @@ pub(crate) fn verify_if_branch_ref(
 }
 
 pub(crate) fn verify_continue_only_recipe(
-    recipe: &crate::mir::builder::control_flow::plan::loop_cond::continue_only_recipe::ContinueOnlyRecipe,
+    recipe: &crate::mir::builder::control_flow::recipes::loop_cond_continue_only::ContinueOnlyRecipe,
     context: &str,
 ) -> Result<(), Freeze> {
     let body_len = recipe.body.len();
@@ -397,11 +397,11 @@ pub(crate) fn verify_continue_only_recipe(
 }
 
 pub(crate) fn verify_continue_only_items_with_len(
-    items: &[crate::mir::builder::control_flow::plan::loop_cond::continue_only_recipe::ContinueOnlyStmtRecipe],
+    items: &[crate::mir::builder::control_flow::recipes::loop_cond_continue_only::ContinueOnlyStmtRecipe],
     len: usize,
     context: &str,
 ) -> Result<(), Freeze> {
-    use crate::mir::builder::control_flow::plan::loop_cond::continue_only_recipe::ContinueOnlyStmtRecipe;
+    use crate::mir::builder::control_flow::recipes::loop_cond_continue_only::ContinueOnlyStmtRecipe;
 
     for (idx, item) in items.iter().enumerate() {
         let item_ctx = format!("{context}_item_{idx}");
@@ -466,7 +466,7 @@ pub(crate) fn verify_continue_only_items_with_len(
 }
 
 pub(crate) fn verify_continue_with_return_recipe(
-    recipe: &crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_recipe::ContinueWithReturnRecipe,
+    recipe: &crate::mir::builder::control_flow::recipes::loop_cond_continue_with_return::ContinueWithReturnRecipe,
     context: &str,
 ) -> Result<(), Freeze> {
     let body_len = recipe.body.len();
@@ -474,11 +474,11 @@ pub(crate) fn verify_continue_with_return_recipe(
 }
 
 pub(crate) fn verify_continue_with_return_items_with_len(
-    items: &[crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_recipe::ContinueWithReturnItem],
+    items: &[crate::mir::builder::control_flow::recipes::loop_cond_continue_with_return::ContinueWithReturnItem],
     len: usize,
     context: &str,
 ) -> Result<(), Freeze> {
-    use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_recipe::ContinueWithReturnItem;
+    use crate::mir::builder::control_flow::recipes::loop_cond_continue_with_return::ContinueWithReturnItem;
 
     for (idx, item) in items.iter().enumerate() {
         let item_ctx = format!("{context}_item_{idx}");

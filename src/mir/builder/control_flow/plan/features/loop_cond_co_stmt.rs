@@ -8,11 +8,11 @@ use crate::mir::builder::control_flow::plan::features::carrier_merge::{
 use crate::mir::builder::control_flow::plan::features::conditional_update_join::try_lower_general_if_recipe_authority;
 use crate::mir::builder::control_flow::plan::features::exit_if_map::lower_if_exit_stmt;
 use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower_nested_loop_depth1_any;
-use crate::mir::builder::control_flow::plan::loop_cond::continue_only_recipe::ContinueOnlyStmtRecipe;
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, PlanNormalizer};
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::recipes::loop_cond_continue_only::ContinueOnlyStmtRecipe;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{Effect, EffectMask};
 use std::collections::BTreeMap;

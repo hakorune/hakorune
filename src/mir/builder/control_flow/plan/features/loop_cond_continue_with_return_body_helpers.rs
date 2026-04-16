@@ -12,11 +12,11 @@ use crate::mir::builder::control_flow::plan::features::carrier_merge::{
     lower_assignment_stmt, lower_local_init_stmt,
 };
 use crate::mir::builder::control_flow::plan::features::if_branch_lowering;
-use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_recipe::ContinueWithReturnItem;
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, PlanNormalizer};
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::steps::{effects_to_plans, lower_stmt_block};
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::recipes::loop_cond_continue_with_return::ContinueWithReturnItem;
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{Effect, EffectMask};

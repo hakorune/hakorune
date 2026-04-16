@@ -2,7 +2,7 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::walk_stmt_list;
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
+use crate::mir::builder::control_flow::recipes::RecipeBody;
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct LoopCondRecipe<T> {

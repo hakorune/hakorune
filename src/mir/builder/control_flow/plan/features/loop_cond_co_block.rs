@@ -1,8 +1,8 @@
 //! Block-level lowering for continue-only pattern.
 
 use crate::mir::builder::control_flow::plan::features::body_view::BodyView;
-use crate::mir::builder::control_flow::plan::loop_cond::continue_only_recipe::ContinueOnlyStmtRecipe;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
+use crate::mir::builder::control_flow::recipes::loop_cond_continue_only::ContinueOnlyStmtRecipe;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
