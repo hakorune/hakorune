@@ -7,11 +7,11 @@ use crate::mir::builder::control_flow::plan::features::exit_if_map::lower_if_exi
 use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower_nested_loop_depth1_any;
 use crate::mir::builder::control_flow::plan::nested_loop_depth1::try_lower_nested_loop_depth1;
 use crate::mir::builder::control_flow::plan::parts;
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
 use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::{
     LoopCondBreakContinueItem, NestedLoopDepth1Recipe,
 };
+use crate::mir::builder::control_flow::recipes::{refs::StmtRef, RecipeBody};
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
@@ -457,7 +457,7 @@ fn lower_nested_loop_depth1_item(
     _carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
     _break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
     body: &RecipeBody,
-    loop_stmt: crate::mir::builder::control_flow::plan::recipes::refs::StmtRef,
+    loop_stmt: StmtRef,
     nested: &NestedLoopDepth1Recipe,
     propagate_nested_carriers: bool,
 ) -> Result<Vec<LoweredRecipe>, String> {

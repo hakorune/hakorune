@@ -7,26 +7,39 @@ use super::break_continue_recipe::{
     LoopCondBreakContinueItem, LoopCondBreakContinueRecipe, NestedLoopDepth1Recipe,
 };
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::expr_bool::is_supported_bool_expr_with_canon;
+use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_block_recipe;
+use crate::mir::builder::control_flow::facts::stmt_view::try_build_stmt_only_block_recipe;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::flatten_stmt_list;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
-use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool_expr_with_canon;
-use crate::mir::builder::control_flow::plan::facts::no_exit_block::try_build_no_exit_block_recipe;
-use crate::mir::builder::control_flow::plan::facts::stmt_view::try_build_stmt_only_block_recipe;
 use crate::mir::builder::control_flow::plan::loop_cond_shared::LoopCondRecipe;
-use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
+use crate::mir::builder::control_flow::recipes::refs::StmtRef;
+use crate::mir::builder::control_flow::recipes::RecipeBody;
 
-use super::break_continue_classify::IfStmtKind;
-use super::break_continue_classify::{build_continue_if_with_else_recipes, classify_if_stmt};
+use super::break_continue_classify::{
+    build_continue_if_with_else_recipes, continue_if_with_else_info, is_general_if_stmt,
+};
 use super::break_continue_helpers::is_nested_loop_allowed;
 use super::break_continue_tree::build_exit_if_tree_recipe;
-use super::break_continue_validator_cond::build_conditional_update_branch_recipe;
+use super::break_continue_validator_cond::{
+    build_conditional_update_branch_recipe, is_conditional_update_if,
+};
 use super::break_continue_validator_else::{
     build_else_guard_break_recipes, is_else_guard_break_if_shape, is_else_only_break_if_shape,
     is_else_only_return_if_shape, is_then_only_break_if_shape, is_then_only_return_if_shape,
 };
-use super::break_continue_validator_exit::try_build_else_nested_exit_if_return_exit_allowed_recipe;
+use super::break_continue_validator_exit::{
+    is_exit_if_stmt, try_build_else_nested_exit_if_return_exit_allowed_recipe,
+};
+
+#[derive(Debug, Clone, Copy)]
+enum IfStmtKind {
+    ExitIf,
+    ContinueIf { continue_in_then: bool },
+    ConditionalUpdate,
+    GeneralIf,
+}
 
 /// Build a recipe for the loop body.
 pub(super) fn build_loop_cond_break_continue_recipe(
@@ -369,7 +382,15 @@ fn build_if_item(
             );
         }
     }
-    match classify_if_stmt(
+    let if_kind = if is_exit_if_stmt(condition, then_body, else_body, allow_extended) {
+        Some(IfStmtKind::ExitIf)
+    } else if let Some(continue_in_then) =
+        continue_if_with_else_info(condition, then_body, else_body, allow_extended)
+    {
+        Some(IfStmtKind::ContinueIf { continue_in_then })
+    } else if is_conditional_update_if(condition, then_body, else_body, allow_extended) {
+        Some(IfStmtKind::ConditionalUpdate)
+    } else if is_general_if_stmt(
         condition,
         then_body,
         else_body,
@@ -377,6 +398,12 @@ fn build_if_item(
         allow_nested,
         debug,
     ) {
+        Some(IfStmtKind::GeneralIf)
+    } else {
+        None
+    };
+
+    match if_kind {
         Some(IfStmtKind::ExitIf) => {
             let tail_is_exit = |body: &[ASTNode]| {
                 matches!(

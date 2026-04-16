@@ -1,8 +1,8 @@
 //! Continue-if pattern handler.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::facts::no_exit_block::NoExitBlockRecipe;
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::no_exit_block::NoExitBlockRecipe;
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;

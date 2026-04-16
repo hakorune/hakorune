@@ -7,10 +7,10 @@
 //! - Continue branch signature collection
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
+use crate::mir::builder::control_flow::facts::expr_bool::is_supported_bool_expr_with_canon;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     flatten_stmt_list, is_true_literal, walk_stmt_list,
 };
-use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool_expr_with_canon;
 use crate::mir::builder::control_flow::plan::generic_loop::facts::extract::{
     try_extract_generic_loop_v0_facts, try_extract_generic_loop_v1_facts,
 };

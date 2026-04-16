@@ -4,7 +4,7 @@
 //! are allowed in the exit-if pattern context.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool_expr_with_canon;
+use crate::mir::builder::control_flow::facts::expr_bool::is_supported_bool_expr_with_canon;
 use crate::mir::builder::control_flow::plan::facts::expr_generic_loop::is_pure_value_expr_for_generic_loop;
 use std::collections::BTreeSet;
 

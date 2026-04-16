@@ -5,10 +5,10 @@ use crate::mir::builder::control_flow::plan::features::carrier_merge::{
     lower_assignment_stmt, lower_local_init_stmt,
 };
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, PlanNormalizer};
-use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::recipes::refs::StmtRef;
+use crate::mir::builder::control_flow::recipes::RecipeBody;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{Effect, EffectMask};
 use std::collections::BTreeMap;

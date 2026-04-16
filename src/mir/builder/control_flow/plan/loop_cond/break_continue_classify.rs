@@ -1,64 +1,15 @@
-//! If-statement classification for loop_cond_break_continue facts extraction.
-//!
-//! This module classifies if-statements within loop bodies into different patterns:
-//! - ExitIf: if with break/continue/return
-//! - ContinueIf: if with continue in one branch, fallthrough in the other
-//! - ConditionalUpdate: if with assignments and optional exit
-//! - GeneralIf: general if without exits
+//! Shared if-shape predicates for loop_cond_break_continue facts extraction.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::flatten_stmt_list;
-use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool_expr_with_canon;
-use crate::mir::builder::control_flow::plan::facts::no_exit_block::{
+use crate::mir::builder::control_flow::facts::expr_bool::is_supported_bool_expr_with_canon;
+use crate::mir::builder::control_flow::facts::no_exit_block::{
     try_build_no_exit_block_recipe, NoExitBlockRecipe,
 };
+use crate::mir::builder::control_flow::plan::extractors::common_helpers::flatten_stmt_list;
 use crate::mir::builder::control_flow::plan::loop_cond_shared::branch_tail_is_continue_flattened;
 
 use super::break_continue_helpers::{branch_has_exit_or_loop, is_nested_loop_allowed};
-use super::break_continue_validator_cond::is_conditional_update_if;
-use super::break_continue_validator_exit::is_exit_if_stmt;
 use super::break_continue_validator_prelude::exit_prelude_is_allowed;
-
-#[derive(Debug, Clone, Copy)]
-pub(super) enum IfStmtKind {
-    ExitIf,
-    ContinueIf { continue_in_then: bool },
-    ConditionalUpdate,
-    GeneralIf,
-}
-
-/// Classify an if statement into one of the recognized patterns.
-pub(super) fn classify_if_stmt(
-    condition: &ASTNode,
-    then_body: &[ASTNode],
-    else_body: Option<&Vec<ASTNode>>,
-    allow_extended: bool,
-    allow_nested: bool,
-    debug: bool,
-) -> Option<IfStmtKind> {
-    if is_exit_if_stmt(condition, then_body, else_body, allow_extended) {
-        return Some(IfStmtKind::ExitIf);
-    }
-    if let Some(continue_in_then) =
-        continue_if_with_else_info(condition, then_body, else_body, allow_extended)
-    {
-        return Some(IfStmtKind::ContinueIf { continue_in_then });
-    }
-    if is_conditional_update_if(condition, then_body, else_body, allow_extended) {
-        return Some(IfStmtKind::ConditionalUpdate);
-    }
-    if is_general_if_stmt(
-        condition,
-        then_body,
-        else_body,
-        allow_extended,
-        allow_nested,
-        debug,
-    ) {
-        return Some(IfStmtKind::GeneralIf);
-    }
-    None
-}
 
 /// Check for continue-if-with-else pattern and return which branch has the continue.
 ///
@@ -165,7 +116,7 @@ pub(super) fn build_continue_if_with_else_recipes(
     Some((continue_prelude, fallthrough_body))
 }
 
-fn is_general_if_stmt(
+pub(super) fn is_general_if_stmt(
     condition: &ASTNode,
     then_body: &[ASTNode],
     else_body: Option<&Vec<ASTNode>>,

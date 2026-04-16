@@ -1,11 +1,11 @@
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::facts::no_exit_block::{
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::no_exit_block::{
     try_build_no_exit_block_recipe, NoExitBlockRecipe,
 };
 use crate::mir::builder::control_flow::plan::parts;
-use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
+use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 use crate::mir::builder::MirBuilder;
 use crate::mir::policies::return_prelude_policy::{
     else_only_return_prelude_stmt_is_allowed, then_only_return_prelude_stmt_is_allowed,

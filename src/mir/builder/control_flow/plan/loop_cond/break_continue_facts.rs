@@ -4,13 +4,14 @@
 //! the entire extraction process.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::facts::expr_bool::is_supported_bool_expr_with_canon;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::is_true_literal;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
-use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool_expr_with_canon;
 use crate::mir::builder::control_flow::plan::facts::reject_reason::{
     handoff_tables, log_accept, log_reject, RejectReason,
 };
 use crate::mir::builder::control_flow::plan::planner::Freeze;
+use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 
 use super::break_continue_accept::determine_accept_kind;
 use super::break_continue_helpers::{
@@ -22,7 +23,6 @@ use super::break_continue_types::{LoopCondBreakAcceptKind, LoopCondBreakContinue
 use super::break_continue_validator_exit::returns_only_in_exit_if;
 use crate::mir::builder::control_flow::plan::loop_cond_shared::LoopCondRecipe;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeItem;
-use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
 use crate::mir::policies::BodyLoweringPolicy;
 
 /// Core extraction function for loop_cond_break_continue facts.

@@ -5,11 +5,11 @@
 
 use super::break_continue_recipe::{LoopCondBreakContinueItem, LoopCondBreakContinueRecipe};
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::facts::expr_bool::is_supported_bool_expr_with_canon;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
-use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool_expr_with_canon;
 use crate::mir::builder::control_flow::plan::loop_cond_shared::LoopCondRecipe;
-use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
+use crate::mir::builder::control_flow::recipes::refs::StmtRef;
+use crate::mir::builder::control_flow::recipes::RecipeBody;
 
 use super::break_continue_helpers::{body_has_any_exit, branch_has_exit_or_loop};
 use super::break_continue_validator_prelude::then_only_return_prelude_is_allowed_local_then_return_value;

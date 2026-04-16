@@ -4,11 +4,11 @@
 //! was previously defined in the loop_cond_break_continue_pipeline/mod.rs.
 //! The function delegates to the specialized helper modules.
 
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::facts::loop_cond_break_continue::{
     LoopCondBreakAcceptKind, LoopCondBreakContinueFacts,
 };
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
 use crate::mir::builder::control_flow::plan::features::carriers;
@@ -25,6 +25,7 @@ use crate::mir::builder::control_flow::plan::steps::empty_carriers_args;
 use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreLoopPlan, CorePlan, LoweredRecipe,
 };
+use crate::mir::builder::control_flow::recipes::RecipeBody;
 use crate::mir::builder::MirBuilder;
 use crate::mir::policies::BodyLoweringPolicy;
 use std::collections::{BTreeMap, BTreeSet};
@@ -339,7 +340,7 @@ fn lower_loop_cond_body_items(
     carrier_phis: &BTreeMap<String, crate::mir::ValueId>,
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
     break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
-    body: &crate::mir::builder::control_flow::plan::recipes::RecipeBody,
+    body: &RecipeBody,
     items: &[crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem],
     propagate_nested: bool,
 ) -> Result<Vec<LoweredRecipe>, String> {

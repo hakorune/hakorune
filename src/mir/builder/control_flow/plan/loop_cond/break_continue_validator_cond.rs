@@ -4,14 +4,14 @@
 //! assignments/locals with optional exit at the end of the branch.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::extractors::common_helpers::flatten_stmt_list;
-use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool_expr_with_canon;
-use crate::mir::builder::control_flow::plan::facts::expr_generic_loop::is_pure_value_expr_for_generic_loop;
-use crate::mir::builder::control_flow::plan::facts::no_exit_block::{
+use crate::mir::builder::control_flow::cleanup::policies::cond_prelude_vocab::prelude_has_loop_like_stmt;
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::expr_bool::is_supported_bool_expr_with_canon;
+use crate::mir::builder::control_flow::facts::no_exit_block::{
     try_build_no_exit_block_recipe, NoExitBlockRecipe,
 };
-use crate::mir::builder::control_flow::cleanup::policies::cond_prelude_vocab::prelude_has_loop_like_stmt;
+use crate::mir::builder::control_flow::plan::extractors::common_helpers::flatten_stmt_list;
+use crate::mir::builder::control_flow::plan::facts::expr_generic_loop::is_pure_value_expr_for_generic_loop;
 use crate::mir::builder::control_flow::plan::recipe_tree::common::ExitKind;
 
 /// Check if an if statement is a conditional update pattern.

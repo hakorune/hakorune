@@ -4,12 +4,12 @@
 //! ends with break/continue/return.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::facts::expr_bool::is_supported_bool_expr_with_canon;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::flatten_stmt_list;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::ExitAllowedBlockRecipe;
-use crate::mir::builder::control_flow::plan::facts::expr_bool::is_supported_bool_expr_with_canon;
 use crate::mir::builder::control_flow::plan::recipe_tree::{RecipeBlock, RecipeBodies, RecipeItem};
-use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
+use crate::mir::builder::control_flow::recipes::refs::StmtRef;
+use crate::mir::builder::control_flow::recipes::RecipeBody;
 
 use super::break_continue_tree::build_exit_if_tree_recipe;
 use super::break_continue_validator_else::{
