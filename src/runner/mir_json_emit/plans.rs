@@ -44,6 +44,7 @@ pub(super) fn build_string_kernel_plan_json(
         "parts": build_string_kernel_plan_parts_json(&plan),
         "known_length": plan.known_length,
         "retained_form": plan.retained_form.to_string(),
+        "publication_boundary": plan.publication_boundary.map(|boundary| boundary.to_string()),
         "barriers": {
             "publication": plan.publication.map(|state| state.to_string()),
             "materialization": plan.materialization.map(|state| state.to_string()),

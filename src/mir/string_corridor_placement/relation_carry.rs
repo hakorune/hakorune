@@ -47,6 +47,7 @@ fn carried_candidates_from_relations(
                     } else {
                         None
                     },
+                    publication_boundary: candidate.publication_boundary,
                 }),
         );
     }

@@ -80,6 +80,19 @@ impl std::fmt::Display for PlacementEffectState {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PlacementEffectPublicationBoundary {
+    FirstExternalBoundary,
+}
+
+impl std::fmt::Display for PlacementEffectPublicationBoundary {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::FirstExternalBoundary => f.write_str("first_external_boundary"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PlacementEffectStringProof {
     BorrowedSlice {
         source: ValueId,
@@ -148,6 +161,7 @@ pub struct PlacementEffectRoute {
     pub window_start: Option<ValueId>,
     pub window_end: Option<ValueId>,
     pub string_proof: Option<PlacementEffectStringProof>,
+    pub publication_boundary: Option<PlacementEffectPublicationBoundary>,
     pub source: PlacementEffectSource,
     pub subject: String,
     pub decision: PlacementEffectDecision,
@@ -185,13 +199,17 @@ impl PlacementEffectRoute {
             .as_ref()
             .map(|proof| format!(" string_proof={}", proof.summary()))
             .unwrap_or_default();
+        let publication_boundary_suffix = self
+            .publication_boundary
+            .map(|boundary| format!(" publication_boundary={boundary}"))
+            .unwrap_or_default();
         let detail_suffix = self
             .detail
             .as_ref()
             .map(|detail| format!(" detail={detail}"))
             .unwrap_or_default();
         format!(
-            "{}{} {} {} {} [{}]{}{}{}{}{} reason={}",
+            "{}{} {} {} {} [{}]{}{}{}{}{}{} reason={}",
             block_suffix,
             instruction_suffix,
             self.source,
@@ -202,6 +220,7 @@ impl PlacementEffectRoute {
             source_value_suffix,
             window_suffix,
             string_proof_suffix,
+            publication_boundary_suffix,
             detail_suffix,
             self.reason
         )
@@ -229,6 +248,14 @@ fn collect_string_routes(function: &MirFunction, routes: &mut Vec<PlacementEffec
 
     for (value, candidates) in &function.metadata.string_corridor_candidates {
         let location = def_map.get(value).copied();
+        let publication_boundary = candidates
+            .iter()
+            .find_map(|candidate| match candidate.publication_boundary {
+                Some(crate::mir::StringCorridorPublicationBoundary::FirstExternalBoundary) => {
+                    Some(PlacementEffectPublicationBoundary::FirstExternalBoundary)
+                }
+                None => None,
+            });
         for candidate in candidates {
             routes.push(PlacementEffectRoute {
                 block: location.map(|(block, _)| block),
@@ -240,6 +267,7 @@ fn collect_string_routes(function: &MirFunction, routes: &mut Vec<PlacementEffec
                 string_proof: candidate
                     .plan
                     .map(|plan| placement_effect_string_proof(plan.proof)),
+                publication_boundary,
                 source: PlacementEffectSource::StringCorridor,
                 subject: format!("string.value%{}", value.as_u32()),
                 decision: string_decision(candidate.kind),
@@ -343,6 +371,7 @@ fn sum_route(selection: &SumPlacementSelection) -> PlacementEffectRoute {
         window_start: None,
         window_end: None,
         string_proof: None,
+        publication_boundary: None,
         source: PlacementEffectSource::SumPlacement,
         subject: selection.subject.clone(),
         decision: match selection.selected_path {
@@ -364,6 +393,7 @@ fn thin_entry_route(selection: &ThinEntrySelection) -> PlacementEffectRoute {
         window_start: None,
         window_end: None,
         string_proof: None,
+        publication_boundary: None,
         source: PlacementEffectSource::ThinEntry,
         subject: selection.subject.clone(),
         decision: match selection.selected_entry {
@@ -393,6 +423,7 @@ fn agg_local_route(route: &crate::mir::AggLocalScalarizationRoute) -> Option<Pla
             window_start: None,
             window_end: None,
             string_proof: None,
+            publication_boundary: None,
             source: PlacementEffectSource::AggLocalScalarization,
             subject: route.subject.clone(),
             decision: PlacementEffectDecision::LocalAggregate,
@@ -436,10 +467,10 @@ mod tests {
         AggLocalScalarizationKind, AggLocalScalarizationRoute, BasicBlockId, EffectMask,
         FunctionSignature, MirInstruction, MirType, StorageClass, StringCorridorCandidate,
         StringCorridorCandidateKind, StringCorridorCandidatePlan, StringCorridorCandidateProof,
-        StringCorridorCandidateState, SumLocalAggregateLayout, SumPlacementPath,
-        SumPlacementSelection, ThinEntryCurrentCarrier, ThinEntryPreferredEntry,
-        ThinEntrySelection, ThinEntrySelectionState, ThinEntrySurface, ThinEntryValueClass,
-        ValueId,
+        StringCorridorCandidateState, StringCorridorPublicationBoundary,
+        SumLocalAggregateLayout, SumPlacementPath, SumPlacementSelection,
+        ThinEntryCurrentCarrier, ThinEntryPreferredEntry, ThinEntrySelection,
+        ThinEntrySelectionState, ThinEntrySurface, ThinEntryValueClass, ValueId,
     };
 
     #[test]
@@ -463,6 +494,9 @@ mod tests {
                 state: StringCorridorCandidateState::Candidate,
                 reason: "publish boundary can sink to the corridor exit",
                 plan: None,
+                publication_boundary: Some(
+                    StringCorridorPublicationBoundary::FirstExternalBoundary,
+                ),
             }],
         );
         function
@@ -540,6 +574,10 @@ mod tests {
             function.metadata.placement_effect_routes[0].decision,
             PlacementEffectDecision::PublishHandle
         ));
+        assert_eq!(
+            function.metadata.placement_effect_routes[0].publication_boundary,
+            Some(PlacementEffectPublicationBoundary::FirstExternalBoundary)
+        );
         assert!(matches!(
             function.metadata.placement_effect_routes[1].decision,
             PlacementEffectDecision::LocalAggregate
@@ -605,6 +643,9 @@ mod tests {
                         shared_source: true,
                     },
                 }),
+                publication_boundary: Some(
+                    StringCorridorPublicationBoundary::FirstExternalBoundary,
+                ),
             }],
         );
 
@@ -629,6 +670,10 @@ mod tests {
                 right_end: ValueId::new(9),
                 shared_source: true,
             })
+        );
+        assert_eq!(
+            route.publication_boundary,
+            Some(PlacementEffectPublicationBoundary::FirstExternalBoundary)
         );
     }
 }

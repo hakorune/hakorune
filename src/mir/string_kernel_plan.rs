@@ -62,6 +62,20 @@ impl std::fmt::Display for StringKernelPlanConsumer {
     }
 }
 
+/// Backend-consumable publication boundary for a string kernel plan.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StringKernelPlanPublicationBoundary {
+    FirstExternalBoundary,
+}
+
+impl std::fmt::Display for StringKernelPlanPublicationBoundary {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::FirstExternalBoundary => f.write_str("first_external_boundary"),
+        }
+    }
+}
+
 /// Backend-consumable string kernel plan part.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum StringKernelPlanPart {
@@ -104,6 +118,7 @@ pub struct StringKernelPlan {
     pub source_root: Option<ValueId>,
     pub known_length: Option<i64>,
     pub retained_form: StringKernelPlanRetainedForm,
+    pub publication_boundary: Option<StringKernelPlanPublicationBoundary>,
     pub publication: Option<StringCorridorCandidateState>,
     pub materialization: Option<StringCorridorCandidateState>,
     pub direct_kernel_entry: Option<StringCorridorCandidateState>,
@@ -303,10 +318,20 @@ pub fn derive_string_kernel_plan(
     let mut publication = None;
     let mut materialization = None;
     let mut direct_kernel_entry = None;
+    let mut publication_boundary = None;
 
     for candidate in candidates {
         match candidate.kind {
-            StringCorridorCandidateKind::PublicationSink => publication = Some(candidate.state),
+            StringCorridorCandidateKind::PublicationSink => {
+                publication = Some(candidate.state);
+                if matches!(
+                    candidate.publication_boundary,
+                    Some(crate::mir::StringCorridorPublicationBoundary::FirstExternalBoundary)
+                ) {
+                    publication_boundary =
+                        Some(StringKernelPlanPublicationBoundary::FirstExternalBoundary);
+                }
+            }
             StringCorridorCandidateKind::MaterializationSink => {
                 materialization = Some(candidate.state)
             }
@@ -331,6 +356,7 @@ pub fn derive_string_kernel_plan(
                 state: candidate.state,
                 reason: candidate.reason,
                 plan: Some(plan),
+                publication_boundary: candidate.publication_boundary,
             }),
         };
     }
@@ -369,6 +395,7 @@ pub fn derive_string_kernel_plan(
         source_root: plan.source_root,
         known_length: plan.known_length,
         retained_form: StringKernelPlanRetainedForm::BorrowedText,
+        publication_boundary,
         publication,
         materialization,
         direct_kernel_entry,
@@ -398,7 +425,10 @@ pub fn refresh_function_string_kernel_plans(function: &mut MirFunction) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::{BasicBlock, BasicBlockId, BinaryOp, EffectMask, FunctionSignature, MirType};
+    use crate::mir::{
+        BasicBlock, BasicBlockId, BinaryOp, EffectMask, FunctionSignature, MirType,
+        StringCorridorPublicationBoundary,
+    };
 
     fn make_loop_function() -> MirFunction {
         let entry = BasicBlockId::new(0);
@@ -521,12 +551,16 @@ mod tests {
                 state: StringCorridorCandidateState::AlreadySatisfied,
                 reason: "publish boundary is already sunk at the current corridor exit",
                 plan: Some(plan),
+                publication_boundary: Some(
+                    StringCorridorPublicationBoundary::FirstExternalBoundary,
+                ),
             },
             StringCorridorCandidate {
                 kind: StringCorridorCandidateKind::MaterializationSink,
                 state: StringCorridorCandidateState::Candidate,
                 reason: "slice result may stay borrowed until a later boundary",
                 plan: Some(plan),
+                publication_boundary: None,
             },
             StringCorridorCandidate {
                 kind: StringCorridorCandidateKind::DirectKernelEntry,
@@ -534,6 +568,9 @@ mod tests {
                 reason:
                     "borrowed slice corridor can target a direct kernel entry before publication",
                 plan: Some(plan),
+                publication_boundary: Some(
+                    StringCorridorPublicationBoundary::FirstExternalBoundary,
+                ),
             },
         ];
 
@@ -550,6 +587,10 @@ mod tests {
         assert_eq!(
             kernel_plan.retained_form,
             StringKernelPlanRetainedForm::BorrowedText
+        );
+        assert_eq!(
+            kernel_plan.publication_boundary,
+            Some(StringKernelPlanPublicationBoundary::FirstExternalBoundary)
         );
         assert_eq!(
             kernel_plan.publication,
@@ -605,6 +646,7 @@ mod tests {
             state: StringCorridorCandidateState::Candidate,
             reason: "direct kernel entry candidate",
             plan: Some(plan),
+            publication_boundary: None,
         }];
 
         let kernel_plan = derive_string_kernel_plan(&function, &candidates).expect("kernel plan");
@@ -648,6 +690,7 @@ mod tests {
                 reason:
                     "borrowed slice corridor can target a direct kernel entry before publication",
                 plan: Some(plan),
+                publication_boundary: None,
             }],
         );
 

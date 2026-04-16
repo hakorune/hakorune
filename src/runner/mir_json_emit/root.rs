@@ -121,6 +121,7 @@ pub(super) fn build_mir_json_root(
                                 }),
                             },
                         })),
+                        "publication_boundary": candidate.publication_boundary.map(|boundary| boundary.to_string()),
                     })
                 }).collect::<Vec<_>>()))
             }).collect::<serde_json::Map<String, serde_json::Value>>(),

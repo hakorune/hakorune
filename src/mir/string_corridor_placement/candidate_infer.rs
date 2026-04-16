@@ -16,6 +16,7 @@ pub(super) fn infer_candidates(
             state: StringCorridorCandidateState::Candidate,
             reason: "borrow-producing slice value can stay inside a borrowed corridor",
             plan,
+            publication_boundary: None,
         });
     }
 
@@ -25,6 +26,7 @@ pub(super) fn infer_candidates(
             state: StringCorridorCandidateState::AlreadySatisfied,
             reason: "publish boundary is already sunk at the current corridor exit",
             plan,
+            publication_boundary: Some(StringCorridorPublicationBoundary::FirstExternalBoundary),
         }),
         StringPlacementFact::Unknown | StringPlacementFact::Deferred => {
             if fact.op == StringCorridorOp::StrSlice {
@@ -34,6 +36,9 @@ pub(super) fn infer_candidates(
                     reason:
                         "slice result may sink publication until an externally visible boundary",
                     plan,
+                    publication_boundary: Some(
+                        StringCorridorPublicationBoundary::FirstExternalBoundary,
+                    ),
                 });
             }
         }
@@ -46,6 +51,7 @@ pub(super) fn infer_candidates(
             state: StringCorridorCandidateState::AlreadySatisfied,
             reason: "materialization boundary is already a sink in the current facts",
             plan,
+            publication_boundary: None,
         }),
         StringPlacementFact::Unknown | StringPlacementFact::Deferred => {
             if fact.op == StringCorridorOp::StrSlice {
@@ -54,6 +60,7 @@ pub(super) fn infer_candidates(
                     state: StringCorridorCandidateState::Candidate,
                     reason: "slice result may defer materialization until a birth sink forces it",
                     plan,
+                    publication_boundary: None,
                 });
             }
         }
@@ -69,6 +76,14 @@ pub(super) fn infer_candidates(
             state: StringCorridorCandidateState::Candidate,
             reason: direct_kernel_reason(fact),
             plan,
+            publication_boundary: match fact.publish {
+                StringPlacementFact::Sink
+                | StringPlacementFact::Unknown
+                | StringPlacementFact::Deferred => Some(
+                    StringCorridorPublicationBoundary::FirstExternalBoundary,
+                ),
+                StringPlacementFact::None => None,
+            },
         });
     }
 

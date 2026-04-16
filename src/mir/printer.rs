@@ -489,6 +489,7 @@ mod tests {
                 state: StringCorridorCandidateState::Candidate,
                 reason: "scalar string consumer can bypass ABI facade on the AOT-internal path",
                 plan: None,
+                publication_boundary: None,
             }],
         );
         function.metadata.string_corridor_relations.insert(

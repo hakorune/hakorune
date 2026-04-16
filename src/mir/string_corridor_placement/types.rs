@@ -36,6 +36,20 @@ impl std::fmt::Display for StringCorridorCandidateState {
     }
 }
 
+/// Non-widening boundary where the current specialized corridor may publish.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StringCorridorPublicationBoundary {
+    FirstExternalBoundary,
+}
+
+impl std::fmt::Display for StringCorridorPublicationBoundary {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::FirstExternalBoundary => f.write_str("first_external_boundary"),
+        }
+    }
+}
+
 /// Proof-bearing plan metadata for broader string corridor routes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct StringCorridorCandidatePlan {
@@ -145,19 +159,28 @@ pub struct StringCorridorCandidate {
     pub state: StringCorridorCandidateState,
     pub reason: &'static str,
     pub plan: Option<StringCorridorCandidatePlan>,
+    pub publication_boundary: Option<StringCorridorPublicationBoundary>,
 }
 
 impl StringCorridorCandidate {
     pub fn summary(&self) -> String {
+        let publication_boundary = self
+            .publication_boundary
+            .map(|boundary| format!(" boundary={boundary}"))
+            .unwrap_or_default();
         match self.plan {
             Some(plan) => format!(
-                "{} [{}] {} | {}",
+                "{} [{}] {}{} | {}",
                 self.kind,
                 self.state,
                 self.reason,
+                publication_boundary,
                 plan.summary()
             ),
-            None => format!("{} [{}] {}", self.kind, self.state, self.reason),
+            None => format!(
+                "{} [{}] {}{}",
+                self.kind, self.state, self.reason, publication_boundary
+            ),
         }
     }
 }

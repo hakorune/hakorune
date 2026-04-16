@@ -110,8 +110,8 @@ pub use join_ir_runner::{run_joinir_function, JoinRuntimeError, JoinValue};
 pub use optimizer::MirOptimizer;
 pub use placement_effect::{
     refresh_function_placement_effect_routes, refresh_module_placement_effect_routes,
-    PlacementEffectDecision, PlacementEffectRoute, PlacementEffectSource, PlacementEffectState,
-    PlacementEffectStringProof,
+    PlacementEffectDecision, PlacementEffectPublicationBoundary, PlacementEffectRoute,
+    PlacementEffectSource, PlacementEffectState, PlacementEffectStringProof,
 };
 pub use printer::MirPrinter;
 pub use query::{MirQuery, MirQueryBox};
@@ -133,6 +133,7 @@ pub use string_corridor_placement::{
     refresh_function_string_corridor_candidates, refresh_module_string_corridor_candidates,
     StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidatePlan,
     StringCorridorCandidateProof, StringCorridorCandidateState,
+    StringCorridorPublicationBoundary,
 };
 pub use string_corridor_relation::{
     refresh_function_string_corridor_relations, refresh_module_string_corridor_relations,
@@ -142,7 +143,7 @@ pub use string_kernel_plan::{
     derive_string_kernel_plan, refresh_function_string_kernel_plans,
     refresh_module_string_kernel_plans, StringKernelPlan, StringKernelPlanConsumer,
     StringKernelPlanFamily, StringKernelPlanLegality, StringKernelPlanPart,
-    StringKernelPlanRetainedForm,
+    StringKernelPlanPublicationBoundary, StringKernelPlanRetainedForm,
 };
 pub use sum_placement::{
     refresh_function_sum_placement_facts, refresh_module_sum_placement_facts,

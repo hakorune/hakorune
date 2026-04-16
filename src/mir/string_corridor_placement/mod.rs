@@ -31,6 +31,7 @@ mod types;
 pub use types::{
     StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidatePlan,
     StringCorridorCandidateProof, StringCorridorCandidateState,
+    StringCorridorPublicationBoundary,
 };
 
 use candidate_infer::infer_candidates;

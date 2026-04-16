@@ -67,6 +67,9 @@ fn build_mir_json_root_emits_string_corridor_candidates() {
                         shared_source: true,
                     },
             }),
+            publication_boundary: Some(
+                crate::mir::StringCorridorPublicationBoundary::FirstExternalBoundary,
+            ),
         }],
     );
     module.functions.insert("main".to_string(), function);
@@ -82,6 +85,10 @@ fn build_mir_json_root_emits_string_corridor_candidates() {
     assert_eq!(value_candidates.len(), 1);
     assert_eq!(value_candidates[0]["kind"], "direct_kernel_entry");
     assert_eq!(value_candidates[0]["state"], "candidate");
+    assert_eq!(
+        value_candidates[0]["publication_boundary"],
+        "first_external_boundary"
+    );
     assert_eq!(
         value_candidates[0]["reason"],
         "borrowed slice corridor can target a direct kernel entry before publication"
@@ -146,6 +153,9 @@ fn build_mir_json_root_emits_string_kernel_plans() {
                 state: crate::mir::StringCorridorCandidateState::AlreadySatisfied,
                 reason: "publish boundary is already sunk at the current corridor exit",
                 plan: Some(plan),
+                publication_boundary: Some(
+                    crate::mir::StringCorridorPublicationBoundary::FirstExternalBoundary,
+                ),
             },
             crate::mir::StringCorridorCandidate {
                 kind: crate::mir::StringCorridorCandidateKind::DirectKernelEntry,
@@ -153,6 +163,9 @@ fn build_mir_json_root_emits_string_kernel_plans() {
                 reason:
                     "borrowed slice corridor can target a direct kernel entry before publication",
                 plan: Some(plan),
+                publication_boundary: Some(
+                    crate::mir::StringCorridorPublicationBoundary::FirstExternalBoundary,
+                ),
             },
         ],
     );
@@ -171,6 +184,7 @@ fn build_mir_json_root_emits_string_kernel_plans() {
     assert_eq!(plan["source_root"], 1);
     assert_eq!(plan["known_length"], 2);
     assert_eq!(plan["retained_form"], "borrowed_text");
+    assert_eq!(plan["publication_boundary"], "first_external_boundary");
     assert_eq!(plan["barriers"]["publication"], "already_satisfied");
     assert_eq!(plan["consumer"], "direct_kernel_entry");
     assert_eq!(plan["direct_kernel_entry"]["state"], "candidate");
@@ -211,6 +225,7 @@ fn build_mir_json_root_emits_string_kernel_plan_loop_payload() {
                         shared_source: true,
                     },
             }),
+            publication_boundary: None,
         }],
     );
     module.functions.insert("main".to_string(), function);
