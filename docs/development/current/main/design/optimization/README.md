@@ -34,9 +34,10 @@ The current mechanism inventory now lives in:
 
 Read that SSOT when you need:
 
-- the current optimization rows
+- the current optimization taxonomy
+- the current `substrate / producer / exporter / consumer` reading
 - `landed mechanism / owner seam / scaffold / backlog` status
-- legacy wording (`DCE`, `Escape`, `Float`, `Closure`, `handle ABI -> value ABI`) mapped to current rows
+- legacy wording (`DCE`, `Escape`, `Float`, `Closure`, `handle ABI -> value ABI`) mapped to current roles/rows
 
 ## What has been done
 
@@ -54,6 +55,7 @@ The current optimization method is stable and intentionally narrow.
 3. Split into leaf-proof, micro, meso, and ASM/MIR probe ladders only after the route is stable.
 4. Keep optimization metadata parse/noop until the activation rules are met.
 5. Do not mix route/perf work with broad substrate redesign.
+6. Do not read `LLVM attrs`, `C ABI corridor`, `ThinLTO`, or `PGO` as authority rows.
 
 The detailed ladder and gate rules live in:
 
