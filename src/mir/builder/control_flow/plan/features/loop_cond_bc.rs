@@ -340,7 +340,7 @@ fn lower_loop_cond_body_items(
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
     break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
     body: &crate::mir::builder::control_flow::plan::recipes::RecipeBody,
-    items: &[crate::mir::builder::control_flow::plan::loop_cond::break_continue_recipe::LoopCondBreakContinueItem],
+    items: &[crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem],
     propagate_nested: bool,
 ) -> Result<Vec<LoweredRecipe>, String> {
     let mut carrier_updates = BTreeMap::new();

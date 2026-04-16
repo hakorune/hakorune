@@ -22,8 +22,8 @@ use super::starts_with_facts::try_extract_starts_with_facts;
 use super::stmt_view::flatten_scope_boxes;
 use super::string_is_integer_facts::try_extract_string_is_integer_facts;
 use super::{try_extract_if_phi_join_facts, try_extract_loop_continue_only_facts};
-use crate::mir::builder::control_flow::facts::loop_collect_using_entries_v0::try_extract_loop_collect_using_entries_v0_facts;
 use crate::mir::builder::control_flow::facts::loop_bundle_resolver_v0::try_extract_loop_bundle_resolver_v0_facts;
+use crate::mir::builder::control_flow::facts::loop_collect_using_entries_v0::try_extract_loop_collect_using_entries_v0_facts;
 use crate::mir::builder::control_flow::facts::loop_cond_break_continue::{
     LoopCondBreakAcceptKind, LoopCondBreakContinueFacts,
 };
@@ -43,10 +43,10 @@ use crate::mir::builder::control_flow::plan::loop_cond::break_continue_entry::{
     try_extract_loop_cond_break_continue_facts,
     try_extract_loop_cond_break_continue_facts_with_limit,
 };
-use crate::mir::builder::control_flow::plan::loop_cond::break_continue_recipe::LoopCondBreakContinueItem;
 use crate::mir::builder::control_flow::plan::loop_scan_v0::try_extract_loop_scan_v0_facts;
 use crate::mir::builder::control_flow::plan::loop_true_break_continue::facts::try_extract_loop_true_break_continue_facts;
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlannerContext};
+use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem;
 
 use super::loop_condition_shape::try_extract_condition_shape;
 use super::loop_scan_with_init::try_extract_scan_with_init_facts;

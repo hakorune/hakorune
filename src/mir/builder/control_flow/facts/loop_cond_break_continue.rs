@@ -6,7 +6,7 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::ExitAllowedBlockRecipe;
-use crate::mir::builder::control_flow::plan::loop_cond::break_continue_recipe::LoopCondBreakContinueRecipe;
+use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueRecipe;
 use crate::mir::policies::BodyLoweringPolicy;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

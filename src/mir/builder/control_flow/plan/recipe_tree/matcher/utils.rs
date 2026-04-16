@@ -196,10 +196,10 @@ pub(crate) fn verify_exit_only_block_recipe(
 }
 
 pub(crate) fn verify_loop_cond_break_continue_recipe_items(
-    recipe: &crate::mir::builder::control_flow::plan::loop_cond::break_continue_recipe::LoopCondBreakContinueRecipe,
+    recipe: &crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueRecipe,
     context: &str,
 ) -> Result<(), Freeze> {
-    use crate::mir::builder::control_flow::plan::loop_cond::break_continue_recipe::LoopCondBreakContinueItem;
+    use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem;
 
     let body_len = recipe.body.len();
     for (idx, item) in recipe.items.iter().enumerate() {

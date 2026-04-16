@@ -2,9 +2,9 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::ExitAllowedBlockRecipe;
 use crate::mir::builder::control_flow::plan::facts::no_exit_block::NoExitBlockRecipe;
-use crate::mir::builder::control_flow::plan::loop_cond::break_continue_recipe::LoopCondBreakContinueRecipe;
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueRecipe;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
