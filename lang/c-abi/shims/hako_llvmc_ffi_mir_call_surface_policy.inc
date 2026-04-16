@@ -13,6 +13,8 @@
         HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_NONE = 0,
         HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_CONCAT_HH,
         HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_CONCAT3_HHH,
+        HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_INSERT_HSI,
+        HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_SUBSTRING_HII,
         HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_SUBSTRING_CONCAT_HHII,
         HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_SUBSTRING_CONCAT3_HHHII,
         HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_SUBSTRING_LEN_HII,
@@ -44,6 +46,12 @@
         }
         if (mname && !strcmp(mname, "nyash.string.concat3_hhh")) {
           return HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_CONCAT3_HHH;
+        }
+        if (mname && !strcmp(mname, "nyash.string.insert_hsi")) {
+          return HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_INSERT_HSI;
+        }
+        if (mname && !strcmp(mname, "nyash.string.substring_hii")) {
+          return HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_SUBSTRING_HII;
         }
         if (mname && !strcmp(mname, "nyash.string.substring_concat_hhii")) {
           return HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_SUBSTRING_CONCAT_HHII;

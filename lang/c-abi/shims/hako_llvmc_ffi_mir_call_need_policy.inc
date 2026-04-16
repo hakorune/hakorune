@@ -212,8 +212,13 @@
           const char* mname) {
         if (mname &&
             (!strcmp(mname, "nyash.string.concat_hh") ||
-             !strcmp(mname, "nyash.string.concat3_hhh"))) {
+             !strcmp(mname, "nyash.string.concat3_hhh") ||
+             !strcmp(mname, "nyash.string.insert_hsi"))) {
           return HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT;
+        }
+        if (mname &&
+            !strcmp(mname, "nyash.string.substring_hii")) {
+          return HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING;
         }
         if (mname &&
             (!strcmp(mname, "nyash.string.substring_concat_hhii") ||

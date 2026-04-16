@@ -52,6 +52,38 @@ pub(super) fn complementary_pair_source_len(
     None
 }
 
+pub(super) fn ordered_complementary_substring_pair_source_split(
+    function: &MirFunction,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    lhs: &SubstringCallProducerShape,
+    rhs: &SubstringCallProducerShape,
+) -> Option<(ValueId, ValueId)> {
+    let lhs_source = string_source_identity(function, def_map, lhs.source)?;
+    let rhs_source = string_source_identity(function, def_map, rhs.source)?;
+    if lhs_source != rhs_source {
+        return None;
+    }
+
+    let shared_source_root = resolve_value_origin(function, def_map, lhs.source);
+    if !value_is_const_i64(function, def_map, lhs.start, 0) {
+        return None;
+    }
+
+    let split = resolve_value_origin(function, def_map, lhs.end);
+    let rhs_start = resolve_value_origin(function, def_map, rhs.start);
+    if rhs_start != split {
+        return None;
+    }
+
+    if match_source_length_value(function, def_map, &lhs_source, rhs.end).is_some() {
+        return Some((shared_source_root, split));
+    }
+
+    let stable_len = stable_length_value_for_source(function, shared_source_root)?;
+    let rhs_end = resolve_value_origin(function, def_map, rhs.end);
+    (rhs_end == stable_len).then_some((shared_source_root, split))
+}
+
 pub(super) fn substring_pair_shares_source(
     function: &MirFunction,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,

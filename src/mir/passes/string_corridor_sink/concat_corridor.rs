@@ -129,6 +129,70 @@ pub(super) fn collect_concat_corridor_plans(
                 else {
                     continue;
                 };
+                let Some(left_shape) = match_substring_call_shape(function, def_map, left) else {
+                    continue;
+                };
+                let Some(right_shape) = match_substring_call_shape(function, def_map, right) else {
+                    continue;
+                };
+                if let Some((source, split)) = ordered_complementary_substring_pair_source_split(
+                    function,
+                    def_map,
+                    &left_shape,
+                    &right_shape,
+                ) {
+                    let Some(left_chain) = resolve_single_use_copy_chain_in_block(
+                        function, *bbid, def_map, use_counts, left,
+                    ) else {
+                        continue;
+                    };
+                    let Some(right_chain) = resolve_single_use_copy_chain_in_block(
+                        function, *bbid, def_map, use_counts, right,
+                    ) else {
+                        continue;
+                    };
+                    let Some((left_root_bbid, left_root_idx)) =
+                        def_map.get(&left_chain.root).copied()
+                    else {
+                        continue;
+                    };
+                    let Some((right_root_bbid, right_root_idx)) =
+                        def_map.get(&right_chain.root).copied()
+                    else {
+                        continue;
+                    };
+                    if left_root_bbid != *bbid
+                        || right_root_bbid != *bbid
+                        || left_root_idx >= outer_idx
+                        || right_root_idx >= outer_idx
+                    {
+                        continue;
+                    }
+                    if match_substring_call(&block.instructions[left_root_idx]).is_none()
+                        || match_substring_call(&block.instructions[right_root_idx]).is_none()
+                    {
+                        continue;
+                    }
+                    let mut remove_indices: BTreeSet<usize> = BTreeSet::new();
+                    remove_indices.insert(left_root_idx);
+                    remove_indices.insert(right_root_idx);
+                    remove_indices.extend(left_chain.copy_indices.iter().copied());
+                    remove_indices.extend(right_chain.copy_indices.iter().copied());
+                    plans.push(ConcatCorridorPlan::InsertMidSubstring(
+                        InsertMidSubstringPlan {
+                            outer_idx,
+                            outer_dst,
+                            source,
+                            middle,
+                            split,
+                            start: resolve_value_origin(function, def_map, start),
+                            end: resolve_value_origin(function, def_map, end),
+                            effects,
+                            remove_indices: remove_indices.into_iter().collect(),
+                        },
+                    ));
+                    continue;
+                }
                 if !substring_pair_shares_source(function, def_map, left, right) {
                     continue;
                 }
@@ -195,6 +259,17 @@ enum ResolvedConcatCorridorPlan {
         left: ValueId,
         middle: ValueId,
         right: ValueId,
+        start: ValueId,
+        end: ValueId,
+        effects: EffectMask,
+    },
+    InsertMidSubstring {
+        outer_idx: usize,
+        outer_dst: ValueId,
+        insert_value: ValueId,
+        source: ValueId,
+        middle: ValueId,
+        split: ValueId,
         start: ValueId,
         end: ValueId,
         effects: EffectMask,
@@ -301,6 +376,37 @@ pub(super) fn apply_concat_corridor_plans(
                             left: plan.left,
                             middle: plan.middle,
                             right: plan.right,
+                            start: plan.start,
+                            end: plan.end,
+                            effects: plan.effects,
+                        },
+                    );
+                }
+                ConcatCorridorPlan::InsertMidSubstring(plan) => {
+                    remove_indices.extend(plan.remove_indices.iter().copied());
+                    let insert_value = function.next_value_id();
+                    function.metadata.value_types.insert(
+                        insert_value,
+                        function
+                            .metadata
+                            .value_types
+                            .get(&plan.outer_dst)
+                            .cloned()
+                            .unwrap_or_else(|| MirType::Box("RuntimeDataBox".to_string())),
+                    );
+                    hints.push(format!(
+                        "string_corridor_sink:concat_slice_insert_mid_substring:%{}",
+                        plan.outer_dst.0
+                    ));
+                    resolved_by_idx.insert(
+                        plan.outer_idx,
+                        ResolvedConcatCorridorPlan::InsertMidSubstring {
+                            outer_idx: plan.outer_idx,
+                            outer_dst: plan.outer_dst,
+                            insert_value,
+                            source: plan.source,
+                            middle: plan.middle,
+                            split: plan.split,
                             start: plan.start,
                             end: plan.end,
                             effects: plan.effects,
@@ -467,6 +573,35 @@ pub(super) fn apply_concat_corridor_plans(
                         func: ValueId::INVALID,
                         callee: Some(Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string())),
                         args: vec![*left, *middle, *right, *start, *end],
+                        effects: *effects,
+                    });
+                    new_spans.push(span);
+                    rewritten += 1;
+                }
+                ResolvedConcatCorridorPlan::InsertMidSubstring {
+                    outer_dst,
+                    insert_value,
+                    source,
+                    middle,
+                    split,
+                    start,
+                    end,
+                    effects,
+                    ..
+                } => {
+                    new_insts.push(MirInstruction::Call {
+                        dst: Some(*insert_value),
+                        func: ValueId::INVALID,
+                        callee: Some(Callee::Extern(INSERT_HSI_EXTERN.to_string())),
+                        args: vec![*source, *middle, *split],
+                        effects: *effects,
+                    });
+                    new_spans.push(span.clone());
+                    new_insts.push(MirInstruction::Call {
+                        dst: Some(*outer_dst),
+                        func: ValueId::INVALID,
+                        callee: Some(Callee::Extern("nyash.string.substring_hii".to_string())),
+                        args: vec![*insert_value, *start, *end],
                         effects: *effects,
                     });
                     new_spans.push(span);

@@ -388,6 +388,83 @@
           return 1;
         }
 
+        if (kind == HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_INSERT_HSI) {
+          long long source = 0;
+          long long middle = 0;
+          long long split = 0;
+          const char* middle_const = NULL;
+          if (argc != 3) return -1;
+          source = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
+          middle = (long long)yyjson_get_sint(yyjson_arr_get(args, 1));
+          split = (long long)yyjson_get_sint(yyjson_arr_get(args, 2));
+          middle_const = get_str_const(middle);
+          if (!middle_const) return -1;
+          append_i64_arg_ref(ab, sizeof(ab), source, 1);
+          strncat(ab, ", ptr getelementptr inbounds (", sizeof(ab) - strlen(ab) - 1);
+          {
+            char tail[128];
+            snprintf(
+                tail,
+                sizeof(tail),
+                "[%zu x i8], ptr @.str_reg_%lld, i64 0, i64 0)",
+                strlen(middle_const) + 1,
+                middle);
+            strncat(ab, tail, sizeof(ab) - strlen(ab) - 1);
+          }
+          append_i64_arg_ref(ab, sizeof(ab), split, 0);
+          if (dst) {
+            fprintf(f, "  %%r%lld = call i64 @\"nyash.string.insert_hsi\"(%s)\n", dst, ab);
+            finalize_string_concat_result(dst);
+          } else {
+            fprintf(f, "  call i64 @\"nyash.string.insert_hsi\"(%s)\n", ab);
+          }
+          if (hako_llvmc_route_trace_enabled()) {
+            char extra[192];
+            snprintf(
+                extra,
+                sizeof(extra),
+                "argc=%zu source=%lld middle=%lld split=%lld",
+                argc,
+                source,
+                middle,
+                split);
+            hako_llvmc_emit_route_trace(
+                "mir_call_string_extern",
+                "hit",
+                "insert_hsi",
+                extra);
+          }
+          return 1;
+        }
+
+        if (kind == HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_SUBSTRING_HII) {
+          if (argc != 3) return -1;
+          append_i64_arg_ref(
+              ab, sizeof(ab), (long long)yyjson_get_sint(yyjson_arr_get(args, 0)), 1);
+          append_i64_arg_ref(
+              ab, sizeof(ab), (long long)yyjson_get_sint(yyjson_arr_get(args, 1)), 0);
+          append_i64_arg_ref(
+              ab, sizeof(ab), (long long)yyjson_get_sint(yyjson_arr_get(args, 2)), 0);
+          if (dst) {
+            fprintf(f, "  %%r%lld = call i64 @\"nyash.string.substring_hii\"(%s)\n", dst, ab);
+            set_type(dst, T_I64);
+            set_origin(dst, ORG_STRING);
+            set_scan_origin(dst, ORG_STRING);
+          } else {
+            fprintf(f, "  call i64 @\"nyash.string.substring_hii\"(%s)\n", ab);
+          }
+          if (hako_llvmc_route_trace_enabled()) {
+            char extra[192];
+            snprintf(extra, sizeof(extra), "argc=%zu args=%s", argc, ab);
+            hako_llvmc_emit_route_trace(
+                "mir_call_string_extern",
+                "hit",
+                "substring_hii",
+                extra);
+          }
+          return 1;
+        }
+
         if (kind == HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_SUBSTRING_CONCAT_HHII) {
           if (argc != 4) return -1;
           append_i64_arg_ref(

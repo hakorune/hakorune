@@ -118,7 +118,9 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
         .compile_with_source(ast, Some(path))
         .expect("compile benchmark");
 
+    let mut saw_insert_mid = false;
     let mut saw_helper = false;
+    let mut substring_call_count = 0usize;
     let mut leftover_concat_consumers = Vec::new();
     let mut leftover_concat_lengths = Vec::new();
     let mut leftover_substring_len = Vec::new();
@@ -127,6 +129,19 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
         for (bbid, block) in &function.blocks {
             for inst in &block.instructions {
                 match inst {
+                    MirInstruction::Call {
+                        callee: Some(Callee::Extern(callee)),
+                        ..
+                    } if callee == INSERT_HSI_EXTERN => {
+                        saw_insert_mid = true;
+                    }
+                    MirInstruction::Call {
+                        callee: Some(Callee::Extern(callee)),
+                        args,
+                        ..
+                    } if callee == "nyash.string.substring_hii" && args.len() == 3 => {
+                        substring_call_count += 1;
+                    }
                     MirInstruction::Call {
                         callee: Some(Callee::Extern(callee)),
                         ..
@@ -150,6 +165,17 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
                             "fn={name} bb={} concat substring inst={inst:?}",
                             bbid.0
                         ));
+                    }
+                    MirInstruction::Call {
+                        callee:
+                            Some(Callee::Method {
+                                method,
+                                ..
+                            }),
+                        args,
+                        ..
+                    } if matches!(method.as_str(), "substring" | "slice") && args.len() == 2 => {
+                        substring_call_count += 1;
                     }
                     MirInstruction::Call {
                         callee:
@@ -184,7 +210,14 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
         }
     }
 
-    assert!(saw_helper, "benchmark should emit substring_concat3 helper");
+    assert!(
+        saw_insert_mid,
+        "benchmark should emit delete-oriented insert_hsi rewrite"
+    );
+    assert!(
+        !saw_helper,
+        "benchmark should retire substring_concat3 helper for the exact front"
+    );
     assert!(
         leftover_concat_consumers.is_empty(),
         "substring_concat should sink concat substring consumers, found {:?}",
@@ -199,6 +232,10 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
         leftover_substring_len.is_empty(),
         "substring_concat should fuse loop substring_len_hii away, found {:?}",
         leftover_substring_len
+    );
+    assert_eq!(
+        substring_call_count, 1,
+        "delete-oriented rewrite should leave only the final outer substring call"
     );
 }
 

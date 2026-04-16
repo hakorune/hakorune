@@ -175,17 +175,56 @@ fn rewrites_concat_slice_consumers_to_corridor_helpers() {
             matches!(
                 inst,
                 MirInstruction::Call {
+                    callee: Some(Callee::Extern(name)),
+                    args,
+                    ..
+                } if name == INSERT_HSI_EXTERN
+                    && args.as_slice() == [ValueId(0), ValueId(7), ValueId(3)]
+            )
+        }),
+        "concat substring should delete producer substrings via insert_hsi: {:?}",
+        block.instructions
+    );
+    assert!(
+        block.instructions.iter().any(|inst| {
+            matches!(
+                inst,
+                MirInstruction::Call {
                     dst: Some(dst),
                     callee: Some(Callee::Extern(name)),
                     args,
                     ..
                 } if *dst == ValueId(13)
-                    && name == SUBSTRING_CONCAT3_EXTERN
-                    && args.as_slice()
-                        == [ValueId(5), ValueId(7), ValueId(6), ValueId(11), ValueId(12)]
+                    && name == "nyash.string.substring_hii"
+                    && args.len() == 3
+                    && args[1] == ValueId(11)
+                    && args[2] == ValueId(12)
             )
         }),
-        "concat substring should rewrite to substring_concat3 helper: {:?}",
+        "outer substring should remain as one direct substring_hii on insert result: {:?}",
+        block.instructions
+    );
+    let substring_calls: Vec<_> = block
+        .instructions
+        .iter()
+        .filter(|inst| match inst {
+            MirInstruction::Call {
+                callee: Some(Callee::Method { method, .. }),
+                args,
+                ..
+            } => args.len() == 2 && matches!(method.as_str(), "substring" | "slice"),
+            MirInstruction::Call {
+                callee: Some(Callee::Extern(name)),
+                args,
+                ..
+            } => args.len() == 3 && name == "nyash.string.substring_hii",
+            _ => false,
+        })
+        .collect();
+    assert_eq!(
+        substring_calls.len(),
+        1,
+        "delete-oriented rewrite should retire producer substring calls: {:?}",
         block.instructions
     );
 }

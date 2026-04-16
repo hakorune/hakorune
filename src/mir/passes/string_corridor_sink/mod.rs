@@ -28,6 +28,7 @@ use crate::mir::{
 
 pub const SUBSTRING_LEN_EXTERN: &str = "nyash.string.substring_len_hii";
 pub const SUBSTRING_CONCAT3_EXTERN: &str = "nyash.string.substring_concat3_hhhii";
+pub const INSERT_HSI_EXTERN: &str = "nyash.string.insert_hsi";
 
 mod concat_corridor;
 mod fusion;
@@ -194,6 +195,19 @@ struct ConcatSubstringPlan {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+struct InsertMidSubstringPlan {
+    outer_idx: usize,
+    outer_dst: ValueId,
+    source: ValueId,
+    middle: ValueId,
+    split: ValueId,
+    start: ValueId,
+    end: ValueId,
+    effects: EffectMask,
+    remove_indices: Vec<usize>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 struct PublicationHelperLenPlan {
     outer_idx: usize,
     outer_dst: ValueId,
@@ -282,6 +296,7 @@ enum ReturnSite {
 enum ConcatCorridorPlan {
     Len(ConcatSubstringLenPlan),
     Substring(ConcatSubstringPlan),
+    InsertMidSubstring(InsertMidSubstringPlan),
     PublicationLen(PublicationHelperLenPlan),
     PublicationSubstring(PublicationHelperSubstringPlan),
     MaterializationStore(MaterializationStorePlan),
