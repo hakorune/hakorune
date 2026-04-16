@@ -1,6 +1,7 @@
 //! Main pipeline functions for loop_cond_continue_only pattern.
 
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::loop_cond_continue_only::LoopCondContinueOnlyFacts;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::body_view::BodyView;
@@ -9,7 +10,6 @@ use crate::mir::builder::control_flow::plan::features::coreloop_frame::build_cor
 use crate::mir::builder::control_flow::plan::features::loop_cond_co_cleanup::apply_fallthrough_continue_exit;
 use crate::mir::builder::control_flow::plan::features::loop_cond_co_phi_materializer::materialize_loop_cond_continue_only_phi_closure;
 use crate::mir::builder::control_flow::plan::features::loop_cond_co_verifier::verify_loop_cond_continue_only_phi_closure;
-use crate::mir::builder::control_flow::facts::loop_cond_continue_only::LoopCondContinueOnlyFacts;
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::normalizer::lower_loop_header_cond;
 use crate::mir::builder::control_flow::plan::steps::{

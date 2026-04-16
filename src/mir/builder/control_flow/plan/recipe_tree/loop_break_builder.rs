@@ -22,9 +22,9 @@ use crate::mir::builder::control_flow::plan::recipe_tree::{
     BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies,
     RecipeItem,
 };
+use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
-use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
 
 /// Dummy span for synthetic AST nodes.
 fn dummy_span() -> Span {

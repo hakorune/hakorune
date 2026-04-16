@@ -9,9 +9,7 @@ pub(crate) fn emit_planner_first(mode: PlannerFirstMode, env: &RouterEnv, rule: 
     };
     if emit {
         let msg =
-            crate::mir::builder::control_flow::lower::tags::planner_first_tag_with_label(
-                rule,
-            );
+            crate::mir::builder::control_flow::lower::tags::planner_first_tag_with_label(rule);
         // Gate sentinel: in strict+planner_required mode, emit stable, prefix-free tags (stderr)
         // so hermetic smokes can validate routing without depending on `NYASH_RING0_LOG_LEVEL`.
         //

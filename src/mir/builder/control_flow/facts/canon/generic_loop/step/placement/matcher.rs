@@ -35,7 +35,11 @@ pub(in crate::mir::builder) fn collect_conditional_step_indices(
     (continue_indices, break_else_indices)
 }
 
-fn collect_next_step_vars(body: &[ASTNode], loop_var: &str, loop_increment: &ASTNode) -> Vec<String> {
+fn collect_next_step_vars(
+    body: &[ASTNode],
+    loop_var: &str,
+    loop_increment: &ASTNode,
+) -> Vec<String> {
     let mut vars = Vec::new();
     for stmt in body {
         let ASTNode::Local {

@@ -1,6 +1,6 @@
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::recipes::RecipeBody;
 use crate::mir::builder::control_flow::recipes::loop_scan_methods_block_v0::LoopScanMethodsBlockV0Recipe;
+use crate::mir::builder::control_flow::recipes::RecipeBody;
 use crate::mir::policies::BodyLoweringPolicy;
 
 use crate::mir::builder::control_flow::facts::loop_scan_methods_block_v0_helpers::{

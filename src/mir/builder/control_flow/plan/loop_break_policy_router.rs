@@ -18,13 +18,18 @@ use crate::mir::builder::control_flow::cleanup::policies::PolicyDecision;
 pub(crate) struct LoopBreakPolicyRouting {
     pub allowed_body_locals_for_conditions: Vec<String>,
     pub body_local_handling: BodyLocalHandlingPolicy,
-    pub read_only_body_local_slot: Option<crate::mir::join_ir::lowering::common::body_local_slot::ReadOnlyBodyLocalSlot>,
+    pub read_only_body_local_slot:
+        Option<crate::mir::join_ir::lowering::common::body_local_slot::ReadOnlyBodyLocalSlot>,
     pub break_condition_node: ASTNode,
     pub is_loop_true_read_digits: bool,
-    pub balanced_depth_scan_recipe:
-        Option<crate::mir::join_ir::lowering::common::balanced_depth_scan_emitter::BalancedDepthScanRecipe>,
+    pub balanced_depth_scan_recipe: Option<
+        crate::mir::join_ir::lowering::common::balanced_depth_scan_emitter::BalancedDepthScanRecipe,
+    >,
     pub carrier_updates_override: Option<
-        std::collections::BTreeMap<String, crate::mir::join_ir::lowering::loop_update_analyzer::UpdateExpr>,
+        std::collections::BTreeMap<
+            String,
+            crate::mir::join_ir::lowering::loop_update_analyzer::UpdateExpr,
+        >,
     >,
     pub post_loop_early_return:
         Option<crate::mir::policies::post_loop_early_return_plan::PostLoopEarlyReturnPlan>,

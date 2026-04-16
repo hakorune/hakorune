@@ -1,5 +1,6 @@
 use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
+use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
 use crate::mir::builder::control_flow::plan::facts::feature_facts::{
     LoopFeatureFacts, ValueJoinFacts,
 };
@@ -8,7 +9,6 @@ use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
     ConditionShape, SplitScanShape, StepShape,
 };
 use crate::mir::builder::control_flow::plan::facts::skeleton_facts::{SkeletonFacts, SkeletonKind};
-use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
 use crate::mir::builder::control_flow::plan::CorePlan;
 use crate::mir::builder::MirBuilder;
 use crate::mir::MirType;

@@ -10,10 +10,10 @@ use super::coreloop_v1::{
 };
 use super::coreloop_v2_nested_minimal::try_compose_core_loop_v2_nested_minimal;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
+use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::facts::scan_shapes::{
     cond_profile_from_scan_shapes, match_scan_with_init_shape, ConditionShape, SplitScanShape,
 };
-use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
 use crate::mir::builder::control_flow::plan::{scan_direction_from_step_lit, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
@@ -169,6 +169,7 @@ mod tests {
     use super::try_compose_core_loop_from_facts;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
     use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
+    use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
     use crate::mir::builder::control_flow::plan::facts::feature_facts::{
         LoopFeatureFacts, ValueJoinFacts,
     };
@@ -180,7 +181,6 @@ mod tests {
         SkeletonFacts, SkeletonKind,
     };
     use crate::mir::builder::control_flow::plan::facts::LoopFacts;
-    use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
     use crate::mir::builder::MirBuilder;
     use crate::mir::MirType;
 

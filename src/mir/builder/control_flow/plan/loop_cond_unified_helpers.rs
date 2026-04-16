@@ -4,10 +4,10 @@
 //! continue_with_return, return_in_body, and true_break_continue.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::facts::expr_bool::is_supported_bool_expr_with_canon;
 use crate::mir::builder::control_flow::facts::extractors::common_helpers::{
     count_control_flow, is_true_literal, ControlFlowCounts, ControlFlowDetector,
 };
-use crate::mir::builder::control_flow::facts::expr_bool::is_supported_bool_expr_with_canon;
 
 /// Validates entry gate (planner_required check).
 /// Returns true if gate passes, false if gate rejects.
@@ -32,7 +32,9 @@ pub(in crate::mir::builder) fn validate_loop_condition(condition: &ASTNode) -> b
 }
 
 /// Counts control flow with returns enabled.
-pub(in crate::mir::builder) fn count_control_flow_with_returns(body: &[ASTNode]) -> ControlFlowCounts {
+pub(in crate::mir::builder) fn count_control_flow_with_returns(
+    body: &[ASTNode],
+) -> ControlFlowCounts {
     let mut detector = ControlFlowDetector::default();
     detector.count_returns = true;
     count_control_flow(body, detector)

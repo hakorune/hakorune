@@ -170,12 +170,10 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_break_continue_facts_inner(
         return Ok(None);
     }
 
-    let program_block_seen = recipe.items.iter().any(|item| {
-        matches!(
-            item,
-            LoopCondBreakContinueItem::ProgramBlock { .. }
-        )
-    });
+    let program_block_seen = recipe
+        .items
+        .iter()
+        .any(|item| matches!(item, LoopCondBreakContinueItem::ProgramBlock { .. }));
     let has_exit_signal = counts.break_count > 0
         || counts.continue_count > 0
         || counts.return_count > 0

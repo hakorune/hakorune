@@ -3,9 +3,9 @@
 //! This module contains simple inference/utility functions that don't belong
 //! in the main orchestration logic.
 
+use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::facts::feature_facts::ExitUsageFacts;
 use crate::mir::builder::control_flow::plan::facts::skeleton_facts::SkeletonKind;
-use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 
 /// Infer skeleton kind from facts (trivial accessor)
 pub(super) fn infer_skeleton_kind(facts: &CanonicalLoopFacts) -> Option<SkeletonKind> {

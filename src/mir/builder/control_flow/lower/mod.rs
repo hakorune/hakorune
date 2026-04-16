@@ -13,6 +13,6 @@ pub(in crate::mir::builder) use self::planner_compat::{
     build_plan_with_facts, build_plan_with_facts_ctx, planner_rule_route_label,
     planner_rule_semantic_label, planner_rule_tag_name, tags, try_build_outcome, CoreBranchArmPlan,
     CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfJoin, CoreIfPlan, CoreLoopPlan, CorePlan,
-    ExitKind, Frag, Freeze, LoopStepMode, LoweredRecipe, PlanBuildOutcome, PlanLowerer,
-    PlanRuleId, PlannerContext,
+    ExitKind, Frag, Freeze, LoopStepMode, LoweredRecipe, PlanBuildOutcome, PlanLowerer, PlanRuleId,
+    PlannerContext,
 };

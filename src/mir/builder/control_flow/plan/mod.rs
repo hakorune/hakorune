@@ -187,6 +187,8 @@ pub(in crate::mir::builder) mod route_prep_pipeline;
 // - PlanVerifier::verify (CorePlan invariants)
 // - PlanLowerer::lower (CorePlan → MIR)
 #[allow(unused_imports)]
+pub(in crate::mir::builder) use crate::mir::builder::control_flow::verify::PlanVerifier;
+#[allow(unused_imports)]
 pub(in crate::mir::builder) use lowerer::PlanLowerer;
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use normalizer::PlanNormalizer;
@@ -194,8 +196,6 @@ pub(in crate::mir::builder) use normalizer::PlanNormalizer;
 pub(in crate::mir::builder) use planner::{
     build_plan_with_facts, build_plan_with_facts_ctx, PlanBuildOutcome,
 };
-#[allow(unused_imports)]
-pub(in crate::mir::builder) use crate::mir::builder::control_flow::verify::PlanVerifier;
 
 pub(in crate::mir::builder) use branchn::{CoreBranchArmPlan, CoreBranchNPlan};
 pub(in crate::mir::builder) use plan_build_session::PlanBuildSession;
@@ -208,9 +208,9 @@ pub(in crate::mir::builder) use plan_build_session::PlanBuildSession;
 pub(in crate::mir::builder) use self::core::{
     CoreIfJoin, CoreIfPlan, CoreLoopPlan, CorePhiInfo, CorePlan, LoopStepMode, LoweredRecipe,
 };
+pub(in crate::mir::builder) use self::edgecfg_facade::Frag;
 pub(in crate::mir::builder) use self::effect::CoreEffectPlan;
 pub(in crate::mir::builder) use self::exit::CoreExitPlan;
-pub(in crate::mir::builder) use self::edgecfg_facade::Frag;
 
 // Domain types
 #[cfg(test)]

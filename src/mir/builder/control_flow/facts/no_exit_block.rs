@@ -7,13 +7,13 @@
 //! - Keep the shape checks and vocabulary checks in Facts (no re-check in features).
 
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::facts::block_policies::is_allowed_effect_stmt;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::expr_bool::is_supported_bool_expr_with_canon;
 use crate::mir::builder::control_flow::facts::extractors::common_helpers::{
     count_control_flow, ControlFlowDetector,
 };
-use crate::mir::builder::control_flow::facts::block_policies::is_allowed_effect_stmt;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_in_arena;
-use crate::mir::builder::control_flow::facts::expr_bool::is_supported_bool_expr_with_canon;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies,
     RecipeItem,

@@ -1,8 +1,8 @@
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::cleanup::policies::PolicyDecision;
 use crate::mir::builder::control_flow::plan::loop_break_prep_box::{
     BodyLocalHandlingPolicy, LoopBreakPrepInputs,
 };
-use crate::mir::builder::control_flow::cleanup::policies::PolicyDecision;
 use crate::mir::builder::MirBuilder;
 
 use super::super::super::body_local_policy::{

@@ -7,7 +7,6 @@ use crate::mir::builder::control_flow::recipes::loop_scan_methods_v0::LoopScanSe
 pub fn verify_loop_scan_methods_v0_recipe(
     scan_methods: &crate::mir::builder::control_flow::facts::loop_scan_methods_v0::LoopScanMethodsV0Facts,
 ) -> Result<(), Freeze> {
-
     for (idx, segment) in scan_methods.recipe.segments.iter().enumerate() {
         match segment {
             LoopScanSegment::Linear(recipe) => {

@@ -7,9 +7,9 @@
 
 use crate::mir::builder::control_flow::plan::normalizer::lower_cond_branch;
 use crate::mir::builder::control_flow::plan::normalizer::lower_cond_value;
+use crate::mir::builder::control_flow::plan::recipe_tree::join_scope::collect_branch_local_vars_from_block_recursive;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeBlock;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeBodies;
-use crate::mir::builder::control_flow::plan::recipe_tree::join_scope::collect_branch_local_vars_from_block_recursive;
 use crate::mir::builder::control_flow::plan::steps::build_join_payload;
 use crate::mir::builder::control_flow::plan::steps::build_join_payload_filtered;
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;

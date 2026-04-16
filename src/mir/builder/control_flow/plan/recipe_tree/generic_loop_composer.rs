@@ -2,8 +2,8 @@
 
 use super::RecipeComposer;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::features::generic_loop_pipeline;
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
+use crate::mir::builder::control_flow::plan::features::generic_loop_pipeline;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::skeletons::generic_loop::alloc_generic_loop_v0_skeleton;
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};

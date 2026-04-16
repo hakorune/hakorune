@@ -4,8 +4,8 @@
 //! Phase C2: centralizes loop-break verification.
 
 use super::contracts::{RecipeContract, RecipeContractKind, StmtConstraint};
-use crate::mir::builder::control_flow::plan::facts::feature_facts::ExitKindFacts;
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
+use crate::mir::builder::control_flow::plan::facts::feature_facts::ExitKindFacts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 mod loop_cond;

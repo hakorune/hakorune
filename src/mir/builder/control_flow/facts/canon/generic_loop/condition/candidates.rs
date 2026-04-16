@@ -90,9 +90,7 @@ pub(in crate::mir::builder) fn extract_var_candidate(expr: &ASTNode) -> Option<S
     }
 }
 
-pub(in crate::mir::builder) fn is_supported_comparison_operator(
-    operator: &BinaryOperator,
-) -> bool {
+pub(in crate::mir::builder) fn is_supported_comparison_operator(operator: &BinaryOperator) -> bool {
     matches!(
         operator,
         BinaryOperator::Less

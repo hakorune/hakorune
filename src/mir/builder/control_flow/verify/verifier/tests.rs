@@ -13,15 +13,15 @@ mod tests {
     #[cfg(debug_assertions)]
     use crate::mir::builder::control_flow::facts::LoopFacts;
     use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
-    use crate::mir::builder::control_flow::plan::step_mode::{
-        extract_to_step_bb_explicit_step, inline_in_body_explicit_step,
-    };
     use crate::mir::builder::control_flow::lower::{
         CoreBranchArmPlan, CoreBranchNPlan, CoreEffectPlan, CoreExitPlan, CoreIfJoin, CoreIfPlan,
         CoreLoopPlan, CorePlan, Frag,
     };
     use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
     use crate::mir::builder::control_flow::plan::features::loop_carriers::build_loop_phi_info;
+    use crate::mir::builder::control_flow::plan::step_mode::{
+        extract_to_step_bb_explicit_step, inline_in_body_explicit_step,
+    };
     use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
     use crate::mir::EdgeArgs;
     use crate::mir::{BasicBlockId, ConstValue, ValueId};
