@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
-GATE="$ROOT_DIR/tools/smokes/v2/profiles/integration/apps/phase29x_vm_hako_s6_parity_gate_vm.sh"
+GATE="$ROOT_DIR/tools/smokes/v2/profiles/integration/phase29x/vm_hako/phase29x_vm_hako_s6_parity_gate_vm.sh"
 
 cd "$ROOT_DIR"
 

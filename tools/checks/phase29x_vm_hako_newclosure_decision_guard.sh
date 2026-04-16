@@ -5,7 +5,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 DOC_X50="$ROOT_DIR/docs/development/current/main/phases/phase-29x/29x-77-newclosure-contract-lock-ssot.md"
 DOC_X57="$ROOT_DIR/docs/development/current/main/phases/phase-29x/29x-83-vm-hako-newclosure-runtime-lane-decision-refresh-ssot.md"
 ALLOWLIST="$ROOT_DIR/tools/checks/phase29x_vm_hako_s6_vocab_allowlist.txt"
-GATE="$ROOT_DIR/tools/smokes/v2/profiles/integration/apps/phase29x_vm_hako_newclosure_decision_refresh_vm.sh"
+GATE="$ROOT_DIR/tools/smokes/v2/profiles/integration/phase29x/vm_hako/phase29x_vm_hako_newclosure_decision_refresh_vm.sh"
 
 cd "$ROOT_DIR"
 

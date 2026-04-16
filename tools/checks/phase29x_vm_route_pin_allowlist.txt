@@ -9,7 +9,9 @@ tools/smokes/v2/profiles/integration/apps/phase29y_continue_assignment_in_contin
 tools/smokes/v2/profiles/integration/apps/phase29y_hako_using_resolver_parity_vm.sh
 tools/smokes/v2/profiles/integration/apps/phase29y_joinir_reject_detail_vm.sh
 tools/smokes/v2/profiles/integration/apps/phase29y_loop_if_assignment_carry_vm.sh
+tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_await_non_future_reject_vm.sh
 tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_newclosure_probe_vm.sh
+tools/smokes/v2/profiles/integration/apps/phase96x_filebox_missing_open_vm.sh
 tools/smokes/v2/profiles/integration/core/phase2043/lower_load_store_local_direct_struct_canary_vm.sh
 tools/smokes/v2/profiles/integration/core/phase2043/lower_typeop_cast_direct_struct_canary_vm.sh
 tools/smokes/v2/profiles/integration/core/phase2043/lower_typeop_check_direct_struct_canary_vm.sh
@@ -40,6 +42,5 @@ tools/smokes/v2/profiles/integration/ring1_providers/ring1_map_provider_vm.sh
 tools/smokes/v2/profiles/integration/ring1_providers/ring1_path_provider_vm.sh
 tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh
 tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_route_parity_smoke_vm.sh
-tools/smokes/v2/profiles/integration/vm_hako_caps/app1/app1_summary_contract_ported_vm.sh
-tools/smokes/v2/profiles/integration/vm_hako_caps/compare/compare_ge_ported_vm.sh
+tools/smokes/v2/profiles/integration/apps/gate_log_summarizer_vm.sh
 tools/smokes/v2/profiles/integration/vm_hako_caps/compare/compare_ported_vm.sh

@@ -27,10 +27,10 @@ Rust `route_orchestrator` が持つ VM lane 選択規則を `.hako` 側に最小
 
 規則の優先順位:
 
-1. `backend=vm`: `force_fallback=1` なら `compat-fallback`
-2. `backend=vm`: それ以外で `prefer_vm_hako=1` なら `vm-hako`
-3. `backend=vm`: それ以外は `vm`
-4. `backend=vm-hako`: 常に `vm-hako`
+1. `backend=vm`: `force_fallback=1` なら `vm-compat-fallback`
+2. `backend=vm`: それ以外で `prefer_vm_hako=1` なら `vm-hako-reference`
+3. `backend=vm`: それ以外は `rust-vm-keep`
+4. `backend=vm-hako`: 常に `vm-hako-reference`
 
 ## 2. Dual-Run Smoke
 

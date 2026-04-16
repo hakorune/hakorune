@@ -2,7 +2,8 @@
 // Phase 29x X32:
 // - Minimal `.hako` route selection skeleton for VM lane orchestration.
 // - Contract mirrors Rust `decide_vm_route_plan` precedence:
-//   fallback (explicit) > prefer_vm_hako > default(vm), and backend vm-hako is fixed vm-hako lane.
+//   fallback (explicit) > prefer_vm_hako > default(vm), and backend vm-hako is fixed
+//   `vm-hako-reference` lane.
 
 static box VmRouteOrchestratorSkeleton {
   _env_flag(name) {
@@ -22,11 +23,11 @@ static box VmRouteOrchestratorSkeleton {
 
   decide_lane(backend, force_fallback, prefer_vm_hako) {
     if backend == "vm" {
-      if force_fallback == 1 { return "compat-fallback" }
-      if prefer_vm_hako == 1 { return "vm-hako" }
-      return "vm"
+      if force_fallback == 1 { return "vm-compat-fallback" }
+      if prefer_vm_hako == 1 { return "vm-hako-reference" }
+      return "rust-vm-keep"
     }
-    if backend == "vm-hako" { return "vm-hako" }
+    if backend == "vm-hako" { return "vm-hako-reference" }
     return "unknown"
   }
 
