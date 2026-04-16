@@ -323,6 +323,7 @@ fn placement_effect_helper_plan_for_kind(
         start: route.window_start,
         end: route.window_end,
         known_length: None,
+        publication_contract: None,
         proof,
     })
 }

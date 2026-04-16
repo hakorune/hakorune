@@ -53,6 +53,9 @@ fn build_mir_json_root_emits_string_corridor_candidates() {
                 start: Some(crate::mir::ValueId::new(2)),
                 end: Some(crate::mir::ValueId::new(3)),
                 known_length: Some(2),
+                publication_contract: Some(
+                    crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+                ),
                 proof:
                     crate::mir::string_corridor_placement::StringCorridorCandidateProof::ConcatTriplet {
                         left_value: Some(crate::mir::ValueId::new(4)),
@@ -99,6 +102,10 @@ fn build_mir_json_root_emits_string_corridor_candidates() {
     assert_eq!(value_candidates[0]["plan"]["end"], 3);
     assert_eq!(value_candidates[0]["plan"]["known_length"], 2);
     assert_eq!(
+        value_candidates[0]["plan"]["publication_contract"],
+        "publish_now_not_required_before_first_external_boundary"
+    );
+    assert_eq!(
         value_candidates[0]["plan"]["proof"]["kind"],
         "concat_triplet"
     );
@@ -132,6 +139,9 @@ fn build_mir_json_root_emits_string_kernel_plans() {
         start: Some(crate::mir::ValueId::new(2)),
         end: Some(crate::mir::ValueId::new(3)),
         known_length: Some(2),
+        publication_contract: Some(
+            crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+        ),
         proof: crate::mir::string_corridor_placement::StringCorridorCandidateProof::ConcatTriplet {
             left_value: Some(crate::mir::ValueId::new(4)),
             left_source: crate::mir::ValueId::new(1),
@@ -185,6 +195,10 @@ fn build_mir_json_root_emits_string_kernel_plans() {
     assert_eq!(plan["known_length"], 2);
     assert_eq!(plan["retained_form"], "borrowed_text");
     assert_eq!(plan["publication_boundary"], "first_external_boundary");
+    assert_eq!(
+        plan["publication_contract"],
+        "publish_now_not_required_before_first_external_boundary"
+    );
     assert_eq!(plan["barriers"]["publication"], "already_satisfied");
     assert_eq!(plan["consumer"], "direct_kernel_entry");
     assert_eq!(plan["direct_kernel_entry"]["state"], "candidate");
@@ -211,6 +225,9 @@ fn build_mir_json_root_emits_string_kernel_plan_loop_payload() {
                 start: Some(ValueId::new(71)),
                 end: Some(ValueId::new(72)),
                 known_length: Some(2),
+                publication_contract: Some(
+                    crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+                ),
                 proof:
                     crate::mir::string_corridor_placement::StringCorridorCandidateProof::ConcatTriplet {
                         left_value: Some(ValueId::new(26)),

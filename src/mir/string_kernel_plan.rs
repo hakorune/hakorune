@@ -76,6 +76,22 @@ impl std::fmt::Display for StringKernelPlanPublicationBoundary {
     }
 }
 
+/// Backend-consumable MIR proof that publication may stay deferred on this plan.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StringKernelPlanPublicationContract {
+    PublishNowNotRequiredBeforeFirstExternalBoundary,
+}
+
+impl std::fmt::Display for StringKernelPlanPublicationContract {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::PublishNowNotRequiredBeforeFirstExternalBoundary => {
+                f.write_str("publish_now_not_required_before_first_external_boundary")
+            }
+        }
+    }
+}
+
 /// Backend-consumable string kernel plan part.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum StringKernelPlanPart {
@@ -119,6 +135,7 @@ pub struct StringKernelPlan {
     pub known_length: Option<i64>,
     pub retained_form: StringKernelPlanRetainedForm,
     pub publication_boundary: Option<StringKernelPlanPublicationBoundary>,
+    pub publication_contract: Option<StringKernelPlanPublicationContract>,
     pub publication: Option<StringCorridorCandidateState>,
     pub materialization: Option<StringCorridorCandidateState>,
     pub direct_kernel_entry: Option<StringCorridorCandidateState>,
@@ -175,7 +192,7 @@ impl StringKernelPlan {
     pub fn legality(&self) -> StringKernelPlanLegality {
         StringKernelPlanLegality {
             byte_exact: true,
-            no_publish_inside: self.publication.is_some(),
+            no_publish_inside: self.publication_contract.is_some(),
         }
     }
 }
@@ -186,6 +203,19 @@ fn candidate_priority(kind: StringCorridorCandidateKind) -> u8 {
         StringCorridorCandidateKind::PublicationSink => 1,
         StringCorridorCandidateKind::MaterializationSink => 2,
         StringCorridorCandidateKind::BorrowCorridorFusion => 3,
+    }
+}
+
+fn publication_contract_from_plan(
+    plan: crate::mir::string_corridor_placement::StringCorridorCandidatePlan,
+) -> Option<StringKernelPlanPublicationContract> {
+    match plan.publication_contract {
+        Some(
+            crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+        ) => Some(
+            StringKernelPlanPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+        ),
+        None => None,
     }
 }
 
@@ -363,6 +393,7 @@ pub fn derive_string_kernel_plan(
 
     let representative = representative?;
     let plan = representative.plan?;
+    let publication_contract = publication_contract_from_plan(plan);
     let family = match plan.proof {
         StringCorridorCandidateProof::BorrowedSlice { .. } => {
             StringKernelPlanFamily::BorrowedSliceWindow
@@ -396,6 +427,7 @@ pub fn derive_string_kernel_plan(
         known_length: plan.known_length,
         retained_form: StringKernelPlanRetainedForm::BorrowedText,
         publication_boundary,
+        publication_contract,
         publication,
         materialization,
         direct_kernel_entry,
@@ -532,6 +564,9 @@ mod tests {
             start: Some(ValueId::new(2)),
             end: Some(ValueId::new(3)),
             known_length: Some(2),
+            publication_contract: Some(
+                crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+            ),
             proof: StringCorridorCandidateProof::ConcatTriplet {
                 left_value: Some(ValueId::new(4)),
                 left_source: ValueId::new(1),
@@ -593,6 +628,12 @@ mod tests {
             Some(StringKernelPlanPublicationBoundary::FirstExternalBoundary)
         );
         assert_eq!(
+            kernel_plan.publication_contract,
+            Some(
+                StringKernelPlanPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary
+            )
+        );
+        assert_eq!(
             kernel_plan.publication,
             Some(StringCorridorCandidateState::AlreadySatisfied)
         );
@@ -628,6 +669,9 @@ mod tests {
             start: Some(ValueId::new(71)),
             end: Some(ValueId::new(72)),
             known_length: Some(2),
+            publication_contract: Some(
+                crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+            ),
             proof: StringCorridorCandidateProof::ConcatTriplet {
                 left_value: Some(ValueId::new(26)),
                 left_source: ValueId::new(21),
@@ -669,6 +713,9 @@ mod tests {
             start: Some(ValueId::new(2)),
             end: Some(ValueId::new(3)),
             known_length: Some(2),
+            publication_contract: Some(
+                crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+            ),
             proof: StringCorridorCandidateProof::ConcatTriplet {
                 left_value: Some(ValueId::new(4)),
                 left_source: ValueId::new(1),

@@ -133,7 +133,7 @@ pub use string_corridor_placement::{
     refresh_function_string_corridor_candidates, refresh_module_string_corridor_candidates,
     StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidatePlan,
     StringCorridorCandidateProof, StringCorridorCandidateState,
-    StringCorridorPublicationBoundary,
+    StringCorridorPublicationBoundary, StringCorridorPublicationContract,
 };
 pub use string_corridor_relation::{
     refresh_function_string_corridor_relations, refresh_module_string_corridor_relations,
@@ -143,7 +143,8 @@ pub use string_kernel_plan::{
     derive_string_kernel_plan, refresh_function_string_kernel_plans,
     refresh_module_string_kernel_plans, StringKernelPlan, StringKernelPlanConsumer,
     StringKernelPlanFamily, StringKernelPlanLegality, StringKernelPlanPart,
-    StringKernelPlanPublicationBoundary, StringKernelPlanRetainedForm,
+    StringKernelPlanPublicationBoundary, StringKernelPlanPublicationContract,
+    StringKernelPlanRetainedForm,
 };
 pub use sum_placement::{
     refresh_function_sum_placement_facts, refresh_module_sum_placement_facts,

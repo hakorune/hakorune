@@ -468,6 +468,7 @@ mod tests {
         FunctionSignature, MirInstruction, MirType, StorageClass, StringCorridorCandidate,
         StringCorridorCandidateKind, StringCorridorCandidatePlan, StringCorridorCandidateProof,
         StringCorridorCandidateState, StringCorridorPublicationBoundary,
+        StringCorridorPublicationContract,
         SumLocalAggregateLayout, SumPlacementPath, SumPlacementSelection,
         ThinEntryCurrentCarrier, ThinEntryPreferredEntry, ThinEntrySelection,
         ThinEntrySelectionState, ThinEntrySurface, ThinEntryValueClass, ValueId,
@@ -630,6 +631,9 @@ mod tests {
                     start: Some(ValueId::new(8)),
                     end: Some(ValueId::new(9)),
                     known_length: Some(2),
+                    publication_contract: Some(
+                        StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+                    ),
                     proof: StringCorridorCandidateProof::ConcatTriplet {
                         left_value: Some(ValueId::new(3)),
                         left_source: ValueId::new(1),

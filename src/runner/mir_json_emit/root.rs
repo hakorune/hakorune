@@ -84,6 +84,7 @@ pub(super) fn build_mir_json_root(
                             "start": plan.start.map(|value| value.as_u32()),
                             "end": plan.end.map(|value| value.as_u32()),
                             "known_length": plan.known_length,
+                            "publication_contract": plan.publication_contract.map(|contract| contract.to_string()),
                             "proof": match plan.proof {
                                 crate::mir::string_corridor_placement::StringCorridorCandidateProof::BorrowedSlice {
                                     source,

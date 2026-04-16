@@ -87,8 +87,8 @@
   - the current `.hako -> MIR proof/publication -> runtime-private executor -> LLVM consumer` design is still coherent
   - but repeated executor-local thin cuts are now stalling on the same result-representation tail
   - consult + source review say the next step is not another thin cut; it is a two-card return:
-    - `mir-proof`: active corridor result does not require public handle publication before the first external boundary
-    - `runtime-executor`: split runtime-private freeze vs publish on that corridor only
+    - landed `mir-proof`: active concat-triplet substring plans now carry `publish_now_not_required_before_first_external_boundary`
+    - next `runtime-executor`: split runtime-private freeze vs publish on that corridor only
 - result-representation consult triage:
   - adopt:
     - separate semantic result birth from public handle publication
@@ -200,15 +200,15 @@
   - landed measurement: the slow-plan arm split is now frozen evidence and the live hot arm is `ViewSpan` only
   - the required BoxShape cleanup is already landed; do not reopen more structure work before another executor-local cut unless tests or asm point at a new mixed-responsibility seam
   - the delete-oriented `mir-rewrite` is now landed on the active front
-  - measurement is now closed on this front; the next live card is `mir-proof`
+  - measurement is now closed on this front; the landed `mir-proof` card fixed the publication contract and the next live card is `runtime-executor`
   - the next local target is:
     - pause local tail thinning
     - keep the landed `piecewise_subrange_hsiii` publication boundary fixed
     - carry the measured fast path as frozen evidence: `single_session_hit=300000`, `fallback_insert=0`, `all_three=300000`
-    - next explicit card is `mir-proof`:
-      - prove that the active corridor result does not require public handle publication before the first external boundary
-      - keep this truth in MIR metadata/plan owners, not in runtime
-    - follow-on card is `runtime-executor`:
+    - landed `mir-proof`:
+      - the active corridor result no longer relies on shim-local heuristics alone
+      - pure-first now requires the MIR-owned publication contract before using the deferred `piecewise_subrange_hsiii` route
+    - next explicit card is `runtime-executor`:
       - split runtime-private freeze vs publish on the active corridor only
       - use existing `OwnedBytes` / `TextPlan` seams before considering any broader representation work
     - do not reopen route logic, piece-shape branching, transient box/handle carriers, sticky memo shortcuts, generic direct-build widening, or runtime/shim re-recognition while this two-card return is pending

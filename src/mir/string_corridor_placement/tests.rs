@@ -256,6 +256,12 @@ fn refresh_function_attaches_plan_metadata_for_concat_corridor_candidates() {
     assert_eq!(substring_plan.start, Some(ValueId(11)));
     assert_eq!(substring_plan.end, Some(ValueId(12)));
     assert_eq!(substring_plan.known_length, Some(2));
+    assert_eq!(
+        substring_plan.publication_contract,
+        Some(
+            crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary
+        )
+    );
 }
 
 #[test]

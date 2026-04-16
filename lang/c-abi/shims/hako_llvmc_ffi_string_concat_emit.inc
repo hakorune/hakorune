@@ -478,6 +478,10 @@
                 !strcmp(use_mname, "nyash.string.substring_hii") && use_args &&
                 yyjson_is_arr(use_args) && yyjson_arr_size(use_args) == 3 &&
                 (long long)yyjson_get_sint(yyjson_arr_get(use_args, 0)) == final_reg &&
+                hako_llvmc_string_corridor_plan_has_publication_contract(
+                    read_int(use_ins, "dst"),
+                    "direct_kernel_entry",
+                    "publish_now_not_required_before_first_external_boundary") &&
                 use_start_val && yyjson_is_num(use_start_val) && use_end_val &&
                 yyjson_is_num(use_end_val) &&
                 hako_llvmc_string_corridor_read_plan_source_window(

@@ -31,9 +31,9 @@ Scope: current lane / next lane / restart order only.
 - sibling guardrail:
   - `phase-29bq loop owner seam cleanup landing`
 - immediate next:
-  - `phase-137x next explicit card is mir-proof: fix the non-widening publication contract so the active corridor result does not require public handle publication before the first external boundary`
+  - `phase-137x next explicit card is runtime-executor: use the landed MIR publication contract and cut eager publication on the active corridor only`
 - immediate follow-on:
-  - `phase-137x follow with runtime-executor only after that proof lands: split runtime-private freeze vs publish and add the minimal result-ABI seam without reopening route structure, new recognizers, or public-ABI changes`
+  - `phase-137x follow with llvm-export only after the runtime-private outcome seam stabilizes; do not reopen route structure, new recognizers, or public-ABI changes`
 - current blocker:
   - `none`
 - latest proof bundle:
@@ -103,8 +103,8 @@ Scope: current lane / next lane / restart order only.
         - generic helper widening
         - public ABI rethink on this lane
     - next step is no longer “another thin cut”; it is:
-      - `mir-proof` to lock `publish-now not required before first external boundary`
-      - then `runtime-executor` to split freeze vs publish on the active corridor only
+      - landed: `mir-proof` now locks `publish-now not required before first external boundary` as plan metadata
+      - next: `runtime-executor` to consume that contract and split freeze vs publish on the active corridor only
   - rejected runtime-executor probe:
     - attempted a runtime-private `piecewise` carrier by issuing a transient box/handle from `insert_const_mid_fallback` and short-circuiting `substring_hii` through that carrier
     - exact front reread:
@@ -264,12 +264,12 @@ Scope: current lane / next lane / restart order only.
   - current status:
     - historical
     - latest local probes on this card were non-wins
-    - consult + source review say the next live card must be `mir-proof`, not another local thin cut
+    - landed `mir-proof` closed the publication contract gap, so the next live card is `runtime-executor`
   - do not start edits from `kilo / micro-kilo` wording alone; use this explicit card plus `phase-137x` target bands
 - fixed task order:
   1. `measurement` is closed for the current keeper baseline
-  2. `mir-proof` is next and owns `publish-now not required before first external boundary`
-  3. `runtime-executor` follows and owns runtime-private freeze/publish split plus the minimal result-ABI seam
+  2. landed `mir-proof` owns `publish-now not required before first external boundary`
+  3. `runtime-executor` is next and owns runtime-private freeze/publish split plus the minimal result-ABI seam
   4. `llvm-export` waits until that corridor is stable
 - next exact handoff:
   - optimization-side BoxShape cleanup is landed on:

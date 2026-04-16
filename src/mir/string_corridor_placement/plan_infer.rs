@@ -1,5 +1,17 @@
 use super::*;
 
+fn active_publication_contract(
+    start: Option<ValueId>,
+    end: Option<ValueId>,
+) -> Option<StringCorridorPublicationContract> {
+    match (start, end) {
+        (Some(_), Some(_)) => Some(
+            StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+        ),
+        _ => None,
+    }
+}
+
 fn infer_borrowed_slice_plan(
     function: &MirFunction,
     value: ValueId,
@@ -18,6 +30,7 @@ fn infer_borrowed_slice_plan(
         start: Some(start),
         end: Some(end),
         known_length: None,
+        publication_contract: None,
         proof: StringCorridorCandidateProof::BorrowedSlice { source, start, end },
     })
 }
@@ -78,6 +91,7 @@ fn infer_concat_triplet_plan(
         start: outer_start.map(|value| resolve_value_origin(function, def_map, value)),
         end: outer_end.map(|value| resolve_value_origin(function, def_map, value)),
         known_length: Some(const_string_length(&text)),
+        publication_contract: active_publication_contract(outer_start, outer_end),
         proof: StringCorridorCandidateProof::ConcatTriplet {
             left_value: Some(resolve_value_origin(function, def_map, left_value)),
             left_source: left.source,
@@ -125,6 +139,7 @@ fn infer_concat_triplet_result_plan(
         start: Some(resolve_value_origin(function, def_map, start)),
         end: Some(resolve_value_origin(function, def_map, end)),
         known_length: Some(const_string_length(&text)),
+        publication_contract: active_publication_contract(Some(start), Some(end)),
         proof: StringCorridorCandidateProof::ConcatTriplet {
             left_value: Some(resolve_value_origin(function, def_map, helper.left)),
             left_source: left.source,
@@ -179,6 +194,7 @@ pub(super) fn infer_plan(
                             start: plan.start,
                             end: plan.end,
                             known_length: plan.known_length,
+                            publication_contract: plan.publication_contract,
                             proof: plan.proof,
                         }
                     })

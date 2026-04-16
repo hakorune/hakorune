@@ -50,6 +50,22 @@ impl std::fmt::Display for StringCorridorPublicationBoundary {
     }
 }
 
+/// Non-widening publication contract proven for the current corridor plan.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StringCorridorPublicationContract {
+    PublishNowNotRequiredBeforeFirstExternalBoundary,
+}
+
+impl std::fmt::Display for StringCorridorPublicationContract {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::PublishNowNotRequiredBeforeFirstExternalBoundary => {
+                f.write_str("publish_now_not_required_before_first_external_boundary")
+            }
+        }
+    }
+}
+
 /// Proof-bearing plan metadata for broader string corridor routes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct StringCorridorCandidatePlan {
@@ -62,6 +78,8 @@ pub struct StringCorridorCandidatePlan {
     pub end: Option<ValueId>,
     /// Known constant length contribution already proven in the corridor.
     pub known_length: Option<i64>,
+    /// MIR-owned publication contract for the active corridor only.
+    pub publication_contract: Option<StringCorridorPublicationContract>,
     /// Shape proof that explains why this value is on the corridor.
     pub proof: StringCorridorCandidateProof,
 }
@@ -80,12 +98,17 @@ impl StringCorridorCandidatePlan {
             .known_length
             .map(|value| value.to_string())
             .unwrap_or_else(|| "-".to_string());
+        let publication_contract = self
+            .publication_contract
+            .map(|contract| contract.to_string())
+            .unwrap_or_else(|| "-".to_string());
         format!(
-            "plan(root=%{} source={} outer={} known_len={} proof={})",
+            "plan(root=%{} source={} outer={} known_len={} publication_contract={} proof={})",
             self.corridor_root.0,
             source,
             outer_window,
             known_len,
+            publication_contract,
             self.proof.summary()
         )
     }

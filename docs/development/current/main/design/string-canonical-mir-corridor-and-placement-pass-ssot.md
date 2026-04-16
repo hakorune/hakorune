@@ -109,21 +109,22 @@ Reading:
   current front, and the landed delete-oriented rewrite already consumed that
   proof
 - executor-local measurement is now closed:
-  - `piecewise_subrange total=300000`
-  - `single_session_hit=300000`
-  - `fallback_insert=0`
-  - `all_three=300000`
-- consult + source review change the next primary owner to `mir-proof`
+- `piecewise_subrange total=300000`
+- `single_session_hit=300000`
+- `fallback_insert=0`
+- `all_three=300000`
+- landed `mir-proof` now keeps the next primary owner on `runtime-executor`
 - the current target is a two-card return:
-  - first `mir-proof`:
+  - landed `mir-proof`:
     - keep generic borrowed-view plan truth in MIR
     - add the publication truth `publish-now not required before first external boundary`
+      as plan metadata
     - keep the landed runtime-private `piecewise_subrange_hsiii`
       publication narrow:
       - active corridor only
       - generic helper body unchanged
       - broad callers untouched
-  - then `runtime-executor`:
+  - next `runtime-executor`:
     - split runtime-private freeze vs publish using existing seams such as
       `OwnedBytes` / `TextPlan`
     - do not reopen route logic, piece-shape branching, transient box/handle

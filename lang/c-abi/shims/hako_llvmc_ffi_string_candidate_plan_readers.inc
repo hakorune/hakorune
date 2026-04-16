@@ -72,6 +72,20 @@
         return 1;
       }
 
+      auto int hako_llvmc_string_corridor_plan_has_publication_contract(
+          long long value,
+          const char* kind,
+          const char* contract_name) {
+        yyjson_val* plan =
+            hako_llvmc_string_corridor_candidate_plan_by_kind(value, kind);
+        yyjson_val* contract_val =
+            plan ? yyjson_obj_get(plan, "publication_contract") : NULL;
+        if (!(contract_name && contract_val && yyjson_is_str(contract_val))) {
+          return 0;
+        }
+        return strcmp(yyjson_get_str(contract_val), contract_name) == 0;
+      }
+
       auto int hako_llvmc_string_corridor_read_route_window_from_placement_effect_routes(
           long long value,
           long long* start,

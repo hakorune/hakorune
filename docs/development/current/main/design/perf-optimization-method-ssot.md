@@ -84,10 +84,12 @@ reopen した lane には、必ず次の task card を先に固定する。
 
 current restart pointer after the active selfhost landing is this one:
 
-- note: the old runtime-executor tail-thin card below is now historical
-- consult + source review now say the next live return is two-card:
-  - `mir-proof` first
-  - `runtime-executor` second
+- note: the old pre-proof runtime-executor tail-thin card below is now historical
+- landed:
+  - `mir-proof` first fixed `publish_now_not_required_before_first_external_boundary`
+    as MIR-owned plan metadata
+- next live owner:
+  - `runtime-executor`
 
 - lane owner: `phase-137x`
 - front: `kilo_micro_substring_concat`
@@ -97,9 +99,9 @@ current restart pointer after the active selfhost landing is this one:
   - `kilo_micro_len_substring_views`
 - whole-kilo guard: `kilo_kernel_small_hk`
 - route contract: `.hako -> ny-llvmc(boundary pure-first) -> C ABI`
-- primary owner: `mir-proof`
+- primary owner: `runtime-executor`
 - proof delta:
-  - `publish_now_not_required_before_first_external_boundary`
+  - `piecewise_publication_tail_delete`
 - proof region:
   - established facts:
     - borrowed corridor may stay unmaterialized until the final consumer
@@ -116,6 +118,8 @@ current restart pointer after the active selfhost landing is this one:
     - the active corridor selected by the landed MIR rewrite
   - publish as:
     - runtime-private executor only
+  - require:
+    - the landed MIR publication contract before deferred piecewise publication is used
   - must not touch:
     - generic `insert_hsi` / `insert_const_mid_fallback` helper body semantics
     - public ABI
@@ -123,13 +127,11 @@ current restart pointer after the active selfhost landing is this one:
   - must not become:
     - a generic helper rewrite
 - rewrite target:
-  - from: eager publish-now requirement on the active `piecewise_subrange_hsiii` corridor
-  - to: MIR-owned proof that publication may sink to the first external boundary on the active corridor
+  - from: eager publication tail inside the active `piecewise_subrange_hsiii` corridor
+  - to: runtime-private outcome/publication split that consumes the landed MIR contract
 - runtime executor:
-  - none on this card
-  - follow-on card only:
-    - split runtime-private freeze vs publish
-    - keep generic/public handle publication as cold adapter
+  - split runtime-private freeze vs publish
+  - keep generic/public handle publication as cold adapter
   - forbid runtime/shim route re-recognition, transient box/handle carriers, generic helper widening, or public-ABI changes on this card
 - owner scope: follow `Owner Scope / Publication Boundary` below; start from `string_helpers/concat` / `string_view` / `host_handles` only if asm top still points there
 - first commands:
@@ -141,9 +143,9 @@ current restart pointer after the active selfhost landing is this one:
 - pre-probe rule:
   - if compiler sources changed, refresh release artifacts before exact/asm probes
 - done condition:
-  - MIR metadata/plan owners carry the new publication fact without new dialects
+  - runtime-private outcome/publication split consumes the landed MIR publication contract
   - no runtime legality or publication rediscovery is needed for the active corridor
-  - follow-on runtime-executor card can start from a fixed non-widening contract
+  - exact front no longer pays eager publication as a semantic requirement
 - reject condition:
   - the slice adds a new MIR dialect, public ABI widening, or generic helper legality
   - runtime/shim starts deciding publication legality or corridor shape
