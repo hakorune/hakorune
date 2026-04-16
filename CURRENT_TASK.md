@@ -31,9 +31,9 @@ Scope: current lane / next lane / restart order only.
 - sibling guardrail:
   - `phase-29bq loop owner seam cleanup landing`
 - immediate next:
-  - `phase-137x next explicit card is a design consult: decide whether the remaining exact gap now requires a runtime-private result representation / result ABI change on top of the landed publication-boundary corridor`
+  - `phase-137x next explicit card is mir-proof: fix the non-widening publication contract so the active corridor result does not require public handle publication before the first external boundary`
 - immediate follow-on:
-  - `phase-137x return to runtime-executor only after that consult locks a new non-widening contract; do not reopen structure work, new recognizers, or MIR/public-ABI changes without a new explicit card`
+  - `phase-137x follow with runtime-executor only after that proof lands: split runtime-private freeze vs publish and add the minimal result-ABI seam without reopening route structure, new recognizers, or public-ABI changes`
 - current blocker:
   - `none`
 - latest proof bundle:
@@ -88,10 +88,23 @@ Scope: current lane / next lane / restart order only.
     - the remaining exact gap sits inside `piecewise_subrange_hsiii_fallback`, especially final owned materialize -> `StringBox`/`Arc` objectize -> fresh handle issue
     - route/publication design is not the blocker on this front anymore
     - repeated executor-local thin cuts are now stalling on the same result-representation tail
-    - next step is an explicit representation/result-ABI consult around:
-      - handle-based public surface
-      - final `owned String -> boxed handle`
-    - reopen runtime-executor only after that consult fixes the next non-widening contract
+    - external consult plus source review now triage the next work like this:
+      - adopt:
+        - separate semantic result birth from public handle publication
+        - keep the public handle-based surface stable on this lane
+        - keep `proof_region` and `publication_boundary` MIR-owned
+        - do not add a new MIR dialect
+        - use existing runtime seams (`OwnedBytes`, `TextPlan`) for freeze vs publish split
+      - hold:
+        - the exact runtime-private outcome shape (`PlacementOutcome`, out-param, tagged return, etc.)
+        - the exact runtime-private result ABI shape and where the cold publish adapter lives
+      - reject:
+        - runtime/shim route re-recognition or remembered-chain legality
+        - generic helper widening
+        - public ABI rethink on this lane
+    - next step is no longer “another thin cut”; it is:
+      - `mir-proof` to lock `publish-now not required before first external boundary`
+      - then `runtime-executor` to split freeze vs publish on the active corridor only
   - rejected runtime-executor probe:
     - attempted a runtime-private `piecewise` carrier by issuing a transient box/handle from `insert_const_mid_fallback` and short-circuiting `substring_hii` through that carrier
     - exact front reread:
@@ -230,15 +243,15 @@ Scope: current lane / next lane / restart order only.
     - use `cargo test -q -p nyash_kernel --lib -- --test-threads=1` as the deterministic acceptance gate until cache isolation lands
     - treat parallel `cargo test -q -p nyash_kernel --lib` as monitor-only for this lane
   - current status:
-    - paused
+    - historical
     - latest local probes on this card were non-wins
-    - next action is external design consultation, not another local thin cut
+    - consult + source review say the next live card must be `mir-proof`, not another local thin cut
   - do not start edits from `kilo / micro-kilo` wording alone; use this explicit card plus `phase-137x` target bands
 - fixed task order:
   1. `measurement` is closed for the current keeper baseline
-  2. representation/result-ABI consult is next
-  3. return to `runtime-executor` only after that consult fixes the next non-widening contract
-  4. `llvm-export` waits until the corridor is stable
+  2. `mir-proof` is next and owns `publish-now not required before first external boundary`
+  3. `runtime-executor` follows and owns runtime-private freeze/publish split plus the minimal result-ABI seam
+  4. `llvm-export` waits until that corridor is stable
 - next exact handoff:
   - optimization-side BoxShape cleanup is landed on:
     - `string_helpers/concat`

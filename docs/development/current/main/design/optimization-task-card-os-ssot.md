@@ -228,6 +228,29 @@ Reading lock:
 - do not reopen MIR/publication work unless the consult explicitly says the
   proof/publication split is insufficient
 
+If the consult is accepted, the return order is:
+
+1. `mir-proof`
+   - lock the new non-widening publication truth
+2. `runtime-executor`
+   - implement the already-approved runtime-private outcome/executor seam
+3. `llvm-export`
+   - only after the runtime corridor is stable again
+
+Adopt / hold / reject split for accepted consults:
+
+- adopt:
+  - owner split
+  - non-widening publication truth
+  - runtime-private seam candidates
+- hold:
+  - exact ABI shape
+  - exact executor payload encoding
+- reject:
+  - runtime legality rediscovery
+  - generic helper widening
+  - premature public ABI changes
+
 ## Delete-Oriented Rule
 
 exact front が次の条件を同時に満たしたら、次の card は thin cut ではなく

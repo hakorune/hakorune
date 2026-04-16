@@ -84,8 +84,10 @@ reopen した lane には、必ず次の task card を先に固定する。
 
 current restart pointer after the active selfhost landing is this one:
 
-- note: the runtime-executor tail-thin card below is now historical
-- next live action is a design consult on result representation / ABI because repeated local thin cuts on the current representation are non-wins
+- note: the old runtime-executor tail-thin card below is now historical
+- consult + source review now say the next live return is two-card:
+  - `mir-proof` first
+  - `runtime-executor` second
 
 - lane owner: `phase-137x`
 - front: `kilo_micro_substring_concat`
@@ -95,9 +97,9 @@ current restart pointer after the active selfhost landing is this one:
   - `kilo_micro_len_substring_views`
 - whole-kilo guard: `kilo_kernel_small_hk`
 - route contract: `.hako -> ny-llvmc(boundary pure-first) -> C ABI`
-- primary owner: `runtime-executor`
+- primary owner: `mir-proof`
 - proof delta:
-  - `piecewise_final_materialize_tail_delete`
+  - `publish_now_not_required_before_first_external_boundary`
 - proof region:
   - established facts:
     - borrowed corridor may stay unmaterialized until the final consumer
@@ -121,13 +123,14 @@ current restart pointer after the active selfhost landing is this one:
   - must not become:
     - a generic helper rewrite
 - rewrite target:
-  - from: `piecewise_subrange_hsiii_fallback` tail that still pays final materialize/objectize/handle cost
-  - to: a thinner executor-local tail on the same published fast path
+  - from: eager publish-now requirement on the active `piecewise_subrange_hsiii` corridor
+  - to: MIR-owned proof that publication may sink to the first external boundary on the active corridor
 - runtime executor:
-  - keep the landed `piecewise_subrange_hsiii` publication boundary fixed
-  - add tail-local thinning only inside that helper
-  - forbid transient box/handle carriers, transient piecewise object clones, allocation-backed helper detours, new route logic, generic non-empty `insert_const_mid_fallback` direct-build widening, or representation/ABI changes on this card
-  - demote no generic helper body on this card
+  - none on this card
+  - follow-on card only:
+    - split runtime-private freeze vs publish
+    - keep generic/public handle publication as cold adapter
+  - forbid runtime/shim route re-recognition, transient box/handle carriers, generic helper widening, or public-ABI changes on this card
 - owner scope: follow `Owner Scope / Publication Boundary` below; start from `string_helpers/concat` / `string_view` / `host_handles` only if asm top still points there
 - first commands:
   - `tools/checks/dev_gate.sh quick`
@@ -138,19 +141,17 @@ current restart pointer after the active selfhost landing is this one:
 - pre-probe rule:
   - if compiler sources changed, refresh release artifacts before exact/asm probes
 - done condition:
-  - exact front wins on the same published fast-path artifact
-  - `kilo_micro_substring_only` stays inside accept band
-  - `kilo_kernel_small_hk` stays inside strict/health band
-  - top symbols move away from the current materialize/objectize/handle tail without shifting into new helper/cache traffic
+  - MIR metadata/plan owners carry the new publication fact without new dialects
+  - no runtime legality or publication rediscovery is needed for the active corridor
+  - follow-on runtime-executor card can start from a fixed non-widening contract
 - reject condition:
-  - the slice widens beyond executor-local tail thinning
-  - whole-kilo regresses
-  - the slice needs a new MIR rewrite, public ABI, string-only MIR dialect, or representation/ABI change
-  - the slice escapes its publication boundary and becomes a generic helper rewrite
-  - the slice grows cache/helper traffic or route hinting instead of only splitting the current executor body
+  - the slice adds a new MIR dialect, public ABI widening, or generic helper legality
+  - runtime/shim starts deciding publication legality or corridor shape
+  - the slice escapes its publication boundary and becomes a broad helper rewrite
 - current status:
-  - paused for design consult
-  - local executor-only thin cuts are currently non-winning on the keeper representation
+  - consult reviewed
+  - next live owner is `mir-proof`
+  - local executor-only thin cuts remain paused until that proof card lands
 
 ## Representation Escalation Rule
 
@@ -168,6 +169,15 @@ Escalate to a focused design consult on:
 - handle-based public surface
 - final `owned String -> boxed handle`
 - runtime-private result representation / result ABI
+
+If that consult is accepted, the return order is fixed:
+
+1. `mir-proof`
+   - lock `publish-now not required before first external boundary`
+2. `runtime-executor`
+   - split runtime-private freeze vs publish on the active corridor only
+3. `llvm-export`
+   - only after the runtime-private outcome/publication split is stable
 
 Reading lock:
 

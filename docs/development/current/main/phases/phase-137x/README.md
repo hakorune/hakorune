@@ -85,7 +85,23 @@
   - the remaining exact gap is executor-local: final owned materialize -> `StringBox`/`Arc` objectize -> fresh handle issue
   - the current `.hako -> MIR proof/publication -> runtime-private executor -> LLVM consumer` design is still coherent
   - but repeated executor-local thin cuts are now stalling on the same result-representation tail
-  - next step is a focused design consult on whether “beat C” now requires a runtime-private result representation / result ABI change while keeping the public handle surface stable
+  - consult + source review say the next step is not another thin cut; it is a two-card return:
+    - `mir-proof`: active corridor result does not require public handle publication before the first external boundary
+    - `runtime-executor`: split runtime-private freeze vs publish on that corridor only
+- result-representation consult triage:
+  - adopt:
+    - separate semantic result birth from public handle publication
+    - keep the public handle-based surface stable on this lane
+    - keep `proof_region` and `publication_boundary` MIR-owned
+    - use the existing runtime-private seams `OwnedBytes` / `TextPlan`
+    - keep new executor legality out of runtime and shim code
+  - hold:
+    - the exact runtime-private outcome shape (`PlacementOutcome`, out-param, tagged return, etc.)
+    - the exact runtime-private result ABI shape and where the cold publish adapter lives
+  - reject:
+    - runtime/shim remembered-chain legality or route re-recognition
+    - generic helper widening
+    - public ABI rethink on this lane
 - current test acceptance note:
   - use `cargo test -q -p nyash_kernel --lib -- --test-threads=1` as the deterministic lane gate
   - parallel `cargo test -q -p nyash_kernel --lib` is still monitor-only on this lane because cache/view tests are parallel-flaky
@@ -173,8 +189,8 @@
 - current restart order after those cleanup commits:
   1. keep the new exact-front keeper (`260,619,140 instr / 21 ms`) as the only reopen baseline
   2. lock the generic borrowed-view substrate and delete-oriented task order in the SSOT docs
-  3. keep the landed `mir-rewrite` fixed and choose the next `runtime-executor` cut from the refreshed asm/top bundle, not from pre-cleanup numbers
-  4. only after that executor cut lands, reopen the matching `llvm-export` follow-on
+  3. keep the landed `mir-rewrite` fixed and choose the next `mir-proof` card from the refreshed consult + source review, not from pre-cleanup numbers
+  4. only after that proof lands, reopen the matching `runtime-executor` follow-on
   5. do not reopen more BoxShape cleanup unless the next keeper attempt points at a new mixed-responsibility seam
 - adopted reading for the next local cut:
   - this front is a borrowed-view lane continuity problem, not a cache-first or leaf-semantics problem
@@ -183,16 +199,18 @@
   - landed measurement: the slow-plan arm split is now frozen evidence and the live hot arm is `ViewSpan` only
   - the required BoxShape cleanup is already landed; do not reopen more structure work before another executor-local cut unless tests or asm point at a new mixed-responsibility seam
   - the delete-oriented `mir-rewrite` is now landed on the active front
-  - measurement is now closed on this front; the next card is `runtime-executor`
+  - measurement is now closed on this front; the next live card is `mir-proof`
   - the next local target is:
     - pause local tail thinning
     - keep the landed `piecewise_subrange_hsiii` publication boundary fixed
     - carry the measured fast path as frozen evidence: `single_session_hit=300000`, `fallback_insert=0`, `all_three=300000`
-    - open a focused design consult on:
-      - handle-based public surface
-      - final `owned String -> boxed handle`
-      - runtime-private result representation / result ABI
-    - do not reopen route logic, piece-shape branching, transient box/handle carriers, sticky memo shortcuts, or generic direct-build widening while that consult is pending
+    - next explicit card is `mir-proof`:
+      - prove that the active corridor result does not require public handle publication before the first external boundary
+      - keep this truth in MIR metadata/plan owners, not in runtime
+    - follow-on card is `runtime-executor`:
+      - split runtime-private freeze vs publish on the active corridor only
+      - use existing `OwnedBytes` / `TextPlan` seams before considering any broader representation work
+    - do not reopen route logic, piece-shape branching, transient box/handle carriers, sticky memo shortcuts, generic direct-build widening, or runtime/shim re-recognition while this two-card return is pending
   - the follow-on `llvm-export` card only starts after that executor card lands:
     - consume the stabilized corridor with truthful facts
     - do not reopen route eligibility in LLVM metadata

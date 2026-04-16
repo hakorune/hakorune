@@ -113,24 +113,41 @@ Reading:
   - `single_session_hit=300000`
   - `fallback_insert=0`
   - `all_three=300000`
-- the next primary owner is therefore `runtime-executor`
-- the current target is executor-local tail delete:
-  - keep generic borrowed-view plan truth in MIR
-  - keep the landed runtime-private `piecewise_subrange_hsiii` publication
-    narrow:
-    - active corridor only
-    - generic helper body unchanged
-    - broad callers untouched
-  - do not reopen route logic, piece-shape branching, transient box/handle
-    carriers, widen `insert_hsi`, or jump to representation/ABI edits before
-    the current tail is thinner
+- consult + source review change the next primary owner to `mir-proof`
+- the current target is a two-card return:
+  - first `mir-proof`:
+    - keep generic borrowed-view plan truth in MIR
+    - add the publication truth `publish-now not required before first external boundary`
+    - keep the landed runtime-private `piecewise_subrange_hsiii`
+      publication narrow:
+      - active corridor only
+      - generic helper body unchanged
+      - broad callers untouched
+  - then `runtime-executor`:
+    - split runtime-private freeze vs publish using existing seams such as
+      `OwnedBytes` / `TextPlan`
+    - do not reopen route logic, piece-shape branching, transient box/handle
+      carriers, widen `insert_hsi`, or jump to public-ABI edits on this lane
 - current design verdict:
-  - the publication-boundary design is not the blocker on this front
+ - the publication-boundary design is not the blocker on this front
   - the remaining exact gap is concentrated in final owned materialize ->
     objectize -> fresh handle issue
 - if executor-local measurement plus thin cuts stop producing wins, only then
   open a later representation/ABI card for “beat C” work
  - that threshold is now reached on the active `piecewise` front
+ - consult + source review triage:
+   - adopt:
+     - semantic result birth and public handle publication must be separated
+     - `proof_region` and `publication_boundary` remain MIR-owned
+     - new MIR dialect is unnecessary
+     - runtime-private seams should start from existing `OwnedBytes` /
+       `TextPlan`
+   - hold:
+     - the exact private outcome shape and result ABI details
+   - reject:
+     - runtime/shim re-recognition of legality
+     - generic helper widening
+     - public ABI rethink on this lane
  - the consult must explicitly include:
    - handle-based public surface
    - final `owned String -> boxed handle`
