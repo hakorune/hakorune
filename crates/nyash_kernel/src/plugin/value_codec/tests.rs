@@ -150,14 +150,16 @@ fn with_array_store_str_source_non_string_handle_uses_other_object_contract() {
 
 #[test]
 fn with_array_store_str_source_missing_handle_uses_missing_contract() {
-    let value: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(12));
-    let value_h = handles::to_handle_arc(value) as i64;
-    handles::drop_handle(value_h as u64);
-    let source_kind = with_array_store_str_source(value_h, |source_kind, source| {
-        assert!(matches!(source, ArrayStoreStrSource::Missing));
-        source_kind
+    with_env_var("NYASH_HOST_HANDLE_ALLOC_POLICY", "none", || {
+        let value: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(12));
+        let value_h = handles::to_handle_arc(value) as i64;
+        handles::drop_handle(value_h as u64);
+        let source_kind = with_array_store_str_source(value_h, |source_kind, source| {
+            assert!(matches!(source, ArrayStoreStrSource::Missing));
+            source_kind
+        });
+        assert_eq!(source_kind, StringHandleSourceKind::Missing);
     });
-    assert_eq!(source_kind, StringHandleSourceKind::Missing);
 }
 
 #[test]

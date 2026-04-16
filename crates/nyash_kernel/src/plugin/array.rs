@@ -18,6 +18,11 @@ mod tests {
         handles::to_handle_arc(arr) as i64
     }
 
+    fn new_integer_handle(value: i64) -> i64 {
+        let int_box: Arc<dyn NyashBox> = Arc::new(nyash_rust::box_trait::IntegerBox::new(value));
+        handles::to_handle_arc(int_box) as i64
+    }
+
     fn storage_tag(handle: i64) -> Option<String> {
         with_array_box(handle, |arr| format!("{arr:?}"))
     }
@@ -166,9 +171,11 @@ mod tests {
     #[test]
     fn slot_append_raw_alias_births_inline_i64_lane_for_integer_values() {
         let handle = new_array_handle();
+        let int_handle = new_integer_handle(7);
+        let next_int_handle = new_integer_handle(9);
 
-        assert_eq!(nyash_array_slot_append_hh_alias(handle, 7), 1);
-        assert_eq!(nyash_array_slot_append_hh_alias(handle, 9), 2);
+        assert_eq!(nyash_array_slot_append_hh_alias(handle, int_handle), 1);
+        assert_eq!(nyash_array_slot_append_hh_alias(handle, next_int_handle), 2);
         assert_eq!(nyash_array_slot_load_hi_alias(handle, 0), 7);
         assert_eq!(nyash_array_slot_load_hi_alias(handle, 1), 9);
         assert!(storage_tag(handle)
