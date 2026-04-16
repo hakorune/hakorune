@@ -259,15 +259,19 @@ current post-selfhost optimization reopen now uses this sequence:
   - `str.substring.route total=0`
   - `slow_plan=0`
   - `slow_plan_view_span=0`
+  - `piecewise_subrange total=300000`
+  - `piecewise_subrange single_session_hit=300000`
+  - `piecewise_subrange fallback_insert=0`
+  - `piecewise_subrange all_three=300000`
   - `birth.placement fresh_handle=300000`
   - `birth.backend materialize_owned_total=300000`
   - `birth.backend string_box_new_total=300000`
   - `birth.backend arc_wrap_total=300000`
   - `birth.backend handle_issue_total=300000`
   - top symbols are now `piecewise_subrange_hsiii_fallback`, `memmove`, and allocator samples
-- next primary owner: `measurement`
+- next primary owner: `runtime-executor`
 - proof delta:
-  - `piecewise_subrange_executor_cost_split`
+  - `piecewise_final_materialize_tail_delete`
 - proof region:
   - established facts:
     - borrowed lane may stay unmaterialized until the final consumer
@@ -288,24 +292,30 @@ current post-selfhost optimization reopen now uses this sequence:
   - must not become:
     - a generic helper rewrite
 - rewrite target:
-  - from: `substring_concat3_hhhii` handle corridor
-  - to: `plan-native final-consumer corridor`
+  - from: `piecewise_subrange_hsiii_fallback` tail that still pays final materialize/objectize/handle cost
+  - to: a thinner executor-local tail on the already-published fast path
 - executor delta:
-  - add: `none in the rewrite card`
-  - demote: `substring_hii` / `borrowed_substring_plan_from_handle` hot path to cold adapter candidates
+  - add: `tail-local thinning inside piecewise_subrange_hsiii`
+  - demote: `none outside the executor-local tail`
 - delete target:
-  - hot call to `substring_hii` from the active `substring -> concat` front
-  - hot re-entry into `borrowed_substring_plan_from_handle`
-  - hot TLS access through `LocalKey::with` on that same front
+  - `materialize_owned_total`
+  - `StringBox` / `Arc` objectize tail
+  - fresh handle issue on the published piecewise fast path
 - preserves:
   - `.hako` semantics
   - public ABI
   - canonical MIR single-source rule
 - reject:
   - cache/helper layer growth without exact-front win
+  - widening into generic helper bodies or broad callers
   - new string-only MIR dialect
   - VMValue/public ABI widening
   - keep-lane owner pivot without route break evidence
+
+## Current Acceptance Note
+
+- `cargo test -q -p nyash_kernel --lib -- --test-threads=1` is the deterministic library gate for the active card
+- parallel `cargo test -q -p nyash_kernel --lib` is still monitor-only while cache/view tests remain parallel-flaky
 
 ## Non-goals
 

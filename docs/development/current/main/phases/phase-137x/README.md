@@ -65,80 +65,88 @@
     - `piecewise_subrange_hsiii_fallback closure: 87.84%`
     - `__memmove_avx512_unaligned_erms: 5.40%`
     - allocator samples are secondary
-  - current counter reread on the same front:
-    - `str.substring.route total=0`
-    - `slow_plan=0`
-    - `slow_plan_view_span=0`
-    - `birth.placement fresh_handle=300000`
-    - `birth.backend materialize_owned_total=300000`
-    - `birth.backend string_box_new_total=300000`
-    - `birth.backend arc_wrap_total=300000`
-    - `birth.backend handle_issue_total=300000`
-    - `stable_box_demand text_read_handle_latest_fresh=299999`
-  - current design verdict:
-    - route selection / publication boundary is no longer the blocker on this front
-    - the remaining exact gap is executor-local: final owned materialize -> `StringBox`/`Arc` objectize -> fresh handle issue
-    - keep the current `.hako -> MIR proof/publication -> runtime-private executor -> LLVM consumer` design fixed for the next cuts
-    - only reopen representation/ABI design if executor-local measurement and thin cuts stop producing wins
-  - rejected runtime-private piecewise carrier probe:
-    - attempted to issue a transient piecewise box/handle from `insert_const_mid_fallback` and then fast-path `substring_hii` through that carrier
-    - exact front reread:
-      - `kilo_micro_substring_concat`
-        - `C: instr=1,622,877 / cycles=498,662 / ms=3`
-        - `Ny AOT: instr=1,027,840,243 / cycles=316,717,873 / ms=78`
-    - accept gate stayed healthy:
-      - `kilo_micro_substring_only`
-        - `C: instr=1,622,874 / cycles=497,164 / ms=3`
-        - `Ny AOT: instr=1,669,164 / cycles=1,117,447 / ms=3`
-    - rejected asm/top reread:
-      - `nyash.string.substring_hii: 29.61%`
-      - `insert_const_mid_fallback closure: 25.13%`
-      - `PiecewiseTextBox::clone: 16.28%`
-      - `string_span_cache_put: 5.27%`
-      - `TextPlan::from_pieces: 4.64%`
-    - reading:
-      - transient piecewise object birth, clone, and allocation dominated the hot lane
-      - this front should not mint runtime-private box/handle carriers as the next executor cut
-  - rejected single-session memo follow-up:
-    - attempted to remember `source_handle/split/middle_ptr` behind the produced `insert_hsi` handle and short-circuit the next `substring_hii` before the generic slow-plan lane
-    - exact front reread:
-      - `kilo_micro_substring_concat`
-        - `C: instr=1,622,875 / cycles=484,039 / ms=2`
-        - `Ny AOT: instr=1,027,840,321 / cycles=315,379,190 / ms=80`
-    - accept gate stayed healthy:
-      - `kilo_micro_substring_only`
-        - `C: instr=1,622,875 / cycles=502,466 / ms=3`
-        - `Ny AOT: instr=1,669,594 / cycles=1,098,352 / ms=3`
-    - asm/top reread:
-      - `nyash.string.substring_hii: 31.81%`
-      - `insert_const_mid_fallback closure: 24.92%`
-      - `PiecewiseTextBox::clone: 13.63%`
-      - `string_span_cache_put: 9.73%`
-      - `TextPlan::from_pieces: 4.31%`
-    - reading:
-      - a raw handle-keyed sticky memo does not delete the hot executor body; it only adds another shortcut in front of it
-      - do not reopen memo-based substring shortcuts on this front; the next cut must stay executor-local and non-sticky
-  - rejected generic direct-build widening:
-    - attempted to read the non-empty `insert_hsi` source in-session and materialize the inserted string directly before the old `TextPlan` fallback
-    - exact front reread:
-      - `kilo_micro_substring_concat`
-        - `C: instr=1,622,920 / cycles=526,196 / ms=3`
-        - `Ny AOT: instr=474,559,696 / cycles=165,012,319 / ms=45`
-    - accept gate stayed healthy:
-      - `kilo_micro_substring_only`
-        - `C: instr=1,622,875 / cycles=491,060 / ms=3`
-        - `Ny AOT: instr=1,669,350 / cycles=1,050,465 / ms=3`
-    - whole-kilo guard regressed:
-      - `kilo_kernel_small_hk: 789 ms`
-    - asm/top reread:
-      - `nyash.string.substring_hii: 30.29%`
-      - `insert_const_mid_fallback closure: 28.59%`
-      - `borrowed_substring_plan_from_handle: 17.38%`
-      - `LocalKey::with: 15.34%`
-      - `__memmove_avx512_unaligned_erms: 2.45%`
-    - reading:
-      - the generic `insert_hsi` direct-build is too wide for this card: it wins the exact front but loses whole-kilo
-      - keep generic `insert_const_mid_fallback` materialization unchanged; the next executor cut must stay corridor-local to the active front
+- current counter reread on the same front:
+  - `str.substring.route total=0`
+  - `slow_plan=0`
+  - `slow_plan_view_span=0`
+  - `piecewise_subrange total=300000`
+  - `piecewise_subrange single_session_hit=300000`
+  - `piecewise_subrange fallback_insert=0`
+  - `piecewise_subrange all_three=300000`
+  - `birth.placement fresh_handle=300000`
+  - `birth.backend materialize_owned_total=300000`
+  - `birth.backend string_box_new_total=300000`
+  - `birth.backend arc_wrap_total=300000`
+  - `birth.backend handle_issue_total=300000`
+  - `stable_box_demand text_read_handle_latest_fresh=299999`
+- current design verdict:
+  - route selection / publication boundary is no longer the blocker on this front
+  - the active exact front is already 100% on the landed single-session three-piece fast path; fallback selection and piece-shape branching are not the remaining cost center
+  - the remaining exact gap is executor-local: final owned materialize -> `StringBox`/`Arc` objectize -> fresh handle issue
+  - keep the current `.hako -> MIR proof/publication -> runtime-private executor -> LLVM consumer` design fixed for the next cuts
+  - only reopen representation/ABI design if executor-local thin cuts stop producing wins
+- current test acceptance note:
+  - use `cargo test -q -p nyash_kernel --lib -- --test-threads=1` as the deterministic lane gate
+  - parallel `cargo test -q -p nyash_kernel --lib` is still monitor-only on this lane because cache/view tests are parallel-flaky
+- rejected runtime-private piecewise carrier probe:
+  - attempted to issue a transient piecewise box/handle from `insert_const_mid_fallback` and then fast-path `substring_hii` through that carrier
+  - exact front reread:
+    - `kilo_micro_substring_concat`
+      - `C: instr=1,622,877 / cycles=498,662 / ms=3`
+      - `Ny AOT: instr=1,027,840,243 / cycles=316,717,873 / ms=78`
+  - accept gate stayed healthy:
+    - `kilo_micro_substring_only`
+      - `C: instr=1,622,874 / cycles=497,164 / ms=3`
+      - `Ny AOT: instr=1,669,164 / cycles=1,117,447 / ms=3`
+  - rejected asm/top reread:
+    - `nyash.string.substring_hii: 29.61%`
+    - `insert_const_mid_fallback closure: 25.13%`
+    - `PiecewiseTextBox::clone: 16.28%`
+    - `string_span_cache_put: 5.27%`
+    - `TextPlan::from_pieces: 4.64%`
+  - reading:
+    - transient piecewise object birth, clone, and allocation dominated the hot lane
+    - this front should not mint runtime-private box/handle carriers as the next executor cut
+- rejected single-session memo follow-up:
+  - attempted to remember `source_handle/split/middle_ptr` behind the produced `insert_hsi` handle and short-circuit the next `substring_hii` before the generic slow-plan lane
+  - exact front reread:
+    - `kilo_micro_substring_concat`
+      - `C: instr=1,622,875 / cycles=484,039 / ms=2`
+      - `Ny AOT: instr=1,027,840,321 / cycles=315,379,190 / ms=80`
+  - accept gate stayed healthy:
+    - `kilo_micro_substring_only`
+      - `C: instr=1,622,875 / cycles=502,466 / ms=3`
+      - `Ny AOT: instr=1,669,594 / cycles=1,098,352 / ms=3`
+  - asm/top reread:
+    - `nyash.string.substring_hii: 31.81%`
+    - `insert_const_mid_fallback closure: 24.92%`
+    - `PiecewiseTextBox::clone: 13.63%`
+    - `string_span_cache_put: 9.73%`
+    - `TextPlan::from_pieces: 4.31%`
+  - reading:
+    - a raw handle-keyed sticky memo does not delete the hot executor body; it only adds another shortcut in front of it
+    - do not reopen memo-based substring shortcuts on this front; the next cut must stay executor-local and non-sticky
+- rejected generic direct-build widening:
+  - attempted to read the non-empty `insert_hsi` source in-session and materialize the inserted string directly before the old `TextPlan` fallback
+  - exact front reread:
+    - `kilo_micro_substring_concat`
+      - `C: instr=1,622,920 / cycles=526,196 / ms=3`
+      - `Ny AOT: instr=474,559,696 / cycles=165,012,319 / ms=45`
+  - accept gate stayed healthy:
+    - `kilo_micro_substring_only`
+      - `C: instr=1,622,875 / cycles=491,060 / ms=3`
+      - `Ny AOT: instr=1,669,350 / cycles=1,050,465 / ms=3`
+  - whole-kilo guard regressed:
+    - `kilo_kernel_small_hk: 789 ms`
+  - asm/top reread:
+    - `nyash.string.substring_hii: 30.29%`
+    - `insert_const_mid_fallback closure: 28.59%`
+    - `borrowed_substring_plan_from_handle: 17.38%`
+    - `LocalKey::with: 15.34%`
+    - `__memmove_avx512_unaligned_erms: 2.45%`
+  - reading:
+    - the generic `insert_hsi` direct-build is too wide for this card: it wins the exact front but loses whole-kilo
+    - keep generic `insert_const_mid_fallback` materialization unchanged; the next executor cut must stay corridor-local to the active front
 - landed BoxShape cleanup before reopen:
   - `string_helpers/concat.rs` hot/cold split is landed
   - `string_view.rs` now keeps `substring_plan` / `span_resolve` behind submodule seams
@@ -154,15 +162,17 @@
   - keep `borrowed-view -> materialize-on-escape` as the generic substrate
   - do not add a new string-only MIR dialect
   - landed measurement: the slow-plan arm split is now frozen evidence and the live hot arm is `ViewSpan` only
-  - the required BoxShape cleanup is already landed; do not reopen more structure work before refreshing the measurement bundle unless tests or asm point at a new mixed-responsibility seam
+  - the required BoxShape cleanup is already landed; do not reopen more structure work before another executor-local cut unless tests or asm point at a new mixed-responsibility seam
   - the delete-oriented `mir-rewrite` is now landed on the active front
-  - the next card is `measurement`, not another recognizer/rewrite pass
+  - measurement is now closed on this front; the next card is `runtime-executor`
   - the next local target is:
     - keep the landed `piecewise_subrange_hsiii` publication boundary fixed
-    - add executor-local counters inside `piecewise_subrange_hsiii_fallback`
-    - split `single-session hit / fallback insert / piece shape / empty return` on the same artifact
-    - use the already-existing birth/objectize/handle counters as the backend side of the same measurement bundle
-    - keep that measurement single-session and executor-local; do not mint transient box/handle carriers, sticky memo shortcuts, or generic direct-build widening
+    - keep the measured fast path fixed: `single_session_hit=300000`, `fallback_insert=0`, `all_three=300000`
+    - delete the executor-local tail only:
+      - final owned materialize
+      - `StringBox` / `Arc` objectize
+      - fresh handle issue
+    - do not reopen route logic, piece-shape branching, transient box/handle carriers, sticky memo shortcuts, or generic direct-build widening
   - the follow-on `llvm-export` card only starts after that executor card lands:
     - consume the stabilized corridor with truthful facts
     - do not reopen route eligibility in LLVM metadata

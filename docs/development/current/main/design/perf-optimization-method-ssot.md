@@ -92,14 +92,18 @@ current restart pointer after the active selfhost landing is this one:
   - `kilo_micro_len_substring_views`
 - whole-kilo guard: `kilo_kernel_small_hk`
 - route contract: `.hako -> ny-llvmc(boundary pure-first) -> C ABI`
-- primary owner: `measurement`
+- primary owner: `runtime-executor`
 - proof delta:
-  - `piecewise_subrange_executor_cost_split`
+  - `piecewise_final_materialize_tail_delete`
 - proof region:
   - established facts:
     - borrowed corridor may stay unmaterialized until the final consumer
     - the active corridor is non-escaping
     - the active corridor does not cross a public boundary
+    - the active exact front is already 100% on the landed fast path:
+      - `piecewise_subrange single_session_hit=300000`
+      - `piecewise_subrange fallback_insert=0`
+      - `piecewise_subrange all_three=300000`
   - region limits:
     - active `kilo_micro_substring_concat` corridor only
 - publication boundary:
@@ -114,13 +118,13 @@ current restart pointer after the active selfhost landing is this one:
   - must not become:
     - a generic helper rewrite
 - rewrite target:
-  - from: monolithic `piecewise_subrange_hsiii_fallback` closure sample
-  - to: no code-path rewrite on this card; add executor-local counters only and rejudge on the same artifact
+  - from: `piecewise_subrange_hsiii_fallback` tail that still pays final materialize/objectize/handle cost
+  - to: a thinner executor-local tail on the same published fast path
 - runtime executor:
   - keep the landed `piecewise_subrange_hsiii` publication boundary fixed
-  - add piecewise-specific counters only inside that helper
+  - add tail-local thinning only inside that helper
   - forbid transient box/handle carriers, transient piecewise object clones, allocation-backed helper detours, new route logic, generic non-empty `insert_const_mid_fallback` direct-build widening, or representation/ABI changes on this card
-  - demote nothing on this card
+  - demote no generic helper body on this card
 - owner scope: follow `Owner Scope / Publication Boundary` below; start from `string_helpers/concat` / `string_view` / `host_handles` only if asm top still points there
 - first commands:
   - `tools/checks/dev_gate.sh quick`
@@ -131,16 +135,44 @@ current restart pointer after the active selfhost landing is this one:
 - pre-probe rule:
   - if compiler sources changed, refresh release artifacts before exact/asm probes
 - done condition:
-  - piecewise-specific counters explain the dominant executor-local cost split on the same exact artifact
+  - exact front wins on the same published fast-path artifact
   - `kilo_micro_substring_only` stays inside accept band
   - `kilo_kernel_small_hk` stays inside strict/health band
-  - asm/counter evidence names the next executor delete target without reopening broad source reading
+  - top symbols move away from the current materialize/objectize/handle tail without shifting into new helper/cache traffic
 - reject condition:
-  - the slice widens beyond measurement/counters
+  - the slice widens beyond executor-local tail thinning
   - whole-kilo regresses
   - the slice needs a new MIR rewrite, public ABI, string-only MIR dialect, or representation/ABI change
   - the slice escapes its publication boundary and becomes a generic helper rewrite
   - the slice grows cache/helper traffic or route hinting instead of only splitting the current executor body
+
+## Current Counter Reading Lock
+
+for the active `phase-137x` front, read the current counters like this:
+
+- `str.substring.route total=0`
+- `slow_plan=0`
+- `slow_plan_view_span=0`
+  - old substring route is no longer the blocker
+- `piecewise_subrange total=300000`
+- `piecewise_subrange single_session_hit=300000`
+- `piecewise_subrange fallback_insert=0`
+- `piecewise_subrange all_three=300000`
+  - active front already stays entirely on the landed single-session three-piece fast path
+  - fallback selection and piece-shape branching are not the next delete target
+- `birth.backend materialize_owned_total=300000`
+- `birth.backend string_box_new_total=300000`
+- `birth.backend arc_wrap_total=300000`
+- `birth.backend handle_issue_total=300000`
+  - next delete target is the executor-local tail:
+    - final owned materialize
+    - `StringBox` / `Arc` objectize
+    - fresh handle issue
+
+## Current Test Gate Note
+
+- use `cargo test -q -p nyash_kernel --lib -- --test-threads=1` as the deterministic library acceptance gate for this lane
+- treat parallel `cargo test -q -p nyash_kernel --lib` as monitor-only until cache isolation work removes cache/view test flakiness
 
 ## Current Scheduling Status
 

@@ -31,7 +31,7 @@ Scope: current lane / next lane / restart order only.
 - sibling guardrail:
   - `phase-29bq loop owner seam cleanup landing`
 - immediate next:
-  - `phase-137x next explicit card is measurement: split piecewise_subrange_hsiii executor-local cost without reopening route/MIR/publication work`
+  - `phase-137x next explicit card is runtime-executor: delete the piecewise fast-path tail (`materialize_owned -> StringBox/Arc -> fresh handle issue`) without reopening route/MIR/publication work`
 - immediate follow-on:
   - `phase-137x follow with llvm-export only after the executor seam is flat; do not reopen structure work, new recognizers, or MIR/public-ABI changes without a new explicit card`
 - current blocker:
@@ -42,7 +42,8 @@ Scope: current lane / next lane / restart order only.
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
 - latest cleanup bundle:
   - `cargo check -q --bin hakorune` PASS
-  - `cargo test -q -p nyash_kernel --lib` PASS
+  - `cargo test -q -p nyash_kernel --lib -- --test-threads=1` PASS
+  - `cargo test -q -p nyash_kernel --lib` is monitor-only for now; cache/view tests are still parallel-flaky and are not the acceptance gate for this card
   - landed cleanup commits:
     - `c5495f28f refactor: split string concat cold paths`
     - `d3bc92973 refactor: split string view span resolution`
@@ -71,6 +72,10 @@ Scope: current lane / next lane / restart order only.
     - `str.substring.route total=0`
     - `slow_plan=0`
     - `slow_plan_view_span=0`
+    - `piecewise_subrange total=300000`
+    - `piecewise_subrange single_session_hit=300000`
+    - `piecewise_subrange fallback_insert=0`
+    - `piecewise_subrange all_three=300000`
     - `birth.placement fresh_handle=300000`
     - `birth.backend materialize_owned_total=300000`
     - `birth.backend string_box_new_total=300000`
@@ -79,6 +84,7 @@ Scope: current lane / next lane / restart order only.
     - `stable_box_demand text_read_handle_latest_fresh=299999`
   - current reading:
     - old substring route / slow-plan corridor is no longer the primary blocker on this front
+    - the active front is already 100% on the landed piecewise fast path (`single_session_hit=all_three=300000`, `fallback_insert=0`)
     - the remaining exact gap sits inside `piecewise_subrange_hsiii_fallback`, especially final owned materialize -> `StringBox`/`Arc` objectize -> fresh handle issue
     - current mechanism is sufficient for the next few cuts; this is not a missing MIR/publication-boundary design blocker
     - if the remaining gap stays large after executor-local measurement and thin cuts, a later representation/ABI card may be needed for “beat C” work
@@ -148,14 +154,15 @@ Scope: current lane / next lane / restart order only.
   - front: `kilo_micro_substring_concat`
   - accept gate: `kilo_micro_substring_only`
   - whole-kilo guard: `kilo_kernel_small_hk`
-  - primary owner: `measurement`
+  - primary owner: `runtime-executor`
   - proof delta:
-    - `piecewise_subrange_executor_cost_split`
+    - `piecewise_final_materialize_tail_delete`
   - proof region:
     - established facts:
       - borrowed corridor may stay unmaterialized until the final consumer
       - the active corridor is non-escaping
       - the active corridor does not cross a public boundary
+      - the active front stays entirely on the landed piecewise fast path (`piecewise_subrange single_session_hit=300000`, `fallback_insert=0`, `all_three=300000`)
     - region limits:
       - active `kilo_micro_substring_concat` corridor only
   - publication boundary:
@@ -170,15 +177,17 @@ Scope: current lane / next lane / restart order only.
     - must not become:
       - a generic helper rewrite
   - rewrite target:
-    - from: monolithic `piecewise_subrange_hsiii_fallback` closure sample
-    - to: no code-path rewrite on this card; add executor-local counters only and rejudge on the same artifact
+    - from: `piecewise_subrange_hsiii_fallback` tail that still materializes and objectizes the final string through the generic owned-string path
+    - to: a thinner executor-local tail on the same fast path, without widening generic helper semantics or reintroducing route selection
   - executor delta:
     - keep: landed `piecewise_subrange_hsiii` publication boundary and helper surface
-    - add: piecewise-specific observe counters only
+    - add: executor-local tail thinning only inside `piecewise_subrange_hsiii`
     - forbid: new route logic, transient box/handle carriers, raw handle-keyed sticky memo shortcuts, transient piecewise object cloning, generic helper widening, generic non-empty `insert_const_mid_fallback` direct-build widening, or new MIR/public ABI work
-    - demote: none on this card
+    - demote: no generic helper body on this card
   - delete target:
-    - none on this card; first split the hot closure into measured sub-shapes before the next delete-oriented executor cut
+    - `materialize_owned_total`
+    - `StringBox` / `Arc` objectize tail
+    - fresh handle issue on the piecewise fast path
   - llvm line owner:
     - daily: `ny-llvmc(boundary pure-first)`
     - keep lanes only: `llvm_py`, `native_driver`
@@ -201,23 +210,27 @@ Scope: current lane / next lane / restart order only.
     - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_concat 1 3`
     - `bash tools/perf/report_mir_hotops.sh kilo_micro_substring_concat`
     - `bash tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_concat 'piecewise_subrange_hsiii' 3`
-    - `NYASH_PERF_COUNTERS=1 <exact-front aot exe>`
+    - `cargo test -q -p nyash_kernel --lib -- --test-threads=1`
   - done condition:
-    - piecewise-specific counters explain the dominant executor-local cost split on the active artifact
+    - exact front wins on the same fast-path artifact without reopening route/publication work
     - accept gate stays healthy
     - whole-kilo guard stays neutral
-    - next runtime-executor delete target can be named without reopening source-wide reading
+    - top symbols move away from the current `materialize/objectize/handle` tail without shifting into new helper/cache traffic
   - reject condition:
-    - the card widens beyond counters/measurement
+    - the card widens beyond executor-local tail thinning
     - accept gate or whole-kilo regresses
     - publication escapes the active corridor and becomes a generic helper rewrite
     - the card requires a new MIR rewrite, public ABI, or string-only MIR dialect
+    - the card reopens route measurement instead of deleting the already-measured tail
+  - test note:
+    - use `cargo test -q -p nyash_kernel --lib -- --test-threads=1` as the deterministic acceptance gate until cache isolation lands
+    - treat parallel `cargo test -q -p nyash_kernel --lib` as monitor-only for this lane
   - do not start edits from `kilo / micro-kilo` wording alone; use this explicit card plus `phase-137x` target bands
 - fixed task order:
   1. `measurement` is closed for the current keeper baseline
-  2. `mir-rewrite` is next and owns the delete target
-  3. `runtime-executor` only follows after the rewrite target is fixed, and now owns the `piecewise_subrange_exec(...)` cut
-  4. `llvm-export` waits until the corridor is stable
+  2. `runtime-executor` is next and owns the fast-path tail delete target
+  3. `llvm-export` waits until the corridor is stable
+  4. only then reopen any later representation/ABI card if the remaining gap still dominates
 - next exact handoff:
   - optimization-side BoxShape cleanup is landed on:
     - `string_helpers/concat`

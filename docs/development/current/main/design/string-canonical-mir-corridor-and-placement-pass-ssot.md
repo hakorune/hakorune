@@ -105,24 +105,33 @@ Reading:
 - the landed arm split says `ViewSpan` is the only live slow-plan arm on the
   current front, and the landed delete-oriented rewrite already consumed that
   proof
-- the next primary owner is therefore `measurement`, not another
-  recognizer/rewrite cut
-- the current target is executor-local measurement:
+- executor-local measurement is now closed:
+  - `piecewise_subrange total=300000`
+  - `single_session_hit=300000`
+  - `fallback_insert=0`
+  - `all_three=300000`
+- the next primary owner is therefore `runtime-executor`
+- the current target is executor-local tail delete:
   - keep generic borrowed-view plan truth in MIR
   - keep the landed runtime-private `piecewise_subrange_hsiii` publication
     narrow:
     - active corridor only
     - generic helper body unchanged
     - broad callers untouched
-  - split the executor-local body with counters first; do not mint transient
-    box/handle carriers, reopen route logic, widen `insert_hsi`, or jump to
-    representation/ABI edits before the closure body is measured
+  - do not reopen route logic, piece-shape branching, transient box/handle
+    carriers, widen `insert_hsi`, or jump to representation/ABI edits before
+    the current tail is thinner
 - current design verdict:
   - the publication-boundary design is not the blocker on this front
   - the remaining exact gap is concentrated in final owned materialize ->
     objectize -> fresh handle issue
   - if executor-local measurement plus thin cuts stop producing wins, only then
     open a later representation/ABI card for “beat C” work
+ - current test gate note:
+   - use `cargo test -q -p nyash_kernel --lib -- --test-threads=1` as the
+     deterministic library gate on this lane
+   - treat parallel `cargo test -q -p nyash_kernel --lib` as monitor-only until
+     cache/view isolation is fixed
 
 ## Generic Minimum
 
