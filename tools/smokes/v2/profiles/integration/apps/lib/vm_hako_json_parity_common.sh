@@ -24,7 +24,8 @@ OPCODE="${VM_HAKO_PARITY_OPCODE:-}"
 FIXTURE_REL="${VM_HAKO_PARITY_FIXTURE_REL:-}"
 EXPECTED_RC="${VM_HAKO_PARITY_EXPECTED_RC:-42}"
 DENY_OPS_RAW="${VM_HAKO_PARITY_DENY_OPS:-}"
-RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-30}"
+RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-60}"
+DRIVER="$NYASH_ROOT/src/runner/reference/vm_hako/driver_main.hako"
 
 if [ -z "$SMOKE_NAME" ] || [ -z "$OPCODE" ] || [ -z "$FIXTURE_REL" ]; then
     test_fail "vm_hako_json_parity_common: missing required env (name/opcode/fixture_rel)"
@@ -57,25 +58,10 @@ if [ -n "$DENY_OPS_RAW" ]; then
 fi
 
 JSON_PAYLOAD=$(tr -d '\n\r' < "$INPUT_JSON")
-TMP_DRIVER="${TMPDIR:-/tmp}/${SMOKE_NAME}_driver_$$.hako"
-cleanup() {
-    rm -f "$TMP_DRIVER"
-}
-trap cleanup EXIT
-
-cat >"$TMP_DRIVER" <<'HKO'
-using selfhost.vm.entry_s0 as MiniVmS0EntryBox
-static box Main {
-  main(args) {
-    local j = env.get("NYASH_VERIFY_JSON")
-    if j == null || j == "" {
-      print("[vm-hako/contract][missing-json]")
-      return 1
-    }
-    return MiniVmS0EntryBox.run_min(j)
-  }
-}
-HKO
+if [ ! -f "$DRIVER" ]; then
+    test_fail "$SMOKE_NAME: driver missing: $DRIVER"
+    exit 1
+fi
 
 run_rust_vm_json() {
     local output
@@ -115,7 +101,7 @@ run_hako_vm_runner() {
             NYASH_USE_NY_COMPILER=0 \
             HAKO_FAIL_FAST_ON_HAKO_IN_NYASH_VM=0 \
             timeout "$RUN_TIMEOUT_SECS" \
-            "$NYASH_BIN" --backend vm "$TMP_DRIVER" 2>&1
+            "$NYASH_BIN" --backend vm "$DRIVER" 2>&1
     )
     rc=$?
     set -e

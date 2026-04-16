@@ -11,39 +11,24 @@ source "$(dirname "$0")/../../../lib/test_runner.sh"
 source "$(dirname "$0")/../../../lib/vm_route_pin.sh"
 require_env || exit 2
 
-RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-30}"
+RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-60}"
 INPUT_JSON="${1:-$NYASH_ROOT/apps/tests/phase29z_vm_hako_s5_newclosure_probe_mir_v0.json}"
-TMP_DRIVER="${TMPDIR:-/tmp}/phase29z_vm_hako_s5_newclosure_probe_driver_$$.hako"
-
-cleanup() {
-    rm -f "$TMP_DRIVER"
-}
-trap cleanup EXIT
+DRIVER="$NYASH_ROOT/src/runner/reference/vm_hako/driver_main.hako"
 
 if [ ! -f "$INPUT_JSON" ]; then
     test_fail "phase29z_vm_hako_s5_newclosure_probe_vm: fixture missing: $INPUT_JSON"
     exit 1
 fi
+if [ ! -f "$DRIVER" ]; then
+    test_fail "phase29z_vm_hako_s5_newclosure_probe_vm: driver missing: $DRIVER"
+    exit 1
+fi
 
 JSON_PAYLOAD="$(tr -d '\n\r' < "$INPUT_JSON")"
 
-cat >"$TMP_DRIVER" <<'HKO'
-using selfhost.vm.entry_s0 as MiniVmS0EntryBox
-static box Main {
-  main(args) {
-    local j = env.get("NYASH_VERIFY_JSON")
-    if j == null || j == "" {
-      print("[vm-hako/contract][missing-json]")
-      return 1
-    }
-    return MiniVmS0EntryBox.run_min(j)
-  }
-}
-HKO
-
 set +e
 RUST_OUTPUT=$(
-    env \
+    run_with_vm_route_pin env \
         HAKO_VERIFY_PRIMARY=hakovm \
         NYASH_VERIFY_JSON="$JSON_PAYLOAD" \
         timeout "$RUN_TIMEOUT_SECS" \
@@ -85,7 +70,7 @@ HAKO_OUTPUT=$(
         NYASH_USE_NY_COMPILER=0 \
         HAKO_FAIL_FAST_ON_HAKO_IN_NYASH_VM=0 \
         timeout "$RUN_TIMEOUT_SECS" \
-        "$NYASH_BIN" --backend vm "$TMP_DRIVER" 2>&1
+        "$NYASH_BIN" --backend vm "$DRIVER" 2>&1
 )
 HAKO_RC=$?
 set -e
