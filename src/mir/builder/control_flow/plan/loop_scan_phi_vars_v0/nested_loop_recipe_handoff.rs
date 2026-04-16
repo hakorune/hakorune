@@ -1,31 +1,13 @@
-use crate::mir::builder::control_flow::plan::parts;
-use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::control_flow::recipes::loop_scan_phi_vars_v0::NestedLoopRecipe;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
+use super::helpers::apply_loop_final_values_to_bindings;
 use super::nested_loop_handoff::try_lower_loop_scan_phi_vars_nested_loop_fastpath;
+use super::nested_loop_stmt_only::try_lower_loop_scan_phi_vars_nested_stmt_only;
 
 const LOOP_SCAN_PHI_VARS_ERR: &str = "[normalizer] loop_scan_phi_vars_v0";
-
-fn apply_loop_final_values_to_bindings(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    plan: &LoweredRecipe,
-) {
-    let CorePlan::Loop(loop_plan) = plan else {
-        return;
-    };
-    for (name, value_id) in &loop_plan.final_values {
-        builder
-            .variable_ctx
-            .variable_map
-            .insert(name.clone(), *value_id);
-        if current_bindings.contains_key(name) {
-            current_bindings.insert(name.clone(), *value_id);
-        }
-    }
-}
 
 pub(in crate::mir::builder) fn lower_loop_scan_phi_vars_nested_loop_recipe(
     builder: &mut MirBuilder,
@@ -34,17 +16,13 @@ pub(in crate::mir::builder) fn lower_loop_scan_phi_vars_nested_loop_recipe(
     break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
     nested: &NestedLoopRecipe,
 ) -> Result<Vec<LoweredRecipe>, String> {
-    if let Some(plans) = parts::entry::lower_nested_loop_recipe_stmt_only(
+    if let Some(plans) = try_lower_loop_scan_phi_vars_nested_stmt_only(
         builder,
         current_bindings,
         carrier_step_phis,
         break_phi_dsts,
         nested,
-        LOOP_SCAN_PHI_VARS_ERR,
     )? {
-        for plan in &plans {
-            apply_loop_final_values_to_bindings(builder, current_bindings, plan);
-        }
         return Ok(plans);
     }
 
