@@ -43,7 +43,7 @@ Scope: current lane / next lane / restart order only.
 - next exact handoff:
   - `plan/recipe_tree` now depends on top-level `recipes::{RecipeBody, refs}` owner surfaces
   - `plan/parts/join_scope.rs` split is landed
-  - next shared-infra pointer is the `loop_scan_phi_vars_v0` pipeline entry cleanup / `loop_cond` remaining route import cleanup (`continue-only` + `continue-with-return`)
+  - next shared-infra pointer is the `loop_scan_phi_vars_v0` `segment_linear` cleanup / `loop_cond` remaining recipe-surface inventory (`continue-only` + `continue-with-return`)
   - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
   - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
   - keep `loop_cond` keep-plan residue internal to the family; route-entry should not need a dedicated bridge
@@ -148,6 +148,8 @@ Scope: current lane / next lane / restart order only.
     - `recipes::scan_loop_segments` shared vocabulary is landed at the top-level owner
     - `recipes::loop_cond_break_continue` owner surface is landed at the top-level owner
     - `loop_cond_break_continue` builder lowering now imports facts-owned `cond_block_view` / `expr_bool` / `no_exit_block` / `stmt_view` and recipes-owned `RecipeBody` / `refs` directly; `IfStmtKind` is now item-local
+    - `recipes::loop_cond_return_in_body` owner surface is landed at the top-level owner
+    - remaining `loop_cond` route families now import facts-owned `cond_block_view` and recipes-owned `RecipeBody` / `refs` directly
     - `recipes::loop_bundle_resolver_v0`, `recipes::loop_collect_using_entries_v0`, and `recipes::loop_scan_methods_block_v0` owner surfaces are landed at the top-level owner
     - `recipes::loop_scan_phi_vars_v0` owner surface is landed at the top-level owner
     - `loop_scan_phi_vars_v0` plan-side nested recipe wrapper is removed; lowering now imports the top-level recipes owner directly
@@ -188,7 +190,7 @@ Scope: current lane / next lane / restart order only.
       - `match_return_facts`, `LoopBreakFacts`
       - cond-profile support: `accum_const_loop_facts`, `bool_predicate_scan_facts`, `loop_array_join_facts`, `loop_char_map_facts`
     - next actual move:
-      - inventory `loop_scan_phi_vars_v0` pipeline seam / `loop_cond` remaining route imports for the next exact cut
+      - inventory `loop_scan_phi_vars_v0::segment_linear` seam / `loop_cond` remaining recipe surfaces for the next exact cut
   - end-state folderization epics after the owner-local queue is empty:
     - pin destination buckets for current `plan/` directories under `facts / recipes / verify / lower / ssa / cleanup`
     - move shared descriptive infra first (`facts`, `canon`, `extractors`, `route_shape_recognizers`)

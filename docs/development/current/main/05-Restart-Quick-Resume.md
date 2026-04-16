@@ -38,7 +38,7 @@ bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --onl
 - next exact handoff:
   - `plan/recipe_tree` now depends on top-level `recipes::{RecipeBody, refs}` owner surfaces
   - `plan/parts/join_scope.rs` split is landed
-  - next shared-infra pointer is the `loop_scan_phi_vars_v0` pipeline entry cleanup / `loop_cond` remaining route import cleanup (`continue-only` + `continue-with-return`)
+  - next shared-infra pointer is the `loop_scan_phi_vars_v0` `segment_linear` cleanup / `loop_cond` remaining recipe-surface inventory (`continue-only` + `continue-with-return`)
   - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
   - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
   - keep `loop_cond` keep-plan residue internal to the family
