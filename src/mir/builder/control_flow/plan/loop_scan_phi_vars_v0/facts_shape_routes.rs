@@ -6,14 +6,14 @@ use super::facts_helpers::{
 };
 use super::recipe::LoopScanPhiVarsV0Recipe;
 
-pub(super) struct LoopScanPhiVarsShapeMatch {
+pub(in crate::mir::builder) struct LoopScanPhiVarsShapeMatch {
     pub prefix_end: usize,
     pub nested_idx: usize,
     pub step_start: usize,
     pub recipe: LoopScanPhiVarsV0Recipe,
 }
 
-pub(super) fn try_match_loop_scan_phi_vars_len7_shape(
+pub(in crate::mir::builder) fn try_match_loop_scan_phi_vars_len7_shape(
     body: &[ASTNode],
     loop_var: &str,
 ) -> Result<LoopScanPhiVarsShapeMatch, &'static str> {
@@ -55,7 +55,7 @@ pub(super) fn try_match_loop_scan_phi_vars_len7_shape(
     })
 }
 
-pub(super) fn try_match_loop_scan_phi_vars_ext_shape01(
+pub(in crate::mir::builder) fn try_match_loop_scan_phi_vars_ext_shape01(
     body: &[ASTNode],
     loop_var: &str,
 ) -> Result<LoopScanPhiVarsShapeMatch, &'static str> {

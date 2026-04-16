@@ -68,7 +68,7 @@ pub fn verify_loop_scan_methods_block_v0_recipe(
 
 /// Recipe-first verification for loop_scan_phi_vars_v0.
 pub fn verify_loop_scan_phi_vars_v0_recipe(
-    scan_phi_vars: &crate::mir::builder::control_flow::plan::loop_scan_phi_vars_v0::LoopScanPhiVarsV0Facts,
+    scan_phi_vars: &crate::mir::builder::control_flow::facts::loop_scan_phi_vars_v0::LoopScanPhiVarsV0Facts,
 ) -> Result<(), Freeze> {
     use crate::mir::builder::control_flow::plan::loop_scan_phi_vars_v0::recipe::LoopScanPhiSegment;
 

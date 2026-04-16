@@ -29,6 +29,7 @@ use crate::mir::builder::control_flow::facts::loop_cond_continue_with_return::tr
 use crate::mir::builder::control_flow::facts::loop_cond_return_in_body::try_extract_loop_cond_return_in_body_facts;
 use crate::mir::builder::control_flow::facts::loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts;
 use crate::mir::builder::control_flow::facts::loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts;
+use crate::mir::builder::control_flow::facts::loop_scan_phi_vars_v0::try_extract_loop_scan_phi_vars_v0_facts;
 use crate::mir::builder::control_flow::plan::generic_loop::facts::extract::{
     has_generic_loop_v1_recipe_hint, try_extract_generic_loop_v0_facts,
     try_extract_generic_loop_v1_facts,
@@ -43,7 +44,6 @@ use crate::mir::builder::control_flow::plan::loop_cond::break_continue_recipe::L
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::{
     LoopCondBreakAcceptKind, LoopCondBreakContinueFacts,
 };
-use crate::mir::builder::control_flow::plan::loop_scan_phi_vars_v0::try_extract_loop_scan_phi_vars_v0_facts;
 use crate::mir::builder::control_flow::plan::loop_scan_v0::try_extract_loop_scan_v0_facts;
 use crate::mir::builder::control_flow::plan::loop_true_break_continue::facts::try_extract_loop_true_break_continue_facts;
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlannerContext};

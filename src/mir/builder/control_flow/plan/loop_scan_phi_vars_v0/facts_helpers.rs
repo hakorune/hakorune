@@ -5,7 +5,7 @@ use crate::mir::builder::control_flow::recipes::RecipeBody;
 
 use super::recipe::NestedLoopRecipe;
 
-pub(super) fn release_enabled() -> bool {
+pub(in crate::mir::builder) fn release_enabled() -> bool {
     true
 }
 
@@ -43,7 +43,7 @@ fn is_var_plus_expr(ast: &ASTNode, var: &str) -> bool {
     )
 }
 
-pub(super) fn is_loop_cond_var_lt_var(ast: &ASTNode) -> Option<(String, String)> {
+pub(in crate::mir::builder) fn is_loop_cond_var_lt_var(ast: &ASTNode) -> Option<(String, String)> {
     match ast {
         ASTNode::BinaryOp {
             operator: BinaryOperator::Less,
@@ -179,7 +179,7 @@ pub(super) fn is_loop_without_exit(stmt: &ASTNode) -> bool {
     }
 }
 
-pub(super) fn build_nested_loop_recipe(stmt: &ASTNode) -> Option<NestedLoopRecipe> {
+pub(in crate::mir::builder) fn build_nested_loop_recipe(stmt: &ASTNode) -> Option<NestedLoopRecipe> {
     match stmt {
         ASTNode::Loop {
             condition,
@@ -195,7 +195,7 @@ pub(super) fn build_nested_loop_recipe(stmt: &ASTNode) -> Option<NestedLoopRecip
     }
 }
 
-pub(super) fn contains_exit_outside_nested_loops(stmts: &[ASTNode]) -> bool {
+pub(in crate::mir::builder) fn contains_exit_outside_nested_loops(stmts: &[ASTNode]) -> bool {
     fn walk(stmts: &[ASTNode]) -> bool {
         for stmt in stmts {
             match stmt {

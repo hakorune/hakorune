@@ -26,13 +26,13 @@ use crate::mir::builder::control_flow::facts::loop_cond_continue_with_return::Lo
 use crate::mir::builder::control_flow::facts::loop_cond_return_in_body::LoopCondReturnInBodyFacts;
 use crate::mir::builder::control_flow::facts::loop_scan_methods_block_v0::LoopScanMethodsBlockV0Facts;
 use crate::mir::builder::control_flow::facts::loop_scan_methods_v0::LoopScanMethodsV0Facts;
+use crate::mir::builder::control_flow::facts::loop_scan_phi_vars_v0::LoopScanPhiVarsV0Facts;
 use crate::mir::builder::control_flow::plan::generic_loop::facts_types::{
     GenericLoopV0Facts, GenericLoopV1Facts,
 };
 use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakBodyLocalFacts;
 use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakContinueFacts;
-use crate::mir::builder::control_flow::plan::loop_scan_phi_vars_v0::LoopScanPhiVarsV0Facts;
 use crate::mir::builder::control_flow::plan::loop_scan_v0::LoopScanV0Facts;
 use crate::mir::builder::control_flow::plan::loop_true_break_continue::facts::LoopTrueBreakContinueFacts;
 
