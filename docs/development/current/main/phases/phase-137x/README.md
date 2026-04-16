@@ -48,48 +48,75 @@
   - `kilo_micro_substring_views_only`
   - `kilo_micro_len_substring_views`
 - current broader-corridor reopen front is `kilo_micro_substring_concat`
-- current live reread after the 2026-04-17 runtime-only keeper:
+- current live reread after the 2026-04-17 delete-oriented mir-rewrite keeper:
   - `kilo_micro_substring_only`
-    - `C: instr=1,622,876 / cycles=485,222 / ms=4`
-    - `Ny AOT: instr=1,669,804 / cycles=999,553 / ms=3`
+    - `C: instr=1,622,877 / cycles=484,658 / ms=2`
+    - `Ny AOT: instr=1,669,729 / cycles=1,000,442 / ms=2`
   - `kilo_micro_substring_concat`
     - `C: instr=1,622,875 / cycles=483,822 / ms=3`
-    - `Ny AOT: instr=746,997,552 / cycles=267,440,316 / ms=66`
+    - `Ny AOT: instr=629,360,804 / cycles=253,790,310 / ms=60`
   - `kilo_kernel_small_hk`
-    - `Ny AOT: ms=701`
-  - current route counters on the same front:
-    - `view_arc_cache_miss=600000`
-    - `slow_plan=600000`
-    - `birth.placement borrow_view=600000`
-    - `birth.backend issue_fresh_handle_total=900000`
-    - `slow_plan_return_handle=0`
-    - `slow_plan_return_empty=0`
-    - `slow_plan_freeze_span=0`
-    - `slow_plan_view_span=600000`
+    - `Ny AOT: ms=708`
   - current keeper diff:
-    - carry source carrier `box_id` through `BorrowedSubstringPlan::ViewSpan`
-    - remove the extra `handles::with_handle(...)` on the `substring_hii` `ViewSpan` birth path
+    - rewrite ordered complementary `substring + const + substring` fronts to `nyash.string.insert_hsi` plus one final `nyash.string.substring_hii`
+    - delete hot producer-substring corridors on that front when the single-use chain is provably removable
+    - boundary `pure-first` now accepts `nyash.string.insert_hsi` and plain `nyash.string.substring_hii` on the supported string extern surface
   - current asm/top reread:
-    - `nyash.string.substring_hii: 33.58%`
-    - `LocalKey::with: 21.91%`
-    - `borrowed_substring_plan_from_handle: 17.37%`
-    - `string_substring_concat3_hhhii_export_impl: 14.94%`
+    - `insert_const_mid_fallback: 50.23%`
+    - `nyash.string.substring_hii: 20.47%`
+    - `string_span_cache_put: 8.83%`
+    - `LocalKey::with: 7.43%`
+    - `borrowed_substring_plan_from_handle: 5.12%`
+    - `resolve_string_span_from_view: 4.99%`
+  - rejected runtime-private piecewise carrier probe:
+    - attempted to issue a transient piecewise box/handle from `insert_const_mid_fallback` and then fast-path `substring_hii` through that carrier
+    - exact front reread:
+      - `kilo_micro_substring_concat`
+        - `C: instr=1,622,877 / cycles=498,662 / ms=3`
+        - `Ny AOT: instr=1,027,840,243 / cycles=316,717,873 / ms=78`
+    - accept gate stayed healthy:
+      - `kilo_micro_substring_only`
+        - `C: instr=1,622,874 / cycles=497,164 / ms=3`
+        - `Ny AOT: instr=1,669,164 / cycles=1,117,447 / ms=3`
+    - rejected asm/top reread:
+      - `nyash.string.substring_hii: 29.61%`
+      - `insert_const_mid_fallback closure: 25.13%`
+      - `PiecewiseTextBox::clone: 16.28%`
+      - `string_span_cache_put: 5.27%`
+      - `TextPlan::from_pieces: 4.64%`
+    - reading:
+      - transient piecewise object birth, clone, and allocation dominated the hot lane
+      - this front should not mint runtime-private box/handle carriers as the next executor cut
 - landed BoxShape cleanup before reopen:
   - `string_helpers/concat.rs` hot/cold split is landed
   - `string_view.rs` now keeps `substring_plan` / `span_resolve` behind submodule seams
   - `runtime/host_handles.rs` now keeps `perf_observe` / `text_read` behind submodule seams
 - current restart order after those cleanup commits:
-  1. keep the new exact-front keeper (`746,997,552 instr / 66 ms`) as the only reopen baseline
-  2. choose the next `runtime-executor` cut from the refreshed asm/top bundle, not from pre-cleanup numbers
-  3. do not reopen more BoxShape cleanup unless the next keeper attempt points at a new mixed-responsibility seam
+  1. keep the new exact-front keeper (`629,360,804 instr / 60 ms`) as the only reopen baseline
+  2. lock the generic borrowed-view substrate and delete-oriented task order in the SSOT docs
+  3. keep the landed `mir-rewrite` fixed and choose the next `runtime-executor` cut from the refreshed asm/top bundle, not from pre-cleanup numbers
+  4. only after that executor cut lands, reopen the matching `llvm-export` follow-on
+  5. do not reopen more BoxShape cleanup unless the next keeper attempt points at a new mixed-responsibility seam
 - adopted reading for the next local cut:
   - this front is a borrowed-view lane continuity problem, not a cache-first or leaf-semantics problem
   - keep `borrowed-view -> materialize-on-escape` as the generic substrate
   - do not add a new string-only MIR dialect
   - landed measurement: the slow-plan arm split is now frozen evidence and the live hot arm is `ViewSpan` only
   - the required BoxShape cleanup is already landed; do not reopen more structure work before refreshing the measurement bundle unless tests or asm point at a new mixed-responsibility seam
-  - the next runtime cut after this keeper is still a narrow `runtime-executor` card on `substring -> concat` continuity, but it must target a different branch than the now-landed carried-source lookup removal
+  - the delete-oriented `mir-rewrite` is now landed on the active front
+  - the next card is `runtime-executor`, not another recognizer/rewrite pass
+  - the next executor target is:
+    - delete the hot `insert_const_mid_fallback` corridor
+    - keep the new `insert_hsi + final substring_hii` shape while replacing the fallback body with a runtime-private `piecewise_subrange_exec(...)`-class executor
+    - keep that executor single-session and executor-local; do not mint transient box/handle carriers
+  - the follow-on `llvm-export` card only starts after that executor card lands:
+    - consume the stabilized corridor with truthful facts
+    - do not reopen route eligibility in LLVM metadata
+  - string is the first consumer, not the MIR truth itself; keep the substrate generic enough for later `len` / `compare` / `store` consumers
   - keep handle/TLS/cache lookup isolated as the cold adapter path; reject cache/helper accretion without lane-continuity proof
+  - do not treat helper names as MIR truth; keep `root/provenance/start/len/materialize_policy/consumer_capability` as the generic minimum
+  - the executor itself should be generic enough to serve future piecewise consumers; do not mint another front-specific helper family if `piecewise_subrange_exec(...)` can carry the same load
+  - the first rejected runtime-executor probe already showed that transient box/handle carriers lose on this front, so the next attempt must keep pieces executor-local
 - current broader-corridor genericization rule:
   - do not add a new string-only MIR dialect
   - landed: `string_corridor_candidates` now carry proof-bearing plan metadata for borrowed-slice and concat-triplet routes

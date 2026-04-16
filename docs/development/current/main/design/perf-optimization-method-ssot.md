@@ -94,14 +94,15 @@ current restart pointer after the active selfhost landing is this one:
 - route contract: `.hako -> ny-llvmc(boundary pure-first) -> C ABI`
 - primary owner: `runtime-executor`
 - proof delta:
-  - `borrow_view_continuity_to_concat`
+  - `piecewise_subrange_single_session_no_transient_handle_carrier`
 - rewrite target:
-  - from: `substring_concat3_hhhii` handle corridor
-  - to: `plan-native concat corridor`
+  - from: `insert_hsi` fallback corridor plus final `substring_hii` helper chain
+  - to: `runtime-private single-session piecewise_subrange executor under the same public ABI surface`
 - runtime executor:
-  - add a narrow `concat3_plan_executor`-class hot lane
-  - demote the old handle helper path to cold adapter
-- owner scope: follow `Owner Scope Lock` below; start from `string.rs` / `string_view.rs` / `host_handles.rs` only if asm top still points there
+  - add a narrow `piecewise_subrange_exec(...)`-class hot lane only
+  - forbid transient box/handle carriers, transient piecewise object clones, or allocation-backed helper detours on the hot lane
+  - demote `insert_const_mid_fallback` / handle-TLS span reconstruction to cold adapter
+- owner scope: follow `Owner Scope Lock` below; start from `string_helpers/concat` / `string_view` / `host_handles` only if asm top still points there
 - first commands:
   - `tools/checks/dev_gate.sh quick`
   - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_concat 1 3`
@@ -114,14 +115,16 @@ current restart pointer after the active selfhost landing is this one:
   - `kilo_micro_substring_only` stays inside accept band
   - `kilo_kernel_small_hk` stays inside strict/health band
   - asm/mir evidence explains the next edit owner on the same artifact
-  - new hot owners do not shift to extra cache/TLS/helper traffic
+  - new hot owners shift away from `insert_const_mid_fallback` / `LocalKey::with` / `borrowed_substring_plan_from_handle`
 - reject condition:
   - only a 1-run win exists
   - whole-kilo regresses even if the isolated micro improves
-  - the slice needs a new string-only MIR dialect
+  - the slice needs a new MIR rewrite, public ABI, or string-only MIR dialect
   - the slice broadens into keep-lane owners without route-contract evidence
   - the slice grows cache/helper traffic or route hinting without borrowed-lane continuity proof
   - the slice widens public ABI / VMValue surface instead of staying backend-private
+  - the slice grows front-specific helper names instead of a runtime-private generic executor
+  - the slice makes transient box/handle carriers, `clone`, or `TextPlan::from_pieces` allocation show up as new hot owners
 
 ## Current Scheduling Status
 

@@ -1,8 +1,8 @@
 ---
 Status: Provisional SSOT
 Decision: provisional
-Date: 2026-04-16
-Scope: string hot lane を `.hako policy -> canonical MIR facts -> placement/effect pass -> Rust microkernel -> LLVM` の順で薄くする設計と実装順を固定する。
+Date: 2026-04-17
+Scope: borrowed-view hot corridor を `.hako policy -> canonical MIR facts -> rewrite target -> Rust thin executor -> LLVM` の順で generic substrate として固定し、delete-oriented に進める設計と実装順を固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/design/optimization-task-card-os-ssot.md
@@ -25,9 +25,9 @@ Related:
 
 ## Goal
 
-- string hot lane を「Rust helper を当てる場所」ではなく「Rust に渡る前の意味の曖昧さを減らす場所」として扱う
-- `substring_hii` / `len_h` の leaf tuning を、上流の corridor / boundary 決定へ戻す
-- `.hako -> canonical MIR -> placement/effect pass -> Rust microkernel -> LLVM` の owner split を固定する
+- string hot lane を「Rust helper を当てる場所」ではなく「Rust に渡る前の corridor truth を固定する場所」として扱う
+- `substring_hii` / `len_h` の leaf tuning を、上流の borrowed-view corridor / boundary 決定へ戻す
+- `.hako -> canonical MIR -> rewrite target -> Rust thin executor -> LLVM` の owner split を固定する
 - public IR dialect や public syntax を増やしすぎずに pure Rust lower bound へ近づける
 
 ## Current Perf Reading
@@ -35,38 +35,39 @@ Related:
 Current active broader-corridor front is `kilo_micro_substring_concat`.
 Current accept gate is `kilo_micro_substring_only`.
 
-- live reread on 2026-04-16:
+- live reread on 2026-04-17:
   - `kilo_micro_substring_only`
-    - `C: instr=1,621,628 / cycles=483,969 / ms=2`
-    - `Ny AOT: instr=1,665,429 / cycles=986,500 / ms=3`
+    - `C: instr=1,622,877 / cycles=484,658 / ms=2`
+    - `Ny AOT: instr=1,669,729 / cycles=1,000,442 / ms=2`
   - `kilo_micro_substring_concat`
-    - `C: instr=1,621,627 / cycles=487,745 / ms=3`
-    - `Ny AOT: instr=779,095,086 / cycles=289,761,186 / ms=68`
-- live route counters on the same front:
-  - `str.substring.route total=600000`
-  - `view_arc_cache_miss=600000`
-  - `slow_plan=600000`
-  - `birth.placement borrow_view=600000`
-  - `birth.backend issue_fresh_handle_total=900000`
-  - `slow_plan_return_handle=0`
-  - `slow_plan_return_empty=0`
-  - `slow_plan_freeze_span=0`
-  - `slow_plan_view_span=600000`
+    - `C: instr=1,622,875 / cycles=483,822 / ms=3`
+    - `Ny AOT: instr=629,360,804 / cycles=253,790,310 / ms=60`
 - current top symbols on the same artifact family:
+  - `insert_const_mid_fallback`
   - `nyash.string.substring_hii`
+  - `string_span_cache_put`
   - `std::thread::local::LocalKey<T>::with`
-  - `string_substring_concat3_hhhii_export_impl`
   - `borrowed_substring_plan_from_handle`
+  - `resolve_string_span_from_view`
+- current top symbols on the same artifact family:
+  - delete-oriented `mir-rewrite` is already landed
+  - hot producer-substring re-entry is no longer the primary gap
+  - the new dominant owner is the runtime fallback executor itself
 
 Reading:
 
 - this is no longer a missing `substring` semantics problem
 - this is a borrowed-view lane continuity problem on the `substring -> concat`
-  corridor
-- `BorrowView` already exists as classification, but the hot lane still falls
-  back through handle/TLS/cache/slow-plan mechanics on every iteration
+  corridor, with the remaining gap now concentrated inside the runtime fallback
+  executor
+- `BorrowView` already exists as classification, and the delete-oriented
+  `mir-rewrite` already removed producer-substring churn from the active front
 - the next win should come from preserving `borrowed-view ->
-  materialize-on-escape` continuity, not from adding another cache/helper layer
+  materialize-on-escape` continuity through a single-session piecewise executor,
+  not from adding another cache/helper layer
+- the next end-state should delete the hot `insert_const_mid_fallback` body and
+  the remaining `substring_hii` re-entry on that front, not merely shave more
+  lookup cost inside it
 
 ## Adopted Reading
 
@@ -76,12 +77,50 @@ Reading:
   executor, and LLVM as the consumer of truthful exported facts
 - treat handle/TLS/cache lookup as the cold adapter path, not as the steady-state
   hot lane
-- the landed arm split now says `ViewSpan` is the only live slow-plan arm on the
-  current front
-- the next card is therefore `runtime-executor`, not another cache-first or
-  recognizer-first measurement cut
-- the current executor target is a `concat3_plan_executor`-class hot lane with
-  the old handle helper path demoted to cold adapter work
+- the landed arm split says `ViewSpan` is the only live slow-plan arm on the
+  current front, and the landed delete-oriented rewrite already consumed that
+  proof
+- the next primary owner is therefore `runtime-executor`, not another
+  recognizer/rewrite cut
+- the current target is delete-oriented:
+  - remove the hot `insert_const_mid_fallback` corridor
+  - keep generic borrowed-view plan truth in MIR
+  - add a runtime-private `piecewise_subrange_exec(...)`-class executor under
+    the existing public ABI surface
+  - keep that executor single-session and executor-local; do not mint transient
+    box/handle carriers on the hot lane
+
+## Generic Minimum
+
+The generic substrate must stay narrower than a string-only MIR dialect.
+
+Allowed MIR-side corridor truth:
+
+- root / provenance
+- start
+- len
+- source_kind
+- materialize_policy
+- consumer_capability
+
+Reading lock:
+
+- the plan is generic
+- the first consumer may be string-specific
+- future consumers (`len`, `compare`, `store`) should reuse the same corridor
+  truth without widening MIR vocabulary
+- helper names are not MIR truth
+- runtime-private executor names are also not MIR truth
+
+This means:
+
+- `BorrowedViewPlan` is generic substrate
+- `piecewise_subrange_exec(...)` is the next runtime-private consumer/executor
+- string-specific executor names must stay below the MIR contract seam
+- rejected runtime-private carrier probe:
+  - do not model the next cut as a transient piecewise box/handle carrier
+  - exact front evidence showed `clone` / `TextPlan::from_pieces` /
+    allocation costs dominating that path
 
 ## Fixed Decisions
 
@@ -196,6 +235,12 @@ Rust keeps only stateful mechanics:
 - observer backend
 
 Rust should not keep semantic ambiguity that the compiler can decide earlier.
+
+Delete-oriented reading:
+
+- `substring_hii` generic handle corridor stays as legacy/cold adapter
+- hot `substring -> concat` should move to a plan-native executor path
+- runtime must not own the decision of when that path is legal
 
 ### 5. AOT internal path must not replay ABI facade
 

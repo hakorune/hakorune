@@ -27,13 +27,13 @@ Scope: current lane / next lane / restart order only.
 - expected worktree:
   - clean
 - active lane:
-  - `phase-137x runtime-executor reopen after BoxShape cleanup`
+  - `phase-137x delete-oriented borrowed-view corridor reopen`
 - sibling guardrail:
   - `phase-29bq loop owner seam cleanup landing`
 - immediate next:
-  - `phase-137x next runtime-executor cut only after rereading from the current 746,997,552-instr / 66-ms exact-front keeper`
+  - `phase-137x next explicit card is runtime-executor: replace the hot insert-mid fallback corridor with a single-session runtime-private piecewise_subrange executor that does not mint transient box/handle carriers`
 - immediate follow-on:
-  - `phase-137x keep runtime-only continuity cuts narrow; do not reopen structure work or MIR/public-ABI changes without a new explicit card`
+  - `phase-137x follow with llvm-export only after the executor seam is flat; do not reopen structure work, new recognizers, or MIR/public-ABI changes without a new explicit card`
 - current blocker:
   - `none`
 - latest proof bundle:
@@ -49,30 +49,46 @@ Scope: current lane / next lane / restart order only.
     - `063d06fdc refactor: split host handle perf observe`
     - `f8bb548a3 refactor: split host handle text read session`
 - latest optimization keeper:
-  - landed runtime-only cut:
-    - carry source carrier `box_id` through `BorrowedSubstringPlan::ViewSpan`
-    - remove the extra `handles::with_handle(...)` on the `substring_hii` `ViewSpan` birth path
+  - landed delete-oriented cut:
+    - rewrite ordered complementary `substring + const + substring` fronts to `nyash.string.insert_hsi` plus one final `nyash.string.substring_hii`
+    - delete hot producer-substring corridors on that front when the single-use chain is provably removable
+    - pure-first string extern surface now accepts `nyash.string.insert_hsi` and plain `nyash.string.substring_hii`
   - same-artifact exact front:
     - `kilo_micro_substring_concat`
       - `C: instr=1,622,875 / cycles=483,822 / ms=3`
-      - `Ny AOT: instr=746,997,552 / cycles=267,440,316 / ms=66`
+      - `Ny AOT: instr=629,360,804 / cycles=253,790,310 / ms=60`
   - accept gate:
     - `kilo_micro_substring_only`
-      - `C: instr=1,622,876 / cycles=485,222 / ms=4`
-      - `Ny AOT: instr=1,669,804 / cycles=999,553 / ms=3`
+      - `C: instr=1,622,877 / cycles=484,658 / ms=2`
+      - `Ny AOT: instr=1,669,729 / cycles=1,000,442 / ms=2`
   - whole-kilo guard:
-    - `kilo_kernel_small_hk: 701 ms`
+    - `kilo_kernel_small_hk: 708 ms`
   - asm/top reread:
-    - `nyash.string.substring_hii: 33.58%`
-    - `LocalKey::with: 21.91%`
-    - `borrowed_substring_plan_from_handle: 17.37%`
-    - `string_substring_concat3_hhhii_export_impl: 14.94%`
-  - live route counters stayed:
-    - `view_arc_cache_miss=600000`
-    - `slow_plan=600000`
-    - `slow_plan_view_span=600000`
-    - `birth.placement borrow_view=600000`
-    - `birth.backend issue_fresh_handle_total=900000`
+    - `insert_const_mid_fallback: 50.23%`
+    - `nyash.string.substring_hii: 20.47%`
+    - `string_span_cache_put: 8.83%`
+    - `LocalKey::with: 7.43%`
+    - `borrowed_substring_plan_from_handle: 5.12%`
+    - `resolve_string_span_from_view: 4.99%`
+  - rejected runtime-executor probe:
+    - attempted a runtime-private `piecewise` carrier by issuing a transient box/handle from `insert_const_mid_fallback` and short-circuiting `substring_hii` through that carrier
+    - exact front reread:
+      - `kilo_micro_substring_concat`
+        - `C: instr=1,622,877 / cycles=498,662 / ms=3`
+        - `Ny AOT: instr=1,027,840,243 / cycles=316,717,873 / ms=78`
+    - accept gate stayed healthy:
+      - `kilo_micro_substring_only`
+        - `C: instr=1,622,874 / cycles=497,164 / ms=3`
+        - `Ny AOT: instr=1,669,164 / cycles=1,117,447 / ms=3`
+    - asm/top reread on the rejected probe:
+      - `nyash.string.substring_hii: 29.61%`
+      - `insert_const_mid_fallback closure: 25.13%`
+      - `PiecewiseTextBox::clone: 16.28%`
+      - `string_span_cache_put: 5.27%`
+      - `TextPlan::from_pieces: 4.64%`
+    - reading:
+      - transient piecewise object construction, cloning, and allocation dominated the hot lane
+      - do not reintroduce transient box/handle carriers on this front
 - optimization re-entry card:
   - this remains the active next-cut template on top of the current keeper baseline
   - front: `kilo_micro_substring_concat`
@@ -80,22 +96,34 @@ Scope: current lane / next lane / restart order only.
   - whole-kilo guard: `kilo_kernel_small_hk`
   - primary owner: `runtime-executor`
   - proof delta:
-    - `borrow_view_continuity_to_concat`
+    - `piecewise_subrange_single_session_no_transient_handle_carrier`
   - rewrite target:
-    - from: `substring_concat3_hhhii` handle corridor
-    - to: `plan-native concat corridor`
-  - runtime executor:
-    - add a narrow `concat3_plan_executor`-class hot lane
-    - demote the old handle helper path to cold adapter
+    - from: `insert_hsi` fallback corridor plus final `substring_hii` helper chain
+    - to: `runtime-private single-session piecewise_subrange executor under the same public ABI surface`
+  - executor delta:
+    - add: `piecewise_subrange_exec(...)`-class thin executor only
+    - forbid: transient box/handle carriers, transient piecewise object cloning, or allocation-backed helper indirection on the hot lane
+    - demote: hot `insert_const_mid_fallback` / handle-TLS span reconstruction on this front to cold-adapter candidates
+  - delete target:
+    - hot `insert_const_mid_fallback`
+    - hot `substring_hii` re-entry through handle/TLS span reconstruction on the same front
+    - hot `string_span_cache_put` / `LocalKey::with` traffic on that same front
+    - remaining hot `borrowed_substring_plan_from_handle` / `issue_fresh_handle_from_arc(...)` reconstruction on that executor path
+    - transient box/handle carrier birth, clone, and `TextPlan::from_pieces` allocation on this front
   - llvm line owner:
     - daily: `ny-llvmc(boundary pure-first)`
     - keep lanes only: `llvm_py`, `native_driver`
   - local cut rule:
+    - keep the landed MIR rewrite fixed; do not reopen recognizer/rewrite logic unless new measurements disagree
     - preserve borrowed-view lane continuity; reject cache/helper layer growth without proof
     - keep runtime as executor-only; do not re-recognize eligibility in the helper path
     - do not add a string-only MIR dialect
-    - keep `slow_plan_view_span=600000` as frozen evidence; do not reopen arm-split reading unless new measurements disagree
-    - the current keeper already removed one extra `with_handle` from the `ViewSpan` birth path, so the next cut must target a different hot branch than that carried-source lookup
+    - keep the MIR truth generic: `root/provenance/start/len/materialize_policy/consumer_capability`
+    - keep the public ABI fixed; `insert_hsi` / `substring_hii` pure-first surface support is already landed, so the next cut stays runtime-private
+    - the current keeper already deleted producer substrings from the active front, so the next cut must target the new `insert_const_mid_fallback` dominant owner rather than reopening producer-shape reading
+    - treat `piecewise_subrange_exec(...)` as runtime-private generic executor; do not encode helper names into MIR truth
+    - do not materialize the corridor through a transient piecewise box/handle carrier; keep the next attempt single-session and executor-local
+    - string is the first consumer, not the MIR dialect
   - first commands:
     - `tools/checks/dev_gate.sh quick`
     - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_concat 1 3`
@@ -105,13 +133,19 @@ Scope: current lane / next lane / restart order only.
     - exact front wins under `repeat >= 3`
     - accept gate stays healthy
     - whole-kilo guard does not regress
-    - new hot owners do not shift to extra cache/TLS/helper traffic
+    - new hot owners shift away from `insert_const_mid_fallback` / `LocalKey::with` / `borrowed_substring_plan_from_handle`
   - reject condition:
     - no exact-front win
     - accept gate or whole-kilo regresses
     - cache/helper traffic becomes the new dominant owner
-    - the cut requires a new public ABI or string-only MIR dialect
+    - transient box/handle carriers, clone traffic, or `TextPlan::from_pieces` allocation become hot owners
+    - the cut requires a new MIR rewrite, public ABI, or string-only MIR dialect
   - do not start edits from `kilo / micro-kilo` wording alone; use this explicit card plus `phase-137x` target bands
+- fixed task order:
+  1. `measurement` is closed for the current keeper baseline
+  2. `mir-rewrite` is next and owns the delete target
+  3. `runtime-executor` only follows after the rewrite target is fixed, and now owns the `piecewise_subrange_exec(...)` cut
+  4. `llvm-export` waits until the corridor is stable
 - next exact handoff:
   - optimization-side BoxShape cleanup is landed on:
     - `string_helpers/concat`
@@ -171,9 +205,9 @@ Scope: current lane / next lane / restart order only.
 - latest landed phase:
   - `phase-277x`: optimization lane closeout judgment froze the landed optimization roadmap and handed the mainline back to compiler expressivity / selfhost entry
 - active focus:
-  - `phase-137x`: runtime-executor reopen on top of the 746,997,552-instr / 66-ms exact-front keeper
+  - `phase-137x`: runtime-executor reopen on top of the 629,360,804-instr / 60-ms delete-oriented exact-front keeper
   - `phase-29bq`: sibling cleanup / structure-reform landing under compiler-expressivity-first policy
-  - with blocker=`none`, the next pointer is the next runtime-executor card from the refreshed keeper baseline
+  - with blocker=`none`, the next pointer is the runtime-executor `piecewise_subrange_exec(...)` card from the refreshed keeper baseline, but now with the rejected transient-carrier path explicitly forbidden
 - architecture direction:
   - loop/selfhost cleanup now targets `facts -> route -> recipe -> cfg skeleton -> join sig -> phi materializer -> verifier -> cleanup`
   - keep `facts` descriptive-only and `recipe` normative

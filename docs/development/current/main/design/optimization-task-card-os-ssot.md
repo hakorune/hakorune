@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: current
 Date: 2026-04-16
-Scope: Hakorune optimization work を research ではなく task-card-driven operation として回すための運用正本
+Scope: Hakorune optimization work を research ではなく task-card-driven operation として回し、thin cut ではなく delete-oriented corridor redesign まで扱うための運用正本
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/design/perf-optimization-method-ssot.md
@@ -105,6 +105,9 @@ executor_delta:
   demote: <old helper/corridor or none>
   forbid: []
 
+delete_target:
+  - <hot corridor / helper / call edge that should disappear from the front>
+
 preserves: []
 invalidates: []
 
@@ -166,6 +169,35 @@ rollback:
 
 reject の差分はその場で戻す。履歴は docs にだけ残す。
 
+## Delete-Oriented Rule
+
+exact front が次の条件を同時に満たしたら、次の card は thin cut ではなく
+delete-oriented card として扱う。
+
+- leaf sibling gate はほぼ C に近い
+- exact front だけが桁違いに重い
+- route counters が 1 本の hot corridor に張り付いている
+- sink/cache/store などの前提実装は既に存在する
+
+delete-oriented card の原則:
+
+- `proof_delta` は generic substrate truth に置く
+- `rewrite_target` は hot helper call を cold adapter へ退かせる形で書く
+- `delete_target` は必須
+- runtime は executor だけを持ち、eligibility を再判定しない
+- public ABI / keep lane / language semantics は広げない
+
+典型の順番:
+
+1. `measurement`
+   - hot corridor を same-artifact で固定する
+2. `mir-rewrite`
+   - hot helper call を plan-native corridor へ置き換える
+3. `runtime-executor`
+   - thin executor を足し、旧 helper を cold adapter に降格する
+4. `llvm-export`
+   - corridor が固まったあとで truthful attrs / export verifier を足す
+
 ## Reading Rule
 
 optimization work に入る時は、source より先にこの順番で読む。
@@ -178,21 +210,32 @@ optimization work に入る時は、source より先にこの順番で読む。
 
 ## Current Active Card Shape
 
-current post-selfhost optimization re-entry card is fixed like this:
+current post-selfhost optimization reopen now uses this sequence:
 
 - lane: `phase-137x`
 - front: `kilo_micro_substring_concat`
 - accept gate: `kilo_micro_substring_only`
 - whole-kilo guard: `kilo_kernel_small_hk`
-- primary owner: `runtime-executor`
+- current keeper:
+  - `746,997,552 instr / 66 ms`
+- frozen evidence:
+  - `view_arc_cache_miss=600000`
+  - `slow_plan=600000`
+  - `slow_plan_view_span=600000`
+  - top symbols still include `substring_hii`, `LocalKey::with`, `borrowed_substring_plan_from_handle`
+- next primary owner: `mir-rewrite`
 - proof delta:
-  - `borrow_view_continuity_to_concat`
+  - `borrow_view_continuity_to_final_concat`
 - rewrite target:
   - from: `substring_concat3_hhhii` handle corridor
-  - to: `plan-native concat corridor`
+  - to: `plan-native final-consumer corridor`
 - executor delta:
-  - add: `concat3_plan_executor`-class narrow executor
-  - demote: old handle helper path to cold adapter
+  - add: `none in the rewrite card`
+  - demote: `substring_hii` / `borrowed_substring_plan_from_handle` hot path to cold adapter candidates
+- delete target:
+  - hot call to `substring_hii` from the active `substring -> concat` front
+  - hot re-entry into `borrowed_substring_plan_from_handle`
+  - hot TLS access through `LocalKey::with` on that same front
 - preserves:
   - `.hako` semantics
   - public ABI
