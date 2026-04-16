@@ -31,7 +31,7 @@ Scope: current lane / next lane / restart order only.
 - sibling guardrail:
   - `phase-137x` string corridor / exact-keeper guardrail
 - immediate next:
-  - `return to optimization (kilo / micro-kilo)`
+  - `return to optimization: phase-137x broader-corridor reopen front 'kilo_micro_substring_concat' (accept gate 'kilo_micro_substring_only'; whole-kilo guard 'kilo_kernel_small_hk')`
 - immediate follow-on:
   - `phase-29bq failure-driven only if a new exact blocker appears`
 - current blocker:
@@ -90,7 +90,7 @@ Scope: current lane / next lane / restart order only.
   - `phase-277x`: optimization lane closeout judgment froze the landed optimization roadmap and handed the mainline back to compiler expressivity / selfhost entry
 - active focus:
   - `phase-29bq`: narrow cleanup / structure-reform landing under compiler-expressivity-first policy
-  - with blocker=`none`, the next pointer after the closeout cut returns to optimization (`kilo / micro-kilo`)
+  - with blocker=`none`, the next pointer after the closeout cut returns to optimization on `kilo_micro_substring_concat` with accept gate `kilo_micro_substring_only` and whole-kilo guard `kilo_kernel_small_hk`
 - architecture direction:
   - loop/selfhost cleanup now targets `facts -> route -> recipe -> cfg skeleton -> join sig -> phi materializer -> verifier -> cleanup`
   - keep `facts` descriptive-only and `recipe` normative
@@ -221,7 +221,7 @@ Scope: current lane / next lane / restart order only.
 
 1. `optimization lane closeout judgment`
    - landed and closed
-   - re-entry pointer after the current cleanup landing is `kilo / micro-kilo`
+   - re-entry pointer after the current cleanup landing is `kilo_micro_substring_concat` under `phase-137x` (`kilo_micro_substring_only` accept gate; `kilo_kernel_small_hk` whole-kilo guard)
 2. `phase-29bq selfhost mirbuilder failure-driven`
    - broad gate is green; keep exact blocker capture mode as the default operating rule
 3. `phase-29bq loop owner seam cleanup`
@@ -426,7 +426,7 @@ Scope: current lane / next lane / restart order only.
       - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
       - keep `loop_cond` keep-plan residue internal to the family
       - wait for the next movable symbol to emerge from `loop_cond` or `loop_scan_methods_*`
-      - after this landing closeout, return the next pointer to `optimization (kilo / micro-kilo)`
+      - after this landing closeout, return the next pointer to `optimization on kilo_micro_substring_concat` with accept gate `kilo_micro_substring_only` and whole-kilo guard `kilo_kernel_small_hk`
 
 ## Legacy Compatibility Block
 
