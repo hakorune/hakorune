@@ -36,6 +36,58 @@ Related:
 1. whole-program の差をまず安定 baseline で固定する。
 2. そこから micro leaf を 1 本ずつ exact に削る。
 
+## Explicit Task Card Rule
+
+最適化 lane は `kilo` / `micro kilo` のような曖昧な名前だけで再開してはいけない。
+
+reopen した lane には、必ず次の task card を先に固定する。
+
+1. `front`
+2. `accept gate`
+3. `whole-kilo guard`
+4. `owner scope`
+5. `first commands`
+6. `done condition`
+7. `reject condition`
+
+運用ルール:
+
+- `CURRENT_TASK.md` には live な task card を短く書く
+- phase README には target band / historical evidence / rejected variants を残す
+- `front` だけあって `first commands` や `reject condition` が無い状態では code edit を始めない
+- `kilo / micro-kilo` だけの表現は pointer として不十分なので、そのままでは restart handoff に使わない
+
+## Current Re-entry Task Card
+
+current restart pointer after the active selfhost landing is this one:
+
+- lane owner: `phase-137x`
+- front: `kilo_micro_substring_concat`
+- accept gate: `kilo_micro_substring_only`
+- split keeper checks:
+  - `kilo_micro_substring_views_only`
+  - `kilo_micro_len_substring_views`
+- whole-kilo guard: `kilo_kernel_small_hk`
+- route contract: `.hako -> ny-llvmc(boundary) -> C ABI`
+- owner scope: follow `Owner Scope Lock` below; start from `string.rs` / `string_view.rs` / `host_handles.rs` only if asm top still points there
+- first commands:
+  - `tools/checks/dev_gate.sh quick`
+  - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_concat 1 3`
+  - `bash tools/perf/report_mir_hotops.sh kilo_micro_substring_concat`
+  - `bash tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_concat 'nyash.string.substring_hii' 3`
+- pre-probe rule:
+  - if compiler sources changed, refresh release artifacts before exact/asm probes
+- done condition:
+  - `kilo_micro_substring_concat` holds the current keeper band under `repeat >= 3`
+  - `kilo_micro_substring_only` stays inside accept band
+  - `kilo_kernel_small_hk` stays inside strict/health band
+  - asm/mir evidence explains the next edit owner on the same artifact
+- reject condition:
+  - only a 1-run win exists
+  - whole-kilo regresses even if the isolated micro improves
+  - the slice needs a new string-only MIR dialect
+  - the slice broadens into keep-lane owners without route-contract evidence
+
 ## Current Scheduling Status
 
 - `phase-21_5` perf reopen judgment is now landed with `reopen allowed`.

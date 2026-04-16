@@ -40,6 +40,17 @@ Scope: current lane / next lane / restart order only.
   - `cargo test --lib --no-run` PASS
   - `cargo check --bin hakorune` PASS
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
+- optimization re-entry card:
+  - activate only after the current `phase-29bq` landing closeout
+  - front: `kilo_micro_substring_concat`
+  - accept gate: `kilo_micro_substring_only`
+  - whole-kilo guard: `kilo_kernel_small_hk`
+  - first commands:
+    - `tools/checks/dev_gate.sh quick`
+    - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_concat 1 3`
+    - `bash tools/perf/report_mir_hotops.sh kilo_micro_substring_concat`
+    - `bash tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_concat 'nyash.string.substring_hii' 3`
+  - do not start edits from `kilo / micro-kilo` wording alone; use this explicit card plus `phase-137x` target bands
 - next exact handoff:
   - cleanup / structure reform is in landing-closeout mode; current exact closeout is `folderization residue inventory` (`direct plan import residue`)
   - `plan/recipe_tree` now depends on top-level `recipes::{RecipeBody, refs}` owner surfaces
