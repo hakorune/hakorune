@@ -29,7 +29,7 @@ Related:
 - current lane mode:
   - failure-driven
   - while blocker=`none`, use this lane for narrow cleanup only
-  - next cleanup cut is `loop_cond::break_continue_types` compat wrapper removal
+  - next cleanup cut is `folderization residue inventory` (`direct plan import residue`)
 
 ## 0.3) Loop owner split (current design direction)
 
@@ -160,12 +160,13 @@ Related:
     - `nested_loop_stmt_only`
     - `nested_loop_handoff`
     - compat facts wrapper removal
+    - pipeline entry compat re-export cleanup
   - status:
     - landed and closed
   - still mixed:
     - none confirmed
   - next step:
-    - inventory `loop_scan_methods_block_v0::recipe`
+    - inventory `loop_cond` builder-side residue (`planner_gate` inline)
 - next one-family inventory (`loop_scan_methods_block_v0`):
   - already separate:
     - nested-loop recipe-first fallback handoff (`lower_nested_loop_plan`)
@@ -183,7 +184,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - inventory `loop_cond::break_continue_types`
+    - inventory `loop_cond` builder-side residue (`planner_gate` inline)
 - next one-family inventory (`loop_scan_methods_v0`):
   - already separate:
     - nested-loop recipe-first fallback handoff

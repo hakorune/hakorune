@@ -11,9 +11,3 @@ pub(in crate::mir::builder) mod nested_loop_stmt_only;
 pub(in crate::mir::builder) mod pipeline;
 pub(in crate::mir::builder) mod segment_linear;
 pub(in crate::mir::builder) mod segment_nested_loop;
-
-#[allow(unused_imports)]
-pub(in crate::mir::builder) use crate::mir::builder::control_flow::facts::loop_scan_phi_vars_v0::{
-    try_extract_loop_scan_phi_vars_v0_facts, LoopScanPhiVarsV0Facts,
-};
-pub(in crate::mir::builder) use pipeline::lower_loop_scan_phi_vars_v0;

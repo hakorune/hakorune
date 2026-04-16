@@ -1,8 +1,9 @@
 //! Pipeline for loop_scan_phi_vars_v0: lowering outer loop with nested loops.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::loop_scan_phi_vars_v0::LoopScanPhiVarsV0Facts;
+use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_carriers;
@@ -23,7 +24,6 @@ use std::collections::{BTreeMap, BTreeSet};
 use super::if_branch_scan::lower_loop_scan_phi_vars_found_if_branch_body;
 use super::segment_linear::lower_loop_scan_phi_vars_linear_segment;
 use super::segment_nested_loop::lower_loop_scan_phi_vars_nested_segment;
-use super::LoopScanPhiVarsV0Facts;
 
 const LOOP_SCAN_PHI_VARS_ERR: &str = "[normalizer] loop_scan_phi_vars_v0";
 

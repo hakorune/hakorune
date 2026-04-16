@@ -9,6 +9,7 @@
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::facts::expr_bool::is_supported_bool_expr_with_canon;
 use crate::mir::builder::control_flow::facts::extractors::common_helpers::branch_tail_is_continue_flattened;
+use crate::mir::builder::control_flow::facts::loop_cond_break_continue::ContinueBranchSig;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     flatten_stmt_list, is_true_literal, walk_stmt_list,
 };
@@ -19,7 +20,7 @@ use crate::mir::builder::control_flow::plan::loop_true_break_continue::facts::tr
 use crate::mir::builder::control_flow::plan::nested_loop_depth1::facts::try_extract_nested_loop_depth1_facts;
 use std::collections::BTreeSet;
 
-use super::break_continue_types::{ContinueBranchSig, MAX_NESTED_LOOPS};
+use super::MAX_NESTED_LOOPS;
 
 /// Collect variable names referenced in an expression.
 ///

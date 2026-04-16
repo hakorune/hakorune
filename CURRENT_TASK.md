@@ -44,11 +44,13 @@ Scope: current lane / next lane / restart order only.
   - `plan/recipe_tree` now depends on top-level `recipes::{RecipeBody, refs}` owner surfaces
   - `plan/parts/join_scope.rs` split is landed
   - `loop_scan_phi_vars_v0::nested_loop_handoff` now owns nested fastpath binding application and no longer spills it back through recipe handoff
-  - `plan::loop_cond_shared` is deleted; branch-tail helpers now live under facts common helpers and planner gate stays in `plan/loop_cond`
+  - `plan::loop_cond_shared` is deleted; branch-tail helpers now live under facts common helpers and `planner_gate` is inlined into `break_continue_entry`
   - `plan/loop_cond` compat facts/recipe wrappers are deleted; feature/normalizer callers now import top-level `facts` / `recipes` owners directly
-  - `plan/loop_scan_phi_vars_v0` compat facts wrappers are deleted; the family mod now re-exports top-level `facts::loop_scan_phi_vars_v0` directly
+  - `plan/loop_scan_phi_vars_v0` compat facts/pipeline-entry re-exports are deleted; the family pipeline now imports top-level `facts::loop_scan_phi_vars_v0` directly and composer calls `pipeline::lower_loop_scan_phi_vars_v0` explicitly
   - `plan/loop_scan_methods_block_v0::recipe` is deleted; the family now imports top-level `recipes::loop_scan_methods_block_v0` directly
-  - next shared-infra pointer is `loop_cond::break_continue_types` compat wrapper removal
+  - `loop_cond::break_continue_types` compat wrapper removal is landed
+  - `loop_cond` builder-side inventory (`planner_gate` inline) is landed
+  - next shared-infra pointer is `folderization residue inventory` (`direct plan import residue`)
   - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
   - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
   - keep `loop_cond` keep-plan residue internal to the family; route-entry should not need a dedicated bridge
@@ -120,7 +122,9 @@ Scope: current lane / next lane / restart order only.
     - fixed next handoff:
       - `plan/recipe_tree` now depends on top-level `recipes::{RecipeBody, refs}` owner surfaces
       - `plan/parts/join_scope.rs` split is landed
-      - next shared-infra pointer is the `loop_scan_phi_vars_v0` pipeline entry cleanup / `loop_cond` builder-side inventory
+      - `loop_scan_phi_vars_v0` pipeline entry cleanup is landed
+      - `loop_cond` builder-side inventory (`planner_gate` inline) is landed
+      - next shared-infra pointer is `folderization residue inventory` (`direct plan import residue`)
       - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
       - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
       - keep `loop_cond` keep-plan residue internal to the family

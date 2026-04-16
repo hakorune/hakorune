@@ -1,15 +1,21 @@
 //! Public entry points for loop_cond_break_continue facts extraction.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::facts::loop_cond_break_continue::LoopCondBreakContinueFacts;
 use crate::mir::builder::control_flow::plan::ast_feature_extractor::{
     detect_break_in_body, detect_continue_in_body,
 };
-use crate::mir::builder::control_flow::plan::loop_cond::planner_gate::planner_required_for_loop_cond;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 use super::break_continue_facts::try_extract_loop_cond_break_continue_facts_inner;
 use super::break_continue_helpers::matches_parse_string2_shape;
-use super::break_continue_types::{LoopCondBreakContinueFacts, MAX_NESTED_LOOPS};
+use super::MAX_NESTED_LOOPS;
+
+fn planner_required_for_loop_cond() -> bool {
+    let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
+        || crate::config::env::joinir_dev_enabled();
+    strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled()
+}
 
 fn allow_extended_for_loop_cond_break_continue(
     body: &[ASTNode],

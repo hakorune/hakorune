@@ -5,6 +5,9 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::expr_bool::is_supported_bool_expr_with_canon;
+use crate::mir::builder::control_flow::facts::loop_cond_break_continue::{
+    LoopCondBreakAcceptKind, LoopCondBreakContinueFacts,
+};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::is_true_literal;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
 use crate::mir::builder::control_flow::plan::facts::reject_reason::{
@@ -22,7 +25,6 @@ use super::break_continue_helpers::{
     collect_continue_branch_sigs, detect_handled_guard_break, matches_parse_string2_shape,
 };
 use super::break_continue_item::build_loop_cond_break_continue_recipe;
-use super::break_continue_types::{LoopCondBreakAcceptKind, LoopCondBreakContinueFacts};
 use super::break_continue_validator_exit::returns_only_in_exit_if;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeItem;
 use crate::mir::policies::BodyLoweringPolicy;
@@ -368,7 +370,7 @@ fn if_has_exit_signals(then_body: &[ASTNode], else_body: Option<&Vec<ASTNode>>) 
 
 #[cfg(test)]
 mod tests {
-    use super::super::break_continue_types::MAX_NESTED_LOOPS;
+    use super::super::MAX_NESTED_LOOPS;
     use super::try_extract_loop_cond_break_continue_facts_inner;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
     use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem;

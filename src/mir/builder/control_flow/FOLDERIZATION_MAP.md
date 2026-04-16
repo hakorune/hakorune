@@ -189,7 +189,9 @@ These wrappers are allowed to point at `plan/` until the implementation moves to
 
 - safe tiny wrapper cleanup is exhausted for owner-preserving seams
 - keep `recipes/`, `lower/`, `verify/`, `ssa/`, `cleanup/`, and `facts/` as the active top-level owner surfaces
-- next movable symbols now concentrate on `loop_cond::break_continue_types` compat wrapper removal
+- `loop_cond::break_continue_types` compat wrapper removal is landed
+- `loop_cond` builder-side inventory (`planner_gate` inline) is landed
+- next movable symbols now concentrate on `folderization residue inventory` (`direct plan import residue`)
 
 ## First Cut
 

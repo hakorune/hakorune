@@ -94,10 +94,8 @@ impl RecipeComposer {
                 .debug("[recipe:compose] route=scan_phi_vars_v0 path=recipe_first");
         }
 
-        crate::mir::builder::control_flow::plan::loop_scan_phi_vars_v0::lower_loop_scan_phi_vars_v0(
-            builder, scan_facts, ctx,
-        )
-        .map_err(|e| Freeze::contract(&format!("loop_scan_phi_vars_v0 normalize failed: {}", e)))
+        crate::mir::builder::control_flow::plan::loop_scan_phi_vars_v0::pipeline::lower_loop_scan_phi_vars_v0(builder, scan_facts, ctx)
+            .map_err(|e| Freeze::contract(&format!("loop_scan_phi_vars_v0 normalize failed: {}", e)))
     }
 
     /// Compose loop_scan_v0 facts into LoweredRecipe.

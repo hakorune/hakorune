@@ -19,7 +19,7 @@ Related:
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
 | Blocker | `active blocker = none; stay failure-driven and capture the next exact blocker before widening` |
 | Next | `compiler expressivity first` |
-| After Next | `loop_cond::break_continue_types` compat wrapper removal |
+| After Next | `folderization residue inventory` (`direct plan import residue`) |
 
 ## Current Read
 

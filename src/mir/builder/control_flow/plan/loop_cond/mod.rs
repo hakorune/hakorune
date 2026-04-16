@@ -14,12 +14,12 @@ pub(in crate::mir::builder) mod break_continue_facts;
 pub(in crate::mir::builder) mod break_continue_helpers;
 pub(in crate::mir::builder) mod break_continue_item;
 pub(in crate::mir::builder) mod break_continue_tree;
-pub(in crate::mir::builder) mod break_continue_types;
 pub(in crate::mir::builder) mod break_continue_validator_cond;
 pub(in crate::mir::builder) mod break_continue_validator_else;
 pub(in crate::mir::builder) mod break_continue_validator_exit;
 pub(in crate::mir::builder) mod break_continue_validator_prelude;
-pub(in crate::mir::builder) mod planner_gate;
+
+pub(super) const MAX_NESTED_LOOPS: usize = 8;
 
 // true_break_continue variant (flat file)
 pub(in crate::mir::builder) mod true_break_continue;

@@ -16,7 +16,7 @@ Related:
 - sibling guardrail lane: `phase137x string corridor / exact-keeper guardrail`
 - immediate next: `compiler expressivity first`
 - immediate follow-on: `phase29bq loop owner seam cleanup`
-- top queued cut: `loop_cond::break_continue_types` compat wrapper removal
+- top queued cut: `folderization residue inventory` (`direct plan import residue`)
 - Compiler lane: `phase-29bq`（JIR-PORT-00..08 done / active blocker=`none` / next=`none`）
 - JoinIR port mode（lane A）: monitor-only（failure-driven）
 - loop owner direction:

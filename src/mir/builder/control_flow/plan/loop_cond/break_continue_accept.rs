@@ -5,11 +5,10 @@
 
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::ControlFlowCounts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
+use crate::mir::builder::control_flow::facts::loop_cond_break_continue::LoopCondBreakAcceptKind;
 use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::{
     LoopCondBreakContinueItem, LoopCondBreakContinueRecipe,
 };
-
-use super::break_continue_types::LoopCondBreakAcceptKind;
 
 /// Determine the accept kind based on analysis counters.
 pub(super) fn determine_accept_kind(
