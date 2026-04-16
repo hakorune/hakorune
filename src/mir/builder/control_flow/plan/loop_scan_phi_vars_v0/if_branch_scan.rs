@@ -2,7 +2,6 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_block_recipe;
 use crate::mir::builder::control_flow::facts::stmt_view::try_build_stmt_only_block_recipe;
-use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::control_flow::recipes::loop_scan_phi_vars_v0::NestedLoopRecipe;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
@@ -10,6 +9,9 @@ use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
 use super::nested_loop_recipe_handoff::lower_loop_scan_phi_vars_nested_loop_recipe;
+use super::segment_linear::{
+    lower_loop_scan_phi_vars_linear_segment_verified, verify_loop_scan_phi_vars_linear_segment,
+};
 
 const LOOP_SCAN_PHI_VARS_ERR: &str = "[normalizer] loop_scan_phi_vars_v0";
 
@@ -67,19 +69,13 @@ pub(in crate::mir::builder) fn lower_loop_scan_phi_vars_found_if_branch_body(
                 LOOP_SCAN_PHI_VARS_ERR
             ));
         };
-        let verified = parts::entry::verify_no_exit_block_with_pre(
-            &no_exit.arena,
-            &no_exit.block,
-            LOOP_SCAN_PHI_VARS_ERR,
-            Some(current_bindings),
-        )?;
-        plans.extend(parts::entry::lower_no_exit_block_verified(
+        let verified = verify_loop_scan_phi_vars_linear_segment(&no_exit, current_bindings)?;
+        plans.extend(lower_loop_scan_phi_vars_linear_segment_verified(
             builder,
             current_bindings,
             carrier_step_phis,
-            Some(break_phi_dsts),
+            break_phi_dsts,
             verified,
-            LOOP_SCAN_PHI_VARS_ERR,
         )?);
     }
 
