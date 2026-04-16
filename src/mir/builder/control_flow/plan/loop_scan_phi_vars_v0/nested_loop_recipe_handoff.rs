@@ -3,8 +3,7 @@ use crate::mir::builder::control_flow::recipes::loop_scan_phi_vars_v0::NestedLoo
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
-use super::helpers::apply_loop_final_values_to_bindings;
-use super::nested_loop_handoff::try_lower_loop_scan_phi_vars_nested_loop_fastpath;
+use super::nested_loop_handoff::try_lower_loop_scan_phi_vars_nested_fastpath;
 use super::nested_loop_stmt_only::try_lower_loop_scan_phi_vars_nested_stmt_only;
 
 const LOOP_SCAN_PHI_VARS_ERR: &str = "[normalizer] loop_scan_phi_vars_v0";
@@ -26,14 +25,8 @@ pub(in crate::mir::builder) fn lower_loop_scan_phi_vars_nested_loop_recipe(
         return Ok(plans);
     }
 
-    let plan = try_lower_loop_scan_phi_vars_nested_loop_fastpath(
-        builder,
-        &nested.cond_view.tail_expr,
-        nested.body.as_ref(),
-    )
-    .ok_or_else(|| format!("{LOOP_SCAN_PHI_VARS_ERR}: nested loop fastpath rejected"))?;
-    apply_loop_final_values_to_bindings(builder, current_bindings, &plan);
-    Ok(vec![plan])
+    try_lower_loop_scan_phi_vars_nested_fastpath(builder, current_bindings, nested)
+        .ok_or_else(|| format!("{LOOP_SCAN_PHI_VARS_ERR}: nested loop fastpath rejected"))
 }
 
 #[cfg(test)]

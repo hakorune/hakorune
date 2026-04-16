@@ -8,13 +8,13 @@
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::builder::control_flow::facts::expr_bool::is_supported_bool_expr_with_canon;
+use crate::mir::builder::control_flow::facts::extractors::common_helpers::branch_tail_is_continue_flattened;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     flatten_stmt_list, is_true_literal, walk_stmt_list,
 };
 use crate::mir::builder::control_flow::plan::generic_loop::facts::extract::{
     try_extract_generic_loop_v0_facts, try_extract_generic_loop_v1_facts,
 };
-use crate::mir::builder::control_flow::plan::loop_cond_shared::branch_tail_is_continue_flattened;
 use crate::mir::builder::control_flow::plan::loop_true_break_continue::facts::try_extract_loop_true_break_continue_facts;
 use crate::mir::builder::control_flow::plan::nested_loop_depth1::facts::try_extract_nested_loop_depth1_facts;
 use std::collections::BTreeSet;

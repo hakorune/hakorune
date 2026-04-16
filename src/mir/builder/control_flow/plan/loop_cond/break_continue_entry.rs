@@ -4,7 +4,7 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::ast_feature_extractor::{
     detect_break_in_body, detect_continue_in_body,
 };
-use crate::mir::builder::control_flow::plan::loop_cond_shared::planner_required_for_loop_cond;
+use crate::mir::builder::control_flow::plan::loop_cond::planner_gate::planner_required_for_loop_cond;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 use super::break_continue_facts::try_extract_loop_cond_break_continue_facts_inner;

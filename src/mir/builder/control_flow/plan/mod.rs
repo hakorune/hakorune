@@ -94,8 +94,6 @@ pub(in crate::mir::builder) mod exit_binding_validator;
 pub(in crate::mir::builder) mod loop_bundle_resolver_v0;
 // Phase 29bq+: Stage1UsingResolverBox._collect_using_entries loop (BoxCount)
 pub(in crate::mir::builder) mod loop_collect_using_entries_v0;
-// Phase 29bq P2.x: loop_cond* shared helpers
-pub(in crate::mir::builder) mod loop_cond_shared;
 // Phase 29bq P2.x: unified loop_cond helpers (moved from loop_cond_unified/helpers.rs)
 pub(in crate::mir::builder) mod loop_cond_unified_helpers;
 // Phase 29bq P2.x: unified loop_cond facts (variants)

@@ -20,6 +20,7 @@ pub(in crate::mir::builder) mod break_continue_validator_cond;
 pub(in crate::mir::builder) mod break_continue_validator_else;
 pub(in crate::mir::builder) mod break_continue_validator_exit;
 pub(in crate::mir::builder) mod break_continue_validator_prelude;
+pub(in crate::mir::builder) mod planner_gate;
 
 // continue_only variant
 pub(in crate::mir::builder) mod continue_only_facts;

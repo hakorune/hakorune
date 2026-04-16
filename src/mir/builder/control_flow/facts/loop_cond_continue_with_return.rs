@@ -4,8 +4,8 @@
 //! This is a fixture-derived 1-shape box (BoxCount approach).
 
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::facts::extractors::common_helpers::branch_tail_is_continue;
 use crate::mir::builder::control_flow::plan::loop_cond::loop_cond_unified_helpers;
-use crate::mir::builder::control_flow::plan::loop_cond_shared::branch_tail_is_continue;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::recipes::loop_cond_continue_with_return::{
     ContinueWithReturnItem, ContinueWithReturnRecipe,

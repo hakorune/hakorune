@@ -2,13 +2,12 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::extractors::common_helpers::{
-    count_control_flow, ControlFlowDetector,
+    branch_tail_is_continue, count_control_flow, ControlFlowDetector,
 };
 use crate::mir::builder::control_flow::plan::facts::reject_reason::{
     handoff_tables, log_reject, RejectReason,
 };
 use crate::mir::builder::control_flow::plan::loop_cond::loop_cond_unified_helpers;
-use crate::mir::builder::control_flow::plan::loop_cond_shared::branch_tail_is_continue;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::recipes::loop_cond_continue_only::{
     ContinueOnlyRecipe, ContinueOnlyStmtRecipe,

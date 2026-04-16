@@ -134,6 +134,19 @@ pub(crate) fn has_control_flow_statement(body: &[ASTNode]) -> bool {
     counts.break_count > 0 || counts.continue_count > 0
 }
 
+pub(crate) fn branch_tail_is_continue(body: &[ASTNode]) -> bool {
+    matches!(body.last(), Some(ASTNode::Continue { .. }))
+}
+
+pub(crate) fn branch_tail_is_continue_flattened(body: &[ASTNode]) -> bool {
+    let mut last_stmt = None;
+    walk_stmt_list(body, |stmt| {
+        last_stmt = Some(stmt);
+        false
+    });
+    matches!(last_stmt, Some(ASTNode::Continue { .. }))
+}
+
 /// Phase 286 P2.6: Check if body has ANY if statement (recursive)
 ///
 /// This is a supplementary helper for loop_simple_while extraction to prevent

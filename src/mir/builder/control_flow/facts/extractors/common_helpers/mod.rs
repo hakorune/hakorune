@@ -15,7 +15,8 @@ pub(crate) use super::super::stmt_walk::{
 pub(crate) use condition::{extract_loop_variable, is_true_literal};
 #[allow(unused_imports)]
 pub(crate) use control_flow::{
-    count_control_flow, find_if_else_statement, has_break_statement, has_continue_statement,
+    branch_tail_is_continue, branch_tail_is_continue_flattened, count_control_flow,
+    find_if_else_statement, has_break_statement, has_continue_statement,
     has_control_flow_statement, has_if_else_statement, has_if_statement, has_return_statement,
     ControlFlowCounts, ControlFlowDetector,
 };

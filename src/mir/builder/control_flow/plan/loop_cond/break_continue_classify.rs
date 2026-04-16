@@ -2,11 +2,11 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::expr_bool::is_supported_bool_expr_with_canon;
+use crate::mir::builder::control_flow::facts::extractors::common_helpers::branch_tail_is_continue_flattened;
 use crate::mir::builder::control_flow::facts::no_exit_block::{
     try_build_no_exit_block_recipe, NoExitBlockRecipe,
 };
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::flatten_stmt_list;
-use crate::mir::builder::control_flow::plan::loop_cond_shared::branch_tail_is_continue_flattened;
 
 use super::break_continue_helpers::{branch_has_exit_or_loop, is_nested_loop_allowed};
 use super::break_continue_validator_prelude::exit_prelude_is_allowed;
