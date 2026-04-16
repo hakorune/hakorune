@@ -69,7 +69,8 @@
   - keep `borrowed-view -> materialize-on-escape` as the generic substrate
   - do not add a new string-only MIR dialect
   - landed measurement: the slow-plan arm split is now frozen evidence and the live hot arm is `ViewSpan` only
-  - next runtime cut is a narrow `runtime-executor` card on `substring -> concat` continuity, targeting a `concat3_plan_executor`-class hot lane and keeping the handle helper path cold
+  - before the next runtime cut, land a BoxShape cleanup on `string_helpers/concat.rs` so hot concat executor logic is separated from substring fallback and const-string adapter seams
+  - the next runtime cut after that cleanup is still a narrow `runtime-executor` card on `substring -> concat` continuity, targeting a `concat3_plan_executor`-class hot lane and keeping the handle helper path cold
   - keep handle/TLS/cache lookup isolated as the cold adapter path; reject cache/helper accretion without lane-continuity proof
 - current broader-corridor genericization rule:
   - do not add a new string-only MIR dialect

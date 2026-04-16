@@ -31,9 +31,9 @@ Scope: current lane / next lane / restart order only.
 - sibling guardrail:
   - `phase-137x` string corridor / exact-keeper guardrail
 - immediate next:
-  - `return to optimization: phase-137x broader-corridor reopen front 'kilo_micro_substring_concat' (accept gate 'kilo_micro_substring_only'; whole-kilo guard 'kilo_kernel_small_hk')`
+  - `phase-137x pre-optimization BoxShape cleanup: split the string hot corridor before reopening 'kilo_micro_substring_concat'`
 - immediate follow-on:
-  - `phase-29bq failure-driven only if a new exact blocker appears`
+  - `return to optimization: phase-137x broader-corridor reopen front 'kilo_micro_substring_concat' (accept gate 'kilo_micro_substring_only'; whole-kilo guard 'kilo_kernel_small_hk')`
 - current blocker:
   - `none`
 - latest proof bundle:
@@ -41,7 +41,7 @@ Scope: current lane / next lane / restart order only.
   - `cargo check --bin hakorune` PASS
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
 - optimization re-entry card:
-  - activate only after the current `phase-29bq` landing closeout
+  - activate only after the current `phase-29bq` landing closeout and the pre-optimization BoxShape cleanup below
   - front: `kilo_micro_substring_concat`
   - accept gate: `kilo_micro_substring_only`
   - whole-kilo guard: `kilo_kernel_small_hk`
@@ -78,6 +78,29 @@ Scope: current lane / next lane / restart order only.
     - cache/helper traffic becomes the new dominant owner
     - the cut requires a new public ABI or string-only MIR dialect
   - do not start edits from `kilo / micro-kilo` wording alone; use this explicit card plus `phase-137x` target bands
+- pre-optimization cleanup card:
+  - primary owner: `box-shape cleanup`
+  - scope:
+    - `crates/nyash_kernel/src/exports/string_helpers/concat.rs`
+  - one-sentence problem:
+    - `concat` hot executor, substring fallback, const-string adapters, cache/TLS plumbing live in one file, so narrow perf cuts keep widening into helper traffic
+  - cleanup target:
+    - keep hot concat executor narrow
+    - move substring fallback helpers behind their own module seam
+    - move const-string / C-string adapter helpers behind their own cold module seam
+  - preserves:
+    - public string export surface
+    - current fallback order
+    - existing perf evidence / route counters as frozen evidence
+  - forbid:
+    - no new perf heuristics
+    - no new cache layers
+    - no runtime behavior change
+    - no optimization reopen until this cleanup lands green
+  - acceptance:
+    - `cargo test -p nyash_kernel --lib` stays green
+    - export entrypoints in `string_helpers.rs` stay unchanged
+    - cleanup remains file/module split only
 - next exact handoff:
   - cleanup / structure reform is in landing-closeout mode; current exact closeout is `folderization residue inventory` (`direct plan import residue`)
   - `plan/recipe_tree` now depends on top-level `recipes::{RecipeBody, refs}` owner surfaces
@@ -134,7 +157,7 @@ Scope: current lane / next lane / restart order only.
   - `phase-277x`: optimization lane closeout judgment froze the landed optimization roadmap and handed the mainline back to compiler expressivity / selfhost entry
 - active focus:
   - `phase-29bq`: narrow cleanup / structure-reform landing under compiler-expressivity-first policy
-  - with blocker=`none`, the next pointer after the closeout cut returns to the optimization re-entry card above
+  - with blocker=`none`, the next pointer after the closeout cut goes to the pre-optimization BoxShape cleanup card above, then returns to the optimization re-entry card
 - architecture direction:
   - loop/selfhost cleanup now targets `facts -> route -> recipe -> cfg skeleton -> join sig -> phi materializer -> verifier -> cleanup`
   - keep `facts` descriptive-only and `recipe` normative
