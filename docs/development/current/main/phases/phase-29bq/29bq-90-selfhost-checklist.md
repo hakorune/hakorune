@@ -29,7 +29,7 @@ Related:
 - current lane mode:
   - failure-driven
   - while blocker=`none`, use this lane for narrow cleanup only
-  - next cleanup cut is `loop_scan_phi_vars_v0` pipeline entry cleanup / `loop_cond` builder-side inventory
+  - next cleanup cut is `loop_scan_phi_vars_v0` pipeline entry cleanup / `loop_cond` remaining route import cleanup (`continue-only` + `continue-with-return`)
 
 ## 0.3) Loop owner split (current design direction)
 
@@ -179,7 +179,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - inventory `loop_cond` keep-plan residue / `loop_scan_phi_vars_v0`
+    - inventory `loop_cond` remaining route imports / `loop_scan_phi_vars_v0`
 - next one-family inventory (`loop_scan_methods_v0`):
   - already separate:
     - nested-loop recipe-first fallback handoff
