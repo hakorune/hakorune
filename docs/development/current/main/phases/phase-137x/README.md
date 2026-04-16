@@ -205,12 +205,17 @@
     - pause local tail thinning
     - keep the landed `piecewise_subrange_hsiii` publication boundary fixed
     - carry the measured fast path as frozen evidence: `single_session_hit=300000`, `fallback_insert=0`, `all_three=300000`
-    - landed `mir-proof`:
-      - the active corridor result no longer relies on shim-local heuristics alone
-      - pure-first now requires the MIR-owned publication contract before using the deferred `piecewise_subrange_hsiii` route
-    - next explicit card is `runtime-executor`:
-      - split runtime-private freeze vs publish on the active corridor only
-      - use existing `OwnedBytes` / `TextPlan` seams before considering any broader representation work
+  - landed `mir-proof`:
+    - the active corridor result no longer relies on shim-local heuristics alone
+    - pure-first now requires the MIR-owned publication contract before using the deferred `piecewise_subrange_hsiii` route
+    - shim-local `remember_deferred_piecewise_subrange(...)` / `find_deferred_piecewise_subrange(...)` stay transport-only glue under that contract; they are not proof owners and must not grow legality
+  - next explicit card is `runtime-executor`:
+    - split runtime-private freeze vs publish on the active corridor only
+    - use existing `OwnedBytes` / `TextPlan` seams before considering any broader representation work
+    - next delete target is the eager publication tail only:
+      - `StringBox`
+      - `Arc`
+      - fresh `handle_issue`
     - do not reopen route logic, piece-shape branching, transient box/handle carriers, sticky memo shortcuts, generic direct-build widening, or runtime/shim re-recognition while this two-card return is pending
   - the follow-on `llvm-export` card only starts after that executor card lands:
     - consume the stabilized corridor with truthful facts

@@ -85,6 +85,22 @@ Reading lock:
 - use `publication_boundary` or `non_widening_contract` in docs
 - do not use `scope_lock` as the architecture term; it is too easy to confuse with `.hako` scope
 
+## Publication Terms Quick Map
+
+| Term | Owner | Means | Does not mean |
+| --- | --- | --- | --- |
+| `.hako scope` | `.hako` | lexical / user-visible meaning scope | optimization publish range |
+| `proof_region` | MIR | where one already-legal optimization fact is proven to hold | runtime legality rediscovery |
+| `publication_boundary` | MIR | where a specialized executor may be published without widening | lexical scope, shim memo state |
+| `publication_contract` | MIR plan metadata | concrete backend-consumable proof token carried across JSON/shim transport | standalone route owner |
+| `publication_sink` | candidate/route state | a sink/read of where publication is delayed to | proof token by itself |
+
+Reading lock:
+
+- `publication_boundary` and `publication_contract` are MIR-owned
+- shim-local remembered state may transport them, but may not redefine them
+- if a card cannot say which of these it edits, it is not ready for code
+
 ## Required Card Schema
 
 すべての optimization card は最低限この項目を持つ。

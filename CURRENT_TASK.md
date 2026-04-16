@@ -105,6 +105,7 @@ Scope: current lane / next lane / restart order only.
     - next step is no longer “another thin cut”; it is:
       - landed: `mir-proof` now locks `publish-now not required before first external boundary` as plan metadata
       - next: `runtime-executor` to consume that contract and split freeze vs publish on the active corridor only
+      - shim-local `remember_deferred_piecewise_subrange(...)` / `find_deferred_piecewise_subrange(...)` now read as transport helpers only; they are not proof owners and must not become legality owners
   - rejected runtime-executor probe:
     - attempted a runtime-private `piecewise` carrier by issuing a transient box/handle from `insert_const_mid_fallback` and short-circuiting `substring_hii` through that carrier
     - exact front reread:
@@ -215,6 +216,10 @@ Scope: current lane / next lane / restart order only.
   - rewrite target:
     - from: `piecewise_subrange_hsiii_fallback` tail that still materializes and objectizes the final string through the generic owned-string path
     - to: a thinner executor-local tail on the same fast path, without widening generic helper semantics or reintroducing route selection
+  - delete target:
+    - eager `StringBox`
+    - eager `Arc`
+    - eager `handle_issue`
   - executor delta:
     - keep: landed `piecewise_subrange_hsiii` publication boundary and helper surface
     - add: executor-local tail thinning only inside `piecewise_subrange_hsiii`

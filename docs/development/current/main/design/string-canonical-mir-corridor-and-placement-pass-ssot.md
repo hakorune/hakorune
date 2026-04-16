@@ -103,6 +103,11 @@ Reading:
   - MIR proves the corridor and selects the rewrite target
   - runtime executes the selected runtime-private executor only
   - LLVM consumes the result
+- shim-local remembered/deferred piecewise state is transport glue only:
+  - `remember_deferred_piecewise_subrange(...)`
+  - `find_deferred_piecewise_subrange(...)`
+  - these may carry MIR-owned publication metadata across the pure-first seam
+  - they must not become legality owners or route owners
 - treat handle/TLS/cache lookup as the cold adapter path, not as the steady-state
   hot lane
 - the landed arm split says `ViewSpan` is the only live slow-plan arm on the
@@ -127,6 +132,10 @@ Reading:
   - next `runtime-executor`:
     - split runtime-private freeze vs publish using existing seams such as
       `OwnedBytes` / `TextPlan`
+    - delete only the eager publication tail on the active corridor:
+      - `StringBox`
+      - `Arc`
+      - fresh `handle_issue`
     - do not reopen route logic, piece-shape branching, transient box/handle
       carriers, widen `insert_hsi`, or jump to public-ABI edits on this lane
     - a pure `freeze -> publish` helper split is not a keeper by itself; keep it
