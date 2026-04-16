@@ -29,7 +29,7 @@ Related:
 - current lane mode:
   - failure-driven
   - while blocker=`none`, use this lane for narrow cleanup only
-  - next cleanup cut is `loop_cond` facts trio / `loop_scan_methods_block_v0` recipe owner move
+  - next cleanup cut is `loop_cond` keep-plan residue / `loop_scan_phi_vars_v0` inventory
 
 ## 0.3) Loop owner split (current design direction)
 
@@ -173,12 +173,13 @@ Related:
     - `facts_types`
     - `facts_shape_routes`
     - `facts_recipe_builder`
+    - recipe owner actualization
   - status:
     - landed and closed
   - still mixed:
     - none confirmed
   - next step:
-    - inventory `loop_bundle_resolver_v0`
+    - inventory `loop_cond` keep-plan residue / `loop_scan_phi_vars_v0`
 - next one-family inventory (`loop_scan_methods_v0`):
   - already separate:
     - nested-loop recipe-first fallback handoff
@@ -215,7 +216,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - inventory `loop_cond` facts trio / `loop_scan_methods_block_v0` recipe owner move
+    - inventory `loop_cond` keep-plan residue / `loop_scan_phi_vars_v0`
 - next one-family inventory (`loop_collect_using_entries_v0`):
   - already separate:
     - `pipeline`
@@ -231,7 +232,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - inventory `loop_cond` facts trio / `loop_scan_methods_block_v0` recipe owner move
+    - inventory `loop_cond` keep-plan residue / `loop_scan_phi_vars_v0`
 
 - folderization residue inventory (`direct plan import residue`):
   - landed:
@@ -323,6 +324,9 @@ Related:
     - `facts::loop_scan_methods_v0`
     - `facts::loop_scan_methods_block_v0`
     - `facts::loop_bundle_resolver_v0`
+    - `facts::loop_cond_continue_only`
+    - `facts::loop_cond_continue_with_return`
+    - `facts::loop_cond_return_in_body`
     - `facts::loop_collect_using_entries_v0`
     - `facts::expr_value`
     - `facts::expr_bool`
@@ -336,11 +340,12 @@ Related:
     - `recipes::scan_loop_segments`
     - `recipes::loop_bundle_resolver_v0`
     - `recipes::loop_collect_using_entries_v0`
+    - `recipes::loop_scan_methods_block_v0`
     - `plan/recipe_tree` imports now target top-level `recipes::{RecipeBody, refs}`
   - still mixed:
     - none confirmed
   - next step:
-    - inventory `loop_cond` facts trio / `loop_scan_methods_block_v0` recipe owner move
+    - inventory `loop_cond` keep-plan residue / `loop_scan_phi_vars_v0`
 - next one-family inventory (`loop_scan_v0`):
   - already separate:
     - `facts`

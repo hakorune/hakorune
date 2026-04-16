@@ -43,7 +43,7 @@ Scope: current lane / next lane / restart order only.
 - next exact handoff:
   - `plan/recipe_tree` now depends on top-level `recipes::{RecipeBody, refs}` owner surfaces
   - `plan/parts/join_scope.rs` split is landed
-  - next shared-infra pointer is the `loop_cond` facts trio / `loop_scan_methods_block_v0` recipe owner move
+  - next shared-infra pointer is the `loop_cond` keep-plan residue / `loop_scan_phi_vars_v0` inventory
   - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
   - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
   - keep `loop_cond` keep-plan residue internal to the family; route-entry should not need a dedicated bridge
@@ -115,7 +115,7 @@ Scope: current lane / next lane / restart order only.
     - fixed next handoff:
       - `plan/recipe_tree` now depends on top-level `recipes::{RecipeBody, refs}` owner surfaces
       - `plan/parts/join_scope.rs` split is landed
-      - next shared-infra pointer is the `loop_cond` facts trio / `loop_scan_methods_block_v0` recipe owner move
+      - next shared-infra pointer is the `loop_cond` keep-plan residue / `loop_scan_phi_vars_v0` inventory
       - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
       - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
       - keep `loop_cond` keep-plan residue internal to the family
@@ -134,6 +134,7 @@ Scope: current lane / next lane / restart order only.
     - `facts::loop_scan_methods_v0` facts/type extraction is landed at the top-level owner and now uses facts-owned `no_exit_block` / `stmt_view` helpers
     - `facts::loop_scan_methods_block_v0` facts/type extraction is landed at the top-level owner and now uses facts-owned helper trio
     - `facts::loop_bundle_resolver_v0` owner surface is landed at the top-level owner
+    - `facts::loop_cond_continue_only`, `facts::loop_cond_continue_with_return`, and `facts::loop_cond_return_in_body` owner surfaces are landed at the top-level owner
     - scan-family plan-side lowering now imports top-level `facts::canon::cond_block_view`, `facts::no_exit_block`, `facts::stmt_view`, and `recipes::RecipeBody` directly
     - `facts::loop_collect_using_entries_v0` owner surface is landed at the top-level owner
     - `facts::expr_value` owner surface is landed at the top-level owner
@@ -142,7 +143,7 @@ Scope: current lane / next lane / restart order only.
     - `facts::stmt_view` owner surface is landed at the top-level owner
     - `facts::if_phi_join_facts` owner surface is landed at the top-level owner
     - `recipes::scan_loop_segments` shared vocabulary is landed at the top-level owner
-    - `recipes::loop_bundle_resolver_v0` and `recipes::loop_collect_using_entries_v0` owner surfaces are landed at the top-level owner
+    - `recipes::loop_bundle_resolver_v0`, `recipes::loop_collect_using_entries_v0`, and `recipes::loop_scan_methods_block_v0` owner surfaces are landed at the top-level owner
     - `facts::canon` support is landed at the top-level owner for:
       - `cond`
       - `cond_block_view`
@@ -333,14 +334,15 @@ Scope: current lane / next lane / restart order only.
           - `facts_types` is landed
           - `facts_shape_routes` is landed
           - `facts_recipe_builder` is landed
+          - recipe owner actualization is landed
           - likely first seam:
-            - move the recipe surface to top-level `recipes/`
+            - `none confirmed`
           - closeout:
             - landed
         - likely follow-on seams:
-          - `loop_cond`
+          - `loop_scan_phi_vars_v0`
         - next:
-          - move `loop_scan_methods_block_v0` recipe types to top-level `recipes/`
+          - inventory `loop_cond` keep-plan residue / `loop_scan_phi_vars_v0`
       - `loop_bundle_resolver_v0`
         - current handoff snapshot:
           - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
@@ -358,7 +360,7 @@ Scope: current lane / next lane / restart order only.
         - likely follow-on seams:
           - `loop_cond`
         - next:
-          - inventory `loop_cond` facts trio / `loop_scan_methods_block_v0` recipe owner move
+          - inventory `loop_cond` keep-plan residue / `loop_scan_phi_vars_v0`
       - `loop_collect_using_entries_v0`
         - current handoff snapshot:
           - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
@@ -375,9 +377,9 @@ Scope: current lane / next lane / restart order only.
             - landed
         - likely follow-on seams:
           - `loop_cond`
-          - `loop_scan_methods_block_v0`
+          - `loop_scan_phi_vars_v0`
         - next:
-          - inventory `loop_cond` facts trio / `loop_scan_methods_block_v0` recipe owner move
+          - inventory `loop_cond` keep-plan residue / `loop_scan_phi_vars_v0`
       - `direct plan import residue`
         - current handoff snapshot:
           - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
@@ -388,7 +390,7 @@ Scope: current lane / next lane / restart order only.
             - `none confirmed`
         - likely follow-on seams:
           - `loop_cond`
-          - `loop_scan_methods_*`
+          - `loop_scan_phi_vars_v0`
         - next:
           - inventory remaining compat re-export / wrapper residue behind `recipes / lower`
           - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
