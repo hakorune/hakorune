@@ -36,11 +36,13 @@ static box LlEmitCallPolicyBox {
   }
 
   _set_box_type(out, reg_id, box_type) {
-    out.get("box_type").set(me._reg_key(reg_id), "" + box_type)
+    local key = me._reg_key(me._resolve_copy_alias(out, reg_id))
+    out.get("box_type").set(key, "" + box_type)
   }
 
   _set_array_element_box_type(out, reg_id, box_type) {
-    out.get("array_element_box_type").set(me._reg_key(reg_id), "" + box_type)
+    local key = me._reg_key(me._resolve_copy_alias(out, reg_id))
+    out.get("array_element_box_type").set(key, "" + box_type)
   }
 
   _set_direct_call(out, dst, symbol, memory) {
@@ -48,20 +50,22 @@ static box LlEmitCallPolicyBox {
     row.set("symbol", "" + symbol)
     row.set("memory", "" + memory)
     if dst != null {
-      out.get("direct_call_ok").set(me._reg_key(dst), row)
+      local key = me._reg_key(me._resolve_copy_alias(out, dst))
+      out.get("direct_call_ok").set(key, row)
     }
     out.get("direct_call_by_symbol").set("" + symbol, row)
   }
 
   _set_effect(out, dst, memory) {
     if dst == null { return }
-    out.get("effect").set(me._reg_key(dst), "" + memory)
+    local key = me._reg_key(me._resolve_copy_alias(out, dst))
+    out.get("effect").set(key, "" + memory)
   }
 
   _direct_call_row_or_null(out, reg_id) {
     local rows = out.get("direct_call_ok")
     if rows == null { return null }
-    local key = me._reg_key(reg_id)
+    local key = me._reg_key(me._resolve_copy_alias(out, reg_id))
     if me._map_has(rows, key) != 1 { return null }
     return rows.get(key)
   }
