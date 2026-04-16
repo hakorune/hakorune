@@ -6,6 +6,8 @@ Scope: current Hakorune optimization mechanisms を、legacy wording から curr
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/design/optimization-layer-roadmap-ssot.md
+  - docs/development/current/main/design/optimization-task-card-os-ssot.md
+  - docs/development/current/main/design/llvm-line-ownership-and-boundary-ssot.md
   - docs/development/current/main/design/semantic-optimization-authority-ssot.md
   - docs/development/current/main/design/effect-classification-ssot.md
   - docs/development/current/main/design/perf-optimization-method-ssot.md
@@ -49,10 +51,12 @@ Related:
 ## Read Order
 
 1. [optimization-layer-roadmap-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-layer-roadmap-ssot.md)
-2. [semantic-optimization-authority-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/semantic-optimization-authority-ssot.md)
-3. [perf-optimization-method-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/perf-optimization-method-ssot.md)
-4. [optimization-tag-flow-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-tag-flow-ssot.md)
-5. [value-repr-and-abi-manifest-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md)
+2. [optimization-task-card-os-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-task-card-os-ssot.md)
+3. [llvm-line-ownership-and-boundary-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/llvm-line-ownership-and-boundary-ssot.md)
+4. [semantic-optimization-authority-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/semantic-optimization-authority-ssot.md)
+5. [perf-optimization-method-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/perf-optimization-method-ssot.md)
+6. [optimization-tag-flow-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-tag-flow-ssot.md)
+7. [value-repr-and-abi-manifest-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md)
 
 ## Legacy Wording Map
 
@@ -98,7 +102,7 @@ Related:
 | Area | Role | Status | Current truth |
 | --- | --- | --- | --- |
 | `LLVM fact export` | `exporter` | `landed mechanism (narrow)` | conservative `readonly` and `nocapture` are applied late at builder finalization; stronger attrs/metadata such as `noalias`, `parallel_accesses`, and TBAA remain backlog. See [src/llvm_py/instructions/llvm_attrs.py](/home/tomoaki/git/hakorune-selfhost/src/llvm_py/instructions/llvm_attrs.py), [docs/development/current/main/phases/phase-261x/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-261x/README.md). |
-| `boundary / C ABI export` | `exporter` | `landed mechanism (narrow)` | the live perf/mainline route is `.hako -> ny-llvmc(boundary) -> C ABI`, and narrow string/user-box corridors already consume MIR-side metadata there. This remains an operational mainline route, but architecturally it is an exporter/boundary row rather than an authority row. See [docs/development/current/main/design/optimization-tag-flow-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-tag-flow-ssot.md), [docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md), [crates/nyash_kernel/src/exports/string.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string.rs). |
+| `boundary / C ABI export` | `exporter` | `landed mechanism (narrow)` | the live perf/mainline route is `.hako -> ny-llvmc(boundary pure-first) -> C ABI`, and narrow string/user-box corridors already consume MIR-side metadata there. This remains an operational mainline route, but architecturally it is an exporter/boundary row rather than an authority row. See [docs/development/current/main/design/optimization-tag-flow-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-tag-flow-ssot.md), [docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md), [crates/nyash_kernel/src/exports/string.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string.rs). |
 | `numeric loop / SIMD consumer` | `consumer` | `landed mechanism (narrow)` | integer map/sum/compare-select cuts already consume loop proofs and emit conservative loop-vectorization hints, while profitability stays downstream. See [docs/development/current/main/phases/phase-266x/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-266x/README.md), [docs/development/current/main/phases/phase-267x/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-267x/README.md), [docs/development/current/main/phases/phase-268x/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-268x/README.md). |
 | `IPO / build-time consumer` | `consumer` | `owner seam + scaffold` | callable-node/call-edge contracts and build-policy seams are landed; ThinLTO can emit a companion bitcode artifact, but actual LLVM-side widening remains narrow. See [docs/development/current/main/phases/phase-272x/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-272x/README.md), [docs/development/current/main/phases/phase-273x/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-273x/README.md), [docs/development/current/main/phases/phase-274x/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-274x/README.md), [src/llvm_py/builders/ipo_build_policy.py](/home/tomoaki/git/hakorune-selfhost/src/llvm_py/builders/ipo_build_policy.py). |
 | `PGO hotness overlay` | `consumer` | `scaffold` | generate/use artifacts and sidecars are resolved, but LLVM-side instrumentation/use remains out of scope. Read this as a hotness overlay, not an authority row. See [docs/development/current/main/phases/phase-275x/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-275x/README.md), [docs/development/current/main/phases/phase-276x/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-276x/README.md), [src/llvm_py/builders/pgo_build_policy.py](/home/tomoaki/git/hakorune-selfhost/src/llvm_py/builders/pgo_build_policy.py). |
@@ -108,6 +112,7 @@ Related:
 | Area | Role | Status | Current truth |
 | --- | --- | --- | --- |
 | `optimization export verifier` | `service` | `backlog` | a cross-cutting verifier for MIR contract -> LLVM/C-boundary export consistency is still missing. This should land before widening strong attrs/metadata such as `noalias`, `parallel_accesses`, and TBAA. |
+| `optimization task-card OS` | `service` | `landed mechanism` | live optimization work now reads through an explicit task-card OS with one `primary owner`, one `proof delta`, fixed verdict taxonomy, and immediate revert on reject. See [optimization-task-card-os-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-task-card-os-ssot.md), [perf-optimization-method-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/perf-optimization-method-ssot.md), [CURRENT_TASK.md](/home/tomoaki/git/hakorune-selfhost/CURRENT_TASK.md). |
 
 ## Current Strong vs Weak
 
@@ -127,6 +132,7 @@ Current weak points:
 - thin-entry still lacks a universal backend consumer
 - float-specific widening is still backlog
 - optimization export verifier is still missing
+- current LLVM lane ownership must be read through `ny-llvmc(boundary pure-first)` daily ownership; `llvm_py` and `native_driver` remain keep/bootstrap lanes rather than perf authority owners
 
 ## Phase Pointers
 
@@ -143,6 +149,8 @@ Current weak points:
 
 - use this doc as the current mechanism map
 - use [optimization-layer-roadmap-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-layer-roadmap-ssot.md) as the parent `substrate / producer / exporter / consumer` ordering
+- use [optimization-task-card-os-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-task-card-os-ssot.md) for live optimization card operation
+- use [llvm-line-ownership-and-boundary-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/llvm-line-ownership-and-boundary-ssot.md) for daily vs keep LLVM lane ownership
 - use phase READMEs only for closeout detail and proof commands
 - do not read `@rune` optimization metadata as backend-active until its activation rule changes
 - do not read `LLVM attrs`, `C ABI corridor`, `ThinLTO`, or `PGO` as authority rows

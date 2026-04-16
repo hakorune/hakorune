@@ -7,6 +7,8 @@ Related:
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/15-Workstream-Map.md
   - docs/development/current/main/design/current-optimization-mechanisms-ssot.md
+  - docs/development/current/main/design/optimization-task-card-os-ssot.md
+  - docs/development/current/main/design/llvm-line-ownership-and-boundary-ssot.md
   - docs/development/current/main/design/perf-optimization-method-ssot.md
   - docs/development/current/main/design/optimization-tag-flow-ssot.md
   - docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md
@@ -39,6 +41,11 @@ Read that SSOT when you need:
 - `landed mechanism / owner seam / scaffold / backlog` status
 - legacy wording (`DCE`, `Escape`, `Float`, `Closure`, `handle ABI -> value ABI`) mapped to current roles/rows
 
+The current operation/ownership anchors now live in:
+
+- [optimization-task-card-os-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-task-card-os-ssot.md)
+- [llvm-line-ownership-and-boundary-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/llvm-line-ownership-and-boundary-ssot.md)
+
 ## What has been done
 
 - `stage2plus entry / first optimization wave` is already accepted.
@@ -56,10 +63,14 @@ The current optimization method is stable and intentionally narrow.
 4. Keep optimization metadata parse/noop until the activation rules are met.
 5. Do not mix route/perf work with broad substrate redesign.
 6. Do not read `LLVM attrs`, `C ABI corridor`, `ThinLTO`, or `PGO` as authority rows.
+7. Run every live optimization lane through an explicit task card with one primary owner and one proof delta.
+8. Keep `ny-llvmc(boundary pure-first)` as the daily LLVM owner; `llvm_py` and `native_driver` stay keep lanes unless the route itself is broken.
 
 The detailed ladder and gate rules live in:
 
 - [perf-optimization-method-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/perf-optimization-method-ssot.md)
+- [optimization-task-card-os-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-task-card-os-ssot.md)
+- [llvm-line-ownership-and-boundary-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/llvm-line-ownership-and-boundary-ssot.md)
 - [optimization-tag-flow-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-tag-flow-ssot.md)
 - [optimization-hints-contracts-intrinsic-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md)
 

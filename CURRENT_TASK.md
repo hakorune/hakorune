@@ -45,15 +45,38 @@ Scope: current lane / next lane / restart order only.
   - front: `kilo_micro_substring_concat`
   - accept gate: `kilo_micro_substring_only`
   - whole-kilo guard: `kilo_kernel_small_hk`
+  - primary owner: `runtime-executor`
+  - proof delta:
+    - `borrow_view_continuity_to_concat`
+  - rewrite target:
+    - from: `substring_concat3_hhhii` handle corridor
+    - to: `plan-native concat corridor`
+  - runtime executor:
+    - add a narrow `concat3_plan_executor`-class hot lane
+    - demote the old handle helper path to cold adapter
+  - llvm line owner:
+    - daily: `ny-llvmc(boundary pure-first)`
+    - keep lanes only: `llvm_py`, `native_driver`
   - local cut rule:
     - preserve borrowed-view lane continuity; reject cache/helper layer growth without proof
+    - keep runtime as executor-only; do not re-recognize eligibility in the helper path
     - do not add a string-only MIR dialect
-    - first local observe cut is the arm split of `borrowed_substring_plan_from_live_object(...)`
+    - keep `slow_plan_view_span=600000` as frozen evidence; do not reopen arm-split reading unless new measurements disagree
   - first commands:
     - `tools/checks/dev_gate.sh quick`
     - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_concat 1 3`
     - `bash tools/perf/report_mir_hotops.sh kilo_micro_substring_concat`
     - `bash tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_concat 'nyash.string.substring_hii' 3`
+  - done condition:
+    - exact front wins under `repeat >= 3`
+    - accept gate stays healthy
+    - whole-kilo guard does not regress
+    - new hot owners do not shift to extra cache/TLS/helper traffic
+  - reject condition:
+    - no exact-front win
+    - accept gate or whole-kilo regresses
+    - cache/helper traffic becomes the new dominant owner
+    - the cut requires a new public ABI or string-only MIR dialect
   - do not start edits from `kilo / micro-kilo` wording alone; use this explicit card plus `phase-137x` target bands
 - next exact handoff:
   - cleanup / structure reform is in landing-closeout mode; current exact closeout is `folderization residue inventory` (`direct plan import residue`)
@@ -90,6 +113,12 @@ Scope: current lane / next lane / restart order only.
   - `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
 - string guardrail owner:
   - `docs/development/current/main/phases/phase-137x/README.md`
+- optimization task-card owner:
+  - `docs/development/current/main/design/optimization-task-card-os-ssot.md`
+- llvm line ownership owner:
+  - `docs/development/current/main/design/llvm-line-ownership-and-boundary-ssot.md`
+- llvm boundary lock owner:
+  - `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
 - generic memory lane-B contract owner:
   - `docs/development/current/main/design/generic-memory-dce-observer-owner-contract-ssot.md`
 - observer/control lane-C contract owner:
@@ -105,7 +134,7 @@ Scope: current lane / next lane / restart order only.
   - `phase-277x`: optimization lane closeout judgment froze the landed optimization roadmap and handed the mainline back to compiler expressivity / selfhost entry
 - active focus:
   - `phase-29bq`: narrow cleanup / structure-reform landing under compiler-expressivity-first policy
-  - with blocker=`none`, the next pointer after the closeout cut returns to optimization on `kilo_micro_substring_concat` with accept gate `kilo_micro_substring_only` and whole-kilo guard `kilo_kernel_small_hk`
+  - with blocker=`none`, the next pointer after the closeout cut returns to the optimization re-entry card above
 - architecture direction:
   - loop/selfhost cleanup now targets `facts -> route -> recipe -> cfg skeleton -> join sig -> phi materializer -> verifier -> cleanup`
   - keep `facts` descriptive-only and `recipe` normative
@@ -236,7 +265,7 @@ Scope: current lane / next lane / restart order only.
 
 1. `optimization lane closeout judgment`
    - landed and closed
-   - re-entry pointer after the current cleanup landing is `kilo_micro_substring_concat` under `phase-137x` (`kilo_micro_substring_only` accept gate; `kilo_kernel_small_hk` whole-kilo guard)
+   - re-entry pointer after the current cleanup landing is the optimization re-entry card above under `phase-137x`
 2. `phase-29bq selfhost mirbuilder failure-driven`
    - broad gate is green; keep exact blocker capture mode as the default operating rule
 3. `phase-29bq loop owner seam cleanup`
@@ -441,7 +470,7 @@ Scope: current lane / next lane / restart order only.
       - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
       - keep `loop_cond` keep-plan residue internal to the family
       - wait for the next movable symbol to emerge from `loop_cond` or `loop_scan_methods_*`
-      - after this landing closeout, return the next pointer to `optimization on kilo_micro_substring_concat` with accept gate `kilo_micro_substring_only` and whole-kilo guard `kilo_kernel_small_hk`
+      - after this landing closeout, return the next pointer to the optimization re-entry card above
 
 ## Legacy Compatibility Block
 

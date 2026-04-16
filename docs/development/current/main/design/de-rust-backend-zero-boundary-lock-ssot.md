@@ -77,6 +77,7 @@ backend-zero の final target は次の形に固定する。
 
 1. mainline:
    - caller-facing route is `hakorune -> llvm_codegen boundary-first -> C ABI boundary -> backend helper/native boundary -> object/exe`
+   - daily/mainline LLVM owner is `ny-llvmc(boundary pure-first, compat_replay=none)`; `Harness` and `Native` stay explicit keep lanes
    - `crates/nyash-llvm-compiler/src/main.rs` now delegates input shaping into `src/compile_input.rs` plus emit/link driver dispatch into `src/driver_dispatch.rs`, and `src/driver_dispatch.rs` now further splits harness duties into `src/harness_driver.rs` plus link/finalize duties into `src/link_driver.rs`, so Rust thin-up is now at its stop line and the next backend-zero move is `native_driver.rs` bootstrap keep reduction before exe optimization
    - `ny-llvmc` internal default driver now enters the boundary-owned lane first, not `Harness`
    - `src/host_providers/llvm_codegen.rs` default object path now also tries the direct C ABI boundary before any wrapper keep lane, and the parent file now delegates MIR normalization / transport helpers into `src/host_providers/llvm_codegen/{normalize,transport}.rs` plus boundary-default recipe/compat defaults and FFI library candidate ownership into `src/host_providers/llvm_codegen/defaults.rs`
@@ -128,6 +129,7 @@ backend-zero の final target は次の形に固定する。
 1. `.hako` caller の final owner になること
 2. backend-zero done の acceptance owner になること
 3. Core C ABI / TypeBox ABI v2 と並ぶ恒久 boundary として扱われること
+4. current i64-only replay subset を final LLVM lane ABI model として読ませること
 
 ## 5. Retirement Trigger
 
@@ -163,6 +165,7 @@ backend-zero の final target は次の形に固定する。
 4. `Cranelift keep` を reopen すること
 5. archived `llvm_ir` script-builder route を silently daily route へ戻すこと
 6. backend-zero 完了を理由に Rust / llvmlite source を即 delete すること
+7. `native_driver.rs` の current i64-only subset を architecture target として扱うこと
 
 ## 8. Preservation Before Retirement
 

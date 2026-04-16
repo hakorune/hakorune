@@ -45,6 +45,10 @@ current repo の実態に寄せた canonical classes は次。
    - codec-local temporary only
    - public ABI manifest には直接出さない
 
+These classes are the canonical runtime/manifest vocabulary.
+They do not imply that the current `native_driver` replay subset or the current
+pure-first C subset already consumes every class directly.
+
 ## Current Mapping Rule
 
 current `value_codec` から読むと、次が事実上の substrate rule だよ。
@@ -179,6 +183,9 @@ current hand-written exports are allowed only as inventory input.
 - `value_public` is umbrella-only, not the first manifest vocabulary
 - `BorrowedHandleBox` is the current concrete shape for `handle_borrowed_string`
 - `CodecProfile` is fixed as helper policy, not a public ABI row field
+- current boundary exports may still remain handle/i64-shaped while this
+  manifest rolls out; that temporary transport shape does not override the
+  canonical value-class truth above
 
 ### V2. Freeze manifest schema
 

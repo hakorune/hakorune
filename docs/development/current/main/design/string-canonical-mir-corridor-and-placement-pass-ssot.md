@@ -5,6 +5,8 @@ Date: 2026-04-16
 Scope: string hot lane を `.hako policy -> canonical MIR facts -> placement/effect pass -> Rust microkernel -> LLVM` の順で薄くする設計と実装順を固定する。
 Related:
   - CURRENT_TASK.md
+  - docs/development/current/main/design/optimization-task-card-os-ssot.md
+  - docs/development/current/main/design/llvm-line-ownership-and-boundary-ssot.md
   - docs/development/current/main/phases/phase-137x/README.md
   - docs/development/current/main/design/birth-placement-ssot.md
   - docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md
@@ -46,6 +48,10 @@ Current accept gate is `kilo_micro_substring_only`.
   - `slow_plan=600000`
   - `birth.placement borrow_view=600000`
   - `birth.backend issue_fresh_handle_total=900000`
+  - `slow_plan_return_handle=0`
+  - `slow_plan_return_empty=0`
+  - `slow_plan_freeze_span=0`
+  - `slow_plan_view_span=600000`
 - current top symbols on the same artifact family:
   - `nyash.string.substring_hii`
   - `std::thread::local::LocalKey<T>::with`
@@ -70,9 +76,12 @@ Reading:
   executor, and LLVM as the consumer of truthful exported facts
 - treat handle/TLS/cache lookup as the cold adapter path, not as the steady-state
   hot lane
-- before any new plan-native consumer widening, split the arm cost of
-  `borrowed_substring_plan_from_live_object(...)` so the next cut is selected
-  from real evidence rather than another cache-first guess
+- the landed arm split now says `ViewSpan` is the only live slow-plan arm on the
+  current front
+- the next card is therefore `runtime-executor`, not another cache-first or
+  recognizer-first measurement cut
+- the current executor target is a `concat3_plan_executor`-class hot lane with
+  the old handle helper path demoted to cold adapter work
 
 ## Fixed Decisions
 
@@ -148,10 +157,11 @@ Current follow-on reading:
     - extract `StringKernelPlan` owner
     - stop `relation -> candidate` reverse dependency
     - split shim metadata readers away from generic owner files
-- immediate local observation before the next runtime cut:
-  - split `borrowed_substring_plan_from_live_object(...)` by
+- landed local observation before the next runtime cut:
+  - `borrowed_substring_plan_from_live_object(...)` is now split by
     `ReturnHandle` / `ReturnEmpty` / `FreezeSpan` / `ViewSpan`
-  - keep that split as observe-only cut selection; it is not a new public
+  - live evidence on the active front is `ViewSpan=600000`, others `0`
+  - keep that split as frozen observe-only evidence; it is not a new public
     carrier and not a second IR family
 
 Do not encode:
@@ -451,9 +461,9 @@ For the current lane, read the next work as:
 
 1. keep the owner split fixed: MIR contract, Rust executor, LLVM consumer
 2. preserve `borrowed-view / materialize-on-escape` as the generic substrate
-3. split arm-level observe cost in `borrowed_substring_plan_from_live_object(...)`
+3. keep the landed arm split as frozen evidence and do not reopen it unless new measurements disagree
 4. isolate the cold `handle_to_plan` / `plan_to_handle` adapter seam
-5. only then reopen a narrow plan-native consumer cut on `kilo_micro_substring_concat`
+5. reopen only a narrow `runtime-executor` card on `kilo_micro_substring_concat`
 6. keep `publication_sink` / `materialization_sink` / `direct_kernel_entry`
    as canonical MIR consumers, not as new public ops
 7. only then resume exact-seed retirement and any further runtime leaf cuts

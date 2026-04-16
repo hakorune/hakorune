@@ -10,6 +10,7 @@ Owner: `phase-163x optimization-resume`
 - `string` / `sum` / `user-box` / `array` / `map` は top-level row ではなく pilot として読む
 - `.hako owner -> canonical MIR contract -> Rust mechanics -> LLVM generic optimization` の分業を roadmap に反映する
 - current row を 1 次元の列として読まず、`substrate / producer / exporter / consumer` の 2 軸で読む
+- live optimization work は [optimization-task-card-os-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-task-card-os-ssot.md) の task-card OS で回し、row taxonomy と運用を混ぜない
 
 ## Two-Axis Reading
 
@@ -23,6 +24,19 @@ Do not read the current optimization architecture as one flat row list.
 - then decide rollout order inside that role
 - `LLVM attrs`, `C ABI corridor`, `ThinLTO`, and `PGO` are not authority rows
 - `closure split` and numeric-loop proofs are first-class producers, not only late consumers
+- operational lane ownership stays fixed by [llvm-line-ownership-and-boundary-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/llvm-line-ownership-and-boundary-ssot.md): daily LLVM owner is `ny-llvmc(boundary pure-first)`, while `llvm_py` and `native_driver` remain keep lanes
+
+## Operational Overlay
+
+This roadmap answers `which row owns the truth`.
+
+It does not answer `how to run the next optimization cut`.
+
+For live cuts:
+
+1. use [optimization-task-card-os-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-task-card-os-ssot.md) to fix `primary owner`, `proof delta`, `rewrite target`, and `reject condition`
+2. use [llvm-line-ownership-and-boundary-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/llvm-line-ownership-and-boundary-ssot.md) to keep daily/keep lanes separated
+3. only then place the cut on one row below
 
 ## Substrate Order
 
@@ -91,7 +105,7 @@ Do not read the current optimization architecture as one flat row list.
    - exporter only; not an authority row
    - landed first attrs seam: compat/probe keep builder now applies conservative `readonly` / `nocapture` runtime helper attrs at finalization (`phase261x`)
 2. `boundary / C ABI export`
-   - `.hako -> ny-llvmc(boundary) -> C ABI`
+   - `.hako -> ny-llvmc(boundary pure-first) -> C ABI`
    - boundary stub / runtime helper / manifest export row
    - exporter only; not an authority row
 3. `numeric loop / SIMD consumer`

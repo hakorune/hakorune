@@ -70,6 +70,7 @@
   - object emission via `llc`
   - executable emission via the existing static-first link line
   - direct `ny-llvmc --driver native` replay only; the main build wrapper (`tools/build_llvm.sh`) no longer selects it through `NYASH_LLVM_BACKEND=native`
+  - this i64-only subset applies only to the `--driver native` replay/canary lane; it is not the definition of the daily boundary-owned LLVM lane
 
 ## Minimal Examples
 

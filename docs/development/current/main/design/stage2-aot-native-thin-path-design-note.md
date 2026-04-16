@@ -48,6 +48,8 @@ Related:
 - 最優先ターゲットは `AOT/native` だよ。
 - `rust-vm` は correctness / parity / blocker capture の reference lane として維持する。
 - したがって、設計判断は `AOT/native で per-call overhead を最小化できるか` を主基準にする。
+- daily/mainline consumer は `ny-llvmc(boundary pure-first)` として読む。
+- `native` は explicit replay/canary seam であり、この段階では mainline owner ではない。
 
 ### Dual-lane policy
 
@@ -124,7 +126,8 @@ Related:
   - `hako_substrate` seam
   - backend-private fast leaf
   - native metal keep
-- daily/mainline consumer は `ny-llvm(boundary/native)` だけだよ。
+- daily/mainline consumer is `ny-llvmc(boundary pure-first)`.
+- `native` remains an explicit replay/canary seam only.
 - `llvmlite` は explicit keep lane として同じ source layering を読むが、execution collapse の主導権は持たない。
 - `rust-vm` / debug/reference lane は current layered route を維持してよい。
 - `HostFacade / extern_provider / plugin loader` は hot path owner ではなく、cold dynamic lane として扱う。
@@ -154,6 +157,7 @@ Related:
   - hidden leaf id / hidden symbol
   - monomorphic fast entry
 - internal fast path は public contract に昇格させない。
+- backend-private fast leaves may widen internal value-class-aware execution, but they do not create a third public ABI and do not promote native replay to daily owner.
 - `selector/slot` は public canonical ABI ではなく、backend-private fast lane を組み立てる seam として使う。
 
 ### Allocator / hakozuna boundary
@@ -232,7 +236,7 @@ Related:
   3. semantic-owner cost
   4. dynamic fallback cost
 - benchmark ladder 自体の運用は `perf-optimization-method-ssot.md` を正本にする。
-- perf baseline/acceptance は `ny-llvm(boundary) -> C ABI` を主線に固定し、`llvmlite` は perf lane の judge に使わない。
+- perf baseline/acceptance は `.hako -> ny-llvmc(boundary pure-first) -> C ABI` を主線に固定し、`llvmlite` と `native` keep lanes は perf lane の architecture evidence に使わない。
 
 ## Immediate Next Task
 

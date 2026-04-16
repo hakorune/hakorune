@@ -60,11 +60,16 @@
     - `slow_plan=600000`
     - `birth.placement borrow_view=600000`
     - `birth.backend issue_fresh_handle_total=900000`
+    - `slow_plan_return_handle=0`
+    - `slow_plan_return_empty=0`
+    - `slow_plan_freeze_span=0`
+    - `slow_plan_view_span=600000`
 - adopted reading for the next local cut:
   - this front is a borrowed-view lane continuity problem, not a cache-first or leaf-semantics problem
   - keep `borrowed-view -> materialize-on-escape` as the generic substrate
   - do not add a new string-only MIR dialect
-  - next runtime cut is the arm-level observe split of `borrowed_substring_plan_from_live_object(...)`
+  - landed measurement: the slow-plan arm split is now frozen evidence and the live hot arm is `ViewSpan` only
+  - next runtime cut is a narrow `runtime-executor` card on `substring -> concat` continuity, targeting a `concat3_plan_executor`-class hot lane and keeping the handle helper path cold
   - keep handle/TLS/cache lookup isolated as the cold adapter path; reject cache/helper accretion without lane-continuity proof
 - current broader-corridor genericization rule:
   - do not add a new string-only MIR dialect

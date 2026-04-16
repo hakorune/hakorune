@@ -3,6 +3,8 @@ Status: SSOT
 Scope: `kilo` / `micro kilo` を起点にした exe 最適化の測定順序・判断順序・止め線
 Related:
 - docs/development/current/main/DOCS_LAYOUT.md
+- docs/development/current/main/design/optimization-task-card-os-ssot.md
+- docs/development/current/main/design/llvm-line-ownership-and-boundary-ssot.md
 - docs/development/current/main/design/stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md
 - docs/development/current/main/design/optimization-tag-flow-ssot.md
 - docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md
@@ -36,6 +38,24 @@ Related:
 1. whole-program の差をまず安定 baseline で固定する。
 2. そこから micro leaf を 1 本ずつ exact に削る。
 
+## Task-Card OS Anchor
+
+live optimization work is now governed by
+[optimization-task-card-os-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-task-card-os-ssot.md).
+
+This doc owns:
+
+- measurement order
+- benchmark/asm judge
+- live restart card placement
+
+It does not replace the task-card OS fields themselves.
+For every live cut, read these together:
+
+1. [optimization-task-card-os-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-task-card-os-ssot.md)
+2. this document
+3. [llvm-line-ownership-and-boundary-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/llvm-line-ownership-and-boundary-ssot.md)
+
 ## Explicit Task Card Rule
 
 最適化 lane は `kilo` / `micro kilo` のような曖昧な名前だけで再開してはいけない。
@@ -45,10 +65,13 @@ reopen した lane には、必ず次の task card を先に固定する。
 1. `front`
 2. `accept gate`
 3. `whole-kilo guard`
-4. `owner scope`
-5. `first commands`
-6. `done condition`
-7. `reject condition`
+4. `primary owner`
+5. `proof delta`
+6. `rewrite target`
+7. `owner scope`
+8. `first commands`
+9. `done condition`
+10. `reject condition`
 
 運用ルール:
 
@@ -68,7 +91,16 @@ current restart pointer after the active selfhost landing is this one:
   - `kilo_micro_substring_views_only`
   - `kilo_micro_len_substring_views`
 - whole-kilo guard: `kilo_kernel_small_hk`
-- route contract: `.hako -> ny-llvmc(boundary) -> C ABI`
+- route contract: `.hako -> ny-llvmc(boundary pure-first) -> C ABI`
+- primary owner: `runtime-executor`
+- proof delta:
+  - `borrow_view_continuity_to_concat`
+- rewrite target:
+  - from: `substring_concat3_hhhii` handle corridor
+  - to: `plan-native concat corridor`
+- runtime executor:
+  - add a narrow `concat3_plan_executor`-class hot lane
+  - demote the old handle helper path to cold adapter
 - owner scope: follow `Owner Scope Lock` below; start from `string.rs` / `string_view.rs` / `host_handles.rs` only if asm top still points there
 - first commands:
   - `tools/checks/dev_gate.sh quick`
@@ -82,12 +114,14 @@ current restart pointer after the active selfhost landing is this one:
   - `kilo_micro_substring_only` stays inside accept band
   - `kilo_kernel_small_hk` stays inside strict/health band
   - asm/mir evidence explains the next edit owner on the same artifact
+  - new hot owners do not shift to extra cache/TLS/helper traffic
 - reject condition:
   - only a 1-run win exists
   - whole-kilo regresses even if the isolated micro improves
   - the slice needs a new string-only MIR dialect
   - the slice broadens into keep-lane owners without route-contract evidence
   - the slice grows cache/helper traffic or route hinting without borrowed-lane continuity proof
+  - the slice widens public ABI / VMValue surface instead of staying backend-private
 
 ## Current Scheduling Status
 
@@ -95,7 +129,7 @@ current restart pointer after the active selfhost landing is this one:
 - when read from the stage axis, the parent task pack is `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md`: the first stage2+ optimization wave is `route/perf only`, and Rune optimization metadata remains `parse/noop` with backend-active consumption deferred.
 - reopen order is fixed like this:
   1. confirm the pre-perf runway in `phase-29ck/P7-PRE-PERF-RUNWAY-TASK-PACK.md` is closed
-  2. confirm the boundary mainline route is stable on `.hako -> ny-llvmc(boundary) -> C ABI`
+  2. confirm the boundary mainline route is stable on `.hako -> ny-llvmc(boundary pure-first) -> C ABI`
   3. land the explicit `perf/kilo` reopen judgment
   4. if that judgment is green, reopen `kilo` / `micro kilo`
 - current `P8/P9` evidence now allows reopen:
@@ -119,9 +153,10 @@ current restart pointer after the active selfhost landing is this one:
 - when the lane is on `freeze.str`, do not mix sink canonicalization with route/helper splitting in the same commit series.
 - historical retained-boundary sink-local ordering below remains evidence only.
 - current phase-137x re-entry order is fixed:
-  1. split arm-level observe cost in `borrowed_substring_plan_from_live_object(...)`
+  1. keep the landed arm split (`slow_plan_view_span` only) as frozen evidence
   2. isolate the cold `handle_to_plan` / `plan_to_handle` adapter seam
-  3. reopen only a narrow plan-native consumer cut on `kilo_micro_substring_concat`
+  3. reopen only a narrow runtime-executor card on `kilo_micro_substring_concat`
+  4. keep the rewrite target on a plan-native concat corridor and do not reopen recognizer/cache-first work
 - reject any cache-layer growth, helper-traffic growth, or route hinting that does not first prove borrowed-lane continuity on the same artifact.
 - compile-time placement helper `crates/nyash_kernel/src/exports/string_birth_placement.rs` is now landed; the next exact lane is upstream birth-density proof with `array_set` as the first `Store` boundary, rather than any further sink-local cut.
 - the next large-cut owner is now compiler-local placement, not helper-local widening:
@@ -160,6 +195,7 @@ current restart pointer after the active selfhost landing is this one:
   - `src/llvm_py/**`
   - `tools/llvmlite_harness.py`
   - `crates/nyash-llvm-compiler/src/harness_driver.rs`
+  - `crates/nyash-llvm-compiler/src/native_driver.rs`
   - explicit keep-lane selectors and their docs/tests
 - operational rule:
   - start from `bench_micro_aot_asm.sh` top symbols and follow the symbol owner
@@ -174,9 +210,10 @@ current restart pointer after the active selfhost landing is this one:
    - 入口: `tools/perf/bench_compare_c_py_vs_hako_stable.sh`
    - 役割: C / Python / Hako / AOT の whole-program 差を見る
    - 使い方: `PERF_AOT_SKIP_BUILD=0` の fresh build を baseline にする
-  - route contract: AOT lane is `.hako -> ny-llvmc(boundary) -> C ABI`
+  - route contract: AOT lane is `.hako -> ny-llvmc(boundary pure-first) -> C ABI`
   - `llvmlite` / harness is a correctness/compat keep, not a perf baseline
   - `native` direct keep lane is also outside the perf judge
+  - keep lanes are invalid not only as comparators but also as architecture evidence for daily perf cuts
 
 2. Leaf-proof micro ladder
    - 入口: `tools/perf/run_kilo_leaf_proof_ladder.sh`
@@ -238,7 +275,7 @@ current restart pointer after the active selfhost landing is this one:
 
 - language annotations (`@rune Hint/Contract/IntrinsicCandidate`, plus compat aliases) remain `parse/noop` and are not backend-active yet
 - AotPrep knobs act before `ny-llvmc`
-- boundary compile/link knobs are the only tags that truly cross into `ny-llvmc(boundary)` / object / exe generation
+- boundary compile/link knobs are the only tags that truly cross into `ny-llvmc(boundary pure-first)` / object / exe generation
 - perf-only knobs are measurement controls, not backend optimization tags
 
 ## Classification
@@ -465,7 +502,7 @@ Hotspot は次の分類で読む。
 - benchmark を見ずに一般論だけで最適化すること
 - hint を workaround として使うこと
 - Route contract for this wave:
-  - perf AOT lane is `.hako -> ny-llvmc(boundary) -> C ABI`
+  - perf AOT lane is `.hako -> ny-llvmc(boundary pure-first) -> C ABI`
   - `llvmlite/harness` are invalid as perf comparators but valid as explicit keep lanes
   - `native` direct keep lane is also outside the perf judge
 - `kilo_micro_substring_concat`:
