@@ -83,6 +83,7 @@
   - route selection / publication boundary is no longer the blocker on this front
   - the active exact front is already 100% on the landed single-session three-piece fast path; fallback selection and piece-shape branching are not the remaining cost center
   - the remaining exact gap is executor-local: final owned materialize -> `StringBox`/`Arc` objectize -> fresh handle issue
+  - latest external consult also reads this as “benchmarking the publication subsystem”, not another route/helper miss
   - the current `.hako -> MIR proof/publication -> runtime-private executor -> LLVM consumer` design is still coherent
   - but repeated executor-local thin cuts are now stalling on the same result-representation tail
   - consult + source review say the next step is not another thin cut; it is a two-card return:

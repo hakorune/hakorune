@@ -185,6 +185,43 @@ We need to know whether:
 - D. next explicit card
 - E. non-goals
 
+## Post-Consult Triage
+
+Latest external consult is aligned with the current lane reading.
+
+Adopt:
+
+- the current exact gap is no longer route/helper selection; it is concentrated in
+  eager public publication
+- separate semantic result birth from public handle publication
+- keep the public handle-based surface stable on this lane
+- keep `proof_region` and `publication_boundary` MIR-owned
+- treat the next return as two cards:
+  - `mir-proof`: active corridor does not require public handle publication before
+    the first external boundary
+  - `runtime-executor`: runtime-private freeze/publish split only after that proof
+    lands
+
+Hold:
+
+- the exact runtime-private outcome shape (`PlacementOutcome`, out-param, tagged
+  return, etc.)
+- the exact runtime-private result ABI shape and where the cold publish adapter
+  lives
+
+Reject:
+
+- runtime/shim route re-recognition or remembered-chain legality
+- generic helper widening
+- public ABI rethink on this lane
+
+Local validation after the consult stays consistent with that verdict:
+
+- route counters remain pinned to zero on the old substring route
+- active exact front stays pinned to the landed `piecewise_subrange_hsiii` fast path
+- executor-local thin probes remain non-wins while the eager publication tail is
+  intact
+
 ## Short Prompt
 
 ```text
