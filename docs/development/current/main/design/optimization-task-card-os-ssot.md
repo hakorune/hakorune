@@ -204,6 +204,30 @@ rollback:
 
 reject の差分はその場で戻す。履歴は docs にだけ残す。
 
+### 7. Representation Escalation
+
+If a lane reaches all of these conditions:
+
+- route/proof/publication work is already landed
+- the active front is pinned on one executor-local fast path
+- repeated `runtime-executor` thin cuts are non-wins
+- the remaining counters stay on final materialize/objectize/handle issue
+
+then stop local thin-cut iteration and escalate.
+
+The next card is not another `runtime-executor` probe.
+The next card is a focused design consult on:
+
+- result representation
+- result ABI
+- how that interacts with the stable public handle surface
+
+Reading lock:
+
+- do not reinterpret this as permission to widen generic helpers
+- do not reopen MIR/publication work unless the consult explicitly says the
+  proof/publication split is insufficient
+
 ## Delete-Oriented Rule
 
 exact front が次の条件を同時に満たしたら、次の card は thin cut ではなく

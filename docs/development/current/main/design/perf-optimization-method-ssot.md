@@ -84,6 +84,9 @@ reopen した lane には、必ず次の task card を先に固定する。
 
 current restart pointer after the active selfhost landing is this one:
 
+- note: the runtime-executor tail-thin card below is now historical
+- next live action is a design consult on result representation / ABI because repeated local thin cuts on the current representation are non-wins
+
 - lane owner: `phase-137x`
 - front: `kilo_micro_substring_concat`
 - accept gate: `kilo_micro_substring_only`
@@ -145,6 +148,32 @@ current restart pointer after the active selfhost landing is this one:
   - the slice needs a new MIR rewrite, public ABI, string-only MIR dialect, or representation/ABI change
   - the slice escapes its publication boundary and becomes a generic helper rewrite
   - the slice grows cache/helper traffic or route hinting instead of only splitting the current executor body
+- current status:
+  - paused for design consult
+  - local executor-only thin cuts are currently non-winning on the keeper representation
+
+## Representation Escalation Rule
+
+If all of these hold on the same exact front:
+
+- route/publication counters are already stable
+- fallback selection is no longer the blocker
+- repeated executor-local thin cuts are non-wins
+- the remaining counters stay pinned on final materialize/objectize/handle issue
+
+then the next action is not another thin cut.
+
+Escalate to a focused design consult on:
+
+- handle-based public surface
+- final `owned String -> boxed handle`
+- runtime-private result representation / result ABI
+
+Reading lock:
+
+- this is not a route/proof/publication failure
+- this is not permission to widen generic helper bodies
+- keep the public surface fixed until a new explicit representation/ABI card is accepted
 
 ## Current Counter Reading Lock
 

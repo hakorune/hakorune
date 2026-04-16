@@ -83,11 +83,30 @@
   - route selection / publication boundary is no longer the blocker on this front
   - the active exact front is already 100% on the landed single-session three-piece fast path; fallback selection and piece-shape branching are not the remaining cost center
   - the remaining exact gap is executor-local: final owned materialize -> `StringBox`/`Arc` objectize -> fresh handle issue
-  - keep the current `.hako -> MIR proof/publication -> runtime-private executor -> LLVM consumer` design fixed for the next cuts
-  - only reopen representation/ABI design if executor-local thin cuts stop producing wins
+  - the current `.hako -> MIR proof/publication -> runtime-private executor -> LLVM consumer` design is still coherent
+  - but repeated executor-local thin cuts are now stalling on the same result-representation tail
+  - next step is a focused design consult on whether “beat C” now requires a runtime-private result representation / result ABI change while keeping the public handle surface stable
 - current test acceptance note:
   - use `cargo test -q -p nyash_kernel --lib -- --test-threads=1` as the deterministic lane gate
   - parallel `cargo test -q -p nyash_kernel --lib` is still monitor-only on this lane because cache/view tests are parallel-flaky
+- rejected executor-local non-wins after the publication-boundary keeper:
+  - attempted a runtime-private direct string birth to bypass part of the generic materialize/objectize path
+  - exact front reread:
+    - `kilo_micro_substring_concat`
+      - `C: instr=1,622,920 / cycles=507,287 / ms=3`
+      - `Ny AOT: instr=261,219,009 / cycles=66,448,479 / ms=23`
+  - reading:
+    - a direct owned-string birth inside the current handle/box representation did not beat the keeper baseline
+  - attempted to switch the `piecewise` source read to `with_text_read_session_ready(...)`
+  - exact front reread:
+    - `kilo_micro_substring_concat`
+      - `C: instr=1,622,875 / cycles=495,910 / ms=3`
+      - `Ny AOT: instr=261,219,612 / cycles=66,434,822 / ms=22`
+  - reading:
+    - registry-ready read entry is not the remaining bottleneck on this front
+  - combined reading:
+    - the current gap is no longer “which read/helper path do we take”
+    - the current gap is “what representation do we force for the final result”
 - rejected runtime-private piecewise carrier probe:
   - attempted to issue a transient piecewise box/handle from `insert_const_mid_fallback` and then fast-path `substring_hii` through that carrier
   - exact front reread:
@@ -166,13 +185,14 @@
   - the delete-oriented `mir-rewrite` is now landed on the active front
   - measurement is now closed on this front; the next card is `runtime-executor`
   - the next local target is:
+    - pause local tail thinning
     - keep the landed `piecewise_subrange_hsiii` publication boundary fixed
-    - keep the measured fast path fixed: `single_session_hit=300000`, `fallback_insert=0`, `all_three=300000`
-    - delete the executor-local tail only:
-      - final owned materialize
-      - `StringBox` / `Arc` objectize
-      - fresh handle issue
-    - do not reopen route logic, piece-shape branching, transient box/handle carriers, sticky memo shortcuts, or generic direct-build widening
+    - carry the measured fast path as frozen evidence: `single_session_hit=300000`, `fallback_insert=0`, `all_three=300000`
+    - open a focused design consult on:
+      - handle-based public surface
+      - final `owned String -> boxed handle`
+      - runtime-private result representation / result ABI
+    - do not reopen route logic, piece-shape branching, transient box/handle carriers, sticky memo shortcuts, or generic direct-build widening while that consult is pending
   - the follow-on `llvm-export` card only starts after that executor card lands:
     - consume the stabilized corridor with truthful facts
     - do not reopen route eligibility in LLVM metadata

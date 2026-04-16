@@ -31,9 +31,9 @@ Scope: current lane / next lane / restart order only.
 - sibling guardrail:
   - `phase-29bq loop owner seam cleanup landing`
 - immediate next:
-  - `phase-137x next explicit card is runtime-executor: delete the piecewise fast-path tail (`materialize_owned -> StringBox/Arc -> fresh handle issue`) without reopening route/MIR/publication work`
+  - `phase-137x next explicit card is a design consult: decide whether the remaining exact gap now requires a runtime-private result representation / result ABI change on top of the landed publication-boundary corridor`
 - immediate follow-on:
-  - `phase-137x follow with llvm-export only after the executor seam is flat; do not reopen structure work, new recognizers, or MIR/public-ABI changes without a new explicit card`
+  - `phase-137x return to runtime-executor only after that consult locks a new non-widening contract; do not reopen structure work, new recognizers, or MIR/public-ABI changes without a new explicit card`
 - current blocker:
   - `none`
 - latest proof bundle:
@@ -86,8 +86,12 @@ Scope: current lane / next lane / restart order only.
     - old substring route / slow-plan corridor is no longer the primary blocker on this front
     - the active front is already 100% on the landed piecewise fast path (`single_session_hit=all_three=300000`, `fallback_insert=0`)
     - the remaining exact gap sits inside `piecewise_subrange_hsiii_fallback`, especially final owned materialize -> `StringBox`/`Arc` objectize -> fresh handle issue
-    - current mechanism is sufficient for the next few cuts; this is not a missing MIR/publication-boundary design blocker
-    - if the remaining gap stays large after executor-local measurement and thin cuts, a later representation/ABI card may be needed for “beat C” work
+    - route/publication design is not the blocker on this front anymore
+    - repeated executor-local thin cuts are now stalling on the same result-representation tail
+    - next step is an explicit representation/result-ABI consult around:
+      - handle-based public surface
+      - final `owned String -> boxed handle`
+    - reopen runtime-executor only after that consult fixes the next non-widening contract
   - rejected runtime-executor probe:
     - attempted a runtime-private `piecewise` carrier by issuing a transient box/handle from `insert_const_mid_fallback` and short-circuiting `substring_hii` through that carrier
     - exact front reread:
@@ -150,7 +154,7 @@ Scope: current lane / next lane / restart order only.
       - do not replace the generic non-empty `insert_const_mid_fallback` body with owned direct materialization on this card
       - the next executor cut must stay corridor-local to the active front, not broaden `insert_hsi` for all consumers
 - optimization re-entry card:
-  - this remains the active next-cut template on top of the current keeper baseline
+  - this remains the historical next-cut template on top of the current keeper baseline
   - front: `kilo_micro_substring_concat`
   - accept gate: `kilo_micro_substring_only`
   - whole-kilo guard: `kilo_kernel_small_hk`
@@ -225,12 +229,16 @@ Scope: current lane / next lane / restart order only.
   - test note:
     - use `cargo test -q -p nyash_kernel --lib -- --test-threads=1` as the deterministic acceptance gate until cache isolation lands
     - treat parallel `cargo test -q -p nyash_kernel --lib` as monitor-only for this lane
+  - current status:
+    - paused
+    - latest local probes on this card were non-wins
+    - next action is external design consultation, not another local thin cut
   - do not start edits from `kilo / micro-kilo` wording alone; use this explicit card plus `phase-137x` target bands
 - fixed task order:
   1. `measurement` is closed for the current keeper baseline
-  2. `runtime-executor` is next and owns the fast-path tail delete target
-  3. `llvm-export` waits until the corridor is stable
-  4. only then reopen any later representation/ABI card if the remaining gap still dominates
+  2. representation/result-ABI consult is next
+  3. return to `runtime-executor` only after that consult fixes the next non-widening contract
+  4. `llvm-export` waits until the corridor is stable
 - next exact handoff:
   - optimization-side BoxShape cleanup is landed on:
     - `string_helpers/concat`

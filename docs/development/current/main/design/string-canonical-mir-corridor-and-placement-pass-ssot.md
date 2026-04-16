@@ -88,6 +88,9 @@ Reading:
 - the current end-state already deletes hot `substring_hii` re-entry from the
   active front; the remaining gap is allocator/memmove pressure inside the
   executor-local copy/materialize path
+ - repeated local executor-only probes on the current representation are now
+   non-wins, so the next live action is a focused consult on result
+   representation / result ABI rather than another helper-thin experiment
 
 ## Adopted Reading
 
@@ -125,8 +128,14 @@ Reading:
   - the publication-boundary design is not the blocker on this front
   - the remaining exact gap is concentrated in final owned materialize ->
     objectize -> fresh handle issue
-  - if executor-local measurement plus thin cuts stop producing wins, only then
-    open a later representation/ABI card for “beat C” work
+- if executor-local measurement plus thin cuts stop producing wins, only then
+  open a later representation/ABI card for “beat C” work
+ - that threshold is now reached on the active `piecewise` front
+ - the consult must explicitly include:
+   - handle-based public surface
+   - final `owned String -> boxed handle`
+   - whether runtime-private result representation can change without widening
+     MIR/publication/public ABI
  - current test gate note:
    - use `cargo test -q -p nyash_kernel --lib -- --test-threads=1` as the
      deterministic library gate on this lane
