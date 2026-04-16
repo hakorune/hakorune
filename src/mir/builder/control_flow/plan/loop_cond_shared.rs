@@ -2,22 +2,6 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::walk_stmt_list;
-use crate::mir::builder::control_flow::recipes::RecipeBody;
-
-#[derive(Debug, Clone)]
-pub(in crate::mir::builder) struct LoopCondRecipe<T> {
-    pub body: RecipeBody,
-    pub items: Vec<T>,
-}
-
-impl<T> LoopCondRecipe<T> {
-    pub fn new(body: Vec<ASTNode>, items: Vec<T>) -> Self {
-        Self {
-            body: RecipeBody::new(body),
-            items,
-        }
-    }
-}
 
 pub(in crate::mir::builder) fn planner_required_for_loop_cond() -> bool {
     let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()

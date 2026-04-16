@@ -1,7 +1,7 @@
 //! Recipe surface for loop_cond_return_in_body (recipes-owned surface).
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::loop_cond_shared::LoopCondRecipe;
+use crate::mir::builder::control_flow::recipes::loop_cond_shared::LoopCondRecipe;
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
 

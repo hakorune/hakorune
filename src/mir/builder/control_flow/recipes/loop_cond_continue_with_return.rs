@@ -1,6 +1,6 @@
 //! Recipe surface for loop_cond_continue_with_return (recipes-owned surface).
 
-use crate::mir::builder::control_flow::plan::loop_cond_shared::LoopCondRecipe;
+use crate::mir::builder::control_flow::recipes::loop_cond_shared::LoopCondRecipe;
 use crate::mir::builder::control_flow::recipes::refs::{StmtRef, StmtSpan};
 
 pub(in crate::mir::builder) type ContinueWithReturnRecipe = LoopCondRecipe<ContinueWithReturnItem>;

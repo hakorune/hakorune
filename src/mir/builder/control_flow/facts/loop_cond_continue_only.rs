@@ -8,13 +8,12 @@ use crate::mir::builder::control_flow::plan::facts::reject_reason::{
     handoff_tables, log_reject, RejectReason,
 };
 use crate::mir::builder::control_flow::plan::loop_cond::loop_cond_unified_helpers;
-use crate::mir::builder::control_flow::plan::loop_cond_shared::{
-    branch_tail_is_continue, LoopCondRecipe,
-};
+use crate::mir::builder::control_flow::plan::loop_cond_shared::branch_tail_is_continue;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::recipes::loop_cond_continue_only::{
     ContinueOnlyRecipe, ContinueOnlyStmtRecipe,
 };
+use crate::mir::builder::control_flow::recipes::loop_cond_shared::LoopCondRecipe;
 use crate::mir::builder::control_flow::recipes::refs::{StmtRef, StmtSpan};
 use crate::mir::builder::control_flow::recipes::RecipeBody;
 

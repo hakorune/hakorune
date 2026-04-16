@@ -11,6 +11,7 @@ use crate::mir::builder::control_flow::plan::facts::reject_reason::{
     handoff_tables, log_accept, log_reject, RejectReason,
 };
 use crate::mir::builder::control_flow::plan::planner::Freeze;
+use crate::mir::builder::control_flow::recipes::loop_cond_shared::LoopCondRecipe;
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 
 use super::break_continue_accept::determine_accept_kind;
@@ -21,7 +22,6 @@ use super::break_continue_item::build_loop_cond_break_continue_recipe;
 use super::break_continue_recipe::{LoopCondBreakContinueItem, LoopCondBreakContinueRecipe};
 use super::break_continue_types::{LoopCondBreakAcceptKind, LoopCondBreakContinueFacts};
 use super::break_continue_validator_exit::returns_only_in_exit_if;
-use crate::mir::builder::control_flow::plan::loop_cond_shared::LoopCondRecipe;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeItem;
 use crate::mir::policies::BodyLoweringPolicy;
 

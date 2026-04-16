@@ -8,11 +8,11 @@ use crate::mir::builder::control_flow::plan::extractors::common_helpers::is_true
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::{
     try_build_exit_allowed_block_recipe, ExitAllowedBlockRecipe,
 };
-use crate::mir::builder::control_flow::plan::loop_cond_shared::LoopCondRecipe;
 use crate::mir::builder::control_flow::plan::loop_true_break_continue::recipe::{
     ElseExitMixedRecipe, ElseItem, LoopTrueBreakContinueRecipe, LoopTrueItem,
 };
 use crate::mir::builder::control_flow::plan::planner::Freeze;
+use crate::mir::builder::control_flow::recipes::loop_cond_shared::LoopCondRecipe;
 use crate::mir::builder::control_flow::recipes::refs::{StmtPair, StmtRef};
 use crate::mir::builder::control_flow::recipes::RecipeBody;
 
@@ -406,6 +406,29 @@ fn build_else_exit_mixed_recipe(else_body: &[ASTNode]) -> Option<ElseExitMixedRe
 mod tests {
     use super::{try_extract_loop_true_break_continue_facts, LoopTrueBreakContinueLowering};
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
+    use std::ffi::OsString;
+    use std::sync::{Mutex, OnceLock};
+
+    fn env_guard() -> &'static Mutex<()> {
+        static GUARD: OnceLock<Mutex<()>> = OnceLock::new();
+        GUARD.get_or_init(|| Mutex::new(()))
+    }
+
+    fn restore_env_var(name: &str, value: Option<OsString>) {
+        match value {
+            Some(value) => std::env::set_var(name, value),
+            None => std::env::remove_var(name),
+        }
+    }
+
+    fn with_loop_true_break_continue_env<F: FnOnce()>(f: F) {
+        let _lock = env_guard().lock().unwrap_or_else(|e| e.into_inner());
+        let prev_joinir_dev = std::env::var_os("NYASH_JOINIR_DEV");
+        let prev_planner_required = std::env::var_os("HAKO_JOINIR_PLANNER_REQUIRED");
+        f();
+        restore_env_var("NYASH_JOINIR_DEV", prev_joinir_dev);
+        restore_env_var("HAKO_JOINIR_PLANNER_REQUIRED", prev_planner_required);
+    }
 
     fn bool_lit(value: bool) -> ASTNode {
         ASTNode::Literal {
@@ -432,47 +455,51 @@ mod tests {
 
     #[test]
     fn policy_exit_allowed_when_extended() {
-        std::env::set_var("NYASH_JOINIR_DEV", "1");
-        std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
+        with_loop_true_break_continue_env(|| {
+            std::env::set_var("NYASH_JOINIR_DEV", "1");
+            std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
 
-        let condition = bool_lit(true);
-        let body = vec![ASTNode::Return {
-            value: Some(Box::new(int(1))),
-            span: Span::unknown(),
-        }];
+            let condition = bool_lit(true);
+            let body = vec![ASTNode::Return {
+                value: Some(Box::new(int(1))),
+                span: Span::unknown(),
+            }];
 
-        let facts = try_extract_loop_true_break_continue_facts(&condition, &body)
-            .expect("no freeze")
-            .expect("facts");
+            let facts = try_extract_loop_true_break_continue_facts(&condition, &body)
+                .expect("no freeze")
+                .expect("facts");
 
-        assert!(matches!(
-            facts.lowering,
-            LoopTrueBreakContinueLowering::ExitAllowed(_)
-        ));
+            assert!(matches!(
+                facts.lowering,
+                LoopTrueBreakContinueLowering::ExitAllowed(_)
+            ));
+        });
     }
 
     #[test]
     fn policy_recipe_only_without_extended() {
-        std::env::remove_var("NYASH_JOINIR_DEV");
-        std::env::remove_var("HAKO_JOINIR_PLANNER_REQUIRED");
+        with_loop_true_break_continue_env(|| {
+            std::env::remove_var("NYASH_JOINIR_DEV");
+            std::env::remove_var("HAKO_JOINIR_PLANNER_REQUIRED");
 
-        let condition = bool_lit(true);
-        let body = vec![ASTNode::If {
-            condition: Box::new(binop(BinaryOperator::Equal, bool_lit(true), bool_lit(true))),
-            then_body: vec![ASTNode::Break {
+            let condition = bool_lit(true);
+            let body = vec![ASTNode::If {
+                condition: Box::new(binop(BinaryOperator::Equal, bool_lit(true), bool_lit(true))),
+                then_body: vec![ASTNode::Break {
+                    span: Span::unknown(),
+                }],
+                else_body: None,
                 span: Span::unknown(),
-            }],
-            else_body: None,
-            span: Span::unknown(),
-        }];
+            }];
 
-        let facts = try_extract_loop_true_break_continue_facts(&condition, &body)
-            .expect("no freeze")
-            .expect("facts");
+            let facts = try_extract_loop_true_break_continue_facts(&condition, &body)
+                .expect("no freeze")
+                .expect("facts");
 
-        assert!(matches!(
-            facts.lowering,
-            LoopTrueBreakContinueLowering::RecipeOnly
-        ));
+            assert!(matches!(
+                facts.lowering,
+                LoopTrueBreakContinueLowering::RecipeOnly
+            ));
+        });
     }
 }
