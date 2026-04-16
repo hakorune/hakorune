@@ -29,7 +29,7 @@ Related:
 - current lane mode:
   - failure-driven
   - while blocker=`none`, use this lane for narrow cleanup only
-  - next cleanup cut is `loop_scan_phi_vars_v0` pipeline-side owner cleanup / `loop_cond` recipe shared-surface inventory
+  - next cleanup cut is `loop_scan_phi_vars_v0` pipeline entry cleanup / `loop_cond` builder-side inventory
 
 ## 0.3) Loop owner split (current design direction)
 
