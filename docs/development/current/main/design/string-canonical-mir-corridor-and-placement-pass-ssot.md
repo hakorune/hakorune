@@ -166,6 +166,12 @@ Reading:
    - exact-front reread still moved to `261,219,101 instr / 21 ms`
    - treat that seam as reject on this lane; it validates the split shape but
      does not remove the hot publication tax
+ - latest corridor-local cache-seed reread:
+   - skipping `string_len_fast_cache_store(...)` for fresh non-empty
+     `piecewise_subrange_hsiii` results stayed flat at
+     `261,218,548 instr / 21 ms`
+   - treat per-iteration len-cache seeding as secondary; it is not the
+     dominant publication-tail cost on this front
 
 ## Generic Minimum
 

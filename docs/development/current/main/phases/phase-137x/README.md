@@ -227,6 +227,7 @@
     - raw handle-keyed sticky memo shortcuts also lose on this front
     - generic non-empty `insert_hsi` direct-build widening also loses once whole-kilo is checked
     - structure-only `freeze -> publish` splitting on the active `piecewise` tail also loses without deleting eager publication
+    - piecewise-local uncached fresh-result len-cache publication is also a non-win; cache seeding is not the dominant publication tax here
   - the next attempt must keep pieces executor-local and non-sticky
   - latest runtime-private seam reread:
     - `freeze_owned_bytes(...) -> publish_owned_bytes(...)` on the active `piecewise_subrange_hsiii` tail compiled and passed targeted tests, but exact-front reread moved to `261,219,101 instr / 21 ms`

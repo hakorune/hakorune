@@ -176,6 +176,15 @@ Scope: current lane / next lane / restart order only.
       - compile/test shape is valid, but a structure-only freeze/publish split does not delete the eager publication tail by itself
       - the active front still effectively pays the same `owned String -> StringBox -> Arc -> handle` tax
       - do not keep freeze/publish-only refactors on this lane without an exact-front instruction win
+  - rejected runtime-executor uncached piecewise publication:
+    - attempted a corridor-local `piecewise_subrange_hsiii` publication tweak that skipped `string_len_fast_cache_store(...)` on fresh non-empty piecewise results while keeping the generic materialize path unchanged
+    - exact front reread:
+      - `kilo_micro_substring_concat`
+        - `C: instr=1,622,876 / cycles=492,621 / ms=3`
+        - `Ny AOT: instr=261,218,548 / cycles=65,855,834 / ms=21`
+    - reading:
+      - per-iteration len-cache seeding is not the dominant publication cost on this front
+      - keep the cache seed behavior unchanged unless a larger publication-tail delete proves it unnecessary
 - optimization re-entry card:
   - this remains the historical next-cut template on top of the current keeper baseline
   - front: `kilo_micro_substring_concat`
