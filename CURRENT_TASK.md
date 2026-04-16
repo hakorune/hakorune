@@ -186,6 +186,24 @@ Scope: current lane / next lane / restart order only.
     - reading:
       - per-iteration len-cache seeding is not the dominant publication cost on this front
       - keep the cache seed behavior unchanged unless a larger publication-tail delete proves it unnecessary
+  - rejected runtime-executor deferred-owned-text publication:
+    - attempted to keep the public handle surface stable while storing fresh `piecewise_subrange_hsiii` results as runtime-private deferred owned text in the host-handle registry
+    - exact front reread:
+      - `kilo_micro_substring_concat`
+        - `C: instr=1,622,919 / cycles=485,619 / ms=2`
+        - `Ny AOT: instr=655,162,062 / cycles=284,596,162 / ms=65`
+    - accept gate stayed healthy:
+      - `kilo_micro_substring_only`
+        - `C: instr=1,622,875 / cycles=488,508 / ms=3`
+        - `Ny AOT: instr=1,669,455 / cycles=1,013,477 / ms=3`
+    - asm/top reread:
+      - `insert_const_mid_fallback closure: 53.28%`
+      - `nyash.string.substring_hii: 18.79%`
+      - `LocalKey::with: 9.76%`
+      - `borrowed_substring_plan_from_handle: 4.37%`
+    - reading:
+      - the deferred owned-text handle was not transparent to the loop-carried active corridor; the exact front fell off the landed `piecewise_subrange_hsiii` fast path and repinned to the generic `insert_hsi -> substring_hii` route
+      - do not reopen registry-backed deferred owned-text publication on this lane without a stronger proof that next-iteration pure-string consumers stay on the same fast path
 - optimization re-entry card:
   - this remains the historical next-cut template on top of the current keeper baseline
   - front: `kilo_micro_substring_concat`

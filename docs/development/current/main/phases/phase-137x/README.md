@@ -183,6 +183,25 @@
   - reading:
     - the generic `insert_hsi` direct-build is too wide for this card: it wins the exact front but loses whole-kilo
     - keep generic `insert_const_mid_fallback` materialization unchanged; the next executor cut must stay corridor-local to the active front
+- rejected runtime-private deferred-owned-text publication:
+  - attempted to keep the public handle-based surface stable while storing fresh `piecewise_subrange_hsiii` results as deferred owned text in the host-handle registry
+  - exact front reread:
+    - `kilo_micro_substring_concat`
+      - `C: instr=1,622,919 / cycles=485,619 / ms=2`
+      - `Ny AOT: instr=655,162,062 / cycles=284,596,162 / ms=65`
+  - accept gate stayed healthy:
+    - `kilo_micro_substring_only`
+      - `C: instr=1,622,875 / cycles=488,508 / ms=3`
+      - `Ny AOT: instr=1,669,455 / cycles=1,013,477 / ms=3`
+  - asm/top reread:
+    - `insert_const_mid_fallback closure: 53.28%`
+    - `nyash.string.substring_hii: 18.79%`
+    - `LocalKey::with: 9.76%`
+    - `borrowed_substring_plan_from_handle: 4.37%`
+  - reading:
+    - the deferred owned-text handle was not transparent to the loop-carried active corridor
+    - the exact front fell off the landed `piecewise_subrange_hsiii` fast path and repinned to the generic `insert_hsi -> substring_hii` route
+    - treat registry-backed deferred owned-text publication as reject on this lane unless a later proof keeps next-iteration pure-string consumers on the same fast path
 - landed BoxShape cleanup before reopen:
   - `string_helpers/concat.rs` hot/cold split is landed
   - `string_view.rs` now keeps `substring_plan` / `span_resolve` behind submodule seams
@@ -234,6 +253,7 @@
     - generic non-empty `insert_hsi` direct-build widening also loses once whole-kilo is checked
     - structure-only `freeze -> publish` splitting on the active `piecewise` tail also loses without deleting eager publication
     - piecewise-local uncached fresh-result len-cache publication is also a non-win; cache seeding is not the dominant publication tax here
+    - registry-backed deferred owned-text publication also loses because it breaks the loop-carried active fast path and repins the exact front to the generic `insert_hsi -> substring_hii` corridor
   - the next attempt must keep pieces executor-local and non-sticky
   - latest runtime-private seam reread:
     - `freeze_owned_bytes(...) -> publish_owned_bytes(...)` on the active `piecewise_subrange_hsiii` tail compiled and passed targeted tests, but exact-front reread moved to `261,219,101 instr / 21 ms`

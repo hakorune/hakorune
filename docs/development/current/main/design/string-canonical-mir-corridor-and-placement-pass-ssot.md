@@ -176,6 +176,17 @@ Reading:
    - exact-front reread still moved to `261,219,101 instr / 21 ms`
    - treat that seam as reject on this lane; it validates the split shape but
      does not remove the hot publication tax
+ - rejected registry-backed deferred publication:
+   - storing fresh `piecewise_subrange_hsiii` results as deferred owned text
+     behind the public handle surface regressed the exact front to
+     `655,162,062 instr / 65 ms`
+   - the top symbols moved back to `insert_const_mid_fallback`,
+     `substring_hii`, and `LocalKey::with`
+   - read this as a loop-carried fast-path breakage, not as a publication-tail
+     win
+   - do not reopen registry-backed deferred owned-text publication on this lane
+     without proof that next-iteration pure-string consumers stay on the landed
+     piecewise route
  - latest corridor-local cache-seed reread:
    - skipping `string_len_fast_cache_store(...)` for fresh non-empty
      `piecewise_subrange_hsiii` results stayed flat at
