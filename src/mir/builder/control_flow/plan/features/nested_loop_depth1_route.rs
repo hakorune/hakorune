@@ -1,6 +1,7 @@
 //! Route-local acceptance / fallback dispatch for `nested_loop_depth1`.
 
 use crate::ast::{ASTNode, BinaryOperator};
+use crate::mir::builder::control_flow::facts::loop_cond_continue_only::try_extract_loop_cond_continue_only_facts;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
     count_control_flow, ControlFlowDetector,
@@ -9,7 +10,6 @@ use crate::mir::builder::control_flow::plan::features::loop_true_break_continue_
 use crate::mir::builder::control_flow::plan::generic_loop::facts::extract::try_extract_generic_loop_v1_facts;
 use crate::mir::builder::control_flow::plan::generic_loop::normalizer::normalize_generic_loop_v1;
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_entry::try_extract_loop_cond_break_continue_facts_for_nested;
-use crate::mir::builder::control_flow::plan::loop_cond::continue_only_facts::try_extract_loop_cond_continue_only_facts;
 use crate::mir::builder::control_flow::plan::loop_true_break_continue::facts::try_extract_loop_true_break_continue_facts;
 use crate::mir::builder::control_flow::plan::nested_loop_depth1::try_lower_nested_loop_depth1;
 use crate::mir::builder::control_flow::plan::nested_loop_plan::try_compose_loop_cond_continue_with_return_recipe;

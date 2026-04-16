@@ -3,9 +3,6 @@
 //! This module contains the main item builder that converts AST statements
 //! into LoopCondBreakContinueItem recipe elements.
 
-use super::break_continue_recipe::{
-    LoopCondBreakContinueItem, LoopCondBreakContinueRecipe, NestedLoopDepth1Recipe,
-};
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::facts::expr_bool::is_supported_bool_expr_with_canon;
@@ -13,6 +10,9 @@ use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_b
 use crate::mir::builder::control_flow::facts::stmt_view::try_build_stmt_only_block_recipe;
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::flatten_stmt_list;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
+use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::{
+    LoopCondBreakContinueItem, LoopCondBreakContinueRecipe, NestedLoopDepth1Recipe,
+};
 use crate::mir::builder::control_flow::recipes::loop_cond_shared::LoopCondRecipe;
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::recipes::RecipeBody;

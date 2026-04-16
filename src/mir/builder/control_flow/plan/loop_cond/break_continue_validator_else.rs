@@ -3,10 +3,12 @@
 //! These validators check for patterns where exit statements appear only in
 //! the else branch, not in the then branch.
 
-use super::break_continue_recipe::{LoopCondBreakContinueItem, LoopCondBreakContinueRecipe};
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::expr_bool::is_supported_bool_expr_with_canon;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
+use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::{
+    LoopCondBreakContinueItem, LoopCondBreakContinueRecipe,
+};
 use crate::mir::builder::control_flow::recipes::loop_cond_shared::LoopCondRecipe;
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::recipes::RecipeBody;

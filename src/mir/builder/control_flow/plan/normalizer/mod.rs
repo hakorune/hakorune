@@ -40,10 +40,10 @@ mod value_join_demo_if2;
 use super::{CoreEffectPlan, CoreLoopPlan, LoweredRecipe};
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::loop_cond_break_continue::LoopCondBreakContinueFacts;
+use crate::mir::builder::control_flow::facts::loop_cond_continue_only::LoopCondContinueOnlyFacts;
+use crate::mir::builder::control_flow::facts::loop_cond_continue_with_return::LoopCondContinueWithReturnFacts;
+use crate::mir::builder::control_flow::facts::loop_cond_return_in_body::LoopCondReturnInBodyFacts;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::loop_cond::continue_only_facts::LoopCondContinueOnlyFacts;
-use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_facts::LoopCondContinueWithReturnFacts;
-use crate::mir::builder::control_flow::plan::loop_cond::return_in_body_facts::LoopCondReturnInBodyFacts;
 use crate::mir::builder::MirBuilder;
 
 pub(in crate::mir::builder) fn build_simple_while_coreloop(

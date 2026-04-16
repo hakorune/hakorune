@@ -11,6 +11,9 @@ use crate::mir::builder::control_flow::plan::facts::reject_reason::{
     handoff_tables, log_accept, log_reject, RejectReason,
 };
 use crate::mir::builder::control_flow::plan::planner::Freeze;
+use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::{
+    LoopCondBreakContinueItem, LoopCondBreakContinueRecipe,
+};
 use crate::mir::builder::control_flow::recipes::loop_cond_shared::LoopCondRecipe;
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 
@@ -19,7 +22,6 @@ use super::break_continue_helpers::{
     collect_continue_branch_sigs, detect_handled_guard_break, matches_parse_string2_shape,
 };
 use super::break_continue_item::build_loop_cond_break_continue_recipe;
-use super::break_continue_recipe::{LoopCondBreakContinueItem, LoopCondBreakContinueRecipe};
 use super::break_continue_types::{LoopCondBreakAcceptKind, LoopCondBreakContinueFacts};
 use super::break_continue_validator_exit::returns_only_in_exit_if;
 use crate::mir::builder::control_flow::plan::recipe_tree::RecipeItem;
@@ -169,7 +171,7 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_break_continue_facts_inner(
     let program_block_seen = recipe.items.iter().any(|item| {
         matches!(
             item,
-            super::break_continue_recipe::LoopCondBreakContinueItem::ProgramBlock { .. }
+            LoopCondBreakContinueItem::ProgramBlock { .. }
         )
     });
     let has_exit_signal = counts.break_count > 0
@@ -369,7 +371,7 @@ mod tests {
     use super::super::break_continue_types::MAX_NESTED_LOOPS;
     use super::try_extract_loop_cond_break_continue_facts_inner;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-    use crate::mir::builder::control_flow::plan::loop_cond::break_continue_recipe::LoopCondBreakContinueItem;
+    use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem;
     use crate::mir::policies::BodyLoweringPolicy;
 
     fn v(name: &str) -> ASTNode {

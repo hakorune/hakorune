@@ -9,8 +9,8 @@ use crate::mir::builder::control_flow::plan::features::coreloop_frame::build_cor
 use crate::mir::builder::control_flow::plan::features::loop_cond_co_cleanup::apply_fallthrough_continue_exit;
 use crate::mir::builder::control_flow::plan::features::loop_cond_co_phi_materializer::materialize_loop_cond_continue_only_phi_closure;
 use crate::mir::builder::control_flow::plan::features::loop_cond_co_verifier::verify_loop_cond_continue_only_phi_closure;
+use crate::mir::builder::control_flow::facts::loop_cond_continue_only::LoopCondContinueOnlyFacts;
 use crate::mir::builder::control_flow::plan::features::step_mode;
-use crate::mir::builder::control_flow::plan::loop_cond::continue_only_facts::LoopCondContinueOnlyFacts;
 use crate::mir::builder::control_flow::plan::normalizer::lower_loop_header_cond;
 use crate::mir::builder::control_flow::plan::steps::{
     build_standard5_internal_wires, collect_carrier_inits, empty_carriers_args,
