@@ -4,6 +4,9 @@
 //! was previously defined in the loop_cond_break_continue_pipeline/mod.rs.
 //! The function delegates to the specialized helper modules.
 
+use crate::mir::builder::control_flow::facts::loop_cond_break_continue::{
+    LoopCondBreakAcceptKind, LoopCondBreakContinueFacts,
+};
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
@@ -14,8 +17,6 @@ use crate::mir::builder::control_flow::plan::features::loop_cond_bc_cleanup::app
 use crate::mir::builder::control_flow::plan::features::loop_cond_bc_phi_materializer::LoopCondBreakContinuePhiMaterializer;
 use crate::mir::builder::control_flow::plan::features::loop_cond_bc_verifier::verify_loop_cond_break_continue_phi_closure;
 use crate::mir::builder::control_flow::plan::features::step_mode;
-use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakAcceptKind;
-use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakContinueFacts;
 use crate::mir::builder::control_flow::plan::normalizer::{
     helpers::LoopBlocksStandard5, lower_loop_header_cond,
 };

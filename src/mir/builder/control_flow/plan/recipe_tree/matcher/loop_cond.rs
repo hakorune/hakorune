@@ -101,7 +101,7 @@ pub fn verify_loop_true_break_continue_recipe(
 
 /// Recipe-first verification for loop_cond_break_continue.
 pub fn verify_loop_cond_break_continue_recipe(
-    facts: &crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakContinueFacts,
+    facts: &crate::mir::builder::control_flow::facts::loop_cond_break_continue::LoopCondBreakContinueFacts,
 ) -> Result<(), Freeze> {
     use crate::mir::policies::BodyLoweringPolicy;
 

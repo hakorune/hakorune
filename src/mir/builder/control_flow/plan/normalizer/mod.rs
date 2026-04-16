@@ -39,6 +39,7 @@ mod value_join_demo_if2;
 
 use super::{CoreEffectPlan, CoreLoopPlan, LoweredRecipe};
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::facts::loop_cond_break_continue::LoopCondBreakContinueFacts;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_only_facts::LoopCondContinueOnlyFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_facts::LoopCondContinueWithReturnFacts;
@@ -63,8 +64,6 @@ pub(in crate::mir::builder) fn build_simple_while_coreloop(
 
 /// Phase 273 P1: PlanNormalizer - facts/recipe contract → CorePlan 変換 (SSOT)
 pub(in crate::mir::builder) struct PlanNormalizer;
-
-use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakContinueFacts;
 
 impl PlanNormalizer {
     // Delegators to pipeline lowerers (unified loop_cond_* normalizers)
