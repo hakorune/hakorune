@@ -12,9 +12,8 @@ use crate::mir::builder::control_flow::plan::{
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::MirType;
+use crate::mir::builder::control_flow::recipes::loop_scan_methods_block_v0::ScanSegment;
 use std::collections::BTreeMap;
-
-use super::recipe::ScanSegment;
 use super::route_finalize::finalize_loop_scan_methods_block_route;
 use super::segment_linear::lower_loop_scan_methods_block_linear_segment;
 use super::segment_nested_loop::lower_loop_scan_methods_block_nested_segment;

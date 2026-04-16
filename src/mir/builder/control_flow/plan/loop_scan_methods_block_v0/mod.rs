@@ -7,7 +7,6 @@
 mod nested_loop_handoff;
 mod nested_loop_stmt_only;
 mod pipeline;
-pub(in crate::mir::builder) mod recipe;
 mod route_finalize;
 mod segment_linear;
 mod segment_nested_loop;
@@ -18,4 +17,6 @@ pub(in crate::mir::builder) use crate::mir::builder::control_flow::facts::loop_s
 };
 pub(in crate::mir::builder) use pipeline::lower_loop_scan_methods_block_v0;
 #[allow(unused_imports)]
-pub(in crate::mir::builder) use recipe::{LinearBlockRecipe, ScanSegment};
+pub(in crate::mir::builder) use crate::mir::builder::control_flow::recipes::loop_scan_methods_block_v0::{
+    LinearBlockRecipe, ScanSegment,
+};

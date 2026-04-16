@@ -1,11 +1,11 @@
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::recipes::loop_scan_methods_block_v0::NestedLoopRecipe;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
 use super::nested_loop_handoff::lower_loop_scan_methods_block_nested_loop_fallback;
 use super::nested_loop_stmt_only::try_lower_loop_scan_methods_block_nested_stmt_only;
-use super::recipe::NestedLoopRecipe;
 
 const LOOP_SCAN_METHODS_BLOCK_ERR: &str = "[normalizer] loop_scan_methods_block_v0";
 
