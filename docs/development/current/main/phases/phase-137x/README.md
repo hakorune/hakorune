@@ -87,6 +87,25 @@
     - reading:
       - transient piecewise object birth, clone, and allocation dominated the hot lane
       - this front should not mint runtime-private box/handle carriers as the next executor cut
+  - rejected single-session memo follow-up:
+    - attempted to remember `source_handle/split/middle_ptr` behind the produced `insert_hsi` handle and short-circuit the next `substring_hii` before the generic slow-plan lane
+    - exact front reread:
+      - `kilo_micro_substring_concat`
+        - `C: instr=1,622,875 / cycles=484,039 / ms=2`
+        - `Ny AOT: instr=1,027,840,321 / cycles=315,379,190 / ms=80`
+    - accept gate stayed healthy:
+      - `kilo_micro_substring_only`
+        - `C: instr=1,622,875 / cycles=502,466 / ms=3`
+        - `Ny AOT: instr=1,669,594 / cycles=1,098,352 / ms=3`
+    - asm/top reread:
+      - `nyash.string.substring_hii: 31.81%`
+      - `insert_const_mid_fallback closure: 24.92%`
+      - `PiecewiseTextBox::clone: 13.63%`
+      - `string_span_cache_put: 9.73%`
+      - `TextPlan::from_pieces: 4.31%`
+    - reading:
+      - a raw handle-keyed sticky memo does not delete the hot executor body; it only adds another shortcut in front of it
+      - do not reopen memo-based substring shortcuts on this front; the next cut must stay executor-local and non-sticky
 - landed BoxShape cleanup before reopen:
   - `string_helpers/concat.rs` hot/cold split is landed
   - `string_view.rs` now keeps `substring_plan` / `span_resolve` behind submodule seams
@@ -108,7 +127,7 @@
   - the next executor target is:
     - delete the hot `insert_const_mid_fallback` corridor
     - keep the new `insert_hsi + final substring_hii` shape while replacing the fallback body with a runtime-private `piecewise_subrange_exec(...)`-class executor
-    - keep that executor single-session and executor-local; do not mint transient box/handle carriers
+    - keep that executor single-session and executor-local; do not mint transient box/handle carriers or add raw handle-keyed sticky memo shortcuts
   - the follow-on `llvm-export` card only starts after that executor card lands:
     - consume the stabilized corridor with truthful facts
     - do not reopen route eligibility in LLVM metadata
@@ -116,7 +135,10 @@
   - keep handle/TLS/cache lookup isolated as the cold adapter path; reject cache/helper accretion without lane-continuity proof
   - do not treat helper names as MIR truth; keep `root/provenance/start/len/materialize_policy/consumer_capability` as the generic minimum
   - the executor itself should be generic enough to serve future piecewise consumers; do not mint another front-specific helper family if `piecewise_subrange_exec(...)` can carry the same load
-  - the first rejected runtime-executor probe already showed that transient box/handle carriers lose on this front, so the next attempt must keep pieces executor-local
+  - the rejected runtime-executor probes now show both failure modes:
+    - transient box/handle carriers lose on this front
+    - raw handle-keyed sticky memo shortcuts also lose on this front
+  - the next attempt must keep pieces executor-local and non-sticky
 - current broader-corridor genericization rule:
   - do not add a new string-only MIR dialect
   - landed: `string_corridor_candidates` now carry proof-bearing plan metadata for borrowed-slice and concat-triplet routes

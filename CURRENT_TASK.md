@@ -89,6 +89,26 @@ Scope: current lane / next lane / restart order only.
     - reading:
       - transient piecewise object construction, cloning, and allocation dominated the hot lane
       - do not reintroduce transient box/handle carriers on this front
+  - rejected runtime-executor follow-up:
+    - attempted a single-session memo shortcut from `insert_const_mid_fallback` into `substring_hii` by remembering `source_handle/split/middle_ptr` behind the produced handle and short-circuiting substring before the generic slow-plan route
+    - exact front reread:
+      - `kilo_micro_substring_concat`
+        - `C: instr=1,622,875 / cycles=484,039 / ms=2`
+        - `Ny AOT: instr=1,027,840,321 / cycles=315,379,190 / ms=80`
+    - accept gate stayed healthy:
+      - `kilo_micro_substring_only`
+        - `C: instr=1,622,875 / cycles=502,466 / ms=3`
+        - `Ny AOT: instr=1,669,594 / cycles=1,098,352 / ms=3`
+    - asm/top reread on the rejected follow-up:
+      - `nyash.string.substring_hii: 31.81%`
+      - `insert_const_mid_fallback closure: 24.92%`
+      - `PiecewiseTextBox::clone: 13.63%`
+      - `string_span_cache_put: 9.73%`
+      - `TextPlan::from_pieces: 4.31%`
+    - reading:
+      - a raw handle-keyed sticky memo did not delete the corridor; it only added another post-hoc shortcut in front of the same hot helper body
+      - even the one-shot variant risks false reuse pressure and does not remove `insert_const_mid_fallback` itself from the front
+      - do not reopen memo-based substring shortcuts on this front; the next executor cut must stay executor-local and non-sticky
 - optimization re-entry card:
   - this remains the active next-cut template on top of the current keeper baseline
   - front: `kilo_micro_substring_concat`
@@ -102,7 +122,7 @@ Scope: current lane / next lane / restart order only.
     - to: `runtime-private single-session piecewise_subrange executor under the same public ABI surface`
   - executor delta:
     - add: `piecewise_subrange_exec(...)`-class thin executor only
-    - forbid: transient box/handle carriers, transient piecewise object cloning, or allocation-backed helper indirection on the hot lane
+    - forbid: transient box/handle carriers, raw handle-keyed sticky memo shortcuts, transient piecewise object cloning, or allocation-backed helper indirection on the hot lane
     - demote: hot `insert_const_mid_fallback` / handle-TLS span reconstruction on this front to cold-adapter candidates
   - delete target:
     - hot `insert_const_mid_fallback`
@@ -123,6 +143,7 @@ Scope: current lane / next lane / restart order only.
     - the current keeper already deleted producer substrings from the active front, so the next cut must target the new `insert_const_mid_fallback` dominant owner rather than reopening producer-shape reading
     - treat `piecewise_subrange_exec(...)` as runtime-private generic executor; do not encode helper names into MIR truth
     - do not materialize the corridor through a transient piecewise box/handle carrier; keep the next attempt single-session and executor-local
+    - do not add a sticky shortcut keyed only by produced handles; any executor-local reuse must die with the executor call frame
     - string is the first consumer, not the MIR dialect
   - first commands:
     - `tools/checks/dev_gate.sh quick`
@@ -138,7 +159,7 @@ Scope: current lane / next lane / restart order only.
     - no exact-front win
     - accept gate or whole-kilo regresses
     - cache/helper traffic becomes the new dominant owner
-    - transient box/handle carriers, clone traffic, or `TextPlan::from_pieces` allocation become hot owners
+    - transient box/handle carriers, raw handle-keyed sticky memo traffic, clone traffic, or `TextPlan::from_pieces` allocation become hot owners
     - the cut requires a new MIR rewrite, public ABI, or string-only MIR dialect
   - do not start edits from `kilo / micro-kilo` wording alone; use this explicit card plus `phase-137x` target bands
 - fixed task order:
