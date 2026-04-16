@@ -128,6 +128,8 @@ Reading:
       `OwnedBytes` / `TextPlan`
     - do not reopen route logic, piece-shape branching, transient box/handle
       carriers, widen `insert_hsi`, or jump to public-ABI edits on this lane
+    - a pure `freeze -> publish` helper split is not a keeper by itself; keep it
+      only if it also deletes eager publication on the exact front
 - current design verdict:
  - the publication-boundary design is not the blocker on this front
   - the remaining exact gap is concentrated in final owned materialize ->
@@ -158,6 +160,12 @@ Reading:
      deterministic library gate on this lane
    - treat parallel `cargo test -q -p nyash_kernel --lib` as monitor-only until
      cache/view isolation is fixed
+ - latest runtime-private seam reread:
+   - `freeze_owned_bytes(...) -> publish_owned_bytes(...)` on the active
+     `piecewise_subrange_hsiii` tail compiled and passed targeted tests
+   - exact-front reread still moved to `261,219,101 instr / 21 ms`
+   - treat that seam as reject on this lane; it validates the split shape but
+     does not remove the hot publication tax
 
 ## Generic Minimum
 

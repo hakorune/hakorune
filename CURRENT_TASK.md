@@ -166,6 +166,16 @@ Scope: current lane / next lane / restart order only.
       - a generic `insert_hsi` direct-build wins the exact front but widens too far and regresses whole-kilo
       - do not replace the generic non-empty `insert_const_mid_fallback` body with owned direct materialization on this card
       - the next executor cut must stay corridor-local to the active front, not broaden `insert_hsi` for all consumers
+  - rejected runtime-executor freeze/publish split:
+    - attempted a runtime-private `freeze_owned_bytes(...) -> publish_owned_bytes(...)` split on the active `piecewise_subrange_hsiii` tail using existing `OwnedBytes` seams while keeping the public handle-based surface unchanged
+    - exact front reread:
+      - `kilo_micro_substring_concat`
+        - `C: instr=1,622,875 / cycles=497,003 / ms=3`
+        - `Ny AOT: instr=261,219,101 / cycles=66,111,911 / ms=21`
+    - reading:
+      - compile/test shape is valid, but a structure-only freeze/publish split does not delete the eager publication tail by itself
+      - the active front still effectively pays the same `owned String -> StringBox -> Arc -> handle` tax
+      - do not keep freeze/publish-only refactors on this lane without an exact-front instruction win
 - optimization re-entry card:
   - this remains the historical next-cut template on top of the current keeper baseline
   - front: `kilo_micro_substring_concat`
@@ -199,7 +209,7 @@ Scope: current lane / next lane / restart order only.
   - executor delta:
     - keep: landed `piecewise_subrange_hsiii` publication boundary and helper surface
     - add: executor-local tail thinning only inside `piecewise_subrange_hsiii`
-    - forbid: new route logic, transient box/handle carriers, raw handle-keyed sticky memo shortcuts, transient piecewise object cloning, generic helper widening, generic non-empty `insert_const_mid_fallback` direct-build widening, or new MIR/public ABI work
+    - forbid: new route logic, transient box/handle carriers, raw handle-keyed sticky memo shortcuts, transient piecewise object cloning, generic helper widening, generic non-empty `insert_const_mid_fallback` direct-build widening, structure-only `freeze -> publish` splitting that leaves eager publication intact, or new MIR/public ABI work
     - demote: no generic helper body on this card
   - delete target:
     - `materialize_owned_total`
