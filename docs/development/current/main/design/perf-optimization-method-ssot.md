@@ -87,6 +87,7 @@ current restart pointer after the active selfhost landing is this one:
   - whole-kilo regresses even if the isolated micro improves
   - the slice needs a new string-only MIR dialect
   - the slice broadens into keep-lane owners without route-contract evidence
+  - the slice grows cache/helper traffic or route hinting without borrowed-lane continuity proof
 
 ## Current Scheduling Status
 
@@ -116,8 +117,12 @@ current restart pointer after the active selfhost landing is this one:
   - `string-birth-sink-ssot.md`
   `freeze.str` remains the canonical sink target, but the current parent question is now `BoundaryKind` vs `RetainedForm`, plus the separate post-store observer contract, not sink re-home.
 - when the lane is on `freeze.str`, do not mix sink canonicalization with route/helper splitting in the same commit series.
-- current narrow implementation order is fixed: shrink `BorrowedSubstringPlan` into recipe-only / boundary-only placement, keep `array_set` as the consumer boundary, re-run the same-artifact meso/main proof, and then stop the sink-local lane unless new asm evidence appears (keep `BoxBase::new` out unless evidence changes).
-- current narrow implementation order is fixed: shrink `BorrowedSubstringPlan` into recipe-only / boundary-only placement, keep `array_set` as the consumer boundary, keep trailing `length()` as a post-store observer, re-run the same-artifact meso/main proof, and then stop the sink-local lane unless new asm evidence appears (keep `BoxBase::new` out unless evidence changes).
+- historical retained-boundary sink-local ordering below remains evidence only.
+- current phase-137x re-entry order is fixed:
+  1. split arm-level observe cost in `borrowed_substring_plan_from_live_object(...)`
+  2. isolate the cold `handle_to_plan` / `plan_to_handle` adapter seam
+  3. reopen only a narrow plan-native consumer cut on `kilo_micro_substring_concat`
+- reject any cache-layer growth, helper-traffic growth, or route hinting that does not first prove borrowed-lane continuity on the same artifact.
 - compile-time placement helper `crates/nyash_kernel/src/exports/string_birth_placement.rs` is now landed; the next exact lane is upstream birth-density proof with `array_set` as the first `Store` boundary, rather than any further sink-local cut.
 - the next large-cut owner is now compiler-local placement, not helper-local widening:
   - use `concat3-array-store-placement-window-ssot.md` as the next exact rollout contract

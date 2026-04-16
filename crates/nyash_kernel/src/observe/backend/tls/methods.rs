@@ -393,6 +393,26 @@ impl ThreadCounters {
     }
 
     #[inline(always)]
+    fn str_substring_route_slow_plan_return_handle(&self) {
+        Self::bump(&self.str_substring_route_slow_plan_return_handle);
+    }
+
+    #[inline(always)]
+    fn str_substring_route_slow_plan_return_empty(&self) {
+        Self::bump(&self.str_substring_route_slow_plan_return_empty);
+    }
+
+    #[inline(always)]
+    fn str_substring_route_slow_plan_freeze_span(&self) {
+        Self::bump(&self.str_substring_route_slow_plan_freeze_span);
+    }
+
+    #[inline(always)]
+    fn str_substring_route_slow_plan_view_span(&self) {
+        Self::bump(&self.str_substring_route_slow_plan_view_span);
+    }
+
+    #[inline(always)]
     fn borrowed_alias_to_string_box(&self) {
         Self::bump(&self.borrowed_alias_to_string_box);
     }
@@ -799,6 +819,22 @@ impl ThreadCounters {
         flush_cell(
             &self.str_substring_route_slow_plan,
             &GLOBAL.str_substring_route_slow_plan,
+        );
+        flush_cell(
+            &self.str_substring_route_slow_plan_return_handle,
+            &GLOBAL.str_substring_route_slow_plan_return_handle,
+        );
+        flush_cell(
+            &self.str_substring_route_slow_plan_return_empty,
+            &GLOBAL.str_substring_route_slow_plan_return_empty,
+        );
+        flush_cell(
+            &self.str_substring_route_slow_plan_freeze_span,
+            &GLOBAL.str_substring_route_slow_plan_freeze_span,
+        );
+        flush_cell(
+            &self.str_substring_route_slow_plan_view_span,
+            &GLOBAL.str_substring_route_slow_plan_view_span,
         );
         flush_cell(
             &self.borrowed_alias_to_string_box,

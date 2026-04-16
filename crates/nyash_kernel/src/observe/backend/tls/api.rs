@@ -77,6 +77,10 @@ tls_zero_arg_api! {
     str_substring_route_fast_cache_hit => str_substring_route_fast_cache_hit,
     str_substring_route_dispatch_hit => str_substring_route_dispatch_hit,
     str_substring_route_slow_plan => str_substring_route_slow_plan,
+    str_substring_route_slow_plan_return_handle => str_substring_route_slow_plan_return_handle,
+    str_substring_route_slow_plan_return_empty => str_substring_route_slow_plan_return_empty,
+    str_substring_route_slow_plan_freeze_span => str_substring_route_slow_plan_freeze_span,
+    str_substring_route_slow_plan_view_span => str_substring_route_slow_plan_view_span,
     borrowed_alias_to_string_box => borrowed_alias_to_string_box,
     borrowed_alias_equals => borrowed_alias_equals,
     borrowed_alias_clone_box => borrowed_alias_clone_box,
@@ -142,7 +146,7 @@ macro_rules! load {
     };
 }
 
-pub(crate) fn snapshot() -> [u64; 98] {
+pub(crate) fn snapshot() -> [u64; 102] {
     flush_current_thread();
     [
         load!(store_array_str_total),
@@ -213,6 +217,10 @@ pub(crate) fn snapshot() -> [u64; 98] {
         load!(str_substring_route_fast_cache_hit),
         load!(str_substring_route_dispatch_hit),
         load!(str_substring_route_slow_plan),
+        load!(str_substring_route_slow_plan_return_handle),
+        load!(str_substring_route_slow_plan_return_empty),
+        load!(str_substring_route_slow_plan_freeze_span),
+        load!(str_substring_route_slow_plan_view_span),
         load!(borrowed_alias_to_string_box),
         load!(borrowed_alias_equals),
         load!(borrowed_alias_clone_box),

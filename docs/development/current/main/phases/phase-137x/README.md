@@ -48,6 +48,24 @@
   - `kilo_micro_substring_views_only`
   - `kilo_micro_len_substring_views`
 - current broader-corridor reopen front is `kilo_micro_substring_concat`
+- current live reread after the 2026-04-16 reject/revert cleanup:
+  - `kilo_micro_substring_only`
+    - `C: instr=1,621,628 / cycles=483,969 / ms=2`
+    - `Ny AOT: instr=1,665,429 / cycles=986,500 / ms=3`
+  - `kilo_micro_substring_concat`
+    - `C: instr=1,621,627 / cycles=487,745 / ms=3`
+    - `Ny AOT: instr=779,095,086 / cycles=289,761,186 / ms=68`
+  - current route counters on the same front:
+    - `view_arc_cache_miss=600000`
+    - `slow_plan=600000`
+    - `birth.placement borrow_view=600000`
+    - `birth.backend issue_fresh_handle_total=900000`
+- adopted reading for the next local cut:
+  - this front is a borrowed-view lane continuity problem, not a cache-first or leaf-semantics problem
+  - keep `borrowed-view -> materialize-on-escape` as the generic substrate
+  - do not add a new string-only MIR dialect
+  - next runtime cut is the arm-level observe split of `borrowed_substring_plan_from_live_object(...)`
+  - keep handle/TLS/cache lookup isolated as the cold adapter path; reject cache/helper accretion without lane-continuity proof
 - current broader-corridor genericization rule:
   - do not add a new string-only MIR dialect
   - landed: `string_corridor_candidates` now carry proof-bearing plan metadata for borrowed-slice and concat-triplet routes

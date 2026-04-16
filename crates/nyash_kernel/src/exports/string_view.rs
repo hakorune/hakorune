@@ -4,6 +4,7 @@ use super::string_span_cache::{
     string_span_cache_put,
 };
 use super::string_trace;
+use crate::observe;
 use nyash_rust::{
     box_trait::{BoolBox, BoxBase, BoxCore, NyashBox, StringBox},
     runtime::host_handles as handles,
@@ -223,6 +224,7 @@ pub(crate) fn borrowed_substring_plan_from_live_object(
     if let Some(sb) = obj.as_any().downcast_ref::<StringBox>() {
         let (st_rel, en_rel) = clamp_i64_range(sb.value.len(), start, end);
         if st_rel == 0 && en_rel == sb.value.len() {
+            observe::record_str_substring_route_slow_plan_return_handle();
             trace_borrowed_substring_plan(
                 handle,
                 start,
@@ -236,6 +238,7 @@ pub(crate) fn borrowed_substring_plan_from_live_object(
             return Some(BorrowedSubstringPlan::ReturnHandle);
         }
         if st_rel == en_rel {
+            observe::record_str_substring_route_slow_plan_return_empty();
             trace_borrowed_substring_plan(
                 handle,
                 start,
@@ -249,6 +252,7 @@ pub(crate) fn borrowed_substring_plan_from_live_object(
             return Some(BorrowedSubstringPlan::ReturnEmpty);
         }
         if sb.value.get(st_rel..en_rel).is_none() {
+            observe::record_str_substring_route_slow_plan_return_empty();
             trace_borrowed_substring_plan(
                 handle,
                 start,
@@ -270,6 +274,7 @@ pub(crate) fn borrowed_substring_plan_from_live_object(
         };
         match placement {
             RetainedForm::RetainView => {
+                observe::record_str_substring_route_slow_plan_view_span();
                 trace_borrowed_substring_plan(
                     handle,
                     start,
@@ -283,6 +288,7 @@ pub(crate) fn borrowed_substring_plan_from_live_object(
                 return Some(BorrowedSubstringPlan::ViewSpan(span));
             }
             RetainedForm::MustFreeze(_) | RetainedForm::KeepTransient => {
+                observe::record_str_substring_route_slow_plan_freeze_span();
                 trace_borrowed_substring_plan(
                     handle,
                     start,
@@ -296,6 +302,7 @@ pub(crate) fn borrowed_substring_plan_from_live_object(
                 return Some(BorrowedSubstringPlan::FreezeSpan(span));
             }
             RetainedForm::ReturnHandle => {
+                observe::record_str_substring_route_slow_plan_return_handle();
                 trace_borrowed_substring_plan(
                     handle,
                     start,
@@ -318,6 +325,7 @@ pub(crate) fn borrowed_substring_plan_from_live_object(
         let parent_len = parent_en.saturating_sub(parent_st);
         let (st_rel, en_rel) = clamp_i64_range(parent_len, start, end);
         if st_rel == 0 && en_rel == parent_len {
+            observe::record_str_substring_route_slow_plan_return_handle();
             trace_borrowed_substring_plan(
                 handle,
                 start,
@@ -331,6 +339,7 @@ pub(crate) fn borrowed_substring_plan_from_live_object(
             return Some(BorrowedSubstringPlan::ReturnHandle);
         }
         if st_rel == en_rel {
+            observe::record_str_substring_route_slow_plan_return_empty();
             trace_borrowed_substring_plan(
                 handle,
                 start,
@@ -346,6 +355,7 @@ pub(crate) fn borrowed_substring_plan_from_live_object(
         let abs_st = parent_st.saturating_add(st_rel);
         let abs_en = parent_st.saturating_add(en_rel);
         if base_sb.value.get(abs_st..abs_en).is_none() {
+            observe::record_str_substring_route_slow_plan_return_empty();
             trace_borrowed_substring_plan(
                 handle,
                 start,
@@ -367,6 +377,7 @@ pub(crate) fn borrowed_substring_plan_from_live_object(
         };
         match placement {
             RetainedForm::RetainView => {
+                observe::record_str_substring_route_slow_plan_view_span();
                 trace_borrowed_substring_plan(
                     handle,
                     start,
@@ -380,6 +391,7 @@ pub(crate) fn borrowed_substring_plan_from_live_object(
                 return Some(BorrowedSubstringPlan::ViewSpan(span));
             }
             RetainedForm::MustFreeze(_) | RetainedForm::KeepTransient => {
+                observe::record_str_substring_route_slow_plan_freeze_span();
                 trace_borrowed_substring_plan(
                     handle,
                     start,
@@ -393,6 +405,7 @@ pub(crate) fn borrowed_substring_plan_from_live_object(
                 return Some(BorrowedSubstringPlan::FreezeSpan(span));
             }
             RetainedForm::ReturnHandle => {
+                observe::record_str_substring_route_slow_plan_return_handle();
                 trace_borrowed_substring_plan(
                     handle,
                     start,

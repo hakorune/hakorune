@@ -390,6 +390,26 @@ mod real {
     }
 
     #[inline(always)]
+    pub(crate) fn record_str_substring_route_slow_plan_return_handle() {
+        super::backend::str_substring_route_slow_plan_return_handle();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_str_substring_route_slow_plan_return_empty() {
+        super::backend::str_substring_route_slow_plan_return_empty();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_str_substring_route_slow_plan_freeze_span() {
+        super::backend::str_substring_route_slow_plan_freeze_span();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_str_substring_route_slow_plan_view_span() {
+        super::backend::str_substring_route_slow_plan_view_span();
+    }
+
+    #[inline(always)]
     pub(crate) fn record_borrowed_alias_to_string_box() {
         super::backend::borrowed_alias_to_string_box();
     }
@@ -728,6 +748,18 @@ mod real {
 
     #[inline(always)]
     pub(crate) fn record_str_substring_route_slow_plan() {}
+
+    #[inline(always)]
+    pub(crate) fn record_str_substring_route_slow_plan_return_handle() {}
+
+    #[inline(always)]
+    pub(crate) fn record_str_substring_route_slow_plan_return_empty() {}
+
+    #[inline(always)]
+    pub(crate) fn record_str_substring_route_slow_plan_freeze_span() {}
+
+    #[inline(always)]
+    pub(crate) fn record_str_substring_route_slow_plan_view_span() {}
 
     #[inline(always)]
     pub(crate) fn record_borrowed_alias_to_string_box() {}

@@ -115,6 +115,10 @@ fn tls_substring_route_counters_flush_current_thread() {
     str_substring_route_fast_cache_hit();
     str_substring_route_dispatch_hit();
     str_substring_route_slow_plan();
+    str_substring_route_slow_plan_return_handle();
+    str_substring_route_slow_plan_return_empty();
+    str_substring_route_slow_plan_freeze_span();
+    str_substring_route_slow_plan_view_span();
     let after = snapshot();
 
     assert_eq!(after[61] - before[61], 1);
@@ -122,4 +126,8 @@ fn tls_substring_route_counters_flush_current_thread() {
     assert_eq!(after[65] - before[65], 1);
     assert_eq!(after[66] - before[66], 1);
     assert_eq!(after[67] - before[67], 1);
+    assert_eq!(after[68] - before[68], 1);
+    assert_eq!(after[69] - before[69], 1);
+    assert_eq!(after[70] - before[70], 1);
+    assert_eq!(after[71] - before[71], 1);
 }

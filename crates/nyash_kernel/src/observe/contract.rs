@@ -110,6 +110,11 @@ pub(crate) const STR_SUBSTRING_ROUTE_VIEW_ARC_CACHE_MISS: &str = "view_arc_cache
 pub(crate) const STR_SUBSTRING_ROUTE_FAST_CACHE_HIT: &str = "fast_cache_hit";
 pub(crate) const STR_SUBSTRING_ROUTE_DISPATCH_HIT: &str = "dispatch_hit";
 pub(crate) const STR_SUBSTRING_ROUTE_SLOW_PLAN: &str = "slow_plan";
+pub(crate) const STR_SUBSTRING_ROUTE_SLOW_PLAN_RETURN_HANDLE: &str = "slow_plan_return_handle";
+pub(crate) const STR_SUBSTRING_ROUTE_SLOW_PLAN_RETURN_EMPTY: &str = "slow_plan_return_empty";
+pub(crate) const STR_SUBSTRING_ROUTE_SLOW_PLAN_FREEZE_SPAN: &str = "slow_plan_freeze_span";
+pub(crate) const STR_SUBSTRING_ROUTE_SLOW_PLAN_VIEW_SPAN: &str = "slow_plan_view_span";
+pub(crate) const STR_SUBSTRING_ROUTE_SLOW_PLAN_UNCLASSIFIED: &str = "slow_plan_unclassified";
 
 pub(crate) const STABLE_BOX_DEMAND_OBJECT_GET_LATEST_FRESH: &str = "object_get_latest_fresh";
 pub(crate) const STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_LATEST_FRESH: &str =

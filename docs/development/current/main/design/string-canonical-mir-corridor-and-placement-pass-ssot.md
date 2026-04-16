@@ -1,7 +1,7 @@
 ---
 Status: Provisional SSOT
 Decision: provisional
-Date: 2026-04-09
+Date: 2026-04-16
 Scope: string hot lane を `.hako policy -> canonical MIR facts -> placement/effect pass -> Rust microkernel -> LLVM` の順で薄くする設計と実装順を固定する。
 Related:
   - CURRENT_TASK.md
@@ -30,34 +30,49 @@ Related:
 
 ## Current Perf Reading
 
-Current active local front is `kilo_micro_substring_views_only`.
+Current active broader-corridor front is `kilo_micro_substring_concat`.
+Current accept gate is `kilo_micro_substring_only`.
 
-- exact reread on 2026-04-09:
-  - `instr=34,372,749`
-  - `cycles=6,415,829`
-  - `cache-miss=8,601`
-- top:
-  - `nyash.string.substring_hii 85.99%`
-  - `ny_main 7.30%`
-- annotate reading:
-  1. `SUBSTRING_ROUTE_POLICY_CACHE` decode
-  2. provider state read + `SUBSTRING_VIEW_ARC_CACHE` TLS entry/state check
-  3. steady-state compare path
-  4. slow plan / materialize is not the dominant block on this front
+- live reread on 2026-04-16:
+  - `kilo_micro_substring_only`
+    - `C: instr=1,621,628 / cycles=483,969 / ms=2`
+    - `Ny AOT: instr=1,665,429 / cycles=986,500 / ms=3`
+  - `kilo_micro_substring_concat`
+    - `C: instr=1,621,627 / cycles=487,745 / ms=3`
+    - `Ny AOT: instr=779,095,086 / cycles=289,761,186 / ms=68`
+- live route counters on the same front:
+  - `str.substring.route total=600000`
+  - `view_arc_cache_miss=600000`
+  - `slow_plan=600000`
+  - `birth.placement borrow_view=600000`
+  - `birth.backend issue_fresh_handle_total=900000`
+- current top symbols on the same artifact family:
+  - `nyash.string.substring_hii`
+  - `std::thread::local::LocalKey<T>::with`
+  - `string_substring_concat3_hhhii_export_impl`
+  - `borrowed_substring_plan_from_handle`
 
-Current reading says the next large win is not another local helper rewrite.
-It is reducing per-call route/provider/cache-entry tax by deciding more of the
-borrowed corridor before Rust runtime mechanics run.
-The first sink candidate on that path is now `nyash.string.substring_len_hii`:
+Reading:
 
-- mixed accept gate reread on 2026-04-09:
-  - `instr=47,270,021`
-  - `cycles=28,264,307`
-  - `cache-miss=9,191`
-  - `ny_aot_ms=8`
-- split exact reread on the same date:
-  - `kilo_micro_substring_views_only: instr=34,372,839 / cycles=6,483,811 / cache-miss=8,932 / AOT 5 ms`
-  - `kilo_micro_len_substring_views: instr=16,072,530 / cycles=4,296,034 / cache-miss=8,783 / AOT 4 ms`
+- this is no longer a missing `substring` semantics problem
+- this is a borrowed-view lane continuity problem on the `substring -> concat`
+  corridor
+- `BorrowView` already exists as classification, but the hot lane still falls
+  back through handle/TLS/cache/slow-plan mechanics on every iteration
+- the next win should come from preserving `borrowed-view ->
+  materialize-on-escape` continuity, not from adding another cache/helper layer
+
+## Adopted Reading
+
+- keep the generic substrate as `borrowed-view / materialize-on-escape`
+- do not add a new string-specific public MIR dialect
+- keep MIR as the owner of the corridor contract, Rust as the mechanical
+  executor, and LLVM as the consumer of truthful exported facts
+- treat handle/TLS/cache lookup as the cold adapter path, not as the steady-state
+  hot lane
+- before any new plan-native consumer widening, split the arm cost of
+  `borrowed_substring_plan_from_live_object(...)` so the next cut is selected
+  from real evidence rather than another cache-first guess
 
 ## Fixed Decisions
 
@@ -133,6 +148,11 @@ Current follow-on reading:
     - extract `StringKernelPlan` owner
     - stop `relation -> candidate` reverse dependency
     - split shim metadata readers away from generic owner files
+- immediate local observation before the next runtime cut:
+  - split `borrowed_substring_plan_from_live_object(...)` by
+    `ReturnHandle` / `ReturnEmpty` / `FreezeSpan` / `ViewSpan`
+  - keep that split as observe-only cut selection; it is not a new public
+    carrier and not a second IR family
 
 Do not encode:
 
@@ -429,14 +449,14 @@ Acceptance:
 
 For the current lane, read the next work as:
 
-1. upstream corridor/fact design
-2. compiler-side fact carrier
-3. placement/effect pass
-4. proof-bearing plan metadata on `string_corridor_candidates`
-5. `publication_sink` as the first broader generic transform
-6. `materialization_sink`
-7. plan-selected `direct_kernel_entry`
-8. only then more exact-seed retirement and any new runtime leaf cuts
+1. keep the owner split fixed: MIR contract, Rust executor, LLVM consumer
+2. preserve `borrowed-view / materialize-on-escape` as the generic substrate
+3. split arm-level observe cost in `borrowed_substring_plan_from_live_object(...)`
+4. isolate the cold `handle_to_plan` / `plan_to_handle` adapter seam
+5. only then reopen a narrow plan-native consumer cut on `kilo_micro_substring_concat`
+6. keep `publication_sink` / `materialization_sink` / `direct_kernel_entry`
+   as canonical MIR consumers, not as new public ops
+7. only then resume exact-seed retirement and any further runtime leaf cuts
 
 This replaces the earlier reading where the next move was another
 `substring_hii`-local provider/cache split.

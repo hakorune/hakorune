@@ -45,6 +45,10 @@ Scope: current lane / next lane / restart order only.
   - front: `kilo_micro_substring_concat`
   - accept gate: `kilo_micro_substring_only`
   - whole-kilo guard: `kilo_kernel_small_hk`
+  - local cut rule:
+    - preserve borrowed-view lane continuity; reject cache/helper layer growth without proof
+    - do not add a string-only MIR dialect
+    - first local observe cut is the arm split of `borrowed_substring_plan_from_live_object(...)`
   - first commands:
     - `tools/checks/dev_gate.sh quick`
     - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_concat 1 3`
