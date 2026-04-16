@@ -29,7 +29,7 @@ Related:
 - current lane mode:
   - failure-driven
   - while blocker=`none`, use this lane for narrow cleanup only
-  - next cleanup cut is `loop_scan_methods_block_v0::recipe` compat wrapper removal
+  - next cleanup cut is `loop_cond::break_continue_types` compat wrapper removal
 
 ## 0.3) Loop owner split (current design direction)
 
@@ -181,9 +181,9 @@ Related:
   - status:
     - landed and closed
   - still mixed:
-    - `recipe` compat wrapper
+    - none confirmed
   - next step:
-    - actualize the remaining `recipe` compat wrapper
+    - inventory `loop_cond::break_continue_types`
 - next one-family inventory (`loop_scan_methods_v0`):
   - already separate:
     - nested-loop recipe-first fallback handoff

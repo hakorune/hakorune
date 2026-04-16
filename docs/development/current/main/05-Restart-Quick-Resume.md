@@ -42,7 +42,8 @@ bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --onl
   - `plan::loop_cond_shared` is deleted; branch-tail helpers now live under facts common helpers and planner gate stays in `plan/loop_cond`
   - `plan/loop_cond` compat facts/recipe wrappers are deleted; feature/normalizer callers now import top-level `facts` / `recipes` owners directly
   - `plan/loop_scan_phi_vars_v0` compat facts wrappers are deleted; the family mod now re-exports top-level `facts::loop_scan_phi_vars_v0` directly
-  - next shared-infra pointer is `loop_scan_methods_block_v0::recipe` compat wrapper removal
+  - `plan/loop_scan_methods_block_v0::recipe` is deleted; the family now imports top-level `recipes::loop_scan_methods_block_v0` directly
+  - next shared-infra pointer is `loop_cond::break_continue_types` compat wrapper removal
   - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
   - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
   - keep `loop_cond` keep-plan residue internal to the family
