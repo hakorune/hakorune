@@ -29,7 +29,7 @@ Related:
 - current lane mode:
   - failure-driven
   - while blocker=`none`, use this lane for narrow cleanup only
-  - next cleanup cut is `loop_scan_phi_vars_v0::nested_loop_handoff` cleanup / `loop_cond_shared` helper split
+  - next cleanup cut is `loop_scan_methods_block_v0::recipe` compat wrapper removal
 
 ## 0.3) Loop owner split (current design direction)
 
@@ -158,12 +158,14 @@ Related:
     - `facts_shape_routes`
     - `helpers`
     - `nested_loop_stmt_only`
-  - status:
-    - owner-local cleanup active
-  - still mixed:
     - `nested_loop_handoff`
+    - compat facts wrapper removal
+  - status:
+    - landed and closed
+  - still mixed:
+    - none confirmed
   - next step:
-    - inventory `loop_cond_shared` helper split
+    - inventory `loop_scan_methods_block_v0::recipe`
 - next one-family inventory (`loop_scan_methods_block_v0`):
   - already separate:
     - nested-loop recipe-first fallback handoff (`lower_nested_loop_plan`)
@@ -179,9 +181,9 @@ Related:
   - status:
     - landed and closed
   - still mixed:
-    - none confirmed
+    - `recipe` compat wrapper
   - next step:
-    - inventory `loop_cond_shared` helper split / `loop_scan_phi_vars_v0::nested_loop_handoff`
+    - actualize the remaining `recipe` compat wrapper
 - next one-family inventory (`loop_scan_methods_v0`):
   - already separate:
     - nested-loop recipe-first fallback handoff
