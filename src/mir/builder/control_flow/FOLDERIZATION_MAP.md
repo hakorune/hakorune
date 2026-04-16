@@ -74,6 +74,7 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
   - `recipes::loop_collect_using_entries_v0`
   - `recipes::loop_cond_continue_only`
   - `recipes::loop_cond_continue_with_return`
+  - `recipes::loop_cond_shared`
   - `recipes::loop_scan_methods_block_v0`
   - `plan/recipe_tree` now imports `recipes::{RecipeBody, refs}` directly
 - next actual move:
@@ -188,7 +189,7 @@ These wrappers are allowed to point at `plan/` until the implementation moves to
 
 - safe tiny wrapper cleanup is exhausted for owner-preserving seams
 - keep `recipes/`, `lower/`, `verify/`, `ssa/`, `cleanup/`, and `facts/` as the active top-level owner surfaces
-- next movable symbols now concentrate on `loop_scan_phi_vars_v0::nested_loop_handoff` cleanup and `loop_cond_shared` owner-surface inventory
+- next movable symbols now concentrate on `loop_scan_phi_vars_v0::nested_loop_handoff` cleanup and `loop_cond_shared` helper split
 
 ## First Cut
 

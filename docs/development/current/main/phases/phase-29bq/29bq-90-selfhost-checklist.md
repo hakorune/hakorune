@@ -29,7 +29,7 @@ Related:
 - current lane mode:
   - failure-driven
   - while blocker=`none`, use this lane for narrow cleanup only
-  - next cleanup cut is `loop_scan_phi_vars_v0::nested_loop_handoff` cleanup / `loop_cond_shared` owner-surface inventory
+  - next cleanup cut is `loop_scan_phi_vars_v0::nested_loop_handoff` cleanup / `loop_cond_shared` helper split
 
 ## 0.3) Loop owner split (current design direction)
 
@@ -163,7 +163,7 @@ Related:
   - still mixed:
     - `nested_loop_handoff`
   - next step:
-    - inventory `loop_cond_shared` owner surface
+    - inventory `loop_cond_shared` helper split
 - next one-family inventory (`loop_scan_methods_block_v0`):
   - already separate:
     - nested-loop recipe-first fallback handoff (`lower_nested_loop_plan`)
@@ -181,7 +181,7 @@ Related:
   - still mixed:
     - none confirmed
   - next step:
-    - inventory `loop_cond_shared` owner surface / `loop_scan_phi_vars_v0::nested_loop_handoff`
+    - inventory `loop_cond_shared` helper split / `loop_scan_phi_vars_v0::nested_loop_handoff`
 - next one-family inventory (`loop_scan_methods_v0`):
   - already separate:
     - nested-loop recipe-first fallback handoff

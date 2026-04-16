@@ -19,7 +19,7 @@ Related:
 | Guardrail | `phase-137x` string corridor / `kilo_micro_substring_views_only` |
 | Blocker | `active blocker = none; stay failure-driven and capture the next exact blocker before widening` |
 | Next | `compiler expressivity first` |
-| After Next | `loop_scan_phi_vars_v0::nested_loop_handoff` cleanup / `loop_cond_shared` owner-surface inventory |
+| After Next | `loop_scan_phi_vars_v0::nested_loop_handoff` cleanup / `loop_cond_shared` helper split |
 
 ## Current Read
 
