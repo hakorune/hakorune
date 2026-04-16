@@ -30,6 +30,7 @@ Use these SSOTs for the current picture:
 
 - [optimization-layer-roadmap-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-layer-roadmap-ssot.md)
 - [current-optimization-mechanisms-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/current-optimization-mechanisms-ssot.md)
+- [phase137x-substring-chatgpt-pro-perf-packet-2026-04-16.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/investigations/phase137x-substring-chatgpt-pro-perf-packet-2026-04-16.md)
 
 ## ChatGPT Pro へ投げる文章
 
