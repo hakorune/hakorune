@@ -1,11 +1,12 @@
 ---
 Status: Active
-Scope: optimization history hub; preserves what optimization work has been done and how optimization has been approached
+Scope: optimization history hub; preserves what optimization work has been done and points to the current optimization mechanisms SSOT
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/15-Workstream-Map.md
+  - docs/development/current/main/design/current-optimization-mechanisms-ssot.md
   - docs/development/current/main/design/perf-optimization-method-ssot.md
   - docs/development/current/main/design/optimization-tag-flow-ssot.md
   - docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md
@@ -14,15 +15,28 @@ Related:
   - docs/private/roadmap/phases/phase-21-optimization
 ---
 
-# Optimization History Hub
+# Optimization Hub
 
-This folder is the summary entry point for optimization history.
+This folder is the summary entry point for optimization work.
 
 Use it when you need to remember:
 
 - what optimization work has already been accepted
+- where the current mechanisms SSOT lives
 - how optimization work has been approached in this repo
 - where the detailed historical records live
+
+## Current Mechanisms
+
+The current mechanism inventory now lives in:
+
+- [current-optimization-mechanisms-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/current-optimization-mechanisms-ssot.md)
+
+Read that SSOT when you need:
+
+- the current optimization rows
+- `landed mechanism / owner seam / scaffold / backlog` status
+- legacy wording (`DCE`, `Escape`, `Float`, `Closure`, `handle ABI -> value ABI`) mapped to current rows
 
 ## What has been done
 

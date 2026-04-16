@@ -116,6 +116,8 @@
 - Stage1 MIR authority boundary SSOT（`.hako authority / Rust materializer / native consumer` の境界固定）: `docs/development/current/main/design/stage1-mir-authority-boundary-ssot.md`
 - String helper density optimization SSOT（substring/concat/indexOf/length 最適化責務）: `docs/development/current/main/design/optimization-ssot-string-helper-density.md`
 - Runtime hot lane optimization patterns SSOT（keeper pattern は先に固定し、generic framework 化は second winner の後に行う）: `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+- Current optimization mechanisms SSOT（legacy wording を current rows に引き直す最適化機構の正本）: `docs/development/current/main/design/current-optimization-mechanisms-ssot.md`
+- Optimization hub（history entry）: `docs/development/current/main/design/optimization/README.md`
 - String canonical MIR corridor + placement/effect pass SSOT（string hot lane を `.hako policy -> canonical MIR facts -> placement/effect pass -> Rust microkernel` へ寄せる設計正本）: `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
 - Primitive family + user box fast path SSOT（primitive semantic builtin family と user box field access を compiler/MIR 主導で薄くする follow-on 設計正本）: `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
 - Lifecycle-typed value language SSOT（`inside = value / boundary = box` の親設計正本）: `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
