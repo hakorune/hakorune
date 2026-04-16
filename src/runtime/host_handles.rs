@@ -6,6 +6,9 @@
  * - u64ハンドルID → Arc<dyn NyashBox> をグローバルに保持し、VM/PluginHost/JITから参照可能にする。
  */
 
+#[path = "host_handles/perf_observe.rs"]
+mod perf_observe;
+
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
 use std::sync::{
@@ -16,161 +19,7 @@ use std::sync::{
 use super::host_handles_policy;
 use crate::box_trait::NyashBox;
 use crate::config::env::HostHandleAllocPolicyMode;
-
-#[cfg(feature = "perf-observe")]
-mod perf_observe {
-    use std::sync::atomic::{AtomicU64, Ordering};
-
-    static LATEST_FRESH_HANDLE: AtomicU64 = AtomicU64::new(0);
-    static OBJECT_GET_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
-    static OBJECT_WITH_HANDLE_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
-    static OBJECT_WITH_HANDLE_ARRAY_STORE_STR_SOURCE_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
-    static OBJECT_WITH_HANDLE_SUBSTRING_PLAN_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
-    static OBJECT_WITH_HANDLE_DECODE_ARRAY_FAST_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
-    static OBJECT_WITH_HANDLE_DECODE_ANY_ARG_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
-    static OBJECT_WITH_HANDLE_DECODE_ANY_INDEX_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
-    static OBJECT_PAIR_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
-    static OBJECT_TRIPLE_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
-    static TEXT_READ_HANDLE_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
-    static TEXT_READ_PAIR_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
-    static TEXT_READ_TRIPLE_LATEST_FRESH: AtomicU64 = AtomicU64::new(0);
-
-    #[inline(always)]
-    fn is_latest_fresh_handle(handle: u64) -> bool {
-        handle > 0 && LATEST_FRESH_HANDLE.load(Ordering::Relaxed) == handle
-    }
-
-    #[inline(always)]
-    pub(super) fn mark_latest_fresh_handle(handle: u64) {
-        LATEST_FRESH_HANDLE.store(handle, Ordering::Relaxed);
-    }
-
-    #[inline(always)]
-    pub(super) fn object_get(handle: u64) {
-        if is_latest_fresh_handle(handle) {
-            OBJECT_GET_LATEST_FRESH.fetch_add(1, Ordering::Relaxed);
-        }
-    }
-
-    #[inline(always)]
-    pub(super) fn object_with_handle(
-        handle: u64,
-        caller: super::PerfObserveObjectWithHandleCaller,
-    ) {
-        if is_latest_fresh_handle(handle) {
-            OBJECT_WITH_HANDLE_LATEST_FRESH.fetch_add(1, Ordering::Relaxed);
-            match caller {
-                super::PerfObserveObjectWithHandleCaller::Generic => {}
-                super::PerfObserveObjectWithHandleCaller::ArrayStoreStrSource => {
-                    OBJECT_WITH_HANDLE_ARRAY_STORE_STR_SOURCE_LATEST_FRESH
-                        .fetch_add(1, Ordering::Relaxed);
-                }
-                super::PerfObserveObjectWithHandleCaller::SubstringPlan => {
-                    OBJECT_WITH_HANDLE_SUBSTRING_PLAN_LATEST_FRESH.fetch_add(1, Ordering::Relaxed);
-                }
-                super::PerfObserveObjectWithHandleCaller::DecodeArrayFast => {
-                    OBJECT_WITH_HANDLE_DECODE_ARRAY_FAST_LATEST_FRESH
-                        .fetch_add(1, Ordering::Relaxed);
-                }
-                super::PerfObserveObjectWithHandleCaller::DecodeAnyArg => {
-                    OBJECT_WITH_HANDLE_DECODE_ANY_ARG_LATEST_FRESH.fetch_add(1, Ordering::Relaxed);
-                }
-                super::PerfObserveObjectWithHandleCaller::DecodeAnyIndex => {
-                    OBJECT_WITH_HANDLE_DECODE_ANY_INDEX_LATEST_FRESH
-                        .fetch_add(1, Ordering::Relaxed);
-                }
-            }
-        }
-    }
-
-    #[inline(always)]
-    pub(super) fn object_pair(a: u64, b: u64) {
-        if is_latest_fresh_handle(a) || is_latest_fresh_handle(b) {
-            OBJECT_PAIR_LATEST_FRESH.fetch_add(1, Ordering::Relaxed);
-        }
-    }
-
-    #[inline(always)]
-    pub(super) fn object_triple(a: u64, b: u64, c: u64) {
-        if is_latest_fresh_handle(a) || is_latest_fresh_handle(b) || is_latest_fresh_handle(c) {
-            OBJECT_TRIPLE_LATEST_FRESH.fetch_add(1, Ordering::Relaxed);
-        }
-    }
-
-    #[inline(always)]
-    pub(super) fn text_read_handle(handle: u64) {
-        if is_latest_fresh_handle(handle) {
-            TEXT_READ_HANDLE_LATEST_FRESH.fetch_add(1, Ordering::Relaxed);
-        }
-    }
-
-    #[inline(always)]
-    pub(super) fn text_read_pair(a: u64, b: u64) {
-        if is_latest_fresh_handle(a) || is_latest_fresh_handle(b) {
-            TEXT_READ_PAIR_LATEST_FRESH.fetch_add(1, Ordering::Relaxed);
-        }
-    }
-
-    #[inline(always)]
-    pub(super) fn text_read_triple(a: u64, b: u64, c: u64) {
-        if is_latest_fresh_handle(a) || is_latest_fresh_handle(b) || is_latest_fresh_handle(c) {
-            TEXT_READ_TRIPLE_LATEST_FRESH.fetch_add(1, Ordering::Relaxed);
-        }
-    }
-
-    pub fn snapshot() -> [u64; 12] {
-        [
-            OBJECT_GET_LATEST_FRESH.load(Ordering::Relaxed),
-            OBJECT_WITH_HANDLE_LATEST_FRESH.load(Ordering::Relaxed),
-            OBJECT_PAIR_LATEST_FRESH.load(Ordering::Relaxed),
-            OBJECT_TRIPLE_LATEST_FRESH.load(Ordering::Relaxed),
-            TEXT_READ_HANDLE_LATEST_FRESH.load(Ordering::Relaxed),
-            TEXT_READ_PAIR_LATEST_FRESH.load(Ordering::Relaxed),
-            TEXT_READ_TRIPLE_LATEST_FRESH.load(Ordering::Relaxed),
-            OBJECT_WITH_HANDLE_ARRAY_STORE_STR_SOURCE_LATEST_FRESH.load(Ordering::Relaxed),
-            OBJECT_WITH_HANDLE_SUBSTRING_PLAN_LATEST_FRESH.load(Ordering::Relaxed),
-            OBJECT_WITH_HANDLE_DECODE_ARRAY_FAST_LATEST_FRESH.load(Ordering::Relaxed),
-            OBJECT_WITH_HANDLE_DECODE_ANY_ARG_LATEST_FRESH.load(Ordering::Relaxed),
-            OBJECT_WITH_HANDLE_DECODE_ANY_INDEX_LATEST_FRESH.load(Ordering::Relaxed),
-        ]
-    }
-}
-
-#[cfg(not(feature = "perf-observe"))]
-mod perf_observe {
-    #[inline(always)]
-    pub(super) fn mark_latest_fresh_handle(_handle: u64) {}
-    #[inline(always)]
-    pub(super) fn object_get(_handle: u64) {}
-    #[inline(always)]
-    pub(super) fn object_with_handle(
-        _handle: u64,
-        _caller: super::PerfObserveObjectWithHandleCaller,
-    ) {
-    }
-    #[inline(always)]
-    pub(super) fn object_pair(_a: u64, _b: u64) {}
-    #[inline(always)]
-    pub(super) fn object_triple(_a: u64, _b: u64, _c: u64) {}
-    #[inline(always)]
-    pub(super) fn text_read_handle(_handle: u64) {}
-    pub(super) fn text_read_pair(_a: u64, _b: u64) {}
-    #[inline(always)]
-    pub(super) fn text_read_triple(_a: u64, _b: u64, _c: u64) {}
-    pub fn snapshot() -> [u64; 12] {
-        [0; 12]
-    }
-}
-
-#[derive(Copy, Clone)]
-pub enum PerfObserveObjectWithHandleCaller {
-    Generic,
-    ArrayStoreStrSource,
-    SubstringPlan,
-    DecodeArrayFast,
-    DecodeAnyArg,
-    DecodeAnyIndex,
-}
+pub use perf_observe::ObjectWithHandleCaller as PerfObserveObjectWithHandleCaller;
 
 enum HandlePayload {
     StableBox(Arc<dyn NyashBox>),
