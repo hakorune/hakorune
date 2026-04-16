@@ -1,14 +1,9 @@
-use super::string_birth_placement::{substring_retention_class, RetainedForm};
-use super::string_span_cache::{
-    string_span_cache_get, string_span_cache_get_pair, string_span_cache_get_triplet,
-    string_span_cache_put,
-};
-use super::string_trace;
-use crate::observe;
-use nyash_rust::{
-    box_trait::{BoolBox, BoxBase, BoxCore, NyashBox, StringBox},
-    runtime::host_handles as handles,
-};
+#[path = "string_view/span_resolve.rs"]
+mod span_resolve;
+#[path = "string_view/substring_plan.rs"]
+mod substring_plan;
+
+use nyash_rust::box_trait::{BoolBox, BoxBase, BoxCore, NyashBox, StringBox};
 use std::any::Any;
 use std::sync::Arc;
 
@@ -63,7 +58,7 @@ impl StringViewBox {
 
     #[inline(always)]
     fn materialize_owned(&self) -> String {
-        resolve_string_span_from_view(self)
+        span_resolve::resolve_string_span_from_view(self)
             .map(|span| span.as_str().to_string())
             .unwrap_or_default()
     }
@@ -213,231 +208,13 @@ pub(crate) enum BorrowedSubstringPlan {
     ViewSpan(StringSpan),
 }
 
-#[inline(always)]
-pub(crate) fn borrowed_substring_plan_from_live_object(
-    handle: i64,
-    start: i64,
-    end: i64,
-    view_enabled: bool,
-    obj: &Arc<dyn NyashBox>,
-) -> Option<BorrowedSubstringPlan> {
-    if let Some(sb) = obj.as_any().downcast_ref::<StringBox>() {
-        let (st_rel, en_rel) = clamp_i64_range(sb.value.len(), start, end);
-        if st_rel == 0 && en_rel == sb.value.len() {
-            observe::record_str_substring_route_slow_plan_return_handle();
-            trace_borrowed_substring_plan(
-                handle,
-                start,
-                end,
-                view_enabled,
-                "return_handle",
-                "root_full_span",
-                "StringBox",
-                en_rel.saturating_sub(st_rel),
-            );
-            return Some(BorrowedSubstringPlan::ReturnHandle);
-        }
-        if st_rel == en_rel {
-            observe::record_str_substring_route_slow_plan_return_empty();
-            trace_borrowed_substring_plan(
-                handle,
-                start,
-                end,
-                view_enabled,
-                "return_empty",
-                "root_empty_span",
-                "StringBox",
-                0,
-            );
-            return Some(BorrowedSubstringPlan::ReturnEmpty);
-        }
-        if sb.value.get(st_rel..en_rel).is_none() {
-            observe::record_str_substring_route_slow_plan_return_empty();
-            trace_borrowed_substring_plan(
-                handle,
-                start,
-                end,
-                view_enabled,
-                "return_empty",
-                "root_out_of_range",
-                "StringBox",
-                en_rel.saturating_sub(st_rel),
-            );
-            return Some(BorrowedSubstringPlan::ReturnEmpty);
-        }
-        let placement = substring_retention_class(view_enabled, en_rel - st_rel);
-        let span = StringSpan {
-            base_handle: handle,
-            base_obj: obj.clone(),
-            start: st_rel,
-            end: en_rel,
-        };
-        match placement {
-            RetainedForm::RetainView => {
-                observe::record_str_substring_route_slow_plan_view_span();
-                trace_borrowed_substring_plan(
-                    handle,
-                    start,
-                    end,
-                    view_enabled,
-                    "view_span",
-                    "retain_view",
-                    "StringBox",
-                    en_rel.saturating_sub(st_rel),
-                );
-                return Some(BorrowedSubstringPlan::ViewSpan(span));
-            }
-            RetainedForm::MustFreeze(_) | RetainedForm::KeepTransient => {
-                observe::record_str_substring_route_slow_plan_freeze_span();
-                trace_borrowed_substring_plan(
-                    handle,
-                    start,
-                    end,
-                    view_enabled,
-                    "freeze_span",
-                    "must_freeze_or_keep",
-                    "StringBox",
-                    en_rel.saturating_sub(st_rel),
-                );
-                return Some(BorrowedSubstringPlan::FreezeSpan(span));
-            }
-            RetainedForm::ReturnHandle => {
-                observe::record_str_substring_route_slow_plan_return_handle();
-                trace_borrowed_substring_plan(
-                    handle,
-                    start,
-                    end,
-                    view_enabled,
-                    "return_handle",
-                    "placement_return_handle",
-                    "StringBox",
-                    en_rel.saturating_sub(st_rel),
-                );
-                return Some(BorrowedSubstringPlan::ReturnHandle);
-            }
-        }
-    }
-    if let Some(view) = obj.as_any().downcast_ref::<StringViewBox>() {
-        let Some(base_sb) = view.base_obj.as_any().downcast_ref::<StringBox>() else {
-            return None;
-        };
-        let (parent_st, parent_en) = clamp_usize_range(base_sb.value.len(), view.start, view.end);
-        let parent_len = parent_en.saturating_sub(parent_st);
-        let (st_rel, en_rel) = clamp_i64_range(parent_len, start, end);
-        if st_rel == 0 && en_rel == parent_len {
-            observe::record_str_substring_route_slow_plan_return_handle();
-            trace_borrowed_substring_plan(
-                handle,
-                start,
-                end,
-                view_enabled,
-                "return_handle",
-                "view_full_span",
-                "StringViewBox",
-                en_rel.saturating_sub(st_rel),
-            );
-            return Some(BorrowedSubstringPlan::ReturnHandle);
-        }
-        if st_rel == en_rel {
-            observe::record_str_substring_route_slow_plan_return_empty();
-            trace_borrowed_substring_plan(
-                handle,
-                start,
-                end,
-                view_enabled,
-                "return_empty",
-                "view_empty_span",
-                "StringViewBox",
-                0,
-            );
-            return Some(BorrowedSubstringPlan::ReturnEmpty);
-        }
-        let abs_st = parent_st.saturating_add(st_rel);
-        let abs_en = parent_st.saturating_add(en_rel);
-        if base_sb.value.get(abs_st..abs_en).is_none() {
-            observe::record_str_substring_route_slow_plan_return_empty();
-            trace_borrowed_substring_plan(
-                handle,
-                start,
-                end,
-                view_enabled,
-                "return_empty",
-                "view_out_of_range",
-                "StringViewBox",
-                abs_en.saturating_sub(abs_st),
-            );
-            return Some(BorrowedSubstringPlan::ReturnEmpty);
-        }
-        let placement = substring_retention_class(view_enabled, abs_en - abs_st);
-        let span = StringSpan {
-            base_handle: view.base_handle,
-            base_obj: view.base_obj.clone(),
-            start: abs_st,
-            end: abs_en,
-        };
-        match placement {
-            RetainedForm::RetainView => {
-                observe::record_str_substring_route_slow_plan_view_span();
-                trace_borrowed_substring_plan(
-                    handle,
-                    start,
-                    end,
-                    view_enabled,
-                    "view_span",
-                    "retain_view",
-                    "StringViewBox",
-                    abs_en.saturating_sub(abs_st),
-                );
-                return Some(BorrowedSubstringPlan::ViewSpan(span));
-            }
-            RetainedForm::MustFreeze(_) | RetainedForm::KeepTransient => {
-                observe::record_str_substring_route_slow_plan_freeze_span();
-                trace_borrowed_substring_plan(
-                    handle,
-                    start,
-                    end,
-                    view_enabled,
-                    "freeze_span",
-                    "must_freeze_or_keep",
-                    "StringViewBox",
-                    abs_en.saturating_sub(abs_st),
-                );
-                return Some(BorrowedSubstringPlan::FreezeSpan(span));
-            }
-            RetainedForm::ReturnHandle => {
-                observe::record_str_substring_route_slow_plan_return_handle();
-                trace_borrowed_substring_plan(
-                    handle,
-                    start,
-                    end,
-                    view_enabled,
-                    "return_handle",
-                    "placement_return_handle",
-                    "StringViewBox",
-                    abs_en.saturating_sub(abs_st),
-                );
-                return Some(BorrowedSubstringPlan::ReturnHandle);
-            }
-        }
-    }
-    None
-}
-
 pub(crate) fn borrowed_substring_plan_from_handle(
     handle: i64,
     start: i64,
     end: i64,
     view_enabled: bool,
 ) -> Option<BorrowedSubstringPlan> {
-    if handle <= 0 {
-        return None;
-    }
-    handles::with_handle(handle as u64, |obj| {
-        let Some(obj) = obj else {
-            return None;
-        };
-        borrowed_substring_plan_from_live_object(handle, start, end, view_enabled, obj)
-    })
+    substring_plan::borrowed_substring_plan_from_handle(handle, start, end, view_enabled)
 }
 
 fn clamp_usize_range(len: usize, start: usize, end: usize) -> (usize, usize) {
@@ -449,82 +226,14 @@ fn clamp_usize_range(len: usize, start: usize, end: usize) -> (usize, usize) {
     (st, en)
 }
 
-#[cold]
-#[inline(never)]
-fn trace_borrowed_substring_plan(
-    handle: i64,
-    start: i64,
-    end: i64,
-    view_enabled: bool,
-    result: &str,
-    reason: &str,
-    source_kind: &str,
-    span_len: usize,
-) {
-    if !string_trace::enabled() {
-        return;
-    }
-    string_trace::emit(
-        "carrier",
-        result,
-        reason,
-        format_args!(
-            "handle={} start={} end={} view_enabled={} source_kind={} span_len={}",
-            handle, start, end, view_enabled, source_kind, span_len
-        ),
-    );
-}
-
-#[inline(always)]
-pub(crate) fn resolve_string_span_from_obj(
-    handle: i64,
-    obj: Arc<dyn NyashBox>,
-) -> Option<StringSpan> {
-    if let Some(sb) = obj.as_any().downcast_ref::<StringBox>() {
-        let len = sb.value.len();
-        return Some(StringSpan {
-            base_handle: handle,
-            base_obj: obj,
-            start: 0,
-            end: len,
-        });
-    }
-    if let Some(view) = obj.as_any().downcast_ref::<StringViewBox>() {
-        return resolve_string_span_from_view(view);
-    }
-    None
-}
-
-#[inline(always)]
-fn resolve_string_span_from_handle_uncached(handle: i64) -> Option<StringSpan> {
-    if handle <= 0 {
-        return None;
-    }
-    let obj = handles::get(handle as u64)?;
-    resolve_string_span_from_obj(handle, obj)
-}
-
 #[inline(always)]
 pub(crate) fn resolve_string_span_from_handle_nocache(handle: i64) -> Option<StringSpan> {
-    resolve_string_span_from_handle_uncached(handle)
-}
-
-#[inline(always)]
-fn resolve_string_span_from_handle_with_epoch(handle: i64, drop_epoch: u64) -> Option<StringSpan> {
-    if handle <= 0 {
-        return None;
-    }
-    if let Some(span) = string_span_cache_get(handle, drop_epoch) {
-        return Some(span);
-    }
-    let span = resolve_string_span_from_handle_uncached(handle)?;
-    string_span_cache_put(handle, drop_epoch, &span);
-    Some(span)
+    span_resolve::resolve_string_span_from_handle_nocache(handle)
 }
 
 #[inline(always)]
 pub(crate) fn resolve_string_span_from_handle(handle: i64) -> Option<StringSpan> {
-    resolve_string_span_from_handle_with_epoch(handle, handles::drop_epoch())
+    span_resolve::resolve_string_span_from_handle(handle)
 }
 
 #[inline(always)]
@@ -532,36 +241,7 @@ pub(crate) fn resolve_string_span_pair_from_handles(
     a_h: i64,
     b_h: i64,
 ) -> Option<(StringSpan, StringSpan)> {
-    if a_h <= 0 || b_h <= 0 {
-        return None;
-    }
-    if a_h == b_h {
-        let span = resolve_string_span_from_handle(a_h)?;
-        return Some((span.clone(), span));
-    }
-    let drop_epoch = handles::drop_epoch();
-    let (a_cached, b_cached) = string_span_cache_get_pair(a_h, b_h, drop_epoch);
-    match (a_cached, b_cached) {
-        (Some(a_span), Some(b_span)) => return Some((a_span, b_span)),
-        (Some(a_span), None) => {
-            let b_span = resolve_string_span_from_handle_with_epoch(b_h, drop_epoch)?;
-            return Some((a_span, b_span));
-        }
-        (None, Some(b_span)) => {
-            let a_span = resolve_string_span_from_handle_with_epoch(a_h, drop_epoch)?;
-            return Some((a_span, b_span));
-        }
-        (None, None) => {}
-    }
-
-    let (a_obj, b_obj) = handles::get_pair(a_h as u64, b_h as u64);
-    let a_obj = a_obj?;
-    let b_obj = b_obj?;
-    let a_span = resolve_string_span_from_obj(a_h, a_obj)?;
-    let b_span = resolve_string_span_from_obj(b_h, b_obj)?;
-    string_span_cache_put(a_h, drop_epoch, &a_span);
-    string_span_cache_put(b_h, drop_epoch, &b_span);
-    Some((a_span, b_span))
+    span_resolve::resolve_string_span_pair_from_handles(a_h, b_h)
 }
 
 #[inline(always)]
@@ -570,96 +250,13 @@ pub(crate) fn resolve_string_span_triplet_from_handles(
     b_h: i64,
     c_h: i64,
 ) -> Option<(StringSpan, StringSpan, StringSpan)> {
-    if a_h <= 0 || b_h <= 0 || c_h <= 0 {
-        return None;
-    }
-    let drop_epoch = handles::drop_epoch();
-    let (a_cached, b_cached, c_cached) = string_span_cache_get_triplet(a_h, b_h, c_h, drop_epoch);
-
-    let a_span = match a_cached {
-        Some(span) => span,
-        None => {
-            let span = resolve_string_span_from_handle_uncached(a_h)?;
-            string_span_cache_put(a_h, drop_epoch, &span);
-            span
-        }
-    };
-    let b_span = if b_h == a_h {
-        a_span.clone()
-    } else {
-        match b_cached {
-            Some(span) => span,
-            None => {
-                let span = resolve_string_span_from_handle_uncached(b_h)?;
-                string_span_cache_put(b_h, drop_epoch, &span);
-                span
-            }
-        }
-    };
-    let c_span = if c_h == a_h {
-        a_span.clone()
-    } else if c_h == b_h {
-        b_span.clone()
-    } else {
-        match c_cached {
-            Some(span) => span,
-            None => {
-                let span = resolve_string_span_from_handle_uncached(c_h)?;
-                string_span_cache_put(c_h, drop_epoch, &span);
-                span
-            }
-        }
-    };
-    Some((a_span, b_span, c_span))
-}
-
-#[inline(always)]
-fn resolve_string_span_from_view(view: &StringViewBox) -> Option<StringSpan> {
-    // Fast path: v0 views keep a strong root reference to avoid repeated
-    // registry lookup on every string helper call.
-    if let Some(base_sb) = view.base_obj.as_any().downcast_ref::<StringBox>() {
-        let (st, en) = clamp_usize_range(base_sb.value.len(), view.start, view.end);
-        return Some(StringSpan {
-            base_handle: view.base_handle,
-            base_obj: view.base_obj.clone(),
-            start: st,
-            end: en,
-        });
-    }
-
-    if view.base_handle <= 0 {
-        return None;
-    }
-    let base_obj = handles::get(view.base_handle as u64)?;
-
-    if let Some(base_sb) = base_obj.as_any().downcast_ref::<StringBox>() {
-        let (st, en) = clamp_usize_range(base_sb.value.len(), view.start, view.end);
-        return Some(StringSpan {
-            base_handle: view.base_handle,
-            base_obj,
-            start: st,
-            end: en,
-        });
-    }
-
-    // Defensive flattening for malformed/nested view metadata.
-    if let Some(parent_view) = base_obj.as_any().downcast_ref::<StringViewBox>() {
-        let parent_span = resolve_string_span_from_view(parent_view)?;
-        let (st_rel, en_rel) = clamp_usize_range(parent_span.len(), view.start, view.end);
-        return Some(StringSpan {
-            base_handle: parent_span.base_handle,
-            base_obj: parent_span.base_obj.clone(),
-            start: parent_span.start + st_rel,
-            end: parent_span.start + en_rel,
-        });
-    }
-    None
+    span_resolve::resolve_string_span_triplet_from_handles(a_h, b_h, c_h)
 }
 
 pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
-    resolve_string_span_from_handle(handle).map(|span| span.len() as i64)
+    span_resolve::string_len_from_handle(handle)
 }
 
 pub(crate) fn string_is_empty_from_handle(handle: i64) -> Option<bool> {
-    resolve_string_span_from_handle(handle).map(|span| span.len() == 0)
+    span_resolve::string_is_empty_from_handle(handle)
 }
