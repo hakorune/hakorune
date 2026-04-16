@@ -15,10 +15,17 @@ use crate::mir::builder::control_flow::plan::facts::no_exit_block::{
 use crate::mir::builder::control_flow::plan::loop_cond_shared::branch_tail_is_continue_flattened;
 
 use super::break_continue_helpers::{branch_has_exit_or_loop, is_nested_loop_allowed};
-use super::break_continue_types::IfStmtKind;
 use super::break_continue_validator_cond::is_conditional_update_if;
 use super::break_continue_validator_exit::is_exit_if_stmt;
 use super::break_continue_validator_prelude::exit_prelude_is_allowed;
+
+#[derive(Debug, Clone, Copy)]
+pub(super) enum IfStmtKind {
+    ExitIf,
+    ContinueIf { continue_in_then: bool },
+    ConditionalUpdate,
+    GeneralIf,
+}
 
 /// Classify an if statement into one of the recognized patterns.
 pub(super) fn classify_if_stmt(

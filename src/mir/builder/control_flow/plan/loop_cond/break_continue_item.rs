@@ -17,10 +17,10 @@ use crate::mir::builder::control_flow::plan::loop_cond_shared::LoopCondRecipe;
 use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
 
+use super::break_continue_classify::IfStmtKind;
 use super::break_continue_classify::{build_continue_if_with_else_recipes, classify_if_stmt};
 use super::break_continue_helpers::is_nested_loop_allowed;
 use super::break_continue_tree::build_exit_if_tree_recipe;
-use super::break_continue_types::IfStmtKind;
 use super::break_continue_validator_cond::build_conditional_update_branch_recipe;
 use super::break_continue_validator_else::{
     build_else_guard_break_recipes, is_else_guard_break_if_shape, is_else_only_break_if_shape,
