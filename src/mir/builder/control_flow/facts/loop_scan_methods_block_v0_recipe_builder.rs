@@ -1,11 +1,11 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
+use crate::mir::builder::control_flow::recipes::loop_scan_methods_block_v0::LoopScanMethodsBlockV0Recipe;
 use crate::mir::policies::BodyLoweringPolicy;
 
 use crate::mir::builder::control_flow::facts::loop_scan_methods_block_v0_helpers::{
     flatten_stmt_list, try_segmentize_stmt_list,
 };
-use crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::recipe::LoopScanMethodsBlockV0Recipe;
 
 pub(in crate::mir::builder) struct LoopScanMethodsBlockRecipeBuild {
     pub body_lowering_policy: BodyLoweringPolicy,

@@ -4,8 +4,7 @@ use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_b
 use crate::mir::builder::control_flow::facts::stmt_view::try_build_stmt_only_block_recipe;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
-
-use crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::recipe::{
+use crate::mir::builder::control_flow::recipes::loop_scan_methods_block_v0::{
     LinearBlockRecipe, NestedLoopRecipe, ScanSegment,
 };
 

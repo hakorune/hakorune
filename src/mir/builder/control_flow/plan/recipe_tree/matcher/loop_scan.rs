@@ -34,7 +34,7 @@ pub fn verify_loop_scan_methods_v0_recipe(
 pub fn verify_loop_scan_methods_block_v0_recipe(
     scan_methods_block: &crate::mir::builder::control_flow::facts::loop_scan_methods_block_v0::LoopScanMethodsBlockV0Facts,
 ) -> Result<(), Freeze> {
-    use crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::{
+    use crate::mir::builder::control_flow::recipes::loop_scan_methods_block_v0::{
         LinearBlockRecipe, ScanSegment,
     };
 

@@ -133,7 +133,7 @@ pub fn verify_loop_cond_break_continue_recipe(
 
 /// Recipe-first verification for loop_cond_continue_only.
 pub fn verify_loop_cond_continue_only_recipe(
-    facts: &crate::mir::builder::control_flow::plan::loop_cond::continue_only_facts::LoopCondContinueOnlyFacts,
+    facts: &crate::mir::builder::control_flow::facts::loop_cond_continue_only::LoopCondContinueOnlyFacts,
 ) -> Result<(), Freeze> {
     verify_continue_only_recipe(&facts.recipe, "loop_cond_continue_only_body")?;
 
@@ -148,7 +148,7 @@ pub fn verify_loop_cond_continue_only_recipe(
 
 /// Recipe-first verification for loop_cond_continue_with_return.
 pub fn verify_loop_cond_continue_with_return_recipe(
-    facts: &crate::mir::builder::control_flow::plan::loop_cond::continue_with_return_facts::LoopCondContinueWithReturnFacts,
+    facts: &crate::mir::builder::control_flow::facts::loop_cond_continue_with_return::LoopCondContinueWithReturnFacts,
 ) -> Result<(), Freeze> {
     verify_continue_with_return_recipe(&facts.recipe, "loop_cond_continue_with_return_body")?;
 
@@ -163,7 +163,7 @@ pub fn verify_loop_cond_continue_with_return_recipe(
 
 /// Recipe-first verification for loop_cond_return_in_body.
 pub fn verify_loop_cond_return_in_body_recipe(
-    facts: &crate::mir::builder::control_flow::plan::loop_cond::return_in_body_facts::LoopCondReturnInBodyFacts,
+    facts: &crate::mir::builder::control_flow::facts::loop_cond_return_in_body::LoopCondReturnInBodyFacts,
 ) -> Result<(), Freeze> {
     use crate::mir::builder::control_flow::plan::loop_cond::return_in_body_recipe::LoopCondReturnInBodyItem;
 

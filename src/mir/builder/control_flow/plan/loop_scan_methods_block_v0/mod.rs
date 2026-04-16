@@ -17,4 +17,5 @@ pub(in crate::mir::builder) use crate::mir::builder::control_flow::facts::loop_s
     try_extract_loop_scan_methods_block_v0_facts, LoopScanMethodsBlockV0Facts,
 };
 pub(in crate::mir::builder) use pipeline::lower_loop_scan_methods_block_v0;
+#[allow(unused_imports)]
 pub(in crate::mir::builder) use recipe::{LinearBlockRecipe, ScanSegment};
