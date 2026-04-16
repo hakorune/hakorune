@@ -3,8 +3,8 @@
 //! Minimal implementation for loop(cond) with nested return and no break/continue.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::carrier_merge::{
     lower_assignment_stmt, lower_local_init_stmt,
@@ -19,20 +19,20 @@ use crate::mir::builder::control_flow::plan::features::loop_cond_return_in_body_
 use crate::mir::builder::control_flow::plan::features::loop_cond_return_in_body_verifier::verify_loop_cond_return_in_body_phi_closure;
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::loop_cond::return_in_body_facts::LoopCondReturnInBodyFacts;
-use crate::mir::builder::control_flow::plan::loop_cond::return_in_body_recipe::{
-    LoopCondReturnInBodyItem, LoopCondReturnInBodyRecipe,
-};
 use crate::mir::builder::control_flow::plan::normalizer::{
     helpers::LoopBlocksStandard5, loop_body_lowering, lower_loop_header_cond, PlanNormalizer,
 };
 use crate::mir::builder::control_flow::plan::parts;
-use crate::mir::builder::control_flow::plan::recipes::refs::StmtRef;
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
 use crate::mir::builder::control_flow::plan::steps::empty_carriers_args;
 use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreLoopPlan, CorePlan, LoweredRecipe,
 };
+use crate::mir::builder::control_flow::recipes::loop_cond_return_in_body::{
+    LoopCondReturnInBodyItem, LoopCondReturnInBodyRecipe,
+};
+use crate::mir::builder::control_flow::recipes::refs::StmtRef;
+use crate::mir::builder::control_flow::recipes::RecipeBody;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{Effect, EffectMask};
 use std::collections::{BTreeMap, BTreeSet};

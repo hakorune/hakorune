@@ -1,8 +1,8 @@
 //! LoopCondContinueOnly recipe (shape-only refs).
 
 use crate::mir::builder::control_flow::plan::loop_cond_shared::LoopCondRecipe;
-use crate::mir::builder::control_flow::plan::recipes::refs::{StmtRef, StmtSpan};
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
+use crate::mir::builder::control_flow::recipes::refs::{StmtRef, StmtSpan};
+use crate::mir::builder::control_flow::recipes::RecipeBody;
 
 pub(in crate::mir::builder) type ContinueOnlyRecipe = LoopCondRecipe<ContinueOnlyStmtRecipe>;
 

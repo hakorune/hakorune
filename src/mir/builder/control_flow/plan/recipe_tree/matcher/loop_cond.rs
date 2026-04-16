@@ -165,7 +165,7 @@ pub fn verify_loop_cond_continue_with_return_recipe(
 pub fn verify_loop_cond_return_in_body_recipe(
     facts: &crate::mir::builder::control_flow::facts::loop_cond_return_in_body::LoopCondReturnInBodyFacts,
 ) -> Result<(), Freeze> {
-    use crate::mir::builder::control_flow::plan::loop_cond::return_in_body_recipe::LoopCondReturnInBodyItem;
+    use crate::mir::builder::control_flow::recipes::loop_cond_return_in_body::LoopCondReturnInBodyItem;
 
     let body_len = facts.recipe.body.len();
     for item in &facts.recipe.items {

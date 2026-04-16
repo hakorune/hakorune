@@ -13,8 +13,8 @@ use crate::mir::builder::control_flow::plan::loop_true_break_continue::recipe::{
     ElseExitMixedRecipe, ElseItem, LoopTrueBreakContinueRecipe, LoopTrueItem,
 };
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use crate::mir::builder::control_flow::plan::recipes::refs::{StmtPair, StmtRef};
-use crate::mir::builder::control_flow::plan::recipes::RecipeBody;
+use crate::mir::builder::control_flow::recipes::refs::{StmtPair, StmtRef};
+use crate::mir::builder::control_flow::recipes::RecipeBody;
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) enum LoopTrueBreakContinueLowering {

@@ -3,8 +3,8 @@
 //! Minimal implementation for continue-only loops with nested return.
 //! Reuses exit_if_map (return PHI) + continue-if handling (continue PHI).
 
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::body_view::BodyView;
 use crate::mir::builder::control_flow::plan::features::carriers;

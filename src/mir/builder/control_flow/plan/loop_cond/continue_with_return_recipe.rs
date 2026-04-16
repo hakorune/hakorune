@@ -1,7 +1,7 @@
 //! LoopCondContinueWithReturn recipe (shape-only refs).
 
 use crate::mir::builder::control_flow::plan::loop_cond_shared::LoopCondRecipe;
-use crate::mir::builder::control_flow::plan::recipes::refs::{StmtRef, StmtSpan};
+use crate::mir::builder::control_flow::recipes::refs::{StmtRef, StmtSpan};
 
 pub(in crate::mir::builder) type ContinueWithReturnRecipe = LoopCondRecipe<ContinueWithReturnItem>;
 

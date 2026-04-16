@@ -2,7 +2,7 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::features::body_view::BodyView;
-use crate::mir::builder::control_flow::plan::recipes::refs::{StmtRef, StmtSpan};
+use crate::mir::builder::control_flow::recipes::refs::{StmtRef, StmtSpan};
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 

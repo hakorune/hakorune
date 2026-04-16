@@ -1,12 +1,12 @@
 //! Continue-if route lowering functions.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::features::body_view::BodyView;
 use crate::mir::builder::control_flow::plan::loop_cond::continue_only_recipe::ContinueOnlyStmtRecipe;
 use crate::mir::builder::control_flow::plan::parts;
-use crate::mir::builder::control_flow::plan::recipes::refs::StmtSpan;
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::recipes::refs::StmtSpan;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 

@@ -2,13 +2,13 @@
 //!
 //! Fixture-derived 1-shape for loop(cond) with nested return and no break/continue.
 
-use crate::mir::builder::control_flow::plan::loop_cond::return_in_body_recipe::{
-    build_loop_cond_return_in_body_recipe, LoopCondReturnInBodyRecipe,
-};
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::expr_bool::is_supported_bool_expr_with_canon;
 use crate::mir::builder::control_flow::plan::loop_cond::loop_cond_unified_helpers;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
+use crate::mir::builder::control_flow::recipes::loop_cond_return_in_body::{
+    build_loop_cond_return_in_body_recipe, LoopCondReturnInBodyRecipe,
+};
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct LoopCondReturnInBodyFacts {
