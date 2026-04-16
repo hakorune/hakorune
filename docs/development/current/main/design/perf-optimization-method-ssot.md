@@ -92,9 +92,9 @@ current restart pointer after the active selfhost landing is this one:
   - `kilo_micro_len_substring_views`
 - whole-kilo guard: `kilo_kernel_small_hk`
 - route contract: `.hako -> ny-llvmc(boundary pure-first) -> C ABI`
-- primary owner: `runtime-executor`
+- primary owner: `measurement`
 - proof delta:
-  - `piecewise_subrange_executor_inner_loop_thin`
+  - `piecewise_subrange_executor_cost_split`
 - proof region:
   - established facts:
     - borrowed corridor may stay unmaterialized until the final consumer
@@ -114,37 +114,33 @@ current restart pointer after the active selfhost landing is this one:
   - must not become:
     - a generic helper rewrite
 - rewrite target:
-  - from: landed `piecewise_subrange_hsiii` closure plus per-call owned subrange build
-  - to: thinner executor-local copy/materialize path under the same runtime-private helper and public ABI surface
+  - from: monolithic `piecewise_subrange_hsiii_fallback` closure sample
+  - to: no code-path rewrite on this card; add executor-local counters only and rejudge on the same artifact
 - runtime executor:
   - keep the landed `piecewise_subrange_hsiii` publication boundary fixed
-  - add a narrow executor-local thin path only inside that helper
-  - forbid transient box/handle carriers, transient piecewise object clones, allocation-backed helper detours, new route logic, or generic non-empty `insert_const_mid_fallback` direct-build widening on the hot lane
-  - demote any remaining generic helper fallback on the active corridor to cold adapter
+  - add piecewise-specific counters only inside that helper
+  - forbid transient box/handle carriers, transient piecewise object clones, allocation-backed helper detours, new route logic, generic non-empty `insert_const_mid_fallback` direct-build widening, or representation/ABI changes on this card
+  - demote nothing on this card
 - owner scope: follow `Owner Scope / Publication Boundary` below; start from `string_helpers/concat` / `string_view` / `host_handles` only if asm top still points there
 - first commands:
   - `tools/checks/dev_gate.sh quick`
   - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_concat 1 3`
   - `bash tools/perf/report_mir_hotops.sh kilo_micro_substring_concat`
   - `bash tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_concat 'piecewise_subrange_hsiii' 3`
+  - `NYASH_PERF_COUNTERS=1 <exact-front aot exe>`
 - pre-probe rule:
   - if compiler sources changed, refresh release artifacts before exact/asm probes
 - done condition:
-  - `kilo_micro_substring_concat` holds the current keeper band under `repeat >= 3`
+  - piecewise-specific counters explain the dominant executor-local cost split on the same exact artifact
   - `kilo_micro_substring_only` stays inside accept band
   - `kilo_kernel_small_hk` stays inside strict/health band
-  - asm/mir evidence explains the next edit owner on the same artifact
-  - new hot owners shift away from `piecewise_subrange_hsiii_fallback` / allocator / memmove
+  - asm/counter evidence names the next executor delete target without reopening broad source reading
 - reject condition:
-  - only a 1-run win exists
-  - whole-kilo regresses even if the isolated micro improves
-  - the slice needs a new MIR rewrite, public ABI, or string-only MIR dialect
-  - the slice broadens into keep-lane owners without route-contract evidence
+  - the slice widens beyond measurement/counters
+  - whole-kilo regresses
+  - the slice needs a new MIR rewrite, public ABI, string-only MIR dialect, or representation/ABI change
   - the slice escapes its publication boundary and becomes a generic helper rewrite
-  - the slice grows cache/helper traffic or route hinting without borrowed-lane continuity proof
-  - the slice widens public ABI / VMValue surface instead of staying backend-private
-  - the slice grows front-specific helper names instead of a runtime-private generic executor
-  - the slice makes transient box/handle carriers, `clone`, generic direct-build widening, or `TextPlan::from_pieces` allocation show up as new hot owners
+  - the slice grows cache/helper traffic or route hinting instead of only splitting the current executor body
 
 ## Current Scheduling Status
 

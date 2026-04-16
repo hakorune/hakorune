@@ -13,6 +13,18 @@ pub(crate) fn emit_summary_to_stderr() {
         snapshot[68] + snapshot[69] + snapshot[70] + snapshot[71];
     let str_substring_slow_plan_unclassified =
         snapshot[67].saturating_sub(str_substring_slow_plan_classified);
+    let piecewise_subrange_classified =
+        snapshot[104]
+            + snapshot[105]
+            + snapshot[106]
+            + snapshot[107]
+            + snapshot[108]
+            + snapshot[109]
+            + snapshot[110]
+            + snapshot[111]
+            + snapshot[112];
+    let piecewise_subrange_unclassified =
+        snapshot[102].saturating_sub(piecewise_subrange_classified);
     let mut store_array_str_line = format!(
         "[perf/counter][{}] total={}",
         contract::STORE_ARRAY_STR,
@@ -259,6 +271,34 @@ pub(crate) fn emit_summary_to_stderr() {
         let _ = write!(&mut str_substring_route_line, " {}={}", name, value);
     }
     eprintln!("{}", str_substring_route_line);
+    eprintln!(
+        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
+        contract::PIECEWISE_SUBRANGE,
+        contract::PIECEWISE_SUBRANGE_TOTAL,
+        snapshot[102],
+        contract::PIECEWISE_SUBRANGE_SINGLE_SESSION_HIT,
+        snapshot[103],
+        contract::PIECEWISE_SUBRANGE_FALLBACK_INSERT,
+        snapshot[104],
+        contract::PIECEWISE_SUBRANGE_EMPTY_RETURN,
+        snapshot[105],
+        contract::PIECEWISE_SUBRANGE_PREFIX_ONLY,
+        snapshot[106],
+        contract::PIECEWISE_SUBRANGE_MIDDLE_ONLY,
+        snapshot[107],
+        contract::PIECEWISE_SUBRANGE_SUFFIX_ONLY,
+        snapshot[108],
+        contract::PIECEWISE_SUBRANGE_PREFIX_MIDDLE,
+        snapshot[109],
+        contract::PIECEWISE_SUBRANGE_MIDDLE_SUFFIX,
+        snapshot[110],
+        contract::PIECEWISE_SUBRANGE_PREFIX_SUFFIX,
+        snapshot[111],
+        contract::PIECEWISE_SUBRANGE_ALL_THREE,
+        snapshot[112],
+        contract::PIECEWISE_SUBRANGE_UNCLASSIFIED,
+        piecewise_subrange_unclassified,
+    );
     let stable_box_demand = nyash_rust::runtime::host_handles::perf_observe_snapshot();
     eprintln!(
         "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={}",

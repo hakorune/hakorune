@@ -81,6 +81,17 @@ tls_zero_arg_api! {
     str_substring_route_slow_plan_return_empty => str_substring_route_slow_plan_return_empty,
     str_substring_route_slow_plan_freeze_span => str_substring_route_slow_plan_freeze_span,
     str_substring_route_slow_plan_view_span => str_substring_route_slow_plan_view_span,
+    piecewise_subrange_enter => piecewise_subrange_enter,
+    piecewise_subrange_single_session_hit => piecewise_subrange_single_session_hit,
+    piecewise_subrange_fallback_insert => piecewise_subrange_fallback_insert,
+    piecewise_subrange_empty_return => piecewise_subrange_empty_return,
+    piecewise_subrange_prefix_only => piecewise_subrange_prefix_only,
+    piecewise_subrange_middle_only => piecewise_subrange_middle_only,
+    piecewise_subrange_suffix_only => piecewise_subrange_suffix_only,
+    piecewise_subrange_prefix_middle => piecewise_subrange_prefix_middle,
+    piecewise_subrange_middle_suffix => piecewise_subrange_middle_suffix,
+    piecewise_subrange_prefix_suffix => piecewise_subrange_prefix_suffix,
+    piecewise_subrange_all_three => piecewise_subrange_all_three,
     borrowed_alias_to_string_box => borrowed_alias_to_string_box,
     borrowed_alias_equals => borrowed_alias_equals,
     borrowed_alias_clone_box => borrowed_alias_clone_box,
@@ -146,7 +157,7 @@ macro_rules! load {
     };
 }
 
-pub(crate) fn snapshot() -> [u64; 102] {
+pub(crate) fn snapshot() -> [u64; 113] {
     flush_current_thread();
     [
         load!(store_array_str_total),
@@ -251,5 +262,16 @@ pub(crate) fn snapshot() -> [u64; 102] {
         load!(store_array_str_reason_retarget_keep_source_arc_ptr_eq_hit),
         load!(store_array_str_reason_retarget_keep_source_arc_ptr_eq_miss),
         load!(store_array_str_reason_retarget_alias_update),
+        load!(piecewise_subrange_total),
+        load!(piecewise_subrange_single_session_hit),
+        load!(piecewise_subrange_fallback_insert),
+        load!(piecewise_subrange_empty_return),
+        load!(piecewise_subrange_prefix_only),
+        load!(piecewise_subrange_middle_only),
+        load!(piecewise_subrange_suffix_only),
+        load!(piecewise_subrange_prefix_middle),
+        load!(piecewise_subrange_middle_suffix),
+        load!(piecewise_subrange_prefix_suffix),
+        load!(piecewise_subrange_all_three),
     ]
 }

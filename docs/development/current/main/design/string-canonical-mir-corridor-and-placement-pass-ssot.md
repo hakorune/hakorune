@@ -105,17 +105,24 @@ Reading:
 - the landed arm split says `ViewSpan` is the only live slow-plan arm on the
   current front, and the landed delete-oriented rewrite already consumed that
   proof
-- the next primary owner is therefore `runtime-executor`, not another
+- the next primary owner is therefore `measurement`, not another
   recognizer/rewrite cut
-- the current target is delete-oriented:
+- the current target is executor-local measurement:
   - keep generic borrowed-view plan truth in MIR
   - keep the landed runtime-private `piecewise_subrange_hsiii` publication
     narrow:
     - active corridor only
     - generic helper body unchanged
     - broad callers untouched
-  - thin the executor-local copy/materialize path only; do not mint transient
-    box/handle carriers, reopen route logic, or widen `insert_hsi`
+  - split the executor-local body with counters first; do not mint transient
+    box/handle carriers, reopen route logic, widen `insert_hsi`, or jump to
+    representation/ABI edits before the closure body is measured
+- current design verdict:
+  - the publication-boundary design is not the blocker on this front
+  - the remaining exact gap is concentrated in final owned materialize ->
+    objectize -> fresh handle issue
+  - if executor-local measurement plus thin cuts stop producing wins, only then
+    open a later representation/ABI card for “beat C” work
 
 ## Generic Minimum
 

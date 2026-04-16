@@ -50,11 +50,11 @@
 - current broader-corridor reopen front is `kilo_micro_substring_concat`
 - current live reread after the 2026-04-17 publication-boundary keeper:
   - `kilo_micro_substring_only`
-    - `C: instr=1,622,875 / cycles=484,287 / ms=3`
-    - `Ny AOT: instr=1,668,892 / cycles=1,012,862 / ms=3`
+    - `C: instr=1,622,874 / cycles=496,361 / ms=3`
+    - `Ny AOT: instr=1,669,422 / cycles=1,066,057 / ms=3`
   - `kilo_micro_substring_concat`
-    - `C: instr=1,622,874 / cycles=485,494 / ms=3`
-    - `Ny AOT: instr=260,619,140 / cycles=70,100,232 / ms=21`
+    - `C: instr=1,622,876 / cycles=477,384 / ms=3`
+    - `Ny AOT: instr=260,618,242 / cycles=65,483,876 / ms=22`
   - `kilo_kernel_small_hk`
     - `Ny AOT: ms=704`
   - current keeper diff:
@@ -62,11 +62,24 @@
     - pure-first now defers publication on the active `insert_hsi -> substring_hii` corridor and emits runtime-private `nyash.string.piecewise_subrange_hsiii`
     - runtime helper stays single-session and materializes once after the text-read session closes; the deadlock-inducing in-session handle issue path is removed
   - current asm/top reread:
-    - `piecewise_subrange_hsiii_fallback closure: 86.89%`
-    - `__memmove_avx512_unaligned_erms: 2.76%`
-    - `malloc: 1.93%`
-    - `_int_malloc: 1.89%`
-    - `OnceLock::initialize: 0.25%`
+    - `piecewise_subrange_hsiii_fallback closure: 87.84%`
+    - `__memmove_avx512_unaligned_erms: 5.40%`
+    - allocator samples are secondary
+  - current counter reread on the same front:
+    - `str.substring.route total=0`
+    - `slow_plan=0`
+    - `slow_plan_view_span=0`
+    - `birth.placement fresh_handle=300000`
+    - `birth.backend materialize_owned_total=300000`
+    - `birth.backend string_box_new_total=300000`
+    - `birth.backend arc_wrap_total=300000`
+    - `birth.backend handle_issue_total=300000`
+    - `stable_box_demand text_read_handle_latest_fresh=299999`
+  - current design verdict:
+    - route selection / publication boundary is no longer the blocker on this front
+    - the remaining exact gap is executor-local: final owned materialize -> `StringBox`/`Arc` objectize -> fresh handle issue
+    - keep the current `.hako -> MIR proof/publication -> runtime-private executor -> LLVM consumer` design fixed for the next cuts
+    - only reopen representation/ABI design if executor-local measurement and thin cuts stop producing wins
   - rejected runtime-private piecewise carrier probe:
     - attempted to issue a transient piecewise box/handle from `insert_const_mid_fallback` and then fast-path `substring_hii` through that carrier
     - exact front reread:
@@ -143,12 +156,13 @@
   - landed measurement: the slow-plan arm split is now frozen evidence and the live hot arm is `ViewSpan` only
   - the required BoxShape cleanup is already landed; do not reopen more structure work before refreshing the measurement bundle unless tests or asm point at a new mixed-responsibility seam
   - the delete-oriented `mir-rewrite` is now landed on the active front
-  - the next card is still `runtime-executor`, not another recognizer/rewrite pass
-  - the next executor target is:
+  - the next card is `measurement`, not another recognizer/rewrite pass
+  - the next local target is:
     - keep the landed `piecewise_subrange_hsiii` publication boundary fixed
-    - thin the hot `piecewise_subrange_hsiii_fallback` closure body itself
-    - reduce allocator / memmove pressure without widening generic helper bodies or reintroducing route logic into runtime
-    - keep that executor single-session and executor-local; do not mint transient box/handle carriers or add raw handle-keyed sticky memo shortcuts
+    - add executor-local counters inside `piecewise_subrange_hsiii_fallback`
+    - split `single-session hit / fallback insert / piece shape / empty return` on the same artifact
+    - use the already-existing birth/objectize/handle counters as the backend side of the same measurement bundle
+    - keep that measurement single-session and executor-local; do not mint transient box/handle carriers, sticky memo shortcuts, or generic direct-build widening
   - the follow-on `llvm-export` card only starts after that executor card lands:
     - consume the stabilized corridor with truthful facts
     - do not reopen route eligibility in LLVM metadata

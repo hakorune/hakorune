@@ -5,6 +5,7 @@ pub(crate) const BIRTH_BACKEND: &str = "birth.backend";
 pub(crate) const STR_CONCAT2_ROUTE: &str = "str.concat2.route";
 pub(crate) const STR_LEN_ROUTE: &str = "str.len.route";
 pub(crate) const STR_SUBSTRING_ROUTE: &str = "str.substring.route";
+pub(crate) const PIECEWISE_SUBRANGE: &str = "piecewise_subrange";
 pub(crate) const STABLE_BOX_DEMAND: &str = "stable_box_demand";
 pub(crate) const BORROWED_ALIAS: &str = "borrowed.alias";
 
@@ -115,6 +116,19 @@ pub(crate) const STR_SUBSTRING_ROUTE_SLOW_PLAN_RETURN_EMPTY: &str = "slow_plan_r
 pub(crate) const STR_SUBSTRING_ROUTE_SLOW_PLAN_FREEZE_SPAN: &str = "slow_plan_freeze_span";
 pub(crate) const STR_SUBSTRING_ROUTE_SLOW_PLAN_VIEW_SPAN: &str = "slow_plan_view_span";
 pub(crate) const STR_SUBSTRING_ROUTE_SLOW_PLAN_UNCLASSIFIED: &str = "slow_plan_unclassified";
+
+pub(crate) const PIECEWISE_SUBRANGE_TOTAL: &str = "total";
+pub(crate) const PIECEWISE_SUBRANGE_SINGLE_SESSION_HIT: &str = "single_session_hit";
+pub(crate) const PIECEWISE_SUBRANGE_FALLBACK_INSERT: &str = "fallback_insert";
+pub(crate) const PIECEWISE_SUBRANGE_EMPTY_RETURN: &str = "empty_return";
+pub(crate) const PIECEWISE_SUBRANGE_PREFIX_ONLY: &str = "prefix_only";
+pub(crate) const PIECEWISE_SUBRANGE_MIDDLE_ONLY: &str = "middle_only";
+pub(crate) const PIECEWISE_SUBRANGE_SUFFIX_ONLY: &str = "suffix_only";
+pub(crate) const PIECEWISE_SUBRANGE_PREFIX_MIDDLE: &str = "prefix_middle";
+pub(crate) const PIECEWISE_SUBRANGE_MIDDLE_SUFFIX: &str = "middle_suffix";
+pub(crate) const PIECEWISE_SUBRANGE_PREFIX_SUFFIX: &str = "prefix_suffix";
+pub(crate) const PIECEWISE_SUBRANGE_ALL_THREE: &str = "all_three";
+pub(crate) const PIECEWISE_SUBRANGE_UNCLASSIFIED: &str = "unclassified";
 
 pub(crate) const STABLE_BOX_DEMAND_OBJECT_GET_LATEST_FRESH: &str = "object_get_latest_fresh";
 pub(crate) const STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_LATEST_FRESH: &str =

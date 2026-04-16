@@ -410,6 +410,61 @@ mod real {
     }
 
     #[inline(always)]
+    pub(crate) fn record_piecewise_subrange_enter() {
+        super::backend::piecewise_subrange_enter();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_piecewise_subrange_single_session_hit() {
+        super::backend::piecewise_subrange_single_session_hit();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_piecewise_subrange_fallback_insert() {
+        super::backend::piecewise_subrange_fallback_insert();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_piecewise_subrange_empty_return() {
+        super::backend::piecewise_subrange_empty_return();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_piecewise_subrange_prefix_only() {
+        super::backend::piecewise_subrange_prefix_only();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_piecewise_subrange_middle_only() {
+        super::backend::piecewise_subrange_middle_only();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_piecewise_subrange_suffix_only() {
+        super::backend::piecewise_subrange_suffix_only();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_piecewise_subrange_prefix_middle() {
+        super::backend::piecewise_subrange_prefix_middle();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_piecewise_subrange_middle_suffix() {
+        super::backend::piecewise_subrange_middle_suffix();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_piecewise_subrange_prefix_suffix() {
+        super::backend::piecewise_subrange_prefix_suffix();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_piecewise_subrange_all_three() {
+        super::backend::piecewise_subrange_all_three();
+    }
+
+    #[inline(always)]
     pub(crate) fn record_borrowed_alias_to_string_box() {
         super::backend::borrowed_alias_to_string_box();
     }
@@ -760,6 +815,39 @@ mod real {
 
     #[inline(always)]
     pub(crate) fn record_str_substring_route_slow_plan_view_span() {}
+
+    #[inline(always)]
+    pub(crate) fn record_piecewise_subrange_enter() {}
+
+    #[inline(always)]
+    pub(crate) fn record_piecewise_subrange_single_session_hit() {}
+
+    #[inline(always)]
+    pub(crate) fn record_piecewise_subrange_fallback_insert() {}
+
+    #[inline(always)]
+    pub(crate) fn record_piecewise_subrange_empty_return() {}
+
+    #[inline(always)]
+    pub(crate) fn record_piecewise_subrange_prefix_only() {}
+
+    #[inline(always)]
+    pub(crate) fn record_piecewise_subrange_middle_only() {}
+
+    #[inline(always)]
+    pub(crate) fn record_piecewise_subrange_suffix_only() {}
+
+    #[inline(always)]
+    pub(crate) fn record_piecewise_subrange_prefix_middle() {}
+
+    #[inline(always)]
+    pub(crate) fn record_piecewise_subrange_middle_suffix() {}
+
+    #[inline(always)]
+    pub(crate) fn record_piecewise_subrange_prefix_suffix() {}
+
+    #[inline(always)]
+    pub(crate) fn record_piecewise_subrange_all_three() {}
 
     #[inline(always)]
     pub(crate) fn record_borrowed_alias_to_string_box() {}

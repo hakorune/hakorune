@@ -254,15 +254,20 @@ current post-selfhost optimization reopen now uses this sequence:
 - accept gate: `kilo_micro_substring_only`
 - whole-kilo guard: `kilo_kernel_small_hk`
 - current keeper:
-  - `746,997,552 instr / 66 ms`
+  - `260,618,242 instr / 22 ms`
 - frozen evidence:
-  - `view_arc_cache_miss=600000`
-  - `slow_plan=600000`
-  - `slow_plan_view_span=600000`
-  - top symbols still include `substring_hii`, `LocalKey::with`, `borrowed_substring_plan_from_handle`
-- next primary owner: `mir-rewrite`
+  - `str.substring.route total=0`
+  - `slow_plan=0`
+  - `slow_plan_view_span=0`
+  - `birth.placement fresh_handle=300000`
+  - `birth.backend materialize_owned_total=300000`
+  - `birth.backend string_box_new_total=300000`
+  - `birth.backend arc_wrap_total=300000`
+  - `birth.backend handle_issue_total=300000`
+  - top symbols are now `piecewise_subrange_hsiii_fallback`, `memmove`, and allocator samples
+- next primary owner: `measurement`
 - proof delta:
-  - `borrow_view_continuity_to_final_concat`
+  - `piecewise_subrange_executor_cost_split`
 - proof region:
   - established facts:
     - borrowed lane may stay unmaterialized until the final consumer
@@ -278,6 +283,7 @@ current post-selfhost optimization reopen now uses this sequence:
   - must not touch:
     - generic helper body semantics
     - public ABI
+    - broad callers
     - broad callers outside the active corridor
   - must not become:
     - a generic helper rewrite

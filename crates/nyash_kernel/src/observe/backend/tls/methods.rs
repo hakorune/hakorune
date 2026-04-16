@@ -413,6 +413,61 @@ impl ThreadCounters {
     }
 
     #[inline(always)]
+    fn piecewise_subrange_enter(&self) {
+        Self::bump(&self.piecewise_subrange_total);
+    }
+
+    #[inline(always)]
+    fn piecewise_subrange_single_session_hit(&self) {
+        Self::bump(&self.piecewise_subrange_single_session_hit);
+    }
+
+    #[inline(always)]
+    fn piecewise_subrange_fallback_insert(&self) {
+        Self::bump(&self.piecewise_subrange_fallback_insert);
+    }
+
+    #[inline(always)]
+    fn piecewise_subrange_empty_return(&self) {
+        Self::bump(&self.piecewise_subrange_empty_return);
+    }
+
+    #[inline(always)]
+    fn piecewise_subrange_prefix_only(&self) {
+        Self::bump(&self.piecewise_subrange_prefix_only);
+    }
+
+    #[inline(always)]
+    fn piecewise_subrange_middle_only(&self) {
+        Self::bump(&self.piecewise_subrange_middle_only);
+    }
+
+    #[inline(always)]
+    fn piecewise_subrange_suffix_only(&self) {
+        Self::bump(&self.piecewise_subrange_suffix_only);
+    }
+
+    #[inline(always)]
+    fn piecewise_subrange_prefix_middle(&self) {
+        Self::bump(&self.piecewise_subrange_prefix_middle);
+    }
+
+    #[inline(always)]
+    fn piecewise_subrange_middle_suffix(&self) {
+        Self::bump(&self.piecewise_subrange_middle_suffix);
+    }
+
+    #[inline(always)]
+    fn piecewise_subrange_prefix_suffix(&self) {
+        Self::bump(&self.piecewise_subrange_prefix_suffix);
+    }
+
+    #[inline(always)]
+    fn piecewise_subrange_all_three(&self) {
+        Self::bump(&self.piecewise_subrange_all_three);
+    }
+
+    #[inline(always)]
     fn borrowed_alias_to_string_box(&self) {
         Self::bump(&self.borrowed_alias_to_string_box);
     }
@@ -835,6 +890,50 @@ impl ThreadCounters {
         flush_cell(
             &self.str_substring_route_slow_plan_view_span,
             &GLOBAL.str_substring_route_slow_plan_view_span,
+        );
+        flush_cell(
+            &self.piecewise_subrange_total,
+            &GLOBAL.piecewise_subrange_total,
+        );
+        flush_cell(
+            &self.piecewise_subrange_single_session_hit,
+            &GLOBAL.piecewise_subrange_single_session_hit,
+        );
+        flush_cell(
+            &self.piecewise_subrange_fallback_insert,
+            &GLOBAL.piecewise_subrange_fallback_insert,
+        );
+        flush_cell(
+            &self.piecewise_subrange_empty_return,
+            &GLOBAL.piecewise_subrange_empty_return,
+        );
+        flush_cell(
+            &self.piecewise_subrange_prefix_only,
+            &GLOBAL.piecewise_subrange_prefix_only,
+        );
+        flush_cell(
+            &self.piecewise_subrange_middle_only,
+            &GLOBAL.piecewise_subrange_middle_only,
+        );
+        flush_cell(
+            &self.piecewise_subrange_suffix_only,
+            &GLOBAL.piecewise_subrange_suffix_only,
+        );
+        flush_cell(
+            &self.piecewise_subrange_prefix_middle,
+            &GLOBAL.piecewise_subrange_prefix_middle,
+        );
+        flush_cell(
+            &self.piecewise_subrange_middle_suffix,
+            &GLOBAL.piecewise_subrange_middle_suffix,
+        );
+        flush_cell(
+            &self.piecewise_subrange_prefix_suffix,
+            &GLOBAL.piecewise_subrange_prefix_suffix,
+        );
+        flush_cell(
+            &self.piecewise_subrange_all_three,
+            &GLOBAL.piecewise_subrange_all_three,
         );
         flush_cell(
             &self.borrowed_alias_to_string_box,

@@ -137,3 +137,26 @@ fn tls_substring_route_counters_flush_current_thread() {
         assert_eq!(after[71] - before[71], 1);
     });
 }
+
+#[test]
+fn tls_piecewise_subrange_counters_flush_current_thread() {
+    with_env_var("NYASH_PERF_COUNTERS", "1", || {
+        let _guard = test_lock().lock().expect("observe test lock");
+
+        let before = snapshot();
+        piecewise_subrange_enter();
+        piecewise_subrange_single_session_hit();
+        piecewise_subrange_prefix_middle();
+        piecewise_subrange_enter();
+        piecewise_subrange_fallback_insert();
+        piecewise_subrange_enter();
+        piecewise_subrange_empty_return();
+        let after = snapshot();
+
+        assert_eq!(after[102] - before[102], 3);
+        assert_eq!(after[103] - before[103], 1);
+        assert_eq!(after[104] - before[104], 1);
+        assert_eq!(after[105] - before[105], 1);
+        assert_eq!(after[109] - before[109], 1);
+    });
+}
