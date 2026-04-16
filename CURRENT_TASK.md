@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-04-16
+Date: 2026-04-17
 Scope: current lane / next lane / restart order only.
 
 ## Purpose
@@ -27,21 +27,58 @@ Scope: current lane / next lane / restart order only.
 - expected worktree:
   - clean
 - active lane:
-  - `phase-29bq loop owner seam cleanup landing`
+  - `phase-137x post-cleanup optimization reopen`
 - sibling guardrail:
-  - `phase-137x` string corridor / exact-keeper guardrail
+  - `phase-29bq loop owner seam cleanup landing`
 - immediate next:
-  - `phase-137x pre-optimization BoxShape cleanup: split the string hot corridor before reopening 'kilo_micro_substring_concat'`
+  - `phase-137x measurement-first reopen: rerun exact/asm/hotops on 'kilo_micro_substring_concat' after the landed BoxShape cleanup`
 - immediate follow-on:
-  - `return to optimization: phase-137x broader-corridor reopen front 'kilo_micro_substring_concat' (accept gate 'kilo_micro_substring_only'; whole-kilo guard 'kilo_kernel_small_hk')`
+  - `phase-137x runtime-executor cut only if the post-cleanup measurement bundle still points at the same borrowed-view continuity seam`
 - current blocker:
   - `none`
 - latest proof bundle:
   - `cargo test --lib --no-run` PASS
   - `cargo check --bin hakorune` PASS
   - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
+- latest cleanup bundle:
+  - `cargo check -q --bin hakorune` PASS
+  - `cargo test -q -p nyash_kernel --lib` PASS
+  - landed cleanup commits:
+    - `c5495f28f refactor: split string concat cold paths`
+    - `d3bc92973 refactor: split string view span resolution`
+    - `063d06fdc refactor: split host handle perf observe`
+    - `f8bb548a3 refactor: split host handle text read session`
+- optimization measurement kickoff card:
+  - this is the active card before any new optimization edit
+  - front: `kilo_micro_substring_concat`
+  - accept gate: `kilo_micro_substring_only`
+  - whole-kilo guard: `kilo_kernel_small_hk`
+  - primary owner: `measurement`
+  - one-sentence problem:
+    - `BoxShape cleanup is landed; rerun the exact front on the same artifact and re-fix the hot owner before reopening runtime-executor edits`
+  - frozen evidence:
+    - pre-cleanup live route counters stayed:
+      - `view_arc_cache_miss=600000`
+      - `slow_plan=600000`
+      - `slow_plan_view_span=600000`
+    - pre-cleanup live gap stayed concentrated on:
+      - `kilo_micro_substring_concat`
+  - first commands:
+    - `git status -sb`
+    - `tools/checks/dev_gate.sh quick`
+    - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_concat 1 3`
+    - `bash tools/perf/report_mir_hotops.sh kilo_micro_substring_concat`
+    - `bash tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_concat 'nyash.string.substring_hii' 3`
+  - done condition:
+    - same-artifact exact front numbers are refreshed after the cleanup commits
+    - current hot owner is explicit from `asm + mir + counters`
+    - next edit owner is chosen without reopening broad source reading
+  - reject condition:
+    - compile/test proof is red
+    - the cleanup changed semantics on the exact front
+    - the artifact bundle is incomplete (`bench` / `hotops` / `asm` missing)
 - optimization re-entry card:
-  - activate only after the current `phase-29bq` landing closeout and the pre-optimization BoxShape cleanup below
+  - activate only after the measurement kickoff card above re-fixes the hot owner on the same artifact
   - front: `kilo_micro_substring_concat`
   - accept gate: `kilo_micro_substring_only`
   - whole-kilo guard: `kilo_kernel_small_hk`
@@ -78,30 +115,11 @@ Scope: current lane / next lane / restart order only.
     - cache/helper traffic becomes the new dominant owner
     - the cut requires a new public ABI or string-only MIR dialect
   - do not start edits from `kilo / micro-kilo` wording alone; use this explicit card plus `phase-137x` target bands
-- pre-optimization cleanup card:
-  - primary owner: `box-shape cleanup`
-  - scope:
-    - `crates/nyash_kernel/src/exports/string_helpers/concat.rs`
-  - one-sentence problem:
-    - `concat` hot executor, substring fallback, const-string adapters, cache/TLS plumbing live in one file, so narrow perf cuts keep widening into helper traffic
-  - cleanup target:
-    - keep hot concat executor narrow
-    - move substring fallback helpers behind their own module seam
-    - move const-string / C-string adapter helpers behind their own cold module seam
-  - preserves:
-    - public string export surface
-    - current fallback order
-    - existing perf evidence / route counters as frozen evidence
-  - forbid:
-    - no new perf heuristics
-    - no new cache layers
-    - no runtime behavior change
-    - no optimization reopen until this cleanup lands green
-  - acceptance:
-    - `cargo test -p nyash_kernel --lib` stays green
-    - export entrypoints in `string_helpers.rs` stay unchanged
-    - cleanup remains file/module split only
 - next exact handoff:
+  - optimization-side BoxShape cleanup is landed on:
+    - `string_helpers/concat`
+    - `string_view`
+    - `runtime/host_handles`
   - cleanup / structure reform is in landing-closeout mode; current exact closeout is `folderization residue inventory` (`direct plan import residue`)
   - `plan/recipe_tree` now depends on top-level `recipes::{RecipeBody, refs}` owner surfaces
   - `plan/parts/join_scope.rs` split is landed
@@ -156,8 +174,9 @@ Scope: current lane / next lane / restart order only.
 - latest landed phase:
   - `phase-277x`: optimization lane closeout judgment froze the landed optimization roadmap and handed the mainline back to compiler expressivity / selfhost entry
 - active focus:
-  - `phase-29bq`: narrow cleanup / structure-reform landing under compiler-expressivity-first policy
-  - with blocker=`none`, the next pointer after the closeout cut goes to the pre-optimization BoxShape cleanup card above, then returns to the optimization re-entry card
+  - `phase-137x`: post-cleanup measurement-first reopen under the optimization task-card OS
+  - `phase-29bq`: sibling cleanup / structure-reform landing under compiler-expressivity-first policy
+  - with blocker=`none`, the next pointer is measurement kickoff first, then the runtime-executor re-entry card
 - architecture direction:
   - loop/selfhost cleanup now targets `facts -> route -> recipe -> cfg skeleton -> join sig -> phi materializer -> verifier -> cleanup`
   - keep `facts` descriptive-only and `recipe` normative

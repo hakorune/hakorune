@@ -64,13 +64,21 @@
     - `slow_plan_return_empty=0`
     - `slow_plan_freeze_span=0`
     - `slow_plan_view_span=600000`
+- landed BoxShape cleanup before reopen:
+  - `string_helpers/concat.rs` hot/cold split is landed
+  - `string_view.rs` now keeps `substring_plan` / `span_resolve` behind submodule seams
+  - `runtime/host_handles.rs` now keeps `perf_observe` / `text_read` behind submodule seams
+- current restart order after those cleanup commits:
+  1. rerun exact front / hotops / asm on the same artifact
+  2. re-fix the live hot owner from that bundle
+  3. only then reopen the next `runtime-executor` cut
 - adopted reading for the next local cut:
   - this front is a borrowed-view lane continuity problem, not a cache-first or leaf-semantics problem
   - keep `borrowed-view -> materialize-on-escape` as the generic substrate
   - do not add a new string-only MIR dialect
   - landed measurement: the slow-plan arm split is now frozen evidence and the live hot arm is `ViewSpan` only
-  - before the next runtime cut, land a BoxShape cleanup on `string_helpers/concat.rs` so hot concat executor logic is separated from substring fallback and const-string adapter seams
-  - the next runtime cut after that cleanup is still a narrow `runtime-executor` card on `substring -> concat` continuity, targeting a `concat3_plan_executor`-class hot lane and keeping the handle helper path cold
+  - the required BoxShape cleanup is already landed; do not reopen more structure work before refreshing the measurement bundle unless tests or asm point at a new mixed-responsibility seam
+  - the next runtime cut after that measurement refresh is still a narrow `runtime-executor` card on `substring -> concat` continuity, targeting a `concat3_plan_executor`-class hot lane and keeping the handle helper path cold
   - keep handle/TLS/cache lookup isolated as the cold adapter path; reject cache/helper accretion without lane-continuity proof
 - current broader-corridor genericization rule:
   - do not add a new string-only MIR dialect
