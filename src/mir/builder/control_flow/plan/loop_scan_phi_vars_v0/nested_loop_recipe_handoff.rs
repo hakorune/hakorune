@@ -1,10 +1,10 @@
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::recipes::loop_scan_phi_vars_v0::NestedLoopRecipe;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
 use super::nested_loop_handoff::try_lower_loop_scan_phi_vars_nested_loop_fastpath;
-use super::recipe::NestedLoopRecipe;
 
 const LOOP_SCAN_PHI_VARS_ERR: &str = "[normalizer] loop_scan_phi_vars_v0";
 

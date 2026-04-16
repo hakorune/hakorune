@@ -1,9 +1,9 @@
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
+use crate::mir::builder::control_flow::recipes::loop_scan_phi_vars_v0::NestedLoopRecipe;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
 use super::nested_loop_recipe_handoff::lower_loop_scan_phi_vars_nested_loop_recipe;
-use super::recipe::NestedLoopRecipe;
 
 pub(in crate::mir::builder) fn lower_loop_scan_phi_vars_nested_segment(
     builder: &mut MirBuilder,
