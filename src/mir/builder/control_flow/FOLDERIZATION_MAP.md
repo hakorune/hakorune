@@ -187,7 +187,7 @@ These wrappers are allowed to point at `plan/` until the implementation moves to
 
 - safe tiny wrapper cleanup is exhausted for owner-preserving seams
 - keep `recipes/`, `lower/`, `verify/`, `ssa/`, `cleanup/`, and `facts/` as the active top-level owner surfaces
-- next movable symbols only appear after `loop_cond` or `loop_scan_methods_*` stops mixing owner responsibilities
+- next movable symbols now concentrate on `loop_cond` keep-plan residue and `loop_scan_phi_vars_v0` recipe-side owner cleanup
 
 ## First Cut
 

@@ -43,7 +43,7 @@ Scope: current lane / next lane / restart order only.
 - next exact handoff:
   - `plan/recipe_tree` now depends on top-level `recipes::{RecipeBody, refs}` owner surfaces
   - `plan/parts/join_scope.rs` split is landed
-  - next shared-infra pointer is the `loop_cond` keep-plan residue / `loop_scan_phi_vars_v0` inventory
+  - next shared-infra pointer is the `loop_cond` keep-plan residue / `loop_scan_phi_vars_v0` recipe inventory
   - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
   - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
   - keep `loop_cond` keep-plan residue internal to the family; route-entry should not need a dedicated bridge
@@ -115,7 +115,7 @@ Scope: current lane / next lane / restart order only.
     - fixed next handoff:
       - `plan/recipe_tree` now depends on top-level `recipes::{RecipeBody, refs}` owner surfaces
       - `plan/parts/join_scope.rs` split is landed
-      - next shared-infra pointer is the `loop_cond` keep-plan residue / `loop_scan_phi_vars_v0` inventory
+      - next shared-infra pointer is the `loop_cond` keep-plan residue / `loop_scan_phi_vars_v0` recipe inventory
       - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
       - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
       - keep `loop_cond` keep-plan residue internal to the family
@@ -133,6 +133,7 @@ Scope: current lane / next lane / restart order only.
       - `loop_simple_while`
     - `facts::loop_scan_methods_v0` facts/type extraction is landed at the top-level owner and now uses facts-owned `no_exit_block` / `stmt_view` helpers
     - `facts::loop_scan_methods_block_v0` facts/type extraction is landed at the top-level owner and now uses facts-owned helper trio
+    - `facts::loop_scan_phi_vars_v0` owner surface is landed at the top-level owner
     - `facts::loop_bundle_resolver_v0` owner surface is landed at the top-level owner
     - `facts::loop_cond_continue_only`, `facts::loop_cond_continue_with_return`, and `facts::loop_cond_return_in_body` owner surfaces are landed at the top-level owner
     - scan-family plan-side lowering now imports top-level `facts::canon::cond_block_view`, `facts::no_exit_block`, `facts::stmt_view`, and `recipes::RecipeBody` directly
@@ -181,7 +182,7 @@ Scope: current lane / next lane / restart order only.
       - `match_return_facts`, `LoopBreakFacts`
       - cond-profile support: `accum_const_loop_facts`, `bool_predicate_scan_facts`, `loop_array_join_facts`, `loop_char_map_facts`
     - next actual move:
-      - inventory `loop_cond` / `loop_scan_methods_*` for the next exact seam
+      - inventory `loop_cond` keep-plan residue / `loop_scan_phi_vars_v0` recipe seam for the next exact cut
   - end-state folderization epics after the owner-local queue is empty:
     - pin destination buckets for current `plan/` directories under `facts / recipes / verify / lower / ssa / cleanup`
     - move shared descriptive infra first (`facts`, `canon`, `extractors`, `route_shape_recognizers`)
