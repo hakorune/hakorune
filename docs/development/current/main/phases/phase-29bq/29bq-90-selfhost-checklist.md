@@ -29,7 +29,7 @@ Related:
 - current lane mode:
   - failure-driven
   - while blocker=`none`, use this lane for narrow cleanup only
-  - next cleanup cut is `loop_cond` keep-plan residue / `loop_scan_phi_vars_v0` recipe inventory
+  - next cleanup cut is `loop_cond` family-local break_continue classifier / `loop_scan_phi_vars_v0` pipeline inventory
 
 ## 0.3) Loop owner split (current design direction)
 
@@ -242,7 +242,6 @@ Related:
     - compat-wrapper self-reference
     - owner-local keep-plan-for-now
   - keep-plan-for-now symbols:
-    - `loop_cond::break_continue_types::LoopCondBreakAcceptKind` (family-internal only)
     - test-only `loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts`
     - test-only `loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts`
   - still mixed:

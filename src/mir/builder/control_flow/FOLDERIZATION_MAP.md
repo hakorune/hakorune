@@ -180,14 +180,13 @@ These wrappers are allowed to point at `plan/` until the implementation moves to
 
 ### Owner-Local Keep-Plan-For-Now Symbols
 
-- `plan/loop_cond/break_continue_types::LoopCondBreakAcceptKind`
-  - kept internal to the `loop_cond` family
+- `none confirmed`
 
 ### Movable Next
 
 - safe tiny wrapper cleanup is exhausted for owner-preserving seams
 - keep `recipes/`, `lower/`, `verify/`, `ssa/`, `cleanup/`, and `facts/` as the active top-level owner surfaces
-- next movable symbols now concentrate on `loop_cond` keep-plan residue and `loop_scan_phi_vars_v0` recipe-side owner cleanup
+- next movable symbols now concentrate on `loop_cond` family-local classifier cleanup and `loop_scan_phi_vars_v0` pipeline-side owner cleanup
 
 ## First Cut
 
