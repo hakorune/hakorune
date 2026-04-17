@@ -13,9 +13,15 @@ using selfhost.vm.helpers.mini_mir_v1_scan as MiniMirV1Scan
 using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.runtime.collections.array_state_core_box as ArrayStateCoreBox
 using selfhost.runtime.substrate.raw_array.raw_array_core_box as RawArrayCoreBox
+using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
 using selfhost.vm.boxes.mir_vm_s0_reg_utils as MirVmS0RegUtilsBox
 
 static box ArrayCoreBox {
+  _shadow_handle_key(vid) {
+    if vid == null || vid < 0 { return null }
+    return "__vm.handle:" + StringHelpers.int_to_str(vid)
+  }
+
   _is_i64_text(s) {
     if s == null { return 0 }
     local t = "" + s
@@ -54,6 +60,20 @@ static box ArrayCoreBox {
     return MirVmS0RegUtilsBox._reg_kind_get(kinds, vid)
   }
 
+  _read_reg_text_or_null(regs, handle_regs, vid) {
+    if vid == null || vid < 0 { return null }
+    if handle_regs != null {
+      local handle_text = MirVmS0StateOpsBox.handle_get(handle_regs, vid)
+      if handle_text != null { return handle_text }
+    }
+    local shadow_key = me._shadow_handle_key(vid)
+    if shadow_key != null {
+      local shadow_text = regs.getField(shadow_key)
+      if shadow_text != null { return shadow_text }
+    }
+    return null
+  }
+
   _write_i64_dst(regs, dst, value) {
     if dst != null {
       regs.setField(StringHelpers.int_to_str(dst), StringHelpers.int_to_str(value))
@@ -74,6 +94,10 @@ static box ArrayCoreBox {
 
   set_i64(handle, idx, value) {
     return RawArrayCoreBox.slot_store_i64(handle, idx, value)
+  }
+
+  set_string_handle(handle, idx, value_h) {
+    return RawArrayCoreBox.slot_store_string_handle(handle, idx, value_h)
   }
 
   len_i64(handle) {
@@ -211,6 +235,36 @@ static box ArrayCoreBox {
     return 1
   }
 
+  _set_visible_owner_runtime_string(regs, rid, per_recv, key, cur_len, recv_h, dst, idx_i64, arg1_i, value_h, value_text) {
+    local rc = me.set_string_handle(recv_h, idx_i64, value_h)
+    local strict = env.get("HAKO_VM_ARRAY_CORE_STRICT"); if strict == null { strict = "0" }
+    if strict == "1" && rc == 0 {
+      print("[vm/adapter/freeze:array_set_his]")
+      return 1
+    }
+    if rc != 0 {
+      local value_state_rt = me._value_state()
+      local next_len_rt = cur_len
+      if value_state_rt == "1" && value_text != null {
+        next_len_rt = ArrayStateCoreBox.record_set_state_text(regs, per_recv, rid, idx_i64, cur_len, value_text)
+      } else {
+        next_len_rt = ArrayStateCoreBox.record_set_state(
+          regs,
+          per_recv,
+          rid,
+          idx_i64,
+          cur_len,
+          value_state_rt,
+          arg1_i
+        )
+      }
+      regs.setField(key, StringHelpers.int_to_str(next_len_rt))
+    }
+    me._write_zero_dst(regs, dst)
+    me._trace("[vm/adapter/array_core:set_his]")
+    return 1
+  }
+
   _set_visible_owner_state_only(regs, rid, per_recv, key, cur_len, dst, idx, arg1_i) {
     local value_state = me._value_state()
     local next_len = ArrayStateCoreBox.record_set_state(regs, per_recv, rid, idx, cur_len, value_state, arg1_i)
@@ -219,11 +273,16 @@ static box ArrayCoreBox {
     return 1
   }
 
-  _try_handle_set(seg, regs, rid, per_recv, key, cur_len, recv_h, dst) {
+  _try_handle_set(seg, regs, handle_regs, kinds, rid, per_recv, key, cur_len, recv_h, dst) {
     local arg0_i = MiniMirV1Scan.first_arg_register(seg)
     local arg1_i = MiniMirV1Scan.nth_arg_register(seg, 1)
     local idx_i64 = me._read_reg_i64_or_null(regs, arg0_i)
     local val_i64 = me._read_reg_i64_or_null(regs, arg1_i)
+    local arg1_kind = me._read_reg_kind_or_scalar(kinds, arg1_i)
+    local value_text = null
+    if arg1_kind == "handle" {
+      value_text = me._read_reg_text_or_null(regs, handle_regs, arg1_i)
+    }
     if idx_i64 != null && idx_i64 < 0 {
       me._emit_oob_tag("[oob/array/set] index out of bounds")
       return me._fail_set_oob(regs, dst)
@@ -231,6 +290,24 @@ static box ArrayCoreBox {
     if idx_i64 != null && idx_i64 >= cur_len {
       me._emit_oob_tag("[oob/array/set] index out of bounds")
       return me._fail_set_oob(regs, dst)
+    }
+    // Stage A same-protocol pilot: when the VM owner can prove the source is a
+    // text handle via handle-reg state, keep the existing `nyash.array.set_his`
+    // cold tail instead of collapsing it to generic/set_i64 handling.
+    if recv_h != null && idx_i64 != null && val_i64 != null && value_text != null {
+      return me._set_visible_owner_runtime_string(
+        regs,
+        rid,
+        per_recv,
+        key,
+        cur_len,
+        recv_h,
+        dst,
+        idx_i64,
+        arg1_i,
+        val_i64,
+        value_text
+      )
     }
     if recv_h != null && idx_i64 != null && val_i64 != null {
       return me._set_visible_owner_runtime(regs, rid, per_recv, key, cur_len, recv_h, dst, idx_i64, arg1_i, val_i64)
@@ -325,7 +402,7 @@ static box ArrayCoreBox {
     return me._push_visible_owner_state_only(regs, rid, per_recv, key, cur_len, dst, arg0_i)
   }
 
-  try_handle(seg, regs, kinds, mname) {
+  try_handle(seg, regs, kinds, handle_regs, mname) {
     local rid = MiniMirV1Scan.receiver_id(seg)
     local dst = JsonFragBox.get_int(seg, "dst")
     local recv_h = me._read_reg_i64_or_null(regs, rid)
@@ -339,7 +416,7 @@ static box ArrayCoreBox {
       local per_recv = me._size_state_per_recv()
       local key = me._len_state_key(rid)
       local cur_len = me._len_state_value(regs, key)
-      return me._try_handle_set(seg, regs, rid, per_recv, key, cur_len, recv_h, dst)
+      return me._try_handle_set(seg, regs, handle_regs, kinds, rid, per_recv, key, cur_len, recv_h, dst)
     }
 
     if mname == "get" {

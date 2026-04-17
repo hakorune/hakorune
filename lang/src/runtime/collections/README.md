@@ -48,15 +48,15 @@ Rule:
 ## Current modules
 
 - `array_core_box.hako`
-  - `get_i64(handle, idx)` / `set_i64(handle, idx, value)` / `len_i64(handle)` / `push_hh(handle, value_any)`
+  - `get_i64(handle, idx)` / `set_i64(handle, idx, value)` / `set_string_handle(handle, idx, value_h)` / `len_i64(handle)` / `push_hh(handle, value_any)`
     -> `runtime/substrate/raw_array/raw_array_core_box.hako`
     -> `runtime/substrate/buf/buf_core_box.hako` for reserve/grow
     -> `runtime/substrate/ptr/ptr_core_box.hako`
-    -> `nyash.array.slot_load_hi` / `nyash.array.slot_store_hii` / `nyash.array.slot_len_h` / `nyash.array.slot_append_hh`
-  - `try_handle(seg, regs, mname)`
+    -> `nyash.array.slot_load_hi` / `nyash.array.slot_store_hii` / `nyash.array.set_his` / `nyash.array.slot_len_h` / `nyash.array.slot_append_hh`
+  - `try_handle(seg, regs, kinds, handle_regs, mname)`
     -> visible owner for `ArrayBox.{set,get,push,len/length/size}` orchestration, bounds contract, and fallback
 - `array_state_core_box.hako`
-  - `record_push_state(...)` / `record_set_state(...)` / `get_state_value(...)`
+  - `record_push_state(...)` / `record_set_state(...)` / `record_set_state_text(...)` / `get_state_value(...)`
     -> ArrayBox state bookkeeping support for the `.hako` owner
 - `runtime_data_core_box.hako`
   - `try_handle(seg, regs, mname)`

@@ -14,6 +14,7 @@ require_env || exit 2
 run_gate_step "phase29y_ring1_gate_vm" "tools/checks/ring1_core_scope_guard.sh"
 run_gate_step "phase29y_ring1_gate_vm" "tools/checks/ring1_array_provider_guard.sh"
 run_gate_step "phase29y_ring1_gate_vm" "tools/smokes/v2/profiles/integration/apps/ring1_array_provider_vm.sh"
+run_gate_step "phase29y_ring1_gate_vm" "tools/smokes/v2/profiles/integration/ring1_providers/ring1_array_string_provider_vm.sh"
 run_gate_step "phase29y_ring1_gate_vm" "tools/checks/ring1_map_provider_guard.sh"
 run_gate_step "phase29y_ring1_gate_vm" "tools/smokes/v2/profiles/integration/apps/ring1_map_provider_vm.sh"
 run_gate_step "phase29y_ring1_gate_vm" "tools/checks/ring1_path_provider_guard.sh"

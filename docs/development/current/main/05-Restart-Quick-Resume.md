@@ -24,7 +24,7 @@ cargo check --features perf-observe -p nyash_kernel
 ## Current
 
 - lane:
-  - `phase-137x kernel observability vocabulary + array-store two-stage pilot`
+  - `phase-137x Stage A same-protocol array-store pilot + exact reread`
 - blocker:
   - `none`
 - worktree:
@@ -34,14 +34,15 @@ cargo check --features perf-observe -p nyash_kernel
   - `kilo_micro_array_string_store = C 10 ms / Ny AOT 150 ms`
   - `kilo_kernel_small_hk = C 80 ms / Ny AOT 782 ms`
 - immediate next:
-  - `freeze kernel-common observability vocabulary and land carrier_kind / publish_reason`
+  - `run Stage A exact reread on kilo_micro_array_string_store`
 - immediate follow-on:
-  - `Stage A: same protocol .hako pilot on store.array.str`
+  - `compare carrier_kind / publish_reason against the Rust lane`
 
 ## Current Handoff
 
 - current broad owner family is `array/string-store`
 - duplicated producer is already fixed in trusted direct MIR; runtime publication/source-capture stayed hot
+- `.hako` owner-side Stage A pilot is landed on the VM/reference lane; `ArrayCoreBox` now routes proven string-handle `set(...)` through `nyash.array.set_his`
 - `indexOf` stays a side diagnosis, not the active keeper card
 - keep public ABI / legality ownership unchanged
 - compare `.hako` only under:

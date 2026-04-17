@@ -121,6 +121,15 @@
     - `Stage B: same public ABI / different internal seam`
   - the first pilot stays narrow on `store.array.str`
   - keep `host_handles` / objectize / fresh-handle issue in Rust during Stage A
+  - landed Stage A owner-side pilot on the VM/reference lane:
+    - `.hako` `ArrayCoreBox` now routes proven string-handle `set(...)` through `nyash.array.set_his`
+    - `RawArrayCoreBox` / `PtrCoreBox` now carry the same-protocol string-store seam
+    - `ArrayStateCoreBox` now has a text-aware state helper for the owner-side VM lane
+    - source-contract locks:
+      - `tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
+      - `tools/smokes/v2/profiles/integration/apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh`
+      - `tools/smokes/v2/profiles/integration/ring1_providers/ring1_array_string_provider_vm.sh`
+  - next step is not more owner widening; it is the exact reread against the Rust lane
   - design tighten before code:
     - keep carrier and publication physically separated; the corridor-local slot transports value, the cold adapter owns `StringBox` / `Arc` / handle issue
     - treat published-ness as boundary bookkeeping, not as the steady-state hot-lane value shape

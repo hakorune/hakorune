@@ -57,9 +57,8 @@ Related:
 ## Current Owner Reading
 
 - current broad owner family is `array/string-store`, not `substring`
-- `kilo_micro_array_string_store` still shows duplicated producer birth on trusted direct MIR:
-  - one `text + "xy"` result feeds `set(...)`
-  - another `text + "xy"` result feeds trailing `substring(...)`
+- trusted direct MIR no longer shows duplicated producer birth on this front:
+  - `text + "xy"` is shared across `set(...)` and trailing `substring(...)`
 - `perf-observe` on `kilo_micro_array_string_store` still ranks publication/capture first:
   - `freeze_owned_bytes: 15.76%`
   - `issue_fresh_handle: 14.54%`
@@ -72,6 +71,7 @@ Related:
 - current reading stays:
   - dominant cost is still upstream birth/publication plus source capture
   - slot mutation itself is not the first owner once source is already published
+  - next live comparison is `Stage A: same protocol` exact reread after the landed `.hako` owner-side VM/reference pilot
 
 ## `indexOf` Separation
 

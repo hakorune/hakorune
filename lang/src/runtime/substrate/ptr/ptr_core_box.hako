@@ -16,6 +16,10 @@ static box PtrCoreBox {
     return externcall "nyash.array.slot_store_hii"(handle, idx, value)
   }
 
+  slot_store_string_handle(handle, idx, value_h) {
+    return externcall "nyash.array.set_his"(handle, idx, value_h)
+  }
+
   slot_len_i64(handle) {
     return externcall "nyash.array.slot_len_h"(handle)
   }

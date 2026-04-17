@@ -13,7 +13,7 @@ Related:
 ## Current
 
 - current optimization lane:
-  - `phase-137x kernel observability vocabulary + array-store two-stage pilot`
+  - `phase-137x Stage A same-protocol array-store pilot + exact reread`
 - background compiler lanes:
   - `phase-29bq loop owner seam cleanup landing`
   - `phase-163x primitive-family / user-box fast-path landing`
@@ -34,16 +34,16 @@ Related:
   - current main owner family is `array/string-store`
   - duplicated `text + "xy"` producer is already removed in trusted direct MIR
   - current exact owner is still publication/source-capture
-  - next cut is 2-stage comparison:
-    - `Stage A: same protocol .hako pilot`
-    - `Stage B: same public ABI, delayed publication seam`
+  - `Stage A` narrow owner slice is now landed on the VM/reference lane:
+    - `.hako` `ArrayCoreBox` routes proven string-handle `set(...)` through `nyash.array.set_his`
+    - same protocol, same cold Rust tail
+  - next cut is the `Stage A` exact reread
 
 ## Next
 
-1. freeze kernel-common observability vocabulary
-2. land `carrier_kind` / `publish_reason` in `perf-observe`
-3. run `Stage A: same protocol .hako pilot` on narrow `store.array.str`
-4. keep `Stage B` separate until Stage A exact numbers exist
+1. run `Stage A` exact reread on `kilo_micro_array_string_store`
+2. compare `carrier_kind` / `publish_reason` against the Rust lane
+3. keep `Stage B` separate until Stage A exact numbers exist
 
 ## Read Next
 

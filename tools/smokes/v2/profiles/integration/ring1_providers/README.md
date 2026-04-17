@@ -6,6 +6,7 @@ It keeps the provider probes together so the remaining `apps` bucket can continu
 Contained scripts:
 
 - `ring1_array_provider_vm.sh`
+- `ring1_array_string_provider_vm.sh`
 - `ring1_console_provider_vm.sh`
 - `ring1_map_provider_vm.sh`
 - `ring1_path_provider_vm.sh`

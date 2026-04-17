@@ -31,7 +31,7 @@ Scope: current lane / next lane / restart order only.
   - dirty is expected right now; do not reset unrelated changes just to make the tree look clean
   - unrelated dirty file is currently `crates/nyash_kernel/src/observe/sink/stderr.rs`
 - active lane:
-  - `phase-137x kernel observability vocabulary + array-store two-stage pilot`
+  - `phase-137x Stage A same-protocol array-store pilot + exact reread`
 - background lanes:
   - `phase-29bq loop owner seam cleanup landing`
   - `phase-163x primitive-family / user-box fast-path landing`
@@ -58,6 +58,9 @@ Scope: current lane / next lane / restart order only.
   - current main owner family is `array/string-store`, not `substring`
   - trusted direct MIR no longer duplicates the `text + "xy"` producer across `set(...)` and trailing `substring(...)`
   - runtime gap stayed open after the compiler-side placement fix, so duplicated birth is no longer the live owner
+  - `Stage A` narrow owner slice is landed on the VM/reference lane:
+    - `.hako` `ArrayCoreBox` now routes proven string-handle `set(...)` through `nyash.array.set_his`
+    - cold tail stays in Rust
   - current exact `perf-observe` on `kilo_micro_array_string_store` still ranks publication/capture first:
     - `freeze_owned_bytes`
     - `issue_fresh_handle`
@@ -71,10 +74,9 @@ Scope: current lane / next lane / restart order only.
 
 ## Next
 
-1. freeze kernel-common observability vocabulary in docs and perf-observe
-2. add `carrier_kind` / `publish_reason` counters without changing release behavior
-3. start `Stage A: same protocol .hako pilot` on narrow `store.array.str`
-4. keep `Stage B: delayed publication seam` separate until Stage A numbers exist
+1. run `Stage A` exact reread on `kilo_micro_array_string_store`
+2. compare the new `carrier_kind` / `publish_reason` counters against the Rust lane
+3. keep `Stage B: delayed publication seam` separate until Stage A exact numbers exist
 
 ## Guardrails
 

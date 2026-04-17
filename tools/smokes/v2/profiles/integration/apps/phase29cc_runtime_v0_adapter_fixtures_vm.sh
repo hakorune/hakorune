@@ -106,7 +106,7 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: handler string core orchestration contract missing"
     exit 1
   fi
-  if ! rg -F -q 'ArrayCoreBox.try_handle(seg, regs, kinds, mname)' "$HANDLER_FILE"; then
+  if ! rg -F -q 'ArrayCoreBox.try_handle(seg, regs, kinds, handle_regs, mname)' "$HANDLER_FILE"; then
     test_fail "$SMOKE_NAME: handler array orchestration contract missing"
     exit 1
   fi
@@ -118,7 +118,7 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: array core raw-array append route contract missing"
     exit 1
   fi
-  if ! rg -F -q 'try_handle(seg, regs, kinds, mname)' "$ARRAY_CORE_FILE"; then
+  if ! rg -F -q 'try_handle(seg, regs, kinds, handle_regs, mname)' "$ARRAY_CORE_FILE"; then
     test_fail "$SMOKE_NAME: array core orchestration helper contract missing"
     exit 1
   fi
@@ -128,6 +128,10 @@ check_collection_adapter_route_contract() {
   fi
   if ! rg -F -q 'return RawArrayCoreBox.slot_store_i64(handle, idx, value)' "$ARRAY_CORE_FILE"; then
     test_fail "$SMOKE_NAME: array core raw-array store route contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'return RawArrayCoreBox.slot_store_string_handle(handle, idx, value_h)' "$ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: array core raw-array string-store route contract missing"
     exit 1
   fi
   if ! rg -F -q 'me.get_i64(recv_h, idx_i64)' "$ARRAY_CORE_FILE"; then
@@ -144,6 +148,10 @@ check_collection_adapter_route_contract() {
   fi
   if ! rg -F -q 'PtrCoreBox.slot_store_i64(handle, idx, value)' "$RAW_ARRAY_CORE_FILE"; then
     test_fail "$SMOKE_NAME: raw array ptr store hop contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'PtrCoreBox.slot_store_string_handle(handle, idx, value_h)' "$RAW_ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw array ptr string-store hop contract missing"
     exit 1
   fi
   if ! rg -F -q 'PtrCoreBox.slot_load_i64(handle, idx)' "$RAW_ARRAY_CORE_FILE"; then
@@ -188,6 +196,10 @@ check_collection_adapter_route_contract() {
   fi
   if ! rg -F -q '[vm/adapter/raw_array:slot_store_i64]' "$RAW_ARRAY_CORE_FILE"; then
     test_fail "$SMOKE_NAME: raw array store trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/raw_array:slot_store_string_handle]' "$RAW_ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw array string-store trace tag contract missing"
     exit 1
   fi
   if ! rg -F -q '[vm/adapter/raw_array:slot_load_i64]' "$RAW_ARRAY_CORE_FILE"; then
@@ -320,6 +332,10 @@ check_collection_adapter_route_contract() {
   fi
   if ! rg -F -q '[vm/adapter/array_core:set_i64]' "$ARRAY_CORE_FILE"; then
     test_fail "$SMOKE_NAME: array core set trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/array_core:set_his]' "$ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: array core string-set trace tag contract missing"
     exit 1
   fi
   if ! rg -F -q '[vm/adapter/array_core:get_i64]' "$ARRAY_CORE_FILE"; then

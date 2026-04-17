@@ -35,6 +35,16 @@ static box ArrayStateCoreBox {
     return next_len
   }
 
+  record_set_state_text(regs, per_recv, rid, idx, cur_len, text) {
+    local next_len = cur_len
+    if idx + 1 > next_len { next_len = idx + 1 }
+    if text != null {
+      local val_key = MethodAliasPolicy.recv_arr_key(per_recv, rid, idx)
+      regs.setField(val_key, "" + text)
+    }
+    return next_len
+  }
+
   get_state_value(regs, per_recv, rid, idx) {
     local val_key = MethodAliasPolicy.recv_arr_key(per_recv, rid, idx)
     return regs.getField(val_key)

@@ -1,0 +1,16 @@
+static box Main {
+  main(args) {
+    local a = new ArrayBox()
+    a.push("")
+    a.set(0, "pilot")
+
+    local n = a.size()
+    if n == 1 {
+      print("ARRAY_STRING_SET_OK size=1")
+      return 0
+    }
+
+    print("ARRAY_STRING_SET_NG size=" + n)
+    return 1
+  }
+}
