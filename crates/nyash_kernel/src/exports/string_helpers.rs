@@ -25,7 +25,10 @@ use crate::exports::string_view::{
 };
 use crate::hako_forward_bridge;
 use crate::observe;
-use crate::plugin::{issue_fresh_handle_from_arc, publish_kernel_text_slot, KernelTextSlot};
+use crate::plugin::{
+    freeze_owned_string_into_slot, issue_fresh_handle_from_arc, owned_string_from_handle,
+    publish_kernel_text_slot, KernelTextSlot,
+};
 use nyash_rust::box_trait::NyashBox;
 use nyash_rust::runtime::host_handles as handles;
 use std::{ffi::CStr, sync::Arc};
@@ -40,6 +43,7 @@ use self::concat::{
     concat3_fallback, concat3_substring_fallback, concat_const_suffix_fallback,
     concat_pair_fallback, concat_pair_substring_fallback, insert_const_mid_fallback,
     piecewise_subrange_hsiii_fallback, piecewise_subrange_hsiii_into_slot,
+    piecewise_subrange_kernel_text_slot_into_slot,
     substring_kernel_text_slot_in_place,
 };
 use self::materialize::{
@@ -276,6 +280,43 @@ pub(super) fn string_piecewise_subrange_hsiii_into_slot_export_impl(
     };
     i64::from(piecewise_subrange_hsiii_into_slot(
         slot, source_h, middle_ptr, split, start, end,
+    ))
+}
+
+#[inline(always)]
+fn string_handle_into_slot(slot: &mut KernelTextSlot, source_h: i64) -> bool {
+    slot.clear();
+    let Some(text) = owned_string_from_handle(source_h) else {
+        return false;
+    };
+    freeze_owned_string_into_slot(slot, text);
+    true
+}
+
+pub(super) fn string_handle_into_slot_export_impl(slot: *mut KernelTextSlot, source_h: i64) -> i64 {
+    let Some(slot) = (unsafe { slot.as_mut() }) else {
+        return 0;
+    };
+    i64::from(string_handle_into_slot(slot, source_h))
+}
+
+pub(super) fn string_piecewise_subrange_kernel_text_slot_into_slot_export_impl(
+    out: *mut KernelTextSlot,
+    source: *const KernelTextSlot,
+    middle_ptr: *const i8,
+    split: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    let Some(out) = (unsafe { out.as_mut() }) else {
+        return 0;
+    };
+    let Some(source) = (unsafe { source.as_ref() }) else {
+        out.clear();
+        return 0;
+    };
+    i64::from(piecewise_subrange_kernel_text_slot_into_slot(
+        out, source, middle_ptr, split, start, end,
     ))
 }
 

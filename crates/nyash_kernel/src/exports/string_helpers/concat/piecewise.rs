@@ -2,7 +2,7 @@ use crate::exports::string_view::clamp_i64_range;
 use crate::observe;
 use crate::plugin::{
     freeze_owned_string_into_slot, publish_kernel_text_slot, with_kernel_text_slot_text,
-    KernelTextSlot,
+    KernelTextSlot, KernelTextSlotState,
 };
 use nyash_rust::runtime::host_handles as handles;
 
@@ -97,6 +97,72 @@ fn substring_borrowed_text_into_slot(
     true
 }
 
+#[inline(always)]
+fn with_kernel_text_slot_source_text<R>(
+    slot: &KernelTextSlot,
+    f: impl FnOnce(&str) -> R,
+) -> Option<R> {
+    match slot.state() {
+        KernelTextSlotState::Empty => Some(f("")),
+        KernelTextSlotState::OwnedBytes => with_kernel_text_slot_text(slot, f),
+        KernelTextSlotState::Published => None,
+    }
+}
+
+#[inline(always)]
+fn piecewise_subrange_borrowed_text_into_slot(
+    out: &mut KernelTextSlot,
+    source: &str,
+    middle: &str,
+    split: i64,
+    start: i64,
+    end: i64,
+) -> Option<()> {
+    let (split_start, _) = clamp_i64_range(source.len(), split, split);
+    let prefix = source.get(..split_start).unwrap_or("");
+    let suffix = source.get(split_start..).unwrap_or("");
+    let prefix_len = prefix.len();
+    let middle_len = middle.len();
+    let suffix_len = suffix.len();
+    let total_len = prefix
+        .len()
+        .saturating_add(middle_len)
+        .saturating_add(suffix_len);
+    let (slice_start, slice_end) = clamp_i64_range(total_len, start, end);
+    if slice_start == slice_end {
+        observe::record_piecewise_subrange_empty_return();
+        out.clear();
+        return Some(());
+    }
+
+    let middle_start = prefix_len;
+    let middle_end = middle_start.saturating_add(middle_len);
+    let suffix_start = middle_end;
+    let suffix_end = suffix_start.saturating_add(suffix_len);
+    let prefix_hit = overlaps(slice_start, slice_end, 0, prefix_len);
+    let middle_hit = overlaps(slice_start, slice_end, middle_start, middle_end);
+    let suffix_hit = overlaps(slice_start, slice_end, suffix_start, suffix_end);
+    if prefix_hit && middle_hit && suffix_hit {
+        let prefix_slice = prefix.get(slice_start..prefix_len)?;
+        let suffix_slice = suffix.get(..slice_end.saturating_sub(suffix_start))?;
+        record_piecewise_shape(true, true, true);
+        freeze_owned_string_into_slot(
+            out,
+            materialize_piecewise_all_three(
+                slice_end.saturating_sub(slice_start),
+                prefix_slice,
+                middle,
+                suffix_slice,
+            ),
+        );
+        return Some(());
+    }
+    let text = substring_owned_from_parts(&[prefix, middle, suffix], slice_start, slice_end)?;
+    record_piecewise_shape(prefix_hit, middle_hit, suffix_hit);
+    freeze_owned_string_into_slot(out, text);
+    Some(())
+}
+
 #[cfg_attr(feature = "perf-observe", inline(never))]
 #[cfg_attr(not(feature = "perf-observe"), inline(always))]
 fn with_piecewise_borrowed_inputs<R>(
@@ -133,50 +199,27 @@ pub(super) fn piecewise_subrange_hsiii_into_slot(
 ) -> bool {
     out.clear();
     with_piecewise_borrowed_inputs(source_h, middle_ptr, |source, middle| {
-        let (split_start, _) = clamp_i64_range(source.len(), split, split);
-        let prefix = source.get(..split_start).unwrap_or("");
-        let suffix = source.get(split_start..).unwrap_or("");
-        let prefix_len = prefix.len();
-        let middle_len = middle.len();
-        let suffix_len = suffix.len();
-        let total_len = prefix
-            .len()
-            .saturating_add(middle_len)
-            .saturating_add(suffix_len);
-        let (slice_start, slice_end) = clamp_i64_range(total_len, start, end);
-        if slice_start == slice_end {
-            observe::record_piecewise_subrange_empty_return();
-            out.clear();
-            return Some(());
-        }
-
-        let middle_start = prefix_len;
-        let middle_end = middle_start.saturating_add(middle_len);
-        let suffix_start = middle_end;
-        let suffix_end = suffix_start.saturating_add(suffix_len);
-        let prefix_hit = overlaps(slice_start, slice_end, 0, prefix_len);
-        let middle_hit = overlaps(slice_start, slice_end, middle_start, middle_end);
-        let suffix_hit = overlaps(slice_start, slice_end, suffix_start, suffix_end);
         observe::record_piecewise_subrange_single_session_hit();
-        if prefix_hit && middle_hit && suffix_hit {
-            let prefix_slice = prefix.get(slice_start..prefix_len)?;
-            let suffix_slice = suffix.get(..slice_end.saturating_sub(suffix_start))?;
-            record_piecewise_shape(true, true, true);
-            freeze_owned_string_into_slot(
-                out,
-                materialize_piecewise_all_three(
-                    slice_end.saturating_sub(slice_start),
-                    prefix_slice,
-                    middle,
-                    suffix_slice,
-                ),
-            );
-            return Some(());
-        }
-        let text = substring_owned_from_parts(&[prefix, middle, suffix], slice_start, slice_end)?;
-        record_piecewise_shape(prefix_hit, middle_hit, suffix_hit);
-        freeze_owned_string_into_slot(out, text);
-        Some(())
+        piecewise_subrange_borrowed_text_into_slot(out, source, middle, split, start, end)
+    })
+    .is_some()
+}
+
+#[inline(always)]
+pub(super) fn piecewise_subrange_kernel_text_slot_into_slot(
+    out: &mut KernelTextSlot,
+    source: &KernelTextSlot,
+    middle_ptr: *const i8,
+    split: i64,
+    start: i64,
+    end: i64,
+) -> bool {
+    out.clear();
+    with_insert_middle_text(middle_ptr, |middle| {
+        with_kernel_text_slot_source_text(source, |text| {
+            piecewise_subrange_borrowed_text_into_slot(out, text, middle, split, start, end)
+        })
+        .flatten()
     })
     .is_some()
 }
@@ -189,7 +232,7 @@ pub(super) fn substring_kernel_text_slot_into_slot(
     end: i64,
 ) -> bool {
     out.clear();
-    with_kernel_text_slot_text(source, |text| {
+    with_kernel_text_slot_source_text(source, |text| {
         substring_borrowed_text_into_slot(out, text, start, end)
     })
     .unwrap_or(false)
@@ -201,6 +244,10 @@ pub(super) fn substring_kernel_text_slot_in_place(
     start: i64,
     end: i64,
 ) -> bool {
+    if slot.state() == KernelTextSlotState::Empty {
+        slot.clear();
+        return true;
+    }
     let Some(bytes) = slot.take_owned_bytes() else {
         slot.clear();
         return false;

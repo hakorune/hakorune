@@ -259,6 +259,55 @@ fn string_kernel_slot_piecewise_substring_publish_contract() {
 }
 
 #[test]
+fn string_kernel_slot_capture_piecewise_loop_publish_contract() {
+    with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
+        let source_h = string_handle("line-seed-abcdef");
+        let middle = CString::new("xx").expect("CString");
+        let middle_text = middle.to_str().expect("middle text");
+        let split = 8;
+        let start = 1;
+        let end = 17;
+        let mut current = crate::plugin::KernelTextSlot::empty();
+        let mut next = crate::plugin::KernelTextSlot::empty();
+        let mut expected = "line-seed-abcdef".to_string();
+
+        assert_eq!(
+            nyash_string_kernel_slot_capture_h_export(&mut current, source_h),
+            1
+        );
+
+        for _ in 0..4 {
+            let split_idx = split.min(expected.len() as i64) as usize;
+            let mut inserted = String::with_capacity(expected.len() + middle_text.len());
+            inserted.push_str(&expected[..split_idx]);
+            inserted.push_str(middle_text);
+            inserted.push_str(&expected[split_idx..]);
+            let (slice_start, slice_end) =
+                crate::exports::string_view::clamp_i64_range(inserted.len(), start, end);
+            expected = inserted[slice_start..slice_end].to_string();
+            assert_eq!(
+                nyash_string_kernel_slot_piecewise_subrange_ssiii_export(
+                    &mut next,
+                    &current,
+                    middle.as_ptr(),
+                    split,
+                    start,
+                    end,
+                ),
+                1
+            );
+            std::mem::swap(&mut current, &mut next);
+            next.clear();
+        }
+
+        let helper_h = nyash_string_kernel_slot_publish_h_export(&mut current);
+        assert!(helper_h > 0);
+        assert_eq!(decode_string_like_handle(helper_h).as_deref(), Some(expected.as_str()));
+        assert_eq!(nyash_string_len_h(helper_h), expected.len() as i64);
+    });
+}
+
+#[test]
 fn string_compare_hh_contract_roundtrip() {
     let a: Arc<dyn NyashBox> = Arc::new(StringBox::new("abc".to_string()));
     let b: Arc<dyn NyashBox> = Arc::new(StringBox::new("abc".to_string()));

@@ -105,6 +105,30 @@ pub extern "C" fn nyash_string_kernel_slot_piecewise_subrange_hsiii_export(
 }
 
 // Runtime-private direct-kernel slot seam.
+#[export_name = "nyash.string.kernel_slot_capture_h"]
+pub extern "C" fn nyash_string_kernel_slot_capture_h_export(
+    slot: *mut crate::plugin::KernelTextSlot,
+    source_h: i64,
+) -> i64 {
+    string_handle_into_slot_export_impl(slot, source_h)
+}
+
+// Runtime-private direct-kernel slot seam.
+#[export_name = "nyash.string.kernel_slot_piecewise_subrange_ssiii"]
+pub extern "C" fn nyash_string_kernel_slot_piecewise_subrange_ssiii_export(
+    out: *mut crate::plugin::KernelTextSlot,
+    source: *const crate::plugin::KernelTextSlot,
+    middle_ptr: *const i8,
+    split: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    string_piecewise_subrange_kernel_text_slot_into_slot_export_impl(
+        out, source, middle_ptr, split, start, end,
+    )
+}
+
+// Runtime-private direct-kernel slot seam.
 #[export_name = "nyash.string.kernel_slot_substring_hii_in_place"]
 pub extern "C" fn nyash_string_kernel_slot_substring_hii_in_place_export(
     slot: *mut crate::plugin::KernelTextSlot,

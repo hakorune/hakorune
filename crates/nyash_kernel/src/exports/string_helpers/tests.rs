@@ -4,7 +4,8 @@ use super::cache::{
     string_len_fast_cache_store, substring_fast_cache_lookup, substring_fast_cache_store,
 };
 use super::concat::{
-    piecewise_subrange_hsiii_into_slot, substring_kernel_text_slot_in_place,
+    piecewise_subrange_hsiii_into_slot, piecewise_subrange_kernel_text_slot_into_slot,
+    substring_kernel_text_slot_in_place,
     substring_kernel_text_slot_into_slot,
 };
 use super::materialize::string_handle_from_owned;
@@ -200,6 +201,80 @@ fn piecewise_slot_substring_in_place_roundtrip() {
     assert_eq!(
         with_kernel_text_slot_text(&slot, |text| text.to_string()).as_deref(),
         Some(next_direct_text.as_str())
+    );
+}
+
+#[test]
+fn piecewise_slot_source_into_slot_roundtrip() {
+    let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("prefix-suffix".to_string()));
+    let source_h = handles::to_handle_arc(source) as i64;
+    let middle = CString::new("::mid::").expect("CString");
+
+    let mut current = KernelTextSlot::empty();
+    assert!(super::string_handle_into_slot(&mut current, source_h));
+
+    let mut next = KernelTextSlot::empty();
+    assert!(piecewise_subrange_kernel_text_slot_into_slot(
+        &mut next,
+        &current,
+        middle.as_ptr(),
+        6,
+        3,
+        16,
+    ));
+
+    let direct_h =
+        super::concat::piecewise_subrange_hsiii_fallback(source_h, middle.as_ptr(), 6, 3, 16);
+    let direct_text = handles::with_text_read_session(|session| {
+        session.str_handle(direct_h as u64, |text| text.to_string())
+    })
+    .expect("direct slot-source text");
+
+    assert_eq!(next.state(), KernelTextSlotState::OwnedBytes);
+    assert_eq!(
+        with_kernel_text_slot_text(&next, |text| text.to_string()).as_deref(),
+        Some(direct_text.as_str())
+    );
+}
+
+#[test]
+fn piecewise_slot_loop_chain_matches_direct_handle_chain() {
+    let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("line-seed-abcdef".to_string()));
+    let source_h = handles::to_handle_arc(source) as i64;
+    let middle = CString::new("xx").expect("CString");
+    let middle_text = middle.to_str().expect("middle text");
+    let split = 8;
+    let start = 1;
+    let end = 17;
+
+    let mut current = KernelTextSlot::empty();
+    let mut next = KernelTextSlot::empty();
+    assert!(super::string_handle_into_slot(&mut current, source_h));
+
+    let mut expected = "line-seed-abcdef".to_string();
+    for _ in 0..4 {
+        let split_idx = split.min(expected.len() as i64) as usize;
+        let mut inserted = String::with_capacity(expected.len() + middle_text.len());
+        inserted.push_str(&expected[..split_idx]);
+        inserted.push_str(middle_text);
+        inserted.push_str(&expected[split_idx..]);
+        let (slice_start, slice_end) =
+            crate::exports::string_view::clamp_i64_range(inserted.len(), start, end);
+        expected = inserted[slice_start..slice_end].to_string();
+        assert!(piecewise_subrange_kernel_text_slot_into_slot(
+            &mut next,
+            &current,
+            middle.as_ptr(),
+            split,
+            start,
+            end,
+        ));
+        std::mem::swap(&mut current, &mut next);
+        next.clear();
+    }
+    assert_eq!(
+        with_kernel_text_slot_text(&current, |text| text.to_string()).as_deref(),
+        Some(expected.as_str())
     );
 }
 

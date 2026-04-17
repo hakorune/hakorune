@@ -168,6 +168,20 @@ pub(super) fn piecewise_subrange_hsiii_into_slot(
 }
 
 #[inline(always)]
+pub(super) fn piecewise_subrange_kernel_text_slot_into_slot(
+    out: &mut KernelTextSlot,
+    source: &KernelTextSlot,
+    middle_ptr: *const i8,
+    split: i64,
+    start: i64,
+    end: i64,
+) -> bool {
+    piecewise::piecewise_subrange_kernel_text_slot_into_slot(
+        out, source, middle_ptr, split, start, end,
+    )
+}
+
+#[inline(always)]
 pub(super) fn substring_kernel_text_slot_into_slot(
     out: &mut KernelTextSlot,
     source: &KernelTextSlot,
