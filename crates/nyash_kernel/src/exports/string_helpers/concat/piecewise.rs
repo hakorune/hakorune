@@ -6,8 +6,8 @@ use crate::plugin::{
 };
 use nyash_rust::runtime::host_handles as handles;
 
-use super::const_adapter::{insert_const_mid_fallback, with_insert_middle_text};
 use super::super::materialize::shared_empty_string_handle;
+use super::const_adapter::{insert_const_mid_fallback, with_insert_middle_text};
 
 #[inline(always)]
 fn substring_owned_from_parts(parts: &[&str], start: usize, end: usize) -> Option<String> {
@@ -41,12 +41,30 @@ fn overlaps(start: usize, end: usize, piece_start: usize, piece_end: usize) -> b
     start < piece_end && piece_start < end
 }
 
+#[cfg_attr(feature = "perf-observe", inline(never))]
+#[cfg_attr(not(feature = "perf-observe"), inline(always))]
+fn materialize_piecewise_all_three(
+    total_len: usize,
+    prefix: &str,
+    middle: &str,
+    suffix: &str,
+) -> String {
+    let mut out = String::with_capacity(total_len);
+    unsafe {
+        let bytes = out.as_mut_vec();
+        bytes.set_len(total_len);
+        let mut cursor = 0usize;
+        std::ptr::copy_nonoverlapping(prefix.as_ptr(), bytes.as_mut_ptr().add(cursor), prefix.len());
+        cursor += prefix.len();
+        std::ptr::copy_nonoverlapping(middle.as_ptr(), bytes.as_mut_ptr().add(cursor), middle.len());
+        cursor += middle.len();
+        std::ptr::copy_nonoverlapping(suffix.as_ptr(), bytes.as_mut_ptr().add(cursor), suffix.len());
+    }
+    out
+}
+
 #[inline(always)]
-fn record_piecewise_shape(
-    prefix_hit: bool,
-    middle_hit: bool,
-    suffix_hit: bool,
-) {
+fn record_piecewise_shape(prefix_hit: bool, middle_hit: bool, suffix_hit: bool) {
     match (prefix_hit, middle_hit, suffix_hit) {
         (true, false, false) => observe::record_piecewise_subrange_prefix_only(),
         (false, true, false) => observe::record_piecewise_subrange_middle_only(),
@@ -60,38 +78,48 @@ fn record_piecewise_shape(
 }
 
 #[inline(always)]
-fn piecewise_subrange_from_source(
-    source: &str,
-    middle: &str,
-    split: i64,
+fn substring_borrowed_text_into_slot(
+    out: &mut KernelTextSlot,
+    text: &str,
     start: i64,
     end: i64,
-) -> Option<String> {
-    let (split_start, _) = clamp_i64_range(source.len(), split, split);
-    let prefix = source.get(..split_start).unwrap_or("");
-    let suffix = source.get(split_start..).unwrap_or("");
-    let prefix_len = prefix.len();
-    let middle_len = middle.len();
-    let suffix_len = suffix.len();
-    let total_len = prefix
-        .len()
-        .saturating_add(middle_len)
-        .saturating_add(suffix_len);
-    let (slice_start, slice_end) = clamp_i64_range(total_len, start, end);
+) -> bool {
+    let (slice_start, slice_end) = clamp_i64_range(text.len(), start, end);
     if slice_start == slice_end {
-        observe::record_piecewise_subrange_empty_return();
-        return Some(String::new());
+        out.clear();
+        return true;
     }
-    let prefix_hit = overlaps(slice_start, slice_end, 0, prefix_len);
-    let middle_start = prefix_len;
-    let middle_end = middle_start.saturating_add(middle_len);
-    let suffix_start = middle_end;
-    let suffix_end = suffix_start.saturating_add(suffix_len);
-    let middle_hit = overlaps(slice_start, slice_end, middle_start, middle_end);
-    let suffix_hit = overlaps(slice_start, slice_end, suffix_start, suffix_end);
-    let text = substring_owned_from_parts(&[prefix, middle, suffix], slice_start, slice_end)?;
-    record_piecewise_shape(prefix_hit, middle_hit, suffix_hit);
-    Some(text)
+    let Some(slice) = text.get(slice_start..slice_end) else {
+        out.clear();
+        return false;
+    };
+    freeze_owned_string_into_slot(out, slice.to_string());
+    true
+}
+
+#[cfg_attr(feature = "perf-observe", inline(never))]
+#[cfg_attr(not(feature = "perf-observe"), inline(always))]
+fn with_piecewise_borrowed_inputs<R>(
+    source_h: i64,
+    middle_ptr: *const i8,
+    f: impl FnOnce(&str, &str) -> Option<R>,
+) -> Option<R> {
+    if source_h <= 0 {
+        return None;
+    }
+    with_insert_middle_text(middle_ptr, |middle| {
+        handles::with_text_read_session_ready(|session| {
+            session.str_handle(source_h as u64, |source| f(source, middle))
+        })
+        .flatten()
+        .flatten()
+    })
+}
+
+#[cfg_attr(feature = "perf-observe", inline(never))]
+#[cfg_attr(not(feature = "perf-observe"), inline(always))]
+fn publish_kernel_text_slot_boundary(slot: &mut KernelTextSlot) -> Option<i64> {
+    publish_kernel_text_slot(slot)
 }
 
 #[inline(always)]
@@ -104,27 +132,53 @@ pub(super) fn piecewise_subrange_hsiii_into_slot(
     end: i64,
 ) -> bool {
     out.clear();
-    with_insert_middle_text(middle_ptr, |middle| {
-        if source_h <= 0 {
-            return false;
+    with_piecewise_borrowed_inputs(source_h, middle_ptr, |source, middle| {
+        let (split_start, _) = clamp_i64_range(source.len(), split, split);
+        let prefix = source.get(..split_start).unwrap_or("");
+        let suffix = source.get(split_start..).unwrap_or("");
+        let prefix_len = prefix.len();
+        let middle_len = middle.len();
+        let suffix_len = suffix.len();
+        let total_len = prefix
+            .len()
+            .saturating_add(middle_len)
+            .saturating_add(suffix_len);
+        let (slice_start, slice_end) = clamp_i64_range(total_len, start, end);
+        if slice_start == slice_end {
+            observe::record_piecewise_subrange_empty_return();
+            out.clear();
+            return Some(());
         }
-        let Some(text) = handles::with_text_read_session(|session| {
-            session.str_handle(source_h as u64, |source| {
-                piecewise_subrange_from_source(source, middle, split, start, end)
-            })
-        }) else {
-            return false;
-        };
+
+        let middle_start = prefix_len;
+        let middle_end = middle_start.saturating_add(middle_len);
+        let suffix_start = middle_end;
+        let suffix_end = suffix_start.saturating_add(suffix_len);
+        let prefix_hit = overlaps(slice_start, slice_end, 0, prefix_len);
+        let middle_hit = overlaps(slice_start, slice_end, middle_start, middle_end);
+        let suffix_hit = overlaps(slice_start, slice_end, suffix_start, suffix_end);
         observe::record_piecewise_subrange_single_session_hit();
-        match text {
-            Some(text) if text.is_empty() => true,
-            Some(text) => {
-                freeze_owned_string_into_slot(out, text);
-                true
-            }
-            None => true,
+        if prefix_hit && middle_hit && suffix_hit {
+            let prefix_slice = prefix.get(slice_start..prefix_len)?;
+            let suffix_slice = suffix.get(..slice_end.saturating_sub(suffix_start))?;
+            record_piecewise_shape(true, true, true);
+            freeze_owned_string_into_slot(
+                out,
+                materialize_piecewise_all_three(
+                    slice_end.saturating_sub(slice_start),
+                    prefix_slice,
+                    middle,
+                    suffix_slice,
+                ),
+            );
+            return Some(());
         }
+        let text = substring_owned_from_parts(&[prefix, middle, suffix], slice_start, slice_end)?;
+        record_piecewise_shape(prefix_hit, middle_hit, suffix_hit);
+        freeze_owned_string_into_slot(out, text);
+        Some(())
     })
+    .is_some()
 }
 
 #[inline(always)]
@@ -136,17 +190,37 @@ pub(super) fn substring_kernel_text_slot_into_slot(
 ) -> bool {
     out.clear();
     with_kernel_text_slot_text(source, |text| {
-        let (slice_start, slice_end) = clamp_i64_range(text.len(), start, end);
-        if slice_start == slice_end {
-            return true;
-        }
-        let Some(slice) = text.get(slice_start..slice_end) else {
-            return false;
-        };
-        freeze_owned_string_into_slot(out, slice.to_string());
-        true
+        substring_borrowed_text_into_slot(out, text, start, end)
     })
     .unwrap_or(false)
+}
+
+#[inline(always)]
+pub(super) fn substring_kernel_text_slot_in_place(
+    slot: &mut KernelTextSlot,
+    start: i64,
+    end: i64,
+) -> bool {
+    let Some(bytes) = slot.take_owned_bytes() else {
+        slot.clear();
+        return false;
+    };
+    let text = bytes.as_str();
+    let (slice_start, slice_end) = clamp_i64_range(text.len(), start, end);
+    if slice_start == slice_end {
+        slot.clear();
+        return true;
+    }
+    if slice_start == 0 && slice_end == text.len() {
+        slot.replace_owned_bytes(bytes);
+        return true;
+    }
+    let Some(slice) = text.get(slice_start..slice_end) else {
+        slot.clear();
+        return false;
+    };
+    freeze_owned_string_into_slot(slot, slice.to_string());
+    true
 }
 
 #[inline(always)]
@@ -162,7 +236,7 @@ pub(super) fn piecewise_subrange_hsiii_fallback(
     // Phase-137x keeps the carrier local to this executor first.
     // The next slot-transport card may thread it across same-corridor consumers.
     if piecewise_subrange_hsiii_into_slot(&mut slot, source_h, middle_ptr, split, start, end) {
-        return publish_kernel_text_slot(&mut slot).unwrap_or_else(shared_empty_string_handle);
+        return publish_kernel_text_slot_boundary(&mut slot).unwrap_or_else(shared_empty_string_handle);
     }
     with_insert_middle_text(middle_ptr, |_middle| {
         observe::record_piecewise_subrange_fallback_insert();

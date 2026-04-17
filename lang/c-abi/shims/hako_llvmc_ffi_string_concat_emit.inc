@@ -1,5 +1,31 @@
 #include "hako_llvmc_ffi_string_concat_match.inc"
 
+      auto int match_piecewise_slot_hop_substring_consumer(
+          size_t ii,
+          size_t ilen,
+          yyjson_val* insts,
+          long long value,
+          size_t* use_ii_out,
+          long long* next_dst_out,
+          long long* next_start_out,
+          long long* next_end_out,
+          size_t* copy_iis_out,
+          int* copy_n_out);
+
+      auto int emit_piecewise_slot_hop_publish_call(
+          FILE* f,
+          size_t ii,
+          long long intermediate_value,
+          long long final_dst,
+          long long source_h,
+          long long middle_reg,
+          long long split,
+          long long start,
+          long long end,
+          long long hop_start,
+          long long hop_end,
+          const char* route_reason);
+
       auto void remember_string_concat_pair(long long dst, long long lhs, long long rhs) {
         if (!dst || !lhs || !rhs) return;
         for (size_t i = 0; i < string_concat_pairs_n; i++) {
@@ -382,7 +408,8 @@
           yyjson_val* insts,
           enum MirCallStringExternSurfaceKind kind,
           long long dst,
-          yyjson_val* args) {
+          yyjson_val* args,
+          unsigned char* skip_inst) {
         char ab[192];
         size_t argc = 0;
         if (!(args && yyjson_is_arr(args))) return -1;
@@ -564,6 +591,12 @@
           long long piecewise_source = 0;
           long long piecewise_middle = 0;
           long long piecewise_split = 0;
+          size_t piecewise_use_ii = 0;
+          size_t piecewise_copy_iis[8];
+          int piecewise_copy_n = 0;
+          long long piecewise_next_dst = 0;
+          long long piecewise_next_start = 0;
+          long long piecewise_next_end = 0;
           const char* middle_const = NULL;
           if (argc != 3) return -1;
           recv_reg = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
@@ -571,6 +604,37 @@
           end_reg = (long long)yyjson_get_sint(yyjson_arr_get(args, 2));
           if (find_deferred_piecewise_subrange(
                   recv_reg, &piecewise_source, &piecewise_middle, &piecewise_split)) {
+            if (dst &&
+                match_piecewise_slot_hop_substring_consumer(
+                    ii,
+                    ilen,
+                    insts,
+                    dst,
+                    &piecewise_use_ii,
+                    &piecewise_next_dst,
+                    &piecewise_next_start,
+                    &piecewise_next_end,
+                    piecewise_copy_iis,
+                    &piecewise_copy_n) &&
+                emit_piecewise_slot_hop_publish_call(
+                    f,
+                    ii,
+                    dst,
+                    piecewise_next_dst,
+                    piecewise_source,
+                    piecewise_middle,
+                    piecewise_split,
+                    start_reg,
+                    end_reg,
+                    piecewise_next_start,
+                    piecewise_next_end,
+                    "slot_text_boundary")) {
+              skip_inst[piecewise_use_ii] = 1;
+              for (int ci = 0; ci < piecewise_copy_n && ci < 8; ci++) {
+                skip_inst[piecewise_copy_iis[ci]] = 1;
+              }
+              return 1;
+            }
             middle_const = get_str_const(piecewise_middle);
             if (middle_const) {
               ab[0] = '\0';

@@ -23,7 +23,7 @@ use crate::mir::{
     },
     BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, MirFunction, MirInstruction, MirModule,
     MirType, StringCorridorCandidateKind, StringCorridorCandidatePlan,
-    StringCorridorCandidateProof, StringCorridorOp, ValueId,
+    StringCorridorCandidateProof, StringCorridorOp, StringKernelPlanTextConsumer, ValueId,
 };
 
 pub const SUBSTRING_LEN_EXTERN: &str = "nyash.string.substring_len_hii";

@@ -88,6 +88,40 @@ pub extern "C" fn nyash_string_piecewise_subrange_hsiii_export(
     string_piecewise_subrange_hsiii_export_impl(source_h, middle_ptr, split, start, end)
 }
 
+// Runtime-private direct-kernel slot seam.
+// Caller owns the slot and must publish or clear it before the boundary escapes.
+#[export_name = "nyash.string.kernel_slot_piecewise_subrange_hsiii"]
+pub extern "C" fn nyash_string_kernel_slot_piecewise_subrange_hsiii_export(
+    slot: *mut crate::plugin::KernelTextSlot,
+    source_h: i64,
+    middle_ptr: *const i8,
+    split: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    string_piecewise_subrange_hsiii_into_slot_export_impl(
+        slot, source_h, middle_ptr, split, start, end,
+    )
+}
+
+// Runtime-private direct-kernel slot seam.
+#[export_name = "nyash.string.kernel_slot_substring_hii_in_place"]
+pub extern "C" fn nyash_string_kernel_slot_substring_hii_in_place_export(
+    slot: *mut crate::plugin::KernelTextSlot,
+    start: i64,
+    end: i64,
+) -> i64 {
+    string_kernel_text_slot_substring_hii_in_place_export_impl(slot, start, end)
+}
+
+// Runtime-private direct-kernel publish boundary.
+#[export_name = "nyash.string.kernel_slot_publish_h"]
+pub extern "C" fn nyash_string_kernel_slot_publish_h_export(
+    slot: *mut crate::plugin::KernelTextSlot,
+) -> i64 {
+    string_publish_kernel_text_slot_h_export_impl(slot)
+}
+
 // String.concat3_hhh(a_h, b_h, c_h) -> handle
 #[export_name = "nyash.string.concat3_hhh"]
 pub extern "C" fn nyash_string_concat3_hhh_export(a_h: i64, b_h: i64, c_h: i64) -> i64 {

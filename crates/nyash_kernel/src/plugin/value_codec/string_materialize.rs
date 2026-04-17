@@ -13,7 +13,12 @@ impl OwnedBytes {
     }
 
     #[inline(always)]
-    fn into_string(self) -> String {
+    pub(crate) fn as_str(&self) -> &str {
+        self.0.as_str()
+    }
+
+    #[inline(always)]
+    pub(crate) fn into_string(self) -> String {
         self.0
     }
 }
@@ -26,8 +31,11 @@ pub(crate) enum KernelTextSlotState {
     Published = 2,
 }
 
+/// Runtime-private direct-kernel string carrier passed through exported C ABI seams.
+/// The symbol is exported for AOT/LLVM lowering, but semantic ownership stays local
+/// to the active corridor and must not be treated as a general public string API.
 #[repr(C)]
-pub(crate) struct KernelTextSlot {
+pub struct KernelTextSlot {
     pub(crate) state: u8,
     pub(crate) ptr: *mut u8,
     pub(crate) len: usize,

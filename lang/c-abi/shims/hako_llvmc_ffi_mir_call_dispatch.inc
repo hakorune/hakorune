@@ -90,7 +90,7 @@
           enum MirCallStringExternSurfaceKind kind =
               classify_mir_call_string_extern_surface(mname);
           return emit_supported_string_extern_mir_call(
-              f, ii, ilen, insts, kind, dst, args);
+              f, ii, ilen, insts, kind, dst, args, skip_inst);
         }
 
         if (ctype && !strcmp(ctype, "Global")) {

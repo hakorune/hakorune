@@ -103,7 +103,11 @@ fi
 CMD=()
 case "$ROUTE" in
   direct)
-    CMD=("$NYASH_BIN" --emit-mir-json "$OUT" "$INPUT" "${EXTRA_ARGS[@]}")
+    CMD=(env \
+      HAKO_STAGE1_MODE=emit-mir \
+      HAKO_EMIT_MIR_JSON=1 \
+      STAGE1_EMIT_MIR_JSON=1 \
+      "$NYASH_BIN" --emit-mir-json "$OUT" "$INPUT" "${EXTRA_ARGS[@]}")
     ;;
   hako-mainline)
     CMD=(env \

@@ -246,9 +246,51 @@
                hako_llvmc_string_corridor_read_plan_source_window(
                    value,
                    "borrowed_corridor_fusion",
-                   source_root,
-                   start,
-                   end);
+                    source_root,
+                    start,
+                    end);
+      }
+
+      auto yyjson_val* hako_llvmc_string_kernel_plan_by_value(long long value) {
+        char key[32];
+        yyjson_val* plans = NULL;
+        if (!(fn_metadata && value)) return NULL;
+        value = resolve_copy_source_reg(value);
+        snprintf(key, sizeof(key), "%lld", value);
+        plans = yyjson_obj_get(fn_metadata, "string_kernel_plans");
+        if (!(plans && yyjson_is_obj(plans))) return NULL;
+        plans = yyjson_obj_get(plans, key);
+        if (!(plans && yyjson_is_obj(plans))) return NULL;
+        return plans;
+      }
+
+      auto int hako_llvmc_string_kernel_plan_is_slot_text_carrier(long long value) {
+        yyjson_val* plan = hako_llvmc_string_kernel_plan_by_value(value);
+        yyjson_val* legality = plan ? yyjson_obj_get(plan, "legality") : NULL;
+        yyjson_val* consumer_val = plan ? yyjson_obj_get(plan, "consumer") : NULL;
+        yyjson_val* text_consumer_val =
+            plan ? yyjson_obj_get(plan, "text_consumer") : NULL;
+        yyjson_val* carrier_val = plan ? yyjson_obj_get(plan, "carrier") : NULL;
+        yyjson_val* retained_form_val =
+            plan ? yyjson_obj_get(plan, "retained_form") : NULL;
+        yyjson_val* boundary_val =
+            plan ? yyjson_obj_get(plan, "publication_boundary") : NULL;
+        yyjson_val* requires_slot_val =
+            legality ? yyjson_obj_get(legality, "requires_kernel_text_slot") : NULL;
+        if (!(consumer_val && yyjson_is_str(consumer_val) && text_consumer_val &&
+              yyjson_is_str(text_consumer_val) && carrier_val &&
+              yyjson_is_str(carrier_val) && retained_form_val &&
+              yyjson_is_str(retained_form_val) && boundary_val &&
+              yyjson_is_str(boundary_val) && requires_slot_val &&
+              yyjson_is_bool(requires_slot_val) &&
+              yyjson_get_bool(requires_slot_val))) {
+          return 0;
+        }
+        return !strcmp(yyjson_get_str(consumer_val), "direct_kernel_entry") &&
+               !strcmp(yyjson_get_str(text_consumer_val), "slot_text") &&
+               !strcmp(yyjson_get_str(carrier_val), "kernel_text_slot") &&
+               !strcmp(yyjson_get_str(retained_form_val), "borrowed_text") &&
+               !strcmp(yyjson_get_str(boundary_val), "first_external_boundary");
       }
 
       #endif

@@ -25,7 +25,7 @@ use crate::exports::string_view::{
 };
 use crate::hako_forward_bridge;
 use crate::observe;
-use crate::plugin::issue_fresh_handle_from_arc;
+use crate::plugin::{issue_fresh_handle_from_arc, publish_kernel_text_slot, KernelTextSlot};
 use nyash_rust::box_trait::NyashBox;
 use nyash_rust::runtime::host_handles as handles;
 use std::{ffi::CStr, sync::Arc};
@@ -39,7 +39,8 @@ use self::cache::{
 use self::concat::{
     concat3_fallback, concat3_substring_fallback, concat_const_suffix_fallback,
     concat_pair_fallback, concat_pair_substring_fallback, insert_const_mid_fallback,
-    piecewise_subrange_hsiii_fallback,
+    piecewise_subrange_hsiii_fallback, piecewise_subrange_hsiii_into_slot,
+    substring_kernel_text_slot_in_place,
 };
 use self::materialize::{
     shared_empty_string_handle, string_handle_from_owned, string_handle_from_span,
@@ -260,6 +261,40 @@ pub(super) fn string_piecewise_subrange_hsiii_export_impl(
     end: i64,
 ) -> i64 {
     piecewise_subrange_hsiii_fallback(source_h, middle_ptr, split, start, end)
+}
+
+pub(super) fn string_piecewise_subrange_hsiii_into_slot_export_impl(
+    slot: *mut KernelTextSlot,
+    source_h: i64,
+    middle_ptr: *const i8,
+    split: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    let Some(slot) = (unsafe { slot.as_mut() }) else {
+        return 0;
+    };
+    i64::from(piecewise_subrange_hsiii_into_slot(
+        slot, source_h, middle_ptr, split, start, end,
+    ))
+}
+
+pub(super) fn string_kernel_text_slot_substring_hii_in_place_export_impl(
+    slot: *mut KernelTextSlot,
+    start: i64,
+    end: i64,
+) -> i64 {
+    let Some(slot) = (unsafe { slot.as_mut() }) else {
+        return 0;
+    };
+    i64::from(substring_kernel_text_slot_in_place(slot, start, end))
+}
+
+pub(super) fn string_publish_kernel_text_slot_h_export_impl(slot: *mut KernelTextSlot) -> i64 {
+    let Some(slot) = (unsafe { slot.as_mut() }) else {
+        return 0;
+    };
+    publish_kernel_text_slot(slot).unwrap_or_else(shared_empty_string_handle)
 }
 
 pub(super) fn string_concat3_hhh_export_impl(a_h: i64, b_h: i64, c_h: i64) -> i64 {

@@ -30,6 +30,31 @@ enum ThreadArm {
     Else,
 }
 
+fn preserve_emit_mir_string_phi_trampoline(
+    function: &MirFunction,
+    middle_block: &BasicBlock,
+) -> bool {
+    if !crate::config::env::stage1::emit_mir_json() {
+        return false;
+    }
+
+    middle_block.phi_instructions().any(|instruction| {
+        let MirInstruction::Phi { dst, type_hint, .. } = instruction else {
+            return false;
+        };
+        match type_hint
+            .as_ref()
+            .or_else(|| function.metadata.value_types.get(dst))
+        {
+            Some(crate::mir::MirType::String) => true,
+            Some(crate::mir::MirType::Box(box_name)) => {
+                matches!(box_name.as_str(), "StringBox" | "RuntimeDataBox")
+            }
+            _ => false,
+        }
+    })
+}
+
 pub fn simplify(module: &mut MirModule) -> usize {
     let mut simplified = 0usize;
     for function in module.functions.values_mut() {
@@ -525,6 +550,9 @@ fn find_single_predecessor_jump_merge(
             continue;
         }
         if middle_block.predecessors.len() != 1 || !middle_block.predecessors.contains(&pred_id) {
+            continue;
+        }
+        if preserve_emit_mir_string_phi_trampoline(function, middle_block) {
             continue;
         }
         if collect_trivial_phi_rewrites(middle_block, pred_id).is_none() {

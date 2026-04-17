@@ -79,6 +79,11 @@ pub enum VerificationError {
         instruction_index: usize,
         name: String,
     },
+    /// String direct-kernel legality / consumer rule violation
+    StringKernelPlanViolation {
+        value: ValueId,
+        reason: String,
+    },
 }
 
 impl std::fmt::Display for VerificationError {
@@ -232,6 +237,9 @@ impl std::fmt::Display for VerificationError {
                     "RetBlockSideEffect: side-effecting '{}' at block {} before return (instr #{})",
                     name, block, instruction_index
                 )
+            }
+            VerificationError::StringKernelPlanViolation { value, reason } => {
+                write!(f, "StringKernelPlanViolation for value {}: {}", value, reason)
             }
         }
     }

@@ -13,6 +13,7 @@ mod cfg;
 mod dom;
 mod legacy;
 mod ssa;
+mod string_kernel;
 pub(crate) mod utils; // Phase 257 P1-2: Made public for loop_header_phi_builder
 
 /// MIR verifier for SSA form and semantic correctness
@@ -232,6 +233,11 @@ impl MirVerifier {
             }
         }
 
+        // 11. String direct-kernel legality / consumer rule verification
+        if let Err(mut string_kernel_errors) = self.verify_string_kernel_plans(function) {
+            local_errors.append(&mut string_kernel_errors);
+        }
+
         if local_errors.is_empty() {
             Ok(())
         } else {
@@ -424,6 +430,13 @@ impl MirVerifier {
         } else {
             Err(errors)
         }
+    }
+
+    fn verify_string_kernel_plans(
+        &self,
+        function: &MirFunction,
+    ) -> Result<(), Vec<VerificationError>> {
+        string_kernel::check_string_kernel_plans(function)
     }
 
     /// Reject legacy instructions that should be rewritten to Core-15 equivalents

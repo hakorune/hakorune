@@ -1,5 +1,16 @@
 use super::*;
 
+fn requires_explicit_cold_publish(function: &MirFunction, value: ValueId) -> bool {
+    matches!(
+        function
+            .metadata
+            .string_kernel_plans
+            .get(&value)
+            .and_then(|plan| plan.text_consumer),
+        Some(StringKernelPlanTextConsumer::ExplicitColdPublish)
+    )
+}
+
 pub(super) fn collect_publication_return_plans(
     function: &MirFunction,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
@@ -20,6 +31,9 @@ pub(super) fn collect_publication_return_plans(
         ) else {
             continue;
         };
+        if !requires_explicit_cold_publish(function, return_chain.root) {
+            continue;
+        }
         let Some(helper) = publication_helper_shape(function, def_map, return_chain.root) else {
             continue;
         };
@@ -158,6 +172,9 @@ pub(super) fn collect_publication_write_boundary_plans(
             ) else {
                 continue;
             };
+            if !requires_explicit_cold_publish(function, boundary_chain.root) {
+                continue;
+            }
             let Some(helper) = publication_helper_shape(function, def_map, boundary_chain.root)
             else {
                 continue;
@@ -227,6 +244,9 @@ pub(super) fn collect_publication_host_boundary_plans(
             ) else {
                 continue;
             };
+            if !requires_explicit_cold_publish(function, boundary_chain.root) {
+                continue;
+            }
             let Some(helper) = publication_helper_shape(function, def_map, boundary_chain.root)
             else {
                 continue;

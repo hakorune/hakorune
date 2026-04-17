@@ -189,6 +189,7 @@ fn build_mir_json_root_emits_string_kernel_plans() {
     let plan = &plans["8"];
 
     assert_eq!(plan["version"], 1);
+    assert_eq!(plan["plan_value"], 8);
     assert_eq!(plan["family"], "concat_triplet_window");
     assert_eq!(plan["corridor_root"], 7);
     assert_eq!(plan["source_root"], 1);
@@ -201,8 +202,12 @@ fn build_mir_json_root_emits_string_kernel_plans() {
     );
     assert_eq!(plan["barriers"]["publication"], "already_satisfied");
     assert_eq!(plan["consumer"], "direct_kernel_entry");
+    assert_eq!(plan["text_consumer"], serde_json::Value::Null);
+    assert_eq!(plan["carrier"], serde_json::Value::Null);
+    assert_eq!(plan["verifier_owner"], "lowering_direct_kernel_entry");
     assert_eq!(plan["direct_kernel_entry"]["state"], "candidate");
     assert_eq!(plan["legality"]["byte_exact"], true);
+    assert_eq!(plan["legality"]["requires_kernel_text_slot"], false);
     assert_eq!(plan["parts"][0]["kind"], "slice");
     assert_eq!(plan["parts"][1]["kind"], "const");
     assert_eq!(plan["parts"][1]["known_length"], 2);

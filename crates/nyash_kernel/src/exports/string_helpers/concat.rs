@@ -178,6 +178,15 @@ pub(super) fn substring_kernel_text_slot_into_slot(
 }
 
 #[inline(always)]
+pub(super) fn substring_kernel_text_slot_in_place(
+    slot: &mut KernelTextSlot,
+    start: i64,
+    end: i64,
+) -> bool {
+    piecewise::substring_kernel_text_slot_in_place(slot, start, end)
+}
+
+#[inline(always)]
 pub(super) fn concat_pair_substring_fallback(a_h: i64, b_h: i64, start: i64, end: i64) -> i64 {
     substring::concat_pair_substring_fallback(a_h, b_h, start, end)
 }

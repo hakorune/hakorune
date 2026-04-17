@@ -248,14 +248,15 @@ fn collect_string_routes(function: &MirFunction, routes: &mut Vec<PlacementEffec
 
     for (value, candidates) in &function.metadata.string_corridor_candidates {
         let location = def_map.get(value).copied();
-        let publication_boundary = candidates
-            .iter()
-            .find_map(|candidate| match candidate.publication_boundary {
-                Some(crate::mir::StringCorridorPublicationBoundary::FirstExternalBoundary) => {
-                    Some(PlacementEffectPublicationBoundary::FirstExternalBoundary)
-                }
-                None => None,
-            });
+        let publication_boundary =
+            candidates
+                .iter()
+                .find_map(|candidate| match candidate.publication_boundary {
+                    Some(crate::mir::StringCorridorPublicationBoundary::FirstExternalBoundary) => {
+                        Some(PlacementEffectPublicationBoundary::FirstExternalBoundary)
+                    }
+                    None => None,
+                });
         for candidate in candidates {
             routes.push(PlacementEffectRoute {
                 block: location.map(|(block, _)| block),
@@ -468,10 +469,10 @@ mod tests {
         FunctionSignature, MirInstruction, MirType, StorageClass, StringCorridorCandidate,
         StringCorridorCandidateKind, StringCorridorCandidatePlan, StringCorridorCandidateProof,
         StringCorridorCandidateState, StringCorridorPublicationBoundary,
-        StringCorridorPublicationContract,
-        SumLocalAggregateLayout, SumPlacementPath, SumPlacementSelection,
-        ThinEntryCurrentCarrier, ThinEntryPreferredEntry, ThinEntrySelection,
-        ThinEntrySelectionState, ThinEntrySurface, ThinEntryValueClass, ValueId,
+        StringCorridorPublicationContract, SumLocalAggregateLayout, SumPlacementPath,
+        SumPlacementSelection, ThinEntryCurrentCarrier, ThinEntryPreferredEntry,
+        ThinEntrySelection, ThinEntrySelectionState, ThinEntrySurface, ThinEntryValueClass,
+        ValueId,
     };
 
     #[test]

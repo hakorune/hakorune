@@ -30,13 +30,16 @@ require_env || exit 2
 SMOKE_NAME="phase137x_direct_emit_substring_concat_phi_merge_contract"
 EMIT_ROUTE="$NYASH_ROOT/tools/smokes/v2/lib/emit_mir_route.sh"
 INPUT="$NYASH_ROOT/benchmarks/bench_kilo_micro_substring_concat.hako"
-OUT_JSON="$(mktemp "/tmp/${SMOKE_NAME}.XXXXXX.json")"
+OUT_DIR="$NYASH_ROOT/target/smokes/phase137x"
+OUT_JSON="$OUT_DIR/${SMOKE_NAME}.$$.$RANDOM.json"
 RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-120}"
 
 cleanup() {
     rm -f "$OUT_JSON"
 }
 trap cleanup EXIT
+
+mkdir -p "$OUT_DIR"
 
 require_smoke_path "$SMOKE_NAME" "emit route helper" "$EMIT_ROUTE" executable || exit 1
 require_smoke_path "$SMOKE_NAME" "benchmark input" "$INPUT" || exit 1

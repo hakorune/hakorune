@@ -52,11 +52,13 @@ pub use map::*;
 pub use runtime_data::*;
 pub use semantics::*;
 pub use string::*;
+pub use value_codec::KernelTextSlot;
 pub(crate) use value_codec::{
     freeze_owned_string_into_slot, issue_fresh_handle_from_arc, materialize_owned_string,
     owned_string_from_handle, publish_kernel_text_slot, with_kernel_text_slot_text,
-    KernelTextSlot, KernelTextSlotState,
 };
+#[cfg(test)]
+pub(crate) use value_codec::KernelTextSlotState;
 
 #[cfg(test)]
 #[cfg(test)]

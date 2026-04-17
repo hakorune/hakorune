@@ -11,6 +11,10 @@ use std::collections::BTreeMap;
 
 use super::{
     build_value_def_map, resolve_value_origin,
+    string_corridor_recognizer::{
+        match_len_call, match_method_set_call, match_substring_call,
+        match_substring_concat3_helper_call,
+    },
     string_corridor_placement::{
         StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateProof,
         StringCorridorCandidateState,
@@ -58,6 +62,52 @@ impl std::fmt::Display for StringKernelPlanConsumer {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::DirectKernelEntry => f.write_str("direct_kernel_entry"),
+        }
+    }
+}
+
+/// Direct-kernel text consumer rule derived from the current MIR uses.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StringKernelPlanTextConsumer {
+    SlotText,
+    ExplicitColdPublish,
+}
+
+impl std::fmt::Display for StringKernelPlanTextConsumer {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::SlotText => f.write_str("slot_text"),
+            Self::ExplicitColdPublish => f.write_str("explicit_cold_publish"),
+        }
+    }
+}
+
+/// Runtime-private direct-kernel carrier selected by MIR/lowering.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StringKernelPlanCarrier {
+    KernelTextSlot,
+    RegistryBackedHandle,
+}
+
+impl std::fmt::Display for StringKernelPlanCarrier {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::KernelTextSlot => f.write_str("kernel_text_slot"),
+            Self::RegistryBackedHandle => f.write_str("registry_backed_handle"),
+        }
+    }
+}
+
+/// Owner responsible for legality verification on the current direct-kernel lane.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StringKernelPlanVerifierOwner {
+    LoweringDirectKernelEntry,
+}
+
+impl std::fmt::Display for StringKernelPlanVerifierOwner {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::LoweringDirectKernelEntry => f.write_str("lowering_direct_kernel_entry"),
         }
     }
 }
@@ -123,11 +173,16 @@ pub struct StringKernelPlanLoopPayload {
 pub struct StringKernelPlanLegality {
     pub byte_exact: bool,
     pub no_publish_inside: bool,
+    pub requires_kernel_text_slot: bool,
+    pub rejects_early_stable_box_now: bool,
+    pub rejects_early_fresh_registry_handle: bool,
+    pub rejects_registry_backed_carrier: bool,
 }
 
 /// Thin backend-consumable kernel plan derived from the current candidate set.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StringKernelPlan {
+    pub plan_value: ValueId,
     pub version: u32,
     pub family: StringKernelPlanFamily,
     pub corridor_root: ValueId,
@@ -140,6 +195,9 @@ pub struct StringKernelPlan {
     pub materialization: Option<StringCorridorCandidateState>,
     pub direct_kernel_entry: Option<StringCorridorCandidateState>,
     pub consumer: Option<StringKernelPlanConsumer>,
+    pub text_consumer: Option<StringKernelPlanTextConsumer>,
+    pub carrier: Option<StringKernelPlanCarrier>,
+    pub verifier_owner: Option<StringKernelPlanVerifierOwner>,
     pub proof: StringCorridorCandidateProof,
     pub middle_literal: Option<String>,
     pub loop_payload: Option<StringKernelPlanLoopPayload>,
@@ -190,9 +248,15 @@ impl StringKernelPlan {
     }
 
     pub fn legality(&self) -> StringKernelPlanLegality {
+        let requires_kernel_text_slot = self.text_consumer.is_some();
+        let reject_early_publish = self.publication_contract.is_some() && requires_kernel_text_slot;
         StringKernelPlanLegality {
             byte_exact: true,
             no_publish_inside: self.publication_contract.is_some(),
+            requires_kernel_text_slot,
+            rejects_early_stable_box_now: reject_early_publish,
+            rejects_early_fresh_registry_handle: reject_early_publish,
+            rejects_registry_backed_carrier: reject_early_publish,
         }
     }
 }
@@ -339,9 +403,150 @@ fn derive_concat_triplet_loop_payload(
     })
 }
 
+fn inferred_text_output(
+    function: &MirFunction,
+    plan_value: ValueId,
+    def_map: &ValueDefMap,
+) -> bool {
+    fn stringish_type(ty: Option<&crate::mir::MirType>) -> bool {
+        match ty {
+            Some(crate::mir::MirType::String) => true,
+            Some(crate::mir::MirType::Box(name)) => {
+                matches!(name.as_str(), "StringBox" | "RuntimeDataBox")
+            }
+            _ => false,
+        }
+    }
+
+    let root = resolve_value_origin(function, def_map, plan_value);
+    let Some((bbid, idx)) = def_map.get(&root).copied() else {
+        return stringish_type(
+            function
+                .metadata
+                .value_types
+                .get(&root)
+                .or_else(|| function.metadata.value_types.get(&plan_value)),
+        );
+    };
+    let Some(inst) = function.blocks.get(&bbid).and_then(|block| block.instructions.get(idx)) else {
+        return false;
+    };
+    if match_len_call(inst).is_some() {
+        return false;
+    }
+    if match_substring_call(inst).is_some() || match_substring_concat3_helper_call(inst).is_some() {
+        return true;
+    }
+    stringish_type(
+        function
+            .metadata
+            .value_types
+            .get(&root)
+            .or_else(|| function.metadata.value_types.get(&plan_value)),
+    )
+}
+
+#[derive(Default)]
+struct TextConsumerScan {
+    slot_text_uses: usize,
+    non_slot_uses: usize,
+}
+
+fn record_text_consumer_use(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    plan_root: ValueId,
+    inst: &MirInstruction,
+    scan: &mut TextConsumerScan,
+) {
+    if let Some((_, receiver, _, _, _)) = match_substring_call(inst) {
+        if resolve_value_origin(function, def_map, receiver) == plan_root {
+            scan.slot_text_uses += 1;
+            return;
+        }
+    }
+
+    if let Some(store) = match_method_set_call(inst) {
+        if resolve_value_origin(function, def_map, store.value) == plan_root {
+            scan.non_slot_uses += 1;
+            return;
+        }
+    }
+
+    match inst {
+        MirInstruction::Return {
+            value: Some(value), ..
+        }
+        | MirInstruction::Store { value, .. }
+        | MirInstruction::FieldSet { value, .. } => {
+            if resolve_value_origin(function, def_map, *value) == plan_root {
+                scan.non_slot_uses += 1;
+            }
+            return;
+        }
+        MirInstruction::Call {
+            callee:
+                Some(crate::mir::Callee::Method {
+                    method,
+                    receiver: Some(receiver),
+                    ..
+                }),
+            ..
+        } => {
+            if resolve_value_origin(function, def_map, *receiver) == plan_root
+                && !matches!(method.as_str(), "length" | "size")
+            {
+                scan.non_slot_uses += 1;
+                return;
+            }
+        }
+        MirInstruction::Phi { .. } => return,
+        _ => {}
+    }
+
+    if inst
+        .used_values()
+        .into_iter()
+        .any(|value| resolve_value_origin(function, def_map, value) == plan_root)
+    {
+        scan.non_slot_uses += 1;
+    }
+}
+
+pub fn infer_string_kernel_text_consumer(
+    function: &MirFunction,
+    plan_value: ValueId,
+) -> Option<StringKernelPlanTextConsumer> {
+    let def_map = build_value_def_map(function);
+    if !inferred_text_output(function, plan_value, &def_map) {
+        return None;
+    }
+
+    let plan_root = resolve_value_origin(function, &def_map, plan_value);
+    let mut scan = TextConsumerScan::default();
+
+    for block in function.blocks.values() {
+        for inst in &block.instructions {
+            record_text_consumer_use(function, &def_map, plan_root, inst, &mut scan);
+        }
+        if let Some(term) = &block.terminator {
+            record_text_consumer_use(function, &def_map, plan_root, term, &mut scan);
+        }
+    }
+
+    if scan.non_slot_uses > 0 || scan.slot_text_uses > 1 {
+        Some(StringKernelPlanTextConsumer::ExplicitColdPublish)
+    } else if scan.slot_text_uses == 1 {
+        Some(StringKernelPlanTextConsumer::SlotText)
+    } else {
+        None
+    }
+}
+
 /// Derive a backend-consumable string kernel plan from current candidate metadata.
 pub fn derive_string_kernel_plan(
     function: &MirFunction,
+    plan_value: ValueId,
     candidates: &[StringCorridorCandidate],
 ) -> Option<StringKernelPlan> {
     let mut representative: Option<StringCorridorCandidate> = None;
@@ -418,8 +623,13 @@ pub fn derive_string_kernel_plan(
         ),
         _ => None,
     };
+    let text_consumer = infer_string_kernel_text_consumer(function, plan_value);
+    let carrier = text_consumer.map(|_| StringKernelPlanCarrier::KernelTextSlot);
+    let verifier_owner =
+        direct_kernel_entry.map(|_| StringKernelPlanVerifierOwner::LoweringDirectKernelEntry);
 
     Some(StringKernelPlan {
+        plan_value,
         version: 1,
         family,
         corridor_root: plan.corridor_root,
@@ -432,6 +642,9 @@ pub fn derive_string_kernel_plan(
         materialization,
         direct_kernel_entry,
         consumer: direct_kernel_entry.map(|_| StringKernelPlanConsumer::DirectKernelEntry),
+        text_consumer,
+        carrier,
+        verifier_owner,
         proof: plan.proof,
         middle_literal,
         loop_payload,
@@ -446,9 +659,9 @@ pub fn refresh_module_string_kernel_plans(module: &mut MirModule) {
 
 pub fn refresh_function_string_kernel_plans(function: &mut MirFunction) {
     let mut plans = BTreeMap::new();
-    for (corridor_root, candidates) in &function.metadata.string_corridor_candidates {
-        if let Some(plan) = derive_string_kernel_plan(function, candidates) {
-            plans.insert(*corridor_root, plan);
+    for (plan_value, candidates) in &function.metadata.string_corridor_candidates {
+        if let Some(plan) = derive_string_kernel_plan(function, *plan_value, candidates) {
+            plans.insert(*plan_value, plan);
         }
     }
     function.metadata.string_kernel_plans = plans;
@@ -609,8 +822,10 @@ mod tests {
             },
         ];
 
-        let kernel_plan = derive_string_kernel_plan(&function, &candidates).expect("kernel plan");
+        let kernel_plan =
+            derive_string_kernel_plan(&function, ValueId::new(8), &candidates).expect("kernel plan");
 
+        assert_eq!(kernel_plan.plan_value, ValueId::new(8));
         assert_eq!(kernel_plan.version, 1);
         assert_eq!(
             kernel_plan.family,
@@ -649,6 +864,12 @@ mod tests {
             kernel_plan.consumer,
             Some(StringKernelPlanConsumer::DirectKernelEntry)
         );
+        assert_eq!(kernel_plan.text_consumer, None);
+        assert_eq!(kernel_plan.carrier, None);
+        assert_eq!(
+            kernel_plan.verifier_owner,
+            Some(StringKernelPlanVerifierOwner::LoweringDirectKernelEntry)
+        );
         let parts = kernel_plan.parts();
         assert_eq!(parts.len(), 3);
         assert_eq!(
@@ -656,6 +877,10 @@ mod tests {
             StringKernelPlanLegality {
                 byte_exact: true,
                 no_publish_inside: true,
+                requires_kernel_text_slot: false,
+                rejects_early_stable_box_now: false,
+                rejects_early_fresh_registry_handle: false,
+                rejects_registry_backed_carrier: false,
             }
         );
     }
@@ -693,7 +918,8 @@ mod tests {
             publication_boundary: None,
         }];
 
-        let kernel_plan = derive_string_kernel_plan(&function, &candidates).expect("kernel plan");
+        let kernel_plan =
+            derive_string_kernel_plan(&function, ValueId::new(21), &candidates).expect("kernel plan");
         let payload = kernel_plan.loop_payload.expect("loop payload");
 
         assert_eq!(payload.seed_value, ValueId::new(3));
@@ -702,6 +928,185 @@ mod tests {
         assert_eq!(payload.loop_bound, 300000);
         assert_eq!(payload.split_length, 8);
         assert_eq!(kernel_plan.middle_literal.as_deref(), Some("xx"));
+    }
+
+    #[test]
+    fn derive_string_kernel_plan_marks_slot_text_consumer_for_same_corridor_substring() {
+        use crate::ast::Span;
+        use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
+
+        fn method_call(
+            dst: ValueId,
+            receiver: ValueId,
+            method: &str,
+            args: Vec<ValueId>,
+        ) -> MirInstruction {
+            MirInstruction::Call {
+                dst: Some(dst),
+                func: ValueId::INVALID,
+                callee: Some(crate::mir::Callee::Method {
+                    box_name: "RuntimeDataBox".to_string(),
+                    method: method.to_string(),
+                    receiver: Some(receiver),
+                    certainty: TypeCertainty::Known,
+                    box_kind: CalleeBoxKind::RuntimeData,
+                }),
+                args,
+                effects: EffectMask::PURE,
+            }
+        }
+
+        let signature = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![MirType::Box("StringBox".to_string())],
+            return_type: MirType::Box("RuntimeDataBox".to_string()),
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        let block = function.blocks.get_mut(&BasicBlockId::new(0)).expect("entry");
+        block.instructions.extend([
+            MirInstruction::Const {
+                dst: ValueId::new(1),
+                value: ConstValue::String("xx".to_string()),
+            },
+            MirInstruction::Const {
+                dst: ValueId::new(2),
+                value: ConstValue::Integer(6),
+            },
+            MirInstruction::Const {
+                dst: ValueId::new(3),
+                value: ConstValue::Integer(1),
+            },
+            MirInstruction::Const {
+                dst: ValueId::new(4),
+                value: ConstValue::Integer(5),
+            },
+            MirInstruction::Call {
+                dst: Some(ValueId::new(10)),
+                func: ValueId::INVALID,
+                callee: Some(crate::mir::Callee::Extern(
+                    "nyash.string.substring_concat3_hhhii".to_string(),
+                )),
+                args: vec![
+                    ValueId::new(0),
+                    ValueId::new(1),
+                    ValueId::new(0),
+                    ValueId::new(3),
+                    ValueId::new(4),
+                ],
+                effects: EffectMask::PURE,
+            },
+            method_call(ValueId::new(11), ValueId::new(10), "substring", vec![ValueId::new(3), ValueId::new(4)]),
+        ]);
+        block.instruction_spans.extend(vec![Span::unknown(); 6]);
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(11)),
+        });
+
+        let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
+            corridor_root: ValueId::new(10),
+            source_root: Some(ValueId::new(0)),
+            start: Some(ValueId::new(3)),
+            end: Some(ValueId::new(4)),
+            known_length: Some(2),
+            publication_contract: Some(
+                crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+            ),
+            proof: StringCorridorCandidateProof::ConcatTriplet {
+                left_value: Some(ValueId::new(0)),
+                left_source: ValueId::new(0),
+                left_start: ValueId::new(3),
+                left_end: ValueId::new(2),
+                middle: ValueId::new(1),
+                right_value: Some(ValueId::new(0)),
+                right_source: ValueId::new(0),
+                right_start: ValueId::new(2),
+                right_end: ValueId::new(4),
+                shared_source: true,
+            },
+        };
+        let candidates = vec![StringCorridorCandidate {
+            kind: StringCorridorCandidateKind::DirectKernelEntry,
+            state: StringCorridorCandidateState::Candidate,
+            reason: "direct kernel entry candidate",
+            plan: Some(plan),
+            publication_boundary: Some(StringCorridorPublicationBoundary::FirstExternalBoundary),
+        }];
+
+        let kernel_plan =
+            derive_string_kernel_plan(&function, ValueId::new(10), &candidates).expect("kernel plan");
+
+        assert_eq!(
+            kernel_plan.text_consumer,
+            Some(StringKernelPlanTextConsumer::SlotText)
+        );
+        assert_eq!(
+            kernel_plan.carrier,
+            Some(StringKernelPlanCarrier::KernelTextSlot)
+        );
+        assert_eq!(
+            kernel_plan.legality(),
+            StringKernelPlanLegality {
+                byte_exact: true,
+                no_publish_inside: true,
+                requires_kernel_text_slot: true,
+                rejects_early_stable_box_now: true,
+                rejects_early_fresh_registry_handle: true,
+                rejects_registry_backed_carrier: true,
+            }
+        );
+    }
+
+    #[test]
+    fn infer_string_kernel_text_consumer_marks_return_boundary_as_explicit_cold_publish() {
+        use crate::ast::Span;
+
+        let signature = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![MirType::Box("StringBox".to_string())],
+            return_type: MirType::Box("RuntimeDataBox".to_string()),
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        let block = function.blocks.get_mut(&BasicBlockId::new(0)).expect("entry");
+        block.instructions.extend([
+            MirInstruction::Const {
+                dst: ValueId::new(1),
+                value: ConstValue::String("xx".to_string()),
+            },
+            MirInstruction::Const {
+                dst: ValueId::new(2),
+                value: ConstValue::Integer(3),
+            },
+            MirInstruction::Const {
+                dst: ValueId::new(3),
+                value: ConstValue::Integer(8),
+            },
+            MirInstruction::Call {
+                dst: Some(ValueId::new(10)),
+                func: ValueId::INVALID,
+                callee: Some(crate::mir::Callee::Extern(
+                    "nyash.string.substring_concat3_hhhii".to_string(),
+                )),
+                args: vec![
+                    ValueId::new(0),
+                    ValueId::new(1),
+                    ValueId::new(0),
+                    ValueId::new(2),
+                    ValueId::new(3),
+                ],
+                effects: EffectMask::PURE,
+            },
+        ]);
+        block.instruction_spans.extend(vec![Span::unknown(); 4]);
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(10)),
+        });
+
+        assert_eq!(
+            infer_string_kernel_text_consumer(&function, ValueId::new(10)),
+            Some(StringKernelPlanTextConsumer::ExplicitColdPublish)
+        );
     }
 
     #[test]

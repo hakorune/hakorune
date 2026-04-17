@@ -79,9 +79,9 @@ pub(super) fn infer_candidates(
             publication_boundary: match fact.publish {
                 StringPlacementFact::Sink
                 | StringPlacementFact::Unknown
-                | StringPlacementFact::Deferred => Some(
-                    StringCorridorPublicationBoundary::FirstExternalBoundary,
-                ),
+                | StringPlacementFact::Deferred => {
+                    Some(StringCorridorPublicationBoundary::FirstExternalBoundary)
+                }
                 StringPlacementFact::None => None,
             },
         });

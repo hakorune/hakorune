@@ -22,9 +22,10 @@ pub(crate) use encode::{
 pub(crate) use string_classify::{
     with_array_store_str_source, ArrayStoreStrSource, StringHandleSourceKind, StringLikeProof,
 };
+pub use string_materialize::KernelTextSlot;
 pub(crate) use string_materialize::{
     freeze_owned_string_into_slot, issue_fresh_handle_from_arc, materialize_owned_string,
-    publish_kernel_text_slot, with_kernel_text_slot_text, KernelTextSlot, KernelTextSlotState,
+    publish_kernel_text_slot, with_kernel_text_slot_text, KernelTextSlotState,
 };
 #[cfg(test)]
 pub(crate) use string_store::store_string_box_from_source;

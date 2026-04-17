@@ -1,5 +1,9 @@
 use super::*;
 
+fn preserve_emit_mir_concat_triplet_shape() -> bool {
+    crate::config::env::stage1::emit_mir_json()
+}
+
 pub(super) fn collect_concat_corridor_plans(
     function: &MirFunction,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
@@ -135,63 +139,65 @@ pub(super) fn collect_concat_corridor_plans(
                 let Some(right_shape) = match_substring_call_shape(function, def_map, right) else {
                     continue;
                 };
-                if let Some((source, split)) = ordered_complementary_substring_pair_source_split(
-                    function,
-                    def_map,
-                    &left_shape,
-                    &right_shape,
-                ) {
-                    let Some(left_chain) = resolve_single_use_copy_chain_in_block(
-                        function, *bbid, def_map, use_counts, left,
-                    ) else {
-                        continue;
-                    };
-                    let Some(right_chain) = resolve_single_use_copy_chain_in_block(
-                        function, *bbid, def_map, use_counts, right,
-                    ) else {
-                        continue;
-                    };
-                    let Some((left_root_bbid, left_root_idx)) =
-                        def_map.get(&left_chain.root).copied()
-                    else {
-                        continue;
-                    };
-                    let Some((right_root_bbid, right_root_idx)) =
-                        def_map.get(&right_chain.root).copied()
-                    else {
-                        continue;
-                    };
-                    if left_root_bbid != *bbid
-                        || right_root_bbid != *bbid
-                        || left_root_idx >= outer_idx
-                        || right_root_idx >= outer_idx
-                    {
+                if !preserve_emit_mir_concat_triplet_shape() {
+                    if let Some((source, split)) = ordered_complementary_substring_pair_source_split(
+                        function,
+                        def_map,
+                        &left_shape,
+                        &right_shape,
+                    ) {
+                        let Some(left_chain) = resolve_single_use_copy_chain_in_block(
+                            function, *bbid, def_map, use_counts, left,
+                        ) else {
+                            continue;
+                        };
+                        let Some(right_chain) = resolve_single_use_copy_chain_in_block(
+                            function, *bbid, def_map, use_counts, right,
+                        ) else {
+                            continue;
+                        };
+                        let Some((left_root_bbid, left_root_idx)) =
+                            def_map.get(&left_chain.root).copied()
+                        else {
+                            continue;
+                        };
+                        let Some((right_root_bbid, right_root_idx)) =
+                            def_map.get(&right_chain.root).copied()
+                        else {
+                            continue;
+                        };
+                        if left_root_bbid != *bbid
+                            || right_root_bbid != *bbid
+                            || left_root_idx >= outer_idx
+                            || right_root_idx >= outer_idx
+                        {
+                            continue;
+                        }
+                        if match_substring_call(&block.instructions[left_root_idx]).is_none()
+                            || match_substring_call(&block.instructions[right_root_idx]).is_none()
+                        {
+                            continue;
+                        }
+                        let mut remove_indices: BTreeSet<usize> = BTreeSet::new();
+                        remove_indices.insert(left_root_idx);
+                        remove_indices.insert(right_root_idx);
+                        remove_indices.extend(left_chain.copy_indices.iter().copied());
+                        remove_indices.extend(right_chain.copy_indices.iter().copied());
+                        plans.push(ConcatCorridorPlan::InsertMidSubstring(
+                            InsertMidSubstringPlan {
+                                outer_idx,
+                                outer_dst,
+                                source,
+                                middle,
+                                split,
+                                start: resolve_value_origin(function, def_map, start),
+                                end: resolve_value_origin(function, def_map, end),
+                                effects,
+                                remove_indices: remove_indices.into_iter().collect(),
+                            },
+                        ));
                         continue;
                     }
-                    if match_substring_call(&block.instructions[left_root_idx]).is_none()
-                        || match_substring_call(&block.instructions[right_root_idx]).is_none()
-                    {
-                        continue;
-                    }
-                    let mut remove_indices: BTreeSet<usize> = BTreeSet::new();
-                    remove_indices.insert(left_root_idx);
-                    remove_indices.insert(right_root_idx);
-                    remove_indices.extend(left_chain.copy_indices.iter().copied());
-                    remove_indices.extend(right_chain.copy_indices.iter().copied());
-                    plans.push(ConcatCorridorPlan::InsertMidSubstring(
-                        InsertMidSubstringPlan {
-                            outer_idx,
-                            outer_dst,
-                            source,
-                            middle,
-                            split,
-                            start: resolve_value_origin(function, def_map, start),
-                            end: resolve_value_origin(function, def_map, end),
-                            effects,
-                            remove_indices: remove_indices.into_iter().collect(),
-                        },
-                    ));
-                    continue;
                 }
                 if !substring_pair_shares_source(function, def_map, left, right) {
                     continue;

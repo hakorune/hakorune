@@ -1,0 +1,192 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "params": [],
+      "metadata": {
+        "string_corridor_candidates": {
+          "11": [
+            {
+              "kind": "direct_kernel_entry",
+              "state": "candidate",
+              "reason": "piecewise helper result may stay unpublished until the first non-slot boundary",
+              "plan": {
+                "corridor_root": 11,
+                "source_root": 7,
+                "start": 9,
+                "end": 10,
+                "known_length": 13,
+                "publication_contract": "publish_now_not_required_before_first_external_boundary"
+              },
+              "publication_boundary": "first_external_boundary"
+            }
+          ]
+        },
+        "string_kernel_plans": {
+          "11": {
+            "version": 1,
+            "plan_value": 11,
+            "family": "borrowed_slice_window",
+            "corridor_root": 11,
+            "source_root": 7,
+            "parts": [
+              {
+                "kind": "slice",
+                "value": 11,
+                "source": 7,
+                "start": 9,
+                "end": 10
+              }
+            ],
+            "known_length": 13,
+            "retained_form": "borrowed_text",
+            "publication_boundary": "first_external_boundary",
+            "publication_contract": "publish_now_not_required_before_first_external_boundary",
+            "barriers": {
+              "publication": "candidate",
+              "materialization": null
+            },
+            "consumer": "direct_kernel_entry",
+            "text_consumer": "slot_text",
+            "carrier": "kernel_text_slot",
+            "verifier_owner": "lowering_direct_kernel_entry",
+            "direct_kernel_entry": {
+              "state": "candidate"
+            },
+            "legality": {
+              "byte_exact": true,
+              "no_publish_inside": true,
+              "requires_kernel_text_slot": true,
+              "rejects_early_stable_box_now": true,
+              "rejects_early_fresh_registry_handle": true,
+              "rejects_registry_backed_carrier": true
+            }
+          }
+        }
+      },
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 1,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "prefix-suffix"
+              }
+            },
+            {
+              "op": "newbox",
+              "dst": 2,
+              "type": "StringBox",
+              "args": [1]
+            },
+            {
+              "op": "const",
+              "dst": 3,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "::mid::"
+              }
+            },
+            {
+              "op": "const",
+              "dst": 4,
+              "value": {
+                "type": "i64",
+                "value": 6
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 7,
+              "mir_call": {
+                "callee": {
+                  "type": "Extern",
+                  "name": "nyash.string.insert_hsi"
+                },
+                "args": [2, 3, 4],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "const",
+              "dst": 9,
+              "value": {
+                "type": "i64",
+                "value": 3
+              }
+            },
+            {
+              "op": "const",
+              "dst": 10,
+              "value": {
+                "type": "i64",
+                "value": 16
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 11,
+              "mir_call": {
+                "callee": {
+                  "type": "Extern",
+                  "name": "nyash.string.substring_hii"
+                },
+                "args": [7, 9, 10],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "const",
+              "dst": 12,
+              "value": {
+                "type": "i64",
+                "value": 1
+              }
+            },
+            {
+              "op": "const",
+              "dst": 13,
+              "value": {
+                "type": "i64",
+                "value": 10
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 14,
+              "mir_call": {
+                "callee": {
+                  "type": "Extern",
+                  "name": "nyash.string.substring_hii"
+                },
+                "args": [11, 12, 13],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "ret",
+              "value": 14
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

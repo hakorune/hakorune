@@ -167,11 +167,7 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
                         ));
                     }
                     MirInstruction::Call {
-                        callee:
-                            Some(Callee::Method {
-                                method,
-                                ..
-                            }),
+                        callee: Some(Callee::Method { method, .. }),
                         args,
                         ..
                     } if matches!(method.as_str(), "substring" | "slice") && args.len() == 2 => {

@@ -169,6 +169,19 @@ fn kernel_text_slot_freeze_publish_lifecycle_roundtrips() {
 }
 
 #[test]
+fn kernel_text_slot_overwrite_replaces_owned_bytes() {
+    let mut slot = KernelTextSlot::empty();
+    freeze_owned_string_into_slot(&mut slot, "first-slot".to_string());
+    freeze_owned_string_into_slot(&mut slot, "second-slot".to_string());
+
+    assert_eq!(slot.state(), KernelTextSlotState::OwnedBytes);
+    assert_eq!(
+        with_kernel_text_slot_text(&slot, |text| text.to_string()).as_deref(),
+        Some("second-slot")
+    );
+}
+
+#[test]
 fn with_array_store_str_source_non_string_handle_uses_other_object_contract() {
     let value: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(91));
     let value_h = handles::to_handle_arc(value) as i64;

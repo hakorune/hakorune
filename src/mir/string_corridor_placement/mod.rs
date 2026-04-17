@@ -30,8 +30,8 @@ mod types;
 
 pub use types::{
     StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidatePlan,
-    StringCorridorCandidateProof, StringCorridorCandidateState,
-    StringCorridorPublicationBoundary, StringCorridorPublicationContract,
+    StringCorridorCandidateProof, StringCorridorCandidateState, StringCorridorPublicationBoundary,
+    StringCorridorPublicationContract,
 };
 
 use candidate_infer::infer_candidates;
