@@ -232,14 +232,23 @@
     - pure-first now requires the MIR-owned publication contract before using the deferred `piecewise_subrange_hsiii` route
     - shim-local `remember_deferred_piecewise_subrange(...)` / `find_deferred_piecewise_subrange(...)` stay transport-only glue under that contract; they are not proof owners and must not grow legality
   - next explicit card is `runtime-executor`:
+    - consume the landed MIR publication contract; do not add new proof on this card
     - split runtime-private freeze vs publish on the active corridor only
     - use existing `OwnedBytes` / `TextPlan` seams before considering any broader representation work
+    - touch set is intentionally narrow:
+      - `crates/nyash_kernel/src/exports/string_helpers/concat/piecewise.rs`
+      - `crates/nyash_kernel/src/exports/string_helpers/materialize.rs`
+      - `crates/nyash_kernel/src/plugin/value_codec/string_materialize.rs`
     - next delete target is the eager publication tail only:
       - `StringBox`
       - `Arc`
       - fresh `handle_issue`
     - preserve loop-carried fast-path continuity explicitly: next-iteration pure-string consumers must stay on the landed `piecewise_subrange_hsiii` route
-    - do not reopen route logic, piece-shape branching, transient box/handle carriers, sticky memo shortcuts, generic direct-build widening, or runtime/shim re-recognition while this two-card return is pending
+    - do not touch:
+      - `src/runtime/host_handles.rs`
+      - `src/runtime/host_handles/text_read.rs`
+      - public export signatures in `crates/nyash_kernel/src/exports/string.rs`
+    - do not reopen route logic, piece-shape branching, transient box/handle carriers, sticky memo shortcuts, generic direct-build widening, registry-backed deferred carriers, or runtime/shim re-recognition while this two-card return is pending
   - the follow-on `llvm-export` card only starts after that executor card lands:
     - consume the stabilized corridor with truthful facts
     - do not reopen route eligibility in LLVM metadata

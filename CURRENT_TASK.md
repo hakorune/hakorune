@@ -212,7 +212,9 @@ Scope: current lane / next lane / restart order only.
   - whole-kilo guard: `kilo_kernel_small_hk`
   - primary owner: `runtime-executor`
   - proof delta:
-    - `piecewise_final_materialize_tail_delete`
+    - `none`
+    - this card consumes the landed MIR-owned `publication_boundary` and the
+      generic `same-corridor unpublished outcome` contract
   - proof region:
     - established facts:
       - borrowed corridor may stay unmaterialized until the final consumer
@@ -241,8 +243,18 @@ Scope: current lane / next lane / restart order only.
     - eager `handle_issue`
   - executor delta:
     - keep: landed `piecewise_subrange_hsiii` publication boundary and helper surface
-    - add: executor-local tail thinning only inside `piecewise_subrange_hsiii`
-    - forbid: new route logic, transient box/handle carriers, raw handle-keyed sticky memo shortcuts, transient piecewise object cloning, generic helper widening, generic non-empty `insert_const_mid_fallback` direct-build widening, structure-only `freeze -> publish` splitting that leaves eager publication intact, or new MIR/public ABI work
+    - add: executor-local unpublished text outcome only inside
+      `piecewise_subrange_hsiii`
+    - exact touch set:
+      - `crates/nyash_kernel/src/exports/string_helpers/concat/piecewise.rs`
+      - `crates/nyash_kernel/src/exports/string_helpers/materialize.rs`
+      - `crates/nyash_kernel/src/plugin/value_codec/string_materialize.rs`
+    - must not touch:
+      - `src/runtime/host_handles.rs`
+      - `src/runtime/host_handles/text_read.rs`
+      - public export signatures in `crates/nyash_kernel/src/exports/string.rs`
+      - MIR/shim legality or route selection
+    - forbid: new route logic, transient box/handle carriers, raw handle-keyed sticky memo shortcuts, transient piecewise object cloning, generic helper widening, generic non-empty `insert_const_mid_fallback` direct-build widening, structure-only `freeze -> publish` splitting that leaves eager publication intact, registry-backed deferred text carriers, or new MIR/public ABI work
     - demote: no generic helper body on this card
   - delete target:
     - `materialize_owned_total`
@@ -276,12 +288,15 @@ Scope: current lane / next lane / restart order only.
     - exact front wins on the same fast-path artifact without reopening route/publication work
     - accept gate stays healthy
     - whole-kilo guard stays neutral
+    - next-iteration pure-string consumers stay on the landed `piecewise_subrange_hsiii` route
     - top symbols move away from the current `materialize/objectize/handle` tail without shifting into new helper/cache traffic
   - reject condition:
     - the card widens beyond executor-local tail thinning
     - accept gate or whole-kilo regresses
     - publication escapes the active corridor and becomes a generic helper rewrite
     - the card requires a new MIR rewrite, public ABI, or string-only MIR dialect
+    - next-iteration pure-string consumers repin to generic `insert_hsi -> substring_hii`
+    - host-handles or registry payload become carrier state
     - the card reopens route measurement instead of deleting the already-measured tail
   - test note:
     - use `cargo test -q -p nyash_kernel --lib -- --test-threads=1` as the deterministic acceptance gate until cache isolation lands

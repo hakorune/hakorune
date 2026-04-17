@@ -138,9 +138,18 @@ current restart pointer after the active selfhost landing is this one:
     [phase-137x/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-137x/README.md)
   - this lane currently realizes that contract as a string-lane unpublished text outcome; do not genericize helper/executor mechanics here
 - runtime executor:
+  - consume the landed MIR publication contract; no new proof on this card
   - split runtime-private freeze vs publish
   - keep generic/public handle publication as cold adapter
-  - forbid runtime/shim route re-recognition, transient box/handle carriers, generic helper widening, or public-ABI changes on this card
+  - exact touch set:
+    - `crates/nyash_kernel/src/exports/string_helpers/concat/piecewise.rs`
+    - `crates/nyash_kernel/src/exports/string_helpers/materialize.rs`
+    - `crates/nyash_kernel/src/plugin/value_codec/string_materialize.rs`
+  - must not touch:
+    - `src/runtime/host_handles.rs`
+    - `src/runtime/host_handles/text_read.rs`
+    - public export signatures in `crates/nyash_kernel/src/exports/string.rs`
+  - forbid runtime/shim route re-recognition, transient box/handle carriers, generic helper widening, registry-backed deferred carriers, or public-ABI changes on this card
 - owner scope: follow `Owner Scope / Publication Boundary` below; start from `string_helpers/concat` / `string_view` / `host_handles` only if asm top still points there
 - first commands:
   - `tools/checks/dev_gate.sh quick`
@@ -154,10 +163,12 @@ current restart pointer after the active selfhost landing is this one:
   - runtime-private outcome/publication split consumes the landed MIR publication contract
   - no runtime legality or publication rediscovery is needed for the active corridor
   - exact front no longer pays eager publication as a semantic requirement
+  - next-iteration pure-string consumers stay on the landed `piecewise_subrange_hsiii` route
 - reject condition:
   - the slice adds a new MIR dialect, public ABI widening, or generic helper legality
   - runtime/shim starts deciding publication legality or corridor shape
   - the slice escapes its publication boundary and becomes a broad helper rewrite
+  - the slice repins next-iteration consumers to generic `insert_hsi -> substring_hii`
 - current status:
   - consult reviewed
   - landed `mir-proof` closed the publication contract gap
