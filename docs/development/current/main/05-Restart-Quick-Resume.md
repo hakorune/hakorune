@@ -22,12 +22,12 @@ cargo check --features perf-observe -p nyash_kernel
 
 ## Current
 
-- lane: `phase-137x runtime-executor corridor-local slot transport`
+- lane: `phase-137x trusted direct emit alignment keeper`
 - background lanes:
   - `phase-29bq loop owner seam cleanup landing`
   - `phase-163x primitive-family / user-box fast-path landing`
-- immediate next: `slot-kept until first true external boundary A/B on kilo_micro_substring_concat`
-- immediate follow-on: `promote the corridor-local publish-last executor path only if exact front wins and whole-kilo stays neutral`
+- immediate next: `re-read adjacent exact fronts on the trusted direct emit lane and decide whether runtime-executor slot transport stays active or parks as background proof`
+- immediate follow-on: `promote the trusted direct emit keeper only if neighboring exact fronts stay green and whole-kilo remains neutral`
 
 ## Current Handoff
 
@@ -38,16 +38,16 @@ cargo check --features perf-observe -p nyash_kernel
   - accept gate=`kilo_micro_substring_only`
   - whole guard=`kilo_kernel_small_hk`
 - live reading:
-  - route selection is no longer the blocker; the active front is already on the landed single-session `piecewise_subrange_hsiii` path
-  - dominant cost is publication tail: `publish_kernel_text_slot_boundary` / `StringBox` / fresh `handle_issue`
-  - `materialize_piecewise_all_three` is measured as secondary on this front
-  - `with_text_read_session_ready` / TLS entry is still visible, but it is the second hotspot
+  - the active perf front was blocked by a direct-emit route mismatch, not by the runtime-publication tail on the keeper lane
+  - perf AOT direct emit now matches the trusted phase direct route and emits the proof-bearing `substring_concat3_hhhii` payload
+  - `kilo_micro_substring_concat` is now back to `Ny AOT: 1,665,250 instr / 983,016 cycles / 3 ms`
+  - accept gate stays green: `kilo_micro_substring_only = 1,669,421 instr / 960,357 cycles / 3 ms`
+  - whole guard stays neutral: `kilo_kernel_small_hk = 703 ms`
 - next exact handoff:
-  - keep public ABI handle-based
-  - keep `proof_region` / `publication_boundary` legality MIR-owned
-  - prove `slot-kept until first true external boundary` only on the active corridor
-  - keep slot transport corridor-local; the cold publish adapter alone owns `StringBox` / `Arc` / handle issue
-  - do not widen this card into a generic slot API, registry carrier, or remembered chain path
+  - keep perf direct emit aligned with the trusted stage1 route
+  - re-run neighboring exact fronts before reopening runtime-executor work
+  - keep public ABI / `proof_region` / `publication_boundary` ownership unchanged
+  - keep the landed slot seam parked as background structure; do not widen it into a generic slot API, registry carrier, or remembered chain path unless a new exact front reopens the gap
 
 ## Read Next
 

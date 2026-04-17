@@ -49,16 +49,18 @@
   - `kilo_micro_substring_views_only`
   - `kilo_micro_len_substring_views`
 - current broader-corridor reopen front is `kilo_micro_substring_concat`
-- current live reread after the 2026-04-18 measurement-seam refresh:
+- current live reread after the 2026-04-18 trusted direct-route alignment:
   - `kilo_micro_substring_only`
-    - `C: instr=1,622,874 / cycles=496,361 / ms=3`
-    - `Ny AOT: instr=1,669,562 / cycles=1,019,617 / ms=3`
+    - `C: instr=1,622,875 / cycles=489,826 / ms=3`
+    - `Ny AOT: instr=1,669,421 / cycles=960,357 / ms=3`
   - `kilo_micro_substring_concat`
-    - `C: instr=1,622,876 / cycles=477,384 / ms=3`
-    - `Ny AOT: instr=250,719,186 / cycles=75,991,646 / ms=23`
+    - `C: instr=1,622,876 / cycles=494,705 / ms=2`
+    - `Ny AOT: instr=1,665,250 / cycles=983,016 / ms=3`
   - `kilo_kernel_small_hk`
-    - `Ny AOT: ms=712`
+    - `Ny AOT: ms=703`
   - current keeper diff:
+    - perf AOT direct emit now uses the same trusted stage1 route as the phase direct-route smokes
+    - active perf MIR is back on the proof-bearing `substring_concat3_hhhii` payload instead of the older plain `insert_hsi -> substring_hii` payload
     - keep the landed `substring + const + substring -> insert_hsi + final substring_hii` MIR rewrite fixed
     - pure-first now defers publication on the active `insert_hsi -> substring_hii` corridor and emits runtime-private `nyash.string.piecewise_subrange_hsiii`
     - runtime helper stays single-session and materializes once after the text-read session closes; the deadlock-inducing in-session handle issue path is removed
@@ -90,26 +92,20 @@
   - `birth.backend handle_issue_total=300000`
   - `stable_box_demand text_read_handle_latest_fresh=299999`
 - current design verdict:
-  - route selection / publication boundary is no longer the blocker on this front
-  - the active exact front is already 100% on the landed single-session three-piece fast path; fallback selection and piece-shape branching are not the remaining cost center
-  - the remaining exact gap is executor-local publication/objectization, not the all-three materialize
-  - latest external consult also reads this as “benchmarking the publication subsystem”, not another route/helper miss
-  - `materialize_piecewise_all_three` is now measured as secondary noise on this front
-  - `with_text_read_session_ready` / TLS entry is still visible, but it is the secondary hotspot behind publish/objectize/handle issue
+  - the active perf keeper was blocked first by a direct-emit route mismatch
+  - perf AOT had been using bare `hakorune --emit-mir-json`, which emitted the older plain `insert_hsi -> substring_hii` payload on this benchmark
+  - the trusted stage1 direct route already emitted the proof-bearing `substring_concat3_hhhii` payload pinned by the phase smokes
+  - aligning perf AOT to that trusted route collapses the active exact front to near parity without reopening runtime/public-ABI work
+  - on the trusted route, route selection / publication boundary is not the current blocker for `kilo_micro_substring_concat`
+  - keep the landed runtime-private slot seam as background structure, not as the active blocker
   - this does not mean Hakorune is “a language that cannot remove boxes”; the MIR/publication contract already permits delayed publication on this lane
   - phase-137x should be read as `value-first / box-on-demand / publish-last`
     rather than `box禁止`
   - `publish-last` on this lane is a cold-adapter rule, not a ban on boxes
   - the current deficit is that the box-delayed shape is not yet the natural mainline runtime carrier: the active string lane still returns to public handle world at the executor tail instead of flowing through unpublished outcome as the steady-state representation
   - the current `.hako -> MIR proof/publication -> runtime-private executor -> LLVM consumer` design is still coherent
-  - but repeated executor-local thin cuts are now stalling on the same result-representation tail
-  - consult + source review say the next step is not another thin cut; it is a two-card return:
-    - landed `mir-proof`: active concat-triplet substring plans now carry `publish_now_not_required_before_first_external_boundary`
-    - next `runtime-executor`: prove slot-kept until first true external boundary on that corridor only, starting from an `OwnedBytes`-class unpublished carrier below the public handle facade
-    - phase-137x minimal carrier placement is now fixed as:
-      - carrier location: direct-kernel-local caller-owned slot
-      - carrier producer/consumer: corridor-local executor
-      - registry: cold publish adapter only
+  - before reopening executor-local thin cuts, confirm adjacent exact fronts on the trusted route
+  - only reopen `runtime-executor` slot transport if a trusted-route exact front still shows the old publication-tail gap
   - design tighten before code:
     - keep carrier and publication physically separated; the corridor-local slot transports value, the cold adapter owns `StringBox` / `Arc` / handle issue
     - treat published-ness as boundary bookkeeping, not as the steady-state hot-lane value shape

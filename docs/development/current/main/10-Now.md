@@ -12,18 +12,18 @@ Related:
 
 ## Current
 
-- current optimization lane: `phase-137x runtime-executor corridor-local slot transport`
+- current optimization lane: `phase-137x trusted direct emit alignment keeper`
 - background compiler lanes:
   - `phase-29bq loop owner seam cleanup landing`
   - `phase-163x primitive-family / user-box fast-path landing`
-- immediate next: `slot-kept until first true external boundary A/B on kilo_micro_substring_concat`
-- immediate follow-on: `if the exact front wins and whole-kilo stays neutral, promote the corridor-local publish-last executor path and only then reopen llvm-export follow-on`
-- top queued cut: `publication tail removal without generic widening`
+- immediate next: `re-read adjacent exact fronts on the trusted direct emit lane and decide whether runtime-executor slot transport stays active or parks as background proof`
+- immediate follow-on: `if neighboring exact fronts stay green and whole-kilo stays neutral, promote the trusted direct emit keeper and only then reopen follow-on cuts`
+- top queued cut: `direct-route confirmation before any new runtime widening`
 - current reading:
-  - active exact front is already 100% on the landed `piecewise_subrange_hsiii` fast path
-  - dominant cost is `publish -> objectize -> fresh handle issue`, not `materialize_piecewise_all_three`
-  - `with_text_read_session_ready` / TLS entry is still visible, but it is secondary
-  - public ABI stays handle-based; unpublished slot transport stays runtime-private and corridor-local
+  - active perf front was blocked by direct-emit route mismatch, not by runtime publication on the keeper lane
+  - perf AOT direct emit now matches the trusted phase direct route and restores `kilo_micro_substring_concat` to near-parity (`3 ms`)
+  - accept gate and whole guard stay green (`kilo_micro_substring_only = 3 ms`, `kilo_kernel_small_hk = 703 ms`)
+  - public ABI / legality ownership stays unchanged; the landed slot seam remains background structure, not the current blocker
 
 ## Landing Snapshot
 

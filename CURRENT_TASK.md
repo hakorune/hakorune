@@ -28,12 +28,12 @@ Scope: current lane / next lane / restart order only.
   - dirty is expected right now; phase-137x runtime/private string corridor edits may coexist with sibling compiler-lane edits
   - do not reset unrelated changes just to make the tree look clean
 - active lane:
-  - `phase-137x delete-oriented borrowed-view corridor reopen`
+  - `phase-137x trusted direct emit alignment keeper`
 - background lanes:
   - `phase-29bq loop owner seam cleanup landing`
   - `phase-163x primitive-family / user-box fast-path landing`
 - immediate next:
-  - `phase-137x next explicit card is runtime-executor: prove slot-kept until first true external boundary on the active corridor, keep the public ABI stable, and keep legality/verifier MIR-owned`
+  - `phase-137x next explicit card is route/pack confirmation: re-read adjacent exact fronts on the trusted direct emit lane and decide whether runtime-executor slot transport stays active or parks as background proof`
 - pre-optimization prerequisites:
   1. `KernelTextSlot` lifecycle contract stays explicit:
      - caller-owned
@@ -84,14 +84,18 @@ Scope: current lane / next lane / restart order only.
       - `piecewise_subrange_hsiii_into_slot`
   - latest plain-release reread:
     - `kilo_micro_substring_concat`
-      - `C: instr=1,622,876 / cycles=477,384 / ms=3`
-      - `Ny AOT: instr=250,719,186 / cycles=75,991,646 / ms=23`
+      - `C: instr=1,622,876 / cycles=494,705 / ms=2`
+      - `Ny AOT: instr=1,665,250 / cycles=983,016 / ms=3`
   - accept gate:
     - `kilo_micro_substring_only`
-      - `C: instr=1,622,874 / cycles=496,361 / ms=3`
-      - `Ny AOT: instr=1,669,562 / cycles=1,019,617 / ms=3`
+      - `C: instr=1,622,875 / cycles=489,826 / ms=3`
+      - `Ny AOT: instr=1,669,421 / cycles=960,357 / ms=3`
   - whole-kilo guard:
-    - `kilo_kernel_small_hk: 712 ms`
+    - `kilo_kernel_small_hk: 703 ms`
+  - latest keeper cut:
+    - perf AOT direct emit now uses the same trusted stage1 route as the phase direct-route smokes
+    - the active benchmark no longer falls onto the plain `insert_hsi -> substring_hii` MIR payload emitted by bare `hakorune --emit-mir-json`
+    - current keeper commit: `71a4e4fc9 fix: align perf direct emit with trusted stage1 route`
   - latest `perf-observe` seam reread on `kilo_micro_substring_concat`:
     - `freeze_owned_bytes: 19-22%`
     - `issue_fresh_handle: 18-20%`
@@ -115,40 +119,14 @@ Scope: current lane / next lane / restart order only.
     - `birth.backend handle_issue_total=300000`
     - `stable_box_demand text_read_handle_latest_fresh=299999`
   - current reading:
-    - old substring route / slow-plan corridor is no longer the primary blocker on this front
-    - the active front is already 100% on the landed piecewise fast path (`single_session_hit=all_three=300000`, `fallback_insert=0`)
-    - the remaining exact gap is no longer the three-piece copy itself; the hot seam is publication/objectize/fresh-handle issue
-    - `materialize_piecewise_all_three` is confirmed non-dominant on this front
-    - session/TLS entry overhead is still visible, but it is now secondary to the publication tail
-    - this lane is not blocked by a language-level inability to delay boxing/publication; MIR already carries the contract that the active corridor has not reached a boundary that demands a public handle yet
-    - the missing piece is implementation-mainline shape: the string-lane unpublished outcome is still not the natural runtime-private carrier on the hot path, so the result keeps falling back into public handle world at the tail
-    - latest design review tightens that gap further: Birth / Placement already has backend-private carriers, but Value Repr / ABI still lacks a first-class internal result manifest that makes unpublished outcome a canonical direct-kernel return shape
-    - route/publication design is not the blocker on this front anymore
-    - repeated executor-local thin cuts are now stalling on the same result-representation tail
-    - treat published-ness as boundary bookkeeping, not as the hot-lane value carrier to optimize around
-    - external consult plus source review now triage the next work like this:
-      - adopt:
-        - separate semantic result birth from public handle publication
-        - keep the public handle-based surface stable on this lane
-        - keep `proof_region` and `publication_boundary` MIR-owned
-        - do not add a new MIR dialect
-        - add an internal result manifest between Birth / Placement and Value Repr / ABI
-        - keep public handle ABI and internal direct-kernel result ABI split
-        - make early `StableBoxNow` / `FreshRegistryHandle` a legality/verifier concern rather than a prose-only discipline
-        - use existing runtime seams (`OwnedBytes`, `TextPlan`) for freeze vs publish split
-      - hold:
-        - the exact runtime-private outcome shape (`PlacementOutcome`, out-param, tagged return, etc.)
-        - the exact runtime-private result ABI shape and where the cold publish adapter lives
-        - whether phase-137x stays `OwnedBytes`-only or needs a later keep-token class
-      - reject:
-        - runtime/shim route re-recognition or remembered-chain legality
-        - generic helper widening
-        - public ABI rethink on this lane
-        - generic slot API expansion on this card
-    - next step is no longer “another thin cut”; it is:
-      - landed: `mir-proof` now locks `publish-now not required before first external boundary` as plan metadata
-      - next: `runtime-executor` to consume that contract and prove `slot-kept until first true external boundary` on the active corridor only
-      - shim-local `remember_deferred_piecewise_subrange(...)` / `find_deferred_piecewise_subrange(...)` now read as transport helpers only; they are not proof owners and must not become legality owners
+    - the active exact front was not blocked by runtime publication tail on the perf keeper lane; it was blocked by a direct-emit route mismatch
+    - bare perf `hakorune --emit-mir-json` emitted the older `insert_hsi -> substring_hii` payload, while the trusted stage1 direct route emitted the proof-bearing `substring_concat3_hhhii` payload already locked by the phase smokes
+    - aligning perf AOT to the trusted direct route collapsed `kilo_micro_substring_concat` from `23 ms` to `3 ms` while keeping `kilo_micro_substring_only` green and `kilo_kernel_small_hk` neutral-to-better
+    - the runtime-private slot seam remains landed as background structure, but it is no longer the immediate blocker for the active perf front
+    - next work is confirmation, not widening:
+      - re-read adjacent exact fronts on the trusted route
+      - keep the runtime-executor slot transport card parked unless the trusted route reopens the gap elsewhere
+      - keep public ABI / legality ownership unchanged
   - rejected runtime-executor probe:
     - attempted a runtime-private `piecewise` carrier by issuing a transient box/handle from `insert_const_mid_fallback` and short-circuiting `substring_hii` through that carrier
     - exact front reread:
