@@ -1,0 +1,35 @@
+using lang.runtime.collections.array_core_box as ArrayCoreBox
+using selfhost.vm.helpers.method_alias_policy as MethodAliasPolicy
+
+static box Main {
+  main(args) {
+    local regs = new MapBox()
+    local kinds = new MapBox()
+    local handle_regs = new MapBox()
+
+    local recv_h = externcall "nyash.array.birth_h"()
+    ArrayCoreBox.push_hh(recv_h, 1)
+
+    regs.setField("1", "" + recv_h)
+    regs.setField("2", "0")
+    regs.setField("3", "0")
+    kinds.setField("2", "scalar")
+    kinds.setField("3", "handle")
+    handle_regs.set("3", "pilot")
+
+    local len_key = MethodAliasPolicy.recv_len_key("0", 1)
+    regs.setField(len_key, "1")
+
+    local seg = "{\"callee\":{\"type\":\"Method\",\"receiver\":1,\"method\":\"set\"},\"args\":[2,3],\"dst\":4}"
+    local handled = ArrayCoreBox.try_handle(seg, regs, kinds, handle_regs, "set")
+    local got = ArrayCoreBox.get_i64(recv_h, 0)
+
+    if handled == 1 && got == 1 {
+      print("ARRAY_STRING_SHADOW_GUARD_OK handled=1 got=1")
+      return 0
+    }
+
+    print("ARRAY_STRING_SHADOW_GUARD_NG handled=" + handled + " got=" + got)
+    return 1
+  }
+}

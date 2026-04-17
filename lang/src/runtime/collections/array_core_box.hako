@@ -84,6 +84,13 @@ static box ArrayCoreBox {
     me._write_i64_dst(regs, dst, 0)
   }
 
+  _can_route_live_string_handle(arg_kind, value_h, value_text) {
+    if arg_kind != "handle" { return 0 }
+    if value_h == null || value_h <= 0 { return 0 }
+    if value_text == null { return 0 }
+    return 1
+  }
+
   _trace(tag) {
     if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print(tag) }
   }
@@ -291,10 +298,11 @@ static box ArrayCoreBox {
       me._emit_oob_tag("[oob/array/set] index out of bounds")
       return me._fail_set_oob(regs, dst)
     }
-    // Stage A same-protocol pilot: when the VM owner can prove the source is a
-    // text handle via handle-reg state, keep the existing `nyash.array.set_his`
-    // cold tail instead of collapsing it to generic/set_i64 handling.
-    if recv_h != null && idx_i64 != null && val_i64 != null && value_text != null {
+    // Stage A same-protocol pilot stays narrow here:
+    // only a live positive handle plus text shadow may enter `nyash.array.set_his`.
+    // Shadow-only text (`regs[arg] == 0`) must not be reinterpreted as a runtime
+    // string-handle store, and handle-kind values must not collapse to numeric set_i64.
+    if recv_h != null && idx_i64 != null && me._can_route_live_string_handle(arg1_kind, val_i64, value_text) == 1 {
       return me._set_visible_owner_runtime_string(
         regs,
         rid,
@@ -309,7 +317,7 @@ static box ArrayCoreBox {
         value_text
       )
     }
-    if recv_h != null && idx_i64 != null && val_i64 != null {
+    if recv_h != null && idx_i64 != null && val_i64 != null && arg1_kind != "handle" {
       return me._set_visible_owner_runtime(regs, rid, per_recv, key, cur_len, recv_h, dst, idx_i64, arg1_i, val_i64)
     }
 
