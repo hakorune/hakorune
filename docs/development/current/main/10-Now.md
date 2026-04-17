@@ -13,7 +13,7 @@ Related:
 ## Current
 
 - current optimization lane:
-  - `phase-137x Stage A exact reread closed + active AOT route diagnosis`
+  - `phase-137x Stage A route fact locked + publication/source-capture reopen`
 - background compiler lanes:
   - `phase-29bq loop owner seam cleanup landing`
   - `phase-163x primitive-family / user-box fast-path landing`
@@ -44,13 +44,17 @@ Related:
     - `carrier_kind.source_keep=0`
     - `publish_reason.generic_fallback=1600000`
   - trusted direct MIR still carries generic `RuntimeDataBox.set(...)` / `substring(...)`
-  - active AOT exact is therefore not yet the `.hako` owner pilot itself
+  - active AOT lowering is separately locked:
+    - direct MIR stays generic
+    - entry LLVM IR still calls `nyash.array.set_his`
+    - guard: `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_store_string_contract.sh`
+  - active AOT exact is therefore not the `.hako` owner pilot itself; the live owner stays publication/source-capture
 
 ## Next
 
-1. close whether active AOT can legally select the Stage A owner seam for `store.array.str`
-2. keep exact rereads pinned on publication/source-capture while that route question is open
-3. keep `Stage B` separate until the active AOT route question is closed
+1. park `Stage A` as VM/reference-only for now
+2. keep exact rereads pinned on publication/source-capture before `nyash.array.set_his`
+3. keep `Stage B` narrow and data-driven through `carrier_kind` / `publish_reason`
 
 ## Read Next
 

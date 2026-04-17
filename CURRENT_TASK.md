@@ -31,7 +31,7 @@ Scope: current lane / next lane / restart order only.
   - dirty is expected right now; do not reset unrelated changes just to make the tree look clean
   - unrelated dirty file is currently `crates/nyash_kernel/src/observe/sink/stderr.rs`
 - active lane:
-  - `phase-137x Stage A exact reread closed + active AOT route diagnosis`
+  - `phase-137x Stage A route fact locked + publication/source-capture reopen`
 - background lanes:
   - `phase-29bq loop owner seam cleanup landing`
   - `phase-163x primitive-family / user-box fast-path landing`
@@ -76,7 +76,12 @@ Scope: current lane / next lane / restart order only.
     - `carrier_kind.handle=1600000`
     - `publish_reason.generic_fallback=1600000`
   - trusted direct MIR on the same benchmark still carries generic `RuntimeDataBox.set(...)` / `substring(...)` calls
-  - therefore the landed `.hako` owner pilot is still VM/reference-lane only; the active AOT exact front is not yet a direct `Rust vs .hako` same-protocol comparison
+  - active AOT lowering is now confirmed separately:
+    - direct MIR stays generic
+    - entry LLVM IR still concretizes the array string-store call to `nyash.array.set_his`
+    - guard: `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_store_string_contract.sh`
+  - therefore the landed `.hako` owner pilot is still VM/reference-lane only; active AOT already reaches the current concrete `store.array.str` lowering without that pilot
+  - current live owner remains publication/source-capture around the string births, not array-set route selection
   - next comparison must split:
     - implementation language cost
     - protocol / seam cost
@@ -84,9 +89,9 @@ Scope: current lane / next lane / restart order only.
 
 ## Next
 
-1. close whether active AOT can legally select the Stage A owner seam for `store.array.str`, or explicitly park Stage A as VM/reference-only
-2. keep `kilo_micro_array_string_store` exact rereads pinned on publication/source-capture counters while that route question is open
-3. keep `Stage B: delayed publication seam` separate until the active AOT route question is closed
+1. park `Stage A` as VM/reference-only for now and stop spending exact-front time on owner-route widening
+2. reopen `kilo_micro_array_string_store` on publication/source-capture before `nyash.array.set_his`
+3. use the existing `carrier_kind` / `publish_reason` counters to measure any delayed-publication cut before widening `Stage B`
 
 ## Guardrails
 

@@ -74,6 +74,10 @@ Related:
     - `carrier_kind.stable_box=1600000`
     - `carrier_kind.handle=1600000`
     - `publish_reason.generic_fallback=1600000`
+- active AOT lowering fact is now pinned separately:
+  - direct MIR still contains generic `RuntimeDataBox.set(...)`
+  - the built AOT object/entry IR still calls `nyash.array.set_his`
+  - guard: `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_store_string_contract.sh`
 - `perf-observe` on `kilo_micro_array_string_store` still ranks publication/capture first:
   - `freeze_owned_bytes: 15.76%`
   - `issue_fresh_handle: 14.54%`
@@ -88,7 +92,8 @@ Related:
   - slot mutation itself is not the first owner once source is already published
   - trusted direct MIR still carries generic `RuntimeDataBox.set(...)` / `substring(...)` calls
   - the landed `.hako` owner-side pilot is therefore still VM/reference-lane only today
-  - the active AOT exact front is not yet a direct `Rust vs .hako` same-protocol comparison
+  - active AOT already reaches the current concrete `store.array.str` lowering without that pilot
+  - the exact-front owner is still publication/source-capture around the string births before/after `nyash.array.set_his`
 
 ## `indexOf` Separation
 
@@ -118,7 +123,7 @@ Related:
 ## Current Rule
 
 - next proof is not kilo-name keyed
-- next cut is to close whether active AOT can legally select the Stage A owner seam for `store.array.str`
-- if not, park Stage A as VM/reference-only and keep exact-front work on publication/source-capture
+- next cut is no longer owner-route diagnosis
+- park Stage A as VM/reference-only and keep exact-front work on publication/source-capture
 - no generic slot API widening
 - no public ABI changes

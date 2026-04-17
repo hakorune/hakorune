@@ -145,8 +145,12 @@
       - `carrier_kind.handle=1600000`
       - `publish_reason.generic_fallback=1600000`
     - trusted direct MIR on the same benchmark still carries generic `RuntimeDataBox.set(...)` / `substring(...)` calls
-    - therefore the active AOT exact front is not yet the `.hako` owner pilot itself
-  - next step is not more owner widening; it is closing whether active AOT can legally select the Stage A owner seam for `store.array.str`
+    - active AOT lowering fact is now pinned separately:
+      - direct MIR stays generic
+      - entry LLVM IR still calls `nyash.array.set_his`
+      - guard: `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_store_string_contract.sh`
+    - therefore the active AOT exact front is not the `.hako` owner pilot itself; it already reaches the current concrete `store.array.str` lowering through compiler-side generic-method lowering
+  - next step is not more owner widening; it is reopening publication/source-capture before `nyash.array.set_his`
   - design tighten before code:
     - keep carrier and publication physically separated; the corridor-local slot transports value, the cold adapter owns `StringBox` / `Arc` / handle issue
     - treat published-ness as boundary bookkeeping, not as the steady-state hot-lane value shape
