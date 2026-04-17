@@ -54,6 +54,7 @@ pub(crate) fn store_string_box_from_source_keep_owned(
         return int_arg_to_box(source_handle);
     }
     crate::observe::record_birth_placement_store_from_source();
+    crate::observe::record_birth_backend_carrier_kind_source_keep();
     maybe_borrow_string_keep_with_epoch(source_keep, source_handle, source_drop_epoch)
 }
 

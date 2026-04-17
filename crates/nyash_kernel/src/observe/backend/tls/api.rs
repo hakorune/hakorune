@@ -56,6 +56,14 @@ tls_zero_arg_api! {
     birth_backend_handle_issue => birth_backend_handle_issue,
     birth_backend_issue_fresh_handle => birth_backend_issue_fresh_handle,
     birth_backend_gc_alloc_skipped => birth_backend_gc_alloc_skipped,
+    birth_backend_carrier_kind_stable_box => birth_backend_carrier_kind_stable_box,
+    birth_backend_carrier_kind_source_keep => birth_backend_carrier_kind_source_keep,
+    birth_backend_carrier_kind_owned_bytes => birth_backend_carrier_kind_owned_bytes,
+    birth_backend_carrier_kind_handle => birth_backend_carrier_kind_handle,
+    birth_backend_publish_reason_external_boundary => birth_backend_publish_reason_external_boundary,
+    birth_backend_publish_reason_need_stable_object => birth_backend_publish_reason_need_stable_object,
+    birth_backend_publish_reason_generic_fallback => birth_backend_publish_reason_generic_fallback,
+    birth_backend_publish_reason_explicit_api => birth_backend_publish_reason_explicit_api,
     str_concat2_route_enter => str_concat2_route_enter,
     str_concat2_route_dispatch_hit => str_concat2_route_dispatch_hit,
     str_concat2_route_fast_str_owned => str_concat2_route_fast_str_owned,
@@ -157,7 +165,7 @@ macro_rules! load {
     };
 }
 
-pub(crate) fn snapshot() -> [u64; 113] {
+pub(crate) fn snapshot() -> [u64; 121] {
     flush_current_thread();
     [
         load!(store_array_str_total),
@@ -273,5 +281,13 @@ pub(crate) fn snapshot() -> [u64; 113] {
         load!(piecewise_subrange_middle_suffix),
         load!(piecewise_subrange_prefix_suffix),
         load!(piecewise_subrange_all_three),
+        load!(birth_backend_carrier_kind_stable_box),
+        load!(birth_backend_carrier_kind_source_keep),
+        load!(birth_backend_carrier_kind_owned_bytes),
+        load!(birth_backend_carrier_kind_handle),
+        load!(birth_backend_publish_reason_external_boundary),
+        load!(birth_backend_publish_reason_need_stable_object),
+        load!(birth_backend_publish_reason_generic_fallback),
+        load!(birth_backend_publish_reason_explicit_api),
     ]
 }

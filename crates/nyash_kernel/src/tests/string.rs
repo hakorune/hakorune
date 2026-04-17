@@ -302,7 +302,10 @@ fn string_kernel_slot_capture_piecewise_loop_publish_contract() {
 
         let helper_h = nyash_string_kernel_slot_publish_h_export(&mut current);
         assert!(helper_h > 0);
-        assert_eq!(decode_string_like_handle(helper_h).as_deref(), Some(expected.as_str()));
+        assert_eq!(
+            decode_string_like_handle(helper_h).as_deref(),
+            Some(expected.as_str())
+        );
         assert_eq!(nyash_string_len_h(helper_h), expected.len() as i64);
     });
 }

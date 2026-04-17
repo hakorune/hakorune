@@ -82,6 +82,18 @@ pub(crate) const BIRTH_BACKEND_MATERIALIZE_OWNED_BYTES: &str = "materialize_owne
 pub(crate) const BIRTH_BACKEND_GC_ALLOC_CALLED: &str = "gc_alloc_called";
 pub(crate) const BIRTH_BACKEND_GC_ALLOC_BYTES: &str = "gc_alloc_bytes";
 pub(crate) const BIRTH_BACKEND_GC_ALLOC_SKIPPED: &str = "gc_alloc_skipped";
+pub(crate) const BIRTH_BACKEND_CARRIER_KIND_STABLE_BOX: &str = "carrier_kind.stable_box";
+pub(crate) const BIRTH_BACKEND_CARRIER_KIND_SOURCE_KEEP: &str = "carrier_kind.source_keep";
+pub(crate) const BIRTH_BACKEND_CARRIER_KIND_OWNED_BYTES: &str = "carrier_kind.owned_bytes";
+pub(crate) const BIRTH_BACKEND_CARRIER_KIND_HANDLE: &str = "carrier_kind.handle";
+pub(crate) const BIRTH_BACKEND_PUBLISH_REASON_EXTERNAL_BOUNDARY: &str =
+    "publish_reason.external_boundary";
+pub(crate) const BIRTH_BACKEND_PUBLISH_REASON_NEED_STABLE_OBJECT: &str =
+    "publish_reason.need_stable_object";
+pub(crate) const BIRTH_BACKEND_PUBLISH_REASON_GENERIC_FALLBACK: &str =
+    "publish_reason.generic_fallback";
+pub(crate) const BIRTH_BACKEND_PUBLISH_REASON_EXPLICIT_API: &str =
+    "publish_reason.explicit_api";
 
 pub(crate) const STR_CONCAT2_ROUTE_TOTAL: &str = "total";
 pub(crate) const STR_CONCAT2_ROUTE_DISPATCH_HIT: &str = "dispatch_hit";

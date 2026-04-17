@@ -25,7 +25,8 @@ pub(crate) use string_classify::{
 pub use string_materialize::KernelTextSlot;
 pub(crate) use string_materialize::{
     freeze_owned_string_into_slot, issue_fresh_handle_from_arc, materialize_owned_string,
-    publish_kernel_text_slot, with_kernel_text_slot_text, KernelTextSlotState,
+    materialize_owned_string_generic_fallback, publish_kernel_text_slot,
+    with_kernel_text_slot_text, KernelTextSlotState,
 };
 #[cfg(test)]
 pub(crate) use string_store::store_string_box_from_source;

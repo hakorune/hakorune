@@ -4,6 +4,28 @@ use nyash_rust::{
 };
 use std::{mem::ManuallyDrop, sync::Arc};
 
+#[derive(Clone, Copy)]
+enum PublishReason {
+    ExternalBoundary,
+    GenericFallback,
+    ExplicitApi,
+}
+
+#[inline(always)]
+fn record_publish_reason(reason: PublishReason) {
+    match reason {
+        PublishReason::ExternalBoundary => {
+            crate::observe::record_birth_backend_publish_reason_external_boundary();
+        }
+        PublishReason::GenericFallback => {
+            crate::observe::record_birth_backend_publish_reason_generic_fallback();
+        }
+        PublishReason::ExplicitApi => {
+            crate::observe::record_birth_backend_publish_reason_explicit_api();
+        }
+    }
+}
+
 pub(crate) struct OwnedBytes(String);
 
 impl OwnedBytes {
@@ -159,6 +181,7 @@ fn wrap_string_box_in_arc(string_box: StringBox) -> Arc<dyn NyashBox> {
 fn objectize_stable_string_box(bytes: OwnedBytes) -> Arc<dyn NyashBox> {
     crate::observe::record_birth_backend_string_box_new(bytes.0.len());
     crate::observe::record_birth_backend_objectize_stable_box_now(bytes.0.len());
+    crate::observe::record_birth_backend_carrier_kind_stable_box();
     let string_box = birth_string_box_from_owned(bytes.into_string());
     wrap_string_box_in_arc(string_box)
 }
@@ -175,6 +198,7 @@ fn objectize_stable_string_box(bytes: OwnedBytes) -> Arc<dyn NyashBox> {
 fn issue_fresh_handle(arc: Arc<dyn NyashBox>) -> i64 {
     crate::observe::record_birth_backend_handle_issue();
     crate::observe::record_birth_backend_issue_fresh_handle();
+    crate::observe::record_birth_backend_carrier_kind_handle();
     let handle = handles::to_handle_arc(arc) as i64;
     handles::perf_observe_mark_latest_fresh_handle(handle as u64);
     crate::observe::mark_latest_fresh_handle(handle);
@@ -198,6 +222,7 @@ pub(crate) fn issue_fresh_handle_from_arc(arc: Arc<dyn NyashBox>) -> i64 {
 #[inline(never)]
 pub(crate) fn freeze_owned_bytes(value: String) -> OwnedBytes {
     crate::observe::record_birth_backend_materialize_owned(value.len());
+    crate::observe::record_birth_backend_carrier_kind_owned_bytes();
     if crate::observe::bypass_gc_alloc_enabled() {
         crate::observe::record_birth_backend_gc_alloc_skipped();
     } else {
@@ -211,6 +236,7 @@ pub(crate) fn freeze_owned_bytes(value: String) -> OwnedBytes {
 #[inline(always)]
 pub(crate) fn freeze_owned_bytes(value: String) -> OwnedBytes {
     crate::observe::record_birth_backend_materialize_owned(value.len());
+    crate::observe::record_birth_backend_carrier_kind_owned_bytes();
     if crate::observe::bypass_gc_alloc_enabled() {
         crate::observe::record_birth_backend_gc_alloc_skipped();
     } else {
@@ -226,20 +252,31 @@ pub(crate) fn freeze_owned_string_into_slot(slot: &mut KernelTextSlot, value: St
 }
 
 #[inline(always)]
-pub(crate) fn publish_owned_bytes(bytes: OwnedBytes) -> i64 {
+fn publish_owned_bytes_with_reason(bytes: OwnedBytes, reason: PublishReason) -> i64 {
+    record_publish_reason(reason);
     let arc = objectize_stable_string_box(bytes);
     issue_fresh_handle(arc)
 }
 
 #[inline(always)]
+pub(crate) fn publish_owned_bytes(bytes: OwnedBytes) -> i64 {
+    publish_owned_bytes_with_reason(bytes, PublishReason::ExplicitApi)
+}
+
+#[inline(always)]
 pub(crate) fn publish_kernel_text_slot(slot: &mut KernelTextSlot) -> Option<i64> {
     let bytes = slot.take_owned_bytes()?;
-    let handle = publish_owned_bytes(bytes);
+    let handle = publish_owned_bytes_with_reason(bytes, PublishReason::ExternalBoundary);
     slot.mark_published();
     Some(handle)
 }
 
 #[inline(always)]
+pub(crate) fn materialize_owned_string_generic_fallback(value: String) -> i64 {
+    publish_owned_bytes_with_reason(freeze_owned_bytes(value), PublishReason::GenericFallback)
+}
+
+#[inline(always)]
 pub(crate) fn materialize_owned_string(value: String) -> i64 {
-    publish_owned_bytes(freeze_owned_bytes(value))
+    publish_owned_bytes_with_reason(freeze_owned_bytes(value), PublishReason::ExplicitApi)
 }

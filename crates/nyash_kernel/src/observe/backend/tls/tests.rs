@@ -62,6 +62,14 @@ fn tls_birth_backend_counters_flush_current_thread() {
         birth_backend_materialize_owned(18);
         birth_backend_gc_alloc(18);
         birth_backend_gc_alloc_skipped();
+        birth_backend_carrier_kind_stable_box();
+        birth_backend_carrier_kind_source_keep();
+        birth_backend_carrier_kind_owned_bytes();
+        birth_backend_carrier_kind_handle();
+        birth_backend_publish_reason_external_boundary();
+        birth_backend_publish_reason_need_stable_object();
+        birth_backend_publish_reason_generic_fallback();
+        birth_backend_publish_reason_explicit_api();
         let after = snapshot();
 
         assert_eq!(after[23] - before[23], 1);
@@ -81,6 +89,14 @@ fn tls_birth_backend_counters_flush_current_thread() {
         assert_eq!(after[44] - before[44], 1);
         assert_eq!(after[45] - before[45], 18);
         assert_eq!(after[46] - before[46], 1);
+        assert_eq!(after[113] - before[113], 1);
+        assert_eq!(after[114] - before[114], 1);
+        assert_eq!(after[115] - before[115], 1);
+        assert_eq!(after[116] - before[116], 1);
+        assert_eq!(after[117] - before[117], 1);
+        assert_eq!(after[118] - before[118], 1);
+        assert_eq!(after[119] - before[119], 1);
+        assert_eq!(after[120] - before[120], 1);
     });
 }
 

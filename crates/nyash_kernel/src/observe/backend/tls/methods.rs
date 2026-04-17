@@ -284,6 +284,46 @@ impl ThreadCounters {
     }
 
     #[inline(always)]
+    fn birth_backend_carrier_kind_stable_box(&self) {
+        Self::bump(&self.birth_backend_carrier_kind_stable_box);
+    }
+
+    #[inline(always)]
+    fn birth_backend_carrier_kind_source_keep(&self) {
+        Self::bump(&self.birth_backend_carrier_kind_source_keep);
+    }
+
+    #[inline(always)]
+    fn birth_backend_carrier_kind_owned_bytes(&self) {
+        Self::bump(&self.birth_backend_carrier_kind_owned_bytes);
+    }
+
+    #[inline(always)]
+    fn birth_backend_carrier_kind_handle(&self) {
+        Self::bump(&self.birth_backend_carrier_kind_handle);
+    }
+
+    #[inline(always)]
+    fn birth_backend_publish_reason_external_boundary(&self) {
+        Self::bump(&self.birth_backend_publish_reason_external_boundary);
+    }
+
+    #[inline(always)]
+    fn birth_backend_publish_reason_need_stable_object(&self) {
+        Self::bump(&self.birth_backend_publish_reason_need_stable_object);
+    }
+
+    #[inline(always)]
+    fn birth_backend_publish_reason_generic_fallback(&self) {
+        Self::bump(&self.birth_backend_publish_reason_generic_fallback);
+    }
+
+    #[inline(always)]
+    fn birth_backend_publish_reason_explicit_api(&self) {
+        Self::bump(&self.birth_backend_publish_reason_explicit_api);
+    }
+
+    #[inline(always)]
     fn str_concat2_route_enter(&self) {
         Self::bump(&self.str_concat2_route_total);
     }
@@ -796,6 +836,38 @@ impl ThreadCounters {
         flush_cell(
             &self.birth_backend_gc_alloc_skipped,
             &GLOBAL.birth_backend_gc_alloc_skipped,
+        );
+        flush_cell(
+            &self.birth_backend_carrier_kind_stable_box,
+            &GLOBAL.birth_backend_carrier_kind_stable_box,
+        );
+        flush_cell(
+            &self.birth_backend_carrier_kind_source_keep,
+            &GLOBAL.birth_backend_carrier_kind_source_keep,
+        );
+        flush_cell(
+            &self.birth_backend_carrier_kind_owned_bytes,
+            &GLOBAL.birth_backend_carrier_kind_owned_bytes,
+        );
+        flush_cell(
+            &self.birth_backend_carrier_kind_handle,
+            &GLOBAL.birth_backend_carrier_kind_handle,
+        );
+        flush_cell(
+            &self.birth_backend_publish_reason_external_boundary,
+            &GLOBAL.birth_backend_publish_reason_external_boundary,
+        );
+        flush_cell(
+            &self.birth_backend_publish_reason_need_stable_object,
+            &GLOBAL.birth_backend_publish_reason_need_stable_object,
+        );
+        flush_cell(
+            &self.birth_backend_publish_reason_generic_fallback,
+            &GLOBAL.birth_backend_publish_reason_generic_fallback,
+        );
+        flush_cell(
+            &self.birth_backend_publish_reason_explicit_api,
+            &GLOBAL.birth_backend_publish_reason_explicit_api,
         );
         flush_cell(
             &self.str_concat2_route_total,

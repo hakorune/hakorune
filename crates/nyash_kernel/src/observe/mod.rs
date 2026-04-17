@@ -285,6 +285,46 @@ mod real {
     }
 
     #[inline(always)]
+    pub(crate) fn record_birth_backend_carrier_kind_stable_box() {
+        super::backend::birth_backend_carrier_kind_stable_box();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_carrier_kind_source_keep() {
+        super::backend::birth_backend_carrier_kind_source_keep();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_carrier_kind_owned_bytes() {
+        super::backend::birth_backend_carrier_kind_owned_bytes();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_carrier_kind_handle() {
+        super::backend::birth_backend_carrier_kind_handle();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_publish_reason_external_boundary() {
+        super::backend::birth_backend_publish_reason_external_boundary();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_publish_reason_need_stable_object() {
+        super::backend::birth_backend_publish_reason_need_stable_object();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_publish_reason_generic_fallback() {
+        super::backend::birth_backend_publish_reason_generic_fallback();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_publish_reason_explicit_api() {
+        super::backend::birth_backend_publish_reason_explicit_api();
+    }
+
+    #[inline(always)]
     pub(crate) fn record_str_concat2_route_enter() {
         super::backend::str_concat2_route_enter();
     }
@@ -740,6 +780,30 @@ mod real {
 
     #[inline(always)]
     pub(crate) fn record_birth_backend_gc_alloc_skipped() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_carrier_kind_stable_box() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_carrier_kind_source_keep() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_carrier_kind_owned_bytes() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_carrier_kind_handle() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_publish_reason_external_boundary() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_publish_reason_need_stable_object() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_publish_reason_generic_fallback() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_publish_reason_explicit_api() {}
 
     #[inline(always)]
     pub(crate) fn record_str_concat2_route_enter() {}

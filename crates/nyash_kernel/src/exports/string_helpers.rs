@@ -43,8 +43,7 @@ use self::concat::{
     concat3_fallback, concat3_substring_fallback, concat_const_suffix_fallback,
     concat_pair_fallback, concat_pair_substring_fallback, insert_const_mid_fallback,
     piecewise_subrange_hsiii_fallback, piecewise_subrange_hsiii_into_slot,
-    piecewise_subrange_kernel_text_slot_into_slot,
-    substring_kernel_text_slot_in_place,
+    piecewise_subrange_kernel_text_slot_into_slot, substring_kernel_text_slot_in_place,
 };
 use self::materialize::{
     shared_empty_string_handle, string_handle_from_owned, string_handle_from_span,

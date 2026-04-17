@@ -376,9 +376,7 @@ fn store_array_str_value_from_source(
 
 #[cfg_attr(feature = "perf-observe", inline(never))]
 #[cfg_attr(not(feature = "perf-observe"), inline(always))]
-fn capture_store_array_str_source(
-    value_h: i64,
-) -> (StringHandleSourceKind, ArrayStoreStrSource) {
+fn capture_store_array_str_source(value_h: i64) -> (StringHandleSourceKind, ArrayStoreStrSource) {
     with_array_store_str_source(value_h, |source_kind, source| (source_kind, source))
 }
 

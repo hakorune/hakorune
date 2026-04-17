@@ -6,7 +6,7 @@ use crate::exports::string_view::{
     string_len_from_handle as string_len_impl, StringSpan, StringViewBox,
 };
 use crate::observe;
-use crate::plugin::materialize_owned_string;
+use crate::plugin::materialize_owned_string_generic_fallback;
 use nyash_rust::box_trait::StringBox;
 use nyash_rust::runtime::host_handles as handles;
 use std::ptr;
@@ -187,7 +187,7 @@ pub(super) fn string_handle_from_owned(value: String) -> i64 {
         return shared_empty_string_handle();
     }
     observe::record_birth_placement_fresh_handle();
-    let handle = materialize_owned_string(value);
+    let handle = materialize_owned_string_generic_fallback(value);
     string_len_fast_cache_store(handle, len as i64);
     if string_trace::enabled() {
         string_trace::emit(

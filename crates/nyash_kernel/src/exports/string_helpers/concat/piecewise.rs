@@ -54,11 +54,23 @@ fn materialize_piecewise_all_three(
         let bytes = out.as_mut_vec();
         bytes.set_len(total_len);
         let mut cursor = 0usize;
-        std::ptr::copy_nonoverlapping(prefix.as_ptr(), bytes.as_mut_ptr().add(cursor), prefix.len());
+        std::ptr::copy_nonoverlapping(
+            prefix.as_ptr(),
+            bytes.as_mut_ptr().add(cursor),
+            prefix.len(),
+        );
         cursor += prefix.len();
-        std::ptr::copy_nonoverlapping(middle.as_ptr(), bytes.as_mut_ptr().add(cursor), middle.len());
+        std::ptr::copy_nonoverlapping(
+            middle.as_ptr(),
+            bytes.as_mut_ptr().add(cursor),
+            middle.len(),
+        );
         cursor += middle.len();
-        std::ptr::copy_nonoverlapping(suffix.as_ptr(), bytes.as_mut_ptr().add(cursor), suffix.len());
+        std::ptr::copy_nonoverlapping(
+            suffix.as_ptr(),
+            bytes.as_mut_ptr().add(cursor),
+            suffix.len(),
+        );
     }
     out
 }
@@ -283,7 +295,8 @@ pub(super) fn piecewise_subrange_hsiii_fallback(
     // Phase-137x keeps the carrier local to this executor first.
     // The next slot-transport card may thread it across same-corridor consumers.
     if piecewise_subrange_hsiii_into_slot(&mut slot, source_h, middle_ptr, split, start, end) {
-        return publish_kernel_text_slot_boundary(&mut slot).unwrap_or_else(shared_empty_string_handle);
+        return publish_kernel_text_slot_boundary(&mut slot)
+            .unwrap_or_else(shared_empty_string_handle);
     }
     with_insert_middle_text(middle_ptr, |_middle| {
         observe::record_piecewise_subrange_fallback_insert();

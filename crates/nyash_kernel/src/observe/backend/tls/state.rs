@@ -119,6 +119,14 @@ struct GlobalCounters {
     borrowed_alias_encode_to_handle_arc: AtomicU64,
     borrowed_alias_encode_to_handle_arc_array_get_index: AtomicU64,
     borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any: AtomicU64,
+    birth_backend_carrier_kind_stable_box: AtomicU64,
+    birth_backend_carrier_kind_source_keep: AtomicU64,
+    birth_backend_carrier_kind_owned_bytes: AtomicU64,
+    birth_backend_carrier_kind_handle: AtomicU64,
+    birth_backend_publish_reason_external_boundary: AtomicU64,
+    birth_backend_publish_reason_need_stable_object: AtomicU64,
+    birth_backend_publish_reason_generic_fallback: AtomicU64,
+    birth_backend_publish_reason_explicit_api: AtomicU64,
 }
 
 impl GlobalCounters {
@@ -237,6 +245,14 @@ impl GlobalCounters {
             borrowed_alias_encode_to_handle_arc: AtomicU64::new(0),
             borrowed_alias_encode_to_handle_arc_array_get_index: AtomicU64::new(0),
             borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any: AtomicU64::new(0),
+            birth_backend_carrier_kind_stable_box: AtomicU64::new(0),
+            birth_backend_carrier_kind_source_keep: AtomicU64::new(0),
+            birth_backend_carrier_kind_owned_bytes: AtomicU64::new(0),
+            birth_backend_carrier_kind_handle: AtomicU64::new(0),
+            birth_backend_publish_reason_external_boundary: AtomicU64::new(0),
+            birth_backend_publish_reason_need_stable_object: AtomicU64::new(0),
+            birth_backend_publish_reason_generic_fallback: AtomicU64::new(0),
+            birth_backend_publish_reason_explicit_api: AtomicU64::new(0),
         }
     }
 }
@@ -357,6 +373,14 @@ struct ThreadCounters {
     borrowed_alias_encode_to_handle_arc: Cell<u64>,
     borrowed_alias_encode_to_handle_arc_array_get_index: Cell<u64>,
     borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any: Cell<u64>,
+    birth_backend_carrier_kind_stable_box: Cell<u64>,
+    birth_backend_carrier_kind_source_keep: Cell<u64>,
+    birth_backend_carrier_kind_owned_bytes: Cell<u64>,
+    birth_backend_carrier_kind_handle: Cell<u64>,
+    birth_backend_publish_reason_external_boundary: Cell<u64>,
+    birth_backend_publish_reason_need_stable_object: Cell<u64>,
+    birth_backend_publish_reason_generic_fallback: Cell<u64>,
+    birth_backend_publish_reason_explicit_api: Cell<u64>,
     latest_fresh_handle: Cell<i64>,
 }
 
@@ -476,6 +500,14 @@ impl ThreadCounters {
             borrowed_alias_encode_to_handle_arc: Cell::new(0),
             borrowed_alias_encode_to_handle_arc_array_get_index: Cell::new(0),
             borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any: Cell::new(0),
+            birth_backend_carrier_kind_stable_box: Cell::new(0),
+            birth_backend_carrier_kind_source_keep: Cell::new(0),
+            birth_backend_carrier_kind_owned_bytes: Cell::new(0),
+            birth_backend_carrier_kind_handle: Cell::new(0),
+            birth_backend_publish_reason_external_boundary: Cell::new(0),
+            birth_backend_publish_reason_need_stable_object: Cell::new(0),
+            birth_backend_publish_reason_generic_fallback: Cell::new(0),
+            birth_backend_publish_reason_explicit_api: Cell::new(0),
             latest_fresh_handle: Cell::new(0),
         }
     }

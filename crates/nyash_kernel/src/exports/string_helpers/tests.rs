@@ -5,8 +5,7 @@ use super::cache::{
 };
 use super::concat::{
     piecewise_subrange_hsiii_into_slot, piecewise_subrange_kernel_text_slot_into_slot,
-    substring_kernel_text_slot_in_place,
-    substring_kernel_text_slot_into_slot,
+    substring_kernel_text_slot_in_place, substring_kernel_text_slot_into_slot,
 };
 use super::materialize::string_handle_from_owned;
 use super::{string_len_from_handle, string_substring_hii_export_impl};
@@ -294,8 +293,13 @@ fn piecewise_slot_matches_direct_across_piece_shapes() {
             start,
             end,
         ));
-        let direct_h =
-            super::concat::piecewise_subrange_hsiii_fallback(source_h, middle.as_ptr(), 6, start, end);
+        let direct_h = super::concat::piecewise_subrange_hsiii_fallback(
+            source_h,
+            middle.as_ptr(),
+            6,
+            start,
+            end,
+        );
         let direct_text = handles::with_text_read_session(|session| {
             session.str_handle(direct_h as u64, |text| text.to_string())
         })

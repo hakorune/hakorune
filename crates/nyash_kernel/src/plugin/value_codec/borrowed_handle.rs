@@ -486,6 +486,8 @@ pub(crate) fn try_retarget_borrowed_string_slot_take_verified_text_source(
 #[cold]
 #[inline(never)]
 fn promote_string_view_to_owned_box_cold(obj: Arc<dyn NyashBox>) -> Box<dyn NyashBox> {
+    observe::record_birth_backend_publish_reason_need_stable_object();
+    observe::record_birth_backend_carrier_kind_stable_box();
     Box::new(StringBox::new(
         SourceLifetimeKeep::string_view(obj).copy_owned_text_cold(),
     ))
@@ -494,6 +496,8 @@ fn promote_string_view_to_owned_box_cold(obj: Arc<dyn NyashBox>) -> Box<dyn Nyas
 #[cold]
 #[inline(never)]
 fn promote_source_keep_to_owned_box_cold(keep: SourceLifetimeKeep) -> Box<dyn NyashBox> {
+    observe::record_birth_backend_publish_reason_need_stable_object();
+    observe::record_birth_backend_carrier_kind_stable_box();
     Box::new(StringBox::new(keep.copy_owned_text_cold()))
 }
 

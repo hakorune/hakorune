@@ -13,16 +13,15 @@ pub(crate) fn emit_summary_to_stderr() {
         snapshot[68] + snapshot[69] + snapshot[70] + snapshot[71];
     let str_substring_slow_plan_unclassified =
         snapshot[67].saturating_sub(str_substring_slow_plan_classified);
-    let piecewise_subrange_classified =
-        snapshot[104]
-            + snapshot[105]
-            + snapshot[106]
-            + snapshot[107]
-            + snapshot[108]
-            + snapshot[109]
-            + snapshot[110]
-            + snapshot[111]
-            + snapshot[112];
+    let piecewise_subrange_classified = snapshot[104]
+        + snapshot[105]
+        + snapshot[106]
+        + snapshot[107]
+        + snapshot[108]
+        + snapshot[109]
+        + snapshot[110]
+        + snapshot[111]
+        + snapshot[112];
     let piecewise_subrange_unclassified =
         snapshot[102].saturating_sub(piecewise_subrange_classified);
     let mut store_array_str_line = format!(
@@ -185,6 +184,38 @@ pub(crate) fn emit_summary_to_stderr() {
         (contract::BIRTH_BACKEND_GC_ALLOC_CALLED, snapshot[44]),
         (contract::BIRTH_BACKEND_GC_ALLOC_BYTES, snapshot[45]),
         (contract::BIRTH_BACKEND_GC_ALLOC_SKIPPED, snapshot[46]),
+        (
+            contract::BIRTH_BACKEND_CARRIER_KIND_STABLE_BOX,
+            snapshot[113],
+        ),
+        (
+            contract::BIRTH_BACKEND_CARRIER_KIND_SOURCE_KEEP,
+            snapshot[114],
+        ),
+        (
+            contract::BIRTH_BACKEND_CARRIER_KIND_OWNED_BYTES,
+            snapshot[115],
+        ),
+        (
+            contract::BIRTH_BACKEND_CARRIER_KIND_HANDLE,
+            snapshot[116],
+        ),
+        (
+            contract::BIRTH_BACKEND_PUBLISH_REASON_EXTERNAL_BOUNDARY,
+            snapshot[117],
+        ),
+        (
+            contract::BIRTH_BACKEND_PUBLISH_REASON_NEED_STABLE_OBJECT,
+            snapshot[118],
+        ),
+        (
+            contract::BIRTH_BACKEND_PUBLISH_REASON_GENERIC_FALLBACK,
+            snapshot[119],
+        ),
+        (
+            contract::BIRTH_BACKEND_PUBLISH_REASON_EXPLICIT_API,
+            snapshot[120],
+        ),
     ] {
         let _ = write!(&mut birth_backend_line, " {}={}", name, value);
     }
