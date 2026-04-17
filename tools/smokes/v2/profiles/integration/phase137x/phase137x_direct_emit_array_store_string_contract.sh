@@ -132,6 +132,7 @@ count_symbol() {
 array_set_string_count="$(count_symbol "nyash.array.set_his")"
 array_set_any_count="$(count_symbol "nyash.array.slot_store_hih")"
 runtime_set_count="$(count_symbol "nyash.runtime_data.set_hhh")"
+string_len_count="$(count_symbol "nyash.string.len_h")"
 
 if [ "$array_set_string_count" -lt 1 ]; then
     echo "[INFO] lowered entry IR:"
@@ -154,4 +155,11 @@ if [ "$runtime_set_count" -ne 0 ]; then
     exit 1
 fi
 
-test_pass "$SMOKE_NAME: PASS (direct MIR stays generic, but active AOT lowering concretizes the array string-store call to nyash.array.set_his)"
+if [ "$string_len_count" -ne 0 ]; then
+    echo "[INFO] lowered entry IR:"
+    sed -n '1,220p' "$OUT_MAIN" || true
+    test_fail "$SMOKE_NAME: entry function still lowers string length through nyash.string.len_h"
+    exit 1
+fi
+
+test_pass "$SMOKE_NAME: PASS (direct MIR stays generic, active AOT lowering concretizes the array string-store call to nyash.array.set_his, and string length stays on the compiler-side known-length lane)"

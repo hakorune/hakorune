@@ -110,7 +110,7 @@
           long long recv,
           const struct GenericMethodEmitPlan* plan,
           const char* ab) {
-        long long concat_known_len = 0;
+        long long known_len = 0;
         long long substring_start = 0;
         long long substring_end = 0;
         long long resolved_recv = resolve_copy_source_reg(recv);
@@ -136,11 +136,12 @@
                     f, dst, resolved_recv)) {
               return 1;
             }
-            if (known_string_concat_chain_len(resolved_recv, &concat_known_len)) {
+            if (known_string_value_len(resolved_recv, &known_len)) {
               if (dst) {
-                fprintf(f, "  %%r%lld = add i64 0, %lld\n", dst, concat_known_len);
+                fprintf(f, "  %%r%lld = add i64 0, %lld\n", dst, known_len);
                 set_type(dst, T_I64);
-                put_const(dst, concat_known_len);
+                put_const(dst, known_len);
+                remember_string_length_call(dst, recv);
               }
               if (hako_llvmc_route_trace_enabled()) {
                 char extra[128];
@@ -149,11 +150,11 @@
                     sizeof(extra),
                     "recv=%lld len=%lld",
                     resolved_recv,
-                    concat_known_len);
+                    known_len);
                 hako_llvmc_emit_route_trace(
                     "string_len_corridor",
                     "hit",
-                    "concat_chain_known_len",
+                    "known_string_len",
                     extra);
               }
               return 1;

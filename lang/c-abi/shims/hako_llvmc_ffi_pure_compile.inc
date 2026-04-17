@@ -149,6 +149,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       enum { T_NONE=0, T_I64=1, T_I1=2 };
       struct { long long reg; long long val; } consts[1024]; size_t consts_n = 0;
       struct { long long reg; const char* val; } str_consts[512]; size_t str_consts_n = 0;
+      struct { long long reg; long long len; } known_string_lens[2048]; size_t known_string_lens_n = 0;
       char* owned_str_consts[512]; size_t owned_str_consts_n = 0;
       struct { long long reg; } str_const_box_skip[512]; size_t str_const_box_skip_n = 0;
       struct { long long reg; int ty; } types[2048]; size_t types_n = 0;
@@ -238,6 +239,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             const char* sval = vobj ? read_str(vobj, "value") : NULL;
             if (box_type && strcmp(box_type, "StringBox") == 0 && sval) {
               put_str_const(dst, sval);
+              put_known_string_len(dst, (long long)strlen(sval));
               set_type(dst, T_I64);
               set_scan_origin(dst, ORG_STRING);
               set_origin(dst, ORG_STRING);
@@ -273,6 +275,12 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                 if (dst) {
                   set_scan_origin(dst, ORG_STRING);
                   set_origin(dst, ORG_STRING);
+                  {
+                    long long known_len = 0;
+                    if (get_known_string_len(arg0, &known_len)) {
+                      put_known_string_len(dst, known_len);
+                    }
+                  }
                 }
               }
             }
@@ -286,6 +294,12 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             if (dst && src_ty != T_NONE) set_type(dst, src_ty);
             if (dst && src_org != ORG_NONE) set_origin(dst, src_org);
             if (scan_org != ORG_NONE && dst) set_scan_origin(dst, scan_org);
+            if (dst && src) {
+              long long known_len = 0;
+              if (get_known_string_len(src, &known_len)) {
+                put_known_string_len(dst, known_len);
+              }
+            }
           } else if (strcmp(op, "compare")==0) {
             long long dst = read_int(ins, "dst");
             if (dst) set_type(dst, T_I1);
@@ -306,6 +320,16 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
               else set_type(dst, T_I64);
               if (then_scan != ORG_NONE && then_scan == else_scan) set_scan_origin(dst, then_scan);
               if (then_org != ORG_NONE && then_org == else_org) set_origin(dst, then_org);
+              if ((then_scan == ORG_STRING && then_scan == else_scan) ||
+                  (then_org == ORG_STRING && then_org == else_org)) {
+                long long then_len = 0;
+                long long else_len = 0;
+                if (get_known_string_len(then_val, &then_len) &&
+                    get_known_string_len(else_val, &else_len) &&
+                    then_len == else_len) {
+                  put_known_string_len(dst, then_len);
+                }
+              }
             }
           } else if (strcmp(op, "phi")==0) {
             struct BlockPhi* pb = ensure_phi_block(bid); if (!pb) { yyjson_doc_free(d); goto GEN_END; }
@@ -370,6 +394,48 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
               }
             }
           } else if (strcmp(op, "mir_call")==0) {
+            yyjson_val* mc = yyjson_obj_get(ins, "mir_call");
+            yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
+            yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
+            const char* ctype = cal ? read_str(cal, "type") : NULL;
+            const char* bname = cal ? (read_str(cal, "box_name") ? read_str(cal, "box_name") : read_str(cal, "box_type")) : NULL;
+            const char* mname = cal ? (read_str(cal, "method") ? read_str(cal, "method") : read_str(cal, "name")) : NULL;
+            long long dst = read_int(ins, "dst");
+            long long recv = cal ? read_int(cal, "receiver") : 0;
+            long long a0 = 0;
+            long long a1 = 0;
+            long long known_len = 0;
+            if (args && yyjson_is_arr(args)) {
+              if (yyjson_arr_size(args) >= 1) a0 = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
+              if (yyjson_arr_size(args) >= 2) a1 = (long long)yyjson_get_sint(yyjson_arr_get(args, 1));
+            }
+            if (dst && ctype && !strcmp(ctype, "Method") && recv &&
+                get_scan_origin(recv) == ORG_STRING) {
+              if (mname && !strcmp(mname, "substring") &&
+                  known_string_window_len(a0, a1, &known_len)) {
+                set_type(dst, T_I64);
+                set_scan_origin(dst, ORG_STRING);
+                set_origin(dst, ORG_STRING);
+                put_known_string_len(dst, known_len);
+              } else if (mname &&
+                         (!strcmp(mname, "length") || !strcmp(mname, "len") ||
+                          !strcmp(mname, "size")) &&
+                         get_known_string_len(recv, &known_len)) {
+                put_const(dst, known_len);
+                set_type(dst, T_I64);
+              }
+            } else if (dst && ctype && !strcmp(ctype, "Extern") && mname) {
+              if ((!strcmp(mname, "nyash.string.substring_hii") ||
+                   !strcmp(mname, "nyash.string.substring_concat_hhii") ||
+                   !strcmp(mname, "nyash.string.substring_concat3_hhhii") ||
+                   !strcmp(mname, "nyash.string.piecewise_subrange_hsiii")) &&
+                  known_string_window_len(a0, a1, &known_len)) {
+                set_type(dst, T_I64);
+                set_scan_origin(dst, ORG_STRING);
+                set_origin(dst, ORG_STRING);
+                put_known_string_len(dst, known_len);
+              }
+            }
             scan_mir_call_need_flags(
                 blocks,
                 bid,
@@ -384,10 +450,14 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             long long dst = read_int(ins, "dst");
             long long lhs = read_int(ins, "lhs");
             long long rhs = read_int(ins, "rhs");
+            long long lhs_const_val = 0;
+            long long rhs_const_val = 0;
             if ((bop && (strcmp(bop, "+") == 0 || strcmp(bop, "Add") == 0)) &&
                 get_scan_origin(lhs) == ORG_STRING && get_scan_origin(rhs) == ORG_STRING) {
               const char* lhs_const = get_str_const(lhs);
               const char* rhs_const = get_str_const(rhs);
+              long long lhs_len = 0;
+              long long rhs_len = 0;
               if (lhs_const && rhs_const) {
                 char* folded = concat_owned_string_consts(lhs_const, rhs_const);
                 if (folded && put_str_const_owned(dst, folded)) {
@@ -395,16 +465,94 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                     set_type(dst, T_I64);
                     set_scan_origin(dst, ORG_STRING);
                     set_origin(dst, ORG_STRING);
+                    put_known_string_len(dst, (long long)strlen(folded));
                   }
                   needs.string_const_box = 1;
                   continue;
                 }
               }
               needs.string_concat = 1;
-              if (dst) set_scan_origin(dst, ORG_STRING);
+              if (dst) {
+                set_scan_origin(dst, ORG_STRING);
+                set_origin(dst, ORG_STRING);
+                if (get_known_string_len(lhs, &lhs_len) &&
+                    get_known_string_len(rhs, &rhs_len)) {
+                  put_known_string_len(dst, lhs_len + rhs_len);
+                }
+              }
+            } else if (dst && bop &&
+                       has_const(lhs, &lhs_const_val) &&
+                       has_const(rhs, &rhs_const_val)) {
+              int matched = 1;
+              long long folded = 0;
+              if (strcmp(bop, "+") == 0 || strcmp(bop, "Add") == 0) {
+                folded = lhs_const_val + rhs_const_val;
+              } else if (strcmp(bop, "-") == 0 || strcmp(bop, "Sub") == 0) {
+                folded = lhs_const_val - rhs_const_val;
+              } else if (strcmp(bop, "*") == 0 || strcmp(bop, "Mul") == 0) {
+                folded = lhs_const_val * rhs_const_val;
+              } else if (strcmp(bop, "/") == 0 || strcmp(bop, "Div") == 0) {
+                if (rhs_const_val == 0) matched = 0;
+                else folded = lhs_const_val / rhs_const_val;
+              } else if (strcmp(bop, "%") == 0 || strcmp(bop, "Mod") == 0) {
+                if (rhs_const_val == 0) matched = 0;
+                else folded = lhs_const_val % rhs_const_val;
+              } else {
+                matched = 0;
+              }
+              if (matched) {
+                put_const(dst, folded);
+                set_type(dst, T_I64);
+              }
             }
           }
         }
+      }
+
+      for (int pass = 0; pass < 8; pass++) {
+        int changed = 0;
+        for (int pi = 0; pi < phi_n; pi++) {
+          for (int ri = 0; ri < phis[pi].rec_n; ri++) {
+            struct PhiRec* pr = &phis[pi].recs[ri];
+            long long same_len = -1;
+            int all_known = 1;
+            int is_string_phi = 0;
+            if (!pr->dst) continue;
+            if (!(get_scan_origin(pr->dst) == ORG_STRING || get_origin(pr->dst) == ORG_STRING)) {
+              continue;
+            }
+            for (int ii = 0; ii < pr->in_n; ii++) {
+              long long in_len = 0;
+              long long in_reg = pr->in[ii].val_reg;
+              if (!in_reg) {
+                all_known = 0;
+                break;
+              }
+              if (!(get_scan_origin(in_reg) == ORG_STRING || get_origin(in_reg) == ORG_STRING)) {
+                all_known = 0;
+                break;
+              }
+              is_string_phi = 1;
+              if (!get_known_string_len(in_reg, &in_len)) {
+                all_known = 0;
+                break;
+              }
+              if (same_len < 0) same_len = in_len;
+              else if (same_len != in_len) {
+                all_known = 0;
+                break;
+              }
+            }
+            if (is_string_phi && all_known && same_len >= 0) {
+              long long cur_len = 0;
+              if (!get_known_string_len(pr->dst, &cur_len) || cur_len != same_len) {
+                put_known_string_len(pr->dst, same_len);
+                changed = 1;
+              }
+            }
+          }
+        }
+        if (!changed) break;
       }
 
       // Cross-block refinement for string literal hoists.

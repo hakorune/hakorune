@@ -101,7 +101,7 @@
         return 0;
       }
 
-      auto int known_string_concat_piece_len(
+      auto int known_string_value_len_depth(
           long long reg,
           long long* out_len,
           int depth);
@@ -118,8 +118,8 @@
         if (find_string_concat_pair(reg, &lhs, &rhs)) {
           long long lhs_len = 0;
           long long rhs_len = 0;
-          if (!known_string_concat_piece_len(lhs, &lhs_len, 0)) return 0;
-          if (!known_string_concat_piece_len(rhs, &rhs_len, 0)) return 0;
+          if (!known_string_value_len_depth(lhs, &lhs_len, 0)) return 0;
+          if (!known_string_value_len_depth(rhs, &rhs_len, 0)) return 0;
           total = lhs_len + rhs_len;
           if (out_len) *out_len = total;
           return 1;
@@ -128,9 +128,9 @@
           long long first_len = 0;
           long long second_len = 0;
           long long third_len = 0;
-          if (!known_string_concat_piece_len(first, &first_len, 0)) return 0;
-          if (!known_string_concat_piece_len(second, &second_len, 0)) return 0;
-          if (!known_string_concat_piece_len(third, &third_len, 0)) return 0;
+          if (!known_string_value_len_depth(first, &first_len, 0)) return 0;
+          if (!known_string_value_len_depth(second, &second_len, 0)) return 0;
+          if (!known_string_value_len_depth(third, &third_len, 0)) return 0;
           total = first_len + second_len + third_len;
           if (out_len) *out_len = total;
           return 1;
@@ -138,7 +138,7 @@
         return 0;
       }
 
-      auto int known_string_concat_piece_len(
+      auto int known_string_value_len_depth(
           long long reg,
           long long* out_len,
           int depth) {
@@ -146,6 +146,10 @@
         const char* text = NULL;
         reg = resolve_copy_source_reg(reg);
         if (!reg || depth > 8) return 0;
+        if (get_known_string_len(reg, &nested_len)) {
+          if (out_len) *out_len = nested_len;
+          return 1;
+        }
         text = get_str_const(reg);
         if (text != NULL) {
           if (out_len) *out_len = (long long)strlen(text);
@@ -156,6 +160,10 @@
           return 1;
         }
         return 0;
+      }
+
+      auto int known_string_value_len(long long reg, long long* out_len) {
+        return known_string_value_len_depth(reg, out_len, 0);
       }
 
       auto const char* string_concat_producer_kind_for_reg(long long reg) {

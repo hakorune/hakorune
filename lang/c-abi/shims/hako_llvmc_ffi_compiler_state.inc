@@ -59,6 +59,38 @@
         return NULL;
       }
       auto void put_str_const(long long r, const char* v){ if (str_consts_n<512){ str_consts[str_consts_n].reg=r; str_consts[str_consts_n].val=v; str_consts_n++; } }
+      auto int get_known_string_len(long long r, long long* out){
+        for (size_t i=0;i<known_string_lens_n;i++){ if (known_string_lens[i].reg==r){ if(out) *out=known_string_lens[i].len; return 1; } }
+        long long base = resolve_copy_source_reg(r);
+        if (base != r) {
+          for (size_t i=0;i<known_string_lens_n;i++){ if (known_string_lens[i].reg==base){ if(out) *out=known_string_lens[i].len; return 1; } }
+        }
+        return 0;
+      }
+      auto void put_known_string_len(long long r, long long len){
+        if (!r || len < 0) return;
+        for (size_t i=0;i<known_string_lens_n;i++){
+          if (known_string_lens[i].reg==r){
+            known_string_lens[i].len = len;
+            return;
+          }
+        }
+        if (known_string_lens_n<2048){
+          known_string_lens[known_string_lens_n].reg=r;
+          known_string_lens[known_string_lens_n].len=len;
+          known_string_lens_n++;
+        }
+      }
+      auto int known_string_window_len(long long start_reg, long long end_reg, long long* out){
+        long long start = 0;
+        long long end = 0;
+        long long start_base = resolve_copy_source_reg(start_reg);
+        long long end_base = resolve_copy_source_reg(end_reg);
+        if (!(has_const(start_base, &start) && has_const(end_base, &end))) return 0;
+        if (end < start) return 0;
+        if (out) *out = end - start;
+        return 1;
+      }
       auto int should_skip_hoisted_string_const_box(long long r){
         for (size_t i=0;i<str_const_box_skip_n;i++){ if (str_const_box_skip[i].reg==r) return 1; }
         return 0;
