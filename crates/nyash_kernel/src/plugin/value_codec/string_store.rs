@@ -3,7 +3,7 @@ use super::borrowed_handle::{
 };
 use super::decode::int_arg_to_box;
 use super::string_classify::VerifiedTextSource;
-use super::string_materialize::KernelTextSlot;
+use super::string_materialize::{objectize_kernel_text_slot_stable_box, KernelTextSlot};
 use nyash_rust::box_trait::{NyashBox, StringBox};
 use std::sync::Arc;
 
@@ -90,4 +90,12 @@ pub(crate) fn store_string_box_from_kernel_text_slot(
 ) -> Option<Box<dyn NyashBox>> {
     let bytes = slot.take_owned_bytes()?;
     Some(Box::new(StringBox::new(bytes.into_string())) as Box<dyn NyashBox>)
+}
+
+#[inline(always)]
+pub(crate) fn store_string_keep_from_kernel_text_slot(
+    slot: &mut KernelTextSlot,
+) -> Option<SourceLifetimeKeep> {
+    let stable_box = objectize_kernel_text_slot_stable_box(slot)?;
+    Some(SourceLifetimeKeep::string_box(stable_box))
 }

@@ -8,6 +8,7 @@ mod string_store;
 #[cfg(test)]
 pub(crate) use borrowed_handle::SourceLifetimeKeep;
 pub(crate) use borrowed_handle::{
+    try_retarget_borrowed_string_slot_take_unpublished_keep,
     try_retarget_borrowed_string_slot_take_verified_text_source, BorrowedHandleBox,
 };
 pub(crate) use decode::{
@@ -36,6 +37,7 @@ pub(crate) use string_store::store_string_box_from_source_keep;
 pub(crate) use string_store::store_string_box_from_source_keep_owned;
 pub(crate) use string_store::{
     maybe_store_non_string_box_from_verified_source, store_string_box_from_kernel_text_slot,
+    store_string_keep_from_kernel_text_slot,
     store_string_box_from_verified_text_source,
 };
 

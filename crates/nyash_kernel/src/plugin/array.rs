@@ -132,6 +132,50 @@ mod tests {
     }
 
     #[test]
+    fn kernel_slot_store_existing_string_slot_keeps_borrowed_alias_wrapper() {
+        let handle = new_array_handle();
+        let seed_h = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
+            nyash_rust::box_trait::StringBox::new("line-seed-abcdef".to_string()),
+        )
+            as std::sync::Arc<dyn NyashBox>) as i64;
+        let rhs_h = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
+            nyash_rust::box_trait::StringBox::new("xy".to_string()),
+        )
+            as std::sync::Arc<dyn NyashBox>) as i64;
+        let mut slot = crate::plugin::KernelTextSlot::empty();
+
+        assert_eq!(nyash_array_set_his_alias(handle, 0, seed_h), 1);
+        assert_eq!(
+            crate::nyash_string_kernel_slot_concat_hh_export(&mut slot, seed_h, rhs_h),
+            1
+        );
+        assert_eq!(
+            nyash_array_kernel_slot_store_hi_alias(handle, 0, &mut slot),
+            1
+        );
+        assert_eq!(nyash_string_kernel_slot_len_i_export(&slot), 0);
+        assert_eq!(nyash_array_string_len_hi_alias(handle, 0), 18);
+
+        let kept = with_array_box(handle, |arr| {
+            arr.with_items_read(|items| {
+                let item = items.first().expect("stored string slot");
+                item.as_any()
+                    .downcast_ref::<crate::plugin::value_codec::BorrowedHandleBox>()
+                    .map(|alias| {
+                        (
+                            alias.borrowed_handle_source_fast().is_none(),
+                            alias.as_str_fast().map(str::to_string),
+                        )
+                    })
+            })
+        })
+        .flatten()
+        .expect("borrowed alias slot");
+        assert!(kept.0);
+        assert_eq!(kept.1.as_deref(), Some("line-seed-abcdefxy"));
+    }
+
+    #[test]
     fn string_indexof_raw_alias_reads_string_slot_directly() {
         let handle = new_array_handle();
         let hay_handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(

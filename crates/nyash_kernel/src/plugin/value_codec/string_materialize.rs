@@ -272,6 +272,14 @@ pub(crate) fn publish_kernel_text_slot(slot: &mut KernelTextSlot) -> Option<i64>
 }
 
 #[inline(always)]
+pub(crate) fn objectize_kernel_text_slot_stable_box(
+    slot: &mut KernelTextSlot,
+) -> Option<Arc<dyn NyashBox>> {
+    let bytes = slot.take_owned_bytes()?;
+    Some(objectize_stable_string_box(bytes))
+}
+
+#[inline(always)]
 pub(crate) fn materialize_owned_string_generic_fallback(value: String) -> i64 {
     publish_owned_bytes_with_reason(freeze_owned_bytes(value), PublishReason::GenericFallback)
 }
