@@ -30,7 +30,7 @@ fn infer_borrowed_slice_plan(
         start: Some(start),
         end: Some(end),
         known_length: None,
-        publication_contract: None,
+        publication_contract: active_publication_contract(Some(start), Some(end)),
         proof: StringCorridorCandidateProof::BorrowedSlice { source, start, end },
     })
 }

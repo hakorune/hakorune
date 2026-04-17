@@ -408,6 +408,115 @@ fn runtime_export_substring_concat_keeps_publication_sink_candidate() {
 }
 
 #[test]
+fn borrowed_slice_plan_keeps_publication_contract_for_insert_mid_substring_route() {
+    use crate::ast::Span;
+
+    fn method_call(
+        dst: ValueId,
+        receiver: ValueId,
+        box_name: &str,
+        method: &str,
+        args: Vec<ValueId>,
+    ) -> MirInstruction {
+        MirInstruction::Call {
+            dst: Some(dst),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: box_name.to_string(),
+                method: method.to_string(),
+                receiver: Some(receiver),
+                certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
+                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+            }),
+            args,
+            effects: EffectMask::PURE,
+        }
+    }
+
+    let signature = FunctionSignature {
+        name: "main".to_string(),
+        params: vec![MirType::Box("StringBox".to_string())],
+        return_type: MirType::Box("RuntimeDataBox".to_string()),
+        effects: EffectMask::PURE,
+    };
+    let mut function = MirFunction::new(signature, BasicBlockId(0));
+    let block = function.blocks.get_mut(&BasicBlockId(0)).expect("entry");
+
+    block.instructions.push(MirInstruction::Const {
+        dst: ValueId(1),
+        value: ConstValue::String("xx".to_string()),
+    });
+    block.instruction_spans.push(Span::unknown());
+    block.instructions.push(MirInstruction::Const {
+        dst: ValueId(2),
+        value: ConstValue::Integer(8),
+    });
+    block.instruction_spans.push(Span::unknown());
+    block.instructions.push(MirInstruction::Call {
+        dst: Some(ValueId(3)),
+        func: ValueId::INVALID,
+        callee: Some(Callee::Extern("nyash.string.insert_hsi".to_string())),
+        args: vec![ValueId(0), ValueId(1), ValueId(2)],
+        effects: EffectMask::PURE,
+    });
+    block.instruction_spans.push(Span::unknown());
+    block.instructions.push(MirInstruction::Const {
+        dst: ValueId(4),
+        value: ConstValue::Integer(1),
+    });
+    block.instruction_spans.push(Span::unknown());
+    block.instructions.push(MirInstruction::Const {
+        dst: ValueId(5),
+        value: ConstValue::Integer(17),
+    });
+    block.instruction_spans.push(Span::unknown());
+    block.instructions.push(method_call(
+        ValueId(6),
+        ValueId(3),
+        "RuntimeDataBox",
+        "substring",
+        vec![ValueId(4), ValueId(5)],
+    ));
+    block.instruction_spans.push(Span::unknown());
+    block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId(6)),
+    });
+
+    crate::mir::refresh_function_string_corridor_facts(&mut function);
+    crate::mir::refresh_function_string_corridor_relations(&mut function);
+    refresh_function_string_corridor_candidates(&mut function);
+
+    let candidates = function
+        .metadata
+        .string_corridor_candidates
+        .get(&ValueId(6))
+        .expect("substring candidates");
+    let publication = candidates
+        .iter()
+        .find(|candidate| candidate.kind == StringCorridorCandidateKind::PublicationSink)
+        .expect("publication sink candidate");
+    let plan = publication.plan.expect("plan metadata on substring result");
+    assert_eq!(plan.corridor_root, ValueId(6));
+    assert_eq!(plan.source_root, Some(ValueId(3)));
+    assert_eq!(plan.start, Some(ValueId(4)));
+    assert_eq!(plan.end, Some(ValueId(5)));
+    assert_eq!(
+        plan.publication_contract,
+        Some(
+            crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary
+        )
+    );
+    assert!(matches!(
+        plan.proof,
+        StringCorridorCandidateProof::BorrowedSlice {
+            source: ValueId(3),
+            start: ValueId(4),
+            end: ValueId(5),
+        }
+    ));
+}
+
+#[test]
 fn refresh_function_carries_corridor_candidates_across_narrow_phi_route() {
     use crate::ast::Span;
 
