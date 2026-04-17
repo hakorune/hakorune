@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-04-17
+Date: 2026-04-18
 Scope: current lane / next lane / restart order only.
 
 ## Purpose
@@ -14,24 +14,26 @@ Scope: current lane / next lane / restart order only.
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/10-Now.md`
-3. `docs/development/current/main/15-Workstream-Map.md`
-4. `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
-5. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md`
-6. `docs/development/current/main/phases/phase-29bq/29bq-91-mirbuilder-migration-progress-checklist.md`
-7. `docs/development/current/main/phases/phase-29bq/29bq-92-parser-handoff-checklist.md`
+3. `docs/development/current/main/phases/phase-137x/README.md`
+4. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+5. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+6. `docs/development/current/main/15-Workstream-Map.md`
 7. `git status -sb`
 8. `tools/checks/dev_gate.sh quick`
+9. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Restart Handoff
 
 - expected worktree:
-  - clean
+  - dirty is expected right now; phase-137x runtime/private string corridor edits may coexist with sibling compiler-lane edits
+  - do not reset unrelated changes just to make the tree look clean
 - active lane:
   - `phase-137x delete-oriented borrowed-view corridor reopen`
-- sibling guardrail:
+- background lanes:
   - `phase-29bq loop owner seam cleanup landing`
+  - `phase-163x primitive-family / user-box fast-path landing`
 - immediate next:
-  - `phase-137x next explicit card is runtime-executor: keep publication split corridor-local and thread a direct-kernel-local slot across same-corridor consumers without reopening shared helpers or registry carriers`
+  - `phase-137x next explicit card is runtime-executor: prove slot-kept until first true external boundary on the active corridor, keep the public ABI stable, and keep legality/verifier MIR-owned`
 - pre-optimization prerequisites:
   1. `KernelTextSlot` lifecycle contract stays explicit:
      - caller-owned
@@ -44,7 +46,11 @@ Scope: current lane / next lane / restart order only.
      - early `StableBoxNow`
      - early `FreshRegistryHandle`
      - registry-backed carrier
-  4. current landing is corridor-local only; next follow-on owns same-corridor slot transport
+  4. carrier/publication split stays physically narrow:
+     - same-corridor slot transport lives in the corridor-local executor only
+     - cold publish adapter alone owns `StringBox` / `Arc` / fresh handle issue
+  5. current landing is corridor-local only; next follow-on owns same-corridor slot transport
+  6. do not widen this card into a generic slot API or helper substrate
 - immediate follow-on:
   - `phase-137x follow with llvm-export only after the runtime-private outcome seam stabilizes; do not reopen route structure, new recognizers, or public-ABI changes`
 - wording lock:
@@ -53,9 +59,10 @@ Scope: current lane / next lane / restart order only.
 - current blocker:
   - `none`
 - latest proof bundle:
-  - `cargo test --lib --no-run` PASS
-  - `cargo check --bin hakorune` PASS
-  - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
+  - `tools/checks/dev_gate.sh quick` PASS
+  - `cargo test -p nyash_kernel --lib string_helpers::tests:: -- --nocapture` PASS
+  - `cargo check --features perf-observe -p nyash_kernel` PASS
+  - `cargo test -p nyash_kernel --lib --tests --no-run` PASS
 - latest cleanup bundle:
   - `cargo check -q --bin hakorune` PASS
   - `cargo test -q -p nyash_kernel --lib -- --test-threads=1` PASS
@@ -70,21 +77,30 @@ Scope: current lane / next lane / restart order only.
     - keep the landed `substring + const + substring -> insert_hsi + final substring_hii` MIR rewrite fixed
     - pure-first now defers publication on the active `insert_hsi -> substring_hii` corridor and lowers the final consumer to runtime-private `nyash.string.piecewise_subrange_hsiii`
     - runtime helper stays single-session and materializes once after the text-read session closes; no transient box/handle carrier is minted on the hot lane
-  - same-artifact exact front:
+    - `perf-observe`-only measurement seam is now landed inside the hot helper:
+      - `with_piecewise_borrowed_inputs`
+      - `materialize_piecewise_all_three`
+      - `publish_kernel_text_slot_boundary`
+      - `piecewise_subrange_hsiii_into_slot`
+  - latest plain-release reread:
     - `kilo_micro_substring_concat`
       - `C: instr=1,622,876 / cycles=477,384 / ms=3`
-      - `Ny AOT: instr=260,618,242 / cycles=65,483,876 / ms=22`
+      - `Ny AOT: instr=250,719,186 / cycles=75,991,646 / ms=23`
   - accept gate:
     - `kilo_micro_substring_only`
       - `C: instr=1,622,874 / cycles=496,361 / ms=3`
-      - `Ny AOT: instr=1,669,422 / cycles=1,066,057 / ms=3`
+      - `Ny AOT: instr=1,669,562 / cycles=1,019,617 / ms=3`
   - whole-kilo guard:
-    - `kilo_kernel_small_hk: 704 ms`
-  - asm/top reread:
-    - `piecewise_subrange_hsiii_fallback closure: 87.84%`
-    - `__memmove_avx512_unaligned_erms: 5.40%`
-    - allocator samples are secondary
-  - counter reread on the same front:
+    - `kilo_kernel_small_hk: 712 ms`
+  - latest `perf-observe` seam reread on `kilo_micro_substring_concat`:
+    - `freeze_owned_bytes: 19-22%`
+    - `issue_fresh_handle: 18-20%`
+    - `with_text_read_session_ready closure: 16-19%`
+    - `publish_kernel_text_slot_boundary: 15-16%`
+    - `StringBox::perf_observe_from_owned: 10-13%`
+    - `with_piecewise_borrowed_inputs: 4-8%`
+    - `materialize_piecewise_all_three: 0.4-0.6%`
+  - frozen route proof on the same front:
     - `str.substring.route total=0`
     - `slow_plan=0`
     - `slow_plan_view_span=0`
@@ -101,12 +117,15 @@ Scope: current lane / next lane / restart order only.
   - current reading:
     - old substring route / slow-plan corridor is no longer the primary blocker on this front
     - the active front is already 100% on the landed piecewise fast path (`single_session_hit=all_three=300000`, `fallback_insert=0`)
-    - the remaining exact gap sits inside `piecewise_subrange_hsiii_fallback`, especially final owned materialize -> `StringBox`/`Arc` objectize -> fresh handle issue
+    - the remaining exact gap is no longer the three-piece copy itself; the hot seam is publication/objectize/fresh-handle issue
+    - `materialize_piecewise_all_three` is confirmed non-dominant on this front
+    - session/TLS entry overhead is still visible, but it is now secondary to the publication tail
     - this lane is not blocked by a language-level inability to delay boxing/publication; MIR already carries the contract that the active corridor has not reached a boundary that demands a public handle yet
     - the missing piece is implementation-mainline shape: the string-lane unpublished outcome is still not the natural runtime-private carrier on the hot path, so the result keeps falling back into public handle world at the tail
     - latest design review tightens that gap further: Birth / Placement already has backend-private carriers, but Value Repr / ABI still lacks a first-class internal result manifest that makes unpublished outcome a canonical direct-kernel return shape
     - route/publication design is not the blocker on this front anymore
     - repeated executor-local thin cuts are now stalling on the same result-representation tail
+    - treat published-ness as boundary bookkeeping, not as the hot-lane value carrier to optimize around
     - external consult plus source review now triage the next work like this:
       - adopt:
         - separate semantic result birth from public handle publication
@@ -125,9 +144,10 @@ Scope: current lane / next lane / restart order only.
         - runtime/shim route re-recognition or remembered-chain legality
         - generic helper widening
         - public ABI rethink on this lane
+        - generic slot API expansion on this card
     - next step is no longer “another thin cut”; it is:
       - landed: `mir-proof` now locks `publish-now not required before first external boundary` as plan metadata
-      - next: `runtime-executor` to consume that contract and split freeze vs publish on the active corridor only
+      - next: `runtime-executor` to consume that contract and prove `slot-kept until first true external boundary` on the active corridor only
       - shim-local `remember_deferred_piecewise_subrange(...)` / `find_deferred_piecewise_subrange(...)` now read as transport helpers only; they are not proof owners and must not become legality owners
   - rejected runtime-executor probe:
     - attempted a runtime-private `piecewise` carrier by issuing a transient box/handle from `insert_const_mid_fallback` and short-circuiting `substring_hii` through that carrier

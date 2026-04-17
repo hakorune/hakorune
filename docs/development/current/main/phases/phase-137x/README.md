@@ -1,7 +1,7 @@
 # Phase 137x: main kilo reopen selection
 
-- Status: Active Guardrail
-- 目的: string corridor / borrowed-corridor perf validation を guardrail lane として維持し、current implementation lane `phase-163x` の変更が string hot lane を壊していないかを exact/whole/asm で継続監視する。
+- Status: Active Reopen
+- 目的: string corridor / borrowed-corridor perf validation を current optimization lane として維持し、`kilo_micro_substring_concat` の hot corridor を measurement seam 付きで切り分けながら、runtime-executor follow-on を corridor-local に詰める。
 - 対象:
   - `CURRENT_TASK.md`
   - `docs/development/current/main/05-Restart-Quick-Resume.md`
@@ -26,7 +26,7 @@
 - `phase-138x` / `phase-139x` / `phase-140x` / `phase-141x` semantic-owner corridor is landed
 - contract-first corridor は landed
 - Birth / Placement vocabulary lock is now landed in design SSOT
-- perf consumer は llvmlite object emit retreat の後で reopen
+- `perf-observe` seam split is now landed for the hot `piecewise_subrange_hsiii` corridor
 - `vm-hako` stays parked as reference/conformance
 
 ## Restart Handoff
@@ -37,7 +37,8 @@
   - `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
 - current upstream string corridor design anchor is now:
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-- current sibling implementation lane:
+- current sibling/background lanes:
+  - `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md`
   - `docs/development/current/main/phases/phase-163x/README.md`
   - `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
 - pre-optimization cleanup anchor is now:
@@ -48,23 +49,32 @@
   - `kilo_micro_substring_views_only`
   - `kilo_micro_len_substring_views`
 - current broader-corridor reopen front is `kilo_micro_substring_concat`
-- current live reread after the 2026-04-17 publication-boundary keeper:
+- current live reread after the 2026-04-18 measurement-seam refresh:
   - `kilo_micro_substring_only`
     - `C: instr=1,622,874 / cycles=496,361 / ms=3`
-    - `Ny AOT: instr=1,669,422 / cycles=1,066,057 / ms=3`
+    - `Ny AOT: instr=1,669,562 / cycles=1,019,617 / ms=3`
   - `kilo_micro_substring_concat`
     - `C: instr=1,622,876 / cycles=477,384 / ms=3`
-    - `Ny AOT: instr=260,618,242 / cycles=65,483,876 / ms=22`
+    - `Ny AOT: instr=250,719,186 / cycles=75,991,646 / ms=23`
   - `kilo_kernel_small_hk`
-    - `Ny AOT: ms=704`
+    - `Ny AOT: ms=712`
   - current keeper diff:
     - keep the landed `substring + const + substring -> insert_hsi + final substring_hii` MIR rewrite fixed
     - pure-first now defers publication on the active `insert_hsi -> substring_hii` corridor and emits runtime-private `nyash.string.piecewise_subrange_hsiii`
     - runtime helper stays single-session and materializes once after the text-read session closes; the deadlock-inducing in-session handle issue path is removed
-  - current asm/top reread:
-    - `piecewise_subrange_hsiii_fallback closure: 87.84%`
-    - `__memmove_avx512_unaligned_erms: 5.40%`
-    - allocator samples are secondary
+    - `perf-observe` seam exposes:
+      - `with_piecewise_borrowed_inputs`
+      - `materialize_piecewise_all_three`
+      - `publish_kernel_text_slot_boundary`
+      - `piecewise_subrange_hsiii_into_slot`
+- latest `perf-observe` top report on the same front:
+  - `freeze_owned_bytes: 19-22%`
+  - `issue_fresh_handle: 18-20%`
+  - `with_text_read_session_ready closure: 16-19%`
+  - `publish_kernel_text_slot_boundary: 15-16%`
+  - `StringBox::perf_observe_from_owned: 10-13%`
+  - `with_piecewise_borrowed_inputs: 4-8%`
+  - `materialize_piecewise_all_three: 0.4-0.6%`
 - current counter reread on the same front:
   - `str.substring.route total=0`
   - `slow_plan=0`
@@ -82,8 +92,10 @@
 - current design verdict:
   - route selection / publication boundary is no longer the blocker on this front
   - the active exact front is already 100% on the landed single-session three-piece fast path; fallback selection and piece-shape branching are not the remaining cost center
-  - the remaining exact gap is executor-local: final owned materialize -> `StringBox`/`Arc` objectize -> fresh handle issue
+  - the remaining exact gap is executor-local publication/objectization, not the all-three materialize
   - latest external consult also reads this as “benchmarking the publication subsystem”, not another route/helper miss
+  - `materialize_piecewise_all_three` is now measured as secondary noise on this front
+  - `with_text_read_session_ready` / TLS entry is still visible, but it is the secondary hotspot behind publish/objectize/handle issue
   - this does not mean Hakorune is “a language that cannot remove boxes”; the MIR/publication contract already permits delayed publication on this lane
   - phase-137x should be read as `value-first / box-on-demand / publish-last`
     rather than `box禁止`
@@ -93,11 +105,15 @@
   - but repeated executor-local thin cuts are now stalling on the same result-representation tail
   - consult + source review say the next step is not another thin cut; it is a two-card return:
     - landed `mir-proof`: active concat-triplet substring plans now carry `publish_now_not_required_before_first_external_boundary`
-    - next `runtime-executor`: split runtime-private freeze vs publish on that corridor only, starting from an `OwnedBytes`-class unpublished carrier below the public handle facade
+    - next `runtime-executor`: prove slot-kept until first true external boundary on that corridor only, starting from an `OwnedBytes`-class unpublished carrier below the public handle facade
     - phase-137x minimal carrier placement is now fixed as:
       - carrier location: direct-kernel-local caller-owned slot
       - carrier producer/consumer: corridor-local executor
       - registry: cold publish adapter only
+  - design tighten before code:
+    - keep carrier and publication physically separated; the corridor-local slot transports value, the cold adapter owns `StringBox` / `Arc` / handle issue
+    - treat published-ness as boundary bookkeeping, not as the steady-state hot-lane value shape
+    - do not broaden this proof into a generic slot API or remembered chain substrate
 - result-representation consult triage:
   - adopt:
     - separate semantic result birth from public handle publication
@@ -123,6 +139,7 @@
 - current test acceptance note:
   - use `cargo test -q -p nyash_kernel --lib -- --test-threads=1` as the deterministic lane gate
   - parallel `cargo test -q -p nyash_kernel --lib` is still monitor-only on this lane because cache/view tests are parallel-flaky
+  - use `cargo check --features perf-observe -p nyash_kernel` before trusting seam-level perf reads
 - rejected executor-local non-wins after the publication-boundary keeper:
   - attempted a runtime-private direct string birth to bypass part of the generic materialize/objectize path
   - exact front reread:

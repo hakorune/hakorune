@@ -1,10 +1,10 @@
 ---
 Status: Active
-Date: 2026-04-16
+Date: 2026-04-18
 Scope: 再起動直後に 2〜5 分で current lane に戻るための最短手順。
 Related:
   - CURRENT_TASK.md
-  - docs/development/current/main/15-Workstream-Map.md
+  - docs/development/current/main/phases/phase-137x/README.md
   - docs/development/current/main/10-Now.md
 ---
 
@@ -15,59 +15,56 @@ Related:
 ```bash
 cd /home/tomoaki/git/hakorune-selfhost
 git status -sb
-cargo test --lib --no-run
-cargo check --bin hakorune
-bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq
+tools/checks/dev_gate.sh quick
+cargo test -p nyash_kernel --lib string_helpers::tests:: -- --nocapture
+cargo check --features perf-observe -p nyash_kernel
 ```
 
 ## Current
 
-- lane: `phase-29bq loop owner seam cleanup landing`
-- guardrail: `phase-137x string corridor / exact-keeper guardrail`
-- immediate next: `return to optimization (kilo / micro-kilo)`
-- immediate follow-on: `phase-29bq failure-driven only if a new exact blocker appears`
+- lane: `phase-137x runtime-executor corridor-local slot transport`
+- background lanes:
+  - `phase-29bq loop owner seam cleanup landing`
+  - `phase-163x primitive-family / user-box fast-path landing`
+- immediate next: `slot-kept until first true external boundary A/B on kilo_micro_substring_concat`
+- immediate follow-on: `promote the corridor-local publish-last executor path only if exact front wins and whole-kilo stays neutral`
 
 ## Current Handoff
 
 - blocker: `none`
-- cleanup / structure reform is in landing-closeout mode; current exact closeout is `folderization residue inventory` (`direct plan import residue`)
-- residue exact shape:
-  - explicit facts-local `plan_residue` under `facts/`
-  - intentional top-level owner surfaces remain under `recipes / lower / verify / ssa / cleanup / facts`
-  - `plan/policies` is compat-only for already-moved cleanup policies
-  - route-entry no longer needs a dedicated keep-plan bridge
+- worktree: dirty is expected; do not reset unrelated compiler-lane diffs just to make the tree clean
+- live front:
+  - `kilo_micro_substring_concat`
+  - accept gate=`kilo_micro_substring_only`
+  - whole guard=`kilo_kernel_small_hk`
+- live reading:
+  - route selection is no longer the blocker; the active front is already on the landed single-session `piecewise_subrange_hsiii` path
+  - dominant cost is publication tail: `publish_kernel_text_slot_boundary` / `StringBox` / fresh `handle_issue`
+  - `materialize_piecewise_all_three` is measured as secondary on this front
+  - `with_text_read_session_ready` / TLS entry is still visible, but it is the second hotspot
 - next exact handoff:
-  - `plan/recipe_tree` now depends on top-level `recipes::{RecipeBody, refs}` owner surfaces
-  - `plan/parts/join_scope.rs` split is landed
-  - `loop_scan_phi_vars_v0::nested_loop_handoff` now owns nested fastpath binding application and no longer spills it back through recipe handoff
-  - `plan::loop_cond_shared` is deleted; branch-tail helpers now live under facts common helpers and `planner_gate` is inlined into `break_continue_entry`
-  - `plan/loop_cond` compat facts/recipe wrappers are deleted; feature/normalizer callers now import top-level `facts` / `recipes` owners directly
-  - `plan/loop_scan_phi_vars_v0` compat facts/pipeline-entry re-exports are deleted; the family pipeline now imports top-level `facts::loop_scan_phi_vars_v0` directly and composer calls `pipeline::lower_loop_scan_phi_vars_v0` explicitly
-  - `plan/loop_scan_methods_block_v0::recipe` is deleted; the family now imports top-level `recipes::loop_scan_methods_block_v0` directly
-  - `loop_cond::break_continue_types` compat wrapper removal is landed
-  - `loop_cond` builder-side inventory (`planner_gate` inline) is landed
-  - next shared-infra pointer is `folderization residue inventory` (`direct plan import residue`)
-  - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
-  - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
-  - keep `loop_cond` keep-plan residue internal to the family
+  - keep public ABI handle-based
+  - keep `proof_region` / `publication_boundary` legality MIR-owned
+  - prove `slot-kept until first true external boundary` only on the active corridor
+  - keep slot transport corridor-local; the cold publish adapter alone owns `StringBox` / `Arc` / handle issue
+  - do not widen this card into a generic slot API, registry carrier, or remembered chain path
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md`
+2. `docs/development/current/main/phases/phase-137x/README.md`
 3. `docs/development/current/main/10-Now.md`
-4. `docs/development/current/main/15-Workstream-Map.md`
-5. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
-6. `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
-7. `docs/development/current/main/phases/phase-29bq/29bq-91-mirbuilder-migration-progress-checklist.md`
-8. `docs/development/current/main/phases/phase-29bq/29bq-92-parser-handoff-checklist.md`
-9. `docs/development/current/main/phases/phase-137x/README.md`
+4. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+5. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+6. `docs/development/current/main/15-Workstream-Map.md`
+7. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Current Proof Bundle
 
 ```bash
 git status -sb
-cargo test --lib --no-run
-cargo check --bin hakorune
-bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq
+tools/checks/dev_gate.sh quick
+cargo test -p nyash_kernel --lib string_helpers::tests:: -- --nocapture
+cargo check --features perf-observe -p nyash_kernel
+cargo test -p nyash_kernel --lib --tests --no-run
 ```
