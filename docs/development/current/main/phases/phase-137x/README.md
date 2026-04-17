@@ -279,6 +279,11 @@
   - latest runtime-private seam reread:
     - `freeze_owned_bytes(...) -> publish_owned_bytes(...)` on the active `piecewise_subrange_hsiii` tail compiled and passed targeted tests, but exact-front reread moved to `261,219,101 instr / 21 ms`
     - treat that slice as reject on this lane; it validates the seam shape but does not remove the hot publication tax
+  - rejected shared-materialize OwnedBytes seam:
+    - making the phase-137x minimal internal-result seam explicit through the shared materialize/publication path kept the exact front near the keeper band (`261,218,390 instr / 19 ms`) and kept `substring_only` healthy
+    - but whole-kilo regressed to `ny_aot_ms=1965` while `c_ms=77`
+    - read this as shared-helper scope widening, not as a rejection of the `OwnedBytes` carrier direction itself
+    - do not reopen this shape by changing generic `string_handle_from_owned` or other shared materialize/publication helpers; future `OwnedBytes` work must stay corridor-local or direct-kernel-local
 - current broader-corridor genericization rule:
   - do not add a new string-only MIR dialect
   - landed: `string_corridor_candidates` now carry proof-bearing plan metadata for borrowed-slice and concat-triplet routes

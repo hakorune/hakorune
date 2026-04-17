@@ -232,6 +232,16 @@ Runtime remains executor only.
    - exact-front reread still moved to `261,219,101 instr / 21 ms`
    - treat that seam as reject on this lane; it validates the split shape but
      does not remove the hot publication tax
+ - rejected shared-materialize OwnedBytes seam:
+   - making the phase-137x minimal internal-result seam explicit through the
+     shared materialize/publication path kept the exact front near the keeper
+     band (`261,218,390 instr / 19 ms`) but regressed `kilo_kernel_small_hk`
+     to `1965 ms`
+   - read this as shared-helper scope widening, not as a rejection of the
+     `OwnedBytes` carrier idea itself
+   - do not reopen this shape by rewriting shared `string_handle_from_owned`
+     style helpers; keep future `OwnedBytes` work corridor-local or
+     direct-kernel-local
  - rejected registry-backed deferred publication:
    - storing fresh `piecewise_subrange_hsiii` results as deferred owned text
      behind the public handle surface regressed the exact front to

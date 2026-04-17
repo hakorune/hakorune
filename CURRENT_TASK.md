@@ -212,6 +212,29 @@ Scope: current lane / next lane / restart order only.
       - the registry-backed deferred owned-text handle was not transparent to the loop-carried active corridor; the exact front fell off the landed `piecewise_subrange_hsiii` fast path and repinned to the generic `insert_hsi -> substring_hii` route
       - the broken property was loop-carried fast-path continuity, not legality or publication-boundary proof
       - do not reopen registry-backed deferred owned-text publication on this lane without a stronger proof that next-iteration pure-string consumers stay on the landed piecewise fast path
+  - rejected runtime-executor shared-materialize OwnedBytes seam:
+    - attempted to make the phase-137x minimal internal-result seam explicit by routing the active `piecewise_subrange_hsiii` tail through `freeze_owned_bytes(...) -> publish_owned_bytes(...)` inside the shared materialize/publication path
+    - exact front reread:
+      - `kilo_micro_substring_concat`
+        - `C: instr=1,622,877 / cycles=486,127 / ms=3`
+        - `Ny AOT: instr=261,218,390 / cycles=65,395,325 / ms=19`
+    - accept gate stayed healthy:
+      - `kilo_micro_substring_only`
+        - `C: instr=1,622,919 / cycles=489,543 / ms=3`
+        - `Ny AOT: instr=1,669,550 / cycles=999,977 / ms=3`
+    - whole-kilo guard regressed:
+      - `kilo_kernel_small_hk`
+        - `C: 77 ms`
+        - `Ny AOT: 1,965 ms`
+    - asm/top reread on the exact front:
+      - `piecewise_subrange_hsiii_fallback: 78.80%`
+      - `__memmove_avx512_unaligned_erms: 10.28%`
+      - `malloc: 2.03%`
+      - `_int_malloc: 1.92%`
+    - reading:
+      - the `OwnedBytes` carrier direction is still coherent, but rewriting the shared materialize/publication path widened the slice beyond the active corridor
+      - the exact front stayed on the landed `piecewise_subrange_hsiii` route, but whole-kilo paid the broader publication-path cost
+      - do not reopen this shape by changing shared `string_handle_from_owned(...)` / generic materialize helpers; future `OwnedBytes` work must stay corridor-local or direct-kernel-local
 - optimization re-entry card:
   - this remains the historical next-cut template on top of the current keeper baseline
   - front: `kilo_micro_substring_concat`
