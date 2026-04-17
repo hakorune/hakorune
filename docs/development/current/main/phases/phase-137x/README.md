@@ -1237,14 +1237,52 @@ The next perf cut should not start until these mechanical contracts are fixed.
         - `kilo_micro_array_string_store: 174 ms`
         - `kilo_kernel_small_hk: 715 ms`
       - one `1894 ms` whole-kilo outlier was discarded after the immediate reread returned to the current band
+    - latest landed array string-store perf seam split:
+      - commit: `93e390455 refactor: split array string-store perf seams`
+      - runtime-private measurement seams are now explicit:
+        - `capture_store_array_str_source(...)`
+        - `store_array_str_value_from_source(...)`
+        - `execute_store_array_str_slot_boundary(...)`
+        - `store_string_box_from_verified_text_source(...)`
+      - verification:
+        - `cargo check --features perf-observe -p nyash_kernel` PASS
+        - `cargo test -p nyash_kernel set_his_alias_sets_string_handle_value -- --test-threads=1` PASS
+      - observe reread on exact `kilo_micro_array_string_store`:
+        - `freeze_owned_bytes: 15.76%`
+        - `issue_fresh_handle: 14.54%`
+        - `StringBox::perf_observe_from_owned: 11.70%`
+        - `capture_store_array_str_source: 8.53%`
+        - `string_concat_hh_export_impl: 7.23%`
+        - `string_len_export_slow_path: 6.74%`
+        - `LocalKey::with: 5.72%`
+        - `__memmove_avx512_unaligned_erms: 4.63%`
+        - `nyash.string.concat_hs: 4.49%`
+        - `execute_store_array_str_contract: 4.44%`
+        - `execute_store_array_str_slot_boundary: 4.30%`
+        - `string_substring_concat_hhii_export_impl: 3.28%`
+      - reading:
+        - dominant cost is still upstream birth/publication plus source capture
+        - slot mutation itself is not the first owner once the source has already been published
+    - latest rejected non-direct-set `const_suffix` widening:
+      - changed `classify_string_concat_pair_route(...)` so a const-suffix pair could select `const_suffix` without `direct_set` when it was not a concat3 chain
+      - exact reread after rebuild:
+        - `kilo_micro_array_string_store: 174 ms`
+        - `kilo_micro_concat_const_suffix: 3 ms`
+        - `kilo_kernel_small_hk: 708 ms`
+      - trusted direct MIR for `bench_kilo_micro_array_string_store.hako` still shows duplicated producer birth:
+        - one `text + "xy"` result feeds `set(...)`
+        - a second `text + "xy"` result feeds trailing `substring(...)`
+      - reading:
+        - widening `const_suffix` alone does not delete the current exact gap
+        - next cut moves to compiler-local placement proof around the duplicated producer window, not further runtime or route widening
     - next observation order is fixed:
-     1. split the `store.array.str -> with_handle(ArrayStoreStrSource)` object contract again before changing behavior
-     2. keep borrowed alias string-read trimming closed; live-source fast read was not enough
-     3. keep typed `StringBox` payload widening closed at the host-handle layer
-     4. keep `keep_source_arc` clone-elision ideas closed; ptr-eq never hits on the current culprit
-     5. keep typed `BorrowedStringKeep::StringBox` fast path closed; transport-only specialization still loses
-     6. do not add more typed-helper transport; move the next cut to the source-lifetime contract side
-     7. use `BorrowedStringKeep` as the backend-private seam, but change keep semantics before keep representation changes again
+     1. keep the landed `store.array.str` perf seam split and use it only for measurement
+     2. prove or reject the duplicated `const_suffix -> store + substring` placement window on the trusted direct MIR
+     3. keep borrowed alias string-read trimming closed; live-source fast read was not enough
+     4. keep typed `StringBox` payload widening closed at the host-handle layer
+     5. keep `keep_source_arc` clone-elision ideas closed; ptr-eq never hits on the current culprit
+     6. keep typed `BorrowedStringKeep::StringBox` fast path closed; transport-only specialization still loses
+     7. do not add more typed-helper transport; move the next cut to compiler-local placement/source-lifetime facts before representation changes again
      8. only then retry delayed `StableBoxNow`
    - `DeferredString` experiment truth:
      - exact micro improved:

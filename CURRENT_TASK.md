@@ -28,12 +28,12 @@ Scope: current lane / next lane / restart order only.
   - dirty is expected right now; phase-137x runtime/private string corridor edits may coexist with sibling compiler-lane edits
   - do not reset unrelated changes just to make the tree look clean
 - active lane:
-  - `phase-137x trusted direct emit alignment keeper`
+  - `phase-137x trusted direct emit keeper + array-store placement-window reread`
 - background lanes:
   - `phase-29bq loop owner seam cleanup landing`
   - `phase-163x primitive-family / user-box fast-path landing`
 - immediate next:
-  - `phase-137x next explicit card is route/pack confirmation: re-read adjacent exact fronts on the trusted direct emit lane and decide whether runtime-executor slot transport stays active or parks as background proof`
+  - `phase-137x next explicit card is compiler-local placement window proof on kilo_micro_array_string_store: prove whether duplicated const-suffix birth around store + substring is the next owner before reopening runtime work`
 - pre-optimization prerequisites:
   1. `KernelTextSlot` lifecycle contract stays explicit:
      - caller-owned
@@ -52,7 +52,7 @@ Scope: current lane / next lane / restart order only.
   5. current landing is corridor-local only; next follow-on owns same-corridor slot transport
   6. do not widen this card into a generic slot API or helper substrate
 - immediate follow-on:
-  - `phase-137x follow with llvm-export only after the runtime-private outcome seam stabilizes; do not reopen route structure, new recognizers, or public-ABI changes`
+  - `phase-137x keep runtime-private slot transport parked as background structure; do not reopen runtime widening or public-ABI changes before the placement-window proof says the duplication is real`
 - wording lock:
   - `phase-137x` reads as `value-first / box-on-demand / publish-last`
   - this is not a `box禁止` lane; boxes remain valid at public/publication boundaries
@@ -123,10 +123,52 @@ Scope: current lane / next lane / restart order only.
     - bare perf `hakorune --emit-mir-json` emitted the older `insert_hsi -> substring_hii` payload, while the trusted stage1 direct route emitted the proof-bearing `substring_concat3_hhhii` payload already locked by the phase smokes
     - aligning perf AOT to the trusted direct route collapsed `kilo_micro_substring_concat` from `23 ms` to `3 ms` while keeping `kilo_micro_substring_only` green and `kilo_kernel_small_hk` neutral-to-better
     - the runtime-private slot seam remains landed as background structure, but it is no longer the immediate blocker for the active perf front
-    - next work is confirmation, not widening:
-      - re-read adjacent exact fronts on the trusted route
-      - keep the runtime-executor slot transport card parked unless the trusted route reopens the gap elsewhere
-      - keep public ABI / legality ownership unchanged
+    - adjacent exact rereads moved the next owner away from substring and onto array/string-store family:
+      - `kilo_micro_substring_views_only`
+        - `C: instr=122,920 / cycles=184,041 / ms=2`
+        - `Ny AOT: instr=465,265 / cycles=655,475 / ms=3`
+      - `kilo_micro_len_substring_views`
+        - `C: instr=1,622,877 / cycles=494,646 / ms=3`
+        - `Ny AOT: instr=1,672,069 / cycles=1,025,561 / ms=3`
+      - `kilo_micro_array_string_store`
+        - `C: instr=30,525,561 / cycles=34,154,581 / ms=10`
+        - `Ny AOT: instr=2,180,122,570 / cycles=749,381,803 / ms=174`
+      - `kilo_leaf_array_string_indexof_const`
+        - `Ny AOT: instr=1,919,465,781 / cycles=310,957,277 / ms=61`
+    - landed measurement seam for that next owner:
+      - commit: `93e390455 refactor: split array string-store perf seams`
+      - `perf-observe` symbols now split as:
+        - `capture_store_array_str_source`
+        - `store_array_str_value_from_source`
+        - `execute_store_array_str_slot_boundary`
+        - `store_string_box_from_verified_text_source`
+    - latest `perf-observe` reread on `kilo_micro_array_string_store`:
+      - `freeze_owned_bytes: 15.76%`
+      - `issue_fresh_handle: 14.54%`
+      - `StringBox::perf_observe_from_owned: 11.70%`
+      - `capture_store_array_str_source: 8.53%`
+      - `string_concat_hh_export_impl: 7.23%`
+      - `string_len_export_slow_path: 6.74%`
+      - `LocalKey::with: 5.72%`
+      - `__memmove_avx512_unaligned_erms: 4.63%`
+      - `nyash.string.concat_hs: 4.49%`
+      - `execute_store_array_str_contract: 4.44%`
+      - `execute_store_array_str_slot_boundary: 4.30%`
+      - `string_substring_concat_hhii_export_impl: 3.28%`
+    - current array-store reading:
+      - dominant cost is still upstream birth/publication plus source capture, not slot mutation by itself
+      - trusted direct MIR for `bench_kilo_micro_array_string_store.hako` still duplicates `text + "xy"`:
+        - one result feeds `set(...)`
+        - one result feeds the trailing `substring(...)`
+      - latest widening retry was rejected:
+        - generalized non-direct-set `const_suffix` selection in `classify_string_concat_pair_route(...)`
+        - exact reread stayed flat (`kilo_micro_array_string_store: 174 ms`)
+        - isolated `kilo_micro_concat_const_suffix` stayed `3 ms`
+        - whole guard stayed current-band only (`kilo_kernel_small_hk: 708 ms`)
+      - next work is compiler-local placement proof, not more runtime leaf widening:
+        - prove whether duplicate producer birth is the current owner
+        - keep runtime-executor slot transport parked unless that proof fails
+        - keep public ABI / legality ownership unchanged
   - rejected runtime-executor probe:
     - attempted a runtime-private `piecewise` carrier by issuing a transient box/handle from `insert_const_mid_fallback` and short-circuiting `substring_hii` through that carrier
     - exact front reread:
