@@ -2,8 +2,7 @@ use super::array_guard::valid_handle_idx;
 use super::handle_cache::{cache_probe_kind, CacheProbeKind as HandleCacheProbeKind};
 use super::value_codec::{
     maybe_store_non_string_box_from_verified_source, store_string_box_from_kernel_text_slot,
-    store_string_keep_from_kernel_text_slot,
-    store_string_box_from_verified_text_source,
+    store_string_box_from_verified_text_source, store_string_keep_from_kernel_text_slot,
     try_retarget_borrowed_string_slot_take_unpublished_keep,
     try_retarget_borrowed_string_slot_take_verified_text_source, with_array_store_str_source,
     ArrayStoreStrSource, BorrowedHandleBox, KernelTextSlot, StringHandleSourceKind,
@@ -290,6 +289,41 @@ fn execute_store_array_str_slot(
     if idx > items.len() {
         return 0;
     }
+    match execute_store_array_str_plan_and_retarget_boundary(
+        items,
+        idx,
+        value_h,
+        source_kind,
+        source,
+        drop_epoch,
+    ) {
+        StoreArrayStrBoundaryStep::Retargeted => 1,
+        StoreArrayStrBoundaryStep::Continue { plan, source } => {
+            execute_store_array_str_store_from_source_boundary(
+                items, idx, value_h, plan, source, drop_epoch,
+            )
+        }
+    }
+}
+
+enum StoreArrayStrBoundaryStep {
+    Retargeted,
+    Continue {
+        plan: StoreArrayStrPlan,
+        source: ArrayStoreStrSource,
+    },
+}
+
+#[cfg_attr(feature = "perf-observe", inline(never))]
+#[cfg_attr(not(feature = "perf-observe"), inline(always))]
+fn execute_store_array_str_plan_and_retarget_boundary(
+    items: &mut Vec<Box<dyn nyash_rust::box_trait::NyashBox>>,
+    idx: usize,
+    value_h: i64,
+    source_kind: StringHandleSourceKind,
+    source: ArrayStoreStrSource,
+    drop_epoch: u64,
+) -> StoreArrayStrBoundaryStep {
     let mut source = source;
     if observe::enabled() {
         if idx < items.len() {
@@ -332,7 +366,7 @@ fn execute_store_array_str_slot(
                         if plan.latest_fresh_source {
                             observe::record_store_array_str_latest_fresh_retarget_hit();
                         }
-                        return 1;
+                        return StoreArrayStrBoundaryStep::Retargeted;
                     }
                     Err(source_keep) => {
                         source = ArrayStoreStrSource::StringLike(source_keep);
@@ -341,6 +375,19 @@ fn execute_store_array_str_slot(
             }
         }
     }
+    StoreArrayStrBoundaryStep::Continue { plan, source }
+}
+
+#[cfg_attr(feature = "perf-observe", inline(never))]
+#[cfg_attr(not(feature = "perf-observe"), inline(always))]
+fn execute_store_array_str_store_from_source_boundary(
+    items: &mut Vec<Box<dyn nyash_rust::box_trait::NyashBox>>,
+    idx: usize,
+    value_h: i64,
+    plan: StoreArrayStrPlan,
+    source: ArrayStoreStrSource,
+    drop_epoch: u64,
+) -> i64 {
     if plan.source_is_string {
         observe::record_store_array_str_source_store();
         if plan.latest_fresh_source {

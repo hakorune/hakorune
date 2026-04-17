@@ -258,15 +258,51 @@ fn publish_owned_bytes_with_reason(bytes: OwnedBytes, reason: PublishReason) -> 
     issue_fresh_handle(arc)
 }
 
+#[cfg(feature = "perf-observe")]
+#[inline(never)]
+fn publish_owned_bytes_explicit_api_boundary(bytes: OwnedBytes) -> i64 {
+    publish_owned_bytes_with_reason(bytes, PublishReason::ExplicitApi)
+}
+
+#[cfg(not(feature = "perf-observe"))]
+#[inline(always)]
+fn publish_owned_bytes_explicit_api_boundary(bytes: OwnedBytes) -> i64 {
+    publish_owned_bytes_with_reason(bytes, PublishReason::ExplicitApi)
+}
+
+#[cfg(feature = "perf-observe")]
+#[inline(never)]
+fn publish_owned_bytes_external_boundary(bytes: OwnedBytes) -> i64 {
+    publish_owned_bytes_with_reason(bytes, PublishReason::ExternalBoundary)
+}
+
+#[cfg(not(feature = "perf-observe"))]
+#[inline(always)]
+fn publish_owned_bytes_external_boundary(bytes: OwnedBytes) -> i64 {
+    publish_owned_bytes_with_reason(bytes, PublishReason::ExternalBoundary)
+}
+
+#[cfg(feature = "perf-observe")]
+#[inline(never)]
+fn publish_owned_bytes_generic_fallback_boundary(bytes: OwnedBytes) -> i64 {
+    publish_owned_bytes_with_reason(bytes, PublishReason::GenericFallback)
+}
+
+#[cfg(not(feature = "perf-observe"))]
+#[inline(always)]
+fn publish_owned_bytes_generic_fallback_boundary(bytes: OwnedBytes) -> i64 {
+    publish_owned_bytes_with_reason(bytes, PublishReason::GenericFallback)
+}
+
 #[inline(always)]
 pub(crate) fn publish_owned_bytes(bytes: OwnedBytes) -> i64 {
-    publish_owned_bytes_with_reason(bytes, PublishReason::ExplicitApi)
+    publish_owned_bytes_explicit_api_boundary(bytes)
 }
 
 #[inline(always)]
 pub(crate) fn publish_kernel_text_slot(slot: &mut KernelTextSlot) -> Option<i64> {
     let bytes = slot.take_owned_bytes()?;
-    let handle = publish_owned_bytes_with_reason(bytes, PublishReason::ExternalBoundary);
+    let handle = publish_owned_bytes_external_boundary(bytes);
     slot.mark_published();
     Some(handle)
 }
@@ -281,10 +317,10 @@ pub(crate) fn objectize_kernel_text_slot_stable_box(
 
 #[inline(always)]
 pub(crate) fn materialize_owned_string_generic_fallback(value: String) -> i64 {
-    publish_owned_bytes_with_reason(freeze_owned_bytes(value), PublishReason::GenericFallback)
+    publish_owned_bytes_generic_fallback_boundary(freeze_owned_bytes(value))
 }
 
 #[inline(always)]
 pub(crate) fn materialize_owned_string(value: String) -> i64 {
-    publish_owned_bytes_with_reason(freeze_owned_bytes(value), PublishReason::ExplicitApi)
+    publish_owned_bytes_explicit_api_boundary(freeze_owned_bytes(value))
 }

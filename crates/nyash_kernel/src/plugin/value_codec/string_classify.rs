@@ -41,7 +41,8 @@ impl VerifiedTextSource {
     }
 }
 
-#[inline(always)]
+#[cfg_attr(feature = "perf-observe", inline(never))]
+#[cfg_attr(not(feature = "perf-observe"), inline(always))]
 fn materialize_verified_text_source(
     source_obj: &Arc<dyn NyashBox>,
     proof: StringLikeProof,
@@ -78,7 +79,8 @@ pub(crate) fn classify_string_handle_source(
     }
 }
 
-#[inline(always)]
+#[cfg_attr(feature = "perf-observe", inline(never))]
+#[cfg_attr(not(feature = "perf-observe"), inline(always))]
 pub(crate) fn classify_string_like_proof(
     source_obj: Option<&Arc<dyn NyashBox>>,
 ) -> Option<StringLikeProof> {
@@ -96,37 +98,61 @@ pub(crate) fn classify_string_like_proof(
     None
 }
 
+#[cfg_attr(feature = "perf-observe", inline(never))]
+#[cfg_attr(not(feature = "perf-observe"), inline(always))]
+fn lookup_array_store_str_source_obj<R>(
+    source_handle: i64,
+    f: impl FnOnce(Option<&Arc<dyn NyashBox>>) -> R,
+) -> R {
+    handles::with_handle_caller(
+        source_handle as u64,
+        handles::PerfObserveObjectWithHandleCaller::ArrayStoreStrSource,
+        f,
+    )
+}
+
+#[cfg_attr(feature = "perf-observe", inline(never))]
+#[cfg_attr(not(feature = "perf-observe"), inline(always))]
+fn classify_array_store_str_source_proof(
+    source_obj: Option<&Arc<dyn NyashBox>>,
+) -> Option<StringLikeProof> {
+    classify_string_like_proof(source_obj)
+}
+
+#[cfg_attr(feature = "perf-observe", inline(never))]
+#[cfg_attr(not(feature = "perf-observe"), inline(always))]
+fn shape_array_store_str_verified_source(
+    source_obj: &Arc<dyn NyashBox>,
+    proof: StringLikeProof,
+) -> ArrayStoreStrSource {
+    ArrayStoreStrSource::StringLike(materialize_verified_text_source(source_obj, proof))
+}
+
 #[inline(always)]
 pub(crate) fn with_array_store_str_source<R>(
     source_handle: i64,
     f: impl FnOnce(StringHandleSourceKind, ArrayStoreStrSource) -> R,
 ) -> R {
-    handles::with_handle_caller(
-        source_handle as u64,
-        handles::PerfObserveObjectWithHandleCaller::ArrayStoreStrSource,
-        |source_obj| {
-            let (source_kind, source) = match classify_string_like_proof(source_obj) {
-                Some(proof) => {
-                    let source_obj = source_obj.expect("string-like source object");
-                    (
-                        StringHandleSourceKind::StringLike,
-                        ArrayStoreStrSource::StringLike(materialize_verified_text_source(
-                            source_obj, proof,
-                        )),
-                    )
-                }
-                None if source_obj.is_some() => (
-                    StringHandleSourceKind::OtherObject,
-                    ArrayStoreStrSource::OtherObject,
-                ),
-                None => (
-                    StringHandleSourceKind::Missing,
-                    ArrayStoreStrSource::Missing,
-                ),
-            };
-            f(source_kind, source)
-        },
-    )
+    lookup_array_store_str_source_obj(source_handle, |source_obj| {
+        let (source_kind, source) = match classify_array_store_str_source_proof(source_obj) {
+            Some(proof) => {
+                let source_obj = source_obj.expect("string-like source object");
+                (
+                    StringHandleSourceKind::StringLike,
+                    shape_array_store_str_verified_source(source_obj, proof),
+                )
+            }
+            None if source_obj.is_some() => (
+                StringHandleSourceKind::OtherObject,
+                ArrayStoreStrSource::OtherObject,
+            ),
+            None => (
+                StringHandleSourceKind::Missing,
+                ArrayStoreStrSource::Missing,
+            ),
+        };
+        f(source_kind, source)
+    })
 }
 
 #[inline(always)]
