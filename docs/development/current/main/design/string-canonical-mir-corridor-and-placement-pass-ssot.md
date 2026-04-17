@@ -56,6 +56,8 @@ Reading lock:
   [optimization-task-card-os-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-task-card-os-ssot.md)
 - this lane-specific SSOT may refine that contract as
   `string-lane unpublished text outcome`
+- box-on-demand on this lane means objectize only at `publication_boundary`
+  without runtime route re-recognition
 
 ## Current Perf Reading
 
@@ -231,6 +233,20 @@ Phase-137x reading:
    - host registry as cold publish adapter only
  - the verifier should reject “early publish” and “registry carrier” mistakes
   before another runtime-local widening is attempted
+
+Slot-capable consumer rule:
+
+- if the next same-corridor consumer is `slot_text` capable, lowering may keep
+  the value in the direct-kernel-local slot
+- if the next consumer is not `slot_text` capable, MIR/lowering must insert one
+  explicit cold publish at the boundary
+- runtime must not re-recognize this choice dynamically
+
+Verifier placement:
+
+- reject early publish / registry carrier / public-ABI replay before codegen
+- treat this as lowering/direct-kernel-entry verification first
+- do not defer these failures to runtime or post-hoc perf rereads
 
 Do not move these legality checks into runtime route re-recognition.
 Runtime remains executor only.

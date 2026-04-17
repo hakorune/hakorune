@@ -32,8 +32,24 @@ Scope: current lane / next lane / restart order only.
   - `phase-29bq loop owner seam cleanup landing`
 - immediate next:
   - `phase-137x next explicit card is runtime-executor: keep publication split corridor-local and thread a direct-kernel-local slot across same-corridor consumers without reopening shared helpers or registry carriers`
+- pre-optimization prerequisites:
+  1. `KernelTextSlot` lifecycle contract stays explicit:
+     - caller-owned
+     - clear-on-overwrite
+     - clear-on-drop / early-return
+  2. slot-capable consumer rule stays MIR/lowering-owned:
+     - `slot_text` consumer => stay in slot form
+     - non-slot consumer => one explicit cold publish
+  3. lowering/direct-kernel-entry verifier rejects:
+     - early `StableBoxNow`
+     - early `FreshRegistryHandle`
+     - registry-backed carrier
+  4. current landing is corridor-local only; next follow-on owns same-corridor slot transport
 - immediate follow-on:
   - `phase-137x follow with llvm-export only after the runtime-private outcome seam stabilizes; do not reopen route structure, new recognizers, or public-ABI changes`
+- wording lock:
+  - `phase-137x` reads as `value-first / box-on-demand / publish-last`
+  - this is not a `box禁止` lane; boxes remain valid at public/publication boundaries
 - current blocker:
   - `none`
 - latest proof bundle:
@@ -364,8 +380,9 @@ Scope: current lane / next lane / restart order only.
 - fixed task order:
   1. `measurement` is closed for the current keeper baseline
   2. landed `mir-proof` owns `publish-now not required before first external boundary`
-  3. `runtime-executor` is next and owns runtime-private freeze/publish split plus the minimal result-ABI seam
-  4. `llvm-export` waits until that corridor is stable
+  3. lock slot lifecycle + slot-capable consumer rule + lowering verifier
+  4. `runtime-executor` owns runtime-private freeze/publish split plus the minimal result-ABI seam
+  5. `llvm-export` waits until that corridor is stable
 - next exact handoff:
   - optimization-side BoxShape cleanup is landed on:
     - `string_helpers/concat`

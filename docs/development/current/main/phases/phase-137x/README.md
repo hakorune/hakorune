@@ -85,6 +85,9 @@
   - the remaining exact gap is executor-local: final owned materialize -> `StringBox`/`Arc` objectize -> fresh handle issue
   - latest external consult also reads this as “benchmarking the publication subsystem”, not another route/helper miss
   - this does not mean Hakorune is “a language that cannot remove boxes”; the MIR/publication contract already permits delayed publication on this lane
+  - phase-137x should be read as `value-first / box-on-demand / publish-last`
+    rather than `box禁止`
+  - `publish-last` on this lane is a cold-adapter rule, not a ban on boxes
   - the current deficit is that the box-delayed shape is not yet the natural mainline runtime carrier: the active string lane still returns to public handle world at the executor tail instead of flowing through unpublished outcome as the steady-state representation
   - the current `.hako -> MIR proof/publication -> runtime-private executor -> LLVM consumer` design is still coherent
   - but repeated executor-local thin cuts are now stalling on the same result-representation tail
@@ -304,6 +307,25 @@
       - shared helpers stay untouched
       - registry remains cold publish only
       - next card must carry the slot across same-corridor consumers
+
+## Before Next Optimization
+
+The next perf cut should not start until these mechanical contracts are fixed.
+
+1. `KernelTextSlot` lifecycle
+   - caller-owned
+   - clear-on-overwrite
+   - clear-on-drop / early-return
+2. slot-capable consumer rule
+   - same-corridor `slot_text` consumers may stay in slot form
+   - non-slot consumers must get one explicit cold publish from lowering
+3. lowering verifier
+   - reject early `StableBoxNow`
+   - reject early `FreshRegistryHandle`
+   - reject registry-backed carrier
+4. direct-kernel-local slot transport
+   - current landing is corridor-local only
+   - next follow-on must thread slot -> slot across same-corridor consumers
 - current broader-corridor genericization rule:
   - do not add a new string-only MIR dialect
   - landed: `string_corridor_candidates` now carry proof-bearing plan metadata for borrowed-slice and concat-triplet routes

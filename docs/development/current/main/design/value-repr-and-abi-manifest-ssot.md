@@ -168,6 +168,11 @@ Birth / Placement already admits backend-private carriers such as
 vocabulary that lets direct-kernel lanes return unpublished outcome without
 pretending it is already a public handle.
 
+Reading slogan:
+
+- value-first means unpublished outcome first
+- boxes are publication artifacts, not semantic truth
+
 Lock that split here.
 
 ### Public manifest classes
@@ -275,8 +280,16 @@ Ownership rule:
 
 - the slot is caller-owned
 - overwrite must clear the prior `owned_bytes` payload first
+- drop/early-return paths must also clear the prior `owned_bytes` payload first
 - runtime-private slot payload must not escape into the public manifest
 - registry remains publication/storage for `PublishedHandle` only
+
+Phase-137x guard:
+
+- do not treat the local slot seam as proof that loop-carried slot transport is
+  already solved
+- the first landing may keep `KernelTextSlot` corridor-local
+- same-corridor transport is a separate follow-on card
 
 ## Fixed Order
 
