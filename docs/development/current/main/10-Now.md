@@ -26,8 +26,8 @@ Related:
   - `kilo_micro_substring_concat = C 2 ms / Ny AOT 3 ms`
   - `kilo_micro_substring_only = C 3 ms / Ny AOT 3 ms`
 - current broad gap:
-  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 126 ms`
-  - `kilo_kernel_small_hk = C 80 ms / Ny AOT 724 ms`
+  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 132 ms`
+  - `kilo_kernel_small_hk = C 80 ms / Ny AOT 731 ms`
 - `indexOf` separation:
   - keep as side diagnosis; reread only when the main card reopens it
 - current owner reading:
@@ -55,17 +55,32 @@ Related:
     - v1 exact/whole: `252 ms / 765 ms`
     - v2 exact/whole: `211 ms / 1807 ms`
     - they cut at the wrong seam and broke the existing `set_his` fast path
-  - helper-only keeper from that rejected card is landed as `b35382cf9`
+  - a producer-side unpublished-outcome active probe is also rejected:
+    - exact/whole: `236 ms / 2173 ms`
+    - it regressed both fronts while changing the active boundary shape
+  - helper-side keepers from these rejected cards are:
+    - `b35382cf9`
+    - runtime-side alias-retarget repair for kernel-slot store into existing string slots
   - latest `perf-observe` reread no longer ranks `string_len_export_slow_path`; the live top stays on `issue_fresh_handle` / `freeze_owned_bytes` / `capture_store_array_str_source` / `StringBox::perf_observe_from_owned`
+  - latest runtime-fix-only reread stays on the same owner family:
+    - `kilo_micro_array_string_store = C 10 ms / Ny AOT 132 ms`
+    - `kilo_kernel_small_hk = C 80 ms / Ny AOT 731 ms`
   - next first slice is no longer `len_h` removal; it is publication/source-capture reopen with the compiler-known-length lane fixed
+  - latest design consult is accepted in narrowed form:
+    - no syntax expansion
+    - no public raw string / mutable bytes
+    - `const_suffix` stays a future narrow probe, not the immediate active widening
+    - if publication timing wins, reuse existing runtime-private `TextPlan` / `OwnedBytes` seams first
 
 ## Next
 
 1. keep `Stage A` parked as VM/reference-only
 2. keep the compiler-known-length lane fixed and guarded on this front
 3. keep exact rereads pinned on producer-side publication/source-capture before `nyash.array.set_his`
-4. preserve the existing `set_his` fast path while testing unpublished generic concat outcomes
-5. keep `Stage B` narrow and data-driven through `carrier_kind` / `publish_reason`
+4. preserve the existing `set_his` fast path while testing a narrow producer-side unpublished-outcome A/B probe
+5. add plan-local counters for that probe before any route widening
+6. only then try a narrow `const_suffix -> TextPlan::Pieces2` exact-front A/B
+7. keep `Stage B` narrow and data-driven through `carrier_kind` / `publish_reason`
 
 ## Read Next
 

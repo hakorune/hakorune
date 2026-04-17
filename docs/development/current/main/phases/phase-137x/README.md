@@ -65,10 +65,10 @@
   - active owner fronts:
     - `kilo_micro_array_string_store`
       - `C: 10 ms`
-      - `Ny AOT: 126 ms`
+      - `Ny AOT: 132 ms`
     - `kilo_kernel_small_hk`
       - `C: 80 ms`
-      - `Ny AOT: 724 ms`
+      - `Ny AOT: 731 ms`
   - current keeper diff:
     - perf AOT direct emit now uses the same trusted stage1 route as the phase direct-route smokes
     - active perf MIR is back on the proof-bearing `substring_concat3_hhhii` payload instead of the older plain `insert_hsi -> substring_hii` payload
@@ -81,13 +81,14 @@
     - compiler-side known string-length propagation is now landed across const / substring-window / same-length string `phi`
     - active AOT entry IR on this front no longer emits `nyash.string.len_h` in `ny_main`
 - latest `perf-observe` top report on the active array-store front:
-  - `issue_fresh_handle: 15.39%`
-  - `freeze_owned_bytes: 15.34%`
-  - `capture_store_array_str_source: 13.51%`
-  - `StringBox::perf_observe_from_owned: 11.10%`
-  - `string_concat_hh_export_impl: 10.43%`
-  - `LocalKey::with: 6.90%`
-  - `execute_store_array_str_slot_boundary: 5.96%`
+  - `issue_fresh_handle: 16.60%`
+  - `freeze_owned_bytes: 13.31%`
+  - `StringBox::perf_observe_from_owned: 12.29%`
+  - `capture_store_array_str_source: 11.47%`
+  - `string_concat_hh_export_impl: 9.18%`
+  - `string_substring_concat_hhii_export_impl: 6.50%`
+  - `execute_store_array_str_slot_boundary: 6.40%`
+  - `LocalKey::with: 6.35%`
   - `string_substring_concat_hhii_export_impl: 5.61%`
   - `host_handles::with_text_read_session closure: 5.23%`
   - `execute_store_array_str_contract: 4.47%`
@@ -158,17 +159,27 @@
     - v2:
       - `kilo_micro_array_string_store = 211 ms`
       - `kilo_kernel_small_hk = 1807 ms`
+    - producer-side unpublished-outcome active probe:
+      - `kilo_micro_array_string_store = 236 ms`
+      - `kilo_kernel_small_hk = 2173 ms`
     - keeper from that card:
       - `b35382cf9 feat: add kernel text slot store helpers`
+      - runtime-side alias-retarget repair for kernel-slot store into existing string slots
     - rejected reading:
       - the bad cut was the array-store boundary itself
       - the probe bypassed the existing `set_his` fast path / alias-retarget behavior
+      - the producer-side slot route also regressed once activated on the live front, so it stays parked
   - next step is not more owner widening; it is reopening publication/source-capture before `nyash.array.set_his`
   - the `concat_hh + len_h` compiler-known-length slice is now landed; next first slice is no longer `len_h` removal and still not `const_suffix`
   - design tighten before code:
     - keep carrier and publication physically separated; the corridor-local slot transports value, the cold adapter owns `StringBox` / `Arc` / handle issue
     - treat published-ness as boundary bookkeeping, not as the steady-state hot-lane value shape
     - do not broaden this proof into a generic slot API or remembered chain substrate
+  - latest design consult is accepted in narrowed form:
+    - do not add syntax or public raw-string carriers on this lane
+    - `const_suffix` is a valid future narrow probe, but not the immediate first widening on the active front
+    - if that probe reopens, prefer existing runtime-private `TextPlan::Pieces2` / `OwnedBytes` seams before inventing a new carrier
+    - treat unique-`OwnedBytes` in-place append as a second-stage follow-up, not the first proof
 - result-representation consult triage:
   - adopt:
     - separate semantic result birth from public handle publication
@@ -191,6 +202,14 @@
     - generic helper widening
     - public ABI rethink on this lane
     - registry-backed unpublished carriers
+    - syntax expansion or public raw-string exposure on this lane
+- recommended execution order from the current state:
+  1. keep the compiler-known-length keeper fixed and guarded
+  2. reopen producer-side publication/source-capture before `nyash.array.set_his`
+  3. preserve the existing `set_his` fast path while adding a narrow unpublished-outcome A/B probe
+  4. add plan-local counters for that probe before any route widening
+  5. only if the producer-side unpublished probe wins, run a narrow `const_suffix -> TextPlan::Pieces2` exact-front A/B
+  6. only after `Pieces2` proves out, consider unique-`OwnedBytes` in-place append as the next fast path
 - current test acceptance note:
   - use `cargo test -q -p nyash_kernel --lib -- --test-threads=1` as the deterministic lane gate
   - parallel `cargo test -q -p nyash_kernel --lib` is still monitor-only on this lane because cache/view tests are parallel-flaky

@@ -31,12 +31,14 @@ cargo check --features perf-observe -p nyash_kernel
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
 - current snapshot:
   - `kilo_micro_substring_concat = C 2 ms / Ny AOT 3 ms`
-  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 126 ms`
-  - `kilo_kernel_small_hk = C 80 ms / Ny AOT 724 ms`
+  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 132 ms`
+  - `kilo_kernel_small_hk = C 80 ms / Ny AOT 731 ms`
 - immediate next:
   - `reopen producer-side publication/source-capture on kilo_micro_array_string_store while preserving the existing set_his fast path`
 - immediate follow-on:
-  - `compare carrier_kind / publish_reason before reopening const_suffix or Stage B`
+  - `compare carrier_kind / publish_reason plus plan-local probe counters before reopening const_suffix or Stage B`
+- latest non-keeper:
+  - `producer-side unpublished-outcome active probe regressed to 236 ms exact / 2173 ms whole and is reverted`
 
 ## Current Handoff
 
@@ -55,6 +57,14 @@ cargo check --features perf-observe -p nyash_kernel
 - `indexOf` stays a side diagnosis, not the active keeper card
 - keep public ABI / legality ownership unchanged
 - next first slice is no longer `len_h` removal; it is publication/source-capture reopen with the compiler-known-length lane fixed
+- current plain-release reread after reverting the failed active probe:
+  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 132 ms`
+  - `kilo_kernel_small_hk = C 80 ms / Ny AOT 731 ms`
+- latest design consult is accepted in narrowed form:
+  - no syntax expansion
+  - no public raw string / mutable bytes
+  - `const_suffix` is a later narrow probe, not the first widening
+  - reuse existing `TextPlan` / `OwnedBytes` seams before inventing a new carrier
 - compare `.hako` only under:
   - `Stage A: same protocol`
   - `Stage B: same public ABI / different seam`

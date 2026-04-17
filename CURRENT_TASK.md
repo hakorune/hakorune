@@ -50,10 +50,10 @@ Scope: current lane / next lane / restart order only.
 - current broad gap is no longer substring:
   - `kilo_micro_array_string_store`
     - `C: 10 ms`
-    - `Ny AOT: 126 ms`
+    - `Ny AOT: 132 ms`
   - `kilo_kernel_small_hk`
     - `C: 80 ms`
-    - `Ny AOT: 724 ms`
+    - `Ny AOT: 731 ms`
 - current reading:
   - current main owner family is `array/string-store`, not `substring`
   - trusted direct MIR no longer duplicates the `text + "xy"` producer across `set(...)` and trailing `substring(...)`
@@ -89,19 +89,32 @@ Scope: current lane / next lane / restart order only.
     - active slot route v2:
       - `kilo_micro_array_string_store = 211 ms`
       - `kilo_kernel_small_hk = 1807 ms`
+    - producer-side unpublished-outcome active probe:
+      - `kilo_micro_array_string_store = 236 ms`
+      - `kilo_kernel_small_hk = 2173 ms`
     - the bad cut was the array-store boundary itself; it bypassed the existing `set_his` fast path / alias-retarget behavior
-  - helper-only keeper from that probe is landed:
+    - the same producer-side slot route is now rejected on this lane too; it regressed exact and whole while altering the active boundary shape
+  - helper-only keepers on this lane are:
     - `b35382cf9 feat: add kernel text slot store helpers`
+    - runtime-side alias-retarget repair for kernel-slot store into existing string slots
   - latest `perf-observe` reread on the active array-store front no longer ranks `string_len_export_slow_path`; top samples stay on:
     - `issue_fresh_handle`
     - `freeze_owned_bytes`
     - `capture_store_array_str_source`
     - `StringBox::perf_observe_from_owned`
+  - latest runtime-fix-only reread stays in the same owner family:
+    - `kilo_micro_array_string_store = C 10 ms / Ny AOT 132 ms`
+    - `kilo_kernel_small_hk = C 80 ms / Ny AOT 731 ms`
   - current live owner remains publication/source-capture around the string births, not array-set route selection
   - next comparison must split:
     - implementation language cost
     - protocol / seam cost
   - compiler-known-length keeper is landed; next slice is no longer `len_h` removal but publication/source-capture reopen while keeping that lane fixed
+  - latest design consult is accepted in narrowed form:
+    - no syntax expansion
+    - no public raw string / mutable bytes
+    - keep `const_suffix` as a future narrow probe, not the immediate active widening
+    - reuse existing runtime-private `TextPlan` / `OwnedBytes` seams if the next probe needs them
   - `indexOf` stays a side diagnostic lane and is not the current keeper card
 
 ## Next
@@ -109,8 +122,10 @@ Scope: current lane / next lane / restart order only.
 1. keep `Stage A` parked as VM/reference-only and stop spending exact-front time on owner-route widening
 2. keep the compiler-known-length lane fixed and guarded on `kilo_micro_array_string_store`
 3. reopen `kilo_micro_array_string_store` on producer-side publication/source-capture before `nyash.array.set_his`
-4. keep the existing `set_his` fast path intact while testing any unpublished generic concat outcome cut
-5. use the existing `carrier_kind` / `publish_reason` counters to measure delayed-publication cuts before any `const_suffix` reopen or `Stage B` widening
+4. preserve the existing `set_his` fast path while adding a narrow unpublished-outcome A/B probe on the producer side
+5. measure that probe with `carrier_kind` / `publish_reason` plus plan-local counters before any route widening
+6. only if the producer-side unpublished probe wins, try a narrow `const_suffix -> TextPlan::Pieces2` exact-front A/B; do not widen `const_suffix` first
+7. consider unique-`OwnedBytes` in-place append only as a second-stage follow-up after the `Pieces2` probe proves publication timing is the owner
 
 ## Guardrails
 
@@ -118,6 +133,7 @@ Scope: current lane / next lane / restart order only.
 - keep carrier/publication split physically narrow
 - do not widen this card into a generic slot API or helper substrate
 - keep public ABI stable
+- do not add syntax or public raw-string carriers on this card
 - compare `Rust vs .hako` only under:
   - same protocol
   - same public ABI with different internal seam

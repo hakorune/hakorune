@@ -22,7 +22,7 @@ Related:
 
 - `kilo_kernel_small_hk`
   - `C: 80 ms`
-  - `Ny AOT: 724 ms`
+  - `Ny AOT: 731 ms`
 - current top report:
   - `__memmove_avx512_unaligned_erms: 21.61%`
   - `nyash.string.concat_hs: 10.71%`
@@ -44,7 +44,7 @@ Related:
 - current broad owner candidate:
   - `kilo_micro_array_string_store`
     - `C: 10 ms`
-    - `Ny AOT: 126 ms`
+    - `Ny AOT: 132 ms`
 - diagnostic leaf:
   - `kilo_leaf_array_string_indexof_const`
     - `C: 4 ms`
@@ -60,8 +60,8 @@ Related:
 - trusted direct MIR no longer shows duplicated producer birth on this front:
   - `text + "xy"` is shared across `set(...)` and trailing `substring(...)`
 - current plain-release baseline after the compiler-known-length keeper:
-  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 126 ms`
-  - `kilo_kernel_small_hk = C 80 ms / Ny AOT 724 ms`
+  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 132 ms`
+  - `kilo_kernel_small_hk = C 80 ms / Ny AOT 731 ms`
 - current compiler-side keeper on this front is:
   - known string-length propagation across const / substring-window / same-length string `phi`
   - active AOT entry IR now folds `len_h` to integer constants and no longer emits `nyash.string.len_h` in `ny_main`
@@ -81,16 +81,16 @@ Related:
   - the built AOT object/entry IR still calls `nyash.array.set_his`
   - guard: `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_store_string_contract.sh`
 - latest `perf-observe` reread on `kilo_micro_array_string_store` still ranks publication/capture first:
-  - `issue_fresh_handle: 15.39%`
-  - `freeze_owned_bytes: 15.34%`
-  - `capture_store_array_str_source: 13.51%`
-  - `StringBox::perf_observe_from_owned: 11.10%`
-  - `string_concat_hh_export_impl: 10.43%`
-  - `LocalKey::with: 6.90%`
-  - `execute_store_array_str_slot_boundary: 5.96%`
-  - `string_substring_concat_hhii_export_impl: 5.61%`
-  - `host_handles::with_text_read_session closure: 5.23%`
-  - `execute_store_array_str_contract: 4.47%`
+  - `issue_fresh_handle: 16.60%`
+  - `freeze_owned_bytes: 13.31%`
+  - `StringBox::perf_observe_from_owned: 12.29%`
+  - `capture_store_array_str_source: 11.47%`
+  - `string_concat_hh_export_impl: 9.18%`
+  - `string_substring_concat_hhii_export_impl: 6.50%`
+  - `execute_store_array_str_slot_boundary: 6.40%`
+  - `LocalKey::with: 6.35%`
+  - `execute_store_array_str_contract: 5.47%`
+  - `host_handles::with_text_read_session closure: 5.11%`
 - current reading stays:
   - dominant cost is still upstream birth/publication plus source capture
   - the compiler-known-length keeper removed `string_len_export_slow_path` from the active top report, but did not change the live owner family
@@ -99,6 +99,10 @@ Related:
   - the landed `.hako` owner-side pilot is therefore still VM/reference-lane only today
   - active AOT already reaches the current concrete `store.array.str` lowering without that pilot
   - the exact-front owner is still publication/source-capture around the string births before/after `nyash.array.set_his`
+  - latest design consult is accepted in narrowed form:
+    - `const_suffix` is architecturally valid, but not the immediate first widening on the active front
+    - `TextPlan::Pieces2` and `OwnedBytes` are the preferred backend-private seams if a future narrow probe proves out
+    - no syntax expansion or public raw-string carrier belongs on this card
 
 ## Rejected Slot-Store Boundary Probe
 
@@ -108,12 +112,17 @@ Related:
 - active slot route v2:
   - `kilo_micro_array_string_store = 211 ms`
   - `kilo_kernel_small_hk = 1807 ms`
+- producer-side unpublished-outcome active probe:
+  - `kilo_micro_array_string_store = 236 ms`
+  - `kilo_kernel_small_hk = 2173 ms`
 - keeper from that card:
   - helper-only infra is landed as `b35382cf9 feat: add kernel text slot store helpers`
+  - runtime-side alias-retarget repair for kernel-slot store into existing string slots is kept for future probes
 - rejected reading:
   - the bad cut was the array-store boundary itself
   - the probe bypassed the existing `set_his` fast path / alias-retarget behavior
   - publication sink remains the right family, but not at the array-store boundary
+  - the producer-side slot route also regressed badly once activated on the live front, so this card should stay parked
 
 ## `indexOf` Separation
 
@@ -147,5 +156,7 @@ Related:
 - park Stage A as VM/reference-only and keep exact-front work on publication/source-capture
 - keep the compiler-known-length lane fixed; the next first slice is publication/source-capture reopen, not another `len_h` card
 - preserve the existing `set_his` fast path while testing any unpublished outcome cut
+- do not widen `const_suffix` first; treat `const_suffix -> TextPlan::Pieces2` as a later narrow A/B after a producer-side unpublished-outcome probe
+- treat unique-`OwnedBytes` in-place append as second-stage work only after `Pieces2` proves publication timing is the live owner
 - no generic slot API widening
 - no public ABI changes
