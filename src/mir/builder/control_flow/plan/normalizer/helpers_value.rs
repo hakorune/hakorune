@@ -330,13 +330,17 @@ impl super::PlanNormalizer {
                         });
                     }
                     ASTNode::MethodCall {
-                        object: callee,
+                        object: _callee,
                         method: _,
                         arguments: _,
                         ..
                     } => {
+                        // Nested receiver calls must materialize the full inner call result.
+                        // Lowering only the inner callee base (for example `arr` in
+                        // `arr.get(idx).length()`) loses the receiver chain and
+                        // misbinds the outer method to the wrong object.
                         let (object_id, mut object_effects) =
-                            Self::lower_value_ast(callee, builder, phi_bindings)?;
+                            Self::lower_value_ast(object, builder, phi_bindings)?;
                         arg_effects.append(&mut object_effects);
                         arg_effects.push(CoreEffectPlan::MethodCall {
                             dst: Some(result_id),
@@ -600,5 +604,99 @@ impl super::PlanNormalizer {
             .comp_ctx
             .type_registry
             .record_type(value_id, MirType::Box(class_name));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::super::PlanNormalizer;
+    use crate::ast::{ASTNode, Span};
+    use crate::mir::builder::MirBuilder;
+    use crate::mir::{Effect, EffectMask, MirType, ValueId};
+    use std::collections::BTreeMap;
+
+    fn var(name: &str) -> ASTNode {
+        ASTNode::Variable {
+            name: name.to_string(),
+            span: Span::unknown(),
+        }
+    }
+
+    fn method_call(object: ASTNode, method: &str, arguments: Vec<ASTNode>) -> ASTNode {
+        ASTNode::MethodCall {
+            object: Box::new(object),
+            method: method.to_string(),
+            arguments,
+            span: Span::unknown(),
+        }
+    }
+
+    #[test]
+    fn lower_value_ast_keeps_nested_method_call_receiver_chain() {
+        let mut builder = MirBuilder::new();
+        let array_id = ValueId(1);
+        let index_id = ValueId(2);
+        builder
+            .variable_ctx
+            .variable_map
+            .insert("arr".to_string(), array_id);
+        builder
+            .variable_ctx
+            .variable_map
+            .insert("idx".to_string(), index_id);
+        builder
+            .type_ctx
+            .set_type(array_id, MirType::Box("RuntimeDataBox".to_string()));
+        builder.type_ctx.set_type(index_id, MirType::Integer);
+
+        let expr = method_call(
+            method_call(var("arr"), "get", vec![var("idx")]),
+            "length",
+            vec![],
+        );
+
+        let (outer_result, effects) =
+            PlanNormalizer::lower_value_ast(&expr, &mut builder, &BTreeMap::new())
+                .expect("nested method call should lower");
+
+        assert_eq!(
+            effects.len(),
+            2,
+            "expected get + length effects, got {effects:?}"
+        );
+
+        let inner_result = match &effects[0] {
+            super::CoreEffectPlan::MethodCall {
+                dst: Some(dst),
+                object,
+                method,
+                args,
+                effects,
+            } => {
+                assert_eq!(*object, array_id, "get should stay on the array receiver");
+                assert_eq!(method, "get");
+                assert_eq!(args.as_slice(), &[index_id]);
+                assert_eq!(*effects, EffectMask::PURE.add(Effect::Io));
+                *dst
+            }
+            other => panic!("first effect must be inner get, got {:?}", other),
+        };
+
+        match &effects[1] {
+            super::CoreEffectPlan::MethodCall {
+                dst: Some(dst),
+                object,
+                method,
+                args,
+                effects,
+            } => {
+                assert_eq!(*dst, outer_result);
+                assert_eq!(*object, inner_result, "length must receive the get result");
+                assert_eq!(method, "length");
+                assert!(args.is_empty());
+                assert_eq!(*effects, EffectMask::PURE.add(Effect::Io));
+            }
+            other => panic!("second effect must be outer length, got {:?}", other),
+        }
     }
 }
