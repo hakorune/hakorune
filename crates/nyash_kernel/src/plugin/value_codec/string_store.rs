@@ -57,7 +57,8 @@ pub(crate) fn store_string_box_from_source_keep_owned(
     maybe_borrow_string_keep_with_epoch(source_keep, source_handle, source_drop_epoch)
 }
 
-#[inline(always)]
+#[cfg_attr(feature = "perf-observe", inline(never))]
+#[cfg_attr(not(feature = "perf-observe"), inline(always))]
 pub(crate) fn store_string_box_from_verified_text_source(
     source_handle: i64,
     source_text: VerifiedTextSource,

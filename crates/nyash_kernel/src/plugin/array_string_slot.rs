@@ -345,7 +345,23 @@ fn execute_store_array_str_slot(
     } else {
         observe::record_store_array_str_non_string_source();
     }
-    let value = match source {
+    let value = store_array_str_value_from_source(value_h, source, drop_epoch);
+    if idx < items.len() {
+        items[idx] = value;
+    } else {
+        items.push(value);
+    }
+    1
+}
+
+#[cfg_attr(feature = "perf-observe", inline(never))]
+#[cfg_attr(not(feature = "perf-observe"), inline(always))]
+fn store_array_str_value_from_source(
+    value_h: i64,
+    source: ArrayStoreStrSource,
+    drop_epoch: u64,
+) -> Box<dyn nyash_rust::box_trait::NyashBox> {
+    match source {
         ArrayStoreStrSource::StringLike(source_text) => {
             store_string_box_from_verified_text_source(value_h, source_text, drop_epoch)
         }
@@ -355,16 +371,32 @@ fn execute_store_array_str_slot(
         ArrayStoreStrSource::Missing => {
             maybe_store_non_string_box_from_verified_source(value_h, drop_epoch)
         }
-    };
-    if idx < items.len() {
-        items[idx] = value;
-    } else {
-        items.push(value);
     }
-    1
 }
 
-#[inline(always)]
+#[cfg_attr(feature = "perf-observe", inline(never))]
+#[cfg_attr(not(feature = "perf-observe"), inline(always))]
+fn capture_store_array_str_source(
+    value_h: i64,
+) -> (StringHandleSourceKind, ArrayStoreStrSource) {
+    with_array_store_str_source(value_h, |source_kind, source| (source_kind, source))
+}
+
+#[cfg_attr(feature = "perf-observe", inline(never))]
+#[cfg_attr(not(feature = "perf-observe"), inline(always))]
+fn execute_store_array_str_slot_boundary(
+    items: &mut Vec<Box<dyn nyash_rust::box_trait::NyashBox>>,
+    idx: usize,
+    value_h: i64,
+    source_kind: StringHandleSourceKind,
+    source: ArrayStoreStrSource,
+    drop_epoch: u64,
+) -> i64 {
+    execute_store_array_str_slot(items, idx, value_h, source_kind, source, drop_epoch)
+}
+
+#[cfg_attr(feature = "perf-observe", inline(never))]
+#[cfg_attr(not(feature = "perf-observe"), inline(always))]
 fn execute_store_array_str_contract(handle: i64, idx: i64, value_h: i64) -> i64 {
     if !valid_handle_idx(handle, idx) || value_h <= 0 {
         return 0;
@@ -381,10 +413,16 @@ fn execute_store_array_str_contract(handle: i64, idx: i64, value_h: i64) -> i64 
     }
     super::array_handle_cache::with_array_box_at_epoch(handle, drop_epoch, |arr| {
         let idx = idx as usize;
-        let (source_kind, source) =
-            with_array_store_str_source(value_h, |source_kind, source| (source_kind, source));
+        let (source_kind, source) = capture_store_array_str_source(value_h);
         arr.with_items_write(|items| {
-            execute_store_array_str_slot(items, idx, value_h, source_kind, source, drop_epoch)
+            execute_store_array_str_slot_boundary(
+                items,
+                idx,
+                value_h,
+                source_kind,
+                source,
+                drop_epoch,
+            )
         })
     })
     .unwrap_or(0)
