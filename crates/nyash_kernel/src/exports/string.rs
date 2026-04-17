@@ -114,6 +114,16 @@ pub extern "C" fn nyash_string_kernel_slot_capture_h_export(
 }
 
 // Runtime-private direct-kernel slot seam.
+#[export_name = "nyash.string.kernel_slot_concat_hh"]
+pub extern "C" fn nyash_string_kernel_slot_concat_hh_export(
+    slot: *mut crate::plugin::KernelTextSlot,
+    a_h: i64,
+    b_h: i64,
+) -> i64 {
+    string_concat_hh_into_slot_export_impl(slot, a_h, b_h)
+}
+
+// Runtime-private direct-kernel slot seam.
 #[export_name = "nyash.string.kernel_slot_piecewise_subrange_ssiii"]
 pub extern "C" fn nyash_string_kernel_slot_piecewise_subrange_ssiii_export(
     out: *mut crate::plugin::KernelTextSlot,
@@ -144,6 +154,14 @@ pub extern "C" fn nyash_string_kernel_slot_publish_h_export(
     slot: *mut crate::plugin::KernelTextSlot,
 ) -> i64 {
     string_publish_kernel_text_slot_h_export_impl(slot)
+}
+
+// Runtime-private direct-kernel slot seam.
+#[export_name = "nyash.string.kernel_slot_len_i"]
+pub extern "C" fn nyash_string_kernel_slot_len_i_export(
+    slot: *const crate::plugin::KernelTextSlot,
+) -> i64 {
+    string_kernel_text_slot_len_i_export_impl(slot)
 }
 
 // String.concat3_hhh(a_h, b_h, c_h) -> handle

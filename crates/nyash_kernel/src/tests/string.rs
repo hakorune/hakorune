@@ -259,6 +259,32 @@ fn string_kernel_slot_piecewise_substring_publish_contract() {
 }
 
 #[test]
+fn string_kernel_slot_concat_len_publish_contract() {
+    with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
+        let lhs_h = string_handle("line-seed-abcdef");
+        let rhs_h = string_handle("xy");
+        let direct_h = nyash_string_concat_hh_export(lhs_h, rhs_h);
+        let mut slot = crate::plugin::KernelTextSlot::empty();
+
+        assert_eq!(
+            nyash_string_kernel_slot_concat_hh_export(&mut slot, lhs_h, rhs_h),
+            1
+        );
+        assert_eq!(
+            nyash_string_kernel_slot_len_i_export(&slot),
+            nyash_string_len_h(direct_h)
+        );
+
+        let helper_h = nyash_string_kernel_slot_publish_h_export(&mut slot);
+        assert!(helper_h > 0);
+        assert_eq!(
+            decode_string_like_handle(helper_h),
+            decode_string_like_handle(direct_h)
+        );
+    });
+}
+
+#[test]
 fn string_kernel_slot_capture_piecewise_loop_publish_contract() {
     with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
         let source_h = string_handle("line-seed-abcdef");

@@ -41,9 +41,10 @@ use self::cache::{
 };
 use self::concat::{
     concat3_fallback, concat3_substring_fallback, concat_const_suffix_fallback,
-    concat_pair_fallback, concat_pair_substring_fallback, insert_const_mid_fallback,
-    piecewise_subrange_hsiii_fallback, piecewise_subrange_hsiii_into_slot,
-    piecewise_subrange_kernel_text_slot_into_slot, substring_kernel_text_slot_in_place,
+    concat_pair_fallback, concat_pair_into_slot, concat_pair_substring_fallback,
+    insert_const_mid_fallback, piecewise_subrange_hsiii_fallback,
+    piecewise_subrange_hsiii_into_slot, piecewise_subrange_kernel_text_slot_into_slot,
+    substring_kernel_text_slot_in_place,
 };
 use self::materialize::{
     shared_empty_string_handle, string_handle_from_owned, string_handle_from_span,
@@ -299,6 +300,17 @@ pub(super) fn string_handle_into_slot_export_impl(slot: *mut KernelTextSlot, sou
     i64::from(string_handle_into_slot(slot, source_h))
 }
 
+pub(super) fn string_concat_hh_into_slot_export_impl(
+    slot: *mut KernelTextSlot,
+    a_h: i64,
+    b_h: i64,
+) -> i64 {
+    let Some(slot) = (unsafe { slot.as_mut() }) else {
+        return 0;
+    };
+    i64::from(concat_pair_into_slot(slot, a_h, b_h))
+}
+
 pub(super) fn string_piecewise_subrange_kernel_text_slot_into_slot_export_impl(
     out: *mut KernelTextSlot,
     source: *const KernelTextSlot,
@@ -335,6 +347,13 @@ pub(super) fn string_publish_kernel_text_slot_h_export_impl(slot: *mut KernelTex
         return 0;
     };
     publish_kernel_text_slot(slot).unwrap_or_else(shared_empty_string_handle)
+}
+
+pub(super) fn string_kernel_text_slot_len_i_export_impl(slot: *const KernelTextSlot) -> i64 {
+    let Some(slot) = (unsafe { slot.as_ref() }) else {
+        return 0;
+    };
+    crate::plugin::with_kernel_text_slot_text(slot, |text| text.len() as i64).unwrap_or(0)
 }
 
 pub(super) fn string_concat3_hhh_export_impl(a_h: i64, b_h: i64, c_h: i64) -> i64 {

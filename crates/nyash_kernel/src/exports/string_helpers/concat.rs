@@ -19,7 +19,7 @@ use crate::exports::string_view::{
     resolve_string_span_pair_from_handles, resolve_string_span_triplet_from_handles,
 };
 use crate::observe;
-use crate::plugin::{issue_fresh_handle_from_arc, KernelTextSlot};
+use crate::plugin::{freeze_owned_string_into_slot, issue_fresh_handle_from_arc, KernelTextSlot};
 use nyash_rust::runtime::host_handles as handles;
 
 enum Concat3Plan<'a> {
@@ -198,6 +198,43 @@ pub(super) fn substring_kernel_text_slot_in_place(
     end: i64,
 ) -> bool {
     piecewise::substring_kernel_text_slot_in_place(slot, start, end)
+}
+
+#[inline(always)]
+fn concat_pair_owned_for_slot(a_h: i64, b_h: i64) -> String {
+    if let Some(text) = handles::with_text_read_session(|session| {
+        session.str_pair(a_h as u64, b_h as u64, |a, b| {
+            if a.is_empty() {
+                return b.to_owned();
+            }
+            if b.is_empty() {
+                return a.to_owned();
+            }
+            concat_two_str(a, b)
+        })
+    }) {
+        return text;
+    }
+    if let Some((a_span, b_span)) = resolve_string_span_pair_from_handles(a_h, b_h) {
+        let a = a_span.as_str();
+        let b = b_span.as_str();
+        if a.is_empty() {
+            return b.to_owned();
+        }
+        if b.is_empty() {
+            return a.to_owned();
+        }
+        return concat_two_str(a, b);
+    }
+    let lhs = to_owned_string_handle_arg(a_h);
+    let rhs = to_owned_string_handle_arg(b_h);
+    concat_two_str(lhs.as_str(), rhs.as_str())
+}
+
+#[inline(always)]
+pub(super) fn concat_pair_into_slot(slot: &mut KernelTextSlot, a_h: i64, b_h: i64) -> bool {
+    freeze_owned_string_into_slot(slot, concat_pair_owned_for_slot(a_h, b_h));
+    true
 }
 
 #[inline(always)]

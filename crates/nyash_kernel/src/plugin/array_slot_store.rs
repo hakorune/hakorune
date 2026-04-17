@@ -1,7 +1,10 @@
 use super::array_guard::valid_handle_idx;
 use super::array_handle_cache::with_array_box;
-use super::array_string_slot::array_string_store_handle_at;
+use super::array_string_slot::{
+    array_string_store_handle_at, array_string_store_kernel_text_slot_at,
+};
 use super::value_codec::{decode_array_fast_value, ArrayFastDecodedValue};
+use super::KernelTextSlot;
 
 #[inline(always)]
 fn array_slot_store_box(
@@ -83,6 +86,15 @@ pub(super) fn array_slot_store_string_handle(handle: i64, idx: i64, value_h: i64
     // executor leaf for the current concrete `nyash.array.set_his` path that
     // reads as canonical `store.array.str`.
     array_string_store_handle_at(handle, idx, value_h)
+}
+
+#[inline(always)]
+pub(super) fn array_slot_store_kernel_text_slot(
+    handle: i64,
+    idx: i64,
+    slot: &mut KernelTextSlot,
+) -> i64 {
+    array_string_store_kernel_text_slot_at(handle, idx, slot)
 }
 
 #[inline(always)]

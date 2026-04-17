@@ -8,6 +8,7 @@ use super::array_handle_cache::with_array_box;
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::nyash_string_kernel_slot_len_i_export;
     use nyash_rust::box_trait::NyashBox;
     use nyash_rust::boxes::array::ArrayBox;
     use nyash_rust::runtime::host_handles as handles;
@@ -102,6 +103,32 @@ mod tests {
         assert_eq!(nyash_array_set_his_alias(handle, 0, string_handle), 1);
         assert_eq!(nyash_array_string_len_hi_alias(handle, 0), 6);
         assert_eq!(nyash_array_string_len_hi_alias(handle, 3), 0);
+    }
+
+    #[test]
+    fn kernel_slot_store_alias_writes_string_slot_without_publish_handle() {
+        let handle = new_array_handle();
+        let lhs_h = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
+            nyash_rust::box_trait::StringBox::new("line-seed-abcdef".to_string()),
+        )
+            as std::sync::Arc<dyn NyashBox>) as i64;
+        let rhs_h = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
+            nyash_rust::box_trait::StringBox::new("xy".to_string()),
+        )
+            as std::sync::Arc<dyn NyashBox>) as i64;
+        let mut slot = crate::plugin::KernelTextSlot::empty();
+
+        assert_eq!(
+            crate::nyash_string_kernel_slot_concat_hh_export(&mut slot, lhs_h, rhs_h),
+            1
+        );
+        assert_eq!(nyash_string_kernel_slot_len_i_export(&slot), 18);
+        assert_eq!(
+            nyash_array_kernel_slot_store_hi_alias(handle, 0, &mut slot),
+            1
+        );
+        assert_eq!(nyash_array_string_len_hi_alias(handle, 0), 18);
+        assert_eq!(nyash_string_kernel_slot_len_i_export(&slot), 0);
     }
 
     #[test]

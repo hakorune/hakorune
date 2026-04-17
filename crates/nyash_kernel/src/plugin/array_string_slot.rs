@@ -1,9 +1,11 @@
 use super::array_guard::valid_handle_idx;
 use super::handle_cache::{cache_probe_kind, CacheProbeKind as HandleCacheProbeKind};
 use super::value_codec::{
-    maybe_store_non_string_box_from_verified_source, store_string_box_from_verified_text_source,
+    maybe_store_non_string_box_from_verified_source, store_string_box_from_kernel_text_slot,
+    store_string_box_from_verified_text_source,
     try_retarget_borrowed_string_slot_take_verified_text_source, with_array_store_str_source,
-    ArrayStoreStrSource, BorrowedHandleBox, StringHandleSourceKind, StringLikeProof,
+    ArrayStoreStrSource, BorrowedHandleBox, KernelTextSlot, StringHandleSourceKind,
+    StringLikeProof,
 };
 use crate::exports::string_view::resolve_string_span_from_handle;
 use crate::observe::{self, CacheProbeKind as ObserveCacheProbeKind};
@@ -395,6 +397,35 @@ fn execute_store_array_str_slot_boundary(
 
 #[cfg_attr(feature = "perf-observe", inline(never))]
 #[cfg_attr(not(feature = "perf-observe"), inline(always))]
+fn execute_store_array_str_kernel_text_slot_boundary(
+    items: &mut Vec<Box<dyn nyash_rust::box_trait::NyashBox>>,
+    idx: usize,
+    slot: &mut KernelTextSlot,
+) -> i64 {
+    if idx > items.len() {
+        return 0;
+    }
+    let Some(value) = store_string_box_from_kernel_text_slot(slot) else {
+        return 0;
+    };
+    if observe::enabled() {
+        if idx < items.len() {
+            observe::record_store_array_str_existing_slot();
+        } else {
+            observe::record_store_array_str_append_slot();
+        }
+        observe::record_store_array_str_source_store();
+    }
+    if idx < items.len() {
+        items[idx] = value;
+    } else {
+        items.push(value);
+    }
+    1
+}
+
+#[cfg_attr(feature = "perf-observe", inline(never))]
+#[cfg_attr(not(feature = "perf-observe"), inline(always))]
 fn execute_store_array_str_contract(handle: i64, idx: i64, value_h: i64) -> i64 {
     if !valid_handle_idx(handle, idx) || value_h <= 0 {
         return 0;
@@ -432,4 +463,23 @@ pub(super) fn array_string_store_handle_at(handle: i64, idx: i64, value_h: i64) 
     // treat the Rust path as the executor for the canonical `store.array.str`
     // reading only.
     execute_store_array_str_contract(handle, idx, value_h)
+}
+
+#[inline(always)]
+pub(super) fn array_string_store_kernel_text_slot_at(
+    handle: i64,
+    idx: i64,
+    slot: &mut KernelTextSlot,
+) -> i64 {
+    if !valid_handle_idx(handle, idx) {
+        return 0;
+    }
+    observe::record_store_array_str_enter();
+    super::array_handle_cache::with_array_box(handle, |arr| {
+        let idx = idx as usize;
+        arr.with_items_write(|items| {
+            execute_store_array_str_kernel_text_slot_boundary(items, idx, slot)
+        })
+    })
+    .unwrap_or(0)
 }

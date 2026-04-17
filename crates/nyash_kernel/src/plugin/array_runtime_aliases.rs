@@ -4,7 +4,8 @@ use super::array_runtime_any::{
 };
 use super::array_runtime_facade::{
     array_runtime_get_idx, array_runtime_has_idx, array_runtime_set_idx_any,
-    array_runtime_set_idx_i64, array_runtime_store_array_string,
+    array_runtime_set_idx_i64, array_runtime_store_array_kernel_text_slot,
+    array_runtime_store_array_string,
 };
 use super::array_runtime_substrate::array_runtime_push_any;
 
@@ -57,6 +58,18 @@ pub extern "C" fn nyash_array_set_his_alias(handle: i64, idx: i64, value_h: i64)
     // Historical ABI spelling only.
     // The contract-first reading for this route is `store.array.str`.
     array_runtime_store_array_string(handle, idx, value_h)
+}
+
+#[export_name = "nyash.array.kernel_slot_store_hi"]
+pub extern "C" fn nyash_array_kernel_slot_store_hi_alias(
+    handle: i64,
+    idx: i64,
+    slot: *mut super::KernelTextSlot,
+) -> i64 {
+    let Some(slot) = (unsafe { slot.as_mut() }) else {
+        return 0;
+    };
+    array_runtime_store_array_kernel_text_slot(handle, idx, slot)
 }
 
 #[export_name = "nyash.array.has_hi"]

@@ -1,8 +1,9 @@
 use super::array_slot_load::{array_slot_has_index, array_slot_load_encoded_i64};
 use super::array_slot_store::{
     array_slot_rmw_add1_i64, array_slot_store_any, array_slot_store_i64,
-    array_slot_store_string_handle,
+    array_slot_store_kernel_text_slot, array_slot_store_string_handle,
 };
+use super::KernelTextSlot;
 
 // Runtime/compat forwarding only.
 // Array semantic ownership lives in `.hako` (`ArrayCoreBox` / `ArrayStateCoreBox`);
@@ -27,6 +28,14 @@ pub(super) fn array_runtime_set_idx_i64(handle: i64, idx: i64, value_i64: i64) -
 // forwarding only.
 pub(super) fn array_runtime_store_array_string(handle: i64, idx: i64, value_h: i64) -> i64 {
     array_slot_store_string_handle(handle, idx, value_h)
+}
+
+pub(super) fn array_runtime_store_array_kernel_text_slot(
+    handle: i64,
+    idx: i64,
+    slot: &mut KernelTextSlot,
+) -> i64 {
+    array_slot_store_kernel_text_slot(handle, idx, slot)
 }
 
 pub(super) fn array_runtime_has_idx(handle: i64, idx: i64) -> i64 {
