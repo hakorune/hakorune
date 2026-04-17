@@ -86,6 +86,9 @@ Scope: current lane / next lane / restart order only.
     - old substring route / slow-plan corridor is no longer the primary blocker on this front
     - the active front is already 100% on the landed piecewise fast path (`single_session_hit=all_three=300000`, `fallback_insert=0`)
     - the remaining exact gap sits inside `piecewise_subrange_hsiii_fallback`, especially final owned materialize -> `StringBox`/`Arc` objectize -> fresh handle issue
+    - this lane is not blocked by a language-level inability to delay boxing/publication; MIR already carries the contract that the active corridor has not reached a boundary that demands a public handle yet
+    - the missing piece is implementation-mainline shape: the string-lane unpublished outcome is still not the natural runtime-private carrier on the hot path, so the result keeps falling back into public handle world at the tail
+    - latest design review tightens that gap further: Birth / Placement already has backend-private carriers, but Value Repr / ABI still lacks a first-class internal result manifest that makes unpublished outcome a canonical direct-kernel return shape
     - route/publication design is not the blocker on this front anymore
     - repeated executor-local thin cuts are now stalling on the same result-representation tail
     - external consult plus source review now triage the next work like this:
@@ -94,10 +97,14 @@ Scope: current lane / next lane / restart order only.
         - keep the public handle-based surface stable on this lane
         - keep `proof_region` and `publication_boundary` MIR-owned
         - do not add a new MIR dialect
+        - add an internal result manifest between Birth / Placement and Value Repr / ABI
+        - keep public handle ABI and internal direct-kernel result ABI split
+        - make early `StableBoxNow` / `FreshRegistryHandle` a legality/verifier concern rather than a prose-only discipline
         - use existing runtime seams (`OwnedBytes`, `TextPlan`) for freeze vs publish split
       - hold:
         - the exact runtime-private outcome shape (`PlacementOutcome`, out-param, tagged return, etc.)
         - the exact runtime-private result ABI shape and where the cold publish adapter lives
+        - whether phase-137x stays `OwnedBytes`-only or needs a later keep-token class
       - reject:
         - runtime/shim route re-recognition or remembered-chain legality
         - generic helper widening

@@ -84,11 +84,13 @@
   - the active exact front is already 100% on the landed single-session three-piece fast path; fallback selection and piece-shape branching are not the remaining cost center
   - the remaining exact gap is executor-local: final owned materialize -> `StringBox`/`Arc` objectize -> fresh handle issue
   - latest external consult also reads this as “benchmarking the publication subsystem”, not another route/helper miss
+  - this does not mean Hakorune is “a language that cannot remove boxes”; the MIR/publication contract already permits delayed publication on this lane
+  - the current deficit is that the box-delayed shape is not yet the natural mainline runtime carrier: the active string lane still returns to public handle world at the executor tail instead of flowing through unpublished outcome as the steady-state representation
   - the current `.hako -> MIR proof/publication -> runtime-private executor -> LLVM consumer` design is still coherent
   - but repeated executor-local thin cuts are now stalling on the same result-representation tail
   - consult + source review say the next step is not another thin cut; it is a two-card return:
     - landed `mir-proof`: active concat-triplet substring plans now carry `publish_now_not_required_before_first_external_boundary`
-    - next `runtime-executor`: split runtime-private freeze vs publish on that corridor only
+    - next `runtime-executor`: split runtime-private freeze vs publish on that corridor only, starting from an `OwnedBytes`-class unpublished carrier below the public handle facade
 - result-representation consult triage:
   - adopt:
     - separate semantic result birth from public handle publication
@@ -96,15 +98,21 @@
     - keep `proof_region` and `publication_boundary` MIR-owned
     - treat the generic contract as `same-corridor unpublished outcome`
     - realize it on this lane as `string-lane unpublished text outcome`
+    - keep the contract generic, but keep the current implementation string-first; this lane is proving a string-local unpublished text outcome, not a generic helper substrate
     - use the existing runtime-private seams `OwnedBytes` / `TextPlan`
+    - add an internal result manifest between Birth / Placement and Value Repr / ABI
+    - keep public handle ABI and internal direct-kernel result ABI as separate layers
+    - add publication/objectization legality verifier rules so early `StableBoxNow` / `FreshRegistryHandle` becomes mechanically illegal on the active corridor
     - keep new executor legality out of runtime and shim code
   - hold:
     - the exact runtime-private outcome shape (`PlacementOutcome`, out-param, tagged return, etc.)
     - the exact runtime-private result ABI shape and where the cold publish adapter lives
+    - whether a later keep-token class is needed after the phase-137x minimal `OwnedBytes` lane
   - reject:
     - runtime/shim remembered-chain legality or route re-recognition
     - generic helper widening
     - public ABI rethink on this lane
+    - registry-backed unpublished carriers
 - current test acceptance note:
   - use `cargo test -q -p nyash_kernel --lib -- --test-threads=1` as the deterministic lane gate
   - parallel `cargo test -q -p nyash_kernel --lib` is still monitor-only on this lane because cache/view tests are parallel-flaky

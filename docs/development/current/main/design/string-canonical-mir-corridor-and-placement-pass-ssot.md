@@ -93,9 +93,15 @@ Reading:
 - the current end-state already deletes hot `substring_hii` re-entry from the
   active front; the remaining gap is allocator/memmove pressure inside the
   executor-local copy/materialize path
- - repeated local executor-only probes on the current representation are now
-   non-wins, so the next live action is a focused consult on result
-   representation / result ABI rather than another helper-thin experiment
+- the current contract already allows delayed publication on the active
+  corridor; the problem is not “string must be boxed immediately” as a language
+  rule
+- the current implementation still lacks a natural mainline unpublished-outcome
+  carrier, so the executor tail keeps collapsing the result into
+  `StringBox`/`Arc`/handle publication
+- repeated local executor-only probes on the current representation are now
+  non-wins, so the next live action is a focused consult on result
+  representation / result ABI rather than another helper-thin experiment
 
 ## Adopted Reading
 
@@ -115,11 +121,19 @@ Reading:
     - `string-lane unpublished text outcome`
   - runtime-private executors such as `piecewise_subrange_hsiii` remain
     string-specific mechanics below that contract
+  - this split is intentional:
+    - the contract is generic and reusable
+    - the current mainline realization is still string-first and should not be
+      genericized before another real consumer exists
 - shim-local remembered/deferred piecewise state is transport glue only:
   - `remember_deferred_piecewise_subrange(...)`
   - `find_deferred_piecewise_subrange(...)`
   - these may carry MIR-owned publication metadata across the pure-first seam
   - they must not become legality owners or route owners
+- internal result manifest / internal direct-kernel ABI split is owned by
+  [value-repr-and-abi-manifest-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md)
+- this lane only decides when unpublished outcome is legal and when publication
+  must happen; it does not redefine the manifest row shape
 - treat handle/TLS/cache lookup as the cold adapter path, not as the steady-state
   hot lane
 - the landed arm split says `ViewSpan` is the only live slow-plan arm on the
@@ -182,6 +196,36 @@ Reading:
      deterministic library gate on this lane
    - treat parallel `cargo test -q -p nyash_kernel --lib` as monitor-only until
      cache/view isolation is fixed
+ - next architecture lock needed before this lane can be “10/10”:
+   - Birth / Placement vocabulary must connect to an internal result manifest
+   - internal direct-kernel ABI must carry unpublished outcome without
+     widening the public handle facade
+
+## Publication / Objectization Legality Direction
+
+This SSOT owns the legality rules for publication/objectization on the active
+string corridor.
+
+Target verifier reading:
+
+- if a lane promises `same-corridor unpublished outcome`, it is illegal to
+  enter `FreshRegistryHandle` before the first external boundary
+- if the lane does not demand stable object identity yet, it is illegal to
+  insert `StableBoxNow`
+- if a direct-kernel lane promises unpublished outcome continuity, it is
+  illegal to replay the public ABI facade before the boundary
+- if the lane promises unpublished continuity, it is illegal to use the host
+  handle registry as the unpublished carrier
+
+Phase-137x reading:
+
+- this remains string-lane-specific legality
+- the phase-137x minimal internal class is `OwnedBytes`
+- the verifier should reject “early publish” and “registry carrier” mistakes
+  before another runtime-local widening is attempted
+
+Do not move these legality checks into runtime route re-recognition.
+Runtime remains executor only.
  - latest runtime-private seam reread:
    - `freeze_owned_bytes(...) -> publish_owned_bytes(...)` on the active
      `piecewise_subrange_hsiii` tail compiled and passed targeted tests
