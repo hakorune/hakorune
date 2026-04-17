@@ -39,6 +39,8 @@ cargo check --features perf-observe -p nyash_kernel
   - `compare carrier_kind / publish_reason plus plan-local probe counters before reopening const_suffix or Stage B`
 - latest non-keeper:
   - `producer-side unpublished-outcome active probe regressed to 236 ms exact / 2173 ms whole and is reverted`
+- latest observability split:
+  - `lookup_array_store_str_source_obj` is now visible as its own hot symbol; next exact reread should split lookup vs proof shaping vs verified-source shaping before touching publication tail again
 
 ## Current Handoff
 

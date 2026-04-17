@@ -62,6 +62,7 @@ Related:
     - `b35382cf9`
     - runtime-side alias-retarget repair for kernel-slot store into existing string slots
   - latest `perf-observe` reread no longer ranks `string_len_export_slow_path`; the live top stays on `issue_fresh_handle` / `freeze_owned_bytes` / `capture_store_array_str_source` / `StringBox::perf_observe_from_owned`
+  - latest observability split made `lookup_array_store_str_source_obj` visible as its own hot symbol; source-capture is now split enough to compare lookup vs proof shaping vs verified-source shaping
   - latest runtime-fix-only reread stays on the same owner family:
     - `kilo_micro_array_string_store = C 10 ms / Ny AOT 132 ms`
     - `kilo_kernel_small_hk = C 80 ms / Ny AOT 731 ms`
@@ -78,9 +79,10 @@ Related:
 2. keep the compiler-known-length lane fixed and guarded on this front
 3. keep exact rereads pinned on producer-side publication/source-capture before `nyash.array.set_his`
 4. preserve the existing `set_his` fast path while testing a narrow producer-side unpublished-outcome A/B probe
-5. add plan-local counters for that probe before any route widening
-6. only then try a narrow `const_suffix -> TextPlan::Pieces2` exact-front A/B
-7. keep `Stage B` narrow and data-driven through `carrier_kind` / `publish_reason`
+5. split `lookup_array_store_str_source_obj` vs proof shaping vs verified-source shaping before any route widening
+6. compare `issue_fresh_handle` against the rest of the publish tail with the existing `carrier_kind` / `publish_reason` counters
+7. only then try a narrow `const_suffix -> TextPlan::Pieces2` exact-front A/B
+8. keep `Stage B` narrow and data-driven through `carrier_kind` / `publish_reason`
 
 ## Read Next
 

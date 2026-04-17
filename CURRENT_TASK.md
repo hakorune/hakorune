@@ -102,6 +102,7 @@ Scope: current lane / next lane / restart order only.
     - `freeze_owned_bytes`
     - `capture_store_array_str_source`
     - `StringBox::perf_observe_from_owned`
+  - latest observability split made `lookup_array_store_str_source_obj` visible as its own hot symbol; source-capture is now split enough to compare lookup vs proof-shaping vs publish tail
   - latest runtime-fix-only reread stays in the same owner family:
     - `kilo_micro_array_string_store = C 10 ms / Ny AOT 132 ms`
     - `kilo_kernel_small_hk = C 80 ms / Ny AOT 731 ms`
@@ -123,9 +124,10 @@ Scope: current lane / next lane / restart order only.
 2. keep the compiler-known-length lane fixed and guarded on `kilo_micro_array_string_store`
 3. reopen `kilo_micro_array_string_store` on producer-side publication/source-capture before `nyash.array.set_his`
 4. preserve the existing `set_his` fast path while adding a narrow unpublished-outcome A/B probe on the producer side
-5. measure that probe with `carrier_kind` / `publish_reason` plus plan-local counters before any route widening
-6. only if the producer-side unpublished probe wins, try a narrow `const_suffix -> TextPlan::Pieces2` exact-front A/B; do not widen `const_suffix` first
-7. consider unique-`OwnedBytes` in-place append only as a second-stage follow-up after the `Pieces2` probe proves publication timing is the owner
+5. measure source-capture again by splitting `lookup_array_store_str_source_obj` vs proof shaping vs verified-source shaping before any route widening
+6. then compare `issue_fresh_handle` against the rest of the publish tail with the existing `carrier_kind` / `publish_reason` counters
+7. only if the producer-side unpublished probe still wins, try a narrow `const_suffix -> TextPlan::Pieces2` exact-front A/B; do not widen `const_suffix` first
+8. consider unique-`OwnedBytes` in-place append only as a second-stage follow-up after the `Pieces2` probe proves publication timing is the owner
 
 ## Guardrails
 
