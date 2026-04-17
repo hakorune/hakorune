@@ -340,7 +340,12 @@ perf_emit_mir_json() {
 
   if [[ -n "${hako_bin}" && -x "${hako_bin}" ]]; then
     direct_tried=1
-    if "${hako_bin}" --emit-mir-json "${out_json}" "${hako_prog}" >/dev/null 2>&1; then
+    # Keep perf AOT on the same trusted direct emit lane as the phase smokes.
+    if env \
+      HAKO_STAGE1_MODE=emit-mir \
+      HAKO_EMIT_MIR_JSON=1 \
+      STAGE1_EMIT_MIR_JSON=1 \
+      "${hako_bin}" --emit-mir-json "${out_json}" "${hako_prog}" >/dev/null 2>&1; then
       PERF_AOT_LAST_EMIT_ROUTE="direct"
       return 0
     fi
