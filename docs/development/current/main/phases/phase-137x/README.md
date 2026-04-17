@@ -91,6 +91,10 @@
   - consult + source review say the next step is not another thin cut; it is a two-card return:
     - landed `mir-proof`: active concat-triplet substring plans now carry `publish_now_not_required_before_first_external_boundary`
     - next `runtime-executor`: split runtime-private freeze vs publish on that corridor only, starting from an `OwnedBytes`-class unpublished carrier below the public handle facade
+    - phase-137x minimal carrier placement is now fixed as:
+      - carrier location: direct-kernel-local caller-owned slot
+      - carrier producer/consumer: corridor-local executor
+      - registry: cold publish adapter only
 - result-representation consult triage:
   - adopt:
     - separate semantic result birth from public handle publication
@@ -284,6 +288,22 @@
     - but whole-kilo regressed to `ny_aot_ms=1965` while `c_ms=77`
     - read this as shared-helper scope widening, not as a rejection of the `OwnedBytes` carrier direction itself
     - do not reopen this shape by changing generic `string_handle_from_owned` or other shared materialize/publication helpers; future `OwnedBytes` work must stay corridor-local or direct-kernel-local
+  - landed corridor-local slot seam:
+    - `piecewise_subrange_hsiii` now freezes into a local `KernelTextSlot` and publishes from that slot at the executor tail
+    - exact front reread:
+      - `kilo_micro_substring_concat`
+        - `C: instr=1,622,875 / cycles=483,683 / ms=3`
+        - `Ny AOT: instr=261,218,727 / cycles=65,812,780 / ms=21`
+      - `kilo_micro_substring_only`
+        - `C: instr=1,622,876 / cycles=495,319 / ms=3`
+        - `Ny AOT: instr=1,669,235 / cycles=1,025,821 / ms=3`
+      - `kilo_kernel_small_hk`
+        - `Ny AOT: ms=684`
+    - reading:
+      - this is a scope correction, not the final loop-carried slot transport
+      - shared helpers stay untouched
+      - registry remains cold publish only
+      - next card must carry the slot across same-corridor consumers
 - current broader-corridor genericization rule:
   - do not add a new string-only MIR dialect
   - landed: `string_corridor_candidates` now carry proof-bearing plan metadata for borrowed-slice and concat-triplet routes

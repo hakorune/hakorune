@@ -245,6 +245,39 @@ This SSOT owns the ABI split itself.
 Lane-specific legality for when a corridor may stay unpublished belongs to the
 string corridor SSOT, not here.
 
+### Phase-137x Minimal Slot Shape
+
+Phase-137x does not need a fully generic slot family yet.
+The minimal direct-kernel-local carrier may stay string-first as long as it
+remains runtime-private.
+
+Illustrative minimal shape:
+
+```c
+struct KernelTextSlot {
+    uint8_t state;   // empty | owned_bytes | published
+    void*   ptr;
+    size_t  len;
+    size_t  cap;
+};
+```
+
+State-machine reading:
+
+- `empty -> owned_bytes`
+  - corridor-local executor freezes newly materialized text into the caller-owned slot
+- `owned_bytes -> published`
+  - cold publish adapter converts the slot payload into `StringBox -> Arc -> handle`
+- `published -> empty`
+  - slot owner clears or reuses the slot; the slot itself is never the registry carrier
+
+Ownership rule:
+
+- the slot is caller-owned
+- overwrite must clear the prior `owned_bytes` payload first
+- runtime-private slot payload must not escape into the public manifest
+- registry remains publication/storage for `PublishedHandle` only
+
 ## Fixed Order
 
 ### V0. Inventory current symbols

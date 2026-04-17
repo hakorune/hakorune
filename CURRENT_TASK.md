@@ -31,7 +31,7 @@ Scope: current lane / next lane / restart order only.
 - sibling guardrail:
   - `phase-29bq loop owner seam cleanup landing`
 - immediate next:
-  - `phase-137x next explicit card is runtime-executor: use the landed MIR publication contract and cut eager publication on the active corridor only`
+  - `phase-137x next explicit card is runtime-executor: keep publication split corridor-local and thread a direct-kernel-local slot across same-corridor consumers without reopening shared helpers or registry carriers`
 - immediate follow-on:
   - `phase-137x follow with llvm-export only after the runtime-private outcome seam stabilizes; do not reopen route structure, new recognizers, or public-ABI changes`
 - current blocker:
@@ -235,6 +235,28 @@ Scope: current lane / next lane / restart order only.
       - the `OwnedBytes` carrier direction is still coherent, but rewriting the shared materialize/publication path widened the slice beyond the active corridor
       - the exact front stayed on the landed `piecewise_subrange_hsiii` route, but whole-kilo paid the broader publication-path cost
       - do not reopen this shape by changing shared `string_handle_from_owned(...)` / generic materialize helpers; future `OwnedBytes` work must stay corridor-local or direct-kernel-local
+  - landed runtime-executor scope correction:
+    - active `piecewise_subrange_hsiii` now has a corridor-local `KernelTextSlot` freeze/publish seam inside the executor body
+    - exact front reread:
+      - `kilo_micro_substring_concat`
+        - `C: instr=1,622,875 / cycles=483,683 / ms=3`
+        - `Ny AOT: instr=261,218,727 / cycles=65,812,780 / ms=21`
+    - accept gate:
+      - `kilo_micro_substring_only`
+        - `C: instr=1,622,876 / cycles=495,319 / ms=3`
+        - `Ny AOT: instr=1,669,235 / cycles=1,025,821 / ms=3`
+    - whole-kilo guard:
+      - `kilo_kernel_small_hk`
+        - `Ny AOT: ms=684`
+    - asm/top reread:
+      - `piecewise_subrange_hsiii_fallback closure: 78.10%`
+      - `__memmove_avx512_unaligned_erms: 5.50%`
+      - allocator samples remain secondary
+    - reading:
+      - this landing keeps `OwnedBytes` out of shared materialize/publication helpers
+      - this landing keeps the carrier out of the registry
+      - this is not yet loop-carried direct-kernel slot transport; the slot is still local to the current executor invocation
+      - the next card must thread the slot across same-corridor consumers without changing shared helpers or public ABI
 - optimization re-entry card:
   - this remains the historical next-cut template on top of the current keeper baseline
   - front: `kilo_micro_substring_concat`
@@ -273,8 +295,11 @@ Scope: current lane / next lane / restart order only.
     - eager `handle_issue`
   - executor delta:
     - keep: landed `piecewise_subrange_hsiii` publication boundary and helper surface
-    - add: executor-local unpublished text outcome only inside
-      `piecewise_subrange_hsiii`
+    - add:
+      - executor-local unpublished text outcome only inside
+        `piecewise_subrange_hsiii`
+      - next follow-on must move that carrier into a direct-kernel-local slot
+        that survives same-corridor consumer hops
     - exact touch set:
       - `crates/nyash_kernel/src/exports/string_helpers/concat/piecewise.rs`
       - `crates/nyash_kernel/src/exports/string_helpers/materialize.rs`

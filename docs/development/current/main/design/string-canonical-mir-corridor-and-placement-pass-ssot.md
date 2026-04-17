@@ -158,6 +158,10 @@ Reading:
   - next `runtime-executor`:
     - split runtime-private freeze vs publish using existing seams such as
       `OwnedBytes` / `TextPlan`
+    - keep the first landing corridor-local:
+      - carrier lives in a direct-kernel-local caller-owned slot
+      - executor creates/consumes that slot locally
+      - registry stays cold publish adapter only
     - delete only the eager publication tail on the active corridor:
       - `StringBox`
       - `Arc`
@@ -220,8 +224,12 @@ Target verifier reading:
 Phase-137x reading:
 
 - this remains string-lane-specific legality
-- the phase-137x minimal internal class is `OwnedBytes`
-- the verifier should reject “early publish” and “registry carrier” mistakes
+ - the phase-137x minimal internal class is `OwnedBytes`
+ - the phase-137x minimal carrier placement is:
+   - direct-kernel-local result slot as the carrier location
+   - corridor-local executor as the owner that freezes into / reads from that slot
+   - host registry as cold publish adapter only
+ - the verifier should reject “early publish” and “registry carrier” mistakes
   before another runtime-local widening is attempted
 
 Do not move these legality checks into runtime route re-recognition.
@@ -242,6 +250,13 @@ Runtime remains executor only.
    - do not reopen this shape by rewriting shared `string_handle_from_owned`
      style helpers; keep future `OwnedBytes` work corridor-local or
      direct-kernel-local
+ - landed corridor-local slot seam:
+   - `piecewise_subrange_hsiii` now has a local `KernelTextSlot` freeze/publish
+     split inside the executor body
+   - this is a scope correction, not the final direct-kernel slot transport
+   - current landing goal:
+     - keep `OwnedBytes` and publication split out of shared helpers
+     - keep next-iteration slot transport as a separate card
  - rejected registry-backed deferred publication:
    - storing fresh `piecewise_subrange_hsiii` results as deferred owned text
      behind the public handle surface regressed the exact front to
