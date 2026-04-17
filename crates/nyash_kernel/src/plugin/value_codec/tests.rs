@@ -138,6 +138,37 @@ fn materialize_owned_string_round_trips_as_live_string_handle() {
 }
 
 #[test]
+fn kernel_text_slot_freeze_publish_lifecycle_roundtrips() {
+    let mut slot = KernelTextSlot::empty();
+    assert_eq!(slot.state(), KernelTextSlotState::Empty);
+
+    freeze_owned_string_into_slot(&mut slot, "owned-slot".to_string());
+    assert_eq!(slot.state(), KernelTextSlotState::OwnedBytes);
+    assert_eq!(
+        with_kernel_text_slot_text(&slot, |text| text.to_string()).as_deref(),
+        Some("owned-slot")
+    );
+
+    let before = handles::snapshot().len();
+    let h = publish_kernel_text_slot(&mut slot).expect("published handle");
+    assert!(h > 0);
+    let after = handles::snapshot().len();
+    assert_eq!(after, before + 1);
+    assert_eq!(slot.state(), KernelTextSlotState::Published);
+    assert!(with_kernel_text_slot_text(&slot, |text| text.len()).is_none());
+
+    let obj = handles::get(h as u64).expect("published slot handle");
+    let sb = obj
+        .as_any()
+        .downcast_ref::<StringBox>()
+        .expect("published slot should materialize as StringBox");
+    assert_eq!(sb.value, "owned-slot");
+
+    slot.clear();
+    assert_eq!(slot.state(), KernelTextSlotState::Empty);
+}
+
+#[test]
 fn with_array_store_str_source_non_string_handle_uses_other_object_contract() {
     let value: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(91));
     let value_h = handles::to_handle_arc(value) as i64;

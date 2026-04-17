@@ -3,8 +3,10 @@ use super::cache::{
     concat_pair_fast_cache_lookup, concat_pair_fast_cache_store, string_len_fast_cache_lookup,
     string_len_fast_cache_store, substring_fast_cache_lookup, substring_fast_cache_store,
 };
+use super::concat::{piecewise_subrange_hsiii_into_slot, substring_kernel_text_slot_into_slot};
 use super::materialize::string_handle_from_owned;
 use super::{string_len_from_handle, string_substring_hii_export_impl};
+use crate::plugin::{with_kernel_text_slot_text, KernelTextSlot, KernelTextSlotState};
 use nyash_rust::box_trait::{NyashBox, StringBox};
 use nyash_rust::runtime::host_handles as handles;
 use std::{ffi::CString, sync::Arc};
@@ -119,4 +121,45 @@ fn substring_view_arc_cache_reissues_same_view_object_after_drop_epoch() {
     );
     assert_eq!(string_len_fast_cache_lookup(view_h2), Some(16));
     assert_eq!(string_len_from_handle(view_h2), Some(16));
+}
+
+#[test]
+fn piecewise_slot_and_slot_substring_roundtrip() {
+    let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("prefix-suffix".to_string()));
+    let source_h = handles::to_handle_arc(source) as i64;
+    let middle = CString::new("::mid::").expect("CString");
+
+    let mut slot = KernelTextSlot::empty();
+    assert!(piecewise_subrange_hsiii_into_slot(
+        &mut slot,
+        source_h,
+        middle.as_ptr(),
+        6,
+        3,
+        16,
+    ));
+    assert_eq!(slot.state(), KernelTextSlotState::OwnedBytes);
+    let direct_h = super::concat::piecewise_subrange_hsiii_fallback(source_h, middle.as_ptr(), 6, 3, 16);
+    let direct_text = handles::with_text_read_session(|session| {
+        session.str_handle(direct_h as u64, |text| text.to_string())
+    })
+    .expect("direct handle text");
+    assert_eq!(
+        with_kernel_text_slot_text(&slot, |text| text.to_string()).as_deref(),
+        Some(direct_text.as_str())
+    );
+
+    let mut next = KernelTextSlot::empty();
+    assert!(substring_kernel_text_slot_into_slot(&mut next, &slot, 1, 10));
+    assert_eq!(next.state(), KernelTextSlotState::OwnedBytes);
+
+    let next_direct_h = string_substring_hii_export_impl(direct_h, 1, 10);
+    let next_direct_text = handles::with_text_read_session(|session| {
+        session.str_handle(next_direct_h as u64, |text| text.to_string())
+    })
+    .expect("next direct text");
+    assert_eq!(
+        with_kernel_text_slot_text(&next, |text| text.to_string()).as_deref(),
+        Some(next_direct_text.as_str())
+    );
 }

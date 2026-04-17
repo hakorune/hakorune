@@ -19,7 +19,7 @@ use crate::exports::string_view::{
     resolve_string_span_pair_from_handles, resolve_string_span_triplet_from_handles,
 };
 use crate::observe;
-use crate::plugin::issue_fresh_handle_from_arc;
+use crate::plugin::{issue_fresh_handle_from_arc, KernelTextSlot};
 use nyash_rust::runtime::host_handles as handles;
 
 enum Concat3Plan<'a> {
@@ -153,6 +153,28 @@ pub(super) fn piecewise_subrange_hsiii_fallback(
     end: i64,
 ) -> i64 {
     piecewise::piecewise_subrange_hsiii_fallback(source_h, middle_ptr, split, start, end)
+}
+
+#[inline(always)]
+pub(super) fn piecewise_subrange_hsiii_into_slot(
+    out: &mut KernelTextSlot,
+    source_h: i64,
+    middle_ptr: *const i8,
+    split: i64,
+    start: i64,
+    end: i64,
+) -> bool {
+    piecewise::piecewise_subrange_hsiii_into_slot(out, source_h, middle_ptr, split, start, end)
+}
+
+#[inline(always)]
+pub(super) fn substring_kernel_text_slot_into_slot(
+    out: &mut KernelTextSlot,
+    source: &KernelTextSlot,
+    start: i64,
+    end: i64,
+) -> bool {
+    piecewise::substring_kernel_text_slot_into_slot(out, source, start, end)
 }
 
 #[inline(always)]
