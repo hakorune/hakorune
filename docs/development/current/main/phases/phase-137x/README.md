@@ -33,6 +33,8 @@
 
 - this block is the current truth for restart; if older numbers below disagree, prefer this block
 - restart with the code as it is now
+- current owner snapshot is kept separately at:
+  - `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
 - runtime-wide pattern anchor is now:
   - `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
 - current upstream string corridor design anchor is now:
@@ -45,38 +47,46 @@
   - `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
 - perf release gate now builds `ny-llvmc` as well; do not run exact/asm probes after editing compiler sources without refreshing release artifacts first
 - mixed accept gate stays `kilo_micro_substring_only`
-- split exact fronts are now keeper checks, not active blockers:
+- substring exact fronts are now keeper checks, not active blockers:
+  - `kilo_micro_substring_only`
+  - `kilo_micro_substring_concat`
   - `kilo_micro_substring_views_only`
   - `kilo_micro_len_substring_views`
-- current broader-corridor reopen front is `kilo_micro_substring_concat`
-- current live reread after the 2026-04-18 trusted direct-route alignment:
-  - `kilo_micro_substring_only`
-    - `C: instr=1,622,875 / cycles=489,826 / ms=3`
-    - `Ny AOT: instr=1,669,421 / cycles=960,357 / ms=3`
-  - `kilo_micro_substring_concat`
-    - `C: instr=1,622,876 / cycles=494,705 / ms=2`
-    - `Ny AOT: instr=1,665,250 / cycles=983,016 / ms=3`
-  - `kilo_kernel_small_hk`
-    - `Ny AOT: ms=703`
+- current active owner proof front is `kilo_micro_array_string_store`
+- current side diagnostic front is `indexOf`
+- current live reread after the 2026-04-18 trusted direct-route alignment and array-store placement reread:
+  - keeper fronts:
+    - `kilo_micro_substring_only`
+      - `C: 3 ms`
+      - `Ny AOT: 3 ms`
+    - `kilo_micro_substring_concat`
+      - `C: 2 ms`
+      - `Ny AOT: 3 ms`
+  - active owner fronts:
+    - `kilo_micro_array_string_store`
+      - `C: 10 ms`
+      - `Ny AOT: 150 ms`
+    - `kilo_kernel_small_hk`
+      - `C: 80 ms`
+      - `Ny AOT: 782 ms`
   - current keeper diff:
     - perf AOT direct emit now uses the same trusted stage1 route as the phase direct-route smokes
     - active perf MIR is back on the proof-bearing `substring_concat3_hhhii` payload instead of the older plain `insert_hsi -> substring_hii` payload
     - keep the landed `substring + const + substring -> insert_hsi + final substring_hii` MIR rewrite fixed
     - pure-first now defers publication on the active `insert_hsi -> substring_hii` corridor and emits runtime-private `nyash.string.piecewise_subrange_hsiii`
     - runtime helper stays single-session and materializes once after the text-read session closes; the deadlock-inducing in-session handle issue path is removed
-    - `perf-observe` seam exposes:
-      - `with_piecewise_borrowed_inputs`
-      - `materialize_piecewise_all_three`
-      - `publish_kernel_text_slot_boundary`
-      - `piecewise_subrange_hsiii_into_slot`
-- latest `perf-observe` top report on the same front:
-  - `freeze_owned_bytes: 19-22%`
-  - `issue_fresh_handle: 18-20%`
-  - `with_text_read_session_ready closure: 16-19%`
-  - `publish_kernel_text_slot_boundary: 15-16%`
-  - `StringBox::perf_observe_from_owned: 10-13%`
-  - `with_piecewise_borrowed_inputs: 4-8%`
-  - `materialize_piecewise_all_three: 0.4-0.6%`
+    - current main owner moved away from substring and onto array/string-store family
+    - trusted direct MIR no longer duplicates the `text + "xy"` producer across `set(...)` and trailing `substring(...)`
+    - runtime wall time stayed open after the compiler-side fix, so duplicated producer birth is no longer the live owner
+- latest `perf-observe` top report on the active array-store front:
+  - `freeze_owned_bytes: 14.25%`
+  - `issue_fresh_handle: 12.59%`
+  - `capture_store_array_str_source: 11.32%`
+  - `StringBox::perf_observe_from_owned: 10.75%`
+  - `string_len_export_slow_path: 8.84%`
+  - `string_concat_hh_export_impl: 8.65%`
+  - `LocalKey::with: 7.09%`
+  - `execute_store_array_str_slot_boundary: 6.58%`
 - current counter reread on the same front:
   - `str.substring.route total=0`
   - `slow_plan=0`
@@ -104,8 +114,13 @@
   - `publish-last` on this lane is a cold-adapter rule, not a ban on boxes
   - the current deficit is that the box-delayed shape is not yet the natural mainline runtime carrier: the active string lane still returns to public handle world at the executor tail instead of flowing through unpublished outcome as the steady-state representation
   - the current `.hako -> MIR proof/publication -> runtime-private executor -> LLVM consumer` design is still coherent
-  - before reopening executor-local thin cuts, confirm adjacent exact fronts on the trusted route
-  - only reopen `runtime-executor` slot transport if a trusted-route exact front still shows the old publication-tail gap
+  - before a `.hako` pilot, lock kernel-common observability vocabulary and keep the comparison protocol-normalized
+  - do not compare `Rust vs .hako` by changing language and seam at the same time
+  - compare in two stages:
+    - `Stage A: same protocol`
+    - `Stage B: same public ABI / different internal seam`
+  - the first pilot stays narrow on `store.array.str`
+  - keep `host_handles` / objectize / fresh-handle issue in Rust during Stage A
   - design tighten before code:
     - keep carrier and publication physically separated; the corridor-local slot transports value, the cold adapter owns `StringBox` / `Arc` / handle issue
     - treat published-ness as boundary bookkeeping, not as the steady-state hot-lane value shape

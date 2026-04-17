@@ -7,823 +7,103 @@ Scope: current lane / next lane / restart order only.
 ## Purpose
 
 - root から active lane / next lane に最短で戻る
-- landed history は phase docs を正本にする
+- landed history と rejected history は phase docs / investigations を正本にする
 - `CURRENT_TASK.md` 自体は ledger にしない
 
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/10-Now.md`
-3. `docs/development/current/main/phases/phase-137x/README.md`
-4. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-5. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-6. `docs/development/current/main/15-Workstream-Map.md`
-7. `git status -sb`
-8. `tools/checks/dev_gate.sh quick`
-9. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
+3. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
+4. `docs/development/current/main/phases/phase-137x/README.md`
+5. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
+6. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+7. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+8. `docs/development/current/main/design/string-birth-sink-ssot.md`
+9. `docs/development/current/main/15-Workstream-Map.md`
+10. `git status -sb`
+11. `tools/checks/dev_gate.sh quick`
+12. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
-## Restart Handoff
+## Current Lane
 
 - expected worktree:
-  - dirty is expected right now; phase-137x runtime/private string corridor edits may coexist with sibling compiler-lane edits
-  - do not reset unrelated changes just to make the tree look clean
+  - dirty is expected right now; do not reset unrelated changes just to make the tree look clean
+  - unrelated dirty file is currently `crates/nyash_kernel/src/observe/sink/stderr.rs`
 - active lane:
-  - `phase-137x trusted direct emit keeper + array-store placement-window reread`
+  - `phase-137x kernel observability vocabulary + array-store two-stage pilot`
 - background lanes:
   - `phase-29bq loop owner seam cleanup landing`
   - `phase-163x primitive-family / user-box fast-path landing`
-- immediate next:
-  - `phase-137x next explicit card is compiler-local placement window proof on kilo_micro_array_string_store: prove whether duplicated const-suffix birth around store + substring is the next owner before reopening runtime work`
-- pre-optimization prerequisites:
-  1. `KernelTextSlot` lifecycle contract stays explicit:
-     - caller-owned
-     - clear-on-overwrite
-     - clear-on-drop / early-return
-  2. slot-capable consumer rule stays MIR/lowering-owned:
-     - `slot_text` consumer => stay in slot form
-     - non-slot consumer => one explicit cold publish
-  3. lowering/direct-kernel-entry verifier rejects:
-     - early `StableBoxNow`
-     - early `FreshRegistryHandle`
-     - registry-backed carrier
-  4. carrier/publication split stays physically narrow:
-     - same-corridor slot transport lives in the corridor-local executor only
-     - cold publish adapter alone owns `StringBox` / `Arc` / fresh handle issue
-  5. current landing is corridor-local only; next follow-on owns same-corridor slot transport
-  6. do not widen this card into a generic slot API or helper substrate
-- immediate follow-on:
-  - `phase-137x keep runtime-private slot transport parked as background structure; do not reopen runtime widening or public-ABI changes before the placement-window proof says the duplication is real`
-- wording lock:
-  - `phase-137x` reads as `value-first / box-on-demand / publish-last`
-  - this is not a `box禁止` lane; boxes remain valid at public/publication boundaries
 - current blocker:
   - `none`
-- latest proof bundle:
-  - `tools/checks/dev_gate.sh quick` PASS
-  - `cargo test -p nyash_kernel --lib string_helpers::tests:: -- --nocapture` PASS
-  - `cargo check --features perf-observe -p nyash_kernel` PASS
-  - `cargo test -p nyash_kernel --lib --tests --no-run` PASS
-- latest cleanup bundle:
-  - `cargo check -q --bin hakorune` PASS
-  - `cargo test -q -p nyash_kernel --lib -- --test-threads=1` PASS
-  - `cargo test -q -p nyash_kernel --lib` is monitor-only for now; cache/view tests are still parallel-flaky and are not the acceptance gate for this card
-  - landed cleanup commits:
-    - `c5495f28f refactor: split string concat cold paths`
-    - `d3bc92973 refactor: split string view span resolution`
-    - `063d06fdc refactor: split host handle perf observe`
-    - `f8bb548a3 refactor: split host handle text read session`
-- latest optimization keeper:
-  - landed delete-oriented + publication-boundary cut:
-    - keep the landed `substring + const + substring -> insert_hsi + final substring_hii` MIR rewrite fixed
-    - pure-first now defers publication on the active `insert_hsi -> substring_hii` corridor and lowers the final consumer to runtime-private `nyash.string.piecewise_subrange_hsiii`
-    - runtime helper stays single-session and materializes once after the text-read session closes; no transient box/handle carrier is minted on the hot lane
-    - `perf-observe`-only measurement seam is now landed inside the hot helper:
-      - `with_piecewise_borrowed_inputs`
-      - `materialize_piecewise_all_three`
-      - `publish_kernel_text_slot_boundary`
-      - `piecewise_subrange_hsiii_into_slot`
-  - latest plain-release reread:
-    - `kilo_micro_substring_concat`
-      - `C: instr=1,622,876 / cycles=494,705 / ms=2`
-      - `Ny AOT: instr=1,665,250 / cycles=983,016 / ms=3`
-  - accept gate:
-    - `kilo_micro_substring_only`
-      - `C: instr=1,622,875 / cycles=489,826 / ms=3`
-      - `Ny AOT: instr=1,669,421 / cycles=960,357 / ms=3`
-  - whole-kilo guard:
-    - `kilo_kernel_small_hk: 703 ms`
-  - latest keeper cut:
-    - perf AOT direct emit now uses the same trusted stage1 route as the phase direct-route smokes
-    - the active benchmark no longer falls onto the plain `insert_hsi -> substring_hii` MIR payload emitted by bare `hakorune --emit-mir-json`
-    - current keeper commit: `71a4e4fc9 fix: align perf direct emit with trusted stage1 route`
-  - latest `perf-observe` seam reread on `kilo_micro_substring_concat`:
-    - `freeze_owned_bytes: 19-22%`
-    - `issue_fresh_handle: 18-20%`
-    - `with_text_read_session_ready closure: 16-19%`
-    - `publish_kernel_text_slot_boundary: 15-16%`
-    - `StringBox::perf_observe_from_owned: 10-13%`
-    - `with_piecewise_borrowed_inputs: 4-8%`
-    - `materialize_piecewise_all_three: 0.4-0.6%`
-  - frozen route proof on the same front:
-    - `str.substring.route total=0`
-    - `slow_plan=0`
-    - `slow_plan_view_span=0`
-    - `piecewise_subrange total=300000`
-    - `piecewise_subrange single_session_hit=300000`
-    - `piecewise_subrange fallback_insert=0`
-    - `piecewise_subrange all_three=300000`
-    - `birth.placement fresh_handle=300000`
-    - `birth.backend materialize_owned_total=300000`
-    - `birth.backend string_box_new_total=300000`
-    - `birth.backend arc_wrap_total=300000`
-    - `birth.backend handle_issue_total=300000`
-    - `stable_box_demand text_read_handle_latest_fresh=299999`
-  - current reading:
-    - the active exact front was not blocked by runtime publication tail on the perf keeper lane; it was blocked by a direct-emit route mismatch
-    - bare perf `hakorune --emit-mir-json` emitted the older `insert_hsi -> substring_hii` payload, while the trusted stage1 direct route emitted the proof-bearing `substring_concat3_hhhii` payload already locked by the phase smokes
-    - aligning perf AOT to the trusted direct route collapsed `kilo_micro_substring_concat` from `23 ms` to `3 ms` while keeping `kilo_micro_substring_only` green and `kilo_kernel_small_hk` neutral-to-better
-    - the runtime-private slot seam remains landed as background structure, but it is no longer the immediate blocker for the active perf front
-    - adjacent exact rereads moved the next owner away from substring and onto array/string-store family:
-      - `kilo_micro_substring_views_only`
-        - `C: instr=122,920 / cycles=184,041 / ms=2`
-        - `Ny AOT: instr=465,265 / cycles=655,475 / ms=3`
-      - `kilo_micro_len_substring_views`
-        - `C: instr=1,622,877 / cycles=494,646 / ms=3`
-        - `Ny AOT: instr=1,672,069 / cycles=1,025,561 / ms=3`
-      - `kilo_micro_array_string_store`
-        - `C: instr=30,525,561 / cycles=34,154,581 / ms=10`
-        - `Ny AOT: instr=2,180,122,570 / cycles=749,381,803 / ms=174`
-      - `kilo_leaf_array_string_indexof_const`
-        - `Ny AOT: instr=1,919,465,781 / cycles=310,957,277 / ms=61`
-    - landed measurement seam for that next owner:
-      - commit: `93e390455 refactor: split array string-store perf seams`
-      - `perf-observe` symbols now split as:
-        - `capture_store_array_str_source`
-        - `store_array_str_value_from_source`
-        - `execute_store_array_str_slot_boundary`
-        - `store_string_box_from_verified_text_source`
-    - latest `perf-observe` reread on `kilo_micro_array_string_store`:
-      - `freeze_owned_bytes: 15.76%`
-      - `issue_fresh_handle: 14.54%`
-      - `StringBox::perf_observe_from_owned: 11.70%`
-      - `capture_store_array_str_source: 8.53%`
-      - `string_concat_hh_export_impl: 7.23%`
-      - `string_len_export_slow_path: 6.74%`
-      - `LocalKey::with: 5.72%`
-      - `__memmove_avx512_unaligned_erms: 4.63%`
-      - `nyash.string.concat_hs: 4.49%`
-      - `execute_store_array_str_contract: 4.44%`
-      - `execute_store_array_str_slot_boundary: 4.30%`
-      - `string_substring_concat_hhii_export_impl: 3.28%`
-    - current array-store reading:
-      - dominant cost is still upstream birth/publication plus source capture, not slot mutation by itself
-      - trusted direct MIR for `bench_kilo_micro_array_string_store.hako` still duplicates `text + "xy"`:
-        - one result feeds `set(...)`
-        - one result feeds the trailing `substring(...)`
-      - latest widening retry was rejected:
-        - generalized non-direct-set `const_suffix` selection in `classify_string_concat_pair_route(...)`
-        - exact reread stayed flat (`kilo_micro_array_string_store: 174 ms`)
-        - isolated `kilo_micro_concat_const_suffix` stayed `3 ms`
-        - whole guard stayed current-band only (`kilo_kernel_small_hk: 708 ms`)
-      - next work is compiler-local placement proof, not more runtime leaf widening:
-        - prove whether duplicate producer birth is the current owner
-        - keep runtime-executor slot transport parked unless that proof fails
-        - keep public ABI / legality ownership unchanged
-  - rejected runtime-executor probe:
-    - attempted a runtime-private `piecewise` carrier by issuing a transient box/handle from `insert_const_mid_fallback` and short-circuiting `substring_hii` through that carrier
-    - exact front reread:
-      - `kilo_micro_substring_concat`
-        - `C: instr=1,622,877 / cycles=498,662 / ms=3`
-        - `Ny AOT: instr=1,027,840,243 / cycles=316,717,873 / ms=78`
-    - accept gate stayed healthy:
-      - `kilo_micro_substring_only`
-        - `C: instr=1,622,874 / cycles=497,164 / ms=3`
-        - `Ny AOT: instr=1,669,164 / cycles=1,117,447 / ms=3`
-    - asm/top reread on the rejected probe:
-      - `nyash.string.substring_hii: 29.61%`
-      - `insert_const_mid_fallback closure: 25.13%`
-      - `PiecewiseTextBox::clone: 16.28%`
-      - `string_span_cache_put: 5.27%`
-      - `TextPlan::from_pieces: 4.64%`
-    - reading:
-      - transient piecewise object construction, cloning, and allocation dominated the hot lane
-      - do not reintroduce transient box/handle carriers on this front
-  - rejected runtime-executor follow-up:
-    - attempted a single-session memo shortcut from `insert_const_mid_fallback` into `substring_hii` by remembering `source_handle/split/middle_ptr` behind the produced handle and short-circuiting substring before the generic slow-plan route
-    - exact front reread:
-      - `kilo_micro_substring_concat`
-        - `C: instr=1,622,875 / cycles=484,039 / ms=2`
-        - `Ny AOT: instr=1,027,840,321 / cycles=315,379,190 / ms=80`
-    - accept gate stayed healthy:
-      - `kilo_micro_substring_only`
-        - `C: instr=1,622,875 / cycles=502,466 / ms=3`
-        - `Ny AOT: instr=1,669,594 / cycles=1,098,352 / ms=3`
-    - asm/top reread on the rejected follow-up:
-      - `nyash.string.substring_hii: 31.81%`
-      - `insert_const_mid_fallback closure: 24.92%`
-      - `PiecewiseTextBox::clone: 13.63%`
-      - `string_span_cache_put: 9.73%`
-      - `TextPlan::from_pieces: 4.31%`
-    - reading:
-      - a raw handle-keyed sticky memo did not delete the corridor; it only added another post-hoc shortcut in front of the same hot helper body
-      - even the one-shot variant risks false reuse pressure and does not remove `insert_const_mid_fallback` itself from the front
-      - do not reopen memo-based substring shortcuts on this front; the next executor cut must stay executor-local and non-sticky
-  - rejected runtime-executor widening:
-    - attempted a direct one-allocation owned build on the generic non-empty `insert_const_mid_fallback` path by reading the source string in-session and materializing the inserted result before the old `TextPlan` fallback
-    - exact front reread:
-      - `kilo_micro_substring_concat`
-        - `C: instr=1,622,920 / cycles=526,196 / ms=3`
-        - `Ny AOT: instr=474,559,696 / cycles=165,012,319 / ms=45`
-    - accept gate stayed healthy:
-      - `kilo_micro_substring_only`
-        - `C: instr=1,622,875 / cycles=491,060 / ms=3`
-        - `Ny AOT: instr=1,669,350 / cycles=1,050,465 / ms=3`
-    - whole-kilo guard regressed:
-      - `kilo_kernel_small_hk: 789 ms`
-    - asm/top reread on the rejected widening:
-      - `nyash.string.substring_hii: 30.29%`
-      - `insert_const_mid_fallback closure: 28.59%`
-      - `borrowed_substring_plan_from_handle: 17.38%`
-      - `LocalKey::with: 15.34%`
-      - `__memmove_avx512_unaligned_erms: 2.45%`
-    - reading:
-      - a generic `insert_hsi` direct-build wins the exact front but widens too far and regresses whole-kilo
-      - do not replace the generic non-empty `insert_const_mid_fallback` body with owned direct materialization on this card
-      - the next executor cut must stay corridor-local to the active front, not broaden `insert_hsi` for all consumers
-  - rejected runtime-executor freeze/publish split:
-    - attempted a runtime-private `freeze_owned_bytes(...) -> publish_owned_bytes(...)` split on the active `piecewise_subrange_hsiii` tail using existing `OwnedBytes` seams while keeping the public handle-based surface unchanged
-    - exact front reread:
-      - `kilo_micro_substring_concat`
-        - `C: instr=1,622,875 / cycles=497,003 / ms=3`
-        - `Ny AOT: instr=261,219,101 / cycles=66,111,911 / ms=21`
-    - reading:
-      - compile/test shape is valid, but a structure-only freeze/publish split does not delete the eager publication tail by itself
-      - the active front still effectively pays the same `owned String -> StringBox -> Arc -> handle` tax
-      - do not keep freeze/publish-only refactors on this lane without an exact-front instruction win
-  - rejected runtime-executor uncached piecewise publication:
-    - attempted a corridor-local `piecewise_subrange_hsiii` publication tweak that skipped `string_len_fast_cache_store(...)` on fresh non-empty piecewise results while keeping the generic materialize path unchanged
-    - exact front reread:
-      - `kilo_micro_substring_concat`
-        - `C: instr=1,622,876 / cycles=492,621 / ms=3`
-        - `Ny AOT: instr=261,218,548 / cycles=65,855,834 / ms=21`
-    - reading:
-      - per-iteration len-cache seeding is not the dominant publication cost on this front
-      - keep the cache seed behavior unchanged unless a larger publication-tail delete proves it unnecessary
-  - rejected runtime-executor deferred-owned-text publication:
-    - attempted to keep the public handle surface stable while storing fresh `piecewise_subrange_hsiii` results as runtime-private deferred owned text in the host-handle registry
-    - exact front reread:
-      - `kilo_micro_substring_concat`
-        - `C: instr=1,622,919 / cycles=485,619 / ms=2`
-        - `Ny AOT: instr=655,162,062 / cycles=284,596,162 / ms=65`
-    - accept gate stayed healthy:
-      - `kilo_micro_substring_only`
-        - `C: instr=1,622,875 / cycles=488,508 / ms=3`
-        - `Ny AOT: instr=1,669,455 / cycles=1,013,477 / ms=3`
-    - asm/top reread:
-      - `insert_const_mid_fallback closure: 53.28%`
-      - `nyash.string.substring_hii: 18.79%`
-      - `LocalKey::with: 9.76%`
-      - `borrowed_substring_plan_from_handle: 4.37%`
-    - reading:
-      - the registry-backed deferred owned-text handle was not transparent to the loop-carried active corridor; the exact front fell off the landed `piecewise_subrange_hsiii` fast path and repinned to the generic `insert_hsi -> substring_hii` route
-      - the broken property was loop-carried fast-path continuity, not legality or publication-boundary proof
-      - do not reopen registry-backed deferred owned-text publication on this lane without a stronger proof that next-iteration pure-string consumers stay on the landed piecewise fast path
-  - rejected runtime-executor shared-materialize OwnedBytes seam:
-    - attempted to make the phase-137x minimal internal-result seam explicit by routing the active `piecewise_subrange_hsiii` tail through `freeze_owned_bytes(...) -> publish_owned_bytes(...)` inside the shared materialize/publication path
-    - exact front reread:
-      - `kilo_micro_substring_concat`
-        - `C: instr=1,622,877 / cycles=486,127 / ms=3`
-        - `Ny AOT: instr=261,218,390 / cycles=65,395,325 / ms=19`
-    - accept gate stayed healthy:
-      - `kilo_micro_substring_only`
-        - `C: instr=1,622,919 / cycles=489,543 / ms=3`
-        - `Ny AOT: instr=1,669,550 / cycles=999,977 / ms=3`
-    - whole-kilo guard regressed:
-      - `kilo_kernel_small_hk`
-        - `C: 77 ms`
-        - `Ny AOT: 1,965 ms`
-    - asm/top reread on the exact front:
-      - `piecewise_subrange_hsiii_fallback: 78.80%`
-      - `__memmove_avx512_unaligned_erms: 10.28%`
-      - `malloc: 2.03%`
-      - `_int_malloc: 1.92%`
-    - reading:
-      - the `OwnedBytes` carrier direction is still coherent, but rewriting the shared materialize/publication path widened the slice beyond the active corridor
-      - the exact front stayed on the landed `piecewise_subrange_hsiii` route, but whole-kilo paid the broader publication-path cost
-      - do not reopen this shape by changing shared `string_handle_from_owned(...)` / generic materialize helpers; future `OwnedBytes` work must stay corridor-local or direct-kernel-local
-  - landed runtime-executor scope correction:
-    - active `piecewise_subrange_hsiii` now has a corridor-local `KernelTextSlot` freeze/publish seam inside the executor body
-    - exact front reread:
-      - `kilo_micro_substring_concat`
-        - `C: instr=1,622,875 / cycles=483,683 / ms=3`
-        - `Ny AOT: instr=261,218,727 / cycles=65,812,780 / ms=21`
-    - accept gate:
-      - `kilo_micro_substring_only`
-        - `C: instr=1,622,876 / cycles=495,319 / ms=3`
-        - `Ny AOT: instr=1,669,235 / cycles=1,025,821 / ms=3`
-    - whole-kilo guard:
-      - `kilo_kernel_small_hk`
-        - `Ny AOT: ms=684`
-    - asm/top reread:
-      - `piecewise_subrange_hsiii_fallback closure: 78.10%`
-      - `__memmove_avx512_unaligned_erms: 5.50%`
-      - allocator samples remain secondary
-    - reading:
-      - this landing keeps `OwnedBytes` out of shared materialize/publication helpers
-      - this landing keeps the carrier out of the registry
-      - this is not yet loop-carried direct-kernel slot transport; the slot is still local to the current executor invocation
-      - the next card must thread the slot across same-corridor consumers without changing shared helpers or public ABI
-- optimization re-entry card:
-  - this remains the historical next-cut template on top of the current keeper baseline
-  - front: `kilo_micro_substring_concat`
-  - accept gate: `kilo_micro_substring_only`
-  - whole-kilo guard: `kilo_kernel_small_hk`
-  - primary owner: `runtime-executor`
-  - proof delta:
-    - `none`
-    - this card consumes the landed MIR-owned `publication_boundary` and the
-      generic `same-corridor unpublished outcome` contract
-  - proof region:
-    - established facts:
-      - borrowed corridor may stay unmaterialized until the final consumer
-      - the active corridor is non-escaping
-      - the active corridor does not cross a public boundary
-      - the active front stays entirely on the landed piecewise fast path (`piecewise_subrange single_session_hit=300000`, `fallback_insert=0`, `all_three=300000`)
-    - region limits:
-      - active `kilo_micro_substring_concat` corridor only
-  - publication boundary:
-    - applies only to:
-      - the active `substring + const + substring -> final substring` corridor selected by the landed MIR rewrite
-    - publish as:
-      - runtime-private executor only
-    - must not touch:
-      - generic `insert_hsi` / `insert_const_mid_fallback` helper body semantics
-      - public ABI
-      - broad callers outside the active corridor
-    - must not become:
-      - a generic helper rewrite
-  - rewrite target:
-    - from: `piecewise_subrange_hsiii_fallback` tail that still materializes and objectizes the final string through the generic owned-string path
-    - to: a thinner executor-local tail on the same fast path, without widening generic helper semantics or reintroducing route selection
-  - delete target:
-    - eager `StringBox`
-    - eager `Arc`
-    - eager `handle_issue`
-  - executor delta:
-    - keep: landed `piecewise_subrange_hsiii` publication boundary and helper surface
-    - add:
-      - executor-local unpublished text outcome only inside
-        `piecewise_subrange_hsiii`
-      - next follow-on must move that carrier into a direct-kernel-local slot
-        that survives same-corridor consumer hops
-    - exact touch set:
-      - `crates/nyash_kernel/src/exports/string_helpers/concat/piecewise.rs`
-      - `crates/nyash_kernel/src/exports/string_helpers/materialize.rs`
-      - `crates/nyash_kernel/src/plugin/value_codec/string_materialize.rs`
-    - must not touch:
-      - `src/runtime/host_handles.rs`
-      - `src/runtime/host_handles/text_read.rs`
-      - public export signatures in `crates/nyash_kernel/src/exports/string.rs`
-      - MIR/shim legality or route selection
-    - forbid: new route logic, transient box/handle carriers, raw handle-keyed sticky memo shortcuts, transient piecewise object cloning, generic helper widening, generic non-empty `insert_const_mid_fallback` direct-build widening, structure-only `freeze -> publish` splitting that leaves eager publication intact, registry-backed deferred text carriers, or new MIR/public ABI work
-    - demote: no generic helper body on this card
-  - delete target:
-    - `materialize_owned_total`
-    - `StringBox` / `Arc` objectize tail
-    - fresh handle issue on the piecewise fast path
-  - llvm line owner:
-    - daily: `ny-llvmc(boundary pure-first)`
-    - keep lanes only: `llvm_py`, `native_driver`
-  - local cut rule:
-    - keep the landed MIR rewrite fixed; do not reopen recognizer/rewrite logic unless new measurements disagree
-    - preserve borrowed-view lane continuity; reject cache/helper layer growth without proof
-    - keep runtime as executor-only; do not re-recognize eligibility in the helper path
-    - do not add a string-only MIR dialect
-    - keep the MIR truth generic: `root/provenance/start/len/materialize_policy/consumer_capability`
-    - treat `proof_region` and `publication_boundary` as MIR-owned; do not recreate them inside runtime helper logic
-    - keep the public ABI fixed; `insert_hsi` / `substring_hii` pure-first surface support is already landed, so the next cut stays runtime-private
-    - the current keeper already deleted producer substrings and landed the publication boundary; the next cut must stay inside `piecewise_subrange_hsiii` rather than reopening route selection
-    - preserve loop-carried fast-path continuity explicitly: next-iteration pure-string consumers must stay on the landed `piecewise_subrange_hsiii` route
-    - treat `piecewise_subrange_exec(...)` as runtime-private generic executor; do not encode helper names into MIR truth
-    - do not materialize the corridor through a transient piecewise box/handle carrier; keep the next attempt single-session and executor-local
-    - do not add a sticky shortcut keyed only by produced handles; any executor-local reuse must die with the executor call frame
-    - do not widen the generic `insert_hsi` non-empty path just because the exact front wins; whole-kilo makes that variant reject
-    - string is the first consumer, not the MIR dialect
-  - first commands:
-    - `tools/checks/dev_gate.sh quick`
-    - `bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_concat 1 3`
-    - `bash tools/perf/report_mir_hotops.sh kilo_micro_substring_concat`
-    - `bash tools/perf/bench_micro_aot_asm.sh kilo_micro_substring_concat 'piecewise_subrange_hsiii' 3`
-    - `cargo test -q -p nyash_kernel --lib -- --test-threads=1`
-  - done condition:
-    - exact front wins on the same fast-path artifact without reopening route/publication work
-    - accept gate stays healthy
-    - whole-kilo guard stays neutral
-    - next-iteration pure-string consumers stay on the landed `piecewise_subrange_hsiii` route
-    - top symbols move away from the current `materialize/objectize/handle` tail without shifting into new helper/cache traffic
-  - reject condition:
-    - the card widens beyond executor-local tail thinning
-    - accept gate or whole-kilo regresses
-    - publication escapes the active corridor and becomes a generic helper rewrite
-    - the card requires a new MIR rewrite, public ABI, or string-only MIR dialect
-    - next-iteration pure-string consumers repin to generic `insert_hsi -> substring_hii`
-    - host-handles or registry payload become carrier state
-    - the card reopens route measurement instead of deleting the already-measured tail
-  - test note:
-    - use `cargo test -q -p nyash_kernel --lib -- --test-threads=1` as the deterministic acceptance gate until cache isolation lands
-    - treat parallel `cargo test -q -p nyash_kernel --lib` as monitor-only for this lane
-  - current status:
-    - historical
-    - latest local probes on this card were non-wins
-    - landed `mir-proof` closed the publication contract gap, so the next live card is `runtime-executor`
-  - do not start edits from `kilo / micro-kilo` wording alone; use this explicit card plus `phase-137x` target bands
-- fixed task order:
-  1. `measurement` is closed for the current keeper baseline
-  2. landed `mir-proof` owns `publish-now not required before first external boundary`
-  3. lock slot lifecycle + slot-capable consumer rule + lowering verifier
-  4. `runtime-executor` owns runtime-private freeze/publish split plus the minimal result-ABI seam
-  5. `llvm-export` waits until that corridor is stable
-- next exact handoff:
-  - optimization-side BoxShape cleanup is landed on:
-    - `string_helpers/concat`
-    - `string_view`
-    - `runtime/host_handles`
-  - cleanup / structure reform is in landing-closeout mode; current exact closeout is `folderization residue inventory` (`direct plan import residue`)
-  - `plan/recipe_tree` now depends on top-level `recipes::{RecipeBody, refs}` owner surfaces
-  - `plan/parts/join_scope.rs` split is landed
-  - `loop_scan_phi_vars_v0::nested_loop_handoff` now owns nested fastpath binding application and no longer spills it back through recipe handoff
-  - `plan::loop_cond_shared` is deleted; branch-tail helpers now live under facts common helpers and `planner_gate` is inlined into `break_continue_entry`
-  - `plan/loop_cond` compat facts/recipe wrappers are deleted; feature/normalizer callers now import top-level `facts` / `recipes` owners directly
-  - `plan/loop_scan_phi_vars_v0` compat facts/pipeline-entry re-exports are deleted; the family pipeline now imports top-level `facts::loop_scan_phi_vars_v0` directly and composer calls `pipeline::lower_loop_scan_phi_vars_v0` explicitly
-  - `plan/loop_scan_methods_block_v0::recipe` is deleted; the family now imports top-level `recipes::loop_scan_methods_block_v0` directly
-  - `loop_cond::break_continue_types` compat wrapper removal is landed
-  - `loop_cond` builder-side inventory (`planner_gate` inline) is landed
-  - next shared-infra pointer is `folderization residue inventory` (`direct plan import residue`)
-  - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
-  - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
-  - keep `loop_cond` keep-plan residue internal to the family; route-entry should not need a dedicated bridge
-- current stop-lines:
-  - do not mix lane B with lane C (`Debug` / terminator-adjacent operand/control liveness cleanup)
-  - do not mix lane B with `generic placement / effect`
-  - do not mix parked `phase-96x` backlog into the active optimization lane
-- parked corridor:
-  - `phase-96x vm_hako LLVM acceptance cutover`
-  - only remaining backlog is monitor-policy decision for the frozen `vm-hako-core` pack
 
-## Design Owners
+## Current Snapshot
 
-- implementation lane:
-  - `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md`
-- next layer landing:
-  - `docs/development/current/main/design/compiler-expressivity-first-policy.md`
-- folderization map owner:
-  - `src/mir/builder/control_flow/FOLDERIZATION_MAP.md`
-- roadmap SSOT:
-  - `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
-- string guardrail owner:
+- keeper front is still closed:
+  - `kilo_micro_substring_concat`
+    - `C: 2 ms`
+    - `Ny AOT: 3 ms`
+  - `kilo_micro_substring_only`
+    - `C: 3 ms`
+    - `Ny AOT: 3 ms`
+- current broad gap is no longer substring:
+  - `kilo_micro_array_string_store`
+    - `C: 10 ms`
+    - `Ny AOT: 150 ms`
+  - `kilo_kernel_small_hk`
+    - `C: 80 ms`
+    - `Ny AOT: 782 ms`
+- current reading:
+  - current main owner family is `array/string-store`, not `substring`
+  - trusted direct MIR no longer duplicates the `text + "xy"` producer across `set(...)` and trailing `substring(...)`
+  - runtime gap stayed open after the compiler-side placement fix, so duplicated birth is no longer the live owner
+  - current exact `perf-observe` on `kilo_micro_array_string_store` still ranks publication/capture first:
+    - `freeze_owned_bytes`
+    - `issue_fresh_handle`
+    - `capture_store_array_str_source`
+    - `StringBox::perf_observe_from_owned`
+    - `execute_store_array_str_slot_boundary`
+  - next comparison must split:
+    - implementation language cost
+    - protocol / seam cost
+  - `indexOf` stays a side diagnostic lane and is not the current keeper card
+
+## Next
+
+1. freeze kernel-common observability vocabulary in docs and perf-observe
+2. add `carrier_kind` / `publish_reason` counters without changing release behavior
+3. start `Stage A: same protocol .hako pilot` on narrow `store.array.str`
+4. keep `Stage B: delayed publication seam` separate until Stage A numbers exist
+
+## Guardrails
+
+- MIR/lowering still owns legality, `proof_region`, and `publication_boundary`
+- keep carrier/publication split physically narrow
+- do not widen this card into a generic slot API or helper substrate
+- keep public ABI stable
+- compare `Rust vs .hako` only under:
+  - same protocol
+  - same public ABI with different internal seam
+
+## Proof Bundle
+
+```bash
+git status -sb
+tools/checks/dev_gate.sh quick
+cargo test -p nyash_kernel --lib string_helpers::tests:: -- --nocapture
+cargo check --features perf-observe -p nyash_kernel
+cargo test -p nyash_kernel --lib --tests --no-run
+```
+
+## Detail Pointers
+
+- current evidence snapshot:
+  - `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
+- history / rejects / longer ledger:
   - `docs/development/current/main/phases/phase-137x/README.md`
-- optimization task-card owner:
-  - `docs/development/current/main/design/optimization-task-card-os-ssot.md`
-- llvm line ownership owner:
-  - `docs/development/current/main/design/llvm-line-ownership-and-boundary-ssot.md`
-- llvm boundary lock owner:
-  - `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
-- generic memory lane-B contract owner:
-  - `docs/development/current/main/design/generic-memory-dce-observer-owner-contract-ssot.md`
-- observer/control lane-C contract owner:
-  - `docs/development/current/main/design/observer-control-dce-owner-contract-ssot.md`
-- concurrency manual owner:
-  - `docs/reference/concurrency/semantics.md`
-- concurrency runtime-plan owner:
-  - `docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md`
-
-## Current Notes
-
-- latest landed phase:
-  - `phase-277x`: optimization lane closeout judgment froze the landed optimization roadmap and handed the mainline back to compiler expressivity / selfhost entry
-- active focus:
-  - `phase-137x`: runtime-executor reopen on top of the 260,619,140-instr / 21-ms publication-boundary exact-front keeper
-  - `phase-29bq`: sibling cleanup / structure-reform landing under compiler-expressivity-first policy
-  - with blocker=`none`, the next pointer is the runtime-executor thin-path card inside landed `piecewise_subrange_hsiii`, while keeping rejected transient-carrier, sticky-memo, and generic-widening paths forbidden
-- architecture direction:
-  - loop/selfhost cleanup now targets `facts -> route -> recipe -> cfg skeleton -> join sig -> phi materializer -> verifier -> cleanup`
-  - keep `facts` descriptive-only and `recipe` normative
-  - move PHI/dominance repair out of semantic lowering over time
-  - do not absorb all of `plan/` into `recipe`
-  - instead, shrink `plan/` into a temporary lowering namespace and later rename by owner
-- control-flow end-state directory proposal:
-  - `src/mir/builder/control_flow/facts/`
-  - `src/mir/builder/control_flow/recipes/`
-  - `src/mir/builder/control_flow/verify/`
-  - `src/mir/builder/control_flow/lower/`
-  - `src/mir/builder/control_flow/ssa/`
-  - `src/mir/builder/control_flow/cleanup/`
-  - migration rule:
-    - keep `src/mir/builder/control_flow/plan/` while owner split is in flight
-    - remove the `plan/` name only after route families no longer mix recipe/lower/ssa/cleanup responsibilities
-- folderization backlog snapshot:
-  - owner-local closeout remaining:
-    - `none confirmed`
-  - direct `plan/` import residue snapshot:
-    - compat re-export / wrapper residue remains under top-level owner surfaces
-    - `facts/` now isolates `plan/facts` residue behind `facts::plan_residue`
-    - current cleanup wave keeps `plan::canon::cond`, `plan::canon::generic_loop::{ConditionCanon, UpdateCanon, StepPlacement, StepPlacementDecision}`, and `plan::facts::{expr_value, expr_bool, no_exit_block, stmt_view}` as compat-only forwards into `facts/`
-    - current keep-plan-for-now symbols:
-      - `none confirmed`
-    - exact remaining residue shape:
-      - explicit facts-local `plan_residue` under `facts/`
-      - intentional top-level owner surfaces remain under `recipes / lower / verify / ssa / cleanup / facts`
-      - `plan/policies` is now compat-only
-      - route-entry no longer depends on a dedicated keep-plan bridge
-    - fixed next handoff:
-      - `plan/recipe_tree` now depends on top-level `recipes::{RecipeBody, refs}` owner surfaces
-      - `plan/parts/join_scope.rs` split is landed
-      - `loop_scan_phi_vars_v0` pipeline entry cleanup is landed
-      - `loop_cond` builder-side inventory (`planner_gate` inline) is landed
-      - next shared-infra pointer is `folderization residue inventory` (`direct plan import residue`)
-      - keep top-level owner surfaces in `recipes / lower / verify / ssa / cleanup / facts`
-      - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
-      - keep `loop_cond` keep-plan residue internal to the family
-  - shared infra actualization snapshot:
-    - `facts::ast_feature_extractor` is landed at the top-level owner
-    - `facts::route_shape_recognizers` is landed at the top-level owner
-    - `facts::escape_shape_recognizer` is landed at the top-level owner
-    - `facts::stmt_walk` is landed at the top-level owner
-    - `facts::extractors` support is landed at the top-level owner for:
-      - `common_helpers::condition`
-      - `common_helpers::control_flow`
-      - `common_helpers::increment`
-      - `common_helpers::loop_true_early_exit`
-      - `if_phi_join`
-      - `loop_simple_while`
-    - `facts::loop_scan_methods_v0` facts/type extraction is landed at the top-level owner and now uses facts-owned `no_exit_block` / `stmt_view` helpers
-    - `facts::loop_scan_methods_block_v0` facts/type extraction is landed at the top-level owner and now uses facts-owned helper trio
-    - `facts::loop_cond_break_continue` facts/type owner surface is landed at the top-level owner
-    - `facts::loop_scan_phi_vars_v0` owner surface is landed at the top-level owner
-    - `facts::loop_scan_phi_vars_v0` facts-support helpers and shape routes are landed at the top-level owner
-    - `facts::loop_bundle_resolver_v0` owner surface is landed at the top-level owner
-    - `facts::loop_cond_continue_only`, `facts::loop_cond_continue_with_return`, and `facts::loop_cond_return_in_body` owner surfaces are landed at the top-level owner
-    - scan-family plan-side lowering now imports top-level `facts::canon::cond_block_view`, `facts::no_exit_block`, `facts::stmt_view`, and `recipes::RecipeBody` directly
-    - `facts::loop_collect_using_entries_v0` owner surface is landed at the top-level owner
-    - `facts::expr_value` owner surface is landed at the top-level owner
-    - `facts::expr_bool` owner surface is landed at the top-level owner
-    - `facts::no_exit_block` owner surface is landed at the top-level owner
-    - `facts::stmt_view` owner surface is landed at the top-level owner
-    - `facts::if_phi_join_facts` owner surface is landed at the top-level owner
-    - `recipes::scan_loop_segments` shared vocabulary is landed at the top-level owner
-    - `recipes::loop_cond_break_continue` owner surface is landed at the top-level owner
-    - `loop_cond_break_continue` builder lowering now imports facts-owned `cond_block_view` / `expr_bool` / `no_exit_block` / `stmt_view` and recipes-owned `RecipeBody` / `refs` directly; `IfStmtKind` is now item-local
-    - `recipes::loop_cond_return_in_body` owner surface is landed at the top-level owner
-    - remaining `loop_cond` route families now import facts-owned `cond_block_view` and recipes-owned `RecipeBody` / `refs` directly
-    - `recipes::loop_bundle_resolver_v0`, `recipes::loop_collect_using_entries_v0`, and `recipes::loop_scan_methods_block_v0` owner surfaces are landed at the top-level owner
-    - `recipes::loop_scan_phi_vars_v0` owner surface is landed at the top-level owner
-    - `loop_scan_phi_vars_v0` plan-side nested recipe wrapper is removed; lowering now imports the top-level recipes owner directly
-    - `loop_scan_phi_vars_v0::segment_linear` verify/lower bridge is now family-local and reused from `if_branch_scan`
-    - `facts::canon` support is landed at the top-level owner for:
-      - `cond`
-      - `cond_block_view`
-      - `generic_loop::condition`
-      - `generic_loop::update`
-      - `generic_loop::step::extract`
-      - shared generic-loop canon helpers are facts-owned, but their canon view types still forward from `plan::canon::generic_loop::types`
-    - `verify/diagnostics::span_format` is landed at the top-level owner
-    - `verify/observability::flowbox_tags` is landed at the top-level owner
-    - `verify::verifier` is landed at the top-level owner
-    - `verify::coreloop_body_contract` is landed at the top-level owner
-    - `lower::expectations` is landed at the top-level owner
-    - `lower::normalize` is landed at the top-level owner
-    - `recipes::RecipeBody` and `recipes::refs` are landed at the top-level owner
-    - `ssa::exit_binding` is landed at the top-level owner
-    - `cleanup::common` is landed at the top-level owner
-    - `cleanup::policies` support is landed at the top-level owner for:
-      - `body_local_derived_slot`
-      - `cond_prelude_vocab`
-      - `loop_true_read_digits_policy`
-      - `read_digits_break_condition_box`
-      - `loop_simple_while_subset_policy`
-      - `balanced_depth_scan_policy`
-      - `balanced_depth_scan_policy_box`
-      - `normalized_shadow_suffix_router_box`
-      - `post_loop_early_return_plan`
-      - `p5b_escape_derived_policy`
-      - `trim_policy`
-    - `plan::policies` keep-plan-for-now residue remains for:
-      - `none confirmed`
-    - `plan::extractors` keep-plan-for-now residue remains for:
-      - `none confirmed`
-    - `facts::plan_residue` now forwards only live non-`plan/` callers:
-      - `feature_facts`, `skeleton_facts`, `scan_shapes`, `loop_types`, `loop_simple_while_facts`
-      - `match_return_facts`, `LoopBreakFacts`
-      - cond-profile support: `accum_const_loop_facts`, `bool_predicate_scan_facts`, `loop_array_join_facts`, `loop_char_map_facts`
-    - next actual move:
-      - inventory `loop_scan_phi_vars_v0::nested_loop_handoff` seam / `loop_cond_shared` helper split for the next exact cut
-  - end-state folderization epics after the owner-local queue is empty:
-    - pin destination buckets for current `plan/` directories under `facts / recipes / verify / lower / ssa / cleanup`
-    - move shared descriptive infra first (`facts`, `canon`, `extractors`, `route_shape_recognizers`)
-    - move recipe/CorePlan infra next (`recipes`, `recipe_tree`, `parts`, `steps`, `features`, `skeletons`)
-    - move lowering/orchestration infra (`lowerer`, `emit`, `planner`, `single_planner`, `composer`)
-    - move verification/diagnostic infra (`verifier`, `diagnostics`, `observability`)
-    - move cleanup/policy infra (`normalizer`, `normalize`, `policies`, `common`)
-    - relocate owner-local route families only after their internals no longer mix responsibilities
-    - remove the `plan/` name last, after imports/docs/registry point at the end-state owners
-- pointer rule:
-  - `CURRENT_TASK.md` is the only live status pointer
-  - `05/10/15` stay thin mirrors only
-  - landed detail lives in phase docs, not here
-
-## Execution Queue
-
-1. `optimization lane closeout judgment`
-   - landed and closed
-   - re-entry pointer after the current cleanup landing is the optimization re-entry card above under `phase-137x`
-2. `phase-29bq selfhost mirbuilder failure-driven`
-   - broad gate is green; keep exact blocker capture mode as the default operating rule
-3. `phase-29bq loop owner seam cleanup`
-   - target owner flow:
-     - `facts -> route -> recipe -> join sig -> phi materializer -> verifier -> cleanup`
-    - inventory queue / recent closeouts:
-      - `LoopCondReturnInBody`
-      - `LoopTrueBreakContinue`
-      - `LoopCondContinueOnly`
-      - `LoopCondBreakContinue`
-      - `LoopCondContinueWithReturn`
-      - `GenericLoopV1`
-      - `nested_loop_depth1`
-      - `nested_loop_plan`
-      - `generic_loop_body::nested_loop_plan`
-      - `loop_scan_phi_vars_v0`
-      - `loop_scan_methods_block_v0`
-      - `loop_scan_v0`
-      - `loop_scan_methods_v0`
-      - `loop_bundle_resolver_v0`
-      - `loop_collect_using_entries_v0`
-      - `loop_break`
-        - current handoff snapshot:
-          - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
-          - `loop_scan_v0` closeout is landed
-          - final helper-family inventory was `body_local_policy`
-          - `gather_facts_step_box` is landed
-          - `apply_policy_step_box` is landed
-          - `normalize_body_step_box` is landed
-          - `body_local_derived_step_box` is landed
-          - `carrier_updates_step_box` is landed
-          - `post_loop_early_return_step_box` is landed
-          - `emit_joinir_step_box` is landed
-          - `merge_step_box` is landed
-          - `loop_break_steps` closeout is landed
-          - `promote_decision` is landed
-          - `promote_prepare_helpers` is landed
-          - `promote_finalize_helpers` is landed
-          - `promote_runner` is landed
-          - `loop_break::api` closeout is landed
-          - `body_local_policy_helpers` is landed
-          - `body_local_policy_inputs` is landed
-          - `body_local_policy_types` is landed
-          - `body_local_policy_runner` is landed
-          - `body_local_facts_helpers` is landed
-          - `body_local_facts` is landed
-          - `body_local_trim_matcher` is landed
-          - `body_local_digit_matcher` is landed
-          - `body_local_common` is landed
-          - `body_local_facts_shape_matchers` closeout is landed
-          - `body_local_policy` closeout is landed
-          - likely first seam:
-            - `none confirmed`
-        - likely follow-on seams:
-          - `none confirmed`
-        - next:
-          - inventory `nested_loop_depth1`
-      - `nested_loop_depth1`
-        - current handoff snapshot:
-          - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
-          - `facts` is separated
-          - `facts_helpers` is landed
-          - `facts_types` is landed
-          - route-local acceptance / fallback dispatch is separated
-          - preheader freshness rewrite is separated
-          - stmt-only fastpath ownership is separated
-          - likely first seam:
-            - `none confirmed`
-          - closeout:
-            - landed
-        - likely follow-on seams:
-          - `nested_loop_plan`
-        - next:
-          - inventory `nested_loop_plan`
-      - `nested_loop_plan`
-        - current handoff snapshot:
-          - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
-          - shared recipe-first fallback bridge is separated
-          - `loop_cond_continue_with_return` bridge is separated
-          - `loop_cond_break_continue` bridge is separated
-          - shared recipe fallback orchestration is separated
-          - recipe fallback selection policy is separated
-          - likely first seam:
-            - `none confirmed`
-          - closeout:
-            - landed
-        - likely follow-on seams:
-          - `generic_loop_body::nested_loop_plan`
-        - next:
-          - close out `generic_loop_body::nested_loop_plan`, then inventory `loop_scan_phi_vars_v0`
-      - `generic_loop_body::nested_loop_plan`
-        - current handoff snapshot:
-          - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
-          - local recipe-fallback ordering is separated
-          - `strict_nested_loop_guard` / `freeze_no_plan` are separated
-          - depth1 fastpath handoff is separated
-          - likely first seam:
-            - `none confirmed`
-          - closeout:
-            - landed
-        - likely follow-on seams:
-          - `loop_scan_phi_vars_v0`
-        - next:
-          - split `loop_scan_phi_vars_v0::facts`
-      - `loop_scan_phi_vars_v0`
-        - current handoff snapshot:
-          - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
-          - nested-loop depth1 fastpath handoff is separated
-          - nested-loop recipe stmt-only / fastpath handoff is separated
-          - found-if branch stmt partition / nested dispatch is separated
-          - nested-loop segment arm is separated
-          - linear segment verification / lowering is separated
-          - `facts_helpers` is landed
-          - `facts_types` is landed
-          - `facts_shape_routes` is landed
-          - likely first seam:
-            - `none confirmed`
-          - closeout:
-            - landed
-        - likely follow-on seams:
-          - `loop_scan_methods_block_v0`
-        - next:
-          - inventory `loop_bundle_resolver_v0`
-      - `loop_scan_methods_block_v0`
-        - current handoff snapshot:
-          - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
-          - nested-loop recipe-first fallback handoff is separated
-          - linear block recipe arm split is separated
-          - nested-loop stmt-only fastpath ownership is separated
-          - segment-level nested dispatch is separated
-          - `facts_helpers` is landed
-          - `facts_types` is landed
-          - `facts_shape_routes` is landed
-          - `facts_recipe_builder` is landed
-          - recipe owner actualization is landed
-          - likely first seam:
-            - `none confirmed`
-          - closeout:
-            - landed
-        - likely follow-on seams:
-          - `loop_scan_phi_vars_v0`
-        - next:
-          - inventory `loop_cond` keep-plan residue / `loop_scan_phi_vars_v0`
-      - `loop_bundle_resolver_v0`
-        - current handoff snapshot:
-          - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
-          - `pipeline` is kept owner-local under `plan/`
-          - `facts_helpers` is landed
-          - `facts_types` is landed
-          - `facts_shape_routes` is landed
-          - `facts_recipe_builder` is landed
-          - facts owner actualization is landed
-          - recipe owner actualization is landed
-          - likely first seam:
-            - `none confirmed`
-          - closeout:
-            - landed
-        - likely follow-on seams:
-          - `loop_cond`
-        - next:
-          - inventory `loop_cond` keep-plan residue / `loop_scan_phi_vars_v0`
-      - `loop_collect_using_entries_v0`
-        - current handoff snapshot:
-          - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
-          - `pipeline` is kept owner-local under `plan/`
-          - `facts_helpers` is landed
-          - `facts_types` is landed
-          - `facts_shape_routes` is landed
-          - `facts_recipe_builder` is landed
-          - facts owner actualization is landed
-          - recipe owner actualization is landed
-          - likely first seam:
-            - `none confirmed`
-          - closeout:
-            - landed
-        - likely follow-on seams:
-          - `loop_cond`
-          - `loop_scan_phi_vars_v0`
-        - next:
-          - inventory `loop_cond` keep-plan residue / `loop_scan_phi_vars_v0`
-      - `direct plan import residue`
-        - current handoff snapshot:
-          - detailed landed seam history lives in `29bq-90-selfhost-checklist.md`
-          - top-level owner surfaces for `facts / recipes / verify / lower / ssa / cleanup` are landed
-          - route-entry owner-local compat window is removed
-          - remaining direct `plan/` imports are either wrapper self-references or keep-plan-for-now owner-local symbols
-          - likely first seam:
-            - `none confirmed`
-        - likely follow-on seams:
-          - `loop_cond`
-          - `loop_scan_phi_vars_v0`
-        - next:
-          - inventory remaining compat re-export / wrapper residue behind `recipes / lower`
-          - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
-          - keep `loop_cond` keep-plan residue internal to the family
-          - move symbols out of `plan/` only after the owning family is single-owner
-4. `phase-29bq legacy lowerer removal`
-    - landed and closed
-5. `phase-29bq loop owner seam cleanup`
-    - next:
-      - inventory remaining compat re-export / wrapper residue behind `recipes / lower`
-      - keep `facts::plan_residue` explicit and thin while `plan/facts/*` ownership continues to move
-      - keep `loop_cond` keep-plan residue internal to the family
-      - wait for the next movable symbol to emerge from `loop_cond` or `loop_scan_methods_*`
-      - after this landing closeout, return the next pointer to the optimization re-entry card above
-
-## Legacy Compatibility Block
-
-- compiler lane: `phase-29bq / none`（active: monitor-only）
-  - done: `JIR-PORT-08`
-  - next: `none`
+- design anchors:
+  - `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
+  - `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+  - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+  - `docs/development/current/main/design/string-birth-sink-ssot.md`

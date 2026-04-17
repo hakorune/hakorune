@@ -4,8 +4,9 @@ Date: 2026-04-18
 Scope: 再起動直後に 2〜5 分で current lane に戻るための最短手順。
 Related:
   - CURRENT_TASK.md
-  - docs/development/current/main/phases/phase-137x/README.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md
+  - docs/development/current/main/phases/phase-137x/README.md
 ---
 
 # Restart Quick Resume
@@ -22,42 +23,43 @@ cargo check --features perf-observe -p nyash_kernel
 
 ## Current
 
-- lane: `phase-137x trusted direct emit alignment keeper`
-- background lanes:
-  - `phase-29bq loop owner seam cleanup landing`
-  - `phase-163x primitive-family / user-box fast-path landing`
-- immediate next: `re-read adjacent exact fronts on the trusted direct emit lane and decide whether runtime-executor slot transport stays active or parks as background proof`
-- immediate follow-on: `promote the trusted direct emit keeper only if neighboring exact fronts stay green and whole-kilo remains neutral`
+- lane:
+  - `phase-137x kernel observability vocabulary + array-store two-stage pilot`
+- blocker:
+  - `none`
+- worktree:
+  - dirty is expected; do not reset unrelated compiler-lane diffs just to make the tree clean
+- current snapshot:
+  - `kilo_micro_substring_concat = C 2 ms / Ny AOT 3 ms`
+  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 150 ms`
+  - `kilo_kernel_small_hk = C 80 ms / Ny AOT 782 ms`
+- immediate next:
+  - `freeze kernel-common observability vocabulary and land carrier_kind / publish_reason`
+- immediate follow-on:
+  - `Stage A: same protocol .hako pilot on store.array.str`
 
 ## Current Handoff
 
-- blocker: `none`
-- worktree: dirty is expected; do not reset unrelated compiler-lane diffs just to make the tree clean
-- live front:
-  - `kilo_micro_substring_concat`
-  - accept gate=`kilo_micro_substring_only`
-  - whole guard=`kilo_kernel_small_hk`
-- live reading:
-  - the active perf front was blocked by a direct-emit route mismatch, not by the runtime-publication tail on the keeper lane
-  - perf AOT direct emit now matches the trusted phase direct route and emits the proof-bearing `substring_concat3_hhhii` payload
-  - `kilo_micro_substring_concat` is now back to `Ny AOT: 1,665,250 instr / 983,016 cycles / 3 ms`
-  - accept gate stays green: `kilo_micro_substring_only = 1,669,421 instr / 960,357 cycles / 3 ms`
-  - whole guard stays neutral: `kilo_kernel_small_hk = 703 ms`
-- next exact handoff:
-  - keep perf direct emit aligned with the trusted stage1 route
-  - re-run neighboring exact fronts before reopening runtime-executor work
-  - keep public ABI / `proof_region` / `publication_boundary` ownership unchanged
-  - keep the landed slot seam parked as background structure; do not widen it into a generic slot API, registry carrier, or remembered chain path unless a new exact front reopens the gap
+- current broad owner family is `array/string-store`
+- duplicated producer is already fixed in trusted direct MIR; runtime publication/source-capture stayed hot
+- `indexOf` stays a side diagnosis, not the active keeper card
+- keep public ABI / legality ownership unchanged
+- compare `.hako` only under:
+  - `Stage A: same protocol`
+  - `Stage B: same public ABI / different seam`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/phases/phase-137x/README.md`
-3. `docs/development/current/main/10-Now.md`
-4. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-5. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-6. `docs/development/current/main/15-Workstream-Map.md`
-7. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
+2. `docs/development/current/main/10-Now.md`
+3. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
+4. `docs/development/current/main/phases/phase-137x/README.md`
+5. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
+6. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+7. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+8. `docs/development/current/main/design/string-birth-sink-ssot.md`
+9. `docs/development/current/main/15-Workstream-Map.md`
+10. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Current Proof Bundle
 
