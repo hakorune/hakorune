@@ -24,27 +24,37 @@ cargo check --features perf-observe -p nyash_kernel
 ## Current
 
 - lane:
-  - `phase-137x Stage A same-protocol array-store pilot + exact reread`
+  - `phase-137x publication/source-capture reopen after compiler-known-length keeper`
 - blocker:
   - `none`
 - worktree:
-  - dirty is expected; do not reset unrelated compiler-lane diffs just to make the tree clean
+  - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
 - current snapshot:
   - `kilo_micro_substring_concat = C 2 ms / Ny AOT 3 ms`
-  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 150 ms`
-  - `kilo_kernel_small_hk = C 80 ms / Ny AOT 782 ms`
+  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 126 ms`
+  - `kilo_kernel_small_hk = C 80 ms / Ny AOT 724 ms`
 - immediate next:
-  - `run Stage A exact reread on kilo_micro_array_string_store`
+  - `reopen producer-side publication/source-capture on kilo_micro_array_string_store while preserving the existing set_his fast path`
 - immediate follow-on:
-  - `compare carrier_kind / publish_reason against the Rust lane`
+  - `compare carrier_kind / publish_reason before reopening const_suffix or Stage B`
 
 ## Current Handoff
 
 - current broad owner family is `array/string-store`
 - duplicated producer is already fixed in trusted direct MIR; runtime publication/source-capture stayed hot
+- compiler-side known string-length propagation is now landed for const / substring-window / same-length string `phi`
+- active AOT entry IR on this front no longer emits `nyash.string.len_h` in `ny_main`
 - `.hako` owner-side Stage A pilot is landed on the VM/reference lane; `ArrayCoreBox` now routes proven string-handle `set(...)` through `nyash.array.set_his`
+- active AOT already reaches `nyash.array.set_his` without that VM/reference pilot
+- slot-store boundary delayed-publication probes are rejected:
+  - `v1 = 252 ms / 765 ms`
+  - `v2 = 211 ms / 1807 ms`
+  - wrong cut; do not reopen this before a new design decision
+- helper-only keeper from that rejected card is committed as `b35382cf9`
+- latest `perf-observe` reread no longer ranks `string_len_export_slow_path`; the live top stays publication/source-capture
 - `indexOf` stays a side diagnosis, not the active keeper card
 - keep public ABI / legality ownership unchanged
+- next first slice is no longer `len_h` removal; it is publication/source-capture reopen with the compiler-known-length lane fixed
 - compare `.hako` only under:
   - `Stage A: same protocol`
   - `Stage B: same public ABI / different seam`

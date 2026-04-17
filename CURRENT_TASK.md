@@ -28,10 +28,10 @@ Scope: current lane / next lane / restart order only.
 ## Current Lane
 
 - expected worktree:
-  - dirty is expected right now; do not reset unrelated changes just to make the tree look clean
-  - unrelated dirty file is currently `crates/nyash_kernel/src/observe/sink/stderr.rs`
+  - clean is expected right now
+  - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x Stage A route fact locked + publication/source-capture reopen`
+  - `phase-137x publication/source-capture reopen after compiler-known-length keeper`
 - background lanes:
   - `phase-29bq loop owner seam cleanup landing`
   - `phase-163x primitive-family / user-box fast-path landing`
@@ -50,21 +50,22 @@ Scope: current lane / next lane / restart order only.
 - current broad gap is no longer substring:
   - `kilo_micro_array_string_store`
     - `C: 10 ms`
-    - `Ny AOT: 153 ms`
+    - `Ny AOT: 126 ms`
   - `kilo_kernel_small_hk`
-    - `C: 85 ms`
-    - `Ny AOT: 786 ms`
+    - `C: 80 ms`
+    - `Ny AOT: 724 ms`
 - current reading:
   - current main owner family is `array/string-store`, not `substring`
   - trusted direct MIR no longer duplicates the `text + "xy"` producer across `set(...)` and trailing `substring(...)`
   - runtime gap stayed open after the compiler-side placement fix, so duplicated birth is no longer the live owner
+  - latest keeper slice is compiler-side known string-length propagation across const / substring-window / same-length string `phi`
+  - active AOT entry IR on this front no longer emits `nyash.string.len_h` inside `ny_main`
   - `Stage A` narrow owner slice is landed on the VM/reference lane:
     - `.hako` `ArrayCoreBox` now routes proven string-handle `set(...)` through `nyash.array.set_his`
     - cold tail stays in Rust
-  - `Stage A` exact reread is now closed on the active AOT front:
-    - `kilo_micro_array_string_store = C 10 ms / Ny AOT 153 ms`
-    - `kilo_kernel_small_hk = C 85 ms / Ny AOT 786 ms`
-  - current exact `perf-observe` counters on `kilo_micro_array_string_store` show:
+  - `Stage A` exact reread is now closed and parked on the active AOT front:
+    - active AOT already reaches the current concrete `store.array.str` lowering without that VM/reference pilot
+  - latest locked exact `perf-observe` counters on `kilo_micro_array_string_store` show:
     - `store.array.str total=800000`
     - `cache_hit=800000`
     - `plan.action_retarget_alias=800000`
@@ -81,17 +82,35 @@ Scope: current lane / next lane / restart order only.
     - entry LLVM IR still concretizes the array string-store call to `nyash.array.set_his`
     - guard: `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_store_string_contract.sh`
   - therefore the landed `.hako` owner pilot is still VM/reference-lane only; active AOT already reaches the current concrete `store.array.str` lowering without that pilot
+  - slot-store boundary delayed-publication probes were tried and rejected:
+    - active slot route v1:
+      - `kilo_micro_array_string_store = 252 ms`
+      - `kilo_kernel_small_hk = 765 ms`
+    - active slot route v2:
+      - `kilo_micro_array_string_store = 211 ms`
+      - `kilo_kernel_small_hk = 1807 ms`
+    - the bad cut was the array-store boundary itself; it bypassed the existing `set_his` fast path / alias-retarget behavior
+  - helper-only keeper from that probe is landed:
+    - `b35382cf9 feat: add kernel text slot store helpers`
+  - latest `perf-observe` reread on the active array-store front no longer ranks `string_len_export_slow_path`; top samples stay on:
+    - `issue_fresh_handle`
+    - `freeze_owned_bytes`
+    - `capture_store_array_str_source`
+    - `StringBox::perf_observe_from_owned`
   - current live owner remains publication/source-capture around the string births, not array-set route selection
   - next comparison must split:
     - implementation language cost
     - protocol / seam cost
+  - compiler-known-length keeper is landed; next slice is no longer `len_h` removal but publication/source-capture reopen while keeping that lane fixed
   - `indexOf` stays a side diagnostic lane and is not the current keeper card
 
 ## Next
 
-1. park `Stage A` as VM/reference-only for now and stop spending exact-front time on owner-route widening
-2. reopen `kilo_micro_array_string_store` on publication/source-capture before `nyash.array.set_his`
-3. use the existing `carrier_kind` / `publish_reason` counters to measure any delayed-publication cut before widening `Stage B`
+1. keep `Stage A` parked as VM/reference-only and stop spending exact-front time on owner-route widening
+2. keep the compiler-known-length lane fixed and guarded on `kilo_micro_array_string_store`
+3. reopen `kilo_micro_array_string_store` on producer-side publication/source-capture before `nyash.array.set_his`
+4. keep the existing `set_his` fast path intact while testing any unpublished generic concat outcome cut
+5. use the existing `carrier_kind` / `publish_reason` counters to measure delayed-publication cuts before any `const_suffix` reopen or `Stage B` widening
 
 ## Guardrails
 

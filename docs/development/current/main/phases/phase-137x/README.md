@@ -1,7 +1,7 @@
 # Phase 137x: main kilo reopen selection
 
 - Status: Active Reopen
-- 目的: string corridor / borrowed-corridor perf validation を current optimization lane として維持し、`kilo_micro_substring_concat` の hot corridor を measurement seam 付きで切り分けながら、runtime-executor follow-on を corridor-local に詰める。
+- 目的: current optimization lane を `kilo_micro_array_string_store` の publication/source-capture reopen に保ち、compiler-known-length keeper の上で次の exact-front cut を詰める。
 - 対象:
   - `CURRENT_TASK.md`
   - `docs/development/current/main/05-Restart-Quick-Resume.md`
@@ -54,7 +54,7 @@
   - `kilo_micro_len_substring_views`
 - current active owner proof front is `kilo_micro_array_string_store`
 - current side diagnostic front is `indexOf`
-- current live reread after the 2026-04-18 trusted direct-route alignment and array-store placement reread:
+- current live reread after parking the rejected slot-store boundary probes:
   - keeper fronts:
     - `kilo_micro_substring_only`
       - `C: 3 ms`
@@ -65,10 +65,10 @@
   - active owner fronts:
     - `kilo_micro_array_string_store`
       - `C: 10 ms`
-      - `Ny AOT: 153 ms`
+      - `Ny AOT: 126 ms`
     - `kilo_kernel_small_hk`
-      - `C: 85 ms`
-      - `Ny AOT: 786 ms`
+      - `C: 80 ms`
+      - `Ny AOT: 724 ms`
   - current keeper diff:
     - perf AOT direct emit now uses the same trusted stage1 route as the phase direct-route smokes
     - active perf MIR is back on the proof-bearing `substring_concat3_hhhii` payload instead of the older plain `insert_hsi -> substring_hii` payload
@@ -78,15 +78,19 @@
     - current main owner moved away from substring and onto array/string-store family
     - trusted direct MIR no longer duplicates the `text + "xy"` producer across `set(...)` and trailing `substring(...)`
     - runtime wall time stayed open after the compiler-side fix, so duplicated producer birth is no longer the live owner
+    - compiler-side known string-length propagation is now landed across const / substring-window / same-length string `phi`
+    - active AOT entry IR on this front no longer emits `nyash.string.len_h` in `ny_main`
 - latest `perf-observe` top report on the active array-store front:
-  - `freeze_owned_bytes: 14.25%`
-  - `issue_fresh_handle: 12.59%`
-  - `capture_store_array_str_source: 11.32%`
-  - `StringBox::perf_observe_from_owned: 10.75%`
-  - `string_len_export_slow_path: 8.84%`
-  - `string_concat_hh_export_impl: 8.65%`
-  - `LocalKey::with: 7.09%`
-  - `execute_store_array_str_slot_boundary: 6.58%`
+  - `issue_fresh_handle: 15.39%`
+  - `freeze_owned_bytes: 15.34%`
+  - `capture_store_array_str_source: 13.51%`
+  - `StringBox::perf_observe_from_owned: 11.10%`
+  - `string_concat_hh_export_impl: 10.43%`
+  - `LocalKey::with: 6.90%`
+  - `execute_store_array_str_slot_boundary: 5.96%`
+  - `string_substring_concat_hhii_export_impl: 5.61%`
+  - `host_handles::with_text_read_session closure: 5.23%`
+  - `execute_store_array_str_contract: 4.47%`
 - current counter reread on the same front:
   - `str.substring.route total=0`
   - `slow_plan=0`
@@ -129,11 +133,14 @@
       - `tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
       - `tools/smokes/v2/profiles/integration/apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh`
       - `tools/smokes/v2/profiles/integration/ring1_providers/ring1_array_string_provider_vm.sh`
-  - Stage A exact reread on the active AOT front is now closed:
-    - plain release:
-      - `kilo_micro_array_string_store = C 10 ms / Ny AOT 153 ms`
-      - `kilo_kernel_small_hk = C 85 ms / Ny AOT 786 ms`
-    - `perf-observe` counter facts:
+  - Stage A exact reread is closed and parked:
+    - active AOT already reaches the current concrete `store.array.str` lowering without the VM/reference owner pilot
+    - trusted direct MIR on the same benchmark still carries generic `RuntimeDataBox.set(...)` / `substring(...)` calls
+    - active AOT lowering fact stays pinned separately:
+      - direct MIR stays generic
+      - entry LLVM IR still calls `nyash.array.set_his`
+      - guard: `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_store_string_contract.sh`
+    - latest locked exact counter facts on this front remain:
       - `store.array.str total=800000`
       - `cache_hit=800000`
       - `plan.action_retarget_alias=800000`
@@ -144,13 +151,20 @@
       - `carrier_kind.stable_box=1600000`
       - `carrier_kind.handle=1600000`
       - `publish_reason.generic_fallback=1600000`
-    - trusted direct MIR on the same benchmark still carries generic `RuntimeDataBox.set(...)` / `substring(...)` calls
-    - active AOT lowering fact is now pinned separately:
-      - direct MIR stays generic
-      - entry LLVM IR still calls `nyash.array.set_his`
-      - guard: `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_store_string_contract.sh`
-    - therefore the active AOT exact front is not the `.hako` owner pilot itself; it already reaches the current concrete `store.array.str` lowering through compiler-side generic-method lowering
+  - rejected slot-store boundary delayed-publication probes:
+    - v1:
+      - `kilo_micro_array_string_store = 252 ms`
+      - `kilo_kernel_small_hk = 765 ms`
+    - v2:
+      - `kilo_micro_array_string_store = 211 ms`
+      - `kilo_kernel_small_hk = 1807 ms`
+    - keeper from that card:
+      - `b35382cf9 feat: add kernel text slot store helpers`
+    - rejected reading:
+      - the bad cut was the array-store boundary itself
+      - the probe bypassed the existing `set_his` fast path / alias-retarget behavior
   - next step is not more owner widening; it is reopening publication/source-capture before `nyash.array.set_his`
+  - the `concat_hh + len_h` compiler-known-length slice is now landed; next first slice is no longer `len_h` removal and still not `const_suffix`
   - design tighten before code:
     - keep carrier and publication physically separated; the corridor-local slot transports value, the cold adapter owns `StringBox` / `Arc` / handle issue
     - treat published-ness as boundary bookkeeping, not as the steady-state hot-lane value shape

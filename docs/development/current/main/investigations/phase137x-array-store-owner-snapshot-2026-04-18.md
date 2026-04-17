@@ -13,7 +13,7 @@ Related:
 ## Purpose
 
 - current broad owner family を 1 枚で読む
-- `Stage A` exact reread 後の current truth を固定する
+- `Stage A` exact reread 後と rejected slot-store boundary probe 後の current truth を固定する
 - `substring` keeper / `indexOf` diagnostic / `whole-kilo` guard を混同しない
 
 ## Measured Facts
@@ -21,8 +21,8 @@ Related:
 ### Whole-Kilo
 
 - `kilo_kernel_small_hk`
-  - `C: 85 ms`
-  - `Ny AOT: 786 ms`
+  - `C: 80 ms`
+  - `Ny AOT: 724 ms`
 - current top report:
   - `__memmove_avx512_unaligned_erms: 21.61%`
   - `nyash.string.concat_hs: 10.71%`
@@ -44,7 +44,7 @@ Related:
 - current broad owner candidate:
   - `kilo_micro_array_string_store`
     - `C: 10 ms`
-    - `Ny AOT: 153 ms`
+    - `Ny AOT: 126 ms`
 - diagnostic leaf:
   - `kilo_leaf_array_string_indexof_const`
     - `C: 4 ms`
@@ -59,41 +59,61 @@ Related:
 - current broad owner family is `array/string-store`, not `substring`
 - trusted direct MIR no longer shows duplicated producer birth on this front:
   - `text + "xy"` is shared across `set(...)` and trailing `substring(...)`
-- `Stage A` exact reread on the active AOT front is now closed:
-  - plain release:
-    - `kilo_micro_array_string_store = C 10 ms / Ny AOT 153 ms`
-    - `kilo_kernel_small_hk = C 85 ms / Ny AOT 786 ms`
-  - `perf-observe` counter facts:
-    - `store.array.str total=800000`
-    - `cache_hit=800000`
-    - `plan.action_retarget_alias=800000`
-    - `plan.action_store_from_source=0`
-    - `plan.action_need_stable_object=0`
-    - `carrier_kind.source_keep=0`
-    - `carrier_kind.owned_bytes=1600000`
-    - `carrier_kind.stable_box=1600000`
-    - `carrier_kind.handle=1600000`
-    - `publish_reason.generic_fallback=1600000`
+- current plain-release baseline after the compiler-known-length keeper:
+  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 126 ms`
+  - `kilo_kernel_small_hk = C 80 ms / Ny AOT 724 ms`
+- current compiler-side keeper on this front is:
+  - known string-length propagation across const / substring-window / same-length string `phi`
+  - active AOT entry IR now folds `len_h` to integer constants and no longer emits `nyash.string.len_h` in `ny_main`
+- latest locked exact counter snapshot on this front remains:
+  - `store.array.str total=800000`
+  - `cache_hit=800000`
+  - `plan.action_retarget_alias=800000`
+  - `plan.action_store_from_source=0`
+  - `plan.action_need_stable_object=0`
+  - `carrier_kind.source_keep=0`
+  - `carrier_kind.owned_bytes=1600000`
+  - `carrier_kind.stable_box=1600000`
+  - `carrier_kind.handle=1600000`
+  - `publish_reason.generic_fallback=1600000`
 - active AOT lowering fact is now pinned separately:
   - direct MIR still contains generic `RuntimeDataBox.set(...)`
   - the built AOT object/entry IR still calls `nyash.array.set_his`
   - guard: `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_store_string_contract.sh`
-- `perf-observe` on `kilo_micro_array_string_store` still ranks publication/capture first:
-  - `freeze_owned_bytes: 15.76%`
-  - `issue_fresh_handle: 14.54%`
-  - `StringBox::perf_observe_from_owned: 11.70%`
-  - `capture_store_array_str_source: 8.53%`
-  - `string_concat_hh_export_impl: 7.23%`
-  - `string_len_export_slow_path: 6.74%`
-  - `LocalKey::with: 5.72%`
-  - `__memmove_avx512_unaligned_erms: 4.63%`
+- latest `perf-observe` reread on `kilo_micro_array_string_store` still ranks publication/capture first:
+  - `issue_fresh_handle: 15.39%`
+  - `freeze_owned_bytes: 15.34%`
+  - `capture_store_array_str_source: 13.51%`
+  - `StringBox::perf_observe_from_owned: 11.10%`
+  - `string_concat_hh_export_impl: 10.43%`
+  - `LocalKey::with: 6.90%`
+  - `execute_store_array_str_slot_boundary: 5.96%`
+  - `string_substring_concat_hhii_export_impl: 5.61%`
+  - `host_handles::with_text_read_session closure: 5.23%`
+  - `execute_store_array_str_contract: 4.47%`
 - current reading stays:
   - dominant cost is still upstream birth/publication plus source capture
+  - the compiler-known-length keeper removed `string_len_export_slow_path` from the active top report, but did not change the live owner family
   - slot mutation itself is not the first owner once source is already published
   - trusted direct MIR still carries generic `RuntimeDataBox.set(...)` / `substring(...)` calls
   - the landed `.hako` owner-side pilot is therefore still VM/reference-lane only today
   - active AOT already reaches the current concrete `store.array.str` lowering without that pilot
   - the exact-front owner is still publication/source-capture around the string births before/after `nyash.array.set_his`
+
+## Rejected Slot-Store Boundary Probe
+
+- active slot route v1:
+  - `kilo_micro_array_string_store = 252 ms`
+  - `kilo_kernel_small_hk = 765 ms`
+- active slot route v2:
+  - `kilo_micro_array_string_store = 211 ms`
+  - `kilo_kernel_small_hk = 1807 ms`
+- keeper from that card:
+  - helper-only infra is landed as `b35382cf9 feat: add kernel text slot store helpers`
+- rejected reading:
+  - the bad cut was the array-store boundary itself
+  - the probe bypassed the existing `set_his` fast path / alias-retarget behavior
+  - publication sink remains the right family, but not at the array-store boundary
 
 ## `indexOf` Separation
 
@@ -125,5 +145,7 @@ Related:
 - next proof is not kilo-name keyed
 - next cut is no longer owner-route diagnosis
 - park Stage A as VM/reference-only and keep exact-front work on publication/source-capture
+- keep the compiler-known-length lane fixed; the next first slice is publication/source-capture reopen, not another `len_h` card
+- preserve the existing `set_his` fast path while testing any unpublished outcome cut
 - no generic slot API widening
 - no public ABI changes

@@ -13,7 +13,7 @@ Related:
 ## Current
 
 - current optimization lane:
-  - `phase-137x Stage A route fact locked + publication/source-capture reopen`
+  - `phase-137x publication/source-capture reopen after compiler-known-length keeper`
 - background compiler lanes:
   - `phase-29bq loop owner seam cleanup landing`
   - `phase-163x primitive-family / user-box fast-path landing`
@@ -26,13 +26,15 @@ Related:
   - `kilo_micro_substring_concat = C 2 ms / Ny AOT 3 ms`
   - `kilo_micro_substring_only = C 3 ms / Ny AOT 3 ms`
 - current broad gap:
-  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 153 ms`
-  - `kilo_kernel_small_hk = C 85 ms / Ny AOT 786 ms`
+  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 126 ms`
+  - `kilo_kernel_small_hk = C 80 ms / Ny AOT 724 ms`
 - `indexOf` separation:
   - keep as side diagnosis; reread only when the main card reopens it
 - current owner reading:
   - current main owner family is `array/string-store`
   - duplicated `text + "xy"` producer is already removed in trusted direct MIR
+  - compiler-side known string-length propagation is now landed for const / substring-window / same-length string `phi`
+  - active AOT entry IR on this front no longer emits `nyash.string.len_h` in `ny_main`
   - current exact owner is still publication/source-capture
   - `Stage A` narrow owner slice is now landed on the VM/reference lane:
     - `.hako` `ArrayCoreBox` routes proven string-handle `set(...)` through `nyash.array.set_his`
@@ -49,12 +51,21 @@ Related:
     - entry LLVM IR still calls `nyash.array.set_his`
     - guard: `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_store_string_contract.sh`
   - active AOT exact is therefore not the `.hako` owner pilot itself; the live owner stays publication/source-capture
+  - slot-store boundary probes are now a rejected card:
+    - v1 exact/whole: `252 ms / 765 ms`
+    - v2 exact/whole: `211 ms / 1807 ms`
+    - they cut at the wrong seam and broke the existing `set_his` fast path
+  - helper-only keeper from that rejected card is landed as `b35382cf9`
+  - latest `perf-observe` reread no longer ranks `string_len_export_slow_path`; the live top stays on `issue_fresh_handle` / `freeze_owned_bytes` / `capture_store_array_str_source` / `StringBox::perf_observe_from_owned`
+  - next first slice is no longer `len_h` removal; it is publication/source-capture reopen with the compiler-known-length lane fixed
 
 ## Next
 
-1. park `Stage A` as VM/reference-only for now
-2. keep exact rereads pinned on publication/source-capture before `nyash.array.set_his`
-3. keep `Stage B` narrow and data-driven through `carrier_kind` / `publish_reason`
+1. keep `Stage A` parked as VM/reference-only
+2. keep the compiler-known-length lane fixed and guarded on this front
+3. keep exact rereads pinned on producer-side publication/source-capture before `nyash.array.set_his`
+4. preserve the existing `set_his` fast path while testing unpublished generic concat outcomes
+5. keep `Stage B` narrow and data-driven through `carrier_kind` / `publish_reason`
 
 ## Read Next
 
