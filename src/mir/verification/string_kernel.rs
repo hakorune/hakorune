@@ -1,8 +1,8 @@
+use crate::mir::verification_types::VerificationError;
 use crate::mir::{
     infer_string_kernel_text_consumer, MirFunction, StringKernelPlanCarrier,
     StringKernelPlanTextConsumer, StringKernelPlanVerifierOwner,
 };
-use crate::mir::verification_types::VerificationError;
 
 pub fn check_string_kernel_plans(function: &MirFunction) -> Result<(), Vec<VerificationError>> {
     let mut errors = Vec::new();
@@ -94,7 +94,12 @@ mod tests {
     };
 
     fn slot_text_function() -> MirFunction {
-        fn method_call(dst: ValueId, receiver: ValueId, method: &str, args: Vec<ValueId>) -> MirInstruction {
+        fn method_call(
+            dst: ValueId,
+            receiver: ValueId,
+            method: &str,
+            args: Vec<ValueId>,
+        ) -> MirInstruction {
             MirInstruction::Call {
                 dst: Some(dst),
                 func: ValueId::INVALID,
@@ -117,7 +122,10 @@ mod tests {
             effects: EffectMask::PURE,
         };
         let mut function = MirFunction::new(signature, BasicBlockId::new(0));
-        let block = function.blocks.get_mut(&BasicBlockId::new(0)).expect("entry");
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
         block.instructions.extend([
             MirInstruction::Const {
                 dst: ValueId::new(1),
@@ -200,10 +208,10 @@ mod tests {
     #[test]
     fn verifier_rejects_registry_backed_string_lane_carrier() {
         let mut function = slot_text_function();
-        function
-            .metadata
-            .string_kernel_plans
-            .insert(ValueId::new(10), base_slot_plan(StringKernelPlanCarrier::RegistryBackedHandle));
+        function.metadata.string_kernel_plans.insert(
+            ValueId::new(10),
+            base_slot_plan(StringKernelPlanCarrier::RegistryBackedHandle),
+        );
 
         let errors = check_string_kernel_plans(&function).expect_err("expected violations");
         assert!(errors.iter().any(|error| matches!(

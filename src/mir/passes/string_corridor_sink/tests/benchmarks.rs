@@ -1,5 +1,22 @@
 use super::*;
 
+fn test_const_suffix_add_signature(
+    function: &MirFunction,
+    bbid: BasicBlockId,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    value: ValueId,
+) -> Option<(ValueId, String)> {
+    let add = match_add_in_block(function, bbid, def_map, value)?;
+    let lhs_root = resolve_value_origin(function, def_map, add.lhs);
+    let rhs_root = resolve_value_origin(function, def_map, add.rhs);
+    let StringSourceIdentity::ConstString(text) =
+        string_source_identity(function, def_map, rhs_root)?
+    else {
+        return None;
+    };
+    Some((lhs_root, text))
+}
+
 #[test]
 fn benchmark_substring_only_compiles_without_substring_len_calls() {
     ensure_ring0_initialized();
@@ -278,5 +295,88 @@ fn benchmark_substring_concat_array_set_compiles_without_helper_len_observers() 
         leftover_helper_lengths.is_empty(),
         "substring_concat_array_set should rewrite helper len observers, found {:?}",
         leftover_helper_lengths
+    );
+}
+
+#[test]
+fn benchmark_array_string_store_compiles_with_store_shared_receiver_substring() {
+    ensure_ring0_initialized();
+    let path = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/benchmarks/bench_kilo_micro_array_string_store.hako"
+    );
+    let source = std::fs::read_to_string(path).expect("benchmark source");
+    let prepared =
+        crate::runner::modes::common_util::source_hint::prepare_source_minimal(&source, path)
+            .expect("prepare benchmark source");
+    let ast = NyashParser::parse_from_string(&prepared).expect("parse benchmark");
+    let mut compiler = MirCompiler::with_options(true);
+    let result = compiler
+        .compile_with_source(ast, Some(path))
+        .expect("compile benchmark");
+
+    let function = result
+        .module
+        .get_function("main")
+        .expect("main")
+        .clone();
+    let def_map = build_value_def_map(&function);
+    let interesting_blocks: Vec<String> = function
+        .blocks
+        .iter()
+        .filter_map(|(bbid, block)| {
+            let interesting = block.instructions.iter().any(|inst| {
+                match_method_set_call(inst).is_some() || match_substring_call(inst).is_some()
+            });
+            interesting.then(|| format!("bb{} {:?}", bbid.0, block.instructions))
+        })
+        .collect();
+    let mut store_value = None;
+    let mut trailing_receiver = None;
+    let mut duplicate_const_suffix_adds = 0usize;
+
+    for (bbid, block) in &function.blocks {
+        for inst in &block.instructions {
+            if let Some(store) = array_store_candidate(&function, &def_map, inst) {
+                if let Some((base, suffix)) =
+                    test_const_suffix_add_signature(&function, *bbid, &def_map, store.value)
+                {
+                    if suffix == "xy" {
+                        store_value = Some((store.value, base));
+                    }
+                }
+            }
+
+            if let Some((_dst, receiver, _start, _end, _effects)) = match_substring_call(inst) {
+                if let Some((base, suffix)) =
+                    test_const_suffix_add_signature(&function, *bbid, &def_map, receiver)
+                {
+                    if suffix == "xy" {
+                        duplicate_const_suffix_adds += 1;
+                        trailing_receiver = Some((receiver, base));
+                    }
+                }
+            }
+        }
+    }
+
+    let Some((store_value, store_base)) = store_value else {
+        panic!("expected array store const-suffix producer in rewritten benchmark");
+    };
+    let Some((trailing_receiver, trailing_base)) = trailing_receiver else {
+        panic!("expected trailing substring const-suffix producer in rewritten benchmark");
+    };
+
+    assert_eq!(
+        trailing_receiver, store_value,
+        "trailing substring should reuse store-side producer after rewrite"
+    );
+    assert_eq!(
+        trailing_base, store_base,
+        "trailing substring and store should share the same base after rewrite"
+    );
+    assert_eq!(
+        duplicate_const_suffix_adds, 1,
+        "benchmark should keep only one xy const-suffix producer after compile; blocks={interesting_blocks:?}"
     );
 }

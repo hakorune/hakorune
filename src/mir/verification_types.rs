@@ -239,7 +239,11 @@ impl std::fmt::Display for VerificationError {
                 )
             }
             VerificationError::StringKernelPlanViolation { value, reason } => {
-                write!(f, "StringKernelPlanViolation for value {}: {}", value, reason)
+                write!(
+                    f,
+                    "StringKernelPlanViolation for value {}: {}",
+                    value, reason
+                )
             }
         }
     }

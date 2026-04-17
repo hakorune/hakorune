@@ -122,6 +122,12 @@ pub(super) fn collect_concat_corridor_plans(
             else {
                 continue;
             };
+            if let Some(plan) = collect_store_shared_receiver_substring_plan(
+                function, *bbid, def_map, use_counts, outer_idx, outer_dst, receiver,
+            ) {
+                plans.push(ConcatCorridorPlan::StoreSharedReceiverSubstring(plan));
+                continue;
+            }
             if let Some(ConcatTripletShape {
                 left,
                 middle,
@@ -309,6 +315,9 @@ enum ResolvedConcatCorridorPlan {
         end: ValueId,
         helper_effects: EffectMask,
     },
+    StoreSharedReceiverSubstring {
+        replacement_receiver: ValueId,
+    },
 }
 
 pub(super) fn apply_concat_corridor_plans(
@@ -485,6 +494,19 @@ pub(super) fn apply_concat_corridor_plans(
                             start: plan.start,
                             end: plan.end,
                             helper_effects: plan.helper_effects,
+                        },
+                    );
+                }
+                ConcatCorridorPlan::StoreSharedReceiverSubstring(plan) => {
+                    remove_indices.extend(plan.remove_indices.iter().copied());
+                    hints.push(format!(
+                        "string_corridor_sink:store_shared_receiver_substring:%{}",
+                        plan.outer_dst.0
+                    ));
+                    resolved_by_idx.insert(
+                        plan.outer_idx,
+                        ResolvedConcatCorridorPlan::StoreSharedReceiverSubstring {
+                            replacement_receiver: plan.replacement_receiver,
                         },
                     );
                 }
@@ -689,6 +711,17 @@ pub(super) fn apply_concat_corridor_plans(
                     new_spans.push(span);
                     rewritten += 1;
                 }
+                ResolvedConcatCorridorPlan::StoreSharedReceiverSubstring {
+                    replacement_receiver,
+                } => {
+                    let rewritten_substring =
+                        rewrite_substring_receiver(&inst, *replacement_receiver).expect(
+                            "store shared receiver rewrite should preserve substring call shape",
+                        );
+                    new_insts.push(rewritten_substring);
+                    new_spans.push(span);
+                    rewritten += 1;
+                }
             }
         }
 
@@ -703,4 +736,170 @@ pub(super) fn apply_concat_corridor_plans(
     }
 
     rewritten
+}
+
+fn collect_store_shared_receiver_substring_plan(
+    function: &MirFunction,
+    bbid: BasicBlockId,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    use_counts: &HashMap<ValueId, usize>,
+    outer_idx: usize,
+    outer_dst: ValueId,
+    receiver: ValueId,
+) -> Option<StoreSharedReceiverSubstringPlan> {
+    let receiver_chain =
+        resolve_copy_chain_in_block(function, bbid, def_map, use_counts, receiver)?;
+    let duplicate_root = receiver_chain.root;
+    if use_counts.get(&duplicate_root).copied().unwrap_or(0) != 1 {
+        return None;
+    }
+    let duplicate_sig = const_suffix_add_signature(function, bbid, def_map, duplicate_root)?;
+
+    let block = function.blocks.get(&bbid)?;
+    let mut replacement_receiver = None;
+    for inst in block.instructions.iter().take(outer_idx) {
+        let Some(store) = array_store_candidate(function, def_map, inst) else {
+            continue;
+        };
+        let Some(store_chain) =
+            resolve_copy_chain_in_block(function, bbid, def_map, use_counts, store.value)
+        else {
+            continue;
+        };
+        if store_chain.root == duplicate_root {
+            continue;
+        }
+        let Some(store_sig) = const_suffix_add_signature(function, bbid, def_map, store_chain.root)
+        else {
+            continue;
+        };
+        if store_sig == duplicate_sig {
+            replacement_receiver = Some(store_chain.root);
+        }
+    }
+    let replacement_receiver = replacement_receiver?;
+
+    let mut remove_indices: BTreeSet<usize> = receiver_chain.copy_indices.iter().copied().collect();
+    remove_indices.extend(
+        removable_single_use_add_feeders(function, bbid, def_map, use_counts, duplicate_root)?
+            .into_iter(),
+    );
+
+    Some(StoreSharedReceiverSubstringPlan {
+        outer_idx,
+        outer_dst,
+        replacement_receiver,
+        remove_indices: remove_indices.into_iter().collect(),
+    })
+}
+
+fn const_suffix_add_signature(
+    function: &MirFunction,
+    bbid: BasicBlockId,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    value: ValueId,
+) -> Option<(ValueId, String)> {
+    let add = match_add_in_block(function, bbid, def_map, value)?;
+    let lhs_root = resolve_value_origin(function, def_map, add.lhs);
+    let rhs_root = resolve_value_origin(function, def_map, add.rhs);
+    let StringSourceIdentity::ConstString(text) =
+        string_source_identity(function, def_map, rhs_root)?
+    else {
+        return None;
+    };
+    Some((lhs_root, text))
+}
+
+fn removable_single_use_add_feeders(
+    function: &MirFunction,
+    bbid: BasicBlockId,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    use_counts: &HashMap<ValueId, usize>,
+    add_root: ValueId,
+) -> Option<Vec<usize>> {
+    let add = match_add_in_block(function, bbid, def_map, add_root)?;
+    let mut remove_indices = vec![add.idx];
+    let block = function.blocks.get(&bbid)?;
+    for operand in [add.lhs, add.rhs] {
+        let mut current = operand;
+        let mut visited = BTreeSet::new();
+        while visited.insert(current) {
+            let Some((inst_bbid, idx)) = def_map.get(&current).copied() else {
+                break;
+            };
+            if inst_bbid != bbid {
+                break;
+            }
+            match block.instructions.get(idx) {
+                Some(MirInstruction::Copy { src, .. })
+                    if use_counts.get(&current).copied().unwrap_or(0) == 1 =>
+                {
+                    remove_indices.push(idx);
+                    current = *src;
+                }
+                Some(MirInstruction::Const { .. })
+                    if use_counts.get(&current).copied().unwrap_or(0) == 1 =>
+                {
+                    remove_indices.push(idx);
+                    break;
+                }
+                _ => break,
+            }
+        }
+    }
+    Some(remove_indices)
+}
+
+fn rewrite_substring_receiver(
+    inst: &MirInstruction,
+    new_receiver: ValueId,
+) -> Option<MirInstruction> {
+    match inst {
+        MirInstruction::Call {
+            dst,
+            func,
+            callee:
+                Some(Callee::Method {
+                    box_name,
+                    method,
+                    receiver: Some(_),
+                    certainty,
+                    box_kind,
+                }),
+            args,
+            effects,
+        } if args.len() == 2 && matches!(method.as_str(), "substring" | "slice") => {
+            Some(MirInstruction::Call {
+                dst: *dst,
+                func: *func,
+                callee: Some(Callee::Method {
+                    box_name: box_name.clone(),
+                    method: method.clone(),
+                    receiver: Some(new_receiver),
+                    certainty: *certainty,
+                    box_kind: *box_kind,
+                }),
+                args: args.clone(),
+                effects: *effects,
+            })
+        }
+        MirInstruction::Call {
+            dst,
+            func,
+            callee: Some(Callee::Extern(name)),
+            args,
+            effects,
+        } if args.len() == 3 && name == "nyash.string.substring_hii" => {
+            let mut new_args = args.clone();
+            new_args[0] = new_receiver;
+            Some(MirInstruction::Call {
+                dst: *dst,
+                func: *func,
+                callee: Some(Callee::Extern(name.clone())),
+                args: new_args,
+                effects: *effects,
+            })
+        }
+        _ => None,
+    }
 }

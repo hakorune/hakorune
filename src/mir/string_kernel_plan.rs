@@ -11,13 +11,13 @@ use std::collections::BTreeMap;
 
 use super::{
     build_value_def_map, resolve_value_origin,
-    string_corridor_recognizer::{
-        match_len_call, match_method_set_call, match_substring_call,
-        match_substring_concat3_helper_call,
-    },
     string_corridor_placement::{
         StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateProof,
         StringCorridorCandidateState,
+    },
+    string_corridor_recognizer::{
+        match_len_call, match_method_set_call, match_substring_call,
+        match_substring_concat3_helper_call,
     },
     CompareOp, ConstValue, MirFunction, MirInstruction, MirModule, ValueDefMap, ValueId,
 };
@@ -428,7 +428,11 @@ fn inferred_text_output(
                 .or_else(|| function.metadata.value_types.get(&plan_value)),
         );
     };
-    let Some(inst) = function.blocks.get(&bbid).and_then(|block| block.instructions.get(idx)) else {
+    let Some(inst) = function
+        .blocks
+        .get(&bbid)
+        .and_then(|block| block.instructions.get(idx))
+    else {
         return false;
     };
     if match_len_call(inst).is_some() {
@@ -822,8 +826,8 @@ mod tests {
             },
         ];
 
-        let kernel_plan =
-            derive_string_kernel_plan(&function, ValueId::new(8), &candidates).expect("kernel plan");
+        let kernel_plan = derive_string_kernel_plan(&function, ValueId::new(8), &candidates)
+            .expect("kernel plan");
 
         assert_eq!(kernel_plan.plan_value, ValueId::new(8));
         assert_eq!(kernel_plan.version, 1);
@@ -918,8 +922,8 @@ mod tests {
             publication_boundary: None,
         }];
 
-        let kernel_plan =
-            derive_string_kernel_plan(&function, ValueId::new(21), &candidates).expect("kernel plan");
+        let kernel_plan = derive_string_kernel_plan(&function, ValueId::new(21), &candidates)
+            .expect("kernel plan");
         let payload = kernel_plan.loop_payload.expect("loop payload");
 
         assert_eq!(payload.seed_value, ValueId::new(3));
@@ -963,7 +967,10 @@ mod tests {
             effects: EffectMask::PURE,
         };
         let mut function = MirFunction::new(signature, BasicBlockId::new(0));
-        let block = function.blocks.get_mut(&BasicBlockId::new(0)).expect("entry");
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
         block.instructions.extend([
             MirInstruction::Const {
                 dst: ValueId::new(1),
@@ -996,7 +1003,12 @@ mod tests {
                 ],
                 effects: EffectMask::PURE,
             },
-            method_call(ValueId::new(11), ValueId::new(10), "substring", vec![ValueId::new(3), ValueId::new(4)]),
+            method_call(
+                ValueId::new(11),
+                ValueId::new(10),
+                "substring",
+                vec![ValueId::new(3), ValueId::new(4)],
+            ),
         ]);
         block.instruction_spans.extend(vec![Span::unknown(); 6]);
         block.set_terminator(MirInstruction::Return {
@@ -1033,8 +1045,8 @@ mod tests {
             publication_boundary: Some(StringCorridorPublicationBoundary::FirstExternalBoundary),
         }];
 
-        let kernel_plan =
-            derive_string_kernel_plan(&function, ValueId::new(10), &candidates).expect("kernel plan");
+        let kernel_plan = derive_string_kernel_plan(&function, ValueId::new(10), &candidates)
+            .expect("kernel plan");
 
         assert_eq!(
             kernel_plan.text_consumer,
@@ -1068,7 +1080,10 @@ mod tests {
             effects: EffectMask::PURE,
         };
         let mut function = MirFunction::new(signature, BasicBlockId::new(0));
-        let block = function.blocks.get_mut(&BasicBlockId::new(0)).expect("entry");
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
         block.instructions.extend([
             MirInstruction::Const {
                 dst: ValueId::new(1),

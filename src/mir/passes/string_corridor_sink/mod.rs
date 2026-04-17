@@ -245,6 +245,14 @@ struct MaterializationStorePlan {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+struct StoreSharedReceiverSubstringPlan {
+    outer_idx: usize,
+    outer_dst: ValueId,
+    replacement_receiver: ValueId,
+    remove_indices: Vec<usize>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 struct PublicationReturnPlan {
     helper_idx: usize,
     helper_dst: ValueId,
@@ -300,6 +308,7 @@ enum ConcatCorridorPlan {
     PublicationLen(PublicationHelperLenPlan),
     PublicationSubstring(PublicationHelperSubstringPlan),
     MaterializationStore(MaterializationStorePlan),
+    StoreSharedReceiverSubstring(StoreSharedReceiverSubstringPlan),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
