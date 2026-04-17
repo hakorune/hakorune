@@ -94,6 +94,8 @@
     - separate semantic result birth from public handle publication
     - keep the public handle-based surface stable on this lane
     - keep `proof_region` and `publication_boundary` MIR-owned
+    - treat the generic contract as `same-corridor unpublished outcome`
+    - realize it on this lane as `string-lane unpublished text outcome`
     - use the existing runtime-private seams `OwnedBytes` / `TextPlan`
     - keep new executor legality out of runtime and shim code
   - hold:
@@ -199,9 +201,10 @@
     - `LocalKey::with: 9.76%`
     - `borrowed_substring_plan_from_handle: 4.37%`
   - reading:
-    - the deferred owned-text handle was not transparent to the loop-carried active corridor
+    - the registry-backed deferred owned-text handle was not transparent to the loop-carried active corridor
     - the exact front fell off the landed `piecewise_subrange_hsiii` fast path and repinned to the generic `insert_hsi -> substring_hii` route
-    - treat registry-backed deferred owned-text publication as reject on this lane unless a later proof keeps next-iteration pure-string consumers on the same fast path
+    - the broken property was loop-carried fast-path continuity, not legality or publication-boundary proof
+    - treat registry-backed deferred owned-text publication as reject on this lane unless a later proof keeps next-iteration pure-string consumers on the landed piecewise fast path
 - landed BoxShape cleanup before reopen:
   - `string_helpers/concat.rs` hot/cold split is landed
   - `string_view.rs` now keeps `substring_plan` / `span_resolve` behind submodule seams
@@ -235,6 +238,7 @@
       - `StringBox`
       - `Arc`
       - fresh `handle_issue`
+    - preserve loop-carried fast-path continuity explicitly: next-iteration pure-string consumers must stay on the landed `piecewise_subrange_hsiii` route
     - do not reopen route logic, piece-shape branching, transient box/handle carriers, sticky memo shortcuts, generic direct-build widening, or runtime/shim re-recognition while this two-card return is pending
   - the follow-on `llvm-export` card only starts after that executor card lands:
     - consume the stabilized corridor with truthful facts

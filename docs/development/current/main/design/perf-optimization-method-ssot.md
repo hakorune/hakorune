@@ -129,6 +129,14 @@ current restart pointer after the active selfhost landing is this one:
 - rewrite target:
   - from: eager publication tail inside the active `piecewise_subrange_hsiii` corridor
   - to: runtime-private outcome/publication split that consumes the landed MIR contract
+- generic contract term:
+  - `same-corridor unpublished outcome`
+- lane-specific realization:
+  - see
+    [string-canonical-mir-corridor-and-placement-pass-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md)
+    and
+    [phase-137x/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-137x/README.md)
+  - this lane currently realizes that contract as a string-lane unpublished text outcome; do not genericize helper/executor mechanics here
 - runtime executor:
   - split runtime-private freeze vs publish
   - keep generic/public handle publication as cold adapter
@@ -152,8 +160,9 @@ current restart pointer after the active selfhost landing is this one:
   - the slice escapes its publication boundary and becomes a broad helper rewrite
 - current status:
   - consult reviewed
-  - next live owner is `mir-proof`
-  - local executor-only thin cuts remain paused until that proof card lands
+  - landed `mir-proof` closed the publication contract gap
+  - next live owner is `runtime-executor`
+  - local executor-only thin cuts stay paused unless they preserve the landed piecewise route and the same-corridor unpublished-outcome contract
 
 ## Representation Escalation Rule
 

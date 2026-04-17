@@ -202,8 +202,9 @@ Scope: current lane / next lane / restart order only.
       - `LocalKey::with: 9.76%`
       - `borrowed_substring_plan_from_handle: 4.37%`
     - reading:
-      - the deferred owned-text handle was not transparent to the loop-carried active corridor; the exact front fell off the landed `piecewise_subrange_hsiii` fast path and repinned to the generic `insert_hsi -> substring_hii` route
-      - do not reopen registry-backed deferred owned-text publication on this lane without a stronger proof that next-iteration pure-string consumers stay on the same fast path
+      - the registry-backed deferred owned-text handle was not transparent to the loop-carried active corridor; the exact front fell off the landed `piecewise_subrange_hsiii` fast path and repinned to the generic `insert_hsi -> substring_hii` route
+      - the broken property was loop-carried fast-path continuity, not legality or publication-boundary proof
+      - do not reopen registry-backed deferred owned-text publication on this lane without a stronger proof that next-iteration pure-string consumers stay on the landed piecewise fast path
 - optimization re-entry card:
   - this remains the historical next-cut template on top of the current keeper baseline
   - front: `kilo_micro_substring_concat`
@@ -259,6 +260,7 @@ Scope: current lane / next lane / restart order only.
     - treat `proof_region` and `publication_boundary` as MIR-owned; do not recreate them inside runtime helper logic
     - keep the public ABI fixed; `insert_hsi` / `substring_hii` pure-first surface support is already landed, so the next cut stays runtime-private
     - the current keeper already deleted producer substrings and landed the publication boundary; the next cut must stay inside `piecewise_subrange_hsiii` rather than reopening route selection
+    - preserve loop-carried fast-path continuity explicitly: next-iteration pure-string consumers must stay on the landed `piecewise_subrange_hsiii` route
     - treat `piecewise_subrange_exec(...)` as runtime-private generic executor; do not encode helper names into MIR truth
     - do not materialize the corridor through a transient piecewise box/handle carrier; keep the next attempt single-session and executor-local
     - do not add a sticky shortcut keyed only by produced handles; any executor-local reuse must die with the executor call frame

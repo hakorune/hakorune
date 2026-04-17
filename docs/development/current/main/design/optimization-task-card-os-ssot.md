@@ -101,6 +101,24 @@ Reading lock:
 - shim-local remembered state may transport them, but may not redefine them
 - if a card cannot say which of these it edits, it is not ready for code
 
+## Generic vs Lane-Specific Outcome Terms
+
+- generic contract term:
+  - `same-corridor unpublished outcome`
+  - means a runtime-private result outcome that may be consumed by the next
+    same-corridor consumer before the first external publication boundary
+  - this stays above helper names, executor names, and registry mechanics
+- lane-specific realization:
+  - examples such as `string-lane unpublished text outcome`
+  - these belong in the lane SSOT / phase README, not in this generic OS doc
+
+Reading lock:
+
+- this doc owns the generic contract vocabulary only
+- lane docs may refine the carrier/executor shape for one proving ground
+- do not promote runtime-private mechanics or helper names into the generic
+  outcome vocabulary
+
 ## Required Card Schema
 
 すべての optimization card は最低限この項目を持つ。

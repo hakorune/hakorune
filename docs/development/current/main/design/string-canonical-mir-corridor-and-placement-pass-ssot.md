@@ -51,6 +51,11 @@ Reading lock:
 - do not use `scope_lock` as the architecture term in this lane
 - use `proof_region` plus `publication_boundary`
 - if a cut cannot state both cleanly, it is still research and not ready for code
+- generic contract vocabulary such as `same-corridor unpublished outcome` is
+  owned by
+  [optimization-task-card-os-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-task-card-os-ssot.md)
+- this lane-specific SSOT may refine that contract as
+  `string-lane unpublished text outcome`
 
 ## Current Perf Reading
 
@@ -103,6 +108,13 @@ Reading:
   - MIR proves the corridor and selects the rewrite target
   - runtime executes the selected runtime-private executor only
   - LLVM consumes the result
+- current naming split:
+  - generic contract:
+    - `same-corridor unpublished outcome`
+  - phase-137x lane realization:
+    - `string-lane unpublished text outcome`
+  - runtime-private executors such as `piecewise_subrange_hsiii` remain
+    string-specific mechanics below that contract
 - shim-local remembered/deferred piecewise state is transport glue only:
   - `remember_deferred_piecewise_subrange(...)`
   - `find_deferred_piecewise_subrange(...)`
@@ -184,6 +196,10 @@ Reading:
      `substring_hii`, and `LocalKey::with`
    - read this as a loop-carried fast-path breakage, not as a publication-tail
      win
+   - the broken property was next-iteration pure-string continuity on the
+     landed `piecewise_subrange_hsiii` route; registry-backed deferred text was
+     readable through `TextReadSession`, but it was not a transparent carrier
+     for deferred-piecewise transport identity
    - do not reopen registry-backed deferred owned-text publication on this lane
      without proof that next-iteration pure-string consumers stay on the landed
      piecewise route
