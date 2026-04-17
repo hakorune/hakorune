@@ -65,10 +65,10 @@
   - active owner fronts:
     - `kilo_micro_array_string_store`
       - `C: 10 ms`
-      - `Ny AOT: 150 ms`
+      - `Ny AOT: 153 ms`
     - `kilo_kernel_small_hk`
-      - `C: 80 ms`
-      - `Ny AOT: 782 ms`
+      - `C: 85 ms`
+      - `Ny AOT: 786 ms`
   - current keeper diff:
     - perf AOT direct emit now uses the same trusted stage1 route as the phase direct-route smokes
     - active perf MIR is back on the proof-bearing `substring_concat3_hhhii` payload instead of the older plain `insert_hsi -> substring_hii` payload
@@ -129,7 +129,24 @@
       - `tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
       - `tools/smokes/v2/profiles/integration/apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh`
       - `tools/smokes/v2/profiles/integration/ring1_providers/ring1_array_string_provider_vm.sh`
-  - next step is not more owner widening; it is the exact reread against the Rust lane
+  - Stage A exact reread on the active AOT front is now closed:
+    - plain release:
+      - `kilo_micro_array_string_store = C 10 ms / Ny AOT 153 ms`
+      - `kilo_kernel_small_hk = C 85 ms / Ny AOT 786 ms`
+    - `perf-observe` counter facts:
+      - `store.array.str total=800000`
+      - `cache_hit=800000`
+      - `plan.action_retarget_alias=800000`
+      - `plan.action_store_from_source=0`
+      - `plan.action_need_stable_object=0`
+      - `carrier_kind.source_keep=0`
+      - `carrier_kind.owned_bytes=1600000`
+      - `carrier_kind.stable_box=1600000`
+      - `carrier_kind.handle=1600000`
+      - `publish_reason.generic_fallback=1600000`
+    - trusted direct MIR on the same benchmark still carries generic `RuntimeDataBox.set(...)` / `substring(...)` calls
+    - therefore the active AOT exact front is not yet the `.hako` owner pilot itself
+  - next step is not more owner widening; it is closing whether active AOT can legally select the Stage A owner seam for `store.array.str`
   - design tighten before code:
     - keep carrier and publication physically separated; the corridor-local slot transports value, the cold adapter owns `StringBox` / `Arc` / handle issue
     - treat published-ness as boundary bookkeeping, not as the steady-state hot-lane value shape

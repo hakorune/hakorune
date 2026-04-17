@@ -13,7 +13,7 @@ Related:
 ## Purpose
 
 - current broad owner family を 1 枚で読む
-- next implementation cut を `array-store placement proof` に固定する
+- `Stage A` exact reread 後の current truth を固定する
 - `substring` keeper / `indexOf` diagnostic / `whole-kilo` guard を混同しない
 
 ## Measured Facts
@@ -21,8 +21,8 @@ Related:
 ### Whole-Kilo
 
 - `kilo_kernel_small_hk`
-  - `C: 80 ms`
-  - `Ny AOT: 782 ms`
+  - `C: 85 ms`
+  - `Ny AOT: 786 ms`
 - current top report:
   - `__memmove_avx512_unaligned_erms: 21.61%`
   - `nyash.string.concat_hs: 10.71%`
@@ -44,7 +44,7 @@ Related:
 - current broad owner candidate:
   - `kilo_micro_array_string_store`
     - `C: 10 ms`
-    - `Ny AOT: 150 ms`
+    - `Ny AOT: 153 ms`
 - diagnostic leaf:
   - `kilo_leaf_array_string_indexof_const`
     - `C: 4 ms`
@@ -59,6 +59,21 @@ Related:
 - current broad owner family is `array/string-store`, not `substring`
 - trusted direct MIR no longer shows duplicated producer birth on this front:
   - `text + "xy"` is shared across `set(...)` and trailing `substring(...)`
+- `Stage A` exact reread on the active AOT front is now closed:
+  - plain release:
+    - `kilo_micro_array_string_store = C 10 ms / Ny AOT 153 ms`
+    - `kilo_kernel_small_hk = C 85 ms / Ny AOT 786 ms`
+  - `perf-observe` counter facts:
+    - `store.array.str total=800000`
+    - `cache_hit=800000`
+    - `plan.action_retarget_alias=800000`
+    - `plan.action_store_from_source=0`
+    - `plan.action_need_stable_object=0`
+    - `carrier_kind.source_keep=0`
+    - `carrier_kind.owned_bytes=1600000`
+    - `carrier_kind.stable_box=1600000`
+    - `carrier_kind.handle=1600000`
+    - `publish_reason.generic_fallback=1600000`
 - `perf-observe` on `kilo_micro_array_string_store` still ranks publication/capture first:
   - `freeze_owned_bytes: 15.76%`
   - `issue_fresh_handle: 14.54%`
@@ -71,7 +86,9 @@ Related:
 - current reading stays:
   - dominant cost is still upstream birth/publication plus source capture
   - slot mutation itself is not the first owner once source is already published
-  - next live comparison is `Stage A: same protocol` exact reread after the landed `.hako` owner-side VM/reference pilot
+  - trusted direct MIR still carries generic `RuntimeDataBox.set(...)` / `substring(...)` calls
+  - the landed `.hako` owner-side pilot is therefore still VM/reference-lane only today
+  - the active AOT exact front is not yet a direct `Rust vs .hako` same-protocol comparison
 
 ## `indexOf` Separation
 
@@ -101,7 +118,7 @@ Related:
 ## Current Rule
 
 - next proof is not kilo-name keyed
-- next proof is generic-by-shape but narrow-by-scope:
-  - same-block / trusted-direct-MIR duplicated `const_suffix -> store + substring`
-  - no generic slot API widening
-  - no public ABI changes
+- next cut is to close whether active AOT can legally select the Stage A owner seam for `store.array.str`
+- if not, park Stage A as VM/reference-only and keep exact-front work on publication/source-capture
+- no generic slot API widening
+- no public ABI changes

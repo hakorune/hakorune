@@ -31,7 +31,7 @@ Scope: current lane / next lane / restart order only.
   - dirty is expected right now; do not reset unrelated changes just to make the tree look clean
   - unrelated dirty file is currently `crates/nyash_kernel/src/observe/sink/stderr.rs`
 - active lane:
-  - `phase-137x Stage A same-protocol array-store pilot + exact reread`
+  - `phase-137x Stage A exact reread closed + active AOT route diagnosis`
 - background lanes:
   - `phase-29bq loop owner seam cleanup landing`
   - `phase-163x primitive-family / user-box fast-path landing`
@@ -50,10 +50,10 @@ Scope: current lane / next lane / restart order only.
 - current broad gap is no longer substring:
   - `kilo_micro_array_string_store`
     - `C: 10 ms`
-    - `Ny AOT: 150 ms`
+    - `Ny AOT: 153 ms`
   - `kilo_kernel_small_hk`
-    - `C: 80 ms`
-    - `Ny AOT: 782 ms`
+    - `C: 85 ms`
+    - `Ny AOT: 786 ms`
 - current reading:
   - current main owner family is `array/string-store`, not `substring`
   - trusted direct MIR no longer duplicates the `text + "xy"` producer across `set(...)` and trailing `substring(...)`
@@ -61,12 +61,22 @@ Scope: current lane / next lane / restart order only.
   - `Stage A` narrow owner slice is landed on the VM/reference lane:
     - `.hako` `ArrayCoreBox` now routes proven string-handle `set(...)` through `nyash.array.set_his`
     - cold tail stays in Rust
-  - current exact `perf-observe` on `kilo_micro_array_string_store` still ranks publication/capture first:
-    - `freeze_owned_bytes`
-    - `issue_fresh_handle`
-    - `capture_store_array_str_source`
-    - `StringBox::perf_observe_from_owned`
-    - `execute_store_array_str_slot_boundary`
+  - `Stage A` exact reread is now closed on the active AOT front:
+    - `kilo_micro_array_string_store = C 10 ms / Ny AOT 153 ms`
+    - `kilo_kernel_small_hk = C 85 ms / Ny AOT 786 ms`
+  - current exact `perf-observe` counters on `kilo_micro_array_string_store` show:
+    - `store.array.str total=800000`
+    - `cache_hit=800000`
+    - `plan.action_retarget_alias=800000`
+    - `plan.action_store_from_source=0`
+    - `plan.action_need_stable_object=0`
+    - `carrier_kind.source_keep=0`
+    - `carrier_kind.owned_bytes=1600000`
+    - `carrier_kind.stable_box=1600000`
+    - `carrier_kind.handle=1600000`
+    - `publish_reason.generic_fallback=1600000`
+  - trusted direct MIR on the same benchmark still carries generic `RuntimeDataBox.set(...)` / `substring(...)` calls
+  - therefore the landed `.hako` owner pilot is still VM/reference-lane only; the active AOT exact front is not yet a direct `Rust vs .hako` same-protocol comparison
   - next comparison must split:
     - implementation language cost
     - protocol / seam cost
@@ -74,9 +84,9 @@ Scope: current lane / next lane / restart order only.
 
 ## Next
 
-1. run `Stage A` exact reread on `kilo_micro_array_string_store`
-2. compare the new `carrier_kind` / `publish_reason` counters against the Rust lane
-3. keep `Stage B: delayed publication seam` separate until Stage A exact numbers exist
+1. close whether active AOT can legally select the Stage A owner seam for `store.array.str`, or explicitly park Stage A as VM/reference-only
+2. keep `kilo_micro_array_string_store` exact rereads pinned on publication/source-capture counters while that route question is open
+3. keep `Stage B: delayed publication seam` separate until the active AOT route question is closed
 
 ## Guardrails
 

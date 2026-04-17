@@ -13,7 +13,7 @@ Related:
 ## Current
 
 - current optimization lane:
-  - `phase-137x Stage A same-protocol array-store pilot + exact reread`
+  - `phase-137x Stage A exact reread closed + active AOT route diagnosis`
 - background compiler lanes:
   - `phase-29bq loop owner seam cleanup landing`
   - `phase-163x primitive-family / user-box fast-path landing`
@@ -26,8 +26,8 @@ Related:
   - `kilo_micro_substring_concat = C 2 ms / Ny AOT 3 ms`
   - `kilo_micro_substring_only = C 3 ms / Ny AOT 3 ms`
 - current broad gap:
-  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 150 ms`
-  - `kilo_kernel_small_hk = C 80 ms / Ny AOT 782 ms`
+  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 153 ms`
+  - `kilo_kernel_small_hk = C 85 ms / Ny AOT 786 ms`
 - `indexOf` separation:
   - keep as side diagnosis; reread only when the main card reopens it
 - current owner reading:
@@ -37,13 +37,20 @@ Related:
   - `Stage A` narrow owner slice is now landed on the VM/reference lane:
     - `.hako` `ArrayCoreBox` routes proven string-handle `set(...)` through `nyash.array.set_his`
     - same protocol, same cold Rust tail
-  - next cut is the `Stage A` exact reread
+  - `Stage A` exact reread is now closed on the active AOT front:
+    - `store.array.str total=800000`
+    - `plan.action_retarget_alias=800000`
+    - `plan.action_store_from_source=0`
+    - `carrier_kind.source_keep=0`
+    - `publish_reason.generic_fallback=1600000`
+  - trusted direct MIR still carries generic `RuntimeDataBox.set(...)` / `substring(...)`
+  - active AOT exact is therefore not yet the `.hako` owner pilot itself
 
 ## Next
 
-1. run `Stage A` exact reread on `kilo_micro_array_string_store`
-2. compare `carrier_kind` / `publish_reason` against the Rust lane
-3. keep `Stage B` separate until Stage A exact numbers exist
+1. close whether active AOT can legally select the Stage A owner seam for `store.array.str`
+2. keep exact rereads pinned on publication/source-capture while that route question is open
+3. keep `Stage B` separate until the active AOT route question is closed
 
 ## Read Next
 
