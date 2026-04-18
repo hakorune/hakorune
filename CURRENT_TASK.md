@@ -204,6 +204,13 @@ Scope: current lane / next lane / restart order only.
   - `site.freeze_text_plan_pieces3.objectize_box_total=60000`
   - `site.freeze_text_plan_pieces3.publish_handle_total=60000`
   - current whole-kilo owner is therefore **const_suffix / pieces3 producer publication**, not the pair/substring helper sites from the exact micro front
+- latest exact / middle / whole slot-boundary reread closes the slot-exit ambiguity:
+  - `publish_boundary.slot_publish_handle_total=0`
+  - `publish_boundary.slot_objectize_stable_box_total=0`
+  - `publish_boundary.slot_empty=0`
+  - `publish_boundary.slot_already_published=0`
+  - `publish_reason.need_stable_object=0`
+  - read: `KernelTextSlot` exit is now observable and inactive; the live owner remains upstream producer publication, especially `site.const_suffix.*` / `site.freeze_text_plan_pieces3.*` on whole
 - latest exact asm diff is now pinned:
   - C side is still a tight `main` loop plus `strlen`
   - Ny AOT hot symbols are:
@@ -308,6 +315,17 @@ Scope: current lane / next lane / restart order only.
     - `kilo_meso_substring_concat_array_set_loopcarry = 53 ms` (`repeat=3`, prior local reread `56 ms`)
     - `kilo_kernel_small_hk = 733 ms`, `736 ms` (`repeat=3` x2)
     - read it as `slight meso lift / whole gain not yet proven`
+  - `phase137x-specialized-string-handle-payload` tried and rejected:
+    - cut:
+      - issue owned-bytes publish through direct `StringBox -> handle`
+      - add a string-specialized host-handle payload for fast borrowed `&str`
+    - 3-run release reread:
+      - `kilo_meso_substring_concat_array_set_loopcarry = 68 ms`
+      - `kilo_kernel_small = 950 ms`
+    - conclusion:
+      - this did not move the active owner off producer publication
+      - it regressed both adopted middle and whole
+      - code is reverted; do not reopen this seam without new evidence that handle payload shape itself is the owner
   - keep adopted middle as the contradiction guard:
     - if the whole-first seam lands but `kilo_meso_substring_concat_array_set_loopcarry` stays flat-to-worse, the next card reopens `substring_hii -> borrowed_substring_plan_from_handle`
 - next comparison must split:

@@ -65,6 +65,7 @@
       - `publish_boundary.slot_already_published`
       - `objectize_kernel_text_slot_stable_box` records `publish_reason.need_stable_object`
       - this reduces the blind spot from `generic_fallback` to the upstream producer/retarget owner before slot exit
+      - latest exact / meso / whole reread keeps these slot-boundary counters at `0`, so slot exit is observed and inactive on the live fronts
     - first code seam is the borrowed-slot retarget/publication tail under `execute_store_array_str_contract`
     - concrete entry:
       - `try_retarget_borrowed_string_slot_take_verified_text_source`
@@ -76,6 +77,11 @@
       - `kilo_meso_substring_concat_array_set_loopcarry = 53 ms` (`repeat=3`, prior local reread `56 ms`)
       - `kilo_kernel_small_hk = 733 ms`, `736 ms` (`repeat=3` x2)
       - current read: this is a valid narrow probe and a slight meso lift, but the whole-front keeper win is not locked yet
+    - rejected probe:
+      - direct `StringBox -> handle` publish plus string-specialized host-handle payload
+      - `kilo_meso_substring_concat_array_set_loopcarry = 68 ms`
+      - `kilo_kernel_small = 950 ms`
+      - reverted; this seam does not shrink producer publication
     - `kilo_meso_substring_concat_array_set_loopcarry` remains the contradiction guard:
       - if whole improves but meso stays flat-to-worse, reopen `substring_hii -> borrowed_substring_plan_from_handle` as the next card
 

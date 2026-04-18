@@ -63,11 +63,17 @@ Related:
       - `publish_boundary.slot_empty`
       - `publish_boundary.slot_already_published`
       - `objectize_kernel_text_slot_stable_box` now records `publish_reason.need_stable_object`
+      - latest exact / meso / whole reread shows these slot-boundary counters remain `0`; slot exit is observed and inactive on the live fronts
     - middle remains the contradiction guard; if this seam does not lift meso, reopen `substring_hii -> borrowed_substring_plan_from_handle`
     - latest local probe after landing the cold retirement sink:
       - `kilo_meso_substring_concat_array_set_loopcarry = 53 ms` (`repeat=3`)
       - `kilo_kernel_small_hk = 733 ms`, `736 ms` (`repeat=3` x2)
       - treat this as `neutral whole / slight meso` until a wider reread proves the whole-front win
+    - rejected probe:
+      - direct `StringBox -> handle` publish plus string-specialized host-handle payload
+      - `kilo_meso_substring_concat_array_set_loopcarry = 68 ms`
+      - `kilo_kernel_small = 950 ms`
+      - reverted; this seam is not the owner
   - exact hot instructions carry host-handle atomics, TLS publish stores, alloc shim calls, and array-store handle/publication branches
   - exact loop still pays extra per-iter helper calls vs C: `from_i8_string_const` x2, `concat_hh` x1, `set_his` x1, `substring_concat_hhii` x1
   - whole hot closures still pay registry fetch, `lock cmpxchg`, vtable probes, and handle/cache publication before store completion

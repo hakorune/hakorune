@@ -58,6 +58,13 @@ cargo check --features perf-observe -p nyash_kernel
     - `freeze_text_plan_pieces3=60000`
     - `site.string_concat_hh.*=0`
     - `site.string_substring_concat_hhii.*=0`
+  - latest exact / meso / whole slot-boundary reread shows:
+    - `publish_boundary.slot_publish_handle_total=0`
+    - `publish_boundary.slot_objectize_stable_box_total=0`
+    - `publish_boundary.slot_empty=0`
+    - `publish_boundary.slot_already_published=0`
+    - `publish_reason.need_stable_object=0`
+    - slot exit is now observable and inactive; owner stays upstream of the slot boundary
 
 ## Current Handoff
 
@@ -88,6 +95,11 @@ cargo check --features perf-observe -p nyash_kernel
 - current plain-release reread after reverting the failed active probe:
   - `kilo_micro_array_string_store = C 10 ms / Ny AOT 132 ms`
   - `kilo_kernel_small_hk = C 80 ms / Ny AOT 731 ms`
+- latest rejected probe:
+  - direct `StringBox -> handle` publish plus string-specialized host-handle payload
+  - `kilo_meso_substring_concat_array_set_loopcarry = 68 ms`
+  - `kilo_kernel_small = 950 ms`
+  - reverted; do not reopen this seam before new owner evidence
 - latest design consult is accepted in narrowed form:
   - no syntax expansion
   - no public raw string / mutable bytes
