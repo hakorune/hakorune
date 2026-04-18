@@ -55,7 +55,11 @@ cargo check --features perf-observe -p nyash_kernel
 - successor planning anchor:
   - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
   - `docs/development/current/main/phases/phase-289x/README.md`
-  - read as parked planning only; do not start runtime-wide implementation before phase-137x is judged
+  - `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
+  - read as parked planning only; phase-0 authority/vocabulary lock is docs-only
+  - array/map remain identity containers; only internal residence may become lane-hosted later
+  - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
+  - do not start runtime-wide implementation before phase-137x is judged
 - taskboard:
   - `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
 - immediate follow-on:

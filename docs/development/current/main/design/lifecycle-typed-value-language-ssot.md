@@ -47,6 +47,27 @@ handle world へ objectize する。
 
 この文書は既存 SSOT を置き換えるものではなく、上位の parent reading を与える。
 
+### Runtime-wide reading order
+
+runtime-wide value/object boundary work は次の順で読む。
+
+1. `semantic-optimization-authority-ssot.md`
+   - authority order の正本
+2. `lifecycle-typed-value-language-ssot.md` (this file)
+   - runtime-wide generalization の parent architecture reading
+3. `string-semantic-value-and-publication-boundary-ssot.md`
+   - first proving ground の semantic/boundary lock
+4. `phase-137x/README.md`
+   - active implementation lane
+5. `phase-289x/README.md` / `289x-91-runtime-value-object-task-board.md`
+   - runtime-wide successor planning/taskboard only
+
+Rule:
+
+- phase-289x は authority を持たない
+- phase-137x string lane が active read-side lane で keeper/reject に達するまで、
+  runtime-wide implementation は開始しない
+
 ### Semantic authority order stays unchanged
 
 authority order は引き続き次で固定する。
@@ -108,6 +129,11 @@ This document does not weaken
 `string-transient-lifecycle-ssot.md` と
 `string-canonical-mir-corridor-and-placement-pass-ssot.md`
 は、value-world reading の first proving ground としてそのまま使う。
+
+`string-semantic-value-and-publication-boundary-ssot.md` と
+`phase-137x/README.md` は implementation 側の first proving ground でもある。
+runtime-wide generalization の taskboard は `phase-289x` に置いてよいが、
+active lane は引き続き phase-137x string lane とする。
 
 ## Fixed Decisions
 
@@ -329,6 +355,25 @@ string proving ground to runtime-wide value/object boundaries.
 Authority stays here. The phase doc is a taskboard, not a second semantic
 truth.
 
+Successor relationship は次で固定する。
+
+- parent architecture authority:
+  - `lifecycle-typed-value-language-ssot.md`
+- active proving/implementation lane:
+  - `string-semantic-value-and-publication-boundary-ssot.md`
+  - `phase-137x/README.md`
+- runtime-wide successor planning:
+  - `phase-289x/README.md`
+  - `289x-91-runtime-value-object-task-board.md`
+
+phase-289x may refine rollout vocabulary and sequencing only.
+It must not:
+
+- start runtime-wide implementation before phase-137x reaches keeper/reject
+  on the active read-side lane
+- replace the string lane as the first proving ground
+- change the public handle ABI truth
+
 ### Container rule
 
 Array / Map are not reclassified as ordinary immutable values.
@@ -348,6 +393,7 @@ This prevents the value-world rule from erasing container identity.
 - runtime may execute objectization
 - runtime must not silently infer semantic publication legality
 - MIR/lowering must eventually carry demand / boundary facts
+- runtime stays executor / boundary microkernel, not semantic owner
 
 For string specifically:
 

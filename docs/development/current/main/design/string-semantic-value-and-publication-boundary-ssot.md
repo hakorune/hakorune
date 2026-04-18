@@ -23,6 +23,7 @@ Related:
 - `String` を helper 実装や runtime carrier ではなく、言語上の immutable value として正本化する。
 - `publish` を boundary effect、`freeze.str` を唯一の birth sink として分離する。
 - `TextLane` を future storage specialization として位置づけ、意味論や public ABI の truth にしない。
+- container lane-host generalization を「Array/Map の内部 residence だけに及ぶ後続境界」として固定し、Array/Map 自体の identity semantics は再定義しない。
 - phase-137x の rollout を「きれいな値モデルをどの順で runtime に降ろすか」の話に戻す。
 
 この文書は runtime-wide value/object boundary の first proving ground だよ。
@@ -64,6 +65,16 @@ Public world
 - handle / box / registry は boundary representation
 - same corridor の内部では text を object world の steady-state carrier にしない
 - string birth は `freeze.str` だけが担当する
+
+## Generalization Boundary
+
+この SSOT は string-first で進めるけれど、将来の container lane-host への一般化は次だけを許す。
+
+- Array/Map は language meaning でも public surface でも identity container のまま
+- lane-host 化の対象は Array element / Map key/value の internal residence だけ
+- `publish` / `promote` は boundary effect のまま保ち、container helper が legality owner にならない
+- `freeze.str` は string だけの birth sink であり、container lane-host generalization が第二の string birth sink を増やしてはならない
+- public handle ABI は widening しない
 
 ## Layer Ownership
 
@@ -201,7 +212,8 @@ write/read は同じ text corridor の契約として読む。
 
 ### Phase 3. Future `TextLane` storage
 
-- array internal storage specialization
+- array/map internal residence specialization only
+- container semantics や public handle ABI はここで変更しない
 - semantic truth ではなく runtime-private storage truth
 
 ### Phase 4. MIR legality / verifier
@@ -212,6 +224,7 @@ write/read は同じ text corridor の契約として読む。
 ## Forbidden Moves
 
 - `TextLane` を semantics や public MIR truth として先に立てる
+- container lane-host を Array/Map semantic rewrite として扱う
 - helper 名で publication legality を持つ
 - registry-backed transient carrier を steady-state 化する
 - read path で stable object を毎回 fresh に作る

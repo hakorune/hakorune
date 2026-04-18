@@ -47,10 +47,14 @@ Scope: current lane / next lane / restart order only.
 - successor planning lane:
   - `phase-289x runtime-wide value/object boundary rollout`
   - status:
-    - docs/taskboard only
+    - phase-0 authority/vocabulary lock is docs-only
+    - array/map remain identity containers; only internal residence may become lane-hosted later
+    - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
     - do not start implementation before phase-137x reaches keeper/reject on the active string read-side lane
   - parent SSOT:
     - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
+  - phase:
+    - `docs/development/current/main/phases/phase-289x/README.md`
   - taskboard:
     - `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
 - current blocker:

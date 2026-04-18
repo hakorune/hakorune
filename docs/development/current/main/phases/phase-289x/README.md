@@ -26,6 +26,8 @@
 - array / map の内部 residence だけを lane host として段階化する
 - public handle ABI は維持する
 - `publish` / `promote` は boundary effect として扱う
+- `freeze.str` は string の唯一の birth sink に固定する
+- container lane-host generalization は Array/Map semantics の再定義ではなく、内部 residence の stop-lined planning に限定する
 - runtime は semantic owner ではなく executor / boundary microkernel として読む
 
 ## Non-Goals
@@ -36,6 +38,7 @@
 - `publish.text` を `freeze.str` と競合する第二 birth sink にすること
 - array / map を immutable value として読み替えること
 - evidence なしの allocator lane / arena 導入
+- phase-137x keeper/reject 前に container runtime work を開くこと
 
 ## Phase Order
 
@@ -66,7 +69,8 @@ Reading:
 - `289x-0a`: parent SSOT alignment
   - update lifecycle/value-repr/string docs so the authority order is explicit
 - `289x-0b`: lane-host rule lock
-  - array/map identity stays public semantic truth; internal storage may specialize
+  - array/map identity stays public semantic truth; only internal residence may specialize later
+  - docs-only stop-line; no runtime/storage/MIR legality work opens here
 - `289x-1a`: `CodecProfile` inventory
   - document which profiles are decode demand, storage demand, or compat residue
 - `289x-1b`: `ValueDemand` vocabulary proposal
@@ -90,6 +94,8 @@ Stop immediately if a proposed card:
 - mixes docs/vocabulary with storage rewrite
 - changes public ABI before runtime-private proof
 - treats container identity as a value-lane detail
+- turns container lane-host planning into Array/Map semantic rewrite or new birth-sink design
 - adds a helper-name allowlist instead of a boundary contract
 - starts allocator work before perf evidence points there
+- opens MIR legality / verifier lift or allocator / arena work before their scheduled rollout phase
 - makes runtime infer publish legality that MIR/lowering did not request

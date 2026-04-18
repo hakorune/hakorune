@@ -30,8 +30,9 @@ Rule:
 
 - internal hot paths should carry values, aliases, cells, or immediates
 - object / handle is a boundary representation
-- array / map keep identity semantics, but their internal residence may become lane-hosted
+- array / map keep identity semantics, but only their internal element/key/value residence may become lane-hosted
 - runtime-private lane work must not change public ABI
+- `publish` / `promote` stay boundary effects; `freeze.str` remains the only string birth sink
 
 ## Authority Stack
 
@@ -73,7 +74,7 @@ Use one term for one responsibility.
 | `borrow/project` | runtime under MIR/lowering demand | enter value-world read/session from an existing object/handle | publish or allocate stable identity |
 | `materialize` | runtime executor | produce concrete unpublished bytes/value payload for a sink | public object birth by itself |
 | `publish` | MIR/lowering boundary effect | value crosses to public/object world | string birth sink or helper-local guess |
-| `promote` | runtime boundary executor | turn lane/cell/immediate into object-capable representation under demand | semantic legality decision |
+| `promote` | MIR/lowering boundary effect executed by runtime | turn lane/cell/immediate into object-capable representation under named demand | semantic legality decision or string birth sink |
 | `freeze.str` | string birth sink | retained string birth / reuse mechanics | publication policy owner |
 | `handle issue` | object/host substrate | allocate/register public handle | proof that publication was legal |
 
@@ -98,7 +99,9 @@ Stop-line:
   - `289x-0a`: link this phase from `lifecycle-typed-value-language-ssot.md`
   - `289x-0b`: lock container rule:
     - array/map are identity containers
-    - their element/key/value residence may be lane-hosted
+    - only their element/key/value residence may be lane-hosted later
+    - `publish` / `promote` stay boundary effects
+    - `freeze.str` stays the only string birth sink
   - `289x-0c`: add restart/current pointers as parked successor only
 - Acceptance:
   - docs can answer:
@@ -151,6 +154,8 @@ Stop-line:
 - Non-goals:
   - no `ArrayStorage::*` implementation before phase-137x keeper/reject
   - no map typed-lane implementation in this phase
+  - no MIR legality / verifier lift in this phase
+  - no allocator / arena work in this phase
 - Tasks:
   - `289x-2a`: array lane-host contract
     - homogeneous residence
@@ -168,6 +173,7 @@ Stop-line:
 - Acceptance:
   - future storage work can be judged as BoxShape, not by local helper names
   - array/map public semantics stay unchanged
+  - container lane-host planning still reads as a generalization boundary, not implementation authorization
 
 ## Phase 3. First Storage Pilot After String Keeper
 

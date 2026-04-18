@@ -120,7 +120,13 @@ Future cleanup:
   - `ValueDemand`
   - `StorageDemand`
   - `PublishDemand`
-- That split is tracked by `phase-289x`; it must not widen public ABI rows.
+- That split is tracked by `phase-289x` as successor planning/taskboard work.
+- The cleanup is demand-vocabulary refactoring only:
+  - it must not add a new public manifest class
+  - it must not add a new public manifest row field
+  - it must not change the stable public handle ABI truth owned by this document
+- phase-137x remains the active implementation lane for proving any runtime-private
+  string/result carrier that the cleanup later names more cleanly.
 
 ## Borrowed String Alias Invariants
 
@@ -266,6 +272,20 @@ Reading:
 This SSOT owns the ABI split itself.
 Lane-specific legality for when a corridor may stay unpublished belongs to the
 string corridor SSOT, not here.
+
+### Successor planning boundary
+
+`phase-289x` may reorganize internal/runtime-private demand vocabulary around
+this manifest, but public ABI truth stays here.
+
+Reading rule:
+
+- this file owns public value classes, manifest rows, and the ABI split
+- `phase-289x` may clean up demand names such as `ValueDemand`,
+  `StorageDemand`, and `PublishDemand`
+- `phase-289x` must not widen public ABI truth while doing that cleanup
+- runtime-wide implementation must wait until phase-137x reaches keeper/reject
+  on the active read-side lane
 
 ### Phase-137x Minimal Slot Shape
 
