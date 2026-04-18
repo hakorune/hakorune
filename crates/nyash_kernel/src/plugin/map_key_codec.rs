@@ -11,3 +11,12 @@ pub(crate) fn map_key_string_from_any(key_any: i64) -> String {
         .to_string_box()
         .value
 }
+
+#[inline(always)]
+pub(crate) fn map_runtime_data_key_string_from_any(key_any: i64) -> String {
+    if key_any <= 0 {
+        map_key_string_from_i64(key_any)
+    } else {
+        map_key_string_from_any(key_any)
+    }
+}
