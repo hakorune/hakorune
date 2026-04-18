@@ -218,6 +218,11 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #include "hako_llvmc_ffi_mir_call_prepass.inc"
       #include "hako_llvmc_ffi_mir_call_shell.inc"
       #define HAKO_LLVM_READONLY_ATTRS " nounwind readonly willreturn"
+      auto int should_skip_string_const_box_for_known_len_use(
+          size_t ii,
+          size_t ilen,
+          yyjson_val* insts,
+          long long reg);
 
       // Pre-scan: consts + phis + needed method decls
       struct GenericPureNeedFlags needs;
@@ -562,31 +567,39 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       // literal has exactly one use and that use is a raw-ptr concat window.
       for (size_t sci = 0; sci < str_consts_n; sci++) {
         long long reg = str_consts[sci].reg;
-        size_t use_count = 0;
         size_t use_bi = 0;
+        size_t use_ii = 0;
+        long long effective_reg = reg;
+        int dead_copy_chain = 0;
         if (!reg || should_skip_hoisted_string_const_box(reg)) continue;
-        for (size_t bi = 0; bi < blen; bi++) {
-          yyjson_val* b = yyjson_arr_get(blocks, bi);
-          yyjson_val* insts = b ? yyjson_obj_get(b, "instructions") : NULL;
-          if (!insts || !yyjson_is_arr(insts)) continue;
-          size_t ilen = yyjson_arr_size(insts);
-          for (size_t ii = 0; ii < ilen; ii++) {
-            yyjson_val* ins = yyjson_arr_get(insts, ii);
-            if (!inst_uses_reg(ins, reg)) continue;
-            use_count++;
-            use_bi = bi;
-            if (use_count > 1) break;
+        if (!find_single_effective_use_across_blocks(
+                blocks,
+                blen,
+                reg,
+                &use_bi,
+                &use_ii,
+                &effective_reg,
+                &dead_copy_chain)) {
+          if (dead_copy_chain) {
+            mark_hoisted_string_const_box_skip(reg);
           }
-          if (use_count > 1) break;
+          continue;
         }
-        if (use_count != 1) continue;
+        if (!effective_reg) {
+          mark_hoisted_string_const_box_skip(reg);
+          continue;
+        }
         {
           yyjson_val* ub = yyjson_arr_get(blocks, use_bi);
           yyjson_val* uinsts = ub ? yyjson_obj_get(ub, "instructions") : NULL;
           if (!uinsts || !yyjson_is_arr(uinsts)) continue;
           size_t uilen = yyjson_arr_size(uinsts);
-          if (should_skip_string_const_box_for_concat_suffix((size_t)-1, uilen, uinsts, reg) ||
-              should_skip_string_const_box_for_insert_mid_window((size_t)-1, uilen, uinsts, reg)) {
+          if (should_skip_string_const_box_for_known_len_use(use_ii, uilen, uinsts, effective_reg)) {
+            mark_hoisted_string_const_box_skip(reg);
+            continue;
+          }
+          if (should_skip_string_const_box_for_concat_suffix((size_t)-1, uilen, uinsts, effective_reg) ||
+              should_skip_string_const_box_for_insert_mid_window((size_t)-1, uilen, uinsts, effective_reg)) {
             mark_hoisted_string_const_box_skip(reg);
           }
         }
@@ -695,6 +708,36 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           EMIT("  %%r%lld = icmp eq i64 %%str_eq_%lld, 0\n", dst, dst);
         }
         set_type(dst, T_I1);
+      }
+      auto int should_skip_string_const_box_for_known_len_use(
+          size_t ii,
+          size_t ilen,
+          yyjson_val* insts,
+          long long reg) {
+        yyjson_val* ins = NULL;
+        yyjson_val* mc = NULL;
+        yyjson_val* cal = NULL;
+        const char* op = NULL;
+        const char* ctype = NULL;
+        const char* mname = NULL;
+        long long recv = 0;
+        long long known_len = 0;
+        if (!reg || ii >= ilen) return 0;
+        if (!get_known_string_len(reg, &known_len)) return 0;
+        ins = yyjson_arr_get(insts, ii);
+        op = ins ? read_str(ins, "op") : NULL;
+        if (!(op && strcmp(op, "mir_call") == 0)) return 0;
+        mc = yyjson_obj_get(ins, "mir_call");
+        cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
+        ctype = cal ? read_str(cal, "type") : NULL;
+        mname = cal ? (read_str(cal, "method") ? read_str(cal, "method")
+                                               : read_str(cal, "name"))
+                    : NULL;
+        recv = cal ? resolve_copy_source_reg(read_int(cal, "receiver")) : 0;
+        if (!(ctype && strcmp(ctype, "Method") == 0 && recv == resolve_copy_source_reg(reg))) {
+          return 0;
+        }
+        return mname && (strcmp(mname, "length") == 0 || strcmp(mname, "size") == 0);
       }
 
       for (size_t bi=0; bi<blen; bi++) {

@@ -26,10 +26,15 @@ Related:
   - `kilo_micro_substring_concat = C 2 ms / Ny AOT 3 ms`
   - `kilo_micro_substring_only = C 3 ms / Ny AOT 3 ms`
 - current broad gap:
-  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 132 ms`
-  - `kilo_kernel_small_hk = C 80 ms / Ny AOT 731 ms`
+  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 131 ms`
+  - `kilo_kernel_small = C 80 ms / Ny AOT 741 ms`
 - `indexOf` separation:
   - keep as side diagnosis; reread only when the main card reopens it
+- completed audit lock (confirmed evidence):
+  - exact audit: top samples are `substring_concat_hhii_export_impl 22.38%`, `string_concat_hh_export_impl 21.70%`, array string-store closure `17.34%`, `from_i8_string_const 13.07%`, `LocalKey::with 6.07%`, `memmove 3.51%`, `_int_malloc 1.75%`; wrapper names are not the live owner, current evidence points to inner publication / object-world entry
+  - whole audit: top user symbols are `nyash.string.concat_hs 11.19%`, `execute_store_array_str_contract` closure `7.01%`, `insert_const_mid_fallback` closure `3.89%`, `array_get_index_encoded_i64` closure `3.62%`, `from_i8_string_const 3.52%`, libc `memmove 14.92%`, `_int_malloc 4.65%`; `concat_hs` hot instructions are TLS/helper-entry, not copy body
+  - observability audit: the generic-fallback split is now locked by site-specific noinline symbols in `crates/nyash_kernel/src/plugin/value_codec/string_materialize.rs`; tests passed with and without `perf-observe`
+  - choice rule: perf/asm is now sufficient to choose the next keeper without another broad observability round
 - current owner reading:
   - current main owner family is `array/string-store`
   - duplicated `text + "xy"` producer is already removed in trusted direct MIR
@@ -38,7 +43,10 @@ Related:
   - current exact owner is still publication/source-capture
   - current exact/whole split is now explicit:
     - `kilo_micro_array_string_store` is dominated by the shared generic publish/objectize corridor behind `string_concat_hh` + `string_substring_concat_hhii`
-    - `kilo_kernel_small_hk` is dominated by `const_suffix` fallback plus `freeze_text_plan(Pieces3)` publication
+    - `kilo_kernel_small` is dominated by `const_suffix` fallback plus `freeze_text_plan(Pieces3)` publication
+  - exact hot instructions carry host-handle atomics, TLS publish stores, alloc shim calls, and array-store handle/publication branches
+  - exact loop still pays extra per-iter helper calls vs C: `from_i8_string_const` x2, `concat_hh` x1, `set_his` x1, `substring_concat_hhii` x1
+  - whole hot closures still pay registry fetch, `lock cmpxchg`, vtable probes, and handle/cache publication before store completion
   - `Stage A` narrow owner slice is now landed on the VM/reference lane:
     - `.hako` `ArrayCoreBox` routes proven string-handle `set(...)` through `nyash.array.set_his`
     - same protocol, same cold Rust tail
@@ -90,7 +98,8 @@ Related:
   - latest asm read:
     - `ny_main` loop shape is already close to C
     - the remaining gap is helper-entry branch / TLS / generic publication tail inside helper bodies
-  - next first slice is no longer `len_h` removal; it is whole-kilo publication/source-capture reopen on `const_suffix` with the compiler-known-length lane fixed
+  - next first slice is no longer `len_h` removal; it is publication/source-capture reopen with the compiler-known-length lane fixed
+  - evidence points to publication/object-world entry as the live owner on both fronts; this does not yet prove any representation / ABI change
   - latest design consult is accepted in narrowed form:
     - no syntax expansion
     - no public raw string / mutable bytes

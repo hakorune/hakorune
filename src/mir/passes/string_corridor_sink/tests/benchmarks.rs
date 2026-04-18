@@ -315,11 +315,7 @@ fn benchmark_array_string_store_compiles_with_store_shared_receiver_substring() 
         .compile_with_source(ast, Some(path))
         .expect("compile benchmark");
 
-    let function = result
-        .module
-        .get_function("main")
-        .expect("main")
-        .clone();
+    let function = result.module.get_function("main").expect("main").clone();
     let def_map = build_value_def_map(&function);
     let interesting_blocks: Vec<String> = function
         .blocks

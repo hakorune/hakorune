@@ -381,6 +381,79 @@ fn publish_owned_bytes_generic_fallback_boundary(bytes: OwnedBytes) -> i64 {
     publish_owned_bytes_with_reason(bytes, PublishReason::GenericFallback)
 }
 
+#[cfg(feature = "perf-observe")]
+#[inline(never)]
+fn publish_owned_bytes_string_concat_hh_generic_fallback_boundary(bytes: OwnedBytes) -> i64 {
+    publish_owned_bytes_with_reason_and_site(
+        bytes,
+        PublishReason::GenericFallback,
+        StringPublishSite::StringConcatHh,
+    )
+}
+
+#[cfg(feature = "perf-observe")]
+#[inline(never)]
+fn publish_owned_bytes_string_substring_concat_hhii_generic_fallback_boundary(
+    bytes: OwnedBytes,
+) -> i64 {
+    publish_owned_bytes_with_reason_and_site(
+        bytes,
+        PublishReason::GenericFallback,
+        StringPublishSite::StringSubstringConcatHhii,
+    )
+}
+
+#[cfg(feature = "perf-observe")]
+#[inline(never)]
+fn publish_owned_bytes_const_suffix_generic_fallback_boundary(bytes: OwnedBytes) -> i64 {
+    publish_owned_bytes_with_reason_and_site(
+        bytes,
+        PublishReason::GenericFallback,
+        StringPublishSite::ConstSuffix,
+    )
+}
+
+#[cfg(feature = "perf-observe")]
+#[inline(never)]
+fn publish_owned_bytes_freeze_text_plan_pieces3_generic_fallback_boundary(
+    bytes: OwnedBytes,
+) -> i64 {
+    publish_owned_bytes_with_reason_and_site(
+        bytes,
+        PublishReason::GenericFallback,
+        StringPublishSite::FreezeTextPlanPieces3,
+    )
+}
+
+#[inline(always)]
+fn publish_owned_bytes_generic_fallback_boundary_for_site(
+    bytes: OwnedBytes,
+    site: StringPublishSite,
+) -> i64 {
+    #[cfg(feature = "perf-observe")]
+    {
+        match site {
+            StringPublishSite::Generic => publish_owned_bytes_generic_fallback_boundary(bytes),
+            StringPublishSite::StringConcatHh => {
+                publish_owned_bytes_string_concat_hh_generic_fallback_boundary(bytes)
+            }
+            StringPublishSite::StringSubstringConcatHhii => {
+                publish_owned_bytes_string_substring_concat_hhii_generic_fallback_boundary(bytes)
+            }
+            StringPublishSite::ConstSuffix => {
+                publish_owned_bytes_const_suffix_generic_fallback_boundary(bytes)
+            }
+            StringPublishSite::FreezeTextPlanPieces3 => {
+                publish_owned_bytes_freeze_text_plan_pieces3_generic_fallback_boundary(bytes)
+            }
+        }
+    }
+    #[cfg(not(feature = "perf-observe"))]
+    {
+        publish_owned_bytes_with_reason_and_site(bytes, PublishReason::GenericFallback, site)
+    }
+}
+
 #[inline(always)]
 pub(crate) fn publish_owned_bytes(bytes: OwnedBytes) -> i64 {
     publish_owned_bytes_explicit_api_boundary(bytes)
@@ -412,9 +485,8 @@ pub(crate) fn materialize_owned_string_generic_fallback_for_site(
     value: String,
     site: StringPublishSite,
 ) -> i64 {
-    publish_owned_bytes_with_reason_and_site(
+    publish_owned_bytes_generic_fallback_boundary_for_site(
         freeze_owned_bytes_with_site(value, site),
-        PublishReason::GenericFallback,
         site,
     )
 }

@@ -143,3 +143,56 @@
         }
         return 0;
       }
+      auto int find_single_effective_use_across_blocks(
+          yyjson_val* blocks,
+          size_t blen,
+          long long reg,
+          size_t* use_bi_out,
+          size_t* use_ii_out,
+          long long* effective_reg_out,
+          int* dead_out) {
+        long long cur = resolve_copy_source_reg(reg);
+        int depth = 0;
+        if (dead_out) *dead_out = 0;
+        if (!cur) return 0;
+        while (depth < 16) {
+          size_t use_count = 0;
+          size_t use_bi = 0;
+          size_t use_ii = 0;
+          yyjson_val* use_ins = NULL;
+          const char* op = NULL;
+          for (size_t bi = 0; bi < blen; bi++) {
+            yyjson_val* b = yyjson_arr_get(blocks, bi);
+            yyjson_val* insts = b ? yyjson_obj_get(b, "instructions") : NULL;
+            if (!insts || !yyjson_is_arr(insts)) continue;
+            size_t ilen = yyjson_arr_size(insts);
+            for (size_t ii = 0; ii < ilen; ii++) {
+              yyjson_val* ins = yyjson_arr_get(insts, ii);
+              if (!inst_uses_reg(ins, cur)) continue;
+              use_count++;
+              use_bi = bi;
+              use_ii = ii;
+              use_ins = ins;
+              if (use_count > 1) return 0;
+            }
+          }
+          if (use_count == 0) {
+            if (dead_out) *dead_out = 1;
+            return 0;
+          }
+          op = use_ins ? read_str(use_ins, "op") : NULL;
+          if (!(op && strcmp(op, "copy") == 0)) {
+            if (use_bi_out) *use_bi_out = use_bi;
+            if (use_ii_out) *use_ii_out = use_ii;
+            if (effective_reg_out) *effective_reg_out = cur;
+            return 1;
+          }
+          cur = read_int(use_ins, "dst");
+          if (!cur) {
+            if (dead_out) *dead_out = 1;
+            return 0;
+          }
+          depth++;
+        }
+        return 0;
+      }

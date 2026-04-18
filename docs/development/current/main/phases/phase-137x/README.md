@@ -29,6 +29,34 @@
 - `perf-observe` seam split is now landed for the hot `piecewise_subrange_hsiii` corridor
 - `vm-hako` stays parked as reference/conformance
 
+## Completed Audit Lock (2026-04-18)
+
+- confirmed exact asm/perf audit on `kilo_micro_array_string_store`:
+  - stat: `C 10 ms / Ny AOT 131 ms`
+  - top samples: `substring_concat_hhii_export_impl 22.38%`, `string_concat_hh_export_impl 21.70%`, array string-store closure `17.34%`, `from_i8_string_const 13.07%`, `LocalKey::with 6.07%`, `memmove 3.51%`, `_int_malloc 1.75%`
+  - hot instructions carry host-handle atomics (`lock xadd/cmpxchg/inc/dec`), TLS publish stores, alloc shim calls, and array-store handle/publication branches
+  - extra loop-hot calls per iter vs C: `from_i8_string_const` x2, `concat_hh` x1, `set_his` x1, `substring_concat_hhii` x1
+  - wrapper functions are not the owner; current evidence points to inner publication / object-world entry
+- confirmed whole asm/perf audit on `kilo_kernel_small`:
+  - stat: `C 80 ms / Ny AOT 741 ms`
+  - top user symbols: `nyash.string.concat_hs 11.19%`, `execute_store_array_str_contract` closure `7.01%`, `insert_const_mid_fallback` closure `3.89%`, `array_get_index_encoded_i64` closure `3.62%`, `from_i8_string_const 3.52%`, libc `memmove 14.92%`, `_int_malloc 4.65%`
+  - hot instructions in `concat_hs` are TLS/helper-entry, not the copy body
+  - `insert_const_mid_fallback` and array store/read closures spend samples on registry fetch, `lock cmpxchg`, vtable probes, and handle/cache publication
+  - the whole path still pays many helper boundaries before store completes
+- confirmed observability-gap audit:
+  - prior evidence was not enough to split generic-fallback boundary cost from its children
+  - landed observability-only patch in `crates/nyash_kernel/src/plugin/value_codec/string_materialize.rs`
+  - new site-specific noinline generic-fallback boundary symbols:
+    - `string_concat_hh`
+    - `string_substring_concat_hhii`
+    - `const_suffix`
+    - `freeze_text_plan_pieces3`
+  - tests passed with and without `perf-observe`
+- next-cut reading (separate from confirmed evidence):
+  - perf/asm is now sufficient to choose the next keeper without another broad observability round
+  - keep exact and whole separate when judging the next keeper
+  - current evidence points to publication/object-world entry as the live owner; do not read this as proof of a representation / ABI change
+
 ## Restart Handoff
 
 - this block is the current truth for restart; if older numbers below disagree, prefer this block
@@ -68,10 +96,10 @@
   - active owner fronts:
     - `kilo_micro_array_string_store`
       - `C: 10 ms`
-      - `Ny AOT: 132 ms`
-    - `kilo_kernel_small_hk`
+      - `Ny AOT: 131 ms`
+    - `kilo_kernel_small`
       - `C: 80 ms`
-      - `Ny AOT: 731 ms`
+      - `Ny AOT: 741 ms`
   - current keeper diff:
     - perf AOT direct emit now uses the same trusted stage1 route as the phase direct-route smokes
     - active perf MIR is back on the proof-bearing `substring_concat3_hhhii` payload instead of the older plain `insert_hsi -> substring_hii` payload

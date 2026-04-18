@@ -132,7 +132,7 @@ Those would turn Stage A into a protocol redesign instead of an implementation-l
 - primary front:
   - `kilo_micro_array_string_store`
 - guard:
-  - `kilo_kernel_small_hk`
+  - `kilo_kernel_small`
 
 ## Current Reading
 
@@ -145,6 +145,18 @@ Current exact samples point first at protocol-heavy responsibilities:
 - `execute_store_array_str_slot_boundary`
 
 This is sufficient to justify the two-stage pilot order. It is not sufficient to justify a full `.hako` rewrite.
+
+## Observability Gap Audit Lock
+
+- prior evidence was not enough to split generic-fallback boundary cost from its children
+- landed observability-only patch in `crates/nyash_kernel/src/plugin/value_codec/string_materialize.rs`
+- added site-specific noinline generic-fallback boundary symbols for:
+  - `string_concat_hh`
+  - `string_substring_concat_hhii`
+  - `const_suffix`
+  - `freeze_text_plan_pieces3`
+- tests passed with and without `perf-observe`
+- perf/asm is now sufficient to choose the next keeper without another broad observability round
 
 Current reopened-lane helper reading:
 

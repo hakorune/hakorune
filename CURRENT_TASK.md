@@ -50,10 +50,27 @@ Scope: current lane / next lane / restart order only.
 - current broad gap is no longer substring:
   - `kilo_micro_array_string_store`
     - `C: 10 ms`
-    - `Ny AOT: 132 ms`
-  - `kilo_kernel_small_hk`
+    - `Ny AOT: 131 ms`
+  - `kilo_kernel_small`
     - `C: 80 ms`
-    - `Ny AOT: 731 ms`
+    - `Ny AOT: 741 ms`
+- latest completed audit lock (confirmed evidence; prefer this block if older notes below differ):
+  - exact asm/perf audit on `kilo_micro_array_string_store`:
+    - top samples: `substring_concat_hhii_export_impl 22.38%`, `string_concat_hh_export_impl 21.70%`, array string-store closure `17.34%`, `from_i8_string_const 13.07%`, `LocalKey::with 6.07%`, `memmove 3.51%`, `_int_malloc 1.75%`
+    - hottest instructions carry host-handle atomics (`lock xadd/cmpxchg/inc/dec`), TLS publish stores, alloc shim calls, and array-store handle/publication branches
+    - extra loop-hot calls per iter vs C: `from_i8_string_const` x2, `concat_hh` x1, `set_his` x1, `substring_concat_hhii` x1
+    - wrapper names are not the live owner; current evidence points to inner publication / object-world entry
+  - whole asm/perf audit on `kilo_kernel_small`:
+    - top user symbols: `nyash.string.concat_hs 11.19%`, `execute_store_array_str_contract` closure `7.01%`, `insert_const_mid_fallback` closure `3.89%`, `array_get_index_encoded_i64` closure `3.62%`, `from_i8_string_const 3.52%`, libc `memmove 14.92%`, `_int_malloc 4.65%`
+    - `concat_hs` hot instructions are TLS/helper-entry, not the copy body
+    - `insert_const_mid_fallback` and array store/read closures spend samples on registry fetch, `lock cmpxchg`, vtable probes, and handle/cache publication
+    - whole-path cost still crosses many helper boundaries before store completion
+  - observability-gap audit is complete:
+    - prior evidence was not enough to split generic-fallback boundary cost from its children
+    - landed observability-only patch in `crates/nyash_kernel/src/plugin/value_codec/string_materialize.rs`
+    - new site-specific noinline generic-fallback boundary symbols: `string_concat_hh`, `string_substring_concat_hhii`, `const_suffix`, `freeze_text_plan_pieces3`
+    - tests passed with and without `perf-observe`
+    - perf/asm is now sufficient to choose the next keeper without another broad observability round
 - current reading:
   - current main owner family is `array/string-store`, not `substring`
   - trusted direct MIR no longer duplicates the `text + "xy"` producer across `set(...)` and trailing `substring(...)`
