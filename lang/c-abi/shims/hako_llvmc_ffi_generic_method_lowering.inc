@@ -33,6 +33,11 @@
 
         fprintf(
             f,
+            "  %%arrstr.slotsave.%lld.%zu = call ptr @llvm.stacksave()\n",
+            pair_root,
+            ii);
+        fprintf(
+            f,
             "  %%arrstr.slot.%lld.%zu = alloca { i8, ptr, i64, i64 }, align 8\n",
             pair_root,
             ii);
@@ -95,6 +100,11 @@
         } else {
           fprintf(f, "  call i64 @\"nyash.array.kernel_slot_store_hi\"(%s)\n", slot_store_ab);
         }
+        fprintf(
+            f,
+            "  call void @llvm.stackrestore(ptr %%arrstr.slotsave.%lld.%zu)\n",
+            pair_root,
+            ii);
         return 1;
       }
 
@@ -122,6 +132,11 @@
         middle_const = get_str_const(middle);
         if (!(source && middle && middle_const)) return 0;
 
+        fprintf(
+            f,
+            "  %%arrstr.slotsave.%lld.%zu = call ptr @llvm.stacksave()\n",
+            insert_root,
+            ii);
         fprintf(
             f,
             "  %%arrstr.slot.%lld.%zu = alloca { i8, ptr, i64, i64 }, align 8\n",
@@ -187,6 +202,11 @@
         } else {
           fprintf(f, "  call i64 @\"nyash.array.kernel_slot_store_hi\"(%s)\n", slot_store_ab);
         }
+        fprintf(
+            f,
+            "  call void @llvm.stackrestore(ptr %%arrstr.slotsave.%lld.%zu)\n",
+            insert_root,
+            ii);
         return 1;
       }
 

@@ -64,16 +64,18 @@ Scope: current lane / next lane / restart order only.
 - current bridge reread after the shared-receiver landing:
   - `kilo_meso_substring_concat_array_set_loopcarry`
     - `C: 3 ms`
-    - `Ny AOT: 56 ms`
+    - `Ny AOT: 57 ms`
   - reading:
-    - slight lift versus the prior `59 ms` reread
-    - this keeps the producer-side unpublished contract as a live keeper candidate
+    - still within the prior `56-59 ms` band
+    - producer-side unpublished contract remains live, but this landing is not a meso keeper by itself
 - current whole accept gate:
   - `kilo_kernel_small`
-    - latest direct reread is blocked
-    - current AOT build failure: `unsupported pure shape for current backend recipe`
+    - `C: 81 ms`
+    - `Ny AOT: 1078 ms` (`repeat=3`)
   - reading:
-    - this is a route/build blocker on the accept gate, not evidence against the landed exact bridge
+    - pure-first route/build blocker is cleared; direct and helper replay now compile again
+    - loop-body `KernelTextSlot` allocas no longer crash the whole bench; `stacksave/stackrestore` reopens the accept gate
+    - whole remains far from keeper territory, so the current landing is a correctness/unblock fix, not a perf win
     - last trusted whole owner family stays `const_suffix` / `freeze_text_plan(Pieces3)` publication
     - latest landed whole-side narrow cut is direct-set-only `insert_hsi -> kernel_slot_insert_hsi -> kernel_slot_store_hi`
 - current accepted redesign is now locked in narrowed form:

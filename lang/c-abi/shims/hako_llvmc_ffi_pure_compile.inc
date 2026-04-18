@@ -621,13 +621,16 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       fprintf(f, "declare i64 @\"nyash.runtime_data.set_hhh\"(i64, i64, i64)\n");
       fprintf(f, "declare i64 @\"nyash.runtime_data.has_hh\"(i64, i64)\n");
       fprintf(f, "declare i64 @\"nyash.runtime_data.push_hh\"(i64, i64)\n");
+      fprintf(f, "declare ptr @llvm.stacksave()\n");
+      fprintf(f, "declare void @llvm.stackrestore(ptr)\n");
       if (needs.arr_birth) fprintf(f, "declare i64 @\"nyash.array.birth_h\"()\n");
       if (needs.arr_push)  fprintf(f, "declare i64 @\"nyash.array.slot_append_hh\"(i64, i64)\n");
       if (needs.arr_len)   fprintf(f, "declare i64 @\"nyash.array.slot_len_h\"(i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_set)   fprintf(f, "declare i64 @\"nyash.array.slot_store_hih\"(i64, i64, i64)\n");
       if (needs.arr_set)   fprintf(f, "declare i64 @\"nyash.array.set_his\"(i64, i64, i64)\n");
       if (needs.arr_set)   fprintf(f, "declare i64 @\"nyash.array.slot_store_hii\"(i64, i64, i64)\n");
-      if (needs.arr_set && needs.string_concat) fprintf(f, "declare i64 @\"nyash.array.kernel_slot_store_hi\"(i64, i64, ptr)\n");
+      if (needs.arr_set && (needs.string_concat || needs.string_substring || needs.arr_get || needs.arr_string_indexof))
+        fprintf(f, "declare i64 @\"nyash.array.kernel_slot_store_hi\"(i64, i64, ptr)\n");
       if (needs.arr_get && needs.arr_set) fprintf(f, "declare i64 @\"nyash.array.rmw_add1_hi\"(i64, i64)\n");
       if (needs.arr_get || needs.arr_string_indexof || needs.string_len) fprintf(f, "declare i64 @\"nyash.array.string_len_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_get || needs.arr_string_indexof) fprintf(f, "declare i64 @\"nyash.array.string_indexof_hih\"(i64, i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
@@ -635,14 +638,19 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (needs.string_const_box) fprintf(f, "declare i64 @\"nyash.box.from_i8_string_const\"(ptr)\n");
       if (needs.string_len) fprintf(f, "declare i64 @\"nyash.string.len_h\"(i64)\n");
       fprintf(f, "declare i64 @\"nyash.string.eq_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
-      if (needs.string_substring) fprintf(f, "declare i64 @\"nyash.string.substring_hii\"(i64, i64, i64)\n");
+      if (needs.string_substring || needs.arr_set || needs.arr_get || needs.arr_string_indexof || needs.string_indexof)
+        fprintf(f, "declare i64 @\"nyash.string.substring_hii\"(i64, i64, i64)\n");
       if (needs.string_substring) fprintf(f, "declare i64 @\"nyash.string.substring_concat_hhii\"(i64, i64, i64, i64)\n");
       if (needs.string_substring) fprintf(f, "declare i64 @\"nyash.string.substring_concat3_hhhii\"(i64, i64, i64, i64, i64)\n");
-      if (needs.string_substring) fprintf(f, "declare i64 @\"nyash.string.piecewise_subrange_hsiii\"(i64, ptr, i64, i64, i64)\n");
-      if (needs.string_substring) fprintf(f, "declare i64 @\"nyash.string.kernel_slot_piecewise_subrange_hsiii\"(ptr, i64, ptr, i64, i64, i64)\n");
-      if (needs.string_substring) fprintf(f, "declare i64 @\"nyash.string.kernel_slot_substring_hii_in_place\"(ptr, i64, i64)\n");
-      if (needs.string_substring) fprintf(f, "declare i64 @\"nyash.string.kernel_slot_publish_h\"(ptr)\n");
-      if (needs.string_indexof) fprintf(f, "declare i64 @\"nyash.string.indexOf_hh\"(i64, i64)\n");
+      if (needs.string_substring || needs.arr_set || needs.arr_get || needs.arr_string_indexof || needs.string_indexof)
+        fprintf(f, "declare i64 @\"nyash.string.piecewise_subrange_hsiii\"(i64, ptr, i64, i64, i64)\n");
+      if (needs.string_substring || needs.arr_set || needs.arr_get || needs.arr_string_indexof || needs.string_indexof)
+        fprintf(f, "declare i64 @\"nyash.string.kernel_slot_piecewise_subrange_hsiii\"(ptr, i64, ptr, i64, i64, i64)\n");
+      if (needs.string_substring || needs.arr_set || needs.arr_get || needs.arr_string_indexof || needs.string_indexof)
+        fprintf(f, "declare i64 @\"nyash.string.kernel_slot_substring_hii_in_place\"(ptr, i64, i64)\n");
+      if (needs.string_substring || needs.arr_set || needs.arr_get || needs.arr_string_indexof || needs.string_indexof)
+        fprintf(f, "declare i64 @\"nyash.string.kernel_slot_publish_h\"(ptr)\n");
+      if (needs.string_indexof || needs.arr_string_indexof) fprintf(f, "declare i64 @\"nyash.string.indexOf_hh\"(i64, i64)\n");
       if (needs.string_concat || needs.string_substring || needs.arr_get || needs.arr_string_indexof) {
         fprintf(f, "declare i64 @\"nyash.string.concat_hh\"(i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.string.concat_hs\"(i64, ptr)\n");

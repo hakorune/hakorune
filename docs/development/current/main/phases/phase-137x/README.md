@@ -74,15 +74,16 @@
       - the exact `store.array.str` front is now closed
       - `bench_micro_aot_asm` top report is startup/env dominated, so this is no longer the active owner proof front
   - middle `kilo_meso_substring_concat_array_set_loopcarry`:
-    - stat: `C 3 ms / Ny AOT 56 ms`
+    - stat: `C 3 ms / Ny AOT 57 ms`
     - reading:
-      - slight lift versus the prior `59 ms` reread
-      - producer-side unpublished outcome widening remains live
+      - still inside the prior `56-59 ms` band
+      - producer-side unpublished outcome widening remains live, but this landing is not a meso keeper by itself
   - whole `kilo_kernel_small`:
-    - current direct reread is blocked
-    - build failure: `unsupported pure shape for current backend recipe`
+    - stat: `C 81 ms / Ny AOT 1078 ms` (`repeat=3`)
     - reading:
-      - this blocks the accept-gate measurement, but does not change the current whole owner read
+      - pure-first helper/direct replay now compiles again after the declaration/need-flag fixes
+      - loop-body `KernelTextSlot` allocas no longer crash the whole bench after `stacksave/stackrestore`
+      - this reopens the accept gate, but does not make the current landing a whole-front keeper
       - next code cut still targets `const_suffix` / `freeze_text_plan(Pieces3)` publication
 - next-cut reading (separate from confirmed evidence):
   - perf/asm is now sufficient to choose the next keeper without another broad observability round

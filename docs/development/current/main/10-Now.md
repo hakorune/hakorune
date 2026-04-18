@@ -36,15 +36,17 @@ Related:
   - role: adopted middle between exact micro and whole kilo
   - rule: use it to validate store/publication cuts without the whole-front `indexOf("line")` row-scan noise
 - current bridge reread after the shared-receiver landing:
-  - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 56 ms`
+  - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 57 ms`
   - reading:
-    - slight win versus the prior `59 ms` reread
-    - this keeps producer-side unpublished outcome widening live
+    - still inside the prior `56-59 ms` band
+    - producer-side unpublished outcome widening stays live, but this landing is not a meso keeper by itself
 - current whole accept gate:
   - `kilo_kernel_small`
-  - current reread result: build blocked on `unsupported pure shape for current backend recipe`
+  - current reread result: `C 81 ms / Ny AOT 1078 ms` (`repeat=3`)
   - reading:
-    - accept-gate measurement is currently blocked by pure-first AOT build shape, not by a measured regression from the exact landing
+    - pure-first AOT build shape is reopened; direct/helper replay compile again after helper declaration/need-flag fixes
+    - loop-body `KernelTextSlot` allocas no longer crash the whole bench after `stacksave/stackrestore`
+    - this is an accept-gate correctness reopen, not a whole-front perf keeper
     - whole owner family still reads as `const_suffix` / `freeze_text_plan(Pieces3)` publication
     - latest landed whole-side narrow cut is direct-set-only `insert_hsi -> kernel_slot_insert_hsi -> kernel_slot_store_hi`
 - `indexOf` separation:

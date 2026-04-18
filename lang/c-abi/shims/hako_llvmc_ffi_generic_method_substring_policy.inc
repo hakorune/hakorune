@@ -320,6 +320,11 @@
 
         fprintf(
             f,
+            "  %%slothop.slotsave.%lld.%zu = call ptr @llvm.stacksave()\n",
+            final_dst,
+            ii);
+        fprintf(
+            f,
             "  %%slothop.slot.%lld.%zu = alloca { i8, ptr, i64, i64 }, align 8\n",
             final_dst,
             ii);
@@ -365,6 +370,11 @@
             f,
             "  %%r%lld = call i64 @\"nyash.string.kernel_slot_publish_h\"(ptr %%slothop.slot.%lld.%zu)\n",
             final_dst,
+            final_dst,
+            ii);
+        fprintf(
+            f,
+            "  call void @llvm.stackrestore(ptr %%slothop.slotsave.%lld.%zu)\n",
             final_dst,
             ii);
         set_type(final_dst, T_I64);

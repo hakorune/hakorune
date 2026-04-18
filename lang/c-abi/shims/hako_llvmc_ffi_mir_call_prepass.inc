@@ -90,6 +90,15 @@
           route = classify_generic_method_route(bid, ii, bname, mname, recv);
           recv_family = classify_mir_call_receiver_family(route.recv_org);
           need_kind = classify_mir_call_method_need_kind(bname, mname, recv_family);
+          if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_NONE &&
+              mname &&
+              route.runtime_string) {
+            if (!strcmp(mname, "indexOf")) {
+              need_kind = HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF;
+            } else if (!strcmp(mname, "substring")) {
+              need_kind = HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING;
+            }
+          }
           if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_ARRAY_STRING_INDEXOF) {
             mark_array_string_indexof_need_flags(
                 blocks, ii, ilen, insts, bname, mname, recv, a0,
