@@ -32,11 +32,18 @@ cargo check --features perf-observe -p nyash_kernel
 - current snapshot:
   - `kilo_micro_substring_concat = C 2 ms / Ny AOT 3 ms`
   - `kilo_micro_array_string_store = C 10 ms / Ny AOT 132 ms`
+  - `kilo_meso_substring_concat_array_set_loopcarry` is the adopted middle bridge:
+    - `substring + concat + array.set + loopcarry`
+    - use it to confirm store/publication cuts without the whole-front `indexOf("line")` row-scan noise
   - `kilo_kernel_small_hk = C 80 ms / Ny AOT 731 ms`
 - immediate next:
-  - `reopen producer-side publication/source-capture on whole kilo first, while preserving the existing set_his fast path`
+  - `judge the next keeper on exact -> meso -> whole, with the adopted middle bridge between array-store exact and whole kilo`
 - immediate follow-on:
-  - `split const_suffix vs freeze_text_plan(Pieces3) publication before picking the next keeper`
+  - `keep the first narrow cut inside the store/publication corridor before allocator / GC follow-ups`
+- immediate code seam:
+  - `execute_store_array_str_contract` whole-first
+  - specifically `try_retarget_borrowed_string_slot_take_verified_text_source -> keep_borrowed_string_slot_source_keep`
+  - middle (`substring_hii -> borrowed_substring_plan_from_handle`) stays the contradiction guard, not the first code cut
 - latest non-keeper:
   - `producer-side unpublished-outcome active probe regressed to 236 ms exact / 2173 ms whole and is reverted`
 - latest observability split:
@@ -66,9 +73,15 @@ cargo check --features perf-observe -p nyash_kernel
   - wrong cut; do not reopen this before a new design decision
 - helper-only keeper from that rejected card is committed as `b35382cf9`
 - latest `perf-observe` reread no longer ranks `string_len_export_slow_path`; the live top stays publication/source-capture
-- exact micro vs whole kilo must now be read separately:
+- exact micro vs adopted middle vs whole kilo must now be read separately:
   - exact micro owner = shared generic publish/objectize behind `string_concat_hh` + `string_substring_concat_hhii`
+  - adopted middle = `kilo_meso_substring_concat_array_set_loopcarry`, used to confirm the same corridor without `indexOf("line")` row-scan noise
   - whole kilo owner = `const_suffix` fallback + `freeze_text_plan(Pieces3)` publication
+- next narrow cut candidate is the store/publication corridor around:
+  - `execute_store_array_str_contract`
+  - `array_get_index_encoded_i64`
+  - `insert_const_mid_fallback`
+- allocator / GC (`memmove` / `gc_alloc` / `_int_malloc`) stays secondary diagnosis until that corridor is disproved
 - `indexOf` stays a side diagnosis, not the active keeper card
 - keep public ABI / legality ownership unchanged
 - next first slice is no longer `len_h` removal; it is publication/source-capture reopen with the compiler-known-length lane fixed

@@ -56,6 +56,17 @@
   - perf/asm is now sufficient to choose the next keeper without another broad observability round
   - keep exact and whole separate when judging the next keeper
   - current evidence points to publication/object-world entry as the live owner; do not read this as proof of a representation / ABI change
+  - current implementation choice is now fixed:
+    - keep whole-front ownership as the tiebreaker
+    - first code seam is the borrowed-slot retarget/publication tail under `execute_store_array_str_contract`
+    - concrete entry:
+      - `try_retarget_borrowed_string_slot_take_verified_text_source`
+      - `keep_borrowed_string_slot_source_keep`
+    - intended shape:
+      - preserve the current alias-retarget contract
+      - move old keep retirement out of the hottest edge before reopening broader upstream cuts
+    - `kilo_meso_substring_concat_array_set_loopcarry` remains the contradiction guard:
+      - if whole improves but meso stays flat-to-worse, reopen `substring_hii -> borrowed_substring_plan_from_handle` as the next card
 
 ## Restart Handoff
 

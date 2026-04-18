@@ -47,6 +47,11 @@ Scope: current lane / next lane / restart order only.
   - `kilo_micro_substring_only`
     - `C: 3 ms`
     - `Ny AOT: 3 ms`
+- current bridge front is now adopted:
+  - `kilo_meso_substring_concat_array_set_loopcarry`
+    - shape: `substring + concat + array.set + loopcarry`
+    - role: natural middle between exact micro and whole kilo on this lane
+    - rule: use it to confirm store/publication cuts without the whole-front `indexOf("line")` row-scan noise
 - current broad gap is no longer substring:
   - `kilo_micro_array_string_store`
     - `C: 10 ms`
@@ -268,6 +273,25 @@ Scope: current lane / next lane / restart order only.
     - cold path = trace / bridge / TLS init / generic publication fallback
   - conclusion: the ideal asm shape is still reachable, and the landed split confirms the first whole-kilo win comes from shrinking the `const_suffix` helper entry; the next keeper must now attack the `const_suffix` publish/materialize tail while keeping publication mechanics off the hot edge
 - current live owner remains publication/source-capture around the string births, not array-set route selection
+- current reread order is now:
+  - exact micro -> adopted middle -> whole kilo
+- current next-cut reading from the latest audit bundle is:
+  - first narrow cut candidate stays in the store/publication corridor
+  - prioritize:
+    - `execute_store_array_str_contract`
+    - `array_get_index_encoded_i64`
+    - `insert_const_mid_fallback`
+  - treat allocator / GC (`memmove` / `gc_alloc` / `_int_malloc`) as secondary diagnosis until that corridor is disproved
+- current implementation pick for the next keeper card is:
+  - keep whole-first as the tie-breaker
+  - cut the retarget/publication tail under `execute_store_array_str_contract`
+  - first code seam:
+    - `try_retarget_borrowed_string_slot_take_verified_text_source`
+    - `keep_borrowed_string_slot_source_keep`
+  - aim:
+    - move old keep retirement off the hot edge while preserving the existing `set_his` / alias-retarget contract
+  - keep adopted middle as the contradiction guard:
+    - if the whole-first seam lands but `kilo_meso_substring_concat_array_set_loopcarry` stays flat-to-worse, the next card reopens `substring_hii -> borrowed_substring_plan_from_handle`
 - next comparison must split:
     - implementation language cost
     - protocol / seam cost
@@ -285,8 +309,9 @@ Scope: current lane / next lane / restart order only.
 2. keep the compiler-known-length lane fixed and guarded on `kilo_micro_array_string_store`
 3. keep array-store route selection parked; the exact-front owner is still the **producer helper publish tail**
 4. keep the reverted AOT-only `const_suffix` direct-store corridor parked as a non-keeper; do not reopen it before new evidence
-5. next slice stays evidence-first, but exact and whole are now split:
+5. next slice stays evidence-first, and exact / meso / whole are now split:
    - exact micro owner: common generic publish/objectize corridor shared by `string_concat_hh` and `string_substring_concat_hhii`
+   - middle bridge: `kilo_meso_substring_concat_array_set_loopcarry` keeps `substring + concat + array.set + loopcarry` while dropping whole-front `indexOf("line")` row-scan noise
    - whole kilo owner: `const_suffix` fallback plus `freeze_text_plan_pieces3` publication
 6. do not spend the next keeper card on pair/substring helper specialization; whole-kilo counters prove those sites are inactive there
 7. the whole-kilo publish split is now landed:
@@ -295,12 +320,13 @@ Scope: current lane / next lane / restart order only.
    - do not reopen any helper-site keeper; the whole front is now pinned to these two producer families
 8. keep the lazy published-string handle seam parked as a non-keeper; it changed counters but exploded whole-kilo time
 9. next:
-   - `publish_const_suffix_owned_cold` 2-step split is a non-keeper; splitting the call site alone does not remove the object-world entry cost
-   - next cut must target the fused `alloc → objectize → issue_fresh_handle` chain inside the cold adapter, not just the call boundary
-   - concrete next candidate: measure whether inlining `freeze_owned_bytes` + skipping `objectize_stable_string_box` in the `const_suffix` fast path (e.g. keeping bytes as `OwnedBytes` through the slot boundary) changes whole-kilo numbers — requires perf/asm evidence first
-   - do not cut before re-running `bench_micro_aot_asm.sh kilo_kernel_small` to confirm the current whole hot symbol after revert
+   - use the adopted middle front first when judging the next keeper card
+   - first narrow cut candidate is the store/publication corridor around `execute_store_array_str_contract` / `array_get_index_encoded_i64` / `insert_const_mid_fallback`
+   - do not promote allocator / GC as the first keeper until that corridor loses on exact + meso + whole
+   - keep `publish_const_suffix_owned_cold` call-site-only splitting parked as a non-keeper
 10. after that keeper selection:
    - `kilo_micro_array_string_store`
+   - `kilo_meso_substring_concat_array_set_loopcarry`
    - `kilo_kernel_small_hk`
    - top asm on the active whole producer helper (`const_suffix` / pieces3 path) plus the exact-front publish tail
 11. only after that comparison proves one specific producer stage, reopen a new narrow keeper candidate on that stage alone

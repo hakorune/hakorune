@@ -28,6 +28,11 @@ Related:
 - current broad gap:
   - `kilo_micro_array_string_store = C 10 ms / Ny AOT 131 ms`
   - `kilo_kernel_small = C 80 ms / Ny AOT 741 ms`
+- current bridge front:
+  - `kilo_meso_substring_concat_array_set_loopcarry`
+  - shape: `substring + concat + array.set + loopcarry`
+  - role: adopted middle between exact micro and whole kilo
+  - rule: use it to validate store/publication cuts without the whole-front `indexOf("line")` row-scan noise
 - `indexOf` separation:
   - keep as side diagnosis; reread only when the main card reopens it
 - completed audit lock (confirmed evidence):
@@ -41,9 +46,16 @@ Related:
   - compiler-side known string-length propagation is now landed for const / substring-window / same-length string `phi`
   - active AOT entry IR on this front no longer emits `nyash.string.len_h` in `ny_main`
   - current exact owner is still publication/source-capture
-  - current exact/whole split is now explicit:
+  - current exact/meso/whole split is now explicit:
     - `kilo_micro_array_string_store` is dominated by the shared generic publish/objectize corridor behind `string_concat_hh` + `string_substring_concat_hhii`
+    - `kilo_meso_substring_concat_array_set_loopcarry` is the adopted bridge front for the same store/publication corridor without whole-front `indexOf("line")` noise
     - `kilo_kernel_small` is dominated by `const_suffix` fallback plus `freeze_text_plan(Pieces3)` publication
+  - current code pick stays whole-first:
+    - next narrow seam is the borrowed-slot retarget/publication tail under `execute_store_array_str_contract`
+    - first implementation target:
+      - `try_retarget_borrowed_string_slot_take_verified_text_source`
+      - `keep_borrowed_string_slot_source_keep`
+    - middle remains the contradiction guard; if this seam does not lift meso, reopen `substring_hii -> borrowed_substring_plan_from_handle`
   - exact hot instructions carry host-handle atomics, TLS publish stores, alloc shim calls, and array-store handle/publication branches
   - exact loop still pays extra per-iter helper calls vs C: `from_i8_string_const` x2, `concat_hh` x1, `set_his` x1, `substring_concat_hhii` x1
   - whole hot closures still pay registry fetch, `lock cmpxchg`, vtable probes, and handle/cache publication before store completion
@@ -110,12 +122,17 @@ Related:
 
 1. keep `Stage A` parked as VM/reference-only
 2. keep the compiler-known-length lane fixed and guarded on this front
-3. keep exact micro and whole kilo separate when choosing the next keeper
+3. keep exact micro, adopted middle, and whole kilo separate when choosing the next keeper
 4. preserve the existing `set_his` fast path; do not reopen slot-store boundary probes
 5. keep `const_suffix` as the first whole-front keeper owner and `Pieces3` as a guard lane
-6. cut only a seam that moves `nyash.string.concat_hs` toward the copy-dominant C helper shape
-7. keep exact micro as a confirmation front, not the sole owner truth
-8. keep `Stage B` narrow and data-driven through runtime-private publication counters
+6. use `kilo_meso_substring_concat_array_set_loopcarry` as the first confirmation front between exact and whole when judging the next keeper
+7. first narrow cut candidate stays in the store/publication corridor:
+   - `execute_store_array_str_contract`
+   - `array_get_index_encoded_i64`
+   - `insert_const_mid_fallback`
+8. treat allocator / GC as secondary diagnosis until that corridor loses on exact + meso + whole
+9. implement whole-first at the borrowed-slot retarget/publication tail before reopening upstream substring planning
+10. keep `Stage B` narrow and data-driven through runtime-private publication counters
 
 ## Read Next
 
