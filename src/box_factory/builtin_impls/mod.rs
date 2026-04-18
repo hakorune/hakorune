@@ -3,6 +3,7 @@
  *
  * These modules remain only for runtime fallback / selfhost support paths.
  * Plugin-preferred routes may still use them when no external provider is active.
+ * See README.md before adding or deleting a fallback here.
  * ArrayBox/MapBox/PathBox/ConsoleBox construction goes through ring1 provider
  * seams; do not add standalone builtin fallbacks here.
  * `null_box.rs` stays as the surface/compat constructor for the runtime no-value family.
