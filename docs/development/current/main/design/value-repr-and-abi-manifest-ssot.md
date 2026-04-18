@@ -102,8 +102,25 @@ current `value_codec` では、次の5 class を正本として固定する。
 3. `ArrayBorrowStringOnly`
    - string/string-view だけを borrowed alias 化
    - それ以外の positive handle は immediate-style fallback
+4. `MapKeyBorrowString`
+   - map key decode path
+   - string/string-view は `handle_borrowed_string`
+   - bool/int は scalar-prefer
+   - array profile の名前に依存せず、map-key policy として同じ scalar-prefer contract を読む
+5. `MapValueBorrowString`
+   - map value storage path
+   - string/string-view は `handle_borrowed_string`
+   - non-string positive handles keep object semantics instead of scalar-prefer fallback
 
 `CodecProfile` は public ABI row には直接出さず、representation/decode helper の補助契約として扱う。
+
+Future cleanup:
+
+- `CodecProfile` should eventually split into internal demand vocabulary such as:
+  - `ValueDemand`
+  - `StorageDemand`
+  - `PublishDemand`
+- That split is tracked by `phase-289x`; it must not widen public ABI rows.
 
 ## Borrowed String Alias Invariants
 

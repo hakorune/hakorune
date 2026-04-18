@@ -7,6 +7,8 @@ Related:
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/design/perf-owner-first-optimization-ssot.md
   - docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md
+  - docs/development/current/main/design/lifecycle-typed-value-language-ssot.md
+  - docs/development/current/main/phases/phase-289x/README.md
   - docs/development/current/main/design/string-value-model-phased-rollout-ssot.md
   - docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md
   - docs/development/current/main/phases/phase-137x/README.md
@@ -50,6 +52,10 @@ cargo check --features perf-observe -p nyash_kernel
 - rollout anchor:
   - `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
   - `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+- successor planning anchor:
+  - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
+  - `docs/development/current/main/phases/phase-289x/README.md`
+  - read as parked planning only; do not start runtime-wide implementation before phase-137x is judged
 - taskboard:
   - `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
 - immediate follow-on:
@@ -159,12 +165,14 @@ cargo check --features perf-observe -p nyash_kernel
 6. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
 7. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
 8. `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
-9. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
-10. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
-11. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-12. `docs/development/current/main/design/string-birth-sink-ssot.md`
-13. `docs/development/current/main/15-Workstream-Map.md`
-14. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
+9. `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
+10. `docs/development/current/main/phases/phase-289x/README.md` (`runtime-wide value/object` planning only)
+11. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+12. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
+13. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+14. `docs/development/current/main/design/string-birth-sink-ssot.md`
+15. `docs/development/current/main/15-Workstream-Map.md`
+16. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Current Proof Bundle
 

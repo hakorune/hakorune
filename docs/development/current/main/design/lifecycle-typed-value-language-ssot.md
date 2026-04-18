@@ -15,6 +15,8 @@ Related:
   - docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md
   - docs/development/current/main/design/enum-sum-and-generic-surface-ssot.md
   - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
+  - docs/development/current/main/phases/phase-289x/README.md
+  - docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md
   - src/mir/instruction.rs
   - src/mir/storage_class.rs
 ---
@@ -318,6 +320,53 @@ This document also does not require:
 - new `.hako` syntax
 - immediate public ABI break
 - full `Program(JSON v0)` retirement in the same cut
+
+## Runtime-Wide Rollout Handoff
+
+`phase-289x` is the planning child for generalizing this SSOT from the
+string proving ground to runtime-wide value/object boundaries.
+
+Authority stays here. The phase doc is a taskboard, not a second semantic
+truth.
+
+### Container rule
+
+Array / Map are not reclassified as ordinary immutable values.
+
+They remain identity-capable containers:
+
+- public semantics may require stable container identity
+- public ABI may keep handle-based array/map surfaces
+- internal element/key/value residence may still become lane-hosted
+
+This prevents the value-world rule from erasing container identity.
+
+### Boundary rule
+
+`publish` / `promote` are boundary effects.
+
+- runtime may execute objectization
+- runtime must not silently infer semantic publication legality
+- MIR/lowering must eventually carry demand / boundary facts
+
+For string specifically:
+
+- `publish` stays boundary effect
+- `freeze.str` remains the only string birth sink
+- `TextLane` remains future storage specialization, not semantic truth
+
+### Rollout rule
+
+Generalization must proceed in this order:
+
+1. docs / authority / vocabulary
+2. demand inventory
+3. container lane-host contract
+4. one storage pilot after the active string lane is judged
+5. scalar / bytes / map only when evidence picks them
+6. MIR legality after runtime-private contracts are proven
+
+Do not start with allocator work or a broad lane rewrite.
 
 ## Immediate Task Pack
 

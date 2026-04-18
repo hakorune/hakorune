@@ -7,6 +7,13 @@
 - **Current (ACTIVE)**: Phase 29bq selfhost mirbuilder failure-driven
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection
 
+## Planned / Parked Successors
+
+- **Phase 289x（PROPOSED PLANNING）**: runtime-wide value/object boundary rollout
+  - parent SSOT: `../design/lifecycle-typed-value-language-ssot.md`
+  - taskboard: `phase-289x/289x-91-runtime-value-object-task-board.md`
+  - guard: phase-137x string lane remains the first proving ground; no runtime-wide implementation starts before that lane is judged
+
 ## Recent Landed
 
 - **Phase 277x（LANDED）**: optimization lane closeout judgment

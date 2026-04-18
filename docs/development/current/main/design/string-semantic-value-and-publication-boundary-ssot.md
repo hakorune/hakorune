@@ -11,6 +11,8 @@ Related:
   - docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md
   - docs/development/current/main/design/string-birth-sink-ssot.md
   - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
+  - docs/development/current/main/design/lifecycle-typed-value-language-ssot.md
+  - docs/development/current/main/phases/phase-289x/README.md
   - docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md
 ---
 
@@ -22,6 +24,12 @@ Related:
 - `publish` を boundary effect、`freeze.str` を唯一の birth sink として分離する。
 - `TextLane` を future storage specialization として位置づけ、意味論や public ABI の truth にしない。
 - phase-137x の rollout を「きれいな値モデルをどの順で runtime に降ろすか」の話に戻す。
+
+この文書は runtime-wide value/object boundary の first proving ground だよ。
+runtime-wide の親読みは
+`docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`、
+generalization taskboard は
+`docs/development/current/main/phases/phase-289x/README.md` に置く。
 
 ## Core Lock
 

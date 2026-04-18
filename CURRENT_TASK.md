@@ -15,20 +15,22 @@ Scope: current lane / next lane / restart order only.
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/10-Now.md`
 3. `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
-4. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
-5. `docs/development/current/main/phases/phase-137x/README.md`
-6. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
-7. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-8. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
-9. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
-10. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
-11. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
-12. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-13. `docs/development/current/main/design/string-birth-sink-ssot.md`
-14. `docs/development/current/main/15-Workstream-Map.md`
-15. `git status -sb`
-16. `tools/checks/dev_gate.sh quick`
-17. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
+4. `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
+5. `docs/development/current/main/phases/phase-289x/README.md` (`runtime-wide value/object` planning only)
+6. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
+7. `docs/development/current/main/phases/phase-137x/README.md`
+8. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
+9. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+10. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+11. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
+12. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+13. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
+14. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+15. `docs/development/current/main/design/string-birth-sink-ssot.md`
+16. `docs/development/current/main/15-Workstream-Map.md`
+17. `git status -sb`
+18. `tools/checks/dev_gate.sh quick`
+19. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Current Lane
 
@@ -42,6 +44,15 @@ Scope: current lane / next lane / restart order only.
 - background lanes:
   - `phase-29bq loop owner seam cleanup landing`
   - `phase-163x primitive-family / user-box fast-path landing`
+- successor planning lane:
+  - `phase-289x runtime-wide value/object boundary rollout`
+  - status:
+    - docs/taskboard only
+    - do not start implementation before phase-137x reaches keeper/reject on the active string read-side lane
+  - parent SSOT:
+    - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
+  - taskboard:
+    - `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
 - current blocker:
   - `none`
 - current cut status:

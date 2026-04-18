@@ -297,8 +297,9 @@ Related:
   - decide one owner for typed cache lookup
   - centralize only the live typed-cache routes; do not invent dead-path cleanup that is no longer present in checkout
 - `Cleanup 5`: map-key codec SSOT
-  - stop depending on `CodecProfile::ArrayFastBorrowString` for map-key coercion
-  - introduce a dedicated map-key helper/profile if that contract remains needed
+  - status: landed
+  - map-key coercion now uses `CodecProfile::MapKeyBorrowString`
+  - array profile naming no longer owns map-key decode policy
 - `Cleanup 6`: `MapBox` raw helper boundary
   - pull `clear` / `delete` style raw mutations behind narrow `MapBox` helpers instead of mutating `get_data().write()` from runtime facade code
 - `Cleanup 7`: legacy map compat surface retirement

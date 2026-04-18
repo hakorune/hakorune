@@ -7,6 +7,8 @@ Related:
   - docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md
   - docs/development/current/main/phases/phase-137x/README.md
   - docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md
+  - docs/development/current/main/design/lifecycle-typed-value-language-ssot.md
+  - docs/development/current/main/phases/phase-289x/README.md
   - docs/development/current/main/design/string-value-model-phased-rollout-ssot.md
   - docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md
 ---
@@ -22,6 +24,15 @@ Related:
 - background compiler lanes:
   - `phase-29bq loop owner seam cleanup landing`
   - `phase-163x primitive-family / user-box fast-path landing`
+- successor planning lane:
+  - `phase-289x runtime-wide value/object boundary rollout`
+  - status:
+    - docs/taskboard only
+    - phase-137x string lane remains the first proving ground
+  - parent:
+    - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
+  - taskboard:
+    - `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
 - blocker:
   - `none`
 

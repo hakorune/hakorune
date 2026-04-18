@@ -1,0 +1,263 @@
+---
+Status: Active Planning
+Date: 2026-04-19
+Scope: runtime-wide `value world / object world` rollout を、実装前に phase/card 粒度へ分割する taskboard。
+Related:
+  - CURRENT_TASK.md
+  - docs/development/current/main/design/lifecycle-typed-value-language-ssot.md
+  - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
+  - docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md
+  - docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md
+  - docs/development/current/main/phases/phase-289x/README.md
+---
+
+# Phase 289x Runtime Value/Object Task Board
+
+## North Star
+
+```text
+Internal execution:
+  value world
+
+Boundary:
+  publish / promote effect
+
+Public/host surface:
+  object world / handle world
+```
+
+Rule:
+
+- internal hot paths should carry values, aliases, cells, or immediates
+- object / handle is a boundary representation
+- array / map keep identity semantics, but their internal residence may become lane-hosted
+- runtime-private lane work must not change public ABI
+
+## Authority Stack
+
+1. Language / `.hako`
+   - semantic value meaning
+   - identity-sensitive container meaning
+   - escape/public boundary meaning
+2. Canonical MIR / lowering contract
+   - demand facts
+   - publication boundary
+   - sink capability
+3. Runtime microkernel
+   - handle table
+   - objectization
+   - lane storage
+   - cache / epoch / fallback mechanics
+4. LLVM/native
+   - scalarize / inline / specialize after the above contract is stable
+
+## Type Matrix
+
+| Family | Semantic reading | Internal target | Stable/object boundary | First action |
+| --- | --- | --- | --- | --- |
+| `String` | immutable value | `VerifiedTextSource / TextPlan / OwnedBytes / KernelTextSlot / alias lane` | `publish` + `freeze.str` | continue phase-137x |
+| `Bytes` | value | future `BytesRef / OwnedBytes / BytesCell` | `publish.bytes` or host boundary | docs only |
+| `Int` | scalar value | immediate | box only on object demand | audit first |
+| `Bool` | scalar value | immediate | box only on object demand | audit first |
+| `Array` | identity container | lane host for elements | array handle remains public identity | text lane design after string keeper |
+| `Map` | identity container | key/value boundary lanes | map handle remains public identity | key/value boundary map |
+| `View/Slice` | borrowed read view | `Ref` / read session | stable object only on escape | docs after text proof |
+| tuple/optional small aggregate | value | `agg_local` | box only on escape | out of this phase unless needed |
+
+## Boundary Vocabulary Lock
+
+Use one term for one responsibility.
+
+| Term | Owner | Meaning | Not allowed to mean |
+| --- | --- | --- | --- |
+| `borrow/project` | runtime under MIR/lowering demand | enter value-world read/session from an existing object/handle | publish or allocate stable identity |
+| `materialize` | runtime executor | produce concrete unpublished bytes/value payload for a sink | public object birth by itself |
+| `publish` | MIR/lowering boundary effect | value crosses to public/object world | string birth sink or helper-local guess |
+| `promote` | runtime boundary executor | turn lane/cell/immediate into object-capable representation under demand | semantic legality decision |
+| `freeze.str` | string birth sink | retained string birth / reuse mechanics | publication policy owner |
+| `handle issue` | object/host substrate | allocate/register public handle | proof that publication was legal |
+
+Stop-line:
+
+- if a code path needs a stable object, the reason must be named as demand/boundary
+- do not allow runtime helper names to become the legality source
+- do not use `publish` and `freeze.str` interchangeably
+
+## Phase 0. Authority / Vocabulary Lock
+
+- Goal:
+  - make runtime-wide value/object boundary a parent architecture reading, not a string-only optimization excuse
+- Scope:
+  - docs only
+  - parent SSOT alignment
+  - phase-137x remains active proving ground
+- Non-goals:
+  - no runtime storage rewrite
+  - no public ABI changes
+- Tasks:
+  - `289x-0a`: link this phase from `lifecycle-typed-value-language-ssot.md`
+  - `289x-0b`: lock container rule:
+    - array/map are identity containers
+    - their element/key/value residence may be lane-hosted
+  - `289x-0c`: add restart/current pointers as parked successor only
+- Acceptance:
+  - docs can answer:
+    - what is a value?
+    - what is an identity container?
+    - where does objectization happen?
+    - why string is first proving ground?
+
+## Phase 1. Demand Vocabulary Inventory
+
+- Goal:
+  - separate decode demand, storage demand, and publication demand before inventing new code APIs
+- Scope:
+  - `CodecProfile`
+  - `BorrowedAliasEncodeCaller`
+  - existing manifest classes
+- Non-goals:
+  - do not rename code broadly
+  - do not introduce a new public ABI class
+- Tasks:
+  - `289x-1a`: inventory existing profiles:
+    - `Generic`
+    - `ArrayFastBorrowString`
+    - `ArrayBorrowStringOnly`
+    - `MapKeyBorrowString`
+    - `MapValueBorrowString`
+  - `289x-1b`: propose internal vocabulary:
+    - `ValueDemand`
+    - `StorageDemand`
+    - `PublishDemand`
+  - `289x-1c`: map existing boundary terms:
+    - `borrow/project`
+    - `materialize`
+    - `publish`
+    - `promote`
+    - `freeze.str`
+    - `handle issue`
+  - `289x-1d`: identify which existing tests lock each demand
+- Acceptance:
+  - no caller needs to infer stable/object demand from helper names
+  - each profile has a documented owner and removal/evolution path
+
+## Phase 2. Container Lane-Host Contract
+
+- Goal:
+  - define array/map as lane hosts without changing their public identity semantics
+- Scope:
+  - docs and tests first
+  - array text lane as the first possible storage pilot
+- Non-goals:
+  - no `ArrayStorage::*` implementation before phase-137x keeper/reject
+  - no map typed-lane implementation in this phase
+- Tasks:
+  - `289x-2a`: array lane-host contract
+    - homogeneous residence
+    - explicit degrade
+    - stable object demand
+  - `289x-2b`: map lane-host contract
+    - key decode boundary
+    - value residence boundary
+    - compat export boundary
+  - `289x-2c`: read/write demand table:
+    - read-only
+    - encoded alias
+    - stable object
+    - mutation / invalidation
+- Acceptance:
+  - future storage work can be judged as BoxShape, not by local helper names
+  - array/map public semantics stay unchanged
+
+## Phase 3. First Storage Pilot After String Keeper
+
+- Gate:
+  - phase-137x has a keeper/reject decision on the active read-side lane
+- Goal:
+  - start with one runtime-private storage pilot only
+- Preferred pilot:
+  - `Array` as lane host for text residence
+- Non-goals:
+  - no generic typed array family yet
+  - no bytes/scalar/map storage rewrite in the same series
+- Acceptance:
+  - exact stays closed
+  - meso does not contradict
+  - whole owner visibly moves or the card is reverted
+
+## Phase 4. Scalar Immediate Widening
+
+- Gate:
+  - scalar boxed-object hot path is proven by perf/asm or contract audit
+- Goal:
+  - keep int/bool in immediate world longer
+- Non-goals:
+  - no broad numeric optimizer work here
+  - no SIMD/vector work here
+- Tasks:
+  - `289x-4a`: audit boxed int/bool transitions
+  - `289x-4b`: identify public/object boundaries that force boxing
+  - `289x-4c`: choose one leaf cut with tests
+- Acceptance:
+  - reduction in objectization events, not just faster wrappers
+
+## Phase 5. Bytes / View First-Class Planning
+
+- Goal:
+  - prevent text-only corridor patterns from being copied as ad-hoc bytes/view helpers later
+- Scope:
+  - docs-first vocabulary
+  - no implementation unless a bytes/view benchmark or correctness card demands it
+- Tasks:
+  - define `Ref / Owned / Cell / Stable` applicability per family
+  - reject state names that do not map to a real family need
+- Acceptance:
+  - `TextRef` lessons can be reused without making text semantics the universal truth
+
+## Phase 6. Map Key/Value Boundary Planning
+
+- Goal:
+  - keep map key coercion, value residence, and read publication as separate seams
+- Starting facts:
+  - `MapKeyBorrowString` is now a map-key named profile
+  - map value storage has `MapValueBorrowString`
+  - map read outcomes are observed as live/cached/fallback
+- Tasks:
+  - `289x-6a`: map key/value boundary diagram
+  - `289x-6b`: compat export retirement criteria
+  - `289x-6c`: typed map lane only if evidence makes map the owner
+- Acceptance:
+  - map does not regain generic object publication as an implicit read/write side effect
+
+## Phase 7. MIR Legality / Verifier Lift
+
+- Gate:
+  - runtime-private contracts are proven by earlier phases
+- Goal:
+  - move boundary legality into MIR/lowering facts instead of runtime helper inference
+- Non-goals:
+  - no broad public MIR dialect expansion before the runtime contract is stable
+- Tasks:
+  - define demand facts as recipe metadata first
+  - verifier-visible publication boundary
+  - reject helper-name allowlists
+- Acceptance:
+  - runtime can execute boundary decisions without re-deciding legality
+
+## Phase 8. Allocator / Arena
+
+- Gate:
+  - perf evidence points at allocation after objectization frequency is already reduced
+- Goal:
+  - lane-local allocation only where it is proven to be the next owner
+- Non-goals:
+  - no generic allocator swap as first response
+- Acceptance:
+  - win is tied to a specific lane and benchmark front
+
+## Commit Discipline
+
+- docs/vocabulary cards commit separately from behavior cards
+- one storage pilot per series
+- no BoxCount + BoxShape mixing
+- if a card only moves cost from write to read, revert or park it with reject evidence
