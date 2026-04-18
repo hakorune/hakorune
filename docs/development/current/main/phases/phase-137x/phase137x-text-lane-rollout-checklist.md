@@ -301,7 +301,9 @@ Related:
   - map-key coercion now uses `CodecProfile::MapKeyBorrowString`
   - array profile naming no longer owns map-key decode policy
 - `Cleanup 6`: `MapBox` raw helper boundary
+  - status: landed
   - pull `clear` / `delete` style raw mutations behind narrow `MapBox` helpers instead of mutating `get_data().write()` from runtime facade code
+  - `clear` / `delete` now share `MapBox::clear_entries` / `MapBox::remove_key_str` across public `MapBox` methods and raw slot mutation leaves
 - `Cleanup 7`: legacy map compat surface retirement
   - retarget remaining lowering/runtime users off deprecated compat map exports
   - then collapse:

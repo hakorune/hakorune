@@ -76,6 +76,7 @@ Scope: current lane / next lane / restart order only.
       - keep `map_compat` on shared facade/substrate surfaces only
       - keep runtime-data mixed map lane out of `map_runtime_facade`
       - keep raw map mutation (`clear/delete`) in a dedicated mutation leaf, not in facade wiring
+      - keep public `MapBox` clear/delete and raw slot mutation clear/delete on the same narrow `MapBox` helpers
       - retire the empty `map_runtime_facade`; public shells now call shared map leaves directly
       - keep runtime-data get/set on string-key slot leaves instead of reopening `with_map_box`
       - keep raw map materializing loads centralized through a string-key load leaf

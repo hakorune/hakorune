@@ -188,9 +188,10 @@ impl MapBox {
     /// キーを削除
     pub fn delete(&self, key: Box<dyn NyashBox>) -> Box<dyn NyashBox> {
         let key_str = key.to_string_box().value;
-        match self.data.write().unwrap().remove(&key_str) {
-            Some(_) => Box::new(StringBox::new(&format!("Deleted key: {}", key_str))),
-            None => Box::new(StringBox::new(&format!("Key not found: {}", key_str))),
+        if self.remove_key_str(&key_str) {
+            Box::new(StringBox::new(&format!("Deleted key: {}", key_str)))
+        } else {
+            Box::new(StringBox::new(&format!("Key not found: {}", key_str)))
         }
     }
 
