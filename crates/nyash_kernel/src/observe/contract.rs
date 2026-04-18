@@ -204,6 +204,21 @@ pub(crate) const STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ANY_ARG_LATEST_FRES
     "object_with_handle_decode_any_arg_latest_fresh";
 pub(crate) const STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ANY_INDEX_LATEST_FRESH: &str =
     "object_with_handle_decode_any_index_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_FIELD_COUNT: usize = 12;
+pub(crate) const STABLE_BOX_DEMAND_SUMMARY_FIELD_NAMES: [&str; STABLE_BOX_DEMAND_FIELD_COUNT] = [
+    STABLE_BOX_DEMAND_OBJECT_GET_LATEST_FRESH,
+    STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_LATEST_FRESH,
+    STABLE_BOX_DEMAND_OBJECT_PAIR_LATEST_FRESH,
+    STABLE_BOX_DEMAND_OBJECT_TRIPLE_LATEST_FRESH,
+    STABLE_BOX_DEMAND_TEXT_READ_HANDLE_LATEST_FRESH,
+    STABLE_BOX_DEMAND_TEXT_READ_PAIR_LATEST_FRESH,
+    STABLE_BOX_DEMAND_TEXT_READ_TRIPLE_LATEST_FRESH,
+    STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_ARRAY_STORE_STR_SOURCE_LATEST_FRESH,
+    STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_SUBSTRING_PLAN_LATEST_FRESH,
+    STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ARRAY_FAST_LATEST_FRESH,
+    STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ANY_ARG_LATEST_FRESH,
+    STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ANY_INDEX_LATEST_FRESH,
+];
 
 pub(crate) const BORROWED_ALIAS_TO_STRING_BOX: &str = "to_string_box";
 pub(crate) const BORROWED_ALIAS_EQUALS: &str = "equals";
@@ -382,6 +397,16 @@ pub(crate) fn store_array_str_detail_values(
             name: field.name,
             value: field.read(snapshot),
         })
+}
+
+#[inline(always)]
+pub(crate) fn stable_box_demand_values(
+    snapshot: &[u64; STABLE_BOX_DEMAND_FIELD_COUNT],
+) -> impl Iterator<Item = SnapshotCounterValue> + '_ {
+    STABLE_BOX_DEMAND_SUMMARY_FIELD_NAMES
+        .into_iter()
+        .zip(snapshot.iter().copied())
+        .map(|(name, value)| SnapshotCounterValue { name, value })
 }
 
 pub(crate) const CONST_SUFFIX_TOTAL_FIELD: SnapshotCounterField =

@@ -156,34 +156,13 @@ pub(crate) fn emit_summary_to_stderr() {
     );
     eprintln!("{}", piecewise_subrange_line);
     let stable_box_demand = nyash_rust::runtime::host_handles::perf_observe_snapshot();
-    eprintln!(
-        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
-        contract::STABLE_BOX_DEMAND,
-        contract::STABLE_BOX_DEMAND_OBJECT_GET_LATEST_FRESH,
-        stable_box_demand[0],
-        contract::STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_LATEST_FRESH,
-        stable_box_demand[1],
-        contract::STABLE_BOX_DEMAND_OBJECT_PAIR_LATEST_FRESH,
-        stable_box_demand[2],
-        contract::STABLE_BOX_DEMAND_OBJECT_TRIPLE_LATEST_FRESH,
-        stable_box_demand[3],
-        contract::STABLE_BOX_DEMAND_TEXT_READ_HANDLE_LATEST_FRESH,
-        stable_box_demand[4],
-        contract::STABLE_BOX_DEMAND_TEXT_READ_PAIR_LATEST_FRESH,
-        stable_box_demand[5],
-        contract::STABLE_BOX_DEMAND_TEXT_READ_TRIPLE_LATEST_FRESH,
-        stable_box_demand[6],
-        contract::STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_ARRAY_STORE_STR_SOURCE_LATEST_FRESH,
-        stable_box_demand[7],
-        contract::STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_SUBSTRING_PLAN_LATEST_FRESH,
-        stable_box_demand[8],
-        contract::STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ARRAY_FAST_LATEST_FRESH,
-        stable_box_demand[9],
-        contract::STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ANY_ARG_LATEST_FRESH,
-        stable_box_demand[10],
-        contract::STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ANY_INDEX_LATEST_FRESH,
-        stable_box_demand[11],
+    let stable_box_demand_values = stable_box_demand.ordered_values();
+    let mut stable_box_demand_line = format!("[perf/counter][{}]", contract::STABLE_BOX_DEMAND);
+    append_counter_values(
+        &mut stable_box_demand_line,
+        contract::stable_box_demand_values(&stable_box_demand_values),
     );
+    eprintln!("{}", stable_box_demand_line);
     let mut borrowed_alias_line = format!("[perf/counter][{}]", contract::BORROWED_ALIAS);
     append_snapshot_fields(
         &mut borrowed_alias_line,
@@ -217,6 +196,18 @@ mod tests {
         assert_eq!(
             line,
             "[perf/counter][unit] const_suffix=7 cached_handle_hit=3 tail=11"
+        );
+
+        let demand_snapshot = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+        let mut demand_line = String::from("[perf/counter][stable_box_demand]");
+        append_counter_values(
+            &mut demand_line,
+            contract::stable_box_demand_values(&demand_snapshot),
+        );
+
+        assert_eq!(
+            demand_line,
+            "[perf/counter][stable_box_demand] object_get_latest_fresh=1 object_with_handle_latest_fresh=2 object_pair_latest_fresh=3 object_triple_latest_fresh=4 text_read_handle_latest_fresh=5 text_read_pair_latest_fresh=6 text_read_triple_latest_fresh=7 object_with_handle_array_store_str_source_latest_fresh=8 object_with_handle_substring_plan_latest_fresh=9 object_with_handle_decode_array_fast_latest_fresh=10 object_with_handle_decode_any_arg_latest_fresh=11 object_with_handle_decode_any_index_latest_fresh=12"
         );
     }
 }

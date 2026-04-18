@@ -8,6 +8,7 @@
 
 #[path = "host_handles/perf_observe.rs"]
 mod perf_observe;
+pub use perf_observe::PerfObserveSnapshot;
 #[path = "host_handles/text_read.rs"]
 mod text_read;
 
@@ -358,7 +359,7 @@ pub fn perf_observe_mark_latest_fresh_handle(h: u64) {
 }
 
 #[inline(always)]
-pub fn perf_observe_snapshot() -> [u64; 12] {
+pub fn perf_observe_snapshot() -> PerfObserveSnapshot {
     perf_observe::snapshot()
 }
 
