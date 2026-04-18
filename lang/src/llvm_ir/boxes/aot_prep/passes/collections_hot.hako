@@ -676,12 +676,12 @@ static box AotPrepCollectionsHotBox {
           if mname == "get" { func = "nyash.map.slot_load_hh"; args = bvid + "," + a0 }
           else if mname == "set" { func = "nyash.map.slot_store_hhh"; args = bvid + "," + a0 + "," + a1 }
           else if mname == "has" { func = "nyash.map.probe_hh"; args = bvid + "," + a0 }
-          else if (mname == "len" || mname == "length" || mname == "size") { func = "nyash.map.entry_count_h"; args = bvid }
+          else if (mname == "len" || mname == "length" || mname == "size") { func = "nyash.map.entry_count_i64"; args = bvid }
         } else {
           if mname == "get" { func = "nyash.map.slot_load_hi"; args = bvid + "," + a0 }
           else if mname == "set" { func = "nyash.map.slot_store_hih"; args = bvid + "," + a0 + "," + a1 }
           else if mname == "has" { func = "nyash.map.probe_hi"; args = bvid + "," + a0 }
-          else if (mname == "len" || mname == "length" || mname == "size") { func = "nyash.map.entry_count_h"; args = bvid }
+          else if (mname == "len" || mname == "length" || mname == "size") { func = "nyash.map.entry_count_i64"; args = bvid }
         }
       }
       if func == "" {

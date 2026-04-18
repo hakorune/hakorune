@@ -91,7 +91,7 @@ class TestMethodCallCollectionBirth(unittest.TestCase):
         self.assertIn('@"nyash.array.slot_len_h"', ir_text, msg=ir_text)
         self.assertNotIn('@"nyash.any.length_h"', ir_text, msg=ir_text)
 
-    def test_mapbox_size_uses_entry_count_h_without_resolver_map_facts(self):
+    def test_mapbox_size_uses_entry_count_i64_without_resolver_map_facts(self):
         module = ir.Module(name="test_method_call_mapbox_size")
         i64 = ir.IntType(64)
         fn = ir.Function(module, ir.FunctionType(i64, []), name="main")
@@ -116,7 +116,7 @@ class TestMethodCallCollectionBirth(unittest.TestCase):
         builder.ret(vmap[2])
 
         ir_text = str(module)
-        self.assertIn('@"nyash.map.entry_count_h"', ir_text, msg=ir_text)
+        self.assertIn('@"nyash.map.entry_count_i64"', ir_text, msg=ir_text)
         self.assertNotIn('@"nyash.any.length_h"', ir_text, msg=ir_text)
 
     def test_mapbox_clear_uses_clear_h_without_resolver_map_facts(self):
@@ -145,7 +145,7 @@ class TestMethodCallCollectionBirth(unittest.TestCase):
 
         ir_text = str(module)
         self.assertIn('@"nyash.map.clear_h"', ir_text, msg=ir_text)
-        self.assertNotIn('@"nyash.map.entry_count_h"', ir_text, msg=ir_text)
+        self.assertNotIn('@"nyash.map.entry_count_i64"', ir_text, msg=ir_text)
 
 
 if __name__ == "__main__":

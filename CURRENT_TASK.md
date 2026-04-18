@@ -81,6 +81,7 @@ Scope: current lane / next lane / restart order only.
       - keep runtime-data get/set on string-key slot leaves instead of reopening `with_map_box`
       - keep raw map materializing loads centralized through a string-key load leaf
       - keep map key decode named as map-key policy, not as an array-fast borrowed-string profile
+      - keep `MapBox.size/len/length` lowering on `nyash.map.entry_count_i64`; `entry_count_h` is compat/export residue only
   - pending todo:
     - `phase2-deferred-const-suffix-stability`
   - do not open a new ABI / `TextLane` cut until this reread is judged keeper vs reject

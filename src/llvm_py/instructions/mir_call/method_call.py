@@ -212,8 +212,8 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
                 callee = _declare("nyash.array.slot_len_h", i64, [i64])
                 result = builder.call(callee, [recv_h], name="unified_array_slot_len_h")
             elif str(box_name or "") == "MapBox" and len(args) == 0:
-                callee = _declare("nyash.map.entry_count_h", i64, [i64])
-                result = builder.call(callee, [recv_h], name="unified_map_entry_count_h")
+                callee = _declare("nyash.map.entry_count_i64", i64, [i64])
+                result = builder.call(callee, [recv_h], name="unified_map_entry_count_i64")
             elif prefer_string_len_h_route(method, len(args), resolver, receiver):
                 callee = _declare("nyash.string.len_h", i64, [i64])
                 result = builder.call(callee, [recv_h], name="unified_string_len_h")
@@ -221,8 +221,8 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
                 callee = _declare("nyash.array.slot_len_h", i64, [i64])
                 result = builder.call(callee, [recv_h], name="unified_array_slot_len_h")
             elif prefer_map_len_h_route(method, len(args), resolver, receiver):
-                callee = _declare("nyash.map.entry_count_h", i64, [i64])
-                result = builder.call(callee, [recv_h], name="unified_map_entry_count_h")
+                callee = _declare("nyash.map.entry_count_i64", i64, [i64])
+                result = builder.call(callee, [recv_h], name="unified_map_entry_count_i64")
 
             if method == "size" and fast_on:
                 mode = ir.Constant(i64, 1 if os.environ.get('NYASH_STR_CP') == '1' else 0)

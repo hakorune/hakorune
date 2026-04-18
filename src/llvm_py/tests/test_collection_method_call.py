@@ -188,7 +188,7 @@ class TestCollectionMethodCall(unittest.TestCase):
 
         ir_text = str(module)
         self.assertIn("nyash.map.clear_h", ir_text)
-        self.assertNotIn("nyash.map.entry_count_h", ir_text)
+        self.assertNotIn("nyash.map.entry_count_i64", ir_text)
 
     def test_mapbox_delete_uses_delete_hh(self):
         i64, module, builder = _new_builder()

@@ -305,6 +305,8 @@ Related:
   - pull `clear` / `delete` style raw mutations behind narrow `MapBox` helpers instead of mutating `get_data().write()` from runtime facade code
   - `clear` / `delete` now share `MapBox::clear_entries` / `MapBox::remove_key_str` across public `MapBox` methods and raw slot mutation leaves
 - `Cleanup 7`: legacy map compat surface retirement
+  - status: partial
+  - landed: `MapBox.size/len/length` lowering now targets canonical `nyash.map.entry_count_i64`; `nyash.map.entry_count_h` remains only as compat export/test/archive residue
   - retarget remaining lowering/runtime users off deprecated compat map exports
   - then collapse:
     - `map_compat.rs`

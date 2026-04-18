@@ -309,7 +309,7 @@ class TestStrlenFast(unittest.TestCase):
         self.assertIn('call i64 @"nyash.array.slot_len_h"', ir_txt, msg=ir_txt)
         self.assertNotIn('call i64 @"nyash.any.length_h"', ir_txt, msg=ir_txt)
 
-    def test_boxcall_size_mapish_prefers_map_entry_count_h(self):
+    def test_boxcall_size_mapish_prefers_map_entry_count_i64(self):
         mir = {
             "functions": [
                 {
@@ -335,7 +335,7 @@ class TestStrlenFast(unittest.TestCase):
 
         b = NyashLLVMBuilder()
         ir_txt = b.build_from_mir(mir) or ''
-        self.assertIn('call i64 @"nyash.map.entry_count_h"', ir_txt, msg=ir_txt)
+        self.assertIn('call i64 @"nyash.map.entry_count_i64"', ir_txt, msg=ir_txt)
         self.assertNotIn('call i64 @"nyash.any.length_h"', ir_txt, msg=ir_txt)
 
     def test_boxcall_get_arrayish_integer_key_prefers_array_slot_load_hi(self):
