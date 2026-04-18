@@ -60,6 +60,7 @@ Scope: current lane / next lane / restart order only.
       - keep raw map observers owned by `map_substrate`, not `map_runtime_facade`
       - keep `map_compat` on shared facade/substrate surfaces only
       - keep runtime-data mixed map lane out of `map_runtime_facade`
+      - keep raw map mutation (`clear/delete`) in a dedicated mutation leaf, not in facade wiring
   - pending todo:
     - `phase2-deferred-const-suffix-stability`
   - do not open a new ABI / `TextLane` cut until this reread is judged keeper vs reject
@@ -212,6 +213,7 @@ Scope: current lane / next lane / restart order only.
     - raw map observers now stay in `map_substrate`; `map_runtime_facade` no longer owns entry-count/cap observer forwarding
     - `map_compat` no longer touches `MapBox` directly and stays on shared facade/substrate surfaces
     - runtime-data mixed map lane now lives in `map_runtime_data`, leaving `map_runtime_facade` as raw/compat forwarding only
+    - raw map mutation now lives in `map_slot_mutate`, leaving `map_runtime_facade` to forward over shared leaves only
   - compiler fallback probe is closed for the whole bench; next slice is not a lowering widening
   - do not jump to `TextLane` or MIR legality first
 - current accepted redesign is now locked in narrowed form:
