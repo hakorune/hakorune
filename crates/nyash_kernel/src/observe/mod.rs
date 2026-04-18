@@ -1191,6 +1191,9 @@ pub(crate) struct BorrowedAliasEncodeSnapshot {
     pub cached_handle_hit: u64,
     pub cached_handle_hit_array_get_index: u64,
     pub cached_handle_hit_map_runtime_data_get_any: u64,
+    pub fallback_to_handle_arc: u64,
+    pub fallback_to_handle_arc_array_get_index: u64,
+    pub fallback_to_handle_arc_map_runtime_data_get_any: u64,
 }
 
 #[cfg(all(test, feature = "perf-observe"))]
@@ -1205,6 +1208,9 @@ pub(crate) fn borrowed_alias_encode_snapshot_for_tests() -> BorrowedAliasEncodeS
         cached_handle_hit: snapshot[146],
         cached_handle_hit_array_get_index: snapshot[147],
         cached_handle_hit_map_runtime_data_get_any: snapshot[148],
+        fallback_to_handle_arc: snapshot[86],
+        fallback_to_handle_arc_array_get_index: snapshot[87],
+        fallback_to_handle_arc_map_runtime_data_get_any: snapshot[88],
     }
 }
 

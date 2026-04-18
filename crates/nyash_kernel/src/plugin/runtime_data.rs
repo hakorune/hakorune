@@ -298,6 +298,42 @@ mod tests {
         });
     }
 
+    #[cfg(feature = "perf-observe")]
+    #[test]
+    fn runtime_data_map_read_records_cold_fallback_for_map_lane() {
+        crate::test_support::with_env_var("NYASH_PERF_COUNTERS", "1", || {
+            let handle = new_map_handle();
+            let key = new_string_handle("map-observe-fallback-key");
+            let value = new_string_handle("map-observe-fallback");
+
+            assert_eq!(nyash_runtime_data_set_hhh(handle, key, value), 1);
+            handles::drop_handle(value as u64);
+            assert!(handles::get(value as u64).is_none());
+
+            let before = crate::observe::borrowed_alias_encode_snapshot_for_tests();
+            let cold = nyash_runtime_data_get_hh(handle, key);
+            let after = crate::observe::borrowed_alias_encode_snapshot_for_tests();
+
+            assert!(cold > 0);
+            assert_eq!(
+                after.fallback_to_handle_arc - before.fallback_to_handle_arc,
+                1
+            );
+            assert_eq!(
+                after.fallback_to_handle_arc_map_runtime_data_get_any
+                    - before.fallback_to_handle_arc_map_runtime_data_get_any,
+                1
+            );
+            assert_eq!(
+                after.fallback_to_handle_arc_array_get_index
+                    - before.fallback_to_handle_arc_array_get_index,
+                0
+            );
+            assert_eq!(after.live_source_hit - before.live_source_hit, 0);
+            assert_eq!(after.cached_handle_hit - before.cached_handle_hit, 0);
+        });
+    }
+
     #[test]
     fn runtime_data_map_immediate_zero_key_keeps_shared_facade_contract() {
         let handle = new_map_handle();

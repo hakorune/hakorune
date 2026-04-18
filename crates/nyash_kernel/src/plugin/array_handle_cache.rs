@@ -213,4 +213,48 @@ mod tests {
             assert_eq!(after.cached_handle_hit - before.cached_handle_hit, 0);
         });
     }
+
+    #[cfg(feature = "perf-observe")]
+    #[test]
+    fn array_get_index_records_cold_fallback_for_array_lane() {
+        clear_cache_slot();
+        crate::test_support::with_env_var("NYASH_PERF_COUNTERS", "1", || {
+            let value: Arc<dyn NyashBox> =
+                Arc::new(StringBox::new("array-fallback-observe".to_string()));
+            let alias = maybe_borrow_string_keep_with_epoch(
+                SourceLifetimeKeep::string_box(value),
+                0,
+                handles::drop_epoch(),
+            );
+            let arr: Arc<dyn NyashBox> = Arc::new(ArrayBox::new());
+            let handle = handles::to_handle_arc(arr.clone()) as i64;
+            let array_box = arr
+                .as_any()
+                .downcast_ref::<ArrayBox>()
+                .expect("array downcast");
+            let _ = array_box.push(alias);
+
+            let before = crate::observe::borrowed_alias_encode_snapshot_for_tests();
+            let cold = array_get_index_encoded_i64(handle, 0).expect("cold encoded handle");
+            let after = crate::observe::borrowed_alias_encode_snapshot_for_tests();
+
+            assert!(cold > 0);
+            assert_eq!(
+                after.fallback_to_handle_arc - before.fallback_to_handle_arc,
+                1
+            );
+            assert_eq!(
+                after.fallback_to_handle_arc_array_get_index
+                    - before.fallback_to_handle_arc_array_get_index,
+                1
+            );
+            assert_eq!(
+                after.fallback_to_handle_arc_map_runtime_data_get_any
+                    - before.fallback_to_handle_arc_map_runtime_data_get_any,
+                0
+            );
+            assert_eq!(after.live_source_hit - before.live_source_hit, 0);
+            assert_eq!(after.cached_handle_hit - before.cached_handle_hit, 0);
+        });
+    }
 }
