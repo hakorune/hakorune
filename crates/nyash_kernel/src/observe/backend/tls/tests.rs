@@ -361,12 +361,36 @@ fn tls_string_route_counters_flush_current_thread() {
         str_len_route_latest_fresh_handle_fallback_hit();
         let after = snapshot();
 
-        assert_eq!(after[47] - before[47], 1);
-        assert_eq!(after[49] - before[49], 1);
-        assert_eq!(after[54] - before[54], 2);
-        assert_eq!(after[56] - before[56], 1);
-        assert_eq!(after[59] - before[59], 1);
-        assert_eq!(after[60] - before[60], 1);
+        assert_eq!(
+            contract::STR_CONCAT2_ROUTE_TOTAL_FIELD.read(&after)
+                - contract::STR_CONCAT2_ROUTE_TOTAL_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::STR_CONCAT2_ROUTE_FAST_STR_OWNED_FIELD.read(&after)
+                - contract::STR_CONCAT2_ROUTE_FAST_STR_OWNED_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::STR_LEN_ROUTE_TOTAL_FIELD.read(&after)
+                - contract::STR_LEN_ROUTE_TOTAL_FIELD.read(&before),
+            2
+        );
+        assert_eq!(
+            contract::STR_LEN_ROUTE_FAST_STR_HIT_FIELD.read(&after)
+                - contract::STR_LEN_ROUTE_FAST_STR_HIT_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FAST_STR_HIT_FIELD.read(&after)
+                - contract::STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FAST_STR_HIT_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FALLBACK_HIT_FIELD.read(&after)
+                - contract::STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FALLBACK_HIT_FIELD.read(&before),
+            1
+        );
     });
 }
 
@@ -387,15 +411,51 @@ fn tls_substring_route_counters_flush_current_thread() {
         str_substring_route_slow_plan_view_span();
         let after = snapshot();
 
-        assert_eq!(after[61] - before[61], 1);
-        assert_eq!(after[64] - before[64], 1);
-        assert_eq!(after[65] - before[65], 1);
-        assert_eq!(after[66] - before[66], 1);
-        assert_eq!(after[67] - before[67], 1);
-        assert_eq!(after[68] - before[68], 1);
-        assert_eq!(after[69] - before[69], 1);
-        assert_eq!(after[70] - before[70], 1);
-        assert_eq!(after[71] - before[71], 1);
+        assert_eq!(
+            contract::STR_SUBSTRING_ROUTE_TOTAL_FIELD.read(&after)
+                - contract::STR_SUBSTRING_ROUTE_TOTAL_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::STR_SUBSTRING_ROUTE_VIEW_ARC_CACHE_MISS_FIELD.read(&after)
+                - contract::STR_SUBSTRING_ROUTE_VIEW_ARC_CACHE_MISS_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::STR_SUBSTRING_ROUTE_FAST_CACHE_HIT_FIELD.read(&after)
+                - contract::STR_SUBSTRING_ROUTE_FAST_CACHE_HIT_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::STR_SUBSTRING_ROUTE_DISPATCH_HIT_FIELD.read(&after)
+                - contract::STR_SUBSTRING_ROUTE_DISPATCH_HIT_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::STR_SUBSTRING_ROUTE_SLOW_PLAN_FIELD.read(&after)
+                - contract::STR_SUBSTRING_ROUTE_SLOW_PLAN_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::STR_SUBSTRING_ROUTE_SLOW_PLAN_RETURN_HANDLE_FIELD.read(&after)
+                - contract::STR_SUBSTRING_ROUTE_SLOW_PLAN_RETURN_HANDLE_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::STR_SUBSTRING_ROUTE_SLOW_PLAN_RETURN_EMPTY_FIELD.read(&after)
+                - contract::STR_SUBSTRING_ROUTE_SLOW_PLAN_RETURN_EMPTY_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::STR_SUBSTRING_ROUTE_SLOW_PLAN_FREEZE_SPAN_FIELD.read(&after)
+                - contract::STR_SUBSTRING_ROUTE_SLOW_PLAN_FREEZE_SPAN_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::STR_SUBSTRING_ROUTE_SLOW_PLAN_VIEW_SPAN_FIELD.read(&after)
+                - contract::STR_SUBSTRING_ROUTE_SLOW_PLAN_VIEW_SPAN_FIELD.read(&before),
+            1
+        );
     });
 }
 
@@ -414,10 +474,30 @@ fn tls_piecewise_subrange_counters_flush_current_thread() {
         piecewise_subrange_empty_return();
         let after = snapshot();
 
-        assert_eq!(after[102] - before[102], 3);
-        assert_eq!(after[103] - before[103], 1);
-        assert_eq!(after[104] - before[104], 1);
-        assert_eq!(after[105] - before[105], 1);
-        assert_eq!(after[109] - before[109], 1);
+        assert_eq!(
+            contract::PIECEWISE_SUBRANGE_TOTAL_FIELD.read(&after)
+                - contract::PIECEWISE_SUBRANGE_TOTAL_FIELD.read(&before),
+            3
+        );
+        assert_eq!(
+            contract::PIECEWISE_SUBRANGE_SINGLE_SESSION_HIT_FIELD.read(&after)
+                - contract::PIECEWISE_SUBRANGE_SINGLE_SESSION_HIT_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::PIECEWISE_SUBRANGE_FALLBACK_INSERT_FIELD.read(&after)
+                - contract::PIECEWISE_SUBRANGE_FALLBACK_INSERT_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::PIECEWISE_SUBRANGE_EMPTY_RETURN_FIELD.read(&after)
+                - contract::PIECEWISE_SUBRANGE_EMPTY_RETURN_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::PIECEWISE_SUBRANGE_PREFIX_MIDDLE_FIELD.read(&after)
+                - contract::PIECEWISE_SUBRANGE_PREFIX_MIDDLE_FIELD.read(&before),
+            1
+        );
     });
 }

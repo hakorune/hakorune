@@ -4,26 +4,41 @@ use std::fmt::Write as _;
 
 pub(crate) fn emit_summary_to_stderr() {
     let snapshot = backend::snapshot();
-    let str_concat2_classified =
-        snapshot[49] + snapshot[50] + snapshot[51] + snapshot[52] + snapshot[53];
-    let str_concat2_unclassified = snapshot[47].saturating_sub(str_concat2_classified);
-    let str_len_classified = snapshot[56] + snapshot[57] + snapshot[58];
-    let str_len_unclassified = snapshot[54].saturating_sub(str_len_classified);
+    let str_concat2_classified = contract::STR_CONCAT2_ROUTE_FAST_STR_OWNED_FIELD.read(&snapshot)
+        + contract::STR_CONCAT2_ROUTE_FAST_STR_RETURN_HANDLE_FIELD.read(&snapshot)
+        + contract::STR_CONCAT2_ROUTE_SPAN_FREEZE_FIELD.read(&snapshot)
+        + contract::STR_CONCAT2_ROUTE_SPAN_RETURN_HANDLE_FIELD.read(&snapshot)
+        + contract::STR_CONCAT2_ROUTE_MATERIALIZE_FALLBACK_FIELD.read(&snapshot);
+    let str_concat2_unclassified = contract::STR_CONCAT2_ROUTE_TOTAL_FIELD
+        .read(&snapshot)
+        .saturating_sub(str_concat2_classified);
+    let str_len_classified = contract::STR_LEN_ROUTE_FAST_STR_HIT_FIELD.read(&snapshot)
+        + contract::STR_LEN_ROUTE_FALLBACK_HIT_FIELD.read(&snapshot)
+        + contract::STR_LEN_ROUTE_MISS_FIELD.read(&snapshot);
+    let str_len_unclassified = contract::STR_LEN_ROUTE_TOTAL_FIELD
+        .read(&snapshot)
+        .saturating_sub(str_len_classified);
     let str_substring_slow_plan_classified =
-        snapshot[68] + snapshot[69] + snapshot[70] + snapshot[71];
-    let str_substring_slow_plan_unclassified =
-        snapshot[67].saturating_sub(str_substring_slow_plan_classified);
-    let piecewise_subrange_classified = snapshot[104]
-        + snapshot[105]
-        + snapshot[106]
-        + snapshot[107]
-        + snapshot[108]
-        + snapshot[109]
-        + snapshot[110]
-        + snapshot[111]
-        + snapshot[112];
-    let piecewise_subrange_unclassified =
-        snapshot[102].saturating_sub(piecewise_subrange_classified);
+        contract::STR_SUBSTRING_ROUTE_SLOW_PLAN_RETURN_HANDLE_FIELD.read(&snapshot)
+            + contract::STR_SUBSTRING_ROUTE_SLOW_PLAN_RETURN_EMPTY_FIELD.read(&snapshot)
+            + contract::STR_SUBSTRING_ROUTE_SLOW_PLAN_FREEZE_SPAN_FIELD.read(&snapshot)
+            + contract::STR_SUBSTRING_ROUTE_SLOW_PLAN_VIEW_SPAN_FIELD.read(&snapshot);
+    let str_substring_slow_plan_unclassified = contract::STR_SUBSTRING_ROUTE_SLOW_PLAN_FIELD
+        .read(&snapshot)
+        .saturating_sub(str_substring_slow_plan_classified);
+    let piecewise_subrange_classified = contract::PIECEWISE_SUBRANGE_FALLBACK_INSERT_FIELD
+        .read(&snapshot)
+        + contract::PIECEWISE_SUBRANGE_EMPTY_RETURN_FIELD.read(&snapshot)
+        + contract::PIECEWISE_SUBRANGE_PREFIX_ONLY_FIELD.read(&snapshot)
+        + contract::PIECEWISE_SUBRANGE_MIDDLE_ONLY_FIELD.read(&snapshot)
+        + contract::PIECEWISE_SUBRANGE_SUFFIX_ONLY_FIELD.read(&snapshot)
+        + contract::PIECEWISE_SUBRANGE_PREFIX_MIDDLE_FIELD.read(&snapshot)
+        + contract::PIECEWISE_SUBRANGE_MIDDLE_SUFFIX_FIELD.read(&snapshot)
+        + contract::PIECEWISE_SUBRANGE_PREFIX_SUFFIX_FIELD.read(&snapshot)
+        + contract::PIECEWISE_SUBRANGE_ALL_THREE_FIELD.read(&snapshot);
+    let piecewise_subrange_unclassified = contract::PIECEWISE_SUBRANGE_TOTAL_FIELD
+        .read(&snapshot)
+        .saturating_sub(piecewise_subrange_classified);
     let mut store_array_str_fields = contract::STORE_ARRAY_STR_SUMMARY_FIELDS.into_iter();
     let store_array_str_total = store_array_str_fields
         .next()
@@ -176,110 +191,84 @@ pub(crate) fn emit_summary_to_stderr() {
     eprintln!(
         "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
         contract::STR_CONCAT2_ROUTE,
-        contract::STR_CONCAT2_ROUTE_TOTAL,
-        snapshot[47],
-        contract::STR_CONCAT2_ROUTE_DISPATCH_HIT,
-        snapshot[48],
-        contract::STR_CONCAT2_ROUTE_FAST_STR_OWNED,
-        snapshot[49],
-        contract::STR_CONCAT2_ROUTE_FAST_STR_RETURN_HANDLE,
-        snapshot[50],
-        contract::STR_CONCAT2_ROUTE_SPAN_FREEZE,
-        snapshot[51],
-        contract::STR_CONCAT2_ROUTE_SPAN_RETURN_HANDLE,
-        snapshot[52],
-        contract::STR_CONCAT2_ROUTE_MATERIALIZE_FALLBACK,
-        snapshot[53],
+        contract::STR_CONCAT2_ROUTE_TOTAL_FIELD.name,
+        contract::STR_CONCAT2_ROUTE_TOTAL_FIELD.read(&snapshot),
+        contract::STR_CONCAT2_ROUTE_DISPATCH_HIT_FIELD.name,
+        contract::STR_CONCAT2_ROUTE_DISPATCH_HIT_FIELD.read(&snapshot),
+        contract::STR_CONCAT2_ROUTE_FAST_STR_OWNED_FIELD.name,
+        contract::STR_CONCAT2_ROUTE_FAST_STR_OWNED_FIELD.read(&snapshot),
+        contract::STR_CONCAT2_ROUTE_FAST_STR_RETURN_HANDLE_FIELD.name,
+        contract::STR_CONCAT2_ROUTE_FAST_STR_RETURN_HANDLE_FIELD.read(&snapshot),
+        contract::STR_CONCAT2_ROUTE_SPAN_FREEZE_FIELD.name,
+        contract::STR_CONCAT2_ROUTE_SPAN_FREEZE_FIELD.read(&snapshot),
+        contract::STR_CONCAT2_ROUTE_SPAN_RETURN_HANDLE_FIELD.name,
+        contract::STR_CONCAT2_ROUTE_SPAN_RETURN_HANDLE_FIELD.read(&snapshot),
+        contract::STR_CONCAT2_ROUTE_MATERIALIZE_FALLBACK_FIELD.name,
+        contract::STR_CONCAT2_ROUTE_MATERIALIZE_FALLBACK_FIELD.read(&snapshot),
         contract::STR_CONCAT2_ROUTE_UNCLASSIFIED,
         str_concat2_unclassified,
     );
     eprintln!(
         "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
         contract::STR_LEN_ROUTE,
-        contract::STR_LEN_ROUTE_TOTAL,
-        snapshot[54],
-        contract::STR_LEN_ROUTE_DISPATCH_HIT,
-        snapshot[55],
-        contract::STR_LEN_ROUTE_FAST_STR_HIT,
-        snapshot[56],
-        contract::STR_LEN_ROUTE_FALLBACK_HIT,
-        snapshot[57],
-        contract::STR_LEN_ROUTE_MISS,
-        snapshot[58],
-        contract::STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FAST_STR_HIT,
-        snapshot[59],
-        contract::STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FALLBACK_HIT,
-        snapshot[60],
+        contract::STR_LEN_ROUTE_TOTAL_FIELD.name,
+        contract::STR_LEN_ROUTE_TOTAL_FIELD.read(&snapshot),
+        contract::STR_LEN_ROUTE_DISPATCH_HIT_FIELD.name,
+        contract::STR_LEN_ROUTE_DISPATCH_HIT_FIELD.read(&snapshot),
+        contract::STR_LEN_ROUTE_FAST_STR_HIT_FIELD.name,
+        contract::STR_LEN_ROUTE_FAST_STR_HIT_FIELD.read(&snapshot),
+        contract::STR_LEN_ROUTE_FALLBACK_HIT_FIELD.name,
+        contract::STR_LEN_ROUTE_FALLBACK_HIT_FIELD.read(&snapshot),
+        contract::STR_LEN_ROUTE_MISS_FIELD.name,
+        contract::STR_LEN_ROUTE_MISS_FIELD.read(&snapshot),
+        contract::STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FAST_STR_HIT_FIELD.name,
+        contract::STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FAST_STR_HIT_FIELD.read(&snapshot),
+        contract::STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FALLBACK_HIT_FIELD.name,
+        contract::STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FALLBACK_HIT_FIELD.read(&snapshot),
         contract::STR_LEN_ROUTE_UNCLASSIFIED,
         str_len_unclassified,
     );
     let mut str_substring_route_line = format!("[perf/counter][{}]", contract::STR_SUBSTRING_ROUTE);
-    for (name, value) in [
-        (contract::STR_SUBSTRING_ROUTE_TOTAL, snapshot[61]),
-        (
-            contract::STR_SUBSTRING_ROUTE_VIEW_ARC_CACHE_HANDLE_HIT,
-            snapshot[62],
-        ),
-        (
-            contract::STR_SUBSTRING_ROUTE_VIEW_ARC_CACHE_REISSUE_HIT,
-            snapshot[63],
-        ),
-        (
-            contract::STR_SUBSTRING_ROUTE_VIEW_ARC_CACHE_MISS,
-            snapshot[64],
-        ),
-        (contract::STR_SUBSTRING_ROUTE_FAST_CACHE_HIT, snapshot[65]),
-        (contract::STR_SUBSTRING_ROUTE_DISPATCH_HIT, snapshot[66]),
-        (contract::STR_SUBSTRING_ROUTE_SLOW_PLAN, snapshot[67]),
-        (
-            contract::STR_SUBSTRING_ROUTE_SLOW_PLAN_RETURN_HANDLE,
-            snapshot[68],
-        ),
-        (
-            contract::STR_SUBSTRING_ROUTE_SLOW_PLAN_RETURN_EMPTY,
-            snapshot[69],
-        ),
-        (
-            contract::STR_SUBSTRING_ROUTE_SLOW_PLAN_FREEZE_SPAN,
-            snapshot[70],
-        ),
-        (
-            contract::STR_SUBSTRING_ROUTE_SLOW_PLAN_VIEW_SPAN,
-            snapshot[71],
-        ),
-        (
-            contract::STR_SUBSTRING_ROUTE_SLOW_PLAN_UNCLASSIFIED,
-            str_substring_slow_plan_unclassified,
-        ),
-    ] {
-        let _ = write!(&mut str_substring_route_line, " {}={}", name, value);
+    for field in contract::STR_SUBSTRING_ROUTE_SUMMARY_FIELDS {
+        let _ = write!(
+            &mut str_substring_route_line,
+            " {}={}",
+            field.name,
+            field.read(&snapshot)
+        );
     }
+    let _ = write!(
+        &mut str_substring_route_line,
+        " {}={}",
+        contract::STR_SUBSTRING_ROUTE_SLOW_PLAN_UNCLASSIFIED,
+        str_substring_slow_plan_unclassified
+    );
     eprintln!("{}", str_substring_route_line);
     eprintln!(
         "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
         contract::PIECEWISE_SUBRANGE,
-        contract::PIECEWISE_SUBRANGE_TOTAL,
-        snapshot[102],
-        contract::PIECEWISE_SUBRANGE_SINGLE_SESSION_HIT,
-        snapshot[103],
-        contract::PIECEWISE_SUBRANGE_FALLBACK_INSERT,
-        snapshot[104],
-        contract::PIECEWISE_SUBRANGE_EMPTY_RETURN,
-        snapshot[105],
-        contract::PIECEWISE_SUBRANGE_PREFIX_ONLY,
-        snapshot[106],
-        contract::PIECEWISE_SUBRANGE_MIDDLE_ONLY,
-        snapshot[107],
-        contract::PIECEWISE_SUBRANGE_SUFFIX_ONLY,
-        snapshot[108],
-        contract::PIECEWISE_SUBRANGE_PREFIX_MIDDLE,
-        snapshot[109],
-        contract::PIECEWISE_SUBRANGE_MIDDLE_SUFFIX,
-        snapshot[110],
-        contract::PIECEWISE_SUBRANGE_PREFIX_SUFFIX,
-        snapshot[111],
-        contract::PIECEWISE_SUBRANGE_ALL_THREE,
-        snapshot[112],
+        contract::PIECEWISE_SUBRANGE_TOTAL_FIELD.name,
+        contract::PIECEWISE_SUBRANGE_TOTAL_FIELD.read(&snapshot),
+        contract::PIECEWISE_SUBRANGE_SINGLE_SESSION_HIT_FIELD.name,
+        contract::PIECEWISE_SUBRANGE_SINGLE_SESSION_HIT_FIELD.read(&snapshot),
+        contract::PIECEWISE_SUBRANGE_FALLBACK_INSERT_FIELD.name,
+        contract::PIECEWISE_SUBRANGE_FALLBACK_INSERT_FIELD.read(&snapshot),
+        contract::PIECEWISE_SUBRANGE_EMPTY_RETURN_FIELD.name,
+        contract::PIECEWISE_SUBRANGE_EMPTY_RETURN_FIELD.read(&snapshot),
+        contract::PIECEWISE_SUBRANGE_PREFIX_ONLY_FIELD.name,
+        contract::PIECEWISE_SUBRANGE_PREFIX_ONLY_FIELD.read(&snapshot),
+        contract::PIECEWISE_SUBRANGE_MIDDLE_ONLY_FIELD.name,
+        contract::PIECEWISE_SUBRANGE_MIDDLE_ONLY_FIELD.read(&snapshot),
+        contract::PIECEWISE_SUBRANGE_SUFFIX_ONLY_FIELD.name,
+        contract::PIECEWISE_SUBRANGE_SUFFIX_ONLY_FIELD.read(&snapshot),
+        contract::PIECEWISE_SUBRANGE_PREFIX_MIDDLE_FIELD.name,
+        contract::PIECEWISE_SUBRANGE_PREFIX_MIDDLE_FIELD.read(&snapshot),
+        contract::PIECEWISE_SUBRANGE_MIDDLE_SUFFIX_FIELD.name,
+        contract::PIECEWISE_SUBRANGE_MIDDLE_SUFFIX_FIELD.read(&snapshot),
+        contract::PIECEWISE_SUBRANGE_PREFIX_SUFFIX_FIELD.name,
+        contract::PIECEWISE_SUBRANGE_PREFIX_SUFFIX_FIELD.read(&snapshot),
+        contract::PIECEWISE_SUBRANGE_ALL_THREE_FIELD.name,
+        contract::PIECEWISE_SUBRANGE_ALL_THREE_FIELD.read(&snapshot),
         contract::PIECEWISE_SUBRANGE_UNCLASSIFIED,
         piecewise_subrange_unclassified,
     );
