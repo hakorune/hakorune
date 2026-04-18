@@ -14,20 +14,22 @@ use super::map_runtime_data::{
 };
 use nyash_rust::boxes::{array::ArrayBox, map_box::MapBox};
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum RuntimeDataReceiverKind {
+    Array,
+    Map,
+}
+
 #[inline(always)]
-fn with_runtime_data_route<R>(
-    recv_h: i64,
-    on_array: impl FnOnce() -> R,
-    on_map: impl FnOnce() -> R,
-) -> Option<R> {
+fn classify_runtime_data_receiver(recv_h: i64) -> Option<RuntimeDataReceiverKind> {
     // RuntimeData stays facade-only: it owns the Array/Map branch decision here,
     // then delegates behavior to the array/map runtime facades.
     let obj = object_from_handle_cached(recv_h)?;
     if obj.as_any().downcast_ref::<ArrayBox>().is_some() {
-        return Some(on_array());
+        return Some(RuntimeDataReceiverKind::Array);
     }
     if obj.as_any().downcast_ref::<MapBox>().is_some() {
-        return Some(on_map());
+        return Some(RuntimeDataReceiverKind::Map);
     }
     None
 }
@@ -35,23 +37,23 @@ fn with_runtime_data_route<R>(
 // nyash.runtime_data.get_hh(recv_h, key_any) -> mixed runtime i64/handle value (or 0)
 #[export_name = "nyash.runtime_data.get_hh"]
 pub extern "C" fn nyash_runtime_data_get_hh(recv_h: i64, key_any: i64) -> i64 {
-    with_runtime_data_route(
-        recv_h,
-        || array_runtime_get_any_key(recv_h, key_any),
-        || map_runtime_data_get_any_key(recv_h, key_any),
-    )
-    .unwrap_or(0)
+    match classify_runtime_data_receiver(recv_h) {
+        Some(RuntimeDataReceiverKind::Array) => array_runtime_get_any_key(recv_h, key_any),
+        Some(RuntimeDataReceiverKind::Map) => map_runtime_data_get_any_key(recv_h, key_any),
+        None => 0,
+    }
 }
 
 // nyash.runtime_data.set_hhh(recv_h, key_any, val_any) -> 0/1
 #[export_name = "nyash.runtime_data.set_hhh"]
 pub extern "C" fn nyash_runtime_data_set_hhh(recv_h: i64, key_any: i64, val_any: i64) -> i64 {
-    with_runtime_data_route(
-        recv_h,
-        || array_runtime_set_any_key(recv_h, key_any, val_any),
-        || map_runtime_data_set_any_key(recv_h, key_any, val_any),
-    )
-    .unwrap_or(0)
+    match classify_runtime_data_receiver(recv_h) {
+        Some(RuntimeDataReceiverKind::Array) => array_runtime_set_any_key(recv_h, key_any, val_any),
+        Some(RuntimeDataReceiverKind::Map) => {
+            map_runtime_data_set_any_key(recv_h, key_any, val_any)
+        }
+        None => 0,
+    }
 }
 
 // nyash.runtime_data.has_hh(recv_h, key_any) -> 0/1
@@ -59,18 +61,20 @@ pub extern "C" fn nyash_runtime_data_set_hhh(recv_h: i64, key_any: i64, val_any:
 // explicitly accepted. Array bounds/missing-key remain fail-safe here.
 #[export_name = "nyash.runtime_data.has_hh"]
 pub extern "C" fn nyash_runtime_data_has_hh(recv_h: i64, key_any: i64) -> i64 {
-    with_runtime_data_route(
-        recv_h,
-        || array_runtime_has_any_key(recv_h, key_any),
-        || map_runtime_data_has_any_key(recv_h, key_any),
-    )
-    .unwrap_or(0)
+    match classify_runtime_data_receiver(recv_h) {
+        Some(RuntimeDataReceiverKind::Array) => array_runtime_has_any_key(recv_h, key_any),
+        Some(RuntimeDataReceiverKind::Map) => map_runtime_data_has_any_key(recv_h, key_any),
+        None => 0,
+    }
 }
 
 // nyash.runtime_data.push_hh(recv_h, val_any) -> new_len (array) / 0
 #[export_name = "nyash.runtime_data.push_hh"]
 pub extern "C" fn nyash_runtime_data_push_hh(recv_h: i64, val_any: i64) -> i64 {
-    with_runtime_data_route(recv_h, || array_runtime_push_any(recv_h, val_any), || 0).unwrap_or(0)
+    match classify_runtime_data_receiver(recv_h) {
+        Some(RuntimeDataReceiverKind::Array) => array_runtime_push_any(recv_h, val_any),
+        Some(RuntimeDataReceiverKind::Map) | None => 0,
+    }
 }
 
 #[cfg(test)]

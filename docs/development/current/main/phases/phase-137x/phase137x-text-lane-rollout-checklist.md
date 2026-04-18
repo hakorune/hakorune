@@ -284,8 +284,11 @@ Related:
   - the current strict whole reread is now taken and reads reject-side on the updated phase-2.5 lane
   - these are `BoxShape` cleanup cards, not new acceptance-shape cards
 - `Cleanup 1`: collapse no-policy `runtime_data` forwarding
-  - review `runtime_data.rs -> runtime_data_array_dispatch.rs -> array_runtime_any.rs`
-  - prefer `handle_cache::with_map_box` over a second map-only fetch shell when the route is already proven
+  - status: partial
+  - landed: `runtime_data.rs` now owns an explicit Array/Map receiver-kind classifier instead of hiding the public facade route behind a closure helper
+  - current array chain is `runtime_data.rs -> array_runtime_any.rs -> array_runtime_facade.rs`
+  - keep `array_runtime_any.rs` as the any-key/index normalization gate; it is not no-policy forwarding
+  - keep `map_runtime_data.rs` as the runtime-data map lane; it owns map-key coercion plus the map runtime-data borrowed-alias caller tag
 - `Cleanup 2`: observe counter registration SSOT
   - status: partial
   - landed: TLS snapshot length is owned by `observe/contract.rs`, not a backend-local raw number
