@@ -31,6 +31,13 @@ Related:
 - first phase 2.5 slice is now landed:
   - `BorrowedHandleBox` caches the encoded runtime handle for unpublished keeps
   - `array.get` can reuse the cached stable handle instead of fresh-promoting on every read
+- latest phase 2.5 follow-on slices are now landed:
+  - map value stores preserve borrowed string aliases instead of eagerly rebuilding stable `StringBox` values
+  - borrowed-alias runtime-handle cache is shared per alias lineage, so read clones do not drop the cached encoded handle
+  - `perf-observe` and end-to-end tests now lock all three read outcomes on both array/map routes:
+    - `live source`
+    - `cached handle`
+    - `cold fallback`
 - next card is read-side alias lane split, not full `TextLane`:
   - `TextReadOnly`
   - `EncodedAlias`
@@ -84,6 +91,10 @@ Related:
 - `Card 2.5`:
   - read-side alias lane
   - keep `array.get` on `TextReadOnly` / `EncodedAlias`, cold-cache `StableObject`
+  - current landed sub-cards:
+    - `2.5a`: cached runtime handle reuse on `array.get`
+    - `2.5b`: map borrowed-string store + alias-lineage cache continuity
+    - `2.5c`: array/map read-outcome observability and contract tests
 - `Card 3`:
   - future `TextLane` storage
   - array internal specialization only
@@ -183,8 +194,16 @@ Related:
   - `crates/nyash_kernel/src/plugin/value_codec/borrowed_handle.rs`
   - `crates/nyash_kernel/src/plugin/array_string_slot.rs`
   - `crates/nyash_kernel/src/plugin/array_runtime_facade.rs`
+  - `crates/nyash_kernel/src/plugin/array_handle_cache.rs`
+  - `crates/nyash_kernel/src/plugin/runtime_data.rs`
+  - `crates/nyash_kernel/src/plugin/map_runtime_facade.rs`
+  - `crates/nyash_kernel/src/observe/backend/tls/`
 - Expected evidence:
   - common read path no longer allocates a fresh stable object
+  - array/map read routes agree on the same three-way outcome contract:
+    - `live source`
+    - `cached handle`
+    - `cold fallback`
   - whole owner moves away from read-side publication/objectize tax
   - exact and middle do not regress while read continuity improves
 - Keeper criteria:
@@ -258,6 +277,39 @@ Related:
   - `bash tools/perf/bench_micro_aot_asm.sh kilo_kernel_small 'ny_main' 1`
 - counters:
   - producer publication counters for `const_suffix` / `freeze_text_plan_pieces3`
+
+## Post-Proof Cleanup Queue
+
+- gate:
+  - do not start these before the current strict whole reread fixes keeper vs reject on the updated phase-2.5 lane
+  - these are `BoxShape` cleanup cards, not new acceptance-shape cards
+- `Cleanup 1`: observe counter registration SSOT
+  - collapse borrowed-alias counter registration so `contract / TLS state / API shim / sink / test projection` stop drifting by hand
+  - remove raw snapshot index knowledge from plugin tests where possible
+- `Cleanup 2`: split `BorrowedHandleBox` responsibilities
+  - separate:
+    - source-lifetime retention
+    - alias metadata
+    - runtime-handle cache
+    - encode planning / observe emission
+    - retarget helpers
+- `Cleanup 3`: typed handle-cache consolidation
+  - decide one owner for typed cache lookup
+  - either centralize array/map typed fetch under `handle_cache.rs` or delete the dead map lookup cache helpers
+- `Cleanup 4`: collapse no-policy `runtime_data` forwarding
+  - review `runtime_data.rs -> runtime_data_array_dispatch.rs -> array_runtime_any.rs`
+  - remove the pass-through layer if it adds no policy or contract boundary
+- `Cleanup 5`: map-key codec SSOT
+  - stop depending on `CodecProfile::ArrayFastBorrowString` for map-key coercion
+  - introduce a dedicated map-key helper/profile if that contract remains needed
+- `Cleanup 6`: `MapBox` raw helper boundary
+  - pull `clear` / `delete` style raw mutations behind narrow `MapBox` helpers instead of mutating `get_data().write()` from runtime facade code
+- `Cleanup 7`: legacy map compat surface retirement
+  - retarget remaining lowering/runtime users off deprecated compat map exports
+  - then collapse:
+    - `map_compat.rs`
+    - compat alias surface
+    - deprecated builtin factory path
   - slot publish-boundary counters
   - any new explicit publish-effect counters added by the card
 - guards:

@@ -59,6 +59,10 @@ cargo check --features perf-observe -p nyash_kernel
     - `TextReadOnly`
     - `EncodedAlias`
     - `StableObject`
+  - landed proof on this lane now covers both array and map reads:
+    - `live source`
+    - `cached handle`
+    - `cold fallback`
   - keep `VerifiedTextSource -> TextPlan -> OwnedBytes -> KernelTextSlot` as the already-landed phase-1 canonical corridor
   - do not jump to `TextLane` or MIR legality first
 - latest non-keeper:
@@ -131,6 +135,10 @@ cargo check --features perf-observe -p nyash_kernel
     - phase 2.5 = read-side alias lane split
     - phase 3 = future `TextLane`
     - phase 4 = MIR legality / sink-aware AOT
+  - current phase 2.5 mirror:
+    - map value stores now preserve borrowed string aliases
+    - borrowed-alias runtime-handle cache is shared across alias lineage
+    - next decision point remains strict whole reread, not another semantics/storage expansion
   - reuse existing `TextPlan` / `OwnedBytes` seams before inventing a new carrier
 - hot-corridor carrier design anchor is now:
   - `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`

@@ -154,6 +154,19 @@ Related:
     - `BorrowedHandleBox` caches the encoded runtime handle for unpublished keeps
     - `array.get` can reuse the cached stable handle instead of fresh-promoting on every read
     - latest strict reread: `kilo_kernel_small_hk = C 79 ms / Ny AOT 791 ms` (`repeat=3`, parity ok)
+  - latest phase 2.5 follow-on slices are now landed:
+    - map value stores preserve borrowed string aliases through `CodecProfile::MapValueBorrowString`
+    - borrowed-alias runtime-handle cache is shared across alias lineage, so map reads do not drop the cached encoded handle when the read path clones the alias box
+    - `perf-observe` now splits read-side alias outcomes by caller for both:
+      - `array.get`
+      - `runtime_data` map reads
+    - locked outcomes:
+      - `live source`
+      - `cached handle`
+      - `cold fallback`
+  - reading:
+    - phase 2.5 runtime contract is now fixed more tightly than the first `array.get`-only slice
+    - the next judgement step is still a strict whole reread, not a new `TextLane` / MIR legality card
 - phase/task anchors:
   - `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
   - `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`

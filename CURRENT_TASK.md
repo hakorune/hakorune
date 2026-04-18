@@ -45,7 +45,12 @@ Scope: current lane / next lane / restart order only.
 - current blocker:
   - `none`
 - current cut status:
-  - good cut point: the Phase 2.5 first slice is landed, and the only open card is the strict whole stability reread
+  - good cut point:
+    - the Phase 2.5 read-side alias lane now has array/map proof on all three read outcomes:
+      - `live source`
+      - `cached handle`
+      - `cold fallback`
+    - the next open card is still the strict whole stability reread
   - pending todo:
     - `phase2-deferred-const-suffix-stability`
   - do not open a new ABI / `TextLane` cut until this reread is judged keeper vs reject
@@ -145,6 +150,19 @@ Scope: current lane / next lane / restart order only.
         - `BorrowedHandleBox` caches the encoded runtime handle for unpublished keeps
         - `array.get` can reuse the cached stable handle instead of fresh-promoting on every read
         - latest strict reread: `kilo_kernel_small_hk = C 79 ms / Ny AOT 791 ms` (`repeat=3`, parity ok)
+      - latest phase 2.5 read-lane follow-on slices are now landed:
+        - map string values now preserve borrowed string aliases on store instead of eagerly re-boxing to stable `StringBox`
+        - borrowed-alias runtime-handle cache is now shared per alias lineage, so map read clones do not lose the cached encoded handle
+        - `perf-observe` now distinguishes array/map read outcomes for:
+          - `live source`
+          - `cached handle`
+          - `cold fallback`
+        - end-to-end tests now lock that three-lane contract for both:
+          - `array_get_index_encoded_i64`
+          - `nyash.runtime_data.get_hh` map reads
+      - reading:
+        - phase 2.5 contract is now much tighter on read behavior
+        - no new exact/whole keeper claim is accepted until the strict whole reread is taken again on this updated lane
 - accepted task order is now fixed as a phase rollout, not as isolated helper cuts:
   - semantic lock:
     - `String = value`
@@ -170,6 +188,8 @@ Scope: current lane / next lane / restart order only.
     - latest-fresh source-capture prework
     - existing `StringBox` slot overwrite in place on `kernel_slot_store_hi`
     - borrowed-text direct materialization on `kernel_slot_concat_hs` / `insert_const_mid_into_slot`
+    - map-side borrowed string value store under `CodecProfile::MapValueBorrowString`
+    - read-side alias outcome observation on array/map (`live source` / `cached handle` / `cold fallback`)
   - compiler fallback probe is closed for the whole bench; next slice is not a lowering widening
   - do not jump to `TextLane` or MIR legality first
 - current accepted redesign is now locked in narrowed form:

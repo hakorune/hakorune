@@ -123,6 +123,24 @@
     - `BorrowedHandleBox` caches the encoded runtime handle for unpublished keeps
     - `array.get` can reuse the cached stable handle instead of fresh-promoting on every read
     - latest strict reread: `kilo_kernel_small_hk = C 79 ms / Ny AOT 791 ms` (`repeat=3`, parity ok)
+  - latest phase 2.5 follow-on slices are now landed:
+    - map value stores preserve borrowed string aliases through `CodecProfile::MapValueBorrowString`
+    - borrowed-alias runtime-handle cache is shared across alias lineage, so map reads keep the same cached encoded handle after clone-for-read
+    - `perf-observe` and end-to-end tests now lock all three read outcomes for both array/map routes:
+      - `live source`
+      - `cached handle`
+      - `cold fallback`
+  - reading:
+    - phase 2.5 no longer has only the `array.get` cached-handle proof
+    - next step is still the strict whole reread on the updated lane; do not open `TextLane` or MIR legality first
+  - cleanup queue is now identified but not yet active:
+    - observe counter registration SSOT
+    - `BorrowedHandleBox` responsibility split
+    - typed handle-cache consolidation
+    - `runtime_data` forwarding collapse
+    - map-key codec SSOT
+    - `MapBox` raw-helper boundary cleanup
+    - legacy map compat surface retirement
 - current next seam inside phase 1: direct-set-only `insert_hsi` widening is landed; next widening is non-direct-set `freeze_text_plan(Pieces3)` / `insert_const_mid_fallback`
   - direct-set-only deferred `Pieces3 substring` widening is now landed on the same unpublished contract
 - current reject: slot-store delayed publication probes and string-specialized handle payload probe
