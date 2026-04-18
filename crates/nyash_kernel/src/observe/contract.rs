@@ -360,6 +360,30 @@ pub(crate) const STORE_ARRAY_STR_SUMMARY_FIELDS: [SnapshotCounterField; 29] = [
     STORE_ARRAY_STR_LOOKUP_CALLER_LATEST_FRESH_TAG_FIELD,
 ];
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct SnapshotCounterValue {
+    pub name: &'static str,
+    pub value: u64,
+}
+
+#[inline(always)]
+pub(crate) fn store_array_str_total(snapshot: &[u64]) -> u64 {
+    STORE_ARRAY_STR_SUMMARY_FIELDS[0].read(snapshot)
+}
+
+#[inline(always)]
+pub(crate) fn store_array_str_detail_values(
+    snapshot: &[u64],
+) -> impl Iterator<Item = SnapshotCounterValue> + '_ {
+    STORE_ARRAY_STR_SUMMARY_FIELDS
+        .into_iter()
+        .skip(1)
+        .map(|field| SnapshotCounterValue {
+            name: field.name,
+            value: field.read(snapshot),
+        })
+}
+
 pub(crate) const CONST_SUFFIX_TOTAL_FIELD: SnapshotCounterField =
     SnapshotCounterField::new(CONST_SUFFIX, 14);
 pub(crate) const CONST_SUFFIX_CACHED_HANDLE_HIT_FIELD: SnapshotCounterField =

@@ -39,22 +39,13 @@ pub(crate) fn emit_summary_to_stderr() {
     let piecewise_subrange_unclassified = contract::PIECEWISE_SUBRANGE_TOTAL_FIELD
         .read(&snapshot)
         .saturating_sub(piecewise_subrange_classified);
-    let mut store_array_str_fields = contract::STORE_ARRAY_STR_SUMMARY_FIELDS.into_iter();
-    let store_array_str_total = store_array_str_fields
-        .next()
-        .expect("store.array.str total field");
     let mut store_array_str_line = format!(
         "[perf/counter][{}] total={}",
         contract::STORE_ARRAY_STR,
-        store_array_str_total.read(&snapshot)
+        contract::store_array_str_total(&snapshot)
     );
-    for field in store_array_str_fields {
-        let _ = write!(
-            &mut store_array_str_line,
-            " {}={}",
-            field.name,
-            field.read(&snapshot)
-        );
+    for field in contract::store_array_str_detail_values(&snapshot) {
+        let _ = write!(&mut store_array_str_line, " {}={}", field.name, field.value);
     }
     eprintln!("{}", store_array_str_line);
     eprintln!(
