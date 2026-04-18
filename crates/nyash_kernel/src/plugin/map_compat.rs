@@ -1,13 +1,9 @@
 use super::handle_cache::with_map_box;
+use super::map_debug::map_debug_enabled;
 use super::map_runtime_facade::{
     map_runtime_load_any, map_runtime_load_i64, map_runtime_probe_any, map_runtime_probe_i64,
     map_runtime_store_any, map_runtime_store_i64_any,
 };
-
-#[inline]
-pub(super) fn map_debug_enabled() -> bool {
-    std::env::var("NYASH_LLVM_MAP_DEBUG").ok().as_deref() == Some("1")
-}
 
 // Compat-only exports consumed by historical pure/legacy surfaces.
 // size: compatibility observer (handle) -> i64
