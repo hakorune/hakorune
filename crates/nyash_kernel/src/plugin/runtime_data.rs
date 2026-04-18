@@ -201,6 +201,41 @@ mod tests {
     }
 
     #[test]
+    fn runtime_data_map_string_value_reuses_live_source_handle() {
+        let handle = new_map_handle();
+        let key = new_string_handle("map-string-live-key");
+        let value = new_string_handle("map-string-live");
+
+        assert_eq!(nyash_runtime_data_set_hhh(handle, key, value), 1);
+        assert_eq!(nyash_runtime_data_has_hh(handle, key), 1);
+        assert_eq!(nyash_runtime_data_get_hh(handle, key), value);
+    }
+
+    #[test]
+    fn runtime_data_map_string_value_reuses_cached_handle_after_source_drop() {
+        let handle = new_map_handle();
+        let key = new_string_handle("map-string-cached-key");
+        let value = new_string_handle("map-string-cached");
+
+        assert_eq!(nyash_runtime_data_set_hhh(handle, key, value), 1);
+        handles::drop_handle(value as u64);
+        assert!(handles::get(value as u64).is_none());
+
+        let first = nyash_runtime_data_get_hh(handle, key);
+        let second = nyash_runtime_data_get_hh(handle, key);
+
+        assert!(first > 0);
+        assert_eq!(first, second);
+
+        let out_obj = handles::get(first as u64).expect("cached map string handle");
+        let out_sb = out_obj
+            .as_any()
+            .downcast_ref::<nyash_rust::box_trait::StringBox>()
+            .expect("runtime value should remain StringBox");
+        assert_eq!(out_sb.value, "map-string-cached");
+    }
+
+    #[test]
     fn runtime_data_map_immediate_zero_key_keeps_shared_facade_contract() {
         let handle = new_map_handle();
         let value = new_int_handle(88);

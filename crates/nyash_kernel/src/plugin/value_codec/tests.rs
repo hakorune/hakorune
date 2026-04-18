@@ -167,6 +167,33 @@ fn any_arg_to_box_generic_profile_does_not_set_borrowed_handle_metadata() {
 }
 
 #[test]
+fn any_arg_to_box_map_value_profile_sets_borrowed_handle_metadata_for_string() {
+    let value: Arc<dyn NyashBox> = Arc::new(StringBox::new("map-borrowed".to_string()));
+    let value_h = handles::to_handle_arc(value) as i64;
+
+    let via_profile = any_arg_to_box_with_profile(value_h, CodecProfile::MapValueBorrowString);
+    let borrowed = via_profile.borrowed_handle_source_fast();
+    assert!(borrowed.is_some());
+    assert_eq!(borrowed.map(|(h, _)| h), Some(value_h));
+}
+
+#[test]
+fn any_arg_to_box_map_value_profile_keeps_non_string_handle_semantics() {
+    use nyash_rust::boxes::array::ArrayBox;
+
+    let value: Arc<dyn NyashBox> = Arc::new(ArrayBox::new());
+    let value_h = handles::to_handle_arc(value.clone()) as i64;
+
+    let via_profile = any_arg_to_box_with_profile(value_h, CodecProfile::MapValueBorrowString);
+    assert!(via_profile.borrowed_handle_source_fast().is_none());
+
+    let out_h = box_to_runtime_i64(via_profile);
+    assert!(out_h > 0);
+    let out_obj = handles::get(out_h as u64).expect("map profile object handle");
+    assert!(out_obj.as_any().downcast_ref::<ArrayBox>().is_some());
+}
+
+#[test]
 fn any_arg_to_index_missing_handle_falls_back_to_immediate() {
     with_env_var("NYASH_HOST_HANDLE_ALLOC_POLICY", "none", || {
         let value: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(314));
@@ -185,8 +212,10 @@ fn any_arg_to_box_with_profile_missing_handle_keeps_immediate_contract() {
 
         let via_generic = any_arg_to_box_with_profile(h, CodecProfile::Generic);
         let via_array_fast = any_arg_to_box_with_profile(h, CodecProfile::ArrayFastBorrowString);
+        let via_map_value = any_arg_to_box_with_profile(h, CodecProfile::MapValueBorrowString);
         assert_eq!(box_to_runtime_i64(via_generic), h);
         assert_eq!(box_to_runtime_i64(via_array_fast), h);
+        assert_eq!(box_to_runtime_i64(via_map_value), h);
     });
 }
 

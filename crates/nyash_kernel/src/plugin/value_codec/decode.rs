@@ -10,6 +10,7 @@ pub(crate) enum CodecProfile {
     Generic,
     ArrayFastBorrowString,
     ArrayBorrowStringOnly,
+    MapValueBorrowString,
 }
 
 // Internal-only carrier for array fast decode.
@@ -71,6 +72,26 @@ pub(crate) fn any_arg_to_box_with_profile(arg: i64, profile: CodecProfile) -> Bo
                         return maybe_borrow_string_handle(obj.clone(), arg);
                     }
                     int_arg_to_box(arg)
+                },
+            );
+        }
+        if profile == CodecProfile::MapValueBorrowString {
+            return handles::with_handle_caller(
+                arg as u64,
+                handles::PerfObserveObjectWithHandleCaller::DecodeAnyArg,
+                |obj| {
+                    let Some(obj) = obj else {
+                        return int_arg_to_box(arg);
+                    };
+                    if obj.as_any().downcast_ref::<StringBox>().is_some()
+                        || obj
+                            .as_any()
+                            .downcast_ref::<crate::exports::string_view::StringViewBox>()
+                            .is_some()
+                    {
+                        return maybe_borrow_string_handle(obj.clone(), arg);
+                    }
+                    obj.clone_box()
                 },
             );
         }
