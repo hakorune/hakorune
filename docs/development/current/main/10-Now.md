@@ -54,12 +54,16 @@ Related:
     - `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
   - current code pick stays producer-first:
     - active owner is still upstream producer publication on whole
-    - first implementation target is a narrow runtime-private substrate:
+    - first implementation target stays corridor-local:
       - `const_suffix -> KernelTextSlot`
       - `KernelTextSlot -> store.array.str`
+      - same producer contract may also feed trailing `substring(...)` before any publish boundary
     - keep this landing corridor-local; do not widen generic helper ABI
-    - compiler/backend consumption is now landed for the direct-set-only `const_suffix -> set(...)` bridge
-    - the active shared-receiver exact front still remains a follow-up because current `string_kernel_plan` evidence is verifier-side there, not a lowered backend path yet
+    - compiler/backend consumption is landed for:
+      - direct-set-only `const_suffix -> set(...)`
+      - narrow shared-receiver exact widening:
+        - `text + "xy"` reused by `set(...)` + known-length observer + trailing `substring(...)`
+    - producer stays specialized; only the internal contract to sink/reuse is widened
     - before Card A/B, slot publish-boundary verifier/counters are now landed:
       - `publish_boundary.slot_publish_handle_total`
       - `publish_boundary.slot_objectize_stable_box_total`

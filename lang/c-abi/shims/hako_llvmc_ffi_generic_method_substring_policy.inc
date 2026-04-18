@@ -148,6 +148,80 @@
         return 1;
       }
 
+      auto int emit_const_suffix_piecewise_subrange_call(
+          FILE* f,
+          size_t ii,
+          long long recv,
+          long long dst,
+          long long source_h,
+          long long middle_reg,
+          long long split_len,
+          long long start,
+          long long end,
+          const char* route_reason) {
+        const char* middle_const = get_str_const(middle_reg);
+        long long start_const = 0;
+        long long end_const = 0;
+        char ab[256];
+        char route_extra[256];
+
+        if (!(dst && source_h && middle_reg && middle_const)) return 0;
+        ab[0] = '\0';
+        append_i64_arg_ref(ab, sizeof(ab), source_h, 1);
+        strncat(ab, ", ptr getelementptr inbounds (", sizeof(ab) - strlen(ab) - 1);
+        {
+          char tail[128];
+          snprintf(
+              tail,
+              sizeof(tail),
+              "[%zu x i8], ptr @.str_reg_%lld, i64 0, i64 0)",
+              strlen(middle_const) + 1,
+              middle_reg);
+          strncat(ab, tail, sizeof(ab) - strlen(ab) - 1);
+        }
+        {
+          char tail[64];
+          snprintf(tail, sizeof(tail), ", i64 %lld", split_len);
+          strncat(ab, tail, sizeof(ab) - strlen(ab) - 1);
+        }
+        if (start) append_i64_arg_ref(ab, sizeof(ab), start, 0);
+        if (end) append_i64_arg_ref(ab, sizeof(ab), end, 0);
+        fprintf(
+            f,
+            "  %%r%lld = call i64 @\"nyash.string.piecewise_subrange_hsiii\"(%s)\n",
+            dst,
+            ab);
+        set_type(dst, T_I64);
+        set_origin(dst, ORG_STRING);
+        set_scan_origin(dst, ORG_STRING);
+        remember_string_substring_call(dst, recv, start, end);
+        if (has_const(resolve_copy_source_reg(start), &start_const) &&
+            has_const(resolve_copy_source_reg(end), &end_const) &&
+            end_const >= start_const) {
+          put_known_string_len(dst, end_const - start_const);
+        }
+        if (hako_llvmc_route_trace_enabled()) {
+          snprintf(
+              route_extra,
+              sizeof(route_extra),
+              "ii=%zu recv=%lld dst=%lld source=%lld middle=%lld split_len=%lld start=%lld end=%lld",
+              ii,
+              recv,
+              dst,
+              source_h,
+              middle_reg,
+              split_len,
+              start,
+              end);
+          hako_llvmc_emit_route_trace(
+              "string_substring_route",
+              "piecewise_subrange_hsiii",
+              route_reason,
+              route_extra);
+        }
+        return 1;
+      }
+
       auto int match_piecewise_slot_hop_substring_consumer(
           size_t ii,
           size_t ilen,
@@ -336,6 +410,9 @@
         long long piecewise_source = 0;
         long long piecewise_middle = 0;
         long long piecewise_split = 0;
+        long long const_suffix_source = 0;
+        long long const_suffix_middle = 0;
+        long long const_suffix_split_len = 0;
         long long concat_first = 0;
         long long concat_second = 0;
         long long concat_third = 0;
@@ -352,6 +429,23 @@
                     f, ii, ilen, insts, recv, dst, a0, a1, skip_inst),
                 0) ==
             HAKO_LLVMC_GENERIC_METHOD_SUBSTRING_ROUTE_INSERT_MID_WINDOW) {
+          return 1;
+        }
+        if (resolved_recv &&
+            find_deferred_const_suffix_kernel_slot(
+                resolved_recv, &const_suffix_source, &const_suffix_middle) &&
+            known_string_value_len(const_suffix_source, &const_suffix_split_len) &&
+            emit_const_suffix_piecewise_subrange_call(
+                f,
+                ii,
+                resolved_recv,
+                dst,
+                const_suffix_source,
+                const_suffix_middle,
+                const_suffix_split_len,
+                a0,
+                a1,
+                "const_suffix_deferred_producer")) {
           return 1;
         }
         if (resolved_recv &&

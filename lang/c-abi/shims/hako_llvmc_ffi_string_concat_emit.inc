@@ -224,14 +224,86 @@
           yyjson_val* insts,
           long long dst,
           long long lhs,
-          long long rhs) {
+          long long rhs,
+          int emit_placeholder) {
         const char* rhs_const = get_str_const(rhs);
         if (!(dst && lhs && rhs_const)) return 0;
-        if (!has_direct_array_set_consumer(ii, ilen, insts, dst)) return 0;
-        (void)f;
+        if (!emit_placeholder && !has_direct_array_set_consumer(ii, ilen, insts, dst)) return 0;
         remember_deferred_const_suffix_kernel_slot(dst, lhs, rhs);
+        if (emit_placeholder) {
+          fprintf(f, "  %%r%lld = add i64 0, 0\n", dst);
+        }
         finalize_string_concat_result(dst);
         return 1;
+      }
+
+      auto int match_const_suffix_shared_receiver_window(
+          size_t ii,
+          size_t ilen,
+          yyjson_val* insts,
+          long long reg,
+          enum StringPostStoreUseKind* post_store_use_out) {
+        int saw_set = 0;
+        int saw_substring = 0;
+        int saw_len = 0;
+        reg = resolve_copy_source_reg(reg);
+        if (!reg) return 0;
+        for (size_t jj = ii + 1; jj < ilen; jj++) {
+          yyjson_val* later = yyjson_arr_get(insts, jj);
+          const char* op = later ? read_str(later, "op") : NULL;
+          if (!(later && op)) continue;
+          if (!strcmp(op, "copy")) {
+            long long src = resolve_copy_source_reg(read_int(later, "src"));
+            if (src == reg) continue;
+            if (inst_uses_reg(later, reg)) return 0;
+            continue;
+          }
+          if (!strcmp(op, "mir_call")) {
+            yyjson_val* mc = yyjson_obj_get(later, "mir_call");
+            yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
+            yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
+            const char* ctype = cal ? read_str(cal, "type") : NULL;
+            const char* mname =
+                cal ? (read_str(cal, "method") ? read_str(cal, "method")
+                                               : read_str(cal, "name"))
+                    : NULL;
+            long long recv = cal ? resolve_copy_source_reg(read_int(cal, "receiver")) : 0;
+            if (ctype && !strcmp(ctype, "Method") && mname && !strcmp(mname, "set") &&
+                args && yyjson_is_arr(args) && yyjson_arr_size(args) >= 2 &&
+                resolve_copy_source_reg((long long)yyjson_get_sint(yyjson_arr_get(args, 1))) == reg) {
+              if (saw_set) return 0;
+              saw_set = 1;
+              continue;
+            }
+            if (ctype && !strcmp(ctype, "Method") && mname &&
+                (!strcmp(mname, "substring") || !strcmp(mname, "substr")) &&
+                args && yyjson_is_arr(args) && yyjson_arr_size(args) == 2 && recv == reg) {
+              if (saw_substring) return 0;
+              saw_substring = 1;
+              continue;
+            }
+            if (ctype && !strcmp(ctype, "Extern") && mname &&
+                !strcmp(mname, "nyash.string.substring_hii") && args &&
+                yyjson_is_arr(args) && yyjson_arr_size(args) == 3 &&
+                resolve_copy_source_reg((long long)yyjson_get_sint(yyjson_arr_get(args, 0))) == reg) {
+              if (saw_substring) return 0;
+              saw_substring = 1;
+              continue;
+            }
+            if (ctype && !strcmp(ctype, "Method") && mname &&
+                (!strcmp(mname, "length") || !strcmp(mname, "len") || !strcmp(mname, "size")) &&
+                args && yyjson_is_arr(args) && yyjson_arr_size(args) == 0 && recv == reg) {
+              saw_len = 1;
+              continue;
+            }
+          }
+          if (inst_uses_reg(later, reg)) return 0;
+        }
+        if (post_store_use_out) {
+          *post_store_use_out = saw_len ? HAKO_LLVMC_STRING_POST_STORE_USE_LEN_OBSERVER
+                                        : HAKO_LLVMC_STRING_POST_STORE_USE_NONE;
+        }
+        return saw_set && saw_substring;
       }
 
       auto int try_emit_string_insert_mid_const_call(

@@ -21,14 +21,27 @@
           long long dst,
           long long lhs,
           long long rhs,
-          int* direct_set_out) {
+          int* direct_set_out,
+          int* shared_receiver_out) {
         int direct_set = has_direct_array_set_consumer(ii, ilen, insts, dst);
+        int shared_receiver = 0;
+        enum StringPostStoreUseKind post_store_use =
+            HAKO_LLVMC_STRING_POST_STORE_USE_NONE;
         if (direct_set_out) *direct_set_out = direct_set;
+        if (get_str_const(rhs) != NULL) {
+          shared_receiver =
+              match_const_suffix_shared_receiver_window(ii, ilen, insts, dst, &post_store_use);
+        }
+        (void)post_store_use;
+        if (shared_receiver_out) *shared_receiver_out = shared_receiver;
         if (should_defer_string_concat_pair(ii, ilen, insts, dst)) {
           return HAKO_LLVMC_STRING_CONCAT_PAIR_ROUTE_DEFER_PAIR;
         }
         if (get_str_const(rhs) != NULL && direct_set) {
           return HAKO_LLVMC_STRING_CONCAT_PAIR_ROUTE_CONST_SUFFIX;
+        }
+        if (get_str_const(rhs) != NULL && shared_receiver) {
+          return HAKO_LLVMC_STRING_CONCAT_PAIR_ROUTE_CONST_SUFFIX_SHARED;
         }
         if (direct_set) {
           return HAKO_LLVMC_STRING_CONCAT_PAIR_ROUTE_INSERT_MID_CONST;
@@ -68,20 +81,22 @@
           return emit_string_const_box_result(f, dst);
         }
         int direct_set = 0;
+        int shared_receiver = 0;
         char route_extra[384];
         enum StringConcatPairRouteKind route = classify_string_concat_pair_route(
-            ii, ilen, insts, dst, lhs, rhs, &direct_set);
+            ii, ilen, insts, dst, lhs, rhs, &direct_set, &shared_receiver);
         if (route == HAKO_LLVMC_STRING_CONCAT_PAIR_ROUTE_DEFER_PAIR) {
           if (hako_llvmc_route_trace_enabled()) {
             snprintf(
                 route_extra,
                 sizeof(route_extra),
-                "ii=%zu dst=%lld lhs=%lld rhs=%lld direct_set=%d",
+                "ii=%zu dst=%lld lhs=%lld rhs=%lld direct_set=%d shared_receiver=%d",
                 ii,
                 dst,
                 lhs,
                 rhs,
-                direct_set);
+                direct_set,
+                shared_receiver);
             hako_llvmc_emit_route_trace(
                 "string_concat_add_route",
                 "defer_pair",
@@ -92,29 +107,44 @@
           finalize_string_concat_result(dst);
           return 1;
         }
-        if (route == HAKO_LLVMC_STRING_CONCAT_PAIR_ROUTE_CONST_SUFFIX) {
+        if (route == HAKO_LLVMC_STRING_CONCAT_PAIR_ROUTE_CONST_SUFFIX ||
+            route == HAKO_LLVMC_STRING_CONCAT_PAIR_ROUTE_CONST_SUFFIX_SHARED) {
           /* Current concrete lowering for the owner-side `const_suffix` route.
            * phase-151x visibility lock keeps the intended canonical reading:
            *   thaw.str + lit.str + str.concat2 + freeze.str
            * while this shim now defers direct-set-only publication into the
-           * array-store kernel-slot consumer and keeps other paths on the
-           * current concrete helper path.
+           * array-store kernel-slot consumer, and now also lets the same
+           * producer feed the active shared-receiver exact front
+           * (`set(...)` + trailing `substring(...)`) without early publish.
            */
-          if (try_emit_string_concat_const_suffix_call(f, ii, ilen, insts, dst, lhs, rhs)) {
+          if (try_emit_string_concat_const_suffix_call(
+                  f,
+                  ii,
+                  ilen,
+                  insts,
+                  dst,
+                  lhs,
+                  rhs,
+                  route == HAKO_LLVMC_STRING_CONCAT_PAIR_ROUTE_CONST_SUFFIX_SHARED)) {
             if (hako_llvmc_route_trace_enabled()) {
               snprintf(
                   route_extra,
                   sizeof(route_extra),
-                  "ii=%zu dst=%lld lhs=%lld rhs=%lld direct_set=%d",
+                  "ii=%zu dst=%lld lhs=%lld rhs=%lld direct_set=%d shared_receiver=%d",
                   ii,
                   dst,
                   lhs,
                   rhs,
-                  direct_set);
+                  direct_set,
+                  shared_receiver);
               hako_llvmc_emit_route_trace(
                   "string_concat_add_route",
-                  "defer_const_suffix_kernel_slot",
-                  "const_suffix",
+                  route == HAKO_LLVMC_STRING_CONCAT_PAIR_ROUTE_CONST_SUFFIX_SHARED
+                      ? "defer_const_suffix_kernel_slot_shared"
+                      : "defer_const_suffix_kernel_slot",
+                  route == HAKO_LLVMC_STRING_CONCAT_PAIR_ROUTE_CONST_SUFFIX_SHARED
+                      ? "const_suffix_shared_receiver"
+                      : "const_suffix",
                   route_extra);
             }
             return 1;
@@ -126,12 +156,13 @@
               snprintf(
                   route_extra,
                   sizeof(route_extra),
-                  "ii=%zu dst=%lld lhs=%lld rhs=%lld direct_set=%d",
+                  "ii=%zu dst=%lld lhs=%lld rhs=%lld direct_set=%d shared_receiver=%d",
                   ii,
                   dst,
                   lhs,
                   rhs,
-                  direct_set);
+                  direct_set,
+                  shared_receiver);
               hako_llvmc_emit_route_trace(
                   "string_concat_add_route",
                   "emit_insert_hsi",
@@ -148,12 +179,13 @@
             snprintf(
                 route_extra,
                 sizeof(route_extra),
-                "ii=%zu dst=%lld lhs=%lld rhs=%lld direct_set=%d",
+                "ii=%zu dst=%lld lhs=%lld rhs=%lld direct_set=%d shared_receiver=%d",
                 ii,
                 dst,
                 lhs,
                 rhs,
-                direct_set);
+                direct_set,
+                shared_receiver);
             hako_llvmc_emit_route_trace(
                 "string_concat_add_route",
                 "emit_concat3_hhh",
@@ -166,12 +198,13 @@
           snprintf(
               route_extra,
               sizeof(route_extra),
-              "ii=%zu dst=%lld lhs=%lld rhs=%lld direct_set=%d",
+              "ii=%zu dst=%lld lhs=%lld rhs=%lld direct_set=%d shared_receiver=%d",
               ii,
               dst,
               lhs,
               rhs,
-              direct_set);
+              direct_set,
+              shared_receiver);
           hako_llvmc_emit_route_trace(
               "string_concat_add_route",
               "emit_concat_hh",

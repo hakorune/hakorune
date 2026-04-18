@@ -64,9 +64,13 @@ Scope: current lane / next lane / restart order only.
 - current accepted redesign is now locked in narrowed form:
   - keep `public handle ABI`
   - move the first code cut to producer-side unpublished outcome
-  - first landing is not a general `TransientText` rollout; it is a narrow runtime-private `const_suffix -> KernelTextSlot -> store.array.str` substrate
-  - compiler/backend consumption is now landed only for the direct-set-only `const_suffix -> set(...)` window
-  - active shared-receiver exact front (`text + "xy"` reused by `set` + trailing `substring`) is still a follow-up card; current `string_kernel_plan` evidence remains verifier-side on that wider path
+  - first landing is not a general `TransientText` rollout; it is a narrow runtime-private `const_suffix` producer contract with:
+    - hot sink path: `const_suffix -> KernelTextSlot -> store.array.str`
+    - hot shared-receiver reuse: the same producer contract may also feed trailing `substring(...)` without early handle publish
+  - compiler/backend consumption is landed for:
+    - direct-set-only `const_suffix -> set(...)`
+    - narrow shared-receiver exact front: `text + "xy"` reused by `set(...)` + known-length observer + trailing `substring(...)`
+  - rule: keep the producer specialized, but widen the internal contract so `set` and trailing `substring` can both consume the deferred `const_suffix` result before any publish boundary
 - latest completed audit lock (confirmed evidence; prefer this block if older notes below differ):
   - exact asm/perf audit on `kilo_micro_array_string_store`:
     - top samples: `substring_concat_hhii_export_impl 22.38%`, `string_concat_hh_export_impl 21.70%`, array string-store closure `17.34%`, `from_i8_string_const 13.07%`, `LocalKey::with 6.07%`, `memmove 3.51%`, `_int_malloc 1.75%`
