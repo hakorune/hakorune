@@ -99,8 +99,9 @@ Related:
 - exact owners:
   - `ArrayBox` construction goes through `src/providers/ring1/array/mod.rs`.
   - `MapBox` construction goes through `src/providers/ring1/map/mod.rs`.
+  - `PathBox` construction goes through `src/providers/ring1/path/mod.rs`.
 - rule:
-  - Do not reintroduce standalone builtin ArrayBox/MapBox constructor fallbacks under `src/box_factory/builtin_impls/`.
+  - Do not reintroduce standalone builtin ArrayBox/MapBox/PathBox constructor fallbacks under `src/box_factory/builtin_impls/`.
 
 ## 3. 0rust Target
 

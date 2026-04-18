@@ -4,7 +4,9 @@
 //! This module provides the runtime implementation used by provider_lock.
 
 use crate::runtime::provider_lock::PathService;
+use crate::{box_trait::NyashBox, boxes::path_box::PathBox, runtime::provider_lock};
 use std::path::{Component, Path};
+use std::sync::Arc;
 
 #[derive(Debug, Default)]
 pub struct Ring1PathService;
@@ -13,6 +15,14 @@ impl Ring1PathService {
     pub fn new() -> Self {
         Self
     }
+}
+
+/// Create the canonical runtime PathBox through the ring1 path provider seam.
+pub fn new_path_box() -> Result<Box<dyn NyashBox>, String> {
+    if provider_lock::get_pathbox_provider().is_none() {
+        let _ = provider_lock::set_pathbox_provider(Arc::new(Ring1PathService::new()));
+    }
+    Ok(Box::new(PathBox::try_new()?))
 }
 
 impl PathService for Ring1PathService {
@@ -100,5 +110,11 @@ mod tests {
             provider.normalize("./apps/./tests/../tests/main.hako"),
             "apps/tests/main.hako"
         );
+    }
+
+    #[test]
+    fn ring1_path_new_box_returns_pathbox() {
+        let boxed = new_path_box().unwrap();
+        assert!(boxed.as_any().downcast_ref::<PathBox>().is_some());
     }
 }

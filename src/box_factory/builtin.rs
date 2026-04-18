@@ -55,7 +55,8 @@ impl BoxFactory for BuiltinBoxFactory {
 
             // Phase 15.5: Fallback support (auto/core-ro modes)
             "FileBox" => builtin_impls::file_box::create(args),
-            "PathBox" => builtin_impls::path_box::create(args),
+            "PathBox" => crate::providers::ring1::path::new_path_box()
+                .map_err(|message| RuntimeError::InvalidOperation { message }),
 
             // Phase 113: FileHandleBox Nyash API
             "FileHandleBox" => builtin_impls::filehandle_box::create(args),
