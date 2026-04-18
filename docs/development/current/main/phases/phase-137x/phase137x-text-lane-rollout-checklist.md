@@ -297,9 +297,8 @@ Related:
   - landed: borrowed-alias test snapshot projection reads an ordered field set owned by `observe/contract.rs`
   - landed: `store.array.str` stderr summary reads total/detail projection through `observe/contract.rs`
   - landed: stderr sink field formatting uses one sink-local `name=value` append helper instead of repeating raw `write!` loops
-  - after the landed borrowed-alias slice, move the next active family only:
-    - `store.array.str`
-  - remove raw snapshot index knowledge from sink/test mirrors where possible
+  - landed: fixed stderr summary families reuse existing `observe/contract.rs` summary field arrays, with explicit sink-owned tails for derived `unclassified` fields
+  - next: inspect remaining raw snapshot index knowledge in sink/test mirrors before moving another family
 - `Cleanup 3`: split `BorrowedHandleBox` responsibilities
   - separate only after the owner family points back at read encode again
   - if not, keep this card parked
