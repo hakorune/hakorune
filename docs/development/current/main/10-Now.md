@@ -160,8 +160,8 @@ Related:
   - restored reread after reverting the probe:
     - `kilo_kernel_small = C 81 ms / Ny AOT 810 ms`
     - `kilo_kernel_small_hk = C 82 ms / Ny AOT 864 ms`
-  - next seam must preserve cheap alias encode on read; `owned-string keep` is not the keeper
-  - next card is read-side alias lane split:
+  - next seam had to preserve cheap alias encode on read; `owned-string keep` was not the keeper
+  - follow-up card was read-side alias lane split:
     - `TextReadOnly`
     - `EncodedAlias`
     - `StableObject`
@@ -239,6 +239,16 @@ Related:
       - this confirms the cleanup is not keeper evidence
       - do not reopen store-side `owned-string keep`
       - do not open `TextLane`, MIR legality, runtime-wide 289x implementation, allocator/arena, or container lane-host work from this proof alone
+  - rejected follow-up probe after the fresh owner proof:
+    - attempted unpublished `owned-text keep` for `KernelTextSlot -> existing BorrowedHandleBox` retarget without changing public ABI or `KernelTextSlot` layout
+    - exact guard stayed closed: `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`
+    - meso stayed noisy/open: `kilo_meso_substring_concat_array_set_loopcarry = C 4 ms / Ny AOT 62 ms`
+    - strict whole regressed: `kilo_kernel_small_hk = C 84 ms / Ny AOT 902 ms`, rerun `C 82 ms / Ny AOT 892 ms`
+    - asm/top removed `objectize_kernel_text_slot_stable_box`, but shifted cost into `__memmove_avx512_unaligned_erms 28.32%`, `_int_malloc 12.47%`, and `array_string_store_kernel_text_slot_at::{closure} 5.89%`
+    - reading:
+      - active whole still demands an object handle at `array.get_hi`
+      - delaying stable birth from store to read only moved publication/copy tax
+      - code was reverted; do not reopen store-side `owned-string keep` or `owned-text keep` without a front that no longer demands object handles on read
   - reading:
     - phase 2.5 runtime contract is now fixed more tightly than the first `array.get`-only slice
     - exact stays closed, but meso / strict whole reopened upward versus the prior keeper-candidate band
@@ -375,7 +385,7 @@ Related:
    - stable objectization must remain cache-backed and cold
 2. require a fresh narrow owner proof before the next code edit
    - acceptable seam: reduce read/materialize/copy tax without changing public ABI
-   - reject seam: store-side `owned-string keep` or any change that makes `array.get` publish per read
+   - reject seam: store-side `owned-string keep` / `owned-text keep` or any change that makes `array.get` publish per read
 3. defer future representation work
    - no `TextLane` / MIR legality until the active read-side lane reaches keeper/reject
    - phase-289x remains planning-only; runtime-wide implementation does not start here

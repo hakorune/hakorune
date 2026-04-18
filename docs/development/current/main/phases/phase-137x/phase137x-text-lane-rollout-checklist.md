@@ -38,11 +38,11 @@ Related:
     - `live source`
     - `cached handle`
     - `cold fallback`
-- next card is read-side alias lane split, not full `TextLane`:
-  - `TextReadOnly`
-  - `EncodedAlias`
-  - `StableObject`
-  - keep stable objectize cold and cache-backed
+- active next card requires a fresh narrow owner proof before code:
+  - preserve the landed read-side alias lane order: `live source -> cached handle -> cold fallback`
+  - reduce read/materialize/copy tax without changing public ABI
+  - do not reopen store-side `owned-string keep` / `owned-text keep`
+  - keep full `TextLane` / MIR legality as future work only
 - latest proof:
   - exact: `kilo_micro_array_string_store = C 9 ms / Ny AOT 4 ms`
   - middle: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 61 ms`
@@ -124,7 +124,7 @@ Related:
     - `freeze.str = only birth sink`
     - `TextLane = future storage`
   - exact closed truth remains documented
-  - meso band remains around the current `56-59 ms` band unless a real keeper lands
+  - meso is reopened/noisy around the current `61-65 ms` band unless a real keeper lands
   - whole proof front remains `kilo_kernel_small`
 - Keeper criteria:
   - evidence is consistent across `CURRENT_TASK.md`, `10-Now.md`, and phase README
@@ -314,6 +314,9 @@ Related:
     - exact remains closed: `C 9 ms / Ny AOT 4 ms`
     - meso remains open/noisy: `C 3 ms / Ny AOT 61 ms`
     - strict whole remains in-band: `C 80 ms / Ny AOT 812 ms`
+  - rejected follow-up: unpublished `owned-text keep` for `KernelTextSlot -> existing BorrowedHandleBox` removed the store-side objectize symbol from asm, but strict whole regressed to `902 ms` / `892 ms`
+    - reject reason: active whole still calls `array.get_hi`, so delaying stable birth from store to read only moves publication/copy tax
+    - code was reverted; do not reopen `owned-string keep` / `owned-text keep` until a front no longer demands object handles on read
   - this is still structure cleanup, not a keeper optimization; do not split `BorrowedHandleBox` into new representation classes until owner proof points at that responsibility directly
 - `Cleanup 4`: typed handle-cache consolidation
   - status: partial

@@ -191,8 +191,8 @@ Scope: current lane / next lane / restart order only.
       - restored reread after backing that probe out:
         - `kilo_kernel_small = C 81 ms / Ny AOT 810 ms`
         - `kilo_kernel_small_hk = C 82 ms / Ny AOT 864 ms`
-        - next seam is not `owned-string keep`; any follow-up must preserve cheap alias encode on `array.get`
-      - next card is read-side alias lane split:
+        - next seam was not `owned-string keep`; follow-up had to preserve cheap alias encode on `array.get`
+      - follow-up card was read-side alias lane split:
         - `TextReadOnly`
         - `EncodedAlias`
         - `StableObject`
@@ -263,6 +263,16 @@ Scope: current lane / next lane / restart order only.
         - reading:
           - this is structure cleanup on the existing read-side alias lane, not a new keeper optimization
           - next owner remains stable keep creation / first-read handle publication around the existing borrowed-alias store-read chain
+      - rejected follow-up probe after the fresh owner proof:
+        - attempted unpublished `owned-text keep` for `KernelTextSlot -> existing BorrowedHandleBox` retarget, keeping public ABI and `KernelTextSlot` layout unchanged
+        - exact guard stayed closed: `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`
+        - meso stayed noisy/open: `kilo_meso_substring_concat_array_set_loopcarry = C 4 ms / Ny AOT 62 ms`
+        - strict whole regressed: `kilo_kernel_small_hk = C 84 ms / Ny AOT 902 ms`, rerun `C 82 ms / Ny AOT 892 ms`
+        - asm/top removed `objectize_kernel_text_slot_stable_box`, but shifted cost into `__memmove_avx512_unaligned_erms 28.32%`, `_int_malloc 12.47%`, and `array_string_store_kernel_text_slot_at::{closure} 5.89%`
+        - reject reason:
+          - active whole still calls `array.get_hi`, so delaying stable birth from store to read does not remove object-world demand
+          - the seam moved publication/copy tax and increased store/read residence work
+          - code was reverted; do not reopen store-side `owned-string keep` or `owned-text keep` without a front that no longer demands an object handle on read
       - reading:
         - phase 2.5 contract is now much tighter on read behavior
         - exact stays closed, but meso / strict whole reopened upward versus the prior `57 ms` / `791 ms` band
@@ -681,7 +691,7 @@ Scope: current lane / next lane / restart order only.
 ## Next
 
 1. keep phase-2.5 read-side alias lane as the active judge
-   - do not reopen the rejected store-side `owned-string keep`
+   - do not reopen the rejected store-side `owned-string keep` / `owned-text keep`
    - preserve live-source -> cached-handle -> cold-fallback encode order
    - stable objectization must stay cache-backed and cold
 2. treat the latest cleanup as BoxShape only, not keeper evidence
@@ -700,7 +710,10 @@ Scope: current lane / next lane / restart order only.
    - acceptable seams must reduce read/materialize/copy tax without widening public ABI
    - do not start `TextLane`, MIR legality, runtime-wide 289x implementation, allocator/arena, or container lane-host work from this proof alone
    - if no narrow seam is proven, keep docs current and stop instead of moving cost between store/read helpers
-5. current fresh proof commands:
+5. rejected after the fresh proof:
+   - unpublished `owned-text keep` removed the `objectize_kernel_text_slot_stable_box` symbol from asm, but strict whole regressed to `902 ms` / `892 ms`
+   - reject reason: active whole still demands an object handle at `array.get_hi`, so delayed stable birth only moves the cost
+6. current fresh proof commands:
    - `PERF_AOT=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_string_store 1 3`
    - `PERF_AOT=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_meso_substring_concat_array_set_loopcarry 1 3`
    - `PERF_VM_FORCE_NO_FALLBACK=1 PERF_REQUIRE_AOT_RESULT_PARITY=1 bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small_hk 1 3`

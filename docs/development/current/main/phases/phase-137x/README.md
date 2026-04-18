@@ -115,8 +115,8 @@
   - restored reread after reverting that probe:
     - `kilo_kernel_small = C 81 ms / Ny AOT 810 ms`
     - `kilo_kernel_small_hk = C 82 ms / Ny AOT 864 ms`
-  - next seam must keep `array.get` cheap; do not reopen `owned-string keep`
-  - next card is read-side alias lane split:
+  - next seam had to keep `array.get` cheap; do not reopen `owned-string keep` / `owned-text keep`
+  - follow-up card was read-side alias lane split:
     - `TextReadOnly`
     - `EncodedAlias`
     - `StableObject`
@@ -193,6 +193,16 @@
       - this cleanup is not keeper evidence
       - next owner remains stable keep creation / first-read handle publication plus materialization/copy around the existing borrowed-alias store-read chain
       - do not open `TextLane` / MIR legality / runtime-wide 289x implementation before a narrower keeper/reject proof
+    - rejected follow-up probe after that proof:
+      - attempted unpublished `owned-text keep` for `KernelTextSlot -> existing BorrowedHandleBox` retarget without changing public ABI or `KernelTextSlot` layout
+      - exact guard stayed closed: `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`
+      - meso stayed noisy/open: `kilo_meso_substring_concat_array_set_loopcarry = C 4 ms / Ny AOT 62 ms`
+      - strict whole regressed: `kilo_kernel_small_hk = C 84 ms / Ny AOT 902 ms`, rerun `C 82 ms / Ny AOT 892 ms`
+      - asm/top removed `objectize_kernel_text_slot_stable_box`, but shifted cost into `__memmove_avx512_unaligned_erms 28.32%`, `_int_malloc 12.47%`, and `array_string_store_kernel_text_slot_at::{closure} 5.89%`
+      - reject reason:
+        - active whole still calls `array.get_hi`, so delaying stable birth from store to read does not remove object-world demand
+        - the seam moved publication/copy tax and increased store/read residence work
+        - code was reverted; do not reopen store-side `owned-string keep` or `owned-text keep` without a front that no longer demands object handles on read
   - reading:
     - phase 2.5 no longer has only the `array.get` cached-handle proof
     - exact stays closed, but meso / strict whole reopened upward versus the prior `57 ms` / `791 ms` band
@@ -200,8 +210,9 @@
     - current reading remains reject-side for keeper judgement on this lane
     - do not open `TextLane` or MIR legality before a fresh whole/meso owner proof
     - parked cleanup-card details live in `phase137x-text-lane-rollout-checklist.md`
-- current next seam inside phase 1: direct-set-only `insert_hsi` widening is landed; next widening is non-direct-set `freeze_text_plan(Pieces3)` / `insert_const_mid_fallback`
-  - direct-set-only deferred `Pieces3 substring` widening is now landed on the same unpublished contract
+- current next seam: phase-2.5 remains the active judge, but code needs a fresh narrow owner proof before another edit
+  - direct-set-only `insert_hsi` and deferred `Pieces3 substring` widenings are already landed on the unpublished contract
+  - do not reopen phase-1 producer widening as the current next step unless new evidence moves the owner back there
 - current reject: slot-store delayed publication probes and string-specialized handle payload probe
 - read order:
   1. `CURRENT_TASK.md`
