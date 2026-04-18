@@ -276,6 +276,11 @@ impl SnapshotCounterField {
     pub(crate) fn read(self, snapshot: &[u64]) -> u64 {
         snapshot[self.snapshot_index]
     }
+
+    #[cfg(test)]
+    pub(crate) fn write_for_tests(self, snapshot: &mut [u64], value: u64) {
+        snapshot[self.snapshot_index] = value;
+    }
 }
 
 pub(crate) const STORE_ARRAY_STR_TOTAL_FIELD: SnapshotCounterField =

@@ -179,8 +179,8 @@ mod tests {
     #[test]
     fn append_helpers_preserve_counter_format_order() {
         let mut snapshot = vec![0; contract::SNAPSHOT_COUNTER_LEN];
-        snapshot[contract::CONST_SUFFIX_TOTAL_FIELD.snapshot_index] = 7;
-        snapshot[contract::CONST_SUFFIX_CACHED_HANDLE_HIT_FIELD.snapshot_index] = 3;
+        contract::CONST_SUFFIX_TOTAL_FIELD.write_for_tests(&mut snapshot, 7);
+        contract::CONST_SUFFIX_CACHED_HANDLE_HIT_FIELD.write_for_tests(&mut snapshot, 3);
 
         let mut line = String::from("[perf/counter][unit]");
         append_snapshot_fields(
