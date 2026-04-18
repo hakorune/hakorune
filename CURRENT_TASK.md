@@ -18,13 +18,14 @@ Scope: current lane / next lane / restart order only.
 4. `docs/development/current/main/phases/phase-137x/README.md`
 5. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
 6. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-7. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
-8. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-9. `docs/development/current/main/design/string-birth-sink-ssot.md`
-10. `docs/development/current/main/15-Workstream-Map.md`
-11. `git status -sb`
-12. `tools/checks/dev_gate.sh quick`
-13. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
+7. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+8. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
+9. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+10. `docs/development/current/main/design/string-birth-sink-ssot.md`
+11. `docs/development/current/main/15-Workstream-Map.md`
+12. `git status -sb`
+13. `tools/checks/dev_gate.sh quick`
+14. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Current Lane
 

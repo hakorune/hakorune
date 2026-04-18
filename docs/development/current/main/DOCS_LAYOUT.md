@@ -24,6 +24,8 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - fastest reboot path only
 - `design/kernel-implementation-phase-plan-ssot.md`
   - canonical rough task-order SSOT
+- `design/perf-owner-first-optimization-ssot.md`
+  - optimization lane の `front split` / `owner transition` / `keeper-revert stop-line` owner
 - `design/kernel-replacement-axis-ssot.md`
   - `K-axis` / artifact / task-placement vocabulary owner
 - `lang/README.md`
