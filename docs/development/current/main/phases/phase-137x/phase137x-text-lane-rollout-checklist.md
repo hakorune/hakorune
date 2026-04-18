@@ -311,12 +311,12 @@ Related:
   - landed: RuntimeData field fallback now targets `nyash.map.slot_load_hh` / `nyash.map.slot_store_hhh`; `nyash.map.get_hh` / `nyash.map.set_hh` remain compat export/test/archive residue
   - landed: C-shim map size emission now targets `nyash.map.entry_count_i64`; dead `get_h` / `has_h` C declarations were removed from the active shim
   - landed: Rust `map_compat` exports are no longer re-exported through public `map::*`; compat ABI exports/tests, including `entry_count_h`, live inside `map_compat.rs`
-  - landed: `NewBox(MapBox)` construction now goes through the ring1 map provider seam; `builtin-mapbox-compat` is no longer a default feature and `compat_map_box` is opt-in residue only
+  - landed: `NewBox(MapBox)` construction now goes through the ring1 map provider seam; the deprecated builtin MapBox fallback is removed
   - retarget remaining lowering/runtime users off deprecated compat map exports
   - then collapse:
     - `map_compat.rs`
     - compat alias surface
-    - deprecated builtin factory path
+    - deprecated builtin factory path (done)
   - slot publish-boundary counters
   - any new explicit publish-effect counters added by the card
 - guards:

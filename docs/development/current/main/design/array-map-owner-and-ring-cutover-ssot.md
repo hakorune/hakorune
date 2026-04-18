@@ -95,12 +95,12 @@ Related:
 
 ### 2.4 Legacy residue
 
-- legacy builtin residue もまだ残る。
+- legacy builtin residue remains for ArrayBox.
 - exact owners:
   - `src/box_factory/builtin_impls/array_box.rs`
-  - `src/box_factory/builtin_impls/compat_map_box.rs` (opt-in only; default `NewBox(MapBox)` routes through the ring1 map provider seam)
 - rule:
   - これらは daily owner に戻さず、compat/archive residue としてのみ扱う。
+  - `MapBox` construction goes through the ring1 map provider seam; do not reintroduce a standalone builtin MapBox fallback.
 
 ## 3. 0rust Target
 

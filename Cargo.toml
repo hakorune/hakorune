@@ -19,7 +19,6 @@ legacy-tests = [] # Legacy/phi-off test suites (pre-JoinIR). Disabled by default
 plugins-only = []
 builtin-core = []
 builtin-filebox = []  # Enable built-in FileBox provider (SSOT)
-builtin-mapbox-compat = [] # Keep deprecated standalone MapBox constructor shim for archive/compat probes
 ## Silence check-cfg warnings for historical cfg guards (kept off by default)
 vm-legacy = []
 phi-legacy = []
