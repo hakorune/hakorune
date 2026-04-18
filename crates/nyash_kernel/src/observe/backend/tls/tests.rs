@@ -164,12 +164,14 @@ fn tls_slot_publish_boundary_counters_flush_current_thread() {
         birth_backend_publish_boundary_slot_objectize_stable_box();
         birth_backend_publish_boundary_slot_empty();
         birth_backend_publish_boundary_slot_already_published();
+        borrowed_alias_encode_cached_handle_hit();
         let after = snapshot();
 
         assert_eq!(after[139] - before[139], 1);
         assert_eq!(after[140] - before[140], 1);
         assert_eq!(after[141] - before[141], 1);
         assert_eq!(after[142] - before[142], 1);
+        assert_eq!(after[143] - before[143], 1);
     });
 }
 

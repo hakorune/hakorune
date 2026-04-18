@@ -119,6 +119,7 @@ tls_zero_arg_api! {
     borrowed_alias_array_len_by_index_latest_fresh => borrowed_alias_array_len_by_index_latest_fresh,
     borrowed_alias_array_indexof_by_index_latest_fresh => borrowed_alias_array_indexof_by_index_latest_fresh,
     borrowed_alias_encode_epoch_hit => borrowed_alias_encode_epoch_hit,
+    borrowed_alias_encode_cached_handle_hit => borrowed_alias_encode_cached_handle_hit,
     borrowed_alias_encode_ptr_eq_hit => borrowed_alias_encode_ptr_eq_hit,
     borrowed_alias_encode_to_handle_arc => borrowed_alias_encode_to_handle_arc,
     borrowed_alias_encode_to_handle_arc_array_get_index => borrowed_alias_encode_to_handle_arc_array_get_index,
@@ -231,7 +232,7 @@ macro_rules! load {
     };
 }
 
-pub(crate) fn snapshot() -> [u64; 143] {
+pub(crate) fn snapshot() -> [u64; 144] {
     flush_current_thread();
     [
         load!(store_array_str_total),
@@ -377,5 +378,6 @@ pub(crate) fn snapshot() -> [u64; 143] {
         load!(birth_backend_publish_boundary_slot_objectize_stable_box_total),
         load!(birth_backend_publish_boundary_slot_empty),
         load!(birth_backend_publish_boundary_slot_already_published),
+        load!(borrowed_alias_encode_cached_handle_hit),
     ]
 }

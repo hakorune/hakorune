@@ -666,6 +666,11 @@ mod real {
     }
 
     #[inline(always)]
+    pub(crate) fn record_borrowed_alias_encode_cached_handle_hit() {
+        super::backend::borrowed_alias_encode_cached_handle_hit();
+    }
+
+    #[inline(always)]
     pub(crate) fn record_borrowed_alias_encode_ptr_eq_hit() {
         super::backend::borrowed_alias_encode_ptr_eq_hit();
     }
@@ -1107,6 +1112,9 @@ mod real {
 
     #[inline(always)]
     pub(crate) fn record_borrowed_alias_encode_epoch_hit() {}
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_encode_cached_handle_hit() {}
 
     #[inline(always)]
     pub(crate) fn record_borrowed_alias_encode_ptr_eq_hit() {}

@@ -357,7 +357,11 @@ impl ThreadCounters {
     fn birth_backend_site_string_concat_hh_materialize_owned(&self, bytes: u64) {
         Self::bump(&self.birth_backend_site_string_concat_hh_materialize_owned_total);
         self.birth_backend_site_string_concat_hh_materialize_owned_bytes
-            .set(self.birth_backend_site_string_concat_hh_materialize_owned_bytes.get() + bytes);
+            .set(
+                self.birth_backend_site_string_concat_hh_materialize_owned_bytes
+                    .get()
+                    + bytes,
+            );
     }
 
     #[inline(always)]
@@ -372,13 +376,13 @@ impl ThreadCounters {
 
     #[inline(always)]
     fn birth_backend_site_string_substring_concat_hhii_materialize_owned(&self, bytes: u64) {
-        Self::bump(
-            &self.birth_backend_site_string_substring_concat_hhii_materialize_owned_total,
-        );
-        self.birth_backend_site_string_substring_concat_hhii_materialize_owned_bytes.set(
-            self.birth_backend_site_string_substring_concat_hhii_materialize_owned_bytes.get()
-                + bytes,
-        );
+        Self::bump(&self.birth_backend_site_string_substring_concat_hhii_materialize_owned_total);
+        self.birth_backend_site_string_substring_concat_hhii_materialize_owned_bytes
+            .set(
+                self.birth_backend_site_string_substring_concat_hhii_materialize_owned_bytes
+                    .get()
+                    + bytes,
+            );
     }
 
     #[inline(always)]
@@ -395,7 +399,11 @@ impl ThreadCounters {
     fn birth_backend_site_const_suffix_materialize_owned(&self, bytes: u64) {
         Self::bump(&self.birth_backend_site_const_suffix_materialize_owned_total);
         self.birth_backend_site_const_suffix_materialize_owned_bytes
-            .set(self.birth_backend_site_const_suffix_materialize_owned_bytes.get() + bytes);
+            .set(
+                self.birth_backend_site_const_suffix_materialize_owned_bytes
+                    .get()
+                    + bytes,
+            );
     }
 
     #[inline(always)]
@@ -411,9 +419,12 @@ impl ThreadCounters {
     #[inline(always)]
     fn birth_backend_site_freeze_text_plan_pieces3_materialize_owned(&self, bytes: u64) {
         Self::bump(&self.birth_backend_site_freeze_text_plan_pieces3_materialize_owned_total);
-        self.birth_backend_site_freeze_text_plan_pieces3_materialize_owned_bytes.set(
-            self.birth_backend_site_freeze_text_plan_pieces3_materialize_owned_bytes.get() + bytes,
-        );
+        self.birth_backend_site_freeze_text_plan_pieces3_materialize_owned_bytes
+            .set(
+                self.birth_backend_site_freeze_text_plan_pieces3_materialize_owned_bytes
+                    .get()
+                    + bytes,
+            );
     }
 
     #[inline(always)]
@@ -673,6 +684,11 @@ impl ThreadCounters {
     #[inline(always)]
     fn borrowed_alias_encode_epoch_hit(&self) {
         Self::bump(&self.borrowed_alias_encode_epoch_hit);
+    }
+
+    #[inline(always)]
+    fn borrowed_alias_encode_cached_handle_hit(&self) {
+        Self::bump(&self.borrowed_alias_encode_cached_handle_hit);
     }
 
     #[inline(always)]
@@ -1246,6 +1262,10 @@ impl ThreadCounters {
         flush_cell(
             &self.borrowed_alias_encode_epoch_hit,
             &GLOBAL.borrowed_alias_encode_epoch_hit,
+        );
+        flush_cell(
+            &self.borrowed_alias_encode_cached_handle_hit,
+            &GLOBAL.borrowed_alias_encode_cached_handle_hit,
         );
         flush_cell(
             &self.borrowed_alias_encode_ptr_eq_hit,

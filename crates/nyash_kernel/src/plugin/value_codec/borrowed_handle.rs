@@ -633,6 +633,7 @@ fn plan_borrowed_alias_runtime_i64(alias: &BorrowedHandleBox) -> BorrowedAliasEn
         }
     }
     if let Some(cached) = alias.cached_runtime_handle() {
+        observe::record_borrowed_alias_encode_cached_handle_hit();
         return BorrowedAliasEncodePlan::CachedRuntimeHandle(cached);
     }
     if source_handle > 0 {

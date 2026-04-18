@@ -477,6 +477,10 @@ pub(crate) fn emit_summary_to_stderr() {
             snapshot[83],
         ),
         (contract::BORROWED_ALIAS_ENCODE_EPOCH_HIT, snapshot[84]),
+        (
+            contract::BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT,
+            snapshot[143],
+        ),
         (contract::BORROWED_ALIAS_ENCODE_PTR_EQ_HIT, snapshot[85]),
         (contract::BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC, snapshot[86]),
         (
