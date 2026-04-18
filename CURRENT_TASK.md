@@ -64,6 +64,7 @@ Scope: current lane / next lane / restart order only.
       - retire the empty `map_runtime_facade`; public shells now call shared map leaves directly
       - keep runtime-data get/set on string-key slot leaves instead of reopening `with_map_box`
       - keep raw map materializing loads centralized through a string-key load leaf
+      - keep map key decode named as map-key policy, not as an array-fast borrowed-string profile
   - pending todo:
     - `phase2-deferred-const-suffix-stability`
   - do not open a new ABI / `TextLane` cut until this reread is judged keeper vs reject
@@ -220,6 +221,7 @@ Scope: current lane / next lane / restart order only.
     - `map_runtime_facade` is retired; aliases/compat call `map_probe`, `map_slot_load`, `map_slot_store`, `map_slot_mutate`, and `map_substrate` directly
     - runtime-data map get/set now reuse string-key slot leaves and no longer open `with_map_box` directly
     - raw map materializing loads now share `map_slot_load_str`
+    - map key decode now uses `CodecProfile::MapKeyBorrowString`, keeping scalar-prefer/string-alias behavior without depending on the array profile name
   - compiler fallback probe is closed for the whole bench; next slice is not a lowering widening
   - do not jump to `TextLane` or MIR legality first
 - current accepted redesign is now locked in narrowed form:
