@@ -60,7 +60,7 @@ Rule:
 | `Bytes` | value | future `BytesRef / OwnedBytes / BytesCell` | `publish.bytes` or host boundary | docs only |
 | `Int` | scalar value | immediate | box only on object demand | audit first |
 | `Bool` | scalar value | immediate | box only on object demand | audit first |
-| `Array` | identity container | lane host for elements | array handle remains public identity | text lane design after string keeper |
+| `Array` | identity container | lane host for elements | array handle remains public identity | text lane design after string read-side keeper/reject |
 | `Map` | identity container | key/value boundary lanes | map handle remains public identity | key/value boundary map |
 | `View/Slice` | borrowed read view | `Ref` / read session | stable object only on escape | docs after text proof |
 | tuple/optional small aggregate | value | `agg_local` | box only on escape | out of this phase unless needed |
@@ -175,7 +175,7 @@ Stop-line:
   - array/map public semantics stay unchanged
   - container lane-host planning still reads as a generalization boundary, not implementation authorization
 
-## Phase 3. First Storage Pilot After String Keeper
+## Phase 3. First Storage Pilot After String Read-Side Keeper/Reject
 
 - Gate:
   - phase-137x has a keeper/reject decision on the active read-side lane

@@ -22,7 +22,7 @@ Related:
 - Current locked reading:
   - exact front is closed by the shared-receiver `KernelTextSlot` bridge
   - middle contradiction guard remains `kilo_meso_substring_concat_array_set_loopcarry`
-  - whole owner remains upstream producer publication plus array/string slot work
+  - whole owner after the phase-2.5 cleanup remains read/materialize/copy tax around array get / stable objectization, not a new public representation proof
 - current whole-side landed cuts are still narrow:
   - direct-set-only `const_suffix -> KernelTextSlot -> kernel_slot_store_hi`
   - shared-receiver `const_suffix` reuse on exact front
@@ -43,6 +43,11 @@ Related:
   - `EncodedAlias`
   - `StableObject`
   - keep stable objectize cold and cache-backed
+- latest proof:
+  - exact: `kilo_micro_array_string_store = C 9 ms / Ny AOT 4 ms`
+  - middle: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 61 ms`
+  - strict whole: `kilo_kernel_small_hk = C 80 ms / Ny AOT 812 ms`
+  - asm/top owner remains `array_get_index_encoded_i64` / `objectize_kernel_text_slot_stable_box` plus libc copy/alloc
 
 ## Goal
 
@@ -305,6 +310,10 @@ Related:
   - status: partial / parked
   - landed narrow read-encode cleanup: `array.get` uses a scalar-checked borrowed-alias encoder after its local int/bool probes, avoiding duplicate scalar checks before live-source / cached-handle / cold-fallback selection
   - landed narrow planner cleanup: borrowed-alias encode planning snapshots `drop_epoch` once and reuses it for cached-handle validation
+  - fresh proof after the cleanup stays reject-side for keeper judgment:
+    - exact remains closed: `C 9 ms / Ny AOT 4 ms`
+    - meso remains open/noisy: `C 3 ms / Ny AOT 61 ms`
+    - strict whole remains in-band: `C 80 ms / Ny AOT 812 ms`
   - this is still structure cleanup, not a keeper optimization; do not split `BorrowedHandleBox` into new representation classes until owner proof points at that responsibility directly
 - `Cleanup 4`: typed handle-cache consolidation
   - status: partial
@@ -355,5 +364,5 @@ Related:
 - stop after 2 non-keeper cards in the same owner family
 - stop if exact / middle / whole are being judged with different baselines
 - stop if docs drift from the actual landed seam
-- stop if `TextLane` work begins before Phase 1 and Phase 2 are both proven
+- stop if `TextLane` work begins before the active phase-2.5 read-side lane reaches keeper/reject
 - stop if publish centralization is attempted before the corridor can already stay unpublished through store

@@ -25,7 +25,7 @@
   - semantic authority stays in `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
   - this README stays a current-state mirror and handoff note
 - current exact front: `kilo_micro_array_string_store` is closed by the shared-receiver `KernelTextSlot` bridge
-- current whole owner: `const_suffix` / `freeze_text_plan(Pieces3)` publication
+- current whole owner: phase-2.5 read/materialize/copy tax after the `const_suffix` / `freeze_text_plan(Pieces3)` producer cuts
 - current owner split is now explicit:
   - `const_suffix freeze_fallback = 479728 / 480000`
   - `materialize total = 539728` (`~4.5 GB`)
@@ -33,11 +33,13 @@
   - whole-side `site.string_concat_hh.* = 0`
   - whole-side `site.string_substring_concat_hhii.* = 0`
   - reading:
-    - the live whole owner is upstream of the slot sink
-    - next card is deferred `const_suffix` residence inside the current `KernelTextSlot` ABI
+    - this is the historical producer-owner split that led to the landed phase-2 cuts
+    - the current owner proof has moved to read-side encode/materialize/objectize and libc copy/alloc tax
 - current middle guard: `kilo_meso_substring_concat_array_set_loopcarry`
-- current stop-line: `KernelTextSlot` exit is observed and inactive (`publish_boundary.slot_* = 0`)
-- current first seam: producer-side unpublished outcome under `const_suffix` (`KernelTextSlot` substrate first)
+- current stop-line:
+  - `KernelTextSlot` exit is observed and inactive (`publish_boundary.slot_* = 0`)
+  - do not open `TextLane`, MIR legality, runtime-wide 289x implementation, allocator/arena, or container lane-host work from the current proof alone
+- current first seam: phase-2.5 read-side alias lane; producer-side unpublished outcome under `const_suffix` is already landed
 - current rollout order:
   - `Phase 1`: producer outcome -> canonical sink (`KernelTextSlot` first)
   - `Phase 2`: cold publish effect
@@ -175,9 +177,22 @@
       - exact stays closed: `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
       - meso remains open/noisy: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 65 ms`
       - strict whole is noisy: `kilo_kernel_small_hk = C 80 ms / Ny AOT 1740 ms` then rerun `C 80 ms / Ny AOT 808 ms`
+    - fresh owner proof after the epoch-snapshot cleanup:
+      - exact stays closed: `kilo_micro_array_string_store = C 9 ms / Ny AOT 4 ms`
+      - meso remains open/noisy: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 61 ms`
+      - strict whole remains in-band: `kilo_kernel_small_hk = C 80 ms / Ny AOT 812 ms` (`repeat=3`, parity ok)
+      - asm/top:
+        - `__memmove_avx512_unaligned_erms 25.02%`
+        - `_int_malloc 9.58%`
+        - `array_get_index_encoded_i64::{closure} 4.39%`
+        - `objectize_kernel_text_slot_stable_box 3.62%`
+        - nested `array_get_index_encoded_i64` closure `2.09%`
+        - `array_string_store_kernel_text_slot_at::{closure} 2.01%`
+        - `TextKeepBacking::clone_stable_box_cold_fallback 0.49%`
     - reading:
       - this cleanup is not keeper evidence
-      - next owner remains stable keep creation / first-read handle publication around the existing borrowed-alias store-read chain
+      - next owner remains stable keep creation / first-read handle publication plus materialization/copy around the existing borrowed-alias store-read chain
+      - do not open `TextLane` / MIR legality / runtime-wide 289x implementation before a narrower keeper/reject proof
   - reading:
     - phase 2.5 no longer has only the `array.get` cached-handle proof
     - exact stays closed, but meso / strict whole reopened upward versus the prior `57 ms` / `791 ms` band
@@ -339,11 +354,12 @@
   - `kilo_micro_substring_concat`
   - `kilo_micro_substring_views_only`
   - `kilo_micro_len_substring_views`
-- current active owner proof front is `kilo_micro_array_string_store`
+- current active owner proof front after phase-2.5 is strict whole `kilo_kernel_small_hk`; `kilo_micro_array_string_store` is the exact guard
 - current side diagnostic front is `indexOf`
 - current owner split is now explicit:
   - exact micro owner: shared generic publish/objectize behind `string_concat_hh` + `string_substring_concat_hhii`
-  - whole kilo owner: `const_suffix` fallback + `freeze_text_plan(Pieces3)` publication
+  - historical whole producer owner: `const_suffix` fallback + `freeze_text_plan(Pieces3)` publication
+  - current phase-2.5 owner proof: read-side encode/materialize/objectize plus libc copy/alloc tax
   - accepted first implementation cut:
     - runtime-private producer substrate only
     - `const_suffix -> KernelTextSlot -> store.array.str`

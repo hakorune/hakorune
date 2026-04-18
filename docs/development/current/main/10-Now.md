@@ -223,6 +223,22 @@ Related:
       - meso remains open/noisy: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 65 ms`
       - strict whole is noisy: `kilo_kernel_small_hk = C 80 ms / Ny AOT 1740 ms` then rerun `C 80 ms / Ny AOT 808 ms`
     - next owner remains stable keep creation / first-read handle publication around the current borrowed-alias store-read chain
+  - fresh owner proof after the read-encode cleanup:
+    - exact remains closed: `kilo_micro_array_string_store = C 9 ms / Ny AOT 4 ms`
+    - meso remains open/noisy: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 61 ms`
+    - strict whole remains in the same band: `kilo_kernel_small_hk = C 80 ms / Ny AOT 812 ms` (`repeat=3`, parity ok)
+    - asm/top:
+      - libc copy/alloc dominates: `__memmove_avx512_unaligned_erms 25.02%`, `_int_malloc 9.58%`, `malloc 0.96%`
+      - named repo owners still cluster around read/materialize/slot tax:
+        - `array_get_index_encoded_i64::{closure} 4.39%`
+        - `objectize_kernel_text_slot_stable_box 3.62%`
+        - nested `array_get_index_encoded_i64` closure `2.09%`
+        - `array_string_store_kernel_text_slot_at::{closure} 2.01%`
+        - `TextKeepBacking::clone_stable_box_cold_fallback 0.49%`
+    - reading:
+      - this confirms the cleanup is not keeper evidence
+      - do not reopen store-side `owned-string keep`
+      - do not open `TextLane`, MIR legality, runtime-wide 289x implementation, allocator/arena, or container lane-host work from this proof alone
   - reading:
     - phase 2.5 runtime contract is now fixed more tightly than the first `array.get`-only slice
     - exact stays closed, but meso / strict whole reopened upward versus the prior keeper-candidate band
@@ -354,17 +370,19 @@ Related:
 
 ## Next
 
-1. continue `Phase 2`
-   - keep publish as an explicit cold effect
-   - next slice must reduce publish/source-capture frequency, not just outline it
-2. preserve the current guards during phase 2
+1. keep phase-2.5 read-side alias lane as the active judge
+   - preserve live-source -> cached-handle -> cold-fallback encode order
+   - stable objectization must remain cache-backed and cold
+2. require a fresh narrow owner proof before the next code edit
+   - acceptable seam: reduce read/materialize/copy tax without changing public ABI
+   - reject seam: store-side `owned-string keep` or any change that makes `array.get` publish per read
+3. defer future representation work
+   - no `TextLane` / MIR legality until the active read-side lane reaches keeper/reject
+   - phase-289x remains planning-only; runtime-wide implementation does not start here
+4. keep current guards
    - exact stays closed
-   - middle stays the contradiction gate
-   - preserve the existing `set_his` fast path
-3. defer `Phase 3`
-   - do not introduce `TextLane` before producer/sink split is proven
-4. defer `Phase 4`
-   - do not raise MIR legality before runtime consume/publish boundaries are stable
+   - middle remains the contradiction gate
+   - strict whole remains the active owner proof front
 
 ## Read Next
 

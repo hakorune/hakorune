@@ -442,7 +442,7 @@ Phase 0 の意味:
 - public ABI widening on phase-137x
 - `TextLane` first
 - legality-first without runtime consume capability
-- keeping permanent dual-routing after phase 2/3 keepers prove the new contract
+- keeping permanent dual-routing after phase 2/2.5/3 keepers prove the new contract
 
 ## Taskization
 
@@ -454,8 +454,8 @@ phase-137x の next implementation queue は次で固定する。
 2. Phase 2 preparation
    - isolate publish owner so producer helpers stop owning handle birth
    - once the new path is keeper-grade, delete legacy helper coexistence instead of preserving dual routing
-3. Phase 3 planning only after phase 2 keeper
-   - design `TextLane` against real post-phase-2 owner data
+3. Phase 3 planning only after the active phase-2.5 read-side lane reaches keeper/reject
+   - design `TextLane` against real post-phase-2.5 owner data
 4. Phase 4 only after phase 3 direction is proven
    - legality and sink-aware AOT
 

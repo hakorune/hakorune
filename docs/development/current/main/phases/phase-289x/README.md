@@ -45,7 +45,7 @@
 1. `Phase 0`: authority / vocabulary lock
 2. `Phase 1`: demand vocabulary inventory
 3. `Phase 2`: container lane-host contract
-4. `Phase 3`: first storage pilot after string keeper
+4. `Phase 3`: first storage pilot after string read-side keeper/reject
 5. `Phase 4`: scalar immediate widening
 6. `Phase 5`: bytes / view first-class planning
 7. `Phase 6`: map key/value boundary planning
