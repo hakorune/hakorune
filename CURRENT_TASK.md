@@ -61,6 +61,9 @@ Scope: current lane / next lane / restart order only.
       - keep `map_compat` on shared facade/substrate surfaces only
       - keep runtime-data mixed map lane out of `map_runtime_facade`
       - keep raw map mutation (`clear/delete`) in a dedicated mutation leaf, not in facade wiring
+      - retire the empty `map_runtime_facade`; public shells now call shared map leaves directly
+      - keep runtime-data get/set on string-key slot leaves instead of reopening `with_map_box`
+      - keep raw map materializing loads centralized through a string-key load leaf
   - pending todo:
     - `phase2-deferred-const-suffix-stability`
   - do not open a new ABI / `TextLane` cut until this reread is judged keeper vs reject
@@ -212,8 +215,11 @@ Scope: current lane / next lane / restart order only.
     - map debug env lookup is now isolated in a neutral helper instead of depending on compat wiring
     - raw map observers now stay in `map_substrate`; `map_runtime_facade` no longer owns entry-count/cap observer forwarding
     - `map_compat` no longer touches `MapBox` directly and stays on shared facade/substrate surfaces
-    - runtime-data mixed map lane now lives in `map_runtime_data`, leaving `map_runtime_facade` as raw/compat forwarding only
-    - raw map mutation now lives in `map_slot_mutate`, leaving `map_runtime_facade` to forward over shared leaves only
+    - runtime-data mixed map lane now lives in `map_runtime_data`
+    - raw map mutation now lives in `map_slot_mutate`
+    - `map_runtime_facade` is retired; aliases/compat call `map_probe`, `map_slot_load`, `map_slot_store`, `map_slot_mutate`, and `map_substrate` directly
+    - runtime-data map get/set now reuse string-key slot leaves and no longer open `with_map_box` directly
+    - raw map materializing loads now share `map_slot_load_str`
   - compiler fallback probe is closed for the whole bench; next slice is not a lowering widening
   - do not jump to `TextLane` or MIR legality first
 - current accepted redesign is now locked in narrowed form:
