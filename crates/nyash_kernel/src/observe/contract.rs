@@ -354,6 +354,30 @@ pub(crate) const STORE_ARRAY_STR_SUMMARY_FIELDS: [SnapshotCounterField; 29] = [
     STORE_ARRAY_STR_LOOKUP_CALLER_LATEST_FRESH_TAG_FIELD,
 ];
 
+pub(crate) const CONST_SUFFIX_TOTAL_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(CONST_SUFFIX, 14);
+pub(crate) const CONST_SUFFIX_CACHED_HANDLE_HIT_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(CONST_SUFFIX_CACHED_HANDLE_HIT, 15);
+pub(crate) const CONST_SUFFIX_TEXT_CACHE_RELOAD_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(CONST_SUFFIX_TEXT_CACHE_RELOAD, 16);
+pub(crate) const CONST_SUFFIX_FREEZE_FALLBACK_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(CONST_SUFFIX_FREEZE_FALLBACK, 17);
+pub(crate) const CONST_SUFFIX_EMPTY_RETURN_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(CONST_SUFFIX_EMPTY_RETURN, 18);
+pub(crate) const CONST_SUFFIX_CACHED_FAST_STR_HIT_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(CONST_SUFFIX_CACHED_FAST_STR_HIT, 19);
+pub(crate) const CONST_SUFFIX_CACHED_SPAN_HIT_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(CONST_SUFFIX_CACHED_SPAN_HIT, 20);
+pub(crate) const CONST_SUFFIX_SUMMARY_FIELDS: [SnapshotCounterField; 7] = [
+    CONST_SUFFIX_TOTAL_FIELD,
+    CONST_SUFFIX_CACHED_HANDLE_HIT_FIELD,
+    CONST_SUFFIX_TEXT_CACHE_RELOAD_FIELD,
+    CONST_SUFFIX_FREEZE_FALLBACK_FIELD,
+    CONST_SUFFIX_EMPTY_RETURN_FIELD,
+    CONST_SUFFIX_CACHED_FAST_STR_HIT_FIELD,
+    CONST_SUFFIX_CACHED_SPAN_HIT_FIELD,
+];
+
 pub(crate) const BIRTH_PLACEMENT_RETURN_HANDLE_FIELD: SnapshotCounterField =
     SnapshotCounterField::new(BIRTH_PLACEMENT_RETURN_HANDLE, 21);
 pub(crate) const BIRTH_PLACEMENT_BORROW_VIEW_FIELD: SnapshotCounterField =

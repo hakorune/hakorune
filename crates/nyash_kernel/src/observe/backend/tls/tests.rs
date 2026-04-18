@@ -50,10 +50,26 @@ fn tls_const_suffix_counters_flush_current_thread() {
         const_suffix_freeze_fallback();
         let after = snapshot();
 
-        assert_eq!(after[14] - before[14], 1);
-        assert_eq!(after[15] - before[15], 1);
-        assert_eq!(after[16] - before[16], 1);
-        assert_eq!(after[17] - before[17], 1);
+        assert_eq!(
+            contract::CONST_SUFFIX_TOTAL_FIELD.read(&after)
+                - contract::CONST_SUFFIX_TOTAL_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::CONST_SUFFIX_CACHED_HANDLE_HIT_FIELD.read(&after)
+                - contract::CONST_SUFFIX_CACHED_HANDLE_HIT_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::CONST_SUFFIX_TEXT_CACHE_RELOAD_FIELD.read(&after)
+                - contract::CONST_SUFFIX_TEXT_CACHE_RELOAD_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::CONST_SUFFIX_FREEZE_FALLBACK_FIELD.read(&after)
+                - contract::CONST_SUFFIX_FREEZE_FALLBACK_FIELD.read(&before),
+            1
+        );
     });
 }
 
