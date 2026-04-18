@@ -20,9 +20,21 @@ fn tls_store_array_str_counters_flush_current_thread() {
         store_array_str_retarget_hit();
         let after = snapshot();
 
-        assert_eq!(after[0] - before[0], 1);
-        assert_eq!(after[1] - before[1], 1);
-        assert_eq!(after[4] - before[4], 1);
+        assert_eq!(
+            contract::STORE_ARRAY_STR_TOTAL_FIELD.read(&after)
+                - contract::STORE_ARRAY_STR_TOTAL_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::STORE_ARRAY_STR_CACHE_HIT_FIELD.read(&after)
+                - contract::STORE_ARRAY_STR_CACHE_HIT_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::STORE_ARRAY_STR_RETARGET_HIT_FIELD.read(&after)
+                - contract::STORE_ARRAY_STR_RETARGET_HIT_FIELD.read(&before),
+            1
+        );
     });
 }
 
@@ -117,8 +129,16 @@ fn tls_phase137x_evidence_counters_flush_current_thread() {
         birth_backend_site_string_substring_concat_hhii_publish_handle();
         let after = snapshot();
 
-        assert_eq!(after[121] - before[121], 1);
-        assert_eq!(after[122] - before[122], 1);
+        assert_eq!(
+            contract::STORE_ARRAY_STR_LOOKUP_REGISTRY_SLOT_READ_FIELD.read(&after)
+                - contract::STORE_ARRAY_STR_LOOKUP_REGISTRY_SLOT_READ_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::STORE_ARRAY_STR_LOOKUP_CALLER_LATEST_FRESH_TAG_FIELD.read(&after)
+                - contract::STORE_ARRAY_STR_LOOKUP_CALLER_LATEST_FRESH_TAG_FIELD.read(&before),
+            1
+        );
         assert_eq!(after[123] - before[123], 1);
         assert_eq!(after[124] - before[124], 18);
         assert_eq!(after[125] - before[125], 1);

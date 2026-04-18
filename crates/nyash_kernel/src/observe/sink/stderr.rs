@@ -24,90 +24,22 @@ pub(crate) fn emit_summary_to_stderr() {
         + snapshot[112];
     let piecewise_subrange_unclassified =
         snapshot[102].saturating_sub(piecewise_subrange_classified);
+    let mut store_array_str_fields = contract::STORE_ARRAY_STR_SUMMARY_FIELDS.into_iter();
+    let store_array_str_total = store_array_str_fields
+        .next()
+        .expect("store.array.str total field");
     let mut store_array_str_line = format!(
         "[perf/counter][{}] total={}",
         contract::STORE_ARRAY_STR,
-        snapshot[0]
+        store_array_str_total.read(&snapshot)
     );
-    for (name, value) in [
-        (contract::STORE_ARRAY_STR_CACHE_HIT, snapshot[1]),
-        (contract::STORE_ARRAY_STR_CACHE_MISS_HANDLE, snapshot[2]),
-        (contract::STORE_ARRAY_STR_CACHE_MISS_EPOCH, snapshot[3]),
-        (contract::STORE_ARRAY_STR_RETARGET_HIT, snapshot[4]),
-        (
-            contract::STORE_ARRAY_STR_LATEST_FRESH_RETARGET_HIT,
-            snapshot[5],
-        ),
-        (contract::STORE_ARRAY_STR_SOURCE_STORE, snapshot[6]),
-        (
-            contract::STORE_ARRAY_STR_LATEST_FRESH_SOURCE_STORE,
-            snapshot[7],
-        ),
-        (contract::STORE_ARRAY_STR_NON_STRING_SOURCE, snapshot[8]),
-        (contract::STORE_ARRAY_STR_EXISTING_SLOT, snapshot[9]),
-        (contract::STORE_ARRAY_STR_APPEND_SLOT, snapshot[10]),
-        (contract::STORE_ARRAY_STR_SOURCE_STRING_BOX, snapshot[11]),
-        (contract::STORE_ARRAY_STR_SOURCE_STRING_VIEW, snapshot[12]),
-        (contract::STORE_ARRAY_STR_SOURCE_MISSING, snapshot[13]),
-        (
-            contract::STORE_ARRAY_STR_PLAN_SOURCE_KIND_STRING_LIKE,
-            snapshot[89],
-        ),
-        (
-            contract::STORE_ARRAY_STR_PLAN_SOURCE_KIND_OTHER_OBJECT,
-            snapshot[90],
-        ),
-        (
-            contract::STORE_ARRAY_STR_PLAN_SOURCE_KIND_MISSING,
-            snapshot[91],
-        ),
-        (
-            contract::STORE_ARRAY_STR_PLAN_SLOT_KIND_BORROWED_ALIAS,
-            snapshot[92],
-        ),
-        (contract::STORE_ARRAY_STR_PLAN_SLOT_KIND_OTHER, snapshot[93]),
-        (
-            contract::STORE_ARRAY_STR_PLAN_ACTION_RETARGET_ALIAS,
-            snapshot[94],
-        ),
-        (
-            contract::STORE_ARRAY_STR_PLAN_ACTION_STORE_FROM_SOURCE,
-            snapshot[95],
-        ),
-        (
-            contract::STORE_ARRAY_STR_PLAN_ACTION_NEED_STABLE_OBJECT,
-            snapshot[96],
-        ),
-        (
-            contract::STORE_ARRAY_STR_REASON_SOURCE_KIND_VIA_OBJECT,
-            snapshot[97],
-        ),
-        (
-            contract::STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC,
-            snapshot[98],
-        ),
-        (
-            contract::STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC_PTR_EQ_HIT,
-            snapshot[99],
-        ),
-        (
-            contract::STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC_PTR_EQ_MISS,
-            snapshot[100],
-        ),
-        (
-            contract::STORE_ARRAY_STR_REASON_RETARGET_ALIAS_UPDATE,
-            snapshot[101],
-        ),
-        (
-            contract::STORE_ARRAY_STR_LOOKUP_REGISTRY_SLOT_READ,
-            snapshot[121],
-        ),
-        (
-            contract::STORE_ARRAY_STR_LOOKUP_CALLER_LATEST_FRESH_TAG,
-            snapshot[122],
-        ),
-    ] {
-        let _ = write!(&mut store_array_str_line, " {}={}", name, value);
+    for field in store_array_str_fields {
+        let _ = write!(
+            &mut store_array_str_line,
+            " {}={}",
+            field.name,
+            field.read(&snapshot)
+        );
     }
     eprintln!("{}", store_array_str_line);
     eprintln!(
