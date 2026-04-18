@@ -20,12 +20,14 @@ Scope: current lane / next lane / restart order only.
 6. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
 7. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 8. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
-9. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-10. `docs/development/current/main/design/string-birth-sink-ssot.md`
-11. `docs/development/current/main/15-Workstream-Map.md`
-12. `git status -sb`
-13. `tools/checks/dev_gate.sh quick`
-14. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
+9. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+10. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
+11. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+12. `docs/development/current/main/design/string-birth-sink-ssot.md`
+13. `docs/development/current/main/15-Workstream-Map.md`
+14. `git status -sb`
+15. `tools/checks/dev_gate.sh quick`
+16. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Current Lane
 
@@ -34,6 +36,8 @@ Scope: current lane / next lane / restart order only.
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
   - `phase-137x publication/source-capture reopen after compiler-known-length keeper`
+  - implementation mode:
+    - phased value-model rollout (`producer outcome -> canonical sink -> cold publish effect -> future TextLane -> MIR legality`)
 - background lanes:
   - `phase-29bq loop owner seam cleanup landing`
   - `phase-163x primitive-family / user-box fast-path landing`
@@ -87,12 +91,29 @@ Scope: current lane / next lane / restart order only.
       - `nyash.string.kernel_slot_concat_hs` `1.61%`
       - `nyash.array.kernel_slot_store_hi` `0.92%`
       - libc `memmove 15.82%`, `_int_malloc 6.19%`
+- accepted task order is now fixed as a phase rollout, not as isolated helper cuts:
+  - `Phase 1`: producer-first unpublished contract with current carriers
+    - keep `VerifiedTextSource -> TextPlan -> OwnedBytes -> KernelTextSlot`
+    - goal: canonical sink continuity before any early handle publish
+  - `Phase 2`: isolate publish as a cold effect
+    - goal: `objectize` / `issue_fresh_handle` leave producer helpers
+  - `Phase 3`: introduce future `TextLane` only after phase 1/2 keepers
+    - goal: specialize array internal text residence without changing public array semantics
+  - `Phase 4`: raise legality and sink-aware AOT only after runtime contract is proven
+    - goal: publish prohibition/allowance becomes contract, not helper-name convention
+- current active work is phase 1 completion:
+  - finish producer outcome -> canonical sink widening
+  - keep `KernelTextSlot` as the first canonical sink residence
+  - next widened cases stay `const_suffix` / `freeze_text_plan(Pieces3)` family; do not jump to `TextLane` first
 - current accepted redesign is now locked in narrowed form:
   - keep `public handle ABI`
   - move the first code cut to producer-side unpublished outcome
-  - first landing is not a general `TransientText` rollout; it is a narrow runtime-private `const_suffix` producer contract with:
+  - first landing is not a general `TransientText` rollout; it is a narrow runtime-private phase-1 producer contract with:
     - hot sink path: `const_suffix -> KernelTextSlot -> store.array.str`
     - hot shared-receiver reuse: the same producer contract may also feed trailing `substring(...)` without early handle publish
+  - rollout/task anchor is now:
+    - `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+    - `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
   - compiler/backend consumption is landed for:
     - direct-set-only `const_suffix -> set(...)`
     - narrow shared-receiver exact front: `text + "xy"` reused by `set(...)` + known-length observer + trailing `substring(...)`

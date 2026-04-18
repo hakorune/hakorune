@@ -1,7 +1,7 @@
 # Phase 137x: main kilo reopen selection
 
 - Status: Active Reopen
-- 目的: current optimization lane を `const_suffix` / `freeze_text_plan(Pieces3)` publication owner に固定し、closed exact front の上で next whole-side cut を詰める。
+- 目的: current optimization lane を phased value-model rollout として固定し、`producer outcome -> canonical sink -> cold publish effect -> future TextLane -> MIR legality` の順で whole-side owner を縮める。
 - 対象:
   - `CURRENT_TASK.md`
   - `docs/development/current/main/05-Restart-Quick-Resume.md`
@@ -20,14 +20,21 @@
 - current middle guard: `kilo_meso_substring_concat_array_set_loopcarry`
 - current stop-line: `KernelTextSlot` exit is observed and inactive (`publish_boundary.slot_* = 0`)
 - current first seam: producer-side unpublished outcome under `const_suffix` (`KernelTextSlot` substrate first)
-- current next seam: direct-set-only `insert_hsi` widening is landed; next widening is non-direct-set `freeze_text_plan(Pieces3)` / `insert_const_mid_fallback`
+- current rollout order:
+  - `Phase 1`: producer outcome -> canonical sink (`KernelTextSlot` first)
+  - `Phase 2`: cold publish effect
+  - `Phase 3`: future `TextLane`
+  - `Phase 4`: MIR legality / sink-aware AOT
+- current next seam inside phase 1: direct-set-only `insert_hsi` widening is landed; next widening is non-direct-set `freeze_text_plan(Pieces3)` / `insert_const_mid_fallback`
   - direct-set-only deferred `Pieces3 substring` widening is now landed on the same unpublished contract
 - current reject: slot-store delayed publication probes and string-specialized handle payload probe
 - read order:
   1. `CURRENT_TASK.md`
   2. `docs/development/current/main/10-Now.md`
   3. this README
-  4. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+  4. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+  5. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
+  6. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 
 ## Decision Now
 
@@ -38,6 +45,10 @@
 - current local rule:
   - build structure before benchmark-driven widening
   - use exact micro + whole-kilo as accept gates after each structural slice
+- current rollout rule:
+  - do not skip phase order
+  - prove canonical sink continuity before publish isolation
+  - prove publish isolation before any `TextLane` storage rewrite
 - `phase-134x` structural split is landed
 - `phase-138x` / `phase-139x` / `phase-140x` / `phase-141x` semantic-owner corridor is landed
 - contract-first corridor は landed

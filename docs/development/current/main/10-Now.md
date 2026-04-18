@@ -6,6 +6,8 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md
   - docs/development/current/main/phases/phase-137x/README.md
+  - docs/development/current/main/design/string-value-model-phased-rollout-ssot.md
+  - docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md
 ---
 
 # Self Current Task — Now (main)
@@ -14,6 +16,8 @@ Related:
 
 - current optimization lane:
   - `phase-137x publication/source-capture reopen after compiler-known-length keeper`
+  - execution mode:
+    - phased value-model rollout
 - background compiler lanes:
   - `phase-29bq loop owner seam cleanup landing`
   - `phase-163x primitive-family / user-box fast-path landing`
@@ -51,6 +55,18 @@ Related:
       - direct-set-only `insert_hsi -> kernel_slot_insert_hsi -> kernel_slot_store_hi`
       - direct-set-only deferred `Pieces3 substring -> kernel_slot_piecewise_subrange_hsiii -> kernel_slot_store_hi`
     - latest microasm top user symbols are now led by `array_string_store_kernel_text_slot_at` closure `6.29%` and `array_get_index_encoded_i64` closure `4.38%`; libc `memmove 15.82%` / `_int_malloc 6.19%` still dominate the remaining tax
+- accepted phased rollout order:
+  - `Phase 1`: producer outcome -> canonical sink with existing carriers
+    - `VerifiedTextSource`
+    - `TextPlan`
+    - `OwnedBytes`
+    - `KernelTextSlot`
+  - `Phase 2`: cold publish effect
+  - `Phase 3`: future `TextLane` storage specialization
+  - `Phase 4`: MIR legality and sink-aware AOT
+- phase/task anchors:
+  - `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+  - `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
 - `indexOf` separation:
   - keep as side diagnosis; reread only when the main card reopens it
 - completed audit lock (confirmed evidence):
@@ -173,31 +189,34 @@ Related:
 
 ## Next
 
-1. keep `Stage A` parked as VM/reference-only
-2. keep the compiler-known-length lane fixed and guarded on this front
-3. keep exact micro, adopted middle, and whole kilo separate when choosing the next keeper
-4. preserve the existing `set_his` fast path; do not reopen slot-store boundary probes
-5. keep `const_suffix` as the first whole-front keeper owner and `Pieces3` as a guard lane
-6. use `kilo_meso_substring_concat_array_set_loopcarry` as the first confirmation front between exact and whole when judging the next keeper
-7. first narrow cut candidate stays in the producer/publication corridor:
-   - `const_suffix`
-   - `freeze_text_plan(Pieces3)`
-   - runtime-private `KernelTextSlot` substrate for same-corridor transport
-8. treat allocator / GC as secondary diagnosis until that corridor loses on exact + meso + whole
-9. implement whole-first at the borrowed-slot retarget/publication tail before reopening upstream substring planning
-10. keep `Stage B` narrow and data-driven through runtime-private publication counters
+1. finish `Phase 1`
+   - keep the producer-first unpublished contract corridor-local
+   - widen only `const_suffix` / `freeze_text_plan(Pieces3)` family into canonical sink continuity
+2. preserve the current guards while finishing phase 1
+   - exact stays closed
+   - middle stays the contradiction gate
+   - preserve the existing `set_his` fast path
+3. only after a phase-1 keeper, start `Phase 2`
+   - isolate publish as a cold effect
+   - move `objectize` / `issue_fresh_handle` off producer helpers
+4. defer `Phase 3`
+   - do not introduce `TextLane` before producer/sink split is proven
+5. defer `Phase 4`
+   - do not raise MIR legality before runtime consume/publish boundaries are stable
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
 3. `docs/development/current/main/phases/phase-137x/README.md`
-4. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
-5. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-6. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
-7. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-8. `docs/development/current/main/design/string-birth-sink-ssot.md`
-9. `docs/development/current/main/15-Workstream-Map.md`
+4. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+5. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
+6. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
+7. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+8. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
+9. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+10. `docs/development/current/main/design/string-birth-sink-ssot.md`
+11. `docs/development/current/main/15-Workstream-Map.md`
 
 ## Proof Bundle
 
