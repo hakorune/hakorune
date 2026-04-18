@@ -57,6 +57,9 @@ Scope: current lane / next lane / restart order only.
       - keep raw map string publication at the `value_codec` encode seam, not inside `MapBox`
       - route legacy `nyash.map.get_h` / `nyash.map.get_hh` through the same slot-load substrate contract
       - keep map debug env lookup in a neutral helper instead of `map_substrate -> map_compat` coupling
+      - keep raw map observers owned by `map_substrate`, not `map_runtime_facade`
+      - keep `map_compat` on shared facade/substrate surfaces only
+      - keep runtime-data mixed map lane out of `map_runtime_facade`
   - pending todo:
     - `phase2-deferred-const-suffix-stability`
   - do not open a new ABI / `TextLane` cut until this reread is judged keeper vs reject
@@ -206,6 +209,9 @@ Scope: current lane / next lane / restart order only.
     - raw map string publication stays at the encode seam, while `MapBox` keeps only read-visibility policy
     - legacy map compat `get_h` / `get_hh` now route through the same slot-load substrate path as raw aliases
     - map debug env lookup is now isolated in a neutral helper instead of depending on compat wiring
+    - raw map observers now stay in `map_substrate`; `map_runtime_facade` no longer owns entry-count/cap observer forwarding
+    - `map_compat` no longer touches `MapBox` directly and stays on shared facade/substrate surfaces
+    - runtime-data mixed map lane now lives in `map_runtime_data`, leaving `map_runtime_facade` as raw/compat forwarding only
   - compiler fallback probe is closed for the whole bench; next slice is not a lowering widening
   - do not jump to `TextLane` or MIR legality first
 - current accepted redesign is now locked in narrowed form:
