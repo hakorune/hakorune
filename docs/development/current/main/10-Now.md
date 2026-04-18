@@ -1,11 +1,12 @@
 ---
 Status: SSOT
-Date: 2026-04-18
+Date: 2026-04-19
 Scope: current lane / blocker / next pointer only.
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md
   - docs/development/current/main/phases/phase-137x/README.md
+  - docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md
   - docs/development/current/main/design/string-value-model-phased-rollout-ssot.md
   - docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md
 ---
@@ -70,12 +71,17 @@ Related:
         - the whole-front owner is still `const_suffix` freeze fallback, not a reopened generic concat/substr site
         - the next card is deferred `const_suffix` residence under the current `KernelTextSlot` ABI
 - accepted phased rollout order:
+  - semantic lock:
+    - `String = value`
+    - `publish = boundary effect`
+    - `freeze.str = only birth sink`
   - `Phase 1`: producer outcome -> canonical sink with existing carriers
     - `VerifiedTextSource`
     - `TextPlan`
     - `OwnedBytes`
     - `KernelTextSlot`
   - `Phase 2`: cold publish effect
+  - `Phase 2.5`: read-side alias lane split
   - `Phase 3`: future `TextLane` storage specialization
   - `Phase 4`: MIR legality and sink-aware AOT
 - current phase-2 start is now landed structurally:
@@ -139,7 +145,17 @@ Related:
     - `kilo_kernel_small = C 81 ms / Ny AOT 810 ms`
     - `kilo_kernel_small_hk = C 82 ms / Ny AOT 864 ms`
   - next seam must preserve cheap alias encode on read; `owned-string keep` is not the keeper
+  - next card is read-side alias lane split:
+    - `TextReadOnly`
+    - `EncodedAlias`
+    - `StableObject`
+    - stable objectize stays cold and cache-backed, not per-read
+  - first phase 2.5 slice is now landed:
+    - `BorrowedHandleBox` caches the encoded runtime handle for unpublished keeps
+    - `array.get` can reuse the cached stable handle instead of fresh-promoting on every read
+    - latest strict reread: `kilo_kernel_small_hk = C 79 ms / Ny AOT 791 ms` (`repeat=3`, parity ok)
 - phase/task anchors:
+  - `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
   - `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
   - `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
 - `indexOf` separation:
@@ -281,14 +297,15 @@ Related:
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
 3. `docs/development/current/main/phases/phase-137x/README.md`
-4. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
-5. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
-6. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
-7. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-8. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
-9. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-10. `docs/development/current/main/design/string-birth-sink-ssot.md`
-11. `docs/development/current/main/15-Workstream-Map.md`
+4. `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
+5. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+6. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
+7. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
+8. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+9. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
+10. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+11. `docs/development/current/main/design/string-birth-sink-ssot.md`
+12. `docs/development/current/main/15-Workstream-Map.md`
 
 ## Proof Bundle
 

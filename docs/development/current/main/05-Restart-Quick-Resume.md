@@ -1,11 +1,12 @@
 ---
 Status: Active
-Date: 2026-04-18
+Date: 2026-04-19
 Scope: 再起動直後に 2〜5 分で current lane に戻るための最短手順。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/design/perf-owner-first-optimization-ssot.md
+  - docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md
   - docs/development/current/main/design/string-value-model-phased-rollout-ssot.md
   - docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md
   - docs/development/current/main/phases/phase-137x/README.md
@@ -41,20 +42,24 @@ cargo check --features perf-observe -p nyash_kernel
   - adopted middle bridge:
     - `substring + concat + array.set + loopcarry`
     - use it to confirm store/publication cuts without the whole-front `indexOf("line")` row-scan noise
-  - `kilo_kernel_small = C 86 ms / Ny AOT 856 ms`
+  - `kilo_kernel_small = C 80 ms / Ny AOT 739 ms`
 - immediate next:
-  - `finish Phase 1 first: producer outcome -> canonical sink`
+  - `finish the strict whole stability reread on the phase-2 / phase-2.5 lane before opening a new TextLane or MIR legality cut`
 - method anchor:
   - `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 - rollout anchor:
+  - `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
   - `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
 - taskboard:
   - `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
 - immediate follow-on:
-  - `keep phase order intact: canonical sink before cold publish effect, cold publish before TextLane, TextLane before MIR legality`
+  - `keep phase order intact: canonical sink before cold publish effect, cold publish before read-side alias split, read-side alias split before TextLane, TextLane before MIR legality`
 - immediate code seam:
-  - `const_suffix` / `freeze_text_plan(Pieces3)` producer family first
-  - keep `VerifiedTextSource -> TextPlan -> OwnedBytes -> KernelTextSlot` as the phase-1 canonical corridor
+  - phase 2.5 read-side alias lane stays next:
+    - `TextReadOnly`
+    - `EncodedAlias`
+    - `StableObject`
+  - keep `VerifiedTextSource -> TextPlan -> OwnedBytes -> KernelTextSlot` as the already-landed phase-1 canonical corridor
   - do not jump to `TextLane` or MIR legality first
 - latest non-keeper:
   - `producer-side unpublished-outcome active probe regressed to 236 ms exact / 2173 ms whole and is reverted`
@@ -116,9 +121,14 @@ cargo check --features perf-observe -p nyash_kernel
   - no syntax expansion
   - no public raw string / mutable bytes
   - the next widening stays inside runtime-private `const_suffix` / `Pieces3` publication, not helper-site specialization
+  - semantic lock is now explicit:
+    - `String = value`
+    - `publish = boundary effect`
+    - `freeze.str = only birth sink`
   - phased rollout is now fixed:
     - phase 1 = producer outcome -> canonical sink
     - phase 2 = cold publish effect
+    - phase 2.5 = read-side alias lane split
     - phase 3 = future `TextLane`
     - phase 4 = MIR legality / sink-aware AOT
   - reuse existing `TextPlan` / `OwnedBytes` seams before inventing a new carrier
@@ -137,12 +147,13 @@ cargo check --features perf-observe -p nyash_kernel
 5. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
 6. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
 7. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
-8. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
-9. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
-10. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-11. `docs/development/current/main/design/string-birth-sink-ssot.md`
-12. `docs/development/current/main/15-Workstream-Map.md`
-13. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
+8. `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
+9. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+10. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
+11. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+12. `docs/development/current/main/design/string-birth-sink-ssot.md`
+13. `docs/development/current/main/15-Workstream-Map.md`
+14. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Current Proof Bundle
 

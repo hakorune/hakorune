@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-04-18
+Date: 2026-04-19
 Scope: current lane / next lane / restart order only.
 
 ## Purpose
@@ -14,20 +14,21 @@ Scope: current lane / next lane / restart order only.
 
 1. `docs/development/current/main/05-Restart-Quick-Resume.md`
 2. `docs/development/current/main/10-Now.md`
-3. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
-4. `docs/development/current/main/phases/phase-137x/README.md`
-5. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
-6. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-7. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
-8. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
-9. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
-10. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
-11. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-12. `docs/development/current/main/design/string-birth-sink-ssot.md`
-13. `docs/development/current/main/15-Workstream-Map.md`
-14. `git status -sb`
-15. `tools/checks/dev_gate.sh quick`
-16. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
+3. `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
+4. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
+5. `docs/development/current/main/phases/phase-137x/README.md`
+6. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
+7. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+8. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+9. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
+10. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+11. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
+12. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+13. `docs/development/current/main/design/string-birth-sink-ssot.md`
+14. `docs/development/current/main/15-Workstream-Map.md`
+15. `git status -sb`
+16. `tools/checks/dev_gate.sh quick`
+17. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Current Lane
 
@@ -37,12 +38,17 @@ Scope: current lane / next lane / restart order only.
 - active lane:
   - `phase-137x publication/source-capture reopen after compiler-known-length keeper`
   - implementation mode:
-    - phased value-model rollout (`producer outcome -> canonical sink -> cold publish effect -> future TextLane -> MIR legality`)
+    - phased value-model rollout (`String value -> producer outcome -> canonical sink -> cold publish effect -> read-side alias lane -> future TextLane -> MIR legality`)
 - background lanes:
   - `phase-29bq loop owner seam cleanup landing`
   - `phase-163x primitive-family / user-box fast-path landing`
 - current blocker:
   - `none`
+- current cut status:
+  - good cut point: the Phase 2.5 first slice is landed, and the only open card is the strict whole stability reread
+  - pending todo:
+    - `phase2-deferred-const-suffix-stability`
+  - do not open a new ABI / `TextLane` cut until this reread is judged keeper vs reject
 
 ## Current Snapshot
 
@@ -126,22 +132,38 @@ Scope: current lane / next lane / restart order only.
         - reject reason:
           - store-side `Arc<StringBox>` creation disappeared, but `array.get` / alias encode fallback started allocating a fresh stable object on every read
           - this moved cost from store to `lines.get(...)` and made whole worse
-        - restored reread after backing that probe out:
-          - `kilo_kernel_small = C 81 ms / Ny AOT 810 ms`
-          - `kilo_kernel_small_hk = C 82 ms / Ny AOT 864 ms`
+      - restored reread after backing that probe out:
+        - `kilo_kernel_small = C 81 ms / Ny AOT 810 ms`
+        - `kilo_kernel_small_hk = C 82 ms / Ny AOT 864 ms`
         - next seam is not `owned-string keep`; any follow-up must preserve cheap alias encode on `array.get`
+      - next card is read-side alias lane split:
+        - `TextReadOnly`
+        - `EncodedAlias`
+        - `StableObject`
+        - stable objectize stays cold and cache-backed, not per-read
+      - first phase 2.5 slice is now landed:
+        - `BorrowedHandleBox` caches the encoded runtime handle for unpublished keeps
+        - `array.get` can reuse the cached stable handle instead of fresh-promoting on every read
+        - latest strict reread: `kilo_kernel_small_hk = C 79 ms / Ny AOT 791 ms` (`repeat=3`, parity ok)
 - accepted task order is now fixed as a phase rollout, not as isolated helper cuts:
+  - semantic lock:
+    - `String = value`
+    - `publish = boundary effect`
+    - `freeze.str = only birth sink`
   - `Phase 1`: producer-first unpublished contract with current carriers
     - keep `VerifiedTextSource -> TextPlan -> OwnedBytes -> KernelTextSlot`
     - goal: canonical sink continuity before any early handle publish
   - `Phase 2`: isolate publish as a cold effect
     - goal: `objectize` / `issue_fresh_handle` leave producer helpers
+  - `Phase 2.5`: split the read-side alias lane
+    - goal: `TextReadOnly` / `EncodedAlias` stay common path and `StableObject` stays cold
   - `Phase 3`: introduce future `TextLane` only after phase 1/2 keepers
     - goal: specialize array internal text residence without changing public array semantics
   - `Phase 4`: raise legality and sink-aware AOT only after runtime contract is proven
     - goal: publish prohibition/allowance becomes contract, not helper-name convention
-- current active work is phase 2 first slice:
+- current active work is phase 2 / phase 2.5 lane:
   - isolate publish as a cold effect without changing public ABI
+  - keep read-side alias continuity cheap and cache-backed
   - keep `KernelTextSlot` as the first canonical sink residence
   - landed slices now include:
     - explicit cold publish adapters around `string_handle_from_owned_*` and `publish_owned_bytes_*`

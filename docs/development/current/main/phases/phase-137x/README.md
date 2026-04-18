@@ -7,6 +7,7 @@
   - `docs/development/current/main/05-Restart-Quick-Resume.md`
   - `docs/development/current/main/10-Now.md`
   - `docs/development/current/main/15-Workstream-Map.md`
+  - `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
   - `crates/nyash_kernel/src/exports/string.rs`
   - `crates/nyash_kernel/src/plugin/map_substrate.rs`
   - `crates/nyash_kernel/src/plugin/map_aliases.rs`
@@ -15,6 +16,14 @@
 
 ## Quick Scan
 
+- semantic lock:
+  - `String = value`
+  - `publish = boundary effect`
+  - `freeze.str = only birth sink`
+  - future `TextLane` is storage, not semantic truth
+- mirror rule:
+  - semantic authority stays in `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
+  - this README stays a current-state mirror and handoff note
 - current exact front: `kilo_micro_array_string_store` is closed by the shared-receiver `KernelTextSlot` bridge
 - current whole owner: `const_suffix` / `freeze_text_plan(Pieces3)` publication
 - current owner split is now explicit:
@@ -32,6 +41,7 @@
 - current rollout order:
   - `Phase 1`: producer outcome -> canonical sink (`KernelTextSlot` first)
   - `Phase 2`: cold publish effect
+  - `Phase 2.5`: read-side alias lane split
   - `Phase 3`: future `TextLane`
   - `Phase 4`: MIR legality / sink-aware AOT
 - current phase-2 start:
@@ -104,6 +114,15 @@
     - `kilo_kernel_small = C 81 ms / Ny AOT 810 ms`
     - `kilo_kernel_small_hk = C 82 ms / Ny AOT 864 ms`
   - next seam must keep `array.get` cheap; do not reopen `owned-string keep`
+  - next card is read-side alias lane split:
+    - `TextReadOnly`
+    - `EncodedAlias`
+    - `StableObject`
+    - stable objectize must stay cold and cache-backed
+  - first phase 2.5 slice is now landed:
+    - `BorrowedHandleBox` caches the encoded runtime handle for unpublished keeps
+    - `array.get` can reuse the cached stable handle instead of fresh-promoting on every read
+    - latest strict reread: `kilo_kernel_small_hk = C 79 ms / Ny AOT 791 ms` (`repeat=3`, parity ok)
 - current next seam inside phase 1: direct-set-only `insert_hsi` widening is landed; next widening is non-direct-set `freeze_text_plan(Pieces3)` / `insert_const_mid_fallback`
   - direct-set-only deferred `Pieces3 substring` widening is now landed on the same unpublished contract
 - current reject: slot-store delayed publication probes and string-specialized handle payload probe
@@ -111,9 +130,10 @@
   1. `CURRENT_TASK.md`
   2. `docs/development/current/main/10-Now.md`
   3. this README
-  4. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
-  5. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
-  6. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+  4. `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
+  5. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+  6. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
+  7. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 
 ## Decision Now
 

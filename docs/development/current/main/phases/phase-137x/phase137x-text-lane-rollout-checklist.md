@@ -1,11 +1,12 @@
 ---
 Status: Active
-Date: 2026-04-18
+Date: 2026-04-19
 Scope: phase-137x で `public handle ABI` を維持したまま、text hot corridor を `producer -> sink -> publish` の値モデルへ段階導入する taskboard。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/phases/phase-137x/README.md
+  - docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md
   - docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md
   - docs/development/current/main/design/string-value-model-phased-rollout-ssot.md
 ---
@@ -13,18 +14,28 @@ Related:
 # Phase 137x Text Lane Rollout Checklist
 
 - North Star:
+  - `String` is semantic value; handle/object is boundary representation
   - `Public world`: `StringHandle` / `ArrayHandle` / `Box<dyn NyashBox>`
-  - `Execution world`: `VerifiedTextSource -> TextPlan -> OwnedTextBuf -> TextCell/TextLane`
-  - rule: publish は escape 時の effect に限定する
+  - `Execution world`: `VerifiedTextSource -> TextPlan -> OwnedTextBuf -> TextCell`
+  - rule: `publish` は escape 時の effect に限定し、`freeze.str` は唯一の birth sink として読む
+  - rule: future `TextLane` は storage specialization であり semantic truth ではない
 - Current locked reading:
   - exact front is closed by the shared-receiver `KernelTextSlot` bridge
   - middle contradiction guard remains `kilo_meso_substring_concat_array_set_loopcarry`
   - whole owner remains upstream producer publication plus array/string slot work
-  - current whole-side landed cuts are still narrow:
-    - direct-set-only `const_suffix -> KernelTextSlot -> kernel_slot_store_hi`
-    - shared-receiver `const_suffix` reuse on exact front
-    - direct-set-only `insert_hsi`
-    - direct-set-only deferred `Pieces3 substring`
+- current whole-side landed cuts are still narrow:
+  - direct-set-only `const_suffix -> KernelTextSlot -> kernel_slot_store_hi`
+  - shared-receiver `const_suffix` reuse on exact front
+  - direct-set-only `insert_hsi`
+  - direct-set-only deferred `Pieces3 substring`
+- first phase 2.5 slice is now landed:
+  - `BorrowedHandleBox` caches the encoded runtime handle for unpublished keeps
+  - `array.get` can reuse the cached stable handle instead of fresh-promoting on every read
+- next card is read-side alias lane split, not full `TextLane`:
+  - `TextReadOnly`
+  - `EncodedAlias`
+  - `StableObject`
+  - keep stable objectize cold and cache-backed
 
 ## Goal
 
@@ -51,6 +62,7 @@ Related:
 - do not mix `producer outcome`, `sink specialization`, and `publish legality` in one card
 - do not widen shared generic helper ABI before the current corridor-local contract is proven
 - do not introduce public `TextOutcome` / `TextLane` API on this lane
+- do not let this checklist become a second design authority; semantic truth stays in design SSOT
 - legacy helper coexistence is temporary; remove old string/array routing once the new card becomes keeper-grade
 - prefer existing repo-local shapes first:
   - `VerifiedTextSource`
@@ -58,16 +70,43 @@ Related:
   - `OwnedBytes`
   - `KernelTextSlot`
 
-## Phase 0. Baseline Lock
+## Card Map
+
+- `Card 0`:
+  - semantic / baseline lock
+  - keep docs aligned on `String = value`, `publish = boundary effect`, `freeze.str = only birth sink`
+- `Card 1`:
+  - producer outcome contract
+  - `const_suffix` / `freeze_text_plan(Pieces3)` to `KernelTextSlot`
+- `Card 2`:
+  - cold publish effect
+  - isolate `objectize_stable_string_box` and `issue_fresh_handle`
+- `Card 2.5`:
+  - read-side alias lane
+  - keep `array.get` on `TextReadOnly` / `EncodedAlias`, cold-cache `StableObject`
+- `Card 3`:
+  - future `TextLane` storage
+  - array internal specialization only
+- `Card 4`:
+  - MIR contract / verifier
+  - publication boundary becomes verifier-visible
+
+## Phase 0. Semantic / Baseline Lock
 
 - Goal:
-  - fix the current truth before widening the value model
+  - fix the semantic truth and the current evidence before widening the value model
 - Touched areas:
   - `CURRENT_TASK.md`
   - `docs/development/current/main/10-Now.md`
   - `docs/development/current/main/phases/phase-137x/README.md`
+  - `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
   - perf artifacts under `target/perf_state/phase137x-*`
 - Expected evidence:
+  - docs agree on:
+    - `String = value`
+    - `publish = boundary effect`
+    - `freeze.str = only birth sink`
+    - `TextLane = future storage`
   - exact closed truth remains documented
   - meso band remains around the current `56-59 ms` band unless a real keeper lands
   - whole proof front remains `kilo_kernel_small`
@@ -128,6 +167,36 @@ Related:
   - middle or exact worsens without a whole win
 - Stop-line:
   - if boundary reasons are still ambiguous after the counter split, stop and add observability before another behavior card
+
+## Phase 2.5. Read-Side Alias Lane
+
+- Goal:
+  - keep `array.get` on a cache-backed alias lane instead of promoting to stable/public on every read
+- Cards:
+  - split read demand into:
+    - `TextReadOnly`
+    - `EncodedAlias`
+    - `StableObject`
+  - keep stable objectize one-shot and cache-backed per cell
+  - preserve cheap alias encode across read-heavy whole fronts
+- Touched areas:
+  - `crates/nyash_kernel/src/plugin/value_codec/borrowed_handle.rs`
+  - `crates/nyash_kernel/src/plugin/array_string_slot.rs`
+  - `crates/nyash_kernel/src/plugin/array_runtime_facade.rs`
+- Expected evidence:
+  - common read path no longer allocates a fresh stable object
+  - whole owner moves away from read-side publication/objectize tax
+  - exact and middle do not regress while read continuity improves
+- Keeper criteria:
+  - stable objectize stays cold and cache-backed
+  - `array.get` common path stays on `TextReadOnly` / `EncodedAlias`
+  - whole improves without reopening exact or middle
+- Revert criteria:
+  - store-side win is replaced by per-read stable object creation
+  - alias encode becomes more expensive than the old public/stable path
+  - read contract becomes runtime re-recognition instead of explicit lane split
+- Stop-line:
+  - if a card cannot explain which reads stay alias-only and which reads demand `StableObject`, stop and fix the contract first
 
 ## Phase 3. TextLane Storage
 
