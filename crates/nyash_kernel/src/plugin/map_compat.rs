@@ -1,4 +1,3 @@
-use super::handle_cache::with_map_box;
 use super::map_debug::map_debug_enabled;
 use super::map_runtime_facade::{
     map_runtime_load_any, map_runtime_load_i64, map_runtime_probe_any, map_runtime_probe_i64,
@@ -46,7 +45,7 @@ pub extern "C" fn nyash_map_set_h(handle: i64, key: i64, val: i64) -> i64 {
     }
     let applied = map_runtime_store_i64_any(handle, key, val);
     if map_debug_enabled() {
-        let size = with_map_box(handle, |map| map.entry_count_i64()).unwrap_or(-1);
+        let size = super::map_substrate::map_entry_count_raw(handle);
         eprintln!("[MAP] set_h applied={} size={}", applied, size);
     }
     0
