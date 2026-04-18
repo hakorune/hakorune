@@ -42,13 +42,15 @@ Related:
     - producer-side unpublished outcome widening stays live, but this landing is not a meso keeper by itself
 - current whole accept gate:
   - `kilo_kernel_small`
-  - current reread result: `C 81 ms / Ny AOT 1078 ms` (`repeat=3`)
+  - current reread result: `C 86 ms / Ny AOT 856 ms` (`repeat=3`)
   - reading:
-    - pure-first AOT build shape is reopened; direct/helper replay compile again after helper declaration/need-flag fixes
+    - pure-first AOT build shape stays reopened; direct/helper replay still compile after the helper declaration/need-flag fixes
     - loop-body `KernelTextSlot` allocas no longer crash the whole bench after `stacksave/stackrestore`
-    - this is an accept-gate correctness reopen, not a whole-front perf keeper
-    - whole owner family still reads as `const_suffix` / `freeze_text_plan(Pieces3)` publication
-    - latest landed whole-side narrow cut is direct-set-only `insert_hsi -> kernel_slot_insert_hsi -> kernel_slot_store_hi`
+    - whole improved versus the blocked `1078 ms` reread, but this is still not a whole-front keeper
+    - latest landed whole-side narrow cuts are:
+      - direct-set-only `insert_hsi -> kernel_slot_insert_hsi -> kernel_slot_store_hi`
+      - direct-set-only deferred `Pieces3 substring -> kernel_slot_piecewise_subrange_hsiii -> kernel_slot_store_hi`
+    - latest microasm top user symbols are now led by `array_string_store_kernel_text_slot_at` closure `6.29%` and `array_get_index_encoded_i64` closure `4.38%`; libc `memmove 15.82%` / `_int_malloc 6.19%` still dominate the remaining tax
 - `indexOf` separation:
   - keep as side diagnosis; reread only when the main card reopens it
 - completed audit lock (confirmed evidence):
@@ -83,6 +85,7 @@ Related:
     - producer stays specialized; only the internal contract to sink/reuse is widened
     - next widening target is fixed:
       - direct-set-only `insert_const_mid_fallback` / `insert_hsi` is now landed on the same unpublished contract
+      - direct-set-only deferred `Pieces3 substring` is now also landed on the same unpublished contract
       - next widening, if needed, is post-store reuse / non-direct-set `Pieces3`
       - keep the same unpublished contract and do not reopen generic helper ABI widening
     - before Card A/B, slot publish-boundary verifier/counters are now landed:

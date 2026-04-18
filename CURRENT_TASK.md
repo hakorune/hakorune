@@ -70,14 +70,23 @@ Scope: current lane / next lane / restart order only.
     - producer-side unpublished contract remains live, but this landing is not a meso keeper by itself
 - current whole accept gate:
   - `kilo_kernel_small`
-    - `C: 81 ms`
-    - `Ny AOT: 1078 ms` (`repeat=3`)
+    - `C: 86 ms`
+    - `Ny AOT: 856 ms` (`repeat=3`)
   - reading:
-    - pure-first route/build blocker is cleared; direct and helper replay now compile again
-    - loop-body `KernelTextSlot` allocas no longer crash the whole bench; `stacksave/stackrestore` reopens the accept gate
-    - whole remains far from keeper territory, so the current landing is a correctness/unblock fix, not a perf win
-    - last trusted whole owner family stays `const_suffix` / `freeze_text_plan(Pieces3)` publication
-    - latest landed whole-side narrow cut is direct-set-only `insert_hsi -> kernel_slot_insert_hsi -> kernel_slot_store_hi`
+    - pure-first route/build blocker stays cleared; direct and helper replay compile again
+    - loop-body `KernelTextSlot` allocas no longer crash the whole bench; `stacksave/stackrestore` keeps the accept gate open
+    - whole improved from the blocked `1078 ms` reread, but remains far from keeper territory
+    - latest landed whole-side narrow cuts are:
+      - direct-set-only `insert_hsi -> kernel_slot_insert_hsi -> kernel_slot_store_hi`
+      - direct-set-only deferred `Pieces3 substring -> kernel_slot_piecewise_subrange_hsiii -> kernel_slot_store_hi`
+    - whole owner moved partway into slot-store / allocator territory, but the lane is still open
+    - latest microasm top report now shows user hot symbols led by:
+      - `array_string_store_kernel_text_slot_at` closure `6.29%`
+      - `array_get_index_encoded_i64` closure `4.38%`
+      - `insert_const_mid_into_slot` closure `1.81%`
+      - `nyash.string.kernel_slot_concat_hs` `1.61%`
+      - `nyash.array.kernel_slot_store_hi` `0.92%`
+      - libc `memmove 15.82%`, `_int_malloc 6.19%`
 - current accepted redesign is now locked in narrowed form:
   - keep `public handle ABI`
   - move the first code cut to producer-side unpublished outcome
@@ -105,7 +114,7 @@ Scope: current lane / next lane / restart order only.
     - new site-specific noinline generic-fallback boundary symbols: `string_concat_hh`, `string_substring_concat_hhii`, `const_suffix`, `freeze_text_plan_pieces3`
     - tests passed with and without `perf-observe`
     - perf/asm is now sufficient to choose the next keeper without another broad observability round
-- current reading:
+  - current reading:
   - current main owner family is `array/string-store`, not `substring`
   - exact `array/string-store` is now closed; the live next owner family is upstream producer publication on whole
   - hot-corridor carrier design anchor is now:
@@ -147,6 +156,11 @@ Scope: current lane / next lane / restart order only.
       - runtime seam: `nyash.string.kernel_slot_insert_hsi`
       - compiler seam: deferred `insert_hsi` direct-set consumer lowers to `kernel_slot_insert_hsi -> kernel_slot_store_hi`
       - guard: `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_string_insert_mid_direct_set_min.sh`
+    - the first deferred `Pieces3 substring` direct-set widening is now landed:
+      - runtime seam: `nyash.string.kernel_slot_piecewise_subrange_hsiii`
+      - compiler seam: deferred `piecewise_subrange_hsiii` direct-set consumer lowers to `kernel_slot_piecewise_subrange_hsiii -> kernel_slot_store_hi`
+      - fixture: `apps/tests/mir_shape_guard/string_piecewise_kernel_slot_store_min_v1.mir.json`
+      - guard: `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_string_piecewise_direct_set_min.sh`
     - next widening, if needed, is post-store reuse / non-direct-set `Pieces3`, not generic helper ABI widening
   - therefore the landed `.hako` owner pilot is still VM/reference-lane only; active AOT already reaches the current concrete `store.array.str` lowering without that pilot
   - slot-store boundary delayed-publication probes were tried and rejected:

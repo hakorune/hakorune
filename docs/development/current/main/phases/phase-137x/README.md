@@ -21,6 +21,7 @@
 - current stop-line: `KernelTextSlot` exit is observed and inactive (`publish_boundary.slot_* = 0`)
 - current first seam: producer-side unpublished outcome under `const_suffix` (`KernelTextSlot` substrate first)
 - current next seam: direct-set-only `insert_hsi` widening is landed; next widening is non-direct-set `freeze_text_plan(Pieces3)` / `insert_const_mid_fallback`
+  - direct-set-only deferred `Pieces3 substring` widening is now landed on the same unpublished contract
 - current reject: slot-store delayed publication probes and string-specialized handle payload probe
 - read order:
   1. `CURRENT_TASK.md`
@@ -79,12 +80,15 @@
       - still inside the prior `56-59 ms` band
       - producer-side unpublished outcome widening remains live, but this landing is not a meso keeper by itself
   - whole `kilo_kernel_small`:
-    - stat: `C 81 ms / Ny AOT 1078 ms` (`repeat=3`)
+    - stat: `C 86 ms / Ny AOT 856 ms` (`repeat=3`)
     - reading:
-      - pure-first helper/direct replay now compiles again after the declaration/need-flag fixes
+      - pure-first helper/direct replay still compiles after the declaration/need-flag fixes
       - loop-body `KernelTextSlot` allocas no longer crash the whole bench after `stacksave/stackrestore`
-      - this reopens the accept gate, but does not make the current landing a whole-front keeper
-      - next code cut still targets `const_suffix` / `freeze_text_plan(Pieces3)` publication
+      - direct-set-only `insert_hsi` and deferred `Pieces3 substring` now both lower through `KernelTextSlot -> kernel_slot_store_hi`
+      - this improves the blocked reread, but still does not make the current landing a whole-front keeper
+      - latest microasm top user symbols are now `array_string_store_kernel_text_slot_at` closure `6.29%`, `array_get_index_encoded_i64` closure `4.38%`, `insert_const_mid_into_slot` closure `1.81%`, `nyash.string.kernel_slot_concat_hs` `1.61%`, `nyash.array.kernel_slot_store_hi` `0.92%`
+      - remaining dominant tax is still allocator / copy side (`memmove 15.82%`, `_int_malloc 6.19%`) plus array/string slot work
+      - next code cut still targets post-store reuse / non-direct-set `freeze_text_plan(Pieces3)` rather than generic helper ABI widening
 - next-cut reading (separate from confirmed evidence):
   - perf/asm is now sufficient to choose the next keeper without another broad observability round
   - keep exact and whole separate when judging the next keeper
@@ -123,6 +127,9 @@
         - smoke: `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_const_suffix_kernel_slot_shared_receiver_contract.sh`
       - guard the landed direct-set-only `insert_hsi` widening with:
         - smoke: `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_string_insert_mid_direct_set_min.sh`
+      - guard the landed direct-set-only deferred `Pieces3 substring` widening with:
+        - fixture: `apps/tests/mir_shape_guard/string_piecewise_kernel_slot_store_min_v1.mir.json`
+        - smoke: `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_string_piecewise_direct_set_min.sh`
     - latest local probe after landing the cold retirement sink:
       - `kilo_meso_substring_concat_array_set_loopcarry = 53 ms` (`repeat=3`, prior local reread `56 ms`)
       - `kilo_kernel_small_hk = 733 ms`, `736 ms` (`repeat=3` x2)

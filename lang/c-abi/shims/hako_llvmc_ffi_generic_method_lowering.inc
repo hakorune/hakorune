@@ -210,6 +210,116 @@
         return 1;
       }
 
+      auto int emit_array_string_kernel_slot_store_from_piecewise_subrange(
+          FILE* f,
+          size_t ii,
+          size_t ilen,
+          yyjson_val* insts,
+          long long dst,
+          long long recv,
+          long long idx,
+          long long value) {
+        long long substring_root = resolve_copy_source_reg(value);
+        long long piecewise_root = 0;
+        long long source = 0;
+        long long middle = 0;
+        long long split = 0;
+        long long start = 0;
+        long long end = 0;
+        const char* middle_const = NULL;
+        char slot_piecewise_ab[256];
+        char slot_store_ab[128];
+
+        (void)ilen;
+        if (!substring_root) return 0;
+        if (!find_string_substring_call(substring_root, &piecewise_root, &start, &end)) return 0;
+        piecewise_root = resolve_copy_chain_source_reg(insts, ii + 1, piecewise_root);
+        start = resolve_copy_chain_source_reg(insts, ii + 1, start);
+        end = resolve_copy_chain_source_reg(insts, ii + 1, end);
+        if (!find_deferred_piecewise_subrange(piecewise_root, &source, &middle, &split)) return 0;
+        middle_const = get_str_const(middle);
+        if (!(source && middle && middle_const)) return 0;
+
+        fprintf(
+            f,
+            "  %%arrstr.slotsave.%lld.%zu = call ptr @llvm.stacksave()\n",
+            substring_root,
+            ii);
+        fprintf(
+            f,
+            "  %%arrstr.slot.%lld.%zu = alloca { i8, ptr, i64, i64 }, align 8\n",
+            substring_root,
+            ii);
+        fprintf(
+            f,
+            "  store { i8, ptr, i64, i64 } zeroinitializer, ptr %%arrstr.slot.%lld.%zu, align 8\n",
+            substring_root,
+            ii);
+
+        slot_piecewise_ab[0] = '\0';
+        append_i64_arg_ref(slot_piecewise_ab, sizeof(slot_piecewise_ab), source, 1);
+        strncat(
+            slot_piecewise_ab,
+            ", ptr getelementptr inbounds (",
+            sizeof(slot_piecewise_ab) - strlen(slot_piecewise_ab) - 1);
+        {
+          char tail[128];
+          snprintf(
+              tail,
+              sizeof(tail),
+              "[%zu x i8], ptr @.str_reg_%lld, i64 0, i64 0)",
+              strlen(middle_const) + 1,
+              middle);
+          strncat(
+              slot_piecewise_ab,
+              tail,
+              sizeof(slot_piecewise_ab) - strlen(slot_piecewise_ab) - 1);
+        }
+        append_i64_arg_ref(slot_piecewise_ab, sizeof(slot_piecewise_ab), split, 0);
+        append_i64_arg_ref(slot_piecewise_ab, sizeof(slot_piecewise_ab), start, 0);
+        append_i64_arg_ref(slot_piecewise_ab, sizeof(slot_piecewise_ab), end, 0);
+        fprintf(
+            f,
+            "  call i64 @\"nyash.string.kernel_slot_piecewise_subrange_hsiii\"(ptr %%arrstr.slot.%lld.%zu, %s)\n",
+            substring_root,
+            ii,
+            slot_piecewise_ab);
+
+        slot_store_ab[0] = '\0';
+        append_i64_arg_ref(slot_store_ab, sizeof(slot_store_ab), recv, 1);
+        append_i64_arg_ref(slot_store_ab, sizeof(slot_store_ab), idx, 0);
+        {
+          char tail[128];
+          snprintf(
+              tail,
+              sizeof(tail),
+              ", ptr %%arrstr.slot.%lld.%zu",
+              substring_root,
+              ii);
+          strncat(
+              slot_store_ab,
+              tail,
+              sizeof(slot_store_ab) - strlen(slot_store_ab) - 1);
+        }
+
+        if (dst) {
+          fprintf(
+              f,
+              "  %%r%lld = call i64 @\"nyash.array.kernel_slot_store_hi\"(%s)\n",
+              dst,
+              slot_store_ab);
+          set_type(dst, T_I64);
+        } else {
+          fprintf(f, "  call i64 @\"nyash.array.kernel_slot_store_hi\"(%s)\n", slot_store_ab);
+        }
+        fprintf(
+            f,
+            "  call void @llvm.stackrestore(ptr %%arrstr.slotsave.%lld.%zu)\n",
+            substring_root,
+            ii);
+        return 1;
+      }
+
       auto int try_emit_non_indexof_generic_method_call(
           FILE* f,
           yyjson_val* blocks,
@@ -298,6 +408,10 @@
                  * phase-151x visibility lock keeps the current concrete lowering
                  * visible instead of promoting this symbol to authority.
                  */
+                if (emit_array_string_kernel_slot_store_from_piecewise_subrange(
+                        f, ii, ilen, insts, dst, recv, a0, a1)) {
+                  break;
+                }
                 if (emit_array_string_kernel_slot_store_from_insert_mid(
                         f, ii, ilen, insts, dst, recv, a0, a1)) {
                   break;

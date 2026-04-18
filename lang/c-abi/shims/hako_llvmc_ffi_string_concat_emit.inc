@@ -757,6 +757,32 @@
             }
             middle_const = get_str_const(piecewise_middle);
             if (middle_const) {
+              if (dst && has_direct_array_set_consumer(ii, ilen, insts, dst)) {
+                remember_string_substring_call(dst, recv_reg, start_reg, end_reg);
+                fprintf(f, "  %%r%lld = add i64 0, 0\n", dst);
+                finalize_string_concat_result(dst);
+                if (hako_llvmc_route_trace_enabled()) {
+                  char extra[224];
+                  snprintf(
+                      extra,
+                      sizeof(extra),
+                      "ii=%zu dst=%lld recv=%lld source=%lld middle=%lld split=%lld start=%lld end=%lld",
+                      ii,
+                      dst,
+                      recv_reg,
+                      piecewise_source,
+                      piecewise_middle,
+                      piecewise_split,
+                      start_reg,
+                      end_reg);
+                  hako_llvmc_emit_route_trace(
+                      "mir_call_string_extern",
+                      "hit",
+                      "publication_boundary_deferred_piecewise",
+                      extra);
+                }
+                return 1;
+              }
               ab[0] = '\0';
               append_i64_arg_ref(ab, sizeof(ab), piecewise_source, 1);
               strncat(ab, ", ptr getelementptr inbounds (", sizeof(ab) - strlen(ab) - 1);
@@ -782,6 +808,7 @@
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_STRING);
                 set_scan_origin(dst, ORG_STRING);
+                remember_string_substring_call(dst, recv_reg, start_reg, end_reg);
               } else {
                 fprintf(f, "  call i64 @\"nyash.string.piecewise_subrange_hsiii\"(%s)\n", ab);
               }

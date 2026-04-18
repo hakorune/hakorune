@@ -311,6 +311,47 @@ fn string_kernel_slot_piecewise_substring_publish_contract() {
 }
 
 #[test]
+fn string_kernel_slot_piecewise_subrange_store_contract() {
+    with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
+        let array: Arc<dyn NyashBox> = Arc::new(nyash_rust::boxes::array::ArrayBox::new());
+        let handle = handles::to_handle_arc(array) as i64;
+        let source_h = string_handle("prefix-suffix");
+        let middle = CString::new("::mid::").expect("CString");
+        let direct_h = nyash_string_piecewise_subrange_hsiii_export(source_h, middle.as_ptr(), 6, 3, 16);
+        let mut slot = crate::plugin::KernelTextSlot::empty();
+
+        assert_eq!(
+            nyash_string_kernel_slot_piecewise_subrange_hsiii_export(
+                &mut slot,
+                source_h,
+                middle.as_ptr(),
+                6,
+                3,
+                16,
+            ),
+            1
+        );
+        assert_eq!(
+            nyash_string_kernel_slot_len_i_export(&slot),
+            nyash_string_len_h(direct_h)
+        );
+        assert_eq!(
+            crate::nyash_array_kernel_slot_store_hi_alias(handle, 0, &mut slot),
+            1
+        );
+        assert_eq!(
+            crate::nyash_array_string_len_hi_alias(handle, 0),
+            nyash_string_len_h(direct_h)
+        );
+        assert_eq!(nyash_string_kernel_slot_len_i_export(&slot), 0);
+        assert_eq!(
+            decode_string_like_handle(crate::nyash_array_get_hi_alias(handle, 0)).as_deref(),
+            decode_string_like_handle(direct_h).as_deref()
+        );
+    });
+}
+
+#[test]
 fn string_kernel_slot_concat_len_publish_contract() {
     with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
         let lhs_h = string_handle("line-seed-abcdef");
