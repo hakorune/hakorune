@@ -15,14 +15,14 @@ pub(crate) use borrowed_handle::{
 };
 pub(crate) use decode::{
     any_arg_to_box, any_arg_to_box_with_profile, any_arg_to_index, decode_array_fast_value,
-    int_arg_to_box, owned_string_from_handle, ArrayFastDecodedValue, CodecProfile,
+    owned_string_from_handle, ArrayFastDecodedValue, CodecProfile,
 };
 #[cfg(test)]
 pub(crate) use encode::box_to_runtime_i64;
 #[cfg(test)]
 pub(crate) use encode::runtime_i64_from_box_ref;
 pub(crate) use encode::{
-    box_to_handle, box_to_handle_materializing_borrowed_string, runtime_i64_from_box_ref_caller,
+    box_to_handle_materializing_borrowed_string, runtime_i64_from_box_ref_caller,
     BorrowedAliasEncodeCaller,
 };
 pub(crate) use string_classify::{

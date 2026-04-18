@@ -73,6 +73,31 @@ mod tests {
     }
 
     #[test]
+    fn compat_get_hh_reuses_slot_load_contract() {
+        let handle = new_map_handle();
+        let key_handle = string_handle("compat-key");
+        let value_handle = string_handle("compat-value");
+
+        assert_eq!(nyash_map_slot_store_hhh_alias(handle, key_handle, value_handle), 1);
+        let got_handle = nyash_map_get_hh(handle, key_handle);
+        assert!(got_handle > 0);
+        assert_eq!(decode_string_from_handle(got_handle), "compat-value");
+        assert_eq!(nyash_map_get_hh(handle, string_handle("missing")), 0);
+    }
+
+    #[test]
+    fn compat_get_h_reuses_slot_load_contract() {
+        let handle = new_map_handle();
+        let value_handle = string_handle("compat-hi");
+
+        assert_eq!(nyash_map_slot_store_hih_alias(handle, -71001, value_handle), 1);
+        let got_handle = nyash_map_get_h(handle, -71001);
+        assert!(got_handle > 0);
+        assert_eq!(decode_string_from_handle(got_handle), "compat-hi");
+        assert_eq!(nyash_map_get_h(handle, -71002), 0);
+    }
+
+    #[test]
     fn raw_aliases_keep_fail_safe_contract() {
         assert_eq!(nyash_map_slot_load_hi_alias(0, 1), 0);
         assert_eq!(nyash_map_slot_load_hh_alias(0, 1), 0);

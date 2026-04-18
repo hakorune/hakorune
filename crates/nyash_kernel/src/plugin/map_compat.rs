@@ -1,35 +1,12 @@
 use super::handle_cache::with_map_box;
-use super::map_key_codec::map_key_string_from_any;
 use super::map_runtime_facade::{
-    map_runtime_probe_any, map_runtime_probe_i64, map_runtime_store_any, map_runtime_store_i64_any,
-};
-use super::value_codec::{
-    box_to_handle, box_to_handle_materializing_borrowed_string, int_arg_to_box,
+    map_runtime_load_any, map_runtime_load_i64, map_runtime_probe_any, map_runtime_probe_i64,
+    map_runtime_store_any, map_runtime_store_i64_any,
 };
 
 #[inline]
 pub(super) fn map_debug_enabled() -> bool {
     std::env::var("NYASH_LLVM_MAP_DEBUG").ok().as_deref() == Some("1")
-}
-
-#[inline]
-fn map_get_compat_i64(handle: i64, key_i64: i64) -> i64 {
-    with_map_box(handle, |map| {
-        let value = map.get(int_arg_to_box(key_i64));
-        box_to_handle(value)
-    })
-    .unwrap_or(0)
-}
-
-#[inline]
-fn map_get_compat_any(handle: i64, key_any: i64) -> i64 {
-    let key_str = map_key_string_from_any(key_any);
-    with_map_box(handle, |map| {
-        let value = map.get_opt_key_str(&key_str)?;
-        Some(box_to_handle_materializing_borrowed_string(value))
-    })
-    .flatten()
-    .unwrap_or(0)
 }
 
 // Compat-only exports consumed by historical pure/legacy surfaces.
@@ -45,7 +22,7 @@ pub extern "C" fn nyash_map_get_h(handle: i64, key: i64) -> i64 {
     if map_debug_enabled() {
         eprintln!("[MAP] get_h(handle={}, key={})", handle, key);
     }
-    let out = map_get_compat_i64(handle, key);
+    let out = map_runtime_load_i64(handle, key);
     if map_debug_enabled() {
         eprintln!("[MAP] get_h => handle {}", out);
     }
@@ -55,7 +32,14 @@ pub extern "C" fn nyash_map_get_h(handle: i64, key: i64) -> i64 {
 // get_hh: (map_handle, key_handle) -> value_handle
 #[export_name = "nyash.map.get_hh"]
 pub extern "C" fn nyash_map_get_hh(handle: i64, key_any: i64) -> i64 {
-    map_get_compat_any(handle, key_any)
+    if map_debug_enabled() {
+        eprintln!("[MAP] get_hh(handle={}, key_any={})", handle, key_any);
+    }
+    let out = map_runtime_load_any(handle, key_any);
+    if map_debug_enabled() {
+        eprintln!("[MAP] get_hh => handle {}", out);
+    }
+    out
 }
 
 // set_h: (map_handle, key_i64, val) -> i64 (ignored/0)
