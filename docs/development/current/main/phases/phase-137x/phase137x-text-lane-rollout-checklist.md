@@ -307,6 +307,7 @@ Related:
 - `Cleanup 7`: legacy map compat surface retirement
   - status: partial
   - landed: `MapBox.size/len/length` lowering now targets canonical `nyash.map.entry_count_i64`; `nyash.map.entry_count_h` remains only as compat export/test/archive residue
+  - landed: LL emit map i64-key `get` / `has` routes now target `nyash.map.slot_load_hi` / `nyash.map.probe_hi`; `nyash.map.get_h` / `nyash.map.has_h` remain compat export/test/archive residue
   - retarget remaining lowering/runtime users off deprecated compat map exports
   - then collapse:
     - `map_compat.rs`

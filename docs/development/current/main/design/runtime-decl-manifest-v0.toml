@@ -150,20 +150,20 @@ memory = "readwrite"
 lanes = ["pure-first", "hako-ll-min-v0", "compare"]
 
 [[rows]]
-symbol = "nyash.map.has_h"
+symbol = "nyash.map.probe_hi"
 args = ["handle_owned", "imm_i64"]
 ret = "imm_i64"
 attrs = ["nounwind", "readonly", "willreturn"]
 memory = "read"
-lanes = ["hako-ll-min-v0", "compare"]
+lanes = ["pure-first", "hako-ll-min-v0", "compare"]
 
 [[rows]]
-symbol = "nyash.map.get_h"
+symbol = "nyash.map.slot_load_hi"
 args = ["handle_owned", "imm_i64"]
 ret = "handle_owned"
 attrs = ["nounwind", "readonly", "willreturn"]
 memory = "read"
-lanes = ["hako-ll-min-v0", "compare"]
+lanes = ["pure-first", "hako-ll-min-v0", "compare"]
 
 [[rows]]
 symbol = "nyash.array.string_len_hi"

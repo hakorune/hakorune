@@ -370,12 +370,12 @@ static box LlEmitCallPolicyBox {
         }
         if method_name == "has" {
           if key_class == "imm_i64" {
-            return me._accept_manifest_call(out, inst.get("dst"), "nyash.map.has_h")
+            return me._accept_manifest_call(out, inst.get("dst"), "nyash.map.probe_hi")
           }
           return me._accept_manifest_call(out, inst.get("dst"), "nyash.runtime_data.has_hh")
         }
         if key_class == "imm_i64" {
-          return me._accept_manifest_call(out, inst.get("dst"), "nyash.map.get_h")
+          return me._accept_manifest_call(out, inst.get("dst"), "nyash.map.slot_load_hi")
         }
         return me._accept_manifest_call(out, inst.get("dst"), "nyash.runtime_data.get_hh")
       }
@@ -485,12 +485,12 @@ static box LlEmitCallPolicyBox {
         }
         if method_name == "has" {
           if key_class == "imm_i64" {
-            return me._accept_manifest_call(out, inst.get("dst"), "nyash.map.has_h")
+            return me._accept_manifest_call(out, inst.get("dst"), "nyash.map.probe_hi")
           }
           return me._accept_manifest_call(out, inst.get("dst"), "nyash.runtime_data.has_hh")
         }
         if key_class == "imm_i64" {
-          return me._accept_manifest_call(out, inst.get("dst"), "nyash.map.get_h")
+          return me._accept_manifest_call(out, inst.get("dst"), "nyash.map.slot_load_hi")
         }
         return me._accept_manifest_call(out, inst.get("dst"), "nyash.runtime_data.get_hh")
       }
