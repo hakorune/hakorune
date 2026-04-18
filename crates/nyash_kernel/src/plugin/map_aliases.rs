@@ -9,12 +9,6 @@ pub extern "C" fn nyash_map_entry_count_i64(handle: i64) -> i64 {
     super::map_substrate::map_entry_count_raw(handle)
 }
 
-// entry_count_h: compat alias for historical callers.
-#[export_name = "nyash.map.entry_count_h"]
-pub extern "C" fn nyash_map_entry_count_h(handle: i64) -> i64 {
-    super::map_substrate::map_entry_count_raw(handle)
-}
-
 #[export_name = "nyash.map.cap_h"]
 pub extern "C" fn nyash_map_cap_h(handle: i64) -> i64 {
     super::map_substrate::map_capacity_raw(handle)

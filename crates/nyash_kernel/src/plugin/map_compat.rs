@@ -4,6 +4,12 @@ use super::map_slot_load::{map_slot_load_any, map_slot_load_i64};
 use super::map_slot_store::{map_slot_store_any, map_slot_store_i64_any};
 
 // Compat-only exports consumed by historical pure/legacy surfaces.
+// entry_count_h: compatibility alias for historical callers.
+#[export_name = "nyash.map.entry_count_h"]
+pub extern "C" fn nyash_map_entry_count_h(handle: i64) -> i64 {
+    super::map_substrate::map_entry_count_raw(handle)
+}
+
 // size: compatibility observer (handle) -> i64
 #[export_name = "nyash.map.size_h"]
 pub extern "C" fn nyash_map_size_h(handle: i64) -> i64 {
@@ -162,7 +168,21 @@ mod tests {
     }
 
     #[test]
+    fn map_entry_count_h_legacy_alias_reads_entry_count() {
+        let map_handle = new_map_handle();
+        let key_a = string_handle("entry-a");
+        let key_b = string_handle("entry-b");
+        let value_handle = string_handle("entry-value");
+
+        assert_eq!(nyash_map_set_hh(map_handle, key_a, value_handle), 0);
+        assert_eq!(nyash_map_set_hh(map_handle, key_b, value_handle), 0);
+        assert_eq!(nyash_map_entry_count_h(map_handle), 2);
+        assert_eq!(nyash_map_entry_count_h(0), 0);
+    }
+
+    #[test]
     fn map_invalid_handle_fail_safe_contract() {
+        assert_eq!(nyash_map_entry_count_h(0), 0);
         assert_eq!(nyash_map_size_h(0), 0);
         assert_eq!(nyash_map_get_h(0, 1), 0);
         assert_eq!(nyash_map_get_hh(0, 1), 0);
@@ -171,6 +191,7 @@ mod tests {
         assert_eq!(nyash_map_set_h(0, 1, 2), 0);
         assert_eq!(nyash_map_set_hh(0, 1, 2), 0);
 
+        assert_eq!(nyash_map_entry_count_h(-1), 0);
         assert_eq!(nyash_map_size_h(-1), 0);
         assert_eq!(nyash_map_get_h(-1, 1), 0);
         assert_eq!(nyash_map_get_hh(-1, 1), 0);

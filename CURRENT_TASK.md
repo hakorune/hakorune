@@ -85,7 +85,7 @@ Scope: current lane / next lane / restart order only.
       - keep LL emit map i64-key `get/has` lowering on `nyash.map.slot_load_hi` / `nyash.map.probe_hi`; `get_h` / `has_h` are compat/export residue only
       - keep RuntimeData field fallback on `nyash.map.slot_load_hh` / `nyash.map.slot_store_hhh`; `get_hh` / `set_hh` are compat/export residue only
       - keep C-shim map size emission on `nyash.map.entry_count_i64`; `entry_count_h` is compat/export residue only
-      - keep Rust `map_compat` out of the public `map::*` re-export; compat ABI tests live inside `map_compat.rs`, C ABI exports stay intact
+      - keep Rust `map_compat` out of the public `map::*` re-export; compat ABI exports/tests, including `entry_count_h`, live inside `map_compat.rs`
       - keep the deprecated builtin `MapBox` constructor isolated as feature-gated `builtin_impls::compat_map_box`; the live `MapBox` implementation and provider/type surfaces remain unchanged
   - pending todo:
     - `phase2-deferred-const-suffix-stability`
