@@ -161,6 +161,7 @@ Scope: current lane / next lane / restart order only.
         - `kernel_slot_concat_hs` can now leave a deferred `const_suffix` state inside the existing `KernelTextSlot` layout
         - `kernel_slot_store_hi` consumes that state before generic freeze/objectize
         - existing `StringBox` array slots append in place when the deferred source still matches the current slot text
+        - regression tests now lock `DeferredConstSuffix -> store -> Empty` for append, existing `StringBox`, and existing borrowed-alias retarget routes
       - latest reread after the deferred-slot landing:
         - `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
         - `kilo_kernel_small = C 79 ms / Ny AOT 726 ms`

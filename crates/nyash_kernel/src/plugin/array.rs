@@ -24,6 +24,11 @@ mod tests {
         handles::to_handle_arc(int_box) as i64
     }
 
+    fn new_string_handle(value: &str) -> i64 {
+        let string_box: Arc<dyn NyashBox> = Arc::new(StringBox::new(value.to_string()));
+        handles::to_handle_arc(string_box) as i64
+    }
+
     fn storage_tag(handle: i64) -> Option<String> {
         with_array_box(handle, |arr| format!("{arr:?}"))
     }
@@ -178,10 +183,7 @@ mod tests {
     #[test]
     fn kernel_slot_store_existing_string_box_overwrites_in_place() {
         let handle = new_array_handle();
-        let lhs_h = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
-            nyash_rust::box_trait::StringBox::new("line-seed".to_string()),
-        )
-            as std::sync::Arc<dyn NyashBox>) as i64;
+        let lhs_h = new_string_handle("line-seed");
         let suffix = std::ffi::CString::new("xy").expect("CString");
         let mut slot = crate::plugin::KernelTextSlot::empty();
 
@@ -211,10 +213,14 @@ mod tests {
             1
         );
         assert_eq!(
+            slot.state(),
+            crate::plugin::KernelTextSlotState::DeferredConstSuffix
+        );
+        assert_eq!(
             nyash_array_kernel_slot_store_hi_alias(handle, 0, &mut slot),
             1
         );
-        assert_eq!(nyash_string_kernel_slot_len_i_export(&slot), 0);
+        assert_eq!(slot.state(), crate::plugin::KernelTextSlotState::Empty);
 
         let after = with_array_box(handle, |arr| {
             arr.with_items_read(|items| {
@@ -233,12 +239,51 @@ mod tests {
     }
 
     #[test]
+    fn kernel_slot_const_suffix_store_existing_alias_keeps_borrowed_wrapper() {
+        let handle = new_array_handle();
+        let seed_h = new_string_handle("line-seed");
+        let suffix = std::ffi::CString::new("xy").expect("CString");
+        let mut slot = crate::plugin::KernelTextSlot::empty();
+
+        assert_eq!(nyash_array_set_his_alias(handle, 0, seed_h), 1);
+        assert_eq!(
+            crate::nyash_string_kernel_slot_concat_hs_export(&mut slot, seed_h, suffix.as_ptr()),
+            1
+        );
+        assert_eq!(
+            slot.state(),
+            crate::plugin::KernelTextSlotState::DeferredConstSuffix
+        );
+        assert_eq!(
+            nyash_array_kernel_slot_store_hi_alias(handle, 0, &mut slot),
+            1
+        );
+        assert_eq!(slot.state(), crate::plugin::KernelTextSlotState::Empty);
+        assert_eq!(nyash_array_string_len_hi_alias(handle, 0), 11);
+
+        let kept = with_array_box(handle, |arr| {
+            arr.with_items_read(|items| {
+                let item = items.first().expect("stored string slot");
+                item.as_any()
+                    .downcast_ref::<crate::plugin::value_codec::BorrowedHandleBox>()
+                    .map(|alias| {
+                        (
+                            alias.borrowed_handle_source_fast().is_none(),
+                            alias.as_str_fast().map(str::to_string),
+                        )
+                    })
+            })
+        })
+        .flatten()
+        .expect("borrowed alias slot");
+        assert!(kept.0);
+        assert_eq!(kept.1.as_deref(), Some("line-seedxy"));
+    }
+
+    #[test]
     fn kernel_slot_const_suffix_store_alias_writes_string_slot_without_publish_handle() {
         let handle = new_array_handle();
-        let lhs_h = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
-            nyash_rust::box_trait::StringBox::new("line-seed".to_string()),
-        )
-            as std::sync::Arc<dyn NyashBox>) as i64;
+        let lhs_h = new_string_handle("line-seed");
         let suffix = std::ffi::CString::new("xy").expect("CString");
         let mut slot = crate::plugin::KernelTextSlot::empty();
 
@@ -246,13 +291,17 @@ mod tests {
             crate::nyash_string_kernel_slot_concat_hs_export(&mut slot, lhs_h, suffix.as_ptr()),
             1
         );
+        assert_eq!(
+            slot.state(),
+            crate::plugin::KernelTextSlotState::DeferredConstSuffix
+        );
         assert_eq!(nyash_string_kernel_slot_len_i_export(&slot), 11);
         assert_eq!(
             nyash_array_kernel_slot_store_hi_alias(handle, 0, &mut slot),
             1
         );
         assert_eq!(nyash_array_string_len_hi_alias(handle, 0), 11);
-        assert_eq!(nyash_string_kernel_slot_len_i_export(&slot), 0);
+        assert_eq!(slot.state(), crate::plugin::KernelTextSlotState::Empty);
     }
 
     #[test]

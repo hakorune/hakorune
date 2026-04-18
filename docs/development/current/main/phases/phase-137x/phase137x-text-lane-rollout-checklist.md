@@ -316,6 +316,7 @@ Related:
   - landed: `NewBox(PathBox)` construction now goes through the ring1 path provider seam; the deprecated builtin PathBox fallback is removed
   - landed: `NewBox(ConsoleBox)` construction now goes through the ring1 console seam; the selfhost fallback remains but the standalone builtin wrapper is removed
   - landed: remaining `builtin_impls` are documented as a fallback quarantine; File/Null/primitive fallbacks are deferred until a separate SSOT owns their removal
+  - landed: `DeferredConstSuffix -> kernel_slot_store_hi` regression tests now cover append, existing `StringBox`, and existing borrowed-alias retarget routes
   - retarget remaining lowering/runtime users off deprecated compat map exports
   - then collapse:
     - `map_compat.rs`
