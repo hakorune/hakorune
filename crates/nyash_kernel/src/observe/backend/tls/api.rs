@@ -34,6 +34,8 @@ tls_zero_arg_api! {
     store_array_str_reason_retarget_keep_source_arc_ptr_eq_hit => store_array_str_reason_retarget_keep_source_arc_ptr_eq_hit,
     store_array_str_reason_retarget_keep_source_arc_ptr_eq_miss => store_array_str_reason_retarget_keep_source_arc_ptr_eq_miss,
     store_array_str_reason_retarget_alias_update => store_array_str_reason_retarget_alias_update,
+    store_array_str_lookup_registry_slot_read => store_array_str_lookup_registry_slot_read,
+    store_array_str_lookup_caller_latest_fresh_tag => store_array_str_lookup_caller_latest_fresh_tag,
     const_suffix_enter => const_suffix_enter,
     const_suffix_cached_handle_hit => const_suffix_cached_handle_hit,
     const_suffix_text_cache_reload => const_suffix_text_cache_reload,
@@ -150,6 +152,36 @@ pub(crate) fn birth_backend_gc_alloc(bytes: u64) {
 }
 
 #[inline(always)]
+pub(crate) fn birth_backend_site_string_concat_hh_materialize_owned(bytes: u64) {
+    with_tls(|tls| tls.birth_backend_site_string_concat_hh_materialize_owned(bytes));
+}
+
+#[inline(always)]
+pub(crate) fn birth_backend_site_string_concat_hh_objectize_box() {
+    with_tls(ThreadCounters::birth_backend_site_string_concat_hh_objectize_box);
+}
+
+#[inline(always)]
+pub(crate) fn birth_backend_site_string_concat_hh_publish_handle() {
+    with_tls(ThreadCounters::birth_backend_site_string_concat_hh_publish_handle);
+}
+
+#[inline(always)]
+pub(crate) fn birth_backend_site_string_substring_concat_hhii_materialize_owned(bytes: u64) {
+    with_tls(|tls| tls.birth_backend_site_string_substring_concat_hhii_materialize_owned(bytes));
+}
+
+#[inline(always)]
+pub(crate) fn birth_backend_site_string_substring_concat_hhii_objectize_box() {
+    with_tls(ThreadCounters::birth_backend_site_string_substring_concat_hhii_objectize_box);
+}
+
+#[inline(always)]
+pub(crate) fn birth_backend_site_string_substring_concat_hhii_publish_handle() {
+    with_tls(ThreadCounters::birth_backend_site_string_substring_concat_hhii_publish_handle);
+}
+
+#[inline(always)]
 pub(crate) fn mark_latest_fresh_handle(handle: i64) {
     with_tls(|tls| tls.mark_latest_fresh_handle(handle));
 }
@@ -165,7 +197,7 @@ macro_rules! load {
     };
 }
 
-pub(crate) fn snapshot() -> [u64; 121] {
+pub(crate) fn snapshot() -> [u64; 131] {
     flush_current_thread();
     [
         load!(store_array_str_total),
@@ -289,5 +321,15 @@ pub(crate) fn snapshot() -> [u64; 121] {
         load!(birth_backend_publish_reason_need_stable_object),
         load!(birth_backend_publish_reason_generic_fallback),
         load!(birth_backend_publish_reason_explicit_api),
+        load!(store_array_str_lookup_registry_slot_read),
+        load!(store_array_str_lookup_caller_latest_fresh_tag),
+        load!(birth_backend_site_string_concat_hh_materialize_owned_total),
+        load!(birth_backend_site_string_concat_hh_materialize_owned_bytes),
+        load!(birth_backend_site_string_concat_hh_objectize_box_total),
+        load!(birth_backend_site_string_concat_hh_publish_handle_total),
+        load!(birth_backend_site_string_substring_concat_hhii_materialize_owned_total),
+        load!(birth_backend_site_string_substring_concat_hhii_materialize_owned_bytes),
+        load!(birth_backend_site_string_substring_concat_hhii_objectize_box_total),
+        load!(birth_backend_site_string_substring_concat_hhii_publish_handle_total),
     ]
 }

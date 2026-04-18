@@ -335,6 +335,11 @@ pub fn perf_observe_mark_latest_fresh_handle(h: u64) {
 pub fn perf_observe_snapshot() -> [u64; 12] {
     perf_observe::snapshot()
 }
+
+#[inline(always)]
+pub fn perf_observe_object_with_handle_caller(h: u64, caller: PerfObserveObjectWithHandleCaller) {
+    perf_observe::object_with_handle(h, caller);
+}
 /// HostHandle(u64) → Arc<dyn NyashBox>
 #[inline(always)]
 pub fn get(h: u64) -> Option<Arc<dyn NyashBox>> {

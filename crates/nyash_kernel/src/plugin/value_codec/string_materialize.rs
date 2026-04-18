@@ -11,6 +11,13 @@ enum PublishReason {
     ExplicitApi,
 }
 
+#[derive(Clone, Copy)]
+pub(crate) enum StringPublishSite {
+    Generic,
+    StringConcatHh,
+    StringSubstringConcatHhii,
+}
+
 #[inline(always)]
 fn record_publish_reason(reason: PublishReason) {
     match reason {
@@ -22,6 +29,47 @@ fn record_publish_reason(reason: PublishReason) {
         }
         PublishReason::ExplicitApi => {
             crate::observe::record_birth_backend_publish_reason_explicit_api();
+        }
+    }
+}
+
+#[inline(always)]
+fn record_publish_site_materialize_owned(site: StringPublishSite, bytes: usize) {
+    match site {
+        StringPublishSite::Generic => {}
+        StringPublishSite::StringConcatHh => {
+            crate::observe::record_birth_backend_site_string_concat_hh_materialize_owned(bytes);
+        }
+        StringPublishSite::StringSubstringConcatHhii => {
+            crate::observe::record_birth_backend_site_string_substring_concat_hhii_materialize_owned(
+                bytes,
+            );
+        }
+    }
+}
+
+#[inline(always)]
+fn record_publish_site_objectize_box(site: StringPublishSite) {
+    match site {
+        StringPublishSite::Generic => {}
+        StringPublishSite::StringConcatHh => {
+            crate::observe::record_birth_backend_site_string_concat_hh_objectize_box();
+        }
+        StringPublishSite::StringSubstringConcatHhii => {
+            crate::observe::record_birth_backend_site_string_substring_concat_hhii_objectize_box();
+        }
+    }
+}
+
+#[inline(always)]
+fn record_publish_site_publish_handle(site: StringPublishSite) {
+    match site {
+        StringPublishSite::Generic => {}
+        StringPublishSite::StringConcatHh => {
+            crate::observe::record_birth_backend_site_string_concat_hh_publish_handle();
+        }
+        StringPublishSite::StringSubstringConcatHhii => {
+            crate::observe::record_birth_backend_site_string_substring_concat_hhii_publish_handle();
         }
     }
 }
@@ -252,9 +300,26 @@ pub(crate) fn freeze_owned_string_into_slot(slot: &mut KernelTextSlot, value: St
 }
 
 #[inline(always)]
+fn freeze_owned_bytes_with_site(value: String, site: StringPublishSite) -> OwnedBytes {
+    record_publish_site_materialize_owned(site, value.len());
+    freeze_owned_bytes(value)
+}
+
+#[inline(always)]
 fn publish_owned_bytes_with_reason(bytes: OwnedBytes, reason: PublishReason) -> i64 {
+    publish_owned_bytes_with_reason_and_site(bytes, reason, StringPublishSite::Generic)
+}
+
+#[inline(always)]
+fn publish_owned_bytes_with_reason_and_site(
+    bytes: OwnedBytes,
+    reason: PublishReason,
+    site: StringPublishSite,
+) -> i64 {
     record_publish_reason(reason);
+    record_publish_site_objectize_box(site);
     let arc = objectize_stable_string_box(bytes);
+    record_publish_site_publish_handle(site);
     issue_fresh_handle(arc)
 }
 
@@ -318,6 +383,18 @@ pub(crate) fn objectize_kernel_text_slot_stable_box(
 #[inline(always)]
 pub(crate) fn materialize_owned_string_generic_fallback(value: String) -> i64 {
     publish_owned_bytes_generic_fallback_boundary(freeze_owned_bytes(value))
+}
+
+#[inline(always)]
+pub(crate) fn materialize_owned_string_generic_fallback_for_site(
+    value: String,
+    site: StringPublishSite,
+) -> i64 {
+    publish_owned_bytes_with_reason_and_site(
+        freeze_owned_bytes_with_site(value, site),
+        PublishReason::GenericFallback,
+        site,
+    )
 }
 
 #[inline(always)]

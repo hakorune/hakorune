@@ -34,13 +34,23 @@ cargo check --features perf-observe -p nyash_kernel
   - `kilo_micro_array_string_store = C 10 ms / Ny AOT 132 ms`
   - `kilo_kernel_small_hk = C 80 ms / Ny AOT 731 ms`
 - immediate next:
-  - `reopen producer-side publication/source-capture on kilo_micro_array_string_store while preserving the existing set_his fast path`
+  - `reopen producer-side publication/source-capture on whole kilo first, while preserving the existing set_his fast path`
 - immediate follow-on:
-  - `compare carrier_kind / publish_reason plus plan-local probe counters before reopening const_suffix or Stage B`
+  - `split const_suffix vs freeze_text_plan(Pieces3) publication before picking the next keeper`
 - latest non-keeper:
   - `producer-side unpublished-outcome active probe regressed to 236 ms exact / 2173 ms whole and is reverted`
 - latest observability split:
-  - `lookup_array_store_str_source_obj` is now visible as its own hot symbol; next exact reread should split lookup vs proof shaping vs verified-source shaping before touching publication tail again
+  - `lookup_array_store_str_source_obj` is now visible as:
+    - `lookup.registry_slot_read`
+    - `lookup.caller_latest_fresh_tag`
+  - publish site counters now exist for the exact micro front:
+    - `site.string_concat_hh.*`
+    - `site.string_substring_concat_hhii.*`
+  - latest raw whole observe reread proves those exact-micro sites are not the whole-kilo owner:
+    - `const_suffix freeze_fallback=479728`
+    - `freeze_text_plan_pieces3=60000`
+    - `site.string_concat_hh.*=0`
+    - `site.string_substring_concat_hhii.*=0`
 
 ## Current Handoff
 
@@ -56,6 +66,9 @@ cargo check --features perf-observe -p nyash_kernel
   - wrong cut; do not reopen this before a new design decision
 - helper-only keeper from that rejected card is committed as `b35382cf9`
 - latest `perf-observe` reread no longer ranks `string_len_export_slow_path`; the live top stays publication/source-capture
+- exact micro vs whole kilo must now be read separately:
+  - exact micro owner = shared generic publish/objectize behind `string_concat_hh` + `string_substring_concat_hhii`
+  - whole kilo owner = `const_suffix` fallback + `freeze_text_plan(Pieces3)` publication
 - `indexOf` stays a side diagnosis, not the active keeper card
 - keep public ABI / legality ownership unchanged
 - next first slice is no longer `len_h` removal; it is publication/source-capture reopen with the compiler-known-length lane fixed
@@ -65,7 +78,7 @@ cargo check --features perf-observe -p nyash_kernel
 - latest design consult is accepted in narrowed form:
   - no syntax expansion
   - no public raw string / mutable bytes
-  - `const_suffix` is a later narrow probe, not the first widening
+  - the next widening stays inside runtime-private `const_suffix` / `Pieces3` publication, not helper-site specialization
   - reuse existing `TextPlan` / `OwnedBytes` seams before inventing a new carrier
 - compare `.hako` only under:
   - `Stage A: same protocol`

@@ -97,17 +97,86 @@ Scope: current lane / next lane / restart order only.
   - helper-only keepers on this lane are:
     - `b35382cf9 feat: add kernel text slot store helpers`
     - runtime-side alias-retarget repair for kernel-slot store into existing string slots
-  - latest `perf-observe` reread on the active array-store front no longer ranks `string_len_export_slow_path`; top samples stay on:
-    - `issue_fresh_handle`
+- latest `perf-observe` reread on the active array-store front no longer ranks `string_len_export_slow_path`; top samples stay on:
+  - `issue_fresh_handle`
+  - `freeze_owned_bytes`
+  - `capture_store_array_str_source`
+  - `StringBox::perf_observe_from_owned`
+- latest observability split made `lookup_array_store_str_source_obj` visible as its own hot symbol; source-capture is now split enough to compare lookup vs proof-shaping vs publish tail
+- latest clean-baseline evidence split is now pinned:
+  - source lane is `BoxShape`, not `BoxCount`
+  - `lookup_array_store_str_source_obj = 9.60%`
+  - `materialize_verified_text_source = 2.05%`
+  - proof classify is now noise on this front
+  - remaining source-capture blind spot is *inside* `lookup_array_store_str_source_obj`:
+    - registry read / slot lookup
+    - caller / latest-fresh tagging
+- latest clean-baseline publish evidence is now pinned:
+  - publish lane is `BoxShape`, not `BoxCount`
+  - `freeze_owned_bytes = 15.98%`
+  - `issue_fresh_handle = 14.53%`
+  - `StringBox::perf_observe_from_owned = 7.25%`
+  - current `carrier_kind` / `publish_reason` counters still collapse the producer sites together
+- observation-only split is now landed on the perf-observe lane:
+  - source lookup now exposes:
+    - `lookup.registry_slot_read`
+    - `lookup.caller_latest_fresh_tag`
+  - publish tail now exposes:
+    - `site.string_concat_hh.materialize_owned_total / bytes`
+    - `site.string_concat_hh.objectize_box_total`
+    - `site.string_concat_hh.publish_handle_total`
+    - `site.string_substring_concat_hhii.materialize_owned_total / bytes`
+    - `site.string_substring_concat_hhii.objectize_box_total`
+    - `site.string_substring_concat_hhii.publish_handle_total`
+  - latest raw exact reread on `kilo_micro_array_string_store` (observe build; split-only, not release truth) shows:
+    - `lookup.registry_slot_read=800000`
+    - `lookup.caller_latest_fresh_tag=800000`
+    - `site.string_concat_hh.materialize_owned_total=800000`
+    - `site.string_concat_hh.materialize_owned_bytes=14400000`
+    - `site.string_concat_hh.objectize_box_total=800000`
+    - `site.string_concat_hh.publish_handle_total=800000`
+    - `site.string_substring_concat_hhii.materialize_owned_total=800000`
+    - `site.string_substring_concat_hhii.materialize_owned_bytes=12800000`
+    - `site.string_substring_concat_hhii.objectize_box_total=800000`
+    - `site.string_substring_concat_hhii.publish_handle_total=800000`
+- latest raw whole reread on `kilo_kernel_small_hk` / `bench_kilo_kernel_small.hako` (observe build; split-only, not release truth) shows a different owner family:
+  - `Result: 1140576`
+  - `store.array.str total=540000`
+  - `lookup.registry_slot_read=540000`
+  - `lookup.caller_latest_fresh_tag=540000`
+  - `const_suffix total=480000`
+  - `const_suffix freeze_fallback=479728`
+  - `const_suffix cached_fast_str_hit=272`
+  - `freeze_text_plan_pieces3=60000`
+  - `publish_reason.generic_fallback=539728`
+  - `site.string_concat_hh.*=0`
+  - `site.string_substring_concat_hhii.*=0`
+  - current whole-kilo owner is therefore **const_suffix / pieces3 producer publication**, not the pair/substring helper sites from the exact micro front
+- latest exact asm diff is now pinned:
+  - C side is still a tight `main` loop plus `strlen`
+  - Ny AOT hot symbols are:
+    - `string_substring_concat_hhii_export_impl`
+    - `string_concat_hh_export_impl`
+    - array string-store closure
+    - `from_i8_string_const`
+  - hottest Ny AOT blocks sit inside helper-side branch / indirect-call / sync-heavy paths, not inside the array store leaf itself
+- latest publish-asm mapping is now pinned:
+  - loop shape is `concat_hh -> set_his -> substring_concat_hhii`
+  - producer side still pays:
     - `freeze_owned_bytes`
-    - `capture_store_array_str_source`
-    - `StringBox::perf_observe_from_owned`
-  - latest observability split made `lookup_array_store_str_source_obj` visible as its own hot symbol; source-capture is now split enough to compare lookup vs proof-shaping vs publish tail
-  - latest runtime-fix-only reread stays in the same owner family:
-    - `kilo_micro_array_string_store = C 10 ms / Ny AOT 132 ms`
-    - `kilo_kernel_small_hk = C 80 ms / Ny AOT 731 ms`
-  - current live owner remains publication/source-capture around the string births, not array-set route selection
-  - next comparison must split:
+    - generic publish boundary
+    - `issue_fresh_handle`
+  - current largest C-vs-Ny mismatch is **producer helper publication**, not array-store mutation
+- latest AOT-only `const_suffix` direct-store probe is **not** a keeper and has been reverted:
+  - direct MIR / direct-emit contract stayed green
+  - `kilo_micro_array_string_store = 138 ms` (baseline 132 ms)
+  - `kilo_kernel_small_hk = 1141 ms` (baseline 731 ms, probe-only 1x reread)
+  - current conclusion: this route widens hot-path cost elsewhere and should stay parked
+- latest runtime-fix-only reread stays in the same owner family:
+  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 132 ms`
+  - `kilo_kernel_small_hk = C 80 ms / Ny AOT 731 ms`
+- current live owner remains publication/source-capture around the string births, not array-set route selection
+- next comparison must split:
     - implementation language cost
     - protocol / seam cost
   - compiler-known-length keeper is landed; next slice is no longer `len_h` removal but publication/source-capture reopen while keeping that lane fixed
@@ -122,12 +191,19 @@ Scope: current lane / next lane / restart order only.
 
 1. keep `Stage A` parked as VM/reference-only and stop spending exact-front time on owner-route widening
 2. keep the compiler-known-length lane fixed and guarded on `kilo_micro_array_string_store`
-3. reopen `kilo_micro_array_string_store` on producer-side publication/source-capture before `nyash.array.set_his`
-4. preserve the existing `set_his` fast path while adding a narrow unpublished-outcome A/B probe on the producer side
-5. measure source-capture again by splitting `lookup_array_store_str_source_obj` vs proof shaping vs verified-source shaping before any route widening
-6. then compare `issue_fresh_handle` against the rest of the publish tail with the existing `carrier_kind` / `publish_reason` counters
-7. only if the producer-side unpublished probe still wins, try a narrow `const_suffix -> TextPlan::Pieces2` exact-front A/B; do not widen `const_suffix` first
-8. consider unique-`OwnedBytes` in-place append only as a second-stage follow-up after the `Pieces2` probe proves publication timing is the owner
+3. keep array-store route selection parked; the exact-front owner is still the **producer helper publish tail**
+4. keep the reverted AOT-only `const_suffix` direct-store corridor parked as a non-keeper; do not reopen it before new evidence
+5. next slice stays evidence-first, but exact and whole are now split:
+   - exact micro owner: common generic publish/objectize corridor shared by `string_concat_hh` and `string_substring_concat_hhii`
+   - whole kilo owner: `const_suffix` fallback plus `freeze_text_plan_pieces3` publication
+6. do not spend the next keeper card on pair/substring helper specialization; whole-kilo counters prove those sites are inactive there
+7. next observation gap, before a keeper probe on whole kilo:
+   - split publish bytes/stages for `const_suffix` vs `freeze_text_plan(Pieces3)` so the whole front can choose the first structural keeper without guessing from counts alone
+8. after that reread:
+   - `kilo_micro_array_string_store`
+   - `kilo_kernel_small_hk`
+   - top asm on the active whole producer helper (`const_suffix` / pieces3 path) plus the exact-front publish tail
+9. only after the observation split proves one specific producer stage, reopen a new narrow keeper candidate on that stage alone
 
 ## Guardrails
 

@@ -45,6 +45,9 @@ pub(crate) const STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC_PTR_EQ_MISS: &s
     "reason.retarget_keep_source_arc_ptr_eq_miss";
 pub(crate) const STORE_ARRAY_STR_REASON_RETARGET_ALIAS_UPDATE: &str =
     "reason.retarget_alias_update";
+pub(crate) const STORE_ARRAY_STR_LOOKUP_REGISTRY_SLOT_READ: &str = "lookup.registry_slot_read";
+pub(crate) const STORE_ARRAY_STR_LOOKUP_CALLER_LATEST_FRESH_TAG: &str =
+    "lookup.caller_latest_fresh_tag";
 
 pub(crate) const CONST_SUFFIX_CACHED_HANDLE_HIT: &str = "cached_handle_hit";
 pub(crate) const CONST_SUFFIX_TEXT_CACHE_RELOAD: &str = "text_cache_reload";
@@ -92,8 +95,23 @@ pub(crate) const BIRTH_BACKEND_PUBLISH_REASON_NEED_STABLE_OBJECT: &str =
     "publish_reason.need_stable_object";
 pub(crate) const BIRTH_BACKEND_PUBLISH_REASON_GENERIC_FALLBACK: &str =
     "publish_reason.generic_fallback";
-pub(crate) const BIRTH_BACKEND_PUBLISH_REASON_EXPLICIT_API: &str =
-    "publish_reason.explicit_api";
+pub(crate) const BIRTH_BACKEND_PUBLISH_REASON_EXPLICIT_API: &str = "publish_reason.explicit_api";
+pub(crate) const BIRTH_BACKEND_SITE_STRING_CONCAT_HH_MATERIALIZE_OWNED_TOTAL: &str =
+    "site.string_concat_hh.materialize_owned_total";
+pub(crate) const BIRTH_BACKEND_SITE_STRING_CONCAT_HH_MATERIALIZE_OWNED_BYTES: &str =
+    "site.string_concat_hh.materialize_owned_bytes";
+pub(crate) const BIRTH_BACKEND_SITE_STRING_CONCAT_HH_OBJECTIZE_BOX_TOTAL: &str =
+    "site.string_concat_hh.objectize_box_total";
+pub(crate) const BIRTH_BACKEND_SITE_STRING_CONCAT_HH_PUBLISH_HANDLE_TOTAL: &str =
+    "site.string_concat_hh.publish_handle_total";
+pub(crate) const BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_MATERIALIZE_OWNED_TOTAL: &str =
+    "site.string_substring_concat_hhii.materialize_owned_total";
+pub(crate) const BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_MATERIALIZE_OWNED_BYTES: &str =
+    "site.string_substring_concat_hhii.materialize_owned_bytes";
+pub(crate) const BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_OBJECTIZE_BOX_TOTAL: &str =
+    "site.string_substring_concat_hhii.objectize_box_total";
+pub(crate) const BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_PUBLISH_HANDLE_TOTAL: &str =
+    "site.string_substring_concat_hhii.publish_handle_total";
 
 pub(crate) const STR_CONCAT2_ROUTE_TOTAL: &str = "total";
 pub(crate) const STR_CONCAT2_ROUTE_DISPATCH_HIT: &str = "dispatch_hit";

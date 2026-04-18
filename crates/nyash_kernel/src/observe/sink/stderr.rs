@@ -98,6 +98,14 @@ pub(crate) fn emit_summary_to_stderr() {
             contract::STORE_ARRAY_STR_REASON_RETARGET_ALIAS_UPDATE,
             snapshot[101],
         ),
+        (
+            contract::STORE_ARRAY_STR_LOOKUP_REGISTRY_SLOT_READ,
+            snapshot[121],
+        ),
+        (
+            contract::STORE_ARRAY_STR_LOOKUP_CALLER_LATEST_FRESH_TAG,
+            snapshot[122],
+        ),
     ] {
         let _ = write!(&mut store_array_str_line, " {}={}", name, value);
     }
@@ -196,10 +204,7 @@ pub(crate) fn emit_summary_to_stderr() {
             contract::BIRTH_BACKEND_CARRIER_KIND_OWNED_BYTES,
             snapshot[115],
         ),
-        (
-            contract::BIRTH_BACKEND_CARRIER_KIND_HANDLE,
-            snapshot[116],
-        ),
+        (contract::BIRTH_BACKEND_CARRIER_KIND_HANDLE, snapshot[116]),
         (
             contract::BIRTH_BACKEND_PUBLISH_REASON_EXTERNAL_BOUNDARY,
             snapshot[117],
@@ -215,6 +220,38 @@ pub(crate) fn emit_summary_to_stderr() {
         (
             contract::BIRTH_BACKEND_PUBLISH_REASON_EXPLICIT_API,
             snapshot[120],
+        ),
+        (
+            contract::BIRTH_BACKEND_SITE_STRING_CONCAT_HH_MATERIALIZE_OWNED_TOTAL,
+            snapshot[123],
+        ),
+        (
+            contract::BIRTH_BACKEND_SITE_STRING_CONCAT_HH_MATERIALIZE_OWNED_BYTES,
+            snapshot[124],
+        ),
+        (
+            contract::BIRTH_BACKEND_SITE_STRING_CONCAT_HH_OBJECTIZE_BOX_TOTAL,
+            snapshot[125],
+        ),
+        (
+            contract::BIRTH_BACKEND_SITE_STRING_CONCAT_HH_PUBLISH_HANDLE_TOTAL,
+            snapshot[126],
+        ),
+        (
+            contract::BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_MATERIALIZE_OWNED_TOTAL,
+            snapshot[127],
+        ),
+        (
+            contract::BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_MATERIALIZE_OWNED_BYTES,
+            snapshot[128],
+        ),
+        (
+            contract::BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_OBJECTIZE_BOX_TOTAL,
+            snapshot[129],
+        ),
+        (
+            contract::BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_PUBLISH_HANDLE_TOTAL,
+            snapshot[130],
         ),
     ] {
         let _ = write!(&mut birth_backend_line, " {}={}", name, value);

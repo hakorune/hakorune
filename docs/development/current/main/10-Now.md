@@ -36,6 +36,9 @@ Related:
   - compiler-side known string-length propagation is now landed for const / substring-window / same-length string `phi`
   - active AOT entry IR on this front no longer emits `nyash.string.len_h` in `ny_main`
   - current exact owner is still publication/source-capture
+  - current exact/whole split is now explicit:
+    - `kilo_micro_array_string_store` is dominated by the shared generic publish/objectize corridor behind `string_concat_hh` + `string_substring_concat_hhii`
+    - `kilo_kernel_small_hk` is dominated by `const_suffix` fallback plus `freeze_text_plan(Pieces3)` publication
   - `Stage A` narrow owner slice is now landed on the VM/reference lane:
     - `.hako` `ArrayCoreBox` routes proven string-handle `set(...)` through `nyash.array.set_his`
     - same protocol, same cold Rust tail
@@ -62,27 +65,42 @@ Related:
     - `b35382cf9`
     - runtime-side alias-retarget repair for kernel-slot store into existing string slots
   - latest `perf-observe` reread no longer ranks `string_len_export_slow_path`; the live top stays on `issue_fresh_handle` / `freeze_owned_bytes` / `capture_store_array_str_source` / `StringBox::perf_observe_from_owned`
-  - latest observability split made `lookup_array_store_str_source_obj` visible as its own hot symbol; source-capture is now split enough to compare lookup vs proof shaping vs verified-source shaping
+  - latest observability split landed and is now pinned:
+    - `lookup.registry_slot_read`
+    - `lookup.caller_latest_fresh_tag`
+    - `site.string_concat_hh.{materialize_owned_total/materialize_owned_bytes/objectize_box_total/publish_handle_total}`
+    - `site.string_substring_concat_hhii.{materialize_owned_total/materialize_owned_bytes/objectize_box_total/publish_handle_total}`
+  - latest raw exact observe reread on `kilo_micro_array_string_store` shows:
+    - `lookup.registry_slot_read=800000`
+    - `lookup.caller_latest_fresh_tag=800000`
+    - `site.string_concat_hh.materialize_owned_total=800000`
+    - `site.string_substring_concat_hhii.materialize_owned_total=800000`
+  - latest raw whole observe reread on `kilo_kernel_small_hk` shows:
+    - `const_suffix freeze_fallback=479728`
+    - `freeze_text_plan_pieces3=60000`
+    - `publish_reason.generic_fallback=539728`
+    - `site.string_concat_hh.*=0`
+    - `site.string_substring_concat_hhii.*=0`
   - latest runtime-fix-only reread stays on the same owner family:
     - `kilo_micro_array_string_store = C 10 ms / Ny AOT 132 ms`
     - `kilo_kernel_small_hk = C 80 ms / Ny AOT 731 ms`
-  - next first slice is no longer `len_h` removal; it is publication/source-capture reopen with the compiler-known-length lane fixed
+  - next first slice is no longer `len_h` removal; it is whole-kilo publication/source-capture reopen with the compiler-known-length lane fixed
   - latest design consult is accepted in narrowed form:
     - no syntax expansion
     - no public raw string / mutable bytes
-    - `const_suffix` stays a future narrow probe, not the immediate active widening
+    - keep the next widening inside runtime-private `const_suffix` / `TextPlan(Pieces3)` publication only
     - if publication timing wins, reuse existing runtime-private `TextPlan` / `OwnedBytes` seams first
 
 ## Next
 
 1. keep `Stage A` parked as VM/reference-only
 2. keep the compiler-known-length lane fixed and guarded on this front
-3. keep exact rereads pinned on producer-side publication/source-capture before `nyash.array.set_his`
-4. preserve the existing `set_his` fast path while testing a narrow producer-side unpublished-outcome A/B probe
-5. split `lookup_array_store_str_source_obj` vs proof shaping vs verified-source shaping before any route widening
-6. compare `issue_fresh_handle` against the rest of the publish tail with the existing `carrier_kind` / `publish_reason` counters
-7. only then try a narrow `const_suffix -> TextPlan::Pieces2` exact-front A/B
-8. keep `Stage B` narrow and data-driven through `carrier_kind` / `publish_reason`
+3. keep exact micro and whole kilo separate when choosing the next keeper
+4. preserve the existing `set_his` fast path; do not reopen slot-store boundary probes
+5. add the next whole-kilo split inside `const_suffix` vs `freeze_text_plan(Pieces3)` publication bytes/stages
+6. choose the next keeper only after that split proves which whole-kilo producer stage dominates
+7. keep exact micro as a confirmation front, not the sole owner truth
+8. keep `Stage B` narrow and data-driven through runtime-private publication counters
 
 ## Read Next
 

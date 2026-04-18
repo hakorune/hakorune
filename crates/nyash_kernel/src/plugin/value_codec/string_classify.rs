@@ -104,11 +104,32 @@ fn lookup_array_store_str_source_obj<R>(
     source_handle: i64,
     f: impl FnOnce(Option<&Arc<dyn NyashBox>>) -> R,
 ) -> R {
-    handles::with_handle_caller(
+    lookup_array_store_str_source_registry_slot(source_handle, |source_obj| {
+        if source_obj.is_some() {
+            lookup_array_store_str_source_caller_latest_fresh_tag(source_handle);
+        }
+        f(source_obj)
+    })
+}
+
+#[cfg_attr(feature = "perf-observe", inline(never))]
+#[cfg_attr(not(feature = "perf-observe"), inline(always))]
+fn lookup_array_store_str_source_registry_slot<R>(
+    source_handle: i64,
+    f: impl FnOnce(Option<&Arc<dyn NyashBox>>) -> R,
+) -> R {
+    crate::observe::record_store_array_str_lookup_registry_slot_read();
+    handles::with_handle(source_handle as u64, f)
+}
+
+#[cfg_attr(feature = "perf-observe", inline(never))]
+#[cfg_attr(not(feature = "perf-observe"), inline(always))]
+fn lookup_array_store_str_source_caller_latest_fresh_tag(source_handle: i64) {
+    crate::observe::record_store_array_str_lookup_caller_latest_fresh_tag();
+    handles::perf_observe_object_with_handle_caller(
         source_handle as u64,
         handles::PerfObserveObjectWithHandleCaller::ArrayStoreStrSource,
-        f,
-    )
+    );
 }
 
 #[cfg_attr(feature = "perf-observe", inline(never))]

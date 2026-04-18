@@ -1,7 +1,9 @@
 use crate::exports::string_view::clamp_i64_range;
 use nyash_rust::runtime::host_handles as handles;
 
-use super::super::materialize::{shared_empty_string_handle, string_handle_from_owned};
+use super::super::materialize::{
+    shared_empty_string_handle, string_handle_from_owned_substring_concat_hhii,
+};
 
 enum ConcatSubstringPath {
     ReturnEmpty,
@@ -144,7 +146,7 @@ fn freeze_concat_substring_path(path: ConcatSubstringPath) -> i64 {
             if text.is_empty() {
                 shared_empty_string_handle()
             } else {
-                string_handle_from_owned(text)
+                string_handle_from_owned_substring_concat_hhii(text)
             }
         }
     }

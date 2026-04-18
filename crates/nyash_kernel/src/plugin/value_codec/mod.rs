@@ -26,8 +26,8 @@ pub(crate) use string_classify::{
 pub use string_materialize::KernelTextSlot;
 pub(crate) use string_materialize::{
     freeze_owned_string_into_slot, issue_fresh_handle_from_arc, materialize_owned_string,
-    materialize_owned_string_generic_fallback, publish_kernel_text_slot,
-    with_kernel_text_slot_text, KernelTextSlotState,
+    materialize_owned_string_generic_fallback, materialize_owned_string_generic_fallback_for_site,
+    publish_kernel_text_slot, with_kernel_text_slot_text, KernelTextSlotState, StringPublishSite,
 };
 #[cfg(test)]
 pub(crate) use string_store::store_string_box_from_source;
@@ -37,8 +37,7 @@ pub(crate) use string_store::store_string_box_from_source_keep;
 pub(crate) use string_store::store_string_box_from_source_keep_owned;
 pub(crate) use string_store::{
     maybe_store_non_string_box_from_verified_source, store_string_box_from_kernel_text_slot,
-    store_string_keep_from_kernel_text_slot,
-    store_string_box_from_verified_text_source,
+    store_string_box_from_verified_text_source, store_string_keep_from_kernel_text_slot,
 };
 
 #[cfg(test)]

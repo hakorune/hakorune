@@ -6,7 +6,10 @@ use crate::exports::string_view::{
     string_len_from_handle as string_len_impl, StringSpan, StringViewBox,
 };
 use crate::observe;
-use crate::plugin::materialize_owned_string_generic_fallback;
+use crate::plugin::{
+    materialize_owned_string_generic_fallback, materialize_owned_string_generic_fallback_for_site,
+    StringPublishSite,
+};
 use nyash_rust::box_trait::StringBox;
 use nyash_rust::runtime::host_handles as handles;
 use std::ptr;
@@ -182,12 +185,30 @@ pub(crate) fn string_is_empty_from_handle(handle: i64) -> Option<bool> {
 
 #[inline(always)]
 pub(super) fn string_handle_from_owned(value: String) -> i64 {
+    string_handle_from_owned_with_site(value, StringPublishSite::Generic)
+}
+
+#[inline(always)]
+pub(super) fn string_handle_from_owned_concat_hh(value: String) -> i64 {
+    string_handle_from_owned_with_site(value, StringPublishSite::StringConcatHh)
+}
+
+#[inline(always)]
+pub(super) fn string_handle_from_owned_substring_concat_hhii(value: String) -> i64 {
+    string_handle_from_owned_with_site(value, StringPublishSite::StringSubstringConcatHhii)
+}
+
+#[inline(always)]
+fn string_handle_from_owned_with_site(value: String, site: StringPublishSite) -> i64 {
     let len = value.len();
     if len == 0 {
         return shared_empty_string_handle();
     }
     observe::record_birth_placement_fresh_handle();
-    let handle = materialize_owned_string_generic_fallback(value);
+    let handle = match site {
+        StringPublishSite::Generic => materialize_owned_string_generic_fallback(value),
+        _ => materialize_owned_string_generic_fallback_for_site(value, site),
+    };
     string_len_fast_cache_store(handle, len as i64);
     if string_trace::enabled() {
         string_trace::emit(

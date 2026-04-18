@@ -8,8 +8,8 @@ mod substring;
 use super::cache::{concat_pair_fast_cache_lookup, concat_pair_fast_cache_store};
 use super::materialize::{
     concat_three_str, concat_to_string_handle, concat_two_str, freeze_text_plan,
-    string_handle_from_owned, text_plan_piece_count, text_plan_shape, text_plan_total_len,
-    to_owned_string_handle_arg,
+    string_handle_from_owned, string_handle_from_owned_concat_hh, text_plan_piece_count,
+    text_plan_shape, text_plan_total_len, to_owned_string_handle_arg,
 };
 use crate::exports::string_birth_placement::{concat3_retention_class, RetainedForm};
 use crate::exports::string_debug::stage1_string_debug_log_concat_materialize;
@@ -382,7 +382,7 @@ fn concat_pair_from_fast_str(a_h: i64, b_h: i64) -> Option<i64> {
         }
         ConcatFastPath::Owned(text) => {
             observe::record_str_concat2_route_fast_str_owned();
-            let handle = string_handle_from_owned(text);
+            let handle = string_handle_from_owned_concat_hh(text);
             if handle > 0 {
                 if let Some(result) = handles::get(handle as u64) {
                     concat_pair_fast_cache_store(a_h, b_h, result);

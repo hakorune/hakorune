@@ -54,6 +54,9 @@
   - `kilo_micro_len_substring_views`
 - current active owner proof front is `kilo_micro_array_string_store`
 - current side diagnostic front is `indexOf`
+- current owner split is now explicit:
+  - exact micro owner: shared generic publish/objectize behind `string_concat_hh` + `string_substring_concat_hhii`
+  - whole kilo owner: `const_suffix` fallback + `freeze_text_plan(Pieces3)` publication
 - current live reread after parking the rejected slot-store boundary probes:
   - keeper fronts:
     - `kilo_micro_substring_only`
@@ -106,6 +109,18 @@
   - `birth.backend arc_wrap_total=300000`
   - `birth.backend handle_issue_total=300000`
   - `stable_box_demand text_read_handle_latest_fresh=299999`
+- latest landed observability split:
+  - exact micro:
+    - `lookup.registry_slot_read=800000`
+    - `lookup.caller_latest_fresh_tag=800000`
+    - `site.string_concat_hh.materialize_owned_total=800000`
+    - `site.string_substring_concat_hhii.materialize_owned_total=800000`
+  - whole kilo:
+    - `const_suffix freeze_fallback=479728`
+    - `freeze_text_plan_pieces3=60000`
+    - `publish_reason.generic_fallback=539728`
+    - `site.string_concat_hh.*=0`
+    - `site.string_substring_concat_hhii.*=0`
 - current design verdict:
   - the active perf keeper was blocked first by a direct-emit route mismatch
   - perf AOT had been using bare `hakorune --emit-mir-json`, which emitted the older plain `insert_hsi -> substring_hii` payload on this benchmark

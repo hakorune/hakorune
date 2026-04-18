@@ -150,6 +150,16 @@ mod real {
     }
 
     #[inline(always)]
+    pub(crate) fn record_store_array_str_lookup_registry_slot_read() {
+        super::backend::store_array_str_lookup_registry_slot_read();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_lookup_caller_latest_fresh_tag() {
+        super::backend::store_array_str_lookup_caller_latest_fresh_tag();
+    }
+
+    #[inline(always)]
     pub(crate) fn record_const_suffix_enter() {
         super::backend::const_suffix_enter();
     }
@@ -322,6 +332,40 @@ mod real {
     #[inline(always)]
     pub(crate) fn record_birth_backend_publish_reason_explicit_api() {
         super::backend::birth_backend_publish_reason_explicit_api();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_site_string_concat_hh_materialize_owned(bytes: usize) {
+        super::backend::birth_backend_site_string_concat_hh_materialize_owned(bytes as u64);
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_site_string_concat_hh_objectize_box() {
+        super::backend::birth_backend_site_string_concat_hh_objectize_box();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_site_string_concat_hh_publish_handle() {
+        super::backend::birth_backend_site_string_concat_hh_publish_handle();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_site_string_substring_concat_hhii_materialize_owned(
+        bytes: usize,
+    ) {
+        super::backend::birth_backend_site_string_substring_concat_hhii_materialize_owned(
+            bytes as u64,
+        );
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_site_string_substring_concat_hhii_objectize_box() {
+        super::backend::birth_backend_site_string_substring_concat_hhii_objectize_box();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_site_string_substring_concat_hhii_publish_handle() {
+        super::backend::birth_backend_site_string_substring_concat_hhii_publish_handle();
     }
 
     #[inline(always)]
@@ -701,6 +745,12 @@ mod real {
     pub(crate) fn record_store_array_str_reason_retarget_alias_update() {}
 
     #[inline(always)]
+    pub(crate) fn record_store_array_str_lookup_registry_slot_read() {}
+
+    #[inline(always)]
+    pub(crate) fn record_store_array_str_lookup_caller_latest_fresh_tag() {}
+
+    #[inline(always)]
     pub(crate) fn record_const_suffix_enter() {}
 
     #[inline(always)]
@@ -804,6 +854,27 @@ mod real {
 
     #[inline(always)]
     pub(crate) fn record_birth_backend_publish_reason_explicit_api() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_site_string_concat_hh_materialize_owned(_bytes: usize) {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_site_string_concat_hh_objectize_box() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_site_string_concat_hh_publish_handle() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_site_string_substring_concat_hhii_materialize_owned(
+        _bytes: usize,
+    ) {
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_site_string_substring_concat_hhii_objectize_box() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_site_string_substring_concat_hhii_publish_handle() {}
 
     #[inline(always)]
     pub(crate) fn record_str_concat2_route_enter() {}

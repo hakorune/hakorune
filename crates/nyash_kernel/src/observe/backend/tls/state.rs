@@ -33,6 +33,8 @@ struct GlobalCounters {
     store_array_str_reason_retarget_keep_source_arc_ptr_eq_hit: AtomicU64,
     store_array_str_reason_retarget_keep_source_arc_ptr_eq_miss: AtomicU64,
     store_array_str_reason_retarget_alias_update: AtomicU64,
+    store_array_str_lookup_registry_slot_read: AtomicU64,
+    store_array_str_lookup_caller_latest_fresh_tag: AtomicU64,
     const_suffix_total: AtomicU64,
     const_suffix_cached_handle_hit: AtomicU64,
     const_suffix_text_cache_reload: AtomicU64,
@@ -127,6 +129,14 @@ struct GlobalCounters {
     birth_backend_publish_reason_need_stable_object: AtomicU64,
     birth_backend_publish_reason_generic_fallback: AtomicU64,
     birth_backend_publish_reason_explicit_api: AtomicU64,
+    birth_backend_site_string_concat_hh_materialize_owned_total: AtomicU64,
+    birth_backend_site_string_concat_hh_materialize_owned_bytes: AtomicU64,
+    birth_backend_site_string_concat_hh_objectize_box_total: AtomicU64,
+    birth_backend_site_string_concat_hh_publish_handle_total: AtomicU64,
+    birth_backend_site_string_substring_concat_hhii_materialize_owned_total: AtomicU64,
+    birth_backend_site_string_substring_concat_hhii_materialize_owned_bytes: AtomicU64,
+    birth_backend_site_string_substring_concat_hhii_objectize_box_total: AtomicU64,
+    birth_backend_site_string_substring_concat_hhii_publish_handle_total: AtomicU64,
 }
 
 impl GlobalCounters {
@@ -159,6 +169,8 @@ impl GlobalCounters {
             store_array_str_reason_retarget_keep_source_arc_ptr_eq_hit: AtomicU64::new(0),
             store_array_str_reason_retarget_keep_source_arc_ptr_eq_miss: AtomicU64::new(0),
             store_array_str_reason_retarget_alias_update: AtomicU64::new(0),
+            store_array_str_lookup_registry_slot_read: AtomicU64::new(0),
+            store_array_str_lookup_caller_latest_fresh_tag: AtomicU64::new(0),
             const_suffix_total: AtomicU64::new(0),
             const_suffix_cached_handle_hit: AtomicU64::new(0),
             const_suffix_text_cache_reload: AtomicU64::new(0),
@@ -253,6 +265,18 @@ impl GlobalCounters {
             birth_backend_publish_reason_need_stable_object: AtomicU64::new(0),
             birth_backend_publish_reason_generic_fallback: AtomicU64::new(0),
             birth_backend_publish_reason_explicit_api: AtomicU64::new(0),
+            birth_backend_site_string_concat_hh_materialize_owned_total: AtomicU64::new(0),
+            birth_backend_site_string_concat_hh_materialize_owned_bytes: AtomicU64::new(0),
+            birth_backend_site_string_concat_hh_objectize_box_total: AtomicU64::new(0),
+            birth_backend_site_string_concat_hh_publish_handle_total: AtomicU64::new(0),
+            birth_backend_site_string_substring_concat_hhii_materialize_owned_total: AtomicU64::new(
+                0,
+            ),
+            birth_backend_site_string_substring_concat_hhii_materialize_owned_bytes: AtomicU64::new(
+                0,
+            ),
+            birth_backend_site_string_substring_concat_hhii_objectize_box_total: AtomicU64::new(0),
+            birth_backend_site_string_substring_concat_hhii_publish_handle_total: AtomicU64::new(0),
         }
     }
 }
@@ -287,6 +311,8 @@ struct ThreadCounters {
     store_array_str_reason_retarget_keep_source_arc_ptr_eq_hit: Cell<u64>,
     store_array_str_reason_retarget_keep_source_arc_ptr_eq_miss: Cell<u64>,
     store_array_str_reason_retarget_alias_update: Cell<u64>,
+    store_array_str_lookup_registry_slot_read: Cell<u64>,
+    store_array_str_lookup_caller_latest_fresh_tag: Cell<u64>,
     const_suffix_total: Cell<u64>,
     const_suffix_cached_handle_hit: Cell<u64>,
     const_suffix_text_cache_reload: Cell<u64>,
@@ -381,6 +407,14 @@ struct ThreadCounters {
     birth_backend_publish_reason_need_stable_object: Cell<u64>,
     birth_backend_publish_reason_generic_fallback: Cell<u64>,
     birth_backend_publish_reason_explicit_api: Cell<u64>,
+    birth_backend_site_string_concat_hh_materialize_owned_total: Cell<u64>,
+    birth_backend_site_string_concat_hh_materialize_owned_bytes: Cell<u64>,
+    birth_backend_site_string_concat_hh_objectize_box_total: Cell<u64>,
+    birth_backend_site_string_concat_hh_publish_handle_total: Cell<u64>,
+    birth_backend_site_string_substring_concat_hhii_materialize_owned_total: Cell<u64>,
+    birth_backend_site_string_substring_concat_hhii_materialize_owned_bytes: Cell<u64>,
+    birth_backend_site_string_substring_concat_hhii_objectize_box_total: Cell<u64>,
+    birth_backend_site_string_substring_concat_hhii_publish_handle_total: Cell<u64>,
     latest_fresh_handle: Cell<i64>,
 }
 
@@ -414,6 +448,8 @@ impl ThreadCounters {
             store_array_str_reason_retarget_keep_source_arc_ptr_eq_hit: Cell::new(0),
             store_array_str_reason_retarget_keep_source_arc_ptr_eq_miss: Cell::new(0),
             store_array_str_reason_retarget_alias_update: Cell::new(0),
+            store_array_str_lookup_registry_slot_read: Cell::new(0),
+            store_array_str_lookup_caller_latest_fresh_tag: Cell::new(0),
             const_suffix_total: Cell::new(0),
             const_suffix_cached_handle_hit: Cell::new(0),
             const_suffix_text_cache_reload: Cell::new(0),
@@ -508,6 +544,14 @@ impl ThreadCounters {
             birth_backend_publish_reason_need_stable_object: Cell::new(0),
             birth_backend_publish_reason_generic_fallback: Cell::new(0),
             birth_backend_publish_reason_explicit_api: Cell::new(0),
+            birth_backend_site_string_concat_hh_materialize_owned_total: Cell::new(0),
+            birth_backend_site_string_concat_hh_materialize_owned_bytes: Cell::new(0),
+            birth_backend_site_string_concat_hh_objectize_box_total: Cell::new(0),
+            birth_backend_site_string_concat_hh_publish_handle_total: Cell::new(0),
+            birth_backend_site_string_substring_concat_hhii_materialize_owned_total: Cell::new(0),
+            birth_backend_site_string_substring_concat_hhii_materialize_owned_bytes: Cell::new(0),
+            birth_backend_site_string_substring_concat_hhii_objectize_box_total: Cell::new(0),
+            birth_backend_site_string_substring_concat_hhii_publish_handle_total: Cell::new(0),
             latest_fresh_handle: Cell::new(0),
         }
     }

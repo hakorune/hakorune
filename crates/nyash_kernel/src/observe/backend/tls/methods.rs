@@ -134,6 +134,16 @@ impl ThreadCounters {
     }
 
     #[inline(always)]
+    fn store_array_str_lookup_registry_slot_read(&self) {
+        Self::bump(&self.store_array_str_lookup_registry_slot_read);
+    }
+
+    #[inline(always)]
+    fn store_array_str_lookup_caller_latest_fresh_tag(&self) {
+        Self::bump(&self.store_array_str_lookup_caller_latest_fresh_tag);
+    }
+
+    #[inline(always)]
     fn const_suffix_enter(&self) {
         Self::bump(&self.const_suffix_total);
     }
@@ -321,6 +331,44 @@ impl ThreadCounters {
     #[inline(always)]
     fn birth_backend_publish_reason_explicit_api(&self) {
         Self::bump(&self.birth_backend_publish_reason_explicit_api);
+    }
+
+    #[inline(always)]
+    fn birth_backend_site_string_concat_hh_materialize_owned(&self, bytes: u64) {
+        Self::bump(&self.birth_backend_site_string_concat_hh_materialize_owned_total);
+        self.birth_backend_site_string_concat_hh_materialize_owned_bytes
+            .set(self.birth_backend_site_string_concat_hh_materialize_owned_bytes.get() + bytes);
+    }
+
+    #[inline(always)]
+    fn birth_backend_site_string_concat_hh_objectize_box(&self) {
+        Self::bump(&self.birth_backend_site_string_concat_hh_objectize_box_total);
+    }
+
+    #[inline(always)]
+    fn birth_backend_site_string_concat_hh_publish_handle(&self) {
+        Self::bump(&self.birth_backend_site_string_concat_hh_publish_handle_total);
+    }
+
+    #[inline(always)]
+    fn birth_backend_site_string_substring_concat_hhii_materialize_owned(&self, bytes: u64) {
+        Self::bump(
+            &self.birth_backend_site_string_substring_concat_hhii_materialize_owned_total,
+        );
+        self.birth_backend_site_string_substring_concat_hhii_materialize_owned_bytes.set(
+            self.birth_backend_site_string_substring_concat_hhii_materialize_owned_bytes.get()
+                + bytes,
+        );
+    }
+
+    #[inline(always)]
+    fn birth_backend_site_string_substring_concat_hhii_objectize_box(&self) {
+        Self::bump(&self.birth_backend_site_string_substring_concat_hhii_objectize_box_total);
+    }
+
+    #[inline(always)]
+    fn birth_backend_site_string_substring_concat_hhii_publish_handle(&self) {
+        Self::bump(&self.birth_backend_site_string_substring_concat_hhii_publish_handle_total);
     }
 
     #[inline(always)]
@@ -708,6 +756,14 @@ impl ThreadCounters {
             &self.store_array_str_reason_retarget_alias_update,
             &GLOBAL.store_array_str_reason_retarget_alias_update,
         );
+        flush_cell(
+            &self.store_array_str_lookup_registry_slot_read,
+            &GLOBAL.store_array_str_lookup_registry_slot_read,
+        );
+        flush_cell(
+            &self.store_array_str_lookup_caller_latest_fresh_tag,
+            &GLOBAL.store_array_str_lookup_caller_latest_fresh_tag,
+        );
         flush_cell(&self.const_suffix_total, &GLOBAL.const_suffix_total);
         flush_cell(
             &self.const_suffix_cached_handle_hit,
@@ -868,6 +924,38 @@ impl ThreadCounters {
         flush_cell(
             &self.birth_backend_publish_reason_explicit_api,
             &GLOBAL.birth_backend_publish_reason_explicit_api,
+        );
+        flush_cell(
+            &self.birth_backend_site_string_concat_hh_materialize_owned_total,
+            &GLOBAL.birth_backend_site_string_concat_hh_materialize_owned_total,
+        );
+        flush_cell(
+            &self.birth_backend_site_string_concat_hh_materialize_owned_bytes,
+            &GLOBAL.birth_backend_site_string_concat_hh_materialize_owned_bytes,
+        );
+        flush_cell(
+            &self.birth_backend_site_string_concat_hh_objectize_box_total,
+            &GLOBAL.birth_backend_site_string_concat_hh_objectize_box_total,
+        );
+        flush_cell(
+            &self.birth_backend_site_string_concat_hh_publish_handle_total,
+            &GLOBAL.birth_backend_site_string_concat_hh_publish_handle_total,
+        );
+        flush_cell(
+            &self.birth_backend_site_string_substring_concat_hhii_materialize_owned_total,
+            &GLOBAL.birth_backend_site_string_substring_concat_hhii_materialize_owned_total,
+        );
+        flush_cell(
+            &self.birth_backend_site_string_substring_concat_hhii_materialize_owned_bytes,
+            &GLOBAL.birth_backend_site_string_substring_concat_hhii_materialize_owned_bytes,
+        );
+        flush_cell(
+            &self.birth_backend_site_string_substring_concat_hhii_objectize_box_total,
+            &GLOBAL.birth_backend_site_string_substring_concat_hhii_objectize_box_total,
+        );
+        flush_cell(
+            &self.birth_backend_site_string_substring_concat_hhii_publish_handle_total,
+            &GLOBAL.birth_backend_site_string_substring_concat_hhii_publish_handle_total,
         );
         flush_cell(
             &self.str_concat2_route_total,
