@@ -196,7 +196,7 @@ Related:
   - `crates/nyash_kernel/src/plugin/array_runtime_facade.rs`
   - `crates/nyash_kernel/src/plugin/array_handle_cache.rs`
   - `crates/nyash_kernel/src/plugin/runtime_data.rs`
-  - `crates/nyash_kernel/src/plugin/map_runtime_facade.rs`
+  - `crates/nyash_kernel/src/plugin/map_runtime_data.rs`
   - `crates/nyash_kernel/src/observe/backend/tls/`
 - Expected evidence:
   - common read path no longer allocates a fresh stable object

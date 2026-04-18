@@ -229,7 +229,8 @@ pull owner logic back into Rust forwarding code.
 - observer shim:
   - `crates/nyash_kernel/src/plugin/map_substrate.rs`
 - compat/runtime forwarding:
-  - `crates/nyash_kernel/src/plugin/map_runtime_facade.rs`
+  - `crates/nyash_kernel/src/plugin/map_compat.rs`
+  - `crates/nyash_kernel/src/plugin/map_runtime_data.rs`
 - native accelerators kept in Rust:
   - `crates/nyash_kernel/src/plugin/map_probe.rs`
   - `crates/nyash_kernel/src/plugin/map_slot_load.rs`
@@ -274,7 +275,7 @@ String is not an owner cutover like Array/Map. The clean stop-line is:
   - `crates/nyash_kernel/src/exports/string_helpers.rs`
   - `crates/nyash_kernel/src/plugin/array_handle_cache.rs`
   - `crates/nyash_kernel/src/plugin/array_string_slot.rs`
-  - map slot/probe/store leaves below runtime facade
+  - map slot/probe/store leaves below the runtime-data and alias facades
 
 This bucket provides capability only and must not become a semantic owner.
 

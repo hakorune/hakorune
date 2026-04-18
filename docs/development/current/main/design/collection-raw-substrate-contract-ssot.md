@@ -207,8 +207,9 @@ Target:
 Current first slice:
 - `crates/nyash_kernel/src/plugin/runtime_data.rs` is now a dispatch shell only
 - collection-specific mechanics live in:
+  - `crates/nyash_kernel/src/plugin/array_runtime_any.rs`
   - `crates/nyash_kernel/src/plugin/array_runtime_facade.rs`
-  - `crates/nyash_kernel/src/plugin/map_runtime_facade.rs`
+  - `crates/nyash_kernel/src/plugin/map_runtime_data.rs`
 - the exported `nyash.runtime_data.{get,set,has,push}_*` ABI contract stays unchanged while route ownership becomes explicit
 
 Current second slice:
@@ -262,7 +263,7 @@ Current second slice:
 - kernel-side review result:
   - the new `MapBox` raw key-string helpers are acceptable as the raw seam for this slice
 - landed runtime-data map hidden-residue slice:
-  - `map_runtime_facade.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
+  - `map_runtime_data.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
 - current remaining work after those explicit exports:
   - active llvm-py lowering now uses raw array set exports (`nyash.array.slot_store_hih` / `nyash.array.slot_store_hii`)
 - `RuntimeDataBox` does not join that owner growth; it stays facade-only
@@ -317,7 +318,7 @@ Current second slice:
      - `bash tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
      - `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
 11. `B1h / runtime-data-map-hidden-residue`
-   - landed: `map_runtime_facade.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
+   - landed: `map_runtime_data.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
    - contract pins:
      - `cargo test -q -p nyash_kernel runtime_data_invalid_handle_returns_zero --lib`
      - `cargo test -q -p nyash_kernel runtime_data_dispatch_map_set_get_has --lib`
