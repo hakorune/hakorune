@@ -80,6 +80,8 @@
   - `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
 - runtime-wide pattern anchor is now:
   - `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+- hot-corridor carrier design anchor is now:
+  - `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
 - current upstream string corridor design anchor is now:
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
 - current sibling/background lanes:

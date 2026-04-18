@@ -18,12 +18,13 @@ Scope: current lane / next lane / restart order only.
 4. `docs/development/current/main/phases/phase-137x/README.md`
 5. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
 6. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-7. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-8. `docs/development/current/main/design/string-birth-sink-ssot.md`
-9. `docs/development/current/main/15-Workstream-Map.md`
-10. `git status -sb`
-11. `tools/checks/dev_gate.sh quick`
-12. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
+7. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
+8. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+9. `docs/development/current/main/design/string-birth-sink-ssot.md`
+10. `docs/development/current/main/15-Workstream-Map.md`
+11. `git status -sb`
+12. `tools/checks/dev_gate.sh quick`
+13. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Current Lane
 
@@ -78,6 +79,8 @@ Scope: current lane / next lane / restart order only.
     - perf/asm is now sufficient to choose the next keeper without another broad observability round
 - current reading:
   - current main owner family is `array/string-store`, not `substring`
+  - hot-corridor carrier design anchor is now:
+    - `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
   - trusted direct MIR no longer duplicates the `text + "xy"` producer across `set(...)` and trailing `substring(...)`
   - runtime gap stayed open after the compiler-side placement fix, so duplicated birth is no longer the live owner
   - latest keeper slice is compiler-side known string-length propagation across const / substring-window / same-length string `phi`

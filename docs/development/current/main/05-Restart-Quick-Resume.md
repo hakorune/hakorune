@@ -93,6 +93,8 @@ cargo check --features perf-observe -p nyash_kernel
   - no public raw string / mutable bytes
   - the next widening stays inside runtime-private `const_suffix` / `Pieces3` publication, not helper-site specialization
   - reuse existing `TextPlan` / `OwnedBytes` seams before inventing a new carrier
+- hot-corridor carrier design anchor is now:
+  - `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
 - compare `.hako` only under:
   - `Stage A: same protocol`
   - `Stage B: same public ABI / different seam`
@@ -105,10 +107,11 @@ cargo check --features perf-observe -p nyash_kernel
 4. `docs/development/current/main/phases/phase-137x/README.md`
 5. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
 6. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-7. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-8. `docs/development/current/main/design/string-birth-sink-ssot.md`
-9. `docs/development/current/main/15-Workstream-Map.md`
-10. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
+7. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
+8. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+9. `docs/development/current/main/design/string-birth-sink-ssot.md`
+10. `docs/development/current/main/15-Workstream-Map.md`
+11. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Current Proof Bundle
 

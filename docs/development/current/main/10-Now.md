@@ -50,6 +50,8 @@ Related:
     - `kilo_micro_array_string_store` is dominated by the shared generic publish/objectize corridor behind `string_concat_hh` + `string_substring_concat_hhii`
     - `kilo_meso_substring_concat_array_set_loopcarry` is the adopted bridge front for the same store/publication corridor without whole-front `indexOf("line")` noise
     - `kilo_kernel_small` is dominated by `const_suffix` fallback plus `freeze_text_plan(Pieces3)` publication
+  - hot-corridor carrier design is now fixed separately:
+    - `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
   - current code pick stays whole-first:
     - next narrow seam is the borrowed-slot retarget/publication tail under `execute_store_array_str_contract`
     - first implementation target:
@@ -145,9 +147,10 @@ Related:
 3. `docs/development/current/main/phases/phase-137x/README.md`
 4. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
 5. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-6. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-7. `docs/development/current/main/design/string-birth-sink-ssot.md`
-8. `docs/development/current/main/15-Workstream-Map.md`
+6. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
+7. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+8. `docs/development/current/main/design/string-birth-sink-ssot.md`
+9. `docs/development/current/main/15-Workstream-Map.md`
 
 ## Proof Bundle
 
