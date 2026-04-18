@@ -13,6 +13,20 @@
   - `crates/nyash_kernel/src/exports/string_helpers.rs`
   - `crates/nyash_kernel/src/observe/backend/tls.rs`
 
+## Quick Scan
+
+- current exact owner: publication / object-world entry
+- current whole owner: `const_suffix` / `freeze_text_plan(Pieces3)` publication
+- current middle guard: `kilo_meso_substring_concat_array_set_loopcarry`
+- current stop-line: `KernelTextSlot` exit is observed and inactive (`publish_boundary.slot_* = 0`)
+- current first seam: `execute_store_array_str_contract` under `try_retarget_borrowed_string_slot_take_verified_text_source`
+- current reject: slot-store delayed publication probes and string-specialized handle payload probe
+- read order:
+  1. `CURRENT_TASK.md`
+  2. `docs/development/current/main/10-Now.md`
+  3. this README
+  4. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+
 ## Decision Now
 
 - fixed perf order remains:

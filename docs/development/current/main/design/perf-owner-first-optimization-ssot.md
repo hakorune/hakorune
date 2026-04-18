@@ -16,6 +16,15 @@ Related:
 
 # Perf Owner-First Optimization SSOT
 
+## Quick Scan
+
+- front は `exact / meso / whole` に分ける
+- owner は `helper symbol` ではなく `state transition` で書く
+- `IPC近似 + cycles激増` は work explosion
+- `IPC崩壊 + cycles増` は stall collapse
+- same owner family で non-keeper が 2 回出たら stop-the-line
+- long docs は `CURRENT_TASK.md` / phase README / this SSOT で役割分担する
+
 ## Goal
 
 この文書の目的は 1 つだけ。
