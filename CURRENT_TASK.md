@@ -237,6 +237,7 @@ Scope: current lane / next lane / restart order only.
           - next implementation seam must preserve cheap alias encode and reduce per-read materialization/copy tax before any new `TextLane` / MIR legality card
       - latest read-encode BoxShape cleanup:
         - `array.get` now calls a scalar-checked borrowed-alias encoder after its local int/bool probes, so the generic encoder does not repeat `as_i64_fast` / `as_bool_fast` before the borrowed-alias decision
+        - follow-on: borrowed-alias encode planning now snapshots `drop_epoch` once and passes it into the cached-handle check, so live-source and cached-handle decisions share one epoch view
         - contract unchanged:
           - live-source reuse remains first
           - cached stable handle reuse remains second

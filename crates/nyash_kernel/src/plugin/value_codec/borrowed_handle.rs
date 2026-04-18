@@ -330,11 +330,9 @@ impl BorrowedHandleBox {
     }
 
     #[inline(always)]
-    fn cached_runtime_handle(&self) -> Option<i64> {
+    fn cached_runtime_handle_at_epoch(&self, current_epoch: u64) -> Option<i64> {
         let handle = self.cached_runtime_handle.handle.load(Ordering::Relaxed);
-        if handle > 0
-            && self.cached_runtime_handle.epoch.load(Ordering::Relaxed) == handles::drop_epoch()
-        {
+        if handle > 0 && self.cached_runtime_handle.epoch.load(Ordering::Relaxed) == current_epoch {
             Some(handle)
         } else {
             None
@@ -645,15 +643,15 @@ pub(crate) fn runtime_i64_from_borrowed_alias(
 
 #[inline(always)]
 fn plan_borrowed_alias_runtime_i64(alias: &BorrowedHandleBox) -> BorrowedAliasEncodePlan {
+    let current_epoch = handles::drop_epoch();
     let source_handle = alias.source_handle();
     if source_handle > 0 {
-        let current_epoch = handles::drop_epoch();
         if alias.source_drop_epoch() == current_epoch {
             observe::record_borrowed_alias_encode_epoch_hit();
             return BorrowedAliasEncodePlan::LiveSourceHandle(source_handle);
         }
     }
-    if let Some(cached) = alias.cached_runtime_handle() {
+    if let Some(cached) = alias.cached_runtime_handle_at_epoch(current_epoch) {
         return BorrowedAliasEncodePlan::CachedRuntimeHandle(cached);
     }
     if source_handle > 0 {

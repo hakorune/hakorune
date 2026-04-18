@@ -161,6 +161,7 @@
       - do not open a new `TextLane` / MIR legality card before this seam gets keeper/reject evidence
   - latest read-encode BoxShape cleanup:
     - `array.get` now routes into a scalar-checked borrowed-alias encoder after its local int/bool probes
+    - borrowed-alias encode planning now snapshots `drop_epoch` once and passes it into cached-handle validation
     - this removes duplicate immediate-scalar probes in the read encode path while preserving the existing borrowed-alias contract:
       - live-source reuse first
       - cached stable handle reuse second

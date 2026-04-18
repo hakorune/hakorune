@@ -304,6 +304,7 @@ Related:
 - `Cleanup 3`: split `BorrowedHandleBox` responsibilities
   - status: partial / parked
   - landed narrow read-encode cleanup: `array.get` uses a scalar-checked borrowed-alias encoder after its local int/bool probes, avoiding duplicate scalar checks before live-source / cached-handle / cold-fallback selection
+  - landed narrow planner cleanup: borrowed-alias encode planning snapshots `drop_epoch` once and reuses it for cached-handle validation
   - this is still structure cleanup, not a keeper optimization; do not split `BorrowedHandleBox` into new representation classes until owner proof points at that responsibility directly
 - `Cleanup 4`: typed handle-cache consolidation
   - status: partial

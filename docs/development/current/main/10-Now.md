@@ -212,6 +212,7 @@ Related:
   - latest read-encode BoxShape cleanup:
     - `array.get` uses a scalar-checked borrowed-alias encoder after its local int/bool probes
     - this removes duplicate `as_i64_fast` / `as_bool_fast` probes before the borrowed-alias decision without changing the live-source / cached-handle / cold-fallback order
+    - follow-on: borrowed-alias encode planning snapshots `drop_epoch` once and reuses it for cached-handle validation, keeping source and cache decisions on the same epoch view
     - validation passed:
       - targeted array/map borrowed-alias tests
       - `cargo check -q -p nyash_kernel`
