@@ -9,6 +9,11 @@ use crate::runtime::core_services::MapService;
 
 const INVALID_MAP_BOX: &str = "Not a MapBox";
 
+/// Create the canonical runtime MapBox through the ring1 map provider seam.
+pub fn new_map_box() -> Box<dyn NyashBox> {
+    Box::new(MapBox::new())
+}
+
 #[derive(Debug, Default)]
 pub struct Ring1MapService;
 
@@ -112,5 +117,11 @@ mod tests {
                 .unwrap_err(),
             INVALID_MAP_BOX
         );
+    }
+
+    #[test]
+    fn ring1_map_new_box_returns_mapbox() {
+        let boxed = new_map_box();
+        assert!(boxed.as_any().downcast_ref::<MapBox>().is_some());
     }
 }

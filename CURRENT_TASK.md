@@ -86,9 +86,7 @@ Scope: current lane / next lane / restart order only.
       - keep RuntimeData field fallback on `nyash.map.slot_load_hh` / `nyash.map.slot_store_hhh`; `get_hh` / `set_hh` are compat/export residue only
       - keep C-shim map size emission on `nyash.map.entry_count_i64`; `entry_count_h` is compat/export residue only
       - keep Rust `map_compat` out of the public `map::*` re-export; compat ABI exports/tests, including `entry_count_h`, live inside `map_compat.rs`
-      - keep the deprecated builtin `MapBox` constructor isolated as feature-gated `builtin_impls::compat_map_box`; the live `MapBox` implementation and provider/type surfaces remain unchanged
-      - do not remove `builtin-mapbox-compat` from default yet:
-        `--no-default-features --features plugins` still fails `CoreServices` and `NewBox(MapBox)` vtable paths because provider-first construction is not proven under `ModuleFirst`
+      - keep `NewBox(MapBox)` construction on the ring1 map provider seam; `builtin-mapbox-compat` is no longer a default feature and `compat_map_box` is opt-in residue only
   - pending todo:
     - `phase2-deferred-const-suffix-stability`
   - do not open a new ABI / `TextLane` cut until this reread is judged keeper vs reject

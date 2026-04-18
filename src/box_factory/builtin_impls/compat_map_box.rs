@@ -1,16 +1,16 @@
 /*!
  * Deprecated builtin MapBox constructor shim.
  *
- * This is not the live MapBox implementation. It is compiled only with the
- * `builtin-mapbox-compat` feature and keeps the old BuiltinBoxFactory fallback
- * route working until NewBox(MapBox) is proven through plugin/provider-first
- * construction.
+ * This is not the live MapBox implementation and is no longer on the default
+ * BuiltinBoxFactory route. It is compiled only with the `builtin-mapbox-compat`
+ * feature for archive/compat probes while default NewBox(MapBox) construction
+ * goes through the ring1 map provider seam.
  */
 
 use crate::box_factory::RuntimeError;
 use crate::box_trait::NyashBox;
 
-/// Create builtin MapBox instance through the compatibility factory path.
+/// Create a MapBox instance through the opt-in compatibility path.
 pub fn create(_args: &[Box<dyn NyashBox>]) -> Result<Box<dyn NyashBox>, RuntimeError> {
     if crate::config::env::cli_verbose_enabled() {
         let ring0 = crate::runtime::get_global_ring0();

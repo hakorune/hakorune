@@ -311,8 +311,7 @@ Related:
   - landed: RuntimeData field fallback now targets `nyash.map.slot_load_hh` / `nyash.map.slot_store_hhh`; `nyash.map.get_hh` / `nyash.map.set_hh` remain compat export/test/archive residue
   - landed: C-shim map size emission now targets `nyash.map.entry_count_i64`; dead `get_h` / `has_h` C declarations were removed from the active shim
   - landed: Rust `map_compat` exports are no longer re-exported through public `map::*`; compat ABI exports/tests, including `entry_count_h`, live inside `map_compat.rs`
-  - landed: deprecated builtin `MapBox` construction is isolated in feature-gated `builtin_impls::compat_map_box`; behavior is unchanged until provider-first `NewBox(MapBox)` is proven
-  - blocked: removing `builtin-mapbox-compat` from default is not safe yet; `--no-default-features --features plugins` still fails `CoreServices` and `NewBox(MapBox)` vtable paths under `ModuleFirst`
+  - landed: `NewBox(MapBox)` construction now goes through the ring1 map provider seam; `builtin-mapbox-compat` is no longer a default feature and `compat_map_box` is opt-in residue only
   - retarget remaining lowering/runtime users off deprecated compat map exports
   - then collapse:
     - `map_compat.rs`

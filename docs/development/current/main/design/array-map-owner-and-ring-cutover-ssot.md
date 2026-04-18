@@ -98,7 +98,7 @@ Related:
 - legacy builtin residue もまだ残る。
 - exact owners:
   - `src/box_factory/builtin_impls/array_box.rs`
-  - `src/box_factory/builtin_impls/compat_map_box.rs`
+  - `src/box_factory/builtin_impls/compat_map_box.rs` (opt-in only; default `NewBox(MapBox)` routes through the ring1 map provider seam)
 - rule:
   - これらは daily owner に戻さず、compat/archive residue としてのみ扱う。
 
