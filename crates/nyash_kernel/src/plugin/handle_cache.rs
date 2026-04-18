@@ -24,14 +24,6 @@ pub(super) struct HandleCacheEntry {
     array_ptr: Option<NonNull<ArrayBox>>,
     map_ptr: Option<NonNull<MapBox>>,
     instance_ptr: Option<NonNull<InstanceBox>>,
-    map_lookup: Option<MapLookupCache>,
-}
-
-#[derive(Clone)]
-struct MapLookupCache {
-    key: String,
-    value: i64,
-    present: bool,
 }
 
 impl HandleCacheEntry {
@@ -75,7 +67,6 @@ fn build_cache_entry(handle: i64, drop_epoch: u64, obj: Arc<dyn NyashBox>) -> Ha
         array_ptr,
         map_ptr,
         instance_ptr,
-        map_lookup: None,
     }
 }
 
@@ -137,36 +128,6 @@ pub(super) fn cache_store(handle: i64, drop_epoch: u64, obj: Arc<dyn NyashBox>) 
 }
 
 #[inline(always)]
-pub(crate) fn clear_map_lookup_cache() {
-    HANDLE_CACHE.with(|slot| {
-        let mut cached = slot.borrow_mut();
-        if let Some(entry) = cached.as_mut() {
-            entry.map_lookup = None;
-        }
-    });
-}
-
-#[inline(always)]
-pub(crate) fn map_lookup_cache_hit(handle: i64, key_str: &str) -> Option<(i64, bool)> {
-    if handle <= 0 {
-        return None;
-    }
-    let drop_epoch = handles::drop_epoch();
-    HANDLE_CACHE.with(|slot| {
-        let cached = slot.borrow();
-        let entry = cached.as_ref()?;
-        if entry.handle != handle || entry.drop_epoch != drop_epoch {
-            return None;
-        }
-        let lookup = entry.map_lookup.as_ref()?;
-        if lookup.key.as_str() != key_str {
-            return None;
-        }
-        Some((lookup.value, lookup.present))
-    })
-}
-
-#[inline(always)]
 fn object_from_handle_cached_impl(handle: i64) -> Option<Arc<dyn NyashBox>> {
     if handle <= 0 {
         return None;
@@ -225,36 +186,6 @@ pub(crate) fn with_map_box<R>(handle: i64, f: impl FnOnce(&MapBox) -> R) -> Opti
         let f = f.take().expect("map callback");
         Some(f(map))
     })
-}
-
-#[inline(always)]
-pub(crate) fn with_map_lookup_cached(
-    handle: i64,
-    key_str: &str,
-    f: impl FnOnce(&MapBox) -> (i64, bool),
-) -> Option<(i64, bool)> {
-    if let Some(hit) = map_lookup_cache_hit(handle, key_str) {
-        return Some(hit);
-    }
-    if handle <= 0 {
-        return None;
-    }
-    let drop_epoch = handles::drop_epoch();
-
-    let (value, present) = with_map_box(handle, |map| f(map))?;
-    HANDLE_CACHE.with(|slot| {
-        let mut cached = slot.borrow_mut();
-        if let Some(entry) = cached.as_mut() {
-            if entry.handle == handle && entry.drop_epoch == drop_epoch {
-                entry.map_lookup = Some(MapLookupCache {
-                    key: key_str.to_owned(),
-                    value,
-                    present,
-                });
-            }
-        }
-    });
-    Some((value, present))
 }
 
 #[inline(always)]
