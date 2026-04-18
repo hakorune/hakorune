@@ -9,7 +9,7 @@ use super::array_runtime_any::{
 };
 use super::array_runtime_substrate::array_runtime_push_any;
 use super::handle_cache::object_from_handle_cached;
-use super::map_runtime_facade::{
+use super::map_runtime_data::{
     map_runtime_data_get_any_key, map_runtime_data_has_any_key, map_runtime_data_set_any_key,
 };
 use nyash_rust::boxes::{array::ArrayBox, map_box::MapBox};
