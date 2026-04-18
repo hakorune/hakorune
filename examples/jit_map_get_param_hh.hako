@@ -1,5 +1,5 @@
 // Map.get with both receiver and key as function parameters
-// Expect: JIT hostcall allow for nyash.map.get_hh (Handle,Handle)
+// Expect: map get lowers through the canonical nyash.map.slot_load_hh (Handle,Handle) hostcall
 // Run:
 //   NYASH_JIT_EXEC=1 NYASH_JIT_THRESHOLD=1 NYASH_JIT_HOSTCALL=1 NYASH_JIT_EVENTS=1 \
 //     ./target/release/hakorune --backend vm examples/jit_map_get_param_hh.hako
