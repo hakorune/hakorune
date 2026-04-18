@@ -1,5 +1,5 @@
 use super::map_runtime_facade::{
-    map_runtime_cap, map_runtime_clear, map_runtime_delete_any, map_runtime_load_any,
+    map_runtime_clear, map_runtime_delete_any, map_runtime_load_any,
     map_runtime_load_i64, map_runtime_probe_any, map_runtime_probe_i64, map_runtime_store_any,
     map_runtime_store_i64_any,
 };
@@ -18,7 +18,7 @@ pub extern "C" fn nyash_map_entry_count_h(handle: i64) -> i64 {
 
 #[export_name = "nyash.map.cap_h"]
 pub extern "C" fn nyash_map_cap_h(handle: i64) -> i64 {
-    map_runtime_cap(handle)
+    super::map_substrate::map_capacity_raw(handle)
 }
 
 #[export_name = "nyash.map.clear_h"]

@@ -12,15 +12,6 @@ use super::value_codec::{
 // Map semantic ownership lives in `.hako` (`MapCoreBox` / `MapStateCoreBox`);
 // keep this module below the owner and above raw slot/probe/store leaves.
 
-// Observer facade.
-pub(super) fn map_runtime_entry_count(handle: i64) -> i64 {
-    with_map_box(handle, |map| map.entry_count_i64()).unwrap_or(0)
-}
-
-pub(super) fn map_runtime_cap(handle: i64) -> i64 {
-    with_map_box(handle, |map| map.capacity_i64()).unwrap_or(0)
-}
-
 pub(super) fn map_runtime_clear(handle: i64) -> i64 {
     let _ = with_map_box(handle, |map| {
         map.clear_entries();
