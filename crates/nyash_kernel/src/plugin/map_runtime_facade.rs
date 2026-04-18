@@ -90,15 +90,5 @@ pub(super) fn map_runtime_data_set_any_key(handle: i64, key_any: i64, val_any: i
 #[inline(never)]
 pub(super) fn map_runtime_data_has_any_key(handle: i64, key_any: i64) -> i64 {
     let key_str = map_runtime_data_key_string_from_any(key_any);
-    with_map_box(
-        handle,
-        |map| {
-            if map.contains_key_str(&key_str) {
-                1
-            } else {
-                0
-            }
-        },
-    )
-    .unwrap_or(0)
+    super::map_probe::map_probe_contains_str(handle, &key_str)
 }
