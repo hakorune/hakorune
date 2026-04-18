@@ -193,10 +193,30 @@ fn tls_slot_publish_boundary_counters_flush_current_thread() {
         borrowed_alias_encode_cached_handle_hit_map_runtime_data_get_any();
         let after = snapshot();
 
-        assert_eq!(after[139] - before[139], 1);
-        assert_eq!(after[140] - before[140], 1);
-        assert_eq!(after[141] - before[141], 1);
-        assert_eq!(after[142] - before[142], 1);
+        assert_eq!(
+            contract::BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_PUBLISH_HANDLE_TOTAL_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_PUBLISH_HANDLE_TOTAL_FIELD
+                    .read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_OBJECTIZE_STABLE_BOX_TOTAL_FIELD
+                .read(&after)
+                - contract::BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_OBJECTIZE_STABLE_BOX_TOTAL_FIELD
+                    .read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_EMPTY_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_EMPTY_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_ALREADY_PUBLISHED_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_ALREADY_PUBLISHED_FIELD
+                    .read(&before),
+            1
+        );
         assert_eq!(
             contract::BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_FIELD.read(&after)
                 - contract::BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_FIELD.read(&before),
