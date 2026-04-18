@@ -10,7 +10,18 @@ pub(crate) enum CodecProfile {
     Generic,
     ArrayFastBorrowString,
     ArrayBorrowStringOnly,
+    MapKeyBorrowString,
     MapValueBorrowString,
+}
+
+impl CodecProfile {
+    #[inline(always)]
+    fn keeps_string_alias_and_prefers_scalar(self) -> bool {
+        matches!(
+            self,
+            Self::ArrayFastBorrowString | Self::MapKeyBorrowString
+        )
+    }
 }
 
 // Internal-only carrier for array fast decode.
@@ -95,8 +106,9 @@ pub(crate) fn any_arg_to_box_with_profile(arg: i64, profile: CodecProfile) -> Bo
                 },
             );
         }
-        // Phase-29cc route lock: ArrayFastBorrowString keeps scalar-prefer behavior.
-        let scalar_prefer = profile == CodecProfile::ArrayFastBorrowString;
+        // Phase-29cc route lock: map keys intentionally share the scalar-prefer
+        // string-alias contract, but keep their own profile name at the call site.
+        let scalar_prefer = profile.keeps_string_alias_and_prefers_scalar();
         return handles::with_handle_caller(
             arg as u64,
             handles::PerfObserveObjectWithHandleCaller::DecodeAnyArg,
@@ -104,7 +116,7 @@ pub(crate) fn any_arg_to_box_with_profile(arg: i64, profile: CodecProfile) -> Bo
                 let Some(obj) = obj else {
                     return int_arg_to_box(arg);
                 };
-                if profile == CodecProfile::ArrayFastBorrowString {
+                if scalar_prefer {
                     if obj.as_any().downcast_ref::<StringBox>().is_some()
                         || obj
                             .as_any()
@@ -119,12 +131,10 @@ pub(crate) fn any_arg_to_box_with_profile(arg: i64, profile: CodecProfile) -> Bo
                     if let Some(fb) = obj.as_any().downcast_ref::<FloatBox>() {
                         return Box::new(FloatBox::new(fb.value));
                     }
-                    if scalar_prefer {
-                        if let Some(ib) = obj.as_any().downcast_ref::<IntegerBox>() {
-                            return Box::new(IntegerBox::new(ib.value));
-                        }
-                        return int_arg_to_box(arg);
+                    if let Some(ib) = obj.as_any().downcast_ref::<IntegerBox>() {
+                        return Box::new(IntegerBox::new(ib.value));
                     }
+                    return int_arg_to_box(arg);
                 }
                 obj.clone_box()
             },

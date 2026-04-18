@@ -158,6 +158,26 @@ fn any_arg_to_box_array_fast_profile_sets_borrowed_handle_metadata_for_string() 
 }
 
 #[test]
+fn any_arg_to_box_map_key_profile_sets_borrowed_handle_metadata_for_string() {
+    let value: Arc<dyn NyashBox> = Arc::new(StringBox::new("map-key".to_string()));
+    let value_h = handles::to_handle_arc(value) as i64;
+
+    let via_profile = any_arg_to_box_with_profile(value_h, CodecProfile::MapKeyBorrowString);
+    let borrowed = via_profile.borrowed_handle_source_fast();
+    assert!(borrowed.is_some());
+    assert_eq!(borrowed.map(|(h, _)| h), Some(value_h));
+}
+
+#[test]
+fn any_arg_to_box_map_key_profile_keeps_scalar_prefer_contract() {
+    let value: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(77));
+    let value_h = handles::to_handle_arc(value) as i64;
+
+    let via_profile = any_arg_to_box_with_profile(value_h, CodecProfile::MapKeyBorrowString);
+    assert_eq!(box_to_runtime_i64(via_profile), 77);
+}
+
+#[test]
 fn any_arg_to_box_generic_profile_does_not_set_borrowed_handle_metadata() {
     let value: Arc<dyn NyashBox> = Arc::new(StringBox::new("generic".to_string()));
     let value_h = handles::to_handle_arc(value) as i64;
@@ -212,9 +232,11 @@ fn any_arg_to_box_with_profile_missing_handle_keeps_immediate_contract() {
 
         let via_generic = any_arg_to_box_with_profile(h, CodecProfile::Generic);
         let via_array_fast = any_arg_to_box_with_profile(h, CodecProfile::ArrayFastBorrowString);
+        let via_map_key = any_arg_to_box_with_profile(h, CodecProfile::MapKeyBorrowString);
         let via_map_value = any_arg_to_box_with_profile(h, CodecProfile::MapValueBorrowString);
         assert_eq!(box_to_runtime_i64(via_generic), h);
         assert_eq!(box_to_runtime_i64(via_array_fast), h);
+        assert_eq!(box_to_runtime_i64(via_map_key), h);
         assert_eq!(box_to_runtime_i64(via_map_value), h);
     });
 }
