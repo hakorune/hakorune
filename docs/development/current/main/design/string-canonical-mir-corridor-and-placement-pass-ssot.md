@@ -226,13 +226,15 @@ Target verifier reading:
 Phase-137x reading:
 
 - this remains string-lane-specific legality
- - the phase-137x minimal internal class is `OwnedBytes`
- - the phase-137x minimal carrier placement is:
-   - direct-kernel-local result slot as the carrier location
-   - corridor-local executor as the owner that freezes into / reads from that slot
-   - host registry as cold publish adapter only
- - the verifier should reject “early publish” and “registry carrier” mistakes
-  before another runtime-local widening is attempted
+  - the phase-137x minimal internal class is `OwnedBytes`
+  - the phase-137x minimal carrier placement is:
+    - direct-kernel-local result slot as the carrier location
+    - corridor-local executor as the owner that freezes into / reads from that slot
+    - host registry as cold publish adapter only
+  - current reopened whole-front first owner = `const_suffix` / `nyash.string.concat_hs`
+  - `freeze_text_plan(Pieces3)` stays as a secondary guard lane, not the first code cut
+  - the verifier should reject “early publish” and “registry carrier” mistakes
+    before another runtime-local widening is attempted
 
 Slot-capable consumer rule:
 
@@ -247,6 +249,13 @@ Verifier placement:
 - reject early publish / registry carrier / public-ABI replay before codegen
 - treat this as lowering/direct-kernel-entry verification first
 - do not defer these failures to runtime or post-hoc perf rereads
+
+Current reopened-lane cut direction:
+
+- keep `ny_main` loop shape and the public ABI stable
+- narrow `const_suffix` toward:
+  - source read -> size calc -> alloc/copy leaf -> sink
+- keep publish/objectize/handle issue as cold-adapter work
 
 Do not move these legality checks into runtime route re-recognition.
 Runtime remains executor only.

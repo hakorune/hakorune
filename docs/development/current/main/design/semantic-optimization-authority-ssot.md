@@ -141,6 +141,9 @@ Current source-backed mapping:
 - `.hako` route `const_suffix`
   - current concrete path: `nyash.string.concat_hs`
   - intended canonical MIR reading: `thaw.str + lit.str + str.concat2 + freeze.str`
+  - current phase-137x reopened-lane reading:
+    - first whole-front keeper owner
+    - public handle ABI stays fixed; only the internal result seam may move
 - `.hako` route `ArrayStoreString`
   - current concrete path: `nyash.array.set_his`
   - intended canonical MIR reading: `store.array.str`
@@ -209,6 +212,7 @@ Lifecycle policy must be decided above Rust.
 - the visible canonical route name
 - delayed-materialization reading
 - escalation conditions for object-world entry
+- publication boundary / publication contract
 - lifecycle visibility that must stay above Rust:
   - `source_preserve`
   - `identity_demand`
@@ -300,6 +304,12 @@ are read as standalone helpers.
 
 This rule exists so perf work does not accidentally grow helper-local policy
 again while capability-family planning is still docs-first.
+
+Current phase-137x reopened-lane lock:
+
+- read `const_suffix` first as a producer-result seam consumer, not as a public helper to tune in isolation
+- keep `set_his` / array-store boundary stable while the producer result seam is active
+- keep `Pieces3` / `insert_hsi` as the secondary guard lane until `const_suffix` proves or fails
 
 ## Birth / Placement Rule
 

@@ -85,6 +85,12 @@ Interpretation:
 
 Keep the public handle ABI stable, but allow same-corridor unpublished carrier flow until the first true external boundary.
 
+On the current phase-137x reopened lane:
+
+- first whole-front owner = `const_suffix` / `nyash.string.concat_hs`
+- secondary guard lane = `freeze_text_plan(Pieces3)` / `insert_hsi`
+- the first Stage B card must cut the producer result seam before `set_his`, not the array-store boundary itself
+
 Interpretation:
 
 - if Stage B wins on both Rust and `.hako`, the main owner is protocol / seam
@@ -139,3 +145,14 @@ Current exact samples point first at protocol-heavy responsibilities:
 - `execute_store_array_str_slot_boundary`
 
 This is sufficient to justify the two-stage pilot order. It is not sufficient to justify a full `.hako` rewrite.
+
+Current reopened-lane helper reading:
+
+- `ny_main` is already structurally close to the C loop
+- the remaining mismatch is inside helper bodies:
+  - helper-entry branching
+  - TLS/session setup
+  - generic publication/objectize tail
+- target Stage B helper shape:
+  - hot path = source read -> size calc -> alloc/copy leaf -> sink
+  - cold path = publish adapter / bridge / tracing / TLS init

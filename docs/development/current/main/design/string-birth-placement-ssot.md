@@ -31,6 +31,7 @@ Related:
 ## Why this exists
 
 今の perf-kilo は sink-local tuning をかなり消化した。
+Current reopened whole-front first owner is `const_suffix` / `nyash.string.concat_hs`, while the generic exact front remains the confirmation gate.
 
 - `Registry::alloc` は hot birth branch を registry 内で直展開済み
 - `Registry::get` は direct clone path まで landed 済み
@@ -130,8 +131,9 @@ compile-time placement は runtime helper ではなく、AOT consumer 側の dec
 1. placement helper の語彙を current truth として維持する
 2. `TextRetentionClass` を parent SSOT の `BoundaryKind` / `RetainedForm` split で読む
 3. `array_set` を first `Store` proof boundary として維持する
-4. `concat3-array-store-placement-window-ssot.md` で compiler-local placement window を固定する
-5. meso/main proof の後にだけ code-side enum split を検討する
+4. reopened whole-front first slice is `const_suffix` / `concat_hs`; keep `Pieces3` as the secondary guard lane
+5. `concat3-array-store-placement-window-ssot.md` で compiler-local placement window を固定する
+6. meso/main proof の後にだけ code-side enum split を検討する
 
 ## Non-Goals
 

@@ -82,9 +82,15 @@ Related:
     - `site.string_concat_hh.*=0`
     - `site.string_substring_concat_hhii.*=0`
   - latest runtime-fix-only reread stays on the same owner family:
-    - `kilo_micro_array_string_store = C 10 ms / Ny AOT 132 ms`
-    - `kilo_kernel_small_hk = C 80 ms / Ny AOT 731 ms`
-  - next first slice is no longer `len_h` removal; it is whole-kilo publication/source-capture reopen with the compiler-known-length lane fixed
+    - `kilo_micro_array_string_store = C 10 ms / Ny AOT 127 ms`
+    - `kilo_kernel_small_hk = C 81 ms / Ny AOT 755 ms`
+  - current whole-owner reread is now pinned:
+    - first owner = `const_suffix` / `nyash.string.concat_hs`
+    - secondary guard = `freeze_text_plan(Pieces3)` / `insert_hsi`
+  - latest asm read:
+    - `ny_main` loop shape is already close to C
+    - the remaining gap is helper-entry branch / TLS / generic publication tail inside helper bodies
+  - next first slice is no longer `len_h` removal; it is whole-kilo publication/source-capture reopen on `const_suffix` with the compiler-known-length lane fixed
   - latest design consult is accepted in narrowed form:
     - no syntax expansion
     - no public raw string / mutable bytes
@@ -97,8 +103,8 @@ Related:
 2. keep the compiler-known-length lane fixed and guarded on this front
 3. keep exact micro and whole kilo separate when choosing the next keeper
 4. preserve the existing `set_his` fast path; do not reopen slot-store boundary probes
-5. add the next whole-kilo split inside `const_suffix` vs `freeze_text_plan(Pieces3)` publication bytes/stages
-6. choose the next keeper only after that split proves which whole-kilo producer stage dominates
+5. keep `const_suffix` as the first whole-front keeper owner and `Pieces3` as a guard lane
+6. cut only a seam that moves `nyash.string.concat_hs` toward the copy-dominant C helper shape
 7. keep exact micro as a confirmation front, not the sole owner truth
 8. keep `Stage B` narrow and data-driven through runtime-private publication counters
 

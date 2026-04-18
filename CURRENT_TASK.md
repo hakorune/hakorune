@@ -204,6 +204,30 @@ Scope: current lane / next lane / restart order only.
   - `kilo_micro_array_string_store = C 10 ms / Ny AOT 127 ms`
   - `kilo_kernel_small_hk = C 81 ms / Ny AOT 755 ms`
   - current WSL noise band is still real, so judge future keepers on repeated 3-run windows rather than single probes
+- latest narrow `const_suffix` hot/cold split is now landed as an executor-local cut:
+  - public ABI stays unchanged
+  - `const_adapter.rs` now keeps the source-read / concat work on the helper edge and sends owned-result publication through a dedicated cold adapter
+  - shared generic materialize paths stay unchanged; the `const_suffix` split is isolated to its site-specific sink
+  - release validation on the landed cut:
+    - `cargo check --features perf-observe -p nyash_kernel`
+    - `cargo test -q -p nyash_kernel --lib -- --test-threads=1`
+    - `tools/checks/dev_gate.sh quick`
+    - `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_store_string_contract.sh`
+  - latest 3-run release numbers on the landed cut:
+    - `kilo_micro_array_string_store = C 9 ms / Ny AOT 131-132 ms` (repeat window on this tree)
+    - `kilo_kernel_small_hk = C 82 ms / Ny AOT 737 ms`
+  - latest whole asm/perf reread shows the owner moved:
+    - `nyash.string.concat_hs` is down to ~2-3% in whole
+    - new top user-space owner is `materialize::publish_const_suffix_owned_cold` at ~7-8%
+    - `memmove` still dominates (~18-19%), allocator stays visible (~4-5%)
+  - current read: this cut shrank the `concat_hs` entry tax and improved whole-kilo, but the next whole-front owner is now the `const_suffix` publish/materialize tail rather than the helper entry itself
+  - `phase137x-publish-const-suffix-tail-split` tried and **not** a keeper:
+    - cut: replaced single `materialize_owned_string_generic_fallback_for_site(...)` call in `publish_const_suffix_owned_cold` with explicit `freeze_owned_bytes_with_site` → `publish_owned_bytes_generic_fallback_for_site` 2-step
+    - asm/perf: hot owner moved from `publish_const_suffix_owned_cold` to `publish_owned_bytes_generic_fallback_for_site` (jump trampoline only)
+    - 3-run numbers:
+      - `kilo_micro_array_string_store = C 9 ms / Ny AOT 136 ms` (baseline 127-132 ms, **exact regressed**)
+      - `kilo_kernel_small = C 81 ms / Ny AOT 735 ms` (baseline 737 ms, noise-level whole improvement)
+    - conclusion: splitting the call site alone does not shrink the object-world entry cost; the two stages are still fused by the optimizer, and exact regressed — **do not retry this cut without new producer-boundary evidence**
 - latest exact/whole asm + perf reread sharpens the keeper choice:
   - exact top report still clusters on:
     - `string_concat_hh_export_impl`
@@ -215,7 +239,7 @@ Scope: current lane / next lane / restart order only.
     - array string-store closure (~5-6%)
     - libc `memmove` (~19-21%) and allocator (`malloc` / `_int_malloc`)
   - `nyash.string.insert_hsi` itself is a thin TLS trampoline; it is not the first keeper owner on whole
-  - `nyash.string.concat_hs` is the first whole-front helper owner; the active whole card is therefore still `const_suffix`, not `pieces3`
+  - `nyash.string.concat_hs` is the first whole-front helper owner; the active whole card is now the const_suffix publish/materialize tail, not `pieces3`
 - latest C-vs-AOT loop shape comparison:
   - both exact and whole `ny_main` are already structurally close to C (`get/len/edit/set` style loop with direct helper calls)
   - the remaining mismatch is **inside the helper bodies**, not in the top-level lowered loop
@@ -225,7 +249,7 @@ Scope: current lane / next lane / restart order only.
   - target shape is:
     - hot path = source read -> size calc -> one alloc/copy leaf -> sink / cold publish adapter
     - cold path = trace / bridge / TLS init / generic publication fallback
-  - conclusion: the ideal asm shape is still reachable, but not by another helper-local taste tweak; the next keeper must shrink the `const_suffix` helper hot path toward that copy-dominant shape while keeping publication mechanics off the hot edge
+  - conclusion: the ideal asm shape is still reachable, and the landed split confirms the first whole-kilo win comes from shrinking the `const_suffix` helper entry; the next keeper must now attack the `const_suffix` publish/materialize tail while keeping publication mechanics off the hot edge
 - current live owner remains publication/source-capture around the string births, not array-set route selection
 - next comparison must split:
     - implementation language cost
@@ -254,9 +278,10 @@ Scope: current lane / next lane / restart order only.
    - do not reopen any helper-site keeper; the whole front is now pinned to these two producer families
 8. keep the lazy published-string handle seam parked as a non-keeper; it changed counters but exploded whole-kilo time
 9. next:
-   - treat `const_suffix` as the first active whole-front keeper owner
-   - keep `pieces3` as a secondary comparison lane / guard, not the first code cut
-   - cut only a stage that moves `nyash.string.concat_hs` closer to the copy-dominant C shape
+   - `publish_const_suffix_owned_cold` 2-step split is a non-keeper; splitting the call site alone does not remove the object-world entry cost
+   - next cut must target the fused `alloc → objectize → issue_fresh_handle` chain inside the cold adapter, not just the call boundary
+   - concrete next candidate: measure whether inlining `freeze_owned_bytes` + skipping `objectize_stable_string_box` in the `const_suffix` fast path (e.g. keeping bytes as `OwnedBytes` through the slot boundary) changes whole-kilo numbers — requires perf/asm evidence first
+   - do not cut before re-running `bench_micro_aot_asm.sh kilo_kernel_small` to confirm the current whole hot symbol after revert
 10. after that keeper selection:
    - `kilo_micro_array_string_store`
    - `kilo_kernel_small_hk`

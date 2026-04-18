@@ -184,17 +184,28 @@
       - the bad cut was the array-store boundary itself
       - the probe bypassed the existing `set_his` fast path / alias-retarget behavior
       - the producer-side slot route also regressed once activated on the live front, so it stays parked
+  - latest reverted-baseline 3-run reread:
+    - `kilo_micro_array_string_store = C 10 ms / Ny AOT 127 ms`
+    - `kilo_kernel_small_hk = C 81 ms / Ny AOT 755 ms`
+    - judge future keepers on repeated 3-run windows; current WSL variance is real
   - next step is not more owner widening; it is reopening publication/source-capture before `nyash.array.set_his`
-  - the `concat_hh + len_h` compiler-known-length slice is now landed; next first slice is no longer `len_h` removal and still not `const_suffix`
+  - the `concat_hh + len_h` compiler-known-length slice is now landed; next first slice is no longer `len_h` removal
   - design tighten before code:
     - keep carrier and publication physically separated; the corridor-local slot transports value, the cold adapter owns `StringBox` / `Arc` / handle issue
     - treat published-ness as boundary bookkeeping, not as the steady-state hot-lane value shape
     - do not broaden this proof into a generic slot API or remembered chain substrate
   - latest design consult is accepted in narrowed form:
     - do not add syntax or public raw-string carriers on this lane
-    - `const_suffix` is a valid future narrow probe, but not the immediate first widening on the active front
+    - `const_suffix` is now the first whole-front narrow probe on the reopened lane
+    - keep `Pieces3` / `insert_hsi` as the secondary comparison / guard lane, not the first code cut
     - if that probe reopens, prefer existing runtime-private `TextPlan::Pieces2` / `OwnedBytes` seams before inventing a new carrier
     - treat unique-`OwnedBytes` in-place append as a second-stage follow-up, not the first proof
+  - latest owner verdict tighten:
+    - whole first owner is `const_suffix` / `nyash.string.concat_hs`
+    - `ny_main` loop shape is already close to C; the live gap is inside helper bodies
+    - target shape remains:
+      - hot path = source read -> size calc -> alloc/copy leaf -> sink
+      - cold path = publish adapter / bridge / TLS init / tracing
 - result-representation consult triage:
   - adopt:
     - separate semantic result birth from public handle publication
@@ -221,7 +232,7 @@
 - recommended execution order from the current state:
   1. keep the compiler-known-length keeper fixed and guarded
   2. reopen producer-side publication/source-capture before `nyash.array.set_his`
-  3. preserve the existing `set_his` fast path while adding a narrow unpublished-outcome A/B probe
+  3. preserve the existing `set_his` fast path while adding a narrow unpublished-outcome A/B probe on `const_suffix`
   4. add plan-local counters for that probe before any route widening
   5. only if the producer-side unpublished probe wins, run a narrow `const_suffix -> TextPlan::Pieces2` exact-front A/B
   6. only after `Pieces2` proves out, consider unique-`OwnedBytes` in-place append as the next fast path
