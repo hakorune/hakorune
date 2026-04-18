@@ -72,39 +72,24 @@ pub(crate) fn emit_summary_to_stderr() {
         contract::store_array_str_detail_values(&snapshot),
     );
     eprintln!("{}", store_array_str_line);
-    eprintln!(
-        "[perf/counter][{}] total={} {}={} {}={} {}={} {}={} {}={} {}={}",
+    let mut const_suffix_line = format!(
+        "[perf/counter][{}] total={}",
         contract::CONST_SUFFIX,
-        contract::CONST_SUFFIX_TOTAL_FIELD.read(&snapshot),
-        contract::CONST_SUFFIX_CACHED_HANDLE_HIT_FIELD.name,
-        contract::CONST_SUFFIX_CACHED_HANDLE_HIT_FIELD.read(&snapshot),
-        contract::CONST_SUFFIX_TEXT_CACHE_RELOAD_FIELD.name,
-        contract::CONST_SUFFIX_TEXT_CACHE_RELOAD_FIELD.read(&snapshot),
-        contract::CONST_SUFFIX_FREEZE_FALLBACK_FIELD.name,
-        contract::CONST_SUFFIX_FREEZE_FALLBACK_FIELD.read(&snapshot),
-        contract::CONST_SUFFIX_EMPTY_RETURN_FIELD.name,
-        contract::CONST_SUFFIX_EMPTY_RETURN_FIELD.read(&snapshot),
-        contract::CONST_SUFFIX_CACHED_FAST_STR_HIT_FIELD.name,
-        contract::CONST_SUFFIX_CACHED_FAST_STR_HIT_FIELD.read(&snapshot),
-        contract::CONST_SUFFIX_CACHED_SPAN_HIT_FIELD.name,
-        contract::CONST_SUFFIX_CACHED_SPAN_HIT_FIELD.read(&snapshot),
+        contract::CONST_SUFFIX_TOTAL_FIELD.read(&snapshot)
     );
-    eprintln!(
-        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={}",
-        contract::BIRTH_PLACEMENT,
-        contract::BIRTH_PLACEMENT_RETURN_HANDLE_FIELD.name,
-        contract::BIRTH_PLACEMENT_RETURN_HANDLE_FIELD.read(&snapshot),
-        contract::BIRTH_PLACEMENT_BORROW_VIEW_FIELD.name,
-        contract::BIRTH_PLACEMENT_BORROW_VIEW_FIELD.read(&snapshot),
-        contract::BIRTH_PLACEMENT_FREEZE_OWNED_FIELD.name,
-        contract::BIRTH_PLACEMENT_FREEZE_OWNED_FIELD.read(&snapshot),
-        contract::BIRTH_PLACEMENT_FRESH_HANDLE_FIELD.name,
-        contract::BIRTH_PLACEMENT_FRESH_HANDLE_FIELD.read(&snapshot),
-        contract::BIRTH_PLACEMENT_MATERIALIZE_OWNED_FIELD.name,
-        contract::BIRTH_PLACEMENT_MATERIALIZE_OWNED_FIELD.read(&snapshot),
-        contract::BIRTH_PLACEMENT_STORE_FROM_SOURCE_FIELD.name,
-        contract::BIRTH_PLACEMENT_STORE_FROM_SOURCE_FIELD.read(&snapshot),
+    append_snapshot_fields(
+        &mut const_suffix_line,
+        &snapshot,
+        contract::CONST_SUFFIX_SUMMARY_FIELDS.into_iter().skip(1),
     );
+    eprintln!("{}", const_suffix_line);
+    let mut birth_placement_line = format!("[perf/counter][{}]", contract::BIRTH_PLACEMENT);
+    append_snapshot_fields(
+        &mut birth_placement_line,
+        &snapshot,
+        contract::BIRTH_PLACEMENT_SUMMARY_FIELDS,
+    );
+    eprintln!("{}", birth_placement_line);
     let mut birth_backend_line = format!("[perf/counter][{}]", contract::BIRTH_BACKEND);
     append_snapshot_fields(
         &mut birth_backend_line,
@@ -122,46 +107,30 @@ pub(crate) fn emit_summary_to_stderr() {
         contract::BIRTH_BACKEND_SITE_SUMMARY_FIELDS,
     );
     eprintln!("{}", birth_backend_line);
-    eprintln!(
-        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
-        contract::STR_CONCAT2_ROUTE,
-        contract::STR_CONCAT2_ROUTE_TOTAL_FIELD.name,
-        contract::STR_CONCAT2_ROUTE_TOTAL_FIELD.read(&snapshot),
-        contract::STR_CONCAT2_ROUTE_DISPATCH_HIT_FIELD.name,
-        contract::STR_CONCAT2_ROUTE_DISPATCH_HIT_FIELD.read(&snapshot),
-        contract::STR_CONCAT2_ROUTE_FAST_STR_OWNED_FIELD.name,
-        contract::STR_CONCAT2_ROUTE_FAST_STR_OWNED_FIELD.read(&snapshot),
-        contract::STR_CONCAT2_ROUTE_FAST_STR_RETURN_HANDLE_FIELD.name,
-        contract::STR_CONCAT2_ROUTE_FAST_STR_RETURN_HANDLE_FIELD.read(&snapshot),
-        contract::STR_CONCAT2_ROUTE_SPAN_FREEZE_FIELD.name,
-        contract::STR_CONCAT2_ROUTE_SPAN_FREEZE_FIELD.read(&snapshot),
-        contract::STR_CONCAT2_ROUTE_SPAN_RETURN_HANDLE_FIELD.name,
-        contract::STR_CONCAT2_ROUTE_SPAN_RETURN_HANDLE_FIELD.read(&snapshot),
-        contract::STR_CONCAT2_ROUTE_MATERIALIZE_FALLBACK_FIELD.name,
-        contract::STR_CONCAT2_ROUTE_MATERIALIZE_FALLBACK_FIELD.read(&snapshot),
+    let mut str_concat2_route_line = format!("[perf/counter][{}]", contract::STR_CONCAT2_ROUTE);
+    append_snapshot_fields(
+        &mut str_concat2_route_line,
+        &snapshot,
+        contract::STR_CONCAT2_ROUTE_SUMMARY_FIELDS,
+    );
+    append_counter_value(
+        &mut str_concat2_route_line,
         contract::STR_CONCAT2_ROUTE_UNCLASSIFIED,
         str_concat2_unclassified,
     );
-    eprintln!(
-        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
-        contract::STR_LEN_ROUTE,
-        contract::STR_LEN_ROUTE_TOTAL_FIELD.name,
-        contract::STR_LEN_ROUTE_TOTAL_FIELD.read(&snapshot),
-        contract::STR_LEN_ROUTE_DISPATCH_HIT_FIELD.name,
-        contract::STR_LEN_ROUTE_DISPATCH_HIT_FIELD.read(&snapshot),
-        contract::STR_LEN_ROUTE_FAST_STR_HIT_FIELD.name,
-        contract::STR_LEN_ROUTE_FAST_STR_HIT_FIELD.read(&snapshot),
-        contract::STR_LEN_ROUTE_FALLBACK_HIT_FIELD.name,
-        contract::STR_LEN_ROUTE_FALLBACK_HIT_FIELD.read(&snapshot),
-        contract::STR_LEN_ROUTE_MISS_FIELD.name,
-        contract::STR_LEN_ROUTE_MISS_FIELD.read(&snapshot),
-        contract::STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FAST_STR_HIT_FIELD.name,
-        contract::STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FAST_STR_HIT_FIELD.read(&snapshot),
-        contract::STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FALLBACK_HIT_FIELD.name,
-        contract::STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FALLBACK_HIT_FIELD.read(&snapshot),
+    eprintln!("{}", str_concat2_route_line);
+    let mut str_len_route_line = format!("[perf/counter][{}]", contract::STR_LEN_ROUTE);
+    append_snapshot_fields(
+        &mut str_len_route_line,
+        &snapshot,
+        contract::STR_LEN_ROUTE_SUMMARY_FIELDS,
+    );
+    append_counter_value(
+        &mut str_len_route_line,
         contract::STR_LEN_ROUTE_UNCLASSIFIED,
         str_len_unclassified,
     );
+    eprintln!("{}", str_len_route_line);
     let mut str_substring_route_line = format!("[perf/counter][{}]", contract::STR_SUBSTRING_ROUTE);
     append_snapshot_fields(
         &mut str_substring_route_line,
@@ -174,34 +143,18 @@ pub(crate) fn emit_summary_to_stderr() {
         str_substring_slow_plan_unclassified,
     );
     eprintln!("{}", str_substring_route_line);
-    eprintln!(
-        "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
-        contract::PIECEWISE_SUBRANGE,
-        contract::PIECEWISE_SUBRANGE_TOTAL_FIELD.name,
-        contract::PIECEWISE_SUBRANGE_TOTAL_FIELD.read(&snapshot),
-        contract::PIECEWISE_SUBRANGE_SINGLE_SESSION_HIT_FIELD.name,
-        contract::PIECEWISE_SUBRANGE_SINGLE_SESSION_HIT_FIELD.read(&snapshot),
-        contract::PIECEWISE_SUBRANGE_FALLBACK_INSERT_FIELD.name,
-        contract::PIECEWISE_SUBRANGE_FALLBACK_INSERT_FIELD.read(&snapshot),
-        contract::PIECEWISE_SUBRANGE_EMPTY_RETURN_FIELD.name,
-        contract::PIECEWISE_SUBRANGE_EMPTY_RETURN_FIELD.read(&snapshot),
-        contract::PIECEWISE_SUBRANGE_PREFIX_ONLY_FIELD.name,
-        contract::PIECEWISE_SUBRANGE_PREFIX_ONLY_FIELD.read(&snapshot),
-        contract::PIECEWISE_SUBRANGE_MIDDLE_ONLY_FIELD.name,
-        contract::PIECEWISE_SUBRANGE_MIDDLE_ONLY_FIELD.read(&snapshot),
-        contract::PIECEWISE_SUBRANGE_SUFFIX_ONLY_FIELD.name,
-        contract::PIECEWISE_SUBRANGE_SUFFIX_ONLY_FIELD.read(&snapshot),
-        contract::PIECEWISE_SUBRANGE_PREFIX_MIDDLE_FIELD.name,
-        contract::PIECEWISE_SUBRANGE_PREFIX_MIDDLE_FIELD.read(&snapshot),
-        contract::PIECEWISE_SUBRANGE_MIDDLE_SUFFIX_FIELD.name,
-        contract::PIECEWISE_SUBRANGE_MIDDLE_SUFFIX_FIELD.read(&snapshot),
-        contract::PIECEWISE_SUBRANGE_PREFIX_SUFFIX_FIELD.name,
-        contract::PIECEWISE_SUBRANGE_PREFIX_SUFFIX_FIELD.read(&snapshot),
-        contract::PIECEWISE_SUBRANGE_ALL_THREE_FIELD.name,
-        contract::PIECEWISE_SUBRANGE_ALL_THREE_FIELD.read(&snapshot),
+    let mut piecewise_subrange_line = format!("[perf/counter][{}]", contract::PIECEWISE_SUBRANGE);
+    append_snapshot_fields(
+        &mut piecewise_subrange_line,
+        &snapshot,
+        contract::PIECEWISE_SUBRANGE_SUMMARY_FIELDS,
+    );
+    append_counter_value(
+        &mut piecewise_subrange_line,
         contract::PIECEWISE_SUBRANGE_UNCLASSIFIED,
         piecewise_subrange_unclassified,
     );
+    eprintln!("{}", piecewise_subrange_line);
     let stable_box_demand = nyash_rust::runtime::host_handles::perf_observe_snapshot();
     eprintln!(
         "[perf/counter][{}] {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={} {}={}",
