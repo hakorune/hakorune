@@ -130,10 +130,17 @@
       - `live source`
       - `cached handle`
       - `cold fallback`
+  - latest strict reread on the updated lane:
+    - `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
+    - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 61 ms`
+    - `kilo_kernel_small_hk = C 82 ms / Ny AOT 809 ms`
+    - `kilo_kernel_small_hk = C 80 ms / Ny AOT 892 ms`
   - reading:
     - phase 2.5 no longer has only the `array.get` cached-handle proof
-    - next step is still the strict whole reread on the updated lane; do not open `TextLane` or MIR legality first
-  - cleanup queue is now identified but not yet active:
+    - exact stays closed, but meso / strict whole reopened upward versus the prior `57 ms` / `791 ms` band
+    - current reading is reject-side for keeper judgement on this lane
+    - do not open `TextLane` or MIR legality first
+  - cleanup queue is now active:
     - observe counter registration SSOT
     - `BorrowedHandleBox` responsibility split
     - typed handle-cache consolidation

@@ -281,24 +281,21 @@ Related:
 ## Post-Proof Cleanup Queue
 
 - gate:
-  - do not start these before the current strict whole reread fixes keeper vs reject on the updated phase-2.5 lane
+  - the current strict whole reread is now taken and reads reject-side on the updated phase-2.5 lane
   - these are `BoxShape` cleanup cards, not new acceptance-shape cards
-- `Cleanup 1`: observe counter registration SSOT
-  - collapse borrowed-alias counter registration so `contract / TLS state / API shim / sink / test projection` stop drifting by hand
-  - remove raw snapshot index knowledge from plugin tests where possible
-- `Cleanup 2`: split `BorrowedHandleBox` responsibilities
-  - separate:
-    - source-lifetime retention
-    - alias metadata
-    - runtime-handle cache
-    - encode planning / observe emission
-    - retarget helpers
-- `Cleanup 3`: typed handle-cache consolidation
-  - decide one owner for typed cache lookup
-  - either centralize array/map typed fetch under `handle_cache.rs` or delete the dead map lookup cache helpers
-- `Cleanup 4`: collapse no-policy `runtime_data` forwarding
+- `Cleanup 1`: collapse no-policy `runtime_data` forwarding
   - review `runtime_data.rs -> runtime_data_array_dispatch.rs -> array_runtime_any.rs`
-  - remove the pass-through layer if it adds no policy or contract boundary
+  - prefer `handle_cache::with_map_box` over a second map-only fetch shell when the route is already proven
+- `Cleanup 2`: observe counter registration SSOT
+  - after the landed borrowed-alias slice, move the next active family only:
+    - `store.array.str`
+  - remove raw snapshot index knowledge from sink/test mirrors where possible
+- `Cleanup 3`: split `BorrowedHandleBox` responsibilities
+  - separate only after the owner family points back at read encode again
+  - if not, keep this card parked
+- `Cleanup 4`: typed handle-cache consolidation
+  - decide one owner for typed cache lookup
+  - centralize only the live typed-cache routes; do not invent dead-path cleanup that is no longer present in checkout
 - `Cleanup 5`: map-key codec SSOT
   - stop depending on `CodecProfile::ArrayFastBorrowString` for map-key coercion
   - introduce a dedicated map-key helper/profile if that contract remains needed

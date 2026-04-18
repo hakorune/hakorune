@@ -138,7 +138,10 @@ cargo check --features perf-observe -p nyash_kernel
   - current phase 2.5 mirror:
     - map value stores now preserve borrowed string aliases
     - borrowed-alias runtime-handle cache is shared across alias lineage
-    - next decision point remains strict whole reread, not another semantics/storage expansion
+    - latest strict reread came back reject-side:
+      - exact stays closed
+      - meso / strict whole reopened upward (`61 ms`, `809-892 ms`)
+    - next decision point is the smallest cleanup cards on this lane, not another semantics/storage expansion
   - reuse existing `TextPlan` / `OwnedBytes` seams before inventing a new carrier
 - hot-corridor carrier design anchor is now:
   - `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`

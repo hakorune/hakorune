@@ -165,9 +165,16 @@ Scope: current lane / next lane / restart order only.
         - end-to-end tests now lock that three-lane contract for both:
           - `array_get_index_encoded_i64`
           - `nyash.runtime_data.get_hh` map reads
+      - latest strict reread on the updated phase-2.5 lane:
+        - `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
+        - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 61 ms`
+        - `kilo_kernel_small_hk = C 82 ms / Ny AOT 809 ms`
+        - `kilo_kernel_small_hk = C 80 ms / Ny AOT 892 ms`
       - reading:
         - phase 2.5 contract is now much tighter on read behavior
-        - no new exact/whole keeper claim is accepted until the strict whole reread is taken again on this updated lane
+        - exact stays closed, but meso / strict whole reopened upward versus the prior `57 ms` / `791 ms` band
+        - this reread is reject-side evidence for keeper judgement on the updated lane
+        - cleanup queue is now active; start from the smallest BoxShape cards before choosing another owner seam
 - accepted task order is now fixed as a phase rollout, not as isolated helper cuts:
   - semantic lock:
     - `String = value`
