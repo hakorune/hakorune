@@ -11,7 +11,7 @@ categories = ["development-tools::parsing", "interpreters"]
 
 # Default features - minimal CLI only
 [features]
-default = ["cli", "plugins"]
+default = ["cli", "plugins", "builtin-mapbox-compat"]
 # Legacy features removed - archive cleaned up
 e2e = []
 cli = []
@@ -19,6 +19,7 @@ legacy-tests = [] # Legacy/phi-off test suites (pre-JoinIR). Disabled by default
 plugins-only = []
 builtin-core = []
 builtin-filebox = []  # Enable built-in FileBox provider (SSOT)
+builtin-mapbox-compat = [] # Keep deprecated BuiltinBoxFactory MapBox constructor shim
 ## Silence check-cfg warnings for historical cfg guards (kept off by default)
 vm-legacy = []
 phi-legacy = []

@@ -46,7 +46,8 @@ impl BoxFactory for BuiltinBoxFactory {
 
             // Phase 2.4-2.5: DELETE when collection plugins confirmed
             "ArrayBox" => builtin_impls::array_box::create(args),
-            "MapBox" => builtin_impls::map_box::create(args),
+            #[cfg(feature = "builtin-mapbox-compat")]
+            "MapBox" => builtin_impls::compat_map_box::create(args),
 
             // Phase 125: Plugin-preferred, but builtin fallback for selfhost
             // Primary: plugins/nyash-console-plugin
@@ -78,6 +79,7 @@ impl BoxFactory for BuiltinBoxFactory {
             "BoolBox",
             // Collections/common
             "ArrayBox",
+            #[cfg(feature = "builtin-mapbox-compat")]
             "MapBox",
             // Phase 151: ConsoleBox builtin fallback for selfhost support
             "ConsoleBox",
