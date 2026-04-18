@@ -478,16 +478,28 @@ pub(crate) fn emit_summary_to_stderr() {
         ),
         (contract::BORROWED_ALIAS_ENCODE_EPOCH_HIT, snapshot[84]),
         (
-            contract::BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT,
+            contract::BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT,
             snapshot[143],
         ),
         (
-            contract::BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT_ARRAY_GET_INDEX,
+            contract::BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_ARRAY_GET_INDEX,
             snapshot[144],
         ),
         (
-            contract::BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT_MAP_RUNTIME_DATA_GET_ANY,
+            contract::BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_MAP_RUNTIME_DATA_GET_ANY,
             snapshot[145],
+        ),
+        (
+            contract::BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT,
+            snapshot[146],
+        ),
+        (
+            contract::BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT_ARRAY_GET_INDEX,
+            snapshot[147],
+        ),
+        (
+            contract::BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT_MAP_RUNTIME_DATA_GET_ANY,
+            snapshot[148],
         ),
         (contract::BORROWED_ALIAS_ENCODE_PTR_EQ_HIT, snapshot[85]),
         (contract::BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC, snapshot[86]),

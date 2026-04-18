@@ -682,6 +682,21 @@ impl ThreadCounters {
     }
 
     #[inline(always)]
+    fn borrowed_alias_encode_live_source_hit(&self) {
+        Self::bump(&self.borrowed_alias_encode_live_source_hit);
+    }
+
+    #[inline(always)]
+    fn borrowed_alias_encode_live_source_hit_array_get_index(&self) {
+        Self::bump(&self.borrowed_alias_encode_live_source_hit_array_get_index);
+    }
+
+    #[inline(always)]
+    fn borrowed_alias_encode_live_source_hit_map_runtime_data_get_any(&self) {
+        Self::bump(&self.borrowed_alias_encode_live_source_hit_map_runtime_data_get_any);
+    }
+
+    #[inline(always)]
     fn borrowed_alias_encode_epoch_hit(&self) {
         Self::bump(&self.borrowed_alias_encode_epoch_hit);
     }
@@ -1268,6 +1283,18 @@ impl ThreadCounters {
         flush_cell(
             &self.borrowed_alias_array_indexof_by_index_latest_fresh,
             &GLOBAL.borrowed_alias_array_indexof_by_index_latest_fresh,
+        );
+        flush_cell(
+            &self.borrowed_alias_encode_live_source_hit,
+            &GLOBAL.borrowed_alias_encode_live_source_hit,
+        );
+        flush_cell(
+            &self.borrowed_alias_encode_live_source_hit_array_get_index,
+            &GLOBAL.borrowed_alias_encode_live_source_hit_array_get_index,
+        );
+        flush_cell(
+            &self.borrowed_alias_encode_live_source_hit_map_runtime_data_get_any,
+            &GLOBAL.borrowed_alias_encode_live_source_hit_map_runtime_data_get_any,
         );
         flush_cell(
             &self.borrowed_alias_encode_epoch_hit,

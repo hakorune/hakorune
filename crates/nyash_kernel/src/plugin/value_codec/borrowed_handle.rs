@@ -620,7 +620,11 @@ pub(crate) fn runtime_i64_from_borrowed_alias(
     caller: BorrowedAliasEncodeCaller,
 ) -> i64 {
     match plan_borrowed_alias_runtime_i64(alias) {
-        BorrowedAliasEncodePlan::LiveSourceHandle(handle) => handle,
+        BorrowedAliasEncodePlan::LiveSourceHandle(handle) => {
+            observe::record_borrowed_alias_encode_live_source_hit();
+            caller.record_live_source_hit();
+            handle
+        }
         BorrowedAliasEncodePlan::CachedRuntimeHandle(handle) => {
             observe::record_borrowed_alias_encode_cached_handle_hit();
             caller.record_cached_handle_hit();
@@ -671,6 +675,19 @@ impl BorrowedAliasEncodeCaller {
             }
             Self::MapRuntimeDataGetAnyKey => {
                 observe::record_borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any();
+            }
+        }
+    }
+
+    #[inline(always)]
+    fn record_live_source_hit(self) {
+        match self {
+            Self::Generic => {}
+            Self::ArrayGetIndexEncoded => {
+                observe::record_borrowed_alias_encode_live_source_hit_array_get_index();
+            }
+            Self::MapRuntimeDataGetAnyKey => {
+                observe::record_borrowed_alias_encode_live_source_hit_map_runtime_data_get_any();
             }
         }
     }

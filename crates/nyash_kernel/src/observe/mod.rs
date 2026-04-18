@@ -661,6 +661,21 @@ mod real {
     }
 
     #[inline(always)]
+    pub(crate) fn record_borrowed_alias_encode_live_source_hit() {
+        super::backend::borrowed_alias_encode_live_source_hit();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_encode_live_source_hit_array_get_index() {
+        super::backend::borrowed_alias_encode_live_source_hit_array_get_index();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_encode_live_source_hit_map_runtime_data_get_any() {
+        super::backend::borrowed_alias_encode_live_source_hit_map_runtime_data_get_any();
+    }
+
+    #[inline(always)]
     pub(crate) fn record_borrowed_alias_encode_epoch_hit() {
         super::backend::borrowed_alias_encode_epoch_hit();
     }
@@ -1121,6 +1136,15 @@ mod real {
     pub(crate) fn record_borrowed_alias_array_indexof_by_index_latest_fresh() {}
 
     #[inline(always)]
+    pub(crate) fn record_borrowed_alias_encode_live_source_hit() {}
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_encode_live_source_hit_array_get_index() {}
+
+    #[inline(always)]
+    pub(crate) fn record_borrowed_alias_encode_live_source_hit_map_runtime_data_get_any() {}
+
+    #[inline(always)]
     pub(crate) fn record_borrowed_alias_encode_epoch_hit() {}
 
     #[inline(always)]
@@ -1161,6 +1185,9 @@ pub(crate) use real::*;
 #[cfg(all(test, feature = "perf-observe"))]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct BorrowedAliasEncodeSnapshot {
+    pub live_source_hit: u64,
+    pub live_source_hit_array_get_index: u64,
+    pub live_source_hit_map_runtime_data_get_any: u64,
     pub cached_handle_hit: u64,
     pub cached_handle_hit_array_get_index: u64,
     pub cached_handle_hit_map_runtime_data_get_any: u64,
@@ -1172,9 +1199,12 @@ pub(crate) fn borrowed_alias_encode_snapshot_for_tests() -> BorrowedAliasEncodeS
     // Keep plugin tests off the raw TLS snapshot layout. If the global counter
     // order changes, this projection is the only place that needs updating.
     BorrowedAliasEncodeSnapshot {
-        cached_handle_hit: snapshot[143],
-        cached_handle_hit_array_get_index: snapshot[144],
-        cached_handle_hit_map_runtime_data_get_any: snapshot[145],
+        live_source_hit: snapshot[143],
+        live_source_hit_array_get_index: snapshot[144],
+        live_source_hit_map_runtime_data_get_any: snapshot[145],
+        cached_handle_hit: snapshot[146],
+        cached_handle_hit_array_get_index: snapshot[147],
+        cached_handle_hit_map_runtime_data_get_any: snapshot[148],
     }
 }
 

@@ -219,6 +219,11 @@ pub(crate) const BORROWED_ALIAS_ARRAY_LEN_BY_INDEX_LATEST_FRESH: &str =
     "array_len_by_index_latest_fresh";
 pub(crate) const BORROWED_ALIAS_ARRAY_INDEXOF_BY_INDEX_LATEST_FRESH: &str =
     "array_indexof_by_index_latest_fresh";
+pub(crate) const BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT: &str = "encode_live_source_hit";
+pub(crate) const BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_ARRAY_GET_INDEX: &str =
+    "encode_live_source_hit_array_get_index";
+pub(crate) const BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_MAP_RUNTIME_DATA_GET_ANY: &str =
+    "encode_live_source_hit_map_runtime_data_get_any";
 pub(crate) const BORROWED_ALIAS_ENCODE_EPOCH_HIT: &str = "encode_epoch_hit";
 pub(crate) const BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT: &str = "encode_cached_handle_hit";
 pub(crate) const BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT_ARRAY_GET_INDEX: &str =

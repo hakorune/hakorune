@@ -173,4 +173,44 @@ mod tests {
             );
         });
     }
+
+    #[cfg(feature = "perf-observe")]
+    #[test]
+    fn array_get_index_records_live_source_hit_for_array_lane() {
+        clear_cache_slot();
+        crate::test_support::with_env_var("NYASH_PERF_COUNTERS", "1", || {
+            let value: Arc<dyn NyashBox> =
+                Arc::new(StringBox::new("array-live-observe".to_string()));
+            let value_h = handles::to_handle_arc(value) as i64;
+            let alias = crate::plugin::value_codec::any_arg_to_box_with_profile(
+                value_h,
+                crate::plugin::value_codec::CodecProfile::ArrayFastBorrowString,
+            );
+            let arr: Arc<dyn NyashBox> = Arc::new(ArrayBox::new());
+            let handle = handles::to_handle_arc(arr.clone()) as i64;
+            let array_box = arr
+                .as_any()
+                .downcast_ref::<ArrayBox>()
+                .expect("array downcast");
+            let _ = array_box.push(alias);
+
+            let before = crate::observe::borrowed_alias_encode_snapshot_for_tests();
+            let live = array_get_index_encoded_i64(handle, 0).expect("live encoded handle");
+            let after = crate::observe::borrowed_alias_encode_snapshot_for_tests();
+
+            assert_eq!(live, value_h);
+            assert_eq!(after.live_source_hit - before.live_source_hit, 1);
+            assert_eq!(
+                after.live_source_hit_array_get_index
+                    - before.live_source_hit_array_get_index,
+                1
+            );
+            assert_eq!(
+                after.live_source_hit_map_runtime_data_get_any
+                    - before.live_source_hit_map_runtime_data_get_any,
+                0
+            );
+            assert_eq!(after.cached_handle_hit - before.cached_handle_hit, 0);
+        });
+    }
 }

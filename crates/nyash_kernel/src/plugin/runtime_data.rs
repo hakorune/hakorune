@@ -268,6 +268,36 @@ mod tests {
         });
     }
 
+    #[cfg(feature = "perf-observe")]
+    #[test]
+    fn runtime_data_map_read_records_live_source_hit_for_map_lane() {
+        crate::test_support::with_env_var("NYASH_PERF_COUNTERS", "1", || {
+            let handle = new_map_handle();
+            let key = new_string_handle("map-observe-live-key");
+            let value = new_string_handle("map-observe-live");
+
+            assert_eq!(nyash_runtime_data_set_hhh(handle, key, value), 1);
+
+            let before = crate::observe::borrowed_alias_encode_snapshot_for_tests();
+            let live = nyash_runtime_data_get_hh(handle, key);
+            let after = crate::observe::borrowed_alias_encode_snapshot_for_tests();
+
+            assert_eq!(live, value);
+            assert_eq!(after.live_source_hit - before.live_source_hit, 1);
+            assert_eq!(
+                after.live_source_hit_map_runtime_data_get_any
+                    - before.live_source_hit_map_runtime_data_get_any,
+                1
+            );
+            assert_eq!(
+                after.live_source_hit_array_get_index
+                    - before.live_source_hit_array_get_index,
+                0
+            );
+            assert_eq!(after.cached_handle_hit - before.cached_handle_hit, 0);
+        });
+    }
+
     #[test]
     fn runtime_data_map_immediate_zero_key_keeps_shared_facade_contract() {
         let handle = new_map_handle();

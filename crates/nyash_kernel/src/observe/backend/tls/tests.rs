@@ -164,6 +164,9 @@ fn tls_slot_publish_boundary_counters_flush_current_thread() {
         birth_backend_publish_boundary_slot_objectize_stable_box();
         birth_backend_publish_boundary_slot_empty();
         birth_backend_publish_boundary_slot_already_published();
+        borrowed_alias_encode_live_source_hit();
+        borrowed_alias_encode_live_source_hit_array_get_index();
+        borrowed_alias_encode_live_source_hit_map_runtime_data_get_any();
         borrowed_alias_encode_cached_handle_hit();
         borrowed_alias_encode_cached_handle_hit_array_get_index();
         borrowed_alias_encode_cached_handle_hit_map_runtime_data_get_any();
@@ -176,6 +179,9 @@ fn tls_slot_publish_boundary_counters_flush_current_thread() {
         assert_eq!(after[143] - before[143], 1);
         assert_eq!(after[144] - before[144], 1);
         assert_eq!(after[145] - before[145], 1);
+        assert_eq!(after[146] - before[146], 1);
+        assert_eq!(after[147] - before[147], 1);
+        assert_eq!(after[148] - before[148], 1);
     });
 }
 
