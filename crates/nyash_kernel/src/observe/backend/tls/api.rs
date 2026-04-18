@@ -237,7 +237,7 @@ macro_rules! load {
     };
 }
 
-pub(crate) fn snapshot() -> [u64; 149] {
+pub(crate) fn snapshot() -> [u64; crate::observe::contract::SNAPSHOT_COUNTER_LEN] {
     flush_current_thread();
     [
         load!(store_array_str_total),

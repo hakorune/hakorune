@@ -243,6 +243,12 @@ pub(crate) struct SnapshotCounterField {
     pub snapshot_index: usize,
 }
 
+/// Number of slots emitted by the TLS snapshot backend.
+///
+/// Counter names, snapshot indexes, and the snapshot length live in this module
+/// so backends and tests do not carry separate raw registration facts.
+pub(crate) const SNAPSHOT_COUNTER_LEN: usize = 149;
+
 impl SnapshotCounterField {
     pub(crate) const fn new(name: &'static str, snapshot_index: usize) -> Self {
         Self {

@@ -91,6 +91,7 @@ Scope: current lane / next lane / restart order only.
       - keep `NewBox(PathBox)` construction on the ring1 path provider seam; the deprecated builtin PathBox fallback is removed
       - keep `NewBox(ConsoleBox)` construction on the ring1 console seam; the selfhost fallback remains but the standalone builtin wrapper is removed
       - keep remaining `builtin_impls` as an explicit fallback quarantine; File/Null/primitive fallbacks are not safe deletion candidates without a separate SSOT
+      - keep observe TLS snapshot length in `observe/contract.rs`; backend-local raw snapshot length is removed
   - pending todo:
     - `phase2-deferred-const-suffix-stability`
   - do not open a new ABI / `TextLane` cut until this reread is judged keeper vs reject

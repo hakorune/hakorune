@@ -10,6 +10,12 @@ fn test_lock() -> &'static Mutex<()> {
 }
 
 #[test]
+fn tls_snapshot_length_is_owned_by_observe_contract() {
+    let snapshot = snapshot();
+    assert_eq!(snapshot.len(), contract::SNAPSHOT_COUNTER_LEN);
+}
+
+#[test]
 fn tls_store_array_str_counters_flush_current_thread() {
     with_env_var("NYASH_PERF_COUNTERS", "1", || {
         let _guard = test_lock().lock().expect("observe test lock");

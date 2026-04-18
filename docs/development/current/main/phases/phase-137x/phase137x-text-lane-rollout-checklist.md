@@ -287,6 +287,8 @@ Related:
   - review `runtime_data.rs -> runtime_data_array_dispatch.rs -> array_runtime_any.rs`
   - prefer `handle_cache::with_map_box` over a second map-only fetch shell when the route is already proven
 - `Cleanup 2`: observe counter registration SSOT
+  - status: partial
+  - landed: TLS snapshot length is owned by `observe/contract.rs`, not a backend-local raw number
   - after the landed borrowed-alias slice, move the next active family only:
     - `store.array.str`
   - remove raw snapshot index knowledge from sink/test mirrors where possible
