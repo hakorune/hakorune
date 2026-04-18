@@ -104,28 +104,40 @@ pub(super) fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i
 }
 
 #[inline(always)]
-fn concat_const_suffix_owned_for_slot(a_h: i64, suffix: &str) -> String {
-    if let Some(text) = handles::with_text_read_session(|session| {
-        session.str_handle(a_h as u64, |lhs| {
-            if lhs.is_empty() {
-                return suffix.to_owned();
-            }
-            if suffix.is_empty() {
-                return lhs.to_owned();
-            }
-            concat_two_str(lhs, suffix)
-        })
-    }) {
-        return text;
-    }
-    let lhs = to_owned_string_handle_arg(a_h);
+fn materialize_concat_const_suffix_borrowed(lhs: &str, suffix: &str) -> String {
     if lhs.is_empty() {
         return suffix.to_owned();
     }
     if suffix.is_empty() {
-        return lhs;
+        return lhs.to_owned();
     }
-    concat_two_str(lhs.as_str(), suffix)
+    concat_two_str(lhs, suffix)
+}
+
+#[inline(always)]
+fn materialize_insert_const_mid_borrowed(source: &str, middle: &str, split: i64) -> String {
+    if source.is_empty() {
+        return middle.to_owned();
+    }
+    if middle.is_empty() {
+        return source.to_owned();
+    }
+    let split = split.clamp(0, source.len() as i64) as usize;
+    let prefix = source.get(0..split).unwrap_or("");
+    let suffix = source.get(split..).unwrap_or("");
+    let total = prefix.len() + middle.len() + suffix.len();
+    let mut out = String::with_capacity(total);
+    unsafe {
+        let buf = out.as_mut_vec();
+        buf.set_len(total);
+        let mut cursor = 0usize;
+        std::ptr::copy_nonoverlapping(prefix.as_ptr(), buf.as_mut_ptr().add(cursor), prefix.len());
+        cursor += prefix.len();
+        std::ptr::copy_nonoverlapping(middle.as_ptr(), buf.as_mut_ptr().add(cursor), middle.len());
+        cursor += middle.len();
+        std::ptr::copy_nonoverlapping(suffix.as_ptr(), buf.as_mut_ptr().add(cursor), suffix.len());
+    }
+    out
 }
 
 #[inline(always)]
@@ -143,8 +155,18 @@ pub(super) fn concat_const_suffix_into_slot(
     with_cached_const_suffix_text(suffix_ptr, |suffix| {
         if suffix.is_empty() {
             observe::record_const_suffix_empty_return();
+            freeze_owned_string_into_slot(slot, to_owned_string_handle_arg(a_h));
+            return true;
         }
-        freeze_owned_string_into_slot(slot, concat_const_suffix_owned_for_slot(a_h, suffix));
+        if a_h > 0 {
+            slot.replace_deferred_const_suffix(a_h, suffix_ptr);
+            return true;
+        }
+        let lhs = to_owned_string_handle_arg(a_h);
+        freeze_owned_string_into_slot(
+            slot,
+            materialize_concat_const_suffix_borrowed(lhs.as_str(), suffix),
+        );
         true
     })
 }
@@ -158,9 +180,23 @@ pub(super) fn insert_const_mid_into_slot(
 ) -> bool {
     slot.clear();
     with_insert_middle_text(middle_ptr, |middle| {
+        if let Some(hit) = handles::with_text_read_session_ready(|session| {
+            session.str_handle(source_h as u64, |source| {
+                freeze_owned_string_into_slot(
+                    slot,
+                    materialize_insert_const_mid_borrowed(source, middle, split),
+                );
+                true
+            })
+        })
+        .flatten()
+        {
+            return hit;
+        }
+        let source = to_owned_string_handle_arg(source_h);
         freeze_owned_string_into_slot(
             slot,
-            insert_const_mid_plan_from_handle(source_h, middle, split).into_owned(),
+            materialize_insert_const_mid_borrowed(source.as_str(), middle, split),
         );
         true
     })

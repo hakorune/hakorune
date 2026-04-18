@@ -39,7 +39,9 @@ pub(crate) use string_store::store_string_box_from_source_keep;
 pub(crate) use string_store::store_string_box_from_source_keep_owned;
 pub(crate) use string_store::{
     maybe_store_non_string_box_from_verified_source, store_string_box_from_kernel_text_slot,
-    store_string_box_from_verified_text_source, store_string_keep_from_kernel_text_slot,
+    store_string_box_from_verified_text_source,
+    store_string_into_existing_string_box_from_kernel_text_slot,
+    store_string_keep_from_kernel_text_slot,
 };
 
 #[cfg(test)]

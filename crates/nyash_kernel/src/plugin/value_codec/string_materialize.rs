@@ -2,7 +2,7 @@ use nyash_rust::{
     box_trait::{NyashBox, StringBox},
     runtime::host_handles as handles,
 };
-use std::{mem::ManuallyDrop, sync::Arc};
+use std::{ffi::CStr, mem::ManuallyDrop, sync::Arc};
 
 #[derive(Clone, Copy)]
 enum PublishReason {
@@ -125,6 +125,7 @@ pub(crate) enum KernelTextSlotState {
     Empty = 0,
     OwnedBytes = 1,
     Published = 2,
+    DeferredConstSuffix = 3,
 }
 
 #[derive(Clone, Copy)]
@@ -160,6 +161,7 @@ impl KernelTextSlot {
         match self.state {
             1 => KernelTextSlotState::OwnedBytes,
             2 => KernelTextSlotState::Published,
+            3 => KernelTextSlotState::DeferredConstSuffix,
             _ => KernelTextSlotState::Empty,
         }
     }
@@ -194,6 +196,18 @@ impl KernelTextSlot {
     }
 
     #[inline(always)]
+    pub(crate) fn replace_deferred_const_suffix(&mut self, source_h: i64, suffix_ptr: *const i8) {
+        self.clear();
+        if source_h <= 0 || suffix_ptr.is_null() {
+            return;
+        }
+        self.ptr = suffix_ptr as *mut u8;
+        self.len = source_h as usize;
+        self.cap = 0;
+        self.state = KernelTextSlotState::DeferredConstSuffix as u8;
+    }
+
+    #[inline(always)]
     pub(crate) fn take_owned_bytes(&mut self) -> Option<OwnedBytes> {
         if self.state() != KernelTextSlotState::OwnedBytes {
             return None;
@@ -201,6 +215,35 @@ impl KernelTextSlot {
         let value = unsafe { String::from_raw_parts(self.ptr, self.len, self.cap) };
         self.reset_empty();
         Some(OwnedBytes::from_string(value))
+    }
+
+    #[inline(always)]
+    pub(crate) fn deferred_const_suffix(&self) -> Option<(i64, *const i8)> {
+        if self.state() != KernelTextSlotState::DeferredConstSuffix {
+            return None;
+        }
+        Some((self.len as i64, self.ptr as *const i8))
+    }
+
+    #[inline(always)]
+    pub(crate) fn take_deferred_const_suffix(&mut self) -> Option<(i64, *const i8)> {
+        let value = self.deferred_const_suffix()?;
+        self.reset_empty();
+        Some(value)
+    }
+
+    #[inline(always)]
+    pub(crate) fn take_materialized_owned_bytes(&mut self) -> Option<OwnedBytes> {
+        match self.state() {
+            KernelTextSlotState::OwnedBytes => self.take_owned_bytes(),
+            KernelTextSlotState::DeferredConstSuffix => {
+                let (source_h, suffix_ptr) = self.take_deferred_const_suffix()?;
+                let source = crate::exports::string::to_owned_string_handle_arg(source_h);
+                materialize_const_suffix_text(source.as_str(), suffix_ptr)
+                    .map(OwnedBytes::from_string)
+            }
+            KernelTextSlotState::Empty | KernelTextSlotState::Published => None,
+        }
     }
 
     #[inline(always)]
@@ -220,14 +263,17 @@ impl Drop for KernelTextSlot {
 #[inline(always)]
 fn record_kernel_text_slot_boundary(boundary: KernelTextSlotBoundary, state: KernelTextSlotState) {
     match state {
-        KernelTextSlotState::OwnedBytes => match boundary {
-            KernelTextSlotBoundary::PublishHandle => {
-                crate::observe::record_birth_backend_publish_boundary_slot_publish_handle();
+        KernelTextSlotState::OwnedBytes | KernelTextSlotState::DeferredConstSuffix => {
+            match boundary {
+                KernelTextSlotBoundary::PublishHandle => {
+                    crate::observe::record_birth_backend_publish_boundary_slot_publish_handle();
+                }
+                KernelTextSlotBoundary::ObjectizeStableBox => {
+                    crate::observe::record_birth_backend_publish_boundary_slot_objectize_stable_box(
+                    );
+                }
             }
-            KernelTextSlotBoundary::ObjectizeStableBox => {
-                crate::observe::record_birth_backend_publish_boundary_slot_objectize_stable_box();
-            }
-        },
+        }
         KernelTextSlotState::Empty => {
             crate::observe::record_birth_backend_publish_boundary_slot_empty();
         }
@@ -250,10 +296,36 @@ fn take_kernel_text_slot_boundary_owned_bytes(
             "published KernelTextSlot must not retain owned bytes"
         );
     }
-    if state != KernelTextSlotState::OwnedBytes {
+    if !matches!(
+        state,
+        KernelTextSlotState::OwnedBytes | KernelTextSlotState::DeferredConstSuffix
+    ) {
         return None;
     }
-    slot.take_owned_bytes()
+    slot.take_materialized_owned_bytes()
+}
+
+#[inline(always)]
+pub(crate) fn with_const_suffix_ptr_text<R>(
+    suffix_ptr: *const i8,
+    f: impl FnOnce(&str) -> R,
+) -> Option<R> {
+    if suffix_ptr.is_null() {
+        return None;
+    }
+    let bytes = unsafe { CStr::from_ptr(suffix_ptr) }.to_bytes();
+    let suffix = unsafe { std::str::from_utf8_unchecked(bytes) };
+    Some(f(suffix))
+}
+
+#[inline(always)]
+pub(crate) fn materialize_const_suffix_text(source: &str, suffix_ptr: *const i8) -> Option<String> {
+    with_const_suffix_ptr_text(suffix_ptr, |suffix| {
+        let mut out = String::with_capacity(source.len().saturating_add(suffix.len()));
+        out.push_str(source);
+        out.push_str(suffix);
+        out
+    })
 }
 
 #[inline(always)]
@@ -261,12 +333,29 @@ pub(crate) fn with_kernel_text_slot_text<R>(
     slot: &KernelTextSlot,
     f: impl FnOnce(&str) -> R,
 ) -> Option<R> {
-    if slot.state() != KernelTextSlotState::OwnedBytes {
-        return None;
+    match slot.state() {
+        KernelTextSlotState::OwnedBytes => {
+            let bytes = unsafe { std::slice::from_raw_parts(slot.ptr as *const u8, slot.len) };
+            let text = unsafe { std::str::from_utf8_unchecked(bytes) };
+            Some(f(text))
+        }
+        KernelTextSlotState::DeferredConstSuffix => {
+            let (source_h, suffix_ptr) = slot.deferred_const_suffix()?;
+            let text = handles::with_text_read_session_ready(|session| {
+                session.str_handle(source_h as u64, |source| {
+                    materialize_const_suffix_text(source, suffix_ptr)
+                })
+            })
+            .flatten()
+            .flatten()
+            .or_else(|| {
+                let source = crate::exports::string::to_owned_string_handle_arg(source_h);
+                materialize_const_suffix_text(source.as_str(), suffix_ptr)
+            })?;
+            Some(f(text.as_str()))
+        }
+        KernelTextSlotState::Empty | KernelTextSlotState::Published => None,
     }
-    let bytes = unsafe { std::slice::from_raw_parts(slot.ptr as *const u8, slot.len) };
-    let text = unsafe { std::str::from_utf8_unchecked(bytes) };
-    Some(f(text))
 }
 
 #[cfg(feature = "perf-observe")]

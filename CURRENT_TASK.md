@@ -74,23 +74,62 @@ Scope: current lane / next lane / restart order only.
     - producer-side unpublished contract remains live, but this landing is not a meso keeper by itself
 - current whole accept gate:
   - `kilo_kernel_small`
-    - `C: 86 ms`
-    - `Ny AOT: 856 ms` (`repeat=3`)
+    - `C: 80 ms`
+    - `Ny AOT: 739 ms` (`repeat=3`)
   - reading:
     - pure-first route/build blocker stays cleared; direct and helper replay compile again
     - loop-body `KernelTextSlot` allocas no longer crash the whole bench; `stacksave/stackrestore` keeps the accept gate open
-    - whole improved from the blocked `1078 ms` reread, but remains far from keeper territory
-    - latest landed whole-side narrow cuts are:
+    - whole remains far from keeper territory, but the next owner is now pinned more precisely
+    - emitted LLVM IR now proves both hot store sites are already on the kernel-slot lane:
       - direct-set-only `insert_hsi -> kernel_slot_insert_hsi -> kernel_slot_store_hi`
-      - direct-set-only deferred `Pieces3 substring -> kernel_slot_piecewise_subrange_hsiii -> kernel_slot_store_hi`
-    - whole owner moved partway into slot-store / allocator territory, but the lane is still open
-    - latest microasm top report now shows user hot symbols led by:
-      - `array_string_store_kernel_text_slot_at` closure `6.29%`
-      - `array_get_index_encoded_i64` closure `4.38%`
-      - `insert_const_mid_into_slot` closure `1.81%`
-      - `nyash.string.kernel_slot_concat_hs` `1.61%`
-      - `nyash.array.kernel_slot_store_hi` `0.92%`
-      - libc `memmove 15.82%`, `_int_malloc 6.19%`
+      - direct-set-only `current + "ln" -> kernel_slot_concat_hs -> kernel_slot_store_hi`
+    - whole perf/asm reread now reads the remaining owner as materialization/copy tax, not compiler fallback:
+      - hottest named repo family: `array_string_store_kernel_text_slot_at 5.99%` + `objectize_kernel_text_slot_stable_box 1.14%`
+      - producer helpers are smaller: `insert_const_mid_into_slot 1.64%`, `nyash.string.kernel_slot_concat_hs 0.60%`
+      - whole is still led overall by libc `memmove 19.48%` / `_int_malloc 5.05%`
+      - observability split now narrows the live owner further upstream:
+        - `const_suffix freeze_fallback = 479728 / 480000`
+        - `materialize total = 539728` (`~4.5 GB`)
+        - `publish_reason.generic_fallback = 539728`
+        - whole-side site counters stay cold:
+          - `site.string_concat_hh.* = 0`
+          - `site.string_substring_concat_hhii.* = 0`
+        - reading:
+          - the live whole owner now reads as `const_suffix` freeze fallback above the slot sink
+          - the next phase-2 card should keep `const_suffix` unpublished into `KernelTextSlot -> kernel_slot_store_hi`, not only optimize post-freeze objectization
+      - latest runtime-private materialize cut is now landed:
+        - `kernel_slot_concat_hs` prefers borrowed-text direct materialization under `with_text_read_session_ready(...)`
+        - `insert_const_mid_into_slot` now takes the same borrowed-text direct materialization path before owned fallback
+      - reading:
+        - exact stays closed
+        - whole improved versus the prior `781 ms` reread
+        - strict whole reread also stays in the same better band:
+          - `kilo_kernel_small_hk = C 79 ms / Ny AOT 748 ms` (`repeat=3`, parity ok)
+        - this is promising, but still needs more whole-side proof before calling it a keeper
+      - latest phase-2 deferred `const_suffix` slot cut is now landed:
+        - `kernel_slot_concat_hs` can now leave a deferred `const_suffix` state inside the existing `KernelTextSlot` layout
+        - `kernel_slot_store_hi` consumes that state before generic freeze/objectize
+        - existing `StringBox` array slots append in place when the deferred source still matches the current slot text
+      - latest reread after the deferred-slot landing:
+        - `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
+        - `kilo_kernel_small = C 79 ms / Ny AOT 726 ms`
+        - `kilo_kernel_small_hk = C 81 ms / Ny AOT 808 ms` (`strict`, parity ok)
+      - reading:
+        - exact stays closed
+        - plain whole improved again versus the prior `739 ms` reread
+        - strict whole is still noisy enough that the card is not a keeper yet
+        - next step is a strict whole stability reread, not a new ABI/`TextLane` cut
+      - rejected follow-up probe:
+        - replacing BorrowedHandleBox unpublished retarget objectization with an owned-string keep regressed whole:
+          - probe band: `kilo_kernel_small = C 81 ms / Ny AOT 980 ms`
+          - probe band: `kilo_kernel_small_hk = C 80 ms / Ny AOT 1015 ms`
+        - reject reason:
+          - store-side `Arc<StringBox>` creation disappeared, but `array.get` / alias encode fallback started allocating a fresh stable object on every read
+          - this moved cost from store to `lines.get(...)` and made whole worse
+        - restored reread after backing that probe out:
+          - `kilo_kernel_small = C 81 ms / Ny AOT 810 ms`
+          - `kilo_kernel_small_hk = C 82 ms / Ny AOT 864 ms`
+        - next seam is not `owned-string keep`; any follow-up must preserve cheap alias encode on `array.get`
 - accepted task order is now fixed as a phase rollout, not as isolated helper cuts:
   - `Phase 1`: producer-first unpublished contract with current carriers
     - keep `VerifiedTextSource -> TextPlan -> OwnedBytes -> KernelTextSlot`
@@ -104,7 +143,12 @@ Scope: current lane / next lane / restart order only.
 - current active work is phase 2 first slice:
   - isolate publish as a cold effect without changing public ABI
   - keep `KernelTextSlot` as the first canonical sink residence
-  - first slice is explicit cold publish adapters around `string_handle_from_owned_*` and `publish_owned_bytes_*`
+  - landed slices now include:
+    - explicit cold publish adapters around `string_handle_from_owned_*` and `publish_owned_bytes_*`
+    - latest-fresh source-capture prework
+    - existing `StringBox` slot overwrite in place on `kernel_slot_store_hi`
+    - borrowed-text direct materialization on `kernel_slot_concat_hs` / `insert_const_mid_into_slot`
+  - compiler fallback probe is closed for the whole bench; next slice is not a lowering widening
   - do not jump to `TextLane` or MIR legality first
 - current accepted redesign is now locked in narrowed form:
   - keep `public handle ABI`

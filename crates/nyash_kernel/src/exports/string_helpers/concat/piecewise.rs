@@ -116,7 +116,9 @@ fn with_kernel_text_slot_source_text<R>(
 ) -> Option<R> {
     match slot.state() {
         KernelTextSlotState::Empty => Some(f("")),
-        KernelTextSlotState::OwnedBytes => with_kernel_text_slot_text(slot, f),
+        KernelTextSlotState::OwnedBytes | KernelTextSlotState::DeferredConstSuffix => {
+            with_kernel_text_slot_text(slot, f)
+        }
         KernelTextSlotState::Published => None,
     }
 }
@@ -260,7 +262,7 @@ pub(super) fn substring_kernel_text_slot_in_place(
         slot.clear();
         return true;
     }
-    let Some(bytes) = slot.take_owned_bytes() else {
+    let Some(bytes) = slot.take_materialized_owned_bytes() else {
         slot.clear();
         return false;
     };

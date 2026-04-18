@@ -2,7 +2,9 @@ use super::array_guard::valid_handle_idx;
 use super::handle_cache::{cache_probe_kind, CacheProbeKind as HandleCacheProbeKind};
 use super::value_codec::{
     maybe_store_non_string_box_from_verified_source, store_string_box_from_kernel_text_slot,
-    store_string_box_from_verified_text_source, store_string_keep_from_kernel_text_slot,
+    store_string_box_from_verified_text_source,
+    store_string_into_existing_string_box_from_kernel_text_slot,
+    store_string_keep_from_kernel_text_slot,
     try_retarget_borrowed_string_slot_take_unpublished_keep,
     try_retarget_borrowed_string_slot_take_verified_text_source, with_array_store_str_source,
     ArrayStoreStrSource, BorrowedHandleBox, KernelTextSlot, StringHandleSourceKind,
@@ -478,6 +480,21 @@ fn execute_store_array_str_kernel_text_slot_boundary(
             return 1;
         }
         return 0;
+    }
+    if idx < items.len() {
+        if let Some(value) = items[idx]
+            .as_any_mut()
+            .downcast_mut::<nyash_rust::box_trait::StringBox>()
+        {
+            if !store_string_into_existing_string_box_from_kernel_text_slot(slot, value) {
+                return 0;
+            }
+            if observe::enabled() {
+                observe::record_store_array_str_existing_slot();
+                observe::record_store_array_str_source_store();
+            }
+            return 1;
+        }
     }
     let Some(value) = store_string_box_from_kernel_text_slot(slot) else {
         return 0;

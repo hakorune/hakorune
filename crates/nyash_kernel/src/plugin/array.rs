@@ -9,7 +9,7 @@ use super::array_handle_cache::with_array_box;
 mod tests {
     use super::*;
     use crate::nyash_string_kernel_slot_len_i_export;
-    use nyash_rust::box_trait::NyashBox;
+    use nyash_rust::box_trait::{NyashBox, StringBox};
     use nyash_rust::boxes::array::ArrayBox;
     use nyash_rust::runtime::host_handles as handles;
     use std::sync::Arc;
@@ -173,6 +173,63 @@ mod tests {
         .expect("borrowed alias slot");
         assert!(kept.0);
         assert_eq!(kept.1.as_deref(), Some("line-seed-abcdefxy"));
+    }
+
+    #[test]
+    fn kernel_slot_store_existing_string_box_overwrites_in_place() {
+        let handle = new_array_handle();
+        let lhs_h = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
+            nyash_rust::box_trait::StringBox::new("line-seed".to_string()),
+        )
+            as std::sync::Arc<dyn NyashBox>) as i64;
+        let suffix = std::ffi::CString::new("xy").expect("CString");
+        let mut slot = crate::plugin::KernelTextSlot::empty();
+
+        with_array_box(handle, |arr| {
+            arr.with_items_write(|items| {
+                items.push(Box::new(StringBox::new("seed-old".to_string())) as Box<dyn NyashBox>);
+            });
+        })
+        .expect("array write");
+
+        let before = with_array_box(handle, |arr| {
+            arr.with_items_read(|items| {
+                let item = items.first().expect("stored string slot");
+                (
+                    item.box_id(),
+                    item.as_any()
+                        .downcast_ref::<StringBox>()
+                        .map(|s| s.value.clone()),
+                )
+            })
+        })
+        .expect("array read");
+        assert_eq!(before.1.as_deref(), Some("seed-old"));
+
+        assert_eq!(
+            crate::nyash_string_kernel_slot_concat_hs_export(&mut slot, lhs_h, suffix.as_ptr()),
+            1
+        );
+        assert_eq!(
+            nyash_array_kernel_slot_store_hi_alias(handle, 0, &mut slot),
+            1
+        );
+        assert_eq!(nyash_string_kernel_slot_len_i_export(&slot), 0);
+
+        let after = with_array_box(handle, |arr| {
+            arr.with_items_read(|items| {
+                let item = items.first().expect("stored string slot");
+                (
+                    item.box_id(),
+                    item.as_any()
+                        .downcast_ref::<StringBox>()
+                        .map(|s| s.value.clone()),
+                )
+            })
+        })
+        .expect("array read");
+        assert_eq!(after.0, before.0);
+        assert_eq!(after.1.as_deref(), Some("line-seedxy"));
     }
 
     #[test]

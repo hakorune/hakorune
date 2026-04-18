@@ -331,7 +331,9 @@ pub(super) fn string_insert_hsi_into_slot_export_impl(
     let Some(slot) = (unsafe { slot.as_mut() }) else {
         return 0;
     };
-    i64::from(insert_const_mid_into_slot(slot, source_h, middle_ptr, split))
+    i64::from(insert_const_mid_into_slot(
+        slot, source_h, middle_ptr, split,
+    ))
 }
 
 pub(super) fn string_piecewise_subrange_kernel_text_slot_into_slot_export_impl(

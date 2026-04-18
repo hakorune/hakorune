@@ -17,6 +17,15 @@
 
 - current exact front: `kilo_micro_array_string_store` is closed by the shared-receiver `KernelTextSlot` bridge
 - current whole owner: `const_suffix` / `freeze_text_plan(Pieces3)` publication
+- current owner split is now explicit:
+  - `const_suffix freeze_fallback = 479728 / 480000`
+  - `materialize total = 539728` (`~4.5 GB`)
+  - `publish_reason.generic_fallback = 539728`
+  - whole-side `site.string_concat_hh.* = 0`
+  - whole-side `site.string_substring_concat_hhii.* = 0`
+  - reading:
+    - the live whole owner is upstream of the slot sink
+    - next card is deferred `const_suffix` residence inside the current `KernelTextSlot` ABI
 - current middle guard: `kilo_meso_substring_concat_array_set_loopcarry`
 - current stop-line: `KernelTextSlot` exit is observed and inactive (`publish_boundary.slot_* = 0`)
 - current first seam: producer-side unpublished outcome under `const_suffix` (`KernelTextSlot` substrate first)
@@ -45,6 +54,56 @@
     - exact stays closed
     - whole remains neutral in the same owner family
     - legacy coexistence remains temporary and should be deleted once the new path proves keeper-grade
+- latest whole-shape probe is now closed:
+  - emitted LLVM IR on `kilo_kernel_small` proves both hot store sites already lower to:
+    - `insert_hsi -> kernel_slot_insert_hsi -> kernel_slot_store_hi`
+    - `current + "ln" -> kernel_slot_concat_hs -> kernel_slot_store_hi`
+  - reading:
+    - compiler widening is no longer the live blocker on the whole bench
+    - the next owner is runtime materialization/copy tax inside the kernel-slot lane
+- latest phase-2 store-side narrow cut:
+  - `kernel_slot_store_hi` now overwrites an existing `StringBox` array slot in place instead of replacing the outer box
+  - latest reread:
+    - `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
+    - `kilo_kernel_small = C 80 ms / Ny AOT 781 ms`
+  - reading:
+    - exact stays closed
+    - whole remains neutral
+    - next card stays materialization-side: `kernel_slot_concat_hs` first, then `insert_const_mid_into_slot`
+- latest phase-2 materialize cut:
+  - `kernel_slot_concat_hs` now prefers borrowed-text direct materialization under `with_text_read_session_ready(...)`
+  - `insert_const_mid_into_slot` now follows the same borrowed-text direct path before owned fallback
+  - latest reread:
+    - `kilo_micro_array_string_store = C 9 ms / Ny AOT 3 ms`
+    - `kilo_kernel_small = C 80 ms / Ny AOT 739 ms`
+    - `kilo_kernel_small_hk = C 79 ms / Ny AOT 748 ms` (`strict`, parity ok)
+  - reading:
+    - exact stays closed
+    - whole improved against the prior `781 ms` reread
+    - strict whole also stays in the same better band
+    - keep the lane open until this proves keeper-grade and not just a favorable band read
+- latest phase-2 deferred `const_suffix` slot cut:
+  - `kernel_slot_concat_hs` now leaves a deferred `const_suffix` state inside the current `KernelTextSlot` layout
+  - `kernel_slot_store_hi` consumes that state before generic freeze/objectize
+  - existing `StringBox` array slots append in place when the deferred source still matches the slot text
+  - latest reread:
+    - `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
+    - `kilo_kernel_small = C 79 ms / Ny AOT 726 ms`
+    - `kilo_kernel_small_hk = C 81 ms / Ny AOT 808 ms` (`strict`, parity ok)
+  - reading:
+    - exact stays closed
+    - plain whole improved again
+    - strict whole needs a stability reread before keeper/reject
+- rejected follow-up probe:
+  - replacing BorrowedHandleBox unpublished retarget objectization with an owned-string keep regressed whole:
+    - `kilo_kernel_small = C 81 ms / Ny AOT 980 ms`
+    - `kilo_kernel_small_hk = C 80 ms / Ny AOT 1015 ms`
+  - reason:
+    - read-side borrowed-alias encode lost cheap stable-object reuse and started allocating on `array.get`
+  - restored reread after reverting that probe:
+    - `kilo_kernel_small = C 81 ms / Ny AOT 810 ms`
+    - `kilo_kernel_small_hk = C 82 ms / Ny AOT 864 ms`
+  - next seam must keep `array.get` cheap; do not reopen `owned-string keep`
 - current next seam inside phase 1: direct-set-only `insert_hsi` widening is landed; next widening is non-direct-set `freeze_text_plan(Pieces3)` / `insert_const_mid_fallback`
   - direct-set-only deferred `Pieces3 substring` widening is now landed on the same unpublished contract
 - current reject: slot-store delayed publication probes and string-specialized handle payload probe

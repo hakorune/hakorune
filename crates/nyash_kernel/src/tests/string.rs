@@ -108,6 +108,10 @@ fn string_kernel_slot_concat_hs_len_publish_contract() {
             1
         );
         assert_eq!(
+            slot.state(),
+            crate::plugin::KernelTextSlotState::DeferredConstSuffix
+        );
+        assert_eq!(
             nyash_string_kernel_slot_len_i_export(&slot),
             nyash_string_len_h(direct_h)
         );
@@ -317,7 +321,8 @@ fn string_kernel_slot_piecewise_subrange_store_contract() {
         let handle = handles::to_handle_arc(array) as i64;
         let source_h = string_handle("prefix-suffix");
         let middle = CString::new("::mid::").expect("CString");
-        let direct_h = nyash_string_piecewise_subrange_hsiii_export(source_h, middle.as_ptr(), 6, 3, 16);
+        let direct_h =
+            nyash_string_piecewise_subrange_hsiii_export(source_h, middle.as_ptr(), 6, 3, 16);
         let mut slot = crate::plugin::KernelTextSlot::empty();
 
         assert_eq!(
