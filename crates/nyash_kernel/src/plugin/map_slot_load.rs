@@ -1,6 +1,9 @@
 use super::handle_cache::with_map_box;
 use super::map_key_codec::{map_key_string_from_any, map_key_string_from_i64};
-use super::value_codec::box_to_handle_materializing_borrowed_string;
+use super::value_codec::{
+    box_to_handle_materializing_borrowed_string, runtime_i64_from_box_ref_caller,
+    BorrowedAliasEncodeCaller,
+};
 
 #[inline(always)]
 pub(super) fn map_slot_load_i64(handle: i64, key_i64: i64) -> i64 {
@@ -21,5 +24,20 @@ pub(super) fn map_slot_load_any(handle: i64, key_any: i64) -> i64 {
         Some(box_to_handle_materializing_borrowed_string(value))
     })
     .flatten()
+    .unwrap_or(0)
+}
+
+#[inline(always)]
+pub(super) fn map_slot_load_str_with_caller(
+    handle: i64,
+    key_str: &str,
+    caller: BorrowedAliasEncodeCaller,
+) -> i64 {
+    with_map_box(handle, |map| {
+        map.get_opt_key_str(key_str)
+            .as_ref()
+            .map(|value| runtime_i64_from_box_ref_caller(value.as_ref(), caller))
+            .unwrap_or(0)
+    })
     .unwrap_or(0)
 }
