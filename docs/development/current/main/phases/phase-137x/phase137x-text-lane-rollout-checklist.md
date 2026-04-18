@@ -292,14 +292,15 @@ Related:
   - keep `map_runtime_data.rs` as the runtime-data map lane; it owns map-key coercion plus the map runtime-data borrowed-alias caller tag
   - no remaining high-value cleanup here; reopen only if a real semantic reason appears
 - `Cleanup 2`: observe counter registration SSOT
-  - status: partial
+  - status: partial / parked
   - landed: TLS snapshot length is owned by `observe/contract.rs`, not a backend-local raw number
   - landed: borrowed-alias test snapshot projection reads an ordered field set owned by `observe/contract.rs`
   - landed: `store.array.str` stderr summary reads total/detail projection through `observe/contract.rs`
   - landed: stderr sink field formatting uses one sink-local `name=value` append helper instead of repeating raw `write!` loops
   - landed: fixed stderr summary families reuse existing `observe/contract.rs` summary field arrays, with explicit sink-owned tails for derived `unclassified` fields
   - landed: `stable_box_demand` stderr output now reads a runtime-side named `PerfObserveSnapshot` projection instead of sink-local raw indexes
-  - next: inspect whether the remaining sink helper test fixture needs a named fixture helper, or park Cleanup 2 if no active raw-index mirror remains
+  - landed: sink helper tests write fixture counters through a test-only `SnapshotCounterField` setter instead of open-coding `snapshot_index`
+  - no active raw-index mirror remains in the observe sink/test surface; reopen only if a new counter family adds a second registration source
 - `Cleanup 3`: split `BorrowedHandleBox` responsibilities
   - separate only after the owner family points back at read encode again
   - if not, keep this card parked
