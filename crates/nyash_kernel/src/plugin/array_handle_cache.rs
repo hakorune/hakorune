@@ -3,7 +3,7 @@ use super::value_codec::{runtime_i64_from_box_ref_caller, BorrowedAliasEncodeCal
 use nyash_rust::{box_trait::NyashBox, boxes::array::ArrayBox, runtime::host_handles as handles};
 
 #[inline(always)]
-fn encode_array_item_to_i64(item: &dyn NyashBox, drop_epoch: u64) -> i64 {
+fn encode_array_item_to_i64(item: &dyn NyashBox) -> i64 {
     // Keep scalar/bool before borrowed-handle reuse so immediate classes stay canonical.
     if let Some(iv) = item.as_i64_fast() {
         return iv;
@@ -11,11 +11,8 @@ fn encode_array_item_to_i64(item: &dyn NyashBox, drop_epoch: u64) -> i64 {
     if let Some(bv) = item.as_bool_fast() {
         return if bv { 1 } else { 0 };
     }
-    if let Some((source_handle, source_drop_epoch)) = item.borrowed_handle_source_fast() {
-        if source_drop_epoch == drop_epoch {
-            return source_handle;
-        }
-    }
+    // Borrowed alias reuse policy lives in value_codec so array/string/map reads
+    // share the same live-source vs cached-handle boundary.
     runtime_i64_from_box_ref_caller(item, BorrowedAliasEncodeCaller::ArrayGetIndexEncoded)
 }
 
@@ -32,7 +29,7 @@ pub(crate) fn array_get_index_encoded_i64(handle: i64, idx: i64) -> Option<i64> 
         }
         arr.with_items_read(|items| {
             let item = items.get(idx_usize)?;
-            Some(encode_array_item_to_i64(item.as_ref(), drop_epoch))
+            Some(encode_array_item_to_i64(item.as_ref()))
         })
     })
     .flatten()
@@ -74,6 +71,8 @@ pub(crate) fn with_array_box_at_epoch<R>(
 mod tests {
     use super::*;
     use crate::plugin::handle_cache::clear_cache_slot;
+    use crate::plugin::value_codec::{maybe_borrow_string_keep_with_epoch, SourceLifetimeKeep};
+    use nyash_rust::box_trait::StringBox;
     use std::sync::Arc;
 
     #[test]
@@ -101,5 +100,37 @@ mod tests {
 
         assert_eq!(array_get_index_encoded_i64(handle, 0), Some(42));
         assert_eq!(array_get_index_encoded_i64(handle, 1), None);
+    }
+
+    #[test]
+    fn array_get_index_reuses_cached_runtime_handle_for_unpublished_alias() {
+        clear_cache_slot();
+
+        let value: Arc<dyn NyashBox> = Arc::new(StringBox::new("array-cached-alias".to_string()));
+        let alias = maybe_borrow_string_keep_with_epoch(
+            SourceLifetimeKeep::string_box(value),
+            0,
+            handles::drop_epoch(),
+        );
+        let arr: Arc<dyn NyashBox> = Arc::new(ArrayBox::new());
+        let handle = handles::to_handle_arc(arr.clone()) as i64;
+        let array_box = arr
+            .as_any()
+            .downcast_ref::<ArrayBox>()
+            .expect("array downcast");
+        let _ = array_box.push(alias);
+
+        let first = array_get_index_encoded_i64(handle, 0).expect("first encoded handle");
+        let second = array_get_index_encoded_i64(handle, 0).expect("second encoded handle");
+
+        assert!(first > 0);
+        assert_eq!(first, second);
+
+        let out_obj = handles::get(first as u64).expect("cached runtime handle");
+        let out_sb = out_obj
+            .as_any()
+            .downcast_ref::<StringBox>()
+            .expect("runtime value should remain StringBox");
+        assert_eq!(out_sb.value, "array-cached-alias");
     }
 }

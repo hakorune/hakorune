@@ -1,7 +1,7 @@
 use super::string_classify::VerifiedTextSource;
 use crate::observe;
 use nyash_rust::{
-    box_trait::{next_box_id, BoolBox, BoxBase, BoxCore, IntegerBox, NyashBox, StringBox},
+    box_trait::{next_box_id, BoolBox, BoxBase, BoxCore, NyashBox, StringBox},
     runtime::host_handles as handles,
 };
 use std::{
@@ -598,8 +598,8 @@ fn promote_source_keep_to_owned_box_cold(keep: SourceLifetimeKeep) -> Box<dyn Ny
 }
 
 enum BorrowedAliasEncodePlan {
-    ReuseSourceHandle(i64),
-    ReturnScalar(i64),
+    LiveSourceHandle(i64),
+    CachedRuntimeHandle(i64),
     EncodeFallback,
 }
 
@@ -609,8 +609,8 @@ pub(crate) fn runtime_i64_from_borrowed_alias(
     caller: BorrowedAliasEncodeCaller,
 ) -> i64 {
     match plan_borrowed_alias_runtime_i64(alias) {
-        BorrowedAliasEncodePlan::ReuseSourceHandle(handle) => handle,
-        BorrowedAliasEncodePlan::ReturnScalar(value) => value,
+        BorrowedAliasEncodePlan::LiveSourceHandle(handle)
+        | BorrowedAliasEncodePlan::CachedRuntimeHandle(handle) => handle,
         BorrowedAliasEncodePlan::EncodeFallback => {
             observe::record_borrowed_alias_encode_to_handle_arc();
             caller.record();
@@ -629,44 +629,21 @@ fn plan_borrowed_alias_runtime_i64(alias: &BorrowedHandleBox) -> BorrowedAliasEn
         let current_epoch = handles::drop_epoch();
         if alias.source_drop_epoch() == current_epoch {
             observe::record_borrowed_alias_encode_epoch_hit();
-            return BorrowedAliasEncodePlan::ReuseSourceHandle(source_handle);
+            return BorrowedAliasEncodePlan::LiveSourceHandle(source_handle);
         }
     }
     if let Some(cached) = alias.cached_runtime_handle() {
-        return BorrowedAliasEncodePlan::ReuseSourceHandle(cached);
-    }
-    let fallback = alias.cold_stable_object_ref().as_ref();
-    if let Some(iv) = integer_box_to_i64(fallback) {
-        return BorrowedAliasEncodePlan::ReturnScalar(iv);
-    }
-    if let Some(bv) = bool_box_to_i64(fallback) {
-        return BorrowedAliasEncodePlan::ReturnScalar(bv);
+        return BorrowedAliasEncodePlan::CachedRuntimeHandle(cached);
     }
     if source_handle > 0 {
         if let Some(source_obj) = handles::get(source_handle as u64) {
             if Arc::ptr_eq(alias.cold_stable_object_ref(), &source_obj) {
                 observe::record_borrowed_alias_encode_ptr_eq_hit();
-                return BorrowedAliasEncodePlan::ReuseSourceHandle(source_handle);
+                return BorrowedAliasEncodePlan::LiveSourceHandle(source_handle);
             }
         }
     }
     BorrowedAliasEncodePlan::EncodeFallback
-}
-
-#[inline(always)]
-fn integer_box_to_i64(value: &dyn NyashBox) -> Option<i64> {
-    value
-        .as_any()
-        .downcast_ref::<IntegerBox>()
-        .map(|ib| ib.value)
-}
-
-#[inline(always)]
-fn bool_box_to_i64(value: &dyn NyashBox) -> Option<i64> {
-    value
-        .as_any()
-        .downcast_ref::<BoolBox>()
-        .map(|bb| if bb.value { 1 } else { 0 })
 }
 
 impl BorrowedAliasEncodeCaller {

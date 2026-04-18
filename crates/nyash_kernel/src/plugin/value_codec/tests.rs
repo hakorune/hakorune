@@ -62,6 +62,48 @@ fn borrowed_alias_caches_runtime_handle_for_unpublished_keep() {
 }
 
 #[test]
+fn retarget_borrowed_alias_invalidates_cached_runtime_handle() {
+    let old_value: Arc<dyn NyashBox> = Arc::new(StringBox::new("cached-old".to_string()));
+    let mut alias = maybe_borrow_string_keep_with_epoch(
+        SourceLifetimeKeep::string_box(old_value),
+        0,
+        handles::drop_epoch(),
+    );
+    let old_cached = runtime_i64_from_box_ref(alias.as_ref());
+
+    let new_value: Arc<dyn NyashBox> = Arc::new(StringBox::new("cached-new".to_string()));
+    let new_h = handles::to_handle_arc(new_value) as i64;
+    let source_text = with_array_store_str_source(new_h, |source_kind, source| {
+        assert_eq!(source_kind, StringHandleSourceKind::StringLike);
+        match source {
+            ArrayStoreStrSource::StringLike(source_text) => source_text,
+            _ => panic!("expected string-like source"),
+        }
+    });
+
+    assert!(try_retarget_borrowed_string_slot_take_verified_text_source(
+        &mut alias,
+        new_h,
+        source_text,
+        handles::drop_epoch(),
+    )
+    .is_ok());
+
+    handles::drop_handle(new_h as u64);
+
+    let retargeted = runtime_i64_from_box_ref(alias.as_ref());
+    assert!(retargeted > 0);
+    assert_ne!(retargeted, old_cached);
+
+    let out_obj = handles::get(retargeted as u64).expect("retargeted runtime handle");
+    let out_sb = out_obj
+        .as_any()
+        .downcast_ref::<StringBox>()
+        .expect("runtime value should remain StringBox");
+    assert_eq!(out_sb.value, "cached-new");
+}
+
+#[test]
 fn any_arg_to_box_integer_handle_keeps_immediate_runtime_contract() {
     let value: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(77));
     let value_h = handles::to_handle_arc(value) as i64;
