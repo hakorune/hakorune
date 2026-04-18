@@ -290,6 +290,10 @@ Scope: current lane / next lane / restart order only.
     - `keep_borrowed_string_slot_source_keep`
   - aim:
     - move old keep retirement off the hot edge while preserving the existing `set_his` / alias-retarget contract
+  - latest probe read after landing the cold retirement sink:
+    - `kilo_meso_substring_concat_array_set_loopcarry = 53 ms` (`repeat=3`, prior local reread `56 ms`)
+    - `kilo_kernel_small_hk = 733 ms`, `736 ms` (`repeat=3` x2)
+    - read it as `slight meso lift / whole gain not yet proven`
   - keep adopted middle as the contradiction guard:
     - if the whole-first seam lands but `kilo_meso_substring_concat_array_set_loopcarry` stays flat-to-worse, the next card reopens `substring_hii -> borrowed_substring_plan_from_handle`
 - next comparison must split:

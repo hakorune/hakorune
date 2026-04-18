@@ -238,6 +238,40 @@ fn retarget_borrowed_alias_from_verified_text_source_updates_slot() {
 }
 
 #[test]
+fn repeated_retarget_borrowed_alias_from_verified_text_source_keeps_latest_value() {
+    let first: Arc<dyn NyashBox> = Arc::new(StringBox::new("retarget-0".to_string()));
+    let first_h = handles::to_handle_arc(first) as i64;
+    let first_obj = handles::get(first_h as u64).expect("first string handle");
+    let mut slot = store_string_box_from_source(first_h, Some(&first_obj), handles::drop_epoch());
+
+    for idx in 1..=40 {
+        let next: Arc<dyn NyashBox> = Arc::new(StringBox::new(format!("retarget-{idx}")));
+        let next_h = handles::to_handle_arc(next) as i64;
+        let source_text = with_array_store_str_source(next_h, |source_kind, source| {
+            assert_eq!(source_kind, StringHandleSourceKind::StringLike);
+            match source {
+                ArrayStoreStrSource::StringLike(source_text) => source_text,
+                _ => panic!("expected string-like source"),
+            }
+        });
+
+        assert!(try_retarget_borrowed_string_slot_take_verified_text_source(
+            &mut slot,
+            next_h,
+            source_text,
+            handles::drop_epoch(),
+        )
+        .is_ok());
+        assert_eq!(box_to_runtime_i64(slot.as_ref().clone_box()), next_h);
+        assert!(
+            slot.as_ref()
+                .equals(&StringBox::new(format!("retarget-{idx}")))
+                .value
+        );
+    }
+}
+
+#[test]
 fn verified_text_source_err_keeps_string_view_semantics() {
     let base: Arc<dyn NyashBox> = Arc::new(StringBox::new("view-keep-proof".to_string()));
     let base_h = handles::to_handle_arc(base.clone()) as i64;

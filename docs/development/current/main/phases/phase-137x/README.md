@@ -65,6 +65,10 @@
     - intended shape:
       - preserve the current alias-retarget contract
       - move old keep retirement out of the hottest edge before reopening broader upstream cuts
+    - latest local probe after landing the cold retirement sink:
+      - `kilo_meso_substring_concat_array_set_loopcarry = 53 ms` (`repeat=3`, prior local reread `56 ms`)
+      - `kilo_kernel_small_hk = 733 ms`, `736 ms` (`repeat=3` x2)
+      - current read: this is a valid narrow probe and a slight meso lift, but the whole-front keeper win is not locked yet
     - `kilo_meso_substring_concat_array_set_loopcarry` remains the contradiction guard:
       - if whole improves but meso stays flat-to-worse, reopen `substring_hii -> borrowed_substring_plan_from_handle` as the next card
 

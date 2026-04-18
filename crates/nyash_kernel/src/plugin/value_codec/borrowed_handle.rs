@@ -4,7 +4,15 @@ use nyash_rust::{
     box_trait::{next_box_id, BoolBox, BoxBase, BoxCore, IntegerBox, NyashBox, StringBox},
     runtime::host_handles as handles,
 };
-use std::{any::Any, sync::Arc};
+use std::{any::Any, cell::RefCell, sync::Arc};
+
+const RETIRED_SOURCE_KEEP_BATCH_LEN: usize = 32;
+
+thread_local! {
+    // Keep the previous source boxes alive in a small cold sink so retarget no longer
+    // pays every `Arc` retirement on the hottest alias-update edge.
+    static RETIRED_SOURCE_KEEP_BATCH: RefCell<Vec<SourceLifetimeKeep>> = const { RefCell::new(Vec::new()) };
+}
 
 #[derive(Clone, Copy)]
 pub(crate) enum BorrowedAliasEncodeCaller {
@@ -124,7 +132,8 @@ struct TextKeep {
 impl TextKeep {
     #[inline(always)]
     fn replace_source_lifetime(&mut self, keep: SourceLifetimeKeep) {
-        self.source_lifetime = keep;
+        let replaced = std::mem::replace(&mut self.source_lifetime, keep);
+        retire_replaced_source_keep(replaced);
     }
 
     #[inline(always)]
@@ -168,6 +177,27 @@ impl TextKeep {
     fn clone_stable_box_cold_fallback(&self) -> Arc<dyn NyashBox> {
         self.source_lifetime.clone_stable_box_cold_fallback()
     }
+}
+
+#[inline(always)]
+fn retire_replaced_source_keep(keep: SourceLifetimeKeep) {
+    let retired = RETIRED_SOURCE_KEEP_BATCH.with(|slot| {
+        let mut batch = slot.borrow_mut();
+        batch.push(keep);
+        if batch.len() < RETIRED_SOURCE_KEEP_BATCH_LEN {
+            return None;
+        }
+        Some(std::mem::take(&mut *batch))
+    });
+    if let Some(retired) = retired {
+        drop_retired_source_keep_batch_cold(retired);
+    }
+}
+
+#[cold]
+#[inline(never)]
+fn drop_retired_source_keep_batch_cold(mut retired: Vec<SourceLifetimeKeep>) {
+    retired.clear();
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -426,12 +456,14 @@ pub(crate) fn keep_borrowed_string_slot_source_keep(
     source_keep: SourceLifetimeKeep,
 ) {
     observe::record_store_array_str_reason_retarget_keep_source_arc();
-    if observe::enabled() {
-        if alias.text_keep.ptr_eq_source_keep(&source_keep) {
+    if alias.text_keep.ptr_eq_source_keep(&source_keep) {
+        if observe::enabled() {
             observe::record_store_array_str_reason_retarget_keep_source_arc_ptr_eq_hit();
-        } else {
-            observe::record_store_array_str_reason_retarget_keep_source_arc_ptr_eq_miss();
         }
+        return;
+    }
+    if observe::enabled() {
+        observe::record_store_array_str_reason_retarget_keep_source_arc_ptr_eq_miss();
     }
     alias.text_keep.replace_source_lifetime(source_keep);
 }
