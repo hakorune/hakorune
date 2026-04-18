@@ -65,7 +65,8 @@ Scope: current lane / next lane / restart order only.
   - keep `public handle ABI`
   - move the first code cut to producer-side unpublished outcome
   - first landing is not a general `TransientText` rollout; it is a narrow runtime-private `const_suffix -> KernelTextSlot -> store.array.str` substrate
-  - compiler/backend consumption of that slot carrier stays a follow-up card; current `string_kernel_plan` evidence is verifier-side only
+  - compiler/backend consumption is now landed only for the direct-set-only `const_suffix -> set(...)` window
+  - active shared-receiver exact front (`text + "xy"` reused by `set` + trailing `substring`) is still a follow-up card; current `string_kernel_plan` evidence remains verifier-side on that wider path
 - latest completed audit lock (confirmed evidence; prefer this block if older notes below differ):
   - exact asm/perf audit on `kilo_micro_array_string_store`:
     - top samples: `substring_concat_hhii_export_impl 22.38%`, `string_concat_hh_export_impl 21.70%`, array string-store closure `17.34%`, `from_i8_string_const 13.07%`, `LocalKey::with 6.07%`, `memmove 3.51%`, `_int_malloc 1.75%`
@@ -112,6 +113,9 @@ Scope: current lane / next lane / restart order only.
     - direct MIR stays generic
     - entry LLVM IR still concretizes the array string-store call to `nyash.array.set_his`
     - guard: `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_store_string_contract.sh`
+  - new boundary direct-set-only guard is landed for the narrow substrate bridge:
+    - fixture: `apps/tests/mir_shape_guard/string_const_suffix_kernel_slot_direct_set_min_v1.mir.json`
+    - guard: `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_const_suffix_kernel_slot_store_contract.sh`
   - therefore the landed `.hako` owner pilot is still VM/reference-lane only; active AOT already reaches the current concrete `store.array.str` lowering without that pilot
   - slot-store boundary delayed-publication probes were tried and rejected:
     - active slot route v1:

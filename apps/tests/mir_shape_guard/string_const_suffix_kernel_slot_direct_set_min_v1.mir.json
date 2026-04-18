@@ -1,0 +1,98 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "params": [],
+      "metadata": {},
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 1,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "line-seed-abcdef"
+              }
+            },
+            {
+              "op": "newbox",
+              "dst": 2,
+              "type": "StringBox",
+              "args": [1]
+            },
+            {
+              "op": "const",
+              "dst": 3,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "xy"
+              }
+            },
+            {
+              "op": "binop",
+              "dst": 4,
+              "lhs": 2,
+              "operation": "+",
+              "rhs": 3
+            },
+            {
+              "op": "newbox",
+              "dst": 5,
+              "type": "ArrayBox",
+              "args": []
+            },
+            {
+              "op": "const",
+              "dst": 6,
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 7,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "ArrayBox",
+                  "name": "set",
+                  "receiver": 5,
+                  "certainty": "Known"
+                },
+                "args": [6, 4],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "const",
+              "dst": 8,
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "op": "ret",
+              "value": 8
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -58,7 +58,8 @@ Related:
       - `const_suffix -> KernelTextSlot`
       - `KernelTextSlot -> store.array.str`
     - keep this landing corridor-local; do not widen generic helper ABI
-    - compiler/backend consumption of slot text remains a separate follow-up because current `string_kernel_plan` is verifier-side evidence, not a lowered backend path yet
+    - compiler/backend consumption is now landed for the direct-set-only `const_suffix -> set(...)` bridge
+    - the active shared-receiver exact front still remains a follow-up because current `string_kernel_plan` evidence is verifier-side there, not a lowered backend path yet
     - before Card A/B, slot publish-boundary verifier/counters are now landed:
       - `publish_boundary.slot_publish_handle_total`
       - `publish_boundary.slot_objectize_stable_box_total`
@@ -93,6 +94,9 @@ Related:
     - direct MIR stays generic
     - entry LLVM IR still calls `nyash.array.set_his`
     - guard: `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_array_store_string_contract.sh`
+  - new boundary direct-set-only guard is now locked for the narrow bridge:
+    - fixture: `apps/tests/mir_shape_guard/string_const_suffix_kernel_slot_direct_set_min_v1.mir.json`
+    - guard: `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_const_suffix_kernel_slot_store_contract.sh`
   - active AOT exact is therefore not the `.hako` owner pilot itself; the live owner stays publication/source-capture
   - slot-store boundary probes are now a rejected card:
     - v1 exact/whole: `252 ms / 765 ms`

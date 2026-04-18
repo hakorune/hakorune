@@ -42,6 +42,26 @@
         }
       }
 
+      auto void remember_deferred_const_suffix_kernel_slot(
+          long long dst,
+          long long lhs,
+          long long rhs) {
+        if (!dst || !lhs || !rhs) return;
+        for (size_t i = 0; i < deferred_const_suffix_kernel_slots_n; i++) {
+          if (deferred_const_suffix_kernel_slots[i].dst != dst) continue;
+          deferred_const_suffix_kernel_slots[i].lhs = lhs;
+          deferred_const_suffix_kernel_slots[i].rhs = rhs;
+          return;
+        }
+        if (deferred_const_suffix_kernel_slots_n <
+            ARR_LEN(deferred_const_suffix_kernel_slots)) {
+          deferred_const_suffix_kernel_slots[deferred_const_suffix_kernel_slots_n].dst = dst;
+          deferred_const_suffix_kernel_slots[deferred_const_suffix_kernel_slots_n].lhs = lhs;
+          deferred_const_suffix_kernel_slots[deferred_const_suffix_kernel_slots_n].rhs = rhs;
+          deferred_const_suffix_kernel_slots_n++;
+        }
+      }
+
       auto void remember_string_concat_triple(
           long long dst,
           long long first,
@@ -208,28 +228,8 @@
         const char* rhs_const = get_str_const(rhs);
         if (!(dst && lhs && rhs_const)) return 0;
         if (!has_direct_array_set_consumer(ii, ilen, insts, dst)) return 0;
-        fprintf(
-            f,
-            "  %%r%lld = call i64 @\"nyash.string.concat_hs\"(",
-            dst);
-        {
-          char ab[192];
-          size_t slen = strlen(rhs_const);
-          ab[0] = '\0';
-          append_i64_arg_ref(ab, sizeof(ab), lhs, 1);
-          strncat(ab, ", ptr getelementptr inbounds (", sizeof(ab) - strlen(ab) - 1);
-          {
-            char tail[128];
-            snprintf(
-                tail,
-                sizeof(tail),
-                "[%zu x i8], ptr @.str_reg_%lld, i64 0, i64 0)",
-                slen + 1,
-                rhs);
-            strncat(ab, tail, sizeof(ab) - strlen(ab) - 1);
-          }
-          fprintf(f, "%s)\n", ab);
-        }
+        (void)f;
+        remember_deferred_const_suffix_kernel_slot(dst, lhs, rhs);
         finalize_string_concat_result(dst);
         return 1;
       }

@@ -25,6 +25,11 @@
         long long middle;
         long long split;
       };
+      struct DeferredConstSuffixKernelSlotRec {
+        long long dst;
+        long long lhs;
+        long long rhs;
+      };
       struct StringConcatPairRec string_concat_pairs[512];
       size_t string_concat_pairs_n = 0;
       struct StringConcatTripleRec string_concat_triples[256];
@@ -35,12 +40,18 @@
       size_t string_substring_calls_n = 0;
       struct DeferredPiecewiseSubrangeRec deferred_piecewise_subranges[128];
       size_t deferred_piecewise_subranges_n = 0;
+      struct DeferredConstSuffixKernelSlotRec deferred_const_suffix_kernel_slots[256];
+      size_t deferred_const_suffix_kernel_slots_n = 0;
 
       auto void remember_string_concat_triple(
           long long dst,
           long long first,
           long long second,
           long long third);
+      auto void remember_deferred_const_suffix_kernel_slot(
+          long long dst,
+          long long lhs,
+          long long rhs);
       auto void finalize_string_concat_result(long long dst);
       auto int should_skip_string_const_box_for_insert_mid_window(
           size_t ii,
@@ -54,6 +65,21 @@
           if (string_concat_pairs[i].dst != reg) continue;
           if (lhs) *lhs = string_concat_pairs[i].lhs;
           if (rhs) *rhs = string_concat_pairs[i].rhs;
+          return 1;
+        }
+        return 0;
+      }
+
+      auto int find_deferred_const_suffix_kernel_slot(
+          long long reg,
+          long long* lhs,
+          long long* rhs) {
+        reg = resolve_copy_source_reg(reg);
+        if (!reg) return 0;
+        for (size_t i = 0; i < deferred_const_suffix_kernel_slots_n; i++) {
+          if (deferred_const_suffix_kernel_slots[i].dst != reg) continue;
+          if (lhs) *lhs = deferred_const_suffix_kernel_slots[i].lhs;
+          if (rhs) *rhs = deferred_const_suffix_kernel_slots[i].rhs;
           return 1;
         }
         return 0;

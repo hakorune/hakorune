@@ -87,7 +87,11 @@
     - intended shape:
       - preserve the existing `set_his` fast-path / alias-retarget contract
       - let producer code return slot-owned text without forcing `StringBox -> handle`
-      - keep compiler/backend slot-consumer lowering as a separate follow-up card
+      - landed narrow compiler/backend slot-consumer lowering only for the direct-set-only `const_suffix -> set(...)` window
+      - keep the active shared-receiver exact front (`set(...)` + trailing `substring`) as the next follow-up card
+      - guard the landed direct-set bridge with:
+        - fixture: `apps/tests/mir_shape_guard/string_const_suffix_kernel_slot_direct_set_min_v1.mir.json`
+        - smoke: `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_const_suffix_kernel_slot_store_contract.sh`
     - latest local probe after landing the cold retirement sink:
       - `kilo_meso_substring_concat_array_set_loopcarry = 53 ms` (`repeat=3`, prior local reread `56 ms`)
       - `kilo_kernel_small_hk = 733 ms`, `736 ms` (`repeat=3` x2)

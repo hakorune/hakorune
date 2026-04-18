@@ -96,7 +96,9 @@
           /* Current concrete lowering for the owner-side `const_suffix` route.
            * phase-151x visibility lock keeps the intended canonical reading:
            *   thaw.str + lit.str + str.concat2 + freeze.str
-           * while this shim still emits the current concrete helper path.
+           * while this shim now defers direct-set-only publication into the
+           * array-store kernel-slot consumer and keeps other paths on the
+           * current concrete helper path.
            */
           if (try_emit_string_concat_const_suffix_call(f, ii, ilen, insts, dst, lhs, rhs)) {
             if (hako_llvmc_route_trace_enabled()) {
@@ -111,7 +113,7 @@
                   direct_set);
               hako_llvmc_emit_route_trace(
                   "string_concat_add_route",
-                  "emit_concat_hs",
+                  "defer_const_suffix_kernel_slot",
                   "const_suffix",
                   route_extra);
             }
