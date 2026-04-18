@@ -177,12 +177,40 @@ Scope: current lane / next lane / restart order only.
       - runtime seam: `nyash.string.kernel_slot_insert_hsi`
       - compiler seam: deferred `insert_hsi` direct-set consumer lowers to `kernel_slot_insert_hsi -> kernel_slot_store_hi`
       - guard: `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_string_insert_mid_direct_set_min.sh`
+    - the first `Pieces3` / `insert_const_mid_fallback` shared-receiver widening is now landed:
+      - runtime seam: `nyash.string.kernel_slot_insert_hsi`
+      - compiler seam: deferred `insert_hsi` shared receiver lowers to `kernel_slot_insert_hsi -> kernel_slot_store_hi` while trailing `substring(...)` reuses deferred `piecewise_subrange_hsiii`
+      - fixture: `apps/tests/mir_shape_guard/string_insert_mid_kernel_slot_shared_receiver_min_v1.mir.json`
+      - guard: `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_string_insert_mid_shared_receiver_min.sh`
     - the first deferred `Pieces3 substring` direct-set widening is now landed:
       - runtime seam: `nyash.string.kernel_slot_piecewise_subrange_hsiii`
       - compiler seam: deferred `piecewise_subrange_hsiii` direct-set consumer lowers to `kernel_slot_piecewise_subrange_hsiii -> kernel_slot_store_hi`
       - fixture: `apps/tests/mir_shape_guard/string_piecewise_kernel_slot_store_min_v1.mir.json`
       - guard: `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_string_piecewise_direct_set_min.sh`
-    - next widening, if needed, is post-store reuse / non-direct-set `Pieces3`, not generic helper ABI widening
+    - the first post-store reuse / non-direct-set `Pieces3` widening is now landed structurally:
+      - compiler seam:
+        - first `substring_hii` over deferred `insert_hsi` can stay unpublished when the result is reused by `set(...)` plus a later `substring(...)`
+        - the later `substring(...)` lowers through composed `piecewise_subrange_hsiii` instead of reopening `substring_hii`
+      - fixture: `apps/tests/mir_shape_guard/string_piecewise_kernel_slot_post_store_reuse_min_v1.mir.json`
+      - guard: `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_string_piecewise_post_store_reuse_min.sh`
+    - latest post-store-reuse reread:
+      - exact `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 3 ms`
+      - middle `kilo_meso_substring_concat_array_set_loopcarry`: `C 3 ms / Ny AOT 54 ms`
+      - whole `kilo_kernel_small`: `C 79 ms / Ny AOT 733 ms` (IPC: C=1.85 / Ny=0.60)
+      - reading:
+        - exact stays closed
+        - middle is flat-to-better (was 56-59 ms baseline, now 54 ms = slight improvement)
+        - whole is NOT a regression from this change; pre-existing (has been 700-856 ms for many commits)
+        - whole failure mode: stall collapse (IPC 1.85→0.60); instruction count ratio is 0.79 (near-proportional); slow is from memory stalls / publication entry, not extra work
+        - whole hot symbols (perf/asm audit 2026-04-18):
+          - `libc memmove 18.91%`, `_int_malloc 4.60%` — materialization malloc/memmove is owner
+          - `array_string_store_kernel_text_slot_at` closure `7.96%`
+          - `array_get_index_encoded_i64` closure `3.44%`
+          - `insert_const_mid_into_slot` closure `1.54%`
+          - `nyash.string.kernel_slot_concat_hs` `1.21%`
+          - `piecewise_subrange_hsiii_composed_window` is NOT in the hot symbols
+        - composed-window path is confirmed NOT on the whole hot path; landing is safe
+        - whole keeper requires reducing malloc/memmove materialization tax — Phase 2/3 territory, not Phase 1
   - therefore the landed `.hako` owner pilot is still VM/reference-lane only; active AOT already reaches the current concrete `store.array.str` lowering without that pilot
   - slot-store boundary delayed-publication probes were tried and rejected:
     - active slot route v1:

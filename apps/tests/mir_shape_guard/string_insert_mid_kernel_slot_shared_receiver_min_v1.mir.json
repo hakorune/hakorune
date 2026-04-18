@@ -1,0 +1,133 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "params": [],
+      "metadata": {},
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 1,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "line-seed-abcdef"
+              }
+            },
+            {
+              "op": "newbox",
+              "dst": 2,
+              "type": "StringBox",
+              "args": [1]
+            },
+            {
+              "op": "const",
+              "dst": 3,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "xx"
+              }
+            },
+            {
+              "op": "const",
+              "dst": 4,
+              "value": {
+                "type": "i64",
+                "value": 8
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 7,
+              "mir_call": {
+                "callee": {
+                  "type": "Extern",
+                  "name": "nyash.string.insert_hsi"
+                },
+                "args": [2, 3, 4],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "newbox",
+              "dst": 8,
+              "type": "ArrayBox",
+              "args": []
+            },
+            {
+              "op": "const",
+              "dst": 9,
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": null,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "ArrayBox",
+                  "name": "set",
+                  "receiver": 8,
+                  "certainty": "Known"
+                },
+                "args": [9, 7],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "const",
+              "dst": 10,
+              "value": {
+                "type": "i64",
+                "value": 1
+              }
+            },
+            {
+              "op": "const",
+              "dst": 11,
+              "value": {
+                "type": "i64",
+                "value": 17
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 12,
+              "mir_call": {
+                "callee": {
+                  "type": "Extern",
+                  "name": "nyash.string.substring_hii"
+                },
+                "args": [7, 10, 11],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "ret",
+              "value": 12
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -27,11 +27,11 @@
         int shared_receiver = 0;
         enum StringPostStoreUseKind post_store_use =
             HAKO_LLVMC_STRING_POST_STORE_USE_NONE;
-        if (direct_set_out) *direct_set_out = direct_set;
         if (get_str_const(rhs) != NULL) {
           shared_receiver =
               match_const_suffix_shared_receiver_window(ii, ilen, insts, dst, &post_store_use);
         }
+        if (direct_set_out) *direct_set_out = direct_set || shared_receiver;
         (void)post_store_use;
         if (shared_receiver_out) *shared_receiver_out = shared_receiver;
         if (should_defer_string_concat_pair(ii, ilen, insts, dst)) {
@@ -43,7 +43,7 @@
         if (get_str_const(rhs) != NULL && shared_receiver) {
           return HAKO_LLVMC_STRING_CONCAT_PAIR_ROUTE_CONST_SUFFIX_SHARED;
         }
-        if (direct_set) {
+        if (direct_set || shared_receiver) {
           return HAKO_LLVMC_STRING_CONCAT_PAIR_ROUTE_INSERT_MID_CONST;
         }
         if (classify_string_concat3_route(lhs, rhs) ==
@@ -107,6 +107,28 @@
           finalize_string_concat_result(dst);
           return 1;
         }
+        if (direct_set && try_emit_string_insert_mid_const_call(f, ii, ilen, insts, dst, lhs, rhs)) {
+          if (hako_llvmc_route_trace_enabled()) {
+            snprintf(
+                route_extra,
+                sizeof(route_extra),
+                "ii=%zu dst=%lld lhs=%lld rhs=%lld direct_set=%d shared_receiver=%d",
+                ii,
+                dst,
+                lhs,
+                rhs,
+                direct_set,
+                shared_receiver);
+            hako_llvmc_emit_route_trace(
+                "string_concat_add_route",
+                shared_receiver ? "defer_insert_mid_kernel_slot_shared"
+                                : "defer_insert_mid_kernel_slot",
+                shared_receiver ? "insert_mid_shared_receiver"
+                                : "insert_mid_const",
+                route_extra);
+          }
+          return 1;
+        }
         if (route == HAKO_LLVMC_STRING_CONCAT_PAIR_ROUTE_CONST_SUFFIX ||
             route == HAKO_LLVMC_STRING_CONCAT_PAIR_ROUTE_CONST_SUFFIX_SHARED) {
           /* Current concrete lowering for the owner-side `const_suffix` route.
@@ -145,28 +167,6 @@
                   route == HAKO_LLVMC_STRING_CONCAT_PAIR_ROUTE_CONST_SUFFIX_SHARED
                       ? "const_suffix_shared_receiver"
                       : "const_suffix",
-                  route_extra);
-            }
-            return 1;
-          }
-        }
-        if (route == HAKO_LLVMC_STRING_CONCAT_PAIR_ROUTE_INSERT_MID_CONST) {
-          if (try_emit_string_insert_mid_const_call(f, ii, ilen, insts, dst, lhs, rhs)) {
-            if (hako_llvmc_route_trace_enabled()) {
-              snprintf(
-                  route_extra,
-                  sizeof(route_extra),
-                  "ii=%zu dst=%lld lhs=%lld rhs=%lld direct_set=%d shared_receiver=%d",
-                  ii,
-                  dst,
-                  lhs,
-                  rhs,
-                  direct_set,
-                  shared_receiver);
-              hako_llvmc_emit_route_trace(
-                  "string_concat_add_route",
-                  "defer_insert_mid_kernel_slot",
-                  "insert_mid_const",
                   route_extra);
             }
             return 1;
