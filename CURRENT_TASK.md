@@ -128,6 +128,12 @@ Scope: current lane / next lane / restart order only.
     - `site.string_substring_concat_hhii.materialize_owned_total / bytes`
     - `site.string_substring_concat_hhii.objectize_box_total`
     - `site.string_substring_concat_hhii.publish_handle_total`
+    - `site.const_suffix.materialize_owned_total / bytes`
+    - `site.const_suffix.objectize_box_total`
+    - `site.const_suffix.publish_handle_total`
+    - `site.freeze_text_plan_pieces3.materialize_owned_total / bytes`
+    - `site.freeze_text_plan_pieces3.objectize_box_total`
+    - `site.freeze_text_plan_pieces3.publish_handle_total`
   - latest raw exact reread on `kilo_micro_array_string_store` (observe build; split-only, not release truth) shows:
     - `lookup.registry_slot_read=800000`
     - `lookup.caller_latest_fresh_tag=800000`
@@ -139,6 +145,8 @@ Scope: current lane / next lane / restart order only.
     - `site.string_substring_concat_hhii.materialize_owned_bytes=12800000`
     - `site.string_substring_concat_hhii.objectize_box_total=800000`
     - `site.string_substring_concat_hhii.publish_handle_total=800000`
+    - `site.const_suffix.*=0`
+    - `site.freeze_text_plan_pieces3.*=0`
 - latest raw whole reread on `kilo_kernel_small_hk` / `bench_kilo_kernel_small.hako` (observe build; split-only, not release truth) shows a different owner family:
   - `Result: 1140576`
   - `store.array.str total=540000`
@@ -151,6 +159,14 @@ Scope: current lane / next lane / restart order only.
   - `publish_reason.generic_fallback=539728`
   - `site.string_concat_hh.*=0`
   - `site.string_substring_concat_hhii.*=0`
+  - `site.const_suffix.materialize_owned_total=479728`
+  - `site.const_suffix.materialize_owned_bytes=4054750776`
+  - `site.const_suffix.objectize_box_total=479728`
+  - `site.const_suffix.publish_handle_total=479728`
+  - `site.freeze_text_plan_pieces3.materialize_owned_total=60000`
+  - `site.freeze_text_plan_pieces3.materialize_owned_bytes=506895016`
+  - `site.freeze_text_plan_pieces3.objectize_box_total=60000`
+  - `site.freeze_text_plan_pieces3.publish_handle_total=60000`
   - current whole-kilo owner is therefore **const_suffix / pieces3 producer publication**, not the pair/substring helper sites from the exact micro front
 - latest exact asm diff is now pinned:
   - C side is still a tight `main` loop plus `strlen`
@@ -172,9 +188,18 @@ Scope: current lane / next lane / restart order only.
   - `kilo_micro_array_string_store = 138 ms` (baseline 132 ms)
   - `kilo_kernel_small_hk = 1141 ms` (baseline 731 ms, probe-only 1x reread)
   - current conclusion: this route widens hot-path cost elsewhere and should stay parked
+- latest lazy published-string handle seam is **not** a keeper and has been reverted:
+  - it removed eager objectize counters as intended, but did not reduce real whole-front cost
+  - exact micro regressed to `137-139 ms`
+  - whole kilo regressed to `1888-2250 ms`
+  - current conclusion: delaying `StableBoxNow` alone is insufficient; do not reopen this seam without new producer-boundary evidence
 - latest runtime-fix-only reread stays in the same owner family:
   - `kilo_micro_array_string_store = C 10 ms / Ny AOT 132 ms`
   - `kilo_kernel_small_hk = C 80 ms / Ny AOT 731 ms`
+- latest reverted-baseline validation on the current tree:
+  - probe reread #1: `kilo_micro_array_string_store = 143 ms`, `kilo_kernel_small_hk = 862 ms`
+  - probe reread #2: `kilo_micro_array_string_store = 130 ms`, `kilo_kernel_small_hk = 750 ms`
+  - treat the lazy-handle branch as removed; current tree is back in the prior release range, with normal bench noise
 - current live owner remains publication/source-capture around the string births, not array-set route selection
 - next comparison must split:
     - implementation language cost
@@ -197,13 +222,18 @@ Scope: current lane / next lane / restart order only.
    - exact micro owner: common generic publish/objectize corridor shared by `string_concat_hh` and `string_substring_concat_hhii`
    - whole kilo owner: `const_suffix` fallback plus `freeze_text_plan_pieces3` publication
 6. do not spend the next keeper card on pair/substring helper specialization; whole-kilo counters prove those sites are inactive there
-7. next observation gap, before a keeper probe on whole kilo:
-   - split publish bytes/stages for `const_suffix` vs `freeze_text_plan(Pieces3)` so the whole front can choose the first structural keeper without guessing from counts alone
-8. after that reread:
+7. the whole-kilo publish split is now landed:
+   - `const_suffix` owns `479728 / 4054750776 bytes`
+   - `freeze_text_plan(Pieces3)` owns `60000 / 506895016 bytes`
+   - do not reopen any helper-site keeper; the whole front is now pinned to these two producer families
+8. keep the lazy published-string handle seam parked as a non-keeper; it changed counters but exploded whole-kilo time
+9. next:
+   - compare `const_suffix` vs `freeze_text_plan(Pieces3)` asm/publish tails and decide whether the first keeper cuts the larger `const_suffix` site directly or a shared generic publish stage they both still use
+10. after that keeper selection:
    - `kilo_micro_array_string_store`
    - `kilo_kernel_small_hk`
    - top asm on the active whole producer helper (`const_suffix` / pieces3 path) plus the exact-front publish tail
-9. only after the observation split proves one specific producer stage, reopen a new narrow keeper candidate on that stage alone
+11. only after that comparison proves one specific producer stage, reopen a new narrow keeper candidate on that stage alone
 
 ## Guardrails
 
@@ -215,6 +245,8 @@ Scope: current lane / next lane / restart order only.
 - compare `Rust vs .hako` only under:
   - same protocol
   - same public ABI with different internal seam
+- `kilo_*` is still a small app on this lane; if exact and whole disagree, treat it as missing observability and add counters before choosing a keeper
+- do not select a keeper from helper names alone; require producer-kind × stage × bytes evidence on the active whole front first
 
 ## Proof Bundle
 

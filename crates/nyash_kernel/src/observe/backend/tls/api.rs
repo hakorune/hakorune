@@ -182,6 +182,36 @@ pub(crate) fn birth_backend_site_string_substring_concat_hhii_publish_handle() {
 }
 
 #[inline(always)]
+pub(crate) fn birth_backend_site_const_suffix_materialize_owned(bytes: u64) {
+    with_tls(|tls| tls.birth_backend_site_const_suffix_materialize_owned(bytes));
+}
+
+#[inline(always)]
+pub(crate) fn birth_backend_site_const_suffix_objectize_box() {
+    with_tls(ThreadCounters::birth_backend_site_const_suffix_objectize_box);
+}
+
+#[inline(always)]
+pub(crate) fn birth_backend_site_const_suffix_publish_handle() {
+    with_tls(ThreadCounters::birth_backend_site_const_suffix_publish_handle);
+}
+
+#[inline(always)]
+pub(crate) fn birth_backend_site_freeze_text_plan_pieces3_materialize_owned(bytes: u64) {
+    with_tls(|tls| tls.birth_backend_site_freeze_text_plan_pieces3_materialize_owned(bytes));
+}
+
+#[inline(always)]
+pub(crate) fn birth_backend_site_freeze_text_plan_pieces3_objectize_box() {
+    with_tls(ThreadCounters::birth_backend_site_freeze_text_plan_pieces3_objectize_box);
+}
+
+#[inline(always)]
+pub(crate) fn birth_backend_site_freeze_text_plan_pieces3_publish_handle() {
+    with_tls(ThreadCounters::birth_backend_site_freeze_text_plan_pieces3_publish_handle);
+}
+
+#[inline(always)]
 pub(crate) fn mark_latest_fresh_handle(handle: i64) {
     with_tls(|tls| tls.mark_latest_fresh_handle(handle));
 }
@@ -197,7 +227,7 @@ macro_rules! load {
     };
 }
 
-pub(crate) fn snapshot() -> [u64; 131] {
+pub(crate) fn snapshot() -> [u64; 139] {
     flush_current_thread();
     [
         load!(store_array_str_total),
@@ -331,5 +361,13 @@ pub(crate) fn snapshot() -> [u64; 131] {
         load!(birth_backend_site_string_substring_concat_hhii_materialize_owned_bytes),
         load!(birth_backend_site_string_substring_concat_hhii_objectize_box_total),
         load!(birth_backend_site_string_substring_concat_hhii_publish_handle_total),
+        load!(birth_backend_site_const_suffix_materialize_owned_total),
+        load!(birth_backend_site_const_suffix_materialize_owned_bytes),
+        load!(birth_backend_site_const_suffix_objectize_box_total),
+        load!(birth_backend_site_const_suffix_publish_handle_total),
+        load!(birth_backend_site_freeze_text_plan_pieces3_materialize_owned_total),
+        load!(birth_backend_site_freeze_text_plan_pieces3_materialize_owned_bytes),
+        load!(birth_backend_site_freeze_text_plan_pieces3_objectize_box_total),
+        load!(birth_backend_site_freeze_text_plan_pieces3_publish_handle_total),
     ]
 }

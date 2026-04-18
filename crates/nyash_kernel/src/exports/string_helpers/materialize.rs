@@ -199,6 +199,11 @@ pub(super) fn string_handle_from_owned_substring_concat_hhii(value: String) -> i
 }
 
 #[inline(always)]
+pub(super) fn string_handle_from_owned_const_suffix(value: String) -> i64 {
+    string_handle_from_owned_with_site(value, StringPublishSite::ConstSuffix)
+}
+
+#[inline(always)]
 fn string_handle_from_owned_with_site(value: String, site: StringPublishSite) -> i64 {
     let len = value.len();
     if len == 0 {
@@ -269,7 +274,13 @@ pub(super) fn string_handle_from_span(span: StringSpan) -> i64 {
 
 #[inline(always)]
 pub(super) fn freeze_text_plan<'a>(plan: TextPlan<'a>) -> i64 {
+    freeze_text_plan_with_site(plan, StringPublishSite::Generic)
+}
+
+#[inline(always)]
+pub(super) fn freeze_text_plan_with_site<'a>(plan: TextPlan<'a>, site: StringPublishSite) -> i64 {
     observe::record_birth_placement_freeze_owned();
+    let pieces3_site = matches!(&plan, TextPlan::Pieces3 { .. });
     match &plan {
         TextPlan::View1(_) => observe::record_birth_backend_freeze_text_plan_view1(),
         TextPlan::Pieces2 { .. } => observe::record_birth_backend_freeze_text_plan_pieces2(),
@@ -292,7 +303,11 @@ pub(super) fn freeze_text_plan<'a>(plan: TextPlan<'a>) -> i64 {
             ),
         );
     }
-    string_handle_from_owned(plan.into_owned())
+    let site = match site {
+        StringPublishSite::Generic if pieces3_site => StringPublishSite::FreezeTextPlanPieces3,
+        other => other,
+    };
+    string_handle_from_owned_with_site(plan.into_owned(), site)
 }
 
 #[inline(always)]

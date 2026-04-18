@@ -369,6 +369,38 @@ mod real {
     }
 
     #[inline(always)]
+    pub(crate) fn record_birth_backend_site_const_suffix_materialize_owned(bytes: usize) {
+        super::backend::birth_backend_site_const_suffix_materialize_owned(bytes as u64);
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_site_const_suffix_objectize_box() {
+        super::backend::birth_backend_site_const_suffix_objectize_box();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_site_const_suffix_publish_handle() {
+        super::backend::birth_backend_site_const_suffix_publish_handle();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_site_freeze_text_plan_pieces3_materialize_owned(
+        bytes: usize,
+    ) {
+        super::backend::birth_backend_site_freeze_text_plan_pieces3_materialize_owned(bytes as u64);
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_site_freeze_text_plan_pieces3_objectize_box() {
+        super::backend::birth_backend_site_freeze_text_plan_pieces3_objectize_box();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_site_freeze_text_plan_pieces3_publish_handle() {
+        super::backend::birth_backend_site_freeze_text_plan_pieces3_publish_handle();
+    }
+
+    #[inline(always)]
     pub(crate) fn record_str_concat2_route_enter() {
         super::backend::str_concat2_route_enter();
     }
@@ -875,6 +907,27 @@ mod real {
 
     #[inline(always)]
     pub(crate) fn record_birth_backend_site_string_substring_concat_hhii_publish_handle() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_site_const_suffix_materialize_owned(_bytes: usize) {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_site_const_suffix_objectize_box() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_site_const_suffix_publish_handle() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_site_freeze_text_plan_pieces3_materialize_owned(
+        _bytes: usize,
+    ) {
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_site_freeze_text_plan_pieces3_objectize_box() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_site_freeze_text_plan_pieces3_publish_handle() {}
 
     #[inline(always)]
     pub(crate) fn record_str_concat2_route_enter() {}

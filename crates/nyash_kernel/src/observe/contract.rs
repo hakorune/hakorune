@@ -112,6 +112,22 @@ pub(crate) const BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_OBJECTIZE_BOX_T
     "site.string_substring_concat_hhii.objectize_box_total";
 pub(crate) const BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_PUBLISH_HANDLE_TOTAL: &str =
     "site.string_substring_concat_hhii.publish_handle_total";
+pub(crate) const BIRTH_BACKEND_SITE_CONST_SUFFIX_MATERIALIZE_OWNED_TOTAL: &str =
+    "site.const_suffix.materialize_owned_total";
+pub(crate) const BIRTH_BACKEND_SITE_CONST_SUFFIX_MATERIALIZE_OWNED_BYTES: &str =
+    "site.const_suffix.materialize_owned_bytes";
+pub(crate) const BIRTH_BACKEND_SITE_CONST_SUFFIX_OBJECTIZE_BOX_TOTAL: &str =
+    "site.const_suffix.objectize_box_total";
+pub(crate) const BIRTH_BACKEND_SITE_CONST_SUFFIX_PUBLISH_HANDLE_TOTAL: &str =
+    "site.const_suffix.publish_handle_total";
+pub(crate) const BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_MATERIALIZE_OWNED_TOTAL: &str =
+    "site.freeze_text_plan_pieces3.materialize_owned_total";
+pub(crate) const BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_MATERIALIZE_OWNED_BYTES: &str =
+    "site.freeze_text_plan_pieces3.materialize_owned_bytes";
+pub(crate) const BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_OBJECTIZE_BOX_TOTAL: &str =
+    "site.freeze_text_plan_pieces3.objectize_box_total";
+pub(crate) const BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_PUBLISH_HANDLE_TOTAL: &str =
+    "site.freeze_text_plan_pieces3.publish_handle_total";
 
 pub(crate) const STR_CONCAT2_ROUTE_TOTAL: &str = "total";
 pub(crate) const STR_CONCAT2_ROUTE_DISPATCH_HIT: &str = "dispatch_hit";

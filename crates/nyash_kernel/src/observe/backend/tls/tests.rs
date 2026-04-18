@@ -130,6 +130,31 @@ fn tls_phase137x_evidence_counters_flush_current_thread() {
 }
 
 #[test]
+fn tls_phase137x_whole_site_counters_flush_current_thread() {
+    with_env_var("NYASH_PERF_COUNTERS", "1", || {
+        let _guard = test_lock().lock().expect("observe test lock");
+
+        let before = snapshot();
+        birth_backend_site_const_suffix_materialize_owned(11);
+        birth_backend_site_const_suffix_objectize_box();
+        birth_backend_site_const_suffix_publish_handle();
+        birth_backend_site_freeze_text_plan_pieces3_materialize_owned(19);
+        birth_backend_site_freeze_text_plan_pieces3_objectize_box();
+        birth_backend_site_freeze_text_plan_pieces3_publish_handle();
+        let after = snapshot();
+
+        assert_eq!(after[131] - before[131], 1);
+        assert_eq!(after[132] - before[132], 11);
+        assert_eq!(after[133] - before[133], 1);
+        assert_eq!(after[134] - before[134], 1);
+        assert_eq!(after[135] - before[135], 1);
+        assert_eq!(after[136] - before[136], 19);
+        assert_eq!(after[137] - before[137], 1);
+        assert_eq!(after[138] - before[138], 1);
+    });
+}
+
+#[test]
 fn tls_string_route_counters_flush_current_thread() {
     with_env_var("NYASH_PERF_COUNTERS", "1", || {
         let _guard = test_lock().lock().expect("observe test lock");

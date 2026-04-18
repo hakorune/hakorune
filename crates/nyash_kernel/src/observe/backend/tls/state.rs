@@ -137,6 +137,14 @@ struct GlobalCounters {
     birth_backend_site_string_substring_concat_hhii_materialize_owned_bytes: AtomicU64,
     birth_backend_site_string_substring_concat_hhii_objectize_box_total: AtomicU64,
     birth_backend_site_string_substring_concat_hhii_publish_handle_total: AtomicU64,
+    birth_backend_site_const_suffix_materialize_owned_total: AtomicU64,
+    birth_backend_site_const_suffix_materialize_owned_bytes: AtomicU64,
+    birth_backend_site_const_suffix_objectize_box_total: AtomicU64,
+    birth_backend_site_const_suffix_publish_handle_total: AtomicU64,
+    birth_backend_site_freeze_text_plan_pieces3_materialize_owned_total: AtomicU64,
+    birth_backend_site_freeze_text_plan_pieces3_materialize_owned_bytes: AtomicU64,
+    birth_backend_site_freeze_text_plan_pieces3_objectize_box_total: AtomicU64,
+    birth_backend_site_freeze_text_plan_pieces3_publish_handle_total: AtomicU64,
 }
 
 impl GlobalCounters {
@@ -277,6 +285,14 @@ impl GlobalCounters {
             ),
             birth_backend_site_string_substring_concat_hhii_objectize_box_total: AtomicU64::new(0),
             birth_backend_site_string_substring_concat_hhii_publish_handle_total: AtomicU64::new(0),
+            birth_backend_site_const_suffix_materialize_owned_total: AtomicU64::new(0),
+            birth_backend_site_const_suffix_materialize_owned_bytes: AtomicU64::new(0),
+            birth_backend_site_const_suffix_objectize_box_total: AtomicU64::new(0),
+            birth_backend_site_const_suffix_publish_handle_total: AtomicU64::new(0),
+            birth_backend_site_freeze_text_plan_pieces3_materialize_owned_total: AtomicU64::new(0),
+            birth_backend_site_freeze_text_plan_pieces3_materialize_owned_bytes: AtomicU64::new(0),
+            birth_backend_site_freeze_text_plan_pieces3_objectize_box_total: AtomicU64::new(0),
+            birth_backend_site_freeze_text_plan_pieces3_publish_handle_total: AtomicU64::new(0),
         }
     }
 }
@@ -415,6 +431,14 @@ struct ThreadCounters {
     birth_backend_site_string_substring_concat_hhii_materialize_owned_bytes: Cell<u64>,
     birth_backend_site_string_substring_concat_hhii_objectize_box_total: Cell<u64>,
     birth_backend_site_string_substring_concat_hhii_publish_handle_total: Cell<u64>,
+    birth_backend_site_const_suffix_materialize_owned_total: Cell<u64>,
+    birth_backend_site_const_suffix_materialize_owned_bytes: Cell<u64>,
+    birth_backend_site_const_suffix_objectize_box_total: Cell<u64>,
+    birth_backend_site_const_suffix_publish_handle_total: Cell<u64>,
+    birth_backend_site_freeze_text_plan_pieces3_materialize_owned_total: Cell<u64>,
+    birth_backend_site_freeze_text_plan_pieces3_materialize_owned_bytes: Cell<u64>,
+    birth_backend_site_freeze_text_plan_pieces3_objectize_box_total: Cell<u64>,
+    birth_backend_site_freeze_text_plan_pieces3_publish_handle_total: Cell<u64>,
     latest_fresh_handle: Cell<i64>,
 }
 
@@ -552,6 +576,14 @@ impl ThreadCounters {
             birth_backend_site_string_substring_concat_hhii_materialize_owned_bytes: Cell::new(0),
             birth_backend_site_string_substring_concat_hhii_objectize_box_total: Cell::new(0),
             birth_backend_site_string_substring_concat_hhii_publish_handle_total: Cell::new(0),
+            birth_backend_site_const_suffix_materialize_owned_total: Cell::new(0),
+            birth_backend_site_const_suffix_materialize_owned_bytes: Cell::new(0),
+            birth_backend_site_const_suffix_objectize_box_total: Cell::new(0),
+            birth_backend_site_const_suffix_publish_handle_total: Cell::new(0),
+            birth_backend_site_freeze_text_plan_pieces3_materialize_owned_total: Cell::new(0),
+            birth_backend_site_freeze_text_plan_pieces3_materialize_owned_bytes: Cell::new(0),
+            birth_backend_site_freeze_text_plan_pieces3_objectize_box_total: Cell::new(0),
+            birth_backend_site_freeze_text_plan_pieces3_publish_handle_total: Cell::new(0),
             latest_fresh_handle: Cell::new(0),
         }
     }

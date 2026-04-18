@@ -16,6 +16,8 @@ pub(crate) enum StringPublishSite {
     Generic,
     StringConcatHh,
     StringSubstringConcatHhii,
+    ConstSuffix,
+    FreezeTextPlanPieces3,
 }
 
 #[inline(always)]
@@ -45,6 +47,14 @@ fn record_publish_site_materialize_owned(site: StringPublishSite, bytes: usize) 
                 bytes,
             );
         }
+        StringPublishSite::ConstSuffix => {
+            crate::observe::record_birth_backend_site_const_suffix_materialize_owned(bytes);
+        }
+        StringPublishSite::FreezeTextPlanPieces3 => {
+            crate::observe::record_birth_backend_site_freeze_text_plan_pieces3_materialize_owned(
+                bytes,
+            );
+        }
     }
 }
 
@@ -58,6 +68,12 @@ fn record_publish_site_objectize_box(site: StringPublishSite) {
         StringPublishSite::StringSubstringConcatHhii => {
             crate::observe::record_birth_backend_site_string_substring_concat_hhii_objectize_box();
         }
+        StringPublishSite::ConstSuffix => {
+            crate::observe::record_birth_backend_site_const_suffix_objectize_box();
+        }
+        StringPublishSite::FreezeTextPlanPieces3 => {
+            crate::observe::record_birth_backend_site_freeze_text_plan_pieces3_objectize_box();
+        }
     }
 }
 
@@ -70,6 +86,12 @@ fn record_publish_site_publish_handle(site: StringPublishSite) {
         }
         StringPublishSite::StringSubstringConcatHhii => {
             crate::observe::record_birth_backend_site_string_substring_concat_hhii_publish_handle();
+        }
+        StringPublishSite::ConstSuffix => {
+            crate::observe::record_birth_backend_site_const_suffix_publish_handle();
+        }
+        StringPublishSite::FreezeTextPlanPieces3 => {
+            crate::observe::record_birth_backend_site_freeze_text_plan_pieces3_publish_handle();
         }
     }
 }

@@ -18,8 +18,10 @@ use super::super::cache::{
     with_cached_const_suffix_text,
 };
 use super::super::materialize::{
-    concat_two_str, freeze_text_plan, string_handle_from_owned, string_is_empty_from_handle,
+    concat_two_str, freeze_text_plan, freeze_text_plan_with_site,
+    string_handle_from_owned_const_suffix, string_is_empty_from_handle,
 };
+use crate::plugin::StringPublishSite;
 
 enum ConstSuffixPath {
     ReuseHandle(i64),
@@ -40,9 +42,10 @@ fn execute_concat2_freeze_from_text(a_h: i64, suffix: &str, placement: RetainedF
             observe::record_birth_placement_return_handle();
             a_h
         }
-        RetainedForm::KeepTransient | RetainedForm::MustFreeze(_) => {
-            freeze_text_plan(concat_const_suffix_plan_from_handle(a_h, suffix))
-        }
+        RetainedForm::KeepTransient | RetainedForm::MustFreeze(_) => freeze_text_plan_with_site(
+            concat_const_suffix_plan_from_handle(a_h, suffix),
+            StringPublishSite::ConstSuffix,
+        ),
         RetainedForm::RetainView => unreachable!("concat_hs cannot retain a view"),
     }
 }
@@ -80,7 +83,7 @@ fn execute_const_suffix_contract(a_h: i64, suffix_ptr: *const i8) -> i64 {
             return match plan {
                 ConstSuffixPath::ReuseHandle(handle) => handle,
                 ConstSuffixPath::Owned(text) => {
-                    let handle = string_handle_from_owned(text);
+                    let handle = string_handle_from_owned_const_suffix(text);
                     if handle > 0 {
                         concat_const_suffix_fast_cache_store(a_h, suffix_ptr, handle);
                     }

@@ -253,6 +253,38 @@ pub(crate) fn emit_summary_to_stderr() {
             contract::BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_PUBLISH_HANDLE_TOTAL,
             snapshot[130],
         ),
+        (
+            contract::BIRTH_BACKEND_SITE_CONST_SUFFIX_MATERIALIZE_OWNED_TOTAL,
+            snapshot[131],
+        ),
+        (
+            contract::BIRTH_BACKEND_SITE_CONST_SUFFIX_MATERIALIZE_OWNED_BYTES,
+            snapshot[132],
+        ),
+        (
+            contract::BIRTH_BACKEND_SITE_CONST_SUFFIX_OBJECTIZE_BOX_TOTAL,
+            snapshot[133],
+        ),
+        (
+            contract::BIRTH_BACKEND_SITE_CONST_SUFFIX_PUBLISH_HANDLE_TOTAL,
+            snapshot[134],
+        ),
+        (
+            contract::BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_MATERIALIZE_OWNED_TOTAL,
+            snapshot[135],
+        ),
+        (
+            contract::BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_MATERIALIZE_OWNED_BYTES,
+            snapshot[136],
+        ),
+        (
+            contract::BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_OBJECTIZE_BOX_TOTAL,
+            snapshot[137],
+        ),
+        (
+            contract::BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_PUBLISH_HANDLE_TOTAL,
+            snapshot[138],
+        ),
     ] {
         let _ = write!(&mut birth_backend_line, " {}={}", name, value);
     }

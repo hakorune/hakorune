@@ -372,6 +372,41 @@ impl ThreadCounters {
     }
 
     #[inline(always)]
+    fn birth_backend_site_const_suffix_materialize_owned(&self, bytes: u64) {
+        Self::bump(&self.birth_backend_site_const_suffix_materialize_owned_total);
+        self.birth_backend_site_const_suffix_materialize_owned_bytes
+            .set(self.birth_backend_site_const_suffix_materialize_owned_bytes.get() + bytes);
+    }
+
+    #[inline(always)]
+    fn birth_backend_site_const_suffix_objectize_box(&self) {
+        Self::bump(&self.birth_backend_site_const_suffix_objectize_box_total);
+    }
+
+    #[inline(always)]
+    fn birth_backend_site_const_suffix_publish_handle(&self) {
+        Self::bump(&self.birth_backend_site_const_suffix_publish_handle_total);
+    }
+
+    #[inline(always)]
+    fn birth_backend_site_freeze_text_plan_pieces3_materialize_owned(&self, bytes: u64) {
+        Self::bump(&self.birth_backend_site_freeze_text_plan_pieces3_materialize_owned_total);
+        self.birth_backend_site_freeze_text_plan_pieces3_materialize_owned_bytes.set(
+            self.birth_backend_site_freeze_text_plan_pieces3_materialize_owned_bytes.get() + bytes,
+        );
+    }
+
+    #[inline(always)]
+    fn birth_backend_site_freeze_text_plan_pieces3_objectize_box(&self) {
+        Self::bump(&self.birth_backend_site_freeze_text_plan_pieces3_objectize_box_total);
+    }
+
+    #[inline(always)]
+    fn birth_backend_site_freeze_text_plan_pieces3_publish_handle(&self) {
+        Self::bump(&self.birth_backend_site_freeze_text_plan_pieces3_publish_handle_total);
+    }
+
+    #[inline(always)]
     fn str_concat2_route_enter(&self) {
         Self::bump(&self.str_concat2_route_total);
     }
@@ -956,6 +991,38 @@ impl ThreadCounters {
         flush_cell(
             &self.birth_backend_site_string_substring_concat_hhii_publish_handle_total,
             &GLOBAL.birth_backend_site_string_substring_concat_hhii_publish_handle_total,
+        );
+        flush_cell(
+            &self.birth_backend_site_const_suffix_materialize_owned_total,
+            &GLOBAL.birth_backend_site_const_suffix_materialize_owned_total,
+        );
+        flush_cell(
+            &self.birth_backend_site_const_suffix_materialize_owned_bytes,
+            &GLOBAL.birth_backend_site_const_suffix_materialize_owned_bytes,
+        );
+        flush_cell(
+            &self.birth_backend_site_const_suffix_objectize_box_total,
+            &GLOBAL.birth_backend_site_const_suffix_objectize_box_total,
+        );
+        flush_cell(
+            &self.birth_backend_site_const_suffix_publish_handle_total,
+            &GLOBAL.birth_backend_site_const_suffix_publish_handle_total,
+        );
+        flush_cell(
+            &self.birth_backend_site_freeze_text_plan_pieces3_materialize_owned_total,
+            &GLOBAL.birth_backend_site_freeze_text_plan_pieces3_materialize_owned_total,
+        );
+        flush_cell(
+            &self.birth_backend_site_freeze_text_plan_pieces3_materialize_owned_bytes,
+            &GLOBAL.birth_backend_site_freeze_text_plan_pieces3_materialize_owned_bytes,
+        );
+        flush_cell(
+            &self.birth_backend_site_freeze_text_plan_pieces3_objectize_box_total,
+            &GLOBAL.birth_backend_site_freeze_text_plan_pieces3_objectize_box_total,
+        );
+        flush_cell(
+            &self.birth_backend_site_freeze_text_plan_pieces3_publish_handle_total,
+            &GLOBAL.birth_backend_site_freeze_text_plan_pieces3_publish_handle_total,
         );
         flush_cell(
             &self.str_concat2_route_total,
