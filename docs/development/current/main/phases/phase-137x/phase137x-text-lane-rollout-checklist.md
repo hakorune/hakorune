@@ -318,7 +318,7 @@ Related:
   - pull `clear` / `delete` style raw mutations behind narrow `MapBox` helpers instead of mutating `get_data().write()` from runtime facade code
   - `clear` / `delete` now share `MapBox::clear_entries` / `MapBox::remove_key_str` across public `MapBox` methods and raw slot mutation leaves
 - `Cleanup 7`: legacy map compat surface retirement
-  - status: partial
+  - status: partial / parked
   - landed: `MapBox.size/len/length` lowering now targets canonical `nyash.map.entry_count_i64`; `nyash.map.entry_count_h` remains only as compat export/test/archive residue
   - landed: LL emit map i64-key `get` / `has` routes now target `nyash.map.slot_load_hi` / `nyash.map.probe_hi`; `nyash.map.get_h` / `nyash.map.has_h` remain compat export/test/archive residue
   - landed: RuntimeData field fallback now targets `nyash.map.slot_load_hh` / `nyash.map.slot_store_hhh`; `nyash.map.get_hh` / `nyash.map.set_hh` remain compat export/test/archive residue
@@ -330,13 +330,8 @@ Related:
   - landed: `NewBox(ConsoleBox)` construction now goes through the ring1 console seam; the selfhost fallback remains but the standalone builtin wrapper is removed
   - landed: remaining `builtin_impls` are documented as a fallback quarantine; File/Null/primitive fallbacks are deferred until a separate SSOT owns their removal
   - landed: `DeferredConstSuffix -> kernel_slot_store_hi` regression tests now cover append, existing `StringBox`, and existing borrowed-alias retarget routes
-  - retarget remaining lowering/runtime users off deprecated compat map exports
-  - then collapse:
-    - `map_compat.rs`
-    - compat alias surface
-    - deprecated builtin factory path (done)
-  - slot publish-boundary counters
-  - any new explicit publish-effect counters added by the card
+  - landed: no active lowering/runtime users still target deprecated compat map exports; remaining references are compat quarantine, tests, archive, or docs
+  - keep `map_compat.rs` intact as ABI quarantine; do not collapse it without a caller-proofed retirement task
 - guards:
   - keep direct-set and shared-receiver phase-137x smokes green
   - add one new fixture/smoke only when the card expands acceptance shape

@@ -86,13 +86,13 @@ Related:
 | `slot_store_any` | `nyash.map.slot_store_hhh` | `handle_owned, value_public, value_public` | `imm_i64` | `mainline substrate` | `crates/nyash_kernel/src/plugin/map.rs` | canonical daily `MapBox.set` target |
 | `probe_i64` | `nyash.map.probe_hi` | `handle_owned, imm_i64` | `imm_i64` | `mainline substrate` | `crates/nyash_kernel/src/plugin/map.rs` | raw i64 key seam |
 | `probe_any` | `nyash.map.probe_hh` | `handle_owned, value_public` | `imm_i64` | `mainline substrate` | `crates/nyash_kernel/src/plugin/map.rs` | canonical daily `MapBox.has` target |
-| `size` | `nyash.map.size_h` | `handle_owned` | `imm_i64` | `compat-only` | `crates/nyash_kernel/src/plugin/map.rs` | canonical observer is `entry_count_i64` |
-| `get_i64` | `nyash.map.get_h` | `handle_owned, imm_i64` | `value_public` | `compat-only` | `crates/nyash_kernel/src/plugin/map.rs` | historical compat alias |
-| `get_any` | `nyash.map.get_hh` | `handle_owned, value_public` | `value_public` | `compat-only` | `crates/nyash_kernel/src/plugin/map.rs` | historical compat alias |
-| `set_i64` | `nyash.map.set_h` | `handle_owned, imm_i64, value_public` | `imm_i64` | `compat-only` | `crates/nyash_kernel/src/plugin/map.rs` | legacy return is fixed `0` |
-| `set_any` | `nyash.map.set_hh` | `handle_owned, value_public, value_public` | `imm_i64` | `compat-only` | `crates/nyash_kernel/src/plugin/map.rs` | legacy return is fixed `0` |
-| `has_i64` | `nyash.map.has_h` | `handle_owned, imm_i64` | `imm_i64` | `compat-only` | `crates/nyash_kernel/src/plugin/map.rs` | historical compat alias |
-| `has_any` | `nyash.map.has_hh` | `handle_owned, value_public` | `imm_i64` | `compat-only` | `crates/nyash_kernel/src/plugin/map.rs` | historical compat alias |
+| `size` | `nyash.map.size_h` | `handle_owned` | `imm_i64` | `compat-quarantine` | `crates/nyash_kernel/src/plugin/map_compat.rs` | canonical observer is `entry_count_i64`; no active lowering/runtime user |
+| `get_i64` | `nyash.map.get_h` | `handle_owned, imm_i64` | `value_public` | `compat-quarantine` | `crates/nyash_kernel/src/plugin/map_compat.rs` | historical compat alias; no active lowering/runtime user |
+| `get_any` | `nyash.map.get_hh` | `handle_owned, value_public` | `value_public` | `compat-quarantine` | `crates/nyash_kernel/src/plugin/map_compat.rs` | historical compat alias; no active lowering/runtime user |
+| `set_i64` | `nyash.map.set_h` | `handle_owned, imm_i64, value_public` | `imm_i64` | `compat-quarantine` | `crates/nyash_kernel/src/plugin/map_compat.rs` | legacy return is fixed `0`; no active lowering/runtime user |
+| `set_any` | `nyash.map.set_hh` | `handle_owned, value_public, value_public` | `imm_i64` | `compat-quarantine` | `crates/nyash_kernel/src/plugin/map_compat.rs` | legacy return is fixed `0`; no active lowering/runtime user |
+| `has_i64` | `nyash.map.has_h` | `handle_owned, imm_i64` | `imm_i64` | `compat-quarantine` | `crates/nyash_kernel/src/plugin/map_compat.rs` | historical compat alias; no active lowering/runtime user |
+| `has_any` | `nyash.map.has_hh` | `handle_owned, value_public` | `imm_i64` | `compat-quarantine` | `crates/nyash_kernel/src/plugin/map_compat.rs` | historical compat alias; no active lowering/runtime user |
 
 ## RuntimeDataBox
 
