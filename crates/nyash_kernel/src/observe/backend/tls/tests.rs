@@ -85,8 +85,16 @@ fn tls_birth_backend_counters_flush_current_thread() {
         birth_backend_publish_reason_explicit_api();
         let after = snapshot();
 
-        assert_eq!(after[23] - before[23], 1);
-        assert_eq!(after[24] - before[24], 1);
+        assert_eq!(
+            contract::BIRTH_PLACEMENT_FREEZE_OWNED_FIELD.read(&after)
+                - contract::BIRTH_PLACEMENT_FREEZE_OWNED_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_PLACEMENT_FRESH_HANDLE_FIELD.read(&after)
+                - contract::BIRTH_PLACEMENT_FRESH_HANDLE_FIELD.read(&before),
+            1
+        );
         assert_eq!(after[29] - before[29], 1);
         assert_eq!(after[33] - before[33], 1);
         assert_eq!(after[34] - before[34], 18);
