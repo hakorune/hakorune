@@ -25,6 +25,12 @@
         long long middle;
         long long split;
       };
+      struct DeferredInsertMidKernelSlotRec {
+        long long dst;
+        long long source;
+        long long middle;
+        long long split;
+      };
       struct DeferredConstSuffixKernelSlotRec {
         long long dst;
         long long lhs;
@@ -40,6 +46,8 @@
       size_t string_substring_calls_n = 0;
       struct DeferredPiecewiseSubrangeRec deferred_piecewise_subranges[128];
       size_t deferred_piecewise_subranges_n = 0;
+      struct DeferredInsertMidKernelSlotRec deferred_insert_mid_kernel_slots[128];
+      size_t deferred_insert_mid_kernel_slots_n = 0;
       struct DeferredConstSuffixKernelSlotRec deferred_const_suffix_kernel_slots[256];
       size_t deferred_const_suffix_kernel_slots_n = 0;
 
@@ -52,6 +60,11 @@
           long long dst,
           long long lhs,
           long long rhs);
+      auto void remember_deferred_insert_mid_kernel_slot(
+          long long dst,
+          long long source,
+          long long middle,
+          long long split);
       auto void finalize_string_concat_result(long long dst);
       auto int should_skip_string_const_box_for_insert_mid_window(
           size_t ii,
@@ -507,7 +520,6 @@
         int used_plan_window = 0;
         const char* middle_const = NULL;
         const char* reason = "shape_match";
-        char ab[224];
         char extra[256];
         int matched = 0;
         if (!(recv && dst && ii + 1 < ilen)) {
@@ -653,24 +665,9 @@
           reason = "plan_window_match";
         }
 
-        fprintf(f, "  %%r%lld = call i64 @\"nyash.string.insert_hsi\"(", result_reg);
-        ab[0] = '\0';
-        append_i64_arg_ref(ab, sizeof(ab), recv, 1);
-        strncat(ab, ", ptr getelementptr inbounds (", sizeof(ab) - strlen(ab) - 1);
-        {
-          char tail[128];
-          snprintf(
-              tail,
-              sizeof(tail),
-              "[%zu x i8], ptr @.str_reg_%lld, i64 0, i64 0)",
-              strlen(middle_const) + 1,
-              middle_reg);
-          strncat(ab, tail, sizeof(ab) - strlen(ab) - 1);
-        }
-        append_i64_arg_ref(ab, sizeof(ab), end, 0);
-        fprintf(f, "%s)\n", ab);
+        remember_deferred_insert_mid_kernel_slot(result_reg, recv, middle_reg, end);
+        fprintf(f, "  %%r%lld = add i64 0, 0\n", result_reg);
         finalize_string_concat_result(result_reg);
-        remember_string_concat_triple(result_reg, dst, middle_reg, second_dst);
         skip_inst[ii + 1] = 1;
         for (int ci = 0; ci < prefix_copy_n && ci < 8; ci++) skip_inst[prefix_copy_iis[ci]] = 1;
         for (int ci = 0; ci < suffix_copy_n && ci < 8; ci++) skip_inst[suffix_copy_iis[ci]] = 1;

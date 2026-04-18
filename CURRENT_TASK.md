@@ -49,18 +49,33 @@ Scope: current lane / next lane / restart order only.
   - `kilo_micro_substring_only`
     - `C: 3 ms`
     - `Ny AOT: 3 ms`
+- exact `store.array.str` front is now also closed by the shared-receiver `KernelTextSlot` bridge:
+  - `kilo_micro_array_string_store`
+    - `C: 10 ms`
+    - `Ny AOT: 4 ms`
+  - reading:
+    - direct-set + trailing-substring shared reuse is a keeper
+    - microasm top is now startup/env dominated, so this exact front is no longer the active owner proof
 - current bridge front is now adopted:
   - `kilo_meso_substring_concat_array_set_loopcarry`
     - shape: `substring + concat + array.set + loopcarry`
     - role: natural middle between exact micro and whole kilo on this lane
     - rule: use it to confirm store/publication cuts without the whole-front `indexOf("line")` row-scan noise
-- current broad gap is no longer substring:
-  - `kilo_micro_array_string_store`
-    - `C: 10 ms`
-    - `Ny AOT: 131 ms`
+- current bridge reread after the shared-receiver landing:
+  - `kilo_meso_substring_concat_array_set_loopcarry`
+    - `C: 3 ms`
+    - `Ny AOT: 56 ms`
+  - reading:
+    - slight lift versus the prior `59 ms` reread
+    - this keeps the producer-side unpublished contract as a live keeper candidate
+- current whole accept gate:
   - `kilo_kernel_small`
-    - `C: 80 ms`
-    - `Ny AOT: 741 ms`
+    - latest direct reread is blocked
+    - current AOT build failure: `unsupported pure shape for current backend recipe`
+  - reading:
+    - this is a route/build blocker on the accept gate, not evidence against the landed exact bridge
+    - last trusted whole owner family stays `const_suffix` / `freeze_text_plan(Pieces3)` publication
+    - latest landed whole-side narrow cut is direct-set-only `insert_hsi -> kernel_slot_insert_hsi -> kernel_slot_store_hi`
 - current accepted redesign is now locked in narrowed form:
   - keep `public handle ABI`
   - move the first code cut to producer-side unpublished outcome
@@ -90,10 +105,11 @@ Scope: current lane / next lane / restart order only.
     - perf/asm is now sufficient to choose the next keeper without another broad observability round
 - current reading:
   - current main owner family is `array/string-store`, not `substring`
+  - exact `array/string-store` is now closed; the live next owner family is upstream producer publication on whole
   - hot-corridor carrier design anchor is now:
     - `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
   - trusted direct MIR no longer duplicates the `text + "xy"` producer across `set(...)` and trailing `substring(...)`
-  - runtime gap stayed open after the compiler-side placement fix, so duplicated birth is no longer the live owner
+  - runtime gap on exact no longer stays open after the shared-receiver `KernelTextSlot` widening
   - latest keeper slice is compiler-side known string-length propagation across const / substring-window / same-length string `phi`
   - active AOT entry IR on this front no longer emits `nyash.string.len_h` inside `ny_main`
   - `Stage A` narrow owner slice is landed on the VM/reference lane:
@@ -120,6 +136,16 @@ Scope: current lane / next lane / restart order only.
   - new boundary direct-set-only guard is landed for the narrow substrate bridge:
     - fixture: `apps/tests/mir_shape_guard/string_const_suffix_kernel_slot_direct_set_min_v1.mir.json`
     - guard: `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_const_suffix_kernel_slot_store_contract.sh`
+  - new shared-receiver guard is landed for the exact-front widening:
+    - fixture: `apps/tests/mir_shape_guard/string_const_suffix_kernel_slot_shared_receiver_min_v1.mir.json`
+    - guard: `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_const_suffix_kernel_slot_shared_receiver_contract.sh`
+  - next code cut is now fixed:
+    - keep `const_suffix` producer specialized
+    - the first `Pieces3` / `insert_const_mid_fallback` direct-set widening is now landed:
+      - runtime seam: `nyash.string.kernel_slot_insert_hsi`
+      - compiler seam: deferred `insert_hsi` direct-set consumer lowers to `kernel_slot_insert_hsi -> kernel_slot_store_hi`
+      - guard: `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_string_insert_mid_direct_set_min.sh`
+    - next widening, if needed, is post-store reuse / non-direct-set `Pieces3`, not generic helper ABI widening
   - therefore the landed `.hako` owner pilot is still VM/reference-lane only; active AOT already reaches the current concrete `store.array.str` lowering without that pilot
   - slot-store boundary delayed-publication probes were tried and rejected:
     - active slot route v1:

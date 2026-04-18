@@ -62,6 +62,29 @@
         }
       }
 
+      auto void remember_deferred_insert_mid_kernel_slot(
+          long long dst,
+          long long source,
+          long long middle,
+          long long split) {
+        if (!dst || !source || !middle) return;
+        for (size_t i = 0; i < deferred_insert_mid_kernel_slots_n; i++) {
+          if (deferred_insert_mid_kernel_slots[i].dst != dst) continue;
+          deferred_insert_mid_kernel_slots[i].source = source;
+          deferred_insert_mid_kernel_slots[i].middle = middle;
+          deferred_insert_mid_kernel_slots[i].split = split;
+          return;
+        }
+        if (deferred_insert_mid_kernel_slots_n <
+            ARR_LEN(deferred_insert_mid_kernel_slots)) {
+          deferred_insert_mid_kernel_slots[deferred_insert_mid_kernel_slots_n].dst = dst;
+          deferred_insert_mid_kernel_slots[deferred_insert_mid_kernel_slots_n].source = source;
+          deferred_insert_mid_kernel_slots[deferred_insert_mid_kernel_slots_n].middle = middle;
+          deferred_insert_mid_kernel_slots[deferred_insert_mid_kernel_slots_n].split = split;
+          deferred_insert_mid_kernel_slots_n++;
+        }
+      }
+
       auto void remember_string_concat_triple(
           long long dst,
           long long first,
@@ -154,6 +177,23 @@
           if (source) *source = deferred_piecewise_subranges[i].source;
           if (middle) *middle = deferred_piecewise_subranges[i].middle;
           if (split) *split = deferred_piecewise_subranges[i].split;
+          return 1;
+        }
+        return 0;
+      }
+
+      auto int find_deferred_insert_mid_kernel_slot(
+          long long reg,
+          long long* source,
+          long long* middle,
+          long long* split) {
+        reg = resolve_copy_source_reg(reg);
+        if (!reg) return 0;
+        for (size_t i = 0; i < deferred_insert_mid_kernel_slots_n; i++) {
+          if (deferred_insert_mid_kernel_slots[i].dst != reg) continue;
+          if (source) *source = deferred_insert_mid_kernel_slots[i].source;
+          if (middle) *middle = deferred_insert_mid_kernel_slots[i].middle;
+          if (split) *split = deferred_insert_mid_kernel_slots[i].split;
           return 1;
         }
         return 0;
@@ -329,7 +369,6 @@
         const char* reason = "shape_match";
         char extra[256];
         const char* middle_const = NULL;
-        char ab[224];
         if (!(dst && lhs && rhs)) return 0;
         if (!has_direct_array_set_consumer(ii, ilen, insts, dst)) return 0;
         lhs = resolve_copy_chain_source_reg(insts, ii + 1, lhs);
@@ -380,24 +419,9 @@
           recv = src_prefix;
         }
 
-        fprintf(f, "  %%r%lld = call i64 @\"nyash.string.insert_hsi\"(", dst);
-        ab[0] = '\0';
-        append_i64_arg_ref(ab, sizeof(ab), src_prefix, 1);
-        strncat(ab, ", ptr getelementptr inbounds (", sizeof(ab) - strlen(ab) - 1);
-        {
-          char tail[128];
-          snprintf(
-              tail,
-              sizeof(tail),
-              "[%zu x i8], ptr @.str_reg_%lld, i64 0, i64 0)",
-              strlen(middle_const) + 1,
-              middle);
-          strncat(ab, tail, sizeof(ab) - strlen(ab) - 1);
-        }
-        append_i64_arg_ref(ab, sizeof(ab), prefix_end, 0);
-        fprintf(f, "%s)\n", ab);
+        remember_deferred_insert_mid_kernel_slot(dst, src_prefix, middle, prefix_end);
+        fprintf(f, "  %%r%lld = add i64 0, 0\n", dst);
         finalize_string_concat_result(dst);
-        remember_string_concat_triple(dst, prefix, middle, rhs);
         if (hako_llvmc_route_trace_enabled()) {
           snprintf(
               extra,
@@ -558,6 +582,30 @@
           split = resolve_copy_chain_source_reg(insts, ii + 1, split);
           middle_const = get_str_const(middle);
           if (!middle_const) return -1;
+          if (dst && has_direct_array_set_consumer(ii, ilen, insts, dst)) {
+            remember_deferred_insert_mid_kernel_slot(dst, source, middle, split);
+            fprintf(f, "  %%r%lld = add i64 0, 0\n", dst);
+            finalize_string_concat_result(dst);
+            reason = "publication_boundary_deferred_insert_mid_kernel_slot";
+            if (hako_llvmc_route_trace_enabled()) {
+              char extra[224];
+              snprintf(
+                  extra,
+                  sizeof(extra),
+                  "ii=%zu dst=%lld source=%lld middle=%lld split=%lld",
+                  ii,
+                  dst,
+                  source,
+                  middle,
+                  split);
+              hako_llvmc_emit_route_trace(
+                  "mir_call_string_extern",
+                  "hit",
+                  reason,
+                  extra);
+            }
+            return 1;
+          }
           if (dst &&
               follow_single_use_copy_chain_to_use(
                   ii + 1, ilen, insts, dst, &use_ii, &final_reg, NULL, NULL)) {

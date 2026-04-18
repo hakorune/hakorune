@@ -165,7 +165,7 @@
                   shared_receiver);
               hako_llvmc_emit_route_trace(
                   "string_concat_add_route",
-                  "emit_insert_hsi",
+                  "defer_insert_mid_kernel_slot",
                   "insert_mid_const",
                   route_extra);
             }

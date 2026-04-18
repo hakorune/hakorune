@@ -154,6 +154,16 @@ pub(super) fn insert_const_mid_fallback(source_h: i64, middle_ptr: *const i8, sp
 }
 
 #[inline(always)]
+pub(super) fn insert_const_mid_into_slot(
+    slot: &mut KernelTextSlot,
+    source_h: i64,
+    middle_ptr: *const i8,
+    split: i64,
+) -> bool {
+    const_adapter::insert_const_mid_into_slot(slot, source_h, middle_ptr, split)
+}
+
+#[inline(always)]
 pub(super) fn piecewise_subrange_hsiii_fallback(
     source_h: i64,
     middle_ptr: *const i8,

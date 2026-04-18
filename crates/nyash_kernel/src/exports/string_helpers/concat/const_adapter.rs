@@ -150,6 +150,23 @@ pub(super) fn concat_const_suffix_into_slot(
 }
 
 #[inline(always)]
+pub(super) fn insert_const_mid_into_slot(
+    slot: &mut KernelTextSlot,
+    source_h: i64,
+    middle_ptr: *const i8,
+    split: i64,
+) -> bool {
+    slot.clear();
+    with_insert_middle_text(middle_ptr, |middle| {
+        freeze_owned_string_into_slot(
+            slot,
+            insert_const_mid_plan_from_handle(source_h, middle, split).into_owned(),
+        );
+        true
+    })
+}
+
+#[inline(always)]
 fn with_cached_const_text<R>(
     cache: &'static LocalKey<ConstCStringCache>,
     ptr: *const i8,

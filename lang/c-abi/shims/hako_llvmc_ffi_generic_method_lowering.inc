@@ -98,6 +98,98 @@
         return 1;
       }
 
+      auto int emit_array_string_kernel_slot_store_from_insert_mid(
+          FILE* f,
+          size_t ii,
+          size_t ilen,
+          yyjson_val* insts,
+          long long dst,
+          long long recv,
+          long long idx,
+          long long value) {
+        long long insert_root = resolve_copy_source_reg(value);
+        long long source = 0;
+        long long middle = 0;
+        long long split = 0;
+        const char* middle_const = NULL;
+        char slot_insert_ab[256];
+        char slot_store_ab[128];
+
+        (void)ilen;
+        (void)insts;
+        if (!insert_root) return 0;
+        if (!find_deferred_insert_mid_kernel_slot(insert_root, &source, &middle, &split)) return 0;
+        middle_const = get_str_const(middle);
+        if (!(source && middle && middle_const)) return 0;
+
+        fprintf(
+            f,
+            "  %%arrstr.slot.%lld.%zu = alloca { i8, ptr, i64, i64 }, align 8\n",
+            insert_root,
+            ii);
+        fprintf(
+            f,
+            "  store { i8, ptr, i64, i64 } zeroinitializer, ptr %%arrstr.slot.%lld.%zu, align 8\n",
+            insert_root,
+            ii);
+
+        slot_insert_ab[0] = '\0';
+        append_i64_arg_ref(slot_insert_ab, sizeof(slot_insert_ab), source, 1);
+        strncat(
+            slot_insert_ab,
+            ", ptr getelementptr inbounds (",
+            sizeof(slot_insert_ab) - strlen(slot_insert_ab) - 1);
+        {
+          char tail[128];
+          snprintf(
+              tail,
+              sizeof(tail),
+              "[%zu x i8], ptr @.str_reg_%lld, i64 0, i64 0)",
+              strlen(middle_const) + 1,
+              middle);
+          strncat(
+              slot_insert_ab,
+              tail,
+              sizeof(slot_insert_ab) - strlen(slot_insert_ab) - 1);
+        }
+        append_i64_arg_ref(slot_insert_ab, sizeof(slot_insert_ab), split, 0);
+        fprintf(
+            f,
+            "  call i64 @\"nyash.string.kernel_slot_insert_hsi\"(ptr %%arrstr.slot.%lld.%zu, %s)\n",
+            insert_root,
+            ii,
+            slot_insert_ab);
+
+        slot_store_ab[0] = '\0';
+        append_i64_arg_ref(slot_store_ab, sizeof(slot_store_ab), recv, 1);
+        append_i64_arg_ref(slot_store_ab, sizeof(slot_store_ab), idx, 0);
+        {
+          char tail[128];
+          snprintf(
+              tail,
+              sizeof(tail),
+              ", ptr %%arrstr.slot.%lld.%zu",
+              insert_root,
+              ii);
+          strncat(
+              slot_store_ab,
+              tail,
+              sizeof(slot_store_ab) - strlen(slot_store_ab) - 1);
+        }
+
+        if (dst) {
+          fprintf(
+              f,
+              "  %%r%lld = call i64 @\"nyash.array.kernel_slot_store_hi\"(%s)\n",
+              dst,
+              slot_store_ab);
+          set_type(dst, T_I64);
+        } else {
+          fprintf(f, "  call i64 @\"nyash.array.kernel_slot_store_hi\"(%s)\n", slot_store_ab);
+        }
+        return 1;
+      }
+
       auto int try_emit_non_indexof_generic_method_call(
           FILE* f,
           yyjson_val* blocks,
@@ -186,6 +278,10 @@
                  * phase-151x visibility lock keeps the current concrete lowering
                  * visible instead of promoting this symbol to authority.
                  */
+                if (emit_array_string_kernel_slot_store_from_insert_mid(
+                        f, ii, ilen, insts, dst, recv, a0, a1)) {
+                  break;
+                }
                 if (emit_array_string_kernel_slot_store_from_const_suffix(
                         f, ii, ilen, insts, dst, recv, a0, a1)) {
                   break;

@@ -1,7 +1,7 @@
 # Phase 137x: main kilo reopen selection
 
 - Status: Active Reopen
-- 目的: current optimization lane を `kilo_micro_array_string_store` の publication/source-capture reopen に保ち、compiler-known-length keeper の上で次の exact-front cut を詰める。
+- 目的: current optimization lane を `const_suffix` / `freeze_text_plan(Pieces3)` publication owner に固定し、closed exact front の上で next whole-side cut を詰める。
 - 対象:
   - `CURRENT_TASK.md`
   - `docs/development/current/main/05-Restart-Quick-Resume.md`
@@ -15,11 +15,12 @@
 
 ## Quick Scan
 
-- current exact owner: publication / object-world entry
+- current exact front: `kilo_micro_array_string_store` is closed by the shared-receiver `KernelTextSlot` bridge
 - current whole owner: `const_suffix` / `freeze_text_plan(Pieces3)` publication
 - current middle guard: `kilo_meso_substring_concat_array_set_loopcarry`
 - current stop-line: `KernelTextSlot` exit is observed and inactive (`publish_boundary.slot_* = 0`)
 - current first seam: producer-side unpublished outcome under `const_suffix` (`KernelTextSlot` substrate first)
+- current next seam: direct-set-only `insert_hsi` widening is landed; next widening is non-direct-set `freeze_text_plan(Pieces3)` / `insert_const_mid_fallback`
 - current reject: slot-store delayed publication probes and string-specialized handle payload probe
 - read order:
   1. `CURRENT_TASK.md`
@@ -66,6 +67,23 @@
     - `const_suffix`
     - `freeze_text_plan_pieces3`
   - tests passed with and without `perf-observe`
+- latest reread after the shared-receiver `KernelTextSlot` widening:
+  - exact `kilo_micro_array_string_store`:
+    - stat: `C 10 ms / Ny AOT 4 ms`
+    - reading:
+      - the exact `store.array.str` front is now closed
+      - `bench_micro_aot_asm` top report is startup/env dominated, so this is no longer the active owner proof front
+  - middle `kilo_meso_substring_concat_array_set_loopcarry`:
+    - stat: `C 3 ms / Ny AOT 56 ms`
+    - reading:
+      - slight lift versus the prior `59 ms` reread
+      - producer-side unpublished outcome widening remains live
+  - whole `kilo_kernel_small`:
+    - current direct reread is blocked
+    - build failure: `unsupported pure shape for current backend recipe`
+    - reading:
+      - this blocks the accept-gate measurement, but does not change the current whole owner read
+      - next code cut still targets `const_suffix` / `freeze_text_plan(Pieces3)` publication
 - next-cut reading (separate from confirmed evidence):
   - perf/asm is now sufficient to choose the next keeper without another broad observability round
   - keep exact and whole separate when judging the next keeper
@@ -93,12 +111,17 @@
           - `set(...)`
           - known-length observers
           - trailing `substring(...)` without early publish
+      - next widening target is fixed:
+        - `freeze_text_plan(Pieces3)` / `insert_const_mid_fallback`
+        - keep the same unpublished contract and do not widen generic helper ABI
       - guard the landed direct-set bridge with:
         - fixture: `apps/tests/mir_shape_guard/string_const_suffix_kernel_slot_direct_set_min_v1.mir.json`
         - smoke: `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_const_suffix_kernel_slot_store_contract.sh`
       - guard the landed shared-receiver widening with:
         - fixture: `apps/tests/mir_shape_guard/string_const_suffix_kernel_slot_shared_receiver_min_v1.mir.json`
         - smoke: `tools/smokes/v2/profiles/integration/phase137x/phase137x_direct_emit_const_suffix_kernel_slot_shared_receiver_contract.sh`
+      - guard the landed direct-set-only `insert_hsi` widening with:
+        - smoke: `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_string_insert_mid_direct_set_min.sh`
     - latest local probe after landing the cold retirement sink:
       - `kilo_meso_substring_concat_array_set_loopcarry = 53 ms` (`repeat=3`, prior local reread `56 ms`)
       - `kilo_kernel_small_hk = 733 ms`, `736 ms` (`repeat=3` x2)

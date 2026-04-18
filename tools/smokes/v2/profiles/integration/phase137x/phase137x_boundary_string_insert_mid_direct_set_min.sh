@@ -4,9 +4,10 @@
 # Contract:
 # 1) the narrow synthetic direct-set probe still lowers through
 #    `string_insert_mid_window` on the current direct-set path.
-# 2) the lowered LLVM IR still calls `nyash.string.insert_hsi`.
-# 3) this smoke pins the plan-window-backed direct-set route and keeps
-#    `plan_window_match` observable on the synthetic fixture.
+# 2) the plan-window route remains visible in route trace.
+# 3) lowered LLVM IR now uses
+#    `nyash.string.kernel_slot_insert_hsi -> nyash.array.kernel_slot_store_hi`
+#    and avoids `nyash.string.insert_hsi` / `nyash.array.set_his`.
 
 set -euo pipefail
 
@@ -96,11 +97,32 @@ if ! grep -Fq "plan=1" "$BUILD_LOG"; then
     exit 1
 fi
 
-if ! grep -Fq "nyash.string.insert_hsi" "$LL_DUMP"; then
+if ! grep -Fq "nyash.string.kernel_slot_insert_hsi" "$LL_DUMP"; then
     echo "[INFO] lowered IR:"
     tail -n 120 "$LL_DUMP" || true
-    test_fail "$SMOKE_NAME: lowered IR did not call nyash.string.insert_hsi"
+    test_fail "$SMOKE_NAME: lowered IR missed nyash.string.kernel_slot_insert_hsi"
     exit 1
 fi
 
-test_pass "$SMOKE_NAME: PASS (synthetic direct-set probe still lowers through string_insert_mid_window with plan_window_match and nyash.string.insert_hsi)"
+if ! grep -Fq "nyash.array.kernel_slot_store_hi" "$LL_DUMP"; then
+    echo "[INFO] lowered IR:"
+    tail -n 120 "$LL_DUMP" || true
+    test_fail "$SMOKE_NAME: lowered IR missed nyash.array.kernel_slot_store_hi"
+    exit 1
+fi
+
+if grep -Fq "call i64 @nyash.string.insert_hsi" "$LL_DUMP"; then
+    echo "[INFO] lowered IR:"
+    tail -n 120 "$LL_DUMP" || true
+    test_fail "$SMOKE_NAME: lowered IR still calls nyash.string.insert_hsi"
+    exit 1
+fi
+
+if grep -Fq "call i64 @nyash.array.set_his" "$LL_DUMP"; then
+    echo "[INFO] lowered IR:"
+    tail -n 120 "$LL_DUMP" || true
+    test_fail "$SMOKE_NAME: lowered IR still calls nyash.array.set_his"
+    exit 1
+fi
+
+test_pass "$SMOKE_NAME: PASS (synthetic direct-set probe now lowers through kernel_slot_insert_hsi -> kernel_slot_store_hi)"

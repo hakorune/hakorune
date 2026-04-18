@@ -647,6 +647,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         fprintf(f, "declare i64 @\"nyash.string.concat_hh\"(i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.string.concat_hs\"(i64, ptr)\n");
         fprintf(f, "declare i64 @\"nyash.string.kernel_slot_concat_hs\"(ptr, i64, ptr)\n");
+        fprintf(f, "declare i64 @\"nyash.string.kernel_slot_insert_hsi\"(ptr, i64, ptr, i64)\n");
         fprintf(f, "declare i64 @\"nyash.string.insert_hsi\"(i64, ptr, i64)\n");
         fprintf(f, "declare i64 @\"nyash.string.concat3_hhh\"(i64, i64, i64)\n");
       }

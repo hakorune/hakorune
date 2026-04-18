@@ -25,14 +25,28 @@ Related:
 - keeper front stays closed:
   - `kilo_micro_substring_concat = C 2 ms / Ny AOT 3 ms`
   - `kilo_micro_substring_only = C 3 ms / Ny AOT 3 ms`
-- current broad gap:
-  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 131 ms`
-  - `kilo_kernel_small = C 80 ms / Ny AOT 741 ms`
+- exact `store.array.str` front is now closed:
+  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`
+  - reading:
+    - the shared-receiver `KernelTextSlot` bridge is a keeper
+    - microasm top is startup/env dominated, so this exact front is no longer the active owner proof
 - current bridge front:
   - `kilo_meso_substring_concat_array_set_loopcarry`
   - shape: `substring + concat + array.set + loopcarry`
   - role: adopted middle between exact micro and whole kilo
   - rule: use it to validate store/publication cuts without the whole-front `indexOf("line")` row-scan noise
+- current bridge reread after the shared-receiver landing:
+  - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 56 ms`
+  - reading:
+    - slight win versus the prior `59 ms` reread
+    - this keeps producer-side unpublished outcome widening live
+- current whole accept gate:
+  - `kilo_kernel_small`
+  - current reread result: build blocked on `unsupported pure shape for current backend recipe`
+  - reading:
+    - accept-gate measurement is currently blocked by pure-first AOT build shape, not by a measured regression from the exact landing
+    - whole owner family still reads as `const_suffix` / `freeze_text_plan(Pieces3)` publication
+    - latest landed whole-side narrow cut is direct-set-only `insert_hsi -> kernel_slot_insert_hsi -> kernel_slot_store_hi`
 - `indexOf` separation:
   - keep as side diagnosis; reread only when the main card reopens it
 - completed audit lock (confirmed evidence):
@@ -41,7 +55,8 @@ Related:
   - observability audit: the generic-fallback split is now locked by site-specific noinline symbols in `crates/nyash_kernel/src/plugin/value_codec/string_materialize.rs`; tests passed with and without `perf-observe`
   - choice rule: perf/asm is now sufficient to choose the next keeper without another broad observability round
   - current owner reading:
-  - current main owner family is `array/string-store`
+  - exact `array/string-store` is now closed
+  - live next owner family is upstream producer publication on whole
   - duplicated `text + "xy"` producer is already removed in trusted direct MIR
   - compiler-side known string-length propagation is now landed for const / substring-window / same-length string `phi`
   - active AOT entry IR on this front no longer emits `nyash.string.len_h` in `ny_main`
@@ -64,6 +79,10 @@ Related:
       - narrow shared-receiver exact widening:
         - `text + "xy"` reused by `set(...)` + known-length observer + trailing `substring(...)`
     - producer stays specialized; only the internal contract to sink/reuse is widened
+    - next widening target is fixed:
+      - direct-set-only `insert_const_mid_fallback` / `insert_hsi` is now landed on the same unpublished contract
+      - next widening, if needed, is post-store reuse / non-direct-set `Pieces3`
+      - keep the same unpublished contract and do not reopen generic helper ABI widening
     - before Card A/B, slot publish-boundary verifier/counters are now landed:
       - `publish_boundary.slot_publish_handle_total`
       - `publish_boundary.slot_objectize_stable_box_total`

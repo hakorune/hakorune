@@ -191,6 +191,32 @@ fn string_insert_hsi_contract() {
 }
 
 #[test]
+fn string_kernel_slot_insert_hsi_len_publish_contract() {
+    with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
+        let source_h = string_handle("line-seed");
+        let middle = CString::new("xx").expect("CString");
+        let direct_h = nyash_string_insert_hsi_export(source_h, middle.as_ptr(), 4);
+        let mut slot = crate::plugin::KernelTextSlot::empty();
+
+        assert_eq!(
+            nyash_string_kernel_slot_insert_hsi_export(&mut slot, source_h, middle.as_ptr(), 4),
+            1
+        );
+        assert_eq!(
+            nyash_string_kernel_slot_len_i_export(&slot),
+            nyash_string_len_h(direct_h)
+        );
+
+        let helper_h = nyash_string_kernel_slot_publish_h_export(&mut slot);
+        assert!(helper_h > 0);
+        assert_eq!(
+            decode_string_like_handle(helper_h),
+            decode_string_like_handle(direct_h)
+        );
+    });
+}
+
+#[test]
 fn string_substring_concat_hhii_contract() {
     with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
         let lhs_h = string_handle("line-seed");
@@ -321,6 +347,29 @@ fn string_kernel_slot_concat_hs_store_contract() {
 
         assert_eq!(
             nyash_string_kernel_slot_concat_hs_export(&mut slot, lhs_h, suffix.as_ptr()),
+            1
+        );
+        assert_eq!(nyash_string_kernel_slot_len_i_export(&slot), 11);
+        assert_eq!(
+            crate::nyash_array_kernel_slot_store_hi_alias(handle, 0, &mut slot),
+            1
+        );
+        assert_eq!(crate::nyash_array_string_len_hi_alias(handle, 0), 11);
+        assert_eq!(nyash_string_kernel_slot_len_i_export(&slot), 0);
+    });
+}
+
+#[test]
+fn string_kernel_slot_insert_hsi_store_contract() {
+    with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
+        let array: Arc<dyn NyashBox> = Arc::new(nyash_rust::boxes::array::ArrayBox::new());
+        let handle = handles::to_handle_arc(array) as i64;
+        let source_h = string_handle("line-seed");
+        let middle = CString::new("xx").expect("CString");
+        let mut slot = crate::plugin::KernelTextSlot::empty();
+
+        assert_eq!(
+            nyash_string_kernel_slot_insert_hsi_export(&mut slot, source_h, middle.as_ptr(), 4),
             1
         );
         assert_eq!(nyash_string_kernel_slot_len_i_export(&slot), 11);

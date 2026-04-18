@@ -42,9 +42,9 @@ use self::cache::{
 use self::concat::{
     concat3_fallback, concat3_substring_fallback, concat_const_suffix_fallback,
     concat_const_suffix_into_slot, concat_pair_fallback, concat_pair_into_slot,
-    concat_pair_substring_fallback, insert_const_mid_fallback, piecewise_subrange_hsiii_fallback,
-    piecewise_subrange_hsiii_into_slot, piecewise_subrange_kernel_text_slot_into_slot,
-    substring_kernel_text_slot_in_place,
+    concat_pair_substring_fallback, insert_const_mid_fallback, insert_const_mid_into_slot,
+    piecewise_subrange_hsiii_fallback, piecewise_subrange_hsiii_into_slot,
+    piecewise_subrange_kernel_text_slot_into_slot, substring_kernel_text_slot_in_place,
 };
 use self::materialize::{
     shared_empty_string_handle, string_handle_from_owned, string_handle_from_span,
@@ -320,6 +320,18 @@ pub(super) fn string_concat_hs_into_slot_export_impl(
         return 0;
     };
     i64::from(concat_const_suffix_into_slot(slot, a_h, suffix_ptr))
+}
+
+pub(super) fn string_insert_hsi_into_slot_export_impl(
+    slot: *mut KernelTextSlot,
+    source_h: i64,
+    middle_ptr: *const i8,
+    split: i64,
+) -> i64 {
+    let Some(slot) = (unsafe { slot.as_mut() }) else {
+        return 0;
+    };
+    i64::from(insert_const_mid_into_slot(slot, source_h, middle_ptr, split))
 }
 
 pub(super) fn string_piecewise_subrange_kernel_text_slot_into_slot_export_impl(
