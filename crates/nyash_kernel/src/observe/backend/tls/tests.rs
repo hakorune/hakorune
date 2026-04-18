@@ -111,29 +111,121 @@ fn tls_birth_backend_counters_flush_current_thread() {
                 - contract::BIRTH_PLACEMENT_FRESH_HANDLE_FIELD.read(&before),
             1
         );
-        assert_eq!(after[29] - before[29], 1);
-        assert_eq!(after[33] - before[33], 1);
-        assert_eq!(after[34] - before[34], 18);
-        assert_eq!(after[35] - before[35], 1);
-        assert_eq!(after[36] - before[36], 18);
-        assert_eq!(after[37] - before[37], 1);
-        assert_eq!(after[38] - before[38], 1);
-        assert_eq!(after[39] - before[39], 18);
-        assert_eq!(after[40] - before[40], 1);
-        assert_eq!(after[41] - before[41], 1);
-        assert_eq!(after[42] - before[42], 1);
-        assert_eq!(after[43] - before[43], 18);
-        assert_eq!(after[44] - before[44], 1);
-        assert_eq!(after[45] - before[45], 18);
-        assert_eq!(after[46] - before[46], 1);
-        assert_eq!(after[113] - before[113], 1);
-        assert_eq!(after[114] - before[114], 1);
-        assert_eq!(after[115] - before[115], 1);
-        assert_eq!(after[116] - before[116], 1);
-        assert_eq!(after[117] - before[117], 1);
-        assert_eq!(after[118] - before[118], 1);
-        assert_eq!(after[119] - before[119], 1);
-        assert_eq!(after[120] - before[120], 1);
+        assert_eq!(
+            contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES2_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES2_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_STRING_BOX_NEW_TOTAL_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_STRING_BOX_NEW_TOTAL_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_STRING_BOX_NEW_BYTES_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_STRING_BOX_NEW_BYTES_FIELD.read(&before),
+            18
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_STRING_BOX_CTOR_TOTAL_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_STRING_BOX_CTOR_TOTAL_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_STRING_BOX_CTOR_BYTES_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_STRING_BOX_CTOR_BYTES_FIELD.read(&before),
+            18
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_ARC_WRAP_TOTAL_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_ARC_WRAP_TOTAL_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_OBJECTIZE_STABLE_BOX_NOW_TOTAL_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_OBJECTIZE_STABLE_BOX_NOW_TOTAL_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_OBJECTIZE_STABLE_BOX_NOW_BYTES_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_OBJECTIZE_STABLE_BOX_NOW_BYTES_FIELD.read(&before),
+            18
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_HANDLE_ISSUE_TOTAL_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_HANDLE_ISSUE_TOTAL_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_ISSUE_FRESH_HANDLE_TOTAL_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_ISSUE_FRESH_HANDLE_TOTAL_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_MATERIALIZE_OWNED_TOTAL_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_MATERIALIZE_OWNED_TOTAL_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_MATERIALIZE_OWNED_BYTES_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_MATERIALIZE_OWNED_BYTES_FIELD.read(&before),
+            18
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_GC_ALLOC_CALLED_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_GC_ALLOC_CALLED_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_GC_ALLOC_BYTES_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_GC_ALLOC_BYTES_FIELD.read(&before),
+            18
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_GC_ALLOC_SKIPPED_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_GC_ALLOC_SKIPPED_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_CARRIER_KIND_STABLE_BOX_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_CARRIER_KIND_STABLE_BOX_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_CARRIER_KIND_SOURCE_KEEP_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_CARRIER_KIND_SOURCE_KEEP_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_CARRIER_KIND_OWNED_BYTES_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_CARRIER_KIND_OWNED_BYTES_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_CARRIER_KIND_HANDLE_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_CARRIER_KIND_HANDLE_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_PUBLISH_REASON_EXTERNAL_BOUNDARY_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_PUBLISH_REASON_EXTERNAL_BOUNDARY_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_PUBLISH_REASON_NEED_STABLE_OBJECT_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_PUBLISH_REASON_NEED_STABLE_OBJECT_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_PUBLISH_REASON_GENERIC_FALLBACK_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_PUBLISH_REASON_GENERIC_FALLBACK_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_PUBLISH_REASON_EXPLICIT_API_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_PUBLISH_REASON_EXPLICIT_API_FIELD.read(&before),
+            1
+        );
     });
 }
 

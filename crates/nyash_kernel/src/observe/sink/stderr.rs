@@ -91,85 +91,13 @@ pub(crate) fn emit_summary_to_stderr() {
         contract::BIRTH_PLACEMENT_STORE_FROM_SOURCE_FIELD.read(&snapshot),
     );
     let mut birth_backend_line = format!("[perf/counter][{}]", contract::BIRTH_BACKEND);
-    for (name, value) in [
-        (contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_TOTAL, snapshot[27]),
-        (contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_VIEW1, snapshot[28]),
-        (
-            contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES2,
-            snapshot[29],
-        ),
-        (
-            contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES3,
-            snapshot[30],
-        ),
-        (
-            contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES4,
-            snapshot[31],
-        ),
-        (
-            contract::BIRTH_BACKEND_FREEZE_TEXT_PLAN_OWNED_TMP,
-            snapshot[32],
-        ),
-        (contract::BIRTH_BACKEND_STRING_BOX_NEW_TOTAL, snapshot[33]),
-        (contract::BIRTH_BACKEND_STRING_BOX_NEW_BYTES, snapshot[34]),
-        (contract::BIRTH_BACKEND_STRING_BOX_CTOR_TOTAL, snapshot[35]),
-        (contract::BIRTH_BACKEND_STRING_BOX_CTOR_BYTES, snapshot[36]),
-        (contract::BIRTH_BACKEND_ARC_WRAP_TOTAL, snapshot[37]),
-        (
-            contract::BIRTH_BACKEND_OBJECTIZE_STABLE_BOX_NOW_TOTAL,
-            snapshot[38],
-        ),
-        (
-            contract::BIRTH_BACKEND_OBJECTIZE_STABLE_BOX_NOW_BYTES,
-            snapshot[39],
-        ),
-        (contract::BIRTH_BACKEND_HANDLE_ISSUE_TOTAL, snapshot[40]),
-        (
-            contract::BIRTH_BACKEND_ISSUE_FRESH_HANDLE_TOTAL,
-            snapshot[41],
-        ),
-        (
-            contract::BIRTH_BACKEND_MATERIALIZE_OWNED_TOTAL,
-            snapshot[42],
-        ),
-        (
-            contract::BIRTH_BACKEND_MATERIALIZE_OWNED_BYTES,
-            snapshot[43],
-        ),
-        (contract::BIRTH_BACKEND_GC_ALLOC_CALLED, snapshot[44]),
-        (contract::BIRTH_BACKEND_GC_ALLOC_BYTES, snapshot[45]),
-        (contract::BIRTH_BACKEND_GC_ALLOC_SKIPPED, snapshot[46]),
-        (
-            contract::BIRTH_BACKEND_CARRIER_KIND_STABLE_BOX,
-            snapshot[113],
-        ),
-        (
-            contract::BIRTH_BACKEND_CARRIER_KIND_SOURCE_KEEP,
-            snapshot[114],
-        ),
-        (
-            contract::BIRTH_BACKEND_CARRIER_KIND_OWNED_BYTES,
-            snapshot[115],
-        ),
-        (contract::BIRTH_BACKEND_CARRIER_KIND_HANDLE, snapshot[116]),
-        (
-            contract::BIRTH_BACKEND_PUBLISH_REASON_EXTERNAL_BOUNDARY,
-            snapshot[117],
-        ),
-        (
-            contract::BIRTH_BACKEND_PUBLISH_REASON_NEED_STABLE_OBJECT,
-            snapshot[118],
-        ),
-        (
-            contract::BIRTH_BACKEND_PUBLISH_REASON_GENERIC_FALLBACK,
-            snapshot[119],
-        ),
-        (
-            contract::BIRTH_BACKEND_PUBLISH_REASON_EXPLICIT_API,
-            snapshot[120],
-        ),
-    ] {
-        let _ = write!(&mut birth_backend_line, " {}={}", name, value);
+    for field in contract::BIRTH_BACKEND_CORE_SUMMARY_FIELDS {
+        let _ = write!(
+            &mut birth_backend_line,
+            " {}={}",
+            field.name,
+            field.read(&snapshot)
+        );
     }
     for field in contract::BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_SUMMARY_FIELDS {
         let _ = write!(
