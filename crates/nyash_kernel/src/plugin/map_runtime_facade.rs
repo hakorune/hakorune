@@ -23,21 +23,23 @@ pub(super) fn map_runtime_cap(handle: i64) -> i64 {
 
 pub(super) fn map_runtime_clear(handle: i64) -> i64 {
     let _ = with_map_box(handle, |map| {
-        map.get_data().write().unwrap().clear();
+        map.clear_entries();
     });
     0
 }
 
 pub(super) fn map_runtime_delete_any(handle: i64, key_any: i64) -> i64 {
     let key_str = map_key_string_from_any(key_any);
-    with_map_box(handle, |map| {
-        let removed = map.get_data().write().unwrap().remove(&key_str);
-        if removed.is_some() {
-            1
-        } else {
-            0
-        }
-    })
+    with_map_box(
+        handle,
+        |map| {
+            if map.remove_key_str(&key_str) {
+                1
+            } else {
+                0
+            }
+        },
+    )
     .unwrap_or(0)
 }
 

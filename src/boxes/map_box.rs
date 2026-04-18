@@ -249,9 +249,19 @@ impl MapBox {
         self.data.read().unwrap().contains_key(key)
     }
 
+    /// Raw remove helper for substrate/plugin routes.
+    pub fn remove_key_str(&self, key: &str) -> bool {
+        self.data.write().unwrap().remove(key).is_some()
+    }
+
     /// Raw insert helper for substrate/plugin routes.
     pub fn insert_key_str(&self, key: String, value: Box<dyn NyashBox>) {
         self.data.write().unwrap().insert(key, value);
+    }
+
+    /// Raw clear helper for substrate/plugin routes.
+    pub fn clear_entries(&self) {
+        self.data.write().unwrap().clear();
     }
 
     /// サイズを取得
@@ -261,7 +271,7 @@ impl MapBox {
 
     /// 全てクリア
     pub fn clear(&self) -> Box<dyn NyashBox> {
-        self.data.write().unwrap().clear();
+        self.clear_entries();
         Box::new(StringBox::new("Map cleared"))
     }
 
