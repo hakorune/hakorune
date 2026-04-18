@@ -8,11 +8,10 @@ use super::array_runtime_any::{
     array_runtime_get_any_key, array_runtime_has_any_key, array_runtime_set_any_key,
 };
 use super::array_runtime_substrate::array_runtime_push_any;
-use super::handle_cache::object_from_handle_cached;
+use super::handle_cache::{with_array_or_map, ArrayOrMapBoxKind};
 use super::map_runtime_data::{
     map_runtime_data_get_any_key, map_runtime_data_has_any_key, map_runtime_data_set_any_key,
 };
-use nyash_rust::boxes::{array::ArrayBox, map_box::MapBox};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum RuntimeDataReceiverKind {
@@ -24,14 +23,10 @@ enum RuntimeDataReceiverKind {
 fn classify_runtime_data_receiver(recv_h: i64) -> Option<RuntimeDataReceiverKind> {
     // RuntimeData stays facade-only: it owns the Array/Map branch decision here,
     // then delegates behavior to the array/map runtime facades.
-    let obj = object_from_handle_cached(recv_h)?;
-    if obj.as_any().downcast_ref::<ArrayBox>().is_some() {
-        return Some(RuntimeDataReceiverKind::Array);
-    }
-    if obj.as_any().downcast_ref::<MapBox>().is_some() {
-        return Some(RuntimeDataReceiverKind::Map);
-    }
-    None
+    with_array_or_map(recv_h, |kind| match kind {
+        ArrayOrMapBoxKind::Array => RuntimeDataReceiverKind::Array,
+        ArrayOrMapBoxKind::Map => RuntimeDataReceiverKind::Map,
+    })
 }
 
 // nyash.runtime_data.get_hh(recv_h, key_any) -> mixed runtime i64/handle value (or 0)

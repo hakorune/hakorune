@@ -301,6 +301,8 @@ Related:
   - separate only after the owner family points back at read encode again
   - if not, keep this card parked
 - `Cleanup 4`: typed handle-cache consolidation
+  - status: partial
+  - landed: `handle_cache.rs` owns `with_array_or_map`, and `runtime_data.rs` uses it for the public Array/Map facade classifier
   - decide one owner for typed cache lookup
   - centralize only the live typed-cache routes; do not invent dead-path cleanup that is no longer present in checkout
 - `Cleanup 5`: map-key codec SSOT

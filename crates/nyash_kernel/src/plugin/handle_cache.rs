@@ -81,6 +81,12 @@ pub(super) enum CacheProbeKind {
     MissDropEpoch,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum ArrayOrMapBoxKind {
+    Array,
+    Map,
+}
+
 #[cfg(test)]
 #[inline(always)]
 pub(crate) fn clear_cache_slot() {
@@ -127,43 +133,74 @@ pub(super) fn cache_store(handle: i64, drop_epoch: u64, obj: Arc<dyn NyashBox>) 
     });
 }
 
+#[cfg(test)]
 #[inline(always)]
-fn object_from_handle_cached_impl(handle: i64) -> Option<Arc<dyn NyashBox>> {
+pub(crate) fn object_from_handle_cached(handle: i64) -> Option<Arc<dyn NyashBox>> {
     if handle <= 0 {
         return None;
     }
     let drop_epoch = handles::drop_epoch();
-    object_from_handle_cached_with_epoch(handle, drop_epoch)
-}
-
-#[inline(always)]
-pub(crate) fn object_from_handle_cached(handle: i64) -> Option<Arc<dyn NyashBox>> {
-    object_from_handle_cached_impl(handle)
+    with_object_from_handle_cached_with_epoch(handle, drop_epoch, |obj| Some(obj.clone()))
 }
 
 #[inline(always)]
 fn with_object_from_handle_cached_with_epoch<R>(
     handle: i64,
     drop_epoch: u64,
-    f: impl FnMut(&Arc<dyn NyashBox>) -> Option<R>,
+    mut f: impl FnMut(&Arc<dyn NyashBox>) -> Option<R>,
 ) -> Option<R> {
-    let mut f = Some(f);
-    if let Some(out) = with_cache_entry(handle, drop_epoch, |entry| {
-        let mut f = f.take().expect("cache callback");
-        f(&entry.obj)
-    }) {
-        return Some(out);
+    let cached_result = HANDLE_CACHE.with(|slot| {
+        let cached = slot.borrow();
+        let entry = cached.as_ref()?;
+        if entry.handle != handle || entry.drop_epoch != drop_epoch {
+            return None;
+        }
+        Some(f(&entry.obj))
+    });
+    if let Some(out) = cached_result {
+        return out;
     }
 
     let obj = handles::get(handle as u64)?;
     cache_store(handle, drop_epoch, obj.clone());
-    let mut f = f.take().expect("cache callback");
     f(&obj)
 }
 
 #[inline(always)]
-fn object_from_handle_cached_with_epoch(handle: i64, drop_epoch: u64) -> Option<Arc<dyn NyashBox>> {
-    with_object_from_handle_cached_with_epoch(handle, drop_epoch, |obj| Some(obj.clone()))
+pub(crate) fn with_array_or_map<R>(
+    handle: i64,
+    f: impl FnOnce(ArrayOrMapBoxKind) -> R,
+) -> Option<R> {
+    if handle <= 0 {
+        return None;
+    }
+    let drop_epoch = handles::drop_epoch();
+    let mut f = Some(f);
+    if let Some(out) = with_cache_entry(handle, drop_epoch, |entry| {
+        let kind = if entry.array_ref().is_some() {
+            ArrayOrMapBoxKind::Array
+        } else if entry.map_ref().is_some() {
+            ArrayOrMapBoxKind::Map
+        } else {
+            return None;
+        };
+        let f = f.take().expect("array-or-map callback");
+        Some(f(kind))
+    }) {
+        return Some(out);
+    }
+
+    with_object_from_handle_cached_with_epoch(handle, drop_epoch, |obj| {
+        let kind = if obj.as_any().downcast_ref::<ArrayBox>().is_some() {
+            ArrayOrMapBoxKind::Array
+        } else if obj.as_any().downcast_ref::<MapBox>().is_some() {
+            ArrayOrMapBoxKind::Map
+        } else {
+            return None;
+        };
+        let f = f.take().expect("array-or-map callback");
+        Some(f(kind))
+    })
 }
 
 #[inline(always)]
@@ -270,7 +307,30 @@ mod tests {
 
         assert!(object_from_handle_cached(0).is_none());
         assert!(with_array_box(-1, |_| 1).is_none());
+        assert!(with_array_or_map(-1, |_| 1).is_none());
         assert!(with_map_box(-1, |_| 1).is_none());
         assert!(with_instance_box(-1, |_| 1).is_none());
+    }
+
+    #[test]
+    fn array_or_map_route_reuses_typed_cache_entry() {
+        clear_cache_slot();
+
+        let arr: Arc<dyn NyashBox> = Arc::new(ArrayBox::new());
+        let map: Arc<dyn NyashBox> = Arc::new(MapBox::new());
+        let scalar: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(7));
+        let arr_h = handles::to_handle_arc(arr) as i64;
+        let map_h = handles::to_handle_arc(map) as i64;
+        let scalar_h = handles::to_handle_arc(scalar) as i64;
+
+        assert_eq!(
+            with_array_or_map(arr_h, |kind| kind),
+            Some(ArrayOrMapBoxKind::Array)
+        );
+        assert_eq!(
+            with_array_or_map(map_h, |kind| kind),
+            Some(ArrayOrMapBoxKind::Map)
+        );
+        assert_eq!(with_array_or_map(scalar_h, |kind| kind), None);
     }
 }
