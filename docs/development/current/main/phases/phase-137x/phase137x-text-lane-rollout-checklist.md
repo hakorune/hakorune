@@ -298,7 +298,8 @@ Related:
   - landed: `store.array.str` stderr summary reads total/detail projection through `observe/contract.rs`
   - landed: stderr sink field formatting uses one sink-local `name=value` append helper instead of repeating raw `write!` loops
   - landed: fixed stderr summary families reuse existing `observe/contract.rs` summary field arrays, with explicit sink-owned tails for derived `unclassified` fields
-  - next: inspect remaining raw snapshot index knowledge in sink/test mirrors before moving another family
+  - landed: `stable_box_demand` stderr output now reads a runtime-side named `PerfObserveSnapshot` projection instead of sink-local raw indexes
+  - next: inspect whether the remaining sink helper test fixture needs a named fixture helper, or park Cleanup 2 if no active raw-index mirror remains
 - `Cleanup 3`: split `BorrowedHandleBox` responsibilities
   - separate only after the owner family points back at read encode again
   - if not, keep this card parked
