@@ -145,6 +145,10 @@ struct GlobalCounters {
     birth_backend_site_freeze_text_plan_pieces3_materialize_owned_bytes: AtomicU64,
     birth_backend_site_freeze_text_plan_pieces3_objectize_box_total: AtomicU64,
     birth_backend_site_freeze_text_plan_pieces3_publish_handle_total: AtomicU64,
+    birth_backend_publish_boundary_slot_publish_handle_total: AtomicU64,
+    birth_backend_publish_boundary_slot_objectize_stable_box_total: AtomicU64,
+    birth_backend_publish_boundary_slot_empty: AtomicU64,
+    birth_backend_publish_boundary_slot_already_published: AtomicU64,
 }
 
 impl GlobalCounters {
@@ -293,6 +297,10 @@ impl GlobalCounters {
             birth_backend_site_freeze_text_plan_pieces3_materialize_owned_bytes: AtomicU64::new(0),
             birth_backend_site_freeze_text_plan_pieces3_objectize_box_total: AtomicU64::new(0),
             birth_backend_site_freeze_text_plan_pieces3_publish_handle_total: AtomicU64::new(0),
+            birth_backend_publish_boundary_slot_publish_handle_total: AtomicU64::new(0),
+            birth_backend_publish_boundary_slot_objectize_stable_box_total: AtomicU64::new(0),
+            birth_backend_publish_boundary_slot_empty: AtomicU64::new(0),
+            birth_backend_publish_boundary_slot_already_published: AtomicU64::new(0),
         }
     }
 }
@@ -439,6 +447,10 @@ struct ThreadCounters {
     birth_backend_site_freeze_text_plan_pieces3_materialize_owned_bytes: Cell<u64>,
     birth_backend_site_freeze_text_plan_pieces3_objectize_box_total: Cell<u64>,
     birth_backend_site_freeze_text_plan_pieces3_publish_handle_total: Cell<u64>,
+    birth_backend_publish_boundary_slot_publish_handle_total: Cell<u64>,
+    birth_backend_publish_boundary_slot_objectize_stable_box_total: Cell<u64>,
+    birth_backend_publish_boundary_slot_empty: Cell<u64>,
+    birth_backend_publish_boundary_slot_already_published: Cell<u64>,
     latest_fresh_handle: Cell<i64>,
 }
 
@@ -584,6 +596,10 @@ impl ThreadCounters {
             birth_backend_site_freeze_text_plan_pieces3_materialize_owned_bytes: Cell::new(0),
             birth_backend_site_freeze_text_plan_pieces3_objectize_box_total: Cell::new(0),
             birth_backend_site_freeze_text_plan_pieces3_publish_handle_total: Cell::new(0),
+            birth_backend_publish_boundary_slot_publish_handle_total: Cell::new(0),
+            birth_backend_publish_boundary_slot_objectize_stable_box_total: Cell::new(0),
+            birth_backend_publish_boundary_slot_empty: Cell::new(0),
+            birth_backend_publish_boundary_slot_already_published: Cell::new(0),
             latest_fresh_handle: Cell::new(0),
         }
     }

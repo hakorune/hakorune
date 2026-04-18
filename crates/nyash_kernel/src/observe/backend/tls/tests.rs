@@ -155,6 +155,25 @@ fn tls_phase137x_whole_site_counters_flush_current_thread() {
 }
 
 #[test]
+fn tls_slot_publish_boundary_counters_flush_current_thread() {
+    with_env_var("NYASH_PERF_COUNTERS", "1", || {
+        let _guard = test_lock().lock().expect("observe test lock");
+
+        let before = snapshot();
+        birth_backend_publish_boundary_slot_publish_handle();
+        birth_backend_publish_boundary_slot_objectize_stable_box();
+        birth_backend_publish_boundary_slot_empty();
+        birth_backend_publish_boundary_slot_already_published();
+        let after = snapshot();
+
+        assert_eq!(after[139] - before[139], 1);
+        assert_eq!(after[140] - before[140], 1);
+        assert_eq!(after[141] - before[141], 1);
+        assert_eq!(after[142] - before[142], 1);
+    });
+}
+
+#[test]
 fn tls_string_route_counters_flush_current_thread() {
     with_env_var("NYASH_PERF_COUNTERS", "1", || {
         let _guard = test_lock().lock().expect("observe test lock");

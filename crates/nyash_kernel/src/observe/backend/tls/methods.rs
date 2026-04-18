@@ -334,6 +334,26 @@ impl ThreadCounters {
     }
 
     #[inline(always)]
+    fn birth_backend_publish_boundary_slot_publish_handle(&self) {
+        Self::bump(&self.birth_backend_publish_boundary_slot_publish_handle_total);
+    }
+
+    #[inline(always)]
+    fn birth_backend_publish_boundary_slot_objectize_stable_box(&self) {
+        Self::bump(&self.birth_backend_publish_boundary_slot_objectize_stable_box_total);
+    }
+
+    #[inline(always)]
+    fn birth_backend_publish_boundary_slot_empty(&self) {
+        Self::bump(&self.birth_backend_publish_boundary_slot_empty);
+    }
+
+    #[inline(always)]
+    fn birth_backend_publish_boundary_slot_already_published(&self) {
+        Self::bump(&self.birth_backend_publish_boundary_slot_already_published);
+    }
+
+    #[inline(always)]
     fn birth_backend_site_string_concat_hh_materialize_owned(&self, bytes: u64) {
         Self::bump(&self.birth_backend_site_string_concat_hh_materialize_owned_total);
         self.birth_backend_site_string_concat_hh_materialize_owned_bytes
@@ -959,6 +979,22 @@ impl ThreadCounters {
         flush_cell(
             &self.birth_backend_publish_reason_explicit_api,
             &GLOBAL.birth_backend_publish_reason_explicit_api,
+        );
+        flush_cell(
+            &self.birth_backend_publish_boundary_slot_publish_handle_total,
+            &GLOBAL.birth_backend_publish_boundary_slot_publish_handle_total,
+        );
+        flush_cell(
+            &self.birth_backend_publish_boundary_slot_objectize_stable_box_total,
+            &GLOBAL.birth_backend_publish_boundary_slot_objectize_stable_box_total,
+        );
+        flush_cell(
+            &self.birth_backend_publish_boundary_slot_empty,
+            &GLOBAL.birth_backend_publish_boundary_slot_empty,
+        );
+        flush_cell(
+            &self.birth_backend_publish_boundary_slot_already_published,
+            &GLOBAL.birth_backend_publish_boundary_slot_already_published,
         );
         flush_cell(
             &self.birth_backend_site_string_concat_hh_materialize_owned_total,

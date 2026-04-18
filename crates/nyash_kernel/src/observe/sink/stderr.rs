@@ -222,6 +222,22 @@ pub(crate) fn emit_summary_to_stderr() {
             snapshot[120],
         ),
         (
+            contract::BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_PUBLISH_HANDLE_TOTAL,
+            snapshot[139],
+        ),
+        (
+            contract::BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_OBJECTIZE_STABLE_BOX_TOTAL,
+            snapshot[140],
+        ),
+        (
+            contract::BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_EMPTY,
+            snapshot[141],
+        ),
+        (
+            contract::BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_ALREADY_PUBLISHED,
+            snapshot[142],
+        ),
+        (
             contract::BIRTH_BACKEND_SITE_STRING_CONCAT_HH_MATERIALIZE_OWNED_TOTAL,
             snapshot[123],
         ),

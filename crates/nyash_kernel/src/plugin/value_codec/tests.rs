@@ -182,6 +182,32 @@ fn kernel_text_slot_overwrite_replaces_owned_bytes() {
 }
 
 #[test]
+fn kernel_text_slot_republish_returns_none_after_external_boundary() {
+    let mut slot = KernelTextSlot::empty();
+    freeze_owned_string_into_slot(&mut slot, "publish-once".to_string());
+
+    let first = publish_kernel_text_slot(&mut slot).expect("first publish");
+    assert!(first > 0);
+    assert_eq!(slot.state(), KernelTextSlotState::Published);
+    assert!(publish_kernel_text_slot(&mut slot).is_none());
+    assert_eq!(slot.state(), KernelTextSlotState::Published);
+}
+
+#[test]
+fn kernel_text_slot_objectize_boundary_consumes_owned_bytes_and_clears_slot() {
+    let mut slot = KernelTextSlot::empty();
+    freeze_owned_string_into_slot(&mut slot, "slot-objectize".to_string());
+
+    let arc = objectize_kernel_text_slot_stable_box(&mut slot).expect("stable box");
+    let sb = arc
+        .as_any()
+        .downcast_ref::<StringBox>()
+        .expect("objectized slot should materialize as StringBox");
+    assert_eq!(sb.value, "slot-objectize");
+    assert_eq!(slot.state(), KernelTextSlotState::Empty);
+}
+
+#[test]
 fn with_array_store_str_source_non_string_handle_uses_other_object_contract() {
     let value: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(91));
     let value_h = handles::to_handle_arc(value) as i64;

@@ -141,7 +141,13 @@ Scope: current lane / next lane / restart order only.
   - `freeze_owned_bytes = 15.98%`
   - `issue_fresh_handle = 14.53%`
   - `StringBox::perf_observe_from_owned = 7.25%`
-  - current `carrier_kind` / `publish_reason` counters still collapse the producer sites together
+  - producer site split is landed, and slot exit boundary is now first-class too:
+    - `publish_boundary.slot_publish_handle_total`
+    - `publish_boundary.slot_objectize_stable_box_total`
+    - `publish_boundary.slot_empty`
+    - `publish_boundary.slot_already_published`
+  - `objectize_kernel_text_slot_stable_box` now records `publish_reason.need_stable_object`
+  - current remaining collapse is no longer `which slot exit happened`; it is the upstream owner before that boundary
 - observation-only split is now landed on the perf-observe lane:
   - source lookup now exposes:
     - `lookup.registry_slot_read`
@@ -159,6 +165,11 @@ Scope: current lane / next lane / restart order only.
     - `site.freeze_text_plan_pieces3.materialize_owned_total / bytes`
     - `site.freeze_text_plan_pieces3.objectize_box_total`
     - `site.freeze_text_plan_pieces3.publish_handle_total`
+    - slot publish boundary now exposes:
+      - `publish_boundary.slot_publish_handle_total`
+      - `publish_boundary.slot_objectize_stable_box_total`
+      - `publish_boundary.slot_empty`
+      - `publish_boundary.slot_already_published`
   - latest raw exact reread on `kilo_micro_array_string_store` (observe build; split-only, not release truth) shows:
     - `lookup.registry_slot_read=800000`
     - `lookup.caller_latest_fresh_tag=800000`

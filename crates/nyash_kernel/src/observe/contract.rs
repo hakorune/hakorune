@@ -96,6 +96,13 @@ pub(crate) const BIRTH_BACKEND_PUBLISH_REASON_NEED_STABLE_OBJECT: &str =
 pub(crate) const BIRTH_BACKEND_PUBLISH_REASON_GENERIC_FALLBACK: &str =
     "publish_reason.generic_fallback";
 pub(crate) const BIRTH_BACKEND_PUBLISH_REASON_EXPLICIT_API: &str = "publish_reason.explicit_api";
+pub(crate) const BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_PUBLISH_HANDLE_TOTAL: &str =
+    "publish_boundary.slot_publish_handle_total";
+pub(crate) const BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_OBJECTIZE_STABLE_BOX_TOTAL: &str =
+    "publish_boundary.slot_objectize_stable_box_total";
+pub(crate) const BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_EMPTY: &str = "publish_boundary.slot_empty";
+pub(crate) const BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_ALREADY_PUBLISHED: &str =
+    "publish_boundary.slot_already_published";
 pub(crate) const BIRTH_BACKEND_SITE_STRING_CONCAT_HH_MATERIALIZE_OWNED_TOTAL: &str =
     "site.string_concat_hh.materialize_owned_total";
 pub(crate) const BIRTH_BACKEND_SITE_STRING_CONCAT_HH_MATERIALIZE_OWNED_BYTES: &str =

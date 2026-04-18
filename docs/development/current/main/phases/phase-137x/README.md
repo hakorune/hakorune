@@ -58,6 +58,13 @@
   - current evidence points to publication/object-world entry as the live owner; do not read this as proof of a representation / ABI change
   - current implementation choice is now fixed:
     - keep whole-front ownership as the tiebreaker
+    - before Card A/B code cuts, slot publish-boundary verifier/counters are now landed:
+      - `publish_boundary.slot_publish_handle_total`
+      - `publish_boundary.slot_objectize_stable_box_total`
+      - `publish_boundary.slot_empty`
+      - `publish_boundary.slot_already_published`
+      - `objectize_kernel_text_slot_stable_box` records `publish_reason.need_stable_object`
+      - this reduces the blind spot from `generic_fallback` to the upstream producer/retarget owner before slot exit
     - first code seam is the borrowed-slot retarget/publication tail under `execute_store_array_str_contract`
     - concrete entry:
       - `try_retarget_borrowed_string_slot_take_verified_text_source`
@@ -160,6 +167,11 @@
     - `lookup.caller_latest_fresh_tag=800000`
     - `site.string_concat_hh.materialize_owned_total=800000`
     - `site.string_substring_concat_hhii.materialize_owned_total=800000`
+    - slot exit boundary counters are now available:
+      - `publish_boundary.slot_publish_handle_total`
+      - `publish_boundary.slot_objectize_stable_box_total`
+      - `publish_boundary.slot_empty`
+      - `publish_boundary.slot_already_published`
   - whole kilo:
     - `const_suffix freeze_fallback=479728`
     - `freeze_text_plan_pieces3=60000`

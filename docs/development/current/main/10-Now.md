@@ -57,6 +57,12 @@ Related:
     - first implementation target:
       - `try_retarget_borrowed_string_slot_take_verified_text_source`
       - `keep_borrowed_string_slot_source_keep`
+    - before Card A/B, slot publish-boundary verifier/counters are now landed:
+      - `publish_boundary.slot_publish_handle_total`
+      - `publish_boundary.slot_objectize_stable_box_total`
+      - `publish_boundary.slot_empty`
+      - `publish_boundary.slot_already_published`
+      - `objectize_kernel_text_slot_stable_box` now records `publish_reason.need_stable_object`
     - middle remains the contradiction guard; if this seam does not lift meso, reopen `substring_hii -> borrowed_substring_plan_from_handle`
     - latest local probe after landing the cold retirement sink:
       - `kilo_meso_substring_concat_array_set_loopcarry = 53 ms` (`repeat=3`)
@@ -96,6 +102,7 @@ Related:
     - `lookup.caller_latest_fresh_tag`
     - `site.string_concat_hh.{materialize_owned_total/materialize_owned_bytes/objectize_box_total/publish_handle_total}`
     - `site.string_substring_concat_hhii.{materialize_owned_total/materialize_owned_bytes/objectize_box_total/publish_handle_total}`
+    - `publish_boundary.slot_{publish_handle_total,objectize_stable_box_total,empty,already_published}`
   - latest raw exact observe reread on `kilo_micro_array_string_store` shows:
     - `lookup.registry_slot_read=800000`
     - `lookup.caller_latest_fresh_tag=800000`

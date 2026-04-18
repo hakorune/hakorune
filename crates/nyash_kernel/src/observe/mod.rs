@@ -335,6 +335,26 @@ mod real {
     }
 
     #[inline(always)]
+    pub(crate) fn record_birth_backend_publish_boundary_slot_publish_handle() {
+        super::backend::birth_backend_publish_boundary_slot_publish_handle();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_publish_boundary_slot_objectize_stable_box() {
+        super::backend::birth_backend_publish_boundary_slot_objectize_stable_box();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_publish_boundary_slot_empty() {
+        super::backend::birth_backend_publish_boundary_slot_empty();
+    }
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_publish_boundary_slot_already_published() {
+        super::backend::birth_backend_publish_boundary_slot_already_published();
+    }
+
+    #[inline(always)]
     pub(crate) fn record_birth_backend_site_string_concat_hh_materialize_owned(bytes: usize) {
         super::backend::birth_backend_site_string_concat_hh_materialize_owned(bytes as u64);
     }
@@ -886,6 +906,18 @@ mod real {
 
     #[inline(always)]
     pub(crate) fn record_birth_backend_publish_reason_explicit_api() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_publish_boundary_slot_publish_handle() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_publish_boundary_slot_objectize_stable_box() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_publish_boundary_slot_empty() {}
+
+    #[inline(always)]
+    pub(crate) fn record_birth_backend_publish_boundary_slot_already_published() {}
 
     #[inline(always)]
     pub(crate) fn record_birth_backend_site_string_concat_hh_materialize_owned(_bytes: usize) {}

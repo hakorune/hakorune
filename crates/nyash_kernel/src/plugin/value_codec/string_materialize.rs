@@ -9,6 +9,7 @@ enum PublishReason {
     ExternalBoundary,
     GenericFallback,
     ExplicitApi,
+    NeedStableObject,
 }
 
 #[derive(Clone, Copy)]
@@ -25,6 +26,9 @@ fn record_publish_reason(reason: PublishReason) {
     match reason {
         PublishReason::ExternalBoundary => {
             crate::observe::record_birth_backend_publish_reason_external_boundary();
+        }
+        PublishReason::NeedStableObject => {
+            crate::observe::record_birth_backend_publish_reason_need_stable_object();
         }
         PublishReason::GenericFallback => {
             crate::observe::record_birth_backend_publish_reason_generic_fallback();
@@ -123,6 +127,12 @@ pub(crate) enum KernelTextSlotState {
     Published = 2,
 }
 
+#[derive(Clone, Copy)]
+enum KernelTextSlotBoundary {
+    PublishHandle,
+    ObjectizeStableBox,
+}
+
 /// Runtime-private direct-kernel string carrier passed through exported C ABI seams.
 /// The symbol is exported for AOT/LLVM lowering, but semantic ownership stays local
 /// to the active corridor and must not be treated as a general public string API.
@@ -205,6 +215,45 @@ impl Drop for KernelTextSlot {
     fn drop(&mut self) {
         self.clear();
     }
+}
+
+#[inline(always)]
+fn record_kernel_text_slot_boundary(boundary: KernelTextSlotBoundary, state: KernelTextSlotState) {
+    match state {
+        KernelTextSlotState::OwnedBytes => match boundary {
+            KernelTextSlotBoundary::PublishHandle => {
+                crate::observe::record_birth_backend_publish_boundary_slot_publish_handle();
+            }
+            KernelTextSlotBoundary::ObjectizeStableBox => {
+                crate::observe::record_birth_backend_publish_boundary_slot_objectize_stable_box();
+            }
+        },
+        KernelTextSlotState::Empty => {
+            crate::observe::record_birth_backend_publish_boundary_slot_empty();
+        }
+        KernelTextSlotState::Published => {
+            crate::observe::record_birth_backend_publish_boundary_slot_already_published();
+        }
+    }
+}
+
+#[inline(always)]
+fn take_kernel_text_slot_boundary_owned_bytes(
+    slot: &mut KernelTextSlot,
+    boundary: KernelTextSlotBoundary,
+) -> Option<OwnedBytes> {
+    let state = slot.state();
+    record_kernel_text_slot_boundary(boundary, state);
+    if state == KernelTextSlotState::Published {
+        debug_assert!(
+            slot.ptr.is_null() && slot.len == 0 && slot.cap == 0,
+            "published KernelTextSlot must not retain owned bytes"
+        );
+    }
+    if state != KernelTextSlotState::OwnedBytes {
+        return None;
+    }
+    slot.take_owned_bytes()
 }
 
 #[inline(always)]
@@ -461,7 +510,8 @@ pub(crate) fn publish_owned_bytes(bytes: OwnedBytes) -> i64 {
 
 #[inline(always)]
 pub(crate) fn publish_kernel_text_slot(slot: &mut KernelTextSlot) -> Option<i64> {
-    let bytes = slot.take_owned_bytes()?;
+    let bytes =
+        take_kernel_text_slot_boundary_owned_bytes(slot, KernelTextSlotBoundary::PublishHandle)?;
     let handle = publish_owned_bytes_external_boundary(bytes);
     slot.mark_published();
     Some(handle)
@@ -471,7 +521,11 @@ pub(crate) fn publish_kernel_text_slot(slot: &mut KernelTextSlot) -> Option<i64>
 pub(crate) fn objectize_kernel_text_slot_stable_box(
     slot: &mut KernelTextSlot,
 ) -> Option<Arc<dyn NyashBox>> {
-    let bytes = slot.take_owned_bytes()?;
+    let bytes = take_kernel_text_slot_boundary_owned_bytes(
+        slot,
+        KernelTextSlotBoundary::ObjectizeStableBox,
+    )?;
+    record_publish_reason(PublishReason::NeedStableObject);
     Some(objectize_stable_string_box(bytes))
 }
 

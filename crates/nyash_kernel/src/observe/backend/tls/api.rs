@@ -66,6 +66,10 @@ tls_zero_arg_api! {
     birth_backend_publish_reason_need_stable_object => birth_backend_publish_reason_need_stable_object,
     birth_backend_publish_reason_generic_fallback => birth_backend_publish_reason_generic_fallback,
     birth_backend_publish_reason_explicit_api => birth_backend_publish_reason_explicit_api,
+    birth_backend_publish_boundary_slot_publish_handle => birth_backend_publish_boundary_slot_publish_handle,
+    birth_backend_publish_boundary_slot_objectize_stable_box => birth_backend_publish_boundary_slot_objectize_stable_box,
+    birth_backend_publish_boundary_slot_empty => birth_backend_publish_boundary_slot_empty,
+    birth_backend_publish_boundary_slot_already_published => birth_backend_publish_boundary_slot_already_published,
     str_concat2_route_enter => str_concat2_route_enter,
     str_concat2_route_dispatch_hit => str_concat2_route_dispatch_hit,
     str_concat2_route_fast_str_owned => str_concat2_route_fast_str_owned,
@@ -227,7 +231,7 @@ macro_rules! load {
     };
 }
 
-pub(crate) fn snapshot() -> [u64; 139] {
+pub(crate) fn snapshot() -> [u64; 143] {
     flush_current_thread();
     [
         load!(store_array_str_total),
@@ -369,5 +373,9 @@ pub(crate) fn snapshot() -> [u64; 139] {
         load!(birth_backend_site_freeze_text_plan_pieces3_materialize_owned_bytes),
         load!(birth_backend_site_freeze_text_plan_pieces3_objectize_box_total),
         load!(birth_backend_site_freeze_text_plan_pieces3_publish_handle_total),
+        load!(birth_backend_publish_boundary_slot_publish_handle_total),
+        load!(birth_backend_publish_boundary_slot_objectize_stable_box_total),
+        load!(birth_backend_publish_boundary_slot_empty),
+        load!(birth_backend_publish_boundary_slot_already_published),
     ]
 }
