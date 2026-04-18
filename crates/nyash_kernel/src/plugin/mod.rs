@@ -64,7 +64,6 @@ pub(crate) use value_codec::{
 };
 
 #[cfg(test)]
-#[cfg(test)]
 mod wiring_tests {
     #[test]
     fn b3_public_wiring_contract_compiles() {
