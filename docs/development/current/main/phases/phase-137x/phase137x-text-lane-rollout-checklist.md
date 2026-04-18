@@ -294,6 +294,7 @@ Related:
   - landed: TLS snapshot length is owned by `observe/contract.rs`, not a backend-local raw number
   - landed: borrowed-alias test snapshot projection reads an ordered field set owned by `observe/contract.rs`
   - landed: `store.array.str` stderr summary reads total/detail projection through `observe/contract.rs`
+  - landed: stderr sink field formatting uses one sink-local `name=value` append helper instead of repeating raw `write!` loops
   - after the landed borrowed-alias slice, move the next active family only:
     - `store.array.str`
   - remove raw snapshot index knowledge from sink/test mirrors where possible
