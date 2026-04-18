@@ -31,7 +31,6 @@ mod map_debug;
 mod map_key_codec;
 mod map_probe;
 mod map_runtime_data;
-mod map_runtime_facade;
 mod map_slot_load;
 mod map_slot_mutate;
 mod map_slot_store;
