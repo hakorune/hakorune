@@ -95,12 +95,12 @@ Related:
 
 ### 2.4 Legacy residue
 
-- legacy builtin residue remains for ArrayBox.
+- deprecated builtin collection fallbacks are removed.
 - exact owners:
-  - `src/box_factory/builtin_impls/array_box.rs`
+  - `ArrayBox` construction goes through `src/providers/ring1/array/mod.rs`.
+  - `MapBox` construction goes through `src/providers/ring1/map/mod.rs`.
 - rule:
-  - これらは daily owner に戻さず、compat/archive residue としてのみ扱う。
-  - `MapBox` construction goes through the ring1 map provider seam; do not reintroduce a standalone builtin MapBox fallback.
+  - Do not reintroduce standalone builtin ArrayBox/MapBox constructor fallbacks under `src/box_factory/builtin_impls/`.
 
 ## 3. 0rust Target
 

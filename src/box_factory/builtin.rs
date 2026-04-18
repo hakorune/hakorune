@@ -44,8 +44,8 @@ impl BoxFactory for BuiltinBoxFactory {
             // Phase 2.3: DELETE when BoolBox plugin is created
             "BoolBox" => builtin_impls::bool_box::create(args),
 
-            // Phase 2.4-2.5: DELETE when collection plugins confirmed
-            "ArrayBox" => builtin_impls::array_box::create(args),
+            // Collection constructors are owned by ring1 provider seams.
+            "ArrayBox" => Ok(crate::providers::ring1::array::new_array_box()),
             "MapBox" => Ok(crate::providers::ring1::map::new_map_box()),
 
             // Phase 125: Plugin-preferred, but builtin fallback for selfhost

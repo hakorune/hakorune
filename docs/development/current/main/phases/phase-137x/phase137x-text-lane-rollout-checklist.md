@@ -311,6 +311,7 @@ Related:
   - landed: RuntimeData field fallback now targets `nyash.map.slot_load_hh` / `nyash.map.slot_store_hhh`; `nyash.map.get_hh` / `nyash.map.set_hh` remain compat export/test/archive residue
   - landed: C-shim map size emission now targets `nyash.map.entry_count_i64`; dead `get_h` / `has_h` C declarations were removed from the active shim
   - landed: Rust `map_compat` exports are no longer re-exported through public `map::*`; compat ABI exports/tests, including `entry_count_h`, live inside `map_compat.rs`
+  - landed: `NewBox(ArrayBox)` construction now goes through the ring1 array provider seam; the deprecated builtin ArrayBox fallback is removed
   - landed: `NewBox(MapBox)` construction now goes through the ring1 map provider seam; the deprecated builtin MapBox fallback is removed
   - retarget remaining lowering/runtime users off deprecated compat map exports
   - then collapse:

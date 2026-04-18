@@ -9,6 +9,11 @@ use crate::runtime::core_services::ArrayService;
 
 const INVALID_ARRAY_BOX: &str = "Not an ArrayBox";
 
+/// Create the canonical runtime ArrayBox through the ring1 array provider seam.
+pub fn new_array_box() -> Box<dyn NyashBox> {
+    Box::new(ArrayBox::new())
+}
+
 #[derive(Debug, Default)]
 pub struct Ring1ArrayService;
 
@@ -95,5 +100,11 @@ mod tests {
                 .unwrap_err(),
             INVALID_ARRAY_BOX
         );
+    }
+
+    #[test]
+    fn ring1_array_new_box_returns_arraybox() {
+        let boxed = new_array_box();
+        assert!(boxed.as_any().downcast_ref::<ArrayBox>().is_some());
     }
 }

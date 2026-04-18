@@ -3,12 +3,11 @@
  *
  * These modules remain only for runtime fallback / selfhost support paths.
  * Plugin-preferred routes may still use them when no external provider is active.
- * MapBox construction goes through the ring1 map provider seam; do not add a
- * standalone builtin MapBox fallback here.
+ * ArrayBox/MapBox construction goes through ring1 provider seams; do not add
+ * standalone builtin collection fallbacks here.
  * `null_box.rs` stays as the surface/compat constructor for the runtime no-value family.
  */
 
-pub mod array_box;
 pub mod bool_box;
 pub mod console_box; // builtin fallback for selfhost support (plugin-preferred)
 pub mod integer_box;

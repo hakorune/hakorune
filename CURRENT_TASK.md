@@ -86,6 +86,7 @@ Scope: current lane / next lane / restart order only.
       - keep RuntimeData field fallback on `nyash.map.slot_load_hh` / `nyash.map.slot_store_hhh`; `get_hh` / `set_hh` are compat/export residue only
       - keep C-shim map size emission on `nyash.map.entry_count_i64`; `entry_count_h` is compat/export residue only
       - keep Rust `map_compat` out of the public `map::*` re-export; compat ABI exports/tests, including `entry_count_h`, live inside `map_compat.rs`
+      - keep `NewBox(ArrayBox)` construction on the ring1 array provider seam; the deprecated builtin ArrayBox fallback is removed
       - keep `NewBox(MapBox)` construction on the ring1 map provider seam; the deprecated builtin MapBox fallback is removed
   - pending todo:
     - `phase2-deferred-const-suffix-stability`
