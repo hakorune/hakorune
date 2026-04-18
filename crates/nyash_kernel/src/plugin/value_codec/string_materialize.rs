@@ -387,6 +387,16 @@ fn publish_owned_bytes_with_reason_and_site(
     reason: PublishReason,
     site: StringPublishSite,
 ) -> i64 {
+    publish_owned_bytes_with_reason_and_site_cold(bytes, reason, site)
+}
+
+#[cold]
+#[inline(never)]
+fn publish_owned_bytes_with_reason_and_site_cold(
+    bytes: OwnedBytes,
+    reason: PublishReason,
+    site: StringPublishSite,
+) -> i64 {
     record_publish_reason(reason);
     record_publish_site_objectize_box(site);
     let arc = objectize_stable_string_box(bytes);
@@ -394,43 +404,24 @@ fn publish_owned_bytes_with_reason_and_site(
     issue_fresh_handle(arc)
 }
 
-#[cfg(feature = "perf-observe")]
-#[inline(never)]
 fn publish_owned_bytes_explicit_api_boundary(bytes: OwnedBytes) -> i64 {
     publish_owned_bytes_with_reason(bytes, PublishReason::ExplicitApi)
 }
 
-#[cfg(not(feature = "perf-observe"))]
-#[inline(always)]
-fn publish_owned_bytes_explicit_api_boundary(bytes: OwnedBytes) -> i64 {
-    publish_owned_bytes_with_reason(bytes, PublishReason::ExplicitApi)
-}
-
-#[cfg(feature = "perf-observe")]
+#[cold]
 #[inline(never)]
 fn publish_owned_bytes_external_boundary(bytes: OwnedBytes) -> i64 {
     publish_owned_bytes_with_reason(bytes, PublishReason::ExternalBoundary)
 }
 
-#[cfg(not(feature = "perf-observe"))]
-#[inline(always)]
-fn publish_owned_bytes_external_boundary(bytes: OwnedBytes) -> i64 {
-    publish_owned_bytes_with_reason(bytes, PublishReason::ExternalBoundary)
-}
-
-#[cfg(feature = "perf-observe")]
+#[cold]
 #[inline(never)]
 fn publish_owned_bytes_generic_fallback_boundary(bytes: OwnedBytes) -> i64 {
     publish_owned_bytes_with_reason(bytes, PublishReason::GenericFallback)
 }
 
-#[cfg(not(feature = "perf-observe"))]
-#[inline(always)]
-fn publish_owned_bytes_generic_fallback_boundary(bytes: OwnedBytes) -> i64 {
-    publish_owned_bytes_with_reason(bytes, PublishReason::GenericFallback)
-}
-
 #[cfg(feature = "perf-observe")]
+#[cold]
 #[inline(never)]
 fn publish_owned_bytes_string_concat_hh_generic_fallback_boundary(bytes: OwnedBytes) -> i64 {
     publish_owned_bytes_with_reason_and_site(
@@ -441,6 +432,7 @@ fn publish_owned_bytes_string_concat_hh_generic_fallback_boundary(bytes: OwnedBy
 }
 
 #[cfg(feature = "perf-observe")]
+#[cold]
 #[inline(never)]
 fn publish_owned_bytes_string_substring_concat_hhii_generic_fallback_boundary(
     bytes: OwnedBytes,
@@ -453,6 +445,7 @@ fn publish_owned_bytes_string_substring_concat_hhii_generic_fallback_boundary(
 }
 
 #[cfg(feature = "perf-observe")]
+#[cold]
 #[inline(never)]
 fn publish_owned_bytes_const_suffix_generic_fallback_boundary(bytes: OwnedBytes) -> i64 {
     publish_owned_bytes_with_reason_and_site(
@@ -463,6 +456,7 @@ fn publish_owned_bytes_const_suffix_generic_fallback_boundary(bytes: OwnedBytes)
 }
 
 #[cfg(feature = "perf-observe")]
+#[cold]
 #[inline(never)]
 fn publish_owned_bytes_freeze_text_plan_pieces3_generic_fallback_boundary(
     bytes: OwnedBytes,
@@ -517,7 +511,8 @@ pub(crate) fn publish_kernel_text_slot(slot: &mut KernelTextSlot) -> Option<i64>
     Some(handle)
 }
 
-#[inline(always)]
+#[cold]
+#[inline(never)]
 pub(crate) fn objectize_kernel_text_slot_stable_box(
     slot: &mut KernelTextSlot,
 ) -> Option<Arc<dyn NyashBox>> {

@@ -183,22 +183,26 @@ pub(crate) fn string_is_empty_from_handle(handle: i64) -> Option<bool> {
     fallback
 }
 
-#[inline(always)]
+#[cold]
+#[inline(never)]
 pub(super) fn string_handle_from_owned(value: String) -> i64 {
     string_handle_from_owned_with_site(value, StringPublishSite::Generic)
 }
 
-#[inline(always)]
+#[cold]
+#[inline(never)]
 pub(super) fn string_handle_from_owned_concat_hh(value: String) -> i64 {
     string_handle_from_owned_with_site(value, StringPublishSite::StringConcatHh)
 }
 
-#[inline(always)]
+#[cold]
+#[inline(never)]
 pub(super) fn string_handle_from_owned_substring_concat_hhii(value: String) -> i64 {
     string_handle_from_owned_with_site(value, StringPublishSite::StringSubstringConcatHhii)
 }
 
-#[inline(always)]
+#[cold]
+#[inline(never)]
 pub(super) fn string_handle_from_owned_const_suffix(value: String) -> i64 {
     string_handle_from_owned_with_site(value, StringPublishSite::ConstSuffix)
 }

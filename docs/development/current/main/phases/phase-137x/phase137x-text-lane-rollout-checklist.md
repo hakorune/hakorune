@@ -104,34 +104,7 @@ Related:
 - Stop-line:
   - if the only observable change is owner shift from one helper name to another with no boundary change, revert and do not continue widening
 
-## Phase 2. Canonical Sink Contract
-
-- Goal:
-  - promote `KernelTextSlot` from special case to canonical text sink residence
-- Cards:
-  - `store.array.str` accepts unpublished producer outcome as the normal sink path
-  - shared-receiver reuse continues to read from slot/local residence before publish
-- Touched areas:
-  - `crates/nyash_kernel/src/plugin/array_string_slot.rs`
-  - `crates/nyash_kernel/src/plugin/value_codec/string_store.rs`
-  - `crates/nyash_kernel/src/plugin/value_codec/borrowed_handle.rs`
-  - `crates/nyash_kernel/src/plugin/value_codec/string_materialize.rs`
-  - compiler lowering under `lang/c-abi/shims/`
-- Expected evidence:
-  - same-corridor `const_suffix` / `Pieces3` store routes terminate at slot residence
-  - `set_his` fast path and alias-retarget legality stay intact
-  - exact shared-receiver reuse remains green
-- Keeper criteria:
-  - exact remains closed
-  - middle improves through fewer transitions or at minimum stays neutral
-  - whole hot path shows more `kernel_slot_*` and less eager materialize/publish
-- Revert criteria:
-  - slot bridge only moves cost into a later forced publish without reducing total work
-  - `set_his` fast path or alias-retarget contract breaks
-- Stop-line:
-  - if slot-boundary counters stay zero and whole owner still sits entirely upstream, do not widen the sink contract further before re-reading the producer side
-
-## Phase 3. Cold Publish Effect
+## Phase 2. Cold Publish Effect
 
 - Goal:
   - move publish to one explicit cold effect instead of letting producer/sink helpers materialize implicitly
@@ -155,7 +128,7 @@ Related:
 - Stop-line:
   - if boundary reasons are still ambiguous after the counter split, stop and add observability before another behavior card
 
-## Phase 4. TextLane Storage
+## Phase 3. TextLane Storage
 
 - Goal:
   - specialize array internal residence for text-heavy corridors without changing public array semantics
@@ -180,7 +153,7 @@ Related:
 - Stop-line:
   - if array specialization starts requiring producer-specific by-name routing, stop and redesign the storage boundary first
 
-## Phase 5. MIR Contract / Verifier
+## Phase 4. MIR Contract / Verifier
 
 - Goal:
   - move legality from helper-name convention to MIR/lowering contract
@@ -237,5 +210,5 @@ Related:
 - stop after 2 non-keeper cards in the same owner family
 - stop if exact / middle / whole are being judged with different baselines
 - stop if docs drift from the actual landed seam
-- stop if `TextLane` work begins before `producer outcome` and `canonical sink` are both proven
+- stop if `TextLane` work begins before Phase 1 and Phase 2 are both proven
 - stop if publish centralization is attempted before the corridor can already stay unpublished through store

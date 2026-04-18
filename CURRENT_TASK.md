@@ -101,10 +101,11 @@ Scope: current lane / next lane / restart order only.
     - goal: specialize array internal text residence without changing public array semantics
   - `Phase 4`: raise legality and sink-aware AOT only after runtime contract is proven
     - goal: publish prohibition/allowance becomes contract, not helper-name convention
-- current active work is phase 1 completion:
-  - finish producer outcome -> canonical sink widening
+- current active work is phase 2 first slice:
+  - isolate publish as a cold effect without changing public ABI
   - keep `KernelTextSlot` as the first canonical sink residence
-  - next widened cases stay `const_suffix` / `freeze_text_plan(Pieces3)` family; do not jump to `TextLane` first
+  - first slice is explicit cold publish adapters around `string_handle_from_owned_*` and `publish_owned_bytes_*`
+  - do not jump to `TextLane` or MIR legality first
 - current accepted redesign is now locked in narrowed form:
   - keep `public handle ABI`
   - move the first code cut to producer-side unpublished outcome
@@ -208,9 +209,22 @@ Scope: current lane / next lane / restart order only.
           - `array_get_index_encoded_i64` closure `3.44%`
           - `insert_const_mid_into_slot` closure `1.54%`
           - `nyash.string.kernel_slot_concat_hs` `1.21%`
-          - `piecewise_subrange_hsiii_composed_window` is NOT in the hot symbols
+        - `piecewise_subrange_hsiii_composed_window` is NOT in the hot symbols
         - composed-window path is confirmed NOT on the whole hot path; landing is safe
         - whole keeper requires reducing malloc/memmove materialization tax — Phase 2/3 territory, not Phase 1
+    - latest phase-2 cold publish slice:
+      - code seam:
+        - `string_handle_from_owned{,_concat_hh,_substring_concat_hhii,_const_suffix}` now enter explicit cold publish adapters
+        - `publish_owned_bytes_*_boundary` and `objectize_kernel_text_slot_stable_box` are outlined cold boundaries
+      - docs seam:
+        - phase checklist numbering now matches the phased-rollout SSOT (`Phase 2 = cold publish effect`, `Phase 3 = TextLane`, `Phase 4 = MIR contract`)
+      - reread:
+        - exact `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 3 ms`
+        - whole `kilo_kernel_small`: `C 81 ms / Ny AOT 768 ms`
+      - reading:
+        - exact stays closed
+        - whole remains in the same stall-collapse owner family (`ratio_instr=0.79`, `ratio_cycles=0.25`, `ratio_ms=0.11`)
+        - this is a valid Phase-2 start, but not yet a whole keeper; next card must reduce publish/source-capture frequency, not just outline the same boundary
   - therefore the landed `.hako` owner pilot is still VM/reference-lane only; active AOT already reaches the current concrete `store.array.str` lowering without that pilot
   - slot-store boundary delayed-publication probes were tried and rejected:
     - active slot route v1:

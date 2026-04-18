@@ -25,6 +25,16 @@
   - `Phase 2`: cold publish effect
   - `Phase 3`: future `TextLane`
   - `Phase 4`: MIR legality / sink-aware AOT
+- current phase-2 start:
+  - `string_handle_from_owned{,_concat_hh,_substring_concat_hhii,_const_suffix}` now enter explicit cold publish adapters
+  - `publish_owned_bytes_*_boundary` / `objectize_kernel_text_slot_stable_box` are outlined cold boundaries
+  - latest reread:
+    - `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
+    - `kilo_kernel_small = C 81 ms / Ny AOT 768 ms`
+  - reading:
+    - exact stays closed
+    - whole remains neutral inside the same publication/source-capture owner family
+    - next phase-2 slice must reduce publish/source-capture frequency, not just outline it
 - current next seam inside phase 1: direct-set-only `insert_hsi` widening is landed; next widening is non-direct-set `freeze_text_plan(Pieces3)` / `insert_const_mid_fallback`
   - direct-set-only deferred `Pieces3 substring` widening is now landed on the same unpublished contract
 - current reject: slot-store delayed publication probes and string-specialized handle payload probe

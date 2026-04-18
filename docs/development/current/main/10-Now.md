@@ -64,6 +64,15 @@ Related:
   - `Phase 2`: cold publish effect
   - `Phase 3`: future `TextLane` storage specialization
   - `Phase 4`: MIR legality and sink-aware AOT
+- current phase-2 start is now landed structurally:
+  - `string_handle_from_owned{,_concat_hh,_substring_concat_hhii,_const_suffix}` enter explicit cold publish adapters
+  - `publish_owned_bytes_*_boundary` / `objectize_kernel_text_slot_stable_box` are outlined as cold boundaries
+  - latest reread stays `exact closed / whole neutral`:
+    - `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
+    - `kilo_kernel_small = C 81 ms / Ny AOT 768 ms`
+  - reading:
+    - owner family is still publication/source-capture
+    - next phase-2 card must reduce publish frequency, not only outline the same boundary
 - phase/task anchors:
   - `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
   - `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
@@ -189,19 +198,16 @@ Related:
 
 ## Next
 
-1. finish `Phase 1`
-   - keep the producer-first unpublished contract corridor-local
-   - widen only `const_suffix` / `freeze_text_plan(Pieces3)` family into canonical sink continuity
-2. preserve the current guards while finishing phase 1
+1. continue `Phase 2`
+   - keep publish as an explicit cold effect
+   - next slice must reduce publish/source-capture frequency, not just outline it
+2. preserve the current guards during phase 2
    - exact stays closed
    - middle stays the contradiction gate
    - preserve the existing `set_his` fast path
-3. only after a phase-1 keeper, start `Phase 2`
-   - isolate publish as a cold effect
-   - move `objectize` / `issue_fresh_handle` off producer helpers
-4. defer `Phase 3`
+3. defer `Phase 3`
    - do not introduce `TextLane` before producer/sink split is proven
-5. defer `Phase 4`
+4. defer `Phase 4`
    - do not raise MIR legality before runtime consume/publish boundaries are stable
 
 ## Read Next

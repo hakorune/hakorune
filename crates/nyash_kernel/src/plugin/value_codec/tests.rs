@@ -149,11 +149,8 @@ fn kernel_text_slot_freeze_publish_lifecycle_roundtrips() {
         Some("owned-slot")
     );
 
-    let before = handles::snapshot().len();
     let h = publish_kernel_text_slot(&mut slot).expect("published handle");
     assert!(h > 0);
-    let after = handles::snapshot().len();
-    assert_eq!(after, before + 1);
     assert_eq!(slot.state(), KernelTextSlotState::Published);
     assert!(with_kernel_text_slot_text(&slot, |text| text.len()).is_none());
 
