@@ -223,7 +223,7 @@ class TestTypedUserBoxFieldAccess(unittest.TestCase):
 
         ir_txt = str(mod)
         self.assertNotIn('@"nyash.instance.get_i64_field_h"', ir_txt, msg=ir_txt)
-        self.assertIn('call i64 @"nyash.map.get_hh"', ir_txt, msg=ir_txt)
+        self.assertIn('call i64 @"nyash.map.slot_load_hh"', ir_txt, msg=ir_txt)
 
     def test_field_get_uses_typed_bool_helper_for_typed_user_box_field(self):
         mod, builder, bb, i64 = self._make_builder()
@@ -297,7 +297,7 @@ class TestTypedUserBoxFieldAccess(unittest.TestCase):
         ir_txt = str(mod)
         self.assertIn('call i64 @"nyash.bool.get_h"', ir_txt, msg=ir_txt)
         self.assertIn('call i64 @"nyash.instance.set_bool_field_h"', ir_txt, msg=ir_txt)
-        self.assertNotIn('call i64 @"nyash.map.set_hh"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.map.slot_store_hhh"', ir_txt, msg=ir_txt)
 
     def test_field_get_uses_typed_float_helper_for_typed_user_box_field(self):
         mod, builder, bb, i64 = self._make_builder()
@@ -372,7 +372,7 @@ class TestTypedUserBoxFieldAccess(unittest.TestCase):
         ir_txt = str(mod)
         self.assertIn('call double @"nyash.float.unbox_to_f64"', ir_txt, msg=ir_txt)
         self.assertIn('call i64 @"nyash.instance.set_float_field_h"', ir_txt, msg=ir_txt)
-        self.assertNotIn('call i64 @"nyash.map.set_hh"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.map.slot_store_hhh"', ir_txt, msg=ir_txt)
 
     def test_field_set_uses_typed_float_helper_for_float_immediates(self):
         mod, builder, bb, i64 = self._make_builder()
@@ -448,7 +448,7 @@ class TestTypedUserBoxFieldAccess(unittest.TestCase):
 
         ir_txt = str(mod)
         self.assertNotIn('call i64 @"nyash.instance.set_float_field_h"', ir_txt, msg=ir_txt)
-        self.assertIn('call i64 @"nyash.map.set_hh"', ir_txt, msg=ir_txt)
+        self.assertIn('call i64 @"nyash.map.slot_store_hhh"', ir_txt, msg=ir_txt)
 
     def test_field_set_uses_typed_bool_helper_for_bool_immediates(self):
         mod, builder, bb, i64 = self._make_builder()
@@ -524,7 +524,7 @@ class TestTypedUserBoxFieldAccess(unittest.TestCase):
 
         ir_txt = str(mod)
         self.assertNotIn('call i64 @"nyash.instance.set_bool_field_h"', ir_txt, msg=ir_txt)
-        self.assertIn('call i64 @"nyash.map.set_hh"', ir_txt, msg=ir_txt)
+        self.assertIn('call i64 @"nyash.map.slot_store_hhh"', ir_txt, msg=ir_txt)
 
     def test_field_get_keeps_generic_fallback_for_weak_typed_fields(self):
         mod, builder, bb, i64 = self._make_builder()
@@ -558,7 +558,7 @@ class TestTypedUserBoxFieldAccess(unittest.TestCase):
 
         ir_txt = str(mod)
         self.assertNotIn('@"nyash.instance.get_i64_field_h"', ir_txt, msg=ir_txt)
-        self.assertIn('call i64 @"nyash.map.get_hh"', ir_txt, msg=ir_txt)
+        self.assertIn('call i64 @"nyash.map.slot_load_hh"', ir_txt, msg=ir_txt)
         self.assertEqual(resolver.value_types[2], {"kind": "handle"})
 
 

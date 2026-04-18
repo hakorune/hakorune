@@ -46,8 +46,8 @@ _ARRAY_COLLECTION_I64_KEY_I64_VALUE_METHODS = {
 
 
 _RUNTIME_DATA_FIELD_METHODS = {
-    "getField": ("nyash.map.get_hh", "unified_runtime_data_getField", 1),
-    "setField": ("nyash.map.set_hh", "unified_runtime_data_setField", 2),
+    "getField": ("nyash.map.slot_load_hh", "unified_runtime_data_getField", 1),
+    "setField": ("nyash.map.slot_store_hhh", "unified_runtime_data_setField", 2),
 }
 
 

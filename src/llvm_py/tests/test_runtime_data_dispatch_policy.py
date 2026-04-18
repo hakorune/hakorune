@@ -277,7 +277,7 @@ class TestRuntimeDataDispatchPolicy(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             _prefer_array_mono_route_default()
 
-    def test_runtime_data_get_field_uses_map_kernel(self):
+    def test_runtime_data_get_field_uses_map_slot_load(self):
         i64 = ir.IntType(64)
         module = ir.Module(name="test_runtime_data_get_field")
         fn = ir.Function(module, ir.FunctionType(i64, []), name="main")
@@ -295,9 +295,9 @@ class TestRuntimeDataDispatchPolicy(unittest.TestCase):
         )
         builder.ret(result)
 
-        self.assertIn("nyash.map.get_hh", str(module))
+        self.assertIn("nyash.map.slot_load_hh", str(module))
 
-    def test_runtime_data_set_field_uses_map_kernel(self):
+    def test_runtime_data_set_field_uses_map_slot_store(self):
         i64 = ir.IntType(64)
         module = ir.Module(name="test_runtime_data_set_field")
         fn = ir.Function(module, ir.FunctionType(i64, []), name="main")
@@ -315,7 +315,7 @@ class TestRuntimeDataDispatchPolicy(unittest.TestCase):
         )
         builder.ret(result)
 
-        self.assertIn("nyash.map.set_hh", str(module))
+        self.assertIn("nyash.map.slot_store_hhh", str(module))
 
 
 if __name__ == "__main__":
