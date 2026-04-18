@@ -14,7 +14,7 @@ PYTHON_TESTS=(
   src.llvm_py.tests.test_rawmap_first_slice_lock
 )
 
-MAP_RUNTIME_FACADE_FILE="crates/nyash_kernel/src/plugin/map_runtime_facade.rs"
+MAP_SLOT_MUTATE_FILE="crates/nyash_kernel/src/plugin/map_slot_mutate.rs"
 MAP_ALIASES_FILE="crates/nyash_kernel/src/plugin/map_aliases.rs"
 MIR_COLLECTION_FILE="src/llvm_py/instructions/mir_call/collection_method_call.py"
 BOXCALL_COLLECTION_FILE="src/llvm_py/instructions/boxcall_runtime_data.py"
@@ -32,7 +32,7 @@ echo "[k2-wide-rawmap-delete] --- Python lowering lock ---"
 env PYTHONPATH=src/llvm_py:src python3 -m unittest "${PYTHON_TESTS[@]}"
 
 echo "[k2-wide-rawmap-delete] --- route lock ---"
-rg -F -q 'pub(super) fn map_runtime_delete_any(handle: i64, key_any: i64) -> i64' "$MAP_RUNTIME_FACADE_FILE"
+rg -F -q 'pub(super) fn map_slot_delete_any(handle: i64, key_any: i64) -> i64' "$MAP_SLOT_MUTATE_FILE"
 rg -F -q 'nyash.map.delete_hh' "$MAP_ALIASES_FILE"
 rg -F -q 'method_name == "delete"' "$MIR_COLLECTION_FILE"
 rg -F -q 'method in {"get", "push", "set", "has", "clear", "delete"}' "$METHOD_CALL_FILE"
