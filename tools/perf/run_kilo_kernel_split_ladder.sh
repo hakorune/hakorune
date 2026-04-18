@@ -15,11 +15,11 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 STAT="${ROOT_DIR}/tools/perf/bench_micro_c_vs_aot_stat.sh"
 WHOLE="${ROOT_DIR}/tools/perf/run_kilo_hk_bench.sh"
 
-if [[ ! -x "${STAT}" ]]; then
+if [[ ! -f "${STAT}" ]]; then
   echo "[error] missing executable: ${STAT}" >&2
   exit 2
 fi
-if [[ ! -x "${WHOLE}" ]]; then
+if [[ ! -f "${WHOLE}" ]]; then
   echo "[error] missing executable: ${WHOLE}" >&2
   exit 2
 fi
@@ -28,7 +28,7 @@ cases=(
   kilo_micro_concat_hh_len
   kilo_micro_array_string_store
   kilo_meso_substring_concat_len
-  kilo_meso_indexof_append_array_set
+  kilo_meso_substring_concat_array_set_loopcarry
 )
 
 for key in "${cases[@]}"; do

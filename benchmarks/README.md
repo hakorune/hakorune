@@ -52,12 +52,12 @@ Rust reference micro case for the current substring lane:
 Meso split cases (use these before `kilo_kernel_small_hk` when the whole app is still too coarse):
 
 - `kilo_meso_substring_concat_len`: pure substring + concat + len chain
-- `kilo_meso_indexof_append_array_set`: rotating row `indexOf("line") + append + array.set`
-
-Exploratory meso shapes (keep these out of the default pure-first ladder until AOT support catches up):
-
 - `kilo_meso_substring_concat_array_set`: substring + concat + array.set, no loop-carry
 - `kilo_meso_substring_concat_array_set_loopcarry`: substring + concat + array.set with loop-carried text
+
+Optional side-diagnosis meso shape:
+
+- `kilo_meso_indexof_append_array_set`: rotating row `indexOf("line") + append + array.set`
 
 Commands:
 

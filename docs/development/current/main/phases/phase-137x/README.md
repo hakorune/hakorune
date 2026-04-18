@@ -737,18 +737,22 @@ The next perf cut should not start until these mechanical contracts are fixed.
   - `concat_birth` fresh-box materialization landed
   - AOT compiler-side literal `string + string` fold landed
  - whole-kilo read order is now fixed through a supported contract split ladder:
-   - `kilo_micro_concat_hh_len`
-   - `kilo_micro_array_string_store`
-   - `kilo_meso_substring_concat_len`
-   - `kilo_meso_indexof_append_array_set`
-   - `kilo_kernel_small_hk`
- - missing whole corridor is now explicit:
-   - rotating row `indexOf("line") + append + array.set`
- - exploratory meso shapes remain documented but stay out of the default AOT ladder for now:
-   - `kilo_meso_substring_concat_array_set`
-   - `kilo_meso_substring_concat_array_set_loopcarry`
-   - current `pure-first` route still rejects both
- - use `tools/perf/run_kilo_kernel_split_ladder.sh` when re-reading whole-kilo after a structural slice
+    - `kilo_micro_concat_hh_len`
+    - `kilo_micro_array_string_store`
+    - `kilo_meso_substring_concat_len`
+    - `kilo_meso_substring_concat_array_set_loopcarry`
+    - `kilo_kernel_small_hk`
+  - supported meso ladder is now:
+    - `kilo_meso_substring_concat_len`
+    - `kilo_meso_substring_concat_array_set`
+    - `kilo_meso_substring_concat_array_set_loopcarry`
+  - middle benchmark for the current lane is `kilo_meso_substring_concat_array_set_loopcarry`:
+    - it keeps `substring + concat + array.set + loopcarry`
+    - it drops the `indexOf("line")` row-scan noise from whole-kilo
+    - current 3-run lock: `C 3 ms / Ny AOT 53 ms`
+  - `kilo_meso_indexof_append_array_set` stays as side diagnosis only:
+    - use it when the `indexOf` branch loop itself is the active owner
+  - use `tools/perf/run_kilo_kernel_split_ladder.sh` when re-reading whole-kilo after a structural slice
 - current probe-only split-ladder reread (`repeat=1`):
   - `kilo_micro_concat_hh_len: 61 ms`
   - `kilo_micro_array_string_store: 176 ms`
