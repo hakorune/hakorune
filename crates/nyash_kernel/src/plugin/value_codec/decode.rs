@@ -17,10 +17,7 @@ pub(crate) enum CodecProfile {
 impl CodecProfile {
     #[inline(always)]
     fn keeps_string_alias_and_prefers_scalar(self) -> bool {
-        matches!(
-            self,
-            Self::ArrayFastBorrowString | Self::MapKeyBorrowString
-        )
+        matches!(self, Self::ArrayFastBorrowString | Self::MapKeyBorrowString)
     }
 }
 
