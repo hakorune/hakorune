@@ -1,5 +1,7 @@
 use super::handle_cache::{cache_store, with_cache_entry};
-use super::value_codec::{runtime_i64_from_box_ref_caller, BorrowedAliasEncodeCaller};
+use super::value_codec::{
+    runtime_i64_from_scalar_checked_box_ref_caller, BorrowedAliasEncodeCaller,
+};
 use nyash_rust::{box_trait::NyashBox, boxes::array::ArrayBox, runtime::host_handles as handles};
 
 #[inline(always)]
@@ -13,7 +15,10 @@ fn encode_array_item_to_i64(item: &dyn NyashBox) -> i64 {
     }
     // Borrowed alias reuse policy lives in value_codec so array/string/map reads
     // share the same live-source vs cached-handle boundary.
-    runtime_i64_from_box_ref_caller(item, BorrowedAliasEncodeCaller::ArrayGetIndexEncoded)
+    runtime_i64_from_scalar_checked_box_ref_caller(
+        item,
+        BorrowedAliasEncodeCaller::ArrayGetIndexEncoded,
+    )
 }
 
 #[inline(always)]

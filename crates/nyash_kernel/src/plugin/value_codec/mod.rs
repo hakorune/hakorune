@@ -23,7 +23,7 @@ pub(crate) use encode::box_to_runtime_i64;
 pub(crate) use encode::runtime_i64_from_box_ref;
 pub(crate) use encode::{
     box_to_handle_materializing_borrowed_string, runtime_i64_from_box_ref_caller,
-    BorrowedAliasEncodeCaller,
+    runtime_i64_from_scalar_checked_box_ref_caller, BorrowedAliasEncodeCaller,
 };
 pub(crate) use string_classify::{
     with_array_store_str_source, ArrayStoreStrSource, StringHandleSourceKind, StringLikeProof,

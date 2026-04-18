@@ -209,6 +209,19 @@ Related:
       - the active whole/meso tax now points at read-side encode/materialize/objectize around `array.get`
       - stable objectization must stay cached/cold; do not reopen the rejected store-side `owned-string keep`
       - next implementation seam must preserve cheap alias encode before any new `TextLane` / MIR legality card
+  - latest read-encode BoxShape cleanup:
+    - `array.get` uses a scalar-checked borrowed-alias encoder after its local int/bool probes
+    - this removes duplicate `as_i64_fast` / `as_bool_fast` probes before the borrowed-alias decision without changing the live-source / cached-handle / cold-fallback order
+    - validation passed:
+      - targeted array/map borrowed-alias tests
+      - `cargo check -q -p nyash_kernel`
+      - `cargo test -q -p nyash_kernel --lib`
+      - `tools/checks/dev_gate.sh quick`
+    - perf reread is not keeper evidence:
+      - exact remains closed: `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
+      - meso remains open/noisy: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 65 ms`
+      - strict whole is noisy: `kilo_kernel_small_hk = C 80 ms / Ny AOT 1740 ms` then rerun `C 80 ms / Ny AOT 808 ms`
+    - next owner remains stable keep creation / first-read handle publication around the current borrowed-alias store-read chain
   - reading:
     - phase 2.5 runtime contract is now fixed more tightly than the first `array.get`-only slice
     - exact stays closed, but meso / strict whole reopened upward versus the prior keeper-candidate band

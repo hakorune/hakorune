@@ -42,6 +42,25 @@ pub(crate) fn runtime_i64_from_box_ref_caller(
     if let Some(bv) = bool_box_to_i64(value) {
         return bv;
     }
+    runtime_i64_from_non_scalar_box_ref(value)
+}
+
+/// Encode an object after the caller has already ruled out immediate scalar
+/// classes. This keeps specialized array lanes from paying duplicate
+/// `as_i64_fast` / `as_bool_fast` probes before the borrowed-alias decision.
+#[inline(always)]
+pub(crate) fn runtime_i64_from_scalar_checked_box_ref_caller(
+    value: &dyn NyashBox,
+    caller: BorrowedAliasEncodeCaller,
+) -> i64 {
+    if let Some(alias) = value.as_any().downcast_ref::<BorrowedHandleBox>() {
+        return runtime_i64_from_borrowed_alias(alias, caller);
+    }
+    runtime_i64_from_non_scalar_box_ref(value)
+}
+
+#[inline(always)]
+fn runtime_i64_from_non_scalar_box_ref(value: &dyn NyashBox) -> i64 {
     let cloned = if value.is_identity() {
         value.share_box()
     } else {

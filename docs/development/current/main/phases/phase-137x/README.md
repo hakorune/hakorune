@@ -159,6 +159,24 @@
       - current owner proof has moved from store publication to read-side encode/materialize/objectize around `array.get`
       - preserve cheap alias encode; stable objectization must remain cached/cold, not per-read
       - do not open a new `TextLane` / MIR legality card before this seam gets keeper/reject evidence
+  - latest read-encode BoxShape cleanup:
+    - `array.get` now routes into a scalar-checked borrowed-alias encoder after its local int/bool probes
+    - this removes duplicate immediate-scalar probes in the read encode path while preserving the existing borrowed-alias contract:
+      - live-source reuse first
+      - cached stable handle reuse second
+      - cold stable objectize fallback last
+    - validation:
+      - targeted borrowed-alias array/map tests
+      - `cargo check -q -p nyash_kernel`
+      - `cargo test -q -p nyash_kernel --lib`
+      - `tools/checks/dev_gate.sh quick`
+    - perf reread:
+      - exact stays closed: `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
+      - meso remains open/noisy: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 65 ms`
+      - strict whole is noisy: `kilo_kernel_small_hk = C 80 ms / Ny AOT 1740 ms` then rerun `C 80 ms / Ny AOT 808 ms`
+    - reading:
+      - this cleanup is not keeper evidence
+      - next owner remains stable keep creation / first-read handle publication around the existing borrowed-alias store-read chain
   - reading:
     - phase 2.5 no longer has only the `array.get` cached-handle proof
     - exact stays closed, but meso / strict whole reopened upward versus the prior `57 ms` / `791 ms` band

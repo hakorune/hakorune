@@ -302,8 +302,9 @@ Related:
   - landed: sink helper tests write fixture counters through a test-only `SnapshotCounterField` setter instead of open-coding `snapshot_index`
   - no active raw-index mirror remains in the observe sink/test surface; reopen only if a new counter family adds a second registration source
 - `Cleanup 3`: split `BorrowedHandleBox` responsibilities
-  - separate only after the owner family points back at read encode again
-  - if not, keep this card parked
+  - status: partial / parked
+  - landed narrow read-encode cleanup: `array.get` uses a scalar-checked borrowed-alias encoder after its local int/bool probes, avoiding duplicate scalar checks before live-source / cached-handle / cold-fallback selection
+  - this is still structure cleanup, not a keeper optimization; do not split `BorrowedHandleBox` into new representation classes until owner proof points at that responsibility directly
 - `Cleanup 4`: typed handle-cache consolidation
   - status: partial
   - landed: `handle_cache.rs` owns `with_array_or_map`, and `runtime_data.rs` uses it for the public Array/Map facade classifier

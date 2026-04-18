@@ -235,6 +235,28 @@ Scope: current lane / next lane / restart order only.
           - this confirms the updated lane should not reopen store-side `owned-string keep`
           - current owner proof points at read-side encode/materialize/objectize around `array.get`, with stable objectization required to stay cached/cold
           - next implementation seam must preserve cheap alias encode and reduce per-read materialization/copy tax before any new `TextLane` / MIR legality card
+      - latest read-encode BoxShape cleanup:
+        - `array.get` now calls a scalar-checked borrowed-alias encoder after its local int/bool probes, so the generic encoder does not repeat `as_i64_fast` / `as_bool_fast` before the borrowed-alias decision
+        - contract unchanged:
+          - live-source reuse remains first
+          - cached stable handle reuse remains second
+          - cold stable objectize fallback remains explicit and observable
+        - validation:
+          - `cargo test --manifest-path crates/nyash_kernel/Cargo.toml --lib array_get_index_reuses_cached_runtime_handle_for_unpublished_alias`
+          - `cargo test --manifest-path crates/nyash_kernel/Cargo.toml --lib any_arg_to_box_array_fast_profile_reuses_live_source_handle_for_string`
+          - `cargo test --manifest-path crates/nyash_kernel/Cargo.toml --lib --features perf-observe array_get_index_records_cached_handle_hit_for_array_lane`
+          - `cargo test --manifest-path crates/nyash_kernel/Cargo.toml --lib --features perf-observe array_get_index_records_live_source_hit_for_array_lane`
+          - `cargo test --manifest-path crates/nyash_kernel/Cargo.toml --lib --features perf-observe array_get_index_records_cold_fallback_for_array_lane`
+          - `cargo check -q -p nyash_kernel`
+          - `cargo test -q -p nyash_kernel --lib` (one earlier `string_concat3_hhh_contract` run was flaky; single rerun and full rerun passed)
+          - `tools/checks/dev_gate.sh quick`
+        - perf reread after the cleanup is not keeper evidence:
+          - exact remains closed: `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
+          - meso remains open/noisy: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 65 ms`
+          - strict whole is noisy: first `kilo_kernel_small_hk = C 80 ms / Ny AOT 1740 ms`, rerun `C 80 ms / Ny AOT 808 ms`
+        - reading:
+          - this is structure cleanup on the existing read-side alias lane, not a new keeper optimization
+          - next owner remains stable keep creation / first-read handle publication around the existing borrowed-alias store-read chain
       - reading:
         - phase 2.5 contract is now much tighter on read behavior
         - exact stays closed, but meso / strict whole reopened upward versus the prior `57 ms` / `791 ms` band
