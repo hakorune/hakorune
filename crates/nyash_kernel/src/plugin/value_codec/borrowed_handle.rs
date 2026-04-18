@@ -4,7 +4,14 @@ use nyash_rust::{
     box_trait::{next_box_id, BoolBox, BoxBase, BoxCore, IntegerBox, NyashBox, StringBox},
     runtime::host_handles as handles,
 };
-use std::{any::Any, cell::RefCell, sync::Arc};
+use std::{
+    any::Any,
+    cell::RefCell,
+    sync::{
+        atomic::{AtomicI64, AtomicU64, Ordering},
+        Arc,
+    },
+};
 
 const RETIRED_SOURCE_KEEP_BATCH_LEN: usize = 32;
 
@@ -241,11 +248,29 @@ impl AliasSourceMeta {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub(crate) struct BorrowedHandleBox {
     text_keep: TextKeep,
     source_meta: AliasSourceMeta,
+    cached_runtime_handle: AtomicI64,
+    cached_runtime_handle_epoch: AtomicU64,
     base: BoxBase,
+}
+
+impl Clone for BorrowedHandleBox {
+    fn clone(&self) -> Self {
+        Self {
+            text_keep: self.text_keep.clone(),
+            source_meta: self.source_meta,
+            cached_runtime_handle: AtomicI64::new(
+                self.cached_runtime_handle.load(Ordering::Relaxed),
+            ),
+            cached_runtime_handle_epoch: AtomicU64::new(
+                self.cached_runtime_handle_epoch.load(Ordering::Relaxed),
+            ),
+            base: self.base.clone(),
+        }
+    }
 }
 
 impl BorrowedHandleBox {
@@ -264,6 +289,8 @@ impl BorrowedHandleBox {
                 source_lifetime: keep,
             },
             source_meta: AliasSourceMeta::new(source_handle, source_drop_epoch),
+            cached_runtime_handle: AtomicI64::new(0),
+            cached_runtime_handle_epoch: AtomicU64::new(0),
             // Fast path: borrowed wrapper is an alias view for an existing handle.
             // Reuse source handle as stable id to avoid per-call id allocation churn.
             base: BoxBase {
@@ -292,6 +319,31 @@ impl BorrowedHandleBox {
     #[inline(always)]
     fn source_drop_epoch(&self) -> u64 {
         self.source_meta.source_drop_epoch()
+    }
+
+    #[inline(always)]
+    fn cached_runtime_handle(&self) -> Option<i64> {
+        let handle = self.cached_runtime_handle.load(Ordering::Relaxed);
+        if handle > 0
+            && self.cached_runtime_handle_epoch.load(Ordering::Relaxed) == handles::drop_epoch()
+        {
+            Some(handle)
+        } else {
+            None
+        }
+    }
+
+    #[inline(always)]
+    fn cache_runtime_handle(&self, handle: i64) {
+        self.cached_runtime_handle.store(handle, Ordering::Relaxed);
+        self.cached_runtime_handle_epoch
+            .store(handles::drop_epoch(), Ordering::Relaxed);
+    }
+
+    #[inline(always)]
+    fn invalidate_cached_runtime_handle(&self) {
+        self.cached_runtime_handle.store(0, Ordering::Relaxed);
+        self.cached_runtime_handle_epoch.store(0, Ordering::Relaxed);
     }
 
     #[inline(always)]
@@ -368,11 +420,7 @@ impl NyashBox for BorrowedHandleBox {
         if self.source_is_latest_fresh() {
             observe::record_borrowed_alias_clone_box_latest_fresh();
         }
-        Box::new(Self::new(
-            self.text_keep.source_lifetime.clone(),
-            self.source_handle(),
-            self.source_drop_epoch(),
-        ))
+        Box::new(self.clone())
     }
 
     fn share_box(&self) -> Box<dyn NyashBox> {
@@ -466,6 +514,7 @@ pub(crate) fn keep_borrowed_string_slot_source_keep(
         observe::record_store_array_str_reason_retarget_keep_source_arc_ptr_eq_miss();
     }
     alias.text_keep.replace_source_lifetime(source_keep);
+    alias.invalidate_cached_runtime_handle();
 }
 
 #[inline(always)]
@@ -476,6 +525,7 @@ pub(crate) fn update_borrowed_string_slot_alias(
 ) {
     observe::record_store_array_str_reason_retarget_alias_update();
     alias.source_meta.replace(source_handle, source_drop_epoch);
+    alias.invalidate_cached_runtime_handle();
 }
 
 #[inline(always)]
@@ -564,7 +614,10 @@ pub(crate) fn runtime_i64_from_borrowed_alias(
         BorrowedAliasEncodePlan::EncodeFallback => {
             observe::record_borrowed_alias_encode_to_handle_arc();
             caller.record();
-            handles::to_handle_arc(alias.text_keep.clone_stable_box_cold_fallback()) as i64
+            let handle =
+                handles::to_handle_arc(alias.text_keep.clone_stable_box_cold_fallback()) as i64;
+            alias.cache_runtime_handle(handle);
+            handle
         }
     }
 }
@@ -578,6 +631,9 @@ fn plan_borrowed_alias_runtime_i64(alias: &BorrowedHandleBox) -> BorrowedAliasEn
             observe::record_borrowed_alias_encode_epoch_hit();
             return BorrowedAliasEncodePlan::ReuseSourceHandle(source_handle);
         }
+    }
+    if let Some(cached) = alias.cached_runtime_handle() {
+        return BorrowedAliasEncodePlan::ReuseSourceHandle(cached);
     }
     let fallback = alias.cold_stable_object_ref().as_ref();
     if let Some(iv) = integer_box_to_i64(fallback) {

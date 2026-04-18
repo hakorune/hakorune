@@ -39,6 +39,29 @@ fn any_arg_to_box_string_handle_preserves_handle_semantics_in_runtime_i64() {
 }
 
 #[test]
+fn borrowed_alias_caches_runtime_handle_for_unpublished_keep() {
+    let value: Arc<dyn NyashBox> = Arc::new(StringBox::new("cached-alias".to_string()));
+    let alias = maybe_borrow_string_keep_with_epoch(
+        SourceLifetimeKeep::string_box(value),
+        0,
+        handles::drop_epoch(),
+    );
+
+    let first = runtime_i64_from_box_ref(alias.as_ref());
+    let second = runtime_i64_from_box_ref(alias.as_ref());
+
+    assert!(first > 0);
+    assert_eq!(first, second);
+
+    let out_obj = handles::get(first as u64).expect("cached runtime handle");
+    let out_sb = out_obj
+        .as_any()
+        .downcast_ref::<StringBox>()
+        .expect("runtime value should remain StringBox");
+    assert_eq!(out_sb.value, "cached-alias");
+}
+
+#[test]
 fn any_arg_to_box_integer_handle_keeps_immediate_runtime_contract() {
     let value: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(77));
     let value_h = handles::to_handle_arc(value) as i64;

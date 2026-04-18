@@ -6,6 +6,8 @@ mod string_materialize;
 mod string_store;
 
 #[cfg(test)]
+pub(crate) use borrowed_handle::maybe_borrow_string_keep_with_epoch;
+#[cfg(test)]
 pub(crate) use borrowed_handle::SourceLifetimeKeep;
 pub(crate) use borrowed_handle::{
     try_retarget_borrowed_string_slot_take_unpublished_keep,
@@ -17,6 +19,8 @@ pub(crate) use decode::{
 };
 #[cfg(test)]
 pub(crate) use encode::box_to_runtime_i64;
+#[cfg(test)]
+pub(crate) use encode::runtime_i64_from_box_ref;
 pub(crate) use encode::{
     box_to_handle, runtime_i64_from_box_ref_caller, BorrowedAliasEncodeCaller,
 };
