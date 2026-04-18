@@ -1,7 +1,6 @@
-use super::handle_cache::with_map_box;
-use super::map_key_codec::map_key_string_from_any;
 use super::map_probe::{map_probe_contains_any, map_probe_contains_i64};
 use super::map_slot_load::{map_slot_load_any, map_slot_load_i64};
+use super::map_slot_mutate::{map_slot_clear, map_slot_delete_any};
 use super::map_slot_store::{map_slot_store_any, map_slot_store_i64_any};
 
 // Runtime/compat forwarding only.
@@ -9,25 +8,11 @@ use super::map_slot_store::{map_slot_store_any, map_slot_store_i64_any};
 // keep this module below the owner and above raw slot/probe/store leaves.
 
 pub(super) fn map_runtime_clear(handle: i64) -> i64 {
-    let _ = with_map_box(handle, |map| {
-        map.clear_entries();
-    });
-    0
+    map_slot_clear(handle)
 }
 
 pub(super) fn map_runtime_delete_any(handle: i64, key_any: i64) -> i64 {
-    let key_str = map_key_string_from_any(key_any);
-    with_map_box(
-        handle,
-        |map| {
-            if map.remove_key_str(&key_str) {
-                1
-            } else {
-                0
-            }
-        },
-    )
-    .unwrap_or(0)
+    map_slot_delete_any(handle, key_any)
 }
 
 // Probe/load/store substrate facade.

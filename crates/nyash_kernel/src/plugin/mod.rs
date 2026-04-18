@@ -33,6 +33,7 @@ mod map_probe;
 mod map_runtime_data;
 mod map_runtime_facade;
 mod map_slot_load;
+mod map_slot_mutate;
 mod map_slot_store;
 mod map_substrate;
 pub(crate) mod module_string_dispatch;
