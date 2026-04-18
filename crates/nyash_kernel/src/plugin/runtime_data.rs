@@ -4,13 +4,13 @@
 // host boxes (ArrayBox/MapBox) without relying on static box-name guesses.
 // Manifest reading: all `nyash.runtime_data.*` rows are runtime-facade only.
 
+use super::array_runtime_any::{
+    array_runtime_get_any_key, array_runtime_has_any_key, array_runtime_set_any_key,
+};
+use super::array_runtime_substrate::array_runtime_push_any;
 use super::handle_cache::object_from_handle_cached;
 use super::map_runtime_facade::{
     map_runtime_data_get_any_key, map_runtime_data_has_any_key, map_runtime_data_set_any_key,
-};
-use super::runtime_data_array_dispatch::{
-    runtime_data_array_get_any, runtime_data_array_has_any, runtime_data_array_push_any,
-    runtime_data_array_set_any,
 };
 use nyash_rust::boxes::{array::ArrayBox, map_box::MapBox};
 
@@ -37,7 +37,7 @@ fn with_runtime_data_route<R>(
 pub extern "C" fn nyash_runtime_data_get_hh(recv_h: i64, key_any: i64) -> i64 {
     with_runtime_data_route(
         recv_h,
-        || runtime_data_array_get_any(recv_h, key_any),
+        || array_runtime_get_any_key(recv_h, key_any),
         || map_runtime_data_get_any_key(recv_h, key_any),
     )
     .unwrap_or(0)
@@ -48,7 +48,7 @@ pub extern "C" fn nyash_runtime_data_get_hh(recv_h: i64, key_any: i64) -> i64 {
 pub extern "C" fn nyash_runtime_data_set_hhh(recv_h: i64, key_any: i64, val_any: i64) -> i64 {
     with_runtime_data_route(
         recv_h,
-        || runtime_data_array_set_any(recv_h, key_any, val_any),
+        || array_runtime_set_any_key(recv_h, key_any, val_any),
         || map_runtime_data_set_any_key(recv_h, key_any, val_any),
     )
     .unwrap_or(0)
@@ -61,7 +61,7 @@ pub extern "C" fn nyash_runtime_data_set_hhh(recv_h: i64, key_any: i64, val_any:
 pub extern "C" fn nyash_runtime_data_has_hh(recv_h: i64, key_any: i64) -> i64 {
     with_runtime_data_route(
         recv_h,
-        || runtime_data_array_has_any(recv_h, key_any),
+        || array_runtime_has_any_key(recv_h, key_any),
         || map_runtime_data_has_any_key(recv_h, key_any),
     )
     .unwrap_or(0)
@@ -70,12 +70,7 @@ pub extern "C" fn nyash_runtime_data_has_hh(recv_h: i64, key_any: i64) -> i64 {
 // nyash.runtime_data.push_hh(recv_h, val_any) -> new_len (array) / 0
 #[export_name = "nyash.runtime_data.push_hh"]
 pub extern "C" fn nyash_runtime_data_push_hh(recv_h: i64, val_any: i64) -> i64 {
-    with_runtime_data_route(
-        recv_h,
-        || runtime_data_array_push_any(recv_h, val_any),
-        || 0,
-    )
-    .unwrap_or(0)
+    with_runtime_data_route(recv_h, || array_runtime_push_any(recv_h, val_any), || 0).unwrap_or(0)
 }
 
 #[cfg(test)]
@@ -261,8 +256,7 @@ mod tests {
                 1
             );
             assert_eq!(
-                after.cached_handle_hit_array_get_index
-                    - before.cached_handle_hit_array_get_index,
+                after.cached_handle_hit_array_get_index - before.cached_handle_hit_array_get_index,
                 0
             );
         });
@@ -290,8 +284,7 @@ mod tests {
                 1
             );
             assert_eq!(
-                after.live_source_hit_array_get_index
-                    - before.live_source_hit_array_get_index,
+                after.live_source_hit_array_get_index - before.live_source_hit_array_get_index,
                 0
             );
             assert_eq!(after.cached_handle_hit - before.cached_handle_hit, 0);
