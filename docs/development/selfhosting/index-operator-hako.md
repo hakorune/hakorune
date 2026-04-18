@@ -16,7 +16,7 @@ Required changes (Hako compiler)
 - Lowering (MIR emit)
   - Array: index read/write → BoxCall("get"/"set") on ArrayBox
   - Map:   index read/write → BoxCall("get"/"set") on MapBox
-  - Optional (AOT): dotted extern mapping remains as today (nyash.array.get_h, nyash.map.set_hh …)
+  - Optional (AOT): dotted extern mapping uses the current raw substrate names (`nyash.array.slot_load_hi`, `nyash.map.slot_store_hhh`, …)
 - Diagnostics
   - If receiver type cannot be resolved to ArrayBox/MapBox, emit: "index operator is only supported for Array/Map"
 
@@ -28,4 +28,3 @@ Smokes (opt‑in, external HAKO_BIN)
 Rollout
 - No flags are required; follow Rust side semantics.
 - Keep Phase‑2 (String/range) for later work.
-

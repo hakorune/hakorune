@@ -1,4 +1,8 @@
 use super::*;
+use crate::plugin::map_compat::{
+    nyash_map_get_h, nyash_map_get_hh, nyash_map_has_h, nyash_map_has_hh, nyash_map_set_h,
+    nyash_map_set_hh, nyash_map_size_h,
+};
 use crate::test_support::{with_env_var, with_env_vars};
 use nyash_rust::{
     box_trait::{NyashBox, StringBox},

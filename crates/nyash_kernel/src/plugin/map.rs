@@ -1,10 +1,10 @@
 pub use super::map_aliases::*;
-pub use super::map_compat::*;
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::nyash_runtime_data_has_hh;
+    use crate::plugin::map_compat::{nyash_map_get_h, nyash_map_get_hh, nyash_map_size_h};
     use nyash_rust::box_trait::{NyashBox, StringBox};
     use nyash_rust::boxes::map_box::MapBox;
     use nyash_rust::runtime::host_handles as handles;

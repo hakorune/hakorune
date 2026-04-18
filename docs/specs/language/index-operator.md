@@ -9,8 +9,8 @@ Scope (Phase‑1)
     - Read → nyash.array.get_h(handle, idx)
     - Write → nyash.array.set_hih(handle, idx, val_any)
   - Map
-    - Read → nyash.map.get_hh(handle, key_any)
-    - Write → nyash.map.set_hh(handle, key_any, val_any)
+    - Read → nyash.map.slot_load_hh(handle, key_any)
+    - Write → nyash.map.slot_store_hhh(handle, key_any, val_any)
 - Out of scope in Phase‑1: String indexing/ranges.
 
 Parser/AST
@@ -38,3 +38,4 @@ Tests (canaries)
 
 Notes
 - This leverages existing NyRT dotted externs already implemented for Array/Map, minimizing surface area and risk.
+- Historical Map externs such as `nyash.map.get_hh` / `nyash.map.set_hh` remain compatibility exports only; new lowering should use the `slot_*` substrate names.

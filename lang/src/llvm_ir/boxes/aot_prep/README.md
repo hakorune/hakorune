@@ -20,7 +20,7 @@
     - `ArrayBox.push -> nyash.array.slot_append_hh`
     - `ArrayBox.set -> nyash.array.set_hih`
     - `MapBox.get/set/has -> nyash.map.slot_load_* / slot_store_* / probe_*`
-    - `MapBox.len/length/size -> nyash.map.entry_count_h`
+    - `MapBox.len/length/size -> nyash.map.entry_count_i64`
   - legacy compat note:
     - `nyash.array.set_h` remains compat-only
   - Map キー戦略は `NYASH_AOT_MAP_KEY_MODE={h|i64|hh|auto}`（既定: `h`/`i64`）
@@ -47,7 +47,7 @@ ENV トグル一覧
 - `NYASH_MIR_LOOP_HOIST=1` … StrlenFold + LoopHoist + ConstDedup を有効化
 - `NYASH_AOT_COLLECTIONS_HOT=1` … Array/Map hot-path 置換を有効化
 - `NYASH_AOT_MAP_KEY_MODE` … `h`/`i64`（既定）, `hh`, `auto`（将来拡張）
-- `auto` モードでは `_is_const_or_linear` で args を走査し、単純な i64 定数/線形表現と判定できる場合に `nyash.map.*_h` を選ぶ（それ以外は `*_hh`）。
+- `auto` モードでは `_is_const_or_linear` で args を走査し、単純な i64 定数/線形表現と判定できる場合に `nyash.map.*_hi` / `*_hih` を選ぶ（それ以外は `*_hh` / `*_hhh`）。
 - `NYASH_AOT_CH_BACKPROP=1` … Backpropagation Pass有効化（既定=1、0で無効化）
 - `NYASH_AOT_CH_TRACE=1` … CollectionsHot の詳細診断出力（型推論・書き換え情報・backprop）
 - `NYASH_VERIFY_RET_PURITY=1` … Return 直前の副作用を Fail-Fast で検出。ベンチはこのトグルをオンにした状態で回しています。

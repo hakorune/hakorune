@@ -26,7 +26,7 @@ pub mod invoke;
 pub mod invoke_core;
 pub mod map;
 mod map_aliases;
-mod map_compat;
+pub(crate) mod map_compat;
 mod map_debug;
 mod map_key_codec;
 mod map_probe;

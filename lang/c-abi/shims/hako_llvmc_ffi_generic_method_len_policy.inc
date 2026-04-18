@@ -117,10 +117,10 @@
         switch (classify_generic_method_len_route(bname, plan)) {
           case HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_MAP_ENTRY_COUNT:
             if (dst) {
-              fprintf(f, "  %%r%lld = call i64 @\"nyash.map.entry_count_h\"(%s)\n", dst, ab);
+              fprintf(f, "  %%r%lld = call i64 @\"nyash.map.entry_count_i64\"(%s)\n", dst, ab);
               set_type(dst, T_I64);
             } else {
-              fprintf(f, "  call i64 @\"nyash.map.entry_count_h\"(%s)\n", ab);
+              fprintf(f, "  call i64 @\"nyash.map.entry_count_i64\"(%s)\n", ab);
             }
             return 1;
           case HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_ARRAY_SLOT_LEN:
