@@ -211,12 +211,15 @@ Scope: current lane / next lane / restart order only.
         - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 61 ms`
         - `kilo_kernel_small_hk = C 82 ms / Ny AOT 809 ms`
         - `kilo_kernel_small_hk = C 80 ms / Ny AOT 892 ms`
+      - cleanup-parked strict reread:
+        - `kilo_kernel_small_hk = C 80 ms / Ny AOT 872 ms` (`repeat=3`, parity ok)
+        - `kilo_kernel_small_hk = C 79 ms / Ny AOT 842 ms` (`repeat=3`, parity ok)
       - reading:
         - phase 2.5 contract is now much tighter on read behavior
         - exact stays closed, but meso / strict whole reopened upward versus the prior `57 ms` / `791 ms` band
         - this reread is reject-side evidence for keeper judgement on the updated lane
         - cleanup queue is now parked after the smallest BoxShape cards
-        - next step is the strict whole stability reread before choosing another owner seam
+        - next step is whole/meso owner proof before choosing another implementation seam
 - accepted task order is now fixed as a phase rollout, not as isolated helper cuts:
   - semantic lock:
     - `String = value`

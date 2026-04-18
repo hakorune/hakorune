@@ -135,19 +135,16 @@
     - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 61 ms`
     - `kilo_kernel_small_hk = C 82 ms / Ny AOT 809 ms`
     - `kilo_kernel_small_hk = C 80 ms / Ny AOT 892 ms`
+  - cleanup-parked strict reread:
+    - `kilo_kernel_small_hk = C 80 ms / Ny AOT 872 ms` (`repeat=3`, parity ok)
+    - `kilo_kernel_small_hk = C 79 ms / Ny AOT 842 ms` (`repeat=3`, parity ok)
   - reading:
     - phase 2.5 no longer has only the `array.get` cached-handle proof
     - exact stays closed, but meso / strict whole reopened upward versus the prior `57 ms` / `791 ms` band
-    - current reading is reject-side for keeper judgement on this lane
-    - do not open `TextLane` or MIR legality first
-  - cleanup queue is now active:
-    - observe counter registration SSOT
-    - `BorrowedHandleBox` responsibility split
-    - typed handle-cache consolidation
-    - `runtime_data` forwarding collapse
-    - map-key codec SSOT
-    - `MapBox` raw-helper boundary cleanup
-    - legacy map compat surface retirement
+    - cleanup queue is parked after the smallest BoxShape cards
+    - current reading remains reject-side for keeper judgement on this lane
+    - do not open `TextLane` or MIR legality before a fresh whole/meso owner proof
+    - parked cleanup-card details live in `phase137x-text-lane-rollout-checklist.md`
 - current next seam inside phase 1: direct-set-only `insert_hsi` widening is landed; next widening is non-direct-set `freeze_text_plan(Pieces3)` / `insert_const_mid_fallback`
   - direct-set-only deferred `Pieces3 substring` widening is now landed on the same unpublished contract
 - current reject: slot-store delayed publication probes and string-specialized handle payload probe

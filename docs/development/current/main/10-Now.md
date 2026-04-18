@@ -185,10 +185,14 @@ Related:
     - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 61 ms`
     - `kilo_kernel_small_hk = C 82 ms / Ny AOT 809 ms`
     - `kilo_kernel_small_hk = C 80 ms / Ny AOT 892 ms`
+  - cleanup-parked strict reread:
+    - `kilo_kernel_small_hk = C 80 ms / Ny AOT 872 ms` (`repeat=3`, parity ok)
+    - `kilo_kernel_small_hk = C 79 ms / Ny AOT 842 ms` (`repeat=3`, parity ok)
   - reading:
     - phase 2.5 runtime contract is now fixed more tightly than the first `array.get`-only slice
     - exact stays closed, but meso / strict whole reopened upward versus the prior keeper-candidate band
-    - current read is reject-side, so the next step is BoxShape cleanup on this proven lane, not a new `TextLane` / MIR legality card
+    - cleanup queue is parked; the strict reread remains reject-side rather than a keeper
+    - next step is owner proof for the current whole/meso tax before opening a new `TextLane` / MIR legality card
 - phase/task anchors:
   - `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
   - `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
