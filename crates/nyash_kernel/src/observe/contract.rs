@@ -236,3 +236,106 @@ pub(crate) const BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_ARRAY_GET_INDEX: &str =
     "encode_to_handle_arc_array_get_index";
 pub(crate) const BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_MAP_RUNTIME_DATA_GET_ANY: &str =
     "encode_to_handle_arc_map_runtime_data_get_any";
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct SnapshotCounterField {
+    pub name: &'static str,
+    pub snapshot_index: usize,
+}
+
+impl SnapshotCounterField {
+    pub(crate) const fn new(name: &'static str, snapshot_index: usize) -> Self {
+        Self {
+            name,
+            snapshot_index,
+        }
+    }
+
+    #[inline(always)]
+    pub(crate) fn read(self, snapshot: &[u64]) -> u64 {
+        snapshot[self.snapshot_index]
+    }
+}
+
+pub(crate) const BORROWED_ALIAS_TO_STRING_BOX_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BORROWED_ALIAS_TO_STRING_BOX, 72);
+pub(crate) const BORROWED_ALIAS_EQUALS_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BORROWED_ALIAS_EQUALS, 73);
+pub(crate) const BORROWED_ALIAS_CLONE_BOX_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BORROWED_ALIAS_CLONE_BOX, 74);
+pub(crate) const BORROWED_ALIAS_TO_STRING_BOX_LATEST_FRESH_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BORROWED_ALIAS_TO_STRING_BOX_LATEST_FRESH, 75);
+pub(crate) const BORROWED_ALIAS_EQUALS_LATEST_FRESH_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BORROWED_ALIAS_EQUALS_LATEST_FRESH, 76);
+pub(crate) const BORROWED_ALIAS_CLONE_BOX_LATEST_FRESH_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BORROWED_ALIAS_CLONE_BOX_LATEST_FRESH, 77);
+pub(crate) const BORROWED_ALIAS_BORROWED_SOURCE_FAST_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BORROWED_ALIAS_BORROWED_SOURCE_FAST, 78);
+pub(crate) const BORROWED_ALIAS_AS_STR_FAST_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BORROWED_ALIAS_AS_STR_FAST, 79);
+pub(crate) const BORROWED_ALIAS_AS_STR_FAST_LIVE_SOURCE_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BORROWED_ALIAS_AS_STR_FAST_LIVE_SOURCE, 80);
+pub(crate) const BORROWED_ALIAS_AS_STR_FAST_STALE_SOURCE_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BORROWED_ALIAS_AS_STR_FAST_STALE_SOURCE, 81);
+pub(crate) const BORROWED_ALIAS_ARRAY_LEN_BY_INDEX_LATEST_FRESH_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BORROWED_ALIAS_ARRAY_LEN_BY_INDEX_LATEST_FRESH, 82);
+pub(crate) const BORROWED_ALIAS_ARRAY_INDEXOF_BY_INDEX_LATEST_FRESH_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BORROWED_ALIAS_ARRAY_INDEXOF_BY_INDEX_LATEST_FRESH, 83);
+pub(crate) const BORROWED_ALIAS_ENCODE_EPOCH_HIT_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BORROWED_ALIAS_ENCODE_EPOCH_HIT, 84);
+pub(crate) const BORROWED_ALIAS_ENCODE_PTR_EQ_HIT_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BORROWED_ALIAS_ENCODE_PTR_EQ_HIT, 85);
+pub(crate) const BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC, 86);
+pub(crate) const BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_ARRAY_GET_INDEX_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_ARRAY_GET_INDEX, 87);
+pub(crate) const BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_MAP_RUNTIME_DATA_GET_ANY_FIELD:
+    SnapshotCounterField = SnapshotCounterField::new(
+    BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_MAP_RUNTIME_DATA_GET_ANY,
+    88,
+);
+pub(crate) const BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT, 143);
+pub(crate) const BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_ARRAY_GET_INDEX_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_ARRAY_GET_INDEX, 144);
+pub(crate) const BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_MAP_RUNTIME_DATA_GET_ANY_FIELD:
+    SnapshotCounterField = SnapshotCounterField::new(
+    BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_MAP_RUNTIME_DATA_GET_ANY,
+    145,
+);
+pub(crate) const BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT, 146);
+pub(crate) const BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT_ARRAY_GET_INDEX_FIELD:
+    SnapshotCounterField =
+    SnapshotCounterField::new(BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT_ARRAY_GET_INDEX, 147);
+pub(crate) const BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT_MAP_RUNTIME_DATA_GET_ANY_FIELD:
+    SnapshotCounterField = SnapshotCounterField::new(
+    BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT_MAP_RUNTIME_DATA_GET_ANY,
+    148,
+);
+
+pub(crate) const BORROWED_ALIAS_SUMMARY_FIELDS: [SnapshotCounterField; 23] = [
+    BORROWED_ALIAS_TO_STRING_BOX_FIELD,
+    BORROWED_ALIAS_EQUALS_FIELD,
+    BORROWED_ALIAS_CLONE_BOX_FIELD,
+    BORROWED_ALIAS_TO_STRING_BOX_LATEST_FRESH_FIELD,
+    BORROWED_ALIAS_EQUALS_LATEST_FRESH_FIELD,
+    BORROWED_ALIAS_CLONE_BOX_LATEST_FRESH_FIELD,
+    BORROWED_ALIAS_BORROWED_SOURCE_FAST_FIELD,
+    BORROWED_ALIAS_AS_STR_FAST_FIELD,
+    BORROWED_ALIAS_AS_STR_FAST_LIVE_SOURCE_FIELD,
+    BORROWED_ALIAS_AS_STR_FAST_STALE_SOURCE_FIELD,
+    BORROWED_ALIAS_ARRAY_LEN_BY_INDEX_LATEST_FRESH_FIELD,
+    BORROWED_ALIAS_ARRAY_INDEXOF_BY_INDEX_LATEST_FRESH_FIELD,
+    BORROWED_ALIAS_ENCODE_EPOCH_HIT_FIELD,
+    BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_FIELD,
+    BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_ARRAY_GET_INDEX_FIELD,
+    BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_MAP_RUNTIME_DATA_GET_ANY_FIELD,
+    BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT_FIELD,
+    BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT_ARRAY_GET_INDEX_FIELD,
+    BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT_MAP_RUNTIME_DATA_GET_ANY_FIELD,
+    BORROWED_ALIAS_ENCODE_PTR_EQ_HIT_FIELD,
+    BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_FIELD,
+    BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_ARRAY_GET_INDEX_FIELD,
+    BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_MAP_RUNTIME_DATA_GET_ANY_FIELD,
+];

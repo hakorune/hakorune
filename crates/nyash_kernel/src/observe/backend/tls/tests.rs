@@ -1,6 +1,7 @@
 use std::sync::{Mutex, OnceLock};
 
 use super::*;
+use crate::observe::contract;
 use crate::test_support::with_env_var;
 
 fn test_lock() -> &'static Mutex<()> {
@@ -176,12 +177,42 @@ fn tls_slot_publish_boundary_counters_flush_current_thread() {
         assert_eq!(after[140] - before[140], 1);
         assert_eq!(after[141] - before[141], 1);
         assert_eq!(after[142] - before[142], 1);
-        assert_eq!(after[143] - before[143], 1);
-        assert_eq!(after[144] - before[144], 1);
-        assert_eq!(after[145] - before[145], 1);
-        assert_eq!(after[146] - before[146], 1);
-        assert_eq!(after[147] - before[147], 1);
-        assert_eq!(after[148] - before[148], 1);
+        assert_eq!(
+            contract::BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_FIELD.read(&after)
+                - contract::BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_ARRAY_GET_INDEX_FIELD.read(&after)
+                - contract::BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_ARRAY_GET_INDEX_FIELD
+                    .read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_MAP_RUNTIME_DATA_GET_ANY_FIELD
+                .read(&after)
+                - contract::BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_MAP_RUNTIME_DATA_GET_ANY_FIELD
+                    .read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT_FIELD.read(&after)
+                - contract::BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT_ARRAY_GET_INDEX_FIELD.read(&after)
+                - contract::BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT_ARRAY_GET_INDEX_FIELD
+                    .read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT_MAP_RUNTIME_DATA_GET_ANY_FIELD
+                .read(&after)
+                - contract::BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT_MAP_RUNTIME_DATA_GET_ANY_FIELD
+                    .read(&before),
+            1
+        );
     });
 }
 

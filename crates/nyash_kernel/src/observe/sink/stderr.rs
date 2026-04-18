@@ -445,74 +445,13 @@ pub(crate) fn emit_summary_to_stderr() {
         stable_box_demand[11],
     );
     let mut borrowed_alias_line = format!("[perf/counter][{}]", contract::BORROWED_ALIAS);
-    for (name, value) in [
-        (contract::BORROWED_ALIAS_TO_STRING_BOX, snapshot[72]),
-        (contract::BORROWED_ALIAS_EQUALS, snapshot[73]),
-        (contract::BORROWED_ALIAS_CLONE_BOX, snapshot[74]),
-        (
-            contract::BORROWED_ALIAS_TO_STRING_BOX_LATEST_FRESH,
-            snapshot[75],
-        ),
-        (contract::BORROWED_ALIAS_EQUALS_LATEST_FRESH, snapshot[76]),
-        (
-            contract::BORROWED_ALIAS_CLONE_BOX_LATEST_FRESH,
-            snapshot[77],
-        ),
-        (contract::BORROWED_ALIAS_BORROWED_SOURCE_FAST, snapshot[78]),
-        (contract::BORROWED_ALIAS_AS_STR_FAST, snapshot[79]),
-        (
-            contract::BORROWED_ALIAS_AS_STR_FAST_LIVE_SOURCE,
-            snapshot[80],
-        ),
-        (
-            contract::BORROWED_ALIAS_AS_STR_FAST_STALE_SOURCE,
-            snapshot[81],
-        ),
-        (
-            contract::BORROWED_ALIAS_ARRAY_LEN_BY_INDEX_LATEST_FRESH,
-            snapshot[82],
-        ),
-        (
-            contract::BORROWED_ALIAS_ARRAY_INDEXOF_BY_INDEX_LATEST_FRESH,
-            snapshot[83],
-        ),
-        (contract::BORROWED_ALIAS_ENCODE_EPOCH_HIT, snapshot[84]),
-        (
-            contract::BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT,
-            snapshot[143],
-        ),
-        (
-            contract::BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_ARRAY_GET_INDEX,
-            snapshot[144],
-        ),
-        (
-            contract::BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_MAP_RUNTIME_DATA_GET_ANY,
-            snapshot[145],
-        ),
-        (
-            contract::BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT,
-            snapshot[146],
-        ),
-        (
-            contract::BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT_ARRAY_GET_INDEX,
-            snapshot[147],
-        ),
-        (
-            contract::BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT_MAP_RUNTIME_DATA_GET_ANY,
-            snapshot[148],
-        ),
-        (contract::BORROWED_ALIAS_ENCODE_PTR_EQ_HIT, snapshot[85]),
-        (contract::BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC, snapshot[86]),
-        (
-            contract::BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_ARRAY_GET_INDEX,
-            snapshot[87],
-        ),
-        (
-            contract::BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_MAP_RUNTIME_DATA_GET_ANY,
-            snapshot[88],
-        ),
-    ] {
-        let _ = write!(&mut borrowed_alias_line, " {}={}", name, value);
+    for field in contract::BORROWED_ALIAS_SUMMARY_FIELDS {
+        let _ = write!(
+            &mut borrowed_alias_line,
+            " {}={}",
+            field.name,
+            field.read(&snapshot)
+        );
     }
     eprintln!("{}", borrowed_alias_line);
 }

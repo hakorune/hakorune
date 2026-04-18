@@ -51,6 +51,11 @@ Scope: current lane / next lane / restart order only.
       - `cached handle`
       - `cold fallback`
     - the next open card is still the strict whole stability reread
+  - active cleanup slice:
+    - `phase2.5-observe-borrowed-alias-counter-ssot`
+    - scope:
+      - keep `borrowed.alias` live/cached/fallback counters off raw snapshot index duplication
+      - land this as a structural cleanup before the next strict whole reread
   - pending todo:
     - `phase2-deferred-const-suffix-stability`
   - do not open a new ABI / `TextLane` cut until this reread is judged keeper vs reject
