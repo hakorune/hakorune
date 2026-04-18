@@ -41,8 +41,8 @@ use self::cache::{
 };
 use self::concat::{
     concat3_fallback, concat3_substring_fallback, concat_const_suffix_fallback,
-    concat_pair_fallback, concat_pair_into_slot, concat_pair_substring_fallback,
-    insert_const_mid_fallback, piecewise_subrange_hsiii_fallback,
+    concat_const_suffix_into_slot, concat_pair_fallback, concat_pair_into_slot,
+    concat_pair_substring_fallback, insert_const_mid_fallback, piecewise_subrange_hsiii_fallback,
     piecewise_subrange_hsiii_into_slot, piecewise_subrange_kernel_text_slot_into_slot,
     substring_kernel_text_slot_in_place,
 };
@@ -309,6 +309,17 @@ pub(super) fn string_concat_hh_into_slot_export_impl(
         return 0;
     };
     i64::from(concat_pair_into_slot(slot, a_h, b_h))
+}
+
+pub(super) fn string_concat_hs_into_slot_export_impl(
+    slot: *mut KernelTextSlot,
+    a_h: i64,
+    suffix_ptr: *const i8,
+) -> i64 {
+    let Some(slot) = (unsafe { slot.as_mut() }) else {
+        return 0;
+    };
+    i64::from(concat_const_suffix_into_slot(slot, a_h, suffix_ptr))
 }
 
 pub(super) fn string_piecewise_subrange_kernel_text_slot_into_slot_export_impl(

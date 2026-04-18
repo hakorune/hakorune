@@ -140,6 +140,15 @@ pub(super) fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i
 }
 
 #[inline(always)]
+pub(super) fn concat_const_suffix_into_slot(
+    slot: &mut KernelTextSlot,
+    a_h: i64,
+    suffix_ptr: *const i8,
+) -> bool {
+    const_adapter::concat_const_suffix_into_slot(slot, a_h, suffix_ptr)
+}
+
+#[inline(always)]
 pub(super) fn insert_const_mid_fallback(source_h: i64, middle_ptr: *const i8, split: i64) -> i64 {
     const_adapter::insert_const_mid_fallback(source_h, middle_ptr, split)
 }

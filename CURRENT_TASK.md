@@ -61,6 +61,11 @@ Scope: current lane / next lane / restart order only.
   - `kilo_kernel_small`
     - `C: 80 ms`
     - `Ny AOT: 741 ms`
+- current accepted redesign is now locked in narrowed form:
+  - keep `public handle ABI`
+  - move the first code cut to producer-side unpublished outcome
+  - first landing is not a general `TransientText` rollout; it is a narrow runtime-private `const_suffix -> KernelTextSlot -> store.array.str` substrate
+  - compiler/backend consumption of that slot carrier stays a follow-up card; current `string_kernel_plan` evidence is verifier-side only
 - latest completed audit lock (confirmed evidence; prefer this block if older notes below differ):
   - exact asm/perf audit on `kilo_micro_array_string_store`:
     - top samples: `substring_concat_hhii_export_impl 22.38%`, `string_concat_hh_export_impl 21.70%`, array string-store closure `17.34%`, `from_i8_string_const 13.07%`, `LocalKey::with 6.07%`, `memmove 3.51%`, `_int_malloc 1.75%`
@@ -212,6 +217,11 @@ Scope: current lane / next lane / restart order only.
   - `publish_boundary.slot_already_published=0`
   - `publish_reason.need_stable_object=0`
   - read: `KernelTextSlot` exit is now observable and inactive; the live owner remains upstream producer publication, especially `site.const_suffix.*` / `site.freeze_text_plan_pieces3.*` on whole
+- next implementation card is now re-ordered accordingly:
+  - do not reopen slot-boundary-first probes
+  - do not widen generic publish helpers first
+  - first substrate card is producer-side `const_suffix` into `KernelTextSlot`
+  - after that lands, reopen compiler-side slot consumer wiring separately
 - latest exact asm diff is now pinned:
   - C side is still a tight `main` loop plus `strlen`
   - Ny AOT hot symbols are:

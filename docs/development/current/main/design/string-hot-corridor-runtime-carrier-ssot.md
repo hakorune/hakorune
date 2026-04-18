@@ -151,6 +151,11 @@ These stay valid runtime mechanics, but the carrier design must treat them as co
 - do not widen generic `string_handle_from_owned`-style helpers
 - do not retry registry-backed deferred carriers
 - do not retry transient box/handle carriers
+- first landing on this lane is explicitly narrowed further:
+  - do not introduce a general-purpose `TransientText` enum yet
+  - reuse `KernelTextSlot` as the first sink-local unpublished carrier
+  - first substrate is `const_suffix -> KernelTextSlot`, then `KernelTextSlot -> store.array.str`
+  - compiler/backend slot-consumer lowering is a separate card after the runtime substrate lands
 
 ## Front-Specific Implications
 
@@ -230,6 +235,9 @@ These stay valid runtime mechanics, but the carrier design must treat them as co
 - goal:
   - freeze into `OwnedBytes` / `KernelTextSlot`
   - keep objectize/handle issue in a site-local cold adapter
+- narrowed first cut:
+  - land `const_suffix -> KernelTextSlot` before widening to general `Pieces3` transport
+  - treat this as runtime-private substrate, not full corridor completion
 - reject:
   - shared-helper widening
   - registry-backed unpublished carrier

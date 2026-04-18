@@ -40,7 +40,7 @@ Related:
   - whole audit: top user symbols are `nyash.string.concat_hs 11.19%`, `execute_store_array_str_contract` closure `7.01%`, `insert_const_mid_fallback` closure `3.89%`, `array_get_index_encoded_i64` closure `3.62%`, `from_i8_string_const 3.52%`, libc `memmove 14.92%`, `_int_malloc 4.65%`; `concat_hs` hot instructions are TLS/helper-entry, not copy body
   - observability audit: the generic-fallback split is now locked by site-specific noinline symbols in `crates/nyash_kernel/src/plugin/value_codec/string_materialize.rs`; tests passed with and without `perf-observe`
   - choice rule: perf/asm is now sufficient to choose the next keeper without another broad observability round
-- current owner reading:
+  - current owner reading:
   - current main owner family is `array/string-store`
   - duplicated `text + "xy"` producer is already removed in trusted direct MIR
   - compiler-side known string-length propagation is now landed for const / substring-window / same-length string `phi`
@@ -52,11 +52,13 @@ Related:
     - `kilo_kernel_small` is dominated by `const_suffix` fallback plus `freeze_text_plan(Pieces3)` publication
   - hot-corridor carrier design is now fixed separately:
     - `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
-  - current code pick stays whole-first:
-    - next narrow seam is the borrowed-slot retarget/publication tail under `execute_store_array_str_contract`
-    - first implementation target:
-      - `try_retarget_borrowed_string_slot_take_verified_text_source`
-      - `keep_borrowed_string_slot_source_keep`
+  - current code pick stays producer-first:
+    - active owner is still upstream producer publication on whole
+    - first implementation target is a narrow runtime-private substrate:
+      - `const_suffix -> KernelTextSlot`
+      - `KernelTextSlot -> store.array.str`
+    - keep this landing corridor-local; do not widen generic helper ABI
+    - compiler/backend consumption of slot text remains a separate follow-up because current `string_kernel_plan` is verifier-side evidence, not a lowered backend path yet
     - before Card A/B, slot publish-boundary verifier/counters are now landed:
       - `publish_boundary.slot_publish_handle_total`
       - `publish_boundary.slot_objectize_stable_box_total`
@@ -64,7 +66,7 @@ Related:
       - `publish_boundary.slot_already_published`
       - `objectize_kernel_text_slot_stable_box` now records `publish_reason.need_stable_object`
       - latest exact / meso / whole reread shows these slot-boundary counters remain `0`; slot exit is observed and inactive on the live fronts
-    - middle remains the contradiction guard; if this seam does not lift meso, reopen `substring_hii -> borrowed_substring_plan_from_handle`
+    - middle remains the contradiction guard; if producer-side unpublished outcome does not lift meso, reopen `substring_hii -> borrowed_substring_plan_from_handle`
     - latest local probe after landing the cold retirement sink:
       - `kilo_meso_substring_concat_array_set_loopcarry = 53 ms` (`repeat=3`)
       - `kilo_kernel_small_hk = 733 ms`, `736 ms` (`repeat=3` x2)
@@ -145,10 +147,10 @@ Related:
 4. preserve the existing `set_his` fast path; do not reopen slot-store boundary probes
 5. keep `const_suffix` as the first whole-front keeper owner and `Pieces3` as a guard lane
 6. use `kilo_meso_substring_concat_array_set_loopcarry` as the first confirmation front between exact and whole when judging the next keeper
-7. first narrow cut candidate stays in the store/publication corridor:
-   - `execute_store_array_str_contract`
-   - `array_get_index_encoded_i64`
-   - `insert_const_mid_fallback`
+7. first narrow cut candidate stays in the producer/publication corridor:
+   - `const_suffix`
+   - `freeze_text_plan(Pieces3)`
+   - runtime-private `KernelTextSlot` substrate for same-corridor transport
 8. treat allocator / GC as secondary diagnosis until that corridor loses on exact + meso + whole
 9. implement whole-first at the borrowed-slot retarget/publication tail before reopening upstream substring planning
 10. keep `Stage B` narrow and data-driven through runtime-private publication counters

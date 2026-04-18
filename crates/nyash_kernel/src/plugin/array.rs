@@ -176,6 +176,29 @@ mod tests {
     }
 
     #[test]
+    fn kernel_slot_const_suffix_store_alias_writes_string_slot_without_publish_handle() {
+        let handle = new_array_handle();
+        let lhs_h = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
+            nyash_rust::box_trait::StringBox::new("line-seed".to_string()),
+        )
+            as std::sync::Arc<dyn NyashBox>) as i64;
+        let suffix = std::ffi::CString::new("xy").expect("CString");
+        let mut slot = crate::plugin::KernelTextSlot::empty();
+
+        assert_eq!(
+            crate::nyash_string_kernel_slot_concat_hs_export(&mut slot, lhs_h, suffix.as_ptr()),
+            1
+        );
+        assert_eq!(nyash_string_kernel_slot_len_i_export(&slot), 11);
+        assert_eq!(
+            nyash_array_kernel_slot_store_hi_alias(handle, 0, &mut slot),
+            1
+        );
+        assert_eq!(nyash_array_string_len_hi_alias(handle, 0), 11);
+        assert_eq!(nyash_string_kernel_slot_len_i_export(&slot), 0);
+    }
+
+    #[test]
     fn string_indexof_raw_alias_reads_string_slot_directly() {
         let handle = new_array_handle();
         let hay_handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(

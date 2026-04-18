@@ -6,6 +6,7 @@ use crate::exports::string_plan::{
     concat_const_suffix_plan_from_handle, insert_const_mid_plan_from_handle,
 };
 use crate::observe;
+use crate::plugin::{freeze_owned_string_into_slot, KernelTextSlot};
 use nyash_rust::runtime::host_handles as handles;
 use std::{
     cell::{Cell, RefCell},
@@ -19,7 +20,7 @@ use super::super::cache::{
 };
 use super::super::materialize::{
     concat_two_str, freeze_text_plan, freeze_text_plan_with_site,
-    string_handle_from_owned_const_suffix, string_is_empty_from_handle,
+    string_handle_from_owned_const_suffix, string_is_empty_from_handle, to_owned_string_handle_arg,
 };
 use crate::plugin::StringPublishSite;
 
@@ -100,6 +101,52 @@ pub(super) fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i
     // phase-149x: keep `concat_hs` as the current concrete executor path, but
     // read this route as `.hako const_suffix -> thaw.str + lit.str + str.concat2 + freeze.str`.
     execute_const_suffix_contract(a_h, suffix_ptr)
+}
+
+#[inline(always)]
+fn concat_const_suffix_owned_for_slot(a_h: i64, suffix: &str) -> String {
+    if let Some(text) = handles::with_text_read_session(|session| {
+        session.str_handle(a_h as u64, |lhs| {
+            if lhs.is_empty() {
+                return suffix.to_owned();
+            }
+            if suffix.is_empty() {
+                return lhs.to_owned();
+            }
+            concat_two_str(lhs, suffix)
+        })
+    }) {
+        return text;
+    }
+    let lhs = to_owned_string_handle_arg(a_h);
+    if lhs.is_empty() {
+        return suffix.to_owned();
+    }
+    if suffix.is_empty() {
+        return lhs;
+    }
+    concat_two_str(lhs.as_str(), suffix)
+}
+
+#[inline(always)]
+pub(super) fn concat_const_suffix_into_slot(
+    slot: &mut KernelTextSlot,
+    a_h: i64,
+    suffix_ptr: *const i8,
+) -> bool {
+    slot.clear();
+    if suffix_ptr.is_null() {
+        freeze_owned_string_into_slot(slot, to_owned_string_handle_arg(a_h));
+        return true;
+    }
+    observe::record_const_suffix_enter();
+    with_cached_const_suffix_text(suffix_ptr, |suffix| {
+        if suffix.is_empty() {
+            observe::record_const_suffix_empty_return();
+        }
+        freeze_owned_string_into_slot(slot, concat_const_suffix_owned_for_slot(a_h, suffix));
+        true
+    })
 }
 
 #[inline(always)]

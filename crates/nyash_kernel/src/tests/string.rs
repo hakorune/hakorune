@@ -96,6 +96,32 @@ fn string_concat_hs_repeated_suffix_reuses_handle_for_same_source_text() {
 }
 
 #[test]
+fn string_kernel_slot_concat_hs_len_publish_contract() {
+    with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
+        let lhs_h = string_handle("line-seed");
+        let suffix = CString::new("::tail").expect("CString");
+        let direct_h = nyash_string_concat_hs_export(lhs_h, suffix.as_ptr());
+        let mut slot = crate::plugin::KernelTextSlot::empty();
+
+        assert_eq!(
+            nyash_string_kernel_slot_concat_hs_export(&mut slot, lhs_h, suffix.as_ptr()),
+            1
+        );
+        assert_eq!(
+            nyash_string_kernel_slot_len_i_export(&slot),
+            nyash_string_len_h(direct_h)
+        );
+
+        let helper_h = nyash_string_kernel_slot_publish_h_export(&mut slot);
+        assert!(helper_h > 0);
+        assert_eq!(
+            decode_string_like_handle(helper_h),
+            decode_string_like_handle(direct_h)
+        );
+    });
+}
+
+#[test]
 fn string_concat_hs_different_sources_do_not_share_global_const_handle() {
     let lhs_h1 = string_handle("phase21_5_concat_hs_source");
     let lhs_h2 = string_handle("phase21_5_concat_hs_source");
@@ -281,6 +307,29 @@ fn string_kernel_slot_concat_len_publish_contract() {
             decode_string_like_handle(helper_h),
             decode_string_like_handle(direct_h)
         );
+    });
+}
+
+#[test]
+fn string_kernel_slot_concat_hs_store_contract() {
+    with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
+        let array: Arc<dyn NyashBox> = Arc::new(nyash_rust::boxes::array::ArrayBox::new());
+        let handle = handles::to_handle_arc(array) as i64;
+        let lhs_h = string_handle("line-seed");
+        let suffix = CString::new("xy").expect("CString");
+        let mut slot = crate::plugin::KernelTextSlot::empty();
+
+        assert_eq!(
+            nyash_string_kernel_slot_concat_hs_export(&mut slot, lhs_h, suffix.as_ptr()),
+            1
+        );
+        assert_eq!(nyash_string_kernel_slot_len_i_export(&slot), 11);
+        assert_eq!(
+            crate::nyash_array_kernel_slot_store_hi_alias(handle, 0, &mut slot),
+            1
+        );
+        assert_eq!(crate::nyash_array_string_len_hi_alias(handle, 0), 11);
+        assert_eq!(nyash_string_kernel_slot_len_i_export(&slot), 0);
     });
 }
 

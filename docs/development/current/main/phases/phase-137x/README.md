@@ -19,7 +19,7 @@
 - current whole owner: `const_suffix` / `freeze_text_plan(Pieces3)` publication
 - current middle guard: `kilo_meso_substring_concat_array_set_loopcarry`
 - current stop-line: `KernelTextSlot` exit is observed and inactive (`publish_boundary.slot_* = 0`)
-- current first seam: `execute_store_array_str_contract` under `try_retarget_borrowed_string_slot_take_verified_text_source`
+- current first seam: producer-side unpublished outcome under `const_suffix` (`KernelTextSlot` substrate first)
 - current reject: slot-store delayed publication probes and string-specialized handle payload probe
 - read order:
   1. `CURRENT_TASK.md`
@@ -80,13 +80,14 @@
       - `objectize_kernel_text_slot_stable_box` records `publish_reason.need_stable_object`
       - this reduces the blind spot from `generic_fallback` to the upstream producer/retarget owner before slot exit
       - latest exact / meso / whole reread keeps these slot-boundary counters at `0`, so slot exit is observed and inactive on the live fronts
-    - first code seam is the borrowed-slot retarget/publication tail under `execute_store_array_str_contract`
-    - concrete entry:
-      - `try_retarget_borrowed_string_slot_take_verified_text_source`
-      - `keep_borrowed_string_slot_source_keep`
+    - first code seam is now producer-side unpublished outcome:
+      - add a narrow runtime-private `const_suffix -> KernelTextSlot` seam
+      - keep `KernelTextSlot -> store.array.str` as the immediate sink-side consumer
+      - do not widen generic publish helpers or public ABI
     - intended shape:
-      - preserve the current alias-retarget contract
-      - move old keep retirement out of the hottest edge before reopening broader upstream cuts
+      - preserve the existing `set_his` fast-path / alias-retarget contract
+      - let producer code return slot-owned text without forcing `StringBox -> handle`
+      - keep compiler/backend slot-consumer lowering as a separate follow-up card
     - latest local probe after landing the cold retirement sink:
       - `kilo_meso_substring_concat_array_set_loopcarry = 53 ms` (`repeat=3`, prior local reread `56 ms`)
       - `kilo_kernel_small_hk = 733 ms`, `736 ms` (`repeat=3` x2)
@@ -129,6 +130,10 @@
 - current owner split is now explicit:
   - exact micro owner: shared generic publish/objectize behind `string_concat_hh` + `string_substring_concat_hhii`
   - whole kilo owner: `const_suffix` fallback + `freeze_text_plan(Pieces3)` publication
+  - accepted first implementation cut:
+    - runtime-private producer substrate only
+    - `const_suffix -> KernelTextSlot -> store.array.str`
+    - no general `TransientText` rollout on this lane
 - current live reread after parking the rejected slot-store boundary probes:
   - keeper fronts:
     - `kilo_micro_substring_only`
