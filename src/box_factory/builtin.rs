@@ -48,10 +48,8 @@ impl BoxFactory for BuiltinBoxFactory {
             "ArrayBox" => Ok(crate::providers::ring1::array::new_array_box()),
             "MapBox" => Ok(crate::providers::ring1::map::new_map_box()),
 
-            // Phase 125: Plugin-preferred, but builtin fallback for selfhost
-            // Primary: plugins/nyash-console-plugin
-            // Fallback: builtin implementation (Phase 151 selfhost support)
-            "ConsoleBox" => builtin_impls::console_box::create(args),
+            // Phase 151: selfhost fallback, owned by the ring1 console seam.
+            "ConsoleBox" => Ok(crate::providers::ring1::console::new_console_box()),
 
             // Phase 15.5: Fallback support (auto/core-ro modes)
             "FileBox" => builtin_impls::file_box::create(args),

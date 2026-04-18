@@ -314,6 +314,7 @@ Related:
   - landed: `NewBox(ArrayBox)` construction now goes through the ring1 array provider seam; the deprecated builtin ArrayBox fallback is removed
   - landed: `NewBox(MapBox)` construction now goes through the ring1 map provider seam; the deprecated builtin MapBox fallback is removed
   - landed: `NewBox(PathBox)` construction now goes through the ring1 path provider seam; the deprecated builtin PathBox fallback is removed
+  - landed: `NewBox(ConsoleBox)` construction now goes through the ring1 console seam; the selfhost fallback remains but the standalone builtin wrapper is removed
   - retarget remaining lowering/runtime users off deprecated compat map exports
   - then collapse:
     - `map_compat.rs`

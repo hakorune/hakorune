@@ -16,3 +16,4 @@ Guidelines
 
 Migration Note
 - Historical naming like "builtin" may still exist in the codebase. ring1 is the canonical concept; moves will be incremental and guarded.
+- Box constructors that are already owned by ring1 should expose a local `new_*_box` seam instead of adding thin wrappers under `src/box_factory/builtin_impls/`.

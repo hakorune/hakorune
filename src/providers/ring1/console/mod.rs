@@ -5,6 +5,7 @@
 
 use crate::runtime::core_services::ConsoleService;
 use crate::runtime::ring0::get_global_ring0;
+use crate::{box_trait::NyashBox, boxes::ConsoleBox};
 
 #[derive(Debug, Default)]
 pub struct Ring1ConsoleService;
@@ -13,6 +14,11 @@ impl Ring1ConsoleService {
     pub fn new() -> Self {
         Self
     }
+}
+
+/// Create the canonical runtime ConsoleBox through the ring1 console seam.
+pub fn new_console_box() -> Box<dyn NyashBox> {
+    Box::new(ConsoleBox::new())
 }
 
 impl ConsoleService for Ring1ConsoleService {
@@ -43,5 +49,11 @@ mod tests {
         let provider = Ring1ConsoleService::new();
         provider.println("ring1 console println test");
         provider.print("ring1 console print test");
+    }
+
+    #[test]
+    fn ring1_console_new_box_returns_consolebox() {
+        let boxed = new_console_box();
+        assert!(boxed.as_any().downcast_ref::<ConsoleBox>().is_some());
     }
 }
