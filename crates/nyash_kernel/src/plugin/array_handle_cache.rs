@@ -162,8 +162,7 @@ mod tests {
             assert_eq!(warmup, cached);
             assert_eq!(after.cached_handle_hit - before.cached_handle_hit, 1);
             assert_eq!(
-                after.cached_handle_hit_array_get_index
-                    - before.cached_handle_hit_array_get_index,
+                after.cached_handle_hit_array_get_index - before.cached_handle_hit_array_get_index,
                 1
             );
             assert_eq!(
@@ -201,8 +200,7 @@ mod tests {
             assert_eq!(live, value_h);
             assert_eq!(after.live_source_hit - before.live_source_hit, 1);
             assert_eq!(
-                after.live_source_hit_array_get_index
-                    - before.live_source_hit_array_get_index,
+                after.live_source_hit_array_get_index - before.live_source_hit_array_get_index,
                 1
             );
             assert_eq!(

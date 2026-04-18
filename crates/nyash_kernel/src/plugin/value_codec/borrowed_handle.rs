@@ -353,7 +353,9 @@ impl BorrowedHandleBox {
 
     #[inline(always)]
     fn invalidate_cached_runtime_handle(&self) {
-        self.cached_runtime_handle.handle.store(0, Ordering::Relaxed);
+        self.cached_runtime_handle
+            .handle
+            .store(0, Ordering::Relaxed);
         self.cached_runtime_handle.epoch.store(0, Ordering::Relaxed);
     }
 
