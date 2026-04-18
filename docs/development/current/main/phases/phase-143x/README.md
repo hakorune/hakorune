@@ -8,7 +8,7 @@
 - `MapBox.set` visible semantics are explicitly owned by `.hako` first
 - `MapBox.get/has` visible semantics are expressed through `.hako` owner helpers, not embedded inline in dispatch branches
 - visible `MapBox.{get,set,has,len/length/size}` behavior is expressed through `.hako` owner helpers, not embedded inline in dispatch branches
-- Rust `map_runtime_facade.rs` remains forwarding-only and shrink-only
+- Rust `map_runtime_data.rs` / `map_compat.rs` remain forwarding-only and shrink-only
 - Rust `map_aliases.rs` stays thin facade
 - raw probe/load/store leaves remain Rust-owned
 - next lane is `phase-144x string semantic owner follow-up`
@@ -24,7 +24,8 @@
   - `map_aliases.rs`
 - Rust observer/compat forwarding:
   - `map_substrate.rs`
-  - `map_runtime_facade.rs`
+  - `map_runtime_data.rs`
+  - `map_compat.rs`
 - Rust accelerators:
   - `map_probe.rs`
   - `map_slot_load.rs`

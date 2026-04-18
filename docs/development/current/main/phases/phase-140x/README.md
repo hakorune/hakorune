@@ -13,7 +13,8 @@
   - `lang/src/runtime/substrate/raw_map/raw_map_core_box.hako`
   - `crates/nyash_kernel/src/plugin/map_aliases.rs`
   - `crates/nyash_kernel/src/plugin/map_substrate.rs`
-  - `crates/nyash_kernel/src/plugin/map_runtime_facade.rs`
+  - `crates/nyash_kernel/src/plugin/map_runtime_data.rs`
+  - `crates/nyash_kernel/src/plugin/map_compat.rs`
   - `crates/nyash_kernel/src/plugin/map_probe.rs`
   - `crates/nyash_kernel/src/plugin/map_slot_load.rs`
   - `crates/nyash_kernel/src/plugin/map_slot_store.rs`
@@ -36,7 +37,8 @@
 - Rust observer shim:
   - `map_substrate.rs`
 - Rust compat/runtime forwarding:
-  - `map_runtime_facade.rs`
+  - `map_runtime_data.rs`
+  - `map_compat.rs`
 - Rust accelerators:
   - `map_probe.rs`
   - `map_slot_load.rs`
@@ -46,11 +48,11 @@
 
 - the pilot is not about moving raw probe/load/store out of Rust
 - the pilot is about making `MapBox.{get,set,has,len,length,size}` policy/fallback/key-normalization/state definitively `.hako`-owned
-- `map_runtime_facade.rs` should remain compat/runtime forwarding only
+- `map_runtime_data.rs` / `map_compat.rs` should remain runtime/compat forwarding only
 - `map_probe.rs` / `map_slot_load.rs` / `map_slot_store.rs` stay native/raw leaves and must not become owners
 
 ## Next
 
 1. lock exact owner/substrate/facade/forwarding/accelerator boundaries
-2. mark `map_runtime_facade.rs` shrink-only
+2. mark `map_runtime_data.rs` / `map_compat.rs` shrink-only
 3. hand off to `phase-141x string semantic boundary review`
