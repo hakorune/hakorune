@@ -66,8 +66,12 @@ Scope: current lane / next lane / restart order only.
       - `cached handle`
       - `cold fallback`
     - the next open card is still the strict whole stability reread
-  - active cleanup slice:
+  - recent cleanup slice:
     - `phase2.5-map-surface-contract-cleanup`
+    - status:
+      - parked after smallest BoxShape cards
+      - `observe` counter registration and sink/test raw-index mirrors are parked
+      - legacy map compat surface is quarantine-only; no active lowering/runtime users remain
     - scope:
       - keep raw map string publication at the `value_codec` encode seam, not inside `MapBox`
       - route legacy `nyash.map.get_h` / `nyash.map.get_hh` through the same slot-load substrate contract
@@ -211,7 +215,8 @@ Scope: current lane / next lane / restart order only.
         - phase 2.5 contract is now much tighter on read behavior
         - exact stays closed, but meso / strict whole reopened upward versus the prior `57 ms` / `791 ms` band
         - this reread is reject-side evidence for keeper judgement on the updated lane
-        - cleanup queue is now active; start from the smallest BoxShape cards before choosing another owner seam
+        - cleanup queue is now parked after the smallest BoxShape cards
+        - next step is the strict whole stability reread before choosing another owner seam
 - accepted task order is now fixed as a phase rollout, not as isolated helper cuts:
   - semantic lock:
     - `String = value`
