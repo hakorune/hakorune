@@ -139,14 +139,60 @@ fn tls_phase137x_evidence_counters_flush_current_thread() {
                 - contract::STORE_ARRAY_STR_LOOKUP_CALLER_LATEST_FRESH_TAG_FIELD.read(&before),
             1
         );
-        assert_eq!(after[123] - before[123], 1);
-        assert_eq!(after[124] - before[124], 18);
-        assert_eq!(after[125] - before[125], 1);
-        assert_eq!(after[126] - before[126], 1);
-        assert_eq!(after[127] - before[127], 1);
-        assert_eq!(after[128] - before[128], 7);
-        assert_eq!(after[129] - before[129], 1);
-        assert_eq!(after[130] - before[130], 1);
+        assert_eq!(
+            contract::BIRTH_BACKEND_SITE_STRING_CONCAT_HH_MATERIALIZE_OWNED_TOTAL_FIELD
+                .read(&after)
+                - contract::BIRTH_BACKEND_SITE_STRING_CONCAT_HH_MATERIALIZE_OWNED_TOTAL_FIELD
+                    .read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_SITE_STRING_CONCAT_HH_MATERIALIZE_OWNED_BYTES_FIELD
+                .read(&after)
+                - contract::BIRTH_BACKEND_SITE_STRING_CONCAT_HH_MATERIALIZE_OWNED_BYTES_FIELD
+                    .read(&before),
+            18
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_SITE_STRING_CONCAT_HH_OBJECTIZE_BOX_TOTAL_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_SITE_STRING_CONCAT_HH_OBJECTIZE_BOX_TOTAL_FIELD
+                    .read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_SITE_STRING_CONCAT_HH_PUBLISH_HANDLE_TOTAL_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_SITE_STRING_CONCAT_HH_PUBLISH_HANDLE_TOTAL_FIELD
+                    .read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_MATERIALIZE_OWNED_TOTAL_FIELD
+                .read(&after)
+                - contract::BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_MATERIALIZE_OWNED_TOTAL_FIELD
+                    .read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_MATERIALIZE_OWNED_BYTES_FIELD
+                .read(&after)
+                - contract::BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_MATERIALIZE_OWNED_BYTES_FIELD
+                    .read(&before),
+            7
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_OBJECTIZE_BOX_TOTAL_FIELD
+                .read(&after)
+                - contract::BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_OBJECTIZE_BOX_TOTAL_FIELD
+                    .read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_PUBLISH_HANDLE_TOTAL_FIELD
+                .read(&after)
+                - contract::BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_PUBLISH_HANDLE_TOTAL_FIELD
+                    .read(&before),
+            1
+        );
     });
 }
 
@@ -164,14 +210,57 @@ fn tls_phase137x_whole_site_counters_flush_current_thread() {
         birth_backend_site_freeze_text_plan_pieces3_publish_handle();
         let after = snapshot();
 
-        assert_eq!(after[131] - before[131], 1);
-        assert_eq!(after[132] - before[132], 11);
-        assert_eq!(after[133] - before[133], 1);
-        assert_eq!(after[134] - before[134], 1);
-        assert_eq!(after[135] - before[135], 1);
-        assert_eq!(after[136] - before[136], 19);
-        assert_eq!(after[137] - before[137], 1);
-        assert_eq!(after[138] - before[138], 1);
+        assert_eq!(
+            contract::BIRTH_BACKEND_SITE_CONST_SUFFIX_MATERIALIZE_OWNED_TOTAL_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_SITE_CONST_SUFFIX_MATERIALIZE_OWNED_TOTAL_FIELD
+                    .read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_SITE_CONST_SUFFIX_MATERIALIZE_OWNED_BYTES_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_SITE_CONST_SUFFIX_MATERIALIZE_OWNED_BYTES_FIELD
+                    .read(&before),
+            11
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_SITE_CONST_SUFFIX_OBJECTIZE_BOX_TOTAL_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_SITE_CONST_SUFFIX_OBJECTIZE_BOX_TOTAL_FIELD.read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_SITE_CONST_SUFFIX_PUBLISH_HANDLE_TOTAL_FIELD.read(&after)
+                - contract::BIRTH_BACKEND_SITE_CONST_SUFFIX_PUBLISH_HANDLE_TOTAL_FIELD
+                    .read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_MATERIALIZE_OWNED_TOTAL_FIELD
+                .read(&after)
+                - contract::BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_MATERIALIZE_OWNED_TOTAL_FIELD
+                    .read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_MATERIALIZE_OWNED_BYTES_FIELD
+                .read(&after)
+                - contract::BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_MATERIALIZE_OWNED_BYTES_FIELD
+                    .read(&before),
+            19
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_OBJECTIZE_BOX_TOTAL_FIELD
+                .read(&after)
+                - contract::BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_OBJECTIZE_BOX_TOTAL_FIELD
+                    .read(&before),
+            1
+        );
+        assert_eq!(
+            contract::BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_PUBLISH_HANDLE_TOTAL_FIELD
+                .read(&after)
+                - contract::BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_PUBLISH_HANDLE_TOTAL_FIELD
+                    .read(&before),
+            1
+        );
     });
 }
 
