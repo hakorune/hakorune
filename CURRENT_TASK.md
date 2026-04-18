@@ -273,6 +273,17 @@ Scope: current lane / next lane / restart order only.
           - active whole still calls `array.get_hi`, so delaying stable birth from store to read does not remove object-world demand
           - the seam moved publication/copy tax and increased store/read residence work
           - code was reverted; do not reopen store-side `owned-string keep` or `owned-text keep` without a front that no longer demands an object handle on read
+      - rejected follow-up probe: array-slot concat-by-index helper
+        - attempted runtime-private `nyash.array.kernel_slot_concat_his(slot, array_h, idx, suffix)` and lowered the hot `array.get_hi -> const_suffix concat -> kernel_slot_store_hi` store to it
+        - exact guard stayed closed: `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`
+        - meso stayed noisy/open: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 62 ms`
+        - strict whole regressed: first `kilo_kernel_small_hk = C 82 ms / Ny AOT 1571 ms`, rerun `C 80 ms / Ny AOT 1033 ms`
+        - IR proof:
+          - new helper was emitted at the hot concat store
+          - earlier `nyash.array.slot_load_hi` still remained before `nyash.array.string_indexof_hih`
+        - reject reason:
+          - adding a direct concat helper without eliminating the live `array.get_hi` read only adds another executor path
+          - code was reverted; do not retry array-slot concat helpers unless the same card also proves the preceding `slot_load_hi` is removed safely
       - reading:
         - phase 2.5 contract is now much tighter on read behavior
         - exact stays closed, but meso / strict whole reopened upward versus the prior `57 ms` / `791 ms` band
@@ -713,7 +724,11 @@ Scope: current lane / next lane / restart order only.
 5. rejected after the fresh proof:
    - unpublished `owned-text keep` removed the `objectize_kernel_text_slot_stable_box` symbol from asm, but strict whole regressed to `902 ms` / `892 ms`
    - reject reason: active whole still demands an object handle at `array.get_hi`, so delayed stable birth only moves the cost
-6. current fresh proof commands:
+6. rejected array-slot concat helper probe:
+   - `nyash.array.kernel_slot_concat_his` emitted, but the preceding `nyash.array.slot_load_hi` stayed live in IR
+   - strict whole regressed to `1571 ms` / `1033 ms`; code reverted
+   - next attempt must eliminate the `array.get_hi` demand itself, not only add a second helper after it
+7. current fresh proof commands:
    - `PERF_AOT=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_string_store 1 3`
    - `PERF_AOT=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_meso_substring_concat_array_set_loopcarry 1 3`
    - `PERF_VM_FORCE_NO_FALLBACK=1 PERF_REQUIRE_AOT_RESULT_PARITY=1 bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small_hk 1 3`

@@ -249,6 +249,17 @@ Related:
       - active whole still demands an object handle at `array.get_hi`
       - delaying stable birth from store to read only moved publication/copy tax
       - code was reverted; do not reopen store-side `owned-string keep` or `owned-text keep` without a front that no longer demands object handles on read
+  - rejected follow-up probe: array-slot concat-by-index helper
+    - attempted runtime-private `nyash.array.kernel_slot_concat_his(slot, array_h, idx, suffix)` for the hot `array.get_hi -> const_suffix concat -> kernel_slot_store_hi` store
+    - exact guard stayed closed: `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`
+    - meso stayed noisy/open: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 62 ms`
+    - strict whole regressed: first `kilo_kernel_small_hk = C 82 ms / Ny AOT 1571 ms`, rerun `C 80 ms / Ny AOT 1033 ms`
+    - IR proof:
+      - `nyash.array.kernel_slot_concat_his` was emitted at the hot concat store
+      - the preceding `nyash.array.slot_load_hi` still remained before `nyash.array.string_indexof_hih`
+    - reading:
+      - a direct concat helper is not enough while the producer `array.get_hi` remains live
+      - code was reverted; do not retry this seam unless the same card removes the preceding `slot_load_hi` safely
   - reading:
     - phase 2.5 runtime contract is now fixed more tightly than the first `array.get`-only slice
     - exact stays closed, but meso / strict whole reopened upward versus the prior keeper-candidate band
@@ -386,6 +397,7 @@ Related:
 2. require a fresh narrow owner proof before the next code edit
    - acceptable seam: reduce read/materialize/copy tax without changing public ABI
    - reject seam: store-side `owned-string keep` / `owned-text keep` or any change that makes `array.get` publish per read
+   - reject seam: array-slot concat helper that leaves the preceding `array.get_hi` / `slot_load_hi` in place
 3. defer future representation work
    - no `TextLane` / MIR legality until the active read-side lane reaches keeper/reject
    - phase-289x remains planning-only; runtime-wide implementation does not start here

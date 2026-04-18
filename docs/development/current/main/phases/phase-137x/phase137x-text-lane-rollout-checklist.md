@@ -317,6 +317,9 @@ Related:
   - rejected follow-up: unpublished `owned-text keep` for `KernelTextSlot -> existing BorrowedHandleBox` removed the store-side objectize symbol from asm, but strict whole regressed to `902 ms` / `892 ms`
     - reject reason: active whole still calls `array.get_hi`, so delaying stable birth from store to read only moves publication/copy tax
     - code was reverted; do not reopen `owned-string keep` / `owned-text keep` until a front no longer demands object handles on read
+  - rejected follow-up: array-slot concat-by-index helper emitted a runtime-private `nyash.array.kernel_slot_concat_his`, but left the preceding `array.slot_load_hi` in IR and regressed strict whole to `1571 ms` / `1033 ms`
+    - reject reason: helper addition after the live get does not reduce the actual owner
+    - code was reverted; do not retry this shape unless the same card removes the preceding `slot_load_hi` safely
   - this is still structure cleanup, not a keeper optimization; do not split `BorrowedHandleBox` into new representation classes until owner proof points at that responsibility directly
 - `Cleanup 4`: typed handle-cache consolidation
   - status: partial

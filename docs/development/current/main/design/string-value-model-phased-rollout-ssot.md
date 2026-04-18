@@ -312,6 +312,7 @@ Phase 0 の意味:
 - public `TextOutcome` enum rollout
 - allocator redesign before read-side aliasing is fixed
 - store-side `owned-string keep` / `owned-text keep` retry while the active whole front still demands object handles on `array.get_hi`
+- array-slot concat helper retry that leaves the preceding `array.get_hi` / `slot_load_hi` in place
 
 ### Keeper criteria
 

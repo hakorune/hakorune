@@ -203,6 +203,17 @@
         - active whole still calls `array.get_hi`, so delaying stable birth from store to read does not remove object-world demand
         - the seam moved publication/copy tax and increased store/read residence work
         - code was reverted; do not reopen store-side `owned-string keep` or `owned-text keep` without a front that no longer demands object handles on read
+    - rejected follow-up probe: array-slot concat-by-index helper
+      - attempted runtime-private `nyash.array.kernel_slot_concat_his(slot, array_h, idx, suffix)` and lowered the hot `array.get_hi -> const_suffix concat -> kernel_slot_store_hi` store to it
+      - exact guard stayed closed: `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`
+      - meso stayed noisy/open: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 62 ms`
+      - strict whole regressed: first `kilo_kernel_small_hk = C 82 ms / Ny AOT 1571 ms`, rerun `C 80 ms / Ny AOT 1033 ms`
+      - IR proof:
+        - `nyash.array.kernel_slot_concat_his` was emitted at the hot concat store
+        - the preceding `nyash.array.slot_load_hi` still remained before `nyash.array.string_indexof_hih`
+      - reject reason:
+        - adding a direct concat helper without removing the live `array.get_hi` read only adds another executor path
+        - code was reverted; do not retry array-slot concat helpers unless the same card also proves the preceding `slot_load_hi` is removed safely
   - reading:
     - phase 2.5 no longer has only the `array.get` cached-handle proof
     - exact stays closed, but meso / strict whole reopened upward versus the prior `57 ms` / `791 ms` band
