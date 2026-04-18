@@ -73,6 +73,16 @@ Related:
   - reading:
     - owner family is still publication/source-capture
     - next phase-2 card must reduce publish frequency, not only outline the same boundary
+- latest phase-2 source-capture prework is now landed:
+  - `with_array_store_str_source(...)` checks a latest-fresh stable-box cache before registry slot lookup
+  - cache validity is guarded by `drop_epoch`
+  - latest reread remains `exact closed / whole neutral`:
+    - `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
+    - `kilo_kernel_small = C 80 ms / Ny AOT 1068 ms`
+  - reading:
+    - same owner family remains live
+    - treat this as valid prework, not a keeper
+    - legacy coexistence is temporary; remove legacy dual routing after the new path proves out
 - phase/task anchors:
   - `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
   - `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`

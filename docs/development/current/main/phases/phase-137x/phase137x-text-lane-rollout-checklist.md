@@ -51,6 +51,7 @@ Related:
 - do not mix `producer outcome`, `sink specialization`, and `publish legality` in one card
 - do not widen shared generic helper ABI before the current corridor-local contract is proven
 - do not introduce public `TextOutcome` / `TextLane` API on this lane
+- legacy helper coexistence is temporary; remove old string/array routing once the new card becomes keeper-grade
 - prefer existing repo-local shapes first:
   - `VerifiedTextSource`
   - `TextPlan`
@@ -204,6 +205,7 @@ Related:
   - no registry-backed transient carrier
   - no string-specialized handle payload retry
   - no generic helper ABI widening before site-local carrier proof
+- do not keep permanent legacy/new dual routing after phase-2/3 keepers land
 
 ## Stop-Line Summary
 

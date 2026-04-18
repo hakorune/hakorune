@@ -13,6 +13,7 @@ mod text_read;
 
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
+use std::cell::RefCell;
 use std::sync::{
     atomic::{AtomicU64, Ordering},
     Arc,
@@ -23,6 +24,17 @@ use crate::box_trait::NyashBox;
 use crate::config::env::HostHandleAllocPolicyMode;
 pub use perf_observe::ObjectWithHandleCaller as PerfObserveObjectWithHandleCaller;
 pub use text_read::TextReadSession;
+
+#[derive(Clone)]
+struct LatestFreshStableBox {
+    handle: u64,
+    drop_epoch: u64,
+    object: Arc<dyn NyashBox>,
+}
+
+thread_local! {
+    static LATEST_FRESH_STABLE_BOX: RefCell<Option<LatestFreshStableBox>> = const { RefCell::new(None) };
+}
 
 enum HandlePayload {
     StableBox(Arc<dyn NyashBox>),
@@ -315,15 +327,29 @@ fn reg() -> &'static Registry {
     REG.get_or_init(Registry::new)
 }
 
+#[inline(always)]
+fn remember_latest_fresh_stable_box(handle: u64, object: Arc<dyn NyashBox>) {
+    let drop_epoch = DROP_EPOCH.load(Ordering::Relaxed);
+    LATEST_FRESH_STABLE_BOX.with(|slot| {
+        *slot.borrow_mut() = Some(LatestFreshStableBox {
+            handle,
+            drop_epoch,
+            object,
+        });
+    });
+}
+
 /// Box<dyn NyashBox> → HostHandle (u64)
 #[inline(always)]
 pub fn to_handle_box(bx: Box<dyn NyashBox>) -> u64 {
-    reg().alloc(Arc::from(bx))
+    to_handle_arc(Arc::from(bx))
 }
 /// Arc<dyn NyashBox> → HostHandle (u64)
 #[inline(always)]
 pub fn to_handle_arc(arc: Arc<dyn NyashBox>) -> u64 {
-    reg().alloc(arc)
+    let handle = reg().alloc(arc.clone());
+    remember_latest_fresh_stable_box(handle, arc);
+    handle
 }
 
 #[inline(always)]
@@ -365,6 +391,21 @@ pub fn with_handle_caller<R>(
         perf_observe::object_with_handle(h, caller);
     }
     f(obj)
+}
+
+#[inline(always)]
+pub fn with_latest_fresh_stable_box<R>(
+    h: u64,
+    f: impl FnOnce(&Arc<dyn NyashBox>) -> R,
+) -> Option<R> {
+    let current_epoch = DROP_EPOCH.load(Ordering::Relaxed);
+    LATEST_FRESH_STABLE_BOX.with(|slot| {
+        let cached = slot.borrow();
+        let entry = cached
+            .as_ref()
+            .filter(|entry| entry.handle == h && entry.drop_epoch == current_epoch)?;
+        Some(f(&entry.object))
+    })
 }
 
 /// HostHandle(u64) -> borrowed &str under one registry read lock.
@@ -516,5 +557,25 @@ mod tests {
             assert!(second > first);
             assert_ne!(second, first);
         });
+    }
+
+    #[test]
+    fn latest_fresh_stable_box_returns_current_object() {
+        let handle = to_handle_arc(int_box(41));
+        let got = with_latest_fresh_stable_box(handle, |obj| {
+            obj.as_any()
+                .downcast_ref::<IntegerBox>()
+                .expect("integer latest fresh object")
+                .value
+        });
+        assert_eq!(got, Some(41));
+    }
+
+    #[test]
+    fn latest_fresh_stable_box_invalidates_after_drop_epoch_changes() {
+        let handle = to_handle_arc(int_box(52));
+        assert!(with_latest_fresh_stable_box(handle, |_| ()).is_some());
+        drop_handle(handle);
+        assert!(with_latest_fresh_stable_box(handle, |_| ()).is_none());
     }
 }

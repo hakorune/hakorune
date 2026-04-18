@@ -1,4 +1,5 @@
 use super::borrowed_handle::SourceLifetimeKeep;
+use crate::observe;
 use nyash_rust::{
     box_trait::{NyashBox, StringBox},
     runtime::host_handles as handles,
@@ -104,10 +105,21 @@ fn lookup_array_store_str_source_obj<R>(
     source_handle: i64,
     f: impl FnOnce(Option<&Arc<dyn NyashBox>>) -> R,
 ) -> R {
+    let mut f = Some(f);
+    if source_handle > 0 && observe::len_route_matches_latest_fresh_handle(source_handle) {
+        if let Some(result) = handles::with_latest_fresh_stable_box(source_handle as u64, |source_obj| {
+            lookup_array_store_str_source_caller_latest_fresh_tag(source_handle);
+            let f = f.take().expect("array store latest-fresh callback should run once");
+            f(Some(source_obj))
+        }) {
+            return result;
+        }
+    }
     lookup_array_store_str_source_registry_slot(source_handle, |source_obj| {
         if source_obj.is_some() {
             lookup_array_store_str_source_caller_latest_fresh_tag(source_handle);
         }
+        let f = f.take().expect("array store source callback should run once");
         f(source_obj)
     })
 }

@@ -225,6 +225,18 @@ Scope: current lane / next lane / restart order only.
         - exact stays closed
         - whole remains in the same stall-collapse owner family (`ratio_instr=0.79`, `ratio_cycles=0.25`, `ratio_ms=0.11`)
         - this is a valid Phase-2 start, but not yet a whole keeper; next card must reduce publish/source-capture frequency, not just outline the same boundary
+    - latest phase-2 source-capture slice:
+      - code seam:
+        - `with_array_store_str_source(...)` now checks a latest-fresh stable-box cache before falling back to registry slot lookup
+        - latest-fresh cache is guarded by `drop_epoch`, so same-thread just-published handles can skip one immediate registry read safely
+      - reread:
+        - exact `kilo_micro_array_string_store`: `C 10 ms / Ny AOT 3 ms`
+        - whole `kilo_kernel_small`: `C 80 ms / Ny AOT 1068 ms`
+      - reading:
+        - exact stays closed
+        - whole remains neutral in the same publication/source-capture owner family (`ratio_instr=0.79`, `ratio_cycles=0.26`, `ratio_ms=0.07`)
+        - keep this as valid Phase-2 prework, not a keeper
+        - legacy coexistence remains temporary; once the new path proves keeper-grade, delete the legacy dual-routing helpers instead of keeping both
   - therefore the landed `.hako` owner pilot is still VM/reference-lane only; active AOT already reaches the current concrete `store.array.str` lowering without that pilot
   - slot-store boundary delayed-publication probes were tried and rejected:
     - active slot route v1:

@@ -35,6 +35,16 @@
     - exact stays closed
     - whole remains neutral inside the same publication/source-capture owner family
     - next phase-2 slice must reduce publish/source-capture frequency, not just outline it
+- current phase-2 source-capture prework:
+  - `with_array_store_str_source(...)` checks a latest-fresh stable-box cache before registry slot lookup
+  - cache validity is guarded by `drop_epoch`
+  - latest reread:
+    - `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
+    - `kilo_kernel_small = C 80 ms / Ny AOT 1068 ms`
+  - reading:
+    - exact stays closed
+    - whole remains neutral in the same owner family
+    - legacy coexistence remains temporary and should be deleted once the new path proves keeper-grade
 - current next seam inside phase 1: direct-set-only `insert_hsi` widening is landed; next widening is non-direct-set `freeze_text_plan(Pieces3)` / `insert_const_mid_fallback`
   - direct-set-only deferred `Pieces3 substring` widening is now landed on the same unpublished contract
 - current reject: slot-store delayed publication probes and string-specialized handle payload probe
