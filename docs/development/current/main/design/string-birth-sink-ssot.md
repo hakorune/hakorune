@@ -1,11 +1,12 @@
 ---
 Status: provisional SSOT
 Decision: provisional
-Date: 2026-03-29
+Date: 2026-04-19
 Scope: string hot path の birth/freeze を helper ごとに散らさず、`freeze.str` を唯一の birth sink として読むための正本
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md
   - docs/development/current/main/design/retained-boundary-and-birth-placement-ssot.md
   - docs/development/current/main/design/string-transient-lifecycle-ssot.md
   - docs/development/current/main/design/transient-text-pieces-ssot.md
@@ -27,7 +28,7 @@ string の retained value birth を helper ごとに持たせず、`freeze.str` 
 
 この文書の目的は 3 つだけだよ。
 
-1. `materialize_owned_string -> StringBox::new -> Registry::alloc/get` を 1 本の birth 直列として固定する。
+1. `freeze.str` を string birth sink として固定し、objectize/publication とは責務を分ける。
 2. `substring / concat / insert` の意味 owner と、birth timing / policy / sink を分離する。
 3. 将来 `.hako` owner を広げても、runtime に新しい observable token や Box を増やさない。
 
@@ -41,6 +42,25 @@ string の birth は op 名で決めない。
 
 つまり、`TextPlan` / `PiecesN` が読まれるだけの chain では birth しない。
 birth は `BoundaryKind` に従って、最後に 1 回だけ行う。
+
+## Publish Boundary Split
+
+この文書では、`publish` と `freeze.str` を同じ責務として読まない。
+
+- `publish`
+  - lowering / boundary owner が決める effect
+  - 「ここから public/object world に出る」を示す
+- `freeze.str`
+  - retained string birth の sink
+  - bytes birth / reuse / flatten の mechanical owner
+
+Reading lock:
+
+- `freeze.str` は publication policy owner ではない
+- `publish` は第二の birth sink ではない
+- runtime が `need_stable_object` を再推測して sink semantics を変えてはいけない
+- current backend leaf が `materialize_owned_string -> StringBox::new -> Registry::alloc`
+  まで続いて見えても、それは policy truth ではなく boundary-side mechanics として読む
 
 ## Layer Split
 
@@ -113,14 +133,14 @@ VM / plugin / FFI / host handle へ見せない。
 - `shared empty` / `ReuseHandle` / `full-slice reuse`
 - `total_len` 決定
 - flatten copy を 1 回だけ行う
-- `StringBox` birth
-- `Registry::alloc`
-- handle return
+- retained text birth / reuse
+- boundary が既に public を要求している場合の cold handoff
 
 持たないべき責務:
 
 - meaning owner
 - threshold policy owner
+- publication policy owner
 - route policy
 - benchmark-specific branching
 
@@ -156,13 +176,22 @@ v1 では次の 4 種で十分だよ。
 ```text
 TextPlan / PiecesN
   -> freeze.str
-  -> materialize_owned_string
+  -> MaterializeOwned
+  -> optional cold objectize / publish boundary
+```
+
+perf-kilo の current asm/perf 読みでは、`set_his` の局所分岐よりもこの直列が先に支配している。
+
+current backend leaf may still realize the cold boundary as:
+
+```text
+materialize_owned_string
   -> StringBox::new
   -> Registry::alloc
   -> handle
 ```
 
-perf-kilo の current asm/perf 読みでは、`set_his` の局所分岐よりもこの直列が先に支配している。
+ただし、これは mechanical leaf sequence であって、この文書の policy truth ではない。
 
 なので、次の exact cut は `nyash.array.set_his` の monomorphic split ではなく、**`string_birth_placement.rs` による upstream placement proof** だよ。
 

@@ -1,0 +1,218 @@
+---
+Status: Provisional SSOT
+Decision: accepted-for-phased-rollout
+Date: 2026-04-19
+Scope: string lane を perf helper 名ではなく language-clean な値モデルで固定し、`String` の意味・publish 境界・birth sink・future storage specialization を 1 本の導線に分ける。
+Related:
+  - CURRENT_TASK.md
+  - docs/development/current/main/10-Now.md
+  - docs/development/current/main/phases/phase-137x/README.md
+  - docs/development/current/main/design/string-value-model-phased-rollout-ssot.md
+  - docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md
+  - docs/development/current/main/design/string-birth-sink-ssot.md
+  - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
+  - docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md
+---
+
+# String Semantic Value And Publication Boundary SSOT
+
+## Goal
+
+- `String` を helper 実装や runtime carrier ではなく、言語上の immutable value として正本化する。
+- `publish` を boundary effect、`freeze.str` を唯一の birth sink として分離する。
+- `TextLane` を future storage specialization として位置づけ、意味論や public ABI の truth にしない。
+- phase-137x の rollout を「きれいな値モデルをどの順で runtime に降ろすか」の話に戻す。
+
+## Core Lock
+
+この lane の北極星は次で固定する。
+
+```text
+Language meaning
+  String value
+
+MIR contract
+  proof_region
+  publication_boundary
+  same-corridor unpublished outcome
+
+Runtime-private execution world
+  VerifiedTextSource
+    -> TextPlan
+    -> OwnedBytes
+    -> KernelTextSlot / read-side alias lane
+
+Cold boundary
+  publish effect
+  freeze.str birth sink
+
+Public world
+  StringHandle / ArrayHandle / Box<dyn NyashBox>
+```
+
+読み方は単純だよ。
+
+- `String` は language meaning では値
+- handle / box / registry は boundary representation
+- same corridor の内部では text を object world の steady-state carrier にしない
+- string birth は `freeze.str` だけが担当する
+
+## Layer Ownership
+
+### 1. Language meaning (`.hako` / docs)
+
+ここが持つもの:
+
+- `String` の immutable value semantics
+- `concat`, `substring`, `len`, `indexof` などの meaning
+- どこで value が external/public world へ escape するか
+
+ここが持たないもの:
+
+- handle class
+- registry / TLS
+- stable object cache
+- `TextLane` storage detail
+
+### 2. Canonical MIR / lowering contract
+
+ここが持つもの:
+
+- `proof_region`
+- `publication_boundary`
+- `same-corridor unpublished outcome`
+- sink capability / stable identity demand
+
+ここが持たないもの:
+
+- runtime route re-recognition
+- helper-name allowlist
+- public raw string ABI
+
+Lock:
+
+- phase-137x では string-specific public MIR dialect を増やしすぎない
+- `text.ref` / `text.plan` / `text.owned` はまず contract vocabulary / recipe metadata として読む
+
+### 3. Runtime-private carrier
+
+ここが持つもの:
+
+- `VerifiedTextSource`
+- `TextPlan`
+- `OwnedBytes`
+- `KernelTextSlot`
+- read-side alias lane:
+  - `TextReadOnly`
+  - `EncodedAlias`
+  - `StableObject`
+
+ここが持たないもの:
+
+- 言語意味の決定
+- boundary legality の再判定
+- public ABI の拡張
+
+### 4. Cold boundary
+
+ここが持つもの:
+
+- `publish` effect
+- `freeze.str` birth sink
+- `objectize`
+- `issue_fresh_handle`
+
+ここが持たないもの:
+
+- producer meaning
+- sink storage policy
+- helper ごとの special-case truth
+
+## Publish vs `freeze.str`
+
+この 2 つは似て見えるけれど、同じ責務にしてはいけない。
+
+- `publish`
+  - MIR/lowering が「ここから public/object world に出る」と決める boundary effect
+  - legality owner
+- `freeze.str`
+  - その boundary で実際に birth を行う sink
+  - retained string birth / reuse の mechanical owner
+  - public world が必要なら cold objectize / handle issue へ handoff する
+
+禁止:
+
+- `publish` を第二の birth sink にすること
+- `freeze.str` を publication policy owner にすること
+- runtime が `need_stable_object` を推測して勝手に publish すること
+
+## Array Corridor Contract
+
+write/read は同じ text corridor の契約として読む。
+
+### Write side
+
+- sink は `VerifiedTextSource` / `TextPlan` / `OwnedBytes` / `KernelTextSlot` を consume できる
+- phase-1 canonical sink residence は `KernelTextSlot`
+- same corridor の store では eager `StringBox -> handle` を禁止する
+
+### Read side
+
+- `array.get` の common path は `TextReadOnly` or `EncodedAlias`
+- `StableObject` は identity demand や external boundary のときだけ使う
+- stable objectize は cache-backed and cold
+- per-read fresh promotion は rejected shape
+
+### Invalidation rule
+
+- mutation / drop-epoch change / proof loss が起きたら alias continuity は失効してよい
+- ただし失効は runtime の silent policy widening ではなく、既存 conservative fallback に限定する
+
+## Migration Order
+
+### Phase 0. Semantic lock
+
+- docs で `String = value`, `publish = boundary effect`, `freeze.str = only birth sink` を固定する
+- `TextLane` は future storage specialization として扱う
+
+### Phase 1. Producer outcome -> canonical sink
+
+- `VerifiedTextSource -> TextPlan -> OwnedBytes -> KernelTextSlot`
+- producer が public handle を返さなくても corridor が閉じることを証明する
+
+### Phase 2. Cold publish effect
+
+- publish reason を explicit boundary event に寄せる
+- producer/helper から objectize / handle issue を退避する
+
+### Phase 2.5. Read-side alias lane
+
+- `TextReadOnly` / `EncodedAlias` / `StableObject`
+- read path を cheap alias continuity へ寄せる
+- stable objectize は one-shot cache-backed cold path に保つ
+
+### Phase 3. Future `TextLane` storage
+
+- array internal storage specialization
+- semantic truth ではなく runtime-private storage truth
+
+### Phase 4. MIR legality / verifier
+
+- publication boundary を verifier-visible にする
+- runtime private carrier が proven になってから legality を持ち上げる
+
+## Forbidden Moves
+
+- `TextLane` を semantics や public MIR truth として先に立てる
+- helper 名で publication legality を持つ
+- registry-backed transient carrier を steady-state 化する
+- read path で stable object を毎回 fresh に作る
+- public ABI を phase-137x で widening する
+
+## Acceptance
+
+- `String` を handle/object と同一視しない
+- `publish` と `freeze.str` が二重SSOTにならない
+- `TextLane` を入れなくても phase 1/2.5 の contract が読める
+- array read/write が同じ text corridor として説明できる
+- runtime は semantic owner ではなく executor として読める

@@ -1,12 +1,13 @@
 ---
 Status: Provisional SSOT
 Decision: accepted-for-phased-rollout
-Date: 2026-04-18
+Date: 2026-04-19
 Scope: phase-137x で受け入れた string value-model redesign を、北極星設計と段階導入順に分けて固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/phases/phase-137x/README.md
+  - docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md
   - docs/development/current/main/design/perf-owner-first-optimization-ssot.md
   - docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md
   - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
@@ -23,7 +24,9 @@ Related:
 
 ## Quick Scan
 
+- `String` は language meaning では immutable value で、handle/object は boundary representation として読む
 - 北極星は `handle-based public ABI` を維持しながら、hot path では text を handle/object world で運ばないこと
+- `publish` は boundary effect で、`freeze.str` は唯一の birth sink として分ける
 - phase 1 は `TextLane` まで行かない
 - phase 1 で正本にする carrier は、今 repo に既にある:
   - `VerifiedTextSource`
@@ -31,8 +34,14 @@ Related:
   - `OwnedBytes`
   - `KernelTextSlot`
 - `TextOutcome` / `TextCell` / `TextLane` は rollout vocabulary として採用する
+- `TextLane` は semantic truth ではなく future storage specialization として扱う
 - ただし code では最初から巨大 enum や全面 storage rewrite を入れない
 - ordering を間違えると `owner shift only` になって revert しやすい
+- next narrow card after the deferred-slot landing is read-side alias lane split, not full `TextLane`
+  - `TextReadOnly`
+  - `EncodedAlias`
+  - `StableObject`
+  - stable objectize stays cold and cache-backed, not per-read
 
 ## Goal
 
@@ -52,8 +61,9 @@ phase-137x の hot path が、same-corridor text を途中で public object worl
 1. producer が text を作る責務と publish する責務を兼ねている
 2. array store が text sink ではなく handle/object sink として振る舞いがち
 3. publish が representation になっていて、effect として隔離されていない
+4. meaning / boundary / birth sink / storage specialization の層が docs 上で混ざると second truth になりやすい
 
-この 3 つを分けるのが rollout の中心になる。
+この 4 つを分けるのが rollout の中心になる。
 
 ## North-Star Design
 
@@ -74,10 +84,13 @@ Execution world
 
 この読みでは、
 
+- `String` の semantic truth は language world に残す
 - public ABI は handle のまま
 - execution world では handle/object world を steady-state carrier にしない
 - publish は境界 effect
+- `freeze.str` は唯一の birth sink
 - array は internal storage で text sink に specialize できる
+- `TextLane` は future storage specialization であって semantic truth ではない
 
 ## Canonical Rollout Vocabulary
 
@@ -90,13 +103,14 @@ Execution world
 | `OwnedTextBuf` | alloc/copy 済み unpublished text | `OwnedBytes` |
 | `TextCell` | sink に入った unpublished residence | `KernelTextSlot` が最初の canonical shape |
 | `PublishedStringHandle` | public handle/object world | `StringBox`, `Arc<dyn NyashBox>`, fresh handle |
-| `TextLane` | text-specialized array storage | future internal storage, phase 1 では未導入 |
+| `TextLane` | text-specialized array storage | future internal storage only, semantic truth ではない |
 
 Lock:
 
 - `TextOutcome` は docs vocabulary として採用する
 - phase 1 では code に public/general enum を必須化しない
 - current code の first-class carrier は既存型の読み替えで足りる
+- `publish` と `freeze.str` は別責務のまま保つ
 
 ## Owner Split
 
@@ -144,6 +158,7 @@ OwnedTextBuf or TextCell -> PublishedStringHandle
 4. `TextLane` は phase 1 に入れない
 5. MIR legality を runtime consume capability より先に強化しない
 6. registry/TLS/objectize を unpublished carrier に流用しない
+7. `publish` と `freeze.str` を別の truth として増殖させない
 
 ## Why Ordering Matters
 
@@ -176,6 +191,11 @@ OwnedTextBuf or TextCell -> PublishedStringHandle
 
 これは実装済み/観測済みの前提段だよ。
 
+- docs-first semantic lock:
+  - `String = value`
+  - `publish = boundary effect`
+  - `freeze.str = only birth sink`
+  - `TextLane = future storage specialization`
 - exact front では `KernelTextSlot` direct-set / shared-receiver bridge が keeper
 - meso はまだ `57 ms` 帯で open
 - whole は `856 ms` で open
@@ -270,7 +290,35 @@ Phase 0 の意味:
 - `TextLane` storage specialization
 - verifier hard error
 
+## Phase 2.5: Read-Side Alias Lane
+
+### Goal
+
+- keep cheap reads on an alias lane instead of promoting to stable/public on every `array.get`
+
+### What lands in phase 2.5
+
+1. split `array.get` demand into:
+   - `TextReadOnly`
+   - `EncodedAlias`
+   - `StableObject`
+2. keep alias encode cheap and cache-backed
+3. make stable objectize cold and one-shot per cell unless identity is explicitly demanded
+4. first landed slice: `BorrowedHandleBox` caches the encoded runtime handle for unpublished keeps
+
+### What phase 2.5 explicitly does not do
+
+- full `TextLane` storage rewrite
+- public `TextOutcome` enum rollout
+- allocator redesign before read-side aliasing is fixed
+
 ### Keeper criteria
+
+- `array.get` no longer pays fresh stable object creation on the common read path
+- whole improves without reopening exact or meso
+- `StableObject` promotion stays cold and cache-backed
+
+### Structural success signal
 
 - whole の `IPC collapse` が改善し始める
 - hot top から `objectize_*` / `issue_fresh_handle` / generic publish branching が落ちる
@@ -415,9 +463,11 @@ phase-137x の next implementation queue は次で固定する。
 
 この redesign の accepted reading は次だよ。
 
+- `String` は language meaning では immutable value として扱う
 - text は public object として運ぶのではなく、execution world では text として運ぶ
 - array は phase 1 では `KernelTextSlot` を通じて text sink になり、phase 3 で `TextLane` に進化する
 - publish は最後にだけ起こる effect であり、producer/helper の steady-state representation ではない
+- `freeze.str` は唯一の birth sink であり、publish policy の second truth ではない
 
 したがって phase-137x の first move は `TextLane` 全面導入ではなく、
 `VerifiedTextSource -> TextPlan -> OwnedBytes -> KernelTextSlot` を canonical corridor として固定することだよ。

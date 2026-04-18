@@ -5,10 +5,12 @@ Date: 2026-04-17
 Scope: borrowed-view hot corridor を `.hako policy -> canonical MIR facts -> rewrite target -> Rust thin executor -> LLVM` の順で generic substrate として固定し、delete-oriented に進める設計と実装順を固定する。
 Related:
   - CURRENT_TASK.md
+  - docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md
   - docs/development/current/main/design/optimization-task-card-os-ssot.md
   - docs/development/current/main/design/llvm-line-ownership-and-boundary-ssot.md
   - docs/development/current/main/phases/phase-137x/README.md
   - docs/development/current/main/design/birth-placement-ssot.md
+  - docs/development/current/main/design/string-birth-sink-ssot.md
   - docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md
   - docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md
   - docs/development/current/main/design/rune-v1-metadata-unification-ssot.md
@@ -51,6 +53,8 @@ Reading lock:
 - do not use `scope_lock` as the architecture term in this lane
 - use `proof_region` plus `publication_boundary`
 - if a cut cannot state both cleanly, it is still research and not ready for code
+- `publication_boundary` is MIR/lowering truth only; it does not replace
+  `freeze.str` as the string birth sink
 - generic contract vocabulary such as `same-corridor unpublished outcome` is
   owned by
   [optimization-task-card-os-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-task-card-os-ssot.md)
@@ -136,6 +140,9 @@ Reading:
   [value-repr-and-abi-manifest-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md)
 - this lane only decides when unpublished outcome is legal and when publication
   must happen; it does not redefine the manifest row shape
+- birth sink semantics stay below this layer:
+  - lowering selects whether `freeze.str` is required
+  - runtime executes the selected sink/publication leaf only
 - treat handle/TLS/cache lookup as the cold adapter path, not as the steady-state
   hot lane
 - the landed arm split says `ViewSpan` is the only live slow-plan arm on the
@@ -211,6 +218,12 @@ Reading:
 
 This SSOT owns the legality rules for publication/objectization on the active
 string corridor.
+
+Reading lock:
+
+- MIR owns `publication_boundary`
+- `freeze.str` remains the only string birth sink
+- runtime does not choose between sink/publication meanings dynamically
 
 Target verifier reading:
 

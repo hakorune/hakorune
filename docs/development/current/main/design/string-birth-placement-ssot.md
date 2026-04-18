@@ -6,6 +6,7 @@ Scope: `freeze.str` より upstream の compile-time placement を、`TextPlan` 
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md
   - docs/development/current/main/design/concat3-array-store-placement-window-ssot.md
   - docs/development/current/main/design/retained-boundary-and-birth-placement-ssot.md
   - docs/development/current/main/design/post-store-observer-facts-ssot.md
@@ -63,6 +64,7 @@ compile-time placement は runtime helper ではなく、AOT consumer 側の dec
   - view として残すが owned birth はしない
 - `MustFreeze(BoundaryKind)`
   - `freeze.str` を許す
+  - `MustFreeze(Store)` は slot-local unpublished residence を含んでよく、immediate public publication を意味しない
 
 ### BoundaryKind
 

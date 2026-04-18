@@ -8,6 +8,8 @@ Related:
   - docs/development/current/main/design/semantic-optimization-authority-ssot.md
   - docs/development/current/main/design/nyash-kernel-semantic-owner-ssot.md
   - docs/development/current/main/phases/phase-137x/README.md
+  - docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md
+  - docs/development/current/main/design/string-birth-sink-ssot.md
   - crates/nyash_kernel/src/exports/string_helpers.rs
   - crates/nyash_kernel/src/exports/string_plan.rs
   - crates/nyash_kernel/src/exports/string_view.rs
@@ -24,6 +26,13 @@ Related:
 - `.hako owner / policy -> MIR canonical contract -> Rust birth backend` の読みを固定する
 - string hot path の最適化を局所 hack ではなく placement seam 単位で扱う
 - Rust/C++/C/LLVM の borrowed/materialize/storage discipline を層ごとに分けて使う
+
+Parent/child note:
+
+- this doc owns the generic lifecycle vocabulary only
+- string-specific sink semantics stay in `string-birth-sink-ssot.md`
+- string semantic/boundary wording stays in
+  `string-semantic-value-and-publication-boundary-ssot.md`
 
 ## Why Now
 

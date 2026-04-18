@@ -1,13 +1,14 @@
 ---
 Status: Provisional SSOT
 Decision: provisional
-Date: 2026-04-18
+Date: 2026-04-19
 Scope: phase-137x hot owner evidence を、public ABI を広げずに exact / meso / whole front へ通る runtime-private text carrier stack として固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/phases/phase-137x/README.md
+  - docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md
   - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
   - docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md
   - docs/development/current/main/design/string-birth-sink-ssot.md
@@ -104,6 +105,7 @@ Reading lock:
 
 - do not introduce a public `TextBuf` on this lane
 - do not treat `KernelTextSlot` as a user-visible string API
+- do not read future `TextLane` storage as semantic truth
 - do not reuse the host-handle registry as the unpublished carrier
 - do not move legality ownership out of MIR/lowering into runtime re-recognition
 
@@ -135,6 +137,15 @@ Reading lock:
   - first true external boundary
   - stable object identity demand
   - public ABI replay that cannot stay slot-local
+
+### 4.5. Read-side alias lane stays cache-backed and cold
+
+- common `array.get` path must stay on:
+  - `TextReadOnly`
+  - `EncodedAlias`
+- `StableObject` is the explicit identity/public boundary branch
+- stable objectize must be cache-backed and cold, not per-read fresh promotion
+- if a card improves store-side continuity but reintroduces per-read stable object creation, reject it
 
 ### 5. Registry/TLS is cold adapter, not steady-state carrier
 
