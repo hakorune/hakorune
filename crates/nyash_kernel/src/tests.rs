@@ -1,8 +1,4 @@
 use super::*;
-use crate::plugin::map_compat::{
-    nyash_map_get_h, nyash_map_get_hh, nyash_map_has_h, nyash_map_has_hh, nyash_map_set_h,
-    nyash_map_set_hh, nyash_map_size_h,
-};
 use crate::test_support::{with_env_var, with_env_vars};
 use nyash_rust::{
     box_trait::{NyashBox, StringBox},
@@ -458,74 +454,6 @@ fn runtime_data_dispatch_map_push_missing_key_contract() {
         .downcast_ref::<IntegerBox>()
         .expect("map get handle must wrap IntegerBox");
     assert_eq!(got_int.value, expected);
-}
-
-#[test]
-fn map_set_h_legacy_completion_code_and_mutation_roundtrip() {
-    use nyash_rust::boxes::map_box::MapBox;
-
-    let map: Arc<dyn NyashBox> = Arc::new(MapBox::new());
-    let map_handle = handles::to_handle_arc(map) as i64;
-    let key = -70001;
-
-    let value: Arc<dyn NyashBox> = Arc::new(StringBox::new("legacy-set-h".to_string()));
-    let value_handle = handles::to_handle_arc(value) as i64;
-
-    assert_eq!(nyash_map_set_h(map_handle, key, value_handle), 0);
-    assert_eq!(nyash_map_has_hh(map_handle, key), 1);
-
-    let got_handle = nyash_map_get_hh(map_handle, key);
-    assert!(got_handle > 0, "map get_hh must return a value handle");
-    let got_obj = handles::get(got_handle as u64).expect("map get_hh handle");
-    let got_value = got_obj
-        .as_any()
-        .downcast_ref::<StringBox>()
-        .expect("map value must be StringBox");
-    assert_eq!(got_value.value, "legacy-set-h");
-}
-
-#[test]
-fn map_set_hh_legacy_completion_code_and_mutation_roundtrip() {
-    use nyash_rust::boxes::map_box::MapBox;
-
-    let map: Arc<dyn NyashBox> = Arc::new(MapBox::new());
-    let map_handle = handles::to_handle_arc(map) as i64;
-
-    let key: Arc<dyn NyashBox> = Arc::new(StringBox::new("legacy-key-hh".to_string()));
-    let key_handle = handles::to_handle_arc(key) as i64;
-    let value: Arc<dyn NyashBox> = Arc::new(StringBox::new("legacy-value-hh".to_string()));
-    let value_handle = handles::to_handle_arc(value) as i64;
-
-    assert_eq!(nyash_map_set_hh(map_handle, key_handle, value_handle), 0);
-    assert_eq!(nyash_map_has_hh(map_handle, key_handle), 1);
-
-    let got_handle = nyash_map_get_hh(map_handle, key_handle);
-    assert!(got_handle > 0, "map get_hh must return a value handle");
-    let got_obj = handles::get(got_handle as u64).expect("map get_hh handle");
-    let got_value = got_obj
-        .as_any()
-        .downcast_ref::<StringBox>()
-        .expect("map value must be StringBox");
-    assert_eq!(got_value.value, "legacy-value-hh");
-}
-
-#[test]
-fn map_invalid_handle_fail_safe_contract() {
-    assert_eq!(nyash_map_size_h(0), 0);
-    assert_eq!(nyash_map_get_h(0, 1), 0);
-    assert_eq!(nyash_map_get_hh(0, 1), 0);
-    assert_eq!(nyash_map_has_h(0, 1), 0);
-    assert_eq!(nyash_map_has_hh(0, 1), 0);
-    assert_eq!(nyash_map_set_h(0, 1, 2), 0);
-    assert_eq!(nyash_map_set_hh(0, 1, 2), 0);
-
-    assert_eq!(nyash_map_size_h(-1), 0);
-    assert_eq!(nyash_map_get_h(-1, 1), 0);
-    assert_eq!(nyash_map_get_hh(-1, 1), 0);
-    assert_eq!(nyash_map_has_h(-1, 1), 0);
-    assert_eq!(nyash_map_has_hh(-1, 1), 0);
-    assert_eq!(nyash_map_set_h(-1, 1, 2), 0);
-    assert_eq!(nyash_map_set_hh(-1, 1, 2), 0);
 }
 
 #[test]

@@ -4,7 +4,6 @@ pub use super::map_aliases::*;
 mod tests {
     use super::*;
     use crate::nyash_runtime_data_has_hh;
-    use crate::plugin::map_compat::{nyash_map_get_h, nyash_map_get_hh, nyash_map_size_h};
     use nyash_rust::box_trait::{NyashBox, StringBox};
     use nyash_rust::boxes::map_box::MapBox;
     use nyash_rust::runtime::host_handles as handles;
@@ -73,37 +72,6 @@ mod tests {
     }
 
     #[test]
-    fn compat_get_hh_reuses_slot_load_contract() {
-        let handle = new_map_handle();
-        let key_handle = string_handle("compat-key");
-        let value_handle = string_handle("compat-value");
-
-        assert_eq!(
-            nyash_map_slot_store_hhh_alias(handle, key_handle, value_handle),
-            1
-        );
-        let got_handle = nyash_map_get_hh(handle, key_handle);
-        assert!(got_handle > 0);
-        assert_eq!(decode_string_from_handle(got_handle), "compat-value");
-        assert_eq!(nyash_map_get_hh(handle, string_handle("missing")), 0);
-    }
-
-    #[test]
-    fn compat_get_h_reuses_slot_load_contract() {
-        let handle = new_map_handle();
-        let value_handle = string_handle("compat-hi");
-
-        assert_eq!(
-            nyash_map_slot_store_hih_alias(handle, -71001, value_handle),
-            1
-        );
-        let got_handle = nyash_map_get_h(handle, -71001);
-        assert!(got_handle > 0);
-        assert_eq!(decode_string_from_handle(got_handle), "compat-hi");
-        assert_eq!(nyash_map_get_h(handle, -71002), 0);
-    }
-
-    #[test]
     fn raw_aliases_keep_fail_safe_contract() {
         assert_eq!(nyash_map_slot_load_hi_alias(0, 1), 0);
         assert_eq!(nyash_map_slot_load_hh_alias(0, 1), 0);
@@ -124,7 +92,6 @@ mod tests {
         assert_eq!(nyash_map_slot_store_hhh_alias(handle, key_b, value), 1);
         assert_eq!(nyash_map_entry_count_i64(handle), 2);
         assert_eq!(nyash_map_entry_count_h(handle), 2);
-        assert_eq!(nyash_map_size_h(handle), 2);
         assert_eq!(nyash_map_entry_count_i64(0), 0);
         assert_eq!(nyash_map_entry_count_h(0), 0);
     }

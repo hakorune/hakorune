@@ -68,3 +68,115 @@ pub extern "C" fn nyash_map_has_hh(handle: i64, key_any: i64) -> i64 {
 pub extern "C" fn nyash_map_has_h(handle: i64, key: i64) -> i64 {
     map_probe_contains_i64(handle, key)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use nyash_rust::box_trait::{NyashBox, StringBox};
+    use nyash_rust::boxes::map_box::MapBox;
+    use nyash_rust::runtime::host_handles as handles;
+    use std::sync::Arc;
+
+    fn new_map_handle() -> i64 {
+        let map: Arc<dyn NyashBox> = Arc::new(MapBox::new());
+        handles::to_handle_arc(map) as i64
+    }
+
+    fn string_handle(value: &str) -> i64 {
+        let value: Arc<dyn NyashBox> = Arc::new(StringBox::new(value.to_string()));
+        handles::to_handle_arc(value) as i64
+    }
+
+    fn decode_string_from_handle(handle: i64) -> String {
+        let object = handles::get(handle as u64).expect("map compat get handle");
+        let string_box = object
+            .as_any()
+            .downcast_ref::<StringBox>()
+            .expect("map compat value must be StringBox");
+        string_box.value.clone()
+    }
+
+    #[test]
+    fn map_set_h_legacy_completion_code_and_mutation_roundtrip() {
+        let map_handle = new_map_handle();
+        let key = -70001;
+        let value_handle = string_handle("legacy-set-h");
+
+        assert_eq!(nyash_map_set_h(map_handle, key, value_handle), 0);
+        assert_eq!(nyash_map_has_hh(map_handle, key), 1);
+
+        let got_handle = nyash_map_get_hh(map_handle, key);
+        assert!(got_handle > 0, "map get_hh must return a value handle");
+        assert_eq!(decode_string_from_handle(got_handle), "legacy-set-h");
+    }
+
+    #[test]
+    fn map_set_hh_legacy_completion_code_and_mutation_roundtrip() {
+        let map_handle = new_map_handle();
+        let key_handle = string_handle("legacy-key-hh");
+        let value_handle = string_handle("legacy-value-hh");
+
+        assert_eq!(nyash_map_set_hh(map_handle, key_handle, value_handle), 0);
+        assert_eq!(nyash_map_has_hh(map_handle, key_handle), 1);
+
+        let got_handle = nyash_map_get_hh(map_handle, key_handle);
+        assert!(got_handle > 0, "map get_hh must return a value handle");
+        assert_eq!(decode_string_from_handle(got_handle), "legacy-value-hh");
+    }
+
+    #[test]
+    fn map_get_h_legacy_reads_integer_key_storage() {
+        let map_handle = new_map_handle();
+        let value_handle = string_handle("compat-hi");
+
+        assert_eq!(nyash_map_set_h(map_handle, -71001, value_handle), 0);
+        let got_handle = nyash_map_get_h(map_handle, -71001);
+        assert!(got_handle > 0, "map get_h must return a value handle");
+        assert_eq!(decode_string_from_handle(got_handle), "compat-hi");
+        assert_eq!(nyash_map_get_h(map_handle, -71002), 0);
+    }
+
+    #[test]
+    fn map_get_hh_legacy_reads_handle_key_storage() {
+        let map_handle = new_map_handle();
+        let key_handle = string_handle("compat-key");
+        let value_handle = string_handle("compat-value");
+
+        assert_eq!(nyash_map_set_hh(map_handle, key_handle, value_handle), 0);
+        let got_handle = nyash_map_get_hh(map_handle, key_handle);
+        assert!(got_handle > 0, "map get_hh must return a value handle");
+        assert_eq!(decode_string_from_handle(got_handle), "compat-value");
+        assert_eq!(nyash_map_get_hh(map_handle, string_handle("missing")), 0);
+    }
+
+    #[test]
+    fn map_size_h_legacy_alias_reads_entry_count() {
+        let map_handle = new_map_handle();
+        let key_a = string_handle("size-a");
+        let key_b = string_handle("size-b");
+        let value_handle = string_handle("size-value");
+
+        assert_eq!(nyash_map_set_hh(map_handle, key_a, value_handle), 0);
+        assert_eq!(nyash_map_set_hh(map_handle, key_b, value_handle), 0);
+        assert_eq!(nyash_map_size_h(map_handle), 2);
+    }
+
+    #[test]
+    fn map_invalid_handle_fail_safe_contract() {
+        assert_eq!(nyash_map_size_h(0), 0);
+        assert_eq!(nyash_map_get_h(0, 1), 0);
+        assert_eq!(nyash_map_get_hh(0, 1), 0);
+        assert_eq!(nyash_map_has_h(0, 1), 0);
+        assert_eq!(nyash_map_has_hh(0, 1), 0);
+        assert_eq!(nyash_map_set_h(0, 1, 2), 0);
+        assert_eq!(nyash_map_set_hh(0, 1, 2), 0);
+
+        assert_eq!(nyash_map_size_h(-1), 0);
+        assert_eq!(nyash_map_get_h(-1, 1), 0);
+        assert_eq!(nyash_map_get_hh(-1, 1), 0);
+        assert_eq!(nyash_map_has_h(-1, 1), 0);
+        assert_eq!(nyash_map_has_hh(-1, 1), 0);
+        assert_eq!(nyash_map_set_h(-1, 1, 2), 0);
+        assert_eq!(nyash_map_set_hh(-1, 1, 2), 0);
+    }
+}
