@@ -214,6 +214,27 @@ Scope: current lane / next lane / restart order only.
       - cleanup-parked strict reread:
         - `kilo_kernel_small_hk = C 80 ms / Ny AOT 872 ms` (`repeat=3`, parity ok)
         - `kilo_kernel_small_hk = C 79 ms / Ny AOT 842 ms` (`repeat=3`, parity ok)
+      - cleanup-parked asm/top owner proof:
+        - command:
+          - `PERF_VM_FORCE_NO_FALLBACK=1 PERF_AOT_DIRECT_ONLY=1 bash tools/perf/bench_micro_aot_asm.sh kilo_kernel_small_hk 'ny_main' 1`
+        - top report:
+          - libc copy/alloc remains dominant: `__memmove_avx512_unaligned_erms 21.41%`, `_int_malloc 9.26%`, `malloc 1.51%`
+          - hottest named repo read/materialization family:
+            - `objectize_kernel_text_slot_stable_box 4.42%`
+            - `array_get_index_encoded_i64::{closure} 4.25%`
+            - nested `array_get_index_encoded_i64` closure `2.70%`
+            - `TextKeepBacking::clone_stable_box_cold_fallback 0.94%`
+          - store/producer helpers are lower:
+            - `array_string_store_kernel_text_slot_at::{closure} 1.99%`
+            - `array_string_indexof_by_index... 1.00%`
+            - `string_span_cache_get 0.61%`
+            - `nyash.string.kernel_slot_concat_hs 0.40%`
+            - `nyash.array.kernel_slot_store_hi 0.30%`
+            - `insert_const_mid_into_slot::{closure} 0.22%`
+        - reading:
+          - this confirms the updated lane should not reopen store-side `owned-string keep`
+          - current owner proof points at read-side encode/materialize/objectize around `array.get`, with stable objectization required to stay cached/cold
+          - next implementation seam must preserve cheap alias encode and reduce per-read materialization/copy tax before any new `TextLane` / MIR legality card
       - reading:
         - phase 2.5 contract is now much tighter on read behavior
         - exact stays closed, but meso / strict whole reopened upward versus the prior `57 ms` / `791 ms` band
