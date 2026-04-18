@@ -52,10 +52,11 @@ Scope: current lane / next lane / restart order only.
       - `cold fallback`
     - the next open card is still the strict whole stability reread
   - active cleanup slice:
-    - `phase2.5-observe-borrowed-alias-counter-ssot`
+    - `phase2.5-map-surface-contract-cleanup`
     - scope:
-      - keep `borrowed.alias` live/cached/fallback counters off raw snapshot index duplication
-      - land this as a structural cleanup before the next strict whole reread
+      - keep raw map string publication at the `value_codec` encode seam, not inside `MapBox`
+      - route legacy `nyash.map.get_h` / `nyash.map.get_hh` through the same slot-load substrate contract
+      - keep map debug env lookup in a neutral helper instead of `map_substrate -> map_compat` coupling
   - pending todo:
     - `phase2-deferred-const-suffix-stability`
   - do not open a new ABI / `TextLane` cut until this reread is judged keeper vs reject
@@ -202,6 +203,9 @@ Scope: current lane / next lane / restart order only.
     - borrowed-text direct materialization on `kernel_slot_concat_hs` / `insert_const_mid_into_slot`
     - map-side borrowed string value store under `CodecProfile::MapValueBorrowString`
     - read-side alias outcome observation on array/map (`live source` / `cached handle` / `cold fallback`)
+    - raw map string publication stays at the encode seam, while `MapBox` keeps only read-visibility policy
+    - legacy map compat `get_h` / `get_hh` now route through the same slot-load substrate path as raw aliases
+    - map debug env lookup is now isolated in a neutral helper instead of depending on compat wiring
   - compiler fallback probe is closed for the whole bench; next slice is not a lowering widening
   - do not jump to `TextLane` or MIR legality first
 - current accepted redesign is now locked in narrowed form:
