@@ -133,4 +133,44 @@ mod tests {
             .expect("runtime value should remain StringBox");
         assert_eq!(out_sb.value, "array-cached-alias");
     }
+
+    #[cfg(feature = "perf-observe")]
+    #[test]
+    fn array_get_index_records_cached_handle_hit_for_array_lane() {
+        clear_cache_slot();
+        crate::test_support::with_env_var("NYASH_PERF_COUNTERS", "1", || {
+            let value: Arc<dyn NyashBox> =
+                Arc::new(StringBox::new("array-cached-observe".to_string()));
+            let alias = maybe_borrow_string_keep_with_epoch(
+                SourceLifetimeKeep::string_box(value),
+                0,
+                handles::drop_epoch(),
+            );
+            let arr: Arc<dyn NyashBox> = Arc::new(ArrayBox::new());
+            let handle = handles::to_handle_arc(arr.clone()) as i64;
+            let array_box = arr
+                .as_any()
+                .downcast_ref::<ArrayBox>()
+                .expect("array downcast");
+            let _ = array_box.push(alias);
+
+            let warmup = array_get_index_encoded_i64(handle, 0).expect("warm cached handle");
+            let before = crate::observe::borrowed_alias_encode_snapshot_for_tests();
+            let cached = array_get_index_encoded_i64(handle, 0).expect("cached encoded handle");
+            let after = crate::observe::borrowed_alias_encode_snapshot_for_tests();
+
+            assert_eq!(warmup, cached);
+            assert_eq!(after.cached_handle_hit - before.cached_handle_hit, 1);
+            assert_eq!(
+                after.cached_handle_hit_array_get_index
+                    - before.cached_handle_hit_array_get_index,
+                1
+            );
+            assert_eq!(
+                after.cached_handle_hit_map_runtime_data_get_any
+                    - before.cached_handle_hit_map_runtime_data_get_any,
+                0
+            );
+        });
+    }
 }

@@ -148,6 +148,11 @@ impl MapBox {
         if value.as_any().downcast_ref::<MapBox>().is_some() {
             return value.share_box();
         }
+        // Borrowed string aliases carry read-side cached handles. Share the
+        // alias itself so repeated map reads stay on the same unpublished lane.
+        if value.borrowed_handle_source_fast().is_some() {
+            return value.share_box();
+        }
         value.clone_box()
     }
 
@@ -210,16 +215,7 @@ impl MapBox {
             .read()
             .unwrap()
             .values()
-            .map(|v| {
-                if v.as_any()
-                    .downcast_ref::<crate::instance_v2::InstanceBox>()
-                    .is_some()
-                {
-                    v.share_box()
-                } else {
-                    v.clone_box()
-                }
-            })
+            .map(Self::clone_for_read)
             .collect();
         let array = ArrayBox::new();
         for value in values {

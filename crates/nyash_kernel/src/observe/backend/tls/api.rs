@@ -120,6 +120,8 @@ tls_zero_arg_api! {
     borrowed_alias_array_indexof_by_index_latest_fresh => borrowed_alias_array_indexof_by_index_latest_fresh,
     borrowed_alias_encode_epoch_hit => borrowed_alias_encode_epoch_hit,
     borrowed_alias_encode_cached_handle_hit => borrowed_alias_encode_cached_handle_hit,
+    borrowed_alias_encode_cached_handle_hit_array_get_index => borrowed_alias_encode_cached_handle_hit_array_get_index,
+    borrowed_alias_encode_cached_handle_hit_map_runtime_data_get_any => borrowed_alias_encode_cached_handle_hit_map_runtime_data_get_any,
     borrowed_alias_encode_ptr_eq_hit => borrowed_alias_encode_ptr_eq_hit,
     borrowed_alias_encode_to_handle_arc => borrowed_alias_encode_to_handle_arc,
     borrowed_alias_encode_to_handle_arc_array_get_index => borrowed_alias_encode_to_handle_arc_array_get_index,
@@ -232,7 +234,7 @@ macro_rules! load {
     };
 }
 
-pub(crate) fn snapshot() -> [u64; 144] {
+pub(crate) fn snapshot() -> [u64; 146] {
     flush_current_thread();
     [
         load!(store_array_str_total),
@@ -379,5 +381,7 @@ pub(crate) fn snapshot() -> [u64; 144] {
         load!(birth_backend_publish_boundary_slot_empty),
         load!(birth_backend_publish_boundary_slot_already_published),
         load!(borrowed_alias_encode_cached_handle_hit),
+        load!(borrowed_alias_encode_cached_handle_hit_array_get_index),
+        load!(borrowed_alias_encode_cached_handle_hit_map_runtime_data_get_any),
     ]
 }

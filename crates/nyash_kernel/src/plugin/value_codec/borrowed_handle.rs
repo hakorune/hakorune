@@ -252,9 +252,23 @@ impl AliasSourceMeta {
 pub(crate) struct BorrowedHandleBox {
     text_keep: TextKeep,
     source_meta: AliasSourceMeta,
-    cached_runtime_handle: AtomicI64,
-    cached_runtime_handle_epoch: AtomicU64,
+    cached_runtime_handle: Arc<BorrowedHandleRuntimeCache>,
     base: BoxBase,
+}
+
+#[derive(Debug)]
+struct BorrowedHandleRuntimeCache {
+    handle: AtomicI64,
+    epoch: AtomicU64,
+}
+
+impl BorrowedHandleRuntimeCache {
+    fn new() -> Self {
+        Self {
+            handle: AtomicI64::new(0),
+            epoch: AtomicU64::new(0),
+        }
+    }
 }
 
 impl Clone for BorrowedHandleBox {
@@ -262,12 +276,7 @@ impl Clone for BorrowedHandleBox {
         Self {
             text_keep: self.text_keep.clone(),
             source_meta: self.source_meta,
-            cached_runtime_handle: AtomicI64::new(
-                self.cached_runtime_handle.load(Ordering::Relaxed),
-            ),
-            cached_runtime_handle_epoch: AtomicU64::new(
-                self.cached_runtime_handle_epoch.load(Ordering::Relaxed),
-            ),
+            cached_runtime_handle: Arc::clone(&self.cached_runtime_handle),
             base: self.base.clone(),
         }
     }
@@ -289,8 +298,7 @@ impl BorrowedHandleBox {
                 source_lifetime: keep,
             },
             source_meta: AliasSourceMeta::new(source_handle, source_drop_epoch),
-            cached_runtime_handle: AtomicI64::new(0),
-            cached_runtime_handle_epoch: AtomicU64::new(0),
+            cached_runtime_handle: Arc::new(BorrowedHandleRuntimeCache::new()),
             // Fast path: borrowed wrapper is an alias view for an existing handle.
             // Reuse source handle as stable id to avoid per-call id allocation churn.
             base: BoxBase {
@@ -323,9 +331,9 @@ impl BorrowedHandleBox {
 
     #[inline(always)]
     fn cached_runtime_handle(&self) -> Option<i64> {
-        let handle = self.cached_runtime_handle.load(Ordering::Relaxed);
+        let handle = self.cached_runtime_handle.handle.load(Ordering::Relaxed);
         if handle > 0
-            && self.cached_runtime_handle_epoch.load(Ordering::Relaxed) == handles::drop_epoch()
+            && self.cached_runtime_handle.epoch.load(Ordering::Relaxed) == handles::drop_epoch()
         {
             Some(handle)
         } else {
@@ -335,15 +343,18 @@ impl BorrowedHandleBox {
 
     #[inline(always)]
     fn cache_runtime_handle(&self, handle: i64) {
-        self.cached_runtime_handle.store(handle, Ordering::Relaxed);
-        self.cached_runtime_handle_epoch
+        self.cached_runtime_handle
+            .handle
+            .store(handle, Ordering::Relaxed);
+        self.cached_runtime_handle
+            .epoch
             .store(handles::drop_epoch(), Ordering::Relaxed);
     }
 
     #[inline(always)]
     fn invalidate_cached_runtime_handle(&self) {
-        self.cached_runtime_handle.store(0, Ordering::Relaxed);
-        self.cached_runtime_handle_epoch.store(0, Ordering::Relaxed);
+        self.cached_runtime_handle.handle.store(0, Ordering::Relaxed);
+        self.cached_runtime_handle.epoch.store(0, Ordering::Relaxed);
     }
 
     #[inline(always)]
@@ -609,8 +620,12 @@ pub(crate) fn runtime_i64_from_borrowed_alias(
     caller: BorrowedAliasEncodeCaller,
 ) -> i64 {
     match plan_borrowed_alias_runtime_i64(alias) {
-        BorrowedAliasEncodePlan::LiveSourceHandle(handle)
-        | BorrowedAliasEncodePlan::CachedRuntimeHandle(handle) => handle,
+        BorrowedAliasEncodePlan::LiveSourceHandle(handle) => handle,
+        BorrowedAliasEncodePlan::CachedRuntimeHandle(handle) => {
+            observe::record_borrowed_alias_encode_cached_handle_hit();
+            caller.record_cached_handle_hit();
+            handle
+        }
         BorrowedAliasEncodePlan::EncodeFallback => {
             observe::record_borrowed_alias_encode_to_handle_arc();
             caller.record();
@@ -633,7 +648,6 @@ fn plan_borrowed_alias_runtime_i64(alias: &BorrowedHandleBox) -> BorrowedAliasEn
         }
     }
     if let Some(cached) = alias.cached_runtime_handle() {
-        observe::record_borrowed_alias_encode_cached_handle_hit();
         return BorrowedAliasEncodePlan::CachedRuntimeHandle(cached);
     }
     if source_handle > 0 {
@@ -657,6 +671,19 @@ impl BorrowedAliasEncodeCaller {
             }
             Self::MapRuntimeDataGetAnyKey => {
                 observe::record_borrowed_alias_encode_to_handle_arc_map_runtime_data_get_any();
+            }
+        }
+    }
+
+    #[inline(always)]
+    fn record_cached_handle_hit(self) {
+        match self {
+            Self::Generic => {}
+            Self::ArrayGetIndexEncoded => {
+                observe::record_borrowed_alias_encode_cached_handle_hit_array_get_index();
+            }
+            Self::MapRuntimeDataGetAnyKey => {
+                observe::record_borrowed_alias_encode_cached_handle_hit_map_runtime_data_get_any();
             }
         }
     }

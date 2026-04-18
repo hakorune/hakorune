@@ -235,6 +235,39 @@ mod tests {
         assert_eq!(out_sb.value, "map-string-cached");
     }
 
+    #[cfg(feature = "perf-observe")]
+    #[test]
+    fn runtime_data_map_read_records_cached_handle_hit_for_map_lane() {
+        crate::test_support::with_env_var("NYASH_PERF_COUNTERS", "1", || {
+            let handle = new_map_handle();
+            let key = new_string_handle("map-observe-cached-key");
+            let value = new_string_handle("map-observe-cached");
+
+            assert_eq!(nyash_runtime_data_set_hhh(handle, key, value), 1);
+            handles::drop_handle(value as u64);
+            assert!(handles::get(value as u64).is_none());
+
+            let warmup = nyash_runtime_data_get_hh(handle, key);
+            let before = crate::observe::borrowed_alias_encode_snapshot_for_tests();
+            let cached = nyash_runtime_data_get_hh(handle, key);
+            let after = crate::observe::borrowed_alias_encode_snapshot_for_tests();
+
+            assert!(warmup > 0);
+            assert_eq!(warmup, cached);
+            assert_eq!(after.cached_handle_hit - before.cached_handle_hit, 1);
+            assert_eq!(
+                after.cached_handle_hit_map_runtime_data_get_any
+                    - before.cached_handle_hit_map_runtime_data_get_any,
+                1
+            );
+            assert_eq!(
+                after.cached_handle_hit_array_get_index
+                    - before.cached_handle_hit_array_get_index,
+                0
+            );
+        });
+    }
+
     #[test]
     fn runtime_data_map_immediate_zero_key_keeps_shared_facade_contract() {
         let handle = new_map_handle();
