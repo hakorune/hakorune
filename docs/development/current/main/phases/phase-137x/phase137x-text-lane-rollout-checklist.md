@@ -312,6 +312,7 @@ Related:
   - landed: C-shim map size emission now targets `nyash.map.entry_count_i64`; dead `get_h` / `has_h` C declarations were removed from the active shim
   - landed: Rust `map_compat` exports are no longer re-exported through public `map::*`; compat ABI exports/tests, including `entry_count_h`, live inside `map_compat.rs`
   - landed: deprecated builtin `MapBox` construction is isolated in feature-gated `builtin_impls::compat_map_box`; behavior is unchanged until provider-first `NewBox(MapBox)` is proven
+  - blocked: removing `builtin-mapbox-compat` from default is not safe yet; `--no-default-features --features plugins` still fails `CoreServices` and `NewBox(MapBox)` vtable paths under `ModuleFirst`
   - retarget remaining lowering/runtime users off deprecated compat map exports
   - then collapse:
     - `map_compat.rs`
