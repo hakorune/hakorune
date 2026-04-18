@@ -10,6 +10,15 @@ pub(crate) fn box_to_handle(value: Box<dyn NyashBox>) -> i64 {
     handles::to_handle_arc(arc) as i64
 }
 
+// Raw/compat map handle surfaces require a stable StringBox handle, not a
+// borrowed alias wrapper, so materialize only on that boundary.
+pub(crate) fn box_to_handle_materializing_borrowed_string(value: Box<dyn NyashBox>) -> i64 {
+    if value.borrowed_handle_source_fast().is_some() {
+        return box_to_handle(Box::new(value.to_string_box()));
+    }
+    box_to_handle(value)
+}
+
 pub(crate) fn box_to_runtime_i64(value: Box<dyn NyashBox>) -> i64 {
     runtime_i64_from_box_ref(value.as_ref())
 }

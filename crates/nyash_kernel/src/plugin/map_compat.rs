@@ -3,7 +3,9 @@ use super::map_key_codec::map_key_string_from_any;
 use super::map_runtime_facade::{
     map_runtime_probe_any, map_runtime_probe_i64, map_runtime_store_any, map_runtime_store_i64_any,
 };
-use super::value_codec::{box_to_handle, int_arg_to_box};
+use super::value_codec::{
+    box_to_handle, box_to_handle_materializing_borrowed_string, int_arg_to_box,
+};
 
 #[inline]
 pub(super) fn map_debug_enabled() -> bool {
@@ -24,7 +26,7 @@ fn map_get_compat_any(handle: i64, key_any: i64) -> i64 {
     let key_str = map_key_string_from_any(key_any);
     with_map_box(handle, |map| {
         let value = map.get_opt_key_str(&key_str)?;
-        Some(box_to_handle(value))
+        Some(box_to_handle_materializing_borrowed_string(value))
     })
     .flatten()
     .unwrap_or(0)

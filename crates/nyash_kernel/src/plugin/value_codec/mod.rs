@@ -22,7 +22,8 @@ pub(crate) use encode::box_to_runtime_i64;
 #[cfg(test)]
 pub(crate) use encode::runtime_i64_from_box_ref;
 pub(crate) use encode::{
-    box_to_handle, runtime_i64_from_box_ref_caller, BorrowedAliasEncodeCaller,
+    box_to_handle, box_to_handle_materializing_borrowed_string, runtime_i64_from_box_ref_caller,
+    BorrowedAliasEncodeCaller,
 };
 pub(crate) use string_classify::{
     with_array_store_str_source, ArrayStoreStrSource, StringHandleSourceKind, StringLikeProof,

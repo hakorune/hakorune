@@ -124,8 +124,9 @@ impl MapBox {
         }
     }
 
-    fn clone_for_read(value: &Box<dyn NyashBox>) -> Box<dyn NyashBox> {
-        // Preserve identity for plugin/user InstanceBox to keep internal fields.
+    // Keep collection read visibility local to MapBox. Publication/materialization
+    // decisions belong to the caller-side encode seam.
+    fn clone_for_visible_read(value: &dyn NyashBox) -> Box<dyn NyashBox> {
         #[cfg(all(feature = "plugins", not(target_arch = "wasm32")))]
         if value
             .as_any()
@@ -141,15 +142,12 @@ impl MapBox {
         {
             return value.share_box();
         }
-        // Share identity for collection boxes to preserve mutability semantics.
         if value.as_any().downcast_ref::<ArrayBox>().is_some() {
             return value.share_box();
         }
         if value.as_any().downcast_ref::<MapBox>().is_some() {
             return value.share_box();
         }
-        // Borrowed string aliases carry read-side cached handles. Share the
-        // alias itself so repeated map reads stay on the same unpublished lane.
         if value.borrowed_handle_source_fast().is_some() {
             return value.share_box();
         }
@@ -173,7 +171,7 @@ impl MapBox {
     pub fn get(&self, key: Box<dyn NyashBox>) -> Box<dyn NyashBox> {
         let key_str = key.to_string_box().value;
         match self.data.read().unwrap().get(&key_str) {
-            Some(value) => Self::clone_for_read(value),
+            Some(value) => Self::clone_for_visible_read(value.as_ref()),
             None => Box::new(StringBox::new(&format!(
                 "[map/missing] Key not found: {}",
                 key_str
@@ -215,7 +213,7 @@ impl MapBox {
             .read()
             .unwrap()
             .values()
-            .map(Self::clone_for_read)
+            .map(|value| Self::clone_for_visible_read(value.as_ref()))
             .collect();
         let array = ArrayBox::new();
         for value in values {
@@ -241,7 +239,11 @@ impl MapBox {
 
     /// Raw read helper for substrate/plugin routes.
     pub fn get_opt_key_str(&self, key: &str) -> Option<Box<dyn NyashBox>> {
-        self.data.read().unwrap().get(key).map(Self::clone_for_read)
+        self.data
+            .read()
+            .unwrap()
+            .get(key)
+            .map(|value| Self::clone_for_visible_read(value.as_ref()))
     }
 
     /// Raw presence helper for substrate/plugin routes.
