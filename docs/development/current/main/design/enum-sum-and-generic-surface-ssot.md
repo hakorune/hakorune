@@ -25,9 +25,13 @@ Related:
 
 ## Current Inventory
 
-- current surface already has `match`
-  - executable MVP today is literals + simple type patterns
-  - there is no first-class enum declaration yet
+- current surface now has the narrow first-class enum MVP:
+  - `enum Name<T...> { ... }`
+  - unit variants
+  - single-payload tuple variants
+  - narrow record variants
+  - qualified constructors through `Type::Variant(...)` / `Type::Variant { ... }`
+  - known-enum shorthand match / exhaustiveness for the landed MVP forms
 - current type-reference surface already has angle brackets
   - `TYPE_REF := IDENT ('.' IDENT)* ('<' TYPE_REF (',' TYPE_REF)* '>')? ('[' ']')*`
   - this makes `<T>` the natural generic surface
@@ -50,6 +54,10 @@ Related:
   - record constructors / patterns must name the declared field set exactly
   - `_` does not satisfy known-enum exhaustiveness
   - guarded enum shorthand arms and block-bodied record shorthand arms are still outside this cut
+- 137x-B reading:
+  - enum/sum/generic is a separate design owner from primitive fast-path and container residence
+  - MVP support is landed far enough not to block owner-first optimization return
+  - generic `where`, enum methods, full monomorphization, and broader product-consumer parity remain backlog
 
 ## Fixed Decisions
 

@@ -89,7 +89,7 @@ Current user-box / primitive cost reading:
     - focused ArrayBox / kernel tests pass, and `phase21_5_perf_kilo_micro_machine_lane_contract_vm` stays green
 - not yet:
   - `Null` / `Void` fast paths are still conservative and low priority in this wave
-  - first-class enum/sum MIR types and user-defined generics remain partially landed items
+  - first-class enum/sum MIR types and user-defined generics belong to the separate enum/sum design owner, not the primitive fast-path owner
     - parser / AST / Stage1 surface is now landed:
       - `enum Name<T> { ... }`
       - Stage1 `enum_decls`
@@ -101,13 +101,36 @@ Current user-box / primitive cost reading:
     - canonical sum MIR lowering is now landed:
       - `VariantMake` / `VariantTag` / `VariantProject`
       - JSON v0 bridge now lowers `EnumCtor` / `EnumMatch` into that lane
-    - runtime/codegen semantics are still pending
+    - VM / LLVM / fallback runtime support for the narrow MVP variant lane is now landed
+    - remaining generic semantics, `where`, enum methods, full monomorphization, and broader product-consumer parity stay backlog
     - design owner: `docs/development/current/main/design/enum-sum-and-generic-surface-ssot.md`
   - no user-box flattening
   - no tagged pointer / NaN-boxing
   - no new `.hako` syntax or widened `@rune`
 
 ## Fixed Decisions
+
+### 137x-B residual classification
+
+This section is the bridge back to owner-first optimization after the
+container/primitive design cleanout.
+
+Blocking before `137x-C`:
+
+- none for `Null` / `Void`; current conservative handling is acceptable for perf return
+- none for enum/sum/generic; ownership stays with the enum/sum SSOT and later generic placement/effect work
+
+Non-blocking residuals:
+
+- `Null` / `Void` may later gain narrower fast paths, but current cleanup already converges safe nullish checks and the remaining perf value is low priority
+- enum/sum MVP surface, canonical MIR, and narrow VM/LLVM fallback support are landed; broader generic semantics remain separate-phase backlog
+- primitive/user-box field fast paths, enum/sum local aggregate keep lanes, and ArrayBox typed-slot residence are sibling proofs, not one interchangeable keeper proof
+
+Stop-line:
+
+- do not use ArrayBox typed-slot residence as proof for generic primitive flattening
+- do not use enum/sum local aggregate evidence as proof for container residence rewrites
+- do not reopen `.hako` syntax, public ABI, or full monomorphization from the 137x return gate
 
 ### 1. `.hako` surface stays simple
 

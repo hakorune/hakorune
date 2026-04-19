@@ -954,7 +954,9 @@ Scope: current lane / next lane / restart order only.
      - completed `map-demand-vs-typed-lane-boundary`
        - Map key decode / value store / value load demand metadata is landed
        - `289x-6c` typed map lane stays closed; key policy is not value residence/publication truth
-     - `primitive-residuals-classification`
+     - completed `primitive-residuals-classification`
+       - `Null` / `Void` are conservative non-blocking residuals
+       - enum/sum/generic stays under its separate SSOT and does not block `137x-C`
      - `container-identity-residence-contract`
 2. keep phase-2.5 read-side alias lane as the active judge
    - do not reopen the rejected store-side `owned-string keep` / `owned-text keep`

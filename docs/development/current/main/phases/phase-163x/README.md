@@ -136,6 +136,10 @@
   - cleanup splits now landed on the runtime seam:
     - `sum_bridge` owns `__NyVariant_*`, `__variant_tag`, and `__variant_payload` bridge helpers
     - `object_field_store` owns interpreter object-field get/set/root-count access instead of raw `obj_fields`
+  - 137x-B residual reading:
+    - `Null` / `Void` cleanup is landed enough for the current phase, but dedicated fast paths stay low-priority backlog
+    - enum/sum/generic remains owned by `enum-sum-and-generic-surface-ssot.md`
+    - primitive/user-box fast paths, enum/sum local aggregate keep lanes, and ArrayBox typed-slot residence are separate proof families
   - narrow record variants are now landed on the same source / JSON v0 route:
     - declaration surface accepts `Ident { name: String }`
     - qualified construction accepts `Token::Ident { name: expr }`

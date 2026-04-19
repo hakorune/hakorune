@@ -67,6 +67,10 @@
     - `map-demand-vs-typed-lane-boundary`
       - Map demand metadata is landed for key decode, value store, and value load
       - typed map lane remains closed; RuntimeData stays a facade, not semantic owner
+    - `primitive-residuals-classification`
+      - `Null` / `Void` are conservative, non-blocking residuals
+      - enum/sum/generic stays under its separate SSOT and does not block 137x-C
+      - primitive/user-box, enum/sum, and ArrayBox residence proofs are sibling proofs, not interchangeable keeper evidence
   - no runtime-wide implementation or public ABI widening starts from this gate
 - long-range successor stays parked:
   - phase-289x planning-only `Value Lane Architecture`

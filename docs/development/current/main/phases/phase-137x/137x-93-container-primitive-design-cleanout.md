@@ -62,10 +62,15 @@ phase-137x は今、この 3 段で読む。
      - locked in `phase-289x/289x-94-container-demand-table.md`
      - `289x-6d` / `289x-6e` are demand-metadata cuts, not typed-lane implementation
      - RuntimeData remains a facade that delegates demand ownership to Map rows
-4. [ ] `primitive-residuals-classification`
+4. [x] `primitive-residuals-classification`
    - `Null` / `Void` は conservative / low-priority residual として分類する
    - enum/sum/generic は別 design owner の partially-landed lane として分離する
    - primitive/user-box fast path と container residence pilot を同じ keeper 証拠として混ぜない
+   - status:
+     - locked in `primitive-family-and-user-box-fast-path-ssot.md`
+     - `Null` / `Void` are non-blocking conservative residuals
+     - enum/sum/generic stays owned by `enum-sum-and-generic-surface-ssot.md`
+     - sibling proofs are not interchangeable keeper evidence
 5. [ ] `container-identity-residence-contract`
    - Array / Map は public identity container のまま固定する
    - lane-host してよいのは internal element/key/value residence だけと明記する
