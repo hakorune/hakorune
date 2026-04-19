@@ -15,6 +15,7 @@ use crate::observe::{self, CacheProbeKind as ObserveCacheProbeKind};
 use memchr::{memchr, memmem};
 use nyash_rust::runtime::host_handles as handles;
 use std::cell::RefCell;
+use std::ffi::CStr;
 
 struct CachedNeedle {
     handle: i64,
@@ -277,6 +278,35 @@ pub(super) fn array_string_indexof_by_index(handle: i64, idx: i64, needle_h: i64
         })
         .unwrap_or(-1)
     })
+}
+
+pub(super) fn array_string_concat_const_suffix_by_index_into_slot(
+    slot: &mut KernelTextSlot,
+    handle: i64,
+    idx: i64,
+    suffix_ptr: *const i8,
+) -> i64 {
+    slot.clear();
+    if !valid_handle_idx(handle, idx) || suffix_ptr.is_null() {
+        return 0;
+    }
+    let Ok(suffix) = (unsafe { CStr::from_ptr(suffix_ptr) }).to_str() else {
+        return 0;
+    };
+    super::array_handle_cache::with_array_box(handle, |arr| {
+        let idx = idx as usize;
+        arr.with_items_read(|items| {
+            let Some(source) = items.get(idx).and_then(|item| item.as_str_fast()) else {
+                return 0;
+            };
+            let mut out = String::with_capacity(source.len() + suffix.len());
+            out.push_str(source);
+            out.push_str(suffix);
+            slot.replace_owned_string(out);
+            1
+        })
+    })
+    .unwrap_or(0)
 }
 
 #[inline(always)]

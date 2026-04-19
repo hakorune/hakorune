@@ -96,10 +96,10 @@ if ! grep -F 'nyash.array.string_indexof_hih' "$LL_DUMP" >/dev/null 2>&1; then
     exit 1
 fi
 
-if grep -F 'nyash.array.slot_load_hi' "$LL_DUMP" >/dev/null 2>&1; then
+if grep -E 'call .*nyash\.array\.slot_load_hi' "$LL_DUMP" >/dev/null 2>&1; then
     echo "[INFO] lowered IR:"
     tail -n 120 "$LL_DUMP" || true
-    test_fail "phase29ck_boundary_pure_array_string_indexof_select_min: lowered IR still contains nyash.array.slot_load_hi residue"
+    test_fail "phase29ck_boundary_pure_array_string_indexof_select_min: lowered IR still calls nyash.array.slot_load_hi"
     exit 1
 fi
 

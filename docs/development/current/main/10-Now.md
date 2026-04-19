@@ -49,6 +49,22 @@ Related:
     - planning/docs debt only; not a runtime-wide implementation unblock by itself
 - blocker:
   - `none`
+- latest active keeper:
+  - phase-137x branch-target-aware same-slot suffix store cut is green
+  - exact shape:
+    - `array.get -> indexOf("line") -> compare -> branch`
+    - branch target uses the fetched string only as `copy -> const suffix -> Add -> same array.set(idx, value)`
+  - lowered shape:
+    - observer: `nyash.array.string_indexof_hih`
+    - store: `nyash.array.kernel_slot_concat_his -> nyash.array.kernel_slot_store_hi`
+    - no `nyash.array.slot_load_hi` call on that exact same-slot suffix path
+  - perf proof:
+    - `kilo_micro_array_string_store = C 9 ms / Ny AOT 3 ms`
+    - `kilo_kernel_small = C 80 ms / Ny AOT 214 ms`
+    - `kilo_kernel_small_hk = C 81 ms / Ny AOT 218 ms` (`repeat=3`, parity ok)
+  - boundary:
+    - this is a narrow string read/store keeper
+    - runtime-wide 289x implementation, `TextLane`, MIR legality, and allocator work still require a separate phase gate
 
 ## Snapshot
 

@@ -62,8 +62,19 @@
         if (analyze_array_string_indexof_branch_window_candidate(
                 ii, ilen, insts, bname, mname, recv, idx, dst, recv_org,
                 runtime_array_string, &string_indexof_branch_match, NULL, NULL, 0)) {
-          string_indexof_branch_match.keep_get_live =
+          int branch_uses_get =
               branch_targets_use_reg(blocks, insts, string_indexof_branch_match.branch_ii, dst);
+          int branch_uses_get_only_as_slot_const_suffix_store =
+              branch_uses_get &&
+              branch_targets_use_reg_only_as_const_suffix_store(
+                  blocks,
+                  insts,
+                  string_indexof_branch_match.branch_ii,
+                  dst,
+                  recv,
+                  idx);
+          string_indexof_branch_match.keep_get_live =
+              branch_uses_get && !branch_uses_get_only_as_slot_const_suffix_store;
           if (string_indexof_branch_match.keep_get_live) {
             char keep_ab[128];
             keep_ab[0] = '\0';
@@ -76,6 +87,13 @@
               set_scan_origin(dst, ORG_STRING);
             } else {
               fprintf(f, "  call i64 @\"nyash.array.slot_load_hi\"(%s)\n", keep_ab);
+            }
+          } else if (branch_uses_get_only_as_slot_const_suffix_store) {
+            remember_array_string_get_source(dst, recv, idx);
+            if (dst) {
+              set_type(dst, T_I64);
+              set_origin(dst, ORG_STRING);
+              set_scan_origin(dst, ORG_STRING);
             }
           }
           remember_deferred_array_string_indexof_select(

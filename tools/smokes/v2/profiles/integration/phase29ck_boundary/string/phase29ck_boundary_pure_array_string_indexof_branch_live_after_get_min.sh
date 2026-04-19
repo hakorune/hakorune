@@ -1,12 +1,14 @@
 #!/bin/bash
-# Phase 29ck boundary pure-first RuntimeDataBox.get -> indexOf -> branch keeps fetched string live across the then-block
+# Phase 29ck boundary pure-first RuntimeDataBox.get -> indexOf -> branch
+# with same-slot const-suffix store in the then-block.
 #
 # Contract pin:
 # 1) default `ny-llvmc` boundary object route accepts a narrow
 #    array-string `get -> indexOf("line") -> compare -> branch` seed even when
 #    the original fetched string is still consumed in the then-block.
 # 2) accepted lowering emits `nyash.array.string_indexof_hih` for the observer
-#    and keeps `nyash.array.slot_load_hi` so the then-block can reuse the string.
+#    and routes the then-block same-slot suffix store through
+#    `nyash.array.kernel_slot_concat_his` without reloading a stable string.
 # 3) the supported seed emits an object without falling through to
 #    `ny-llvmc --driver harness`.
 
@@ -98,18 +100,25 @@ if ! grep -F 'nyash.array.string_indexof_hih' "$LL_DUMP" >/dev/null 2>&1; then
     exit 1
 fi
 
-if ! grep -F 'nyash.array.slot_load_hi' "$LL_DUMP" >/dev/null 2>&1; then
+if grep -E 'call .*nyash\.array\.slot_load_hi' "$LL_DUMP" >/dev/null 2>&1; then
     echo "[INFO] lowered IR:"
     tail -n 120 "$LL_DUMP" || true
-    test_fail "phase29ck_boundary_pure_array_string_indexof_branch_live_after_get_min: lowered IR did not keep nyash.array.slot_load_hi for live-after-get reuse"
+    test_fail "phase29ck_boundary_pure_array_string_indexof_branch_live_after_get_min: lowered IR still reloads nyash.array.slot_load_hi for same-slot const-suffix store"
     exit 1
 fi
 
-if ! grep -F 'nyash.array.slot_store_hih' "$LL_DUMP" >/dev/null 2>&1; then
+if ! grep -E 'call .*nyash\.array\.kernel_slot_concat_his' "$LL_DUMP" >/dev/null 2>&1; then
     echo "[INFO] lowered IR:"
     tail -n 120 "$LL_DUMP" || true
-    test_fail "phase29ck_boundary_pure_array_string_indexof_branch_live_after_get_min: lowered IR did not preserve the then-block set path"
+    test_fail "phase29ck_boundary_pure_array_string_indexof_branch_live_after_get_min: lowered IR did not use by-index kernel const-suffix concat"
     exit 1
 fi
 
-test_pass "phase29ck_boundary_pure_array_string_indexof_branch_live_after_get_min: PASS (boundary default keeps array-string get live across branch observer without ny-llvmc harness fallback)"
+if ! grep -E 'call .*nyash\.array\.kernel_slot_store_hi' "$LL_DUMP" >/dev/null 2>&1; then
+    echo "[INFO] lowered IR:"
+    tail -n 120 "$LL_DUMP" || true
+    test_fail "phase29ck_boundary_pure_array_string_indexof_branch_live_after_get_min: lowered IR did not store the kernel text slot back into the array"
+    exit 1
+fi
+
+test_pass "phase29ck_boundary_pure_array_string_indexof_branch_live_after_get_min: PASS (boundary default keeps same-slot const-suffix store in text lane without ny-llvmc harness fallback)"

@@ -214,6 +214,25 @@
       - reject reason:
         - adding a direct concat helper without removing the live `array.get_hi` read only adds another executor path
         - code was reverted; do not retry array-slot concat helpers unless the same card also proves the preceding `slot_load_hi` is removed safely
+    - latest branch-target-aware retry:
+      - same helper shape is reopened only for the exact branch-target proof:
+        - `array.get -> indexOf("line") -> compare -> branch`
+        - the branch target uses the get result solely as `copy -> const suffix -> Add -> same array.set(idx, value)`
+      - lowering now records the get source and emits:
+        - `nyash.array.string_indexof_hih` for the observer
+        - `nyash.array.kernel_slot_concat_his(slot, array_h, idx, suffix)` for the same-slot suffix store
+        - `nyash.array.kernel_slot_store_hi` for the store sink
+      - the same-slot path must not call `nyash.array.slot_load_hi`; other live-after-get reuse shapes still keep `slot_load_hi`
+      - validation:
+        - `cargo test -q -p nyash_kernel --lib kernel_slot_concat_by_index_reads_string_slot_directly`
+        - phase29ck boundary string indexOf smoke set, including branch/select/interleaved/cross-block controls
+      - keeper status:
+        - structure and smoke gates are green
+        - perf keeper proof is green:
+          - `kilo_micro_array_string_store = C 9 ms / Ny AOT 3 ms`
+          - `kilo_kernel_small = C 80 ms / Ny AOT 214 ms`
+          - `kilo_kernel_small_hk = C 81 ms / Ny AOT 218 ms` (`repeat=3`, parity ok)
+        - this is a narrow phase-137x keeper cut; do not generalize this into `TextLane` / MIR legality / runtime-wide 289x work without a separate phase gate
   - reading:
     - phase 2.5 no longer has only the `array.get` cached-handle proof
     - exact stays closed, but meso / strict whole reopened upward versus the prior `57 ms` / `791 ms` band

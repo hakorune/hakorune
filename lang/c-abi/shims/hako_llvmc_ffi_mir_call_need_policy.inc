@@ -9,6 +9,8 @@
         int arr_len;
         int arr_set;
         int arr_get;
+        int arr_slot_load;
+        int arr_kernel_slot_concat_by_index;
         int arr_has;
         int arr_string_indexof;
         int string_const_box;
@@ -76,6 +78,7 @@
             break;
           case HAKO_LLVMC_MIR_CALL_NEED_ARRAY_GET:
             needs->arr_get = 1;
+            needs->arr_slot_load = 1;
             break;
           case HAKO_LLVMC_MIR_CALL_NEED_ARRAY_HAS:
             needs->arr_has = 1;

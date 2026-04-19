@@ -98,10 +98,10 @@ if ! grep -F 'nyash.array.string_len_hi' "$LL_DUMP" >/dev/null 2>&1; then
     exit 1
 fi
 
-if ! grep -F 'nyash.array.slot_load_hi' "$LL_DUMP" >/dev/null 2>&1; then
+if ! grep -E 'call .*nyash\.array\.slot_load_hi' "$LL_DUMP" >/dev/null 2>&1; then
     echo "[INFO] lowered IR:"
     tail -n 120 "$LL_DUMP" || true
-    test_fail "phase29ck_boundary_pure_array_string_len_live_after_get_min: lowered IR did not keep nyash.array.slot_load_hi for later substring reuse"
+    test_fail "phase29ck_boundary_pure_array_string_len_live_after_get_min: lowered IR did not call nyash.array.slot_load_hi for later substring reuse"
     exit 1
 fi
 

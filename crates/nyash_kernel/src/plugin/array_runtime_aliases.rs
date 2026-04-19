@@ -3,9 +3,9 @@ use super::array_runtime_any::{
     array_runtime_get_any_key, array_runtime_has_any_key, array_runtime_set_any_key,
 };
 use super::array_runtime_facade::{
-    array_runtime_get_idx, array_runtime_has_idx, array_runtime_set_idx_any,
-    array_runtime_set_idx_i64, array_runtime_store_array_kernel_text_slot,
-    array_runtime_store_array_string,
+    array_runtime_concat_const_suffix_idx_into_slot, array_runtime_get_idx, array_runtime_has_idx,
+    array_runtime_set_idx_any, array_runtime_set_idx_i64,
+    array_runtime_store_array_kernel_text_slot, array_runtime_store_array_string,
 };
 use super::array_runtime_substrate::array_runtime_push_any;
 
@@ -70,6 +70,19 @@ pub extern "C" fn nyash_array_kernel_slot_store_hi_alias(
         return 0;
     };
     array_runtime_store_array_kernel_text_slot(handle, idx, slot)
+}
+
+#[export_name = "nyash.array.kernel_slot_concat_his"]
+pub extern "C" fn nyash_array_kernel_slot_concat_his_alias(
+    slot: *mut super::KernelTextSlot,
+    handle: i64,
+    idx: i64,
+    suffix_ptr: *const i8,
+) -> i64 {
+    let Some(slot) = (unsafe { slot.as_mut() }) else {
+        return 0;
+    };
+    array_runtime_concat_const_suffix_idx_into_slot(slot, handle, idx, suffix_ptr)
 }
 
 #[export_name = "nyash.array.has_hi"]

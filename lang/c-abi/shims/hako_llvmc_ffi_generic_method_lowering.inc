@@ -20,6 +20,8 @@
         long long pair_root = resolve_copy_source_reg(value);
         long long lhs = 0;
         long long rhs = 0;
+        long long source_recv = 0;
+        long long source_idx = 0;
         const char* rhs_const = NULL;
         char slot_concat_ab[224];
         char slot_store_ab[128];
@@ -30,6 +32,10 @@
         if (!find_deferred_const_suffix_kernel_slot(pair_root, &lhs, &rhs)) return 0;
         rhs_const = get_str_const(rhs);
         if (!(rhs && rhs_const)) return 0;
+        int lhs_is_same_array_slot_source =
+            find_array_string_get_source(lhs, &source_recv, &source_idx) &&
+            resolve_copy_source_reg(source_recv) == resolve_copy_source_reg(recv) &&
+            resolve_copy_source_reg(source_idx) == resolve_copy_source_reg(idx);
 
         fprintf(
             f,
@@ -48,7 +54,12 @@
             ii);
 
         slot_concat_ab[0] = '\0';
-        append_i64_arg_ref(slot_concat_ab, sizeof(slot_concat_ab), lhs, 1);
+        if (lhs_is_same_array_slot_source) {
+          append_i64_arg_ref(slot_concat_ab, sizeof(slot_concat_ab), source_recv, 1);
+          append_i64_arg_ref(slot_concat_ab, sizeof(slot_concat_ab), source_idx, 0);
+        } else {
+          append_i64_arg_ref(slot_concat_ab, sizeof(slot_concat_ab), lhs, 1);
+        }
         strncat(
             slot_concat_ab,
             ", ptr getelementptr inbounds (",
@@ -66,12 +77,21 @@
               tail,
               sizeof(slot_concat_ab) - strlen(slot_concat_ab) - 1);
         }
-        fprintf(
-            f,
-            "  call i64 @\"nyash.string.kernel_slot_concat_hs\"(ptr %%arrstr.slot.%lld.%zu, %s)\n",
-            pair_root,
-            ii,
-            slot_concat_ab);
+        if (lhs_is_same_array_slot_source) {
+          fprintf(
+              f,
+              "  call i64 @\"nyash.array.kernel_slot_concat_his\"(ptr %%arrstr.slot.%lld.%zu, %s)\n",
+              pair_root,
+              ii,
+              slot_concat_ab);
+        } else {
+          fprintf(
+              f,
+              "  call i64 @\"nyash.string.kernel_slot_concat_hs\"(ptr %%arrstr.slot.%lld.%zu, %s)\n",
+              pair_root,
+              ii,
+              slot_concat_ab);
+        }
 
         slot_store_ab[0] = '\0';
         append_i64_arg_ref(slot_store_ab, sizeof(slot_store_ab), recv, 1);

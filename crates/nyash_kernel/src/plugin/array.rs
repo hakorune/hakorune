@@ -137,6 +137,30 @@ mod tests {
     }
 
     #[test]
+    fn kernel_slot_concat_by_index_reads_string_slot_directly() {
+        let handle = new_array_handle();
+        let seed_h = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
+            nyash_rust::box_trait::StringBox::new("line-seed".to_string()),
+        )
+            as std::sync::Arc<dyn NyashBox>) as i64;
+        let suffix = std::ffi::CString::new("ln").expect("suffix");
+        let mut slot = crate::plugin::KernelTextSlot::empty();
+
+        assert_eq!(nyash_array_set_his_alias(handle, 0, seed_h), 1);
+        assert_eq!(
+            crate::nyash_array_kernel_slot_concat_his_alias(&mut slot, handle, 0, suffix.as_ptr()),
+            1
+        );
+        assert_eq!(nyash_string_kernel_slot_len_i_export(&slot), 11);
+        assert_eq!(
+            nyash_array_kernel_slot_store_hi_alias(handle, 0, &mut slot),
+            1
+        );
+        assert_eq!(nyash_string_kernel_slot_len_i_export(&slot), 0);
+        assert_eq!(nyash_array_string_len_hi_alias(handle, 0), 11);
+    }
+
+    #[test]
     fn kernel_slot_store_existing_string_slot_keeps_borrowed_alias_wrapper() {
         let handle = new_array_handle();
         let seed_h = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(

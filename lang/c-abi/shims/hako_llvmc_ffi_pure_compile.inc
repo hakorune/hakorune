@@ -627,12 +627,14 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (needs.arr_set)   fprintf(f, "declare i64 @\"nyash.array.slot_store_hih\"(i64, i64, i64)\n");
       if (needs.arr_set)   fprintf(f, "declare i64 @\"nyash.array.set_his\"(i64, i64, i64)\n");
       if (needs.arr_set)   fprintf(f, "declare i64 @\"nyash.array.slot_store_hii\"(i64, i64, i64)\n");
-      if (needs.arr_set && (needs.string_concat || needs.string_substring || needs.arr_get || needs.arr_string_indexof))
+      if (needs.arr_set && (needs.string_concat || needs.string_substring || needs.arr_get || needs.arr_string_indexof || needs.arr_kernel_slot_concat_by_index))
         fprintf(f, "declare i64 @\"nyash.array.kernel_slot_store_hi\"(i64, i64, ptr)\n");
+      if (needs.arr_set && (needs.string_concat || needs.string_substring || needs.arr_get || needs.arr_string_indexof || needs.arr_kernel_slot_concat_by_index))
+        fprintf(f, "declare i64 @\"nyash.array.kernel_slot_concat_his\"(ptr, i64, i64, ptr)\n");
       if (needs.arr_get && needs.arr_set) fprintf(f, "declare i64 @\"nyash.array.rmw_add1_hi\"(i64, i64)\n");
       if (needs.arr_get || needs.arr_string_indexof || needs.string_len) fprintf(f, "declare i64 @\"nyash.array.string_len_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_get || needs.arr_string_indexof) fprintf(f, "declare i64 @\"nyash.array.string_indexof_hih\"(i64, i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
-      if (needs.arr_get)   fprintf(f, "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
+      if (needs.arr_slot_load) fprintf(f, "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.string_const_box) fprintf(f, "declare i64 @\"nyash.box.from_i8_string_const\"(ptr)\n");
       if (needs.string_len) fprintf(f, "declare i64 @\"nyash.string.len_h\"(i64)\n");
       fprintf(f, "declare i64 @\"nyash.string.eq_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);

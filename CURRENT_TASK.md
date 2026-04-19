@@ -69,6 +69,22 @@ Scope: current lane / next lane / restart order only.
 - current blocker:
   - `none`
 - current cut status:
+  - latest implementation candidate:
+    - phase-137x branch-target-aware array string get/store seam is now the active keeper candidate
+    - exact accepted shape:
+      - `array.get -> indexOf("line") -> compare -> branch`
+      - branch target uses the fetched string only as `copy -> const suffix -> Add -> same array.set(idx, value)`
+    - lowering keeps the observer on `nyash.array.string_indexof_hih` and rewrites the same-slot suffix store to `nyash.array.kernel_slot_concat_his -> nyash.array.kernel_slot_store_hi`
+    - contract:
+      - no `nyash.array.slot_load_hi` call on that exact same-slot suffix path
+      - live-after-get shapes that feed substring/other reuse still keep `slot_load_hi`
+    - current status:
+      - structure/smoke gates are green
+      - perf keeper proof is green:
+        - `kilo_micro_array_string_store = C 9 ms / Ny AOT 3 ms`
+        - `kilo_kernel_small = C 80 ms / Ny AOT 214 ms`
+        - `kilo_kernel_small_hk = C 81 ms / Ny AOT 218 ms` (`repeat=3`, parity ok)
+      - this is a phase-137x keeper cut; still do not widen directly into `TextLane`, MIR legality, allocator, or phase-289x implementation without a separate phase gate
   - good cut point:
     - the Phase 2.5 read-side alias lane now has array/map proof on all three read outcomes:
       - `live source`

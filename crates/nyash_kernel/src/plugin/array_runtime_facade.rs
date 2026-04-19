@@ -3,6 +3,7 @@ use super::array_slot_store::{
     array_slot_rmw_add1_i64, array_slot_store_any, array_slot_store_i64,
     array_slot_store_kernel_text_slot, array_slot_store_string_handle,
 };
+use super::array_string_slot::array_string_concat_const_suffix_by_index_into_slot;
 use super::KernelTextSlot;
 
 // Runtime/compat forwarding only.
@@ -36,6 +37,15 @@ pub(super) fn array_runtime_store_array_kernel_text_slot(
     slot: &mut KernelTextSlot,
 ) -> i64 {
     array_slot_store_kernel_text_slot(handle, idx, slot)
+}
+
+pub(super) fn array_runtime_concat_const_suffix_idx_into_slot(
+    slot: &mut KernelTextSlot,
+    handle: i64,
+    idx: i64,
+    suffix_ptr: *const i8,
+) -> i64 {
+    array_string_concat_const_suffix_by_index_into_slot(slot, handle, idx, suffix_ptr)
 }
 
 pub(super) fn array_runtime_has_idx(handle: i64, idx: i64) -> i64 {

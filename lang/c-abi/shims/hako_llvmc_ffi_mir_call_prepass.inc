@@ -26,7 +26,18 @@
                 &indexof_branch_match, NULL, NULL, 0)) {
           needs->arr_string_indexof = 1;
           if (branch_targets_use_reg(blocks, insts, indexof_branch_match.branch_ii, dst)) {
-            needs->arr_get = 1;
+            if (branch_targets_use_reg_only_as_const_suffix_store(
+                    blocks,
+                    insts,
+                    indexof_branch_match.branch_ii,
+                    dst,
+                    recv,
+                    a0)) {
+              needs->arr_kernel_slot_concat_by_index = 1;
+            } else {
+              needs->arr_get = 1;
+              needs->arr_slot_load = 1;
+            }
           }
         } else if (analyze_array_string_indexof_cross_block_select_window_candidate(
                 blocks, ii, ilen, insts, bname, mname, recv, a0, dst, scan_org, 1,
@@ -42,6 +53,7 @@
           needs->arr_string_indexof = 1;
         } else {
           needs->arr_get = 1;
+          needs->arr_slot_load = 1;
         }
         if (dst) set_scan_origin(dst, ORG_STRING);
       }

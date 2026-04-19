@@ -196,6 +196,11 @@ impl KernelTextSlot {
     }
 
     #[inline(always)]
+    pub(crate) fn replace_owned_string(&mut self, value: String) {
+        self.replace_owned_bytes(OwnedBytes::from_string(value));
+    }
+
+    #[inline(always)]
     pub(crate) fn replace_deferred_const_suffix(&mut self, source_h: i64, suffix_ptr: *const i8) {
         self.clear();
         if source_h <= 0 || suffix_ptr.is_null() {
