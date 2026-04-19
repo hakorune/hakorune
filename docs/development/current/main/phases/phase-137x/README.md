@@ -60,6 +60,10 @@
 - current design cleanout gate:
   - active: `137x-93-container-primitive-design-cleanout.md`
   - purpose: sync array typed-slot, map demand/typed-lane, primitive residual, and container identity/residence docs before perf work resumes
+  - done:
+    - `array-typed-slot-truth-sync`
+      - ArrayBox typed-slot truth is scalar immediate residence for `InlineI64` / `InlineBool` / `InlineF64`
+      - only `InlineI64` has direct typed encoded-load readback; f64/bool stay under encoded-any/public handle readback
   - no runtime-wide implementation or public ABI widening starts from this gate
 - long-range successor stays parked:
   - phase-289x planning-only `Value Lane Architecture`

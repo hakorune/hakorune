@@ -48,7 +48,9 @@ cargo check --features perf-observe -p nyash_kernel
     - use it to confirm store/publication cuts without the whole-front `indexOf("line")` row-scan noise
   - `kilo_kernel_small = C 80 ms / Ny AOT 739 ms`
 - immediate next:
-  - `finish 137x-B design cleanout: array typed-slot truth, map demand vs typed-lane boundary, primitive residuals, and container identity/residence contract`
+  - `finish 137x-B design cleanout: map demand vs typed-lane boundary, primitive residuals, and container identity/residence contract`
+  - done in this cleanout:
+    - `array-typed-slot-truth-sync`
 - method anchor:
   - `docs/development/current/main/design/perf-owner-first-optimization-ssot.md` (`137x-C` only)
 - rollout anchor:

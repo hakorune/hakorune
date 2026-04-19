@@ -948,7 +948,9 @@ Scope: current lane / next lane / restart order only.
    - do not widen into `TextLane`, allocator, public ABI, or a generic bridge substrate on this card
    - keep recent carrier commits as the semantic baseline; this card is contract/task shaping, not new keeper evidence
    - active 137x-B task order:
-     - `array-typed-slot-truth-sync`
+     - completed `array-typed-slot-truth-sync`
+       - current ArrayBox typed-slot truth is scalar immediate residence for `InlineI64` / `InlineBool` / `InlineF64`
+       - only `InlineI64` has the direct typed encoded-load row; f64/bool stay under encoded-any/public handle readback
      - `map-demand-vs-typed-lane-boundary`
      - `primitive-residuals-classification`
      - `container-identity-residence-contract`

@@ -24,7 +24,7 @@
 ## Active Design Cleanout Before Perf Return
 
 - [x] B1 `phase-pointer-resplit`
-- [ ] B2 `array-typed-slot-truth-sync`
+- [x] B2 `array-typed-slot-truth-sync`
 - [ ] B3 `map-demand-vs-typed-lane-boundary`
 - [ ] B4 `primitive-residuals-classification`
 - [ ] B5 `container-identity-residence-contract`

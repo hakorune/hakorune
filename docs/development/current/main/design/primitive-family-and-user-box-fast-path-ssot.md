@@ -78,12 +78,14 @@ Current user-box / primitive cost reading:
     - `MirType::Float` and typed `FloatBox` field facts now classify as `InlineF64`
     - dumps / MIR JSON surface the new storage fact without changing runtime behavior
 - landed:
-  - `ArrayBox` narrow typed-slot pilot is now landed on the `InlineI64` lane:
+  - `ArrayBox` narrow typed-slot pilot is now landed on scalar immediate residence:
     - runtime authority stays in `ArrayBox`; `NyashValue::Array` is still not the keeper lane
     - `slot_store_i64_raw` / `slot_rmw_add1_i64_raw` can birth or preserve the narrow `InlineI64` storage
-    - `nyash.array.slot_append_hh` / `nyash.array.push_hi` now route integer-shaped values through the same narrow lane
-    - `slot_store_box_raw` and string/mixed boxed writes explicitly promote back to boxed storage before mutation
-    - `array_slot_load_encoded_i64` now reads the `InlineI64` lane directly without re-boxing
+    - `nyash.array.slot_append_hh` / `nyash.array.push_hi` route integer-shaped values through the same narrow lane
+    - existing generic any-store/append routes also birth or preserve narrow `InlineBool` / `InlineF64` lanes for `BoolBox` / `FloatBox` payloads
+    - `array_slot_load_encoded_i64` reads `InlineI64` directly without re-boxing
+    - `slot_load_hi` remains the encoded-any read contract; float slots read back as `FloatBox` handles instead of adding a new typed load ABI row
+    - boxed/string/mixed routes explicitly promote back to boxed storage before mutation
     - focused ArrayBox / kernel tests pass, and `phase21_5_perf_kilo_micro_machine_lane_contract_vm` stays green
 - not yet:
   - `Null` / `Void` fast paths are still conservative and low priority in this wave
@@ -328,11 +330,14 @@ Acceptance:
 - first slot vocabulary is narrow
   - default keep lane: `Boxed`
   - first typed pilot: `InlineI64`
-  - later-only candidates: `InlineF64`, `InlineBool`, `BorrowedText`
+  - landed scalar extensions under the same pilot: `InlineBool`, `InlineF64`
+  - later-only candidate: `BorrowedText`
 - implementation boundary stays below the current raw seams
   - `slot_append_box_raw`
   - `slot_store_box_raw`
   - `slot_store_i64_raw`
+  - `slot_store_bool_raw`
+  - `slot_store_f64_raw`
   - `slot_rmw_add1_i64_raw`
   - kernel `nyash.array.slot_*` leaves remain the execution entry, not a second truth
 - promotion rule must be explicit, one-way, and behavior-safe
@@ -345,13 +350,15 @@ Acceptance:
   - no string-lane merge into the array pilot; borrowed string stays a sibling guardrail lane
 - acceptance for the first pilot
   - prove a narrow `InlineI64` array lane first
+  - allow `InlineBool` / `InlineF64` only as scalar immediate residence under the same boxed-promotion rules
   - preserve current public ArrayBox behavior
   - keep plugin/reflection/mixed arrays on the boxed lane
 - landed pilot facts
-  - `ArrayBox` now has a narrow internal `InlineI64` storage lane beside the default boxed lane
-  - internal i64-specialized routes can birth/preserve the lane without changing public `ArrayBox` semantics
+  - `ArrayBox` now has narrow internal `InlineI64` / `InlineBool` / `InlineF64` storage lanes beside the default boxed lane
+  - internal scalar routes can birth/preserve those lanes without changing public `ArrayBox` semantics
   - boxed/string routes promote back to boxed storage before mutation
-  - `array_slot_load_encoded_i64` reads the inline lane directly; no re-box roundtrip on the narrow keeper path
+  - `array_slot_load_encoded_i64` reads `InlineI64` directly; no re-box roundtrip on the narrow integer keeper path
+  - f64 readback stays on the existing encoded-any contract and may return a `FloatBox` handle; no public typed f64 load row is opened by this pilot
 
 Resulting next cut:
 

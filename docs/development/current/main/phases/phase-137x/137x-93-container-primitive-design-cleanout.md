@@ -45,10 +45,15 @@ phase-137x は今、この 3 段で読む。
 1. [x] `phase-pointer-resplit`
    - `137x-B` を design cleanout gate に変更する
    - owner-first perf return は `137x-C` に送る
-2. [ ] `array-typed-slot-truth-sync`
+2. [x] `array-typed-slot-truth-sync`
    - `InlineI64` / `InlineBool` / `InlineF64` の現行 runtime support と docs を同期する
    - `array.get` / encoded load の readback contract を過大表現しない
    - mixed / boxed / reflection routes の boxed promotion rule を明記する
+   - status:
+     - synced in `primitive-family-and-user-box-fast-path-ssot.md`
+     - current truth is scalar immediate residence for `InlineI64` / `InlineBool` / `InlineF64`
+     - only `InlineI64` has the direct `array_slot_load_encoded_i64` typed readback row
+     - f64/bool readback stays under the existing encoded-any/public handle contract
 3. [ ] `map-demand-vs-typed-lane-boundary`
    - Map key decode / value store / value load demand metadata は landed と読む
    - typed map lane は未開放と明記する
