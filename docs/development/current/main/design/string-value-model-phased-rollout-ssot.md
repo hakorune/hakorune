@@ -37,7 +37,9 @@ Related:
 - `TextLane` は semantic truth ではなく future storage specialization として扱う
 - ただし code では最初から巨大 enum や全面 storage rewrite を入れない
 - ordering を間違えると `owner shift only` になって revert しやすい
-- next narrow card after the deferred-slot landing is read-side alias lane split, not full `TextLane`
+- historical note:
+  - after the deferred-slot landing, the next narrow card was read-side alias lane split, not full `TextLane`
+  - after keeper `49c356339`, the active successor is phase-289x value-boundary inventory before further optimization
   - `TextReadOnly`
   - `EncodedAlias`
   - `StableObject`
@@ -197,8 +199,10 @@ OwnedTextBuf or TextCell -> PublishedStringHandle
   - `freeze.str = only birth sink`
   - `TextLane = future storage specialization`
 - exact front では `KernelTextSlot` direct-set / shared-receiver bridge が keeper
-- meso はまだ `57 ms` 帯で open
-- whole は `856 ms` で open
+- historical baseline:
+  - meso was `57 ms` 帯で open
+  - whole was `856 ms` で open
+  - after keeper `49c356339`, these numbers are context only; current mirrors live in `CURRENT_TASK.md` / `10-Now.md`
 - current carriers は実質次:
   - `VerifiedTextSource`
   - `TextPlan`

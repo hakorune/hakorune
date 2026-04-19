@@ -18,20 +18,22 @@ Scope: current lane / next lane / restart order only.
 4. `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
 5. `docs/development/current/main/phases/phase-289x/README.md` (`runtime-wide value/object` planning only)
 6. `docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md`
-7. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
-8. `docs/development/current/main/phases/phase-137x/README.md`
-9. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
-10. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-11. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
-12. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
-13. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
-14. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
-15. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-16. `docs/development/current/main/design/string-birth-sink-ssot.md`
-17. `docs/development/current/main/15-Workstream-Map.md`
-18. `git status -sb`
-19. `tools/checks/dev_gate.sh quick`
-20. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
+7. `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
+8. `docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md`
+9. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
+10. `docs/development/current/main/phases/phase-137x/README.md`
+11. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
+12. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+13. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+14. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
+15. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+16. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
+17. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+18. `docs/development/current/main/design/string-birth-sink-ssot.md`
+19. `docs/development/current/main/15-Workstream-Map.md`
+20. `git status -sb`
+21. `tools/checks/dev_gate.sh quick`
+22. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Current Lane
 
@@ -48,10 +50,12 @@ Scope: current lane / next lane / restart order only.
 - successor planning lane:
   - `phase-289x runtime-wide value/object boundary rollout`
   - status:
-    - phase-0 authority/vocabulary lock is docs-only
+    - phase-0 authority/vocabulary lock is docs-only and complete
+    - phase-137x keeper `49c356339` is the current string proof
+    - optimization work is paused until post-keeper value-boundary inventory is closed
     - array/map remain identity containers; only internal residence may become lane-hosted later
     - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
-    - do not start implementation before phase-137x reaches keeper/reject on the active string read-side lane
+    - do not start runtime-wide implementation before `289x-1g` demand ledger and `289x-2d` container demand table are closed
   - parent SSOT:
     - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
   - phase:
@@ -60,12 +64,13 @@ Scope: current lane / next lane / restart order only.
     - `docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md`
   - taskboard:
     - `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
+  - inventory ledger:
+    - `docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md`
   - current docs focus:
-    - close shared runtime vocabulary:
-      - `Ref / Owned / Cell / Immediate / Stable`
-      - `get / set / call` as demand verbs
-      - `publish / promote` as boundary effects only
-    - keep this as planning debt, not an execution blocker
+    - map current profile/helper/caller names to demand vocabulary
+    - split `ValueDemand / StorageDemand / PublishDemand / MutationDemand`
+    - define Array/Map demand rows before any storage pilot
+    - keep this as planning debt, not a runtime-wide implementation unblock by itself
 - current blocker:
   - `none`
 - current cut status:

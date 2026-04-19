@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/phases/phase-137x/README.md
   - docs/development/current/main/phases/phase-289x/README.md
   - docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md
+  - docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md
 ---
 
 # Phase 289x Runtime Value/Object Design Brief
@@ -20,8 +21,14 @@ phase-289x は、string lane で見えてきた設計を runtime 全体へ広げ
 successor planning だよ。
 
 ただし、この文書は実装許可ではない。
-phase-137x の active string read-side lane が keeper/reject に達するまで、
-runtime-wide storage rewrite / `TextLane` / MIR legality lift / allocator work は開かない。
+phase-137x は keeper `49c356339` で string proof を 1 つ得たが、
+それは runtime-wide storage rewrite / `TextLane` / MIR legality lift /
+allocator work の直接許可ではない。
+
+keeper 後の現在地は、最適化再開ではなく post-keeper inventory だよ。
+profile/helper/caller 名で暗黙に決まっている demand を、
+`ValueDemand / StorageDemand / PublishDemand / MutationDemand` へ棚卸してから
+次の実装 cut を選ぶ。
 
 ## One Sentence
 
@@ -126,10 +133,10 @@ These are inventory anchors for phase-289x docs. They are not implementation tar
 ## Rollout Shape
 
 1. Finish docs vocabulary.
-2. Inventory existing demand/profile/storage routes.
-3. Define container lane-host contract without code.
-4. Wait for phase-137x read-side keeper/reject.
-5. If unlocked, run exactly one runtime-private storage pilot.
+2. Record the phase-137x keeper as string proof, not as runtime-wide permission.
+3. Inventory existing demand/profile/storage routes.
+4. Define container lane-host contract without code.
+5. Choose exactly one runtime-private storage pilot with tests and reject seams.
 6. Only after storage contracts are proven, lift legality into MIR/verifier facts.
 7. Only after objectization frequency falls, consider allocator/arena work.
 

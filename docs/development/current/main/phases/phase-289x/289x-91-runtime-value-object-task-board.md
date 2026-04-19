@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md
   - docs/development/current/main/phases/phase-289x/README.md
   - docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md
+  - docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md
 ---
 
 # Phase 289x Runtime Value/Object Task Board
@@ -103,7 +104,9 @@ Task state:
 - `289x-0b`: done in docs
 - `289x-0c`: done in restart/current pointers
 - `289x-0d`: done in docs, runtime vocabulary lock
-- `289x-1a` and later: inventory/planning only, no implementation authorization
+- `289x-1f`: active post-keeper inventory sync after phase-137x keeper `49c356339`
+- `289x-1g` and `289x-2d`: next docs-only inventory cards before any runtime-wide implementation
+- `289x-3a` and later: no implementation authorization until demand/container inventory is closed
 
 ## Phase 0. Authority / Vocabulary Lock
 
@@ -161,9 +164,15 @@ Task state:
     - `freeze.str`
     - `handle issue`
   - `289x-1d`: identify which existing tests lock each demand
-- `289x-1e`: current code inventory anchors
-  - record exact files/functions that hold current demand/profile/storage/publication vocabulary
-  - keep this as inventory; do not rename or widen APIs in this card
+  - `289x-1e`: current code inventory anchors
+    - record exact files/functions that hold current demand/profile/storage/publication vocabulary
+    - keep this as inventory; do not rename or widen APIs in this card
+  - `289x-1f`: post-keeper sync
+    - record `49c356339` as the current string proof
+    - mark pre-keeper whole-owner numbers and “next alias split” wording as historical where they are still useful
+  - `289x-1g`: exact demand ledger
+    - map current profile/helper/caller names to `ValueDemand`, `StorageDemand`, `PublishDemand`, and `MutationDemand`
+    - identify which rows are compat residue and which rows are active boundary seams
 - Acceptance:
   - no caller needs to infer stable/object demand from helper names
   - each profile has a documented owner and removal/evolution path
@@ -217,6 +226,11 @@ No-go:
     - encoded alias
     - stable object
     - mutation / invalidation
+  - `289x-2d`: Array/Map demand table:
+    - Array text read-ref / encoded alias / stable-object rows
+    - Array set cell-residence / generic-degrade / invalidation rows
+    - Map key decode / value residence / read publication rows
+    - RuntimeData facade rows marked as bridge, not semantic owner
 - Acceptance:
   - future storage work can be judged as BoxShape, not by local helper names
   - array/map public semantics stay unchanged
@@ -226,6 +240,9 @@ No-go:
 
 - Gate:
   - phase-137x has a keeper/reject decision on the active read-side lane
+  - post-keeper inventory `289x-1f` is complete
+  - demand ledger `289x-1g` is complete
+  - container demand table `289x-2d` is complete
 - Goal:
   - start with one runtime-private storage pilot only
 - Preferred pilot:
@@ -237,6 +254,7 @@ No-go:
   - exact stays closed
   - meso does not contradict
   - whole owner visibly moves or the card is reverted
+  - runtime executes a named demand; it does not infer publication legality from helper names
 
 ## Phase 4. Scalar Immediate Widening
 

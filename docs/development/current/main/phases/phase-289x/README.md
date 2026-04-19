@@ -1,6 +1,6 @@
 # Phase 289x: runtime-wide value/object boundary rollout
 
-- Status: Proposed Planning
+- Status: Active Planning
 - Date: 2026-04-19
 - Purpose: string で証明中の `value world -> publish/promote -> object world` 思想を、runtime 全体へ安全に広げるための phase/taskboard を切る。
 - Parent SSOT:
@@ -11,6 +11,7 @@
 - Taskboard:
   - `docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md`
   - `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
+  - `docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md`
 
 ## Decision
 
@@ -39,7 +40,7 @@
 - `publish.text` を `freeze.str` と競合する第二 birth sink にすること
 - array / map を immutable value として読み替えること
 - evidence なしの allocator lane / arena 導入
-- phase-137x keeper/reject 前に container runtime work を開くこと
+- phase-137x keeper 後の demand/container inventory を閉じる前に container runtime work を開くこと
 
 ## Phase Order
 
@@ -60,6 +61,7 @@ Read this phase in this order:
 1. `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
 2. `docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md`
 3. `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
+4. `docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md`
 
 The brief is phase-local planning material.
 It does not create a new parent SSOT and does not authorize implementation.
@@ -88,14 +90,21 @@ They do not decide language legality and they do not create a second string birt
 ## Relationship To Phase 137x
 
 Phase 137x remains the active string optimization lane.
-Phase 289x is not allowed to open implementation work before the phase-137x
-string corridor reaches a keeper/reject decision on the active read-side lane.
+Phase 137x produced the current string proof in keeper `49c356339`
+(`array.get -> indexOf -> branch -> same array.set` suffix store without
+`slot_load_hi` on that exact path).
+
+That keeper unlocks post-keeper inventory, not runtime-wide rewrite.
+Phase 289x must finish demand/container boundary inventory before opening any
+`TextLane`, container storage, MIR legality, or allocator implementation card.
 
 Reading:
 
 - Phase 137x proves the pattern on `String`
 - Phase 289x organizes how to generalize the pattern
 - Phase 289x does not bypass phase-137x stop-lines
+- Optimization work stays paused while `289x-1f` / `289x-1g` / `289x-2d`
+  inventory cards define the next implementation cut
 
 ## First Concrete Cards
 
@@ -117,10 +126,20 @@ Reading:
 - `289x-1c`: boundary vocabulary lock
   - `publish`, `promote`, `freeze`, `materialize`, `handle issue`, `borrow/project`
   - one term, one responsibility
+- `289x-1f`: post-keeper value-boundary inventory sync
+  - record the `49c356339` string keeper as proof, not as runtime-wide permission
+  - mark pre-keeper owner numbers as historical where needed
+- `289x-1g`: exact demand ledger
+  - map profile/helper/caller names to `ValueDemand`, `StorageDemand`,
+    `PublishDemand`, and `MutationDemand`
 - `289x-2a`: array lane-host design
   - text lane first, generic degrade explicit, public array semantics unchanged
+- `289x-2d`: array/map demand table
+  - read-ref, encoded alias, stable object, cell residence, degrade, invalidation
 - `289x-3a`: scalar immediate audit
   - identify boxed int/bool hot paths before any implementation cut
+- `289x-3b`: first storage pilot selection
+  - one runtime-private storage pilot only, after `289x-1g` and `289x-2d`
 - `289x-5a`: bytes/view planning
   - prevent text-only patterns from being copied into bytes later
 - `289x-6a`: map key/value boundary map

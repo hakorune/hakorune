@@ -10,6 +10,8 @@ Related:
   - docs/development/current/main/design/lifecycle-typed-value-language-ssot.md
   - docs/development/current/main/phases/phase-289x/README.md
   - docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md
+  - docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md
+  - docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md
   - docs/development/current/main/design/string-value-model-phased-rollout-ssot.md
   - docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md
 ---
@@ -28,11 +30,12 @@ Related:
 - successor planning lane:
   - `phase-289x runtime-wide value/object boundary rollout`
   - status:
-    - phase-0 authority/vocabulary lock is docs-only
-    - phase-137x string lane remains the first proving ground
+    - phase-0 authority/vocabulary lock is docs-only and complete
+    - phase-137x string lane produced keeper `49c356339`
+    - optimization work is paused until the post-keeper value-boundary inventory closes
     - array/map remain identity containers; only internal residence may become lane-hosted later
     - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
-    - do not start runtime-wide implementation before phase-137x reaches keeper/reject on the active string read-side lane
+    - do not start runtime-wide implementation before `289x-1g` demand ledger and `289x-2d` container demand table are closed
   - parent:
     - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
   - phase:
@@ -41,11 +44,12 @@ Related:
     - `docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md`
   - taskboard:
     - `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
+  - inventory ledger:
+    - `docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md`
   - current docs focus:
-    - close shared runtime vocabulary:
-      - `Ref / Owned / Cell / Immediate / Stable`
-      - `get / set / call` as demand verbs
-      - `publish / promote` as boundary effects only
+    - map current profile/helper/caller names to explicit demand vocabulary
+    - split `ValueDemand / StorageDemand / PublishDemand / MutationDemand`
+    - define Array/Map demand rows before any storage pilot
     - planning/docs debt only; not a runtime-wide implementation unblock by itself
 - blocker:
   - `none`
