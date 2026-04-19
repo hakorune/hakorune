@@ -34,7 +34,7 @@ cargo check --features perf-observe -p nyash_kernel
 ## Current
 
 - lane:
-  - `phase-137x-D owner-first optimization return` (active; first same-slot piecewise subrange keeper landed)
+  - `phase-137x-D owner-first optimization return` (active; exact array store route-shape keeper landed)
   - execution mode:
     - perf-first for every next optimization cut; re-baseline before source reading or code edits
     - keeper evidence must be direct-only; do not accept helper-retry asm as owner proof
@@ -45,17 +45,18 @@ cargo check --features perf-observe -p nyash_kernel
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
 - current snapshot:
   - `kilo_micro_substring_concat = C 2 ms / Ny AOT 3 ms`
-  - `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
-  - `kilo_meso_substring_concat_array_set_loopcarry = C 4 ms / Ny AOT 9 ms`
+  - `kilo_micro_array_string_store = C 11 ms / Ny AOT 10 ms`
+  - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`
   - adopted middle bridge:
     - `substring + concat + array.set + loopcarry`
     - use it to confirm store/publication cuts without the whole-front `indexOf("line")` row-scan noise
   - first landed 137x-D keeper:
     - same-slot piecewise concat3 subrange store lowers to `nyash.array.string_insert_mid_subrange_store_hisiii`
     - direct-only correctness: `Result: 2880064`, exit code `64`
-  - `kilo_kernel_small = C 80 ms / Ny AOT 739 ms`
+  - `kilo_kernel_small_hk = C 81 ms / Ny AOT 29 ms`
 - immediate next:
-  - continue `137x-D` with current baseline / asm owner recapture before source reading
+  - continue `137x-D` with a fresh owner proof before source reading
+  - exact array-store route-shape card is closed; do not reopen it without a new failed measurement
   - 137x-C final gate already passed: `tools/checks/dev_gate.sh quick`
   - done in this cleanout:
     - `array-typed-slot-truth-sync`

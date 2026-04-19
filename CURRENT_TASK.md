@@ -47,7 +47,7 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-D owner-first optimization return` (active; first same-slot piecewise subrange keeper landed)
+  - `phase-137x-D owner-first optimization return` (active; exact array store route-shape keeper landed)
   - implementation mode:
     - perf-first for every next optimization cut; recapture current baseline / asm owner before source reading or code edits
     - keeper evidence must be direct-only; do not accept helper-retry asm as owner proof
@@ -83,11 +83,12 @@ Scope: current lane / next lane / restart order only.
       - `4e36caf34` `nyash_kernel: keep piecewise reads on TextRef`
       - `5b0bdaa5f` `nyash_kernel: keep concat helpers on TextRef`
     - current structure-first reading:
-      - touched export-side read consumers are now narrow enough
+      - touched export-side read consumers are narrow enough for the active perf return
       - `borrowed_handle.rs` modularization is landed; proof/lifetime keep and boundary box impl are already split behind a thin facade
-      - active BoxShape card is `substring_hii` `ViewSpan` publication cleanup: keep `StringSpan` on the hot path until the final handle boundary helper instead of constructing `StringViewBox` directly inside `string_helpers.rs`
-      - explicit MIR publication boundary (`publish.text` / `publish.any`) remains deferred; current runtime `need_stable_object` / generic fallback reasoning is still the larger next-phase seam
-      - `cache.rs` / `string_materialize.rs` remain deferred modularization candidates beyond the active `substring_hii` cleanup
+      - `substring_hii` `ViewSpan` publication cleanup is closed; `StringSpan` now survives until the final handle boundary helper
+      - explicit string-only `publish.text` contract gates are closed for `137x-A`; `publish.any` remains deferred/blocked
+      - `cache.rs` / `string_materialize.rs` remain deferred modularization candidates, but not prerequisites for the active `137x-D` owner proof
+      - active implementation gate is the next `137x-D` owner proof, not another docs-first BoxShape card
       - legacy watch item surfaced by audit is `src/host_providers/llvm_codegen/compat_text_primitive.rs`
   - parent SSOT:
     - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
@@ -222,13 +223,16 @@ Scope: current lane / next lane / restart order only.
       - current source-only get suppression + same-slot string store keeper:
         - compiler seam: `array.get -> length -> substring/substring -> insert-mid set` records the array text source and skips the object-handle get when later uses are proven source-only
         - fused insert-mid store seam:
-          - same-slot insert-mid now lowers to runtime-private `nyash.array.string_insert_mid_store_hisi(array_h, idx, middle, split)`
+          - same-slot insert-mid now lowers to runtime-private `nyash.array.string_insert_mid_store_hisii(array_h, idx, middle_ptr, middle_len, split)`
           - the runtime mutates an existing raw `StringBox` residence in place
           - borrowed-handle residences are materialized into an unpublished raw `StringBox` slot without mutating the source stable handle
         - fused suffix store seam:
-          - branch same-slot const-suffix store now lowers to runtime-private `nyash.array.string_suffix_store_his(array_h, idx, suffix)`
+          - branch same-slot const-suffix store now lowers to runtime-private `nyash.array.string_suffix_store_hisi(array_h, idx, suffix_ptr, suffix_len)`
           - the C lowering no longer allocates a `KernelTextSlot` for this branch path
           - the runtime applies the same residence rule as insert-mid: mutate raw `StringBox`, materialize borrowed alias to unpublished raw `StringBox`
+        - fused subrange store seam:
+          - same-slot insert-mid subrange now lowers to runtime-private `nyash.array.string_insert_mid_subrange_store_hisiiii(array_h, idx, middle_ptr, middle_len, split, start, end)`
+          - the previous `hisiii` helper remains as the pointer/CStr validated compatibility row, but direct lowering uses explicit length
         - fixture/smoke:
           - `apps/tests/mir_shape_guard/array_string_len_insert_mid_source_only_min_v1.mir.json`
           - `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_array_string_len_insert_mid_source_only_min.sh`
@@ -238,14 +242,16 @@ Scope: current lane / next lane / restart order only.
           - `tools/smokes/v2/profiles/integration/phase29ck_boundary/string/phase29ck_boundary_pure_array_string_len_live_after_get_min.sh`
           - still requires `slot_load_hi` when later substring values remain live
         - perf/asm proof:
-          - exact: `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
-          - meso: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 18 ms`
-          - strict whole: `kilo_kernel_small_hk = C 81 ms / Ny AOT 28 ms` (`repeat=3`, parity ok)
+          - exact keeper: `kilo_micro_array_string_store = C 11 ms / Ny AOT 10 ms`, `ny_aot_instr=26873028`
+          - exact route proof: `array_string_store_micro result=emit reason=exact_match`
+          - meso: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=127269397`
+          - strict whole: `kilo_kernel_small_hk = C 83 ms / Ny AOT 28 ms` (`repeat=3`, parity ok)
           - `ny_main` now emits:
-            - edit path: `array.string_len_hi -> array.string_insert_mid_store_hisi`
+            - edit path: `array.string_len_hi -> array.string_insert_mid_store_hisii`
             - meso subrange path: `array.string_len_hi -> array.kernel_slot_insert_hisi -> string.kernel_slot_substring_hii_in_place -> array.kernel_slot_store_hi`
-            - branch suffix path: `array.string_indexof_hih -> array.string_suffix_store_his`
+            - branch suffix path: `array.string_indexof_hih -> array.string_suffix_store_hisi`
           - insert-mid/suffix paths no longer emit `nyash.array.get_hi`, `nyash.array.kernel_slot_insert_hisi`, `nyash.array.kernel_slot_concat_his`, or `nyash.array.kernel_slot_store_hi`
+          - `__strlen_evex` and `core::str::converts::from_utf8` are absent from the current whole asm hot report
           - meso subrange path no longer emits `nyash.array.slot_load_hi`, `nyash.string.substring_hii`, `nyash.string.substring_concat3_hhhii`, or `nyash.array.set_his`
         - boundary:
           - this is still a narrow source-only window
@@ -953,7 +959,7 @@ Scope: current lane / next lane / restart order only.
         - `137x-A`: string publication contract closeout is satisfied (`docs/development/current/main/phases/phase-137x/137x-92-string-publication-contract-closeout.md`)
         - `137x-B`: container / primitive design cleanout is closed (`docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`)
         - `137x-C`: structure completion gate before perf return is closed (`docs/development/current/main/phases/phase-137x/137x-91-task-board.md`)
-        - `137x-D`: owner-first optimization is active; first same-slot piecewise subrange keeper is landed
+        - `137x-D`: owner-first optimization is active; the exact array store route-shape keeper is landed
         - phase-289x stays parked as planning-only `Value Lane Architecture`
       - `publish.any` stays deferred/blocked until a separate explicit phase opens it
    - do not widen into `TextLane`, allocator, public ABI, or a generic bridge substrate on this card
@@ -976,15 +982,39 @@ Scope: current lane / next lane / restart order only.
        - `nyash.array.string_insert_mid_subrange_store_hisiii`
      - direct-only correctness proof: `Result: 2880064`, exit code `64`
      - direct-only asm proof: `ny_main` loop now calls `nyash.array.string_len_hi` and `nyash.array.string_insert_mid_subrange_store_hisiii`; the old `kernel_slot_insert -> substring_in_place -> slot_store` chain is absent from the guarded shape
+   - landed follow-up 137x-D runtime-private literal-length cut:
+     - compiler-emitted const string literals now pass explicit byte length into same-slot array string store helpers
+     - new runtime-private helper rows:
+       - `nyash.array.string_suffix_store_hisi(array_h, idx, suffix_ptr, suffix_len)`
+       - `nyash.array.string_insert_mid_store_hisii(array_h, idx, middle_ptr, middle_len, split)`
+       - `nyash.array.string_insert_mid_subrange_store_hisiiii(array_h, idx, middle_ptr, middle_len, split, start, end)`
+     - public pointer/CStr aliases stay in place; the explicit-length helpers are direct-lowering only
+     - C-shim const-hoist use counting now treats `phi.incoming` as a use, preventing skipped string constants from becoming undefined `%rN` values in generic pure lowering
 2. keep phase-2.5 read-side alias lane as the active judge
    - do not reopen the rejected store-side `owned-string keep` / `owned-text keep`
    - preserve live-source -> cached-handle -> cold-fallback encode order
    - stable objectization must stay cache-backed and cold
-3. current fresh exact evidence after the first 137x-D keeper
-   - exact: `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
-   - middle: `kilo_meso_substring_concat_array_set_loopcarry = C 4 ms / Ny AOT 9 ms`
-   - strict whole: `kilo_kernel_small_hk = C 80 ms / Ny AOT 812 ms`
-4. previous whole-side owner proof before the same-slot subrange keeper:
+3. current fresh evidence after the explicit-length follow-up
+   - middle guard: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=127268967`
+   - strict whole: `kilo_kernel_small_hk = C 81 ms / Ny AOT 29 ms`, parity ok
+   - asm proof:
+     - `ny_main` now calls `nyash.array.string_insert_mid_store_hisii` and `nyash.array.string_suffix_store_hisi`
+     - `__strlen_evex` and `core::str::converts::from_utf8` are absent from the hot report for this cut
+   - exact keeper:
+     - before fix: `kilo_micro_array_string_store = C 10 ms / Ny AOT 144 ms`
+     - after fix: `kilo_micro_array_string_store = C 11 ms / Ny AOT 10 ms`, `ny_aot_instr=26873028`
+     - route proof: `array_string_store_micro result=emit reason=exact_match`
+     - asm proof: `ny_main` is the stack-array seed IR; runtime/public helper calls are absent from the loop body
+     - cause: the exact seed matcher only accepted the old 9-block MIR shape; direct MIR now uses the compact 8-block shape
+4. landed 137x-D exact route-shape keeper
+   - proof card: `137x-D exact array store route-shape proof`
+   - front: `kilo_micro_array_string_store`
+   - implementation: `hako_llvmc_match_array_string_store_micro_seed(...)` accepts both old 9-block and current compact 8-block direct MIR shapes
+   - smoke: `phase137x_direct_emit_array_store_string_contract.sh` now requires exact seed emitter selection and no runtime/public helper calls in `ny_main`
+   - guard results:
+     - middle: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=127269397`
+     - strict whole: `kilo_kernel_small_hk = C 83 ms / Ny AOT 28 ms`, parity ok
+5. previous whole-side owner proof before the same-slot subrange keeper:
    - libc copy/alloc still dominates: `memmove 25.02%`, `_int_malloc 9.58%`, `malloc 0.96%`
    - hottest named repo family remains read/materialize/slot tax:
      - `array_get_index_encoded_i64::{closure} 4.39%`
@@ -992,18 +1022,19 @@ Scope: current lane / next lane / restart order only.
      - nested `array_get_index_encoded_i64` closure `2.09%`
      - `array_string_store_kernel_text_slot_at::{closure} 2.01%`
      - `TextKeepBacking::clone_stable_box_cold_fallback 0.49%`
-5. next perf code card still requires a narrower owner proof before editing
+6. next perf code card still requires a narrower owner proof before editing
    - acceptable seams must reduce read/materialize/copy tax without widening public ABI
    - do not start `TextLane`, MIR legality, runtime-wide 289x implementation, allocator/arena, or container lane-host work from this proof alone
    - if no narrow seam is proven, keep docs current and stop instead of moving cost between store/read helpers
-6. rejected after the fresh proof:
+   - `kilo_micro_array_string_store` exact-route shape mismatch is closed by the compact 8-block matcher; do not reopen it without a new failed measurement
+7. rejected after the fresh proof:
    - unpublished `owned-text keep` removed the `objectize_kernel_text_slot_stable_box` symbol from asm, but strict whole regressed to `902 ms` / `892 ms`
    - reject reason: active whole still demands an object handle at `array.get_hi`, so delayed stable birth only moves the cost
-7. rejected array-slot concat helper probe:
+8. rejected array-slot concat helper probe:
    - `nyash.array.kernel_slot_concat_his` emitted, but the preceding `nyash.array.slot_load_hi` stayed live in IR
    - strict whole regressed to `1571 ms` / `1033 ms`; code reverted
    - next attempt must eliminate the `array.get_hi` demand itself, not only add a second helper after it
-8. current fresh proof commands:
+9. current fresh proof commands:
    - `PERF_AOT=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_string_store 1 3`
    - `PERF_AOT=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_meso_substring_concat_array_set_loopcarry 1 3`
    - `PERF_AOT_DIRECT_ONLY=1 bash tools/perf/bench_micro_aot_asm.sh kilo_meso_substring_concat_array_set_loopcarry 'ny_main' 3`
