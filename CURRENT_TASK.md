@@ -927,8 +927,8 @@ Scope: current lane / next lane / restart order only.
           - verifier now fail-fasts unproven `StableView` repr requests before runtime; lowering must downgrade to `stable_owned` until legality is verifier-visible
         - completed `stableview-legality-contract`
           - `stable_view_provenance` now makes the legal `StableView` witness visible to MIR JSON and verifier; accepted string-only witnesses are `already_stable`, `immutable_host_owned`, and `pinned_no_mutation`
-        - `provenance-freeze-verifier-contract`
-          - make borrow-scope plus `freeze.str -> publish.text` separation verifier-visible, not just boundary tuple metadata
+        - completed `provenance-freeze-verifier-contract`
+          - `publish.text` now requires `borrow_contract=borrow_text_from_obj`, `source_root`, and `publication_contract=publish_now_not_required_before_first_external_boundary`
         - `publish-idempotence-policy`
           - decide whether repeated `publish.text` on the same stable source/cell reuses a cold cache or allocates fresh objects
       - current phase cut before optimization return:

@@ -337,6 +337,11 @@ write/read は同じ text corridor の契約として読む。
   - `publish_repr_policy`: どの公開表現を request しているか
   - `borrow/provenance`: その `repr` が legal か
   - `freeze.str -> publish.text`: birth sink と boundary effect の段階分離
+- current string direct-kernel verifier contract:
+  - `publish.text` requires `borrow_contract=borrow_text_from_obj`
+  - `publish.text` requires `source_root` so borrow provenance is visible
+  - `publish.text` requires `publication_contract=publish_now_not_required_before_first_external_boundary`
+  - that publication contract is the verifier-visible `freeze.str -> publish.text` separation on this lane
 - verifier は次を reject する
   - partial `publish.text` metadata
   - unsupported `repr` legality

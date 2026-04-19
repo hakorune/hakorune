@@ -1,9 +1,9 @@
 use crate::mir::verification_types::VerificationError;
 use crate::mir::{
-    infer_string_kernel_text_consumer, MirFunction, StringKernelPlan, StringKernelPlanCarrier,
-    StringKernelPlanPublicationBoundary, StringKernelPlanPublicationContract,
-    StringKernelPlanTextConsumer, StringKernelPlanVerifierOwner, StringPublishReason,
-    StringPublishReprPolicy, ValueId,
+    infer_string_kernel_text_consumer, MirFunction, StringKernelPlan,
+    StringKernelPlanBorrowContract, StringKernelPlanCarrier, StringKernelPlanPublicationBoundary,
+    StringKernelPlanPublicationContract, StringKernelPlanTextConsumer,
+    StringKernelPlanVerifierOwner, StringPublishReason, StringPublishReprPolicy, ValueId,
 };
 
 fn push_string_kernel_plan_violation(
@@ -77,6 +77,34 @@ fn verify_publication_boundary_contract(
             );
         }
         (Some(StringPublishReprPolicy::StableOwned) | None, None) => {}
+    }
+
+    if publish_pair.is_some() {
+        if plan.borrow_contract != Some(StringKernelPlanBorrowContract::BorrowTextFromObject) {
+            push_string_kernel_plan_violation(
+                errors,
+                value,
+                "publish.text requires borrow_contract=borrow_text_from_obj on the current string direct-kernel lane",
+            );
+        }
+        if plan.source_root.is_none() {
+            push_string_kernel_plan_violation(
+                errors,
+                value,
+                "publish.text requires source_root for verifier-visible borrow provenance",
+            );
+        }
+        if plan.publication_contract
+            != Some(
+                StringKernelPlanPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+            )
+        {
+            push_string_kernel_plan_violation(
+                errors,
+                value,
+                "publish.text requires publication_contract=publish_now_not_required_before_first_external_boundary to keep freeze.str separated from publish.text",
+            );
+        }
     }
 
     if publish_pair.is_some() && plan.publication_boundary.is_none() {
@@ -489,6 +517,54 @@ mod tests {
             error,
             VerificationError::StringKernelPlanViolation { reason, .. }
                 if reason.contains("publish.text metadata is partial")
+        )));
+    }
+
+    #[test]
+    fn verifier_rejects_publish_text_without_borrow_provenance() {
+        let mut function = explicit_publish_function();
+        let mut plan = base_slot_plan(StringKernelPlanCarrier::KernelTextSlot);
+        plan.text_consumer = Some(StringKernelPlanTextConsumer::ExplicitColdPublish);
+        plan.borrow_contract = None;
+        plan.source_root = None;
+        plan.publish_reason = Some(crate::mir::StringPublishReason::ExplicitApiReplay);
+        plan.publish_repr_policy = Some(crate::mir::StringPublishReprPolicy::StableOwned);
+        function
+            .metadata
+            .string_kernel_plans
+            .insert(ValueId::new(10), plan);
+
+        let errors = check_string_kernel_plans(&function).expect_err("expected provenance failure");
+        assert!(errors.iter().any(|error| matches!(
+            error,
+            VerificationError::StringKernelPlanViolation { reason, .. }
+                if reason.contains("borrow_contract=borrow_text_from_obj")
+        )));
+        assert!(errors.iter().any(|error| matches!(
+            error,
+            VerificationError::StringKernelPlanViolation { reason, .. }
+                if reason.contains("source_root for verifier-visible borrow provenance")
+        )));
+    }
+
+    #[test]
+    fn verifier_rejects_publish_text_without_freeze_publish_separation_contract() {
+        let mut function = explicit_publish_function();
+        let mut plan = base_slot_plan(StringKernelPlanCarrier::KernelTextSlot);
+        plan.text_consumer = Some(StringKernelPlanTextConsumer::ExplicitColdPublish);
+        plan.publication_contract = None;
+        plan.publish_reason = Some(crate::mir::StringPublishReason::ExplicitApiReplay);
+        plan.publish_repr_policy = Some(crate::mir::StringPublishReprPolicy::StableOwned);
+        function
+            .metadata
+            .string_kernel_plans
+            .insert(ValueId::new(10), plan);
+
+        let errors = check_string_kernel_plans(&function).expect_err("expected separation failure");
+        assert!(errors.iter().any(|error| matches!(
+            error,
+            VerificationError::StringKernelPlanViolation { reason, .. }
+                if reason.contains("keep freeze.str separated from publish.text")
         )));
     }
 

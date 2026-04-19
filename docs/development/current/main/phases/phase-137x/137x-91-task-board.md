@@ -17,7 +17,7 @@
 
 - [x] D1 `repr-downgrade-contract`
 - [x] D2 `stableview-legality-contract`
-- [ ] D3 `provenance-freeze-verifier-contract` (after D2)
+- [x] D3 `provenance-freeze-verifier-contract`
 - [ ] D4 `publish-idempotence-policy` (after D2)
 
 ## Blocked / Deferred
