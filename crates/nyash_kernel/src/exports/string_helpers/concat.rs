@@ -19,7 +19,9 @@ use crate::exports::string_view::{
     resolve_string_span_pair_from_handles, resolve_string_span_triplet_from_handles,
 };
 use crate::observe;
-use crate::plugin::{freeze_owned_string_into_slot, issue_fresh_handle_from_arc, KernelTextSlot};
+use crate::plugin::{
+    freeze_owned_string_into_slot, issue_fresh_handle_from_arc, KernelTextSlot, TextRef,
+};
 use nyash_rust::runtime::host_handles as handles;
 
 enum Concat3Plan<'a> {
@@ -235,15 +237,15 @@ fn concat_pair_owned_for_slot(a_h: i64, b_h: i64) -> String {
         return text;
     }
     if let Some((a_span, b_span)) = resolve_string_span_pair_from_handles(a_h, b_h) {
-        let a = a_span.as_str();
-        let b = b_span.as_str();
+        let a = a_span.as_text();
+        let b = b_span.as_text();
         if a.is_empty() {
-            return b.to_owned();
+            return b.to_string();
         }
         if b.is_empty() {
-            return a.to_owned();
+            return a.to_string();
         }
-        return concat_two_str(a, b);
+        return concat_two_str(a.as_str(), b.as_str());
     }
     let lhs = to_owned_string_handle_arg(a_h);
     let rhs = to_owned_string_handle_arg(b_h);
@@ -353,8 +355,8 @@ fn concat3_plan_from_spans(a_h: i64, b_h: i64, c_h: i64) -> Option<i64> {
 #[inline(always)]
 fn concat_pair_from_spans(a_h: i64, b_h: i64) -> Option<i64> {
     let (a_span, b_span) = resolve_string_span_pair_from_handles(a_h, b_h)?;
-    let a = a_span.as_str();
-    let b = b_span.as_str();
+    let a = a_span.as_text();
+    let b = b_span.as_text();
     if a.is_empty() {
         observe::record_str_concat2_route_span_return_handle();
         observe::record_birth_placement_return_handle();
@@ -445,6 +447,9 @@ pub(super) fn concat3_fallback(a_h: i64, b_h: i64, c_h: i64) -> i64 {
     let a = to_owned_string_handle_arg(a_h);
     let b = to_owned_string_handle_arg(b_h);
     let c = to_owned_string_handle_arg(c_h);
+    let a = TextRef::new(a.as_str());
+    let b = TextRef::new(b.as_str());
+    let c = TextRef::new(c.as_str());
     freeze_concat3_plan(concat3_plan_from_parts(
         a_h,
         b_h,

@@ -6,7 +6,7 @@ use crate::exports::string_plan::{
     concat_const_suffix_plan_from_handle, insert_const_mid_plan_from_handle,
 };
 use crate::observe;
-use crate::plugin::{freeze_owned_string_into_slot, KernelTextSlot};
+use crate::plugin::{freeze_owned_string_into_slot, KernelTextSlot, TextRef};
 use nyash_rust::runtime::host_handles as handles;
 use std::{
     cell::{Cell, RefCell},
@@ -104,23 +104,27 @@ pub(super) fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i
 }
 
 #[inline(always)]
-fn materialize_concat_const_suffix_borrowed(lhs: &str, suffix: &str) -> String {
+fn materialize_concat_const_suffix_borrowed(lhs: TextRef<'_>, suffix: TextRef<'_>) -> String {
     if lhs.is_empty() {
-        return suffix.to_owned();
+        return suffix.to_string();
     }
     if suffix.is_empty() {
-        return lhs.to_owned();
+        return lhs.to_string();
     }
-    concat_two_str(lhs, suffix)
+    concat_two_str(lhs.as_str(), suffix.as_str())
 }
 
 #[inline(always)]
-fn materialize_insert_const_mid_borrowed(source: &str, middle: &str, split: i64) -> String {
+fn materialize_insert_const_mid_borrowed(
+    source: TextRef<'_>,
+    middle: TextRef<'_>,
+    split: i64,
+) -> String {
     if source.is_empty() {
-        return middle.to_owned();
+        return middle.to_string();
     }
     if middle.is_empty() {
-        return source.to_owned();
+        return source.to_string();
     }
     let split = split.clamp(0, source.len() as i64) as usize;
     let prefix = source.get(0..split).unwrap_or("");
@@ -165,7 +169,10 @@ pub(super) fn concat_const_suffix_into_slot(
         let lhs = to_owned_string_handle_arg(a_h);
         freeze_owned_string_into_slot(
             slot,
-            materialize_concat_const_suffix_borrowed(lhs.as_str(), suffix),
+            materialize_concat_const_suffix_borrowed(
+                TextRef::new(lhs.as_str()),
+                TextRef::new(suffix),
+            ),
         );
         true
     })
@@ -184,7 +191,11 @@ pub(super) fn insert_const_mid_into_slot(
             session.str_handle(source_h as u64, |source| {
                 freeze_owned_string_into_slot(
                     slot,
-                    materialize_insert_const_mid_borrowed(source, middle, split),
+                    materialize_insert_const_mid_borrowed(
+                        TextRef::new(source),
+                        TextRef::new(middle),
+                        split,
+                    ),
                 );
                 true
             })
@@ -196,7 +207,11 @@ pub(super) fn insert_const_mid_into_slot(
         let source = to_owned_string_handle_arg(source_h);
         freeze_owned_string_into_slot(
             slot,
-            materialize_insert_const_mid_borrowed(source.as_str(), middle, split),
+            materialize_insert_const_mid_borrowed(
+                TextRef::new(source.as_str()),
+                TextRef::new(middle),
+                split,
+            ),
         );
         true
     })
