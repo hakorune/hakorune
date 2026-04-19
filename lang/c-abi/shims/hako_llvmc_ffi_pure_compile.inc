@@ -203,6 +203,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       int generic_call_trace_budget = 24;
       int generic_method_trace_budget = 24;
       #include "hako_llvmc_ffi_indexof_observer_state.inc"
+      #include "hako_llvmc_ffi_array_string_window_policy.inc"
       #include "hako_llvmc_ffi_indexof_observer_direct_match.inc"
       #include "hako_llvmc_ffi_indexof_observer_block_match.inc"
       #include "hako_llvmc_ffi_indexof_observer_trace.inc"

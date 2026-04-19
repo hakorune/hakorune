@@ -21,8 +21,8 @@
           reason = "not_get";
           goto done;
         }
-        if (!(runtime_array_string ||
-              (bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_ARRAY_STRING_BIRTH))) {
+        if (!hako_llvmc_window_array_text_read_enabled(
+                bname, recv_org, runtime_array_string)) {
           reason = "not_array_string_get";
           goto done;
         }
@@ -317,8 +317,8 @@
           reason = "not_get";
           goto done;
         }
-        if (!(runtime_array_string ||
-              (bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_ARRAY_STRING_BIRTH))) {
+        if (!hako_llvmc_window_array_text_read_enabled(
+                bname, recv_org, runtime_array_string)) {
           reason = "not_array_string_get";
           goto done;
         }
@@ -652,8 +652,8 @@
           reason = "not_get";
           goto done;
         }
-        if (!(runtime_array_string ||
-              (bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_ARRAY_STRING_BIRTH))) {
+        if (!hako_llvmc_window_array_text_read_enabled(
+                bname, recv_org, runtime_array_string)) {
           reason = "not_array_string_get";
           goto done;
         }

@@ -115,9 +115,12 @@ Related:
     - `289x-7e` landed:
       - C shim array slot load/store/string-len/string-indexOf concrete emission is now centralized in `hako_llvmc_ffi_array_slot_emit.inc`
       - behavior and helper symbols unchanged; exact kernel slot-store, live-after-get, array set/get, and array-string len/indexOf smokes passed
+    - `289x-7f` landed:
+      - C shim array-string window matchers now use `hako_llvmc_ffi_array_string_window_policy.inc` for array text-read/read eligibility
+      - behavior unchanged; branch/select/cross-block/interleaved/live-after-get/len-live exact window smokes passed
     - next code cut:
-      - `289x-7f`: `runtime_array_string` observer/window matcher cutover
-      - high risk: window matching is tightly coupled to branch/select/live-after-get exact guards
+      - `289x-7g`: MIR string helper-name compat/recovery cutover
+      - medium risk: keep compatibility/recovery recognizers behavior-preserving; do not add new accepted shapes
     - high-risk planned later, not skipped:
       - full `ArrayStorage::Text` / full `TextLane`: after `289x-7h`, separate phase
       - Map typed lane: after `289x-6e`, separate phase

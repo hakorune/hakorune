@@ -127,7 +127,8 @@ Task state:
 - `289x-7c`: done in code, C shim `get/len/has/push` policy split over demand metadata, emitted lowering unchanged
 - `289x-7d`: done in code, main `bname/mname` route classifier cutover to receiver/method surface enums, behavior unchanged
 - `289x-7e`: done in code, array slot concrete emission centralized in `hako_llvmc_ffi_array_slot_emit.inc`, behavior unchanged
-- `289x-7f`: next C shim cut, `runtime_array_string` observer/window matcher cutover, high-risk
+- `289x-7f`: done in code, array-string window matcher eligibility centralized in `hako_llvmc_ffi_array_string_window_policy.inc`, behavior unchanged
+- `289x-7g`: next MIR cut, string helper-name compat/recovery cutover, medium-risk
 - optimization return: blocked until all `289x-96` clusters are done or explicitly rejected
 
 ## Phase 0. Authority / Vocabulary Lock
@@ -396,8 +397,9 @@ No-go:
   - `289x-7e`: concrete `slot_load_hi` / `slot_store` helper emission cutover
     - done; behavior unchanged
   - `289x-7f`: `runtime_array_string` observer/window matcher cutover
-    - next; high-risk
+    - done; behavior unchanged
   - `289x-7g`: MIR string helper-name compat/recovery cutover
+    - next; medium-risk
   - `289x-7h`: prepass/declaration need classifier cutover
     - high-risk
 - Acceptance:

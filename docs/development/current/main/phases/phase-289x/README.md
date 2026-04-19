@@ -208,8 +208,12 @@ Reading:
   - `hako_llvmc_ffi_array_slot_emit.inc` is now the single C-shim emission entry for array slot load/store, array string len, and array string indexOf concrete calls
   - verified by exact kernel slot-store, live-after-get, array set/get, and array-string len/indexOf smokes
 - `289x-7f`: `runtime_array_string` observer/window matcher cutover
-  - next cutover cluster; high risk
-  - window matching is tightly coupled to branch/select/live-after-get exact guards
+  - status: done in code; behavior unchanged
+  - `hako_llvmc_ffi_array_string_window_policy.inc` now owns array text-read/read eligibility for C-shim window matchers
+  - verified by branch/select/cross-block/interleaved/live-after-get/len-live exact window smokes
+- `289x-7g`: MIR string helper-name compat/recovery cutover
+  - next cutover cluster; medium risk
+  - keep compatibility/recovery recognizers behavior-preserving; do not add new accepted shapes
 
 ## Return To Optimization Gate
 
@@ -219,7 +223,6 @@ is fully closed.
 
 High-risk work is planned, not skipped:
 
-- `289x-7f`: `runtime_array_string` observer/window matcher rewrites
 - full `ArrayStorage::Text` / full `TextLane`: only after `289x-7h`, separate phase
 - Map typed lane: only after `289x-6e`, separate phase
 - allocator / arena: only after value-boundary cutover and perf evidence
