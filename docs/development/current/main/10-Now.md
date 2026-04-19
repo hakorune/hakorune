@@ -26,11 +26,13 @@ Related:
 ## Current
 
 - current lane:
-  - `phase-137x-B container / primitive design cleanout before owner-first optimization return`
+  - `phase-137x-C owner-first optimization return`
   - execution mode:
-    - docs-first BoxShape gate; no perf implementation until `137x-C`
+    - perf-first; recapture current baseline / asm owner before source reading or code edits
   - active phase:
-    - `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
+    - `docs/development/current/main/phases/phase-137x/README.md`
+  - method anchor:
+    - `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
   - taskboard:
     - `docs/development/current/main/phases/phase-137x/137x-91-task-board.md`
 - background compiler lanes:
@@ -42,7 +44,7 @@ Related:
     - phase-0 authority/vocabulary lock is docs-only and complete
     - phase-137x string lane produced keeper `49c356339`
     - demand-backed cutover inventory `289x-96` is closed
-    - optimization work may resume only after active `137x-B` design cleanout closes, then from the owner-first entry
+    - `137x-B` design cleanout is closed; optimization resumes through the owner-first entry
     - array/map remain identity containers; only internal residence may become lane-hosted later
     - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
     - all `289x-96` clusters are done; later full lane rewrites stay separate phases
@@ -140,7 +142,7 @@ Related:
       - RuntimeData array/map get/has/size/length/push, array-string indexOf, and array set/get canary smokes passed
     - demand-backed cutover inventory:
       - `289x-96` Rust/C-shim/MIR clusters are closed
-      - phase-289x no longer blocks optimization return, but active `137x-B` design cleanout must close first
+      - phase-289x no longer blocks optimization return, and `137x-B` design cleanout is now closed
     - high-risk planned later, not skipped:
       - full `ArrayStorage::Text` / full `TextLane`: `289x-8a`
       - string view/value carrier split: `289x-8b`
@@ -148,10 +150,10 @@ Related:
       - allocator / arena: `289x-8c`, after value-boundary cutover and perf evidence only
     - return-to-optimization gate:
       - phase-289x gate was closed by `289x-7h`
-      - current return is paused by `137x-B` container / primitive design cleanout
+      - `137x-B` container / primitive design cleanout is closed
       - optimization resumes as `137x-C` through `perf-owner-first-optimization-ssot.md`
 - blocker:
-  - `137x-B` container / primitive design cleanout before perf return
+  - fresh `137x-C` owner proof before any optimization edit
   - no active `phase-289x` cutover blocker
 - latest active keeper:
   - phase-137x branch-target-aware same-slot suffix store cut is green
@@ -585,16 +587,17 @@ Related:
    - `stableview-legality-contract` is closed: `stable_view_provenance` is the string-only witness vocabulary for legal StableView replay
    - `provenance-freeze-verifier-contract` is closed: `publish.text` requires borrow provenance plus the freeze/publish separation contract before codegen
    - `publish-idempotence-policy` is closed: repeated slot publish is no-op after `Published`, and cache reissue must not rebirth fresh text for the same stable source/cell
-   - active gate is `137x-B`: container / primitive design cleanout
-   - owner-first perf work moves to `137x-C` and stays closed until 137x-B exits
-5. finish 137x-B design cleanout before perf
+   - closed gate is `137x-B`: container / primitive design cleanout
+   - owner-first perf work reopens as `137x-C`
+5. start 137x-C owner-first perf return
    - done: sync array typed-slot docs with current `InlineI64` / `InlineBool` / `InlineF64` runtime support without overstating readback
    - current ArrayBox truth is scalar immediate residence; only `InlineI64` opens the direct typed encoded-load row, while f64/bool stay under encoded-any/public handle readback
    - done: lock map demand metadata vs typed map lane boundary; no typed map lane implementation starts here
    - current Map truth is demand metadata only: key decode, value residence, and read publication stay separate seams
    - done: classify `Null` / `Void` and enum/sum/generic residuals as non-blocking later work unless a separate phase opens them
    - current residual truth: `Null` / `Void` are conservative, enum/sum/generic stays under its separate SSOT, and sibling keeper proofs are not interchangeable
-   - keep Array / Map identity semantics while only internal residence may become lane-hosted later
+   - done: keep Array / Map identity semantics while only internal residence may become lane-hosted later
+   - first 137x-C action is current baseline / asm owner recapture, not source reading
 6. require a fresh narrow owner proof before wider perf edits
     - acceptable seam: reduce read/materialize/copy tax without changing public ABI
     - reject seam: store-side `owned-string keep` / `owned-text keep` or any change that makes `array.get` publish per read

@@ -163,9 +163,9 @@ Reading:
   inventory cards defined the next implementation cut.
 - Post-keeper inventory is now closed by `289x-96`; phase-289x no longer
   blocks optimization return.
-- Current optimization return is intentionally paused by
-  `phase-137x/137x-93-container-primitive-design-cleanout.md`; after that
-  gate closes, resume only through the owner-first perf entry.
+- The post-289x optimization return pause is now closed by
+  `phase-137x/137x-93-container-primitive-design-cleanout.md`; resume as
+  `137x-C` only through the owner-first perf entry.
 
 ## First Concrete Cards
 
@@ -297,8 +297,8 @@ Optimization work was paused until
 was fully closed.
 
 Current phase-289x state: closed by `289x-7h`.
-Current active gate: `phase-137x/137x-93-container-primitive-design-cleanout.md`.
-Next optimization work resumes only after that gate closes, through the owner-first perf entry:
+Closed gate: `phase-137x/137x-93-container-primitive-design-cleanout.md`.
+Next optimization work resumes as `137x-C` through the owner-first perf entry:
 `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`.
 
 High-risk work is planned, not skipped:
@@ -320,4 +320,4 @@ Stop immediately if a proposed card:
 - starts allocator work before perf evidence points there
 - opens MIR legality / verifier lift or allocator / arena work before their scheduled rollout phase
 - makes runtime infer publish legality that MIR/lowering did not request
-- returns to optimization without using the owner-first perf entry after `289x-96` closure
+- returns to optimization without using the owner-first perf entry after `289x-96` and 137x-B closure

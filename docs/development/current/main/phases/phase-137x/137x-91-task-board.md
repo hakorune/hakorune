@@ -3,8 +3,8 @@
 - Status: Active guardrail
 - Current split:
   - `137x-A`: string publication contract closeout
-  - `137x-B`: container / primitive design cleanout
-  - `137x-C`: owner-first optimization return
+  - `137x-B`: container / primitive design cleanout (closed)
+  - `137x-C`: owner-first optimization return (current next)
 
 ## Completed
 
@@ -21,13 +21,13 @@
 - [x] D3 `provenance-freeze-verifier-contract`
 - [x] D4 `publish-idempotence-policy`
 
-## Active Design Cleanout Before Perf Return
+## Closed Design Cleanout Before Perf Return
 
 - [x] B1 `phase-pointer-resplit`
 - [x] B2 `array-typed-slot-truth-sync`
 - [x] B3 `map-demand-vs-typed-lane-boundary`
 - [x] B4 `primitive-residuals-classification`
-- [ ] B5 `container-identity-residence-contract`
+- [x] B5 `container-identity-residence-contract`
 
 ## Blocked / Deferred
 
@@ -39,5 +39,5 @@
 ## Exit
 
 - [x] F1 137x-A closeout gate is satisfied
-- [ ] F2 137x-B design cleanout gate is satisfied
-- [ ] F3 owner-first optimization may reopen as `137x-C`
+- [x] F2 137x-B design cleanout gate is satisfied
+- [x] F3 owner-first optimization may reopen as `137x-C`

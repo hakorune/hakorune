@@ -29,6 +29,29 @@ It must not redefine Array/Map as immutable values, and it must not widen public
 | `Map` | identity container with handle/object surface | key decode and value residence may specialize separately |
 | `RuntimeData` | facade/bridge only | may route to Array/Map demand rows, but owns no semantics |
 
+## Container Identity / Residence Contract for 137x-B
+
+This contract closes the 137x-B design cleanout.
+
+Public truth:
+
+- Array and Map remain identity containers.
+- Public handles, object identity, reflection/plugin behavior, and existing ABI rows stay unchanged.
+- `.hako` syntax, array generics, public typed load/store rows, and map typed lanes do not open from this gate.
+
+Internal truth:
+
+- Array may lane-host internal element residence only.
+- Map may lane-host internal key/value residence only after a separate owner proof.
+- RuntimeData is facade-only and must delegate semantic ownership to Array or Map rows.
+- Any incompatible mixed/plugin/reflection route must explicitly stay generic or promote back to boxed storage.
+
+Stop-line:
+
+- internal residence evidence is not proof that the container became a semantic value.
+- demand metadata is not proof that public ABI can widen.
+- 137x-C may reopen owner-first perf work, but runtime-wide phase-289x implementation stays parked.
+
 ## Array Demand Table
 
 | Current route | Current anchors | Demand rows | Boundary rule |

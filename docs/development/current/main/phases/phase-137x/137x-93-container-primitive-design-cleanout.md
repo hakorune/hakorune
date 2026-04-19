@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Closed
 Date: 2026-04-19
 Scope: owner-first optimization return の前に、array / map / primitive residence 設計の SSOT drift を閉じる docs-first gate。
 Related:
@@ -30,15 +30,16 @@ phase-137x は今、この 3 段で読む。
 
 1. **137x-A: string publication contract closeout**（closed）
    - string-only `publish.text` legality / provenance / idempotence を固定済み
-2. **137x-B: container / primitive design cleanout**（current）
+2. **137x-B: container / primitive design cleanout**（closed）
    - array typed-slot 実装状況と docs vocabulary を同期する
    - map demand bridge と typed map lane の境界を固定する
    - primitive residuals を blocking / non-blocking に分ける
-3. **137x-C: owner-first optimization return**（after 137x-B）
+   - container identity / residence contract を固定する
+3. **137x-C: owner-first optimization return**（ready next）
    - active read-side owner proof に戻る
    - perf/asm で hot owner を再採取してから narrow seam だけを reopen する
 
-## Active Cards
+## Completed Cards
 
 順序はこのまま固定する。
 
@@ -71,25 +72,30 @@ phase-137x は今、この 3 段で読む。
      - `Null` / `Void` are non-blocking conservative residuals
      - enum/sum/generic stays owned by `enum-sum-and-generic-surface-ssot.md`
      - sibling proofs are not interchangeable keeper evidence
-5. [ ] `container-identity-residence-contract`
+5. [x] `container-identity-residence-contract`
    - Array / Map は public identity container のまま固定する
    - lane-host してよいのは internal element/key/value residence だけと明記する
    - public ABI / `.hako` syntax / array generics は開かない
+   - status:
+     - locked in `phase-289x/289x-94-container-demand-table.md`
+     - public Array / Map identity and ABI rows stay unchanged
+     - lane-host eligibility is limited to internal residence and never proves semantic-value replacement
 
 ## Exit Gate for 137x-B
 
-137x-B は、最低でも次を満たしたら close できる。
+137x-B is closed because the gate now satisfies:
 
-- current pointers が `137x-B = design cleanout`, `137x-C = owner-first perf return` で揃っている
-- array typed-slot docs が現行 runtime support と future-only items を分けている
-- map docs が demand metadata と typed lane implementation を混同していない
-- primitive residuals が perf blocker か later backlog かで分類されている
-- phase-289x runtime-wide implementation は parked のままで、今回の cleanout から開かれない
-- `tools/checks/dev_gate.sh quick` が green
+- current pointers are aligned as `137x-B = closed design cleanout`, `137x-C = owner-first perf return`
+- array typed-slot docs separate current runtime support from future-only items
+- map docs separate demand metadata from typed lane implementation
+- primitive residuals are classified as later backlog, not perf blockers
+- container identity / internal residence boundaries are locked
+- phase-289x runtime-wide implementation is parked and not opened by this cleanout
+- `tools/checks/dev_gate.sh quick` is the final validation command for this gate
 
 ## Stop-Line
 
-この subphase から開いてはいけないもの:
+This closed subphase did not open:
 
 - owner-first perf implementation
 - runtime-wide `Value Lane Architecture` implementation
@@ -102,7 +108,7 @@ phase-137x は今、この 3 段で読む。
 
 ## Relationship to Owner-First Perf
 
-137x-B が閉じるまで、perf work は再開しない。
+137x-B is now closed. Perf work may reopen only as `137x-C`.
 
 137x-C に入る最初の一手は、AGENTS の perf policy に従って
 source reading ではなく current baseline / asm owner の再採取に戻す。

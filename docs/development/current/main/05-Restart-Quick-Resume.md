@@ -32,11 +32,11 @@ cargo check --features perf-observe -p nyash_kernel
 ## Current
 
 - lane:
-  - `phase-137x-B container / primitive design cleanout before owner-first optimization return`
+  - `phase-137x-C owner-first optimization return`
   - execution mode:
-    - docs-first BoxShape gate; no perf implementation until `137x-C`
+    - perf-first; re-baseline before source reading or code edits
 - blocker:
-  - `137x-B design cleanout` before perf return
+  - fresh `137x-C` owner proof is required before any optimization edit
 - worktree:
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
 - current snapshot:
@@ -48,13 +48,14 @@ cargo check --features perf-observe -p nyash_kernel
     - use it to confirm store/publication cuts without the whole-front `indexOf("line")` row-scan noise
   - `kilo_kernel_small = C 80 ms / Ny AOT 739 ms`
 - immediate next:
-  - `finish 137x-B design cleanout: container identity/residence contract`
+  - `start 137x-C with current baseline / asm owner recapture`
   - done in this cleanout:
     - `array-typed-slot-truth-sync`
     - `map-demand-vs-typed-lane-boundary`
     - `primitive-residuals-classification`
+    - `container-identity-residence-contract`
 - method anchor:
-  - `docs/development/current/main/design/perf-owner-first-optimization-ssot.md` (`137x-C` only)
+  - `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 - rollout anchor:
   - `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
   - `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
@@ -69,7 +70,7 @@ cargo check --features perf-observe -p nyash_kernel
     - `get / set / call` as demand verbs
   - array/map remain identity containers; only internal residence may become lane-hosted later
   - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
-  - do not start runtime-wide implementation before 137x-B design cleanout is closed and phase-137x is judged again
+  - do not start runtime-wide implementation; 137x-B design cleanout is closed and 137x-C must start from perf evidence
 - taskboard:
   - `docs/development/current/main/phases/phase-137x/137x-91-task-board.md`
   - `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
@@ -134,7 +135,7 @@ cargo check --features perf-observe -p nyash_kernel
 - allocator / GC (`memmove` / `gc_alloc` / `_int_malloc`) stays secondary diagnosis until that corridor is disproved
 - `indexOf` stays a side diagnosis, not the active keeper card
 - keep public ABI / legality ownership unchanged
-- next perf slice is no longer `len_h` removal; when 137x-C opens, restart from publication/source-capture with the compiler-known-length lane fixed
+- next perf slice is no longer `len_h` removal; 137x-C restarts from publication/source-capture with the compiler-known-length lane fixed
 - current plain-release reread after reverting the failed active probe:
   - `kilo_micro_array_string_store = C 10 ms / Ny AOT 132 ms`
   - `kilo_kernel_small_hk = C 80 ms / Ny AOT 731 ms`

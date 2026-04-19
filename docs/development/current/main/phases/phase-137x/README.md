@@ -41,8 +41,8 @@
   - do not open `TextLane`, MIR legality, runtime-wide 289x implementation, allocator/arena, or container lane-host work from the current proof alone
 - current phase cut before optimization return:
   - `137x-A`: string publication contract closeout (`137x-92-string-publication-contract-closeout.md`)
-  - `137x-B`: container / primitive design cleanout (`137x-93-container-primitive-design-cleanout.md`)
-  - `137x-C`: owner-first optimization return only after the design cleanout gate lands
+  - `137x-B`: container / primitive design cleanout (`137x-93-container-primitive-design-cleanout.md`) is closed
+  - `137x-C`: owner-first optimization return is the next/current entry
 - current closeout status:
   - done: `repr-downgrade-contract`
     - verifier now rejects unproven `stable_view` repr requests before runtime; lowering must downgrade to `stable_owned` until StableView legality is verifier-visible
@@ -54,11 +54,11 @@
     - repeated slot publish is no-op after `Published`; cache handle reissue may reuse an existing stable object/view, but must not rebirth fresh text for the same stable source/cell
   - closeout gate:
     - 137x-A is satisfied
-    - 137x-B design cleanout is now active before perf return
-    - 137x-C owner-first optimization return stays closed until 137x-B exits
+    - 137x-B design cleanout is satisfied
+    - 137x-C owner-first optimization return may reopen from fresh perf/asm baseline
     - `publish.any` and runtime-wide phase-289x implementation remain blocked here
-- current design cleanout gate:
-  - active: `137x-93-container-primitive-design-cleanout.md`
+- closed design cleanout gate:
+  - closed: `137x-93-container-primitive-design-cleanout.md`
   - purpose: sync array typed-slot, map demand/typed-lane, primitive residual, and container identity/residence docs before perf work resumes
   - done:
     - `array-typed-slot-truth-sync`
@@ -71,6 +71,10 @@
       - `Null` / `Void` are conservative, non-blocking residuals
       - enum/sum/generic stays under its separate SSOT and does not block 137x-C
       - primitive/user-box, enum/sum, and ArrayBox residence proofs are sibling proofs, not interchangeable keeper evidence
+    - `container-identity-residence-contract`
+      - Array / Map public identity and ABI rows stay unchanged
+      - lane-host eligibility is limited to internal element/key/value residence
+      - runtime-wide phase-289x implementation remains parked
   - no runtime-wide implementation or public ABI widening starts from this gate
 - long-range successor stays parked:
   - phase-289x planning-only `Value Lane Architecture`
