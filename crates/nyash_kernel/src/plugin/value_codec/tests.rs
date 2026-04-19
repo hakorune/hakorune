@@ -1,11 +1,36 @@
 use super::*;
 use crate::exports::string_view::StringViewBox;
+use crate::plugin::value_demand::{
+    CODEC_ARRAY_BORROW_STRING_ONLY, CODEC_ARRAY_FAST_BORROW_STRING, CODEC_GENERIC,
+    CODEC_MAP_KEY_BORROW_STRING, CODEC_MAP_VALUE_BORROW_STRING,
+};
 use crate::test_support::with_env_var;
 use nyash_rust::{
     box_trait::{IntegerBox, NyashBox, StringBox},
     runtime::host_handles as handles,
 };
 use std::sync::Arc;
+
+#[test]
+fn codec_profile_maps_to_runtime_private_demand_set() {
+    assert_eq!(CodecProfile::Generic.demand(), CODEC_GENERIC);
+    assert_eq!(
+        CodecProfile::ArrayFastBorrowString.demand(),
+        CODEC_ARRAY_FAST_BORROW_STRING
+    );
+    assert_eq!(
+        CodecProfile::ArrayBorrowStringOnly.demand(),
+        CODEC_ARRAY_BORROW_STRING_ONLY
+    );
+    assert_eq!(
+        CodecProfile::MapKeyBorrowString.demand(),
+        CODEC_MAP_KEY_BORROW_STRING
+    );
+    assert_eq!(
+        CodecProfile::MapValueBorrowString.demand(),
+        CODEC_MAP_VALUE_BORROW_STRING
+    );
+}
 
 #[test]
 fn any_arg_to_index_prefers_boxed_integer_when_handle_points_integerbox() {

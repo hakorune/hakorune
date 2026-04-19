@@ -152,7 +152,11 @@ Reading:
   - one runtime-private storage pilot only, after `289x-1g` and `289x-2d`
   - selected pilot: `Array text residence through KernelTextSlot store`
 - `289x-3c`: Rust `CodecProfile -> DemandSet` mapping
-  - behavior unchanged; first remaining runtime cutover cluster
+  - status: done in code; behavior unchanged
+  - `CodecProfile::demand()` maps profile names to runtime-private `DemandSet`
+  - `any_arg_to_box_with_profile` and `decode_array_fast_value` bind demand metadata before old branches
+- `289x-3d`: Rust `BorrowedAliasEncodeCaller -> DemandSet` mapping
+  - behavior unchanged; next runtime cutover cluster
 - `289x-5a`: bytes/view planning
   - prevent text-only patterns from being copied into bytes later
 - `289x-6a`: map key/value boundary map

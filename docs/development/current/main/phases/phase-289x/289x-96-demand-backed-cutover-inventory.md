@@ -47,8 +47,8 @@ Estimate: 8 clusters, about 24-30 production decision/call sites when wired by c
 
 | Order | Cluster | Files / functions | Sites | Risk | Phase/card | State |
 | --- | --- | --- | ---: | --- | --- | --- |
-| R1 | `CodecProfile -> DemandSet` bridge | `value_codec/decode.rs`, `any_arg_to_box_with_profile`, `decode_array_fast_value` | 5 variants, 2 helpers | medium | `289x-3c` | next |
-| R2 | `BorrowedAliasEncodeCaller -> DemandSet` | `value_codec/borrowed_handle.rs`, `array_handle_cache.rs`, `map_runtime_data.rs` | 3 variants, 2 non-generic users | medium | `289x-3d` | pending |
+| R1 | `CodecProfile -> DemandSet` bridge | `value_codec/decode.rs`, `any_arg_to_box_with_profile`, `decode_array_fast_value` | 5 variants, 2 helpers | medium | `289x-3c` | done |
+| R2 | `BorrowedAliasEncodeCaller -> DemandSet` | `value_codec/borrowed_handle.rs`, `array_handle_cache.rs`, `map_runtime_data.rs` | 3 variants, 2 non-generic users | medium | `289x-3d` | next |
 | R3 | `PublishReason -> PublishDemand` bridge | `value_codec/string_materialize.rs` | about 10 sites | medium | `289x-3e` | pending |
 | R4 | Array generic load/encode | `array_handle_cache.rs`, `array_slot_load.rs` | 2 sites | medium | `289x-3f` | pending |
 | R5 | Array store/append decode | `array_slot_store.rs`, `array_slot_append.rs` | 2 sites | medium-high | `289x-3g` | pending |
@@ -82,8 +82,8 @@ Estimate: 8 clusters. The main blocker is C shim helper-name routing; MIR alread
 
 | Phase | Work | Rule |
 | --- | --- | --- |
-| `289x-3c` | Rust `CodecProfile -> DemandSet` mapping | behavior unchanged |
-| `289x-3d` | Rust borrowed-alias caller mapping | behavior unchanged |
+| `289x-3c` | Rust `CodecProfile -> DemandSet` mapping | done; behavior unchanged |
+| `289x-3d` | Rust borrowed-alias caller mapping | next; behavior unchanged |
 | `289x-3e` | Rust publish reason mapping | behavior unchanged |
 | `289x-3f` | Rust array generic load/encode demand tags | behavior unchanged |
 | `289x-3g` | Rust array store/append demand tags | behavior unchanged |

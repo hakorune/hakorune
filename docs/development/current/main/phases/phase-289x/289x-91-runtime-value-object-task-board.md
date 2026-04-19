@@ -113,7 +113,8 @@ Task state:
 - `289x-2d`: done in `289x-94-container-demand-table.md`
 - `289x-3a`: active pilot proposal in `289x-95-array-text-residence-pilot.md`
 - `289x-3b`: active cutover inventory gate in `289x-96-demand-backed-cutover-inventory.md`
-- `289x-3c`: next Rust cut, `CodecProfile -> DemandSet`, behavior unchanged
+- `289x-3c`: done in code, `CodecProfile -> DemandSet`, behavior unchanged
+- `289x-3d`: next Rust cut, `BorrowedAliasEncodeCaller -> DemandSet`, behavior unchanged
 - `289x-7e` / `289x-7f`: high-risk C shim emission/window work is planned later, not skipped
 - optimization return: blocked until all `289x-96` clusters are done or explicitly rejected
 
@@ -282,9 +283,12 @@ No-go:
     - every cluster must be `done` or `rejected`
     - high-risk deferrals must have scheduled cards
 - `289x-3c`: Rust `CodecProfile -> DemandSet`
+  - status: done in code
   - behavior unchanged
-  - first remaining runtime cutover cluster
+  - `CodecProfile::demand()` is the runtime-private bridge from profile names to `DemandSet`
+  - old branches remain the executor until downstream demand rows are wired
 - `289x-3d`: Rust `BorrowedAliasEncodeCaller -> DemandSet`
+  - status: next
   - behavior unchanged
 - `289x-3e`: Rust `PublishReason -> PublishDemand`
   - behavior unchanged

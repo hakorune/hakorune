@@ -1,4 +1,8 @@
 use super::borrowed_handle::maybe_borrow_string_handle;
+use crate::plugin::value_demand::{
+    DemandSet, CODEC_ARRAY_BORROW_STRING_ONLY, CODEC_ARRAY_FAST_BORROW_STRING, CODEC_GENERIC,
+    CODEC_MAP_KEY_BORROW_STRING, CODEC_MAP_VALUE_BORROW_STRING,
+};
 use nyash_rust::{
     box_trait::{BoolBox, IntegerBox, NyashBox, StringBox},
     boxes::FloatBox,
@@ -15,6 +19,17 @@ pub(crate) enum CodecProfile {
 }
 
 impl CodecProfile {
+    #[inline(always)]
+    pub(crate) const fn demand(self) -> DemandSet {
+        match self {
+            Self::Generic => CODEC_GENERIC,
+            Self::ArrayFastBorrowString => CODEC_ARRAY_FAST_BORROW_STRING,
+            Self::ArrayBorrowStringOnly => CODEC_ARRAY_BORROW_STRING_ONLY,
+            Self::MapKeyBorrowString => CODEC_MAP_KEY_BORROW_STRING,
+            Self::MapValueBorrowString => CODEC_MAP_VALUE_BORROW_STRING,
+        }
+    }
+
     #[inline(always)]
     fn keeps_string_alias_and_prefers_scalar(self) -> bool {
         matches!(self, Self::ArrayFastBorrowString | Self::MapKeyBorrowString)
@@ -36,6 +51,7 @@ pub(crate) fn int_arg_to_box(arg: i64) -> Box<dyn NyashBox> {
 
 #[inline(always)]
 pub(crate) fn decode_array_fast_value(arg: i64) -> ArrayFastDecodedValue {
+    let _demand = CodecProfile::ArrayFastBorrowString.demand();
     // String/StringView handles become borrowed string aliases.
     // Other positive handles stay conservative and fall back to immediate-style handling.
     if arg <= 0 {
@@ -67,6 +83,7 @@ pub(crate) fn decode_array_fast_value(arg: i64) -> ArrayFastDecodedValue {
 
 #[inline(always)]
 pub(crate) fn any_arg_to_box_with_profile(arg: i64, profile: CodecProfile) -> Box<dyn NyashBox> {
+    let _demand = profile.demand();
     if arg > 0 {
         if profile == CodecProfile::ArrayBorrowStringOnly {
             return handles::with_handle_caller(
