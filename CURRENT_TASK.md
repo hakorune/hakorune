@@ -65,6 +65,18 @@ Scope: current lane / next lane / restart order only.
       - `BorrowedHandleBox` is boundary/cache, not semantic `Ref`
       - `KernelTextSlot` is transport adapter / sink seed, not long-term `TextCell`
       - `StringViewBox` is object-world view, not internal substring carrier
+    - latest runtime-private carrier stack is landed:
+      - `1e0766779` `nyash_kernel: name TextRef/OwnedText semantic carriers`
+      - `ef4eba2bb` `nyash_kernel: migrate value_codec to TextRef/OwnedText read paths`
+      - `b0a10794f` `nyash_kernel: adapt exports to TextRef semantic carrier`
+      - `403fe5211` `docs: document TextRef/OwnedText carrier step and guarantees`
+      - `4e36caf34` `nyash_kernel: keep piecewise reads on TextRef`
+      - `5b0bdaa5f` `nyash_kernel: keep concat helpers on TextRef`
+    - current structure-first reading:
+      - touched export-side read consumers are now narrow enough
+      - `borrowed_handle.rs` is the next main BoxShape candidate
+      - `cache.rs` / `string_materialize.rs` are deferred modularization candidates, not current-card edits
+      - legacy watch item surfaced by audit is `src/host_providers/llvm_codegen/compat_text_primitive.rs`
   - parent SSOT:
     - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
   - phase:
@@ -528,6 +540,21 @@ Scope: current lane / next lane / restart order only.
   - exact `array/string-store` is now closed; the live next owner family is upstream producer publication on whole
   - hot-corridor carrier design anchor is now:
     - `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
+  - cleanup audit after the carrier stack:
+    - keep as-is:
+      - `text_carrier.rs`
+      - `string_classify.rs`
+      - `string_store.rs`
+      - `string_view.rs`
+      - `string_search.rs`
+      - current `concat/` submodules
+    - next structural candidate:
+      - `crates/nyash_kernel/src/plugin/value_codec/borrowed_handle.rs`
+      - reason: proof/lifetime keep, boundary box, and public helper API still share one large file
+    - deferred candidates:
+      - `crates/nyash_kernel/src/exports/string_helpers/cache.rs`
+      - `crates/nyash_kernel/src/plugin/value_codec/string_materialize.rs`
+    - debug-only readers may stay implicit where `TextRef` deref is clearer than explicit projection
   - trusted direct MIR no longer duplicates the `text + "xy"` producer across `set(...)` and trailing `substring(...)`
   - runtime gap on exact no longer stays open after the shared-receiver `KernelTextSlot` widening
   - latest keeper slice is compiler-side known string-length propagation across const / substring-window / same-length string `phi`
@@ -864,15 +891,20 @@ Scope: current lane / next lane / restart order only.
 
 ## Next
 
-1. keep phase-2.5 read-side alias lane as the active judge
+1. update the current structure card before new perf edits
+   - active BoxShape card is `crates/nyash_kernel/src/plugin/value_codec/borrowed_handle.rs` modularization
+   - goal: split proof/lifetime keep, boundary box impl, and helper API into focused submodules without behavior change
+   - do not widen into `TextLane`, MIR legality, allocator, public ABI, or `TextCell`
+   - keep recent carrier commits as the semantic baseline; this card is structure-only, not new keeper evidence
+2. keep phase-2.5 read-side alias lane as the active judge
    - do not reopen the rejected store-side `owned-string keep` / `owned-text keep`
    - preserve live-source -> cached-handle -> cold-fallback encode order
    - stable objectization must stay cache-backed and cold
-2. treat the latest cleanup as BoxShape only, not keeper evidence
+3. treat the latest cleanup as BoxShape only, not keeper evidence
    - exact: `kilo_micro_array_string_store = C 9 ms / Ny AOT 4 ms`
    - middle: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 61 ms`
    - strict whole: `kilo_kernel_small_hk = C 80 ms / Ny AOT 812 ms`
-3. current owner proof after cleanup:
+4. current owner proof after cleanup:
    - libc copy/alloc still dominates: `memmove 25.02%`, `_int_malloc 9.58%`, `malloc 0.96%`
    - hottest named repo family remains read/materialize/slot tax:
      - `array_get_index_encoded_i64::{closure} 4.39%`
@@ -880,18 +912,18 @@ Scope: current lane / next lane / restart order only.
      - nested `array_get_index_encoded_i64` closure `2.09%`
      - `array_string_store_kernel_text_slot_at::{closure} 2.01%`
      - `TextKeepBacking::clone_stable_box_cold_fallback 0.49%`
-4. next code card requires a narrower owner proof before editing
+5. next perf code card still requires a narrower owner proof before editing
    - acceptable seams must reduce read/materialize/copy tax without widening public ABI
    - do not start `TextLane`, MIR legality, runtime-wide 289x implementation, allocator/arena, or container lane-host work from this proof alone
    - if no narrow seam is proven, keep docs current and stop instead of moving cost between store/read helpers
-5. rejected after the fresh proof:
+6. rejected after the fresh proof:
    - unpublished `owned-text keep` removed the `objectize_kernel_text_slot_stable_box` symbol from asm, but strict whole regressed to `902 ms` / `892 ms`
    - reject reason: active whole still demands an object handle at `array.get_hi`, so delayed stable birth only moves the cost
-6. rejected array-slot concat helper probe:
+7. rejected array-slot concat helper probe:
    - `nyash.array.kernel_slot_concat_his` emitted, but the preceding `nyash.array.slot_load_hi` stayed live in IR
    - strict whole regressed to `1571 ms` / `1033 ms`; code reverted
    - next attempt must eliminate the `array.get_hi` demand itself, not only add a second helper after it
-7. current fresh proof commands:
+8. current fresh proof commands:
    - `PERF_AOT=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_string_store 1 3`
    - `PERF_AOT=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_meso_substring_concat_array_set_loopcarry 1 3`
    - `PERF_VM_FORCE_NO_FALLBACK=1 PERF_REQUIRE_AOT_RESULT_PARITY=1 bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small_hk 1 3`
