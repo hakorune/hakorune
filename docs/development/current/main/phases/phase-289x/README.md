@@ -164,8 +164,10 @@ Reading:
 - Post-keeper inventory is now closed by `289x-96`; phase-289x no longer
   blocks optimization return.
 - The post-289x optimization return pause is now closed by
-  `phase-137x/137x-93-container-primitive-design-cleanout.md`; resume as
-  `137x-C` only through the owner-first perf entry.
+  `phase-137x/137x-93-container-primitive-design-cleanout.md`.
+- The final pre-perf gate is now closed by
+  `phase-137x/137x-91-task-board.md` `137x-C` structure completion.
+  Owner-first optimization resumes as `137x-D` from fresh evidence.
 
 ## First Concrete Cards
 
@@ -298,7 +300,8 @@ was fully closed.
 
 Current phase-289x state: closed by `289x-7h`.
 Closed gate: `phase-137x/137x-93-container-primitive-design-cleanout.md`.
-Next optimization work resumes as `137x-C` through the owner-first perf entry:
+Closed final pre-perf gate: `phase-137x/137x-91-task-board.md` `137x-C` structure completion.
+Next optimization work resumes as `137x-D` through the owner-first perf entry:
 `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`.
 
 High-risk work is planned, not skipped:

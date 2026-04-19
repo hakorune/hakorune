@@ -26,7 +26,7 @@ owner-first optimization に戻るための design cleanout だよ。
 
 ## Phase Cut
 
-phase-137x は今、この 3 段で読む。
+phase-137x は今、この 4 段で読む。
 
 1. **137x-A: string publication contract closeout**（closed）
    - string-only `publish.text` legality / provenance / idempotence を固定済み
@@ -35,7 +35,10 @@ phase-137x は今、この 3 段で読む。
    - map demand bridge と typed map lane の境界を固定する
    - primitive residuals を blocking / non-blocking に分ける
    - container identity / residence contract を固定する
-3. **137x-C: owner-first optimization return**（ready next）
+3. **137x-C: structure completion gate before perf return**（active next）
+   - current pointers / blocked successors / done definitions / source-only contract index を揃える
+   - final gate を記録する
+4. **137x-D: owner-first optimization return**（after 137x-C）
    - active read-side owner proof に戻る
    - perf/asm で hot owner を再採取してから narrow seam だけを reopen する
 
@@ -45,7 +48,7 @@ phase-137x は今、この 3 段で読む。
 
 1. [x] `phase-pointer-resplit`
    - `137x-B` を design cleanout gate に変更する
-   - owner-first perf return は `137x-C` に送る
+   - owner-first perf return は `137x-D` に送り、`137x-C` completion gate の後にだけ開く
 2. [x] `array-typed-slot-truth-sync`
    - `InlineI64` / `InlineBool` / `InlineF64` の現行 runtime support と docs を同期する
    - `array.get` / encoded load の readback contract を過大表現しない
@@ -85,7 +88,7 @@ phase-137x は今、この 3 段で読む。
 
 137x-B is closed because the gate now satisfies:
 
-- current pointers are aligned as `137x-B = closed design cleanout`, `137x-C = owner-first perf return`
+- current pointers are aligned as `137x-B = closed design cleanout`, `137x-C = structure completion gate`, `137x-D = owner-first perf return`
 - array typed-slot docs separate current runtime support from future-only items
 - map docs separate demand metadata from typed lane implementation
 - primitive residuals are classified as later backlog, not perf blockers
@@ -108,7 +111,8 @@ This closed subphase did not open:
 
 ## Relationship to Owner-First Perf
 
-137x-B is now closed. Perf work may reopen only as `137x-C`.
+137x-B and 137x-C are now closed. Perf work may reopen only as `137x-D`.
 
-137x-C に入る最初の一手は、AGENTS の perf policy に従って
-source reading ではなく current baseline / asm owner の再採取に戻す。
+137x-C に入る最初の一手は、pointer/task normalization と final gate 記録にする。
+137x-D に入る最初の一手でだけ、AGENTS の perf policy に従って source
+reading ではなく current baseline / asm owner の再採取に戻す。

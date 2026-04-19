@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-04-19
+Date: 2026-04-20
 Scope: current lane / blocker / next pointer only.
 Related:
   - CURRENT_TASK.md
@@ -26,9 +26,10 @@ Related:
 ## Current
 
 - current lane:
-  - `phase-137x-C owner-first optimization return`
+  - `phase-137x-D owner-first optimization return` (ready; not started by this docs/task commit)
   - execution mode:
-    - perf-first; recapture current baseline / asm owner before source reading or code edits
+    - perf-first once optimization work starts; recapture current baseline / asm owner before source reading or code edits
+    - 137x-C structure completion is closed; do not reopen blocked successor work from the perf lane
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - method anchor:
@@ -44,7 +45,8 @@ Related:
     - phase-0 authority/vocabulary lock is docs-only and complete
     - phase-137x string lane produced keeper `49c356339`
     - demand-backed cutover inventory `289x-96` is closed
-    - `137x-B` design cleanout is closed; optimization resumes through the owner-first entry
+    - `137x-B` design cleanout is closed; `137x-C` structure completion gate is closed
+    - optimization may resume only as `137x-D` through the owner-first entry
     - array/map remain identity containers; only internal residence may become lane-hosted later
     - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
     - all `289x-96` clusters are done; later full lane rewrites stay separate phases
@@ -151,9 +153,10 @@ Related:
     - return-to-optimization gate:
       - phase-289x gate was closed by `289x-7h`
       - `137x-B` container / primitive design cleanout is closed
-      - optimization resumes as `137x-C` through `perf-owner-first-optimization-ssot.md`
+      - `137x-C` structure completion gate is closed by `137x-91-task-board.md`
+      - optimization resumes as `137x-D` through `perf-owner-first-optimization-ssot.md`
 - blocker:
-  - fresh `137x-C` owner proof before any optimization edit
+  - fresh `137x-D` owner proof before any owner-first optimization edit
   - no active `phase-289x` cutover blocker
 - latest active keeper:
   - phase-137x branch-target-aware same-slot suffix store cut is green
@@ -591,17 +594,17 @@ Related:
    - `provenance-freeze-verifier-contract` is closed: `publish.text` requires borrow provenance plus the freeze/publish separation contract before codegen
    - `publish-idempotence-policy` is closed: repeated slot publish is no-op after `Published`, and cache reissue must not rebirth fresh text for the same stable source/cell
    - closed gate is `137x-B`: container / primitive design cleanout
-   - owner-first perf work reopens as `137x-C`
-5. start 137x-C owner-first perf return
-   - done: sync array typed-slot docs with current `InlineI64` / `InlineBool` / `InlineF64` runtime support without overstating readback
-   - current ArrayBox truth is scalar immediate residence; only `InlineI64` opens the direct typed encoded-load row, while f64/bool stay under encoded-any/public handle readback
-   - done: lock map demand metadata vs typed map lane boundary; no typed map lane implementation starts here
-   - current Map truth is demand metadata only: key decode, value residence, and read publication stay separate seams
-   - done: classify `Null` / `Void` and enum/sum/generic residuals as non-blocking later work unless a separate phase opens them
-   - current residual truth: `Null` / `Void` are conservative, enum/sum/generic stays under its separate SSOT, and sibling keeper proofs are not interchangeable
-   - done: keep Array / Map identity semantics while only internal residence may become lane-hosted later
-   - first 137x-C action is current baseline / asm owner recapture, not source reading
-6. require a fresh narrow owner proof before wider perf edits
+   - closed gate is `137x-C`: structure completion before perf return
+   - owner-first perf work is moved to `137x-D`
+5. complete 137x-C structure gate before perf return
+   - active task board is `docs/development/current/main/phases/phase-137x/137x-91-task-board.md`
+   - completed completion cards are `current-pointer-stop-line-resplit`, `all-before-perf-task-normalization`, `primitive-array-map-done-definition`, `source-only-array-string-contract-index`, and `final-structure-gate`
+   - array truth: scalar immediate residence exists for `InlineI64` / `InlineBool` / `InlineF64`; only `InlineI64` opens the direct typed encoded-load row, while f64/bool stay under encoded-any/public handle readback
+   - map truth: demand metadata is landed; typed map lane remains closed
+   - primitive truth: `Null` / `Void` are conservative, enum/sum/generic stays under its separate SSOT, and sibling keeper proofs are not interchangeable
+   - final gate: `tools/checks/dev_gate.sh quick` PASS on 2026-04-20
+6. start 137x-D owner-first perf return only from fresh evidence
+    - fresh current baseline / asm owner recapture is required before source reading or optimization edit
     - acceptable seam: reduce read/materialize/copy tax without changing public ABI
     - reject seam: store-side `owned-string keep` / `owned-text keep` or any change that makes `array.get` publish per read
     - reject seam: array-slot concat helper that leaves the preceding `array.get_hi` / `slot_load_hi` in place

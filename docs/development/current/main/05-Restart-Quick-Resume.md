@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-19
+Date: 2026-04-20
 Scope: 再起動直後に 2〜5 分で current lane に戻るための最短手順。
 Related:
   - CURRENT_TASK.md
@@ -13,6 +13,7 @@ Related:
   - docs/development/current/main/design/string-value-model-phased-rollout-ssot.md
   - docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md
   - docs/development/current/main/phases/phase-137x/README.md
+  - docs/development/current/main/phases/phase-137x/137x-91-task-board.md
   - docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md
   - docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md
 ---
@@ -32,11 +33,12 @@ cargo check --features perf-observe -p nyash_kernel
 ## Current
 
 - lane:
-  - `phase-137x-C owner-first optimization return`
+  - `phase-137x-D owner-first optimization return` (ready; not started by this docs/task commit)
   - execution mode:
-    - perf-first; re-baseline before source reading or code edits
+    - perf-first once optimization work starts; re-baseline before source reading or code edits
+    - 137x-C structure completion is closed; do not reopen blocked successor work from the perf lane
 - blocker:
-  - fresh `137x-C` owner proof is required before any optimization edit
+  - fresh `137x-D` owner proof is required before any optimization edit
 - worktree:
   - clean is expected; do not resurrect `stash@{0}` unless you are explicitly reopening the rejected slot-store boundary probe
 - current snapshot:
@@ -48,7 +50,8 @@ cargo check --features perf-observe -p nyash_kernel
     - use it to confirm store/publication cuts without the whole-front `indexOf("line")` row-scan noise
   - `kilo_kernel_small = C 80 ms / Ny AOT 739 ms`
 - immediate next:
-  - `start 137x-C with current baseline / asm owner recapture`
+  - start `137x-D` with current baseline / asm owner recapture before source reading
+  - 137x-C final gate already passed: `tools/checks/dev_gate.sh quick`
   - done in this cleanout:
     - `array-typed-slot-truth-sync`
     - `map-demand-vs-typed-lane-boundary`
@@ -70,15 +73,15 @@ cargo check --features perf-observe -p nyash_kernel
     - `get / set / call` as demand verbs
   - array/map remain identity containers; only internal residence may become lane-hosted later
   - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
-  - do not start runtime-wide implementation; 137x-B design cleanout is closed and 137x-C must start from perf evidence
+  - do not start runtime-wide implementation; 137x-D must start from fresh perf evidence
 - taskboard:
   - `docs/development/current/main/phases/phase-137x/137x-91-task-board.md`
   - `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
   - `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
 - immediate follow-on:
   - `keep phase order intact: canonical sink before cold publish effect, cold publish before read-side alias split, read-side alias split before TextLane, TextLane before MIR legality`
-- deferred 137x-C code seam:
-  - phase 2.5 read-side alias lane stays next only after 137x-B closes:
+- deferred 137x-D code seam:
+  - phase 2.5 read-side alias lane stays next only from fresh 137x-D owner evidence:
     - `TextReadOnly`
     - `EncodedAlias`
     - `StableObject`
@@ -128,14 +131,14 @@ cargo check --features perf-observe -p nyash_kernel
   - exact micro owner = shared generic publish/objectize behind `string_concat_hh` + `string_substring_concat_hhii`
   - adopted middle = `kilo_meso_substring_concat_array_set_loopcarry`, used to confirm the same corridor without `indexOf("line")` row-scan noise
   - whole kilo owner = `const_suffix` fallback + `freeze_text_plan(Pieces3)` publication
-- deferred 137x-C narrow cut candidate is the store/publication corridor around:
+- deferred 137x-D narrow cut candidate is the store/publication corridor around:
   - `execute_store_array_str_contract`
   - `array_get_index_encoded_i64`
   - `insert_const_mid_fallback`
 - allocator / GC (`memmove` / `gc_alloc` / `_int_malloc`) stays secondary diagnosis until that corridor is disproved
 - `indexOf` stays a side diagnosis, not the active keeper card
 - keep public ABI / legality ownership unchanged
-- next perf slice is no longer `len_h` removal; 137x-C restarts from publication/source-capture with the compiler-known-length lane fixed
+- next perf slice is no longer `len_h` removal; 137x-D restarts from publication/source-capture with the compiler-known-length lane fixed
 - current plain-release reread after reverting the failed active probe:
   - `kilo_micro_array_string_store = C 10 ms / Ny AOT 132 ms`
   - `kilo_kernel_small_hk = C 80 ms / Ny AOT 731 ms`

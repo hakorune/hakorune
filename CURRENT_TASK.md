@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-04-19
+Date: 2026-04-20
 Scope: current lane / next lane / restart order only.
 
 ## Purpose
@@ -29,7 +29,7 @@ Scope: current lane / next lane / restart order only.
 15. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
 16. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
 17. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-18. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md` (`137x-C` に戻るときだけ)
+18. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md` (`137x-D` owner-first optimization に入るときだけ)
 19. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
 20. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
 21. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
@@ -46,9 +46,10 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-C owner-first optimization return`
+  - `phase-137x-D owner-first optimization return` (ready; not started by this docs/task commit)
   - implementation mode:
-    - perf-first; recapture current baseline / asm owner before source reading or code edits
+    - perf-first once optimization work starts; recapture current baseline / asm owner before source reading or code edits
+    - 137x-C structure completion is closed; do not reopen blocked successor work from the perf lane
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - method anchor:
@@ -64,7 +65,7 @@ Scope: current lane / next lane / restart order only.
     - phase-0 authority/vocabulary lock is docs-only and complete
     - phase-137x keeper `49c356339` is the current string proof
     - demand-backed cutover inventory `289x-96` is closed
-    - `137x-B` design cleanout is closed; optimization resumes through the owner-first entry
+    - `137x-B` design cleanout is closed; `137x-C` structure completion gate is closed; optimization may resume only as `137x-D`
     - array/map remain identity containers; only internal residence may become lane-hosted later
     - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
     - all `289x-96` clusters are done; later full lane rewrites stay separate phases
@@ -182,9 +183,9 @@ Scope: current lane / next lane / restart order only.
     - return-to-optimization gate:
       - phase-289x gate was closed by `289x-7h`
       - `137x-B` container / primitive design cleanout is closed
-      - optimization resumes as `137x-C` through `perf-owner-first-optimization-ssot.md`
+      - `137x-C` completion gate is closed by `137x-91-task-board.md`; optimization resumes as `137x-D`
 - current blocker:
-  - fresh `137x-C` owner proof before any optimization edit
+  - fresh `137x-D` owner proof before any optimization edit
   - no active `phase-289x` cutover blocker
 - current cut status:
   - latest implementation candidate:
@@ -949,7 +950,8 @@ Scope: current lane / next lane / restart order only.
       - current phase cut before optimization return:
         - `137x-A`: string publication contract closeout is satisfied (`docs/development/current/main/phases/phase-137x/137x-92-string-publication-contract-closeout.md`)
         - `137x-B`: container / primitive design cleanout is closed (`docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`)
-        - `137x-C`: owner-first optimization is current next and must start from fresh perf/asm evidence
+        - `137x-C`: structure completion gate before perf return is closed (`docs/development/current/main/phases/phase-137x/137x-91-task-board.md`)
+        - `137x-D`: owner-first optimization is ready next and must start from fresh perf/asm evidence
         - phase-289x stays parked as planning-only `Value Lane Architecture`
       - `publish.any` stays deferred/blocked until a separate explicit phase opens it
    - do not widen into `TextLane`, allocator, public ABI, or a generic bridge substrate on this card
@@ -963,11 +965,11 @@ Scope: current lane / next lane / restart order only.
        - `289x-6c` typed map lane stays closed; key policy is not value residence/publication truth
      - completed `primitive-residuals-classification`
        - `Null` / `Void` are conservative non-blocking residuals
-       - enum/sum/generic stays under its separate SSOT and does not block `137x-C`
+       - enum/sum/generic stays under its separate SSOT and does not authorize optimization return
      - completed `container-identity-residence-contract`
        - Array / Map remain public identity containers with unchanged ABI rows
        - lane-host eligibility is limited to internal element/key/value residence
-   - first 137x-C action:
+   - first 137x-D action:
      - recapture current baseline / asm owner before any source reading or optimization edit
 2. keep phase-2.5 read-side alias lane as the active judge
    - do not reopen the rejected store-side `owned-string keep` / `owned-text keep`

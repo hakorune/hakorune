@@ -1,7 +1,7 @@
 # Phase 137x: main kilo reopen selection
 
-- Status: Active Design Cleanup
-- 目的: current optimization lane を phased value-model rollout として固定し、`producer outcome -> canonical sink -> cold publish effect -> future TextLane -> MIR legality` の順で whole-side owner を縮める。
+- Status: Owner-First Optimization Return Ready
+- 目的: 137x-C structure completion gate を閉じた状態から、owner-first optimization を `137x-D` として再開する。最初の一手は fresh perf/asm owner proof で、source reading や code edit を先行しない。
 - 対象:
   - `CURRENT_TASK.md`
   - `docs/development/current/main/05-Restart-Quick-Resume.md`
@@ -25,7 +25,7 @@
   - semantic authority stays in `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
   - this README stays a current-state mirror and handoff note
 - current exact front: `kilo_micro_array_string_store` is closed by the shared-receiver `KernelTextSlot` bridge
-- current whole owner: phase-2.5 read/materialize/copy tax after the `const_suffix` / `freeze_text_plan(Pieces3)` producer cuts
+- last whole owner proof: phase-2.5 read/materialize/copy tax after the `const_suffix` / `freeze_text_plan(Pieces3)` producer cuts; 137x-D must recapture fresh evidence before editing
 - current owner split is now explicit:
   - `const_suffix freeze_fallback = 479728 / 480000`
   - `materialize total = 539728` (`~4.5 GB`)
@@ -42,7 +42,8 @@
 - current phase cut before optimization return:
   - `137x-A`: string publication contract closeout (`137x-92-string-publication-contract-closeout.md`)
   - `137x-B`: container / primitive design cleanout (`137x-93-container-primitive-design-cleanout.md`) is closed
-  - `137x-C`: owner-first optimization return is the next/current entry
+  - `137x-C`: structure completion gate before perf return is closed (`137x-91-task-board.md`)
+  - `137x-D`: owner-first optimization return is ready next and must start from fresh perf/asm evidence
 - current closeout status:
   - done: `repr-downgrade-contract`
     - verifier now rejects unproven `stable_view` repr requests before runtime; lowering must downgrade to `stable_owned` until StableView legality is verifier-visible
@@ -55,7 +56,8 @@
   - closeout gate:
     - 137x-A is satisfied
     - 137x-B design cleanout is satisfied
-    - 137x-C owner-first optimization return may reopen from fresh perf/asm baseline
+    - 137x-C structure completion gate is satisfied
+    - 137x-D owner-first optimization return may reopen from fresh perf/asm baseline
     - `publish.any` and runtime-wide phase-289x implementation remain blocked here
 - closed design cleanout gate:
   - closed: `137x-93-container-primitive-design-cleanout.md`
@@ -69,7 +71,7 @@
       - typed map lane remains closed; RuntimeData stays a facade, not semantic owner
     - `primitive-residuals-classification`
       - `Null` / `Void` are conservative, non-blocking residuals
-      - enum/sum/generic stays under its separate SSOT and does not block 137x-C
+      - enum/sum/generic stays under its separate SSOT and does not authorize optimization return
       - primitive/user-box, enum/sum, and ArrayBox residence proofs are sibling proofs, not interchangeable keeper evidence
     - `container-identity-residence-contract`
       - Array / Map public identity and ABI rows stay unchanged

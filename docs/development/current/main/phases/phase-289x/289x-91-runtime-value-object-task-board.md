@@ -163,7 +163,7 @@ Task state:
 - `289x-7g`: done in code, MIR string helper-name vocabulary centralized in `src/mir/string_corridor_names.rs`, behavior unchanged
 - `289x-7h`: done in code, prepass/declaration need classifier cutover to normalized surfaces, behavior unchanged
 - `289x-96`: closed; all Rust/C-shim/MIR clusters are done
-- optimization return: phase-289x gate is closed, and `phase-137x/137x-93-container-primitive-design-cleanout.md` is now closed; reopen as `137x-C` only through the owner-first perf entry
+- optimization return: phase-289x gate is closed, `phase-137x/137x-93-container-primitive-design-cleanout.md` is closed, and `phase-137x/137x-91-task-board.md` `137x-C` structure completion is closed; owner-first perf may reopen as `137x-D` from fresh evidence
 - carrier responsibility lock: done in this taskboard and `289x-90`
 
 ## Phase 0. Authority / Vocabulary Lock
