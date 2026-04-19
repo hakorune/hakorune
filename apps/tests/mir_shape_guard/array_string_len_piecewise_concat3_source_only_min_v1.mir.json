@@ -1,0 +1,226 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "params": [],
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 1,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "line-seed"
+              }
+            },
+            {
+              "op": "newbox",
+              "dst": 2,
+              "type": "ArrayBox",
+              "args": []
+            },
+            {
+              "op": "mir_call",
+              "dst": null,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "push",
+                  "receiver": 2,
+                  "certainty": "Union"
+                },
+                "args": [1],
+                "effects": ["IO"],
+                "flags": {}
+              }
+            },
+            {
+              "op": "const",
+              "dst": 3,
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "op": "copy",
+              "dst": 4,
+              "src": 2
+            },
+            {
+              "op": "mir_call",
+              "dst": 5,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "get",
+                  "receiver": 4,
+                  "certainty": "Union"
+                },
+                "args": [3],
+                "effects": ["IO"],
+                "flags": {}
+              }
+            },
+            {
+              "op": "copy",
+              "dst": 6,
+              "src": 5
+            },
+            {
+              "op": "mir_call",
+              "dst": 7,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "length",
+                  "receiver": 6,
+                  "certainty": "Union"
+                },
+                "args": [],
+                "effects": ["IO"],
+                "flags": {}
+              }
+            },
+            {
+              "op": "const",
+              "dst": 8,
+              "value": {
+                "type": "i64",
+                "value": 2
+              }
+            },
+            {
+              "op": "binop",
+              "dst": 9,
+              "lhs": 7,
+              "rhs": 8,
+              "operation": "/"
+            },
+            {
+              "op": "const",
+              "dst": 10,
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 11,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "substring",
+                  "receiver": 6,
+                  "certainty": "Union"
+                },
+                "args": [10, 9],
+                "effects": ["IO"],
+                "flags": {}
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 12,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "substring",
+                  "receiver": 6,
+                  "certainty": "Union"
+                },
+                "args": [9, 7],
+                "effects": ["IO"],
+                "flags": {}
+              }
+            },
+            {
+              "op": "const",
+              "dst": 13,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "xx"
+              }
+            },
+            {
+              "op": "const",
+              "dst": 14,
+              "value": {
+                "type": "i64",
+                "value": 1
+              }
+            },
+            {
+              "op": "const",
+              "dst": 15,
+              "value": {
+                "type": "i64",
+                "value": 1
+              }
+            },
+            {
+              "op": "binop",
+              "dst": 16,
+              "lhs": 7,
+              "rhs": 15,
+              "operation": "+",
+              "dst_type": "i64"
+            },
+            {
+              "op": "mir_call",
+              "dst": 17,
+              "mir_call": {
+                "callee": {
+                  "type": "Extern",
+                  "name": "nyash.string.substring_concat3_hhhii"
+                },
+                "args": [11, 13, 12, 14, 16],
+                "effects": ["IO"],
+                "flags": {}
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": null,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "set",
+                  "receiver": 2,
+                  "certainty": "Union"
+                },
+                "args": [3, 17],
+                "effects": ["IO"],
+                "flags": {}
+              }
+            },
+            {
+              "op": "ret",
+              "value": 7
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

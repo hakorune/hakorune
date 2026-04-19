@@ -229,23 +229,28 @@ Scope: current lane / next lane / restart order only.
         - fixture/smoke:
           - `apps/tests/mir_shape_guard/array_string_len_insert_mid_source_only_min_v1.mir.json`
           - `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_array_string_len_insert_mid_source_only_min.sh`
+          - `apps/tests/mir_shape_guard/array_string_len_piecewise_concat3_source_only_min_v1.mir.json`
+          - `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_array_string_len_piecewise_concat3_source_only_min.sh`
         - regression guard:
           - `tools/smokes/v2/profiles/integration/phase29ck_boundary/string/phase29ck_boundary_pure_array_string_len_live_after_get_min.sh`
           - still requires `slot_load_hi` when later substring values remain live
         - perf/asm proof:
-          - exact: `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`
-          - meso: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 63 ms`
+          - exact: `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
+          - meso: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 18 ms`
           - strict whole: `kilo_kernel_small_hk = C 81 ms / Ny AOT 28 ms` (`repeat=3`, parity ok)
           - `ny_main` now emits:
             - edit path: `array.string_len_hi -> array.string_insert_mid_store_hisi`
+            - meso subrange path: `array.string_len_hi -> array.kernel_slot_insert_hisi -> string.kernel_slot_substring_hii_in_place -> array.kernel_slot_store_hi`
             - branch suffix path: `array.string_indexof_hih -> array.string_suffix_store_his`
-          - no `nyash.array.get_hi`, `nyash.array.kernel_slot_insert_hisi`, `nyash.array.kernel_slot_concat_his`, or `nyash.array.kernel_slot_store_hi` remains on those same-slot paths
+          - insert-mid/suffix paths no longer emit `nyash.array.get_hi`, `nyash.array.kernel_slot_insert_hisi`, `nyash.array.kernel_slot_concat_his`, or `nyash.array.kernel_slot_store_hi`
+          - meso subrange path no longer emits `nyash.array.slot_load_hi`, `nyash.string.substring_hii`, `nyash.string.substring_concat3_hhhii`, or `nyash.array.set_his`
         - boundary:
           - this is still a narrow source-only window
           - live-after-get substring reuse keeps object-handle loading
           - full `TextLane`, MIR legality, allocator, and broad container lane-hosting remain separate later phases
         - next owner proof seam:
-          - asm top moved to `__strlen_evex`, `memchr`, `array_string_concat_const_suffix_by_index_store_same_slot`, `array_string_indexof_by_index`, and `array_string_len_by_index`
+          - meso asm top moved to `objectize_kernel_text_slot_stable_box`, `array_string_len_by_index`, `drop_retired_source_keep_batch_cold`, `array_string_insert_const_mid_by_index_into_slot`, `_int_free`, and `array.kernel_slot_store_hi`
+          - whole-front asm still needs a fresh reread before choosing the next owner
           - next card should start from perf/asm on those concrete helper interiors; do not widen into runtime-wide `TextLane`
   - good cut point:
     - the Phase 2.5 read-side alias lane now has array/map proof on all three read outcomes:
@@ -301,10 +306,10 @@ Scope: current lane / next lane / restart order only.
   - `kilo_micro_substring_only`
     - `C: 3 ms`
     - `Ny AOT: 3 ms`
-- exact `store.array.str` front is now also closed by the shared-receiver `KernelTextSlot` bridge:
+- exact `store.array.str` front is now also closed by source-only same-slot string-store bridges:
   - `kilo_micro_array_string_store`
     - `C: 10 ms`
-    - `Ny AOT: 4 ms`
+    - `Ny AOT: 3 ms`
   - reading:
     - direct-set + trailing-substring shared reuse is a keeper
     - microasm top is now startup/env dominated, so this exact front is no longer the active owner proof
@@ -313,13 +318,13 @@ Scope: current lane / next lane / restart order only.
     - shape: `substring + concat + array.set + loopcarry`
     - role: natural middle between exact micro and whole kilo on this lane
     - rule: use it to confirm store/publication cuts without the whole-front `indexOf("line")` row-scan noise
-- current bridge reread after the shared-receiver landing:
+- current bridge reread after the source-only concat3 subrange landing:
   - `kilo_meso_substring_concat_array_set_loopcarry`
     - `C: 3 ms`
-    - `Ny AOT: 57 ms`
+    - `Ny AOT: 18 ms`
   - reading:
-    - still within the prior `56-59 ms` band
-    - producer-side unpublished contract remains live, but this landing is not a meso keeper by itself
+    - now below the prior `56-65 ms` band
+    - public `array.get` / `substring_hii` / `substring_concat3_hhhii` / `array.set_his` are gone from the loop body on this bridge shape
 - current whole accept gate:
   - `kilo_kernel_small`
     - `C: 80 ms`

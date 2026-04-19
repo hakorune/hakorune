@@ -336,7 +336,10 @@
         long long split = 0;
         long long start = 0;
         long long end = 0;
+        long long source_recv = 0;
+        long long source_idx = 0;
         const char* middle_const = NULL;
+        int source_is_array_slot = 0;
         char slot_piecewise_ab[256];
         char slot_store_ab[128];
 
@@ -349,6 +352,7 @@
         if (!find_deferred_piecewise_subrange(piecewise_root, &source, &middle, &split)) return 0;
         middle_const = get_str_const(middle);
         if (!(source && middle && middle_const)) return 0;
+        source_is_array_slot = find_array_string_get_source(source, &source_recv, &source_idx);
 
         fprintf(
             f,
@@ -367,7 +371,12 @@
             ii);
 
         slot_piecewise_ab[0] = '\0';
-        append_i64_arg_ref(slot_piecewise_ab, sizeof(slot_piecewise_ab), source, 1);
+        if (source_is_array_slot) {
+          append_i64_arg_ref(slot_piecewise_ab, sizeof(slot_piecewise_ab), source_recv, 1);
+          append_i64_arg_ref(slot_piecewise_ab, sizeof(slot_piecewise_ab), source_idx, 0);
+        } else {
+          append_i64_arg_ref(slot_piecewise_ab, sizeof(slot_piecewise_ab), source, 1);
+        }
         strncat(
             slot_piecewise_ab,
             ", ptr getelementptr inbounds (",
@@ -386,14 +395,33 @@
               sizeof(slot_piecewise_ab) - strlen(slot_piecewise_ab) - 1);
         }
         append_i64_arg_ref(slot_piecewise_ab, sizeof(slot_piecewise_ab), split, 0);
-        append_i64_arg_ref(slot_piecewise_ab, sizeof(slot_piecewise_ab), start, 0);
-        append_i64_arg_ref(slot_piecewise_ab, sizeof(slot_piecewise_ab), end, 0);
-        fprintf(
-            f,
-            "  call i64 @\"nyash.string.kernel_slot_piecewise_subrange_hsiii\"(ptr %%arrstr.slot.%lld.%zu, %s)\n",
-            substring_root,
-            ii,
-            slot_piecewise_ab);
+        if (source_is_array_slot) {
+          char slot_substring_ab[128];
+          fprintf(
+              f,
+              "  call i64 @\"nyash.array.kernel_slot_insert_hisi\"(ptr %%arrstr.slot.%lld.%zu, %s)\n",
+              substring_root,
+              ii,
+              slot_piecewise_ab);
+          slot_substring_ab[0] = '\0';
+          append_i64_arg_ref(slot_substring_ab, sizeof(slot_substring_ab), start, 1);
+          append_i64_arg_ref(slot_substring_ab, sizeof(slot_substring_ab), end, 0);
+          fprintf(
+              f,
+              "  call i64 @\"nyash.string.kernel_slot_substring_hii_in_place\"(ptr %%arrstr.slot.%lld.%zu, %s)\n",
+              substring_root,
+              ii,
+              slot_substring_ab);
+        } else {
+          append_i64_arg_ref(slot_piecewise_ab, sizeof(slot_piecewise_ab), start, 0);
+          append_i64_arg_ref(slot_piecewise_ab, sizeof(slot_piecewise_ab), end, 0);
+          fprintf(
+              f,
+              "  call i64 @\"nyash.string.kernel_slot_piecewise_subrange_hsiii\"(ptr %%arrstr.slot.%lld.%zu, %s)\n",
+              substring_root,
+              ii,
+              slot_piecewise_ab);
+        }
 
         slot_store_ab[0] = '\0';
         append_i64_arg_ref(slot_store_ab, sizeof(slot_store_ab), recv, 1);

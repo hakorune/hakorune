@@ -444,7 +444,24 @@
       - guard the landed direct-set-only deferred `Pieces3 substring` widening with:
         - fixture: `apps/tests/mir_shape_guard/string_piecewise_kernel_slot_store_min_v1.mir.json`
         - smoke: `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_string_piecewise_direct_set_min.sh`
-    - latest local probe after landing the cold retirement sink:
+      - guard the landed source-only `substring_concat3_hhhii` subrange store widening with:
+        - fixture: `apps/tests/mir_shape_guard/array_string_len_piecewise_concat3_source_only_min_v1.mir.json`
+        - smoke: `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_array_string_len_piecewise_concat3_source_only_min.sh`
+    - landed source-only concat3 subrange store:
+      - exact front stays closed: `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
+      - middle guard improved: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 18 ms`
+      - loop IR now keeps the source in array text residence:
+        - `array.string_len_hi`
+        - `array.kernel_slot_insert_hisi`
+        - `string.kernel_slot_substring_hii_in_place`
+        - `array.kernel_slot_store_hi`
+      - forbidden loop calls are gone on this shape:
+        - `array.slot_load_hi`
+        - `string.substring_hii`
+        - `string.substring_concat3_hhhii`
+        - `array.set_his`
+      - next owner proof must start from fresh whole-front perf/asm before picking the next helper interior
+    - older local probe after landing the cold retirement sink:
       - `kilo_meso_substring_concat_array_set_loopcarry = 53 ms` (`repeat=3`, prior local reread `56 ms`)
       - `kilo_kernel_small_hk = 733 ms`, `736 ms` (`repeat=3` x2)
       - current read: this is a valid narrow probe and a slight meso lift, but the whole-front keeper win is not locked yet

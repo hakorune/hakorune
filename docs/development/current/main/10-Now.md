@@ -198,19 +198,22 @@ Related:
     - residence rule matches insert-mid: raw `StringBox` is mutated; borrowed alias is materialized into an unpublished raw `StringBox`
   - validation:
     - new smoke: `phase137x_boundary_array_string_len_insert_mid_source_only_min.sh`
+    - new smoke: `phase137x_boundary_array_string_len_piecewise_concat3_source_only_min.sh`
     - live-after-get regression: `phase29ck_boundary_pure_array_string_len_live_after_get_min.sh`
   - perf/asm proof:
-    - `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`
-    - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 63 ms`
+    - `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
+    - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 18 ms`
     - `kilo_kernel_small_hk = C 81 ms / Ny AOT 28 ms` (`repeat=3`, parity ok)
     - `ny_main` hot edit path is `array.string_len_hi -> array.string_insert_mid_store_hisi`
+    - `ny_main` meso subrange path is `array.string_len_hi -> array.kernel_slot_insert_hisi -> string.kernel_slot_substring_hii_in_place -> array.kernel_slot_store_hi`
     - `ny_main` branch suffix path is `array.string_indexof_hih -> array.string_suffix_store_his`
-    - no `nyash.array.get_hi`, `nyash.array.kernel_slot_insert_hisi`, `nyash.array.kernel_slot_concat_his`, or `nyash.array.kernel_slot_store_hi` remains on those same-slot paths
+    - insert-mid/suffix paths no longer emit `nyash.array.get_hi`, `nyash.array.kernel_slot_insert_hisi`, `nyash.array.kernel_slot_concat_his`, or `nyash.array.kernel_slot_store_hi`
+    - meso subrange path no longer emits `nyash.array.slot_load_hi`, `nyash.string.substring_hii`, `nyash.string.substring_concat3_hhhii`, or `nyash.array.set_his`
   - boundary:
     - this is a narrow source-only window, not a `TextLane` / MIR legality / allocator phase
   - next owner proof seam:
-    - asm top moved to `__strlen_evex`, `memchr`, `array_string_concat_const_suffix_by_index_store_same_slot`, `array_string_indexof_by_index`, and `array_string_len_by_index`
-    - next optimization card should start from those helper interiors
+    - meso asm top moved to `objectize_kernel_text_slot_stable_box`, `array_string_len_by_index`, `drop_retired_source_keep_batch_cold`, `array_string_insert_const_mid_by_index_into_slot`, `_int_free`, and `array.kernel_slot_store_hi`
+    - whole-front asm still needs a fresh reread before choosing the next owner
 
 ## Snapshot
 
@@ -227,11 +230,11 @@ Related:
   - shape: `substring + concat + array.set + loopcarry`
   - role: adopted middle between exact micro and whole kilo
   - rule: use it to validate store/publication cuts without the whole-front `indexOf("line")` row-scan noise
-- current bridge reread after the shared-receiver landing:
-  - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 57 ms`
+- current bridge reread after the source-only concat3 subrange landing:
+  - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 18 ms`
   - reading:
-    - still inside the prior `56-59 ms` band
-    - producer-side unpublished outcome widening stays live, but this landing is not a meso keeper by itself
+    - now below the prior `56-65 ms` band
+    - public `array.get` / `substring_hii` / `substring_concat3_hhhii` / `array.set_his` are gone from the loop body on this bridge shape
 - current whole accept gate:
   - `kilo_kernel_small`
   - current reread result: `C 80 ms / Ny AOT 739 ms` (`repeat=3`)
