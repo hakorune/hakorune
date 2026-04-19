@@ -107,10 +107,17 @@ if grep -E 'call .*nyash\.array\.slot_load_hi' "$LL_DUMP" >/dev/null 2>&1; then
     exit 1
 fi
 
-if ! grep -E 'call .*nyash\.array\.string_suffix_store_his' "$LL_DUMP" >/dev/null 2>&1; then
+if ! grep -E 'call .*nyash\.array\.string_suffix_store_hisi([^i]|$)' "$LL_DUMP" >/dev/null 2>&1; then
     echo "[INFO] lowered IR:"
     tail -n 120 "$LL_DUMP" || true
-    test_fail "phase29ck_boundary_pure_array_string_indexof_branch_live_after_get_min: lowered IR did not use same-slot const-suffix store"
+    test_fail "phase29ck_boundary_pure_array_string_indexof_branch_live_after_get_min: lowered IR did not use explicit-length same-slot const-suffix store"
+    exit 1
+fi
+
+if grep -E 'call .*nyash\.array\.string_suffix_store_his([^i]|$)' "$LL_DUMP" >/dev/null 2>&1; then
+    echo "[INFO] lowered IR:"
+    tail -n 120 "$LL_DUMP" || true
+    test_fail "phase29ck_boundary_pure_array_string_indexof_branch_live_after_get_min: lowered IR still uses legacy CStr const-suffix store"
     exit 1
 fi
 

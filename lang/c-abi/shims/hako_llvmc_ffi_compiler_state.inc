@@ -126,6 +126,23 @@
                  read_int(ins, "then_val") == reg ||
                  read_int(ins, "else_val") == reg;
         }
+        if (strcmp(op, "phi") == 0) {
+          yyjson_val* vals = yyjson_obj_get(ins, "values");
+          if (!vals) vals = yyjson_obj_get(ins, "incoming");
+          if (vals && yyjson_is_arr(vals)) {
+            size_t n = yyjson_arr_size(vals);
+            for (size_t i = 0; i < n; i++) {
+              yyjson_val* ent = yyjson_arr_get(vals, i);
+              if (ent && yyjson_is_arr(ent) && yyjson_arr_size(ent) >= 1) {
+                yyjson_val* ent0 = yyjson_arr_get(ent, 0);
+                if (ent0 && (long long)yyjson_get_sint(ent0) == reg) return 1;
+              } else if (read_int(ent, "value") == reg) {
+                return 1;
+              }
+            }
+          }
+          return 0;
+        }
         if (strcmp(op, "branch") == 0) return read_int(ins, "cond") == reg;
         if (strcmp(op, "ret") == 0) return read_int(ins, "value") == reg;
         if (strcmp(op, "mir_call") == 0) {

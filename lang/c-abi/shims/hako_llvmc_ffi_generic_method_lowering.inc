@@ -25,7 +25,7 @@
         const char* rhs_const = NULL;
         char slot_concat_ab[224];
         char slot_store_ab[128];
-        char direct_store_ab[224];
+        char direct_store_ab[256];
 
         (void)ilen;
         (void)insts;
@@ -33,6 +33,7 @@
         if (!find_deferred_const_suffix_kernel_slot(pair_root, &lhs, &rhs)) return 0;
         rhs_const = get_str_const(rhs);
         if (!(rhs && rhs_const)) return 0;
+        size_t rhs_len = strlen(rhs_const);
         int lhs_is_same_array_slot_source =
             find_array_string_get_source(lhs, &source_recv, &source_idx) &&
             resolve_copy_source_reg(source_recv) == resolve_copy_source_reg(recv) &&
@@ -52,8 +53,16 @@
                 tail,
                 sizeof(tail),
                 "[%zu x i8], ptr @.str_reg_%lld, i64 0, i64 0)",
-                strlen(rhs_const) + 1,
+                rhs_len + 1,
                 rhs);
+            strncat(
+                direct_store_ab,
+                tail,
+                sizeof(direct_store_ab) - strlen(direct_store_ab) - 1);
+          }
+          {
+            char tail[64];
+            snprintf(tail, sizeof(tail), ", i64 %zu", rhs_len);
             strncat(
                 direct_store_ab,
                 tail,
@@ -62,14 +71,14 @@
           if (dst) {
             fprintf(
                 f,
-                "  %%r%lld = call i64 @\"nyash.array.string_suffix_store_his\"(%s)\n",
+                "  %%r%lld = call i64 @\"nyash.array.string_suffix_store_hisi\"(%s)\n",
                 dst,
                 direct_store_ab);
             set_type(dst, T_I64);
           } else {
             fprintf(
                 f,
-                "  call i64 @\"nyash.array.string_suffix_store_his\"(%s)\n",
+                "  call i64 @\"nyash.array.string_suffix_store_hisi\"(%s)\n",
                 direct_store_ab);
           }
           return 1;
@@ -179,7 +188,7 @@
         const char* middle_const = NULL;
         char slot_insert_ab[320];
         char slot_store_ab[128];
-        char direct_store_ab[256];
+        char direct_store_ab[288];
         int source_is_array_slot = 0;
         int source_is_same_array_slot = 0;
 
@@ -189,6 +198,7 @@
         if (!find_deferred_insert_mid_kernel_slot(insert_root, &source, &middle, &split)) return 0;
         middle_const = get_str_const(middle);
         if (!(source && middle && middle_const)) return 0;
+        size_t middle_len = strlen(middle_const);
         source_is_array_slot = find_array_string_get_source(source, &source_recv, &source_idx);
         source_is_same_array_slot =
             source_is_array_slot &&
@@ -209,8 +219,16 @@
                 tail,
                 sizeof(tail),
                 "[%zu x i8], ptr @.str_reg_%lld, i64 0, i64 0)",
-                strlen(middle_const) + 1,
+                middle_len + 1,
                 middle);
+            strncat(
+                direct_store_ab,
+                tail,
+                sizeof(direct_store_ab) - strlen(direct_store_ab) - 1);
+          }
+          {
+            char tail[64];
+            snprintf(tail, sizeof(tail), ", i64 %zu", middle_len);
             strncat(
                 direct_store_ab,
                 tail,
@@ -220,14 +238,14 @@
           if (dst) {
             fprintf(
                 f,
-                "  %%r%lld = call i64 @\"nyash.array.string_insert_mid_store_hisi\"(%s)\n",
+                "  %%r%lld = call i64 @\"nyash.array.string_insert_mid_store_hisii\"(%s)\n",
                 dst,
                 direct_store_ab);
             set_type(dst, T_I64);
           } else {
             fprintf(
                 f,
-                "  call i64 @\"nyash.array.string_insert_mid_store_hisi\"(%s)\n",
+                "  call i64 @\"nyash.array.string_insert_mid_store_hisii\"(%s)\n",
                 direct_store_ab);
           }
           return 1;
@@ -343,7 +361,7 @@
         int source_is_same_array_slot = 0;
         char slot_piecewise_ab[256];
         char slot_store_ab[128];
-        char direct_store_ab[320];
+        char direct_store_ab[360];
 
         (void)ilen;
         if (!substring_root) return 0;
@@ -354,6 +372,7 @@
         if (!find_deferred_piecewise_subrange(piecewise_root, &source, &middle, &split)) return 0;
         middle_const = get_str_const(middle);
         if (!(source && middle && middle_const)) return 0;
+        size_t middle_len = strlen(middle_const);
         source_is_array_slot = find_array_string_get_source(source, &source_recv, &source_idx);
         source_is_same_array_slot =
             source_is_array_slot &&
@@ -374,8 +393,16 @@
                 tail,
                 sizeof(tail),
                 "[%zu x i8], ptr @.str_reg_%lld, i64 0, i64 0)",
-                strlen(middle_const) + 1,
+                middle_len + 1,
                 middle);
+            strncat(
+                direct_store_ab,
+                tail,
+                sizeof(direct_store_ab) - strlen(direct_store_ab) - 1);
+          }
+          {
+            char tail[64];
+            snprintf(tail, sizeof(tail), ", i64 %zu", middle_len);
             strncat(
                 direct_store_ab,
                 tail,
@@ -387,14 +414,14 @@
           if (dst) {
             fprintf(
                 f,
-                "  %%r%lld = call i64 @\"nyash.array.string_insert_mid_subrange_store_hisiii\"(%s)\n",
+                "  %%r%lld = call i64 @\"nyash.array.string_insert_mid_subrange_store_hisiiii\"(%s)\n",
                 dst,
                 direct_store_ab);
             set_type(dst, T_I64);
           } else {
             fprintf(
                 f,
-                "  call i64 @\"nyash.array.string_insert_mid_subrange_store_hisiii\"(%s)\n",
+                "  call i64 @\"nyash.array.string_insert_mid_subrange_store_hisiiii\"(%s)\n",
                 direct_store_ab);
           }
           return 1;

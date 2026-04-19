@@ -7,8 +7,9 @@
 #    `substring_concat3_hhhii(prefix, const, suffix, 1, len + 1)`,
 #    and `array.set(...)` must not publish/load an object handle.
 # 2) the len result lowers to `nyash.array.string_len_hi`.
-# 3) the same-slot piecewise subrange store lowers to one residence mutation:
-#    `nyash.array.string_insert_mid_subrange_store_hisiii`.
+# 3) the same-slot piecewise subrange store lowers to one explicit-length
+#    residence mutation:
+#    `nyash.array.string_insert_mid_subrange_store_hisiiii`.
 
 set -euo pipefail
 
@@ -93,7 +94,7 @@ fi
 
 for needle in \
     "call i64 @nyash.array.string_len_hi" \
-    "call i64 @nyash.array.string_insert_mid_subrange_store_hisiii"
+    "call i64 @nyash.array.string_insert_mid_subrange_store_hisiiii"
 do
     if ! grep -Fq "$needle" "$OUT_LL"; then
         echo "[INFO] lowered IR:"
@@ -110,6 +111,8 @@ for forbidden in \
     "call i64 @\"nyash.array.get_hi\"" \
     "call i64 @nyash.array.kernel_slot_insert_hisi" \
     "call i64 @\"nyash.array.kernel_slot_insert_hisi\"" \
+    "call i64 @nyash.array.string_insert_mid_subrange_store_hisiii(" \
+    "call i64 @\"nyash.array.string_insert_mid_subrange_store_hisiii\"" \
     "call i64 @nyash.string.kernel_slot_substring_hii_in_place" \
     "call i64 @\"nyash.string.kernel_slot_substring_hii_in_place\"" \
     "call i64 @nyash.array.kernel_slot_store_hi" \
