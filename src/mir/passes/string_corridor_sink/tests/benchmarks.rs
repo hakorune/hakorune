@@ -162,7 +162,10 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
                     MirInstruction::Call {
                         callee: Some(Callee::Extern(callee)),
                         ..
-                    } if callee == SUBSTRING_CONCAT3_EXTERN => {
+                    } if callee == SUBSTRING_CONCAT3_EXTERN
+                        || callee == SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN
+                        || callee == SUBSTRING_CONCAT3_PUBLISH_NEED_STABLE_OWNED_EXTERN =>
+                    {
                         saw_helper = true;
                     }
                     MirInstruction::Call {

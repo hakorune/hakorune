@@ -28,6 +28,10 @@ use crate::mir::{
 
 pub const SUBSTRING_LEN_EXTERN: &str = "nyash.string.substring_len_hii";
 pub const SUBSTRING_CONCAT3_EXTERN: &str = "nyash.string.substring_concat3_hhhii";
+pub const SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN: &str =
+    "nyash.string.substring_concat3_publish_explicit_api_owned_hhhii";
+pub const SUBSTRING_CONCAT3_PUBLISH_NEED_STABLE_OWNED_EXTERN: &str =
+    "nyash.string.substring_concat3_publish_need_stable_owned_hhhii";
 pub const INSERT_HSI_EXTERN: &str = "nyash.string.insert_hsi";
 
 mod concat_corridor;
@@ -257,6 +261,7 @@ struct PublicationReturnPlan {
     helper_idx: usize,
     helper_dst: ValueId,
     return_idx: Option<usize>,
+    publish_extern: &'static str,
     left: ValueId,
     middle: ValueId,
     right: ValueId,
@@ -271,6 +276,7 @@ struct PublicationWriteBoundaryPlan {
     helper_idx: usize,
     helper_dst: ValueId,
     boundary_idx: usize,
+    publish_extern: &'static str,
     left: ValueId,
     middle: ValueId,
     right: ValueId,
@@ -285,6 +291,7 @@ struct PublicationHostBoundaryPlan {
     helper_idx: usize,
     helper_dst: ValueId,
     boundary_idx: usize,
+    publish_extern: &'static str,
     left: ValueId,
     middle: ValueId,
     right: ValueId,

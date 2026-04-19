@@ -172,7 +172,7 @@ fn sinks_publication_helper_to_same_block_return_boundary() {
                     args,
                     ..
                 } if *dst == ValueId(10)
-                    && name == SUBSTRING_CONCAT3_EXTERN
+                    && name == SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN
                     && args.as_slice()
                         == [ValueId(5), ValueId(7), ValueId(6), ValueId(8), ValueId(9)]
             )

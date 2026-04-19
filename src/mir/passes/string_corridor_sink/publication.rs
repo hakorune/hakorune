@@ -11,6 +11,33 @@ fn requires_explicit_cold_publish(function: &MirFunction, value: ValueId) -> boo
     )
 }
 
+fn publication_adapter_extern(function: &MirFunction, value: ValueId) -> Option<&'static str> {
+    let reason_repr = function
+        .metadata
+        .string_kernel_plans
+        .get(&value)
+        .and_then(|plan| plan.publish_reason.zip(plan.publish_repr_policy))
+        .or_else(|| {
+            let plan = helper_plan_for_kind(
+                function,
+                value,
+                StringCorridorCandidateKind::PublicationSink,
+            )?;
+            plan.publish_reason.zip(plan.publish_repr_policy)
+        })?;
+    match reason_repr {
+        (
+            crate::mir::StringPublishReason::ExplicitApiReplay,
+            crate::mir::StringPublishReprPolicy::StableOwned,
+        ) => Some(SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN),
+        (
+            crate::mir::StringPublishReason::StableObjectDemand,
+            crate::mir::StringPublishReprPolicy::StableOwned,
+        ) => Some(SUBSTRING_CONCAT3_PUBLISH_NEED_STABLE_OWNED_EXTERN),
+        _ => None,
+    }
+}
+
 pub(super) fn collect_publication_return_plans(
     function: &MirFunction,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
@@ -43,6 +70,9 @@ pub(super) fn collect_publication_return_plans(
         if helper_bbid != *bbid {
             continue;
         }
+        let Some(publish_extern) = publication_adapter_extern(function, return_chain.root) else {
+            continue;
+        };
 
         plans_by_block.insert(
             *bbid,
@@ -53,6 +83,7 @@ pub(super) fn collect_publication_return_plans(
                     ReturnSite::Instruction(idx) => Some(idx),
                     ReturnSite::Terminator => None,
                 },
+                publish_extern,
                 left: helper.left,
                 middle: helper.middle,
                 right: helper.right,
@@ -185,6 +216,10 @@ pub(super) fn collect_publication_write_boundary_plans(
             if helper_bbid != *bbid {
                 continue;
             }
+            let Some(publish_extern) = publication_adapter_extern(function, boundary_chain.root)
+            else {
+                continue;
+            };
 
             let removable_indices: BTreeSet<usize> =
                 boundary_chain.copy_indices.iter().copied().collect();
@@ -201,6 +236,7 @@ pub(super) fn collect_publication_write_boundary_plans(
                 helper_idx,
                 helper_dst: helper.dst,
                 boundary_idx,
+                publish_extern,
                 left: helper.left,
                 middle: helper.middle,
                 right: helper.right,
@@ -257,6 +293,10 @@ pub(super) fn collect_publication_host_boundary_plans(
             if helper_bbid != *bbid {
                 continue;
             }
+            let Some(publish_extern) = publication_adapter_extern(function, boundary_chain.root)
+            else {
+                continue;
+            };
 
             let removable_indices: BTreeSet<usize> =
                 boundary_chain.copy_indices.iter().copied().collect();
@@ -273,6 +313,7 @@ pub(super) fn collect_publication_host_boundary_plans(
                 helper_idx,
                 helper_dst: helper.dst,
                 boundary_idx,
+                publish_extern,
                 left: helper.left,
                 middle: helper.middle,
                 right: helper.right,
@@ -320,7 +361,7 @@ pub(super) fn apply_publication_return_plans(
                 new_insts.push(MirInstruction::Call {
                     dst: Some(plan.helper_dst),
                     func: ValueId::INVALID,
-                    callee: Some(Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string())),
+                    callee: Some(Callee::Extern(plan.publish_extern.to_string())),
                     args: vec![plan.left, plan.middle, plan.right, plan.start, plan.end],
                     effects: plan.effects,
                 });
@@ -350,7 +391,7 @@ pub(super) fn apply_publication_return_plans(
             new_insts.push(MirInstruction::Call {
                 dst: Some(plan.helper_dst),
                 func: ValueId::INVALID,
-                callee: Some(Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string())),
+                callee: Some(Callee::Extern(plan.publish_extern.to_string())),
                 args: vec![plan.left, plan.middle, plan.right, plan.start, plan.end],
                 effects: plan.effects,
             });
@@ -430,7 +471,7 @@ pub(super) fn apply_publication_write_boundary_plans(
             new_insts.push(MirInstruction::Call {
                 dst: Some(plan.helper_dst),
                 func: ValueId::INVALID,
-                callee: Some(Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string())),
+                callee: Some(Callee::Extern(plan.publish_extern.to_string())),
                 args: vec![plan.left, plan.middle, plan.right, plan.start, plan.end],
                 effects: plan.effects,
             });
@@ -515,7 +556,7 @@ pub(super) fn apply_publication_host_boundary_plans(
             new_insts.push(MirInstruction::Call {
                 dst: Some(plan.helper_dst),
                 func: ValueId::INVALID,
-                callee: Some(Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string())),
+                callee: Some(Callee::Extern(plan.publish_extern.to_string())),
                 args: vec![plan.left, plan.middle, plan.right, plan.start, plan.end],
                 effects: plan.effects,
             });

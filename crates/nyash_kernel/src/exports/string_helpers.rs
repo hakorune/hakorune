@@ -40,7 +40,8 @@ use self::cache::{
     substring_view_arc_cache_store, SubstringViewCacheHit,
 };
 use self::concat::{
-    concat3_fallback, concat3_substring_fallback, concat_const_suffix_fallback,
+    concat3_fallback, concat3_substring_fallback, concat3_substring_publish_explicit_api_owned,
+    concat3_substring_publish_need_stable_owned, concat_const_suffix_fallback,
     concat_const_suffix_into_slot, concat_pair_fallback, concat_pair_into_slot,
     concat_pair_substring_fallback, insert_const_mid_fallback, insert_const_mid_into_slot,
     piecewise_subrange_hsiii_fallback, piecewise_subrange_hsiii_into_slot,
@@ -372,6 +373,26 @@ pub(super) fn string_publish_kernel_text_slot_h_export_impl(slot: *mut KernelTex
         return 0;
     };
     publish_kernel_text_slot(slot).unwrap_or_else(shared_empty_string_handle)
+}
+
+pub(super) fn string_substring_concat3_publish_explicit_api_owned_hhhii_export_impl(
+    a_h: i64,
+    b_h: i64,
+    c_h: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    concat3_substring_publish_explicit_api_owned(a_h, b_h, c_h, start, end)
+}
+
+pub(super) fn string_substring_concat3_publish_need_stable_owned_hhhii_export_impl(
+    a_h: i64,
+    b_h: i64,
+    c_h: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    concat3_substring_publish_need_stable_owned(a_h, b_h, c_h, start, end)
 }
 
 pub(super) fn string_kernel_text_slot_len_i_export_impl(slot: *const KernelTextSlot) -> i64 {

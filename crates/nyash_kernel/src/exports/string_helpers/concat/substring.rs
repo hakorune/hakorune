@@ -3,6 +3,8 @@ use nyash_rust::runtime::host_handles as handles;
 
 use super::super::materialize::{
     shared_empty_string_handle, string_handle_from_owned_substring_concat_hhii,
+    string_handle_from_owned_substring_concat_hhii_explicit_api_owned,
+    string_handle_from_owned_substring_concat_hhii_need_stable_owned, to_owned_string_handle_arg,
 };
 
 enum ConcatSubstringPath {
@@ -153,6 +155,59 @@ fn freeze_concat_substring_path(path: ConcatSubstringPath) -> i64 {
 }
 
 #[inline(always)]
+fn substring_owned_from_handle(handle: i64, start: i64, end: i64) -> Option<String> {
+    if handle <= 0 {
+        return None;
+    }
+
+    let slice_owned = |text: &str| {
+        let (slice_start, slice_end) = clamp_i64_range(text.len(), start, end);
+        text.get(slice_start..slice_end).map(str::to_owned)
+    };
+
+    handles::with_text_read_session(|session| session.str_handle(handle as u64, slice_owned))
+        .flatten()
+        .or_else(|| {
+            let owned = to_owned_string_handle_arg(handle);
+            slice_owned(owned.as_str())
+        })
+}
+
+#[inline(always)]
+fn owned_text_from_concat_substring_path(path: ConcatSubstringPath) -> Option<String> {
+    match path {
+        ConcatSubstringPath::ReturnEmpty => Some(String::new()),
+        ConcatSubstringPath::SinglePiece { handle, start, end } => {
+            substring_owned_from_handle(handle, start, end)
+        }
+        ConcatSubstringPath::Owned(text) => Some(text),
+    }
+}
+
+#[inline(always)]
+fn publish_concat3_substring_owned(
+    a_h: i64,
+    b_h: i64,
+    c_h: i64,
+    start: i64,
+    end: i64,
+    publish_owned: impl FnOnce(String) -> i64,
+) -> i64 {
+    let owned = concat3_substring_path(a_h, b_h, c_h, start, end)
+        .and_then(owned_text_from_concat_substring_path)
+        .or_else(|| {
+            let concat_h = super::concat3_fallback(a_h, b_h, c_h);
+            substring_owned_from_handle(concat_h, start, end)
+        });
+
+    match owned {
+        Some(text) if text.is_empty() => shared_empty_string_handle(),
+        Some(text) => publish_owned(text),
+        None => shared_empty_string_handle(),
+    }
+}
+
+#[inline(always)]
 pub(super) fn concat_pair_substring_fallback(a_h: i64, b_h: i64, start: i64, end: i64) -> i64 {
     if let Some(path) = concat_pair_substring_path(a_h, b_h, start, end) {
         return freeze_concat_substring_path(path);
@@ -174,4 +229,30 @@ pub(super) fn concat3_substring_fallback(
     }
     let concat_h = super::concat3_fallback(a_h, b_h, c_h);
     super::super::string_substring_hii_export_impl(concat_h, start, end)
+}
+
+#[inline(always)]
+pub(super) fn concat3_substring_publish_explicit_api_owned(
+    a_h: i64,
+    b_h: i64,
+    c_h: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    publish_concat3_substring_owned(a_h, b_h, c_h, start, end, |text| {
+        string_handle_from_owned_substring_concat_hhii_explicit_api_owned(text)
+    })
+}
+
+#[inline(always)]
+pub(super) fn concat3_substring_publish_need_stable_owned(
+    a_h: i64,
+    b_h: i64,
+    c_h: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    publish_concat3_substring_owned(a_h, b_h, c_h, start, end, |text| {
+        string_handle_from_owned_substring_concat_hhii_need_stable_owned(text)
+    })
 }

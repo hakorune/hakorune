@@ -177,6 +177,30 @@ pub extern "C" fn nyash_string_kernel_slot_publish_h_export(
     string_publish_kernel_text_slot_h_export_impl(slot)
 }
 
+// Runtime-private publish.text adapter (repr=stable_owned, reason=explicit_api_replay).
+#[export_name = "nyash.string.substring_concat3_publish_explicit_api_owned_hhhii"]
+pub extern "C" fn nyash_string_substring_concat3_publish_explicit_api_owned_hhhii_export(
+    a_h: i64,
+    b_h: i64,
+    c_h: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    string_substring_concat3_publish_explicit_api_owned_hhhii_export_impl(a_h, b_h, c_h, start, end)
+}
+
+// Runtime-private publish.text adapter (repr=stable_owned, reason=stable_object_demand).
+#[export_name = "nyash.string.substring_concat3_publish_need_stable_owned_hhhii"]
+pub extern "C" fn nyash_string_substring_concat3_publish_need_stable_owned_hhhii_export(
+    a_h: i64,
+    b_h: i64,
+    c_h: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    string_substring_concat3_publish_need_stable_owned_hhhii_export_impl(a_h, b_h, c_h, start, end)
+}
+
 // Runtime-private direct-kernel slot seam.
 #[export_name = "nyash.string.kernel_slot_len_i"]
 pub extern "C" fn nyash_string_kernel_slot_len_i_export(

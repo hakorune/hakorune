@@ -275,6 +275,28 @@ pub(super) fn concat3_substring_fallback(
 }
 
 #[inline(always)]
+pub(super) fn concat3_substring_publish_explicit_api_owned(
+    a_h: i64,
+    b_h: i64,
+    c_h: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    substring::concat3_substring_publish_explicit_api_owned(a_h, b_h, c_h, start, end)
+}
+
+#[inline(always)]
+pub(super) fn concat3_substring_publish_need_stable_owned(
+    a_h: i64,
+    b_h: i64,
+    c_h: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    substring::concat3_substring_publish_need_stable_owned(a_h, b_h, c_h, start, end)
+}
+
+#[inline(always)]
 fn concat3_plan_from_fast_str(a_h: i64, b_h: i64, c_h: i64) -> Option<i64> {
     if a_h <= 0 || b_h <= 0 || c_h <= 0 {
         return None;

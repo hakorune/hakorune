@@ -908,8 +908,13 @@ Scope: current lane / next lane / restart order only.
       - keep string-only `publish.text(reason, repr)` contract MIR-owned
       - keep `TextCell` sink/residence only; it is not a corridor value
     - immediate task stack after docs:
-      - next implementation card is `runtime-publish-text-adapter`
-      - then `substring_hii` mid-slice replay with `repr=StableView`
+      - completed `runtime-publish-text-adapter`
+        - publication rewrites now consume MIR-owned `publish_reason` / `publish_repr_policy` through runtime-private stable-owned boundary helpers instead of replaying the generic fallback helper at the sink
+        - new runtime-private adapters:
+          - `nyash.string.substring_concat3_publish_explicit_api_owned_hhhii`
+          - `nyash.string.substring_concat3_publish_need_stable_owned_hhhii`
+        - stable-owned publication is now fixed to materialize `StringBox` even when the concat window collapses to a single source piece
+      - next implementation card is `substring_hii` mid-slice replay with `repr=StableView`
       - `publish.any` stays deferred
    - do not widen into `TextLane`, allocator, public ABI, or a generic bridge substrate on this card
    - keep recent carrier commits as the semantic baseline; this card is contract/task shaping, not new keeper evidence

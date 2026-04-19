@@ -34,8 +34,10 @@ pub(crate) use string_materialize::objectize_kernel_text_slot_stable_box;
 pub use string_materialize::KernelTextSlot;
 pub(crate) use string_materialize::{
     freeze_owned_string_into_slot, issue_fresh_handle_from_arc, materialize_owned_string,
+    materialize_owned_string_explicit_api_boundary_for_site,
     materialize_owned_string_generic_fallback, materialize_owned_string_generic_fallback_for_site,
-    publish_kernel_text_slot, with_kernel_text_slot_text, KernelTextSlotState, StringPublishSite,
+    materialize_owned_string_need_stable_object_boundary_for_site, publish_kernel_text_slot,
+    with_kernel_text_slot_text, KernelTextSlotState, StringPublishSite,
 };
 #[cfg(test)]
 pub(crate) use string_store::store_string_box_from_source;

@@ -176,7 +176,7 @@ fn sinks_publication_helper_to_same_block_store_boundary() {
                     args,
                     ..
                 } if *dst == ValueId(11)
-                    && name == SUBSTRING_CONCAT3_EXTERN
+                    && name == SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN
                     && args.as_slice()
                         == [ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)]
             )
@@ -387,7 +387,7 @@ fn sinks_publication_helper_to_same_block_fieldset_boundary() {
                     args,
                     ..
                 } if *dst == ValueId(11)
-                    && name == SUBSTRING_CONCAT3_EXTERN
+                    && name == SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN
                     && args.as_slice()
                         == [ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)]
             )
@@ -602,7 +602,7 @@ fn sinks_publication_helper_to_same_block_runtime_data_set_boundary() {
                     args,
                     ..
                 } if *dst == ValueId(11)
-                    && name == SUBSTRING_CONCAT3_EXTERN
+                    && name == SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN
                     && args.as_slice()
                         == [ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)]
             )

@@ -661,6 +661,30 @@ pub(crate) fn materialize_owned_string_generic_fallback_for_site(
 }
 
 #[inline(always)]
+pub(crate) fn materialize_owned_string_explicit_api_boundary_for_site(
+    value: String,
+    site: StringPublishSite,
+) -> i64 {
+    publish_owned_bytes_with_reason_and_site(
+        freeze_owned_bytes_with_site(value, site),
+        PublishReason::ExplicitApi,
+        site,
+    )
+}
+
+#[inline(always)]
+pub(crate) fn materialize_owned_string_need_stable_object_boundary_for_site(
+    value: String,
+    site: StringPublishSite,
+) -> i64 {
+    publish_owned_bytes_with_reason_and_site(
+        freeze_owned_bytes_with_site(value, site),
+        PublishReason::NeedStableObject,
+        site,
+    )
+}
+
+#[inline(always)]
 pub(crate) fn materialize_owned_string(value: String) -> i64 {
     publish_owned_bytes_explicit_api_boundary(freeze_owned_bytes(value))
 }

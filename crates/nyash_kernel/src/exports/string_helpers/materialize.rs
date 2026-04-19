@@ -7,8 +7,9 @@ use crate::exports::string_view::{
 };
 use crate::observe;
 use crate::plugin::{
-    issue_fresh_handle_from_arc, materialize_owned_string_generic_fallback,
-    materialize_owned_string_generic_fallback_for_site, StringPublishSite,
+    issue_fresh_handle_from_arc, materialize_owned_string_explicit_api_boundary_for_site,
+    materialize_owned_string_generic_fallback, materialize_owned_string_generic_fallback_for_site,
+    materialize_owned_string_need_stable_object_boundary_for_site, StringPublishSite,
 };
 use nyash_rust::box_trait::{NyashBox, StringBox};
 use nyash_rust::runtime::host_handles as handles;
@@ -209,15 +210,24 @@ pub(super) fn string_handle_from_owned_const_suffix(value: String) -> i64 {
 
 #[inline(always)]
 fn string_handle_from_owned_with_site(value: String, site: StringPublishSite) -> i64 {
+    string_handle_from_owned_with_publish(value, site, |value, site| match site {
+        StringPublishSite::Generic => materialize_owned_string_generic_fallback(value),
+        _ => materialize_owned_string_generic_fallback_for_site(value, site),
+    })
+}
+
+#[inline(always)]
+fn string_handle_from_owned_with_publish(
+    value: String,
+    site: StringPublishSite,
+    publish: impl FnOnce(String, StringPublishSite) -> i64,
+) -> i64 {
     let len = value.len();
     if len == 0 {
         return shared_empty_string_handle();
     }
     observe::record_birth_placement_fresh_handle();
-    let handle = match site {
-        StringPublishSite::Generic => materialize_owned_string_generic_fallback(value),
-        _ => materialize_owned_string_generic_fallback_for_site(value, site),
-    };
+    let handle = publish(value, site);
     string_len_fast_cache_store(handle, len as i64);
     if string_trace::enabled() {
         string_trace::emit(
@@ -228,6 +238,30 @@ fn string_handle_from_owned_with_site(value: String, site: StringPublishSite) ->
         );
     }
     handle
+}
+
+#[cold]
+#[inline(never)]
+pub(super) fn string_handle_from_owned_substring_concat_hhii_explicit_api_owned(
+    value: String,
+) -> i64 {
+    string_handle_from_owned_with_publish(
+        value,
+        StringPublishSite::StringSubstringConcatHhii,
+        |value, site| materialize_owned_string_explicit_api_boundary_for_site(value, site),
+    )
+}
+
+#[cold]
+#[inline(never)]
+pub(super) fn string_handle_from_owned_substring_concat_hhii_need_stable_owned(
+    value: String,
+) -> i64 {
+    string_handle_from_owned_with_publish(
+        value,
+        StringPublishSite::StringSubstringConcatHhii,
+        |value, site| materialize_owned_string_need_stable_object_boundary_for_site(value, site),
+    )
 }
 
 #[inline(always)]

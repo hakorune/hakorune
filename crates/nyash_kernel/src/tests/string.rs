@@ -258,6 +258,62 @@ fn string_substring_concat3_hhhii_contract() {
 }
 
 #[test]
+fn string_substring_concat3_publish_explicit_api_owned_materializes_string_box() {
+    with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
+        let a_h = string_handle("aa");
+        let b_h = string_handle("CENTER");
+        let c_h = string_handle("zz");
+
+        let helper_h = nyash_string_substring_concat3_publish_explicit_api_owned_hhhii_export(
+            a_h, b_h, c_h, 2, 8,
+        );
+
+        assert!(helper_h > 0);
+        let object = handles::get(helper_h as u64).expect("explicit api publish handle");
+        let string_box = object
+            .as_any()
+            .downcast_ref::<StringBox>()
+            .expect("stable-owned publish must materialize StringBox");
+        assert_eq!(string_box.value, "CENTER");
+        assert!(
+            object
+                .as_any()
+                .downcast_ref::<crate::exports::string_view::StringViewBox>()
+                .is_none(),
+            "stable-owned publish must not leave a StringViewBox carrier"
+        );
+    });
+}
+
+#[test]
+fn string_substring_concat3_publish_need_stable_owned_materializes_string_box() {
+    with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
+        let a_h = string_handle("aa");
+        let b_h = string_handle("CENTER");
+        let c_h = string_handle("zz");
+
+        let helper_h = nyash_string_substring_concat3_publish_need_stable_owned_hhhii_export(
+            a_h, b_h, c_h, 2, 8,
+        );
+
+        assert!(helper_h > 0);
+        let object = handles::get(helper_h as u64).expect("need-stable publish handle");
+        let string_box = object
+            .as_any()
+            .downcast_ref::<StringBox>()
+            .expect("stable-owned publish must materialize StringBox");
+        assert_eq!(string_box.value, "CENTER");
+        assert!(
+            object
+                .as_any()
+                .downcast_ref::<crate::exports::string_view::StringViewBox>()
+                .is_none(),
+            "stable-owned publish must not leave a StringViewBox carrier"
+        );
+    });
+}
+
+#[test]
 fn string_piecewise_subrange_hsiii_contract() {
     with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
         let source_h = string_handle("prefix-suffix");
