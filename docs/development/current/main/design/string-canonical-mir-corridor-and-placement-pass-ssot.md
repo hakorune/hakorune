@@ -278,11 +278,17 @@ Phase-137x bridge-first rollout:
 - first repr split is:
   - `StableOwned`
   - `StableView`
+- `repr` is request-shaped, not guarantee-shaped
+  - MIR/lowering may downgrade `StableView` to `StableOwned` when provenance / mutability / lifetime cannot prove safe replay
 - `substring_hii` mid-slice replay is the first intended `publish.text(reason=ExplicitApiReplay, repr=StableView)` proving ground
+- `StableView` is legal only for immutable / pinned / already-stable provenance
+- mutable residence or same-slot-updatable residence must not escape as public `StableView`
 
 Verifier placement:
 
 - reject early publish / registry carrier / public-ABI replay before codegen
+- reject partial `publish.text` metadata before codegen
+- make provenance / borrow-scope and `freeze.str -> publish.text` separation verifier-visible
 - treat this as lowering/direct-kernel-entry verification first
 - do not defer these failures to runtime or post-hoc perf rereads
 

@@ -22,6 +22,21 @@
 やる価値はある。理由は、string の current owner が helper 個別問題ではなく
 「どこで value を object/handle world に戻すか」という runtime-wide boundary 問題として読めるから。
 
+phase-289x の一番短い呼び名は **Value Lane Architecture** とする。
+
+```text
+Value world
+  Ref / Plan / Owned / Cell / Immediate
+
+Boundary
+  borrow.*
+  publish.*
+  promote.*
+
+Object world
+  Box / Handle / Stable Object
+```
+
 ただし実装は一気に広げない。
 
 新しい親SSOTは作らない。既存の
@@ -62,6 +77,14 @@
 7. `Phase 6`: map key/value boundary planning
 8. `Phase 7`: MIR legality / verifier lift
 9. `Phase 8`: allocator / arena only if evidence demands it
+
+Preferred widening order after string-only closeout:
+
+1. finish string-only contract closeout in phase-137x
+2. bytes sibling lane
+3. scalar immediate widening
+4. array / map lane-host implementation
+5. `publish.any` only at the end
 
 ## Readable Design Brief
 

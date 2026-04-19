@@ -922,7 +922,20 @@ Scope: current lane / next lane / restart order only.
       - completed `publication-boundary-verifier`
         - `src/mir/verification/string_kernel.rs` now fail-fasts direct-kernel plans when `publish.text` metadata is partial, when `explicit_cold_publish` lacks `publication_boundary=first_external_boundary`, or when the current lane deviates from `publish.text(explicit_api_replay, stable_owned)`
         - verifier now treats publication boundary metadata as lowering-owned contract instead of letting unsupported bridge shapes slip toward codegen/runtime
-      - no further ready string-lane publish cards remain; `publish.any` stays deferred/blocked until the string-only path is intentionally widened
+      - next design/implementation cards after the review feedback:
+        - `repr-downgrade-contract`
+          - lock `repr` as request-not-guarantee and define when lowering/verifier may conservatively downgrade `StableView`
+        - `stableview-legality-contract`
+          - fix the provenance / mutability / lifetime conditions that make public `StableView` replay legal
+        - `provenance-freeze-verifier-contract`
+          - make borrow-scope plus `freeze.str -> publish.text` separation verifier-visible, not just boundary tuple metadata
+        - `publish-idempotence-policy`
+          - decide whether repeated `publish.text` on the same stable source/cell reuses a cold cache or allocates fresh objects
+      - current phase cut before optimization return:
+        - `137x-A`: string publication contract closeout (`docs/development/current/main/phases/phase-137x/137x-92-string-publication-contract-closeout.md`)
+        - `137x-B`: reopen owner-first optimization only after those contracts land
+        - phase-289x stays parked as planning-only `Value Lane Architecture`
+      - `publish.any` stays deferred/blocked until those string-only contracts land
       - `publish.any` stays deferred
    - do not widen into `TextLane`, allocator, public ABI, or a generic bridge substrate on this card
    - keep recent carrier commits as the semantic baseline; this card is contract/task shaping, not new keeper evidence

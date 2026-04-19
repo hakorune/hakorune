@@ -39,11 +39,23 @@
 - current stop-line:
   - `KernelTextSlot` exit is observed and inactive (`publish_boundary.slot_* = 0`)
   - do not open `TextLane`, MIR legality, runtime-wide 289x implementation, allocator/arena, or container lane-host work from the current proof alone
+- current phase cut before optimization return:
+  - `137x-A`: string publication contract closeout (`137x-92-string-publication-contract-closeout.md`)
+  - `137x-B`: owner-first optimization return only after the closeout gate lands
+- current closeout cards:
+  - `repr-downgrade-contract`
+  - `stableview-legality-contract`
+  - `provenance-freeze-verifier-contract`
+  - `publish-idempotence-policy`
+- long-range successor stays parked:
+  - phase-289x planning-only `Value Lane Architecture`
+  - no runtime-wide implementation starts from this cut
 - current first seam: phase-2.5 read-side alias lane; producer-side unpublished outcome under `const_suffix` is already landed
 - current rollout order:
   - `Phase 1`: producer outcome -> canonical sink (`KernelTextSlot` first)
   - `Phase 2`: cold publish effect
   - `Phase 2.5`: read-side alias lane split
+  - `Phase 2.6`: string publication contract closeout / legality lock
   - `Phase 3`: future `TextLane`
   - `Phase 4`: MIR legality / sink-aware AOT
 - current phase-2 start:

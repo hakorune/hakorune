@@ -565,17 +565,23 @@ Related:
    - string-only `publish.text(reason, repr)` comes before any `publish.any`
    - `TextCell` stays sink/residence only
    - `borrow.text_from_obj` provenance remains MIR/lowering-owned
+   - `repr` stays request-shaped; illegal `StableView` requests must downgrade before runtime
 3. then implement the narrow bridge rollout
-   - first proving ground: `substring_hii` mid-slice API replay as `repr=StableView`
-   - keep `freeze.str` separate from `publish.text`; do not let runtime infer `need_stable_object`
-4. require a fresh narrow owner proof before wider perf edits
-   - acceptable seam: reduce read/materialize/copy tax without changing public ABI
-   - reject seam: store-side `owned-string keep` / `owned-text keep` or any change that makes `array.get` publish per read
-   - reject seam: array-slot concat helper that leaves the preceding `array.get_hi` / `slot_load_hi` in place
-5. defer future representation work
-   - no `TextLane` / MIR legality until the active read-side lane reaches keeper/reject
-   - phase-289x remains planning-only; runtime-wide implementation does not start here
-6. keep current guards
+    - first proving ground: `substring_hii` mid-slice API replay as `repr=StableView`
+    - `StableView` replay is legal only for immutable / pinned / already-stable provenance
+    - keep `freeze.str` separate from `publish.text`; do not let runtime infer `need_stable_object`
+    - next follow-up is verifier visibility for borrow-scope and `freeze.str -> publish.text` separation, not `publish.any`
+4. cut the phase before optimization return
+   - current gate is `137x-A`: string publication contract closeout
+   - do not reopen owner-first perf work until `repr-downgrade`, `StableView legality`, `provenance/freeze verifier`, and `publish` idempotence are locked
+5. require a fresh narrow owner proof before wider perf edits
+    - acceptable seam: reduce read/materialize/copy tax without changing public ABI
+    - reject seam: store-side `owned-string keep` / `owned-text keep` or any change that makes `array.get` publish per read
+    - reject seam: array-slot concat helper that leaves the preceding `array.get_hi` / `slot_load_hi` in place
+6. defer future representation work
+    - no `TextLane` / MIR legality until the active read-side lane reaches keeper/reject
+    - phase-289x remains planning-only `Value Lane Architecture`; runtime-wide implementation does not start here
+7. keep current guards
    - exact stays closed
    - middle remains the contradiction gate
    - strict whole remains the active owner proof front

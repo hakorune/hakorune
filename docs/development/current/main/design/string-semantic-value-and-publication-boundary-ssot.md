@@ -187,11 +187,58 @@ Glossary lock:
   - `reason` と `repr` は分ける:
     - `reason`: なぜ publish が必要か
     - `repr`: public world にどう出すか
+  - `repr` は request であって guarantee ではない
+    - provenance / mutability / lifetime の legality が満たせない場合、MIR/lowering は conservative に downgrade してよい
+    - runtime は `repr` legality を再推測しない
 - `freeze.str`
   - その boundary で実際に birth を行う sink
   - retained string birth / reuse の mechanical owner
   - public world が必要なら cold objectize / handle issue へ handoff する
   - `TextPlan` は直接 `publish.text` に渡さない。copy/materialize が必要なら先に `freeze.str` を通して `OwnedText` へ寄せる
+
+### `repr` Request vs Guarantee
+
+`publish.text(reason, repr)` の `repr` は「こう公開したい」という request であって、
+常にそのまま public contract になる guarantee ではない。
+
+- `reason`
+  - boundary が必要な理由
+  - 例: `stable_object_demand`, `explicit_api_replay`
+- `repr`
+  - 希望する公開表現
+  - 例: `StableOwned`, `StableView`
+- legality
+  - その `repr` が本当に許されるかを決める third axis
+  - provenance / mutability / lifetime / borrow-scope で判定する
+
+Lock:
+
+- legality owner は MIR/lowering であり、runtime ではない
+- legality が満たせない `repr` request は conservative に downgrade してよい
+- runtime-private helper / site name / operand shape から legality を再推測しない
+
+### `StableView` Legality Lock
+
+`StringViewBox` は internal carrier ではなく public replay object に限定する。
+ただし `StableView` を public に出してよい条件は先に固定する。
+
+`StableView` が合法なのは、少なくとも次のどれかを満たす provenance に限る。
+
+- literal / already-published stable string
+- immutable host-owned bytes
+- pinned provenance が証明され、公開 lifetime の間に mutation されない residence
+
+次の形は `StableView` 不可として扱う。
+
+- mutable `TextCell` / future mutable residence
+- same-slot update で再書き換えされうる residence
+- borrow-scope や lifetime continuity を verifier が証明できない source
+
+Illegal `StableView` request は boundary の前に downgrade する。
+
+- preferred fallback: `StableOwned`
+- copy/materialize が必要なら `freeze.str -> OwnedText -> publish.text(...)`
+- `publish.text` 自体を birth sink に戻してはならない
 
 ## Bridge Lock
 
@@ -255,6 +302,7 @@ write/read は同じ text corridor の契約として読む。
 
 - `publish.text(reason, repr)` を explicit boundary event に寄せる
 - `reason` と `repr` を分離したまま string-only v1 を固定する
+- `repr` は request-shaped のまま扱い、legality が満たせない `StableView` は downgrade する
 - producer/helper から objectize / handle issue を退避する
 - `publish.any` はこの phase では始めない
 
@@ -272,8 +320,19 @@ write/read は同じ text corridor の契約として読む。
 
 ### Phase 4. MIR legality / verifier
 
-- publication boundary を verifier-visible にする
+- publication boundary だけでなく、provenance / borrow-scope / freeze→publish separation を verifier-visible にする
 - `borrow.text_from_obj` provenance と `publish.text(reason, repr)` boundary を verifier-visible にする
+- verifier は最低でも次を区別して見る
+  - `publication_boundary`: どこで public/object world に出るか
+  - `publish_reason`: なぜ publish が必要か
+  - `publish_repr_policy`: どの公開表現を request しているか
+  - `borrow/provenance`: その `repr` が legal か
+  - `freeze.str -> publish.text`: birth sink と boundary effect の段階分離
+- verifier は次を reject する
+  - partial `publish.text` metadata
+  - unsupported `repr` legality
+  - `freeze.str` と `publish.text` の責務混線
+  - runtime fallback に legality を押し戻す shape
 - runtime private carrier が proven になってから legality を持ち上げる
 
 ## Forbidden Moves

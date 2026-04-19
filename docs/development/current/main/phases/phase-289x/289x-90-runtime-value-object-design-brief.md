@@ -33,6 +33,12 @@ larger carrier redesigns below stay deferred to named successor cards.
 
 内部では値を値のまま運び、public / host / identity 境界でだけ object / handle にする。
 
+Long-range short name:
+
+```text
+Value Lane Architecture
+```
+
 ```text
 Internal:
   value world
@@ -191,6 +197,14 @@ These are inventory anchors for phase-289x docs. They are not implementation tar
 5. Choose exactly one runtime-private storage pilot with tests and reject seams.
 6. Only after storage contracts are proven, lift legality into MIR/verifier facts.
 7. Only after objectization frequency falls, consider allocator/arena work.
+
+Preferred family order:
+
+1. string-only closeout
+2. bytes sibling lane
+3. scalar immediate world
+4. array / map lane host
+5. `publish.any` last
 
 ## No-Go List
 
