@@ -14,6 +14,7 @@ Related:
   - docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md
   - docs/development/current/main/phases/phase-289x/289x-94-container-demand-table.md
   - docs/development/current/main/phases/phase-289x/289x-95-array-text-residence-pilot.md
+  - docs/development/current/main/phases/phase-289x/289x-96-demand-backed-cutover-inventory.md
 ---
 
 # Phase 289x Runtime Value/Object Task Board
@@ -111,7 +112,10 @@ Task state:
 - `289x-1g`: done in `289x-93-demand-vocabulary-ledger.md`
 - `289x-2d`: done in `289x-94-container-demand-table.md`
 - `289x-3a`: active pilot proposal in `289x-95-array-text-residence-pilot.md`
-- `289x-3b` and later: no broader implementation authorization until the pilot code cut is isolated
+- `289x-3b`: active cutover inventory gate in `289x-96-demand-backed-cutover-inventory.md`
+- `289x-3c`: next Rust cut, `CodecProfile -> DemandSet`, behavior unchanged
+- `289x-7e` / `289x-7f`: high-risk C shim emission/window work is planned later, not skipped
+- optimization return: blocked until all `289x-96` clusters are done or explicitly rejected
 
 ## Phase 0. Authority / Vocabulary Lock
 
@@ -267,6 +271,30 @@ No-go:
   - whole owner visibly moves or the card is reverted
   - runtime executes a named demand; it does not infer publication legality from helper names
 
+### Phase 3 Cutover Inventory
+
+- `289x-3b`: remaining cluster inventory
+  - SSOT: `289x-96-demand-backed-cutover-inventory.md`
+  - scope:
+    - Rust runtime clusters: 8
+    - C shim / MIR clusters: 8
+  - return-to-optimization gate:
+    - every cluster must be `done` or `rejected`
+    - high-risk deferrals must have scheduled cards
+- `289x-3c`: Rust `CodecProfile -> DemandSet`
+  - behavior unchanged
+  - first remaining runtime cutover cluster
+- `289x-3d`: Rust `BorrowedAliasEncodeCaller -> DemandSet`
+  - behavior unchanged
+- `289x-3e`: Rust `PublishReason -> PublishDemand`
+  - behavior unchanged
+- `289x-3f`: Rust array generic load/encode demand tags
+  - behavior unchanged
+- `289x-3g`: Rust array store/append demand tags
+  - behavior unchanged
+- `289x-3h`: `KernelTextSlotState` demand bridge
+  - high-risk; no ABI change
+
 ## Phase 4. Scalar Immediate Widening
 
 - Gate:
@@ -323,8 +351,25 @@ No-go:
   - define demand facts as recipe metadata first
   - verifier-visible publication boundary
   - reject helper-name allowlists
+  - `289x-7a`: C shim set-route demand metadata
+    - metadata-only
+    - emitted lowering identical
+  - `289x-7b`: MIR parallel demand/placement facts
+    - inspection-only
+  - `289x-7c`: C shim `get/len/has/push` policy split over demand metadata
+  - `289x-7d`: main `bname/mname` route classifier cutover
+    - high-risk
+  - `289x-7e`: concrete `slot_load_hi` / `slot_store` helper emission cutover
+    - high-risk
+  - `289x-7f`: `runtime_array_string` observer/window matcher cutover
+    - high-risk
+  - `289x-7g`: MIR string helper-name compat/recovery cutover
+  - `289x-7h`: prepass/declaration need classifier cutover
+    - high-risk
 - Acceptance:
   - runtime can execute boundary decisions without re-deciding legality
+  - no helper/class name remains the only source of publication legality
+  - full `ArrayStorage::Text` / full `TextLane` stays out until `289x-7h` closes
 
 ## Phase 8. Allocator / Arena
 

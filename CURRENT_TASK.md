@@ -23,20 +23,21 @@ Scope: current lane / next lane / restart order only.
 9. `docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md`
 10. `docs/development/current/main/phases/phase-289x/289x-94-container-demand-table.md`
 11. `docs/development/current/main/phases/phase-289x/289x-95-array-text-residence-pilot.md`
-12. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
-13. `docs/development/current/main/phases/phase-137x/README.md`
-14. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
-15. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-16. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
-17. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
-18. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
-19. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
-20. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-21. `docs/development/current/main/design/string-birth-sink-ssot.md`
-22. `docs/development/current/main/15-Workstream-Map.md`
-23. `git status -sb`
-24. `tools/checks/dev_gate.sh quick`
-25. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
+12. `docs/development/current/main/phases/phase-289x/289x-96-demand-backed-cutover-inventory.md`
+13. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
+14. `docs/development/current/main/phases/phase-137x/README.md`
+15. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
+16. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+17. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+18. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
+19. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+20. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
+21. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+22. `docs/development/current/main/design/string-birth-sink-ssot.md`
+23. `docs/development/current/main/15-Workstream-Map.md`
+24. `git status -sb`
+25. `tools/checks/dev_gate.sh quick`
+26. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Current Lane
 
@@ -55,10 +56,10 @@ Scope: current lane / next lane / restart order only.
   - status:
     - phase-0 authority/vocabulary lock is docs-only and complete
     - phase-137x keeper `49c356339` is the current string proof
-    - optimization work is paused until post-keeper value-boundary inventory is closed
+    - optimization work is paused until demand-backed cutover inventory is closed
     - array/map remain identity containers; only internal residence may become lane-hosted later
     - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
-    - do not start runtime-wide implementation before `289x-1g` demand ledger and `289x-2d` container demand table are closed
+    - do not return to optimization until all `289x-96` clusters are done or explicitly rejected
   - parent SSOT:
     - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
   - phase:
@@ -75,6 +76,8 @@ Scope: current lane / next lane / restart order only.
     - `docs/development/current/main/phases/phase-289x/289x-94-container-demand-table.md`
   - selected pilot:
     - `docs/development/current/main/phases/phase-289x/289x-95-array-text-residence-pilot.md`
+  - cutover inventory gate:
+    - `docs/development/current/main/phases/phase-289x/289x-96-demand-backed-cutover-inventory.md`
   - current docs focus:
     - `289x-1g` demand vocabulary ledger is done
     - `289x-2d` Array/Map demand table is done
@@ -84,10 +87,17 @@ Scope: current lane / next lane / restart order only.
       - runtime-private demand vocabulary, behavior unchanged
     - Array text-residence leaves now name the demand constants in code
     - next code cut:
-      - replace one local helper-name check with demand-backed wrapper, while keeping emitted lowering identical
-    - keep this as planning debt, not a runtime-wide implementation unblock by itself
+      - `289x-3c`: Rust `CodecProfile -> DemandSet` mapping, behavior unchanged
+    - high-risk planned later, not skipped:
+      - concrete `slot_load_hi` / `slot_store` emission changes: `289x-7e`
+      - `runtime_array_string` observer/window matcher rewrites: `289x-7f`
+      - full `ArrayStorage::Text` / full `TextLane`: after `289x-7h`, separate phase
+      - Map typed lane: after `289x-6e`, separate phase
+      - allocator / arena: after value-boundary cutover and perf evidence only
+    - return-to-optimization gate:
+      - all Rust/C-shim/MIR clusters in `289x-96` must be `done` or `rejected`
 - current blocker:
-  - `none`
+  - `phase-289x demand-backed cutover inventory is not complete`
 - current cut status:
   - latest implementation candidate:
     - phase-137x branch-target-aware array string get/store seam is now the active keeper candidate

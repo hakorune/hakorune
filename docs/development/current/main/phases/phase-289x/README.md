@@ -15,6 +15,7 @@
   - `docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md`
   - `docs/development/current/main/phases/phase-289x/289x-94-container-demand-table.md`
   - `docs/development/current/main/phases/phase-289x/289x-95-array-text-residence-pilot.md`
+  - `docs/development/current/main/phases/phase-289x/289x-96-demand-backed-cutover-inventory.md`
 
 ## Decision
 
@@ -68,6 +69,7 @@ Read this phase in this order:
 5. `docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md`
 6. `docs/development/current/main/phases/phase-289x/289x-94-container-demand-table.md`
 7. `docs/development/current/main/phases/phase-289x/289x-95-array-text-residence-pilot.md`
+8. `docs/development/current/main/phases/phase-289x/289x-96-demand-backed-cutover-inventory.md`
 
 The brief is phase-local planning material.
 It does not create a new parent SSOT and does not authorize implementation.
@@ -149,10 +151,26 @@ Reading:
 - `289x-3b`: first storage pilot selection
   - one runtime-private storage pilot only, after `289x-1g` and `289x-2d`
   - selected pilot: `Array text residence through KernelTextSlot store`
+- `289x-3c`: Rust `CodecProfile -> DemandSet` mapping
+  - behavior unchanged; first remaining runtime cutover cluster
 - `289x-5a`: bytes/view planning
   - prevent text-only patterns from being copied into bytes later
 - `289x-6a`: map key/value boundary map
   - key decode, value storage, read publication, and compat exports stay separated
+
+## Return To Optimization Gate
+
+Optimization work stays paused until
+`docs/development/current/main/phases/phase-289x/289x-96-demand-backed-cutover-inventory.md`
+is fully closed.
+
+High-risk work is planned, not skipped:
+
+- `289x-7e`: concrete `slot_load_hi` / `slot_store` emission changes
+- `289x-7f`: `runtime_array_string` observer/window matcher rewrites
+- full `ArrayStorage::Text` / full `TextLane`: only after `289x-7h`, separate phase
+- Map typed lane: only after `289x-6e`, separate phase
+- allocator / arena: only after value-boundary cutover and perf evidence
 
 ## Stop-Line
 
@@ -166,3 +184,4 @@ Stop immediately if a proposed card:
 - starts allocator work before perf evidence points there
 - opens MIR legality / verifier lift or allocator / arena work before their scheduled rollout phase
 - makes runtime infer publish legality that MIR/lowering did not request
+- returns to optimization before the `289x-96` cutover inventory is done or explicitly rejected

@@ -15,6 +15,7 @@ Related:
   - docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md
   - docs/development/current/main/phases/phase-289x/289x-94-container-demand-table.md
   - docs/development/current/main/phases/phase-289x/289x-95-array-text-residence-pilot.md
+  - docs/development/current/main/phases/phase-289x/289x-96-demand-backed-cutover-inventory.md
   - docs/development/current/main/design/string-value-model-phased-rollout-ssot.md
   - docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md
 ---
@@ -35,10 +36,10 @@ Related:
   - status:
     - phase-0 authority/vocabulary lock is docs-only and complete
     - phase-137x string lane produced keeper `49c356339`
-    - optimization work is paused until the post-keeper value-boundary inventory closes
+    - optimization work is paused until the demand-backed cutover inventory closes
     - array/map remain identity containers; only internal residence may become lane-hosted later
     - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
-    - do not start runtime-wide implementation before `289x-1g` demand ledger and `289x-2d` container demand table are closed
+    - do not return to optimization until all `289x-96` clusters are done or explicitly rejected
   - parent:
     - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
   - phase:
@@ -55,6 +56,8 @@ Related:
     - `docs/development/current/main/phases/phase-289x/289x-94-container-demand-table.md`
   - selected pilot:
     - `docs/development/current/main/phases/phase-289x/289x-95-array-text-residence-pilot.md`
+  - cutover inventory gate:
+    - `docs/development/current/main/phases/phase-289x/289x-96-demand-backed-cutover-inventory.md`
   - current docs focus:
     - `289x-1g` demand vocabulary ledger is done
     - `289x-2d` Array/Map demand table is done
@@ -64,10 +67,17 @@ Related:
       - runtime-private demand vocabulary, behavior unchanged
     - Array text-residence leaves now name the demand constants in code
     - next code cut:
-      - replace one local helper-name check with demand-backed wrapper, while keeping emitted lowering identical
-    - planning/docs debt only; not a runtime-wide implementation unblock by itself
+      - `289x-3c`: Rust `CodecProfile -> DemandSet` mapping, behavior unchanged
+    - high-risk planned later, not skipped:
+      - concrete `slot_load_hi` / `slot_store` emission changes: `289x-7e`
+      - `runtime_array_string` observer/window matcher rewrites: `289x-7f`
+      - full `ArrayStorage::Text` / full `TextLane`: after `289x-7h`, separate phase
+      - Map typed lane: after `289x-6e`, separate phase
+      - allocator / arena: after value-boundary cutover and perf evidence only
+    - return-to-optimization gate:
+      - all Rust/C-shim/MIR clusters in `289x-96` must be `done` or `rejected`
 - blocker:
-  - `none`
+  - `phase-289x demand-backed cutover inventory is not complete`
 - latest active keeper:
   - phase-137x branch-target-aware same-slot suffix store cut is green
   - exact shape:
