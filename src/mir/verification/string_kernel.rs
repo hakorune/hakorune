@@ -1,8 +1,133 @@
 use crate::mir::verification_types::VerificationError;
 use crate::mir::{
-    infer_string_kernel_text_consumer, MirFunction, StringKernelPlanCarrier,
-    StringKernelPlanTextConsumer, StringKernelPlanVerifierOwner,
+    infer_string_kernel_text_consumer, MirFunction, StringKernelPlan, StringKernelPlanCarrier,
+    StringKernelPlanPublicationBoundary, StringKernelPlanPublicationContract,
+    StringKernelPlanTextConsumer, StringKernelPlanVerifierOwner, StringPublishReason,
+    StringPublishReprPolicy, ValueId,
 };
+
+fn push_string_kernel_plan_violation(
+    errors: &mut Vec<VerificationError>,
+    value: ValueId,
+    reason: impl Into<String>,
+) {
+    errors.push(VerificationError::StringKernelPlanViolation {
+        value,
+        reason: reason.into(),
+    });
+}
+
+fn publication_metadata_pair(
+    value: ValueId,
+    plan: &StringKernelPlan,
+    errors: &mut Vec<VerificationError>,
+) -> Option<(StringPublishReason, StringPublishReprPolicy)> {
+    match (plan.publish_reason, plan.publish_repr_policy) {
+        (Some(reason), Some(repr)) => Some((reason, repr)),
+        (None, None) => None,
+        (Some(reason), None) => {
+            push_string_kernel_plan_violation(
+                errors,
+                value,
+                format!(
+                    "publish.text metadata is partial: reason={} without repr policy",
+                    reason
+                ),
+            );
+            None
+        }
+        (None, Some(repr)) => {
+            push_string_kernel_plan_violation(
+                errors,
+                value,
+                format!(
+                    "publish.text metadata is partial: repr policy={} without reason",
+                    repr
+                ),
+            );
+            None
+        }
+    }
+}
+
+fn verify_publication_boundary_contract(
+    value: ValueId,
+    plan: &StringKernelPlan,
+    errors: &mut Vec<VerificationError>,
+) {
+    let publish_pair = publication_metadata_pair(value, plan, errors);
+
+    if publish_pair.is_some() && plan.publication_boundary.is_none() {
+        push_string_kernel_plan_violation(
+            errors,
+            value,
+            "publish.text metadata requires publication_boundary on the direct-kernel lane",
+        );
+    }
+
+    if matches!(
+        publish_pair,
+        Some((StringPublishReason::ExplicitApiReplay, _))
+    ) && !matches!(
+        plan.text_consumer,
+        Some(StringKernelPlanTextConsumer::ExplicitColdPublish)
+    ) {
+        push_string_kernel_plan_violation(
+            errors,
+            value,
+            "explicit_api_replay publish reason requires explicit_cold_publish consumer",
+        );
+    }
+
+    if !matches!(
+        plan.text_consumer,
+        Some(StringKernelPlanTextConsumer::ExplicitColdPublish)
+    ) {
+        return;
+    }
+
+    if plan.publication_boundary != Some(StringKernelPlanPublicationBoundary::FirstExternalBoundary)
+    {
+        push_string_kernel_plan_violation(
+            errors,
+            value,
+            "explicit_cold_publish requires publication_boundary=first_external_boundary",
+        );
+    }
+
+    if plan.publication_contract
+        != Some(
+            StringKernelPlanPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+        )
+    {
+        push_string_kernel_plan_violation(
+            errors,
+            value,
+            "explicit_cold_publish requires publication_contract=publish_now_not_required_before_first_external_boundary",
+        );
+    }
+
+    match publish_pair {
+        Some((StringPublishReason::ExplicitApiReplay, StringPublishReprPolicy::StableOwned)) => {}
+        Some((reason, repr)) => {
+            push_string_kernel_plan_violation(
+                errors,
+                value,
+                format!(
+                    "explicit_cold_publish currently requires publish.text(explicit_api_replay, stable_owned), got publish.text({}, {})",
+                    reason, repr
+                ),
+            );
+        }
+        None => {
+            push_string_kernel_plan_violation(
+                errors,
+                value,
+                "explicit_cold_publish requires publish.text metadata",
+            );
+        }
+    }
+}
 
 pub fn check_string_kernel_plans(function: &MirFunction) -> Result<(), Vec<VerificationError>> {
     let mut errors = Vec::new();
@@ -72,6 +197,8 @@ pub fn check_string_kernel_plans(function: &MirFunction) -> Result<(), Vec<Verif
                 });
             }
         }
+
+        verify_publication_boundary_contract(*value, plan, &mut errors);
     }
 
     if errors.is_empty() {
@@ -249,6 +376,47 @@ mod tests {
             error,
             VerificationError::StringKernelPlanViolation { reason, .. }
                 if reason.contains("slot-capable consumer rule mismatch")
+        )));
+    }
+
+    #[test]
+    fn verifier_rejects_explicit_cold_publish_without_boundary_metadata() {
+        let mut function = slot_text_function();
+        let mut plan = base_slot_plan(StringKernelPlanCarrier::KernelTextSlot);
+        plan.text_consumer = Some(StringKernelPlanTextConsumer::ExplicitColdPublish);
+        plan.publication_boundary = None;
+        plan.publish_reason = Some(crate::mir::StringPublishReason::ExplicitApiReplay);
+        plan.publish_repr_policy = Some(crate::mir::StringPublishReprPolicy::StableOwned);
+        function
+            .metadata
+            .string_kernel_plans
+            .insert(ValueId::new(10), plan);
+
+        let errors = check_string_kernel_plans(&function).expect_err("expected boundary failure");
+        assert!(errors.iter().any(|error| matches!(
+            error,
+            VerificationError::StringKernelPlanViolation { reason, .. }
+                if reason.contains("publication_boundary=first_external_boundary")
+        )));
+    }
+
+    #[test]
+    fn verifier_rejects_partial_publish_text_metadata() {
+        let mut function = slot_text_function();
+        let mut plan = base_slot_plan(StringKernelPlanCarrier::KernelTextSlot);
+        plan.publish_reason = Some(crate::mir::StringPublishReason::StableObjectDemand);
+        plan.publish_repr_policy = None;
+        function
+            .metadata
+            .string_kernel_plans
+            .insert(ValueId::new(10), plan);
+
+        let errors =
+            check_string_kernel_plans(&function).expect_err("expected publish metadata failure");
+        assert!(errors.iter().any(|error| matches!(
+            error,
+            VerificationError::StringKernelPlanViolation { reason, .. }
+                if reason.contains("publish.text metadata is partial")
         )));
     }
 }

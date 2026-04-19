@@ -919,7 +919,10 @@ Scope: current lane / next lane / restart order only.
           - `nyash.string.substring_publish_explicit_api_view_hii`
         - the adapter now forces `borrowed_substring_plan(..., view_enabled=true)` and replays a cached `StringViewBox` even when public route policy (`NYASH_LLVM_FAST=0`) would materialize `StringBox`
         - public `substring_hii` still keeps its existing contract, but its `ViewSpan` publication branch is now explicitly tagged as `explicit_api_replay`
-      - next implementation card is `publication-boundary-verifier`
+      - completed `publication-boundary-verifier`
+        - `src/mir/verification/string_kernel.rs` now fail-fasts direct-kernel plans when `publish.text` metadata is partial, when `explicit_cold_publish` lacks `publication_boundary=first_external_boundary`, or when the current lane deviates from `publish.text(explicit_api_replay, stable_owned)`
+        - verifier now treats publication boundary metadata as lowering-owned contract instead of letting unsupported bridge shapes slip toward codegen/runtime
+      - no further ready string-lane publish cards remain; `publish.any` stays deferred/blocked until the string-only path is intentionally widened
       - `publish.any` stays deferred
    - do not widen into `TextLane`, allocator, public ABI, or a generic bridge substrate on this card
    - keep recent carrier commits as the semantic baseline; this card is contract/task shaping, not new keeper evidence
