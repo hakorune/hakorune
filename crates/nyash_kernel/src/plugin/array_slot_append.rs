@@ -1,9 +1,11 @@
 use super::array_guard::valid_handle;
 use super::array_handle_cache::with_array_box;
 use super::value_codec::{any_arg_to_box_with_profile, CodecProfile};
+use super::value_demand::ARRAY_GENERIC_APPEND_ANY;
 
 #[inline(always)]
 pub(super) fn array_slot_append_any(handle: i64, val_any: i64) -> i64 {
+    let _demand = ARRAY_GENERIC_APPEND_ANY;
     if !valid_handle(handle) {
         return 0;
     }

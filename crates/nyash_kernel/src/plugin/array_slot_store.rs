@@ -4,6 +4,7 @@ use super::array_string_slot::{
     array_string_store_handle_at, array_string_store_kernel_text_slot_at,
 };
 use super::value_codec::{decode_array_fast_value, ArrayFastDecodedValue};
+use super::value_demand::ARRAY_GENERIC_STORE_ANY;
 use super::KernelTextSlot;
 
 #[inline(always)]
@@ -24,6 +25,7 @@ fn array_slot_store_box(
 
 #[inline(always)]
 pub(super) fn array_slot_store_any(handle: i64, idx: i64, val_any: i64) -> i64 {
+    let _demand = ARRAY_GENERIC_STORE_ANY;
     if !valid_handle_idx(handle, idx) {
         return 0;
     }

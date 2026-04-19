@@ -168,7 +168,11 @@ Reading:
   - array encoded get/load sites bind `ARRAY_GENERIC_GET_ENCODED`
   - demand names immediate encode, borrowed alias encode, and stable object fallback
 - `289x-3g`: Rust array store/append demand tags
-  - behavior unchanged; next runtime cutover cluster
+  - status: done in code; behavior unchanged
+  - `array_slot_store_any` binds `ARRAY_GENERIC_STORE_ANY`
+  - `array_slot_append_any` binds `ARRAY_GENERIC_APPEND_ANY`
+- `289x-3h`: `KernelTextSlotState` demand bridge
+  - high-risk; behavior unchanged; next runtime cutover cluster
 - `289x-5a`: bytes/view planning
   - prevent text-only patterns from being copied into bytes later
 - `289x-6a`: map key/value boundary map

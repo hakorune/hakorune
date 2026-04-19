@@ -82,8 +82,12 @@ Related:
       - array encoded get/load sites now bind `ARRAY_GENERIC_GET_ENCODED`
       - demand names immediate encode, borrowed alias encode, and stable object fallback for generic array reads
       - behavior unchanged
+    - `289x-3g` landed:
+      - array `store_any` now binds `ARRAY_GENERIC_STORE_ANY`
+      - array `append_any` now binds `ARRAY_GENERIC_APPEND_ANY`
+      - behavior unchanged
     - next code cut:
-      - `289x-3g`: Rust array store/append demand tags, behavior unchanged
+      - `289x-3h`: `KernelTextSlotState` demand bridge, high-risk, behavior unchanged
     - high-risk planned later, not skipped:
       - concrete `slot_load_hi` / `slot_store` emission changes: `289x-7e`
       - `runtime_array_string` observer/window matcher rewrites: `289x-7f`

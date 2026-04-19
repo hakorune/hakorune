@@ -51,10 +51,10 @@ Estimate: 8 clusters, about 24-30 production decision/call sites when wired by c
 | R2 | `BorrowedAliasEncodeCaller -> DemandSet` | `value_codec/borrowed_handle.rs`, `array_handle_cache.rs`, `map_runtime_data.rs` | 3 variants, 2 non-generic users | medium | `289x-3d` | done |
 | R3 | `PublishReason -> PublishDemand` bridge | `value_codec/string_materialize.rs` | about 10 sites | medium | `289x-3e` | done |
 | R4 | Array generic load/encode | `array_handle_cache.rs`, `array_slot_load.rs` | 2 sites | medium | `289x-3f` | done |
-| R5 | Array store/append decode | `array_slot_store.rs`, `array_slot_append.rs` | 2 sites | medium-high | `289x-3g` | next |
+| R5 | Array store/append decode | `array_slot_store.rs`, `array_slot_append.rs` | 2 sites | medium-high | `289x-3g` | done |
 | R6 | Map key/value codec | `map_key_codec.rs`, `map_slot_store.rs` | 2 sites | medium | `289x-6d` | pending |
 | R7 | Map load encoding split | `map_slot_load.rs` | 2 sites | medium-high | `289x-6e` | pending |
-| R8 | `KernelTextSlotState` + array text slot | `value_codec/string_materialize.rs`, `array_string_slot.rs` | about 20 state refs, 3 demand touchpoints | high | `289x-3h` | pending-high-risk |
+| R8 | `KernelTextSlotState` + array text slot | `value_codec/string_materialize.rs`, `array_string_slot.rs` | about 20 state refs, 3 demand touchpoints | high | `289x-3h` | next-high-risk |
 
 Already landed before this inventory:
 
@@ -86,8 +86,8 @@ Estimate: 8 clusters. The main blocker is C shim helper-name routing; MIR alread
 | `289x-3d` | Rust borrowed-alias caller mapping | done; behavior unchanged |
 | `289x-3e` | Rust publish reason mapping | done; behavior unchanged |
 | `289x-3f` | Rust array generic load/encode demand tags | done; behavior unchanged |
-| `289x-3g` | Rust array store/append demand tags | next; behavior unchanged |
-| `289x-3h` | `KernelTextSlotState` demand bridge | high-risk; no ABI change |
+| `289x-3g` | Rust array store/append demand tags | done; behavior unchanged |
+| `289x-3h` | `KernelTextSlotState` demand bridge | next-high-risk; no ABI change |
 | `289x-7a` | C shim set-route demand metadata | metadata-only; emitted lowering identical |
 | `289x-7b` | MIR parallel demand/placement facts | inspection-only |
 | `289x-6d` | Map key/value codec demand bridge | no typed map lane |

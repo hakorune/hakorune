@@ -122,6 +122,26 @@ pub(crate) const ARRAY_GENERIC_GET_ENCODED: DemandSet = DemandSet::new(
     &[],
 );
 
+pub(crate) const ARRAY_GENERIC_STORE_ANY: DemandSet = DemandSet::new(
+    &[ValueDemand::EncodeImmediate, ValueDemand::EncodeAlias],
+    &[
+        StorageDemand::ImmediateResidence,
+        StorageDemand::GenericResidence,
+    ],
+    &[],
+    &[MutationDemand::InvalidateAliases],
+);
+
+pub(crate) const ARRAY_GENERIC_APPEND_ANY: DemandSet = DemandSet::new(
+    &[ValueDemand::EncodeImmediate, ValueDemand::EncodeAlias],
+    &[
+        StorageDemand::ImmediateResidence,
+        StorageDemand::GenericResidence,
+    ],
+    &[],
+    &[MutationDemand::InvalidateAliases],
+);
+
 pub(crate) const BORROWED_ALIAS_ENCODE: DemandSet = DemandSet::new(
     &[ValueDemand::EncodeAlias],
     &[],
@@ -213,6 +233,37 @@ mod tests {
                 StorageDemand::ImmediateResidence,
                 StorageDemand::GenericResidence
             ]
+        );
+    }
+
+    #[test]
+    fn array_generic_store_and_append_name_mutating_residence_demands() {
+        assert_eq!(
+            ARRAY_GENERIC_STORE_ANY.value,
+            &[ValueDemand::EncodeImmediate, ValueDemand::EncodeAlias]
+        );
+        assert_eq!(
+            ARRAY_GENERIC_STORE_ANY.storage,
+            &[
+                StorageDemand::ImmediateResidence,
+                StorageDemand::GenericResidence
+            ]
+        );
+        assert_eq!(
+            ARRAY_GENERIC_STORE_ANY.mutation,
+            &[MutationDemand::InvalidateAliases]
+        );
+        assert_eq!(
+            ARRAY_GENERIC_APPEND_ANY.value,
+            ARRAY_GENERIC_STORE_ANY.value
+        );
+        assert_eq!(
+            ARRAY_GENERIC_APPEND_ANY.storage,
+            ARRAY_GENERIC_STORE_ANY.storage
+        );
+        assert_eq!(
+            ARRAY_GENERIC_APPEND_ANY.mutation,
+            ARRAY_GENERIC_STORE_ANY.mutation
         );
     }
 
