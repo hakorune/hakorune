@@ -114,7 +114,8 @@ Task state:
 - `289x-3a`: active pilot proposal in `289x-95-array-text-residence-pilot.md`
 - `289x-3b`: active cutover inventory gate in `289x-96-demand-backed-cutover-inventory.md`
 - `289x-3c`: done in code, `CodecProfile -> DemandSet`, behavior unchanged
-- `289x-3d`: next Rust cut, `BorrowedAliasEncodeCaller -> DemandSet`, behavior unchanged
+- `289x-3d`: done in code, `BorrowedAliasEncodeCaller -> DemandSet`, behavior unchanged
+- `289x-3e`: next Rust cut, `PublishReason -> PublishDemand`, behavior unchanged
 - `289x-7e` / `289x-7f`: high-risk C shim emission/window work is planned later, not skipped
 - optimization return: blocked until all `289x-96` clusters are done or explicitly rejected
 
@@ -288,9 +289,12 @@ No-go:
   - `CodecProfile::demand()` is the runtime-private bridge from profile names to `DemandSet`
   - old branches remain the executor until downstream demand rows are wired
 - `289x-3d`: Rust `BorrowedAliasEncodeCaller -> DemandSet`
-  - status: next
+  - status: done in code
   - behavior unchanged
+  - `BorrowedAliasEncodeCaller::demand()` is the runtime-private bridge from caller names to `DemandSet`
+  - fallback encode plans bind publish demand before the existing objectization branch
 - `289x-3e`: Rust `PublishReason -> PublishDemand`
+  - status: next
   - behavior unchanged
 - `289x-3f`: Rust array generic load/encode demand tags
   - behavior unchanged

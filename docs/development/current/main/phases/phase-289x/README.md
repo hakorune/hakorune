@@ -156,6 +156,10 @@ Reading:
   - `CodecProfile::demand()` maps profile names to runtime-private `DemandSet`
   - `any_arg_to_box_with_profile` and `decode_array_fast_value` bind demand metadata before old branches
 - `289x-3d`: Rust `BorrowedAliasEncodeCaller -> DemandSet` mapping
+  - status: done in code; behavior unchanged
+  - `BorrowedAliasEncodeCaller::demand()` maps caller names to runtime-private `DemandSet`
+  - borrowed-alias encode plans bind fallback publish demand without changing execution branches
+- `289x-3e`: Rust `PublishReason -> PublishDemand` mapping
   - behavior unchanged; next runtime cutover cluster
 - `289x-5a`: bytes/view planning
   - prevent text-only patterns from being copied into bytes later

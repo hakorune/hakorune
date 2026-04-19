@@ -1,5 +1,8 @@
 use super::string_classify::VerifiedTextSource;
 use crate::observe;
+use crate::plugin::value_demand::{
+    DemandSet, BORROWED_ALIAS_ENCODE, BORROWED_ALIAS_FALLBACK_PUBLISH,
+};
 use nyash_rust::{
     box_trait::{next_box_id, BoolBox, BoxBase, BoxCore, NyashBox, StringBox},
     runtime::host_handles as handles,
@@ -26,6 +29,17 @@ pub(crate) enum BorrowedAliasEncodeCaller {
     Generic,
     ArrayGetIndexEncoded,
     MapRuntimeDataGetAnyKey,
+}
+
+impl BorrowedAliasEncodeCaller {
+    #[inline(always)]
+    pub(crate) const fn demand(self) -> DemandSet {
+        match self {
+            Self::Generic | Self::ArrayGetIndexEncoded | Self::MapRuntimeDataGetAnyKey => {
+                BORROWED_ALIAS_ENCODE
+            }
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -608,10 +622,21 @@ fn promote_source_keep_to_owned_box_cold(keep: SourceLifetimeKeep) -> Box<dyn Ny
     Box::new(StringBox::new(keep.copy_owned_text_cold()))
 }
 
+#[derive(Clone, Copy)]
 enum BorrowedAliasEncodePlan {
     LiveSourceHandle(i64),
     CachedRuntimeHandle(i64),
     EncodeFallback,
+}
+
+impl BorrowedAliasEncodePlan {
+    #[inline(always)]
+    const fn demand(self) -> DemandSet {
+        match self {
+            Self::LiveSourceHandle(_) | Self::CachedRuntimeHandle(_) => BORROWED_ALIAS_ENCODE,
+            Self::EncodeFallback => BORROWED_ALIAS_FALLBACK_PUBLISH,
+        }
+    }
 }
 
 #[inline(always)]
@@ -619,7 +644,10 @@ pub(crate) fn runtime_i64_from_borrowed_alias(
     alias: &BorrowedHandleBox,
     caller: BorrowedAliasEncodeCaller,
 ) -> i64 {
-    match plan_borrowed_alias_runtime_i64(alias) {
+    let _caller_demand = caller.demand();
+    let plan = plan_borrowed_alias_runtime_i64(alias);
+    let _plan_demand = plan.demand();
+    match plan {
         BorrowedAliasEncodePlan::LiveSourceHandle(handle) => {
             observe::record_borrowed_alias_encode_live_source_hit();
             caller.record_live_source_hit();

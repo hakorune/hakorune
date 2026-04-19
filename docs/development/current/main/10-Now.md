@@ -70,8 +70,12 @@ Related:
       - `CodecProfile::demand()` maps every codec profile to runtime-private `DemandSet`
       - `any_arg_to_box_with_profile` and `decode_array_fast_value` now bind demand metadata before old behavior branches
       - behavior unchanged
+    - `289x-3d` landed:
+      - `BorrowedAliasEncodeCaller::demand()` maps caller names to runtime-private `DemandSet`
+      - borrowed-alias encode plans now bind live/cached alias demand vs fallback publish demand before old behavior branches
+      - behavior unchanged
     - next code cut:
-      - `289x-3d`: Rust `BorrowedAliasEncodeCaller -> DemandSet`, behavior unchanged
+      - `289x-3e`: Rust `PublishReason -> PublishDemand`, behavior unchanged
     - high-risk planned later, not skipped:
       - concrete `slot_load_hi` / `slot_store` emission changes: `289x-7e`
       - `runtime_array_string` observer/window matcher rewrites: `289x-7f`

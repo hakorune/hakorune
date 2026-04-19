@@ -1,8 +1,8 @@
 use super::*;
 use crate::exports::string_view::StringViewBox;
 use crate::plugin::value_demand::{
-    CODEC_ARRAY_BORROW_STRING_ONLY, CODEC_ARRAY_FAST_BORROW_STRING, CODEC_GENERIC,
-    CODEC_MAP_KEY_BORROW_STRING, CODEC_MAP_VALUE_BORROW_STRING,
+    BORROWED_ALIAS_ENCODE, CODEC_ARRAY_BORROW_STRING_ONLY, CODEC_ARRAY_FAST_BORROW_STRING,
+    CODEC_GENERIC, CODEC_MAP_KEY_BORROW_STRING, CODEC_MAP_VALUE_BORROW_STRING,
 };
 use crate::test_support::with_env_var;
 use nyash_rust::{
@@ -29,6 +29,22 @@ fn codec_profile_maps_to_runtime_private_demand_set() {
     assert_eq!(
         CodecProfile::MapValueBorrowString.demand(),
         CODEC_MAP_VALUE_BORROW_STRING
+    );
+}
+
+#[test]
+fn borrowed_alias_encode_caller_maps_to_runtime_private_demand_set() {
+    assert_eq!(
+        BorrowedAliasEncodeCaller::Generic.demand(),
+        BORROWED_ALIAS_ENCODE
+    );
+    assert_eq!(
+        BorrowedAliasEncodeCaller::ArrayGetIndexEncoded.demand(),
+        BORROWED_ALIAS_ENCODE
+    );
+    assert_eq!(
+        BorrowedAliasEncodeCaller::MapRuntimeDataGetAnyKey.demand(),
+        BORROWED_ALIAS_ENCODE
     );
 }
 
