@@ -73,6 +73,8 @@ pub struct StringCorridorCandidatePlan {
     pub corridor_root: ValueId,
     /// Shared source root when the corridor proves a single underlying source.
     pub source_root: Option<ValueId>,
+    /// MIR/lowering-owned object -> text provenance contract.
+    pub borrow_contract: Option<StringCorridorBorrowContract>,
     /// Outer consumer window when the candidate is itself a substring consumer.
     pub start: Option<ValueId>,
     pub end: Option<ValueId>,
@@ -90,6 +92,10 @@ impl StringCorridorCandidatePlan {
             .source_root
             .map(|value| format!("%{}", value.0))
             .unwrap_or_else(|| "-".to_string());
+        let borrow_contract = self
+            .borrow_contract
+            .map(|contract| contract.to_string())
+            .unwrap_or_else(|| "-".to_string());
         let outer_window = match (self.start, self.end) {
             (Some(start), Some(end)) => format!("[%{}, %{}]", start.0, end.0),
             _ => "-".to_string(),
@@ -103,9 +109,10 @@ impl StringCorridorCandidatePlan {
             .map(|contract| contract.to_string())
             .unwrap_or_else(|| "-".to_string());
         format!(
-            "plan(root=%{} source={} outer={} known_len={} publication_contract={} proof={})",
+            "plan(root=%{} source={} borrow_contract={} outer={} known_len={} publication_contract={} proof={})",
             self.corridor_root.0,
             source,
+            borrow_contract,
             outer_window,
             known_len,
             publication_contract,

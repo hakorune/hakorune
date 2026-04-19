@@ -98,6 +98,20 @@ impl std::fmt::Display for StringKernelPlanCarrier {
     }
 }
 
+/// Backend-consumable borrow/provenance contract for object -> text entry.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StringKernelPlanBorrowContract {
+    BorrowTextFromObject,
+}
+
+impl std::fmt::Display for StringKernelPlanBorrowContract {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::BorrowTextFromObject => f.write_str("borrow_text_from_obj"),
+        }
+    }
+}
+
 /// Owner responsible for legality verification on the current direct-kernel lane.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum StringKernelPlanVerifierOwner {
@@ -187,6 +201,7 @@ pub struct StringKernelPlan {
     pub family: StringKernelPlanFamily,
     pub corridor_root: ValueId,
     pub source_root: Option<ValueId>,
+    pub borrow_contract: Option<StringKernelPlanBorrowContract>,
     pub known_length: Option<i64>,
     pub retained_form: StringKernelPlanRetainedForm,
     pub publication_boundary: Option<StringKernelPlanPublicationBoundary>,
@@ -279,6 +294,17 @@ fn publication_contract_from_plan(
         ) => Some(
             StringKernelPlanPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
         ),
+        None => None,
+    }
+}
+
+fn borrow_contract_from_plan(
+    plan: crate::mir::string_corridor_placement::StringCorridorCandidatePlan,
+) -> Option<StringKernelPlanBorrowContract> {
+    match plan.borrow_contract {
+        Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject) => {
+            Some(StringKernelPlanBorrowContract::BorrowTextFromObject)
+        }
         None => None,
     }
 }
@@ -602,6 +628,7 @@ pub fn derive_string_kernel_plan(
 
     let representative = representative?;
     let plan = representative.plan?;
+    let borrow_contract = borrow_contract_from_plan(plan);
     let publication_contract = publication_contract_from_plan(plan);
     let family = match plan.proof {
         StringCorridorCandidateProof::BorrowedSlice { .. } => {
@@ -638,6 +665,7 @@ pub fn derive_string_kernel_plan(
         family,
         corridor_root: plan.corridor_root,
         source_root: plan.source_root,
+        borrow_contract,
         known_length: plan.known_length,
         retained_form: StringKernelPlanRetainedForm::BorrowedText,
         publication_boundary,
@@ -778,6 +806,7 @@ mod tests {
         let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
             corridor_root: ValueId::new(7),
             source_root: Some(ValueId::new(1)),
+            borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
             start: Some(ValueId::new(2)),
             end: Some(ValueId::new(3)),
             known_length: Some(2),
@@ -837,6 +866,10 @@ mod tests {
         );
         assert_eq!(kernel_plan.corridor_root, ValueId::new(7));
         assert_eq!(kernel_plan.source_root, Some(ValueId::new(1)));
+        assert_eq!(
+            kernel_plan.borrow_contract,
+            Some(StringKernelPlanBorrowContract::BorrowTextFromObject)
+        );
         assert_eq!(kernel_plan.known_length, Some(2));
         assert_eq!(
             kernel_plan.retained_form,
@@ -895,6 +928,7 @@ mod tests {
         let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
             corridor_root: ValueId::new(21),
             source_root: Some(ValueId::new(21)),
+            borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
             start: Some(ValueId::new(71)),
             end: Some(ValueId::new(72)),
             known_length: Some(2),
@@ -1018,6 +1052,7 @@ mod tests {
         let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
             corridor_root: ValueId::new(10),
             source_root: Some(ValueId::new(0)),
+            borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
             start: Some(ValueId::new(3)),
             end: Some(ValueId::new(4)),
             known_length: Some(2),
@@ -1130,6 +1165,7 @@ mod tests {
         let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
             corridor_root: ValueId::new(7),
             source_root: Some(ValueId::new(1)),
+            borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
             start: Some(ValueId::new(2)),
             end: Some(ValueId::new(3)),
             known_length: Some(2),

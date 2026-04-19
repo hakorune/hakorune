@@ -895,15 +895,19 @@ Scope: current lane / next lane / restart order only.
 
 1. update the current structure card before new perf edits
    - completed cards:
-     - `crates/nyash_kernel/src/plugin/value_codec/borrowed_handle.rs` modularization
-     - `substring_hii` `ViewSpan` boundary cleanup (`StringSpan` now survives until the final publish helper)
-   - active docs-first card:
-     - lock string-only `publish.text(reason, repr)` as the next explicit boundary bridge
-     - lock `borrow.text_from_obj` provenance ownership on MIR/lowering side
-     - keep `TextCell` sink/residence only; it is not a corridor value
-   - immediate task stack after docs:
-     - first implementation proving ground is `substring_hii` mid-slice replay with `repr=StableView`
-     - `publish.any` stays deferred
+      - `crates/nyash_kernel/src/plugin/value_codec/borrowed_handle.rs` modularization
+      - `substring_hii` `ViewSpan` boundary cleanup (`StringSpan` now survives until the final publish helper)
+      - `borrow.text_from_obj` metadata contract now rides on `StringCorridorFact` / `StringCorridorCandidatePlan` / `StringKernelPlan` / `PlacementEffectRoute`
+      - MIR JSON now exports that contract so runtime-side provenance re-inference is no longer the only truth surface
+    - active docs-first card:
+      - lock string-only `publish.text(reason, repr)` as the next explicit boundary bridge
+      - keep `borrow.text_from_obj` provenance ownership on MIR/lowering side
+      - keep `TextCell` sink/residence only; it is not a corridor value
+    - immediate task stack after docs:
+      - next implementation card is `publish-text-contract-v1`
+      - then `runtime-publish-text-adapter`
+      - then `substring_hii` mid-slice replay with `repr=StableView`
+      - `publish.any` stays deferred
    - do not widen into `TextLane`, allocator, public ABI, or a generic bridge substrate on this card
    - keep recent carrier commits as the semantic baseline; this card is contract/task shaping, not new keeper evidence
 2. keep phase-2.5 read-side alias lane as the active judge

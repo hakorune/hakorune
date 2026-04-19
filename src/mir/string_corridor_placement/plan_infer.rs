@@ -1,5 +1,9 @@
 use super::*;
 
+fn active_borrow_contract() -> Option<StringCorridorBorrowContract> {
+    Some(StringCorridorBorrowContract::BorrowTextFromObject)
+}
+
 fn active_publication_contract(
     start: Option<ValueId>,
     end: Option<ValueId>,
@@ -27,6 +31,7 @@ fn infer_borrowed_slice_plan(
     Some(StringCorridorCandidatePlan {
         corridor_root: root,
         source_root: Some(source),
+        borrow_contract: active_borrow_contract(),
         start: Some(start),
         end: Some(end),
         known_length: None,
@@ -88,6 +93,7 @@ fn infer_concat_triplet_plan(
     Some(StringCorridorCandidatePlan {
         corridor_root: receiver_root,
         source_root,
+        borrow_contract: active_borrow_contract(),
         start: outer_start.map(|value| resolve_value_origin(function, def_map, value)),
         end: outer_end.map(|value| resolve_value_origin(function, def_map, value)),
         known_length: Some(const_string_length(&text)),
@@ -136,6 +142,7 @@ fn infer_concat_triplet_result_plan(
     Some(StringCorridorCandidatePlan {
         corridor_root: root,
         source_root,
+        borrow_contract: active_borrow_contract(),
         start: Some(resolve_value_origin(function, def_map, start)),
         end: Some(resolve_value_origin(function, def_map, end)),
         known_length: Some(const_string_length(&text)),
@@ -191,6 +198,7 @@ pub(super) fn infer_plan(
                         StringCorridorCandidatePlan {
                             corridor_root: plan.corridor_root,
                             source_root: plan.source_root,
+                            borrow_contract: plan.borrow_contract,
                             start: plan.start,
                             end: plan.end,
                             known_length: plan.known_length,

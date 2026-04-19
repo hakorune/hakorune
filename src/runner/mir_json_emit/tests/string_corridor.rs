@@ -20,6 +20,7 @@ fn build_mir_json_root_emits_string_corridor_facts() {
     assert_eq!(facts["7"]["op"], "str.slice");
     assert_eq!(facts["7"]["role"], "borrow_producer");
     assert_eq!(facts["7"]["carrier"], "method_call");
+    assert_eq!(facts["7"]["borrow_contract"], "borrow_text_from_obj");
     assert!(facts["7"]["outcome"].is_null());
     assert_eq!(facts["7"]["objectize"], "?");
     assert_eq!(facts["7"]["publish"], "?");
@@ -50,6 +51,7 @@ fn build_mir_json_root_emits_string_corridor_candidates() {
             plan: Some(crate::mir::string_corridor_placement::StringCorridorCandidatePlan {
                 corridor_root: crate::mir::ValueId::new(7),
                 source_root: Some(crate::mir::ValueId::new(1)),
+                borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
                 start: Some(crate::mir::ValueId::new(2)),
                 end: Some(crate::mir::ValueId::new(3)),
                 known_length: Some(2),
@@ -98,6 +100,10 @@ fn build_mir_json_root_emits_string_corridor_candidates() {
     );
     assert_eq!(value_candidates[0]["plan"]["corridor_root"], 7);
     assert_eq!(value_candidates[0]["plan"]["source_root"], 1);
+    assert_eq!(
+        value_candidates[0]["plan"]["borrow_contract"],
+        "borrow_text_from_obj"
+    );
     assert_eq!(value_candidates[0]["plan"]["start"], 2);
     assert_eq!(value_candidates[0]["plan"]["end"], 3);
     assert_eq!(value_candidates[0]["plan"]["known_length"], 2);
@@ -136,6 +142,7 @@ fn build_mir_json_root_emits_string_kernel_plans() {
     let plan = crate::mir::string_corridor_placement::StringCorridorCandidatePlan {
         corridor_root: crate::mir::ValueId::new(7),
         source_root: Some(crate::mir::ValueId::new(1)),
+        borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
         start: Some(crate::mir::ValueId::new(2)),
         end: Some(crate::mir::ValueId::new(3)),
         known_length: Some(2),
@@ -193,6 +200,7 @@ fn build_mir_json_root_emits_string_kernel_plans() {
     assert_eq!(plan["family"], "concat_triplet_window");
     assert_eq!(plan["corridor_root"], 7);
     assert_eq!(plan["source_root"], 1);
+    assert_eq!(plan["borrow_contract"], "borrow_text_from_obj");
     assert_eq!(plan["known_length"], 2);
     assert_eq!(plan["retained_form"], "borrowed_text");
     assert_eq!(plan["publication_boundary"], "first_external_boundary");
@@ -227,6 +235,7 @@ fn build_mir_json_root_emits_string_kernel_plan_loop_payload() {
             plan: Some(crate::mir::string_corridor_placement::StringCorridorCandidatePlan {
                 corridor_root: ValueId::new(21),
                 source_root: Some(ValueId::new(21)),
+                borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
                 start: Some(ValueId::new(71)),
                 end: Some(ValueId::new(72)),
                 known_length: Some(2),

@@ -111,8 +111,9 @@ pub use join_ir_runner::{run_joinir_function, JoinRuntimeError, JoinValue};
 pub use optimizer::MirOptimizer;
 pub use placement_effect::{
     refresh_function_placement_effect_routes, refresh_module_placement_effect_routes,
-    PlacementEffectDecision, PlacementEffectDemand, PlacementEffectPublicationBoundary,
-    PlacementEffectRoute, PlacementEffectSource, PlacementEffectState, PlacementEffectStringProof,
+    PlacementEffectBorrowContract, PlacementEffectDecision, PlacementEffectDemand,
+    PlacementEffectPublicationBoundary, PlacementEffectRoute, PlacementEffectSource,
+    PlacementEffectState, PlacementEffectStringProof,
 };
 pub use printer::MirPrinter;
 pub use query::{MirQuery, MirQueryBox};
@@ -127,8 +128,8 @@ pub use storage_class::{
 };
 pub use string_corridor::{
     refresh_function_string_corridor_facts, refresh_module_string_corridor_facts,
-    StringCorridorCarrier, StringCorridorFact, StringCorridorOp, StringCorridorRole,
-    StringOutcomeFact, StringPlacementFact,
+    StringCorridorBorrowContract, StringCorridorCarrier, StringCorridorFact, StringCorridorOp,
+    StringCorridorRole, StringOutcomeFact, StringPlacementFact,
 };
 pub use string_corridor_placement::{
     refresh_function_string_corridor_candidates, refresh_module_string_corridor_candidates,
@@ -143,10 +144,10 @@ pub use string_corridor_relation::{
 pub use string_kernel_plan::{
     derive_string_kernel_plan, infer_string_kernel_text_consumer,
     refresh_function_string_kernel_plans, refresh_module_string_kernel_plans, StringKernelPlan,
-    StringKernelPlanCarrier, StringKernelPlanConsumer, StringKernelPlanFamily,
-    StringKernelPlanLegality, StringKernelPlanPart, StringKernelPlanPublicationBoundary,
-    StringKernelPlanPublicationContract, StringKernelPlanRetainedForm,
-    StringKernelPlanTextConsumer, StringKernelPlanVerifierOwner,
+    StringKernelPlanBorrowContract, StringKernelPlanCarrier, StringKernelPlanConsumer,
+    StringKernelPlanFamily, StringKernelPlanLegality, StringKernelPlanPart,
+    StringKernelPlanPublicationBoundary, StringKernelPlanPublicationContract,
+    StringKernelPlanRetainedForm, StringKernelPlanTextConsumer, StringKernelPlanVerifierOwner,
 };
 pub use sum_placement::{
     refresh_function_sum_placement_facts, refresh_module_sum_placement_facts,

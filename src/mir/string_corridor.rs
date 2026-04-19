@@ -98,6 +98,20 @@ impl std::fmt::Display for StringPlacementFact {
     }
 }
 
+/// Explicit object -> text provenance contract owned by MIR/lowering.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StringCorridorBorrowContract {
+    BorrowTextFromObject,
+}
+
+impl std::fmt::Display for StringCorridorBorrowContract {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::BorrowTextFromObject => f.write_str("borrow_text_from_obj"),
+        }
+    }
+}
+
 /// Current lowering carrier that produced the fact.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum StringCorridorCarrier {
@@ -124,6 +138,7 @@ pub struct StringCorridorFact {
     pub op: StringCorridorOp,
     pub role: StringCorridorRole,
     pub carrier: StringCorridorCarrier,
+    pub borrow_contract: Option<StringCorridorBorrowContract>,
     pub outcome: Option<StringOutcomeFact>,
     pub objectize: StringPlacementFact,
     pub publish: StringPlacementFact,
@@ -136,6 +151,7 @@ impl StringCorridorFact {
             op: StringCorridorOp::StrLen,
             role: StringCorridorRole::ScalarConsumer,
             carrier,
+            borrow_contract: None,
             outcome: None,
             objectize: StringPlacementFact::None,
             publish: StringPlacementFact::None,
@@ -148,6 +164,7 @@ impl StringCorridorFact {
             op: StringCorridorOp::StrSlice,
             role: StringCorridorRole::BorrowProducer,
             carrier,
+            borrow_contract: Some(StringCorridorBorrowContract::BorrowTextFromObject),
             outcome: None,
             objectize: StringPlacementFact::Unknown,
             publish: StringPlacementFact::Unknown,
@@ -160,6 +177,7 @@ impl StringCorridorFact {
             op: StringCorridorOp::FreezeStr,
             role: StringCorridorRole::BirthSink,
             carrier,
+            borrow_contract: None,
             outcome: Some(StringOutcomeFact::FreezeOwned),
             objectize: StringPlacementFact::Deferred,
             publish: StringPlacementFact::Deferred,
@@ -172,11 +190,16 @@ impl StringCorridorFact {
             .outcome
             .map(|v| v.to_string())
             .unwrap_or_else(|| "?".to_string());
+        let borrow_contract = self
+            .borrow_contract
+            .map(|v| v.to_string())
+            .unwrap_or_else(|| "none".to_string());
         format!(
-            "{} carrier={} role={} outcome={} objectize={} publish={} materialize={}",
+            "{} carrier={} role={} borrow={} outcome={} objectize={} publish={} materialize={}",
             self.op,
             self.carrier,
             self.role,
+            borrow_contract,
             outcome,
             self.objectize,
             self.publish,
@@ -252,6 +275,10 @@ mod tests {
         assert_eq!(fact.op, StringCorridorOp::StrSlice);
         assert_eq!(fact.role, StringCorridorRole::BorrowProducer);
         assert_eq!(fact.carrier, StringCorridorCarrier::CanonicalIntrinsic);
+        assert_eq!(
+            fact.borrow_contract,
+            Some(StringCorridorBorrowContract::BorrowTextFromObject)
+        );
     }
 
     #[test]

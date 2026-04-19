@@ -320,6 +320,11 @@ fn placement_effect_helper_plan_for_kind(
     Some(StringCorridorCandidatePlan {
         corridor_root: route.value.unwrap_or(root),
         source_root: route.source_value,
+        borrow_contract: route.borrow_contract.map(|contract| match contract {
+            crate::mir::PlacementEffectBorrowContract::BorrowTextFromObject => {
+                crate::mir::StringCorridorBorrowContract::BorrowTextFromObject
+            }
+        }),
         start: route.window_start,
         end: route.window_end,
         known_length: None,

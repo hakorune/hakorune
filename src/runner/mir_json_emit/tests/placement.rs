@@ -175,6 +175,7 @@ fn build_mir_json_root_emits_placement_effect_routes() {
             source_value: None,
             window_start: Some(crate::mir::ValueId::new(2)),
             window_end: Some(crate::mir::ValueId::new(3)),
+            borrow_contract: Some(crate::mir::PlacementEffectBorrowContract::BorrowTextFromObject),
             string_proof: Some(crate::mir::PlacementEffectStringProof::BorrowedSlice {
                 source: crate::mir::ValueId::new(1),
                 start: crate::mir::ValueId::new(2),
@@ -201,6 +202,7 @@ fn build_mir_json_root_emits_placement_effect_routes() {
             source_value: Some(crate::mir::ValueId::new(9)),
             window_start: None,
             window_end: None,
+            borrow_contract: None,
             string_proof: None,
             publication_boundary: None,
             source: crate::mir::PlacementEffectSource::SumPlacement,
@@ -221,6 +223,7 @@ fn build_mir_json_root_emits_placement_effect_routes() {
             source_value: None,
             window_start: None,
             window_end: None,
+            borrow_contract: None,
             string_proof: None,
             publication_boundary: None,
             source: crate::mir::PlacementEffectSource::AggLocalScalarization,
@@ -241,6 +244,7 @@ fn build_mir_json_root_emits_placement_effect_routes() {
             source_value: None,
             window_start: None,
             window_end: None,
+            borrow_contract: None,
             string_proof: None,
             publication_boundary: None,
             source: crate::mir::PlacementEffectSource::ThinEntry,
@@ -264,6 +268,7 @@ fn build_mir_json_root_emits_placement_effect_routes() {
     assert_eq!(routes[0]["demand"], "publish_handle");
     assert_eq!(routes[0]["window_start"], 2);
     assert_eq!(routes[0]["window_end"], 3);
+    assert_eq!(routes[0]["borrow_contract"], "borrow_text_from_obj");
     assert_eq!(routes[0]["publication_boundary"], "first_external_boundary");
     assert_eq!(routes[0]["string_proof"]["kind"], "borrowed_slice");
     assert_eq!(routes[0]["string_proof"]["source"], 1);

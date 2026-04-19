@@ -120,6 +120,19 @@ impl std::fmt::Display for PlacementEffectPublicationBoundary {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PlacementEffectBorrowContract {
+    BorrowTextFromObject,
+}
+
+impl std::fmt::Display for PlacementEffectBorrowContract {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::BorrowTextFromObject => f.write_str("borrow_text_from_obj"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PlacementEffectStringProof {
     BorrowedSlice {
         source: ValueId,
@@ -187,6 +200,7 @@ pub struct PlacementEffectRoute {
     pub source_value: Option<ValueId>,
     pub window_start: Option<ValueId>,
     pub window_end: Option<ValueId>,
+    pub borrow_contract: Option<PlacementEffectBorrowContract>,
     pub string_proof: Option<PlacementEffectStringProof>,
     pub publication_boundary: Option<PlacementEffectPublicationBoundary>,
     pub source: PlacementEffectSource,
@@ -222,6 +236,10 @@ impl PlacementEffectRoute {
             }
             _ => String::new(),
         };
+        let borrow_contract_suffix = self
+            .borrow_contract
+            .map(|contract| format!(" borrow_contract={contract}"))
+            .unwrap_or_default();
         let string_proof_suffix = self
             .string_proof
             .as_ref()
@@ -237,7 +255,7 @@ impl PlacementEffectRoute {
             .map(|detail| format!(" detail={detail}"))
             .unwrap_or_default();
         format!(
-            "{}{} {} {} {} demand={} [{}]{}{}{}{}{}{} reason={}",
+            "{}{} {} {} {} demand={} [{}]{}{}{}{}{}{}{} reason={}",
             block_suffix,
             instruction_suffix,
             self.source,
@@ -248,6 +266,7 @@ impl PlacementEffectRoute {
             value_suffix,
             source_value_suffix,
             window_suffix,
+            borrow_contract_suffix,
             string_proof_suffix,
             publication_boundary_suffix,
             detail_suffix,
@@ -294,6 +313,12 @@ fn collect_string_routes(function: &MirFunction, routes: &mut Vec<PlacementEffec
                 source_value: None,
                 window_start: candidate.plan.and_then(|plan| plan.start),
                 window_end: candidate.plan.and_then(|plan| plan.end),
+                borrow_contract: candidate.plan.and_then(|plan| match plan.borrow_contract {
+                    Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject) => {
+                        Some(PlacementEffectBorrowContract::BorrowTextFromObject)
+                    }
+                    None => None,
+                }),
                 string_proof: candidate
                     .plan
                     .map(|plan| placement_effect_string_proof(plan.proof)),
@@ -420,6 +445,7 @@ fn sum_route(selection: &SumPlacementSelection) -> PlacementEffectRoute {
         source_value: selection.source_sum,
         window_start: None,
         window_end: None,
+        borrow_contract: None,
         string_proof: None,
         publication_boundary: None,
         source: PlacementEffectSource::SumPlacement,
@@ -446,6 +472,7 @@ fn thin_entry_route(selection: &ThinEntrySelection) -> PlacementEffectRoute {
         source_value: None,
         window_start: None,
         window_end: None,
+        borrow_contract: None,
         string_proof: None,
         publication_boundary: None,
         source: PlacementEffectSource::ThinEntry,
@@ -477,6 +504,7 @@ fn agg_local_route(route: &crate::mir::AggLocalScalarizationRoute) -> Option<Pla
             source_value: None,
             window_start: None,
             window_end: None,
+            borrow_contract: None,
             string_proof: None,
             publication_boundary: None,
             source: PlacementEffectSource::AggLocalScalarization,
@@ -697,6 +725,7 @@ mod tests {
                 plan: Some(StringCorridorCandidatePlan {
                     corridor_root: ValueId::new(21),
                     source_root: Some(ValueId::new(1)),
+                    borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
                     start: Some(ValueId::new(8)),
                     end: Some(ValueId::new(9)),
                     known_length: Some(2),
@@ -747,6 +776,10 @@ mod tests {
         assert_eq!(
             route.publication_boundary,
             Some(PlacementEffectPublicationBoundary::FirstExternalBoundary)
+        );
+        assert_eq!(
+            route.borrow_contract,
+            Some(PlacementEffectBorrowContract::BorrowTextFromObject)
         );
     }
 }

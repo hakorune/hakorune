@@ -42,6 +42,7 @@ pub(super) fn build_string_kernel_plan_json(
         "family": plan.family.to_string(),
         "corridor_root": plan.corridor_root.as_u32(),
         "source_root": plan.source_root.map(|value| value.as_u32()),
+        "borrow_contract": plan.borrow_contract.map(|contract| contract.to_string()),
         "parts": build_string_kernel_plan_parts_json(&plan),
         "known_length": plan.known_length,
         "retained_form": plan.retained_form.to_string(),
