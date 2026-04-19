@@ -27,7 +27,7 @@
   - semantic authority stays in `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
   - this README stays a current-state mirror and handoff note
 - current exact front: `kilo_micro_array_string_store` is closed again by the compact 8-block route-shape matcher
-- first 137x-D keeper proof: same-array/same-index piecewise concat3 subrange store lowers to `nyash.array.string_insert_mid_subrange_store_hisiii`
+- first 137x-D keeper proof: same-array/same-index piecewise concat3 subrange store originally lowered to `nyash.array.string_insert_mid_subrange_store_hisiii`; current direct lowering uses explicit-length `nyash.array.string_insert_mid_subrange_store_hisiiii`
 - current owner split is now explicit:
   - `const_suffix freeze_fallback = 479728 / 480000`
   - `materialize total = 539728` (`~4.5 GB`)
@@ -1950,7 +1950,8 @@ The next perf cut should not start until these mechanical contracts are fixed.
    - recapture fresh owner baseline and asm before source reading or code edits
    - use exact, middle, and strict whole fronts as guard/contradiction checks, not as permission to widen public ABI
 3. keep landed `137x-D` cuts fixed
-   - same-slot piecewise subrange store lowers through `nyash.array.string_insert_mid_subrange_store_hisiii`
+   - same-slot piecewise subrange store originally lowered through `nyash.array.string_insert_mid_subrange_store_hisiii`
+   - current direct lowering uses `nyash.array.string_insert_mid_subrange_store_hisiiii`
    - same-slot compiler-emitted string literals now pass explicit byte length through runtime-private helpers:
      - `nyash.array.string_suffix_store_hisi`
      - `nyash.array.string_insert_mid_store_hisii`

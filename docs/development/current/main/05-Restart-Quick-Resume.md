@@ -51,7 +51,8 @@ cargo check --features perf-observe -p nyash_kernel
     - `substring + concat + array.set + loopcarry`
     - use it to confirm store/publication cuts without the whole-front `indexOf("line")` row-scan noise
   - first landed 137x-D keeper:
-    - same-slot piecewise concat3 subrange store lowers to `nyash.array.string_insert_mid_subrange_store_hisiii`
+    - same-slot piecewise concat3 subrange store originally lowered to the CStr helper `nyash.array.string_insert_mid_subrange_store_hisiii`
+    - current direct lowering uses the explicit-length helper `nyash.array.string_insert_mid_subrange_store_hisiiii`
     - direct-only correctness: `Result: 2880064`, exit code `64`
   - `kilo_kernel_small_hk = C 81 ms / Ny AOT 29 ms`
 - immediate next:

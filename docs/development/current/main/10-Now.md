@@ -160,7 +160,8 @@ Related:
 - blocker:
   - next `137x-D` owner proof before any further owner-first optimization edit
   - first landed keeper:
-    - same-array/same-index piecewise concat3 subrange store lowers to `nyash.array.string_insert_mid_subrange_store_hisiii`
+    - same-array/same-index piecewise concat3 subrange store originally lowered to `nyash.array.string_insert_mid_subrange_store_hisiii`
+    - current direct lowering uses explicit-length `nyash.array.string_insert_mid_subrange_store_hisiiii`
     - `kilo_meso_substring_concat_array_set_loopcarry = C 4 ms / Ny AOT 9 ms`
     - direct-only correctness: `Result: 2880064`, exit code `64`
   - no active `phase-289x` cutover blocker
@@ -597,7 +598,8 @@ Related:
    - reject seam: store-side `owned-string keep` / `owned-text keep`, `array.get` publish-per-read, or any helper that leaves the preceding `array.get_hi` / `slot_load_hi` live
 3. preserve current landed cuts
    - same-array/same-index piecewise concat3 subrange store remains the landed first `137x-D` keeper
-   - direct route is `nyash.array.string_insert_mid_subrange_store_hisiii`
+   - historical first route was `nyash.array.string_insert_mid_subrange_store_hisiii`
+   - current direct route is `nyash.array.string_insert_mid_subrange_store_hisiiii`
    - explicit-length direct-lowering helpers are now landed for same-slot suffix / insert-mid / insert-mid-subrange:
      - `nyash.array.string_suffix_store_hisi`
      - `nyash.array.string_insert_mid_store_hisii`

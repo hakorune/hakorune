@@ -979,9 +979,10 @@ Scope: current lane / next lane / restart order only.
        - lane-host eligibility is limited to internal element/key/value residence
    - landed first 137x-D keeper:
      - same-array/same-index piecewise concat3 subrange store now lowers to one residence mutation:
-       - `nyash.array.string_insert_mid_subrange_store_hisiii`
-     - direct-only correctness proof: `Result: 2880064`, exit code `64`
-     - direct-only asm proof: `ny_main` loop now calls `nyash.array.string_len_hi` and `nyash.array.string_insert_mid_subrange_store_hisiii`; the old `kernel_slot_insert -> substring_in_place -> slot_store` chain is absent from the guarded shape
+      - historical first helper: `nyash.array.string_insert_mid_subrange_store_hisiii`
+      - current direct helper: `nyash.array.string_insert_mid_subrange_store_hisiiii`
+    - direct-only correctness proof: `Result: 2880064`, exit code `64`
+    - direct-only asm proof: `ny_main` loop now calls `nyash.array.string_len_hi` and the explicit-length subrange helper; the old `kernel_slot_insert -> substring_in_place -> slot_store` chain is absent from the guarded shape
    - landed follow-up 137x-D runtime-private literal-length cut:
      - compiler-emitted const string literals now pass explicit byte length into same-slot array string store helpers
      - new runtime-private helper rows:
