@@ -28,19 +28,20 @@ Scope: current lane / next lane / restart order only.
 14. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
 15. `docs/development/current/main/phases/phase-137x/README.md`
 16. `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
-17. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
-18. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
-19. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-20. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md` (`137x-H` owner-first optimization に戻るとき)
-21. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
-22. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
-23. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
-24. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-25. `docs/development/current/main/design/string-birth-sink-ssot.md`
-26. `docs/development/current/main/15-Workstream-Map.md`
-27. `git status -sb`
-28. `tools/checks/dev_gate.sh quick`
-29. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
+17. `docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md`
+18. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
+19. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
+20. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+21. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md` (`137x-H` owner-first optimization に戻るとき)
+22. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
+23. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+24. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
+25. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+26. `docs/development/current/main/design/string-birth-sink-ssot.md`
+27. `docs/development/current/main/15-Workstream-Map.md`
+28. `git status -sb`
+29. `tools/checks/dev_gate.sh quick`
+30. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Current Lane
 
@@ -50,7 +51,8 @@ Scope: current lane / next lane / restart order only.
 - active lane:
   - `phase-137x-E TextLane / Value Lane implementation gate` (active; opened before the next kilo optimization)
   - implementation mode:
-    - `137x-E TextLane implementation gate` is the current blocker before further kilo tuning
+    - `137x-E0 MIR / backend seam closeout` is closed
+    - `137x-E1 minimal TextLane / ArrayStorage::Text` is the next implementation slice before further kilo tuning
     - implement `137x-E` minimal `TextLane` / `ArrayStorage::Text`, then `137x-F` Value Lane bridge, then `137x-G` allocator / arena pilot
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
@@ -94,7 +96,8 @@ Scope: current lane / next lane / restart order only.
       - `substring_hii` `ViewSpan` publication cleanup is closed; `StringSpan` now survives until the final handle boundary helper
       - explicit string-only `publish.text` contract gates are closed for `137x-A`; `publish.any` remains deferred/blocked
       - `cache.rs` / `string_materialize.rs` remain deferred modularization candidates, but not prerequisites for the active `137x-E` implementation gate
-      - active implementation gate is `137x-E TextLane implementation gate`, not another helper-local optimization card
+      - active implementation gate is `137x-E TextLane implementation gate`; `137x-E0` MIR/backend seam closeout is closed
+      - `.inc` must consume MIR-owned metadata for legality/provenance and stay backend emit/normalization only
       - legacy watch item surfaced by audit is `src/host_providers/llvm_codegen/compat_text_primitive.rs`
   - parent SSOT:
     - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
@@ -931,7 +934,8 @@ Scope: current lane / next lane / restart order only.
      - `137x-B`: container / primitive design cleanout
      - `137x-C`: structure completion before perf return
      - `137x-D`: exact array store route-shape keeper
-   - current blocker: `137x-E TextLane implementation gate`
+     - `137x-E0`: MIR / backend seam closeout
+   - current blocker: `137x-E1 minimal TextLane / ArrayStorage::Text`
    - order:
      - `137x-E`: minimal `TextLane` / `ArrayStorage::Text`
      - `137x-F`: runtime-wide Value Lane implementation bridge

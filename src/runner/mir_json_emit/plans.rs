@@ -70,6 +70,13 @@ pub(super) fn build_string_kernel_plan_json(
             "rejects_early_fresh_registry_handle": legality.rejects_early_fresh_registry_handle,
             "rejects_registry_backed_carrier": legality.rejects_registry_backed_carrier,
         },
+        "read_alias": {
+            "same_receiver": plan.read_alias.same_receiver,
+            "source_window": plan.read_alias.source_window,
+            "followup_substring": plan.read_alias.followup_substring,
+            "piecewise_subrange": plan.read_alias.piecewise_subrange,
+            "shared_receiver": plan.read_alias.shared_receiver,
+        },
         "loop_payload": plan.loop_payload.as_ref().map(|payload| json!({
             "seed_value": payload.seed_value.as_u32(),
             "seed_literal": payload.seed_literal,

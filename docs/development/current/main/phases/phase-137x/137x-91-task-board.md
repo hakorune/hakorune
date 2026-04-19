@@ -6,7 +6,8 @@
   - `137x-B`: container / primitive design cleanout (closed)
   - `137x-C`: structure completion gate before perf return (closed)
   - `137x-D`: owner-first optimization return (exact route-shape keeper landed)
-  - `137x-E`: TextLane implementation gate before next kilo optimization (open)
+  - `137x-E0`: MIR / backend seam closeout before TextLane (closed)
+  - `137x-E`: TextLane implementation gate before next kilo optimization (active)
   - `137x-F`: runtime-wide Value Lane implementation bridge (next)
   - `137x-G`: allocator / arena lane pilot (next)
   - `137x-H`: kilo optimization return after E/F/G land or reject
@@ -98,7 +99,13 @@ order before the next kilo optimization return.
 
 ## Opened Implementation Order Before Next Kilo Optimization
 
-- [ ] G1 `137x-E implementation gate before next kilo optimization`
+- [x] G0 `137x-E0 MIR / backend seam closeout before TextLane`
+  - closed preflight for `137x-E`
+  - SSOT: `docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md`
+  - MIR owns read-side alias continuation legality, publication contracts, provenance, and downgrade decisions
+  - `.inc` consumes plan metadata and emits backend calls; it must not rediscover semantic legality
+  - runtime array/string slot code may split by mechanism only, without becoming a semantic owner
+- [x] G1 `137x-E implementation gate before next kilo optimization`
   - active token: `137x-E TextLane implementation gate`
   - SSOT: `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
 - [ ] G2 minimal `TextLane` / `ArrayStorage::Text`
@@ -117,5 +124,5 @@ order before the next kilo optimization return.
 - [x] F2 137x-B design cleanout gate is satisfied
 - [x] F3 137x-C structure completion gate is satisfied
 - [x] F4 owner-first optimization reopened as `137x-D`
-- [ ] F5 implementation gate is open as `137x-E`
+- [x] F5 implementation gate is open as `137x-E`
 - [ ] F6 kilo optimization returns as `137x-H` only after `137x-E/F/G` land or reject

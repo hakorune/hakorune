@@ -2,6 +2,14 @@
 
 This directory keeps C-side ABI shims thin and responsibility-partitioned.
 
+## Responsibility Boundary
+
+- `.inc` files consume MIR-owned metadata and emit backend calls.
+- `.inc` files may perform backend-local operand normalization and variant selection only after MIR has already decided legality.
+- `.inc` files must not become semantic planners for publication defer, provenance, StableView legality, or read-side alias continuation.
+- Temporary exact matchers must be listed in the phase-137x Legacy Retirement Ledger or moved to explicit legacy fixtures before they can be kept.
+- Active seam closeout SSOT: `../../../docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md`.
+
 ## `hako_llvmc_ffi.c`
 
 - Top-level owner translation unit for the `ny-llvmc` boundary bridge.
@@ -34,12 +42,14 @@ Current partitions:
   - substring-concat exact matcher family, including the remaining metadata-first + shape-fallback bridge
 - `hako_llvmc_ffi_array_string_store_seed.inc`
   - pure-first seed emit/match helpers for the exact array/string-store micro path
+  - temporary bridge surface only; removal/shrink gate is tracked in the phase-137x Legacy Retirement Ledger
 - `hako_llvmc_ffi_string_search_seed.inc`
   - pure-first seed emit/match helpers for search/index-of paths
 - `hako_llvmc_ffi_array_micro_seed.inc`
   - pure-first seed emit/match helpers for array get/set micro paths
 - `hako_llvmc_ffi_user_box_micro_seed.inc`
   - pure-first seed emit/match helpers for the narrow typed user-box point-add / flag-toggle micro paths
+  - now partitioned further into `hako_llvmc_ffi_user_box_micro_seed_helpers.inc` plus typed family slices
 - `hako_llvmc_ffi_sum_local_seed.inc`
   - thin facade include for local variant/sum pure-first seeds
 - `hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc`
@@ -60,6 +70,7 @@ Current partitions:
   - direct `indexOf` observer match helpers for `select` / `branch`
 - `hako_llvmc_ffi_indexof_observer_block_match.inc`
   - cross-block and interleaved `indexOf` observer match helpers
+  - now partitioned further into `hako_llvmc_ffi_indexof_observer_block_match_cross.inc`, `hako_llvmc_ffi_indexof_observer_block_match_branch.inc`, and `hako_llvmc_ffi_indexof_observer_block_match_select.inc`
 - `hako_llvmc_ffi_indexof_observer_lowering.inc`
   - `indexOf` observer defer/argument/emit helpers used by pure-first lowering
 - `hako_llvmc_ffi_const_string_hoist.inc`
@@ -72,6 +83,7 @@ Current partitions:
   - thin wrapper for string concat lowering that now delegates emit details
 - `hako_llvmc_ffi_string_concat_emit.inc`
   - string concat chain state plus `concat_hh` / `concat3_hhh` emit helpers and route-adjacent trace hooks
+  - now partitioned further into `hako_llvmc_ffi_string_concat_emit_helpers.inc` and `hako_llvmc_ffi_string_concat_emit_routes.inc`
 - `hako_llvmc_ffi_concat_hh_len_seed.inc`
   - dedicated exact-micro pure-first seed for `kilo_micro_concat_hh_len`
 - `hako_llvmc_ffi_string_chain_terms.inc`
@@ -118,6 +130,7 @@ Current partitions:
   - harness keep replay, selected-route entry points, forwarders
 - `hako_llvmc_ffi_pure_compile.inc`
   - `compile_json_compat_pure(...)`, generic walk orchestration, and the remaining exported link surface
+  - now partitioned further into `hako_llvmc_ffi_pure_compile_generic_lowering.inc` and `hako_llvmc_ffi_pure_compile_minimal_paths.inc`
 
 Rules:
 

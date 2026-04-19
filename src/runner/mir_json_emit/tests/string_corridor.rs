@@ -254,6 +254,11 @@ fn build_mir_json_root_emits_string_kernel_plans() {
     assert_eq!(plan["direct_kernel_entry"]["state"], "candidate");
     assert_eq!(plan["legality"]["byte_exact"], true);
     assert_eq!(plan["legality"]["requires_kernel_text_slot"], false);
+    assert_eq!(plan["read_alias"]["same_receiver"], true);
+    assert_eq!(plan["read_alias"]["source_window"], true);
+    assert_eq!(plan["read_alias"]["followup_substring"], false);
+    assert_eq!(plan["read_alias"]["piecewise_subrange"], false);
+    assert_eq!(plan["read_alias"]["shared_receiver"], false);
     assert_eq!(plan["parts"][0]["kind"], "slice");
     assert_eq!(plan["parts"][1]["kind"], "const");
     assert_eq!(plan["parts"][1]["known_length"], 2);

@@ -29,7 +29,7 @@
             HAKO_LLVMC_STRING_POST_STORE_USE_NONE;
         if (get_str_const(rhs) != NULL) {
           shared_receiver =
-              match_const_suffix_shared_receiver_window(ii, ilen, insts, dst, &post_store_use);
+              hako_llvmc_string_kernel_plan_or_legacy_shared_receiver(ii, ilen, insts, dst);
         }
         if (direct_set_out) *direct_set_out = direct_set || shared_receiver;
         (void)post_store_use;

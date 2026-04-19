@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md
   - docs/development/current/main/phases/phase-137x/README.md
   - docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md
+  - docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md
   - docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md
   - docs/development/current/main/design/lifecycle-typed-value-language-ssot.md
   - docs/development/current/main/phases/phase-289x/README.md
@@ -29,7 +30,8 @@ Related:
 - current lane:
   - `phase-137x-E TextLane / Value Lane implementation gate` (active; opened before the next kilo optimization)
   - execution mode:
-    - `137x-E TextLane implementation gate` is the current blocker before further kilo tuning
+    - `137x-E0 MIR / backend seam closeout` is closed
+    - `137x-E1 minimal TextLane / ArrayStorage::Text` is the next implementation slice before further kilo tuning
     - implement `137x-E` minimal `TextLane` / `ArrayStorage::Text`, then `137x-F` Value Lane bridge, then `137x-G` allocator / arena pilot
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
@@ -50,7 +52,7 @@ Related:
     - demand-backed cutover inventory `289x-96` is closed
     - `137x-B` design cleanout is closed; `137x-C` structure completion gate is closed
     - `137x-D` exact route-shape keeper is landed
-    - `137x-E/F/G` are open before the next kilo optimization return
+    - `137x-E0` is closed; `137x-E/F/G` remain open before the next kilo optimization return
     - array/map remain identity containers; only internal residence may become lane-hosted later
     - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
     - all `289x-96` clusters are done; their vocabulary now feeds the constrained `137x-F` implementation bridge
@@ -61,6 +63,7 @@ Related:
       - `TextCell` remains sink/residence only, not a corridor value
       - next explicit bridge is string-only `publish.text(reason, repr)`; `publish.any` stays deferred
       - borrow/provenance truth stays MIR/lowering-owned under `borrow.text_from_obj`
+      - `.inc` emit paths must not rediscover read-side alias legality, provenance, or publication defer conditions
   - parent:
     - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
   - phase:
@@ -591,7 +594,8 @@ Related:
 ## Next
 
 1. open implementation gates before the next kilo optimization
-   - current blocker: `137x-E TextLane implementation gate`
+   - current blocker: `137x-E1 minimal TextLane / ArrayStorage::Text`
+   - `137x-E0`: MIR / backend seam closeout is closed
    - `137x-E`: minimal `TextLane` / `ArrayStorage::Text`
    - `137x-F`: runtime-wide Value Lane implementation bridge
    - `137x-G`: allocator / arena pilot

@@ -1,7 +1,7 @@
 # Phase 137x: main kilo reopen selection
 
 - Status: TextLane / Value Lane Implementation Gate Active
-- 目的: 137x-C structure completion gate と 137x-D exact route-shape keeper を閉じた状態から、次の kilo 最適化に戻る前に `137x-E/F/G` の storage/value/allocator implementation gate を開く。
+- 目的: 137x-C structure completion gate と 137x-D exact route-shape keeper を閉じた状態から、次の kilo 最適化に戻る前に `137x-E0/E/F/G` の MIR/backend seam, storage, value, allocator implementation gate を開く。
 - 対象:
   - `docs/development/current/main/CURRENT_STATE.toml`
   - `CURRENT_TASK.md`
@@ -17,7 +17,7 @@
 
 ## Quick Scan
 
-- current lane: `phase-137x-E TextLane / Value Lane implementation gate` (active; opened before the next kilo optimization)
+- current lane: `phase-137x-E TextLane / Value Lane implementation gate` (active; `137x-E0` MIR/backend seam closeout is closed)
 - semantic lock:
   - `String = value`
   - `publish = boundary effect`
@@ -48,7 +48,8 @@
   - `137x-B`: container / primitive design cleanout (`137x-93-container-primitive-design-cleanout.md`) is closed
   - `137x-C`: structure completion gate before perf return is closed (`137x-91-task-board.md`)
   - `137x-D`: owner-first optimization return landed the exact array store route-shape keeper
-  - `137x-E`: minimal `TextLane` / `ArrayStorage::Text` implementation is open
+  - `137x-E0`: MIR / backend seam closeout before TextLane is closed
+  - `137x-E`: minimal `TextLane` / `ArrayStorage::Text` implementation is next
   - `137x-F`: runtime-wide `Value Lane` implementation bridge follows
   - `137x-G`: allocator / arena pilot follows
   - `137x-H`: next kilo optimization return after E/F/G land or reject
@@ -66,7 +67,7 @@
     - 137x-B design cleanout is satisfied
     - 137x-C structure completion gate is satisfied
     - 137x-D exact route-shape keeper is landed
-    - 137x-E/F/G implementation gates are now open before next kilo optimization
+    - 137x-E0 is closed; 137x-E/F/G implementation gates remain open before next kilo optimization
     - `publish.any` remains blocked here
 - closed design cleanout gate:
   - closed: `137x-93-container-primitive-design-cleanout.md`
@@ -88,10 +89,12 @@
       - runtime-wide Value Lane implementation is now opened only through the constrained `137x-F` bridge
   - no public ABI widening starts from this gate
 - successor implementation order:
+  - `137x-E0`: MIR / backend seam closeout before TextLane
   - `137x-E`: minimal `TextLane` / `ArrayStorage::Text`
   - `137x-F`: runtime-wide `Value Lane` implementation bridge
   - `137x-G`: allocator / arena pilot
   - SSOT: `137x-94-textlane-value-allocator-implementation-gate.md`
+  - preflight SSOT: `137x-95-mir-backend-seam-closeout-before-textlane.md`
 - legacy retirement SSOT:
   - planned deletions for the active compiler cleanup live in the `Legacy Retirement Ledger` section of this README
   - do not scatter deletion TODOs across lowering/runtime files; code comments may only point back to this ledger when a compatibility row would otherwise look accidental
@@ -119,6 +122,7 @@ Rules:
 | `nyash.array.string_insert_mid_store_hisi` | compatibility row | Pointer/CStr validated insert-mid helper retained after direct lowering moved to `nyash.array.string_insert_mid_store_hisii` | Delete only after `phase137x_boundary_array_string_len_insert_mid_source_only_min.sh` and related generic-lowering guards require `hisii`, and pure declarations no longer emit `hisi`. |
 | `nyash.array.string_insert_mid_subrange_store_hisiii` | compatibility row | Pointer/CStr validated subrange helper retained after direct lowering moved to `nyash.array.string_insert_mid_subrange_store_hisiiii` | Delete only after concat3/subrange source-only smokes require `hisiiii`, docs no longer name `hisiii` as active direct route, and pure declarations no longer emit `hisiii`. |
 | `kilo_micro_array_string_store` old `9-block` exact seed shape | legacy matcher branch | Kept as a regression bridge while current direct MIR emits the compact `8-block` shape | Delete only after a compact-shape fixture/gate is the sole accepted direct producer or the old shape is moved into an explicit legacy regression fixture with a separate failure expectation. |
+| `lang/c-abi/shims/hako_llvmc_ffi_array_string_store_seed.inc` exact seed bridge | temporary bridge surface | Pure-first array/string-store micro seed still has exact route-shape emission for the current micro front; it is not keeper architecture and must not grow semantic legality. | Delete or shrink after TextLane / ArrayStorage::Text direct lowering owns the active array-string store route, or move the exact seed into an explicit legacy regression fixture with failure expectation. |
 | `src/host_providers/llvm_codegen/compat_text_primitive.rs` | watch item | Audit surfaced it as a legacy compiler compatibility surface; not part of the explicit-length helper cut | Classify first: either retire behind a small no-behavior cleanup gate or document why it remains a stable compatibility shim. |
 - current phase-2 start:
   - `string_handle_from_owned{,_concat_hh,_substring_concat_hhii,_const_suffix}` now enter explicit cold publish adapters
@@ -1971,7 +1975,8 @@ The next perf cut should not start until these mechanical contracts are fixed.
    - older exact-front notes in this file are historical unless the restart handoff names them as guards
    - `kilo_micro_substring_only` is no longer the current exact owner front for new implementation edits
 2. open implementation gates before the next kilo optimization
-   - current blocker: `137x-E TextLane implementation gate`
+   - current blocker: `137x-E1 minimal TextLane / ArrayStorage::Text`
+   - `137x-E0`: MIR / backend seam closeout is closed
    - `137x-E`: minimal `TextLane` / `ArrayStorage::Text`
    - `137x-F`: runtime-wide Value Lane implementation bridge
    - `137x-G`: allocator / arena pilot

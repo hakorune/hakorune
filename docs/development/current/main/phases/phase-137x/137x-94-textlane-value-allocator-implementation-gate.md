@@ -10,10 +10,11 @@ The next kilo optimization should not continue as another helper-local edit unti
 
 This gate opens:
 
-1. `137x-E`: minimal `TextLane` / `ArrayStorage::Text` implementation
-2. `137x-F`: runtime-wide `Value Lane` implementation bridge
-3. `137x-G`: allocator / arena lane pilot
-4. `137x-H`: return to kilo optimization after the implementation gates have landed or been explicitly rejected
+1. `137x-E0`: MIR / backend seam closeout before `TextLane`
+2. `137x-E`: minimal `TextLane` / `ArrayStorage::Text` implementation
+3. `137x-F`: runtime-wide `Value Lane` implementation bridge
+4. `137x-G`: allocator / arena lane pilot
+5. `137x-H`: return to kilo optimization after the implementation gates have landed or been explicitly rejected
 
 ## Scope
 
@@ -26,7 +27,14 @@ This gate opens:
 
 ## Opened Work
 
-- `137x-E TextLane`
+- `137x-E0 MIR / backend seam closeout` (closed)
+  - SSOT: `137x-95-mir-backend-seam-closeout-before-textlane.md`
+  - Push read-side alias continuation legality into MIR-owned metadata.
+  - Demote `.inc` string emit paths from delayed planner to metadata-consuming emitter.
+  - Classify exact seed bridges as temporary surfaces with removal gates.
+  - Split `array_string_slot.rs` by runtime mechanism without making it a semantic owner.
+
+- `137x-E TextLane` (active next)
   - Start with array string hot paths and `KernelTextSlot` replacement pressure.
   - Accept only a narrow storage implementation that preserves existing public behavior.
   - Require exact/middle/whole proof before calling it a keeper.
@@ -71,7 +79,7 @@ PERF_VM_FORCE_NO_FALLBACK=1 PERF_REQUIRE_AOT_RESULT_PARITY=1 NYASH_LLVM_SKIP_BUI
 
 ## Exit Rule
 
-Return to `137x-H` kilo optimization only after `137x-E/F/G` have either:
+Return to `137x-H` kilo optimization only after `137x-E0/E/F/G` have either:
 
 - landed with gates green, or
 - been explicitly rejected with evidence and rollback notes.

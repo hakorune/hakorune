@@ -264,6 +264,137 @@
         return plans;
       }
 
+      auto int hako_llvmc_string_kernel_plan_read_alias_fact(
+          long long value,
+          const char* fact,
+          int* out) {
+        yyjson_val* plan = hako_llvmc_string_kernel_plan_by_value(value);
+        yyjson_val* read_alias = plan ? yyjson_obj_get(plan, "read_alias") : NULL;
+        yyjson_val* fact_val = read_alias && fact ? yyjson_obj_get(read_alias, fact) : NULL;
+        if (!(fact_val && yyjson_is_bool(fact_val))) return 0;
+        if (out) *out = yyjson_get_bool(fact_val) ? 1 : 0;
+        return 1;
+      }
+
+      auto int hako_llvmc_string_kernel_plan_has_publication_contract(
+          long long value,
+          const char* contract_name) {
+        yyjson_val* plan = hako_llvmc_string_kernel_plan_by_value(value);
+        yyjson_val* contract_val =
+            plan ? yyjson_obj_get(plan, "publication_contract") : NULL;
+        if (!(contract_name && contract_val && yyjson_is_str(contract_val))) {
+          return 0;
+        }
+        return strcmp(yyjson_get_str(contract_val), contract_name) == 0;
+      }
+
+      auto int hako_llvmc_string_kernel_plan_read_source_window(
+          long long value,
+          long long* source_root,
+          long long* start,
+          long long* end) {
+        yyjson_val* plan = hako_llvmc_string_kernel_plan_by_value(value);
+        yyjson_val* parts = plan ? yyjson_obj_get(plan, "parts") : NULL;
+        yyjson_val* legality = plan ? yyjson_obj_get(plan, "legality") : NULL;
+        yyjson_val* read_alias = plan ? yyjson_obj_get(plan, "read_alias") : NULL;
+        yyjson_val* part = parts ? yyjson_arr_get(parts, 0) : NULL;
+        yyjson_val* family_val = plan ? yyjson_obj_get(plan, "family") : NULL;
+        yyjson_val* byte_exact_val = legality ? yyjson_obj_get(legality, "byte_exact") : NULL;
+        yyjson_val* source_window_val =
+            read_alias ? yyjson_obj_get(read_alias, "source_window") : NULL;
+        yyjson_val* kind_val = part ? yyjson_obj_get(part, "kind") : NULL;
+        yyjson_val* source_val = part ? yyjson_obj_get(part, "source") : NULL;
+        yyjson_val* start_val = part ? yyjson_obj_get(part, "start") : NULL;
+        yyjson_val* end_val = part ? yyjson_obj_get(part, "end") : NULL;
+        if (!(plan && parts && yyjson_is_arr(parts) && yyjson_arr_size(parts) == 1 &&
+              family_val && yyjson_is_str(family_val) &&
+              !strcmp(yyjson_get_str(family_val), "borrowed_slice_window") &&
+              byte_exact_val && yyjson_is_bool(byte_exact_val) &&
+              yyjson_get_bool(byte_exact_val) && source_window_val &&
+              yyjson_is_bool(source_window_val) && yyjson_get_bool(source_window_val) &&
+              kind_val && yyjson_is_str(kind_val) &&
+              !strcmp(yyjson_get_str(kind_val), "slice") && source_val &&
+              yyjson_is_num(source_val) && start_val && yyjson_is_num(start_val) &&
+              end_val && yyjson_is_num(end_val))) {
+          return 0;
+        }
+        if (source_root) *source_root = (long long)yyjson_get_sint(source_val);
+        if (start) *start = (long long)yyjson_get_sint(start_val);
+        if (end) *end = (long long)yyjson_get_sint(end_val);
+        return 1;
+      }
+
+      auto int hako_llvmc_string_kernel_plan_read_insert_mid_window_values(
+          long long value,
+          long long* source_root,
+          long long* middle_value,
+          long long* split) {
+        yyjson_val* plan = hako_llvmc_string_kernel_plan_by_value(value);
+        yyjson_val* parts = plan ? yyjson_obj_get(plan, "parts") : NULL;
+        yyjson_val* legality = plan ? yyjson_obj_get(plan, "legality") : NULL;
+        yyjson_val* read_alias = plan ? yyjson_obj_get(plan, "read_alias") : NULL;
+        yyjson_val* first_part = parts ? yyjson_arr_get(parts, 0) : NULL;
+        yyjson_val* middle_part = parts ? yyjson_arr_get(parts, 1) : NULL;
+        yyjson_val* last_part = parts ? yyjson_arr_get(parts, 2) : NULL;
+        yyjson_val* plan_source_root = plan ? yyjson_obj_get(plan, "source_root") : NULL;
+        yyjson_val* family_val = plan ? yyjson_obj_get(plan, "family") : NULL;
+        yyjson_val* consumer_val = plan ? yyjson_obj_get(plan, "consumer") : NULL;
+        yyjson_val* retained_form_val = plan ? yyjson_obj_get(plan, "retained_form") : NULL;
+        yyjson_val* byte_exact_val = legality ? yyjson_obj_get(legality, "byte_exact") : NULL;
+        yyjson_val* source_window_val =
+            read_alias ? yyjson_obj_get(read_alias, "source_window") : NULL;
+        yyjson_val* piecewise_val =
+            read_alias ? yyjson_obj_get(read_alias, "piecewise_subrange") : NULL;
+        yyjson_val* first_kind = first_part ? yyjson_obj_get(first_part, "kind") : NULL;
+        yyjson_val* middle_kind = middle_part ? yyjson_obj_get(middle_part, "kind") : NULL;
+        yyjson_val* last_kind = last_part ? yyjson_obj_get(last_part, "kind") : NULL;
+        yyjson_val* first_source = first_part ? yyjson_obj_get(first_part, "source") : NULL;
+        yyjson_val* last_source = last_part ? yyjson_obj_get(last_part, "source") : NULL;
+        yyjson_val* first_start = first_part ? yyjson_obj_get(first_part, "start") : NULL;
+        yyjson_val* first_end = first_part ? yyjson_obj_get(first_part, "end") : NULL;
+        yyjson_val* last_start = last_part ? yyjson_obj_get(last_part, "start") : NULL;
+        yyjson_val* middle_value_val = middle_part ? yyjson_obj_get(middle_part, "value") : NULL;
+
+        if (!(plan && parts && yyjson_is_arr(parts) && yyjson_arr_size(parts) == 3 &&
+              plan_source_root && yyjson_is_num(plan_source_root) && family_val &&
+              yyjson_is_str(family_val) && consumer_val &&
+              yyjson_is_str(consumer_val) && retained_form_val &&
+              yyjson_is_str(retained_form_val) && byte_exact_val &&
+              yyjson_is_bool(byte_exact_val) && yyjson_get_bool(byte_exact_val) &&
+              source_window_val && yyjson_is_bool(source_window_val) &&
+              yyjson_get_bool(source_window_val) && piecewise_val &&
+              yyjson_is_bool(piecewise_val) && yyjson_get_bool(piecewise_val) &&
+              first_kind && yyjson_is_str(first_kind) && middle_kind &&
+              yyjson_is_str(middle_kind) && last_kind && yyjson_is_str(last_kind) &&
+              !strcmp(yyjson_get_str(family_val), "concat_triplet_window") &&
+              !strcmp(yyjson_get_str(consumer_val), "direct_kernel_entry") &&
+              !strcmp(yyjson_get_str(retained_form_val), "borrowed_text") &&
+              !strcmp(yyjson_get_str(first_kind), "slice") &&
+              !strcmp(yyjson_get_str(middle_kind), "const") &&
+              !strcmp(yyjson_get_str(last_kind), "slice") && first_source &&
+              yyjson_is_num(first_source) && last_source && yyjson_is_num(last_source) &&
+              first_start && yyjson_is_num(first_start) && first_end &&
+              yyjson_is_num(first_end) && last_start && yyjson_is_num(last_start) &&
+              middle_value_val && yyjson_is_num(middle_value_val))) {
+          return 0;
+        }
+
+        if ((long long)yyjson_get_sint(first_source) !=
+                (long long)yyjson_get_sint(plan_source_root) ||
+            (long long)yyjson_get_sint(last_source) !=
+                (long long)yyjson_get_sint(plan_source_root) ||
+            (long long)yyjson_get_sint(first_start) != 0 ||
+            (long long)yyjson_get_sint(first_end) !=
+                (long long)yyjson_get_sint(last_start)) {
+          return 0;
+        }
+
+        if (source_root) *source_root = (long long)yyjson_get_sint(plan_source_root);
+        if (middle_value) *middle_value = (long long)yyjson_get_sint(middle_value_val);
+        if (split) *split = (long long)yyjson_get_sint(first_end);
+        return 1;
+      }
+
       auto int hako_llvmc_string_kernel_plan_is_slot_text_carrier(long long value) {
         yyjson_val* plan = hako_llvmc_string_kernel_plan_by_value(value);
         yyjson_val* legality = plan ? yyjson_obj_get(plan, "legality") : NULL;

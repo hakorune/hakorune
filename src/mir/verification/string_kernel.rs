@@ -418,6 +418,13 @@ mod tests {
             text_consumer: Some(StringKernelPlanTextConsumer::SlotText),
             carrier: Some(carrier),
             verifier_owner: Some(StringKernelPlanVerifierOwner::LoweringDirectKernelEntry),
+            read_alias: crate::mir::StringKernelPlanReadAliasFacts {
+                same_receiver: true,
+                source_window: true,
+                followup_substring: true,
+                piecewise_subrange: true,
+                shared_receiver: false,
+            },
             proof: StringCorridorCandidateProof::ConcatTriplet {
                 left_value: Some(ValueId::new(0)),
                 left_source: ValueId::new(0),
