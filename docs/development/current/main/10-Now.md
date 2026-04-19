@@ -12,6 +12,7 @@ Related:
   - docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md
   - docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md
   - docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md
+  - docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md
   - docs/development/current/main/design/string-value-model-phased-rollout-ssot.md
   - docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md
 ---
@@ -46,10 +47,11 @@ Related:
     - `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
   - inventory ledger:
     - `docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md`
+  - demand ledger:
+    - `docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md`
   - current docs focus:
-    - map current profile/helper/caller names to explicit demand vocabulary
-    - split `ValueDemand / StorageDemand / PublishDemand / MutationDemand`
-    - define Array/Map demand rows before any storage pilot
+    - `289x-1g` demand vocabulary ledger is done
+    - define Array/Map demand rows before any storage pilot (`289x-2d`)
     - planning/docs debt only; not a runtime-wide implementation unblock by itself
 - blocker:
   - `none`

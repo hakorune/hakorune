@@ -11,6 +11,7 @@ Related:
   - docs/development/current/main/phases/phase-289x/README.md
   - docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md
   - docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md
+  - docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md
 ---
 
 # Phase 289x Runtime Value/Object Task Board
@@ -105,7 +106,8 @@ Task state:
 - `289x-0c`: done in restart/current pointers
 - `289x-0d`: done in docs, runtime vocabulary lock
 - `289x-1f`: active post-keeper inventory sync after phase-137x keeper `49c356339`
-- `289x-1g` and `289x-2d`: next docs-only inventory cards before any runtime-wide implementation
+- `289x-1g`: done in `289x-93-demand-vocabulary-ledger.md`
+- `289x-2d`: next docs-only inventory card before any runtime-wide implementation
 - `289x-3a` and later: no implementation authorization until demand/container inventory is closed
 
 ## Phase 0. Authority / Vocabulary Lock
@@ -173,6 +175,7 @@ Task state:
   - `289x-1g`: exact demand ledger
     - map current profile/helper/caller names to `ValueDemand`, `StorageDemand`, `PublishDemand`, and `MutationDemand`
     - identify which rows are compat residue and which rows are active boundary seams
+    - status: done in `289x-93-demand-vocabulary-ledger.md`
 - Acceptance:
   - no caller needs to infer stable/object demand from helper names
   - each profile has a documented owner and removal/evolution path

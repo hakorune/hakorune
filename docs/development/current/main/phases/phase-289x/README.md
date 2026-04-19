@@ -12,6 +12,7 @@
   - `docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md`
   - `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
   - `docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md`
+  - `docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md`
 
 ## Decision
 
@@ -62,6 +63,7 @@ Read this phase in this order:
 2. `docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md`
 3. `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
 4. `docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md`
+5. `docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md`
 
 The brief is phase-local planning material.
 It does not create a new parent SSOT and does not authorize implementation.
@@ -132,6 +134,7 @@ Reading:
 - `289x-1g`: exact demand ledger
   - map profile/helper/caller names to `ValueDemand`, `StorageDemand`,
     `PublishDemand`, and `MutationDemand`
+  - status: done in `289x-93-demand-vocabulary-ledger.md`
 - `289x-2a`: array lane-host design
   - text lane first, generic degrade explicit, public array semantics unchanged
 - `289x-2d`: array/map demand table

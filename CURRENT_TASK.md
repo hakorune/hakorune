@@ -20,20 +20,21 @@ Scope: current lane / next lane / restart order only.
 6. `docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md`
 7. `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
 8. `docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md`
-9. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
-10. `docs/development/current/main/phases/phase-137x/README.md`
-11. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
-12. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-13. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
-14. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
-15. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
-16. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
-17. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-18. `docs/development/current/main/design/string-birth-sink-ssot.md`
-19. `docs/development/current/main/15-Workstream-Map.md`
-20. `git status -sb`
-21. `tools/checks/dev_gate.sh quick`
-22. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
+9. `docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md`
+10. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
+11. `docs/development/current/main/phases/phase-137x/README.md`
+12. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
+13. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+14. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+15. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
+16. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+17. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
+18. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+19. `docs/development/current/main/design/string-birth-sink-ssot.md`
+20. `docs/development/current/main/15-Workstream-Map.md`
+21. `git status -sb`
+22. `tools/checks/dev_gate.sh quick`
+23. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Current Lane
 
@@ -66,10 +67,11 @@ Scope: current lane / next lane / restart order only.
     - `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
   - inventory ledger:
     - `docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md`
+  - demand ledger:
+    - `docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md`
   - current docs focus:
-    - map current profile/helper/caller names to demand vocabulary
-    - split `ValueDemand / StorageDemand / PublishDemand / MutationDemand`
-    - define Array/Map demand rows before any storage pilot
+    - `289x-1g` demand vocabulary ledger is done
+    - define Array/Map demand rows before any storage pilot (`289x-2d`)
     - keep this as planning debt, not a runtime-wide implementation unblock by itself
 - current blocker:
   - `none`
