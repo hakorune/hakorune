@@ -202,6 +202,8 @@ pub struct StringKernelPlan {
     pub corridor_root: ValueId,
     pub source_root: Option<ValueId>,
     pub borrow_contract: Option<StringKernelPlanBorrowContract>,
+    pub publish_reason: Option<crate::mir::StringPublishReason>,
+    pub publish_repr_policy: Option<crate::mir::StringPublishReprPolicy>,
     pub known_length: Option<i64>,
     pub retained_form: StringKernelPlanRetainedForm,
     pub publication_boundary: Option<StringKernelPlanPublicationBoundary>,
@@ -584,11 +586,17 @@ pub fn derive_string_kernel_plan(
     let mut materialization = None;
     let mut direct_kernel_entry = None;
     let mut publication_boundary = None;
+    let mut publish_reason = None;
+    let mut publish_repr_policy = None;
 
     for candidate in candidates {
         match candidate.kind {
             StringCorridorCandidateKind::PublicationSink => {
                 publication = Some(candidate.state);
+                if let Some(plan) = candidate.plan {
+                    publish_reason = plan.publish_reason.or(publish_reason);
+                    publish_repr_policy = plan.publish_repr_policy.or(publish_repr_policy);
+                }
                 if matches!(
                     candidate.publication_boundary,
                     Some(crate::mir::StringCorridorPublicationBoundary::FirstExternalBoundary)
@@ -655,6 +663,13 @@ pub fn derive_string_kernel_plan(
         _ => None,
     };
     let text_consumer = infer_string_kernel_text_consumer(function, plan_value);
+    if matches!(
+        text_consumer,
+        Some(StringKernelPlanTextConsumer::ExplicitColdPublish)
+    ) {
+        publish_reason = Some(crate::mir::StringPublishReason::ExplicitApiReplay);
+        publish_repr_policy.get_or_insert(crate::mir::StringPublishReprPolicy::StableOwned);
+    }
     let carrier = text_consumer.map(|_| StringKernelPlanCarrier::KernelTextSlot);
     let verifier_owner =
         direct_kernel_entry.map(|_| StringKernelPlanVerifierOwner::LoweringDirectKernelEntry);
@@ -666,6 +681,8 @@ pub fn derive_string_kernel_plan(
         corridor_root: plan.corridor_root,
         source_root: plan.source_root,
         borrow_contract,
+        publish_reason,
+        publish_repr_policy,
         known_length: plan.known_length,
         retained_form: StringKernelPlanRetainedForm::BorrowedText,
         publication_boundary,
@@ -803,10 +820,37 @@ mod tests {
     #[test]
     fn derive_string_kernel_plan_prefers_direct_entry_and_collects_barriers() {
         let function = make_loop_function();
+        let publication_plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
+            corridor_root: ValueId::new(7),
+            source_root: Some(ValueId::new(1)),
+            borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+            publish_reason: Some(crate::mir::StringPublishReason::StableObjectDemand),
+            publish_repr_policy: Some(crate::mir::StringPublishReprPolicy::StableOwned),
+            start: Some(ValueId::new(2)),
+            end: Some(ValueId::new(3)),
+            known_length: Some(2),
+            publication_contract: Some(
+                crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+            ),
+            proof: StringCorridorCandidateProof::ConcatTriplet {
+                left_value: Some(ValueId::new(4)),
+                left_source: ValueId::new(1),
+                left_start: ValueId::new(4),
+                left_end: ValueId::new(5),
+                middle: ValueId::new(6),
+                right_value: Some(ValueId::new(8)),
+                right_source: ValueId::new(1),
+                right_start: ValueId::new(5),
+                right_end: ValueId::new(9),
+                shared_source: true,
+            },
+        };
         let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
             corridor_root: ValueId::new(7),
             source_root: Some(ValueId::new(1)),
             borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+            publish_reason: None,
+            publish_repr_policy: None,
             start: Some(ValueId::new(2)),
             end: Some(ValueId::new(3)),
             known_length: Some(2),
@@ -831,7 +875,7 @@ mod tests {
                 kind: StringCorridorCandidateKind::PublicationSink,
                 state: StringCorridorCandidateState::AlreadySatisfied,
                 reason: "publish boundary is already sunk at the current corridor exit",
-                plan: Some(plan),
+                plan: Some(publication_plan),
                 publication_boundary: Some(
                     StringCorridorPublicationBoundary::FirstExternalBoundary,
                 ),
@@ -869,6 +913,14 @@ mod tests {
         assert_eq!(
             kernel_plan.borrow_contract,
             Some(StringKernelPlanBorrowContract::BorrowTextFromObject)
+        );
+        assert_eq!(
+            kernel_plan.publish_reason,
+            Some(crate::mir::StringPublishReason::StableObjectDemand)
+        );
+        assert_eq!(
+            kernel_plan.publish_repr_policy,
+            Some(crate::mir::StringPublishReprPolicy::StableOwned)
         );
         assert_eq!(kernel_plan.known_length, Some(2));
         assert_eq!(
@@ -929,6 +981,8 @@ mod tests {
             corridor_root: ValueId::new(21),
             source_root: Some(ValueId::new(21)),
             borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+            publish_reason: None,
+            publish_repr_policy: None,
             start: Some(ValueId::new(71)),
             end: Some(ValueId::new(72)),
             known_length: Some(2),
@@ -1053,6 +1107,8 @@ mod tests {
             corridor_root: ValueId::new(10),
             source_root: Some(ValueId::new(0)),
             borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+            publish_reason: None,
+            publish_repr_policy: None,
             start: Some(ValueId::new(3)),
             end: Some(ValueId::new(4)),
             known_length: Some(2),
@@ -1160,12 +1216,109 @@ mod tests {
     }
 
     #[test]
+    fn derive_string_kernel_plan_refines_explicit_cold_publish_reason() {
+        use crate::ast::Span;
+
+        let signature = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![MirType::Box("StringBox".to_string())],
+            return_type: MirType::Box("RuntimeDataBox".to_string()),
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.instructions.extend([
+            MirInstruction::Const {
+                dst: ValueId::new(1),
+                value: ConstValue::String("xx".to_string()),
+            },
+            MirInstruction::Const {
+                dst: ValueId::new(2),
+                value: ConstValue::Integer(3),
+            },
+            MirInstruction::Const {
+                dst: ValueId::new(3),
+                value: ConstValue::Integer(8),
+            },
+            MirInstruction::Call {
+                dst: Some(ValueId::new(10)),
+                func: ValueId::INVALID,
+                callee: Some(crate::mir::Callee::Extern(
+                    "nyash.string.substring_concat3_hhhii".to_string(),
+                )),
+                args: vec![
+                    ValueId::new(0),
+                    ValueId::new(1),
+                    ValueId::new(0),
+                    ValueId::new(2),
+                    ValueId::new(3),
+                ],
+                effects: EffectMask::PURE,
+            },
+        ]);
+        block.instruction_spans.extend(vec![Span::unknown(); 4]);
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(10)),
+        });
+
+        let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
+            corridor_root: ValueId::new(10),
+            source_root: Some(ValueId::new(0)),
+            borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+            publish_reason: None,
+            publish_repr_policy: None,
+            start: Some(ValueId::new(2)),
+            end: Some(ValueId::new(3)),
+            known_length: Some(2),
+            publication_contract: Some(
+                crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+            ),
+            proof: StringCorridorCandidateProof::ConcatTriplet {
+                left_value: Some(ValueId::new(0)),
+                left_source: ValueId::new(0),
+                left_start: ValueId::new(2),
+                left_end: ValueId::new(2),
+                middle: ValueId::new(1),
+                right_value: Some(ValueId::new(0)),
+                right_source: ValueId::new(0),
+                right_start: ValueId::new(2),
+                right_end: ValueId::new(3),
+                shared_source: true,
+            },
+        };
+        let candidates = vec![StringCorridorCandidate {
+            kind: StringCorridorCandidateKind::DirectKernelEntry,
+            state: StringCorridorCandidateState::Candidate,
+            reason: "direct kernel entry candidate",
+            plan: Some(plan),
+            publication_boundary: Some(StringCorridorPublicationBoundary::FirstExternalBoundary),
+        }];
+
+        let kernel_plan = derive_string_kernel_plan(&function, ValueId::new(10), &candidates)
+            .expect("kernel plan");
+
+        assert_eq!(
+            kernel_plan.publish_reason,
+            Some(crate::mir::StringPublishReason::ExplicitApiReplay)
+        );
+        assert_eq!(
+            kernel_plan.publish_repr_policy,
+            Some(crate::mir::StringPublishReprPolicy::StableOwned)
+        );
+    }
+
+    #[test]
     fn refresh_function_collects_string_kernel_plans() {
         let mut function = make_loop_function();
         let plan = super::super::string_corridor_placement::StringCorridorCandidatePlan {
             corridor_root: ValueId::new(7),
             source_root: Some(ValueId::new(1)),
             borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+            publish_reason: None,
+            publish_repr_policy: None,
             start: Some(ValueId::new(2)),
             end: Some(ValueId::new(3)),
             known_length: Some(2),

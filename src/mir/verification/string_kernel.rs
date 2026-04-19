@@ -176,6 +176,8 @@ mod tests {
             corridor_root: ValueId::new(10),
             source_root: Some(ValueId::new(0)),
             borrow_contract: Some(crate::mir::StringKernelPlanBorrowContract::BorrowTextFromObject),
+            publish_reason: None,
+            publish_repr_policy: None,
             known_length: Some(2),
             retained_form: StringKernelPlanRetainedForm::BorrowedText,
             publication_boundary: Some(StringKernelPlanPublicationBoundary::FirstExternalBoundary),

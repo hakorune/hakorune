@@ -1,6 +1,16 @@
 use super::plan_infer::infer_plan;
 use super::*;
 
+fn annotate_publication_plan(
+    plan: Option<StringCorridorCandidatePlan>,
+) -> Option<StringCorridorCandidatePlan> {
+    plan.map(|mut plan| {
+        plan.publish_reason = Some(StringPublishReason::StableObjectDemand);
+        plan.publish_repr_policy = Some(StringPublishReprPolicy::StableOwned);
+        plan
+    })
+}
+
 pub(super) fn infer_candidates(
     function: &MirFunction,
     value: ValueId,
@@ -25,7 +35,7 @@ pub(super) fn infer_candidates(
             kind: StringCorridorCandidateKind::PublicationSink,
             state: StringCorridorCandidateState::AlreadySatisfied,
             reason: "publish boundary is already sunk at the current corridor exit",
-            plan,
+            plan: annotate_publication_plan(plan),
             publication_boundary: Some(StringCorridorPublicationBoundary::FirstExternalBoundary),
         }),
         StringPlacementFact::Unknown | StringPlacementFact::Deferred => {
@@ -35,7 +45,7 @@ pub(super) fn infer_candidates(
                     state: StringCorridorCandidateState::Candidate,
                     reason:
                         "slice result may sink publication until an externally visible boundary",
-                    plan,
+                    plan: annotate_publication_plan(plan),
                     publication_boundary: Some(
                         StringCorridorPublicationBoundary::FirstExternalBoundary,
                     ),

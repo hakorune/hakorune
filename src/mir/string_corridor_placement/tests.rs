@@ -257,6 +257,14 @@ fn refresh_function_attaches_plan_metadata_for_concat_corridor_candidates() {
     assert_eq!(substring_plan.end, Some(ValueId(12)));
     assert_eq!(substring_plan.known_length, Some(2));
     assert_eq!(
+        substring_plan.publish_reason,
+        Some(crate::mir::StringPublishReason::StableObjectDemand)
+    );
+    assert_eq!(
+        substring_plan.publish_repr_policy,
+        Some(crate::mir::StringPublishReprPolicy::StableOwned)
+    );
+    assert_eq!(
         substring_plan.publication_contract,
         Some(
             crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary
@@ -390,6 +398,14 @@ fn runtime_export_substring_concat_keeps_publication_sink_candidate() {
     assert_eq!(plan.start, Some(ValueId(8)));
     assert_eq!(plan.end, Some(ValueId(9)));
     assert_eq!(plan.known_length, Some(2));
+    assert_eq!(
+        plan.publish_reason,
+        Some(crate::mir::StringPublishReason::StableObjectDemand)
+    );
+    assert_eq!(
+        plan.publish_repr_policy,
+        Some(crate::mir::StringPublishReprPolicy::StableOwned)
+    );
     assert!(matches!(
         plan.proof,
         StringCorridorCandidateProof::ConcatTriplet {
@@ -500,6 +516,14 @@ fn borrowed_slice_plan_keeps_publication_contract_for_insert_mid_substring_route
     assert_eq!(plan.source_root, Some(ValueId(3)));
     assert_eq!(plan.start, Some(ValueId(4)));
     assert_eq!(plan.end, Some(ValueId(5)));
+    assert_eq!(
+        plan.publish_reason,
+        Some(crate::mir::StringPublishReason::StableObjectDemand)
+    );
+    assert_eq!(
+        plan.publish_repr_policy,
+        Some(crate::mir::StringPublishReprPolicy::StableOwned)
+    );
     assert_eq!(
         plan.publication_contract,
         Some(

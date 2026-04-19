@@ -52,6 +52,8 @@ fn build_mir_json_root_emits_string_corridor_candidates() {
                 corridor_root: crate::mir::ValueId::new(7),
                 source_root: Some(crate::mir::ValueId::new(1)),
                 borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+                publish_reason: None,
+                publish_repr_policy: None,
                 start: Some(crate::mir::ValueId::new(2)),
                 end: Some(crate::mir::ValueId::new(3)),
                 known_length: Some(2),
@@ -104,6 +106,8 @@ fn build_mir_json_root_emits_string_corridor_candidates() {
         value_candidates[0]["plan"]["borrow_contract"],
         "borrow_text_from_obj"
     );
+    assert!(value_candidates[0]["plan"]["publish_reason"].is_null());
+    assert!(value_candidates[0]["plan"]["publish_repr_policy"].is_null());
     assert_eq!(value_candidates[0]["plan"]["start"], 2);
     assert_eq!(value_candidates[0]["plan"]["end"], 3);
     assert_eq!(value_candidates[0]["plan"]["known_length"], 2);
@@ -139,10 +143,37 @@ fn build_mir_json_root_emits_string_corridor_candidates() {
 fn build_mir_json_root_emits_string_kernel_plans() {
     let mut module = MirModule::new("test".to_string());
     let mut function = make_function("main", true);
-    let plan = crate::mir::string_corridor_placement::StringCorridorCandidatePlan {
+    let publication_plan = crate::mir::string_corridor_placement::StringCorridorCandidatePlan {
         corridor_root: crate::mir::ValueId::new(7),
         source_root: Some(crate::mir::ValueId::new(1)),
         borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+        publish_reason: Some(crate::mir::StringPublishReason::StableObjectDemand),
+        publish_repr_policy: Some(crate::mir::StringPublishReprPolicy::StableOwned),
+        start: Some(crate::mir::ValueId::new(2)),
+        end: Some(crate::mir::ValueId::new(3)),
+        known_length: Some(2),
+        publication_contract: Some(
+            crate::mir::StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
+        ),
+        proof: crate::mir::string_corridor_placement::StringCorridorCandidateProof::ConcatTriplet {
+            left_value: Some(crate::mir::ValueId::new(4)),
+            left_source: crate::mir::ValueId::new(1),
+            left_start: crate::mir::ValueId::new(4),
+            left_end: crate::mir::ValueId::new(5),
+            middle: crate::mir::ValueId::new(6),
+            right_value: Some(crate::mir::ValueId::new(8)),
+            right_source: crate::mir::ValueId::new(1),
+            right_start: crate::mir::ValueId::new(5),
+            right_end: crate::mir::ValueId::new(9),
+            shared_source: true,
+        },
+    };
+    let direct_plan = crate::mir::string_corridor_placement::StringCorridorCandidatePlan {
+        corridor_root: crate::mir::ValueId::new(7),
+        source_root: Some(crate::mir::ValueId::new(1)),
+        borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+        publish_reason: None,
+        publish_repr_policy: None,
         start: Some(crate::mir::ValueId::new(2)),
         end: Some(crate::mir::ValueId::new(3)),
         known_length: Some(2),
@@ -169,7 +200,7 @@ fn build_mir_json_root_emits_string_kernel_plans() {
                 kind: crate::mir::StringCorridorCandidateKind::PublicationSink,
                 state: crate::mir::StringCorridorCandidateState::AlreadySatisfied,
                 reason: "publish boundary is already sunk at the current corridor exit",
-                plan: Some(plan),
+                plan: Some(publication_plan),
                 publication_boundary: Some(
                     crate::mir::StringCorridorPublicationBoundary::FirstExternalBoundary,
                 ),
@@ -179,7 +210,7 @@ fn build_mir_json_root_emits_string_kernel_plans() {
                 state: crate::mir::StringCorridorCandidateState::Candidate,
                 reason:
                     "borrowed slice corridor can target a direct kernel entry before publication",
-                plan: Some(plan),
+                plan: Some(direct_plan),
                 publication_boundary: Some(
                     crate::mir::StringCorridorPublicationBoundary::FirstExternalBoundary,
                 ),
@@ -201,6 +232,8 @@ fn build_mir_json_root_emits_string_kernel_plans() {
     assert_eq!(plan["corridor_root"], 7);
     assert_eq!(plan["source_root"], 1);
     assert_eq!(plan["borrow_contract"], "borrow_text_from_obj");
+    assert_eq!(plan["publish_reason"], "stable_object_demand");
+    assert_eq!(plan["publish_repr_policy"], "stable_owned");
     assert_eq!(plan["known_length"], 2);
     assert_eq!(plan["retained_form"], "borrowed_text");
     assert_eq!(plan["publication_boundary"], "first_external_boundary");
@@ -236,6 +269,8 @@ fn build_mir_json_root_emits_string_kernel_plan_loop_payload() {
                 corridor_root: ValueId::new(21),
                 source_root: Some(ValueId::new(21)),
                 borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+                publish_reason: None,
+                publish_repr_policy: None,
                 start: Some(ValueId::new(71)),
                 end: Some(ValueId::new(72)),
                 known_length: Some(2),

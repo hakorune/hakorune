@@ -201,6 +201,8 @@ pub struct PlacementEffectRoute {
     pub window_start: Option<ValueId>,
     pub window_end: Option<ValueId>,
     pub borrow_contract: Option<PlacementEffectBorrowContract>,
+    pub publish_reason: Option<crate::mir::StringPublishReason>,
+    pub publish_repr_policy: Option<crate::mir::StringPublishReprPolicy>,
     pub string_proof: Option<PlacementEffectStringProof>,
     pub publication_boundary: Option<PlacementEffectPublicationBoundary>,
     pub source: PlacementEffectSource,
@@ -240,6 +242,14 @@ impl PlacementEffectRoute {
             .borrow_contract
             .map(|contract| format!(" borrow_contract={contract}"))
             .unwrap_or_default();
+        let publish_reason_suffix = self
+            .publish_reason
+            .map(|reason| format!(" publish_reason={reason}"))
+            .unwrap_or_default();
+        let publish_repr_policy_suffix = self
+            .publish_repr_policy
+            .map(|repr| format!(" publish_repr_policy={repr}"))
+            .unwrap_or_default();
         let string_proof_suffix = self
             .string_proof
             .as_ref()
@@ -255,7 +265,7 @@ impl PlacementEffectRoute {
             .map(|detail| format!(" detail={detail}"))
             .unwrap_or_default();
         format!(
-            "{}{} {} {} {} demand={} [{}]{}{}{}{}{}{}{} reason={}",
+            "{}{} {} {} {} demand={} [{}]{}{}{}{}{}{}{}{}{} reason={}",
             block_suffix,
             instruction_suffix,
             self.source,
@@ -267,6 +277,8 @@ impl PlacementEffectRoute {
             source_value_suffix,
             window_suffix,
             borrow_contract_suffix,
+            publish_reason_suffix,
+            publish_repr_policy_suffix,
             string_proof_suffix,
             publication_boundary_suffix,
             detail_suffix,
@@ -319,6 +331,8 @@ fn collect_string_routes(function: &MirFunction, routes: &mut Vec<PlacementEffec
                     }
                     None => None,
                 }),
+                publish_reason: candidate.plan.and_then(|plan| plan.publish_reason),
+                publish_repr_policy: candidate.plan.and_then(|plan| plan.publish_repr_policy),
                 string_proof: candidate
                     .plan
                     .map(|plan| placement_effect_string_proof(plan.proof)),
@@ -446,6 +460,8 @@ fn sum_route(selection: &SumPlacementSelection) -> PlacementEffectRoute {
         window_start: None,
         window_end: None,
         borrow_contract: None,
+        publish_reason: None,
+        publish_repr_policy: None,
         string_proof: None,
         publication_boundary: None,
         source: PlacementEffectSource::SumPlacement,
@@ -473,6 +489,8 @@ fn thin_entry_route(selection: &ThinEntrySelection) -> PlacementEffectRoute {
         window_start: None,
         window_end: None,
         borrow_contract: None,
+        publish_reason: None,
+        publish_repr_policy: None,
         string_proof: None,
         publication_boundary: None,
         source: PlacementEffectSource::ThinEntry,
@@ -505,6 +523,8 @@ fn agg_local_route(route: &crate::mir::AggLocalScalarizationRoute) -> Option<Pla
             window_start: None,
             window_end: None,
             borrow_contract: None,
+            publish_reason: None,
+            publish_repr_policy: None,
             string_proof: None,
             publication_boundary: None,
             source: PlacementEffectSource::AggLocalScalarization,
@@ -726,6 +746,8 @@ mod tests {
                     corridor_root: ValueId::new(21),
                     source_root: Some(ValueId::new(1)),
                     borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
+                    publish_reason: Some(crate::mir::StringPublishReason::StableObjectDemand),
+                    publish_repr_policy: Some(crate::mir::StringPublishReprPolicy::StableOwned),
                     start: Some(ValueId::new(8)),
                     end: Some(ValueId::new(9)),
                     known_length: Some(2),
@@ -780,6 +802,14 @@ mod tests {
         assert_eq!(
             route.borrow_contract,
             Some(PlacementEffectBorrowContract::BorrowTextFromObject)
+        );
+        assert_eq!(
+            route.publish_reason,
+            Some(crate::mir::StringPublishReason::StableObjectDemand)
+        );
+        assert_eq!(
+            route.publish_repr_policy,
+            Some(crate::mir::StringPublishReprPolicy::StableOwned)
         );
     }
 }

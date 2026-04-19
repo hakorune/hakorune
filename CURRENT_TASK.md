@@ -899,13 +899,16 @@ Scope: current lane / next lane / restart order only.
       - `substring_hii` `ViewSpan` boundary cleanup (`StringSpan` now survives until the final publish helper)
       - `borrow.text_from_obj` metadata contract now rides on `StringCorridorFact` / `StringCorridorCandidatePlan` / `StringKernelPlan` / `PlacementEffectRoute`
       - MIR JSON now exports that contract so runtime-side provenance re-inference is no longer the only truth surface
+      - `publish.text(reason, repr)` v1 metadata contract now rides on `PublicationSink` plans, `StringKernelPlan`, and `PlacementEffectRoute`
+      - current v1 defaults are:
+        - publication sink => `reason=stable_object_demand`, `repr=stable_owned`
+        - explicit cold publish => kernel-plan refinement to `reason=explicit_api_replay`
     - active docs-first card:
-      - lock string-only `publish.text(reason, repr)` as the next explicit boundary bridge
       - keep `borrow.text_from_obj` provenance ownership on MIR/lowering side
+      - keep string-only `publish.text(reason, repr)` contract MIR-owned
       - keep `TextCell` sink/residence only; it is not a corridor value
     - immediate task stack after docs:
-      - next implementation card is `publish-text-contract-v1`
-      - then `runtime-publish-text-adapter`
+      - next implementation card is `runtime-publish-text-adapter`
       - then `substring_hii` mid-slice replay with `repr=StableView`
       - `publish.any` stays deferred
    - do not widen into `TextLane`, allocator, public ABI, or a generic bridge substrate on this card

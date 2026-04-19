@@ -112,6 +112,38 @@ impl std::fmt::Display for StringCorridorBorrowContract {
     }
 }
 
+/// Explicit text -> object publish reason owned by MIR/lowering.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StringPublishReason {
+    StableObjectDemand,
+    ExplicitApiReplay,
+}
+
+impl std::fmt::Display for StringPublishReason {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::StableObjectDemand => f.write_str("stable_object_demand"),
+            Self::ExplicitApiReplay => f.write_str("explicit_api_replay"),
+        }
+    }
+}
+
+/// Public representation policy selected by `publish.text`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StringPublishReprPolicy {
+    StableOwned,
+    StableView,
+}
+
+impl std::fmt::Display for StringPublishReprPolicy {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::StableOwned => f.write_str("stable_owned"),
+            Self::StableView => f.write_str("stable_view"),
+        }
+    }
+}
+
 /// Current lowering carrier that produced the fact.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum StringCorridorCarrier {

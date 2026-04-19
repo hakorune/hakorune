@@ -325,6 +325,8 @@ fn placement_effect_helper_plan_for_kind(
                 crate::mir::StringCorridorBorrowContract::BorrowTextFromObject
             }
         }),
+        publish_reason: route.publish_reason,
+        publish_repr_policy: route.publish_repr_policy,
         start: route.window_start,
         end: route.window_end,
         known_length: None,

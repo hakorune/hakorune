@@ -10,7 +10,7 @@ use super::{
     build_value_def_map, resolve_value_origin,
     string_corridor::{
         StringCorridorBorrowContract, StringCorridorFact, StringCorridorOp, StringCorridorRole,
-        StringPlacementFact,
+        StringPlacementFact, StringPublishReason, StringPublishReprPolicy,
     },
     string_corridor_recognizer::{
         const_string_length, match_concat_triplet, match_len_call, match_substring_call,

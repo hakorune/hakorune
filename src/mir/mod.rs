@@ -129,7 +129,8 @@ pub use storage_class::{
 pub use string_corridor::{
     refresh_function_string_corridor_facts, refresh_module_string_corridor_facts,
     StringCorridorBorrowContract, StringCorridorCarrier, StringCorridorFact, StringCorridorOp,
-    StringCorridorRole, StringOutcomeFact, StringPlacementFact,
+    StringCorridorRole, StringOutcomeFact, StringPlacementFact, StringPublishReason,
+    StringPublishReprPolicy,
 };
 pub use string_corridor_placement::{
     refresh_function_string_corridor_candidates, refresh_module_string_corridor_candidates,

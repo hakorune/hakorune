@@ -97,7 +97,7 @@ Each fact object contains:
 | `carrier` | Current lowering carrier such as `method_call`, `runtime_export`, `canonical_intrinsic` |
 | `outcome` | Optional Birth / Placement outcome name (`ReturnHandle`, `BorrowView`, `FreezeOwned`, etc.) |
 | `objectize` | Objectization placement fact (`?`, `none`, `sink`, `deferred`) |
-| `publish` | Publication placement fact. Current placeholder states are `?`, `none`, `sink`, `deferred`; future explicit bridge shape is `{reason, repr_policy, state}` for `publish.text` / `publish.any` |
+| `publish` | Publication placement fact. Current fact-level states remain `?`, `none`, `sink`, `deferred`; explicit `publish.text` operands are mirrored today via candidate-plan / kernel-plan / placement-route fields such as `publish_reason` and `publish_repr_policy` |
 | `materialize` | Materialization placement fact (`?`, `none`, `sink`, `deferred`) |
 
 ### `string_corridor_candidates`
@@ -124,6 +124,8 @@ Each candidate object contains:
 | `kind` | `borrowed_corridor_fusion`, `publication_sink`, `materialization_sink`, or `direct_kernel_entry` |
 | `state` | `candidate` or `already_satisfied` |
 | `reason` | Stable explanation string |
+| `plan.publish_reason` | Optional `publish.text` reason when MIR already knows the boundary demand |
+| `plan.publish_repr_policy` | Optional public representation policy for `publish.text` |
 
 ### Future `publish.text` / `publish.any` operand reading
 
@@ -140,7 +142,7 @@ for operand structure rather than a second source of truth.
 Current phase-137x lock:
 
 - explicit publish ops are not emitted yet
-- current MIR metadata may still report coarse `publish` states only
+- fact-level `publish` stays coarse, but current MIR metadata already exports `publish_reason` / `publish_repr_policy` on candidate plans, string kernel plans, and placement-effect routes when known
 - design authority stays in:
   - `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`

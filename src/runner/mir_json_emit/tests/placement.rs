@@ -176,6 +176,8 @@ fn build_mir_json_root_emits_placement_effect_routes() {
             window_start: Some(crate::mir::ValueId::new(2)),
             window_end: Some(crate::mir::ValueId::new(3)),
             borrow_contract: Some(crate::mir::PlacementEffectBorrowContract::BorrowTextFromObject),
+            publish_reason: Some(crate::mir::StringPublishReason::StableObjectDemand),
+            publish_repr_policy: Some(crate::mir::StringPublishReprPolicy::StableOwned),
             string_proof: Some(crate::mir::PlacementEffectStringProof::BorrowedSlice {
                 source: crate::mir::ValueId::new(1),
                 start: crate::mir::ValueId::new(2),
@@ -203,6 +205,8 @@ fn build_mir_json_root_emits_placement_effect_routes() {
             window_start: None,
             window_end: None,
             borrow_contract: None,
+            publish_reason: None,
+            publish_repr_policy: None,
             string_proof: None,
             publication_boundary: None,
             source: crate::mir::PlacementEffectSource::SumPlacement,
@@ -224,6 +228,8 @@ fn build_mir_json_root_emits_placement_effect_routes() {
             window_start: None,
             window_end: None,
             borrow_contract: None,
+            publish_reason: None,
+            publish_repr_policy: None,
             string_proof: None,
             publication_boundary: None,
             source: crate::mir::PlacementEffectSource::AggLocalScalarization,
@@ -245,6 +251,8 @@ fn build_mir_json_root_emits_placement_effect_routes() {
             window_start: None,
             window_end: None,
             borrow_contract: None,
+            publish_reason: None,
+            publish_repr_policy: None,
             string_proof: None,
             publication_boundary: None,
             source: crate::mir::PlacementEffectSource::ThinEntry,
@@ -269,6 +277,8 @@ fn build_mir_json_root_emits_placement_effect_routes() {
     assert_eq!(routes[0]["window_start"], 2);
     assert_eq!(routes[0]["window_end"], 3);
     assert_eq!(routes[0]["borrow_contract"], "borrow_text_from_obj");
+    assert_eq!(routes[0]["publish_reason"], "stable_object_demand");
+    assert_eq!(routes[0]["publish_repr_policy"], "stable_owned");
     assert_eq!(routes[0]["publication_boundary"], "first_external_boundary");
     assert_eq!(routes[0]["string_proof"]["kind"], "borrowed_slice");
     assert_eq!(routes[0]["string_proof"]["source"], 1);

@@ -43,6 +43,8 @@ pub(super) fn build_string_kernel_plan_json(
         "corridor_root": plan.corridor_root.as_u32(),
         "source_root": plan.source_root.map(|value| value.as_u32()),
         "borrow_contract": plan.borrow_contract.map(|contract| contract.to_string()),
+        "publish_reason": plan.publish_reason.map(|reason| reason.to_string()),
+        "publish_repr_policy": plan.publish_repr_policy.map(|repr| repr.to_string()),
         "parts": build_string_kernel_plan_parts_json(&plan),
         "known_length": plan.known_length,
         "retained_form": plan.retained_form.to_string(),

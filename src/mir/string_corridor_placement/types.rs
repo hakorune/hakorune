@@ -75,6 +75,11 @@ pub struct StringCorridorCandidatePlan {
     pub source_root: Option<ValueId>,
     /// MIR/lowering-owned object -> text provenance contract.
     pub borrow_contract: Option<StringCorridorBorrowContract>,
+    /// Explicit publication reason for `publish.text(reason, repr)` when the plan already
+    /// knows the boundary demand.
+    pub publish_reason: Option<StringPublishReason>,
+    /// Public representation policy selected for `publish.text`.
+    pub publish_repr_policy: Option<StringPublishReprPolicy>,
     /// Outer consumer window when the candidate is itself a substring consumer.
     pub start: Option<ValueId>,
     pub end: Option<ValueId>,
@@ -96,6 +101,14 @@ impl StringCorridorCandidatePlan {
             .borrow_contract
             .map(|contract| contract.to_string())
             .unwrap_or_else(|| "-".to_string());
+        let publish_reason = self
+            .publish_reason
+            .map(|reason| reason.to_string())
+            .unwrap_or_else(|| "-".to_string());
+        let publish_repr_policy = self
+            .publish_repr_policy
+            .map(|repr| repr.to_string())
+            .unwrap_or_else(|| "-".to_string());
         let outer_window = match (self.start, self.end) {
             (Some(start), Some(end)) => format!("[%{}, %{}]", start.0, end.0),
             _ => "-".to_string(),
@@ -109,10 +122,12 @@ impl StringCorridorCandidatePlan {
             .map(|contract| contract.to_string())
             .unwrap_or_else(|| "-".to_string());
         format!(
-            "plan(root=%{} source={} borrow_contract={} outer={} known_len={} publication_contract={} proof={})",
+            "plan(root=%{} source={} borrow_contract={} publish_reason={} publish_repr_policy={} outer={} known_len={} publication_contract={} proof={})",
             self.corridor_root.0,
             source,
             borrow_contract,
+            publish_reason,
+            publish_repr_policy,
             outer_window,
             known_len,
             publication_contract,

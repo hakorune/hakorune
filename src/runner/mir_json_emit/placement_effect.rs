@@ -12,6 +12,8 @@ pub(super) fn build_placement_effect_routes_json(
                 "window_start": route.window_start.map(|value| value.as_u32()),
                 "window_end": route.window_end.map(|value| value.as_u32()),
                 "borrow_contract": route.borrow_contract.map(|contract| contract.to_string()),
+                "publish_reason": route.publish_reason.map(|reason| reason.to_string()),
+                "publish_repr_policy": route.publish_repr_policy.map(|repr| repr.to_string()),
                 "string_proof": build_string_proof_json(route.string_proof),
                 "publication_boundary": route.publication_boundary.map(|boundary| boundary.to_string()),
                 "source": route.source.to_string(),
