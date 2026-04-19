@@ -51,15 +51,16 @@ Scope: current lane / next lane / restart order only.
 - background lanes:
   - `phase-29bq loop owner seam cleanup landing`
   - `phase-163x primitive-family / user-box fast-path landing`
-- successor planning lane:
+  - successor planning lane:
   - `phase-289x runtime-wide value/object boundary rollout`
   - status:
     - phase-0 authority/vocabulary lock is docs-only and complete
     - phase-137x keeper `49c356339` is the current string proof
-    - optimization work is paused until demand-backed cutover inventory is closed
+    - demand-backed cutover inventory `289x-96` is closed
+    - optimization work may resume only from the owner-first entry, not by bypassing this ledger
     - array/map remain identity containers; only internal residence may become lane-hosted later
     - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
-    - do not return to optimization until all `289x-96` clusters are done or explicitly rejected
+    - all `289x-96` clusters are done; later full lane rewrites stay separate phases
   - parent SSOT:
     - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
   - phase:
@@ -141,17 +142,21 @@ Scope: current lane / next lane / restart order only.
     - `289x-7g` landed:
       - MIR string helper-name vocabulary is centralized in `src/mir/string_corridor_names.rs`
       - behavior unchanged; compat/recovery and recognizer tests plus release build passed
-    - next code cut:
-      - `289x-7h`: prepass/declaration need classifier cutover
-      - high risk: declarations and prepass needs must remain exact; no silent fallback or helper declaration widening
+    - `289x-7h` landed:
+      - C shim prepass/declaration need classifier now consumes normalized receiver/method surfaces
+      - declaration/prepass needs remain exact; no helper declaration widening
+      - RuntimeData array/map get/has/size/length/push, array-string indexOf, and array set/get canary smokes passed
+    - demand-backed cutover inventory:
+      - `289x-96` Rust/C-shim/MIR clusters are closed
+      - optimization return gate is open, but next optimization work must start from the owner-first perf entry
     - high-risk planned later, not skipped:
-      - full `ArrayStorage::Text` / full `TextLane`: after `289x-7h`, separate phase
-      - Map typed lane: after `289x-6e`, separate phase
+      - full `ArrayStorage::Text` / full `TextLane`: separate phase after `289x-96`
+      - Map typed lane: separate phase after `289x-96`
       - allocator / arena: after value-boundary cutover and perf evidence only
     - return-to-optimization gate:
-      - all Rust/C-shim/MIR clusters in `289x-96` must be `done` or `rejected`
+      - closed by `289x-7h`; optimization may resume through `perf-owner-first-optimization-ssot.md`
 - current blocker:
-  - `phase-289x demand-backed cutover inventory is not complete`
+  - no active `phase-289x` cutover blocker
 - current cut status:
   - latest implementation candidate:
     - phase-137x branch-target-aware array string get/store seam is now the active keeper candidate

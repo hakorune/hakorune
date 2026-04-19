@@ -216,19 +216,28 @@ Reading:
   - `src/mir/string_corridor_names.rs` now owns helper/runtime-export name vocabulary for compat recovery and recognizers
   - verified by `string_corridor`, `string_corridor_names`, and release build
 - `289x-7h`: prepass/declaration need classifier cutover
-  - next cutover cluster; high risk
-  - declarations and prepass needs must remain exact; no silent fallback or helper declaration widening
+  - status: done in code; behavior unchanged
+  - need/prepass classifiers now consume normalized receiver/method surfaces
+  - declarations and prepass needs remain exact; no silent fallback or helper declaration widening
+  - verified by RuntimeData array/map get/has/size/length/push, array-string indexOf, and array set/get canary smokes
+- `289x-96`: demand-backed cutover inventory
+  - status: closed
+  - all Rust/C-shim/MIR clusters are done
 
 ## Return To Optimization Gate
 
-Optimization work stays paused until
+Optimization work was paused until
 `docs/development/current/main/phases/phase-289x/289x-96-demand-backed-cutover-inventory.md`
-is fully closed.
+was fully closed.
+
+Current state: closed by `289x-7h`.
+Next optimization work may resume only through the owner-first perf entry:
+`docs/development/current/main/design/perf-owner-first-optimization-ssot.md`.
 
 High-risk work is planned, not skipped:
 
-- full `ArrayStorage::Text` / full `TextLane`: only after `289x-7h`, separate phase
-- Map typed lane: only after `289x-6e`, separate phase
+- full `ArrayStorage::Text` / full `TextLane`: separate phase after `289x-96`
+- Map typed lane: separate phase after `289x-96`
 - allocator / arena: only after value-boundary cutover and perf evidence
 
 ## Stop-Line
@@ -243,4 +252,4 @@ Stop immediately if a proposed card:
 - starts allocator work before perf evidence points there
 - opens MIR legality / verifier lift or allocator / arena work before their scheduled rollout phase
 - makes runtime infer publish legality that MIR/lowering did not request
-- returns to optimization before the `289x-96` cutover inventory is done or explicitly rejected
+- returns to optimization without using the owner-first perf entry after `289x-96` closure

@@ -1,5 +1,5 @@
 ---
-Status: Active Gate
+Status: Closed
 Date: 2026-04-19
 Card: 289x-3b
 Scope: demand-backed cutover の残 cluster と最適化レーン復帰条件を固定する。
@@ -15,23 +15,22 @@ Related:
 
 ## Decision
 
-Do not return to optimization work until the remaining value-boundary cutover
-clusters are closed or explicitly rejected with evidence.
+The remaining value-boundary cutover clusters are closed.
+Optimization work may resume only through the owner-first perf entry.
 
 This is the anti-halfway gate:
 
 ```text
-finish demand-backed value/object boundary cutover
-then return to optimization lane
+done: demand-backed value/object boundary cutover
+next: return to optimization lane through owner-first perf evidence
 ```
 
-No cluster may be silently skipped.
-High-risk clusters stay planned, but they are not touched until earlier
-metadata-only cuts have landed.
+No cluster was silently skipped.
+High-risk full lane rewrites remain scheduled as separate future phases.
 
 ## Completion Gate
 
-Optimization may resume only when this table is all `done` or `rejected`.
+Optimization may resume because this table is all `done`.
 
 | Gate | Required state |
 | --- | --- |
@@ -76,7 +75,7 @@ Estimate: 8 clusters. The main blocker is C shim helper-name routing; MIR alread
 | C5 | concrete `slot_load/store` helper emission | `hako_llvmc_ffi_array_slot_emit.inc`, `hako_llvmc_ffi_generic_method_lowering.inc`, `*_get_policy.inc`, `*_get_lowering.inc`, `hako_llvmc_ffi_indexof_observer_lowering.inc` | about 20 emits/declarations | high | `289x-7e` | done |
 | C6 | `runtime_array_string` observer/window routes | `hako_llvmc_ffi_array_string_window_policy.inc`, `hako_llvmc_ffi_generic_method_get_window.inc`, `hako_llvmc_ffi_indexof_observer_*` | about 5 matcher families | high | `289x-7f` | done |
 | C7 | MIR string helper-name compat/recovery | `string_corridor_names.rs`, `string_corridor_compat.rs`, `string_corridor_recognizer.rs`, `string_corridor_placement/plan_infer.rs`, `passes/string_corridor_sink/mod.rs` | about 15 recognizers/constants | medium | `289x-7g` | done |
-| C8 | Prepass/declaration need classifier | `hako_llvmc_ffi_mir_call_need_policy.inc`, `hako_llvmc_ffi_mir_call_prepass.inc`, `hako_llvmc_ffi_pure_compile.inc` | about 42 checks plus declarations | high | `289x-7h` | pending-high-risk |
+| C8 | Prepass/declaration need classifier | `hako_llvmc_ffi_mir_call_need_policy.inc`, `hako_llvmc_ffi_mir_call_prepass.inc`, `hako_llvmc_ffi_pure_compile.inc` | about 42 checks plus declarations | high | `289x-7h` | done |
 
 ## Phase Order
 
@@ -97,7 +96,7 @@ Estimate: 8 clusters. The main blocker is C shim helper-name routing; MIR alread
 | `289x-7e` | concrete `slot_load/store` helper emission | done; behavior and helper symbols unchanged |
 | `289x-7f` | `runtime_array_string` observer/window routes | done; behavior unchanged |
 | `289x-7g` | MIR string helper-name compat/recovery | done; behavior unchanged |
-| `289x-7h` | C shim prepass/declaration need classifier | next; exact gates required |
+| `289x-7h` | C shim prepass/declaration need classifier | done; behavior unchanged; exact gates passed |
 
 ## Do Not Touch Yet
 
@@ -105,10 +104,8 @@ These are planned, not skipped.
 
 | Area | Reason not first | Scheduled card |
 | --- | --- | --- |
-| concrete `slot_load_hi` / `slot_store` emission changes | behavior-producing; easy to break exact/live-after-get split | `289x-7e` |
-| `runtime_array_string` observer/window matcher rewrites | tightly coupled to indexOf branch/select windows | `289x-7f` |
-| full `ArrayStorage::Text` / full `TextLane` rewrite | too broad before demand-backed pilot closure | after `289x-7h`, separate phase |
-| Map typed lane | key/value publication split not fully code-backed yet | after `289x-6e`, separate phase |
+| full `ArrayStorage::Text` / full `TextLane` rewrite | too broad for the demand-backed pilot; needs its own design/gates | post-`289x-96`, separate phase |
+| Map typed lane | identity-container rule requires a dedicated key/value residence phase | post-`289x-96`, separate phase |
 | allocator / arena | must wait until objectization frequency is reduced | after value-boundary cutover, perf evidence only |
 
 ## Acceptance
@@ -117,4 +114,4 @@ These are planned, not skipped.
 - risky route/emission rewrites are isolated behind explicit cards
 - exact same-slot suffix store remains closed
 - live-after-get reuse keeps its current fallback behavior
-- optimization lane is not resumed until this inventory is complete
+- optimization lane resumes only through owner-first perf evidence after this inventory closure

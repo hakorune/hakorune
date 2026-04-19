@@ -125,79 +125,128 @@
           const char* bname,
           const char* mname,
           enum MirCallReceiverFamilyKind recv_family) {
+        enum MirCallReceiverSurfaceKind recv_surface;
+        enum MirCallMethodSurfaceKind method_surface;
         if (!(bname && mname)) return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+        recv_surface = classify_mir_call_receiver_surface(bname);
+        method_surface = classify_mir_call_method_surface(mname);
+        if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_UNKNOWN) {
+          return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+        }
 
-        if (!strcmp(bname, "MapBox")) {
-          if (!strcmp(mname, "set")) return HAKO_LLVMC_MIR_CALL_NEED_MAP_SET;
-          if (!strcmp(mname, "size") || !strcmp(mname, "len") || !strcmp(mname, "length")) {
+        if (recv_surface == HAKO_LLVMC_MIR_CALL_RECV_SURFACE_MAP_BOX) {
+          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SET) {
+            return HAKO_LLVMC_MIR_CALL_NEED_MAP_SET;
+          }
+          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SIZE) {
             return HAKO_LLVMC_MIR_CALL_NEED_MAP_SIZE;
           }
-          if (!strcmp(mname, "get")) return HAKO_LLVMC_MIR_CALL_NEED_MAP_GET;
-          if (!strcmp(mname, "has")) return HAKO_LLVMC_MIR_CALL_NEED_MAP_HAS;
+          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_GET) {
+            return HAKO_LLVMC_MIR_CALL_NEED_MAP_GET;
+          }
+          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_HAS) {
+            return HAKO_LLVMC_MIR_CALL_NEED_MAP_HAS;
+          }
           return HAKO_LLVMC_MIR_CALL_NEED_NONE;
         }
 
-        if (!strcmp(bname, "ArrayBox")) {
-          if (!strcmp(mname, "push")) return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_PUSH;
-          if (!strcmp(mname, "len") || !strcmp(mname, "length") || !strcmp(mname, "size")) {
+        if (recv_surface == HAKO_LLVMC_MIR_CALL_RECV_SURFACE_ARRAY_BOX) {
+          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_PUSH) {
+            return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_PUSH;
+          }
+          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SIZE) {
             return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_LEN;
           }
-          if (!strcmp(mname, "set")) return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_SET;
-          if (!strcmp(mname, "get")) return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_GET;
+          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SET) {
+            return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_SET;
+          }
+          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_GET) {
+            return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_GET;
+          }
           return HAKO_LLVMC_MIR_CALL_NEED_NONE;
         }
 
-        if (!strcmp(bname, "RuntimeDataBox")) {
+        if (recv_surface == HAKO_LLVMC_MIR_CALL_RECV_SURFACE_RUNTIME_DATA_BOX) {
           if (recv_family == HAKO_LLVMC_MIR_CALL_RECV_FAMILY_ARRAY_BIRTH) {
-            if (!strcmp(mname, "get")) return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_GET;
-            if (!strcmp(mname, "push")) return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_PUSH;
-            if (!strcmp(mname, "len") || !strcmp(mname, "length") || !strcmp(mname, "size")) {
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_GET) {
+              return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_GET;
+            }
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_PUSH) {
+              return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_PUSH;
+            }
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SIZE) {
               return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_LEN;
             }
-            if (!strcmp(mname, "has")) return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_HAS;
-            if (!strcmp(mname, "set")) return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_SET;
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_HAS) {
+              return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_HAS;
+            }
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SET) {
+              return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_SET;
+            }
             return HAKO_LLVMC_MIR_CALL_NEED_NONE;
           }
 
           if (recv_family == HAKO_LLVMC_MIR_CALL_RECV_FAMILY_ARRAY_STRING_BIRTH) {
-            if (!strcmp(mname, "get")) return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_STRING_INDEXOF;
-            if (!strcmp(mname, "push")) return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_PUSH;
-            if (!strcmp(mname, "len") || !strcmp(mname, "length") || !strcmp(mname, "size")) {
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_GET) {
+              return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_STRING_INDEXOF;
+            }
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_PUSH) {
+              return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_PUSH;
+            }
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SIZE) {
               return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_LEN;
             }
-            if (!strcmp(mname, "has")) return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_HAS;
-            if (!strcmp(mname, "set")) return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_SET;
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_HAS) {
+              return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_HAS;
+            }
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SET) {
+              return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_SET;
+            }
             return HAKO_LLVMC_MIR_CALL_NEED_NONE;
           }
 
           if (recv_family == HAKO_LLVMC_MIR_CALL_RECV_FAMILY_MAP_BIRTH) {
-            if (!strcmp(mname, "get")) return HAKO_LLVMC_MIR_CALL_NEED_MAP_GET;
-            if (!strcmp(mname, "size") || !strcmp(mname, "len") || !strcmp(mname, "length")) {
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_GET) {
+              return HAKO_LLVMC_MIR_CALL_NEED_MAP_GET;
+            }
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SIZE) {
               return HAKO_LLVMC_MIR_CALL_NEED_MAP_SIZE;
             }
-            if (!strcmp(mname, "has")) return HAKO_LLVMC_MIR_CALL_NEED_MAP_HAS;
-            if (!strcmp(mname, "set")) return HAKO_LLVMC_MIR_CALL_NEED_MAP_SET;
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_HAS) {
+              return HAKO_LLVMC_MIR_CALL_NEED_MAP_HAS;
+            }
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SET) {
+              return HAKO_LLVMC_MIR_CALL_NEED_MAP_SET;
+            }
             return HAKO_LLVMC_MIR_CALL_NEED_NONE;
           }
 
           if (recv_family == HAKO_LLVMC_MIR_CALL_RECV_FAMILY_STRING) {
-            if (!strcmp(mname, "len") || !strcmp(mname, "length") || !strcmp(mname, "size")) {
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SIZE) {
               return HAKO_LLVMC_MIR_CALL_NEED_STRING_LEN;
             }
-            if (!strcmp(mname, "substring")) return HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING;
-            if (!strcmp(mname, "indexOf")) return HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF;
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SUBSTRING) {
+              return HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING;
+            }
+            if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_INDEXOF) {
+              return HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF;
+            }
             return HAKO_LLVMC_MIR_CALL_NEED_NONE;
           }
 
           return HAKO_LLVMC_MIR_CALL_NEED_NONE;
         }
 
-        if (!strcmp(bname, "StringBox")) {
-          if (!strcmp(mname, "len") || !strcmp(mname, "length") || !strcmp(mname, "size")) {
+        if (recv_surface == HAKO_LLVMC_MIR_CALL_RECV_SURFACE_STRING_BOX) {
+          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SIZE) {
             return HAKO_LLVMC_MIR_CALL_NEED_STRING_LEN;
           }
-          if (!strcmp(mname, "substring")) return HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING;
-          if (!strcmp(mname, "indexOf")) return HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF;
+          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_SUBSTRING) {
+            return HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING;
+          }
+          if (method_surface == HAKO_LLVMC_MIR_CALL_METHOD_SURFACE_INDEXOF) {
+            return HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF;
+          }
         }
 
         return HAKO_LLVMC_MIR_CALL_NEED_NONE;

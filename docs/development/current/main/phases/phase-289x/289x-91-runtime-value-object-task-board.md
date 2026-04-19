@@ -129,8 +129,9 @@ Task state:
 - `289x-7e`: done in code, array slot concrete emission centralized in `hako_llvmc_ffi_array_slot_emit.inc`, behavior unchanged
 - `289x-7f`: done in code, array-string window matcher eligibility centralized in `hako_llvmc_ffi_array_string_window_policy.inc`, behavior unchanged
 - `289x-7g`: done in code, MIR string helper-name vocabulary centralized in `src/mir/string_corridor_names.rs`, behavior unchanged
-- `289x-7h`: next C shim cut, prepass/declaration need classifier cutover, high-risk
-- optimization return: blocked until all `289x-96` clusters are done or explicitly rejected
+- `289x-7h`: done in code, prepass/declaration need classifier cutover to normalized surfaces, behavior unchanged
+- `289x-96`: closed; all Rust/C-shim/MIR clusters are done
+- optimization return: open only through the owner-first perf entry
 
 ## Phase 0. Authority / Vocabulary Lock
 
@@ -402,11 +403,11 @@ No-go:
   - `289x-7g`: MIR string helper-name compat/recovery cutover
     - done; behavior unchanged
   - `289x-7h`: prepass/declaration need classifier cutover
-    - next; high-risk
+    - done; behavior unchanged
 - Acceptance:
   - runtime can execute boundary decisions without re-deciding legality
   - no helper/class name remains the only source of publication legality
-  - full `ArrayStorage::Text` / full `TextLane` stays out until `289x-7h` closes
+  - full `ArrayStorage::Text` / full `TextLane` stays out as a separate post-`289x-96` phase
 
 ## Phase 8. Allocator / Arena
 
