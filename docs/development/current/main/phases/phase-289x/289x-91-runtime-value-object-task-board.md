@@ -410,6 +410,10 @@ No-go:
     - done; no typed map lane
   - `289x-6e`: Map load encoding split
     - done; no public ABI change
+- 137x-B reading lock:
+  - `289x-6d` and `289x-6e` are landed demand-metadata boundaries only
+  - `289x-6c` typed map lane stays closed until a separate owner proof makes Map value residence the measured owner
+  - key decode, value residence, and read publication remain separate seams
 - Acceptance:
   - map does not regain generic object publication as an implicit read/write side effect
 

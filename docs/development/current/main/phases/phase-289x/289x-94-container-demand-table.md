@@ -60,6 +60,22 @@ It must not redefine Array/Map as immutable values, and it must not widen public
 | has/probe | `map_probe.rs` | key decode + read-only probe | no value publication |
 | RuntimeData map get/set/has | `map_runtime_data.rs`, `runtime_data.rs` | bridge to Map rows | bridge only; not semantic owner |
 
+## Map Boundary Lock for 137x-B
+
+Current landed truth:
+
+- Map key decode demand metadata is landed for i64 / any / RuntimeData bridge keys.
+- Map value store demand metadata is landed for value residence plus alias invalidation.
+- Map value load demand metadata is landed for materializing return vs caller-scoped encode.
+- These are metadata / boundary naming cuts; behavior is unchanged.
+
+Current stop-line:
+
+- `289x-6c` typed map lane is still unopened.
+- key decode policy is not value residence truth.
+- value residence / read publication must not be inferred from key coercion.
+- RuntimeData may dispatch to Map rows, but it owns no Map semantics.
+
 ## RuntimeData Facade Table
 
 | Facade route | Delegates to | Demand reading |

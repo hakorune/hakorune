@@ -249,6 +249,10 @@ Reading:
   - status: done in code; behavior unchanged; no public ABI change
   - materializing map load and caller-scoped alias encode now carry separate demand metadata
   - Rust runtime clusters in `289x-96` are now closed
+- 137x-B map boundary lock:
+  - `289x-6d` / `289x-6e` mean Map demand metadata is landed
+  - they do not open `289x-6c` typed map lane
+  - key decode policy, value residence, and read publication stay separate seams
 - `289x-7c`: C shim `get/len/has/push` policy split
   - status: done in code; behavior and emitted lowering unchanged
   - `get` stable-object/publish demand, `len`/`has` read-ref demand, and `push` encode/residence/mutation demand are now explicit route metadata

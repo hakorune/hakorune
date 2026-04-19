@@ -54,10 +54,14 @@ phase-137x は今、この 3 段で読む。
      - current truth is scalar immediate residence for `InlineI64` / `InlineBool` / `InlineF64`
      - only `InlineI64` has the direct `array_slot_load_encoded_i64` typed readback row
      - f64/bool readback stays under the existing encoded-any/public handle contract
-3. [ ] `map-demand-vs-typed-lane-boundary`
+3. [x] `map-demand-vs-typed-lane-boundary`
    - Map key decode / value store / value load demand metadata は landed と読む
    - typed map lane は未開放と明記する
    - map key policy と map value residence / publication を混ぜない
+   - status:
+     - locked in `phase-289x/289x-94-container-demand-table.md`
+     - `289x-6d` / `289x-6e` are demand-metadata cuts, not typed-lane implementation
+     - RuntimeData remains a facade that delegates demand ownership to Map rows
 4. [ ] `primitive-residuals-classification`
    - `Null` / `Void` は conservative / low-priority residual として分類する
    - enum/sum/generic は別 design owner の partially-landed lane として分離する

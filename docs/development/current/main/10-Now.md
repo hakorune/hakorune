@@ -590,7 +590,8 @@ Related:
 5. finish 137x-B design cleanout before perf
    - done: sync array typed-slot docs with current `InlineI64` / `InlineBool` / `InlineF64` runtime support without overstating readback
    - current ArrayBox truth is scalar immediate residence; only `InlineI64` opens the direct typed encoded-load row, while f64/bool stay under encoded-any/public handle readback
-   - lock map demand metadata vs typed map lane boundary; no typed map lane implementation starts here
+   - done: lock map demand metadata vs typed map lane boundary; no typed map lane implementation starts here
+   - current Map truth is demand metadata only: key decode, value residence, and read publication stay separate seams
    - classify `Null` / `Void` and enum/sum/generic residuals as non-blocking later work unless a separate phase opens them
    - keep Array / Map identity semantics while only internal residence may become lane-hosted later
 6. require a fresh narrow owner proof before wider perf edits

@@ -25,7 +25,7 @@
 
 - [x] B1 `phase-pointer-resplit`
 - [x] B2 `array-typed-slot-truth-sync`
-- [ ] B3 `map-demand-vs-typed-lane-boundary`
+- [x] B3 `map-demand-vs-typed-lane-boundary`
 - [ ] B4 `primitive-residuals-classification`
 - [ ] B5 `container-identity-residence-contract`
 

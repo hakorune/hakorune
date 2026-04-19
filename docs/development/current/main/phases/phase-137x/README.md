@@ -64,6 +64,9 @@
     - `array-typed-slot-truth-sync`
       - ArrayBox typed-slot truth is scalar immediate residence for `InlineI64` / `InlineBool` / `InlineF64`
       - only `InlineI64` has direct typed encoded-load readback; f64/bool stay under encoded-any/public handle readback
+    - `map-demand-vs-typed-lane-boundary`
+      - Map demand metadata is landed for key decode, value store, and value load
+      - typed map lane remains closed; RuntimeData stays a facade, not semantic owner
   - no runtime-wide implementation or public ABI widening starts from this gate
 - long-range successor stays parked:
   - phase-289x planning-only `Value Lane Architecture`

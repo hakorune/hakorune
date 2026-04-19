@@ -951,7 +951,9 @@ Scope: current lane / next lane / restart order only.
      - completed `array-typed-slot-truth-sync`
        - current ArrayBox typed-slot truth is scalar immediate residence for `InlineI64` / `InlineBool` / `InlineF64`
        - only `InlineI64` has the direct typed encoded-load row; f64/bool stay under encoded-any/public handle readback
-     - `map-demand-vs-typed-lane-boundary`
+     - completed `map-demand-vs-typed-lane-boundary`
+       - Map key decode / value store / value load demand metadata is landed
+       - `289x-6c` typed map lane stays closed; key policy is not value residence/publication truth
      - `primitive-residuals-classification`
      - `container-identity-residence-contract`
 2. keep phase-2.5 read-side alias lane as the active judge
