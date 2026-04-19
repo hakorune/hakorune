@@ -160,6 +160,40 @@ pub(crate) const ARRAY_GENERIC_APPEND_ANY: DemandSet = DemandSet::new(
     &[MutationDemand::InvalidateAliases],
 );
 
+pub(crate) const MAP_KEY_DECODE_I64: DemandSet = DemandSet::new(
+    &[ValueDemand::EncodeImmediate],
+    &[StorageDemand::ImmediateResidence],
+    &[],
+    &[],
+);
+
+pub(crate) const MAP_KEY_DECODE_ANY: DemandSet = DemandSet::new(
+    &[
+        ValueDemand::EncodeImmediate,
+        ValueDemand::EncodeAlias,
+        ValueDemand::StableObject,
+    ],
+    &[
+        StorageDemand::ImmediateResidence,
+        StorageDemand::GenericResidence,
+    ],
+    &[],
+    &[],
+);
+
+pub(crate) const MAP_RUNTIME_DATA_KEY_DECODE_ANY: DemandSet = MAP_KEY_DECODE_ANY;
+
+pub(crate) const MAP_VALUE_STORE_ANY: DemandSet = DemandSet::new(
+    &[
+        ValueDemand::EncodeImmediate,
+        ValueDemand::EncodeAlias,
+        ValueDemand::StableObject,
+    ],
+    &[StorageDemand::GenericResidence],
+    &[],
+    &[MutationDemand::InvalidateAliases],
+);
+
 pub(crate) const BORROWED_ALIAS_ENCODE: DemandSet = DemandSet::new(
     &[ValueDemand::EncodeAlias],
     &[],
@@ -304,6 +338,40 @@ mod tests {
         assert_eq!(
             ARRAY_GENERIC_APPEND_ANY.mutation,
             ARRAY_GENERIC_STORE_ANY.mutation
+        );
+    }
+
+    #[test]
+    fn map_key_value_codec_demands_split_key_decode_from_value_store() {
+        assert_eq!(MAP_KEY_DECODE_I64.value, &[ValueDemand::EncodeImmediate]);
+        assert_eq!(
+            MAP_KEY_DECODE_I64.storage,
+            &[StorageDemand::ImmediateResidence]
+        );
+        assert_eq!(
+            MAP_KEY_DECODE_ANY.value,
+            &[
+                ValueDemand::EncodeImmediate,
+                ValueDemand::EncodeAlias,
+                ValueDemand::StableObject
+            ]
+        );
+        assert_eq!(MAP_RUNTIME_DATA_KEY_DECODE_ANY, MAP_KEY_DECODE_ANY);
+        assert_eq!(
+            MAP_VALUE_STORE_ANY.value,
+            &[
+                ValueDemand::EncodeImmediate,
+                ValueDemand::EncodeAlias,
+                ValueDemand::StableObject
+            ]
+        );
+        assert_eq!(
+            MAP_VALUE_STORE_ANY.storage,
+            &[StorageDemand::GenericResidence]
+        );
+        assert_eq!(
+            MAP_VALUE_STORE_ANY.mutation,
+            &[MutationDemand::InvalidateAliases]
         );
     }
 

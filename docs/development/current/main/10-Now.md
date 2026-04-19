@@ -98,8 +98,12 @@ Related:
       - MIR `ThinEntryCandidate` / `ThinEntrySelection` now carry inspection-only demand facts
       - folded `PlacementEffectRoute` now carries demand beside decision/source/state
       - MIR JSON emits the new demand fields; behavior and lowering unchanged
+    - `289x-6d` landed:
+      - Map key decode now binds explicit i64/any/runtime-data demand metadata
+      - Map value store now binds value-residence + alias-invalidation demand metadata
+      - behavior unchanged; no typed map lane
     - next code cut:
-      - `289x-6d`: Map key/value codec demand bridge, no typed map lane
+      - `289x-6e`: Map load encoding split, no public ABI change
     - high-risk planned later, not skipped:
       - concrete `slot_load_hi` / `slot_store` emission changes: `289x-7e`
       - `runtime_array_string` observer/window matcher rewrites: `289x-7f`

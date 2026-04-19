@@ -189,7 +189,11 @@ Reading:
 - `289x-6a`: map key/value boundary map
   - key decode, value storage, read publication, and compat exports stay separated
 - `289x-6d`: Map key/value codec demand bridge
-  - next cutover cluster; no typed map lane
+  - status: done in code; behavior unchanged; no typed map lane
+  - Map key decode binds explicit i64/any/runtime-data demand metadata
+  - Map value store binds value-residence + alias-invalidation demand metadata
+- `289x-6e`: Map load encoding split
+  - next cutover cluster; no public ABI change
 
 ## Return To Optimization Gate
 

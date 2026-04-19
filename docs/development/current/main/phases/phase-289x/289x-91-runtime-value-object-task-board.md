@@ -121,7 +121,8 @@ Task state:
 - `289x-3h`: done in code, `KernelTextSlotState` demand bridge, high-risk, behavior unchanged
 - `289x-7a`: done in code, C shim generic method set-route demand metadata, emitted lowering unchanged
 - `289x-7b`: done in code, MIR demand/placement parallel facts, inspection-only, behavior unchanged
-- `289x-6d`: next Rust runtime cut, Map key/value codec demand bridge, no typed map lane
+- `289x-6d`: done in code, Map key/value codec demand bridge, no typed map lane
+- `289x-6e`: next Rust runtime cut, Map load encoding split, no public ABI change
 - `289x-7e` / `289x-7f`: high-risk C shim emission/window work is planned later, not skipped
 - optimization return: blocked until all `289x-96` clusters are done or explicitly rejected
 
@@ -362,9 +363,9 @@ No-go:
   - `289x-6b`: compat export retirement criteria
   - `289x-6c`: typed map lane only if evidence makes map the owner
   - `289x-6d`: Map key/value codec demand bridge
-    - next; no typed map lane
+    - done; no typed map lane
   - `289x-6e`: Map load encoding split
-    - pending; no public ABI change
+    - next; no public ABI change
 - Acceptance:
   - map does not regain generic object publication as an implicit read/write side effect
 

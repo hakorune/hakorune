@@ -52,8 +52,8 @@ Estimate: 8 clusters, about 24-30 production decision/call sites when wired by c
 | R3 | `PublishReason -> PublishDemand` bridge | `value_codec/string_materialize.rs` | about 10 sites | medium | `289x-3e` | done |
 | R4 | Array generic load/encode | `array_handle_cache.rs`, `array_slot_load.rs` | 2 sites | medium | `289x-3f` | done |
 | R5 | Array store/append decode | `array_slot_store.rs`, `array_slot_append.rs` | 2 sites | medium-high | `289x-3g` | done |
-| R6 | Map key/value codec | `map_key_codec.rs`, `map_slot_store.rs` | 2 sites | medium | `289x-6d` | next |
-| R7 | Map load encoding split | `map_slot_load.rs` | 2 sites | medium-high | `289x-6e` | pending |
+| R6 | Map key/value codec | `map_key_codec.rs`, `map_slot_store.rs` | 2 sites | medium | `289x-6d` | done |
+| R7 | Map load encoding split | `map_slot_load.rs` | 2 sites | medium-high | `289x-6e` | next |
 | R8 | `KernelTextSlotState` + array text slot | `value_codec/string_materialize.rs`, `array_string_slot.rs` | about 20 state refs, 3 demand touchpoints | high | `289x-3h` | done |
 
 Already landed before this inventory:
@@ -90,8 +90,8 @@ Estimate: 8 clusters. The main blocker is C shim helper-name routing; MIR alread
 | `289x-3h` | `KernelTextSlotState` demand bridge | done; no ABI change |
 | `289x-7a` | C shim set-route demand metadata | done; metadata-only; emitted lowering identical |
 | `289x-7b` | MIR parallel demand/placement facts | done; inspection-only; behavior unchanged |
-| `289x-6d` | Map key/value codec demand bridge | next; no typed map lane |
-| `289x-6e` | Map load encoding split | no public ABI change |
+| `289x-6d` | Map key/value codec demand bridge | done; no typed map lane |
+| `289x-6e` | Map load encoding split | next; no public ABI change |
 | `289x-7c` to `289x-7h` | high-risk C shim/MIR route replacement | one cluster per commit; exact gates required |
 
 ## Do Not Touch Yet
