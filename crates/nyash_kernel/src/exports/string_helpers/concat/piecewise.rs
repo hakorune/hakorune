@@ -2,7 +2,7 @@ use crate::exports::string_view::clamp_i64_range;
 use crate::observe;
 use crate::plugin::{
     freeze_owned_string_into_slot, publish_kernel_text_slot, with_kernel_text_slot_text,
-    KernelTextSlot, KernelTextSlotState,
+    KernelTextSlot, KernelTextSlotState, TextRef,
 };
 use nyash_rust::runtime::host_handles as handles;
 
@@ -92,7 +92,7 @@ fn record_piecewise_shape(prefix_hit: bool, middle_hit: bool, suffix_hit: bool) 
 #[inline(always)]
 fn substring_borrowed_text_into_slot(
     out: &mut KernelTextSlot,
-    text: &str,
+    text: TextRef<'_>,
     start: i64,
     end: i64,
 ) -> bool {
@@ -112,12 +112,12 @@ fn substring_borrowed_text_into_slot(
 #[inline(always)]
 fn with_kernel_text_slot_source_text<R>(
     slot: &KernelTextSlot,
-    f: impl FnOnce(&str) -> R,
+    f: impl FnOnce(TextRef<'_>) -> R,
 ) -> Option<R> {
     match slot.state() {
-        KernelTextSlotState::Empty => Some(f("")),
+        KernelTextSlotState::Empty => Some(f(TextRef::new(""))),
         KernelTextSlotState::OwnedBytes | KernelTextSlotState::DeferredConstSuffix => {
-            with_kernel_text_slot_text(slot, |text| f(text.as_str()))
+            with_kernel_text_slot_text(slot, f)
         }
         KernelTextSlotState::Published => None,
     }
@@ -126,8 +126,8 @@ fn with_kernel_text_slot_source_text<R>(
 #[inline(always)]
 fn piecewise_subrange_borrowed_text_into_slot(
     out: &mut KernelTextSlot,
-    source: &str,
-    middle: &str,
+    source: TextRef<'_>,
+    middle: TextRef<'_>,
     split: i64,
     start: i64,
     end: i64,
@@ -165,13 +165,14 @@ fn piecewise_subrange_borrowed_text_into_slot(
             materialize_piecewise_all_three(
                 slice_end.saturating_sub(slice_start),
                 prefix_slice,
-                middle,
+                middle.as_str(),
                 suffix_slice,
             ),
         );
         return Some(());
     }
-    let text = substring_owned_from_parts(&[prefix, middle, suffix], slice_start, slice_end)?;
+    let text =
+        substring_owned_from_parts(&[prefix, middle.as_str(), suffix], slice_start, slice_end)?;
     record_piecewise_shape(prefix_hit, middle_hit, suffix_hit);
     freeze_owned_string_into_slot(out, text);
     Some(())
@@ -182,14 +183,16 @@ fn piecewise_subrange_borrowed_text_into_slot(
 fn with_piecewise_borrowed_inputs<R>(
     source_h: i64,
     middle_ptr: *const i8,
-    f: impl FnOnce(&str, &str) -> Option<R>,
+    f: impl FnOnce(TextRef<'_>, TextRef<'_>) -> Option<R>,
 ) -> Option<R> {
     if source_h <= 0 {
         return None;
     }
     with_insert_middle_text(middle_ptr, |middle| {
         handles::with_text_read_session_ready(|session| {
-            session.str_handle(source_h as u64, |source| f(source, middle))
+            session.str_handle(source_h as u64, |source| {
+                f(TextRef::new(source), TextRef::new(middle))
+            })
         })
         .flatten()
         .flatten()
@@ -231,7 +234,14 @@ pub(super) fn piecewise_subrange_kernel_text_slot_into_slot(
     out.clear();
     with_insert_middle_text(middle_ptr, |middle| {
         with_kernel_text_slot_source_text(source, |text| {
-            piecewise_subrange_borrowed_text_into_slot(out, text, middle, split, start, end)
+            piecewise_subrange_borrowed_text_into_slot(
+                out,
+                text,
+                TextRef::new(middle),
+                split,
+                start,
+                end,
+            )
         })
         .flatten()
     })
@@ -266,7 +276,7 @@ pub(super) fn substring_kernel_text_slot_in_place(
         slot.clear();
         return false;
     };
-    let text = bytes.as_str();
+    let text = TextRef::new(bytes.as_str());
     let (slice_start, slice_end) = clamp_i64_range(text.len(), start, end);
     if slice_start == slice_end {
         slot.clear();

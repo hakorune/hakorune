@@ -44,7 +44,7 @@ fn stage1_string_debug_enabled() -> bool {
 
 fn stage1_string_handle_debug(handle: i64) -> (bool, usize, String) {
     if let Some(span) = resolve_string_span_from_handle_nocache(handle) {
-        let s = span.as_str();
+        let s = span.as_text();
         let preview = if s.len() <= 48 {
             s.to_string()
         } else {
