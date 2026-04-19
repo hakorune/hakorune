@@ -187,6 +187,23 @@ Scope: current lane / next lane / restart order only.
           - this is not keeper proof yet
           - asm still shows the preceding `nyash.array.get_hi` call in `ny_main`
           - next card must suppress the now source-only `array.get_hi` emission safely; do not expand into `TextLane` / MIR legality / allocator work
+      - current source-only get suppression candidate:
+        - compiler seam: `array.get -> length -> substring/substring -> insert-mid set` records the array text source and skips the object-handle get when later uses are proven source-only
+        - fixture/smoke:
+          - `apps/tests/mir_shape_guard/array_string_len_insert_mid_source_only_min_v1.mir.json`
+          - `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_array_string_len_insert_mid_source_only_min.sh`
+        - regression guard:
+          - `tools/smokes/v2/profiles/integration/phase29ck_boundary/string/phase29ck_boundary_pure_array_string_len_live_after_get_min.sh`
+          - still requires `slot_load_hi` when later substring values remain live
+        - perf/asm proof:
+          - exact: `kilo_micro_array_string_store = C 9 ms / Ny AOT 3 ms`
+          - meso: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 59 ms`
+          - strict whole: `kilo_kernel_small_hk = C 80 ms / Ny AOT 135 ms` (`repeat=3`, parity ok)
+          - `ny_main` now emits `array.string_len_hi -> array.kernel_slot_insert_hisi -> array.kernel_slot_store_hi` and no longer calls `nyash.array.get_hi`
+        - boundary:
+          - this is still a narrow source-only window
+          - live-after-get substring reuse keeps object-handle loading
+          - full `TextLane`, MIR legality, allocator, and broad container lane-hosting remain separate later phases
   - good cut point:
     - the Phase 2.5 read-side alias lane now has array/map proof on all three read outcomes:
       - `live source`
