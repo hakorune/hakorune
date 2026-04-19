@@ -58,6 +58,9 @@ Scope: current lane / next lane / restart order only.
     - `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
   - taskboard:
     - `docs/development/current/main/phases/phase-137x/137x-91-task-board.md`
+  - legacy retirement ledger:
+    - `docs/development/current/main/phases/phase-137x/README.md#legacy-retirement-ledger`
+    - planned deletions stay there as SSOT; do not scatter deletion TODOs through compiler/runtime files
 - background lanes:
   - `phase-29bq loop owner seam cleanup landing`
   - `phase-163x primitive-family / user-box fast-path landing`

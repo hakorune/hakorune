@@ -85,6 +85,9 @@
 - long-range successor stays parked:
   - phase-289x planning-only `Value Lane Architecture`
   - no runtime-wide implementation starts from this cut
+- legacy retirement SSOT:
+  - planned deletions for the active compiler cleanup live in the `Legacy Retirement Ledger` section of this README
+  - do not scatter deletion TODOs across lowering/runtime files; code comments may only point back to this ledger when a compatibility row would otherwise look accidental
 - current first seam: phase-2.5 read-side alias lane; producer-side unpublished outcome under `const_suffix` is already landed
 - current rollout order:
   - `Phase 1`: producer outcome -> canonical sink (`KernelTextSlot` first)
@@ -93,6 +96,23 @@
   - `Phase 2.6`: string publication contract closeout / legality lock
   - `Phase 3`: future `TextLane`
   - `Phase 4`: MIR legality / sink-aware AOT
+
+## Legacy Retirement Ledger
+
+Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active `137x-D` lane.
+
+Rules:
+- A row may be deleted only when its removal gate is green in the same commit.
+- Compatibility rows must stay runtime-private unless a separate public ABI phase explicitly opens them.
+- Do not delete a legacy row just because the latest exact front does not hit it; prove no active guard/front needs it or move it to an explicit legacy regression fixture first.
+
+| Surface | Status | Why It Still Exists | Removal Gate |
+| --- | --- | --- | --- |
+| `nyash.array.string_suffix_store_his` | compatibility row | Pointer/CStr validated suffix helper retained after direct lowering moved to `nyash.array.string_suffix_store_hisi` | Delete only after all source-only/indexof branch smokes require `hisi`, pure declarations no longer emit `his`, and no fixture/asm grep observes a `his` call. |
+| `nyash.array.string_insert_mid_store_hisi` | compatibility row | Pointer/CStr validated insert-mid helper retained after direct lowering moved to `nyash.array.string_insert_mid_store_hisii` | Delete only after `phase137x_boundary_array_string_len_insert_mid_source_only_min.sh` and related generic-lowering guards require `hisii`, and pure declarations no longer emit `hisi`. |
+| `nyash.array.string_insert_mid_subrange_store_hisiii` | compatibility row | Pointer/CStr validated subrange helper retained after direct lowering moved to `nyash.array.string_insert_mid_subrange_store_hisiiii` | Delete only after concat3/subrange source-only smokes require `hisiiii`, docs no longer name `hisiii` as active direct route, and pure declarations no longer emit `hisiii`. |
+| `kilo_micro_array_string_store` old `9-block` exact seed shape | legacy matcher branch | Kept as a regression bridge while current direct MIR emits the compact `8-block` shape | Delete only after a compact-shape fixture/gate is the sole accepted direct producer or the old shape is moved into an explicit legacy regression fixture with a separate failure expectation. |
+| `src/host_providers/llvm_codegen/compat_text_primitive.rs` | watch item | Audit surfaced it as a legacy compiler compatibility surface; not part of the explicit-length helper cut | Classify first: either retire behind a small no-behavior cleanup gate or document why it remains a stable compatibility shim. |
 - current phase-2 start:
   - `string_handle_from_owned{,_concat_hh,_substring_concat_hhii,_const_suffix}` now enter explicit cold publish adapters
   - `publish_owned_bytes_*_boundary` / `objectize_kernel_text_slot_stable_box` are outlined cold boundaries
