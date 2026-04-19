@@ -311,7 +311,8 @@ pub(super) fn string_handle_from_span(span: StringSpan) -> i64 {
 }
 
 #[inline(always)]
-pub(super) fn publish_view_span_handle(span: StringSpan) -> (Arc<dyn NyashBox>, i64) {
+pub(super) fn publish_view_span_handle_explicit_api(span: StringSpan) -> (Arc<dyn NyashBox>, i64) {
+    observe::record_birth_backend_publish_reason_explicit_api();
     let result_obj: Arc<dyn NyashBox> = Arc::new(span.into_view_box());
     let handle = issue_fresh_handle_from_arc(result_obj.clone());
     if string_trace::enabled() {
@@ -319,7 +320,7 @@ pub(super) fn publish_view_span_handle(span: StringSpan) -> (Arc<dyn NyashBox>, 
         string_trace::emit(
             "sink",
             "fresh_handle",
-            "view_span_publish",
+            "view_span_publish_explicit_api",
             format_args!("source=view_span len={} handle={}", len, handle),
         );
     }

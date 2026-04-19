@@ -29,9 +29,8 @@ use crate::plugin::{
     freeze_owned_string_into_slot, issue_fresh_handle_from_arc, owned_string_from_handle,
     publish_kernel_text_slot, KernelTextSlot,
 };
-use nyash_rust::box_trait::NyashBox;
 use nyash_rust::runtime::host_handles as handles;
-use std::{ffi::CStr, sync::Arc};
+use std::ffi::CStr;
 
 use self::cache::{
     concat3_fast_cache_lookup, concat3_fast_cache_store, string_len_fast_cache_lookup,
@@ -48,7 +47,7 @@ use self::concat::{
     piecewise_subrange_kernel_text_slot_into_slot, substring_kernel_text_slot_in_place,
 };
 use self::materialize::{
-    publish_view_span_handle, shared_empty_string_handle, string_handle_from_owned,
+    publish_view_span_handle_explicit_api, shared_empty_string_handle, string_handle_from_owned,
     string_handle_from_span, trace_observer_resolution_enabled,
 };
 
@@ -502,7 +501,81 @@ pub(super) fn string_substring_hii_export_impl(h: i64, start: i64, end: i64) -> 
         } => {
             observe::record_birth_placement_borrow_view();
             let len = span.len() as i64;
-            let (result_obj, handle) = publish_view_span_handle(span);
+            let (result_obj, handle) = publish_view_span_handle_explicit_api(span);
+            if handle > 0 {
+                string_len_fast_cache_store(handle, len);
+                substring_view_arc_cache_store(
+                    h,
+                    source_box_id,
+                    start,
+                    end,
+                    len,
+                    result_obj,
+                    handle,
+                );
+            }
+            handle
+        }
+    }
+}
+
+#[inline(always)]
+pub(super) fn string_substring_publish_explicit_api_view_hii_export_impl(
+    h: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    if h <= 0 {
+        return 0;
+    }
+
+    if let Some(hit) = substring_view_arc_cache_lookup(h, start, end) {
+        match hit {
+            SubstringViewCacheHit::Handle(handle) => {
+                return handle;
+            }
+            SubstringViewCacheHit::Reissue { result_obj, len } => {
+                observe::record_birth_placement_borrow_view();
+                observe::record_birth_backend_publish_reason_explicit_api();
+                let handle = issue_fresh_handle_from_arc(result_obj);
+                if handle > 0 {
+                    string_len_fast_cache_store(handle, len);
+                    substring_view_arc_cache_refresh_handle(h, start, end, handle);
+                }
+                return handle;
+            }
+        }
+    }
+
+    let Some(plan) = borrowed_substring_plan_from_handle(h, start, end, true) else {
+        return shared_empty_string_handle();
+    };
+    match plan {
+        BorrowedSubstringPlan::ReturnHandle => {
+            substring_fast_cache_store(h, start, end, true, h);
+            h
+        }
+        BorrowedSubstringPlan::ReturnEmpty => {
+            let result = shared_empty_string_handle();
+            if result > 0 {
+                substring_fast_cache_store(h, start, end, true, result);
+            }
+            result
+        }
+        BorrowedSubstringPlan::FreezeSpan(span) => {
+            let result = string_handle_from_span(span);
+            if result > 0 {
+                substring_fast_cache_store(h, start, end, true, result);
+            }
+            result
+        }
+        BorrowedSubstringPlan::ViewSpan {
+            span,
+            source_box_id,
+        } => {
+            observe::record_birth_placement_borrow_view();
+            let len = span.len() as i64;
+            let (result_obj, handle) = publish_view_span_handle_explicit_api(span);
             if handle > 0 {
                 string_len_fast_cache_store(handle, len);
                 substring_view_arc_cache_store(

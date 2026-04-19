@@ -805,6 +805,26 @@ fn substring_hii_mid_slice_keeps_stringview_contract() {
 }
 
 #[test]
+fn substring_publish_explicit_api_view_hii_forces_stringview_replay_even_when_fast_off() {
+    with_env_var("NYASH_LLVM_FAST", "0", || {
+        let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("line-seed-abcdefxx".to_string()));
+        let source_handle = handles::to_handle_arc(source) as i64;
+
+        let public_handle = nyash_string_substring_hii_export(source_handle, 1, 17);
+        let public_obj = handles::get(public_handle as u64).expect("public substring object");
+        assert_eq!(public_obj.type_name(), "StringBox");
+
+        let view_handle =
+            nyash_string_substring_publish_explicit_api_view_hii_export(source_handle, 1, 17);
+        assert!(view_handle > 0, "explicit stable-view handle");
+
+        let view_obj = handles::get(view_handle as u64).expect("explicit stable-view object");
+        assert_eq!(view_obj.type_name(), "StringViewBox");
+        assert_eq!(nyash_string_len_h(view_handle), 16);
+    });
+}
+
+#[test]
 fn substring_hii_fast_off_keeps_stringbox_contract() {
     with_env_var("NYASH_LLVM_FAST", "0", || {
         let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("hakorune".to_string()));

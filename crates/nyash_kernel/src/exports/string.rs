@@ -177,6 +177,16 @@ pub extern "C" fn nyash_string_kernel_slot_publish_h_export(
     string_publish_kernel_text_slot_h_export_impl(slot)
 }
 
+// Runtime-private publish.text adapter (reason=explicit_api_replay, repr=stable_view).
+#[export_name = "nyash.string.substring_publish_explicit_api_view_hii"]
+pub extern "C" fn nyash_string_substring_publish_explicit_api_view_hii_export(
+    h: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    string_substring_publish_explicit_api_view_hii_export_impl(h, start, end)
+}
+
 // Runtime-private publish.text adapter (repr=stable_owned, reason=explicit_api_replay).
 #[export_name = "nyash.string.substring_concat3_publish_explicit_api_owned_hhhii"]
 pub extern "C" fn nyash_string_substring_concat3_publish_explicit_api_owned_hhhii_export(

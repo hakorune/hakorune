@@ -8,7 +8,10 @@ use super::concat::{
     substring_kernel_text_slot_in_place, substring_kernel_text_slot_into_slot,
 };
 use super::materialize::string_handle_from_owned;
-use super::{string_len_from_handle, string_substring_hii_export_impl};
+use super::{
+    string_len_from_handle, string_substring_hii_export_impl,
+    string_substring_publish_explicit_api_view_hii_export_impl,
+};
 use crate::plugin::{
     freeze_owned_string_into_slot, with_kernel_text_slot_text, KernelTextSlot, KernelTextSlotState,
 };
@@ -123,6 +126,27 @@ fn substring_view_arc_cache_reissues_same_view_object_after_drop_epoch() {
     assert!(
         Arc::ptr_eq(&view_obj1, &view_obj2),
         "cached view object should survive transient handle drops while the source stays live"
+    );
+    assert_eq!(string_len_fast_cache_lookup(view_h2), Some(16));
+    assert_eq!(string_len_from_handle(view_h2), Some(16));
+}
+
+#[test]
+fn substring_publish_explicit_api_view_reissues_same_view_object_after_drop_epoch() {
+    let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("line-seed-abcdefxy".to_string()));
+    let source_h = handles::to_handle_arc(source) as i64;
+
+    let view_h1 = string_substring_publish_explicit_api_view_hii_export_impl(source_h, 2, 18);
+    let view_obj1 = handles::get(view_h1 as u64).expect("first explicit view object");
+    handles::drop_handle(view_h1 as u64);
+
+    let view_h2 = string_substring_publish_explicit_api_view_hii_export_impl(source_h, 2, 18);
+    let view_obj2 = handles::get(view_h2 as u64).expect("reissued explicit view object");
+
+    assert_eq!(view_obj2.type_name(), "StringViewBox");
+    assert!(
+        Arc::ptr_eq(&view_obj1, &view_obj2),
+        "explicit stable-view publish should reuse the cached view object while the source stays live"
     );
     assert_eq!(string_len_fast_cache_lookup(view_h2), Some(16));
     assert_eq!(string_len_from_handle(view_h2), Some(16));

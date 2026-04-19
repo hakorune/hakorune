@@ -914,7 +914,12 @@ Scope: current lane / next lane / restart order only.
           - `nyash.string.substring_concat3_publish_explicit_api_owned_hhhii`
           - `nyash.string.substring_concat3_publish_need_stable_owned_hhhii`
         - stable-owned publication is now fixed to materialize `StringBox` even when the concat window collapses to a single source piece
-      - next implementation card is `substring_hii` mid-slice replay with `repr=StableView`
+      - completed `substring-stableview-proving`
+        - added runtime-private explicit replay adapter:
+          - `nyash.string.substring_publish_explicit_api_view_hii`
+        - the adapter now forces `borrowed_substring_plan(..., view_enabled=true)` and replays a cached `StringViewBox` even when public route policy (`NYASH_LLVM_FAST=0`) would materialize `StringBox`
+        - public `substring_hii` still keeps its existing contract, but its `ViewSpan` publication branch is now explicitly tagged as `explicit_api_replay`
+      - next implementation card is `publication-boundary-verifier`
       - `publish.any` stays deferred
    - do not widen into `TextLane`, allocator, public ABI, or a generic bridge substrate on this card
    - keep recent carrier commits as the semantic baseline; this card is contract/task shaping, not new keeper evidence
