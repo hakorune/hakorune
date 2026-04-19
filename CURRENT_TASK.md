@@ -12,33 +12,34 @@ Scope: current lane / next lane / restart order only.
 
 ## Quick Restart Pointer
 
-1. `docs/development/current/main/05-Restart-Quick-Resume.md`
-2. `docs/development/current/main/10-Now.md`
-3. `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
-4. `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
-5. `docs/development/current/main/phases/phase-289x/README.md` (`runtime-wide value/object` planning only)
-6. `docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md`
-7. `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
-8. `docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md`
-9. `docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md`
-10. `docs/development/current/main/phases/phase-289x/289x-94-container-demand-table.md`
-11. `docs/development/current/main/phases/phase-289x/289x-95-array-text-residence-pilot.md`
-12. `docs/development/current/main/phases/phase-289x/289x-96-demand-backed-cutover-inventory.md`
-13. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
-14. `docs/development/current/main/phases/phase-137x/README.md`
-15. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
-16. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
-17. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
-18. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md` (`137x-D` owner-first optimization に入るときだけ)
-19. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
-20. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
-21. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
-22. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
-23. `docs/development/current/main/design/string-birth-sink-ssot.md`
-24. `docs/development/current/main/15-Workstream-Map.md`
-25. `git status -sb`
-26. `tools/checks/dev_gate.sh quick`
-27. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
+1. `docs/development/current/main/CURRENT_STATE.toml`
+2. `docs/development/current/main/05-Restart-Quick-Resume.md`
+3. `docs/development/current/main/10-Now.md`
+4. `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
+5. `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
+6. `docs/development/current/main/phases/phase-289x/README.md` (`runtime-wide value/object` planning only)
+7. `docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md`
+8. `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
+9. `docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md`
+10. `docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md`
+11. `docs/development/current/main/phases/phase-289x/289x-94-container-demand-table.md`
+12. `docs/development/current/main/phases/phase-289x/289x-95-array-text-residence-pilot.md`
+13. `docs/development/current/main/phases/phase-289x/289x-96-demand-backed-cutover-inventory.md`
+14. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
+15. `docs/development/current/main/phases/phase-137x/README.md`
+16. `docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`
+17. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
+18. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
+19. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md` (`137x-D` owner-first optimization に入るときだけ)
+20. `docs/development/current/main/design/string-hot-corridor-runtime-carrier-ssot.md`
+21. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+22. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
+23. `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
+24. `docs/development/current/main/design/string-birth-sink-ssot.md`
+25. `docs/development/current/main/15-Workstream-Map.md`
+26. `git status -sb`
+27. `tools/checks/dev_gate.sh quick`
+28. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md` (`phase-29bq` に戻るときだけ)
 
 ## Current Lane
 

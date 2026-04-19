@@ -3,6 +3,7 @@
 - Status: Owner-First Optimization Return Ready
 - 目的: 137x-C structure completion gate を閉じた状態から、owner-first optimization を `137x-D` として再開する。最初の一手は fresh perf/asm owner proof で、source reading や code edit を先行しない。
 - 対象:
+  - `docs/development/current/main/CURRENT_STATE.toml`
   - `CURRENT_TASK.md`
   - `docs/development/current/main/05-Restart-Quick-Resume.md`
   - `docs/development/current/main/10-Now.md`
@@ -16,6 +17,7 @@
 
 ## Quick Scan
 
+- current lane: `phase-137x-D owner-first optimization return`
 - semantic lock:
   - `String = value`
   - `publish = boundary effect`

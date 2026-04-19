@@ -3,6 +3,7 @@ Status: Active
 Date: 2026-04-20
 Scope: 再起動直後に 2〜5 分で current lane に戻るための最短手順。
 Related:
+  - docs/development/current/main/CURRENT_STATE.toml
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/design/perf-owner-first-optimization-ssot.md

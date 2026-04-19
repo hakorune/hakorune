@@ -3,6 +3,7 @@ Status: SSOT
 Date: 2026-04-20
 Scope: current lane / blocker / next pointer only.
 Related:
+  - docs/development/current/main/CURRENT_STATE.toml
   - CURRENT_TASK.md
   - docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md
   - docs/development/current/main/phases/phase-137x/README.md

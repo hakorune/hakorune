@@ -33,6 +33,7 @@ list_profiles() {
   cat <<'LIST'
 [dev-gate] profiles:
   quick:
+    - tools/checks/current_state_pointer_guard.sh
     - tools/checks/route_no_fallback_guard.sh
     - cargo check --bin hakorune
     - PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_strlen_fast.py
@@ -182,6 +183,9 @@ run_step() {
 }
 
 run_quick() {
+  run_step "current-state pointer guard" \
+    bash tools/checks/current_state_pointer_guard.sh
+
   run_step "route no-fallback guard" \
     bash tools/checks/route_no_fallback_guard.sh
 

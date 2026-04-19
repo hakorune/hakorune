@@ -1,0 +1,39 @@
+# Current State SSOT
+#
+# Purpose:
+# - Keep the active lane / blocker / phase pointers in one small file.
+# - Let tools/checks/current_state_pointer_guard.sh catch stale mirror text.
+# - Do not store history here; phase docs and investigations own history.
+
+status = "Active"
+date = "2026-04-20"
+
+active_lane = "phase-137x-D owner-first optimization return"
+active_lane_status = "ready; not started by docs/task organization"
+active_phase = "docs/development/current/main/phases/phase-137x/README.md"
+method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
+taskboard = "docs/development/current/main/phases/phase-137x/137x-91-task-board.md"
+
+current_blocker_token = "fresh `137x-D` owner proof"
+pre_perf_gate = "137x-C structure completion gate"
+pre_perf_gate_status = "closed"
+optimization_return_lane = "137x-D"
+
+blocked_successors = [
+  "publish.any",
+  "runtime-wide Value Lane Architecture implementation",
+  "typed map lane",
+  "heterogeneous / union array slot layout",
+  "full TextLane / ArrayStorage::Text",
+  "allocator / arena lane",
+]
+
+stale_pointer_patterns = [
+  "phase-137x-C owner-first optimization return",
+  "137x-C owner-first",
+  "fresh `137x-C` owner proof",
+  "optimization resumes as `137x-C`",
+  "reopen as `137x-C`",
+  "deferred 137x-C",
+  "137x-C restarts from",
+]
