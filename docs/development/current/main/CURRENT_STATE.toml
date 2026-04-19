@@ -8,24 +8,27 @@
 status = "Active"
 date = "2026-04-20"
 
-active_lane = "phase-137x-D owner-first optimization return"
-active_lane_status = "active; exact array store route-shape keeper landed"
+active_lane = "phase-137x-E TextLane / Value Lane implementation gate"
+active_lane_status = "active; opened before the next kilo optimization"
 active_phase = "docs/development/current/main/phases/phase-137x/README.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-137x/137x-91-task-board.md"
 
-current_blocker_token = "next `137x-D` owner proof"
-pre_perf_gate = "137x-C structure completion gate"
-pre_perf_gate_status = "closed"
-optimization_return_lane = "137x-D"
+current_blocker_token = "137x-E TextLane implementation gate"
+pre_perf_gate = "137x-E implementation gate before next kilo optimization"
+pre_perf_gate_status = "open"
+optimization_return_lane = "137x-H"
+
+opened_successors = [
+  "137x-E minimal TextLane / ArrayStorage::Text implementation",
+  "137x-F runtime-wide Value Lane implementation bridge",
+  "137x-G allocator / arena lane pilot",
+]
 
 blocked_successors = [
   "publish.any",
-  "runtime-wide Value Lane Architecture implementation",
   "typed map lane",
   "heterogeneous / union array slot layout",
-  "full TextLane / ArrayStorage::Text",
-  "allocator / arena lane",
 ]
 
 stale_pointer_patterns = [
@@ -36,4 +39,9 @@ stale_pointer_patterns = [
   "reopen as `137x-C`",
   "deferred 137x-C",
   "137x-C restarts from",
+  "phase-137x-D owner-first optimization return",
+  "next `137x-D` owner proof",
+  "continue `137x-D` only by owner-first evidence",
+  "phase-289x stays parked as planning-only",
+  "`publish.any`, `TextLane`, typed map lane, runtime-wide Value Lane, and allocator/arena work remain blocked/deferred",
 ]

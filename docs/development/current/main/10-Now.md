@@ -27,11 +27,12 @@ Related:
 ## Current
 
 - current lane:
-  - `phase-137x-D owner-first optimization return` (active; exact array store route-shape keeper landed)
+  - `phase-137x-E TextLane / Value Lane implementation gate` (active; opened before the next kilo optimization)
   - execution mode:
-    - perf-first for every next optimization cut; recapture current baseline / asm owner before source reading or code edits
-    - keeper evidence must be direct-only; do not accept helper-retry asm as owner proof
-    - 137x-C structure completion is closed; do not reopen blocked successor work from the perf lane
+    - `137x-E TextLane implementation gate` is the current blocker before further kilo tuning
+    - implement `137x-E` minimal `TextLane` / `ArrayStorage::Text`, then `137x-F` Value Lane bridge, then `137x-G` allocator / arena pilot
+    - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
+    - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
   - method anchor:
@@ -48,10 +49,11 @@ Related:
     - phase-137x string lane produced keeper `49c356339`
     - demand-backed cutover inventory `289x-96` is closed
     - `137x-B` design cleanout is closed; `137x-C` structure completion gate is closed
-    - optimization is active as `137x-D` through the owner-first entry
+    - `137x-D` exact route-shape keeper is landed
+    - `137x-E/F/G` are open before the next kilo optimization return
     - array/map remain identity containers; only internal residence may become lane-hosted later
     - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
-    - all `289x-96` clusters are done; later full lane rewrites stay separate phases
+    - all `289x-96` clusters are done; their vocabulary now feeds the constrained `137x-F` implementation bridge
     - carrier responsibility lock is documented:
       - `BorrowedHandleBox` is boundary/cache, not semantic `Ref`
       - `KernelTextSlot` is transport adapter / sink seed, not long-term `TextCell`
@@ -147,18 +149,19 @@ Related:
     - demand-backed cutover inventory:
       - `289x-96` Rust/C-shim/MIR clusters are closed
       - phase-289x no longer blocks optimization return, and `137x-B` design cleanout is now closed
-    - high-risk planned later, not skipped:
-      - full `ArrayStorage::Text` / full `TextLane`: `289x-8a`
-      - string view/value carrier split: `289x-8b`
-      - Map typed lane: `289x-6c`
-      - allocator / arena: `289x-8c`, after value-boundary cutover and perf evidence only
+    - implementation order before the next kilo optimization:
+      - `137x-E`: minimal `ArrayStorage::Text` / `TextLane`
+      - `137x-F`: runtime-wide Value Lane implementation bridge, constrained by 289x vocabulary
+      - `137x-G`: allocator / arena pilot, only after copy/allocation tax remains structural
+      - still deferred: string view/value carrier split beyond this gate, Map typed lane, heterogeneous / union slots
     - return-to-optimization gate:
       - phase-289x gate was closed by `289x-7h`
       - `137x-B` container / primitive design cleanout is closed
       - `137x-C` structure completion gate is closed by `137x-91-task-board.md`
-      - optimization resumes as `137x-D` through `perf-owner-first-optimization-ssot.md`
+      - `137x-D` exact route-shape keeper is landed
+      - optimization resumes as `137x-H` only after `137x-E/F/G` land or reject
 - blocker:
-  - next `137x-D` owner proof before any further owner-first optimization edit
+  - `137x-E TextLane implementation gate` before any further kilo optimization edit
   - first landed keeper:
     - same-array/same-index piecewise concat3 subrange store originally lowered to `nyash.array.string_insert_mid_subrange_store_hisiii`
     - current direct lowering uses explicit-length `nyash.array.string_insert_mid_subrange_store_hisiiii`
@@ -180,7 +183,7 @@ Related:
     - `kilo_kernel_small_hk = C 81 ms / Ny AOT 218 ms` (`repeat=3`, parity ok)
   - boundary:
     - this is a narrow string read/store keeper
-    - runtime-wide 289x implementation, `TextLane`, MIR legality, and allocator work still require a separate phase gate
+    - `TextLane`, Value Lane, and allocator work now start through the separate `137x-E/F/G` gates
 - active follow-up structure card:
   - owner family:
     - `array_string_concat_const_suffix_by_index_store_same_slot_str`
@@ -193,8 +196,8 @@ Related:
     - whole-front asm still clusters around the same-slot exact-route helper family
   - boundary:
     - this is structure-only, not keeper proof
-    - next perf edit must start from perf/asm on these concrete helper interiors
-    - do not widen this into `TextLane`, MIR legality, allocator, or runtime-wide 289x implementation
+    - this helper-local follow-up is no longer the next task
+    - `137x-E/F/G` now own the next implementation sequence before any `137x-H` perf return
 - current source-only get suppression + same-slot string store keeper:
   - compiler seam:
     - `array.get -> length -> substring/substring -> insert-mid set`
@@ -226,7 +229,7 @@ Related:
     - `__strlen_evex` and `core::str::converts::from_utf8` are absent from the current whole asm hot report
     - meso subrange path no longer emits `nyash.array.slot_load_hi`, `nyash.string.substring_hii`, `nyash.string.substring_concat3_hhhii`, or `nyash.array.set_his`
   - boundary:
-    - this is a narrow source-only window, not a `TextLane` / MIR legality / allocator phase
+    - this landed cut was a narrow source-only window; `TextLane` / Value Lane / allocator now move only through `137x-E/F/G`
   - next owner proof seam:
     - whole-front asm clusters on `memchr::arch::x86_64::memchr::memchr_raw::find_avx2`, `array_string_concat_const_suffix_by_index_store_same_slot_str`, `__memmove_avx512_unaligned_erms`, `array_string_indexof_by_index_str`, `array_string_insert_const_mid_by_index_store_same_slot_str`, and `array_string_len_by_index`
     - whole-front asm still needs a fresh reread before choosing the next owner
@@ -288,8 +291,8 @@ Related:
     - `KernelTextSlot`
   - `Phase 2`: cold publish effect
   - `Phase 2.5`: read-side alias lane split
-  - `Phase 3`: future `TextLane` storage specialization
-  - `Phase 4`: MIR legality and sink-aware AOT
+  - `Phase 3`: `TextLane` storage/residence implementation through `137x-E`
+  - `Phase 4`: `137x-F/G` Value Lane bridge and allocator pilot before `137x-H`
 - current phase-2 start is now landed structurally:
   - `string_handle_from_owned{,_concat_hh,_substring_concat_hhii,_const_suffix}` enter explicit cold publish adapters
   - `publish_owned_bytes_*_boundary` / `objectize_kernel_text_slot_stable_box` are outlined as cold boundaries
@@ -428,7 +431,7 @@ Related:
     - reading:
       - this confirms the cleanup is not keeper evidence
       - do not reopen store-side `owned-string keep`
-      - do not open `TextLane`, MIR legality, runtime-wide 289x implementation, allocator/arena, or container lane-host work from this proof alone
+      - this proof alone did not open successor work; `TextLane`, Value Lane, and allocator now open through `137x-E/F/G`
   - latest runtime-private carrier vocabulary step landed:
     - `crates/nyash_kernel/src/plugin/value_codec/text_carrier.rs` now names `TextRef` and `OwnedText`
     - borrowed-alias read closures and slot text readers consume `TextRef` without changing the public ABI
@@ -455,12 +458,12 @@ Related:
       - the preceding `nyash.array.slot_load_hi` still remained before `nyash.array.string_indexof_hih`
     - reading:
       - a direct concat helper is not enough while the producer `array.get_hi` remains live
-      - code was reverted; do not retry this seam unless the same card removes the preceding `slot_load_hi` safely
+      - code was reverted; do not retry this helper-local seam before the `137x-E` storage gate
   - reading:
     - phase 2.5 runtime contract is now fixed more tightly than the first `array.get`-only slice
     - exact stays closed, but meso / strict whole reopened upward versus the prior keeper-candidate band
     - cleanup queue is parked; the strict reread remains reject-side rather than a keeper
-    - next step is owner proof for the current whole/meso tax before opening a new `TextLane` / MIR legality card
+    - next step is the `137x-E` storage gate before returning to any new kilo owner proof
 - phase/task anchors:
   - `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
   - `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
@@ -587,49 +590,40 @@ Related:
 
 ## Next
 
-1. keep closed gates immutable
+1. open implementation gates before the next kilo optimization
+   - current blocker: `137x-E TextLane implementation gate`
+   - `137x-E`: minimal `TextLane` / `ArrayStorage::Text`
+   - `137x-F`: runtime-wide Value Lane implementation bridge
+   - `137x-G`: allocator / arena pilot
+   - `137x-H`: next kilo optimization return after E/F/G land or reject
+2. keep closed gates immutable
    - `137x-A`: string publication contract closeout is closed
    - `137x-B`: container / primitive design cleanout is closed
    - `137x-C`: structure completion before perf return is closed
-   - `publish.any`, `TextLane`, typed map lane, runtime-wide Value Lane, and allocator/arena work remain blocked/deferred
-2. continue `137x-D` owner-first optimization only from fresh evidence
-   - recapture current baseline / asm owner before source reading or optimization edits
-   - latest landed proof front is `kilo_micro_array_string_store`; next code card still requires a fresh owner proof
-   - acceptable seam: reduce same-slot exact-route copy/search tax without changing public ABI
-   - reject seam: store-side `owned-string keep` / `owned-text keep`, `array.get` publish-per-read, or any helper that leaves the preceding `array.get_hi` / `slot_load_hi` live
-3. preserve current landed cuts
-   - same-array/same-index piecewise concat3 subrange store remains the landed first `137x-D` keeper
-   - historical first route was `nyash.array.string_insert_mid_subrange_store_hisiii`
-   - current direct route is `nyash.array.string_insert_mid_subrange_store_hisiiii`
-   - explicit-length direct-lowering helpers are now landed for same-slot suffix / insert-mid / insert-mid-subrange:
-     - `nyash.array.string_suffix_store_hisi`
-     - `nyash.array.string_insert_mid_store_hisii`
-     - `nyash.array.string_insert_mid_subrange_store_hisiiii`
-   - fresh proof:
-     - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=127268967`
-     - `kilo_kernel_small_hk = C 82 ms / Ny AOT 28 ms`, parity ok
-     - whole asm no longer reports `__strlen_evex` or `core::str::converts::from_utf8` on this cut
-   - exact keeper:
-     - previous generic-route watch was `kilo_micro_array_string_store = C 10 ms / Ny AOT 144 ms`
-     - current keeper is `kilo_micro_array_string_store = C 11 ms / Ny AOT 10 ms`, `ny_aot_instr=26922130`
-     - route proof is `array_string_store_micro result=emit reason=exact_match`
-     - `ny_main` is the stack-array seed IR and no runtime/public helper calls are in the loop body
-4. closed exact route-shape card
+   - `137x-D`: exact array store route-shape keeper is landed
+3. keep real blockers explicit
+   - `publish.any` remains blocked
+   - typed map lane remains blocked
+   - heterogeneous / union array slot layout remains blocked
+   - public ABI widening remains blocked
+4. implement `137x-E` from the new gate SSOT
+   - SSOT: `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
+   - start with array string storage/residence only
+   - keep `String = value` and public Array / String ABI unchanged
+5. preserve `137x-D` evidence as baseline
    - closed card: `137x-D exact array store route-shape proof`
-   - cause: the exact seed matcher accepted only the older 9-block MIR shape, while direct MIR now emits the compact 8-block shape
-   - implementation: matcher now accepts both shapes and still emits the existing specialized stack-array IR
-   - guards:
-     - middle `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=127269397`
-     - strict whole `kilo_kernel_small_hk = C 83 ms / Ny AOT 28 ms`, parity ok
-   - do not widen from these proofs into generic bridge substrate or runtime-wide lane work
+   - exact: `kilo_micro_array_string_store = C 11 ms / Ny AOT 10 ms`, `ny_aot_instr=26922130`
+   - middle: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=127269397`
+   - strict whole: `kilo_kernel_small_hk = C 83 ms / Ny AOT 28 ms`, parity ok
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
-3. `docs/development/current/main/phases/phase-137x/README.md`
-4. `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
-5. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
+2. `docs/development/current/main/phases/phase-137x/README.md`
+3. `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
+4. `docs/development/current/main/investigations/phase137x-array-store-owner-snapshot-2026-04-18.md`
+5. `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
+6. `docs/development/current/main/design/string-value-model-phased-rollout-ssot.md`
 6. `docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md`
 7. `docs/development/current/main/design/kernel-observability-and-two-stage-pilot-ssot.md`
 8. `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`

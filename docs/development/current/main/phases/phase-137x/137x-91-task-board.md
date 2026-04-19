@@ -5,22 +5,28 @@
   - `137x-A`: string publication contract closeout
   - `137x-B`: container / primitive design cleanout (closed)
   - `137x-C`: structure completion gate before perf return (closed)
-  - `137x-D`: owner-first optimization return (next; not started here)
+  - `137x-D`: owner-first optimization return (exact route-shape keeper landed)
+  - `137x-E`: TextLane implementation gate before next kilo optimization (open)
+  - `137x-F`: runtime-wide Value Lane implementation bridge (next)
+  - `137x-G`: allocator / arena lane pilot (next)
+  - `137x-H`: kilo optimization return after E/F/G land or reject
 
 ## Rule
 
-Owner-first optimization may stay open as `137x-D` only while every `137x-C`
-completion task remains closed. If any 137x-C task is reopened, stop `137x-D`
-and close the structure task first.
+Owner-first optimization already reopened as `137x-D` and landed the exact
+array store route-shape keeper. The old rule that kept `TextLane`, runtime-wide
+Value Lane, and allocator/arena work closed is retired. Before the next kilo
+optimization pass, open the implementation gates in `137x-E/F/G`.
 
 `all done` for this board means:
 
 - every active structure/contract cleanup task below is closed
-- every non-current successor is explicitly marked blocked/deferred with a target phase
+- every non-current successor is explicitly marked opened or blocked with a target phase
 - `CURRENT_TASK.md` and `10-Now.md` point to the same active lane
 - the final gate command is recorded
 
-It does not mean opening runtime-wide successor implementations from this phase.
+It now means the storage/value/allocator successor implementations are opened in
+order before the next kilo optimization return.
 
 ## Closed String Publication Closeout (137x-A)
 
@@ -87,15 +93,29 @@ It does not mean opening runtime-wide successor implementations from this phase.
 ## Blocked / Deferred
 
 - [ ] E1 `publish-any-generalization` (blocked; target successor: separate `publish-any-generalization` phase, unnumbered)
-- [ ] E2 runtime-wide phase-289x implementation (parked; target successor: runtime-wide `Value Lane Architecture` implementation phase, not opened here)
 - [ ] E3 typed map lane implementation (blocked; target successor `289x-6c`, owner proof required)
 - [ ] E4 heterogeneous / union array slot layout (blocked; target successor: separate `heterogeneous-array-slot-layout` phase, unnumbered)
-- [ ] E5 full `TextLane` / `ArrayStorage::Text` (blocked; target successor `289x-8a`)
-- [ ] E6 allocator / arena lane (blocked; target successor `289x-8c`, evidence required)
+
+## Opened Implementation Order Before Next Kilo Optimization
+
+- [ ] G1 `137x-E implementation gate before next kilo optimization`
+  - active token: `137x-E TextLane implementation gate`
+  - SSOT: `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
+- [ ] G2 minimal `TextLane` / `ArrayStorage::Text`
+  - start with array string hot paths
+  - keep `String = value`; `TextLane` is storage/residence only
+- [ ] G3 runtime-wide `Value Lane` implementation bridge
+  - use phase-289x ledgers as vocabulary/demand SSOT
+  - keep Array / Map public identity unchanged
+- [ ] G4 allocator / arena pilot
+  - open after TextLane / Value Lane proof shows copy/allocation tax remains structural
+  - require exact/middle/whole evidence and rollback notes
 
 ## Exit
 
 - [x] F1 137x-A closeout gate is satisfied
 - [x] F2 137x-B design cleanout gate is satisfied
 - [x] F3 137x-C structure completion gate is satisfied
-- [x] F4 owner-first optimization may reopen as `137x-D`
+- [x] F4 owner-first optimization reopened as `137x-D`
+- [ ] F5 implementation gate is open as `137x-E`
+- [ ] F6 kilo optimization returns as `137x-H` only after `137x-E/F/G` land or reject
