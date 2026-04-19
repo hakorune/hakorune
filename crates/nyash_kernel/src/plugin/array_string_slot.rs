@@ -14,6 +14,7 @@ use super::value_demand::{DemandSet, ARRAY_TEXT_OWNED_CELL, ARRAY_TEXT_READ_REF}
 use crate::exports::string_view::resolve_string_span_from_handle;
 use crate::observe::{self, CacheProbeKind as ObserveCacheProbeKind};
 use memchr::{memchr, memmem};
+use nyash_rust::box_trait::StringBox;
 use nyash_rust::runtime::host_handles as handles;
 use std::cell::RefCell;
 use std::ffi::CStr;
@@ -350,6 +351,23 @@ fn materialize_insert_const_mid_for_array_slot(source: &str, middle: &str, split
     out
 }
 
+#[inline(always)]
+fn insert_const_mid_into_string_box_value(value: &mut String, middle: &str, split: i64) {
+    if value.is_empty() {
+        value.push_str(middle);
+        return;
+    }
+    if middle.is_empty() {
+        return;
+    }
+    let split = split.clamp(0, value.len() as i64) as usize;
+    if value.is_char_boundary(split) {
+        value.insert_str(split, middle);
+        return;
+    }
+    *value = materialize_insert_const_mid_for_array_slot(value.as_str(), middle, split as i64);
+}
+
 pub(super) fn array_string_insert_const_mid_by_index_into_slot(
     slot: &mut KernelTextSlot,
     handle: i64,
@@ -378,6 +396,50 @@ pub(super) fn array_string_insert_const_mid_by_index_into_slot(
             slot.replace_owned_string(materialize_insert_const_mid_for_array_slot(
                 source, middle, split,
             ));
+            1
+        })
+    })
+    .unwrap_or(0)
+}
+
+pub(super) fn array_string_insert_const_mid_by_index_store_same_slot(
+    handle: i64,
+    idx: i64,
+    middle_ptr: *const i8,
+    split: i64,
+) -> i64 {
+    let _read_demand = array_text_read_ref_demand();
+    let _output_demand = array_text_owned_cell_demand();
+    if !valid_handle_idx(handle, idx) || middle_ptr.is_null() {
+        return 0;
+    }
+    let Ok(middle) = (unsafe { CStr::from_ptr(middle_ptr) }).to_str() else {
+        return 0;
+    };
+    observe::record_store_array_str_enter();
+    super::array_handle_cache::with_array_box(handle, |arr| {
+        let idx = idx as usize;
+        arr.with_items_write(|items| {
+            if idx >= items.len() {
+                return 0;
+            }
+            if let Some(value) = items[idx].as_any_mut().downcast_mut::<StringBox>() {
+                insert_const_mid_into_string_box_value(&mut value.value, middle, split);
+                if observe::enabled() {
+                    observe::record_store_array_str_existing_slot();
+                    observe::record_store_array_str_source_store();
+                }
+                return 1;
+            }
+            let Some(mut value) = items[idx].as_str_fast().map(str::to_owned) else {
+                return 0;
+            };
+            insert_const_mid_into_string_box_value(&mut value, middle, split);
+            items[idx] = Box::new(StringBox::new(value));
+            if observe::enabled() {
+                observe::record_store_array_str_existing_slot();
+                observe::record_store_array_str_source_store();
+            }
             1
         })
     })

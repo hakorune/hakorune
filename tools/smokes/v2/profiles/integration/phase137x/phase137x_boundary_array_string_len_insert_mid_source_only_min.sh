@@ -6,8 +6,8 @@
 #    `substring(0, split) + const + substring(split, len) -> array.set(...)`
 #    must not publish/load an object handle.
 # 2) the len result lowers to `nyash.array.string_len_hi`.
-# 3) the insert-mid store lowers to
-#    `nyash.array.kernel_slot_insert_hisi -> nyash.array.kernel_slot_store_hi`.
+# 3) the same-slot insert-mid store lowers to a single residence mutation:
+#    `nyash.array.string_insert_mid_store_hisi`.
 
 set -euo pipefail
 
@@ -84,9 +84,8 @@ if ! grep -Fq "source_only_insert_mid=1" "$BUILD_LOG"; then
 fi
 
 for needle in \
-    "nyash.array.string_len_hi" \
-    "nyash.array.kernel_slot_insert_hisi" \
-    "nyash.array.kernel_slot_store_hi"
+    "call i64 @nyash.array.string_len_hi" \
+    "call i64 @nyash.array.string_insert_mid_store_hisi"
 do
     if ! grep -Fq "$needle" "$OUT_LL"; then
         echo "[INFO] lowered IR:"
@@ -97,9 +96,17 @@ do
 done
 
 for forbidden in \
+    "call i64 @nyash.array.slot_load_hi" \
     "call i64 @\"nyash.array.slot_load_hi\"" \
+    "call i64 @nyash.array.get_hi" \
     "call i64 @\"nyash.array.get_hi\"" \
+    "call i64 @nyash.array.kernel_slot_insert_hisi" \
+    "call i64 @\"nyash.array.kernel_slot_insert_hisi\"" \
+    "call i64 @nyash.array.kernel_slot_store_hi" \
+    "call i64 @\"nyash.array.kernel_slot_store_hi\"" \
+    "call i64 @nyash.string.substring_hii" \
     "call i64 @\"nyash.string.substring_hii\"" \
+    "call i64 @nyash.string.kernel_slot_insert_hsi" \
     "call i64 @\"nyash.string.kernel_slot_insert_hsi\""
 do
     if grep -Fq "$forbidden" "$OUT_LL"; then

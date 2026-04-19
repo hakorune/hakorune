@@ -166,20 +166,28 @@ Related:
     - not keeper yet, because asm still contains the preceding `nyash.array.get_hi` in `ny_main`
     - next card is get-emission suppression for the source-only window
     - do not widen this into full `TextLane`, MIR legality, allocator, or phase-289x implementation
-- current source-only get suppression candidate:
+- current source-only get suppression + same-slot insert-mid store keeper:
   - compiler seam:
     - `array.get -> length -> substring/substring -> insert-mid set`
     - when later uses are proven source-only, the get result is kept as array text residence metadata and no object-handle get is emitted
+  - fused store seam:
+    - same-slot insert-mid lowers to runtime-private `nyash.array.string_insert_mid_store_hisi(array_h, idx, middle, split)`
+    - raw `StringBox` residence is mutated in place
+    - borrowed-handle residence is converted to an unpublished raw `StringBox` slot; the source stable handle is not mutated
   - validation:
     - new smoke: `phase137x_boundary_array_string_len_insert_mid_source_only_min.sh`
     - live-after-get regression: `phase29ck_boundary_pure_array_string_len_live_after_get_min.sh`
   - perf/asm proof:
-    - `kilo_micro_array_string_store = C 9 ms / Ny AOT 3 ms`
-    - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 59 ms`
-    - `kilo_kernel_small_hk = C 80 ms / Ny AOT 135 ms` (`repeat=3`, parity ok)
-    - `ny_main` has no `nyash.array.get_hi`; the hot edit path is `array.string_len_hi -> array.kernel_slot_insert_hisi -> array.kernel_slot_store_hi`
+    - `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
+    - `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 60 ms`
+    - `kilo_kernel_small_hk = C 79 ms / Ny AOT 102 ms` (`repeat=3`, parity ok)
+    - `ny_main` hot edit path is `array.string_len_hi -> array.string_insert_mid_store_hisi`
+    - no `nyash.array.get_hi`, `nyash.array.kernel_slot_insert_hisi`, or `nyash.array.kernel_slot_store_hi` remains on that edit path
   - boundary:
     - this is a narrow source-only window, not a `TextLane` / MIR legality / allocator phase
+  - next owner proof seam:
+    - asm top still has `array_string_store_kernel_text_slot_at`; branch suffix path still uses `array.kernel_slot_concat_his -> array.kernel_slot_store_hi`
+    - next optimization card should start from that perf/asm owner
 
 ## Snapshot
 

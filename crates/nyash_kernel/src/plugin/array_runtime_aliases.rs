@@ -4,7 +4,8 @@ use super::array_runtime_any::{
 };
 use super::array_runtime_facade::{
     array_runtime_concat_const_suffix_idx_into_slot, array_runtime_get_idx, array_runtime_has_idx,
-    array_runtime_insert_const_mid_idx_into_slot, array_runtime_set_idx_any,
+    array_runtime_insert_const_mid_idx_into_slot,
+    array_runtime_insert_const_mid_idx_store_same_slot, array_runtime_set_idx_any,
     array_runtime_set_idx_i64, array_runtime_store_array_kernel_text_slot,
     array_runtime_store_array_string,
 };
@@ -98,6 +99,16 @@ pub extern "C" fn nyash_array_kernel_slot_insert_hisi_alias(
         return 0;
     };
     array_runtime_insert_const_mid_idx_into_slot(slot, handle, idx, middle_ptr, split)
+}
+
+#[export_name = "nyash.array.string_insert_mid_store_hisi"]
+pub extern "C" fn nyash_array_string_insert_mid_store_hisi_alias(
+    handle: i64,
+    idx: i64,
+    middle_ptr: *const i8,
+    split: i64,
+) -> i64 {
+    array_runtime_insert_const_mid_idx_store_same_slot(handle, idx, middle_ptr, split)
 }
 
 #[export_name = "nyash.array.has_hi"]

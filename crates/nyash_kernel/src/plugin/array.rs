@@ -201,6 +201,103 @@ mod tests {
     }
 
     #[test]
+    fn insert_mid_store_by_index_mutates_string_slot_directly() {
+        let handle = new_array_handle();
+        let middle = std::ffi::CString::new("xx").expect("middle");
+
+        assert_eq!(
+            with_array_box(handle, |arr| arr.slot_store_box_raw(
+                0,
+                Box::new(nyash_rust::box_trait::StringBox::new("line-seed"))
+            ))
+            .unwrap_or(false),
+            true
+        );
+        let before_ptr = with_array_box(handle, |arr| {
+            arr.with_items_read(|items| {
+                items
+                    .first()
+                    .and_then(|item| {
+                        item.as_any()
+                            .downcast_ref::<nyash_rust::box_trait::StringBox>()
+                    })
+                    .map(|value| value as *const nyash_rust::box_trait::StringBox as usize)
+            })
+        })
+        .flatten();
+        assert_eq!(
+            crate::nyash_array_string_insert_mid_store_hisi_alias(handle, 0, middle.as_ptr(), 4,),
+            1
+        );
+        let stored = with_array_box(handle, |arr| {
+            arr.with_items_read(|items| {
+                let value = items.first().and_then(|item| {
+                    item.as_any()
+                        .downcast_ref::<nyash_rust::box_trait::StringBox>()
+                });
+                value.map(|value| {
+                    (
+                        value as *const nyash_rust::box_trait::StringBox as usize,
+                        value.value.clone(),
+                    )
+                })
+            })
+        })
+        .flatten();
+        assert_eq!(
+            stored.as_ref().map(|(_, text)| text.as_str()),
+            Some("linexx-seed")
+        );
+        assert_eq!(stored.map(|(ptr, _)| ptr), before_ptr);
+    }
+
+    #[test]
+    fn insert_mid_store_by_index_materializes_alias_slot_without_mutating_source() {
+        let handle = new_array_handle();
+        let seed_h = new_string_handle("line-seed");
+        let middle = std::ffi::CString::new("xx").expect("middle");
+
+        assert_eq!(nyash_array_set_his_alias(handle, 0, seed_h), 1);
+        let before_is_alias = with_array_box(handle, |arr| {
+            arr.with_items_read(|items| {
+                items.first().is_some_and(|item| {
+                    item.as_any()
+                        .downcast_ref::<crate::plugin::value_codec::BorrowedHandleBox>()
+                        .is_some()
+                })
+            })
+        })
+        .unwrap_or(false);
+        assert!(before_is_alias);
+
+        assert_eq!(
+            crate::nyash_array_string_insert_mid_store_hisi_alias(handle, 0, middle.as_ptr(), 4,),
+            1
+        );
+
+        let stored = with_array_box(handle, |arr| {
+            arr.with_items_read(|items| {
+                items.first().and_then(|item| {
+                    item.as_any()
+                        .downcast_ref::<StringBox>()
+                        .map(|value| value.value.clone())
+                })
+            })
+        })
+        .flatten();
+        assert_eq!(stored.as_deref(), Some("linexx-seed"));
+
+        let source = handles::get(seed_h as u64).and_then(|source| {
+            source
+                .as_ref()
+                .as_any()
+                .downcast_ref::<StringBox>()
+                .map(|value| value.value.clone())
+        });
+        assert_eq!(source.as_deref(), Some("line-seed"));
+    }
+
+    #[test]
     fn kernel_slot_store_existing_string_slot_keeps_borrowed_alias_wrapper() {
         let handle = new_array_handle();
         let seed_h = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(

@@ -141,7 +141,9 @@
         const char* middle_const = NULL;
         char slot_insert_ab[320];
         char slot_store_ab[128];
+        char direct_store_ab[256];
         int source_is_array_slot = 0;
+        int source_is_same_array_slot = 0;
 
         (void)ilen;
         (void)insts;
@@ -150,6 +152,48 @@
         middle_const = get_str_const(middle);
         if (!(source && middle && middle_const)) return 0;
         source_is_array_slot = find_array_string_get_source(source, &source_recv, &source_idx);
+        source_is_same_array_slot =
+            source_is_array_slot &&
+            resolve_copy_source_reg(source_recv) == resolve_copy_source_reg(recv) &&
+            resolve_copy_source_reg(source_idx) == resolve_copy_source_reg(idx);
+
+        if (source_is_same_array_slot) {
+          direct_store_ab[0] = '\0';
+          append_i64_arg_ref(direct_store_ab, sizeof(direct_store_ab), recv, 1);
+          append_i64_arg_ref(direct_store_ab, sizeof(direct_store_ab), idx, 0);
+          strncat(
+              direct_store_ab,
+              ", ptr getelementptr inbounds (",
+              sizeof(direct_store_ab) - strlen(direct_store_ab) - 1);
+          {
+            char tail[128];
+            snprintf(
+                tail,
+                sizeof(tail),
+                "[%zu x i8], ptr @.str_reg_%lld, i64 0, i64 0)",
+                strlen(middle_const) + 1,
+                middle);
+            strncat(
+                direct_store_ab,
+                tail,
+                sizeof(direct_store_ab) - strlen(direct_store_ab) - 1);
+          }
+          append_i64_arg_ref(direct_store_ab, sizeof(direct_store_ab), split, 0);
+          if (dst) {
+            fprintf(
+                f,
+                "  %%r%lld = call i64 @\"nyash.array.string_insert_mid_store_hisi\"(%s)\n",
+                dst,
+                direct_store_ab);
+            set_type(dst, T_I64);
+          } else {
+            fprintf(
+                f,
+                "  call i64 @\"nyash.array.string_insert_mid_store_hisi\"(%s)\n",
+                direct_store_ab);
+          }
+          return 1;
+        }
 
         fprintf(
             f,
