@@ -326,6 +326,58 @@ pub(super) fn array_string_concat_const_suffix_by_index_into_slot(
 }
 
 #[inline(always)]
+fn append_const_suffix_to_string_box_value(value: &mut String, suffix: &str) {
+    if suffix.is_empty() {
+        return;
+    }
+    value.reserve(suffix.len());
+    value.push_str(suffix);
+}
+
+pub(super) fn array_string_concat_const_suffix_by_index_store_same_slot(
+    handle: i64,
+    idx: i64,
+    suffix_ptr: *const i8,
+) -> i64 {
+    let _read_demand = array_text_read_ref_demand();
+    let _output_demand = array_text_owned_cell_demand();
+    if !valid_handle_idx(handle, idx) || suffix_ptr.is_null() {
+        return 0;
+    }
+    let Ok(suffix) = (unsafe { CStr::from_ptr(suffix_ptr) }).to_str() else {
+        return 0;
+    };
+    observe::record_store_array_str_enter();
+    super::array_handle_cache::with_array_box(handle, |arr| {
+        let idx = idx as usize;
+        arr.with_items_write(|items| {
+            if idx >= items.len() {
+                return 0;
+            }
+            if let Some(value) = items[idx].as_any_mut().downcast_mut::<StringBox>() {
+                append_const_suffix_to_string_box_value(&mut value.value, suffix);
+                if observe::enabled() {
+                    observe::record_store_array_str_existing_slot();
+                    observe::record_store_array_str_source_store();
+                }
+                return 1;
+            }
+            let Some(mut value) = items[idx].as_str_fast().map(str::to_owned) else {
+                return 0;
+            };
+            append_const_suffix_to_string_box_value(&mut value, suffix);
+            items[idx] = Box::new(StringBox::new(value));
+            if observe::enabled() {
+                observe::record_store_array_str_existing_slot();
+                observe::record_store_array_str_source_store();
+            }
+            1
+        })
+    })
+    .unwrap_or(0)
+}
+
+#[inline(always)]
 fn materialize_insert_const_mid_for_array_slot(source: &str, middle: &str, split: i64) -> String {
     if source.is_empty() {
         return middle.to_owned();

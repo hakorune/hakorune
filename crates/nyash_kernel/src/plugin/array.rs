@@ -161,6 +161,83 @@ mod tests {
     }
 
     #[test]
+    fn suffix_store_by_index_mutates_string_slot_directly() {
+        let handle = new_array_handle();
+        let suffix = std::ffi::CString::new("xy").expect("suffix");
+
+        assert_eq!(
+            with_array_box(handle, |arr| arr
+                .slot_store_box_raw(0, Box::new(StringBox::new("line-seed"))))
+            .unwrap_or(false),
+            true
+        );
+        let before_ptr = with_array_box(handle, |arr| {
+            arr.with_items_read(|items| {
+                items
+                    .first()
+                    .and_then(|item| item.as_any().downcast_ref::<StringBox>())
+                    .map(|value| value as *const StringBox as usize)
+            })
+        })
+        .flatten();
+
+        assert_eq!(
+            crate::nyash_array_string_suffix_store_his_alias(handle, 0, suffix.as_ptr(),),
+            1
+        );
+
+        let stored = with_array_box(handle, |arr| {
+            arr.with_items_read(|items| {
+                items.first().and_then(|item| {
+                    item.as_any()
+                        .downcast_ref::<StringBox>()
+                        .map(|value| (value as *const StringBox as usize, value.value.clone()))
+                })
+            })
+        })
+        .flatten();
+        assert_eq!(
+            stored.as_ref().map(|(_, text)| text.as_str()),
+            Some("line-seedxy")
+        );
+        assert_eq!(stored.map(|(ptr, _)| ptr), before_ptr);
+    }
+
+    #[test]
+    fn suffix_store_by_index_materializes_alias_slot_without_mutating_source() {
+        let handle = new_array_handle();
+        let seed_h = new_string_handle("line-seed");
+        let suffix = std::ffi::CString::new("xy").expect("suffix");
+
+        assert_eq!(nyash_array_set_his_alias(handle, 0, seed_h), 1);
+        assert_eq!(
+            crate::nyash_array_string_suffix_store_his_alias(handle, 0, suffix.as_ptr(),),
+            1
+        );
+
+        let stored = with_array_box(handle, |arr| {
+            arr.with_items_read(|items| {
+                items.first().and_then(|item| {
+                    item.as_any()
+                        .downcast_ref::<StringBox>()
+                        .map(|value| value.value.clone())
+                })
+            })
+        })
+        .flatten();
+        assert_eq!(stored.as_deref(), Some("line-seedxy"));
+
+        let source = handles::get(seed_h as u64).and_then(|source| {
+            source
+                .as_ref()
+                .as_any()
+                .downcast_ref::<StringBox>()
+                .map(|value| value.value.clone())
+        });
+        assert_eq!(source.as_deref(), Some("line-seed"));
+    }
+
+    #[test]
     fn kernel_slot_insert_by_index_reads_string_slot_directly() {
         let handle = new_array_handle();
         let seed_h = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(

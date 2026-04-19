@@ -8,7 +8,7 @@
 #    the original fetched string is still consumed in the then-block.
 # 2) accepted lowering emits `nyash.array.string_indexof_hih` for the observer
 #    and routes the then-block same-slot suffix store through
-#    `nyash.array.kernel_slot_concat_his` without reloading a stable string.
+#    `nyash.array.string_suffix_store_his` without reloading a stable string.
 # 3) the supported seed emits an object without falling through to
 #    `ny-llvmc --driver harness`.
 
@@ -107,17 +107,24 @@ if grep -E 'call .*nyash\.array\.slot_load_hi' "$LL_DUMP" >/dev/null 2>&1; then
     exit 1
 fi
 
-if ! grep -E 'call .*nyash\.array\.kernel_slot_concat_his' "$LL_DUMP" >/dev/null 2>&1; then
+if ! grep -E 'call .*nyash\.array\.string_suffix_store_his' "$LL_DUMP" >/dev/null 2>&1; then
     echo "[INFO] lowered IR:"
     tail -n 120 "$LL_DUMP" || true
-    test_fail "phase29ck_boundary_pure_array_string_indexof_branch_live_after_get_min: lowered IR did not use by-index kernel const-suffix concat"
+    test_fail "phase29ck_boundary_pure_array_string_indexof_branch_live_after_get_min: lowered IR did not use same-slot const-suffix store"
     exit 1
 fi
 
-if ! grep -E 'call .*nyash\.array\.kernel_slot_store_hi' "$LL_DUMP" >/dev/null 2>&1; then
+if grep -E 'call .*nyash\.array\.kernel_slot_concat_his' "$LL_DUMP" >/dev/null 2>&1; then
     echo "[INFO] lowered IR:"
     tail -n 120 "$LL_DUMP" || true
-    test_fail "phase29ck_boundary_pure_array_string_indexof_branch_live_after_get_min: lowered IR did not store the kernel text slot back into the array"
+    test_fail "phase29ck_boundary_pure_array_string_indexof_branch_live_after_get_min: lowered IR still uses by-index kernel const-suffix concat"
+    exit 1
+fi
+
+if grep -E 'call .*nyash\.array\.kernel_slot_store_hi' "$LL_DUMP" >/dev/null 2>&1; then
+    echo "[INFO] lowered IR:"
+    tail -n 120 "$LL_DUMP" || true
+    test_fail "phase29ck_boundary_pure_array_string_indexof_branch_live_after_get_min: lowered IR still stores through a kernel text slot"
     exit 1
 fi
 

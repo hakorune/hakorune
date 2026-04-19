@@ -3,8 +3,9 @@ use super::array_runtime_any::{
     array_runtime_get_any_key, array_runtime_has_any_key, array_runtime_set_any_key,
 };
 use super::array_runtime_facade::{
-    array_runtime_concat_const_suffix_idx_into_slot, array_runtime_get_idx, array_runtime_has_idx,
-    array_runtime_insert_const_mid_idx_into_slot,
+    array_runtime_concat_const_suffix_idx_into_slot,
+    array_runtime_concat_const_suffix_idx_store_same_slot, array_runtime_get_idx,
+    array_runtime_has_idx, array_runtime_insert_const_mid_idx_into_slot,
     array_runtime_insert_const_mid_idx_store_same_slot, array_runtime_set_idx_any,
     array_runtime_set_idx_i64, array_runtime_store_array_kernel_text_slot,
     array_runtime_store_array_string,
@@ -85,6 +86,15 @@ pub extern "C" fn nyash_array_kernel_slot_concat_his_alias(
         return 0;
     };
     array_runtime_concat_const_suffix_idx_into_slot(slot, handle, idx, suffix_ptr)
+}
+
+#[export_name = "nyash.array.string_suffix_store_his"]
+pub extern "C" fn nyash_array_string_suffix_store_his_alias(
+    handle: i64,
+    idx: i64,
+    suffix_ptr: *const i8,
+) -> i64 {
+    array_runtime_concat_const_suffix_idx_store_same_slot(handle, idx, suffix_ptr)
 }
 
 #[export_name = "nyash.array.kernel_slot_insert_hisi"]

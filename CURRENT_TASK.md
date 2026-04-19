@@ -187,12 +187,16 @@ Scope: current lane / next lane / restart order only.
           - this is not keeper proof yet
           - asm still shows the preceding `nyash.array.get_hi` call in `ny_main`
           - next card must suppress the now source-only `array.get_hi` emission safely; do not expand into `TextLane` / MIR legality / allocator work
-      - current source-only get suppression + same-slot insert-mid store keeper:
+      - current source-only get suppression + same-slot string store keeper:
         - compiler seam: `array.get -> length -> substring/substring -> insert-mid set` records the array text source and skips the object-handle get when later uses are proven source-only
-        - fused store seam:
+        - fused insert-mid store seam:
           - same-slot insert-mid now lowers to runtime-private `nyash.array.string_insert_mid_store_hisi(array_h, idx, middle, split)`
           - the runtime mutates an existing raw `StringBox` residence in place
           - borrowed-handle residences are materialized into an unpublished raw `StringBox` slot without mutating the source stable handle
+        - fused suffix store seam:
+          - branch same-slot const-suffix store now lowers to runtime-private `nyash.array.string_suffix_store_his(array_h, idx, suffix)`
+          - the C lowering no longer allocates a `KernelTextSlot` for this branch path
+          - the runtime applies the same residence rule as insert-mid: mutate raw `StringBox`, materialize borrowed alias to unpublished raw `StringBox`
         - fixture/smoke:
           - `apps/tests/mir_shape_guard/array_string_len_insert_mid_source_only_min_v1.mir.json`
           - `tools/smokes/v2/profiles/integration/phase137x/phase137x_boundary_array_string_len_insert_mid_source_only_min.sh`
@@ -200,18 +204,20 @@ Scope: current lane / next lane / restart order only.
           - `tools/smokes/v2/profiles/integration/phase29ck_boundary/string/phase29ck_boundary_pure_array_string_len_live_after_get_min.sh`
           - still requires `slot_load_hi` when later substring values remain live
         - perf/asm proof:
-          - exact: `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
-          - meso: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 60 ms`
-          - strict whole: `kilo_kernel_small_hk = C 79 ms / Ny AOT 102 ms` (`repeat=3`, parity ok)
-          - `ny_main` now emits `array.string_len_hi -> array.string_insert_mid_store_hisi` on the source-only edit path
-          - no `nyash.array.get_hi`, `nyash.array.kernel_slot_insert_hisi`, or `nyash.array.kernel_slot_store_hi` remains on that edit path
+          - exact: `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`
+          - meso: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 63 ms`
+          - strict whole: `kilo_kernel_small_hk = C 81 ms / Ny AOT 28 ms` (`repeat=3`, parity ok)
+          - `ny_main` now emits:
+            - edit path: `array.string_len_hi -> array.string_insert_mid_store_hisi`
+            - branch suffix path: `array.string_indexof_hih -> array.string_suffix_store_his`
+          - no `nyash.array.get_hi`, `nyash.array.kernel_slot_insert_hisi`, `nyash.array.kernel_slot_concat_his`, or `nyash.array.kernel_slot_store_hi` remains on those same-slot paths
         - boundary:
           - this is still a narrow source-only window
           - live-after-get substring reuse keeps object-handle loading
           - full `TextLane`, MIR legality, allocator, and broad container lane-hosting remain separate later phases
         - next owner proof seam:
-          - asm top still shows `array_string_store_kernel_text_slot_at` and branch suffix path still uses `array.kernel_slot_concat_his -> array.kernel_slot_store_hi`
-          - next card should start from perf/asm on that owner; do not widen into runtime-wide `TextLane`
+          - asm top moved to `__strlen_evex`, `memchr`, `array_string_concat_const_suffix_by_index_store_same_slot`, `array_string_indexof_by_index`, and `array_string_len_by_index`
+          - next card should start from perf/asm on those concrete helper interiors; do not widen into runtime-wide `TextLane`
   - good cut point:
     - the Phase 2.5 read-side alias lane now has array/map proof on all three read outcomes:
       - `live source`

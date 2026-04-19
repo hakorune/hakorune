@@ -248,10 +248,12 @@
       - boundary:
         - this is structure, not keeper proof
         - next card must remove the source-only `array.get_hi` emission; do not add another helper-only cut that leaves the producer get live
-    - current source-only get suppression + same-slot insert-mid store keeper:
+    - current source-only get suppression + same-slot string store keeper:
       - `array.get -> length -> substring(0, split) + const + substring(split, len) -> array.set(...)` now has a dedicated source-only len-window guard
       - lowering records the array text source with `remember_array_string_get_source(...)`, emits `nyash.array.string_len_hi`, and skips the object-handle get when no later consumer needs the fetched object
       - same-slot insert-mid store now lowers to runtime-private `nyash.array.string_insert_mid_store_hisi(array_h, idx, middle, split)`
+      - branch same-slot const-suffix store now lowers to runtime-private `nyash.array.string_suffix_store_his(array_h, idx, suffix)`
+      - the same-slot suffix branch no longer allocates a `KernelTextSlot`
       - runtime residence rule:
         - existing raw `StringBox` slot is mutated in place
         - borrowed-handle slot is materialized into an unpublished raw `StringBox` residence
@@ -263,18 +265,19 @@
         - `tools/smokes/v2/profiles/integration/phase29ck_boundary/string/phase29ck_boundary_pure_array_string_len_live_after_get_min.sh`
         - live-after-get substring reuse still keeps `nyash.array.slot_load_hi`
       - perf/asm proof:
-        - exact: `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
-        - meso: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 60 ms`
-        - strict whole: `kilo_kernel_small_hk = C 79 ms / Ny AOT 102 ms` (`repeat=3`, parity ok)
-        - `ny_main` no longer calls `nyash.array.get_hi`; hot edit path is `nyash.array.string_len_hi -> nyash.array.string_insert_mid_store_hisi`
-        - the source-only edit path has no `nyash.array.kernel_slot_insert_hisi` or `nyash.array.kernel_slot_store_hi`
+        - exact: `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`
+        - meso: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 63 ms`
+        - strict whole: `kilo_kernel_small_hk = C 81 ms / Ny AOT 28 ms` (`repeat=3`, parity ok)
+        - `ny_main` no longer calls `nyash.array.get_hi`
+        - hot edit path is `nyash.array.string_len_hi -> nyash.array.string_insert_mid_store_hisi`
+        - branch suffix path is `nyash.array.string_indexof_hih -> nyash.array.string_suffix_store_his`
+        - same-slot paths have no `nyash.array.kernel_slot_insert_hisi`, `nyash.array.kernel_slot_concat_his`, or `nyash.array.kernel_slot_store_hi`
       - boundary:
         - narrow source-only window only
         - do not generalize this into full `TextLane`, MIR legality, allocator, or broad container lane-hosting without a separate phase gate
       - next owner proof seam:
-        - asm top still has `array_string_store_kernel_text_slot_at`
-        - branch suffix path still uses `nyash.array.kernel_slot_concat_his -> nyash.array.kernel_slot_store_hi`
-        - next card should start from that perf/asm owner, not from a broad `TextLane` cut
+        - asm top moved to `__strlen_evex`, `memchr`, `array_string_concat_const_suffix_by_index_store_same_slot`, `array_string_indexof_by_index`, and `array_string_len_by_index`
+        - next card should start from those helper interiors, not from a broad `TextLane` cut
   - reading:
     - phase 2.5 no longer has only the `array.get` cached-handle proof
     - exact stays closed, but meso / strict whole reopened upward versus the prior `57 ms` / `791 ms` band

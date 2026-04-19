@@ -5,6 +5,7 @@ use super::array_slot_store::{
 };
 use super::array_string_slot::{
     array_string_concat_const_suffix_by_index_into_slot,
+    array_string_concat_const_suffix_by_index_store_same_slot,
     array_string_insert_const_mid_by_index_into_slot,
     array_string_insert_const_mid_by_index_store_same_slot,
 };
@@ -50,6 +51,14 @@ pub(super) fn array_runtime_concat_const_suffix_idx_into_slot(
     suffix_ptr: *const i8,
 ) -> i64 {
     array_string_concat_const_suffix_by_index_into_slot(slot, handle, idx, suffix_ptr)
+}
+
+pub(super) fn array_runtime_concat_const_suffix_idx_store_same_slot(
+    handle: i64,
+    idx: i64,
+    suffix_ptr: *const i8,
+) -> i64 {
+    array_string_concat_const_suffix_by_index_store_same_slot(handle, idx, suffix_ptr)
 }
 
 pub(super) fn array_runtime_insert_const_mid_idx_into_slot(
