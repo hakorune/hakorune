@@ -40,6 +40,7 @@ pub mod runtime_data;
 pub mod semantics;
 pub mod string;
 mod value_codec;
+pub(crate) mod value_demand;
 
 pub use array::*;
 pub use birth::*;

@@ -101,6 +101,13 @@ MutationDemand::{InvalidateAliases, DropEpoch}
 
 It must not change exported ABI or lowering behavior.
 
+Status:
+
+```text
+landed in code as runtime-private vocabulary
+behavior unchanged
+```
+
 ## Acceptance
 
 - public Array semantics stay identity-container based

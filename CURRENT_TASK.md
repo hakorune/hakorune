@@ -79,7 +79,11 @@ Scope: current lane / next lane / restart order only.
     - `289x-1g` demand vocabulary ledger is done
     - `289x-2d` Array/Map demand table is done
     - `289x-3a` selected pilot is Array text residence through `KernelTextSlot` store
-    - next code cut: add runtime-private demand vocabulary module, behavior unchanged
+    - first code cut landed:
+      - `crates/nyash_kernel/src/plugin/value_demand.rs`
+      - runtime-private demand vocabulary, behavior unchanged
+    - next code cut:
+      - thread demand constants through Array text-residence leaves without changing lowering behavior
     - keep this as planning debt, not a runtime-wide implementation unblock by itself
 - current blocker:
   - `none`

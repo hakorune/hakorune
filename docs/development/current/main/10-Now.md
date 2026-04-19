@@ -59,7 +59,11 @@ Related:
     - `289x-1g` demand vocabulary ledger is done
     - `289x-2d` Array/Map demand table is done
     - `289x-3a` selected pilot is Array text residence through `KernelTextSlot` store
-    - next code cut: add runtime-private demand vocabulary module, behavior unchanged
+    - first code cut landed:
+      - `crates/nyash_kernel/src/plugin/value_demand.rs`
+      - runtime-private demand vocabulary, behavior unchanged
+    - next code cut:
+      - thread demand constants through Array text-residence leaves without changing lowering behavior
     - planning/docs debt only; not a runtime-wide implementation unblock by itself
 - blocker:
   - `none`
