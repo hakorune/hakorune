@@ -923,8 +923,8 @@ Scope: current lane / next lane / restart order only.
         - `src/mir/verification/string_kernel.rs` now fail-fasts direct-kernel plans when `publish.text` metadata is partial, when `explicit_cold_publish` lacks `publication_boundary=first_external_boundary`, or when the current lane deviates from `publish.text(explicit_api_replay, stable_owned)`
         - verifier now treats publication boundary metadata as lowering-owned contract instead of letting unsupported bridge shapes slip toward codegen/runtime
       - next design/implementation cards after the review feedback:
-        - `repr-downgrade-contract`
-          - lock `repr` as request-not-guarantee and define when lowering/verifier may conservatively downgrade `StableView`
+        - completed `repr-downgrade-contract`
+          - verifier now fail-fasts unproven `StableView` repr requests before runtime; lowering must downgrade to `stable_owned` until legality is verifier-visible
         - `stableview-legality-contract`
           - fix the provenance / mutability / lifetime conditions that make public `StableView` replay legal
         - `provenance-freeze-verifier-contract`

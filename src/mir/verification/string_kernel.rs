@@ -57,6 +57,14 @@ fn verify_publication_boundary_contract(
 ) {
     let publish_pair = publication_metadata_pair(value, plan, errors);
 
+    if matches!(publish_pair, Some((_, StringPublishReprPolicy::StableView))) {
+        push_string_kernel_plan_violation(
+            errors,
+            value,
+            "stable_view repr request is not a guarantee; lowering must downgrade to stable_owned unless StableView legality is verifier-visible",
+        );
+    }
+
     if publish_pair.is_some() && plan.publication_boundary.is_none() {
         push_string_kernel_plan_violation(
             errors,
@@ -109,6 +117,7 @@ fn verify_publication_boundary_contract(
 
     match publish_pair {
         Some((StringPublishReason::ExplicitApiReplay, StringPublishReprPolicy::StableOwned)) => {}
+        Some((StringPublishReason::ExplicitApiReplay, StringPublishReprPolicy::StableView)) => {}
         Some((reason, repr)) => {
             push_string_kernel_plan_violation(
                 errors,
@@ -417,6 +426,27 @@ mod tests {
             error,
             VerificationError::StringKernelPlanViolation { reason, .. }
                 if reason.contains("publish.text metadata is partial")
+        )));
+    }
+
+    #[test]
+    fn verifier_rejects_unproven_stable_view_publish_request() {
+        let mut function = slot_text_function();
+        let mut plan = base_slot_plan(StringKernelPlanCarrier::KernelTextSlot);
+        plan.text_consumer = Some(StringKernelPlanTextConsumer::ExplicitColdPublish);
+        plan.publish_reason = Some(crate::mir::StringPublishReason::ExplicitApiReplay);
+        plan.publish_repr_policy = Some(crate::mir::StringPublishReprPolicy::StableView);
+        function
+            .metadata
+            .string_kernel_plans
+            .insert(ValueId::new(10), plan);
+
+        let errors =
+            check_string_kernel_plans(&function).expect_err("expected stable_view failure");
+        assert!(errors.iter().any(|error| matches!(
+            error,
+            VerificationError::StringKernelPlanViolation { reason, .. }
+                if reason.contains("stable_view repr request is not a guarantee")
         )));
     }
 }

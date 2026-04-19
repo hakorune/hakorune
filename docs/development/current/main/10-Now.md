@@ -573,7 +573,8 @@ Related:
     - next follow-up is verifier visibility for borrow-scope and `freeze.str -> publish.text` separation, not `publish.any`
 4. cut the phase before optimization return
    - current gate is `137x-A`: string publication contract closeout
-   - do not reopen owner-first perf work until `repr-downgrade`, `StableView legality`, `provenance/freeze verifier`, and `publish` idempotence are locked
+   - `repr-downgrade-contract` is closed: unproven `stable_view` requests now fail before runtime and must be downgraded by lowering
+   - do not reopen owner-first perf work until remaining `StableView legality`, `provenance/freeze verifier`, and `publish` idempotence are locked
 5. require a fresh narrow owner proof before wider perf edits
     - acceptable seam: reduce read/materialize/copy tax without changing public ABI
     - reject seam: store-side `owned-string keep` / `owned-text keep` or any change that makes `array.get` publish per read

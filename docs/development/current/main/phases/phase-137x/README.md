@@ -42,11 +42,13 @@
 - current phase cut before optimization return:
   - `137x-A`: string publication contract closeout (`137x-92-string-publication-contract-closeout.md`)
   - `137x-B`: owner-first optimization return only after the closeout gate lands
-- current closeout cards:
-  - `repr-downgrade-contract`
-  - `stableview-legality-contract`
-  - `provenance-freeze-verifier-contract`
-  - `publish-idempotence-policy`
+- current closeout status:
+  - done: `repr-downgrade-contract`
+    - verifier now rejects unproven `stable_view` repr requests before runtime; lowering must downgrade to `stable_owned` until StableView legality is verifier-visible
+  - remaining before perf return:
+    - `stableview-legality-contract`
+    - `provenance-freeze-verifier-contract`
+    - `publish-idempotence-policy`
 - long-range successor stays parked:
   - phase-289x planning-only `Value Lane Architecture`
   - no runtime-wide implementation starts from this cut
