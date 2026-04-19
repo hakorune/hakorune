@@ -3,6 +3,7 @@ mod span_resolve;
 #[path = "string_view/substring_plan.rs"]
 mod substring_plan;
 
+use crate::plugin::TextRef;
 use nyash_rust::box_trait::{BoolBox, BoxBase, BoxCore, NyashBox, StringBox};
 use std::any::Any;
 use std::sync::Arc;
@@ -11,10 +12,9 @@ use std::sync::Arc;
 // Keep borrowed view/span ownership in Rust even if higher-level String semantics move toward
 // `.hako` owner code. This file is native substrate, not a semantic owner.
 
-/// StringView(base_handle, [start, end)) keeps substring metadata only.
-/// v0 contract:
-/// - read-only string helpers resolve via this metadata without eager copy
-/// - clone/materialize boundaries convert to StringBox to avoid long-lived base retention
+/// Object-boundary stable substring view.
+/// Internal semantic read carriers should prefer `StringSpan` / `TextRef`; this box
+/// exists for object-world API/compat behavior and materializes on clone/share.
 #[derive(Clone)]
 pub(crate) struct StringViewBox {
     pub(crate) base_handle: i64,
@@ -59,7 +59,7 @@ impl StringViewBox {
     #[inline(always)]
     fn materialize_owned(&self) -> String {
         span_resolve::resolve_string_span_from_view(self)
-            .map(|span| span.as_str().to_string())
+            .map(|span| span.as_text().to_string())
             .unwrap_or_default()
     }
 }
@@ -118,6 +118,8 @@ impl NyashBox for StringViewBox {
 
 #[derive(Clone)]
 pub(crate) struct StringSpan {
+    /// Runtime-private semantic read carrier for substring planning.
+    /// This is closer to future `TextRef` than to object-world `StringViewBox`.
     /// Root base handle (StringBox) this span refers to.
     base_handle: i64,
     /// Root StringBox object.
@@ -156,6 +158,11 @@ impl StringSpan {
             return "";
         };
         sb.value.get(self.start..self.end).unwrap_or("")
+    }
+
+    #[inline(always)]
+    pub(crate) fn as_text(&self) -> TextRef<'_> {
+        TextRef::new(self.as_str())
     }
 
     #[inline(always)]

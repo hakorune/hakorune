@@ -213,7 +213,7 @@ pub(super) fn string_charcode_at_export_impl(handle: i64, idx: i64) -> i64 {
         return -1;
     }
     if let Some(span) = resolve_string_span_from_handle(handle) {
-        let s = span.as_str();
+        let s = span.as_text();
         let i = idx as usize;
         if i < s.len() {
             return s.as_bytes()[i] as i64;

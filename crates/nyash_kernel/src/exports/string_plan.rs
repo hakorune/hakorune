@@ -29,7 +29,7 @@ impl<'a> TextPiece<'a> {
     fn append_to_reserved(&self, out: &mut String) {
         match self {
             Self::Span(span) => {
-                let text = span.as_str();
+                let text = span.as_text();
                 let len = text.len();
                 if len == 0 {
                     return;
@@ -257,7 +257,7 @@ impl<'a> TextPlan<'a> {
         }
         match self {
             Self::View1(span) => {
-                let source = span.as_str();
+                let source = span.as_text();
                 let split = split.min(source.len());
                 let prefix = span.slice_range(0, split);
                 let suffix = span.slice_range(split, source.len());
@@ -289,7 +289,7 @@ impl<'a> TextPlan<'a> {
     pub(crate) fn into_owned(self) -> String {
         match self {
             Self::View1(span) => {
-                let text = span.as_str();
+                let text = span.as_text();
                 if text.is_empty() {
                     String::new()
                 } else {

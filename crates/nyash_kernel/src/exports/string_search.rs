@@ -1,4 +1,5 @@
 use super::string_view::{resolve_string_span_from_handle, resolve_string_span_pair_from_handles};
+use crate::plugin::TextRef;
 use memchr::{memchr, memmem, memrchr};
 use nyash_rust::runtime::host_handles as handles;
 
@@ -91,36 +92,43 @@ fn rfind_substr_byte_index_small(hay_b: &[u8], nee_b: &[u8]) -> Option<usize> {
 pub(crate) fn with_string_pair_fast_str<R>(
     a_h: i64,
     b_h: i64,
-    f: impl FnOnce(&str, &str) -> R,
+    f: impl FnOnce(TextRef<'_>, TextRef<'_>) -> R,
 ) -> Option<R> {
     if a_h <= 0 || b_h <= 0 {
         return None;
     }
-    handles::with_str_pair(a_h as u64, b_h as u64, f)
+    handles::with_str_pair(a_h as u64, b_h as u64, |a, b| {
+        f(TextRef::new(a), TextRef::new(b))
+    })
 }
 
 pub(crate) fn with_string_pair_span<R>(
     a_h: i64,
     b_h: i64,
-    f: impl FnOnce(&str, &str) -> R,
+    f: impl FnOnce(TextRef<'_>, TextRef<'_>) -> R,
 ) -> Option<R> {
     let (a_span, b_span) = resolve_string_span_pair_from_handles(a_h, b_h)?;
-    Some(f(a_span.as_str(), b_span.as_str()))
+    Some(f(a_span.as_text(), b_span.as_text()))
 }
 
 pub(crate) fn with_string_pair_lossy_span<R>(
     a_h: i64,
     b_h: i64,
-    f: impl FnOnce(&str, &str) -> R,
+    f: impl FnOnce(TextRef<'_>, TextRef<'_>) -> R,
 ) -> R {
+    let empty = TextRef::new("");
     let a_span = resolve_string_span_from_handle(a_h);
     let b_span = resolve_string_span_from_handle(b_h);
-    let a = a_span.as_ref().map(|span| span.as_str()).unwrap_or("");
-    let b = b_span.as_ref().map(|span| span.as_str()).unwrap_or("");
+    let a = a_span.as_ref().map(|span| span.as_text()).unwrap_or(empty);
+    let b = b_span.as_ref().map(|span| span.as_text()).unwrap_or(empty);
     f(a, b)
 }
 
-pub(crate) fn with_lossy_string_pair<R>(a_h: i64, b_h: i64, f: impl FnOnce(&str, &str) -> R) -> R {
+pub(crate) fn with_lossy_string_pair<R>(
+    a_h: i64,
+    b_h: i64,
+    f: impl FnOnce(TextRef<'_>, TextRef<'_>) -> R,
+) -> R {
     let mut f_opt = Some(f);
     if let Some(out) = with_string_pair_fast_str(a_h, b_h, |a, b| {
         let f = f_opt
@@ -153,11 +161,13 @@ pub(crate) fn search_string_pair_hh(
     empty_result: fn(&str) -> i64,
     search: fn(&str, &str) -> Option<usize>,
 ) -> i64 {
-    let eval = |hay: &str, nee: &str| -> i64 {
+    let eval = |hay: TextRef<'_>, nee: TextRef<'_>| -> i64 {
         if nee.is_empty() {
-            return empty_result(hay);
+            return empty_result(hay.as_str());
         }
-        search(hay, nee).map(|pos| pos as i64).unwrap_or(-1)
+        search(hay.as_str(), nee.as_str())
+            .map(|pos| pos as i64)
+            .unwrap_or(-1)
     };
 
     with_lossy_string_pair(hay_h, needle_h, |hay, nee| eval(hay, nee))
@@ -165,5 +175,7 @@ pub(crate) fn search_string_pair_hh(
 
 #[inline(always)]
 pub(crate) fn compare_string_pair_hh(lhs_h: i64, rhs_h: i64, cmp: fn(&str, &str) -> bool) -> i64 {
-    with_lossy_string_pair(lhs_h, rhs_h, |lhs, rhs| bool_to_i64(cmp(lhs, rhs)))
+    with_lossy_string_pair(lhs_h, rhs_h, |lhs, rhs| {
+        bool_to_i64(cmp(lhs.as_str(), rhs.as_str()))
+    })
 }

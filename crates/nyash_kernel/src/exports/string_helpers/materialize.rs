@@ -232,7 +232,7 @@ fn string_handle_from_owned_with_site(value: String, site: StringPublishSite) ->
 
 #[inline(always)]
 pub(super) fn string_handle_from_span(span: StringSpan) -> i64 {
-    let source = span.as_str();
+    let source = span.as_text();
     if source.is_empty() {
         if string_trace::enabled() {
             string_trace::emit(
@@ -452,6 +452,6 @@ pub(super) fn concat_to_string_handle(parts: &[&str]) -> i64 {
 #[inline(always)]
 pub(crate) fn to_owned_string_handle_arg(h: i64) -> String {
     resolve_string_span_from_handle(h)
-        .map(|span| span.as_str().to_string())
+        .map(|span| span.as_text().to_string())
         .unwrap_or_default()
 }

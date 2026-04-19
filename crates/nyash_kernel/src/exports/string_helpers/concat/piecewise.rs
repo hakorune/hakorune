@@ -117,7 +117,7 @@ fn with_kernel_text_slot_source_text<R>(
     match slot.state() {
         KernelTextSlotState::Empty => Some(f("")),
         KernelTextSlotState::OwnedBytes | KernelTextSlotState::DeferredConstSuffix => {
-            with_kernel_text_slot_text(slot, f)
+            with_kernel_text_slot_text(slot, |text| f(text.as_str()))
         }
         KernelTextSlotState::Published => None,
     }
