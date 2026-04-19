@@ -164,6 +164,10 @@ Reading:
   - `PublishReason::demand()` maps publish reason names to runtime-private `PublishDemand`
   - publish helpers bind boundary-effect demand before old observation/objectization branches
 - `289x-3f`: Rust array generic load/encode demand tags
+  - status: done in code; behavior unchanged
+  - array encoded get/load sites bind `ARRAY_GENERIC_GET_ENCODED`
+  - demand names immediate encode, borrowed alias encode, and stable object fallback
+- `289x-3g`: Rust array store/append demand tags
   - behavior unchanged; next runtime cutover cluster
 - `289x-5a`: bytes/view planning
   - prevent text-only patterns from being copied into bytes later

@@ -116,7 +116,8 @@ Task state:
 - `289x-3c`: done in code, `CodecProfile -> DemandSet`, behavior unchanged
 - `289x-3d`: done in code, `BorrowedAliasEncodeCaller -> DemandSet`, behavior unchanged
 - `289x-3e`: done in code, `PublishReason -> PublishDemand`, behavior unchanged
-- `289x-3f`: next Rust cut, array generic load/encode demand tags, behavior unchanged
+- `289x-3f`: done in code, array generic load/encode demand tags, behavior unchanged
+- `289x-3g`: next Rust cut, array store/append demand tags, behavior unchanged
 - `289x-7e` / `289x-7f`: high-risk C shim emission/window work is planned later, not skipped
 - optimization return: blocked until all `289x-96` clusters are done or explicitly rejected
 
@@ -300,9 +301,12 @@ No-go:
   - `PublishReason::demand()` is the runtime-private bridge from publish reason names to `PublishDemand`
   - old observation/objectization branches remain the executor
 - `289x-3f`: Rust array generic load/encode demand tags
-  - status: next
+  - status: done in code
   - behavior unchanged
+  - array encoded get/load sites bind `ARRAY_GENERIC_GET_ENCODED`
+  - old scalar/alias/stable fallback branches remain the executor
 - `289x-3g`: Rust array store/append demand tags
+  - status: next
   - behavior unchanged
 - `289x-3h`: `KernelTextSlotState` demand bridge
   - high-risk; no ABI change

@@ -98,8 +98,12 @@ Scope: current lane / next lane / restart order only.
       - `PublishReason::demand()` maps publish reason names to runtime-private `PublishDemand`
       - publish helpers now bind boundary-effect demand before old observation/objectization branches
       - behavior unchanged
+    - `289x-3f` landed:
+      - array encoded get/load sites now bind `ARRAY_GENERIC_GET_ENCODED`
+      - demand names immediate encode, borrowed alias encode, and stable object fallback for generic array reads
+      - behavior unchanged
     - next code cut:
-      - `289x-3f`: Rust array generic load/encode demand tags, behavior unchanged
+      - `289x-3g`: Rust array store/append demand tags, behavior unchanged
     - high-risk planned later, not skipped:
       - concrete `slot_load_hi` / `slot_store` emission changes: `289x-7e`
       - `runtime_array_string` observer/window matcher rewrites: `289x-7f`

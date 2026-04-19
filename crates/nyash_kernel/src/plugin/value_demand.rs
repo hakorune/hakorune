@@ -108,6 +108,20 @@ pub(crate) const ARRAY_TEXT_OWNED_CELL: DemandSet = DemandSet::new(
     &[MutationDemand::InvalidateAliases],
 );
 
+pub(crate) const ARRAY_GENERIC_GET_ENCODED: DemandSet = DemandSet::new(
+    &[
+        ValueDemand::EncodeImmediate,
+        ValueDemand::EncodeAlias,
+        ValueDemand::StableObject,
+    ],
+    &[
+        StorageDemand::ImmediateResidence,
+        StorageDemand::GenericResidence,
+    ],
+    &[],
+    &[],
+);
+
 pub(crate) const BORROWED_ALIAS_ENCODE: DemandSet = DemandSet::new(
     &[ValueDemand::EncodeAlias],
     &[],
@@ -180,6 +194,25 @@ mod tests {
         assert_eq!(
             ARRAY_TEXT_OWNED_CELL.mutation,
             &[MutationDemand::InvalidateAliases]
+        );
+    }
+
+    #[test]
+    fn array_generic_get_encoded_names_immediate_alias_and_stable_fallback() {
+        assert_eq!(
+            ARRAY_GENERIC_GET_ENCODED.value,
+            &[
+                ValueDemand::EncodeImmediate,
+                ValueDemand::EncodeAlias,
+                ValueDemand::StableObject
+            ]
+        );
+        assert_eq!(
+            ARRAY_GENERIC_GET_ENCODED.storage,
+            &[
+                StorageDemand::ImmediateResidence,
+                StorageDemand::GenericResidence
+            ]
         );
     }
 

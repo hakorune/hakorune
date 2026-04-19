@@ -2,10 +2,12 @@ use super::handle_cache::{cache_store, with_cache_entry};
 use super::value_codec::{
     runtime_i64_from_scalar_checked_box_ref_caller, BorrowedAliasEncodeCaller,
 };
+use super::value_demand::ARRAY_GENERIC_GET_ENCODED;
 use nyash_rust::{box_trait::NyashBox, boxes::array::ArrayBox, runtime::host_handles as handles};
 
 #[inline(always)]
 fn encode_array_item_to_i64(item: &dyn NyashBox) -> i64 {
+    let _demand = ARRAY_GENERIC_GET_ENCODED;
     // Keep scalar/bool before borrowed-handle reuse so immediate classes stay canonical.
     if let Some(iv) = item.as_i64_fast() {
         return iv;
@@ -23,6 +25,7 @@ fn encode_array_item_to_i64(item: &dyn NyashBox) -> i64 {
 
 #[inline(always)]
 pub(crate) fn array_get_index_encoded_i64(handle: i64, idx: i64) -> Option<i64> {
+    let _demand = ARRAY_GENERIC_GET_ENCODED;
     if handle <= 0 || idx < 0 {
         return None;
     }
