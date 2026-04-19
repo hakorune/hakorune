@@ -42,17 +42,17 @@
 - direct-only correctness: `Result: 2880064`, exit code `64`
 - current stop-line:
   - `KernelTextSlot` exit is observed and inactive (`publish_boundary.slot_* = 0`)
-  - do not return to the next kilo optimization until the `137x-E/F/G` implementation gates land or reject with evidence
+  - do not return to the next kilo optimization until the `137x-F/G` implementation gates land or reject with evidence
 - current phase cut before next kilo optimization:
   - `137x-A`: string publication contract closeout (`137x-92-string-publication-contract-closeout.md`)
   - `137x-B`: container / primitive design cleanout (`137x-93-container-primitive-design-cleanout.md`) is closed
   - `137x-C`: structure completion gate before perf return is closed (`137x-91-task-board.md`)
   - `137x-D`: owner-first optimization return landed the exact array store route-shape keeper
   - `137x-E0`: MIR / backend seam closeout before TextLane is closed
-  - `137x-E`: minimal `TextLane` / `ArrayStorage::Text` implementation is next
+  - `137x-E1`: minimal `TextLane` / `ArrayStorage::Text` implementation is landed
   - `137x-F`: runtime-wide `Value Lane` implementation bridge follows
   - `137x-G`: allocator / arena pilot follows
-  - `137x-H`: next kilo optimization return after E/F/G land or reject
+  - `137x-H`: next kilo optimization return after F/G land or reject
 - current closeout status:
   - done: `repr-downgrade-contract`
     - verifier now rejects unproven `stable_view` repr requests before runtime; lowering must downgrade to `stable_owned` until StableView legality is verifier-visible
@@ -67,7 +67,7 @@
     - 137x-B design cleanout is satisfied
     - 137x-C structure completion gate is satisfied
     - 137x-D exact route-shape keeper is landed
-    - 137x-E0 is closed; 137x-E/F/G implementation gates remain open before next kilo optimization
+    - 137x-E0 and 137x-E1 are closed; 137x-F/G implementation gates remain open before next kilo optimization
     - `publish.any` remains blocked here
 - closed design cleanout gate:
   - closed: `137x-93-container-primitive-design-cleanout.md`
@@ -90,7 +90,7 @@
   - no public ABI widening starts from this gate
 - successor implementation order:
   - `137x-E0`: MIR / backend seam closeout before TextLane
-  - `137x-E`: minimal `TextLane` / `ArrayStorage::Text`
+  - `137x-E1`: minimal `TextLane` / `ArrayStorage::Text` (landed)
   - `137x-F`: runtime-wide `Value Lane` implementation bridge
   - `137x-G`: allocator / arena pilot
   - SSOT: `137x-94-textlane-value-allocator-implementation-gate.md`
@@ -106,6 +106,26 @@
   - `Phase 2.6`: string publication contract closeout / legality lock
   - `Phase 3`: `TextLane` storage/residence implementation (`137x-E`)
   - `Phase 4`: Value Lane bridge and allocator pilot before the next kilo optimization (`137x-F/G`)
+
+## 137x-E1 TextLane Slice
+
+Status: landed.
+
+Scope:
+- add `ArrayStorage::Text` as runtime-private array residence for text-heavy string-store routes
+- keep `String = value`; `TextLane` is not a semantic carrier, public handle, or MIR truth
+- connect only array-string kernel read/store/mutate routes to text raw APIs
+- degrade generic/mixed array operations to Boxed rather than widening Array semantics
+
+Acceptance:
+- existing Array/String public behavior stays unchanged
+- active phase137x array-string smokes stay green
+- `TextLane` can be observed through ArrayBox debug/storage tests without requiring public ABI changes
+
+Implementation notes:
+- `ArrayStorage::Text(Vec<String>)` is internal residence only; generic/mixed writes materialize back to `Boxed`.
+- array-string read/write/store routes use `slot_with_text_raw`, `slot_update_text_raw`, and `slot_store_text_raw`.
+- the old array-string store `BorrowedHandleBox` retarget executor path is removed from the active store route; alias legality must stay MIR-owned rather than runtime-replanned.
 
 ## Legacy Retirement Ledger
 
@@ -125,6 +145,7 @@ Rules:
 | `src/host_providers/llvm_codegen/compat_text_primitive.rs` | watch item | Audit surfaced it as a legacy compiler compatibility surface; not part of the explicit-length helper cut | Classify first: either retire behind a small no-behavior cleanup gate or document why it remains a stable compatibility shim. |
 - retired in `137x-E0.1`: the old `kilo_micro_array_string_store` `9-block` exact seed matcher branch is deleted after the compact `8-block` direct producer stayed green under `phase137x_direct_emit_array_store_string_contract.sh`.
 - retired in `137x-E0.2`: shared-receiver legacy scanner fallback is deleted after the active const-suffix / insert-mid shared-receiver fixtures gained MIR-owned `read_alias.shared_receiver` metadata and stayed green metadata-only.
+- retired in `137x-E1`: array-string store no longer keeps a `BorrowedHandleBox` retarget executor path or kernel-slot-to-StringBox overwrite helper; the active route stores runtime-private text residence and degrades mixed arrays to Boxed.
 - current phase-2 start:
   - `string_handle_from_owned{,_concat_hh,_substring_concat_hhii,_const_suffix}` now enter explicit cold publish adapters
   - `publish_owned_bytes_*_boundary` / `objectize_kernel_text_slot_stable_box` are outlined cold boundaries
@@ -381,7 +402,7 @@ Rules:
 ## Decision Now
 
 - fixed implementation order before next kilo optimization:
-  1. `137x-E`: minimal `TextLane` / `ArrayStorage::Text`
+  1. `137x-E1`: minimal `TextLane` / `ArrayStorage::Text` (landed)
   2. `137x-F`: runtime-wide `Value Lane` implementation bridge
   3. `137x-G`: allocator / arena pilot
   4. `137x-H`: next kilo optimization return
@@ -1976,12 +1997,12 @@ The next perf cut should not start until these mechanical contracts are fixed.
    - older exact-front notes in this file are historical unless the restart handoff names them as guards
    - `kilo_micro_substring_only` is no longer the current exact owner front for new implementation edits
 2. open implementation gates before the next kilo optimization
-   - current blocker: `137x-E1 minimal TextLane / ArrayStorage::Text`
+   - current blocker: `137x-F Value Lane implementation bridge`
    - `137x-E0`: MIR / backend seam closeout is closed
-   - `137x-E`: minimal `TextLane` / `ArrayStorage::Text`
+   - `137x-E1`: minimal `TextLane` / `ArrayStorage::Text` is landed
    - `137x-F`: runtime-wide Value Lane implementation bridge
    - `137x-G`: allocator / arena pilot
-   - `137x-H`: owner-first optimization return after E/F/G land or reject
+   - `137x-H`: owner-first optimization return after F/G land or reject
 3. keep landed `137x-D` cuts fixed
    - same-slot piecewise subrange store originally lowered through `nyash.array.string_insert_mid_subrange_store_hisiii`
    - current direct lowering uses `nyash.array.string_insert_mid_subrange_store_hisiiii`

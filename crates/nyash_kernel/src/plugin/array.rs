@@ -33,6 +33,20 @@ mod tests {
         with_array_box(handle, |arr| format!("{arr:?}"))
     }
 
+    fn slot_text(handle: i64, idx: i64) -> Option<String> {
+        with_array_box(handle, |arr| arr.slot_with_text_raw(idx, str::to_owned)).flatten()
+    }
+
+    fn handle_string_value(handle: i64) -> Option<String> {
+        handles::get(handle as u64).and_then(|source| {
+            source
+                .as_ref()
+                .as_any()
+                .downcast_ref::<StringBox>()
+                .map(|value| value.value.clone())
+        })
+    }
+
     #[test]
     fn legacy_set_h_returns_zero_but_applies_value() {
         let handle = new_array_handle();
@@ -106,6 +120,10 @@ mod tests {
             as std::sync::Arc<dyn NyashBox>) as i64;
 
         assert_eq!(nyash_array_set_his_alias(handle, 0, string_handle), 1);
+        assert_eq!(slot_text(handle, 0).as_deref(), Some("length"));
+        assert!(storage_tag(handle)
+            .as_deref()
+            .is_some_and(|text| text.contains("text")));
         assert_eq!(nyash_array_string_len_hi_alias(handle, 0), 6);
         assert_eq!(nyash_array_string_len_hi_alias(handle, 3), 0);
     }
@@ -233,7 +251,7 @@ mod tests {
     }
 
     #[test]
-    fn suffix_store_by_index_materializes_alias_slot_without_mutating_source() {
+    fn suffix_store_by_index_uses_text_lane_without_mutating_source() {
         let handle = new_array_handle();
         let seed_h = new_string_handle("line-seed");
         let suffix = std::ffi::CString::new("xy").expect("suffix");
@@ -244,26 +262,12 @@ mod tests {
             1
         );
 
-        let stored = with_array_box(handle, |arr| {
-            arr.with_items_read(|items| {
-                items.first().and_then(|item| {
-                    item.as_any()
-                        .downcast_ref::<StringBox>()
-                        .map(|value| value.value.clone())
-                })
-            })
-        })
-        .flatten();
-        assert_eq!(stored.as_deref(), Some("line-seedxy"));
+        assert_eq!(slot_text(handle, 0).as_deref(), Some("line-seedxy"));
+        assert!(storage_tag(handle)
+            .as_deref()
+            .is_some_and(|text| text.contains("text")));
 
-        let source = handles::get(seed_h as u64).and_then(|source| {
-            source
-                .as_ref()
-                .as_any()
-                .downcast_ref::<StringBox>()
-                .map(|value| value.value.clone())
-        });
-        assert_eq!(source.as_deref(), Some("line-seed"));
+        assert_eq!(handle_string_value(seed_h).as_deref(), Some("line-seed"));
     }
 
     #[test]
@@ -395,49 +399,25 @@ mod tests {
     }
 
     #[test]
-    fn insert_mid_store_by_index_materializes_alias_slot_without_mutating_source() {
+    fn insert_mid_store_by_index_uses_text_lane_without_mutating_source() {
         let handle = new_array_handle();
         let seed_h = new_string_handle("line-seed");
         let middle = std::ffi::CString::new("xx").expect("middle");
 
         assert_eq!(nyash_array_set_his_alias(handle, 0, seed_h), 1);
-        let before_is_alias = with_array_box(handle, |arr| {
-            arr.with_items_read(|items| {
-                items.first().is_some_and(|item| {
-                    item.as_any()
-                        .downcast_ref::<crate::plugin::value_codec::BorrowedHandleBox>()
-                        .is_some()
-                })
-            })
-        })
-        .unwrap_or(false);
-        assert!(before_is_alias);
+        assert_eq!(slot_text(handle, 0).as_deref(), Some("line-seed"));
+        assert!(storage_tag(handle)
+            .as_deref()
+            .is_some_and(|text| text.contains("text")));
 
         assert_eq!(
             crate::nyash_array_string_insert_mid_store_hisi_alias(handle, 0, middle.as_ptr(), 4,),
             1
         );
 
-        let stored = with_array_box(handle, |arr| {
-            arr.with_items_read(|items| {
-                items.first().and_then(|item| {
-                    item.as_any()
-                        .downcast_ref::<StringBox>()
-                        .map(|value| value.value.clone())
-                })
-            })
-        })
-        .flatten();
-        assert_eq!(stored.as_deref(), Some("linexx-seed"));
+        assert_eq!(slot_text(handle, 0).as_deref(), Some("linexx-seed"));
 
-        let source = handles::get(seed_h as u64).and_then(|source| {
-            source
-                .as_ref()
-                .as_any()
-                .downcast_ref::<StringBox>()
-                .map(|value| value.value.clone())
-        });
-        assert_eq!(source.as_deref(), Some("line-seed"));
+        assert_eq!(handle_string_value(seed_h).as_deref(), Some("line-seed"));
     }
 
     #[test]
@@ -540,7 +520,7 @@ mod tests {
     }
 
     #[test]
-    fn kernel_slot_store_existing_string_slot_keeps_borrowed_alias_wrapper() {
+    fn kernel_slot_store_existing_string_slot_keeps_text_lane_residence() {
         let handle = new_array_handle();
         let seed_h = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
             nyash_rust::box_trait::StringBox::new("line-seed-abcdef".to_string()),
@@ -564,27 +544,14 @@ mod tests {
         assert_eq!(nyash_string_kernel_slot_len_i_export(&slot), 0);
         assert_eq!(nyash_array_string_len_hi_alias(handle, 0), 18);
 
-        let kept = with_array_box(handle, |arr| {
-            arr.with_items_read(|items| {
-                let item = items.first().expect("stored string slot");
-                item.as_any()
-                    .downcast_ref::<crate::plugin::value_codec::BorrowedHandleBox>()
-                    .map(|alias| {
-                        (
-                            alias.borrowed_handle_source_fast().is_none(),
-                            alias.as_str_fast().map(str::to_string),
-                        )
-                    })
-            })
-        })
-        .flatten()
-        .expect("borrowed alias slot");
-        assert!(kept.0);
-        assert_eq!(kept.1.as_deref(), Some("line-seed-abcdefxy"));
+        assert_eq!(slot_text(handle, 0).as_deref(), Some("line-seed-abcdefxy"));
+        assert!(storage_tag(handle)
+            .as_deref()
+            .is_some_and(|text| text.contains("text")));
     }
 
     #[test]
-    fn kernel_slot_store_existing_string_box_overwrites_in_place() {
+    fn kernel_slot_store_existing_string_box_promotes_to_text_lane() {
         let handle = new_array_handle();
         let lhs_h = new_string_handle("line-seed");
         let suffix = std::ffi::CString::new("xy").expect("CString");
@@ -625,24 +592,14 @@ mod tests {
         );
         assert_eq!(slot.state(), crate::plugin::KernelTextSlotState::Empty);
 
-        let after = with_array_box(handle, |arr| {
-            arr.with_items_read(|items| {
-                let item = items.first().expect("stored string slot");
-                (
-                    item.box_id(),
-                    item.as_any()
-                        .downcast_ref::<StringBox>()
-                        .map(|s| s.value.clone()),
-                )
-            })
-        })
-        .expect("array read");
-        assert_eq!(after.0, before.0);
-        assert_eq!(after.1.as_deref(), Some("line-seedxy"));
+        assert_eq!(slot_text(handle, 0).as_deref(), Some("line-seedxy"));
+        assert!(storage_tag(handle)
+            .as_deref()
+            .is_some_and(|text| text.contains("text")));
     }
 
     #[test]
-    fn kernel_slot_const_suffix_store_existing_alias_keeps_borrowed_wrapper() {
+    fn kernel_slot_const_suffix_store_existing_alias_keeps_text_lane_residence() {
         let handle = new_array_handle();
         let seed_h = new_string_handle("line-seed");
         let suffix = std::ffi::CString::new("xy").expect("CString");
@@ -664,23 +621,10 @@ mod tests {
         assert_eq!(slot.state(), crate::plugin::KernelTextSlotState::Empty);
         assert_eq!(nyash_array_string_len_hi_alias(handle, 0), 11);
 
-        let kept = with_array_box(handle, |arr| {
-            arr.with_items_read(|items| {
-                let item = items.first().expect("stored string slot");
-                item.as_any()
-                    .downcast_ref::<crate::plugin::value_codec::BorrowedHandleBox>()
-                    .map(|alias| {
-                        (
-                            alias.borrowed_handle_source_fast().is_none(),
-                            alias.as_str_fast().map(str::to_string),
-                        )
-                    })
-            })
-        })
-        .flatten()
-        .expect("borrowed alias slot");
-        assert!(kept.0);
-        assert_eq!(kept.1.as_deref(), Some("line-seedxy"));
+        assert_eq!(slot_text(handle, 0).as_deref(), Some("line-seedxy"));
+        assert!(storage_tag(handle)
+            .as_deref()
+            .is_some_and(|text| text.contains("text")));
     }
 
     #[test]
@@ -897,12 +841,17 @@ mod tests {
         )
             as std::sync::Arc<dyn NyashBox>) as i64;
         assert_eq!(nyash_array_set_his_alias(handle, 0, string_handle_a), 1);
-        assert_eq!(nyash_array_get_hi_alias(handle, 0), string_handle_a);
+        let got_a = nyash_array_get_hi_alias(handle, 0);
+        assert_eq!(handle_string_value(got_a).as_deref(), Some("ok"));
         assert!(storage_tag(handle)
             .as_deref()
             .is_some_and(|text| text.contains("boxed")));
-        // Re-set same slot keeps alias contract and must expose the latest handle.
+        // Re-set on an all-string boxed slot lets the private text lane take over.
         assert_eq!(nyash_array_set_his_alias(handle, 0, string_handle_b), 1);
-        assert_eq!(nyash_array_get_hi_alias(handle, 0), string_handle_b);
+        let got_b = nyash_array_get_hi_alias(handle, 0);
+        assert_eq!(handle_string_value(got_b).as_deref(), Some("ng"));
+        assert!(storage_tag(handle)
+            .as_deref()
+            .is_some_and(|text| text.contains("text")));
     }
 }

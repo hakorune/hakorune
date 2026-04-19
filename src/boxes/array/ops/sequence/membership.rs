@@ -13,6 +13,13 @@ impl ArrayBox {
                     }
                 }
             }
+            ArrayStorage::Text(values) => {
+                if let Some(needle) = value.as_str_fast() {
+                    if let Some(idx) = values.iter().position(|item| item == needle) {
+                        return Box::new(IntegerBox::new(idx as i64));
+                    }
+                }
+            }
             ArrayStorage::InlineI64(values) => {
                 if let Some(needle) = value.as_i64_fast() {
                     if let Some(idx) = values.iter().position(|item| *item == needle) {
@@ -50,6 +57,11 @@ impl ArrayBox {
                     if item.equals(value.as_ref()).value {
                         return Box::new(BoolBox::new(true));
                     }
+                }
+            }
+            ArrayStorage::Text(values) => {
+                if let Some(needle) = value.as_str_fast() {
+                    return Box::new(BoolBox::new(values.iter().any(|item| item == needle)));
                 }
             }
             ArrayStorage::InlineI64(values) => {

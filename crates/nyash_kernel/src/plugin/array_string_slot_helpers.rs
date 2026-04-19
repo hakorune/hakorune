@@ -1,4 +1,3 @@
-use super::super::value_codec::{BorrowedHandleBox, StringHandleSourceKind};
 use super::super::value_demand::{DemandSet, ARRAY_TEXT_OWNED_CELL, ARRAY_TEXT_READ_REF};
 use crate::observe;
 use memchr::{memchr, memmem};
@@ -40,28 +39,6 @@ pub(super) fn with_compiler_const_utf8_ptr_len<R>(
     // Runtime-private direct lowering passes compiler-emitted UTF-8 string
     // constants with explicit length. The CStr public aliases keep validation.
     Some(f(unsafe { std::str::from_utf8_unchecked(bytes) }))
-}
-
-#[inline(always)]
-pub(super) fn record_borrowed_alias_string_read_latest_fresh(
-    observe_enabled: bool,
-    item: &dyn nyash_rust::box_trait::NyashBox,
-    indexof: bool,
-) {
-    if !observe_enabled {
-        return;
-    }
-    let Some((source_handle, _)) = item.borrowed_handle_source_fast() else {
-        return;
-    };
-    if !observe::len_route_matches_latest_fresh_handle(source_handle) {
-        return;
-    }
-    if indexof {
-        observe::record_borrowed_alias_array_indexof_by_index_latest_fresh();
-    } else {
-        observe::record_borrowed_alias_array_len_by_index_latest_fresh();
-    }
 }
 
 #[inline(always)]
@@ -112,79 +89,13 @@ pub(super) enum StoreArrayStrPlanSourceKind {
 
 #[derive(Clone, Copy)]
 pub(super) enum StoreArrayStrPlanSlotKind {
-    BorrowedAlias,
     Other,
 }
 
 #[derive(Clone, Copy)]
 pub(super) enum StoreArrayStrPlanAction {
-    RetargetAlias,
     StoreFromSource,
     NeedStableObject,
-}
-
-#[derive(Clone, Copy)]
-pub(super) struct StoreArrayStrPlan {
-    pub(super) source_kind: StoreArrayStrPlanSourceKind,
-    pub(super) slot_kind: StoreArrayStrPlanSlotKind,
-    pub(super) action: StoreArrayStrPlanAction,
-    pub(super) source_is_string: bool,
-    pub(super) latest_fresh_source: bool,
-}
-
-impl StoreArrayStrPlan {
-    #[inline(always)]
-    pub(super) fn from_slot(
-        items: &[Box<dyn nyash_rust::box_trait::NyashBox>],
-        idx: usize,
-        value_h: i64,
-        source_kind_contract: StringHandleSourceKind,
-    ) -> Self {
-        let source_is_string = matches!(source_kind_contract, StringHandleSourceKind::StringLike);
-        let source_kind = match source_kind_contract {
-            StringHandleSourceKind::StringLike => StoreArrayStrPlanSourceKind::StringLike,
-            StringHandleSourceKind::OtherObject => StoreArrayStrPlanSourceKind::OtherObject,
-            StringHandleSourceKind::Missing => StoreArrayStrPlanSourceKind::Missing,
-        };
-        let slot_kind = if idx < items.len()
-            && items[idx]
-                .as_any()
-                .downcast_ref::<BorrowedHandleBox>()
-                .is_some()
-        {
-            StoreArrayStrPlanSlotKind::BorrowedAlias
-        } else {
-            StoreArrayStrPlanSlotKind::Other
-        };
-        let action = if source_is_string {
-            if matches!(slot_kind, StoreArrayStrPlanSlotKind::BorrowedAlias) && idx < items.len() {
-                StoreArrayStrPlanAction::RetargetAlias
-            } else {
-                StoreArrayStrPlanAction::StoreFromSource
-            }
-        } else {
-            StoreArrayStrPlanAction::NeedStableObject
-        };
-        Self {
-            source_kind,
-            slot_kind,
-            action,
-            source_is_string,
-            latest_fresh_source: observe::len_route_matches_latest_fresh_handle(value_h),
-        }
-    }
-
-    #[inline(always)]
-    pub(super) fn record(self) {
-        record_store_array_str_plan(self.source_kind, self.slot_kind, self.action);
-    }
-
-    #[inline(always)]
-    pub(super) fn can_retarget_alias(self) -> bool {
-        self.source_is_string
-            && matches!(self.slot_kind, StoreArrayStrPlanSlotKind::BorrowedAlias)
-            && matches!(self.action, StoreArrayStrPlanAction::RetargetAlias)
-    }
 }
 
 #[inline(always)]
@@ -208,17 +119,11 @@ pub(super) fn record_store_array_str_plan(
         }
     }
     match slot_kind {
-        StoreArrayStrPlanSlotKind::BorrowedAlias => {
-            observe::record_store_array_str_plan_slot_kind_borrowed_alias();
-        }
         StoreArrayStrPlanSlotKind::Other => {
             observe::record_store_array_str_plan_slot_kind_other();
         }
     }
     match action {
-        StoreArrayStrPlanAction::RetargetAlias => {
-            observe::record_store_array_str_plan_action_retarget_alias();
-        }
         StoreArrayStrPlanAction::StoreFromSource => {
             observe::record_store_array_str_plan_action_store_from_source();
         }

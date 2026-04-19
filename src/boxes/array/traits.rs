@@ -10,6 +10,7 @@ impl Clone for ArrayBox {
                     .map(|item| Self::clone_visible_item(item.as_ref()))
                     .collect(),
             ),
+            ArrayStorage::Text(values) => ArrayStorage::Text(values.clone()),
             ArrayStorage::InlineI64(values) => ArrayStorage::InlineI64(values.clone()),
             ArrayStorage::InlineBool(values) => ArrayStorage::InlineBool(values.clone()),
             ArrayStorage::InlineF64(values) => ArrayStorage::InlineF64(values.clone()),
@@ -40,6 +41,9 @@ impl BoxCore for ArrayBox {
                     .map(|item| item.to_string_box().value)
                     .collect();
                 write!(f, "[{}]", strings.join(", "))
+            }
+            ArrayStorage::Text(values) => {
+                write!(f, "[{}]", Self::format_text_values(values))
             }
             ArrayStorage::InlineI64(values) => {
                 write!(f, "[{}]", Self::format_inline_values(values))
@@ -95,6 +99,9 @@ impl NyashBox for ArrayBox {
                     .collect();
                 StringBox::new(format!("[{}]", strings.join(", ")))
             }
+            ArrayStorage::Text(values) => {
+                StringBox::new(format!("[{}]", Self::format_text_values(values)))
+            }
             ArrayStorage::InlineI64(values) => {
                 StringBox::new(format!("[{}]", Self::format_inline_values(values)))
             }
@@ -123,6 +130,23 @@ impl NyashBox for ArrayBox {
             match (&*self_items, &*other_items) {
                 (ArrayStorage::InlineI64(lhs), ArrayStorage::InlineI64(rhs)) => {
                     return BoolBox::new(lhs == rhs);
+                }
+                (ArrayStorage::Text(lhs), ArrayStorage::Text(rhs)) => {
+                    return BoolBox::new(lhs == rhs);
+                }
+                (ArrayStorage::Text(lhs), ArrayStorage::Boxed(rhs)) => {
+                    for (a, b) in lhs.iter().zip(rhs.iter()) {
+                        if b.as_str_fast() != Some(a.as_str()) {
+                            return BoolBox::new(false);
+                        }
+                    }
+                }
+                (ArrayStorage::Boxed(lhs), ArrayStorage::Text(rhs)) => {
+                    for (a, b) in lhs.iter().zip(rhs.iter()) {
+                        if a.as_str_fast() != Some(b.as_str()) {
+                            return BoolBox::new(false);
+                        }
+                    }
                 }
                 (ArrayStorage::InlineI64(lhs), ArrayStorage::Boxed(rhs)) => {
                     for (a, b) in lhs.iter().zip(rhs.iter()) {
@@ -194,7 +218,13 @@ impl NyashBox for ArrayBox {
                 | (ArrayStorage::InlineI64(_), ArrayStorage::InlineF64(_))
                 | (ArrayStorage::InlineF64(_), ArrayStorage::InlineI64(_))
                 | (ArrayStorage::InlineBool(_), ArrayStorage::InlineF64(_))
-                | (ArrayStorage::InlineF64(_), ArrayStorage::InlineBool(_)) => {
+                | (ArrayStorage::InlineF64(_), ArrayStorage::InlineBool(_))
+                | (ArrayStorage::Text(_), ArrayStorage::InlineI64(_))
+                | (ArrayStorage::Text(_), ArrayStorage::InlineBool(_))
+                | (ArrayStorage::Text(_), ArrayStorage::InlineF64(_))
+                | (ArrayStorage::InlineI64(_), ArrayStorage::Text(_))
+                | (ArrayStorage::InlineBool(_), ArrayStorage::Text(_))
+                | (ArrayStorage::InlineF64(_), ArrayStorage::Text(_)) => {
                     return BoolBox::new(false);
                 }
             }
@@ -212,6 +242,7 @@ impl std::fmt::Debug for ArrayBox {
         let items = self.items.read();
         let storage_kind = match &*items {
             ArrayStorage::Boxed(_) => "boxed",
+            ArrayStorage::Text(_) => "text",
             ArrayStorage::InlineI64(_) => "inline_i64",
             ArrayStorage::InlineBool(_) => "inline_bool",
             ArrayStorage::InlineF64(_) => "inline_f64",
@@ -236,5 +267,9 @@ impl ArrayBox {
 
     pub fn uses_inline_f64_slots(&self) -> bool {
         matches!(&*self.items.read(), ArrayStorage::InlineF64(_))
+    }
+
+    pub fn uses_text_slots(&self) -> bool {
+        matches!(&*self.items.read(), ArrayStorage::Text(_))
     }
 }

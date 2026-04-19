@@ -1,11 +1,10 @@
 use super::super::array_guard::valid_handle_idx;
 use super::super::array_handle_cache::with_array_box;
 use super::array_string_slot_helpers::{
-    array_text_read_ref_demand, record_borrowed_alias_string_read_latest_fresh,
-    string_indexof_fast_str, CachedNeedle, ARRAY_STRING_INDEXOF_NEEDLE_CACHE,
+    array_text_read_ref_demand, string_indexof_fast_str, CachedNeedle,
+    ARRAY_STRING_INDEXOF_NEEDLE_CACHE,
 };
 use crate::exports::string_view::resolve_string_span_from_handle;
-use crate::observe;
 use nyash_rust::runtime::host_handles as handles;
 
 #[inline(always)]
@@ -39,16 +38,9 @@ pub(in super::super) fn array_string_len_by_index(handle: i64, idx: i64) -> i64 
     if !valid_handle_idx(handle, idx) {
         return 0;
     }
-    let observe_enabled = observe::enabled();
     with_array_box(handle, |arr| {
-        let idx = idx as usize;
-        arr.with_items_read(|items| {
-            let Some(item) = items.get(idx) else {
-                return 0;
-            };
-            record_borrowed_alias_string_read_latest_fresh(observe_enabled, item.as_ref(), false);
-            item.as_str_fast().map(|s| s.len() as i64).unwrap_or(0)
-        })
+        arr.slot_with_text_raw(idx, |source| source.len() as i64)
+            .unwrap_or(0)
     })
     .unwrap_or(0)
 }
@@ -69,19 +61,9 @@ fn array_string_indexof_by_index_str(handle: i64, idx: i64, needle: &str) -> i64
     if needle.is_empty() {
         return 0;
     }
-    let observe_enabled = observe::enabled();
     with_array_box(handle, |arr| {
-        let idx = idx as usize;
-        arr.with_items_read(|items| {
-            let Some(item) = items.get(idx) else {
-                return -1;
-            };
-            record_borrowed_alias_string_read_latest_fresh(observe_enabled, item.as_ref(), true);
-            let Some(hay) = item.as_str_fast() else {
-                return -1;
-            };
-            string_indexof_fast_str(hay, needle)
-        })
+        arr.slot_with_text_raw(idx, |hay| string_indexof_fast_str(hay, needle))
+            .unwrap_or(-1)
     })
     .unwrap_or(-1)
 }

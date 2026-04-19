@@ -2,6 +2,7 @@ use super::*;
 
 pub(super) enum ArrayStorage {
     Boxed(Vec<Box<dyn NyashBox>>),
+    Text(Vec<String>),
     InlineI64(Vec<i64>),
     InlineBool(Vec<bool>),
     InlineF64(Vec<f64>),
@@ -11,6 +12,7 @@ impl ArrayStorage {
     pub(super) fn len(&self) -> usize {
         match self {
             Self::Boxed(items) => items.len(),
+            Self::Text(values) => values.len(),
             Self::InlineI64(values) => values.len(),
             Self::InlineBool(values) => values.len(),
             Self::InlineF64(values) => values.len(),
@@ -20,6 +22,7 @@ impl ArrayStorage {
     pub(super) fn capacity(&self) -> usize {
         match self {
             Self::Boxed(items) => items.capacity(),
+            Self::Text(values) => values.capacity(),
             Self::InlineI64(values) => values.capacity(),
             Self::InlineBool(values) => values.capacity(),
             Self::InlineF64(values) => values.capacity(),
@@ -60,6 +63,13 @@ impl ArrayBox {
             .collect()
     }
 
+    pub(super) fn boxed_from_text(values: &[String]) -> Vec<Box<dyn NyashBox>> {
+        values
+            .iter()
+            .map(|value| Box::new(StringBox::new(value.clone())) as Box<dyn NyashBox>)
+            .collect()
+    }
+
     pub(super) fn try_inline_i64_values(items: &[Box<dyn NyashBox>]) -> Option<Vec<i64>> {
         items.iter().map(|item| item.as_i64_fast()).collect()
     }
@@ -72,7 +82,17 @@ impl ArrayBox {
         items.iter().map(|item| item.as_f64_fast()).collect()
     }
 
+    pub(super) fn try_text_values(items: &[Box<dyn NyashBox>]) -> Option<Vec<String>> {
+        items
+            .iter()
+            .map(|item| item.as_str_fast().map(str::to_owned))
+            .collect()
+    }
+
     pub(super) fn ensure_boxed(storage: &mut ArrayStorage) -> &mut Vec<Box<dyn NyashBox>> {
+        if let ArrayStorage::Text(values) = storage {
+            *storage = ArrayStorage::Boxed(Self::boxed_from_text(values));
+        }
         if let ArrayStorage::InlineI64(values) = storage {
             *storage = ArrayStorage::Boxed(Self::boxed_from_inline(values));
         }
@@ -84,11 +104,26 @@ impl ArrayBox {
         }
         match storage {
             ArrayStorage::Boxed(items) => items,
-            ArrayStorage::InlineI64(_)
+            ArrayStorage::Text(_)
+            | ArrayStorage::InlineI64(_)
             | ArrayStorage::InlineBool(_)
             | ArrayStorage::InlineF64(_) => {
                 unreachable!("inline storage promoted to boxed")
             }
+        }
+    }
+
+    pub(super) fn ensure_text(storage: &mut ArrayStorage) -> Option<&mut Vec<String>> {
+        if let ArrayStorage::Boxed(items) = storage {
+            let values = Self::try_text_values(items)?;
+            *storage = ArrayStorage::Text(values);
+        }
+        match storage {
+            ArrayStorage::Text(values) => Some(values),
+            ArrayStorage::Boxed(_)
+            | ArrayStorage::InlineI64(_)
+            | ArrayStorage::InlineBool(_)
+            | ArrayStorage::InlineF64(_) => None,
         }
     }
 
@@ -99,9 +134,10 @@ impl ArrayBox {
         }
         match storage {
             ArrayStorage::InlineI64(values) => Some(values),
-            ArrayStorage::Boxed(_) | ArrayStorage::InlineBool(_) | ArrayStorage::InlineF64(_) => {
-                None
-            }
+            ArrayStorage::Boxed(_)
+            | ArrayStorage::Text(_)
+            | ArrayStorage::InlineBool(_)
+            | ArrayStorage::InlineF64(_) => None,
         }
     }
 
@@ -112,9 +148,10 @@ impl ArrayBox {
         }
         match storage {
             ArrayStorage::InlineBool(values) => Some(values),
-            ArrayStorage::Boxed(_) | ArrayStorage::InlineI64(_) | ArrayStorage::InlineF64(_) => {
-                None
-            }
+            ArrayStorage::Boxed(_)
+            | ArrayStorage::Text(_)
+            | ArrayStorage::InlineI64(_)
+            | ArrayStorage::InlineF64(_) => None,
         }
     }
 
@@ -125,9 +162,10 @@ impl ArrayBox {
         }
         match storage {
             ArrayStorage::InlineF64(values) => Some(values),
-            ArrayStorage::Boxed(_) | ArrayStorage::InlineI64(_) | ArrayStorage::InlineBool(_) => {
-                None
-            }
+            ArrayStorage::Boxed(_)
+            | ArrayStorage::Text(_)
+            | ArrayStorage::InlineI64(_)
+            | ArrayStorage::InlineBool(_) => None,
         }
     }
 
@@ -171,5 +209,9 @@ impl ArrayBox {
             .map(|value| value.to_string())
             .collect::<Vec<_>>()
             .join(", ")
+    }
+
+    pub(super) fn format_text_values(values: &[String]) -> String {
+        values.join(", ")
     }
 }

@@ -27,6 +27,7 @@ impl ArrayBox {
         let mut items = self.items.write();
         match &mut *items {
             ArrayStorage::Boxed(items) => items.reserve(additional),
+            ArrayStorage::Text(values) => values.reserve(additional),
             ArrayStorage::InlineI64(values) => values.reserve(additional),
             ArrayStorage::InlineBool(values) => values.reserve(additional),
             ArrayStorage::InlineF64(values) => values.reserve(additional),
@@ -44,6 +45,7 @@ impl ArrayBox {
             if needed > 0 {
                 match &mut *items {
                     ArrayStorage::Boxed(items) => items.reserve(needed),
+                    ArrayStorage::Text(values) => values.reserve(needed),
                     ArrayStorage::InlineI64(values) => values.reserve(needed),
                     ArrayStorage::InlineBool(values) => values.reserve(needed),
                     ArrayStorage::InlineF64(values) => values.reserve(needed),
@@ -59,6 +61,16 @@ impl ArrayBox {
         match &mut *items {
             ArrayStorage::Boxed(items) => match items.pop() {
                 Some(item) => item,
+                None => {
+                    if Self::oob_strict_enabled() {
+                        Box::new(StringBox::new("[array/empty/pop] empty array"))
+                    } else {
+                        Box::new(crate::boxes::null_box::NullBox::new())
+                    }
+                }
+            },
+            ArrayStorage::Text(values) => match values.pop() {
+                Some(value) => Box::new(StringBox::new(value)),
                 None => {
                     if Self::oob_strict_enabled() {
                         Box::new(StringBox::new("[array/empty/pop] empty array"))

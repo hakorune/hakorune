@@ -1,69 +1,67 @@
 use super::super::array_guard::valid_handle_idx;
 use super::super::handle_cache::{cache_probe_kind, CacheProbeKind as HandleCacheProbeKind};
 use super::super::value_codec::{
-    maybe_store_non_string_box_from_verified_source, store_string_box_from_kernel_text_slot,
-    store_string_box_from_verified_text_source,
-    store_string_into_existing_string_box_from_kernel_text_slot,
-    store_string_keep_from_kernel_text_slot,
-    try_retarget_borrowed_string_slot_take_unpublished_keep,
-    try_retarget_borrowed_string_slot_take_verified_text_source, with_array_store_str_source,
-    ArrayStoreStrSource, BorrowedHandleBox, KernelTextSlot, StringHandleSourceKind,
-    StringLikeProof,
+    maybe_store_non_string_box_from_verified_source, with_array_store_str_source,
+    ArrayStoreStrSource, KernelTextSlot, StringHandleSourceKind, StringLikeProof,
 };
-use super::array_string_slot_helpers::{array_text_owned_cell_demand, StoreArrayStrPlan};
+use super::array_string_slot_helpers::{
+    array_text_owned_cell_demand, record_store_array_str_plan, StoreArrayStrPlanAction,
+    StoreArrayStrPlanSlotKind, StoreArrayStrPlanSourceKind,
+};
 use crate::observe::{self, CacheProbeKind as ObserveCacheProbeKind};
-use nyash_rust::runtime::host_handles as handles;
-
-#[inline(always)]
-fn execute_store_array_str_slot(
-    items: &mut Vec<Box<dyn nyash_rust::box_trait::NyashBox>>,
-    idx: usize,
-    value_h: i64,
-    source_kind: StringHandleSourceKind,
-    source: ArrayStoreStrSource,
-    drop_epoch: u64,
-) -> i64 {
-    if idx > items.len() {
-        return 0;
-    }
-    match execute_store_array_str_plan_and_retarget_boundary(
-        items,
-        idx,
-        value_h,
-        source_kind,
-        source,
-        drop_epoch,
-    ) {
-        StoreArrayStrBoundaryStep::Retargeted => 1,
-        StoreArrayStrBoundaryStep::Continue { plan, source } => {
-            execute_store_array_str_store_from_source_boundary(
-                items, idx, value_h, plan, source, drop_epoch,
-            )
-        }
-    }
-}
-
-enum StoreArrayStrBoundaryStep {
-    Retargeted,
-    Continue {
-        plan: StoreArrayStrPlan,
-        source: ArrayStoreStrSource,
-    },
-}
+use nyash_rust::{boxes::array::ArrayBox, runtime::host_handles as handles};
 
 #[cfg_attr(feature = "perf-observe", inline(never))]
 #[cfg_attr(not(feature = "perf-observe"), inline(always))]
-fn execute_store_array_str_plan_and_retarget_boundary(
-    items: &mut Vec<Box<dyn nyash_rust::box_trait::NyashBox>>,
+fn capture_store_array_str_source(value_h: i64) -> (StringHandleSourceKind, ArrayStoreStrSource) {
+    with_array_store_str_source(value_h, |source_kind, source| (source_kind, source))
+}
+
+#[inline(always)]
+fn store_array_str_plan_source_kind(
+    source_kind: StringHandleSourceKind,
+) -> StoreArrayStrPlanSourceKind {
+    match source_kind {
+        StringHandleSourceKind::StringLike => StoreArrayStrPlanSourceKind::StringLike,
+        StringHandleSourceKind::OtherObject => StoreArrayStrPlanSourceKind::OtherObject,
+        StringHandleSourceKind::Missing => StoreArrayStrPlanSourceKind::Missing,
+    }
+}
+
+#[inline(always)]
+fn store_array_str_plan_action(source_kind: StringHandleSourceKind) -> StoreArrayStrPlanAction {
+    if matches!(source_kind, StringHandleSourceKind::StringLike) {
+        StoreArrayStrPlanAction::StoreFromSource
+    } else {
+        StoreArrayStrPlanAction::NeedStableObject
+    }
+}
+
+#[inline(always)]
+fn record_store_array_str_source_shape(source: &ArrayStoreStrSource) {
+    if !observe::enabled() {
+        return;
+    }
+    match source {
+        ArrayStoreStrSource::StringLike(source_text) => match source_text.proof() {
+            StringLikeProof::StringBox => observe::record_store_array_str_source_string_box(),
+            StringLikeProof::StringView => observe::record_store_array_str_source_string_view(),
+        },
+        ArrayStoreStrSource::OtherObject => {}
+        ArrayStoreStrSource::Missing => observe::record_store_array_str_source_missing(),
+    }
+}
+
+#[inline(always)]
+fn record_store_array_str_contract(
     idx: usize,
+    len: usize,
     value_h: i64,
     source_kind: StringHandleSourceKind,
-    source: ArrayStoreStrSource,
-    drop_epoch: u64,
-) -> StoreArrayStrBoundaryStep {
-    let mut source = source;
+    source: &ArrayStoreStrSource,
+) {
     if observe::enabled() {
-        if idx < items.len() {
+        if idx < len {
             observe::record_store_array_str_existing_slot();
         } else {
             observe::record_store_array_str_append_slot();
@@ -74,180 +72,67 @@ fn execute_store_array_str_plan_and_retarget_boundary(
         ) {
             observe::record_store_array_str_reason_source_kind_via_object();
         }
-        match &source {
-            ArrayStoreStrSource::StringLike(source_text) => match source_text.proof() {
-                StringLikeProof::StringBox => {
-                    observe::record_store_array_str_source_string_box();
-                }
-                StringLikeProof::StringView => {
-                    observe::record_store_array_str_source_string_view();
-                }
-            },
-            ArrayStoreStrSource::OtherObject => {}
-            ArrayStoreStrSource::Missing => observe::record_store_array_str_source_missing(),
-        }
     }
-    let plan = StoreArrayStrPlan::from_slot(items.as_slice(), idx, value_h, source_kind);
-    plan.record();
-    if idx < items.len() {
-        if plan.can_retarget_alias() {
-            if let ArrayStoreStrSource::StringLike(source_text) = source {
-                match try_retarget_borrowed_string_slot_take_verified_text_source(
-                    &mut items[idx],
-                    value_h,
-                    source_text,
-                    drop_epoch,
-                ) {
-                    Ok(()) => {
-                        observe::record_store_array_str_retarget_hit();
-                        if plan.latest_fresh_source {
-                            observe::record_store_array_str_latest_fresh_retarget_hit();
-                        }
-                        return StoreArrayStrBoundaryStep::Retargeted;
-                    }
-                    Err(source_keep) => {
-                        source = ArrayStoreStrSource::StringLike(source_keep);
-                    }
-                }
-            }
-        }
-    }
-    StoreArrayStrBoundaryStep::Continue { plan, source }
-}
-
-#[cfg_attr(feature = "perf-observe", inline(never))]
-#[cfg_attr(not(feature = "perf-observe"), inline(always))]
-fn execute_store_array_str_store_from_source_boundary(
-    items: &mut Vec<Box<dyn nyash_rust::box_trait::NyashBox>>,
-    idx: usize,
-    value_h: i64,
-    plan: StoreArrayStrPlan,
-    source: ArrayStoreStrSource,
-    drop_epoch: u64,
-) -> i64 {
-    if plan.source_is_string {
+    record_store_array_str_source_shape(source);
+    record_store_array_str_plan(
+        store_array_str_plan_source_kind(source_kind),
+        StoreArrayStrPlanSlotKind::Other,
+        store_array_str_plan_action(source_kind),
+    );
+    if matches!(source_kind, StringHandleSourceKind::StringLike) {
         observe::record_store_array_str_source_store();
-        if plan.latest_fresh_source {
+        if observe::len_route_matches_latest_fresh_handle(value_h) {
             observe::record_store_array_str_latest_fresh_source_store();
         }
     } else {
         observe::record_store_array_str_non_string_source();
     }
-    let value = store_array_str_value_from_source(value_h, source, drop_epoch);
-    if idx < items.len() {
-        items[idx] = value;
-    } else {
-        items.push(value);
-    }
-    1
 }
 
-#[cfg_attr(feature = "perf-observe", inline(never))]
-#[cfg_attr(not(feature = "perf-observe"), inline(always))]
-fn store_array_str_value_from_source(
-    value_h: i64,
-    source: ArrayStoreStrSource,
-    drop_epoch: u64,
-) -> Box<dyn nyash_rust::box_trait::NyashBox> {
+#[inline(always)]
+fn owned_text_from_array_store_source(source: ArrayStoreStrSource) -> Option<String> {
     match source {
-        ArrayStoreStrSource::StringLike(source_text) => {
-            store_string_box_from_verified_text_source(value_h, source_text, drop_epoch)
-        }
-        ArrayStoreStrSource::OtherObject => {
-            maybe_store_non_string_box_from_verified_source(value_h, drop_epoch)
-        }
-        ArrayStoreStrSource::Missing => {
-            maybe_store_non_string_box_from_verified_source(value_h, drop_epoch)
-        }
+        ArrayStoreStrSource::StringLike(source_text) => Some(
+            source_text
+                .with_text(|text| text.as_str().to_owned())
+                .unwrap_or_else(|| source_text.copy_owned_text_cold()),
+        ),
+        ArrayStoreStrSource::OtherObject | ArrayStoreStrSource::Missing => None,
     }
 }
 
 #[cfg_attr(feature = "perf-observe", inline(never))]
 #[cfg_attr(not(feature = "perf-observe"), inline(always))]
-fn capture_store_array_str_source(value_h: i64) -> (StringHandleSourceKind, ArrayStoreStrSource) {
-    with_array_store_str_source(value_h, |source_kind, source| (source_kind, source))
-}
-
-#[cfg_attr(feature = "perf-observe", inline(never))]
-#[cfg_attr(not(feature = "perf-observe"), inline(always))]
-fn execute_store_array_str_slot_boundary(
-    items: &mut Vec<Box<dyn nyash_rust::box_trait::NyashBox>>,
-    idx: usize,
+fn execute_store_array_str_contract_on_array(
+    arr: &ArrayBox,
+    idx: i64,
     value_h: i64,
     source_kind: StringHandleSourceKind,
     source: ArrayStoreStrSource,
     drop_epoch: u64,
 ) -> i64 {
-    execute_store_array_str_slot(items, idx, value_h, source_kind, source, drop_epoch)
-}
-
-#[cfg_attr(feature = "perf-observe", inline(never))]
-#[cfg_attr(not(feature = "perf-observe"), inline(always))]
-fn execute_store_array_str_kernel_text_slot_boundary(
-    items: &mut Vec<Box<dyn nyash_rust::box_trait::NyashBox>>,
-    idx: usize,
-    slot: &mut KernelTextSlot,
-) -> i64 {
-    if idx > items.len() {
+    let idx_usize = idx as usize;
+    let len = arr.len();
+    if idx_usize > len {
         return 0;
     }
-    if idx < items.len()
-        && items[idx]
-            .as_any()
-            .downcast_ref::<BorrowedHandleBox>()
-            .is_some()
-    {
-        let Some(source_keep) = store_string_keep_from_kernel_text_slot(slot) else {
+    record_store_array_str_contract(idx_usize, len, value_h, source_kind, &source);
+    if matches!(source_kind, StringHandleSourceKind::StringLike) {
+        let Some(value) = owned_text_from_array_store_source(source) else {
             return 0;
         };
-        if try_retarget_borrowed_string_slot_take_unpublished_keep(
-            &mut items[idx],
-            source_keep,
-            handles::drop_epoch(),
-        )
-        .is_ok()
-        {
-            if observe::enabled() {
-                observe::record_store_array_str_existing_slot();
-                observe::record_store_array_str_source_store();
-            }
-            observe::record_store_array_str_retarget_hit();
-            return 1;
-        }
-        return 0;
-    }
-    if idx < items.len() {
-        if let Some(value) = items[idx]
-            .as_any_mut()
-            .downcast_mut::<nyash_rust::box_trait::StringBox>()
-        {
-            if !store_string_into_existing_string_box_from_kernel_text_slot(slot, value) {
-                return 0;
-            }
-            if observe::enabled() {
-                observe::record_store_array_str_existing_slot();
-                observe::record_store_array_str_source_store();
-            }
-            return 1;
-        }
-    }
-    let Some(value) = store_string_box_from_kernel_text_slot(slot) else {
-        return 0;
-    };
-    if observe::enabled() {
-        if idx < items.len() {
-            observe::record_store_array_str_existing_slot();
+        return if arr.slot_store_text_raw(idx, value) {
+            1
         } else {
-            observe::record_store_array_str_append_slot();
-        }
-        observe::record_store_array_str_source_store();
+            0
+        };
     }
-    if idx < items.len() {
-        items[idx] = value;
+    let value = maybe_store_non_string_box_from_verified_source(value_h, drop_epoch);
+    if arr.slot_store_box_raw(idx, value) {
+        1
     } else {
-        items.push(value);
+        0
     }
-    1
 }
 
 #[cfg_attr(feature = "perf-observe", inline(never))]
@@ -266,29 +151,59 @@ fn execute_store_array_str_contract(handle: i64, idx: i64, value_h: i64) -> i64 
         };
         observe::record_store_array_str_cache_probe(kind);
     }
+    let (source_kind, source) = capture_store_array_str_source(value_h);
     super::super::array_handle_cache::with_array_box_at_epoch(handle, drop_epoch, |arr| {
-        let idx = idx as usize;
-        let (source_kind, source) = capture_store_array_str_source(value_h);
-        arr.with_items_write(|items| {
-            execute_store_array_str_slot_boundary(
-                items,
-                idx,
-                value_h,
-                source_kind,
-                source,
-                drop_epoch,
-            )
-        })
+        execute_store_array_str_contract_on_array(
+            arr,
+            idx,
+            value_h,
+            source_kind,
+            source,
+            drop_epoch,
+        )
     })
     .unwrap_or(0)
 }
 
 #[inline(always)]
 pub(in super::super) fn array_string_store_handle_at(handle: i64, idx: i64, value_h: i64) -> i64 {
-    // phase-150x: keep array-string store semantics owned above this layer and
-    // treat the Rust path as the executor for the canonical `store.array.str`
-    // reading only.
+    // The MIR-level `store.array.str` contract chooses the text source and
+    // publication boundary. Runtime only stores text residence or degrades
+    // mixed/generic arrays back to Boxed.
     execute_store_array_str_contract(handle, idx, value_h)
+}
+
+#[cfg_attr(feature = "perf-observe", inline(never))]
+#[cfg_attr(not(feature = "perf-observe"), inline(always))]
+fn execute_store_array_str_kernel_text_slot_boundary(
+    arr: &ArrayBox,
+    idx: i64,
+    slot: &mut KernelTextSlot,
+) -> i64 {
+    let idx_usize = idx as usize;
+    let len = arr.len();
+    if idx_usize > len {
+        return 0;
+    }
+    let Some(value) = slot
+        .take_materialized_owned_bytes()
+        .map(|bytes| bytes.into_string())
+    else {
+        return 0;
+    };
+    if observe::enabled() {
+        if idx_usize < len {
+            observe::record_store_array_str_existing_slot();
+        } else {
+            observe::record_store_array_str_append_slot();
+        }
+        observe::record_store_array_str_source_store();
+    }
+    if arr.slot_store_text_raw(idx, value) {
+        1
+    } else {
+        0
+    }
 }
 
 #[inline(always)]
@@ -303,10 +218,7 @@ pub(in super::super) fn array_string_store_kernel_text_slot_at(
     }
     observe::record_store_array_str_enter();
     super::super::array_handle_cache::with_array_box(handle, |arr| {
-        let idx = idx as usize;
-        arr.with_items_write(|items| {
-            execute_store_array_str_kernel_text_slot_boundary(items, idx, slot)
-        })
+        execute_store_array_str_kernel_text_slot_boundary(arr, idx, slot)
     })
     .unwrap_or(0)
 }

@@ -60,3 +60,45 @@ fn slot_store_box_preserves_inline_f64_lane_for_float_values() {
     assert!(array.uses_inline_f64_slots());
     assert_eq!(array.get_index_i64(0).to_string_box().value, "2.5");
 }
+
+#[test]
+fn slot_store_text_births_text_lane() {
+    let array = ArrayBox::new();
+    assert!(array.slot_store_text_raw(0, "hello".to_string()));
+    assert!(array.uses_text_slots());
+    assert_eq!(
+        array.slot_with_text_raw(0, str::to_owned).as_deref(),
+        Some("hello")
+    );
+    assert_eq!(array.get_index_i64(0).to_string_box().value, "hello");
+}
+
+#[test]
+fn slot_update_text_mutates_text_lane_without_boxing() {
+    let array = ArrayBox::new();
+    assert!(array.slot_store_text_raw(0, "line".to_string()));
+    assert_eq!(
+        array.slot_update_text_raw(0, |value| {
+            value.push_str("-seed");
+            value.len()
+        }),
+        Some(9)
+    );
+    assert!(array.uses_text_slots());
+    assert_eq!(
+        array.slot_with_text_raw(0, str::to_owned).as_deref(),
+        Some("line-seed")
+    );
+}
+
+#[test]
+fn generic_box_store_degrades_text_lane_to_boxed_for_mixed_value() {
+    let array = ArrayBox::new();
+    assert!(array.slot_store_text_raw(0, "hello".to_string()));
+    assert!(array.uses_text_slots());
+
+    assert!(array.slot_store_box_raw(1, Box::new(IntegerBox::new(7))));
+    assert!(!array.uses_text_slots());
+    assert_eq!(array.get_index_i64(0).to_string_box().value, "hello");
+    assert_eq!(array.slot_load_i64_raw(1), Some(7));
+}

@@ -59,8 +59,11 @@ Scope: current lane / next lane / restart order only.
     - `137x-E0.2 shared-receiver alias metadata coverage` is closed enough to unblock `137x-E1`
       - active const-suffix / insert-mid shared-receiver fixtures now carry MIR-owned `read_alias.shared_receiver`
       - backend `.inc` consumes metadata only and no longer scans later instructions to rediscover shared receiver legality
-    - `137x-E1 minimal TextLane / ArrayStorage::Text` is the current implementation blocker
-    - implement `137x-E` minimal `TextLane` / `ArrayStorage::Text`, then `137x-F` Value Lane bridge, then `137x-G` allocator / arena pilot
+    - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed
+      - implemented as array-internal storage/residence only: `String = value`, public Array/String ABI, and MIR legality stay unchanged
+      - array-string kernel read/store/mutate routes now use text raw APIs; generic/mixed ArrayBox routes degrade to Boxed instead of making `TextLane` semantic truth
+      - retired the array-string store `BorrowedHandleBox` retarget executor path; runtime now stores text residence or degrades mixed values without re-planning alias legality
+    - next implementation blocker is `137x-F` Value Lane bridge, then `137x-G` allocator / arena pilot
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - active phase:
@@ -82,7 +85,7 @@ Scope: current lane / next lane / restart order only.
     - phase-137x keeper `49c356339` is the current string proof
     - demand-backed cutover inventory `289x-96` is closed
     - `137x-B` design cleanout is closed; `137x-C` structure completion gate is closed; `137x-D` exact route-shape keeper is landed
-    - next kilo optimization is parked until `137x-E/F/G` land or reject; return lane is `137x-H`
+    - next kilo optimization is parked until `137x-F/G` land or reject; return lane is `137x-H`
     - array/map remain identity containers; only internal residence may become lane-hosted later
     - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
     - all `289x-96` clusters are done; their vocabulary now feeds the constrained `137x-F` implementation bridge
@@ -103,7 +106,7 @@ Scope: current lane / next lane / restart order only.
       - `substring_hii` `ViewSpan` publication cleanup is closed; `StringSpan` now survives until the final handle boundary helper
       - explicit string-only `publish.text` contract gates are closed for `137x-A`; `publish.any` remains deferred/blocked
       - `cache.rs` / `string_materialize.rs` remain deferred modularization candidates, but not prerequisites for the active `137x-E` implementation gate
-      - active implementation gate is `137x-E TextLane implementation gate`; `137x-E0` MIR/backend seam closeout is closed
+      - active implementation gate moves to `137x-F` Value Lane bridge; `137x-E0` MIR/backend seam closeout and `137x-E1` minimal TextLane are closed
       - `.inc` must consume MIR-owned metadata for legality/provenance and stay backend emit/normalization only
       - pre-E1 cleanup deleted the old `9-block` seed branch and the shared-receiver scanner fallback; active shared-receiver gates are now metadata-only
       - legacy watch item surfaced by audit is `src/host_providers/llvm_codegen/compat_text_primitive.rs`
@@ -205,9 +208,9 @@ Scope: current lane / next lane / restart order only.
       - `137x-B` container / primitive design cleanout is closed
       - `137x-C` completion gate is closed by `137x-91-task-board.md`
       - `137x-D` exact route-shape keeper is landed
-      - optimization resumes as `137x-H` only after `137x-E/F/G` land or reject
+      - optimization resumes as `137x-H` only after `137x-F/G` land or reject
 - current blocker:
-  - `137x-E TextLane implementation gate` before any further kilo optimization edit
+  - `137x-F Value Lane bridge` before any further kilo optimization edit
   - no broad `phase-289x` cutover blocker; `137x-F` is a constrained implementation bridge
 - current cut status:
   - latest implementation candidate:
@@ -943,29 +946,25 @@ Scope: current lane / next lane / restart order only.
      - `137x-C`: structure completion before perf return
      - `137x-D`: exact array store route-shape keeper
      - `137x-E0`: MIR / backend seam closeout
-   - current blocker: `137x-E1 minimal TextLane / ArrayStorage::Text`
+     - `137x-E1`: minimal TextLane / ArrayStorage::Text
+   - current blocker: `137x-F Value Lane implementation bridge`
    - order:
      - `137x-E0.1`: remove old `9-block` seed shape
      - `137x-E0.2`: export shared-receiver alias metadata for active guards and remove the `.inc` legacy scanner fallback
-     - `137x-E`: minimal `TextLane` / `ArrayStorage::Text`
+     - `137x-E1`: minimal `TextLane` / `ArrayStorage::Text` (landed)
      - `137x-F`: runtime-wide Value Lane implementation bridge
      - `137x-G`: allocator / arena pilot
-     - `137x-H`: next kilo optimization return after E/F/G land or reject
+     - `137x-H`: next kilo optimization return after F/G land or reject
    - still blocked here:
      - `publish.any`
      - typed map lane
      - heterogeneous / union array slot layout
      - public ABI widening
-2. implement `137x-E` as a narrow storage/residence slice
-   - start with array string hot paths and existing string publication contracts
-   - keep `String = value`; `TextLane` is storage/residence only
-   - keep Array / String public ABI unchanged
-   - do not add MIR legality beyond the contracts needed for this gate
-3. follow with `137x-F/G` only after `137x-E` evidence
+2. implement `137x-F/G` after landed `137x-E1` evidence
    - `137x-F` consumes phase-289x vocabulary and demand ledgers as implementation input, not as broad runtime rewrite permission
    - `137x-G` opens only if exact/middle/whole evidence still shows structural copy/allocation tax after E/F
    - each slice needs rollback notes and exact/middle/whole acceptance commands
-4. preserve landed `137x-D` proof as baseline evidence
+3. preserve landed `137x-D` proof as baseline evidence
    - proof card: `137x-D exact array store route-shape proof`
    - front: `kilo_micro_array_string_store`
    - implementation: `hako_llvmc_match_array_string_store_micro_seed(...)` accepts only the current compact 8-block direct MIR shape; the old 9-block legacy seed branch is retired

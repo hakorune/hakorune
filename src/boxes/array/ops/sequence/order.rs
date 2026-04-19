@@ -11,6 +11,7 @@ impl ArrayBox {
                     .iter()
                     .map(|item| item.to_string_box().value)
                     .collect(),
+                ArrayStorage::Text(values) => values.clone(),
                 ArrayStorage::InlineI64(values) => {
                     values.iter().map(|value| value.to_string()).collect()
                 }
@@ -38,6 +39,7 @@ impl ArrayBox {
     pub fn sort(&self) -> Box<dyn NyashBox> {
         let mut items = self.items.write();
         match &mut *items {
+            ArrayStorage::Text(values) => values.sort_unstable(),
             ArrayStorage::InlineI64(values) => values.sort_unstable(),
             ArrayStorage::InlineBool(values) => values.sort_unstable(),
             ArrayStorage::InlineF64(values) => values.sort_by(|lhs, rhs| lhs.total_cmp(rhs)),
@@ -101,6 +103,7 @@ impl ArrayBox {
         let mut items = self.items.write();
         match &mut *items {
             ArrayStorage::Boxed(items) => items.reverse(),
+            ArrayStorage::Text(values) => values.reverse(),
             ArrayStorage::InlineI64(values) => values.reverse(),
             ArrayStorage::InlineBool(values) => values.reverse(),
             ArrayStorage::InlineF64(values) => values.reverse(),

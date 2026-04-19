@@ -10,6 +10,7 @@ impl ArrayBox {
         let items = self.items.read();
         match &*items {
             ArrayStorage::Boxed(items) => items.get(idx).and_then(|item| item.as_i64_fast()),
+            ArrayStorage::Text(_) => None,
             ArrayStorage::InlineI64(values) => values.get(idx).copied(),
             ArrayStorage::InlineBool(values) => {
                 values.get(idx).map(|value| if *value { 1 } else { 0 })
@@ -32,6 +33,17 @@ impl ArrayBox {
         match &*items {
             ArrayStorage::Boxed(items) => match items.get(idx) {
                 Some(item) => Self::clone_visible_item(item.as_ref()),
+                None => {
+                    if Self::oob_strict_enabled() {
+                        crate::runtime::observe::mark_oob();
+                        Box::new(StringBox::new("[oob/array/get] index out of bounds"))
+                    } else {
+                        Box::new(crate::boxes::null_box::NullBox::new())
+                    }
+                }
+            },
+            ArrayStorage::Text(values) => match values.get(idx) {
+                Some(value) => Box::new(StringBox::new(value.clone())),
                 None => {
                     if Self::oob_strict_enabled() {
                         crate::runtime::observe::mark_oob();

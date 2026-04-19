@@ -31,8 +31,8 @@ Related:
   - `phase-137x-E TextLane / Value Lane implementation gate` (active; opened before the next kilo optimization)
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
-    - `137x-E1 minimal TextLane / ArrayStorage::Text` is the next implementation slice before further kilo tuning
-    - implement `137x-E` minimal `TextLane` / `ArrayStorage::Text`, then `137x-F` Value Lane bridge, then `137x-G` allocator / arena pilot
+    - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
+    - current blocker is `137x-F Value Lane bridge`, then `137x-G` allocator / arena pilot
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - active phase:
@@ -52,7 +52,7 @@ Related:
     - demand-backed cutover inventory `289x-96` is closed
     - `137x-B` design cleanout is closed; `137x-C` structure completion gate is closed
     - `137x-D` exact route-shape keeper is landed
-    - `137x-E0` is closed; `137x-E/F/G` remain open before the next kilo optimization return
+    - `137x-E0` and `137x-E1` are closed; `137x-F/G` remain open before the next kilo optimization return
     - array/map remain identity containers; only internal residence may become lane-hosted later
     - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
     - all `289x-96` clusters are done; their vocabulary now feeds the constrained `137x-F` implementation bridge
@@ -153,7 +153,7 @@ Related:
       - `289x-96` Rust/C-shim/MIR clusters are closed
       - phase-289x no longer blocks optimization return, and `137x-B` design cleanout is now closed
     - implementation order before the next kilo optimization:
-      - `137x-E`: minimal `ArrayStorage::Text` / `TextLane`
+      - `137x-E1`: minimal `ArrayStorage::Text` / `TextLane` is landed
       - `137x-F`: runtime-wide Value Lane implementation bridge, constrained by 289x vocabulary
       - `137x-G`: allocator / arena pilot, only after copy/allocation tax remains structural
       - still deferred: string view/value carrier split beyond this gate, Map typed lane, heterogeneous / union slots
@@ -162,9 +162,9 @@ Related:
       - `137x-B` container / primitive design cleanout is closed
       - `137x-C` structure completion gate is closed by `137x-91-task-board.md`
       - `137x-D` exact route-shape keeper is landed
-      - optimization resumes as `137x-H` only after `137x-E/F/G` land or reject
+      - optimization resumes as `137x-H` only after `137x-F/G` land or reject
 - blocker:
-  - `137x-E TextLane implementation gate` before any further kilo optimization edit
+  - `137x-F Value Lane bridge` before any further kilo optimization edit
   - first landed keeper:
     - same-array/same-index piecewise concat3 subrange store originally lowered to `nyash.array.string_insert_mid_subrange_store_hisiii`
     - current direct lowering uses explicit-length `nyash.array.string_insert_mid_subrange_store_hisiiii`
@@ -594,12 +594,12 @@ Related:
 ## Next
 
 1. open implementation gates before the next kilo optimization
-   - current blocker: `137x-E1 minimal TextLane / ArrayStorage::Text`
+   - current blocker: `137x-F Value Lane bridge`
    - `137x-E0`: MIR / backend seam closeout is closed
-   - `137x-E`: minimal `TextLane` / `ArrayStorage::Text`
+   - `137x-E1`: minimal `TextLane` / `ArrayStorage::Text` is landed
    - `137x-F`: runtime-wide Value Lane implementation bridge
    - `137x-G`: allocator / arena pilot
-   - `137x-H`: next kilo optimization return after E/F/G land or reject
+   - `137x-H`: next kilo optimization return after F/G land or reject
 2. keep closed gates immutable
    - `137x-A`: string publication contract closeout is closed
    - `137x-B`: container / primitive design cleanout is closed
@@ -610,9 +610,9 @@ Related:
    - typed map lane remains blocked
    - heterogeneous / union array slot layout remains blocked
    - public ABI widening remains blocked
-4. implement `137x-E` from the new gate SSOT
+4. implement `137x-F` from the gate SSOT
    - SSOT: `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
-   - start with array string storage/residence only
+   - start from landed array string storage/residence evidence
    - keep `String = value` and public Array / String ABI unchanged
 5. preserve `137x-D` evidence as baseline
    - closed card: `137x-D exact array store route-shape proof`

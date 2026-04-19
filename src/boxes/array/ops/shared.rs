@@ -22,11 +22,19 @@ impl ArrayBox {
         Self::new_with_storage(ArrayStorage::InlineF64(values))
     }
 
+    pub(super) fn new_with_text_elements(values: Vec<String>) -> Self {
+        Self::new_with_storage(ArrayStorage::Text(values))
+    }
+
     #[inline(always)]
     pub fn with_items_read<R>(&self, f: impl FnOnce(&Vec<Box<dyn NyashBox>>) -> R) -> R {
         let items = self.items.read();
         match &*items {
             ArrayStorage::Boxed(items) => f(items),
+            ArrayStorage::Text(values) => {
+                let materialized = Self::boxed_from_text(values);
+                f(&materialized)
+            }
             ArrayStorage::InlineI64(values) => {
                 let materialized = Self::boxed_from_inline(values);
                 f(&materialized)

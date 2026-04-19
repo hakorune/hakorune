@@ -8,5 +8,6 @@ mod capacity;
 mod mutation;
 mod sequence;
 mod shared;
+mod text;
 
 use storage::ArrayStorage;

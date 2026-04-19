@@ -128,20 +128,6 @@ pub(crate) fn try_retarget_borrowed_string_slot_take_verified_text_source(
     }
 }
 
-#[inline(always)]
-pub(crate) fn try_retarget_borrowed_string_slot_take_unpublished_keep(
-    slot: &mut Box<dyn NyashBox>,
-    source_keep: SourceLifetimeKeep,
-    source_drop_epoch: u64,
-) -> Result<(), SourceLifetimeKeep> {
-    let Some(alias) = slot.as_any_mut().downcast_mut::<BorrowedHandleBox>() else {
-        return Err(source_keep);
-    };
-    keep_borrowed_string_slot_source_keep(alias, source_keep);
-    update_borrowed_string_slot_alias(alias, 0, source_drop_epoch);
-    Ok(())
-}
-
 #[cold]
 #[inline(never)]
 fn promote_string_view_to_owned_box_cold(obj: Arc<dyn NyashBox>) -> Box<dyn NyashBox> {

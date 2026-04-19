@@ -16,6 +16,13 @@ impl ArrayBox {
                         Box::new(crate::boxes::null_box::NullBox::new())
                     }
                 }
+                ArrayStorage::Text(values) => {
+                    if idx < values.len() {
+                        Box::new(StringBox::new(values.remove(idx)))
+                    } else {
+                        Box::new(crate::boxes::null_box::NullBox::new())
+                    }
+                }
                 ArrayStorage::InlineI64(values) => {
                     if idx < values.len() {
                         Box::new(IntegerBox::new(values.remove(idx)))

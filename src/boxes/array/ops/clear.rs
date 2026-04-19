@@ -7,6 +7,7 @@ impl ArrayBox {
         let mut items = self.items.write();
         match &mut *items {
             ArrayStorage::Boxed(items) => items.clear(),
+            ArrayStorage::Text(values) => values.clear(),
             ArrayStorage::InlineI64(values) => values.clear(),
             ArrayStorage::InlineBool(values) => values.clear(),
             ArrayStorage::InlineF64(values) => values.clear(),

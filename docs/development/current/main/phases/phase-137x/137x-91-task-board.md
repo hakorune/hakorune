@@ -7,17 +7,17 @@
   - `137x-C`: structure completion gate before perf return (closed)
   - `137x-D`: owner-first optimization return (exact route-shape keeper landed)
   - `137x-E0`: MIR / backend seam closeout before TextLane (closed)
-  - `137x-E`: TextLane implementation gate before next kilo optimization (active)
-  - `137x-F`: runtime-wide Value Lane implementation bridge (next)
+  - `137x-E1`: TextLane / ArrayStorage::Text implementation (closed)
+  - `137x-F`: runtime-wide Value Lane implementation bridge (active)
   - `137x-G`: allocator / arena lane pilot (next)
-  - `137x-H`: kilo optimization return after E/F/G land or reject
+  - `137x-H`: kilo optimization return after F/G land or reject
 
 ## Rule
 
 Owner-first optimization already reopened as `137x-D` and landed the exact
 array store route-shape keeper. The old rule that kept `TextLane`, runtime-wide
 Value Lane, and allocator/arena work closed is retired. Before the next kilo
-optimization pass, open the implementation gates in `137x-E/F/G`.
+optimization pass, keep the `137x-F/G implementation gates before next kilo optimization` open.
 
 `all done` for this board means:
 
@@ -106,12 +106,14 @@ order before the next kilo optimization return.
   - `.inc` consumes plan metadata and emits backend calls; it must not rediscover semantic legality
   - runtime array/string slot code may split by mechanism only, without becoming a semantic owner
 - [x] G1 `137x-E implementation gate before next kilo optimization`
-  - active token: `137x-E TextLane implementation gate`
+  - closed token: `137x-E TextLane implementation gate`
   - SSOT: `docs/development/current/main/phases/phase-137x/137x-94-textlane-value-allocator-implementation-gate.md`
-- [ ] G2 minimal `TextLane` / `ArrayStorage::Text`
+- [x] G2 minimal `TextLane` / `ArrayStorage::Text`
   - start with array string hot paths
   - keep `String = value`; `TextLane` is storage/residence only
+  - landed as runtime-private `ArrayStorage::Text`; array-string kernel routes use text raw APIs and mixed/generic arrays degrade to Boxed
 - [ ] G3 runtime-wide `Value Lane` implementation bridge
+  - active token: `137x-F Value Lane bridge`
   - use phase-289x ledgers as vocabulary/demand SSOT
   - keep Array / Map public identity unchanged
 - [ ] G4 allocator / arena pilot
@@ -125,4 +127,4 @@ order before the next kilo optimization return.
 - [x] F3 137x-C structure completion gate is satisfied
 - [x] F4 owner-first optimization reopened as `137x-D`
 - [x] F5 implementation gate is open as `137x-E`
-- [ ] F6 kilo optimization returns as `137x-H` only after `137x-E/F/G` land or reject
+- [ ] F6 kilo optimization returns as `137x-H` only after `137x-F/G` land or reject

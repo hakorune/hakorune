@@ -1,12 +1,10 @@
 use super::super::array_guard::valid_handle_idx;
 use super::super::value_codec::KernelTextSlot;
 use super::array_string_slot_helpers::{
-    array_text_owned_cell_demand, array_text_read_ref_demand,
-    record_borrowed_alias_string_read_latest_fresh, with_compiler_const_utf8_ptr_len,
+    array_text_owned_cell_demand, array_text_read_ref_demand, with_compiler_const_utf8_ptr_len,
 };
 use crate::exports::string_view::clamp_i64_range;
 use crate::observe;
-use nyash_rust::box_trait::StringBox;
 use std::ffi::CStr;
 
 pub(in super::super) fn array_string_concat_const_suffix_by_index_into_slot(
@@ -35,14 +33,7 @@ fn array_string_concat_const_suffix_by_index_into_slot_str(
     let _output_demand = array_text_owned_cell_demand();
     slot.clear();
     super::super::array_handle_cache::with_array_box(handle, |arr| {
-        let idx = idx as usize;
-        arr.with_items_read(|items| {
-            let Some(item) = items.get(idx) else {
-                return 0;
-            };
-            let Some(source) = item.as_str_fast() else {
-                return 0;
-            };
+        arr.slot_with_text_raw(idx, |source| {
             let mut out = String::with_capacity(source.len() + suffix.len());
             out.push_str(source);
             out.push_str(suffix);
@@ -50,6 +41,7 @@ fn array_string_concat_const_suffix_by_index_into_slot_str(
             1
         })
     })
+    .flatten()
     .unwrap_or(0)
 }
 
@@ -100,25 +92,8 @@ fn array_string_concat_const_suffix_by_index_store_same_slot_str(
     let observe_enabled = observe::enabled();
     observe::record_store_array_str_enter();
     super::super::array_handle_cache::with_array_box(handle, |arr| {
-        let idx = idx as usize;
-        arr.with_items_write(|items| {
-            if idx >= items.len() {
-                return 0;
-            }
-            let item = &mut items[idx];
-            if let Some(value) = item.as_any_mut().downcast_mut::<StringBox>() {
-                append_const_suffix_to_string_box_value(&mut value.value, suffix);
-                if observe_enabled {
-                    observe::record_store_array_str_existing_slot();
-                    observe::record_store_array_str_source_store();
-                }
-                return 1;
-            }
-            let Some(mut value) = item.as_str_fast().map(str::to_owned) else {
-                return 0;
-            };
-            append_const_suffix_to_string_box_value(&mut value, suffix);
-            *item = Box::new(StringBox::new(value));
+        arr.slot_update_text_raw(idx, |value| {
+            append_const_suffix_to_string_box_value(value, suffix);
             if observe_enabled {
                 observe::record_store_array_str_existing_slot();
                 observe::record_store_array_str_source_store();
@@ -126,6 +101,7 @@ fn array_string_concat_const_suffix_by_index_store_same_slot_str(
             1
         })
     })
+    .flatten()
     .unwrap_or(0)
 }
 
@@ -249,23 +225,15 @@ fn array_string_insert_const_mid_by_index_into_slot_str(
     let _read_demand = array_text_read_ref_demand();
     let _output_demand = array_text_owned_cell_demand();
     slot.clear();
-    let observe_enabled = observe::enabled();
     super::super::array_handle_cache::with_array_box(handle, |arr| {
-        let idx = idx as usize;
-        arr.with_items_read(|items| {
-            let Some(item) = items.get(idx) else {
-                return 0;
-            };
-            record_borrowed_alias_string_read_latest_fresh(observe_enabled, item.as_ref(), false);
-            let Some(source) = item.as_str_fast() else {
-                return 0;
-            };
+        arr.slot_with_text_raw(idx, |source| {
             slot.replace_owned_string(materialize_insert_const_mid_for_array_slot(
                 source, middle, split,
             ));
             1
         })
     })
+    .flatten()
     .unwrap_or(0)
 }
 
@@ -311,25 +279,8 @@ fn array_string_insert_const_mid_by_index_store_same_slot_str(
     let observe_enabled = observe::enabled();
     observe::record_store_array_str_enter();
     super::super::array_handle_cache::with_array_box(handle, |arr| {
-        let idx = idx as usize;
-        arr.with_items_write(|items| {
-            if idx >= items.len() {
-                return 0;
-            }
-            let item = &mut items[idx];
-            if let Some(value) = item.as_any_mut().downcast_mut::<StringBox>() {
-                insert_const_mid_into_string_box_value(&mut value.value, middle, split);
-                if observe_enabled {
-                    observe::record_store_array_str_existing_slot();
-                    observe::record_store_array_str_source_store();
-                }
-                return 1;
-            }
-            let Some(mut value) = item.as_str_fast().map(str::to_owned) else {
-                return 0;
-            };
-            insert_const_mid_into_string_box_value(&mut value, middle, split);
-            *item = Box::new(StringBox::new(value));
+        arr.slot_update_text_raw(idx, |value| {
+            insert_const_mid_into_string_box_value(value, middle, split);
             if observe_enabled {
                 observe::record_store_array_str_existing_slot();
                 observe::record_store_array_str_source_store();
@@ -337,6 +288,7 @@ fn array_string_insert_const_mid_by_index_store_same_slot_str(
             1
         })
     })
+    .flatten()
     .unwrap_or(0)
 }
 
@@ -392,37 +344,17 @@ fn array_string_insert_const_mid_subrange_by_index_store_same_slot_str(
     let observe_enabled = observe::enabled();
     observe::record_store_array_str_enter();
     super::super::array_handle_cache::with_array_box(handle, |arr| {
-        let idx = idx as usize;
-        arr.with_items_write(|items| {
-            if idx >= items.len() {
-                return 0;
-            }
-            let item = &mut items[idx];
-            if let Some(value) = item.as_any_mut().downcast_mut::<StringBox>() {
-                let Some(next) = materialize_insert_const_mid_subrange_for_array_slot(
-                    value.value.as_str(),
-                    middle,
-                    split,
-                    start,
-                    end,
-                ) else {
-                    return 0;
-                };
-                value.value = next;
-                if observe_enabled {
-                    observe::record_store_array_str_existing_slot();
-                    observe::record_store_array_str_source_store();
-                }
-                return 1;
-            }
-            let Some(next) = item.as_str_fast().and_then(|source| {
-                materialize_insert_const_mid_subrange_for_array_slot(
-                    source, middle, split, start, end,
-                )
-            }) else {
+        arr.slot_update_text_raw(idx, |value| {
+            let Some(next) = materialize_insert_const_mid_subrange_for_array_slot(
+                value.as_str(),
+                middle,
+                split,
+                start,
+                end,
+            ) else {
                 return 0;
             };
-            *item = Box::new(StringBox::new(next));
+            *value = next;
             if observe_enabled {
                 observe::record_store_array_str_existing_slot();
                 observe::record_store_array_str_source_store();
@@ -430,5 +362,6 @@ fn array_string_insert_const_mid_subrange_by_index_store_same_slot_str(
             1
         })
     })
+    .flatten()
     .unwrap_or(0)
 }

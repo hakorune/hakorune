@@ -14,13 +14,13 @@ active_phase = "docs/development/current/main/phases/phase-137x/README.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-137x/137x-91-task-board.md"
 
-current_blocker_token = "137x-E TextLane implementation gate"
-pre_perf_gate = "137x-E implementation gate before next kilo optimization"
+current_blocker_token = "137x-F Value Lane bridge"
+pre_perf_gate = "137x-F/G implementation gates before next kilo optimization"
 pre_perf_gate_status = "open"
 optimization_return_lane = "137x-H"
 
 opened_successors = [
-  "137x-E minimal TextLane / ArrayStorage::Text implementation",
+  "137x-E1 minimal TextLane / ArrayStorage::Text implementation landed",
   "137x-F runtime-wide Value Lane implementation bridge",
   "137x-G allocator / arena lane pilot",
 ]

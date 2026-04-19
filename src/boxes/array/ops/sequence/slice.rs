@@ -42,6 +42,9 @@ impl ArrayBox {
                     .collect();
                 Box::new(ArrayBox::new_with_elements(slice_items))
             }
+            ArrayStorage::Text(values) => Box::new(ArrayBox::new_with_text_elements(
+                values[start_idx..end_idx].to_vec(),
+            )),
             ArrayStorage::InlineI64(values) => Box::new(ArrayBox::new_with_inline_i64_elements(
                 values[start_idx..end_idx].to_vec(),
             )),

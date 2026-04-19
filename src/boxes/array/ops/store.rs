@@ -1,4 +1,4 @@
-use super::super::super::ArrayBox;
+use super::super::super::{ArrayBox, ArrayStorage};
 use crate::box_trait::{BoolBox, IntegerBox, NyashBox};
 use crate::boxes::FloatBox;
 
@@ -25,6 +25,23 @@ impl ArrayBox {
         }
         let idx = idx as usize;
         let mut items = self.items.write();
+        if let Some(text_value) = value.as_str_fast() {
+            if let ArrayStorage::Text(values) = &mut *items {
+                let text_value = text_value.to_owned();
+                if idx < values.len() {
+                    values[idx] = text_value;
+                    return true;
+                } else if idx == values.len() {
+                    values.push(text_value);
+                    return true;
+                } else {
+                    if Self::oob_strict_enabled() {
+                        crate::runtime::observe::mark_oob();
+                    }
+                    return false;
+                }
+            }
+        }
         if let Some(bool_value) = value.as_bool_fast() {
             if let Some(values) = Self::ensure_inline_bool(&mut items) {
                 if idx < values.len() {
