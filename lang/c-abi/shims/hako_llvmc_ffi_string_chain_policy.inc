@@ -25,14 +25,11 @@
           int* shared_receiver_out) {
         int direct_set = has_direct_array_set_consumer(ii, ilen, insts, dst);
         int shared_receiver = 0;
-        enum StringPostStoreUseKind post_store_use =
-            HAKO_LLVMC_STRING_POST_STORE_USE_NONE;
         if (get_str_const(rhs) != NULL) {
           shared_receiver =
               hako_llvmc_string_kernel_plan_or_legacy_shared_receiver(ii, ilen, insts, dst);
         }
         if (direct_set_out) *direct_set_out = direct_set || shared_receiver;
-        (void)post_store_use;
         if (shared_receiver_out) *shared_receiver_out = shared_receiver;
         if (should_defer_string_concat_pair(ii, ilen, insts, dst)) {
           return HAKO_LLVMC_STRING_CONCAT_PAIR_ROUTE_DEFER_PAIR;

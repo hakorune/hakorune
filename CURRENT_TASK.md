@@ -52,7 +52,11 @@ Scope: current lane / next lane / restart order only.
   - `phase-137x-E TextLane / Value Lane implementation gate` (active; opened before the next kilo optimization)
   - implementation mode:
     - `137x-E0 MIR / backend seam closeout` is closed
-    - `137x-E1 minimal TextLane / ArrayStorage::Text` is the next implementation slice before further kilo tuning
+    - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
+      - removed the old `9-block` `kilo_micro_array_string_store` exact seed branch; the compact `8-block` direct producer is now the only accepted seed shape
+      - attempted shared-receiver metadata-only deletion, but active phase137x shared-receiver guards still require the quarantined scanner bridge until MIR emits those alias facts for every direct/front shape
+      - keep the exact seed bridge itself until `137x-E1` gives array-string store a keeper TextLane / `ArrayStorage::Text` route
+    - `137x-E1 minimal TextLane / ArrayStorage::Text` is the current implementation blocker
     - implement `137x-E` minimal `TextLane` / `ArrayStorage::Text`, then `137x-F` Value Lane bridge, then `137x-G` allocator / arena pilot
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
@@ -98,6 +102,7 @@ Scope: current lane / next lane / restart order only.
       - `cache.rs` / `string_materialize.rs` remain deferred modularization candidates, but not prerequisites for the active `137x-E` implementation gate
       - active implementation gate is `137x-E TextLane implementation gate`; `137x-E0` MIR/backend seam closeout is closed
       - `.inc` must consume MIR-owned metadata for legality/provenance and stay backend emit/normalization only
+      - pre-E1 cleanup deleted only the old `9-block` seed branch; shared-receiver scanner fallback remains quarantined because active phase137x shared-receiver gates still require it
       - legacy watch item surfaced by audit is `src/host_providers/llvm_codegen/compat_text_primitive.rs`
   - parent SSOT:
     - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
@@ -937,6 +942,7 @@ Scope: current lane / next lane / restart order only.
      - `137x-E0`: MIR / backend seam closeout
    - current blocker: `137x-E1 minimal TextLane / ArrayStorage::Text`
    - order:
+     - `137x-E0.1`: remove old `9-block` seed shape; keep shared-receiver fallback quarantined until MIR alias metadata covers active direct/front guards
      - `137x-E`: minimal `TextLane` / `ArrayStorage::Text`
      - `137x-F`: runtime-wide Value Lane implementation bridge
      - `137x-G`: allocator / arena pilot
@@ -958,7 +964,7 @@ Scope: current lane / next lane / restart order only.
 4. preserve landed `137x-D` proof as baseline evidence
    - proof card: `137x-D exact array store route-shape proof`
    - front: `kilo_micro_array_string_store`
-   - implementation: `hako_llvmc_match_array_string_store_micro_seed(...)` accepts both old 9-block and current compact 8-block direct MIR shapes
+   - implementation: `hako_llvmc_match_array_string_store_micro_seed(...)` accepts only the current compact 8-block direct MIR shape; the old 9-block legacy seed branch is retired
    - smoke: `phase137x_direct_emit_array_store_string_contract.sh` requires exact seed emitter selection and no runtime/public helper calls in `ny_main`
    - guard results:
      - middle: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=127269397`

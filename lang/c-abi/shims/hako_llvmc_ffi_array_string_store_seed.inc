@@ -131,7 +131,6 @@ static int hako_llvmc_match_array_string_store_micro_seed(
   yyjson_val* blocks;
   hako_llvmc_entry_rune_selection selection;
   size_t block_count = 0;
-  int compact_loop_shape = 0;
   long long size = 0;
   long long ops = 0;
   const char* seed = NULL;
@@ -165,8 +164,7 @@ static int hako_llvmc_match_array_string_store_micro_seed(
     return -1;
   }
   block_count = yyjson_arr_size(blocks);
-  compact_loop_shape = block_count == 8;
-  if (!(block_count == 9 || compact_loop_shape)) {
+  if (block_count != 8) {
     yyjson_doc_free(doc);
     return -1;
   }
@@ -249,19 +247,12 @@ static int hako_llvmc_match_array_string_store_micro_seed(
     }
 
     BUILD_INTERESTING_NO_COPY(yyjson_arr_get(blocks, 2));
-    if (compact_loop_shape) {
-      if (n != 5) { yyjson_doc_free(doc); return -1; }
-      EXPECT_OP(0, "const");
-      EXPECT_OP(1, "mir_call");
-      EXPECT_OP(2, "const");
-      EXPECT_OP(3, "binop");
-      EXPECT_OP(4, "jump");
-    } else {
-      if (n != 3) { yyjson_doc_free(doc); return -1; }
-      EXPECT_OP(0, "const");
-      EXPECT_OP(1, "mir_call");
-      EXPECT_OP(2, "jump");
-    }
+    if (n != 5) { yyjson_doc_free(doc); return -1; }
+    EXPECT_OP(0, "const");
+    EXPECT_OP(1, "mir_call");
+    EXPECT_OP(2, "const");
+    EXPECT_OP(3, "binop");
+    EXPECT_OP(4, "jump");
     {
       yyjson_val* mc = yyjson_obj_get(interesting[1], "mir_call");
       yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
@@ -278,27 +269,13 @@ static int hako_llvmc_match_array_string_store_micro_seed(
       }
       push_count++;
     }
-    if (compact_loop_shape &&
-        (READ_INT(yyjson_obj_get(interesting[2], "value"), "value") != 1 ||
-         !hako_llvmc_str_eq(READ_STR(interesting[3], "operation"), "+"))) {
+    if (READ_INT(yyjson_obj_get(interesting[2], "value"), "value") != 1 ||
+        !hako_llvmc_str_eq(READ_STR(interesting[3], "operation"), "+")) {
       yyjson_doc_free(doc);
       return -1;
     }
 
-    if (!compact_loop_shape) {
-      BUILD_INTERESTING_NO_COPY(yyjson_arr_get(blocks, 3));
-      if (n != 3) { yyjson_doc_free(doc); return -1; }
-      EXPECT_OP(0, "const");
-      EXPECT_OP(1, "binop");
-      EXPECT_OP(2, "jump");
-      if (READ_INT(yyjson_obj_get(interesting[0], "value"), "value") != 1 ||
-          !hako_llvmc_str_eq(READ_STR(interesting[1], "operation"), "+")) {
-        yyjson_doc_free(doc);
-        return -1;
-      }
-    }
-
-    BUILD_INTERESTING_NO_COPY(yyjson_arr_get(blocks, compact_loop_shape ? 3 : 4));
+    BUILD_INTERESTING_NO_COPY(yyjson_arr_get(blocks, 3));
     for (i = 0; i < (size_t)n; i++) {
       if (hako_llvmc_str_eq(READ_STR(interesting[i], "op"), "release_strong")) {
         saw_array_init = 1;
@@ -310,7 +287,7 @@ static int hako_llvmc_match_array_string_store_micro_seed(
       return -1;
     }
 
-    BUILD_INTERESTING_NO_COPY(yyjson_arr_get(blocks, compact_loop_shape ? 4 : 5));
+    BUILD_INTERESTING_NO_COPY(yyjson_arr_get(blocks, 4));
     if (n != 6) { yyjson_doc_free(doc); return -1; }
     EXPECT_OP(0, "phi");
     EXPECT_OP(1, "phi");
@@ -325,42 +302,22 @@ static int hako_llvmc_match_array_string_store_micro_seed(
     }
     saw_main_loop = 1;
 
-    BUILD_INTERESTING_NO_COPY(yyjson_arr_get(blocks, compact_loop_shape ? 5 : 6));
-    if (compact_loop_shape) {
-      if (n != 14) { yyjson_doc_free(doc); return -1; }
-      EXPECT_OP(0, "const");
-      EXPECT_OP(1, "binop");
-      EXPECT_OP(2, "const");
-      EXPECT_OP(3, "binop");
-      EXPECT_OP(4, "mir_call");
-      EXPECT_OP(5, "mir_call");
-      EXPECT_OP(6, "binop");
-      EXPECT_OP(7, "const");
-      EXPECT_OP(8, "mir_call");
-      EXPECT_OP(9, "const");
-      EXPECT_OP(10, "const");
-      EXPECT_OP(11, "binop");
-      EXPECT_OP(12, "mir_call");
-      EXPECT_OP(13, "jump");
-    } else {
-      if (n != 16) { yyjson_doc_free(doc); return -1; }
-      EXPECT_OP(0, "const");
-      EXPECT_OP(1, "binop");
-      EXPECT_OP(2, "const");
-      EXPECT_OP(3, "binop");
-      EXPECT_OP(4, "mir_call");
-      EXPECT_OP(5, "mir_call");
-      EXPECT_OP(6, "binop");
-      EXPECT_OP(7, "const");
-      EXPECT_OP(8, "mir_call");
-      EXPECT_OP(9, "const");
-      EXPECT_OP(10, "const");
-      EXPECT_OP(11, "binop");
-      EXPECT_OP(12, "const");
-      EXPECT_OP(13, "binop");
-      EXPECT_OP(14, "mir_call");
-      EXPECT_OP(15, "jump");
-    }
+    BUILD_INTERESTING_NO_COPY(yyjson_arr_get(blocks, 5));
+    if (n != 14) { yyjson_doc_free(doc); return -1; }
+    EXPECT_OP(0, "const");
+    EXPECT_OP(1, "binop");
+    EXPECT_OP(2, "const");
+    EXPECT_OP(3, "binop");
+    EXPECT_OP(4, "mir_call");
+    EXPECT_OP(5, "mir_call");
+    EXPECT_OP(6, "binop");
+    EXPECT_OP(7, "const");
+    EXPECT_OP(8, "mir_call");
+    EXPECT_OP(9, "const");
+    EXPECT_OP(10, "const");
+    EXPECT_OP(11, "binop");
+    EXPECT_OP(12, "mir_call");
+    EXPECT_OP(13, "jump");
     if (READ_INT(yyjson_obj_get(interesting[0], "value"), "value") != 128 ||
         !hako_llvmc_str_eq(READ_STR(interesting[1], "operation"), "%")) {
       yyjson_doc_free(doc);
@@ -436,36 +393,14 @@ static int hako_llvmc_match_array_string_store_micro_seed(
       }
       length_count++;
     }
-    if (compact_loop_shape) {
-      if (READ_INT(yyjson_obj_get(interesting[9], "value"), "value") != 2 ||
-          READ_INT(yyjson_obj_get(interesting[10], "value"), "value") != 2 ||
-          !hako_llvmc_str_eq(READ_STR(interesting[11], "operation"), "+")) {
-        yyjson_doc_free(doc);
-        return -1;
-      }
-    } else {
-      if (READ_INT(yyjson_obj_get(interesting[9], "value"), "value") != 2 ||
-          READ_INT(yyjson_obj_get(interesting[10], "value"), "value") != 2 ||
-          !hako_llvmc_str_eq(READ_STR(interesting[11], "operation"), "+") ||
-          !hako_llvmc_str_eq(READ_STR(interesting[13], "operation"), "+")) {
-        yyjson_doc_free(doc);
-        return -1;
-      }
-      {
-        yyjson_val* vobj = yyjson_obj_get(interesting[12], "value");
-        yyjson_val* ty = vobj ? yyjson_obj_get(vobj, "type") : NULL;
-        const char* box_type = ty ? READ_STR(ty, "box_type") : NULL;
-        const char* suffix = vobj ? READ_STR(vobj, "value") : NULL;
-        if (!(box_type && strcmp(box_type, "StringBox") == 0 &&
-              suffix && hako_llvmc_str_eq(suffix, "xy"))) {
-          yyjson_doc_free(doc);
-          return -1;
-        }
-        saw_suffix = 1;
-      }
+    if (READ_INT(yyjson_obj_get(interesting[9], "value"), "value") != 2 ||
+        READ_INT(yyjson_obj_get(interesting[10], "value"), "value") != 2 ||
+        !hako_llvmc_str_eq(READ_STR(interesting[11], "operation"), "+")) {
+      yyjson_doc_free(doc);
+      return -1;
     }
     {
-      yyjson_val* mc = yyjson_obj_get(interesting[compact_loop_shape ? 12 : 14], "mir_call");
+      yyjson_val* mc = yyjson_obj_get(interesting[12], "mir_call");
       yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
       const char* box_name = cal ? (READ_STR(cal, "box_name") ? READ_STR(cal, "box_name") : READ_STR(cal, "box_type")) : NULL;
       const char* name = cal ? (READ_STR(cal, "method") ? READ_STR(cal, "method") : READ_STR(cal, "name")) : NULL;
@@ -478,7 +413,7 @@ static int hako_llvmc_match_array_string_store_micro_seed(
       substring_count++;
     }
 
-    BUILD_INTERESTING_NO_COPY(yyjson_arr_get(blocks, compact_loop_shape ? 6 : 7));
+    BUILD_INTERESTING_NO_COPY(yyjson_arr_get(blocks, 6));
     if (n != 5) { yyjson_doc_free(doc); return -1; }
     EXPECT_OP(0, "phi");
     EXPECT_OP(1, "phi");
@@ -491,7 +426,7 @@ static int hako_llvmc_match_array_string_store_micro_seed(
       return -1;
     }
 
-    BUILD_INTERESTING_NO_COPY(yyjson_arr_get(blocks, compact_loop_shape ? 7 : 8));
+    BUILD_INTERESTING_NO_COPY(yyjson_arr_get(blocks, 7));
     if (n != 3) { yyjson_doc_free(doc); return -1; }
     EXPECT_OP(0, "mir_call");
     EXPECT_OP(1, "binop");

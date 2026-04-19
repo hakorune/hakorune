@@ -121,9 +121,10 @@ Rules:
 | `nyash.array.string_suffix_store_his` | compatibility row | Pointer/CStr validated suffix helper retained after direct lowering moved to `nyash.array.string_suffix_store_hisi` | Delete only after all source-only/indexof branch smokes require `hisi`, pure declarations no longer emit `his`, and no fixture/asm grep observes a `his` call. |
 | `nyash.array.string_insert_mid_store_hisi` | compatibility row | Pointer/CStr validated insert-mid helper retained after direct lowering moved to `nyash.array.string_insert_mid_store_hisii` | Delete only after `phase137x_boundary_array_string_len_insert_mid_source_only_min.sh` and related generic-lowering guards require `hisii`, and pure declarations no longer emit `hisi`. |
 | `nyash.array.string_insert_mid_subrange_store_hisiii` | compatibility row | Pointer/CStr validated subrange helper retained after direct lowering moved to `nyash.array.string_insert_mid_subrange_store_hisiiii` | Delete only after concat3/subrange source-only smokes require `hisiiii`, docs no longer name `hisiii` as active direct route, and pure declarations no longer emit `hisiii`. |
-| `kilo_micro_array_string_store` old `9-block` exact seed shape | legacy matcher branch | Kept as a regression bridge while current direct MIR emits the compact `8-block` shape | Delete only after a compact-shape fixture/gate is the sole accepted direct producer or the old shape is moved into an explicit legacy regression fixture with a separate failure expectation. |
 | `lang/c-abi/shims/hako_llvmc_ffi_array_string_store_seed.inc` exact seed bridge | temporary bridge surface | Pure-first array/string-store micro seed still has exact route-shape emission for the current micro front; it is not keeper architecture and must not grow semantic legality. | Delete or shrink after TextLane / ArrayStorage::Text direct lowering owns the active array-string store route, or move the exact seed into an explicit legacy regression fixture with failure expectation. |
 | `src/host_providers/llvm_codegen/compat_text_primitive.rs` | watch item | Audit surfaced it as a legacy compiler compatibility surface; not part of the explicit-length helper cut | Classify first: either retire behind a small no-behavior cleanup gate or document why it remains a stable compatibility shim. |
+- retired in `137x-E0.1`: the old `kilo_micro_array_string_store` `9-block` exact seed matcher branch is deleted after the compact `8-block` direct producer stayed green under `phase137x_direct_emit_array_store_string_contract.sh`.
+- kept quarantined in `137x-E0.1`: shared-receiver legacy scanner fallback remains because active phase137x shared-receiver guards still require it when MIR alias metadata is absent for some direct/front shapes.
 - current phase-2 start:
   - `string_handle_from_owned{,_concat_hh,_substring_concat_hhii,_const_suffix}` now enter explicit cold publish adapters
   - `publish_owned_bytes_*_boundary` / `objectize_kernel_text_slot_stable_box` are outlined cold boundaries
@@ -2002,7 +2003,7 @@ The next perf cut should not start until these mechanical contracts are fixed.
 4. closed exact optimization card
    - closed card: `137x-D exact array store route-shape proof`
    - cause: the exact seed matcher accepted only the older 9-block MIR shape; current direct MIR emits the compact 8-block shape
-   - implementation: `hako_llvmc_match_array_string_store_micro_seed(...)` now accepts both shapes and still emits the existing specialized stack-array IR
+   - implementation: `hako_llvmc_match_array_string_store_micro_seed(...)` now accepts only the compact 8-block direct MIR shape and still emits the existing specialized stack-array IR
    - smoke: `phase137x_direct_emit_array_store_string_contract.sh` now requires exact seed emitter selection and no runtime/public helper calls in `ny_main`
    - guards:
      - middle `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=127269397`
