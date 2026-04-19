@@ -7,12 +7,12 @@ use crate::exports::string_view::{
 };
 use crate::observe;
 use crate::plugin::{
-    materialize_owned_string_generic_fallback, materialize_owned_string_generic_fallback_for_site,
-    StringPublishSite,
+    issue_fresh_handle_from_arc, materialize_owned_string_generic_fallback,
+    materialize_owned_string_generic_fallback_for_site, StringPublishSite,
 };
-use nyash_rust::box_trait::StringBox;
+use nyash_rust::box_trait::{NyashBox, StringBox};
 use nyash_rust::runtime::host_handles as handles;
-use std::ptr;
+use std::{ptr, sync::Arc};
 
 #[inline(always)]
 pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
@@ -274,6 +274,22 @@ pub(super) fn string_handle_from_span(span: StringSpan) -> i64 {
         );
     }
     handle
+}
+
+#[inline(always)]
+pub(super) fn publish_view_span_handle(span: StringSpan) -> (Arc<dyn NyashBox>, i64) {
+    let result_obj: Arc<dyn NyashBox> = Arc::new(span.into_view_box());
+    let handle = issue_fresh_handle_from_arc(result_obj.clone());
+    if string_trace::enabled() {
+        let len = result_obj.as_ref().as_str_fast().map_or(0, str::len);
+        string_trace::emit(
+            "sink",
+            "fresh_handle",
+            "view_span_publish",
+            format_args!("source=view_span len={} handle={}", len, handle),
+        );
+    }
+    (result_obj, handle)
 }
 
 #[inline(always)]

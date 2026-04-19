@@ -47,8 +47,8 @@ use self::concat::{
     piecewise_subrange_kernel_text_slot_into_slot, substring_kernel_text_slot_in_place,
 };
 use self::materialize::{
-    shared_empty_string_handle, string_handle_from_owned, string_handle_from_span,
-    trace_observer_resolution_enabled,
+    publish_view_span_handle, shared_empty_string_handle, string_handle_from_owned,
+    string_handle_from_span, trace_observer_resolution_enabled,
 };
 
 pub(crate) use self::materialize::{
@@ -481,8 +481,7 @@ pub(super) fn string_substring_hii_export_impl(h: i64, start: i64, end: i64) -> 
         } => {
             observe::record_birth_placement_borrow_view();
             let len = span.len() as i64;
-            let result_obj: Arc<dyn NyashBox> = Arc::new(span.into_view_box());
-            let handle = issue_fresh_handle_from_arc(result_obj.clone());
+            let (result_obj, handle) = publish_view_span_handle(span);
             if handle > 0 {
                 string_len_fast_cache_store(handle, len);
                 substring_view_arc_cache_store(

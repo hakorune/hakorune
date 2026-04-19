@@ -74,8 +74,10 @@ Scope: current lane / next lane / restart order only.
       - `5b0bdaa5f` `nyash_kernel: keep concat helpers on TextRef`
     - current structure-first reading:
       - touched export-side read consumers are now narrow enough
-      - `borrowed_handle.rs` is the next main BoxShape candidate
-      - `cache.rs` / `string_materialize.rs` are deferred modularization candidates, not current-card edits
+      - `borrowed_handle.rs` modularization is landed; proof/lifetime keep and boundary box impl are already split behind a thin facade
+      - active BoxShape card is `substring_hii` `ViewSpan` publication cleanup: keep `StringSpan` on the hot path until the final handle boundary helper instead of constructing `StringViewBox` directly inside `string_helpers.rs`
+      - explicit MIR publication boundary (`publish.text` / `publish.any`) remains deferred; current runtime `need_stable_object` / generic fallback reasoning is still the larger next-phase seam
+      - `cache.rs` / `string_materialize.rs` remain deferred modularization candidates beyond the active `substring_hii` cleanup
       - legacy watch item surfaced by audit is `src/host_providers/llvm_codegen/compat_text_primitive.rs`
   - parent SSOT:
     - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
@@ -892,9 +894,11 @@ Scope: current lane / next lane / restart order only.
 ## Next
 
 1. update the current structure card before new perf edits
-   - active BoxShape card is `crates/nyash_kernel/src/plugin/value_codec/borrowed_handle.rs` modularization
-   - goal: split proof/lifetime keep, boundary box impl, and helper API into focused submodules without behavior change
+   - completed card: `crates/nyash_kernel/src/plugin/value_codec/borrowed_handle.rs` modularization
+   - active card: move `substring_hii` `ViewSpan` objectization behind a dedicated publish/helper boundary so the route carries `StringSpan` until the last handle step
+   - keep the public `StringViewBox` handle contract unchanged for mid-slice fast mode; this card is about boundary placement, not contract removal
    - do not widen into `TextLane`, MIR legality, allocator, public ABI, or `TextCell`
+   - explicit MIR publication boundary (`publish.text` / `publish.any`) is still deferred; do not smuggle that wider change into this BoxShape card
    - keep recent carrier commits as the semantic baseline; this card is structure-only, not new keeper evidence
 2. keep phase-2.5 read-side alias lane as the active judge
    - do not reopen the rejected store-side `owned-string keep` / `owned-text keep`
