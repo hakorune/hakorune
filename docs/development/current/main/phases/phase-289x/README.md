@@ -160,6 +160,10 @@ Reading:
   - `BorrowedAliasEncodeCaller::demand()` maps caller names to runtime-private `DemandSet`
   - borrowed-alias encode plans bind fallback publish demand without changing execution branches
 - `289x-3e`: Rust `PublishReason -> PublishDemand` mapping
+  - status: done in code; behavior unchanged
+  - `PublishReason::demand()` maps publish reason names to runtime-private `PublishDemand`
+  - publish helpers bind boundary-effect demand before old observation/objectization branches
+- `289x-3f`: Rust array generic load/encode demand tags
   - behavior unchanged; next runtime cutover cluster
 - `289x-5a`: bytes/view planning
   - prevent text-only patterns from being copied into bytes later

@@ -122,6 +122,34 @@ pub(crate) const BORROWED_ALIAS_FALLBACK_PUBLISH: DemandSet = DemandSet::new(
     &[],
 );
 
+pub(crate) const PUBLISH_EXTERNAL_BOUNDARY: DemandSet = DemandSet::new(
+    &[ValueDemand::StableObject],
+    &[],
+    &[PublishDemand::ExternalBoundary],
+    &[],
+);
+
+pub(crate) const PUBLISH_GENERIC_FALLBACK: DemandSet = DemandSet::new(
+    &[ValueDemand::StableObject],
+    &[],
+    &[PublishDemand::GenericFallback],
+    &[],
+);
+
+pub(crate) const PUBLISH_EXPLICIT_API: DemandSet = DemandSet::new(
+    &[ValueDemand::StableObject],
+    &[],
+    &[PublishDemand::ExplicitApi],
+    &[],
+);
+
+pub(crate) const PUBLISH_NEED_STABLE_OBJECT: DemandSet = DemandSet::new(
+    &[ValueDemand::StableObject],
+    &[],
+    &[PublishDemand::NeedStableObject],
+    &[],
+);
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -160,6 +188,23 @@ mod tests {
         assert_eq!(BORROWED_ALIAS_ENCODE.mutation, &[MutationDemand::DropEpoch]);
         assert_eq!(
             BORROWED_ALIAS_FALLBACK_PUBLISH.publish,
+            &[PublishDemand::NeedStableObject]
+        );
+    }
+
+    #[test]
+    fn publish_demands_name_boundary_effects() {
+        assert_eq!(
+            PUBLISH_EXTERNAL_BOUNDARY.publish,
+            &[PublishDemand::ExternalBoundary]
+        );
+        assert_eq!(
+            PUBLISH_GENERIC_FALLBACK.publish,
+            &[PublishDemand::GenericFallback]
+        );
+        assert_eq!(PUBLISH_EXPLICIT_API.publish, &[PublishDemand::ExplicitApi]);
+        assert_eq!(
+            PUBLISH_NEED_STABLE_OBJECT.publish,
             &[PublishDemand::NeedStableObject]
         );
     }

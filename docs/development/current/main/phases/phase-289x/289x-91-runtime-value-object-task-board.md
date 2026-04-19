@@ -115,7 +115,8 @@ Task state:
 - `289x-3b`: active cutover inventory gate in `289x-96-demand-backed-cutover-inventory.md`
 - `289x-3c`: done in code, `CodecProfile -> DemandSet`, behavior unchanged
 - `289x-3d`: done in code, `BorrowedAliasEncodeCaller -> DemandSet`, behavior unchanged
-- `289x-3e`: next Rust cut, `PublishReason -> PublishDemand`, behavior unchanged
+- `289x-3e`: done in code, `PublishReason -> PublishDemand`, behavior unchanged
+- `289x-3f`: next Rust cut, array generic load/encode demand tags, behavior unchanged
 - `289x-7e` / `289x-7f`: high-risk C shim emission/window work is planned later, not skipped
 - optimization return: blocked until all `289x-96` clusters are done or explicitly rejected
 
@@ -294,9 +295,12 @@ No-go:
   - `BorrowedAliasEncodeCaller::demand()` is the runtime-private bridge from caller names to `DemandSet`
   - fallback encode plans bind publish demand before the existing objectization branch
 - `289x-3e`: Rust `PublishReason -> PublishDemand`
-  - status: next
+  - status: done in code
   - behavior unchanged
+  - `PublishReason::demand()` is the runtime-private bridge from publish reason names to `PublishDemand`
+  - old observation/objectization branches remain the executor
 - `289x-3f`: Rust array generic load/encode demand tags
+  - status: next
   - behavior unchanged
 - `289x-3g`: Rust array store/append demand tags
   - behavior unchanged

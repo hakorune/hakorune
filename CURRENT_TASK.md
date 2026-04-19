@@ -94,8 +94,12 @@ Scope: current lane / next lane / restart order only.
       - `BorrowedAliasEncodeCaller::demand()` maps caller names to runtime-private `DemandSet`
       - borrowed-alias encode plans now bind live/cached alias demand vs fallback publish demand before old behavior branches
       - behavior unchanged
+    - `289x-3e` landed:
+      - `PublishReason::demand()` maps publish reason names to runtime-private `PublishDemand`
+      - publish helpers now bind boundary-effect demand before old observation/objectization branches
+      - behavior unchanged
     - next code cut:
-      - `289x-3e`: Rust `PublishReason -> PublishDemand`, behavior unchanged
+      - `289x-3f`: Rust array generic load/encode demand tags, behavior unchanged
     - high-risk planned later, not skipped:
       - concrete `slot_load_hi` / `slot_store` emission changes: `289x-7e`
       - `runtime_array_string` observer/window matcher rewrites: `289x-7f`

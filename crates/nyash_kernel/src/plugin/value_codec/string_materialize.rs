@@ -1,3 +1,7 @@
+use crate::plugin::value_demand::{
+    DemandSet, PUBLISH_EXPLICIT_API, PUBLISH_EXTERNAL_BOUNDARY, PUBLISH_GENERIC_FALLBACK,
+    PUBLISH_NEED_STABLE_OBJECT,
+};
 use nyash_rust::{
     box_trait::{NyashBox, StringBox},
     runtime::host_handles as handles,
@@ -12,6 +16,18 @@ enum PublishReason {
     NeedStableObject,
 }
 
+impl PublishReason {
+    #[inline(always)]
+    const fn demand(self) -> DemandSet {
+        match self {
+            Self::ExternalBoundary => PUBLISH_EXTERNAL_BOUNDARY,
+            Self::GenericFallback => PUBLISH_GENERIC_FALLBACK,
+            Self::ExplicitApi => PUBLISH_EXPLICIT_API,
+            Self::NeedStableObject => PUBLISH_NEED_STABLE_OBJECT,
+        }
+    }
+}
+
 #[derive(Clone, Copy)]
 pub(crate) enum StringPublishSite {
     Generic,
@@ -23,6 +39,7 @@ pub(crate) enum StringPublishSite {
 
 #[inline(always)]
 fn record_publish_reason(reason: PublishReason) {
+    let _demand = reason.demand();
     match reason {
         PublishReason::ExternalBoundary => {
             crate::observe::record_birth_backend_publish_reason_external_boundary();
@@ -637,4 +654,26 @@ pub(crate) fn materialize_owned_string_generic_fallback_for_site(
 #[inline(always)]
 pub(crate) fn materialize_owned_string(value: String) -> i64 {
     publish_owned_bytes_explicit_api_boundary(freeze_owned_bytes(value))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn publish_reason_maps_to_runtime_private_demand_set() {
+        assert_eq!(
+            PublishReason::ExternalBoundary.demand(),
+            PUBLISH_EXTERNAL_BOUNDARY
+        );
+        assert_eq!(
+            PublishReason::GenericFallback.demand(),
+            PUBLISH_GENERIC_FALLBACK
+        );
+        assert_eq!(PublishReason::ExplicitApi.demand(), PUBLISH_EXPLICIT_API);
+        assert_eq!(
+            PublishReason::NeedStableObject.demand(),
+            PUBLISH_NEED_STABLE_OBJECT
+        );
+    }
 }
