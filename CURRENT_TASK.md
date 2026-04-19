@@ -925,8 +925,8 @@ Scope: current lane / next lane / restart order only.
       - next design/implementation cards after the review feedback:
         - completed `repr-downgrade-contract`
           - verifier now fail-fasts unproven `StableView` repr requests before runtime; lowering must downgrade to `stable_owned` until legality is verifier-visible
-        - `stableview-legality-contract`
-          - fix the provenance / mutability / lifetime conditions that make public `StableView` replay legal
+        - completed `stableview-legality-contract`
+          - `stable_view_provenance` now makes the legal `StableView` witness visible to MIR JSON and verifier; accepted string-only witnesses are `already_stable`, `immutable_host_owned`, and `pinned_no_mutation`
         - `provenance-freeze-verifier-contract`
           - make borrow-scope plus `freeze.str -> publish.text` separation verifier-visible, not just boundary tuple metadata
         - `publish-idempotence-policy`

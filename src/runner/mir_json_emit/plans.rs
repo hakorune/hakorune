@@ -45,6 +45,7 @@ pub(super) fn build_string_kernel_plan_json(
         "borrow_contract": plan.borrow_contract.map(|contract| contract.to_string()),
         "publish_reason": plan.publish_reason.map(|reason| reason.to_string()),
         "publish_repr_policy": plan.publish_repr_policy.map(|repr| repr.to_string()),
+        "stable_view_provenance": plan.stable_view_provenance.map(|provenance| provenance.to_string()),
         "parts": build_string_kernel_plan_parts_json(&plan),
         "known_length": plan.known_length,
         "retained_form": plan.retained_form.to_string(),

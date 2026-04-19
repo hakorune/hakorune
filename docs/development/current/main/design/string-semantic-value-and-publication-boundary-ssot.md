@@ -228,6 +228,15 @@ Lock:
 - immutable host-owned bytes
 - pinned provenance が証明され、公開 lifetime の間に mutation されない residence
 
+Verifier-visible witness は string-only に次で固定する。
+
+- `stable_view_provenance=already_stable`
+- `stable_view_provenance=immutable_host_owned`
+- `stable_view_provenance=pinned_no_mutation`
+
+`publish.text(..., repr=StableView)` は、この witness がない限り legal ではない。
+`StableOwned` にこの witness が付く shape も contract mismatch として reject する。
+
 次の形は `StableView` 不可として扱う。
 
 - mutable `TextCell` / future mutable residence

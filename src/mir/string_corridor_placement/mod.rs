@@ -11,6 +11,7 @@ use super::{
     string_corridor::{
         StringCorridorBorrowContract, StringCorridorFact, StringCorridorOp, StringCorridorRole,
         StringPlacementFact, StringPublishReason, StringPublishReprPolicy,
+        StringStableViewProvenance,
     },
     string_corridor_recognizer::{
         const_string_length, match_concat_triplet, match_len_call, match_substring_call,

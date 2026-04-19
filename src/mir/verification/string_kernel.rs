@@ -57,12 +57,26 @@ fn verify_publication_boundary_contract(
 ) {
     let publish_pair = publication_metadata_pair(value, plan, errors);
 
-    if matches!(publish_pair, Some((_, StringPublishReprPolicy::StableView))) {
-        push_string_kernel_plan_violation(
-            errors,
-            value,
-            "stable_view repr request is not a guarantee; lowering must downgrade to stable_owned unless StableView legality is verifier-visible",
-        );
+    match (plan.publish_repr_policy, plan.stable_view_provenance) {
+        (Some(StringPublishReprPolicy::StableView), Some(_)) => {}
+        (Some(StringPublishReprPolicy::StableView), None) => {
+            push_string_kernel_plan_violation(
+                errors,
+                value,
+                "stable_view repr request requires stable_view_provenance; lowering must downgrade to stable_owned unless StableView legality is verifier-visible",
+            );
+        }
+        (Some(StringPublishReprPolicy::StableOwned) | None, Some(provenance)) => {
+            push_string_kernel_plan_violation(
+                errors,
+                value,
+                format!(
+                    "stable_view_provenance={} requires publish_repr_policy=stable_view",
+                    provenance
+                ),
+            );
+        }
+        (Some(StringPublishReprPolicy::StableOwned) | None, None) => {}
     }
 
     if publish_pair.is_some() && plan.publication_boundary.is_none() {
@@ -304,6 +318,54 @@ mod tests {
         function
     }
 
+    fn explicit_publish_function() -> MirFunction {
+        let signature = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![MirType::Box("StringBox".to_string())],
+            return_type: MirType::Box("RuntimeDataBox".to_string()),
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.instructions.extend([
+            MirInstruction::Const {
+                dst: ValueId::new(1),
+                value: ConstValue::String("xx".to_string()),
+            },
+            MirInstruction::Const {
+                dst: ValueId::new(2),
+                value: ConstValue::Integer(1),
+            },
+            MirInstruction::Const {
+                dst: ValueId::new(3),
+                value: ConstValue::Integer(5),
+            },
+            MirInstruction::Call {
+                dst: Some(ValueId::new(10)),
+                func: ValueId::INVALID,
+                callee: Some(crate::mir::Callee::Extern(
+                    "nyash.string.substring_concat3_hhhii".to_string(),
+                )),
+                args: vec![
+                    ValueId::new(0),
+                    ValueId::new(1),
+                    ValueId::new(0),
+                    ValueId::new(2),
+                    ValueId::new(3),
+                ],
+                effects: EffectMask::PURE,
+            },
+        ]);
+        block.instruction_spans.extend(vec![Span::unknown(); 4]);
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(10)),
+        });
+        function
+    }
+
     fn base_slot_plan(carrier: StringKernelPlanCarrier) -> StringKernelPlan {
         StringKernelPlan {
             plan_value: ValueId::new(10),
@@ -314,6 +376,7 @@ mod tests {
             borrow_contract: Some(crate::mir::StringKernelPlanBorrowContract::BorrowTextFromObject),
             publish_reason: None,
             publish_repr_policy: None,
+            stable_view_provenance: None,
             known_length: Some(2),
             retained_form: StringKernelPlanRetainedForm::BorrowedText,
             publication_boundary: Some(StringKernelPlanPublicationBoundary::FirstExternalBoundary),
@@ -446,7 +509,45 @@ mod tests {
         assert!(errors.iter().any(|error| matches!(
             error,
             VerificationError::StringKernelPlanViolation { reason, .. }
-                if reason.contains("stable_view repr request is not a guarantee")
+                if reason.contains("stable_view repr request requires stable_view_provenance")
+        )));
+    }
+
+    #[test]
+    fn verifier_accepts_proven_stable_view_publish_request() {
+        let mut function = explicit_publish_function();
+        let mut plan = base_slot_plan(StringKernelPlanCarrier::KernelTextSlot);
+        plan.text_consumer = Some(StringKernelPlanTextConsumer::ExplicitColdPublish);
+        plan.publish_reason = Some(crate::mir::StringPublishReason::ExplicitApiReplay);
+        plan.publish_repr_policy = Some(crate::mir::StringPublishReprPolicy::StableView);
+        plan.stable_view_provenance = Some(crate::mir::StringStableViewProvenance::AlreadyStable);
+        function
+            .metadata
+            .string_kernel_plans
+            .insert(ValueId::new(10), plan);
+
+        check_string_kernel_plans(&function).expect("proven stable_view request should pass");
+    }
+
+    #[test]
+    fn verifier_rejects_stable_view_provenance_without_stable_view_request() {
+        let mut function = explicit_publish_function();
+        let mut plan = base_slot_plan(StringKernelPlanCarrier::KernelTextSlot);
+        plan.text_consumer = Some(StringKernelPlanTextConsumer::ExplicitColdPublish);
+        plan.publish_reason = Some(crate::mir::StringPublishReason::ExplicitApiReplay);
+        plan.publish_repr_policy = Some(crate::mir::StringPublishReprPolicy::StableOwned);
+        plan.stable_view_provenance = Some(crate::mir::StringStableViewProvenance::AlreadyStable);
+        function
+            .metadata
+            .string_kernel_plans
+            .insert(ValueId::new(10), plan);
+
+        let errors =
+            check_string_kernel_plans(&function).expect_err("expected stray provenance failure");
+        assert!(errors.iter().any(|error| matches!(
+            error,
+            VerificationError::StringKernelPlanViolation { reason, .. }
+                if reason.contains("stable_view_provenance=already_stable requires publish_repr_policy=stable_view")
         )));
     }
 }

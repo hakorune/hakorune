@@ -204,6 +204,7 @@ pub struct StringKernelPlan {
     pub borrow_contract: Option<StringKernelPlanBorrowContract>,
     pub publish_reason: Option<crate::mir::StringPublishReason>,
     pub publish_repr_policy: Option<crate::mir::StringPublishReprPolicy>,
+    pub stable_view_provenance: Option<crate::mir::StringStableViewProvenance>,
     pub known_length: Option<i64>,
     pub retained_form: StringKernelPlanRetainedForm,
     pub publication_boundary: Option<StringKernelPlanPublicationBoundary>,
@@ -588,6 +589,7 @@ pub fn derive_string_kernel_plan(
     let mut publication_boundary = None;
     let mut publish_reason = None;
     let mut publish_repr_policy = None;
+    let mut stable_view_provenance = None;
 
     for candidate in candidates {
         match candidate.kind {
@@ -596,6 +598,7 @@ pub fn derive_string_kernel_plan(
                 if let Some(plan) = candidate.plan {
                     publish_reason = plan.publish_reason.or(publish_reason);
                     publish_repr_policy = plan.publish_repr_policy.or(publish_repr_policy);
+                    stable_view_provenance = plan.stable_view_provenance.or(stable_view_provenance);
                 }
                 if matches!(
                     candidate.publication_boundary,
@@ -638,6 +641,7 @@ pub fn derive_string_kernel_plan(
     let plan = representative.plan?;
     let borrow_contract = borrow_contract_from_plan(plan);
     let publication_contract = publication_contract_from_plan(plan);
+    let stable_view_provenance = stable_view_provenance.or(plan.stable_view_provenance);
     let family = match plan.proof {
         StringCorridorCandidateProof::BorrowedSlice { .. } => {
             StringKernelPlanFamily::BorrowedSliceWindow
@@ -683,6 +687,7 @@ pub fn derive_string_kernel_plan(
         borrow_contract,
         publish_reason,
         publish_repr_policy,
+        stable_view_provenance,
         known_length: plan.known_length,
         retained_form: StringKernelPlanRetainedForm::BorrowedText,
         publication_boundary,
@@ -826,6 +831,7 @@ mod tests {
             borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
             publish_reason: Some(crate::mir::StringPublishReason::StableObjectDemand),
             publish_repr_policy: Some(crate::mir::StringPublishReprPolicy::StableOwned),
+            stable_view_provenance: None,
             start: Some(ValueId::new(2)),
             end: Some(ValueId::new(3)),
             known_length: Some(2),
@@ -851,6 +857,7 @@ mod tests {
             borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
             publish_reason: None,
             publish_repr_policy: None,
+            stable_view_provenance: None,
             start: Some(ValueId::new(2)),
             end: Some(ValueId::new(3)),
             known_length: Some(2),
@@ -983,6 +990,7 @@ mod tests {
             borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
             publish_reason: None,
             publish_repr_policy: None,
+            stable_view_provenance: None,
             start: Some(ValueId::new(71)),
             end: Some(ValueId::new(72)),
             known_length: Some(2),
@@ -1109,6 +1117,7 @@ mod tests {
             borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
             publish_reason: None,
             publish_repr_policy: None,
+            stable_view_provenance: None,
             start: Some(ValueId::new(3)),
             end: Some(ValueId::new(4)),
             known_length: Some(2),
@@ -1270,6 +1279,7 @@ mod tests {
             borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
             publish_reason: None,
             publish_repr_policy: None,
+            stable_view_provenance: None,
             start: Some(ValueId::new(2)),
             end: Some(ValueId::new(3)),
             known_length: Some(2),
@@ -1319,6 +1329,7 @@ mod tests {
             borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
             publish_reason: None,
             publish_repr_policy: None,
+            stable_view_provenance: None,
             start: Some(ValueId::new(2)),
             end: Some(ValueId::new(3)),
             known_length: Some(2),

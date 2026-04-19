@@ -45,8 +45,9 @@
 - current closeout status:
   - done: `repr-downgrade-contract`
     - verifier now rejects unproven `stable_view` repr requests before runtime; lowering must downgrade to `stable_owned` until StableView legality is verifier-visible
+  - done: `stableview-legality-contract`
+    - `stable_view_provenance` now names the only accepted string-only StableView witnesses: `already_stable`, `immutable_host_owned`, `pinned_no_mutation`
   - remaining before perf return:
-    - `stableview-legality-contract`
     - `provenance-freeze-verifier-contract`
     - `publish-idempotence-policy`
 - long-range successor stays parked:

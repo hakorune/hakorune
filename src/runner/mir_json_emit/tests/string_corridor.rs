@@ -54,6 +54,7 @@ fn build_mir_json_root_emits_string_corridor_candidates() {
                 borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
                 publish_reason: None,
                 publish_repr_policy: None,
+                stable_view_provenance: None,
                 start: Some(crate::mir::ValueId::new(2)),
                 end: Some(crate::mir::ValueId::new(3)),
                 known_length: Some(2),
@@ -108,6 +109,7 @@ fn build_mir_json_root_emits_string_corridor_candidates() {
     );
     assert!(value_candidates[0]["plan"]["publish_reason"].is_null());
     assert!(value_candidates[0]["plan"]["publish_repr_policy"].is_null());
+    assert!(value_candidates[0]["plan"]["stable_view_provenance"].is_null());
     assert_eq!(value_candidates[0]["plan"]["start"], 2);
     assert_eq!(value_candidates[0]["plan"]["end"], 3);
     assert_eq!(value_candidates[0]["plan"]["known_length"], 2);
@@ -149,6 +151,7 @@ fn build_mir_json_root_emits_string_kernel_plans() {
         borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
         publish_reason: Some(crate::mir::StringPublishReason::StableObjectDemand),
         publish_repr_policy: Some(crate::mir::StringPublishReprPolicy::StableOwned),
+        stable_view_provenance: None,
         start: Some(crate::mir::ValueId::new(2)),
         end: Some(crate::mir::ValueId::new(3)),
         known_length: Some(2),
@@ -174,6 +177,7 @@ fn build_mir_json_root_emits_string_kernel_plans() {
         borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
         publish_reason: None,
         publish_repr_policy: None,
+        stable_view_provenance: None,
         start: Some(crate::mir::ValueId::new(2)),
         end: Some(crate::mir::ValueId::new(3)),
         known_length: Some(2),
@@ -234,6 +238,7 @@ fn build_mir_json_root_emits_string_kernel_plans() {
     assert_eq!(plan["borrow_contract"], "borrow_text_from_obj");
     assert_eq!(plan["publish_reason"], "stable_object_demand");
     assert_eq!(plan["publish_repr_policy"], "stable_owned");
+    assert!(plan["stable_view_provenance"].is_null());
     assert_eq!(plan["known_length"], 2);
     assert_eq!(plan["retained_form"], "borrowed_text");
     assert_eq!(plan["publication_boundary"], "first_external_boundary");
@@ -271,6 +276,7 @@ fn build_mir_json_root_emits_string_kernel_plan_loop_payload() {
                 borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
                 publish_reason: None,
                 publish_repr_policy: None,
+                stable_view_provenance: None,
                 start: Some(ValueId::new(71)),
                 end: Some(ValueId::new(72)),
                 known_length: Some(2),

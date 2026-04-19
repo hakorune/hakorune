@@ -16,7 +16,7 @@
 ## Active Before Perf Return
 
 - [x] D1 `repr-downgrade-contract`
-- [ ] D2 `stableview-legality-contract` (after D1)
+- [x] D2 `stableview-legality-contract`
 - [ ] D3 `provenance-freeze-verifier-contract` (after D2)
 - [ ] D4 `publish-idempotence-policy` (after D2)
 

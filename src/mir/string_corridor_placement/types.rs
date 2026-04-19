@@ -80,6 +80,8 @@ pub struct StringCorridorCandidatePlan {
     pub publish_reason: Option<StringPublishReason>,
     /// Public representation policy selected for `publish.text`.
     pub publish_repr_policy: Option<StringPublishReprPolicy>,
+    /// Provenance witness required before `publish.text(..., stable_view)` may escape.
+    pub stable_view_provenance: Option<StringStableViewProvenance>,
     /// Outer consumer window when the candidate is itself a substring consumer.
     pub start: Option<ValueId>,
     pub end: Option<ValueId>,
@@ -109,6 +111,10 @@ impl StringCorridorCandidatePlan {
             .publish_repr_policy
             .map(|repr| repr.to_string())
             .unwrap_or_else(|| "-".to_string());
+        let stable_view_provenance = self
+            .stable_view_provenance
+            .map(|provenance| provenance.to_string())
+            .unwrap_or_else(|| "-".to_string());
         let outer_window = match (self.start, self.end) {
             (Some(start), Some(end)) => format!("[%{}, %{}]", start.0, end.0),
             _ => "-".to_string(),
@@ -122,12 +128,13 @@ impl StringCorridorCandidatePlan {
             .map(|contract| contract.to_string())
             .unwrap_or_else(|| "-".to_string());
         format!(
-            "plan(root=%{} source={} borrow_contract={} publish_reason={} publish_repr_policy={} outer={} known_len={} publication_contract={} proof={})",
+            "plan(root=%{} source={} borrow_contract={} publish_reason={} publish_repr_policy={} stable_view_provenance={} outer={} known_len={} publication_contract={} proof={})",
             self.corridor_root.0,
             source,
             borrow_contract,
             publish_reason,
             publish_repr_policy,
+            stable_view_provenance,
             outer_window,
             known_len,
             publication_contract,

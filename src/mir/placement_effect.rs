@@ -203,6 +203,7 @@ pub struct PlacementEffectRoute {
     pub borrow_contract: Option<PlacementEffectBorrowContract>,
     pub publish_reason: Option<crate::mir::StringPublishReason>,
     pub publish_repr_policy: Option<crate::mir::StringPublishReprPolicy>,
+    pub stable_view_provenance: Option<crate::mir::StringStableViewProvenance>,
     pub string_proof: Option<PlacementEffectStringProof>,
     pub publication_boundary: Option<PlacementEffectPublicationBoundary>,
     pub source: PlacementEffectSource,
@@ -250,6 +251,10 @@ impl PlacementEffectRoute {
             .publish_repr_policy
             .map(|repr| format!(" publish_repr_policy={repr}"))
             .unwrap_or_default();
+        let stable_view_provenance_suffix = self
+            .stable_view_provenance
+            .map(|provenance| format!(" stable_view_provenance={provenance}"))
+            .unwrap_or_default();
         let string_proof_suffix = self
             .string_proof
             .as_ref()
@@ -265,7 +270,7 @@ impl PlacementEffectRoute {
             .map(|detail| format!(" detail={detail}"))
             .unwrap_or_default();
         format!(
-            "{}{} {} {} {} demand={} [{}]{}{}{}{}{}{}{}{}{} reason={}",
+            "{}{} {} {} {} demand={} [{}]{}{}{}{}{}{}{}{}{}{} reason={}",
             block_suffix,
             instruction_suffix,
             self.source,
@@ -279,6 +284,7 @@ impl PlacementEffectRoute {
             borrow_contract_suffix,
             publish_reason_suffix,
             publish_repr_policy_suffix,
+            stable_view_provenance_suffix,
             string_proof_suffix,
             publication_boundary_suffix,
             detail_suffix,
@@ -333,6 +339,7 @@ fn collect_string_routes(function: &MirFunction, routes: &mut Vec<PlacementEffec
                 }),
                 publish_reason: candidate.plan.and_then(|plan| plan.publish_reason),
                 publish_repr_policy: candidate.plan.and_then(|plan| plan.publish_repr_policy),
+                stable_view_provenance: candidate.plan.and_then(|plan| plan.stable_view_provenance),
                 string_proof: candidate
                     .plan
                     .map(|plan| placement_effect_string_proof(plan.proof)),
@@ -462,6 +469,7 @@ fn sum_route(selection: &SumPlacementSelection) -> PlacementEffectRoute {
         borrow_contract: None,
         publish_reason: None,
         publish_repr_policy: None,
+        stable_view_provenance: None,
         string_proof: None,
         publication_boundary: None,
         source: PlacementEffectSource::SumPlacement,
@@ -491,6 +499,7 @@ fn thin_entry_route(selection: &ThinEntrySelection) -> PlacementEffectRoute {
         borrow_contract: None,
         publish_reason: None,
         publish_repr_policy: None,
+        stable_view_provenance: None,
         string_proof: None,
         publication_boundary: None,
         source: PlacementEffectSource::ThinEntry,
@@ -525,6 +534,7 @@ fn agg_local_route(route: &crate::mir::AggLocalScalarizationRoute) -> Option<Pla
             borrow_contract: None,
             publish_reason: None,
             publish_repr_policy: None,
+            stable_view_provenance: None,
             string_proof: None,
             publication_boundary: None,
             source: PlacementEffectSource::AggLocalScalarization,
@@ -748,6 +758,7 @@ mod tests {
                     borrow_contract: Some(crate::mir::StringCorridorBorrowContract::BorrowTextFromObject),
                     publish_reason: Some(crate::mir::StringPublishReason::StableObjectDemand),
                     publish_repr_policy: Some(crate::mir::StringPublishReprPolicy::StableOwned),
+                    stable_view_provenance: None,
                     start: Some(ValueId::new(8)),
                     end: Some(ValueId::new(9)),
                     known_length: Some(2),

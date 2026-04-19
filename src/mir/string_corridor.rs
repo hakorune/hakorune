@@ -144,6 +144,24 @@ impl std::fmt::Display for StringPublishReprPolicy {
     }
 }
 
+/// String-only provenance witness that makes a `stable_view` publication legal.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StringStableViewProvenance {
+    AlreadyStable,
+    ImmutableHostOwned,
+    PinnedNoMutation,
+}
+
+impl std::fmt::Display for StringStableViewProvenance {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::AlreadyStable => f.write_str("already_stable"),
+            Self::ImmutableHostOwned => f.write_str("immutable_host_owned"),
+            Self::PinnedNoMutation => f.write_str("pinned_no_mutation"),
+        }
+    }
+}
+
 /// Current lowering carrier that produced the fact.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum StringCorridorCarrier {

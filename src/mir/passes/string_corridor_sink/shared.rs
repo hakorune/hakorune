@@ -327,6 +327,7 @@ fn placement_effect_helper_plan_for_kind(
         }),
         publish_reason: route.publish_reason,
         publish_repr_policy: route.publish_repr_policy,
+        stable_view_provenance: route.stable_view_provenance,
         start: route.window_start,
         end: route.window_end,
         known_length: None,
