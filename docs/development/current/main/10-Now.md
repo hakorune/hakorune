@@ -13,6 +13,7 @@ Related:
   - docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md
   - docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md
   - docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md
+  - docs/development/current/main/phases/phase-289x/289x-94-container-demand-table.md
   - docs/development/current/main/design/string-value-model-phased-rollout-ssot.md
   - docs/development/current/main/phases/phase-137x/phase137x-text-lane-rollout-checklist.md
 ---
@@ -49,9 +50,12 @@ Related:
     - `docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md`
   - demand ledger:
     - `docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md`
+  - container demand table:
+    - `docs/development/current/main/phases/phase-289x/289x-94-container-demand-table.md`
   - current docs focus:
     - `289x-1g` demand vocabulary ledger is done
-    - define Array/Map demand rows before any storage pilot (`289x-2d`)
+    - `289x-2d` Array/Map demand table is done
+    - next: choose one runtime-private Array text-residence pilot proposal (`289x-3a`) before code edits
     - planning/docs debt only; not a runtime-wide implementation unblock by itself
 - blocker:
   - `none`

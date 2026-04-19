@@ -13,6 +13,7 @@
   - `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
   - `docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md`
   - `docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md`
+  - `docs/development/current/main/phases/phase-289x/289x-94-container-demand-table.md`
 
 ## Decision
 
@@ -64,6 +65,7 @@ Read this phase in this order:
 3. `docs/development/current/main/phases/phase-289x/289x-91-runtime-value-object-task-board.md`
 4. `docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md`
 5. `docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md`
+6. `docs/development/current/main/phases/phase-289x/289x-94-container-demand-table.md`
 
 The brief is phase-local planning material.
 It does not create a new parent SSOT and does not authorize implementation.
@@ -139,6 +141,7 @@ Reading:
   - text lane first, generic degrade explicit, public array semantics unchanged
 - `289x-2d`: array/map demand table
   - read-ref, encoded alias, stable object, cell residence, degrade, invalidation
+  - status: done in `289x-94-container-demand-table.md`
 - `289x-3a`: scalar immediate audit
   - identify boxed int/bool hot paths before any implementation cut
 - `289x-3b`: first storage pilot selection

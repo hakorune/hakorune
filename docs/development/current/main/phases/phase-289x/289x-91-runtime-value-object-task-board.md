@@ -12,6 +12,7 @@ Related:
   - docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md
   - docs/development/current/main/phases/phase-289x/289x-92-value-boundary-inventory-ledger.md
   - docs/development/current/main/phases/phase-289x/289x-93-demand-vocabulary-ledger.md
+  - docs/development/current/main/phases/phase-289x/289x-94-container-demand-table.md
 ---
 
 # Phase 289x Runtime Value/Object Task Board
@@ -107,7 +108,7 @@ Task state:
 - `289x-0d`: done in docs, runtime vocabulary lock
 - `289x-1f`: active post-keeper inventory sync after phase-137x keeper `49c356339`
 - `289x-1g`: done in `289x-93-demand-vocabulary-ledger.md`
-- `289x-2d`: next docs-only inventory card before any runtime-wide implementation
+- `289x-2d`: done in `289x-94-container-demand-table.md`
 - `289x-3a` and later: no implementation authorization until demand/container inventory is closed
 
 ## Phase 0. Authority / Vocabulary Lock
@@ -234,6 +235,7 @@ No-go:
     - Array set cell-residence / generic-degrade / invalidation rows
     - Map key decode / value residence / read publication rows
     - RuntimeData facade rows marked as bridge, not semantic owner
+    - status: done in `289x-94-container-demand-table.md`
 - Acceptance:
   - future storage work can be judged as BoxShape, not by local helper names
   - array/map public semantics stay unchanged
