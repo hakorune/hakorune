@@ -530,7 +530,7 @@ fn build_sum_selection_site_map(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::{EffectMask, FunctionSignature, MirType};
+    use crate::mir::{EffectMask, FunctionSignature, MirType, ThinEntryDemand};
 
     #[test]
     fn refresh_function_marks_local_sum_routes_as_local_candidates() {
@@ -602,6 +602,7 @@ mod tests {
                 state: ThinEntrySelectionState::Candidate,
                 current_carrier: super::super::thin_entry::ThinEntryCurrentCarrier::CompatBox,
                 value_class: ThinEntryValueClass::AggLocal,
+                demand: ThinEntryDemand::LocalAggregate,
                 reason: "inventory".to_string(),
             },
             ThinEntrySelection {
@@ -615,6 +616,7 @@ mod tests {
                 state: ThinEntrySelectionState::Candidate,
                 current_carrier: super::super::thin_entry::ThinEntryCurrentCarrier::CompatBox,
                 value_class: ThinEntryValueClass::InlineI64,
+                demand: ThinEntryDemand::InlineScalar,
                 reason: "inventory".to_string(),
             },
             ThinEntrySelection {
@@ -628,6 +630,7 @@ mod tests {
                 state: ThinEntrySelectionState::Candidate,
                 current_carrier: super::super::thin_entry::ThinEntryCurrentCarrier::CompatBox,
                 value_class: ThinEntryValueClass::InlineI64,
+                demand: ThinEntryDemand::InlineScalar,
                 reason: "inventory".to_string(),
             },
         ];
@@ -697,6 +700,7 @@ mod tests {
             state: ThinEntrySelectionState::Candidate,
             current_carrier: super::super::thin_entry::ThinEntryCurrentCarrier::CompatBox,
             value_class: ThinEntryValueClass::AggLocal,
+            demand: ThinEntryDemand::LocalAggregate,
             reason: "inventory".to_string(),
         }];
 

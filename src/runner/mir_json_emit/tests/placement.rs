@@ -186,6 +186,7 @@ fn build_mir_json_root_emits_placement_effect_routes() {
             source: crate::mir::PlacementEffectSource::StringCorridor,
             subject: "string.value%11".to_string(),
             decision: crate::mir::PlacementEffectDecision::PublishHandle,
+            demand: crate::mir::PlacementEffectDemand::PublishHandle,
             state: crate::mir::PlacementEffectState::Candidate,
             detail: Some("plan(root=%11 source=- outer=- known_len=- proof=borrowed_slice(src=%1 start=%2 end=%3))".to_string()),
             reason: "publish boundary can sink to the corridor exit".to_string(),
@@ -205,6 +206,7 @@ fn build_mir_json_root_emits_placement_effect_routes() {
             source: crate::mir::PlacementEffectSource::SumPlacement,
             subject: "Option::Some".to_string(),
             decision: crate::mir::PlacementEffectDecision::LocalAggregate,
+            demand: crate::mir::PlacementEffectDemand::LocalAggregate,
             state: crate::mir::PlacementEffectState::Selected,
             detail: Some("variant_make.local_aggregate".to_string()),
             reason: "selected local aggregate route".to_string(),
@@ -224,6 +226,7 @@ fn build_mir_json_root_emits_placement_effect_routes() {
             source: crate::mir::PlacementEffectSource::AggLocalScalarization,
             subject: "Point.x".to_string(),
             decision: crate::mir::PlacementEffectDecision::LocalAggregate,
+            demand: crate::mir::PlacementEffectDemand::LocalAggregate,
             state: crate::mir::PlacementEffectState::AlreadySatisfied,
             detail: Some("user_box_local_body(inline_i64)".to_string()),
             reason: "typed field body stays aggregate-local".to_string(),
@@ -243,6 +246,7 @@ fn build_mir_json_root_emits_placement_effect_routes() {
             source: crate::mir::PlacementEffectSource::ThinEntry,
             subject: "Point.x".to_string(),
             decision: crate::mir::PlacementEffectDecision::ThinInternalEntry,
+            demand: crate::mir::PlacementEffectDemand::Immediate,
             state: crate::mir::PlacementEffectState::AlreadySatisfied,
             detail: Some("user_box_field_get.inline_scalar".to_string()),
             reason: "typed field read stays on thin internal scalar lane".to_string(),
@@ -257,6 +261,7 @@ fn build_mir_json_root_emits_placement_effect_routes() {
     assert_eq!(routes.len(), 4);
     assert_eq!(routes[0]["source"], "string_corridor");
     assert_eq!(routes[0]["decision"], "publish_handle");
+    assert_eq!(routes[0]["demand"], "publish_handle");
     assert_eq!(routes[0]["window_start"], 2);
     assert_eq!(routes[0]["window_end"], 3);
     assert_eq!(routes[0]["publication_boundary"], "first_external_boundary");
@@ -270,6 +275,8 @@ fn build_mir_json_root_emits_placement_effect_routes() {
     assert!(routes[1]["string_proof"].is_null());
     assert_eq!(routes[2]["source"], "agg_local_scalarization");
     assert_eq!(routes[2]["decision"], "local_aggregate");
+    assert_eq!(routes[2]["demand"], "local_aggregate");
     assert_eq!(routes[3]["source"], "thin_entry");
     assert_eq!(routes[3]["decision"], "thin_internal_entry");
+    assert_eq!(routes[3]["demand"], "immediate");
 }

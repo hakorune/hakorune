@@ -31,7 +31,8 @@ pub fn refresh_function_string_corridor_metadata(function: &mut MirFunction) {
 /// metadata as the shared context owner.
 ///
 /// The first cut keeps the existing refresh order behavior-preserving while
-/// moving the owner behind a single entry point.
+/// moving the owner behind a single entry point. Demand facts are refreshed
+/// beside placement decisions here, but they remain inspection-only metadata.
 pub fn refresh_function_semantic_metadata(
     function: &mut MirFunction,
     module_metadata: &ModuleMetadata,

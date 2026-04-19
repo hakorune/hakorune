@@ -16,6 +16,7 @@ pub(super) fn build_placement_effect_routes_json(
                 "source": route.source.to_string(),
                 "subject": route.subject,
                 "decision": route.decision.to_string(),
+                "demand": route.demand.to_string(),
                 "state": route.state.to_string(),
                 "detail": route.detail,
                 "reason": route.reason,

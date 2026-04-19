@@ -18,6 +18,7 @@ fn build_mir_json_root_emits_thin_entry_candidates() {
             preferred_entry: crate::mir::ThinEntryPreferredEntry::ThinInternalEntry,
             current_carrier: crate::mir::ThinEntryCurrentCarrier::CompatBox,
             value_class: crate::mir::ThinEntryValueClass::AggLocal,
+            demand: crate::mir::ThinEntryDemand::LocalAggregate,
             reason: "variant.make stays aggregate-first".to_string(),
         });
     module.functions.insert("main".to_string(), function);
@@ -33,6 +34,7 @@ fn build_mir_json_root_emits_thin_entry_candidates() {
     assert_eq!(candidates[0]["preferred_entry"], "thin_internal_entry");
     assert_eq!(candidates[0]["current_carrier"], "compat_box");
     assert_eq!(candidates[0]["value_class"], "agg_local");
+    assert_eq!(candidates[0]["demand"], "local_aggregate");
     assert_eq!(candidates[0]["value"], 7);
 }
 
@@ -54,6 +56,7 @@ fn build_mir_json_root_emits_thin_entry_selections() {
             state: crate::mir::ThinEntrySelectionState::AlreadySatisfied,
             current_carrier: crate::mir::ThinEntryCurrentCarrier::BackendTyped,
             value_class: crate::mir::ThinEntryValueClass::InlineI64,
+            demand: crate::mir::ThinEntryDemand::InlineScalar,
             reason: "typed field read stays on thin internal scalar lane".to_string(),
         });
     module.functions.insert("main".to_string(), function);
@@ -70,5 +73,6 @@ fn build_mir_json_root_emits_thin_entry_selections() {
     );
     assert_eq!(selections[0]["selected_entry"], "thin_internal_entry");
     assert_eq!(selections[0]["state"], "already_satisfied");
+    assert_eq!(selections[0]["demand"], "inline_scalar");
     assert_eq!(selections[0]["value"], 8);
 }

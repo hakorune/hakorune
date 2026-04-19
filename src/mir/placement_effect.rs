@@ -11,7 +11,7 @@ use super::{
     build_value_def_map,
     string_corridor_placement::{StringCorridorCandidateKind, StringCorridorCandidateState},
     sum_placement_selection::{SumPlacementPath, SumPlacementSelection},
-    thin_entry::ThinEntryPreferredEntry,
+    thin_entry::{ThinEntryDemand, ThinEntryPreferredEntry},
     thin_entry_selection::{ThinEntrySelection, ThinEntrySelectionState},
     BasicBlockId, MirFunction, MirModule, ValueId,
 };
@@ -75,6 +75,33 @@ impl std::fmt::Display for PlacementEffectState {
             Self::Candidate => f.write_str("candidate"),
             Self::Selected => f.write_str("selected"),
             Self::AlreadySatisfied => f.write_str("already_satisfied"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PlacementEffectDemand {
+    Unknown,
+    ReadRef,
+    OwnedPayload,
+    CellResidence,
+    Immediate,
+    PublishHandle,
+    StableObject,
+    LocalAggregate,
+}
+
+impl std::fmt::Display for PlacementEffectDemand {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Unknown => f.write_str("?"),
+            Self::ReadRef => f.write_str("read_ref"),
+            Self::OwnedPayload => f.write_str("owned_payload"),
+            Self::CellResidence => f.write_str("cell_residence"),
+            Self::Immediate => f.write_str("immediate"),
+            Self::PublishHandle => f.write_str("publish_handle"),
+            Self::StableObject => f.write_str("stable_object"),
+            Self::LocalAggregate => f.write_str("local_aggregate"),
         }
     }
 }
@@ -165,6 +192,7 @@ pub struct PlacementEffectRoute {
     pub source: PlacementEffectSource,
     pub subject: String,
     pub decision: PlacementEffectDecision,
+    pub demand: PlacementEffectDemand,
     pub state: PlacementEffectState,
     pub detail: Option<String>,
     pub reason: String,
@@ -209,12 +237,13 @@ impl PlacementEffectRoute {
             .map(|detail| format!(" detail={detail}"))
             .unwrap_or_default();
         format!(
-            "{}{} {} {} {} [{}]{}{}{}{}{}{} reason={}",
+            "{}{} {} {} {} demand={} [{}]{}{}{}{}{}{} reason={}",
             block_suffix,
             instruction_suffix,
             self.source,
             self.subject,
             self.decision,
+            self.demand,
             self.state,
             value_suffix,
             source_value_suffix,
@@ -272,6 +301,7 @@ fn collect_string_routes(function: &MirFunction, routes: &mut Vec<PlacementEffec
                 source: PlacementEffectSource::StringCorridor,
                 subject: format!("string.value%{}", value.as_u32()),
                 decision: string_decision(candidate.kind),
+                demand: string_demand(candidate.kind),
                 state: string_state(candidate.state),
                 detail: candidate.plan.map(|plan| plan.summary()),
                 reason: candidate.reason.to_string(),
@@ -356,10 +386,29 @@ fn string_decision(kind: StringCorridorCandidateKind) -> PlacementEffectDecision
     }
 }
 
+fn string_demand(kind: StringCorridorCandidateKind) -> PlacementEffectDemand {
+    match kind {
+        StringCorridorCandidateKind::BorrowCorridorFusion => PlacementEffectDemand::ReadRef,
+        StringCorridorCandidateKind::PublicationSink => PlacementEffectDemand::PublishHandle,
+        StringCorridorCandidateKind::MaterializationSink => PlacementEffectDemand::OwnedPayload,
+        StringCorridorCandidateKind::DirectKernelEntry => PlacementEffectDemand::CellResidence,
+    }
+}
+
 fn string_state(state: StringCorridorCandidateState) -> PlacementEffectState {
     match state {
         StringCorridorCandidateState::Candidate => PlacementEffectState::Candidate,
         StringCorridorCandidateState::AlreadySatisfied => PlacementEffectState::AlreadySatisfied,
+    }
+}
+
+fn thin_entry_demand(demand: ThinEntryDemand) -> PlacementEffectDemand {
+    match demand {
+        ThinEntryDemand::Unknown => PlacementEffectDemand::Unknown,
+        ThinEntryDemand::InlineScalar => PlacementEffectDemand::Immediate,
+        ThinEntryDemand::BorrowedText => PlacementEffectDemand::ReadRef,
+        ThinEntryDemand::PublicHandle => PlacementEffectDemand::PublishHandle,
+        ThinEntryDemand::LocalAggregate => PlacementEffectDemand::LocalAggregate,
     }
 }
 
@@ -378,6 +427,10 @@ fn sum_route(selection: &SumPlacementSelection) -> PlacementEffectRoute {
         decision: match selection.selected_path {
             SumPlacementPath::LocalAggregate => PlacementEffectDecision::LocalAggregate,
             SumPlacementPath::CompatRuntimeBox => PlacementEffectDecision::CompatRuntimeBox,
+        },
+        demand: match selection.selected_path {
+            SumPlacementPath::LocalAggregate => PlacementEffectDemand::LocalAggregate,
+            SumPlacementPath::CompatRuntimeBox => PlacementEffectDemand::StableObject,
         },
         state: PlacementEffectState::Selected,
         detail: Some(selection.manifest_row.to_string()),
@@ -403,6 +456,7 @@ fn thin_entry_route(selection: &ThinEntrySelection) -> PlacementEffectRoute {
                 PlacementEffectDecision::ThinInternalEntry
             }
         },
+        demand: thin_entry_demand(selection.demand),
         state: match selection.state {
             ThinEntrySelectionState::Candidate => PlacementEffectState::Candidate,
             ThinEntrySelectionState::AlreadySatisfied => PlacementEffectState::AlreadySatisfied,
@@ -428,6 +482,7 @@ fn agg_local_route(route: &crate::mir::AggLocalScalarizationRoute) -> Option<Pla
             source: PlacementEffectSource::AggLocalScalarization,
             subject: route.subject.clone(),
             decision: PlacementEffectDecision::LocalAggregate,
+            demand: PlacementEffectDemand::LocalAggregate,
             state: PlacementEffectState::AlreadySatisfied,
             detail: Some(detail),
             reason: route.reason.clone(),
@@ -470,7 +525,7 @@ mod tests {
         StringCorridorCandidateKind, StringCorridorCandidatePlan, StringCorridorCandidateProof,
         StringCorridorCandidateState, StringCorridorPublicationBoundary,
         StringCorridorPublicationContract, SumLocalAggregateLayout, SumPlacementPath,
-        SumPlacementSelection, ThinEntryCurrentCarrier, ThinEntryPreferredEntry,
+        SumPlacementSelection, ThinEntryCurrentCarrier, ThinEntryDemand, ThinEntryPreferredEntry,
         ThinEntrySelection, ThinEntrySelectionState, ThinEntrySurface, ThinEntryValueClass,
         ValueId,
     };
@@ -529,6 +584,7 @@ mod tests {
                 state: ThinEntrySelectionState::AlreadySatisfied,
                 current_carrier: ThinEntryCurrentCarrier::BackendTyped,
                 value_class: ThinEntryValueClass::InlineI64,
+                demand: ThinEntryDemand::InlineScalar,
                 reason: "typed field read stays on thin internal scalar lane".to_string(),
             });
         function
@@ -580,10 +636,18 @@ mod tests {
             function.metadata.placement_effect_routes[0].publication_boundary,
             Some(PlacementEffectPublicationBoundary::FirstExternalBoundary)
         );
+        assert_eq!(
+            function.metadata.placement_effect_routes[0].demand,
+            PlacementEffectDemand::PublishHandle
+        );
         assert!(matches!(
             function.metadata.placement_effect_routes[1].decision,
             PlacementEffectDecision::LocalAggregate
         ));
+        assert_eq!(
+            function.metadata.placement_effect_routes[1].demand,
+            PlacementEffectDemand::LocalAggregate
+        );
         assert_eq!(
             function.metadata.placement_effect_routes[1].source_value,
             Some(ValueId::new(9))
@@ -604,6 +668,10 @@ mod tests {
             function.metadata.placement_effect_routes[4].decision,
             PlacementEffectDecision::ThinInternalEntry
         ));
+        assert_eq!(
+            function.metadata.placement_effect_routes[4].demand,
+            PlacementEffectDemand::Immediate
+        );
     }
 
     #[test]

@@ -180,11 +180,16 @@ Reading:
   - stable-object demand remains off
   - direct array-store-string smoke still stops before lowering on the existing pure-shape recipe gate
 - `289x-7b`: MIR demand/placement parallel facts
-  - next cutover cluster; inspection-only
+  - status: done in code; inspection-only; behavior unchanged
+  - `ThinEntryCandidate` / `ThinEntrySelection` carry demand facts beside value-class/carrier facts
+  - folded `PlacementEffectRoute` carries demand beside decision/source/state
+  - MIR JSON emits the demand fields for downstream inspection
 - `289x-5a`: bytes/view planning
   - prevent text-only patterns from being copied into bytes later
 - `289x-6a`: map key/value boundary map
   - key decode, value storage, read publication, and compat exports stay separated
+- `289x-6d`: Map key/value codec demand bridge
+  - next cutover cluster; no typed map lane
 
 ## Return To Optimization Gate
 

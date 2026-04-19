@@ -110,8 +110,8 @@ pub use join_ir_runner::{run_joinir_function, JoinRuntimeError, JoinValue};
 pub use optimizer::MirOptimizer;
 pub use placement_effect::{
     refresh_function_placement_effect_routes, refresh_module_placement_effect_routes,
-    PlacementEffectDecision, PlacementEffectPublicationBoundary, PlacementEffectRoute,
-    PlacementEffectSource, PlacementEffectState, PlacementEffectStringProof,
+    PlacementEffectDecision, PlacementEffectDemand, PlacementEffectPublicationBoundary,
+    PlacementEffectRoute, PlacementEffectSource, PlacementEffectState, PlacementEffectStringProof,
 };
 pub use printer::MirPrinter;
 pub use query::{MirQuery, MirQueryBox};
@@ -161,8 +161,8 @@ pub use sum_placement_selection::{
 };
 pub use thin_entry::{
     refresh_function_thin_entry_candidates, refresh_module_thin_entry_candidates,
-    ThinEntryCandidate, ThinEntryCurrentCarrier, ThinEntryPreferredEntry, ThinEntrySurface,
-    ThinEntryValueClass,
+    ThinEntryCandidate, ThinEntryCurrentCarrier, ThinEntryDemand, ThinEntryPreferredEntry,
+    ThinEntrySurface, ThinEntryValueClass,
 };
 pub use thin_entry_selection::{
     refresh_function_thin_entry_selections, refresh_module_thin_entry_selections,

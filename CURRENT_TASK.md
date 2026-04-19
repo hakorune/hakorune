@@ -114,8 +114,12 @@ Scope: current lane / next lane / restart order only.
       - C shim `ArrayStoreString` route now carries source-preserve plus publish-handle demand metadata
       - stable-object demand remains off; emitted lowering unchanged
       - direct array-store-string smoke still stops before lowering on the existing pure-shape recipe gate
+    - `289x-7b` landed:
+      - MIR `ThinEntryCandidate` / `ThinEntrySelection` now carry inspection-only demand facts
+      - folded `PlacementEffectRoute` now carries demand beside decision/source/state
+      - MIR JSON emits the new demand fields; behavior and lowering unchanged
     - next code cut:
-      - `289x-7b`: MIR demand/placement parallel facts, inspection-only
+      - `289x-6d`: Map key/value codec demand bridge, no typed map lane
     - high-risk planned later, not skipped:
       - concrete `slot_load_hi` / `slot_store` emission changes: `289x-7e`
       - `runtime_array_string` observer/window matcher rewrites: `289x-7f`

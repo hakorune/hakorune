@@ -178,7 +178,7 @@ mod tests {
     use super::*;
     use crate::mir::{
         BasicBlockId, EffectMask, FunctionSignature, MirType, SumLocalAggregateLayout,
-        ThinEntryCurrentCarrier, ThinEntryPreferredEntry, ThinEntrySelection,
+        ThinEntryCurrentCarrier, ThinEntryDemand, ThinEntryPreferredEntry, ThinEntrySelection,
         ThinEntrySelectionState, ThinEntrySurface, ThinEntryValueClass, ValueId,
     };
 
@@ -215,6 +215,7 @@ mod tests {
                 state: ThinEntrySelectionState::AlreadySatisfied,
                 current_carrier: ThinEntryCurrentCarrier::BackendTyped,
                 value_class: ThinEntryValueClass::InlineI64,
+                demand: ThinEntryDemand::InlineScalar,
                 reason: "typed field read stays on thin internal scalar lane".to_string(),
             });
         function

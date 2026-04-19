@@ -567,6 +567,7 @@ mod tests {
                 preferred_entry: crate::mir::ThinEntryPreferredEntry::ThinInternalEntry,
                 current_carrier: crate::mir::ThinEntryCurrentCarrier::CompatBox,
                 value_class: crate::mir::ThinEntryValueClass::AggLocal,
+                demand: crate::mir::ThinEntryDemand::LocalAggregate,
                 reason: "variant.make stays aggregate-first".to_string(),
             });
         let printer = MirPrinter::verbose();
@@ -601,6 +602,7 @@ mod tests {
                 state: crate::mir::ThinEntrySelectionState::AlreadySatisfied,
                 current_carrier: crate::mir::ThinEntryCurrentCarrier::BackendTyped,
                 value_class: crate::mir::ThinEntryValueClass::InlineI64,
+                demand: crate::mir::ThinEntryDemand::InlineScalar,
                 reason: "typed field reads stay on thin internal scalar lane".to_string(),
             });
         let printer = MirPrinter::verbose();

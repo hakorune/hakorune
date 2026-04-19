@@ -92,6 +92,27 @@ impl std::fmt::Display for ThinEntryValueClass {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ThinEntryDemand {
+    Unknown,
+    InlineScalar,
+    BorrowedText,
+    PublicHandle,
+    LocalAggregate,
+}
+
+impl std::fmt::Display for ThinEntryDemand {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Unknown => f.write_str("?"),
+            Self::InlineScalar => f.write_str("inline_scalar"),
+            Self::BorrowedText => f.write_str("borrowed_text"),
+            Self::PublicHandle => f.write_str("public_handle"),
+            Self::LocalAggregate => f.write_str("local_aggregate"),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ThinEntryCandidate {
     pub block: BasicBlockId,
@@ -102,6 +123,7 @@ pub struct ThinEntryCandidate {
     pub preferred_entry: ThinEntryPreferredEntry,
     pub current_carrier: ThinEntryCurrentCarrier,
     pub value_class: ThinEntryValueClass,
+    pub demand: ThinEntryDemand,
     pub reason: String,
 }
 
@@ -112,7 +134,7 @@ impl ThinEntryCandidate {
             .map(|value| format!(" value=%{}", value.as_u32()))
             .unwrap_or_default();
         format!(
-            "bb{}#{} {} {} preferred={} current={} value_class={}{} reason={}",
+            "bb{}#{} {} {} preferred={} current={} value_class={} demand={}{} reason={}",
             self.block.as_u32(),
             self.instruction_index,
             self.surface,
@@ -120,6 +142,7 @@ impl ThinEntryCandidate {
             self.preferred_entry,
             self.current_carrier,
             self.value_class,
+            self.demand,
             value_suffix,
             self.reason
         )
@@ -188,6 +211,7 @@ fn infer_candidate(
                 preferred_entry: ThinEntryPreferredEntry::ThinInternalEntry,
                 current_carrier: field_current_carrier(value_class),
                 value_class,
+                demand: demand_from_value_class(value_class),
                 reason: if field_current_carrier(value_class)
                     == ThinEntryCurrentCarrier::BackendTyped
                 {
@@ -221,6 +245,7 @@ fn infer_candidate(
                 preferred_entry: ThinEntryPreferredEntry::ThinInternalEntry,
                 current_carrier: field_current_carrier(value_class),
                 value_class,
+                demand: demand_from_value_class(value_class),
                 reason: if field_current_carrier(value_class)
                     == ThinEntryCurrentCarrier::BackendTyped
                 {
@@ -251,6 +276,7 @@ fn infer_candidate(
                 preferred_entry: ThinEntryPreferredEntry::ThinInternalEntry,
                 current_carrier: ThinEntryCurrentCarrier::PublicRuntime,
                 value_class: ThinEntryValueClass::Unknown,
+                demand: ThinEntryDemand::PublicHandle,
                 reason: "known user-defined receiver already has canonical Call; pass + manifest can bind a thin internal entry without adding a second semantic call dialect".to_string(),
             })
         }
@@ -268,6 +294,7 @@ fn infer_candidate(
             preferred_entry: ThinEntryPreferredEntry::ThinInternalEntry,
             current_carrier: ThinEntryCurrentCarrier::CompatBox,
             value_class: ThinEntryValueClass::AggLocal,
+            demand: ThinEntryDemand::LocalAggregate,
             reason: "variant.make is semantically local aggregate-first; current __NyVariant_* boxing is compat/runtime fallback rather than the preferred physical entry".to_string(),
         }),
         MirInstruction::VariantTag {
@@ -284,6 +311,7 @@ fn infer_candidate(
                 preferred_entry: ThinEntryPreferredEntry::ThinInternalEntry,
                 current_carrier: ThinEntryCurrentCarrier::CompatBox,
                 value_class: ThinEntryValueClass::InlineI64,
+                demand: ThinEntryDemand::InlineScalar,
                 reason: "variant.tag can stay on a thin internal tag lane; current __NyVariant_* carriers remain compat fallback for VM/runtime and current LLVM lowering".to_string(),
             })
         }
@@ -302,6 +330,7 @@ fn infer_candidate(
             preferred_entry: ThinEntryPreferredEntry::ThinInternalEntry,
             current_carrier: ThinEntryCurrentCarrier::CompatBox,
             value_class: value_class_from_declared_type(payload_type.as_ref()),
+            demand: demand_from_value_class(value_class_from_declared_type(payload_type.as_ref())),
             reason: "variant.project can stay on a thin internal payload route; current __NyVariant_* carriers remain compat fallback for VM/runtime and current LLVM lowering".to_string(),
         }),
         _ => None,
@@ -358,6 +387,18 @@ fn field_current_carrier(value_class: ThinEntryValueClass) -> ThinEntryCurrentCa
         | ThinEntryValueClass::InlineBool
         | ThinEntryValueClass::InlineF64 => ThinEntryCurrentCarrier::BackendTyped,
         _ => ThinEntryCurrentCarrier::PublicRuntime,
+    }
+}
+
+fn demand_from_value_class(value_class: ThinEntryValueClass) -> ThinEntryDemand {
+    match value_class {
+        ThinEntryValueClass::InlineI64
+        | ThinEntryValueClass::InlineBool
+        | ThinEntryValueClass::InlineF64 => ThinEntryDemand::InlineScalar,
+        ThinEntryValueClass::BorrowedText => ThinEntryDemand::BorrowedText,
+        ThinEntryValueClass::AggLocal => ThinEntryDemand::LocalAggregate,
+        ThinEntryValueClass::Handle => ThinEntryDemand::PublicHandle,
+        ThinEntryValueClass::Unknown => ThinEntryDemand::Unknown,
     }
 }
 

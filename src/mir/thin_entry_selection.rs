@@ -7,8 +7,8 @@
  */
 
 use super::thin_entry::{
-    ThinEntryCandidate, ThinEntryCurrentCarrier, ThinEntryPreferredEntry, ThinEntrySurface,
-    ThinEntryValueClass,
+    ThinEntryCandidate, ThinEntryCurrentCarrier, ThinEntryDemand, ThinEntryPreferredEntry,
+    ThinEntrySurface, ThinEntryValueClass,
 };
 use super::{BasicBlockId, MirFunction, MirModule, ValueId};
 
@@ -39,6 +39,7 @@ pub struct ThinEntrySelection {
     pub state: ThinEntrySelectionState,
     pub current_carrier: ThinEntryCurrentCarrier,
     pub value_class: ThinEntryValueClass,
+    pub demand: ThinEntryDemand,
     pub reason: String,
 }
 
@@ -49,7 +50,7 @@ impl ThinEntrySelection {
             .map(|value| format!(" value=%{}", value.as_u32()))
             .unwrap_or_default();
         format!(
-            "bb{}#{} {} {} row={} selected={} [{}] current={} value_class={}{} reason={}",
+            "bb{}#{} {} {} row={} selected={} [{}] current={} value_class={} demand={}{} reason={}",
             self.block.as_u32(),
             self.instruction_index,
             self.surface,
@@ -59,6 +60,7 @@ impl ThinEntrySelection {
             self.state,
             self.current_carrier,
             self.value_class,
+            self.demand,
             value_suffix,
             self.reason
         )
@@ -203,6 +205,7 @@ fn bind_selection(
         state: selection_state(row.selected_entry, candidate.current_carrier),
         current_carrier: candidate.current_carrier,
         value_class: candidate.value_class,
+        demand: candidate.demand,
         reason: row.reason.to_string(),
     }
 }
@@ -246,6 +249,7 @@ mod tests {
                 preferred_entry: ThinEntryPreferredEntry::ThinInternalEntry,
                 current_carrier: ThinEntryCurrentCarrier::BackendTyped,
                 value_class: ThinEntryValueClass::InlineI64,
+                demand: ThinEntryDemand::InlineScalar,
                 reason: "inventory".to_string(),
             },
             ThinEntryCandidate {
@@ -257,6 +261,7 @@ mod tests {
                 preferred_entry: ThinEntryPreferredEntry::ThinInternalEntry,
                 current_carrier: ThinEntryCurrentCarrier::PublicRuntime,
                 value_class: ThinEntryValueClass::BorrowedText,
+                demand: ThinEntryDemand::BorrowedText,
                 reason: "inventory".to_string(),
             },
             ThinEntryCandidate {
@@ -268,6 +273,7 @@ mod tests {
                 preferred_entry: ThinEntryPreferredEntry::ThinInternalEntry,
                 current_carrier: ThinEntryCurrentCarrier::PublicRuntime,
                 value_class: ThinEntryValueClass::Unknown,
+                demand: ThinEntryDemand::PublicHandle,
                 reason: "inventory".to_string(),
             },
             ThinEntryCandidate {
@@ -279,6 +285,7 @@ mod tests {
                 preferred_entry: ThinEntryPreferredEntry::ThinInternalEntry,
                 current_carrier: ThinEntryCurrentCarrier::CompatBox,
                 value_class: ThinEntryValueClass::AggLocal,
+                demand: ThinEntryDemand::LocalAggregate,
                 reason: "inventory".to_string(),
             },
             ThinEntryCandidate {
@@ -290,6 +297,7 @@ mod tests {
                 preferred_entry: ThinEntryPreferredEntry::ThinInternalEntry,
                 current_carrier: ThinEntryCurrentCarrier::CompatBox,
                 value_class: ThinEntryValueClass::InlineI64,
+                demand: ThinEntryDemand::InlineScalar,
                 reason: "inventory".to_string(),
             },
             ThinEntryCandidate {
@@ -301,6 +309,7 @@ mod tests {
                 preferred_entry: ThinEntryPreferredEntry::ThinInternalEntry,
                 current_carrier: ThinEntryCurrentCarrier::CompatBox,
                 value_class: ThinEntryValueClass::InlineI64,
+                demand: ThinEntryDemand::InlineScalar,
                 reason: "inventory".to_string(),
             },
         ];
@@ -365,6 +374,7 @@ mod tests {
                 preferred_entry: ThinEntryPreferredEntry::ThinInternalEntry,
                 current_carrier: ThinEntryCurrentCarrier::BackendTyped,
                 value_class: ThinEntryValueClass::InlineI64,
+                demand: ThinEntryDemand::InlineScalar,
                 reason: "inventory".to_string(),
             });
 

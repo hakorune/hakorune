@@ -139,6 +139,7 @@ pub(super) fn build_mir_json_root(
                     "preferred_entry": candidate.preferred_entry.to_string(),
                     "current_carrier": candidate.current_carrier.to_string(),
                     "value_class": candidate.value_class.to_string(),
+                    "demand": candidate.demand.to_string(),
                     "reason": candidate.reason,
                 })
             }).collect::<Vec<_>>(),
@@ -154,6 +155,7 @@ pub(super) fn build_mir_json_root(
                     "state": selection.state.to_string(),
                     "current_carrier": selection.current_carrier.to_string(),
                     "value_class": selection.value_class.to_string(),
+                    "demand": selection.demand.to_string(),
                     "reason": selection.reason,
                 })
             }).collect::<Vec<_>>(),
