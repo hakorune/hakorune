@@ -9,11 +9,18 @@ use crate::observe;
 use crate::plugin::{
     issue_fresh_handle_from_arc, materialize_owned_string_explicit_api_boundary_for_site,
     materialize_owned_string_generic_fallback, materialize_owned_string_generic_fallback_for_site,
-    materialize_owned_string_need_stable_object_boundary_for_site, StringPublishSite,
+    materialize_owned_string_need_stable_object_boundary_for_site,
+    publish_owned_bytes_generic_fallback_boundary_for_site, freeze_owned_bytes_with_site,
+    OwnedText, StringPublishSite,
 };
 use nyash_rust::box_trait::{NyashBox, StringBox};
 use nyash_rust::runtime::host_handles as handles;
 use std::{ptr, sync::Arc};
+
+struct FrozenTextPlan {
+    bytes: OwnedText,
+    site: StringPublishSite,
+}
 
 #[inline(always)]
 pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
@@ -334,6 +341,15 @@ pub(super) fn freeze_text_plan<'a>(plan: TextPlan<'a>) -> i64 {
 
 #[inline(always)]
 pub(super) fn freeze_text_plan_with_site<'a>(plan: TextPlan<'a>, site: StringPublishSite) -> i64 {
+    let FrozenTextPlan { bytes, site } = freeze_text_plan_outcome_with_site(plan, site);
+    publish_owned_bytes_generic_fallback_boundary_for_site(bytes, site)
+}
+
+#[inline(always)]
+fn freeze_text_plan_outcome_with_site<'a>(
+    plan: TextPlan<'a>,
+    site: StringPublishSite,
+) -> FrozenTextPlan {
     observe::record_birth_placement_freeze_owned();
     let pieces3_site = matches!(&plan, TextPlan::Pieces3 { .. });
     match &plan {
@@ -362,7 +378,10 @@ pub(super) fn freeze_text_plan_with_site<'a>(plan: TextPlan<'a>, site: StringPub
         StringPublishSite::Generic if pieces3_site => StringPublishSite::FreezeTextPlanPieces3,
         other => other,
     };
-    string_handle_from_owned_with_site(plan.into_owned(), site)
+    FrozenTextPlan {
+        bytes: freeze_owned_bytes_with_site(plan.into_owned(), site),
+        site,
+    }
 }
 
 #[inline(always)]
@@ -505,4 +524,52 @@ pub(crate) fn to_owned_string_handle_arg(h: i64) -> String {
     resolve_string_span_from_handle(h)
         .map(|span| span.as_text().to_string())
         .unwrap_or_default()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::exports::string_plan::TextPiece;
+
+    #[test]
+    fn freeze_text_plan_outcome_keeps_owned_bytes_before_publish() {
+        let outcome = freeze_text_plan_outcome_with_site(
+            TextPlan::from_three(
+                TextPiece::Inline("ab"),
+                TextPiece::Inline("cd"),
+                TextPiece::Inline("ef"),
+            ),
+            StringPublishSite::Generic,
+        );
+
+        assert_eq!(outcome.bytes.as_str(), "abcdef");
+        assert!(matches!(outcome.site, StringPublishSite::FreezeTextPlanPieces3));
+    }
+
+    #[test]
+    fn freeze_text_plan_outcome_preserves_non_pieces3_site() {
+        let outcome = freeze_text_plan_outcome_with_site(
+            TextPlan::from_owned("owned".to_owned()),
+            StringPublishSite::ConstSuffix,
+        );
+
+        assert_eq!(outcome.bytes.as_str(), "owned");
+        assert!(matches!(outcome.site, StringPublishSite::ConstSuffix));
+    }
+
+    #[test]
+    fn freeze_text_plan_with_site_publishes_owned_bytes() {
+        let handle = freeze_text_plan_with_site(
+            TextPlan::from_owned("publish-me".to_owned()),
+            StringPublishSite::Generic,
+        );
+
+        assert!(handle > 0);
+        let obj = handles::get(handle as u64).expect("published text plan handle");
+        let sb = obj
+            .as_any()
+            .downcast_ref::<StringBox>()
+            .expect("published text plan should materialize as StringBox");
+        assert_eq!(sb.value, "publish-me");
+    }
 }

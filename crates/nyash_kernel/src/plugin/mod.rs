@@ -63,7 +63,9 @@ pub(crate) use value_codec::{
     materialize_owned_string_explicit_api_boundary_for_site,
     materialize_owned_string_generic_fallback, materialize_owned_string_generic_fallback_for_site,
     materialize_owned_string_need_stable_object_boundary_for_site, owned_string_from_handle,
-    publish_kernel_text_slot, with_kernel_text_slot_text, StringPublishSite, TextRef,
+    publish_kernel_text_slot, publish_owned_bytes_generic_fallback_boundary_for_site,
+    freeze_owned_bytes_with_site, with_kernel_text_slot_text, OwnedText, StringPublishSite,
+    TextRef,
 };
 
 #[cfg(test)]

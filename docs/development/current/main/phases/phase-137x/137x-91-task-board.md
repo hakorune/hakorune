@@ -121,7 +121,7 @@ order before the next kilo optimization return.
     - first target is array-string TextCell residence vs generic boxed residence
     - no public ABI widening, no Map typed lane, no runtime-side legality/provenance inference
   - [ ] G3b `137x-F closeout decision`
-    - decide whether the constrained bridge is sufficient to open `137x-G`, or split one more F2 bridge slice
+    - `137x-F2 producer outcome manifest split` is landed; decide whether the constrained bridge is sufficient to open `137x-G`, or stop here
     - do not start allocator or perf-return work until this closeout is recorded
 - [ ] G4 allocator / arena pilot
   - open after TextLane / Value Lane proof shows copy/allocation tax remains structural

@@ -50,7 +50,7 @@
   - `137x-D`: owner-first optimization return landed the exact array store route-shape keeper
   - `137x-E0`: MIR / backend seam closeout before TextLane is closed
   - `137x-E1`: minimal `TextLane` / `ArrayStorage::Text` implementation is landed
-  - `137x-F`: runtime-wide `Value Lane` implementation bridge follows
+  - `137x-F`: runtime-wide `Value Lane` implementation bridge closeout remains current
   - `137x-G`: allocator / arena pilot follows
   - `137x-H`: next kilo optimization return after F/G land or reject
 - current closeout status:
@@ -158,6 +158,30 @@ Verification:
 - `phase137x_boundary_array_string_len_insert_mid_source_only_min.sh` PASS
 - `tools/checks/current_state_pointer_guard.sh` PASS
 - `tools/checks/dev_gate.sh quick` PASS
+
+## 137x-F2 Producer Outcome Manifest Split
+
+Status: landed.
+
+Scope:
+- split the producer outcome manifest so owned bytes stay separate from the publish boundary effect
+- keep `freeze_text_plan_with_site` behavior unchanged at the call boundary
+- keep this bridge runtime-private; do not open Map typed lanes, allocator, or public ABI rows
+
+Acceptance:
+- the freeze outcome helper keeps owned bytes available before publish
+- non-`FreezeTextPlanPieces3` sites stay preserved through normalization
+- publish still goes through the owned-bytes generic fallback boundary for the recorded site
+
+Implementation guard:
+- `FrozenTextPlan` is an internal manifest only.
+- `freeze_text_plan_outcome_with_site` may prepare the publish step, but it must not publish itself.
+- `137x-F2` does not reopen legality/provenance inference in runtime code.
+
+Verification:
+- `cargo test -q -p nyash_kernel --lib freeze_text_plan_outcome -- --test-threads=1` PASS
+- `cargo test -q -p nyash_kernel --lib value_lane -- --test-threads=1` PASS
+- `cargo test -q -p nyash_kernel --lib freeze_text_plan_with_site_publishes_owned_bytes -- --test-threads=1` PASS
 
 ## Legacy Retirement Ledger
 
@@ -2029,10 +2053,10 @@ The next perf cut should not start until these mechanical contracts are fixed.
    - older exact-front notes in this file are historical unless the restart handoff names them as guards
    - `kilo_micro_substring_only` is no longer the current exact owner front for new implementation edits
 2. open implementation gates before the next kilo optimization
-   - current blocker: `137x-F Value Lane implementation bridge`
+   - current blocker: `137x-F Value Lane implementation bridge` closeout
    - `137x-E0`: MIR / backend seam closeout is closed
    - `137x-E1`: minimal `TextLane` / `ArrayStorage::Text` is landed
-   - `137x-F`: runtime-wide Value Lane implementation bridge
+   - `137x-F`: runtime-wide Value Lane implementation bridge closeout
    - `137x-G`: allocator / arena pilot
    - `137x-H`: owner-first optimization return after F/G land or reject
 3. keep landed `137x-D` cuts fixed

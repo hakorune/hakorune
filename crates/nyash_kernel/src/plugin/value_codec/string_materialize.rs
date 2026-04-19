@@ -493,7 +493,7 @@ pub(crate) fn freeze_owned_string_into_slot(slot: &mut KernelTextSlot, value: St
 }
 
 #[inline(always)]
-fn freeze_owned_bytes_with_site(value: String, site: StringPublishSite) -> OwnedText {
+pub(crate) fn freeze_owned_bytes_with_site(value: String, site: StringPublishSite) -> OwnedText {
     record_publish_site_materialize_owned(site, value.len());
     freeze_owned_bytes(value)
 }
@@ -589,7 +589,7 @@ fn publish_owned_bytes_freeze_text_plan_pieces3_generic_fallback_boundary(bytes:
 }
 
 #[inline(always)]
-fn publish_owned_bytes_generic_fallback_boundary_for_site(
+pub(crate) fn publish_owned_bytes_generic_fallback_boundary_for_site(
     bytes: OwnedText,
     site: StringPublishSite,
 ) -> i64 {

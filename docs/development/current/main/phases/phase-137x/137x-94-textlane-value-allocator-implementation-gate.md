@@ -44,8 +44,9 @@ This gate opens:
   - Move from planning-only to a constrained implementation bridge.
   - Keep Array / Map public identity unchanged while internal residence becomes lane-aware.
   - Landed first slice is `137x-F1`: runtime-private `DemandSet -> ValueLanePlan -> executor action` bridge for the landed array text residence route.
-  - `137x-F1` must not open Map typed lanes, public ABI rows, or runtime-side legality/provenance inference.
-  - Closeout must decide whether to open `137x-G` next or split one more F2 bridge slice.
+  - Landed second slice is `137x-F2`: runtime-private producer outcome manifest split that keeps frozen owned bytes separate from publish.
+  - `137x-F1` and `137x-F2` must not open Map typed lanes, public ABI rows, or runtime-side legality/provenance inference.
+  - Closeout must decide whether to open `137x-G` next or stop here.
 
 - `137x-G allocator / arena`
   - Open after TextLane / Value Lane show whether copy/allocation cost remains structural.

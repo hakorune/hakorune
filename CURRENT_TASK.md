@@ -63,7 +63,7 @@ Scope: current lane / next lane / restart order only.
       - implemented as array-internal storage/residence only: `String = value`, public Array/String ABI, and MIR legality stay unchanged
       - array-string kernel read/store/mutate routes now use text raw APIs; generic/mixed ArrayBox routes degrade to Boxed instead of making `TextLane` semantic truth
       - retired the array-string store `BorrowedHandleBox` retarget executor path; runtime now stores text residence or degrades mixed values without re-planning alias legality
-    - next implementation blocker is `137x-F` Value Lane bridge; `137x-F1 demand-to-lane executor bridge` is landed, and `137x-F` closeout decides whether to open `137x-G` or split an F2 bridge slice
+    - next implementation blocker is `137x-F` Value Lane bridge; `137x-F1 demand-to-lane executor bridge` and `137x-F2 producer outcome manifest split` are landed, and `137x-F` closeout still decides whether to open `137x-G` or split more
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - active phase:
@@ -106,7 +106,7 @@ Scope: current lane / next lane / restart order only.
       - `substring_hii` `ViewSpan` publication cleanup is closed; `StringSpan` now survives until the final handle boundary helper
       - explicit string-only `publish.text` contract gates are closed for `137x-A`; `publish.any` remains deferred/blocked
       - `cache.rs` / `string_materialize.rs` remain deferred modularization candidates, but not prerequisites for the active `137x-E` implementation gate
-      - active implementation gate is `137x-F` Value Lane bridge closeout; `137x-F1` demand-to-lane executor bridge, `137x-E0` MIR/backend seam closeout, and `137x-E1` minimal TextLane are closed
+      - active implementation gate is `137x-F` Value Lane bridge closeout; `137x-F1` demand-to-lane executor bridge, `137x-F2` producer outcome manifest split, `137x-E0` MIR/backend seam closeout, and `137x-E1` minimal TextLane are closed
       - `.inc` must consume MIR-owned metadata for legality/provenance and stay backend emit/normalization only
       - pre-E1 cleanup deleted the old `9-block` seed branch and the shared-receiver scanner fallback; active shared-receiver gates are now metadata-only
       - legacy watch item surfaced by audit is `src/host_providers/llvm_codegen/compat_text_primitive.rs`
