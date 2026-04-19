@@ -204,6 +204,35 @@ mod tests {
     }
 
     #[test]
+    fn suffix_store_by_index_explicit_len_uses_const_slice() {
+        let handle = new_array_handle();
+        let suffix = std::ffi::CString::new("xyZZ").expect("suffix");
+
+        assert_eq!(
+            with_array_box(handle, |arr| arr
+                .slot_store_box_raw(0, Box::new(StringBox::new("line-seed"))))
+            .unwrap_or(false),
+            true
+        );
+        assert_eq!(
+            crate::nyash_array_string_suffix_store_hisi_alias(handle, 0, suffix.as_ptr(), 2),
+            1
+        );
+
+        let stored = with_array_box(handle, |arr| {
+            arr.with_items_read(|items| {
+                items.first().and_then(|item| {
+                    item.as_any()
+                        .downcast_ref::<StringBox>()
+                        .map(|value| value.value.clone())
+                })
+            })
+        })
+        .flatten();
+        assert_eq!(stored.as_deref(), Some("line-seedxy"));
+    }
+
+    #[test]
     fn suffix_store_by_index_materializes_alias_slot_without_mutating_source() {
         let handle = new_array_handle();
         let seed_h = new_string_handle("line-seed");
@@ -329,6 +358,43 @@ mod tests {
     }
 
     #[test]
+    fn insert_mid_store_by_index_explicit_len_uses_const_slice() {
+        let handle = new_array_handle();
+        let middle = std::ffi::CString::new("xxZZ").expect("middle");
+
+        assert_eq!(
+            with_array_box(handle, |arr| arr.slot_store_box_raw(
+                0,
+                Box::new(nyash_rust::box_trait::StringBox::new("line-seed"))
+            ))
+            .unwrap_or(false),
+            true
+        );
+        assert_eq!(
+            crate::nyash_array_string_insert_mid_store_hisii_alias(
+                handle,
+                0,
+                middle.as_ptr(),
+                2,
+                4,
+            ),
+            1
+        );
+
+        let stored = with_array_box(handle, |arr| {
+            arr.with_items_read(|items| {
+                items.first().and_then(|item| {
+                    item.as_any()
+                        .downcast_ref::<StringBox>()
+                        .map(|value| value.value.clone())
+                })
+            })
+        })
+        .flatten();
+        assert_eq!(stored.as_deref(), Some("linexx-seed"));
+    }
+
+    #[test]
     fn insert_mid_store_by_index_materializes_alias_slot_without_mutating_source() {
         let handle = new_array_handle();
         let seed_h = new_string_handle("line-seed");
@@ -432,6 +498,45 @@ mod tests {
             Some("inexx-see")
         );
         assert_eq!(stored.map(|(ptr, _)| ptr), before_ptr);
+    }
+
+    #[test]
+    fn insert_mid_subrange_store_by_index_explicit_len_uses_const_slice() {
+        let handle = new_array_handle();
+        let middle = std::ffi::CString::new("xxZZ").expect("middle");
+
+        assert_eq!(
+            with_array_box(handle, |arr| arr.slot_store_box_raw(
+                0,
+                Box::new(nyash_rust::box_trait::StringBox::new("line-seed"))
+            ))
+            .unwrap_or(false),
+            true
+        );
+        assert_eq!(
+            crate::nyash_array_string_insert_mid_subrange_store_hisiiii_alias(
+                handle,
+                0,
+                middle.as_ptr(),
+                2,
+                4,
+                1,
+                10,
+            ),
+            1
+        );
+
+        let stored = with_array_box(handle, |arr| {
+            arr.with_items_read(|items| {
+                items.first().and_then(|item| {
+                    item.as_any()
+                        .downcast_ref::<StringBox>()
+                        .map(|value| value.value.clone())
+                })
+            })
+        })
+        .flatten();
+        assert_eq!(stored.as_deref(), Some("inexx-see"));
     }
 
     #[test]

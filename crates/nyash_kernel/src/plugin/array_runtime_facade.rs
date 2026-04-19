@@ -6,9 +6,12 @@ use super::array_slot_store::{
 use super::array_string_slot::{
     array_string_concat_const_suffix_by_index_into_slot,
     array_string_concat_const_suffix_by_index_store_same_slot,
+    array_string_concat_const_suffix_by_index_store_same_slot_len,
     array_string_insert_const_mid_by_index_into_slot,
     array_string_insert_const_mid_by_index_store_same_slot,
+    array_string_insert_const_mid_by_index_store_same_slot_len,
     array_string_insert_const_mid_subrange_by_index_store_same_slot,
+    array_string_insert_const_mid_subrange_by_index_store_same_slot_len,
 };
 use super::KernelTextSlot;
 
@@ -62,6 +65,17 @@ pub(super) fn array_runtime_concat_const_suffix_idx_store_same_slot(
     array_string_concat_const_suffix_by_index_store_same_slot(handle, idx, suffix_ptr)
 }
 
+pub(super) fn array_runtime_concat_const_suffix_idx_store_same_slot_len(
+    handle: i64,
+    idx: i64,
+    suffix_ptr: *const i8,
+    suffix_len: i64,
+) -> i64 {
+    array_string_concat_const_suffix_by_index_store_same_slot_len(
+        handle, idx, suffix_ptr, suffix_len,
+    )
+}
+
 pub(super) fn array_runtime_insert_const_mid_idx_into_slot(
     slot: &mut KernelTextSlot,
     handle: i64,
@@ -81,6 +95,18 @@ pub(super) fn array_runtime_insert_const_mid_idx_store_same_slot(
     array_string_insert_const_mid_by_index_store_same_slot(handle, idx, middle_ptr, split)
 }
 
+pub(super) fn array_runtime_insert_const_mid_idx_store_same_slot_len(
+    handle: i64,
+    idx: i64,
+    middle_ptr: *const i8,
+    middle_len: i64,
+    split: i64,
+) -> i64 {
+    array_string_insert_const_mid_by_index_store_same_slot_len(
+        handle, idx, middle_ptr, middle_len, split,
+    )
+}
+
 pub(super) fn array_runtime_insert_const_mid_subrange_idx_store_same_slot(
     handle: i64,
     idx: i64,
@@ -91,6 +117,20 @@ pub(super) fn array_runtime_insert_const_mid_subrange_idx_store_same_slot(
 ) -> i64 {
     array_string_insert_const_mid_subrange_by_index_store_same_slot(
         handle, idx, middle_ptr, split, start, end,
+    )
+}
+
+pub(super) fn array_runtime_insert_const_mid_subrange_idx_store_same_slot_len(
+    handle: i64,
+    idx: i64,
+    middle_ptr: *const i8,
+    middle_len: i64,
+    split: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    array_string_insert_const_mid_subrange_by_index_store_same_slot_len(
+        handle, idx, middle_ptr, middle_len, split, start, end,
     )
 }
 

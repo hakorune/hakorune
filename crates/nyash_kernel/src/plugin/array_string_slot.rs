@@ -40,6 +40,22 @@ fn array_text_owned_cell_demand() -> DemandSet {
 }
 
 #[inline(always)]
+fn with_compiler_const_utf8_ptr_len<R>(
+    ptr: *const i8,
+    len: i64,
+    f: impl FnOnce(&str) -> R,
+) -> Option<R> {
+    if ptr.is_null() || len < 0 {
+        return None;
+    }
+    let bytes = unsafe { std::slice::from_raw_parts(ptr as *const u8, len as usize) };
+    debug_assert!(std::str::from_utf8(bytes).is_ok());
+    // Runtime-private direct lowering passes compiler-emitted UTF-8 string
+    // constants with explicit length. The CStr public aliases keep validation.
+    Some(f(unsafe { std::str::from_utf8_unchecked(bytes) }))
+}
+
+#[inline(always)]
 fn record_borrowed_alias_string_read_latest_fresh(
     item: &dyn nyash_rust::box_trait::NyashBox,
     indexof: bool,
@@ -271,27 +287,32 @@ fn with_cached_needle_str<R>(needle_h: i64, f: impl FnOnce(&str) -> R) -> R {
 pub(super) fn array_string_indexof_by_index(handle: i64, idx: i64, needle_h: i64) -> i64 {
     let _demand = array_text_read_ref_demand();
     with_cached_needle_str(needle_h, |needle| {
-        if !valid_handle_idx(handle, idx) {
-            return if needle.is_empty() { 0 } else { -1 };
-        }
-        if needle.is_empty() {
-            return 0;
-        }
-        super::array_handle_cache::with_array_box(handle, |arr| {
-            let idx = idx as usize;
-            arr.with_items_read(|items| {
-                items
-                    .get(idx)
-                    .and_then(|item| {
-                        record_borrowed_alias_string_read_latest_fresh(item.as_ref(), true);
-                        item.as_str_fast()
-                    })
-                    .map(|hay| string_indexof_fast_str(hay, needle))
-                    .unwrap_or(-1)
-            })
-        })
-        .unwrap_or(-1)
+        array_string_indexof_by_index_str(handle, idx, needle)
     })
+}
+
+#[inline(always)]
+fn array_string_indexof_by_index_str(handle: i64, idx: i64, needle: &str) -> i64 {
+    if !valid_handle_idx(handle, idx) {
+        return if needle.is_empty() { 0 } else { -1 };
+    }
+    if needle.is_empty() {
+        return 0;
+    }
+    super::array_handle_cache::with_array_box(handle, |arr| {
+        let idx = idx as usize;
+        arr.with_items_read(|items| {
+            items
+                .get(idx)
+                .and_then(|item| {
+                    record_borrowed_alias_string_read_latest_fresh(item.as_ref(), true);
+                    item.as_str_fast()
+                })
+                .map(|hay| string_indexof_fast_str(hay, needle))
+                .unwrap_or(-1)
+        })
+    })
+    .unwrap_or(-1)
 }
 
 pub(super) fn array_string_concat_const_suffix_by_index_into_slot(
@@ -300,8 +321,6 @@ pub(super) fn array_string_concat_const_suffix_by_index_into_slot(
     idx: i64,
     suffix_ptr: *const i8,
 ) -> i64 {
-    let _read_demand = array_text_read_ref_demand();
-    let _output_demand = array_text_owned_cell_demand();
     slot.clear();
     if !valid_handle_idx(handle, idx) || suffix_ptr.is_null() {
         return 0;
@@ -309,6 +328,18 @@ pub(super) fn array_string_concat_const_suffix_by_index_into_slot(
     let Ok(suffix) = (unsafe { CStr::from_ptr(suffix_ptr) }).to_str() else {
         return 0;
     };
+    array_string_concat_const_suffix_by_index_into_slot_str(slot, handle, idx, suffix)
+}
+
+fn array_string_concat_const_suffix_by_index_into_slot_str(
+    slot: &mut KernelTextSlot,
+    handle: i64,
+    idx: i64,
+    suffix: &str,
+) -> i64 {
+    let _read_demand = array_text_read_ref_demand();
+    let _output_demand = array_text_owned_cell_demand();
+    slot.clear();
     super::array_handle_cache::with_array_box(handle, |arr| {
         let idx = idx as usize;
         arr.with_items_read(|items| {
@@ -330,7 +361,6 @@ fn append_const_suffix_to_string_box_value(value: &mut String, suffix: &str) {
     if suffix.is_empty() {
         return;
     }
-    value.reserve(suffix.len());
     value.push_str(suffix);
 }
 
@@ -339,14 +369,37 @@ pub(super) fn array_string_concat_const_suffix_by_index_store_same_slot(
     idx: i64,
     suffix_ptr: *const i8,
 ) -> i64 {
-    let _read_demand = array_text_read_ref_demand();
-    let _output_demand = array_text_owned_cell_demand();
     if !valid_handle_idx(handle, idx) || suffix_ptr.is_null() {
         return 0;
     }
     let Ok(suffix) = (unsafe { CStr::from_ptr(suffix_ptr) }).to_str() else {
         return 0;
     };
+    array_string_concat_const_suffix_by_index_store_same_slot_str(handle, idx, suffix)
+}
+
+pub(super) fn array_string_concat_const_suffix_by_index_store_same_slot_len(
+    handle: i64,
+    idx: i64,
+    suffix_ptr: *const i8,
+    suffix_len: i64,
+) -> i64 {
+    if !valid_handle_idx(handle, idx) {
+        return 0;
+    }
+    with_compiler_const_utf8_ptr_len(suffix_ptr, suffix_len, |suffix| {
+        array_string_concat_const_suffix_by_index_store_same_slot_str(handle, idx, suffix)
+    })
+    .unwrap_or(0)
+}
+
+fn array_string_concat_const_suffix_by_index_store_same_slot_str(
+    handle: i64,
+    idx: i64,
+    suffix: &str,
+) -> i64 {
+    let _read_demand = array_text_read_ref_demand();
+    let _output_demand = array_text_owned_cell_demand();
     observe::record_store_array_str_enter();
     super::array_handle_cache::with_array_box(handle, |arr| {
         let idx = idx as usize;
@@ -477,8 +530,6 @@ pub(super) fn array_string_insert_const_mid_by_index_into_slot(
     middle_ptr: *const i8,
     split: i64,
 ) -> i64 {
-    let _read_demand = array_text_read_ref_demand();
-    let _output_demand = array_text_owned_cell_demand();
     slot.clear();
     if !valid_handle_idx(handle, idx) || middle_ptr.is_null() {
         return 0;
@@ -486,6 +537,19 @@ pub(super) fn array_string_insert_const_mid_by_index_into_slot(
     let Ok(middle) = (unsafe { CStr::from_ptr(middle_ptr) }).to_str() else {
         return 0;
     };
+    array_string_insert_const_mid_by_index_into_slot_str(slot, handle, idx, middle, split)
+}
+
+fn array_string_insert_const_mid_by_index_into_slot_str(
+    slot: &mut KernelTextSlot,
+    handle: i64,
+    idx: i64,
+    middle: &str,
+    split: i64,
+) -> i64 {
+    let _read_demand = array_text_read_ref_demand();
+    let _output_demand = array_text_owned_cell_demand();
+    slot.clear();
     super::array_handle_cache::with_array_box(handle, |arr| {
         let idx = idx as usize;
         arr.with_items_read(|items| {
@@ -510,14 +574,39 @@ pub(super) fn array_string_insert_const_mid_by_index_store_same_slot(
     middle_ptr: *const i8,
     split: i64,
 ) -> i64 {
-    let _read_demand = array_text_read_ref_demand();
-    let _output_demand = array_text_owned_cell_demand();
     if !valid_handle_idx(handle, idx) || middle_ptr.is_null() {
         return 0;
     }
     let Ok(middle) = (unsafe { CStr::from_ptr(middle_ptr) }).to_str() else {
         return 0;
     };
+    array_string_insert_const_mid_by_index_store_same_slot_str(handle, idx, middle, split)
+}
+
+pub(super) fn array_string_insert_const_mid_by_index_store_same_slot_len(
+    handle: i64,
+    idx: i64,
+    middle_ptr: *const i8,
+    middle_len: i64,
+    split: i64,
+) -> i64 {
+    if !valid_handle_idx(handle, idx) {
+        return 0;
+    }
+    with_compiler_const_utf8_ptr_len(middle_ptr, middle_len, |middle| {
+        array_string_insert_const_mid_by_index_store_same_slot_str(handle, idx, middle, split)
+    })
+    .unwrap_or(0)
+}
+
+fn array_string_insert_const_mid_by_index_store_same_slot_str(
+    handle: i64,
+    idx: i64,
+    middle: &str,
+    split: i64,
+) -> i64 {
+    let _read_demand = array_text_read_ref_demand();
+    let _output_demand = array_text_owned_cell_demand();
     observe::record_store_array_str_enter();
     super::array_handle_cache::with_array_box(handle, |arr| {
         let idx = idx as usize;
@@ -556,14 +645,47 @@ pub(super) fn array_string_insert_const_mid_subrange_by_index_store_same_slot(
     start: i64,
     end: i64,
 ) -> i64 {
-    let _read_demand = array_text_read_ref_demand();
-    let _output_demand = array_text_owned_cell_demand();
     if !valid_handle_idx(handle, idx) || middle_ptr.is_null() {
         return 0;
     }
     let Ok(middle) = (unsafe { CStr::from_ptr(middle_ptr) }).to_str() else {
         return 0;
     };
+    array_string_insert_const_mid_subrange_by_index_store_same_slot_str(
+        handle, idx, middle, split, start, end,
+    )
+}
+
+pub(super) fn array_string_insert_const_mid_subrange_by_index_store_same_slot_len(
+    handle: i64,
+    idx: i64,
+    middle_ptr: *const i8,
+    middle_len: i64,
+    split: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    if !valid_handle_idx(handle, idx) {
+        return 0;
+    }
+    with_compiler_const_utf8_ptr_len(middle_ptr, middle_len, |middle| {
+        array_string_insert_const_mid_subrange_by_index_store_same_slot_str(
+            handle, idx, middle, split, start, end,
+        )
+    })
+    .unwrap_or(0)
+}
+
+fn array_string_insert_const_mid_subrange_by_index_store_same_slot_str(
+    handle: i64,
+    idx: i64,
+    middle: &str,
+    split: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    let _read_demand = array_text_read_ref_demand();
+    let _output_demand = array_text_owned_cell_demand();
     observe::record_store_array_str_enter();
     super::array_handle_cache::with_array_box(handle, |arr| {
         let idx = idx as usize;

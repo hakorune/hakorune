@@ -4,10 +4,13 @@ use super::array_runtime_any::{
 };
 use super::array_runtime_facade::{
     array_runtime_concat_const_suffix_idx_into_slot,
-    array_runtime_concat_const_suffix_idx_store_same_slot, array_runtime_get_idx,
+    array_runtime_concat_const_suffix_idx_store_same_slot,
+    array_runtime_concat_const_suffix_idx_store_same_slot_len, array_runtime_get_idx,
     array_runtime_has_idx, array_runtime_insert_const_mid_idx_into_slot,
     array_runtime_insert_const_mid_idx_store_same_slot,
-    array_runtime_insert_const_mid_subrange_idx_store_same_slot, array_runtime_set_idx_any,
+    array_runtime_insert_const_mid_idx_store_same_slot_len,
+    array_runtime_insert_const_mid_subrange_idx_store_same_slot,
+    array_runtime_insert_const_mid_subrange_idx_store_same_slot_len, array_runtime_set_idx_any,
     array_runtime_set_idx_i64, array_runtime_store_array_kernel_text_slot,
     array_runtime_store_array_string,
 };
@@ -98,6 +101,16 @@ pub extern "C" fn nyash_array_string_suffix_store_his_alias(
     array_runtime_concat_const_suffix_idx_store_same_slot(handle, idx, suffix_ptr)
 }
 
+#[export_name = "nyash.array.string_suffix_store_hisi"]
+pub extern "C" fn nyash_array_string_suffix_store_hisi_alias(
+    handle: i64,
+    idx: i64,
+    suffix_ptr: *const i8,
+    suffix_len: i64,
+) -> i64 {
+    array_runtime_concat_const_suffix_idx_store_same_slot_len(handle, idx, suffix_ptr, suffix_len)
+}
+
 #[export_name = "nyash.array.kernel_slot_insert_hisi"]
 pub extern "C" fn nyash_array_kernel_slot_insert_hisi_alias(
     slot: *mut super::KernelTextSlot,
@@ -122,6 +135,19 @@ pub extern "C" fn nyash_array_string_insert_mid_store_hisi_alias(
     array_runtime_insert_const_mid_idx_store_same_slot(handle, idx, middle_ptr, split)
 }
 
+#[export_name = "nyash.array.string_insert_mid_store_hisii"]
+pub extern "C" fn nyash_array_string_insert_mid_store_hisii_alias(
+    handle: i64,
+    idx: i64,
+    middle_ptr: *const i8,
+    middle_len: i64,
+    split: i64,
+) -> i64 {
+    array_runtime_insert_const_mid_idx_store_same_slot_len(
+        handle, idx, middle_ptr, middle_len, split,
+    )
+}
+
 #[export_name = "nyash.array.string_insert_mid_subrange_store_hisiii"]
 pub extern "C" fn nyash_array_string_insert_mid_subrange_store_hisiii_alias(
     handle: i64,
@@ -133,6 +159,21 @@ pub extern "C" fn nyash_array_string_insert_mid_subrange_store_hisiii_alias(
 ) -> i64 {
     array_runtime_insert_const_mid_subrange_idx_store_same_slot(
         handle, idx, middle_ptr, split, start, end,
+    )
+}
+
+#[export_name = "nyash.array.string_insert_mid_subrange_store_hisiiii"]
+pub extern "C" fn nyash_array_string_insert_mid_subrange_store_hisiiii_alias(
+    handle: i64,
+    idx: i64,
+    middle_ptr: *const i8,
+    middle_len: i64,
+    split: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    array_runtime_insert_const_mid_subrange_idx_store_same_slot_len(
+        handle, idx, middle_ptr, middle_len, split, start, end,
     )
 }
 
