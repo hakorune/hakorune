@@ -1,8 +1,8 @@
 use super::*;
 use crate::ast::Span;
 use crate::mir::{
-    join_ir::lowering::inline_boundary::JumpArgsLayout, ConstValue, EdgeArgs, EffectMask,
-    FunctionSignature, MirModule, MirType, ValueId,
+    join_ir::lowering::inline_boundary::JumpArgsLayout, BasicBlock, ConstValue, EdgeArgs,
+    EffectMask, FunctionSignature, MirModule, MirType, ValueId,
 };
 
 fn test_signature(name: &str, return_type: MirType) -> FunctionSignature {

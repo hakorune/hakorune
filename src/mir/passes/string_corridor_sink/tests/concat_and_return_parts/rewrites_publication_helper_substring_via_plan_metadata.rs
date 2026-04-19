@@ -156,7 +156,12 @@ fn rewrites_publication_helper_substring_via_plan_metadata() {
             callee: Some(Callee::Extern(name)),
             args,
             ..
-        } if *dst == ValueId(14) && name == SUBSTRING_CONCAT3_EXTERN => Some(args.clone()),
+        } if *dst == ValueId(14)
+            && (name == SUBSTRING_CONCAT3_EXTERN
+                || name == SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN) =>
+        {
+            Some(args.clone())
+        }
         _ => None,
     });
     let helper_args = helper_call.expect("publication helper substring call");
