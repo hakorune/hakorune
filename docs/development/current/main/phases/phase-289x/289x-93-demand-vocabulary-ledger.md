@@ -1,5 +1,5 @@
 ---
-Status: Active Contract
+Status: Locked Contract / Done
 Date: 2026-04-19
 Card: 289x-1g
 Scope: current profile/helper/caller names を explicit demand vocabulary へ写像する。
@@ -69,12 +69,13 @@ It does not rename code and does not authorize storage rewrite.
 | `BorrowedAliasEncodePlan::LiveSourceHandle` | `value_codec/borrowed_handle.rs` | alias hit under `MutationDemand::DropEpoch` validity | keep as hot alias outcome |
 | `BorrowedAliasEncodePlan::CachedRuntimeHandle` | `value_codec/borrowed_handle.rs` | cached alias hit under current epoch | keep as hot alias outcome |
 | `BorrowedAliasEncodePlan::EncodeFallback` | `value_codec/borrowed_handle.rs` | `PublishDemand::NeedStableObject` via fallback | make publication reason explicit at boundary |
+| `BorrowedHandleBox` | `value_codec/borrowed_handle.rs` | boundary/cache carrier for borrowed-alias encode and cached stable-handle reuse | do not treat as semantic `TextRef` |
 | `PublishReason::ExternalBoundary` | `value_codec/string_materialize.rs` | `PublishDemand::ExternalBoundary` | keep as publish reason |
 | `PublishReason::GenericFallback` | `value_codec/string_materialize.rs` | `PublishDemand::GenericFallback` | keep cold and measured |
 | `PublishReason::ExplicitApi` | `value_codec/string_materialize.rs` | `PublishDemand::ExplicitApi` | keep as explicit boundary |
 | `PublishReason::NeedStableObject` | `value_codec/string_materialize.rs` | `PublishDemand::NeedStableObject` | require upstream demand fact |
 | `StringPublishSite::*` | `value_codec/string_materialize.rs` | observability site, not legality | keep as counters only |
-| `KernelTextSlotState::OwnedBytes` | `value_codec/string_materialize.rs` | `ValueDemand::OwnedPayload` / `StorageDemand::CellResidence` | keep as text residence seed |
+| `KernelTextSlotState::OwnedBytes` | `value_codec/string_materialize.rs` | `ValueDemand::OwnedPayload` / `StorageDemand::CellResidence` through transport | keep as text residence seed, not final `TextCell` |
 | `KernelTextSlotState::Published` | `value_codec/string_materialize.rs` | boundary already crossed | cold path only; not normal residence target |
 | `KernelTextSlotState::DeferredConstSuffix` | `value_codec/string_materialize.rs` | deferred text plan residence | future text plan/cell contract seed |
 
@@ -107,6 +108,7 @@ It does not rename code and does not authorize storage rewrite.
 - publication reasons remain boundary facts, not storage states
 - observer helpers such as `string_len_hi` and `string_indexof_hih` are read-only demand rows
 - RuntimeData stays a bridge/facade row, not the source of language semantics
+- borrowed-alias plans and `BorrowedHandleBox` remain boundary/cache behavior, not semantic `TextRef`
 
 ## No-Go
 
@@ -114,4 +116,5 @@ It does not rename code and does not authorize storage rewrite.
 - do not add a new enum to runtime before `289x-2d` closes container demand rows
 - do not make `StringPublishSite` decide legality
 - do not treat `KernelTextSlotState::Published` as normal hot residence
+- do not treat `KernelTextSlot` as the final `TextCell` abstraction
 - do not infer stable object demand from `ArrayBox` / `MapBox` / `RuntimeDataBox` names

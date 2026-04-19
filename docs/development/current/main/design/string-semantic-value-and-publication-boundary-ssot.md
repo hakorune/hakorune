@@ -126,11 +126,18 @@ Lock:
 - `VerifiedTextSource`
 - `TextPlan`
 - `OwnedBytes`
-- `KernelTextSlot`
+- `KernelTextSlot` as transport adapter / sink seed
 - read-side alias lane:
   - `TextReadOnly`
   - `EncodedAlias`
   - `StableObject`
+
+Semantic-vs-adapter lock:
+
+- future semantic carriers are `TextRef`, `TextPlan`, `OwnedText`, and `TextCell`
+- `BorrowedHandleBox` belongs to boundary/cache behavior, not semantic `Ref`
+- `KernelTextSlot` must not become the public or long-term `TextCell`
+- `StringViewBox` is an object-world view, not internal substring carrier
 
 ここが持たないもの:
 
@@ -184,8 +191,8 @@ write/read は同じ text corridor の契約として読む。
 
 ### Write side
 
-- sink は `VerifiedTextSource` / `TextPlan` / `OwnedBytes` / `KernelTextSlot` を consume できる
-- phase-1 canonical sink residence は `KernelTextSlot`
+- sink は `VerifiedTextSource` / `TextPlan` / `OwnedBytes` / current `KernelTextSlot` transport を consume できる
+- phase-1 canonical sink transport is `KernelTextSlot`; future residence is `TextCell`
 - same corridor の store では eager `StringBox -> handle` を禁止する
 
 ### Read side
@@ -209,7 +216,7 @@ write/read は同じ text corridor の契約として読む。
 
 ### Phase 1. Producer outcome -> canonical sink
 
-- `VerifiedTextSource -> TextPlan -> OwnedBytes -> KernelTextSlot`
+- `VerifiedTextSource -> TextPlan -> OwnedBytes -> KernelTextSlot transport`
 - producer が public handle を返さなくても corridor が閉じることを証明する
 
 ### Phase 2. Cold publish effect

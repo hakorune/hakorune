@@ -66,8 +66,8 @@ runtime-wide value/object boundary work は次の順で読む。
 Rule:
 
 - phase-289x は authority を持たない
-- phase-137x string lane が active read-side lane で keeper/reject に達するまで、
-  runtime-wide implementation は開始しない
+- phase-137x string lane has a keeper proof, but runtime-wide implementation
+  still requires separate phase gates for each deferred carrier/storage rewrite
 
 ### Semantic authority order stays unchanged
 
@@ -192,7 +192,7 @@ It is an internal planning vocabulary, not a public ABI class list.
 | --- | --- | --- |
 | `Ref` | borrowed/read-only view or read session | string read session, verified source, array/map read view |
 | `Owned` | unpublished caller-owned payload | `OwnedBytes`, owned bytes prepared for a sink |
-| `Cell` | mutable storage residence inside a container/lane | `KernelTextSlot`, future array/map lane cell |
+| `Cell` | mutable storage residence inside a container/lane | future `TextCell` / array/map lane cell; current `KernelTextSlot` is transport adapter |
 | `Immediate` | unboxed scalar payload | current `imm_i64`, `imm_bool` lowering |
 | `Stable` | object-capable public representation | `StringBox`/handle, scalar box, generic object |
 
@@ -201,6 +201,17 @@ Rule:
 - `Ref`, `Owned`, `Cell`, and `Stable` are lifecycle states, not language types.
 - A family only adopts a state when it has a real owner, tests, and boundary demand.
 - `publish` / `promote` are boundary effects over these states; they are not legality owners.
+
+Carrier lock:
+
+- `TextRef`, `TextPlan`, `OwnedText`, and `TextCell` are the future semantic
+  text carriers.
+- `BorrowedHandleBox` is boundary/cache for borrowed-alias encode and cached
+  stable-handle reuse. It is not `TextRef`.
+- `KernelTextSlot` is runtime-private transport adapter / sink seed. It is not
+  the `TextCell` abstraction.
+- `StringViewBox` is object-world view with API/compat semantics. It is not
+  the internal substring carrier.
 
 ### 2.6. Demand verbs drive boundary behavior
 

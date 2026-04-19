@@ -1,5 +1,5 @@
 ---
-Status: Active Contract
+Status: Locked Contract / Done
 Date: 2026-04-19
 Card: 289x-2d
 Scope: Array/Map の read/write demand table と lane-host boundary を固定する。
@@ -41,7 +41,7 @@ It must not redefine Array/Map as immutable values, and it must not widen public
 | set any | `array_slot_store.rs::array_slot_store_any` | scalar `StorageDemand::ImmediateResidence`, text/generic `StorageDemand::GenericResidence` today | future table must split text cell residence from generic box fallback |
 | set i64/bool/f64 | `array_slot_store.rs` raw scalar stores | `StorageDemand::ImmediateResidence` + `MutationDemand::InvalidateAliases` | scalar residence can stay unboxed; mutation invalidates dependent read state |
 | set string handle | `array_slot_store.rs::array_slot_store_string_handle`, `array_string_slot.rs::array_string_store_handle_at` | `StorageDemand::CellResidence` or `PublishDemand::NeedStableObject` when required | source preservation and stable-object need must be named demand |
-| set kernel text slot | `array_slot_store.rs::array_slot_store_kernel_text_slot`, `array_string_slot.rs::array_string_store_kernel_text_slot_at` | `StorageDemand::CellResidence` + `ValueDemand::OwnedPayload` | first eligible Array text-residence pilot sink |
+| set kernel text slot | `array_slot_store.rs::array_slot_store_kernel_text_slot`, `array_string_slot.rs::array_string_store_kernel_text_slot_at` | `StorageDemand::CellResidence` + `ValueDemand::OwnedPayload` through transport | first eligible Array text-residence pilot sink seed; not final `TextCell` |
 | append any | `array_slot_append.rs::array_slot_append_any` | scalar immediate residence or generic/text fallback | append is mutation; it must not hide publication demand inside `CodecProfile` |
 | RuntimeData array get/set/has | `array_runtime_any.rs`, `runtime_data.rs` | bridge to Array rows after key/index decode | facade only; not semantic owner |
 
@@ -79,6 +79,12 @@ Only this pilot is eligible after this table:
 | Pilot | Why eligible | Required reject seam |
 | --- | --- | --- |
 | Array text residence through `KernelTextSlot` store | exact proof already exists, and it stays runtime-private | reject if read-side stable publication moves elsewhere or public ABI widens |
+
+Reading:
+
+- this pilot proves transport through `KernelTextSlot`
+- it does not prove the final `TextCell` abstraction
+- full `ArrayStorage::Text` / `TextCell` design remains deferred to `289x-8a`
 
 Not eligible yet:
 

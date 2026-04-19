@@ -1,5 +1,5 @@
 ---
-Status: Active Proposal
+Status: Selected / Landed Pilot
 Date: 2026-04-19
 Card: 289x-3a
 Scope: first runtime-private storage pilot selection before behavior/code edits.
@@ -40,6 +40,17 @@ Boundary only if requested:
   PublishDemand::NeedStableObject / ExternalBoundary
 ```
 
+Carrier classification:
+
+```text
+KernelTextSlot = transport adapter / sink residence seed
+future TextCell = semantic array text residence
+```
+
+This pilot may keep using `KernelTextSlot` to preserve the proven same-slot
+paths, but it must not grow `KernelTextSlot` into the long-term `TextCell`
+abstraction or a public-ish text corridor ABI.
+
 ## Selected Pilot Surface
 
 | Surface | Current symbol/function | Demand |
@@ -48,6 +59,9 @@ Boundary only if requested:
 | produce same-slot suffix text | `array_string_concat_const_suffix_by_index_into_slot` / `nyash.array.kernel_slot_concat_his` | `ValueDemand::ReadRef` + `ValueDemand::OwnedPayload` |
 | store unpublished text into array | `array_string_store_kernel_text_slot_at` / `nyash.array.kernel_slot_store_hi` | `StorageDemand::CellResidence` |
 | publish only on downstream demand | `publish_kernel_text_slot`, `objectize_kernel_text_slot_stable_box` | `PublishDemand::*` |
+
+This surface proves transport through `KernelTextSlot`.
+It does not define the final `TextCell` abstraction.
 
 ## Required Existing Proof
 
@@ -73,6 +87,12 @@ Reject seam:
 no call to nyash.array.slot_load_hi on the exact same-slot suffix path
 live-after-get reuse shapes still keep slot_load_hi
 ```
+
+Risk note:
+
+- current source-only store lowering is a narrow compiler seam for proven shapes
+- it is not a general guarantee that arbitrary string stores avoid publication
+- insert split is byte-index oriented; do not document it as grapheme-aware
 
 ## Implementation Order
 
@@ -107,6 +127,14 @@ Status:
 landed in code as runtime-private vocabulary
 behavior unchanged
 demand constants are threaded through Array text read/owned-cell leaves
+```
+
+Current state:
+
+```text
+selected pilot landed
+cutover clusters closed by 289x-96
+future full TextCell / ArrayStorage::Text work deferred to 289x-8a
 ```
 
 ## Acceptance

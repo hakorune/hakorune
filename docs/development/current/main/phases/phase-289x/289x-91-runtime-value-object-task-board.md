@@ -1,5 +1,5 @@
 ---
-Status: Active Planning
+Status: Closed Planning / Deferred Successors
 Date: 2026-04-19
 Scope: runtime-wide `value world / object world` rollout を、実装前に phase/card 粒度へ分割する taskboard。
 Related:
@@ -62,13 +62,13 @@ Rule:
 
 | Family | Semantic reading | Internal target | Stable/object boundary | First action |
 | --- | --- | --- | --- | --- |
-| `String` | immutable value | `VerifiedTextSource / TextPlan / OwnedBytes / KernelTextSlot / alias lane` | `publish` + `freeze.str` | continue phase-137x |
+| `String` | immutable value | `VerifiedTextSource / TextPlan / OwnedBytes / future TextCell`; current `KernelTextSlot` is transport only | `publish` + `freeze.str` | continue phase-137x proof |
 | `Bytes` | value | future `BytesRef / OwnedBytes / BytesCell` | `publish.bytes` or host boundary | docs only |
 | `Int` | scalar value | immediate | box only on object demand | audit first |
 | `Bool` | scalar value | immediate | box only on object demand | audit first |
 | `Array` | identity container | lane host for elements | array handle remains public identity | text lane design after string read-side keeper/reject |
 | `Map` | identity container | key/value boundary lanes | map handle remains public identity | key/value boundary map |
-| `View/Slice` | borrowed read view | `Ref` / read session | stable object only on escape | docs after text proof |
+| `View/Slice` | borrowed read view | `Ref` / read session; current `StringViewBox` is object boundary only | stable object only on escape | docs after text proof |
 | tuple/optional small aggregate | value | `agg_local` | box only on escape | out of this phase unless needed |
 
 ## Boundary Vocabulary Lock
@@ -90,6 +90,38 @@ Stop-line:
 - do not allow runtime helper names to become the legality source
 - do not use `publish` and `freeze.str` interchangeably
 
+## Carrier Responsibility Decision
+
+Current string-side carriers are classified by responsibility, not by current
+implementation convenience.
+
+| Carrier | Classification | Current use | Future rule |
+| --- | --- | --- | --- |
+| `BorrowedHandleBox` | boundary/cache carrier | preserves cheap alias encode, cached stable handle reuse, and cold fallback | keep as object-boundary cache; do not treat it as semantic `Ref` |
+| `KernelTextSlot` | transport adapter / sink residence seed | carries current array text-residence pilot and FFI leaf transport | split future semantics into `TextPlan`, `OwnedText`, `TextCell`, and explicit publish boundary |
+| `StringViewBox` | object-world stable view | supports API/compat view behavior | remove from internal substring hot paths; keep only on boundary/API surfaces |
+
+Future semantic text carriers are:
+
+```text
+TextRef
+TextPlan
+OwnedText
+TextCell
+```
+
+This classification is docs-only. It does not authorize full `TextLane`,
+public ABI widening, or MIR dialect expansion.
+
+Code-anchor notes:
+
+- `BorrowedHandleBox` is internal; it should not become a documented
+  user-visible box kind.
+- `KernelTextSlot` is runtime-private transport even when mirrored through C
+  shim leaf calls.
+- `StringViewBox` is object-world behavior; internal substring/value-view work
+  belongs to `289x-8b`.
+
 ## Vocabulary Gaps Closed By This Phase
 
 Before any runtime-wide implementation can start, these definitions must be explicit:
@@ -108,11 +140,11 @@ Task state:
 - `289x-0b`: done in docs
 - `289x-0c`: done in restart/current pointers
 - `289x-0d`: done in docs, runtime vocabulary lock
-- `289x-1f`: active post-keeper inventory sync after phase-137x keeper `49c356339`
+- `289x-1f`: done; post-keeper inventory sync after phase-137x keeper `49c356339`
 - `289x-1g`: done in `289x-93-demand-vocabulary-ledger.md`
 - `289x-2d`: done in `289x-94-container-demand-table.md`
-- `289x-3a`: active pilot proposal in `289x-95-array-text-residence-pilot.md`
-- `289x-3b`: active cutover inventory gate in `289x-96-demand-backed-cutover-inventory.md`
+- `289x-3a`: selected/landed pilot proposal in `289x-95-array-text-residence-pilot.md`
+- `289x-3b`: closed cutover inventory gate in `289x-96-demand-backed-cutover-inventory.md`
 - `289x-3c`: done in code, `CodecProfile -> DemandSet`, behavior unchanged
 - `289x-3d`: done in code, `BorrowedAliasEncodeCaller -> DemandSet`, behavior unchanged
 - `289x-3e`: done in code, `PublishReason -> PublishDemand`, behavior unchanged
@@ -132,6 +164,7 @@ Task state:
 - `289x-7h`: done in code, prepass/declaration need classifier cutover to normalized surfaces, behavior unchanged
 - `289x-96`: closed; all Rust/C-shim/MIR clusters are done
 - optimization return: open only through the owner-first perf entry
+- carrier responsibility lock: done in this taskboard and `289x-90`
 
 ## Phase 0. Authority / Vocabulary Lock
 
@@ -354,6 +387,9 @@ No-go:
 - Tasks:
   - define `Ref / Owned / Cell / Stable` applicability per family
   - reject state names that do not map to a real family need
+  - `289x-8b`: string view/value carrier split
+    - deferred; internal substring should move toward `TextRef` / `StringSpan`
+    - `StringViewBox` remains object-world API/compat surface until then
 - Acceptance:
   - `TextRef` lessons can be reused without making text semantics the universal truth
 
@@ -419,6 +455,32 @@ No-go:
   - no generic allocator swap as first response
 - Acceptance:
   - win is tied to a specific lane and benchmark front
+
+## Deferred Successor Cards
+
+These are planned, not skipped. They remain out of the current optimization
+return path unless a separate phase opens them.
+
+| Card | Area | Gate | Do not do before gate |
+| --- | --- | --- | --- |
+| `289x-8a` | full `TextCell` / `ArrayStorage::Text` design | source-only text proof stays green and a dedicated TextCell design exists | widening `KernelTextSlot` into a public-ish corridor ABI |
+| `289x-8b` | string view/value carrier split | substring/read-view contract is documented with fixtures | using `StringViewBox` as the internal hot-path carrier |
+| `289x-6c` | Map typed lane | map key/value boundary is the measured owner | treating Map as a semantic value instead of identity container |
+| `289x-8c` | allocator / arena | perf evidence shows allocation remains the owner after objectization frequency falls | generic allocator swap or arena-first rewrite |
+
+## Legacy / Compat Retirement Ledger
+
+These surfaces are shrink-only. Each needs caller proof before deletion or
+route removal.
+
+| Surface | Current reading | Status |
+| --- | --- | --- |
+| `array_compat.rs` / public array compat re-exports | compatibility ABI, not semantic owner | defer; can be narrowed only after wiring checks |
+| `map_compat.rs` | quarantine-only legacy map ABI | defer; no active lowering/runtime users should be proven before removal |
+| `runtime_data.rs` facade | dynamic Array/Map bridge | keep as facade; do not absorb collection semantics |
+| `module_string_dispatch` / by-name invoke | compiled-stage1/bootstrap compat | defer to compat retirement phase |
+| C shim exact fallback matchers | legacy coverage while metadata-first routes mature | delete only after metadata readers cover the same fixtures |
+| source-only same-slot string store helpers | current compiler seams for proven shapes | keep narrow until metadata proof replaces shape-only matching |
 
 ## Commit Discipline
 

@@ -1,5 +1,5 @@
 ---
-Status: Active Planning
+Status: Closed Planning / Deferred Successors
 Date: 2026-04-19
 Scope: phase-289x の runtime-wide `value world / object world` 設計を、実装前に 1 枚で読める形へ圧縮する。
 Related:
@@ -25,10 +25,9 @@ phase-137x は keeper `49c356339` で string proof を 1 つ得たが、
 それは runtime-wide storage rewrite / `TextLane` / MIR legality lift /
 allocator work の直接許可ではない。
 
-keeper 後の現在地は、最適化再開ではなく post-keeper inventory だよ。
-profile/helper/caller 名で暗黙に決まっている demand を、
-`ValueDemand / StorageDemand / PublishDemand / MutationDemand` へ棚卸してから
-次の実装 cut を選ぶ。
+Post-keeper inventory is now closed by `289x-96`.
+Optimization may resume only through the owner-first perf entry, while the
+larger carrier redesigns below stay deferred to named successor cards.
 
 ## One Sentence
 
@@ -65,13 +64,13 @@ Rule:
 
 | Family | Language reading | Internal target | Object boundary | First allowed action |
 | --- | --- | --- | --- | --- |
-| `String` | immutable value | `VerifiedTextSource`, `TextPlan`, `OwnedBytes`, `KernelTextSlot`, read alias lane | `publish` + `freeze.str` | phase-137x only |
+| `String` | immutable value | `VerifiedTextSource`, `TextPlan`, `OwnedBytes`, future `TextCell`; current `KernelTextSlot` is transport only | `publish` + `freeze.str` | phase-137x proof first |
 | `Bytes` | byte value | future `BytesRef`, `OwnedBytes`, `BytesCell` | explicit bytes publish / host demand | docs vocabulary only |
 | `Int` | scalar value | immediate | scalar box only on object demand | audit boxed transitions |
 | `Bool` | scalar value | immediate | scalar box only on object demand | audit boxed transitions |
 | `Array` | identity container | lane host for element residence | array handle stays identity | design after string judge |
 | `Map` | identity container | lane host for key/value residence | map handle stays identity | key/value boundary map |
-| `View/Slice` | borrowed read view | `Ref` / read session | stable object only on escape | docs after text proof |
+| `View/Slice` | borrowed read view | `Ref` / read session; current `StringViewBox` is object boundary only | stable object only on escape | docs after text proof |
 | small aggregate | value | `agg_local` / immediate fields | box only on escape | out of phase unless evidence demands |
 
 Important distinction:
@@ -89,7 +88,7 @@ Use the same lifecycle shape across families only where it has real meaning.
 | `Ref` | borrowed/read-only view | `VerifiedTextSource`, read session | bytes/view borrow, array/map read view |
 | `Plan` | deferred construction | `TextPlan`, deferred `const_suffix` | bytes builder only if proven |
 | `Owned` | unpublished owned payload | `OwnedBytes` | owned bytes / local aggregate payload |
-| `Cell` | container residence | `KernelTextSlot`, future `TextCell` | array element cell, map key/value cell |
+| `Cell` | container residence | future `TextCell`; current `KernelTextSlot` adapter | array element cell, map key/value cell |
 | `Immediate` | unboxed scalar payload | `i64` encoded scalar paths | int/bool/future small scalar |
 | `Stable` | object-capable public representation | `StringBox`/handle after `freeze.str` | scalar box, published bytes, generic object |
 
@@ -115,6 +114,57 @@ phase-289x should split current `CodecProfile`-style names into explicit demand 
 
 Current names stay valid until replaced, but their meaning must be documented as demand, not as helper ownership.
 
+## Carrier Classification Decision
+
+The three current string-side carriers are not peers.
+They must be classified by responsibility before any full `TextLane` work starts.
+
+| Carrier | Classification | Keep now? | Future direction |
+| --- | --- | --- | --- |
+| `BorrowedHandleBox` | boundary/cache carrier | yes, to preserve cheap alias encode and cached stable-handle reuse | move semantic hot paths to `TextRef` / `AliasRef`; keep this as object-boundary cache only |
+| `KernelTextSlot` | transport adapter / sink residence seed | yes, for the proven array text-residence pilot and FFI leaf transport | split meaning into `OwnedText`, `TextCell`, `TextPlan`, and explicit publish boundary; do not expand it into a mini dialect |
+| `StringViewBox` | object-world stable view | yes, for host/API/compat view behavior | remove from internal substring hot paths; use `TextRef` / `StringSpan` style carriers for value-world reads |
+
+Canonical semantic carriers for the future text lane are:
+
+```text
+TextRef
+TextPlan
+OwnedText
+TextCell
+```
+
+Boundary/object carriers are:
+
+```text
+BorrowedHandleBox
+StringViewBox
+StringBox / public handle
+```
+
+Transport adapters are:
+
+```text
+KernelTextSlot
+```
+
+Rule:
+
+- `BorrowedHandleBox` is not a semantic `Ref`.
+- `KernelTextSlot` is not the long-term text cell abstraction.
+- `StringViewBox` is not the internal representation of substring.
+- `publish` remains the only transition from value-world text to object-world text.
+
+Risk notes:
+
+- `BorrowedHandleBox` is an internal alias/cache carrier; its `type_name()`
+  intentionally reports the kept text class, not a user-visible box kind.
+- `KernelTextSlot` is runtime-private transport. The C shim may mirror its
+  layout for leaf calls, but docs must not describe it as a stable public
+  string ABI.
+- `StringViewBox` may materialize through clone/share/equality behavior; do
+  not count it as a zero-publication internal substring carrier.
+
 ## Current Code Inventory Targets
 
 These are inventory anchors for phase-289x docs. They are not implementation targets by themselves.
@@ -123,6 +173,8 @@ These are inventory anchors for phase-289x docs. They are not implementation tar
 | --- | --- | --- |
 | codec profiles | `crates/nyash_kernel/src/plugin/value_codec/decode.rs` | map `Generic`, `ArrayFastBorrowString`, `ArrayBorrowStringOnly`, `MapKeyBorrowString`, `MapValueBorrowString` to demand |
 | borrowed alias encode | `crates/nyash_kernel/src/plugin/value_codec/borrowed_handle.rs` | live-source, cached-handle, cold-fallback read outcomes |
+| text transport / publish | `crates/nyash_kernel/src/plugin/value_codec/string_materialize.rs` | `KernelTextSlot` remains transport; publish/objectize helpers remain explicit boundary effects |
+| object-world string view | `crates/nyash_kernel/src/exports/string_view.rs` | `StringViewBox` is API/compat view object, not internal substring carrier |
 | array encoded read | `crates/nyash_kernel/src/plugin/array_handle_cache.rs` | scalar immediate first, then borrowed alias encode |
 | array residence write | `crates/nyash_kernel/src/plugin/array_slot_store.rs` | i64/bool/f64 raw slots, boxed fallback, string handle/slot store |
 | array text observers | `crates/nyash_kernel/src/plugin/array_string_slot.rs` | direct by-index string len/indexof as read-only lane precedent |

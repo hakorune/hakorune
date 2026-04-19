@@ -94,17 +94,20 @@ Related:
 この lane で固定する carrier reading は次。
 これは新しい public enum の導入要求ではなく、既存 shape に対する state machine の読み方だよ。
 
-| Corridor state | Current concrete shape | Main owner front | Hot-path allowed | Hot-path forbidden |
-| --- | --- | --- | --- | --- |
-| `BorrowedSource` | `VerifiedTextSource`, `SourceLifetimeKeep`, `BorrowedHandleBox` source metadata | meso, whole | source proof, alias retarget, source handle/epoch update | `StringBox` birth, fresh handle issue, generic publish |
-| `TransientPlan` | `TextPlan<'a>`, `TextPiece<'a>`, `StringSpan` | exact, meso, whole producer sites | piece normalize, known-len carry, concat/substring planning | registry lookup as steady-state carrier, `Arc` wrapping, object identity |
-| `OwnedText` | `OwnedBytes`, `KernelTextSlot(state=OwnedBytes)` | exact, whole | freeze once, pass through caller-owned slot, same-corridor read | registry-backed unpublished carrier, immediate objectize |
-| `PublishedPublic` | `StringBox`, `Arc<dyn NyashBox>`, fresh handle | true external boundary only | stable objectize, handle issue, public ABI replay | re-enter hot loop as default carrier |
+| Corridor state | Semantic state | Current backing / adapter | Main owner front | Hot-path allowed | Hot-path forbidden |
+| --- | --- | --- | --- | --- | --- |
+| `BorrowedSource` | future `TextRef` / `AliasRef` | `VerifiedTextSource`, `SourceLifetimeKeep`; `BorrowedHandleBox` only as boundary/cache | meso, whole | source proof, alias retarget, source handle/epoch update | `StringBox` birth, fresh handle issue, generic publish |
+| `TransientPlan` | `TextPlan<'a>` | `TextPiece<'a>`, `StringSpan` | exact, meso, whole producer sites | piece normalize, known-len carry, concat/substring planning | registry lookup as steady-state carrier, `Arc` wrapping, object identity |
+| `OwnedText` | future `OwnedText` | `OwnedBytes`; `KernelTextSlot(state=OwnedBytes)` only as transport | exact, whole | freeze once, pass through caller-owned slot, same-corridor read | registry-backed unpublished carrier, immediate objectize |
+| `TextCell` | future `TextCell` | current `KernelTextSlot` sink seed | exact, whole | cell residence without public handle | growing `KernelTextSlot` into a public text ABI |
+| `PublishedPublic` | object-world stable text | `StringBox`, `Arc<dyn NyashBox>`, fresh handle; `StringViewBox` as boundary view | true external boundary only | stable objectize, handle issue, public ABI replay | re-enter hot loop as default carrier |
 
 Reading lock:
 
 - do not introduce a public `TextBuf` on this lane
 - do not treat `KernelTextSlot` as a user-visible string API
+- do not treat `BorrowedHandleBox` as semantic `TextRef`
+- do not treat `StringViewBox` as the internal substring carrier
 - do not read future `TextLane` storage as semantic truth
 - do not reuse the host-handle registry as the unpublished carrier
 - do not move legality ownership out of MIR/lowering into runtime re-recognition

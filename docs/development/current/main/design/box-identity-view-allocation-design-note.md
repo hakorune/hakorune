@@ -65,6 +65,13 @@ repo 内の言葉で固定するためのメモだよ。
 - [`crates/nyash_kernel/src/tests.rs`](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/tests.rs)
   - short slice, nested short slice, mid slice, and fast-off contracts are pinned
 
+Design lock:
+
+- `StringViewBox` is an object-world view with identity/API/compat semantics.
+- It is not the internal substring carrier for future value-world hot paths.
+- Internal substring work should move toward `TextRef` / `StringSpan` style
+  carriers under the deferred `289x-8b` card.
+
 ## Red Lines
 
 次は、現 wave では触ってはいけない線だよ。

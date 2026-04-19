@@ -1,5 +1,5 @@
 ---
-Status: Active Inventory
+Status: Historical Inventory
 Date: 2026-04-19
 Scope: `value world -> boundary effect -> object world` を runtime-wide に完了させる前の棚卸 ledger。
 Related:
@@ -19,8 +19,10 @@ Related:
 
 ## Decision
 
-Optimization work is paused until the value-boundary architecture is inventoried and
-the next implementation cut is selected as a phase/card, not as a helper-local patch.
+This ledger is historical.
+It was the pre-`289x-96` inventory gate for value-boundary architecture.
+`289x-96` is now closed, so optimization may resume only through the
+owner-first perf entry.
 
 The rule remains:
 
@@ -39,9 +41,10 @@ This ledger is BoxShape only.
 It records current mixed-demand seams and does not authorize runtime storage rewrite,
 public ABI widening, allocator work, or MIR dialect expansion.
 
-## Completion Bar Before Optimization Resumes
+## Historical Completion Bar
 
-Further optimization resumes only after these are documented:
+These gates are retained as the historical bar that was required before
+optimization could resume:
 
 | Gate | Required outcome |
 | --- | --- |
@@ -53,13 +56,22 @@ Further optimization resumes only after these are documented:
 
 No single gate above changes behavior by itself.
 
+Current state:
+
+```text
+superseded-by: 289x-96-demand-backed-cutover-inventory.md
+optimization-return: open only through perf-owner-first-optimization-ssot.md
+```
+
 ## Rust Runtime / Kernel Inventory
 
 | Slice | Current anchors | Current vocabulary | Gap |
 | --- | --- | --- | --- |
 | scalar decode and array read/append | `crates/nyash_kernel/src/plugin/value_codec/decode.rs`, `array_slot_append.rs`, `array_handle_cache.rs` | `CodecProfile`, `ArrayFastDecodedValue` | demand is still encoded as profile/helper names; some paths box first then recover immediates |
 | borrowed alias encode | `value_codec/borrowed_handle.rs`, `value_codec/encode.rs`, `map_slot_load.rs`, `map_runtime_data.rs` | `BorrowedAliasEncodeCaller`, live-source, cached-handle, cold-fallback | read outcome is caller-scoped; fallback can publish during read encoding |
-| string publication | `value_codec/string_materialize.rs` | `PublishReason`, `StringPublishSite`, `KernelTextSlotState` | materialize, publish, objectize, and residence are still close enough to blur responsibility |
+| string publication | `value_codec/string_materialize.rs` | `PublishReason`, `StringPublishSite`, `KernelTextSlotState` | `KernelTextSlot` is now classified as transport adapter / sink seed; future semantics belong to `TextPlan` / `OwnedText` / `TextCell` plus explicit publish |
+| borrowed alias cache | `value_codec/borrowed_handle.rs` | `BorrowedHandleBox`, cached stable handle, cold fallback | classified as boundary/cache carrier, not semantic `Ref` |
+| string view object | `exports/string_view.rs` | `StringViewBox` | classified as object-world view, not internal substring carrier |
 | array string residence | `array_string_slot.rs`, `array_slot_store.rs`, `value_codec/string_classify.rs` | `StoreArrayStrPlan`, `StringHandleSourceKind`, `StringLikeProof`, `VerifiedTextSource` | storage demand is planned by source/slot/action names; non-string fallback can still force stable materialization |
 | map key/value boundary | `map_key_codec.rs`, `map_slot_load.rs`, `map_slot_store.rs`, `map_runtime_data.rs` | key coercion, boxed value storage, caller-scoped read encode | key decode, value residence, and read publication are split operationally but not yet expressed as demand facts |
 | runtime-data facade | `runtime_data.rs`, `map_runtime_data.rs` | mixed `i64` / handle surface | facade route names can leak handle semantics into generic data access |
@@ -94,5 +106,8 @@ No single gate above changes behavior by itself.
 | `289x-6d` | BoxShape docs-only | map key/value boundary map with compat-retirement criteria |
 | `289x-3a` | BoxCount implementation planning only | done: one runtime-private Array text-residence pilot proposal |
 | `289x-7a` | later BoxShape | MIR/lowering demand fact lift plan |
+| `289x-8a` | deferred successor | full `TextCell` / `ArrayStorage::Text` design gate |
+| `289x-8b` | deferred successor | string view/value carrier split |
+| `289x-8c` | deferred successor | allocator / arena evidence gate |
 
 Do not mix `289x-3a` implementation with the docs-only inventory cards.

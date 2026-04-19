@@ -136,13 +136,20 @@ Future cleanup:
 
 `handle_borrowed_string` の invariants は次で固定する。
 
-1. concrete carrier is `BorrowedHandleBox`
+1. concrete boundary/cache carrier is `BorrowedHandleBox`
 2. `source_handle > 0` でない alias は borrowed-handle fast path を使わない
 3. `source_drop_epoch == handles::drop_epoch()` の間だけ source handle を再利用してよい
 4. alias expiry 時は fail-open に source handle を信用せず、owned-handle re-materialize へ退避する
 5. `inner` を non-string / non-string-view source へ retarget してはいけない
 6. `try_retarget_borrowed_string_slot*` は `BorrowedHandleBox` でない slot を黙って変えない
 7. borrowed alias production は `StringBox` / `StringViewBox` 系だけに許可する
+
+Design lock:
+
+- `BorrowedHandleBox` protects borrowed-alias encode and cached stable-handle reuse.
+- It is not `TextRef` and must not become the semantic value-world carrier.
+- Future value-world string reads should name `TextRef` / `AliasRef` explicitly,
+  then use `BorrowedHandleBox` only at object/handle boundaries.
 
 ここでは `fail-fast` と `conservative fallback` を分けて読む。
 

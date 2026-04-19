@@ -61,6 +61,10 @@ Scope: current lane / next lane / restart order only.
     - array/map remain identity containers; only internal residence may become lane-hosted later
     - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
     - all `289x-96` clusters are done; later full lane rewrites stay separate phases
+    - carrier responsibility lock is documented:
+      - `BorrowedHandleBox` is boundary/cache, not semantic `Ref`
+      - `KernelTextSlot` is transport adapter / sink seed, not long-term `TextCell`
+      - `StringViewBox` is object-world view, not internal substring carrier
   - parent SSOT:
     - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
   - phase:
@@ -150,9 +154,10 @@ Scope: current lane / next lane / restart order only.
       - `289x-96` Rust/C-shim/MIR clusters are closed
       - optimization return gate is open, but next optimization work must start from the owner-first perf entry
     - high-risk planned later, not skipped:
-      - full `ArrayStorage::Text` / full `TextLane`: separate phase after `289x-96`
-      - Map typed lane: separate phase after `289x-96`
-      - allocator / arena: after value-boundary cutover and perf evidence only
+      - full `ArrayStorage::Text` / full `TextLane`: `289x-8a`
+      - string view/value carrier split: `289x-8b`
+      - Map typed lane: `289x-6c`
+      - allocator / arena: `289x-8c`, after value-boundary cutover and perf evidence only
     - return-to-optimization gate:
       - closed by `289x-7h`; optimization may resume through `perf-owner-first-optimization-ssot.md`
 - current blocker:
@@ -454,7 +459,7 @@ Scope: current lane / next lane / restart order only.
     - `publish = boundary effect`
     - `freeze.str = only birth sink`
   - `Phase 1`: producer-first unpublished contract with current carriers
-    - keep `VerifiedTextSource -> TextPlan -> OwnedBytes -> KernelTextSlot`
+    - keep `VerifiedTextSource -> TextPlan -> OwnedBytes -> KernelTextSlot transport`
     - goal: canonical sink continuity before any early handle publish
   - `Phase 2`: isolate publish as a cold effect
     - goal: `objectize` / `issue_fresh_handle` leave producer helpers
@@ -467,7 +472,7 @@ Scope: current lane / next lane / restart order only.
 - current active work is phase 2 / phase 2.5 lane:
   - isolate publish as a cold effect without changing public ABI
   - keep read-side alias continuity cheap and cache-backed
-  - keep `KernelTextSlot` as the first canonical sink residence
+  - keep `KernelTextSlot` as the first canonical sink transport / seed
   - landed slices now include:
     - explicit cold publish adapters around `string_handle_from_owned_*` and `publish_owned_bytes_*`
     - latest-fresh source-capture prework

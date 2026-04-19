@@ -28,6 +28,17 @@ next: return to optimization lane through owner-first perf evidence
 No cluster was silently skipped.
 High-risk full lane rewrites remain scheduled as separate future phases.
 
+Carrier responsibility is also locked for successor planning:
+
+```text
+BorrowedHandleBox = boundary/cache carrier
+KernelTextSlot    = transport adapter / sink residence seed
+StringViewBox     = object-world view
+```
+
+The future semantic text carriers are `TextRef`, `TextPlan`, `OwnedText`, and
+`TextCell`.
+
 ## Completion Gate
 
 Optimization may resume because this table is all `done`.
@@ -36,7 +47,7 @@ Optimization may resume because this table is all `done`.
 | --- | --- |
 | Rust runtime clusters | 8 clusters closed or rejected |
 | C shim / MIR clusters | 8 clusters closed or rejected |
-| high-risk deferrals | scheduled phase/card exists for each deferral |
+| high-risk deferrals | scheduled card exists for each deferral |
 | behavior checks | exact same-slot suffix path stays closed; live-after-get fallback remains valid |
 | docs pointers | `CURRENT_TASK.md` and `10-Now.md` point back to optimization only after this gate closes |
 
@@ -104,9 +115,20 @@ These are planned, not skipped.
 
 | Area | Reason not first | Scheduled card |
 | --- | --- | --- |
-| full `ArrayStorage::Text` / full `TextLane` rewrite | too broad for the demand-backed pilot; needs its own design/gates | post-`289x-96`, separate phase |
-| Map typed lane | identity-container rule requires a dedicated key/value residence phase | post-`289x-96`, separate phase |
-| allocator / arena | must wait until objectization frequency is reduced | after value-boundary cutover, perf evidence only |
+| full `ArrayStorage::Text` / full `TextLane` rewrite | too broad for the demand-backed pilot; needs its own design/gates | `289x-8a` |
+| `BorrowedHandleBox` semantic-carrier replacement | current cache behavior protects read-side alias reuse; replacing it changes object-boundary behavior | `289x-8a` after TextCell contract |
+| `KernelTextSlot` semantic split | current same-slot paths rely on it as transport; widening/removing it touches FFI leaf ABI | `289x-8a` |
+| `StringViewBox` internal substring removal | API/compat behavior must stay stable while value-world view is introduced | `289x-8b` |
+| Map typed lane | identity-container rule requires a dedicated key/value residence phase | `289x-6c` |
+| allocator / arena | must wait until objectization frequency is reduced | `289x-8c` |
+
+## Successor Cards
+
+| Card | Scope | First allowed output |
+| --- | --- | --- |
+| `289x-8a` | full `TextCell` / `ArrayStorage::Text` design gate | docs + tests that separate `TextRef`, `OwnedText`, `TextCell`, and publish boundary before code rewrite |
+| `289x-8b` | string view/value carrier split | docs + fixtures proving internal substring can use value-world view while `StringViewBox` remains boundary/API object |
+| `289x-8c` | allocator / arena evidence gate | perf report proving allocation is still the owner after objectization frequency is reduced |
 
 ## Acceptance
 

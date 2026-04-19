@@ -103,7 +103,7 @@ Execution world
 | `VerifiedTextSource` | source として合法に読める text | `VerifiedTextSource`, borrowed source metadata, source keep mechanics |
 | `TextPlan` | bytes 未確定でもよい transient plan | `TextPlan`, `TextPiece`, `StringSpan`, `Pieces3` 相当 |
 | `OwnedTextBuf` | alloc/copy 済み unpublished text | `OwnedBytes` |
-| `TextCell` | sink に入った unpublished residence | `KernelTextSlot` が最初の canonical shape |
+| `TextCell` | sink に入った unpublished residence | future abstraction; current `KernelTextSlot` is transport adapter / seed |
 | `PublishedStringHandle` | public handle/object world | `StringBox`, `Arc<dyn NyashBox>`, fresh handle |
 | `TextLane` | text-specialized array storage | future internal storage only, semantic truth ではない |
 
@@ -113,6 +113,9 @@ Lock:
 - phase 1 では code に public/general enum を必須化しない
 - current code の first-class carrier は既存型の読み替えで足りる
 - `publish` と `freeze.str` は別責務のまま保つ
+- `BorrowedHandleBox` は boundary/cache carrier であり、semantic `TextRef` ではない
+- `StringViewBox` は object-world view であり、internal substring carrier ではない
+- `KernelTextSlot` は current transport adapter であり、long-term `TextCell` ではない
 
 ## Owner Split
 
@@ -136,7 +139,8 @@ TextPlan or OwnedTextBuf -> TextCell
 
 - array/string sink に text を住まわせる
 - ここでは publish しない
-- phase 1 の canonical sink residence は `KernelTextSlot`
+- phase 1 の canonical sink transport / seed は `KernelTextSlot`
+- long-term residence は future `TextCell`
 
 ### Publish owner
 
@@ -156,7 +160,7 @@ OwnedTextBuf or TextCell -> PublishedStringHandle
 
 1. public handle ABI は変えない
 2. hot leaf の bytes math / copy は generic helper にまとめない
-3. `KernelTextSlot` を side path ではなく canonical sink の first shape として使う
+3. `KernelTextSlot` を side path ではなく canonical sink transport / seed として使う
 4. `TextLane` は phase 1 に入れない
 5. MIR legality を runtime consume capability より先に強化しない
 6. registry/TLS/objectize を unpublished carrier に流用しない
@@ -181,11 +185,13 @@ OwnedTextBuf or TextCell -> PublishedStringHandle
 - `const_suffix`, `Pieces3`, `substring_concat` の hot leaf は専用のまま残すべき
 - 最初から巨大 `TextBuilder` を作ると branch と match が hot helper に戻る
 
-### Why `KernelTextSlot` first
+### Why `KernelTextSlot` transport first
 
 - 既に repo にある unpublished sink residence だから
 - exact で narrow keeper が出ているから
 - whole の active owner を消すには、まず producer result が canonical sink まで unpublished で届く必要があるから
+- long-term residence name is future `TextCell`; do not grow `KernelTextSlot`
+  into that abstraction
 
 ## Phase Boundaries
 
@@ -207,19 +213,19 @@ OwnedTextBuf or TextCell -> PublishedStringHandle
   - `VerifiedTextSource`
   - `TextPlan`
   - `OwnedBytes`
-  - `KernelTextSlot`
+  - `KernelTextSlot` transport
   - published handle world
 
 Phase 0 の意味:
 
-- `KernelTextSlot` は special-case ではなく、phase 1 の canonical sink seed として扱ってよい
+- `KernelTextSlot` は special-case ではなく、phase 1 の canonical sink transport / seed として扱ってよい
 
 ## Phase 1: Producer-First Unpublished Contract
 
 ### Goal
 
 - producer が handle を返さなくても corridor が閉じる形を作る
-- `KernelTextSlot` を canonical sink residence として固定する
+- `KernelTextSlot` を canonical sink transport / seed として固定する
 
 ### What lands in phase 1
 
@@ -228,7 +234,7 @@ Phase 0 の意味:
    - `VerifiedTextSource`
    - `TextPlan`
    - `OwnedBytes`
-   - `KernelTextSlot`
+   - `KernelTextSlot` transport
 3. `const_suffix` / direct `Pieces3` / direct `substring->store` は:
    - early handle publish を避ける
    - `KernelTextSlot` まで unpublished で渡す
@@ -421,7 +427,7 @@ Phase 0 の意味:
 
 ### `KernelTextSlot`
 
-- phase 1 canonical sink residence
+- phase 1 canonical sink transport / seed
 - no longer treated as side optimization only
 - seed shape for future `TextCell`
 
@@ -456,7 +462,7 @@ phase-137x の next implementation queue は次で固定する。
 
 1. Phase 1 completion
    - widen producer-first unpublished contract where current narrow keeper already exists
-   - keep `KernelTextSlot` as canonical sink
+   - keep `KernelTextSlot` as canonical sink transport / seed
 2. Phase 2 preparation
    - isolate publish owner so producer helpers stop owning handle birth
    - once the new path is keeper-grade, delete legacy helper coexistence instead of preserving dual routing
@@ -471,9 +477,11 @@ phase-137x の next implementation queue は次で固定する。
 
 - `String` は language meaning では immutable value として扱う
 - text は public object として運ぶのではなく、execution world では text として運ぶ
-- array は phase 1 では `KernelTextSlot` を通じて text sink になり、phase 3 で `TextLane` に進化する
+- array は phase 1 では `KernelTextSlot` transport を通じて text sink になり、phase 3 以降で `TextCell` / `TextLane` に進化する
 - publish は最後にだけ起こる effect であり、producer/helper の steady-state representation ではない
 - `freeze.str` は唯一の birth sink であり、publish policy の second truth ではない
 
 したがって phase-137x の first move は `TextLane` 全面導入ではなく、
-`VerifiedTextSource -> TextPlan -> OwnedBytes -> KernelTextSlot` を canonical corridor として固定することだよ。
+`VerifiedTextSource -> TextPlan -> OwnedBytes -> KernelTextSlot transport` を
+canonical corridor として固定することだよ。Long-term residence は future
+`TextCell` が持つ。

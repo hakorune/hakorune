@@ -1,6 +1,6 @@
 # Phase 289x: runtime-wide value/object boundary rollout
 
-- Status: Active Planning
+- Status: Closed Planning / Deferred Successors
 - Date: 2026-04-19
 - Purpose: string で証明中の `value world -> publish/promote -> object world` 思想を、runtime 全体へ安全に広げるための phase/taskboard を切る。
 - Parent SSOT:
@@ -35,6 +35,11 @@
 - `freeze.str` は string の唯一の birth sink に固定する
 - container lane-host generalization は Array/Map semantics の再定義ではなく、内部 residence の stop-lined planning に限定する
 - runtime は semantic owner ではなく executor / boundary microkernel として読む
+- current carrier classification is locked:
+  - `BorrowedHandleBox` is boundary/cache, not semantic `Ref`
+  - `KernelTextSlot` is transport adapter / sink residence seed, not the long-term text cell
+  - `StringViewBox` is object-world view, not internal substring carrier
+  - future semantic text carriers are `TextRef / TextPlan / OwnedText / TextCell`
 
 ## Non-Goals
 
@@ -95,6 +100,26 @@ Demand verbs:
 `publish` / `promote` are effects selected by demand facts.
 They do not decide language legality and they do not create a second string birth sink.
 
+## Carrier Responsibility Lock
+
+This phase adopts the ChatGPT Pro review classification as a design decision:
+
+| Current type | Role | What it must not become |
+| --- | --- | --- |
+| `BorrowedHandleBox` | boundary/cache carrier for alias encode and stable-handle reuse | semantic text/value carrier |
+| `KernelTextSlot` | runtime-private transport adapter and sink residence seed | public-ish corridor ABI or full `TextCell` substitute |
+| `StringViewBox` | object-world view for API/compat surfaces | internal substring/hot-path carrier |
+
+Future text-lane work should introduce the semantic carriers explicitly:
+
+```text
+TextRef / TextPlan / OwnedText / TextCell
+```
+
+Do not widen any of the three current carriers to avoid naming those future
+types. If a path needs object identity, it must go through an explicit
+`publish` / `promote` boundary.
+
 ## Relationship To Phase 137x
 
 Phase 137x remains the active string optimization lane.
@@ -111,8 +136,10 @@ Reading:
 - Phase 137x proves the pattern on `String`
 - Phase 289x organizes how to generalize the pattern
 - Phase 289x does not bypass phase-137x stop-lines
-- Optimization work stays paused while `289x-1f` / `289x-1g` / `289x-2d`
-  inventory cards define the next implementation cut
+- Optimization work was paused while `289x-1f` / `289x-1g` / `289x-2d`
+  inventory cards defined the next implementation cut.
+- Post-keeper inventory is now closed by `289x-96`; optimization may resume
+  only through the owner-first perf entry.
 
 ## First Concrete Cards
 
@@ -223,6 +250,15 @@ Reading:
 - `289x-96`: demand-backed cutover inventory
   - status: closed
   - all Rust/C-shim/MIR clusters are done
+- `289x-8a`: full `TextCell` / `ArrayStorage::Text` design gate
+  - status: deferred; no implementation before separate design/gates
+  - `BorrowedHandleBox`, `KernelTextSlot`, and `StringViewBox` may be reduced
+    only after value-world carriers are named and tested
+- `289x-8b`: string view/value carrier split
+  - status: deferred; move internal substring toward `TextRef` / `StringSpan`
+  - keep `StringViewBox` only as object-world API/compat surface until then
+- `289x-8c`: allocator / arena evidence gate
+  - status: deferred; perf evidence must show allocation remains the owner
 
 ## Return To Optimization Gate
 
@@ -236,9 +272,10 @@ Next optimization work may resume only through the owner-first perf entry:
 
 High-risk work is planned, not skipped:
 
-- full `ArrayStorage::Text` / full `TextLane`: separate phase after `289x-96`
-- Map typed lane: separate phase after `289x-96`
-- allocator / arena: only after value-boundary cutover and perf evidence
+- full `ArrayStorage::Text` / full `TextLane`: `289x-8a`
+- Map typed lane: `289x-6c`
+- string view/value carrier split: `289x-8b`
+- allocator / arena: `289x-8c`, only after value-boundary cutover and perf evidence
 
 ## Stop-Line
 
