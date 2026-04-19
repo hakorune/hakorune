@@ -153,6 +153,19 @@ Related:
   - boundary:
     - this is a narrow string read/store keeper
     - runtime-wide 289x implementation, `TextLane`, MIR legality, and allocator work still require a separate phase gate
+- active follow-up structure card:
+  - runtime seam:
+    - `nyash.array.kernel_slot_insert_hisi(slot, array_h, idx, middle, split)`
+  - purpose:
+    - let insert-mid birth consume the array text residence directly when `array.get(array_h, idx)` is only a proven source for the insert-mid store
+  - current proof:
+    - helper emits in the whole-front hot insert path
+    - strict whole reread: `kilo_kernel_small_hk = C 79 ms / Ny AOT 232 ms` (`repeat=3`, parity ok)
+    - exact guards remain green
+  - boundary:
+    - not keeper yet, because asm still contains the preceding `nyash.array.get_hi` in `ny_main`
+    - next card is get-emission suppression for the source-only window
+    - do not widen this into full `TextLane`, MIR legality, allocator, or phase-289x implementation
 
 ## Snapshot
 

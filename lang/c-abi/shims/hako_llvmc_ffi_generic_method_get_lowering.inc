@@ -51,6 +51,9 @@
               hako_llvmc_emit_array_slot_load(
                   f, dst, ab, HAKO_LLVMC_ARRAY_SLOT_DEMAND_READ_TEXT_REF);
             }
+            if (dst && runtime_array_string) {
+              remember_array_string_get_source(dst, recv, a0);
+            }
             hako_llvmc_emit_array_string_len(f, string_len_match.len_dst, ab);
             if (dst) remember_string_length_call(string_len_match.len_dst, dst);
             skip_inst[string_len_match.len_ii] = 1;

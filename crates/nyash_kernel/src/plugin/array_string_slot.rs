@@ -325,6 +325,66 @@ pub(super) fn array_string_concat_const_suffix_by_index_into_slot(
 }
 
 #[inline(always)]
+fn materialize_insert_const_mid_for_array_slot(source: &str, middle: &str, split: i64) -> String {
+    if source.is_empty() {
+        return middle.to_owned();
+    }
+    if middle.is_empty() {
+        return source.to_owned();
+    }
+    let split = split.clamp(0, source.len() as i64) as usize;
+    let prefix = source.get(0..split).unwrap_or("");
+    let suffix = source.get(split..).unwrap_or("");
+    let total = prefix.len() + middle.len() + suffix.len();
+    let mut out = String::with_capacity(total);
+    unsafe {
+        let buf = out.as_mut_vec();
+        buf.set_len(total);
+        let mut cursor = 0usize;
+        std::ptr::copy_nonoverlapping(prefix.as_ptr(), buf.as_mut_ptr().add(cursor), prefix.len());
+        cursor += prefix.len();
+        std::ptr::copy_nonoverlapping(middle.as_ptr(), buf.as_mut_ptr().add(cursor), middle.len());
+        cursor += middle.len();
+        std::ptr::copy_nonoverlapping(suffix.as_ptr(), buf.as_mut_ptr().add(cursor), suffix.len());
+    }
+    out
+}
+
+pub(super) fn array_string_insert_const_mid_by_index_into_slot(
+    slot: &mut KernelTextSlot,
+    handle: i64,
+    idx: i64,
+    middle_ptr: *const i8,
+    split: i64,
+) -> i64 {
+    let _read_demand = array_text_read_ref_demand();
+    let _output_demand = array_text_owned_cell_demand();
+    slot.clear();
+    if !valid_handle_idx(handle, idx) || middle_ptr.is_null() {
+        return 0;
+    }
+    let Ok(middle) = (unsafe { CStr::from_ptr(middle_ptr) }).to_str() else {
+        return 0;
+    };
+    super::array_handle_cache::with_array_box(handle, |arr| {
+        let idx = idx as usize;
+        arr.with_items_read(|items| {
+            let Some(source) = items.get(idx).and_then(|item| {
+                record_borrowed_alias_string_read_latest_fresh(item.as_ref(), false);
+                item.as_str_fast()
+            }) else {
+                return 0;
+            };
+            slot.replace_owned_string(materialize_insert_const_mid_for_array_slot(
+                source, middle, split,
+            ));
+            1
+        })
+    })
+    .unwrap_or(0)
+}
+
+#[inline(always)]
 fn execute_store_array_str_slot(
     items: &mut Vec<Box<dyn nyash_rust::box_trait::NyashBox>>,
     idx: usize,

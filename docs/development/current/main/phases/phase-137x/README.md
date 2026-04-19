@@ -233,6 +233,21 @@
           - `kilo_kernel_small = C 80 ms / Ny AOT 214 ms`
           - `kilo_kernel_small_hk = C 81 ms / Ny AOT 218 ms` (`repeat=3`, parity ok)
         - this is a narrow phase-137x keeper cut; do not generalize this into `TextLane` / MIR legality / runtime-wide 289x work without a separate phase gate
+    - active follow-up structure card: array-slot insert-mid by index
+      - adds runtime-private `nyash.array.kernel_slot_insert_hisi(slot, array_h, idx, middle, split)`
+      - compiler lowering uses it when the insert-mid source is a remembered `array.get(array_h, idx)` source
+      - validation:
+        - `cargo test -q --manifest-path crates/nyash_kernel/Cargo.toml --lib kernel_slot_insert_by_index_reads_string_slot_directly`
+        - `cargo build --release --bin hakorune`
+        - `phase137x_boundary_string_insert_mid_direct_set_min.sh`
+        - `phase137x_boundary_string_insert_mid_shared_receiver_min.sh`
+      - perf/asm reading:
+        - strict whole reread: `kilo_kernel_small_hk = C 79 ms / Ny AOT 232 ms` (`repeat=3`, parity ok)
+        - `nyash.array.kernel_slot_insert_hisi` is emitted
+        - the preceding `nyash.array.get_hi` call still remains in `ny_main`
+      - boundary:
+        - this is structure, not keeper proof
+        - next card must remove the source-only `array.get_hi` emission; do not add another helper-only cut that leaves the producer get live
   - reading:
     - phase 2.5 no longer has only the `array.get` cached-handle proof
     - exact stays closed, but meso / strict whole reopened upward versus the prior `57 ms` / `791 ms` band

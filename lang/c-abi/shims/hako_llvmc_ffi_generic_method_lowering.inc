@@ -136,9 +136,12 @@
         long long source = 0;
         long long middle = 0;
         long long split = 0;
+        long long source_recv = 0;
+        long long source_idx = 0;
         const char* middle_const = NULL;
-        char slot_insert_ab[256];
+        char slot_insert_ab[320];
         char slot_store_ab[128];
+        int source_is_array_slot = 0;
 
         (void)ilen;
         (void)insts;
@@ -146,6 +149,7 @@
         if (!find_deferred_insert_mid_kernel_slot(insert_root, &source, &middle, &split)) return 0;
         middle_const = get_str_const(middle);
         if (!(source && middle && middle_const)) return 0;
+        source_is_array_slot = find_array_string_get_source(source, &source_recv, &source_idx);
 
         fprintf(
             f,
@@ -164,7 +168,12 @@
             ii);
 
         slot_insert_ab[0] = '\0';
-        append_i64_arg_ref(slot_insert_ab, sizeof(slot_insert_ab), source, 1);
+        if (source_is_array_slot) {
+          append_i64_arg_ref(slot_insert_ab, sizeof(slot_insert_ab), source_recv, 1);
+          append_i64_arg_ref(slot_insert_ab, sizeof(slot_insert_ab), source_idx, 0);
+        } else {
+          append_i64_arg_ref(slot_insert_ab, sizeof(slot_insert_ab), source, 1);
+        }
         strncat(
             slot_insert_ab,
             ", ptr getelementptr inbounds (",
@@ -183,12 +192,21 @@
               sizeof(slot_insert_ab) - strlen(slot_insert_ab) - 1);
         }
         append_i64_arg_ref(slot_insert_ab, sizeof(slot_insert_ab), split, 0);
-        fprintf(
-            f,
-            "  call i64 @\"nyash.string.kernel_slot_insert_hsi\"(ptr %%arrstr.slot.%lld.%zu, %s)\n",
-            insert_root,
-            ii,
-            slot_insert_ab);
+        if (source_is_array_slot) {
+          fprintf(
+              f,
+              "  call i64 @\"nyash.array.kernel_slot_insert_hisi\"(ptr %%arrstr.slot.%lld.%zu, %s)\n",
+              insert_root,
+              ii,
+              slot_insert_ab);
+        } else {
+          fprintf(
+              f,
+              "  call i64 @\"nyash.string.kernel_slot_insert_hsi\"(ptr %%arrstr.slot.%lld.%zu, %s)\n",
+              insert_root,
+              ii,
+              slot_insert_ab);
+        }
 
         slot_store_ab[0] = '\0';
         append_i64_arg_ref(slot_store_ab, sizeof(slot_store_ab), recv, 1);

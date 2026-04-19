@@ -174,6 +174,19 @@ Scope: current lane / next lane / restart order only.
         - `kilo_kernel_small = C 80 ms / Ny AOT 214 ms`
         - `kilo_kernel_small_hk = C 81 ms / Ny AOT 218 ms` (`repeat=3`, parity ok)
       - this is a phase-137x keeper cut; still do not widen directly into `TextLane`, MIR legality, allocator, or phase-289x implementation without a separate phase gate
+      - follow-up structure card in progress:
+        - runtime seam: `nyash.array.kernel_slot_insert_hisi(slot, array_h, idx, middle, split)`
+        - purpose: let insert-mid birth read the array text slot directly when the compiler has already proven the source came from `array.get(array_h, idx)`
+        - validation so far:
+          - `cargo test -q --manifest-path crates/nyash_kernel/Cargo.toml --lib kernel_slot_insert_by_index_reads_string_slot_directly`
+          - `cargo build --release --bin hakorune`
+          - `phase137x_boundary_string_insert_mid_direct_set_min.sh`
+          - `phase137x_boundary_string_insert_mid_shared_receiver_min.sh`
+          - strict whole reread: `kilo_kernel_small_hk = C 79 ms / Ny AOT 232 ms` (`repeat=3`, parity ok)
+        - boundary:
+          - this is not keeper proof yet
+          - asm still shows the preceding `nyash.array.get_hi` call in `ny_main`
+          - next card must suppress the now source-only `array.get_hi` emission safely; do not expand into `TextLane` / MIR legality / allocator work
   - good cut point:
     - the Phase 2.5 read-side alias lane now has array/map proof on all three read outcomes:
       - `live source`
