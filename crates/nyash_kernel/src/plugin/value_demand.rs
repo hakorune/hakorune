@@ -108,6 +108,16 @@ pub(crate) const ARRAY_TEXT_OWNED_CELL: DemandSet = DemandSet::new(
     &[MutationDemand::InvalidateAliases],
 );
 
+pub(crate) const ARRAY_TEXT_DEGRADE_GENERIC: DemandSet = DemandSet::new(
+    &[],
+    &[
+        StorageDemand::DegradeGeneric,
+        StorageDemand::GenericResidence,
+    ],
+    &[],
+    &[MutationDemand::InvalidateAliases],
+);
+
 pub(crate) const KERNEL_TEXT_SLOT_EMPTY: DemandSet = DemandSet::new(&[], &[], &[], &[]);
 
 pub(crate) const KERNEL_TEXT_SLOT_PUBLISHED: DemandSet = DemandSet::new(&[], &[], &[], &[]);
@@ -279,6 +289,18 @@ mod tests {
         );
         assert_eq!(
             ARRAY_TEXT_OWNED_CELL.mutation,
+            &[MutationDemand::InvalidateAliases]
+        );
+        assert_eq!(ARRAY_TEXT_DEGRADE_GENERIC.value, &[]);
+        assert_eq!(
+            ARRAY_TEXT_DEGRADE_GENERIC.storage,
+            &[
+                StorageDemand::DegradeGeneric,
+                StorageDemand::GenericResidence
+            ]
+        );
+        assert_eq!(
+            ARRAY_TEXT_DEGRADE_GENERIC.mutation,
             &[MutationDemand::InvalidateAliases]
         );
     }

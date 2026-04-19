@@ -37,7 +37,7 @@ cargo check --features perf-observe -p nyash_kernel
   - `phase-137x-E TextLane / Value Lane implementation gate` (active; opened before the next kilo optimization)
   - execution mode:
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
-    - `137x-F Value Lane bridge` is the current blocker, then `137x-G` allocator / arena pilot
+    - `137x-F Value Lane bridge` is the current blocker; `137x-F1 demand-to-lane executor bridge` is landed, and `137x-F` closeout decides whether to open `137x-G` or split an F2 bridge slice
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
 - blocker:
@@ -57,7 +57,7 @@ cargo check --features perf-observe -p nyash_kernel
     - direct-only correctness: `Result: 2880064`, exit code `64`
   - `kilo_kernel_small_hk = C 81 ms / Ny AOT 29 ms`
 - immediate next:
-  - start `137x-F` from the implementation-gate SSOT before any new kilo perf edit
+  - finish `137x-F` closeout from the implementation-gate SSOT before any new kilo perf edit
   - exact array-store route-shape card is closed; do not reopen it without a new failed measurement
   - return to kilo optimization only as `137x-H` after `137x-F/G` land or reject
   - 137x-C final gate already passed: `tools/checks/dev_gate.sh quick`

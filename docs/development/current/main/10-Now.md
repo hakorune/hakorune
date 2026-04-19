@@ -32,7 +32,7 @@ Related:
   - execution mode:
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is landed before further kilo tuning
-    - current blocker is `137x-F Value Lane bridge`, then `137x-G` allocator / arena pilot
+    - current blocker is `137x-F Value Lane bridge`; `137x-F1 demand-to-lane executor bridge` is landed, and `137x-F` closeout decides whether to open `137x-G` or split an F2 bridge slice
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
     - keeper evidence remains direct-only; exact/middle/whole gates must be recorded before accepting each implementation slice
   - active phase:
@@ -164,7 +164,7 @@ Related:
       - `137x-D` exact route-shape keeper is landed
       - optimization resumes as `137x-H` only after `137x-F/G` land or reject
 - blocker:
-  - `137x-F Value Lane bridge` before any further kilo optimization edit
+  - `137x-F Value Lane bridge` before any further kilo optimization edit; `137x-F1 demand-to-lane executor bridge` is landed and closeout remains current
   - first landed keeper:
     - same-array/same-index piecewise concat3 subrange store originally lowered to `nyash.array.string_insert_mid_subrange_store_hisiii`
     - current direct lowering uses explicit-length `nyash.array.string_insert_mid_subrange_store_hisiiii`

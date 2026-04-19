@@ -34,15 +34,18 @@ This gate opens:
   - Classify exact seed bridges as temporary surfaces with removal gates.
   - Split `array_string_slot.rs` by runtime mechanism without making it a semantic owner.
 
-- `137x-E TextLane` (active next)
-  - Start with array string hot paths and `KernelTextSlot` replacement pressure.
-  - Accept only a narrow storage implementation that preserves existing public behavior.
-  - Require exact/middle/whole proof before calling it a keeper.
+- `137x-E1 TextLane` (closed)
+  - Landed as minimal `ArrayStorage::Text` for array string hot paths.
+  - Public Array/String behavior stays unchanged.
+  - Generic/mixed array operations degrade back to Boxed rather than making TextLane semantic truth.
 
 - `137x-F Value Lane`
   - Use the phase-289x ledgers as the vocabulary and demand SSOT.
   - Move from planning-only to a constrained implementation bridge.
   - Keep Array / Map public identity unchanged while internal residence becomes lane-aware.
+  - Landed first slice is `137x-F1`: runtime-private `DemandSet -> ValueLanePlan -> executor action` bridge for the landed array text residence route.
+  - `137x-F1` must not open Map typed lanes, public ABI rows, or runtime-side legality/provenance inference.
+  - Closeout must decide whether to open `137x-G` next or split one more F2 bridge slice.
 
 - `137x-G allocator / arena`
   - Open after TextLane / Value Lane show whether copy/allocation cost remains structural.

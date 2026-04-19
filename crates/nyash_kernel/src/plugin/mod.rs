@@ -41,6 +41,7 @@ pub mod semantics;
 pub mod string;
 mod value_codec;
 pub(crate) mod value_demand;
+pub(crate) mod value_lane;
 
 pub use array::*;
 pub use birth::*;

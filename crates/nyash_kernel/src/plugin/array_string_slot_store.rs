@@ -4,6 +4,10 @@ use super::super::value_codec::{
     maybe_store_non_string_box_from_verified_source, with_array_store_str_source,
     ArrayStoreStrSource, KernelTextSlot, StringHandleSourceKind, StringLikeProof,
 };
+use super::super::value_lane::{
+    array_text_cell_store_lane_plan, array_text_degrade_generic_lane_plan, ValueLaneAction,
+    ValueLanePlan,
+};
 use super::array_string_slot_helpers::{
     array_text_owned_cell_demand, record_store_array_str_plan, StoreArrayStrPlanAction,
     StoreArrayStrPlanSlotKind, StoreArrayStrPlanSourceKind,
@@ -34,6 +38,15 @@ fn store_array_str_plan_action(source_kind: StringHandleSourceKind) -> StoreArra
         StoreArrayStrPlanAction::StoreFromSource
     } else {
         StoreArrayStrPlanAction::NeedStableObject
+    }
+}
+
+#[inline(always)]
+fn array_store_str_lane_plan(source_kind: StringHandleSourceKind) -> ValueLanePlan {
+    if matches!(source_kind, StringHandleSourceKind::StringLike) {
+        array_text_cell_store_lane_plan()
+    } else {
+        array_text_degrade_generic_lane_plan()
     }
 }
 
@@ -117,21 +130,33 @@ fn execute_store_array_str_contract_on_array(
         return 0;
     }
     record_store_array_str_contract(idx_usize, len, value_h, source_kind, &source);
-    if matches!(source_kind, StringHandleSourceKind::StringLike) {
-        let Some(value) = owned_text_from_array_store_source(source) else {
-            return 0;
-        };
-        return if arr.slot_store_text_raw(idx, value) {
-            1
-        } else {
+    let lane_plan = array_store_str_lane_plan(source_kind);
+    match lane_plan.action {
+        ValueLaneAction::TextCellResidence => {
+            let Some(value) = owned_text_from_array_store_source(source) else {
+                return 0;
+            };
+            if arr.slot_store_text_raw(idx, value) {
+                1
+            } else {
+                0
+            }
+        }
+        ValueLaneAction::GenericBoxResidence => {
+            let value = maybe_store_non_string_box_from_verified_source(value_h, drop_epoch);
+            if arr.slot_store_box_raw(idx, value) {
+                1
+            } else {
+                0
+            }
+        }
+        ValueLaneAction::PublishBoundary => {
+            debug_assert!(
+                false,
+                "array string store must not publish during residence"
+            );
             0
-        };
-    }
-    let value = maybe_store_non_string_box_from_verified_source(value_h, drop_epoch);
-    if arr.slot_store_box_raw(idx, value) {
-        1
-    } else {
-        0
+        }
     }
 }
 
@@ -218,6 +243,8 @@ pub(in super::super) fn array_string_store_kernel_text_slot_at(
     }
     observe::record_store_array_str_enter();
     super::super::array_handle_cache::with_array_box(handle, |arr| {
+        let lane_plan = array_text_cell_store_lane_plan();
+        debug_assert_eq!(lane_plan.action, ValueLaneAction::TextCellResidence);
         execute_store_array_str_kernel_text_slot_boundary(arr, idx, slot)
     })
     .unwrap_or(0)

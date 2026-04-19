@@ -127,6 +127,38 @@ Implementation notes:
 - array-string read/write/store routes use `slot_with_text_raw`, `slot_update_text_raw`, and `slot_store_text_raw`.
 - the old array-string store `BorrowedHandleBox` retarget executor path is removed from the active store route; alias legality must stay MIR-owned rather than runtime-replanned.
 
+## 137x-F1 Value Lane Bridge Slice
+
+Status: landed.
+
+Scope:
+- add a runtime-private bridge from `DemandSet` to concrete executor lane action
+- start with the landed array text residence route only: TextCell residence vs generic boxed residence
+- keep Array / Map public identity, public ABI, and MIR legality unchanged
+- do not infer borrow/provenance/publication legality from helper names or runtime class names
+
+Acceptance:
+- array-string store chooses TextLane residence through the demand-backed bridge, not through a helper-local ad hoc action
+- non-string / mixed array-string store remains generic boxed residence
+- unit tests lock the demand-to-lane mapping for text cell, generic box, and publish-boundary demands
+- existing phase137x array-string route smokes remain green
+
+Implementation guard:
+- `ValueLanePlan` is runtime-private executor plumbing only.
+- `DemandSet` names the requested lane; MIR/lowering remain the authority for whether that demand is legal.
+- `137x-F1` does not start Map typed lane, allocator, or runtime-wide value object rewrites.
+
+Verification:
+- `cargo test -q -p nyash_kernel --lib value_lane` PASS
+- `cargo test -q -p nyash_kernel --lib value_demand` PASS
+- `cargo test -q -p nyash_kernel --lib array::tests` PASS
+- `cargo test -q array::tests --lib` PASS
+- `phase137x_direct_emit_array_store_string_contract.sh` PASS
+- `phase137x_direct_emit_const_suffix_kernel_slot_store_contract.sh` PASS
+- `phase137x_boundary_array_string_len_insert_mid_source_only_min.sh` PASS
+- `tools/checks/current_state_pointer_guard.sh` PASS
+- `tools/checks/dev_gate.sh quick` PASS
+
 ## Legacy Retirement Ledger
 
 Purpose: keep compiler cleanup work visible without spreading TODOs through the codebase. This ledger is the SSOT for planned deletion candidates in the active phase-137x lane.

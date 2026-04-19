@@ -116,6 +116,13 @@ order before the next kilo optimization return.
   - active token: `137x-F Value Lane bridge`
   - use phase-289x ledgers as vocabulary/demand SSOT
   - keep Array / Map public identity unchanged
+  - [x] G3a `137x-F1 demand-to-lane executor bridge`
+    - map runtime-private `DemandSet` to `ValueLanePlan` action
+    - first target is array-string TextCell residence vs generic boxed residence
+    - no public ABI widening, no Map typed lane, no runtime-side legality/provenance inference
+  - [ ] G3b `137x-F closeout decision`
+    - decide whether the constrained bridge is sufficient to open `137x-G`, or split one more F2 bridge slice
+    - do not start allocator or perf-return work until this closeout is recorded
 - [ ] G4 allocator / arena pilot
   - open after TextLane / Value Lane proof shows copy/allocation tax remains structural
   - require exact/middle/whole evidence and rollback notes
