@@ -929,14 +929,13 @@ Scope: current lane / next lane / restart order only.
           - `stable_view_provenance` now makes the legal `StableView` witness visible to MIR JSON and verifier; accepted string-only witnesses are `already_stable`, `immutable_host_owned`, and `pinned_no_mutation`
         - completed `provenance-freeze-verifier-contract`
           - `publish.text` now requires `borrow_contract=borrow_text_from_obj`, `source_root`, and `publication_contract=publish_now_not_required_before_first_external_boundary`
-        - `publish-idempotence-policy`
-          - decide whether repeated `publish.text` on the same stable source/cell reuses a cold cache or allocates fresh objects
+        - completed `publish-idempotence-policy`
+          - repeated slot publish is no-op after `Published`; stable cache may reissue handles to cached objects/views, but must not rebirth fresh text for the same stable source/cell
       - current phase cut before optimization return:
-        - `137x-A`: string publication contract closeout (`docs/development/current/main/phases/phase-137x/137x-92-string-publication-contract-closeout.md`)
-        - `137x-B`: reopen owner-first optimization only after those contracts land
+        - `137x-A`: string publication contract closeout is satisfied (`docs/development/current/main/phases/phase-137x/137x-92-string-publication-contract-closeout.md`)
+        - `137x-B`: owner-first optimization may reopen from the perf SSOT
         - phase-289x stays parked as planning-only `Value Lane Architecture`
-      - `publish.any` stays deferred/blocked until those string-only contracts land
-      - `publish.any` stays deferred
+      - `publish.any` stays deferred/blocked until a separate explicit phase opens it
    - do not widen into `TextLane`, allocator, public ABI, or a generic bridge substrate on this card
    - keep recent carrier commits as the semantic baseline; this card is contract/task shaping, not new keeper evidence
 2. keep phase-2.5 read-side alias lane as the active judge

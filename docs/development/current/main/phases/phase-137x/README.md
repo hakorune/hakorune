@@ -49,8 +49,12 @@
     - `stable_view_provenance` now names the only accepted string-only StableView witnesses: `already_stable`, `immutable_host_owned`, `pinned_no_mutation`
   - done: `provenance-freeze-verifier-contract`
     - `publish.text` now requires borrow provenance, source root, and the freeze/publish separation publication contract before codegen
-  - remaining before perf return:
-    - `publish-idempotence-policy`
+  - done: `publish-idempotence-policy`
+    - repeated slot publish is no-op after `Published`; cache handle reissue may reuse an existing stable object/view, but must not rebirth fresh text for the same stable source/cell
+  - closeout gate:
+    - 137x-A is satisfied
+    - 137x-B owner-first optimization return may reopen
+    - `publish.any` and runtime-wide phase-289x implementation remain blocked here
 - long-range successor stays parked:
   - phase-289x planning-only `Value Lane Architecture`
   - no runtime-wide implementation starts from this cut

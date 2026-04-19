@@ -18,13 +18,13 @@
 - [x] D1 `repr-downgrade-contract`
 - [x] D2 `stableview-legality-contract`
 - [x] D3 `provenance-freeze-verifier-contract`
-- [ ] D4 `publish-idempotence-policy` (after D2)
+- [x] D4 `publish-idempotence-policy`
 
 ## Blocked / Deferred
 
-- [ ] E1 `publish-any-generalization` (blocked until D1-D4 land)
+- [ ] E1 `publish-any-generalization` (blocked; keep deferred until a separate phase explicitly opens it)
 - [ ] E2 runtime-wide phase-289x implementation (parked; planning only)
 
 ## Exit
 
-- [ ] F1 reopen the owner-first optimization lane only after D1-D4 are closed
+- [x] F1 137x-A closeout gate is satisfied; owner-first optimization may reopen as `137x-B`

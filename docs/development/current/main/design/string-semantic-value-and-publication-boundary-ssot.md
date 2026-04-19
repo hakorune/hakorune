@@ -249,6 +249,23 @@ Illegal `StableView` request は boundary の前に downgrade する。
 - copy/materialize が必要なら `freeze.str -> OwnedText -> publish.text(...)`
 - `publish.text` 自体を birth sink に戻してはならない
 
+### `publish.text` Idempotence Lock
+
+phase-137x の string-only publication policy は次で固定する。
+
+- `KernelTextSlot` の `publish.text` は one-shot boundary effect として読む
+  - first publish consumes `OwnedBytes` / deferred text and marks the slot `Published`
+  - repeated publish on the same consumed slot returns `None`
+  - repeated publish must not allocate a fresh text object
+  - observable state is `publish_boundary.slot_already_published`
+- stable cache policy:
+  - existing stable handle/object cache may be reused on repeated publication
+  - expired handle may be reissued to an already cached stable object/view
+  - reissue is handle/cache mechanics, not a new string birth
+- rejected shape:
+  - per-read fresh `StringBox` / `StringViewBox` materialization for the same stable source/cell
+  - runtime-side reinterpretation of idempotence from helper/site names
+
 ## Bridge Lock
 
 この lane の bridge truth は 2 本で固定する。

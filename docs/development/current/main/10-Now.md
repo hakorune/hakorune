@@ -576,7 +576,8 @@ Related:
    - `repr-downgrade-contract` is closed: unproven `stable_view` requests now fail before runtime and must be downgraded by lowering
    - `stableview-legality-contract` is closed: `stable_view_provenance` is the string-only witness vocabulary for legal StableView replay
    - `provenance-freeze-verifier-contract` is closed: `publish.text` requires borrow provenance plus the freeze/publish separation contract before codegen
-   - do not reopen owner-first perf work until remaining `publish` idempotence is locked
+   - `publish-idempotence-policy` is closed: repeated slot publish is no-op after `Published`, and cache reissue must not rebirth fresh text for the same stable source/cell
+   - 137x-A is satisfied; reopen owner-first perf work as 137x-B from the owner-first SSOT
 5. require a fresh narrow owner proof before wider perf edits
     - acceptable seam: reduce read/materialize/copy tax without changing public ABI
     - reject seam: store-side `owned-string keep` / `owned-text keep` or any change that makes `array.get` publish per read
