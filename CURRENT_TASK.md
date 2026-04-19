@@ -54,8 +54,11 @@ Scope: current lane / next lane / restart order only.
     - `137x-E0 MIR / backend seam closeout` is closed
     - `137x-E0.1 legacy seam shrink` is closed enough to unblock `137x-E1`
       - removed the old `9-block` `kilo_micro_array_string_store` exact seed branch; the compact `8-block` direct producer is now the only accepted seed shape
-      - attempted shared-receiver metadata-only deletion, but active phase137x shared-receiver guards still require the quarantined scanner bridge until MIR emits those alias facts for every direct/front shape
+      - attempted shared-receiver metadata-only deletion and exposed the remaining metadata gap for direct/front fixtures
       - keep the exact seed bridge itself until `137x-E1` gives array-string store a keeper TextLane / `ArrayStorage::Text` route
+    - `137x-E0.2 shared-receiver alias metadata coverage` is closed enough to unblock `137x-E1`
+      - active const-suffix / insert-mid shared-receiver fixtures now carry MIR-owned `read_alias.shared_receiver`
+      - backend `.inc` consumes metadata only and no longer scans later instructions to rediscover shared receiver legality
     - `137x-E1 minimal TextLane / ArrayStorage::Text` is the current implementation blocker
     - implement `137x-E` minimal `TextLane` / `ArrayStorage::Text`, then `137x-F` Value Lane bridge, then `137x-G` allocator / arena pilot
     - `137x-D` exact route-shape keeper is landed; next owner-first optimization return is `137x-H`
@@ -102,7 +105,7 @@ Scope: current lane / next lane / restart order only.
       - `cache.rs` / `string_materialize.rs` remain deferred modularization candidates, but not prerequisites for the active `137x-E` implementation gate
       - active implementation gate is `137x-E TextLane implementation gate`; `137x-E0` MIR/backend seam closeout is closed
       - `.inc` must consume MIR-owned metadata for legality/provenance and stay backend emit/normalization only
-      - pre-E1 cleanup deleted only the old `9-block` seed branch; shared-receiver scanner fallback remains quarantined because active phase137x shared-receiver gates still require it
+      - pre-E1 cleanup deleted the old `9-block` seed branch and the shared-receiver scanner fallback; active shared-receiver gates are now metadata-only
       - legacy watch item surfaced by audit is `src/host_providers/llvm_codegen/compat_text_primitive.rs`
   - parent SSOT:
     - `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
@@ -942,7 +945,8 @@ Scope: current lane / next lane / restart order only.
      - `137x-E0`: MIR / backend seam closeout
    - current blocker: `137x-E1 minimal TextLane / ArrayStorage::Text`
    - order:
-     - `137x-E0.1`: remove old `9-block` seed shape; keep shared-receiver fallback quarantined until MIR alias metadata covers active direct/front guards
+     - `137x-E0.1`: remove old `9-block` seed shape
+     - `137x-E0.2`: export shared-receiver alias metadata for active guards and remove the `.inc` legacy scanner fallback
      - `137x-E`: minimal `TextLane` / `ArrayStorage::Text`
      - `137x-F`: runtime-wide Value Lane implementation bridge
      - `137x-G`: allocator / arena pilot

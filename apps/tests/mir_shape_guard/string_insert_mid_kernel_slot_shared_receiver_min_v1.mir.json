@@ -8,7 +8,17 @@
     {
       "name": "main",
       "params": [],
-      "metadata": {},
+      "metadata": {
+        "string_kernel_plans": {
+          "7": {
+            "version": 1,
+            "plan_value": 7,
+            "read_alias": {
+              "shared_receiver": true
+            }
+          }
+        }
+      },
       "blocks": [
         {
           "id": 0,

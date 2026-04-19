@@ -124,7 +124,7 @@ Rules:
 | `lang/c-abi/shims/hako_llvmc_ffi_array_string_store_seed.inc` exact seed bridge | temporary bridge surface | Pure-first array/string-store micro seed still has exact route-shape emission for the current micro front; it is not keeper architecture and must not grow semantic legality. | Delete or shrink after TextLane / ArrayStorage::Text direct lowering owns the active array-string store route, or move the exact seed into an explicit legacy regression fixture with failure expectation. |
 | `src/host_providers/llvm_codegen/compat_text_primitive.rs` | watch item | Audit surfaced it as a legacy compiler compatibility surface; not part of the explicit-length helper cut | Classify first: either retire behind a small no-behavior cleanup gate or document why it remains a stable compatibility shim. |
 - retired in `137x-E0.1`: the old `kilo_micro_array_string_store` `9-block` exact seed matcher branch is deleted after the compact `8-block` direct producer stayed green under `phase137x_direct_emit_array_store_string_contract.sh`.
-- kept quarantined in `137x-E0.1`: shared-receiver legacy scanner fallback remains because active phase137x shared-receiver guards still require it when MIR alias metadata is absent for some direct/front shapes.
+- retired in `137x-E0.2`: shared-receiver legacy scanner fallback is deleted after the active const-suffix / insert-mid shared-receiver fixtures gained MIR-owned `read_alias.shared_receiver` metadata and stayed green metadata-only.
 - current phase-2 start:
   - `string_handle_from_owned{,_concat_hh,_substring_concat_hhii,_const_suffix}` now enter explicit cold publish adapters
   - `publish_owned_bytes_*_boundary` / `objectize_kernel_text_slot_stable_box` are outlined cold boundaries

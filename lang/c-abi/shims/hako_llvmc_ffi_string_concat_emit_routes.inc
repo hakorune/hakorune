@@ -1,84 +1,11 @@
-      auto int match_const_suffix_shared_receiver_window(
-          size_t ii,
-          size_t ilen,
-          yyjson_val* insts,
-          long long reg,
-          enum StringPostStoreUseKind* post_store_use_out) {
-        int saw_set = 0;
-        int saw_substring = 0;
-        int saw_len = 0;
-        reg = resolve_copy_source_reg(reg);
-        if (!reg) return 0;
-        for (size_t jj = ii + 1; jj < ilen; jj++) {
-          yyjson_val* later = yyjson_arr_get(insts, jj);
-          const char* op = later ? read_str(later, "op") : NULL;
-          if (!(later && op)) continue;
-          if (!strcmp(op, "copy")) {
-            long long src = resolve_copy_source_reg(read_int(later, "src"));
-            if (src == reg) continue;
-            if (inst_uses_reg(later, reg)) return 0;
-            continue;
-          }
-          if (!strcmp(op, "mir_call")) {
-            yyjson_val* mc = yyjson_obj_get(later, "mir_call");
-            yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-            yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
-            const char* ctype = cal ? read_str(cal, "type") : NULL;
-            const char* mname =
-                cal ? (read_str(cal, "method") ? read_str(cal, "method")
-                                               : read_str(cal, "name"))
-                    : NULL;
-            long long recv = cal ? resolve_copy_source_reg(read_int(cal, "receiver")) : 0;
-            if (ctype && !strcmp(ctype, "Method") && mname && !strcmp(mname, "set") &&
-                args && yyjson_is_arr(args) && yyjson_arr_size(args) >= 2 &&
-                resolve_copy_source_reg((long long)yyjson_get_sint(yyjson_arr_get(args, 1))) == reg) {
-              if (saw_set) return 0;
-              saw_set = 1;
-              continue;
-            }
-            if (ctype && !strcmp(ctype, "Method") && mname &&
-                (!strcmp(mname, "substring") || !strcmp(mname, "substr")) &&
-                args && yyjson_is_arr(args) && yyjson_arr_size(args) == 2 && recv == reg) {
-              if (saw_substring) return 0;
-              saw_substring = 1;
-              continue;
-            }
-            if (ctype && !strcmp(ctype, "Extern") && mname &&
-                !strcmp(mname, "nyash.string.substring_hii") && args &&
-                yyjson_is_arr(args) && yyjson_arr_size(args) == 3 &&
-                resolve_copy_source_reg((long long)yyjson_get_sint(yyjson_arr_get(args, 0))) == reg) {
-              if (saw_substring) return 0;
-              saw_substring = 1;
-              continue;
-            }
-            if (ctype && !strcmp(ctype, "Method") && mname &&
-                (!strcmp(mname, "length") || !strcmp(mname, "len") || !strcmp(mname, "size")) &&
-                args && yyjson_is_arr(args) && yyjson_arr_size(args) == 0 && recv == reg) {
-              saw_len = 1;
-              continue;
-            }
-          }
-          if (inst_uses_reg(later, reg)) return 0;
-        }
-        if (post_store_use_out) {
-          *post_store_use_out = saw_len ? HAKO_LLVMC_STRING_POST_STORE_USE_LEN_OBSERVER
-                                        : HAKO_LLVMC_STRING_POST_STORE_USE_NONE;
-        }
-        return saw_set && saw_substring;
-      }
-
-      auto int hako_llvmc_string_kernel_plan_or_legacy_shared_receiver(
-          size_t ii,
-          size_t ilen,
-          yyjson_val* insts,
-          long long dst) {
+      auto int hako_llvmc_string_kernel_plan_shared_receiver(long long dst) {
         int shared_receiver = 0;
         if (!dst) return 0;
         if (hako_llvmc_string_kernel_plan_read_alias_fact(
                 dst, "shared_receiver", &shared_receiver)) {
           return shared_receiver;
         }
-        return match_const_suffix_shared_receiver_window(ii, ilen, insts, dst, NULL);
+        return 0;
       }
 
       auto int try_emit_string_insert_mid_const_call(
@@ -109,8 +36,7 @@
         const char* middle_const = NULL;
         if (!(dst && lhs && rhs)) return 0;
         direct_set = has_direct_array_set_consumer(ii, ilen, insts, dst);
-        shared_receiver =
-            hako_llvmc_string_kernel_plan_or_legacy_shared_receiver(ii, ilen, insts, dst);
+        shared_receiver = hako_llvmc_string_kernel_plan_shared_receiver(dst);
         if (!(direct_set || shared_receiver)) return 0;
         lhs = resolve_copy_chain_source_reg(insts, ii + 1, lhs);
         rhs = resolve_copy_chain_source_reg(insts, ii + 1, rhs);
@@ -453,8 +379,7 @@
           middle_const = get_str_const(middle);
           if (!middle_const) return -1;
           int direct_set = dst ? has_direct_array_set_consumer(ii, ilen, insts, dst) : 0;
-          shared_receiver =
-              hako_llvmc_string_kernel_plan_or_legacy_shared_receiver(ii, ilen, insts, dst);
+          shared_receiver = hako_llvmc_string_kernel_plan_shared_receiver(dst);
           if (dst && (direct_set || shared_receiver)) {
             remember_deferred_insert_mid_kernel_slot(dst, source, middle, split);
             if (shared_receiver) {
@@ -656,8 +581,7 @@
             middle_const = get_str_const(piecewise_middle);
             if (middle_const) {
               direct_set = dst ? has_direct_array_set_consumer(ii, ilen, insts, dst) : 0;
-              shared_receiver =
-                  hako_llvmc_string_kernel_plan_or_legacy_shared_receiver(ii, ilen, insts, dst);
+              shared_receiver = hako_llvmc_string_kernel_plan_shared_receiver(dst);
               if (dst && (direct_set || shared_receiver)) {
                 remember_string_substring_call(dst, recv_reg, start_reg, end_reg);
                 fprintf(f, "  %%r%lld = add i64 0, 0\n", dst);
