@@ -175,7 +175,12 @@ Reading:
   - status: done in code; high-risk; behavior unchanged; no ABI change
   - state demand and boundary publish demand stay separated
 - `289x-7a`: C shim generic method set-route demand metadata
-  - emitted lowering unchanged; next cutover cluster
+  - status: done in code; emitted lowering unchanged
+  - `ArrayStoreString` carries source-preserve plus publish-handle demand metadata
+  - stable-object demand remains off
+  - direct array-store-string smoke still stops before lowering on the existing pure-shape recipe gate
+- `289x-7b`: MIR demand/placement parallel facts
+  - next cutover cluster; inspection-only
 - `289x-5a`: bytes/view planning
   - prevent text-only patterns from being copied into bytes later
 - `289x-6a`: map key/value boundary map

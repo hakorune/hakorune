@@ -110,8 +110,12 @@ Scope: current lane / next lane / restart order only.
       - `KernelTextSlotState::demand()` maps slot residence state to runtime-private `DemandSet`
       - `KernelTextSlotBoundary::demand()` maps slot publish/objectize boundary to publish demand
       - behavior unchanged; no ABI change
+    - `289x-7a` landed:
+      - C shim `ArrayStoreString` route now carries source-preserve plus publish-handle demand metadata
+      - stable-object demand remains off; emitted lowering unchanged
+      - direct array-store-string smoke still stops before lowering on the existing pure-shape recipe gate
     - next code cut:
-      - `289x-7a`: C shim generic method set-route demand metadata, emitted lowering unchanged
+      - `289x-7b`: MIR demand/placement parallel facts, inspection-only
     - high-risk planned later, not skipped:
       - concrete `slot_load_hi` / `slot_store` emission changes: `289x-7e`
       - `runtime_array_string` observer/window matcher rewrites: `289x-7f`

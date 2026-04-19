@@ -119,7 +119,8 @@ Task state:
 - `289x-3f`: done in code, array generic load/encode demand tags, behavior unchanged
 - `289x-3g`: done in code, array store/append demand tags, behavior unchanged
 - `289x-3h`: done in code, `KernelTextSlotState` demand bridge, high-risk, behavior unchanged
-- `289x-7a`: next C shim cut, generic method set-route demand metadata, emitted lowering unchanged
+- `289x-7a`: done in code, C shim generic method set-route demand metadata, emitted lowering unchanged
+- `289x-7b`: next C/MIR cut, MIR demand/placement parallel facts, inspection-only
 - `289x-7e` / `289x-7f`: high-risk C shim emission/window work is planned later, not skipped
 - optimization return: blocked until all `289x-96` clusters are done or explicitly rejected
 

@@ -176,7 +176,7 @@
             route.runtime_array_string = 1;
             route.array_store_string_source_preserve = 1;
             route.array_store_string_identity_demand_stable_object = 0;
-            route.array_store_string_publication_demand_publish_handle = 0;
+            route.array_store_string_publication_demand_publish_handle = 1;
             break;
           case HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING:
             route.runtime_string = 1;
