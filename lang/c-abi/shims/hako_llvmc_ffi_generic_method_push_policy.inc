@@ -17,6 +17,21 @@
         return HAKO_LLVMC_GENERIC_METHOD_PUSH_ROUTE_NONE;
       }
 
+      auto int classify_generic_method_push_value_demand_encode_any(
+          enum GenericMethodPushRouteKind route) {
+        return route != HAKO_LLVMC_GENERIC_METHOD_PUSH_ROUTE_NONE;
+      }
+
+      auto int classify_generic_method_push_storage_demand_generic_residence(
+          enum GenericMethodPushRouteKind route) {
+        return route != HAKO_LLVMC_GENERIC_METHOD_PUSH_ROUTE_NONE;
+      }
+
+      auto int classify_generic_method_push_mutation_demand_invalidate_aliases(
+          enum GenericMethodPushRouteKind route) {
+        return route != HAKO_LLVMC_GENERIC_METHOD_PUSH_ROUTE_NONE;
+      }
+
       auto int should_promote_array_string_birth_after_push(
           const struct GenericMethodEmitPlan* plan,
           int value_is_string_handle) {
@@ -34,7 +49,17 @@
           char* ab,
           size_t ab_cap) {
         if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
-        switch (classify_generic_method_push_route(bname, plan)) {
+        enum GenericMethodPushRouteKind route = classify_generic_method_push_route(bname, plan);
+        int value_demand_encode_any =
+            classify_generic_method_push_value_demand_encode_any(route);
+        int storage_demand_generic_residence =
+            classify_generic_method_push_storage_demand_generic_residence(route);
+        int mutation_demand_invalidate_aliases =
+            classify_generic_method_push_mutation_demand_invalidate_aliases(route);
+        (void)value_demand_encode_any;
+        (void)storage_demand_generic_residence;
+        (void)mutation_demand_invalidate_aliases;
+        switch (route) {
           case HAKO_LLVMC_GENERIC_METHOD_PUSH_ROUTE_RUNTIME_DATA_APPEND_ANY:
             if (dst) {
               fprintf(f, "  %%r%lld = call i64 @\"nyash.runtime_data.push_hh\"(%s)\n", dst, ab);

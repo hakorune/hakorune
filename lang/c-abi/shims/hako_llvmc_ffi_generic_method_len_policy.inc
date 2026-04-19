@@ -22,6 +22,11 @@
         return HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_NONE;
       }
 
+      auto int classify_generic_method_len_value_demand_read_ref(
+          enum GenericMethodLenRouteKind route) {
+        return route != HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_NONE;
+      }
+
       auto void format_i64_ssa_operand_ref(
           char* out,
           size_t out_cap,
@@ -114,7 +119,11 @@
         long long substring_start = 0;
         long long substring_end = 0;
         long long resolved_recv = resolve_copy_source_reg(recv);
-        switch (classify_generic_method_len_route(bname, plan)) {
+        enum GenericMethodLenRouteKind route = classify_generic_method_len_route(bname, plan);
+        int value_demand_read_ref =
+            classify_generic_method_len_value_demand_read_ref(route);
+        (void)value_demand_read_ref;
+        switch (route) {
           case HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_MAP_ENTRY_COUNT:
             if (dst) {
               fprintf(f, "  %%r%lld = call i64 @\"nyash.map.entry_count_i64\"(%s)\n", dst, ab);

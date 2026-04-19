@@ -106,8 +106,12 @@ Related:
       - Map load now separates materializing-return demand from caller-scoped encode demand
       - behavior unchanged; no public ABI change
       - Rust runtime clusters in `289x-96` are now closed
+    - `289x-7c` landed:
+      - C shim `get/len/has/push` policy switches now compute explicit demand metadata beside existing routes
+      - behavior and emitted lowering unchanged; this is metadata-only preparation for route cutover
     - next code cut:
-      - `289x-7c`: C shim `get/len/has/push` policy split over demand metadata
+      - `289x-7d`: main `bname/mname` route classifier cutover
+      - high risk: inspect route consumers first; do not change emitted calls without exact before/after gate evidence
     - high-risk planned later, not skipped:
       - concrete `slot_load_hi` / `slot_store` emission changes: `289x-7e`
       - `runtime_array_string` observer/window matcher rewrites: `289x-7f`

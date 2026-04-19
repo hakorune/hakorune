@@ -197,7 +197,11 @@ Reading:
   - materializing map load and caller-scoped alias encode now carry separate demand metadata
   - Rust runtime clusters in `289x-96` are now closed
 - `289x-7c`: C shim `get/len/has/push` policy split
-  - next cutover cluster; high-risk metadata/policy split before emission rewrites
+  - status: done in code; behavior and emitted lowering unchanged
+  - `get` stable-object/publish demand, `len`/`has` read-ref demand, and `push` encode/residence/mutation demand are now explicit route metadata
+- `289x-7d`: main `bname/mname` route classifier cutover
+  - next cutover cluster; high risk
+  - inspect route consumers first; no emitted-call change without exact before/after gate evidence
 
 ## Return To Optimization Gate
 
