@@ -375,6 +375,66 @@ mod tests {
     }
 
     #[test]
+    fn insert_mid_subrange_store_by_index_materializes_same_slot_once() {
+        let handle = new_array_handle();
+        let middle = std::ffi::CString::new("xx").expect("middle");
+
+        assert_eq!(
+            with_array_box(handle, |arr| arr.slot_store_box_raw(
+                0,
+                Box::new(nyash_rust::box_trait::StringBox::new("line-seed"))
+            ))
+            .unwrap_or(false),
+            true
+        );
+        let before_ptr = with_array_box(handle, |arr| {
+            arr.with_items_read(|items| {
+                items
+                    .first()
+                    .and_then(|item| {
+                        item.as_any()
+                            .downcast_ref::<nyash_rust::box_trait::StringBox>()
+                    })
+                    .map(|value| value as *const nyash_rust::box_trait::StringBox as usize)
+            })
+        })
+        .flatten();
+
+        assert_eq!(
+            crate::nyash_array_string_insert_mid_subrange_store_hisiii_alias(
+                handle,
+                0,
+                middle.as_ptr(),
+                4,
+                1,
+                10,
+            ),
+            1
+        );
+
+        let stored = with_array_box(handle, |arr| {
+            arr.with_items_read(|items| {
+                let value = items.first().and_then(|item| {
+                    item.as_any()
+                        .downcast_ref::<nyash_rust::box_trait::StringBox>()
+                });
+                value.map(|value| {
+                    (
+                        value as *const nyash_rust::box_trait::StringBox as usize,
+                        value.value.clone(),
+                    )
+                })
+            })
+        })
+        .flatten();
+        assert_eq!(
+            stored.as_ref().map(|(_, text)| text.as_str()),
+            Some("inexx-see")
+        );
+        assert_eq!(stored.map(|(ptr, _)| ptr), before_ptr);
+    }
+
+    #[test]
     fn kernel_slot_store_existing_string_slot_keeps_borrowed_alias_wrapper() {
         let handle = new_array_handle();
         let seed_h = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(

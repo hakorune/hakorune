@@ -1,7 +1,7 @@
 # Phase 137x: main kilo reopen selection
 
-- Status: Owner-First Optimization Return Ready
-- 目的: 137x-C structure completion gate を閉じた状態から、owner-first optimization を `137x-D` として再開する。最初の一手は fresh perf/asm owner proof で、source reading や code edit を先行しない。
+- Status: Owner-First Optimization Return Active
+- 目的: 137x-C structure completion gate を閉じた状態から、owner-first optimization を `137x-D` として再開する。最初の same-slot piecewise subrange keeper は landed。次の一手も fresh perf/asm owner proof で、source reading や code edit を先行しない。
 - 対象:
   - `docs/development/current/main/CURRENT_STATE.toml`
   - `CURRENT_TASK.md`
@@ -27,7 +27,7 @@
   - semantic authority stays in `docs/development/current/main/design/string-semantic-value-and-publication-boundary-ssot.md`
   - this README stays a current-state mirror and handoff note
 - current exact front: `kilo_micro_array_string_store` is closed by the shared-receiver `KernelTextSlot` bridge
-- last whole owner proof: phase-2.5 read/materialize/copy tax after the `const_suffix` / `freeze_text_plan(Pieces3)` producer cuts; 137x-D must recapture fresh evidence before editing
+- first 137x-D keeper proof: same-array/same-index piecewise concat3 subrange store lowers to `nyash.array.string_insert_mid_subrange_store_hisiii`
 - current owner split is now explicit:
   - `const_suffix freeze_fallback = 479728 / 480000`
   - `materialize total = 539728` (`~4.5 GB`)
@@ -38,6 +38,8 @@
     - this is the historical producer-owner split that led to the landed phase-2 cuts
     - the current owner proof has moved to read-side encode/materialize/objectize and libc copy/alloc tax
 - current middle guard: `kilo_meso_substring_concat_array_set_loopcarry`
+- current middle evidence: `C 4 ms / Ny AOT 9 ms` (`repeat=3`, direct route)
+- direct-only correctness: `Result: 2880064`, exit code `64`
 - current stop-line:
   - `KernelTextSlot` exit is observed and inactive (`publish_boundary.slot_* = 0`)
   - do not open `TextLane`, MIR legality, runtime-wide 289x implementation, allocator/arena, or container lane-host work from the current proof alone
@@ -45,7 +47,7 @@
   - `137x-A`: string publication contract closeout (`137x-92-string-publication-contract-closeout.md`)
   - `137x-B`: container / primitive design cleanout (`137x-93-container-primitive-design-cleanout.md`) is closed
   - `137x-C`: structure completion gate before perf return is closed (`137x-91-task-board.md`)
-  - `137x-D`: owner-first optimization return is ready next and must start from fresh perf/asm evidence
+  - `137x-D`: owner-first optimization return is active; first same-slot piecewise subrange keeper is landed
 - current closeout status:
   - done: `repr-downgrade-contract`
     - verifier now rejects unproven `stable_view` repr requests before runtime; lowering must downgrade to `stable_owned` until StableView legality is verifier-visible

@@ -8,6 +8,7 @@ use super::array_string_slot::{
     array_string_concat_const_suffix_by_index_store_same_slot,
     array_string_insert_const_mid_by_index_into_slot,
     array_string_insert_const_mid_by_index_store_same_slot,
+    array_string_insert_const_mid_subrange_by_index_store_same_slot,
 };
 use super::KernelTextSlot;
 
@@ -78,6 +79,19 @@ pub(super) fn array_runtime_insert_const_mid_idx_store_same_slot(
     split: i64,
 ) -> i64 {
     array_string_insert_const_mid_by_index_store_same_slot(handle, idx, middle_ptr, split)
+}
+
+pub(super) fn array_runtime_insert_const_mid_subrange_idx_store_same_slot(
+    handle: i64,
+    idx: i64,
+    middle_ptr: *const i8,
+    split: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    array_string_insert_const_mid_subrange_by_index_store_same_slot(
+        handle, idx, middle_ptr, split, start, end,
+    )
 }
 
 pub(super) fn array_runtime_has_idx(handle: i64, idx: i64) -> i64 {

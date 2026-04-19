@@ -11,7 +11,7 @@ use super::value_codec::{
     StringLikeProof,
 };
 use super::value_demand::{DemandSet, ARRAY_TEXT_OWNED_CELL, ARRAY_TEXT_READ_REF};
-use crate::exports::string_view::resolve_string_span_from_handle;
+use crate::exports::string_view::{clamp_i64_range, resolve_string_span_from_handle};
 use crate::observe::{self, CacheProbeKind as ObserveCacheProbeKind};
 use memchr::{memchr, memmem};
 use nyash_rust::box_trait::StringBox;
@@ -404,6 +404,56 @@ fn materialize_insert_const_mid_for_array_slot(source: &str, middle: &str, split
 }
 
 #[inline(always)]
+fn push_piece_overlap(
+    out: &mut String,
+    piece: &str,
+    piece_start: usize,
+    slice_start: usize,
+    slice_end: usize,
+) -> Option<()> {
+    let piece_end = piece_start.saturating_add(piece.len());
+    let start = slice_start.max(piece_start);
+    let end = slice_end.min(piece_end);
+    if start < end {
+        out.push_str(piece.get(start - piece_start..end - piece_start)?);
+    }
+    Some(())
+}
+
+#[inline(always)]
+fn materialize_insert_const_mid_subrange_for_array_slot(
+    source: &str,
+    middle: &str,
+    split: i64,
+    start: i64,
+    end: i64,
+) -> Option<String> {
+    let (split_start, _) = clamp_i64_range(source.len(), split, split);
+    let prefix = source.get(..split_start).unwrap_or("");
+    let suffix = source.get(split_start..).unwrap_or("");
+    let prefix_len = prefix.len();
+    let middle_len = middle.len();
+    let total_len = prefix_len
+        .saturating_add(middle_len)
+        .saturating_add(suffix.len());
+    let (slice_start, slice_end) = clamp_i64_range(total_len, start, end);
+    if slice_start == slice_end {
+        return Some(String::new());
+    }
+    let mut out = String::with_capacity(slice_end.saturating_sub(slice_start));
+    push_piece_overlap(&mut out, prefix, 0, slice_start, slice_end)?;
+    push_piece_overlap(&mut out, middle, prefix_len, slice_start, slice_end)?;
+    push_piece_overlap(
+        &mut out,
+        suffix,
+        prefix_len.saturating_add(middle_len),
+        slice_start,
+        slice_end,
+    )?;
+    Some(out)
+}
+
+#[inline(always)]
 fn insert_const_mid_into_string_box_value(value: &mut String, middle: &str, split: i64) {
     if value.is_empty() {
         value.push_str(middle);
@@ -488,6 +538,64 @@ pub(super) fn array_string_insert_const_mid_by_index_store_same_slot(
             };
             insert_const_mid_into_string_box_value(&mut value, middle, split);
             items[idx] = Box::new(StringBox::new(value));
+            if observe::enabled() {
+                observe::record_store_array_str_existing_slot();
+                observe::record_store_array_str_source_store();
+            }
+            1
+        })
+    })
+    .unwrap_or(0)
+}
+
+pub(super) fn array_string_insert_const_mid_subrange_by_index_store_same_slot(
+    handle: i64,
+    idx: i64,
+    middle_ptr: *const i8,
+    split: i64,
+    start: i64,
+    end: i64,
+) -> i64 {
+    let _read_demand = array_text_read_ref_demand();
+    let _output_demand = array_text_owned_cell_demand();
+    if !valid_handle_idx(handle, idx) || middle_ptr.is_null() {
+        return 0;
+    }
+    let Ok(middle) = (unsafe { CStr::from_ptr(middle_ptr) }).to_str() else {
+        return 0;
+    };
+    observe::record_store_array_str_enter();
+    super::array_handle_cache::with_array_box(handle, |arr| {
+        let idx = idx as usize;
+        arr.with_items_write(|items| {
+            if idx >= items.len() {
+                return 0;
+            }
+            if let Some(value) = items[idx].as_any_mut().downcast_mut::<StringBox>() {
+                let Some(next) = materialize_insert_const_mid_subrange_for_array_slot(
+                    value.value.as_str(),
+                    middle,
+                    split,
+                    start,
+                    end,
+                ) else {
+                    return 0;
+                };
+                value.value = next;
+                if observe::enabled() {
+                    observe::record_store_array_str_existing_slot();
+                    observe::record_store_array_str_source_store();
+                }
+                return 1;
+            }
+            let Some(next) = items[idx].as_str_fast().and_then(|source| {
+                materialize_insert_const_mid_subrange_for_array_slot(
+                    source, middle, split, start, end,
+                )
+            }) else {
+                return 0;
+            };
+            items[idx] = Box::new(StringBox::new(next));
             if observe::enabled() {
                 observe::record_store_array_str_existing_slot();
                 observe::record_store_array_str_source_store();

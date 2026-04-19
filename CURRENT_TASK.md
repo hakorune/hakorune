@@ -47,9 +47,10 @@ Scope: current lane / next lane / restart order only.
   - clean is expected right now
   - rejected slot-store boundary probe is parked separately in `stash@{0}` as `wip/concat-slot-store-window-probe`
 - active lane:
-  - `phase-137x-D owner-first optimization return` (ready; not started by this docs/task commit)
+  - `phase-137x-D owner-first optimization return` (active; first same-slot piecewise subrange keeper landed)
   - implementation mode:
-    - perf-first once optimization work starts; recapture current baseline / asm owner before source reading or code edits
+    - perf-first for every next optimization cut; recapture current baseline / asm owner before source reading or code edits
+    - keeper evidence must be direct-only; do not accept helper-retry asm as owner proof
     - 137x-C structure completion is closed; do not reopen blocked successor work from the perf lane
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
@@ -186,7 +187,7 @@ Scope: current lane / next lane / restart order only.
       - `137x-B` container / primitive design cleanout is closed
       - `137x-C` completion gate is closed by `137x-91-task-board.md`; optimization resumes as `137x-D`
 - current blocker:
-  - fresh `137x-D` owner proof before any optimization edit
+  - next `137x-D` owner proof before any further optimization edit
   - no active `phase-289x` cutover blocker
 - current cut status:
   - latest implementation candidate:
@@ -952,7 +953,7 @@ Scope: current lane / next lane / restart order only.
         - `137x-A`: string publication contract closeout is satisfied (`docs/development/current/main/phases/phase-137x/137x-92-string-publication-contract-closeout.md`)
         - `137x-B`: container / primitive design cleanout is closed (`docs/development/current/main/phases/phase-137x/137x-93-container-primitive-design-cleanout.md`)
         - `137x-C`: structure completion gate before perf return is closed (`docs/development/current/main/phases/phase-137x/137x-91-task-board.md`)
-        - `137x-D`: owner-first optimization is ready next and must start from fresh perf/asm evidence
+        - `137x-D`: owner-first optimization is active; first same-slot piecewise subrange keeper is landed
         - phase-289x stays parked as planning-only `Value Lane Architecture`
       - `publish.any` stays deferred/blocked until a separate explicit phase opens it
    - do not widen into `TextLane`, allocator, public ABI, or a generic bridge substrate on this card
@@ -970,17 +971,20 @@ Scope: current lane / next lane / restart order only.
      - completed `container-identity-residence-contract`
        - Array / Map remain public identity containers with unchanged ABI rows
        - lane-host eligibility is limited to internal element/key/value residence
-   - first 137x-D action:
-     - recapture current baseline / asm owner before any source reading or optimization edit
+   - landed first 137x-D keeper:
+     - same-array/same-index piecewise concat3 subrange store now lowers to one residence mutation:
+       - `nyash.array.string_insert_mid_subrange_store_hisiii`
+     - direct-only correctness proof: `Result: 2880064`, exit code `64`
+     - direct-only asm proof: `ny_main` loop now calls `nyash.array.string_len_hi` and `nyash.array.string_insert_mid_subrange_store_hisiii`; the old `kernel_slot_insert -> substring_in_place -> slot_store` chain is absent from the guarded shape
 2. keep phase-2.5 read-side alias lane as the active judge
    - do not reopen the rejected store-side `owned-string keep` / `owned-text keep`
    - preserve live-source -> cached-handle -> cold-fallback encode order
    - stable objectization must stay cache-backed and cold
-3. treat the latest cleanup as BoxShape only, not keeper evidence
-   - exact: `kilo_micro_array_string_store = C 9 ms / Ny AOT 4 ms`
-   - middle: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 61 ms`
+3. current fresh exact evidence after the first 137x-D keeper
+   - exact: `kilo_micro_array_string_store = C 10 ms / Ny AOT 3 ms`
+   - middle: `kilo_meso_substring_concat_array_set_loopcarry = C 4 ms / Ny AOT 9 ms`
    - strict whole: `kilo_kernel_small_hk = C 80 ms / Ny AOT 812 ms`
-4. current owner proof after cleanup:
+4. previous whole-side owner proof before the same-slot subrange keeper:
    - libc copy/alloc still dominates: `memmove 25.02%`, `_int_malloc 9.58%`, `malloc 0.96%`
    - hottest named repo family remains read/materialize/slot tax:
      - `array_get_index_encoded_i64::{closure} 4.39%`
@@ -1002,6 +1006,7 @@ Scope: current lane / next lane / restart order only.
 8. current fresh proof commands:
    - `PERF_AOT=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_string_store 1 3`
    - `PERF_AOT=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_meso_substring_concat_array_set_loopcarry 1 3`
+   - `PERF_AOT_DIRECT_ONLY=1 bash tools/perf/bench_micro_aot_asm.sh kilo_meso_substring_concat_array_set_loopcarry 'ny_main' 3`
    - `PERF_VM_FORCE_NO_FALLBACK=1 PERF_REQUIRE_AOT_RESULT_PARITY=1 bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small_hk 1 3`
    - `PERF_VM_FORCE_NO_FALLBACK=1 PERF_AOT_DIRECT_ONLY=1 bash tools/perf/bench_micro_aot_asm.sh kilo_kernel_small_hk 'ny_main' 1`
 

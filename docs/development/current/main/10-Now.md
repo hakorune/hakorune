@@ -27,9 +27,10 @@ Related:
 ## Current
 
 - current lane:
-  - `phase-137x-D owner-first optimization return` (ready; not started by this docs/task commit)
+  - `phase-137x-D owner-first optimization return` (active; first same-slot piecewise subrange keeper landed)
   - execution mode:
-    - perf-first once optimization work starts; recapture current baseline / asm owner before source reading or code edits
+    - perf-first for every next optimization cut; recapture current baseline / asm owner before source reading or code edits
+    - keeper evidence must be direct-only; do not accept helper-retry asm as owner proof
     - 137x-C structure completion is closed; do not reopen blocked successor work from the perf lane
   - active phase:
     - `docs/development/current/main/phases/phase-137x/README.md`
@@ -47,7 +48,7 @@ Related:
     - phase-137x string lane produced keeper `49c356339`
     - demand-backed cutover inventory `289x-96` is closed
     - `137x-B` design cleanout is closed; `137x-C` structure completion gate is closed
-    - optimization may resume only as `137x-D` through the owner-first entry
+    - optimization is active as `137x-D` through the owner-first entry
     - array/map remain identity containers; only internal residence may become lane-hosted later
     - `publish` / `promote` stay boundary effects; `freeze.str` stays the only string birth sink
     - all `289x-96` clusters are done; later full lane rewrites stay separate phases
@@ -157,7 +158,11 @@ Related:
       - `137x-C` structure completion gate is closed by `137x-91-task-board.md`
       - optimization resumes as `137x-D` through `perf-owner-first-optimization-ssot.md`
 - blocker:
-  - fresh `137x-D` owner proof before any owner-first optimization edit
+  - next `137x-D` owner proof before any further owner-first optimization edit
+  - first landed keeper:
+    - same-array/same-index piecewise concat3 subrange store lowers to `nyash.array.string_insert_mid_subrange_store_hisiii`
+    - `kilo_meso_substring_concat_array_set_loopcarry = C 4 ms / Ny AOT 9 ms`
+    - direct-only correctness: `Result: 2880064`, exit code `64`
   - no active `phase-289x` cutover blocker
 - latest active keeper:
   - phase-137x branch-target-aware same-slot suffix store cut is green
