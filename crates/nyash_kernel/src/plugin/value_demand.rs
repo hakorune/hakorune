@@ -108,6 +108,24 @@ pub(crate) const ARRAY_TEXT_OWNED_CELL: DemandSet = DemandSet::new(
     &[MutationDemand::InvalidateAliases],
 );
 
+pub(crate) const KERNEL_TEXT_SLOT_EMPTY: DemandSet = DemandSet::new(&[], &[], &[], &[]);
+
+pub(crate) const KERNEL_TEXT_SLOT_PUBLISHED: DemandSet = DemandSet::new(&[], &[], &[], &[]);
+
+pub(crate) const KERNEL_TEXT_SLOT_OWNED_BYTES: DemandSet = DemandSet::new(
+    &[ValueDemand::OwnedPayload],
+    &[StorageDemand::CellResidence],
+    &[],
+    &[],
+);
+
+pub(crate) const KERNEL_TEXT_SLOT_DEFERRED_CONST_SUFFIX: DemandSet = DemandSet::new(
+    &[ValueDemand::ReadRef, ValueDemand::OwnedPayload],
+    &[StorageDemand::CellResidence],
+    &[],
+    &[],
+);
+
 pub(crate) const ARRAY_GENERIC_GET_ENCODED: DemandSet = DemandSet::new(
     &[
         ValueDemand::EncodeImmediate,
@@ -214,6 +232,28 @@ mod tests {
         assert_eq!(
             ARRAY_TEXT_OWNED_CELL.mutation,
             &[MutationDemand::InvalidateAliases]
+        );
+    }
+
+    #[test]
+    fn kernel_text_slot_state_demands_name_residence_without_publication() {
+        assert_eq!(KERNEL_TEXT_SLOT_EMPTY.value, &[]);
+        assert_eq!(KERNEL_TEXT_SLOT_PUBLISHED.publish, &[]);
+        assert_eq!(
+            KERNEL_TEXT_SLOT_OWNED_BYTES.value,
+            &[ValueDemand::OwnedPayload]
+        );
+        assert_eq!(
+            KERNEL_TEXT_SLOT_OWNED_BYTES.storage,
+            &[StorageDemand::CellResidence]
+        );
+        assert_eq!(
+            KERNEL_TEXT_SLOT_DEFERRED_CONST_SUFFIX.value,
+            &[ValueDemand::ReadRef, ValueDemand::OwnedPayload]
+        );
+        assert_eq!(
+            KERNEL_TEXT_SLOT_DEFERRED_CONST_SUFFIX.storage,
+            &[StorageDemand::CellResidence]
         );
     }
 

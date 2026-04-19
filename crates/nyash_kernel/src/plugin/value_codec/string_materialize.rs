@@ -1,6 +1,7 @@
 use crate::plugin::value_demand::{
-    DemandSet, PUBLISH_EXPLICIT_API, PUBLISH_EXTERNAL_BOUNDARY, PUBLISH_GENERIC_FALLBACK,
-    PUBLISH_NEED_STABLE_OBJECT,
+    DemandSet, KERNEL_TEXT_SLOT_DEFERRED_CONST_SUFFIX, KERNEL_TEXT_SLOT_EMPTY,
+    KERNEL_TEXT_SLOT_OWNED_BYTES, KERNEL_TEXT_SLOT_PUBLISHED, PUBLISH_EXPLICIT_API,
+    PUBLISH_EXTERNAL_BOUNDARY, PUBLISH_GENERIC_FALLBACK, PUBLISH_NEED_STABLE_OBJECT,
 };
 use nyash_rust::{
     box_trait::{NyashBox, StringBox},
@@ -145,10 +146,32 @@ pub(crate) enum KernelTextSlotState {
     DeferredConstSuffix = 3,
 }
 
+impl KernelTextSlotState {
+    #[inline(always)]
+    const fn demand(self) -> DemandSet {
+        match self {
+            Self::Empty => KERNEL_TEXT_SLOT_EMPTY,
+            Self::OwnedBytes => KERNEL_TEXT_SLOT_OWNED_BYTES,
+            Self::Published => KERNEL_TEXT_SLOT_PUBLISHED,
+            Self::DeferredConstSuffix => KERNEL_TEXT_SLOT_DEFERRED_CONST_SUFFIX,
+        }
+    }
+}
+
 #[derive(Clone, Copy)]
 enum KernelTextSlotBoundary {
     PublishHandle,
     ObjectizeStableBox,
+}
+
+impl KernelTextSlotBoundary {
+    #[inline(always)]
+    const fn demand(self) -> DemandSet {
+        match self {
+            Self::PublishHandle => PUBLISH_EXTERNAL_BOUNDARY,
+            Self::ObjectizeStableBox => PUBLISH_NEED_STABLE_OBJECT,
+        }
+    }
 }
 
 /// Runtime-private direct-kernel string carrier passed through exported C ABI seams.
@@ -284,6 +307,8 @@ impl Drop for KernelTextSlot {
 
 #[inline(always)]
 fn record_kernel_text_slot_boundary(boundary: KernelTextSlotBoundary, state: KernelTextSlotState) {
+    let _state_demand = state.demand();
+    let _boundary_demand = boundary.demand();
     match state {
         KernelTextSlotState::OwnedBytes | KernelTextSlotState::DeferredConstSuffix => {
             match boundary {
@@ -673,6 +698,35 @@ mod tests {
         assert_eq!(PublishReason::ExplicitApi.demand(), PUBLISH_EXPLICIT_API);
         assert_eq!(
             PublishReason::NeedStableObject.demand(),
+            PUBLISH_NEED_STABLE_OBJECT
+        );
+    }
+
+    #[test]
+    fn kernel_text_slot_state_maps_to_runtime_private_demand_set() {
+        assert_eq!(KernelTextSlotState::Empty.demand(), KERNEL_TEXT_SLOT_EMPTY);
+        assert_eq!(
+            KernelTextSlotState::OwnedBytes.demand(),
+            KERNEL_TEXT_SLOT_OWNED_BYTES
+        );
+        assert_eq!(
+            KernelTextSlotState::Published.demand(),
+            KERNEL_TEXT_SLOT_PUBLISHED
+        );
+        assert_eq!(
+            KernelTextSlotState::DeferredConstSuffix.demand(),
+            KERNEL_TEXT_SLOT_DEFERRED_CONST_SUFFIX
+        );
+    }
+
+    #[test]
+    fn kernel_text_slot_boundary_maps_to_publish_demand_set() {
+        assert_eq!(
+            KernelTextSlotBoundary::PublishHandle.demand(),
+            PUBLISH_EXTERNAL_BOUNDARY
+        );
+        assert_eq!(
+            KernelTextSlotBoundary::ObjectizeStableBox.demand(),
             PUBLISH_NEED_STABLE_OBJECT
         );
     }

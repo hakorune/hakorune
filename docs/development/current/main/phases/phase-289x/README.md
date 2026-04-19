@@ -172,7 +172,10 @@ Reading:
   - `array_slot_store_any` binds `ARRAY_GENERIC_STORE_ANY`
   - `array_slot_append_any` binds `ARRAY_GENERIC_APPEND_ANY`
 - `289x-3h`: `KernelTextSlotState` demand bridge
-  - high-risk; behavior unchanged; next runtime cutover cluster
+  - status: done in code; high-risk; behavior unchanged; no ABI change
+  - state demand and boundary publish demand stay separated
+- `289x-7a`: C shim generic method set-route demand metadata
+  - emitted lowering unchanged; next cutover cluster
 - `289x-5a`: bytes/view planning
   - prevent text-only patterns from being copied into bytes later
 - `289x-6a`: map key/value boundary map

@@ -54,7 +54,7 @@ Estimate: 8 clusters, about 24-30 production decision/call sites when wired by c
 | R5 | Array store/append decode | `array_slot_store.rs`, `array_slot_append.rs` | 2 sites | medium-high | `289x-3g` | done |
 | R6 | Map key/value codec | `map_key_codec.rs`, `map_slot_store.rs` | 2 sites | medium | `289x-6d` | pending |
 | R7 | Map load encoding split | `map_slot_load.rs` | 2 sites | medium-high | `289x-6e` | pending |
-| R8 | `KernelTextSlotState` + array text slot | `value_codec/string_materialize.rs`, `array_string_slot.rs` | about 20 state refs, 3 demand touchpoints | high | `289x-3h` | next-high-risk |
+| R8 | `KernelTextSlotState` + array text slot | `value_codec/string_materialize.rs`, `array_string_slot.rs` | about 20 state refs, 3 demand touchpoints | high | `289x-3h` | done |
 
 Already landed before this inventory:
 
@@ -69,7 +69,7 @@ Estimate: 8 clusters. The main blocker is C shim helper-name routing; MIR alread
 
 | Order | Cluster | Files / functions | Sites | Risk | Phase/card | State |
 | --- | --- | --- | ---: | --- | --- | --- |
-| C1 | Generic method emit kind + set route metadata | `hako_llvmc_ffi_generic_method_policy.inc`, `hako_llvmc_ffi_generic_method_match.inc`, `hako_llvmc_ffi_generic_method_lowering.inc` | about 11 checks, 1 switch | high, metadata-only safe | `289x-7a` | pending |
+| C1 | Generic method emit kind + set route metadata | `hako_llvmc_ffi_generic_method_policy.inc`, `hako_llvmc_ffi_generic_method_match.inc`, `hako_llvmc_ffi_generic_method_lowering.inc` | about 11 checks, 1 switch | high, metadata-only safe | `289x-7a` | next |
 | C2 | MIR demand/placement parallel facts | `thin_entry.rs`, `thin_entry_selection.rs`, `placement_effect.rs`, `semantic_refresh.rs` | about 4 surfaces | low-medium | `289x-7b` | pending |
 | C3 | `get/len/has/push` policy split | `hako_llvmc_ffi_generic_method_get_policy.inc`, `*_len_policy.inc`, `*_has_policy.inc`, `*_push_policy.inc` | about 10 checks, 4 switches | medium-high | `289x-7c` | pending |
 | C4 | Main `bname/mname` route classifier | `hako_llvmc_ffi_mir_call_route_policy.inc` | about 27 name checks, 2 consumers | high | `289x-7d` | pending-high-risk |
@@ -87,8 +87,8 @@ Estimate: 8 clusters. The main blocker is C shim helper-name routing; MIR alread
 | `289x-3e` | Rust publish reason mapping | done; behavior unchanged |
 | `289x-3f` | Rust array generic load/encode demand tags | done; behavior unchanged |
 | `289x-3g` | Rust array store/append demand tags | done; behavior unchanged |
-| `289x-3h` | `KernelTextSlotState` demand bridge | next-high-risk; no ABI change |
-| `289x-7a` | C shim set-route demand metadata | metadata-only; emitted lowering identical |
+| `289x-3h` | `KernelTextSlotState` demand bridge | done; no ABI change |
+| `289x-7a` | C shim set-route demand metadata | next; metadata-only; emitted lowering identical |
 | `289x-7b` | MIR parallel demand/placement facts | inspection-only |
 | `289x-6d` | Map key/value codec demand bridge | no typed map lane |
 | `289x-6e` | Map load encoding split | no public ABI change |

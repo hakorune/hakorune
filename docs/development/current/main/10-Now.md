@@ -86,8 +86,12 @@ Related:
       - array `store_any` now binds `ARRAY_GENERIC_STORE_ANY`
       - array `append_any` now binds `ARRAY_GENERIC_APPEND_ANY`
       - behavior unchanged
+    - `289x-3h` landed:
+      - `KernelTextSlotState::demand()` maps slot residence state to runtime-private `DemandSet`
+      - `KernelTextSlotBoundary::demand()` maps slot publish/objectize boundary to publish demand
+      - behavior unchanged; no ABI change
     - next code cut:
-      - `289x-3h`: `KernelTextSlotState` demand bridge, high-risk, behavior unchanged
+      - `289x-7a`: C shim generic method set-route demand metadata, emitted lowering unchanged
     - high-risk planned later, not skipped:
       - concrete `slot_load_hi` / `slot_store` emission changes: `289x-7e`
       - `runtime_array_string` observer/window matcher rewrites: `289x-7f`
