@@ -212,8 +212,12 @@ Reading:
   - `hako_llvmc_ffi_array_string_window_policy.inc` now owns array text-read/read eligibility for C-shim window matchers
   - verified by branch/select/cross-block/interleaved/live-after-get/len-live exact window smokes
 - `289x-7g`: MIR string helper-name compat/recovery cutover
-  - next cutover cluster; medium risk
-  - keep compatibility/recovery recognizers behavior-preserving; do not add new accepted shapes
+  - status: done in code; behavior unchanged
+  - `src/mir/string_corridor_names.rs` now owns helper/runtime-export name vocabulary for compat recovery and recognizers
+  - verified by `string_corridor`, `string_corridor_names`, and release build
+- `289x-7h`: prepass/declaration need classifier cutover
+  - next cutover cluster; high risk
+  - declarations and prepass needs must remain exact; no silent fallback or helper declaration widening
 
 ## Return To Optimization Gate
 

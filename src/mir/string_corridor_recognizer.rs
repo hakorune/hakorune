@@ -16,6 +16,11 @@ use super::{
     resolve_value_origin, BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, MirFunction,
     MirInstruction, ValueDefMap, ValueId,
 };
+use crate::mir::string_corridor_names::{
+    is_len_method_name, is_lowered_len_global, is_runtime_concat3_export,
+    is_runtime_len_handle_export, is_runtime_substring_concat3_export, is_runtime_substring_export,
+    is_runtime_substring_len_export, is_slice_method_name,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct AddShape {
@@ -104,25 +109,23 @@ pub(crate) fn match_len_call(inst: &MirInstruction) -> Option<(ValueId, ValueId,
             args,
             effects,
             ..
-        } if args.is_empty() && matches!(method.as_str(), "length" | "len") => {
-            Some((*dst, *receiver, *effects))
-        }
+        } if args.is_empty() && is_len_method_name(method) => Some((*dst, *receiver, *effects)),
         MirInstruction::Call {
             dst: Some(dst),
             callee: Some(Callee::Extern(name)),
             args,
             effects,
             ..
-        } if args.len() == 1 && name == "nyash.string.len_h" => Some((*dst, args[0], *effects)),
+        } if args.len() == 1 && is_runtime_len_handle_export(name) => {
+            Some((*dst, args[0], *effects))
+        }
         MirInstruction::Call {
             dst: Some(dst),
             callee: Some(Callee::Global(name)),
             args,
             effects,
             ..
-        } if args.len() == 1 && matches!(name.as_str(), "str.len" | "__str.len") => {
-            Some((*dst, args[0], *effects))
-        }
+        } if args.len() == 1 && is_lowered_len_global(name) => Some((*dst, args[0], *effects)),
         _ => None,
     }
 }
@@ -136,7 +139,7 @@ pub(crate) fn match_substring_len_call(
             callee: Some(Callee::Extern(name)),
             args,
             ..
-        } if args.len() == 3 && name == "nyash.string.substring_len_hii" => {
+        } if args.len() == 3 && is_runtime_substring_len_export(name) => {
             Some((*dst, args[0], args[1], args[2]))
         }
         _ => None,
@@ -158,7 +161,7 @@ pub(crate) fn match_substring_call(
             args,
             effects,
             ..
-        } if args.len() == 2 && matches!(method.as_str(), "substring" | "slice") => {
+        } if args.len() == 2 && is_slice_method_name(method) => {
             Some((*dst, *receiver, args[0], args[1], *effects))
         }
         MirInstruction::Call {
@@ -167,7 +170,7 @@ pub(crate) fn match_substring_call(
             args,
             effects,
             ..
-        } if args.len() == 3 && name == "nyash.string.substring_hii" => {
+        } if args.len() == 3 && is_runtime_substring_export(name) => {
             Some((*dst, args[0], args[1], args[2], *effects))
         }
         _ => None,
@@ -184,7 +187,7 @@ pub(crate) fn match_substring_concat3_helper_call(
             args,
             effects,
             ..
-        } if args.len() == 5 && name == "nyash.string.substring_concat3_hhhii" => {
+        } if args.len() == 5 && is_runtime_substring_concat3_export(name) => {
             Some(SubstringConcat3HelperShape {
                 dst: *dst,
                 left: args[0],
@@ -232,14 +235,12 @@ pub(crate) fn extract_substring_args(inst: &MirInstruction) -> Option<(ValueId, 
                 }),
             args,
             ..
-        } if args.len() == 2 && matches!(method.as_str(), "substring" | "slice") => {
-            Some((*source, args[0], args[1]))
-        }
+        } if args.len() == 2 && is_slice_method_name(method) => Some((*source, args[0], args[1])),
         MirInstruction::Call {
             callee: Some(Callee::Extern(name)),
             args,
             ..
-        } if args.len() == 3 && name == "nyash.string.substring_hii" => {
+        } if args.len() == 3 && is_runtime_substring_export(name) => {
             Some((args[0], args[1], args[2]))
         }
         _ => None,
@@ -275,7 +276,7 @@ pub(crate) fn match_concat_triplet_from_extern(
             callee: Some(Callee::Extern(name)),
             args,
             ..
-        } if args.len() == 3 && name == "nyash.string.concat3_hhh" => Some(ConcatTripletShape {
+        } if args.len() == 3 && is_runtime_concat3_export(name) => Some(ConcatTripletShape {
             left: resolve_value_origin(function, def_map, args[0]),
             middle: resolve_value_origin(function, def_map, args[1]),
             right: resolve_value_origin(function, def_map, args[2]),

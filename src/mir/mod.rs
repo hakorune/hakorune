@@ -59,6 +59,7 @@ mod spanned_instruction;
 pub mod storage_class; // primitive / user-box storage-class inventory + refresh helper
 pub mod string_corridor; // string canonical corridor facts + refresh helper
 pub(crate) mod string_corridor_compat; // compat semantic recovery quarantined from canonical facts
+pub(crate) mod string_corridor_names; // helper-name vocabulary quarantine
 pub mod string_corridor_placement; // placement/effect scaffold over canonical string facts
 pub(crate) mod string_corridor_recognizer; // shared pure shape recognizers for string corridor
 pub mod string_corridor_relation; // string-corridor relation layer over generic PHI queries

@@ -138,9 +138,12 @@ Scope: current lane / next lane / restart order only.
     - `289x-7f` landed:
       - C shim array-string window matchers now use `hako_llvmc_ffi_array_string_window_policy.inc` for array text-read/read eligibility
       - behavior unchanged; branch/select/cross-block/interleaved/live-after-get/len-live exact window smokes passed
+    - `289x-7g` landed:
+      - MIR string helper-name vocabulary is centralized in `src/mir/string_corridor_names.rs`
+      - behavior unchanged; compat/recovery and recognizer tests plus release build passed
     - next code cut:
-      - `289x-7g`: MIR string helper-name compat/recovery cutover
-      - medium risk: keep compatibility/recovery recognizers behavior-preserving; do not add new accepted shapes
+      - `289x-7h`: prepass/declaration need classifier cutover
+      - high risk: declarations and prepass needs must remain exact; no silent fallback or helper declaration widening
     - high-risk planned later, not skipped:
       - full `ArrayStorage::Text` / full `TextLane`: after `289x-7h`, separate phase
       - Map typed lane: after `289x-6e`, separate phase

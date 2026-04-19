@@ -128,7 +128,8 @@ Task state:
 - `289x-7d`: done in code, main `bname/mname` route classifier cutover to receiver/method surface enums, behavior unchanged
 - `289x-7e`: done in code, array slot concrete emission centralized in `hako_llvmc_ffi_array_slot_emit.inc`, behavior unchanged
 - `289x-7f`: done in code, array-string window matcher eligibility centralized in `hako_llvmc_ffi_array_string_window_policy.inc`, behavior unchanged
-- `289x-7g`: next MIR cut, string helper-name compat/recovery cutover, medium-risk
+- `289x-7g`: done in code, MIR string helper-name vocabulary centralized in `src/mir/string_corridor_names.rs`, behavior unchanged
+- `289x-7h`: next C shim cut, prepass/declaration need classifier cutover, high-risk
 - optimization return: blocked until all `289x-96` clusters are done or explicitly rejected
 
 ## Phase 0. Authority / Vocabulary Lock
@@ -399,9 +400,9 @@ No-go:
   - `289x-7f`: `runtime_array_string` observer/window matcher cutover
     - done; behavior unchanged
   - `289x-7g`: MIR string helper-name compat/recovery cutover
-    - next; medium-risk
+    - done; behavior unchanged
   - `289x-7h`: prepass/declaration need classifier cutover
-    - high-risk
+    - next; high-risk
 - Acceptance:
   - runtime can execute boundary decisions without re-deciding legality
   - no helper/class name remains the only source of publication legality

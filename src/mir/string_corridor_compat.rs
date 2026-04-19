@@ -9,6 +9,10 @@
 
 use super::{MirInstruction, StringCorridorCarrier, StringCorridorFact, ValueId};
 use crate::mir::definitions::call_unified::Callee;
+use crate::mir::string_corridor_names::{
+    is_len_method_name, is_runtime_len_export, is_runtime_slice_export, is_slice_method_name,
+    is_stringish_box_name,
+};
 
 pub(crate) fn infer_compat_fact_from_instruction(
     inst: &MirInstruction,
@@ -44,13 +48,15 @@ pub(crate) fn infer_compat_from_method(
     let is_runtime_data_string_facade = box_name == "RuntimeDataBox";
     let is_stringish = is_stringish_box_name(box_name);
 
-    match (method, arity) {
-        ("length", 0) | ("len", 0) if is_stringish || is_runtime_data_string_facade => Some(
+    match arity {
+        0 if is_len_method_name(method) && (is_stringish || is_runtime_data_string_facade) => Some(
             StringCorridorFact::str_len(StringCorridorCarrier::MethodCall),
         ),
-        ("substring", 2) | ("slice", 2) if is_stringish || is_runtime_data_string_facade => Some(
-            StringCorridorFact::str_slice(StringCorridorCarrier::MethodCall),
-        ),
+        2 if is_slice_method_name(method) && (is_stringish || is_runtime_data_string_facade) => {
+            Some(StringCorridorFact::str_slice(
+                StringCorridorCarrier::MethodCall,
+            ))
+        }
         _ => None,
     }
 }
@@ -67,11 +73,11 @@ pub(crate) fn infer_compat_from_global(name: &str) -> Option<StringCorridorFact>
     let (method, arity) = rest.split_once('/').unwrap_or((rest, ""));
     let arity = arity.parse::<usize>().ok()?;
 
-    match (method, arity) {
-        ("length", 0) | ("len", 0) => Some(StringCorridorFact::str_len(
+    match arity {
+        0 if is_len_method_name(method) => Some(StringCorridorFact::str_len(
             StringCorridorCarrier::GlobalLoweredFunction,
         )),
-        ("substring", 2) | ("slice", 2) => Some(StringCorridorFact::str_slice(
+        2 if is_slice_method_name(method) => Some(StringCorridorFact::str_slice(
             StringCorridorCarrier::GlobalLoweredFunction,
         )),
         _ => None,
@@ -79,27 +85,17 @@ pub(crate) fn infer_compat_from_global(name: &str) -> Option<StringCorridorFact>
 }
 
 pub(crate) fn infer_compat_from_runtime_export(name: &str) -> Option<StringCorridorFact> {
-    match name {
-        "nyash.string.substring_hii" => Some(StringCorridorFact::str_slice(
+    if is_runtime_slice_export(name) {
+        Some(StringCorridorFact::str_slice(
             StringCorridorCarrier::RuntimeExport,
-        )),
-        "nyash.string.substring_concat_hhii" | "nyash.string.substring_concat3_hhhii" => Some(
-            StringCorridorFact::str_slice(StringCorridorCarrier::RuntimeExport),
-        ),
-        "nyash.string.substring_len_hii" => Some(StringCorridorFact::str_len(
+        ))
+    } else if is_runtime_len_export(name) {
+        Some(StringCorridorFact::str_len(
             StringCorridorCarrier::RuntimeExport,
-        )),
-        "nyash.string.length_si" | "nyrt_string_length" | "nyrt.string.length" => Some(
-            StringCorridorFact::str_len(StringCorridorCarrier::RuntimeExport),
-        ),
-        _ => None,
+        ))
+    } else {
+        None
     }
-}
-
-fn is_stringish_box_name(box_name: &str) -> bool {
-    matches!(box_name, "StringBox" | "String" | "__str")
-        || box_name.ends_with("StringBox")
-        || box_name.ends_with("String")
 }
 
 #[cfg(test)]

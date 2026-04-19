@@ -75,7 +75,7 @@ Estimate: 8 clusters. The main blocker is C shim helper-name routing; MIR alread
 | C4 | Main `bname/mname` route classifier | `hako_llvmc_ffi_mir_call_route_policy.inc` | about 27 name checks, 2 consumers | high | `289x-7d` | done |
 | C5 | concrete `slot_load/store` helper emission | `hako_llvmc_ffi_array_slot_emit.inc`, `hako_llvmc_ffi_generic_method_lowering.inc`, `*_get_policy.inc`, `*_get_lowering.inc`, `hako_llvmc_ffi_indexof_observer_lowering.inc` | about 20 emits/declarations | high | `289x-7e` | done |
 | C6 | `runtime_array_string` observer/window routes | `hako_llvmc_ffi_array_string_window_policy.inc`, `hako_llvmc_ffi_generic_method_get_window.inc`, `hako_llvmc_ffi_indexof_observer_*` | about 5 matcher families | high | `289x-7f` | done |
-| C7 | MIR string helper-name compat/recovery | `string_corridor_compat.rs`, `string_corridor_recognizer.rs`, `string_corridor_placement/plan_infer.rs`, `passes/string_corridor_sink/mod.rs` | about 15 recognizers/constants | medium | `289x-7g` | pending |
+| C7 | MIR string helper-name compat/recovery | `string_corridor_names.rs`, `string_corridor_compat.rs`, `string_corridor_recognizer.rs`, `string_corridor_placement/plan_infer.rs`, `passes/string_corridor_sink/mod.rs` | about 15 recognizers/constants | medium | `289x-7g` | done |
 | C8 | Prepass/declaration need classifier | `hako_llvmc_ffi_mir_call_need_policy.inc`, `hako_llvmc_ffi_mir_call_prepass.inc`, `hako_llvmc_ffi_pure_compile.inc` | about 42 checks plus declarations | high | `289x-7h` | pending-high-risk |
 
 ## Phase Order
@@ -96,7 +96,8 @@ Estimate: 8 clusters. The main blocker is C shim helper-name routing; MIR alread
 | `289x-7d` | Main `bname/mname` route classifier | done; behavior unchanged |
 | `289x-7e` | concrete `slot_load/store` helper emission | done; behavior and helper symbols unchanged |
 | `289x-7f` | `runtime_array_string` observer/window routes | done; behavior unchanged |
-| `289x-7g` to `289x-7h` | MIR/C shim route replacement | next; one cluster per commit; exact gates required |
+| `289x-7g` | MIR string helper-name compat/recovery | done; behavior unchanged |
+| `289x-7h` | C shim prepass/declaration need classifier | next; exact gates required |
 
 ## Do Not Touch Yet
 
