@@ -191,7 +191,7 @@ It is an internal planning vocabulary, not a public ABI class list.
 | Term | Meaning | Examples today |
 | --- | --- | --- |
 | `Ref` | borrowed/read-only view or read session | string read session, verified source, array/map read view |
-| `Owned` | unpublished caller-owned payload | `OwnedBytes`, owned bytes prepared for a sink |
+| `Owned` | unpublished caller-owned payload | `OwnedText` as semantic carrier; current slot transport still uses `OwnedBytes` state naming |
 | `Cell` | mutable storage residence inside a container/lane | future `TextCell` / array/map lane cell; current `KernelTextSlot` is transport adapter |
 | `Immediate` | unboxed scalar payload | current `imm_i64`, `imm_bool` lowering |
 | `Stable` | object-capable public representation | `StringBox`/handle, scalar box, generic object |
@@ -208,6 +208,9 @@ Carrier lock:
   text carriers.
 - `BorrowedHandleBox` is boundary/cache for borrowed-alias encode and cached
   stable-handle reuse. It is not `TextRef`.
+- current runtime-private code may name `TextRef` / `OwnedText` explicitly to keep
+  this boundary readable, but that step must stay behavior-preserving and must not
+  imply `TextCell` or public ABI rollout.
 - `KernelTextSlot` is runtime-private transport adapter / sink seed. It is not
   the `TextCell` abstraction.
 - `StringViewBox` is object-world view with API/compat semantics. It is not

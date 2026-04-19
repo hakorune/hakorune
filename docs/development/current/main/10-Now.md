@@ -397,6 +397,12 @@ Related:
       - this confirms the cleanup is not keeper evidence
       - do not reopen store-side `owned-string keep`
       - do not open `TextLane`, MIR legality, runtime-wide 289x implementation, allocator/arena, or container lane-host work from this proof alone
+  - latest runtime-private carrier vocabulary step landed:
+    - `crates/nyash_kernel/src/plugin/value_codec/text_carrier.rs` now names `TextRef` and `OwnedText`
+    - borrowed-alias read closures and slot text readers consume `TextRef` without changing the public ABI
+    - selected export read helpers (`string_plan`, `string_search`, `charCodeAt`) now keep `TextRef` longer before the final `&str` projection
+    - `KernelTextSlot` stays transport-only; slot `OwnedBytes` state naming remains physical transport detail
+    - `TextCell` stays future-only; this card is structure-only, not a `TextLane` rollout
   - rejected follow-up probe after the fresh owner proof:
     - attempted unpublished `owned-text keep` for `KernelTextSlot -> existing BorrowedHandleBox` retarget without changing public ABI or `KernelTextSlot` layout
     - exact guard stayed closed: `kilo_micro_array_string_store = C 10 ms / Ny AOT 4 ms`

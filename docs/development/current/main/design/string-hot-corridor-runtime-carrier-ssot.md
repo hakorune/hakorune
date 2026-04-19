@@ -218,12 +218,19 @@ These stay valid runtime mechanics, but the carrier design must treat them as co
 - `crates/nyash_kernel/src/exports/string_plan.rs`
   - `TextPlan` / `PiecesN` normalization only
   - not a legality owner and not a public carrier
+- `crates/nyash_kernel/src/exports/string_search.rs`
+  - search / compare read consumers only
+  - may keep `TextRef` longer inside runtime-private helper closures, but is not a carrier owner
+- `crates/nyash_kernel/src/plugin/value_codec/text_carrier.rs`
+  - runtime-private `TextRef` / `OwnedText` vocabulary only
+  - names the semantic carrier roles without turning `KernelTextSlot` into `TextCell`
 - `crates/nyash_kernel/src/plugin/value_codec/borrowed_handle.rs`
   - `BorrowedSource` mechanics only
   - owns keep replacement / alias retarget bookkeeping
 - `crates/nyash_kernel/src/plugin/value_codec/string_materialize.rs`
   - `OwnedText -> PublishedPublic` sink
-  - owns `OwnedBytes`, `KernelTextSlot`, and cold publish adapter split
+  - owns `KernelTextSlot` transport and cold publish adapter split; slot `OwnedBytes`
+    state naming remains a transport detail, not the semantic carrier name
 - `crates/nyash_kernel/src/plugin/array_string_slot.rs`
   - whole-front store consumer and source-capture contract
   - must preserve `set_his` fast-path legality
