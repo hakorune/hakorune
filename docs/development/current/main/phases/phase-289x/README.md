@@ -193,7 +193,11 @@ Reading:
   - Map key decode binds explicit i64/any/runtime-data demand metadata
   - Map value store binds value-residence + alias-invalidation demand metadata
 - `289x-6e`: Map load encoding split
-  - next cutover cluster; no public ABI change
+  - status: done in code; behavior unchanged; no public ABI change
+  - materializing map load and caller-scoped alias encode now carry separate demand metadata
+  - Rust runtime clusters in `289x-96` are now closed
+- `289x-7c`: C shim `get/len/has/push` policy split
+  - next cutover cluster; high-risk metadata/policy split before emission rewrites
 
 ## Return To Optimization Gate
 

@@ -4,6 +4,7 @@ use super::value_codec::{
     box_to_handle_materializing_borrowed_string, runtime_i64_from_box_ref_caller,
     BorrowedAliasEncodeCaller,
 };
+use super::value_demand::{MAP_VALUE_LOAD_ENCODE_WITH_CALLER, MAP_VALUE_LOAD_MATERIALIZE};
 
 #[inline(always)]
 pub(super) fn map_slot_load_i64(handle: i64, key_i64: i64) -> i64 {
@@ -19,6 +20,7 @@ pub(super) fn map_slot_load_any(handle: i64, key_any: i64) -> i64 {
 
 #[inline(always)]
 pub(super) fn map_slot_load_str(handle: i64, key_str: &str) -> i64 {
+    let _value_demand = MAP_VALUE_LOAD_MATERIALIZE;
     with_map_box(handle, |map| {
         let value = map.get_opt_key_str(key_str)?;
         Some(box_to_handle_materializing_borrowed_string(value))
@@ -33,6 +35,7 @@ pub(super) fn map_slot_load_str_with_caller(
     key_str: &str,
     caller: BorrowedAliasEncodeCaller,
 ) -> i64 {
+    let _value_demand = MAP_VALUE_LOAD_ENCODE_WITH_CALLER;
     with_map_box(handle, |map| {
         map.get_opt_key_str(key_str)
             .as_ref()

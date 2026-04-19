@@ -122,7 +122,9 @@ Task state:
 - `289x-7a`: done in code, C shim generic method set-route demand metadata, emitted lowering unchanged
 - `289x-7b`: done in code, MIR demand/placement parallel facts, inspection-only, behavior unchanged
 - `289x-6d`: done in code, Map key/value codec demand bridge, no typed map lane
-- `289x-6e`: next Rust runtime cut, Map load encoding split, no public ABI change
+- `289x-6e`: done in code, Map load encoding split, no public ABI change
+- Rust runtime clusters in `289x-96`: closed
+- `289x-7c`: next C shim cut, `get/len/has/push` policy split over demand metadata
 - `289x-7e` / `289x-7f`: high-risk C shim emission/window work is planned later, not skipped
 - optimization return: blocked until all `289x-96` clusters are done or explicitly rejected
 
@@ -365,7 +367,7 @@ No-go:
   - `289x-6d`: Map key/value codec demand bridge
     - done; no typed map lane
   - `289x-6e`: Map load encoding split
-    - next; no public ABI change
+    - done; no public ABI change
 - Acceptance:
   - map does not regain generic object publication as an implicit read/write side effect
 
@@ -386,6 +388,7 @@ No-go:
   - `289x-7b`: MIR parallel demand/placement facts
     - done; inspection-only; behavior unchanged
   - `289x-7c`: C shim `get/len/has/push` policy split over demand metadata
+    - next
   - `289x-7d`: main `bname/mname` route classifier cutover
     - high-risk
   - `289x-7e`: concrete `slot_load_hi` / `slot_store` helper emission cutover

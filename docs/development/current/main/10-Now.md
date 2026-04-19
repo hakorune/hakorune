@@ -102,8 +102,12 @@ Related:
       - Map key decode now binds explicit i64/any/runtime-data demand metadata
       - Map value store now binds value-residence + alias-invalidation demand metadata
       - behavior unchanged; no typed map lane
+    - `289x-6e` landed:
+      - Map load now separates materializing-return demand from caller-scoped encode demand
+      - behavior unchanged; no public ABI change
+      - Rust runtime clusters in `289x-96` are now closed
     - next code cut:
-      - `289x-6e`: Map load encoding split, no public ABI change
+      - `289x-7c`: C shim `get/len/has/push` policy split over demand metadata
     - high-risk planned later, not skipped:
       - concrete `slot_load_hi` / `slot_store` emission changes: `289x-7e`
       - `runtime_array_string` observer/window matcher rewrites: `289x-7f`

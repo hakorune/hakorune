@@ -194,6 +194,20 @@ pub(crate) const MAP_VALUE_STORE_ANY: DemandSet = DemandSet::new(
     &[MutationDemand::InvalidateAliases],
 );
 
+pub(crate) const MAP_VALUE_LOAD_MATERIALIZE: DemandSet = DemandSet::new(
+    &[ValueDemand::StableObject],
+    &[StorageDemand::GenericResidence],
+    &[PublishDemand::NeedStableObject],
+    &[],
+);
+
+pub(crate) const MAP_VALUE_LOAD_ENCODE_WITH_CALLER: DemandSet = DemandSet::new(
+    &[ValueDemand::EncodeAlias, ValueDemand::StableObject],
+    &[StorageDemand::GenericResidence],
+    &[PublishDemand::NeedStableObject],
+    &[],
+);
+
 pub(crate) const BORROWED_ALIAS_ENCODE: DemandSet = DemandSet::new(
     &[ValueDemand::EncodeAlias],
     &[],
@@ -372,6 +386,26 @@ mod tests {
         assert_eq!(
             MAP_VALUE_STORE_ANY.mutation,
             &[MutationDemand::InvalidateAliases]
+        );
+    }
+
+    #[test]
+    fn map_load_demands_split_materialize_from_caller_encode() {
+        assert_eq!(
+            MAP_VALUE_LOAD_MATERIALIZE.value,
+            &[ValueDemand::StableObject]
+        );
+        assert_eq!(
+            MAP_VALUE_LOAD_MATERIALIZE.publish,
+            &[PublishDemand::NeedStableObject]
+        );
+        assert_eq!(
+            MAP_VALUE_LOAD_ENCODE_WITH_CALLER.value,
+            &[ValueDemand::EncodeAlias, ValueDemand::StableObject]
+        );
+        assert_eq!(
+            MAP_VALUE_LOAD_ENCODE_WITH_CALLER.publish,
+            &[PublishDemand::NeedStableObject]
         );
     }
 
