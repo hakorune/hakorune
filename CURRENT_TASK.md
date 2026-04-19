@@ -211,18 +211,18 @@ Scope: current lane / next lane / restart order only.
         - `kilo_kernel_small_hk = C 81 ms / Ny AOT 218 ms` (`repeat=3`, parity ok)
       - this is a phase-137x keeper cut; still do not widen directly into `TextLane`, MIR legality, allocator, or phase-289x implementation without a separate phase gate
       - follow-up structure card in progress:
-        - runtime seam: `nyash.array.kernel_slot_insert_hisi(slot, array_h, idx, middle, split)`
-        - purpose: let insert-mid birth read the array text slot directly when the compiler has already proven the source came from `array.get(array_h, idx)`
-        - validation so far:
-          - `cargo test -q --manifest-path crates/nyash_kernel/Cargo.toml --lib kernel_slot_insert_by_index_reads_string_slot_directly`
-          - `cargo build --release --bin hakorune`
-          - `phase137x_boundary_string_insert_mid_direct_set_min.sh`
-          - `phase137x_boundary_string_insert_mid_shared_receiver_min.sh`
-          - strict whole reread: `kilo_kernel_small_hk = C 79 ms / Ny AOT 232 ms` (`repeat=3`, parity ok)
+        - owner family:
+          - `array_string_concat_const_suffix_by_index_store_same_slot_str`
+          - `array_string_indexof_by_index_str`
+          - `append_const_suffix_to_string_box_value`
+        - purpose:
+          - reduce same-slot exact-route copy/search tax without widening public ABI
+        - status:
+          - this is still structure-only, not keeper proof
+          - the current owner proof remains reject-side after the exact route-shape keeper
         - boundary:
-          - this is not keeper proof yet
-          - asm still shows the preceding `nyash.array.get_hi` call in `ny_main`
-          - next card must suppress the now source-only `array.get_hi` emission safely; do not expand into `TextLane` / MIR legality / allocator work
+          - start the next perf/asm reread from these concrete helper interiors
+          - do not widen into `TextLane`, MIR legality, allocator work, or runtime-wide 289x implementation
       - current source-only get suppression + same-slot string store keeper:
         - compiler seam: `array.get -> length -> substring/substring -> insert-mid set` records the array text source and skips the object-handle get when later uses are proven source-only
         - fused insert-mid store seam:
@@ -245,10 +245,10 @@ Scope: current lane / next lane / restart order only.
           - `tools/smokes/v2/profiles/integration/phase29ck_boundary/string/phase29ck_boundary_pure_array_string_len_live_after_get_min.sh`
           - still requires `slot_load_hi` when later substring values remain live
         - perf/asm proof:
-          - exact keeper: `kilo_micro_array_string_store = C 11 ms / Ny AOT 10 ms`, `ny_aot_instr=26873028`
+          - exact keeper: `kilo_micro_array_string_store = C 11 ms / Ny AOT 10 ms`, `ny_aot_instr=26922130`
           - exact route proof: `array_string_store_micro result=emit reason=exact_match`
           - meso: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=127269397`
-          - strict whole: `kilo_kernel_small_hk = C 83 ms / Ny AOT 28 ms` (`repeat=3`, parity ok)
+          - strict whole: `kilo_kernel_small_hk = C 82 ms / Ny AOT 28 ms` (`repeat=3`, parity ok)
           - `ny_main` now emits:
             - edit path: `array.string_len_hi -> array.string_insert_mid_store_hisii`
             - meso subrange path: `array.string_len_hi -> array.kernel_slot_insert_hisi -> string.kernel_slot_substring_hii_in_place -> array.kernel_slot_store_hi`
@@ -261,7 +261,7 @@ Scope: current lane / next lane / restart order only.
           - live-after-get substring reuse keeps object-handle loading
           - full `TextLane`, MIR legality, allocator, and broad container lane-hosting remain separate later phases
         - next owner proof seam:
-          - meso asm top moved to `objectize_kernel_text_slot_stable_box`, `array_string_len_by_index`, `drop_retired_source_keep_batch_cold`, `array_string_insert_const_mid_by_index_into_slot`, `_int_free`, and `array.kernel_slot_store_hi`
+          - current whole-front asm clusters on `memchr::arch::x86_64::memchr::memchr_raw::find_avx2`, `array_string_concat_const_suffix_by_index_store_same_slot_str`, `__memmove_avx512_unaligned_erms`, `array_string_indexof_by_index_str`, `array_string_insert_const_mid_by_index_store_same_slot_str`, and `array_string_len_by_index`
           - whole-front asm still needs a fresh reread before choosing the next owner
           - next card should start from perf/asm on those concrete helper interiors; do not widen into runtime-wide `TextLane`
   - good cut point:
@@ -1000,13 +1000,13 @@ Scope: current lane / next lane / restart order only.
    - stable objectization must stay cache-backed and cold
 3. current fresh evidence after the explicit-length follow-up
    - middle guard: `kilo_meso_substring_concat_array_set_loopcarry = C 3 ms / Ny AOT 9 ms`, `ny_aot_instr=127268967`
-   - strict whole: `kilo_kernel_small_hk = C 81 ms / Ny AOT 29 ms`, parity ok
+   - strict whole: `kilo_kernel_small_hk = C 82 ms / Ny AOT 28 ms`, parity ok
    - asm proof:
      - `ny_main` now calls `nyash.array.string_insert_mid_store_hisii` and `nyash.array.string_suffix_store_hisi`
      - `__strlen_evex` and `core::str::converts::from_utf8` are absent from the hot report for this cut
    - exact keeper:
      - before fix: `kilo_micro_array_string_store = C 10 ms / Ny AOT 144 ms`
-     - after fix: `kilo_micro_array_string_store = C 11 ms / Ny AOT 10 ms`, `ny_aot_instr=26873028`
+     - after fix: `kilo_micro_array_string_store = C 11 ms / Ny AOT 10 ms`, `ny_aot_instr=26922130`
      - route proof: `array_string_store_micro result=emit reason=exact_match`
      - asm proof: `ny_main` is the stack-array seed IR; runtime/public helper calls are absent from the loop body
      - cause: the exact seed matcher only accepted the old 9-block MIR shape; direct MIR now uses the compact 8-block shape
@@ -1027,7 +1027,7 @@ Scope: current lane / next lane / restart order only.
      - `array_string_store_kernel_text_slot_at::{closure} 2.01%`
      - `TextKeepBacking::clone_stable_box_cold_fallback 0.49%`
 6. next perf code card still requires a narrower owner proof before editing
-   - acceptable seams must reduce read/materialize/copy tax without widening public ABI
+   - acceptable seams must reduce same-slot exact-route copy/search tax without widening public ABI
    - do not start `TextLane`, MIR legality, runtime-wide 289x implementation, allocator/arena, or container lane-host work from this proof alone
    - if no narrow seam is proven, keep docs current and stop instead of moving cost between store/read helpers
    - `kilo_micro_array_string_store` exact-route shape mismatch is closed by the compact 8-block matcher; do not reopen it without a new failed measurement

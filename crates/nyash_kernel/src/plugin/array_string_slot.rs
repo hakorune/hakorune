@@ -57,10 +57,11 @@ fn with_compiler_const_utf8_ptr_len<R>(
 
 #[inline(always)]
 fn record_borrowed_alias_string_read_latest_fresh(
+    observe_enabled: bool,
     item: &dyn nyash_rust::box_trait::NyashBox,
     indexof: bool,
 ) {
-    if !observe::enabled() {
+    if !observe_enabled {
         return;
     }
     let Some((source_handle, _)) = item.borrowed_handle_source_fast() else {
@@ -206,13 +207,18 @@ pub(super) fn array_string_len_by_index(handle: i64, idx: i64) -> i64 {
     if !valid_handle_idx(handle, idx) {
         return 0;
     }
+    let observe_enabled = observe::enabled();
     super::array_handle_cache::with_array_box(handle, |arr| {
         let idx = idx as usize;
         arr.with_items_read(|items| {
             let Some(item) = items.get(idx) else {
                 return 0;
             };
-            record_borrowed_alias_string_read_latest_fresh(item.as_ref(), false);
+            record_borrowed_alias_string_read_latest_fresh(
+                observe_enabled,
+                item.as_ref(),
+                false,
+            );
             item.as_str_fast().map(|s| s.len() as i64).unwrap_or(0)
         })
     })
@@ -299,17 +305,22 @@ fn array_string_indexof_by_index_str(handle: i64, idx: i64, needle: &str) -> i64
     if needle.is_empty() {
         return 0;
     }
+    let observe_enabled = observe::enabled();
     super::array_handle_cache::with_array_box(handle, |arr| {
         let idx = idx as usize;
         arr.with_items_read(|items| {
-            items
-                .get(idx)
-                .and_then(|item| {
-                    record_borrowed_alias_string_read_latest_fresh(item.as_ref(), true);
-                    item.as_str_fast()
-                })
-                .map(|hay| string_indexof_fast_str(hay, needle))
-                .unwrap_or(-1)
+            let Some(item) = items.get(idx) else {
+                return -1;
+            };
+            record_borrowed_alias_string_read_latest_fresh(
+                observe_enabled,
+                item.as_ref(),
+                true,
+            );
+            let Some(hay) = item.as_str_fast() else {
+                return -1;
+            };
+            string_indexof_fast_str(hay, needle)
         })
     })
     .unwrap_or(-1)
@@ -343,7 +354,10 @@ fn array_string_concat_const_suffix_by_index_into_slot_str(
     super::array_handle_cache::with_array_box(handle, |arr| {
         let idx = idx as usize;
         arr.with_items_read(|items| {
-            let Some(source) = items.get(idx).and_then(|item| item.as_str_fast()) else {
+            let Some(item) = items.get(idx) else {
+                return 0;
+            };
+            let Some(source) = item.as_str_fast() else {
                 return 0;
             };
             let mut out = String::with_capacity(source.len() + suffix.len());
@@ -400,6 +414,7 @@ fn array_string_concat_const_suffix_by_index_store_same_slot_str(
 ) -> i64 {
     let _read_demand = array_text_read_ref_demand();
     let _output_demand = array_text_owned_cell_demand();
+    let observe_enabled = observe::enabled();
     observe::record_store_array_str_enter();
     super::array_handle_cache::with_array_box(handle, |arr| {
         let idx = idx as usize;
@@ -407,20 +422,21 @@ fn array_string_concat_const_suffix_by_index_store_same_slot_str(
             if idx >= items.len() {
                 return 0;
             }
-            if let Some(value) = items[idx].as_any_mut().downcast_mut::<StringBox>() {
+            let item = &mut items[idx];
+            if let Some(value) = item.as_any_mut().downcast_mut::<StringBox>() {
                 append_const_suffix_to_string_box_value(&mut value.value, suffix);
-                if observe::enabled() {
+                if observe_enabled {
                     observe::record_store_array_str_existing_slot();
                     observe::record_store_array_str_source_store();
                 }
                 return 1;
             }
-            let Some(mut value) = items[idx].as_str_fast().map(str::to_owned) else {
+            let Some(mut value) = item.as_str_fast().map(str::to_owned) else {
                 return 0;
             };
             append_const_suffix_to_string_box_value(&mut value, suffix);
-            items[idx] = Box::new(StringBox::new(value));
-            if observe::enabled() {
+            *item = Box::new(StringBox::new(value));
+            if observe_enabled {
                 observe::record_store_array_str_existing_slot();
                 observe::record_store_array_str_source_store();
             }
@@ -550,13 +566,19 @@ fn array_string_insert_const_mid_by_index_into_slot_str(
     let _read_demand = array_text_read_ref_demand();
     let _output_demand = array_text_owned_cell_demand();
     slot.clear();
+    let observe_enabled = observe::enabled();
     super::array_handle_cache::with_array_box(handle, |arr| {
         let idx = idx as usize;
         arr.with_items_read(|items| {
-            let Some(source) = items.get(idx).and_then(|item| {
-                record_borrowed_alias_string_read_latest_fresh(item.as_ref(), false);
-                item.as_str_fast()
-            }) else {
+            let Some(item) = items.get(idx) else {
+                return 0;
+            };
+            record_borrowed_alias_string_read_latest_fresh(
+                observe_enabled,
+                item.as_ref(),
+                false,
+            );
+            let Some(source) = item.as_str_fast() else {
                 return 0;
             };
             slot.replace_owned_string(materialize_insert_const_mid_for_array_slot(
@@ -607,6 +629,7 @@ fn array_string_insert_const_mid_by_index_store_same_slot_str(
 ) -> i64 {
     let _read_demand = array_text_read_ref_demand();
     let _output_demand = array_text_owned_cell_demand();
+    let observe_enabled = observe::enabled();
     observe::record_store_array_str_enter();
     super::array_handle_cache::with_array_box(handle, |arr| {
         let idx = idx as usize;
@@ -614,20 +637,21 @@ fn array_string_insert_const_mid_by_index_store_same_slot_str(
             if idx >= items.len() {
                 return 0;
             }
-            if let Some(value) = items[idx].as_any_mut().downcast_mut::<StringBox>() {
+            let item = &mut items[idx];
+            if let Some(value) = item.as_any_mut().downcast_mut::<StringBox>() {
                 insert_const_mid_into_string_box_value(&mut value.value, middle, split);
-                if observe::enabled() {
+                if observe_enabled {
                     observe::record_store_array_str_existing_slot();
                     observe::record_store_array_str_source_store();
                 }
                 return 1;
             }
-            let Some(mut value) = items[idx].as_str_fast().map(str::to_owned) else {
+            let Some(mut value) = item.as_str_fast().map(str::to_owned) else {
                 return 0;
             };
             insert_const_mid_into_string_box_value(&mut value, middle, split);
-            items[idx] = Box::new(StringBox::new(value));
-            if observe::enabled() {
+            *item = Box::new(StringBox::new(value));
+            if observe_enabled {
                 observe::record_store_array_str_existing_slot();
                 observe::record_store_array_str_source_store();
             }
@@ -686,6 +710,7 @@ fn array_string_insert_const_mid_subrange_by_index_store_same_slot_str(
 ) -> i64 {
     let _read_demand = array_text_read_ref_demand();
     let _output_demand = array_text_owned_cell_demand();
+    let observe_enabled = observe::enabled();
     observe::record_store_array_str_enter();
     super::array_handle_cache::with_array_box(handle, |arr| {
         let idx = idx as usize;
@@ -693,7 +718,8 @@ fn array_string_insert_const_mid_subrange_by_index_store_same_slot_str(
             if idx >= items.len() {
                 return 0;
             }
-            if let Some(value) = items[idx].as_any_mut().downcast_mut::<StringBox>() {
+            let item = &mut items[idx];
+            if let Some(value) = item.as_any_mut().downcast_mut::<StringBox>() {
                 let Some(next) = materialize_insert_const_mid_subrange_for_array_slot(
                     value.value.as_str(),
                     middle,
@@ -704,21 +730,21 @@ fn array_string_insert_const_mid_subrange_by_index_store_same_slot_str(
                     return 0;
                 };
                 value.value = next;
-                if observe::enabled() {
+                if observe_enabled {
                     observe::record_store_array_str_existing_slot();
                     observe::record_store_array_str_source_store();
                 }
                 return 1;
             }
-            let Some(next) = items[idx].as_str_fast().and_then(|source| {
+            let Some(next) = item.as_str_fast().and_then(|source| {
                 materialize_insert_const_mid_subrange_for_array_slot(
                     source, middle, split, start, end,
                 )
             }) else {
                 return 0;
             };
-            items[idx] = Box::new(StringBox::new(next));
-            if observe::enabled() {
+            *item = Box::new(StringBox::new(next));
+            if observe_enabled {
                 observe::record_store_array_str_existing_slot();
                 observe::record_store_array_str_source_store();
             }
